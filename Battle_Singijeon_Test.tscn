@@ -1,0 +1,267 @@
+[gd_scene format=3 uid="uid://cfbrx67wetqip"]
+
+[ext_resource type="Script" uid="uid://cd2rlis2ascks" path="res://scripts/battle_singijeon_test.gd" id="1_hf7g3"]
+[ext_resource type="Texture2D" uid="uid://d1geswjjlmsnh" path="res://assets/battlefield_grass_tile.png" id="2_gndtx"]
+[ext_resource type="Texture2D" uid="uid://bxmil4psdyynr" path="res://assets/blue_spearman.png" id="3_allyt"]
+[ext_resource type="Texture2D" uid="uid://i2002csvl6rh" path="res://assets/red_spearman.png" id="4_enemt"]
+[ext_resource type="Texture2D" uid="uid://rffmp4jo3eg7" path="res://assets/singijeon_fly_sheet.png" id="5_projf"]
+[ext_resource type="Texture2D" uid="uid://dtj6k42vdmcpb" path="res://assets/singijeon_explosion_sheet.png" id="6_explf"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_proj_0"]
+atlas = ExtResource("5_projf")
+region = Rect2(0, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_proj_1"]
+atlas = ExtResource("5_projf")
+region = Rect2(229.5, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_proj_2"]
+atlas = ExtResource("5_projf")
+region = Rect2(459, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_proj_3"]
+atlas = ExtResource("5_projf")
+region = Rect2(688.5, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_proj_4"]
+atlas = ExtResource("5_projf")
+region = Rect2(918, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_proj_5"]
+atlas = ExtResource("5_projf")
+region = Rect2(1147.5, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_proj_6"]
+atlas = ExtResource("5_projf")
+region = Rect2(1377, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_proj_7"]
+atlas = ExtResource("5_projf")
+region = Rect2(1606.5, 0, 229.5, 856)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_proj"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_proj_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_proj_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_proj_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_proj_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_proj_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_proj_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_proj_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_proj_7")
+}],
+"loop": false,
+"name": &"fly",
+"speed": 8.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_exp_0"]
+atlas = ExtResource("6_explf")
+region = Rect2(0, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_exp_1"]
+atlas = ExtResource("6_explf")
+region = Rect2(229.5, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_exp_2"]
+atlas = ExtResource("6_explf")
+region = Rect2(459, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_exp_3"]
+atlas = ExtResource("6_explf")
+region = Rect2(688.5, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_exp_4"]
+atlas = ExtResource("6_explf")
+region = Rect2(918, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_exp_5"]
+atlas = ExtResource("6_explf")
+region = Rect2(1147.5, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_exp_6"]
+atlas = ExtResource("6_explf")
+region = Rect2(1377, 0, 229.5, 856)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_exp_7"]
+atlas = ExtResource("6_explf")
+region = Rect2(1606.5, 0, 229.5, 856)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_exp"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_exp_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_exp_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_exp_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_exp_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_exp_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_exp_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_exp_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_exp_7")
+}],
+"loop": false,
+"name": &"impact",
+"speed": 8.0
+}]
+
+[node name="Battle_Singijeon_Test" type="Node2D" unique_id=504751152]
+script = ExtResource("1_hf7g3")
+
+[node name="BattlefieldSky" type="Polygon2D" parent="." unique_id=1595019652]
+color = Color(0.76, 0.89, 0.98, 1)
+polygon = PackedVector2Array(0, 0, 1152, 0, 1152, 648, 0, 648)
+
+[node name="BattlefieldBerm" type="Polygon2D" parent="." unique_id=261503221]
+color = Color(0.62, 0.71, 0.48, 1)
+polygon = PackedVector2Array(160, 155, 905, 155, 980, 215, 105, 215)
+
+[node name="BattlefieldGround" type="Polygon2D" parent="." unique_id=31054413]
+color = Color(0.39, 0.64, 0.31, 1)
+polygon = PackedVector2Array(120, 220, 930, 220, 1080, 590, 55, 590)
+
+[node name="BattlefieldTexture" type="Sprite2D" parent="." unique_id=2078652255]
+modulate = Color(1, 1, 1, 0.92)
+position = Vector2(577, 326)
+scale = Vector2(0.7734375, 0.66796875)
+texture = ExtResource("2_gndtx")
+
+[node name="BattlefieldGuide1" type="Line2D" parent="." unique_id=354649485]
+position = Vector2(-8, 13)
+points = PackedVector2Array(111, 271.8, 987, 271.8)
+width = 2.0
+default_color = Color(1, 1, 1, 0.14)
+
+[node name="BattlefieldGuide2" type="Line2D" parent="." unique_id=679118742]
+points = PackedVector2Array(100.5, 331, 975, 331)
+width = 2.0
+default_color = Color(1, 1, 1, 0.14)
+
+[node name="BattlefieldGuide3" type="Line2D" parent="." unique_id=769589237]
+points = PackedVector2Array(89.5, 393.9, 960.5, 393.9)
+width = 2.0
+default_color = Color(1, 1, 1, 0.14)
+
+[node name="BattlefieldGuide4" type="Line2D" parent="." unique_id=1377921327]
+points = PackedVector2Array(76.1, 456.2, 948, 456.2)
+width = 2.0
+default_color = Color(1, 1, 1, 0.14)
+
+[node name="BattlefieldDepthStrip1" type="Line2D" parent="." unique_id=1453899192]
+points = PackedVector2Array(280, 220, 335, 590)
+width = 2.0
+default_color = Color(0.18, 0.32, 0.14, 0.18)
+
+[node name="BattlefieldDepthStrip2" type="Line2D" parent="." unique_id=849210050]
+points = PackedVector2Array(515, 220, 580, 590)
+width = 2.0
+default_color = Color(0.18, 0.32, 0.14, 0.18)
+
+[node name="BattlefieldDepthStrip3" type="Line2D" parent="." unique_id=1587649108]
+points = PackedVector2Array(745, 220, 830, 590)
+width = 2.0
+default_color = Color(0.18, 0.32, 0.14, 0.18)
+
+[node name="AllyShadow" type="Polygon2D" parent="." unique_id=748875968]
+position = Vector2(230, 511)
+color = Color(0, 0, 0, 0.22)
+polygon = PackedVector2Array(-40, 0, -28, -14, 28, -14, 40, 0, 28, 14, -28, 14)
+
+[node name="AllyFormation" type="Sprite2D" parent="." unique_id=574868689]
+position = Vector2(300, 504.00003)
+scale = Vector2(0.35380116, 0.30660376)
+texture = ExtResource("3_allyt")
+
+[node name="EnemyShadow" type="Polygon2D" parent="." unique_id=2120003914]
+position = Vector2(890, 274)
+color = Color(0, 0, 0, 0.22)
+polygon = PackedVector2Array(-28, 0, -19.6, -10, 19.6, -10, 28, 0, 19.6, 10, -19.6, 10)
+
+[node name="EnemyFormation" type="Sprite2D" parent="." unique_id=485161219]
+position = Vector2(881, 224)
+scale = Vector2(0.34157887, 0.31849054)
+texture = ExtResource("4_enemt")
+
+[node name="ProjectileStartMarker" type="Marker2D" parent="." unique_id=948934683]
+position = Vector2(310, 473)
+
+[node name="ProjectileControlMarker" type="Marker2D" parent="." unique_id=2045584768]
+position = Vector2(399, 246)
+
+[node name="ProjectileEndMarker" type="Marker2D" parent="." unique_id=1137521909]
+position = Vector2(882, 140)
+
+[node name="ProjectileTrail" type="Line2D" parent="." unique_id=1591362200]
+visible = false
+points = PackedVector2Array(252, 463, 252, 463)
+width = 3.0
+default_color = Color(1, 0.92, 0.5, 0.75)
+
+[node name="SingijeonProjectile" type="AnimatedSprite2D" parent="." unique_id=28336638]
+position = Vector2(252, 463)
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_proj")
+animation = &"fly"
+
+[node name="SingijeonExplosion" type="AnimatedSprite2D" parent="." unique_id=192296276]
+visible = false
+position = Vector2(877, 218)
+scale = Vector2(0.8, 0.8)
+sprite_frames = SubResource("SpriteFrames_exp")
+animation = &"impact"
+
+[node name="MainCamera" type="Camera2D" parent="." unique_id=1071211154]
+position = Vector2(547, 282)
+
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=937007553]
+
+[node name="EnemyHPLabel" type="Label" parent="UILayer" unique_id=775812745]
+offset_left = 760.0
+offset_top = 70.0
+offset_right = 760.0
+offset_bottom = 70.0
+text = "Enemy HP: 100 / 100"
+
+[node name="InstructionLabel" type="Label" parent="UILayer" unique_id=1263687735]
+offset_left = 40.0
+offset_top = 40.0
+offset_right = 40.0
+offset_bottom = 40.0
+text = "Press SPACE to fire Singijeon"
+
+[node name="TitleLabel" type="Label" parent="UILayer" unique_id=498199666]
+offset_left = 40.0
+offset_top = 70.0
+offset_right = 40.0
+offset_bottom = 70.0
+text = "Singijeon Projectile Test"

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cfbrx67wetqip"]
+
+[ext_resource type="Script" uid="uid://cd2rlis2ascks" path="res://scripts/battle_singijeon_test.gd" id="1_hf7g3"]
+
+[node name="Battle_Singijeon_Test" type="Node2D" unique_id=504751152]
+script = ExtResource("1_hf7g3")
