@@ -9,8 +9,19 @@ const TROOP_LABEL_OFFSET := Vector2(-48.0, 64.0)
 const SHADOW_OFFSET := Vector2(0.0, 42.0)
 const IDLE_SCALE_MULTIPLIER := 1.035
 const IDLE_DURATION := 1.15
+const ENEMY_GUARD_STEP_DISTANCE := 18.0
+const MOVE_HIGHLIGHT_SIZE := Vector2(68.0, 56.0)
+const PHASE_ALLY_TURN := "ally_turn"
+const PHASE_ENEMY_TURN := "enemy_turn"
+const PHASE_RESOLVING := "resolving"
+const MAX_BATTLE_LOG_LINES := 4
 
 var is_demo_animating := false
+var ally_has_moved := false
+var current_phase := PHASE_ALLY_TURN
+var battle_log_lines: Array[String] = []
+var current_ally_unit_position := Vector2.ZERO
+var current_ally_portrait_position := Vector2.ZERO
 var ally_demo_troops := int(ALLY_DEMO_HP)
 var enemy_demo_troops := int(ENEMY_DEMO_HP)
 var ally_idle_tween: Tween
@@ -23,6 +34,8 @@ var enemy_token_base_scale := Vector2.ONE
 @onready var enemy_unit_marker: Marker2D = $EnemyUnitMarker
 @onready var ally_portrait_marker: Marker2D = $AllyPortraitMarker
 @onready var enemy_portrait_marker: Marker2D = $EnemyPortraitMarker
+@onready var move_target_marker: Marker2D = $MoveTargetMarker
+@onready var battle_grid_controller: BattleGridController = $BattleGridController
 @onready var damage_spawn_marker: Marker2D = $DamageSpawnMarker
 @onready var cutin_center_marker: Marker2D = $CutinCenterMarker
 @onready var result_center_marker: Marker2D = $ResultCenterMarker
@@ -46,6 +59,8 @@ var enemy_token_base_scale := Vector2.ONE
 @onready var right_panel: Panel = $BattleUI/RightPanel
 @onready var command_bar: Panel = $BattleUI/CommandBar
 @onready var basic_attack_button: Button = $BattleUI/CommandBar/BasicAttackButton
+@onready var move_button: Button = $BattleUI/CommandBar/MoveButton
+@onready var turn_banner: Label = $BattleUI/TopBar/TurnBanner
 @onready var battle_log_preview: Label = $BattleUI/LeftPanel/BattleLogPreview
 @onready var cutin_overlay: CanvasLayer = $CutinOverlay
 @onready var cutin_image: TextureRect = $CutinOverlay/CutinImage
@@ -60,6 +75,7 @@ func _ready() -> void:
 	ally_token_base_scale = ally_unit_token.scale
 	enemy_token_base_scale = enemy_unit_token.scale
 	basic_attack_button.pressed.connect(play_basic_attack_demo)
+	move_button.pressed.connect(play_basic_move_demo)
 	reset_demo_state()
 
 
@@ -85,7 +101,15 @@ func hide_result() -> void:
 
 func reset_demo_state() -> void:
 	is_demo_animating = false
+	ally_has_moved = false
 	_stop_idle_breathing()
+	battle_log_lines = [
+		"아군 준비",
+		"관우 방어",
+	]
+	current_ally_unit_position = ally_unit_marker.position
+	current_ally_portrait_position = ally_portrait_marker.position
+	_set_phase(PHASE_ALLY_TURN)
 	_sync_demo_positions()
 	_sync_overlay_positions()
 	ally_hp_bar.value = ALLY_DEMO_HP
@@ -105,19 +129,51 @@ func reset_demo_state() -> void:
 	damage_preview_label.position = Vector2.ZERO
 	move_highlight.visible = false
 	attack_highlight.visible = false
-	battle_log_preview.text = "전투 기록\n- 이순신이 전진했습니다.\n- 관우가 방어 태세입니다."
-	basic_attack_button.disabled = false
+	_refresh_battle_log()
 	cutin_overlay.visible = false
 	result_overlay.visible = false
 	_start_idle_breathing()
 
 
-func play_basic_attack_demo() -> void:
-	if is_demo_animating:
+func play_basic_move_demo() -> void:
+	if is_demo_animating or current_phase != PHASE_ALLY_TURN or ally_has_moved:
 		return
 
 	is_demo_animating = true
-	basic_attack_button.disabled = true
+	_set_phase(PHASE_RESOLVING)
+	_stop_idle_breathing()
+	_sync_demo_positions()
+	_show_move_highlight_at_target()
+	move_highlight.visible = true
+
+	var target_unit_position := move_target_marker.position
+	var portrait_offset := ally_portrait_marker.position - ally_unit_marker.position
+	var target_portrait_position := target_unit_position + portrait_offset
+	var move_offset := target_unit_position - current_ally_unit_position
+
+	var tween := create_tween()
+	tween.tween_method(_apply_ally_group_offset, Vector2.ZERO, move_offset, 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_callback(_finish_basic_move_demo.bind(target_unit_position, target_portrait_position))
+
+
+func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_position: Vector2) -> void:
+	current_ally_unit_position = target_unit_position
+	current_ally_portrait_position = target_portrait_position
+	ally_has_moved = true
+	_reset_unit_group_positions()
+	move_highlight.visible = false
+	is_demo_animating = false
+	_append_battle_log("이순신 이동")
+	_set_phase(PHASE_ALLY_TURN)
+	_start_idle_breathing()
+
+
+func play_basic_attack_demo() -> void:
+	if is_demo_animating or current_phase != PHASE_ALLY_TURN:
+		return
+
+	is_demo_animating = true
+	_set_phase(PHASE_RESOLVING)
 	_stop_idle_breathing()
 	_sync_demo_positions()
 	damage_text_layer.position = damage_spawn_marker.position
@@ -148,7 +204,8 @@ func play_basic_attack_demo() -> void:
 	enemy_hp_bar.value = maxf(enemy_hp_bar.value - DEMO_DAMAGE, 0.0)
 	enemy_demo_troops = maxi(enemy_demo_troops - int(DEMO_DAMAGE), 0)
 	_update_troop_labels()
-	battle_log_preview.text = "전투 기록\n- 이순신이 관우에게 기본 공격을 가했습니다."
+	_append_battle_log("이순신 공격")
+	_append_battle_log("관우 피해")
 
 
 func _sync_demo_positions() -> void:
@@ -156,15 +213,15 @@ func _sync_demo_positions() -> void:
 
 
 func _reset_unit_group_positions() -> void:
-	ally_unit_shadow.position = ally_unit_marker.position + SHADOW_OFFSET
+	ally_unit_shadow.position = current_ally_unit_position + SHADOW_OFFSET
 	enemy_unit_shadow.position = enemy_unit_marker.position + SHADOW_OFFSET
-	ally_unit_token.position = ally_unit_marker.position
+	ally_unit_token.position = current_ally_unit_position
 	enemy_unit_token.position = enemy_unit_marker.position
-	ally_portrait_badge.position = ally_portrait_marker.position
+	ally_portrait_badge.position = current_ally_portrait_position
 	enemy_portrait_badge.position = enemy_portrait_marker.position
-	ally_hp_bar.position = ally_unit_marker.position + HP_BAR_OFFSET
+	ally_hp_bar.position = current_ally_unit_position + HP_BAR_OFFSET
 	enemy_hp_bar.position = enemy_unit_marker.position + HP_BAR_OFFSET
-	ally_troop_label.position = ally_unit_marker.position + TROOP_LABEL_OFFSET
+	ally_troop_label.position = current_ally_unit_position + TROOP_LABEL_OFFSET
 	enemy_troop_label.position = enemy_unit_marker.position + TROOP_LABEL_OFFSET
 
 
@@ -173,8 +230,77 @@ func _finish_basic_attack_demo() -> void:
 	_set_group_modulate(_get_ally_group_nodes(), Color.WHITE)
 	_set_group_modulate(_get_enemy_group_nodes(), Color.WHITE)
 	damage_preview_label.visible = false
-	basic_attack_button.disabled = false
 	is_demo_animating = false
+	_set_phase(PHASE_ENEMY_TURN)
+	_append_battle_log("적군 턴")
+	_play_enemy_turn_demo()
+
+
+func _set_phase(new_phase: String) -> void:
+	current_phase = new_phase
+	match current_phase:
+		PHASE_ALLY_TURN:
+			turn_banner.text = "아군 턴"
+		PHASE_ENEMY_TURN:
+			turn_banner.text = "적군 턴"
+		_:
+			turn_banner.text = "처리 중"
+
+	basic_attack_button.disabled = current_phase != PHASE_ALLY_TURN or is_demo_animating
+	move_button.disabled = current_phase != PHASE_ALLY_TURN or is_demo_animating or ally_has_moved
+
+
+func _append_battle_log(line: String) -> void:
+	battle_log_lines.append(line)
+	while battle_log_lines.size() > MAX_BATTLE_LOG_LINES:
+		battle_log_lines.pop_front()
+	_refresh_battle_log()
+
+
+func _refresh_battle_log() -> void:
+	var log_text := "전투 기록"
+	for line in battle_log_lines:
+		log_text += "\n- %s" % line
+	battle_log_preview.text = log_text
+
+
+func _play_enemy_turn_demo() -> void:
+	is_demo_animating = true
+	_stop_idle_breathing()
+	basic_attack_button.disabled = true
+	_reset_unit_group_positions()
+
+	var guard_direction := (current_ally_unit_position - enemy_unit_marker.position).normalized()
+	var guard_offset := guard_direction * ENEMY_GUARD_STEP_DISTANCE
+	var settle_offset := -guard_offset * 0.35
+
+	var tween := create_tween()
+	tween.tween_interval(0.28)
+	tween.tween_callback(_enemy_guard_pulse_on)
+	tween.tween_method(_apply_enemy_group_offset, Vector2.ZERO, guard_offset, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_method(_apply_enemy_group_offset, guard_offset, settle_offset, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_method(_apply_enemy_group_offset, settle_offset, Vector2.ZERO, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_callback(_enemy_guard_pulse_off)
+	tween.tween_interval(0.18)
+	tween.tween_callback(_return_to_ally_turn)
+
+
+func _enemy_guard_pulse_on() -> void:
+	_append_battle_log("관우 방어")
+	_set_enemy_group_modulate(Color(0.82, 0.92, 1.0, 1.0))
+
+
+func _enemy_guard_pulse_off() -> void:
+	_set_enemy_group_modulate(Color.WHITE)
+
+
+func _return_to_ally_turn() -> void:
+	_reset_unit_group_positions()
+	_set_enemy_group_modulate(Color.WHITE)
+	is_demo_animating = false
+	ally_has_moved = false
+	_set_phase(PHASE_ALLY_TURN)
+	_append_battle_log("아군 턴 복귀")
 	_start_idle_breathing()
 
 
@@ -209,11 +335,11 @@ func _apply_ally_group_offset(offset: Vector2) -> void:
 	_apply_group_offset(
 		_get_ally_group_nodes(),
 		[
-			ally_unit_marker.position + SHADOW_OFFSET,
-			ally_unit_marker.position,
-			ally_portrait_marker.position,
-			ally_unit_marker.position + HP_BAR_OFFSET,
-			ally_unit_marker.position + TROOP_LABEL_OFFSET,
+			current_ally_unit_position + SHADOW_OFFSET,
+			current_ally_unit_position,
+			current_ally_portrait_position,
+			current_ally_unit_position + HP_BAR_OFFSET,
+			current_ally_unit_position + TROOP_LABEL_OFFSET,
 		],
 		offset
 	)
@@ -240,6 +366,11 @@ func _set_group_modulate(nodes: Array[CanvasItem], color: Color) -> void:
 
 func _set_enemy_group_modulate(color: Color) -> void:
 	_set_group_modulate(_get_enemy_group_nodes(), color)
+
+
+func _show_move_highlight_at_target() -> void:
+	move_highlight.position = move_target_marker.position - (MOVE_HIGHLIGHT_SIZE * 0.5)
+	move_highlight.size = MOVE_HIGHLIGHT_SIZE
 
 
 func _format_troop_label(value: int) -> String:

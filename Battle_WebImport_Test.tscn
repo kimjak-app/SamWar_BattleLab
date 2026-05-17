@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cv8gf3we7q0bk"]
 
 [ext_resource type="Script" uid="uid://cghofkekn01w7" path="res://scripts/battle_web_import_test.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/battle_grid_controller.gd" id="2_grid_controller"]
 [ext_resource type="Texture2D" uid="uid://cwcia5x7bf0x7" path="res://assets/web_battle/battlefield/battlefield_14x8_mvp.png" id="2_battlefield"]
 [ext_resource type="Texture2D" uid="uid://b4ciq32fwok8c" path="res://assets/web_battle/unit_tokens/unit_blue_battlefield.png" id="3_allytoken"]
 [ext_resource type="Texture2D" uid="uid://px583gw30js7" path="res://assets/web_battle/unit_tokens/unit_red_battlefield.png" id="4_enemytoken"]
@@ -44,6 +45,11 @@ outline_color = Color(0.0313726, 0.0627451, 0.0941176, 1)
 
 [node name="Battle_WebImport_Test" type="Node2D" unique_id=1929995568]
 script = ExtResource("1_script")
+
+[node name="BattleGridController" type="Node" parent="."]
+script = ExtResource("2_grid_controller")
+board_top_left_marker_path = NodePath("../BoardTopLeftMarker")
+board_bottom_right_marker_path = NodePath("../BoardBottomRightMarker")
 
 [node name="BattlefieldRoot" type="Node2D" parent="." unique_id=1334997822]
 
@@ -227,6 +233,9 @@ position = Vector2(345, 406)
 [node name="EnemyPortraitMarker" type="Marker2D" parent="." unique_id=631579844]
 position = Vector2(804, 220)
 
+[node name="MoveTargetMarker" type="Marker2D" parent="."]
+position = Vector2(468, 382)
+
 [node name="DamageSpawnMarker" type="Marker2D" parent="." unique_id=939657881]
 position = Vector2(576, 322)
 
@@ -342,7 +351,7 @@ offset_bottom = 630.0
 
 [node name="CommandBarLabel" type="Label" parent="BattleUI/CommandBar" unique_id=163471327]
 layout_mode = 0
-offset_left = 154.0
+offset_left = 222.0
 offset_top = 8.0
 offset_right = 646.0
 offset_bottom = 38.0
@@ -357,6 +366,14 @@ offset_top = 8.0
 offset_right = 138.0
 offset_bottom = 40.0
 text = "기본 공격"
+
+[node name="MoveButton" type="Button" parent="BattleUI/CommandBar"]
+layout_mode = 0
+offset_left = 146.0
+offset_top = 8.0
+offset_right = 210.0
+offset_bottom = 40.0
+text = "이동"
 
 [node name="CutinOverlay" type="CanvasLayer" parent="." unique_id=581824320]
 visible = false
