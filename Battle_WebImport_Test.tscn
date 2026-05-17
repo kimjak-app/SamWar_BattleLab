@@ -111,19 +111,19 @@ color = Color(1, 0.482353, 0.482353, 0.207843)
 
 [node name="AllyUnitToken" type="Sprite2D" parent="AllySide" unique_id=1411468196]
 position = Vector2(300, 434)
-scale = Vector2(0.72, 0.72)
+scale = Vector2(0.5, 0.5)
 texture = ExtResource("3_allytoken")
 
 [node name="AllyPortraitBadge" type="Sprite2D" parent="AllySide" unique_id=1868352463]
-position = Vector2(270, 386)
-scale = Vector2(0.72, 0.72)
+position = Vector2(266, 409)
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("5_allyportrait")
 
 [node name="AllyHPBar" type="ProgressBar" parent="AllySide" unique_id=1914236876]
-offset_left = 226.0
-offset_top = 520.0
-offset_right = 334.0
-offset_bottom = 544.0
+offset_left = 277.0
+offset_top = 497.0
+offset_right = 385.0
+offset_bottom = 521.0
 value = 84.0
 show_percentage = false
 
@@ -131,19 +131,19 @@ show_percentage = false
 
 [node name="EnemyUnitToken" type="Sprite2D" parent="EnemySide" unique_id=175940460]
 position = Vector2(852, 256)
-scale = Vector2(0.72, 0.72)
+scale = Vector2(0.5, 0.5)
 texture = ExtResource("4_enemytoken")
 
 [node name="EnemyPortraitBadge" type="Sprite2D" parent="EnemySide" unique_id=1672489250]
-position = Vector2(884, 208)
-scale = Vector2(0.72, 0.72)
+position = Vector2(814, 229)
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("6_enemyportrait")
 
 [node name="EnemyHPBar" type="ProgressBar" parent="EnemySide" unique_id=1609871165]
-offset_left = 866.0
-offset_top = 316.0
-offset_right = 974.0
-offset_bottom = 340.0
+offset_left = 819.0
+offset_top = 320.0
+offset_right = 927.0
+offset_bottom = 344.0
 value = 62.0
 show_percentage = false
 
