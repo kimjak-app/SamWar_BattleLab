@@ -16,6 +16,7 @@ const MOVE_TARGET_INVALID_COLOR := Color(1.0, 0.35, 0.35, 1.0)
 const MOVE_HIGHLIGHT_VALID_COLOR := Color(0.172549, 0.623529, 1.0, 0.227451)
 const MOVE_HIGHLIGHT_INVALID_COLOR := Color(1.0, 0.2, 0.2, 0.28)
 const MOVE_RANGE_OVERLAY_COLOR := Color(0.2, 0.55, 1.0, 0.18)
+const MOVE_RANGE_OVERLAY_VISUAL_INSET := Vector2(32.0, 0.0)
 const PHASE_ALLY_TURN := "ally_turn"
 const PHASE_ENEMY_TURN := "enemy_turn"
 const PHASE_RESOLVING := "resolving"
@@ -31,6 +32,7 @@ var ally_unit_state: BattleUnitState
 var enemy_unit_state: BattleUnitState
 var active_unit_state: BattleUnitState
 var active_unit_side := "ally"
+var has_selected_move_target := false
 var move_range_cells: Array[ColorRect] = []
 var ally_idle_tween: Tween
 var enemy_idle_tween: Tween
@@ -124,7 +126,6 @@ func _input(event: InputEvent) -> void:
 	if not battle_grid_controller.is_in_bounds(target_cell):
 		return
 
-	set_move_target_cell(target_cell)
 	var origin_cell := get_active_move_origin_cell()
 	var distance := battle_grid_controller.get_distance(origin_cell, target_cell)
 	var move_range := get_active_move_range()
@@ -137,6 +138,14 @@ func _input(event: InputEvent) -> void:
 		distance,
 		move_range,
 	])
+	if not is_valid_target:
+		has_selected_move_target = false
+		move_highlight.visible = false
+		_append_battle_log("이동 불가")
+		get_viewport().set_input_as_handled()
+		return
+
+	set_move_target_cell(target_cell)
 	get_viewport().set_input_as_handled()
 
 
@@ -170,6 +179,7 @@ func hide_result() -> void:
 func reset_demo_state() -> void:
 	is_demo_animating = false
 	ally_has_moved = false
+	has_selected_move_target = false
 	_stop_idle_breathing()
 	battle_log_lines = [
 		"아군 준비",
@@ -210,24 +220,28 @@ func play_basic_move_demo() -> void:
 		return
 	if active_unit_state == null or active_unit_side != "ally":
 		return
+	if not has_selected_move_target:
+		move_highlight.visible = false
+		_append_battle_log("이동 대상 없음")
+		return
 
 	var target_cell: Vector2i = _get_raw_move_target_cell()
 	_refresh_move_target_feedback()
 	if not is_valid_move_target(target_cell):
-		_show_move_highlight_at_position(_get_snapped_move_target_world_position())
-		move_highlight.visible = true
+		has_selected_move_target = false
+		move_highlight.visible = false
 		_append_battle_log("이동 불가")
 		return
 
-	is_demo_animating = true
+	has_selected_move_target = false
+	move_highlight.visible = false
 	_hide_move_range_overlay()
+	is_demo_animating = true
 	_set_phase(PHASE_RESOLVING)
 	_stop_idle_breathing()
 	_sync_demo_positions()
 
 	target_cell = _get_snapped_move_target_cell()
-	_show_move_highlight_at_position(battle_grid_controller.grid_to_world(target_cell))
-	move_highlight.visible = true
 
 	var target_unit_position := battle_grid_controller.grid_to_world(target_cell)
 	var portrait_offset := ally_portrait_marker.position - ally_unit_marker.position
@@ -245,6 +259,7 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 	active_unit_state.set_grid_cell(target_cell)
 	active_unit_state.has_moved = true
 	ally_has_moved = true
+	has_selected_move_target = false
 	_reset_unit_group_positions()
 	move_highlight.visible = false
 	_hide_move_range_overlay()
@@ -517,12 +532,31 @@ func _show_move_range_overlay_for_active_unit() -> void:
 			continue
 
 		var world_pos := battle_grid_controller.grid_to_world(cell)
+		if not _is_move_range_overlay_rect_inside_visual_board(world_pos, cell_size):
+			continue
+
 		var rect := move_range_cells[index]
 		rect.position = world_pos - (cell_size * 0.5)
 		rect.size = cell_size
 		rect.color = MOVE_RANGE_OVERLAY_COLOR
 		rect.visible = true
 		index += 1
+
+
+func _is_move_range_overlay_rect_inside_visual_board(world_pos: Vector2, cell_size: Vector2) -> bool:
+	if battle_grid_controller == null:
+		return false
+
+	var visual_top_left := battle_grid_controller.get_board_top_left() + MOVE_RANGE_OVERLAY_VISUAL_INSET
+	var visual_bottom_right := battle_grid_controller.get_board_bottom_right() - MOVE_RANGE_OVERLAY_VISUAL_INSET
+	var rect_top_left := world_pos - (cell_size * 0.5)
+	var rect_bottom_right := world_pos + (cell_size * 0.5)
+	return (
+		rect_top_left.x >= visual_top_left.x
+		and rect_bottom_right.x <= visual_bottom_right.x
+		and rect_top_left.y >= visual_top_left.y
+		and rect_bottom_right.y <= visual_bottom_right.y
+	)
 
 
 func _format_troop_label(value: int) -> String:
@@ -612,6 +646,7 @@ func set_move_target_cell(cell: Vector2i) -> void:
 	else:
 		move_target_marker.global_position = world_pos
 
+	has_selected_move_target = true
 	_refresh_move_target_feedback()
 
 
@@ -621,6 +656,8 @@ func _select_ally_unit() -> void:
 
 	active_unit_state = ally_unit_state
 	active_unit_side = "ally"
+	has_selected_move_target = false
+	move_highlight.visible = false
 	_append_battle_log("이순신 선택")
 	_refresh_move_target_feedback()
 	_show_move_range_overlay_for_active_unit()
@@ -702,6 +739,9 @@ func is_valid_move_target(target_cell: Vector2i) -> bool:
 
 func _refresh_move_target_feedback() -> void:
 	if move_target_marker == null or move_highlight == null or battle_grid_controller == null:
+		return
+	if not has_selected_move_target:
+		move_highlight.visible = false
 		return
 
 	var target_cell: Vector2i = _get_raw_move_target_cell()

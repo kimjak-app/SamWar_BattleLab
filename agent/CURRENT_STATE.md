@@ -7,7 +7,7 @@ SamWar_BattleLab
 v0.64e Occupied Cell Blocking
 
 ## Current Patch
-v0.64f-hotfix Movement Overlay Bounds + Hide After Move
+v0.64f-hotfix-3 Clean Move Target UX
 
 ## Current Goal
 Port and rebuild the SamWar battle engine in Godot 4 using an editor-friendly workflow.
@@ -142,8 +142,13 @@ Current behavior:
 - overlay uses BattleGridController.get_tiles_in_range() and is_valid_move_target()
 - origin, occupied ally cell, occupied enemy cell, out-of-range cells, and post-move cells are not shown as movable
 - overlay double-checks board bounds before showing each pooled cell
+- overlay applies a small visual inset check before showing each pooled cell so range cells do not spill into the battlefield margin
 - overlay is hidden while resolving movement/attack and after the active unit has moved
-- MoveHighlight is hidden after successful movement so the post-move invalid red target is not left visible
+- MoveHighlight is gated by has_selected_move_target and appears only after the player clicks a movement target cell
+- invalid, occupied, enemy-occupied, and out-of-range movement clicks do not show a red selected-target box
+- selecting the ally clears the selected movement target and leaves only the faint movement range overlay visible
+- starting confirmed movement immediately clears the selected-target MoveHighlight before the tween begins
+- successful movement clears has_selected_move_target, hides MoveHighlight, and hides the range overlay
 - successful movement logs "이순신 이동 완료"
 
 ---

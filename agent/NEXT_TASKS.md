@@ -5,10 +5,10 @@ v0.64e Occupied Cell Blocking
 
 ---
 
-## Current Patch — v0.64f-hotfix Movement Overlay Bounds + Hide After Move
+## Current Patch — v0.64f-hotfix-3 Clean Move Target UX
 
 Goal:
-When Yi Sun-sin is selected, show all currently movable cells as blue range highlights.
+Keep movement target UX clean by showing strong MoveHighlight only for valid selected movement targets.
 
 Implemented:
 - Add editor-visible MoveRangeOverlayLayer.
@@ -18,7 +18,15 @@ Implemented:
 - Exclude origin, occupied ally cells, occupied enemy cells, and post-move cells.
 - Hide range overlay during movement/attack resolving and after movement.
 - Double-check board bounds before showing each pooled range cell.
+- Apply a small visual inset check before showing range overlay cells to keep them out of the battlefield margin.
+- Add has_selected_move_target state.
+- Clear selected movement target during reset, ally selection, and successful movement.
+- Show MoveHighlight only after the player clicks an in-bounds movement target cell.
+- Do not show a red MoveHighlight for invalid, occupied, enemy-occupied, or out-of-range movement clicks.
+- Keep invalid movement clicks as a one-click log/debug event instead of a visual selected target.
+- Hide the selected MoveHighlight immediately when confirmed movement starts, before the movement tween begins.
 - Hide MoveHighlight after successful movement.
+- Keep MoveRangeOverlay faint and separate from the strong selected-target MoveHighlight.
 - Log "이순신 이동 완료" after successful movement.
 - Keep MoveHighlight as the separate selected-target feedback.
 
