@@ -10,14 +10,16 @@ Before making changes, read:
 ## Session Start Point
 - Next session starts from `v0.64i Combat Flow + Range Gate Stabilization`.
 - Do not treat `v0.65` as reached.
+- Next active scene is `Battle_Fullscreen_Test.tscn`.
+- Keep `Battle_WebImport_Test.tscn` as the stable verification scene.
+- Continue from the fullscreen `18 x 10` grid direction.
 
 ---
 
 ## First Task
-- First task is `v0.64j-pre Cell Size Visual Guide`.
-- Show the real `BattleGridController` logical cell size first.
-- Use safe editor-visible guide nodes.
-- Do not use `GridOverlay`, `_draw()`, or `queue_redraw()`.
+- First task is `Fullscreen 18x10 Unit Visual Manual Calibration Finalize`.
+- Start from the layout visible in the Godot 2D editor on `Battle_Fullscreen_Test.tscn`.
+- Before changing behavior code, confirm the 2D editor layout and F6 runtime layout still match.
 
 ---
 
@@ -37,8 +39,9 @@ Before making changes, read:
 ---
 
 ## Do Not Touch Yet
-- Do not adjust attack or range rules before cell guide work and footprint calibration.
-- Do not tweak melee or range feel before `v0.64j-pre` and `v0.64j`.
+- Do not change `attack_range`, `move_range`, or the distance formula.
+- Do not rewrite combat flow.
+- Do not tweak battle rules while the fullscreen visual layout standard is still being finalized.
 - Do not copy the old Godot engine wholesale.
 
 ---
@@ -48,6 +51,11 @@ Before making changes, read:
 - Handle unit and target selection early in `_input()`.
 - Manual editor-visible hitboxes are acceptable for MVP.
 - Manual code-side hitbox checks are acceptable for stability.
+- Find the structure that makes Kimjak's work easier first.
+- Before computing more code offsets, check whether scene-authored layout solves the problem more directly.
+- `Scene controls layout / Code controls behavior` should be applied more strictly.
+- If Kimjak adjusts layout in the 2D editor and presses `Ctrl+S`, runtime should preserve that layout.
+- Prefer editor-authored offsets over hardcoded visual correction whenever possible.
 
 ---
 

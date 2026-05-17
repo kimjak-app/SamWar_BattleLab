@@ -19,81 +19,39 @@ Warning:
 
 ## Task Sequence
 
-### 1. v0.64j-pre Cell Size Visual Guide
+### 1. Fullscreen 18x10 Unit Visual Manual Calibration Finalize
 Goal:
-- Show the actual logical cell size from `BattleGridController`.
-- Add safe editor-visible guide nodes.
-- Make current cell and neighbor cell positions visible for calibration work.
+- In the Godot 2D editor, manually calibrate unit body, HP bar, troop number, portrait, and click area against one fullscreen cell.
+- After `Ctrl+S`, confirm the same layout remains during F6 runtime.
+- Lock Yi Sun-sin as the standard fullscreen sample `UnitVisual` reference.
+- Fit Guan Yu to the same standard.
 
 Rules:
-- No `_draw()`
-- No `queue_redraw()`
-- No `GridOverlay` drawing
+- Keep `Battle_Fullscreen_Test.tscn` as the current working scene.
+- Keep `Battle_WebImport_Test.tscn` as the stable verification scene.
+- Fit the unit body to the `18 x 10` fullscreen grid.
+- Allow flags, portraits, HP bars, and troop numbers to overflow the cell when needed.
+- Do not change battle logic while doing this calibration.
 
-Why first:
-- Visual footprint calibration must be based on the real logical grid, not guesswork.
-
-Status:
-- Verified.
-- Guide follows ally logical cell only.
-- No combat rule changes.
-
-### 2. v0.64j Unit Visual Footprint Calibration
+### 2. UnitVisual Template Planning
 Goal:
-- Align troop formation visual size to logical cells.
+- Plan the step after manual fullscreen sample calibration.
+- Do not split into `UnitVisual.tscn` yet.
+- Define how later infantry, archer, cavalry, and hero-style templates should expand from the same authored layout structure.
 
-Focus:
-- `UnitToken`
-- shadow
-- HP bar
-- troop label
-- `ClickArea`
+Direction:
+- Do not hand-tune 10 units forever.
+- Move toward a template-driven layout structure after the fullscreen sample standard is stable.
+- Keep scene-authored layout as the source of truth that runtime behavior follows.
 
-Reminder:
-- `PortraitBadge` is only a label and does not define footprint.
-
-Status:
-- Verified.
-- `v0.64j-pre` cell guide is verified and remains the visual truth.
-- Sample ally and enemy token, shadow, HP bar, troop label, and click area were tightened without combat logic changes.
-
-### 3. v0.64k Melee/Range Feel QA
-Goal:
-- Re-evaluate attack range feel only after visual footprint calibration.
-
-Rules:
-- Do not randomly increase range before visual calibration.
-- Compare visible spacing against logical `grid_cell` distance.
-
-Current QA support:
-- `v0.64k-pre Melee Adjacent QA Preset` added.
-- QA preset places Guan Yu at an exact adjacent logical cell from Yi Sun-sin.
-- Purpose: compare visual feel of true adjacent melee distance before changing melee or range rules.
-
-Status:
-- Complete.
-- `v0.64k-pre` adjacent QA preset was verified in right, left, up, and down directions.
-- Basic attack works.
-- Enemy counterattack works.
-- Melee range remains 1.
-- Do not increase range.
-
-Hotfix:
-- `v0.64k-hotfix Combat Distance Debug` added.
-- Purpose: confirm whether visually below-adjacent placement is truly `dist=1` or actually `dist>1`.
-- Cell guide label can now show ally grid, enemy grid, and current distance for quick inspection.
-
-Hotfix:
-- `v0.64k-hotfix Visual Anchor Consistency` added.
-- Purpose: align ally and enemy visual group anchors to their logical cell footprint in similar proportions.
-- Melee range remains 1.
-- Combat logic is unchanged.
-
-### 4. v0.64l Turn End / Wait Command
+### 3. v0.64l Turn End / Wait Command
 Goal:
 - Add an explicit way to end ally turn after moving without attacking.
 
-### 5. v0.64m Enemy Basic Decision Rules
+Timing:
+- Do this after the fullscreen visual layout standard is settled.
+
+### 4. v0.64m Enemy Basic Decision Rules
 Goal:
 - Port simple web or basic engine AI rules step by step.
 
@@ -104,14 +62,24 @@ Priority rules:
 - prefer unique skill if available
 - otherwise approach or wait
 
-### 6. v0.64n Hero Skill Sample Trigger
+### 5. v0.64n Hero Skill Sample Trigger
 Goal:
 - Prepare 10 hero image and unique skill image sample structure.
 
-### 7. v0.64o Basic Battle Loop QA
+### 6. v0.64o Basic Battle Loop QA
 Goal:
 - Run a full loop test:
 - ally select -> move -> attack or wait -> enemy reaction -> ally turn return
+
+---
+
+## Workflow Lesson
+- Find the structure that makes Kimjak's work easier first.
+- Before hardcoding new visual offsets, first inspect whether the Godot 2D editor can solve the layout problem directly.
+- Prefer `Scene controls layout / Code controls behavior`.
+- Prefer scene-authored layout for unit visual placement, HP bars, troop numbers, portraits, and click areas.
+- If code must move visuals during gameplay, capture and reuse the editor-authored offsets.
+- If Kimjak is stuck, inspect whether there is a simpler structural solution before drafting a bigger Codex instruction chain.
 
 ---
 

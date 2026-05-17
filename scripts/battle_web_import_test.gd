@@ -21,6 +21,7 @@ const MOVE_HIGHLIGHT_INVALID_COLOR := Color(1.0, 0.2, 0.2, 0.28)
 const MOVE_RANGE_OVERLAY_COLOR := Color(0.2, 0.55, 1.0, 0.18)
 const MOVE_RANGE_OVERLAY_VISUAL_INSET := Vector2(32.0, 0.0)
 const SHOW_CELL_SIZE_VISUAL_GUIDE := true
+const SHOW_LOGICAL_GRID_14X8_GUIDE := true
 const MELEE_ADJACENT_QA_MODE := false
 const MELEE_QA_ENEMY_OFFSET := Vector2i(1, 0)
 const PHASE_ALLY_TURN := "ally_turn"
@@ -46,6 +47,18 @@ var ally_idle_tween: Tween
 var enemy_idle_tween: Tween
 var ally_token_base_scale := Vector2.ONE
 var enemy_token_base_scale := Vector2.ONE
+var ally_token_layout_offset := Vector2.ZERO
+var ally_shadow_layout_offset := Vector2.ZERO
+var ally_portrait_layout_offset := Vector2.ZERO
+var ally_hp_bar_layout_offset := Vector2.ZERO
+var ally_troop_label_layout_offset := Vector2.ZERO
+var ally_click_area_layout_offset := Vector2.ZERO
+var enemy_token_layout_offset := Vector2.ZERO
+var enemy_shadow_layout_offset := Vector2.ZERO
+var enemy_portrait_layout_offset := Vector2.ZERO
+var enemy_hp_bar_layout_offset := Vector2.ZERO
+var enemy_troop_label_layout_offset := Vector2.ZERO
+var enemy_click_area_layout_offset := Vector2.ZERO
 
 @onready var battlefield_texture: Sprite2D = $BattlefieldRoot/BattlefieldTexture
 @onready var ally_unit_marker: Marker2D = $AllyUnitMarker
@@ -62,6 +75,7 @@ var enemy_token_base_scale := Vector2.ONE
 @onready var cutin_center_marker: Marker2D = $CutinCenterMarker
 @onready var result_center_marker: Marker2D = $ResultCenterMarker
 @onready var move_range_overlay_layer: Node2D = $MoveRangeOverlayLayer
+@onready var logical_grid_guide_layer: Node2D = get_node_or_null("LogicalGridGuideLayer") as Node2D
 @onready var cell_guide_layer: Node2D = get_node_or_null("CellGuideLayer") as Node2D
 @onready var cell_guide_current: ColorRect = get_node_or_null("CellGuideLayer/CellGuide_Current") as ColorRect
 @onready var cell_guide_right: ColorRect = get_node_or_null("CellGuideLayer/CellGuide_Right") as ColorRect
@@ -105,6 +119,7 @@ func _ready() -> void:
 	basic_attack_button.pressed.connect(try_basic_attack)
 	move_button.pressed.connect(play_basic_move_demo)
 	_collect_move_range_cells()
+	_capture_scene_authored_unit_layout_offsets()
 	reset_demo_state()
 
 
@@ -211,6 +226,7 @@ func reset_demo_state() -> void:
 	current_ally_portrait_position = ally_portrait_marker.position
 	_create_demo_unit_states()
 	_sync_unit_state_cells_from_markers()
+	_update_logical_grid_guide()
 	_apply_melee_adjacent_qa_preset()
 	_update_cell_size_visual_guide(ally_unit_state.grid_cell)
 	print("GRID CELL SIZE: ", battle_grid_controller.get_cell_size())
@@ -394,19 +410,16 @@ func _sync_demo_positions() -> void:
 func _reset_unit_group_positions() -> void:
 	var ally_visual_anchor := _get_ally_visual_anchor_position()
 	var enemy_visual_anchor := _get_enemy_visual_anchor_position()
-	ally_unit_shadow.position = ally_visual_anchor + SHADOW_OFFSET
-	enemy_unit_shadow.position = enemy_visual_anchor + SHADOW_OFFSET
-	ally_unit_token.position = ally_visual_anchor
-	enemy_unit_token.position = enemy_visual_anchor
-	ally_portrait_badge.position = ally_visual_anchor + _get_ally_portrait_visual_offset()
-	enemy_portrait_badge.position = enemy_visual_anchor + _get_enemy_portrait_visual_offset()
-	ally_hp_bar.position = ally_visual_anchor + HP_BAR_OFFSET
-	enemy_hp_bar.position = enemy_visual_anchor + HP_BAR_OFFSET
-	ally_troop_label.position = ally_visual_anchor + TROOP_LABEL_OFFSET
-	enemy_troop_label.position = enemy_visual_anchor + TROOP_LABEL_OFFSET
-	ally_unit_click_area.position = ally_visual_anchor
+	var ally_base_positions := _get_ally_group_base_positions(ally_visual_anchor)
+	var enemy_base_positions := _get_enemy_group_base_positions(enemy_visual_anchor)
+
+	_apply_group_base_positions(_get_ally_group_nodes(), ally_base_positions)
+	_apply_group_base_positions(_get_enemy_group_nodes(), enemy_base_positions)
+
+	if ally_unit_click_area != null:
+		ally_unit_click_area.position = ally_visual_anchor + ally_click_area_layout_offset
 	if enemy_unit_click_area != null:
-		enemy_unit_click_area.position = enemy_visual_anchor
+		enemy_unit_click_area.position = enemy_visual_anchor + enemy_click_area_layout_offset
 
 
 func _finish_basic_attack_demo() -> void:
@@ -540,32 +553,18 @@ func _apply_group_offset(nodes: Array[CanvasItem], base_positions: Array[Vector2
 
 func _apply_ally_group_offset(offset: Vector2) -> void:
 	var ally_visual_anchor := _get_ally_visual_anchor_position()
-	_apply_group_offset(
-		_get_ally_group_nodes(),
-		[
-			ally_visual_anchor + SHADOW_OFFSET,
-			ally_visual_anchor,
-			ally_visual_anchor + _get_ally_portrait_visual_offset(),
-			ally_visual_anchor + HP_BAR_OFFSET,
-			ally_visual_anchor + TROOP_LABEL_OFFSET,
-		],
-		offset
-	)
+	var ally_base_positions := _get_ally_group_base_positions(ally_visual_anchor)
+	_apply_group_offset(_get_ally_group_nodes(), ally_base_positions, offset)
+	if ally_unit_click_area != null:
+		ally_unit_click_area.position = ally_visual_anchor + ally_click_area_layout_offset + offset
 
 
 func _apply_enemy_group_offset(offset: Vector2) -> void:
 	var enemy_visual_anchor := _get_enemy_visual_anchor_position()
-	_apply_group_offset(
-		_get_enemy_group_nodes(),
-		[
-			enemy_visual_anchor + SHADOW_OFFSET,
-			enemy_visual_anchor,
-			enemy_visual_anchor + _get_enemy_portrait_visual_offset(),
-			enemy_visual_anchor + HP_BAR_OFFSET,
-			enemy_visual_anchor + TROOP_LABEL_OFFSET,
-		],
-		offset
-	)
+	var enemy_base_positions := _get_enemy_group_base_positions(enemy_visual_anchor)
+	_apply_group_offset(_get_enemy_group_nodes(), enemy_base_positions, offset)
+	if enemy_unit_click_area != null:
+		enemy_unit_click_area.position = enemy_visual_anchor + enemy_click_area_layout_offset + offset
 
 
 func _set_group_modulate(nodes: Array[CanvasItem], color: Color) -> void:
@@ -740,12 +739,76 @@ func _apply_melee_adjacent_qa_preset() -> void:
 	print("MELEE DIST: ", get_unit_grid_distance(ally_unit_state, enemy_unit_state))
 
 
+func _get_ally_visual_anchor_from_position(unit_position: Vector2) -> Vector2:
+	return unit_position + ALLY_VISUAL_ANCHOR_OFFSET
+
+
+func _get_enemy_visual_anchor_from_position(unit_position: Vector2) -> Vector2:
+	return unit_position + ENEMY_VISUAL_ANCHOR_OFFSET
+
+
 func _get_ally_visual_anchor_position() -> Vector2:
-	return current_ally_unit_position + ALLY_VISUAL_ANCHOR_OFFSET
+	return _get_ally_visual_anchor_from_position(current_ally_unit_position)
 
 
 func _get_enemy_visual_anchor_position() -> Vector2:
-	return enemy_unit_marker.position + ENEMY_VISUAL_ANCHOR_OFFSET
+	return _get_enemy_visual_anchor_from_position(enemy_unit_marker.position)
+
+
+func _capture_scene_authored_unit_layout_offsets() -> void:
+	if ally_unit_marker != null:
+		var ally_anchor := _get_ally_visual_anchor_from_position(ally_unit_marker.position)
+		if ally_unit_token != null:
+			ally_token_layout_offset = ally_unit_token.position - ally_anchor
+		if ally_unit_shadow != null:
+			ally_shadow_layout_offset = ally_unit_shadow.position - ally_anchor
+		if ally_portrait_badge != null:
+			ally_portrait_layout_offset = ally_portrait_badge.position - ally_anchor
+		if ally_hp_bar != null:
+			ally_hp_bar_layout_offset = ally_hp_bar.position - ally_anchor
+		if ally_troop_label != null:
+			ally_troop_label_layout_offset = ally_troop_label.position - ally_anchor
+		if ally_unit_click_area != null:
+			ally_click_area_layout_offset = ally_unit_click_area.position - ally_anchor
+
+	if enemy_unit_marker != null:
+		var enemy_anchor := _get_enemy_visual_anchor_from_position(enemy_unit_marker.position)
+		if enemy_unit_token != null:
+			enemy_token_layout_offset = enemy_unit_token.position - enemy_anchor
+		if enemy_unit_shadow != null:
+			enemy_shadow_layout_offset = enemy_unit_shadow.position - enemy_anchor
+		if enemy_portrait_badge != null:
+			enemy_portrait_layout_offset = enemy_portrait_badge.position - enemy_anchor
+		if enemy_hp_bar != null:
+			enemy_hp_bar_layout_offset = enemy_hp_bar.position - enemy_anchor
+		if enemy_troop_label != null:
+			enemy_troop_label_layout_offset = enemy_troop_label.position - enemy_anchor
+		if enemy_unit_click_area != null:
+			enemy_click_area_layout_offset = enemy_unit_click_area.position - enemy_anchor
+
+
+func _get_ally_group_base_positions(ally_anchor: Vector2) -> Array[Vector2]:
+	return [
+		ally_anchor + ally_shadow_layout_offset,
+		ally_anchor + ally_token_layout_offset,
+		ally_anchor + ally_portrait_layout_offset,
+		ally_anchor + ally_hp_bar_layout_offset,
+		ally_anchor + ally_troop_label_layout_offset,
+	]
+
+
+func _get_enemy_group_base_positions(enemy_anchor: Vector2) -> Array[Vector2]:
+	return [
+		enemy_anchor + enemy_shadow_layout_offset,
+		enemy_anchor + enemy_token_layout_offset,
+		enemy_anchor + enemy_portrait_layout_offset,
+		enemy_anchor + enemy_hp_bar_layout_offset,
+		enemy_anchor + enemy_troop_label_layout_offset,
+	]
+
+
+func _apply_group_base_positions(nodes: Array[CanvasItem], base_positions: Array[Vector2]) -> void:
+	_apply_group_offset(nodes, base_positions, Vector2.ZERO)
 
 
 func _get_ally_portrait_visual_offset() -> Vector2:
@@ -902,6 +965,47 @@ func _update_cell_size_visual_guide(center_cell: Vector2i) -> void:
 			cell_guide_label.position = (cell_guide_label.get_parent() as Node2D).to_local(label_world_pos)
 		else:
 			cell_guide_label.global_position = label_world_pos
+
+
+func _update_logical_grid_guide() -> void:
+	if logical_grid_guide_layer == null:
+		return
+
+	logical_grid_guide_layer.visible = SHOW_LOGICAL_GRID_14X8_GUIDE
+	if not SHOW_LOGICAL_GRID_14X8_GUIDE:
+		return
+	if battle_grid_controller == null:
+		return
+
+	var top_left := battle_grid_controller.get_board_top_left()
+	var bottom_right := battle_grid_controller.get_board_bottom_right()
+	var cell_size := battle_grid_controller.get_cell_size()
+
+	for x in range(battle_grid_controller.grid_width + 1):
+		var line := logical_grid_guide_layer.get_node_or_null("GridVertical_%02d" % x) as Line2D
+		if line == null:
+			continue
+		var wx := top_left.x + cell_size.x * float(x)
+		var p1 := Vector2(wx, top_left.y)
+		var p2 := Vector2(wx, bottom_right.y)
+		line.points = PackedVector2Array([
+			logical_grid_guide_layer.to_local(p1),
+			logical_grid_guide_layer.to_local(p2)
+		])
+		line.visible = true
+
+	for y in range(battle_grid_controller.grid_height + 1):
+		var line := logical_grid_guide_layer.get_node_or_null("GridHorizontal_%02d" % y) as Line2D
+		if line == null:
+			continue
+		var wy := top_left.y + cell_size.y * float(y)
+		var p1 := Vector2(top_left.x, wy)
+		var p2 := Vector2(bottom_right.x, wy)
+		line.points = PackedVector2Array([
+			logical_grid_guide_layer.to_local(p1),
+			logical_grid_guide_layer.to_local(p2)
+		])
+		line.visible = true
 
 
 func _place_cell_guide_rect(rect: ColorRect, cell: Vector2i, cell_size: Vector2) -> void:

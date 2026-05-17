@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://cv8gf3we7q0bk"]
+[gd_scene format=3 uid="uid://dchoagnqt2ei8"]
 
 [ext_resource type="Script" uid="uid://cghofkekn01w7" path="res://scripts/battle_web_import_test.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cwcia5x7bf0x7" path="res://assets/web_battle/battlefield/battlefield_14x8_mvp.png" id="2_battlefield"]
@@ -38,10 +38,10 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ally_click"]
-size = Vector2(94, 96)
+size = Vector2(101, 102.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_enemy_click"]
-size = Vector2(94, 96)
+size = Vector2(102, 103)
 
 [sub_resource type="LabelSettings" id="1"]
 font_size = 28
@@ -49,36 +49,36 @@ font_color = Color(0.952941, 0.917647, 0.85098, 1)
 outline_size = 6
 outline_color = Color(0.0313726, 0.0627451, 0.0941176, 1)
 
-[node name="Battle_WebImport_Test" type="Node2D" unique_id=1929995568]
+[node name="Battle_Fullscreen_Test" type="Node2D" unique_id=1929995568]
 script = ExtResource("1_script")
 
 [node name="BattleGridController" type="Node" parent="." unique_id=368748053]
 script = ExtResource("2_grid_controller")
+grid_width = 18
+grid_height = 10
 board_top_left_marker_path = NodePath("../BoardTopLeftMarker")
 board_bottom_right_marker_path = NodePath("../BoardBottomRightMarker")
 
 [node name="BattlefieldRoot" type="Node2D" parent="." unique_id=1334997822]
 
 [node name="BattlefieldFrame" type="ColorRect" parent="BattlefieldRoot" unique_id=1342559107]
-offset_left = 118.0
-offset_top = 78.0
-offset_right = 1034.0
-offset_bottom = 566.0
+visible = false
+offset_right = 1920.0
+offset_bottom = 1080.0
 color = Color(0.0509804, 0.0862745, 0.133333, 1)
 
 [node name="BattlefieldTexture" type="Sprite2D" parent="BattlefieldRoot" unique_id=836791405]
-position = Vector2(576, 322)
-scale = Vector2(0.392, 0.392)
+position = Vector2(960, 540)
 texture = ExtResource("2_battlefield")
 
 [node name="BoardBounds" type="ColorRect" parent="BattlefieldRoot" unique_id=2098836911]
-offset_left = 136.0
-offset_top = 102.0
-offset_right = 1016.0
-offset_bottom = 542.0
+visible = false
+offset_right = 1920.0
+offset_bottom = 1080.0
 color = Color(0.0901961, 0.12549, 0.192157, 0.121569)
 
 [node name="GridOverlay" type="Node2D" parent="BattlefieldRoot" unique_id=1229653563]
+visible = false
 
 [node name="GridLineTop" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=642488879]
 points = PackedVector2Array(136, 102, 1016, 102)
@@ -131,125 +131,155 @@ width = 1.0
 default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
 
 [node name="LogicalGridGuideLayer" type="Node2D" parent="." unique_id=1380411007]
-z_index = 2
+z_index = 1
 
 [node name="GridVertical_00" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352001]
-visible = false
+points = PackedVector2Array(0, 0, 0, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_01" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352002]
-visible = false
+points = PackedVector2Array(106.66667, 0, 106.66667, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_02" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352003]
-visible = false
+points = PackedVector2Array(213.33333, 0, 213.33333, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_03" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352004]
-visible = false
+points = PackedVector2Array(320, 0, 320, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_04" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352005]
-visible = false
+points = PackedVector2Array(426.66666, 0, 426.66666, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_05" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352006]
-visible = false
+points = PackedVector2Array(533.3333, 0, 533.3333, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_06" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352007]
-visible = false
+points = PackedVector2Array(640, 0, 640, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_07" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352008]
-visible = false
+points = PackedVector2Array(746.6667, 0, 746.6667, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_08" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352009]
-visible = false
+points = PackedVector2Array(853.3333, 0, 853.3333, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_09" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352010]
-visible = false
+points = PackedVector2Array(960, 0, 960, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_10" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352011]
-visible = false
+points = PackedVector2Array(1066.6666, 0, 1066.6666, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_11" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352012]
-visible = false
+points = PackedVector2Array(1173.3334, 0, 1173.3334, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_12" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352013]
-visible = false
+points = PackedVector2Array(1280, 0, 1280, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_13" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352014]
-visible = false
+points = PackedVector2Array(1386.6666, 0, 1386.6666, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridVertical_14" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352015]
-visible = false
+points = PackedVector2Array(1493.3334, 0, 1493.3334, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_15" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352016]
+points = PackedVector2Array(1600, 0, 1600, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_16" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352017]
+points = PackedVector2Array(1706.6666, 0, 1706.6666, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_17" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352018]
+points = PackedVector2Array(1813.3334, 0, 1813.3334, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_18" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352019]
+points = PackedVector2Array(1920, 0, 1920, 1080)
 width = 1.0
 default_color = Color(0.56078434, 0.91764706, 1, 0.18)
 
 [node name="GridHorizontal_00" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352100]
-visible = false
+points = PackedVector2Array(0, 0, 1920, 0)
 width = 1.0
 default_color = Color(1, 0.85882354, 0.56078434, 0.16)
 
 [node name="GridHorizontal_01" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352101]
-visible = false
+points = PackedVector2Array(0, 108, 1920, 108)
 width = 1.0
 default_color = Color(1, 0.85882354, 0.56078434, 0.16)
 
 [node name="GridHorizontal_02" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352102]
-visible = false
+points = PackedVector2Array(0, 216, 1920, 216)
 width = 1.0
 default_color = Color(1, 0.85882354, 0.56078434, 0.16)
 
 [node name="GridHorizontal_03" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352103]
-visible = false
+points = PackedVector2Array(0, 324, 1920, 324)
 width = 1.0
 default_color = Color(1, 0.85882354, 0.56078434, 0.16)
 
 [node name="GridHorizontal_04" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352104]
-visible = false
+points = PackedVector2Array(0, 432, 1920, 432)
 width = 1.0
 default_color = Color(1, 0.85882354, 0.56078434, 0.16)
 
 [node name="GridHorizontal_05" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352105]
-visible = false
+points = PackedVector2Array(0, 540, 1920, 540)
 width = 1.0
 default_color = Color(1, 0.85882354, 0.56078434, 0.16)
 
 [node name="GridHorizontal_06" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352106]
-visible = false
+points = PackedVector2Array(0, 648, 1920, 648)
 width = 1.0
 default_color = Color(1, 0.85882354, 0.56078434, 0.16)
 
 [node name="GridHorizontal_07" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352107]
-visible = false
+points = PackedVector2Array(0, 756, 1920, 756)
 width = 1.0
 default_color = Color(1, 0.85882354, 0.56078434, 0.16)
 
 [node name="GridHorizontal_08" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352108]
-visible = false
+points = PackedVector2Array(0, 864, 1920, 864)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_09" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352109]
+points = PackedVector2Array(0, 972, 1920, 972)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_10" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352110]
+points = PackedVector2Array(0, 1080, 1920, 1080)
 width = 1.0
 default_color = Color(1, 0.85882354, 0.56078434, 0.16)
 
@@ -258,18 +288,18 @@ z_index = 2
 
 [node name="MoveHighlight" type="ColorRect" parent="HighlightLayer" unique_id=1711559311]
 visible = false
-offset_left = 286.0
-offset_top = 392.0
-offset_right = 354.0
-offset_bottom = 448.0
+offset_left = 320.0
+offset_top = 864.0
+offset_right = 426.6667
+offset_bottom = 972.0
 color = Color(0.172549, 0.623529, 1, 0.227451)
 
 [node name="AttackHighlight" type="ColorRect" parent="HighlightLayer" unique_id=1728313183]
 visible = false
-offset_left = 798.0
-offset_top = 238.0
-offset_right = 866.0
-offset_bottom = 294.0
+offset_left = 1493.3333
+offset_top = 216.0
+offset_right = 1600.0
+offset_bottom = 324.0
 color = Color(1, 0.482353, 0.482353, 0.207843)
 
 [node name="MoveRangeOverlayLayer" type="Node2D" parent="." unique_id=2018718815]
@@ -872,38 +902,38 @@ vertical_alignment = 1
 [node name="AllySide" type="Node2D" parent="." unique_id=983797976]
 
 [node name="AllyUnitShadow" type="Polygon2D" parent="AllySide" unique_id=335564105]
-position = Vector2(300, 464)
+position = Vector2(373, 945)
 color = Color(0, 0, 0, 0.28)
 polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
 
 [node name="AllyUnitToken" type="Sprite2D" parent="AllySide" unique_id=1411468196]
 z_index = 1
-position = Vector2(300, 434)
-scale = Vector2(0.34, 0.34)
+position = Vector2(372.00003, 909.00006)
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("3_allytoken")
 flip_h = true
 
 [node name="AllyPortraitBadge" type="Sprite2D" parent="AllySide" unique_id=1868352463]
 z_index = 3
-position = Vector2(330, 412)
+position = Vector2(403, 888)
 scale = Vector2(0.32, 0.32)
 texture = ExtResource("5_allyportrait")
 
 [node name="AllyHPBar" type="ProgressBar" parent="AllySide" unique_id=1914236876]
-offset_left = 252.0
-offset_top = 472.0
-offset_right = 348.0
-offset_bottom = 481.0
+offset_left = 326.0
+offset_top = 955.0
+offset_right = 422.0
+offset_bottom = 964.0
 theme_override_styles/background = SubResource("3")
 theme_override_styles/fill = SubResource("StyleBoxFlat_lhwdj")
 value = 84.0
 show_percentage = false
 
 [node name="AllyTroopLabel" type="Label" parent="AllySide" unique_id=10172604]
-offset_left = 252.0
-offset_top = 484.0
-offset_right = 348.0
-offset_bottom = 504.0
+offset_left = 326.0
+offset_top = 966.0
+offset_right = 422.0
+offset_bottom = 986.0
 text = "94 / 94"
 label_settings = SubResource("2")
 horizontal_alignment = 1
@@ -912,88 +942,87 @@ vertical_alignment = 1
 [node name="EnemySide" type="Node2D" parent="." unique_id=612955151]
 
 [node name="EnemyUnitShadow" type="Polygon2D" parent="EnemySide" unique_id=1776193078]
-position = Vector2(852, 286)
+position = Vector2(1548, 296)
 color = Color(0, 0, 0, 0.28)
 polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
 
 [node name="EnemyUnitToken" type="Sprite2D" parent="EnemySide" unique_id=175940460]
 z_index = 1
-position = Vector2(852, 256)
-scale = Vector2(0.34, 0.34)
+position = Vector2(1546.6667, 262)
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("4_enemytoken")
 
 [node name="EnemyPortraitBadge" type="Sprite2D" parent="EnemySide" unique_id=1672489250]
 z_index = 3
-position = Vector2(822, 234)
+position = Vector2(1516.9999, 239)
 scale = Vector2(0.32, 0.32)
 texture = ExtResource("6_enemyportrait")
 
 [node name="EnemyHPBar" type="ProgressBar" parent="EnemySide" unique_id=1609871165]
-offset_left = 804.0
-offset_top = 294.0
-offset_right = 900.0
-offset_bottom = 303.0
+offset_left = 1499.0
+offset_top = 305.0
+offset_right = 1595.0
+offset_bottom = 314.0
 theme_override_styles/background = SubResource("3")
 theme_override_styles/fill = SubResource("5")
 value = 62.0
 show_percentage = false
 
 [node name="EnemyTroopLabel" type="Label" parent="EnemySide" unique_id=1006282899]
-offset_left = 804.0
-offset_top = 306.0
-offset_right = 900.0
-offset_bottom = 326.0
+offset_left = 1498.6667
+offset_top = 312.0
+offset_right = 1594.6667
+offset_bottom = 332.0
 text = "100 / 100"
 label_settings = SubResource("2")
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="AllyUnitMarker" type="Marker2D" parent="." unique_id=1575499460]
-position = Vector2(300, 434)
+position = Vector2(373.3333, 918)
 
 [node name="AllyUnitClickArea" type="Area2D" parent="." unique_id=1935183129]
-position = Vector2(300, 434)
+position = Vector2(369, 921)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AllyUnitClickArea" unique_id=1202646538]
-position = Vector2(0, 4)
+position = Vector2(5, -4)
 shape = SubResource("RectangleShape2D_ally_click")
 
 [node name="EnemyUnitMarker" type="Marker2D" parent="." unique_id=248114327]
-position = Vector2(852, 256)
+position = Vector2(1546.6667, 270)
 
 [node name="EnemyUnitClickArea" type="Area2D" parent="." unique_id=771198935]
-position = Vector2(852, 256)
+position = Vector2(1546.6667, 262)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyUnitClickArea" unique_id=670291870]
-position = Vector2(0, 4)
+position = Vector2(0.33325195, 7)
 shape = SubResource("RectangleShape2D_enemy_click")
 
 [node name="AllyPortraitMarker" type="Marker2D" parent="." unique_id=591376317]
-position = Vector2(330, 412)
+position = Vector2(403, 890)
 
 [node name="EnemyPortraitMarker" type="Marker2D" parent="." unique_id=631579844]
-position = Vector2(822, 234)
+position = Vector2(1516.6667, 248)
 
 [node name="MoveTargetMarker" type="Marker2D" parent="." unique_id=453024699]
-position = Vector2(379, 393)
+position = Vector2(480, 918)
 
 [node name="DamageSpawnMarker" type="Marker2D" parent="." unique_id=939657881]
-position = Vector2(576, 322)
+position = Vector2(960, 540)
 
 [node name="BoardTopLeftMarker" type="Marker2D" parent="." unique_id=1867611365]
-position = Vector2(136, 102)
 
 [node name="BoardBottomRightMarker" type="Marker2D" parent="." unique_id=1111883749]
-position = Vector2(1016, 542)
+position = Vector2(1920, 1080)
 
 [node name="CutinCenterMarker" type="Marker2D" parent="." unique_id=311745938]
-position = Vector2(576, 324)
+position = Vector2(960, 540)
 
 [node name="ResultCenterMarker" type="Marker2D" parent="." unique_id=1832523907]
-position = Vector2(576, 324)
+position = Vector2(960, 540)
 
 [node name="DamageTextLayer" type="Node2D" parent="." unique_id=1463093936]
-position = Vector2(576, 322)
+position = Vector2(960, 540)
 
 [node name="DamagePreviewLabel" type="Label" parent="DamageTextLayer" unique_id=405421207]
 visible = false
@@ -1007,21 +1036,21 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="MainCamera" type="Camera2D" parent="." unique_id=1502905262]
-position = Vector2(576, 324)
+position = Vector2(960, 540)
 
 [node name="BattleUI" type="CanvasLayer" parent="." unique_id=1570436259]
 
 [node name="TopBar" type="Panel" parent="BattleUI" unique_id=46958898]
-offset_left = 36.0
-offset_top = 16.0
-offset_right = 1116.0
-offset_bottom = 72.0
+offset_left = 48.0
+offset_top = 24.0
+offset_right = 1872.0
+offset_bottom = 88.0
 
 [node name="TopBarLabel" type="Label" parent="BattleUI/TopBar" unique_id=740296385]
 layout_mode = 0
 offset_left = 18.0
 offset_top = 8.0
-offset_right = 674.0
+offset_right = 1280.0
 offset_bottom = 48.0
 text = "전투 테스트 | 한성 군이 낙양 공략을 시도하고 있습니다."
 label_settings = SubResource("1")
@@ -1029,9 +1058,9 @@ vertical_alignment = 1
 
 [node name="TurnBanner" type="Label" parent="BattleUI/TopBar" unique_id=995055658]
 layout_mode = 0
-offset_left = 914.0
+offset_left = 1604.0
 offset_top = 10.0
-offset_right = 1058.0
+offset_right = 1784.0
 offset_bottom = 44.0
 text = "아군 턴"
 label_settings = SubResource("1")
@@ -1039,16 +1068,16 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="LeftPanel" type="Panel" parent="BattleUI" unique_id=2039077714]
-offset_left = 12.0
-offset_top = 98.0
-offset_right = 164.0
-offset_bottom = 514.0
+offset_left = 24.0
+offset_top = 132.0
+offset_right = 252.0
+offset_bottom = 876.0
 
 [node name="LeftPanelLabel" type="Label" parent="BattleUI/LeftPanel" unique_id=951468497]
 layout_mode = 0
 offset_left = 2.0
 offset_top = 11.0
-offset_right = 137.0
+offset_right = 214.0
 offset_bottom = 139.0
 text = "전황 보고
 - 유닛 선택
@@ -1060,41 +1089,41 @@ text = "전황 보고
 layout_mode = 0
 offset_left = 3.0
 offset_top = 166.0
-offset_right = 123.0
-offset_bottom = 362.0
+offset_right = 214.0
+offset_bottom = 640.0
 text = "전투 기록
 - 이순신이 전진했습니다.
 - 관우가 방어 태세입니다."
 autowrap_mode = 2
 
 [node name="RightPanel" type="Panel" parent="BattleUI" unique_id=1102874252]
-offset_left = 988.0
-offset_top = 98.0
-offset_right = 1140.0
-offset_bottom = 514.0
+offset_left = 1668.0
+offset_top = 132.0
+offset_right = 1896.0
+offset_bottom = 876.0
 
 [node name="RightPanelLabel" type="Label" parent="BattleUI/RightPanel" unique_id=1661618933]
 layout_mode = 0
-offset_left = 50.0
+offset_left = 24.0
 offset_top = 8.0
-offset_right = 170.0
-offset_bottom = 176.0
+offset_right = 204.0
+offset_bottom = 220.0
 text = "부대 목록
 아군: 이순신
 적군: 관우"
 autowrap_mode = 2
 
 [node name="CommandBar" type="Panel" parent="BattleUI" unique_id=2130262646]
-offset_left = 232.0
-offset_top = 582.0
-offset_right = 920.0
-offset_bottom = 630.0
+offset_left = 520.0
+offset_top = 996.0
+offset_right = 1400.0
+offset_bottom = 1060.0
 
 [node name="CommandBarLabel" type="Label" parent="BattleUI/CommandBar" unique_id=163471327]
 layout_mode = 0
-offset_left = 222.0
+offset_left = 290.0
 offset_top = 8.0
-offset_right = 646.0
+offset_right = 860.0
 offset_bottom = 38.0
 text = "고유 특기 | 책략 | 방어 | 대기 | 턴 종료 | 자동전투 | 후퇴"
 horizontal_alignment = 1

@@ -57,6 +57,18 @@ Never allow:
 
 ---
 
+## Editor-First Layout Rule
+- When a visual problem is about placement, scale, UI attachment, or click area feel, first check whether the user can solve it directly in the Godot 2D editor.
+- Prefer scene-authored layout for visual nodes.
+- Runtime code should preserve and follow editor-authored offsets when possible.
+- Do not force visual positions with hardcoded constants unless necessary.
+- If code must move visual nodes during gameplay, capture the initial editor-authored offsets and reuse them.
+- The user's workflow speed matters: find the easiest editable structure before writing more logic.
+- Find the structure that makes it easier for Kimjak to work first.
+- Before making a new Codex instruction chain, first check whether there is a simpler structural solution in the scene layout.
+
+---
+
 ## Coordinate Rules
 Standard battle viewport:
 - 1152 x 648
@@ -94,3 +106,4 @@ The following must be adjustable directly in the editor:
 3. Use code only for behavior
 4. Test with F5
 5. Iterate visually
+6. If the editor layout feels wrong at runtime, preserve the scene-authored offsets before adding more hardcoded corrections

@@ -24,6 +24,8 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - Translate the web battle logic into GDScript step by step.
 - Treat the existing old SamWar Godot engine as reference only.
 - Do not copy the old Godot engine wholesale.
+- Find the structure that makes it easiest for Kimjak to work first.
+- Prefer scene-authored layout over code-side visual correction whenever possible.
 
 ---
 
@@ -53,6 +55,11 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - v0.64k Melee/Range Feel QA
 - v0.64k-hotfix Combat Distance Debug
 - v0.64k-hotfix Visual Anchor Consistency
+- v0.64k-hotfix Logical 14x8 Grid Guide
+- v0.64k-hotfix Bake Logical Grid Guide Points Into Scene
+- v0.64k-fullscreen-pre Fullscreen Battle Board Layout Prototype
+- v0.64k-fullscreen-grid-18x10
+- v0.64k-fullscreen-scene-authored-unit-layout
 
 ---
 
@@ -82,6 +89,42 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - QA preset code remains available for future debugging, but QA mode is off by default.
 - Combat distance debug output is added to confirm whether visually close vertical placements are logical `dist=1` or `dist>1`.
 - Side-specific visual anchor offsets are added so ally and enemy visual groups align to logical cell footprint more consistently.
+- Full logical 14x8 guide lines can show the actual movement and attack cells across the whole board.
+- Full logical 14x8 guide points are baked into the scene so the same grid is visible in the Godot 2D editor before runtime.
+- `Battle_WebImport_Test.tscn` remains the stable small-board verification scene.
+- `Battle_Fullscreen_Test.tscn` is added as a 1920x1080 fullscreen battle board prototype using the same battle logic.
+- `v0.64k-fullscreen-pre` fullscreen layout prototype is completed.
+- `Battle_Fullscreen_Test.tscn` now uses a full 18x10 logical grid across the whole 1920x1080 board.
+- Actual fullscreen cell size is approximately `Vector2(106.6667, 108.0)`.
+- The 18x10 fullscreen grid is intended for future 7v7 to 10v10 battle scale.
+- The fullscreen logical grid remains editor-visible before runtime and the UI remains a CanvasLayer overlay.
+- `v0.64k-fullscreen-scene-authored-unit-layout` captures scene-authored unit layout offsets at runtime start.
+- Manual layout changes saved in the Godot 2D editor are now intended to persist during F6 runtime on `Battle_Fullscreen_Test.tscn`.
+- This is the staging step before later `UnitVisual.tscn` template separation.
+
+---
+
+## Fullscreen Direction
+- Keep `Battle_WebImport_Test.tscn` as the stable functional verification scene.
+- Use `Battle_Fullscreen_Test.tscn` as the new fullscreen battle layout scene.
+- The project is now moving toward a `1920 x 1080` fullscreen battle board.
+- The fullscreen grid is now planned around `18 x 10`.
+- This `18 x 10` grid is the current candidate base spec for future `7v7` to `10v10` battle scale.
+- One fullscreen logical cell is approximately `106.6667 x 108.0`.
+- Stop further tuning work that is based on the old small rectangular battle board.
+- From now on, fit unit body footprint and attached info UI against the fullscreen `18 x 10` grid.
+
+---
+
+## Workflow Lesson Learned Today
+- Find the structure that makes Kimjak's work easier first.
+- Before forcing visual fixes with code offsets, first check whether the problem can be solved directly in the Godot 2D editor.
+- Apply `Scene controls layout / Code controls behavior` more strictly.
+- Unit visual placement, HP bars, troop numbers, portraits, and click areas should stay scene-authored when possible.
+- Runtime code should capture that authored layout and make movement or attack animation follow it.
+- If Kimjak adjusts the layout in the 2D editor and presses `Ctrl+S`, F6 runtime should preserve that layout.
+- Prefer a structure that is easy and intuitive for the worker to edit over chasing a "correct" hardcoded offset solution.
+- If Kimjak is stuck, inspect whether there is an easier structural solution before writing a new Codex instruction chain.
 
 ---
 
@@ -107,22 +150,25 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - Units may look visually close while grid distance still reports 2 or 3.
 - This causes melee and range feel mismatch.
 - This is not a blocker for the current baseline, but it must be addressed next.
-- The real logical cell size is now visible through the cell guide.
-- Exact adjacent-cell visual feel has been checked without changing melee range.
-- Do not increase melee range from 1.
-- Visual anchor consistency is improved so ally and enemy guide coverage should read more similarly.
+- The remaining calibration target is the fullscreen `18 x 10` scene.
+- Runtime layout should follow scene-authored unit placement instead of snapping HP bars, portraits, labels, shadows, and click areas back to hardcoded offsets.
+- `v0.65` is still not reached.
 
 ---
 
 ## Next Immediate Task
-v0.64l Turn End / Wait Command
+Fullscreen 18x10 Unit Visual Manual Calibration Finalize
 
 Goal:
-- Add an explicit way to end ally turn after moving without attacking.
-- Preserve the current select -> move -> attack or enemy reaction flow.
+- Verify ally and enemy body footprint on `Battle_Fullscreen_Test.tscn`.
+- Manually fit troop body, shadow center, and click area to the fullscreen 18x10 logical grid.
+- Fit the unit body to the grid rather than moving the grid.
+- Treat the troop body center and shadow center as the tactical footprint anchor.
+- Flags, portraits, HP bars, and troop labels may overflow outside one logical cell.
+- Confirm that scene-authored layout from the 2D editor stays consistent during F6 runtime.
 
 Note:
-- Keep `v0.64l` as the next task after `v0.64k-hotfix Combat Distance Debug` is verified.
+- After visual anchor verification, proceed to `v0.64l Turn End / Wait Command`.
 
 Constraints:
 - No `_draw()`
