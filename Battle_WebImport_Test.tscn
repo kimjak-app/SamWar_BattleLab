@@ -10,6 +10,12 @@
 [ext_resource type="Texture2D" uid="uid://b8wo0cw1mkmqm" path="res://assets/web_battle/ui/results/battle_result_victory.png" id="7_result"]
 [ext_resource type="Texture2D" uid="uid://b8bsiuxax2w5a" path="res://assets/web_battle/skills/cutins/yi_sunsin_hakikjin.png" id="8_cutin"]
 
+[sub_resource type="LabelSettings" id="2"]
+font_size = 14
+font_color = Color(0.952941, 0.917647, 0.85098, 1)
+outline_size = 3
+outline_color = Color(0.0313726, 0.0627451, 0.0941176, 1)
+
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
 corner_radius_top_left = 4
@@ -24,12 +30,6 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="LabelSettings" id="2"]
-font_size = 14
-font_color = Color(0.952941, 0.917647, 0.85098, 1)
-outline_size = 3
-outline_color = Color(0.0313726, 0.0627451, 0.0941176, 1)
-
 [sub_resource type="StyleBoxFlat" id="5"]
 bg_color = Color(1, 0.24705882, 0.36078432, 0.5882353)
 corner_radius_top_left = 4
@@ -38,10 +38,10 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ally_click"]
-size = Vector2(108, 112)
+size = Vector2(94, 96)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_enemy_click"]
-size = Vector2(108, 112)
+size = Vector2(94, 96)
 
 [sub_resource type="LabelSettings" id="1"]
 font_size = 28
@@ -712,17 +712,51 @@ visible = false
 mouse_filter = 2
 color = Color(0.2, 0.55, 1, 0.18)
 
+[node name="CellGuideLayer" type="Node2D" parent="." unique_id=1573674244]
+z_index = 2
+
+[node name="CellGuide_Current" type="ColorRect" parent="CellGuideLayer" unique_id=1315635844]
+visible = false
+offset_right = 68.0
+offset_bottom = 56.0
+mouse_filter = 2
+color = Color(0.14117648, 0.84705883, 1, 0.19607843)
+
+[node name="CellGuide_Right" type="ColorRect" parent="CellGuideLayer" unique_id=418866148]
+visible = false
+offset_right = 68.0
+offset_bottom = 56.0
+mouse_filter = 2
+color = Color(0.972549, 0.8117647, 0.27058825, 0.19607843)
+
+[node name="CellGuide_Down" type="ColorRect" parent="CellGuideLayer" unique_id=1611100995]
+visible = false
+offset_right = 68.0
+offset_bottom = 56.0
+mouse_filter = 2
+color = Color(1, 0.4745098, 0.4745098, 0.19607843)
+
+[node name="CellGuide_Label" type="Label" parent="CellGuideLayer" unique_id=1377334721]
+offset_left = -60.0
+offset_top = -12.0
+offset_right = 120.0
+offset_bottom = 12.0
+text = "cell=(0,0) size=(0,0)"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="AllySide" type="Node2D" parent="." unique_id=983797976]
 
 [node name="AllyUnitShadow" type="Polygon2D" parent="AllySide" unique_id=335564105]
-position = Vector2(300, 468)
+position = Vector2(300, 464)
 color = Color(0, 0, 0, 0.28)
-polygon = PackedVector2Array(-44, 0, -32, -10, 0, -14, 32, -10, 44, 0, 32, 10, 0, 14, -32, 10)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
 
 [node name="AllyUnitToken" type="Sprite2D" parent="AllySide" unique_id=1411468196]
 z_index = 1
 position = Vector2(300, 434)
-scale = Vector2(0.38, 0.38)
+scale = Vector2(0.34, 0.34)
 texture = ExtResource("3_allytoken")
 flip_h = true
 
@@ -733,20 +767,20 @@ scale = Vector2(0.32, 0.32)
 texture = ExtResource("5_allyportrait")
 
 [node name="AllyHPBar" type="ProgressBar" parent="AllySide" unique_id=1914236876]
-offset_left = 246.0
-offset_top = 478.0
-offset_right = 354.0
-offset_bottom = 488.0
+offset_left = 252.0
+offset_top = 472.0
+offset_right = 348.0
+offset_bottom = 481.0
 theme_override_styles/background = SubResource("3")
 theme_override_styles/fill = SubResource("StyleBoxFlat_lhwdj")
 value = 84.0
 show_percentage = false
 
 [node name="AllyTroopLabel" type="Label" parent="AllySide" unique_id=10172604]
-offset_left = 246.0
-offset_top = 490.0
-offset_right = 354.0
-offset_bottom = 512.0
+offset_left = 252.0
+offset_top = 484.0
+offset_right = 348.0
+offset_bottom = 504.0
 text = "94 / 94"
 label_settings = SubResource("2")
 horizontal_alignment = 1
@@ -755,14 +789,14 @@ vertical_alignment = 1
 [node name="EnemySide" type="Node2D" parent="." unique_id=612955151]
 
 [node name="EnemyUnitShadow" type="Polygon2D" parent="EnemySide" unique_id=1776193078]
-position = Vector2(852, 290)
+position = Vector2(852, 286)
 color = Color(0, 0, 0, 0.28)
-polygon = PackedVector2Array(-44, 0, -32, -10, 0, -14, 32, -10, 44, 0, 32, 10, 0, 14, -32, 10)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
 
 [node name="EnemyUnitToken" type="Sprite2D" parent="EnemySide" unique_id=175940460]
 z_index = 1
 position = Vector2(852, 256)
-scale = Vector2(0.38, 0.38)
+scale = Vector2(0.34, 0.34)
 texture = ExtResource("4_enemytoken")
 
 [node name="EnemyPortraitBadge" type="Sprite2D" parent="EnemySide" unique_id=1672489250]
@@ -772,20 +806,20 @@ scale = Vector2(0.32, 0.32)
 texture = ExtResource("6_enemyportrait")
 
 [node name="EnemyHPBar" type="ProgressBar" parent="EnemySide" unique_id=1609871165]
-offset_left = 798.0
-offset_top = 300.0
-offset_right = 906.0
-offset_bottom = 310.0
+offset_left = 804.0
+offset_top = 294.0
+offset_right = 900.0
+offset_bottom = 303.0
 theme_override_styles/background = SubResource("3")
 theme_override_styles/fill = SubResource("5")
 value = 62.0
 show_percentage = false
 
 [node name="EnemyTroopLabel" type="Label" parent="EnemySide" unique_id=1006282899]
-offset_left = 798.0
-offset_top = 312.0
-offset_right = 906.0
-offset_bottom = 334.0
+offset_left = 804.0
+offset_top = 306.0
+offset_right = 900.0
+offset_bottom = 326.0
 text = "100 / 100"
 label_settings = SubResource("2")
 horizontal_alignment = 1
@@ -798,7 +832,7 @@ position = Vector2(300, 434)
 position = Vector2(300, 434)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AllyUnitClickArea" unique_id=1202646538]
-position = Vector2(2, 0)
+position = Vector2(0, 4)
 shape = SubResource("RectangleShape2D_ally_click")
 
 [node name="EnemyUnitMarker" type="Marker2D" parent="." unique_id=248114327]
@@ -808,7 +842,7 @@ position = Vector2(852, 256)
 position = Vector2(852, 256)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyUnitClickArea" unique_id=670291870]
-position = Vector2(-2, 0)
+position = Vector2(0, 4)
 shape = SubResource("RectangleShape2D_enemy_click")
 
 [node name="AllyPortraitMarker" type="Marker2D" parent="." unique_id=591376317]

@@ -33,6 +33,11 @@ Rules:
 Why first:
 - Visual footprint calibration must be based on the real logical grid, not guesswork.
 
+Status:
+- Verified.
+- Guide follows ally logical cell only.
+- No combat rule changes.
+
 ### 2. v0.64j Unit Visual Footprint Calibration
 Goal:
 - Align troop formation visual size to logical cells.
@@ -47,6 +52,11 @@ Focus:
 Reminder:
 - `PortraitBadge` is only a label and does not define footprint.
 
+Status:
+- Verified.
+- `v0.64j-pre` cell guide is verified and remains the visual truth.
+- Sample ally and enemy token, shadow, HP bar, troop label, and click area were tightened without combat logic changes.
+
 ### 3. v0.64k Melee/Range Feel QA
 Goal:
 - Re-evaluate attack range feel only after visual footprint calibration.
@@ -54,6 +64,30 @@ Goal:
 Rules:
 - Do not randomly increase range before visual calibration.
 - Compare visible spacing against logical `grid_cell` distance.
+
+Current QA support:
+- `v0.64k-pre Melee Adjacent QA Preset` added.
+- QA preset places Guan Yu at an exact adjacent logical cell from Yi Sun-sin.
+- Purpose: compare visual feel of true adjacent melee distance before changing melee or range rules.
+
+Status:
+- Complete.
+- `v0.64k-pre` adjacent QA preset was verified in right, left, up, and down directions.
+- Basic attack works.
+- Enemy counterattack works.
+- Melee range remains 1.
+- Do not increase range.
+
+Hotfix:
+- `v0.64k-hotfix Combat Distance Debug` added.
+- Purpose: confirm whether visually below-adjacent placement is truly `dist=1` or actually `dist>1`.
+- Cell guide label can now show ally grid, enemy grid, and current distance for quick inspection.
+
+Hotfix:
+- `v0.64k-hotfix Visual Anchor Consistency` added.
+- Purpose: align ally and enemy visual group anchors to their logical cell footprint in similar proportions.
+- Melee range remains 1.
+- Combat logic is unchanged.
 
 ### 4. v0.64l Turn End / Wait Command
 Goal:
