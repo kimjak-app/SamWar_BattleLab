@@ -11,6 +11,10 @@ const IDLE_SCALE_MULTIPLIER := 1.035
 const IDLE_DURATION := 1.15
 const ENEMY_GUARD_STEP_DISTANCE := 18.0
 const MOVE_HIGHLIGHT_SIZE := Vector2(68.0, 56.0)
+const MOVE_TARGET_VALID_COLOR := Color(0.45, 1.0, 0.55, 1.0)
+const MOVE_TARGET_INVALID_COLOR := Color(1.0, 0.35, 0.35, 1.0)
+const MOVE_HIGHLIGHT_VALID_COLOR := Color(0.172549, 0.623529, 1.0, 0.227451)
+const MOVE_HIGHLIGHT_INVALID_COLOR := Color(1.0, 0.2, 0.2, 0.28)
 const PHASE_ALLY_TURN := "ally_turn"
 const PHASE_ENEMY_TURN := "enemy_turn"
 const PHASE_RESOLVING := "resolving"
@@ -79,6 +83,11 @@ func _ready() -> void:
 	reset_demo_state()
 
 
+func _process(_delta: float) -> void:
+	if current_phase == PHASE_ALLY_TURN and not is_demo_animating:
+		_refresh_move_target_feedback()
+
+
 func show_cutin() -> void:
 	_sync_overlay_positions()
 	cutin_overlay.visible = true
@@ -130,6 +139,7 @@ func reset_demo_state() -> void:
 	_refresh_battle_log()
 	cutin_overlay.visible = false
 	result_overlay.visible = false
+	_refresh_move_target_feedback()
 	_start_idle_breathing()
 
 
@@ -137,33 +147,45 @@ func play_basic_move_demo() -> void:
 	if is_demo_animating or current_phase != PHASE_ALLY_TURN or ally_has_moved:
 		return
 
+	var target_cell: Vector2i = _get_raw_move_target_cell()
+	_refresh_move_target_feedback()
+	if not is_valid_move_target(target_cell):
+		_show_move_highlight_at_position(_get_snapped_move_target_world_position())
+		move_highlight.visible = true
+		_append_battle_log("이동 불가")
+		return
+
 	is_demo_animating = true
 	_set_phase(PHASE_RESOLVING)
 	_stop_idle_breathing()
 	_sync_demo_positions()
-	_show_move_highlight_at_target()
+
+	target_cell = _get_snapped_move_target_cell()
+	_show_move_highlight_at_position(battle_grid_controller.grid_to_world(target_cell))
 	move_highlight.visible = true
 
-	var target_unit_position := move_target_marker.position
+	var target_unit_position := battle_grid_controller.grid_to_world(target_cell)
 	var portrait_offset := ally_portrait_marker.position - ally_unit_marker.position
 	var target_portrait_position := target_unit_position + portrait_offset
 	var move_offset := target_unit_position - current_ally_unit_position
 
 	var tween := create_tween()
 	tween.tween_method(_apply_ally_group_offset, Vector2.ZERO, move_offset, 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_callback(_finish_basic_move_demo.bind(target_unit_position, target_portrait_position))
+	tween.tween_callback(_finish_basic_move_demo.bind(target_unit_position, target_portrait_position, target_cell))
 
 
-func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_position: Vector2) -> void:
+func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_position: Vector2, target_cell: Vector2i) -> void:
 	current_ally_unit_position = target_unit_position
 	current_ally_portrait_position = target_portrait_position
-	ally_unit_state.set_grid_cell(_get_cell_from_world(target_unit_position))
+	ally_unit_state.set_grid_cell(target_cell)
+	ally_unit_state.has_moved = true
 	ally_has_moved = true
 	_reset_unit_group_positions()
 	move_highlight.visible = false
 	is_demo_animating = false
 	_append_battle_log("이순신 이동")
 	_set_phase(PHASE_ALLY_TURN)
+	_refresh_move_target_feedback()
 	_start_idle_breathing()
 
 
@@ -175,6 +197,7 @@ func play_basic_attack_demo() -> void:
 	_set_phase(PHASE_RESOLVING)
 	_stop_idle_breathing()
 	_sync_demo_positions()
+	move_highlight.visible = false
 	damage_text_layer.position = damage_spawn_marker.position
 	damage_preview_label.text = "-%d" % int(DEMO_DAMAGE)
 	damage_preview_label.position = Vector2.ZERO
@@ -297,8 +320,11 @@ func _return_to_ally_turn() -> void:
 	_set_enemy_group_modulate(Color.WHITE)
 	is_demo_animating = false
 	ally_has_moved = false
+	if ally_unit_state != null:
+		ally_unit_state.reset_action_flags()
 	_set_phase(PHASE_ALLY_TURN)
 	_append_battle_log("아군 턴 복귀")
+	_refresh_move_target_feedback()
 	_start_idle_breathing()
 
 
@@ -366,8 +392,8 @@ func _set_enemy_group_modulate(color: Color) -> void:
 	_set_group_modulate(_get_enemy_group_nodes(), color)
 
 
-func _show_move_highlight_at_target() -> void:
-	move_highlight.position = move_target_marker.position - (MOVE_HIGHLIGHT_SIZE * 0.5)
+func _show_move_highlight_at_position(world_position: Vector2) -> void:
+	move_highlight.position = world_position - (MOVE_HIGHLIGHT_SIZE * 0.5)
 	move_highlight.size = MOVE_HIGHLIGHT_SIZE
 
 
@@ -423,6 +449,70 @@ func _sync_unit_state_cells_from_markers() -> void:
 
 func _get_cell_from_world(pos: Vector2) -> Vector2i:
 	return battle_grid_controller.world_to_grid(pos)
+
+
+func _get_raw_move_target_cell() -> Vector2i:
+	return _get_cell_from_world(move_target_marker.position)
+
+
+func _get_snapped_move_target_cell() -> Vector2i:
+	var raw_cell: Vector2i = _get_raw_move_target_cell()
+	if _is_valid_grid_cell(raw_cell):
+		return raw_cell
+
+	return Vector2i(
+		clampi(raw_cell.x, 0, battle_grid_controller.grid_width - 1),
+		clampi(raw_cell.y, 0, battle_grid_controller.grid_height - 1)
+	)
+
+
+func _get_snapped_move_target_world_position() -> Vector2:
+	return battle_grid_controller.grid_to_world(_get_snapped_move_target_cell())
+
+
+func _is_valid_grid_cell(cell: Vector2i) -> bool:
+	return battle_grid_controller.is_in_bounds(cell)
+
+
+func get_active_move_origin_cell() -> Vector2i:
+	if ally_unit_state == null:
+		return Vector2i.ZERO
+	return ally_unit_state.grid_cell
+
+
+func get_active_move_range() -> int:
+	if ally_unit_state == null:
+		return 0
+	return ally_unit_state.move_range
+
+
+func is_valid_move_target(target_cell: Vector2i) -> bool:
+	if ally_unit_state == null:
+		return false
+	if not _is_valid_grid_cell(target_cell):
+		return false
+	if ally_unit_state.has_moved:
+		return false
+
+	var origin_cell: Vector2i = get_active_move_origin_cell()
+	if target_cell == origin_cell:
+		return false
+
+	return battle_grid_controller.get_distance(origin_cell, target_cell) <= get_active_move_range()
+
+
+func _refresh_move_target_feedback() -> void:
+	if move_target_marker == null or move_highlight == null or battle_grid_controller == null:
+		return
+
+	var target_cell: Vector2i = _get_raw_move_target_cell()
+	var is_valid_target: bool = is_valid_move_target(target_cell)
+	var snapped_position: Vector2 = _get_snapped_move_target_world_position()
+	move_target_marker.modulate = MOVE_TARGET_VALID_COLOR if is_valid_target else MOVE_TARGET_INVALID_COLOR
+	move_highlight.color = MOVE_HIGHLIGHT_VALID_COLOR if is_valid_target else MOVE_HIGHLIGHT_INVALID_COLOR
+	_show_move_highlight_at_position(snapped_position)
+	if current_phase == PHASE_ALLY_TURN and not is_demo_animating:
+		move_highlight.visible = true
 
 
 func _format_cell(cell: Vector2i) -> String:
