@@ -22,8 +22,8 @@ var current_phase := PHASE_ALLY_TURN
 var battle_log_lines: Array[String] = []
 var current_ally_unit_position := Vector2.ZERO
 var current_ally_portrait_position := Vector2.ZERO
-var ally_demo_troops := int(ALLY_DEMO_HP)
-var enemy_demo_troops := int(ENEMY_DEMO_HP)
+var ally_unit_state: BattleUnitState
+var enemy_unit_state: BattleUnitState
 var ally_idle_tween: Tween
 var enemy_idle_tween: Tween
 var ally_token_base_scale := Vector2.ONE
@@ -109,14 +109,11 @@ func reset_demo_state() -> void:
 	]
 	current_ally_unit_position = ally_unit_marker.position
 	current_ally_portrait_position = ally_portrait_marker.position
+	_create_demo_unit_states()
 	_set_phase(PHASE_ALLY_TURN)
 	_sync_demo_positions()
 	_sync_overlay_positions()
-	ally_hp_bar.value = ALLY_DEMO_HP
-	enemy_hp_bar.value = ENEMY_DEMO_HP
-	ally_demo_troops = int(ALLY_DEMO_HP)
-	enemy_demo_troops = int(ENEMY_DEMO_HP)
-	_update_troop_labels()
+	_update_all_unit_visuals_from_state()
 	_set_group_modulate(_get_ally_group_nodes(), Color.WHITE)
 	_set_group_modulate(_get_enemy_group_nodes(), Color.WHITE)
 	cutin_name_label.text = "학익진 포격"
@@ -201,9 +198,8 @@ func play_basic_attack_demo() -> void:
 	tween.tween_method(_set_enemy_group_modulate, Color(1.0, 0.45, 0.45, 1.0), Color.WHITE, 0.10)
 	tween.finished.connect(_finish_basic_attack_demo)
 
-	enemy_hp_bar.value = maxf(enemy_hp_bar.value - DEMO_DAMAGE, 0.0)
-	enemy_demo_troops = maxi(enemy_demo_troops - int(DEMO_DAMAGE), 0)
-	_update_troop_labels()
+	enemy_unit_state.apply_damage(int(DEMO_DAMAGE))
+	_update_enemy_visuals_from_state()
 	_append_battle_log("이순신 공격")
 	_append_battle_log("관우 피해")
 
@@ -378,8 +374,63 @@ func _format_troop_label(value: int) -> String:
 
 
 func _update_troop_labels() -> void:
-	ally_troop_label.text = _format_troop_label(ally_demo_troops)
-	enemy_troop_label.text = _format_troop_label(enemy_demo_troops)
+	_update_all_unit_visuals_from_state()
+
+
+func _create_demo_unit_states() -> void:
+	ally_unit_state = BattleUnitState.create({
+		"unit_id": "yi_sunsin",
+		"display_name": "이순신",
+		"side": "ally",
+		"hero_name": "이순신",
+		"current_hp": int(ALLY_DEMO_HP),
+		"max_hp": int(ALLY_DEMO_HP),
+		"current_troops": int(ALLY_DEMO_HP),
+		"max_troops": int(ALLY_DEMO_HP),
+		"attack": 30,
+		"defense": 12,
+		"move_range": 3,
+		"attack_range": 1,
+		"grid_cell": Vector2i(2, 6),
+		"facing": "right",
+	})
+	enemy_unit_state = BattleUnitState.create({
+		"unit_id": "guan_yu",
+		"display_name": "관우",
+		"side": "enemy",
+		"hero_name": "관우",
+		"current_hp": int(ENEMY_DEMO_HP),
+		"max_hp": int(ENEMY_DEMO_HP),
+		"current_troops": int(ENEMY_DEMO_HP),
+		"max_troops": int(ENEMY_DEMO_HP),
+		"attack": 34,
+		"defense": 16,
+		"move_range": 3,
+		"attack_range": 1,
+		"grid_cell": Vector2i(11, 3),
+		"facing": "left",
+	})
+
+
+func _update_all_unit_visuals_from_state() -> void:
+	_update_ally_visuals_from_state()
+	_update_enemy_visuals_from_state()
+
+
+func _update_ally_visuals_from_state() -> void:
+	if ally_unit_state == null:
+		return
+	ally_hp_bar.max_value = ally_unit_state.max_hp
+	ally_hp_bar.value = ally_unit_state.current_hp
+	ally_troop_label.text = ally_unit_state.get_troop_label_text()
+
+
+func _update_enemy_visuals_from_state() -> void:
+	if enemy_unit_state == null:
+		return
+	enemy_hp_bar.max_value = enemy_unit_state.max_hp
+	enemy_hp_bar.value = enemy_unit_state.current_hp
+	enemy_troop_label.text = enemy_unit_state.get_troop_label_text()
 
 
 func _start_idle_breathing() -> void:
