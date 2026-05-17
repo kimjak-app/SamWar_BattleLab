@@ -1,12 +1,13 @@
 extends Node2D
 
 const DEMO_DAMAGE := 12.0
+const ENEMY_DEMO_DAMAGE := 8.0
 const ALLY_DEMO_HP := 94.0
 const ENEMY_DEMO_HP := 100.0
 const ATTACK_LUNGE_DISTANCE := 42.0
-const HP_BAR_OFFSET := Vector2(-54.0, 52.0)
-const TROOP_LABEL_OFFSET := Vector2(-48.0, 64.0)
-const SHADOW_OFFSET := Vector2(0.0, 42.0)
+const HP_BAR_OFFSET := Vector2(-54.0, 44.0)
+const TROOP_LABEL_OFFSET := Vector2(-54.0, 56.0)
+const SHADOW_OFFSET := Vector2(0.0, 34.0)
 const IDLE_SCALE_MULTIPLIER := 1.035
 const IDLE_DURATION := 1.15
 const ENEMY_GUARD_STEP_DISTANCE := 18.0
@@ -33,6 +34,8 @@ var enemy_unit_state: BattleUnitState
 var active_unit_state: BattleUnitState
 var active_unit_side := "ally"
 var has_selected_move_target := false
+var selected_attack_target_state: BattleUnitState = null
+var selected_attack_target_side := ""
 var move_range_cells: Array[ColorRect] = []
 var ally_idle_tween: Tween
 var enemy_idle_tween: Tween
@@ -44,6 +47,8 @@ var enemy_token_base_scale := Vector2.ONE
 @onready var ally_unit_click_area: Area2D = $AllyUnitClickArea
 @onready var ally_unit_click_shape: CollisionShape2D = $AllyUnitClickArea/CollisionShape2D
 @onready var enemy_unit_marker: Marker2D = $EnemyUnitMarker
+@onready var enemy_unit_click_area: Area2D = get_node_or_null("EnemyUnitClickArea") as Area2D
+@onready var enemy_unit_click_shape: CollisionShape2D = get_node_or_null("EnemyUnitClickArea/CollisionShape2D") as CollisionShape2D
 @onready var ally_portrait_marker: Marker2D = $AllyPortraitMarker
 @onready var enemy_portrait_marker: Marker2D = $EnemyPortraitMarker
 @onready var move_target_marker: Marker2D = $MoveTargetMarker
@@ -87,7 +92,7 @@ var enemy_token_base_scale := Vector2.ONE
 func _ready() -> void:
 	ally_token_base_scale = ally_unit_token.scale
 	enemy_token_base_scale = enemy_unit_token.scale
-	basic_attack_button.pressed.connect(play_basic_attack_demo)
+	basic_attack_button.pressed.connect(try_basic_attack)
 	move_button.pressed.connect(play_basic_move_demo)
 	_collect_move_range_cells()
 	reset_demo_state()
@@ -116,6 +121,11 @@ func _input(event: InputEvent) -> void:
 	])
 	if hit_ally:
 		_select_ally_unit()
+		get_viewport().set_input_as_handled()
+		return
+
+	if _is_click_inside_enemy_click_area(mouse_world_pos):
+		_select_enemy_attack_target()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -180,6 +190,8 @@ func reset_demo_state() -> void:
 	is_demo_animating = false
 	ally_has_moved = false
 	has_selected_move_target = false
+	selected_attack_target_state = null
+	selected_attack_target_side = ""
 	_stop_idle_breathing()
 	battle_log_lines = [
 		"아군 준비",
@@ -189,6 +201,8 @@ func reset_demo_state() -> void:
 	current_ally_portrait_position = ally_portrait_marker.position
 	_create_demo_unit_states()
 	_sync_unit_state_cells_from_markers()
+	print("GRID CELL SIZE: ", battle_grid_controller.get_cell_size())
+	print("ALLY GRID: ", ally_unit_state.grid_cell, " ENEMY GRID: ", enemy_unit_state.grid_cell)
 	active_unit_state = ally_unit_state
 	active_unit_side = "ally"
 	_set_phase(PHASE_ALLY_TURN)
@@ -257,6 +271,7 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 	current_ally_unit_position = target_unit_position
 	current_ally_portrait_position = target_portrait_position
 	active_unit_state.set_grid_cell(target_cell)
+	print("ALLY MOVED grid_cell: ", active_unit_state.grid_cell, " target_cell: ", target_cell)
 	active_unit_state.has_moved = true
 	ally_has_moved = true
 	has_selected_move_target = false
@@ -265,8 +280,49 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 	_hide_move_range_overlay()
 	is_demo_animating = false
 	_append_battle_log("이순신 이동 완료")
-	_set_phase(PHASE_ALLY_TURN)
-	_start_idle_breathing()
+	if is_enemy_in_active_attack_range():
+		_set_phase(PHASE_ALLY_TURN)
+		_append_battle_log("공격 가능")
+		if enemy_unit_state != null:
+			selected_attack_target_state = enemy_unit_state
+			selected_attack_target_side = "enemy"
+			_show_attack_target_feedback()
+		_start_idle_breathing()
+	else:
+		_append_battle_log("공격 사거리 밖")
+		_set_phase(PHASE_ENEMY_TURN)
+		_append_battle_log("적군 턴")
+		_play_enemy_turn_demo()
+
+
+func try_basic_attack() -> void:
+	if current_phase != PHASE_ALLY_TURN:
+		return
+	if is_demo_animating:
+		return
+	if ally_unit_state == null or enemy_unit_state == null:
+		return
+
+	var target_state := selected_attack_target_state
+	if target_state == null:
+		target_state = enemy_unit_state
+	if target_state == null or not target_state.is_alive():
+		_append_battle_log("공격 대상 없음")
+		return
+
+	var distance := get_unit_grid_distance(ally_unit_state, target_state)
+	print("ALLY BASIC ATTACK CHECK")
+	print("ally grid: ", ally_unit_state.grid_cell)
+	print("target grid: ", target_state.grid_cell)
+	print("dist: ", distance, " range: ", ally_unit_state.attack_range)
+	if not is_unit_in_attack_range(ally_unit_state, target_state):
+		_append_battle_log("사거리 밖입니다")
+		return
+
+	selected_attack_target_state = target_state
+	selected_attack_target_side = target_state.side if target_state.side != "" else "enemy"
+	_show_attack_target_feedback()
+	play_basic_attack_demo()
 
 
 func play_basic_attack_demo() -> void:
@@ -292,17 +348,23 @@ func play_basic_attack_demo() -> void:
 	var enemy_recoil_offset := direction * 12.0
 
 	var tween := create_tween()
-	tween.set_parallel(true)
 	tween.tween_method(_apply_ally_group_offset, Vector2.ZERO, ally_lunge_offset, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_method(_apply_enemy_group_offset, Vector2.ZERO, enemy_recoil_offset, 0.08).set_delay(0.14)
-	tween.tween_method(_set_enemy_group_modulate, Color.WHITE, Color(1.0, 0.45, 0.45, 1.0), 0.08).set_delay(0.14)
-	tween.tween_property(damage_preview_label, "position", Vector2(0.0, -36.0), 0.42).set_delay(0.14)
-	tween.tween_property(damage_preview_label, "modulate:a", 0.0, 0.42).set_delay(0.14)
-	tween.set_parallel(false)
+	tween.chain()
+	tween.set_parallel(true)
+	tween.tween_method(_apply_enemy_group_offset, Vector2.ZERO, enemy_recoil_offset, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_method(_set_enemy_group_modulate, Color.WHITE, Color(1.0, 0.45, 0.45, 1.0), 0.08)
+	tween.chain()
 	tween.tween_method(_apply_ally_group_offset, ally_lunge_offset, Vector2.ZERO, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_method(_apply_enemy_group_offset, enemy_recoil_offset, Vector2.ZERO, 0.10)
-	tween.tween_method(_set_enemy_group_modulate, Color(1.0, 0.45, 0.45, 1.0), Color.WHITE, 0.10)
+	tween.tween_method(_apply_enemy_group_offset, enemy_recoil_offset, Vector2.ZERO, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_method(_set_enemy_group_modulate, Color(1.0, 0.45, 0.45, 1.0), Color.WHITE, 0.18)
 	tween.finished.connect(_finish_basic_attack_demo)
+
+	var damage_tween := create_tween()
+	damage_tween.tween_interval(0.16)
+	damage_tween.chain()
+	damage_tween.set_parallel(true)
+	damage_tween.tween_property(damage_preview_label, "position", Vector2(0.0, -36.0), 0.28)
+	damage_tween.tween_property(damage_preview_label, "modulate:a", 0.0, 0.28)
 
 	enemy_unit_state.apply_damage(int(DEMO_DAMAGE))
 	_update_enemy_visuals_from_state()
@@ -326,6 +388,8 @@ func _reset_unit_group_positions() -> void:
 	ally_troop_label.position = current_ally_unit_position + TROOP_LABEL_OFFSET
 	enemy_troop_label.position = enemy_unit_marker.position + TROOP_LABEL_OFFSET
 	ally_unit_click_area.position = current_ally_unit_position
+	if enemy_unit_click_area != null:
+		enemy_unit_click_area.position = enemy_unit_marker.position
 
 
 func _finish_basic_attack_demo() -> void:
@@ -374,32 +438,48 @@ func _play_enemy_turn_demo() -> void:
 	basic_attack_button.disabled = true
 	_reset_unit_group_positions()
 
+	var enemy_distance := get_unit_grid_distance(enemy_unit_state, ally_unit_state)
+	print("ENEMY RANGE CHECK")
+	if enemy_unit_state != null:
+		print("enemy grid: ", enemy_unit_state.grid_cell)
+	if ally_unit_state != null:
+		print("ally grid: ", ally_unit_state.grid_cell)
+	if enemy_unit_state != null:
+		print("dist: ", enemy_distance, " range: ", enemy_unit_state.attack_range)
+	if not is_unit_in_attack_range(enemy_unit_state, ally_unit_state):
+		_append_battle_log("관우 사거리 밖")
+		_return_to_ally_turn()
+		return
+
 	var guard_direction := (current_ally_unit_position - enemy_unit_marker.position).normalized()
 	var guard_offset := guard_direction * ENEMY_GUARD_STEP_DISTANCE
-	var settle_offset := -guard_offset * 0.35
+	var ally_recoil_offset := guard_direction * 16.0
 
 	var tween := create_tween()
-	tween.tween_interval(0.28)
-	tween.tween_callback(_enemy_guard_pulse_on)
-	tween.tween_method(_apply_enemy_group_offset, Vector2.ZERO, guard_offset, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_method(_apply_enemy_group_offset, guard_offset, settle_offset, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_method(_apply_enemy_group_offset, settle_offset, Vector2.ZERO, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_callback(_enemy_guard_pulse_off)
-	tween.tween_interval(0.18)
-	tween.tween_callback(_return_to_ally_turn)
+	tween.tween_interval(0.16)
+	tween.tween_callback(_enemy_reaction_hit_on)
+	tween.chain()
+	tween.set_parallel(true)
+	tween.tween_method(_apply_enemy_group_offset, Vector2.ZERO, guard_offset, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_method(_apply_ally_group_offset, Vector2.ZERO, ally_recoil_offset, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_method(_set_ally_group_modulate, Color.WHITE, Color(1.0, 0.45, 0.45, 1.0), 0.08)
+	tween.chain()
+	tween.tween_method(_apply_enemy_group_offset, guard_offset, Vector2.ZERO, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_method(_apply_ally_group_offset, ally_recoil_offset, Vector2.ZERO, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_method(_set_ally_group_modulate, Color(1.0, 0.45, 0.45, 1.0), Color.WHITE, 0.18)
+	tween.chain().tween_callback(_return_to_ally_turn)
 
 
-func _enemy_guard_pulse_on() -> void:
-	_append_battle_log("관우 방어")
-	_set_enemy_group_modulate(Color(0.82, 0.92, 1.0, 1.0))
-
-
-func _enemy_guard_pulse_off() -> void:
-	_set_enemy_group_modulate(Color.WHITE)
+func _enemy_reaction_hit_on() -> void:
+	if ally_unit_state != null and ally_unit_state.is_alive():
+		ally_unit_state.apply_damage(int(ENEMY_DEMO_DAMAGE))
+		_update_ally_visuals_from_state()
+	_append_battle_log("관우 반격")
 
 
 func _return_to_ally_turn() -> void:
 	_reset_unit_group_positions()
+	_set_group_modulate(_get_ally_group_nodes(), Color.WHITE)
 	_set_enemy_group_modulate(Color.WHITE)
 	is_demo_animating = false
 	ally_has_moved = false
@@ -470,6 +550,10 @@ func _apply_enemy_group_offset(offset: Vector2) -> void:
 func _set_group_modulate(nodes: Array[CanvasItem], color: Color) -> void:
 	for node in nodes:
 		node.modulate = color
+
+
+func _set_ally_group_modulate(color: Color) -> void:
+	_set_group_modulate(_get_ally_group_nodes(), color)
 
 
 func _set_enemy_group_modulate(color: Color) -> void:
@@ -580,7 +664,7 @@ func _create_demo_unit_states() -> void:
 		"attack": 30,
 		"defense": 12,
 		"move_range": 3,
-		"attack_range": 1,
+		"attack_range": 3,
 		"grid_cell": Vector2i.ZERO,
 		"facing": "right",
 	})
@@ -658,9 +742,55 @@ func _select_ally_unit() -> void:
 	active_unit_side = "ally"
 	has_selected_move_target = false
 	move_highlight.visible = false
+	_clear_attack_target_selection()
 	_append_battle_log("이순신 선택")
 	_refresh_move_target_feedback()
 	_show_move_range_overlay_for_active_unit()
+
+
+func _select_enemy_attack_target() -> void:
+	if enemy_unit_state == null:
+		return
+	if not enemy_unit_state.is_alive():
+		return
+
+	selected_attack_target_state = enemy_unit_state
+	selected_attack_target_side = "enemy"
+	has_selected_move_target = false
+	move_highlight.visible = false
+	_append_battle_log("관우 공격 대상 선택")
+	_show_attack_target_feedback()
+
+
+func _clear_attack_target_selection() -> void:
+	selected_attack_target_state = null
+	selected_attack_target_side = ""
+	if attack_highlight != null:
+		attack_highlight.visible = false
+
+
+func _show_attack_target_feedback() -> void:
+	if attack_highlight == null:
+		return
+	if enemy_unit_state == null:
+		return
+
+	var highlight_size := MOVE_HIGHLIGHT_SIZE
+	var world_pos := enemy_unit_marker.position
+	if battle_grid_controller != null:
+		var cell_size := battle_grid_controller.get_cell_size()
+		if cell_size.x > 0.0 and cell_size.y > 0.0:
+			highlight_size = cell_size
+		world_pos = battle_grid_controller.grid_to_world(enemy_unit_state.grid_cell)
+
+	var highlight_pos := world_pos - (highlight_size * 0.5)
+	if attack_highlight.get_parent() is Node2D:
+		var parent_node := attack_highlight.get_parent() as Node2D
+		highlight_pos = parent_node.to_local(world_pos) - (highlight_size * 0.5)
+
+	attack_highlight.position = highlight_pos
+	attack_highlight.size = highlight_size
+	attack_highlight.visible = true
 
 
 func _get_ally_click_area_local_position(mouse_pos: Vector2) -> Vector2:
@@ -694,6 +824,33 @@ func _is_click_inside_ally_click_area(mouse_pos: Vector2) -> bool:
 	return false
 
 
+func _get_enemy_click_area_local_position(mouse_pos: Vector2) -> Vector2:
+	if enemy_unit_click_area == null:
+		return Vector2.ZERO
+
+	var local_pos := enemy_unit_click_area.to_local(mouse_pos)
+	if enemy_unit_click_shape != null:
+		local_pos -= enemy_unit_click_shape.position
+	return local_pos
+
+
+func _is_click_inside_enemy_click_area(mouse_pos: Vector2) -> bool:
+	if enemy_unit_click_area == null:
+		return false
+	if enemy_unit_click_shape == null:
+		return false
+	if enemy_unit_click_shape.shape == null:
+		return false
+
+	var local_pos := _get_enemy_click_area_local_position(mouse_pos)
+	if enemy_unit_click_shape.shape is RectangleShape2D:
+		var rect_shape := enemy_unit_click_shape.shape as RectangleShape2D
+		var half_size := rect_shape.size * 0.5
+		return absf(local_pos.x) <= half_size.x and absf(local_pos.y) <= half_size.y
+
+	return false
+
+
 func _is_valid_grid_cell(cell: Vector2i) -> bool:
 	return battle_grid_controller.is_in_bounds(cell)
 
@@ -716,6 +873,42 @@ func get_active_move_range() -> int:
 	if active_unit_state == null:
 		return 0
 	return active_unit_state.move_range
+
+
+func get_unit_grid_distance(attacker: BattleUnitState, target: BattleUnitState) -> int:
+	if attacker == null or target == null:
+		return 9999
+	return absi(attacker.grid_cell.x - target.grid_cell.x) + absi(attacker.grid_cell.y - target.grid_cell.y)
+
+
+func is_unit_in_attack_range(attacker: BattleUnitState, target: BattleUnitState) -> bool:
+	if attacker == null:
+		return false
+	if target == null:
+		return false
+	if not target.is_alive():
+		return false
+
+	var distance := get_unit_grid_distance(attacker, target)
+	return distance <= attacker.attack_range
+
+
+func is_enemy_in_active_attack_range() -> bool:
+	if ally_unit_state == null:
+		return false
+	if enemy_unit_state == null:
+		return false
+	if battle_grid_controller == null:
+		return false
+	if not enemy_unit_state.is_alive():
+		return false
+
+	var distance := get_unit_grid_distance(ally_unit_state, enemy_unit_state)
+	print("ALLY RANGE CHECK")
+	print("ally grid: ", ally_unit_state.grid_cell)
+	print("enemy grid: ", enemy_unit_state.grid_cell)
+	print("dist: ", distance, " range: ", ally_unit_state.attack_range)
+	return is_unit_in_attack_range(ally_unit_state, enemy_unit_state)
 
 
 func is_valid_move_target(target_cell: Vector2i) -> bool:

@@ -1,11 +1,120 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.64e Occupied Cell Blocking
+v0.64i-hotfix-4 Attack Range Debug + Enemy Range Gate
 
 ---
 
-## Current Patch — v0.64f-hotfix-3 Clean Move Target UX
+## Current Patch — v0.64j Unit Visual Footprint Calibration
+
+Goal:
+Calibrate unit visual footprint so formation, portrait, HP bar, troop label, click area, and logical grid_cell feel aligned.
+
+Implemented:
+- Use BattleGridController cell size, about 62.86 x 55.0, as visual reference.
+- Reduce AllyUnitToken and EnemyUnitToken scale from 0.5 to 0.38.
+- Reduce AllyPortraitBadge and EnemyPortraitBadge scale from 0.4 to 0.32.
+- Pull ally portrait marker closer to the formation center.
+- Pull enemy portrait marker closer to the formation center.
+- Tighten SHADOW_OFFSET from Vector2(0.0, 42.0) to Vector2(0.0, 34.0).
+- Tighten HP_BAR_OFFSET from Vector2(-54.0, 52.0) to Vector2(-54.0, 44.0).
+- Tighten TROOP_LABEL_OFFSET from Vector2(-48.0, 64.0) to Vector2(-54.0, 56.0).
+- Reduce AllyUnitClickArea and EnemyUnitClickArea RectangleShape2D hitboxes to 108 x 112.
+- Add one-time reset debug prints for grid cell size and initial ally/enemy grid cells.
+- Preserve grid_cell logic, occupied-cell rules, movement validation, attack range checks, and hit bounce logic.
+
+Notes:
+- Attack range overhaul is not implemented.
+- Unit footprint occupancy system is not implemented.
+- Enemy AI is not implemented.
+- No GridOverlay drawing, _draw(), or queue_redraw() was added.
+- v0.65 is not reached.
+
+---
+
+## Completed — v0.64i-hotfix-4 Attack Range Debug + Enemy Range Gate
+
+Goal:
+Add range debug output and prevent Guan Yu from hitting Yi Sun-sin from outside enemy attack range.
+
+Implemented:
+- Add get_unit_grid_distance(attacker, target).
+- Add is_unit_in_attack_range(attacker, target).
+- Set current demo attack ranges: Yi Sun-sin = 3, Guan Yu = 1.
+- Print "ALLY MOVED" grid_cell and target_cell once after movement completes.
+- Print "ALLY RANGE CHECK" once during the post-move attack range branch.
+- Print "ALLY BASIC ATTACK CHECK" once when BasicAttackButton is pressed.
+- Print "ENEMY RANGE CHECK" once when enemy reaction starts.
+- Gate enemy reaction with enemy_unit_state.attack_range before applying ally damage or hit bounce.
+- If Guan Yu is out of range, log "관우 사거리 밖" and return to ally turn without ally damage or hit bounce.
+- Keep ally turn active after successful movement.
+- Preserve movement state updates: visual position, portrait position, active unit grid_cell, has_moved, and ally_has_moved.
+- Hide MoveHighlight and movement range overlay after movement.
+- Keep MoveButton disabled after movement through ally_has_moved.
+- Keep BasicAttackButton available after movement during ally turn.
+- Add is_enemy_in_active_attack_range().
+- Use ally_unit_state.attack_range for post-move range branching.
+- If Guan Yu is in range after movement, log "공격 가능", keep ally turn, select Guan Yu, and show AttackHighlight.
+- If Guan Yu is out of range after movement, log "공격 사거리 밖", start enemy turn/reaction, then return to ally turn.
+- Confirm _start_idle_breathing() exists and call it only on the ally-turn branch.
+- Preserve try_basic_attack() selected target fallback and "사거리 밖입니다" guard.
+- Preserve BasicAttackButton -> play_basic_attack_demo().
+- Smooth the enemy hit bounce during Yi Sun-sin's attack with an immediate recoil-and-return sequence.
+- Add ENEMY_DEMO_DAMAGE for the enemy reaction demo.
+- Add ally recoil, red flash, and HP/troop update during enemy reaction.
+- Preserve enemy reaction after the attack demo and ally turn return after enemy reaction.
+
+Notes:
+- Turn End / Wait button is not implemented.
+- New attack damage formulas are not implemented.
+- Full attack range/unit type rule polish is not implemented.
+- Enemy AI is not implemented.
+- No GridOverlay drawing, _draw(), or queue_redraw() was added.
+- v0.65 is not reached.
+
+---
+
+## Completed — v0.64h Turn Flow After Move
+
+Goal:
+After movement, prove that the battle can transition through enemy reaction and return to ally turn.
+
+Implemented:
+- Movement completion state cleanup.
+- Existing enemy reaction/defense demo reuse.
+- Ally turn reset through _return_to_ally_turn().
+
+Notes:
+- v0.64i supersedes this flow so movement no longer consumes the whole turn.
+
+---
+
+## Completed — v0.64g Attack Target Selection
+
+Goal:
+Allow the player to click Guan Yu and select him as an attack target.
+
+Implemented:
+- Add editor-visible EnemyUnitClickArea under the scene root.
+- Add EnemyUnitClickArea/CollisionShape2D with a RectangleShape2D hitbox over Guan Yu.
+- Add selected_attack_target_state and selected_attack_target_side.
+- Check enemy hitbox manually from _input() after ally selection and before movement target selection.
+- Clicking Guan Yu selects enemy_unit_state as the attack target.
+- Clicking Guan Yu appends "관우 공격 대상 선택" to the battle log.
+- Clicking Guan Yu does not move MoveTargetMarker and does not show MoveHighlight.
+- Show AttackHighlight over Guan Yu using BattleGridController grid_to_world() and cell size when available.
+- Clear AttackHighlight when selecting the ally, selecting a movement target, starting movement, finishing movement, or resetting demo state.
+- Keep BasicAttackButton wired to the existing basic attack demo for v0.64g.
+
+Notes:
+- New attack damage formulas are not implemented.
+- Enemy AI is not implemented.
+- No GridOverlay drawing, _draw(), or queue_redraw() was added.
+- v0.65 is not reached.
+
+---
+
+## Completed — v0.64f-hotfix-3 Clean Move Target UX
 
 Goal:
 Keep movement target UX clean by showing strong MoveHighlight only for valid selected movement targets.
@@ -152,42 +261,31 @@ Expected result:
 - No scene layout shifts.
 - No major runtime-created battlefield nodes.
 
-## Priority 1 — v0.64g Attack Target Selection
+## Priority 1 — v0.64k Melee/Range Feel QA
 
 Goal:
-Allow selecting an enemy target separately from movement target selection.
+Verify that calibrated unit visuals, grid_cell distance, and attack range feedback feel coherent.
 
 Requirements:
-- Keep movement validation separate from attack validation.
-- Do not combine movement and attack actions too early.
+- Compare visual closeness against printed grid distances.
+- Keep attack range rules unchanged unless QA shows a concrete mismatch.
+- Do not add unit footprint occupancy yet.
 
 ---
 
-## Priority 2 — v0.64h Attack Range Validation
+## Priority 2 — v0.64l Turn End / Wait Command
 
 Goal:
-Validate attackable enemy targets based on active unit attack_range.
+Add a clear command to end the ally turn without attacking.
 
 Requirements:
-- Use BattleGridController.get_distance().
-- Use BattleUnitState.attack_range.
-- Enemy target must be alive.
-
----
-
-## Priority 3 — v0.64i Turn Action Flow Cleanup
-
-Goal:
-Clarify selected unit, selected target, and action availability during ally/enemy turn transitions.
-
-Requirements:
-- Preserve v0.64a movement behavior.
-- Keep command buttons as explicit confirmation controls.
+- Keep movement then attack available.
+- Use the existing enemy reaction path after waiting.
 - Avoid introducing AI movement.
 
 ---
 
-## Priority 4 — v0.64j Basic Battle Loop QA
+## Priority 3 — v0.64m Basic Battle Loop QA
 
 Goal:
 Run a focused QA pass on the basic battle loop before any v0.65 milestone.
@@ -197,6 +295,28 @@ Requirements:
 - Verify movement and attack demo flow.
 - Verify same-turn re-move blocking.
 - Verify no unintended scene layout changes.
+
+---
+
+## Priority 4 — v0.64n Unit Type / Hero Skill Range Rules
+
+Goal:
+Add attack range and unit type restrictions after the basic turn loop feels stable.
+
+Requirements:
+- Do not combine with damage formula changes.
+- Keep movement validation separate from attack validation.
+
+---
+
+## Later — Attack Confirm Flow Cleanup
+
+Goal:
+Clarify the BasicAttackButton flow after an attack target has been selected.
+
+Requirements:
+- Keep attack target selection separate from attack confirmation.
+- Avoid changing damage formulas in the same patch.
 
 ---
 
