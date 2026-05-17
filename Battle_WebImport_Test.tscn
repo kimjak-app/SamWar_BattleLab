@@ -1,0 +1,343 @@
+[gd_scene format=3 uid="uid://cv8gf3we7q0bk"]
+
+[ext_resource type="Script" uid="uid://cghofkekn01w7" path="res://scripts/battle_web_import_test.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cwcia5x7bf0x7" path="res://assets/web_battle/battlefield/battlefield_14x8_mvp.png" id="2_battlefield"]
+[ext_resource type="Texture2D" uid="uid://b4ciq32fwok8c" path="res://assets/web_battle/unit_tokens/unit_blue_battlefield.png" id="3_allytoken"]
+[ext_resource type="Texture2D" uid="uid://px583gw30js7" path="res://assets/web_battle/unit_tokens/unit_red_battlefield.png" id="4_enemytoken"]
+[ext_resource type="Texture2D" uid="uid://dhkswl5jwmkny" path="res://assets/web_battle/portraits_battlefield/yi_sunsin_battlefield.png" id="5_allyportrait"]
+[ext_resource type="Texture2D" uid="uid://yw74otqxxdjc" path="res://assets/web_battle/portraits_battlefield/guan_yu_battlefield.png" id="6_enemyportrait"]
+[ext_resource type="Texture2D" uid="uid://b8wo0cw1mkmqm" path="res://assets/web_battle/ui/results/battle_result_victory.png" id="7_result"]
+[ext_resource type="Texture2D" uid="uid://b8bsiuxax2w5a" path="res://assets/web_battle/skills/cutins/yi_sunsin_hakikjin.png" id="8_cutin"]
+
+[sub_resource type="LabelSettings" id="1"]
+font_size = 28
+font_color = Color(0.952941, 0.917647, 0.85098, 1)
+outline_size = 6
+outline_color = Color(0.0313726, 0.0627451, 0.0941176, 1)
+
+[node name="Battle_WebImport_Test" type="Node2D" unique_id=1929995568]
+script = ExtResource("1_script")
+
+[node name="BattlefieldRoot" type="Node2D" parent="." unique_id=1334997822]
+
+[node name="BattlefieldFrame" type="ColorRect" parent="BattlefieldRoot" unique_id=1342559107]
+offset_left = 118.0
+offset_top = 78.0
+offset_right = 1034.0
+offset_bottom = 566.0
+color = Color(0.0509804, 0.0862745, 0.133333, 1)
+
+[node name="BattlefieldTexture" type="Sprite2D" parent="BattlefieldRoot" unique_id=836791405]
+position = Vector2(576, 322)
+scale = Vector2(0.392, 0.392)
+texture = ExtResource("2_battlefield")
+
+[node name="BoardBounds" type="ColorRect" parent="BattlefieldRoot" unique_id=2098836911]
+offset_left = 136.0
+offset_top = 102.0
+offset_right = 1016.0
+offset_bottom = 542.0
+color = Color(0.0901961, 0.12549, 0.192157, 0.121569)
+
+[node name="GridOverlay" type="Node2D" parent="BattlefieldRoot" unique_id=1229653563]
+
+[node name="GridLineTop" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=642488879]
+points = PackedVector2Array(136, 102, 1016, 102)
+width = 2.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.32)
+
+[node name="GridLineBottom" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=1467521003]
+points = PackedVector2Array(136, 542, 1016, 542)
+width = 2.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.32)
+
+[node name="GridLineLeft" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=1138771574]
+points = PackedVector2Array(136, 102, 136, 542)
+width = 2.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.32)
+
+[node name="GridLineRight" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=857169092]
+points = PackedVector2Array(1016, 102, 1016, 542)
+width = 2.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.32)
+
+[node name="GridRowGuide1" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=1420429459]
+points = PackedVector2Array(136, 212, 1016, 212)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="GridRowGuide2" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=467486219]
+points = PackedVector2Array(136, 322, 1016, 322)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="GridRowGuide3" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=1547434629]
+points = PackedVector2Array(136, 432, 1016, 432)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="GridColGuide1" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=2079651183]
+points = PackedVector2Array(356, 102, 356, 542)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="GridColGuide2" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=243747129]
+points = PackedVector2Array(576, 102, 576, 542)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="GridColGuide3" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=1165122338]
+points = PackedVector2Array(796, 102, 796, 542)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="HighlightLayer" type="Node2D" parent="." unique_id=1817155697]
+
+[node name="MoveHighlight" type="ColorRect" parent="HighlightLayer" unique_id=1711559311]
+offset_left = 286.0
+offset_top = 392.0
+offset_right = 354.0
+offset_bottom = 448.0
+color = Color(0.172549, 0.623529, 1, 0.227451)
+
+[node name="AttackHighlight" type="ColorRect" parent="HighlightLayer" unique_id=1728313183]
+offset_left = 798.0
+offset_top = 238.0
+offset_right = 866.0
+offset_bottom = 294.0
+color = Color(1, 0.482353, 0.482353, 0.207843)
+
+[node name="AllySide" type="Node2D" parent="." unique_id=983797976]
+
+[node name="AllyUnitToken" type="Sprite2D" parent="AllySide" unique_id=1411468196]
+position = Vector2(300, 434)
+scale = Vector2(0.72, 0.72)
+texture = ExtResource("3_allytoken")
+
+[node name="AllyPortraitBadge" type="Sprite2D" parent="AllySide" unique_id=1868352463]
+position = Vector2(270, 386)
+scale = Vector2(0.72, 0.72)
+texture = ExtResource("5_allyportrait")
+
+[node name="AllyHPBar" type="ProgressBar" parent="AllySide" unique_id=1914236876]
+offset_left = 226.0
+offset_top = 520.0
+offset_right = 334.0
+offset_bottom = 544.0
+value = 84.0
+show_percentage = false
+
+[node name="EnemySide" type="Node2D" parent="." unique_id=612955151]
+
+[node name="EnemyUnitToken" type="Sprite2D" parent="EnemySide" unique_id=175940460]
+position = Vector2(852, 256)
+scale = Vector2(0.72, 0.72)
+texture = ExtResource("4_enemytoken")
+
+[node name="EnemyPortraitBadge" type="Sprite2D" parent="EnemySide" unique_id=1672489250]
+position = Vector2(884, 208)
+scale = Vector2(0.72, 0.72)
+texture = ExtResource("6_enemyportrait")
+
+[node name="EnemyHPBar" type="ProgressBar" parent="EnemySide" unique_id=1609871165]
+offset_left = 866.0
+offset_top = 316.0
+offset_right = 974.0
+offset_bottom = 340.0
+value = 62.0
+show_percentage = false
+
+[node name="AllyUnitMarker" type="Marker2D" parent="." unique_id=1575499460]
+position = Vector2(300, 434)
+
+[node name="EnemyUnitMarker" type="Marker2D" parent="." unique_id=248114327]
+position = Vector2(852, 256)
+
+[node name="AllyPortraitMarker" type="Marker2D" parent="." unique_id=591376317]
+position = Vector2(270, 386)
+
+[node name="EnemyPortraitMarker" type="Marker2D" parent="." unique_id=631579844]
+position = Vector2(884, 208)
+
+[node name="DamageSpawnMarker" type="Marker2D" parent="." unique_id=939657881]
+position = Vector2(576, 322)
+
+[node name="BoardTopLeftMarker" type="Marker2D" parent="." unique_id=1867611365]
+position = Vector2(136, 102)
+
+[node name="BoardBottomRightMarker" type="Marker2D" parent="." unique_id=1111883749]
+position = Vector2(1016, 542)
+
+[node name="CutinCenterMarker" type="Marker2D" parent="." unique_id=311745938]
+position = Vector2(576, 324)
+
+[node name="ResultCenterMarker" type="Marker2D" parent="." unique_id=1832523907]
+position = Vector2(576, 324)
+
+[node name="DamageTextLayer" type="Node2D" parent="." unique_id=1463093936]
+position = Vector2(576, 322)
+
+[node name="DamagePreviewLabel" type="Label" parent="DamageTextLayer" unique_id=405421207]
+offset_left = -42.0
+offset_top = -18.0
+offset_right = 42.0
+offset_bottom = 18.0
+text = "-42"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MainCamera" type="Camera2D" parent="." unique_id=1502905262]
+position = Vector2(576, 324)
+
+[node name="BattleUI" type="CanvasLayer" parent="." unique_id=1570436259]
+
+[node name="TopBar" type="Panel" parent="BattleUI" unique_id=46958898]
+offset_left = 36.0
+offset_top = 16.0
+offset_right = 1116.0
+offset_bottom = 72.0
+
+[node name="TopBarLabel" type="Label" parent="BattleUI/TopBar" unique_id=740296385]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 8.0
+offset_right = 674.0
+offset_bottom = 48.0
+text = "전투 테스트 | 한성 군이 낙양 공략을 시도하고 있습니다."
+label_settings = SubResource("1")
+vertical_alignment = 1
+
+[node name="TurnBanner" type="Label" parent="BattleUI/TopBar" unique_id=995055658]
+layout_mode = 0
+offset_left = 914.0
+offset_top = 10.0
+offset_right = 1058.0
+offset_bottom = 44.0
+text = "아군 턴"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LeftPanel" type="Panel" parent="BattleUI" unique_id=2039077714]
+offset_left = 12.0
+offset_top = 98.0
+offset_right = 164.0
+offset_bottom = 514.0
+
+[node name="LeftPanelLabel" type="Label" parent="BattleUI/LeftPanel" unique_id=951468497]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 12.0
+offset_right = 134.0
+offset_bottom = 140.0
+text = "전황 보고
+- 유닛 선택
+- 이동
+- 방향 결정
+- 공격 / 특기 / 책략"
+
+[node name="BattleLogPreview" type="Label" parent="BattleUI/LeftPanel" unique_id=1049618586]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 186.0
+offset_right = 134.0
+offset_bottom = 382.0
+text = "전투 기록
+- 이순신이 전진했습니다.
+- 관우가 방어 태세입니다."
+autowrap_mode = 2
+
+[node name="RightPanel" type="Panel" parent="BattleUI" unique_id=1102874252]
+offset_left = 988.0
+offset_top = 98.0
+offset_right = 1140.0
+offset_bottom = 514.0
+
+[node name="RightPanelLabel" type="Label" parent="BattleUI/RightPanel" unique_id=1661618933]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 12.0
+offset_right = 134.0
+offset_bottom = 180.0
+text = "부대 목록
+아군: 이순신
+적군: 관우"
+autowrap_mode = 2
+
+[node name="CommandBar" type="Panel" parent="BattleUI" unique_id=2130262646]
+offset_left = 232.0
+offset_top = 582.0
+offset_right = 920.0
+offset_bottom = 630.0
+
+[node name="CommandBarLabel" type="Label" parent="BattleUI/CommandBar" unique_id=163471327]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 8.0
+offset_right = 646.0
+offset_bottom = 38.0
+text = "기본 공격 | 고유 특기 | 책략 | 방어 | 대기 | 턴 종료 | 자동전투 | 후퇴"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CutinOverlay" type="CanvasLayer" parent="." unique_id=581824320]
+visible = false
+
+[node name="CutinBackdrop" type="ColorRect" parent="CutinOverlay" unique_id=977962423]
+offset_right = 1152.0
+offset_bottom = 720.0
+color = Color(0.0196078, 0.0392157, 0.0588235, 0.627451)
+
+[node name="CutinImage" type="TextureRect" parent="CutinOverlay" unique_id=636889275]
+offset_left = 356.0
+offset_top = 164.0
+offset_right = 796.0
+offset_bottom = 484.0
+texture = ExtResource("8_cutin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CutinNameLabel" type="Label" parent="CutinOverlay" unique_id=1694379876]
+offset_left = 426.0
+offset_top = 452.0
+offset_right = 726.0
+offset_bottom = 500.0
+text = "학익진 포격"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+
+[node name="CutinQuoteLabel" type="Label" parent="CutinOverlay" unique_id=1982842324]
+offset_left = 356.0
+offset_top = 524.0
+offset_right = 796.0
+offset_bottom = 580.0
+text = "사정거리 안 모든 적을 포격하라!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultOverlay" type="CanvasLayer" parent="." unique_id=1567394212]
+visible = false
+
+[node name="ResultBackdrop" type="ColorRect" parent="ResultOverlay" unique_id=1313004022]
+offset_right = 1152.0
+offset_bottom = 720.0
+color = Color(0.0196078, 0.0392157, 0.0588235, 0.627451)
+
+[node name="ResultImage" type="TextureRect" parent="ResultOverlay" unique_id=1179974900]
+offset_left = 356.0
+offset_top = 154.0
+offset_right = 796.0
+offset_bottom = 494.0
+texture = ExtResource("7_result")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ResultTitleLabel" type="Label" parent="ResultOverlay" unique_id=427404940]
+offset_left = 468.0
+offset_top = 500.0
+offset_right = 684.0
+offset_bottom = 572.0
+text = "승리"
+label_settings = SubResource("1")
+horizontal_alignment = 1
