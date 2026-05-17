@@ -110,6 +110,7 @@ func reset_demo_state() -> void:
 	current_ally_unit_position = ally_unit_marker.position
 	current_ally_portrait_position = ally_portrait_marker.position
 	_create_demo_unit_states()
+	_sync_unit_state_cells_from_markers()
 	_set_phase(PHASE_ALLY_TURN)
 	_sync_demo_positions()
 	_sync_overlay_positions()
@@ -156,6 +157,7 @@ func play_basic_move_demo() -> void:
 func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_position: Vector2) -> void:
 	current_ally_unit_position = target_unit_position
 	current_ally_portrait_position = target_portrait_position
+	ally_unit_state.set_grid_cell(_get_cell_from_world(target_unit_position))
 	ally_has_moved = true
 	_reset_unit_group_positions()
 	move_highlight.visible = false
@@ -391,7 +393,7 @@ func _create_demo_unit_states() -> void:
 		"defense": 12,
 		"move_range": 3,
 		"attack_range": 1,
-		"grid_cell": Vector2i(2, 6),
+		"grid_cell": Vector2i.ZERO,
 		"facing": "right",
 	})
 	enemy_unit_state = BattleUnitState.create({
@@ -407,9 +409,24 @@ func _create_demo_unit_states() -> void:
 		"defense": 16,
 		"move_range": 3,
 		"attack_range": 1,
-		"grid_cell": Vector2i(11, 3),
+		"grid_cell": Vector2i.ZERO,
 		"facing": "left",
 	})
+
+
+func _sync_unit_state_cells_from_markers() -> void:
+	if ally_unit_state != null:
+		ally_unit_state.set_grid_cell(_get_cell_from_world(ally_unit_marker.position))
+	if enemy_unit_state != null:
+		enemy_unit_state.set_grid_cell(_get_cell_from_world(enemy_unit_marker.position))
+
+
+func _get_cell_from_world(pos: Vector2) -> Vector2i:
+	return battle_grid_controller.world_to_grid(pos)
+
+
+func _format_cell(cell: Vector2i) -> String:
+	return "(%d,%d)" % [cell.x, cell.y]
 
 
 func _update_all_unit_visuals_from_state() -> void:
