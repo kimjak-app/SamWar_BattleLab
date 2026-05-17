@@ -5,11 +5,18 @@ const ALLY_DEMO_HP := 94.0
 const ENEMY_DEMO_HP := 100.0
 const ATTACK_LUNGE_DISTANCE := 42.0
 const HP_BAR_OFFSET := Vector2(-54.0, 52.0)
-const TROOP_LABEL_OFFSET := Vector2(-48.0, 78.0)
+const TROOP_LABEL_OFFSET := Vector2(-48.0, 64.0)
+const SHADOW_OFFSET := Vector2(0.0, 42.0)
+const IDLE_SCALE_MULTIPLIER := 1.035
+const IDLE_DURATION := 1.15
 
 var is_demo_animating := false
 var ally_demo_troops := int(ALLY_DEMO_HP)
 var enemy_demo_troops := int(ENEMY_DEMO_HP)
+var ally_idle_tween: Tween
+var enemy_idle_tween: Tween
+var ally_token_base_scale := Vector2.ONE
+var enemy_token_base_scale := Vector2.ONE
 
 @onready var battlefield_texture: Sprite2D = $BattlefieldRoot/BattlefieldTexture
 @onready var ally_unit_marker: Marker2D = $AllyUnitMarker
@@ -19,8 +26,12 @@ var enemy_demo_troops := int(ENEMY_DEMO_HP)
 @onready var damage_spawn_marker: Marker2D = $DamageSpawnMarker
 @onready var cutin_center_marker: Marker2D = $CutinCenterMarker
 @onready var result_center_marker: Marker2D = $ResultCenterMarker
+@onready var move_highlight: ColorRect = $HighlightLayer/MoveHighlight
+@onready var attack_highlight: ColorRect = $HighlightLayer/AttackHighlight
 @onready var ally_unit_token: Sprite2D = $AllySide/AllyUnitToken
 @onready var enemy_unit_token: Sprite2D = $EnemySide/EnemyUnitToken
+@onready var ally_unit_shadow: Polygon2D = $AllySide/AllyUnitShadow
+@onready var enemy_unit_shadow: Polygon2D = $EnemySide/EnemyUnitShadow
 @onready var ally_portrait_badge: Sprite2D = $AllySide/AllyPortraitBadge
 @onready var enemy_portrait_badge: Sprite2D = $EnemySide/EnemyPortraitBadge
 @onready var ally_hp_bar: ProgressBar = $AllySide/AllyHPBar
@@ -46,6 +57,8 @@ var enemy_demo_troops := int(ENEMY_DEMO_HP)
 
 
 func _ready() -> void:
+	ally_token_base_scale = ally_unit_token.scale
+	enemy_token_base_scale = enemy_unit_token.scale
 	basic_attack_button.pressed.connect(play_basic_attack_demo)
 	reset_demo_state()
 
@@ -72,6 +85,7 @@ func hide_result() -> void:
 
 func reset_demo_state() -> void:
 	is_demo_animating = false
+	_stop_idle_breathing()
 	_sync_demo_positions()
 	_sync_overlay_positions()
 	ally_hp_bar.value = ALLY_DEMO_HP
@@ -89,10 +103,13 @@ func reset_demo_state() -> void:
 	damage_preview_label.visible = false
 	damage_preview_label.modulate = Color(1.0, 0.55, 0.55, 1.0)
 	damage_preview_label.position = Vector2.ZERO
+	move_highlight.visible = false
+	attack_highlight.visible = false
 	battle_log_preview.text = "전투 기록\n- 이순신이 전진했습니다.\n- 관우가 방어 태세입니다."
 	basic_attack_button.disabled = false
 	cutin_overlay.visible = false
 	result_overlay.visible = false
+	_start_idle_breathing()
 
 
 func play_basic_attack_demo() -> void:
@@ -101,6 +118,7 @@ func play_basic_attack_demo() -> void:
 
 	is_demo_animating = true
 	basic_attack_button.disabled = true
+	_stop_idle_breathing()
 	_sync_demo_positions()
 	damage_text_layer.position = damage_spawn_marker.position
 	damage_preview_label.text = "-%d" % int(DEMO_DAMAGE)
@@ -138,6 +156,8 @@ func _sync_demo_positions() -> void:
 
 
 func _reset_unit_group_positions() -> void:
+	ally_unit_shadow.position = ally_unit_marker.position + SHADOW_OFFSET
+	enemy_unit_shadow.position = enemy_unit_marker.position + SHADOW_OFFSET
 	ally_unit_token.position = ally_unit_marker.position
 	enemy_unit_token.position = enemy_unit_marker.position
 	ally_portrait_badge.position = ally_portrait_marker.position
@@ -155,14 +175,29 @@ func _finish_basic_attack_demo() -> void:
 	damage_preview_label.visible = false
 	basic_attack_button.disabled = false
 	is_demo_animating = false
+	_start_idle_breathing()
 
 
 func _get_ally_group_nodes() -> Array[CanvasItem]:
-	return [ally_unit_token, ally_portrait_badge, ally_hp_bar, ally_troop_label]
+	var nodes: Array[CanvasItem] = [
+		ally_unit_shadow,
+		ally_unit_token,
+		ally_portrait_badge,
+		ally_hp_bar,
+		ally_troop_label,
+	]
+	return nodes
 
 
 func _get_enemy_group_nodes() -> Array[CanvasItem]:
-	return [enemy_unit_token, enemy_portrait_badge, enemy_hp_bar, enemy_troop_label]
+	var nodes: Array[CanvasItem] = [
+		enemy_unit_shadow,
+		enemy_unit_token,
+		enemy_portrait_badge,
+		enemy_hp_bar,
+		enemy_troop_label,
+	]
+	return nodes
 
 
 func _apply_group_offset(nodes: Array[CanvasItem], base_positions: Array[Vector2], offset: Vector2) -> void:
@@ -174,6 +209,7 @@ func _apply_ally_group_offset(offset: Vector2) -> void:
 	_apply_group_offset(
 		_get_ally_group_nodes(),
 		[
+			ally_unit_marker.position + SHADOW_OFFSET,
 			ally_unit_marker.position,
 			ally_portrait_marker.position,
 			ally_unit_marker.position + HP_BAR_OFFSET,
@@ -187,6 +223,7 @@ func _apply_enemy_group_offset(offset: Vector2) -> void:
 	_apply_group_offset(
 		_get_enemy_group_nodes(),
 		[
+			enemy_unit_marker.position + SHADOW_OFFSET,
 			enemy_unit_marker.position,
 			enemy_portrait_marker.position,
 			enemy_unit_marker.position + HP_BAR_OFFSET,
@@ -212,6 +249,35 @@ func _format_troop_label(value: int) -> String:
 func _update_troop_labels() -> void:
 	ally_troop_label.text = _format_troop_label(ally_demo_troops)
 	enemy_troop_label.text = _format_troop_label(enemy_demo_troops)
+
+
+func _start_idle_breathing() -> void:
+	if is_demo_animating:
+		return
+
+	_stop_idle_breathing()
+	ally_idle_tween = _start_token_idle(ally_unit_token, ally_token_base_scale)
+	enemy_idle_tween = _start_token_idle(enemy_unit_token, enemy_token_base_scale)
+
+
+func _start_token_idle(token: Sprite2D, base_scale: Vector2) -> Tween:
+	var tween := create_tween()
+	tween.set_loops()
+	tween.tween_property(token, "scale", base_scale * IDLE_SCALE_MULTIPLIER, IDLE_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(token, "scale", base_scale, IDLE_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	return tween
+
+
+func _stop_idle_breathing() -> void:
+	if ally_idle_tween:
+		ally_idle_tween.kill()
+		ally_idle_tween = null
+	if enemy_idle_tween:
+		enemy_idle_tween.kill()
+		enemy_idle_tween = null
+
+	ally_unit_token.scale = ally_token_base_scale
+	enemy_unit_token.scale = enemy_token_base_scale
 
 
 func _sync_overlay_positions() -> void:
