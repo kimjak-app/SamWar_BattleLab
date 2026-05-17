@@ -15,6 +15,12 @@ font_color = Color(0.952941, 0.917647, 0.85098, 1)
 outline_size = 6
 outline_color = Color(0.0313726, 0.0627451, 0.0941176, 1)
 
+[sub_resource type="LabelSettings" id="2"]
+font_size = 14
+font_color = Color(0.952941, 0.917647, 0.85098, 1)
+outline_size = 3
+outline_color = Color(0.0313726, 0.0627451, 0.0941176, 1)
+
 [node name="Battle_WebImport_Test" type="Node2D" unique_id=1929995568]
 script = ExtResource("1_script")
 
@@ -113,19 +119,30 @@ color = Color(1, 0.482353, 0.482353, 0.207843)
 position = Vector2(300, 434)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("3_allytoken")
+flip_h = true
 
 [node name="AllyPortraitBadge" type="Sprite2D" parent="AllySide" unique_id=1868352463]
-position = Vector2(266, 409)
+position = Vector2(334, 409)
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("5_allyportrait")
 
 [node name="AllyHPBar" type="ProgressBar" parent="AllySide" unique_id=1914236876]
-offset_left = 277.0
+offset_left = 259.0
 offset_top = 497.0
-offset_right = 385.0
+offset_right = 367.0
 offset_bottom = 521.0
 value = 84.0
 show_percentage = false
+
+[node name="AllyTroopLabel" type="Label" parent="AllySide"]
+offset_left = 252.0
+offset_top = 512.0
+offset_right = 360.0
+offset_bottom = 534.0
+text = "94 / 94"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="EnemySide" type="Node2D" parent="." unique_id=612955151]
 
@@ -140,12 +157,22 @@ scale = Vector2(0.4, 0.4)
 texture = ExtResource("6_enemyportrait")
 
 [node name="EnemyHPBar" type="ProgressBar" parent="EnemySide" unique_id=1609871165]
-offset_left = 819.0
-offset_top = 320.0
-offset_right = 927.0
-offset_bottom = 344.0
+offset_left = 803.0
+offset_top = 319.0
+offset_right = 911.0
+offset_bottom = 343.0
 value = 62.0
 show_percentage = false
+
+[node name="EnemyTroopLabel" type="Label" parent="EnemySide"]
+offset_left = 804.0
+offset_top = 334.0
+offset_right = 912.0
+offset_bottom = 356.0
+text = "100 / 100"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="AllyUnitMarker" type="Marker2D" parent="." unique_id=1575499460]
 position = Vector2(300, 434)
@@ -154,10 +181,10 @@ position = Vector2(300, 434)
 position = Vector2(852, 256)
 
 [node name="AllyPortraitMarker" type="Marker2D" parent="." unique_id=591376317]
-position = Vector2(270, 386)
+position = Vector2(334, 409)
 
 [node name="EnemyPortraitMarker" type="Marker2D" parent="." unique_id=631579844]
-position = Vector2(884, 208)
+position = Vector2(814, 229)
 
 [node name="DamageSpawnMarker" type="Marker2D" parent="." unique_id=939657881]
 position = Vector2(576, 322)
@@ -178,11 +205,12 @@ position = Vector2(576, 324)
 position = Vector2(576, 322)
 
 [node name="DamagePreviewLabel" type="Label" parent="DamageTextLayer" unique_id=405421207]
+visible = false
 offset_left = -42.0
 offset_top = -18.0
 offset_right = 42.0
 offset_bottom = 18.0
-text = "-42"
+text = "-12"
 label_settings = SubResource("1")
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -273,13 +301,21 @@ offset_bottom = 630.0
 
 [node name="CommandBarLabel" type="Label" parent="BattleUI/CommandBar" unique_id=163471327]
 layout_mode = 0
-offset_left = 22.0
+offset_left = 154.0
 offset_top = 8.0
 offset_right = 646.0
 offset_bottom = 38.0
-text = "기본 공격 | 고유 특기 | 책략 | 방어 | 대기 | 턴 종료 | 자동전투 | 후퇴"
+text = "고유 특기 | 책략 | 방어 | 대기 | 턴 종료 | 자동전투 | 후퇴"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="BasicAttackButton" type="Button" parent="BattleUI/CommandBar" unique_id=1608951316]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 138.0
+offset_bottom = 40.0
+text = "기본 공격"
 
 [node name="CutinOverlay" type="CanvasLayer" parent="." unique_id=581824320]
 visible = false
