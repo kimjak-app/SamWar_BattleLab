@@ -4,7 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.64a Movement Command MVP
+v0.64e Occupied Cell Blocking
+
+## Current Patch
+v0.64f-hotfix Movement Overlay Bounds + Hide After Move
 
 ## Current Goal
 Port and rebuild the SamWar battle engine in Godot 4 using an editor-friendly workflow.
@@ -48,6 +51,11 @@ This project is not a full copy-paste port of the legacy/web engine. It selectiv
 
 ### v0.64 Series
 - v0.64a Movement Command MVP
+- v0.64b Runtime Move Target Selection
+- v0.64c MoveHighlight Cell Size Sync
+- v0.64d Active Unit Selection
+- v0.64e Occupied Cell Blocking
+- v0.64f Movement Range Overlay
 
 ---
 
@@ -98,28 +106,63 @@ Current supported concepts:
 MoveTargetMarker currently previews and confirms a snapped grid-cell target position.
 
 Current behavior:
-- marker target is interpreted as the nearest grid cell
+- marker target can be selected at runtime by left-clicking an in-bounds battlefield cell
+- clicked world position is converted through BattleGridController.world_to_grid()
+- marker target is interpreted as the selected or nearest grid cell
 - marker preview uses the current BattleGridController math
+- MoveHighlight size is synced to BattleGridController.get_cell_size() with a safe fixed-size fallback
 - valid targets use simple valid feedback
 - invalid targets use simple invalid feedback
+- ally-occupied and enemy-occupied cells are invalid move targets
 - MoveButton confirms a valid snapped move target
 - confirmed movement updates BattleUnitState.grid_cell
 - confirmed movement sets BattleUnitState.has_moved = true
 - the same unit cannot move twice in the same ally turn
 
+### Active Unit Selection
+Active unit selection is now available as a single-ally MVP.
+
+Current behavior:
+- clicking inside the editor-visible AllyUnitClickArea hitbox over the ally unit selects it as the active unit
+- AllyUnitClickArea is used as a manual hitbox reference checked early from _input(), not through Area2D.input_event
+- left-click ally selection and battlefield move target selection are unified in _input()
+- _unhandled_input() ignores left mouse clicks to prevent duplicate handling
+- selected ally feedback is shown through the battle log
+- movement validation uses active_unit_state for origin, range, and has_moved checks
+- AllyUnitClickArea follows the ally unit when _reset_unit_group_positions() syncs unit visuals
+- movement visuals still use the ally visual group because generic multi-unit movement is not implemented yet
+
+### MoveRangeOverlayLayer
+Move range overlay is implemented with a prebuilt editor-visible ColorRect pool.
+
+Current behavior:
+- MoveRangeOverlayLayer contains MoveRangeCell_00 through MoveRangeCell_111
+- cells are collected once into a script-side pool
+- selecting the active ally shows currently valid movable cells in faint blue
+- overlay uses BattleGridController.get_tiles_in_range() and is_valid_move_target()
+- origin, occupied ally cell, occupied enemy cell, out-of-range cells, and post-move cells are not shown as movable
+- overlay double-checks board bounds before showing each pooled cell
+- overlay is hidden while resolving movement/attack and after the active unit has moved
+- MoveHighlight is hidden after successful movement so the post-move invalid red target is not left visible
+- successful movement logs "이순신 이동 완료"
+
 ---
 
 ## Current Known Gaps
-- Movement range visual overlay is not implemented yet.
+- Full grid visual sync is postponed to a later v0.64 patch.
 - Advanced pathfinding is not implemented yet.
-- Occupied-cell and collision rules are not implemented yet.
+- Advanced collision rules are not implemented yet.
 - Terrain cost/blocking rules are not implemented yet.
 - Attack range validation is not implemented yet.
 
 ---
 
 ## Next Immediate Task
-v0.64b Movement Range Visual Overlay
+v0.64g Attack Target Selection
 
 Goal:
-- Show the active unit's movement range visually without replacing the current MoveTargetMarker validation and confirmation flow.
+- Allow selecting an enemy target separately from movement target selection.
+
+Note:
+- Grid visual sync remains postponed.
+- v0.65 is not reached. The v0.64 series remains the Godot battle engine port-in-progress.
