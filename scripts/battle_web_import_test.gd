@@ -750,11 +750,20 @@ func _refresh_battle_log() -> void:
 	battle_log_preview.text = log_text
 
 
+# v0.64p-hotfix Enemy Highlight Cleanup
+func _clear_transient_battle_highlights() -> void:
+	if move_highlight != null:
+		move_highlight.visible = false
+	if attack_highlight != null:
+		attack_highlight.visible = false
+
+
 # v0.64o Enemy Basic Move + Attack AI
 func _play_enemy_turn_demo() -> void:
 	is_demo_animating = true
 	_stop_idle_breathing()
 	basic_attack_button.disabled = true
+	_clear_transient_battle_highlights()
 	_debug_print_combat_distance("ENEMY_TURN_START")
 
 	if enemy_unit_state == null or ally_unit_state == null:
@@ -813,6 +822,7 @@ func _play_enemy_path_move_then_act(move_path: Array[Vector2i]) -> void:
 		_return_to_ally_turn()
 		return
 
+	_clear_transient_battle_highlights()
 	var start_unit_position := enemy_unit_marker.position
 	var start_portrait_position := enemy_portrait_marker.position
 	var portrait_offset := start_portrait_position - start_unit_position
@@ -840,6 +850,7 @@ func _finish_enemy_basic_move(target_position: Vector2, target_portrait_position
 	if enemy_portrait_marker != null:
 		enemy_portrait_marker.position = target_portrait_position
 	enemy_unit_state.set_grid_cell(target_cell)
+	_clear_transient_battle_highlights()
 	_reset_unit_group_positions()
 	_update_facing_indicators()
 	_play_enemy_basic_attack_or_wait_after_move()
@@ -866,6 +877,7 @@ func _enemy_reaction_hit_on() -> void:
 
 
 func _return_to_ally_turn() -> void:
+	_clear_transient_battle_highlights()
 	_reset_unit_group_positions()
 	_set_group_modulate(_get_ally_group_nodes(), Color.WHITE)
 	_set_enemy_group_modulate(Color.WHITE)
