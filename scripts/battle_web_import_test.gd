@@ -20,18 +20,22 @@ const MOVE_HIGHLIGHT_VALID_COLOR := Color(0.172549, 0.623529, 1.0, 0.227451)
 const MOVE_HIGHLIGHT_INVALID_COLOR := Color(1.0, 0.2, 0.2, 0.28)
 const MOVE_RANGE_OVERLAY_COLOR := Color(0.2, 0.55, 1.0, 0.18)
 const MOVE_RANGE_OVERLAY_VISUAL_INSET := Vector2(32.0, 0.0)
-const SHOW_CELL_SIZE_VISUAL_GUIDE := true
+const SHOW_CELL_SIZE_VISUAL_GUIDE := false
 const SHOW_LOGICAL_GRID_14X8_GUIDE := true
 const MELEE_ADJACENT_QA_MODE := false
 const MELEE_QA_ENEMY_OFFSET := Vector2i(1, 0)
 const PHASE_ALLY_TURN := "ally_turn"
 const PHASE_ENEMY_TURN := "enemy_turn"
 const PHASE_RESOLVING := "resolving"
+const PHASE_FACING_SELECT := "facing_select"
 const MAX_BATTLE_LOG_LINES := 4
 const FACING_LEFT := "left"
 const FACING_RIGHT := "right"
 const FACING_UP := "up"
 const FACING_DOWN := "down"
+const FACING_ARROW_BUTTON_SIZE_SCALE := 0.92
+const FACING_ARROW_PANEL_ALPHA := 1.0
+const FACING_ARROW_BUTTON_ALPHA := 0.96
 const VALID_FACINGS := [
 	FACING_LEFT,
 	FACING_RIGHT,
@@ -41,6 +45,9 @@ const VALID_FACINGS := [
 
 var is_demo_animating := false
 var ally_has_moved := false
+var ally_has_manual_facing := false
+var enemy_has_manual_facing := false
+var facing_indicators_should_be_visible := true
 var current_phase := PHASE_ALLY_TURN
 var battle_log_lines: Array[String] = []
 var current_ally_unit_position := Vector2.ZERO
@@ -123,6 +130,18 @@ var enemy_click_area_layout_offset := Vector2.ZERO
 @onready var move_button: Button = $BattleUI/CommandBar/MoveButton
 @onready var wait_button: Button = get_node_or_null("BattleUI/CommandBar/WaitButton") as Button
 @onready var end_turn_button: Button = get_node_or_null("BattleUI/CommandBar/EndTurnButton") as Button
+@onready var facing_selection_panel: Panel = get_node_or_null("BattleUI/FacingSelectionPanel") as Panel
+@onready var face_left_button: Button = get_node_or_null("BattleUI/FacingSelectionPanel/FaceLeftButton") as Button
+@onready var face_right_button: Button = get_node_or_null("BattleUI/FacingSelectionPanel/FaceRightButton") as Button
+@onready var face_up_button: Button = get_node_or_null("BattleUI/FacingSelectionPanel/FaceUpButton") as Button
+@onready var face_down_button: Button = get_node_or_null("BattleUI/FacingSelectionPanel/FaceDownButton") as Button
+@onready var facing_arrow_panel: Control = get_node_or_null("BattleUI/FacingArrowPanel") as Control
+@onready var face_left_arrow_button: Button = get_node_or_null("BattleUI/FacingArrowPanel/FaceLeftArrowButton") as Button
+@onready var face_right_arrow_button: Button = get_node_or_null("BattleUI/FacingArrowPanel/FaceRightArrowButton") as Button
+@onready var face_up_arrow_button: Button = get_node_or_null("BattleUI/FacingArrowPanel/FaceUpArrowButton") as Button
+@onready var face_down_arrow_button: Button = get_node_or_null("BattleUI/FacingArrowPanel/FaceDownArrowButton") as Button
+@onready var ally_facing_indicator: Label = get_node_or_null("BattleUI/AllyFacingIndicator") as Label
+@onready var enemy_facing_indicator: Label = get_node_or_null("BattleUI/EnemyFacingIndicator") as Label
 @onready var turn_banner: Label = $BattleUI/TopBar/TurnBanner
 @onready var battle_log_preview: Label = $BattleUI/LeftPanel/BattleLogPreview
 @onready var cutin_overlay: CanvasLayer = $CutinOverlay
@@ -145,8 +164,25 @@ func _ready() -> void:
 		wait_button.pressed.connect(_end_ally_turn_by_wait)
 	if end_turn_button != null:
 		end_turn_button.pressed.connect(_end_ally_turn_by_wait)
+	if face_left_button != null:
+		face_left_button.pressed.connect(_select_post_move_facing.bind(FACING_LEFT))
+	if face_right_button != null:
+		face_right_button.pressed.connect(_select_post_move_facing.bind(FACING_RIGHT))
+	if face_up_button != null:
+		face_up_button.pressed.connect(_select_post_move_facing.bind(FACING_UP))
+	if face_down_button != null:
+		face_down_button.pressed.connect(_select_post_move_facing.bind(FACING_DOWN))
+	if face_left_arrow_button != null:
+		face_left_arrow_button.pressed.connect(_select_post_move_facing.bind(FACING_LEFT))
+	if face_right_arrow_button != null:
+		face_right_arrow_button.pressed.connect(_select_post_move_facing.bind(FACING_RIGHT))
+	if face_up_arrow_button != null:
+		face_up_arrow_button.pressed.connect(_select_post_move_facing.bind(FACING_UP))
+	if face_down_arrow_button != null:
+		face_down_arrow_button.pressed.connect(_select_post_move_facing.bind(FACING_DOWN))
 	_collect_move_range_cells()
 	_capture_scene_authored_unit_layout_offsets()
+	_apply_facing_arrow_panel_visual_style()
 	reset_demo_state()
 
 
@@ -243,6 +279,8 @@ func hide_result() -> void:
 func reset_demo_state() -> void:
 	is_demo_animating = false
 	ally_has_moved = false
+	ally_has_manual_facing = false
+	enemy_has_manual_facing = false
 	has_selected_move_target = false
 	selected_move_cell = Vector2i(-1, -1)
 	selected_attack_target_state = null
@@ -280,11 +318,14 @@ func reset_demo_state() -> void:
 	damage_preview_label.position = Vector2.ZERO
 	move_highlight.visible = false
 	attack_highlight.visible = false
+	_hide_facing_selection_panel()
 	_refresh_battle_log()
 	cutin_overlay.visible = false
 	result_overlay.visible = false
 	_refresh_move_target_feedback()
 	_show_move_range_overlay_for_active_unit()
+	_set_facing_indicators_visible(true)
+	_update_facing_indicators()
 	_start_idle_breathing()
 
 
@@ -306,6 +347,8 @@ func play_basic_move_demo() -> void:
 		return
 	_hide_move_range_overlay()
 	is_demo_animating = true
+	ally_has_manual_facing = false
+	_set_facing_indicators_visible(false)
 	_set_phase(PHASE_RESOLVING)
 	_stop_idle_breathing()
 	_sync_demo_positions()
@@ -336,19 +379,7 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 	_hide_move_range_overlay()
 	is_demo_animating = false
 	_append_battle_log("이순신 이동 완료")
-	if is_enemy_in_active_attack_range():
-		_set_phase(PHASE_ALLY_TURN)
-		_append_battle_log("공격 가능")
-		if enemy_unit_state != null:
-			selected_attack_target_state = enemy_unit_state
-			selected_attack_target_side = "enemy"
-			_show_attack_target_feedback()
-		_start_idle_breathing()
-	else:
-		_append_battle_log("공격 사거리 밖")
-		_set_phase(PHASE_ENEMY_TURN)
-		_append_battle_log("적군 턴")
-		_play_enemy_turn_demo()
+	_enter_post_move_facing_selection()
 
 
 func try_basic_attack() -> void:
@@ -446,6 +477,7 @@ func _reset_unit_group_positions() -> void:
 		ally_unit_click_area.position = ally_visual_anchor + ally_click_area_layout_offset
 	if enemy_unit_click_area != null:
 		enemy_unit_click_area.position = enemy_visual_anchor + enemy_click_area_layout_offset
+	_update_facing_indicators()
 
 
 func _finish_basic_attack_demo() -> void:
@@ -467,6 +499,8 @@ func _set_phase(new_phase: String) -> void:
 			turn_banner.text = "아군 턴"
 		PHASE_ENEMY_TURN:
 			turn_banner.text = "적군 턴"
+		PHASE_FACING_SELECT:
+			turn_banner.text = "방향 선택"
 		_:
 			turn_banner.text = "처리 중"
 
@@ -476,6 +510,16 @@ func _set_phase(new_phase: String) -> void:
 		wait_button.disabled = current_phase != PHASE_ALLY_TURN or is_demo_animating
 	if end_turn_button != null:
 		end_turn_button.disabled = current_phase != PHASE_ALLY_TURN or is_demo_animating
+	if current_phase == PHASE_FACING_SELECT:
+		basic_attack_button.disabled = true
+		move_button.disabled = true
+		if wait_button != null:
+			wait_button.disabled = true
+		if end_turn_button != null:
+			end_turn_button.disabled = true
+		_show_facing_selection_panel()
+	else:
+		_hide_facing_selection_panel()
 
 
 func _end_ally_turn_by_wait() -> void:
@@ -501,6 +545,130 @@ func _end_ally_turn_by_wait() -> void:
 	_set_phase(PHASE_ENEMY_TURN)
 	_append_battle_log("적군 턴")
 	_play_enemy_turn_demo()
+
+
+func _show_facing_selection_panel() -> void:
+	_position_facing_arrow_panel_near_ally()
+	if facing_selection_panel != null:
+		facing_selection_panel.visible = false
+	if facing_arrow_panel != null:
+		facing_arrow_panel.visible = true
+	_apply_facing_arrow_panel_visual_style()
+	print("SHOW FACING ARROW PANEL visible=%s pos=%s size=%s" % [
+		str(facing_arrow_panel != null and facing_arrow_panel.visible),
+		str(facing_arrow_panel.position if facing_arrow_panel != null else Vector2.ZERO),
+		str(facing_arrow_panel.size if facing_arrow_panel != null else Vector2.ZERO),
+	])
+
+
+func _hide_facing_selection_panel() -> void:
+	if facing_selection_panel != null:
+		facing_selection_panel.visible = false
+	if facing_arrow_panel != null:
+		facing_arrow_panel.visible = false
+
+
+func _position_facing_arrow_panel_near_ally() -> void:
+	if facing_arrow_panel == null:
+		return
+	if ally_unit_state == null:
+		return
+	if battle_grid_controller == null:
+		return
+
+	facing_arrow_panel.position = Vector2.ZERO
+	facing_arrow_panel.size = get_viewport_rect().size
+
+	var center_cell := ally_unit_state.grid_cell
+	_place_facing_arrow_button_on_cell(face_up_arrow_button, center_cell + Vector2i(0, -1), "↑")
+	_place_facing_arrow_button_on_cell(face_down_arrow_button, center_cell + Vector2i(0, 1), "↓")
+	_place_facing_arrow_button_on_cell(face_left_arrow_button, center_cell + Vector2i(-1, 0), "←")
+	_place_facing_arrow_button_on_cell(face_right_arrow_button, center_cell + Vector2i(1, 0), "→")
+
+
+func _place_facing_arrow_button_on_cell(button: Button, cell: Vector2i, arrow_text: String) -> void:
+	if button == null:
+		return
+	if battle_grid_controller == null:
+		button.visible = false
+		button.disabled = true
+		return
+	if not battle_grid_controller.is_in_bounds(cell):
+		button.visible = false
+		button.disabled = true
+		return
+
+	var cell_size := battle_grid_controller.get_cell_size()
+	if cell_size.x <= 0.0 or cell_size.y <= 0.0:
+		button.visible = false
+		button.disabled = true
+		return
+
+	var button_size := cell_size * FACING_ARROW_BUTTON_SIZE_SCALE
+	var world_center := battle_grid_controller.grid_to_world(cell)
+	var ui_position := _world_to_battle_ui_position(world_center)
+
+	button.text = arrow_text
+	button.size = button_size
+	button.position = ui_position - (button_size * 0.5)
+	button.visible = true
+	button.disabled = false
+
+
+func _apply_facing_arrow_panel_visual_style() -> void:
+	if facing_arrow_panel != null:
+		facing_arrow_panel.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_PANEL_ALPHA)
+	if face_up_arrow_button != null:
+		face_up_arrow_button.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_BUTTON_ALPHA)
+	if face_down_arrow_button != null:
+		face_down_arrow_button.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_BUTTON_ALPHA)
+	if face_left_arrow_button != null:
+		face_left_arrow_button.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_BUTTON_ALPHA)
+	if face_right_arrow_button != null:
+		face_right_arrow_button.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_BUTTON_ALPHA)
+
+
+func _enter_post_move_facing_selection() -> void:
+	print("ENTER FACING SELECT")
+	_set_facing_indicators_visible(false)
+	_set_phase(PHASE_FACING_SELECT)
+	_hide_move_range_overlay()
+	_clear_move_target_selection()
+	_clear_attack_target_selection()
+	if move_highlight != null:
+		move_highlight.visible = false
+	if attack_highlight != null:
+		attack_highlight.visible = false
+	_append_battle_log("방향 선택")
+	_show_facing_selection_panel()
+
+
+func _select_post_move_facing(facing: String) -> void:
+	if current_phase != PHASE_FACING_SELECT:
+		return
+	if ally_unit_state == null:
+		return
+
+	_set_unit_facing(ally_unit_state, facing)
+	ally_has_manual_facing = true
+	_apply_unit_facing_visuals()
+	_reset_unit_group_positions()
+	_update_facing_indicators()
+	_set_facing_indicators_visible(true)
+	_hide_facing_selection_panel()
+	_set_phase(PHASE_ALLY_TURN)
+	_append_battle_log("방향 결정: %s" % facing)
+	_start_idle_breathing()
+
+	if is_enemy_in_active_attack_range():
+		_append_battle_log("공격 가능")
+		if enemy_unit_state != null:
+			selected_attack_target_state = enemy_unit_state
+			selected_attack_target_side = "enemy"
+			_show_attack_target_feedback()
+	else:
+		_clear_attack_target_selection()
+		_append_battle_log("공격 사거리 밖")
 
 
 func _append_battle_log(line: String) -> void:
@@ -577,6 +745,8 @@ func _return_to_ally_turn() -> void:
 	_debug_print_combat_distance("ALLY_TURN_RETURN")
 	_refresh_move_target_feedback()
 	_show_move_range_overlay_for_active_unit()
+	_set_facing_indicators_visible(true)
+	_update_facing_indicators()
 	_start_idle_breathing()
 
 
@@ -1301,6 +1471,7 @@ func _update_all_unit_visuals_from_state() -> void:
 	_apply_unit_facing_visuals()
 	_update_ally_visuals_from_state()
 	_update_enemy_visuals_from_state()
+	_update_facing_indicators()
 
 
 func _update_ally_visuals_from_state() -> void:
@@ -1353,17 +1524,20 @@ func _refresh_unit_facing_toward_enemy() -> void:
 	if ally_unit_state == null or enemy_unit_state == null:
 		return
 
-	if ally_unit_state.grid_cell.x < enemy_unit_state.grid_cell.x:
-		_set_unit_facing(ally_unit_state, FACING_RIGHT)
-	elif ally_unit_state.grid_cell.x > enemy_unit_state.grid_cell.x:
-		_set_unit_facing(ally_unit_state, FACING_LEFT)
+	if not ally_has_manual_facing:
+		if ally_unit_state.grid_cell.x < enemy_unit_state.grid_cell.x:
+			_set_unit_facing(ally_unit_state, FACING_RIGHT)
+		elif ally_unit_state.grid_cell.x > enemy_unit_state.grid_cell.x:
+			_set_unit_facing(ally_unit_state, FACING_LEFT)
 
-	if enemy_unit_state.grid_cell.x < ally_unit_state.grid_cell.x:
-		_set_unit_facing(enemy_unit_state, FACING_RIGHT)
-	elif enemy_unit_state.grid_cell.x > ally_unit_state.grid_cell.x:
-		_set_unit_facing(enemy_unit_state, FACING_LEFT)
+	if not enemy_has_manual_facing:
+		if enemy_unit_state.grid_cell.x < ally_unit_state.grid_cell.x:
+			_set_unit_facing(enemy_unit_state, FACING_RIGHT)
+		elif enemy_unit_state.grid_cell.x > ally_unit_state.grid_cell.x:
+			_set_unit_facing(enemy_unit_state, FACING_LEFT)
 
 	_apply_unit_facing_visuals()
+	_reset_unit_group_positions()
 
 
 func _apply_unit_facing_visuals() -> void:
@@ -1375,6 +1549,7 @@ func _apply_unit_facing_visuals() -> void:
 		ally_portrait_badge.flip_h = false
 	if enemy_portrait_badge != null:
 		enemy_portrait_badge.flip_h = false
+	_update_facing_indicators()
 
 
 func _apply_token_facing_visual(token: Sprite2D, facing: String, side: String) -> void:
@@ -1446,6 +1621,58 @@ func _get_unit_facing(unit_state: BattleUnitState) -> String:
 	if unit_state == null:
 		return FACING_RIGHT
 	return _normalize_facing(unit_state.facing)
+
+
+func _get_facing_arrow_text(facing: String) -> String:
+	match _normalize_facing(facing):
+		FACING_LEFT:
+			return "←"
+		FACING_RIGHT:
+			return "→"
+		FACING_UP:
+			return "↑"
+		FACING_DOWN:
+			return "↓"
+		_:
+			return "→"
+
+
+func _update_facing_indicators() -> void:
+	if ally_unit_state != null and ally_facing_indicator != null:
+		ally_facing_indicator.text = _get_facing_arrow_text(ally_unit_state.facing)
+		ally_facing_indicator.visible = facing_indicators_should_be_visible
+		_position_facing_indicator_for_ally()
+
+	if enemy_unit_state != null and enemy_facing_indicator != null:
+		enemy_facing_indicator.text = _get_facing_arrow_text(enemy_unit_state.facing)
+		enemy_facing_indicator.visible = facing_indicators_should_be_visible
+		_position_facing_indicator_for_enemy()
+
+
+func _position_facing_indicator_for_ally() -> void:
+	if ally_facing_indicator == null or ally_unit_token == null:
+		return
+	var anchor := _world_to_battle_ui_position(ally_unit_token.global_position)
+	ally_facing_indicator.position = anchor + Vector2(-18.0, -96.0)
+
+
+func _position_facing_indicator_for_enemy() -> void:
+	if enemy_facing_indicator == null or enemy_unit_token == null:
+		return
+	var anchor := _world_to_battle_ui_position(enemy_unit_token.global_position)
+	enemy_facing_indicator.position = anchor + Vector2(-18.0, -96.0)
+
+
+func _set_facing_indicators_visible(is_visible: bool) -> void:
+	facing_indicators_should_be_visible = is_visible
+	if ally_facing_indicator != null:
+		ally_facing_indicator.visible = is_visible
+	if enemy_facing_indicator != null:
+		enemy_facing_indicator.visible = is_visible
+
+
+func _world_to_battle_ui_position(world_pos: Vector2) -> Vector2:
+	return get_viewport().get_canvas_transform() * world_pos
 
 
 func _start_idle_breathing() -> void:

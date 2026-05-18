@@ -39,6 +39,8 @@ Before making changes, read:
 - Preserve fullscreen left/right troop facing.
 - Preserve facing-aware `PortraitBadge` front-side placement without flipping the portrait itself.
 - Preserve the current 4-direction facing data structure while keeping left/right as the only verified visual state for now.
+- Preserve the post-move facing selection UI step after movement.
+- Preserve the arrow-based post-move facing selection UX near the ally unit.
 
 ---
 
@@ -66,6 +68,8 @@ Before making changes, read:
 - HP bar, troop label, shadow, and click area should remain scene-authored unless there is a very strong reason otherwise.
 - `up/down` facing values may exist in data before matching sprite assets exist.
 - If `up/down` assets are missing, keep a safe visual fallback instead of breaking the current left/right presentation.
+- Direction selection after movement should not auto-skip to enemy turn before the player chooses facing.
+- Manual ally facing chosen after movement should remain locked until the next movement.
 
 ---
 
@@ -79,6 +83,8 @@ Before making changes, read:
 - Left/right troop facing is verified.
 - `Hero PortraitBadge` is verified as unflipped and facing-aware by position only.
 - Facing data structure is now prepared for `left/right/up/down`, but up/down sprites and direction arrows are still not implemented.
+- Post-move facing selection UI is now part of the ally move flow.
+- Post-move facing selection now uses arrows near the ally unit, and the chosen ally facing persists until the next move.
 
 ---
 

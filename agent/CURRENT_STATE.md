@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.64k Fullscreen 18x10 Move + Facing Stable
+v0.64l Turn End / Wait Command
 
 This baseline includes:
 - v0.64i Move-Then-Attack Flow + Hit Bounce Polish
@@ -19,6 +19,13 @@ This baseline includes:
 - v0.64k-fullscreen-left-right-facing-hotfix verified
 - v0.64l Turn End / Wait Command added
 - v0.64m 4-Direction Facing Data Structure added
+- v0.64n Post-Move Facing Selection UI added
+- v0.64n-hotfix Direction Arrow Selection + Facing Lock added
+- v0.64n-hotfix Facing Arrow Panel Visibility added
+- v0.64n-hotfix Facing Arrow Panel Position Polish added
+- v0.64n-hotfix Facing Arrow Snap To Grid Cells added
+- v0.64n-hotfix Direction Facing Indicator Overlay added
+- v0.64n-hotfix Facing Indicator Cleanup added
 
 Do not bump to v0.65 yet.
 v0.65 means Godot Battle Engine Port MVP Complete later.
@@ -129,7 +136,30 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - Existing left/right facing remains the verified visual behavior.
 - Up/down troop sprite assets are still not available.
 - Up/down facing currently uses a safe visual fallback path without changing the stable left/right presentation.
-- Direction arrows and post-move facing selection UI are still not implemented.
+- Direction arrows are still not implemented.
+- After movement, `FacingSelectionPanel` now appears and allows `left/right/up/down` facing choice.
+- Selected facing is stored in `ally_unit_state.facing`.
+- Left/right choice immediately updates troop facing visuals.
+- Up/down choice currently stores data and keeps the existing visual fallback path.
+- Post-move facing selection now uses 4-direction arrow buttons near the ally unit.
+- Selected ally facing is now locked until the next movement instead of being overwritten by automatic facing refresh.
+- Enemy facing still auto-tracks the ally as before.
+- Up/down choice currently stores data and keeps the existing visual fallback path.
+- Dedicated up/down troop sprites are still not implemented.
+- Always-on direction indicator overlay is still not implemented.
+- Post-move facing selection phase entry is verified, and the arrow panel visibility path is now stabilized.
+- `FacingArrowPanel` is now positioned near the ally unit instead of the temporary fixed lower-center placement.
+- Facing arrow panel and arrow buttons now use a lighter transparent presentation so they block less of the battlefield.
+- Facing arrow buttons now snap directly onto the ally unit's adjacent logical grid cells.
+- Each arrow button now uses the neighboring cell center and nearly one-cell size for clearer tactical selection.
+- Facing arrow visibility is strengthened again so the buttons are easier to read during selection.
+- Current `unit_state.facing` is now also shown with a small always-visible arrow indicator above ally and enemy units.
+- Large arrows are used for post-move facing selection, while small arrows are used for current facing display.
+- Up/down troop sprites are still missing, but `↑` and `↓` indicators now make the selected facing readable.
+- Small facing indicators are now positioned closer to the troop body and flag area instead of the portrait/head area.
+- Small facing indicators now hide during movement and during the post-move facing selection step, then reappear after the new facing is confirmed.
+- Legacy `CellGuide` debug right/down tiles and the `ally=... enemy=... dist=...` runtime label are now disabled by default.
+- Existing facing selection, facing lock, movement, attack, counterattack, and wait flow remain preserved.
 - This is the staging step before later `UnitVisual.tscn` template separation.
 
 ---

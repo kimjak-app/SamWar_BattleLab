@@ -1161,6 +1161,112 @@ offset_right = 378.0
 offset_bottom = 40.0
 text = "턴 종료"
 
+[node name="AllyFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938220]
+offset_left = 360.0
+offset_top = 820.0
+offset_right = 420.0
+offset_bottom = 880.0
+text = "→"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938221]
+offset_left = 1530.0
+offset_top = 180.0
+offset_right = 1590.0
+offset_bottom = 240.0
+text = "←"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FacingSelectionPanel" type="Panel" parent="BattleUI" unique_id=1174938201]
+visible = false
+offset_left = 720.0
+offset_top = 878.0
+offset_right = 1200.0
+offset_bottom = 980.0
+
+[node name="FacingLabel" type="Label" parent="BattleUI/FacingSelectionPanel" unique_id=1174938202]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 10.0
+offset_right = 170.0
+offset_bottom = 40.0
+text = "방향 선택"
+vertical_alignment = 1
+
+[node name="FaceLeftButton" type="Button" parent="BattleUI/FacingSelectionPanel" unique_id=1174938203]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 52.0
+offset_right = 104.0
+offset_bottom = 86.0
+text = "좌"
+
+[node name="FaceRightButton" type="Button" parent="BattleUI/FacingSelectionPanel" unique_id=1174938204]
+layout_mode = 0
+offset_left = 116.0
+offset_top = 52.0
+offset_right = 204.0
+offset_bottom = 86.0
+text = "우"
+
+[node name="FaceUpButton" type="Button" parent="BattleUI/FacingSelectionPanel" unique_id=1174938205]
+layout_mode = 0
+offset_left = 216.0
+offset_top = 52.0
+offset_right = 304.0
+offset_bottom = 86.0
+text = "상"
+
+[node name="FaceDownButton" type="Button" parent="BattleUI/FacingSelectionPanel" unique_id=1174938206]
+layout_mode = 0
+offset_left = 316.0
+offset_top = 52.0
+offset_right = 404.0
+offset_bottom = 86.0
+text = "하"
+
+[node name="FacingArrowPanel" type="Control" parent="BattleUI" unique_id=1174938210]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 280.0
+offset_bottom = 280.0
+mouse_filter = 1
+
+[node name="FaceUpArrowButton" type="Button" parent="BattleUI/FacingArrowPanel" unique_id=1174938211]
+layout_mode = 0
+offset_left = 88.0
+offset_right = 160.0
+offset_bottom = 72.0
+text = "↑"
+
+[node name="FaceLeftArrowButton" type="Button" parent="BattleUI/FacingArrowPanel" unique_id=1174938212]
+layout_mode = 0
+offset_top = 88.0
+offset_right = 72.0
+offset_bottom = 160.0
+text = "←"
+
+[node name="FaceRightArrowButton" type="Button" parent="BattleUI/FacingArrowPanel" unique_id=1174938213]
+layout_mode = 0
+offset_left = 208.0
+offset_top = 88.0
+offset_right = 280.0
+offset_bottom = 160.0
+text = "→"
+
+[node name="FaceDownArrowButton" type="Button" parent="BattleUI/FacingArrowPanel" unique_id=1174938214]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 208.0
+offset_right = 160.0
+offset_bottom = 280.0
+text = "↓"
+
 [node name="CutinOverlay" type="CanvasLayer" parent="." unique_id=581824320]
 visible = false
 
