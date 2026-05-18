@@ -19,6 +19,13 @@ Warning:
 
 ## Task Sequence
 
+### Completed Just Before This List
+- `v0.64k-fullscreen-move-flow-reconnect`
+- Fullscreen `18 x 10` move flow on `Battle_Fullscreen_Test.tscn` is reconnected without changing move range, attack range, distance formula, or enemy counterattack logic.
+- Move target selection now preserves a logical `selected_move_cell`.
+- `MoveButton` clicks on the fullscreen UI are no longer consumed as battlefield clicks.
+- After movement, token, shadow, portrait badge, HP bar, troop label, and click area keep following the same scene-authored layout offsets.
+
 ### 1. Fullscreen 18x10 Unit Visual Manual Calibration Finalize
 Goal:
 - In the Godot 2D editor, manually calibrate unit body, HP bar, troop number, portrait, and click area against one fullscreen cell.
@@ -44,14 +51,14 @@ Direction:
 - Move toward a template-driven layout structure after the fullscreen sample standard is stable.
 - Keep scene-authored layout as the source of truth that runtime behavior follows.
 
-### 3. v0.64l Turn End / Wait Command
+### 2. v0.64l Turn End / Wait Command
 Goal:
 - Add an explicit way to end ally turn after moving without attacking.
 
 Timing:
 - Do this after the fullscreen visual layout standard is settled.
 
-### 4. v0.64m Enemy Basic Decision Rules
+### 3. v0.64m Enemy Basic Decision Rules
 Goal:
 - Port simple web or basic engine AI rules step by step.
 
@@ -62,11 +69,11 @@ Priority rules:
 - prefer unique skill if available
 - otherwise approach or wait
 
-### 5. v0.64n Hero Skill Sample Trigger
+### 4. v0.64n Hero Skill Sample Trigger
 Goal:
 - Prepare 10 hero image and unique skill image sample structure.
 
-### 6. v0.64o Basic Battle Loop QA
+### 5. v0.64o Basic Battle Loop QA
 Goal:
 - Run a full loop test:
 - ally select -> move -> attack or wait -> enemy reaction -> ally turn return

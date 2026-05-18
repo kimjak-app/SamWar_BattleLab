@@ -40,6 +40,7 @@ var enemy_unit_state: BattleUnitState
 var active_unit_state: BattleUnitState
 var active_unit_side := "ally"
 var has_selected_move_target := false
+var selected_move_cell := Vector2i(-1, -1)
 var selected_attack_target_state: BattleUnitState = null
 var selected_attack_target_side := ""
 var move_range_cells: Array[ColorRect] = []
@@ -96,6 +97,7 @@ var enemy_click_area_layout_offset := Vector2.ZERO
 @onready var damage_text_layer: Node2D = $DamageTextLayer
 @onready var damage_preview_label: Label = $DamageTextLayer/DamagePreviewLabel
 @onready var main_camera: Camera2D = $MainCamera
+@onready var battle_ui: CanvasLayer = $BattleUI
 @onready var top_bar: Panel = $BattleUI/TopBar
 @onready var left_panel: Panel = $BattleUI/LeftPanel
 @onready var right_panel: Panel = $BattleUI/RightPanel
@@ -136,6 +138,8 @@ func _input(event: InputEvent) -> void:
 	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
 		return
 	if current_phase != PHASE_ALLY_TURN or is_demo_animating or ally_unit_state == null:
+		return
+	if _is_mouse_over_battle_ui():
 		return
 
 	var mouse_world_pos := get_global_mouse_position()
@@ -215,6 +219,7 @@ func reset_demo_state() -> void:
 	is_demo_animating = false
 	ally_has_moved = false
 	has_selected_move_target = false
+	selected_move_cell = Vector2i(-1, -1)
 	selected_attack_target_state = null
 	selected_attack_target_side = ""
 	_stop_idle_breathing()
@@ -267,28 +272,23 @@ func play_basic_move_demo() -> void:
 		_append_battle_log("이동 대상 없음")
 		return
 
-	var target_cell: Vector2i = _get_raw_move_target_cell()
+	var target_cell: Vector2i = _get_selected_move_target_cell()
 	_refresh_move_target_feedback()
 	if not is_valid_move_target(target_cell):
-		has_selected_move_target = false
-		move_highlight.visible = false
+		_clear_move_target_selection()
 		_append_battle_log("이동 불가")
 		return
-
-	has_selected_move_target = false
-	move_highlight.visible = false
 	_hide_move_range_overlay()
 	is_demo_animating = true
 	_set_phase(PHASE_RESOLVING)
 	_stop_idle_breathing()
 	_sync_demo_positions()
 
-	target_cell = _get_snapped_move_target_cell()
-
 	var target_unit_position := battle_grid_controller.grid_to_world(target_cell)
-	var portrait_offset := ally_portrait_marker.position - ally_unit_marker.position
+	var portrait_offset := _get_ally_portrait_visual_offset()
 	var target_portrait_position := target_unit_position + portrait_offset
 	var move_offset := target_unit_position - current_ally_unit_position
+	_clear_move_target_selection()
 
 	var tween := create_tween()
 	tween.tween_method(_apply_ally_group_offset, Vector2.ZERO, move_offset, 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -298,15 +298,14 @@ func play_basic_move_demo() -> void:
 func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_position: Vector2, target_cell: Vector2i) -> void:
 	current_ally_unit_position = target_unit_position
 	current_ally_portrait_position = target_portrait_position
+	_sync_ally_markers_to_current_position()
 	active_unit_state.set_grid_cell(target_cell)
 	_debug_print_combat_distance("MOVE_FINISH")
 	_update_cell_size_visual_guide(ally_unit_state.grid_cell)
 	print("ALLY MOVED grid_cell: ", active_unit_state.grid_cell, " target_cell: ", target_cell)
 	active_unit_state.has_moved = true
 	ally_has_moved = true
-	has_selected_move_target = false
 	_reset_unit_group_positions()
-	move_highlight.visible = false
 	_hide_move_range_overlay()
 	is_demo_animating = false
 	_append_battle_log("이순신 이동 완료")
@@ -827,8 +826,12 @@ func _get_raw_move_target_cell() -> Vector2i:
 	return _get_cell_from_world(move_target_marker.global_position)
 
 
+func _get_selected_move_target_cell() -> Vector2i:
+	return selected_move_cell
+
+
 func _get_snapped_move_target_cell() -> Vector2i:
-	var raw_cell: Vector2i = _get_raw_move_target_cell()
+	var raw_cell: Vector2i = _get_selected_move_target_cell()
 	if _is_valid_grid_cell(raw_cell):
 		return raw_cell
 
@@ -856,6 +859,7 @@ func set_move_target_cell(cell: Vector2i) -> void:
 	else:
 		move_target_marker.global_position = world_pos
 
+	selected_move_cell = cell
 	has_selected_move_target = true
 	_refresh_move_target_feedback()
 
@@ -867,8 +871,7 @@ func _select_ally_unit() -> void:
 	active_unit_state = ally_unit_state
 	_update_cell_size_visual_guide(ally_unit_state.grid_cell)
 	active_unit_side = "ally"
-	has_selected_move_target = false
-	move_highlight.visible = false
+	_clear_move_target_selection()
 	_clear_attack_target_selection()
 	_append_battle_log("이순신 선택")
 	_refresh_move_target_feedback()
@@ -883,8 +886,7 @@ func _select_enemy_attack_target() -> void:
 
 	selected_attack_target_state = enemy_unit_state
 	selected_attack_target_side = "enemy"
-	has_selected_move_target = false
-	move_highlight.visible = false
+	_clear_move_target_selection()
 	_append_battle_log("관우 공격 대상 선택")
 	_show_attack_target_feedback()
 
@@ -1186,7 +1188,7 @@ func _refresh_move_target_feedback() -> void:
 		move_highlight.visible = false
 		return
 
-	var target_cell: Vector2i = _get_raw_move_target_cell()
+	var target_cell: Vector2i = _get_selected_move_target_cell()
 	var is_valid_target: bool = is_valid_move_target(target_cell)
 	var snapped_position: Vector2 = _get_snapped_move_target_world_position()
 	move_target_marker.modulate = MOVE_TARGET_VALID_COLOR if is_valid_target else MOVE_TARGET_INVALID_COLOR
@@ -1194,6 +1196,40 @@ func _refresh_move_target_feedback() -> void:
 	_show_move_highlight_at_position(snapped_position)
 	if current_phase == PHASE_ALLY_TURN and not is_demo_animating:
 		move_highlight.visible = true
+
+
+func _clear_move_target_selection() -> void:
+	has_selected_move_target = false
+	selected_move_cell = Vector2i(-1, -1)
+	if move_highlight != null:
+		move_highlight.visible = false
+
+
+func _sync_ally_markers_to_current_position() -> void:
+	if ally_unit_marker != null:
+		ally_unit_marker.position = current_ally_unit_position
+	if ally_portrait_marker != null:
+		ally_portrait_marker.position = current_ally_portrait_position
+
+
+func _is_mouse_over_battle_ui() -> bool:
+	var hovered_control := get_viewport().gui_get_hovered_control()
+	if hovered_control == null:
+		return false
+	return (
+		_is_node_in_subtree(hovered_control, battle_ui)
+		or _is_node_in_subtree(hovered_control, cutin_overlay)
+		or _is_node_in_subtree(hovered_control, result_overlay)
+	)
+
+
+func _is_node_in_subtree(node: Node, subtree_root: Node) -> bool:
+	var current: Node = node
+	while current != null:
+		if current == subtree_root:
+			return true
+		current = current.get_parent()
+	return false
 
 
 func _format_cell(cell: Vector2i) -> String:

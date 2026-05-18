@@ -100,6 +100,10 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - The fullscreen logical grid remains editor-visible before runtime and the UI remains a CanvasLayer overlay.
 - `v0.64k-fullscreen-scene-authored-unit-layout` captures scene-authored unit layout offsets at runtime start.
 - Manual layout changes saved in the Godot 2D editor are now intended to persist during F6 runtime on `Battle_Fullscreen_Test.tscn`.
+- `v0.64k-fullscreen-move-flow-reconnect` reconnects the ally move flow on `Battle_Fullscreen_Test.tscn` for the fullscreen `18 x 10` board.
+- Move target selection now keeps an explicit logical `selected_move_cell` instead of depending only on the marker transform.
+- Fullscreen `BattleUI` clicks no longer get misread as battlefield move-target clicks.
+- After ally movement, token, shadow, portrait badge, HP bar, troop label, and click area continue to follow the same scene-authored anchor offsets.
 - This is the staging step before later `UnitVisual.tscn` template separation.
 
 ---
