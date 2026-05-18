@@ -18,6 +18,7 @@ This baseline includes:
 - v0.64k-fullscreen-left-right-facing verified
 - v0.64k-fullscreen-left-right-facing-hotfix verified
 - v0.64l Turn End / Wait Command added
+- v0.64m 4-Direction Facing Data Structure added
 
 Do not bump to v0.65 yet.
 v0.65 means Godot Battle Engine Port MVP Complete later.
@@ -124,6 +125,11 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - `Battle_Fullscreen_Test.tscn` now includes clickable `WaitButton` and `EndTurnButton` in the command bar.
 - Wait or turn-end command now ends the ally turn, reuses the existing enemy turn demo flow, and then returns to the ally turn.
 - Movement, attack, enemy counterattack, facing, and scene-authored layout behavior remain preserved with the wait command added.
+- Facing data now accepts `left`, `right`, `up`, and `down`.
+- Existing left/right facing remains the verified visual behavior.
+- Up/down troop sprite assets are still not available.
+- Up/down facing currently uses a safe visual fallback path without changing the stable left/right presentation.
+- Direction arrows and post-move facing selection UI are still not implemented.
 - This is the staging step before later `UnitVisual.tscn` template separation.
 
 ---

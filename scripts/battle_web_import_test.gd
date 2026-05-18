@@ -28,6 +28,16 @@ const PHASE_ALLY_TURN := "ally_turn"
 const PHASE_ENEMY_TURN := "enemy_turn"
 const PHASE_RESOLVING := "resolving"
 const MAX_BATTLE_LOG_LINES := 4
+const FACING_LEFT := "left"
+const FACING_RIGHT := "right"
+const FACING_UP := "up"
+const FACING_DOWN := "down"
+const VALID_FACINGS := [
+	FACING_LEFT,
+	FACING_RIGHT,
+	FACING_UP,
+	FACING_DOWN,
+]
 
 var is_demo_animating := false
 var ally_has_moved := false
@@ -48,6 +58,8 @@ var ally_idle_tween: Tween
 var enemy_idle_tween: Tween
 var ally_token_base_scale := Vector2.ONE
 var enemy_token_base_scale := Vector2.ONE
+var ally_token_base_texture: Texture2D
+var enemy_token_base_texture: Texture2D
 var ally_token_layout_offset := Vector2.ZERO
 var ally_shadow_layout_offset := Vector2.ZERO
 var ally_portrait_layout_offset := Vector2.ZERO
@@ -60,6 +72,11 @@ var enemy_portrait_layout_offset := Vector2.ZERO
 var enemy_hp_bar_layout_offset := Vector2.ZERO
 var enemy_troop_label_layout_offset := Vector2.ZERO
 var enemy_click_area_layout_offset := Vector2.ZERO
+
+@export var ally_unit_token_up_texture: Texture2D
+@export var ally_unit_token_down_texture: Texture2D
+@export var enemy_unit_token_up_texture: Texture2D
+@export var enemy_unit_token_down_texture: Texture2D
 
 @onready var battlefield_texture: Sprite2D = $BattlefieldRoot/BattlefieldTexture
 @onready var ally_unit_marker: Marker2D = $AllyUnitMarker
@@ -120,6 +137,8 @@ var enemy_click_area_layout_offset := Vector2.ZERO
 func _ready() -> void:
 	ally_token_base_scale = ally_unit_token.scale
 	enemy_token_base_scale = enemy_unit_token.scale
+	ally_token_base_texture = ally_unit_token.texture
+	enemy_token_base_texture = enemy_unit_token.texture
 	basic_attack_button.pressed.connect(try_basic_attack)
 	move_button.pressed.connect(play_basic_move_demo)
 	if wait_button != null:
@@ -723,7 +742,7 @@ func _create_demo_unit_states() -> void:
 		"move_range": 3,
 		"attack_range": 3,
 		"grid_cell": Vector2i.ZERO,
-		"facing": "right",
+		"facing": FACING_RIGHT,
 	})
 	enemy_unit_state = BattleUnitState.create({
 		"unit_id": "guan_yu",
@@ -739,7 +758,7 @@ func _create_demo_unit_states() -> void:
 		"move_range": 3,
 		"attack_range": 1,
 		"grid_cell": Vector2i.ZERO,
-		"facing": "left",
+		"facing": FACING_LEFT,
 	})
 
 
@@ -1287,7 +1306,7 @@ func _update_all_unit_visuals_from_state() -> void:
 func _update_ally_visuals_from_state() -> void:
 	if ally_unit_state == null:
 		return
-	_apply_token_left_right_facing(ally_unit_token, ally_unit_state.facing, "ally")
+	_apply_token_facing_visual(ally_unit_token, ally_unit_state.facing, "ally")
 	ally_hp_bar.max_value = ally_unit_state.max_hp
 	ally_hp_bar.value = ally_unit_state.current_hp
 	ally_troop_label.text = ally_unit_state.get_troop_label_text()
@@ -1296,10 +1315,38 @@ func _update_ally_visuals_from_state() -> void:
 func _update_enemy_visuals_from_state() -> void:
 	if enemy_unit_state == null:
 		return
-	_apply_token_left_right_facing(enemy_unit_token, enemy_unit_state.facing, "enemy")
+	_apply_token_facing_visual(enemy_unit_token, enemy_unit_state.facing, "enemy")
 	enemy_hp_bar.max_value = enemy_unit_state.max_hp
 	enemy_hp_bar.value = enemy_unit_state.current_hp
 	enemy_troop_label.text = enemy_unit_state.get_troop_label_text()
+
+
+func _normalize_facing(facing: String) -> String:
+	if facing == FACING_LEFT:
+		return FACING_LEFT
+	if facing == FACING_RIGHT:
+		return FACING_RIGHT
+	if facing == FACING_UP:
+		return FACING_UP
+	if facing == FACING_DOWN:
+		return FACING_DOWN
+	return FACING_RIGHT
+
+
+func _is_vertical_facing(facing: String) -> bool:
+	var normalized_facing := _normalize_facing(facing)
+	return normalized_facing == FACING_UP or normalized_facing == FACING_DOWN
+
+
+func _is_horizontal_facing(facing: String) -> bool:
+	var normalized_facing := _normalize_facing(facing)
+	return normalized_facing == FACING_LEFT or normalized_facing == FACING_RIGHT
+
+
+func _set_unit_facing(unit_state: BattleUnitState, facing: String) -> void:
+	if unit_state == null:
+		return
+	unit_state.facing = _normalize_facing(facing)
 
 
 func _refresh_unit_facing_toward_enemy() -> void:
@@ -1307,68 +1354,98 @@ func _refresh_unit_facing_toward_enemy() -> void:
 		return
 
 	if ally_unit_state.grid_cell.x < enemy_unit_state.grid_cell.x:
-		ally_unit_state.facing = "right"
+		_set_unit_facing(ally_unit_state, FACING_RIGHT)
 	elif ally_unit_state.grid_cell.x > enemy_unit_state.grid_cell.x:
-		ally_unit_state.facing = "left"
+		_set_unit_facing(ally_unit_state, FACING_LEFT)
 
 	if enemy_unit_state.grid_cell.x < ally_unit_state.grid_cell.x:
-		enemy_unit_state.facing = "right"
+		_set_unit_facing(enemy_unit_state, FACING_RIGHT)
 	elif enemy_unit_state.grid_cell.x > ally_unit_state.grid_cell.x:
-		enemy_unit_state.facing = "left"
+		_set_unit_facing(enemy_unit_state, FACING_LEFT)
 
 	_apply_unit_facing_visuals()
 
 
 func _apply_unit_facing_visuals() -> void:
 	if ally_unit_token != null and ally_unit_state != null:
-		_apply_token_left_right_facing(ally_unit_token, ally_unit_state.facing, "ally")
+		_apply_token_facing_visual(ally_unit_token, ally_unit_state.facing, "ally")
 	if enemy_unit_token != null and enemy_unit_state != null:
-		_apply_token_left_right_facing(enemy_unit_token, enemy_unit_state.facing, "enemy")
+		_apply_token_facing_visual(enemy_unit_token, enemy_unit_state.facing, "enemy")
 	if ally_portrait_badge != null:
 		ally_portrait_badge.flip_h = false
 	if enemy_portrait_badge != null:
 		enemy_portrait_badge.flip_h = false
 
 
-func _apply_token_left_right_facing(token: Sprite2D, facing: String, side: String) -> void:
+func _apply_token_facing_visual(token: Sprite2D, facing: String, side: String) -> void:
 	if token == null:
 		return
 
-	token.flip_h = _is_token_flip_h_for_facing(facing, side)
+	var normalized_facing := _normalize_facing(facing)
+	var texture_for_facing := _get_token_texture_for_facing(normalized_facing, side)
+	if texture_for_facing != null:
+		token.texture = texture_for_facing
+
+	if _is_horizontal_facing(normalized_facing):
+		token.flip_h = _is_token_flip_h_for_facing(normalized_facing, side)
+		return
+
+	if _is_vertical_facing(normalized_facing):
+		# Up/down sprite textures are optional for now. Fallback keeps the current stable visual.
+		return
 
 
 func _is_token_flip_h_for_facing(facing: String, side: String) -> bool:
+	var normalized_facing := _normalize_facing(facing)
 	match side:
 		"enemy":
-			match facing:
-				"right":
+			match normalized_facing:
+				FACING_RIGHT:
 					return true
-				"left":
+				FACING_LEFT:
 					return false
 		_:
-			match facing:
-				"right":
+			match normalized_facing:
+				FACING_RIGHT:
 					return true
-				"left":
+				FACING_LEFT:
 					return false
 
 	return false
 
 
+func _get_token_texture_for_facing(facing: String, side: String) -> Texture2D:
+	var normalized_facing := _normalize_facing(facing)
+	match side:
+		"enemy":
+			if normalized_facing == FACING_UP and enemy_unit_token_up_texture != null:
+				return enemy_unit_token_up_texture
+			if normalized_facing == FACING_DOWN and enemy_unit_token_down_texture != null:
+				return enemy_unit_token_down_texture
+			return enemy_token_base_texture
+		_:
+			if normalized_facing == FACING_UP and ally_unit_token_up_texture != null:
+				return ally_unit_token_up_texture
+			if normalized_facing == FACING_DOWN and ally_unit_token_down_texture != null:
+				return ally_unit_token_down_texture
+			return ally_token_base_texture
+
+
 func _get_facing_aware_portrait_offset(base_offset: Vector2, facing: String) -> Vector2:
 	var result := base_offset
-	match facing:
-		"left":
+	var normalized_facing := _normalize_facing(facing)
+	match normalized_facing:
+		FACING_LEFT:
 			result.x = -absf(base_offset.x)
-		"right":
+		FACING_RIGHT:
 			result.x = absf(base_offset.x)
 	return result
 
 
 func _get_unit_facing(unit_state: BattleUnitState) -> String:
 	if unit_state == null:
-		return "right"
-	return unit_state.facing
+		return FACING_RIGHT
+	return _normalize_facing(unit_state.facing)
 
 
 func _start_idle_breathing() -> void:

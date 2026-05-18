@@ -38,6 +38,7 @@ Before making changes, read:
 - Preserve ally turn return after enemy reaction.
 - Preserve fullscreen left/right troop facing.
 - Preserve facing-aware `PortraitBadge` front-side placement without flipping the portrait itself.
+- Preserve the current 4-direction facing data structure while keeping left/right as the only verified visual state for now.
 
 ---
 
@@ -63,6 +64,8 @@ Before making changes, read:
 - `Troop UnitToken` may flip for facing.
 - `Hero PortraitBadge` must not flip; only its position may become facing-aware.
 - HP bar, troop label, shadow, and click area should remain scene-authored unless there is a very strong reason otherwise.
+- `up/down` facing values may exist in data before matching sprite assets exist.
+- If `up/down` assets are missing, keep a safe visual fallback instead of breaking the current left/right presentation.
 
 ---
 
@@ -75,6 +78,7 @@ Before making changes, read:
 - Movement keeps HP bar, troop label, portrait badge, shadow, and click area visually synced.
 - Left/right troop facing is verified.
 - `Hero PortraitBadge` is verified as unflipped and facing-aware by position only.
+- Facing data structure is now prepared for `left/right/up/down`, but up/down sprites and direction arrows are still not implemented.
 
 ---
 
