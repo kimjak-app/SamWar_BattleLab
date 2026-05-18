@@ -88,7 +88,13 @@ Keep important gameplay areas inside visible editor space.
   - camera shake
   - signals
   - temporary effects
+- One unit occupies one logical grid cell.
+- Occupied cells block normal movement unless a future explicit exception system is added.
 - For facing:
+  - Facing is state, not always auto-look.
+  - Automatic facing should not erase manual facing.
+  - Enemy should not instantly face the ally outside its own action timing.
+  - Breakthrough or pass-through movement should remain a future skill-only exception.
   - `Troop UnitToken` may use left/right flip when needed.
   - `Hero PortraitBadge` must not flip.
   - `Hero PortraitBadge` may move position based on facing if needed.

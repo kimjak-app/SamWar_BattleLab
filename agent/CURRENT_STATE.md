@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.64l Turn End / Wait Command
+v0.64o Fullscreen 18x10 Directional Battle Loop Stable
 
 This baseline includes:
 - v0.64i Move-Then-Attack Flow + Hit Bounce Polish
@@ -112,9 +112,14 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - `Battle_WebImport_Test.tscn` remains the stable small-board verification scene.
 - `Battle_WebImport_Test.tscn` remains preserved as the smaller battle-board functional verification scene.
 - `Battle_Fullscreen_Test.tscn` is the current main working scene and fullscreen battle verification scene.
+- `Battle_Fullscreen_Test.tscn` is the main fullscreen battle work scene and the current stable verification scene.
 - `v0.64k-fullscreen-pre` fullscreen layout prototype is completed.
 - `Battle_Fullscreen_Test.tscn` now uses a full 18x10 logical grid across the whole 1920x1080 board.
 - Actual fullscreen cell size is approximately `Vector2(106.6667, 108.0)`.
+- A new higher-resolution battlefield background is now applied on the fullscreen scene.
+- The current fullscreen scene uses `battlefield_14x8_mvp4.png` as the battlefield texture source.
+- The new battlefield background source resolution is `2556 x 1440`.
+- The fullscreen `1920 x 1080` battle view now presents a sharper battlefield image than the earlier MVP background.
 - The 18x10 fullscreen grid is intended for future 7v7 to 10v10 battle scale.
 - The fullscreen logical grid remains editor-visible before runtime and the UI remains a CanvasLayer overlay.
 - `v0.64k-fullscreen-scene-authored-unit-layout` captures scene-authored unit layout offsets at runtime start.
@@ -176,6 +181,8 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - Enemy facing no longer auto-updates immediately when the ally repositions around it.
 - Enemy now keeps its existing facing until its own turn or attack action updates it.
 - Rear attack bonus logic is still not implemented, but the facing-hold foundation needed for future rear attack rules is now preserved.
+- GDScript facing-indicator shadowing warning cleanup is complete.
+- Windows WASAPI audio device warnings may still appear in Godot Output, but they are currently treated as environment-side non-combat issues.
 - Existing facing selection, facing lock, movement, attack, counterattack, and wait flow remain preserved.
 - This is the staging step before later `UnitVisual.tscn` template separation.
 
@@ -235,18 +242,16 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 ---
 
 ## Next Immediate Task
-Fullscreen 18x10 Unit Visual Manual Calibration Finalize
+Enemy Basic Move + Attack AI
 
 Goal:
-- Verify ally and enemy body footprint on `Battle_Fullscreen_Test.tscn`.
-- Manually fit troop body, shadow center, and click area to the fullscreen 18x10 logical grid.
-- Fit the unit body to the grid rather than moving the grid.
-- Treat the troop body center and shadow center as the tactical footprint anchor.
-- Flags, portraits, HP bars, and troop labels may overflow outside one logical cell.
-- Confirm that scene-authored layout from the 2D editor stays consistent during F6 runtime.
+- Let the enemy evaluate ally position during enemy turn and either attack immediately or move toward the ally first.
+- Reuse the current occupied-cell blocking and simple BFS waypoint movement structure.
+- Let enemy movement update the full visual group together, not just the token.
+- Preserve the current facing-hold rule so the enemy only turns during its own action timing.
 
 Note:
-- After visual anchor verification, proceed to `v0.64l Turn End / Wait Command`.
+- Fullscreen 18x10 visual calibration is now intentionally deferred until later unit assets and templates are ready.
 
 Constraints:
 - No `_draw()`

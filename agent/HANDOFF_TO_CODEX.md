@@ -8,7 +8,7 @@ Before making changes, read:
 ---
 
 ## Session Start Point
-- Next session starts from `v0.64k Fullscreen 18x10 Move + Facing Stable`.
+- Next session starts from `v0.64o Fullscreen 18x10 Directional Battle Loop Stable`.
 - Do not treat `v0.65` as reached.
 - Next active scene is `Battle_Fullscreen_Test.tscn`.
 - Keep `Battle_WebImport_Test.tscn` as the stable verification scene.
@@ -17,10 +17,10 @@ Before making changes, read:
 ---
 
 ## First Task
-- First task is `Fullscreen 18x10 Unit Visual Manual Calibration Finalize`.
-- Start from the layout visible in the Godot 2D editor on `Battle_Fullscreen_Test.tscn`.
-- Before changing behavior code, confirm the 2D editor layout and F6 runtime layout still match.
-- If the session goal changes, the next acceptable branch is `v0.64l Turn End / Wait Command` after the visual baseline is confirmed.
+- First task is `Enemy Basic Move + Attack AI`.
+- Start from `Battle_Fullscreen_Test.tscn`.
+- Reuse the current occupied-cell blocking and simple BFS waypoint move structure.
+- If the session goal changes later, the deferred visual branch is `Fullscreen 18x10 Unit Visual Manual Calibration Finalize`.
 
 ---
 
@@ -29,6 +29,7 @@ Before making changes, read:
 - Preserve battlefield cell click movement target selection.
 - Preserve movement range overlay.
 - Preserve occupied-cell blocking.
+- Preserve the current one-unit-one-cell occupancy rule.
 - Preserve MoveButton movement flow.
 - Preserve `grid_cell` and `has_moved` updates.
 - Preserve attack target selection on Guan Yu.
@@ -41,6 +42,7 @@ Before making changes, read:
 - Preserve the current 4-direction facing data structure while keeping left/right as the only verified visual state for now.
 - Preserve the post-move facing selection UI step after movement.
 - Preserve the arrow-based post-move facing selection UX near the ally unit.
+- Preserve the current high-resolution fullscreen battlefield background setup on `Battle_Fullscreen_Test.tscn`.
 
 ---
 
@@ -70,6 +72,12 @@ Before making changes, read:
 - If `up/down` assets are missing, keep a safe visual fallback instead of breaking the current left/right presentation.
 - Direction selection after movement should not auto-skip to enemy turn before the player chooses facing.
 - Manual ally facing chosen after movement should remain locked until the next movement.
+- One unit occupies exactly one logical grid cell.
+- Occupied cells block normal movement and cannot be passed through or entered by base movement.
+- Facing is state, not always auto-look.
+- Automatic facing should not erase manual facing.
+- Enemy should not instantly face the ally outside its own action timing.
+- Breakthrough or pass-through movement remains a future skill-only exception.
 
 ---
 
@@ -77,6 +85,7 @@ Before making changes, read:
 - `Battle_Fullscreen_Test.tscn` is the current primary working and verification scene.
 - `1920 x 1080` fullscreen battle board is working.
 - `18 x 10` logical grid is working.
+- A sharper high-resolution battlefield background is now applied on the fullscreen scene.
 - `scene-authored layout` is preserved from Godot 2D editor into F6 runtime.
 - Yi Sun-sin selection, movement, attack, and Guan Yu counterattack are verified.
 - Movement keeps HP bar, troop label, portrait badge, shadow, and click area visually synced.
@@ -85,6 +94,8 @@ Before making changes, read:
 - Facing data structure is now prepared for `left/right/up/down`, but up/down sprites and direction arrows are still not implemented.
 - Post-move facing selection UI is now part of the ally move flow.
 - Post-move facing selection now uses arrows near the ally unit, and the chosen ally facing persists until the next move.
+- Occupied cell blocking and simple grid waypoint movement are now part of the stable fullscreen loop.
+- Enemy facing now holds until enemy action timing instead of instantly reacting to ally repositioning.
 
 ---
 

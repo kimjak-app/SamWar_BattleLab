@@ -1,14 +1,17 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.64i Combat Flow + Range Gate Stabilization
+v0.64o Fullscreen 18x10 Directional Battle Loop Stable
 
 This baseline includes:
-- v0.64i Move-Then-Attack Flow + Hit Bounce Polish
-- v0.64i-hotfix Basic Attack Range Restore
-- v0.64i-hotfix-2 Attack Target Fallback
-- v0.64i-hotfix-3 Post-Move Attack Range Branch
-- v0.64i-hotfix-4 Attack Range Debug + Enemy Range Gate
+- fullscreen `18 x 10`
+- scene-authored layout preservation
+- movement / occupied cell blocking / simple grid path move
+- attack / counterattack
+- wait / end turn
+- 4-direction post-move facing selection
+- facing lock / facing indicator
+- high-resolution fullscreen battlefield background
 
 Warning:
 - v0.65 is not reached.
@@ -61,21 +64,28 @@ Warning:
 - Current facing is now shown by a small always-visible arrow indicator above units.
 - Large arrows remain the selection UI, while the small indicator shows the active saved facing.
 
-### 1. Fullscreen 18x10 Unit Visual Manual Calibration Finalize
+### 1. Enemy Basic Move + Attack AI
 Goal:
-- In the Godot 2D editor, finalize manual calibration of unit body, HP bar, troop number, portrait, click area, and shadow against one fullscreen cell.
-- After `Ctrl+S`, confirm the same layout remains during F6 runtime.
-- Lock Yi Sun-sin and Guan Yu as the standard fullscreen infantry sample `UnitVisual` reference.
+- Let the enemy evaluate the ally during enemy turn and attack if already in range.
+- If out of range, let the enemy move closer within `move_range` while preserving occupied-cell blocking.
+- If attack becomes possible after movement, attack.
+- If attack is still not possible after movement, wait and return to the ally turn.
+- Enemy movement should reuse the current simple BFS waypoint movement and move the full visual group together.
+- Enemy facing should update only during its own action timing.
 
 Rules:
-- Keep `Battle_Fullscreen_Test.tscn` as the current working scene.
-- Keep `Battle_WebImport_Test.tscn` as the stable verification scene.
-- Fit the unit body to the `18 x 10` fullscreen grid.
-- Allow flags, portraits, HP bars, and troop numbers to overflow the cell when needed.
-- Preserve scene-authored layout capture behavior.
-- Do not change battle logic while doing this calibration.
+- Do not change `attack_range`, `move_range`, or the distance formula.
+- Reuse the current occupied-cell blocking and path move structure.
+- Enemy still occupies exactly one logical cell.
+- Do not implement rear/side bonuses or breakthrough behavior yet.
 
-### 2. Rear/Side Attack Concept Planning
+### 2. Enemy Move Range / Target Cell Selection Logic
+Goal:
+- Choose a valid enemy destination cell that gets closer to the ally.
+- Start with a simple heuristic over BFS-reachable cells.
+- Keep occupied-cell blocking and non-diagonal movement.
+
+### 3. Rear/Side Attack Concept Planning
 Goal:
 - Design how defender facing should classify future rear, side, and front attack states without changing damage rules yet.
 
@@ -84,7 +94,15 @@ Rules:
 - Build on the current rear-access and facing-hold foundation.
 - Do not implement damage bonuses or final combat rules yet.
 
-### 3. UnitVisual Template Planning
+### 4. Up/Down Troop Sprite Asset Integration
+Goal:
+- Connect future `up` and `down` troop token PNG assets into the prepared texture slots.
+
+Timing:
+- Do this after the assets are prepared.
+- Keep left/right stable while integrating.
+
+### 5. UnitVisual Template Planning
 Goal:
 - Plan the step after the current fullscreen sample calibration is finalized.
 - Do not split into `UnitVisual.tscn` yet.
@@ -96,34 +114,7 @@ Direction:
 - Use the current manual fullscreen calibration as the later template reference.
 - Keep scene-authored layout as the source of truth that runtime behavior follows.
 
-### 4. Up/Down Troop Sprite Asset Integration
-Goal:
-- Connect future `up` and `down` troop token PNG assets into the prepared texture slots.
-
-Timing:
-- Do this after the assets are prepared.
-- Keep left/right stable while integrating.
-
-### 5. Enemy basic decision AI
-Goal:
-- Port simple web or basic engine AI rules step by step.
-
-Priority rules:
-- attack if in range
-- prefer weak target when multiple targets exist
-- prefer back attack if possible
-- prefer unique skill if available
-- otherwise approach or wait
-
-### 6. Breakthrough Skill Concept
-Goal:
-- Design the future exception path where a special skill can pass through occupied cells or use split-and-rejoin movement presentation.
-
-Rules:
-- Do not implement the skill behavior yet.
-- Keep current base movement blocked by occupied cells until that system is explicitly added.
-
-### 7. Multi-unit deployment planning
+### 6. Multi-unit deployment planning
 Goal:
 - Plan how fullscreen `18 x 10` should scale from the current single ally / single enemy sample into multi-unit deployment.
 
@@ -131,9 +122,17 @@ Direction:
 - Keep the current verified fullscreen sample as the tactical and visual reference.
 - Avoid hand-placing every future unit without a repeatable structure.
 
-### 8. Terrain choke point / narrow path test
+### 7. Terrain choke point / narrow path test
 Goal:
 - QA the new blocked-cell path movement behavior on tighter routes and future narrow-lane layouts.
+
+### 8. Breakthrough Skill Concept
+Goal:
+- Design the future exception path where a special skill can pass through occupied cells or use split-and-rejoin movement presentation.
+
+Rules:
+- Do not implement the skill behavior yet.
+- Keep current base movement blocked by occupied cells until that system is explicitly added.
 
 ### 9. Facing UI additional polish later if needed
 Goal:
