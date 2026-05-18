@@ -28,6 +28,8 @@ This baseline includes:
 - v0.64n-hotfix Facing Indicator Cleanup added
 - v0.64n-hotfix Facing Arrow Visual Polish added
 - v0.64n-hotfix Facing Arrow Visual Polish 2 added
+- v0.64o Occupied Cell Blocking + Simple Grid Path Move added
+- v0.64o-hotfix Rear Access + Facing Hold added
 
 Do not bump to v0.65 yet.
 v0.65 means Godot Battle Engine Port MVP Complete later.
@@ -164,6 +166,16 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - Large facing selection arrows now use a web-style yellow translucent cell box with clearer yellow arrow text.
 - Large facing selection arrows are now softened again toward a more muted ivory and gold guide look with lower border and fill intensity.
 - Small facing indicators remain unchanged during this visual polish step.
+- One unit now occupies one logical grid cell for movement blocking purposes.
+- Occupied cells are now treated as blocked cells for normal movement, so ally movement cannot enter or pass through the enemy cell.
+- The current sample uses `enemy_unit_state.grid_cell` as the blocked occupied cell, with structure prepared for future multi-unit expansion.
+- Ally movement animation now follows a simple grid waypoint path instead of a straight line through blocked cells.
+- Breakthrough movement remains unimplemented and reserved for a later special-case skill system.
+- Occupied blocking is now explicitly treated as one blocked occupied cell only, not an expanded blocked zone around the unit.
+- Rear or side cells around the defender remain reachable when a valid 4-direction path exists within move range.
+- Enemy facing no longer auto-updates immediately when the ally repositions around it.
+- Enemy now keeps its existing facing until its own turn or attack action updates it.
+- Rear attack bonus logic is still not implemented, but the facing-hold foundation needed for future rear attack rules is now preserved.
 - Existing facing selection, facing lock, movement, attack, counterattack, and wait flow remain preserved.
 - This is the staging step before later `UnitVisual.tscn` template separation.
 

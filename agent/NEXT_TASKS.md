@@ -61,15 +61,7 @@ Warning:
 - Current facing is now shown by a small always-visible arrow indicator above units.
 - Large arrows remain the selection UI, while the small indicator shows the active saved facing.
 
-### 1. Up/Down Troop Sprite Asset Integration
-Goal:
-- Connect future `up` and `down` troop token PNG assets into the prepared texture slots.
-
-Timing:
-- Do this after the assets are prepared.
-- Keep left/right stable while integrating.
-
-### 2. Fullscreen 18x10 Unit Visual Manual Calibration Finalize
+### 1. Fullscreen 18x10 Unit Visual Manual Calibration Finalize
 Goal:
 - In the Godot 2D editor, finalize manual calibration of unit body, HP bar, troop number, portrait, click area, and shadow against one fullscreen cell.
 - After `Ctrl+S`, confirm the same layout remains during F6 runtime.
@@ -83,6 +75,15 @@ Rules:
 - Preserve scene-authored layout capture behavior.
 - Do not change battle logic while doing this calibration.
 
+### 2. Rear/Side Attack Concept Planning
+Goal:
+- Design how defender facing should classify future rear, side, and front attack states without changing damage rules yet.
+
+Rules:
+- Treat defender facing as persistent state.
+- Build on the current rear-access and facing-hold foundation.
+- Do not implement damage bonuses or final combat rules yet.
+
 ### 3. UnitVisual Template Planning
 Goal:
 - Plan the step after the current fullscreen sample calibration is finalized.
@@ -95,7 +96,15 @@ Direction:
 - Use the current manual fullscreen calibration as the later template reference.
 - Keep scene-authored layout as the source of truth that runtime behavior follows.
 
-### 4. Enemy basic decision AI
+### 4. Up/Down Troop Sprite Asset Integration
+Goal:
+- Connect future `up` and `down` troop token PNG assets into the prepared texture slots.
+
+Timing:
+- Do this after the assets are prepared.
+- Keep left/right stable while integrating.
+
+### 5. Enemy basic decision AI
 Goal:
 - Port simple web or basic engine AI rules step by step.
 
@@ -106,7 +115,15 @@ Priority rules:
 - prefer unique skill if available
 - otherwise approach or wait
 
-### 5. Multi-unit deployment planning
+### 6. Breakthrough Skill Concept
+Goal:
+- Design the future exception path where a special skill can pass through occupied cells or use split-and-rejoin movement presentation.
+
+Rules:
+- Do not implement the skill behavior yet.
+- Keep current base movement blocked by occupied cells until that system is explicitly added.
+
+### 7. Multi-unit deployment planning
 Goal:
 - Plan how fullscreen `18 x 10` should scale from the current single ally / single enemy sample into multi-unit deployment.
 
@@ -114,7 +131,11 @@ Direction:
 - Keep the current verified fullscreen sample as the tactical and visual reference.
 - Avoid hand-placing every future unit without a repeatable structure.
 
-### 6. Facing UI additional polish later if needed
+### 8. Terrain choke point / narrow path test
+Goal:
+- QA the new blocked-cell path movement behavior on tighter routes and future narrow-lane layouts.
+
+### 9. Facing UI additional polish later if needed
 Goal:
 - Further refine the large facing selection arrows only if readability or style still needs another pass after QA.
 - Current `v0.64n-hotfix Facing Arrow Visual Polish 2` is color-only tuning with no behavior change.

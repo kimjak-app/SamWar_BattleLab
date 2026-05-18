@@ -33,6 +33,7 @@ const FACING_LEFT := "left"
 const FACING_RIGHT := "right"
 const FACING_UP := "up"
 const FACING_DOWN := "down"
+const ALLOW_BREAKTHROUGH_MOVE := false
 const FACING_ARROW_BUTTON_SIZE_SCALE := 0.96
 const FACING_ARROW_PANEL_ALPHA := 1.0
 const FACING_ARROW_BUTTON_ALPHA := 1.0
@@ -294,7 +295,7 @@ func reset_demo_state() -> void:
 	current_ally_portrait_position = ally_portrait_marker.position
 	_create_demo_unit_states()
 	_sync_unit_state_cells_from_markers()
-	_refresh_unit_facing_toward_enemy()
+	_refresh_initial_unit_facing()
 	_update_logical_grid_guide()
 	_apply_melee_adjacent_qa_preset()
 	_update_cell_size_visual_guide(ally_unit_state.grid_cell)
@@ -353,14 +354,34 @@ func play_basic_move_demo() -> void:
 	_stop_idle_breathing()
 	_sync_demo_positions()
 
+	var start_cell := active_unit_state.grid_cell
+	var move_path := _find_ally_move_path(start_cell, target_cell)
+	if move_path.is_empty() or move_path.size() < 2:
+		is_demo_animating = false
+		_set_phase(PHASE_ALLY_TURN)
+		_set_facing_indicators_visible(true)
+		_refresh_move_target_feedback()
+		_show_move_range_overlay_for_active_unit()
+		_start_idle_breathing()
+		_append_battle_log("이동 경로 없음")
+		return
+
 	var target_unit_position := battle_grid_controller.grid_to_world(target_cell)
 	var portrait_offset := _get_ally_portrait_visual_offset()
 	var target_portrait_position := target_unit_position + portrait_offset
-	var move_offset := target_unit_position - current_ally_unit_position
+	var start_unit_position := current_ally_unit_position
 	_clear_move_target_selection()
 
 	var tween := create_tween()
-	tween.tween_method(_apply_ally_group_offset, Vector2.ZERO, move_offset, 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	var previous_offset := Vector2.ZERO
+	var step_duration := 0.14
+	for path_index in range(1, move_path.size()):
+		var waypoint_world := battle_grid_controller.grid_to_world(move_path[path_index])
+		var next_offset := waypoint_world - start_unit_position
+		tween.tween_method(_apply_ally_group_offset, previous_offset, next_offset, step_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		previous_offset = next_offset
+	if move_path.size() - 1 > battle_grid_controller.get_distance(start_cell, target_cell):
+		_append_battle_log("우회 이동")
 	tween.tween_callback(_finish_basic_move_demo.bind(target_unit_position, target_portrait_position, target_cell))
 
 
@@ -369,7 +390,7 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 	current_ally_portrait_position = target_portrait_position
 	_sync_ally_markers_to_current_position()
 	active_unit_state.set_grid_cell(target_cell)
-	_refresh_unit_facing_toward_enemy()
+	_refresh_ally_facing_toward_enemy_if_not_manual()
 	_debug_print_combat_distance("MOVE_FINISH")
 	_update_cell_size_visual_guide(ally_unit_state.grid_cell)
 	print("ALLY MOVED grid_cell: ", active_unit_state.grid_cell, " target_cell: ", target_cell)
@@ -733,6 +754,7 @@ func _play_enemy_turn_demo() -> void:
 	is_demo_animating = true
 	_stop_idle_breathing()
 	basic_attack_button.disabled = true
+	_refresh_enemy_facing_for_enemy_action()
 	_reset_unit_group_positions()
 	_debug_print_combat_distance("ENEMY_TURN_START")
 
@@ -776,7 +798,6 @@ func _enemy_reaction_hit_on() -> void:
 
 
 func _return_to_ally_turn() -> void:
-	_refresh_unit_facing_toward_enemy()
 	_reset_unit_group_positions()
 	_set_group_modulate(_get_ally_group_nodes(), Color.WHITE)
 	_set_enemy_group_modulate(Color.WHITE)
@@ -1002,7 +1023,7 @@ func _apply_melee_adjacent_qa_preset() -> void:
 	enemy_unit_state.set_grid_cell(target_cell)
 	enemy_unit_marker.position = battle_grid_controller.grid_to_world(target_cell)
 	enemy_portrait_marker.position = enemy_unit_marker.position + portrait_offset
-	_refresh_unit_facing_toward_enemy()
+	_refresh_initial_unit_facing()
 	_reset_unit_group_positions()
 
 	print("MELEE QA enemy offset: ", MELEE_QA_ENEMY_OFFSET)
@@ -1126,6 +1147,11 @@ func set_move_target_cell(cell: Vector2i) -> void:
 		return
 	if not battle_grid_controller.is_in_bounds(cell):
 		return
+	if _is_cell_occupied_for_move(cell):
+		_append_battle_log("적 부대가 있어 이동할 수 없습니다")
+		return
+	if not is_valid_move_target(cell):
+		return
 
 	var world_pos := battle_grid_controller.grid_to_world(cell)
 	if move_target_marker.get_parent() is Node2D:
@@ -1160,7 +1186,6 @@ func _select_enemy_attack_target() -> void:
 
 	selected_attack_target_state = enemy_unit_state
 	selected_attack_target_side = "enemy"
-	_refresh_unit_facing_toward_enemy()
 	_clear_move_target_selection()
 	_append_battle_log("관우 공격 대상 선택")
 	_show_attack_target_feedback()
@@ -1387,6 +1412,88 @@ func get_active_move_range() -> int:
 	return active_unit_state.move_range
 
 
+func _get_occupied_cells_for_move() -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	if enemy_unit_state != null and enemy_unit_state.is_alive():
+		cells.append(enemy_unit_state.grid_cell)
+	return cells
+
+
+func _is_cell_occupied_for_move(cell: Vector2i) -> bool:
+	if ALLOW_BREAKTHROUGH_MOVE:
+		return false
+	for occupied_cell in _get_occupied_cells_for_move():
+		if occupied_cell == cell:
+			return true
+	return false
+
+
+func _is_cell_walkable_for_ally(cell: Vector2i, start_cell: Vector2i) -> bool:
+	if battle_grid_controller == null:
+		return false
+	if not battle_grid_controller.is_in_bounds(cell):
+		return false
+	if cell == start_cell:
+		return true
+	if _is_cell_occupied_for_move(cell):
+		return false
+	return true
+
+
+func _find_ally_move_path(start_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
+	var empty_path: Array[Vector2i] = []
+	if battle_grid_controller == null:
+		return empty_path
+	if start_cell == target_cell:
+		return [start_cell]
+	if not _is_cell_walkable_for_ally(target_cell, start_cell):
+		return empty_path
+
+	var max_steps := get_active_move_range()
+	var frontier: Array[Vector2i] = [start_cell]
+	var came_from: Dictionary = {start_cell: start_cell}
+	var steps_from_start: Dictionary = {start_cell: 0}
+	var directions: Array[Vector2i] = [
+		Vector2i(1, 0),
+		Vector2i(-1, 0),
+		Vector2i(0, 1),
+		Vector2i(0, -1),
+	]
+
+	while not frontier.is_empty():
+		var current: Vector2i = frontier.pop_front()
+		if current == target_cell:
+			break
+
+		var current_steps: int = steps_from_start.get(current, 0)
+		if current_steps >= max_steps:
+			continue
+
+		for direction in directions:
+			var next: Vector2i = current + direction
+			if came_from.has(next):
+				continue
+			if not _is_cell_walkable_for_ally(next, start_cell):
+				continue
+			came_from[next] = current
+			steps_from_start[next] = current_steps + 1
+			frontier.append(next)
+
+	if not came_from.has(target_cell):
+		return empty_path
+
+	var path: Array[Vector2i] = []
+	var cursor: Vector2i = target_cell
+	while cursor != start_cell:
+		path.push_front(cursor)
+		cursor = came_from[cursor]
+	path.push_front(start_cell)
+
+	if path.size() - 1 > max_steps:
+		return empty_path
+	return path
+
+
 func get_unit_grid_distance(attacker: BattleUnitState, target: BattleUnitState) -> int:
 	if attacker == null or target == null:
 		return 9999
@@ -1450,10 +1557,9 @@ func is_valid_move_target(target_cell: Vector2i) -> bool:
 	var origin_cell: Vector2i = get_active_move_origin_cell()
 	if target_cell == origin_cell:
 		return false
-	if is_cell_occupied(target_cell):
+	if _is_cell_occupied_for_move(target_cell):
 		return false
-
-	return battle_grid_controller.get_distance(origin_cell, target_cell) <= get_active_move_range()
+	return not _find_ally_move_path(origin_cell, target_cell).is_empty()
 
 
 func _refresh_move_target_feedback() -> void:
@@ -1564,22 +1670,51 @@ func _set_unit_facing(unit_state: BattleUnitState, facing: String) -> void:
 	unit_state.facing = _normalize_facing(facing)
 
 
-func _refresh_unit_facing_toward_enemy() -> void:
+func _face_unit_toward_cell(unit_state: BattleUnitState, target_cell: Vector2i) -> void:
+	if unit_state == null:
+		return
+
+	if unit_state.grid_cell.x < target_cell.x:
+		_set_unit_facing(unit_state, FACING_RIGHT)
+	elif unit_state.grid_cell.x > target_cell.x:
+		_set_unit_facing(unit_state, FACING_LEFT)
+	elif unit_state.grid_cell.y > target_cell.y:
+		_set_unit_facing(unit_state, FACING_UP)
+	elif unit_state.grid_cell.y < target_cell.y:
+		_set_unit_facing(unit_state, FACING_DOWN)
+
+
+func _refresh_initial_unit_facing() -> void:
 	if ally_unit_state == null or enemy_unit_state == null:
 		return
 
 	if not ally_has_manual_facing:
-		if ally_unit_state.grid_cell.x < enemy_unit_state.grid_cell.x:
-			_set_unit_facing(ally_unit_state, FACING_RIGHT)
-		elif ally_unit_state.grid_cell.x > enemy_unit_state.grid_cell.x:
-			_set_unit_facing(ally_unit_state, FACING_LEFT)
-
+		_face_unit_toward_cell(ally_unit_state, enemy_unit_state.grid_cell)
 	if not enemy_has_manual_facing:
-		if enemy_unit_state.grid_cell.x < ally_unit_state.grid_cell.x:
-			_set_unit_facing(enemy_unit_state, FACING_RIGHT)
-		elif enemy_unit_state.grid_cell.x > ally_unit_state.grid_cell.x:
-			_set_unit_facing(enemy_unit_state, FACING_LEFT)
+		_face_unit_toward_cell(enemy_unit_state, ally_unit_state.grid_cell)
 
+	_apply_unit_facing_visuals()
+	_reset_unit_group_positions()
+
+
+func _refresh_ally_facing_toward_enemy_if_not_manual() -> void:
+	if ally_unit_state == null or enemy_unit_state == null:
+		return
+	if ally_has_manual_facing:
+		return
+
+	_face_unit_toward_cell(ally_unit_state, enemy_unit_state.grid_cell)
+	_apply_unit_facing_visuals()
+	_reset_unit_group_positions()
+
+
+func _refresh_enemy_facing_for_enemy_action() -> void:
+	if enemy_unit_state == null or ally_unit_state == null:
+		return
+	if enemy_has_manual_facing:
+		return
+
+	_face_unit_toward_cell(enemy_unit_state, ally_unit_state.grid_cell)
 	_apply_unit_facing_visuals()
 	_reset_unit_group_positions()
 
@@ -1707,12 +1842,12 @@ func _position_facing_indicator_for_enemy() -> void:
 	enemy_facing_indicator.position = anchor + Vector2(-18.0, -96.0)
 
 
-func _set_facing_indicators_visible(is_visible: bool) -> void:
-	facing_indicators_should_be_visible = is_visible
+func _set_facing_indicators_visible(should_show: bool) -> void:
+	facing_indicators_should_be_visible = should_show
 	if ally_facing_indicator != null:
-		ally_facing_indicator.visible = is_visible
+		ally_facing_indicator.visible = should_show
 	if enemy_facing_indicator != null:
-		enemy_facing_indicator.visible = is_visible
+		enemy_facing_indicator.visible = should_show
 
 
 func _world_to_battle_ui_position(world_pos: Vector2) -> Vector2:
