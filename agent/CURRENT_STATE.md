@@ -26,6 +26,8 @@ This baseline includes:
 - v0.64n-hotfix Facing Arrow Snap To Grid Cells added
 - v0.64n-hotfix Direction Facing Indicator Overlay added
 - v0.64n-hotfix Facing Indicator Cleanup added
+- v0.64n-hotfix Facing Arrow Visual Polish added
+- v0.64n-hotfix Facing Arrow Visual Polish 2 added
 
 Do not bump to v0.65 yet.
 v0.65 means Godot Battle Engine Port MVP Complete later.
@@ -159,6 +161,9 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - Small facing indicators are now positioned closer to the troop body and flag area instead of the portrait/head area.
 - Small facing indicators now hide during movement and during the post-move facing selection step, then reappear after the new facing is confirmed.
 - Legacy `CellGuide` debug right/down tiles and the `ally=... enemy=... dist=...` runtime label are now disabled by default.
+- Large facing selection arrows now use a web-style yellow translucent cell box with clearer yellow arrow text.
+- Large facing selection arrows are now softened again toward a more muted ivory and gold guide look with lower border and fill intensity.
+- Small facing indicators remain unchanged during this visual polish step.
 - Existing facing selection, facing lock, movement, attack, counterattack, and wait flow remain preserved.
 - This is the staging step before later `UnitVisual.tscn` template separation.
 

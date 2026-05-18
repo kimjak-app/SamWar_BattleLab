@@ -61,14 +61,7 @@ Warning:
 - Current facing is now shown by a small always-visible arrow indicator above units.
 - Large arrows remain the selection UI, while the small indicator shows the active saved facing.
 
-### 1. Facing UI Visual Polish
-Goal:
-- Improve the visual design of both the large selection arrows and the small facing indicators.
-
-Timing:
-- Keep the current functional overlay behavior intact.
-
-### 2. Up/Down Troop Sprite Asset Integration
+### 1. Up/Down Troop Sprite Asset Integration
 Goal:
 - Connect future `up` and `down` troop token PNG assets into the prepared texture slots.
 
@@ -76,7 +69,7 @@ Timing:
 - Do this after the assets are prepared.
 - Keep left/right stable while integrating.
 
-### 3. Fullscreen 18x10 Unit Visual Manual Calibration Finalize
+### 2. Fullscreen 18x10 Unit Visual Manual Calibration Finalize
 Goal:
 - In the Godot 2D editor, finalize manual calibration of unit body, HP bar, troop number, portrait, click area, and shadow against one fullscreen cell.
 - After `Ctrl+S`, confirm the same layout remains during F6 runtime.
@@ -90,7 +83,7 @@ Rules:
 - Preserve scene-authored layout capture behavior.
 - Do not change battle logic while doing this calibration.
 
-### 4. UnitVisual Template Planning
+### 3. UnitVisual Template Planning
 Goal:
 - Plan the step after the current fullscreen sample calibration is finalized.
 - Do not split into `UnitVisual.tscn` yet.
@@ -102,7 +95,7 @@ Direction:
 - Use the current manual fullscreen calibration as the later template reference.
 - Keep scene-authored layout as the source of truth that runtime behavior follows.
 
-### 5. Enemy basic decision AI
+### 4. Enemy basic decision AI
 Goal:
 - Port simple web or basic engine AI rules step by step.
 
@@ -113,13 +106,18 @@ Priority rules:
 - prefer unique skill if available
 - otherwise approach or wait
 
-### 7. Multi-unit deployment planning
+### 5. Multi-unit deployment planning
 Goal:
 - Plan how fullscreen `18 x 10` should scale from the current single ally / single enemy sample into multi-unit deployment.
 
 Direction:
 - Keep the current verified fullscreen sample as the tactical and visual reference.
 - Avoid hand-placing every future unit without a repeatable structure.
+
+### 6. Facing UI additional polish later if needed
+Goal:
+- Further refine the large facing selection arrows only if readability or style still needs another pass after QA.
+- Current `v0.64n-hotfix Facing Arrow Visual Polish 2` is color-only tuning with no behavior change.
 
 ### 7. v0.64n Hero Skill Sample Trigger
 Goal:

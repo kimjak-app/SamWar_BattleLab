@@ -33,9 +33,9 @@ const FACING_LEFT := "left"
 const FACING_RIGHT := "right"
 const FACING_UP := "up"
 const FACING_DOWN := "down"
-const FACING_ARROW_BUTTON_SIZE_SCALE := 0.92
+const FACING_ARROW_BUTTON_SIZE_SCALE := 0.96
 const FACING_ARROW_PANEL_ALPHA := 1.0
-const FACING_ARROW_BUTTON_ALPHA := 0.96
+const FACING_ARROW_BUTTON_ALPHA := 1.0
 const VALID_FACINGS := [
 	FACING_LEFT,
 	FACING_RIGHT,
@@ -619,13 +619,57 @@ func _apply_facing_arrow_panel_visual_style() -> void:
 	if facing_arrow_panel != null:
 		facing_arrow_panel.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_PANEL_ALPHA)
 	if face_up_arrow_button != null:
-		face_up_arrow_button.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_BUTTON_ALPHA)
+		_apply_facing_arrow_button_style(face_up_arrow_button)
 	if face_down_arrow_button != null:
-		face_down_arrow_button.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_BUTTON_ALPHA)
+		_apply_facing_arrow_button_style(face_down_arrow_button)
 	if face_left_arrow_button != null:
-		face_left_arrow_button.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_BUTTON_ALPHA)
+		_apply_facing_arrow_button_style(face_left_arrow_button)
 	if face_right_arrow_button != null:
-		face_right_arrow_button.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_BUTTON_ALPHA)
+		_apply_facing_arrow_button_style(face_right_arrow_button)
+
+
+func _apply_facing_arrow_button_style(button: Button) -> void:
+	if button == null:
+		return
+
+	button.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_BUTTON_ALPHA)
+	button.flat = false
+
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(1.0, 0.92, 0.55, 0.12)
+	normal.border_color = Color(1.0, 0.92, 0.65, 0.4)
+	normal.set_border_width_all(2)
+	normal.set_corner_radius_all(4)
+
+	var hover := StyleBoxFlat.new()
+	hover.bg_color = Color(1.0, 0.94, 0.6, 0.18)
+	hover.border_color = Color(1.0, 0.94, 0.7, 0.52)
+	hover.set_border_width_all(2)
+	hover.set_corner_radius_all(4)
+
+	var pressed := StyleBoxFlat.new()
+	pressed.bg_color = Color(1.0, 0.86, 0.42, 0.22)
+	pressed.border_color = Color(1.0, 0.92, 0.65, 0.6)
+	pressed.set_border_width_all(2)
+	pressed.set_corner_radius_all(4)
+
+	var disabled := StyleBoxFlat.new()
+	disabled.bg_color = Color(0.65, 0.58, 0.2, 0.12)
+	disabled.border_color = Color(0.85, 0.76, 0.3, 0.32)
+	disabled.set_border_width_all(2)
+	disabled.set_corner_radius_all(4)
+
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("disabled", disabled)
+	button.add_theme_color_override("font_color", Color(1.0, 0.96, 0.78, 0.9))
+	button.add_theme_color_override("font_hover_color", Color(1.0, 0.98, 0.82, 0.95))
+	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.98, 0.82, 1.0))
+	button.add_theme_color_override("font_disabled_color", Color(0.92, 0.82, 0.45, 0.6))
+	button.add_theme_color_override("font_outline_color", Color(0.1, 0.07, 0.0, 0.8))
+	button.add_theme_constant_override("outline_size", 3)
+	button.add_theme_font_size_override("font_size", 36)
 
 
 func _enter_post_move_facing_selection() -> void:
