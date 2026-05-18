@@ -17,6 +17,7 @@ This baseline includes:
 - v0.64k-fullscreen-move-flow-reconnect verified
 - v0.64k-fullscreen-left-right-facing verified
 - v0.64k-fullscreen-left-right-facing-hotfix verified
+- v0.64l Turn End / Wait Command added
 
 Do not bump to v0.65 yet.
 v0.65 means Godot Battle Engine Port MVP Complete later.
@@ -120,6 +121,9 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - HP bar, troop label, click area, and shadow remain scene-authored and are not mirrored.
 - Up/down facing sprites and direction arrows are still not implemented.
 - Godot Output audio device warnings were observed, but they are not treated as battle-logic failures.
+- `Battle_Fullscreen_Test.tscn` now includes clickable `WaitButton` and `EndTurnButton` in the command bar.
+- Wait or turn-end command now ends the ally turn, reuses the existing enemy turn demo flow, and then returns to the ally turn.
+- Movement, attack, enemy counterattack, facing, and scene-authored layout behavior remain preserved with the wait command added.
 - This is the staging step before later `UnitVisual.tscn` template separation.
 
 ---

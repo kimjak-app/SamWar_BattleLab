@@ -104,6 +104,8 @@ var enemy_click_area_layout_offset := Vector2.ZERO
 @onready var command_bar: Panel = $BattleUI/CommandBar
 @onready var basic_attack_button: Button = $BattleUI/CommandBar/BasicAttackButton
 @onready var move_button: Button = $BattleUI/CommandBar/MoveButton
+@onready var wait_button: Button = get_node_or_null("BattleUI/CommandBar/WaitButton") as Button
+@onready var end_turn_button: Button = get_node_or_null("BattleUI/CommandBar/EndTurnButton") as Button
 @onready var turn_banner: Label = $BattleUI/TopBar/TurnBanner
 @onready var battle_log_preview: Label = $BattleUI/LeftPanel/BattleLogPreview
 @onready var cutin_overlay: CanvasLayer = $CutinOverlay
@@ -120,6 +122,10 @@ func _ready() -> void:
 	enemy_token_base_scale = enemy_unit_token.scale
 	basic_attack_button.pressed.connect(try_basic_attack)
 	move_button.pressed.connect(play_basic_move_demo)
+	if wait_button != null:
+		wait_button.pressed.connect(_end_ally_turn_by_wait)
+	if end_turn_button != null:
+		end_turn_button.pressed.connect(_end_ally_turn_by_wait)
 	_collect_move_range_cells()
 	_capture_scene_authored_unit_layout_offsets()
 	reset_demo_state()
@@ -447,6 +453,35 @@ func _set_phase(new_phase: String) -> void:
 
 	basic_attack_button.disabled = current_phase != PHASE_ALLY_TURN or is_demo_animating
 	move_button.disabled = current_phase != PHASE_ALLY_TURN or is_demo_animating or ally_has_moved
+	if wait_button != null:
+		wait_button.disabled = current_phase != PHASE_ALLY_TURN or is_demo_animating
+	if end_turn_button != null:
+		end_turn_button.disabled = current_phase != PHASE_ALLY_TURN or is_demo_animating
+
+
+func _end_ally_turn_by_wait() -> void:
+	if current_phase != PHASE_ALLY_TURN:
+		return
+	if is_demo_animating:
+		return
+	if ally_unit_state == null:
+		return
+
+	_clear_move_target_selection()
+	_clear_attack_target_selection()
+	_hide_move_range_overlay()
+	if move_highlight != null:
+		move_highlight.visible = false
+	if attack_highlight != null:
+		attack_highlight.visible = false
+
+	ally_unit_state.has_moved = true
+	ally_has_moved = true
+
+	_append_battle_log("이순신 대기")
+	_set_phase(PHASE_ENEMY_TURN)
+	_append_battle_log("적군 턴")
+	_play_enemy_turn_demo()
 
 
 func _append_battle_log(line: String) -> void:

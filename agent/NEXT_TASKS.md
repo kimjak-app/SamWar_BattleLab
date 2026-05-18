@@ -33,6 +33,10 @@ Warning:
 - Ally troop `flip_h` mapping is corrected for the actual fullscreen battle view.
 - Hero `PortraitBadge` still never flips, but now moves to the front side of the troop based on facing.
 - HP bar, troop label, shadow, and click area remain scene-authored and are not mirrored.
+- `v0.64l Turn End / Wait Command`
+- `Battle_Fullscreen_Test.tscn` now has clickable `WaitButton` and `EndTurnButton`.
+- Wait or turn-end command now ends the ally turn, reuses the existing enemy turn demo flow, and returns control to the ally turn.
+- Existing movement, attack, counterattack, facing, and scene-authored layout behavior remain preserved.
 
 ### 1. Fullscreen 18x10 Unit Visual Manual Calibration Finalize
 Goal:
@@ -77,14 +81,7 @@ Goal:
 Timing:
 - Do this after the 4-direction facing data structure is ready.
 
-### 5. v0.64l Turn End / Wait Command
-Goal:
-- Add an explicit way to end ally turn after moving without attacking.
-
-Timing:
-- Do this after the fullscreen visual layout standard is settled.
-
-### 6. v0.64m Enemy Basic Decision Rules
+### 5. Enemy basic decision AI
 Goal:
 - Port simple web or basic engine AI rules step by step.
 
@@ -94,6 +91,14 @@ Priority rules:
 - prefer back attack if possible
 - prefer unique skill if available
 - otherwise approach or wait
+
+### 6. v0.64m Multi-unit deployment planning
+Goal:
+- Plan how fullscreen `18 x 10` should scale from the current single ally / single enemy sample into multi-unit deployment.
+
+Direction:
+- Keep the current verified fullscreen sample as the tactical and visual reference.
+- Avoid hand-placing every future unit without a repeatable structure.
 
 ### 7. v0.64n Hero Skill Sample Trigger
 Goal:

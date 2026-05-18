@@ -1121,10 +1121,10 @@ offset_bottom = 1060.0
 
 [node name="CommandBarLabel" type="Label" parent="BattleUI/CommandBar" unique_id=163471327]
 layout_mode = 0
-offset_left = 290.0
-offset_top = 8.0
-offset_right = 860.0
-offset_bottom = 38.0
+offset_left = 315.0
+offset_top = 10.0
+offset_right = 885.0
+offset_bottom = 40.0
 text = "고유 특기 | 책략 | 방어 | 대기 | 턴 종료 | 자동전투 | 후퇴"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -1144,6 +1144,22 @@ offset_top = 8.0
 offset_right = 210.0
 offset_bottom = 40.0
 text = "이동"
+
+[node name="WaitButton" type="Button" parent="BattleUI/CommandBar" unique_id=1902145001]
+layout_mode = 0
+offset_left = 218.0
+offset_top = 8.0
+offset_right = 282.0
+offset_bottom = 40.0
+text = "대기"
+
+[node name="EndTurnButton" type="Button" parent="BattleUI/CommandBar" unique_id=1902145002]
+layout_mode = 0
+offset_left = 290.0
+offset_top = 8.0
+offset_right = 378.0
+offset_bottom = 40.0
+text = "턴 종료"
 
 [node name="CutinOverlay" type="CanvasLayer" parent="." unique_id=581824320]
 visible = false
