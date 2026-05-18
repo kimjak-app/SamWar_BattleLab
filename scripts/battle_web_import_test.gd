@@ -231,6 +231,7 @@ func reset_demo_state() -> void:
 	current_ally_portrait_position = ally_portrait_marker.position
 	_create_demo_unit_states()
 	_sync_unit_state_cells_from_markers()
+	_refresh_unit_facing_toward_enemy()
 	_update_logical_grid_guide()
 	_apply_melee_adjacent_qa_preset()
 	_update_cell_size_visual_guide(ally_unit_state.grid_cell)
@@ -300,6 +301,7 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 	current_ally_portrait_position = target_portrait_position
 	_sync_ally_markers_to_current_position()
 	active_unit_state.set_grid_cell(target_cell)
+	_refresh_unit_facing_toward_enemy()
 	_debug_print_combat_distance("MOVE_FINISH")
 	_update_cell_size_visual_guide(ally_unit_state.grid_cell)
 	print("ALLY MOVED grid_cell: ", active_unit_state.grid_cell, " target_cell: ", target_cell)
@@ -508,6 +510,7 @@ func _enemy_reaction_hit_on() -> void:
 
 
 func _return_to_ally_turn() -> void:
+	_refresh_unit_facing_toward_enemy()
 	_reset_unit_group_positions()
 	_set_group_modulate(_get_ally_group_nodes(), Color.WHITE)
 	_set_enemy_group_modulate(Color.WHITE)
@@ -731,6 +734,7 @@ func _apply_melee_adjacent_qa_preset() -> void:
 	enemy_unit_state.set_grid_cell(target_cell)
 	enemy_unit_marker.position = battle_grid_controller.grid_to_world(target_cell)
 	enemy_portrait_marker.position = enemy_unit_marker.position + portrait_offset
+	_refresh_unit_facing_toward_enemy()
 	_reset_unit_group_positions()
 
 	print("MELEE QA enemy offset: ", MELEE_QA_ENEMY_OFFSET)
@@ -787,20 +791,22 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 
 
 func _get_ally_group_base_positions(ally_anchor: Vector2) -> Array[Vector2]:
+	var portrait_offset := _get_facing_aware_portrait_offset(ally_portrait_layout_offset, _get_unit_facing(ally_unit_state))
 	return [
 		ally_anchor + ally_shadow_layout_offset,
 		ally_anchor + ally_token_layout_offset,
-		ally_anchor + ally_portrait_layout_offset,
+		ally_anchor + portrait_offset,
 		ally_anchor + ally_hp_bar_layout_offset,
 		ally_anchor + ally_troop_label_layout_offset,
 	]
 
 
 func _get_enemy_group_base_positions(enemy_anchor: Vector2) -> Array[Vector2]:
+	var portrait_offset := _get_facing_aware_portrait_offset(enemy_portrait_layout_offset, _get_unit_facing(enemy_unit_state))
 	return [
 		enemy_anchor + enemy_shadow_layout_offset,
 		enemy_anchor + enemy_token_layout_offset,
-		enemy_anchor + enemy_portrait_layout_offset,
+		enemy_anchor + portrait_offset,
 		enemy_anchor + enemy_hp_bar_layout_offset,
 		enemy_anchor + enemy_troop_label_layout_offset,
 	]
@@ -886,6 +892,7 @@ func _select_enemy_attack_target() -> void:
 
 	selected_attack_target_state = enemy_unit_state
 	selected_attack_target_side = "enemy"
+	_refresh_unit_facing_toward_enemy()
 	_clear_move_target_selection()
 	_append_battle_log("관우 공격 대상 선택")
 	_show_attack_target_feedback()
@@ -1237,6 +1244,7 @@ func _format_cell(cell: Vector2i) -> String:
 
 
 func _update_all_unit_visuals_from_state() -> void:
+	_apply_unit_facing_visuals()
 	_update_ally_visuals_from_state()
 	_update_enemy_visuals_from_state()
 
@@ -1244,6 +1252,7 @@ func _update_all_unit_visuals_from_state() -> void:
 func _update_ally_visuals_from_state() -> void:
 	if ally_unit_state == null:
 		return
+	_apply_token_left_right_facing(ally_unit_token, ally_unit_state.facing, "ally")
 	ally_hp_bar.max_value = ally_unit_state.max_hp
 	ally_hp_bar.value = ally_unit_state.current_hp
 	ally_troop_label.text = ally_unit_state.get_troop_label_text()
@@ -1252,9 +1261,79 @@ func _update_ally_visuals_from_state() -> void:
 func _update_enemy_visuals_from_state() -> void:
 	if enemy_unit_state == null:
 		return
+	_apply_token_left_right_facing(enemy_unit_token, enemy_unit_state.facing, "enemy")
 	enemy_hp_bar.max_value = enemy_unit_state.max_hp
 	enemy_hp_bar.value = enemy_unit_state.current_hp
 	enemy_troop_label.text = enemy_unit_state.get_troop_label_text()
+
+
+func _refresh_unit_facing_toward_enemy() -> void:
+	if ally_unit_state == null or enemy_unit_state == null:
+		return
+
+	if ally_unit_state.grid_cell.x < enemy_unit_state.grid_cell.x:
+		ally_unit_state.facing = "right"
+	elif ally_unit_state.grid_cell.x > enemy_unit_state.grid_cell.x:
+		ally_unit_state.facing = "left"
+
+	if enemy_unit_state.grid_cell.x < ally_unit_state.grid_cell.x:
+		enemy_unit_state.facing = "right"
+	elif enemy_unit_state.grid_cell.x > ally_unit_state.grid_cell.x:
+		enemy_unit_state.facing = "left"
+
+	_apply_unit_facing_visuals()
+
+
+func _apply_unit_facing_visuals() -> void:
+	if ally_unit_token != null and ally_unit_state != null:
+		_apply_token_left_right_facing(ally_unit_token, ally_unit_state.facing, "ally")
+	if enemy_unit_token != null and enemy_unit_state != null:
+		_apply_token_left_right_facing(enemy_unit_token, enemy_unit_state.facing, "enemy")
+	if ally_portrait_badge != null:
+		ally_portrait_badge.flip_h = false
+	if enemy_portrait_badge != null:
+		enemy_portrait_badge.flip_h = false
+
+
+func _apply_token_left_right_facing(token: Sprite2D, facing: String, side: String) -> void:
+	if token == null:
+		return
+
+	token.flip_h = _is_token_flip_h_for_facing(facing, side)
+
+
+func _is_token_flip_h_for_facing(facing: String, side: String) -> bool:
+	match side:
+		"enemy":
+			match facing:
+				"right":
+					return true
+				"left":
+					return false
+		_:
+			match facing:
+				"right":
+					return true
+				"left":
+					return false
+
+	return false
+
+
+func _get_facing_aware_portrait_offset(base_offset: Vector2, facing: String) -> Vector2:
+	var result := base_offset
+	match facing:
+		"left":
+			result.x = -absf(base_offset.x)
+		"right":
+			result.x = absf(base_offset.x)
+	return result
+
+
+func _get_unit_facing(unit_state: BattleUnitState) -> String:
+	if unit_state == null:
+		return "right"
+	return unit_state.facing
 
 
 func _start_idle_breathing() -> void:

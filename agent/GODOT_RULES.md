@@ -61,6 +61,7 @@ Never allow:
 - When a visual problem is about placement, scale, UI attachment, or click area feel, first check whether the user can solve it directly in the Godot 2D editor.
 - Prefer scene-authored layout for visual nodes.
 - Runtime code should preserve and follow editor-authored offsets when possible.
+- Before forcing visual positions from code, first inspect whether the existing scene-authored offset capture structure can preserve the editor layout.
 - Do not force visual positions with hardcoded constants unless necessary.
 - If code must move visual nodes during gameplay, capture the initial editor-authored offsets and reuse them.
 - The user's workflow speed matters: find the easiest editable structure before writing more logic.
@@ -87,6 +88,11 @@ Keep important gameplay areas inside visible editor space.
   - camera shake
   - signals
   - temporary effects
+- For facing:
+  - `Troop UnitToken` may use left/right flip when needed.
+  - `Hero PortraitBadge` must not flip.
+  - `Hero PortraitBadge` may move position based on facing if needed.
+  - `HPBar`, `TroopLabel`, `Shadow`, and `ClickArea` should keep scene-authored layout unless there is a clear reason not to.
 
 ---
 

@@ -8,7 +8,7 @@ Before making changes, read:
 ---
 
 ## Session Start Point
-- Next session starts from `v0.64i Combat Flow + Range Gate Stabilization`.
+- Next session starts from `v0.64k Fullscreen 18x10 Move + Facing Stable`.
 - Do not treat `v0.65` as reached.
 - Next active scene is `Battle_Fullscreen_Test.tscn`.
 - Keep `Battle_WebImport_Test.tscn` as the stable verification scene.
@@ -20,6 +20,7 @@ Before making changes, read:
 - First task is `Fullscreen 18x10 Unit Visual Manual Calibration Finalize`.
 - Start from the layout visible in the Godot 2D editor on `Battle_Fullscreen_Test.tscn`.
 - Before changing behavior code, confirm the 2D editor layout and F6 runtime layout still match.
+- If the session goal changes, the next acceptable branch is `v0.64l Turn End / Wait Command` after the visual baseline is confirmed.
 
 ---
 
@@ -35,6 +36,8 @@ Before making changes, read:
 - Preserve hit bounce reactions.
 - Preserve enemy attack range gate.
 - Preserve ally turn return after enemy reaction.
+- Preserve fullscreen left/right troop facing.
+- Preserve facing-aware `PortraitBadge` front-side placement without flipping the portrait itself.
 
 ---
 
@@ -56,6 +59,22 @@ Before making changes, read:
 - `Scene controls layout / Code controls behavior` should be applied more strictly.
 - If Kimjak adjusts layout in the 2D editor and presses `Ctrl+S`, runtime should preserve that layout.
 - Prefer editor-authored offsets over hardcoded visual correction whenever possible.
+- Do not overwrite scene-authored layout if the same result can be preserved by capturing and reusing editor-authored offsets.
+- `Troop UnitToken` may flip for facing.
+- `Hero PortraitBadge` must not flip; only its position may become facing-aware.
+- HP bar, troop label, shadow, and click area should remain scene-authored unless there is a very strong reason otherwise.
+
+---
+
+## Current Verified Fullscreen State
+- `Battle_Fullscreen_Test.tscn` is the current primary working and verification scene.
+- `1920 x 1080` fullscreen battle board is working.
+- `18 x 10` logical grid is working.
+- `scene-authored layout` is preserved from Godot 2D editor into F6 runtime.
+- Yi Sun-sin selection, movement, attack, and Guan Yu counterattack are verified.
+- Movement keeps HP bar, troop label, portrait badge, shadow, and click area visually synced.
+- Left/right troop facing is verified.
+- `Hero PortraitBadge` is verified as unflipped and facing-aware by position only.
 
 ---
 

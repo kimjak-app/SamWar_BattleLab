@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.64i Combat Flow + Range Gate Stabilization
+v0.64k Fullscreen 18x10 Move + Facing Stable
 
 This baseline includes:
 - v0.64i Move-Then-Attack Flow + Hit Bounce Polish
@@ -12,6 +12,11 @@ This baseline includes:
 - v0.64i-hotfix-2 Attack Target Fallback
 - v0.64i-hotfix-3 Post-Move Attack Range Branch
 - v0.64i-hotfix-4 Attack Range Debug + Enemy Range Gate
+- v0.64k-fullscreen-grid-18x10
+- v0.64k-fullscreen-scene-authored-unit-layout
+- v0.64k-fullscreen-move-flow-reconnect verified
+- v0.64k-fullscreen-left-right-facing verified
+- v0.64k-fullscreen-left-right-facing-hotfix verified
 
 Do not bump to v0.65 yet.
 v0.65 means Godot Battle Engine Port MVP Complete later.
@@ -92,18 +97,29 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - Full logical 14x8 guide lines can show the actual movement and attack cells across the whole board.
 - Full logical 14x8 guide points are baked into the scene so the same grid is visible in the Godot 2D editor before runtime.
 - `Battle_WebImport_Test.tscn` remains the stable small-board verification scene.
-- `Battle_Fullscreen_Test.tscn` is added as a 1920x1080 fullscreen battle board prototype using the same battle logic.
+- `Battle_WebImport_Test.tscn` remains preserved as the smaller battle-board functional verification scene.
+- `Battle_Fullscreen_Test.tscn` is the current main working scene and fullscreen battle verification scene.
 - `v0.64k-fullscreen-pre` fullscreen layout prototype is completed.
 - `Battle_Fullscreen_Test.tscn` now uses a full 18x10 logical grid across the whole 1920x1080 board.
 - Actual fullscreen cell size is approximately `Vector2(106.6667, 108.0)`.
 - The 18x10 fullscreen grid is intended for future 7v7 to 10v10 battle scale.
 - The fullscreen logical grid remains editor-visible before runtime and the UI remains a CanvasLayer overlay.
 - `v0.64k-fullscreen-scene-authored-unit-layout` captures scene-authored unit layout offsets at runtime start.
-- Manual layout changes saved in the Godot 2D editor are now intended to persist during F6 runtime on `Battle_Fullscreen_Test.tscn`.
-- `v0.64k-fullscreen-move-flow-reconnect` reconnects the ally move flow on `Battle_Fullscreen_Test.tscn` for the fullscreen `18 x 10` board.
-- Move target selection now keeps an explicit logical `selected_move_cell` instead of depending only on the marker transform.
-- Fullscreen `BattleUI` clicks no longer get misread as battlefield move-target clicks.
-- After ally movement, token, shadow, portrait badge, HP bar, troop label, and click area continue to follow the same scene-authored anchor offsets.
+- Manual layout changes saved in the Godot 2D editor persist during F6 runtime on `Battle_Fullscreen_Test.tscn`.
+- `scene-authored layout` is verified on the fullscreen scene.
+- Unit placement, HP bar, portrait badge, troop label, shadow, and click area edited in the Godot 2D editor remain aligned during runtime.
+- `v0.64k-fullscreen-move-flow-reconnect` is verified on the fullscreen `18 x 10` board.
+- Move target selection keeps an explicit logical `selected_move_cell` instead of depending only on the marker transform.
+- Fullscreen `BattleUI` clicks are no longer misread as battlefield move-target clicks.
+- Ally move, attack, and enemy counterattack flow are verified on `Battle_Fullscreen_Test.tscn`.
+- After ally movement, token, shadow, portrait badge, HP bar, troop label, and click area follow the same scene-authored anchor offsets.
+- `v0.64k-fullscreen-left-right-facing` is verified.
+- Left/right troop facing is verified so Yi Sun-sin and Guan Yu face each other correctly on the fullscreen board.
+- Hero `PortraitBadge` never flips.
+- Hero `PortraitBadge` position stays on the front side of the troop based on current facing.
+- HP bar, troop label, click area, and shadow remain scene-authored and are not mirrored.
+- Up/down facing sprites and direction arrows are still not implemented.
+- Godot Output audio device warnings were observed, but they are not treated as battle-logic failures.
 - This is the staging step before later `UnitVisual.tscn` template separation.
 
 ---
@@ -117,6 +133,7 @@ v0.65 means Godot Battle Engine Port MVP Complete later.
 - One fullscreen logical cell is approximately `106.6667 x 108.0`.
 - Stop further tuning work that is based on the old small rectangular battle board.
 - From now on, fit unit body footprint and attached info UI against the fullscreen `18 x 10` grid.
+- Fullscreen `18 x 10` movement, attack, enemy reaction, and left/right facing are now the current stable verification target.
 
 ---
 
