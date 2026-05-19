@@ -4,11 +4,13 @@
 [ext_resource type="Script" uid="uid://cmyirxr2v7mhv" path="res://scripts/battle_grid_controller.gd" id="2_grid_controller"]
 [ext_resource type="Texture2D" uid="uid://b4ciq32fwok8c" path="res://assets/web_battle/unit_tokens/unit_blue_battlefield.png" id="3_allytoken"]
 [ext_resource type="Texture2D" uid="uid://cjma6ovucol84" path="res://assets/web_battle/battlefield/battlefield_14x8_mvp4.png" id="3_uajr2"]
-[ext_resource type="Texture2D" uid="uid://px583gw30js7" path="res://assets/web_battle/unit_tokens/unit_red_battlefield.png" id="4_enemytoken"]
+[ext_resource type="Texture2D" uid="uid://d2qk7h7u1f0e6" path="res://assets/web_battle/unit_tokens/unit_china_infantry_battlefield.png" id="4_enemytoken"]
 [ext_resource type="Texture2D" uid="uid://dhkswl5jwmkny" path="res://assets/web_battle/portraits_battlefield/yi_sunsin_battlefield.png" id="5_allyportrait"]
 [ext_resource type="Texture2D" uid="uid://yw74otqxxdjc" path="res://assets/web_battle/portraits_battlefield/guan_yu_battlefield.png" id="6_enemyportrait"]
 [ext_resource type="Texture2D" uid="uid://b8wo0cw1mkmqm" path="res://assets/web_battle/ui/results/battle_result_victory.png" id="7_result"]
 [ext_resource type="Texture2D" uid="uid://b8bsiuxax2w5a" path="res://assets/web_battle/skills/cutins/yi_sunsin_hakikjin.png" id="8_cutin"]
+[ext_resource type="Texture2D" uid="uid://bk1mormqnetwb" path="res://assets/web_battle/portraits_battlefield/jeong_dojeon_battlefield.png" id="9_allysupportportrait"]
+[ext_resource type="Texture2D" uid="uid://c0gk1awodita3" path="res://assets/web_battle/portraits_battlefield/zhang_fei_battlefield.png" id="10_enemysupportportrait"]
 
 [sub_resource type="LabelSettings" id="2"]
 font_size = 14
@@ -68,7 +70,7 @@ offset_bottom = 1080.0
 color = Color(0.0509804, 0.0862745, 0.133333, 1)
 
 [node name="BattlefieldTexture" type="Sprite2D" parent="BattlefieldRoot" unique_id=836791405]
-position = Vector2(957.5, 542)
+position = Vector2(951, 547)
 scale = Vector2(0.60781246, 0.6066666)
 texture = ExtResource("3_uajr2")
 
@@ -906,7 +908,7 @@ vertical_alignment = 1
 position = Vector2(373.3333, 918)
 
 [node name="ShadowSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904102]
-position = Vector2(-0.33331299, 27)
+position = Vector2(-0.333313, 27)
 
 [node name="TokenSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904103]
 position = Vector2(-1.3332825, -8.999939)
@@ -942,22 +944,22 @@ polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 1
 
 [node name="AllyUnitToken" type="Sprite2D" parent="AllySide" unique_id=1411468196]
 z_index = 1
-position = Vector2(372.00003, 909.00006)
-scale = Vector2(0.4, 0.4)
+position = Vector2(376, 911)
+scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("3_allytoken")
 flip_h = true
 
 [node name="AllyPortraitBadge" type="Sprite2D" parent="AllySide" unique_id=1868352463]
 z_index = 3
-position = Vector2(403, 888)
+position = Vector2(406, 884)
 scale = Vector2(0.32, 0.32)
 texture = ExtResource("5_allyportrait")
 
 [node name="AllyHPBar" type="ProgressBar" parent="AllySide" unique_id=1914236876]
-offset_left = 326.0
-offset_top = 955.0
-offset_right = 422.0
-offset_bottom = 964.0
+offset_left = 327.0
+offset_top = 961.0
+offset_right = 423.0
+offset_bottom = 970.0
 theme_override_styles/background = SubResource("3")
 theme_override_styles/fill = SubResource("StyleBoxFlat_lhwdj")
 value = 84.0
@@ -965,10 +967,81 @@ show_percentage = false
 
 [node name="AllyTroopLabel" type="Label" parent="AllySide" unique_id=10172604]
 offset_left = 326.0
-offset_top = 964.0
+offset_top = 972.0
 offset_right = 422.0
-offset_bottom = 984.0
+offset_bottom = 992.0
 text = "94 / 94"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllySupportInfantryVisualTemplate" type="Node2D" parent="AllySide" unique_id=2081904301]
+position = Vector2(586.6666, 810)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904302]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904303]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904304]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904305]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904306]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904307]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904308]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904309]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904310]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904311]
+position = Vector2(-19.3333, -105)
+
+[node name="AllySupportUnitShadow" type="Polygon2D" parent="AllySide" unique_id=2081904312]
+position = Vector2(586.3333, 837)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="AllySupportUnitToken" type="Sprite2D" parent="AllySide" unique_id=2081904313]
+z_index = 1
+position = Vector2(585.3333, 801.00006)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("3_allytoken")
+flip_h = true
+
+[node name="AllySupportPortraitBadge" type="Sprite2D" parent="AllySide" unique_id=2081904314]
+z_index = 3
+position = Vector2(616.3333, 780)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("9_allysupportportrait")
+
+[node name="AllySupportHPBar" type="ProgressBar" parent="AllySide" unique_id=2081904315]
+offset_left = 539.0
+offset_top = 847.0
+offset_right = 635.0
+offset_bottom = 856.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("StyleBoxFlat_lhwdj")
+value = 60.0
+show_percentage = false
+
+[node name="AllySupportTroopLabel" type="Label" parent="AllySide" unique_id=2081904316]
+offset_left = 539.0
+offset_top = 856.0
+offset_right = 635.0
+offset_bottom = 876.0
+text = "60 / 60"
 label_settings = SubResource("2")
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -982,7 +1055,6 @@ position = Vector2(1546.6667, 262)
 position = Vector2(1.333252, 34)
 
 [node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904203]
-position = Vector2(0, 0)
 
 [node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904204]
 position = Vector2(-29.6668, -23)
@@ -1003,7 +1075,6 @@ position = Vector2(-47.6667, 43)
 position = Vector2(-48, 50)
 
 [node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904210]
-position = Vector2(0, 0)
 
 [node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904211]
 position = Vector2(-18, -96)
@@ -1015,32 +1086,100 @@ polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 1
 
 [node name="EnemyUnitToken" type="Sprite2D" parent="EnemySide" unique_id=175940460]
 z_index = 1
-position = Vector2(1546.6667, 262)
-scale = Vector2(0.4, 0.4)
+position = Vector2(1543, 269)
+scale = Vector2(0.109643005, 0.102466114)
 texture = ExtResource("4_enemytoken")
 
 [node name="EnemyPortraitBadge" type="Sprite2D" parent="EnemySide" unique_id=1672489250]
 z_index = 3
-position = Vector2(1516.9999, 239)
+position = Vector2(1514.9999, 238)
 scale = Vector2(0.32, 0.32)
 texture = ExtResource("6_enemyportrait")
 
 [node name="EnemyHPBar" type="ProgressBar" parent="EnemySide" unique_id=1609871165]
 offset_left = 1499.0
-offset_top = 305.0
+offset_top = 313.0
 offset_right = 1595.0
-offset_bottom = 314.0
+offset_bottom = 322.0
 theme_override_styles/background = SubResource("3")
 theme_override_styles/fill = SubResource("5")
 value = 62.0
 show_percentage = false
 
 [node name="EnemyTroopLabel" type="Label" parent="EnemySide" unique_id=1006282899]
-offset_left = 1498.6667
-offset_top = 312.0
-offset_right = 1594.6667
-offset_bottom = 332.0
+offset_left = 1500.0
+offset_top = 322.0
+offset_right = 1596.0
+offset_bottom = 342.0
 text = "100 / 100"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemySupportInfantryVisualTemplate" type="Node2D" parent="EnemySide" unique_id=2081904401]
+position = Vector2(1333.3333, 370)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904402]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904403]
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904404]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904405]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904406]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904407]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904408]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904409]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904410]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904411]
+position = Vector2(-18, -96)
+
+[node name="EnemySupportUnitShadow" type="Polygon2D" parent="EnemySide" unique_id=2081904412]
+position = Vector2(1334.6665, 404)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="EnemySupportUnitToken" type="Sprite2D" parent="EnemySide" unique_id=2081904413]
+z_index = 1
+position = Vector2(1333.3333, 370)
+scale = Vector2(0.109643005, 0.102466114)
+texture = ExtResource("4_enemytoken")
+
+[node name="EnemySupportPortraitBadge" type="Sprite2D" parent="EnemySide" unique_id=2081904414]
+z_index = 3
+position = Vector2(1303.6665, 347)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("10_enemysupportportrait")
+
+[node name="EnemySupportHPBar" type="ProgressBar" parent="EnemySide" unique_id=2081904415]
+offset_left = 1285.0
+offset_top = 413.0
+offset_right = 1381.0
+offset_bottom = 422.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("5")
+value = 80.0
+show_percentage = false
+
+[node name="EnemySupportTroopLabel" type="Label" parent="EnemySide" unique_id=2081904416]
+offset_left = 1285.0
+offset_top = 420.0
+offset_right = 1381.0
+offset_bottom = 440.0
+text = "80 / 80"
 label_settings = SubResource("2")
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -1052,7 +1191,17 @@ position = Vector2(373.3333, 918)
 position = Vector2(369, 921)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AllyUnitClickArea" unique_id=1202646538]
-position = Vector2(5, -4)
+position = Vector2(4, -3)
+shape = SubResource("RectangleShape2D_ally_click")
+
+[node name="AllySupportUnitMarker" type="Marker2D" parent="." unique_id=2081904501]
+position = Vector2(586.6666, 810)
+
+[node name="AllySupportUnitClickArea" type="Area2D" parent="." unique_id=2081904502]
+position = Vector2(582.3333, 813)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AllySupportUnitClickArea" unique_id=2081904503]
+position = Vector2(4, -3)
 shape = SubResource("RectangleShape2D_ally_click")
 
 [node name="EnemyUnitMarker" type="Marker2D" parent="." unique_id=248114327]
@@ -1062,14 +1211,30 @@ position = Vector2(1546.6667, 270)
 position = Vector2(1546.6667, 262)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyUnitClickArea" unique_id=670291870]
-position = Vector2(0.33325195, 7)
+position = Vector2(0.33325195, 8)
+shape = SubResource("RectangleShape2D_enemy_click")
+
+[node name="EnemySupportUnitMarker" type="Marker2D" parent="." unique_id=2081904504]
+position = Vector2(1333.3333, 378)
+
+[node name="EnemySupportUnitClickArea" type="Area2D" parent="." unique_id=2081904505]
+position = Vector2(1333.3333, 370)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EnemySupportUnitClickArea" unique_id=2081904506]
+position = Vector2(0.33325195, 8)
 shape = SubResource("RectangleShape2D_enemy_click")
 
 [node name="AllyPortraitMarker" type="Marker2D" parent="." unique_id=591376317]
 position = Vector2(403, 890)
 
+[node name="AllySupportPortraitMarker" type="Marker2D" parent="." unique_id=2081904507]
+position = Vector2(616.3333, 780)
+
 [node name="EnemyPortraitMarker" type="Marker2D" parent="." unique_id=631579844]
 position = Vector2(1516.6667, 248)
+
+[node name="EnemySupportPortraitMarker" type="Marker2D" parent="." unique_id=2081904508]
+position = Vector2(1303.6665, 347)
 
 [node name="MoveTargetMarker" type="Marker2D" parent="." unique_id=453024699]
 position = Vector2(480, 918)
@@ -1164,10 +1329,10 @@ text = "전투 기록
 autowrap_mode = 2
 
 [node name="RightPanel" type="Panel" parent="BattleUI" unique_id=1102874252]
-offset_left = 1668.0
-offset_top = 132.0
-offset_right = 1896.0
-offset_bottom = 876.0
+offset_left = 1681.0
+offset_top = 158.0
+offset_right = 1909.0
+offset_bottom = 902.0
 
 [node name="RightPanelLabel" type="Label" parent="BattleUI/RightPanel" unique_id=1661618933]
 layout_mode = 0
@@ -1229,20 +1394,20 @@ offset_bottom = 40.0
 text = "턴 종료"
 
 [node name="AllyFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938220]
-offset_left = 360.0
-offset_top = 820.0
-offset_right = 420.0
-offset_bottom = 880.0
+offset_left = 353.0
+offset_top = 818.0
+offset_right = 413.0
+offset_bottom = 878.0
 text = "→"
 label_settings = SubResource("1")
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="EnemyFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938221]
-offset_left = 1530.0
-offset_top = 180.0
-offset_right = 1590.0
-offset_bottom = 240.0
+offset_left = 1521.0
+offset_top = 167.0
+offset_right = 1581.0
+offset_bottom = 227.0
 text = "←"
 label_settings = SubResource("1")
 horizontal_alignment = 1
