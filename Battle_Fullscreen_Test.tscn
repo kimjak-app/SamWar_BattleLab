@@ -902,6 +902,39 @@ vertical_alignment = 1
 
 [node name="AllySide" type="Node2D" parent="." unique_id=983797976]
 
+[node name="AllyInfantryUnitVisualTemplate" type="Node2D" parent="AllySide" unique_id=2081904101]
+position = Vector2(373.3333, 918)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904102]
+position = Vector2(-0.33331299, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904103]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904104]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904105]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904106]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904107]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904108]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904109]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904110]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904111]
+position = Vector2(-19.3333, -105)
+
 [node name="AllyUnitShadow" type="Polygon2D" parent="AllySide" unique_id=335564105]
 position = Vector2(373, 945)
 color = Color(0, 0, 0, 0.28)
@@ -941,6 +974,39 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="EnemySide" type="Node2D" parent="." unique_id=612955151]
+
+[node name="EnemyInfantryUnitVisualTemplate" type="Node2D" parent="EnemySide" unique_id=2081904201]
+position = Vector2(1546.6667, 262)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904202]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904203]
+position = Vector2(0, 0)
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904204]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904205]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904206]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904207]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904208]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904209]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904210]
+position = Vector2(0, 0)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904211]
+position = Vector2(-18, -96)
 
 [node name="EnemyUnitShadow" type="Polygon2D" parent="EnemySide" unique_id=1776193078]
 position = Vector2(1548, 296)

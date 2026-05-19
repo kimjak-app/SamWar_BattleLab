@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cv8gf3we7q0bk"]
 
 [ext_resource type="Script" uid="uid://cghofkekn01w7" path="res://scripts/battle_web_import_test.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://cwcia5x7bf0x7" path="res://assets/web_battle/battlefield/battlefield_14x8_mvp.png" id="2_battlefield"]
+[ext_resource type="Texture2D" uid="uid://cjma6ovucol84" path="res://assets/web_battle/battlefield/battlefield_14x8_mvp4.png" id="2_battlefield"]
 [ext_resource type="Script" uid="uid://cmyirxr2v7mhv" path="res://scripts/battle_grid_controller.gd" id="2_grid_controller"]
 [ext_resource type="Texture2D" uid="uid://b4ciq32fwok8c" path="res://assets/web_battle/unit_tokens/unit_blue_battlefield.png" id="3_allytoken"]
 [ext_resource type="Texture2D" uid="uid://px583gw30js7" path="res://assets/web_battle/unit_tokens/unit_red_battlefield.png" id="4_enemytoken"]

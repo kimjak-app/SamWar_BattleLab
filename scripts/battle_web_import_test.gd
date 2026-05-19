@@ -80,6 +80,10 @@ var enemy_portrait_layout_offset := Vector2.ZERO
 var enemy_hp_bar_layout_offset := Vector2.ZERO
 var enemy_troop_label_layout_offset := Vector2.ZERO
 var enemy_click_area_layout_offset := Vector2.ZERO
+var ally_portrait_layout_offsets_by_facing: Dictionary = {}
+var enemy_portrait_layout_offsets_by_facing: Dictionary = {}
+var ally_facing_indicator_layout_offset := Vector2(-19.3333, -105.0)
+var enemy_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 
 @export var ally_unit_token_up_texture: Texture2D
 @export var ally_unit_token_down_texture: Texture2D
@@ -119,6 +123,8 @@ var enemy_click_area_layout_offset := Vector2.ZERO
 @onready var enemy_hp_bar: ProgressBar = $EnemySide/EnemyHPBar
 @onready var ally_troop_label: Label = $AllySide/AllyTroopLabel
 @onready var enemy_troop_label: Label = $EnemySide/EnemyTroopLabel
+@onready var ally_infantry_unit_visual_template: Node2D = get_node_or_null("AllySide/AllyInfantryUnitVisualTemplate") as Node2D
+@onready var enemy_infantry_unit_visual_template: Node2D = get_node_or_null("EnemySide/EnemyInfantryUnitVisualTemplate") as Node2D
 @onready var damage_text_layer: Node2D = $DamageTextLayer
 @onready var damage_preview_label: Label = $DamageTextLayer/DamagePreviewLabel
 @onready var main_camera: Camera2D = $MainCamera
@@ -498,6 +504,7 @@ func _reset_unit_group_positions() -> void:
 		ally_unit_click_area.position = ally_visual_anchor + ally_click_area_layout_offset
 	if enemy_unit_click_area != null:
 		enemy_unit_click_area.position = enemy_visual_anchor + enemy_click_area_layout_offset
+	_sync_runtime_portrait_markers_to_visuals()
 	_update_facing_indicators()
 
 
@@ -1127,40 +1134,171 @@ func _get_enemy_visual_anchor_position() -> Vector2:
 	return _get_enemy_visual_anchor_from_position(enemy_unit_marker.position)
 
 
+func _capture_template_slot_offset(template_root: Node2D, slot_name: String, fallback_position: Vector2, visual_anchor: Vector2) -> Vector2:
+	if template_root != null:
+		var slot := template_root.get_node_or_null(slot_name) as Marker2D
+		if slot != null:
+			return slot.global_position - visual_anchor
+	return fallback_position - visual_anchor
+
+
+func _capture_portrait_template_offsets(template_root: Node2D, fallback_offset: Vector2, visual_anchor: Vector2) -> Dictionary:
+	return {
+		FACING_LEFT: _capture_template_slot_offset(
+			template_root,
+			"PortraitLeftSlot",
+			visual_anchor + _get_facing_aware_portrait_offset(fallback_offset, FACING_LEFT),
+			visual_anchor
+		),
+		FACING_RIGHT: _capture_template_slot_offset(
+			template_root,
+			"PortraitRightSlot",
+			visual_anchor + _get_facing_aware_portrait_offset(fallback_offset, FACING_RIGHT),
+			visual_anchor
+		),
+		FACING_UP: _capture_template_slot_offset(
+			template_root,
+			"PortraitUpSlot",
+			visual_anchor + fallback_offset,
+			visual_anchor
+		),
+		FACING_DOWN: _capture_template_slot_offset(
+			template_root,
+			"PortraitDownSlot",
+			visual_anchor + fallback_offset,
+			visual_anchor
+		),
+	}
+
+
+func _get_portrait_template_offset(layout_offsets_by_facing: Dictionary, fallback_offset: Vector2, facing: String) -> Vector2:
+	var normalized_facing := _normalize_facing(facing)
+	if layout_offsets_by_facing.has(normalized_facing):
+		return layout_offsets_by_facing[normalized_facing]
+	return _get_facing_aware_portrait_offset(fallback_offset, normalized_facing)
+
+
+func _sync_runtime_portrait_markers_to_visuals() -> void:
+	if ally_portrait_badge != null:
+		current_ally_portrait_position = ally_portrait_badge.position
+		if ally_portrait_marker != null:
+			ally_portrait_marker.position = current_ally_portrait_position
+	if enemy_portrait_badge != null and enemy_portrait_marker != null:
+		enemy_portrait_marker.position = enemy_portrait_badge.position
+
+
 func _capture_scene_authored_unit_layout_offsets() -> void:
 	if ally_unit_marker != null:
 		var ally_anchor := _get_ally_visual_anchor_from_position(ally_unit_marker.position)
+		var ally_portrait_fallback := ally_portrait_badge.position - ally_anchor if ally_portrait_badge != null else Vector2.ZERO
 		if ally_unit_token != null:
-			ally_token_layout_offset = ally_unit_token.position - ally_anchor
+			ally_token_layout_offset = _capture_template_slot_offset(
+				ally_infantry_unit_visual_template,
+				"TokenSlot",
+				ally_unit_token.position,
+				ally_anchor
+			)
 		if ally_unit_shadow != null:
-			ally_shadow_layout_offset = ally_unit_shadow.position - ally_anchor
+			ally_shadow_layout_offset = _capture_template_slot_offset(
+				ally_infantry_unit_visual_template,
+				"ShadowSlot",
+				ally_unit_shadow.position,
+				ally_anchor
+			)
 		if ally_portrait_badge != null:
-			ally_portrait_layout_offset = ally_portrait_badge.position - ally_anchor
+			ally_portrait_layout_offset = ally_portrait_fallback
+			ally_portrait_layout_offsets_by_facing = _capture_portrait_template_offsets(
+				ally_infantry_unit_visual_template,
+				ally_portrait_fallback,
+				ally_anchor
+			)
 		if ally_hp_bar != null:
-			ally_hp_bar_layout_offset = ally_hp_bar.position - ally_anchor
+			ally_hp_bar_layout_offset = _capture_template_slot_offset(
+				ally_infantry_unit_visual_template,
+				"HPBarSlot",
+				ally_hp_bar.position,
+				ally_anchor
+			)
 		if ally_troop_label != null:
-			ally_troop_label_layout_offset = ally_troop_label.position - ally_anchor
+			ally_troop_label_layout_offset = _capture_template_slot_offset(
+				ally_infantry_unit_visual_template,
+				"TroopLabelSlot",
+				ally_troop_label.position,
+				ally_anchor
+			)
 		if ally_unit_click_area != null:
-			ally_click_area_layout_offset = ally_unit_click_area.position - ally_anchor
+			ally_click_area_layout_offset = _capture_template_slot_offset(
+				ally_infantry_unit_visual_template,
+				"ClickAreaSlot",
+				ally_unit_click_area.position,
+				ally_anchor
+			)
+		ally_facing_indicator_layout_offset = _capture_template_slot_offset(
+			ally_infantry_unit_visual_template,
+			"FacingIndicatorSlot",
+			ally_anchor + ally_facing_indicator_layout_offset,
+			ally_anchor
+		)
 
 	if enemy_unit_marker != null:
 		var enemy_anchor := _get_enemy_visual_anchor_from_position(enemy_unit_marker.position)
+		var enemy_portrait_fallback := enemy_portrait_badge.position - enemy_anchor if enemy_portrait_badge != null else Vector2.ZERO
 		if enemy_unit_token != null:
-			enemy_token_layout_offset = enemy_unit_token.position - enemy_anchor
+			enemy_token_layout_offset = _capture_template_slot_offset(
+				enemy_infantry_unit_visual_template,
+				"TokenSlot",
+				enemy_unit_token.position,
+				enemy_anchor
+			)
 		if enemy_unit_shadow != null:
-			enemy_shadow_layout_offset = enemy_unit_shadow.position - enemy_anchor
+			enemy_shadow_layout_offset = _capture_template_slot_offset(
+				enemy_infantry_unit_visual_template,
+				"ShadowSlot",
+				enemy_unit_shadow.position,
+				enemy_anchor
+			)
 		if enemy_portrait_badge != null:
-			enemy_portrait_layout_offset = enemy_portrait_badge.position - enemy_anchor
+			enemy_portrait_layout_offset = enemy_portrait_fallback
+			enemy_portrait_layout_offsets_by_facing = _capture_portrait_template_offsets(
+				enemy_infantry_unit_visual_template,
+				enemy_portrait_fallback,
+				enemy_anchor
+			)
 		if enemy_hp_bar != null:
-			enemy_hp_bar_layout_offset = enemy_hp_bar.position - enemy_anchor
+			enemy_hp_bar_layout_offset = _capture_template_slot_offset(
+				enemy_infantry_unit_visual_template,
+				"HPBarSlot",
+				enemy_hp_bar.position,
+				enemy_anchor
+			)
 		if enemy_troop_label != null:
-			enemy_troop_label_layout_offset = enemy_troop_label.position - enemy_anchor
+			enemy_troop_label_layout_offset = _capture_template_slot_offset(
+				enemy_infantry_unit_visual_template,
+				"TroopLabelSlot",
+				enemy_troop_label.position,
+				enemy_anchor
+			)
 		if enemy_unit_click_area != null:
-			enemy_click_area_layout_offset = enemy_unit_click_area.position - enemy_anchor
+			enemy_click_area_layout_offset = _capture_template_slot_offset(
+				enemy_infantry_unit_visual_template,
+				"ClickAreaSlot",
+				enemy_unit_click_area.position,
+				enemy_anchor
+			)
+		enemy_facing_indicator_layout_offset = _capture_template_slot_offset(
+			enemy_infantry_unit_visual_template,
+			"FacingIndicatorSlot",
+			enemy_anchor + enemy_facing_indicator_layout_offset,
+			enemy_anchor
+		)
 
 
 func _get_ally_group_base_positions(ally_anchor: Vector2) -> Array[Vector2]:
-	var portrait_offset := _get_facing_aware_portrait_offset(ally_portrait_layout_offset, _get_unit_facing(ally_unit_state))
+	var portrait_offset := _get_portrait_template_offset(
+		ally_portrait_layout_offsets_by_facing,
+		ally_portrait_layout_offset,
+		_get_unit_facing(ally_unit_state)
+	)
 	return [
 		ally_anchor + ally_shadow_layout_offset,
 		ally_anchor + ally_token_layout_offset,
@@ -1171,7 +1309,11 @@ func _get_ally_group_base_positions(ally_anchor: Vector2) -> Array[Vector2]:
 
 
 func _get_enemy_group_base_positions(enemy_anchor: Vector2) -> Array[Vector2]:
-	var portrait_offset := _get_facing_aware_portrait_offset(enemy_portrait_layout_offset, _get_unit_facing(enemy_unit_state))
+	var portrait_offset := _get_portrait_template_offset(
+		enemy_portrait_layout_offsets_by_facing,
+		enemy_portrait_layout_offset,
+		_get_unit_facing(enemy_unit_state)
+	)
 	return [
 		enemy_anchor + enemy_shadow_layout_offset,
 		enemy_anchor + enemy_token_layout_offset,
@@ -2076,15 +2218,15 @@ func _update_facing_indicators() -> void:
 func _position_facing_indicator_for_ally() -> void:
 	if ally_facing_indicator == null or ally_unit_token == null:
 		return
-	var anchor := _world_to_battle_ui_position(ally_unit_token.global_position)
-	ally_facing_indicator.position = anchor + Vector2(-18.0, -96.0)
+	var world_anchor := _get_ally_visual_anchor_position() + ally_facing_indicator_layout_offset
+	ally_facing_indicator.position = _world_to_battle_ui_position(world_anchor)
 
 
 func _position_facing_indicator_for_enemy() -> void:
 	if enemy_facing_indicator == null or enemy_unit_token == null:
 		return
-	var anchor := _world_to_battle_ui_position(enemy_unit_token.global_position)
-	enemy_facing_indicator.position = anchor + Vector2(-18.0, -96.0)
+	var world_anchor := _get_enemy_visual_anchor_position() + enemy_facing_indicator_layout_offset
+	enemy_facing_indicator.position = _world_to_battle_ui_position(world_anchor)
 
 
 func _set_facing_indicators_visible(should_show: bool) -> void:
