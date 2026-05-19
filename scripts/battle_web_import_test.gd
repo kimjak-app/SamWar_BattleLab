@@ -56,6 +56,7 @@ const VALID_FACINGS := [
 # v0.64w-hotfix Attack Select Cancel + Move Rollback
 # v0.64w-hotfix Facing Select Right Click Rollback Fix
 # v0.64x Enemy Multi AI Activation MVP
+# v0.64y Ally Ready Frame + Unit Selection Close-up Panel
 
 var is_demo_animating := false
 var ally_has_moved := false
@@ -94,6 +95,9 @@ var dead_unit_ids: Dictionary = {}
 var battle_round := 1
 var round_banner_label: Label = null
 var round_banner_tween: Tween = null
+var ally_ready_frame_tween: Tween = null
+var ally_support_ready_frame_tween: Tween = null
+var unit_closeup_tween: Tween = null
 var ally_idle_tween: Tween
 var enemy_idle_tween: Tween
 var ally_token_base_scale := Vector2.ONE
@@ -219,6 +223,14 @@ var enemy_support_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 @onready var ally_support_facing_indicator: Label = get_node_or_null("BattleUI/AllySupportFacingIndicator") as Label
 @onready var enemy_facing_indicator: Label = get_node_or_null("BattleUI/EnemyFacingIndicator") as Label
 @onready var enemy_support_facing_indicator: Label = get_node_or_null("BattleUI/EnemySupportFacingIndicator") as Label
+@onready var ally_ready_frame: Panel = get_node_or_null("BattleUI/AllyReadyFrame") as Panel
+@onready var ally_support_ready_frame: Panel = get_node_or_null("BattleUI/AllySupportReadyFrame") as Panel
+@onready var unit_closeup_panel: Panel = get_node_or_null("BattleUI/UnitCloseupPanel") as Panel
+@onready var closeup_hero_portrait: TextureRect = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupHeroPortrait") as TextureRect
+@onready var closeup_troop_image: TextureRect = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupTroopImage") as TextureRect
+@onready var closeup_name_label: Label = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupNameLabel") as Label
+@onready var closeup_troop_label: Label = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupTroopLabel") as Label
+@onready var closeup_status_label: Label = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupStatusLabel") as Label
 @onready var turn_banner: Label = $BattleUI/TopBar/TurnBanner
 @onready var battle_log_preview: Label = $BattleUI/LeftPanel/BattleLogPreview
 @onready var cutin_overlay: CanvasLayer = $CutinOverlay
@@ -261,12 +273,15 @@ func _ready() -> void:
 	_collect_move_range_cells()
 	_capture_scene_authored_unit_layout_offsets()
 	_apply_facing_arrow_panel_visual_style()
+	_configure_ally_ready_frames()
+	_configure_unit_closeup_panel()
 	reset_demo_state()
 
 
 func _process(_delta: float) -> void:
 	if current_phase == PHASE_ALLY_TURN and not is_demo_animating:
 		_refresh_move_target_feedback()
+	_update_ally_ready_frames()
 
 
 func _input(event: InputEvent) -> void:
@@ -445,6 +460,8 @@ func reset_demo_state() -> void:
 	_show_move_range_overlay_for_active_unit()
 	_set_facing_indicators_visible(true)
 	_update_facing_indicators()
+	_show_unit_closeup_for_ally(active_unit_state)
+	_update_ally_ready_frames()
 	_start_idle_breathing()
 
 
@@ -696,6 +713,8 @@ func _finish_basic_attack_demo() -> void:
 	_clear_attack_target_selection()
 	_clear_pending_move_snapshot()
 	_mark_ally_unit_acted(active_unit_state)
+	_show_unit_closeup_for_ally(active_unit_state)
+	_update_ally_ready_frames()
 	_cleanup_dead_units()
 	_set_phase(PHASE_ENEMY_TURN)
 	_append_battle_log("적군 턴")
@@ -739,6 +758,7 @@ func _set_phase(new_phase: String) -> void:
 		_show_facing_selection_panel()
 	else:
 		_hide_facing_selection_panel()
+	_update_ally_ready_frames()
 
 
 func _end_ally_turn_by_wait() -> void:
@@ -767,6 +787,8 @@ func _end_ally_turn_by_wait() -> void:
 	active_unit_state.has_moved = true
 	ally_has_moved = true
 	_mark_ally_unit_acted(active_unit_state)
+	_show_unit_closeup_for_ally(active_unit_state)
+	_update_ally_ready_frames()
 
 	_append_battle_log("%s 대기" % _get_selected_ally_display_name())
 	_set_phase(PHASE_ENEMY_TURN)
@@ -959,6 +981,192 @@ func _clear_transient_battle_highlights() -> void:
 		attack_highlight.visible = false
 
 
+func _configure_ally_ready_frames() -> void:
+	_apply_ready_frame_style(ally_ready_frame)
+	_apply_ready_frame_style(ally_support_ready_frame)
+
+
+func _apply_ready_frame_style(frame: Panel) -> void:
+	if frame == null:
+		return
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(1.0, 0.88, 0.42, 0.035)
+	style.border_color = Color(1.0, 0.88, 0.48, 0.58)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	frame.add_theme_stylebox_override("panel", style)
+	frame.pivot_offset = frame.size * 0.5
+
+
+func _configure_unit_closeup_panel() -> void:
+	if unit_closeup_panel == null:
+		return
+	unit_closeup_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	unit_closeup_panel.visible = false
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.02, 0.027, 0.035, 0.82)
+	style.border_color = Color(0.92, 0.82, 0.58, 0.38)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	unit_closeup_panel.add_theme_stylebox_override("panel", style)
+	unit_closeup_panel.pivot_offset = unit_closeup_panel.size * 0.5
+	for child in unit_closeup_panel.get_children():
+		if child is Control:
+			(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for label in [closeup_name_label, closeup_troop_label, closeup_status_label]:
+		if label is Label:
+			(label as Label).add_theme_color_override("font_color", Color(0.95, 0.91, 0.82, 1.0))
+			(label as Label).add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.85))
+			(label as Label).add_theme_constant_override("outline_size", 2)
+	if closeup_name_label != null:
+		closeup_name_label.add_theme_font_size_override("font_size", 18)
+	if closeup_troop_label != null:
+		closeup_troop_label.add_theme_font_size_override("font_size", 13)
+	if closeup_status_label != null:
+		closeup_status_label.add_theme_font_size_override("font_size", 14)
+
+
+func _update_ally_ready_frames() -> void:
+	_update_ready_frame_for_unit(ally_ready_frame, ally_unit_state)
+	_update_ready_frame_for_unit(ally_support_ready_frame, ally_support_unit_state)
+
+
+func _update_ready_frame_for_unit(frame: Control, unit_state: BattleUnitState) -> void:
+	if frame == null:
+		return
+	var should_show := _is_ally_unit_ready_for_action(unit_state)
+	if not should_show:
+		if frame.visible:
+			_stop_ready_frame_pulse(frame)
+		frame.visible = false
+		return
+
+	_position_ready_frame_for_unit(frame, unit_state)
+	var is_selected := unit_state == active_unit_state
+	if not frame.visible:
+		frame.modulate = Color(1.0, 0.94, 0.62, 0.9 if is_selected else 0.68)
+		frame.visible = true
+		_start_ready_frame_pulse(frame)
+
+
+func _position_ready_frame_for_unit(frame: Control, unit_state: BattleUnitState) -> void:
+	if frame == null or unit_state == null:
+		return
+	var anchor := _get_ally_visual_anchor_position()
+	if unit_state == ally_support_unit_state:
+		anchor = _get_ally_support_visual_anchor_position()
+	var ui_center := _world_to_battle_ui_position(anchor + Vector2(0.0, -6.0))
+	var frame_size := Vector2(118.0, 112.0)
+	if battle_grid_controller != null:
+		var cell_size := battle_grid_controller.get_cell_size()
+		if cell_size.x > 0.0 and cell_size.y > 0.0:
+			frame_size = Vector2(cell_size.x * 0.98, cell_size.y * 0.9)
+	frame.size = frame_size
+	frame.position = ui_center - (frame_size * 0.5)
+	frame.pivot_offset = frame_size * 0.5
+
+
+func _is_ally_unit_ready_for_action(unit_state: BattleUnitState) -> bool:
+	if unit_state == null:
+		return false
+	if unit_state.side != "ally":
+		return false
+	if not unit_state.is_alive():
+		return false
+	if current_phase != PHASE_ALLY_TURN:
+		return false
+	if is_demo_animating:
+		return false
+	return not _has_ally_unit_acted(unit_state)
+
+
+func _start_ready_frame_pulse(frame: Control) -> void:
+	if frame == null:
+		return
+	_stop_ready_frame_pulse(frame)
+	var tween := create_tween()
+	tween.set_loops()
+	tween.tween_property(frame, "modulate:a", 0.42, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(frame, "modulate:a", 0.78, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	if frame == ally_ready_frame:
+		ally_ready_frame_tween = tween
+	elif frame == ally_support_ready_frame:
+		ally_support_ready_frame_tween = tween
+
+
+func _stop_ready_frame_pulse(frame: Control) -> void:
+	if frame == ally_ready_frame and ally_ready_frame_tween != null:
+		ally_ready_frame_tween.kill()
+		ally_ready_frame_tween = null
+	elif frame == ally_support_ready_frame and ally_support_ready_frame_tween != null:
+		ally_support_ready_frame_tween.kill()
+		ally_support_ready_frame_tween = null
+
+
+func _show_unit_closeup_for_ally(unit_state: BattleUnitState) -> void:
+	if unit_closeup_panel == null or unit_state == null or unit_state.side != "ally":
+		return
+	if not unit_state.is_alive():
+		_hide_unit_closeup_panel()
+		return
+
+	if closeup_hero_portrait != null:
+		closeup_hero_portrait.texture = _get_ally_portrait_texture_for_unit(unit_state)
+	if closeup_troop_image != null:
+		closeup_troop_image.texture = _get_ally_token_texture_for_unit(unit_state)
+	if closeup_name_label != null:
+		closeup_name_label.text = unit_state.display_name
+	if closeup_troop_label != null:
+		closeup_troop_label.text = "병력 %d / %d" % [unit_state.current_troops, unit_state.max_troops]
+	if closeup_status_label != null:
+		closeup_status_label.text = _get_unit_action_status_text(unit_state)
+
+	unit_closeup_panel.visible = true
+	unit_closeup_panel.scale = Vector2(0.97, 0.97)
+	unit_closeup_panel.modulate = Color(1.0, 1.0, 1.0, 0.92)
+	if unit_closeup_tween != null:
+		unit_closeup_tween.kill()
+	unit_closeup_tween = create_tween()
+	unit_closeup_tween.set_parallel(true)
+	unit_closeup_tween.tween_property(unit_closeup_panel, "scale", Vector2.ONE, 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	unit_closeup_tween.tween_property(unit_closeup_panel, "modulate:a", 1.0, 0.14)
+
+
+func _hide_unit_closeup_panel() -> void:
+	if unit_closeup_tween != null:
+		unit_closeup_tween.kill()
+		unit_closeup_tween = null
+	if unit_closeup_panel != null:
+		unit_closeup_panel.visible = false
+
+
+func _get_ally_portrait_texture_for_unit(unit_state: BattleUnitState) -> Texture2D:
+	if unit_state == ally_support_unit_state and ally_support_portrait_badge != null:
+		return ally_support_portrait_badge.texture
+	if ally_portrait_badge != null:
+		return ally_portrait_badge.texture
+	return null
+
+
+func _get_ally_token_texture_for_unit(unit_state: BattleUnitState) -> Texture2D:
+	if unit_state == ally_support_unit_state and ally_support_unit_token != null:
+		return ally_support_unit_token.texture
+	if ally_unit_token != null:
+		return ally_unit_token.texture
+	return null
+
+
+func _get_unit_action_status_text(unit_state: BattleUnitState) -> String:
+	if unit_state == null or not unit_state.is_alive():
+		return "DOWN"
+	if _has_ally_unit_acted(unit_state):
+		return "DONE"
+	if unit_state.has_moved:
+		return "MOVED"
+	return "READY"
+
+
 func _handle_right_click_cancel() -> void:
 	print("[RIGHT_CLICK_CANCEL] phase=", current_phase)
 	if current_phase == PHASE_FACING_SELECT:
@@ -1038,6 +1246,8 @@ func _rollback_pending_ally_move() -> void:
 	_show_move_range_overlay_for_active_unit()
 	_refresh_move_target_feedback()
 	_clear_pending_move_snapshot()
+	_show_unit_closeup_for_ally(active_unit_state)
+	_update_ally_ready_frames()
 	_start_idle_breathing()
 	print("[ROLLBACK] restored unit=", unit_state.display_name, " grid=", unit_state.grid_cell)
 	_append_battle_log("이동 취소")
@@ -2531,6 +2741,8 @@ func _cleanup_dead_units() -> void:
 				_clear_pending_move_snapshot()
 			if active_unit_state == unit_state:
 				active_unit_state = null
+				_hide_unit_closeup_panel()
+	_update_ally_ready_frames()
 
 
 func _set_unit_visual_group_visible(unit_state: BattleUnitState, should_show: bool) -> void:
@@ -2615,16 +2827,20 @@ func _select_ally_unit(unit_state: BattleUnitState, should_log: bool = true) -> 
 	ally_has_moved = active_unit_state.has_moved
 	_clear_move_target_selection()
 	_clear_attack_target_selection()
+	_show_unit_closeup_for_ally(active_unit_state)
+	_update_ally_ready_frames()
 	if should_log:
 		_append_battle_log("%s 선택" % _get_selected_ally_display_name())
 	if _has_ally_unit_acted(active_unit_state):
 		_hide_move_range_overlay()
 		_append_battle_log("이미 행동한 부대입니다")
 		_set_phase(PHASE_ALLY_TURN)
+		_update_ally_ready_frames()
 		return
 	_refresh_move_target_feedback()
 	_show_move_range_overlay_for_active_unit()
 	_set_phase(PHASE_ALLY_TURN)
+	_update_ally_ready_frames()
 
 
 func _select_enemy_attack_target(target_state: BattleUnitState) -> void:
