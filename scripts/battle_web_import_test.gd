@@ -53,6 +53,8 @@ const VALID_FACINGS := [
 # v0.64v Occupied Hard Block + Basic Attack Select Mode
 # v0.64v-hotfix Action State Lock + Attack Select Phase Fix
 # v0.64w Round Banner + Move-Then-Attack + Dead Unit Cleanup
+# v0.64w-hotfix Attack Select Cancel + Move Rollback
+# v0.64w-hotfix Facing Select Right Click Rollback Fix
 
 var is_demo_animating := false
 var ally_has_moved := false
@@ -73,6 +75,14 @@ var has_selected_move_target := false
 var selected_move_cell := Vector2i(-1, -1)
 var selected_attack_target_state: BattleUnitState = null
 var selected_attack_target_side := ""
+var pending_move_snapshot_unit_state: BattleUnitState = null
+var pending_move_snapshot_grid_cell := Vector2i(-1, -1)
+var pending_move_snapshot_unit_position := Vector2.ZERO
+var pending_move_snapshot_portrait_position := Vector2.ZERO
+var pending_move_snapshot_facing := FACING_RIGHT
+var pending_move_snapshot_has_moved := false
+var pending_move_snapshot_ally_has_moved := false
+var has_pending_move_snapshot := false
 var current_attack_animation_target_state: BattleUnitState = null
 var current_enemy_attack_target_state: BattleUnitState = null
 var move_range_cells: Array[ColorRect] = []
@@ -261,6 +271,10 @@ func _input(event: InputEvent) -> void:
 		return
 
 	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index == MOUSE_BUTTON_RIGHT and mouse_event.pressed:
+		_handle_right_click_cancel()
+		get_viewport().set_input_as_handled()
+		return
 	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
 		return
 	if is_demo_animating or ally_unit_state == null:
@@ -280,6 +294,7 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 
+		_append_battle_log("공격 대상을 선택하세요")
 		get_viewport().set_input_as_handled()
 		return
 
@@ -345,7 +360,7 @@ func _input(event: InputEvent) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event := event as InputEventMouseButton
-		if mouse_event.button_index == MOUSE_BUTTON_LEFT:
+		if mouse_event.button_index == MOUSE_BUTTON_LEFT or mouse_event.button_index == MOUSE_BUTTON_RIGHT:
 			return
 
 
@@ -380,6 +395,7 @@ func reset_demo_state() -> void:
 	selected_move_cell = Vector2i(-1, -1)
 	selected_attack_target_state = null
 	selected_attack_target_side = ""
+	_clear_pending_move_snapshot()
 	_stop_idle_breathing()
 	battle_log_lines = [
 		"아군 준비",
@@ -470,6 +486,7 @@ func play_basic_move_demo() -> void:
 
 	_hide_move_range_overlay()
 	_hide_attack_range_overlay()
+	_store_pending_ally_move_snapshot()
 	is_demo_animating = true
 	ally_has_manual_facing = false
 	_set_facing_indicators_visible(false)
@@ -672,6 +689,7 @@ func _finish_basic_attack_demo() -> void:
 	_hide_move_range_overlay()
 	_hide_attack_range_overlay()
 	_clear_attack_target_selection()
+	_clear_pending_move_snapshot()
 	_mark_ally_unit_acted(active_unit_state)
 	_cleanup_dead_units()
 	_set_phase(PHASE_ENEMY_TURN)
@@ -740,6 +758,7 @@ func _end_ally_turn_by_wait() -> void:
 	if attack_highlight != null:
 		attack_highlight.visible = false
 
+	_clear_pending_move_snapshot()
 	active_unit_state.has_moved = true
 	ally_has_moved = true
 	_mark_ally_unit_acted(active_unit_state)
@@ -906,6 +925,7 @@ func _select_post_move_facing(facing: String) -> void:
 	_hide_attack_range_overlay()
 	_append_battle_log("방향 결정: %s" % facing)
 	_clear_attack_target_selection()
+	_clear_pending_move_snapshot()
 	_set_phase(PHASE_ALLY_TURN)
 	_start_idle_breathing()
 	_refresh_move_target_feedback()
@@ -932,6 +952,118 @@ func _clear_transient_battle_highlights() -> void:
 		move_highlight.visible = false
 	if attack_highlight != null:
 		attack_highlight.visible = false
+
+
+func _handle_right_click_cancel() -> void:
+	print("[RIGHT_CLICK_CANCEL] phase=", current_phase)
+	if current_phase == PHASE_FACING_SELECT:
+		_rollback_pending_ally_move()
+		return
+	if current_phase == PHASE_ATTACK_SELECT:
+		_cancel_attack_select_mode()
+		return
+	if current_phase == PHASE_ALLY_TURN:
+		_clear_move_target_selection()
+		_clear_attack_target_selection()
+		_clear_transient_battle_highlights()
+		_refresh_move_target_feedback()
+		_show_move_range_overlay_for_active_unit()
+
+
+func _cancel_attack_select_mode() -> void:
+	if current_phase != PHASE_ATTACK_SELECT:
+		return
+	_hide_attack_range_overlay()
+	_clear_attack_target_selection()
+	_clear_transient_battle_highlights()
+	_set_phase(PHASE_ALLY_TURN)
+	_append_battle_log("공격 취소")
+	_refresh_move_target_feedback()
+	_show_move_range_overlay_for_active_unit()
+
+
+func _rollback_pending_ally_move() -> void:
+	print("[ROLLBACK] phase=", current_phase)
+	if current_phase != PHASE_FACING_SELECT:
+		print("[ROLLBACK] skipped: not facing select")
+		return
+	if not has_pending_move_snapshot:
+		print("[ROLLBACK] no snapshot")
+		_set_phase(PHASE_ALLY_TURN)
+		_hide_facing_selection_panel()
+		_refresh_move_target_feedback()
+		_show_move_range_overlay_for_active_unit()
+		return
+
+	var unit_state := pending_move_snapshot_unit_state
+	if unit_state == null:
+		print("[ROLLBACK] snapshot unit missing")
+		_clear_pending_move_snapshot()
+		_set_phase(PHASE_ALLY_TURN)
+		return
+
+	print("[ROLLBACK] unit=", unit_state.display_name, " cell=", pending_move_snapshot_grid_cell)
+	active_unit_state = unit_state
+	active_unit_side = "ally"
+	ally_has_moved = pending_move_snapshot_ally_has_moved
+	unit_state.set_grid_cell(pending_move_snapshot_grid_cell)
+	unit_state.has_moved = pending_move_snapshot_has_moved
+	_set_unit_facing(unit_state, pending_move_snapshot_facing)
+
+	var unit_marker := _get_unit_marker_for_unit(unit_state)
+	if unit_marker != null:
+		unit_marker.position = pending_move_snapshot_unit_position
+	var portrait_marker := _get_portrait_marker_for_unit(unit_state)
+	if portrait_marker != null:
+		portrait_marker.position = pending_move_snapshot_portrait_position
+	if unit_state == ally_unit_state:
+		current_ally_unit_position = pending_move_snapshot_unit_position
+		current_ally_portrait_position = pending_move_snapshot_portrait_position
+
+	_hide_facing_selection_panel()
+	_hide_attack_range_overlay()
+	_clear_move_target_selection()
+	_clear_attack_target_selection()
+	_clear_transient_battle_highlights()
+	_reset_unit_group_positions()
+	_set_facing_indicators_visible(true)
+	_update_facing_indicators()
+	_update_cell_size_visual_guide(unit_state.grid_cell)
+	_set_phase(PHASE_ALLY_TURN)
+	_show_move_range_overlay_for_active_unit()
+	_refresh_move_target_feedback()
+	_clear_pending_move_snapshot()
+	_start_idle_breathing()
+	print("[ROLLBACK] restored unit=", unit_state.display_name, " grid=", unit_state.grid_cell)
+	_append_battle_log("이동 취소")
+
+
+func _store_pending_ally_move_snapshot() -> void:
+	if active_unit_state == null:
+		_clear_pending_move_snapshot()
+		return
+	var unit_marker := _get_selected_ally_unit_marker()
+	var portrait_marker := _get_selected_ally_portrait_marker()
+	pending_move_snapshot_unit_state = active_unit_state
+	pending_move_snapshot_grid_cell = active_unit_state.grid_cell
+	pending_move_snapshot_unit_position = unit_marker.position if unit_marker != null else Vector2.ZERO
+	pending_move_snapshot_portrait_position = portrait_marker.position if portrait_marker != null else Vector2.ZERO
+	pending_move_snapshot_facing = active_unit_state.facing
+	pending_move_snapshot_has_moved = active_unit_state.has_moved
+	pending_move_snapshot_ally_has_moved = ally_has_moved
+	has_pending_move_snapshot = true
+	print("[ROLLBACK] snapshot stored unit=", active_unit_state.display_name, " cell=", pending_move_snapshot_grid_cell)
+
+
+func _clear_pending_move_snapshot() -> void:
+	pending_move_snapshot_unit_state = null
+	pending_move_snapshot_grid_cell = Vector2i(-1, -1)
+	pending_move_snapshot_unit_position = Vector2.ZERO
+	pending_move_snapshot_portrait_position = Vector2.ZERO
+	pending_move_snapshot_facing = FACING_RIGHT
+	pending_move_snapshot_has_moved = false
+	pending_move_snapshot_ally_has_moved = false
+	has_pending_move_snapshot = false
 
 
 # v0.64o Enemy Basic Move + Attack AI
@@ -1071,6 +1203,7 @@ func _enemy_reaction_hit_on() -> void:
 
 func _return_to_ally_turn() -> void:
 	current_enemy_attack_target_state = null
+	_clear_pending_move_snapshot()
 	_clear_transient_battle_highlights()
 	_cleanup_dead_units()
 	_reset_unit_group_positions()
@@ -1192,6 +1325,7 @@ func _show_round_start_banner() -> void:
 
 func _start_new_round() -> void:
 	battle_round += 1
+	_clear_pending_move_snapshot()
 	_reset_ally_action_locks_for_new_round()
 	_append_battle_log("ROUND %d 시작" % battle_round)
 	_show_round_start_banner()
@@ -1883,6 +2017,26 @@ func _get_selected_ally_portrait_marker() -> Marker2D:
 	return ally_portrait_marker
 
 
+func _get_unit_marker_for_unit(unit_state: BattleUnitState) -> Marker2D:
+	if unit_state == ally_support_unit_state:
+		return ally_support_unit_marker
+	if unit_state == enemy_unit_state:
+		return enemy_unit_marker
+	if unit_state == enemy_support_unit_state:
+		return enemy_support_unit_marker
+	return ally_unit_marker
+
+
+func _get_portrait_marker_for_unit(unit_state: BattleUnitState) -> Marker2D:
+	if unit_state == ally_support_unit_state:
+		return ally_support_portrait_marker
+	if unit_state == enemy_unit_state:
+		return enemy_portrait_marker
+	if unit_state == enemy_support_unit_state:
+		return enemy_support_portrait_marker
+	return ally_portrait_marker
+
+
 func _get_selected_ally_click_area() -> Area2D:
 	if active_unit_state == ally_support_unit_state:
 		return ally_support_unit_click_area
@@ -2167,6 +2321,8 @@ func _cleanup_dead_units() -> void:
 			_append_battle_log("%s 전멸" % unit_state.display_name)
 			if selected_attack_target_state == unit_state:
 				_clear_attack_target_selection()
+			if pending_move_snapshot_unit_state == unit_state:
+				_clear_pending_move_snapshot()
 			if active_unit_state == unit_state:
 				active_unit_state = null
 
