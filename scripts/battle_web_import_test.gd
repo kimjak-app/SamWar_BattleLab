@@ -55,6 +55,7 @@ const VALID_FACINGS := [
 # v0.64w Round Banner + Move-Then-Attack + Dead Unit Cleanup
 # v0.64w-hotfix Attack Select Cancel + Move Rollback
 # v0.64w-hotfix Facing Select Right Click Rollback Fix
+# v0.64x Enemy Multi AI Activation MVP
 
 var is_demo_animating := false
 var ally_has_moved := false
@@ -85,8 +86,10 @@ var pending_move_snapshot_ally_has_moved := false
 var has_pending_move_snapshot := false
 var current_attack_animation_target_state: BattleUnitState = null
 var current_enemy_attack_target_state: BattleUnitState = null
+var current_enemy_ai_actor_state: BattleUnitState = null
 var move_range_cells: Array[ColorRect] = []
 var acted_ally_unit_ids: Dictionary = {}
+var acted_enemy_unit_ids: Dictionary = {}
 var dead_unit_ids: Dictionary = {}
 var battle_round := 1
 var round_banner_label: Label = null
@@ -389,6 +392,7 @@ func reset_demo_state() -> void:
 	ally_has_moved = false
 	battle_round = 1
 	dead_unit_ids.clear()
+	acted_enemy_unit_ids.clear()
 	ally_has_manual_facing = false
 	enemy_has_manual_facing = false
 	has_selected_move_target = false
@@ -405,6 +409,7 @@ func reset_demo_state() -> void:
 	current_ally_portrait_position = ally_portrait_marker.position
 	_create_demo_unit_states()
 	_reset_ally_action_locks_for_new_round()
+	_reset_enemy_action_locks_for_new_round()
 	_sync_unit_state_cells_from_markers()
 	_refresh_initial_unit_facing()
 	_update_logical_grid_guide()
@@ -1068,6 +1073,10 @@ func _clear_pending_move_snapshot() -> void:
 
 # v0.64o Enemy Basic Move + Attack AI
 func _play_enemy_turn_demo() -> void:
+	_play_enemy_ai_turn()
+
+
+func _play_enemy_ai_turn() -> void:
 	is_demo_animating = true
 	_stop_idle_breathing()
 	basic_attack_button.disabled = true
@@ -1075,46 +1084,71 @@ func _play_enemy_turn_demo() -> void:
 	_cleanup_dead_units()
 	_debug_print_combat_distance("ENEMY_TURN_START")
 
-	var target_state := _get_enemy_ai_target_state()
-	if enemy_unit_state == null or not enemy_unit_state.is_alive() or target_state == null:
+	var enemy_actor_state := _get_next_available_enemy_ai_actor()
+	if enemy_actor_state == null:
+		_append_battle_log("행동 가능한 적군 없음")
 		_return_to_ally_turn()
 		return
 
-	if is_unit_in_attack_range(enemy_unit_state, target_state):
-		_play_enemy_basic_attack_from_current_cell(target_state)
-		return
+	_play_enemy_ai_for_actor(enemy_actor_state)
 
-	var destination := _choose_enemy_basic_ai_destination()
-	if destination == enemy_unit_state.grid_cell:
-		_append_battle_log("관우 대기")
+
+func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
+	if enemy_actor_state == null or not enemy_actor_state.is_alive():
+		_return_to_ally_turn()
+		return
+	current_enemy_ai_actor_state = enemy_actor_state
+
+	var target_state := _get_enemy_ai_target_state_for_actor(enemy_actor_state)
+	if target_state == null:
+		_append_battle_log("적 행동 대상 없음")
+		_mark_enemy_unit_acted(enemy_actor_state)
 		_return_to_ally_turn()
 		return
 
-	var move_path := _find_enemy_move_path(enemy_unit_state.grid_cell, destination)
+	if is_unit_in_attack_range(enemy_actor_state, target_state):
+		_play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state, target_state)
+		return
+
+	var destination := _choose_enemy_basic_ai_destination_for_actor(enemy_actor_state, target_state)
+	if destination == enemy_actor_state.grid_cell:
+		_append_battle_log("%s 대기" % enemy_actor_state.display_name)
+		_mark_enemy_unit_acted(enemy_actor_state)
+		_return_to_ally_turn()
+		return
+
+	var move_path := _find_enemy_move_path_for_actor(enemy_actor_state, enemy_actor_state.grid_cell, destination)
 	if move_path.is_empty() or move_path.size() < 2:
-		_append_battle_log("관우 이동 경로 없음")
+		_append_battle_log("%s 이동 경로 없음" % enemy_actor_state.display_name)
+		_mark_enemy_unit_acted(enemy_actor_state)
 		_return_to_ally_turn()
 		return
 
-	_append_battle_log("관우 접근")
-	_play_enemy_path_move_then_act(move_path)
+	_append_battle_log("%s 접근" % enemy_actor_state.display_name)
+	_play_enemy_actor_path_move_then_act(enemy_actor_state, move_path)
 
 
 func _play_enemy_basic_attack_from_current_cell(target_state: BattleUnitState = null) -> void:
-	if enemy_unit_state == null:
+	_play_enemy_actor_basic_attack_from_current_cell(enemy_unit_state, target_state)
+
+
+func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleUnitState, target_state: BattleUnitState = null) -> void:
+	if enemy_actor_state == null:
 		_return_to_ally_turn()
 		return
 	if target_state == null:
-		target_state = _get_enemy_ai_target_state()
+		target_state = _get_enemy_ai_target_state_for_actor(enemy_actor_state)
 	if target_state == null or not target_state.is_alive():
+		_mark_enemy_unit_acted(enemy_actor_state)
 		_return_to_ally_turn()
 		return
+	current_enemy_ai_actor_state = enemy_actor_state
 	current_enemy_attack_target_state = target_state
 
-	_refresh_enemy_facing_for_enemy_action()
+	_refresh_enemy_facing_for_actor_action(enemy_actor_state, target_state)
 	_reset_unit_group_positions()
 
-	var guard_direction := (_get_ally_target_visual_anchor_position(target_state) - _get_enemy_visual_anchor_position()).normalized()
+	var guard_direction := (_get_ally_target_visual_anchor_position(target_state) - _get_enemy_actor_visual_anchor_position(enemy_actor_state)).normalized()
 	var guard_offset := guard_direction * ENEMY_GUARD_STEP_DISTANCE
 	var ally_recoil_offset := guard_direction * 16.0
 
@@ -1123,28 +1157,39 @@ func _play_enemy_basic_attack_from_current_cell(target_state: BattleUnitState = 
 	tween.tween_callback(_enemy_reaction_hit_on)
 	tween.chain()
 	tween.set_parallel(true)
-	tween.tween_method(_apply_enemy_group_offset, Vector2.ZERO, guard_offset, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_method(_apply_enemy_actor_group_offset.bind(enemy_actor_state), Vector2.ZERO, guard_offset, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_method(_apply_ally_target_group_offset, Vector2.ZERO, ally_recoil_offset, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_method(_set_ally_target_group_modulate, Color.WHITE, Color(1.0, 0.45, 0.45, 1.0), 0.08)
 	tween.chain()
-	tween.tween_method(_apply_enemy_group_offset, guard_offset, Vector2.ZERO, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_method(_apply_enemy_actor_group_offset.bind(enemy_actor_state), guard_offset, Vector2.ZERO, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_method(_apply_ally_target_group_offset, ally_recoil_offset, Vector2.ZERO, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_method(_set_ally_target_group_modulate, Color(1.0, 0.45, 0.45, 1.0), Color.WHITE, 0.18)
-	tween.chain().tween_callback(_return_to_ally_turn)
+	tween.chain().tween_callback(_finish_enemy_actor_basic_attack.bind(enemy_actor_state))
 
 
 func _play_enemy_path_move_then_act(move_path: Array[Vector2i]) -> void:
-	if enemy_unit_state == null or battle_grid_controller == null:
+	_play_enemy_actor_path_move_then_act(enemy_unit_state, move_path)
+
+
+func _play_enemy_actor_path_move_then_act(enemy_actor_state: BattleUnitState, move_path: Array[Vector2i]) -> void:
+	if enemy_actor_state == null or battle_grid_controller == null:
 		_return_to_ally_turn()
 		return
-	if not _is_path_clear_for_unit(move_path, enemy_unit_state, true):
-		_append_battle_log("관우 이동 경로 막힘")
+	if not _is_path_clear_for_unit(move_path, enemy_actor_state, true):
+		_append_battle_log("%s 이동 경로 막힘" % enemy_actor_state.display_name)
+		_mark_enemy_unit_acted(enemy_actor_state)
 		_return_to_ally_turn()
 		return
 
 	_clear_transient_battle_highlights()
-	var start_unit_position := enemy_unit_marker.position
-	var start_portrait_position := enemy_portrait_marker.position
+	var actor_marker := _get_enemy_actor_unit_marker(enemy_actor_state)
+	var actor_portrait_marker := _get_enemy_actor_portrait_marker(enemy_actor_state)
+	if actor_marker == null:
+		_mark_enemy_unit_acted(enemy_actor_state)
+		_return_to_ally_turn()
+		return
+	var start_unit_position := actor_marker.position
+	var start_portrait_position := actor_portrait_marker.position if actor_portrait_marker != null else start_unit_position
 	var portrait_offset := start_portrait_position - start_unit_position
 	var target_cell := move_path[move_path.size() - 1]
 	var target_position := battle_grid_controller.grid_to_world(target_cell)
@@ -1156,53 +1201,67 @@ func _play_enemy_path_move_then_act(move_path: Array[Vector2i]) -> void:
 	for path_index in range(1, move_path.size()):
 		var waypoint_world := battle_grid_controller.grid_to_world(move_path[path_index])
 		var next_offset := waypoint_world - start_unit_position
-		tween.tween_method(_apply_enemy_group_offset, previous_offset, next_offset, step_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_method(_apply_enemy_actor_group_offset.bind(enemy_actor_state), previous_offset, next_offset, step_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		previous_offset = next_offset
-	tween.tween_callback(_finish_enemy_basic_move.bind(target_position, target_portrait_position, target_cell))
+	tween.tween_callback(_finish_enemy_actor_basic_move.bind(enemy_actor_state, target_position, target_portrait_position, target_cell))
 
 
 func _finish_enemy_basic_move(target_position: Vector2, target_portrait_position: Vector2, target_cell: Vector2i) -> void:
-	if enemy_unit_state == null:
+	_finish_enemy_actor_basic_move(enemy_unit_state, target_position, target_portrait_position, target_cell)
+
+
+func _finish_enemy_actor_basic_move(enemy_actor_state: BattleUnitState, target_position: Vector2, target_portrait_position: Vector2, target_cell: Vector2i) -> void:
+	if enemy_actor_state == null:
 		_return_to_ally_turn()
 		return
 
-	enemy_unit_marker.position = target_position
-	if enemy_portrait_marker != null:
-		enemy_portrait_marker.position = target_portrait_position
-	enemy_unit_state.set_grid_cell(target_cell)
+	_sync_enemy_actor_markers_to_position(enemy_actor_state, target_position, target_portrait_position)
+	enemy_actor_state.set_grid_cell(target_cell)
 	_clear_transient_battle_highlights()
 	_reset_unit_group_positions()
 	_update_facing_indicators()
-	_play_enemy_basic_attack_or_wait_after_move()
+	_play_enemy_actor_basic_attack_or_wait_after_move(enemy_actor_state)
 
 
 func _play_enemy_basic_attack_or_wait_after_move() -> void:
-	if enemy_unit_state == null:
+	_play_enemy_actor_basic_attack_or_wait_after_move(enemy_unit_state)
+
+
+func _play_enemy_actor_basic_attack_or_wait_after_move(enemy_actor_state: BattleUnitState) -> void:
+	if enemy_actor_state == null:
 		_return_to_ally_turn()
 		return
 
-	var target_state := _get_enemy_ai_target_state()
-	if target_state != null and is_unit_in_attack_range(enemy_unit_state, target_state):
-		_play_enemy_basic_attack_from_current_cell(target_state)
+	var target_state := _get_enemy_ai_target_state_for_actor(enemy_actor_state)
+	if target_state != null and is_unit_in_attack_range(enemy_actor_state, target_state):
+		_play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state, target_state)
 		return
 
-	_append_battle_log("관우 대기")
+	_append_battle_log("%s 대기" % enemy_actor_state.display_name)
+	_mark_enemy_unit_acted(enemy_actor_state)
 	_return_to_ally_turn()
 
 
 func _enemy_reaction_hit_on() -> void:
 	var target_state := current_enemy_attack_target_state
 	if target_state == null:
-		target_state = _get_enemy_ai_target_state()
+		target_state = _get_enemy_ai_target_state_for_actor(current_enemy_ai_actor_state)
 	if target_state != null and target_state.is_alive():
 		target_state.apply_damage(int(ENEMY_DEMO_DAMAGE))
 		_update_ally_target_visuals_from_state(target_state)
 		_cleanup_dead_units()
-	_append_battle_log("관우 반격")
+	var actor_name := current_enemy_ai_actor_state.display_name if current_enemy_ai_actor_state != null else "적군"
+	_append_battle_log("%s 반격" % actor_name)
+
+
+func _finish_enemy_actor_basic_attack(enemy_actor_state: BattleUnitState) -> void:
+	_mark_enemy_unit_acted(enemy_actor_state)
+	_return_to_ally_turn()
 
 
 func _return_to_ally_turn() -> void:
 	current_enemy_attack_target_state = null
+	current_enemy_ai_actor_state = null
 	_clear_pending_move_snapshot()
 	_clear_transient_battle_highlights()
 	_cleanup_dead_units()
@@ -1212,7 +1271,7 @@ func _return_to_ally_turn() -> void:
 	_set_enemy_group_modulate(Color.WHITE)
 	_set_group_modulate(_get_enemy_support_group_nodes(), Color.WHITE)
 	is_demo_animating = false
-	if _are_all_alive_allies_acted():
+	if _are_all_alive_allies_acted() and _are_all_alive_enemies_acted():
 		_start_new_round()
 	var next_ally := _get_first_available_ally_unit()
 	if next_ally == null:
@@ -1327,6 +1386,7 @@ func _start_new_round() -> void:
 	battle_round += 1
 	_clear_pending_move_snapshot()
 	_reset_ally_action_locks_for_new_round()
+	_reset_enemy_action_locks_for_new_round()
 	_append_battle_log("ROUND %d 시작" % battle_round)
 	_show_round_start_banner()
 
@@ -1352,6 +1412,21 @@ func _apply_enemy_group_offset(offset: Vector2) -> void:
 		enemy_unit_click_area.position = enemy_visual_anchor + enemy_click_area_layout_offset + offset
 
 
+func _apply_enemy_support_group_offset(offset: Vector2) -> void:
+	var enemy_support_visual_anchor := _get_enemy_support_visual_anchor_position()
+	var enemy_support_base_positions := _get_enemy_support_group_base_positions(enemy_support_visual_anchor)
+	_apply_group_offset(_get_enemy_support_group_nodes(), enemy_support_base_positions, offset)
+	if enemy_support_unit_click_area != null:
+		enemy_support_unit_click_area.position = enemy_support_visual_anchor + enemy_support_click_area_layout_offset + offset
+
+
+func _apply_enemy_actor_group_offset(offset: Vector2, enemy_actor_state: BattleUnitState) -> void:
+	if enemy_actor_state == enemy_support_unit_state:
+		_apply_enemy_support_group_offset(offset)
+		return
+	_apply_enemy_group_offset(offset)
+
+
 func _set_group_modulate(nodes: Array[CanvasItem], color: Color) -> void:
 	for node in nodes:
 		node.modulate = color
@@ -1363,6 +1438,10 @@ func _set_ally_group_modulate(color: Color) -> void:
 
 func _set_enemy_group_modulate(color: Color) -> void:
 	_set_group_modulate(_get_enemy_group_nodes(), color)
+
+
+func _set_enemy_actor_group_modulate(enemy_actor_state: BattleUnitState, color: Color) -> void:
+	_set_group_modulate(_get_enemy_actor_group_nodes(enemy_actor_state), color)
 
 
 func _show_move_highlight_at_position(world_position: Vector2) -> void:
@@ -2142,6 +2221,46 @@ func _get_enemy_target_group_nodes(target_state: BattleUnitState) -> Array[Canva
 	return _get_enemy_group_nodes()
 
 
+func _get_enemy_actor_unit_marker(enemy_actor_state: BattleUnitState) -> Marker2D:
+	if enemy_actor_state == enemy_support_unit_state:
+		return enemy_support_unit_marker
+	return enemy_unit_marker
+
+
+func _get_enemy_actor_portrait_marker(enemy_actor_state: BattleUnitState) -> Marker2D:
+	if enemy_actor_state == enemy_support_unit_state:
+		return enemy_support_portrait_marker
+	return enemy_portrait_marker
+
+
+func _get_enemy_actor_visual_anchor_position(enemy_actor_state: BattleUnitState) -> Vector2:
+	if enemy_actor_state == enemy_support_unit_state:
+		return _get_enemy_support_visual_anchor_position()
+	return _get_enemy_visual_anchor_position()
+
+
+func _get_enemy_actor_group_nodes(enemy_actor_state: BattleUnitState) -> Array[CanvasItem]:
+	if enemy_actor_state == enemy_support_unit_state:
+		return _get_enemy_support_group_nodes()
+	return _get_enemy_group_nodes()
+
+
+func _update_enemy_actor_visuals_from_state(enemy_actor_state: BattleUnitState) -> void:
+	if enemy_actor_state == enemy_support_unit_state:
+		_update_enemy_support_visuals_from_state()
+		return
+	_update_enemy_visuals_from_state()
+
+
+func _sync_enemy_actor_markers_to_position(enemy_actor_state: BattleUnitState, unit_position: Vector2, portrait_position: Vector2) -> void:
+	var unit_marker := _get_enemy_actor_unit_marker(enemy_actor_state)
+	var portrait_marker := _get_enemy_actor_portrait_marker(enemy_actor_state)
+	if unit_marker != null:
+		unit_marker.position = unit_position
+	if portrait_marker != null:
+		portrait_marker.position = portrait_position
+
+
 func _apply_enemy_target_group_offset(offset: Vector2) -> void:
 	var target_state := current_attack_animation_target_state
 	if target_state == null:
@@ -2186,6 +2305,35 @@ func _get_alive_enemy_targets() -> Array[BattleUnitState]:
 
 
 func _get_enemy_ai_target_state() -> BattleUnitState:
+	return _get_enemy_ai_target_state_for_actor(current_enemy_ai_actor_state if current_enemy_ai_actor_state != null else enemy_unit_state)
+
+
+func _get_enemy_ai_target_state_for_actor(enemy_actor_state: BattleUnitState) -> BattleUnitState:
+	if enemy_actor_state == null:
+		return null
+	var alive_allies := _get_alive_ally_units()
+	if alive_allies.is_empty():
+		return null
+
+	var best_attackable_target: BattleUnitState = null
+	var best_attackable_distance := 9999
+	var best_target: BattleUnitState = null
+	var best_distance := 9999
+	for ally_state in alive_allies:
+		var distance := get_unit_grid_distance(enemy_actor_state, ally_state)
+		if distance < best_distance:
+			best_distance = distance
+			best_target = ally_state
+		if distance <= enemy_actor_state.attack_range and distance < best_attackable_distance:
+			best_attackable_distance = distance
+			best_attackable_target = ally_state
+
+	if best_attackable_target != null:
+		return best_attackable_target
+	return best_target
+
+
+func _get_legacy_enemy_ai_target_state() -> BattleUnitState:
 	if ally_unit_state != null and ally_unit_state.is_alive():
 		return ally_unit_state
 	if ally_support_unit_state != null and ally_support_unit_state.is_alive():
@@ -2239,6 +2387,16 @@ func _get_alive_ally_units() -> Array[BattleUnitState]:
 	return allies
 
 
+func _get_alive_enemy_units() -> Array[BattleUnitState]:
+	var enemies: Array[BattleUnitState] = []
+	var candidates: Array = [enemy_unit_state, enemy_support_unit_state]
+	for candidate in candidates:
+		var unit_state := candidate as BattleUnitState
+		if unit_state != null and unit_state.is_alive():
+			enemies.append(unit_state)
+	return enemies
+
+
 func _mark_ally_unit_acted(unit_state: BattleUnitState) -> void:
 	if unit_state == null:
 		return
@@ -2268,6 +2426,53 @@ func _reset_ally_action_locks_for_new_round() -> void:
 	for unit_state in _get_alive_ally_units():
 		unit_state.reset_action_flags()
 	ally_has_moved = false
+
+
+func _mark_enemy_unit_acted(unit_state: BattleUnitState) -> void:
+	if unit_state == null:
+		return
+	if unit_state.side != "enemy":
+		return
+	if unit_state.unit_id == "":
+		return
+	acted_enemy_unit_ids[unit_state.unit_id] = true
+	unit_state.has_acted = true
+	unit_state.has_moved = true
+
+
+func _has_enemy_unit_acted(unit_state: BattleUnitState) -> bool:
+	if unit_state == null:
+		return true
+	if unit_state.side != "enemy":
+		return false
+	if unit_state.unit_id == "":
+		return unit_state.has_acted
+	return bool(acted_enemy_unit_ids.get(unit_state.unit_id, unit_state.has_acted))
+
+
+func _reset_enemy_action_locks_for_new_round() -> void:
+	acted_enemy_unit_ids.clear()
+	for unit_state in _get_alive_enemy_units():
+		unit_state.reset_action_flags()
+
+
+func _are_all_alive_enemies_acted() -> bool:
+	var alive_enemies := _get_alive_enemy_units()
+	if alive_enemies.is_empty():
+		return true
+	for unit_state in alive_enemies:
+		if not _has_enemy_unit_acted(unit_state):
+			return false
+	return true
+
+
+func _get_next_available_enemy_ai_actor() -> BattleUnitState:
+	var candidates: Array = [enemy_unit_state, enemy_support_unit_state]
+	for candidate in candidates:
+		var unit_state := candidate as BattleUnitState
+		if unit_state != null and unit_state.is_alive() and not _has_enemy_unit_acted(unit_state):
+			return unit_state
+	return null
 
 
 func _are_all_alive_allies_acted() -> bool:
@@ -2318,6 +2523,7 @@ func _cleanup_dead_units() -> void:
 		if not is_alive and not bool(dead_unit_ids.get(unit_state.unit_id, false)):
 			dead_unit_ids[unit_state.unit_id] = true
 			acted_ally_unit_ids.erase(unit_state.unit_id)
+			acted_enemy_unit_ids.erase(unit_state.unit_id)
 			_append_battle_log("%s 전멸" % unit_state.display_name)
 			if selected_attack_target_state == unit_state:
 				_clear_attack_target_selection()
@@ -2843,33 +3049,43 @@ func _find_ally_move_path(start_cell: Vector2i, target_cell: Vector2i) -> Array[
 
 
 func _get_occupied_cells_for_enemy_move() -> Array[Vector2i]:
-	return _get_occupied_cells_except(enemy_unit_state)
+	return _get_occupied_cells_except(current_enemy_ai_actor_state if current_enemy_ai_actor_state != null else enemy_unit_state)
 
 
 func _is_cell_walkable_for_enemy(cell: Vector2i, start_cell: Vector2i) -> bool:
+	return _is_cell_walkable_for_enemy_actor(enemy_unit_state, cell, start_cell)
+
+
+func _is_cell_walkable_for_enemy_actor(enemy_actor_state: BattleUnitState, cell: Vector2i, start_cell: Vector2i) -> bool:
 	if battle_grid_controller == null:
 		return false
 	if not battle_grid_controller.is_in_bounds(cell):
 		return false
 	if cell == start_cell:
 		return true
-	if _is_cell_occupied_except(cell, enemy_unit_state):
+	if _is_cell_occupied_except(cell, enemy_actor_state):
 		return false
 	return true
 
 
 func _find_enemy_move_path(start_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
+	return _find_enemy_move_path_for_actor(enemy_unit_state, start_cell, target_cell)
+
+
+func _find_enemy_move_path_for_actor(enemy_actor_state: BattleUnitState, start_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
 	var empty_path: Array[Vector2i] = []
 	if battle_grid_controller == null:
 		return empty_path
+	if enemy_actor_state == null:
+		return empty_path
 	if start_cell == target_cell:
 		return [start_cell]
-	if not _is_valid_destination_for_unit(target_cell, enemy_unit_state):
+	if not _is_valid_destination_for_unit(target_cell, enemy_actor_state):
 		return empty_path
-	if not _is_cell_walkable_for_enemy(target_cell, start_cell):
+	if not _is_cell_walkable_for_enemy_actor(enemy_actor_state, target_cell, start_cell):
 		return empty_path
 
-	var max_steps := enemy_unit_state.move_range if enemy_unit_state != null else 0
+	var max_steps := enemy_actor_state.move_range
 	var frontier: Array[Vector2i] = [start_cell]
 	var came_from: Dictionary = {start_cell: start_cell}
 	var steps_from_start: Dictionary = {start_cell: 0}
@@ -2893,7 +3109,7 @@ func _find_enemy_move_path(start_cell: Vector2i, target_cell: Vector2i) -> Array
 			var next: Vector2i = current + direction
 			if came_from.has(next):
 				continue
-			if not _is_cell_walkable_for_enemy(next, start_cell):
+			if not _is_cell_walkable_for_enemy_actor(enemy_actor_state, next, start_cell):
 				continue
 			came_from[next] = current
 			steps_from_start[next] = current_steps + 1
@@ -2911,20 +3127,24 @@ func _find_enemy_move_path(start_cell: Vector2i, target_cell: Vector2i) -> Array
 
 	if path.size() - 1 > max_steps:
 		return empty_path
-	if not _is_path_clear_for_unit(path, enemy_unit_state):
+	if not _is_path_clear_for_unit(path, enemy_actor_state):
 		return empty_path
 	return path
 
 
 func _get_enemy_reachable_paths(start_cell: Vector2i) -> Dictionary:
+	return _get_enemy_reachable_paths_for_actor(enemy_unit_state, start_cell)
+
+
+func _get_enemy_reachable_paths_for_actor(enemy_actor_state: BattleUnitState, start_cell: Vector2i) -> Dictionary:
 	var reachable_paths: Dictionary = {}
-	if battle_grid_controller == null or enemy_unit_state == null:
+	if battle_grid_controller == null or enemy_actor_state == null:
 		return reachable_paths
 
 	var frontier: Array[Vector2i] = [start_cell]
 	var came_from: Dictionary = {start_cell: start_cell}
 	var steps_from_start: Dictionary = {start_cell: 0}
-	var max_steps := enemy_unit_state.move_range
+	var max_steps := enemy_actor_state.move_range
 	var directions: Array[Vector2i] = [
 		Vector2i(1, 0),
 		Vector2i(-1, 0),
@@ -2942,7 +3162,7 @@ func _get_enemy_reachable_paths(start_cell: Vector2i) -> Dictionary:
 			var next: Vector2i = current + direction
 			if came_from.has(next):
 				continue
-			if not _is_cell_walkable_for_enemy(next, start_cell):
+			if not _is_cell_walkable_for_enemy_actor(enemy_actor_state, next, start_cell):
 				continue
 			came_from[next] = current
 			steps_from_start[next] = current_steps + 1
@@ -2950,7 +3170,7 @@ func _get_enemy_reachable_paths(start_cell: Vector2i) -> Dictionary:
 
 	for cell_variant in came_from.keys():
 		var cell: Vector2i = cell_variant
-		if not _is_valid_destination_for_unit(cell, enemy_unit_state):
+		if not _is_valid_destination_for_unit(cell, enemy_actor_state):
 			continue
 		var path: Array[Vector2i] = []
 		var cursor: Vector2i = cell
@@ -2958,7 +3178,7 @@ func _get_enemy_reachable_paths(start_cell: Vector2i) -> Dictionary:
 			path.push_front(cursor)
 			cursor = came_from[cursor]
 		path.push_front(start_cell)
-		if not _is_path_clear_for_unit(path, enemy_unit_state):
+		if not _is_path_clear_for_unit(path, enemy_actor_state):
 			continue
 		reachable_paths[cell] = path
 
@@ -2966,15 +3186,18 @@ func _get_enemy_reachable_paths(start_cell: Vector2i) -> Dictionary:
 
 
 func _choose_enemy_basic_ai_destination() -> Vector2i:
-	if enemy_unit_state == null:
-		return Vector2i.ZERO
-	var target_state := _get_enemy_ai_target_state()
-	if target_state == null:
-		return enemy_unit_state.grid_cell
+	return _choose_enemy_basic_ai_destination_for_actor(enemy_unit_state, _get_enemy_ai_target_state_for_actor(enemy_unit_state))
 
-	var start_cell := enemy_unit_state.grid_cell
-	var reachable_paths := _get_enemy_reachable_paths(start_cell)
-	var current_distance := get_unit_grid_distance(enemy_unit_state, target_state)
+
+func _choose_enemy_basic_ai_destination_for_actor(enemy_actor_state: BattleUnitState, target_state: BattleUnitState) -> Vector2i:
+	if enemy_actor_state == null:
+		return Vector2i.ZERO
+	if target_state == null:
+		return enemy_actor_state.grid_cell
+
+	var start_cell := enemy_actor_state.grid_cell
+	var reachable_paths := _get_enemy_reachable_paths_for_actor(enemy_actor_state, start_cell)
+	var current_distance := get_unit_grid_distance(enemy_actor_state, target_state)
 	var best_attack_cell := start_cell
 	var best_attack_distance := 9999
 	var best_attack_path_length := 9999
@@ -2986,7 +3209,7 @@ func _choose_enemy_basic_ai_destination() -> Vector2i:
 		var candidate_cell: Vector2i = cell_variant
 		if candidate_cell == start_cell:
 			continue
-		if not _is_valid_destination_for_unit(candidate_cell, enemy_unit_state):
+		if not _is_valid_destination_for_unit(candidate_cell, enemy_actor_state):
 			continue
 
 		var path = reachable_paths[candidate_cell] as Array
@@ -2997,11 +3220,11 @@ func _choose_enemy_basic_ai_destination() -> Vector2i:
 		for path_cell_variant in path:
 			var path_cell: Vector2i = path_cell_variant
 			typed_path.append(path_cell)
-		if not _is_path_clear_for_unit(typed_path, enemy_unit_state):
+		if not _is_path_clear_for_unit(typed_path, enemy_actor_state):
 			continue
 
 		var candidate_distance := absi(candidate_cell.x - target_state.grid_cell.x) + absi(candidate_cell.y - target_state.grid_cell.y)
-		var can_attack_after_move := candidate_distance <= enemy_unit_state.attack_range
+		var can_attack_after_move := candidate_distance <= enemy_actor_state.attack_range
 
 		if can_attack_after_move:
 			if candidate_distance < best_attack_distance or (candidate_distance == best_attack_distance and path_length < best_attack_path_length):
@@ -3263,12 +3486,16 @@ func _refresh_ally_facing_toward_enemy_if_not_manual() -> void:
 
 
 func _refresh_enemy_facing_for_enemy_action() -> void:
-	if enemy_unit_state == null or ally_unit_state == null:
+	_refresh_enemy_facing_for_actor_action(enemy_unit_state, _get_enemy_ai_target_state_for_actor(enemy_unit_state))
+
+
+func _refresh_enemy_facing_for_actor_action(enemy_actor_state: BattleUnitState, target_state: BattleUnitState) -> void:
+	if enemy_actor_state == null or target_state == null:
 		return
 	if enemy_has_manual_facing:
 		return
 
-	_face_unit_toward_cell(enemy_unit_state, ally_unit_state.grid_cell)
+	_face_unit_toward_cell(enemy_actor_state, target_state.grid_cell)
 	_apply_unit_facing_visuals()
 	_reset_unit_group_positions()
 
