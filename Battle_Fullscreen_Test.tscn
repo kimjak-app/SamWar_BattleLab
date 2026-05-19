@@ -1413,6 +1413,26 @@ label_settings = SubResource("1")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="AllySupportFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938222]
+offset_left = 566.0
+offset_top = 706.0
+offset_right = 626.0
+offset_bottom = 766.0
+text = "→"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemySupportFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938223]
+offset_left = 1308.0
+offset_top = 276.0
+offset_right = 1368.0
+offset_bottom = 336.0
+text = "←"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="FacingSelectionPanel" type="Panel" parent="BattleUI" unique_id=1174938201]
 visible = false
 offset_left = 720.0
