@@ -57,6 +57,7 @@ const VALID_FACINGS := [
 # v0.64w-hotfix Facing Select Right Click Rollback Fix
 # v0.64x Enemy Multi AI Activation MVP
 # v0.64y Ally Ready Frame + Unit Selection Close-up Panel
+# v0.64y-hotfix Scene-Authored Closeup Panel Position
 
 var is_demo_animating := false
 var ally_has_moved := false

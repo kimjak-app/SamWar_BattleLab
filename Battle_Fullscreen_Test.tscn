@@ -1329,17 +1329,20 @@ text = "전투 기록
 autowrap_mode = 2
 
 [node name="RightPanel" type="Panel" parent="BattleUI" unique_id=1102874252]
-offset_left = 1681.0
-offset_top = 158.0
-offset_right = 1909.0
+offset_left = 1674.0
+offset_top = 279.0
+offset_right = 1908.0
 offset_bottom = 902.0
 
 [node name="RightPanelLabel" type="Label" parent="BattleUI/RightPanel" unique_id=1661618933]
-layout_mode = 0
-offset_left = 24.0
-offset_top = 8.0
-offset_right = 204.0
-offset_bottom = 220.0
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.011000001
+anchor_bottom = 0.011000001
+offset_left = 8.0
+offset_top = 5.795969
+offset_right = 188.0
+offset_bottom = 217.796
 text = "부대 목록
 아군: 이순신
 적군: 관우"
@@ -1450,11 +1453,10 @@ offset_bottom = 760.0
 mouse_filter = 2
 
 [node name="UnitCloseupPanel" type="Panel" parent="BattleUI" unique_id=635915241]
-visible = false
-offset_left = 274.0
-offset_top = 884.0
-offset_right = 506.0
-offset_bottom = 1058.0
+offset_left = 1675.0
+offset_top = 100.0
+offset_right = 1907.0
+offset_bottom = 274.0
 mouse_filter = 2
 
 [node name="CloseupHeroPortrait" type="TextureRect" parent="BattleUI/UnitCloseupPanel" unique_id=1158163089]
@@ -1464,6 +1466,7 @@ offset_top = 14.0
 offset_right = 92.0
 offset_bottom = 94.0
 mouse_filter = 2
+texture = ExtResource("5_allyportrait")
 expand_mode = 1
 stretch_mode = 5
 
@@ -1474,6 +1477,7 @@ offset_top = 18.0
 offset_right = 214.0
 offset_bottom = 90.0
 mouse_filter = 2
+texture = ExtResource("3_allytoken")
 expand_mode = 1
 stretch_mode = 5
 
