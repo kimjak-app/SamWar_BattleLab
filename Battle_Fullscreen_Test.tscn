@@ -956,6 +956,105 @@ position = Vector2(-4.333313, 3)
 [node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904111]
 position = Vector2(-19.3333, -105)
 
+[node name="AllyArcherUnitVisualTemplate" type="Node2D" parent="AllySide"]
+position = Vector2(373.3333, 918)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate"]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate"]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate"]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate"]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate"]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate"]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate"]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate"]
+position = Vector2(-19.3333, -105)
+
+[node name="AllyGunnerUnitVisualTemplate" type="Node2D" parent="AllySide"]
+position = Vector2(373.3333, 918)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate"]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate"]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate"]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate"]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate"]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate"]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate"]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate"]
+position = Vector2(-19.3333, -105)
+
+[node name="AllyCavalryUnitVisualTemplate" type="Node2D" parent="AllySide"]
+position = Vector2(373.3333, 918)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate"]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate"]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate"]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate"]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate"]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate"]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate"]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate"]
+position = Vector2(-19.3333, -105)
+
 [node name="AllyUnitShadow" type="Polygon2D" parent="AllySide" unique_id=335564105]
 position = Vector2(373, 945)
 color = Color(0, 0, 0, 0.28)
@@ -1032,6 +1131,105 @@ position = Vector2(-47.333313, 46)
 position = Vector2(-4.333313, 3)
 
 [node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904311]
+position = Vector2(-19.3333, -105)
+
+[node name="AllySupportArcherVisualTemplate" type="Node2D" parent="AllySide"]
+position = Vector2(586.6666, 810)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate"]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate"]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate"]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate"]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate"]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate"]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate"]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate"]
+position = Vector2(-19.3333, -105)
+
+[node name="AllySupportGunnerVisualTemplate" type="Node2D" parent="AllySide"]
+position = Vector2(586.6666, 810)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate"]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate"]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate"]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate"]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate"]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate"]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate"]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate"]
+position = Vector2(-19.3333, -105)
+
+[node name="AllySupportCavalryVisualTemplate" type="Node2D" parent="AllySide"]
+position = Vector2(586.6666, 810)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate"]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate"]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate"]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate"]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate"]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate"]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate"]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate"]
 position = Vector2(-19.3333, -105)
 
 [node name="AllySupportUnitShadow" type="Polygon2D" parent="AllySide" unique_id=2081904312]
@@ -1112,6 +1310,99 @@ position = Vector2(-48, 50)
 [node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904211]
 position = Vector2(-18, -96)
 
+[node name="EnemyArcherUnitVisualTemplate" type="Node2D" parent="EnemySide"]
+position = Vector2(1546.6667, 262)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate"]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate"]
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate"]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate"]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate"]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate"]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate"]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate"]
+position = Vector2(-18, -96)
+
+[node name="EnemyGunnerUnitVisualTemplate" type="Node2D" parent="EnemySide"]
+position = Vector2(1546.6667, 262)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate"]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate"]
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate"]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate"]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate"]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate"]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate"]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate"]
+position = Vector2(-18, -96)
+
+[node name="EnemyCavalryUnitVisualTemplate" type="Node2D" parent="EnemySide"]
+position = Vector2(1546.6667, 262)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate"]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate"]
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate"]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate"]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate"]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate"]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate"]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate"]
+position = Vector2(-18, -96)
+
 [node name="EnemyUnitShadow" type="Polygon2D" parent="EnemySide" unique_id=1776193078]
 position = Vector2(1548, 296)
 color = Color(0, 0, 0, 0.28)
@@ -1185,6 +1476,99 @@ position = Vector2(-48, 50)
 [node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904410]
 
 [node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904411]
+position = Vector2(-18, -96)
+
+[node name="EnemySupportArcherVisualTemplate" type="Node2D" parent="EnemySide"]
+position = Vector2(1333.3333, 370)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate"]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate"]
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate"]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate"]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate"]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate"]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate"]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate"]
+position = Vector2(-18, -96)
+
+[node name="EnemySupportGunnerVisualTemplate" type="Node2D" parent="EnemySide"]
+position = Vector2(1333.3333, 370)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate"]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate"]
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate"]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate"]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate"]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate"]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate"]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate"]
+position = Vector2(-18, -96)
+
+[node name="EnemySupportCavalryVisualTemplate" type="Node2D" parent="EnemySide"]
+position = Vector2(1333.3333, 370)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate"]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate"]
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate"]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate"]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate"]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate"]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate"]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate"]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate"]
 position = Vector2(-18, -96)
 
 [node name="EnemySupportUnitShadow" type="Polygon2D" parent="EnemySide" unique_id=2081904412]

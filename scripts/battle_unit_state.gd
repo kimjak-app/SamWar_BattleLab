@@ -5,6 +5,8 @@ var unit_id: String = ""
 var display_name: String = ""
 var side: String = ""
 var hero_name: String = ""
+var unit_type: String = "infantry"
+var visual_key: String = ""
 var current_hp: int = 0
 var max_hp: int = 0
 var current_troops: int = 0
@@ -24,6 +26,8 @@ func setup(data: Dictionary) -> void:
 	display_name = String(data.get("display_name", ""))
 	side = String(data.get("side", ""))
 	hero_name = String(data.get("hero_name", display_name))
+	unit_type = String(data.get("unit_type", "infantry"))
+	visual_key = String(data.get("visual_key", unit_type))
 	current_hp = int(data.get("current_hp", 0))
 	max_hp = int(data.get("max_hp", current_hp))
 	current_troops = int(data.get("current_troops", current_hp))
