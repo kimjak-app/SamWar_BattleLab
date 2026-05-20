@@ -82,17 +82,74 @@ const UNIT_VISUAL_TEMPLATE_NODE_PATHS := {
 }
 const UNIT_VISUAL_TOKEN_PATHS := {
 	"ally_infantry": {
+		"base": "res://assets/web_battle/unit_tokens/korea/infantry/korea_infantry_01.png",
+	},
+	"ally_archer": {
+		"base": "res://assets/web_battle/unit_tokens/korea/archer/korea_archer_01.png",
+	},
+	"ally_gunner": {
+		"base": "res://assets/web_battle/unit_tokens/korea/gunner/korea_gunner_01.png",
+	},
+	"ally_cavalry": {
+		"base": "res://assets/web_battle/unit_tokens/korea/cavalry/korea_cavalry_01.png",
+	},
+	"enemy_infantry": {
+		"base": "res://assets/web_battle/unit_tokens/china/infantry/china_infantry_01.png",
+	},
+	"enemy_archer": {
+		"base": "res://assets/web_battle/unit_tokens/china/archer/china_archer_01.png",
+	},
+	"enemy_gunner": {
+		"base": "res://assets/web_battle/unit_tokens/china/gunner/china_gunner_01.png",
+	},
+	"enemy_cavalry": {
+		"base": "res://assets/web_battle/unit_tokens/china/cavalry/china_cavalry_01.png",
+	},
+	"korea_infantry": {
+		"base": "res://assets/web_battle/unit_tokens/korea/infantry/korea_infantry_01.png",
+	},
+	"china_infantry": {
+		"base": "res://assets/web_battle/unit_tokens/china/infantry/china_infantry_01.png",
+	},
+	"japan_infantry": {
+		"base": "res://assets/web_battle/unit_tokens/japan/infantry/japan_infantry_01.png",
+	},
+	"korea_archer": {
+		"base": "res://assets/web_battle/unit_tokens/korea/archer/korea_archer_01.png",
+	},
+	"china_archer": {
+		"base": "res://assets/web_battle/unit_tokens/china/archer/china_archer_01.png",
+	},
+	"japan_archer": {
+		"base": "res://assets/web_battle/unit_tokens/japan/archer/japan_archer_01.png",
+	},
+	"korea_cavalry": {
+		"base": "res://assets/web_battle/unit_tokens/korea/cavalry/korea_cavalry_01.png",
+	},
+	"china_cavalry": {
+		"base": "res://assets/web_battle/unit_tokens/china/cavalry/china_cavalry_01.png",
+	},
+	"japan_cavalry": {
+		"base": "res://assets/web_battle/unit_tokens/japan/cavalry/japan_cavalry_01.png",
+	},
+	"korea_gunner": {
+		"base": "res://assets/web_battle/unit_tokens/korea/gunner/korea_gunner_01.png",
+	},
+	"china_gunner": {
+		"base": "res://assets/web_battle/unit_tokens/china/gunner/china_gunner_01.png",
+	},
+	"japan_gunner": {
+		"base": "res://assets/web_battle/unit_tokens/japan/gunner/japan_gunner_01.png",
+	},
+	"legacy_ally_infantry": {
 		"base": "res://assets/web_battle/unit_tokens/unit_blue_battlefield.png",
 	},
-	"ally_archer": {},
-	"ally_gunner": {},
-	"ally_cavalry": {},
-	"enemy_infantry": {
+	"legacy_enemy_infantry": {
 		"base": "res://assets/web_battle/unit_tokens/unit_china_infantry_battlefield.png",
 	},
-	"enemy_archer": {},
-	"enemy_gunner": {},
-	"enemy_cavalry": {},
+	"legacy_red_infantry": {
+		"base": "res://assets/web_battle/unit_tokens/unit_red_battlefield.png",
+	},
 }
 const ATTACK_SLASH_FX_TEXTURE_PATHS: Array[String] = [
 	"res://assets/web_battle/fx/attack/attack_slash_01.png",
@@ -162,8 +219,12 @@ var ally_support_ready_frame_tween: Tween = null
 var unit_closeup_tween: Tween = null
 var ally_idle_tween: Tween
 var enemy_idle_tween: Tween
+var ally_support_idle_tween: Tween
+var enemy_support_idle_tween: Tween
 var ally_token_base_scale := Vector2.ONE
 var enemy_token_base_scale := Vector2.ONE
+var ally_support_token_base_scale := Vector2.ONE
+var enemy_support_token_base_scale := Vector2.ONE
 var ally_token_base_texture: Texture2D
 var enemy_token_base_texture: Texture2D
 var ally_token_layout_offset := Vector2.ZERO
@@ -320,9 +381,12 @@ var enemy_support_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 func _ready() -> void:
 	ally_token_base_scale = ally_unit_token.scale
 	enemy_token_base_scale = enemy_unit_token.scale
+	ally_support_token_base_scale = ally_support_unit_token.scale
+	enemy_support_token_base_scale = enemy_support_unit_token.scale
 	ally_token_base_texture = ally_unit_token.texture
 	enemy_token_base_texture = enemy_unit_token.texture
 	_hide_all_move_dust_sprites()
+	_set_visual_template_preview_visibility(false)
 	basic_attack_button.pressed.connect(try_basic_attack)
 	move_button.pressed.connect(play_basic_move_demo)
 	if wait_button != null:
@@ -484,6 +548,7 @@ func reset_demo_state() -> void:
 	battle_round = 1
 	dead_unit_ids.clear()
 	_hide_all_move_dust_sprites()
+	_set_visual_template_preview_visibility(false)
 	acted_enemy_unit_ids.clear()
 	ally_has_manual_facing = false
 	enemy_has_manual_facing = false
@@ -1230,11 +1295,7 @@ func _get_ally_portrait_texture_for_unit(unit_state: BattleUnitState) -> Texture
 
 
 func _get_ally_token_texture_for_unit(unit_state: BattleUnitState) -> Texture2D:
-	if unit_state == ally_support_unit_state and ally_support_unit_token != null:
-		return ally_support_unit_token.texture
-	if ally_unit_token != null:
-		return ally_unit_token.texture
-	return null
+	return _get_visual_token_texture_for_unit(unit_state, _get_unit_facing(unit_state))
 
 
 func _get_unit_action_status_text(unit_state: BattleUnitState) -> String:
@@ -2096,8 +2157,8 @@ func _create_demo_unit_states() -> void:
 		"unit_id": "yi_sunsin",
 		"display_name": "이순신",
 		"side": "ally",
-		"unit_type": UNIT_TYPE_INFANTRY,
-		"visual_key": "ally_infantry",
+		"unit_type": UNIT_TYPE_ARCHER,
+		"visual_key": "korea_archer",
 		"hero_name": "이순신",
 		"current_hp": int(ALLY_DEMO_HP),
 		"max_hp": int(ALLY_DEMO_HP),
@@ -2114,8 +2175,8 @@ func _create_demo_unit_states() -> void:
 		"unit_id": "jeong_dojeon",
 		"display_name": "정도전",
 		"side": "ally",
-		"unit_type": UNIT_TYPE_INFANTRY,
-		"visual_key": "ally_infantry",
+		"unit_type": UNIT_TYPE_GUNNER,
+		"visual_key": "korea_gunner",
 		"hero_name": "정도전",
 		"current_hp": 60,
 		"max_hp": 60,
@@ -2132,8 +2193,8 @@ func _create_demo_unit_states() -> void:
 		"unit_id": "guan_yu",
 		"display_name": "관우",
 		"side": "enemy",
-		"unit_type": UNIT_TYPE_INFANTRY,
-		"visual_key": "enemy_infantry",
+		"unit_type": UNIT_TYPE_CAVALRY,
+		"visual_key": "china_cavalry",
 		"hero_name": "관우",
 		"current_hp": int(ENEMY_DEMO_HP),
 		"max_hp": int(ENEMY_DEMO_HP),
@@ -2151,7 +2212,7 @@ func _create_demo_unit_states() -> void:
 		"display_name": "장비",
 		"side": "enemy",
 		"unit_type": UNIT_TYPE_INFANTRY,
-		"visual_key": "enemy_infantry",
+		"visual_key": "china_infantry",
 		"hero_name": "장비",
 		"current_hp": 80,
 		"max_hp": 80,
@@ -2315,10 +2376,52 @@ func _get_visual_key_for_unit(unit_state: BattleUnitState) -> String:
 	return "%s_%s" % [side_prefix, _normalize_unit_type(unit_state.unit_type)]
 
 
+func _get_visual_fallback_key_for_unit(unit_state: BattleUnitState) -> String:
+	if unit_state == null:
+		return "ally_infantry"
+	var side_prefix := "enemy" if unit_state.side == "enemy" else "ally"
+	return "%s_%s" % [side_prefix, _normalize_unit_type(unit_state.unit_type)]
+
+
+func _get_visual_token_paths_for_unit(unit_state: BattleUnitState) -> Dictionary:
+	if unit_state == null:
+		return {}
+	var primary_paths: Dictionary = UNIT_VISUAL_TOKEN_PATHS.get(_get_visual_key_for_unit(unit_state), {})
+	if not primary_paths.is_empty():
+		return primary_paths
+	var fallback_paths: Dictionary = UNIT_VISUAL_TOKEN_PATHS.get(_get_visual_fallback_key_for_unit(unit_state), {})
+	if not fallback_paths.is_empty():
+		return fallback_paths
+	return UNIT_VISUAL_TOKEN_PATHS.get("enemy_infantry", {}) if unit_state.side == "enemy" else UNIT_VISUAL_TOKEN_PATHS.get("ally_infantry", {})
+
+
 func _load_optional_texture(path: String) -> Texture2D:
 	if path == "" or not ResourceLoader.exists(path):
 		return null
 	return load(path) as Texture2D
+
+
+func _get_all_visual_template_roots() -> Array[Node2D]:
+	var templates: Array[Node2D] = []
+	var seen_paths: Dictionary = {}
+	for slot_key in UNIT_VISUAL_TEMPLATE_NODE_PATHS.keys():
+		var slot_map: Dictionary = UNIT_VISUAL_TEMPLATE_NODE_PATHS.get(slot_key, {})
+		for node_path_variant in slot_map.values():
+			var node_path := String(node_path_variant)
+			if node_path == "" or seen_paths.has(node_path):
+				continue
+			seen_paths[node_path] = true
+			var template_root := get_node_or_null(node_path) as Node2D
+			if template_root != null:
+				templates.append(template_root)
+	return templates
+
+
+func _set_visual_template_preview_visibility(should_show: bool) -> void:
+	for template_root in _get_all_visual_template_roots():
+		var preview := template_root.get_node_or_null("TokenSlot/TokenPreview") as CanvasItem
+		if preview != null:
+			preview.visible = should_show
 
 
 func _get_visual_token_texture_for_unit(unit_state: BattleUnitState, facing: String) -> Texture2D:
@@ -2326,7 +2429,7 @@ func _get_visual_token_texture_for_unit(unit_state: BattleUnitState, facing: Str
 	var default_texture := _get_default_token_texture_for_facing(facing, default_side)
 	if unit_state == null:
 		return default_texture
-	var visual_paths: Dictionary = UNIT_VISUAL_TOKEN_PATHS.get(_get_visual_key_for_unit(unit_state), {})
+	var visual_paths := _get_visual_token_paths_for_unit(unit_state)
 	var normalized_facing := _normalize_facing(facing)
 	if normalized_facing == FACING_UP:
 		var up_texture := _load_optional_texture(String(visual_paths.get("up", "")))
@@ -4306,9 +4409,13 @@ func _start_idle_breathing() -> void:
 	_stop_idle_breathing()
 	ally_idle_tween = _start_token_idle(ally_unit_token, ally_token_base_scale)
 	enemy_idle_tween = _start_token_idle(enemy_unit_token, enemy_token_base_scale)
+	ally_support_idle_tween = _start_token_idle(ally_support_unit_token, ally_support_token_base_scale)
+	enemy_support_idle_tween = _start_token_idle(enemy_support_unit_token, enemy_support_token_base_scale)
 
 
 func _start_token_idle(token: Sprite2D, base_scale: Vector2) -> Tween:
+	if token == null:
+		return null
 	var tween := create_tween()
 	tween.set_loops()
 	tween.tween_property(token, "scale", base_scale * IDLE_SCALE_MULTIPLIER, IDLE_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -4323,9 +4430,17 @@ func _stop_idle_breathing() -> void:
 	if enemy_idle_tween:
 		enemy_idle_tween.kill()
 		enemy_idle_tween = null
+	if ally_support_idle_tween:
+		ally_support_idle_tween.kill()
+		ally_support_idle_tween = null
+	if enemy_support_idle_tween:
+		enemy_support_idle_tween.kill()
+		enemy_support_idle_tween = null
 
 	ally_unit_token.scale = ally_token_base_scale
 	enemy_unit_token.scale = enemy_token_base_scale
+	ally_support_unit_token.scale = ally_support_token_base_scale
+	enemy_support_unit_token.scale = enemy_support_token_base_scale
 
 
 func _sync_overlay_positions() -> void:
