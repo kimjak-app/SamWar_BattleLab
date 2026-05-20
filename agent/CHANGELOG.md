@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## v0.65h Slot-Based UnitVisual Architecture Design Stable
+
+- Extended BattleUnitState with slot-based metadata.
+- Added fields:
+  - slot_id
+  - nation
+  - portrait_key
+  - domain
+  - footprint
+  - move_fx_profile
+  - attack_fx_profile
+  - click_area_profile
+  - visual_scale_profile
+- Injected slot metadata into the four current demo units.
+- Added slot_id-first UnitVisual slot lookup.
+- Preserved direct unit_state comparison fallback.
+- Confirmed visual_key values remain unchanged:
+  - korea_archer
+  - korea_gunner
+  - china_cavalry
+  - china_infantry
+- Preserved current 2v2 battle loop, FX, UnitCloseupPanel, READY frame, HP 0 cleanup, active ally lock.
+- Did not migrate ClickArea / READY frame / FacingIndicator.
+
 ## v0.65g Root Migration Stable QA Verified
 
 - Added UnitVisualRoot Adapter Layer.

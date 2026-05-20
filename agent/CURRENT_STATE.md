@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.65g Root Migration Stable QA Verified
+v0.65h Slot-Based UnitVisual Architecture Design Stable
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -75,6 +75,26 @@ Verified principle:
 - Dead enemy main click priority issue fixed.
 - After Guan Yu dies, Yi Sun-sin and Jeong Do-jeon can attack living Zhang Fei.
 - Enemy support AI remained valid after enemy main death.
+
+## v0.65h Slot Metadata State
+- `BattleUnitState` now includes slot-based metadata:
+  - `slot_id`
+  - `nation`
+  - `portrait_key`
+  - `domain`
+  - `footprint`
+  - `move_fx_profile`
+  - `attack_fx_profile`
+  - `click_area_profile`
+  - `visual_scale_profile`
+- Current demo units carry slot metadata:
+  - Yi Sun-sin = `ally_main` / `korea` / `land` / `1x1` / `arrow`
+  - Jeong Do-jeon = `ally_support` / `korea` / `land` / `1x1` / `gun`
+  - Guan Yu = `enemy_main` / `china` / `land` / `1x1` / `slash`
+  - Zhang Fei = `enemy_support` / `china` / `land` / `1x1` / `slash`
+- Unit visual slot lookup now prioritizes `unit_state.slot_id`.
+- Existing direct `unit_state` comparison fallback remains.
+- No combat formula, turn flow, AI order, or visual node movement changed in v0.65h.
 
 ## Unit Token Asset State
 - Korea / China / Japan infantry / archer / gunner / cavalry token assets are normalized around the 256 baseline.

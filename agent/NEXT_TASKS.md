@@ -1,52 +1,31 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.65g Root Migration Stable QA Verified
+v0.65h Slot-Based UnitVisual Architecture Design Stable
 
 ## Priority 1
-v0.65h Slot-Based UnitVisual Architecture Design
+v0.65i ClickArea / READY / FacingIndicator Integration Review
 
 Goal:
-- Treat `AllyUnitVisualRoot`, `AllySupportUnitVisualRoot`, `EnemyUnitVisualRoot`, and `EnemySupportUnitVisualRoot` as combat slot roots, not fixed hero roots.
-- Prepare for larger unit counts and data-driven battle setup.
-- Design a structure that can handle land, naval, and siege units such as Mongol troops, geobukseon, panokseon, tower ships, and siege engines.
-
-Required design fields:
-- `slot_id`
-- `side`
-- `unit_id`
-- `hero_name`
-- `nation`
-- `unit_type`
-- `visual_key`
-- `portrait_key`
-- `domain`: `land` / `naval` / `siege`
-- `footprint`: `1x1` / `2x1` / `2x2` / `3x1`
-- `hp`
-- `troop`
-- `move_range`
-- `attack_range`
-- `move_fx_profile`: `dust` / `wake` / `none`
-- `attack_fx_profile`: `slash` / `arrow` / `gun` / `cannon` / `fire` / `ram`
-- `click_area_profile`
-- `visual_scale_profile`
-
-Important:
-- This is a design step first.
-- Do not start by moving ClickArea / READY / FacingIndicator.
-- Do not change combat formulas or turn flow.
-
-## Priority 2
-ClickArea / READY / FacingIndicator integration review
-
-Goal:
-- Decide whether each should move under UnitVisualRoot or remain separate.
+- Decide whether ClickArea, READY frame, and FacingIndicator should move under UnitVisualRoot or remain separate.
+- Keep each category separable; do not batch-migrate all coordinate systems at once.
 
 Notes:
 - ClickArea has collision/input coordinate risks and must be handled in its own migration step.
 - READY frame and FacingIndicator are CanvasLayer/UI coordinate concerns and should be reviewed separately from world visual roots.
 
-## Priority 3
+## Completed
+v0.65h Slot-Based UnitVisual Architecture Design
+
+Completed items:
+- `BattleUnitState` has slot-based metadata.
+- Four demo units carry slot metadata.
+- UnitVisual slot lookup prioritizes `unit_state.slot_id`.
+- Direct `unit_state` comparison fallback remains.
+- No ClickArea / READY / FacingIndicator migration was done.
+- No combat formula, turn flow, AI order, or visual node movement changed.
+
+## Priority 2
 Target selection policy for overlapping live units
 
 Current temporary behavior:
@@ -63,7 +42,7 @@ Future candidates:
 4. Overlapped target list popup.
 5. Tab or button target cycling.
 
-## Priority 4
+## Priority 3
 Debug cleanup
 
 Review and decide whether to remove:

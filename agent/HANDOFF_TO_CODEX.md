@@ -9,7 +9,7 @@ Before making changes, read:
 ## Stable Baseline
 Current stable baseline is:
 
-`v0.65g Root Migration Stable QA Verified`
+`v0.65h Slot-Based UnitVisual Architecture Design Stable`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -53,6 +53,20 @@ Do not modify:
 - Fixed dead enemy main click priority blocking enemy support target selection.
 - Kimjak F6 confirmed the Root migrations and fixes.
 
+## v0.65h Completed Work
+- Extended `BattleUnitState` with slot metadata.
+- Injected slot metadata into the four current demo units.
+- Added `slot_id` first visual slot lookup.
+- Preserved direct `unit_state` comparison fallback.
+- Preserved existing 2v2 battle loop behavior.
+- Did not migrate ClickArea / READY frame / FacingIndicator.
+
+Important:
+- UnitVisualRoot nodes are combat slot roots.
+- `slot_id` is the preferred UnitVisual slot lookup key.
+- `visual_key` still controls token texture lookup.
+- Existing direct unit references remain as fallback while the architecture is transitional.
+
 ## Unit Token State
 Korea / China / Japan infantry / archer / gunner / cavalry token assets have been normalized around the 256 baseline.
 
@@ -68,28 +82,12 @@ Notes:
 - UnitCloseupPanel uses the visual_key based troop token lookup.
 
 ## Recommended Next Task
-v0.65h Slot-Based UnitVisual Architecture Design
+v0.65i ClickArea / READY / FacingIndicator Integration Review
 
 Goal:
-- Treat UnitVisualRoot nodes as combat slot roots, not specific hero roots.
-- Design the data model before moving more nodes.
-- Prepare for Mongol troops, naval units, geobukseon, panokseon, tower ships, and siege engines.
-
-Key future concepts:
-- `slot_id`
-- `side`
-- `unit_id`
-- `hero_name`
-- `nation`
-- `unit_type`
-- `visual_key`
-- `portrait_key`
-- `domain`
-- `footprint`
-- `move_fx_profile`
-- `attack_fx_profile`
-- `click_area_profile`
-- `visual_scale_profile`
+- Decide whether ClickArea, READY frame, and FacingIndicator should move under UnitVisualRoot or remain separate.
+- Handle ClickArea separately because it affects collision/input coordinates.
+- Handle READY frame and FacingIndicator separately because they are UI/CanvasLayer coordinate concerns.
 
 ## Important Direction
 - Root is for a combat slot, not a fixed general.
