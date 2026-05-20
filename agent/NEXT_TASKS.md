@@ -1,71 +1,75 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.65e Unit Token Asset Normalize Apply Verified
+v0.65g Root Migration Stable QA Verified
 
 ## Priority 1
-v0.65g UnitVisual Single Slot Refactor
+v0.65h Slot-Based UnitVisual Architecture Design
 
 Goal:
-- Stop using type-specific template token sprites as active visible unit visuals.
-- Use actual battle nodes as the single runtime visual slots:
-  - `AllySide/AllyUnitToken`
-  - `AllySide/AllySupportUnitToken`
-  - `EnemySide/EnemyUnitToken`
-  - `EnemySide/EnemySupportUnitToken`
-- Swap only those token textures from `visual_key`.
-- Keep type-specific templates as slot/layout reference nodes only.
-- Keep template token sprites hidden at runtime.
-- Remove 2D editor visual overlap between actual unit nodes and template visuals.
+- Treat `AllyUnitVisualRoot`, `AllySupportUnitVisualRoot`, `EnemyUnitVisualRoot`, and `EnemySupportUnitVisualRoot` as combat slot roots, not fixed hero roots.
+- Prepare for larger unit counts and data-driven battle setup.
+- Design a structure that can handle land, naval, and siege units such as Mongol troops, geobukseon, panokseon, tower ships, and siege engines.
 
-Reason:
-- This is the foundation for later world map / city / hero data integration.
-- Future battle setup should receive `hero_name`, `nation`, `unit_type`, `visual_key`, `troop`, `hp`, and `portrait`, then apply the visual automatically.
+Required design fields:
+- `slot_id`
+- `side`
+- `unit_id`
+- `hero_name`
+- `nation`
+- `unit_type`
+- `visual_key`
+- `portrait_key`
+- `domain`: `land` / `naval` / `siege`
+- `footprint`: `1x1` / `2x1` / `2x2` / `3x1`
+- `hp`
+- `troop`
+- `move_range`
+- `attack_range`
+- `move_fx_profile`: `dust` / `wake` / `none`
+- `attack_fx_profile`: `slash` / `arrow` / `gun` / `cannon` / `fire` / `ram`
+- `click_area_profile`
+- `visual_scale_profile`
 
-Example future input:
-- `hero_name = "이순신"`
-- `nation = "korea"`
-- `unit_type = "archer"`
-- `visual_key = "korea_archer"`
-
-Expected result:
-- `AllyUnitToken.texture = korea_archer_01.png`
-
-## v0.65g Hard Guardrails
-Do not change:
-- `AllyUnitToken` node path/name.
-- `EnemyUnitToken` node path/name.
-- `AllySupportUnitToken` / `EnemySupportUnitToken` path/name.
-- `AllyHPBar` / `AllyTroopLabel` / `AllyPortraitBadge` paths.
-- `EnemyHPBar` / `EnemyTroopLabel` / `EnemyPortraitBadge` paths.
-- `attack_range`.
-- `move_range`.
-- `distance formula`.
-- Movement range cell calculation.
-- Facing selection logic.
-- Basic attack judgement.
-- Damage formula.
-- Enemy AI order.
-- Active ally lock.
-- HP 0 cleanup.
-- BATTLE Round Toast.
-- Basic Battle FX Pack 1.
-- Right-click move rollback.
-- Right-click attack cancel.
-- `Battle_WebImport_Test.tscn`.
+Important:
+- This is a design step first.
+- Do not start by moving ClickArea / READY / FacingIndicator.
+- Do not change combat formulas or turn flow.
 
 ## Priority 2
-World map / city / hero data handoff design
+ClickArea / READY / FacingIndicator integration review
 
 Goal:
-- Define how external campaign data will populate `BattleUnitState`.
-- Keep battle scene visual application data-driven through `visual_key`.
+- Decide whether each should move under UnitVisualRoot or remain separate.
+
+Notes:
+- ClickArea has collision/input coordinate risks and must be handled in its own migration step.
+- READY frame and FacingIndicator are CanvasLayer/UI coordinate concerns and should be reviewed separately from world visual roots.
 
 ## Priority 3
-Reusable UnitVisual package cleanup
+Target selection policy for overlapping live units
 
-Goal:
-- After v0.65g, decide whether type-specific templates should remain in the scene, move to separate `.tscn` assets, or become editor-only reference packages.
+Current temporary behavior:
+- Dead enemy main no longer blocks living enemy support target selection.
+- If enemy main and enemy support are both alive and both clicked, existing enemy main priority is preserved.
+
+TODO:
+- Design target selection policy for overlapping living enemy units.
+
+Future candidates:
+1. Nearest unit first.
+2. Currently attackable target first.
+3. Visual center closest to click point first.
+4. Overlapped target list popup.
+5. Tab or button target cycling.
+
+## Priority 4
+Debug cleanup
+
+Review and decide whether to remove:
+- `_debug_print_unit_visual_root_slots()`
+- `[ATTACK_CLICK]` print
+- `_debug_print_ally_portrait_offsets()` if no longer needed
 
 ## Ongoing QA Checklist
 - Battle starts with BATTLE 1 toast.
@@ -76,4 +80,6 @@ Goal:
 - UnitCloseupPanel remains stable.
 - READY frame remains stable.
 - HP 0 cleanup remains stable.
+- Ally portrait up/down positions remain stable.
+- Guan Yu death does not block Zhang Fei target selection.
 - Headless launch remains 0 errors.

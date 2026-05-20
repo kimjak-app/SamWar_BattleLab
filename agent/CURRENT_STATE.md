@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.65e Unit Token Asset Normalize Apply Verified
+v0.65g Root Migration Stable QA Verified
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -60,6 +60,22 @@ Verified principle:
 - HP 0 cleanup works.
 - Headless scene launch has been kept at 0 errors.
 
+## v0.65g Completed Structure
+- UnitVisualRoot Adapter Layer is in place.
+- Ally main visual nodes are under `AllySide/AllyUnitVisualRoot`.
+- Ally support visual nodes are under `AllySide/AllySupportUnitVisualRoot`.
+- Enemy main visual nodes are under `EnemySide/EnemyUnitVisualRoot`.
+- Enemy support visual nodes are under `EnemySide/EnemySupportUnitVisualRoot`.
+- Actual visual nodes for all 4 combat slots are now grouped under their UnitVisualRoot.
+- ClickArea / READY frame / FacingIndicator / UnitVisualTemplate nodes remain separate for safety.
+- UnitVisualTemplate nodes remain as layout offset references.
+
+## v0.65g Fixes
+- Ally portrait `FACING_UP` / `FACING_DOWN` offset issue fixed.
+- Dead enemy main click priority issue fixed.
+- After Guan Yu dies, Yi Sun-sin and Jeong Do-jeon can attack living Zhang Fei.
+- Enemy support AI remained valid after enemy main death.
+
 ## Unit Token Asset State
 - Korea / China / Japan infantry / archer / gunner / cavalry token assets are normalized around the 256 baseline.
 - Country/type folder structure is used.
@@ -68,43 +84,19 @@ Verified principle:
 - Zhang Fei no longer uses the legacy 1024 China infantry token in the current test setup.
 - Guan Yu and Zhang Fei are normalized against the same 256 baseline.
 
-## Remaining Structural Issue
-Functionally the scene is stable, but two visual structures still coexist:
+## Structural Notes
+- The 4 UnitVisualRoot nodes are current combat slot roots, not fixed hero-specific roots.
+- Future units such as Mongol troops, naval units, geobukseon, panokseon, tower ships, and siege weapons should be represented through data such as `visual_key`, `unit_type`, `domain`, and `footprint`.
+- ClickArea / READY / FacingIndicator are not inside UnitVisualRoot yet.
+- ClickArea uses collision/input coordinates and should only be migrated in a separate focused step.
+- READY frame and FacingIndicator are UI/CanvasLayer concerns and should be evaluated separately from world visual roots.
+- UnitVisualTemplate nodes are still used as scene-authored layout offset references.
 
-Actual battle nodes:
-- `AllySide/AllyUnitToken`
-- `AllySide/AllyMoveDustSprite`
-- `AllySide/AllyPortraitBadge`
-- `AllySide/AllyHPBar`
-- `AllySide/AllyTroopLabel`
-- `EnemySide/EnemyUnitToken`
-- `EnemySide/EnemyMoveDustSprite`
-- `EnemySide/EnemyPortraitBadge`
-- `EnemySide/EnemyHPBar`
-- `EnemySide/EnemyTroopLabel`
-
-Type-specific template nodes:
-- `AllySide/AllyInfantryUnitVisualTemplate`
-- `AllySide/AllyArcherUnitVisualTemplate`
-- `AllySide/AllyGunnerUnitVisualTemplate`
-- `AllySide/AllyCavalryUnitVisualTemplate`
-- `EnemySide/EnemyInfantryUnitVisualTemplate`
-- `EnemySide/EnemyArcherUnitVisualTemplate`
-- `EnemySide/EnemyGunnerUnitVisualTemplate`
-- `EnemySide/EnemyCavalryUnitVisualTemplate`
-
-This can make unit visuals overlap in the 2D editor. It is the next structural cleanup target.
-
-## Next Structural Direction
-v0.65g UnitVisual Single Slot Refactor
-
-Unify runtime visuals around the actual battle token nodes:
-- `AllyUnitToken.texture = visual_key texture`
-- `EnemyUnitToken.texture = visual_key texture`
-- `AllySupportUnitToken.texture = visual_key texture`
-- `EnemySupportUnitToken.texture = visual_key texture`
-
-Type-specific templates should remain only as slot/layout references, not active visible unit visuals.
+## Debug Notes
+- `_debug_print_unit_visual_root_slots()` currently remains and prints one startup slot check.
+- `[ATTACK_CLICK]` print currently remains and prints only during attack target clicks.
+- `ALLY PORTRAIT OFFSET DEBUG` function may exist, but its reset-time call is removed.
+- Debug cleanup is a future cleanup task, not part of the verified v0.65g behavior.
 
 ## Guardrails
 - Do not modify `Battle_WebImport_Test.tscn`.
@@ -120,5 +112,8 @@ Type-specific templates should remain only as slot/layout references, not active
 - Do not change HP 0 cleanup.
 - Do not break BATTLE Round Toast.
 - Do not break Basic Battle FX Pack 1.
+- Do not break UnitCloseupPanel.
+- Do not break ally portrait up/down fix.
+- Do not break dead enemy click priority fix.
 - Preserve right-click move rollback.
 - Preserve right-click attack cancel.

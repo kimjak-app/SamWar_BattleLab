@@ -9,7 +9,7 @@ Before making changes, read:
 ## Stable Baseline
 Current stable baseline is:
 
-`v0.65e Unit Token Asset Normalize Apply Verified`
+`v0.65g Root Migration Stable QA Verified`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -41,6 +41,18 @@ Do not modify:
 - HP 0 cleanup works.
 - Headless scene launch is expected to remain 0 errors.
 
+## v0.65g Completed Work
+- Added UnitVisualRoot Adapter Layer.
+- Migrated Ally main visual nodes under `AllyUnitVisualRoot`.
+- Migrated Ally support visual nodes under `AllySupportUnitVisualRoot`.
+- Migrated Enemy main visual nodes under `EnemyUnitVisualRoot`.
+- Migrated Enemy support visual nodes under `EnemySupportUnitVisualRoot`.
+- Kept ClickArea / READY frame / FacingIndicator outside Root for safety.
+- Kept UnitVisualTemplate nodes as layout offset references.
+- Fixed ally portrait `FACING_UP` / `FACING_DOWN` offset issue.
+- Fixed dead enemy main click priority blocking enemy support target selection.
+- Kimjak F6 confirmed the Root migrations and fixes.
+
 ## Unit Token State
 Korea / China / Japan infantry / archer / gunner / cavalry token assets have been normalized around the 256 baseline.
 
@@ -52,67 +64,43 @@ Current visual test assignment:
 
 Notes:
 - Zhang Fei no longer depends on the legacy 1024 China infantry token.
-- Guan Yu and Zhang Fei should now share the normalized 256 token scale baseline.
+- Guan Yu and Zhang Fei should share the normalized 256 token scale baseline.
 - UnitCloseupPanel uses the visual_key based troop token lookup.
 
-## Known Structural Issue
-The battle currently has two visual structures:
-
-Actual battle nodes:
-- `AllySide/AllyUnitToken`
-- `AllySide/AllySupportUnitToken`
-- `EnemySide/EnemyUnitToken`
-- `EnemySide/EnemySupportUnitToken`
-- Their associated shadow, portrait, HPBar, troop label, click area, move dust, READY frame, and breathing logic.
-
-Type-specific template nodes:
-- `AllySide/AllyInfantryUnitVisualTemplate`
-- `AllySide/AllyArcherUnitVisualTemplate`
-- `AllySide/AllyGunnerUnitVisualTemplate`
-- `AllySide/AllyCavalryUnitVisualTemplate`
-- `EnemySide/EnemyInfantryUnitVisualTemplate`
-- `EnemySide/EnemyArcherUnitVisualTemplate`
-- `EnemySide/EnemyGunnerUnitVisualTemplate`
-- `EnemySide/EnemyCavalryUnitVisualTemplate`
-- Support templates also exist.
-
-This coexistence can create 2D editor visual overlap. Runtime remains functionally stable, but the structure should be cleaned up next.
-
 ## Recommended Next Task
-v0.65g UnitVisual Single Slot Refactor
+v0.65h Slot-Based UnitVisual Architecture Design
 
 Goal:
-- Retire any active visible use of type-specific template token sprites.
-- Use only the actual battle token nodes as runtime visual slots:
-  - `AllyUnitToken.texture = visual_key texture`
-  - `EnemyUnitToken.texture = visual_key texture`
-  - `AllySupportUnitToken.texture = visual_key texture`
-  - `EnemySupportUnitToken.texture = visual_key texture`
-- Keep templates as slot/layout reference nodes only.
-- Keep template token sprites hidden or editor-reference-only.
-- Remove 2D editor overlap.
-- Do not change combat logic, FX, or turn flow.
+- Treat UnitVisualRoot nodes as combat slot roots, not specific hero roots.
+- Design the data model before moving more nodes.
+- Prepare for Mongol troops, naval units, geobukseon, panokseon, tower ships, and siege engines.
 
-## Future Data Direction
-Later world map / city / hero data should pass:
+Key future concepts:
+- `slot_id`
+- `side`
+- `unit_id`
 - `hero_name`
 - `nation`
 - `unit_type`
 - `visual_key`
-- `troop`
-- `hp`
-- `portrait`
+- `portrait_key`
+- `domain`
+- `footprint`
+- `move_fx_profile`
+- `attack_fx_profile`
+- `click_area_profile`
+- `visual_scale_profile`
 
-Battle setup should place this data into `BattleUnitState`, then resolve the token texture through `visual_key`.
+## Important Direction
+- Root is for a combat slot, not a fixed general.
+- Large units and naval units need `footprint`, `domain`, and FX profile concepts.
+- ClickArea should be reviewed separately because it affects collision/input coordinates.
+- READY frame and FacingIndicator should be reviewed separately because they live in UI/CanvasLayer coordinates.
 
-Example:
-- `hero_name = "이순신"`
-- `nation = "korea"`
-- `unit_type = "archer"`
-- `visual_key = "korea_archer"`
-
-Expected token:
-- `AllyUnitToken.texture = korea_archer_01.png`
+## Debug Cleanup Candidates
+- `_debug_print_unit_visual_root_slots()`
+- `[ATTACK_CLICK]` print
+- `_debug_print_ally_portrait_offsets()`
 
 ## Do Not Break
 - Do not change `attack_range`.
@@ -129,6 +117,8 @@ Expected token:
 - Do not break Basic Battle FX Pack 1.
 - Do not break UnitCloseupPanel.
 - Do not break READY frame.
+- Do not break ally portrait up/down fix.
+- Do not break dead enemy click priority fix.
 - Preserve right-click move rollback.
 - Preserve right-click attack cancel.
 - Do not modify `Battle_WebImport_Test.tscn`.

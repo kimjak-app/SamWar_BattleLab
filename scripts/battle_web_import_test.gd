@@ -271,19 +271,19 @@ var enemy_support_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 
 @onready var battlefield_texture: Sprite2D = $BattlefieldRoot/BattlefieldTexture
 @onready var ally_unit_marker: Marker2D = $AllyUnitMarker
-@onready var ally_move_dust_sprite: Sprite2D = get_node_or_null("AllySide/AllyMoveDustSprite") as Sprite2D
+@onready var ally_move_dust_sprite: Sprite2D = get_node_or_null("AllySide/AllyUnitVisualRoot/AllyMoveDustSprite") as Sprite2D
 @onready var ally_unit_click_area: Area2D = $AllyUnitClickArea
 @onready var ally_unit_click_shape: CollisionShape2D = $AllyUnitClickArea/CollisionShape2D
 @onready var ally_support_unit_marker: Marker2D = $AllySupportUnitMarker
-@onready var ally_support_move_dust_sprite: Sprite2D = get_node_or_null("AllySide/AllySupportMoveDustSprite") as Sprite2D
+@onready var ally_support_move_dust_sprite: Sprite2D = get_node_or_null("AllySide/AllySupportUnitVisualRoot/AllySupportMoveDustSprite") as Sprite2D
 @onready var ally_support_unit_click_area: Area2D = get_node_or_null("AllySupportUnitClickArea") as Area2D
 @onready var ally_support_unit_click_shape: CollisionShape2D = get_node_or_null("AllySupportUnitClickArea/CollisionShape2D") as CollisionShape2D
 @onready var enemy_unit_marker: Marker2D = $EnemyUnitMarker
-@onready var enemy_move_dust_sprite: Sprite2D = get_node_or_null("EnemySide/EnemyMoveDustSprite") as Sprite2D
+@onready var enemy_move_dust_sprite: Sprite2D = get_node_or_null("EnemySide/EnemyUnitVisualRoot/EnemyMoveDustSprite") as Sprite2D
 @onready var enemy_unit_click_area: Area2D = get_node_or_null("EnemyUnitClickArea") as Area2D
 @onready var enemy_unit_click_shape: CollisionShape2D = get_node_or_null("EnemyUnitClickArea/CollisionShape2D") as CollisionShape2D
 @onready var enemy_support_unit_marker: Marker2D = $EnemySupportUnitMarker
-@onready var enemy_support_move_dust_sprite: Sprite2D = get_node_or_null("EnemySide/EnemySupportMoveDustSprite") as Sprite2D
+@onready var enemy_support_move_dust_sprite: Sprite2D = get_node_or_null("EnemySide/EnemySupportUnitVisualRoot/EnemySupportMoveDustSprite") as Sprite2D
 @onready var enemy_support_unit_click_area: Area2D = get_node_or_null("EnemySupportUnitClickArea") as Area2D
 @onready var enemy_support_unit_click_shape: CollisionShape2D = get_node_or_null("EnemySupportUnitClickArea/CollisionShape2D") as CollisionShape2D
 @onready var ally_portrait_marker: Marker2D = $AllyPortraitMarker
@@ -304,28 +304,32 @@ var enemy_support_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 @onready var cell_guide_label: Label = get_node_or_null("CellGuideLayer/CellGuide_Label") as Label
 @onready var move_highlight: ColorRect = $HighlightLayer/MoveHighlight
 @onready var attack_highlight: ColorRect = $HighlightLayer/AttackHighlight
-@onready var ally_unit_token: Sprite2D = $AllySide/AllyUnitToken
-@onready var enemy_unit_token: Sprite2D = $EnemySide/EnemyUnitToken
-@onready var ally_unit_shadow: Polygon2D = $AllySide/AllyUnitShadow
-@onready var enemy_unit_shadow: Polygon2D = $EnemySide/EnemyUnitShadow
-@onready var ally_portrait_badge: Sprite2D = $AllySide/AllyPortraitBadge
-@onready var enemy_portrait_badge: Sprite2D = $EnemySide/EnemyPortraitBadge
-@onready var ally_hp_bar: ProgressBar = $AllySide/AllyHPBar
-@onready var enemy_hp_bar: ProgressBar = $EnemySide/EnemyHPBar
-@onready var ally_troop_label: Label = $AllySide/AllyTroopLabel
-@onready var enemy_troop_label: Label = $EnemySide/EnemyTroopLabel
+@onready var ally_unit_visual_root: Node2D = get_node_or_null("AllySide/AllyUnitVisualRoot") as Node2D
+@onready var ally_support_unit_visual_root: Node2D = get_node_or_null("AllySide/AllySupportUnitVisualRoot") as Node2D
+@onready var enemy_unit_visual_root: Node2D = get_node_or_null("EnemySide/EnemyUnitVisualRoot") as Node2D
+@onready var enemy_support_unit_visual_root: Node2D = get_node_or_null("EnemySide/EnemySupportUnitVisualRoot") as Node2D
+@onready var ally_unit_token: Sprite2D = $AllySide/AllyUnitVisualRoot/AllyUnitToken
+@onready var enemy_unit_token: Sprite2D = $EnemySide/EnemyUnitVisualRoot/EnemyUnitToken
+@onready var ally_unit_shadow: Polygon2D = $AllySide/AllyUnitVisualRoot/AllyUnitShadow
+@onready var enemy_unit_shadow: Polygon2D = $EnemySide/EnemyUnitVisualRoot/EnemyUnitShadow
+@onready var ally_portrait_badge: Sprite2D = $AllySide/AllyUnitVisualRoot/AllyPortraitBadge
+@onready var enemy_portrait_badge: Sprite2D = $EnemySide/EnemyUnitVisualRoot/EnemyPortraitBadge
+@onready var ally_hp_bar: ProgressBar = $AllySide/AllyUnitVisualRoot/AllyHPBar
+@onready var enemy_hp_bar: ProgressBar = $EnemySide/EnemyUnitVisualRoot/EnemyHPBar
+@onready var ally_troop_label: Label = $AllySide/AllyUnitVisualRoot/AllyTroopLabel
+@onready var enemy_troop_label: Label = $EnemySide/EnemyUnitVisualRoot/EnemyTroopLabel
 @onready var ally_infantry_unit_visual_template: Node2D = get_node_or_null("AllySide/AllyInfantryUnitVisualTemplate") as Node2D
 @onready var enemy_infantry_unit_visual_template: Node2D = get_node_or_null("EnemySide/EnemyInfantryUnitVisualTemplate") as Node2D
-@onready var ally_support_unit_token: Sprite2D = $AllySide/AllySupportUnitToken
-@onready var enemy_support_unit_token: Sprite2D = $EnemySide/EnemySupportUnitToken
-@onready var ally_support_unit_shadow: Polygon2D = $AllySide/AllySupportUnitShadow
-@onready var enemy_support_unit_shadow: Polygon2D = $EnemySide/EnemySupportUnitShadow
-@onready var ally_support_portrait_badge: Sprite2D = $AllySide/AllySupportPortraitBadge
-@onready var enemy_support_portrait_badge: Sprite2D = $EnemySide/EnemySupportPortraitBadge
-@onready var ally_support_hp_bar: ProgressBar = $AllySide/AllySupportHPBar
-@onready var enemy_support_hp_bar: ProgressBar = $EnemySide/EnemySupportHPBar
-@onready var ally_support_troop_label: Label = $AllySide/AllySupportTroopLabel
-@onready var enemy_support_troop_label: Label = $EnemySide/EnemySupportTroopLabel
+@onready var ally_support_unit_token: Sprite2D = $AllySide/AllySupportUnitVisualRoot/AllySupportUnitToken
+@onready var enemy_support_unit_token: Sprite2D = $EnemySide/EnemySupportUnitVisualRoot/EnemySupportUnitToken
+@onready var ally_support_unit_shadow: Polygon2D = $AllySide/AllySupportUnitVisualRoot/AllySupportUnitShadow
+@onready var enemy_support_unit_shadow: Polygon2D = $EnemySide/EnemySupportUnitVisualRoot/EnemySupportUnitShadow
+@onready var ally_support_portrait_badge: Sprite2D = $AllySide/AllySupportUnitVisualRoot/AllySupportPortraitBadge
+@onready var enemy_support_portrait_badge: Sprite2D = $EnemySide/EnemySupportUnitVisualRoot/EnemySupportPortraitBadge
+@onready var ally_support_hp_bar: ProgressBar = $AllySide/AllySupportUnitVisualRoot/AllySupportHPBar
+@onready var enemy_support_hp_bar: ProgressBar = $EnemySide/EnemySupportUnitVisualRoot/EnemySupportHPBar
+@onready var ally_support_troop_label: Label = $AllySide/AllySupportUnitVisualRoot/AllySupportTroopLabel
+@onready var enemy_support_troop_label: Label = $EnemySide/EnemySupportUnitVisualRoot/EnemySupportTroopLabel
 @onready var ally_support_infantry_unit_visual_template: Node2D = get_node_or_null("AllySide/AllySupportInfantryVisualTemplate") as Node2D
 @onready var enemy_support_infantry_unit_visual_template: Node2D = get_node_or_null("EnemySide/EnemySupportInfantryVisualTemplate") as Node2D
 @onready var damage_text_layer: Node2D = $DamageTextLayer
@@ -416,6 +420,7 @@ func _ready() -> void:
 	_configure_ally_ready_frames()
 	_configure_unit_closeup_panel()
 	reset_demo_state()
+	_debug_print_unit_visual_root_slots()
 
 
 func _process(_delta: float) -> void:
@@ -442,12 +447,26 @@ func _input(event: InputEvent) -> void:
 
 	var mouse_world_pos := get_global_mouse_position()
 	if current_phase == PHASE_ATTACK_SELECT:
-		if _is_click_inside_enemy_click_area(mouse_world_pos):
+		var enemy_main_hit := _is_click_inside_enemy_click_area(mouse_world_pos)
+		var enemy_support_hit := _is_click_inside_enemy_support_click_area(mouse_world_pos)
+		print("[ATTACK_CLICK] main_alive=", _is_enemy_click_candidate_alive(enemy_unit_state),
+			" main_hit=", enemy_main_hit,
+			" support_alive=", _is_enemy_click_candidate_alive(enemy_support_unit_state),
+			" support_hit=", enemy_support_hit)
+		var clicked_enemy_main := _is_enemy_click_candidate_alive(enemy_unit_state) and enemy_main_hit
+		var clicked_enemy_support := _is_enemy_click_candidate_alive(enemy_support_unit_state) and enemy_support_hit
+
+		if clicked_enemy_main and clicked_enemy_support:
 			_try_attack_enemy_target_from_attack_select(enemy_unit_state)
 			get_viewport().set_input_as_handled()
 			return
 
-		if _is_click_inside_enemy_support_click_area(mouse_world_pos):
+		if clicked_enemy_main:
+			_try_attack_enemy_target_from_attack_select(enemy_unit_state)
+			get_viewport().set_input_as_handled()
+			return
+
+		if clicked_enemy_support:
 			_try_attack_enemy_target_from_attack_select(enemy_support_unit_state)
 			get_viewport().set_input_as_handled()
 			return
@@ -475,12 +494,14 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	if _is_click_inside_enemy_click_area(mouse_world_pos):
+	var enemy_main_hit := _is_click_inside_enemy_click_area(mouse_world_pos)
+	var enemy_support_hit := _is_click_inside_enemy_support_click_area(mouse_world_pos)
+	if _is_enemy_click_candidate_alive(enemy_unit_state) and enemy_main_hit:
 		_select_enemy_attack_target(enemy_unit_state)
 		get_viewport().set_input_as_handled()
 		return
 
-	if _is_click_inside_enemy_support_click_area(mouse_world_pos):
+	if _is_enemy_click_candidate_alive(enemy_support_unit_state) and enemy_support_hit:
 		_select_enemy_attack_target(enemy_support_unit_state)
 		get_viewport().set_input_as_handled()
 		return
@@ -1700,6 +1721,147 @@ func _get_enemy_support_group_nodes() -> Array[CanvasItem]:
 	return nodes
 
 
+func _get_unit_visual_slots_for_state(unit_state: BattleUnitState) -> Dictionary:
+	if unit_state == null:
+		return {}
+	if unit_state == ally_unit_state:
+		return _get_ally_main_visual_slots()
+	if unit_state == ally_support_unit_state:
+		return _get_ally_support_visual_slots()
+	if unit_state == enemy_unit_state:
+		return _get_enemy_main_visual_slots()
+	if unit_state == enemy_support_unit_state:
+		return _get_enemy_support_visual_slots()
+	return {}
+
+
+func _get_ally_main_visual_slots() -> Dictionary:
+	return {
+		"root": ally_unit_visual_root,
+		"token": ally_unit_token,
+		"shadow": ally_unit_shadow,
+		"portrait": ally_portrait_badge,
+		"hp_bar": ally_hp_bar,
+		"troop_label": ally_troop_label,
+		"move_dust": ally_move_dust_sprite,
+		"click_area": ally_unit_click_area,
+		"click_shape": ally_unit_click_shape,
+		"ready_frame": ally_ready_frame,
+		"facing_indicator": ally_facing_indicator,
+	}
+
+
+func _get_ally_support_visual_slots() -> Dictionary:
+	return {
+		"root": ally_support_unit_visual_root,
+		"token": ally_support_unit_token,
+		"shadow": ally_support_unit_shadow,
+		"portrait": ally_support_portrait_badge,
+		"hp_bar": ally_support_hp_bar,
+		"troop_label": ally_support_troop_label,
+		"move_dust": ally_support_move_dust_sprite,
+		"click_area": ally_support_unit_click_area,
+		"click_shape": ally_support_unit_click_shape,
+		"ready_frame": ally_support_ready_frame,
+		"facing_indicator": ally_support_facing_indicator,
+	}
+
+
+func _get_enemy_main_visual_slots() -> Dictionary:
+	return {
+		"root": enemy_unit_visual_root,
+		"token": enemy_unit_token,
+		"shadow": enemy_unit_shadow,
+		"portrait": enemy_portrait_badge,
+		"hp_bar": enemy_hp_bar,
+		"troop_label": enemy_troop_label,
+		"move_dust": enemy_move_dust_sprite,
+		"click_area": enemy_unit_click_area,
+		"click_shape": enemy_unit_click_shape,
+		"ready_frame": null,
+		"facing_indicator": enemy_facing_indicator,
+	}
+
+
+func _get_enemy_support_visual_slots() -> Dictionary:
+	return {
+		"root": enemy_support_unit_visual_root,
+		"token": enemy_support_unit_token,
+		"shadow": enemy_support_unit_shadow,
+		"portrait": enemy_support_portrait_badge,
+		"hp_bar": enemy_support_hp_bar,
+		"troop_label": enemy_support_troop_label,
+		"move_dust": enemy_support_move_dust_sprite,
+		"click_area": enemy_support_unit_click_area,
+		"click_shape": enemy_support_unit_click_shape,
+		"ready_frame": null,
+		"facing_indicator": enemy_support_facing_indicator,
+	}
+
+
+func _debug_print_unit_visual_root_slots() -> void:
+	var slot_sets := {
+		"ally_main": _get_ally_main_visual_slots(),
+		"ally_support": _get_ally_support_visual_slots(),
+		"enemy_main": _get_enemy_main_visual_slots(),
+		"enemy_support": _get_enemy_support_visual_slots(),
+	}
+	print("UNIT VISUAL ROOT SLOTS:")
+	for slot_name in slot_sets.keys():
+		var slots: Dictionary = slot_sets[slot_name]
+		print("%s root=%s token=%s hp=%s label=%s portrait=%s dust=%s click=%s" % [
+			slot_name,
+			str(slots.get("root") != null),
+			str(slots.get("token") != null),
+			str(slots.get("hp_bar") != null),
+			str(slots.get("troop_label") != null),
+			str(slots.get("portrait") != null),
+			str(slots.get("move_dust") != null),
+			str(slots.get("click_area") != null),
+		])
+
+
+func _debug_print_ally_portrait_offsets() -> void:
+	print("=== ALLY PORTRAIT OFFSET DEBUG ===")
+	var ally_anchor := _get_ally_visual_anchor_position()
+	var ally_support_anchor := _get_ally_support_visual_anchor_position()
+	var ally_facing := _get_unit_facing(ally_unit_state)
+	var ally_support_facing := _get_unit_facing(ally_support_unit_state)
+
+	print("[ALLY MAIN]")
+	print("anchor=", ally_anchor)
+	print("badge local=", ally_portrait_badge.position if ally_portrait_badge != null else "null")
+	print("badge global=", ally_portrait_badge.global_position if ally_portrait_badge != null else "null")
+	print("fallback offset=", ally_portrait_layout_offset)
+	print("left offset=", ally_portrait_layout_offsets_by_facing.get(FACING_LEFT))
+	print("right offset=", ally_portrait_layout_offsets_by_facing.get(FACING_RIGHT))
+	print("up offset=", ally_portrait_layout_offsets_by_facing.get(FACING_UP))
+	print("down offset=", ally_portrait_layout_offsets_by_facing.get(FACING_DOWN))
+	print("current facing=", ally_facing)
+	print("current selected offset=", _get_portrait_template_offset(
+		ally_portrait_layout_offsets_by_facing,
+		ally_portrait_layout_offset,
+		ally_facing
+	))
+
+	print("[ALLY SUPPORT]")
+	print("anchor=", ally_support_anchor)
+	print("badge local=", ally_support_portrait_badge.position if ally_support_portrait_badge != null else "null")
+	print("badge global=", ally_support_portrait_badge.global_position if ally_support_portrait_badge != null else "null")
+	print("fallback offset=", ally_support_portrait_layout_offset)
+	print("left offset=", ally_support_portrait_layout_offsets_by_facing.get(FACING_LEFT))
+	print("right offset=", ally_support_portrait_layout_offsets_by_facing.get(FACING_RIGHT))
+	print("up offset=", ally_support_portrait_layout_offsets_by_facing.get(FACING_UP))
+	print("down offset=", ally_support_portrait_layout_offsets_by_facing.get(FACING_DOWN))
+	print("current facing=", ally_support_facing)
+	print("current selected offset=", _get_portrait_template_offset(
+		ally_support_portrait_layout_offsets_by_facing,
+		ally_support_portrait_layout_offset,
+		ally_support_facing
+	))
+	print("=== END ALLY PORTRAIT OFFSET DEBUG ===")
+
+
 func _configure_round_toast() -> void:
 	if round_toast_root != null:
 		round_toast_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -2337,6 +2499,13 @@ func _get_portrait_template_offset(layout_offsets_by_facing: Dictionary, fallbac
 	return _get_facing_aware_portrait_offset(fallback_offset, normalized_facing)
 
 
+func _get_ally_portrait_offset_for_facing(layout_offsets_by_facing: Dictionary, fallback_offset: Vector2, facing: String) -> Vector2:
+	var normalized_facing := _normalize_facing(facing)
+	if normalized_facing == FACING_UP or normalized_facing == FACING_DOWN:
+		return fallback_offset
+	return _get_portrait_template_offset(layout_offsets_by_facing, fallback_offset, normalized_facing)
+
+
 func _normalize_unit_type(unit_type: String) -> String:
 	match unit_type:
 		UNIT_TYPE_ARCHER, UNIT_TYPE_GUNNER, UNIT_TYPE_CAVALRY:
@@ -2681,7 +2850,7 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 
 
 func _get_ally_group_base_positions(ally_anchor: Vector2) -> Array[Vector2]:
-	var portrait_offset := _get_portrait_template_offset(
+	var portrait_offset := _get_ally_portrait_offset_for_facing(
 		ally_portrait_layout_offsets_by_facing,
 		ally_portrait_layout_offset,
 		_get_unit_facing(ally_unit_state)
@@ -2713,7 +2882,7 @@ func _get_enemy_group_base_positions(enemy_anchor: Vector2) -> Array[Vector2]:
 
 
 func _get_ally_support_group_base_positions(ally_support_anchor: Vector2) -> Array[Vector2]:
-	var portrait_offset := _get_portrait_template_offset(
+	var portrait_offset := _get_ally_portrait_offset_for_facing(
 		ally_support_portrait_layout_offsets_by_facing,
 		ally_support_portrait_layout_offset,
 		_get_unit_facing(ally_support_unit_state)
@@ -3226,6 +3395,10 @@ func _is_ally_selection_switch_blocked(unit_state: BattleUnitState) -> bool:
 
 
 func _is_unit_selectable(unit_state: BattleUnitState) -> bool:
+	return unit_state != null and unit_state.is_alive()
+
+
+func _is_enemy_click_candidate_alive(unit_state: BattleUnitState) -> bool:
 	return unit_state != null and unit_state.is_alive()
 
 
