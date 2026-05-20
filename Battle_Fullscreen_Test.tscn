@@ -939,7 +939,7 @@ position = Vector2(-0.333313, 27)
 [node name="TokenSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904103]
 position = Vector2(-1.3332825, -8.999939)
 
-[node name="TokenPreview" type="Sprite2D" parent="AllySide/AllyInfantryUnitVisualTemplate/TokenSlot" unique_id=1541923363]
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllyInfantryUnitVisualTemplate/TokenSlot" unique_id=1541923363]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("20_korea_infantry")
 
@@ -976,7 +976,7 @@ position = Vector2(-0.333313, 27)
 [node name="TokenSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate" unique_id=500753668]
 position = Vector2(-1.3332825, -8.999939)
 
-[node name="TokenPreview" type="Sprite2D" parent="AllySide/AllyArcherUnitVisualTemplate/TokenSlot" unique_id=1092803868]
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllyArcherUnitVisualTemplate/TokenSlot" unique_id=1092803868]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("14_korea_archer")
 
@@ -1013,7 +1013,7 @@ position = Vector2(-0.333313, 27)
 [node name="TokenSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate" unique_id=1099939674]
 position = Vector2(-1.3332825, -8.999939)
 
-[node name="TokenPreview" type="Sprite2D" parent="AllySide/AllyGunnerUnitVisualTemplate/TokenSlot" unique_id=774709001]
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllyGunnerUnitVisualTemplate/TokenSlot" unique_id=774709001]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("15_korea_gunner")
 
@@ -1050,7 +1050,7 @@ position = Vector2(-0.333313, 27)
 [node name="TokenSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate" unique_id=720015109]
 position = Vector2(-1.3332825, -8.999939)
 
-[node name="TokenPreview" type="Sprite2D" parent="AllySide/AllyCavalryUnitVisualTemplate/TokenSlot" unique_id=1964785176]
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllyCavalryUnitVisualTemplate/TokenSlot" unique_id=1964785176]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("16_korea_cavalry")
 
@@ -1084,6 +1084,7 @@ color = Color(0, 0, 0, 0.28)
 polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
 
 [node name="AllyUnitToken" type="Sprite2D" parent="AllySide" unique_id=1411468196]
+visible = false
 z_index = 1
 position = Vector2(376, 911)
 scale = Vector2(0.48437494, 0.46875003)
@@ -1132,7 +1133,7 @@ position = Vector2(-0.333313, 27)
 [node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904303]
 position = Vector2(-1.3332825, -8.999939)
 
-[node name="TokenPreview" type="Sprite2D" parent="AllySide/AllySupportInfantryVisualTemplate/TokenSlot" unique_id=1938115726]
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllySupportInfantryVisualTemplate/TokenSlot" unique_id=1938115726]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("20_korea_infantry")
 
@@ -1169,7 +1170,7 @@ position = Vector2(-0.333313, 27)
 [node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate" unique_id=1770992388]
 position = Vector2(-1.3332825, -8.999939)
 
-[node name="TokenPreview" type="Sprite2D" parent="AllySide/AllySupportArcherVisualTemplate/TokenSlot" unique_id=1011033684]
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllySupportArcherVisualTemplate/TokenSlot" unique_id=1011033684]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("14_korea_archer")
 
@@ -1206,7 +1207,7 @@ position = Vector2(-0.333313, 27)
 [node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate" unique_id=133180325]
 position = Vector2(-1.3332825, -8.999939)
 
-[node name="TokenPreview" type="Sprite2D" parent="AllySide/AllySupportGunnerVisualTemplate/TokenSlot" unique_id=109877993]
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllySupportGunnerVisualTemplate/TokenSlot" unique_id=109877993]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("15_korea_gunner")
 
@@ -1243,7 +1244,7 @@ position = Vector2(-0.333313, 27)
 [node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate" unique_id=918080760]
 position = Vector2(-1.3332825, -8.999939)
 
-[node name="TokenPreview" type="Sprite2D" parent="AllySide/AllySupportCavalryVisualTemplate/TokenSlot" unique_id=81846996]
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllySupportCavalryVisualTemplate/TokenSlot" unique_id=81846996]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("16_korea_cavalry")
 
@@ -1277,6 +1278,7 @@ color = Color(0, 0, 0, 0.28)
 polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
 
 [node name="AllySupportUnitToken" type="Sprite2D" parent="AllySide" unique_id=2081904313]
+visible = false
 z_index = 1
 position = Vector2(585.3333, 801.00006)
 scale = Vector2(0.48437494, 0.46875003)
@@ -1326,7 +1328,7 @@ position = Vector2(1.333252, 34)
 
 [node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904203]
 
-[node name="TokenPreview" type="Sprite2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate/TokenSlot" unique_id=1258062512]
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate/TokenSlot" unique_id=1258062512]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("21_china_infantry")
 
@@ -1361,7 +1363,7 @@ position = Vector2(1.333252, 34)
 
 [node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate" unique_id=234936525]
 
-[node name="TokenPreview" type="Sprite2D" parent="EnemySide/EnemyArcherUnitVisualTemplate/TokenSlot" unique_id=240207264]
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemyArcherUnitVisualTemplate/TokenSlot" unique_id=240207264]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("17_china_archer")
 
@@ -1396,7 +1398,7 @@ position = Vector2(1.333252, 34)
 
 [node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate" unique_id=138982064]
 
-[node name="TokenPreview" type="Sprite2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate/TokenSlot" unique_id=1273001809]
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate/TokenSlot" unique_id=1273001809]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("18_china_gunner")
 
@@ -1431,7 +1433,7 @@ position = Vector2(1.333252, 34)
 
 [node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate" unique_id=192062329]
 
-[node name="TokenPreview" type="Sprite2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate/TokenSlot" unique_id=773596466]
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate/TokenSlot" unique_id=773596466]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("19_china_cavalry")
 
@@ -1464,6 +1466,7 @@ color = Color(0, 0, 0, 0.28)
 polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
 
 [node name="EnemyUnitToken" type="Sprite2D" parent="EnemySide" unique_id=175940460]
+visible = false
 z_index = 1
 position = Vector2(1543, 269)
 scale = Vector2(0.48437494, 0.46875003)
@@ -1510,7 +1513,7 @@ position = Vector2(1.333252, 34)
 
 [node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904403]
 
-[node name="TokenPreview" type="Sprite2D" parent="EnemySide/EnemySupportInfantryVisualTemplate/TokenSlot" unique_id=1619635879]
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemySupportInfantryVisualTemplate/TokenSlot" unique_id=1619635879]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("21_china_infantry")
 
@@ -1545,7 +1548,7 @@ position = Vector2(1.333252, 34)
 
 [node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate" unique_id=1582682078]
 
-[node name="TokenPreview" type="Sprite2D" parent="EnemySide/EnemySupportArcherVisualTemplate/TokenSlot" unique_id=204611406]
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemySupportArcherVisualTemplate/TokenSlot" unique_id=204611406]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("17_china_archer")
 
@@ -1580,7 +1583,7 @@ position = Vector2(1.333252, 34)
 
 [node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate" unique_id=1496610843]
 
-[node name="TokenPreview" type="Sprite2D" parent="EnemySide/EnemySupportGunnerVisualTemplate/TokenSlot" unique_id=583222973]
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemySupportGunnerVisualTemplate/TokenSlot" unique_id=583222973]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("18_china_gunner")
 
@@ -1615,7 +1618,7 @@ position = Vector2(1.333252, 34)
 
 [node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate" unique_id=464347179]
 
-[node name="TokenPreview" type="Sprite2D" parent="EnemySide/EnemySupportCavalryVisualTemplate/TokenSlot" unique_id=2112850401]
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemySupportCavalryVisualTemplate/TokenSlot" unique_id=2112850401]
 scale = Vector2(0.48437494, 0.46875003)
 texture = ExtResource("19_china_cavalry")
 
@@ -1648,6 +1651,7 @@ color = Color(0, 0, 0, 0.28)
 polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
 
 [node name="EnemySupportUnitToken" type="Sprite2D" parent="EnemySide" unique_id=2081904413]
+visible = false
 z_index = 1
 position = Vector2(1333.3333, 370)
 scale = Vector2(0.48437494, 0.46875003)

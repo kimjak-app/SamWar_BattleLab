@@ -1,67 +1,79 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.64y Ally Ready Frame + Unit Selection Close-up Panel Verified
-
-Do not bump to `v0.65` yet.
-Current work remains in the `v0.64` track.
+v0.65e Unit Token Asset Normalize Apply Verified
 
 ## Priority 1
-v0.64z Battle UX Polish / Round Toast Image Slot
+v0.65g UnitVisual Single Slot Refactor
 
 Goal:
-- Prepare a scene-authored `TextureRect` slot so the current center round text banner can later be replaced by an image banner.
-- Current text banner behavior may remain as-is for now.
-- Follow `Scene controls layout / Code controls behavior`.
+- Stop using type-specific template token sprites as active visible unit visuals.
+- Use actual battle nodes as the single runtime visual slots:
+  - `AllySide/AllyUnitToken`
+  - `AllySide/AllySupportUnitToken`
+  - `EnemySide/EnemyUnitToken`
+  - `EnemySide/EnemySupportUnitToken`
+- Swap only those token textures from `visual_key`.
+- Keep type-specific templates as slot/layout reference nodes only.
+- Keep template token sprites hidden at runtime.
+- Remove 2D editor visual overlap between actual unit nodes and template visuals.
+
+Reason:
+- This is the foundation for later world map / city / hero data integration.
+- Future battle setup should receive `hero_name`, `nation`, `unit_type`, `visual_key`, `troop`, `hp`, and `portrait`, then apply the visual automatically.
+
+Example future input:
+- `hero_name = "이순신"`
+- `nation = "korea"`
+- `unit_type = "archer"`
+- `visual_key = "korea_archer"`
+
+Expected result:
+- `AllyUnitToken.texture = korea_archer_01.png`
+
+## v0.65g Hard Guardrails
+Do not change:
+- `AllyUnitToken` node path/name.
+- `EnemyUnitToken` node path/name.
+- `AllySupportUnitToken` / `EnemySupportUnitToken` path/name.
+- `AllyHPBar` / `AllyTroopLabel` / `AllyPortraitBadge` paths.
+- `EnemyHPBar` / `EnemyTroopLabel` / `EnemyPortraitBadge` paths.
+- `attack_range`.
+- `move_range`.
+- `distance formula`.
+- Movement range cell calculation.
+- Facing selection logic.
+- Basic attack judgement.
+- Damage formula.
+- Enemy AI order.
+- Active ally lock.
+- HP 0 cleanup.
+- BATTLE Round Toast.
+- Basic Battle FX Pack 1.
+- Right-click move rollback.
+- Right-click attack cancel.
+- `Battle_WebImport_Test.tscn`.
 
 ## Priority 2
-v0.65 candidate stabilization QA
+World map / city / hero data handoff design
 
 Goal:
-- Repeat 2v2 battle loop QA.
-- Re-check death cleanup, round reset, right-click rollback, attack select cancel, and enemy AI alternation.
-- If no major bugs remain, promote toward `v0.65 Godot Battle 2v2 MVP Stable` candidate later.
+- Define how external campaign data will populate `BattleUnitState`.
+- Keep battle scene visual application data-driven through `visual_key`.
 
 ## Priority 3
-Basic Battle FX
+Reusable UnitVisual package cleanup
 
 Goal:
-- Movement indicator polish
-- Attack indicator polish
-- Hit spark / impact pop
-- Damage number polish
+- After v0.65g, decide whether type-specific templates should remain in the scene, move to separate `.tscn` assets, or become editor-only reference packages.
 
-Rule:
-- Do this after battle loop stability remains solid.
-
-## Priority 4
-UnitVisual Template actual `tscn` split
-
-Goal:
-- Move from current scene template slot structure toward reusable visual templates later.
-- Future expansion target: Infantry / Cavalry / Archer / Gunner.
-
-## Priority 5
-Additional troop classes
-
-Goal:
-- Lock infantry size as the baseline
-- Archer close to infantry size
-- Gunner close to infantry size
-- Cavalry slightly larger than infantry
-
-## Priority 6
-Hero skills / skill range system
-
-Goal:
-- Extend the current `Basic Attack Select Mode` foundation into future skill range display and target selection.
-
-## Ongoing Guardrails
-- `attack_range` 변경 금지
-- `move_range` 변경 금지
-- `distance formula` 변경 금지
-- 유닛 크기 / 배치 코드 덮어쓰기 금지
-- `UnitCloseupPanel` 위치는 scene-authored 상태 유지
-- `READY frame`은 클릭을 막으면 안 됨
-- 우클릭 이동 롤백 / 공격 취소 기능 유지
-- 전투 루프와 AI 순서 구조는 안정화 전까지 불필요하게 건드리지 말 것
+## Ongoing QA Checklist
+- Battle starts with BATTLE 1 toast.
+- 2v2 loop remains stable.
+- Active ally lock remains stable.
+- Move dust appears only during movement.
+- Attack slash / hit spark / damage number remain stable.
+- UnitCloseupPanel remains stable.
+- READY frame remains stable.
+- HP 0 cleanup remains stable.
+- Headless launch remains 0 errors.

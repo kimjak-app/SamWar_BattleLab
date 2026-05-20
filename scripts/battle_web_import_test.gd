@@ -386,7 +386,7 @@ func _ready() -> void:
 	ally_token_base_texture = ally_unit_token.texture
 	enemy_token_base_texture = enemy_unit_token.texture
 	_hide_all_move_dust_sprites()
-	_set_visual_template_preview_visibility(false)
+	_set_visual_template_token_sprite_visibility(false)
 	basic_attack_button.pressed.connect(try_basic_attack)
 	move_button.pressed.connect(play_basic_move_demo)
 	if wait_button != null:
@@ -548,7 +548,7 @@ func reset_demo_state() -> void:
 	battle_round = 1
 	dead_unit_ids.clear()
 	_hide_all_move_dust_sprites()
-	_set_visual_template_preview_visibility(false)
+	_set_visual_template_token_sprite_visibility(false)
 	acted_enemy_unit_ids.clear()
 	ally_has_manual_facing = false
 	enemy_has_manual_facing = false
@@ -2417,11 +2417,11 @@ func _get_all_visual_template_roots() -> Array[Node2D]:
 	return templates
 
 
-func _set_visual_template_preview_visibility(should_show: bool) -> void:
+func _set_visual_template_token_sprite_visibility(should_show: bool) -> void:
 	for template_root in _get_all_visual_template_roots():
-		var preview := template_root.get_node_or_null("TokenSlot/TokenPreview") as CanvasItem
-		if preview != null:
-			preview.visible = should_show
+		var token_sprite := template_root.get_node_or_null("TokenSlot/TokenSprite") as CanvasItem
+		if token_sprite != null:
+			token_sprite.visible = should_show
 
 
 func _get_visual_token_texture_for_unit(unit_state: BattleUnitState, facing: String) -> Texture2D:

@@ -70,6 +70,19 @@ Never allow:
 
 ---
 
+## UnitVisual Slot Rule
+- Runtime unit visuals should use the actual battle token nodes as the single active visual slots:
+  - `AllySide/AllyUnitToken`
+  - `AllySide/AllySupportUnitToken`
+  - `EnemySide/EnemyUnitToken`
+  - `EnemySide/EnemySupportUnitToken`
+- `visual_key` should swap the texture on those real token nodes.
+- Type-specific `UnitVisualTemplate` nodes may remain as slot/layout references, but they should not become a second active visible unit layer at runtime.
+- Avoid editor overlap between actual battle nodes and template preview sprites.
+- Do not solve token size differences with per-unit or per-type hardcoded runtime scale.
+
+---
+
 ## Coordinate Rules
 Standard battle viewport:
 - 1152 x 648
