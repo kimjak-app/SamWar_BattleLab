@@ -112,6 +112,7 @@ var battle_round := 1
 var round_toast_tween: Tween = null
 var round_toast_root_base_scale := Vector2.ONE
 var round_toast_label_base_scale := Vector2.ONE
+var move_dust_tweens: Dictionary = {}
 var ally_ready_frame_tween: Tween = null
 var ally_support_ready_frame_tween: Tween = null
 var unit_closeup_tween: Tween = null
@@ -126,24 +127,28 @@ var ally_shadow_layout_offset := Vector2.ZERO
 var ally_portrait_layout_offset := Vector2.ZERO
 var ally_hp_bar_layout_offset := Vector2.ZERO
 var ally_troop_label_layout_offset := Vector2.ZERO
+var ally_move_dust_layout_offset := Vector2.ZERO
 var ally_click_area_layout_offset := Vector2.ZERO
 var ally_support_token_layout_offset := Vector2.ZERO
 var ally_support_shadow_layout_offset := Vector2.ZERO
 var ally_support_portrait_layout_offset := Vector2.ZERO
 var ally_support_hp_bar_layout_offset := Vector2.ZERO
 var ally_support_troop_label_layout_offset := Vector2.ZERO
+var ally_support_move_dust_layout_offset := Vector2.ZERO
 var ally_support_click_area_layout_offset := Vector2.ZERO
 var enemy_token_layout_offset := Vector2.ZERO
 var enemy_shadow_layout_offset := Vector2.ZERO
 var enemy_portrait_layout_offset := Vector2.ZERO
 var enemy_hp_bar_layout_offset := Vector2.ZERO
 var enemy_troop_label_layout_offset := Vector2.ZERO
+var enemy_move_dust_layout_offset := Vector2.ZERO
 var enemy_click_area_layout_offset := Vector2.ZERO
 var enemy_support_token_layout_offset := Vector2.ZERO
 var enemy_support_shadow_layout_offset := Vector2.ZERO
 var enemy_support_portrait_layout_offset := Vector2.ZERO
 var enemy_support_hp_bar_layout_offset := Vector2.ZERO
 var enemy_support_troop_label_layout_offset := Vector2.ZERO
+var enemy_support_move_dust_layout_offset := Vector2.ZERO
 var enemy_support_click_area_layout_offset := Vector2.ZERO
 var ally_portrait_layout_offsets_by_facing: Dictionary = {}
 var ally_support_portrait_layout_offsets_by_facing: Dictionary = {}
@@ -161,15 +166,19 @@ var enemy_support_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 
 @onready var battlefield_texture: Sprite2D = $BattlefieldRoot/BattlefieldTexture
 @onready var ally_unit_marker: Marker2D = $AllyUnitMarker
+@onready var ally_move_dust_sprite: Sprite2D = get_node_or_null("AllySide/AllyMoveDustSprite") as Sprite2D
 @onready var ally_unit_click_area: Area2D = $AllyUnitClickArea
 @onready var ally_unit_click_shape: CollisionShape2D = $AllyUnitClickArea/CollisionShape2D
 @onready var ally_support_unit_marker: Marker2D = $AllySupportUnitMarker
+@onready var ally_support_move_dust_sprite: Sprite2D = get_node_or_null("AllySide/AllySupportMoveDustSprite") as Sprite2D
 @onready var ally_support_unit_click_area: Area2D = get_node_or_null("AllySupportUnitClickArea") as Area2D
 @onready var ally_support_unit_click_shape: CollisionShape2D = get_node_or_null("AllySupportUnitClickArea/CollisionShape2D") as CollisionShape2D
 @onready var enemy_unit_marker: Marker2D = $EnemyUnitMarker
+@onready var enemy_move_dust_sprite: Sprite2D = get_node_or_null("EnemySide/EnemyMoveDustSprite") as Sprite2D
 @onready var enemy_unit_click_area: Area2D = get_node_or_null("EnemyUnitClickArea") as Area2D
 @onready var enemy_unit_click_shape: CollisionShape2D = get_node_or_null("EnemyUnitClickArea/CollisionShape2D") as CollisionShape2D
 @onready var enemy_support_unit_marker: Marker2D = $EnemySupportUnitMarker
+@onready var enemy_support_move_dust_sprite: Sprite2D = get_node_or_null("EnemySide/EnemySupportMoveDustSprite") as Sprite2D
 @onready var enemy_support_unit_click_area: Area2D = get_node_or_null("EnemySupportUnitClickArea") as Area2D
 @onready var enemy_support_unit_click_shape: CollisionShape2D = get_node_or_null("EnemySupportUnitClickArea/CollisionShape2D") as CollisionShape2D
 @onready var ally_portrait_marker: Marker2D = $AllyPortraitMarker
@@ -217,6 +226,7 @@ var enemy_support_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 @onready var damage_text_layer: Node2D = $DamageTextLayer
 @onready var damage_preview_label: Label = $DamageTextLayer/DamagePreviewLabel
 @onready var battle_fx_root: Node2D = get_node_or_null("BattleFXRoot") as Node2D
+@onready var move_dust_template: Sprite2D = get_node_or_null("BattleFXRoot/MoveDustTemplate") as Sprite2D
 @onready var main_camera: Camera2D = $MainCamera
 @onready var battle_ui: CanvasLayer = $BattleUI
 @onready var top_bar: Panel = $BattleUI/TopBar
@@ -268,6 +278,7 @@ func _ready() -> void:
 	enemy_token_base_scale = enemy_unit_token.scale
 	ally_token_base_texture = ally_unit_token.texture
 	enemy_token_base_texture = enemy_unit_token.texture
+	_hide_all_move_dust_sprites()
 	basic_attack_button.pressed.connect(try_basic_attack)
 	move_button.pressed.connect(play_basic_move_demo)
 	if wait_button != null:
@@ -428,6 +439,7 @@ func reset_demo_state() -> void:
 	ally_has_moved = false
 	battle_round = 1
 	dead_unit_ids.clear()
+	_hide_all_move_dust_sprites()
 	acted_enemy_unit_ids.clear()
 	ally_has_manual_facing = false
 	enemy_has_manual_facing = false
@@ -484,6 +496,7 @@ func reset_demo_state() -> void:
 	_show_unit_closeup_for_ally(active_unit_state)
 	_update_ally_ready_frames()
 	_start_idle_breathing()
+	_hide_all_move_dust_sprites()
 	_show_round_start_toast(battle_round)
 
 
@@ -544,6 +557,7 @@ func play_basic_move_demo() -> void:
 	var selected_unit_marker := _get_selected_ally_unit_marker()
 	var start_unit_position := selected_unit_marker.position if selected_unit_marker != null else Vector2.ZERO
 	_clear_move_target_selection()
+	_show_move_dust_for_unit(active_unit_state)
 
 	var tween := create_tween()
 	var previous_offset := Vector2.ZERO
@@ -569,7 +583,7 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 	ally_has_moved = true
 	_reset_unit_group_positions()
 	_hide_move_range_overlay()
-	_spawn_move_dust_fx(target_unit_position)
+	_fade_out_move_dust_for_unit(active_unit_state)
 	is_demo_animating = false
 	_append_battle_log("%s 이동 완료" % _get_selected_ally_display_name())
 	_enter_post_move_facing_selection()
@@ -1427,6 +1441,7 @@ func _play_enemy_actor_path_move_then_act(enemy_actor_state: BattleUnitState, mo
 	var target_cell := move_path[move_path.size() - 1]
 	var target_position := battle_grid_controller.grid_to_world(target_cell)
 	var target_portrait_position := target_position + portrait_offset
+	_show_move_dust_for_unit(enemy_actor_state)
 
 	var tween := create_tween()
 	var previous_offset := Vector2.ZERO
@@ -1452,7 +1467,7 @@ func _finish_enemy_actor_basic_move(enemy_actor_state: BattleUnitState, target_p
 	enemy_actor_state.set_grid_cell(target_cell)
 	_clear_transient_battle_highlights()
 	_reset_unit_group_positions()
-	_spawn_move_dust_fx(target_position)
+	_fade_out_move_dust_for_unit(enemy_actor_state)
 	_update_facing_indicators()
 	_play_enemy_actor_basic_attack_or_wait_after_move(enemy_actor_state)
 
@@ -1503,6 +1518,7 @@ func _return_to_ally_turn() -> void:
 	_clear_transient_battle_highlights()
 	_cleanup_dead_units()
 	_reset_unit_group_positions()
+	_hide_all_move_dust_sprites()
 	_set_group_modulate(_get_ally_group_nodes(), Color.WHITE)
 	_set_group_modulate(_get_ally_support_group_nodes(), Color.WHITE)
 	_set_enemy_group_modulate(Color.WHITE)
@@ -1527,6 +1543,7 @@ func _return_to_ally_turn() -> void:
 	_clear_attack_target_selection()
 	_set_facing_indicators_visible(true)
 	_update_facing_indicators()
+	_hide_all_move_dust_sprites()
 	_start_idle_breathing()
 
 
@@ -1534,6 +1551,7 @@ func _get_ally_group_nodes() -> Array[CanvasItem]:
 	var nodes: Array[CanvasItem] = [
 		ally_unit_shadow,
 		ally_unit_token,
+		ally_move_dust_sprite,
 		ally_portrait_badge,
 		ally_hp_bar,
 		ally_troop_label,
@@ -1545,6 +1563,7 @@ func _get_ally_support_group_nodes() -> Array[CanvasItem]:
 	var nodes: Array[CanvasItem] = [
 		ally_support_unit_shadow,
 		ally_support_unit_token,
+		ally_support_move_dust_sprite,
 		ally_support_portrait_badge,
 		ally_support_hp_bar,
 		ally_support_troop_label,
@@ -1556,6 +1575,7 @@ func _get_enemy_group_nodes() -> Array[CanvasItem]:
 	var nodes: Array[CanvasItem] = [
 		enemy_unit_shadow,
 		enemy_unit_token,
+		enemy_move_dust_sprite,
 		enemy_portrait_badge,
 		enemy_hp_bar,
 		enemy_troop_label,
@@ -1567,6 +1587,7 @@ func _get_enemy_support_group_nodes() -> Array[CanvasItem]:
 	var nodes: Array[CanvasItem] = [
 		enemy_support_unit_shadow,
 		enemy_support_unit_token,
+		enemy_support_move_dust_sprite,
 		enemy_support_portrait_badge,
 		enemy_support_hp_bar,
 		enemy_support_troop_label,
@@ -1650,22 +1671,91 @@ func _hide_round_start_toast() -> void:
 	_set_round_toast_shader_progress(0.0)
 
 
-func _spawn_move_dust_fx(world_pos: Vector2) -> void:
-	var texture := _load_random_fx_texture(MOVE_DUST_FX_TEXTURE_PATHS)
-	if texture == null:
-		return
-	var sprite := _create_fx_sprite(texture, world_pos + Vector2(0.0, 28.0))
+func _show_move_dust_for_unit(unit_state: BattleUnitState) -> void:
+	var sprite := _get_move_dust_sprite_for_unit(unit_state)
 	if sprite == null:
 		return
-	sprite.z_index = 18
-	sprite.modulate = Color(1.0, 1.0, 1.0, 0.75)
-	sprite.scale = Vector2.ONE * randf_range(0.85, 1.05)
+	_hide_all_move_dust_sprites()
+	var texture := _load_random_fx_texture(MOVE_DUST_FX_TEXTURE_PATHS)
+	if texture != null:
+		sprite.texture = texture
+	_kill_move_dust_tween(sprite)
+	_apply_move_dust_template_to_sprite(sprite)
+	sprite.visible = true
 
+
+func _fade_out_move_dust_for_unit(unit_state: BattleUnitState) -> void:
+	var sprite := _get_move_dust_sprite_for_unit(unit_state)
+	if sprite == null:
+		return
+	var base_scale := move_dust_template.scale if move_dust_template != null else sprite.scale
+	var base_modulate := move_dust_template.modulate if move_dust_template != null else sprite.modulate
+	_kill_move_dust_tween(sprite)
+	sprite.visible = true
 	var tween := create_tween()
+	move_dust_tweens[sprite.get_instance_id()] = tween
 	tween.set_parallel(true)
-	tween.tween_property(sprite, "modulate:a", 0.0, randf_range(0.34, 0.42)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(sprite, "scale", sprite.scale * 1.15, randf_range(0.34, 0.42)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.chain().tween_callback(sprite.queue_free)
+	tween.tween_property(sprite, "modulate:a", 0.0, randf_range(0.18, 0.28)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(sprite, "scale", base_scale * 1.05, randf_range(0.18, 0.28)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_callback(func() -> void:
+		sprite.visible = false
+		sprite.scale = base_scale
+		sprite.modulate = base_modulate
+		sprite.modulate.a = 0.0
+		move_dust_tweens.erase(sprite.get_instance_id())
+	)
+
+
+func _hide_all_move_dust_sprites() -> void:
+	if move_dust_template != null:
+		move_dust_template.visible = false
+	for sprite in [
+		ally_move_dust_sprite,
+		ally_support_move_dust_sprite,
+		enemy_move_dust_sprite,
+		enemy_support_move_dust_sprite,
+	]:
+		if sprite == null:
+			continue
+		_kill_move_dust_tween(sprite)
+		sprite.visible = false
+		_apply_move_dust_template_to_sprite(sprite)
+		sprite.modulate.a = 0.0
+
+
+func _get_move_dust_sprite_for_unit(unit_state: BattleUnitState) -> Sprite2D:
+	if unit_state == ally_support_unit_state:
+		return ally_support_move_dust_sprite
+	if unit_state == enemy_unit_state:
+		return enemy_move_dust_sprite
+	if unit_state == enemy_support_unit_state:
+		return enemy_support_move_dust_sprite
+	return ally_move_dust_sprite
+
+
+func _get_move_dust_base_scale(sprite: Sprite2D) -> Vector2:
+	if sprite == null or move_dust_template == null:
+		return Vector2.ONE
+	return move_dust_template.scale
+
+
+func _kill_move_dust_tween(sprite: Sprite2D) -> void:
+	if sprite == null:
+		return
+	var key := sprite.get_instance_id()
+	var tween := move_dust_tweens.get(key) as Tween
+	if tween != null:
+		tween.kill()
+		move_dust_tweens.erase(key)
+
+
+func _apply_move_dust_template_to_sprite(sprite: Sprite2D) -> void:
+	if sprite == null or move_dust_template == null:
+		return
+	sprite.position = move_dust_template.position
+	sprite.scale = move_dust_template.scale
+	sprite.modulate = move_dust_template.modulate
+	sprite.z_index = move_dust_template.z_index
 
 
 func _spawn_attack_slash_fx(attacker_pos: Vector2, target_pos: Vector2) -> void:
@@ -1754,7 +1844,7 @@ func _create_fx_sprite(texture: Texture2D, world_pos: Vector2) -> Sprite2D:
 	var sprite := Sprite2D.new()
 	sprite.texture = texture
 	sprite.centered = true
-	sprite.position = world_pos
+	sprite.position = battle_fx_root.to_local(world_pos)
 	battle_fx_root.add_child(sprite)
 	return sprite
 
@@ -1762,6 +1852,7 @@ func _create_fx_sprite(texture: Texture2D, world_pos: Vector2) -> Sprite2D:
 func _start_new_round() -> void:
 	battle_round += 1
 	_clear_pending_move_snapshot()
+	_hide_all_move_dust_sprites()
 	_reset_ally_action_locks_for_new_round()
 	_reset_enemy_action_locks_for_new_round()
 	_append_battle_log("BATTLE %d 시작" % battle_round)
@@ -2157,6 +2248,8 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 				ally_unit_token.position,
 				ally_anchor
 			)
+		if move_dust_template != null:
+			ally_move_dust_layout_offset = move_dust_template.position
 		if ally_unit_shadow != null:
 			ally_shadow_layout_offset = _capture_template_slot_offset(
 				ally_infantry_unit_visual_template,
@@ -2209,6 +2302,8 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 				enemy_unit_token.position,
 				enemy_anchor
 			)
+		if move_dust_template != null:
+			enemy_move_dust_layout_offset = move_dust_template.position
 		if enemy_unit_shadow != null:
 			enemy_shadow_layout_offset = _capture_template_slot_offset(
 				enemy_infantry_unit_visual_template,
@@ -2261,6 +2356,8 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 				ally_support_unit_token.position,
 				ally_support_anchor
 			)
+		if move_dust_template != null:
+			ally_support_move_dust_layout_offset = move_dust_template.position
 		if ally_support_unit_shadow != null:
 			ally_support_shadow_layout_offset = _capture_template_slot_offset(
 				ally_support_infantry_unit_visual_template,
@@ -2313,6 +2410,8 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 				enemy_support_unit_token.position,
 				enemy_support_anchor
 			)
+		if move_dust_template != null:
+			enemy_support_move_dust_layout_offset = move_dust_template.position
 		if enemy_support_unit_shadow != null:
 			enemy_support_shadow_layout_offset = _capture_template_slot_offset(
 				enemy_support_infantry_unit_visual_template,
@@ -2365,6 +2464,7 @@ func _get_ally_group_base_positions(ally_anchor: Vector2) -> Array[Vector2]:
 	return [
 		ally_anchor + ally_shadow_layout_offset,
 		ally_anchor + ally_token_layout_offset,
+		ally_anchor + ally_move_dust_layout_offset,
 		ally_anchor + portrait_offset,
 		ally_anchor + ally_hp_bar_layout_offset,
 		ally_anchor + ally_troop_label_layout_offset,
@@ -2380,6 +2480,7 @@ func _get_enemy_group_base_positions(enemy_anchor: Vector2) -> Array[Vector2]:
 	return [
 		enemy_anchor + enemy_shadow_layout_offset,
 		enemy_anchor + enemy_token_layout_offset,
+		enemy_anchor + enemy_move_dust_layout_offset,
 		enemy_anchor + portrait_offset,
 		enemy_anchor + enemy_hp_bar_layout_offset,
 		enemy_anchor + enemy_troop_label_layout_offset,
@@ -2395,6 +2496,7 @@ func _get_ally_support_group_base_positions(ally_support_anchor: Vector2) -> Arr
 	return [
 		ally_support_anchor + ally_support_shadow_layout_offset,
 		ally_support_anchor + ally_support_token_layout_offset,
+		ally_support_anchor + ally_support_move_dust_layout_offset,
 		ally_support_anchor + portrait_offset,
 		ally_support_anchor + ally_support_hp_bar_layout_offset,
 		ally_support_anchor + ally_support_troop_label_layout_offset,
@@ -2410,6 +2512,7 @@ func _get_enemy_support_group_base_positions(enemy_support_anchor: Vector2) -> A
 	return [
 		enemy_support_anchor + enemy_support_shadow_layout_offset,
 		enemy_support_anchor + enemy_support_token_layout_offset,
+		enemy_support_anchor + enemy_support_move_dust_layout_offset,
 		enemy_support_anchor + portrait_offset,
 		enemy_support_anchor + enemy_support_hp_bar_layout_offset,
 		enemy_support_anchor + enemy_support_troop_label_layout_offset,
