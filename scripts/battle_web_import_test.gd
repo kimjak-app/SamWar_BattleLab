@@ -1724,6 +1724,10 @@ func _get_enemy_support_group_nodes() -> Array[CanvasItem]:
 func _get_unit_visual_slots_for_state(unit_state: BattleUnitState) -> Dictionary:
 	if unit_state == null:
 		return {}
+	if unit_state.slot_id != "":
+		var slot_visuals := _get_visual_slots_for_slot_id(unit_state.slot_id)
+		if not slot_visuals.is_empty():
+			return slot_visuals
 	if unit_state == ally_unit_state:
 		return _get_ally_main_visual_slots()
 	if unit_state == ally_support_unit_state:
@@ -1733,6 +1737,20 @@ func _get_unit_visual_slots_for_state(unit_state: BattleUnitState) -> Dictionary
 	if unit_state == enemy_support_unit_state:
 		return _get_enemy_support_visual_slots()
 	return {}
+
+
+func _get_visual_slots_for_slot_id(slot_id: String) -> Dictionary:
+	match slot_id:
+		"ally_main":
+			return _get_ally_main_visual_slots()
+		"ally_support":
+			return _get_ally_support_visual_slots()
+		"enemy_main":
+			return _get_enemy_main_visual_slots()
+		"enemy_support":
+			return _get_enemy_support_visual_slots()
+		_:
+			return {}
 
 
 func _get_ally_main_visual_slots() -> Dictionary:
