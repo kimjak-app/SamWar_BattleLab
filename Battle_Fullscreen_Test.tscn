@@ -1285,6 +1285,9 @@ label_settings = SubResource("1")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="BattleFXRoot" type="Node2D" parent="." unique_id=1979046501]
+z_index = 6
+
 [node name="MainCamera" type="Camera2D" parent="." unique_id=1502905262]
 position = Vector2(960, 540)
 

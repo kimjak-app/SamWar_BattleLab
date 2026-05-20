@@ -45,6 +45,21 @@ const VALID_FACINGS := [
 	FACING_UP,
 	FACING_DOWN,
 ]
+const MOVE_DUST_FX_TEXTURE_PATHS: Array[String] = [
+	"res://assets/web_battle/fx/move/move_dust_01.png",
+	"res://assets/web_battle/fx/move/move_dust_01.png",
+	"res://assets/web_battle/fx/move/move_dust_02.png",
+]
+const ATTACK_SLASH_FX_TEXTURE_PATHS: Array[String] = [
+	"res://assets/web_battle/fx/attack/attack_slash_01.png",
+	"res://assets/web_battle/fx/attack/attack_slash_02.png",
+	"res://assets/web_battle/fx/attack/attack_slash_03.png",
+]
+const HIT_SPARK_FX_TEXTURE_PATHS: Array[String] = [
+	"res://assets/web_battle/fx/hit/hit_spark_01.png",
+	"res://assets/web_battle/fx/hit/hit_spark_02.png",
+	"res://assets/web_battle/fx/hit/hit_spark_02.png",
+]
 # v0.64s Two Unit Deployment Prototype
 # v0.64s-hotfix Support Facing Indicator Sync
 # v0.64t Ally Unit Selection MVP
@@ -201,6 +216,7 @@ var enemy_support_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 @onready var enemy_support_infantry_unit_visual_template: Node2D = get_node_or_null("EnemySide/EnemySupportInfantryVisualTemplate") as Node2D
 @onready var damage_text_layer: Node2D = $DamageTextLayer
 @onready var damage_preview_label: Label = $DamageTextLayer/DamagePreviewLabel
+@onready var battle_fx_root: Node2D = get_node_or_null("BattleFXRoot") as Node2D
 @onready var main_camera: Camera2D = $MainCamera
 @onready var battle_ui: CanvasLayer = $BattleUI
 @onready var top_bar: Panel = $BattleUI/TopBar
@@ -553,6 +569,7 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 	ally_has_moved = true
 	_reset_unit_group_positions()
 	_hide_move_range_overlay()
+	_spawn_move_dust_fx(target_unit_position)
 	is_demo_animating = false
 	_append_battle_log("%s 이동 완료" % _get_selected_ally_display_name())
 	_enter_post_move_facing_selection()
@@ -641,7 +658,7 @@ func play_basic_attack_demo() -> void:
 	damage_preview_label.text = "-%d" % int(DEMO_DAMAGE)
 	damage_preview_label.position = Vector2.ZERO
 	damage_preview_label.modulate = Color(1.0, 0.55, 0.55, 1.0)
-	damage_preview_label.visible = true
+	damage_preview_label.visible = false
 
 	var ally_start := (_get_selected_ally_unit_marker().position if _get_selected_ally_unit_marker() != null else Vector2.ZERO)
 	var target_marker := _get_enemy_target_unit_marker(selected_attack_target_state)
@@ -662,15 +679,12 @@ func play_basic_attack_demo() -> void:
 	tween.tween_method(_set_enemy_target_group_modulate, Color(1.0, 0.45, 0.45, 1.0), Color.WHITE, 0.18)
 	tween.finished.connect(_finish_basic_attack_demo)
 
-	var damage_tween := create_tween()
-	damage_tween.tween_interval(0.16)
-	damage_tween.chain()
-	damage_tween.set_parallel(true)
-	damage_tween.tween_property(damage_preview_label, "position", Vector2(0.0, -36.0), 0.28)
-	damage_tween.tween_property(damage_preview_label, "modulate:a", 0.0, 0.28)
+	_spawn_attack_slash_fx(ally_start, enemy_start)
 
 	selected_attack_target_state.apply_damage(int(DEMO_DAMAGE))
 	_update_enemy_target_visuals_from_state(selected_attack_target_state)
+	_spawn_hit_spark_fx(enemy_start)
+	_spawn_damage_number_fx(enemy_start, int(DEMO_DAMAGE))
 	_append_battle_log("%s 공격" % _get_selected_ally_display_name())
 	_append_battle_log("%s 피해" % selected_attack_target_state.display_name)
 
@@ -1369,6 +1383,7 @@ func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleU
 	var guard_direction := (_get_ally_target_visual_anchor_position(target_state) - _get_enemy_actor_visual_anchor_position(enemy_actor_state)).normalized()
 	var guard_offset := guard_direction * ENEMY_GUARD_STEP_DISTANCE
 	var ally_recoil_offset := guard_direction * 16.0
+	_spawn_attack_slash_fx(_get_enemy_actor_visual_anchor_position(enemy_actor_state), _get_ally_target_visual_anchor_position(target_state))
 
 	var tween := create_tween()
 	tween.tween_interval(0.16)
@@ -1437,6 +1452,7 @@ func _finish_enemy_actor_basic_move(enemy_actor_state: BattleUnitState, target_p
 	enemy_actor_state.set_grid_cell(target_cell)
 	_clear_transient_battle_highlights()
 	_reset_unit_group_positions()
+	_spawn_move_dust_fx(target_position)
 	_update_facing_indicators()
 	_play_enemy_actor_basic_attack_or_wait_after_move(enemy_actor_state)
 
@@ -1467,6 +1483,9 @@ func _enemy_reaction_hit_on() -> void:
 	if target_state != null and target_state.is_alive():
 		target_state.apply_damage(int(ENEMY_DEMO_DAMAGE))
 		_update_ally_target_visuals_from_state(target_state)
+		var target_pos := _get_ally_target_visual_anchor_position(target_state)
+		_spawn_hit_spark_fx(target_pos)
+		_spawn_damage_number_fx(target_pos, int(ENEMY_DEMO_DAMAGE))
 		_cleanup_dead_units()
 	var actor_name := current_enemy_ai_actor_state.display_name if current_enemy_ai_actor_state != null else "적군"
 	_append_battle_log("%s 반격" % actor_name)
@@ -1629,6 +1648,115 @@ func _hide_round_start_toast() -> void:
 		round_toast_label.modulate = Color.WHITE
 		round_toast_label.scale = round_toast_label_base_scale
 	_set_round_toast_shader_progress(0.0)
+
+
+func _spawn_move_dust_fx(world_pos: Vector2) -> void:
+	var texture := _load_random_fx_texture(MOVE_DUST_FX_TEXTURE_PATHS)
+	if texture == null:
+		return
+	var sprite := _create_fx_sprite(texture, world_pos + Vector2(0.0, 28.0))
+	if sprite == null:
+		return
+	sprite.z_index = 18
+	sprite.modulate = Color(1.0, 1.0, 1.0, 0.75)
+	sprite.scale = Vector2.ONE * randf_range(0.85, 1.05)
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(sprite, "modulate:a", 0.0, randf_range(0.34, 0.42)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(sprite, "scale", sprite.scale * 1.15, randf_range(0.34, 0.42)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_callback(sprite.queue_free)
+
+
+func _spawn_attack_slash_fx(attacker_pos: Vector2, target_pos: Vector2) -> void:
+	var texture := _load_random_fx_texture(ATTACK_SLASH_FX_TEXTURE_PATHS)
+	if texture == null:
+		return
+	var direction := target_pos - attacker_pos
+	var spawn_pos := target_pos - direction.normalized() * 18.0 if direction.length() > 0.0 else target_pos
+	var sprite := _create_fx_sprite(texture, spawn_pos + Vector2(0.0, -12.0))
+	if sprite == null:
+		return
+	sprite.z_index = 24
+	sprite.rotation = direction.angle() if direction.length() > 0.0 else 0.0
+	sprite.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	sprite.scale = Vector2.ONE * 0.75
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(sprite, "modulate:a", 1.0, 0.05)
+	tween.tween_property(sprite, "scale", Vector2.ONE * 1.05, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_interval(0.05)
+	tween.tween_property(sprite, "modulate:a", 0.0, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_callback(sprite.queue_free)
+
+
+func _spawn_hit_spark_fx(target_pos: Vector2) -> void:
+	var texture := _load_random_fx_texture(HIT_SPARK_FX_TEXTURE_PATHS)
+	if texture == null:
+		return
+	var sprite := _create_fx_sprite(texture, target_pos + Vector2(0.0, -18.0))
+	if sprite == null:
+		return
+	sprite.z_index = 26
+	sprite.rotation = randf_range(-0.25, 0.25)
+	sprite.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	sprite.scale = Vector2.ONE * 0.45
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(sprite, "modulate:a", 1.0, 0.04)
+	tween.tween_property(sprite, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_property(sprite, "modulate:a", 0.0, 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_callback(sprite.queue_free)
+
+
+func _spawn_damage_number_fx(target_pos: Vector2, amount: int) -> void:
+	if battle_fx_root == null:
+		return
+	var label := Label.new()
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.text = "-%d" % amount
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 48)
+	label.add_theme_color_override("font_color", Color(1.0, 0.82, 0.42, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.08, 0.04, 0.0, 0.82))
+	label.add_theme_constant_override("outline_size", 3)
+	label.size = Vector2(150.0, 70.0)
+	label.position = target_pos + Vector2(-75.0, -88.0)
+	label.z_index = 30
+	label.modulate = Color.WHITE
+	label.scale = Vector2.ONE * 0.95
+	battle_fx_root.add_child(label)
+
+	var end_position := label.position + Vector2(0.0, -30.0)
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "position", end_position, 0.75).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "scale", Vector2.ONE * 1.05, 0.75).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "modulate:a", 0.0, 0.75).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(label.queue_free)
+
+
+func _load_random_fx_texture(paths: Array[String]) -> Texture2D:
+	if paths.is_empty():
+		return null
+	var path := paths[randi() % paths.size()]
+	if not ResourceLoader.exists(path):
+		return null
+	return load(path) as Texture2D
+
+
+func _create_fx_sprite(texture: Texture2D, world_pos: Vector2) -> Sprite2D:
+	if battle_fx_root == null or texture == null:
+		return null
+	var sprite := Sprite2D.new()
+	sprite.texture = texture
+	sprite.centered = true
+	sprite.position = world_pos
+	battle_fx_root.add_child(sprite)
+	return sprite
 
 
 func _start_new_round() -> void:
