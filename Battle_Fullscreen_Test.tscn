@@ -11,6 +11,8 @@
 [ext_resource type="Texture2D" uid="uid://b8bsiuxax2w5a" path="res://assets/web_battle/skills/cutins/yi_sunsin_hakikjin.png" id="8_cutin"]
 [ext_resource type="Texture2D" uid="uid://bk1mormqnetwb" path="res://assets/web_battle/portraits_battlefield/jeong_dojeon_battlefield.png" id="9_allysupportportrait"]
 [ext_resource type="Texture2D" uid="uid://c0gk1awodita3" path="res://assets/web_battle/portraits_battlefield/zhang_fei_battlefield.png" id="10_enemysupportportrait"]
+[ext_resource type="Shader" uid="uid://b3nol2fhvwj1s" path="res://assets/web_battle/ui/round_toast/round_toast_ink_spread.gdshader" id="11_round_toast_shader"]
+[ext_resource type="Texture2D" uid="uid://bjb2sekdtihkr" path="res://assets/web_battle/ui/round_toast/round_toast_ink_war_01.png" id="12_round_toast_texture"]
 
 [sub_resource type="LabelSettings" id="2"]
 font_size = 14
@@ -50,6 +52,22 @@ font_size = 28
 font_color = Color(0.952941, 0.917647, 0.85098, 1)
 outline_size = 6
 outline_color = Color(0.0313726, 0.0627451, 0.0941176, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_round_toast_ink"]
+shader = ExtResource("11_round_toast_shader")
+shader_parameter/progress = 0.0
+shader_parameter/edge_softness = 0.12
+shader_parameter/noise_strength = 0.18
+shader_parameter/spread_center = Vector2(0.5, 0.5)
+
+[sub_resource type="LabelSettings" id="LabelSettings_round_toast"]
+font_size = 72
+font_color = Color(1, 0.894118, 0.611765, 1)
+outline_size = 3
+outline_color = Color(0.0784314, 0.0431373, 0.0117647, 0.82)
+shadow_size = 2
+shadow_color = Color(0.0156863, 0.0117647, 0.00784314, 0.45)
+shadow_offset = Vector2(2, 3)
 
 [node name="Battle_Fullscreen_Test" type="Node2D" unique_id=1929995568]
 script = ExtResource("1_script")
@@ -1395,6 +1413,40 @@ offset_top = 8.0
 offset_right = 378.0
 offset_bottom = 40.0
 text = "턴 종료"
+
+[node name="RoundToastRoot" type="Control" parent="BattleUI" unique_id=1842740031]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+pivot_offset = Vector2(960, 540)
+mouse_filter = 2
+
+[node name="RoundToastImage" type="TextureRect" parent="BattleUI/RoundToastRoot" unique_id=1842740032]
+material = SubResource("ShaderMaterial_round_toast_ink")
+layout_mode = 0
+offset_left = 550.0
+offset_top = 300.0
+offset_right = 1370.0
+offset_bottom = 720.0
+pivot_offset = Vector2(410, 210)
+mouse_filter = 2
+texture = ExtResource("12_round_toast_texture")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RoundToastLabel" type="Label" parent="BattleUI/RoundToastRoot" unique_id=1842740033]
+layout_mode = 0
+offset_left = 600.0
+offset_top = 430.0
+offset_right = 1320.0
+offset_bottom = 590.0
+pivot_offset = Vector2(360, 80)
+text = "BATTLE 1"
+label_settings = SubResource("LabelSettings_round_toast")
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="AllyFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938220]
 offset_left = 353.0

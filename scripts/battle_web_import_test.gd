@@ -94,8 +94,9 @@ var acted_ally_unit_ids: Dictionary = {}
 var acted_enemy_unit_ids: Dictionary = {}
 var dead_unit_ids: Dictionary = {}
 var battle_round := 1
-var round_banner_label: Label = null
-var round_banner_tween: Tween = null
+var round_toast_tween: Tween = null
+var round_toast_root_base_scale := Vector2.ONE
+var round_toast_label_base_scale := Vector2.ONE
 var ally_ready_frame_tween: Tween = null
 var ally_support_ready_frame_tween: Tween = null
 var unit_closeup_tween: Tween = null
@@ -226,6 +227,9 @@ var enemy_support_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 @onready var enemy_support_facing_indicator: Label = get_node_or_null("BattleUI/EnemySupportFacingIndicator") as Label
 @onready var ally_ready_frame: Panel = get_node_or_null("BattleUI/AllyReadyFrame") as Panel
 @onready var ally_support_ready_frame: Panel = get_node_or_null("BattleUI/AllySupportReadyFrame") as Panel
+@onready var round_toast_root: Control = get_node_or_null("BattleUI/RoundToastRoot") as Control
+@onready var round_toast_image: TextureRect = get_node_or_null("BattleUI/RoundToastRoot/RoundToastImage") as TextureRect
+@onready var round_toast_label: Label = get_node_or_null("BattleUI/RoundToastRoot/RoundToastLabel") as Label
 @onready var unit_closeup_panel: Panel = get_node_or_null("BattleUI/UnitCloseupPanel") as Panel
 @onready var closeup_hero_portrait: TextureRect = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupHeroPortrait") as TextureRect
 @onready var closeup_troop_image: TextureRect = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupTroopImage") as TextureRect
@@ -270,7 +274,7 @@ func _ready() -> void:
 		face_up_arrow_button.pressed.connect(_select_post_move_facing.bind(FACING_UP))
 	if face_down_arrow_button != null:
 		face_down_arrow_button.pressed.connect(_select_post_move_facing.bind(FACING_DOWN))
-	_ensure_round_banner_label()
+	_configure_round_toast()
 	_collect_move_range_cells()
 	_capture_scene_authored_unit_layout_offsets()
 	_apply_facing_arrow_panel_visual_style()
@@ -464,6 +468,7 @@ func reset_demo_state() -> void:
 	_show_unit_closeup_for_ally(active_unit_state)
 	_update_ally_ready_frames()
 	_start_idle_breathing()
+	_show_round_start_toast(battle_round)
 
 
 func play_basic_move_demo() -> void:
@@ -726,13 +731,13 @@ func _set_phase(new_phase: String) -> void:
 	current_phase = new_phase
 	match current_phase:
 		PHASE_ALLY_TURN:
-			turn_banner.text = "아군 턴 · ROUND %d" % battle_round
+			turn_banner.text = "아군 턴 · BATTLE %d" % battle_round
 		PHASE_ENEMY_TURN:
-			turn_banner.text = "적군 턴 · ROUND %d" % battle_round
+			turn_banner.text = "적군 턴 · BATTLE %d" % battle_round
 		PHASE_FACING_SELECT:
-			turn_banner.text = "방향 선택 · ROUND %d" % battle_round
+			turn_banner.text = "방향 선택 · BATTLE %d" % battle_round
 		PHASE_ATTACK_SELECT:
-			turn_banner.text = "공격 대상 선택 · ROUND %d" % battle_round
+			turn_banner.text = "공격 대상 선택 · BATTLE %d" % battle_round
 		_:
 			turn_banner.text = "처리 중"
 
@@ -1078,6 +1083,8 @@ func _is_ally_unit_ready_for_action(unit_state: BattleUnitState) -> bool:
 	if current_phase != PHASE_ALLY_TURN:
 		return false
 	if is_demo_animating:
+		return false
+	if _is_active_ally_locked() and unit_state != active_unit_state:
 		return false
 	return not _has_ally_unit_acted(unit_state)
 
@@ -1548,49 +1555,80 @@ func _get_enemy_support_group_nodes() -> Array[CanvasItem]:
 	return nodes
 
 
-func _ensure_round_banner_label() -> void:
-	round_banner_label = get_node_or_null("BattleUI/CenterRoundBannerLabel") as Label
-	if round_banner_label != null:
-		round_banner_label.visible = false
-		return
-	if battle_ui == null:
-		return
-
-	round_banner_label = Label.new()
-	round_banner_label.name = "CenterRoundBannerLabel"
-	round_banner_label.position = Vector2.ZERO
-	round_banner_label.size = get_viewport_rect().size
-	round_banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	round_banner_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	round_banner_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	round_banner_label.visible = false
-	round_banner_label.add_theme_font_size_override("font_size", 58)
-	round_banner_label.add_theme_color_override("font_color", Color(1.0, 0.93, 0.55, 1.0))
-	round_banner_label.add_theme_color_override("font_outline_color", Color(0.07, 0.04, 0.0, 0.9))
-	round_banner_label.add_theme_constant_override("outline_size", 8)
-	battle_ui.add_child(round_banner_label)
+func _configure_round_toast() -> void:
+	if round_toast_root != null:
+		round_toast_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		round_toast_root.visible = false
+		round_toast_root_base_scale = round_toast_root.scale
+	if round_toast_image != null:
+		round_toast_image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_set_round_toast_shader_progress(0.0)
+	if round_toast_label != null:
+		round_toast_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		round_toast_label_base_scale = round_toast_label.scale
+		round_toast_label.modulate = Color(1.0, 1.0, 1.0, 0.0)
 
 
 func _show_round_start_banner() -> void:
-	_ensure_round_banner_label()
-	if round_banner_label == null:
+	_show_round_start_toast(battle_round)
+
+
+func _show_round_start_toast(round_num: int) -> void:
+	if round_toast_root == null:
 		return
-	if round_banner_tween != null:
-		round_banner_tween.kill()
+	if round_toast_tween != null:
+		round_toast_tween.kill()
 
-	round_banner_label.text = "ROUND %d 시작" % battle_round
-	round_banner_label.size = get_viewport_rect().size
-	round_banner_label.modulate = Color.WHITE
-	round_banner_label.visible = true
+	if round_toast_label != null:
+		round_toast_label.text = "BATTLE %d" % round_num
+		round_toast_label.visible = true
+		round_toast_label.modulate.a = 0.0
+		round_toast_label.scale = round_toast_label_base_scale * 0.9
+	if round_toast_image != null:
+		round_toast_image.visible = true
+		round_toast_image.modulate = Color.WHITE
+	_set_round_toast_shader_progress(0.0)
 
-	round_banner_tween = create_tween()
-	round_banner_tween.tween_interval(0.85)
-	round_banner_tween.tween_property(round_banner_label, "modulate:a", 0.0, 0.35)
-	round_banner_tween.tween_callback(func() -> void:
-		if round_banner_label != null:
-			round_banner_label.visible = false
-			round_banner_label.modulate = Color.WHITE
-	)
+	round_toast_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	round_toast_root.visible = true
+	round_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	round_toast_root.scale = round_toast_root_base_scale * 0.86
+
+	round_toast_tween = create_tween()
+	round_toast_tween.set_parallel(true)
+	round_toast_tween.tween_method(_set_round_toast_shader_progress, 0.0, 1.0, 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	round_toast_tween.tween_property(round_toast_root, "modulate:a", 1.0, 0.42)
+	round_toast_tween.tween_property(round_toast_root, "scale", round_toast_root_base_scale * 1.06, 0.42).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	if round_toast_label != null:
+		round_toast_tween.tween_property(round_toast_label, "modulate:a", 1.0, 0.28).set_delay(0.05)
+		round_toast_tween.tween_property(round_toast_label, "scale", round_toast_label_base_scale, 0.28).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(0.05)
+	round_toast_tween.set_parallel(false)
+	round_toast_tween.chain().tween_property(round_toast_root, "scale", round_toast_root_base_scale, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	round_toast_tween.tween_interval(1.15)
+	round_toast_tween.set_parallel(true)
+	round_toast_tween.tween_property(round_toast_root, "modulate:a", 0.0, 0.32).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	round_toast_tween.tween_property(round_toast_root, "scale", round_toast_root_base_scale * 1.12, 0.32).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	round_toast_tween.chain().tween_callback(_hide_round_start_toast)
+
+
+func _set_round_toast_shader_progress(progress: float) -> void:
+	if round_toast_image == null:
+		return
+	var shader_material := round_toast_image.material as ShaderMaterial
+	if shader_material == null or shader_material.shader == null:
+		return
+	shader_material.set_shader_parameter("progress", progress)
+
+
+func _hide_round_start_toast() -> void:
+	if round_toast_root != null:
+		round_toast_root.visible = false
+		round_toast_root.modulate = Color.WHITE
+		round_toast_root.scale = round_toast_root_base_scale
+	if round_toast_label != null:
+		round_toast_label.modulate = Color.WHITE
+		round_toast_label.scale = round_toast_label_base_scale
+	_set_round_toast_shader_progress(0.0)
 
 
 func _start_new_round() -> void:
@@ -1598,7 +1636,7 @@ func _start_new_round() -> void:
 	_clear_pending_move_snapshot()
 	_reset_ally_action_locks_for_new_round()
 	_reset_enemy_action_locks_for_new_round()
-	_append_battle_log("ROUND %d 시작" % battle_round)
+	_append_battle_log("BATTLE %d 시작" % battle_round)
 	_show_round_start_banner()
 
 
@@ -2713,6 +2751,24 @@ func _is_active_ally_action_available() -> bool:
 	return not _has_ally_unit_acted(active_unit_state)
 
 
+func _is_active_ally_locked() -> bool:
+	if active_unit_state == null:
+		return false
+	if active_unit_side != "ally":
+		return false
+	if not active_unit_state.is_alive():
+		return false
+	if _has_ally_unit_acted(active_unit_state):
+		return false
+	return active_unit_state.has_moved or current_phase == PHASE_FACING_SELECT or current_phase == PHASE_ATTACK_SELECT
+
+
+func _is_ally_selection_switch_blocked(unit_state: BattleUnitState) -> bool:
+	if unit_state == null or unit_state == active_unit_state:
+		return false
+	return _is_active_ally_locked()
+
+
 func _is_unit_selectable(unit_state: BattleUnitState) -> bool:
 	return unit_state != null and unit_state.is_alive()
 
@@ -2820,6 +2876,8 @@ func set_move_target_cell(cell: Vector2i) -> void:
 
 func _select_ally_unit(unit_state: BattleUnitState, should_log: bool = true) -> void:
 	if not _is_unit_selectable(unit_state):
+		return
+	if _is_ally_selection_switch_blocked(unit_state):
 		return
 
 	active_unit_state = unit_state
