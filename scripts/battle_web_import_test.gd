@@ -1938,14 +1938,15 @@ func _debug_print_unit_visual_root_slots() -> void:
 	for slot_id in SLOT_IDS:
 		var slot := _get_unit_visual_slot_for_slot_id(slot_id)
 		var slot_visuals := _get_visual_slots_dictionary_fallback_for_slot_id(slot_id)
+		var slot_summary := slot.get_debug_summary() if slot != null else {}
 		print("%s cache=%s root=%s token=%s click=%s ready=%s facing=%s dict=%s" % [
 			slot_id,
 			str(slot != null),
-			str(slot != null and slot.root != null),
-			str(slot != null and slot.token != null),
-			str(slot != null and slot.click_area != null),
-			str(slot != null and slot.ready_frame != null),
-			str(slot != null and slot.facing_indicator != null),
+			str(bool(slot_summary.get("root", false))),
+			str(bool(slot_summary.get("token", false))),
+			str(bool(slot_summary.get("click_area", false))),
+			str(bool(slot_summary.get("ready_frame", false))),
+			str(bool(slot_summary.get("facing_indicator", false))),
 			str(not slot_visuals.is_empty()),
 		])
 
@@ -4044,6 +4045,11 @@ func _set_unit_click_area_enabled(unit_state: BattleUnitState, should_enable: bo
 
 
 func _get_visual_group_nodes_for_unit(unit_state: BattleUnitState) -> Array[CanvasItem]:
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	if slot != null:
+		var slot_nodes := slot.get_visual_group_nodes()
+		if not slot_nodes.is_empty():
+			return slot_nodes
 	if unit_state == ally_support_unit_state:
 		return _get_ally_support_group_nodes()
 	if unit_state == enemy_unit_state:
@@ -4054,6 +4060,9 @@ func _get_visual_group_nodes_for_unit(unit_state: BattleUnitState) -> Array[Canv
 
 
 func _get_click_area_for_unit(unit_state: BattleUnitState) -> Area2D:
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	if slot != null and slot.click_area != null:
+		return slot.click_area
 	if unit_state == ally_support_unit_state:
 		return ally_support_unit_click_area
 	if unit_state == enemy_unit_state:
@@ -4069,6 +4078,9 @@ func _get_ready_frame_for_unit(unit_state: BattleUnitState) -> Control:
 
 
 func _get_facing_indicator_for_unit(unit_state: BattleUnitState) -> Label:
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	if slot != null and slot.facing_indicator != null:
+		return slot.facing_indicator as Label
 	var slot_visuals := _get_unit_visual_slots_for_state(unit_state)
 	return slot_visuals.get("facing_indicator", null) as Label
 

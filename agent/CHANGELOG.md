@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers
+
+- Expanded `UnitVisualSlot` safe read-only helpers in `scripts/unit_visual_slot.gd`.
+- Added:
+  - `get_visual_group_nodes()`
+  - `has_required_visual_nodes()`
+  - `get_debug_summary()`
+- Updated safe helper paths in `scripts/battle_web_import_test.gd`:
+  - `_debug_print_unit_visual_root_slots()`
+  - `_get_visual_group_nodes_for_unit()`
+  - `_get_click_area_for_unit()`
+  - `_get_facing_indicator_for_unit()`
+- Kept these functions slot-first with existing direct-comparison fallback still present.
+- Preserved:
+  - `_get_ally_group_nodes()`
+  - `_get_ally_support_group_nodes()`
+  - `_get_enemy_group_nodes()`
+  - `_get_enemy_support_group_nodes()`
+  - `Battle_Fullscreen_Test.tscn`
+  - ClickArea parent structure
+  - READY frame parent structure
+  - FacingIndicator parent structure
+  - auto battle logic
+  - enemy AI flow
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.66b UnitVisualSlot Lookup Integration
 
 - Integrated cache-first `UnitVisualSlot` lookup helpers into `scripts/battle_web_import_test.gd`.

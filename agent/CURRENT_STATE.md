@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.66b UnitVisualSlot Lookup Integration Stable
+v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers Stable
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -102,6 +102,31 @@ Verified principle:
   - `facing_indicator`
 - Slot cache rebuild still prepares the 4 current combat slots only.
 - No combat formula, turn flow, AI order, auto battle logic, or scene tree structure was intentionally changed.
+- `Battle_Fullscreen_Test.tscn` remained unmodified.
+- ClickArea / READY frame / FacingIndicator parent structure remained unchanged.
+
+## v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers State
+- Expanded `UnitVisualSlot` with safe read-only helpers:
+  - `get_visual_group_nodes()`
+  - `has_required_visual_nodes()`
+  - `get_debug_summary()`
+- Kept `UnitVisualSlot` as a `RefCounted` reference adapter only.
+- Expanded slot-first usage only in safe helper paths:
+  - `_debug_print_unit_visual_root_slots()`
+  - `_get_visual_group_nodes_for_unit()`
+  - `_get_click_area_for_unit()`
+  - `_get_facing_indicator_for_unit()`
+- Existing direct comparison fallback remains in those helpers when slot lookup is unavailable.
+- Existing group node functions remain preserved:
+  - `_get_ally_group_nodes()`
+  - `_get_ally_support_group_nodes()`
+  - `_get_enemy_group_nodes()`
+  - `_get_enemy_support_group_nodes()`
+- Cleanup and visibility flow still uses the same public helpers:
+  - `_cleanup_dead_units()`
+  - `_set_unit_visual_group_visible()`
+  - `_set_unit_click_area_enabled()`
+- No combat formula, turn flow, enemy AI flow, auto battle logic, or scene structure was intentionally changed.
 - `Battle_Fullscreen_Test.tscn` remained unmodified.
 - ClickArea / READY frame / FacingIndicator parent structure remained unchanged.
 

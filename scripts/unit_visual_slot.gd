@@ -56,5 +56,48 @@ func get_value(key: StringName) -> Variant:
 	return to_visual_slots_dictionary().get(key)
 
 
+func get_visual_group_nodes() -> Array[CanvasItem]:
+	var nodes: Array[CanvasItem] = []
+	if shadow != null:
+		nodes.append(shadow)
+	if token != null:
+		nodes.append(token)
+	if move_dust != null:
+		nodes.append(move_dust)
+	if portrait != null:
+		nodes.append(portrait)
+	if hp_bar != null:
+		nodes.append(hp_bar)
+	if troop_label != null:
+		nodes.append(troop_label)
+	return nodes
+
+
+func has_required_visual_nodes() -> bool:
+	return (
+		root != null
+		and token != null
+		and portrait != null
+		and hp_bar != null
+		and troop_label != null
+		and click_area != null
+	)
+
+
+func get_debug_summary() -> Dictionary:
+	return {
+		"slot_id": slot_id,
+		"root": root != null,
+		"token": token != null,
+		"hp_bar": hp_bar != null,
+		"troop_label": troop_label != null,
+		"portrait": portrait != null,
+		"move_dust": move_dust != null,
+		"click_area": click_area != null,
+		"ready_frame": ready_frame != null,
+		"facing_indicator": facing_indicator != null,
+	}
+
+
 func has_root_visual() -> bool:
 	return root != null and token != null

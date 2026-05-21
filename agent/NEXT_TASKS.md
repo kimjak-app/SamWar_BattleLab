@@ -1,15 +1,15 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.66b UnitVisualSlot Lookup Integration Stable
+v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers Stable
 
 ## Priority 1
-v0.66c UnitVisualSlot Usage Expansion
+v0.66c-2 Ready/Facing/Click Slot Helper Expansion
 
 Goal:
-- Expand safe read-path usage of `UnitVisualSlot` helpers into more visual/UI lookup call sites.
-- Keep existing dictionary helpers in place while increasing adapter usage incrementally.
-- Avoid large combat-path rewrites in one step.
+- Expand slot-based helper usage further for READY / Facing / Click attachment-related helpers.
+- Keep parent structure unchanged while reducing direct per-slot branching in safe UI/input helpers.
+- Avoid movement / attack / AI execution-path rewrites.
 
 ## Priority 2
 v0.66d Scene Slot Tree Migration Plan
@@ -32,6 +32,17 @@ Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
 
 ## Completed
+v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers Stable
+
+Completed items:
+- Added safe read-only helper methods to `UnitVisualSlot`.
+- Expanded slot-first usage into debug / visibility / cleanup getter paths only.
+- Preserved existing group node functions and direct fallback behavior.
+- Kept `Battle_Fullscreen_Test.tscn` unmodified.
+- Kept ClickArea / READY frame / FacingIndicator parent structure unmodified.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.66b UnitVisualSlot Lookup Integration Stable
 
 Completed items:

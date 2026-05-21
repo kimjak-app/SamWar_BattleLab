@@ -3,6 +3,38 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.66b UnitVisualSlot Lookup Integration Stable
+
+Goal:
+- v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers
+
+Completed:
+- Added safe read-only helper methods to `scripts/unit_visual_slot.gd`.
+- Expanded slot-first usage into safe helper paths for:
+  - debug summary output
+  - visual group node lookup
+  - click area lookup
+  - facing indicator lookup
+- Preserved existing direct fallback behavior for the same helpers.
+- Kept cleanup and visibility flow using the same public helper entry points.
+- Kept `Battle_Fullscreen_Test.tscn` unmodified.
+- Kept ClickArea / READY frame / FacingIndicator parent structure unchanged.
+- Did not modify movement, attack, enemy AI, or auto battle execution flow.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- 4-slot cache state confirmed in scene launch log.
+- No scene diff introduced.
+
+Remaining tasks:
+- v0.66c-2 Ready/Facing/Click Slot Helper Expansion
+- v0.66d Scene Slot Tree Migration Plan
+- Auto Battle QA
+
+## 2026-05-21
+
+Starting baseline:
 - v0.66a UnitVisualSlot Scaffold Stable
 
 Goal:
