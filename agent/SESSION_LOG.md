@@ -37,6 +37,53 @@ Remaining tasks:
 ## 2026-05-22
 
 Starting baseline:
+- v0.67c-hotfix5 Keep HP Bar Alpha 80 Percent
+
+Goal:
+- v0.67c-hotfix6 Unit Visual Layer Above HP Bar
+
+Completed:
+- Added a runtime visual layer profile so unit token and portrait render above HP bars while troop labels remain on top.
+- Applied layer values:
+  - shadow `5`
+  - hp bar `8`
+  - token `12`
+  - portrait `13`
+  - troop label `20`
+- Kept positions and scales unchanged.
+- Kept HP bar alpha at `0.8`.
+- Kept troop label alpha at `1.0`.
+- Did not modify battle flow, enemy AI, auto battle, battle dust, ClickArea, READY, or FacingIndicator behavior.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- F6/manual interaction QA not available in this environment.
+
+## 2026-05-22
+
+Starting baseline:
+- v0.67c-hotfix4 Restore HP Bar Alpha Only
+
+Goal:
+- v0.67c-hotfix5 Keep HP Bar Alpha 80 Percent
+
+Completed:
+- Changed `HP_BAR_RUNTIME_ALPHA` to `0.8`.
+- Added HP bar alpha-only helpers and reapplied HP alpha after group modulate and visual refresh paths.
+- Kept troop label alpha at full opacity.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not change HP/troop position logic, battle flow, enemy AI, auto battle, battle dust, ClickArea, READY, or FacingIndicator behavior.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless runtime summary confirms HP bars report `hp_alpha=0.8` while troop labels remain `troop_alpha=1.0`.
+- F6/manual interaction QA not available in this environment.
+
+## 2026-05-22
+
+Starting baseline:
 - v0.66i Slot Tree QA Stable
 
 Goal:
@@ -141,6 +188,120 @@ QA:
 Remaining tasks:
 - v0.67d 2v2 on Scalable Slot Framework
 - Auto Battle QA
+
+## 2026-05-22
+
+Starting baseline:
+- v0.67c-hotfix3 Restore HP/Troop Scene Layout After Slot Migration
+
+Goal:
+- v0.67c-hotfix4 Restore HP Bar Alpha Only
+
+Completed:
+- Added `HP_BAR_RUNTIME_ALPHA := 0.35`.
+- Applied reduced alpha to HP bars only in `_restore_hp_troop_runtime_visibility_for_unit()`.
+- Kept troop label alpha at full opacity.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not change HP/troop position logic, battle flow, enemy AI, auto battle, battle dust, ClickArea, READY, or FacingIndicator behavior.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- F6/manual interaction QA not available in this environment.
+
+## 2026-05-22
+
+Starting baseline:
+- v0.67c-hotfix2 Remove Remaining GDScript Warnings + Restore Runtime HP/Troop Visibility
+
+Goal:
+- v0.67c-hotfix3 Restore HP/Troop Scene Layout After Slot Migration
+
+Completed:
+- Inspected all 8 HP/troop scene nodes and confirmed the remaining issue was layout / draw order rather than missing refs or empty values.
+- Confirmed `Slots` is declared before `BattlefieldRoot`, while tokens/portraits already had raised `z_index` values and HP/troop nodes did not.
+- Raised all 8 HP/troop scene nodes to `z_index = 4`.
+- Removed runtime HP/troop position overwrites from `_restore_hp_troop_runtime_visibility_for_unit()`.
+- Expanded runtime summary to print token/hp/troop local-global position, z-index, size, visible state, alpha, and text.
+- Did not change slot structure, ClickArea, READY/Facing nodes, battle dust, enemy AI, auto battle, or `UnitCloseupPanel`.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless runtime summary confirms for all 4 current slots:
+  - token/hp/troop positions remain near each other
+  - `hp_z=4`
+  - `troop_z=4`
+  - `hp_visible=true`
+  - `troop_visible=true`
+  - non-zero sizes
+  - non-empty troop text
+- `Battle_Fullscreen_Test.tscn` diff limited to the 8 HP/troop nodes.
+- F6/manual interaction QA not available in this environment.
+
+## 2026-05-22
+
+Starting baseline:
+- v0.67c-hotfix State Adapter Warning Fix + HP/TroopLabel Restore
+
+Goal:
+- v0.67c-hotfix2 Remove Remaining GDScript Warnings + Restore Runtime HP/Troop Visibility
+
+Completed:
+- Removed remaining parent-block local redeclarations in `_input()` and `_get_visual_group_nodes_for_unit()`.
+- Replaced remaining mixed / typed ternary warning candidates in helper and debug paths with explicit branches.
+- Added startup HP/troop runtime visibility summary for the current 4 slots.
+- Added direct live-unit HP/troop restore helper to enforce visible state, modulate, value, text, and position during visual refresh.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Did not change manual battle flow, auto battle flow, enemy AI, battle dust, click-area logic, or `UnitCloseupPanel`.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless scene log confirmed all 4 current slots report:
+  - `hp_ref=true`
+  - `troop_ref=true`
+  - runtime `visible=true`
+  - runtime `modulate.a=1`
+  - non-empty troop text
+  - non-zero HP max value
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+- F6/manual interaction QA not available in this environment.
+
+## 2026-05-22
+
+Starting baseline:
+- v0.67c BattleUnitState List Adapter
+
+Goal:
+- v0.67c-hotfix State Adapter Warning Fix + HP/TroopLabel Restore
+
+Completed:
+- Updated `scripts/battle_web_import_test.gd` only within the requested hotfix scope.
+- Renamed local enemy click-hit variables to remove parent-block shadowing around `enemy_main_hit` / `enemy_support_hit`.
+- Replaced adapter-related typed helper fallback returns with explicit local typed result branches.
+- Hardened unit visual / click / anchor lookup helpers so missing mappings no longer fall through to ally-main defaults.
+- Reasserted HP bar and troop label visibility for live unit states during visual refresh.
+- Added one-time startup visual-binding debug summary for the current 4 slot/state pairs.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Did not change manual battle flow, auto battle flow, enemy AI, battle dust, or `UnitCloseupPanel`.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless scene log confirmed:
+  - adapter counts remain `ally=2`, `enemy=2`, `all=4`
+  - legacy mapping still resolves all `4` live slots
+  - capacity mapping still resolves:
+    - `ally_main_01`
+    - `ally_main_02`
+    - `enemy_main_01`
+    - `enemy_main_02`
+  - startup visual-binding summary reports `hp_ref=true` and `troop_ref=true` for all `4` live slots
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+- F6/manual interaction QA not available in this environment.
 
 ## 2026-05-21
 

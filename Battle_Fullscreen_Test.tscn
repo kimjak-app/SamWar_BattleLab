@@ -113,6 +113,7 @@ scale = Vector2(0.32, 0.32)
 texture = ExtResource("5_allyportrait")
 
 [node name="AllyHPBar" type="ProgressBar" parent="Slots/AllyMainSlot/AllyUnitVisualRoot" unique_id=1914236876]
+z_index = 4
 offset_left = 327.0
 offset_top = 961.0
 offset_right = 423.0
@@ -123,6 +124,7 @@ value = 84.0
 show_percentage = false
 
 [node name="AllyTroopLabel" type="Label" parent="Slots/AllyMainSlot/AllyUnitVisualRoot" unique_id=10172604]
+z_index = 4
 offset_left = 326.0
 offset_top = 972.0
 offset_right = 422.0
@@ -162,6 +164,7 @@ scale = Vector2(0.32, 0.32)
 texture = ExtResource("6_enemyportrait")
 
 [node name="EnemyHPBar" type="ProgressBar" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1609871165]
+z_index = 4
 offset_left = 1499.0
 offset_top = 313.0
 offset_right = 1595.0
@@ -172,6 +175,7 @@ value = 62.0
 show_percentage = false
 
 [node name="EnemyTroopLabel" type="Label" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1006282899]
+z_index = 4
 offset_left = 1500.0
 offset_top = 322.0
 offset_right = 1596.0
@@ -211,6 +215,7 @@ scale = Vector2(0.32, 0.32)
 texture = ExtResource("10_enemysupportportrait")
 
 [node name="EnemySupportHPBar" type="ProgressBar" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904415]
+z_index = 4
 offset_left = 1285.0
 offset_top = 413.0
 offset_right = 1381.0
@@ -221,6 +226,7 @@ value = 80.0
 show_percentage = false
 
 [node name="EnemySupportTroopLabel" type="Label" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904416]
+z_index = 4
 offset_left = 1285.0
 offset_top = 420.0
 offset_right = 1381.0
@@ -261,6 +267,7 @@ scale = Vector2(0.32, 0.32)
 texture = ExtResource("9_allysupportportrait")
 
 [node name="AllySupportHPBar" type="ProgressBar" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904315]
+z_index = 4
 offset_left = 539.0
 offset_top = 847.0
 offset_right = 635.0
@@ -271,6 +278,7 @@ value = 60.0
 show_percentage = false
 
 [node name="AllySupportTroopLabel" type="Label" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904316]
+z_index = 4
 offset_left = 539.0
 offset_top = 856.0
 offset_right = 635.0

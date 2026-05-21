@@ -4,7 +4,19 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.66i Slot Tree QA Stable
+v0.67c-hotfix6 Unit Visual Layer Above HP Bar
+
+## Hotfix Focus
+- Confirmed HP/troop refs, visible, alpha, text, and values were valid even while the UI stayed invisible.
+- Restored scene-authored HP/troop draw order by raising HP bars and troop labels above the battlefield after slot migration.
+- Removed runtime HP/troop position overwrites from the hotfix helper and left layout positioning to the existing group reset flow.
+- Added expanded runtime summary with token/hp/troop local-global positions, z-index, and size.
+- Fixed HP bar runtime alpha at `0.8`.
+- Kept troop label alpha at `1.0` for full readability.
+- Reapplies HP bar alpha after group modulate and state refresh paths that were restoring full opacity.
+- Applies a shared visual layer profile so token/portrait render above HP bars while troop labels remain on top.
+- Kept `BattleUnitState` list adapter scaffold in place.
+- Limited `Battle_Fullscreen_Test.tscn` changes to HP/Troop node draw-order restore only.
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`

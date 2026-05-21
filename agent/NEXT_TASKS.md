@@ -1,10 +1,17 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67c BattleUnitState List Adapter
+v0.67c-hotfix6 Unit Visual Layer Above HP Bar
 
 ## Priority 1
 v0.67d 2v2 on Scalable Slot Framework
+
+Gate:
+- Do not start until the v0.67c-hotfix3 editor QA confirms:
+  - GDScript reload warnings are gone
+  - HP bar is visible for all live units
+  - troop label is visible for all live units
+  - current `2v2` manual / auto flow remains unchanged
 
 Goal:
 - Start using the scalable slot scaffold and state adapters as the compatibility framework under the existing `2v2`.
@@ -40,6 +47,71 @@ Completed items:
 - Added one-time adapter debug snapshot with counts and mapping keys.
 - Kept battle execution, enemy AI, auto battle, cleanup, and scene structure unchanged.
 - Headless project launch and headless scene launch remained 0 errors.
+
+## Completed
+v0.67c-hotfix6 Unit Visual Layer Above HP Bar
+
+Completed items:
+- Added a runtime unit-visual layer profile with:
+  - shadow `5`
+  - hp bar `8`
+  - token `12`
+  - portrait `13`
+  - troop label `20`
+- Applied the layer profile at the end of each per-unit visual refresh path.
+- Kept positions and scales unchanged.
+- Kept HP bar alpha at `0.8` and troop label alpha at `1.0`.
+
+## Completed
+v0.67c-hotfix5 Keep HP Bar Alpha 80 Percent
+
+Completed items:
+- Set `HP_BAR_RUNTIME_ALPHA := 0.8`.
+- Added HP bar alpha-only helpers and reapplied HP alpha after group modulate and per-unit visual refresh paths.
+- Kept troop label alpha at `1.0`.
+- Kept HP/troop position, scene layout, battle flow, enemy AI, auto battle, and battle dust unchanged.
+
+## Completed
+v0.67c-hotfix4 Restore HP Bar Alpha Only
+
+Completed items:
+- Added `HP_BAR_RUNTIME_ALPHA := 0.35` in `scripts/battle_web_import_test.gd`.
+- Applied reduced alpha to HP bars only.
+- Kept troop label alpha at `1.0`.
+- Kept HP/troop position, battle flow, enemy AI, auto battle, battle dust, and scene layout unchanged.
+
+## Completed
+v0.67c-hotfix3 Restore HP/Troop Scene Layout After Slot Migration
+
+Completed items:
+- Confirmed HP/troop runtime values were valid and isolated the remaining issue to scene layout / draw order rather than missing refs.
+- Restored HP/troop scene draw order by raising all 8 HP/troop nodes above the battlefield after slot migration.
+- Removed runtime HP/troop position overwrites from the helper and limited runtime restore to value, text, visible, alpha, and z-index.
+- Expanded startup HP/troop runtime summary to include token/hp/troop local-global position, z-index, and size data.
+- Kept `2v2` battle execution, enemy AI, auto battle, battle dust, and `UnitCloseupPanel` behavior unchanged.
+
+## Completed
+v0.67c-hotfix2 Remove Remaining GDScript Warnings + Restore Runtime HP/Troop Visibility
+
+Completed items:
+- Removed remaining parent-block local redeclaration warnings in `_input()` and `_get_visual_group_nodes_for_unit()`.
+- Replaced remaining mixed / typed ternary warning candidates in helper and debug paths with explicit branches.
+- Added startup HP/troop runtime visibility summary with ref, visible, alpha, global position, size, text, and value data.
+- Restored live-unit HP bar / troop label runtime state directly during per-unit visual refresh.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept current `2v2` battle execution, enemy AI, auto battle, battle dust, and `UnitCloseupPanel` behavior unchanged.
+
+## Completed
+v0.67c-hotfix State Adapter Warning Fix + HP/TroopLabel Restore
+
+Completed items:
+- Renamed local enemy click-hit variables to remove parent-block shadowing warnings.
+- Replaced adapter helper ternary / implicit typed fallback return paths with explicit local typed result branches.
+- Removed unsafe ally-default fallback from unit visual / click / anchor lookups when a unit-state mapping is missing.
+- Reasserted HP bar and troop label visibility for live unit states during visual refresh.
+- Added one-time startup visual-binding debug summary for the current 4 live units.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept current `2v2` battle execution, enemy AI, auto battle, battle dust, and `UnitCloseupPanel` behavior unchanged.
 
 ## Previously Completed
 v0.67b Slot Registry Array Scaffold

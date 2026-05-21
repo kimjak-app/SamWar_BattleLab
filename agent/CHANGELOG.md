@@ -1,5 +1,108 @@
 # CHANGELOG
 
+## v0.67c-hotfix6 Unit Visual Layer Above HP Bar
+
+- Updated `scripts/battle_web_import_test.gd` only.
+- Added visual layer constants:
+  - shadow `5`
+  - hp bar `8`
+  - token `12`
+  - portrait `13`
+  - troop label `20`
+- Added `_apply_unit_visual_layer_profile_for_unit()`.
+- Applied the runtime layer profile at the end of each per-unit visual refresh path so unit token/portrait render above HP bars.
+- Kept positions and scales unchanged.
+- Kept HP bar alpha `0.8`.
+- Kept troop label alpha `1.0`.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
+## v0.67c-hotfix5 Keep HP Bar Alpha 80 Percent
+
+- Updated `scripts/battle_web_import_test.gd` only.
+- Changed `HP_BAR_RUNTIME_ALPHA` to `0.8`.
+- Added:
+  - `_apply_hp_bar_runtime_alpha()`
+  - `_apply_hp_bar_alpha_for_unit()`
+  - `_apply_hp_bar_alpha_to_all_units()`
+- Reapplied HP bar alpha after `_set_group_modulate()` and at the end of each per-unit visual refresh path.
+- Kept troop label alpha at `1.0`.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
+## v0.67c-hotfix4 Restore HP Bar Alpha Only
+
+- Updated `scripts/battle_web_import_test.gd` only.
+- Added `HP_BAR_RUNTIME_ALPHA := 0.35`.
+- Applied runtime alpha reduction to HP bars only inside `_restore_hp_troop_runtime_visibility_for_unit()`.
+- Kept troop label alpha at `1.0`.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
+## v0.67c-hotfix3 Restore HP/Troop Scene Layout After Slot Migration
+
+- Updated `Battle_Fullscreen_Test.tscn` only for HP/troop layout scope:
+  - `AllyHPBar`
+  - `AllyTroopLabel`
+  - `AllySupportHPBar`
+  - `AllySupportTroopLabel`
+  - `EnemyHPBar`
+  - `EnemyTroopLabel`
+  - `EnemySupportHPBar`
+  - `EnemySupportTroopLabel`
+- Raised all 8 HP/troop nodes to `z_index = 4` so they draw above the battlefield and unit visuals after slot migration.
+- Updated `scripts/battle_web_import_test.gd` to stop overwriting HP/troop positions inside `_restore_hp_troop_runtime_visibility_for_unit()`.
+- Kept runtime restore limited to:
+  - visible
+  - modulate
+  - value / max value
+  - troop text
+  - z-index
+- Expanded `_debug_print_hp_troop_runtime_visibility_summary()` with token/hp/troop local-global positions, z-index, and size.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
+## v0.67c-hotfix2 Remove Remaining GDScript Warnings + Restore Runtime HP/Troop Visibility
+
+- Updated `scripts/battle_web_import_test.gd` only for the requested hotfix2 scope.
+- Removed remaining parent-block redeclaration warnings by:
+  - reusing single enemy click-hit locals inside `_input()`
+  - reusing a single empty visual-node array local inside `_get_visual_group_nodes_for_unit()`
+- Replaced remaining mixed / typed ternary warning candidates in helper and debug code with explicit `if/else` branches.
+- Added `_debug_print_hp_troop_runtime_visibility_summary()` startup output for all 4 current live slots.
+- Added direct live-unit HP/troop restore helpers for:
+  - ref lookup
+  - visible state
+  - modulate reset
+  - value / max value
+  - troop text
+  - overlay position
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
+## v0.67c-hotfix State Adapter Warning Fix + HP/TroopLabel Restore
+
+- Updated `scripts/battle_web_import_test.gd` only for the hotfix scope.
+- Renamed local `enemy_main_hit` / `enemy_support_hit` variables in `_input()` to avoid parent-block shadowing warnings during GDScript reload.
+- Replaced adapter-related typed helper return paths with explicit local typed result branches for:
+  - `_get_unit_states_for_side()`
+  - `_get_all_battle_unit_states_from_adapter()`
+  - `_get_unit_state_for_legacy_slot_id()`
+  - `_get_unit_state_for_capacity_slot_id()`
+  - `_get_visual_token_paths_for_unit()`
+- Hardened lookup helpers so invalid or unmapped `BattleUnitState` values no longer fall through to ally-main visual / click / anchor defaults.
+- Reasserted HP bar / troop label visibility for live units from the per-unit visual refresh functions.
+- Added one-time startup debug output summarizing:
+  - legacy-slot to state binding
+  - HP bar ref presence
+  - troop label ref presence
+  - visual group node count
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.67c BattleUnitState List Adapter
 
 - Added `BattleUnitState` adapter containers in `scripts/battle_web_import_test.gd`:
