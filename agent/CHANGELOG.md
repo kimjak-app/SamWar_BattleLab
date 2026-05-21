@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## v0.66g EnemyMainSlot Migration
+
+- Added `EnemyMainSlot` under `Slots` in `Battle_Fullscreen_Test.tscn`.
+- Reparented only the enemy-main actual visual subtree from:
+  - `EnemySide/EnemyUnitVisualRoot`
+  to:
+  - `Slots/EnemyMainSlot/EnemyUnitVisualRoot`
+- Updated enemy-main visual node references in `scripts/battle_web_import_test.gd`:
+  - `enemy_unit_visual_root`
+  - `enemy_move_dust_sprite`
+  - `enemy_unit_token`
+  - `enemy_unit_shadow`
+  - `enemy_portrait_badge`
+  - `enemy_hp_bar`
+  - `enemy_troop_label`
+- Preserved unmoved attachment nodes:
+  - `EnemyUnitClickArea`
+  - `EnemyFacingIndicator`
+- Preserved scene structure for:
+  - `AllyMainSlot`
+  - `AllySupportSlot`
+  - `EnemySupportUnitVisualRoot`
+- Preserved:
+  - slot dictionary fallback helpers
+  - `UnitVisualSlot` cache usage
+  - enemy AI flow
+  - auto battle logic
+  - battle-dust logic
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.66f AllySupportSlot Migration
 
 - Added `AllySupportSlot` under `Slots` in `Battle_Fullscreen_Test.tscn`.

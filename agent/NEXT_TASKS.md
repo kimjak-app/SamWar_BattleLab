@@ -1,14 +1,14 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.66f AllySupportSlot Migration Stable
+v0.66g EnemyMainSlot Migration Stable
 
 ## Priority 1
-v0.66g EnemyMainSlot Migration
+v0.66h EnemySupportSlot Migration
 
 Goal:
-- Apply the proven slot-tree migration pattern to `enemy_main` only.
-- Keep both ally slots stable while enemy main joins the new structure.
+- Apply the proven slot-tree migration pattern to `enemy_support` only.
+- Keep both ally slots and enemy main stable while support joins the new structure.
 - Preserve identical battle behavior and rollback clarity.
 
 ## Priority 2
@@ -32,6 +32,18 @@ Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
 
 ## Completed
+v0.66g EnemyMainSlot Migration Stable
+
+Completed items:
+- Added `Slots/EnemyMainSlot` to `Battle_Fullscreen_Test.tscn`.
+- Moved only `EnemyUnitVisualRoot` and its actual visual children under `EnemyMainSlot`.
+- Kept ClickArea / FacingIndicator unmoved.
+- Kept `AllyMainSlot` / `AllySupportSlot` structures intact.
+- Kept `enemy_support` scene paths unchanged.
+- Updated enemy-main visual node paths in `scripts/battle_web_import_test.gd`.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.66f AllySupportSlot Migration Stable
 
 Completed items:
