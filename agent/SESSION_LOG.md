@@ -3,6 +3,40 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.66h EnemySupportSlot Migration Stable
+
+Goal:
+- v0.66i Slot Tree QA Stable
+
+Completed:
+- Revalidated the 4-slot `Slots` structure in `Battle_Fullscreen_Test.tscn`.
+- Confirmed all 4 actual visual roots remain under:
+  - `Slots/AllyMainSlot`
+  - `Slots/AllySupportSlot`
+  - `Slots/EnemyMainSlot`
+  - `Slots/EnemySupportSlot`
+- Confirmed all 4 ClickAreas remain under scene root.
+- Confirmed ally READY frames and all FacingIndicators remain under `BattleUI`.
+- Confirmed existing slot dictionary fallback helpers remain present in `scripts/battle_web_import_test.gd`.
+- Did not modify `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, or `scripts/unit_visual_slot.gd`.
+
+QA:
+- `git status --short` checked before doc updates.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless scene log confirmed 4-slot cache summary for:
+  - `ally_main`
+  - `ally_support`
+  - `enemy_main`
+  - `enemy_support`
+
+Remaining tasks:
+- v0.67 Slot Count Expansion Plan
+- Auto Battle QA
+
+## 2026-05-21
+
+Starting baseline:
 - v0.66g EnemyMainSlot Migration Stable
 
 Goal:

@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.66h EnemySupportSlot Migration Stable
+v0.66i Slot Tree QA Stable
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -283,6 +283,43 @@ Verified principle:
 - ClickArea / FacingIndicator remain reference-linked only.
 - Enemy-side `ready_frame` remains null as before.
 - No combat formula, movement logic, attack logic, enemy AI, auto battle, or battle-dust logic was intentionally changed.
+
+## v0.66i Slot Tree QA Stable State
+- This step is QA / documentation only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- Confirmed 4-slot structure in `Battle_Fullscreen_Test.tscn`:
+  - `Slots/AllyMainSlot/AllyUnitVisualRoot`
+  - `Slots/AllySupportSlot/AllySupportUnitVisualRoot`
+  - `Slots/EnemyMainSlot/EnemyUnitVisualRoot`
+  - `Slots/EnemySupportSlot/EnemySupportUnitVisualRoot`
+- Confirmed scene-root ClickArea parents are unchanged:
+  - `AllyUnitClickArea`
+  - `AllySupportUnitClickArea`
+  - `EnemyUnitClickArea`
+  - `EnemySupportUnitClickArea`
+- Confirmed `BattleUI` overlay parents are unchanged:
+  - `AllyReadyFrame`
+  - `AllySupportReadyFrame`
+  - `AllyFacingIndicator`
+  - `AllySupportFacingIndicator`
+  - `EnemyFacingIndicator`
+  - `EnemySupportFacingIndicator`
+- Confirmed headless scene cache summary:
+  - `ally_main cache=true root=true token=true click=true ready=true facing=true dict=true`
+  - `ally_support cache=true root=true token=true click=true ready=true facing=true dict=true`
+  - `enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true`
+  - `enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true`
+- Confirmed existing dictionary fallback helpers remain present:
+  - `_get_ally_main_visual_slots()`
+  - `_get_ally_support_visual_slots()`
+  - `_get_enemy_main_visual_slots()`
+  - `_get_enemy_support_visual_slots()`
+  - `_get_visual_slots_for_slot_id()`
+  - `_get_unit_visual_slots_for_state()`
+- Headless project launch remained 0 errors.
+- Headless `Battle_Fullscreen_Test.tscn` launch remained 0 errors.
 
 ## v0.65g Completed Structure
 - UnitVisualRoot Adapter Layer is in place.

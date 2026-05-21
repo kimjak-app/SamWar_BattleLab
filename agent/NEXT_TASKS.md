@@ -1,17 +1,9 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.66h EnemySupportSlot Migration Stable
-
-## Priority 1
 v0.66i Slot Tree QA Stable
 
-Goal:
-- Run full 2v2 QA on the 4-slot tree structure after all actual visual roots are under `Slots`.
-- Confirm manual flow, enemy AI flow, auto battle flow, cleanup, click targeting, and overlay attachment remain stable.
-- Fix only narrow regressions discovered by QA.
-
-## Priority 2
+## Priority 1
 v0.67 Slot Count Expansion Plan
 
 Goal:
@@ -19,7 +11,7 @@ Goal:
 - Keep this as design/planning only until current 2v2 QA baseline is locked.
 - Avoid mixing slot-count planning with current stable battle behavior.
 
-## Priority 3
+## Priority 2
 Auto Battle QA
 
 Goal:
@@ -32,6 +24,19 @@ Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
 
 ## Completed
+v0.66i Slot Tree QA Stable
+
+Completed items:
+- Revalidated the full 4-slot scene tree under `Slots`.
+- Confirmed all 4 actual visual roots remain under their slot nodes.
+- Confirmed all 4 ClickAreas remain under scene root.
+- Confirmed ally READY frames and all FacingIndicators remain under `BattleUI`.
+- Confirmed all 4 `UnitVisualSlot` cache entries report valid references at headless scene launch.
+- Confirmed existing dictionary fallback helpers remain present.
+- Kept code and scene files unchanged.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.66h EnemySupportSlot Migration Stable
 
 Completed items:
