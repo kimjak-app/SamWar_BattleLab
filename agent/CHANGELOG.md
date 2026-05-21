@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## v0.65j-3a Auto Move + Auto Facing Completion
+
+- Extended ally auto action MVP to complete movement execution and post-move facing automatically.
+- `_try_auto_move_for_active_ally()` now starts real ally movement through the existing `play_basic_move_demo()` path when a valid auto move cell exists.
+- Added auto-action flow flags:
+  - `is_auto_action_in_progress`
+  - `should_auto_select_facing_after_move`
+- Added:
+  - `_clear_auto_action_flags()`
+  - `_get_best_auto_facing_toward_nearest_enemy()`
+  - `_select_auto_facing_after_move_for_active_ally()`
+- `_finish_basic_move_demo()` now auto-completes facing only for auto-move flow.
+- Manual post-move facing selection flow was preserved for non-auto movement.
+- Auto facing points toward the nearest living enemy and preserves current facing if no enemy exists.
+- Auto battle button still not connected.
+- Full auto battle loop still not implemented.
+- Did not modify:
+  - `Battle_Fullscreen_Test.tscn`
+  - ClickArea code
+  - `_play_enemy_ai_for_actor()`
+  - `_get_enemy_ai_target_state_for_actor()`
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.65j-3 Ally Auto Battle One-Action MVP
 
 - Added ally auto one-action MVP functions to `scripts/battle_web_import_test.gd`.

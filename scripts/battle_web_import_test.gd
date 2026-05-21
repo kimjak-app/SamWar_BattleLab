@@ -202,6 +202,8 @@ var pending_move_snapshot_facing := FACING_RIGHT
 var pending_move_snapshot_has_moved := false
 var pending_move_snapshot_ally_has_moved := false
 var has_pending_move_snapshot := false
+var is_auto_action_in_progress := false
+var should_auto_select_facing_after_move := false
 var current_attack_animation_target_state: BattleUnitState = null
 var current_enemy_attack_target_state: BattleUnitState = null
 var current_enemy_ai_actor_state: BattleUnitState = null
@@ -716,6 +718,10 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 	_fade_out_move_dust_for_unit(active_unit_state)
 	is_demo_animating = false
 	_append_battle_log("%s 이동 완료" % _get_selected_ally_display_name())
+	if should_auto_select_facing_after_move and is_auto_action_in_progress:
+		_enter_post_move_facing_selection()
+		_select_auto_facing_after_move_for_active_ally()
+		return
 	_enter_post_move_facing_selection()
 
 
@@ -876,6 +882,7 @@ func _finish_basic_attack_demo() -> void:
 	_hide_attack_range_overlay()
 	_clear_attack_target_selection()
 	_clear_pending_move_snapshot()
+	_clear_auto_action_flags()
 	_mark_ally_unit_acted(active_unit_state)
 	_show_unit_closeup_for_ally(active_unit_state)
 	_update_ally_ready_frames()
@@ -1100,6 +1107,11 @@ func _enter_post_move_facing_selection() -> void:
 	_show_facing_selection_panel()
 
 
+func _clear_auto_action_flags() -> void:
+	is_auto_action_in_progress = false
+	should_auto_select_facing_after_move = false
+
+
 func _select_post_move_facing(facing: String) -> void:
 	if current_phase != PHASE_FACING_SELECT:
 		return
@@ -1117,6 +1129,7 @@ func _select_post_move_facing(facing: String) -> void:
 	_append_battle_log("방향 결정: %s" % facing)
 	_clear_attack_target_selection()
 	_clear_pending_move_snapshot()
+	_clear_auto_action_flags()
 	_set_phase(PHASE_ALLY_TURN)
 	_start_idle_breathing()
 	_refresh_move_target_feedback()
@@ -1406,6 +1419,7 @@ func _rollback_pending_ally_move() -> void:
 	_show_move_range_overlay_for_active_unit()
 	_refresh_move_target_feedback()
 	_clear_pending_move_snapshot()
+	_clear_auto_action_flags()
 	_show_unit_closeup_for_ally(active_unit_state)
 	_update_ally_ready_frames()
 	_start_idle_breathing()
@@ -3604,6 +3618,37 @@ func _debug_print_auto_battle_policy_snapshot(actor_state: BattleUnitState) -> v
 	])
 
 
+func _get_best_auto_facing_toward_nearest_enemy(actor_state: BattleUnitState) -> String:
+	if actor_state == null:
+		return FACING_RIGHT
+
+	var nearest_target: BattleUnitState = null
+	var nearest_distance := 999999
+	for target_state in _get_alive_auto_targets_for_side(actor_state.side):
+		var distance := get_unit_grid_distance(actor_state, target_state)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest_target = target_state
+
+	if nearest_target == null:
+		return _normalize_facing(actor_state.facing)
+	if actor_state.grid_cell.x < nearest_target.grid_cell.x:
+		return FACING_RIGHT
+	if actor_state.grid_cell.x > nearest_target.grid_cell.x:
+		return FACING_LEFT
+	if actor_state.grid_cell.y > nearest_target.grid_cell.y:
+		return FACING_UP
+	if actor_state.grid_cell.y < nearest_target.grid_cell.y:
+		return FACING_DOWN
+	return _normalize_facing(actor_state.facing)
+
+
+func _select_auto_facing_after_move_for_active_ally() -> void:
+	if active_unit_state == null:
+		return
+	_select_post_move_facing(_get_best_auto_facing_toward_nearest_enemy(active_unit_state))
+
+
 func _try_auto_attack_for_active_ally() -> bool:
 	if active_unit_state == null:
 		return false
@@ -3629,6 +3674,7 @@ func _try_auto_attack_for_active_ally() -> bool:
 	selected_attack_target_side = target_state.side if target_state.side != "" else "enemy"
 	_show_attack_target_feedback()
 	_append_battle_log("%s 자동 공격 선택" % target_state.display_name)
+	is_auto_action_in_progress = true
 	play_basic_attack_demo()
 	return is_demo_animating
 
@@ -3662,12 +3708,18 @@ func _try_auto_move_for_active_ally() -> bool:
 		return false
 
 	_append_battle_log("%s 자동 이동 후보 선택" % _format_cell(move_cell))
-	return true
+	is_auto_action_in_progress = true
+	should_auto_select_facing_after_move = true
+	play_basic_move_demo()
+	if not is_demo_animating:
+		_clear_auto_action_flags()
+	return is_demo_animating
 
 
 func _auto_wait_active_ally() -> void:
 	if active_unit_state == null:
 		return
+	_clear_auto_action_flags()
 	_append_battle_log("%s 자동 대기 후보" % active_unit_state.display_name)
 
 

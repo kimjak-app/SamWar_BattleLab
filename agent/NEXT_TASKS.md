@@ -1,20 +1,32 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.65j-3 Ally Auto Battle One-Action MVP
-
-## Priority 1
 v0.65j-3a Auto Move + Auto Facing Completion
 
+## Priority 1
+v0.65j-4 Auto Battle Button Hook
+
 Goal:
-- Complete the auto move path by connecting movement execution and automatic facing resolution.
-- Keep existing manual facing flow intact for non-auto actions.
+- Connect a UI trigger after one-action auto battle is stable.
+- Keep the current one-action implementation as the execution core.
 
 Notes:
-- Auto move currently stops at candidate selection.
-- This step should finish the move-to-facing gap safely.
+- Do not add full auto loop in the same step.
 
 ## Completed
+v0.65j-3a Auto Move + Auto Facing Completion
+
+Completed items:
+- Extended `_try_auto_move_for_active_ally()` to start actual movement through the existing move demo path.
+- Added auto-action flags for auto move/facing flow separation.
+- Added nearest-enemy auto facing selection after move.
+- Auto move no longer stops at facing-select wait state during auto flow.
+- Preserved manual move + facing UX for non-auto flow.
+- Kept the implementation disconnected from any auto battle button.
+- Kept the implementation disconnected from any full auto loop.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.65j-3 Ally Auto Battle One-Action MVP
 
 Completed items:
@@ -28,7 +40,7 @@ Completed items:
 - Kept the new MVP disconnected from any button or full auto loop.
 - Headless project launch and headless scene launch remained 0 errors.
 
-## Previously Completed
+## Earlier Completed
 v0.65j-2 Auto Battle Helper Functions Scaffold
 
 Completed items:
@@ -79,25 +91,19 @@ Completed items:
 - No combat formula, turn flow, AI order, or visual node movement changed.
 
 ## Priority 2
-v0.65j-4 Auto Battle Button Hook
-
-Goal:
-- Connect a UI trigger after one-action auto battle is stable.
-
-## Priority 3
 v0.65j-5 Full Auto Battle Loop Prototype
 
 Goal:
 - Iterate automatic action flow until turn or battle completion.
 
-## Priority 4
+## Priority 3
 v0.65i-2 ClickArea Root Migration Spike
 
 Goal:
 - Test whether ClickArea can move closer to slot-root ownership without breaking collision/input coordinates.
 - Keep this isolated from auto battle and from combat logic changes.
 
-## Priority 5
+## Priority 4
 Debug cleanup
 
 Review and decide whether to remove:

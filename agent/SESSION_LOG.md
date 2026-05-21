@@ -3,6 +3,38 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.65j-3 Ally Auto Battle One-Action MVP complete
+
+Goal:
+- v0.65j-3a Auto Move + Auto Facing Completion
+
+Completed:
+- Extended `_try_auto_move_for_active_ally()` to start actual movement through `play_basic_move_demo()`.
+- Added auto-action flow flags for separating auto move/facing from manual move/facing.
+- Added nearest-enemy auto facing selection after move.
+- Updated `_finish_basic_move_demo()` so auto move no longer waits at `PHASE_FACING_SELECT`.
+- Preserved manual move + facing selection flow for non-auto movement.
+- Kept auto battle button disconnected.
+- Kept full auto battle loop unimplemented.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify ClickArea code.
+- Did not modify `_play_enemy_ai_for_actor()`.
+- Did not modify `_get_enemy_ai_target_state_for_actor()`.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Auto move + auto facing completion confirmed by function flow wiring.
+- No enemy AI flow rewiring introduced.
+
+Remaining tasks:
+- v0.65j-4 Auto Battle Button Hook
+- v0.65j-5 Full Auto Battle Loop Prototype
+- v0.65i-2 ClickArea Root Migration Spike
+
+## 2026-05-21
+
+Starting baseline:
 - v0.65j-2 Auto Battle Helper Functions Scaffold complete
 
 Goal:

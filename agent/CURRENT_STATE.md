@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.65j-3 Ally Auto Battle One-Action MVP
+v0.65j-3a Auto Move + Auto Facing Completion
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -162,6 +162,20 @@ Verified principle:
 - ClickArea code was not modified.
 - No scene node was changed.
 
+## v0.65j-3a Auto Move + Auto Facing State
+- Auto move now reuses the existing `play_basic_move_demo()` execution path.
+- Auto move sets a move target and starts real ally movement when a valid best move cell exists.
+- Added auto-action flags to distinguish auto move/facing from manual move/facing flow.
+- Auto move now auto-completes post-move facing instead of stopping at `PHASE_FACING_SELECT`.
+- Auto facing chooses the nearest living enemy direction using existing facing constants.
+- If no living enemy exists, current facing is preserved.
+- Manual post-move facing UX remains in place for non-auto movement.
+- Auto battle button is still not connected.
+- Full auto battle loop is still not implemented.
+- Existing enemy AI flow was preserved.
+- ClickArea code was not modified.
+- No scene node was changed.
+
 ## Unit Token Asset State
 - Korea / China / Japan infantry / archer / gunner / cavalry token assets are normalized around the 256 baseline.
 - Country/type folder structure is used.
@@ -194,6 +208,8 @@ Verified principle:
 - Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-2.
 - Headless project launch exit code 0 confirmed after v0.65j-3.
 - Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-3.
+- Headless project launch exit code 0 confirmed after v0.65j-3a.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-3a.
 
 ## Guardrails
 - Do not modify `Battle_WebImport_Test.tscn`.
