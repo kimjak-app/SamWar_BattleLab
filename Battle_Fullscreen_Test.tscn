@@ -84,8 +84,6 @@ script = ExtResource("1_script")
 
 [node name="AllyMainSlot" type="Node2D" parent="Slots" unique_id=2108450002]
 
-[node name="EnemyMainSlot" type="Node2D" parent="Slots" unique_id=2108450004]
-
 [node name="AllyUnitVisualRoot" type="Node2D" parent="Slots/AllyMainSlot" unique_id=1042411759]
 
 [node name="AllyUnitShadow" type="Polygon2D" parent="Slots/AllyMainSlot/AllyUnitVisualRoot" unique_id=335564105]
@@ -130,6 +128,104 @@ offset_top = 972.0
 offset_right = 422.0
 offset_bottom = 992.0
 text = "94 / 94"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyMainSlot" type="Node2D" parent="Slots" unique_id=2108450004]
+
+[node name="EnemyUnitVisualRoot" type="Node2D" parent="Slots/EnemyMainSlot" unique_id=1507310536]
+
+[node name="EnemyUnitShadow" type="Polygon2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1776193078]
+position = Vector2(1548, 296)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="EnemyUnitToken" type="Sprite2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=175940460]
+visible = false
+z_index = 1
+position = Vector2(1543, 269)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("21_china_infantry")
+
+[node name="EnemyMoveDustSprite" type="Sprite2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1979046514]
+visible = false
+z_index = 2
+position = Vector2(1548, 281)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="EnemyPortraitBadge" type="Sprite2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1672489250]
+z_index = 3
+position = Vector2(1514.9999, 238)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("6_enemyportrait")
+
+[node name="EnemyHPBar" type="ProgressBar" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1609871165]
+offset_left = 1499.0
+offset_top = 313.0
+offset_right = 1595.0
+offset_bottom = 322.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("5")
+value = 62.0
+show_percentage = false
+
+[node name="EnemyTroopLabel" type="Label" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1006282899]
+offset_left = 1500.0
+offset_top = 322.0
+offset_right = 1596.0
+offset_bottom = 342.0
+text = "100 / 100"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemySupportSlot" type="Node2D" parent="Slots" unique_id=2108450005]
+
+[node name="EnemySupportUnitVisualRoot" type="Node2D" parent="Slots/EnemySupportSlot" unique_id=1656542731]
+
+[node name="EnemySupportUnitShadow" type="Polygon2D" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904412]
+position = Vector2(1334.6665, 404)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="EnemySupportUnitToken" type="Sprite2D" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904413]
+visible = false
+z_index = 1
+position = Vector2(1333.3333, 370)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("21_china_infantry")
+
+[node name="EnemySupportMoveDustSprite" type="Sprite2D" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=1979046515]
+visible = false
+z_index = 2
+position = Vector2(1333.3333, 382)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="EnemySupportPortraitBadge" type="Sprite2D" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904414]
+z_index = 3
+position = Vector2(1303.6665, 347)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("10_enemysupportportrait")
+
+[node name="EnemySupportHPBar" type="ProgressBar" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904415]
+offset_left = 1285.0
+offset_top = 413.0
+offset_right = 1381.0
+offset_bottom = 422.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("5")
+value = 80.0
+show_percentage = false
+
+[node name="EnemySupportTroopLabel" type="Label" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904416]
+offset_left = 1285.0
+offset_top = 420.0
+offset_right = 1381.0
+offset_bottom = 440.0
+text = "80 / 80"
 label_settings = SubResource("2")
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -1332,100 +1428,6 @@ position = Vector2(-4.333313, 3)
 position = Vector2(-19.3333, -105)
 
 [node name="EnemySide" type="Node2D" parent="." unique_id=612955151]
-
-[node name="EnemyUnitVisualRoot" type="Node2D" parent="Slots/EnemyMainSlot" unique_id=1507310536]
-
-[node name="EnemyUnitShadow" type="Polygon2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1776193078]
-position = Vector2(1548, 296)
-color = Color(0, 0, 0, 0.28)
-polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
-
-[node name="EnemyUnitToken" type="Sprite2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=175940460]
-visible = false
-z_index = 1
-position = Vector2(1543, 269)
-scale = Vector2(0.48437494, 0.46875003)
-texture = ExtResource("21_china_infantry")
-
-[node name="EnemyMoveDustSprite" type="Sprite2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1979046514]
-visible = false
-z_index = 2
-position = Vector2(1548, 281)
-scale = Vector2(0.42, 0.42)
-texture = ExtResource("13_move_dust_01")
-
-[node name="EnemyPortraitBadge" type="Sprite2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1672489250]
-z_index = 3
-position = Vector2(1514.9999, 238)
-scale = Vector2(0.32, 0.32)
-texture = ExtResource("6_enemyportrait")
-
-[node name="EnemyHPBar" type="ProgressBar" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1609871165]
-offset_left = 1499.0
-offset_top = 313.0
-offset_right = 1595.0
-offset_bottom = 322.0
-theme_override_styles/background = SubResource("3")
-theme_override_styles/fill = SubResource("5")
-value = 62.0
-show_percentage = false
-
-[node name="EnemyTroopLabel" type="Label" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1006282899]
-offset_left = 1500.0
-offset_top = 322.0
-offset_right = 1596.0
-offset_bottom = 342.0
-text = "100 / 100"
-label_settings = SubResource("2")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="EnemySupportUnitVisualRoot" type="Node2D" parent="EnemySide" unique_id=1656542731]
-
-[node name="EnemySupportUnitShadow" type="Polygon2D" parent="EnemySide/EnemySupportUnitVisualRoot" unique_id=2081904412]
-position = Vector2(1334.6665, 404)
-color = Color(0, 0, 0, 0.28)
-polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
-
-[node name="EnemySupportUnitToken" type="Sprite2D" parent="EnemySide/EnemySupportUnitVisualRoot" unique_id=2081904413]
-visible = false
-z_index = 1
-position = Vector2(1333.3333, 370)
-scale = Vector2(0.48437494, 0.46875003)
-texture = ExtResource("21_china_infantry")
-
-[node name="EnemySupportMoveDustSprite" type="Sprite2D" parent="EnemySide/EnemySupportUnitVisualRoot" unique_id=1979046515]
-visible = false
-z_index = 2
-position = Vector2(1333.3333, 382)
-scale = Vector2(0.42, 0.42)
-texture = ExtResource("13_move_dust_01")
-
-[node name="EnemySupportPortraitBadge" type="Sprite2D" parent="EnemySide/EnemySupportUnitVisualRoot" unique_id=2081904414]
-z_index = 3
-position = Vector2(1303.6665, 347)
-scale = Vector2(0.32, 0.32)
-texture = ExtResource("10_enemysupportportrait")
-
-[node name="EnemySupportHPBar" type="ProgressBar" parent="EnemySide/EnemySupportUnitVisualRoot" unique_id=2081904415]
-offset_left = 1285.0
-offset_top = 413.0
-offset_right = 1381.0
-offset_bottom = 422.0
-theme_override_styles/background = SubResource("3")
-theme_override_styles/fill = SubResource("5")
-value = 80.0
-show_percentage = false
-
-[node name="EnemySupportTroopLabel" type="Label" parent="EnemySide/EnemySupportUnitVisualRoot" unique_id=2081904416]
-offset_left = 1285.0
-offset_top = 420.0
-offset_right = 1381.0
-offset_bottom = 440.0
-text = "80 / 80"
-label_settings = SubResource("2")
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="EnemyInfantryUnitVisualTemplate" type="Node2D" parent="EnemySide" unique_id=2081904201]
 position = Vector2(1546.6667, 262)

@@ -3,6 +3,33 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.66g EnemyMainSlot Migration Stable
+
+Goal:
+- v0.66h EnemySupportSlot Migration
+
+Completed:
+- Added `Slots/EnemySupportSlot` to `Battle_Fullscreen_Test.tscn`.
+- Moved only the enemy-support actual visual root subtree under `EnemySupportSlot`.
+- Updated enemy-support visual node paths in `scripts/battle_web_import_test.gd`.
+- Kept `EnemySupportUnitClickArea` and `EnemySupportFacingIndicator` in their original parents.
+- Kept `AllyMainSlot`, `AllySupportSlot`, and `EnemyMainSlot` structures intact.
+- Did not modify movement, attack, enemy AI, auto battle, or battle-dust logic.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- `Slots/EnemySupportSlot` presence confirmed in scene diff.
+- Enemy-support slot cache path wiring confirmed in code.
+
+Remaining tasks:
+- v0.66i Slot Tree QA Stable
+- v0.67 Slot Count Expansion Plan
+- Auto Battle QA
+
+## 2026-05-21
+
+Starting baseline:
 - v0.66f AllySupportSlot Migration Stable
 
 Goal:

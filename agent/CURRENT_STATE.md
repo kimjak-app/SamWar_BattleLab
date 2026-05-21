@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.66g EnemyMainSlot Migration Stable
+v0.66h EnemySupportSlot Migration Stable
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -258,6 +258,27 @@ Verified principle:
 - Kept `AllyMainSlot` and `AllySupportSlot` migrated structures intact.
 - Kept `enemy_support` visual root unchanged.
 - Updated enemy-main visual node paths in `scripts/battle_web_import_test.gd`.
+- Existing slot dictionary functions and `UnitVisualSlot` cache rebuild remain in use.
+- ClickArea / FacingIndicator remain reference-linked only.
+- Enemy-side `ready_frame` remains null as before.
+- No combat formula, movement logic, attack logic, enemy AI, auto battle, or battle-dust logic was intentionally changed.
+
+## v0.66h EnemySupportSlot Migration State
+- Added `EnemySupportSlot` under `Slots` in `Battle_Fullscreen_Test.tscn`.
+- Moved only `EnemySupportUnitVisualRoot` under `Slots/EnemySupportSlot`.
+- Moved only the enemy-support actual visual subtree:
+  - `EnemySupportUnitVisualRoot`
+  - `EnemySupportUnitShadow`
+  - `EnemySupportUnitToken`
+  - `EnemySupportMoveDustSprite`
+  - `EnemySupportPortraitBadge`
+  - `EnemySupportHPBar`
+  - `EnemySupportTroopLabel`
+- Kept these nodes unmoved:
+  - `EnemySupportUnitClickArea`
+  - `EnemySupportFacingIndicator`
+- Kept `AllyMainSlot`, `AllySupportSlot`, and `EnemyMainSlot` migrated structures intact.
+- Updated enemy-support visual node paths in `scripts/battle_web_import_test.gd`.
 - Existing slot dictionary functions and `UnitVisualSlot` cache rebuild remain in use.
 - ClickArea / FacingIndicator remain reference-linked only.
 - Enemy-side `ready_frame` remains null as before.
