@@ -1779,10 +1779,9 @@ func _get_enemy_support_group_nodes() -> Array[CanvasItem]:
 func _get_unit_visual_slots_for_state(unit_state: BattleUnitState) -> Dictionary:
 	if unit_state == null:
 		return {}
-	if unit_state.slot_id != "":
-		var slot_visuals := _get_visual_slots_for_slot_id(unit_state.slot_id)
-		if not slot_visuals.is_empty():
-			return slot_visuals
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	if slot != null:
+		return slot.to_visual_slots_dictionary()
 	if unit_state == ally_unit_state:
 		return _get_ally_main_visual_slots()
 	if unit_state == ally_support_unit_state:
@@ -1795,6 +1794,9 @@ func _get_unit_visual_slots_for_state(unit_state: BattleUnitState) -> Dictionary
 
 
 func _get_visual_slots_for_slot_id(slot_id: String) -> Dictionary:
+	var slot := _get_unit_visual_slot_for_slot_id(slot_id)
+	if slot != null:
+		return slot.to_visual_slots_dictionary()
 	match slot_id:
 		"ally_main":
 			return _get_ally_main_visual_slots()
@@ -1811,32 +1813,60 @@ func _get_visual_slots_for_slot_id(slot_id: String) -> Dictionary:
 func _rebuild_unit_visual_slot_refs() -> void:
 	unit_visual_slot_refs_by_id.clear()
 	for slot_id in SLOT_IDS:
-		unit_visual_slot_refs_by_id[slot_id] = UnitVisualSlot.create_from_dictionary(
-			slot_id,
-			_get_visual_slots_for_slot_id(slot_id)
-		)
+		var slot := _create_unit_visual_slot_from_dictionary(slot_id, _get_visual_slots_dictionary_fallback_for_slot_id(slot_id))
+		if slot != null:
+			unit_visual_slot_refs_by_id[slot_id] = slot
 
 
-func _get_unit_visual_slot_ref_for_state(unit_state: BattleUnitState) -> UnitVisualSlot:
+func _get_unit_visual_slot_for_state(unit_state: BattleUnitState) -> UnitVisualSlot:
 	if unit_state == null:
 		return null
 	if unit_state.slot_id != "":
-		var slot_ref := _get_unit_visual_slot_ref_for_slot_id(unit_state.slot_id)
-		if slot_ref != null:
-			return slot_ref
+		var slot := _get_unit_visual_slot_for_slot_id(unit_state.slot_id)
+		if slot != null:
+			return slot
 	if unit_state == ally_unit_state:
-		return _get_unit_visual_slot_ref_for_slot_id("ally_main")
+		return _get_unit_visual_slot_for_slot_id("ally_main")
 	if unit_state == ally_support_unit_state:
-		return _get_unit_visual_slot_ref_for_slot_id("ally_support")
+		return _get_unit_visual_slot_for_slot_id("ally_support")
 	if unit_state == enemy_unit_state:
-		return _get_unit_visual_slot_ref_for_slot_id("enemy_main")
+		return _get_unit_visual_slot_for_slot_id("enemy_main")
 	if unit_state == enemy_support_unit_state:
-		return _get_unit_visual_slot_ref_for_slot_id("enemy_support")
+		return _get_unit_visual_slot_for_slot_id("enemy_support")
 	return null
 
 
-func _get_unit_visual_slot_ref_for_slot_id(slot_id: String) -> UnitVisualSlot:
-	return unit_visual_slot_refs_by_id.get(slot_id) as UnitVisualSlot
+func _get_unit_visual_slot_for_slot_id(slot_id: String) -> UnitVisualSlot:
+	if slot_id == "":
+		return null
+	var cached_slot := unit_visual_slot_refs_by_id.get(slot_id) as UnitVisualSlot
+	if cached_slot != null:
+		return cached_slot
+	return _create_unit_visual_slot_from_dictionary(slot_id, _get_visual_slots_dictionary_fallback_for_slot_id(slot_id))
+
+
+func _has_unit_visual_slot_for_state(unit_state: BattleUnitState) -> bool:
+	return _get_unit_visual_slot_for_state(unit_state) != null
+
+
+func _create_unit_visual_slot_from_dictionary(slot_id: String, slot_visuals: Dictionary) -> UnitVisualSlot:
+	if slot_visuals.is_empty():
+		return null
+	return UnitVisualSlot.create_from_dictionary(slot_id, slot_visuals)
+
+
+func _get_visual_slots_dictionary_fallback_for_slot_id(slot_id: String) -> Dictionary:
+	match slot_id:
+		"ally_main":
+			return _get_ally_main_visual_slots()
+		"ally_support":
+			return _get_ally_support_visual_slots()
+		"enemy_main":
+			return _get_enemy_main_visual_slots()
+		"enemy_support":
+			return _get_enemy_support_visual_slots()
+		_:
+			return {}
 
 
 func _get_ally_main_visual_slots() -> Dictionary:
@@ -1904,24 +1934,19 @@ func _get_enemy_support_visual_slots() -> Dictionary:
 
 
 func _debug_print_unit_visual_root_slots() -> void:
-	var slot_sets := {
-		"ally_main": _get_ally_main_visual_slots(),
-		"ally_support": _get_ally_support_visual_slots(),
-		"enemy_main": _get_enemy_main_visual_slots(),
-		"enemy_support": _get_enemy_support_visual_slots(),
-	}
 	print("UNIT VISUAL ROOT SLOTS:")
-	for slot_name in slot_sets.keys():
-		var slots: Dictionary = slot_sets[slot_name]
-		print("%s root=%s token=%s hp=%s label=%s portrait=%s dust=%s click=%s" % [
-			slot_name,
-			str(slots.get("root") != null),
-			str(slots.get("token") != null),
-			str(slots.get("hp_bar") != null),
-			str(slots.get("troop_label") != null),
-			str(slots.get("portrait") != null),
-			str(slots.get("move_dust") != null),
-			str(slots.get("click_area") != null),
+	for slot_id in SLOT_IDS:
+		var slot := _get_unit_visual_slot_for_slot_id(slot_id)
+		var slot_visuals := _get_visual_slots_dictionary_fallback_for_slot_id(slot_id)
+		print("%s cache=%s root=%s token=%s click=%s ready=%s facing=%s dict=%s" % [
+			slot_id,
+			str(slot != null),
+			str(slot != null and slot.root != null),
+			str(slot != null and slot.token != null),
+			str(slot != null and slot.click_area != null),
+			str(slot != null and slot.ready_frame != null),
+			str(slot != null and slot.facing_indicator != null),
+			str(not slot_visuals.is_empty()),
 		])
 
 

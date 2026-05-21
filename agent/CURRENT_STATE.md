@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix
+v0.66b UnitVisualSlot Lookup Integration Stable
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -12,6 +12,7 @@ v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix
 Attached scripts:
 - `scripts/battle_web_import_test.gd`
 - `scripts/battle_unit_state.gd`
+- `scripts/unit_visual_slot.gd`
 
 This is the current stable 2v2 Godot battle verification scene.
 
@@ -59,6 +60,50 @@ Verified principle:
 - Right-click attack cancel works.
 - HP 0 cleanup works.
 - Headless scene launch has been kept at 0 errors.
+
+## v0.66a UnitVisualSlot Scaffold State
+- Added `scripts/unit_visual_slot.gd`.
+- `UnitVisualSlot` is a `RefCounted` reference adapter only.
+- Prepared cached slot references for:
+  - `ally_main`
+  - `ally_support`
+  - `enemy_main`
+  - `enemy_support`
+- Existing `_get_*_visual_slots()` dictionary functions were preserved.
+- No scene-tree migration was done.
+- ClickArea / READY frame / FacingIndicator parent structure was preserved.
+- Existing 2v2 manual battle loop and full auto battle flow were preserved.
+
+## v0.66b UnitVisualSlot Lookup Integration State
+- Added cache-first lookup helpers for `UnitVisualSlot` references.
+- `UnitVisualSlot` lookup now uses:
+  - `unit_state.slot_id` first
+  - direct `unit_state` comparison fallback second
+  - dictionary-backed slot adapter fallback when cache entry is missing
+- Existing dictionary-returning functions were preserved:
+  - `_get_ally_main_visual_slots()`
+  - `_get_ally_support_visual_slots()`
+  - `_get_enemy_main_visual_slots()`
+  - `_get_enemy_support_visual_slots()`
+  - `_get_visual_slots_for_slot_id()`
+  - `_get_unit_visual_slots_for_state()`
+- Dictionary-returning lookups now safely bridge through `UnitVisualSlot.to_visual_slots_dictionary()` when a slot adapter is available.
+- Added `to_visual_slots_dictionary()` to keep legacy key names stable:
+  - `root`
+  - `token`
+  - `shadow`
+  - `portrait`
+  - `hp_bar`
+  - `troop_label`
+  - `move_dust`
+  - `click_area`
+  - `click_shape`
+  - `ready_frame`
+  - `facing_indicator`
+- Slot cache rebuild still prepares the 4 current combat slots only.
+- No combat formula, turn flow, AI order, auto battle logic, or scene tree structure was intentionally changed.
+- `Battle_Fullscreen_Test.tscn` remained unmodified.
+- ClickArea / READY frame / FacingIndicator parent structure remained unchanged.
 
 ## v0.65g Completed Structure
 - UnitVisualRoot Adapter Layer is in place.

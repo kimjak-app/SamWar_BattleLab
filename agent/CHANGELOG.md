@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## v0.66b UnitVisualSlot Lookup Integration
+
+- Integrated cache-first `UnitVisualSlot` lookup helpers into `scripts/battle_web_import_test.gd`.
+- Added:
+  - `_get_unit_visual_slot_for_slot_id()`
+  - `_get_unit_visual_slot_for_state()`
+  - `_has_unit_visual_slot_for_state()`
+  - `_create_unit_visual_slot_from_dictionary()`
+  - `_get_visual_slots_dictionary_fallback_for_slot_id()`
+- Updated `_get_unit_visual_slots_for_state()` so it first bridges through `UnitVisualSlot` and then preserves existing direct dictionary fallback behavior.
+- Updated `_get_visual_slots_for_slot_id()` so it first resolves a `UnitVisualSlot` and returns a legacy-compatible dictionary view when available.
+- Updated `_rebuild_unit_visual_slot_refs()` so cache rebuild uses explicit dictionary fallback instead of recursively going through the public lookup wrapper.
+- Added `to_visual_slots_dictionary()` to `scripts/unit_visual_slot.gd` and kept `to_dictionary()` as a compatibility alias.
+- Expanded `_debug_print_unit_visual_root_slots()` to include minimal cache-state output:
+  - cache presence
+  - root
+  - token
+  - click area
+  - ready frame
+  - facing indicator
+  - dictionary fallback presence
+- Preserved:
+  - `Battle_Fullscreen_Test.tscn`
+  - ClickArea parent structure
+  - READY frame parent structure
+  - FacingIndicator parent structure
+  - existing `_get_*_visual_slots()` dictionary functions
+  - 2v2 manual battle loop
+  - auto battle logic
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix
 
 - Isolated battle dust further and reduced stale move-dust carryover in `scripts/battle_web_import_test.gd`.

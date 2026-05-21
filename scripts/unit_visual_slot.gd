@@ -32,7 +32,7 @@ static func create_from_dictionary(target_slot_id: String, slot_visuals: Diction
 	return slot
 
 
-func to_dictionary() -> Dictionary:
+func to_visual_slots_dictionary() -> Dictionary:
 	return {
 		"root": root,
 		"token": token,
@@ -48,8 +48,12 @@ func to_dictionary() -> Dictionary:
 	}
 
 
+func to_dictionary() -> Dictionary:
+	return to_visual_slots_dictionary()
+
+
 func get_value(key: StringName) -> Variant:
-	return to_dictionary().get(key)
+	return to_visual_slots_dictionary().get(key)
 
 
 func has_root_visual() -> bool:

@@ -3,6 +3,38 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.66a UnitVisualSlot Scaffold Stable
+
+Goal:
+- v0.66b UnitVisualSlot Lookup Integration
+
+Completed:
+- Added cache-first `UnitVisualSlot` lookup helpers to `scripts/battle_web_import_test.gd`.
+- Preserved existing slot dictionary functions and routed them through a safe adapter bridge when available.
+- Added `to_visual_slots_dictionary()` to `scripts/unit_visual_slot.gd` and kept legacy dictionary key names unchanged.
+- Kept fallback order stable:
+  - `unit_state.slot_id` first
+  - direct state-to-slot mapping second
+  - dictionary-backed adapter fallback when cache is empty
+- Kept `Battle_Fullscreen_Test.tscn` unmodified.
+- Kept ClickArea / READY frame / FacingIndicator parent structure unchanged.
+- Kept 2v2 manual battle loop and auto battle logic unchanged.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- 4-slot cache rebuild path confirmed in code.
+- Dictionary fallback path confirmed in code.
+- No scene diff introduced.
+
+Remaining tasks:
+- v0.66c UnitVisualSlot Usage Expansion
+- v0.66d Scene Slot Tree Migration Plan
+- Auto Battle QA
+
+## 2026-05-21
+
+Starting baseline:
 - v0.65k-1 Battle Dust Layer + Density Hotfix complete
 
 Goal:

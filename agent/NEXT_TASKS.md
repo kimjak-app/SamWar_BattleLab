@@ -1,9 +1,25 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix
+v0.66b UnitVisualSlot Lookup Integration Stable
 
 ## Priority 1
+v0.66c UnitVisualSlot Usage Expansion
+
+Goal:
+- Expand safe read-path usage of `UnitVisualSlot` helpers into more visual/UI lookup call sites.
+- Keep existing dictionary helpers in place while increasing adapter usage incrementally.
+- Avoid large combat-path rewrites in one step.
+
+## Priority 2
+v0.66d Scene Slot Tree Migration Plan
+
+Goal:
+- Define a staged migration plan for any future scene-level slot tree changes.
+- Keep this as a planning task only until lookup-layer usage is stable.
+- Separate ClickArea and BattleUI attachment concerns from UnitVisualRoot migration concerns.
+
+## Priority 3
 Auto Battle QA
 
 Goal:
@@ -16,6 +32,34 @@ Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
 
 ## Completed
+v0.66b UnitVisualSlot Lookup Integration Stable
+
+Completed items:
+- Added cache-first `UnitVisualSlot` lookup helpers with safe fallback ordering.
+- Preserved all existing `_get_*_visual_slots()` dictionary functions.
+- Added dictionary bridge support through `UnitVisualSlot.to_visual_slots_dictionary()`.
+- Kept the 4-slot cache limited to:
+  - `ally_main`
+  - `ally_support`
+  - `enemy_main`
+  - `enemy_support`
+- Kept `Battle_Fullscreen_Test.tscn` unmodified.
+- Kept ClickArea code and parent structure unmodified.
+- Kept READY frame / FacingIndicator parent structure unmodified.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
+v0.66a UnitVisualSlot Scaffold Stable
+
+Completed items:
+- Added `scripts/unit_visual_slot.gd`.
+- Added `UnitVisualSlot` as a `RefCounted` reference adapter.
+- Added 4-slot cache preparation in `scripts/battle_web_import_test.gd`.
+- Preserved existing dictionary slot functions.
+- Kept scene tree structure unchanged.
+- Headless project launch remained 0 errors.
+
+## Previously Completed
 v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix
 
 Completed items:
@@ -166,7 +210,7 @@ Completed items:
 - No ClickArea / READY / FacingIndicator migration was done.
 - No combat formula, turn flow, AI order, or visual node movement changed.
 
-## Priority 2
+## Priority 4
 Debug cleanup
 
 Review and decide whether to remove:
@@ -174,7 +218,7 @@ Review and decide whether to remove:
 - `[ATTACK_CLICK]` print
 - `_debug_print_ally_portrait_offsets()` if no longer needed
 
-## Priority 3
+## Priority 5
 v0.65i-2 ClickArea Root Migration Spike
 
 Goal:
