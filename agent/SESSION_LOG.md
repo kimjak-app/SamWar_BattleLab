@@ -3,6 +3,91 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.65k-1 Battle Dust Layer + Density Hotfix complete
+
+Goal:
+- v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix
+
+Completed:
+- Rechecked all dust call paths in `scripts/battle_web_import_test.gd`.
+- Identified two likely white-dust recurrence paths:
+  - stale move dust surviving into attack timing
+  - battle dust density still being too strong over repeated turns
+- Disabled attack battle dust and kept only hit battle dust.
+- Added stale move-dust cleanup before ally attack, before enemy attack, and after ally attack finish.
+- Lowered hit battle dust alpha, scale, duration, tint brightness, and world layer again.
+- Kept movement dust helper functions unchanged.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify ClickArea code.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Battle dust still queues free at tween end in code.
+- Movement dust helper path remained unchanged in code.
+
+Remaining tasks:
+- Auto Battle QA
+- Debug cleanup
+- v0.65i-2 ClickArea Root Migration Spike
+
+## 2026-05-21
+
+Starting baseline:
+- v0.65k Battle Dust FX Profile Tuning complete
+
+Goal:
+- v0.65k-1 Battle Dust Layer + Density Hotfix
+
+Completed:
+- Lowered battle dust opacity, scale, duration, and render layer.
+- Reduced attack-dust density separately from hit-dust density.
+- Moved attack and hit dust farther down toward unit foot-level.
+- Kept movement dust helper functions unchanged.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify ClickArea code.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Battle dust now forces lower world-layer behavior in code.
+- Movement dust helper path remained unchanged in code.
+
+Remaining tasks:
+- Auto Battle QA
+- Debug cleanup
+- v0.65i-2 ClickArea Root Migration Spike
+
+## 2026-05-21
+
+Starting baseline:
+- v0.65j-5a Auto Battle Stop UX Hotfix complete
+
+Goal:
+- v0.65k Battle Dust FX Profile Tuning
+
+Completed:
+- Added battle-dust-only FX tuning for attack and hit moments.
+- Reused existing dust textures without changing movement dust template behavior.
+- Kept battle dust opacity below full white exposure and applied beige / dirt tint.
+- Lowered battle dust placement toward foot-level and kept it behind slash / hit spark FX.
+- Preserved movement dust flow, auto battle flow, and ClickArea code.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Movement dust helper path remained unchanged in code.
+- Battle dust helper path confirmed on ally attack and enemy hit reaction paths.
+
+Remaining tasks:
+- Auto Battle QA
+- Debug cleanup
+- v0.65i-2 ClickArea Root Migration Spike
+
+## 2026-05-21
+
+Starting baseline:
 - v0.65j-5 Full Auto Battle Loop Prototype complete
 
 Goal:

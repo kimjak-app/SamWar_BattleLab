@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.65j-5a Auto Battle Stop UX Hotfix
+v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -228,6 +228,81 @@ Verified principle:
 - Existing enemy AI flow was preserved.
 - ClickArea code was not modified.
 
+## v0.65k Battle Dust FX Profile Tuning State
+- Movement dust flow remains unchanged.
+- `_show_move_dust_for_unit()`, `_fade_out_move_dust_for_unit()`, `_hide_all_move_dust_sprites()`, and `_apply_move_dust_template_to_sprite()` remain on the original movement-only path.
+- Added separate battle-dust FX tuning for attack and hit moments only.
+- Battle dust now reuses the existing move-dust textures as source art, but not the move-dust template profile.
+- Battle dust profile is now tuned around:
+  - opacity `0.45 ~ 0.6`
+  - beige / dirt tint
+  - lower foot-level placement
+  - scale `0.75 ~ 0.85`
+  - duration `0.25 ~ 0.45`
+- Attack dust now spawns between attacker and target at a lower position.
+- Hit dust now spawns near the target foot area at a lower position.
+- Battle dust `z_index` stays behind slash / hit spark FX.
+- Existing attack slash / hit spark / damage number flow was preserved.
+- Existing auto battle logic was preserved.
+- `Battle_Fullscreen_Test.tscn` was not modified.
+- ClickArea code was not modified.
+
+## v0.65k-1 Battle Dust Layer + Density Hotfix State
+- Movement dust flow remains unchanged.
+- Movement dust helper functions remain unmodified:
+  - `_show_move_dust_for_unit()`
+  - `_fade_out_move_dust_for_unit()`
+  - `_hide_all_move_dust_sprites()`
+  - `_apply_move_dust_template_to_sprite()`
+- Battle dust now forces `z_as_relative = false` and uses a much lower world `z_index`.
+- Battle dust now sits below slash / hit spark / damage FX and closer to foot-level.
+- Hit dust remains the primary visible battle dust.
+- Attack dust remains present but with reduced density:
+  - lower alpha
+  - smaller scale
+  - lower foot-level placement near the attacker
+- Battle dust profile is now tuned around:
+  - hit opacity `0.18 ~ 0.32`
+  - attack opacity `0.12 ~ 0.22`
+  - dirt tint `Color(0.62, 0.50, 0.34, 1.0)`
+  - hit scale `0.45 ~ 0.65`
+  - attack scale `0.35 ~ 0.5`
+  - duration `0.14 ~ 0.26`
+- `Battle_Fullscreen_Test.tscn` was not modified.
+- Existing auto battle logic was preserved.
+- ClickArea code was not modified.
+
+## v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix State
+- Large white dust could recur through two paths:
+  - stale `MoveDustSprite` visibility surviving from movement into later attack / counterattack timing
+  - battle-dust FX still reusing the move-dust texture source with density high enough to read as a white cloud after repeated turns
+- Movement dust helper functions remain unchanged:
+  - `_show_move_dust_for_unit()`
+  - `_fade_out_move_dust_for_unit()`
+  - `_hide_all_move_dust_sprites()`
+  - `_apply_move_dust_template_to_sprite()`
+- Stale move dust is now explicitly cleared:
+  - before ally attack demo starts
+  - before enemy basic attack starts
+  - after ally basic attack finishes
+- Attack battle dust is now disabled.
+- Hit battle dust remains as the only battle-dust cue.
+- Battle dust now uses only battle-dust constants for:
+  - alpha
+  - scale
+  - duration
+  - tint
+- Battle dust now tags spawned nodes as `BattleDustFX` and still `queue_free()`s them at tween end.
+- Hit battle dust profile is now tuned around:
+  - opacity `0.10 ~ 0.22`
+  - dirt tint `Color(0.48, 0.38, 0.24, 1.0)`
+  - scale `0.30 ~ 0.48`
+  - duration `0.10 ~ 0.18`
+  - lower world `z_index`
+- `Battle_Fullscreen_Test.tscn` was not modified.
+- Existing auto battle logic was preserved.
+- ClickArea code was not modified.
+
 ## Unit Token Asset State
 - Korea / China / Japan infantry / archer / gunner / cavalry token assets are normalized around the 256 baseline.
 - Country/type folder structure is used.
@@ -268,6 +343,12 @@ Verified principle:
 - Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-5.
 - Headless project launch exit code 0 confirmed after v0.65j-5a.
 - Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-5a.
+- Headless project launch exit code 0 confirmed after v0.65k.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65k.
+- Headless project launch exit code 0 confirmed after v0.65k-1.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65k-1.
+- Headless project launch exit code 0 confirmed after v0.65k-2.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65k-2.
 
 ## Guardrails
 - Do not modify `Battle_WebImport_Test.tscn`.

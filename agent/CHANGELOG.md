@@ -1,5 +1,89 @@
 # CHANGELOG
 
+## v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix
+
+- Isolated battle dust further and reduced stale move-dust carryover in `scripts/battle_web_import_test.gd`.
+- Large white dust recurrence was traced to:
+  - stale `MoveDustSprite` visibility surviving into attack timing
+  - battle dust density still being strong enough to resemble white cloud buildup across repeated turns
+- Updated battle dust constants:
+  - `BATTLE_DUST_ALPHA_MIN := 0.10`
+  - `BATTLE_DUST_ALPHA_MAX := 0.22`
+  - `BATTLE_DUST_SCALE_MULTIPLIER_MIN := 0.30`
+  - `BATTLE_DUST_SCALE_MULTIPLIER_MAX := 0.48`
+  - `BATTLE_DUST_DURATION_MIN := 0.10`
+  - `BATTLE_DUST_DURATION_MAX := 0.18`
+  - `BATTLE_DUST_TINT := Color(0.48, 0.38, 0.24, 1.0)`
+  - `BATTLE_DUST_WORLD_Z_INDEX := 2`
+- Disabled attack battle dust by turning `_spawn_attack_battle_dust_fx()` into a no-op.
+- Kept only hit battle dust as the remaining battle-dust cue.
+- Added `_hide_all_move_dust_sprites()` cleanup:
+  - before ally attack demo start
+  - before enemy basic attack start
+  - after ally basic attack finish
+- Battle dust still uses only battle-dust-specific constants and still `queue_free()`s at tween end.
+- Existing movement dust helper functions were not modified.
+- Did not modify:
+  - `Battle_Fullscreen_Test.tscn`
+  - ClickArea code
+  - auto battle logic
+  - `AutoBattleButton` runtime geometry
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
+## v0.65k-1 Battle Dust Layer + Density Hotfix
+
+- Reduced battle dust density and lowered its render layer in `scripts/battle_web_import_test.gd`.
+- Updated battle dust constants:
+  - `BATTLE_DUST_ALPHA_MIN := 0.18`
+  - `BATTLE_DUST_ALPHA_MAX := 0.32`
+  - `BATTLE_DUST_ATTACK_ALPHA_MIN := 0.12`
+  - `BATTLE_DUST_ATTACK_ALPHA_MAX := 0.22`
+  - `BATTLE_DUST_SCALE_MULTIPLIER_MIN := 0.45`
+  - `BATTLE_DUST_SCALE_MULTIPLIER_MAX := 0.65`
+  - `BATTLE_DUST_ATTACK_SCALE_MULTIPLIER_MIN := 0.35`
+  - `BATTLE_DUST_ATTACK_SCALE_MULTIPLIER_MAX := 0.5`
+  - `BATTLE_DUST_DURATION_MIN := 0.14`
+  - `BATTLE_DUST_DURATION_MAX := 0.26`
+  - `BATTLE_DUST_TINT := Color(0.62, 0.50, 0.34, 1.0)`
+- Battle dust now forces `z_as_relative = false` and uses lower world `z_index`.
+- Attack dust now spawns weaker and lower near the attacker foot area.
+- Hit dust now spawns lower near the target foot area and remains the main visible dust cue.
+- Existing movement dust helper functions were not modified.
+- Did not modify:
+  - `Battle_Fullscreen_Test.tscn`
+  - ClickArea code
+  - auto battle logic
+  - `AutoBattleButton` runtime geometry
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
+## v0.65k Battle Dust FX Profile Tuning
+
+- Added battle-dust-only tuning to `scripts/battle_web_import_test.gd`.
+- Added:
+  - `BATTLE_DUST_ALPHA_MIN`
+  - `BATTLE_DUST_ALPHA_MAX`
+  - `BATTLE_DUST_SCALE_MULTIPLIER_MIN`
+  - `BATTLE_DUST_SCALE_MULTIPLIER_MAX`
+  - `BATTLE_DUST_DURATION_MIN`
+  - `BATTLE_DUST_DURATION_MAX`
+  - `BATTLE_DUST_TINT`
+  - `_spawn_attack_battle_dust_fx()`
+  - `_spawn_hit_battle_dust_fx()`
+  - `_spawn_battle_dust_fx()`
+- Attack and hit dust now use a beige / dirt-tinted lower-opacity profile instead of bright white-looking dust.
+- Battle dust now spawns lower on the unit footprint and behind slash / hit spark FX.
+- Existing movement dust path was preserved.
+- Existing attack slash / hit spark / damage number flow was preserved.
+- Did not modify:
+  - `Battle_Fullscreen_Test.tscn`
+  - ClickArea code
+  - auto battle loop logic
+  - `AutoBattleButton` runtime geometry
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.65j-5a Auto Battle Stop UX Hotfix
 
 - Updated `_refresh_auto_battle_button_state()` so `AutoBattleButton` stays enabled while full auto battle is ON.

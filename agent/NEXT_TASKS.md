@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.65j-5a Auto Battle Stop UX Hotfix
+v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix
 
 ## Priority 1
 Auto Battle QA
@@ -10,11 +10,51 @@ Goal:
 - Verify full auto ON/OFF behavior in editor with emphasis on stop responsiveness.
 - Confirm soft stop behavior during ally action, enemy action, and resolving states.
 - Confirm manual command buttons remain stable after auto battle stop.
+- Verify battle-dust readability during attack / hit moments.
 
 Notes:
-- Auto battle prototype and stop hotfix are now in place.
+- Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
 
 ## Completed
+v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix
+
+Completed items:
+- Kept movement dust helper functions unchanged.
+- Disabled attack battle dust and kept only hit battle dust.
+- Lowered hit battle dust opacity, scale, duration, and world layer again.
+- Added stale move-dust cleanup before attack start and after ally attack finish.
+- Kept `Battle_Fullscreen_Test.tscn` unmodified.
+- Kept ClickArea code unmodified.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
+v0.65k-1 Battle Dust Layer + Density Hotfix
+
+Completed items:
+- Kept movement dust logic untouched.
+- Lowered battle dust world layer with `z_as_relative = false`.
+- Reduced battle dust opacity, scale, and duration.
+- Reduced attack-dust density separately from hit-dust density.
+- Lowered attack / hit dust spawn positions toward foot-level.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify ClickArea code.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
+v0.65k Battle Dust FX Profile Tuning
+
+Completed items:
+- Kept movement dust logic and movement dust visuals unchanged.
+- Added separate battle-dust FX tuning for attack and hit moments only.
+- Reused existing dust textures without reusing the movement-dust template profile.
+- Lowered battle dust opacity and added beige / dirt tint.
+- Kept battle dust lower on the unit footprint and behind slash / hit spark FX.
+- Preserved attack slash / hit spark / damage number flow.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify ClickArea code.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.65j-5a Auto Battle Stop UX Hotfix
 
 Completed items:

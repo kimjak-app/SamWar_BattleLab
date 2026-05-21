@@ -55,6 +55,15 @@ const MOVE_DUST_FX_TEXTURE_PATHS: Array[String] = [
 	"res://assets/web_battle/fx/move/move_dust_01.png",
 	"res://assets/web_battle/fx/move/move_dust_02.png",
 ]
+const BATTLE_DUST_ALPHA_MIN := 0.10
+const BATTLE_DUST_ALPHA_MAX := 0.22
+const BATTLE_DUST_SCALE_MULTIPLIER_MIN := 0.30
+const BATTLE_DUST_SCALE_MULTIPLIER_MAX := 0.48
+const BATTLE_DUST_DURATION_MIN := 0.10
+const BATTLE_DUST_DURATION_MAX := 0.18
+const BATTLE_DUST_TINT := Color(0.48, 0.38, 0.24, 1.0)
+const BATTLE_DUST_HIT_OFFSET := Vector2(0.0, 32.0)
+const BATTLE_DUST_WORLD_Z_INDEX := 2
 const UNIT_VISUAL_TEMPLATE_NODE_PATHS := {
 	"ally_main": {
 		UNIT_TYPE_INFANTRY: "AllySide/AllyInfantryUnitVisualTemplate",
@@ -809,6 +818,7 @@ func play_basic_attack_demo() -> void:
 	_set_phase(PHASE_RESOLVING)
 	_stop_idle_breathing()
 	_sync_demo_positions()
+	_hide_all_move_dust_sprites()
 	move_highlight.visible = false
 	damage_text_layer.position = damage_spawn_marker.position
 	damage_preview_label.text = "-%d" % int(DEMO_DAMAGE)
@@ -839,6 +849,7 @@ func play_basic_attack_demo() -> void:
 
 	selected_attack_target_state.apply_damage(int(DEMO_DAMAGE))
 	_update_enemy_target_visuals_from_state(selected_attack_target_state)
+	_spawn_hit_battle_dust_fx(enemy_start)
 	_spawn_hit_spark_fx(enemy_start)
 	_spawn_damage_number_fx(enemy_start, int(DEMO_DAMAGE))
 	_append_battle_log("%s 공격" % _get_selected_ally_display_name())
@@ -878,6 +889,7 @@ func _reset_unit_group_positions() -> void:
 
 func _finish_basic_attack_demo() -> void:
 	_reset_unit_group_positions()
+	_hide_all_move_dust_sprites()
 	_set_group_modulate(_get_ally_group_nodes(), Color.WHITE)
 	_set_group_modulate(_get_enemy_group_nodes(), Color.WHITE)
 	_set_group_modulate(_get_enemy_support_group_nodes(), Color.WHITE)
@@ -1549,6 +1561,7 @@ func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleU
 		return
 	current_enemy_ai_actor_state = enemy_actor_state
 	current_enemy_attack_target_state = target_state
+	_hide_all_move_dust_sprites()
 
 	_refresh_enemy_facing_for_actor_action(enemy_actor_state, target_state)
 	_reset_unit_group_positions()
@@ -1658,6 +1671,7 @@ func _enemy_reaction_hit_on() -> void:
 		target_state.apply_damage(int(ENEMY_DEMO_DAMAGE))
 		_update_ally_target_visuals_from_state(target_state)
 		var target_pos := _get_ally_target_visual_anchor_position(target_state)
+		_spawn_hit_battle_dust_fx(target_pos)
 		_spawn_hit_spark_fx(target_pos)
 		_spawn_damage_number_fx(target_pos, int(ENEMY_DEMO_DAMAGE))
 		_cleanup_dead_units()
@@ -2074,6 +2088,52 @@ func _apply_move_dust_template_to_sprite(sprite: Sprite2D) -> void:
 	sprite.scale = move_dust_template.scale
 	sprite.modulate = move_dust_template.modulate
 	sprite.z_index = move_dust_template.z_index
+
+
+func _spawn_attack_battle_dust_fx(_attacker_pos: Vector2, _target_pos: Vector2) -> void:
+	return
+
+
+func _spawn_hit_battle_dust_fx(target_pos: Vector2) -> void:
+	_spawn_battle_dust_fx(
+		target_pos + BATTLE_DUST_HIT_OFFSET,
+		BATTLE_DUST_ALPHA_MIN,
+		BATTLE_DUST_ALPHA_MAX,
+		BATTLE_DUST_SCALE_MULTIPLIER_MIN,
+		BATTLE_DUST_SCALE_MULTIPLIER_MAX
+	)
+
+
+func _spawn_battle_dust_fx(
+	world_pos: Vector2,
+	alpha_min: float,
+	alpha_max: float,
+	scale_min: float,
+	scale_max: float
+) -> void:
+	var texture := _load_random_fx_texture(MOVE_DUST_FX_TEXTURE_PATHS)
+	if texture == null:
+		return
+	var sprite := _create_fx_sprite(texture, world_pos)
+	if sprite == null:
+		return
+	sprite.name = "BattleDustFX"
+	var alpha := randf_range(alpha_min, alpha_max)
+	var duration := randf_range(BATTLE_DUST_DURATION_MIN, BATTLE_DUST_DURATION_MAX)
+	var scale_multiplier := randf_range(scale_min, scale_max)
+	var end_scale_multiplier := scale_multiplier * 1.03
+	sprite.z_as_relative = false
+	sprite.z_index = BATTLE_DUST_WORLD_Z_INDEX
+	sprite.rotation = randf_range(-0.08, 0.08)
+	sprite.modulate = Color(BATTLE_DUST_TINT.r, BATTLE_DUST_TINT.g, BATTLE_DUST_TINT.b, 0.0)
+	sprite.scale = Vector2.ONE * scale_multiplier
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(sprite, "modulate:a", alpha, duration * 0.24).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(sprite, "scale", Vector2.ONE * end_scale_multiplier, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_property(sprite, "modulate:a", 0.0, duration * 0.76).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_callback(sprite.queue_free)
 
 
 func _spawn_attack_slash_fx(attacker_pos: Vector2, target_pos: Vector2) -> void:
