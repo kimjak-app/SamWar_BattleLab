@@ -1885,7 +1885,7 @@ offset_left = 315.0
 offset_top = 10.0
 offset_right = 885.0
 offset_bottom = 40.0
-text = "고유 특기 | 책략 | 방어 | 대기 | 턴 종료 | 자동전투 | 후퇴"
+text = "고유 특기 | 책략 | 방어 | 후퇴"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -1920,6 +1920,14 @@ offset_top = 8.0
 offset_right = 378.0
 offset_bottom = 40.0
 text = "턴 종료"
+
+[node name="AutoBattleButton" type="Button" parent="BattleUI/CommandBar"]
+layout_mode = 0
+offset_left = 386.0
+offset_top = 8.0
+offset_right = 480.0
+offset_bottom = 40.0
+text = "자동전투"
 
 [node name="RoundToastRoot" type="Control" parent="BattleUI" unique_id=1842740031]
 visible = false

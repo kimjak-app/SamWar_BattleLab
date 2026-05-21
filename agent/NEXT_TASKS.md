@@ -1,19 +1,31 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.65j-3a Auto Move + Auto Facing Completion
-
-## Priority 1
 v0.65j-4 Auto Battle Button Hook
 
+## Priority 1
+v0.65j-5 Full Auto Battle Loop Prototype
+
 Goal:
-- Connect a UI trigger after one-action auto battle is stable.
-- Keep the current one-action implementation as the execution core.
+- Iterate automatic action flow until turn or battle completion.
+- Build on the current one-action button-triggered implementation.
 
 Notes:
-- Do not add full auto loop in the same step.
+- Keep manual control paths intact.
 
 ## Completed
+v0.65j-4 Auto Battle Button Hook
+
+Completed items:
+- Added `AutoBattleButton` to `BattleUI/CommandBar`.
+- Connected button press to `_run_auto_action_for_active_ally_once()`.
+- Added auto-battle button enabled/disabled control to `_set_phase()`.
+- Kept the button scoped to one active ally auto action only.
+- Kept the full auto battle loop unimplemented.
+- Preserved existing manual command buttons.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.65j-3a Auto Move + Auto Facing Completion
 
 Completed items:
@@ -26,7 +38,7 @@ Completed items:
 - Kept the implementation disconnected from any full auto loop.
 - Headless project launch and headless scene launch remained 0 errors.
 
-## Previously Completed
+## Earlier Completed
 v0.65j-3 Ally Auto Battle One-Action MVP
 
 Completed items:
@@ -91,19 +103,13 @@ Completed items:
 - No combat formula, turn flow, AI order, or visual node movement changed.
 
 ## Priority 2
-v0.65j-5 Full Auto Battle Loop Prototype
-
-Goal:
-- Iterate automatic action flow until turn or battle completion.
-
-## Priority 3
 v0.65i-2 ClickArea Root Migration Spike
 
 Goal:
 - Test whether ClickArea can move closer to slot-root ownership without breaking collision/input coordinates.
 - Keep this isolated from auto battle and from combat logic changes.
 
-## Priority 4
+## Priority 3
 Debug cleanup
 
 Review and decide whether to remove:

@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## v0.65j-4 Auto Battle Button Hook
+
+- Added `AutoBattleButton` under `BattleUI/CommandBar`.
+- Adjusted `CommandBarLabel` text so the new button does not conflict with the static label text.
+- Added `@onready` lookup for `AutoBattleButton` in `scripts/battle_web_import_test.gd`.
+- Connected `auto_battle_button.pressed` to `_run_auto_action_for_active_ally_once()`.
+- Added `AutoBattleButton` enable/disable handling in `_set_phase()`.
+- Button scope is limited to one active ally auto action.
+- Full auto battle loop is still not implemented.
+- Preserved existing manual command buttons and their behavior.
+- Did not modify ClickArea code.
+- Did not modify:
+  - `_play_enemy_ai_for_actor()`
+  - `_get_enemy_ai_target_state_for_actor()`
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.65j-3a Auto Move + Auto Facing Completion
 
 - Extended ally auto action MVP to complete movement execution and post-move facing automatically.

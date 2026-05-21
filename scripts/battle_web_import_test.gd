@@ -348,6 +348,7 @@ var enemy_support_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 @onready var move_button: Button = $BattleUI/CommandBar/MoveButton
 @onready var wait_button: Button = get_node_or_null("BattleUI/CommandBar/WaitButton") as Button
 @onready var end_turn_button: Button = get_node_or_null("BattleUI/CommandBar/EndTurnButton") as Button
+@onready var auto_battle_button: Button = get_node_or_null("BattleUI/CommandBar/AutoBattleButton") as Button
 @onready var facing_selection_panel: Panel = get_node_or_null("BattleUI/FacingSelectionPanel") as Panel
 @onready var face_left_button: Button = get_node_or_null("BattleUI/FacingSelectionPanel/FaceLeftButton") as Button
 @onready var face_right_button: Button = get_node_or_null("BattleUI/FacingSelectionPanel/FaceRightButton") as Button
@@ -399,6 +400,8 @@ func _ready() -> void:
 		wait_button.pressed.connect(_end_ally_turn_by_wait)
 	if end_turn_button != null:
 		end_turn_button.pressed.connect(_end_ally_turn_by_wait)
+	if auto_battle_button != null:
+		auto_battle_button.pressed.connect(_run_auto_action_for_active_ally_once)
 	if face_left_button != null:
 		face_left_button.pressed.connect(_select_post_move_facing.bind(FACING_LEFT))
 	if face_right_button != null:
@@ -918,6 +921,8 @@ func _set_phase(new_phase: String) -> void:
 		wait_button.disabled = not can_issue_ally_command
 	if end_turn_button != null:
 		end_turn_button.disabled = not can_issue_ally_command
+	if auto_battle_button != null:
+		auto_battle_button.disabled = not can_issue_ally_command
 	if current_phase == PHASE_FACING_SELECT or current_phase == PHASE_ATTACK_SELECT:
 		basic_attack_button.disabled = true
 		move_button.disabled = true
@@ -925,6 +930,8 @@ func _set_phase(new_phase: String) -> void:
 			wait_button.disabled = true
 		if end_turn_button != null:
 			end_turn_button.disabled = true
+		if auto_battle_button != null:
+			auto_battle_button.disabled = true
 	if current_phase == PHASE_FACING_SELECT:
 		_show_facing_selection_panel()
 	else:

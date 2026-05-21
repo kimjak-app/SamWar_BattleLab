@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.65j-3a Auto Move + Auto Facing Completion
+v0.65j-4 Auto Battle Button Hook
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -176,6 +176,22 @@ Verified principle:
 - ClickArea code was not modified.
 - No scene node was changed.
 
+## v0.65j-4 Auto Battle Button State
+- Added `AutoBattleButton` under `BattleUI/CommandBar`.
+- Added `@onready` lookup for `AutoBattleButton`.
+- Connected `auto_battle_button.pressed` to `_run_auto_action_for_active_ally_once()`.
+- Auto battle button currently triggers one active ally auto action only.
+- Full auto battle loop is still not implemented.
+- Existing manual buttons remain in place:
+  - `BasicAttackButton`
+  - `MoveButton`
+  - `WaitButton`
+  - `EndTurnButton`
+- Auto battle button enable/disable state is now tied to ally-command availability inside `_set_phase()`.
+- Existing enemy AI flow was preserved.
+- ClickArea code was not modified.
+- Scene change was limited to the `CommandBar` button addition and label text cleanup.
+
 ## Unit Token Asset State
 - Korea / China / Japan infantry / archer / gunner / cavalry token assets are normalized around the 256 baseline.
 - Country/type folder structure is used.
@@ -210,6 +226,8 @@ Verified principle:
 - Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-3.
 - Headless project launch exit code 0 confirmed after v0.65j-3a.
 - Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-3a.
+- Headless project launch exit code 0 confirmed after v0.65j-4.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-4.
 
 ## Guardrails
 - Do not modify `Battle_WebImport_Test.tscn`.

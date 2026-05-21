@@ -3,6 +3,36 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.65j-3a Auto Move + Auto Facing Completion complete
+
+Goal:
+- v0.65j-4 Auto Battle Button Hook
+
+Completed:
+- Added `AutoBattleButton` to `BattleUI/CommandBar`.
+- Added `auto_battle_button` onready lookup.
+- Connected button press to `_run_auto_action_for_active_ally_once()`.
+- Added button enabled/disabled control in `_set_phase()`.
+- Kept the button limited to one active ally auto action only.
+- Kept full auto battle loop unimplemented.
+- Preserved existing manual command buttons.
+- Did not modify ClickArea code.
+- Did not modify `_play_enemy_ai_for_actor()`.
+- Did not modify `_get_enemy_ai_target_state_for_actor()`.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- `AutoBattleButton` node presence confirmed.
+- Auto battle button script reference confirmed.
+
+Remaining tasks:
+- v0.65j-5 Full Auto Battle Loop Prototype
+- v0.65i-2 ClickArea Root Migration Spike
+
+## 2026-05-21
+
+Starting baseline:
 - v0.65j-3 Ally Auto Battle One-Action MVP complete
 
 Goal:
