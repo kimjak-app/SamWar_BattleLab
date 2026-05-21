@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.66e AllyMainSlot Migration Spike Stable
+v0.66f AllySupportSlot Migration Stable
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -215,6 +215,28 @@ Verified principle:
   - `AllyFacingIndicator`
 - Kept `ally_support`, `enemy_main`, and `enemy_support` visual roots unchanged.
 - Updated ally-main visual node paths in `scripts/battle_web_import_test.gd`.
+- Existing slot dictionary functions and `UnitVisualSlot` cache rebuild remain in use.
+- ClickArea / READY frame / FacingIndicator remain reference-linked only.
+- No combat formula, movement logic, attack logic, enemy AI, auto battle, or battle-dust logic was intentionally changed.
+
+## v0.66f AllySupportSlot Migration State
+- Added `AllySupportSlot` under `Slots` in `Battle_Fullscreen_Test.tscn`.
+- Moved only `AllySupportUnitVisualRoot` under `Slots/AllySupportSlot`.
+- Moved only the ally-support actual visual subtree:
+  - `AllySupportUnitVisualRoot`
+  - `AllySupportUnitShadow`
+  - `AllySupportUnitToken`
+  - `AllySupportMoveDustSprite`
+  - `AllySupportPortraitBadge`
+  - `AllySupportHPBar`
+  - `AllySupportTroopLabel`
+- Kept these nodes unmoved:
+  - `AllySupportUnitClickArea`
+  - `AllySupportReadyFrame`
+  - `AllySupportFacingIndicator`
+- Kept `AllyMainSlot` migrated structure intact.
+- Kept `enemy_main` and `enemy_support` visual roots unchanged.
+- Updated ally-support visual node paths in `scripts/battle_web_import_test.gd`.
 - Existing slot dictionary functions and `UnitVisualSlot` cache rebuild remain in use.
 - ClickArea / READY frame / FacingIndicator remain reference-linked only.
 - No combat formula, movement logic, attack logic, enemy AI, auto battle, or battle-dust logic was intentionally changed.

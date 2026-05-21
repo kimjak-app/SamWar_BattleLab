@@ -132,6 +132,56 @@ label_settings = SubResource("2")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="AllySupportSlot" type="Node2D" parent="Slots" unique_id=2108450003]
+
+[node name="AllySupportUnitVisualRoot" type="Node2D" parent="Slots/AllySupportSlot" unique_id=1638541565]
+
+[node name="AllySupportUnitShadow" type="Polygon2D" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904312]
+position = Vector2(586.3333, 837)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="AllySupportUnitToken" type="Sprite2D" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904313]
+visible = false
+z_index = 1
+position = Vector2(585.3333, 801.00006)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("20_korea_infantry")
+flip_h = true
+
+[node name="AllySupportMoveDustSprite" type="Sprite2D" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=1979046513]
+visible = false
+z_index = 2
+position = Vector2(586.3333, 813)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="AllySupportPortraitBadge" type="Sprite2D" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904314]
+z_index = 3
+position = Vector2(616.3333, 780)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("9_allysupportportrait")
+
+[node name="AllySupportHPBar" type="ProgressBar" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904315]
+offset_left = 539.0
+offset_top = 847.0
+offset_right = 635.0
+offset_bottom = 856.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("StyleBoxFlat_lhwdj")
+value = 60.0
+show_percentage = false
+
+[node name="AllySupportTroopLabel" type="Label" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904316]
+offset_left = 539.0
+offset_top = 856.0
+offset_right = 635.0
+offset_bottom = 876.0
+text = "60 / 60"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="BattleGridController" type="Node" parent="." unique_id=368748053]
 script = ExtResource("2_grid_controller")
 grid_width = 18
@@ -981,54 +1031,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="AllySide" type="Node2D" parent="." unique_id=983797976]
-
-[node name="AllySupportUnitVisualRoot" type="Node2D" parent="AllySide" unique_id=1638541565]
-
-[node name="AllySupportUnitShadow" type="Polygon2D" parent="AllySide/AllySupportUnitVisualRoot" unique_id=2081904312]
-position = Vector2(586.3333, 837)
-color = Color(0, 0, 0, 0.28)
-polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
-
-[node name="AllySupportUnitToken" type="Sprite2D" parent="AllySide/AllySupportUnitVisualRoot" unique_id=2081904313]
-visible = false
-z_index = 1
-position = Vector2(585.3333, 801.00006)
-scale = Vector2(0.48437494, 0.46875003)
-texture = ExtResource("20_korea_infantry")
-flip_h = true
-
-[node name="AllySupportMoveDustSprite" type="Sprite2D" parent="AllySide/AllySupportUnitVisualRoot" unique_id=1979046513]
-visible = false
-z_index = 2
-position = Vector2(586.3333, 813)
-scale = Vector2(0.42, 0.42)
-texture = ExtResource("13_move_dust_01")
-
-[node name="AllySupportPortraitBadge" type="Sprite2D" parent="AllySide/AllySupportUnitVisualRoot" unique_id=2081904314]
-z_index = 3
-position = Vector2(616.3333, 780)
-scale = Vector2(0.32, 0.32)
-texture = ExtResource("9_allysupportportrait")
-
-[node name="AllySupportHPBar" type="ProgressBar" parent="AllySide/AllySupportUnitVisualRoot" unique_id=2081904315]
-offset_left = 539.0
-offset_top = 847.0
-offset_right = 635.0
-offset_bottom = 856.0
-theme_override_styles/background = SubResource("3")
-theme_override_styles/fill = SubResource("StyleBoxFlat_lhwdj")
-value = 60.0
-show_percentage = false
-
-[node name="AllySupportTroopLabel" type="Label" parent="AllySide/AllySupportUnitVisualRoot" unique_id=2081904316]
-offset_left = 539.0
-offset_top = 856.0
-offset_right = 635.0
-offset_bottom = 876.0
-text = "60 / 60"
-label_settings = SubResource("2")
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="AllyInfantryUnitVisualTemplate" type="Node2D" parent="AllySide" unique_id=2081904101]
 position = Vector2(373.3333, 918)
