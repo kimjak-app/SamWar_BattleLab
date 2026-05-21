@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## v0.66c-3 Slot-Based Cleanup / Visibility QA
+
+- Stabilized slot-based cleanup / visibility helpers in `scripts/battle_web_import_test.gd`.
+- Updated `_cleanup_dead_units()` to iterate via `_get_all_unit_states_in_slot_order()`.
+- Added stronger null guards to:
+  - `_get_visual_group_nodes_for_unit()`
+  - `_get_click_area_for_unit()`
+  - `_get_click_shape_for_unit()`
+  - `_get_ready_frame_for_unit()`
+  - `_get_facing_indicator_for_unit()`
+- Updated `_set_unit_visual_group_visible()` to prefer slot-backed visibility control when a valid `UnitVisualSlot` is available and to preserve existing fallback behavior otherwise.
+- Updated `_set_unit_click_area_enabled()` to prefer slot-backed click-area enable/disable control when a valid `UnitVisualSlot` is available and to preserve existing fallback behavior otherwise.
+- Added narrow visibility helpers to `scripts/unit_visual_slot.gd`:
+  - `set_visual_group_visible()`
+  - `set_click_area_enabled()`
+  - `set_facing_indicator_visible()`
+- Expanded slot debug summary to include `click_shape` presence.
+- Preserved:
+  - `Battle_Fullscreen_Test.tscn`
+  - ClickArea parent structure
+  - READY frame parent structure
+  - FacingIndicator parent structure
+  - auto battle logic
+  - enemy AI flow
+  - battle-dust logic
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.66c-2 Ready/Facing/Click Slot Helper Expansion
 
 - Expanded `UnitVisualSlot` UI / click getter helpers in `scripts/unit_visual_slot.gd`.

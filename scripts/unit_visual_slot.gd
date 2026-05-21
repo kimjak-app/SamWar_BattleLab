@@ -89,6 +89,26 @@ func get_facing_indicator() -> Label:
 	return facing_indicator as Label
 
 
+func set_visual_group_visible(should_show: bool) -> void:
+	for node in get_visual_group_nodes():
+		if node != null:
+			node.visible = should_show
+
+
+func set_click_area_enabled(should_enable: bool) -> void:
+	if click_area == null:
+		return
+	click_area.monitoring = should_enable
+	click_area.monitorable = should_enable
+	click_area.input_pickable = should_enable
+
+
+func set_facing_indicator_visible(should_show: bool) -> void:
+	var indicator := get_facing_indicator()
+	if indicator != null:
+		indicator.visible = should_show
+
+
 func has_click_nodes() -> bool:
 	return click_area != null and click_shape != null
 
@@ -118,6 +138,7 @@ func get_debug_summary() -> Dictionary:
 		"portrait": portrait != null,
 		"move_dust": move_dust != null,
 		"click_area": click_area != null,
+		"click_shape": click_shape != null,
 		"ready_frame": ready_frame != null,
 		"facing_indicator": facing_indicator != null,
 	}

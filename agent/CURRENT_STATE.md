@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.66c-2 Ready/Facing/Click Slot Helper Expansion Stable
+v0.66c-3 Slot-Based Cleanup / Visibility QA Stable
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -154,6 +154,30 @@ Verified principle:
 - READY frame and FacingIndicator remain under `BattleUI`.
 - No combat formula, turn flow, enemy AI, auto battle, or battle-dust logic was intentionally changed.
 - `Battle_Fullscreen_Test.tscn` remained unmodified.
+
+## v0.66c-3 Slot-Based Cleanup / Visibility QA State
+- Rechecked slot-based cleanup / visibility helper paths for the current 2v2 structure.
+- Added narrow `UnitVisualSlot` visibility helpers:
+  - `set_visual_group_visible()`
+  - `set_click_area_enabled()`
+  - `set_facing_indicator_visible()`
+- Added stronger null guards for:
+  - `_get_visual_group_nodes_for_unit()`
+  - `_get_click_area_for_unit()`
+  - `_get_click_shape_for_unit()`
+  - `_get_ready_frame_for_unit()`
+  - `_get_facing_indicator_for_unit()`
+- `_cleanup_dead_units()` now iterates through `_get_all_unit_states_in_slot_order()` for consistency with current slot helper usage.
+- `_set_unit_visual_group_visible()` and `_set_unit_click_area_enabled()` now prefer slot-backed helper control when the slot reference is available and otherwise preserve existing fallback behavior.
+- Debug slot summary now also includes `click_shape` presence for QA.
+- Dead-unit cleanup policy remains unchanged:
+  - visual group hidden
+  - facing indicator hidden
+  - click area disabled
+  - acted-state cleanup preserved
+- No combat formula, turn flow, enemy AI, auto battle, or battle-dust logic was intentionally changed.
+- `Battle_Fullscreen_Test.tscn` remained unmodified.
+- ClickArea / READY frame / FacingIndicator parent structure remained unchanged.
 
 ## v0.65g Completed Structure
 - UnitVisualRoot Adapter Layer is in place.

@@ -1,23 +1,23 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.66c-2 Ready/Facing/Click Slot Helper Expansion Stable
+v0.66c-3 Slot-Based Cleanup / Visibility QA Stable
 
 ## Priority 1
-v0.66c-3 Slot-Based Cleanup/Visibility QA
-
-Goal:
-- QA slot-based cleanup / visibility helper behavior against dead-unit cleanup and overlay visibility.
-- Confirm Guan Yu death path, support targeting, READY visibility, and FacingIndicator visibility remain unchanged.
-- Keep this focused on verification and narrow helper fixes only.
-
-## Priority 2
 v0.66d Scene Slot Tree Migration Plan
 
 Goal:
 - Define a staged migration plan for any future scene-level slot tree changes.
 - Keep this as a planning task only until lookup-layer usage is stable.
 - Separate ClickArea and BattleUI attachment concerns from UnitVisualRoot migration concerns.
+
+## Priority 2
+v0.67 Slot Count Expansion Plan
+
+Goal:
+- Define how slot_id, slot adapters, and scene references should expand beyond the current 2v2 layout.
+- Keep this as design/planning only until current 2v2 QA baseline is locked.
+- Avoid mixing slot-count planning with current stable battle behavior.
 
 ## Priority 3
 Auto Battle QA
@@ -32,6 +32,17 @@ Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
 
 ## Completed
+v0.66c-3 Slot-Based Cleanup / Visibility QA Stable
+
+Completed items:
+- Rechecked cleanup / visibility helper paths around dead-unit handling and overlay visibility.
+- Added narrow slot-backed visibility and click-enable helpers to `UnitVisualSlot`.
+- Added null-guard hardening for slot-based getter helpers.
+- Kept `Battle_Fullscreen_Test.tscn` unmodified.
+- Kept ClickArea / READY frame / FacingIndicator parent structure unmodified.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.66c-2 Ready/Facing/Click Slot Helper Expansion Stable
 
 Completed items:

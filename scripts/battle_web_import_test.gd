@@ -4000,14 +4000,7 @@ func _is_enemy_click_candidate_alive(unit_state: BattleUnitState) -> bool:
 
 
 func _cleanup_dead_units() -> void:
-	var unit_candidates: Array = [
-		ally_unit_state,
-		ally_support_unit_state,
-		enemy_unit_state,
-		enemy_support_unit_state,
-	]
-	for candidate in unit_candidates:
-		var unit_state := candidate as BattleUnitState
+	for unit_state in _get_all_unit_states_in_slot_order():
 		if unit_state == null:
 			continue
 		var is_alive := unit_state.is_alive()
@@ -4029,6 +4022,18 @@ func _cleanup_dead_units() -> void:
 
 
 func _set_unit_visual_group_visible(unit_state: BattleUnitState, should_show: bool) -> void:
+	if unit_state == null:
+		return
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	if slot != null and slot.has_required_visual_nodes():
+		slot.set_visual_group_visible(should_show)
+	else:
+		for node in _get_visual_group_nodes_for_unit(unit_state):
+			if node != null:
+				node.visible = should_show
+	if slot != null:
+		slot.set_facing_indicator_visible(should_show and facing_indicators_should_be_visible)
+		return
 	for node in _get_visual_group_nodes_for_unit(unit_state):
 		if node != null:
 			node.visible = should_show
@@ -4038,6 +4043,12 @@ func _set_unit_visual_group_visible(unit_state: BattleUnitState, should_show: bo
 
 
 func _set_unit_click_area_enabled(unit_state: BattleUnitState, should_enable: bool) -> void:
+	if unit_state == null:
+		return
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	if slot != null and slot.get_click_area() != null:
+		slot.set_click_area_enabled(should_enable)
+		return
 	var click_area := _get_click_area_for_unit(unit_state)
 	if click_area == null:
 		return
@@ -4047,6 +4058,8 @@ func _set_unit_click_area_enabled(unit_state: BattleUnitState, should_enable: bo
 
 
 func _get_visual_group_nodes_for_unit(unit_state: BattleUnitState) -> Array[CanvasItem]:
+	if unit_state == null:
+		return []
 	var slot := _get_unit_visual_slot_for_state(unit_state)
 	if slot != null:
 		var slot_nodes := slot.get_visual_group_nodes()
@@ -4062,6 +4075,8 @@ func _get_visual_group_nodes_for_unit(unit_state: BattleUnitState) -> Array[Canv
 
 
 func _get_click_area_for_unit(unit_state: BattleUnitState) -> Area2D:
+	if unit_state == null:
+		return null
 	var slot := _get_unit_visual_slot_for_state(unit_state)
 	if slot != null and slot.get_click_area() != null:
 		return slot.get_click_area()
@@ -4075,6 +4090,8 @@ func _get_click_area_for_unit(unit_state: BattleUnitState) -> Area2D:
 
 
 func _get_click_shape_for_unit(unit_state: BattleUnitState) -> CollisionShape2D:
+	if unit_state == null:
+		return null
 	var slot := _get_unit_visual_slot_for_state(unit_state)
 	if slot != null and slot.get_click_shape() != null:
 		return slot.get_click_shape()
@@ -4088,6 +4105,8 @@ func _get_click_shape_for_unit(unit_state: BattleUnitState) -> CollisionShape2D:
 
 
 func _get_ready_frame_for_unit(unit_state: BattleUnitState) -> Control:
+	if unit_state == null:
+		return null
 	var slot := _get_unit_visual_slot_for_state(unit_state)
 	if slot != null and slot.get_ready_frame() != null:
 		return slot.get_ready_frame()
@@ -4096,6 +4115,8 @@ func _get_ready_frame_for_unit(unit_state: BattleUnitState) -> Control:
 
 
 func _get_facing_indicator_for_unit(unit_state: BattleUnitState) -> Label:
+	if unit_state == null:
+		return null
 	var slot := _get_unit_visual_slot_for_state(unit_state)
 	if slot != null and slot.get_facing_indicator() != null:
 		return slot.get_facing_indicator()

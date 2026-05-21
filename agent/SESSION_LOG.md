@@ -3,6 +3,34 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.66c-2 Ready/Facing/Click Slot Helper Expansion Stable
+
+Goal:
+- v0.66c-3 Slot-Based Cleanup / Visibility QA
+
+Completed:
+- Rechecked slot-based cleanup / visibility helper paths for dead-unit handling and overlay visibility.
+- Added narrow slot-backed visibility helpers to `scripts/unit_visual_slot.gd`.
+- Hardened null guards in slot-based getter helpers so missing references fail safely.
+- Switched `_cleanup_dead_units()` to the existing slot-order helper for consistent 2v2 iteration.
+- Kept ClickArea / READY frame / FacingIndicator parent structure unchanged.
+- Did not modify movement, attack, enemy AI, auto battle, or battle-dust logic.
+- Kept `Battle_Fullscreen_Test.tscn` unmodified.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- 4-slot cache state confirmed in scene launch log.
+- No scene diff introduced.
+
+Remaining tasks:
+- v0.66d Scene Slot Tree Migration Plan
+- v0.67 Slot Count Expansion Plan
+- Auto Battle QA
+
+## 2026-05-21
+
+Starting baseline:
 - v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers Stable
 
 Goal:
