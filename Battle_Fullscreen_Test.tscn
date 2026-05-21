@@ -1921,7 +1921,7 @@ offset_right = 378.0
 offset_bottom = 40.0
 text = "턴 종료"
 
-[node name="AutoBattleButton" type="Button" parent="BattleUI/CommandBar"]
+[node name="AutoBattleButton" type="Button" parent="BattleUI/CommandBar" unique_id=1847675653]
 layout_mode = 0
 offset_left = 386.0
 offset_top = 8.0

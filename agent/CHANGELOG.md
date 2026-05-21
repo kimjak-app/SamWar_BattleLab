@@ -1,5 +1,50 @@
 # CHANGELOG
 
+## v0.65j-5a Auto Battle Stop UX Hotfix
+
+- Updated `_refresh_auto_battle_button_state()` so `AutoBattleButton` stays enabled while full auto battle is ON.
+- Full auto ON state now forces button text to `자동중지` and leaves the button clickable during enemy/resolving phases.
+- Updated `_toggle_full_auto_battle()` so a user button press during auto battle routes through `_stop_full_auto_battle("user stop")`.
+- Kept stop behavior soft:
+  - current action tween is not force-killed
+  - current enemy AI action is not force-killed
+  - deferred auto ticks return immediately once auto battle is OFF
+- Did not modify:
+  - `Battle_Fullscreen_Test.tscn`
+  - `AutoBattleButton` position/offset/size at runtime
+  - ClickArea code
+  - `_play_enemy_ai_for_actor()`
+  - `_get_enemy_ai_target_state_for_actor()`
+- Did not add a direct `while` loop for auto battle flow.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
+## v0.65j-5 Full Auto Battle Loop Prototype
+
+- Added full auto battle prototype state to `scripts/battle_web_import_test.gd`.
+- Added:
+  - `AUTO_BATTLE_MAX_STEPS`
+  - `is_full_auto_battle_enabled`
+  - `auto_battle_step_count`
+  - `_toggle_full_auto_battle()`
+  - `_set_full_auto_battle_enabled()`
+  - `_tick_full_auto_battle_if_needed()`
+  - `_stop_full_auto_battle()`
+  - `_refresh_auto_battle_button_state()`
+- `AutoBattleButton` now toggles full auto battle ON/OFF instead of firing a single one-action step directly.
+- Full auto loop uses `call_deferred()` for step progression.
+- Direct `while` loop was not added for auto battle flow.
+- Added step-limit safety guard with `AUTO_BATTLE_MAX_STEPS`.
+- Reused existing ally auto action path and existing enemy AI turn flow.
+- Kept `AutoBattleButton` runtime behavior limited to text/disabled state updates only.
+- Did not modify:
+  - `AutoBattleButton` position/offset/size at runtime
+  - ClickArea code
+  - `_play_enemy_ai_for_actor()`
+  - `_get_enemy_ai_target_state_for_actor()`
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.65j-4 Auto Battle Button Hook
 
 - Added `AutoBattleButton` under `BattleUI/CommandBar`.

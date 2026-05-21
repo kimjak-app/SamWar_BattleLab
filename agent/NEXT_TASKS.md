@@ -1,19 +1,43 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.65j-4 Auto Battle Button Hook
+v0.65j-5a Auto Battle Stop UX Hotfix
 
 ## Priority 1
-v0.65j-5 Full Auto Battle Loop Prototype
+Auto Battle QA
 
 Goal:
-- Iterate automatic action flow until turn or battle completion.
-- Build on the current one-action button-triggered implementation.
+- Verify full auto ON/OFF behavior in editor with emphasis on stop responsiveness.
+- Confirm soft stop behavior during ally action, enemy action, and resolving states.
+- Confirm manual command buttons remain stable after auto battle stop.
 
 Notes:
-- Keep manual control paths intact.
+- Auto battle prototype and stop hotfix are now in place.
 
 ## Completed
+v0.65j-5a Auto Battle Stop UX Hotfix
+
+Completed items:
+- Kept `AutoBattleButton` clickable while full auto battle is ON.
+- Kept runtime button control limited to text and disabled state only.
+- Routed user stop through `_stop_full_auto_battle("user stop")`.
+- Preserved soft stop behavior so current action is not force-killed.
+- Kept deferred auto ticks harmless after stop through existing top-level enabled guard.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
+v0.65j-5 Full Auto Battle Loop Prototype
+
+Completed items:
+- Added ON/OFF full auto battle prototype state.
+- Added deferred single-step auto battle ticking.
+- Added loop safety guard with `AUTO_BATTLE_MAX_STEPS`.
+- Reused existing ally auto one-action flow and existing enemy AI flow.
+- Added full auto stop conditions and toggle helpers.
+- Preserved manual command buttons and manual control paths.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.65j-4 Auto Battle Button Hook
 
 Completed items:
@@ -25,7 +49,7 @@ Completed items:
 - Preserved existing manual command buttons.
 - Headless project launch and headless scene launch remained 0 errors.
 
-## Previously Completed
+## Earlier Completed
 v0.65j-3a Auto Move + Auto Facing Completion
 
 Completed items:
@@ -103,19 +127,19 @@ Completed items:
 - No combat formula, turn flow, AI order, or visual node movement changed.
 
 ## Priority 2
-v0.65i-2 ClickArea Root Migration Spike
-
-Goal:
-- Test whether ClickArea can move closer to slot-root ownership without breaking collision/input coordinates.
-- Keep this isolated from auto battle and from combat logic changes.
-
-## Priority 3
 Debug cleanup
 
 Review and decide whether to remove:
 - `_debug_print_unit_visual_root_slots()`
 - `[ATTACK_CLICK]` print
 - `_debug_print_ally_portrait_offsets()` if no longer needed
+
+## Priority 3
+v0.65i-2 ClickArea Root Migration Spike
+
+Goal:
+- Test whether ClickArea can move closer to slot-root ownership without breaking collision/input coordinates.
+- Keep this isolated from auto battle and from combat logic changes.
 
 ## Ongoing QA Checklist
 - Battle starts with BATTLE 1 toast.

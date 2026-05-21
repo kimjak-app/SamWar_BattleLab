@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.65j-4 Auto Battle Button Hook
+v0.65j-5a Auto Battle Stop UX Hotfix
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -192,6 +192,42 @@ Verified principle:
 - ClickArea code was not modified.
 - Scene change was limited to the `CommandBar` button addition and label text cleanup.
 
+## v0.65j-5 Full Auto Battle Loop Prototype State
+- Added full auto battle prototype flags:
+  - `is_full_auto_battle_enabled`
+  - `auto_battle_step_count`
+  - `AUTO_BATTLE_MAX_STEPS`
+- `AutoBattleButton` now toggles full auto battle ON/OFF.
+- Auto battle loop is driven through deferred single-step execution, not direct blocking iteration.
+- Current trigger path uses `call_deferred("_tick_full_auto_battle_if_needed")` after ally-turn phase restoration.
+- Full auto battle reuses:
+  - existing ally one-action auto logic
+  - existing enemy AI turn flow
+  - existing move/attack/facing execution paths
+- Auto battle loop currently advances one step at a time and stops on safety conditions.
+- Step limit guard is in place.
+- Auto battle button text switches between `자동전투` and `자동중지`.
+- Auto battle button position/offset/size is not changed by runtime code.
+- Existing manual buttons remain in place.
+- Existing enemy AI flow was preserved.
+- ClickArea code was not modified.
+
+## v0.65j-5a Auto Battle Stop UX Hotfix State
+- `AutoBattleButton` remains clickable while full auto battle is ON.
+- Full auto ON state now forces:
+  - `auto_battle_button.disabled = false`
+  - `auto_battle_button.text = "자동중지"`
+- Full auto OFF state still follows existing ally-command availability for button enable/disable.
+- User stop now routes through `_stop_full_auto_battle("user stop")`.
+- Stop behavior is soft stop only:
+  - current move/attack/enemy AI action is not force-killed
+  - already-running tween/AI flow is allowed to finish
+  - deferred auto tick returns immediately after stop because `is_full_auto_battle_enabled` is false
+- Runtime code still does not touch `AutoBattleButton` position/offset/size.
+- Existing manual buttons remain in place.
+- Existing enemy AI flow was preserved.
+- ClickArea code was not modified.
+
 ## Unit Token Asset State
 - Korea / China / Japan infantry / archer / gunner / cavalry token assets are normalized around the 256 baseline.
 - Country/type folder structure is used.
@@ -228,6 +264,10 @@ Verified principle:
 - Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-3a.
 - Headless project launch exit code 0 confirmed after v0.65j-4.
 - Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-4.
+- Headless project launch exit code 0 confirmed after v0.65j-5.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-5.
+- Headless project launch exit code 0 confirmed after v0.65j-5a.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-5a.
 
 ## Guardrails
 - Do not modify `Battle_WebImport_Test.tscn`.

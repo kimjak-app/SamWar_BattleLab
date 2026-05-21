@@ -30,6 +30,7 @@ const PHASE_ENEMY_TURN := "enemy_turn"
 const PHASE_RESOLVING := "resolving"
 const PHASE_FACING_SELECT := "facing_select"
 const PHASE_ATTACK_SELECT := "attack_select"
+const AUTO_BATTLE_MAX_STEPS := 40
 const MAX_BATTLE_LOG_LINES := 4
 const FACING_LEFT := "left"
 const FACING_RIGHT := "right"
@@ -204,6 +205,8 @@ var pending_move_snapshot_ally_has_moved := false
 var has_pending_move_snapshot := false
 var is_auto_action_in_progress := false
 var should_auto_select_facing_after_move := false
+var is_full_auto_battle_enabled := false
+var auto_battle_step_count := 0
 var current_attack_animation_target_state: BattleUnitState = null
 var current_enemy_attack_target_state: BattleUnitState = null
 var current_enemy_ai_actor_state: BattleUnitState = null
@@ -401,7 +404,7 @@ func _ready() -> void:
 	if end_turn_button != null:
 		end_turn_button.pressed.connect(_end_ally_turn_by_wait)
 	if auto_battle_button != null:
-		auto_battle_button.pressed.connect(_run_auto_action_for_active_ally_once)
+		auto_battle_button.pressed.connect(_toggle_full_auto_battle)
 	if face_left_button != null:
 		face_left_button.pressed.connect(_select_post_move_facing.bind(FACING_LEFT))
 	if face_right_button != null:
@@ -921,8 +924,7 @@ func _set_phase(new_phase: String) -> void:
 		wait_button.disabled = not can_issue_ally_command
 	if end_turn_button != null:
 		end_turn_button.disabled = not can_issue_ally_command
-	if auto_battle_button != null:
-		auto_battle_button.disabled = not can_issue_ally_command
+	_refresh_auto_battle_button_state(can_issue_ally_command)
 	if current_phase == PHASE_FACING_SELECT or current_phase == PHASE_ATTACK_SELECT:
 		basic_attack_button.disabled = true
 		move_button.disabled = true
@@ -930,13 +932,25 @@ func _set_phase(new_phase: String) -> void:
 			wait_button.disabled = true
 		if end_turn_button != null:
 			end_turn_button.disabled = true
-		if auto_battle_button != null:
-			auto_battle_button.disabled = true
+		_refresh_auto_battle_button_state(false)
 	if current_phase == PHASE_FACING_SELECT:
 		_show_facing_selection_panel()
 	else:
 		_hide_facing_selection_panel()
 	_update_ally_ready_frames()
+	if current_phase == PHASE_ALLY_TURN and is_full_auto_battle_enabled and not is_demo_animating:
+		call_deferred("_tick_full_auto_battle_if_needed")
+
+
+func _refresh_auto_battle_button_state(can_issue_ally_command: bool) -> void:
+	if auto_battle_button == null:
+		return
+	if is_full_auto_battle_enabled:
+		auto_battle_button.disabled = false
+		auto_battle_button.text = "자동중지"
+		return
+	auto_battle_button.disabled = not can_issue_ally_command
+	auto_battle_button.text = "자동전투"
 
 
 func _end_ally_turn_by_wait() -> void:
@@ -3656,6 +3670,74 @@ func _select_auto_facing_after_move_for_active_ally() -> void:
 	_select_post_move_facing(_get_best_auto_facing_toward_nearest_enemy(active_unit_state))
 
 
+func _toggle_full_auto_battle() -> void:
+	if is_full_auto_battle_enabled:
+		_stop_full_auto_battle("user stop")
+		return
+	_set_full_auto_battle_enabled(true)
+
+
+func _set_full_auto_battle_enabled(enabled: bool) -> void:
+	is_full_auto_battle_enabled = enabled
+	auto_battle_step_count = 0
+	var can_issue_ally_command := (
+		current_phase == PHASE_ALLY_TURN
+		and not is_demo_animating
+		and _is_active_ally_action_available()
+	)
+	_refresh_auto_battle_button_state(can_issue_ally_command)
+	_append_battle_log("자동전투 %s" % ("시작" if enabled else "중지"))
+	if enabled:
+		call_deferred("_tick_full_auto_battle_if_needed")
+	else:
+		_clear_auto_action_flags()
+
+
+func _stop_full_auto_battle(reason: String) -> void:
+	if not is_full_auto_battle_enabled:
+		return
+	is_full_auto_battle_enabled = false
+	auto_battle_step_count = 0
+	_clear_auto_action_flags()
+	var can_issue_ally_command := (
+		current_phase == PHASE_ALLY_TURN
+		and not is_demo_animating
+		and _is_active_ally_action_available()
+	)
+	_refresh_auto_battle_button_state(can_issue_ally_command)
+	if reason != "":
+		_append_battle_log("자동전투 중지: %s" % reason)
+
+
+func _tick_full_auto_battle_if_needed() -> void:
+	if not is_full_auto_battle_enabled:
+		return
+	if is_demo_animating:
+		return
+	if current_phase != PHASE_ALLY_TURN:
+		return
+	if auto_battle_step_count >= AUTO_BATTLE_MAX_STEPS:
+		_stop_full_auto_battle("step limit")
+		return
+	if _get_alive_ally_units().is_empty():
+		_stop_full_auto_battle("아군 없음")
+		return
+	if _get_alive_enemy_units().is_empty():
+		_stop_full_auto_battle("적군 없음")
+		return
+	if active_unit_state == null:
+		_stop_full_auto_battle("active unit 없음")
+		return
+	if active_unit_side != "ally":
+		_stop_full_auto_battle("active side mismatch")
+		return
+	if not _is_active_ally_action_available():
+		_stop_full_auto_battle("행동 가능한 아군 없음")
+		return
+	auto_battle_step_count += 1
+	_run_auto_action_for_active_ally_once()
+
+
 func _try_auto_attack_for_active_ally() -> bool:
 	if active_unit_state == null:
 		return false
@@ -3693,6 +3775,8 @@ func _try_auto_move_for_active_ally() -> bool:
 		return false
 	if not active_unit_state.is_alive():
 		return false
+	if active_unit_state.has_moved:
+		return false
 	if not _is_active_ally_action_available():
 		return false
 	if current_phase != PHASE_ALLY_TURN:
@@ -3727,7 +3811,8 @@ func _auto_wait_active_ally() -> void:
 	if active_unit_state == null:
 		return
 	_clear_auto_action_flags()
-	_append_battle_log("%s 자동 대기 후보" % active_unit_state.display_name)
+	_append_battle_log("%s 자동 대기" % active_unit_state.display_name)
+	_end_ally_turn_by_wait()
 
 
 func _run_auto_action_for_active_ally_once() -> void:

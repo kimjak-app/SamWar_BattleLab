@@ -3,6 +3,66 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.65j-5 Full Auto Battle Loop Prototype complete
+
+Goal:
+- v0.65j-5a Auto Battle Stop UX Hotfix
+
+Completed:
+- Updated auto-battle button state refresh so the stop button stays clickable while full auto is ON.
+- Updated auto-battle toggle handling so an ON-state button press routes through `_stop_full_auto_battle("user stop")`.
+- Preserved soft stop behavior so the current action finishes and the next deferred auto step does not run.
+- Kept runtime button handling limited to text and disabled state only.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify ClickArea code.
+- Did not modify `_play_enemy_ai_for_actor()`.
+- Did not modify `_get_enemy_ai_target_state_for_actor()`.
+- Did not add a direct `while` loop for auto battle flow.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- `AutoBattleButton` ON-state stop availability confirmed in code.
+- Deferred tick early-return guard confirmed in code.
+
+Remaining tasks:
+- Auto Battle QA
+- Debug cleanup
+- v0.65i-2 ClickArea Root Migration Spike
+
+## 2026-05-21
+
+Starting baseline:
+- v0.65j-4 Auto Battle Button Hook Stable
+
+Goal:
+- v0.65j-5 Full Auto Battle Loop Prototype
+
+Completed:
+- Added full auto battle ON/OFF state and step counter.
+- Switched `AutoBattleButton` from one-shot action trigger to auto battle toggle trigger.
+- Added deferred single-step loop tick helper.
+- Added stop helper and step-limit safety guard.
+- Reused existing ally auto one-action flow and existing enemy AI turn flow.
+- Kept runtime button changes limited to text and disabled state only.
+- Did not add a direct `while` loop for auto battle flow.
+- Did not modify ClickArea code.
+- Did not modify `_play_enemy_ai_for_actor()`.
+- Did not modify `_get_enemy_ai_target_state_for_actor()`.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- `AUTO_BATTLE_MAX_STEPS` guard confirmed in code.
+- Deferred tick path confirmed in code.
+
+Remaining tasks:
+- v0.65i-2 ClickArea Root Migration Spike
+- Debug cleanup
+
+## 2026-05-21
+
+Starting baseline:
 - v0.65j-3a Auto Move + Auto Facing Completion complete
 
 Goal:
