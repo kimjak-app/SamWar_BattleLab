@@ -34,6 +34,33 @@ Remaining tasks:
 - v0.67 Slot Count Expansion Plan
 - Auto Battle QA
 
+## 2026-05-22
+
+Starting baseline:
+- v0.66i Slot Tree QA Stable
+
+Goal:
+- v0.67a Scalable Battle Slot Capacity Plan
+
+Completed:
+- Added `agent/SCALABLE_BATTLE_SLOT_CAPACITY_PLAN.md`.
+- Defined final slot-capacity direction as `7` main + `3` reinforcement per side.
+- Defined MVP direction as `3` main + `2` reinforcement per side.
+- Recommended interpreting current `ally_support` and `enemy_support` as `main_02` style start-deployed slots rather than reinforcement slots.
+- Documented scalable slot naming, slot metadata, array-registry migration direction, auto-battle expansion considerations, city-to-battle assignment pipeline, formation direction, risks, and QA targets.
+- Did not modify `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, or `scripts/unit_visual_slot.gd`.
+
+QA:
+- Verified no code or scene diff for:
+  - `Battle_Fullscreen_Test.tscn`
+  - `scripts/battle_web_import_test.gd`
+  - `scripts/unit_visual_slot.gd`
+- Verified `agent/SCALABLE_BATTLE_SLOT_CAPACITY_PLAN.md` creation.
+
+Remaining tasks:
+- v0.67b Slot Registry Array Scaffold
+- Auto Battle QA
+
 ## 2026-05-21
 
 Starting baseline:

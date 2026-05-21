@@ -321,6 +321,34 @@ Verified principle:
 - Headless project launch remained 0 errors.
 - Headless `Battle_Fullscreen_Test.tscn` launch remained 0 errors.
 
+## v0.67a Scalable Battle Slot Capacity Plan State
+- Added `agent/SCALABLE_BATTLE_SLOT_CAPACITY_PLAN.md`.
+- This step is documentation only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- Defined final slot-capacity target:
+  - `7` main units per side
+  - `3` reinforcement units per side
+  - `10` units per side
+  - `20` units total battle capacity
+- Defined MVP slot-capacity target:
+  - `3` main units per side
+  - `2` reinforcement units per side
+  - `5` units per side
+  - `10` units total battle capacity
+- Recommended legacy `2v2` interpretation:
+  - `ally_main` -> `ally_main_01`
+  - `ally_support` -> `ally_main_02`
+  - `enemy_main` -> `enemy_main_01`
+  - `enemy_support` -> `enemy_main_02`
+- Documented transition direction toward:
+  - array-backed `BattleUnitState` containers
+  - slot registry metadata
+  - reinforcement-aware deployment rules
+  - scalable auto-battle filtering
+- Recommended next implementation step is `v0.67b Slot Registry Array Scaffold`.
+
 ## v0.65g Completed Structure
 - UnitVisualRoot Adapter Layer is in place.
 - Ally main visual nodes are under `AllySide/AllyUnitVisualRoot`.

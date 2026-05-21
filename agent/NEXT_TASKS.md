@@ -4,14 +4,21 @@
 v0.66i Slot Tree QA Stable
 
 ## Priority 1
+v0.67b Slot Registry Array Scaffold
+
+Goal:
+- Add slot-id list and slot metadata scaffold for the current stable slots.
+- Register the current `4` slots in an array/registry form.
+- Keep existing `2v2` battle behavior unchanged.
+
+## Priority 2
 v0.67 Slot Count Expansion Plan
 
 Goal:
-- Define how slot_id, slot adapters, and scene references should expand beyond the current 2v2 layout.
-- Keep this as design/planning only until current 2v2 QA baseline is locked.
-- Avoid mixing slot-count planning with current stable battle behavior.
+- Use the documented `7 + 3` final capacity and `3 + 2` MVP direction as the planning baseline.
+- Keep the next implementation steps aligned with registry-first migration rather than direct slot-count expansion.
 
-## Priority 2
+## Priority 3
 Auto Battle QA
 
 Goal:
@@ -24,6 +31,17 @@ Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
 
 ## Completed
+v0.67a Scalable Battle Slot Capacity Plan
+
+Completed items:
+- Added `agent/SCALABLE_BATTLE_SLOT_CAPACITY_PLAN.md`.
+- Defined final target capacity as `7` main + `3` reinforce per side.
+- Defined MVP target capacity as `3` main + `2` reinforce per side.
+- Recommended mapping the current `2v2` support units to `main_02` rather than reinforcement slots.
+- Documented slot metadata, registry direction, array-based state direction, deployment pipeline, formation guidance, risks, and QA.
+- Kept code and scene files unchanged.
+
+## Previously Completed
 v0.66i Slot Tree QA Stable
 
 Completed items:

@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v0.67a Scalable Battle Slot Capacity Plan
+
+- Added `agent/SCALABLE_BATTLE_SLOT_CAPACITY_PLAN.md`.
+- Documented final per-side capacity target:
+  - `7` main slots
+  - `3` reinforcement slots
+  - `10` total slots per side
+- Documented MVP per-side target:
+  - `3` main slots
+  - `2` reinforcement slots
+  - `5` total slots per side
+- Documented recommended legacy mapping of the current `2v2` support units into `main_02` semantics.
+- Documented future slot metadata, scalable slot naming, state-array direction, auto-battle filtering needs, city-to-battle assignment pipeline, formation direction, roadmap, risks, and QA.
+- Kept `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and `scripts/unit_visual_slot.gd` unchanged in this step.
+
 ## v0.66i Slot Tree QA Stable
 
 - Revalidated the `Slots` scene structure in `Battle_Fullscreen_Test.tscn`:
