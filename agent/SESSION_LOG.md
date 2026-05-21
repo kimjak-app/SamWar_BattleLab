@@ -101,6 +101,47 @@ Remaining tasks:
 - v0.67c BattleUnitState List Adapter
 - Auto Battle QA
 
+## 2026-05-22
+
+Starting baseline:
+- v0.67b Slot Registry Array Scaffold Stable
+
+Goal:
+- v0.67c BattleUnitState List Adapter
+
+Completed:
+- Added ally/enemy/all `BattleUnitState` list adapters in `scripts/battle_web_import_test.gd`.
+- Added `unit_state_by_legacy_slot_id` and `unit_state_by_capacity_slot_id`.
+- Added adapter rebuild and lookup helpers without removing the existing fixed `2v2` state variables.
+- Rebuilt adapter references immediately after `_create_demo_unit_states()`.
+- Added one-time adapter debug snapshot during demo-state reset.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Did not change battle execution, enemy AI, auto battle, cleanup, or scene layout behavior.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless scene log confirmed:
+  - `ally_count=2`
+  - `enemy_count=2`
+  - `all_count=4`
+  - legacy keys:
+    - `ally_main`
+    - `ally_support`
+    - `enemy_main`
+    - `enemy_support`
+  - capacity keys:
+    - `ally_main_01`
+    - `ally_main_02`
+    - `enemy_main_01`
+    - `enemy_main_02`
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+
+Remaining tasks:
+- v0.67d 2v2 on Scalable Slot Framework
+- Auto Battle QA
+
 ## 2026-05-21
 
 Starting baseline:

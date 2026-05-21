@@ -248,6 +248,11 @@ var ally_unit_state: BattleUnitState
 var ally_support_unit_state: BattleUnitState
 var enemy_unit_state: BattleUnitState
 var enemy_support_unit_state: BattleUnitState
+var ally_unit_states: Array[BattleUnitState] = []
+var enemy_unit_states: Array[BattleUnitState] = []
+var all_battle_unit_states: Array[BattleUnitState] = []
+var unit_state_by_legacy_slot_id: Dictionary = {}
+var unit_state_by_capacity_slot_id: Dictionary = {}
 var active_unit_state: BattleUnitState
 var active_unit_side := "ally"
 var has_selected_move_target := false
@@ -658,6 +663,7 @@ func reset_demo_state() -> void:
 	current_ally_unit_position = ally_unit_marker.position
 	current_ally_portrait_position = ally_portrait_marker.position
 	_create_demo_unit_states()
+	_rebuild_battle_unit_state_list_refs()
 	_reset_ally_action_locks_for_new_round()
 	_reset_enemy_action_locks_for_new_round()
 	_sync_unit_state_cells_from_markers()
@@ -697,6 +703,7 @@ func reset_demo_state() -> void:
 	_update_facing_indicators()
 	_show_unit_closeup_for_ally(active_unit_state)
 	_update_ally_ready_frames()
+	_debug_print_battle_unit_state_list_adapter()
 	_start_idle_breathing()
 	_hide_all_move_dust_sprites()
 	_show_round_start_toast(battle_round)
@@ -1941,6 +1948,115 @@ func _get_deployed_capacity_slots_for_side(side: String) -> Array[String]:
 	return slot_ids
 
 
+func _rebuild_battle_unit_state_list_refs() -> void:
+	ally_unit_states.clear()
+	enemy_unit_states.clear()
+	all_battle_unit_states.clear()
+	unit_state_by_legacy_slot_id.clear()
+	unit_state_by_capacity_slot_id.clear()
+
+	_append_unit_state_to_adapter(ally_unit_states, ally_unit_state)
+	_append_unit_state_to_adapter(ally_unit_states, ally_support_unit_state)
+	_append_unit_state_to_adapter(enemy_unit_states, enemy_unit_state)
+	_append_unit_state_to_adapter(enemy_unit_states, enemy_support_unit_state)
+
+	for unit_state in ally_unit_states:
+		all_battle_unit_states.append(unit_state)
+	for unit_state in enemy_unit_states:
+		all_battle_unit_states.append(unit_state)
+
+	for unit_state in all_battle_unit_states:
+		var legacy_slot_id := _get_legacy_slot_id_for_unit_state(unit_state)
+		if legacy_slot_id != "":
+			unit_state_by_legacy_slot_id[legacy_slot_id] = unit_state
+		var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
+		if capacity_slot_id != "":
+			unit_state_by_capacity_slot_id[capacity_slot_id] = unit_state
+
+
+func _append_unit_state_to_adapter(target_states: Array[BattleUnitState], unit_state: BattleUnitState) -> void:
+	if unit_state == null:
+		return
+	target_states.append(unit_state)
+
+
+func _get_unit_states_for_side(side: String) -> Array[BattleUnitState]:
+	if side == "ally":
+		return ally_unit_states.duplicate()
+	if side == "enemy":
+		return enemy_unit_states.duplicate()
+	return []
+
+
+func _get_all_battle_unit_states_from_adapter() -> Array[BattleUnitState]:
+	return all_battle_unit_states.duplicate()
+
+
+func _get_unit_state_for_legacy_slot_id(legacy_slot_id: String) -> BattleUnitState:
+	if legacy_slot_id == "":
+		return null
+	return unit_state_by_legacy_slot_id.get(legacy_slot_id) as BattleUnitState
+
+
+func _get_unit_state_for_capacity_slot_id(capacity_slot_id: String) -> BattleUnitState:
+	if capacity_slot_id == "":
+		return null
+	return unit_state_by_capacity_slot_id.get(capacity_slot_id) as BattleUnitState
+
+
+func _get_capacity_slot_id_for_unit_state(unit_state: BattleUnitState) -> String:
+	var legacy_slot_id := _get_legacy_slot_id_for_unit_state(unit_state)
+	if legacy_slot_id == "":
+		return ""
+	return _get_capacity_slot_id_for_legacy_slot_id(legacy_slot_id)
+
+
+func _get_legacy_slot_id_for_unit_state(unit_state: BattleUnitState) -> String:
+	if unit_state == null:
+		return ""
+	if unit_state.slot_id != "":
+		return unit_state.slot_id
+	if unit_state == ally_unit_state:
+		return "ally_main"
+	if unit_state == ally_support_unit_state:
+		return "ally_support"
+	if unit_state == enemy_unit_state:
+		return "enemy_main"
+	if unit_state == enemy_support_unit_state:
+		return "enemy_support"
+	return ""
+
+
+func _get_deployed_unit_states_for_side(side: String) -> Array[BattleUnitState]:
+	var filtered_states: Array[BattleUnitState] = []
+	for unit_state in _get_unit_states_for_side(side):
+		if _is_unit_state_deployed_by_capacity_slot(unit_state):
+			filtered_states.append(unit_state)
+	return filtered_states
+
+
+func _get_active_unit_states_for_side(side: String) -> Array[BattleUnitState]:
+	var filtered_states: Array[BattleUnitState] = []
+	for unit_state in _get_unit_states_for_side(side):
+		if _is_unit_state_active_by_capacity_slot(unit_state):
+			filtered_states.append(unit_state)
+	return filtered_states
+
+
+func _is_unit_state_deployed_by_capacity_slot(unit_state: BattleUnitState) -> bool:
+	var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
+	if capacity_slot_id == "":
+		return unit_state != null
+	return _is_capacity_slot_deployed(capacity_slot_id)
+
+
+func _is_unit_state_active_by_capacity_slot(unit_state: BattleUnitState) -> bool:
+	var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
+	if capacity_slot_id == "":
+		return unit_state != null
+	return _is_capacity_slot_active(capacity_slot_id)
+
+
 func _get_unit_visual_slot_for_state(unit_state: BattleUnitState) -> UnitVisualSlot:
 	if unit_state == null:
 		return null
@@ -2100,6 +2216,19 @@ func _debug_print_capacity_slot_registry() -> void:
 			str(_is_capacity_slot_active(capacity_slot_id)),
 			str(_is_capacity_slot_deployed(capacity_slot_id)),
 		])
+
+
+func _debug_print_battle_unit_state_list_adapter() -> void:
+	print("BATTLE UNIT STATE ADAPTER:")
+	print("ally_count=%s enemy_count=%s all_count=%s legacy_keys=%s capacity_keys=%s ally_deployed=%s enemy_deployed=%s" % [
+		str(ally_unit_states.size()),
+		str(enemy_unit_states.size()),
+		str(all_battle_unit_states.size()),
+		str(unit_state_by_legacy_slot_id.keys()),
+		str(unit_state_by_capacity_slot_id.keys()),
+		str(_get_deployed_capacity_slots_for_side("ally")),
+		str(_get_deployed_capacity_slots_for_side("enemy")),
+	])
 
 
 func _debug_print_ally_portrait_offsets() -> void:

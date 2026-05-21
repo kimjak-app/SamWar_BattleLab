@@ -1,14 +1,14 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67b Slot Registry Array Scaffold
-
-## Priority 1
 v0.67c BattleUnitState List Adapter
 
+## Priority 1
+v0.67d 2v2 on Scalable Slot Framework
+
 Goal:
-- Wrap the current fixed `BattleUnitState` variables in ally/enemy list adapters.
-- Preserve direct fixed-variable fallback while introducing array-backed access.
+- Start using the scalable slot scaffold and state adapters as the compatibility framework under the existing `2v2`.
+- Preserve the exact current battle result while moving only narrow read paths where safe.
 - Keep existing `2v2` battle behavior unchanged.
 
 ## Priority 2
@@ -31,6 +31,17 @@ Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
 
 ## Completed
+v0.67c BattleUnitState List Adapter
+
+Completed items:
+- Added ally/enemy/all `BattleUnitState` list adapters and state dictionaries in `scripts/battle_web_import_test.gd`.
+- Added rebuild and lookup helpers for legacy-slot and capacity-slot state access.
+- Rebuilt adapter references immediately after demo-state creation.
+- Added one-time adapter debug snapshot with counts and mapping keys.
+- Kept battle execution, enemy AI, auto battle, cleanup, and scene structure unchanged.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.67b Slot Registry Array Scaffold
 
 Completed items:

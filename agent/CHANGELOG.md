@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v0.67c BattleUnitState List Adapter
+
+- Added `BattleUnitState` adapter containers in `scripts/battle_web_import_test.gd`:
+  - `ally_unit_states`
+  - `enemy_unit_states`
+  - `all_battle_unit_states`
+  - `unit_state_by_legacy_slot_id`
+  - `unit_state_by_capacity_slot_id`
+- Added rebuild and lookup helpers for scalable state access without removing the existing fixed `2v2` state variables.
+- Rebuild now runs immediately after `_create_demo_unit_states()`.
+- Added one-time adapter debug output showing:
+  - ally count
+  - enemy count
+  - all count
+  - legacy-slot keys
+  - capacity-slot keys
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept current battle execution and auto-battle flow unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.67b Slot Registry Array Scaffold
 
 - Added scalable slot scaffold constants in `scripts/battle_web_import_test.gd`:

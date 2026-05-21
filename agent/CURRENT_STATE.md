@@ -391,6 +391,45 @@ Verified principle:
 - Headless project launch remained 0 errors.
 - Headless `Battle_Fullscreen_Test.tscn` launch remained 0 errors.
 
+## v0.67c BattleUnitState List Adapter State
+- Added `BattleUnitState` list/dictionary adapter scaffold in `scripts/battle_web_import_test.gd`.
+- Kept the existing fixed state variables:
+  - `ally_unit_state`
+  - `ally_support_unit_state`
+  - `enemy_unit_state`
+  - `enemy_support_unit_state`
+- Added adapter containers:
+  - `ally_unit_states`
+  - `enemy_unit_states`
+  - `all_battle_unit_states`
+  - `unit_state_by_legacy_slot_id`
+  - `unit_state_by_capacity_slot_id`
+- Added rebuild and lookup helpers:
+  - `_rebuild_battle_unit_state_list_refs()`
+  - `_get_unit_states_for_side()`
+  - `_get_all_battle_unit_states_from_adapter()`
+  - `_get_unit_state_for_legacy_slot_id()`
+  - `_get_unit_state_for_capacity_slot_id()`
+  - `_get_capacity_slot_id_for_unit_state()`
+  - `_get_legacy_slot_id_for_unit_state()`
+  - `_get_deployed_unit_states_for_side()`
+  - `_get_active_unit_states_for_side()`
+  - `_is_unit_state_deployed_by_capacity_slot()`
+  - `_is_unit_state_active_by_capacity_slot()`
+- Adapter rebuild now runs immediately after `_create_demo_unit_states()`.
+- Current headless adapter snapshot confirms:
+  - ally count = `2`
+  - enemy count = `2`
+  - all count = `4`
+  - legacy keys = `ally_main`, `ally_support`, `enemy_main`, `enemy_support`
+  - capacity keys = `ally_main_01`, `ally_main_02`, `enemy_main_01`, `enemy_main_02`
+- Current `2v2` battle execution flow remains unchanged.
+- Auto battle execution flow remains unchanged.
+- `Battle_Fullscreen_Test.tscn` remained unchanged.
+- `scripts/unit_visual_slot.gd` remained unchanged.
+- Headless project launch remained 0 errors.
+- Headless `Battle_Fullscreen_Test.tscn` launch remained 0 errors.
+
 ## v0.65g Completed Structure
 - UnitVisualRoot Adapter Layer is in place.
 - Ally main visual nodes are under `AllySide/AllyUnitVisualRoot`.
