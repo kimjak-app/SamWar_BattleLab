@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## v0.65j-2 Auto Battle Helper Functions Scaffold
+
+- Added auto battle helper scaffold functions to `scripts/battle_web_import_test.gd`.
+- Added:
+  - `_get_available_auto_units_for_side()`
+  - `_get_alive_auto_targets_for_side()`
+  - `_can_auto_kill_target()`
+  - `_score_auto_attack_target()`
+  - `_find_best_auto_attack_target()`
+  - `_find_best_auto_move_cell()`
+  - `_debug_print_auto_battle_policy_snapshot()`
+- Added internal auto helper support functions:
+  - `_get_auto_damage_for_actor()`
+  - `_get_auto_slot_priority()`
+  - `_get_auto_move_path_for_actor()`
+- Kept the new helpers disconnected from current battle execution flow.
+- Did not modify:
+  - `_play_enemy_ai_for_actor()`
+  - `_get_enemy_ai_target_state_for_actor()`
+  - current manual ally control flow
+- Did not modify ClickArea code.
+- Did not modify scene files.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.65j-1 Auto Battle Action Policy Design
 
 - Added `agent/AUTO_BATTLE_ACTION_POLICY.md`.

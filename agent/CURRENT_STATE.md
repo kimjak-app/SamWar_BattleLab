@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.65j-1 Auto Battle Action Policy Design
+v0.65j-2 Auto Battle Helper Functions Scaffold
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -128,6 +128,23 @@ Verified principle:
 - Auto battle is explicitly defined to use battle data and grid rules, not `ClickArea`.
 - Existing reusable function candidates are documented for later implementation scaffolding.
 
+## v0.65j-2 Auto Battle Helper Scaffold State
+- Added auto battle helper scaffold functions to `scripts/battle_web_import_test.gd`.
+- Added side-based actionable unit helper.
+- Added side-based living target helper.
+- Added demo-damage-based kill-check helper.
+- Added score-based auto attack target helper.
+- Added best auto attack target helper.
+- Added best auto move cell scaffold helper.
+- Added optional auto policy debug snapshot helper.
+- Existing enemy AI flow was not rewired to use these helpers yet.
+- Existing ally manual flow was not rewired to use these helpers yet.
+- `_play_enemy_ai_for_actor()` flow was preserved.
+- `_get_enemy_ai_target_state_for_actor()` flow was preserved.
+- No auto battle button was added.
+- No scene node was changed.
+- No ClickArea code was changed.
+
 ## Unit Token Asset State
 - Korea / China / Japan infantry / archer / gunner / cavalry token assets are normalized around the 256 baseline.
 - Country/type folder structure is used.
@@ -156,6 +173,8 @@ Verified principle:
 - Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65i-3.
 - Full interactive QA items such as movement, attack, facing selection, and overlap targeting still require in-editor/manual verification.
 - v0.65j-1 is a documentation-only step, so no new runtime QA was required.
+- Headless project launch exit code 0 confirmed after v0.65j-2.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-2.
 
 ## Guardrails
 - Do not modify `Battle_WebImport_Test.tscn`.

@@ -3418,6 +3418,192 @@ func _get_first_available_ally_unit() -> BattleUnitState:
 	return null
 
 
+func _get_available_auto_units_for_side(side: String) -> Array[BattleUnitState]:
+	var available_units: Array[BattleUnitState] = []
+	var candidates: Array[BattleUnitState] = []
+	match side:
+		"ally":
+			candidates = _get_alive_ally_units()
+		"enemy":
+			candidates = _get_alive_enemy_units()
+		_:
+			return available_units
+
+	for unit_state in candidates:
+		if unit_state == null:
+			continue
+		if side == "ally":
+			if not _has_ally_unit_acted(unit_state):
+				available_units.append(unit_state)
+		elif side == "enemy":
+			if not _has_enemy_unit_acted(unit_state):
+				available_units.append(unit_state)
+	return available_units
+
+
+func _get_alive_auto_targets_for_side(side: String) -> Array[BattleUnitState]:
+	match side:
+		"ally":
+			return _get_alive_enemy_units()
+		"enemy":
+			return _get_alive_ally_units()
+		_:
+			return []
+
+
+func _get_auto_damage_for_actor(actor_state: BattleUnitState) -> int:
+	if actor_state == null:
+		return 0
+	if actor_state.side == "enemy":
+		return int(ENEMY_DEMO_DAMAGE)
+	return int(DEMO_DAMAGE)
+
+
+func _can_auto_kill_target(actor_state: BattleUnitState, target_state: BattleUnitState) -> bool:
+	if actor_state == null or target_state == null:
+		return false
+	if not target_state.is_alive():
+		return false
+	return _get_auto_damage_for_actor(actor_state) >= int(target_state.current_hp)
+
+
+func _get_auto_slot_priority(slot_id: String) -> int:
+	match slot_id:
+		"enemy_main", "ally_main":
+			return 1
+		"enemy_support", "ally_support":
+			return 0
+		_:
+			return 0
+
+
+func _score_auto_attack_target(actor_state: BattleUnitState, target_state: BattleUnitState) -> int:
+	if actor_state == null or target_state == null:
+		return -999999
+	if not target_state.is_alive():
+		return -999999
+
+	var score := 0
+	if _can_auto_kill_target(actor_state, target_state):
+		score += 100000
+	if is_unit_in_attack_range(actor_state, target_state):
+		score += 10000
+
+	var max_hp_score := maxi(0, int(target_state.max_hp) - int(target_state.current_hp))
+	score += max_hp_score * 10
+
+	var distance := get_unit_grid_distance(actor_state, target_state)
+	score += maxi(0, 200 - distance)
+	score += _get_auto_slot_priority(target_state.slot_id) * 100
+	return score
+
+
+func _find_best_auto_attack_target(actor_state: BattleUnitState) -> BattleUnitState:
+	if actor_state == null:
+		return null
+
+	var best_target: BattleUnitState = null
+	var best_score := -999999
+	for target_state in _get_alive_auto_targets_for_side(actor_state.side):
+		if not is_unit_in_attack_range(actor_state, target_state):
+			continue
+		var score := _score_auto_attack_target(actor_state, target_state)
+		if score > best_score:
+			best_score = score
+			best_target = target_state
+	return best_target
+
+
+func _get_auto_move_path_for_actor(actor_state: BattleUnitState, target_cell: Vector2i) -> Array[Vector2i]:
+	var empty_path: Array[Vector2i] = []
+	if actor_state == null:
+		return empty_path
+	if actor_state.side == "enemy":
+		return _find_enemy_move_path_for_actor(actor_state, actor_state.grid_cell, target_cell)
+
+	var previous_active_unit_state := active_unit_state
+	var previous_active_unit_side := active_unit_side
+	active_unit_state = actor_state
+	active_unit_side = actor_state.side
+	var path := _find_ally_move_path(actor_state.grid_cell, target_cell)
+	active_unit_state = previous_active_unit_state
+	active_unit_side = previous_active_unit_side
+	return path
+
+
+func _find_best_auto_move_cell(actor_state: BattleUnitState) -> Vector2i:
+	if actor_state == null:
+		return Vector2i.ZERO
+	if battle_grid_controller == null:
+		return actor_state.grid_cell
+
+	var best_target := _find_best_auto_attack_target(actor_state)
+	if best_target != null:
+		return actor_state.grid_cell
+
+	var preferred_target: BattleUnitState = null
+	var best_target_score := -999999
+	for target_state in _get_alive_auto_targets_for_side(actor_state.side):
+		var target_score := _score_auto_attack_target(actor_state, target_state)
+		if target_score > best_target_score:
+			best_target_score = target_score
+			preferred_target = target_state
+
+	if preferred_target == null:
+		return actor_state.grid_cell
+	if actor_state.side == "enemy":
+		return _choose_enemy_basic_ai_destination_for_actor(actor_state, preferred_target)
+
+	var best_cell := actor_state.grid_cell
+	var best_distance := get_unit_grid_distance(actor_state, preferred_target)
+	for x in range(battle_grid_controller.grid_width):
+		for y in range(battle_grid_controller.grid_height):
+			var candidate_cell := Vector2i(x, y)
+			if candidate_cell == actor_state.grid_cell:
+				continue
+			if not _is_valid_destination_for_unit(candidate_cell, actor_state):
+				continue
+			var path := _get_auto_move_path_for_actor(actor_state, candidate_cell)
+			if path.is_empty():
+				continue
+			var candidate_distance := absi(candidate_cell.x - preferred_target.grid_cell.x) + absi(candidate_cell.y - preferred_target.grid_cell.y)
+			var can_attack_after_move := candidate_distance <= actor_state.attack_range
+			if can_attack_after_move:
+				return candidate_cell
+			if candidate_distance < best_distance:
+				best_distance = candidate_distance
+				best_cell = candidate_cell
+	return best_cell
+
+
+func _debug_print_auto_battle_policy_snapshot(actor_state: BattleUnitState) -> void:
+	if actor_state == null:
+		print("[AUTO_POLICY] actor=null")
+		return
+
+	var target_summaries: Array[String] = []
+	for target_state in _get_alive_auto_targets_for_side(actor_state.side):
+		var summary := "%s hp=%d dist=%d in_range=%s score=%d" % [
+			target_state.display_name,
+			int(target_state.current_hp),
+			get_unit_grid_distance(actor_state, target_state),
+			str(is_unit_in_attack_range(actor_state, target_state)),
+			_score_auto_attack_target(actor_state, target_state),
+		]
+		target_summaries.append(summary)
+
+	var best_attack_target := _find_best_auto_attack_target(actor_state)
+	var best_move_cell := _find_best_auto_move_cell(actor_state)
+	print("[AUTO_POLICY] actor=%s side=%s cell=%s targets=%s best_attack=%s best_move=%s" % [
+		actor_state.display_name,
+		actor_state.side,
+		actor_state.grid_cell,
+		target_summaries,
+		best_attack_target.display_name if best_attack_target != null else "null",
+		best_move_cell,
+	])
+
+
 func _is_active_ally_action_available() -> bool:
 	if active_unit_state == null:
 		return false

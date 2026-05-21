@@ -3,6 +3,40 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.65j-1 Auto Battle Action Policy Design complete
+
+Goal:
+- v0.65j-2 Auto Battle Helper Functions Scaffold
+
+Completed:
+- Added auto battle helper scaffold functions to `scripts/battle_web_import_test.gd`.
+- Added side-based available-unit helper.
+- Added side-based living-target helper.
+- Added demo-damage-based auto kill helper.
+- Added score-based auto attack target helper.
+- Added best auto attack target helper.
+- Added best auto move cell scaffold helper.
+- Added optional auto policy debug snapshot helper.
+- Kept all new helpers disconnected from existing battle execution flow.
+- Did not modify `_play_enemy_ai_for_actor()`.
+- Did not modify `_get_enemy_ai_target_state_for_actor()`.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify ClickArea code paths.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- No current 2v2 flow rewiring was introduced.
+
+Remaining tasks:
+- v0.65j-3 Ally Auto Battle One-Action MVP
+- v0.65j-4 Auto Battle Button Hook
+- v0.65j-5 Full Auto Battle Loop Prototype
+- v0.65i-2 ClickArea Root Migration Spike
+
+## 2026-05-21
+
+Starting baseline:
 - v0.65i-3 READY/Facing UI Slot Registry Cleanup Stable
 
 Goal:

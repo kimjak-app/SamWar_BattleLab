@@ -1,20 +1,34 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.65j-1 Auto Battle Action Policy Design
-
-## Priority 1
 v0.65j-2 Auto Battle Helper Functions Scaffold
 
+## Priority 1
+v0.65j-3 Ally Auto Battle One-Action MVP
+
 Goal:
-- Introduce side-agnostic helper functions for auto battle planning.
-- Reuse existing battle legality checks without changing combat behavior.
+- Execute one ally auto battle action using the scaffold helpers.
+- Keep manual battle flow and existing enemy AI flow intact.
 
 Notes:
-- This should remain data-driven and not depend on `ClickArea`.
-- This should not add the auto battle button yet.
+- One ally action only.
+- No full auto loop yet.
 
 ## Completed
+v0.65j-2 Auto Battle Helper Functions Scaffold
+
+Completed items:
+- Added auto battle helper scaffold functions to `scripts/battle_web_import_test.gd`.
+- Added actionable-unit and living-target side helpers.
+- Added demo-damage-based auto kill helper.
+- Added score-based auto attack target helper.
+- Added best auto attack target helper.
+- Added best auto move cell scaffold helper.
+- Added optional auto policy debug snapshot helper.
+- Kept helper functions disconnected from existing battle execution flow.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.65j-1 Auto Battle Action Policy Design
 
 Completed items:
@@ -25,7 +39,7 @@ Completed items:
 - Documented current reusable function candidates for future implementation.
 - Kept this step documentation-only with no code/scene changes.
 
-## Previously Completed
+## Earlier Completed
 v0.65i-3 READY/Facing UI Slot Registry Cleanup
 
 Completed items:
@@ -51,36 +65,25 @@ Completed items:
 - No combat formula, turn flow, AI order, or visual node movement changed.
 
 ## Priority 2
-v0.65j-3 Ally Auto Battle One-Action MVP
-
-Goal:
-- Execute one ally auto-battle action using the policy document.
-- Keep turn flow and manual systems intact.
-
-Notes:
-- One acting ally only.
-- No full-loop automation yet.
-
-## Priority 3
 v0.65j-4 Auto Battle Button Hook
 
 Goal:
 - Connect a UI trigger after one-action auto battle is stable.
 
-## Priority 4
+## Priority 3
 v0.65j-5 Full Auto Battle Loop Prototype
 
 Goal:
 - Iterate automatic action flow until turn or battle completion.
 
-## Priority 5
+## Priority 4
 v0.65i-2 ClickArea Root Migration Spike
 
 Goal:
 - Test whether ClickArea can move closer to slot-root ownership without breaking collision/input coordinates.
 - Keep this isolated from auto battle and from combat logic changes.
 
-## Priority 6
+## Priority 5
 Debug cleanup
 
 Review and decide whether to remove:
