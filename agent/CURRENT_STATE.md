@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.65h Slot-Based UnitVisual Architecture Design Stable
+v0.65i-3 READY/Facing UI Slot Registry Cleanup
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -96,6 +96,22 @@ Verified principle:
 - Existing direct `unit_state` comparison fallback remains.
 - No combat formula, turn flow, AI order, or visual node movement changed in v0.65h.
 
+## v0.65i-3 READY/Facing UI Slot Registry State
+- `READY frame` and `FacingIndicator` remain under `BattleUI`.
+- No `BattleUI` node migration was done.
+- No `UnitVisualRoot` parent change was done.
+- Existing visual slot dictionaries still include:
+  - `ready_frame`
+  - `facing_indicator`
+- READY frame refresh now resolves slot UI through slot-based visual slot lookup.
+- FacingIndicator refresh now resolves slot UI through slot-based visual slot lookup.
+- Existing direct `unit_state` comparison fallback remains for anchor/position dispatch safety.
+- `_position_ready_frame_for_unit()` flow is preserved.
+- `_position_facing_indicator_for_ally*()` / `_position_facing_indicator_for_enemy*()` flows are preserved.
+- `_world_to_battle_ui_position()` based UI coordinate conversion is preserved.
+- ClickArea code path was not modified in v0.65i-3.
+- No combat formula, turn flow, AI order, or HP cleanup behavior was intentionally changed.
+
 ## Unit Token Asset State
 - Korea / China / Japan infantry / archer / gunner / cavalry token assets are normalized around the 256 baseline.
 - Country/type folder structure is used.
@@ -110,6 +126,7 @@ Verified principle:
 - ClickArea / READY / FacingIndicator are not inside UnitVisualRoot yet.
 - ClickArea uses collision/input coordinates and should only be migrated in a separate focused step.
 - READY frame and FacingIndicator are UI/CanvasLayer concerns and should be evaluated separately from world visual roots.
+- READY frame and FacingIndicator slot attachment is now cleaned up around slot-based visual slot lookup while staying under `BattleUI`.
 - UnitVisualTemplate nodes are still used as scene-authored layout offset references.
 
 ## Debug Notes
@@ -117,6 +134,11 @@ Verified principle:
 - `[ATTACK_CLICK]` print currently remains and prints only during attack target clicks.
 - `ALLY PORTRAIT OFFSET DEBUG` function may exist, but its reset-time call is removed.
 - Debug cleanup is a future cleanup task, not part of the verified v0.65g behavior.
+
+## QA Notes
+- Headless project launch exit code 0 confirmed after v0.65i-3.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65i-3.
+- Full interactive QA items such as movement, attack, facing selection, and overlap targeting still require in-editor/manual verification.
 
 ## Guardrails
 - Do not modify `Battle_WebImport_Test.tscn`.

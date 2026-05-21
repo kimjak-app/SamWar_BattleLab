@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## v0.65i-3 READY/Facing UI Slot Registry Cleanup
+
+- Kept `READY frame` nodes under `BattleUI`.
+- Kept `FacingIndicator` nodes under `BattleUI`.
+- Kept `ready_frame` / `facing_indicator` entries in:
+  - `_get_ally_main_visual_slots()`
+  - `_get_ally_support_visual_slots()`
+  - `_get_enemy_main_visual_slots()`
+  - `_get_enemy_support_visual_slots()`
+- Added slot-based helper lookup for READY frame resolution.
+- Switched READY frame refresh to resolve slot UI through slot lookup instead of direct node pairing.
+- Added slot-based helper lookup for FacingIndicator resolution.
+- Switched FacingIndicator refresh to resolve slot UI through slot lookup while preserving the existing per-slot position functions.
+- Added shared visual-anchor helper with `slot_id` first dispatch and existing direct comparison fallback.
+- Preserved:
+  - `_position_ready_frame_for_unit()`
+  - `_position_facing_indicator_for_ally()`
+  - `_position_facing_indicator_for_ally_support()`
+  - `_position_facing_indicator_for_enemy()`
+  - `_position_facing_indicator_for_enemy_support()`
+  - `_world_to_battle_ui_position()`
+- Did not move any scene nodes.
+- Did not modify ClickArea code.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.65h Slot-Based UnitVisual Architecture Design Stable
 
 - Extended BattleUnitState with slot-based metadata.

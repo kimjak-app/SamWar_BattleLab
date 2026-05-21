@@ -1,20 +1,34 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.65h Slot-Based UnitVisual Architecture Design Stable
+v0.65i-3 READY/Facing UI Slot Registry Cleanup
 
 ## Priority 1
-v0.65i ClickArea / READY / FacingIndicator Integration Review
+v0.65i-2 ClickArea Root Migration Spike
 
 Goal:
-- Decide whether ClickArea, READY frame, and FacingIndicator should move under UnitVisualRoot or remain separate.
-- Keep each category separable; do not batch-migrate all coordinate systems at once.
+- Test whether ClickArea can move closer to slot-root ownership without breaking collision/input coordinates.
+- Keep this isolated from READY/Facing UI and from combat logic changes.
 
 Notes:
 - ClickArea has collision/input coordinate risks and must be handled in its own migration step.
-- READY frame and FacingIndicator are CanvasLayer/UI coordinate concerns and should be reviewed separately from world visual roots.
+- READY frame and FacingIndicator should remain under `BattleUI`.
 
 ## Completed
+v0.65i-3 READY/Facing UI Slot Registry Cleanup
+
+Completed items:
+- Kept `AllyReadyFrame` / `AllySupportReadyFrame` under `BattleUI`.
+- Kept all 4 `FacingIndicator` labels under `BattleUI`.
+- Preserved `ready_frame` / `facing_indicator` entries in the slot visual dictionaries.
+- Connected READY/Facing refresh through slot-based visual slot lookup helpers.
+- Preserved `_position_ready_frame_for_unit()` flow.
+- Preserved `_position_facing_indicator_for_*()` flows.
+- Preserved `_world_to_battle_ui_position()` UI conversion flow.
+- Did not modify ClickArea code path.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.65h Slot-Based UnitVisual Architecture Design
 
 Completed items:
