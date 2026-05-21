@@ -73,6 +73,30 @@ func get_visual_group_nodes() -> Array[CanvasItem]:
 	return nodes
 
 
+func get_click_area() -> Area2D:
+	return click_area
+
+
+func get_click_shape() -> CollisionShape2D:
+	return click_shape
+
+
+func get_ready_frame() -> Control:
+	return ready_frame
+
+
+func get_facing_indicator() -> Label:
+	return facing_indicator as Label
+
+
+func has_click_nodes() -> bool:
+	return click_area != null and click_shape != null
+
+
+func has_ui_overlay_nodes() -> bool:
+	return ready_frame != null or facing_indicator != null
+
+
 func has_required_visual_nodes() -> bool:
 	return (
 		root != null

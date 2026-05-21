@@ -3,6 +3,34 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers Stable
+
+Goal:
+- v0.66c-2 Ready/Facing/Click Slot Helper Expansion
+
+Completed:
+- Added slot-first UI / click getter helpers to `scripts/unit_visual_slot.gd`.
+- Added `_get_click_shape_for_unit()` and `_get_all_unit_states_in_slot_order()` to `scripts/battle_web_import_test.gd`.
+- Expanded slot-first usage across READY / Facing / Click helper lookups only.
+- Kept existing per-slot facing indicator position functions and world-to-UI conversion flow unchanged.
+- Kept ClickArea under scene root and READY / Facing nodes under `BattleUI`.
+- Did not modify movement, attack, enemy AI, auto battle, or battle-dust logic.
+- Kept `Battle_Fullscreen_Test.tscn` unmodified.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- 4-slot cache state confirmed in scene launch log.
+- No scene diff introduced.
+
+Remaining tasks:
+- v0.66c-3 Slot-Based Cleanup/Visibility QA
+- v0.66d Scene Slot Tree Migration Plan
+- Auto Battle QA
+
+## 2026-05-21
+
+Starting baseline:
 - v0.66b UnitVisualSlot Lookup Integration Stable
 
 Goal:

@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## v0.66c-2 Ready/Facing/Click Slot Helper Expansion
+
+- Expanded `UnitVisualSlot` UI / click getter helpers in `scripts/unit_visual_slot.gd`.
+- Added:
+  - `get_click_area()`
+  - `get_click_shape()`
+  - `get_ready_frame()`
+  - `get_facing_indicator()`
+  - `has_click_nodes()`
+  - `has_ui_overlay_nodes()`
+- Added `_get_click_shape_for_unit()` to `scripts/battle_web_import_test.gd`.
+- Updated slot-first helper usage for:
+  - `_get_ready_frame_for_unit()`
+  - `_update_ally_ready_frames()`
+  - `_get_facing_indicator_for_unit()`
+  - `_update_facing_indicators()`
+  - `_set_facing_indicators_visible()`
+  - `_get_click_area_for_unit()`
+- Added `_get_all_unit_states_in_slot_order()` for helper-only iteration.
+- Preserved:
+  - `Battle_Fullscreen_Test.tscn`
+  - ClickArea parent structure
+  - READY frame parent structure
+  - FacingIndicator parent structure
+  - existing per-slot facing-indicator position functions
+  - auto battle logic
+  - enemy AI flow
+  - battle-dust logic
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers
 
 - Expanded `UnitVisualSlot` safe read-only helpers in `scripts/unit_visual_slot.gd`.

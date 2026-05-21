@@ -1246,8 +1246,10 @@ func _configure_unit_closeup_panel() -> void:
 
 
 func _update_ally_ready_frames() -> void:
-	_update_ready_frame_for_unit(_get_ready_frame_for_unit(ally_unit_state), ally_unit_state)
-	_update_ready_frame_for_unit(_get_ready_frame_for_unit(ally_support_unit_state), ally_support_unit_state)
+	for unit_state in _get_all_unit_states_in_slot_order():
+		if unit_state == null or unit_state.side != "ally":
+			continue
+		_update_ready_frame_for_unit(_get_ready_frame_for_unit(unit_state), unit_state)
 
 
 func _update_ready_frame_for_unit(frame: Control, unit_state: BattleUnitState) -> void:
@@ -4061,8 +4063,8 @@ func _get_visual_group_nodes_for_unit(unit_state: BattleUnitState) -> Array[Canv
 
 func _get_click_area_for_unit(unit_state: BattleUnitState) -> Area2D:
 	var slot := _get_unit_visual_slot_for_state(unit_state)
-	if slot != null and slot.click_area != null:
-		return slot.click_area
+	if slot != null and slot.get_click_area() != null:
+		return slot.get_click_area()
 	if unit_state == ally_support_unit_state:
 		return ally_support_unit_click_area
 	if unit_state == enemy_unit_state:
@@ -4072,17 +4074,42 @@ func _get_click_area_for_unit(unit_state: BattleUnitState) -> Area2D:
 	return ally_unit_click_area
 
 
+func _get_click_shape_for_unit(unit_state: BattleUnitState) -> CollisionShape2D:
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	if slot != null and slot.get_click_shape() != null:
+		return slot.get_click_shape()
+	if unit_state == ally_support_unit_state:
+		return ally_support_unit_click_shape
+	if unit_state == enemy_unit_state:
+		return enemy_unit_click_shape
+	if unit_state == enemy_support_unit_state:
+		return enemy_support_unit_click_shape
+	return ally_unit_click_shape
+
+
 func _get_ready_frame_for_unit(unit_state: BattleUnitState) -> Control:
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	if slot != null and slot.get_ready_frame() != null:
+		return slot.get_ready_frame()
 	var slot_visuals := _get_unit_visual_slots_for_state(unit_state)
 	return slot_visuals.get("ready_frame", null) as Control
 
 
 func _get_facing_indicator_for_unit(unit_state: BattleUnitState) -> Label:
 	var slot := _get_unit_visual_slot_for_state(unit_state)
-	if slot != null and slot.facing_indicator != null:
-		return slot.facing_indicator as Label
+	if slot != null and slot.get_facing_indicator() != null:
+		return slot.get_facing_indicator()
 	var slot_visuals := _get_unit_visual_slots_for_state(unit_state)
 	return slot_visuals.get("facing_indicator", null) as Label
+
+
+func _get_all_unit_states_in_slot_order() -> Array[BattleUnitState]:
+	return [
+		ally_unit_state,
+		ally_support_unit_state,
+		enemy_unit_state,
+		enemy_support_unit_state,
+	]
 
 
 func _get_visual_anchor_position_for_unit(unit_state: BattleUnitState) -> Vector2:
@@ -5176,10 +5203,8 @@ func _get_facing_arrow_text(facing: String) -> String:
 
 
 func _update_facing_indicators() -> void:
-	_refresh_facing_indicator_for_unit(ally_unit_state)
-	_refresh_facing_indicator_for_unit(ally_support_unit_state)
-	_refresh_facing_indicator_for_unit(enemy_unit_state)
-	_refresh_facing_indicator_for_unit(enemy_support_unit_state)
+	for unit_state in _get_all_unit_states_in_slot_order():
+		_refresh_facing_indicator_for_unit(unit_state)
 
 
 func _position_facing_indicator_for_ally() -> void:
@@ -5212,14 +5237,10 @@ func _position_facing_indicator_for_enemy_support() -> void:
 
 func _set_facing_indicators_visible(should_show: bool) -> void:
 	facing_indicators_should_be_visible = should_show
-	if ally_facing_indicator != null:
-		ally_facing_indicator.visible = should_show and ally_unit_state != null and ally_unit_state.is_alive()
-	if ally_support_facing_indicator != null:
-		ally_support_facing_indicator.visible = should_show and ally_support_unit_state != null and ally_support_unit_state.is_alive()
-	if enemy_facing_indicator != null:
-		enemy_facing_indicator.visible = should_show and enemy_unit_state != null and enemy_unit_state.is_alive()
-	if enemy_support_facing_indicator != null:
-		enemy_support_facing_indicator.visible = should_show and enemy_support_unit_state != null and enemy_support_unit_state.is_alive()
+	for unit_state in _get_all_unit_states_in_slot_order():
+		var facing_indicator := _get_facing_indicator_for_unit(unit_state)
+		if facing_indicator != null:
+			facing_indicator.visible = should_show and unit_state != null and unit_state.is_alive()
 
 
 func _world_to_battle_ui_position(world_pos: Vector2) -> Vector2:

@@ -1,15 +1,15 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers Stable
+v0.66c-2 Ready/Facing/Click Slot Helper Expansion Stable
 
 ## Priority 1
-v0.66c-2 Ready/Facing/Click Slot Helper Expansion
+v0.66c-3 Slot-Based Cleanup/Visibility QA
 
 Goal:
-- Expand slot-based helper usage further for READY / Facing / Click attachment-related helpers.
-- Keep parent structure unchanged while reducing direct per-slot branching in safe UI/input helpers.
-- Avoid movement / attack / AI execution-path rewrites.
+- QA slot-based cleanup / visibility helper behavior against dead-unit cleanup and overlay visibility.
+- Confirm Guan Yu death path, support targeting, READY visibility, and FacingIndicator visibility remain unchanged.
+- Keep this focused on verification and narrow helper fixes only.
 
 ## Priority 2
 v0.66d Scene Slot Tree Migration Plan
@@ -32,6 +32,18 @@ Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
 
 ## Completed
+v0.66c-2 Ready/Facing/Click Slot Helper Expansion Stable
+
+Completed items:
+- Expanded `UnitVisualSlot` with slot-first UI / click getter helpers.
+- Added slot-first click-shape helper in `scripts/battle_web_import_test.gd`.
+- Updated READY / Facing / Click helper lookups to prefer `UnitVisualSlot` references.
+- Added `_get_all_unit_states_in_slot_order()` for UI / visibility helper iteration only.
+- Kept `Battle_Fullscreen_Test.tscn` unmodified.
+- Kept ClickArea / READY frame / FacingIndicator parent structure unmodified.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers Stable
 
 Completed items:

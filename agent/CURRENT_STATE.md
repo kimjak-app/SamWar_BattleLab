@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers Stable
+v0.66c-2 Ready/Facing/Click Slot Helper Expansion Stable
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -129,6 +129,31 @@ Verified principle:
 - No combat formula, turn flow, enemy AI flow, auto battle logic, or scene structure was intentionally changed.
 - `Battle_Fullscreen_Test.tscn` remained unmodified.
 - ClickArea / READY frame / FacingIndicator parent structure remained unchanged.
+
+## v0.66c-2 Ready/Facing/Click Slot Helper Expansion State
+- Expanded `UnitVisualSlot` with slot-first UI / click getters:
+  - `get_click_area()`
+  - `get_click_shape()`
+  - `get_ready_frame()`
+  - `get_facing_indicator()`
+  - `has_click_nodes()`
+  - `has_ui_overlay_nodes()`
+- Added `_get_click_shape_for_unit()` in `scripts/battle_web_import_test.gd`.
+- Expanded slot-first helper usage for:
+  - `_get_ready_frame_for_unit()`
+  - `_update_ally_ready_frames()`
+  - `_get_facing_indicator_for_unit()`
+  - `_update_facing_indicators()`
+  - `_set_facing_indicators_visible()`
+  - `_get_click_area_for_unit()`
+- Added `_get_all_unit_states_in_slot_order()` for UI / visibility helper iteration only.
+- Existing direct comparison fallback remains for READY / Facing / Click helpers when slot lookup is unavailable.
+- Existing world-to-`BattleUI` coordinate flow remains unchanged.
+- Existing per-slot facing-indicator position functions remain preserved.
+- ClickArea remains under scene root.
+- READY frame and FacingIndicator remain under `BattleUI`.
+- No combat formula, turn flow, enemy AI, auto battle, or battle-dust logic was intentionally changed.
+- `Battle_Fullscreen_Test.tscn` remained unmodified.
 
 ## v0.65g Completed Structure
 - UnitVisualRoot Adapter Layer is in place.
