@@ -4,12 +4,12 @@
 v0.66c-3 Slot-Based Cleanup / Visibility QA Stable
 
 ## Priority 1
-v0.66d Scene Slot Tree Migration Plan
+v0.66e AllyMainSlot Migration Spike
 
 Goal:
-- Define a staged migration plan for any future scene-level slot tree changes.
-- Keep this as a planning task only until lookup-layer usage is stable.
-- Separate ClickArea and BattleUI attachment concerns from UnitVisualRoot migration concerns.
+- Test a single-slot migration path for `ally_main` only.
+- Keep battle behavior identical before and after the spike.
+- Prefer a rollback-friendly migration with explicit QA gates.
 
 ## Priority 2
 v0.67 Slot Count Expansion Plan
@@ -32,6 +32,15 @@ Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
 
 ## Completed
+v0.66d Scene Slot Tree Migration Plan
+
+Completed items:
+- Added `agent/SCENE_SLOT_TREE_MIGRATION_PLAN.md`.
+- Documented current structure, target C-style structure, migration principles, risks, and QA.
+- Explicitly separated Visual / World Interaction / UI Overlay migration concerns.
+- Kept code and scene files unchanged.
+
+## Previously Completed
 v0.66c-3 Slot-Based Cleanup / Visibility QA Stable
 
 Completed items:

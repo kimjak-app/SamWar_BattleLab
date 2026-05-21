@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v0.66d Scene Slot Tree Migration Plan
+
+- Added `agent/SCENE_SLOT_TREE_MIGRATION_PLAN.md`.
+- Documented:
+  - current battle-slot tree summary
+  - target C-style `Slots/...` direction
+  - migration principles
+  - Visual / World Interaction / UI Overlay classification
+  - ClickArea migration judgment
+  - READY frame / FacingIndicator migration judgment
+  - staged migration roadmap
+  - slot-count expansion preconditions
+  - risk summary
+  - migration QA checklist
+- This step made no changes to:
+  - `Battle_Fullscreen_Test.tscn`
+  - `scripts/battle_web_import_test.gd`
+  - `scripts/unit_visual_slot.gd`
+
 ## v0.66c-3 Slot-Based Cleanup / Visibility QA
 
 - Stabilized slot-based cleanup / visibility helpers in `scripts/battle_web_import_test.gd`.

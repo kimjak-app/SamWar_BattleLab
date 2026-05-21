@@ -3,6 +3,35 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.66c-3 Slot-Based Cleanup / Visibility QA Stable
+
+Goal:
+- v0.66d Scene Slot Tree Migration Plan
+
+Completed:
+- Added `agent/SCENE_SLOT_TREE_MIGRATION_PLAN.md`.
+- Documented the current slot-related scene structure and the target C-style slot tree direction.
+- Documented separate migration policy for:
+  - Visual nodes
+  - World interaction nodes
+  - UI overlay nodes
+- Recommended `ally_main` as the first migration spike target.
+- Kept code and scene files unchanged.
+
+QA:
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+- Verified no diff in `scripts/battle_web_import_test.gd`.
+- Verified no diff in `scripts/unit_visual_slot.gd`.
+- Verified `agent/SCENE_SLOT_TREE_MIGRATION_PLAN.md` creation.
+
+Remaining tasks:
+- v0.66e AllyMainSlot Migration Spike
+- v0.67 Slot Count Expansion Plan
+- Auto Battle QA
+
+## 2026-05-21
+
+Starting baseline:
 - v0.66c-2 Ready/Facing/Click Slot Helper Expansion Stable
 
 Goal:

@@ -179,6 +179,25 @@ Verified principle:
 - `Battle_Fullscreen_Test.tscn` remained unmodified.
 - ClickArea / READY frame / FacingIndicator parent structure remained unchanged.
 
+## v0.66d Scene Slot Tree Migration Plan State
+- Added `agent/SCENE_SLOT_TREE_MIGRATION_PLAN.md`.
+- This step is documentation only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- The document defines:
+  - current structure summary
+  - target C-style slot tree direction
+  - migration principles
+  - node classification policy
+  - ClickArea migration judgment
+  - READY / FacingIndicator migration judgment
+  - staged migration roadmap
+  - 3v3 / 4v4 expansion preconditions
+  - risk summary
+  - migration QA checklist
+- Recommended first real migration spike is `v0.66e AllyMainSlot Migration Spike`.
+
 ## v0.65g Completed Structure
 - UnitVisualRoot Adapter Layer is in place.
 - Ally main visual nodes are under `AllySide/AllyUnitVisualRoot`.
