@@ -64,6 +64,12 @@ const BATTLE_DUST_DURATION_MAX := 0.18
 const BATTLE_DUST_TINT := Color(0.48, 0.38, 0.24, 1.0)
 const BATTLE_DUST_HIT_OFFSET := Vector2(0.0, 32.0)
 const BATTLE_DUST_WORLD_Z_INDEX := 2
+const SLOT_IDS := [
+	"ally_main",
+	"ally_support",
+	"enemy_main",
+	"enemy_support",
+]
 const UNIT_VISUAL_TEMPLATE_NODE_PATHS := {
 	"ally_main": {
 		UNIT_TYPE_INFANTRY: "AllySide/AllyInfantryUnitVisualTemplate",
@@ -277,6 +283,7 @@ var ally_facing_indicator_layout_offset := Vector2(-19.3333, -105.0)
 var ally_support_facing_indicator_layout_offset := Vector2(-19.3333, -105.0)
 var enemy_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 var enemy_support_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
+var unit_visual_slot_refs_by_id: Dictionary = {}
 
 @export var ally_unit_token_up_texture: Texture2D
 @export var ally_unit_token_down_texture: Texture2D
@@ -433,6 +440,7 @@ func _ready() -> void:
 	_configure_round_toast()
 	_collect_move_range_cells()
 	_capture_scene_authored_unit_layout_offsets()
+	_rebuild_unit_visual_slot_refs()
 	_apply_facing_arrow_panel_visual_style()
 	_configure_ally_ready_frames()
 	_configure_unit_closeup_panel()
@@ -1798,6 +1806,37 @@ func _get_visual_slots_for_slot_id(slot_id: String) -> Dictionary:
 			return _get_enemy_support_visual_slots()
 		_:
 			return {}
+
+
+func _rebuild_unit_visual_slot_refs() -> void:
+	unit_visual_slot_refs_by_id.clear()
+	for slot_id in SLOT_IDS:
+		unit_visual_slot_refs_by_id[slot_id] = UnitVisualSlot.create_from_dictionary(
+			slot_id,
+			_get_visual_slots_for_slot_id(slot_id)
+		)
+
+
+func _get_unit_visual_slot_ref_for_state(unit_state: BattleUnitState) -> UnitVisualSlot:
+	if unit_state == null:
+		return null
+	if unit_state.slot_id != "":
+		var slot_ref := _get_unit_visual_slot_ref_for_slot_id(unit_state.slot_id)
+		if slot_ref != null:
+			return slot_ref
+	if unit_state == ally_unit_state:
+		return _get_unit_visual_slot_ref_for_slot_id("ally_main")
+	if unit_state == ally_support_unit_state:
+		return _get_unit_visual_slot_ref_for_slot_id("ally_support")
+	if unit_state == enemy_unit_state:
+		return _get_unit_visual_slot_ref_for_slot_id("enemy_main")
+	if unit_state == enemy_support_unit_state:
+		return _get_unit_visual_slot_ref_for_slot_id("enemy_support")
+	return null
+
+
+func _get_unit_visual_slot_ref_for_slot_id(slot_id: String) -> UnitVisualSlot:
+	return unit_visual_slot_refs_by_id.get(slot_id) as UnitVisualSlot
 
 
 func _get_ally_main_visual_slots() -> Dictionary:
