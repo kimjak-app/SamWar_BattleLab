@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## v0.67b Slot Registry Array Scaffold
+
+- Added scalable slot scaffold constants in `scripts/battle_web_import_test.gd`:
+  - slot-role constants
+  - slot-entry constants
+  - `7 + 3` final capacity constants
+  - `3 + 2` MVP capacity constants
+- Added full `20`-slot capacity-id scaffold for:
+  - ally main `01` through `07`
+  - ally reinforce `01` through `03`
+  - enemy main `01` through `07`
+  - enemy reinforce `01` through `03`
+- Added legacy mapping scaffold for the current stable `2v2` slots:
+  - `ally_main` -> `ally_main_01`
+  - `ally_support` -> `ally_main_02`
+  - `enemy_main` -> `enemy_main_01`
+  - `enemy_support` -> `enemy_main_02`
+- Added capacity-slot metadata registry helpers and capacity-slot-to-`UnitVisualSlot` bridge helper.
+- Added one-time capacity registry debug output at scene launch.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept current battle execution and auto-battle flow unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.67a Scalable Battle Slot Capacity Plan
 
 - Added `agent/SCALABLE_BATTLE_SLOT_CAPACITY_PLAN.md`.

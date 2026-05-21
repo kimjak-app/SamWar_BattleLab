@@ -70,6 +70,50 @@ const SLOT_IDS := [
 	"enemy_main",
 	"enemy_support",
 ]
+const SLOT_ROLE_MAIN := "main"
+const SLOT_ROLE_REINFORCE := "reinforce"
+const SLOT_ENTRY_INITIAL := "initial"
+const SLOT_ENTRY_DELAYED := "delayed"
+const SLOT_ENTRY_TRIGGERED := "triggered"
+const SLOT_ENTRY_CITY_REINFORCEMENT := "city_reinforcement"
+const MAX_MAIN_SLOTS_PER_SIDE := 7
+const MAX_REINFORCE_SLOTS_PER_SIDE := 3
+const MVP_MAIN_SLOTS_PER_SIDE := 3
+const MVP_REINFORCE_SLOTS_PER_SIDE := 2
+const CAPACITY_SLOT_IDS := [
+	"ally_main_01",
+	"ally_main_02",
+	"ally_main_03",
+	"ally_main_04",
+	"ally_main_05",
+	"ally_main_06",
+	"ally_main_07",
+	"ally_reinforce_01",
+	"ally_reinforce_02",
+	"ally_reinforce_03",
+	"enemy_main_01",
+	"enemy_main_02",
+	"enemy_main_03",
+	"enemy_main_04",
+	"enemy_main_05",
+	"enemy_main_06",
+	"enemy_main_07",
+	"enemy_reinforce_01",
+	"enemy_reinforce_02",
+	"enemy_reinforce_03",
+]
+const LEGACY_SLOT_TO_CAPACITY_SLOT_ID := {
+	"ally_main": "ally_main_01",
+	"ally_support": "ally_main_02",
+	"enemy_main": "enemy_main_01",
+	"enemy_support": "enemy_main_02",
+}
+const CAPACITY_SLOT_TO_LEGACY_SLOT_ID := {
+	"ally_main_01": "ally_main",
+	"ally_main_02": "ally_support",
+	"enemy_main_01": "enemy_main",
+	"enemy_main_02": "enemy_support",
+}
 const UNIT_VISUAL_TEMPLATE_NODE_PATHS := {
 	"ally_main": {
 		UNIT_TYPE_INFANTRY: "AllySide/AllyInfantryUnitVisualTemplate",
@@ -237,6 +281,7 @@ var move_dust_tweens: Dictionary = {}
 var ally_ready_frame_tween: Tween = null
 var ally_support_ready_frame_tween: Tween = null
 var unit_closeup_tween: Tween = null
+var capacity_slot_metadata_registry: Dictionary = {}
 var ally_idle_tween: Tween
 var enemy_idle_tween: Tween
 var ally_support_idle_tween: Tween
@@ -441,11 +486,13 @@ func _ready() -> void:
 	_collect_move_range_cells()
 	_capture_scene_authored_unit_layout_offsets()
 	_rebuild_unit_visual_slot_refs()
+	_build_capacity_slot_metadata_registry()
 	_apply_facing_arrow_panel_visual_style()
 	_configure_ally_ready_frames()
 	_configure_unit_closeup_panel()
 	reset_demo_state()
 	_debug_print_unit_visual_root_slots()
+	_debug_print_capacity_slot_registry()
 
 
 func _process(_delta: float) -> void:
@@ -1820,6 +1867,80 @@ func _rebuild_unit_visual_slot_refs() -> void:
 			unit_visual_slot_refs_by_id[slot_id] = slot
 
 
+func _build_capacity_slot_metadata_registry() -> Dictionary:
+	capacity_slot_metadata_registry.clear()
+	for slot_id in CAPACITY_SLOT_IDS:
+		capacity_slot_metadata_registry[slot_id] = _create_capacity_slot_metadata(slot_id)
+	return capacity_slot_metadata_registry
+
+
+func _create_capacity_slot_metadata(slot_id: String) -> Dictionary:
+	var side := "ally" if slot_id.begins_with("ally_") else "enemy"
+	var slot_role := SLOT_ROLE_REINFORCE if slot_id.find("_reinforce_") != -1 else SLOT_ROLE_MAIN
+	var legacy_slot_id := _get_legacy_slot_id_for_capacity_slot_id(slot_id)
+	var formation_index := _get_capacity_slot_formation_index(slot_id)
+	var is_active := legacy_slot_id != ""
+	var is_deployed := is_active
+	var entry_rule := SLOT_ENTRY_INITIAL if is_deployed else ""
+	return {
+		"slot_id": slot_id,
+		"legacy_slot_id": legacy_slot_id,
+		"side": side,
+		"slot_role": slot_role,
+		"formation_index": formation_index,
+		"is_active": is_active,
+		"is_deployed": is_deployed,
+		"entry_rule": entry_rule,
+		"source_city_id": "",
+		"assigned_unit_id": "",
+	}
+
+
+func _get_capacity_slot_formation_index(slot_id: String) -> int:
+	var slot_suffix := slot_id.get_slice("_", 2)
+	return slot_suffix.to_int()
+
+
+func _get_capacity_slot_id_for_legacy_slot_id(legacy_slot_id: String) -> String:
+	return String(LEGACY_SLOT_TO_CAPACITY_SLOT_ID.get(legacy_slot_id, ""))
+
+
+func _get_legacy_slot_id_for_capacity_slot_id(capacity_slot_id: String) -> String:
+	return String(CAPACITY_SLOT_TO_LEGACY_SLOT_ID.get(capacity_slot_id, ""))
+
+
+func _get_capacity_slot_metadata(slot_id: String) -> Dictionary:
+	if slot_id == "":
+		return {}
+	return capacity_slot_metadata_registry.get(slot_id, {})
+
+
+func _is_capacity_slot_active(slot_id: String) -> bool:
+	return bool(_get_capacity_slot_metadata(slot_id).get("is_active", false))
+
+
+func _is_capacity_slot_deployed(slot_id: String) -> bool:
+	return bool(_get_capacity_slot_metadata(slot_id).get("is_deployed", false))
+
+
+func _get_active_capacity_slots_for_side(side: String) -> Array[String]:
+	var slot_ids: Array[String] = []
+	for slot_id in CAPACITY_SLOT_IDS:
+		var slot_metadata := _get_capacity_slot_metadata(slot_id)
+		if String(slot_metadata.get("side", "")) == side and bool(slot_metadata.get("is_active", false)):
+			slot_ids.append(slot_id)
+	return slot_ids
+
+
+func _get_deployed_capacity_slots_for_side(side: String) -> Array[String]:
+	var slot_ids: Array[String] = []
+	for slot_id in CAPACITY_SLOT_IDS:
+		var slot_metadata := _get_capacity_slot_metadata(slot_id)
+		if String(slot_metadata.get("side", "")) == side and bool(slot_metadata.get("is_deployed", false)):
+			slot_ids.append(slot_id)
+	return slot_ids
+
+
 func _get_unit_visual_slot_for_state(unit_state: BattleUnitState) -> UnitVisualSlot:
 	if unit_state == null:
 		return null
@@ -1845,6 +1966,13 @@ func _get_unit_visual_slot_for_slot_id(slot_id: String) -> UnitVisualSlot:
 	if cached_slot != null:
 		return cached_slot
 	return _create_unit_visual_slot_from_dictionary(slot_id, _get_visual_slots_dictionary_fallback_for_slot_id(slot_id))
+
+
+func _get_unit_visual_slot_for_capacity_slot_id(capacity_slot_id: String) -> UnitVisualSlot:
+	var legacy_slot_id := _get_legacy_slot_id_for_capacity_slot_id(capacity_slot_id)
+	if legacy_slot_id == "":
+		return null
+	return _get_unit_visual_slot_for_slot_id(legacy_slot_id)
 
 
 func _has_unit_visual_slot_for_state(unit_state: BattleUnitState) -> bool:
@@ -1950,6 +2078,27 @@ func _debug_print_unit_visual_root_slots() -> void:
 			str(bool(slot_summary.get("ready_frame", false))),
 			str(bool(slot_summary.get("facing_indicator", false))),
 			str(not slot_visuals.is_empty()),
+		])
+
+
+func _debug_print_capacity_slot_registry() -> void:
+	print("CAPACITY SLOT REGISTRY:")
+	print("capacity_slot_count=%s ally_active=%s enemy_active=%s ally_deployed=%s enemy_deployed=%s" % [
+		str(CAPACITY_SLOT_IDS.size()),
+		str(_get_active_capacity_slots_for_side("ally")),
+		str(_get_active_capacity_slots_for_side("enemy")),
+		str(_get_deployed_capacity_slots_for_side("ally")),
+		str(_get_deployed_capacity_slots_for_side("enemy")),
+	])
+	for legacy_slot_id in SLOT_IDS:
+		var capacity_slot_id := _get_capacity_slot_id_for_legacy_slot_id(legacy_slot_id)
+		var visual_slot := _get_unit_visual_slot_for_capacity_slot_id(capacity_slot_id)
+		print("%s -> %s visual=%s active=%s deployed=%s" % [
+			legacy_slot_id,
+			capacity_slot_id,
+			str(visual_slot != null),
+			str(_is_capacity_slot_active(capacity_slot_id)),
+			str(_is_capacity_slot_deployed(capacity_slot_id)),
 		])
 
 

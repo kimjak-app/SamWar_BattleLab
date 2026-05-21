@@ -349,6 +349,48 @@ Verified principle:
   - scalable auto-battle filtering
 - Recommended next implementation step is `v0.67b Slot Registry Array Scaffold`.
 
+## v0.67b Slot Registry Array Scaffold State
+- Added scalable slot-registry scaffold in `scripts/battle_web_import_test.gd`.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Added slot-role and entry-rule constants:
+  - `SLOT_ROLE_MAIN`
+  - `SLOT_ROLE_REINFORCE`
+  - `SLOT_ENTRY_INITIAL`
+  - `SLOT_ENTRY_DELAYED`
+  - `SLOT_ENTRY_TRIGGERED`
+  - `SLOT_ENTRY_CITY_REINFORCEMENT`
+- Added capacity constants:
+  - `MAX_MAIN_SLOTS_PER_SIDE = 7`
+  - `MAX_REINFORCE_SLOTS_PER_SIDE = 3`
+  - `MVP_MAIN_SLOTS_PER_SIDE = 3`
+  - `MVP_REINFORCE_SLOTS_PER_SIDE = 2`
+- Added capacity slot scaffold for:
+  - `ally_main_01` through `ally_main_07`
+  - `ally_reinforce_01` through `ally_reinforce_03`
+  - `enemy_main_01` through `enemy_main_07`
+  - `enemy_reinforce_01` through `enemy_reinforce_03`
+- Added legacy mapping scaffold:
+  - `ally_main` -> `ally_main_01`
+  - `ally_support` -> `ally_main_02`
+  - `enemy_main` -> `enemy_main_01`
+  - `enemy_support` -> `enemy_main_02`
+- Added registry helpers for future scaffolding only:
+  - `_build_capacity_slot_metadata_registry()`
+  - `_get_capacity_slot_id_for_legacy_slot_id()`
+  - `_get_legacy_slot_id_for_capacity_slot_id()`
+  - `_get_capacity_slot_metadata()`
+  - `_is_capacity_slot_active()`
+  - `_is_capacity_slot_deployed()`
+  - `_get_active_capacity_slots_for_side()`
+  - `_get_deployed_capacity_slots_for_side()`
+  - `_get_unit_visual_slot_for_capacity_slot_id()`
+- Added one-time debug output for the capacity registry during `_ready()`.
+- Current `2v2` battle execution flow remains unchanged.
+- Auto battle execution flow remains unchanged.
+- Headless project launch remained 0 errors.
+- Headless `Battle_Fullscreen_Test.tscn` launch remained 0 errors.
+
 ## v0.65g Completed Structure
 - UnitVisualRoot Adapter Layer is in place.
 - Ally main visual nodes are under `AllySide/AllyUnitVisualRoot`.

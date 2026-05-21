@@ -1,22 +1,22 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.66i Slot Tree QA Stable
-
-## Priority 1
 v0.67b Slot Registry Array Scaffold
 
+## Priority 1
+v0.67c BattleUnitState List Adapter
+
 Goal:
-- Add slot-id list and slot metadata scaffold for the current stable slots.
-- Register the current `4` slots in an array/registry form.
+- Wrap the current fixed `BattleUnitState` variables in ally/enemy list adapters.
+- Preserve direct fixed-variable fallback while introducing array-backed access.
 - Keep existing `2v2` battle behavior unchanged.
 
 ## Priority 2
 v0.67 Slot Count Expansion Plan
 
 Goal:
-- Use the documented `7 + 3` final capacity and `3 + 2` MVP direction as the planning baseline.
-- Keep the next implementation steps aligned with registry-first migration rather than direct slot-count expansion.
+- Continue the registry-first migration toward scalable slot capacity.
+- Use the current scaffold as the base for array-backed state access and future slot activation.
 
 ## Priority 3
 Auto Battle QA
@@ -31,6 +31,17 @@ Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
 
 ## Completed
+v0.67b Slot Registry Array Scaffold
+
+Completed items:
+- Added slot-registry scaffold constants and metadata helpers in `scripts/battle_web_import_test.gd`.
+- Added full `20`-slot capacity-id scaffold without creating scene nodes or unit states.
+- Added legacy `2v2` to capacity-slot mapping for the current `4` active slots.
+- Added one-time capacity-registry debug snapshot at scene startup.
+- Kept battle execution, enemy AI, auto battle, cleanup, and scene structure unchanged.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.67a Scalable Battle Slot Capacity Plan
 
 Completed items:

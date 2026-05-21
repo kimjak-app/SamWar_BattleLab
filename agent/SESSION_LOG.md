@@ -61,6 +61,46 @@ Remaining tasks:
 - v0.67b Slot Registry Array Scaffold
 - Auto Battle QA
 
+## 2026-05-22
+
+Starting baseline:
+- v0.67a Scalable Battle Slot Capacity Plan Stable
+
+Goal:
+- v0.67b Slot Registry Array Scaffold
+
+Completed:
+- Added scalable slot-registry constants and capacity-slot id scaffold to `scripts/battle_web_import_test.gd`.
+- Added final-capacity and MVP-capacity constants for `7 + 3` and `3 + 2`.
+- Added legacy-to-capacity mapping for the current stable `2v2` slots.
+- Added capacity-slot metadata registry helpers and a capacity-slot-to-legacy `UnitVisualSlot` bridge helper.
+- Added one-time capacity slot registry debug snapshot during `_ready()`.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Did not change battle execution, enemy AI, auto battle, cleanup, or scene layout behavior.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless scene log confirmed:
+  - current `4` `UnitVisualSlot` cache entries still resolve
+  - capacity slot count is `20`
+  - active/deployed slots are only:
+    - `ally_main_01`
+    - `ally_main_02`
+    - `enemy_main_01`
+    - `enemy_main_02`
+  - legacy mapping resolves:
+    - `ally_main` -> `ally_main_01`
+    - `ally_support` -> `ally_main_02`
+    - `enemy_main` -> `enemy_main_01`
+    - `enemy_support` -> `enemy_main_02`
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+
+Remaining tasks:
+- v0.67c BattleUnitState List Adapter
+- Auto Battle QA
+
 ## 2026-05-21
 
 Starting baseline:
