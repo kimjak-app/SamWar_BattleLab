@@ -1,20 +1,31 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.65i-3 READY/Facing UI Slot Registry Cleanup
+v0.65j-1 Auto Battle Action Policy Design
 
 ## Priority 1
-v0.65i-2 ClickArea Root Migration Spike
+v0.65j-2 Auto Battle Helper Functions Scaffold
 
 Goal:
-- Test whether ClickArea can move closer to slot-root ownership without breaking collision/input coordinates.
-- Keep this isolated from READY/Facing UI and from combat logic changes.
+- Introduce side-agnostic helper functions for auto battle planning.
+- Reuse existing battle legality checks without changing combat behavior.
 
 Notes:
-- ClickArea has collision/input coordinate risks and must be handled in its own migration step.
-- READY frame and FacingIndicator should remain under `BattleUI`.
+- This should remain data-driven and not depend on `ClickArea`.
+- This should not add the auto battle button yet.
 
 ## Completed
+v0.65j-1 Auto Battle Action Policy Design
+
+Completed items:
+- Added `agent/AUTO_BATTLE_ACTION_POLICY.md`.
+- Defined shared auto action purpose and core flow.
+- Defined draft target priority policy.
+- Defined draft movement destination priority policy.
+- Documented current reusable function candidates for future implementation.
+- Kept this step documentation-only with no code/scene changes.
+
+## Previously Completed
 v0.65i-3 READY/Facing UI Slot Registry Cleanup
 
 Completed items:
@@ -28,7 +39,7 @@ Completed items:
 - Did not modify ClickArea code path.
 - Headless project launch and headless scene launch remained 0 errors.
 
-## Previously Completed
+## Earlier Completed
 v0.65h Slot-Based UnitVisual Architecture Design
 
 Completed items:
@@ -40,23 +51,36 @@ Completed items:
 - No combat formula, turn flow, AI order, or visual node movement changed.
 
 ## Priority 2
-Target selection policy for overlapping live units
+v0.65j-3 Ally Auto Battle One-Action MVP
 
-Current temporary behavior:
-- Dead enemy main no longer blocks living enemy support target selection.
-- If enemy main and enemy support are both alive and both clicked, existing enemy main priority is preserved.
+Goal:
+- Execute one ally auto-battle action using the policy document.
+- Keep turn flow and manual systems intact.
 
-TODO:
-- Design target selection policy for overlapping living enemy units.
-
-Future candidates:
-1. Nearest unit first.
-2. Currently attackable target first.
-3. Visual center closest to click point first.
-4. Overlapped target list popup.
-5. Tab or button target cycling.
+Notes:
+- One acting ally only.
+- No full-loop automation yet.
 
 ## Priority 3
+v0.65j-4 Auto Battle Button Hook
+
+Goal:
+- Connect a UI trigger after one-action auto battle is stable.
+
+## Priority 4
+v0.65j-5 Full Auto Battle Loop Prototype
+
+Goal:
+- Iterate automatic action flow until turn or battle completion.
+
+## Priority 5
+v0.65i-2 ClickArea Root Migration Spike
+
+Goal:
+- Test whether ClickArea can move closer to slot-root ownership without breaking collision/input coordinates.
+- Keep this isolated from auto battle and from combat logic changes.
+
+## Priority 6
 Debug cleanup
 
 Review and decide whether to remove:

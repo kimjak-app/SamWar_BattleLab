@@ -3,6 +3,40 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.65i-3 READY/Facing UI Slot Registry Cleanup Stable
+
+Goal:
+- v0.65j-1 Auto Battle Action Policy Design
+
+Completed:
+- Added `agent/AUTO_BATTLE_ACTION_POLICY.md`.
+- Defined a side-agnostic auto action design direction based on battle data, not click input.
+- Documented one-action auto battle flow from actor selection to action completion.
+- Documented draft target priority policy.
+- Documented draft movement destination priority policy.
+- Audited reusable function candidates in `scripts/battle_web_import_test.gd`.
+- Defined next implementation sequence:
+  - helper scaffold
+  - ally one-action MVP
+  - button hook
+  - full auto battle loop
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/battle_web_import_test.gd`.
+
+QA:
+- Documentation-only step.
+- No runtime behavior changed.
+
+Remaining tasks:
+- v0.65j-2 Auto Battle Helper Functions Scaffold
+- v0.65j-3 Ally Auto Battle One-Action MVP
+- v0.65j-4 Auto Battle Button Hook
+- v0.65j-5 Full Auto Battle Loop Prototype
+- v0.65i-2 ClickArea Root Migration Spike
+
+## 2026-05-21
+
+Starting baseline:
 - v0.65i-1 Slot UI Attachment Audit complete
 
 Goal:

@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.65i-3 READY/Facing UI Slot Registry Cleanup
+v0.65j-1 Auto Battle Action Policy Design
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -112,6 +112,22 @@ Verified principle:
 - ClickArea code path was not modified in v0.65i-3.
 - No combat formula, turn flow, AI order, or HP cleanup behavior was intentionally changed.
 
+## v0.65j-1 Auto Battle Policy State
+- Added `agent/AUTO_BATTLE_ACTION_POLICY.md`.
+- This step defines a data-based auto action policy only.
+- No auto battle button was added.
+- No combat script logic was changed.
+- No scene node was changed.
+- Auto battle direction is defined around:
+  - actionable unit selection
+  - living enemy list construction
+  - in-range attack check
+  - target priority scoring
+  - movement destination scoring
+  - move-then-attack or wait decision
+- Auto battle is explicitly defined to use battle data and grid rules, not `ClickArea`.
+- Existing reusable function candidates are documented for later implementation scaffolding.
+
 ## Unit Token Asset State
 - Korea / China / Japan infantry / archer / gunner / cavalry token assets are normalized around the 256 baseline.
 - Country/type folder structure is used.
@@ -139,6 +155,7 @@ Verified principle:
 - Headless project launch exit code 0 confirmed after v0.65i-3.
 - Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65i-3.
 - Full interactive QA items such as movement, attack, facing selection, and overlap targeting still require in-editor/manual verification.
+- v0.65j-1 is a documentation-only step, so no new runtime QA was required.
 
 ## Guardrails
 - Do not modify `Battle_WebImport_Test.tscn`.

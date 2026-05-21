@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## v0.65j-1 Auto Battle Action Policy Design
+
+- Added `agent/AUTO_BATTLE_ACTION_POLICY.md`.
+- Defined auto battle as a data-based action policy using:
+  - `BattleUnitState`
+  - `grid_cell`
+  - `attack_range`
+  - `hp`
+  - `side`
+  - `has_acted`
+- Explicitly separated auto battle policy from click overlap and `ClickArea` logic.
+- Documented the expected one-action auto battle flow:
+  - actor selection
+  - living enemy list
+  - immediate attack check
+  - target priority selection
+  - movement destination selection
+  - post-move attack or wait
+  - action completion
+- Documented draft target priority order:
+  - killable target
+  - currently attackable target
+  - lower HP target
+  - closer target
+  - main slot priority
+  - stable array order fallback
+- Documented draft movement priority order:
+  - move to attackable cell
+  - reduce distance
+  - avoid occupied cells
+  - keep path clear
+  - prefer better follow-up attack potential
+  - wait if no useful move exists
+- Documented reusable current implementation candidates from `battle_web_import_test.gd`.
+- Did not modify code or scene files.
+
 ## v0.65i-3 READY/Facing UI Slot Registry Cleanup
 
 - Kept `READY frame` nodes under `BattleUI`.
