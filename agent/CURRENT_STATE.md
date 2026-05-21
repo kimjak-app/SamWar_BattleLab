@@ -4,7 +4,7 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.65j-2 Auto Battle Helper Functions Scaffold
+v0.65j-3 Ally Auto Battle One-Action MVP
 
 ## Main Scene
 `Battle_Fullscreen_Test.tscn`
@@ -145,6 +145,23 @@ Verified principle:
 - No scene node was changed.
 - No ClickArea code was changed.
 
+## v0.65j-3 Ally Auto Battle One-Action MVP State
+- Added `_run_auto_action_for_active_ally_once()`.
+- Added `_try_auto_attack_for_active_ally()`.
+- Added `_try_auto_move_for_active_ally()`.
+- Added `_auto_wait_active_ally()`.
+- Auto attack can now resolve a best in-range target and start the existing ally attack flow.
+- Auto move is currently limited to move-candidate selection only.
+- Auto move does not execute actual movement yet in this step.
+- Auto facing completion after move is not implemented in this step.
+- Auto wait is scaffold-level only and is not wired to end the ally turn.
+- Auto battle button is still not connected.
+- Full auto battle loop is still not implemented.
+- Existing manual battle flow was preserved.
+- Existing enemy AI flow was preserved.
+- ClickArea code was not modified.
+- No scene node was changed.
+
 ## Unit Token Asset State
 - Korea / China / Japan infantry / archer / gunner / cavalry token assets are normalized around the 256 baseline.
 - Country/type folder structure is used.
@@ -175,6 +192,8 @@ Verified principle:
 - v0.65j-1 is a documentation-only step, so no new runtime QA was required.
 - Headless project launch exit code 0 confirmed after v0.65j-2.
 - Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-2.
+- Headless project launch exit code 0 confirmed after v0.65j-3.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-3.
 
 ## Guardrails
 - Do not modify `Battle_WebImport_Test.tscn`.

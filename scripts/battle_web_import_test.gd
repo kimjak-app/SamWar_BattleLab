@@ -3604,6 +3604,94 @@ func _debug_print_auto_battle_policy_snapshot(actor_state: BattleUnitState) -> v
 	])
 
 
+func _try_auto_attack_for_active_ally() -> bool:
+	if active_unit_state == null:
+		return false
+	if active_unit_side != "ally":
+		return false
+	if not active_unit_state.is_alive():
+		return false
+	if not _is_active_ally_action_available():
+		return false
+	if current_phase != PHASE_ALLY_TURN:
+		return false
+	if is_demo_animating:
+		return false
+
+	var target_state := _find_best_auto_attack_target(active_unit_state)
+	if target_state == null:
+		return false
+	if not is_unit_in_attack_range(active_unit_state, target_state):
+		return false
+
+	_clear_move_target_selection()
+	selected_attack_target_state = target_state
+	selected_attack_target_side = target_state.side if target_state.side != "" else "enemy"
+	_show_attack_target_feedback()
+	_append_battle_log("%s 자동 공격 선택" % target_state.display_name)
+	play_basic_attack_demo()
+	return is_demo_animating
+
+
+func _try_auto_move_for_active_ally() -> bool:
+	if active_unit_state == null:
+		return false
+	if active_unit_side != "ally":
+		return false
+	if not active_unit_state.is_alive():
+		return false
+	if not _is_active_ally_action_available():
+		return false
+	if current_phase != PHASE_ALLY_TURN:
+		return false
+	if is_demo_animating:
+		return false
+
+	var move_cell := _find_best_auto_move_cell(active_unit_state)
+	if move_cell == active_unit_state.grid_cell:
+		return false
+	if not _is_valid_destination_for_unit(move_cell, active_unit_state):
+		return false
+
+	var previous_move_cell := selected_move_cell
+	var previous_has_selected_move_target := has_selected_move_target
+	set_move_target_cell(move_cell)
+	if not has_selected_move_target or selected_move_cell != move_cell:
+		selected_move_cell = previous_move_cell
+		has_selected_move_target = previous_has_selected_move_target
+		return false
+
+	_append_battle_log("%s 자동 이동 후보 선택" % _format_cell(move_cell))
+	return true
+
+
+func _auto_wait_active_ally() -> void:
+	if active_unit_state == null:
+		return
+	_append_battle_log("%s 자동 대기 후보" % active_unit_state.display_name)
+
+
+func _run_auto_action_for_active_ally_once() -> void:
+	if active_unit_state == null:
+		return
+	if active_unit_side != "ally":
+		return
+	if current_phase != PHASE_ALLY_TURN:
+		return
+	if is_demo_animating:
+		return
+	if not active_unit_state.is_alive():
+		return
+	if not _is_active_ally_action_available():
+		return
+
+	if _try_auto_attack_for_active_ally():
+		return
+	if _try_auto_move_for_active_ally():
+		return
+	_auto_wait_active_ally()
+
+
 func _is_active_ally_action_available() -> bool:
 	if active_unit_state == null:
 		return false

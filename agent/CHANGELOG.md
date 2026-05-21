@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v0.65j-3 Ally Auto Battle One-Action MVP
+
+- Added ally auto one-action MVP functions to `scripts/battle_web_import_test.gd`.
+- Added:
+  - `_run_auto_action_for_active_ally_once()`
+  - `_try_auto_attack_for_active_ally()`
+  - `_try_auto_move_for_active_ally()`
+  - `_auto_wait_active_ally()`
+- Auto attack MVP now resolves the best attackable target for the current active ally and starts the existing ally attack flow.
+- Auto move MVP is intentionally limited to move target selection and validation only.
+- Auto move execution and automatic facing completion were deferred to a follow-up step.
+- Auto wait remains scaffold-level and is not connected to ally turn completion yet.
+- Did not add an auto battle button.
+- Did not add a full auto battle loop.
+- Did not modify:
+  - `Battle_Fullscreen_Test.tscn`
+  - ClickArea code
+  - `_play_enemy_ai_for_actor()`
+  - `_get_enemy_ai_target_state_for_actor()`
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
 ## v0.65j-2 Auto Battle Helper Functions Scaffold
 
 - Added auto battle helper scaffold functions to `scripts/battle_web_import_test.gd`.

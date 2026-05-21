@@ -3,6 +3,41 @@
 ## 2026-05-21
 
 Starting baseline:
+- v0.65j-2 Auto Battle Helper Functions Scaffold complete
+
+Goal:
+- v0.65j-3 Ally Auto Battle One-Action MVP
+
+Completed:
+- Added `_run_auto_action_for_active_ally_once()`.
+- Added `_try_auto_attack_for_active_ally()`.
+- Added `_try_auto_move_for_active_ally()`.
+- Added `_auto_wait_active_ally()`.
+- Connected auto attack MVP to the existing ally basic attack execution path.
+- Kept auto move at move-candidate-selection-only level for safety.
+- Deferred move execution and automatic facing completion.
+- Kept the MVP disconnected from any auto battle button.
+- Kept the MVP disconnected from any full auto battle loop.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify ClickArea code.
+- Did not modify `_play_enemy_ai_for_actor()`.
+- Did not modify `_get_enemy_ai_target_state_for_actor()`.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- No enemy AI flow rewiring introduced.
+- No manual battle entry-point rewiring introduced.
+
+Remaining tasks:
+- v0.65j-3a Auto Move + Auto Facing Completion
+- v0.65j-4 Auto Battle Button Hook
+- v0.65j-5 Full Auto Battle Loop Prototype
+- v0.65i-2 ClickArea Root Migration Spike
+
+## 2026-05-21
+
+Starting baseline:
 - v0.65j-1 Auto Battle Action Policy Design complete
 
 Goal:

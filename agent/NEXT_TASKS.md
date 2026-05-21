@@ -1,20 +1,34 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.65j-2 Auto Battle Helper Functions Scaffold
-
-## Priority 1
 v0.65j-3 Ally Auto Battle One-Action MVP
 
+## Priority 1
+v0.65j-3a Auto Move + Auto Facing Completion
+
 Goal:
-- Execute one ally auto battle action using the scaffold helpers.
-- Keep manual battle flow and existing enemy AI flow intact.
+- Complete the auto move path by connecting movement execution and automatic facing resolution.
+- Keep existing manual facing flow intact for non-auto actions.
 
 Notes:
-- One ally action only.
-- No full auto loop yet.
+- Auto move currently stops at candidate selection.
+- This step should finish the move-to-facing gap safely.
 
 ## Completed
+v0.65j-3 Ally Auto Battle One-Action MVP
+
+Completed items:
+- Added `_run_auto_action_for_active_ally_once()`.
+- Added `_try_auto_attack_for_active_ally()`.
+- Added `_try_auto_move_for_active_ally()`.
+- Added `_auto_wait_active_ally()`.
+- Connected auto attack MVP to the existing ally basic attack flow.
+- Kept auto move at candidate-selection-only level for safety.
+- Kept auto wait at scaffold level.
+- Kept the new MVP disconnected from any button or full auto loop.
+- Headless project launch and headless scene launch remained 0 errors.
+
+## Previously Completed
 v0.65j-2 Auto Battle Helper Functions Scaffold
 
 Completed items:
@@ -28,7 +42,7 @@ Completed items:
 - Kept helper functions disconnected from existing battle execution flow.
 - Headless project launch and headless scene launch remained 0 errors.
 
-## Previously Completed
+## Earlier Completed
 v0.65j-1 Auto Battle Action Policy Design
 
 Completed items:
