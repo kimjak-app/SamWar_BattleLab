@@ -1295,3 +1295,52 @@ Remaining tasks:
 - v0.65i ClickArea / READY / FacingIndicator Integration Review.
 - Target selection policy for overlapping living units.
 - Debug cleanup for root slot and attack click logs.
+## 2026-05-22
+
+Starting baseline:
+- v0.67j-1 Reinforce01 Entry Prototype Stable
+
+Goal:
+- v0.67j-2 Reinforce01 QA Stable
+
+Completed:
+- Revalidated the reinforce01 round-`2` entry prototype without modifying battle code or scene files.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Confirmed no `GDScript::reload` warning on the project/scene verification path.
+- Confirmed battle-start deployed roster remains `3v3`:
+  - ally = 이순신 / 정도전 / 권율
+  - enemy = 관우 / 장비 / 하후돈
+- Confirmed battle-start reinforce state:
+  - `ally_reinforce_01` / `enemy_reinforce_01` hidden
+  - `deployed=false`
+  - alive deployed count = `6`
+  - actor candidates ally/enemy = `3/3`
+  - target candidates ally/enemy = `3/3`
+- Confirmed round `2` post-deploy reinforce state:
+  - `ally_reinforce_01` / `enemy_reinforce_01` visible
+  - `deployed=true`
+  - alive deployed count = `8`
+  - actor candidates ally/enemy = `4/4`
+  - target candidates ally/enemy = `4/4`
+- Confirmed reinforce01 HP bar / troop label visibility restores after deploy.
+- Confirmed reinforce01 facing indicator references remain present after deploy.
+- Confirmed reinforce02 remains empty slot container only and `deployed=false`.
+- Confirmed auto-target parity OK, enemy AI target parity OK, and enemy actor order parity OK.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/battle_web_import_test.gd`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Updated:
+  - `agent/CURRENT_STATE.md`
+  - `agent/NEXT_TASKS.md`
+  - `agent/CHANGELOG.md`
+  - `agent/SESSION_LOG.md`
+
+QA:
+- Headless project launch passed.
+- Headless `Battle_Fullscreen_Test.tscn` launch passed.
+- Manual `F6` QA remains pending in editor; this environment cannot execute interactive editor checks.
+
+Remaining tasks:
+- v0.67j-3 Reinforce02 Entry Prototype
+- Auto battle editor-side stop responsiveness QA

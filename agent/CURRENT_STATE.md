@@ -4,7 +4,49 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67i-2 MVP 3v3 QA Stable
+v0.67j-2 Reinforce01 QA Stable
+
+## v0.67j-2 Reinforce01 QA Stable State
+- This step is documentation and verification only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- Confirmed battle-start deployed roster:
+  - `ally_main_01` = 이순신
+  - `ally_main_02` = 정도전
+  - `ally_main_03` = 권율
+  - `enemy_main_01` = 관우
+  - `enemy_main_02` = 장비
+  - `enemy_main_03` = 하후돈
+- Confirmed battle-start reinforce state:
+  - `ally_reinforce_01` hidden / `deployed=false`
+  - `enemy_reinforce_01` hidden / `deployed=false`
+- Confirmed round `2` reinforce state:
+  - `ally_reinforce_01` visible / `deployed=true`
+  - `enemy_reinforce_01` visible / `deployed=true`
+- Headless verification confirms:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - no `GDScript::reload` warning on the project/scene verification path
+  - pre-deploy alive deployed count = `6`
+  - pre-deploy actor candidates ally/enemy = `3/3`
+  - pre-deploy target candidates ally/enemy = `3/3`
+  - round `2` post-deploy alive deployed count = `8`
+  - round `2` post-deploy actor candidates ally/enemy = `4/4`
+  - round `2` post-deploy target candidates ally/enemy = `4/4`
+  - reinforce01 HP bar / troop label visible after deploy = `true/true`
+  - reinforce01 facing indicator refs present after deploy = `true/true`
+  - auto target parity OK = `true`
+  - enemy AI target parity OK = `true`
+  - enemy actor order parity OK = `true`
+- Confirmed reinforce02 remains empty-container scaffold only:
+  - `ally_reinforce_02`
+  - `enemy_reinforce_02`
+  - `deployed=false` 유지
+  - actor / target / occupied 후보 제외 유지
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept HP bar, troop label, HP alpha `0.8`, unit-over-HP layer order, enemy portrait vertical facing layout, enemy move facing-indicator hide/show timing, and HP `0` cleanup behavior unchanged.
 
 ## v0.67j-1 Reinforce01 Entry Prototype State
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.

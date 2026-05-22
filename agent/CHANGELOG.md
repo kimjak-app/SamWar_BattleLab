@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## v0.67j-2 Reinforce01 QA Stable
+
+- This step is documentation and verification only.
+- Revalidated the current reinforce01 round-`2` entry baseline with no runtime code or scene edits.
+- Confirmed pre-deploy state:
+  - alive deployed count = `6`
+  - actor candidates ally/enemy = `3/3`
+  - target candidates ally/enemy = `3/3`
+  - reinforce01 pair hidden with `deployed=false`
+- Confirmed round `2` post-deploy state:
+  - alive deployed count = `8`
+  - actor candidates ally/enemy = `4/4`
+  - target candidates ally/enemy = `4/4`
+  - reinforce01 pair visible with `deployed=true`
+- Confirmed reinforce01 HP bar / troop label restore correctly after deploy.
+- Confirmed auto-target parity OK, enemy AI target parity OK, and enemy actor order parity OK.
+- Confirmed reinforce02 remains empty-container scaffold only and undeployed.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/battle_web_import_test.gd` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+
 ## v0.67j-1 Reinforce01 Entry Prototype
 
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.

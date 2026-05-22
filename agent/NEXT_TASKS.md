@@ -1,37 +1,31 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67i-2 MVP 3v3 QA Stable
-
-## Priority 1
 v0.67j-2 Reinforce01 QA Stable
 
-Goal:
-- QA the current reinforce01 round-2 entry prototype on top of the `3v3` stable baseline.
-- Confirm reinforce01 stays excluded before deployment and joins actor/target/occupied paths only after deployment.
-- Confirm existing `3v3` main-unit battle flow remains stable after reinforce entry.
-
-## Priority 2
+## Priority 1
 v0.67j-3 Reinforce02 Entry Prototype
 
 Gate:
-- Do not start until v0.67j-2 confirms:
-  - reinforce01 round-start deployment is stable in manual and auto battle
-  - actor / target / occupied inclusion changes only after `deployed=true`
-  - reinforce01 click / HP / portrait / facing behavior remains stable after entry
+- v0.67j-2 confirmed:
+  - reinforce01 starts hidden with `deployed=false`
+  - reinforce01 pair deploys on round `2`
+  - actor / target counts move `3/3 -> 4/4`
+  - alive deployed count moves `6 -> 8`
+  - auto-target parity and enemy AI parity remain OK
 
 Goal:
 - Prototype `reinforce_02` delayed entry on top of the reinforce01-validated scaffold.
 - Keep reinforce02 excluded from actor/target/occupied paths until its own deployment timing is enabled.
 
-## Priority 3
+## Priority 2
 v0.67 Slot Count Expansion Plan
 
 Goal:
 - Continue the registry-first migration toward scalable slot capacity.
 - Use the current scaffold as the base for array-backed state access and future slot activation.
 
-## Priority 4
+## Priority 3
 Auto Battle QA
 
 Goal:
@@ -42,6 +36,28 @@ Goal:
 
 Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
+
+## Completed
+v0.67j-2 Reinforce01 QA Stable
+
+Completed items:
+- Revalidated the current reinforce01 round-`2` entry prototype with no code or scene changes.
+- Confirmed battle start:
+  - alive deployed count = `6`
+  - actor candidates ally/enemy = `3/3`
+  - target candidates ally/enemy = `3/3`
+  - `ally_reinforce_01` / `enemy_reinforce_01` = hidden, `deployed=false`
+- Confirmed round `2` post-deploy:
+  - alive deployed count = `8`
+  - actor candidates ally/enemy = `4/4`
+  - target candidates ally/enemy = `4/4`
+  - `ally_reinforce_01` / `enemy_reinforce_01` = visible, `deployed=true`
+- Confirmed reinforce02 remains empty-container scaffold only and undeployed.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/battle_web_import_test.gd` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
 
 ## Completed
 v0.67g MVP 3 Main + 2 Reinforce Layout Plan
