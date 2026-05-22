@@ -4,24 +4,25 @@
 v0.67i-2 MVP 3v3 QA Stable
 
 ## Priority 1
-v0.67j Reinforcement Entry Prototype
+v0.67j-2 Reinforce01 QA Stable
 
 Goal:
-- Prototype delayed reinforce entry on top of the current `3v3` stable baseline.
-- Keep reinforce slots excluded from actor/target/occupied paths until deployment timing is explicitly enabled.
+- QA the current reinforce01 round-2 entry prototype on top of the `3v3` stable baseline.
+- Confirm reinforce01 stays excluded before deployment and joins actor/target/occupied paths only after deployment.
+- Confirm existing `3v3` main-unit battle flow remains stable after reinforce entry.
 
 ## Priority 2
-v0.67j Reinforcement Entry Prototype
+v0.67j-3 Reinforce02 Entry Prototype
 
 Gate:
-- Do not start until v0.67i confirms:
-  - the MVP `5`-slot battle prototype still preserves current `2v2` execution parity
-  - non-deployed reinforce slots stay out of actor/target/occupied paths
-  - new slot visuals and click paths are only connected intentionally
+- Do not start until v0.67j-2 confirms:
+  - reinforce01 round-start deployment is stable in manual and auto battle
+  - actor / target / occupied inclusion changes only after `deployed=true`
+  - reinforce01 click / HP / portrait / facing behavior remains stable after entry
 
 Goal:
-- Prototype delayed reinforce entry on top of the MVP `5`-slot runtime scaffold.
-- Keep reinforce actor/target exclusion until deployment timing is explicitly applied.
+- Prototype `reinforce_02` delayed entry on top of the reinforce01-validated scaffold.
+- Keep reinforce02 excluded from actor/target/occupied paths until its own deployment timing is enabled.
 
 ## Priority 3
 v0.67 Slot Count Expansion Plan

@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## v0.67j-1 Reinforce01 Entry Prototype
+
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Added reinforce01 scene nodes for:
+  - `AllyReinforce01UnitVisualRoot`
+  - `EnemyReinforce01UnitVisualRoot`
+  - root-level markers
+  - root-level portrait markers
+  - root-level click areas
+  - `AllyReinforce01ReadyFrame`
+  - ally/enemy reinforce01 facing indicators
+- Added:
+  - `ally_reinforce_01_unit_state`
+  - `enemy_reinforce_01_unit_state`
+- Expanded adapter/runtime state arrays to `ally=4`, `enemy=4`, `all=8`.
+- Kept reinforce01 `active=true` but `deployed=false` at battle start so it stays hidden and excluded from actor/target/occupied paths.
+- Added one-time round `2` deployment trigger for the reinforce01 ally/enemy pair.
+- Verified post-deploy adapter counts move from:
+  - alive deployed `6 -> 8`
+  - actor candidates ally/enemy `3/3 -> 4/4`
+  - target candidates ally/enemy `3/3 -> 4/4`
+- Kept reinforce02 unimplemented and undeployed.
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target-selection policy unchanged.
+- Kept HP bar, troop label, HP alpha `0.8`, layer profile, enemy portrait vertical offset, and enemy facing-indicator timing unchanged.
+
 ## v0.67i-2 MVP 3v3 QA Stable
 
 - This step is documentation and verification only.

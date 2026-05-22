@@ -3,6 +3,59 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67i-2 MVP 3v3 QA Stable
+
+Goal:
+- v0.67j-1 Reinforce01 Entry Prototype
+
+Completed:
+- Added reinforce01 actual visual roots under:
+  - `Slots/AllyReinforce01Slot`
+  - `Slots/EnemyReinforce01Slot`
+- Added root-level runtime nodes for reinforce01:
+  - unit markers
+  - portrait markers
+  - click areas
+- Added `BattleUI` nodes for reinforce01:
+  - `AllyReinforce01ReadyFrame`
+  - `AllyReinforce01FacingIndicator`
+  - `EnemyReinforce01FacingIndicator`
+- Added:
+  - `ally_reinforce_01_unit_state`
+  - `enemy_reinforce_01_unit_state`
+- Expanded adapter/runtime state lists to `ally=4`, `enemy=4`, `all=8`.
+- Kept reinforce01 `active=true` and `deployed=false` at battle start.
+- Added one-time round `2` reinforce01 pair deployment trigger.
+- Confirmed deploy-time transition:
+  - hidden / click disabled / excluded before deployment
+  - visible / click enabled / actor-target-occupied included after deployment
+- Kept reinforce02 scaffold-only and undeployed.
+- Kept auto-battle scoring and enemy AI target policy unchanged.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- No GDScript reload warning during headless launch.
+- Headless startup snapshot confirmed:
+  - `ally_count=4`
+  - `enemy_count=4`
+  - `all_count=8`
+  - pre-deploy `ally_deployed=["ally_main_01","ally_main_02","ally_main_03"]`
+  - pre-deploy `enemy_deployed=["enemy_main_01","enemy_main_02","enemy_main_03"]`
+  - pre-deploy `actor_candidates_ally_count=3`
+  - pre-deploy `actor_candidates_enemy_count=3`
+  - pre-deploy `target_candidates_for_ally_actor_count=3`
+  - pre-deploy `target_candidates_for_enemy_actor_count=3`
+  - pre-deploy `all_alive_deployed_count=6`
+- Headless round-2 smoke verified:
+  - `SMOKE_PRE deployed_alive=6`
+  - `SMOKE_POST deployed_alive=8`
+  - post-deploy actor candidates ally/enemy = `4/4`
+  - post-deploy target candidates ally/enemy = `4/4`
+  - `ally_reinforce_01` / `enemy_reinforce_01` deployed flag changed `false -> true`
+- F6/manual runtime QA not available in this environment.
+
+Starting baseline:
 - v0.67i-1 MVP 3v3 Main03 Activation Spike Stable
 
 Goal:

@@ -6,6 +6,43 @@ SamWar_BattleLab
 ## Current Stable Baseline
 v0.67i-2 MVP 3v3 QA Stable
 
+## v0.67j-1 Reinforce01 Entry Prototype State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Added real reinforce01 runtime nodes for:
+  - `ally_reinforce_01`
+  - `enemy_reinforce_01`
+- Added scene nodes for reinforce01:
+  - actual visual root
+  - marker
+  - portrait marker
+  - click area
+  - ally ready frame
+  - ally/enemy facing indicator
+- Added:
+  - `ally_reinforce_01_unit_state`
+  - `enemy_reinforce_01_unit_state`
+- Expanded adapter/runtime state lists to:
+  - ally count = `4`
+  - enemy count = `4`
+  - all count = `8`
+- Kept reinforce02 scaffold-only and undeployed:
+  - `ally_reinforce_02`
+  - `enemy_reinforce_02`
+- Reinforce01 entry policy:
+  - battle start: `active=true`, `deployed=false`, hidden, click disabled
+  - round `2` start: ally/enemy reinforce01 pair deploys once
+  - post-deploy: actor / target / occupied 후보 포함
+- Headless verification confirms:
+  - pre-deploy alive deployed count = `6`
+  - pre-deploy actor candidates ally/enemy = `3/3`
+  - pre-deploy target candidates ally/enemy = `3/3`
+  - round `2` post-deploy alive deployed count = `8`
+  - round `2` post-deploy actor candidates ally/enemy = `4/4`
+  - round `2` post-deploy target candidates ally/enemy = `4/4`
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept HP bar, troop label, HP alpha `0.8`, layer profile, enemy portrait vertical offset, and enemy move facing-indicator timing unchanged.
+
 ## v0.67i-2 MVP 3v3 QA Stable State
 - This step is documentation and verification only.
 - No `Battle_Fullscreen_Test.tscn` change was made.

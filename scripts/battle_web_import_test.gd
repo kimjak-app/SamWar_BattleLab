@@ -83,6 +83,8 @@ const VISUAL_SLOT_CACHE_IDS := [
 	"enemy_support",
 	"ally_main_03",
 	"enemy_main_03",
+	"ally_reinforce_01",
+	"enemy_reinforce_01",
 ]
 const SLOT_ROLE_MAIN := "main"
 const SLOT_ROLE_REINFORCE := "reinforce"
@@ -273,9 +275,11 @@ var current_ally_portrait_position := Vector2.ZERO
 var ally_unit_state: BattleUnitState
 var ally_support_unit_state: BattleUnitState
 var ally_main_03_unit_state: BattleUnitState
+var ally_reinforce_01_unit_state: BattleUnitState
 var enemy_unit_state: BattleUnitState
 var enemy_support_unit_state: BattleUnitState
 var enemy_main_03_unit_state: BattleUnitState
+var enemy_reinforce_01_unit_state: BattleUnitState
 var ally_unit_states: Array[BattleUnitState] = []
 var enemy_unit_states: Array[BattleUnitState] = []
 var all_battle_unit_states: Array[BattleUnitState] = []
@@ -311,6 +315,7 @@ var acted_ally_unit_ids: Dictionary = {}
 var acted_enemy_unit_ids: Dictionary = {}
 var dead_unit_ids: Dictionary = {}
 var battle_round := 1
+var has_deployed_reinforce_01 := false
 var round_toast_tween: Tween = null
 var round_toast_root_base_scale := Vector2.ONE
 var round_toast_label_base_scale := Vector2.ONE
@@ -318,6 +323,7 @@ var move_dust_tweens: Dictionary = {}
 var ally_ready_frame_tween: Tween = null
 var ally_support_ready_frame_tween: Tween = null
 var ally_main_03_ready_frame_tween: Tween = null
+var ally_reinforce_01_ready_frame_tween: Tween = null
 var unit_closeup_tween: Tween = null
 var capacity_slot_metadata_registry: Dictionary = {}
 var ally_idle_tween: Tween
@@ -326,12 +332,16 @@ var ally_support_idle_tween: Tween
 var enemy_support_idle_tween: Tween
 var ally_main_03_idle_tween: Tween
 var enemy_main_03_idle_tween: Tween
+var ally_reinforce_01_idle_tween: Tween
+var enemy_reinforce_01_idle_tween: Tween
 var ally_token_base_scale := Vector2.ONE
 var enemy_token_base_scale := Vector2.ONE
 var ally_support_token_base_scale := Vector2.ONE
 var enemy_support_token_base_scale := Vector2.ONE
 var ally_main_03_token_base_scale := Vector2.ONE
 var enemy_main_03_token_base_scale := Vector2.ONE
+var ally_reinforce_01_token_base_scale := Vector2.ONE
+var enemy_reinforce_01_token_base_scale := Vector2.ONE
 var ally_token_base_texture: Texture2D
 var enemy_token_base_texture: Texture2D
 var ally_token_layout_offset := Vector2.ZERO
@@ -369,9 +379,11 @@ var enemy_support_portrait_layout_offsets_by_facing: Dictionary = {}
 var ally_facing_indicator_layout_offset := Vector2(-19.3333, -105.0)
 var ally_support_facing_indicator_layout_offset := Vector2(-19.3333, -105.0)
 var ally_main_03_facing_indicator_layout_offset := Vector2(-19.3333, -105.0)
+var ally_reinforce_01_facing_indicator_layout_offset := Vector2(-19.3333, -105.0)
 var enemy_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 var enemy_support_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 var enemy_main_03_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
+var enemy_reinforce_01_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 var unit_visual_slot_refs_by_id: Dictionary = {}
 
 @export var ally_unit_token_up_texture: Texture2D
@@ -392,6 +404,10 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var ally_main_03_move_dust_sprite: Sprite2D = get_node_or_null("Slots/AllyMain03Slot/AllyMain03UnitVisualRoot/AllyMain03MoveDustSprite") as Sprite2D
 @onready var ally_main_03_unit_click_area: Area2D = get_node_or_null("AllyMain03UnitClickArea") as Area2D
 @onready var ally_main_03_unit_click_shape: CollisionShape2D = get_node_or_null("AllyMain03UnitClickArea/CollisionShape2D") as CollisionShape2D
+@onready var ally_reinforce_01_unit_marker: Marker2D = get_node_or_null("AllyReinforce01UnitMarker") as Marker2D
+@onready var ally_reinforce_01_move_dust_sprite: Sprite2D = get_node_or_null("Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot/AllyReinforce01MoveDustSprite") as Sprite2D
+@onready var ally_reinforce_01_unit_click_area: Area2D = get_node_or_null("AllyReinforce01UnitClickArea") as Area2D
+@onready var ally_reinforce_01_unit_click_shape: CollisionShape2D = get_node_or_null("AllyReinforce01UnitClickArea/CollisionShape2D") as CollisionShape2D
 @onready var enemy_unit_marker: Marker2D = $EnemyUnitMarker
 @onready var enemy_move_dust_sprite: Sprite2D = get_node_or_null("Slots/EnemyMainSlot/EnemyUnitVisualRoot/EnemyMoveDustSprite") as Sprite2D
 @onready var enemy_unit_click_area: Area2D = get_node_or_null("EnemyUnitClickArea") as Area2D
@@ -404,12 +420,18 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var enemy_main_03_move_dust_sprite: Sprite2D = get_node_or_null("Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot/EnemyMain03MoveDustSprite") as Sprite2D
 @onready var enemy_main_03_unit_click_area: Area2D = get_node_or_null("EnemyMain03UnitClickArea") as Area2D
 @onready var enemy_main_03_unit_click_shape: CollisionShape2D = get_node_or_null("EnemyMain03UnitClickArea/CollisionShape2D") as CollisionShape2D
+@onready var enemy_reinforce_01_unit_marker: Marker2D = get_node_or_null("EnemyReinforce01UnitMarker") as Marker2D
+@onready var enemy_reinforce_01_move_dust_sprite: Sprite2D = get_node_or_null("Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot/EnemyReinforce01MoveDustSprite") as Sprite2D
+@onready var enemy_reinforce_01_unit_click_area: Area2D = get_node_or_null("EnemyReinforce01UnitClickArea") as Area2D
+@onready var enemy_reinforce_01_unit_click_shape: CollisionShape2D = get_node_or_null("EnemyReinforce01UnitClickArea/CollisionShape2D") as CollisionShape2D
 @onready var ally_portrait_marker: Marker2D = $AllyPortraitMarker
 @onready var enemy_portrait_marker: Marker2D = $EnemyPortraitMarker
 @onready var ally_support_portrait_marker: Marker2D = $AllySupportPortraitMarker
 @onready var enemy_support_portrait_marker: Marker2D = $EnemySupportPortraitMarker
 @onready var ally_main_03_portrait_marker: Marker2D = get_node_or_null("AllyMain03PortraitMarker") as Marker2D
+@onready var ally_reinforce_01_portrait_marker: Marker2D = get_node_or_null("AllyReinforce01PortraitMarker") as Marker2D
 @onready var enemy_main_03_portrait_marker: Marker2D = get_node_or_null("EnemyMain03PortraitMarker") as Marker2D
+@onready var enemy_reinforce_01_portrait_marker: Marker2D = get_node_or_null("EnemyReinforce01PortraitMarker") as Marker2D
 @onready var move_target_marker: Marker2D = $MoveTargetMarker
 @onready var battle_grid_controller: BattleGridController = $BattleGridController
 @onready var damage_spawn_marker: Marker2D = $DamageSpawnMarker
@@ -433,9 +455,11 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var ally_unit_visual_root: Node2D = get_node_or_null("Slots/AllyMainSlot/AllyUnitVisualRoot") as Node2D
 @onready var ally_support_unit_visual_root: Node2D = get_node_or_null("Slots/AllySupportSlot/AllySupportUnitVisualRoot") as Node2D
 @onready var ally_main_03_unit_visual_root: Node2D = get_node_or_null("Slots/AllyMain03Slot/AllyMain03UnitVisualRoot") as Node2D
+@onready var ally_reinforce_01_unit_visual_root: Node2D = get_node_or_null("Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot") as Node2D
 @onready var enemy_unit_visual_root: Node2D = get_node_or_null("Slots/EnemyMainSlot/EnemyUnitVisualRoot") as Node2D
 @onready var enemy_support_unit_visual_root: Node2D = get_node_or_null("Slots/EnemySupportSlot/EnemySupportUnitVisualRoot") as Node2D
 @onready var enemy_main_03_unit_visual_root: Node2D = get_node_or_null("Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot") as Node2D
+@onready var enemy_reinforce_01_unit_visual_root: Node2D = get_node_or_null("Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot") as Node2D
 @onready var ally_unit_token: Sprite2D = $Slots/AllyMainSlot/AllyUnitVisualRoot/AllyUnitToken
 @onready var enemy_unit_token: Sprite2D = $Slots/EnemyMainSlot/EnemyUnitVisualRoot/EnemyUnitToken
 @onready var ally_unit_shadow: Polygon2D = $Slots/AllyMainSlot/AllyUnitVisualRoot/AllyUnitShadow
@@ -451,11 +475,21 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var ally_main_03_portrait_badge: Sprite2D = get_node_or_null("Slots/AllyMain03Slot/AllyMain03UnitVisualRoot/AllyMain03PortraitBadge") as Sprite2D
 @onready var ally_main_03_hp_bar: ProgressBar = get_node_or_null("Slots/AllyMain03Slot/AllyMain03UnitVisualRoot/AllyMain03HPBar") as ProgressBar
 @onready var ally_main_03_troop_label: Label = get_node_or_null("Slots/AllyMain03Slot/AllyMain03UnitVisualRoot/AllyMain03TroopLabel") as Label
+@onready var ally_reinforce_01_unit_token: Sprite2D = get_node_or_null("Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot/AllyReinforce01UnitToken") as Sprite2D
+@onready var ally_reinforce_01_unit_shadow: Polygon2D = get_node_or_null("Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot/AllyReinforce01UnitShadow") as Polygon2D
+@onready var ally_reinforce_01_portrait_badge: Sprite2D = get_node_or_null("Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot/AllyReinforce01PortraitBadge") as Sprite2D
+@onready var ally_reinforce_01_hp_bar: ProgressBar = get_node_or_null("Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot/AllyReinforce01HPBar") as ProgressBar
+@onready var ally_reinforce_01_troop_label: Label = get_node_or_null("Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot/AllyReinforce01TroopLabel") as Label
 @onready var enemy_main_03_unit_token: Sprite2D = get_node_or_null("Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot/EnemyMain03UnitToken") as Sprite2D
 @onready var enemy_main_03_unit_shadow: Polygon2D = get_node_or_null("Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot/EnemyMain03UnitShadow") as Polygon2D
 @onready var enemy_main_03_portrait_badge: Sprite2D = get_node_or_null("Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot/EnemyMain03PortraitBadge") as Sprite2D
 @onready var enemy_main_03_hp_bar: ProgressBar = get_node_or_null("Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot/EnemyMain03HPBar") as ProgressBar
 @onready var enemy_main_03_troop_label: Label = get_node_or_null("Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot/EnemyMain03TroopLabel") as Label
+@onready var enemy_reinforce_01_unit_token: Sprite2D = get_node_or_null("Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot/EnemyReinforce01UnitToken") as Sprite2D
+@onready var enemy_reinforce_01_unit_shadow: Polygon2D = get_node_or_null("Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot/EnemyReinforce01UnitShadow") as Polygon2D
+@onready var enemy_reinforce_01_portrait_badge: Sprite2D = get_node_or_null("Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot/EnemyReinforce01PortraitBadge") as Sprite2D
+@onready var enemy_reinforce_01_hp_bar: ProgressBar = get_node_or_null("Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot/EnemyReinforce01HPBar") as ProgressBar
+@onready var enemy_reinforce_01_troop_label: Label = get_node_or_null("Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot/EnemyReinforce01TroopLabel") as Label
 @onready var ally_infantry_unit_visual_template: Node2D = get_node_or_null("AllySide/AllyInfantryUnitVisualTemplate") as Node2D
 @onready var enemy_infantry_unit_visual_template: Node2D = get_node_or_null("EnemySide/EnemyInfantryUnitVisualTemplate") as Node2D
 @onready var ally_support_unit_token: Sprite2D = $Slots/AllySupportSlot/AllySupportUnitVisualRoot/AllySupportUnitToken
@@ -501,9 +535,12 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var enemy_support_facing_indicator: Label = get_node_or_null("BattleUI/EnemySupportFacingIndicator") as Label
 @onready var ally_main_03_facing_indicator: Label = get_node_or_null("BattleUI/AllyMain03FacingIndicator") as Label
 @onready var enemy_main_03_facing_indicator: Label = get_node_or_null("BattleUI/EnemyMain03FacingIndicator") as Label
+@onready var ally_reinforce_01_facing_indicator: Label = get_node_or_null("BattleUI/AllyReinforce01FacingIndicator") as Label
+@onready var enemy_reinforce_01_facing_indicator: Label = get_node_or_null("BattleUI/EnemyReinforce01FacingIndicator") as Label
 @onready var ally_ready_frame: Panel = get_node_or_null("BattleUI/AllyReadyFrame") as Panel
 @onready var ally_support_ready_frame: Panel = get_node_or_null("BattleUI/AllySupportReadyFrame") as Panel
 @onready var ally_main_03_ready_frame: Panel = get_node_or_null("BattleUI/AllyMain03ReadyFrame") as Panel
+@onready var ally_reinforce_01_ready_frame: Panel = get_node_or_null("BattleUI/AllyReinforce01ReadyFrame") as Panel
 @onready var round_toast_root: Control = get_node_or_null("BattleUI/RoundToastRoot") as Control
 @onready var round_toast_image: TextureRect = get_node_or_null("BattleUI/RoundToastRoot/RoundToastImage") as TextureRect
 @onready var round_toast_label: Label = get_node_or_null("BattleUI/RoundToastRoot/RoundToastLabel") as Label
@@ -531,8 +568,12 @@ func _ready() -> void:
 	enemy_support_token_base_scale = enemy_support_unit_token.scale
 	if ally_main_03_unit_token != null:
 		ally_main_03_token_base_scale = ally_main_03_unit_token.scale
+	if ally_reinforce_01_unit_token != null:
+		ally_reinforce_01_token_base_scale = ally_reinforce_01_unit_token.scale
 	if enemy_main_03_unit_token != null:
 		enemy_main_03_token_base_scale = enemy_main_03_unit_token.scale
+	if enemy_reinforce_01_unit_token != null:
+		enemy_reinforce_01_token_base_scale = enemy_reinforce_01_unit_token.scale
 	ally_token_base_texture = ally_unit_token.texture
 	enemy_token_base_texture = enemy_unit_token.texture
 	_hide_all_move_dust_sprites()
@@ -690,6 +731,8 @@ func reset_demo_state() -> void:
 	ally_has_moved = false
 	battle_round = 1
 	dead_unit_ids.clear()
+	has_deployed_reinforce_01 = false
+	_build_capacity_slot_metadata_registry()
 	_hide_all_move_dust_sprites()
 	_set_visual_template_token_sprite_visibility(false)
 	acted_enemy_unit_ids.clear()
@@ -724,12 +767,8 @@ func reset_demo_state() -> void:
 	_sync_overlay_positions()
 	_update_all_unit_visuals_from_state()
 	_set_all_unit_group_modulates(Color.WHITE)
-	_restore_hp_troop_runtime_visibility_for_unit(ally_unit_state)
-	_restore_hp_troop_runtime_visibility_for_unit(ally_support_unit_state)
-	_restore_hp_troop_runtime_visibility_for_unit(ally_main_03_unit_state)
-	_restore_hp_troop_runtime_visibility_for_unit(enemy_unit_state)
-	_restore_hp_troop_runtime_visibility_for_unit(enemy_support_unit_state)
-	_restore_hp_troop_runtime_visibility_for_unit(enemy_main_03_unit_state)
+	for unit_state in _get_all_unit_states_in_slot_order():
+		_restore_hp_troop_runtime_visibility_for_unit(unit_state)
 	cutin_name_label.text = "학익진 포격"
 	cutin_quote_label.text = "사정거리 안 모든 적을 포격하라!"
 	result_title_label.text = "승리"
@@ -1371,7 +1410,7 @@ func _is_ally_unit_ready_for_action(unit_state: BattleUnitState) -> bool:
 		return false
 	if unit_state.side != "ally":
 		return false
-	if not unit_state.is_alive():
+	if not _is_unit_state_available_for_battle_slot(unit_state):
 		return false
 	if current_phase != PHASE_ALLY_TURN:
 		return false
@@ -1396,6 +1435,8 @@ func _start_ready_frame_pulse(frame: Control) -> void:
 		ally_support_ready_frame_tween = tween
 	elif frame == ally_main_03_ready_frame:
 		ally_main_03_ready_frame_tween = tween
+	elif frame == ally_reinforce_01_ready_frame:
+		ally_reinforce_01_ready_frame_tween = tween
 
 
 func _stop_ready_frame_pulse(frame: Control) -> void:
@@ -1408,6 +1449,9 @@ func _stop_ready_frame_pulse(frame: Control) -> void:
 	elif frame == ally_main_03_ready_frame and ally_main_03_ready_frame_tween != null:
 		ally_main_03_ready_frame_tween.kill()
 		ally_main_03_ready_frame_tween = null
+	elif frame == ally_reinforce_01_ready_frame and ally_reinforce_01_ready_frame_tween != null:
+		ally_reinforce_01_ready_frame_tween.kill()
+		ally_reinforce_01_ready_frame_tween = null
 
 
 func _show_unit_closeup_for_ally(unit_state: BattleUnitState) -> void:
@@ -1855,6 +1899,18 @@ func _get_ally_main_03_group_nodes() -> Array[CanvasItem]:
 	return nodes
 
 
+func _get_ally_reinforce_01_group_nodes() -> Array[CanvasItem]:
+	var nodes: Array[CanvasItem] = [
+		ally_reinforce_01_unit_shadow,
+		ally_reinforce_01_unit_token,
+		ally_reinforce_01_move_dust_sprite,
+		ally_reinforce_01_portrait_badge,
+		ally_reinforce_01_hp_bar,
+		ally_reinforce_01_troop_label,
+	]
+	return nodes
+
+
 func _get_enemy_group_nodes() -> Array[CanvasItem]:
 	var nodes: Array[CanvasItem] = [
 		enemy_unit_shadow,
@@ -1891,15 +1947,27 @@ func _get_enemy_main_03_group_nodes() -> Array[CanvasItem]:
 	return nodes
 
 
+func _get_enemy_reinforce_01_group_nodes() -> Array[CanvasItem]:
+	var nodes: Array[CanvasItem] = [
+		enemy_reinforce_01_unit_shadow,
+		enemy_reinforce_01_unit_token,
+		enemy_reinforce_01_move_dust_sprite,
+		enemy_reinforce_01_portrait_badge,
+		enemy_reinforce_01_hp_bar,
+		enemy_reinforce_01_troop_label,
+	]
+	return nodes
+
+
 func _get_click_area_layout_offset_for_unit(unit_state: BattleUnitState) -> Vector2:
 	if unit_state == null:
 		return Vector2.ZERO
 	match _get_capacity_slot_id_for_unit_state(unit_state):
-		"ally_main_01", "ally_main_03":
+		"ally_main_01", "ally_main_03", "ally_reinforce_01":
 			return ally_click_area_layout_offset
 		"ally_main_02":
 			return ally_support_click_area_layout_offset
-		"enemy_main_01", "enemy_main_03":
+		"enemy_main_01", "enemy_main_03", "enemy_reinforce_01":
 			return enemy_click_area_layout_offset
 		"enemy_main_02":
 			return enemy_support_click_area_layout_offset
@@ -1911,11 +1979,11 @@ func _get_group_base_positions_for_unit(unit_state: BattleUnitState, visual_anch
 	if unit_state == null:
 		return []
 	match _get_capacity_slot_id_for_unit_state(unit_state):
-		"ally_main_01", "ally_main_03":
+		"ally_main_01", "ally_main_03", "ally_reinforce_01":
 			return _get_ally_group_base_positions_for_unit(visual_anchor, unit_state)
 		"ally_main_02":
 			return _get_ally_support_group_base_positions_for_unit(visual_anchor, unit_state)
-		"enemy_main_01", "enemy_main_03":
+		"enemy_main_01", "enemy_main_03", "enemy_reinforce_01":
 			return _get_enemy_group_base_positions_for_unit(visual_anchor, unit_state)
 		"enemy_main_02":
 			return _get_enemy_support_group_base_positions_for_unit(visual_anchor, unit_state)
@@ -1948,12 +2016,16 @@ func _get_unit_visual_slots_for_state(unit_state: BattleUnitState) -> Dictionary
 		return _get_ally_support_visual_slots()
 	if unit_state == ally_main_03_unit_state:
 		return _get_ally_main_03_visual_slots()
+	if unit_state == ally_reinforce_01_unit_state:
+		return _get_ally_reinforce_01_visual_slots()
 	if unit_state == enemy_unit_state:
 		return _get_enemy_main_visual_slots()
 	if unit_state == enemy_support_unit_state:
 		return _get_enemy_support_visual_slots()
 	if unit_state == enemy_main_03_unit_state:
 		return _get_enemy_main_03_visual_slots()
+	if unit_state == enemy_reinforce_01_unit_state:
+		return _get_enemy_reinforce_01_visual_slots()
 	return {}
 
 
@@ -1994,8 +2066,8 @@ func _create_capacity_slot_metadata(slot_id: String) -> Dictionary:
 	var slot_role := SLOT_ROLE_REINFORCE if slot_id.find("_reinforce_") != -1 else SLOT_ROLE_MAIN
 	var legacy_slot_id := _get_legacy_slot_id_for_capacity_slot_id(slot_id)
 	var formation_index := _get_capacity_slot_formation_index(slot_id)
-	var is_active := legacy_slot_id != "" or slot_id == "ally_main_03" or slot_id == "enemy_main_03"
-	var is_deployed := is_active
+	var is_active := legacy_slot_id != "" or slot_id == "ally_main_03" or slot_id == "enemy_main_03" or slot_id == "ally_reinforce_01" or slot_id == "enemy_reinforce_01"
+	var is_deployed := is_active and not (slot_id == "ally_reinforce_01" or slot_id == "enemy_reinforce_01")
 	var entry_rule := SLOT_ENTRY_INITIAL if is_deployed else ""
 	return {
 		"slot_id": slot_id,
@@ -2028,6 +2100,16 @@ func _get_capacity_slot_metadata(slot_id: String) -> Dictionary:
 	if slot_id == "":
 		return {}
 	return capacity_slot_metadata_registry.get(slot_id, {})
+
+
+func _set_capacity_slot_metadata_value(slot_id: String, key: String, value: Variant) -> void:
+	if slot_id == "":
+		return
+	var metadata := _get_capacity_slot_metadata(slot_id).duplicate()
+	if metadata.is_empty():
+		return
+	metadata[key] = value
+	capacity_slot_metadata_registry[slot_id] = metadata
 
 
 func _is_capacity_slot_active(slot_id: String) -> bool:
@@ -2070,9 +2152,11 @@ func _rebuild_battle_unit_state_list_refs() -> void:
 	_append_unit_state_to_adapter(ally_unit_states, ally_unit_state)
 	_append_unit_state_to_adapter(ally_unit_states, ally_support_unit_state)
 	_append_unit_state_to_adapter(ally_unit_states, ally_main_03_unit_state)
+	_append_unit_state_to_adapter(ally_unit_states, ally_reinforce_01_unit_state)
 	_append_unit_state_to_adapter(enemy_unit_states, enemy_unit_state)
 	_append_unit_state_to_adapter(enemy_unit_states, enemy_support_unit_state)
 	_append_unit_state_to_adapter(enemy_unit_states, enemy_main_03_unit_state)
+	_append_unit_state_to_adapter(enemy_unit_states, enemy_reinforce_01_unit_state)
 
 	for unit_state in ally_unit_states:
 		all_battle_unit_states.append(unit_state)
@@ -2273,6 +2357,56 @@ func _is_unit_state_available_for_battle_slot(unit_state: BattleUnitState) -> bo
 	return true
 
 
+func _set_unit_deployed(unit_state: BattleUnitState, deployed: bool) -> void:
+	if unit_state == null:
+		return
+	var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
+	if capacity_slot_id == "":
+		return
+	_set_capacity_slot_metadata_value(capacity_slot_id, "is_deployed", deployed)
+	if deployed:
+		_set_capacity_slot_metadata_value(capacity_slot_id, "entry_rule", SLOT_ENTRY_TRIGGERED)
+	else:
+		_set_capacity_slot_metadata_value(capacity_slot_id, "entry_rule", "")
+
+
+func _deploy_reinforce_unit(unit_state: BattleUnitState) -> void:
+	if unit_state == null:
+		return
+	if _is_unit_state_deployed_by_capacity_slot(unit_state):
+		return
+	_set_unit_deployed(unit_state, true)
+	var unit_marker := _get_unit_marker_for_unit(unit_state)
+	if unit_marker != null:
+		unit_state.set_grid_cell(_get_cell_from_world(unit_marker.position))
+	unit_state.has_acted = false
+	unit_state.has_moved = false
+	_restore_hp_troop_runtime_visibility_for_unit(unit_state)
+	_update_unit_visuals_from_state(unit_state)
+	_apply_group_offset_for_unit(unit_state, Vector2.ZERO)
+	_refresh_facing_indicator_for_unit(unit_state)
+
+
+func _try_deploy_reinforce_01_pair() -> void:
+	if has_deployed_reinforce_01:
+		return
+	if battle_round < 2:
+		return
+	_deploy_reinforce_unit(ally_reinforce_01_unit_state)
+	_deploy_reinforce_unit(enemy_reinforce_01_unit_state)
+	has_deployed_reinforce_01 = true
+	_reset_unit_group_positions()
+	_update_ally_ready_frames()
+	_update_facing_indicators()
+	_append_battle_log("지원군 선봉 등장")
+	print("[REINFORCE01] deployed round=%d ally=%s enemy=%s all_alive_deployed=%d" % [
+		battle_round,
+		str(_is_unit_state_deployed_by_capacity_slot(ally_reinforce_01_unit_state)),
+		str(_is_unit_state_deployed_by_capacity_slot(enemy_reinforce_01_unit_state)),
+		_get_all_alive_unit_states_from_adapter().size(),
+	])
+
+
 func _get_unit_visual_slot_for_state(unit_state: BattleUnitState) -> UnitVisualSlot:
 	if unit_state == null:
 		return null
@@ -2286,12 +2420,16 @@ func _get_unit_visual_slot_for_state(unit_state: BattleUnitState) -> UnitVisualS
 		return _get_unit_visual_slot_for_slot_id("ally_support")
 	if unit_state == ally_main_03_unit_state:
 		return _get_unit_visual_slot_for_slot_id("ally_main_03")
+	if unit_state == ally_reinforce_01_unit_state:
+		return _get_unit_visual_slot_for_slot_id("ally_reinforce_01")
 	if unit_state == enemy_unit_state:
 		return _get_unit_visual_slot_for_slot_id("enemy_main")
 	if unit_state == enemy_support_unit_state:
 		return _get_unit_visual_slot_for_slot_id("enemy_support")
 	if unit_state == enemy_main_03_unit_state:
 		return _get_unit_visual_slot_for_slot_id("enemy_main_03")
+	if unit_state == enemy_reinforce_01_unit_state:
+		return _get_unit_visual_slot_for_slot_id("enemy_reinforce_01")
 	return null
 
 
@@ -2331,12 +2469,16 @@ func _get_visual_slots_dictionary_fallback_for_slot_id(slot_id: String) -> Dicti
 			return _get_ally_support_visual_slots()
 		"ally_main_03":
 			return _get_ally_main_03_visual_slots()
+		"ally_reinforce_01":
+			return _get_ally_reinforce_01_visual_slots()
 		"enemy_main":
 			return _get_enemy_main_visual_slots()
 		"enemy_support":
 			return _get_enemy_support_visual_slots()
 		"enemy_main_03":
 			return _get_enemy_main_03_visual_slots()
+		"enemy_reinforce_01":
+			return _get_enemy_reinforce_01_visual_slots()
 		_:
 			return {}
 
@@ -2421,6 +2563,22 @@ func _get_ally_main_03_visual_slots() -> Dictionary:
 	}
 
 
+func _get_ally_reinforce_01_visual_slots() -> Dictionary:
+	return {
+		"root": ally_reinforce_01_unit_visual_root,
+		"token": ally_reinforce_01_unit_token,
+		"shadow": ally_reinforce_01_unit_shadow,
+		"portrait": ally_reinforce_01_portrait_badge,
+		"hp_bar": ally_reinforce_01_hp_bar,
+		"troop_label": ally_reinforce_01_troop_label,
+		"move_dust": ally_reinforce_01_move_dust_sprite,
+		"click_area": ally_reinforce_01_unit_click_area,
+		"click_shape": ally_reinforce_01_unit_click_shape,
+		"ready_frame": ally_reinforce_01_ready_frame,
+		"facing_indicator": ally_reinforce_01_facing_indicator,
+	}
+
+
 func _get_enemy_main_03_visual_slots() -> Dictionary:
 	return {
 		"root": enemy_main_03_unit_visual_root,
@@ -2434,6 +2592,22 @@ func _get_enemy_main_03_visual_slots() -> Dictionary:
 		"click_shape": enemy_main_03_unit_click_shape,
 		"ready_frame": null,
 		"facing_indicator": enemy_main_03_facing_indicator,
+	}
+
+
+func _get_enemy_reinforce_01_visual_slots() -> Dictionary:
+	return {
+		"root": enemy_reinforce_01_unit_visual_root,
+		"token": enemy_reinforce_01_unit_token,
+		"shadow": enemy_reinforce_01_unit_shadow,
+		"portrait": enemy_reinforce_01_portrait_badge,
+		"hp_bar": enemy_reinforce_01_hp_bar,
+		"troop_label": enemy_reinforce_01_troop_label,
+		"move_dust": enemy_reinforce_01_move_dust_sprite,
+		"click_area": enemy_reinforce_01_unit_click_area,
+		"click_shape": enemy_reinforce_01_unit_click_shape,
+		"ready_frame": null,
+		"facing_indicator": enemy_reinforce_01_facing_indicator,
 	}
 
 
@@ -2898,9 +3072,11 @@ func _hide_all_move_dust_sprites() -> void:
 		ally_move_dust_sprite,
 		ally_support_move_dust_sprite,
 		ally_main_03_move_dust_sprite,
+		ally_reinforce_01_move_dust_sprite,
 		enemy_move_dust_sprite,
 		enemy_support_move_dust_sprite,
 		enemy_main_03_move_dust_sprite,
+		enemy_reinforce_01_move_dust_sprite,
 	]:
 		if sprite == null:
 			continue
@@ -2916,6 +3092,8 @@ func _get_move_dust_sprite_for_unit(unit_state: BattleUnitState) -> Sprite2D:
 		return slot.move_dust as Sprite2D
 	if unit_state == ally_main_03_unit_state:
 		return ally_main_03_move_dust_sprite
+	if unit_state == ally_reinforce_01_unit_state:
+		return ally_reinforce_01_move_dust_sprite
 	if unit_state == ally_support_unit_state:
 		return ally_support_move_dust_sprite
 	if unit_state == enemy_unit_state:
@@ -2924,6 +3102,8 @@ func _get_move_dust_sprite_for_unit(unit_state: BattleUnitState) -> Sprite2D:
 		return enemy_support_move_dust_sprite
 	if unit_state == enemy_main_03_unit_state:
 		return enemy_main_03_move_dust_sprite
+	if unit_state == enemy_reinforce_01_unit_state:
+		return enemy_reinforce_01_move_dust_sprite
 	return ally_move_dust_sprite
 
 
@@ -3096,6 +3276,7 @@ func _start_new_round() -> void:
 	_reset_ally_action_locks_for_new_round()
 	_reset_enemy_action_locks_for_new_round()
 	_append_battle_log("BATTLE %d 시작" % battle_round)
+	_try_deploy_reinforce_01_pair()
 	_show_round_start_banner()
 
 
@@ -3362,6 +3543,33 @@ func _create_demo_unit_states() -> void:
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_RIGHT,
 	})
+	ally_reinforce_01_unit_state = BattleUnitState.create({
+		"unit_id": "ally_reinforce_01_demo",
+		"display_name": "지원군 선봉",
+		"side": "ally",
+		"slot_id": "ally_reinforce_01",
+		"unit_type": UNIT_TYPE_ARCHER,
+		"visual_key": "korea_archer",
+		"hero_name": "지원군 선봉",
+		"nation": "korea",
+		"portrait_key": "yi_sunsin",
+		"domain": "land",
+		"footprint": "1x1",
+		"move_fx_profile": "dust",
+		"attack_fx_profile": "arrow",
+		"click_area_profile": "standard_1x1",
+		"visual_scale_profile": "standard_256",
+		"current_hp": 64,
+		"max_hp": 64,
+		"current_troops": 64,
+		"max_troops": 64,
+		"attack": 19,
+		"defense": 11,
+		"move_range": 3,
+		"attack_range": 3,
+		"grid_cell": Vector2i.ZERO,
+		"facing": FACING_RIGHT,
+	})
 	enemy_unit_state = BattleUnitState.create({
 		"unit_id": "guan_yu",
 		"display_name": "관우",
@@ -3443,6 +3651,33 @@ func _create_demo_unit_states() -> void:
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_LEFT,
 	})
+	enemy_reinforce_01_unit_state = BattleUnitState.create({
+		"unit_id": "enemy_reinforce_01_demo",
+		"display_name": "지원군 선봉",
+		"side": "enemy",
+		"slot_id": "enemy_reinforce_01",
+		"unit_type": UNIT_TYPE_ARCHER,
+		"visual_key": "china_archer",
+		"hero_name": "지원군 선봉",
+		"nation": "china",
+		"portrait_key": "guan_yu",
+		"domain": "land",
+		"footprint": "1x1",
+		"move_fx_profile": "dust",
+		"attack_fx_profile": "arrow",
+		"click_area_profile": "standard_1x1",
+		"visual_scale_profile": "standard_256",
+		"current_hp": 68,
+		"max_hp": 68,
+		"current_troops": 68,
+		"max_troops": 68,
+		"attack": 20,
+		"defense": 12,
+		"move_range": 3,
+		"attack_range": 3,
+		"grid_cell": Vector2i.ZERO,
+		"facing": FACING_LEFT,
+	})
 
 
 func _sync_unit_state_cells_from_markers() -> void:
@@ -3452,12 +3687,16 @@ func _sync_unit_state_cells_from_markers() -> void:
 		ally_support_unit_state.set_grid_cell(_get_cell_from_world(ally_support_unit_marker.position))
 	if ally_main_03_unit_state != null and ally_main_03_unit_marker != null:
 		ally_main_03_unit_state.set_grid_cell(_get_cell_from_world(ally_main_03_unit_marker.position))
+	if ally_reinforce_01_unit_state != null and ally_reinforce_01_unit_marker != null:
+		ally_reinforce_01_unit_state.set_grid_cell(_get_cell_from_world(ally_reinforce_01_unit_marker.position))
 	if enemy_unit_state != null:
 		enemy_unit_state.set_grid_cell(_get_cell_from_world(enemy_unit_marker.position))
 	if enemy_support_unit_state != null and enemy_support_unit_marker != null:
 		enemy_support_unit_state.set_grid_cell(_get_cell_from_world(enemy_support_unit_marker.position))
 	if enemy_main_03_unit_state != null and enemy_main_03_unit_marker != null:
 		enemy_main_03_unit_state.set_grid_cell(_get_cell_from_world(enemy_main_03_unit_marker.position))
+	if enemy_reinforce_01_unit_state != null and enemy_reinforce_01_unit_marker != null:
+		enemy_reinforce_01_unit_state.set_grid_cell(_get_cell_from_world(enemy_reinforce_01_unit_marker.position))
 
 
 func _apply_melee_adjacent_qa_preset() -> void:
@@ -3596,7 +3835,7 @@ func _get_visual_template_for_unit(unit_state: BattleUnitState) -> Node2D:
 	var unit_type := _normalize_unit_type(unit_state.unit_type)
 	if unit_state.slot_id == "ally_support" or unit_state.slot_id == "ally_main_02" or unit_state == ally_support_unit_state:
 		return _get_visual_template_for_slot("ally_support", unit_type)
-	if unit_state.slot_id == "enemy_main" or unit_state.slot_id == "enemy_main_01" or unit_state.slot_id == "enemy_main_03" or unit_state == enemy_unit_state or unit_state == enemy_main_03_unit_state:
+	if unit_state.slot_id == "enemy_main" or unit_state.slot_id == "enemy_main_01" or unit_state.slot_id == "enemy_main_03" or unit_state.slot_id == "enemy_reinforce_01" or unit_state == enemy_unit_state or unit_state == enemy_main_03_unit_state or unit_state == enemy_reinforce_01_unit_state:
 		return _get_visual_template_for_slot("enemy_main", unit_type)
 	if unit_state.slot_id == "enemy_support" or unit_state.slot_id == "enemy_main_02" or unit_state == enemy_support_unit_state:
 		return _get_visual_template_for_slot("enemy_support", unit_type)
@@ -3701,12 +3940,16 @@ func _sync_runtime_portrait_markers_to_visuals() -> void:
 		ally_support_portrait_marker.position = ally_support_portrait_badge.position
 	if ally_main_03_portrait_badge != null and ally_main_03_portrait_marker != null:
 		ally_main_03_portrait_marker.position = ally_main_03_portrait_badge.position
+	if ally_reinforce_01_portrait_badge != null and ally_reinforce_01_portrait_marker != null:
+		ally_reinforce_01_portrait_marker.position = ally_reinforce_01_portrait_badge.position
 	if enemy_portrait_badge != null and enemy_portrait_marker != null:
 		enemy_portrait_marker.position = enemy_portrait_badge.position
 	if enemy_support_portrait_badge != null and enemy_support_portrait_marker != null:
 		enemy_support_portrait_marker.position = enemy_support_portrait_badge.position
 	if enemy_main_03_portrait_badge != null and enemy_main_03_portrait_marker != null:
 		enemy_main_03_portrait_marker.position = enemy_main_03_portrait_badge.position
+	if enemy_reinforce_01_portrait_badge != null and enemy_reinforce_01_portrait_marker != null:
+		enemy_reinforce_01_portrait_marker.position = enemy_reinforce_01_portrait_badge.position
 
 
 func _capture_scene_authored_unit_layout_offsets() -> void:
@@ -4069,6 +4312,8 @@ func _get_unit_marker_for_unit(unit_state: BattleUnitState) -> Marker2D:
 		return null
 	if unit_state == ally_main_03_unit_state:
 		return ally_main_03_unit_marker
+	if unit_state == ally_reinforce_01_unit_state:
+		return ally_reinforce_01_unit_marker
 	if unit_state == ally_support_unit_state:
 		return ally_support_unit_marker
 	if unit_state == enemy_unit_state:
@@ -4077,6 +4322,8 @@ func _get_unit_marker_for_unit(unit_state: BattleUnitState) -> Marker2D:
 		return enemy_support_unit_marker
 	if unit_state == enemy_main_03_unit_state:
 		return enemy_main_03_unit_marker
+	if unit_state == enemy_reinforce_01_unit_state:
+		return enemy_reinforce_01_unit_marker
 	return ally_unit_marker
 
 
@@ -4085,6 +4332,8 @@ func _get_portrait_marker_for_unit(unit_state: BattleUnitState) -> Marker2D:
 		return null
 	if unit_state == ally_main_03_unit_state:
 		return ally_main_03_portrait_marker
+	if unit_state == ally_reinforce_01_unit_state:
+		return ally_reinforce_01_portrait_marker
 	if unit_state == ally_support_unit_state:
 		return ally_support_portrait_marker
 	if unit_state == enemy_unit_state:
@@ -4093,6 +4342,8 @@ func _get_portrait_marker_for_unit(unit_state: BattleUnitState) -> Marker2D:
 		return enemy_support_portrait_marker
 	if unit_state == enemy_main_03_unit_state:
 		return enemy_main_03_portrait_marker
+	if unit_state == enemy_reinforce_01_unit_state:
+		return enemy_reinforce_01_portrait_marker
 	return ally_portrait_marker
 
 
@@ -4344,10 +4595,10 @@ func _get_alive_ally_units() -> Array[BattleUnitState]:
 
 func _get_fallback_alive_ally_units() -> Array[BattleUnitState]:
 	var allies: Array[BattleUnitState] = []
-	var candidates: Array = [ally_unit_state, ally_support_unit_state, ally_main_03_unit_state]
+	var candidates: Array = [ally_unit_state, ally_support_unit_state, ally_main_03_unit_state, ally_reinforce_01_unit_state]
 	for candidate in candidates:
 		var unit_state := candidate as BattleUnitState
-		if unit_state != null and unit_state.is_alive():
+		if _is_unit_state_available_for_battle_slot(unit_state):
 			allies.append(unit_state)
 	return allies
 
@@ -4361,10 +4612,10 @@ func _get_alive_enemy_units() -> Array[BattleUnitState]:
 
 func _get_fallback_alive_enemy_units() -> Array[BattleUnitState]:
 	var enemies: Array[BattleUnitState] = []
-	var candidates: Array = [enemy_unit_state, enemy_support_unit_state, enemy_main_03_unit_state]
+	var candidates: Array = [enemy_unit_state, enemy_support_unit_state, enemy_main_03_unit_state, enemy_reinforce_01_unit_state]
 	for candidate in candidates:
 		var unit_state := candidate as BattleUnitState
-		if unit_state != null and unit_state.is_alive():
+		if _is_unit_state_available_for_battle_slot(unit_state):
 			enemies.append(unit_state)
 	return enemies
 
@@ -4439,10 +4690,10 @@ func _are_all_alive_enemies_acted() -> bool:
 
 
 func _get_next_available_enemy_ai_actor() -> BattleUnitState:
-	var candidates: Array = [enemy_unit_state, enemy_support_unit_state, enemy_main_03_unit_state]
+	var candidates: Array = [enemy_unit_state, enemy_support_unit_state, enemy_main_03_unit_state, enemy_reinforce_01_unit_state]
 	for candidate in candidates:
 		var unit_state := candidate as BattleUnitState
-		if unit_state != null and unit_state.is_alive() and not _has_enemy_unit_acted(unit_state):
+		if _is_unit_state_available_for_battle_slot(unit_state) and not _has_enemy_unit_acted(unit_state):
 			return unit_state
 	return null
 
@@ -4889,11 +5140,11 @@ func _is_ally_selection_switch_blocked(unit_state: BattleUnitState) -> bool:
 
 
 func _is_unit_selectable(unit_state: BattleUnitState) -> bool:
-	return unit_state != null and unit_state.is_alive()
+	return _is_unit_state_available_for_battle_slot(unit_state)
 
 
 func _is_enemy_click_candidate_alive(unit_state: BattleUnitState) -> bool:
-	return unit_state != null and unit_state.is_alive()
+	return _is_unit_state_available_for_battle_slot(unit_state)
 
 
 func _cleanup_dead_units() -> void:
@@ -4901,8 +5152,9 @@ func _cleanup_dead_units() -> void:
 		if unit_state == null:
 			continue
 		var is_alive := unit_state.is_alive()
-		_set_unit_visual_group_visible(unit_state, is_alive)
-		_set_unit_click_area_enabled(unit_state, is_alive)
+		var is_deployed_alive := _is_unit_state_available_for_battle_slot(unit_state)
+		_set_unit_visual_group_visible(unit_state, is_deployed_alive)
+		_set_unit_click_area_enabled(unit_state, is_deployed_alive)
 		if not is_alive and not bool(dead_unit_ids.get(unit_state.unit_id, false)):
 			dead_unit_ids[unit_state.unit_id] = true
 			acted_ally_unit_ids.erase(unit_state.unit_id)
@@ -4929,14 +5181,14 @@ func _set_unit_visual_group_visible(unit_state: BattleUnitState, should_show: bo
 			if node != null:
 				node.visible = should_show
 	if slot != null:
-		slot.set_facing_indicator_visible(should_show and facing_indicators_should_be_visible)
+		slot.set_facing_indicator_visible(should_show and facing_indicators_should_be_visible and _is_unit_state_deployed_by_capacity_slot(unit_state))
 		return
 	for node in _get_visual_group_nodes_for_unit(unit_state):
 		if node != null:
 			node.visible = should_show
 	var facing_indicator := _get_facing_indicator_for_unit(unit_state)
 	if facing_indicator != null:
-		facing_indicator.visible = should_show and facing_indicators_should_be_visible
+		facing_indicator.visible = should_show and facing_indicators_should_be_visible and _is_unit_state_deployed_by_capacity_slot(unit_state)
 
 
 func _set_unit_click_area_enabled(unit_state: BattleUnitState, should_enable: bool) -> void:
@@ -4969,12 +5221,16 @@ func _get_visual_group_nodes_for_unit(unit_state: BattleUnitState) -> Array[Canv
 		return _get_ally_support_group_nodes()
 	if unit_state == ally_main_03_unit_state:
 		return _get_ally_main_03_group_nodes()
+	if unit_state == ally_reinforce_01_unit_state:
+		return _get_ally_reinforce_01_group_nodes()
 	if unit_state == enemy_unit_state:
 		return _get_enemy_group_nodes()
 	if unit_state == enemy_support_unit_state:
 		return _get_enemy_support_group_nodes()
 	if unit_state == enemy_main_03_unit_state:
 		return _get_enemy_main_03_group_nodes()
+	if unit_state == enemy_reinforce_01_unit_state:
+		return _get_enemy_reinforce_01_group_nodes()
 	return empty_visual_nodes
 
 
@@ -4990,12 +5246,16 @@ func _get_click_area_for_unit(unit_state: BattleUnitState) -> Area2D:
 		return ally_support_unit_click_area
 	if unit_state == ally_main_03_unit_state:
 		return ally_main_03_unit_click_area
+	if unit_state == ally_reinforce_01_unit_state:
+		return ally_reinforce_01_unit_click_area
 	if unit_state == enemy_unit_state:
 		return enemy_unit_click_area
 	if unit_state == enemy_support_unit_state:
 		return enemy_support_unit_click_area
 	if unit_state == enemy_main_03_unit_state:
 		return enemy_main_03_unit_click_area
+	if unit_state == enemy_reinforce_01_unit_state:
+		return enemy_reinforce_01_unit_click_area
 	return null
 
 
@@ -5011,12 +5271,16 @@ func _get_click_shape_for_unit(unit_state: BattleUnitState) -> CollisionShape2D:
 		return ally_support_unit_click_shape
 	if unit_state == ally_main_03_unit_state:
 		return ally_main_03_unit_click_shape
+	if unit_state == ally_reinforce_01_unit_state:
+		return ally_reinforce_01_unit_click_shape
 	if unit_state == enemy_unit_state:
 		return enemy_unit_click_shape
 	if unit_state == enemy_support_unit_state:
 		return enemy_support_unit_click_shape
 	if unit_state == enemy_main_03_unit_state:
 		return enemy_main_03_unit_click_shape
+	if unit_state == enemy_reinforce_01_unit_state:
+		return enemy_reinforce_01_unit_click_shape
 	return null
 
 
@@ -5045,9 +5309,11 @@ func _get_all_unit_states_in_slot_order() -> Array[BattleUnitState]:
 		ally_unit_state,
 		ally_support_unit_state,
 		ally_main_03_unit_state,
+		ally_reinforce_01_unit_state,
 		enemy_unit_state,
 		enemy_support_unit_state,
 		enemy_main_03_unit_state,
+		enemy_reinforce_01_unit_state,
 	]
 
 
@@ -5063,6 +5329,18 @@ func _get_enemy_main_03_visual_anchor_position() -> Vector2:
 	return _get_enemy_visual_anchor_from_position(enemy_main_03_unit_marker.position)
 
 
+func _get_ally_reinforce_01_visual_anchor_position() -> Vector2:
+	if ally_reinforce_01_unit_marker == null:
+		return Vector2.ZERO
+	return _get_ally_visual_anchor_from_position(ally_reinforce_01_unit_marker.position)
+
+
+func _get_enemy_reinforce_01_visual_anchor_position() -> Vector2:
+	if enemy_reinforce_01_unit_marker == null:
+		return Vector2.ZERO
+	return _get_enemy_visual_anchor_from_position(enemy_reinforce_01_unit_marker.position)
+
+
 func _get_visual_anchor_position_for_unit(unit_state: BattleUnitState) -> Vector2:
 	if unit_state == null:
 		return Vector2.ZERO
@@ -5074,24 +5352,32 @@ func _get_visual_anchor_position_for_unit(unit_state: BattleUnitState) -> Vector
 				return _get_ally_support_visual_anchor_position()
 			"ally_main_03":
 				return _get_ally_main_03_visual_anchor_position()
+			"ally_reinforce_01":
+				return _get_ally_reinforce_01_visual_anchor_position()
 			"enemy_main":
 				return _get_enemy_visual_anchor_position()
 			"enemy_support":
 				return _get_enemy_support_visual_anchor_position()
 			"enemy_main_03":
 				return _get_enemy_main_03_visual_anchor_position()
+			"enemy_reinforce_01":
+				return _get_enemy_reinforce_01_visual_anchor_position()
 	if unit_state == ally_unit_state:
 		return _get_ally_visual_anchor_position()
 	if unit_state == ally_support_unit_state:
 		return _get_ally_support_visual_anchor_position()
 	if unit_state == ally_main_03_unit_state:
 		return _get_ally_main_03_visual_anchor_position()
+	if unit_state == ally_reinforce_01_unit_state:
+		return _get_ally_reinforce_01_visual_anchor_position()
 	if unit_state == enemy_unit_state:
 		return _get_enemy_visual_anchor_position()
 	if unit_state == enemy_support_unit_state:
 		return _get_enemy_support_visual_anchor_position()
 	if unit_state == enemy_main_03_unit_state:
 		return _get_enemy_main_03_visual_anchor_position()
+	if unit_state == enemy_reinforce_01_unit_state:
+		return _get_enemy_reinforce_01_visual_anchor_position()
 	return Vector2.ZERO
 
 
@@ -5100,7 +5386,7 @@ func _refresh_facing_indicator_for_unit(unit_state: BattleUnitState) -> void:
 	if unit_state == null or facing_indicator == null:
 		return
 	facing_indicator.text = _get_facing_arrow_text(unit_state.facing)
-	facing_indicator.visible = facing_indicators_should_be_visible and unit_state.is_alive()
+	facing_indicator.visible = facing_indicators_should_be_visible and _is_unit_state_available_for_battle_slot(unit_state)
 	_position_facing_indicator_for_unit(unit_state)
 
 
@@ -5125,6 +5411,9 @@ func _position_facing_indicator_for_unit(unit_state: BattleUnitState) -> void:
 			"ally_main_03":
 				_position_facing_indicator_for_ally_main_03()
 				return
+			"ally_reinforce_01":
+				_position_facing_indicator_for_ally_reinforce_01()
+				return
 			"enemy_main":
 				_position_facing_indicator_for_enemy()
 				return
@@ -5133,6 +5422,9 @@ func _position_facing_indicator_for_unit(unit_state: BattleUnitState) -> void:
 				return
 			"enemy_main_03":
 				_position_facing_indicator_for_enemy_main_03()
+				return
+			"enemy_reinforce_01":
+				_position_facing_indicator_for_enemy_reinforce_01()
 				return
 	if unit_state == ally_unit_state:
 		_position_facing_indicator_for_ally()
@@ -5143,6 +5435,9 @@ func _position_facing_indicator_for_unit(unit_state: BattleUnitState) -> void:
 	if unit_state == ally_main_03_unit_state:
 		_position_facing_indicator_for_ally_main_03()
 		return
+	if unit_state == ally_reinforce_01_unit_state:
+		_position_facing_indicator_for_ally_reinforce_01()
+		return
 	if unit_state == enemy_unit_state:
 		_position_facing_indicator_for_enemy()
 		return
@@ -5151,6 +5446,9 @@ func _position_facing_indicator_for_unit(unit_state: BattleUnitState) -> void:
 		return
 	if unit_state == enemy_main_03_unit_state:
 		_position_facing_indicator_for_enemy_main_03()
+		return
+	if unit_state == enemy_reinforce_01_unit_state:
+		_position_facing_indicator_for_enemy_reinforce_01()
 		return
 
 
@@ -5522,13 +5820,15 @@ func _get_fallback_all_alive_unit_states() -> Array[BattleUnitState]:
 		ally_unit_state,
 		ally_support_unit_state,
 		ally_main_03_unit_state,
+		ally_reinforce_01_unit_state,
 		enemy_unit_state,
 		enemy_support_unit_state,
 		enemy_main_03_unit_state,
+		enemy_reinforce_01_unit_state,
 	]
 	for candidate in unit_candidates:
 		var unit_state := candidate as BattleUnitState
-		if unit_state != null and unit_state.is_alive():
+		if _is_unit_state_available_for_battle_slot(unit_state):
 			alive_units.append(unit_state)
 	return alive_units
 
@@ -6044,6 +6344,14 @@ func _update_enemy_main_03_visuals_from_state() -> void:
 	_update_unit_visuals_from_state(enemy_main_03_unit_state)
 
 
+func _update_ally_reinforce_01_visuals_from_state() -> void:
+	_update_unit_visuals_from_state(ally_reinforce_01_unit_state)
+
+
+func _update_enemy_reinforce_01_visuals_from_state() -> void:
+	_update_unit_visuals_from_state(enemy_reinforce_01_unit_state)
+
+
 func _get_hp_bar_for_unit(unit_state: BattleUnitState) -> ProgressBar:
 	if unit_state == null:
 		return null
@@ -6143,19 +6451,20 @@ func _apply_unit_visual_layer_profile_for_unit(unit_state: BattleUnitState) -> v
 func _restore_hp_troop_runtime_visibility_for_unit(unit_state: BattleUnitState) -> void:
 	if unit_state == null:
 		return
-	var is_alive := unit_state.is_alive()
-	_set_unit_visual_group_visible(unit_state, is_alive)
+	var is_deployed_alive := _is_unit_state_available_for_battle_slot(unit_state)
+	_set_unit_visual_group_visible(unit_state, is_deployed_alive)
+	_set_unit_click_area_enabled(unit_state, is_deployed_alive)
 	var hp_bar := _get_hp_bar_for_unit(unit_state)
 	var troop_label := _get_troop_label_for_unit(unit_state)
 	if hp_bar != null:
 		hp_bar.max_value = max(unit_state.max_hp, 1)
 		hp_bar.value = clamp(unit_state.current_hp, 0, unit_state.max_hp)
-		hp_bar.visible = is_alive
+		hp_bar.visible = is_deployed_alive
 		hp_bar.modulate = Color.WHITE
 		_apply_hp_bar_runtime_alpha(hp_bar)
 	if troop_label != null:
 		troop_label.text = unit_state.get_troop_label_text()
-		troop_label.visible = is_alive
+		troop_label.visible = is_deployed_alive
 		troop_label.modulate = Color.WHITE
 
 
@@ -6363,6 +6672,13 @@ func _position_facing_indicator_for_ally_main_03() -> void:
 	ally_main_03_facing_indicator.position = _world_to_battle_ui_position(world_anchor)
 
 
+func _position_facing_indicator_for_ally_reinforce_01() -> void:
+	if ally_reinforce_01_facing_indicator == null or ally_reinforce_01_unit_token == null:
+		return
+	var world_anchor := _get_ally_reinforce_01_visual_anchor_position() + ally_reinforce_01_facing_indicator_layout_offset
+	ally_reinforce_01_facing_indicator.position = _world_to_battle_ui_position(world_anchor)
+
+
 func _position_facing_indicator_for_enemy() -> void:
 	if enemy_facing_indicator == null or enemy_unit_token == null:
 		return
@@ -6384,12 +6700,19 @@ func _position_facing_indicator_for_enemy_main_03() -> void:
 	enemy_main_03_facing_indicator.position = _world_to_battle_ui_position(world_anchor)
 
 
+func _position_facing_indicator_for_enemy_reinforce_01() -> void:
+	if enemy_reinforce_01_facing_indicator == null or enemy_reinforce_01_unit_token == null:
+		return
+	var world_anchor := _get_enemy_reinforce_01_visual_anchor_position() + enemy_reinforce_01_facing_indicator_layout_offset
+	enemy_reinforce_01_facing_indicator.position = _world_to_battle_ui_position(world_anchor)
+
+
 func _set_facing_indicators_visible(should_show: bool) -> void:
 	facing_indicators_should_be_visible = should_show
 	for unit_state in _get_all_unit_states_in_slot_order():
 		var facing_indicator := _get_facing_indicator_for_unit(unit_state)
 		if facing_indicator != null:
-			facing_indicator.visible = should_show and unit_state != null and unit_state.is_alive()
+			facing_indicator.visible = should_show and _is_unit_state_available_for_battle_slot(unit_state)
 
 
 func _world_to_battle_ui_position(world_pos: Vector2) -> Vector2:
@@ -6407,6 +6730,8 @@ func _start_idle_breathing() -> void:
 	enemy_support_idle_tween = _start_token_idle(enemy_support_unit_token, enemy_support_token_base_scale)
 	ally_main_03_idle_tween = _start_token_idle(ally_main_03_unit_token, ally_main_03_token_base_scale)
 	enemy_main_03_idle_tween = _start_token_idle(enemy_main_03_unit_token, enemy_main_03_token_base_scale)
+	ally_reinforce_01_idle_tween = _start_token_idle(ally_reinforce_01_unit_token, ally_reinforce_01_token_base_scale)
+	enemy_reinforce_01_idle_tween = _start_token_idle(enemy_reinforce_01_unit_token, enemy_reinforce_01_token_base_scale)
 
 
 func _start_token_idle(token: Sprite2D, base_scale: Vector2) -> Tween:
@@ -6438,6 +6763,12 @@ func _stop_idle_breathing() -> void:
 	if enemy_main_03_idle_tween:
 		enemy_main_03_idle_tween.kill()
 		enemy_main_03_idle_tween = null
+	if ally_reinforce_01_idle_tween:
+		ally_reinforce_01_idle_tween.kill()
+		ally_reinforce_01_idle_tween = null
+	if enemy_reinforce_01_idle_tween:
+		enemy_reinforce_01_idle_tween.kill()
+		enemy_reinforce_01_idle_tween = null
 
 	ally_unit_token.scale = ally_token_base_scale
 	enemy_unit_token.scale = enemy_token_base_scale
@@ -6447,6 +6778,10 @@ func _stop_idle_breathing() -> void:
 		ally_main_03_unit_token.scale = ally_main_03_token_base_scale
 	if enemy_main_03_unit_token != null:
 		enemy_main_03_unit_token.scale = enemy_main_03_token_base_scale
+	if ally_reinforce_01_unit_token != null:
+		ally_reinforce_01_unit_token.scale = ally_reinforce_01_token_base_scale
+	if enemy_reinforce_01_unit_token != null:
+		enemy_reinforce_01_unit_token.scale = enemy_reinforce_01_token_base_scale
 
 
 func _sync_overlay_positions() -> void:
