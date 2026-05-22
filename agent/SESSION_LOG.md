@@ -3,6 +3,40 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67d 2v2 on Scalable Slot Framework Stable
+
+Goal:
+- v0.67e Actor/Target List Adapter Migration
+
+Completed:
+- Added adapter-backed actor-candidate helpers in `scripts/battle_web_import_test.gd`.
+- Added adapter-backed target-candidate helpers and target fallback helpers.
+- Switched `_get_available_auto_units_for_side()` to adapter-first actor candidates with fallback.
+- Switched `_get_alive_auto_targets_for_side()` to adapter-first target candidates with fallback.
+- Switched `_get_enemy_ai_target_state_for_actor()` to adapter-first target candidates with fallback while preserving the same target-selection logic.
+- Added one-time startup actor/target adapter snapshot with count and parity output.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept enemy AI actor order unchanged.
+- Kept auto-battle scoring/policy unchanged.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless startup snapshot confirmed:
+  - `actor_candidates_ally_count=2`
+  - `actor_candidates_enemy_count=2`
+  - `target_candidates_for_ally_actor_count=2`
+  - `target_candidates_for_enemy_actor_count=2`
+  - `auto_target_parity_ok=true`
+  - `enemy_ai_target_parity_ok=true`
+  - `enemy_actor_order_parity_ok=true`
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+- F6/manual interaction QA not available in this environment.
+
+## 2026-05-22
+
+Starting baseline:
 - v0.67c-hotfix6 Unit Visual Layer Above HP Bar
 
 Goal:

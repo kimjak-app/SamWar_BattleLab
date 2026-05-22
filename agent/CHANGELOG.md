@@ -1,5 +1,34 @@
 # CHANGELOG
 
+## v0.67e Actor/Target List Adapter Migration
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Added adapter-backed actor helpers:
+  - `_get_actor_candidates_for_side_from_adapter()`
+  - `_get_available_actor_candidates_for_side_from_adapter()`
+- Added adapter-backed target helpers:
+  - `_get_alive_target_candidates_for_side_from_adapter()`
+  - `_get_target_candidates_for_actor_from_adapter()`
+  - `_get_target_candidates_for_actor()`
+  - `_get_fallback_target_candidates_for_actor()`
+- Added shared comparison helpers:
+  - `_get_enemy_ai_target_state_from_candidates()`
+  - `_find_best_auto_attack_target_from_candidates()`
+  - `_get_first_candidate_from_list()`
+- Switched `_get_available_auto_units_for_side()` to adapter-first actor candidates with fallback.
+- Switched `_get_alive_auto_targets_for_side()` to adapter-first target candidates with fallback.
+- Switched `_get_enemy_ai_target_state_for_actor()` to adapter-first target candidates with fallback while preserving the existing target-selection rule.
+- Added one-time startup actor/target snapshot for:
+  - actor candidate ally/enemy count
+  - target candidate count for ally/enemy actors
+  - auto target parity OK
+  - enemy AI target parity OK
+  - enemy actor order parity OK
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept enemy AI actor order unchanged.
+- Kept auto-battle scoring and policy unchanged.
+
 ## v0.67d 2v2 on Scalable Slot Framework
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

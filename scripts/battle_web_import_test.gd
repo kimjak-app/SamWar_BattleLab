@@ -261,6 +261,7 @@ var unit_state_by_legacy_slot_id: Dictionary = {}
 var unit_state_by_capacity_slot_id: Dictionary = {}
 var active_unit_state: BattleUnitState
 var has_printed_adapter_alive_parity_snapshot := false
+var has_printed_actor_target_adapter_snapshot := false
 var active_unit_side := "ally"
 var has_selected_move_target := false
 var selected_move_cell := Vector2i(-1, -1)
@@ -507,6 +508,7 @@ func _ready() -> void:
 	_debug_print_capacity_slot_registry()
 	_debug_print_unit_state_visual_binding_summary()
 	_debug_print_adapter_alive_parity_snapshot_once()
+	_debug_print_actor_target_adapter_snapshot_once()
 
 
 func _process(_delta: float) -> void:
@@ -2099,6 +2101,46 @@ func _get_all_alive_unit_states_from_adapter() -> Array[BattleUnitState]:
 	return alive_states
 
 
+func _get_actor_candidates_for_side_from_adapter(side: String) -> Array[BattleUnitState]:
+	var candidates: Array[BattleUnitState] = []
+	for unit_state in _get_alive_deployed_unit_states_for_side(side):
+		if unit_state != null and unit_state.is_alive():
+			candidates.append(unit_state)
+	return candidates
+
+
+func _get_available_actor_candidates_for_side_from_adapter(side: String) -> Array[BattleUnitState]:
+	var candidates: Array[BattleUnitState] = []
+	for unit_state in _get_actor_candidates_for_side_from_adapter(side):
+		if unit_state == null:
+			continue
+		if side == "ally":
+			if not _has_ally_unit_acted(unit_state):
+				candidates.append(unit_state)
+		elif side == "enemy":
+			if not _has_enemy_unit_acted(unit_state):
+				candidates.append(unit_state)
+	return candidates
+
+
+func _get_alive_target_candidates_for_side_from_adapter(actor_side: String) -> Array[BattleUnitState]:
+	var empty_candidates: Array[BattleUnitState] = []
+	match actor_side:
+		"ally":
+			return _get_alive_deployed_unit_states_for_side("enemy")
+		"enemy":
+			return _get_alive_deployed_unit_states_for_side("ally")
+		_:
+			return empty_candidates
+
+
+func _get_target_candidates_for_actor_from_adapter(actor_state: BattleUnitState) -> Array[BattleUnitState]:
+	var empty_candidates: Array[BattleUnitState] = []
+	if actor_state == null:
+		return empty_candidates
+	return _get_alive_target_candidates_for_side_from_adapter(actor_state.side)
+
+
 func _is_unit_state_deployed_by_capacity_slot(unit_state: BattleUnitState) -> bool:
 	var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
 	if capacity_slot_id == "":
@@ -2319,6 +2361,48 @@ func _debug_print_adapter_alive_parity_snapshot_once() -> void:
 		str(_get_deployed_capacity_slots_for_side("ally")),
 		str(_get_deployed_capacity_slots_for_side("enemy")),
 		str(parity_ok),
+	])
+
+
+func _debug_print_actor_target_adapter_snapshot_once() -> void:
+	if has_printed_actor_target_adapter_snapshot:
+		return
+	has_printed_actor_target_adapter_snapshot = true
+
+	var ally_actor_candidates := _get_actor_candidates_for_side_from_adapter("ally")
+	var enemy_actor_candidates := _get_actor_candidates_for_side_from_adapter("enemy")
+	var ally_target_candidates := _get_target_candidates_for_actor_from_adapter(ally_unit_state)
+	var enemy_target_candidates := _get_target_candidates_for_actor_from_adapter(enemy_unit_state)
+	var auto_ally_targets := _get_alive_auto_targets_for_side("ally")
+	var auto_enemy_targets := _get_alive_auto_targets_for_side("enemy")
+	var fallback_auto_ally_targets := _get_fallback_target_candidates_for_actor(ally_unit_state)
+	var fallback_auto_enemy_targets := _get_fallback_target_candidates_for_actor(enemy_unit_state)
+	var adapter_auto_ally_best_target := _find_best_auto_attack_target_from_candidates(ally_unit_state, auto_ally_targets)
+	var fallback_auto_ally_best_target := _find_best_auto_attack_target_from_candidates(ally_unit_state, fallback_auto_ally_targets)
+	var adapter_auto_enemy_best_target := _find_best_auto_attack_target_from_candidates(enemy_unit_state, auto_enemy_targets)
+	var fallback_auto_enemy_best_target := _find_best_auto_attack_target_from_candidates(enemy_unit_state, fallback_auto_enemy_targets)
+	var auto_target_parity_ok := (
+		auto_ally_targets.size() == fallback_auto_ally_targets.size()
+		and auto_enemy_targets.size() == fallback_auto_enemy_targets.size()
+		and adapter_auto_ally_best_target == fallback_auto_ally_best_target
+		and adapter_auto_enemy_best_target == fallback_auto_enemy_best_target
+	)
+	var adapter_enemy_target := _get_enemy_ai_target_state_from_candidates(enemy_unit_state, enemy_target_candidates)
+	var fallback_enemy_target := _get_enemy_ai_target_state_from_candidates(enemy_unit_state, _get_fallback_alive_ally_units())
+	var enemy_ai_target_parity_ok := adapter_enemy_target == fallback_enemy_target
+	var enemy_actor_order_parity_ok := _get_next_available_enemy_ai_actor() == _get_first_candidate_from_list(_get_available_actor_candidates_for_side_from_adapter("enemy"))
+
+	print("ACTOR TARGET ADAPTER SNAPSHOT:")
+	print("actor_candidates_ally_count=%s actor_candidates_enemy_count=%s target_candidates_for_ally_actor_count=%s target_candidates_for_enemy_actor_count=%s" % [
+		str(ally_actor_candidates.size()),
+		str(enemy_actor_candidates.size()),
+		str(ally_target_candidates.size()),
+		str(enemy_target_candidates.size()),
+	])
+	print("auto_target_parity_ok=%s enemy_ai_target_parity_ok=%s enemy_actor_order_parity_ok=%s" % [
+		str(auto_target_parity_ok),
+		str(enemy_ai_target_parity_ok),
+		str(enemy_actor_order_parity_ok),
 	])
 
 
@@ -3880,15 +3964,24 @@ func _get_enemy_ai_target_state() -> BattleUnitState:
 func _get_enemy_ai_target_state_for_actor(enemy_actor_state: BattleUnitState) -> BattleUnitState:
 	if enemy_actor_state == null:
 		return null
-	var alive_allies := _get_alive_ally_units()
+	var alive_allies := _get_target_candidates_for_actor(enemy_actor_state)
 	if alive_allies.is_empty():
+		return null
+
+	return _get_enemy_ai_target_state_from_candidates(enemy_actor_state, alive_allies)
+
+
+func _get_enemy_ai_target_state_from_candidates(enemy_actor_state: BattleUnitState, target_candidates: Array[BattleUnitState]) -> BattleUnitState:
+	if enemy_actor_state == null:
+		return null
+	if target_candidates.is_empty():
 		return null
 
 	var best_attackable_target: BattleUnitState = null
 	var best_attackable_distance := 9999
 	var best_target: BattleUnitState = null
 	var best_distance := 9999
-	for ally_state in alive_allies:
+	for ally_state in target_candidates:
 		var distance := get_unit_grid_distance(enemy_actor_state, ally_state)
 		if distance < best_distance:
 			best_distance = distance
@@ -3908,6 +4001,30 @@ func _get_legacy_enemy_ai_target_state() -> BattleUnitState:
 	if ally_support_unit_state != null and ally_support_unit_state.is_alive():
 		return ally_support_unit_state
 	return null
+
+
+func _get_target_candidates_for_actor(actor_state: BattleUnitState) -> Array[BattleUnitState]:
+	var adapter_targets := _get_target_candidates_for_actor_from_adapter(actor_state)
+	if _is_battle_unit_state_adapter_ready() and not adapter_targets.is_empty():
+		return adapter_targets
+	return _get_fallback_target_candidates_for_actor(actor_state)
+
+
+func _get_fallback_target_candidates_for_actor(actor_state: BattleUnitState) -> Array[BattleUnitState]:
+	var empty_candidates: Array[BattleUnitState] = []
+	if actor_state == null:
+		return empty_candidates
+	if actor_state.side == "ally":
+		return _get_fallback_alive_enemy_units()
+	if actor_state.side == "enemy":
+		return _get_fallback_alive_ally_units()
+	return empty_candidates
+
+
+func _get_first_candidate_from_list(candidates: Array[BattleUnitState]) -> BattleUnitState:
+	if candidates.is_empty():
+		return null
+	return candidates[0]
 
 
 func _find_best_attack_target_for_active_ally() -> BattleUnitState:
@@ -4076,6 +4193,10 @@ func _get_first_available_ally_unit() -> BattleUnitState:
 
 
 func _get_available_auto_units_for_side(side: String) -> Array[BattleUnitState]:
+	var adapter_candidates := _get_available_actor_candidates_for_side_from_adapter(side)
+	if _is_battle_unit_state_adapter_ready() and not adapter_candidates.is_empty():
+		return adapter_candidates
+
 	var available_units: Array[BattleUnitState] = []
 	var candidates: Array[BattleUnitState] = []
 	match side:
@@ -4099,13 +4220,15 @@ func _get_available_auto_units_for_side(side: String) -> Array[BattleUnitState]:
 
 
 func _get_alive_auto_targets_for_side(side: String) -> Array[BattleUnitState]:
-	match side:
-		"ally":
-			return _get_alive_enemy_units()
-		"enemy":
-			return _get_alive_ally_units()
-		_:
-			return []
+	var empty_targets: Array[BattleUnitState] = []
+	var adapter_targets := _get_alive_target_candidates_for_side_from_adapter(side)
+	if _is_battle_unit_state_adapter_ready() and not adapter_targets.is_empty():
+		return adapter_targets
+	if side == "ally":
+		return _get_fallback_alive_enemy_units()
+	if side == "enemy":
+		return _get_fallback_alive_ally_units()
+	return empty_targets
 
 
 func _get_auto_damage_for_actor(actor_state: BattleUnitState) -> int:
@@ -4155,13 +4278,13 @@ func _score_auto_attack_target(actor_state: BattleUnitState, target_state: Battl
 	return score
 
 
-func _find_best_auto_attack_target(actor_state: BattleUnitState) -> BattleUnitState:
+func _find_best_auto_attack_target_from_candidates(actor_state: BattleUnitState, target_candidates: Array[BattleUnitState]) -> BattleUnitState:
 	if actor_state == null:
 		return null
 
 	var best_target: BattleUnitState = null
 	var best_score := -999999
-	for target_state in _get_alive_auto_targets_for_side(actor_state.side):
+	for target_state in target_candidates:
 		if not is_unit_in_attack_range(actor_state, target_state):
 			continue
 		var score := _score_auto_attack_target(actor_state, target_state)
@@ -4169,6 +4292,10 @@ func _find_best_auto_attack_target(actor_state: BattleUnitState) -> BattleUnitSt
 			best_score = score
 			best_target = target_state
 	return best_target
+
+
+func _find_best_auto_attack_target(actor_state: BattleUnitState) -> BattleUnitState:
+	return _find_best_auto_attack_target_from_candidates(actor_state, _get_alive_auto_targets_for_side(actor_state.side))
 
 
 func _get_auto_move_path_for_actor(actor_state: BattleUnitState, target_cell: Vector2i) -> Array[Vector2i]:

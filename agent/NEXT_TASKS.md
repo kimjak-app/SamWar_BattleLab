@@ -1,22 +1,22 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67d 2v2 on Scalable Slot Framework
-
-## Priority 1
 v0.67e Actor/Target List Adapter Migration
 
+## Priority 1
+v0.67f Deployed/Active Slot Filtering
+
 Gate:
-- Do not start until v0.67d confirms:
-  - adapter-first alive/deployed helpers preserve current `2v2` results
+- Do not start until v0.67e confirms:
+  - actor/target adapter helpers preserve current `2v2` target results
   - enemy AI actor order remains unchanged
   - auto battle flow remains unchanged
-  - occupied-cell blocking remains unchanged
+  - enemy AI target result remains unchanged
 
 Goal:
-- Continue migrating enemy actor / target list reads onto the adapter path.
-- Preserve the exact current `2v2` result while keeping AI order and auto-battle policy unchanged until explicitly migrated.
-- Keep actual unit count at the current `2v2`.
+- Tighten deployed/active slot filtering around adapter-backed actor/target reads.
+- Preserve the exact current `2v2` result while keeping actual unit count fixed at `2v2`.
+- Keep non-deployed / non-active capacity slots excluded without changing battle outcome.
 
 ## Priority 2
 v0.67 Slot Count Expansion Plan
@@ -36,6 +36,20 @@ Goal:
 
 Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
+
+## Completed
+v0.67e Actor/Target List Adapter Migration
+
+Completed items:
+- Added adapter-backed actor-candidate and target-candidate helpers.
+- Switched auto-battle actor/target candidate reads to adapter-first with fallback.
+- Switched enemy AI target-candidate read to adapter-first with fallback while preserving the same selection rule.
+- Added one-time startup actor/target parity snapshot for counts and parity flags.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept current battle execution, auto battle flow, and enemy AI actor order unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
 
 ## Completed
 v0.67d 2v2 on Scalable Slot Framework

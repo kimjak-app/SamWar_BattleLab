@@ -4,7 +4,44 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67d 2v2 on Scalable Slot Framework
+v0.67e Actor/Target List Adapter Migration
+
+## v0.67e Actor/Target List Adapter Migration State
+- Added actor-candidate adapter helpers in `scripts/battle_web_import_test.gd`:
+  - `_get_actor_candidates_for_side_from_adapter()`
+  - `_get_available_actor_candidates_for_side_from_adapter()`
+- Added target-candidate adapter helpers:
+  - `_get_alive_target_candidates_for_side_from_adapter()`
+  - `_get_target_candidates_for_actor_from_adapter()`
+- Added shared fallback / comparison helpers:
+  - `_get_target_candidates_for_actor()`
+  - `_get_fallback_target_candidates_for_actor()`
+  - `_get_enemy_ai_target_state_from_candidates()`
+  - `_find_best_auto_attack_target_from_candidates()`
+- Kept all actor/target adapter helpers gated by adapter-first with existing fixed-state fallback.
+- Switched `_get_available_auto_units_for_side()` to adapter-first actor candidates with fallback.
+- Switched `_get_alive_auto_targets_for_side()` to adapter-first target candidates with fallback.
+- Switched `_get_enemy_ai_target_state_for_actor()` to read target candidates through the adapter-first target helper while preserving the existing target-selection rule.
+- Kept enemy AI actor order functions unchanged:
+  - `_get_next_available_enemy_ai_actor()`
+  - `_play_enemy_ai_for_actor()`
+- Added one-time startup actor/target adapter snapshot for:
+  - actor candidate ally/enemy count
+  - target candidate count for ally/enemy actors
+  - auto target parity OK
+  - enemy AI target parity OK
+  - enemy actor order parity OK
+- Current headless snapshot confirms:
+  - actor candidates ally count = `2`
+  - actor candidates enemy count = `2`
+  - target candidates for ally actor count = `2`
+  - target candidates for enemy actor count = `2`
+  - auto target parity OK = `true`
+  - enemy AI target parity OK = `true`
+  - enemy actor order parity OK = `true`
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept current `2v2` battle result unchanged.
 
 ## v0.67d 2v2 on Scalable Slot Framework State
 - Added adapter-first alive/deployed helper paths in `scripts/battle_web_import_test.gd`.
