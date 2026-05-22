@@ -4,7 +4,62 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67k Battle Hero Identity Source of Truth Scaffold
+v0.67k-1-hotfix Reinforcement Toast Sequence Fix
+
+## v0.67k-1-hotfix Reinforcement Toast Sequence Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Confirmed the original reinforcement toast bug came from reusing the same `RoundToastRoot` / tween path with immediate overwrite by the round-start `BATTLE n` toast.
+- Added runtime battle-toast queue handling:
+  - `_enqueue_battle_toast()`
+  - `_play_next_battle_toast()`
+  - `_finish_battle_toast_playback()`
+- Cleared stale toast playback state during `reset_demo_state()`.
+- Added runtime toast playback state:
+  - `pending_battle_toasts`
+  - `is_battle_toast_playing`
+  - `active_battle_toast_tag`
+- Reinforcement arrival toast is now queued with higher priority than the round-start toast.
+- Expected playback order on reinforce rounds is now:
+  - `지원군 도착!`
+  - `BATTLE 2` or `BATTLE 3`
+- Confirmed headless smoke order:
+  - round `2` = `reinforcement_arrival -> BATTLE 2`
+  - round `3` = `reinforcement_arrival -> BATTLE 3`
+- Reinforcement deploy timing, actor/target filtering, auto-battle scoring, enemy AI target policy, and hero identity registry remain unchanged.
+- Round `3` battle shape remains:
+  - alive deployed count = `10`
+  - actor candidates ally/enemy = `5/5`
+  - target candidates ally/enemy = `5/5`
+
+## v0.67k-1 Reinforcement Arrival Toast MVP State
+- Updated `scripts/battle_web_import_test.gd` and agent docs.
+- Reused the existing `RoundToastRoot` / `RoundToastImage` / `RoundToastLabel` / tween flow for reinforcement arrival.
+- Added `REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH`:
+  - `res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png`
+- Added `REINFORCEMENT_ARRIVAL_TOAST_TEXT`:
+  - `지원군 도착!`
+- Added `_show_reinforcement_arrival_toast()` and generalized the existing toast animation through `_show_battle_toast()`.
+- Kept the round-start toast behavior intact:
+  - `BATTLE n`
+  - existing image / shader / fade flow
+- Added reinforcement arrival toast trigger timing:
+  - round `2` reinforce01 pair deploy 직후 `1회`
+  - round `3` reinforce02 pair deploy 직후 `1회`
+- Confirmed headless smoke logs:
+  - `[REINFORCEMENT_TOAST] round=2 text=지원군 도착!`
+  - `[REINFORCEMENT_TOAST] round=3 text=지원군 도착!`
+- Confirmed round `3` alive count remains `10`.
+- Confirmed round `3` actor candidates ally/enemy remain `5/5`.
+- Confirmed round `3` target candidates ally/enemy remain `5/5`.
+- Kept battle logic unchanged.
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept reinforce deploy conditions unchanged.
+- Kept HP bar / troop label / FacingIndicator behavior unchanged.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
 
 ## v0.67k Battle Hero Identity Source of Truth Scaffold State
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

@@ -34,6 +34,9 @@ const AUTO_BATTLE_MIN_MAX_STEPS := 80
 const AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT := 16
 const AUTO_BATTLE_ABSOLUTE_MAX_STEPS := 200
 const MAX_BATTLE_LOG_LINES := 4
+const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH := "res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png"
+const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE := preload("res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png")
+const REINFORCEMENT_ARRIVAL_TOAST_TEXT := "지원군 도착!"
 const FACING_LEFT := "left"
 const FACING_RIGHT := "right"
 const FACING_UP := "up"
@@ -404,6 +407,10 @@ var has_deployed_reinforce_02 := false
 var round_toast_tween: Tween = null
 var round_toast_root_base_scale := Vector2.ONE
 var round_toast_label_base_scale := Vector2.ONE
+var round_toast_default_texture: Texture2D = null
+var pending_battle_toasts: Array = []
+var is_battle_toast_playing := false
+var active_battle_toast_tag := ""
 var move_dust_tweens: Dictionary = {}
 var ally_ready_frame_tween: Tween = null
 var ally_support_ready_frame_tween: Tween = null
@@ -866,6 +873,13 @@ func reset_demo_state() -> void:
 	selected_attack_target_side = ""
 	_clear_pending_move_snapshot()
 	_stop_idle_breathing()
+	if round_toast_tween != null:
+		round_toast_tween.kill()
+		round_toast_tween = null
+	pending_battle_toasts.clear()
+	is_battle_toast_playing = false
+	active_battle_toast_tag = ""
+	_hide_round_start_toast()
 	has_logged_hero_identity_validation = false
 	battle_log_lines = [
 		"아군 준비",
@@ -2799,6 +2813,7 @@ func _try_deploy_reinforce_01_pair() -> void:
 	_reset_unit_group_positions()
 	_update_ally_ready_frames()
 	_update_facing_indicators()
+	_show_reinforcement_arrival_toast(battle_round)
 	_append_battle_log("지원군 선봉 등장")
 	print("[REINFORCE01] deployed round=%d ally=%s enemy=%s all_alive_deployed=%d" % [
 		battle_round,
@@ -2823,6 +2838,7 @@ func _try_deploy_city_reinforce_02_pair() -> void:
 	_reset_unit_group_positions()
 	_update_ally_ready_frames()
 	_update_facing_indicators()
+	_show_reinforcement_arrival_toast(battle_round)
 	_append_battle_log("도시 지원군 도착")
 	var ally_metadata := _get_capacity_slot_metadata(ally_slot_id)
 	var enemy_metadata := _get_capacity_slot_metadata(enemy_slot_id)
@@ -3425,12 +3441,16 @@ func _debug_print_ally_portrait_offsets() -> void:
 
 
 func _configure_round_toast() -> void:
+	pending_battle_toasts.clear()
+	is_battle_toast_playing = false
+	active_battle_toast_tag = ""
 	if round_toast_root != null:
 		round_toast_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		round_toast_root.visible = false
 		round_toast_root_base_scale = round_toast_root.scale
 	if round_toast_image != null:
 		round_toast_image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		round_toast_default_texture = round_toast_image.texture
 		_set_round_toast_shader_progress(0.0)
 	if round_toast_label != null:
 		round_toast_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -3443,25 +3463,89 @@ func _show_round_start_banner() -> void:
 
 
 func _show_round_start_toast(round_num: int) -> void:
+	_enqueue_battle_toast(round_toast_default_texture, "BATTLE %d" % round_num, 1.15, 0, "round_start")
+
+
+func _show_reinforcement_arrival_toast(arrival_round: int) -> void:
+	_enqueue_battle_toast(REINFORCEMENT_ARRIVAL_TOAST_TEXTURE, REINFORCEMENT_ARRIVAL_TOAST_TEXT, 0.82, 100, "reinforcement_arrival")
+	print("[REINFORCEMENT_TOAST] queued round=%d text=%s texture=%s" % [
+		arrival_round,
+		REINFORCEMENT_ARRIVAL_TOAST_TEXT,
+		_get_toast_texture_debug_name(REINFORCEMENT_ARRIVAL_TOAST_TEXTURE)
+	])
+
+
+func _enqueue_battle_toast(
+	toast_texture: Texture2D,
+	toast_text: String,
+	hold_duration: float,
+	priority: int = 0,
+	toast_tag: String = "generic"
+) -> void:
+	var toast_entry := {
+		"texture": toast_texture,
+		"text": toast_text,
+		"hold_duration": hold_duration,
+		"priority": priority,
+		"tag": toast_tag,
+	}
+	var insert_index := pending_battle_toasts.size()
+	for queue_index in range(pending_battle_toasts.size()):
+		var queued_entry = pending_battle_toasts[queue_index]
+		var queued_priority := int(queued_entry.get("priority", 0))
+		if priority > queued_priority:
+			insert_index = queue_index
+			break
+	pending_battle_toasts.insert(insert_index, toast_entry)
+	call_deferred("_play_next_battle_toast")
+
+
+func _play_next_battle_toast() -> void:
+	if is_battle_toast_playing:
+		return
+	if round_toast_root == null:
+		pending_battle_toasts.clear()
+		return
+	if pending_battle_toasts.is_empty():
+		return
+
+	var toast_entry = pending_battle_toasts.pop_front()
+	var toast_texture = toast_entry.get("texture", null) as Texture2D
+	var toast_text := str(toast_entry.get("text", ""))
+	var hold_duration := float(toast_entry.get("hold_duration", 1.0))
+	active_battle_toast_tag = str(toast_entry.get("tag", "generic"))
+	print("[BATTLE_TOAST_PLAY] tag=%s text=%s texture=%s queue_remaining=%d" % [
+		active_battle_toast_tag,
+		toast_text,
+		_get_toast_texture_debug_name(toast_texture if toast_texture != null else round_toast_default_texture),
+		pending_battle_toasts.size()
+	])
+	_show_battle_toast(toast_texture, toast_text, hold_duration)
+
+
+func _show_battle_toast(toast_texture: Texture2D, toast_text: String, hold_duration: float) -> void:
 	if round_toast_root == null:
 		return
 	if round_toast_tween != null:
 		round_toast_tween.kill()
+		round_toast_tween = null
 
 	if round_toast_label != null:
-		round_toast_label.text = "BATTLE %d" % round_num
+		round_toast_label.text = toast_text
 		round_toast_label.visible = true
 		round_toast_label.modulate.a = 0.0
 		round_toast_label.scale = round_toast_label_base_scale * 0.9
 	if round_toast_image != null:
 		round_toast_image.visible = true
 		round_toast_image.modulate = Color.WHITE
+		round_toast_image.texture = toast_texture if toast_texture != null else round_toast_default_texture
 	_set_round_toast_shader_progress(0.0)
 
 	round_toast_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	round_toast_root.visible = true
 	round_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	round_toast_root.scale = round_toast_root_base_scale * 0.86
+	is_battle_toast_playing = true
 
 	round_toast_tween = create_tween()
 	round_toast_tween.set_parallel(true)
@@ -3473,11 +3557,11 @@ func _show_round_start_toast(round_num: int) -> void:
 		round_toast_tween.tween_property(round_toast_label, "scale", round_toast_label_base_scale, 0.28).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(0.05)
 	round_toast_tween.set_parallel(false)
 	round_toast_tween.chain().tween_property(round_toast_root, "scale", round_toast_root_base_scale, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	round_toast_tween.tween_interval(1.15)
+	round_toast_tween.tween_interval(hold_duration)
 	round_toast_tween.set_parallel(true)
 	round_toast_tween.tween_property(round_toast_root, "modulate:a", 0.0, 0.32).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	round_toast_tween.tween_property(round_toast_root, "scale", round_toast_root_base_scale * 1.12, 0.32).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	round_toast_tween.chain().tween_callback(_hide_round_start_toast)
+	round_toast_tween.chain().tween_callback(_finish_battle_toast_playback)
 
 
 func _set_round_toast_shader_progress(progress: float) -> void:
@@ -3497,7 +3581,26 @@ func _hide_round_start_toast() -> void:
 	if round_toast_label != null:
 		round_toast_label.modulate = Color.WHITE
 		round_toast_label.scale = round_toast_label_base_scale
+	if round_toast_image != null and round_toast_default_texture != null:
+		round_toast_image.texture = round_toast_default_texture
 	_set_round_toast_shader_progress(0.0)
+
+
+func _finish_battle_toast_playback() -> void:
+	_hide_round_start_toast()
+	round_toast_tween = null
+	is_battle_toast_playing = false
+	active_battle_toast_tag = ""
+	call_deferred("_play_next_battle_toast")
+
+
+func _get_toast_texture_debug_name(texture: Texture2D) -> String:
+	if texture == null:
+		return "null"
+	var resource_path := texture.resource_path
+	if resource_path != "":
+		return resource_path.get_file()
+	return str(texture)
 
 
 func _show_move_dust_for_unit(unit_state: BattleUnitState) -> void:

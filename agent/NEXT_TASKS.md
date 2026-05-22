@@ -1,10 +1,10 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67k Battle Hero Identity Source of Truth Scaffold
+v0.67k-1-hotfix Reinforcement Toast Sequence Fix
 
 ## Priority 1
-Reinforcement Arrival Toast MVP
+5v5 Battle Sustain QA
 
 Gate:
 - v0.67k confirmed:
@@ -14,17 +14,18 @@ Gate:
   - actor / target counts move `3/3 -> 4/4 -> 5/5`
   - battle-slot hero identity now resolves from `hero_id` registry rather than scene portrait texture
   - `10` current battle slots validate hero name / battlefield portrait / closeup lookup scaffold at startup
-
-Goal:
-- Add a lightweight reinforce arrival toast/UI cue for round `2` and round `3` MVP support arrivals.
-- Keep identity registry as the runtime source of truth for reinforce hero names and portraits.
-
-## Priority 2
-5v5 Battle Sustain QA
+  - round `2` / round `3` reinforcement arrival toast is now sequenced ahead of the round-start `BATTLE n` toast on the shared toast root
 
 Goal:
 - Continue manual/editor sustain QA on the fixed MVP `5v5` battle shape.
-- Verify long-fight auto battle still reaches battle end without unnecessary safety-cap interruption after the identity scaffold.
+- Verify auto battle remains visually stable with round-start toast and reinforcement-arrival toast overlap cases.
+
+## Priority 2
+Reinforcement Toast QA
+
+Goal:
+- Verify reinforcement arrival toast readability, duration, and overlap timing in editor.
+- Confirm toast does not visually overstay or obscure control feedback.
 
 ## Priority 3
 Auto Battle QA
@@ -37,6 +38,49 @@ Goal:
 
 Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
+
+## Completed
+v0.67k-1-hotfix Reinforcement Toast Sequence Fix
+
+Completed items:
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Diagnosed the reinforcement-toast invisibility issue as same-root / same-tween overwrite by the round-start toast.
+- Added queued toast playback on top of the shared `RoundToastRoot`.
+- Added:
+  - `_enqueue_battle_toast()`
+  - `_play_next_battle_toast()`
+  - `_finish_battle_toast_playback()`
+- Added runtime toast queue/playback state:
+  - `pending_battle_toasts`
+  - `is_battle_toast_playing`
+  - `active_battle_toast_tag`
+- Cleared stale toast queue/tween state during `reset_demo_state()`.
+- Reinforcement arrival toast now queues ahead of the round-start `BATTLE n` toast on rounds `2` and `3`.
+- Headless smoke confirms:
+  - round `2` = `reinforcement_arrival -> BATTLE 2`
+  - round `3` = `reinforcement_arrival -> BATTLE 3`
+- Kept reinforce deploy conditions, actor/target flow, auto battle, and enemy AI unchanged.
+
+## Completed
+v0.67k-1 Reinforcement Arrival Toast MVP
+
+Completed items:
+- Reused the existing `RoundToastRoot` structure for reinforcement arrival toast.
+- Added runtime reinforcement toast image path:
+  - `res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png`
+- Added runtime reinforcement toast text:
+  - `지원군 도착!`
+- Added round `2` reinforce01-pair deploy toast trigger.
+- Added round `3` reinforce02-pair deploy toast trigger.
+- Confirmed headless smoke logs for:
+  - round `2`
+  - round `3`
+- Confirmed `5v5` actor/target counts remain stable after the toast addition.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
 
 ## Completed
 v0.67k Battle Hero Identity Source of Truth Scaffold

@@ -1,5 +1,45 @@
 # CHANGELOG
 
+## v0.67k-1-hotfix Reinforcement Toast Sequence Fix
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Fixed the reinforcement-toast sequencing bug caused by immediate overwrite on the shared `RoundToastRoot` / tween path.
+- Added queued battle-toast playback through:
+  - `_enqueue_battle_toast()`
+  - `_play_next_battle_toast()`
+  - `_finish_battle_toast_playback()`
+- Added runtime toast playback state:
+  - `pending_battle_toasts`
+  - `is_battle_toast_playing`
+  - `active_battle_toast_tag`
+- Cleared stale toast queue/tween state during `reset_demo_state()`.
+- Reinforcement arrival toast now plays before the same-round `BATTLE n` toast instead of being overwritten by it.
+- Headless smoke confirms:
+  - round `2` = `reinforcement_arrival -> BATTLE 2`
+  - round `3` = `reinforcement_arrival -> BATTLE 3`
+- Kept reinforcement deploy conditions, actor/target logic, auto-battle scoring, enemy AI target policy, and hero identity registry unchanged.
+
+## v0.67k-1 Reinforcement Arrival Toast MVP
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs.
+- Reused the existing `RoundToastRoot` / `RoundToastImage` / `RoundToastLabel` / tween flow for reinforcement arrival.
+- Added:
+  - `REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH`
+  - `REINFORCEMENT_ARRIVAL_TOAST_TEXT`
+  - `_show_reinforcement_arrival_toast()`
+  - `_show_battle_toast()`
+- Reinforcement arrival toast now triggers:
+  - once after round `2` reinforce01 pair deploy
+  - once after round `3` reinforce02 pair deploy
+- Kept round-start `BATTLE n` toast on the same base animation path.
+- Kept battle logic, auto-battle scoring, enemy AI target policy, reinforce deploy conditions, HP/troop UI, and facing-indicator behavior unchanged.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+
 ## v0.67k Battle Hero Identity Source of Truth Scaffold
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

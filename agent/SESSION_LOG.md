@@ -3,6 +3,93 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67k-1 Reinforcement Arrival Toast MVP
+
+Goal:
+- v0.67k-1-hotfix Reinforcement Toast Sequence Fix
+
+Completed:
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Traced the missing reinforcement toast to same-root / same-tween overwrite by the round-start `BATTLE n` toast.
+- Added queued toast playback on the shared `RoundToastRoot`.
+- Added:
+  - `_enqueue_battle_toast()`
+  - `_play_next_battle_toast()`
+  - `_finish_battle_toast_playback()`
+- Added runtime queue/playback state:
+  - `pending_battle_toasts`
+  - `is_battle_toast_playing`
+  - `active_battle_toast_tag`
+- Changed round-start toast to enqueue instead of immediately overwriting the current toast.
+- Changed reinforcement arrival toast to enqueue with higher priority so it plays first on rounds `2` and `3`.
+- Cleared stale toast queue/tween state during `reset_demo_state()`.
+- Kept reinforce deploy conditions, actor/target logic, auto battle, enemy AI, and hero identity registry unchanged.
+- Updated:
+  - `agent/CURRENT_STATE.md`
+  - `agent/NEXT_TASKS.md`
+  - `agent/CHANGELOG.md`
+  - `agent/SESSION_LOG.md`
+
+QA:
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Headless smoke confirmed:
+  - round `2` = `reinforcement_arrival -> BATTLE 2`
+  - round `3` = `reinforcement_arrival -> BATTLE 3`
+- Headless smoke confirmed final `5v5` state remains:
+  - alive = `10`
+  - actor = `5/5`
+  - target = `5/5`
+- Manual `F6` QA remains required for visible ordering confirmation in editor.
+
+Remaining tasks:
+- 5v5 Battle Sustain QA
+- Reinforcement Toast QA
+
+Starting baseline:
+- v0.67k Battle Hero Identity Source of Truth Scaffold
+
+Goal:
+- v0.67k-1 Reinforcement Arrival Toast MVP
+
+Completed:
+- Reused the existing `RoundToastRoot` toast structure for reinforcement arrival.
+- Added reinforcement arrival toast image path:
+  - `res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png`
+- Added reinforcement arrival toast text:
+  - `지원군 도착!`
+- Generalized the existing toast animation path through `_show_battle_toast()`.
+- Added `_show_reinforcement_arrival_toast()` and hooked it into:
+  - round `2` reinforce01 pair deploy
+  - round `3` reinforce02 pair deploy
+- Kept the existing round-start `BATTLE n` toast on the same base tween/shader flow.
+- Confirmed headless smoke logs:
+  - `[REINFORCEMENT_TOAST] round=2 text=지원군 도착!`
+  - `[REINFORCEMENT_TOAST] round=3 text=지원군 도착!`
+- Confirmed actor/target counts remain stable after toast addition:
+  - round `3` alive = `10`
+  - actor ally/enemy = `5/5`
+  - target ally/enemy = `5/5`
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Updated:
+  - `agent/CURRENT_STATE.md`
+  - `agent/NEXT_TASKS.md`
+  - `agent/CHANGELOG.md`
+  - `agent/SESSION_LOG.md`
+
+QA:
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Headless smoke confirmed reinforcement arrival toast trigger on round `2` and round `3`.
+- Editor-side visual timing/readability QA remains the next manual check.
+
+Remaining tasks:
+- 5v5 Battle Sustain QA
+- Reinforcement Toast QA
+
+Starting baseline:
 - v0.67k Auto Battle Step Limit 5v5 Sustain Fix
 
 Goal:
