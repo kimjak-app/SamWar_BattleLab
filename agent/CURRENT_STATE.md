@@ -4,7 +4,61 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67f Deployed/Active Slot Filtering
+v0.67c-hotfix7 Enemy Portrait Facing Offset Restore
+
+## v0.67c-hotfix7 Enemy Portrait Facing Offset Restore State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Restored enemy portrait offset handling for vertical facing by adding `_get_enemy_portrait_offset_for_facing()`.
+- Enemy main and enemy support portrait placement now uses the scene-authored fallback portrait offset for `FACING_UP` / `FACING_DOWN`, matching the stable top-flag placement instead of the vertical template/fallback path that drifted toward the unit center.
+- Left/right enemy portrait placement remains on the existing template-aware path.
+- Kept ally portrait offset handling unchanged.
+- Kept HP bar position, HP alpha `0.8`, troop label position, troop alpha, unit visual layer profile, battle dust, facing indicator timing, auto battle, and enemy AI unchanged.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+
+## v0.67f-hotfix Enemy Facing Indicator Hide During Move State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Added `_hide_facing_indicator_for_unit()` for unit-scoped indicator visibility control.
+- Enemy actor movement now hides that actor's `FacingIndicator` immediately before the movement tween starts.
+- Enemy movement completion still returns through the existing `_update_facing_indicators()` path, so the indicator is repositioned and shown again at the final location.
+- Kept ally move / facing-selection UX unchanged.
+- Kept auto-battle target policy unchanged.
+- Kept enemy AI actor/target selection logic unchanged.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+
+## v0.67g MVP 3 Main + 2 Reinforce Layout Plan State
+- Added `agent/MVP_3_MAIN_2_REINFORCE_LAYOUT_PLAN.md`.
+- This step is documentation only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- Documented MVP target structure:
+  - ally `3` main + `2` reinforce
+  - enemy `3` main + `2` reinforce
+- Documented current stable `2v2` mapping as the MVP baseline:
+  - `ally_main` -> `ally_main_01`
+  - `ally_support` -> `ally_main_02`
+  - `enemy_main` -> `enemy_main_01`
+  - `enemy_support` -> `enemy_main_02`
+- Documented planned MVP additions:
+  - `ally_main_03`
+  - `ally_reinforce_01`
+  - `ally_reinforce_02`
+  - `enemy_main_03`
+  - `enemy_reinforce_01`
+  - `enemy_reinforce_02`
+- Documented:
+  - main-slot placement concept
+  - reinforce entry-lane concept
+  - editor-first layout policy
+  - scene tree expansion candidates
+  - legacy naming migration caution
+  - future `UnitVisualSlot` / `BattleUnitState` expansion direction
+  - auto-battle, ClickArea, READY, Facing considerations
+  - guide-layer relation
+  - risk list
+  - staged roadmap through `v0.67l`
 
 ## v0.67f Deployed/Active Slot Filtering State
 - Hardened active/deployed slot gating in `scripts/battle_web_import_test.gd`.

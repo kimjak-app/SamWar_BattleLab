@@ -1,5 +1,49 @@
 # CHANGELOG
 
+## v0.67c-hotfix7 Enemy Portrait Facing Offset Restore
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Added `_get_enemy_portrait_offset_for_facing()`.
+- Restored enemy main/support portrait placement for `FACING_UP` / `FACING_DOWN` to use the stable scene-authored fallback offset instead of the vertical template/fallback path that could place the portrait over the unit center or flag.
+- Kept left/right enemy portrait placement on the existing template-aware path.
+- Kept ally portrait placement unchanged.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept HP bar, troop label, layer profile, facing-indicator timing, auto battle, and enemy AI unchanged.
+
+## v0.67f-hotfix Enemy Facing Indicator Hide During Move
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Added `_hide_facing_indicator_for_unit()`.
+- Hid the current enemy actor's `FacingIndicator` immediately before enemy movement tween start.
+- Kept enemy move completion on the existing `_update_facing_indicators()` path so the indicator is repositioned and shown again at the final location.
+- Kept ally move / facing-selection UX unchanged.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept auto-battle policy unchanged.
+- Kept enemy AI actor/target selection unchanged.
+
+## v0.67g MVP 3 Main + 2 Reinforce Layout Plan
+
+- Added `agent/MVP_3_MAIN_2_REINFORCE_LAYOUT_PLAN.md`.
+- This step is documentation only.
+- Documented:
+  - MVP slot goal of `3` main + `2` reinforce per side
+  - current stable `2v2` to MVP mapping
+  - main-slot placement concept
+  - reinforce placement and entry concept
+  - editor-first coordinate policy
+  - scene tree expansion options
+  - naming migration caution
+  - future `UnitVisualSlot` / `BattleUnitState` expansion direction
+  - auto battle / ClickArea / READY / Facing considerations
+  - guide-layer relation
+  - key risks
+  - staged roadmap from `v0.67h` through `v0.67l`
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/battle_web_import_test.gd` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+
 ## v0.67f Deployed/Active Slot Filtering
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

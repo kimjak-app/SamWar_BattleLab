@@ -1697,6 +1697,7 @@ func _play_enemy_actor_path_move_then_act(enemy_actor_state: BattleUnitState, mo
 	var target_cell := move_path[move_path.size() - 1]
 	var target_position := battle_grid_controller.grid_to_world(target_cell)
 	var target_portrait_position := target_position + portrait_offset
+	_hide_facing_indicator_for_unit(enemy_actor_state)
 	_show_move_dust_for_unit(enemy_actor_state)
 
 	var tween := create_tween()
@@ -3328,6 +3329,13 @@ func _get_ally_portrait_offset_for_facing(layout_offsets_by_facing: Dictionary, 
 	return _get_portrait_template_offset(layout_offsets_by_facing, fallback_offset, normalized_facing)
 
 
+func _get_enemy_portrait_offset_for_facing(layout_offsets_by_facing: Dictionary, fallback_offset: Vector2, facing: String) -> Vector2:
+	var normalized_facing := _normalize_facing(facing)
+	if normalized_facing == FACING_UP or normalized_facing == FACING_DOWN:
+		return fallback_offset
+	return _get_portrait_template_offset(layout_offsets_by_facing, fallback_offset, normalized_facing)
+
+
 func _normalize_unit_type(unit_type: String) -> String:
 	match unit_type:
 		UNIT_TYPE_ARCHER, UNIT_TYPE_GUNNER, UNIT_TYPE_CAVALRY:
@@ -3699,7 +3707,7 @@ func _get_ally_group_base_positions(ally_anchor: Vector2) -> Array[Vector2]:
 
 
 func _get_enemy_group_base_positions(enemy_anchor: Vector2) -> Array[Vector2]:
-	var portrait_offset := _get_portrait_template_offset(
+	var portrait_offset := _get_enemy_portrait_offset_for_facing(
 		enemy_portrait_layout_offsets_by_facing,
 		enemy_portrait_layout_offset,
 		_get_unit_facing(enemy_unit_state)
@@ -3731,7 +3739,7 @@ func _get_ally_support_group_base_positions(ally_support_anchor: Vector2) -> Arr
 
 
 func _get_enemy_support_group_base_positions(enemy_support_anchor: Vector2) -> Array[Vector2]:
-	var portrait_offset := _get_portrait_template_offset(
+	var portrait_offset := _get_enemy_portrait_offset_for_facing(
 		enemy_support_portrait_layout_offsets_by_facing,
 		enemy_support_portrait_layout_offset,
 		_get_unit_facing(enemy_support_unit_state)
@@ -4850,6 +4858,13 @@ func _refresh_facing_indicator_for_unit(unit_state: BattleUnitState) -> void:
 	facing_indicator.text = _get_facing_arrow_text(unit_state.facing)
 	facing_indicator.visible = facing_indicators_should_be_visible and unit_state.is_alive()
 	_position_facing_indicator_for_unit(unit_state)
+
+
+func _hide_facing_indicator_for_unit(unit_state: BattleUnitState) -> void:
+	var facing_indicator := _get_facing_indicator_for_unit(unit_state)
+	if unit_state == null or facing_indicator == null:
+		return
+	facing_indicator.visible = false
 
 
 func _position_facing_indicator_for_unit(unit_state: BattleUnitState) -> void:

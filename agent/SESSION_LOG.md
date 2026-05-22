@@ -3,6 +3,75 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67c-hotfix6 Unit Visual Layer Above HP Bar Stable
+
+Goal:
+- v0.67c-hotfix7 Enemy Portrait Facing Offset Restore
+
+Completed:
+- Traced portrait layout handling in `_get_portrait_template_offset()`, `_get_ally_portrait_offset_for_facing()`, `_get_enemy_group_base_positions()`, and `_get_enemy_support_group_base_positions()`.
+- Confirmed the enemy path still used the generic template-aware portrait offset selection while ally vertical portrait placement already pinned `FACING_UP` / `FACING_DOWN` to the scene-authored fallback offset.
+- Added `_get_enemy_portrait_offset_for_facing()` and routed enemy main/support portrait placement through it.
+- Restored enemy vertical portrait placement to the stable scene-authored fallback offset so portraits stay near the top flag area instead of drifting toward the body center.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Did not change ally portrait handling, HP/troop placement, layer profile, facing-indicator timing, auto battle, or enemy AI logic.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+- F6/manual visual placement QA not available in this environment.
+
+## 2026-05-22
+
+Starting baseline:
+- v0.67f Deployed/Active Slot Filtering Stable
+
+Goal:
+- v0.67f-hotfix Enemy Facing Indicator Hide During Move
+
+Completed:
+- Traced enemy move flow to `_play_enemy_actor_path_move_then_act()` and `_finish_enemy_actor_basic_move()`.
+- Added `_hide_facing_indicator_for_unit()` in `scripts/battle_web_import_test.gd`.
+- Hid the moving enemy actor's `FacingIndicator` immediately before the enemy movement tween starts.
+- Kept move-finish indicator restore on the existing `_update_facing_indicators()` path so the indicator returns at the final location after movement completes.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Did not change ally facing-selection UX, auto-battle policy, or enemy AI actor/target selection logic.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+- F6/manual visual timing QA not available in this environment.
+
+## 2026-05-22
+
+Starting baseline:
+- v0.67f Deployed/Active Slot Filtering Stable
+
+Goal:
+- v0.67g MVP 3 Main + 2 Reinforce Layout Plan
+
+Completed:
+- Read the current rules, state, handoff, slot-capacity, slot-tree, auto-battle, changelog, and session documents.
+- Added `agent/MVP_3_MAIN_2_REINFORCE_LAYOUT_PLAN.md`.
+- Documented the MVP `3` main + `2` reinforce structure, current `2v2` bridge mapping, layout concepts, naming options, risk list, and staged roadmap.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/battle_web_import_test.gd`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+
+QA:
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+- Verified no diff in `scripts/battle_web_import_test.gd`.
+- Verified no diff in `scripts/unit_visual_slot.gd`.
+- Verified `agent/MVP_3_MAIN_2_REINFORCE_LAYOUT_PLAN.md` creation.
+- Headless runtime QA not required because this step is documentation only.
+
+## 2026-05-22
+
+Starting baseline:
 - v0.67e Actor/Target List Adapter Migration Stable
 
 Goal:

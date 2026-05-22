@@ -1,32 +1,37 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67f Deployed/Active Slot Filtering
+v0.67c-hotfix7 Enemy Portrait Facing Offset Restore
 
 ## Priority 1
 v0.67g MVP 3 Main + 2 Reinforce Layout Plan
 
-Gate:
-- Do not start until v0.67f confirms:
-  - deployed/active filtering preserves current `2v2` battle results
-  - occupied-cell blocking remains unchanged for current `2v2`
-  - enemy AI actor order remains unchanged
-  - auto battle flow remains unchanged
-  - enemy AI target result remains unchanged
-
 Goal:
-- Plan the MVP layout for `3` main + `2` reinforce per side without enabling those units in battle yet.
-- Preserve the exact current `2v2` result and keep actual runtime unit count unchanged.
-- Keep reinforcement deployment as a future staged behavior, not a runtime change in this step.
+- Keep runtime code stable while documenting the MVP `3` main + `2` reinforce slot layout.
+- Preserve the current stable `2v2` mapping as the bridge into the future scene scaffold.
 
 ## Priority 2
+v0.67h MVP 5-Slot Scene Scaffold
+
+Gate:
+- Do not start until v0.67g confirms:
+  - MVP `3 + 2` layout plan is documented
+  - code and scene files remain unchanged
+  - current stable `2v2` mapping remains the scaffold baseline
+
+Goal:
+- Add the first safe scene scaffold for MVP `5` slots per side.
+- Keep the current stable `2v2` slots intact while adding only the new slot-node structure.
+- Do not enable new runtime battle participants until the follow-up prototype step.
+
+## Priority 3
 v0.67 Slot Count Expansion Plan
 
 Goal:
 - Continue the registry-first migration toward scalable slot capacity.
 - Use the current scaffold as the base for array-backed state access and future slot activation.
 
-## Priority 3
+## Priority 4
 Auto Battle QA
 
 Goal:
@@ -37,6 +42,45 @@ Goal:
 
 Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
+
+## Completed
+v0.67g MVP 3 Main + 2 Reinforce Layout Plan
+
+Completed items:
+- Added `agent/MVP_3_MAIN_2_REINFORCE_LAYOUT_PLAN.md`.
+- Documented MVP `3` main + `2` reinforce slot structure and current `2v2` mapping bridge.
+- Documented main-slot placement, reinforce entry-lane concepts, naming options, expansion risks, and roadmap.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/battle_web_import_test.gd` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+
+## Completed
+v0.67c-hotfix7 Enemy Portrait Facing Offset Restore
+
+Completed items:
+- Added `_get_enemy_portrait_offset_for_facing()` in `scripts/battle_web_import_test.gd`.
+- Switched enemy main/support group base portrait placement to use the enemy vertical-offset helper.
+- Restored enemy `FACING_UP` / `FACING_DOWN` portrait placement to the stable scene-authored fallback offset so portraits stay near the flag instead of dropping toward the body center.
+- Kept ally portrait offset handling unchanged.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept HP bar, troop label, layer profile, auto battle, enemy AI, and facing-indicator timing unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
+## Completed
+v0.67f-hotfix Enemy Facing Indicator Hide During Move
+
+Completed items:
+- Added `_hide_facing_indicator_for_unit()` in `scripts/battle_web_import_test.gd`.
+- Hid the moving enemy actor's `FacingIndicator` at enemy move start so the old-position arrow does not linger during tween movement.
+- Kept move-finish indicator restore on the existing `_update_facing_indicators()` path so the arrow reappears at the final position.
+- Kept ally move / facing-selection UX unchanged.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept auto-battle policy and enemy AI actor/target selection unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
 
 ## Completed
 v0.67f Deployed/Active Slot Filtering
