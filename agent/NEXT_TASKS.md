@@ -1,28 +1,27 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67c-hotfix7 Enemy Portrait Facing Offset Restore
-
-## Priority 1
-v0.67g MVP 3 Main + 2 Reinforce Layout Plan
-
-Goal:
-- Keep runtime code stable while documenting the MVP `3` main + `2` reinforce slot layout.
-- Preserve the current stable `2v2` mapping as the bridge into the future scene scaffold.
-
-## Priority 2
 v0.67h MVP 5-Slot Scene Scaffold
 
-Gate:
-- Do not start until v0.67g confirms:
-  - MVP `3 + 2` layout plan is documented
-  - code and scene files remain unchanged
-  - current stable `2v2` mapping remains the scaffold baseline
+## Priority 1
+v0.67i MVP 5-Slot Battle Prototype
 
 Goal:
-- Add the first safe scene scaffold for MVP `5` slots per side.
-- Keep the current stable `2v2` slots intact while adding only the new slot-node structure.
-- Do not enable new runtime battle participants until the follow-up prototype step.
+- Begin the first runtime MVP `5`-slot prototype on top of the new scene scaffold.
+- Keep the newly added empty slot containers editor-authored while still preventing undeployed reinforce slots from entering battle flow until explicitly wired.
+
+## Priority 2
+v0.67j Reinforcement Entry Prototype
+
+Gate:
+- Do not start until v0.67i confirms:
+  - the MVP `5`-slot battle prototype still preserves current `2v2` execution parity
+  - non-deployed reinforce slots stay out of actor/target/occupied paths
+  - new slot visuals and click paths are only connected intentionally
+
+Goal:
+- Prototype delayed reinforce entry on top of the MVP `5`-slot runtime scaffold.
+- Keep reinforce actor/target exclusion until deployment timing is explicitly applied.
 
 ## Priority 3
 v0.67 Slot Count Expansion Plan
@@ -53,6 +52,28 @@ Completed items:
 - Kept `Battle_Fullscreen_Test.tscn` unchanged.
 - Kept `scripts/battle_web_import_test.gd` unchanged.
 - Kept `scripts/unit_visual_slot.gd` unchanged.
+
+## Completed
+v0.67h MVP 5-Slot Scene Scaffold
+
+Completed items:
+- Added 6 empty `Node2D` scene slot containers under `Slots`:
+  - `AllyMain03Slot`
+  - `AllyReinforce01Slot`
+  - `AllyReinforce02Slot`
+  - `EnemyMain03Slot`
+  - `EnemyReinforce01Slot`
+  - `EnemyReinforce02Slot`
+- Kept the existing 4-slot visual-root structure unchanged.
+- Added `@onready` references for the new empty slot containers in `scripts/battle_web_import_test.gd`.
+- Added `CAPACITY_SLOT_ID_TO_SCENE_SLOT_PATH` as metadata scaffold only.
+- Added one-time startup slot-container existence snapshot.
+- Did not add new `BattleUnitState`.
+- Did not add new `UnitVisualRoot`, `ClickArea`, `ReadyFrame`, or `FacingIndicator`.
+- Did not register the new empty slot containers into the `UnitVisualSlot` runtime cache.
+- Kept current battle execution, actor/target results, auto battle flow, and enemy AI flow unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
 
 ## Completed
 v0.67c-hotfix7 Enemy Portrait Facing Offset Restore

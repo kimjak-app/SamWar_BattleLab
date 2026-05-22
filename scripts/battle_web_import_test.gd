@@ -120,6 +120,18 @@ const CAPACITY_SLOT_TO_LEGACY_SLOT_ID := {
 	"enemy_main_01": "enemy_main",
 	"enemy_main_02": "enemy_support",
 }
+const CAPACITY_SLOT_ID_TO_SCENE_SLOT_PATH := {
+	"ally_main_01": "Slots/AllyMainSlot",
+	"ally_main_02": "Slots/AllySupportSlot",
+	"ally_main_03": "Slots/AllyMain03Slot",
+	"ally_reinforce_01": "Slots/AllyReinforce01Slot",
+	"ally_reinforce_02": "Slots/AllyReinforce02Slot",
+	"enemy_main_01": "Slots/EnemyMainSlot",
+	"enemy_main_02": "Slots/EnemySupportSlot",
+	"enemy_main_03": "Slots/EnemyMain03Slot",
+	"enemy_reinforce_01": "Slots/EnemyReinforce01Slot",
+	"enemy_reinforce_02": "Slots/EnemyReinforce02Slot",
+}
 const UNIT_VISUAL_TEMPLATE_NODE_PATHS := {
 	"ally_main": {
 		UNIT_TYPE_INFANTRY: "AllySide/AllyInfantryUnitVisualTemplate",
@@ -263,6 +275,7 @@ var active_unit_state: BattleUnitState
 var has_printed_adapter_alive_parity_snapshot := false
 var has_printed_actor_target_adapter_snapshot := false
 var has_printed_deployed_active_filter_snapshot := false
+var has_printed_mvp_scene_slot_scaffold_snapshot := false
 var active_unit_side := "ally"
 var has_selected_move_target := false
 var selected_move_cell := Vector2i(-1, -1)
@@ -384,6 +397,12 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var cell_guide_label: Label = get_node_or_null("CellGuideLayer/CellGuide_Label") as Label
 @onready var move_highlight: ColorRect = $HighlightLayer/MoveHighlight
 @onready var attack_highlight: ColorRect = $HighlightLayer/AttackHighlight
+@onready var ally_main_03_slot: Node2D = get_node_or_null("Slots/AllyMain03Slot") as Node2D
+@onready var ally_reinforce_01_slot: Node2D = get_node_or_null("Slots/AllyReinforce01Slot") as Node2D
+@onready var ally_reinforce_02_slot: Node2D = get_node_or_null("Slots/AllyReinforce02Slot") as Node2D
+@onready var enemy_main_03_slot: Node2D = get_node_or_null("Slots/EnemyMain03Slot") as Node2D
+@onready var enemy_reinforce_01_slot: Node2D = get_node_or_null("Slots/EnemyReinforce01Slot") as Node2D
+@onready var enemy_reinforce_02_slot: Node2D = get_node_or_null("Slots/EnemyReinforce02Slot") as Node2D
 @onready var ally_unit_visual_root: Node2D = get_node_or_null("Slots/AllyMainSlot/AllyUnitVisualRoot") as Node2D
 @onready var ally_support_unit_visual_root: Node2D = get_node_or_null("Slots/AllySupportSlot/AllySupportUnitVisualRoot") as Node2D
 @onready var enemy_unit_visual_root: Node2D = get_node_or_null("Slots/EnemyMainSlot/EnemyUnitVisualRoot") as Node2D
@@ -506,6 +525,7 @@ func _ready() -> void:
 	_configure_unit_closeup_panel()
 	reset_demo_state()
 	_debug_print_unit_visual_root_slots()
+	_debug_print_mvp_scene_slot_scaffold_snapshot_once()
 	_debug_print_capacity_slot_registry()
 	_debug_print_unit_state_visual_binding_summary()
 	_debug_print_adapter_alive_parity_snapshot_once()
@@ -2335,6 +2355,39 @@ func _debug_print_capacity_slot_registry() -> void:
 			str(_is_capacity_slot_active(capacity_slot_id)),
 			str(_is_capacity_slot_deployed(capacity_slot_id)),
 		])
+
+
+func _debug_print_mvp_scene_slot_scaffold_snapshot_once() -> void:
+	if has_printed_mvp_scene_slot_scaffold_snapshot:
+		return
+	has_printed_mvp_scene_slot_scaffold_snapshot = true
+
+	var scene_slot_refs := {
+		"ally_main_03": ally_main_03_slot,
+		"ally_reinforce_01": ally_reinforce_01_slot,
+		"ally_reinforce_02": ally_reinforce_02_slot,
+		"enemy_main_03": enemy_main_03_slot,
+		"enemy_reinforce_01": enemy_reinforce_01_slot,
+		"enemy_reinforce_02": enemy_reinforce_02_slot,
+	}
+	var found_count := 0
+	for scene_slot_ref in scene_slot_refs.values():
+		if scene_slot_ref != null:
+			found_count += 1
+
+	print("MVP SCENE SLOT SCAFFOLD:")
+	print("slot_container_found_count=%s capacity_scene_slot_path_count=%s" % [
+		str(found_count),
+		str(CAPACITY_SLOT_ID_TO_SCENE_SLOT_PATH.size()),
+	])
+	print("ally_main_03=%s ally_reinforce_01=%s ally_reinforce_02=%s enemy_main_03=%s enemy_reinforce_01=%s enemy_reinforce_02=%s" % [
+		str(ally_main_03_slot != null),
+		str(ally_reinforce_01_slot != null),
+		str(ally_reinforce_02_slot != null),
+		str(enemy_main_03_slot != null),
+		str(enemy_reinforce_01_slot != null),
+		str(enemy_reinforce_02_slot != null),
+	])
 
 
 func _debug_print_battle_unit_state_list_adapter() -> void:

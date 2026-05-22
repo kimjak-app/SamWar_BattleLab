@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v0.67h MVP 5-Slot Scene Scaffold
+
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Added 6 empty scene slot containers under `Slots`:
+  - `AllyMain03Slot`
+  - `AllyReinforce01Slot`
+  - `AllyReinforce02Slot`
+  - `EnemyMain03Slot`
+  - `EnemyReinforce01Slot`
+  - `EnemyReinforce02Slot`
+- Kept the existing 4-slot visual-root structure unchanged.
+- Added `@onready` references for the new empty slot containers.
+- Added `CAPACITY_SLOT_ID_TO_SCENE_SLOT_PATH` as future scene-slot metadata scaffold.
+- Added one-time startup scaffold snapshot for slot-container existence only.
+- Did not add new `BattleUnitState`.
+- Did not add new `UnitVisualRoot`, `ClickArea`, `ReadyFrame`, or `FacingIndicator`.
+- Did not register the new empty slot containers into the `UnitVisualSlot` runtime cache.
+- Kept actor/target helpers, auto battle, enemy AI, active/deployed filtering, HP/troop layout, enemy portrait vertical offset, and enemy facing-indicator timing unchanged.
+
 ## v0.67c-hotfix7 Enemy Portrait Facing Offset Restore
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

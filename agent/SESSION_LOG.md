@@ -3,6 +3,44 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67g MVP 3 Main + 2 Reinforce Layout Plan Stable
+- v0.67f+ hotfix states already reflected
+
+Goal:
+- v0.67h MVP 5-Slot Scene Scaffold
+
+Completed:
+- Confirmed the existing `Slots` structure still hosts only the 4 live visual roots:
+  - `AllyMainSlot`
+  - `AllySupportSlot`
+  - `EnemyMainSlot`
+  - `EnemySupportSlot`
+- Added 6 empty `Node2D` slot containers under `Slots` for MVP scaffold only:
+  - `AllyMain03Slot`
+  - `AllyReinforce01Slot`
+  - `AllyReinforce02Slot`
+  - `EnemyMain03Slot`
+  - `EnemyReinforce01Slot`
+  - `EnemyReinforce02Slot`
+- Added `@onready` references for the new empty slot containers.
+- Added `CAPACITY_SLOT_ID_TO_SCENE_SLOT_PATH` for future scene-slot path metadata only.
+- Added a one-time startup scaffold snapshot to confirm the 6 new slot containers exist.
+- Did not add new `BattleUnitState`.
+- Did not add new `UnitVisualRoot`, `ClickArea`, `ReadyFrame`, or `FacingIndicator`.
+- Did not register the new empty slot containers into the current `UnitVisualSlot` cache.
+- Did not change actor/target helpers, auto battle, enemy AI, or active/deployed filtering.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Startup scaffold snapshot confirmed all 6 new empty slot containers were found.
+- Existing adapter/alive/actor/target/deployed parity snapshots still matched current `2v2`.
+- Verified the existing 4 live visual roots remained under their legacy slots.
+- F6/manual runtime QA not available in this environment.
+
+## 2026-05-22
+
+Starting baseline:
 - v0.67c-hotfix6 Unit Visual Layer Above HP Bar Stable
 
 Goal:

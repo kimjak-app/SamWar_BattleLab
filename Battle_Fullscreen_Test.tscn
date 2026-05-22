@@ -134,6 +134,15 @@ label_settings = SubResource("2")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="AllyMain03Slot" type="Node2D" parent="Slots"]
+position = Vector2(481, 708)
+
+[node name="AllyReinforce01Slot" type="Node2D" parent="Slots"]
+position = Vector2(371, 1036)
+
+[node name="AllyReinforce02Slot" type="Node2D" parent="Slots"]
+position = Vector2(196, 844)
+
 [node name="EnemyMainSlot" type="Node2D" parent="Slots" unique_id=2108450004]
 
 [node name="EnemyUnitVisualRoot" type="Node2D" parent="Slots/EnemyMainSlot" unique_id=1507310536]
@@ -185,6 +194,9 @@ label_settings = SubResource("2")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="EnemyMain03Slot" type="Node2D" parent="Slots"]
+position = Vector2(1434, 476)
+
 [node name="EnemySupportSlot" type="Node2D" parent="Slots" unique_id=2108450005]
 
 [node name="EnemySupportUnitVisualRoot" type="Node2D" parent="Slots/EnemySupportSlot" unique_id=1656542731]
@@ -235,6 +247,12 @@ text = "80 / 80"
 label_settings = SubResource("2")
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="EnemyReinforce01Slot" type="Node2D" parent="Slots"]
+position = Vector2(1547, 150)
+
+[node name="EnemyReinforce02Slot" type="Node2D" parent="Slots"]
+position = Vector2(1712, 328)
 
 [node name="AllySupportSlot" type="Node2D" parent="Slots" unique_id=2108450003]
 

@@ -4,7 +4,30 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67c-hotfix7 Enemy Portrait Facing Offset Restore
+v0.67h MVP 5-Slot Scene Scaffold
+
+## v0.67h MVP 5-Slot Scene Scaffold State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Kept the existing `Slots` legacy `2v2` structure intact:
+  - `AllyMainSlot`
+  - `AllySupportSlot`
+  - `EnemyMainSlot`
+  - `EnemySupportSlot`
+- Added 6 empty scene slot containers under `Slots` for MVP scaffold only:
+  - `AllyMain03Slot`
+  - `AllyReinforce01Slot`
+  - `AllyReinforce02Slot`
+  - `EnemyMain03Slot`
+  - `EnemyReinforce01Slot`
+  - `EnemyReinforce02Slot`
+- Added `@onready` references for the 6 new empty slot containers.
+- Added `CAPACITY_SLOT_ID_TO_SCENE_SLOT_PATH` as future scene-slot metadata for the MVP `5`-slot bridge.
+- Added one-time startup scaffold snapshot for new slot-container existence only.
+- Did not add new `BattleUnitState`.
+- Did not add new `UnitVisualRoot`, `ClickArea`, `ReadyFrame`, or `FacingIndicator`.
+- Did not register the new empty slots into the `UnitVisualSlot` runtime cache.
+- Kept current `2v2` actor/target results unchanged.
+- Kept auto battle, enemy AI, active/deployed filtering, HP bar, troop label, layer profile, enemy portrait vertical offset, and enemy facing-indicator timing unchanged.
 
 ## v0.67c-hotfix7 Enemy Portrait Facing Offset Restore State
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
