@@ -3,6 +3,53 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67j-4 Reinforce02 City-Origin Entry Prototype
+
+Goal:
+- v0.67j-5 MVP 5v5 QA Stable
+
+Completed:
+- Revalidated the current MVP battle shape as documentation/verification only.
+- Confirmed no code, scene, or asset changes were made in this step.
+- Fixed the active MVP battle target to `5v5`.
+- Confirmed side composition:
+  - `3` main
+  - `2` city-origin reinforce
+- Confirmed round progression:
+  - round `1` = `3v3`
+  - round `2` = `4v4`
+  - round `3` = `5v5`
+- Confirmed deployed alive count progression:
+  - `6 -> 8 -> 10`
+- Confirmed round `3` actor candidates ally/enemy = `5/5`.
+- Confirmed round `3` target candidates ally/enemy = `5/5`.
+- Confirmed reinforce01 / reinforce02 visual display is normal:
+  - unit token
+  - portrait badge
+  - HP bar
+  - troop label
+- Confirmed click / target behavior remains normal after reinforce deployment.
+- Confirmed auto battle remains normal on the current MVP structure.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Updated:
+  - `agent/CURRENT_STATE.md`
+  - `agent/NEXT_TASKS.md`
+  - `agent/CHANGELOG.md`
+  - `agent/SESSION_LOG.md`
+
+QA:
+- Documentation-only step.
+- Headless verification results were adopted from the current validated `5v5` prototype state.
+- Manual `F6` sustain QA remains the next editor-side task.
+
+Remaining tasks:
+- 5v5 Battle Sustain QA
+- Auto battle editor-side stop responsiveness QA
+
+## 2026-05-22
+
+Starting baseline:
 - v0.67j-3 City Reinforcement Contract Scaffold Stable
 
 Goal:

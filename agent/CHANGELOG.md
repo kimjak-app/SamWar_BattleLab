@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## v0.67j-5 MVP 5v5 QA Stable
+
+- This step is documentation and verification only.
+- Revalidated the current MVP battle baseline with no code, scene, or asset edits.
+- Fixed the active MVP target to `5v5`:
+  - `3` main + `2` city-origin reinforce per side
+- Confirmed round structure:
+  - round `1` = `3v3`
+  - round `2` = `4v4`
+  - round `3` = `5v5`
+- Confirmed deployed alive progression = `6 -> 8 -> 10`.
+- Confirmed round `3` actor candidates ally/enemy = `5/5`.
+- Confirmed round `3` target candidates ally/enemy = `5/5`.
+- Confirmed reinforce01 / reinforce02 visual display restore is stable.
+- Confirmed HP bar, troop label, click, target, and auto-battle behavior remain normal on the current prototype.
+- Kept current higher slot-capacity constants as future-expansion scaffold only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/battle_web_import_test.gd` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+
 ## v0.67j-4 Reinforce02 City-Origin Entry Prototype
 
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.

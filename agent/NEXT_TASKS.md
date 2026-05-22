@@ -1,30 +1,29 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67j-4 Reinforce02 City-Origin Entry Prototype
-
-## Priority 1
 v0.67j-5 MVP 5v5 QA Stable
 
+## Priority 1
+5v5 Battle Sustain QA
+
 Gate:
-- v0.67j-4 confirmed:
-  - reinforce02 starts `deployed=false` with city-origin mock contract metadata
-  - reinforce01 deploys on round `2`
-  - reinforce02 deploys on round `3`
+- v0.67j-5 confirmed:
+  - MVP battle target is fixed to `5v5`
+  - reinforce01 / reinforce02 deployment ladder is stable at `3v3 -> 4v4 -> 5v5`
   - deployed alive count moves `6 -> 8 -> 10`
   - actor / target counts move `3/3 -> 4/4 -> 5/5`
+  - reinforce visuals, click, target, HP, and troop UI are stable on headless verification
 
 Goal:
-- QA the current `5v5` battle state after reinforce02 city-origin entry.
-- Verify manual and auto battle behavior remains stable across round `1/2/3` transitions.
-- Verify reinforce02 cleanup, click/target gating, UI state, and enemy AI order under sustained combat.
+- Continue manual/editor sustain QA on the fixed MVP `5v5` battle shape.
+- Verify long-fight auto battle, stop responsiveness, cleanup order, and post-death candidate stability under repeated combat.
 
 ## Priority 2
 v0.67 Slot Count Expansion Plan
 
 Goal:
-- Continue the registry-first migration toward scalable slot capacity.
-- Use the current scaffold as the base for array-backed state access and future slot activation.
+- Keep scalable slot capacity as future expansion only.
+- Do not move the active MVP target away from `5v5` until the current battle baseline is fully saturated by QA.
 
 ## Priority 3
 Auto Battle QA
@@ -37,6 +36,27 @@ Goal:
 
 Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
+
+## Completed
+v0.67j-5 MVP 5v5 QA Stable
+
+Completed items:
+- Revalidated the current MVP battle shape as `5v5` with no code, scene, or asset changes.
+- Fixed the stable baseline target to:
+  - `3` main + `2` city-origin reinforce per side
+- Confirmed round progression:
+  - round `1` = `3v3`
+  - round `2` = `4v4`
+  - round `3` = `5v5`
+- Confirmed deployed alive count = `6 -> 8 -> 10`.
+- Confirmed round `3` actor candidates ally/enemy = `5/5`.
+- Confirmed round `3` target candidates ally/enemy = `5/5`.
+- Confirmed reinforce01 / reinforce02 visual display, HP bar, troop label, click, and target behavior are normal on the current prototype.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/battle_web_import_test.gd` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
 
 ## Completed
 v0.67j-4 Reinforce02 City-Origin Entry Prototype

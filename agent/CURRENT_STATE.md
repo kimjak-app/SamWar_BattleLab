@@ -4,7 +4,40 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67j-4 Reinforce02 City-Origin Entry Prototype
+v0.67j-5 MVP 5v5 QA Stable
+
+## v0.67j-5 MVP 5v5 QA Stable State
+- This step is documentation and verification only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- No asset change was made.
+- Confirmed current MVP battle target is fixed to `5v5`:
+  - per side = `3` main + `2` city-origin reinforce
+- Confirmed current round structure:
+  - round `1` = `3v3`
+  - round `2` = reinforce01 deploys -> `4v4`
+  - round `3` = reinforce02 deploys -> `5v5`
+- Confirmed deployed alive count progression:
+  - `6 -> 8 -> 10`
+- Confirmed actor / target candidate progression:
+  - round `1` = `3/3`
+  - round `2` = `4/4`
+  - round `3` = `5/5`
+- Confirmed reinforce01 / reinforce02 visual display restore is stable:
+  - unit token visible
+  - portrait badge visible
+  - HP bar visible
+  - troop label visible
+  - facing indicator visible
+- Confirmed click / target gating works as expected before and after deployment.
+- Confirmed auto battle remains stable on the current MVP `5v5` structure.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Confirmed current larger slot-capacity constants remain future-expansion scaffold only:
+  - `7v7`
+  - `10` total-unit directions
+- Kept current capacity constants for future expansion, but fixed the active MVP stable baseline to `5v5`.
 
 ## v0.67j-4 Reinforce02 City-Origin Entry Prototype State
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
