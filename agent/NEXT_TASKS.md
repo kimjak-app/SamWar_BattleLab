@@ -1,14 +1,14 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67i-1 MVP 5-Slot Battle Prototype - Main03 Activation Spike
-
-## Priority 1
 v0.67i-2 MVP 3v3 QA Stable
 
+## Priority 1
+v0.67j Reinforcement Entry Prototype
+
 Goal:
-- Stabilize the first `3v3` prototype with main_03 active on both sides.
-- Focus on editor/manual QA, click-path reliability, auto-battle parity, dead-unit cleanup, and visual placement consistency.
+- Prototype delayed reinforce entry on top of the current `3v3` stable baseline.
+- Keep reinforce slots excluded from actor/target/occupied paths until deployment timing is explicitly enabled.
 
 ## Priority 2
 v0.67j Reinforcement Entry Prototype
@@ -94,6 +94,28 @@ Completed items:
 - Kept current auto-battle scoring unchanged.
 - Kept current enemy AI target-selection policy unchanged.
 - Kept current HP/troop/layer/facing hotfix behavior unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
+## Completed
+v0.67i-2 MVP 3v3 QA Stable
+
+Completed items:
+- Revalidated current `3v3` main-slot baseline without changing code or scene files.
+- Confirmed:
+  - ally count = `3`
+  - enemy count = `3`
+  - all count = `6`
+  - actor candidates ally/enemy = `3/3`
+  - target candidates ally/enemy = `3/3`
+  - all alive deployed count = `6`
+  - auto target parity OK = `true`
+  - enemy AI target parity OK = `true`
+  - enemy actor order parity OK = `true`
+- Confirmed reinforce remains scaffold-only and undeployed.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/battle_web_import_test.gd` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
 - Headless project launch exit code 0.
 - Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
 

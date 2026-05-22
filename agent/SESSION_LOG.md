@@ -3,6 +3,45 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67i-1 MVP 3v3 Main03 Activation Spike Stable
+
+Goal:
+- v0.67i-2 MVP 3v3 QA Stable
+
+Completed:
+- Revalidated the current `3v3` baseline without modifying code or scene files.
+- Confirmed stable main-slot structure:
+  - ally `main_01` 이순신
+  - ally `main_02` 정도전
+  - ally `main_03` 권율
+  - enemy `main_01` 관우
+  - enemy `main_02` 장비
+  - enemy `main_03` 하후돈
+- Confirmed reinforce remains empty-container scaffold only and undeployed.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/battle_web_import_test.gd`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless startup snapshot confirmed:
+  - `ally_count=3`
+  - `enemy_count=3`
+  - `all_count=6`
+  - `actor_candidates_ally_count=3`
+  - `actor_candidates_enemy_count=3`
+  - `target_candidates_for_ally_actor_count=3`
+  - `target_candidates_for_enemy_actor_count=3`
+  - `all_alive_deployed_count=6`
+  - `auto_target_parity_ok=true`
+  - `enemy_ai_target_parity_ok=true`
+  - `enemy_actor_order_parity_ok=true`
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+- Verified no diff in `scripts/battle_web_import_test.gd`.
+- F6/manual runtime QA not available in this environment.
+
+Starting baseline:
 - v0.67h MVP 5-Slot Scene Scaffold Stable
 
 Goal:

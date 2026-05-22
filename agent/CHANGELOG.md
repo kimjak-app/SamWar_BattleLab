@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v0.67i-2 MVP 3v3 QA Stable
+
+- This step is documentation and verification only.
+- Revalidated the current `3v3` main-slot baseline with no code or scene changes.
+- Confirmed:
+  - ally count = `3`
+  - enemy count = `3`
+  - all count = `6`
+  - actor candidates ally/enemy = `3/3`
+  - target candidates ally/enemy = `3/3`
+  - all alive deployed count = `6`
+  - auto target parity OK = `true`
+  - enemy AI target parity OK = `true`
+  - enemy actor order parity OK = `true`
+- Confirmed reinforce remains empty-container scaffold only and undeployed.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/battle_web_import_test.gd` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+
 ## v0.67i-1 MVP 5-Slot Battle Prototype - Main03 Activation Spike
 
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.

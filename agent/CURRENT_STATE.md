@@ -4,7 +4,36 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67i-1 MVP 5-Slot Battle Prototype - Main03 Activation Spike
+v0.67i-2 MVP 3v3 QA Stable
+
+## v0.67i-2 MVP 3v3 QA Stable State
+- This step is documentation and verification only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- Confirmed current `3v3` main-slot structure:
+  - `ally_main_01` = 이순신
+  - `ally_main_02` = 정도전
+  - `ally_main_03` = 권율
+  - `enemy_main_01` = 관우
+  - `enemy_main_02` = 장비
+  - `enemy_main_03` = 하후돈
+- Confirmed reinforce remains scaffold-only:
+  - `ally_reinforce_01` / `ally_reinforce_02`
+  - `enemy_reinforce_01` / `enemy_reinforce_02`
+  - `deployed=false` 유지
+  - actor / target / occupied 후보 제외 유지
+- Headless verification confirms:
+  - ally count = `3`
+  - enemy count = `3`
+  - all count = `6`
+  - actor candidates ally/enemy = `3/3`
+  - target candidates ally/enemy = `3/3`
+  - all alive deployed count = `6`
+  - auto target parity OK = `true`
+  - enemy AI target parity OK = `true`
+  - enemy actor order parity OK = `true`
+- Kept current `3v3` battle logic, auto battle, enemy AI, HP/troop, layer, enemy portrait vertical offset, and enemy facing-indicator move timing unchanged.
 
 ## v0.67i-1 MVP 5-Slot Battle Prototype - Main03 Activation Spike State
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
