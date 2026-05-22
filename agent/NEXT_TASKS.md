@@ -1,22 +1,23 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67e Actor/Target List Adapter Migration
-
-## Priority 1
 v0.67f Deployed/Active Slot Filtering
 
+## Priority 1
+v0.67g MVP 3 Main + 2 Reinforce Layout Plan
+
 Gate:
-- Do not start until v0.67e confirms:
-  - actor/target adapter helpers preserve current `2v2` target results
+- Do not start until v0.67f confirms:
+  - deployed/active filtering preserves current `2v2` battle results
+  - occupied-cell blocking remains unchanged for current `2v2`
   - enemy AI actor order remains unchanged
   - auto battle flow remains unchanged
   - enemy AI target result remains unchanged
 
 Goal:
-- Tighten deployed/active slot filtering around adapter-backed actor/target reads.
-- Preserve the exact current `2v2` result while keeping actual unit count fixed at `2v2`.
-- Keep non-deployed / non-active capacity slots excluded without changing battle outcome.
+- Plan the MVP layout for `3` main + `2` reinforce per side without enabling those units in battle yet.
+- Preserve the exact current `2v2` result and keep actual runtime unit count unchanged.
+- Keep reinforcement deployment as a future staged behavior, not a runtime change in this step.
 
 ## Priority 2
 v0.67 Slot Count Expansion Plan
@@ -36,6 +37,20 @@ Goal:
 
 Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
+
+## Completed
+v0.67f Deployed/Active Slot Filtering
+
+Completed items:
+- Tightened active/deployed slot filtering in shared battle-participation helpers.
+- Added `_is_unit_state_available_for_battle_slot()` and routed alive/actor/target adapter helpers through it.
+- Clarified future reinforce exclusion policy for actor/target/occupied paths until deployed.
+- Added one-time startup deployed/active filter snapshot.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept current battle execution, occupied-cell blocking, auto battle flow, and enemy AI actor order unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
 
 ## Completed
 v0.67e Actor/Target List Adapter Migration

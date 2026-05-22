@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## v0.67f Deployed/Active Slot Filtering
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Hardened slot-state helpers:
+  - `_is_capacity_slot_active()`
+  - `_is_capacity_slot_deployed()`
+  - `_is_unit_state_active_by_capacity_slot()`
+  - `_is_unit_state_deployed_by_capacity_slot()`
+- Added `_is_unit_state_available_for_battle_slot()` as the shared active/deployed/alive battle filter.
+- Routed these helpers through the shared filter:
+  - `_get_alive_unit_states_for_side_from_adapter()`
+  - `_get_alive_deployed_unit_states_for_side()`
+  - `_get_actor_candidates_for_side_from_adapter()`
+- Kept target helpers on the same filtered alive/deployed path so future non-deployed reinforce slots stay excluded.
+- Added one-time startup deployed/active filter snapshot for:
+  - capacity active slots by side
+  - capacity deployed slots by side
+  - actor candidates by side
+  - target candidates by side
+  - all alive deployed count
+  - parity OK
+- Added explicit future reinforce policy comment:
+  - active but not deployed units stay excluded from actor/target/occupied paths until deployment
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept auto-battle scoring and policy unchanged.
+- Kept enemy AI actor order unchanged.
+
 ## v0.67e Actor/Target List Adapter Migration
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

@@ -262,6 +262,7 @@ var unit_state_by_capacity_slot_id: Dictionary = {}
 var active_unit_state: BattleUnitState
 var has_printed_adapter_alive_parity_snapshot := false
 var has_printed_actor_target_adapter_snapshot := false
+var has_printed_deployed_active_filter_snapshot := false
 var active_unit_side := "ally"
 var has_selected_move_target := false
 var selected_move_cell := Vector2i(-1, -1)
@@ -509,6 +510,7 @@ func _ready() -> void:
 	_debug_print_unit_state_visual_binding_summary()
 	_debug_print_adapter_alive_parity_snapshot_once()
 	_debug_print_actor_target_adapter_snapshot_once()
+	_debug_print_deployed_active_filter_snapshot_once()
 
 
 func _process(_delta: float) -> void:
@@ -1941,10 +1943,14 @@ func _get_capacity_slot_metadata(slot_id: String) -> Dictionary:
 
 
 func _is_capacity_slot_active(slot_id: String) -> bool:
+	if slot_id == "":
+		return false
 	return bool(_get_capacity_slot_metadata(slot_id).get("is_active", false))
 
 
 func _is_capacity_slot_deployed(slot_id: String) -> bool:
+	if slot_id == "":
+		return false
 	return bool(_get_capacity_slot_metadata(slot_id).get("is_deployed", false))
 
 
@@ -2072,7 +2078,7 @@ func _get_active_unit_states_for_side(side: String) -> Array[BattleUnitState]:
 func _get_alive_unit_states_for_side_from_adapter(side: String) -> Array[BattleUnitState]:
 	var alive_states: Array[BattleUnitState] = []
 	for unit_state in _get_unit_states_for_side(side):
-		if unit_state != null and unit_state.is_alive():
+		if _is_unit_state_available_for_battle_slot(unit_state):
 			alive_states.append(unit_state)
 	return alive_states
 
@@ -2080,15 +2086,8 @@ func _get_alive_unit_states_for_side_from_adapter(side: String) -> Array[BattleU
 func _get_alive_deployed_unit_states_for_side(side: String) -> Array[BattleUnitState]:
 	var alive_states: Array[BattleUnitState] = []
 	for unit_state in _get_unit_states_for_side(side):
-		if unit_state == null:
-			continue
-		if not unit_state.is_alive():
-			continue
-		if not _is_unit_state_active_by_capacity_slot(unit_state):
-			continue
-		if not _is_unit_state_deployed_by_capacity_slot(unit_state):
-			continue
-		alive_states.append(unit_state)
+		if _is_unit_state_available_for_battle_slot(unit_state):
+			alive_states.append(unit_state)
 	return alive_states
 
 
@@ -2104,7 +2103,7 @@ func _get_all_alive_unit_states_from_adapter() -> Array[BattleUnitState]:
 func _get_actor_candidates_for_side_from_adapter(side: String) -> Array[BattleUnitState]:
 	var candidates: Array[BattleUnitState] = []
 	for unit_state in _get_alive_deployed_unit_states_for_side(side):
-		if unit_state != null and unit_state.is_alive():
+		if _is_unit_state_available_for_battle_slot(unit_state):
 			candidates.append(unit_state)
 	return candidates
 
@@ -2142,6 +2141,8 @@ func _get_target_candidates_for_actor_from_adapter(actor_state: BattleUnitState)
 
 
 func _is_unit_state_deployed_by_capacity_slot(unit_state: BattleUnitState) -> bool:
+	if unit_state == null:
+		return false
 	var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
 	if capacity_slot_id == "":
 		return false
@@ -2149,10 +2150,27 @@ func _is_unit_state_deployed_by_capacity_slot(unit_state: BattleUnitState) -> bo
 
 
 func _is_unit_state_active_by_capacity_slot(unit_state: BattleUnitState) -> bool:
+	if unit_state == null:
+		return false
 	var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
 	if capacity_slot_id == "":
 		return false
 	return _is_capacity_slot_active(capacity_slot_id)
+
+
+func _is_unit_state_available_for_battle_slot(unit_state: BattleUnitState) -> bool:
+	if unit_state == null:
+		return false
+	if not unit_state.is_alive():
+		return false
+	if not _is_unit_state_active_by_capacity_slot(unit_state):
+		return false
+	if not _is_unit_state_deployed_by_capacity_slot(unit_state):
+		return false
+	# Future reinforce policy:
+	# active=true but deployed=false units must stay out of actor/target/occupied paths
+	# until they are actually deployed into battle.
+	return true
 
 
 func _get_unit_visual_slot_for_state(unit_state: BattleUnitState) -> UnitVisualSlot:
@@ -2403,6 +2421,42 @@ func _debug_print_actor_target_adapter_snapshot_once() -> void:
 		str(auto_target_parity_ok),
 		str(enemy_ai_target_parity_ok),
 		str(enemy_actor_order_parity_ok),
+	])
+
+
+func _debug_print_deployed_active_filter_snapshot_once() -> void:
+	if has_printed_deployed_active_filter_snapshot:
+		return
+	has_printed_deployed_active_filter_snapshot = true
+
+	var ally_actor_candidates := _get_actor_candidates_for_side_from_adapter("ally")
+	var enemy_actor_candidates := _get_actor_candidates_for_side_from_adapter("enemy")
+	var ally_target_candidates := _get_alive_target_candidates_for_side_from_adapter("ally")
+	var enemy_target_candidates := _get_alive_target_candidates_for_side_from_adapter("enemy")
+	var all_alive_deployed := _get_all_alive_unit_states_from_adapter()
+	var parity_ok := (
+		ally_actor_candidates.size() == 2
+		and enemy_actor_candidates.size() == 2
+		and ally_target_candidates.size() == 2
+		and enemy_target_candidates.size() == 2
+		and all_alive_deployed.size() == 4
+	)
+
+	print("DEPLOYED ACTIVE FILTER SNAPSHOT:")
+	print("capacity_active_slots ally=%s enemy=%s deployed_slots ally=%s enemy=%s" % [
+		str(_get_active_capacity_slots_for_side("ally")),
+		str(_get_active_capacity_slots_for_side("enemy")),
+		str(_get_deployed_capacity_slots_for_side("ally")),
+		str(_get_deployed_capacity_slots_for_side("enemy")),
+	])
+	print("actor_candidates ally=%s enemy=%s target_candidates ally=%s enemy=%s all_alive_deployed_count=%s phase=%s parity_ok=%s" % [
+		str(ally_actor_candidates.size()),
+		str(enemy_actor_candidates.size()),
+		str(ally_target_candidates.size()),
+		str(enemy_target_candidates.size()),
+		str(all_alive_deployed.size()),
+		str(current_phase),
+		str(parity_ok),
 	])
 
 

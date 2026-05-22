@@ -3,6 +3,38 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67e Actor/Target List Adapter Migration Stable
+
+Goal:
+- v0.67f Deployed/Active Slot Filtering
+
+Completed:
+- Hardened capacity-slot active/deployed helpers for empty slot-id and null-state cases.
+- Added `_is_unit_state_available_for_battle_slot()` as the shared alive + active + deployed filter.
+- Routed alive/actor adapter helpers through the shared battle-slot availability filter.
+- Kept target helpers on the same active/deployed filtered path.
+- Added explicit future reinforce policy comment so non-deployed slots stay out of actor/target/occupied paths.
+- Added one-time startup deployed/active filter snapshot.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Did not change enemy AI actor order, auto battle policy, or battle formulas.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless startup snapshot confirmed:
+  - active slots ally/enemy remain `2/2`
+  - deployed slots ally/enemy remain `2/2`
+  - actor candidates ally/enemy remain `2/2`
+  - target candidates ally/enemy remain `2/2`
+  - `all_alive_deployed_count=4`
+  - `parity_ok=true`
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+- F6/manual interaction QA not available in this environment.
+
+## 2026-05-22
+
+Starting baseline:
 - v0.67d 2v2 on Scalable Slot Framework Stable
 
 Goal:

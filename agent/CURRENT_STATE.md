@@ -4,7 +4,42 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67e Actor/Target List Adapter Migration
+v0.67f Deployed/Active Slot Filtering
+
+## v0.67f Deployed/Active Slot Filtering State
+- Hardened active/deployed slot gating in `scripts/battle_web_import_test.gd`.
+- `_is_capacity_slot_active()` and `_is_capacity_slot_deployed()` now explicitly return `false` for empty slot ids.
+- `_is_unit_state_active_by_capacity_slot()` and `_is_unit_state_deployed_by_capacity_slot()` now explicitly return `false` for `null` unit states.
+- Added `_is_unit_state_available_for_battle_slot()` as the shared battle-participation filter:
+  - `unit_state != null`
+  - `unit_state.is_alive()`
+  - capacity slot active = `true`
+  - capacity slot deployed = `true`
+- Alive / actor / target adapter helpers now consistently resolve through the shared active/deployed filter.
+- Occupied-cell paths still read from the same public alive list, so non-deployed future units are excluded from occupied blocking.
+- Added one-time startup deployed/active filter snapshot for:
+  - capacity active slots by side
+  - capacity deployed slots by side
+  - actor candidates by side
+  - target candidates by side
+  - all alive deployed count
+  - current `2v2` parity OK
+- Future reinforce policy is now explicit:
+  - `is_active=true` and `is_deployed=false` units stay excluded from actor candidates
+  - excluded from target candidates
+  - excluded from occupied cells
+  - excluded from click-target participation until deployment
+- Current headless snapshot confirms:
+  - all 4 legacy units remain active/deployed `true`
+  - actor candidates ally = `2`
+  - actor candidates enemy = `2`
+  - target candidates ally = `2`
+  - target candidates enemy = `2`
+  - all alive deployed count = `4`
+  - parity OK = `true`
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept current `2v2` battle result unchanged.
 
 ## v0.67e Actor/Target List Adapter Migration State
 - Added actor-candidate adapter helpers in `scripts/battle_web_import_test.gd`:
