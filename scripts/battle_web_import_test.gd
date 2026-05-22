@@ -30,7 +30,9 @@ const PHASE_ENEMY_TURN := "enemy_turn"
 const PHASE_RESOLVING := "resolving"
 const PHASE_FACING_SELECT := "facing_select"
 const PHASE_ATTACK_SELECT := "attack_select"
-const AUTO_BATTLE_MAX_STEPS := 40
+const AUTO_BATTLE_MIN_MAX_STEPS := 80
+const AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT := 16
+const AUTO_BATTLE_ABSOLUTE_MAX_STEPS := 200
 const MAX_BATTLE_LOG_LINES := 4
 const FACING_LEFT := "left"
 const FACING_RIGHT := "right"
@@ -5335,8 +5337,9 @@ func _tick_full_auto_battle_if_needed() -> void:
 		return
 	if current_phase != PHASE_ALLY_TURN:
 		return
-	if auto_battle_step_count >= AUTO_BATTLE_MAX_STEPS:
-		_stop_full_auto_battle("step limit")
+	var auto_battle_max_steps := _get_auto_battle_max_steps()
+	if auto_battle_step_count >= auto_battle_max_steps:
+		_stop_full_auto_battle("자동전투 안전 제한 도달 (%d/%d)" % [auto_battle_step_count, auto_battle_max_steps])
 		return
 	if _get_alive_ally_units().is_empty():
 		_stop_full_auto_battle("아군 없음")
@@ -5355,6 +5358,12 @@ func _tick_full_auto_battle_if_needed() -> void:
 		return
 	auto_battle_step_count += 1
 	_run_auto_action_for_active_ally_once()
+
+
+func _get_auto_battle_max_steps() -> int:
+	var deployed_alive_count := _get_all_alive_unit_states_from_adapter().size()
+	var computed_budget := deployed_alive_count * AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT
+	return clampi(maxi(AUTO_BATTLE_MIN_MAX_STEPS, computed_budget), AUTO_BATTLE_MIN_MAX_STEPS, AUTO_BATTLE_ABSOLUTE_MAX_STEPS)
 
 
 func _try_auto_attack_for_active_ally() -> bool:

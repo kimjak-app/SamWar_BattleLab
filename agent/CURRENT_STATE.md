@@ -4,7 +4,33 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67j-5 MVP 5v5 QA Stable
+v0.67k Auto Battle Step Limit 5v5 Sustain Fix
+
+## v0.67k Auto Battle Step Limit 5v5 Sustain Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Replaced the old fixed auto-battle safety cap:
+  - old `AUTO_BATTLE_MAX_STEPS = 40`
+- Added dynamic auto-battle step budget policy:
+  - `AUTO_BATTLE_MIN_MAX_STEPS = 80`
+  - `AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT = 16`
+  - `AUTO_BATTLE_ABSOLUTE_MAX_STEPS = 200`
+- Added `_get_auto_battle_max_steps()` to compute budget from currently deployed alive units.
+- Current computed budgets verify as:
+  - round `1` alive `6` -> max steps `96`
+  - round `2` alive `8` -> max steps `128`
+  - round `3` alive `10` -> max steps `160`
+- Replaced the old generic step-limit stop reason with a clearer battle log message:
+  - `자동전투 안전 제한 도달`
+- Kept infinite-loop protection in place via the absolute upper bound.
+- Kept actor/target filtering unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept damage / move / attack formulas unchanged.
+- Kept reinforce deploy logic unchanged.
+- Kept HP cleanup logic unchanged.
+- Confirmed round `3` actor candidates ally/enemy remain `5/5`.
+- Confirmed round `3` target candidates ally/enemy remain `5/5`.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
 
 ## v0.67j-5 MVP 5v5 QA Stable State
 - This step is documentation and verification only.

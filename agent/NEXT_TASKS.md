@@ -1,22 +1,24 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67j-5 MVP 5v5 QA Stable
+v0.67k Auto Battle Step Limit 5v5 Sustain Fix
 
 ## Priority 1
 5v5 Battle Sustain QA
 
 Gate:
-- v0.67j-5 confirmed:
+- v0.67k confirmed:
   - MVP battle target is fixed to `5v5`
   - reinforce01 / reinforce02 deployment ladder is stable at `3v3 -> 4v4 -> 5v5`
   - deployed alive count moves `6 -> 8 -> 10`
   - actor / target counts move `3/3 -> 4/4 -> 5/5`
   - reinforce visuals, click, target, HP, and troop UI are stable on headless verification
+  - auto-battle step budget now scales with deployed alive unit count
 
 Goal:
 - Continue manual/editor sustain QA on the fixed MVP `5v5` battle shape.
-- Verify long-fight auto battle, stop responsiveness, cleanup order, and post-death candidate stability under repeated combat.
+- Verify long-fight auto battle now reaches battle end without unnecessary safety-cap interruption.
+- Verify stop responsiveness, cleanup order, and post-death candidate stability under repeated combat.
 
 ## Priority 2
 v0.67 Slot Count Expansion Plan
@@ -36,6 +38,28 @@ Goal:
 
 Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
+
+## Completed
+v0.67k Auto Battle Step Limit 5v5 Sustain Fix
+
+Completed items:
+- Replaced the old fixed auto-battle step cap `40` with deployed-unit-count-based dynamic budgeting.
+- Added:
+  - `AUTO_BATTLE_MIN_MAX_STEPS = 80`
+  - `AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT = 16`
+  - `AUTO_BATTLE_ABSOLUTE_MAX_STEPS = 200`
+  - `_get_auto_battle_max_steps()`
+- Clarified the stop log when the safety cap is reached.
+- Confirmed computed budgets:
+  - alive `6` -> `96`
+  - alive `8` -> `128`
+  - alive `10` -> `160`
+- Confirmed round `3` actor candidates ally/enemy = `5/5`.
+- Confirmed round `3` target candidates ally/enemy = `5/5`.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
 
 ## Completed
 v0.67j-5 MVP 5v5 QA Stable

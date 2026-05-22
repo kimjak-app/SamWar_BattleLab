@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## v0.67k Auto Battle Step Limit 5v5 Sustain Fix
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Replaced the old fixed auto-battle step cap:
+  - `AUTO_BATTLE_MAX_STEPS = 40`
+- Added deployed-unit-count-based dynamic step budgeting:
+  - `AUTO_BATTLE_MIN_MAX_STEPS = 80`
+  - `AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT = 16`
+  - `AUTO_BATTLE_ABSOLUTE_MAX_STEPS = 200`
+- Added `_get_auto_battle_max_steps()`.
+- Changed the step-limit stop reason to a clearer log:
+  - `자동전투 안전 제한 도달`
+- Verified computed budgets:
+  - round `1` alive `6` -> `96`
+  - round `2` alive `8` -> `128`
+  - round `3` alive `10` -> `160`
+- Kept infinite-loop protection through the absolute cap.
+- Kept actor/target selection, enemy AI policy, reinforce deploy logic, combat formulas, cleanup logic, and scene files unchanged.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+
 ## v0.67j-5 MVP 5v5 QA Stable
 
 - This step is documentation and verification only.

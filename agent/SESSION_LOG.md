@@ -3,6 +3,51 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67j-5 MVP 5v5 QA Stable
+
+Goal:
+- v0.67k Auto Battle Step Limit 5v5 Sustain Fix
+
+Completed:
+- Audited the current full-auto battle safety-cap path.
+- Confirmed the previous fixed cap was `AUTO_BATTLE_MAX_STEPS = 40`.
+- Replaced the fixed cap with dynamic budgeting based on deployed alive unit count.
+- Added:
+  - `AUTO_BATTLE_MIN_MAX_STEPS = 80`
+  - `AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT = 16`
+  - `AUTO_BATTLE_ABSOLUTE_MAX_STEPS = 200`
+  - `_get_auto_battle_max_steps()`
+- Updated the safety-stop log message to a clearer `자동전투 안전 제한 도달 ...` form.
+- Confirmed computed budgets:
+  - round `1` alive `6` -> `96`
+  - round `2` alive `8` -> `128`
+  - round `3` alive `10` -> `160`
+- Confirmed round `3` actor candidates ally/enemy remain `5/5`.
+- Confirmed round `3` target candidates ally/enemy remain `5/5`.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Did not modify:
+  - `Battle_Fullscreen_Test.tscn`
+  - `scripts/unit_visual_slot.gd`
+- Updated:
+  - `agent/CURRENT_STATE.md`
+  - `agent/NEXT_TASKS.md`
+  - `agent/CHANGELOG.md`
+  - `agent/SESSION_LOG.md`
+
+QA:
+- Headless project launch passed.
+- Headless `Battle_Fullscreen_Test.tscn` launch passed.
+- Headless budget verification confirms the dynamic cap scales with `6 / 8 / 10` deployed alive units.
+- Editor-side confirmation for uninterrupted end-to-end full-auto completion remains the next manual QA task.
+
+Remaining tasks:
+- 5v5 Battle Sustain QA
+- Auto battle editor-side stop responsiveness QA
+
+## 2026-05-22
+
+Starting baseline:
 - v0.67j-4 Reinforce02 City-Origin Entry Prototype
 
 Goal:
