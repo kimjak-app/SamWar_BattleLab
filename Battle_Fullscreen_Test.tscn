@@ -647,7 +647,7 @@ offset_bottom = 1080.0
 color = Color(0.0509804, 0.0862745, 0.133333, 1)
 
 [node name="BattlefieldTexture" type="Sprite2D" parent="BattlefieldRoot" unique_id=836791405]
-position = Vector2(951, 547)
+position = Vector2(950.00006, 535)
 scale = Vector2(0.60781246, 0.6066666)
 texture = ExtResource("3_uajr2")
 

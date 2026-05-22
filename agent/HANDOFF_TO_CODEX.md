@@ -9,7 +9,7 @@ Before making changes, read:
 ## Stable Baseline
 Current stable baseline is:
 
-`v0.65h Slot-Based UnitVisual Architecture Design Stable`
+`v0.67k-4 Enemy AI Surround Pressure QA Stable with Known Issue`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -23,43 +23,29 @@ Do not modify:
 ## Current Verified State
 - 1920x1080 fullscreen battle board.
 - 18x10 logical grid.
-- 2v2 battle loop works.
-- Ally one actor acts -> enemy one actor AI acts -> next ally actor acts.
-- BATTLE 1 / BATTLE 2 Round Toast works.
-- Basic Battle FX Pack 1 works:
-  - move dust
-  - attack slash
-  - hit spark
-  - damage number
-- Move dust appears only during movement.
-- Idle breathing works.
-- READY frame works.
+- Current MVP battle target is `5v5`.
+- Round flow is stable at:
+  - `ROUND 1 = 3v3`
+  - `ROUND 2 = 4v4`
+  - `ROUND 3 = 5v5`
+- Hero identity registry is applied by `hero_id`.
+- Reinforcement arrival toast works.
+- Victory / defeat result toast works.
+- Enemy AI surround pressure is improved for lone-ally endgame states.
 - UnitCloseupPanel works.
-- Active ally lock works.
-- Right-click move rollback works.
-- Right-click attack cancel works.
 - HP 0 cleanup works.
-- Headless scene launch is expected to remain 0 errors.
+- Auto battle can reach battle-end result flow.
+- Headless project / scene launch are expected to remain `0` errors.
 
-## v0.65g Completed Work
-- Added UnitVisualRoot Adapter Layer.
-- Migrated Ally main visual nodes under `AllyUnitVisualRoot`.
-- Migrated Ally support visual nodes under `AllySupportUnitVisualRoot`.
-- Migrated Enemy main visual nodes under `EnemyUnitVisualRoot`.
-- Migrated Enemy support visual nodes under `EnemySupportUnitVisualRoot`.
-- Kept ClickArea / READY frame / FacingIndicator outside Root for safety.
-- Kept UnitVisualTemplate nodes as layout offset references.
-- Fixed ally portrait `FACING_UP` / `FACING_DOWN` offset issue.
-- Fixed dead enemy main click priority blocking enemy support target selection.
-- Kimjak F6 confirmed the Root migrations and fixes.
-
-## v0.65h Completed Work
-- Extended `BattleUnitState` with slot metadata.
-- Injected slot metadata into the four current demo units.
-- Added `slot_id` first visual slot lookup.
-- Preserved direct `unit_state` comparison fallback.
-- Preserved existing 2v2 battle loop behavior.
-- Did not migrate ClickArea / READY frame / FacingIndicator.
+## Current Battle Direction
+- Stable focus is the current `5v5` MVP battle.
+- Per side:
+  - `3 main`
+  - `2 reinforce`
+- Reinforce meaning:
+  - `reinforce_01` remains test-trigger support
+  - `reinforce_02` carries city-origin metadata contract
+- Current city-origin mock contract is for battle-engine integration only, not a full worldmap system.
 
 Important:
 - UnitVisualRoot nodes are combat slot roots.
@@ -67,33 +53,39 @@ Important:
 - `visual_key` still controls token texture lookup.
 - Existing direct unit references remain as fallback while the architecture is transitional.
 
-## Unit Token State
-Korea / China / Japan infantry / archer / gunner / cavalry token assets have been normalized around the 256 baseline.
-
-Current visual test assignment:
-- Yi Sun-sin = `korea_archer`
-- Jeong Do-jeon = `korea_gunner`
-- Guan Yu = `china_cavalry`
-- Zhang Fei = `china_infantry`
-
-Notes:
-- Zhang Fei no longer depends on the legacy 1024 China infantry token.
-- Guan Yu and Zhang Fei should share the normalized 256 token scale baseline.
-- UnitCloseupPanel uses the visual_key based troop token lookup.
+## Current Verified QA Points
+- `5v5` actor / target path remains stable.
+- Enemy AI should:
+  - attack immediately if in range
+  - move to attackable cells if possible
+  - prefer surround cells when allies are down to `1~2`
+  - choose side / rear surround cells if front is blocked
+  - wait only when no useful path exists
+- Reinforcement / round / result toasts share the same queue without collision.
+- Hero portrait / display-name / closeup identity bindings are runtime-corrected by registry.
+- Known Issue:
+  - in some multi-target states, a subset of enemy actors can still idle instead of redistributing to another reachable target
+  - target / destination reservation is the likely next fix area
 
 ## Recommended Next Task
-v0.65i ClickArea / READY / FacingIndicator Integration Review
+v0.67k-5 Enemy AI Multi-Target Engagement Reservation Fix
 
 Goal:
-- Decide whether ClickArea, READY frame, and FacingIndicator should move under UnitVisualRoot or remain separate.
-- Handle ClickArea separately because it affects collision/input coordinates.
-- Handle READY frame and FacingIndicator separately because they are UI/CanvasLayer coordinate concerns.
+- stop passive-idle enemy actors in multi-target battles
+- add target engagement reservation and destination reservation
+- allow fallback target switching when the preferred target is blocked but another reachable target exists
+
+Follow-up candidates:
+- `v0.67o 5v5 Long-run Auto Battle QA`
+- `v0.67l Formation Slot Guide Layer`
+- `v0.67m Result Toast Duration / BGM Sync Prep`
+- `v0.67n Worldmap Battle Roster Contract Prep`
 
 ## Important Direction
-- Root is for a combat slot, not a fixed general.
-- Large units and naval units need `footprint`, `domain`, and FX profile concepts.
-- ClickArea should be reviewed separately because it affects collision/input coordinates.
-- READY frame and FacingIndicator should be reviewed separately because they live in UI/CanvasLayer coordinates.
+- Scene portrait textures are not the final identity source of truth.
+- `capacity_slot_id -> assigned_hero_id -> HERO_REGISTRY` is the intended identity path.
+- Worldmap later only needs to pass battle roster / hero assignment contracts.
+- Keep current `5v5` MVP stable before expanding into formation guides or broader worldmap prep.
 
 ## Debug Cleanup Candidates
 - `_debug_print_unit_visual_root_slots()`
@@ -101,22 +93,14 @@ Goal:
 - `_debug_print_ally_portrait_offsets()`
 
 ## Do Not Break
-- Do not change `attack_range`.
-- Do not change `move_range`.
-- Do not change `distance formula`.
-- Do not change movement range cell calculation.
-- Do not change facing selection logic.
-- Do not change basic attack judgement.
-- Do not change damage formula.
-- Do not change enemy AI order.
-- Do not change active ally lock.
-- Do not change HP 0 cleanup.
-- Do not break BATTLE Round Toast.
-- Do not break Basic Battle FX Pack 1.
-- Do not break UnitCloseupPanel.
-- Do not break READY frame.
-- Do not break ally portrait up/down fix.
-- Do not break dead enemy click priority fix.
-- Preserve right-click move rollback.
-- Preserve right-click attack cancel.
-- Do not modify `Battle_WebImport_Test.tscn`.
+- Do not change damage / move / attack formulas.
+- Do not change auto-battle step budgeting without explicit reason.
+- Do not break hero identity registry behavior.
+- Do not break reinforce deploy conditions.
+- Do not break reinforcement arrival toast.
+- Do not break victory / defeat result toast.
+- Do not break HP 0 cleanup.
+- Do not break UnitCloseupPanel identity consistency.
+- Do not break current `5v5` actor / target parity.
+- Preserve right-click rollback / cancel behavior.
+- Do not modify `Battle_WebImport_Test.tscn` casually.

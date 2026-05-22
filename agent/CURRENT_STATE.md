@@ -4,6 +4,109 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
+v0.67k-4 Enemy AI Surround Pressure QA Stable with Known Issue
+
+## v0.67k-4 Enemy AI Surround Pressure QA Stable with Known Issue State
+- Documentation-only stable-mark step.
+- No code, scene, or asset changes in this step.
+- Current validated stable areas:
+  - `5v5` MVP battle structure remains stable
+  - Hero Identity Registry remains stable
+  - reinforcement arrival toast remains stable
+  - victory / defeat result toast remains stable
+  - auto battle result path remains stable
+  - enemy AI surround engagement is improved versus the older baseline
+  - if a final surround cell cannot be reached in one turn, enemy actors now advance along that path
+- Known Issue:
+  - when multiple ally targets are still alive, some enemy actors can still idle instead of redistributing engagement
+  - target selection / engagement reservation is still too weak in some multi-target cases
+  - this remains a follow-up item for the next session
+- Headless validation retained:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning 없음
+  - identity registry / reinforcement toast / result toast remain intact
+  - `5v5` actor / target path remains intact
+
+## v0.67k-3b Enemy AI Surround Engagement Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Enemy destination choice is now always engagement / surround oriented, not gated by a low-ally-only pressure mode.
+- Current destination priority:
+  - attack from current cell
+  - move to a cell that can attack this turn
+  - move toward an engagement / surround cell around the target
+  - otherwise move to the closest reachable cell that keeps pressure
+  - wait only if no reachable engagement or approach cell exists
+- Added engagement helpers:
+  - `_get_enemy_engagement_candidate_cells()`
+  - `_get_enemy_engagement_step_plan_for_actor()`
+  - `_find_enemy_path_to_destination_for_actor()`
+- Surround / engagement candidates are considered for every enemy move, regardless of ally count.
+- If a final surround cell cannot be reached in one turn, the actor now moves to the farthest reachable step along that path instead of idling.
+- Added richer enemy AI logs:
+  - `[ENEMY_AI_SURROUND_DEST]`
+  - `[ENEMY_AI_APPROACH_RING]`
+  - `[ENEMY_AI_WAIT]`
+- Headless verification:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning 없음
+  - lone-ally smoke shows repeated `APPROACH_RING` logs for multiple enemies
+  - front-blocked smoke selects side / rear surround cell
+  - victory / defeat / reinforcement toast paths remain intact
+
+## v0.67k-4 Enemy AI Surround Pressure QA Stable State
+- Documentation-only stable-mark step.
+- No code, scene, or asset changes in this step.
+- `5v5` MVP battle structure remains the current stable baseline.
+- Enemy AI surround-pressure behavior is now QA-stable:
+  - attack from current cell
+  - move to an attackable cell
+  - move to a surround cell around the target
+  - otherwise reduce distance
+- Surround pressure mode condition:
+  - deployed alive ally count `<= 2`
+  - deployed alive enemy count `>` deployed alive ally count
+- Verified behavior:
+  - last lone ally case shows enemy approach pressure logs
+  - front-blocked case selects side / rear surround cell
+  - only truly blocked enemy actors should wait
+- Verified stable systems:
+  - victory / defeat toast
+  - reinforcement arrival toast
+  - hero identity registry
+  - full auto battle completion path
+- Headless verification:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning 없음
+  - `5v5` actor / target path remains stable
+
+## v0.67k-3 Enemy AI Surround Pressure Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Enemy AI destination priority is now:
+  - attack from current cell
+  - move to an attackable cell
+  - move to a surround cell around the target
+  - otherwise reduce distance
+- Added surround helpers:
+  - `_should_enemy_use_surround_pressure_mode()`
+  - `_get_surround_candidate_cells_around_target()`
+  - `_is_surround_candidate_cell_for_target()`
+- Surround pressure mode turns on when:
+  - deployed alive ally count `<= 2`
+  - deployed alive enemy count `>` deployed alive ally count
+- Added enemy AI logs:
+  - `[ENEMY_AI_ATTACK]`
+  - `[ENEMY_AI_SURROUND]`
+  - `[ENEMY_AI_APPROACH]`
+  - `[ENEMY_AI_WAIT]`
+- Kept damage, move range, attack range, auto-battle step limit, reinforce deploy logic, hero identity registry, toast queue, and scene structure unchanged.
+
 v0.67k-2 Victory / Defeat Toast MVP
 
 ## v0.67k-2 Victory / Defeat Toast MVP State

@@ -3,6 +3,154 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67k-3b Enemy AI Surround Engagement Fix
+
+Goal:
+- v0.67k-4 Enemy AI Surround Pressure QA Stable with Known Issue
+
+Completed:
+- Documentation-only wrap-up step.
+- No code, scene, or asset edits in this step.
+- Marked today’s wrap-up baseline as:
+  - `v0.67k-4 Enemy AI Surround Pressure QA Stable with Known Issue`
+- Recorded stable systems:
+  - `5v5` MVP structure
+  - Hero Identity Registry
+  - reinforcement arrival toast
+  - victory / defeat result toast
+  - auto battle result path
+  - improved enemy surround engagement
+- Recorded Known Issue:
+  - some enemy actors still idle in multi-target states even when alternate engagement should be possible
+  - engagement reservation / target redistribution remains the likely next fix area
+
+Verification:
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning 없음.
+- Identity registry / reinforcement toast / result toast remain intact.
+- `5v5` actor / target path remains intact.
+- Enemy surround improvement remains applied, but passive multi-target idle is still known issue.
+
+Remaining tasks:
+- v0.67k-5 Enemy AI Multi-Target Engagement Reservation Fix
+- v0.67o 5v5 Long-run Auto Battle QA
+- v0.67l Formation Slot Guide Layer
+- v0.67m Result Toast Duration / BGM Sync Prep
+- v0.67n Worldmap Battle Roster Contract Prep
+
+Starting baseline:
+- v0.67k-4 Enemy AI Surround Pressure QA Stable
+
+Goal:
+- v0.67k-3b Enemy AI Surround Engagement Fix
+
+Completed:
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Reworked enemy destination selection to always consider surround / engagement candidates.
+- Removed low-ally-only gating from practical destination choice.
+- Added engagement helpers:
+  - `_get_enemy_engagement_candidate_cells()`
+  - `_get_enemy_engagement_step_plan_for_actor()`
+  - `_find_enemy_path_to_destination_for_actor()`
+- Enemy AI now advances along the path toward a final engagement ring cell even if that final cell cannot be reached in one turn.
+- Added clearer logs:
+  - `[ENEMY_AI_SURROUND_DEST]`
+  - `[ENEMY_AI_APPROACH_RING]`
+  - `[ENEMY_AI_WAIT]`
+- Kept damage / move / attack formulas, auto-battle step limit, reinforce deploy logic, hero identity registry, toast queue, and scene structure unchanged.
+
+Verification:
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning 없음.
+- Lone-ally smoke showed repeated `APPROACH_RING` logs across multiple enemy turns.
+- Front-blocked smoke selected a side / rear surround cell.
+- Result toast and reinforcement toast smoke remained intact.
+
+Remaining tasks:
+- Enemy Surround F6 QA
+- v0.67o 5v5 Long-run Auto Battle QA
+- v0.67m Result Toast Duration / BGM Sync Prep
+- v0.67n Worldmap Battle Roster Contract Prep
+- v0.67l Formation Slot Guide Layer
+
+Starting baseline:
+- v0.67k-3 Enemy AI Surround Pressure Fix
+
+Goal:
+- v0.67k-4 Enemy AI Surround Pressure QA Stable
+
+Completed:
+- Documentation-only stable-mark step.
+- No code, scene, or asset edits in this step.
+- Locked today’s stable baseline as:
+  - `v0.67k-4 Enemy AI Surround Pressure QA Stable`
+- Recorded validated battle behavior:
+  - `5v5` MVP structure remains stable
+  - enemy AI keeps pressure on the last `1~2` allies
+  - front-blocked routes fall back to side / rear surround cells
+  - only truly blocked actors should wait
+  - victory / defeat toast remains stable
+  - reinforcement arrival toast remains stable
+  - hero identity registry remains stable
+  - full auto battle result path remains stable
+
+Verification:
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning 없음.
+- Lone-ally endgame smoke confirmed repeated enemy approach logs.
+- Front-blocked surround smoke confirmed side / rear surround cell selection.
+- `5v5` actor / target path remains intact.
+- Victory / defeat / reinforcement / round toast queue remains intact.
+
+Remaining tasks:
+- v0.67o 5v5 Long-run Auto Battle QA
+- v0.67m Result Toast Duration / BGM Sync Prep
+- v0.67n Worldmap Battle Roster Contract Prep
+- v0.67l Formation Slot Guide Layer
+
+Starting baseline:
+- v0.67k-2 Victory / Defeat Toast MVP
+
+Goal:
+- v0.67k-3 Enemy AI Surround Pressure Fix
+
+Completed:
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Reworked enemy destination choice priority for low-ally endgame pressure.
+- Added surround-pressure mode:
+  - deployed alive ally count `<= 2`
+  - deployed alive enemy count `>` ally count
+- Added surround candidate helpers:
+  - `_should_enemy_use_surround_pressure_mode()`
+  - `_get_surround_candidate_cells_around_target()`
+  - `_is_surround_candidate_cell_for_target()`
+- Enemy AI now prefers:
+  - current-cell attack
+  - move-then-attack cells
+  - surround cells near the target
+  - then plain distance reduction
+- Added AI decision logs:
+  - `[ENEMY_AI_ATTACK]`
+  - `[ENEMY_AI_SURROUND]`
+  - `[ENEMY_AI_APPROACH]`
+  - `[ENEMY_AI_WAIT]`
+- Kept damage / move / attack formulas, auto-battle step limit, reinforce deploy logic, hero identity registry, toast queue, and scene structure unchanged.
+
+Verification:
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `5v5` actor / target counts remain stable.
+- Headless endgame smoke confirms enemy surround / approach logs appear before result resolution.
+- Victory / defeat result toast and reinforcement arrival toast remain active.
+
+Remaining tasks:
+- F6 QA for endgame surround pressure behavior
+- 5v5 Battle Sustain QA
+
+Starting baseline:
 - v0.67k-1-hotfix Reinforcement Toast Sequence Fix
 
 Goal:

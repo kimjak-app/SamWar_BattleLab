@@ -416,6 +416,7 @@ var pending_battle_toasts: Array = []
 var is_battle_toast_playing := false
 var active_battle_toast_tag := ""
 var has_battle_result_toast_shown := false
+var enemy_ai_last_destination_debug: Dictionary = {}
 var move_dust_tweens: Dictionary = {}
 var ally_ready_frame_tween: Tween = null
 var ally_support_ready_frame_tween: Tween = null
@@ -885,6 +886,7 @@ func reset_demo_state() -> void:
 	is_battle_toast_playing = false
 	active_battle_toast_tag = ""
 	has_battle_result_toast_shown = false
+	enemy_ai_last_destination_debug.clear()
 	_hide_round_start_toast()
 	has_logged_hero_identity_validation = false
 	battle_log_lines = [
@@ -1840,11 +1842,21 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 		return
 
 	if is_unit_in_attack_range(enemy_actor_state, target_state):
+		print("[ENEMY_AI_ATTACK] actor=%s target=%s reason=in_range" % [
+			enemy_actor_state.display_name,
+			target_state.display_name,
+		])
 		_play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state, target_state)
 		return
 
 	var destination := _choose_enemy_basic_ai_destination_for_actor(enemy_actor_state, target_state)
 	if destination == enemy_actor_state.grid_cell:
+		var wait_reason := str(enemy_ai_last_destination_debug.get("reason", "no_reachable_cell"))
+		print("[ENEMY_AI_WAIT] actor=%s reason=%s target=%s" % [
+			enemy_actor_state.display_name,
+			wait_reason,
+			target_state.display_name,
+		])
 		_append_battle_log("%s 대기" % enemy_actor_state.display_name)
 		_mark_enemy_unit_acted(enemy_actor_state)
 		_return_to_ally_turn()
@@ -1852,10 +1864,38 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 
 	var move_path := _find_enemy_move_path_for_actor(enemy_actor_state, enemy_actor_state.grid_cell, destination)
 	if move_path.is_empty() or move_path.size() < 2:
+		print("[ENEMY_AI_WAIT] actor=%s reason=no_path target=%s dest=%s" % [
+			enemy_actor_state.display_name,
+			target_state.display_name,
+			destination,
+		])
 		_append_battle_log("%s 이동 경로 없음" % enemy_actor_state.display_name)
 		_mark_enemy_unit_acted(enemy_actor_state)
 		_return_to_ally_turn()
 		return
+	var decision_mode := str(enemy_ai_last_destination_debug.get("mode", "approach_distance"))
+	var final_cell: Vector2i = enemy_ai_last_destination_debug.get("final_cell", destination)
+	var step_cell: Vector2i = enemy_ai_last_destination_debug.get("step_cell", destination)
+	if decision_mode == "engagement_ring":
+		print("[ENEMY_AI_SURROUND_DEST] actor=%s target=%s final=%s step=%s" % [
+			enemy_actor_state.display_name,
+			target_state.display_name,
+			final_cell,
+			step_cell,
+		])
+	elif decision_mode == "engagement_approach":
+		print("[ENEMY_AI_APPROACH_RING] actor=%s target=%s dest=%s path_to_ring=true" % [
+			enemy_actor_state.display_name,
+			target_state.display_name,
+			step_cell,
+		])
+	else:
+		print("[ENEMY_AI_APPROACH] actor=%s target=%s dest=%s dist=%d" % [
+			enemy_actor_state.display_name,
+			target_state.display_name,
+			destination,
+			absi(destination.x - target_state.grid_cell.x) + absi(destination.y - target_state.grid_cell.y)
+		])
 
 	_append_battle_log("%s 접근" % enemy_actor_state.display_name)
 	_play_enemy_actor_path_move_then_act(enemy_actor_state, move_path)
@@ -6834,6 +6874,10 @@ func _find_enemy_move_path(start_cell: Vector2i, target_cell: Vector2i) -> Array
 
 
 func _find_enemy_move_path_for_actor(enemy_actor_state: BattleUnitState, start_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
+	return _find_enemy_path_to_destination_for_actor(enemy_actor_state, start_cell, target_cell, enemy_actor_state.move_range if enemy_actor_state != null else 0)
+
+
+func _find_enemy_path_to_destination_for_actor(enemy_actor_state: BattleUnitState, start_cell: Vector2i, target_cell: Vector2i, max_steps_override: int = -1) -> Array[Vector2i]:
 	var empty_path: Array[Vector2i] = []
 	if battle_grid_controller == null:
 		return empty_path
@@ -6846,7 +6890,7 @@ func _find_enemy_move_path_for_actor(enemy_actor_state: BattleUnitState, start_c
 	if not _is_cell_walkable_for_enemy_actor(enemy_actor_state, target_cell, start_cell):
 		return empty_path
 
-	var max_steps := enemy_actor_state.move_range
+	var max_steps := max_steps_override if max_steps_override >= 0 else enemy_actor_state.move_range
 	var frontier: Array[Vector2i] = [start_cell]
 	var came_from: Dictionary = {start_cell: start_cell}
 	var steps_from_start: Dictionary = {start_cell: 0}
@@ -6951,12 +6995,17 @@ func _choose_enemy_basic_ai_destination() -> Vector2i:
 
 
 func _choose_enemy_basic_ai_destination_for_actor(enemy_actor_state: BattleUnitState, target_state: BattleUnitState) -> Vector2i:
+	enemy_ai_last_destination_debug.clear()
 	if enemy_actor_state == null:
 		return Vector2i.ZERO
 	if target_state == null:
+		enemy_ai_last_destination_debug = {"reason": "no_target"}
 		return enemy_actor_state.grid_cell
 
 	var start_cell := enemy_actor_state.grid_cell
+	if is_unit_in_attack_range(enemy_actor_state, target_state):
+		enemy_ai_last_destination_debug = {"mode": "attack_now", "reason": "in_range", "final_cell": start_cell, "step_cell": start_cell}
+		return start_cell
 	var reachable_paths := _get_enemy_reachable_paths_for_actor(enemy_actor_state, start_cell)
 	var current_distance := get_unit_grid_distance(enemy_actor_state, target_state)
 	var best_attack_cell := start_cell
@@ -7000,10 +7049,141 @@ func _choose_enemy_basic_ai_destination_for_actor(enemy_actor_state: BattleUnitS
 			best_approach_path_length = path_length
 
 	if best_attack_cell != start_cell:
+		enemy_ai_last_destination_debug = {"mode": "attack_after_move", "reason": "reachable_attack_cell", "final_cell": best_attack_cell, "step_cell": best_attack_cell}
 		return best_attack_cell
-	if best_approach_cell != start_cell and best_approach_distance < current_distance:
+
+	var engagement_plan := _get_enemy_engagement_step_plan_for_actor(enemy_actor_state, target_state)
+	if not engagement_plan.is_empty():
+		var engagement_step: Vector2i = engagement_plan.get("step_cell", start_cell)
+		if engagement_step != start_cell:
+			enemy_ai_last_destination_debug = engagement_plan.duplicate(true)
+			return engagement_step
+
+	if best_approach_cell != start_cell and best_approach_distance <= current_distance:
+		enemy_ai_last_destination_debug = {"mode": "approach_distance", "reason": "closest_reachable_cell", "final_cell": best_approach_cell, "step_cell": best_approach_cell}
 		return best_approach_cell
+	enemy_ai_last_destination_debug = {"reason": "no_reachable_cell", "final_cell": start_cell, "step_cell": start_cell}
 	return start_cell
+
+
+func _should_enemy_use_surround_pressure_mode() -> bool:
+	var alive_ally_count := _get_alive_deployed_unit_states_for_side("ally").size()
+	var alive_enemy_count := _get_alive_deployed_unit_states_for_side("enemy").size()
+	return alive_ally_count <= 2 and alive_enemy_count > alive_ally_count
+
+
+func _get_surround_candidate_cells_around_target(target_state: BattleUnitState) -> Array[Vector2i]:
+	return _get_enemy_engagement_candidate_cells(target_state, enemy_unit_state)
+
+
+func _get_enemy_engagement_candidate_cells(target_state: BattleUnitState, enemy_actor_state: BattleUnitState) -> Array[Vector2i]:
+	var candidate_cells: Array[Vector2i] = []
+	if target_state == null or battle_grid_controller == null or enemy_actor_state == null:
+		return candidate_cells
+	var origin := target_state.grid_cell
+	var seen: Dictionary = {}
+	var max_attack_distance := maxi(1, enemy_actor_state.attack_range)
+	for offset_x in range(-max_attack_distance, max_attack_distance + 1):
+		for offset_y in range(-max_attack_distance, max_attack_distance + 1):
+			if offset_x == 0 and offset_y == 0:
+				continue
+			var candidate := origin + Vector2i(offset_x, offset_y)
+			if seen.has(candidate):
+				continue
+			seen[candidate] = true
+			if not battle_grid_controller.is_in_bounds(candidate):
+				continue
+			if candidate == target_state.grid_cell:
+				continue
+			var candidate_distance := absi(candidate.x - origin.x) + absi(candidate.y - origin.y)
+			if enemy_actor_state.attack_range <= 1:
+				var is_adjacent_ring := absi(offset_x) <= 1 and absi(offset_y) <= 1
+				if not is_adjacent_ring:
+					continue
+			elif candidate_distance <= 0 or candidate_distance > enemy_actor_state.attack_range:
+				continue
+			if candidate != enemy_actor_state.grid_cell and _is_cell_occupied_except(candidate, enemy_actor_state):
+				continue
+			candidate_cells.append(candidate)
+	candidate_cells.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		var a_distance := absi(a.x - origin.x) + absi(a.y - origin.y)
+		var b_distance := absi(b.x - origin.x) + absi(b.y - origin.y)
+		var a_actor_distance := absi(a.x - enemy_actor_state.grid_cell.x) + absi(a.y - enemy_actor_state.grid_cell.y)
+		var b_actor_distance := absi(b.x - enemy_actor_state.grid_cell.x) + absi(b.y - enemy_actor_state.grid_cell.y)
+		if a_distance != b_distance:
+			return a_distance < b_distance
+		if a_actor_distance != b_actor_distance:
+			return a_actor_distance < b_actor_distance
+		if a.y != b.y:
+			return a.y < b.y
+		return a.x < b.x
+	)
+	return candidate_cells
+
+
+func _is_surround_candidate_cell_for_target(cell: Vector2i, target_state: BattleUnitState) -> bool:
+	var actor_state := current_enemy_ai_actor_state if current_enemy_ai_actor_state != null else enemy_unit_state
+	for candidate_cell in _get_enemy_engagement_candidate_cells(target_state, actor_state):
+		if candidate_cell == cell:
+			return true
+	return false
+
+
+func _get_enemy_engagement_step_plan_for_actor(enemy_actor_state: BattleUnitState, target_state: BattleUnitState) -> Dictionary:
+	var empty_plan: Dictionary = {}
+	if enemy_actor_state == null or target_state == null or battle_grid_controller == null:
+		return empty_plan
+	var start_cell := enemy_actor_state.grid_cell
+	var engagement_candidates := _get_enemy_engagement_candidate_cells(target_state, enemy_actor_state)
+	var best_plan: Dictionary = {}
+	var best_can_attack_after_step := false
+	var best_candidate_rank := 9999
+	var best_step_distance := 9999
+	var best_full_path_length := 9999
+	for candidate_index in range(engagement_candidates.size()):
+		var candidate_cell := engagement_candidates[candidate_index]
+		if candidate_cell == start_cell:
+			continue
+		var full_path := _find_enemy_path_to_destination_for_actor(enemy_actor_state, start_cell, candidate_cell, battle_grid_controller.grid_width * battle_grid_controller.grid_height)
+		if full_path.is_empty() or full_path.size() < 2:
+			continue
+		var full_path_length := full_path.size() - 1
+		var step_index := mini(enemy_actor_state.move_range, full_path_length)
+		if step_index <= 0 or step_index >= full_path.size():
+			continue
+		var step_cell: Vector2i = full_path[step_index]
+		if step_cell == start_cell:
+			continue
+		var step_distance := absi(step_cell.x - target_state.grid_cell.x) + absi(step_cell.y - target_state.grid_cell.y)
+		var can_attack_after_step := step_distance <= enemy_actor_state.attack_range
+		var should_replace := false
+		if best_plan.is_empty():
+			should_replace = true
+		elif can_attack_after_step and not best_can_attack_after_step:
+			should_replace = true
+		elif can_attack_after_step == best_can_attack_after_step:
+			if candidate_index < best_candidate_rank:
+				should_replace = true
+			elif candidate_index == best_candidate_rank:
+				if step_distance < best_step_distance:
+					should_replace = true
+				elif step_distance == best_step_distance and full_path_length < best_full_path_length:
+					should_replace = true
+		if not should_replace:
+			continue
+		best_can_attack_after_step = can_attack_after_step
+		best_candidate_rank = candidate_index
+		best_step_distance = step_distance
+		best_full_path_length = full_path_length
+		best_plan = {
+			"mode": "engagement_ring" if step_cell == candidate_cell else "engagement_approach",
+			"reason": "engagement_candidate",
+			"final_cell": candidate_cell,
+			"step_cell": step_cell,
+			"can_attack_after_step": can_attack_after_step,
+			"full_path_length": full_path_length,
+		}
+	return best_plan
 
 
 func get_unit_grid_distance(attacker: BattleUnitState, target: BattleUnitState) -> int:
