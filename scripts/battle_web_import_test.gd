@@ -37,6 +37,10 @@ const MAX_BATTLE_LOG_LINES := 4
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH := "res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png"
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE := preload("res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png")
 const REINFORCEMENT_ARRIVAL_TOAST_TEXT := "지원군 도착!"
+const VICTORY_TOAST_TEXTURE := preload("res://assets/web_battle/ui/results/battle_result_victory.png")
+const DEFEAT_TOAST_TEXTURE := preload("res://assets/web_battle/ui/results/battle_result_defeat.png")
+const VICTORY_TOAST_TEXT := "승리!"
+const DEFEAT_TOAST_TEXT := "패배"
 const FACING_LEFT := "left"
 const FACING_RIGHT := "right"
 const FACING_UP := "up"
@@ -411,6 +415,7 @@ var round_toast_default_texture: Texture2D = null
 var pending_battle_toasts: Array = []
 var is_battle_toast_playing := false
 var active_battle_toast_tag := ""
+var has_battle_result_toast_shown := false
 var move_dust_tweens: Dictionary = {}
 var ally_ready_frame_tween: Tween = null
 var ally_support_ready_frame_tween: Tween = null
@@ -879,6 +884,7 @@ func reset_demo_state() -> void:
 	pending_battle_toasts.clear()
 	is_battle_toast_playing = false
 	active_battle_toast_tag = ""
+	has_battle_result_toast_shown = false
 	_hide_round_start_toast()
 	has_logged_hero_identity_validation = false
 	battle_log_lines = [
@@ -1173,6 +1179,9 @@ func _finish_basic_attack_demo() -> void:
 	_show_unit_closeup_for_ally(active_unit_state)
 	_update_ally_ready_frames()
 	_cleanup_dead_units()
+	if _is_battle_result_finalized():
+		_set_phase(PHASE_ALLY_TURN)
+		return
 	_set_phase(PHASE_ENEMY_TURN)
 	_append_battle_log("적군 턴")
 	_play_enemy_turn_demo()
@@ -1803,6 +1812,9 @@ func _play_enemy_ai_turn() -> void:
 	basic_attack_button.disabled = true
 	_clear_transient_battle_highlights()
 	_cleanup_dead_units()
+	if _is_battle_result_finalized():
+		is_demo_animating = false
+		return
 	_debug_print_combat_distance("ENEMY_TURN_START")
 
 	var enemy_actor_state := _get_next_available_enemy_ai_actor()
@@ -1995,6 +2007,9 @@ func _return_to_ally_turn() -> void:
 	_clear_pending_move_snapshot()
 	_clear_transient_battle_highlights()
 	_cleanup_dead_units()
+	if _is_battle_result_finalized():
+		_set_phase(PHASE_ALLY_TURN)
+		return
 	_reset_unit_group_positions()
 	_hide_all_move_dust_sprites()
 	_set_all_unit_group_modulates(Color.WHITE)
@@ -3475,6 +3490,13 @@ func _show_reinforcement_arrival_toast(arrival_round: int) -> void:
 	])
 
 
+func _show_battle_result_toast(is_victory: bool) -> void:
+	var toast_texture: Texture2D = VICTORY_TOAST_TEXTURE if is_victory else DEFEAT_TOAST_TEXTURE
+	var toast_text := VICTORY_TOAST_TEXT if is_victory else DEFEAT_TOAST_TEXT
+	var toast_tag := "result_victory" if is_victory else "result_defeat"
+	_enqueue_battle_toast(toast_texture, toast_text, 1.1, 200, toast_tag)
+
+
 func _enqueue_battle_toast(
 	toast_texture: Texture2D,
 	toast_text: String,
@@ -3521,6 +3543,37 @@ func _play_next_battle_toast() -> void:
 		pending_battle_toasts.size()
 	])
 	_show_battle_toast(toast_texture, toast_text, hold_duration)
+
+
+func _get_battle_result_state() -> String:
+	var ally_alive_count := _get_alive_deployed_unit_states_for_side("ally").size()
+	var enemy_alive_count := _get_alive_deployed_unit_states_for_side("enemy").size()
+	if enemy_alive_count <= 0 and ally_alive_count > 0:
+		return "victory"
+	if ally_alive_count <= 0:
+		return "defeat"
+	return ""
+
+
+func _is_battle_result_finalized() -> bool:
+	return _get_battle_result_state() != ""
+
+
+func _try_show_battle_result_toast_if_needed() -> bool:
+	var battle_result_state := _get_battle_result_state()
+	if battle_result_state == "":
+		return false
+	if has_battle_result_toast_shown:
+		return true
+	has_battle_result_toast_shown = true
+	var is_victory := battle_result_state == "victory"
+	_show_battle_result_toast(is_victory)
+	print("[BATTLE_RESULT] state=%s ally_alive=%d enemy_alive=%d" % [
+		battle_result_state,
+		_get_alive_deployed_unit_states_for_side("ally").size(),
+		_get_alive_deployed_unit_states_for_side("enemy").size()
+	])
+	return true
 
 
 func _show_battle_toast(toast_texture: Texture2D, toast_text: String, hold_duration: float) -> void:
@@ -3849,6 +3902,8 @@ func _create_fx_sprite(texture: Texture2D, world_pos: Vector2) -> Sprite2D:
 
 
 func _start_new_round() -> void:
+	if _is_battle_result_finalized():
+		return
 	battle_round += 1
 	_clear_pending_move_snapshot()
 	_hide_all_move_dust_sprites()
@@ -5835,6 +5890,7 @@ func _cleanup_dead_units() -> void:
 				active_unit_state = null
 				_hide_unit_closeup_panel()
 	_update_ally_ready_frames()
+	_try_show_battle_result_toast_if_needed()
 
 
 func _set_unit_visual_group_visible(unit_state: BattleUnitState, should_show: bool) -> void:

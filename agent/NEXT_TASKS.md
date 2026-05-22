@@ -1,6 +1,30 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
+v0.67k-2 Victory / Defeat Toast MVP
+
+## Priority 1
+5v5 Battle Sustain QA
+
+Gate:
+- v0.67k-2 confirmed:
+  - result toast queue is stable for victory / defeat
+  - reinforcement / round / result toast ordering does not collide
+  - result toast is one-shot only
+  - auto battle can reach result display without manual restart
+
+## Priority 2
+Victory / Defeat Toast F6 QA
+
+Focus:
+- ally victory shows `battle_result_victory.png` with `승리!`
+- ally defeat shows `battle_result_defeat.png` with `패배`
+- no duplicate result toast
+- queue order remains stable around reinforcement and round toasts
+
+## Next Prototype
+Reinforcement Arrival Toast Polish
+
 v0.67k-1-hotfix Reinforcement Toast Sequence Fix
 
 ## Priority 1

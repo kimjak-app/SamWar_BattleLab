@@ -3,6 +3,40 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67k-1-hotfix Reinforcement Toast Sequence Fix
+
+Goal:
+- v0.67k-2 Victory / Defeat Toast MVP
+
+Completed:
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Added queue-based result toasts for battle victory and defeat.
+- Added runtime result textures:
+  - `battle_result_victory.png`
+  - `battle_result_defeat.png`
+- Added one-shot result guard:
+  - `has_battle_result_toast_shown`
+- Added result helpers:
+  - `_show_battle_result_toast()`
+  - `_get_battle_result_state()`
+  - `_is_battle_result_finalized()`
+  - `_try_show_battle_result_toast_if_needed()`
+- Connected result checks to `_cleanup_dead_units()`.
+- Added turn/round guards so battle progression stops cleanly after result finalization.
+- Kept reinforce deploy logic, actor/target flow, auto-battle scoring, enemy AI target policy, and scene layout unchanged.
+
+Verification:
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Victory path logs `result_victory` once with `battle_result_victory.png`.
+- Defeat path logs `result_defeat` once with `battle_result_defeat.png`.
+- Reinforcement / round / result toasts share the same queue without collision.
+
+Remaining tasks:
+- F6 QA for victory / defeat result toast visuals
+- 5v5 Battle Sustain QA
+
+Starting baseline:
 - v0.67k-1 Reinforcement Arrival Toast MVP
 
 Goal:

@@ -4,6 +4,34 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
+v0.67k-2 Victory / Defeat Toast MVP
+
+## v0.67k-2 Victory / Defeat Toast MVP State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Reused the existing battle toast queue for result display.
+- Added runtime result toast textures:
+  - `battle_result_victory.png`
+  - `battle_result_defeat.png`
+- Added one-shot battle result toast guard:
+  - `has_battle_result_toast_shown`
+- Added result toast helpers:
+  - `_show_battle_result_toast()`
+  - `_get_battle_result_state()`
+  - `_is_battle_result_finalized()`
+  - `_try_show_battle_result_toast_if_needed()`
+- Result criteria:
+  - victory = deployed alive enemy count reaches `0`
+  - defeat = deployed alive ally count reaches `0`
+- Queue tags:
+  - `result_victory`
+  - `result_defeat`
+- Transition guards now stop extra round/turn progression after result finalization.
+- Reinforcement / round / result toasts share the same queue without overlap.
+- Existing reinforce deploy logic, actor/target logic, auto-battle scoring, enemy AI target policy, and UI layer policies remain unchanged.
+- Headless verification target:
+  - victory toast plays once with `battle_result_victory.png`
+  - defeat toast plays once with `battle_result_defeat.png`
+
 v0.67k-1-hotfix Reinforcement Toast Sequence Fix
 
 ## v0.67k-1-hotfix Reinforcement Toast Sequence Fix State

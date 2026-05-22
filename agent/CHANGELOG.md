@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## v0.67k-2 Victory / Defeat Toast MVP
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Reused the existing battle toast queue for battle-end results.
+- Added result toast textures:
+  - `battle_result_victory.png`
+  - `battle_result_defeat.png`
+- Added one-shot battle result state guard:
+  - `has_battle_result_toast_shown`
+- Added runtime result helpers:
+  - `_show_battle_result_toast()`
+  - `_get_battle_result_state()`
+  - `_is_battle_result_finalized()`
+  - `_try_show_battle_result_toast_if_needed()`
+- Connected result toast checks to dead-unit cleanup and blocked extra round/turn progression after result finalization.
+- Kept reinforcement deploy conditions, actor/target logic, auto-battle scoring, enemy AI target policy, hero identity registry, and scene structure unchanged.
+
 ## v0.67k-1-hotfix Reinforcement Toast Sequence Fix
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
