@@ -4,7 +4,55 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67j-3 City Reinforcement Contract Scaffold
+v0.67j-4 Reinforce02 City-Origin Entry Prototype
+
+## v0.67j-4 Reinforce02 City-Origin Entry Prototype State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Added real reinforce02 scene/runtime scaffold for both sides:
+  - `ally_reinforce_02`
+  - `enemy_reinforce_02`
+- Added scene nodes for reinforce02:
+  - actual visual root
+  - marker
+  - portrait marker
+  - click area
+  - ally ready frame
+  - ally/enemy facing indicator
+- Added:
+  - `ally_reinforce_02_unit_state`
+  - `enemy_reinforce_02_unit_state`
+- Expanded adapter/runtime state lists to:
+  - ally count = `5`
+  - enemy count = `5`
+  - all count = `10`
+- Confirmed reinforce02 starts as city-origin mock contract with:
+  - `entry_rule = city_reinforcement`
+  - `source_city_id`
+  - `dispatch_type`
+  - `assigned_hero_id`
+  - `assigned_unit_id`
+  - `arrival_round = 3`
+- Confirmed battle-start state:
+  - alive deployed count = `6`
+  - reinforce01 `deployed=false`
+  - reinforce02 `deployed=false`
+  - actor candidates ally/enemy = `3/3`
+  - target candidates ally/enemy = `3/3`
+- Confirmed round `2` state:
+  - reinforce01 pair deploys on existing test trigger
+  - alive deployed count = `8`
+  - actor candidates ally/enemy = `4/4`
+  - target candidates ally/enemy = `4/4`
+- Confirmed round `3` state:
+  - reinforce02 pair deploys from city-origin mock contract
+  - alive deployed count = `10`
+  - actor candidates ally/enemy = `5/5`
+  - target candidates ally/enemy = `5/5`
+  - reinforce02 click / HP / troop visibility restore correctly after deploy
+- Kept reinforce01 round `2` deployment as existing temporary test trigger.
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept HP bar, troop label, HP alpha `0.8`, layer profile, enemy portrait vertical facing behavior, enemy move facing-indicator hide/show timing, and HP `0` cleanup behavior unchanged.
 
 ## v0.67j-3 City Reinforcement Contract Scaffold State
 - This step is documentation-first contract definition.

@@ -3,6 +3,63 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67j-3 City Reinforcement Contract Scaffold Stable
+
+Goal:
+- v0.67j-4 Reinforce02 City-Origin Entry Prototype
+
+Completed:
+- Verified clean worktree before starting this implementation step.
+- Added real reinforce02 scene scaffold under:
+  - `Slots/AllyReinforce02Slot`
+  - `Slots/EnemyReinforce02Slot`
+- Added root-level reinforce02 markers / click areas / portrait markers.
+- Added `BattleUI` reinforce02 facing indicators and ally ready frame.
+- Added:
+  - `ally_reinforce_02_unit_state`
+  - `enemy_reinforce_02_unit_state`
+- Expanded adapter/runtime state lists to `5v5`.
+- Added mock city-origin metadata contract for reinforce02:
+  - `entry_rule = city_reinforcement`
+  - `source_city_id`
+  - `dispatch_type`
+  - `assigned_hero_id`
+  - `assigned_unit_id`
+  - `arrival_round = 3`
+- Kept current reinforce01 round `2` trigger unchanged as the earlier technical deployment test path.
+- Added reinforce02 round `3` arrival helper path based on metadata `arrival_round`.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Confirmed no `GDScript::reload` warning on the project/scene verification path.
+- Confirmed runtime counts:
+  - round `1` alive deployed count = `6`
+  - round `2` alive deployed count = `8`
+  - round `3` alive deployed count = `10`
+  - round `3` actor candidates ally/enemy = `5/5`
+  - round `3` target candidates ally/enemy = `5/5`
+- Confirmed reinforce02 starts hidden with click/target exclusion and becomes visible/clickable on round `3`.
+- Confirmed reinforce02 HP bar / troop label visibility restores after deploy.
+- Confirmed auto-target parity OK and enemy AI target parity OK on startup verification path.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Updated:
+  - `agent/CURRENT_STATE.md`
+  - `agent/NEXT_TASKS.md`
+  - `agent/CHANGELOG.md`
+  - `agent/SESSION_LOG.md`
+
+QA:
+- Headless project launch passed.
+- Headless `Battle_Fullscreen_Test.tscn` launch passed.
+- Headless round-transition QA confirmed `6 -> 8 -> 10` deployed count and `3/3 -> 4/4 -> 5/5` actor/target transitions.
+- Manual `F6` QA remains pending in editor.
+
+Remaining tasks:
+- v0.67j-5 MVP 5v5 QA Stable
+- Auto battle editor-side stop responsiveness QA
+
+## 2026-05-22
+
+Starting baseline:
 - v0.67j-2 Reinforce01 QA Stable
 
 Goal:

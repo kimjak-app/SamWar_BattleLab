@@ -1,21 +1,23 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67j-3 City Reinforcement Contract Scaffold
-
-## Priority 1
 v0.67j-4 Reinforce02 City-Origin Entry Prototype
 
+## Priority 1
+v0.67j-5 MVP 5v5 QA Stable
+
 Gate:
-- v0.67j-3 defined:
-  - reinforcement means future city/castle-origin dispatch, not a fixed round spawn
-  - reinforce slot metadata contract must carry city-origin payload
-  - reinforce01 round `2` entry remains a temporary test trigger only
+- v0.67j-4 confirmed:
+  - reinforce02 starts `deployed=false` with city-origin mock contract metadata
+  - reinforce01 deploys on round `2`
+  - reinforce02 deploys on round `3`
+  - deployed alive count moves `6 -> 8 -> 10`
+  - actor / target counts move `3/3 -> 4/4 -> 5/5`
 
 Goal:
-- Prototype `reinforce_02` as the first city-origin entry consumer.
-- Feed reinforce entry through metadata contract instead of hard-coded round-copy behavior.
-- Keep reinforce02 excluded from actor/target/occupied paths until its city-origin deployment timing is enabled.
+- QA the current `5v5` battle state after reinforce02 city-origin entry.
+- Verify manual and auto battle behavior remains stable across round `1/2/3` transitions.
+- Verify reinforce02 cleanup, click/target gating, UI state, and enemy AI order under sustained combat.
 
 ## Priority 2
 v0.67 Slot Count Expansion Plan
@@ -35,6 +37,33 @@ Goal:
 
 Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
+
+## Completed
+v0.67j-4 Reinforce02 City-Origin Entry Prototype
+
+Completed items:
+- Added real reinforce02 scene/runtime scaffold for both sides.
+- Added:
+  - `ally_reinforce_02_unit_state`
+  - `enemy_reinforce_02_unit_state`
+- Added city-origin mock contract metadata for reinforce02:
+  - `entry_rule = city_reinforcement`
+  - `source_city_id`
+  - `dispatch_type`
+  - `assigned_hero_id`
+  - `assigned_unit_id`
+  - `arrival_round = 3`
+- Kept reinforce01 round `2` deployment logic unchanged.
+- Added reinforce02 round `3` city-origin arrival trigger.
+- Confirmed counts:
+  - battle start alive deployed = `6`
+  - round `2` alive deployed = `8`
+  - round `3` alive deployed = `10`
+  - round `3` actor candidates ally/enemy = `5/5`
+  - round `3` target candidates ally/enemy = `5/5`
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
 
 ## Completed
 v0.67j-3 City Reinforcement Contract Scaffold

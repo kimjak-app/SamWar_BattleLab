@@ -1,5 +1,35 @@
 # CHANGELOG
 
+## v0.67j-4 Reinforce02 City-Origin Entry Prototype
+
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Added reinforce02 scene nodes for both sides:
+  - unit visual root
+  - marker
+  - portrait marker
+  - click area
+  - ally ready frame
+  - ally/enemy facing indicators
+- Added:
+  - `ally_reinforce_02_unit_state`
+  - `enemy_reinforce_02_unit_state`
+- Expanded adapter/runtime state arrays to `ally=5`, `enemy=5`, `all=10`.
+- Added mock city-origin reinforce metadata for reinforce02:
+  - `entry_rule = city_reinforcement`
+  - `source_city_id`
+  - `dispatch_type`
+  - `assigned_hero_id`
+  - `assigned_unit_id`
+  - `arrival_round = 3`
+- Kept reinforce02 hidden and undeployed at battle start.
+- Added one-time round `3` city-origin deployment trigger for the reinforce02 pair.
+- Verified deployed count moves `6 -> 8 -> 10`.
+- Verified actor/target candidate counts move `3/3 -> 4/4 -> 5/5`.
+- Kept reinforce01 round `2` test trigger logic unchanged.
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target-selection policy unchanged.
+- Kept HP bar, troop label, HP alpha `0.8`, layer profile, enemy move facing-indicator hide/show timing, and HP `0` cleanup behavior unchanged.
+
 ## v0.67j-3 City Reinforcement Contract Scaffold
 
 - This step is documentation-first and contract-definition only.
