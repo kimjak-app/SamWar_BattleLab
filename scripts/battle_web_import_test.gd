@@ -260,6 +260,7 @@ var all_battle_unit_states: Array[BattleUnitState] = []
 var unit_state_by_legacy_slot_id: Dictionary = {}
 var unit_state_by_capacity_slot_id: Dictionary = {}
 var active_unit_state: BattleUnitState
+var has_printed_adapter_alive_parity_snapshot := false
 var active_unit_side := "ally"
 var has_selected_move_target := false
 var selected_move_cell := Vector2i(-1, -1)
@@ -505,6 +506,7 @@ func _ready() -> void:
 	_debug_print_unit_visual_root_slots()
 	_debug_print_capacity_slot_registry()
 	_debug_print_unit_state_visual_binding_summary()
+	_debug_print_adapter_alive_parity_snapshot_once()
 
 
 func _process(_delta: float) -> void:
@@ -2008,6 +2010,10 @@ func _get_all_battle_unit_states_from_adapter() -> Array[BattleUnitState]:
 	return result
 
 
+func _is_battle_unit_state_adapter_ready() -> bool:
+	return not all_battle_unit_states.is_empty()
+
+
 func _get_unit_state_for_legacy_slot_id(legacy_slot_id: String) -> BattleUnitState:
 	if legacy_slot_id == "":
 		return null
@@ -2059,6 +2065,38 @@ func _get_active_unit_states_for_side(side: String) -> Array[BattleUnitState]:
 		if _is_unit_state_active_by_capacity_slot(unit_state):
 			filtered_states.append(unit_state)
 	return filtered_states
+
+
+func _get_alive_unit_states_for_side_from_adapter(side: String) -> Array[BattleUnitState]:
+	var alive_states: Array[BattleUnitState] = []
+	for unit_state in _get_unit_states_for_side(side):
+		if unit_state != null and unit_state.is_alive():
+			alive_states.append(unit_state)
+	return alive_states
+
+
+func _get_alive_deployed_unit_states_for_side(side: String) -> Array[BattleUnitState]:
+	var alive_states: Array[BattleUnitState] = []
+	for unit_state in _get_unit_states_for_side(side):
+		if unit_state == null:
+			continue
+		if not unit_state.is_alive():
+			continue
+		if not _is_unit_state_active_by_capacity_slot(unit_state):
+			continue
+		if not _is_unit_state_deployed_by_capacity_slot(unit_state):
+			continue
+		alive_states.append(unit_state)
+	return alive_states
+
+
+func _get_all_alive_unit_states_from_adapter() -> Array[BattleUnitState]:
+	var alive_states: Array[BattleUnitState] = []
+	for unit_state in _get_alive_deployed_unit_states_for_side("ally"):
+		alive_states.append(unit_state)
+	for unit_state in _get_alive_deployed_unit_states_for_side("enemy"):
+		alive_states.append(unit_state)
+	return alive_states
 
 
 func _is_unit_state_deployed_by_capacity_slot(unit_state: BattleUnitState) -> bool:
@@ -2248,6 +2286,39 @@ func _debug_print_battle_unit_state_list_adapter() -> void:
 		str(unit_state_by_capacity_slot_id.keys()),
 		str(_get_deployed_capacity_slots_for_side("ally")),
 		str(_get_deployed_capacity_slots_for_side("enemy")),
+	])
+
+
+func _debug_print_adapter_alive_parity_snapshot_once() -> void:
+	if has_printed_adapter_alive_parity_snapshot:
+		return
+	has_printed_adapter_alive_parity_snapshot = true
+
+	var adapter_alive_allies := _get_alive_deployed_unit_states_for_side("ally")
+	var adapter_alive_enemies := _get_alive_deployed_unit_states_for_side("enemy")
+	var fallback_alive_allies := _get_fallback_alive_ally_units()
+	var fallback_alive_enemies := _get_fallback_alive_enemy_units()
+	var adapter_all_alive := _get_all_alive_unit_states_from_adapter()
+	var parity_ok := (
+		adapter_alive_allies.size() == fallback_alive_allies.size()
+		and adapter_alive_enemies.size() == fallback_alive_enemies.size()
+		and adapter_all_alive.size() == fallback_alive_allies.size() + fallback_alive_enemies.size()
+	)
+
+	print("ADAPTER ALIVE PARITY SNAPSHOT:")
+	print("adapter_alive_ally_count=%s adapter_alive_enemy_count=%s fallback_alive_ally_count=%s fallback_alive_enemy_count=%s all_alive_count=%s" % [
+		str(adapter_alive_allies.size()),
+		str(adapter_alive_enemies.size()),
+		str(fallback_alive_allies.size()),
+		str(fallback_alive_enemies.size()),
+		str(adapter_all_alive.size()),
+	])
+	print("active_capacity_slots ally=%s enemy=%s deployed_capacity_slots ally=%s enemy=%s parity_ok=%s" % [
+		str(_get_active_capacity_slots_for_side("ally")),
+		str(_get_active_capacity_slots_for_side("enemy")),
+		str(_get_deployed_capacity_slots_for_side("ally")),
+		str(_get_deployed_capacity_slots_for_side("enemy")),
+		str(parity_ok),
 	])
 
 
@@ -3793,13 +3864,10 @@ func _update_enemy_target_visuals_from_state(target_state: BattleUnitState) -> v
 
 
 func _get_alive_enemy_targets() -> Array[BattleUnitState]:
-	var targets: Array[BattleUnitState] = []
-	var candidates: Array = [enemy_unit_state, enemy_support_unit_state]
-	for candidate in candidates:
-		var target_state := candidate as BattleUnitState
-		if target_state != null and target_state.is_alive():
-			targets.append(target_state)
-	return targets
+	var adapter_targets := _get_alive_deployed_unit_states_for_side("enemy")
+	if _is_battle_unit_state_adapter_ready() and not adapter_targets.is_empty():
+		return adapter_targets
+	return _get_fallback_alive_enemy_units()
 
 
 func _get_enemy_ai_target_state() -> BattleUnitState:
@@ -3879,6 +3947,13 @@ func _refresh_attack_target_for_active_ally() -> void:
 
 
 func _get_alive_ally_units() -> Array[BattleUnitState]:
+	var adapter_allies := _get_alive_deployed_unit_states_for_side("ally")
+	if _is_battle_unit_state_adapter_ready() and not adapter_allies.is_empty():
+		return adapter_allies
+	return _get_fallback_alive_ally_units()
+
+
+func _get_fallback_alive_ally_units() -> Array[BattleUnitState]:
 	var allies: Array[BattleUnitState] = []
 	var candidates: Array = [ally_unit_state, ally_support_unit_state]
 	for candidate in candidates:
@@ -3889,6 +3964,13 @@ func _get_alive_ally_units() -> Array[BattleUnitState]:
 
 
 func _get_alive_enemy_units() -> Array[BattleUnitState]:
+	var adapter_enemies := _get_alive_deployed_unit_states_for_side("enemy")
+	if _is_battle_unit_state_adapter_ready() and not adapter_enemies.is_empty():
+		return adapter_enemies
+	return _get_fallback_alive_enemy_units()
+
+
+func _get_fallback_alive_enemy_units() -> Array[BattleUnitState]:
 	var enemies: Array[BattleUnitState] = []
 	var candidates: Array = [enemy_unit_state, enemy_support_unit_state]
 	for candidate in candidates:
@@ -4946,6 +5028,13 @@ func get_active_move_range() -> int:
 
 
 func _get_all_alive_unit_states() -> Array[BattleUnitState]:
+	var adapter_alive_units := _get_all_alive_unit_states_from_adapter()
+	if _is_battle_unit_state_adapter_ready() and not adapter_alive_units.is_empty():
+		return adapter_alive_units
+	return _get_fallback_all_alive_unit_states()
+
+
+func _get_fallback_all_alive_unit_states() -> Array[BattleUnitState]:
 	var alive_units: Array[BattleUnitState] = []
 	var unit_candidates: Array = [
 		ally_unit_state,

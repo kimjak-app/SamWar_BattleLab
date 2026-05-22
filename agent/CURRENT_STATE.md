@@ -4,7 +4,40 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67c-hotfix6 Unit Visual Layer Above HP Bar
+v0.67d 2v2 on Scalable Slot Framework
+
+## v0.67d 2v2 on Scalable Slot Framework State
+- Added adapter-first alive/deployed helper paths in `scripts/battle_web_import_test.gd`.
+- Preserved the existing fixed `2v2` state variables and legacy helper bodies as fallback.
+- Adapter-first helpers now read through the existing `BattleUnitState` side lists and capacity-slot registry.
+- Added:
+  - `_get_alive_unit_states_for_side_from_adapter()`
+  - `_get_alive_deployed_unit_states_for_side()`
+  - `_get_all_alive_unit_states_from_adapter()`
+  - `_is_battle_unit_state_adapter_ready()`
+- Converted these existing helpers to adapter-first with fallback:
+  - `_get_alive_ally_units()`
+  - `_get_alive_enemy_units()`
+  - `_get_all_alive_unit_states()`
+  - `_get_alive_enemy_targets()`
+- Kept current target policy unchanged while allowing alive target lists to resolve from deployed adapter-backed units first.
+- Kept occupied-cell checks on the same public helper path so current `2v2` movement blocking result remains unchanged.
+- Added one-time startup parity snapshot for:
+  - adapter alive ally count
+  - adapter alive enemy count
+  - fallback alive ally count
+  - fallback alive enemy count
+  - active/deployed capacity slots
+  - current `2v2` parity OK flag
+- Confirmed current expected capacity mapping remains:
+  - `ally_main` -> `ally_main_01`
+  - `ally_support` -> `ally_main_02`
+  - `enemy_main` -> `enemy_main_01`
+  - `enemy_support` -> `enemy_main_02`
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept enemy AI actor order unchanged.
+- Kept full auto battle policy unchanged.
 
 ## Hotfix Focus
 - Confirmed HP/troop refs, visible, alpha, text, and values were valid even while the UI stayed invisible.

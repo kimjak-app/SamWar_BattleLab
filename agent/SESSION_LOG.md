@@ -1,5 +1,45 @@
 # SESSION LOG
 
+## 2026-05-22
+
+Starting baseline:
+- v0.67c-hotfix6 Unit Visual Layer Above HP Bar
+
+Goal:
+- v0.67d 2v2 on Scalable Slot Framework
+
+Completed:
+- Added adapter-first alive/deployed helper reads in `scripts/battle_web_import_test.gd`.
+- Added:
+  - `_get_alive_unit_states_for_side_from_adapter()`
+  - `_get_alive_deployed_unit_states_for_side()`
+  - `_get_all_alive_unit_states_from_adapter()`
+  - `_is_battle_unit_state_adapter_ready()`
+- Converted `_get_alive_ally_units()`, `_get_alive_enemy_units()`, `_get_all_alive_unit_states()`, and `_get_alive_enemy_targets()` to adapter-first with legacy fallback.
+- Kept the fixed `2v2` state variables and fallback paths intact.
+- Added one-time startup parity snapshot with adapter/fallback alive counts and active/deployed capacity-slot ids.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Did not change enemy AI actor order, auto battle policy, battle formulas, or visual layout behavior.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless startup snapshot confirmed:
+  - `adapter_alive_ally_count=2`
+  - `adapter_alive_enemy_count=2`
+  - `fallback_alive_ally_count=2`
+  - `fallback_alive_enemy_count=2`
+  - `all_alive_count=4`
+  - `parity_ok=true`
+- Capacity-slot mapping confirmed:
+  - `ally_main` -> `ally_main_01`
+  - `ally_support` -> `ally_main_02`
+  - `enemy_main` -> `enemy_main_01`
+  - `enemy_support` -> `enemy_main_02`
+- Verified no diff in `Battle_Fullscreen_Test.tscn`.
+- F6/manual interaction QA not available in this environment.
+
 ## 2026-05-21
 
 Starting baseline:

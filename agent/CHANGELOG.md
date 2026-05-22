@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## v0.67d 2v2 on Scalable Slot Framework
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Added adapter-first alive/deployed helpers:
+  - `_get_alive_unit_states_for_side_from_adapter()`
+  - `_get_alive_deployed_unit_states_for_side()`
+  - `_get_all_alive_unit_states_from_adapter()`
+  - `_is_battle_unit_state_adapter_ready()`
+- Converted these helpers to adapter-first with fixed-state fallback:
+  - `_get_alive_ally_units()`
+  - `_get_alive_enemy_units()`
+  - `_get_all_alive_unit_states()`
+  - `_get_alive_enemy_targets()`
+- Kept the original fixed-state helper logic available through fallback helpers.
+- Added one-time startup parity snapshot for:
+  - adapter alive ally/enemy count
+  - fallback alive ally/enemy count
+  - all alive count
+  - active/deployed capacity slot ids
+  - parity OK flag
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept enemy AI actor order unchanged.
+- Kept full auto battle policy unchanged.
+
 ## v0.67c-hotfix6 Unit Visual Layer Above HP Bar
 
 - Updated `scripts/battle_web_import_test.gd` only.

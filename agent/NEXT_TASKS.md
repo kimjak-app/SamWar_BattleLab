@@ -1,22 +1,22 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67c-hotfix6 Unit Visual Layer Above HP Bar
-
-## Priority 1
 v0.67d 2v2 on Scalable Slot Framework
 
+## Priority 1
+v0.67e Actor/Target List Adapter Migration
+
 Gate:
-- Do not start until the v0.67c-hotfix3 editor QA confirms:
-  - GDScript reload warnings are gone
-  - HP bar is visible for all live units
-  - troop label is visible for all live units
-  - current `2v2` manual / auto flow remains unchanged
+- Do not start until v0.67d confirms:
+  - adapter-first alive/deployed helpers preserve current `2v2` results
+  - enemy AI actor order remains unchanged
+  - auto battle flow remains unchanged
+  - occupied-cell blocking remains unchanged
 
 Goal:
-- Start using the scalable slot scaffold and state adapters as the compatibility framework under the existing `2v2`.
-- Preserve the exact current battle result while moving only narrow read paths where safe.
-- Keep existing `2v2` battle behavior unchanged.
+- Continue migrating enemy actor / target list reads onto the adapter path.
+- Preserve the exact current `2v2` result while keeping AI order and auto-battle policy unchanged until explicitly migrated.
+- Keep actual unit count at the current `2v2`.
 
 ## Priority 2
 v0.67 Slot Count Expansion Plan
@@ -36,6 +36,20 @@ Goal:
 
 Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
+
+## Completed
+v0.67d 2v2 on Scalable Slot Framework
+
+Completed items:
+- Added adapter-first alive/deployed helper reads on top of the existing `BattleUnitState` list adapter.
+- Kept legacy fixed-state helper bodies as fallback.
+- Switched alive ally / enemy / all and enemy-target list helpers to adapter-first with fallback.
+- Added one-time startup parity snapshot for adapter counts, fallback counts, active/deployed slot ids, and parity status.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept current battle execution, enemy AI order, and auto battle flow unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
 
 ## Completed
 v0.67c BattleUnitState List Adapter
