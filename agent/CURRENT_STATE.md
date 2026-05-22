@@ -4,7 +4,37 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67j-2 Reinforce01 QA Stable
+v0.67j-3 City Reinforcement Contract Scaffold
+
+## v0.67j-3 City Reinforcement Contract Scaffold State
+- This step is documentation-first contract definition.
+- No world-map system was implemented.
+- No city system was implemented.
+- No reinforce02 round-spawn prototype was added.
+- Current reinforce meaning is now explicitly defined as future city-origin deployment:
+  - adjacent-city relief force
+  - additional dispatched force from a city/castle
+  - battle-engine entry payload, not a fixed round-spawn gimmick
+- Confirmed current `capacity_slot_metadata_registry` structure is dictionary-backed and can accept future city-origin metadata keys through `_set_capacity_slot_metadata_value()`.
+- Confirmed current default scaffold already seeds:
+  - `entry_rule`
+  - `source_city_id`
+  - `assigned_unit_id`
+- Defined required future reinforce contract keys for city-origin entry:
+  - `source_city_id`
+  - `dispatch_type`
+  - `assigned_hero_id`
+  - `assigned_unit_id`
+  - `arrival_round`
+  - `entry_rule = city_reinforcement`
+- Clarified current reinforce01 behavior:
+  - `ally_reinforce_01` / `enemy_reinforce_01` round `2` deployment is a temporary test trigger
+  - it verifies `deployed=false -> true` transition only
+  - it does not define the final game meaning of reinforcement
+- Clarified reinforce02 direction:
+  - next prototype target is city-origin entry metadata usage
+  - do not implement reinforce02 as a simple round `3` copy of reinforce01
+- Kept battle logic, auto battle, enemy AI, HP/troop UI, and scene structure unchanged.
 
 ## v0.67j-2 Reinforce01 QA Stable State
 - This step is documentation and verification only.

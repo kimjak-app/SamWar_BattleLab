@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v0.67j-3 City Reinforcement Contract Scaffold
+
+- This step is documentation-first and contract-definition only.
+- Reframed reinforce-slot purpose as future city/castle-origin deployment rather than fixed round-spawn behavior.
+- Confirmed `capacity_slot_metadata_registry` is dictionary-backed and can accept future metadata keys through the existing setter path.
+- Confirmed current default metadata scaffold already includes:
+  - `entry_rule`
+  - `source_city_id`
+  - `assigned_unit_id`
+- Defined required future city-origin reinforce contract keys:
+  - `source_city_id`
+  - `dispatch_type`
+  - `assigned_hero_id`
+  - `assigned_unit_id`
+  - `arrival_round`
+  - `entry_rule = city_reinforcement`
+- Documented current reinforce01 round `2` entry as a temporary test trigger for `deployed=false -> true` validation only.
+- Documented reinforce02 as the next city-origin entry prototype and explicitly rejected simple round `3` spawn-copy scope.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/battle_web_import_test.gd` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+
 ## v0.67j-2 Reinforce01 QA Stable
 
 - This step is documentation and verification only.

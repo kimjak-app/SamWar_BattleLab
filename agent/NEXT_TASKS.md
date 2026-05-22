@@ -1,22 +1,21 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67j-2 Reinforce01 QA Stable
+v0.67j-3 City Reinforcement Contract Scaffold
 
 ## Priority 1
-v0.67j-3 Reinforce02 Entry Prototype
+v0.67j-4 Reinforce02 City-Origin Entry Prototype
 
 Gate:
-- v0.67j-2 confirmed:
-  - reinforce01 starts hidden with `deployed=false`
-  - reinforce01 pair deploys on round `2`
-  - actor / target counts move `3/3 -> 4/4`
-  - alive deployed count moves `6 -> 8`
-  - auto-target parity and enemy AI parity remain OK
+- v0.67j-3 defined:
+  - reinforcement means future city/castle-origin dispatch, not a fixed round spawn
+  - reinforce slot metadata contract must carry city-origin payload
+  - reinforce01 round `2` entry remains a temporary test trigger only
 
 Goal:
-- Prototype `reinforce_02` delayed entry on top of the reinforce01-validated scaffold.
-- Keep reinforce02 excluded from actor/target/occupied paths until its own deployment timing is enabled.
+- Prototype `reinforce_02` as the first city-origin entry consumer.
+- Feed reinforce entry through metadata contract instead of hard-coded round-copy behavior.
+- Keep reinforce02 excluded from actor/target/occupied paths until its city-origin deployment timing is enabled.
 
 ## Priority 2
 v0.67 Slot Count Expansion Plan
@@ -36,6 +35,29 @@ Goal:
 
 Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
+
+## Completed
+v0.67j-3 City Reinforcement Contract Scaffold
+
+Completed items:
+- Reframed reinforcement semantics from temporary round-spawn prototype to future city-origin battle entry contract.
+- Confirmed `capacity_slot_metadata_registry` is dictionary-backed and can accept future metadata keys by setter path.
+- Confirmed current default reinforce scaffold already contains:
+  - `entry_rule`
+  - `source_city_id`
+  - `assigned_unit_id`
+- Defined required future contract keys:
+  - `source_city_id`
+  - `dispatch_type`
+  - `assigned_hero_id`
+  - `assigned_unit_id`
+  - `arrival_round`
+  - `entry_rule = city_reinforcement`
+- Documented reinforce01 round `2` deployment as temporary test trigger only.
+- Documented reinforce02 as the next city-origin entry prototype, not a simple round `3` spawn copy.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/battle_web_import_test.gd` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
 
 ## Completed
 v0.67j-2 Reinforce01 QA Stable

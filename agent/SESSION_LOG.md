@@ -3,6 +3,50 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67j-2 Reinforce01 QA Stable
+
+Goal:
+- v0.67j-3 City Reinforcement Contract Scaffold
+
+Completed:
+- Reframed reinforcement semantics toward future world-map / city-origin deployment contract.
+- Confirmed no world-map implementation was added.
+- Confirmed no city-system implementation was added.
+- Confirmed no reinforce02 round-spawn copy prototype was added.
+- Verified current `capacity_slot_metadata_registry` is dictionary-backed and future keys can be inserted through `_set_capacity_slot_metadata_value()`.
+- Verified current default scaffold already initializes:
+  - `entry_rule`
+  - `source_city_id`
+  - `assigned_unit_id`
+- Defined required future city-origin reinforce contract fields:
+  - `source_city_id`
+  - `dispatch_type`
+  - `assigned_hero_id`
+  - `assigned_unit_id`
+  - `arrival_round`
+  - `entry_rule = city_reinforcement`
+- Documented that current reinforce01 round `2` deployment is a temporary technical test trigger only.
+- Documented that reinforce02 must become a city-origin entry prototype, not a simple round `3` copy.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/battle_web_import_test.gd`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Updated:
+  - `agent/CURRENT_STATE.md`
+  - `agent/NEXT_TASKS.md`
+  - `agent/CHANGELOG.md`
+  - `agent/SESSION_LOG.md`
+
+QA:
+- Documentation-only step.
+- No runtime behavior changed.
+
+Remaining tasks:
+- v0.67j-4 Reinforce02 City-Origin Entry Prototype
+- Auto battle editor-side stop responsiveness QA
+
+## 2026-05-22
+
+Starting baseline:
 - v0.67i-2 MVP 3v3 QA Stable
 
 Goal:
