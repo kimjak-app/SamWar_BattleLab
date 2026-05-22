@@ -3,6 +3,47 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67h MVP 5-Slot Scene Scaffold Stable
+
+Goal:
+- v0.67i-1 MVP 5-Slot Battle Prototype - Main03 Activation Spike
+
+Completed:
+- Added actual visual roots under:
+  - `Slots/AllyMain03Slot`
+  - `Slots/EnemyMain03Slot`
+- Added root-level runtime nodes for `main_03`:
+  - unit markers
+  - portrait markers
+  - click areas
+- Added `BattleUI` overlay nodes for `main_03`:
+  - `AllyMain03ReadyFrame`
+  - `AllyMain03FacingIndicator`
+  - `EnemyMain03FacingIndicator`
+- Added:
+  - `ally_main_03_unit_state`
+  - `enemy_main_03_unit_state`
+- Expanded adapter/runtime state lists, fallback lists, click lookup, move/attack visual routing, ready-frame refresh, facing-indicator refresh, move-dust handling, and visual cache to include `main_03`.
+- Kept reinforce slots uninstantiated and undeployed.
+- Kept current auto-battle scoring, enemy AI target selection, HP/troop/layer behavior, enemy portrait vertical offset, and enemy move facing-indicator timing unchanged.
+
+QA:
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+- Headless startup snapshot confirmed:
+  - `ally_count=3`
+  - `enemy_count=3`
+  - `all_count=6`
+  - `actor_candidates_ally_count=3`
+  - `actor_candidates_enemy_count=3`
+  - `target_candidates_for_ally_actor_count=3`
+  - `target_candidates_for_enemy_actor_count=3`
+  - `all_alive_deployed_count=6`
+  - `enemy_actor_order_parity_ok=true`
+- Verified reinforce slots remain undeployed in capacity lists.
+- F6/manual runtime QA not available in this environment.
+
+Starting baseline:
 - v0.67g MVP 3 Main + 2 Reinforce Layout Plan Stable
 - v0.67f+ hotfix states already reflected
 

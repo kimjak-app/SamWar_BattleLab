@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## v0.67i-1 MVP 5-Slot Battle Prototype - Main03 Activation Spike
+
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Activated `ally_main_03` and `enemy_main_03` as the first real MVP battle-participant expansion.
+- Added scene nodes for:
+  - `AllyMain03UnitVisualRoot`
+  - `EnemyMain03UnitVisualRoot`
+  - root-level click areas
+  - root-level markers / portrait markers
+  - ally ready frame
+  - ally/enemy facing indicators
+- Added:
+  - `ally_main_03_unit_state`
+  - `enemy_main_03_unit_state`
+- Expanded adapter/runtime state arrays to `ally=3`, `enemy=3`, `all=6`.
+- Expanded `UnitVisualSlot` cache for:
+  - `ally_main_03`
+  - `enemy_main_03`
+- Kept reinforce slots empty and undeployed.
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target-selection policy unchanged.
+- Kept HP bar, troop label, HP alpha `0.8`, layer profile, enemy portrait vertical offset, and enemy move facing-indicator timing unchanged.
+
 ## v0.67h MVP 5-Slot Scene Scaffold
 
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.

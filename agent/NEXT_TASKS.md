@@ -1,14 +1,14 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67h MVP 5-Slot Scene Scaffold
+v0.67i-1 MVP 5-Slot Battle Prototype - Main03 Activation Spike
 
 ## Priority 1
-v0.67i MVP 5-Slot Battle Prototype
+v0.67i-2 MVP 3v3 QA Stable
 
 Goal:
-- Begin the first runtime MVP `5`-slot prototype on top of the new scene scaffold.
-- Keep the newly added empty slot containers editor-authored while still preventing undeployed reinforce slots from entering battle flow until explicitly wired.
+- Stabilize the first `3v3` prototype with main_03 active on both sides.
+- Focus on editor/manual QA, click-path reliability, auto-battle parity, dead-unit cleanup, and visual placement consistency.
 
 ## Priority 2
 v0.67j Reinforcement Entry Prototype
@@ -72,6 +72,28 @@ Completed items:
 - Did not add new `UnitVisualRoot`, `ClickArea`, `ReadyFrame`, or `FacingIndicator`.
 - Did not register the new empty slot containers into the `UnitVisualSlot` runtime cache.
 - Kept current battle execution, actor/target results, auto battle flow, and enemy AI flow unchanged.
+- Headless project launch exit code 0.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
+
+## Completed
+v0.67i-1 MVP 5-Slot Battle Prototype - Main03 Activation Spike
+
+Completed items:
+- Added real `main_03` visual/runtime scaffold for both sides:
+  - `AllyMain03UnitVisualRoot`
+  - `EnemyMain03UnitVisualRoot`
+  - root-level click areas
+  - root-level markers / portrait markers
+  - `BattleUI` facing indicators
+  - `BattleUI` ally ready frame
+- Added:
+  - `ally_main_03_unit_state`
+  - `enemy_main_03_unit_state`
+- Expanded adapter/runtime state lists and visual cache to `3v3`.
+- Kept reinforce slots undeployed and uninstantiated.
+- Kept current auto-battle scoring unchanged.
+- Kept current enemy AI target-selection policy unchanged.
+- Kept current HP/troop/layer/facing hotfix behavior unchanged.
 - Headless project launch exit code 0.
 - Headless `Battle_Fullscreen_Test.tscn` launch exit code 0.
 

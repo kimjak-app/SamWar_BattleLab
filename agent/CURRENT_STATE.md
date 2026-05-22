@@ -4,7 +4,45 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67h MVP 5-Slot Scene Scaffold
+v0.67i-1 MVP 5-Slot Battle Prototype - Main03 Activation Spike
+
+## v0.67i-1 MVP 5-Slot Battle Prototype - Main03 Activation Spike State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Activated `main_03` as the first real MVP battle-extension step:
+  - `ally_main_03`
+  - `enemy_main_03`
+- Kept reinforce slots scaffold-only and undeployed:
+  - `ally_reinforce_01`
+  - `ally_reinforce_02`
+  - `enemy_reinforce_01`
+  - `enemy_reinforce_02`
+- Added real scene nodes for `main_03` only:
+  - actual visual root
+  - marker
+  - portrait marker
+  - click area
+  - ally ready frame
+  - ally/enemy facing indicator
+- Added new `BattleUnitState`:
+  - `ally_main_03_unit_state`
+  - `enemy_main_03_unit_state`
+- Expanded adapter/runtime state lists to:
+  - ally count = `3`
+  - enemy count = `3`
+  - all count = `6`
+- Expanded `UnitVisualSlot` runtime cache for:
+  - `ally_main_03`
+  - `enemy_main_03`
+- Kept existing legacy 4-state variables intact.
+- Kept reinforce states uncreated and undeployed.
+- Headless snapshot confirms:
+  - alive ally count = `3`
+  - alive enemy count = `3`
+  - actor candidates ally/enemy = `3/3`
+  - target candidates ally/enemy = `3/3`
+  - all alive deployed count = `6`
+  - enemy actor order parity OK = `true`
+- Kept HP bar, troop label, HP alpha `0.8`, layer profile, enemy portrait vertical offset, enemy facing-indicator move timing, auto battle policy, and enemy AI policy unchanged.
 
 ## v0.67h MVP 5-Slot Scene Scaffold State
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
