@@ -1,10 +1,10 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-v0.67k Auto Battle Step Limit 5v5 Sustain Fix
+v0.67k Battle Hero Identity Source of Truth Scaffold
 
 ## Priority 1
-5v5 Battle Sustain QA
+Reinforcement Arrival Toast MVP
 
 Gate:
 - v0.67k confirmed:
@@ -12,20 +12,19 @@ Gate:
   - reinforce01 / reinforce02 deployment ladder is stable at `3v3 -> 4v4 -> 5v5`
   - deployed alive count moves `6 -> 8 -> 10`
   - actor / target counts move `3/3 -> 4/4 -> 5/5`
-  - reinforce visuals, click, target, HP, and troop UI are stable on headless verification
-  - auto-battle step budget now scales with deployed alive unit count
+  - battle-slot hero identity now resolves from `hero_id` registry rather than scene portrait texture
+  - `10` current battle slots validate hero name / battlefield portrait / closeup lookup scaffold at startup
+
+Goal:
+- Add a lightweight reinforce arrival toast/UI cue for round `2` and round `3` MVP support arrivals.
+- Keep identity registry as the runtime source of truth for reinforce hero names and portraits.
+
+## Priority 2
+5v5 Battle Sustain QA
 
 Goal:
 - Continue manual/editor sustain QA on the fixed MVP `5v5` battle shape.
-- Verify long-fight auto battle now reaches battle end without unnecessary safety-cap interruption.
-- Verify stop responsiveness, cleanup order, and post-death candidate stability under repeated combat.
-
-## Priority 2
-v0.67 Slot Count Expansion Plan
-
-Goal:
-- Keep scalable slot capacity as future expansion only.
-- Do not move the active MVP target away from `5v5` until the current battle baseline is fully saturated by QA.
+- Verify long-fight auto battle still reaches battle end without unnecessary safety-cap interruption after the identity scaffold.
 
 ## Priority 3
 Auto Battle QA
@@ -38,6 +37,25 @@ Goal:
 
 Notes:
 - Auto battle prototype, stop hotfix, battle-dust tuning, dust density hotfix, and dust source isolation hotfix are now in place.
+
+## Completed
+v0.67k Battle Hero Identity Source of Truth Scaffold
+
+Completed items:
+- Added runtime `HERO_REGISTRY` for the current `10` battle heroes.
+- Added `TEST_BATTLE_ROSTER` as the temporary slot-to-hero battle contract.
+- Routed `assigned_hero_id` through `capacity_slot_metadata_registry`.
+- Added runtime application of:
+  - `display_name`
+  - battlefield portrait badge texture
+  - closeup portrait texture lookup
+  from `hero_id`.
+- Added startup identity validation logging for all current battle slots.
+- Confirmed startup identity validation reports `IDENTITY_OK` for the current `10` slots.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged in this step.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
 
 ## Completed
 v0.67k Auto Battle Step Limit 5v5 Sustain Fix

@@ -4,7 +4,48 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67k Auto Battle Step Limit 5v5 Sustain Fix
+v0.67k Battle Hero Identity Source of Truth Scaffold
+
+## v0.67k Battle Hero Identity Source of Truth Scaffold State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Added runtime `HERO_REGISTRY` for:
+  - `yi_sunsin`
+  - `jeong_dojeon`
+  - `kwon_yul`
+  - `gim_yusin`
+  - `eulji_mundeok`
+  - `guan_yu`
+  - `zhang_fei`
+  - `xiahou_dun`
+  - `liu_bei`
+  - `zhuge_liang`
+- Added `TEST_BATTLE_ROSTER` as the temporary battle-roster contract scaffold:
+  - ally `main_01/02/03` = 이순신 / 정도전 / 권율
+  - ally `reinforce_01/02` = 김유신 / 을지문덕
+  - enemy `main_01/02/03` = 관우 / 장비 / 하후돈
+  - enemy `reinforce_01/02` = 유비 / 제갈량
+- Filled `capacity_slot_metadata_registry[slot_id]["assigned_hero_id"]` from the roster scaffold.
+- Added runtime hero-identity helpers:
+  - `_get_hero_id_for_unit_state()`
+  - `_get_hero_registry_entry()`
+  - `_apply_hero_identity_to_unit()`
+  - `_apply_all_hero_identities()`
+  - `_load_texture_or_null()`
+- Added runtime identity validation logging through `_validate_hero_identity_bindings()`.
+- Hero identity is now applied from `hero_id` instead of trusting scene-authored portrait texture as source of truth:
+  - `display_name`
+  - battlefield portrait badge texture
+  - closeup portrait texture lookup
+- Closeup portrait lookup now prefers `closeup_portrait_path` from the hero registry and falls back to the current portrait badge texture only if needed.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Confirmed `10` battle slots report `IDENTITY_OK` on startup validation.
+- Confirmed ally/enemy main identity mismatches are now corrected at runtime even if scene texture bindings drift.
+- Kept battle logic unchanged.
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept reinforce deploy logic unchanged.
+- Kept HP bar / troop label / FacingIndicator behavior unchanged.
 
 ## v0.67k Auto Battle Step Limit 5v5 Sustain Fix State
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

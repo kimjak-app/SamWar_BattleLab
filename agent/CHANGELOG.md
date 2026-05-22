@@ -1,5 +1,39 @@
 # CHANGELOG
 
+## v0.67k Battle Hero Identity Source of Truth Scaffold
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Added runtime `HERO_REGISTRY` for the current `10` battle heroes:
+  - `yi_sunsin`
+  - `jeong_dojeon`
+  - `kwon_yul`
+  - `gim_yusin`
+  - `eulji_mundeok`
+  - `guan_yu`
+  - `zhang_fei`
+  - `xiahou_dun`
+  - `liu_bei`
+  - `zhuge_liang`
+- Added `TEST_BATTLE_ROSTER` as the temporary slot-to-hero contract for the current battle test scene.
+- Routed `assigned_hero_id` through `capacity_slot_metadata_registry` for all current battle slots.
+- Added runtime helper path to apply hero identity from `hero_id`:
+  - `display_name`
+  - battlefield portrait badge texture
+  - closeup portrait texture lookup
+- Added startup validation logging for slot identity parity:
+  - capacity slot id
+  - hero id
+  - display name
+  - expected battlefield portrait filename
+  - actual portrait filename
+  - click area name
+- Runtime hero identity now corrects portrait/name drift even if scene-authored portrait texture binding is wrong.
+- Kept battle logic, auto-battle scoring, enemy AI target policy, reinforce deploy logic, HP/troop UI, and facing-indicator behavior unchanged.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged in this step.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+
 ## v0.67k Auto Battle Step Limit 5v5 Sustain Fix
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

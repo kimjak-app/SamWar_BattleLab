@@ -3,6 +3,50 @@
 ## 2026-05-22
 
 Starting baseline:
+- v0.67k Auto Battle Step Limit 5v5 Sustain Fix
+
+Goal:
+- v0.67k Battle Hero Identity Source of Truth Scaffold
+
+Completed:
+- Added runtime `HERO_REGISTRY` for the current `10` battle heroes.
+- Added `TEST_BATTLE_ROSTER` as the temporary slot-to-hero contract scaffold.
+- Routed `assigned_hero_id` for all current battle slots through `capacity_slot_metadata_registry`.
+- Added hero-identity helpers:
+  - `_get_hero_id_for_unit_state()`
+  - `_get_hero_registry_entry()`
+  - `_apply_hero_identity_to_unit()`
+  - `_apply_all_hero_identities()`
+  - `_load_texture_or_null()`
+- Added runtime identity validation logging through `_validate_hero_identity_bindings()`.
+- Applied runtime hero identity from `hero_id` rather than trusting scene portrait texture:
+  - `display_name`
+  - battlefield portrait badge texture
+  - closeup portrait texture lookup
+- Confirmed current roster contract:
+  - ally `main_01/02/03` = 이순신 / 정도전 / 권율
+  - ally `reinforce_01/02` = 김유신 / 을지문덕
+  - enemy `main_01/02/03` = 관우 / 장비 / 하후돈
+  - enemy `reinforce_01/02` = 유비 / 제갈량
+- Kept `Battle_Fullscreen_Test.tscn` unchanged in this step.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Updated:
+  - `agent/CURRENT_STATE.md`
+  - `agent/NEXT_TASKS.md`
+  - `agent/CHANGELOG.md`
+  - `agent/SESSION_LOG.md`
+
+QA:
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Startup validation reports `IDENTITY_OK` for the current `10` battle slots.
+- Existing reinforce round structure remains `3v3 -> 4v4 -> 5v5` on the headless path.
+
+Remaining tasks:
+- Reinforcement Arrival Toast MVP
+- 5v5 Battle Sustain QA
+
+Starting baseline:
 - v0.67j-5 MVP 5v5 QA Stable
 
 Goal:

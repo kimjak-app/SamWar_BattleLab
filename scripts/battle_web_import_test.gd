@@ -69,6 +69,82 @@ const UNIT_VISUAL_LAYER_HP_BAR := 8
 const UNIT_VISUAL_LAYER_TOKEN := 12
 const UNIT_VISUAL_LAYER_PORTRAIT := 13
 const UNIT_VISUAL_LAYER_TROOP_LABEL := 20
+const HERO_REGISTRY := {
+	"yi_sunsin": {
+		"display_name": "이순신",
+		"battlefield_portrait_path": "res://assets/web_battle/portraits_battlefield/yi_sunsin_battlefield.png",
+		"closeup_portrait_path": "res://assets/web_battle/portraits/yi_sunsin_portrait.png",
+		"default_visual_key": "korea_archer",
+	},
+	"jeong_dojeon": {
+		"display_name": "정도전",
+		"battlefield_portrait_path": "res://assets/web_battle/portraits_battlefield/jeong_dojeon_battlefield.png",
+		"closeup_portrait_path": "res://assets/web_battle/portraits/jeong_dojeon_portrait.png",
+		"default_visual_key": "korea_gunner",
+	},
+	"kwon_yul": {
+		"display_name": "권율",
+		"battlefield_portrait_path": "res://assets/web_battle/portraits_battlefield/kwon_yul_battlefield.png",
+		"closeup_portrait_path": "res://assets/web_battle/portraits/kwon_yul_portrait.png",
+		"default_visual_key": "korea_infantry",
+	},
+	"gim_yusin": {
+		"display_name": "김유신",
+		"battlefield_portrait_path": "res://assets/web_battle/portraits_battlefield/gim_yusin_battlefield.png",
+		"closeup_portrait_path": "res://assets/web_battle/portraits/gim_yusin_portrait.png",
+		"default_visual_key": "korea_archer",
+	},
+	"eulji_mundeok": {
+		"display_name": "을지문덕",
+		"battlefield_portrait_path": "res://assets/web_battle/portraits_battlefield/eulji_mundeok_battlefield.png",
+		"closeup_portrait_path": "res://assets/web_battle/portraits/eulji_mundeok_portrait.png",
+		"default_visual_key": "korea_gunner",
+	},
+	"guan_yu": {
+		"display_name": "관우",
+		"battlefield_portrait_path": "res://assets/web_battle/portraits_battlefield/guan_yu_battlefield.png",
+		"closeup_portrait_path": "res://assets/web_battle/portraits/guan_yu_portrait.png",
+		"default_visual_key": "china_cavalry",
+	},
+	"zhang_fei": {
+		"display_name": "장비",
+		"battlefield_portrait_path": "res://assets/web_battle/portraits_battlefield/zhang_fei_battlefield.png",
+		"closeup_portrait_path": "res://assets/web_battle/portraits/zhang_fei_portrait.png",
+		"default_visual_key": "china_infantry",
+	},
+	"xiahou_dun": {
+		"display_name": "하후돈",
+		"battlefield_portrait_path": "res://assets/web_battle/portraits_battlefield/xiahou_dun_battlefield.png",
+		"closeup_portrait_path": "res://assets/web_battle/portraits/xiahou_dun_portrait.png",
+		"default_visual_key": "china_infantry",
+	},
+	"liu_bei": {
+		"display_name": "유비",
+		"battlefield_portrait_path": "res://assets/web_battle/portraits_battlefield/liu_bei_battlefield.png",
+		"closeup_portrait_path": "res://assets/web_battle/portraits/liu_bei_portrait.png",
+		"default_visual_key": "china_archer",
+	},
+	"zhuge_liang": {
+		"display_name": "제갈량",
+		"battlefield_portrait_path": "res://assets/web_battle/portraits_battlefield/zhuge_liang_battlefield.png",
+		"closeup_portrait_path": "res://assets/web_battle/portraits/zhuge_liang_portrait.png",
+		"default_visual_key": "china_gunner",
+	},
+}
+const TEST_BATTLE_ROSTER := {
+	"ally_main_01": "yi_sunsin",
+	"ally_main_02": "jeong_dojeon",
+	"ally_main_03": "kwon_yul",
+	"ally_reinforce_01": "gim_yusin",
+	"ally_reinforce_02": "eulji_mundeok",
+	"enemy_main_01": "guan_yu",
+	"enemy_main_02": "zhang_fei",
+	"enemy_main_03": "xiahou_dun",
+	"enemy_reinforce_01": "liu_bei",
+	"enemy_reinforce_02": "zhuge_liang",
+}
+const ENEMY_MAIN_01_PORTRAIT_TEXTURE := preload("res://assets/web_battle/portraits_battlefield/guan_yu_battlefield.png")
+const ENEMY_MAIN_03_PORTRAIT_TEXTURE := preload("res://assets/web_battle/portraits_battlefield/xiahou_dun_battlefield.png")
 const BATTLE_DUST_TINT := Color(0.48, 0.38, 0.24, 1.0)
 const BATTLE_DUST_HIT_OFFSET := Vector2(0.0, 32.0)
 const BATTLE_DUST_WORLD_Z_INDEX := 2
@@ -291,6 +367,8 @@ var enemy_unit_states: Array[BattleUnitState] = []
 var all_battle_unit_states: Array[BattleUnitState] = []
 var unit_state_by_legacy_slot_id: Dictionary = {}
 var unit_state_by_capacity_slot_id: Dictionary = {}
+var hero_identity_texture_cache: Dictionary = {}
+var has_logged_hero_identity_validation := false
 var active_unit_state: BattleUnitState
 var has_printed_adapter_alive_parity_snapshot := false
 var has_printed_actor_target_adapter_snapshot := false
@@ -788,6 +866,7 @@ func reset_demo_state() -> void:
 	selected_attack_target_side = ""
 	_clear_pending_move_snapshot()
 	_stop_idle_breathing()
+	has_logged_hero_identity_validation = false
 	battle_log_lines = [
 		"아군 준비",
 		"관우 방어",
@@ -796,6 +875,9 @@ func reset_demo_state() -> void:
 	current_ally_portrait_position = ally_portrait_marker.position
 	_create_demo_unit_states()
 	_rebuild_battle_unit_state_list_refs()
+	_apply_all_hero_identities()
+	_restore_enemy_main_portrait_bindings()
+	_apply_all_hero_identities()
 	_reset_ally_action_locks_for_new_round()
 	_reset_enemy_action_locks_for_new_round()
 	_sync_unit_state_cells_from_markers()
@@ -1511,7 +1593,7 @@ func _show_unit_closeup_for_ally(unit_state: BattleUnitState) -> void:
 		return
 
 	if closeup_hero_portrait != null:
-		closeup_hero_portrait.texture = _get_ally_portrait_texture_for_unit(unit_state)
+		closeup_hero_portrait.texture = _get_closeup_portrait_texture_for_unit(unit_state)
 	if closeup_troop_image != null:
 		closeup_troop_image.texture = _get_ally_token_texture_for_unit(unit_state)
 	if closeup_name_label != null:
@@ -1540,7 +1622,21 @@ func _hide_unit_closeup_panel() -> void:
 		unit_closeup_panel.visible = false
 
 
+func _get_closeup_portrait_texture_for_unit(unit_state: BattleUnitState) -> Texture2D:
+	var hero_entry := _get_hero_registry_entry(_get_hero_id_for_unit_state(unit_state))
+	var closeup_portrait_path := String(hero_entry.get("closeup_portrait_path", ""))
+	var closeup_texture := _load_texture_or_null(closeup_portrait_path)
+	if closeup_texture != null:
+		return closeup_texture
+	return _get_ally_portrait_texture_for_unit(unit_state)
+
+
 func _get_ally_portrait_texture_for_unit(unit_state: BattleUnitState) -> Texture2D:
+	var hero_entry := _get_hero_registry_entry(_get_hero_id_for_unit_state(unit_state))
+	var battlefield_portrait_path := String(hero_entry.get("battlefield_portrait_path", ""))
+	var battlefield_texture := _load_texture_or_null(battlefield_portrait_path)
+	if battlefield_texture != null:
+		return battlefield_texture
 	var slot := _get_unit_visual_slot_for_state(unit_state)
 	if slot != null and slot.portrait != null:
 		return slot.portrait.texture
@@ -2143,6 +2239,7 @@ func _create_capacity_slot_metadata(slot_id: String) -> Dictionary:
 	var slot_role := SLOT_ROLE_REINFORCE if slot_id.find("_reinforce_") != -1 else SLOT_ROLE_MAIN
 	var legacy_slot_id := _get_legacy_slot_id_for_capacity_slot_id(slot_id)
 	var formation_index := _get_capacity_slot_formation_index(slot_id)
+	var assigned_hero_id := _get_test_battle_roster_hero_id(slot_id)
 	var is_active := legacy_slot_id != "" or slot_id == "ally_main_03" or slot_id == "enemy_main_03" or slot_id == "ally_reinforce_01" or slot_id == "enemy_reinforce_01"
 	if slot_id == "ally_reinforce_02" or slot_id == "enemy_reinforce_02":
 		is_active = true
@@ -2159,8 +2256,8 @@ func _create_capacity_slot_metadata(slot_id: String) -> Dictionary:
 		"entry_rule": entry_rule,
 		"source_city_id": "",
 		"dispatch_type": "",
-		"assigned_hero_id": "",
-		"assigned_unit_id": "",
+		"assigned_hero_id": assigned_hero_id,
+		"assigned_unit_id": _get_test_battle_assigned_unit_id(slot_id),
 		"arrival_round": 0,
 	}
 	if slot_id == "ally_reinforce_02":
@@ -2168,18 +2265,125 @@ func _create_capacity_slot_metadata(slot_id: String) -> Dictionary:
 		metadata["entry_rule"] = SLOT_ENTRY_CITY_REINFORCEMENT
 		metadata["source_city_id"] = "hanseong_adjacent_test_city"
 		metadata["dispatch_type"] = "defense_reinforcement"
-		metadata["assigned_hero_id"] = "ally_reinforce_02_test_hero"
-		metadata["assigned_unit_id"] = "ally_reinforce_02_test_unit"
 		metadata["arrival_round"] = 3
 	elif slot_id == "enemy_reinforce_02":
 		# Mock city-origin reinforcement contract until world-map dispatch exists.
 		metadata["entry_rule"] = SLOT_ENTRY_CITY_REINFORCEMENT
 		metadata["source_city_id"] = "enemy_adjacent_test_city"
 		metadata["dispatch_type"] = "attack_reinforcement"
-		metadata["assigned_hero_id"] = "enemy_reinforce_02_test_hero"
-		metadata["assigned_unit_id"] = "enemy_reinforce_02_test_unit"
 		metadata["arrival_round"] = 3
 	return metadata
+
+
+func _get_test_battle_roster_hero_id(slot_id: String) -> String:
+	return String(TEST_BATTLE_ROSTER.get(slot_id, ""))
+
+
+func _get_test_battle_assigned_unit_id(slot_id: String) -> String:
+	var hero_id := _get_test_battle_roster_hero_id(slot_id)
+	if hero_id == "":
+		return ""
+	return "%s_battle_unit" % hero_id
+
+
+func _get_hero_id_for_unit_state(unit_state: BattleUnitState) -> String:
+	var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
+	if capacity_slot_id == "":
+		return ""
+	var slot_metadata := _get_capacity_slot_metadata(capacity_slot_id)
+	var assigned_hero_id := String(slot_metadata.get("assigned_hero_id", ""))
+	if assigned_hero_id != "":
+		return assigned_hero_id
+	return _get_test_battle_roster_hero_id(capacity_slot_id)
+
+
+func _get_hero_registry_entry(hero_id: String) -> Dictionary:
+	if hero_id == "":
+		return {}
+	return HERO_REGISTRY.get(hero_id, {})
+
+
+func _load_texture_or_null(path: String) -> Texture2D:
+	if path == "":
+		return null
+	if hero_identity_texture_cache.has(path):
+		return hero_identity_texture_cache.get(path) as Texture2D
+	var loaded_resource := load(path)
+	var texture := loaded_resource as Texture2D
+	if texture != null:
+		hero_identity_texture_cache[path] = texture
+	return texture
+
+
+func _apply_hero_identity_to_unit(unit_state: BattleUnitState) -> void:
+	if unit_state == null:
+		return
+	var hero_id := _get_hero_id_for_unit_state(unit_state)
+	var hero_entry := _get_hero_registry_entry(hero_id)
+	if hero_entry.is_empty():
+		return
+	var display_name := String(hero_entry.get("display_name", ""))
+	if display_name != "":
+		unit_state.display_name = display_name
+		unit_state.hero_name = display_name
+	unit_state.portrait_key = hero_id
+	var default_visual_key := String(hero_entry.get("default_visual_key", ""))
+	if default_visual_key != "":
+		unit_state.visual_key = default_visual_key
+	var battlefield_portrait_path := String(hero_entry.get("battlefield_portrait_path", ""))
+	var battlefield_texture := _load_texture_or_null(battlefield_portrait_path)
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	if battlefield_texture != null and slot != null and slot.portrait is Sprite2D:
+		(slot.portrait as Sprite2D).texture = battlefield_texture
+
+
+func _apply_all_hero_identities() -> void:
+	for unit_state in _get_all_unit_states_in_slot_order():
+		_apply_hero_identity_to_unit(unit_state)
+	if not has_logged_hero_identity_validation:
+		_validate_hero_identity_bindings()
+		has_logged_hero_identity_validation = true
+
+
+func _validate_hero_identity_bindings() -> void:
+	for unit_state in _get_all_unit_states_in_slot_order():
+		if unit_state == null:
+			continue
+		var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
+		var hero_id := _get_hero_id_for_unit_state(unit_state)
+		var hero_entry := _get_hero_registry_entry(hero_id)
+		var expected_path := String(hero_entry.get("battlefield_portrait_path", ""))
+		var expected_filename := expected_path.get_file()
+		var slot := _get_unit_visual_slot_for_state(unit_state)
+		var actual_path := ""
+		if slot != null and slot.portrait is Sprite2D and (slot.portrait as Sprite2D).texture != null:
+			actual_path = (slot.portrait as Sprite2D).texture.resource_path
+		var actual_filename := actual_path.get_file()
+		var click_area := _get_click_area_for_unit(unit_state)
+		var click_area_name: String = click_area.name if click_area != null else ""
+		var identity_ok := (
+			hero_id != ""
+			and String(hero_entry.get("display_name", "")) == unit_state.display_name
+			and expected_filename != ""
+			and expected_filename == actual_filename
+		)
+		if identity_ok:
+			print("[IDENTITY_OK] %s hero=%s name=%s portrait=%s click=%s" % [
+				capacity_slot_id,
+				hero_id,
+				unit_state.display_name,
+				actual_filename,
+				click_area_name,
+			])
+		else:
+			print("[IDENTITY_MISMATCH] slot=%s hero=%s expected=%s actual=%s name=%s click=%s" % [
+				capacity_slot_id,
+				hero_id,
+				expected_filename,
+				actual_filename,
+				unit_state.display_name,
+				click_area_name,
+			])
 
 
 func _get_capacity_slot_formation_index(slot_id: String) -> int:
@@ -4287,6 +4491,13 @@ func _sync_runtime_portrait_markers_to_visuals() -> void:
 		enemy_reinforce_02_portrait_marker.position = enemy_reinforce_02_portrait_badge.position
 
 
+func _restore_enemy_main_portrait_bindings() -> void:
+	if enemy_portrait_badge != null:
+		enemy_portrait_badge.texture = ENEMY_MAIN_01_PORTRAIT_TEXTURE
+	if enemy_main_03_portrait_badge != null:
+		enemy_main_03_portrait_badge.texture = ENEMY_MAIN_03_PORTRAIT_TEXTURE
+
+
 func _capture_scene_authored_unit_layout_offsets() -> void:
 	var ally_main_template := _get_visual_template_for_slot("ally_main", UNIT_TYPE_INFANTRY)
 	var ally_support_template := _get_visual_template_for_slot("ally_support", UNIT_TYPE_INFANTRY)
@@ -6002,10 +6213,50 @@ func _get_clicked_ally_unit_at_position(mouse_pos: Vector2) -> BattleUnitState:
 
 
 func _get_clicked_enemy_unit_at_position(mouse_pos: Vector2) -> BattleUnitState:
+	var hit_candidates: Array[BattleUnitState] = []
 	for unit_state in _get_alive_enemy_units():
 		if _is_click_inside_unit_click_area(unit_state, mouse_pos):
-			return unit_state
-	return null
+			hit_candidates.append(unit_state)
+	if hit_candidates.is_empty():
+		return null
+	var selected_unit_state := _get_closest_unit_state_to_click_position(hit_candidates, mouse_pos)
+	_debug_log_enemy_click_binding(selected_unit_state)
+	return selected_unit_state
+
+
+func _get_closest_unit_state_to_click_position(candidates: Array[BattleUnitState], mouse_pos: Vector2) -> BattleUnitState:
+	var selected_unit_state: BattleUnitState = null
+	var selected_distance := INF
+	for unit_state in candidates:
+		if unit_state == null:
+			continue
+		var marker := _get_unit_marker_for_unit(unit_state)
+		var marker_position := marker.global_position if marker != null else _get_visual_anchor_position_for_unit(unit_state)
+		var distance_to_click := marker_position.distance_squared_to(mouse_pos)
+		if selected_unit_state == null or distance_to_click < selected_distance:
+			selected_unit_state = unit_state
+			selected_distance = distance_to_click
+	return selected_unit_state
+
+
+func _debug_log_enemy_click_binding(unit_state: BattleUnitState) -> void:
+	if unit_state == null:
+		return
+	var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
+	var click_area := _get_click_area_for_unit(unit_state)
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	var portrait := slot.portrait as Sprite2D if slot != null and slot.portrait is Sprite2D else null
+	var portrait_path := portrait.texture.resource_path if portrait != null and portrait.texture != null else ""
+	var marker := _get_unit_marker_for_unit(unit_state)
+	print("[ENEMY_CLICK] name=%s slot=%s click_area=%s click_pos=%s portrait=%s marker=%s marker_pos=%s" % [
+		unit_state.display_name,
+		capacity_slot_id,
+		click_area.name if click_area != null else "",
+		str(click_area.global_position if click_area != null else Vector2.ZERO),
+		portrait_path,
+		marker.name if marker != null else "",
+		str(marker.global_position if marker != null else Vector2.ZERO),
+	])
 
 
 func _is_click_inside_ally_support_click_area(mouse_pos: Vector2) -> bool:
