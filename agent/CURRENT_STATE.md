@@ -6,6 +6,41 @@ SamWar_BattleLab
 ## Current Stable Baseline
 v0.67m-1 Result Toast Size + Hold Duration Tuning
 
+## v0.67p-2 Direct Move Click UX + Floating Panel Opacity Hotfix State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
+- Kept assets unchanged.
+- Kept battle logic, enemy AI, formulas, roster/deployment, reinforcement timing, toast logic, and hero identity registry unchanged.
+- Restored direct move-click UX:
+  - valid highlighted move cell left-click now executes movement immediately
+  - existing move execution path is reused
+  - post-move facing selection still appears
+  - right-click rollback still restores the unit from facing-select
+  - invalid or occupied clicks do not move
+  - UI clicks do not trigger direct movement
+- Made the floating ally command panel visually solid:
+  - panel background alpha is fully opaque
+  - floating command button backgrounds are fully opaque in normal/hover/pressed/disabled states
+  - selected unit art should no longer visually show through the panel background
+- Cleaned the bottom global command bar:
+  - hid the `전역 명령` label
+  - kept only `턴 종료`, `자동전투`, and disabled `후퇴` visible
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - selecting an ally shows the floating command panel
+  - floating panel and button style alpha values are fully opaque
+  - bottom `전역 명령` label is hidden
+  - bottom `턴 종료` still works
+  - bottom `자동전투` still works
+  - bottom `후퇴` remains a safe disabled placeholder
+  - direct valid move-cell click executes movement without pressing `이동`
+  - facing selection still appears after direct movement
+  - right-click cancel / rollback still works
+  - invalid cell clicks do not move the unit
+  - UI-area clicks do not trigger direct movement
+  - accelerated headless `5v5` auto battle still reaches `result_victory`
+
 ## v0.67p-1 Floating Ally Command Panel MVP State
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
 - Kept assets unchanged.

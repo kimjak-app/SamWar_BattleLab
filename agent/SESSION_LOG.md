@@ -2,6 +2,41 @@
 
 ## 2026-05-24
 
+- v0.67p-2 Direct Move Click UX + Floating Panel Opacity Hotfix
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
+- Restored direct valid-cell move execution without requiring the `이동` button first.
+- Reused the existing movement path and preserved post-move facing selection.
+- Preserved right-click rollback after direct movement.
+- Added direct-move safety guards for:
+  - UI clicks
+  - invalid / occupied cells
+  - enemy turn
+  - resolving / animation states
+  - attack-select state
+  - battle-result-finalized state
+- Made the floating ally command panel visually solid:
+  - opaque panel background
+  - opaque button backgrounds across interactive and disabled states
+- Hid the bottom `전역 명령` label and kept only:
+  - `턴 종료`
+  - `자동전투`
+  - `후퇴` placeholder
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning count `0`.
+- Headless UX verifier confirmed:
+  - floating panel shows on ally selection
+  - floating panel/button alpha is fully opaque
+  - direct valid move click reaches movement and facing-select
+  - right-click rollback restores the unit
+  - invalid click does not move the unit
+  - UI click does not trigger direct move
+  - bottom auto battle still works
+  - bottom end-turn still works
+  - accelerated `5v5` auto battle still reaches `result_victory`
+
+## 2026-05-24
+
 - v0.67p-1 Floating Ally Command Panel MVP
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
 - Simplified the bottom command bar toward global commands:

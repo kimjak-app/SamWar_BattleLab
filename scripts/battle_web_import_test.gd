@@ -792,9 +792,9 @@ func _input(event: InputEvent) -> void:
 		return
 	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
 		return
-	if is_demo_animating or ally_unit_state == null:
-		return
 	if _is_mouse_over_battle_ui():
+		return
+	if is_demo_animating or ally_unit_state == null:
 		return
 
 	var mouse_world_pos := get_global_mouse_position()
@@ -849,6 +849,10 @@ func _input(event: InputEvent) -> void:
 		has_selected_move_target = false
 		move_highlight.visible = false
 		_append_battle_log("이동 불가")
+		get_viewport().set_input_as_handled()
+		return
+
+	if _try_direct_move_to_cell(target_cell):
 		get_viewport().set_input_as_handled()
 		return
 
@@ -1271,15 +1275,31 @@ func _set_phase(new_phase: String) -> void:
 func _configure_floating_ally_command_panel() -> void:
 	if floating_ally_command_panel != null:
 		floating_ally_command_panel.visible = false
+		floating_ally_command_panel.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		floating_ally_command_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		var panel_style := StyleBoxFlat.new()
+		panel_style.bg_color = Color(0.09, 0.1, 0.13, 1.0)
+		panel_style.border_color = Color(0.84, 0.76, 0.54, 1.0)
+		panel_style.set_border_width_all(2)
+		panel_style.set_corner_radius_all(8)
+		floating_ally_command_panel.add_theme_stylebox_override("panel", panel_style)
 	if floating_unique_skill_button != null:
 		floating_unique_skill_button.disabled = true
 	if floating_tactics_button != null:
 		floating_tactics_button.disabled = true
+	for button in [
+		floating_basic_attack_button,
+		floating_unique_skill_button,
+		floating_tactics_button,
+		floating_move_button,
+		floating_wait_button,
+	]:
+		_apply_floating_command_button_style(button)
 
 
 func _configure_command_bar() -> void:
 	if command_bar_label != null:
-		command_bar_label.text = "전역 명령"
+		command_bar_label.visible = false
 	if basic_attack_button != null:
 		basic_attack_button.visible = false
 		basic_attack_button.disabled = true
@@ -1292,6 +1312,34 @@ func _configure_command_bar() -> void:
 	if retreat_button != null:
 		retreat_button.text = "후퇴"
 		retreat_button.disabled = true
+
+
+func _apply_floating_command_button_style(button: Button) -> void:
+	if button == null:
+		return
+	button.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
+	button.add_theme_color_override("font_color", Color(0.97, 0.95, 0.9, 1.0))
+	button.add_theme_color_override("font_disabled_color", Color(0.72, 0.71, 0.68, 1.0))
+	button.add_theme_color_override("font_focus_color", Color(0.99, 0.97, 0.94, 1.0))
+	button.add_theme_color_override("font_hover_color", Color(1.0, 0.98, 0.94, 1.0))
+	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.98, 0.94, 1.0))
+	var normal_style := StyleBoxFlat.new()
+	normal_style.bg_color = Color(0.16, 0.18, 0.23, 1.0)
+	normal_style.border_color = Color(0.88, 0.8, 0.58, 1.0)
+	normal_style.set_border_width_all(2)
+	normal_style.set_corner_radius_all(6)
+	var hover_style := normal_style.duplicate()
+	hover_style.bg_color = Color(0.24, 0.27, 0.33, 1.0)
+	var pressed_style := normal_style.duplicate()
+	pressed_style.bg_color = Color(0.11, 0.12, 0.16, 1.0)
+	var disabled_style := normal_style.duplicate()
+	disabled_style.bg_color = Color(0.2, 0.2, 0.2, 1.0)
+	disabled_style.border_color = Color(0.48, 0.48, 0.48, 1.0)
+	button.add_theme_stylebox_override("normal", normal_style)
+	button.add_theme_stylebox_override("hover", hover_style)
+	button.add_theme_stylebox_override("pressed", pressed_style)
+	button.add_theme_stylebox_override("disabled", disabled_style)
 
 
 func _should_show_floating_ally_command_panel() -> bool:
@@ -1401,6 +1449,49 @@ func _end_ally_turn_by_wait() -> void:
 	_set_phase(PHASE_ENEMY_TURN)
 	_append_battle_log("적군 턴")
 	_play_enemy_turn_demo()
+
+
+func _can_use_direct_move_click() -> bool:
+	if current_phase != PHASE_ALLY_TURN:
+		return false
+	if is_demo_animating:
+		return false
+	if _is_battle_result_finalized():
+		return false
+	if _is_mouse_over_battle_ui():
+		return false
+	if active_unit_state == null or active_unit_side != "ally":
+		return false
+	if active_unit_state.has_moved:
+		return false
+	if not _is_active_ally_action_available():
+		return false
+	return _is_move_range_overlay_visible()
+
+
+func _is_move_range_overlay_visible() -> bool:
+	if move_range_overlay_layer == null:
+		return false
+	for child in move_range_overlay_layer.get_children():
+		var overlay_cell := child as CanvasItem
+		if overlay_cell != null and overlay_cell.visible:
+			return true
+	return false
+
+
+func _try_direct_move_to_cell(target_cell: Vector2i) -> bool:
+	if not _can_use_direct_move_click():
+		return false
+	if battle_grid_controller == null or not battle_grid_controller.is_in_bounds(target_cell):
+		return false
+	if not _is_valid_destination_for_unit(target_cell, active_unit_state, true):
+		_append_battle_log("다른 부대가 있어 이동할 수 없습니다")
+		return false
+	if not is_valid_move_target(target_cell):
+		return false
+	set_move_target_cell(target_cell)
+	play_basic_move_demo()
+	return is_demo_animating or current_phase == PHASE_RESOLVING or current_phase == PHASE_FACING_SELECT
 
 
 func _show_facing_selection_panel() -> void:

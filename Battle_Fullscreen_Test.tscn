@@ -2331,11 +2331,12 @@ offset_right = 1400.0
 offset_bottom = 1060.0
 
 [node name="CommandBarLabel" type="Label" parent="BattleUI/CommandBar" unique_id=163471327]
+visible = false
 layout_mode = 0
-offset_left = 442.0
-offset_top = 10.0
-offset_right = 868.0
-offset_bottom = 40.0
+offset_left = 431.0
+offset_top = 19.0
+offset_right = 857.0
+offset_bottom = 49.0
 text = "전역 명령"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -2369,37 +2370,37 @@ text = "대기"
 
 [node name="EndTurnButton" type="Button" parent="BattleUI/CommandBar" unique_id=1902145002]
 layout_mode = 0
-offset_left = 12.0
-offset_top = 8.0
-offset_right = 108.0
-offset_bottom = 40.0
+offset_left = 262.0
+offset_top = 18.0
+offset_right = 358.0
+offset_bottom = 50.0
 text = "턴 종료"
 
 [node name="AutoBattleButton" type="Button" parent="BattleUI/CommandBar" unique_id=1847675653]
 layout_mode = 0
-offset_left = 116.0
-offset_top = 8.0
-offset_right = 220.0
-offset_bottom = 40.0
+offset_left = 372.0
+offset_top = 16.0
+offset_right = 476.0
+offset_bottom = 48.0
 text = "자동전투"
 
-[node name="RetreatButton" type="Button" parent="BattleUI/CommandBar"]
+[node name="RetreatButton" type="Button" parent="BattleUI/CommandBar" unique_id=1414351526]
 layout_mode = 0
-offset_left = 228.0
-offset_top = 8.0
-offset_right = 324.0
-offset_bottom = 40.0
+offset_left = 479.0
+offset_top = 17.0
+offset_right = 575.0
+offset_bottom = 49.0
 disabled = true
 text = "후퇴"
 
-[node name="FloatingAllyCommandPanel" type="Panel" parent="BattleUI"]
+[node name="FloatingAllyCommandPanel" type="Panel" parent="BattleUI" unique_id=1536043339]
 visible = false
-layout_mode = 0
 offset_right = 176.0
 offset_bottom = 214.0
 mouse_filter = 1
+modulate = Color(1, 1, 1, 1)
 
-[node name="FloatingBasicAttackButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel"]
+[node name="FloatingBasicAttackButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=584505442]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 12.0
@@ -2407,7 +2408,7 @@ offset_right = 164.0
 offset_bottom = 46.0
 text = "기본공격"
 
-[node name="FloatingUniqueSkillButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel"]
+[node name="FloatingUniqueSkillButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=1854683531]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 52.0
@@ -2416,7 +2417,7 @@ offset_bottom = 86.0
 disabled = true
 text = "고유특기"
 
-[node name="FloatingTacticsButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel"]
+[node name="FloatingTacticsButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=1137418579]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 92.0
@@ -2425,7 +2426,7 @@ offset_bottom = 126.0
 disabled = true
 text = "책략"
 
-[node name="FloatingMoveButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel"]
+[node name="FloatingMoveButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=118051900]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 132.0
@@ -2433,7 +2434,7 @@ offset_right = 164.0
 offset_bottom = 166.0
 text = "이동"
 
-[node name="FloatingWaitButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel"]
+[node name="FloatingWaitButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=1816183012]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 172.0
