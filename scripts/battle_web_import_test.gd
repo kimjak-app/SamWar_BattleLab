@@ -12,9 +12,9 @@ const ALLY_VISUAL_ANCHOR_OFFSET := Vector2(0.0, 0.0)
 const ENEMY_VISUAL_ANCHOR_OFFSET := Vector2(0.0, -8.0)
 const IDLE_SCALE_MULTIPLIER := 1.035
 const IDLE_DURATION := 1.15
-const ACTIVE_ALLY_TURN_PULSE_SCALE := 1.40
-const ACTIVE_ALLY_TURN_PULSE_UP_DURATION := 0.18
-const ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION := 0.24
+const ACTIVE_ALLY_TURN_PULSE_SCALE := 2.0
+const ACTIVE_ALLY_TURN_PULSE_UP_DURATION := 0.16
+const ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION := 0.26
 const ENEMY_GUARD_STEP_DISTANCE := 18.0
 const MOVE_HIGHLIGHT_SIZE := Vector2(68.0, 56.0)
 const MOVE_TARGET_VALID_COLOR := Color(0.45, 1.0, 0.55, 1.0)
@@ -1677,10 +1677,12 @@ func _select_post_move_facing(facing: String) -> void:
 	_clear_attack_target_selection()
 	_clear_pending_move_snapshot()
 	_clear_auto_action_flags()
+	is_floating_ally_command_panel_requested = true
 	_set_phase(PHASE_ALLY_TURN)
 	_start_idle_breathing()
 	_refresh_move_target_feedback()
 	_show_move_range_overlay_for_active_unit()
+	_refresh_floating_ally_command_panel()
 
 
 func _append_battle_log(line: String) -> void:

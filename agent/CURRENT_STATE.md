@@ -6,6 +6,31 @@ SamWar_BattleLab
 ## Current Stable Baseline
 v0.67m-1 Result Toast Size + Hold Duration Tuning
 
+## v0.67p-3-hotfix Active Ally Pulse Scale + Post-Move Panel State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept enemy AI, formulas, roster/deployment, reinforcement timing, toast logic, hero identity registry, and assets unchanged.
+- Increased active ally turn pulse tuning:
+  - `ACTIVE_ALLY_TURN_PULSE_SCALE = 2.0`
+  - `ACTIVE_ALLY_TURN_PULSE_UP_DURATION = 0.16`
+  - `ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION = 0.26`
+- Active ally turn pulse now peaks around `1.984x` in headless verification and still returns to the original base scale.
+- Ally turn start still keeps the floating command panel hidden by default.
+- After movement and post-move facing selection complete, the floating command panel now automatically reopens near the moved ally.
+- This reopen path now covers:
+  - floating-panel `이동`
+  - direct move-click UX
+- Existing panel opacity, layer priority, button handlers, direct move-click UX, and bottom command bar remain intact.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - panel still stays hidden at ally turn start
+  - clicking the active ally still opens the panel
+  - direct move reaches facing select and panel reopens after facing completes
+  - existing floating-panel UX verifier still passes
+  - floating `이동`, `기본공격`, `대기`, direct move-click, rollback, and full-auto result reachability remain intact
+
 ## v0.67p-3 Active Ally Turn Pulse + Click Command Panel State
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
 - Kept `Battle_Fullscreen_Test.tscn` unchanged.

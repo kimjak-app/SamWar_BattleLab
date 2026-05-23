@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## v0.67p-3-hotfix Active Ally Pulse Scale and Post-Move Panel
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Increased the active ally turn pulse scale from `1.40` to `2.0`.
+- Final pulse tuning:
+  - `ACTIVE_ALLY_TURN_PULSE_SCALE = 2.0`
+  - `ACTIVE_ALLY_TURN_PULSE_UP_DURATION = 0.16`
+  - `ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION = 0.26`
+- Kept the token returning to the original base scale after the pulse.
+- Kept ally turn start behavior unchanged:
+  - floating command panel stays hidden by default
+  - pulse remains the primary active-unit signal
+- Reopened the floating command panel automatically after movement + facing selection complete.
+- This shared post-move reopen now covers both:
+  - floating `이동`
+  - direct move-click
+- Kept panel opacity, layer priority, click-to-open behavior, direct move-click UX, rollback, and bottom command bar intact.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Confirmed `GDScript` warning count `0`.
+- Confirmed dedicated headless hotfix verifier checks:
+  - no auto-open panel at ally turn start
+  - pulse peak around `1.984x`
+  - pulse returns to about `1.002x`
+  - clicking the active ally opens the panel
+  - panel reopens after direct move + facing completion
+- Confirmed the existing floating-panel UX verifier still passes, including floating attack/move/wait behavior, direct move-click, rollback, panel hide rules, bottom command bar survival, and accelerated `5v5` auto-battle result reachability.
+
 ## v0.67p-3 Active Ally Turn Pulse + Click Command Panel
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
