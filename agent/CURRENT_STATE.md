@@ -4,7 +4,11 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67m-1 Result Toast Size + Hold Duration Tuning
+v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable
+
+- Active ally pulse is locked as the current stable baseline: unified root pulse, pivot-locked in place, scale around `1.5x`, clean return to original position and scale.
+- Floating command panel still stays hidden at ally turn start, opens on active ally click, and auto-reopens after movement + facing selection complete.
+- Direct move-click UX, floating panel opacity/layer priority, bottom command bar, and `5v5` battle flow remain stable with no new battle logic changes in this wrap-up.
 
 ## v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock State
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

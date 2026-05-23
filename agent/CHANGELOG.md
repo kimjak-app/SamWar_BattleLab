@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable
+
+- Locked the current stable baseline around the pivot-locked unified active ally pulse at about `1.5x` with clean position/scale restoration, hidden-on-turn-start command panel behavior, post-move panel auto-reopen, intact direct move-click UX, intact opaque/layered floating panel, intact bottom command bar, and no additional battle logic changes in this wrap-up.
+
 ## v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

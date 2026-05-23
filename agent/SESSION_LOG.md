@@ -2,6 +2,10 @@
 
 ## 2026-05-24
 
+- v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable: locked today’s stable baseline around the pivot-locked unified active ally pulse at about `1.5x`, with clean scale/position return, no panel auto-open at ally turn start, click-to-open plus post-move auto-reopen preserved, direct move-click intact, floating panel opacity/layer intact, bottom command bar intact, and no new battle logic changes required for this wrap-up.
+
+## 2026-05-24
+
 - v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
 - Kept the unified active ally root pulse at `1.5x`.
