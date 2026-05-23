@@ -434,6 +434,8 @@ var ally_reinforce_02_ready_frame_tween: Tween = null
 var unit_closeup_tween: Tween = null
 var active_ally_turn_pulse_tween: Tween = null
 var active_ally_turn_pulse_root: Node2D = null
+var active_ally_turn_pulse_root_base_global_position := Vector2.ZERO
+var active_ally_turn_pulse_root_pivot_global := Vector2.ZERO
 var active_ally_turn_pulse_token: Sprite2D = null
 var active_ally_turn_pulse_portrait: Sprite2D = null
 var active_ally_turn_pulse_unit_state: BattleUnitState = null
@@ -2143,6 +2145,21 @@ func _get_visual_root_base_scale_for_unit(unit_state: BattleUnitState) -> Vector
 	return Vector2.ONE
 
 
+func _apply_active_ally_turn_pulse_root_ratio(
+	visual_root: Node2D,
+	base_position: Vector2,
+	base_scale: Vector2,
+	pivot_position: Vector2,
+	scale_ratio: float
+) -> void:
+	if visual_root == null:
+		return
+	var clamped_ratio := maxf(scale_ratio, 0.001)
+	var ratio_vector := Vector2(clamped_ratio, clamped_ratio)
+	visual_root.scale = base_scale * clamped_ratio
+	visual_root.position = pivot_position + ((base_position - pivot_position) * ratio_vector)
+
+
 func _stop_active_ally_turn_pulse() -> void:
 	if active_ally_turn_pulse_tween != null:
 		active_ally_turn_pulse_tween.kill()
@@ -2151,7 +2168,10 @@ func _stop_active_ally_turn_pulse() -> void:
 		var pulsing_root_unit_state := active_ally_turn_pulse_unit_state
 		if pulsing_root_unit_state != null:
 			active_ally_turn_pulse_root.scale = _get_visual_root_base_scale_for_unit(pulsing_root_unit_state)
+			active_ally_turn_pulse_root.position = active_ally_turn_pulse_root_base_global_position
 		active_ally_turn_pulse_root = null
+	active_ally_turn_pulse_root_base_global_position = Vector2.ZERO
+	active_ally_turn_pulse_root_pivot_global = Vector2.ZERO
 	if active_ally_turn_pulse_token != null:
 		var pulsing_unit_state := active_ally_turn_pulse_unit_state
 		if pulsing_unit_state != null:
@@ -2179,6 +2199,15 @@ func _play_active_ally_turn_pulse(unit_state: BattleUnitState) -> void:
 	if visual_root == null and token == null:
 		return
 	var visual_root_base_scale := _get_visual_root_base_scale_for_unit(unit_state)
+	var visual_root_base_position := Vector2.ZERO
+	var visual_root_pivot_position := Vector2.ZERO
+	if visual_root != null:
+		visual_root_base_position = visual_root.position
+		var pivot_global := _get_visual_anchor_position_for_unit(unit_state)
+		if visual_root.get_parent() is Node2D:
+			visual_root_pivot_position = (visual_root.get_parent() as Node2D).to_local(pivot_global)
+		else:
+			visual_root_pivot_position = pivot_global
 	var base_scale := _get_visual_token_base_scale_for_unit(unit_state)
 	var portrait := _get_visual_portrait_badge_for_unit(unit_state)
 	var portrait_base_scale := _get_visual_portrait_badge_base_scale_for_unit(unit_state)
@@ -2186,26 +2215,43 @@ func _play_active_ally_turn_pulse(unit_state: BattleUnitState) -> void:
 	_stop_idle_breathing()
 	if visual_root != null:
 		visual_root.scale = visual_root_base_scale
+		visual_root.position = visual_root_base_position
 	else:
 		token.scale = base_scale
 		if portrait != null:
 			portrait.scale = portrait_base_scale
 	active_ally_turn_pulse_root = visual_root
+	active_ally_turn_pulse_root_base_global_position = visual_root_base_position
+	active_ally_turn_pulse_root_pivot_global = visual_root_pivot_position
 	active_ally_turn_pulse_token = token
 	active_ally_turn_pulse_portrait = portrait
 	active_ally_turn_pulse_unit_state = unit_state
 	active_ally_turn_pulse_tween = create_tween()
 	if visual_root != null:
-		active_ally_turn_pulse_tween.tween_property(
-			visual_root,
-			"scale",
-			visual_root_base_scale * ACTIVE_ALLY_TURN_PULSE_SCALE,
+		active_ally_turn_pulse_tween.tween_method(
+			func(scale_ratio: float) -> void:
+				_apply_active_ally_turn_pulse_root_ratio(
+					visual_root,
+					visual_root_base_position,
+					visual_root_base_scale,
+					visual_root_pivot_position,
+					scale_ratio
+				),
+			1.0,
+			ACTIVE_ALLY_TURN_PULSE_SCALE,
 			ACTIVE_ALLY_TURN_PULSE_UP_DURATION
 		).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		active_ally_turn_pulse_tween.tween_property(
-			visual_root,
-			"scale",
-			visual_root_base_scale,
+		active_ally_turn_pulse_tween.tween_method(
+			func(scale_ratio: float) -> void:
+				_apply_active_ally_turn_pulse_root_ratio(
+					visual_root,
+					visual_root_base_position,
+					visual_root_base_scale,
+					visual_root_pivot_position,
+					scale_ratio
+				),
+			ACTIVE_ALLY_TURN_PULSE_SCALE,
+			1.0,
 			ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION
 		).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	else:
@@ -2239,12 +2285,15 @@ func _play_active_ally_turn_pulse(unit_state: BattleUnitState) -> void:
 	active_ally_turn_pulse_tween.finished.connect(func() -> void:
 		if visual_root != null:
 			visual_root.scale = visual_root_base_scale
+			visual_root.position = visual_root_base_position
 		else:
 			token.scale = base_scale
 			if portrait != null:
 				portrait.scale = portrait_base_scale
 		active_ally_turn_pulse_tween = null
 		active_ally_turn_pulse_root = null
+		active_ally_turn_pulse_root_base_global_position = Vector2.ZERO
+		active_ally_turn_pulse_root_pivot_global = Vector2.ZERO
 		active_ally_turn_pulse_token = null
 		active_ally_turn_pulse_portrait = null
 		active_ally_turn_pulse_unit_state = null

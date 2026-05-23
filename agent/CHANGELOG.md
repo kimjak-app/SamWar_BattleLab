@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept the unified root pulse and `ACTIVE_ALLY_TURN_PULSE_SCALE = 1.5`.
+- Added pivot-locked root pulse compensation so the active ally scales in place instead of appearing to rise or slide from an off-center origin.
+- The pulse now scales around the active ally visual anchor while compensating the root position each frame.
+- The troop token and hero portrait still pulse together as one unified visual object.
+- Kept exact root base position and base scale restoration after the pulse.
+- Kept the token/portrait split pulse path only as a fallback when a shared visual root is unavailable.
+- Kept ally turn start behavior unchanged:
+  - floating command panel stays hidden by default
+  - pulse remains the primary active-unit signal
+- Kept click-to-open panel behavior and post-move panel auto-reopen intact.
+- Kept panel opacity, layer priority, direct move-click UX, rollback, and bottom command bar intact.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Confirmed `GDScript` warning count `0`.
+- Confirmed dedicated headless pivot-lock verifier checks:
+  - no auto-open panel at ally turn start
+  - root pulse peak around `1.550x`
+  - token global pulse peak around `1.550x`
+  - portrait global pulse peak around `1.550x`
+  - token local scale stayed around `1.000x`
+  - portrait local scale stayed around `1.000x`
+  - pivot drift during pulse stayed around `0.000px`
+  - root final position drift returned to `0.000px`
+  - pivot final position drift returned to `0.000px`
+  - repeated pulse drift stayed within the headless tolerance band
+  - panel reopens after direct move + facing completion
+- Confirmed the existing floating-panel UX verifier still passes, including floating attack/move/wait behavior, direct move-click, rollback, panel hide rules, bottom command bar survival, and accelerated `5v5` auto-battle result reachability.
+
 ## v0.67p-3-hotfix2 Unified Active Ally Pulse Root
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

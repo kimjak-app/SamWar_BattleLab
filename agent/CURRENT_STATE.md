@@ -6,6 +6,42 @@ SamWar_BattleLab
 ## Current Stable Baseline
 v0.67m-1 Result Toast Size + Hold Duration Tuning
 
+## v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept enemy AI, formulas, roster/deployment, reinforcement timing, toast logic, hero identity registry, and assets unchanged.
+- Kept `ACTIVE_ALLY_TURN_PULSE_SCALE = 1.5`.
+- Active ally turn pulse still uses the shared `UnitVisualRoot` / visual root so troop token and hero portrait scale together as one unified object.
+- Added pivot-locked root pulse compensation around the active ally visual anchor.
+- The pulse now:
+  - captures the root base position and base scale
+  - captures the active ally visual anchor as the stable pulse pivot
+  - compensates root position while scaling so the visible unit grows in place
+  - restores the root exactly to its base position and base scale after the pulse
+- The token/portrait split pulse path remains only as a fallback when a shared visual root is unavailable.
+- Ally turn start still keeps the floating command panel hidden by default.
+- Clicking the active ally still opens the floating command panel.
+- After movement and post-move facing selection complete, the floating command panel still automatically reopens near the moved ally.
+- Existing panel opacity, layer priority, button handlers, direct move-click UX, and bottom command bar remain intact.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - active ally root pulse peak around `1.550x`
+  - token global pulse peak around `1.550x`
+  - portrait global pulse peak around `1.550x`
+  - token local scale stayed around `1.000x`
+  - portrait local scale stayed around `1.000x`
+  - pivot drift during pulse stayed around `0.000px`
+  - root returned to `1.000x`
+  - root final position drift returned to `0.000px`
+  - pivot final position drift returned to `0.000px`
+  - repeated pulse drift remained within the headless tolerance band
+  - clicking the active ally still opens the panel
+  - direct move still reaches facing select and panel reopens after facing completes
+  - existing floating-panel UX verifier still passes
+  - floating `이동`, `기본공격`, `대기`, direct move-click, rollback, and full-auto result reachability remain intact
+
 ## v0.67p-3-hotfix2 Unified Active Ally Pulse Root State
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
 - Kept `Battle_Fullscreen_Test.tscn` unchanged.

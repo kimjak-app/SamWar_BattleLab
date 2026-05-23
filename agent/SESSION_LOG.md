@@ -2,6 +2,39 @@
 
 ## 2026-05-24
 
+- v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept the unified active ally root pulse at `1.5x`.
+- Added pivot-locked root position compensation around the active ally visual anchor so the unit scales in place.
+- Kept troop token and hero portrait pulsing together as one object through the shared root.
+- Kept the token/portrait split pulse path only as a fallback if a shared visual root is unavailable.
+- Kept ally turn start panel behavior hidden by default.
+- Kept automatic floating command panel reopen after movement + facing selection completion.
+- Kept click-to-open panel behavior, panel opacity, layer priority, rollback, and bottom command bar intact.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning count `0`.
+- Dedicated pivot-lock verifier confirmed:
+  - no auto-open panel at ally turn start
+  - root pulse peak about `1.550x`
+  - token global pulse peak about `1.550x`
+  - portrait global pulse peak about `1.550x`
+  - token local scale stayed about `1.000x`
+  - portrait local scale stayed about `1.000x`
+  - pivot drift during pulse stayed about `0.000px`
+  - root returned to base scale and base position
+  - pivot returned to base position
+  - repeated pulse drift stayed within the headless tolerance band
+  - clicking the active ally opens the panel
+  - panel reopens after direct move + facing completion
+- Existing floating-panel UX verifier still passed:
+  - floating `기본공격` / `이동` / `대기` still work
+  - direct move-click still works
+  - right-click rollback still works
+  - panel still hides in non-ally-command states
+  - bottom command bar still works
+  - accelerated `5v5` auto battle still reaches `result_victory`
+
 - v0.67p-3-hotfix2 Unified Active Ally Pulse Root
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
 - Kept the active ally turn pulse scale at `1.5`.
