@@ -2,6 +2,26 @@
 
 ## 2026-05-23
 
+- v0.67k-5 QA Stable
+- Documentation-only stable-lock step.
+- No code, scene, or asset changes in this step.
+- Locked the current stable baseline as `v0.67k-5 QA Stable`.
+- Re-recorded stable validation target:
+  - `제갈량` / rear enemy advance
+  - no passive multi-target idle
+  - WAIT only for truly blocked enemies
+  - victory / defeat toast stable
+  - reinforcement arrival toast stable
+  - `GDScript` warning count `0`
+  - `5v5` full auto battle reaches result path
+- Reused the current validated headless baseline:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - headless smoke evidence still supports enemy advance, fallback targeting, reinforcement toast, and result toast
+- Manual `F6` play verification remains an external interactive QA item in this environment.
+
+## 2026-05-23
+
 - v0.67k-4-hotfix GDScript Warning Fix
 - v0.67k-5 Enemy AI Multi-Target Engagement Fix
 - Reworked the enemy AI decision path in `scripts/battle_web_import_test.gd`.

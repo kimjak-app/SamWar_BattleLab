@@ -4,7 +4,30 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67k-5 Enemy AI Multi-Target Engagement Fix
+v0.67k-5 QA Stable
+
+## v0.67k-5 QA Stable State
+- Documentation-only stable-lock step.
+- No code, scene, or asset changes in this step.
+- Locked the current stable baseline as `v0.67k-5 QA Stable`.
+- Stable validation target:
+  - enemy `제갈량` / rear enemies advance instead of staying back
+  - enemy AI does not idle in multi-target states when alternate engagement exists
+  - only truly blocked enemy actors wait
+  - victory / defeat toast remains stable
+  - reinforcement arrival toast remains stable
+  - `GDScript` warning count remains `0`
+  - `5v5` full auto battle still reaches the battle result path
+- Verification status for this lock step:
+  - headless project launch exit code `0`
+  - headless `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - current headless smoke evidence still supports:
+    - fallback-target engagement behavior
+    - `enemy_reinforce_02 / 제갈량` advance behavior
+    - reinforcement arrival toast on rounds `2` and `3`
+    - battle result toast path activation
+    - no passive distant-enemy idle in the current smoke path
+- Manual `F6` editor play confirmation remains an external interactive QA item and is not executable in this environment.
 
 ## v0.67k-5 Enemy AI Multi-Target Engagement Fix State
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

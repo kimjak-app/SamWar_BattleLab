@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v0.67k-5 QA Stable
+
+- Documentation-only stable-lock step.
+- No code, scene, or asset changes in this step.
+- Locked the current stable baseline as `v0.67k-5 QA Stable`.
+- Recorded the stable QA target:
+  - rear enemy advance including `제갈량`
+  - no passive idle in multi-target engagement states
+  - wait only for truly blocked enemies
+  - victory / defeat toast stable
+  - reinforcement arrival toast stable
+  - `GDScript` warning count `0`
+  - `5v5` full auto battle result-path reachable
+- Reconfirmed the current headless verification baseline:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - existing headless smoke evidence for enemy advance, fallback targeting, reinforcement toast, and result toast remains the current runtime basis
+- Manual `F6` editor-side play verification is still external to this environment.
+
 ## v0.67k-5 Enemy AI Multi-Target Engagement Fix
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
