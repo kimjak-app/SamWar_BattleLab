@@ -102,10 +102,20 @@
   - modifying assets/scenes outside the requested task scope
   - making a design decision not covered by the task
 
+## Codex Approval Handling
+- For harmless read/search/verification commands, use the broad "don't ask again for this command pattern" option when available.
+- Prefer one targeted consolidated read over many small reads.
+- Avoid repeated tiny `Get-Content` line-range commands unless a consolidated targeted read is not practical.
+- Do not ask the user for normal SamWar development work.
+- If the environment forces approval, proceed only when it is read/search/verification or an in-scope commit.
+- Never auto-proceed on push, deletion, reset, destructive cleanup, or out-of-scope file changes.
+- Push remains forbidden unless the user explicitly asks.
+
 ## Read Command Rule
-- For harmless read-only commands, prefer consolidated reads over many tiny line-range reads.
+- For harmless read-only commands, prefer one targeted consolidated read over many tiny line-range reads.
+- Avoid repeated tiny `Get-Content` line-range commands that create unnecessary approval prompts.
 - Avoid repeated small read/check commands that create unnecessary approval prompts or workflow interruption.
-- If the approval UI appears for a harmless read/check command, use the broad proceed / do-not-ask-again option when available.
+- If the approval UI appears for a harmless read/check command, proceed with the broad do-not-ask-again option when available.
 
 ## Special Rule For SIMPLE PATCH
 - Do not over-investigate.
