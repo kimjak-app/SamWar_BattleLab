@@ -3,6 +3,7 @@
 ## Core Philosophy
 - Code controls behavior.
 - Scene controls layout and visual placement.
+- Task scope and verification depth must match task complexity.
 
 ---
 
