@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.67r Bottom Command Bar Art Asset Structure Prep
+- Prepared `assets/web_battle/ui/bottom_command/README.md` and the planned button PNG naming structure.
+- Kept `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` as existing `Button` nodes.
+- Reused existing handlers with no intended behavior change.
+- Added optional bottom-command art mapping in runtime code.
+- If the PNG files are absent, the project keeps current button behavior and avoids load errors.
+
 ## v0.67-docs Agent Docs Slimdown
 - Slimmed top-level `agent` docs for faster Codex session startup and wrap-up.
 - Preserved full pre-slimdown history in:

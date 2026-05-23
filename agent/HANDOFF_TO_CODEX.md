@@ -36,16 +36,19 @@ Do not modify casually:
 - Victory / defeat result toast is stable.
 - Reinforcement / round / result toast queue is stable.
 - Bottom global command bar exists.
+- Bottom command bar art-prep structure now exists under `assets/web_battle/ui/bottom_command/`.
 - Floating command panel exists and remains click-to-open.
 - Direct move-click UX remains stable.
 - Post-move floating panel auto-reopen remains stable.
 - Active ally pulse uses the unified root pulse with pivot lock at around `1.5x`.
 - `5v5` full auto result path is reachable.
 - Headless project / scene launch are expected to remain `0` errors and `GDScript` warnings are expected to remain `0`.
+- `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` remain `Button` nodes with existing handlers reused.
+- Actual bottom command PNG files are still optional; missing files should keep current behavior without load errors.
 
 ## Recommended Next Task
-- Current task: `v0.67-docs Agent Docs Slimdown`
-- After completion: `v0.67r Bottom Command Bar Art Asset Structure Prep`
+- Current task: `v0.67r Bottom Command Bar Art Asset Structure Prep`
+- After completion: bottom command button actual asset integration or `v0.67s Floating Command Panel Art Direction Prep`
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

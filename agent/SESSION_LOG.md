@@ -2,6 +2,20 @@
 
 ## 2026-05-24
 
+### v0.67r Bottom Command Bar Art Asset Structure Prep
+- Confirmed the bottom global command bar currently uses `Button` nodes:
+  - `AutoBattleButton`
+  - `EndTurnButton`
+  - `RetreatButton`
+- Confirmed existing pressed handlers are reused:
+  - `AutoBattleButton` -> `_toggle_full_auto_battle`
+  - `EndTurnButton` -> `_end_ally_turn_by_wait`
+  - `RetreatButton` remains a disabled placeholder
+- Added `assets/web_battle/ui/bottom_command/README.md`.
+- Added optional runtime bottom-command art path mapping and safe apply helper.
+- Missing PNG files now remain a safe no-op instead of a load dependency.
+- No behavior change intended for direct move-click, floating panel flow, active ally pulse, or `5v5` battle flow.
+
 ### v0.67-docs Agent Docs Slimdown
 - Created `agent/archive/v0.67-docs_agent_docs_slimdown/`.
 - Preserved full pre-slimdown copies of:

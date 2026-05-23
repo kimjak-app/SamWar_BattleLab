@@ -6,6 +6,12 @@ SamWar_BattleLab
 ## Current Stable Baseline
 `v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable`
 
+## Current Implementation Step
+- `v0.67r Bottom Command Bar Art Asset Structure Prep`
+- Bottom command bar art path / naming / optional runtime apply structure is now prepared.
+- Actual PNG files are still optional and may be absent.
+- Existing bottom command handlers are reused with no intended behavior change.
+
 ## Stable Summary
 - Current battle target is stable `5v5`.
 - `5v5` battle loop stable.
@@ -13,6 +19,7 @@ SamWar_BattleLab
 - Victory / defeat toast stable.
 - Reinforcement toast stable.
 - Bottom global command bar exists.
+- Bottom command bar art-prep folder/README exists.
 - Floating command panel exists.
 - Direct move-click UX stable.
 - Floating panel stays hidden at ally turn start and opens on active ally click.
@@ -68,8 +75,8 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.67-docs Agent Docs Slimdown`
-2. Bottom command bar button art asset structure
+1. Bottom command button actual asset integration
+2. `v0.67s Floating Command Panel Art Direction Prep`
 3. `Battle Screen Basic UX Stable` lock
 4. Worldmap battle roster integration prep
 

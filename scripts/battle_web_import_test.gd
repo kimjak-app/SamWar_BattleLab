@@ -37,6 +37,20 @@ const AUTO_BATTLE_MIN_MAX_STEPS := 80
 const AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT := 16
 const AUTO_BATTLE_ABSOLUTE_MAX_STEPS := 200
 const MAX_BATTLE_LOG_LINES := 4
+const BOTTOM_COMMAND_BUTTON_ART_PATHS := {
+	"auto_battle": {
+		"normal": "res://assets/web_battle/ui/bottom_command/bottom_cmd_auto_normal.png",
+		"pressed": "res://assets/web_battle/ui/bottom_command/bottom_cmd_auto_pressed.png",
+	},
+	"end_turn": {
+		"normal": "res://assets/web_battle/ui/bottom_command/bottom_cmd_end_turn_normal.png",
+		"pressed": "res://assets/web_battle/ui/bottom_command/bottom_cmd_end_turn_pressed.png",
+	},
+	"retreat": {
+		"normal": "res://assets/web_battle/ui/bottom_command/bottom_cmd_retreat_normal.png",
+		"pressed": "res://assets/web_battle/ui/bottom_command/bottom_cmd_retreat_pressed.png",
+	},
+}
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH := "res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png"
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE := preload("res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png")
 const REINFORCEMENT_ARRIVAL_TOAST_TEXT := "지원군 도착!"
@@ -1378,6 +1392,42 @@ func _configure_command_bar() -> void:
 	if retreat_button != null:
 		retreat_button.text = "후퇴"
 		retreat_button.disabled = true
+	if end_turn_button != null:
+		end_turn_button.text = "턴 종료"
+		_try_apply_bottom_command_button_art(end_turn_button, "end_turn")
+	if auto_battle_button != null:
+		_try_apply_bottom_command_button_art(auto_battle_button, "auto_battle")
+	if retreat_button != null:
+		_try_apply_bottom_command_button_art(retreat_button, "retreat")
+
+
+func _try_apply_bottom_command_button_art(button: Button, button_key: String) -> void:
+	if button == null:
+		return
+	var art_paths: Dictionary = {}
+	if BOTTOM_COMMAND_BUTTON_ART_PATHS.has(button_key):
+		art_paths = BOTTOM_COMMAND_BUTTON_ART_PATHS[button_key]
+	if art_paths.is_empty():
+		return
+	var normal_texture := _load_optional_texture(String(art_paths.get("normal", "")))
+	if normal_texture == null:
+		return
+	var pressed_texture := _load_optional_texture(String(art_paths.get("pressed", "")))
+	var hover_texture := pressed_texture if pressed_texture != null else normal_texture
+	var disabled_texture := normal_texture
+	button.flat = true
+	button.add_theme_stylebox_override("normal", _create_bottom_command_button_stylebox(normal_texture))
+	button.add_theme_stylebox_override("hover", _create_bottom_command_button_stylebox(hover_texture))
+	button.add_theme_stylebox_override("pressed", _create_bottom_command_button_stylebox(pressed_texture if pressed_texture != null else normal_texture))
+	button.add_theme_stylebox_override("disabled", _create_bottom_command_button_stylebox(disabled_texture))
+
+
+func _create_bottom_command_button_stylebox(texture: Texture2D) -> StyleBoxTexture:
+	var style_box := StyleBoxTexture.new()
+	style_box.texture = texture
+	style_box.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	style_box.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	return style_box
 
 
 func _apply_floating_command_button_style(button: Button) -> void:
