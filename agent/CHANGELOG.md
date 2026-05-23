@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.67k-4-hotfix GDScript Warning Fix
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept all assets unchanged.
+- Renamed the local `battlefield_texture` warning sites to `battlefield_portrait_texture` so they no longer shadow the class member.
+- Replaced the current typed object/null ternary warning sites with explicit `if/else` branches.
+- Kept battle logic, scene layout, enemy AI behavior, reinforcement toast flow, and result toast flow unchanged.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Confirmed `GDScript` warning count `0`.
+- Confirmed only `scripts/battle_web_import_test.gd` changed, so reinforcement/result toast asset paths were not touched.
+
 ## v0.67k-4 Enemy AI Surround Pressure QA Stable with Known Issue
 
 - Documentation-only stable-mark step.

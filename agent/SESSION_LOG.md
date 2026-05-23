@@ -1,5 +1,22 @@
 # SESSION LOG
 
+## 2026-05-23
+
+- v0.67k-4 Enemy AI Surround Pressure QA Stable with Known Issue
+- v0.67k-4-hotfix GDScript Warning Fix
+- Traced the current warning scope to `scripts/battle_web_import_test.gd`.
+- Renamed the two local `battlefield_texture` variables to `battlefield_portrait_texture` so they no longer shadow the class member declared near the battlefield texture binding.
+- Replaced the current object/null typed ternary warning sites with explicit `if/else` branches in the debug/helper paths.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Did not modify any assets.
+- Verified only `scripts/battle_web_import_test.gd` changed, so reinforcement arrival toast and victory / defeat result toast asset paths were not touched.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning 없음.
+- Current `5v5` launch path remains intact on the headless scene launch.
+- Interactive editor-side QA was not run in this environment.
+
 ## 2026-05-22
 
 Starting baseline:

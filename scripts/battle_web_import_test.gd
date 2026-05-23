@@ -1659,9 +1659,9 @@ func _get_closeup_portrait_texture_for_unit(unit_state: BattleUnitState) -> Text
 func _get_ally_portrait_texture_for_unit(unit_state: BattleUnitState) -> Texture2D:
 	var hero_entry := _get_hero_registry_entry(_get_hero_id_for_unit_state(unit_state))
 	var battlefield_portrait_path := String(hero_entry.get("battlefield_portrait_path", ""))
-	var battlefield_texture := _load_texture_or_null(battlefield_portrait_path)
-	if battlefield_texture != null:
-		return battlefield_texture
+	var battlefield_portrait_texture := _load_texture_or_null(battlefield_portrait_path)
+	if battlefield_portrait_texture != null:
+		return battlefield_portrait_texture
 	var slot := _get_unit_visual_slot_for_state(unit_state)
 	if slot != null and slot.portrait != null:
 		return slot.portrait.texture
@@ -2400,10 +2400,10 @@ func _apply_hero_identity_to_unit(unit_state: BattleUnitState) -> void:
 	if default_visual_key != "":
 		unit_state.visual_key = default_visual_key
 	var battlefield_portrait_path := String(hero_entry.get("battlefield_portrait_path", ""))
-	var battlefield_texture := _load_texture_or_null(battlefield_portrait_path)
+	var battlefield_portrait_texture := _load_texture_or_null(battlefield_portrait_path)
 	var slot := _get_unit_visual_slot_for_state(unit_state)
-	if battlefield_texture != null and slot != null and slot.portrait is Sprite2D:
-		(slot.portrait as Sprite2D).texture = battlefield_texture
+	if battlefield_portrait_texture != null and slot != null and slot.portrait is Sprite2D:
+		(slot.portrait as Sprite2D).texture = battlefield_portrait_texture
 
 
 func _apply_all_hero_identities() -> void:
@@ -2809,7 +2809,9 @@ func _debug_log_reinforce_visual_state(unit_state: BattleUnitState) -> void:
 	if not capacity_slot_id.contains("reinforce_"):
 		return
 	var slot := _get_unit_visual_slot_for_state(unit_state)
-	var portrait := slot.portrait as CanvasItem if slot != null else null
+	var portrait: CanvasItem = null
+	if slot != null:
+		portrait = slot.portrait as CanvasItem
 	var portrait_texture_exists := false
 	if portrait is Sprite2D:
 		portrait_texture_exists = (portrait as Sprite2D).texture != null
@@ -6444,7 +6446,9 @@ func _debug_log_enemy_click_binding(unit_state: BattleUnitState) -> void:
 	var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
 	var click_area := _get_click_area_for_unit(unit_state)
 	var slot := _get_unit_visual_slot_for_state(unit_state)
-	var portrait := slot.portrait as Sprite2D if slot != null and slot.portrait is Sprite2D else null
+	var portrait: Sprite2D = null
+	if slot != null and slot.portrait is Sprite2D:
+		portrait = slot.portrait as Sprite2D
 	var portrait_path := portrait.texture.resource_path if portrait != null and portrait.texture != null else ""
 	var marker := _get_unit_marker_for_unit(unit_state)
 	print("[ENEMY_CLICK] name=%s slot=%s click_area=%s click_pos=%s portrait=%s marker=%s marker_pos=%s" % [

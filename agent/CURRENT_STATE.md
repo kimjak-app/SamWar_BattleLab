@@ -4,7 +4,25 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67k-4 Enemy AI Surround Pressure QA Stable with Known Issue
+v0.67k-4-hotfix GDScript Warning Fix
+
+## v0.67k-4-hotfix GDScript Warning Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept all assets unchanged.
+- Removed the local `battlefield_texture` shadowing warning by renaming the local portrait-texture variables.
+- Replaced the current object/null typed ternary warning sites with explicit `if/else` branches.
+- Kept battle logic unchanged.
+- Kept scene layout unchanged.
+- Kept enemy AI behavior unchanged.
+- Kept reinforcement arrival toast and victory / defeat result toast paths unchanged.
+- Headless verification:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning 없음
+  - current `5v5` launch path remains intact
+  - reinforcement/result toast asset paths were not touched
 
 ## v0.67k-4 Enemy AI Surround Pressure QA Stable with Known Issue State
 - Documentation-only stable-mark step.
