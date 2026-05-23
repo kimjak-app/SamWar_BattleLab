@@ -2,6 +2,31 @@
 
 ## 2026-05-24
 
+- v0.67p-3 Active Ally Turn Pulse + Click Command Panel
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Replaced ally-turn-start panel auto-open with a stronger active-ally token pulse.
+- Added pulse tuning:
+  - `ACTIVE_ALLY_TURN_PULSE_SCALE = 1.40`
+  - `ACTIVE_ALLY_TURN_PULSE_UP_DURATION = 0.18`
+  - `ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION = 0.24`
+- Floating command panel now stays hidden at ally turn start and opens only after the active ally is explicitly selected.
+- Kept floating panel opacity, panel-above-arrows layer priority, direct move-click UX, bottom command bar, and floating button handler reuse intact.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning count `0`.
+- Dedicated headless pulse verifier confirmed:
+  - no auto-open panel at ally turn start
+  - pulse peak about `1.398x`
+  - token returns to about `1.001x`
+  - selecting the active ally opens the floating panel
+- Existing floating-panel UX verifier still passed:
+  - floating command buttons still work
+  - direct move-click still works
+  - right-click rollback still works
+  - panel still hides in non-ally-command states
+  - bottom command bar still works
+  - accelerated `5v5` auto battle still reaches `result_victory`
+
 - v0.67p-1-hotfix Floating Command Panel Layer Priority
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
 - Raised the floating ally command panel draw priority above facing indicators:

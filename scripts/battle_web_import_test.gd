@@ -12,6 +12,9 @@ const ALLY_VISUAL_ANCHOR_OFFSET := Vector2(0.0, 0.0)
 const ENEMY_VISUAL_ANCHOR_OFFSET := Vector2(0.0, -8.0)
 const IDLE_SCALE_MULTIPLIER := 1.035
 const IDLE_DURATION := 1.15
+const ACTIVE_ALLY_TURN_PULSE_SCALE := 1.40
+const ACTIVE_ALLY_TURN_PULSE_UP_DURATION := 0.18
+const ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION := 0.24
 const ENEMY_GUARD_STEP_DISTANCE := 18.0
 const MOVE_HIGHLIGHT_SIZE := Vector2(68.0, 56.0)
 const MOVE_TARGET_VALID_COLOR := Color(0.45, 1.0, 0.55, 1.0)
@@ -384,6 +387,7 @@ var has_printed_actor_target_adapter_snapshot := false
 var has_printed_deployed_active_filter_snapshot := false
 var has_printed_mvp_scene_slot_scaffold_snapshot := false
 var active_unit_side := "ally"
+var is_floating_ally_command_panel_requested := false
 var has_selected_move_target := false
 var selected_move_cell := Vector2i(-1, -1)
 var selected_attack_target_state: BattleUnitState = null
@@ -428,6 +432,9 @@ var ally_main_03_ready_frame_tween: Tween = null
 var ally_reinforce_01_ready_frame_tween: Tween = null
 var ally_reinforce_02_ready_frame_tween: Tween = null
 var unit_closeup_tween: Tween = null
+var active_ally_turn_pulse_tween: Tween = null
+var active_ally_turn_pulse_token: Sprite2D = null
+var active_ally_turn_pulse_unit_state: BattleUnitState = null
 var capacity_slot_metadata_registry: Dictionary = {}
 var ally_idle_tween: Tween
 var enemy_idle_tween: Tween
@@ -816,7 +823,7 @@ func _input(event: InputEvent) -> void:
 
 	var clicked_ally_unit := _get_clicked_ally_unit_at_position(mouse_world_pos)
 	if clicked_ally_unit != null:
-		_select_ally_unit(clicked_ally_unit)
+		_select_ally_unit(clicked_ally_unit, true, true, false)
 		get_viewport().set_input_as_handled()
 		return
 
@@ -937,7 +944,7 @@ func reset_demo_state() -> void:
 	_update_cell_size_visual_guide(ally_unit_state.grid_cell)
 	print("GRID CELL SIZE: ", battle_grid_controller.get_cell_size())
 	print("ALLY GRID: ", ally_unit_state.grid_cell, " ENEMY GRID: ", enemy_unit_state.grid_cell)
-	_select_ally_unit(ally_unit_state, false)
+	_select_ally_unit(ally_unit_state, false, false, true)
 	_set_phase(PHASE_ALLY_TURN)
 	_sync_demo_positions()
 	_sync_overlay_positions()
@@ -1228,6 +1235,8 @@ func _finish_basic_attack_demo() -> void:
 
 
 func _set_phase(new_phase: String) -> void:
+	if new_phase != PHASE_ALLY_TURN:
+		_stop_active_ally_turn_pulse()
 	current_phase = new_phase
 	match current_phase:
 		PHASE_ALLY_TURN:
@@ -1347,9 +1356,13 @@ func _apply_floating_command_button_style(button: Button) -> void:
 func _should_show_floating_ally_command_panel() -> bool:
 	if floating_ally_command_panel == null:
 		return false
+	if not is_floating_ally_command_panel_requested:
+		return false
 	if _is_battle_result_finalized():
 		return false
 	if is_demo_animating:
+		return false
+	if is_full_auto_battle_enabled:
 		return false
 	if current_phase != PHASE_ALLY_TURN:
 		return false
@@ -1903,6 +1916,116 @@ func _get_ally_token_texture_for_unit(unit_state: BattleUnitState) -> Texture2D:
 	return _get_visual_token_texture_for_unit(unit_state, _get_unit_facing(unit_state))
 
 
+func _get_visual_token_for_unit(unit_state: BattleUnitState) -> Sprite2D:
+	if unit_state == null:
+		return null
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	if slot != null and slot.token != null:
+		return slot.token
+	return null
+
+
+func _get_visual_token_base_scale_for_unit(unit_state: BattleUnitState) -> Vector2:
+	if unit_state == null:
+		return Vector2.ONE
+	if unit_state.slot_id != "":
+		match unit_state.slot_id:
+			"ally_main":
+				return ally_token_base_scale
+			"ally_support":
+				return ally_support_token_base_scale
+			"ally_main_03":
+				return ally_main_03_token_base_scale
+			"ally_reinforce_01":
+				return ally_reinforce_01_token_base_scale
+			"ally_reinforce_02":
+				return ally_reinforce_02_token_base_scale
+			"enemy_main":
+				return enemy_token_base_scale
+			"enemy_support":
+				return enemy_support_token_base_scale
+			"enemy_main_03":
+				return enemy_main_03_token_base_scale
+			"enemy_reinforce_01":
+				return enemy_reinforce_01_token_base_scale
+			"enemy_reinforce_02":
+				return enemy_reinforce_02_token_base_scale
+	if unit_state == ally_unit_state:
+		return ally_token_base_scale
+	if unit_state == ally_support_unit_state:
+		return ally_support_token_base_scale
+	if unit_state == ally_main_03_unit_state:
+		return ally_main_03_token_base_scale
+	if unit_state == ally_reinforce_01_unit_state:
+		return ally_reinforce_01_token_base_scale
+	if unit_state == ally_reinforce_02_unit_state:
+		return ally_reinforce_02_token_base_scale
+	if unit_state == enemy_unit_state:
+		return enemy_token_base_scale
+	if unit_state == enemy_support_unit_state:
+		return enemy_support_token_base_scale
+	if unit_state == enemy_main_03_unit_state:
+		return enemy_main_03_token_base_scale
+	if unit_state == enemy_reinforce_01_unit_state:
+		return enemy_reinforce_01_token_base_scale
+	if unit_state == enemy_reinforce_02_unit_state:
+		return enemy_reinforce_02_token_base_scale
+	return Vector2.ONE
+
+
+func _stop_active_ally_turn_pulse() -> void:
+	if active_ally_turn_pulse_tween != null:
+		active_ally_turn_pulse_tween.kill()
+		active_ally_turn_pulse_tween = null
+	if active_ally_turn_pulse_token != null:
+		var pulsing_unit_state := active_ally_turn_pulse_unit_state
+		if pulsing_unit_state != null:
+			active_ally_turn_pulse_token.scale = _get_visual_token_base_scale_for_unit(pulsing_unit_state)
+		active_ally_turn_pulse_token = null
+	active_ally_turn_pulse_unit_state = null
+
+
+func _play_active_ally_turn_pulse(unit_state: BattleUnitState) -> void:
+	if unit_state == null:
+		return
+	if unit_state.side != "ally":
+		return
+	if not unit_state.is_alive():
+		return
+	if not _is_unit_state_available_for_battle_slot(unit_state):
+		return
+	var token := _get_visual_token_for_unit(unit_state)
+	if token == null:
+		return
+	var base_scale := _get_visual_token_base_scale_for_unit(unit_state)
+	_stop_active_ally_turn_pulse()
+	_stop_idle_breathing()
+	token.scale = base_scale
+	active_ally_turn_pulse_token = token
+	active_ally_turn_pulse_unit_state = unit_state
+	active_ally_turn_pulse_tween = create_tween()
+	active_ally_turn_pulse_tween.tween_property(
+		token,
+		"scale",
+		base_scale * ACTIVE_ALLY_TURN_PULSE_SCALE,
+		ACTIVE_ALLY_TURN_PULSE_UP_DURATION
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	active_ally_turn_pulse_tween.tween_property(
+		token,
+		"scale",
+		base_scale,
+		ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	active_ally_turn_pulse_tween.finished.connect(func() -> void:
+		token.scale = base_scale
+		active_ally_turn_pulse_tween = null
+		active_ally_turn_pulse_token = null
+		active_ally_turn_pulse_unit_state = null
+		if not is_demo_animating and current_phase == PHASE_ALLY_TURN and not _is_battle_result_finalized():
+			_start_idle_breathing()
+	)
+
+
 func _get_unit_action_status_text(unit_state: BattleUnitState) -> String:
 	if unit_state == null or not unit_state.is_alive():
 		return "DOWN"
@@ -2264,7 +2387,7 @@ func _return_to_ally_turn() -> void:
 		_append_battle_log("행동 가능한 아군 없음")
 		_set_phase(PHASE_ALLY_TURN)
 		return
-	_select_ally_unit(next_ally, false)
+	_select_ally_unit(next_ally, false, false, true)
 	_set_phase(PHASE_ALLY_TURN)
 	_append_battle_log("아군 턴 복귀")
 	_debug_print_combat_distance("ALLY_TURN_RETURN")
@@ -6911,13 +7034,19 @@ func set_move_target_cell(cell: Vector2i) -> void:
 	_refresh_move_target_feedback()
 
 
-func _select_ally_unit(unit_state: BattleUnitState, should_log: bool = true) -> void:
+func _select_ally_unit(
+	unit_state: BattleUnitState,
+	should_log: bool = true,
+	should_open_command_panel: bool = true,
+	should_pulse_turn_start: bool = false
+) -> void:
 	if not _is_unit_selectable(unit_state):
 		return
 	if _is_ally_selection_switch_blocked(unit_state):
 		return
 
 	active_unit_state = unit_state
+	is_floating_ally_command_panel_requested = should_open_command_panel
 	_update_cell_size_visual_guide(active_unit_state.grid_cell)
 	active_unit_side = "ally"
 	ally_has_moved = active_unit_state.has_moved
@@ -6936,6 +7065,8 @@ func _select_ally_unit(unit_state: BattleUnitState, should_log: bool = true) -> 
 	_refresh_move_target_feedback()
 	_show_move_range_overlay_for_active_unit()
 	_set_phase(PHASE_ALLY_TURN)
+	if should_pulse_turn_start:
+		_play_active_ally_turn_pulse(active_unit_state)
 	_update_ally_ready_frames()
 
 

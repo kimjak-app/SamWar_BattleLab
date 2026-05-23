@@ -6,6 +6,30 @@ SamWar_BattleLab
 ## Current Stable Baseline
 v0.67m-1 Result Toast Size + Hold Duration Tuning
 
+## v0.67p-3 Active Ally Turn Pulse + Click Command Panel State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept battle logic, enemy AI, formulas, roster/deployment, reinforcement timing, toast logic, hero identity registry, and assets unchanged.
+- Added active ally turn pulse tuning:
+  - `ACTIVE_ALLY_TURN_PULSE_SCALE = 1.40`
+  - `ACTIVE_ALLY_TURN_PULSE_UP_DURATION = 0.18`
+  - `ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION = 0.24`
+- Active ally turn now highlights the current ally with a strong token pulse and then cleanly returns to the original scene-authored base scale.
+- Floating ally command panel no longer auto-opens at ally turn start.
+- Floating ally command panel now opens only after the active ally is explicitly selected/clicked.
+- Existing floating panel opacity, layer priority, button handlers, direct move-click UX, and bottom command bar remain intact.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - floating panel stays hidden at ally turn start
+  - active ally pulse reached about `1.398x` and returned to about `1.001x`
+  - selecting the active ally opens the floating panel
+  - existing floating-panel UX verifier still passes
+  - direct move-click UX still works
+  - floating panel still hides in non-ally-command states
+  - accelerated headless `5v5` auto battle still reaches `result_victory`
+
 ## v0.67p-1-hotfix Floating Command Panel Layer Priority State
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
 - Kept battle logic, movement logic, direct move-click UX, enemy AI, formulas, toast logic, and assets unchanged.
