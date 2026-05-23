@@ -1,10 +1,13 @@
 # HANDOFF TO CODEX
 
 Before making changes, read:
-1. `agent/GODOT_RULES.md`
-2. `agent/CURRENT_STATE.md`
-3. `agent/NEXT_TASKS.md`
-4. `agent/HANDOFF_TO_CODEX.md`
+1. `agent/CODEX_WORKFLOW_RULES.md`
+2. `agent/GODOT_RULES.md`
+3. `agent/CURRENT_STATE.md`
+4. `agent/NEXT_TASKS.md`
+5. `agent/HANDOFF_TO_CODEX.md`
+
+Follow the autonomous execution and commit rules in `agent/CODEX_WORKFLOW_RULES.md`, including autonomous commit when the task provides an explicit commit message.
 
 ## Stable Baseline
 Current stable baseline is:
