@@ -1,6 +1,32 @@
 # SESSION LOG
 
-## 2026-05-23
+## 2026-05-24
+
+- v0.67p-1 Floating Ally Command Panel MVP
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
+- Simplified the bottom command bar toward global commands:
+  - `자동전투`
+  - `턴 종료`
+  - `후퇴` placeholder
+- Added floating ally command panel buttons:
+  - `기본 공격`
+  - `고유특기` placeholder
+  - `책략` placeholder
+  - `이동`
+  - `대기`
+- Reused existing handlers for floating attack/move/wait.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning count `0`.
+- Headless UX verifier confirmed:
+  - floating panel shows on ally selection
+  - floating attack enters attack-select flow
+  - floating move reaches facing-select flow
+  - floating wait triggers end-turn flow
+  - bottom auto battle still toggles
+  - bottom end-turn still works
+  - accelerated `5v5` auto battle still reaches `result_victory`
+- Headless standalone verifier used for UI checks still reports a fallback `64x64` viewport rect, so full on-screen clamp measurement remains an editor-side visual QA follow-up.
 
 - v0.67m-1 Result Toast Size + Hold Duration Tuning
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

@@ -645,11 +645,19 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var left_panel: Panel = $BattleUI/LeftPanel
 @onready var right_panel: Panel = $BattleUI/RightPanel
 @onready var command_bar: Panel = $BattleUI/CommandBar
+@onready var command_bar_label: Label = get_node_or_null("BattleUI/CommandBar/CommandBarLabel") as Label
 @onready var basic_attack_button: Button = $BattleUI/CommandBar/BasicAttackButton
 @onready var move_button: Button = $BattleUI/CommandBar/MoveButton
 @onready var wait_button: Button = get_node_or_null("BattleUI/CommandBar/WaitButton") as Button
 @onready var end_turn_button: Button = get_node_or_null("BattleUI/CommandBar/EndTurnButton") as Button
 @onready var auto_battle_button: Button = get_node_or_null("BattleUI/CommandBar/AutoBattleButton") as Button
+@onready var retreat_button: Button = get_node_or_null("BattleUI/CommandBar/RetreatButton") as Button
+@onready var floating_ally_command_panel: Panel = get_node_or_null("BattleUI/FloatingAllyCommandPanel") as Panel
+@onready var floating_basic_attack_button: Button = get_node_or_null("BattleUI/FloatingAllyCommandPanel/FloatingBasicAttackButton") as Button
+@onready var floating_unique_skill_button: Button = get_node_or_null("BattleUI/FloatingAllyCommandPanel/FloatingUniqueSkillButton") as Button
+@onready var floating_tactics_button: Button = get_node_or_null("BattleUI/FloatingAllyCommandPanel/FloatingTacticsButton") as Button
+@onready var floating_move_button: Button = get_node_or_null("BattleUI/FloatingAllyCommandPanel/FloatingMoveButton") as Button
+@onready var floating_wait_button: Button = get_node_or_null("BattleUI/FloatingAllyCommandPanel/FloatingWaitButton") as Button
 @onready var facing_selection_panel: Panel = get_node_or_null("BattleUI/FacingSelectionPanel") as Panel
 @onready var face_left_button: Button = get_node_or_null("BattleUI/FacingSelectionPanel/FaceLeftButton") as Button
 @onready var face_right_button: Button = get_node_or_null("BattleUI/FacingSelectionPanel/FaceRightButton") as Button
@@ -724,6 +732,13 @@ func _ready() -> void:
 		end_turn_button.pressed.connect(_end_ally_turn_by_wait)
 	if auto_battle_button != null:
 		auto_battle_button.pressed.connect(_toggle_full_auto_battle)
+	_configure_command_bar()
+	if floating_basic_attack_button != null:
+		floating_basic_attack_button.pressed.connect(try_basic_attack)
+	if floating_move_button != null:
+		floating_move_button.pressed.connect(play_basic_move_demo)
+	if floating_wait_button != null:
+		floating_wait_button.pressed.connect(_end_ally_turn_by_wait)
 	if face_left_button != null:
 		face_left_button.pressed.connect(_select_post_move_facing.bind(FACING_LEFT))
 	if face_right_button != null:
@@ -748,6 +763,7 @@ func _ready() -> void:
 	_apply_facing_arrow_panel_visual_style()
 	_configure_ally_ready_frames()
 	_configure_unit_closeup_panel()
+	_configure_floating_ally_command_panel()
 	reset_demo_state()
 	_debug_print_unit_visual_root_slots()
 	_debug_print_mvp_scene_slot_scaffold_snapshot_once()
@@ -762,6 +778,7 @@ func _process(_delta: float) -> void:
 	if current_phase == PHASE_ALLY_TURN and not is_demo_animating:
 		_refresh_move_target_feedback()
 	_update_ally_ready_frames()
+	_refresh_floating_ally_command_panel()
 
 
 func _input(event: InputEvent) -> void:
@@ -793,6 +810,8 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if current_phase != PHASE_ALLY_TURN:
+		return
+	if _is_battle_result_finalized():
 		return
 
 	var clicked_ally_unit := _get_clicked_ally_unit_at_position(mouse_world_pos)
@@ -1244,8 +1263,98 @@ func _set_phase(new_phase: String) -> void:
 	else:
 		_hide_facing_selection_panel()
 	_update_ally_ready_frames()
+	_refresh_floating_ally_command_panel()
 	if current_phase == PHASE_ALLY_TURN and is_full_auto_battle_enabled and not is_demo_animating:
 		call_deferred("_tick_full_auto_battle_if_needed")
+
+
+func _configure_floating_ally_command_panel() -> void:
+	if floating_ally_command_panel != null:
+		floating_ally_command_panel.visible = false
+	if floating_unique_skill_button != null:
+		floating_unique_skill_button.disabled = true
+	if floating_tactics_button != null:
+		floating_tactics_button.disabled = true
+
+
+func _configure_command_bar() -> void:
+	if command_bar_label != null:
+		command_bar_label.text = "전역 명령"
+	if basic_attack_button != null:
+		basic_attack_button.visible = false
+		basic_attack_button.disabled = true
+	if move_button != null:
+		move_button.visible = false
+		move_button.disabled = true
+	if wait_button != null:
+		wait_button.visible = false
+		wait_button.disabled = true
+	if retreat_button != null:
+		retreat_button.text = "후퇴"
+		retreat_button.disabled = true
+
+
+func _should_show_floating_ally_command_panel() -> bool:
+	if floating_ally_command_panel == null:
+		return false
+	if _is_battle_result_finalized():
+		return false
+	if is_demo_animating:
+		return false
+	if current_phase != PHASE_ALLY_TURN:
+		return false
+	if active_unit_state == null:
+		return false
+	if active_unit_side != "ally":
+		return false
+	if not _is_unit_state_available_for_battle_slot(active_unit_state):
+		return false
+	return true
+
+
+func _refresh_floating_ally_command_panel() -> void:
+	if floating_ally_command_panel == null:
+		return
+	if not _should_show_floating_ally_command_panel():
+		floating_ally_command_panel.visible = false
+		return
+
+	var can_issue_ally_command := (
+		current_phase == PHASE_ALLY_TURN
+		and not is_demo_animating
+		and _is_active_ally_action_available()
+	)
+	var active_unit_has_moved := active_unit_state != null and active_unit_state.has_moved
+	if floating_basic_attack_button != null:
+		floating_basic_attack_button.disabled = not can_issue_ally_command
+	if floating_move_button != null:
+		floating_move_button.disabled = not can_issue_ally_command or active_unit_has_moved
+	if floating_wait_button != null:
+		floating_wait_button.disabled = not can_issue_ally_command
+	if floating_unique_skill_button != null:
+		floating_unique_skill_button.disabled = true
+	if floating_tactics_button != null:
+		floating_tactics_button.disabled = true
+	_position_floating_ally_command_panel()
+	floating_ally_command_panel.visible = true
+
+
+func _position_floating_ally_command_panel() -> void:
+	if floating_ally_command_panel == null or active_unit_state == null:
+		return
+	var ui_anchor := _world_to_battle_ui_position(_get_visual_anchor_position_for_unit(active_unit_state))
+	var panel_size := floating_ally_command_panel.size
+	var minimum_size := floating_ally_command_panel.get_combined_minimum_size()
+	panel_size.x = maxf(panel_size.x, minimum_size.x)
+	panel_size.y = maxf(panel_size.y, minimum_size.y)
+	if panel_size.x <= 0.0 or panel_size.y <= 0.0:
+		panel_size = Vector2(176.0, 214.0)
+	floating_ally_command_panel.size = panel_size
+	var desired_position := ui_anchor + Vector2(52.0, -panel_size.y - 20.0)
+	var viewport_size := get_viewport_rect().size
+	desired_position.x = clampf(desired_position.x, 12.0, maxf(12.0, viewport_size.x - panel_size.x - 12.0))
+	desired_position.y = clampf(desired_position.y, 12.0, maxf(12.0, viewport_size.y - panel_size.y - 12.0))
+	floating_ally_command_panel.position = desired_position
 
 
 func _refresh_auto_battle_button_state(can_issue_ally_command: bool) -> void:

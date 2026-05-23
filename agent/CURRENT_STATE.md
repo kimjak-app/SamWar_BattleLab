@@ -6,6 +6,42 @@ SamWar_BattleLab
 ## Current Stable Baseline
 v0.67m-1 Result Toast Size + Hold Duration Tuning
 
+## v0.67p-1 Floating Ally Command Panel MVP State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
+- Kept assets unchanged.
+- Kept battle logic, enemy AI, formulas, roster/deployment, and toast logic unchanged.
+- Simplified the bottom command bar toward global commands:
+  - `자동전투`
+  - `턴 종료`
+  - `후퇴` placeholder
+- Kept existing bottom-bar handlers intact for:
+  - `AutoBattleButton`
+  - `EndTurnButton`
+- Added a floating ally command panel near the selected active ally with:
+  - `기본 공격`
+  - `고유특기` placeholder
+  - `책략` placeholder
+  - `이동`
+  - `대기`
+- Floating panel reuses existing handlers for:
+  - attack
+  - move
+  - wait
+- Floating panel hides outside playable ally-command states and during finalized battle results.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - floating ally command panel appears after ally selection
+  - floating `기본 공격` enters attack-select flow
+  - floating `이동` reaches the existing move -> facing-select flow
+  - floating `대기` triggers the existing wait/end-turn flow
+  - floating `고유특기` / `책략` remain disabled placeholders
+  - bottom `자동전투` still toggles full auto
+  - bottom `턴 종료` still triggers the existing ally wait/end-turn flow
+  - accelerated headless `5v5` auto battle still reaches `result_victory`
+- Headless custom verifier reports a fallback `64x64` viewport rect when launched as a standalone `SceneTree` script, so full visual clamp measurement still needs editor-side eyeballing even though the runtime panel-position code clamps against `get_viewport_rect()`.
+
 ## v0.67m-1 Result Toast Size + Hold Duration Tuning State
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
 - Kept `Battle_Fullscreen_Test.tscn` unchanged.
