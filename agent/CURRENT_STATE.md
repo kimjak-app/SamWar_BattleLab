@@ -4,7 +4,42 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67k-4-hotfix GDScript Warning Fix
+v0.67k-5 Enemy AI Multi-Target Engagement Fix
+
+## v0.67k-5 Enemy AI Multi-Target Engagement Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept all assets unchanged.
+- Enemy AI engagement search is now the default behavior, not a low-ally-only mode.
+- Added per-round enemy AI reservation state for:
+  - selected movement destination cells
+  - selected future engagement cells
+- Enemy target planning now evaluates all alive ally targets instead of stopping at one blocked preferred target.
+- Enemy destination priority is now:
+  - immediate attack
+  - move destination that enables attack this turn
+  - engagement / approach path toward a future engagement cell
+  - fallback target when the preferred target path is blocked or weaker
+  - wait only when no valid attack / move-attack / engagement plan exists
+- Added per-actor enemy AI decision logging through `[ENEMY_AI_DECISION]` with:
+  - actor slot/name
+  - preferred target
+  - final target
+  - selected destination
+  - decision reason
+  - wait reason
+- Confirmed fallback-target behavior in headless auto-battle smoke.
+- Confirmed distant enemy `enemy_reinforce_02 / 제갈량` advances through repeated `ENGAGE`, `MOVE_ATTACK`, and `ATTACK` decisions instead of staying behind.
+- Headless verification:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning 없음
+  - current `5v5` launch path remains intact
+  - full auto battle reached battle result path
+  - reinforcement arrival toast remained active on rounds `2` and `3`
+  - victory result toast path remained active
+  - no passive distant-enemy wait was observed in the current headless auto-battle smoke
 
 ## v0.67k-4-hotfix GDScript Warning Fix State
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## v0.67k-5 Enemy AI Multi-Target Engagement Fix
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept all assets unchanged.
+- Reworked enemy AI so engagement search is always available, not limited to low-ally surround-pressure situations.
+- Added enemy AI reservation state for selected destination cells and future engagement cells.
+- Added multi-target fallback planning so enemy actors can switch away from a blocked preferred target.
+- Added reservation-aware engagement candidate filtering and engagement-step planning.
+- Added per-actor decision logs with actor slot/name, preferred target, final target, selected destination, decision reason, and wait reason.
+- Preserved damage, move range, attack range, `5v5` roster, reinforcement timing, hero identity registry, toast queue, scene layout, and assets.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Confirmed `GDScript` warning count `0`.
+- Confirmed headless full auto battle reached the result path.
+- Confirmed reinforcement arrival toast still triggered on rounds `2` and `3`.
+- Confirmed victory result toast path still triggered.
+- Confirmed distant enemy `제갈량` now advances via `ENGAGE` / `MOVE_ATTACK` / `ATTACK` decisions instead of passively watching.
+
 ## v0.67k-4-hotfix GDScript Warning Fix
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.

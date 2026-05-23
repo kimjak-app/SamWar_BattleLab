@@ -2,6 +2,30 @@
 
 ## 2026-05-23
 
+- v0.67k-4-hotfix GDScript Warning Fix
+- v0.67k-5 Enemy AI Multi-Target Engagement Fix
+- Reworked the enemy AI decision path in `scripts/battle_web_import_test.gd`.
+- Kept engagement / approach planning enabled as the default enemy movement behavior instead of a low-ally-only special case.
+- Added reservation state for:
+  - selected movement destination cells
+  - selected future engagement cells
+- Added target fallback planning across all alive ally targets so blocked preferred-target lanes no longer force passive waits.
+- Added reservation-aware engagement candidate filtering and reservation-aware engagement-step selection.
+- Added `[ENEMY_AI_DECISION]` logs with actor slot/name, preferred target, final target, destination, decision reason, and wait reason.
+- Did not modify `Battle_Fullscreen_Test.tscn`.
+- Did not modify `scripts/unit_visual_slot.gd`.
+- Did not modify any assets.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning 없음.
+- Headless auto-battle verifier reached battle result state `victory`.
+- Headless smoke confirmed reinforcement arrival toast still triggered on rounds `2` and `3`.
+- Headless smoke confirmed battle result toast path still triggered.
+- Headless smoke showed `enemy_reinforce_02 / 제갈량` progressing through `ENGAGE`, `MOVE_ATTACK`, and `ATTACK` decisions instead of idling behind the line.
+- Headless smoke also showed fallback-target behavior, including `enemy_main_03 / 하후돈` selecting `ally_main_03 / 권율` when the preferred target path was weaker.
+
+## 2026-05-23
+
 - v0.67k-4 Enemy AI Surround Pressure QA Stable with Known Issue
 - v0.67k-4-hotfix GDScript Warning Fix
 - Traced the current warning scope to `scripts/battle_web_import_test.gd`.
