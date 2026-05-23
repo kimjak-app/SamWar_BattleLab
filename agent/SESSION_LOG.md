@@ -2,6 +2,27 @@
 
 ## 2026-05-23
 
+- v0.67m-1 Result Toast Size + Hold Duration Tuning
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Added shared result-toast constants:
+  - `RESULT_TOAST_SCALE_MULTIPLIER = 1.18`
+  - `RESULT_TOAST_HOLD_EXTRA_SECONDS = 2.0`
+- Passed a result-toast-only scale multiplier through the existing battle-toast queue so victory and defeat enlarge together without changing round/reinforcement toast behavior.
+- Extended both result toasts by `2.0` extra hold seconds on the same queue path.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning count `0`.
+- Headless verifier logged shared result-toast config:
+  - `victory_hold=3.1`
+  - `defeat_hold=3.1`
+  - `victory_scale=1.18`
+  - `defeat_scale=1.18`
+- Headless verifier confirmed reinforcement arrival toast still triggered on rounds `2` and `3`.
+- Headless verifier confirmed round-start toast still played on the shared queue.
+- Accelerated headless `5v5` auto battle still reached `result_victory`.
+- Direct visual editor-side confirmation for victory/defeat size increase remains external to this environment; headless verification covered the shared queue config and result path.
+
 - v0.67k-5 QA Stable
 - Documentation-only stable-lock step.
 - No code, scene, or asset changes in this step.

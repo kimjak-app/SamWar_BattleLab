@@ -41,6 +41,8 @@ const VICTORY_TOAST_TEXTURE := preload("res://assets/web_battle/ui/results/battl
 const DEFEAT_TOAST_TEXTURE := preload("res://assets/web_battle/ui/results/battle_result_defeat.png")
 const VICTORY_TOAST_TEXT := "승리!"
 const DEFEAT_TOAST_TEXT := "패배"
+const RESULT_TOAST_SCALE_MULTIPLIER := 1.18
+const RESULT_TOAST_HOLD_EXTRA_SECONDS := 2.0
 const FACING_LEFT := "left"
 const FACING_RIGHT := "right"
 const FACING_UP := "up"
@@ -3561,7 +3563,14 @@ func _show_battle_result_toast(is_victory: bool) -> void:
 		toast_texture = VICTORY_TOAST_TEXTURE
 		toast_text = VICTORY_TOAST_TEXT
 		toast_tag = "result_victory"
-	_enqueue_battle_toast(toast_texture, toast_text, 1.1, 200, toast_tag)
+	_enqueue_battle_toast(
+		toast_texture,
+		toast_text,
+		1.1 + RESULT_TOAST_HOLD_EXTRA_SECONDS,
+		200,
+		toast_tag,
+		RESULT_TOAST_SCALE_MULTIPLIER
+	)
 
 
 func _enqueue_battle_toast(
@@ -3569,7 +3578,8 @@ func _enqueue_battle_toast(
 	toast_text: String,
 	hold_duration: float,
 	priority: int = 0,
-	toast_tag: String = "generic"
+	toast_tag: String = "generic",
+	toast_scale_multiplier: float = 1.0
 ) -> void:
 	var toast_entry := {
 		"texture": toast_texture,
@@ -3577,6 +3587,7 @@ func _enqueue_battle_toast(
 		"hold_duration": hold_duration,
 		"priority": priority,
 		"tag": toast_tag,
+		"scale_multiplier": toast_scale_multiplier,
 	}
 	var insert_index := pending_battle_toasts.size()
 	for queue_index in range(pending_battle_toasts.size()):
@@ -3602,6 +3613,7 @@ func _play_next_battle_toast() -> void:
 	var toast_texture = toast_entry.get("texture", null) as Texture2D
 	var toast_text := str(toast_entry.get("text", ""))
 	var hold_duration := float(toast_entry.get("hold_duration", 1.0))
+	var toast_scale_multiplier := maxf(float(toast_entry.get("scale_multiplier", 1.0)), 0.01)
 	active_battle_toast_tag = str(toast_entry.get("tag", "generic"))
 	print("[BATTLE_TOAST_PLAY] tag=%s text=%s texture=%s queue_remaining=%d" % [
 		active_battle_toast_tag,
@@ -3609,7 +3621,7 @@ func _play_next_battle_toast() -> void:
 		_get_toast_texture_debug_name(_get_resolved_toast_texture(toast_texture)),
 		pending_battle_toasts.size()
 	])
-	_show_battle_toast(toast_texture, toast_text, hold_duration)
+	_show_battle_toast(toast_texture, toast_text, hold_duration, toast_scale_multiplier)
 
 
 func _get_battle_result_state() -> String:
@@ -3650,18 +3662,25 @@ func _get_resolved_toast_texture(toast_texture: Texture2D) -> Texture2D:
 	return resolved_toast_texture
 
 
-func _show_battle_toast(toast_texture: Texture2D, toast_text: String, hold_duration: float) -> void:
+func _show_battle_toast(
+	toast_texture: Texture2D,
+	toast_text: String,
+	hold_duration: float,
+	toast_scale_multiplier: float = 1.0
+) -> void:
 	if round_toast_root == null:
 		return
 	if round_toast_tween != null:
 		round_toast_tween.kill()
 		round_toast_tween = null
 
+	var resolved_scale_multiplier := maxf(toast_scale_multiplier, 0.01)
+
 	if round_toast_label != null:
 		round_toast_label.text = toast_text
 		round_toast_label.visible = true
 		round_toast_label.modulate.a = 0.0
-		round_toast_label.scale = round_toast_label_base_scale * 0.9
+		round_toast_label.scale = round_toast_label_base_scale * 0.9 * resolved_scale_multiplier
 	if round_toast_image != null:
 		round_toast_image.visible = true
 		round_toast_image.modulate = Color.WHITE
@@ -3671,23 +3690,23 @@ func _show_battle_toast(toast_texture: Texture2D, toast_text: String, hold_durat
 	round_toast_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	round_toast_root.visible = true
 	round_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
-	round_toast_root.scale = round_toast_root_base_scale * 0.86
+	round_toast_root.scale = round_toast_root_base_scale * 0.86 * resolved_scale_multiplier
 	is_battle_toast_playing = true
 
 	round_toast_tween = create_tween()
 	round_toast_tween.set_parallel(true)
 	round_toast_tween.tween_method(_set_round_toast_shader_progress, 0.0, 1.0, 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	round_toast_tween.tween_property(round_toast_root, "modulate:a", 1.0, 0.42)
-	round_toast_tween.tween_property(round_toast_root, "scale", round_toast_root_base_scale * 1.06, 0.42).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	round_toast_tween.tween_property(round_toast_root, "scale", round_toast_root_base_scale * 1.06 * resolved_scale_multiplier, 0.42).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	if round_toast_label != null:
 		round_toast_tween.tween_property(round_toast_label, "modulate:a", 1.0, 0.28).set_delay(0.05)
-		round_toast_tween.tween_property(round_toast_label, "scale", round_toast_label_base_scale, 0.28).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(0.05)
+		round_toast_tween.tween_property(round_toast_label, "scale", round_toast_label_base_scale * resolved_scale_multiplier, 0.28).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(0.05)
 	round_toast_tween.set_parallel(false)
-	round_toast_tween.chain().tween_property(round_toast_root, "scale", round_toast_root_base_scale, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	round_toast_tween.chain().tween_property(round_toast_root, "scale", round_toast_root_base_scale * resolved_scale_multiplier, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	round_toast_tween.tween_interval(hold_duration)
 	round_toast_tween.set_parallel(true)
 	round_toast_tween.tween_property(round_toast_root, "modulate:a", 0.0, 0.32).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	round_toast_tween.tween_property(round_toast_root, "scale", round_toast_root_base_scale * 1.12, 0.32).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	round_toast_tween.tween_property(round_toast_root, "scale", round_toast_root_base_scale * 1.12 * resolved_scale_multiplier, 0.32).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	round_toast_tween.chain().tween_callback(_finish_battle_toast_playback)
 
 

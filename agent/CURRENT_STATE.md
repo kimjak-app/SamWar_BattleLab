@@ -4,7 +4,27 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-v0.67k-5 QA Stable
+v0.67m-1 Result Toast Size + Hold Duration Tuning
+
+## v0.67m-1 Result Toast Size + Hold Duration Tuning State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept battle logic, enemy AI, reinforcement deploy timing, and hero identity registry unchanged.
+- Added shared result-toast tuning constants:
+  - `RESULT_TOAST_SCALE_MULTIPLIER = 1.18`
+  - `RESULT_TOAST_HOLD_EXTRA_SECONDS = 2.0`
+- Routed both victory and defeat result toasts through the existing battle-toast queue with the same enlarged scale and extra hold duration.
+- Kept round-start toast timing unchanged.
+- Kept reinforcement-arrival toast timing unchanged.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - shared result-toast queue config logged `victory_hold=3.1`, `defeat_hold=3.1`, `victory_scale=1.18`, `defeat_scale=1.18`
+  - reinforcement toast still triggered on rounds `2` and `3`
+  - round-start toast still played on the shared queue
+  - `5v5` auto battle still reached `result_victory`
+- Direct editor-side visual confirmation remains external to this environment; headless verification covered the shared queue config and runtime result path.
 
 ## v0.67k-5 QA Stable State
 - Documentation-only stable-lock step.
