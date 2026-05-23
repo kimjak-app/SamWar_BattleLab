@@ -1000,7 +1000,9 @@ func play_basic_move_demo() -> void:
 	var portrait_offset := _get_selected_ally_portrait_visual_offset()
 	var target_portrait_position := target_unit_position + portrait_offset
 	var selected_unit_marker := _get_selected_ally_unit_marker()
-	var start_unit_position := selected_unit_marker.position if selected_unit_marker != null else Vector2.ZERO
+	var start_unit_position := Vector2.ZERO
+	if selected_unit_marker != null:
+		start_unit_position = selected_unit_marker.position
 	_clear_move_target_selection()
 	_show_move_dust_for_unit(active_unit_state)
 
@@ -1096,7 +1098,10 @@ func _try_attack_enemy_target_from_attack_select(target_state: BattleUnitState) 
 		return
 
 	selected_attack_target_state = target_state
-	selected_attack_target_side = target_state.side if target_state.side != "" else "enemy"
+	if target_state.side != "":
+		selected_attack_target_side = target_state.side
+	else:
+		selected_attack_target_side = "enemy"
 	_show_attack_target_feedback()
 	_debug_print_combat_distance("TRY_BASIC_ATTACK_SELECT")
 	_exit_attack_select_mode()
@@ -1124,9 +1129,14 @@ func play_basic_attack_demo() -> void:
 	damage_preview_label.modulate = Color(1.0, 0.55, 0.55, 1.0)
 	damage_preview_label.visible = false
 
-	var ally_start := (_get_selected_ally_unit_marker().position if _get_selected_ally_unit_marker() != null else Vector2.ZERO)
+	var ally_start := Vector2.ZERO
+	var selected_ally_unit_marker := _get_selected_ally_unit_marker()
+	if selected_ally_unit_marker != null:
+		ally_start = selected_ally_unit_marker.position
 	var target_marker := _get_enemy_target_unit_marker(selected_attack_target_state)
-	var enemy_start := target_marker.position if target_marker != null else Vector2.ZERO
+	var enemy_start := Vector2.ZERO
+	if target_marker != null:
+		enemy_start = target_marker.position
 	var direction := (enemy_start - ally_start).normalized()
 	var ally_lunge_offset := direction * ATTACK_LUNGE_DISTANCE
 	var enemy_recoil_offset := direction * 12.0
@@ -1286,10 +1296,15 @@ func _show_facing_selection_panel() -> void:
 	if facing_arrow_panel != null:
 		facing_arrow_panel.visible = true
 	_apply_facing_arrow_panel_visual_style()
+	var facing_arrow_panel_position := Vector2.ZERO
+	var facing_arrow_panel_size := Vector2.ZERO
+	if facing_arrow_panel != null:
+		facing_arrow_panel_position = facing_arrow_panel.position
+		facing_arrow_panel_size = facing_arrow_panel.size
 	print("SHOW FACING ARROW PANEL visible=%s pos=%s size=%s" % [
 		str(facing_arrow_panel != null and facing_arrow_panel.visible),
-		str(facing_arrow_panel.position if facing_arrow_panel != null else Vector2.ZERO),
-		str(facing_arrow_panel.size if facing_arrow_panel != null else Vector2.ZERO),
+		str(facing_arrow_panel_position),
+		str(facing_arrow_panel_size),
 	])
 
 
@@ -1536,7 +1551,10 @@ func _update_ready_frame_for_unit(frame: Control, unit_state: BattleUnitState) -
 	_position_ready_frame_for_unit(frame, unit_state)
 	var is_selected := unit_state == active_unit_state
 	if not frame.visible:
-		frame.modulate = Color(1.0, 0.94, 0.62, 0.9 if is_selected else 0.68)
+		var frame_alpha := 0.68
+		if is_selected:
+			frame_alpha = 0.9
+		frame.modulate = Color(1.0, 0.94, 0.62, frame_alpha)
 		frame.visible = true
 		_start_ready_frame_pulse(frame)
 
@@ -1783,8 +1801,12 @@ func _store_pending_ally_move_snapshot() -> void:
 	var portrait_marker := _get_selected_ally_portrait_marker()
 	pending_move_snapshot_unit_state = active_unit_state
 	pending_move_snapshot_grid_cell = active_unit_state.grid_cell
-	pending_move_snapshot_unit_position = unit_marker.position if unit_marker != null else Vector2.ZERO
-	pending_move_snapshot_portrait_position = portrait_marker.position if portrait_marker != null else Vector2.ZERO
+	pending_move_snapshot_unit_position = Vector2.ZERO
+	pending_move_snapshot_portrait_position = Vector2.ZERO
+	if unit_marker != null:
+		pending_move_snapshot_unit_position = unit_marker.position
+	if portrait_marker != null:
+		pending_move_snapshot_portrait_position = portrait_marker.position
 	pending_move_snapshot_facing = active_unit_state.facing
 	pending_move_snapshot_has_moved = active_unit_state.has_moved
 	pending_move_snapshot_ally_has_moved = ally_has_moved
@@ -1964,7 +1986,9 @@ func _play_enemy_actor_path_move_then_act(enemy_actor_state: BattleUnitState, mo
 		_return_to_ally_turn()
 		return
 	var start_unit_position := actor_marker.position
-	var start_portrait_position := actor_portrait_marker.position if actor_portrait_marker != null else start_unit_position
+	var start_portrait_position := start_unit_position
+	if actor_portrait_marker != null:
+		start_portrait_position = actor_portrait_marker.position
 	var portrait_offset := start_portrait_position - start_unit_position
 	var target_cell := move_path[move_path.size() - 1]
 	var target_position := battle_grid_controller.grid_to_world(target_cell)
@@ -2032,7 +2056,9 @@ func _enemy_reaction_hit_on() -> void:
 		_spawn_hit_spark_fx(target_pos)
 		_spawn_damage_number_fx(target_pos, int(ENEMY_DEMO_DAMAGE))
 		_cleanup_dead_units()
-	var actor_name := current_enemy_ai_actor_state.display_name if current_enemy_ai_actor_state != null else "적군"
+	var actor_name := "적군"
+	if current_enemy_ai_actor_state != null:
+		actor_name = current_enemy_ai_actor_state.display_name
 	_append_battle_log("%s 반격" % actor_name)
 
 
@@ -2304,8 +2330,12 @@ func _build_capacity_slot_metadata_registry() -> Dictionary:
 
 
 func _create_capacity_slot_metadata(slot_id: String) -> Dictionary:
-	var side := "ally" if slot_id.begins_with("ally_") else "enemy"
-	var slot_role := SLOT_ROLE_REINFORCE if slot_id.find("_reinforce_") != -1 else SLOT_ROLE_MAIN
+	var side := "enemy"
+	if slot_id.begins_with("ally_"):
+		side = "ally"
+	var slot_role := SLOT_ROLE_MAIN
+	if slot_id.find("_reinforce_") != -1:
+		slot_role = SLOT_ROLE_REINFORCE
 	var legacy_slot_id := _get_legacy_slot_id_for_capacity_slot_id(slot_id)
 	var formation_index := _get_capacity_slot_formation_index(slot_id)
 	var assigned_hero_id := _get_test_battle_roster_hero_id(slot_id)
@@ -2313,7 +2343,9 @@ func _create_capacity_slot_metadata(slot_id: String) -> Dictionary:
 	if slot_id == "ally_reinforce_02" or slot_id == "enemy_reinforce_02":
 		is_active = true
 	var is_deployed := is_active and not (slot_id == "ally_reinforce_01" or slot_id == "enemy_reinforce_01" or slot_id == "ally_reinforce_02" or slot_id == "enemy_reinforce_02")
-	var entry_rule := SLOT_ENTRY_INITIAL if is_deployed else ""
+	var entry_rule := ""
+	if is_deployed:
+		entry_rule = SLOT_ENTRY_INITIAL
 	var metadata := {
 		"slot_id": slot_id,
 		"legacy_slot_id": legacy_slot_id,
@@ -2429,7 +2461,9 @@ func _validate_hero_identity_bindings() -> void:
 			actual_path = (slot.portrait as Sprite2D).texture.resource_path
 		var actual_filename := actual_path.get_file()
 		var click_area := _get_click_area_for_unit(unit_state)
-		var click_area_name: String = click_area.name if click_area != null else ""
+		var click_area_name := ""
+		if click_area != null:
+			click_area_name = click_area.name
 		var identity_ok := (
 			hero_id != ""
 			and String(hero_entry.get("display_name", "")) == unit_state.display_name
@@ -2818,17 +2852,34 @@ func _debug_log_reinforce_visual_state(unit_state: BattleUnitState) -> void:
 	var hp_bar := _get_hp_bar_for_unit(unit_state)
 	var troop_label := _get_troop_label_for_unit(unit_state)
 	var facing_indicator := _get_facing_indicator_for_unit(unit_state)
-	var root_global_position: Vector2 = slot.root.global_position if slot != null and slot.root != null else Vector2.ZERO
-	var root_alpha: float = slot.root.modulate.a if slot != null and slot.root != null else -1.0
-	var token_global_position: Vector2 = slot.token.global_position if slot != null and slot.token != null else Vector2.ZERO
-	var token_alpha: float = slot.token.modulate.a if slot != null and slot.token != null else -1.0
-	var portrait_global_position: Vector2 = portrait.global_position if portrait != null else Vector2.ZERO
-	var hp_global_position: Vector2 = hp_bar.global_position if hp_bar != null else Vector2.ZERO
-	var hp_alpha: float = hp_bar.modulate.a if hp_bar != null else -1.0
-	var troop_text: String = troop_label.text if troop_label != null else ""
-	var troop_global_position: Vector2 = troop_label.global_position if troop_label != null else Vector2.ZERO
-	var troop_alpha: float = troop_label.modulate.a if troop_label != null else -1.0
-	var facing_position: Vector2 = facing_indicator.position if facing_indicator != null else Vector2.ZERO
+	var root_global_position := Vector2.ZERO
+	var root_alpha := -1.0
+	if slot != null and slot.root != null:
+		root_global_position = slot.root.global_position
+		root_alpha = slot.root.modulate.a
+	var token_global_position := Vector2.ZERO
+	var token_alpha := -1.0
+	if slot != null and slot.token != null:
+		token_global_position = slot.token.global_position
+		token_alpha = slot.token.modulate.a
+	var portrait_global_position := Vector2.ZERO
+	if portrait != null:
+		portrait_global_position = portrait.global_position
+	var hp_global_position := Vector2.ZERO
+	var hp_alpha := -1.0
+	if hp_bar != null:
+		hp_global_position = hp_bar.global_position
+		hp_alpha = hp_bar.modulate.a
+	var troop_text := ""
+	var troop_global_position := Vector2.ZERO
+	var troop_alpha := -1.0
+	if troop_label != null:
+		troop_text = troop_label.text
+		troop_global_position = troop_label.global_position
+		troop_alpha = troop_label.modulate.a
+	var facing_position := Vector2.ZERO
+	if facing_indicator != null:
+		facing_position = facing_indicator.position
 	print("[REINFORCE_VISUAL] slot=%s deployed=%s root=%s/%s/%s/%s token=%s/%s/%s/%s/%s portrait=%s/%s/%s/%s hp=%s/%s/%s/%s troop=%s/%s/%s/%s/%s facing=%s/%s" % [
 		capacity_slot_id,
 		str(_is_unit_state_deployed_by_capacity_slot(unit_state)),
@@ -3533,9 +3584,13 @@ func _show_reinforcement_arrival_toast(arrival_round: int) -> void:
 
 
 func _show_battle_result_toast(is_victory: bool) -> void:
-	var toast_texture: Texture2D = VICTORY_TOAST_TEXTURE if is_victory else DEFEAT_TOAST_TEXTURE
-	var toast_text := VICTORY_TOAST_TEXT if is_victory else DEFEAT_TOAST_TEXT
-	var toast_tag := "result_victory" if is_victory else "result_defeat"
+	var toast_texture: Texture2D = DEFEAT_TOAST_TEXTURE
+	var toast_text := DEFEAT_TOAST_TEXT
+	var toast_tag := "result_defeat"
+	if is_victory:
+		toast_texture = VICTORY_TOAST_TEXTURE
+		toast_text = VICTORY_TOAST_TEXT
+		toast_tag = "result_victory"
 	_enqueue_battle_toast(toast_texture, toast_text, 1.1, 200, toast_tag)
 
 
@@ -3581,7 +3636,7 @@ func _play_next_battle_toast() -> void:
 	print("[BATTLE_TOAST_PLAY] tag=%s text=%s texture=%s queue_remaining=%d" % [
 		active_battle_toast_tag,
 		toast_text,
-		_get_toast_texture_debug_name(toast_texture if toast_texture != null else round_toast_default_texture),
+		_get_toast_texture_debug_name(_get_resolved_toast_texture(toast_texture)),
 		pending_battle_toasts.size()
 	])
 	_show_battle_toast(toast_texture, toast_text, hold_duration)
@@ -3618,6 +3673,13 @@ func _try_show_battle_result_toast_if_needed() -> bool:
 	return true
 
 
+func _get_resolved_toast_texture(toast_texture: Texture2D) -> Texture2D:
+	var resolved_toast_texture := round_toast_default_texture
+	if toast_texture != null:
+		resolved_toast_texture = toast_texture
+	return resolved_toast_texture
+
+
 func _show_battle_toast(toast_texture: Texture2D, toast_text: String, hold_duration: float) -> void:
 	if round_toast_root == null:
 		return
@@ -3633,7 +3695,7 @@ func _show_battle_toast(toast_texture: Texture2D, toast_text: String, hold_durat
 	if round_toast_image != null:
 		round_toast_image.visible = true
 		round_toast_image.modulate = Color.WHITE
-		round_toast_image.texture = toast_texture if toast_texture != null else round_toast_default_texture
+		round_toast_image.texture = _get_resolved_toast_texture(toast_texture)
 	_set_round_toast_shader_progress(0.0)
 
 	round_toast_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -3715,8 +3777,11 @@ func _fade_out_move_dust_for_unit(unit_state: BattleUnitState) -> void:
 	var sprite := _get_move_dust_sprite_for_unit(unit_state)
 	if sprite == null:
 		return
-	var base_scale := move_dust_template.scale if move_dust_template != null else sprite.scale
-	var base_modulate := move_dust_template.modulate if move_dust_template != null else sprite.modulate
+	var base_scale := sprite.scale
+	var base_modulate := sprite.modulate
+	if move_dust_template != null:
+		base_scale = move_dust_template.scale
+		base_modulate = move_dust_template.modulate
 	_kill_move_dust_tween(sprite)
 	sprite.visible = true
 	var tween := create_tween()
@@ -3857,12 +3922,16 @@ func _spawn_attack_slash_fx(attacker_pos: Vector2, target_pos: Vector2) -> void:
 	if texture == null:
 		return
 	var direction := target_pos - attacker_pos
-	var spawn_pos := target_pos - direction.normalized() * 18.0 if direction.length() > 0.0 else target_pos
+	var spawn_pos := target_pos
+	if direction.length() > 0.0:
+		spawn_pos = target_pos - direction.normalized() * 18.0
 	var sprite := _create_fx_sprite(texture, spawn_pos + Vector2(0.0, -12.0))
 	if sprite == null:
 		return
 	sprite.z_index = 24
-	sprite.rotation = direction.angle() if direction.length() > 0.0 else 0.0
+	sprite.rotation = 0.0
+	if direction.length() > 0.0:
+		sprite.rotation = direction.angle()
 	sprite.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	sprite.scale = Vector2.ONE * 0.75
 
@@ -4705,7 +4774,9 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 	var enemy_support_template := _get_visual_template_for_slot("enemy_support", UNIT_TYPE_INFANTRY)
 	if ally_unit_marker != null:
 		var ally_anchor := _get_ally_visual_anchor_from_position(ally_unit_marker.position)
-		var ally_portrait_fallback := ally_portrait_badge.position - ally_anchor if ally_portrait_badge != null else Vector2.ZERO
+		var ally_portrait_fallback := Vector2.ZERO
+		if ally_portrait_badge != null:
+			ally_portrait_fallback = ally_portrait_badge.position - ally_anchor
 		if ally_unit_token != null:
 			ally_token_layout_offset = _capture_template_slot_offset(
 				ally_main_template,
@@ -4759,7 +4830,9 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 
 	if enemy_unit_marker != null:
 		var enemy_anchor := _get_enemy_visual_anchor_from_position(enemy_unit_marker.position)
-		var enemy_portrait_fallback := enemy_portrait_badge.position - enemy_anchor if enemy_portrait_badge != null else Vector2.ZERO
+		var enemy_portrait_fallback := Vector2.ZERO
+		if enemy_portrait_badge != null:
+			enemy_portrait_fallback = enemy_portrait_badge.position - enemy_anchor
 		if enemy_unit_token != null:
 			enemy_token_layout_offset = _capture_template_slot_offset(
 				enemy_main_template,
@@ -4813,7 +4886,9 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 
 	if ally_support_unit_marker != null:
 		var ally_support_anchor := _get_ally_visual_anchor_from_position(ally_support_unit_marker.position)
-		var ally_support_portrait_fallback := ally_support_portrait_badge.position - ally_support_anchor if ally_support_portrait_badge != null else Vector2.ZERO
+		var ally_support_portrait_fallback := Vector2.ZERO
+		if ally_support_portrait_badge != null:
+			ally_support_portrait_fallback = ally_support_portrait_badge.position - ally_support_anchor
 		if ally_support_unit_token != null:
 			ally_support_token_layout_offset = _capture_template_slot_offset(
 				ally_support_template,
@@ -4867,7 +4942,9 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 
 	if enemy_support_unit_marker != null:
 		var enemy_support_anchor := _get_enemy_visual_anchor_from_position(enemy_support_unit_marker.position)
-		var enemy_support_portrait_fallback := enemy_support_portrait_badge.position - enemy_support_anchor if enemy_support_portrait_badge != null else Vector2.ZERO
+		var enemy_support_portrait_fallback := Vector2.ZERO
+		if enemy_support_portrait_badge != null:
+			enemy_support_portrait_fallback = enemy_support_portrait_badge.position - enemy_support_anchor
 		if enemy_support_unit_token != null:
 			enemy_support_token_layout_offset = _capture_template_slot_offset(
 				enemy_support_template,
@@ -5718,7 +5795,10 @@ func _set_full_auto_battle_enabled(enabled: bool) -> void:
 		and _is_active_ally_action_available()
 	)
 	_refresh_auto_battle_button_state(can_issue_ally_command)
-	_append_battle_log("자동전투 %s" % ("시작" if enabled else "중지"))
+	var auto_battle_state_text := "중지"
+	if enabled:
+		auto_battle_state_text = "시작"
+	_append_battle_log("자동전투 %s" % auto_battle_state_text)
 	if enabled:
 		call_deferred("_tick_full_auto_battle_if_needed")
 	else:
@@ -5799,7 +5879,10 @@ func _try_auto_attack_for_active_ally() -> bool:
 
 	_clear_move_target_selection()
 	selected_attack_target_state = target_state
-	selected_attack_target_side = target_state.side if target_state.side != "" else "enemy"
+	if target_state.side != "":
+		selected_attack_target_side = target_state.side
+	else:
+		selected_attack_target_side = "enemy"
 	_show_attack_target_feedback()
 	_append_battle_log("%s 자동 공격 선택" % target_state.display_name)
 	is_auto_action_in_progress = true
@@ -6373,7 +6456,9 @@ func _show_attack_target_feedback() -> void:
 
 	var highlight_size := MOVE_HIGHLIGHT_SIZE
 	var target_marker := _get_enemy_target_unit_marker(selected_attack_target_state)
-	var world_pos := target_marker.position if target_marker != null else Vector2.ZERO
+	var world_pos := Vector2.ZERO
+	if target_marker != null:
+		world_pos = target_marker.position
 	if battle_grid_controller != null:
 		var cell_size := battle_grid_controller.get_cell_size()
 		if cell_size.x > 0.0 and cell_size.y > 0.0:
@@ -6432,7 +6517,9 @@ func _get_closest_unit_state_to_click_position(candidates: Array[BattleUnitState
 		if unit_state == null:
 			continue
 		var marker := _get_unit_marker_for_unit(unit_state)
-		var marker_position := marker.global_position if marker != null else _get_visual_anchor_position_for_unit(unit_state)
+		var marker_position := _get_visual_anchor_position_for_unit(unit_state)
+		if marker != null:
+			marker_position = marker.global_position
 		var distance_to_click := marker_position.distance_squared_to(mouse_pos)
 		if selected_unit_state == null or distance_to_click < selected_distance:
 			selected_unit_state = unit_state
@@ -6449,16 +6536,28 @@ func _debug_log_enemy_click_binding(unit_state: BattleUnitState) -> void:
 	var portrait: Sprite2D = null
 	if slot != null and slot.portrait is Sprite2D:
 		portrait = slot.portrait as Sprite2D
-	var portrait_path := portrait.texture.resource_path if portrait != null and portrait.texture != null else ""
+	var portrait_path := ""
+	if portrait != null and portrait.texture != null:
+		portrait_path = portrait.texture.resource_path
 	var marker := _get_unit_marker_for_unit(unit_state)
+	var click_area_name := ""
+	var click_area_position := Vector2.ZERO
+	if click_area != null:
+		click_area_name = click_area.name
+		click_area_position = click_area.global_position
+	var marker_name := ""
+	var marker_position_text := Vector2.ZERO
+	if marker != null:
+		marker_name = marker.name
+		marker_position_text = marker.global_position
 	print("[ENEMY_CLICK] name=%s slot=%s click_area=%s click_pos=%s portrait=%s marker=%s marker_pos=%s" % [
 		unit_state.display_name,
 		capacity_slot_id,
-		click_area.name if click_area != null else "",
-		str(click_area.global_position if click_area != null else Vector2.ZERO),
+		click_area_name,
+		str(click_area_position),
 		portrait_path,
-		marker.name if marker != null else "",
-		str(marker.global_position if marker != null else Vector2.ZERO),
+		marker_name,
+		str(marker_position_text),
 	])
 
 
@@ -6878,7 +6977,10 @@ func _find_enemy_move_path(start_cell: Vector2i, target_cell: Vector2i) -> Array
 
 
 func _find_enemy_move_path_for_actor(enemy_actor_state: BattleUnitState, start_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
-	return _find_enemy_path_to_destination_for_actor(enemy_actor_state, start_cell, target_cell, enemy_actor_state.move_range if enemy_actor_state != null else 0)
+	var actor_move_range := 0
+	if enemy_actor_state != null:
+		actor_move_range = enemy_actor_state.move_range
+	return _find_enemy_path_to_destination_for_actor(enemy_actor_state, start_cell, target_cell, actor_move_range)
 
 
 func _find_enemy_path_to_destination_for_actor(enemy_actor_state: BattleUnitState, start_cell: Vector2i, target_cell: Vector2i, max_steps_override: int = -1) -> Array[Vector2i]:
@@ -6894,7 +6996,9 @@ func _find_enemy_path_to_destination_for_actor(enemy_actor_state: BattleUnitStat
 	if not _is_cell_walkable_for_enemy_actor(enemy_actor_state, target_cell, start_cell):
 		return empty_path
 
-	var max_steps := max_steps_override if max_steps_override >= 0 else enemy_actor_state.move_range
+	var max_steps := enemy_actor_state.move_range
+	if max_steps_override >= 0:
+		max_steps = max_steps_override
 	var frontier: Array[Vector2i] = [start_cell]
 	var came_from: Dictionary = {start_cell: start_cell}
 	var steps_from_start: Dictionary = {start_cell: 0}
@@ -7126,7 +7230,9 @@ func _get_enemy_engagement_candidate_cells(target_state: BattleUnitState, enemy_
 
 
 func _is_surround_candidate_cell_for_target(cell: Vector2i, target_state: BattleUnitState) -> bool:
-	var actor_state := current_enemy_ai_actor_state if current_enemy_ai_actor_state != null else enemy_unit_state
+	var actor_state := enemy_unit_state
+	if current_enemy_ai_actor_state != null:
+		actor_state = current_enemy_ai_actor_state
 	for candidate_cell in _get_enemy_engagement_candidate_cells(target_state, actor_state):
 		if candidate_cell == cell:
 			return true
@@ -7179,8 +7285,11 @@ func _get_enemy_engagement_step_plan_for_actor(enemy_actor_state: BattleUnitStat
 		best_candidate_rank = candidate_index
 		best_step_distance = step_distance
 		best_full_path_length = full_path_length
+		var engagement_mode := "engagement_approach"
+		if step_cell == candidate_cell:
+			engagement_mode = "engagement_ring"
 		best_plan = {
-			"mode": "engagement_ring" if step_cell == candidate_cell else "engagement_approach",
+			"mode": engagement_mode,
 			"reason": "engagement_candidate",
 			"final_cell": candidate_cell,
 			"step_cell": step_cell,
@@ -7273,8 +7382,12 @@ func _refresh_move_target_feedback() -> void:
 	var target_cell: Vector2i = _get_selected_move_target_cell()
 	var is_valid_target: bool = is_valid_move_target(target_cell)
 	var snapped_position: Vector2 = _get_snapped_move_target_world_position()
-	move_target_marker.modulate = MOVE_TARGET_VALID_COLOR if is_valid_target else MOVE_TARGET_INVALID_COLOR
-	move_highlight.color = MOVE_HIGHLIGHT_VALID_COLOR if is_valid_target else MOVE_HIGHLIGHT_INVALID_COLOR
+	if is_valid_target:
+		move_target_marker.modulate = MOVE_TARGET_VALID_COLOR
+		move_highlight.color = MOVE_HIGHLIGHT_VALID_COLOR
+	else:
+		move_target_marker.modulate = MOVE_TARGET_INVALID_COLOR
+		move_highlight.color = MOVE_HIGHLIGHT_INVALID_COLOR
 	_show_move_highlight_at_position(snapped_position)
 	if current_phase == PHASE_ALLY_TURN and not is_demo_animating:
 		move_highlight.visible = true
