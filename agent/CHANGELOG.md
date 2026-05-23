@@ -1,5 +1,35 @@
 # CHANGELOG
 
+## v0.67p-3-hotfix2 Unified Active Ally Pulse Root
+
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept the active ally turn pulse scale at `1.5`.
+- Switched the active ally turn pulse to prefer the shared `UnitVisualRoot` / visual root instead of pulsing the troop token and portrait separately.
+- The troop token and hero portrait now scale together as one unified object through the same root.
+- Added root-base-scale capture and exact restore so repeated pulses do not accumulate scale drift.
+- Kept the old token/portrait pulse path only as a fallback when a shared visual root is unavailable.
+- Kept ally turn start behavior unchanged:
+  - floating command panel stays hidden by default
+  - pulse remains the primary active-unit signal
+- Kept click-to-open panel behavior and post-move panel auto-reopen intact.
+- Kept panel opacity, layer priority, direct move-click UX, rollback, and bottom command bar intact.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Confirmed `GDScript` warning count `0`.
+- Confirmed dedicated headless unified-root verifier checks:
+  - no auto-open panel at ally turn start
+  - root pulse peak around `1.400x`
+  - token global pulse peak around `1.403x`
+  - portrait global pulse peak around `1.400x`
+  - token local scale stayed around `1.010x`
+  - portrait local scale stayed around `1.000x`
+  - root returns to `1.000x`
+  - token returns to about `1.003x`
+  - portrait returns to about `1.000x`
+  - panel reopens after direct move + facing completion
+  - repeated-turn scale drift was not detected
+- Confirmed the existing floating-panel UX verifier still passes, including floating attack/move/wait behavior, direct move-click, rollback, panel hide rules, bottom command bar survival, and accelerated `5v5` auto-battle result reachability.
+
 ## v0.67p-3-hotfix Active Ally Pulse Portrait Sync
 
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
