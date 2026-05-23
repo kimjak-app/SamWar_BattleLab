@@ -1,0 +1,1783 @@
+# CURRENT STATE
+
+## Project
+SamWar_BattleLab
+
+## Current Stable Baseline
+v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable
+
+- Active ally pulse is locked as the current stable baseline: unified root pulse, pivot-locked in place, scale around `1.5x`, clean return to original position and scale.
+- Floating command panel still stays hidden at ally turn start, opens on active ally click, and auto-reopens after movement + facing selection complete.
+- Direct move-click UX, floating panel opacity/layer priority, bottom command bar, and `5v5` battle flow remain stable with no new battle logic changes in this wrap-up.
+
+## v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept enemy AI, formulas, roster/deployment, reinforcement timing, toast logic, hero identity registry, and assets unchanged.
+- Kept `ACTIVE_ALLY_TURN_PULSE_SCALE = 1.5`.
+- Active ally turn pulse still uses the shared `UnitVisualRoot` / visual root so troop token and hero portrait scale together as one unified object.
+- Added pivot-locked root pulse compensation around the active ally visual anchor.
+- The pulse now:
+  - captures the root base position and base scale
+  - captures the active ally visual anchor as the stable pulse pivot
+  - compensates root position while scaling so the visible unit grows in place
+  - restores the root exactly to its base position and base scale after the pulse
+- The token/portrait split pulse path remains only as a fallback when a shared visual root is unavailable.
+- Ally turn start still keeps the floating command panel hidden by default.
+- Clicking the active ally still opens the floating command panel.
+- After movement and post-move facing selection complete, the floating command panel still automatically reopens near the moved ally.
+- Existing panel opacity, layer priority, button handlers, direct move-click UX, and bottom command bar remain intact.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - active ally root pulse peak around `1.550x`
+  - token global pulse peak around `1.550x`
+  - portrait global pulse peak around `1.550x`
+  - token local scale stayed around `1.000x`
+  - portrait local scale stayed around `1.000x`
+  - pivot drift during pulse stayed around `0.000px`
+  - root returned to `1.000x`
+  - root final position drift returned to `0.000px`
+  - pivot final position drift returned to `0.000px`
+  - repeated pulse drift remained within the headless tolerance band
+  - clicking the active ally still opens the panel
+  - direct move still reaches facing select and panel reopens after facing completes
+  - existing floating-panel UX verifier still passes
+  - floating `이동`, `기본공격`, `대기`, direct move-click, rollback, and full-auto result reachability remain intact
+
+## v0.67p-3-hotfix2 Unified Active Ally Pulse Root State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept enemy AI, formulas, roster/deployment, reinforcement timing, toast logic, hero identity registry, and assets unchanged.
+- Kept `ACTIVE_ALLY_TURN_PULSE_SCALE = 1.5`.
+- Active ally turn pulse now prefers the shared `UnitVisualRoot` / visual root for the active ally slot.
+- Troop token and hero portrait now scale together as one unified object through the shared visual root instead of running separate per-child pulse tweens.
+- If a valid shared visual root is unavailable, the previous token/portrait fallback path remains available.
+- Active ally pulse now safely:
+  - captures the root base scale before pulsing
+  - restores the root exactly to base scale after the pulse
+  - stops any previous pulse tween and restores base scale before a new pulse starts
+- Ally turn start still keeps the floating command panel hidden by default.
+- Clicking the active ally still opens the floating command panel.
+- After movement and post-move facing selection complete, the floating command panel still automatically reopens near the moved ally.
+- Existing panel opacity, layer priority, button handlers, direct move-click UX, and bottom command bar remain intact.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - active ally visual root pulse peaked around `1.400x`
+  - token global pulse peaked around `1.403x`
+  - portrait global pulse peaked around `1.400x`
+  - token local scale stayed around `1.010x`
+  - portrait local scale stayed around `1.000x`
+  - root returned to `1.000x`
+  - token returned to about `1.003x`
+  - portrait returned to about `1.000x`
+  - repeated-turn scale drift was not detected in the dedicated verifier
+  - clicking the active ally still opens the panel
+  - direct move still reaches facing select and panel reopens after facing completes
+  - existing floating-panel UX verifier still passes
+  - floating `이동`, `기본공격`, `대기`, direct move-click, rollback, and full-auto result reachability remain intact
+
+## v0.67p-3-hotfix Active Ally Pulse Portrait Sync State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept enemy AI, formulas, roster/deployment, reinforcement timing, toast logic, hero identity registry, and assets unchanged.
+- Reduced active ally turn pulse tuning:
+  - `ACTIVE_ALLY_TURN_PULSE_SCALE = 1.5`
+  - `ACTIVE_ALLY_TURN_PULSE_UP_DURATION = 0.16`
+  - `ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION = 0.26`
+- Active ally turn pulse now scales both together:
+  - troop / unit token visual
+  - hero portrait badge visual
+- Both the token and portrait pulse now return to their original scene-authored base scales after the pulse.
+- Ally turn start still keeps the floating command panel hidden by default.
+- Clicking the active ally still opens the floating command panel.
+- After movement and post-move facing selection complete, the floating command panel still automatically reopens near the moved ally.
+- Existing panel opacity, layer priority, button handlers, direct move-click UX, and bottom command bar remain intact.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - panel still stays hidden at ally turn start
+  - token pulse peaked around `1.481x`
+  - portrait pulse peaked around `1.412x`
+  - token returned to about `1.003x`
+  - portrait returned to about `1.000x`
+  - clicking the active ally still opens the panel
+  - direct move still reaches facing select and panel reopens after facing completes
+  - existing floating-panel UX verifier still passes
+  - floating `이동`, `기본공격`, `대기`, direct move-click, rollback, and full-auto result reachability remain intact
+
+## v0.67p-3-hotfix Active Ally Pulse Scale + Post-Move Panel State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept enemy AI, formulas, roster/deployment, reinforcement timing, toast logic, hero identity registry, and assets unchanged.
+- Increased active ally turn pulse tuning:
+  - `ACTIVE_ALLY_TURN_PULSE_SCALE = 2.0`
+  - `ACTIVE_ALLY_TURN_PULSE_UP_DURATION = 0.16`
+  - `ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION = 0.26`
+- Active ally turn pulse now peaks around `1.984x` in headless verification and still returns to the original base scale.
+- Ally turn start still keeps the floating command panel hidden by default.
+- After movement and post-move facing selection complete, the floating command panel now automatically reopens near the moved ally.
+- This reopen path now covers:
+  - floating-panel `이동`
+  - direct move-click UX
+- Existing panel opacity, layer priority, button handlers, direct move-click UX, and bottom command bar remain intact.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - panel still stays hidden at ally turn start
+  - clicking the active ally still opens the panel
+  - direct move reaches facing select and panel reopens after facing completes
+  - existing floating-panel UX verifier still passes
+  - floating `이동`, `기본공격`, `대기`, direct move-click, rollback, and full-auto result reachability remain intact
+
+## v0.67p-3 Active Ally Turn Pulse + Click Command Panel State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept battle logic, enemy AI, formulas, roster/deployment, reinforcement timing, toast logic, hero identity registry, and assets unchanged.
+- Added active ally turn pulse tuning:
+  - `ACTIVE_ALLY_TURN_PULSE_SCALE = 1.40`
+  - `ACTIVE_ALLY_TURN_PULSE_UP_DURATION = 0.18`
+  - `ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION = 0.24`
+- Active ally turn now highlights the current ally with a strong token pulse and then cleanly returns to the original scene-authored base scale.
+- Floating ally command panel no longer auto-opens at ally turn start.
+- Floating ally command panel now opens only after the active ally is explicitly selected/clicked.
+- Existing floating panel opacity, layer priority, button handlers, direct move-click UX, and bottom command bar remain intact.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - floating panel stays hidden at ally turn start
+  - active ally pulse reached about `1.398x` and returned to about `1.001x`
+  - selecting the active ally opens the floating panel
+  - existing floating-panel UX verifier still passes
+  - direct move-click UX still works
+  - floating panel still hides in non-ally-command states
+  - accelerated headless `5v5` auto battle still reaches `result_victory`
+
+## v0.67p-1-hotfix Floating Command Panel Layer Priority State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
+- Kept battle logic, movement logic, direct move-click UX, enemy AI, formulas, toast logic, and assets unchanged.
+- Raised the floating ally command panel render priority:
+  - panel `z_index = 200`
+  - floating command button `z_index = 201`
+- Kept the floating panel and buttons fully opaque.
+- Kept panel/button `mouse_filter = STOP` so command clicks do not pass through to battlefield elements.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - floating panel `z_index` is above all ally/enemy facing indicators
+  - floating command button `z_index` remains on or above the panel
+  - floating panel/button mouse filtering remains blocking
+  - existing floating panel UX verifier still passes
+  - accelerated headless `5v5` auto battle still reaches `result_victory`
+
+## v0.67p-2 Direct Move Click UX + Floating Panel Opacity Hotfix State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
+- Kept assets unchanged.
+- Kept battle logic, enemy AI, formulas, roster/deployment, reinforcement timing, toast logic, and hero identity registry unchanged.
+- Restored direct move-click UX:
+  - valid highlighted move cell left-click now executes movement immediately
+  - existing move execution path is reused
+  - post-move facing selection still appears
+  - right-click rollback still restores the unit from facing-select
+  - invalid or occupied clicks do not move
+  - UI clicks do not trigger direct movement
+- Made the floating ally command panel visually solid:
+  - panel background alpha is fully opaque
+  - floating command button backgrounds are fully opaque in normal/hover/pressed/disabled states
+  - selected unit art should no longer visually show through the panel background
+- Cleaned the bottom global command bar:
+  - hid the `전역 명령` label
+  - kept only `턴 종료`, `자동전투`, and disabled `후퇴` visible
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - selecting an ally shows the floating command panel
+  - floating panel and button style alpha values are fully opaque
+  - bottom `전역 명령` label is hidden
+  - bottom `턴 종료` still works
+  - bottom `자동전투` still works
+  - bottom `후퇴` remains a safe disabled placeholder
+  - direct valid move-cell click executes movement without pressing `이동`
+  - facing selection still appears after direct movement
+  - right-click cancel / rollback still works
+  - invalid cell clicks do not move the unit
+  - UI-area clicks do not trigger direct movement
+  - accelerated headless `5v5` auto battle still reaches `result_victory`
+
+## v0.67p-1 Floating Ally Command Panel MVP State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
+- Kept assets unchanged.
+- Kept battle logic, enemy AI, formulas, roster/deployment, and toast logic unchanged.
+- Simplified the bottom command bar toward global commands:
+  - `자동전투`
+  - `턴 종료`
+  - `후퇴` placeholder
+- Kept existing bottom-bar handlers intact for:
+  - `AutoBattleButton`
+  - `EndTurnButton`
+- Added a floating ally command panel near the selected active ally with:
+  - `기본 공격`
+  - `고유특기` placeholder
+  - `책략` placeholder
+  - `이동`
+  - `대기`
+- Floating panel reuses existing handlers for:
+  - attack
+  - move
+  - wait
+- Floating panel hides outside playable ally-command states and during finalized battle results.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - floating ally command panel appears after ally selection
+  - floating `기본 공격` enters attack-select flow
+  - floating `이동` reaches the existing move -> facing-select flow
+  - floating `대기` triggers the existing wait/end-turn flow
+  - floating `고유특기` / `책략` remain disabled placeholders
+  - bottom `자동전투` still toggles full auto
+  - bottom `턴 종료` still triggers the existing ally wait/end-turn flow
+  - accelerated headless `5v5` auto battle still reaches `result_victory`
+- Headless custom verifier reports a fallback `64x64` viewport rect when launched as a standalone `SceneTree` script, so full visual clamp measurement still needs editor-side eyeballing even though the runtime panel-position code clamps against `get_viewport_rect()`.
+
+## v0.67m-1 Result Toast Size + Hold Duration Tuning State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept battle logic, enemy AI, reinforcement deploy timing, and hero identity registry unchanged.
+- Added shared result-toast tuning constants:
+  - `RESULT_TOAST_SCALE_MULTIPLIER = 1.18`
+  - `RESULT_TOAST_HOLD_EXTRA_SECONDS = 2.0`
+- Routed both victory and defeat result toasts through the existing battle-toast queue with the same enlarged scale and extra hold duration.
+- Kept round-start toast timing unchanged.
+- Kept reinforcement-arrival toast timing unchanged.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - shared result-toast queue config logged `victory_hold=3.1`, `defeat_hold=3.1`, `victory_scale=1.18`, `defeat_scale=1.18`
+  - reinforcement toast still triggered on rounds `2` and `3`
+  - round-start toast still played on the shared queue
+  - `5v5` auto battle still reached `result_victory`
+- Direct editor-side visual confirmation remains external to this environment; headless verification covered the shared queue config and runtime result path.
+
+## v0.67k-5 QA Stable State
+- Documentation-only stable-lock step.
+- No code, scene, or asset changes in this step.
+- Locked the current stable baseline as `v0.67k-5 QA Stable`.
+- Stable validation target:
+  - enemy `제갈량` / rear enemies advance instead of staying back
+  - enemy AI does not idle in multi-target states when alternate engagement exists
+  - only truly blocked enemy actors wait
+  - victory / defeat toast remains stable
+  - reinforcement arrival toast remains stable
+  - `GDScript` warning count remains `0`
+  - `5v5` full auto battle still reaches the battle result path
+- Verification status for this lock step:
+  - headless project launch exit code `0`
+  - headless `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - current headless smoke evidence still supports:
+    - fallback-target engagement behavior
+    - `enemy_reinforce_02 / 제갈량` advance behavior
+    - reinforcement arrival toast on rounds `2` and `3`
+    - battle result toast path activation
+    - no passive distant-enemy idle in the current smoke path
+- Manual `F6` editor play confirmation remains an external interactive QA item and is not executable in this environment.
+
+## v0.67k-5 Enemy AI Multi-Target Engagement Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept all assets unchanged.
+- Enemy AI engagement search is now the default behavior, not a low-ally-only mode.
+- Added per-round enemy AI reservation state for:
+  - selected movement destination cells
+  - selected future engagement cells
+- Enemy target planning now evaluates all alive ally targets instead of stopping at one blocked preferred target.
+- Enemy destination priority is now:
+  - immediate attack
+  - move destination that enables attack this turn
+  - engagement / approach path toward a future engagement cell
+  - fallback target when the preferred target path is blocked or weaker
+  - wait only when no valid attack / move-attack / engagement plan exists
+- Added per-actor enemy AI decision logging through `[ENEMY_AI_DECISION]` with:
+  - actor slot/name
+  - preferred target
+  - final target
+  - selected destination
+  - decision reason
+  - wait reason
+- Confirmed fallback-target behavior in headless auto-battle smoke.
+- Confirmed distant enemy `enemy_reinforce_02 / 제갈량` advances through repeated `ENGAGE`, `MOVE_ATTACK`, and `ATTACK` decisions instead of staying behind.
+- Headless verification:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning 없음
+  - current `5v5` launch path remains intact
+  - full auto battle reached battle result path
+  - reinforcement arrival toast remained active on rounds `2` and `3`
+  - victory result toast path remained active
+  - no passive distant-enemy wait was observed in the current headless auto-battle smoke
+
+## v0.67k-4-hotfix GDScript Warning Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept all assets unchanged.
+- Removed the local `battlefield_texture` shadowing warning by renaming the local portrait-texture variables.
+- Replaced the current object/null typed ternary warning sites with explicit `if/else` branches.
+- Kept battle logic unchanged.
+- Kept scene layout unchanged.
+- Kept enemy AI behavior unchanged.
+- Kept reinforcement arrival toast and victory / defeat result toast paths unchanged.
+- Headless verification:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning 없음
+  - current `5v5` launch path remains intact
+  - reinforcement/result toast asset paths were not touched
+
+## v0.67k-4 Enemy AI Surround Pressure QA Stable with Known Issue State
+- Documentation-only stable-mark step.
+- No code, scene, or asset changes in this step.
+- Current validated stable areas:
+  - `5v5` MVP battle structure remains stable
+  - Hero Identity Registry remains stable
+  - reinforcement arrival toast remains stable
+  - victory / defeat result toast remains stable
+  - auto battle result path remains stable
+  - enemy AI surround engagement is improved versus the older baseline
+  - if a final surround cell cannot be reached in one turn, enemy actors now advance along that path
+- Known Issue:
+  - when multiple ally targets are still alive, some enemy actors can still idle instead of redistributing engagement
+  - target selection / engagement reservation is still too weak in some multi-target cases
+  - this remains a follow-up item for the next session
+- Headless validation retained:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning 없음
+  - identity registry / reinforcement toast / result toast remain intact
+  - `5v5` actor / target path remains intact
+
+## v0.67k-3b Enemy AI Surround Engagement Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Enemy destination choice is now always engagement / surround oriented, not gated by a low-ally-only pressure mode.
+- Current destination priority:
+  - attack from current cell
+  - move to a cell that can attack this turn
+  - move toward an engagement / surround cell around the target
+  - otherwise move to the closest reachable cell that keeps pressure
+  - wait only if no reachable engagement or approach cell exists
+- Added engagement helpers:
+  - `_get_enemy_engagement_candidate_cells()`
+  - `_get_enemy_engagement_step_plan_for_actor()`
+  - `_find_enemy_path_to_destination_for_actor()`
+- Surround / engagement candidates are considered for every enemy move, regardless of ally count.
+- If a final surround cell cannot be reached in one turn, the actor now moves to the farthest reachable step along that path instead of idling.
+- Added richer enemy AI logs:
+  - `[ENEMY_AI_SURROUND_DEST]`
+  - `[ENEMY_AI_APPROACH_RING]`
+  - `[ENEMY_AI_WAIT]`
+- Headless verification:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning 없음
+  - lone-ally smoke shows repeated `APPROACH_RING` logs for multiple enemies
+  - front-blocked smoke selects side / rear surround cell
+  - victory / defeat / reinforcement toast paths remain intact
+
+## v0.67k-4 Enemy AI Surround Pressure QA Stable State
+- Documentation-only stable-mark step.
+- No code, scene, or asset changes in this step.
+- `5v5` MVP battle structure remains the current stable baseline.
+- Enemy AI surround-pressure behavior is now QA-stable:
+  - attack from current cell
+  - move to an attackable cell
+  - move to a surround cell around the target
+  - otherwise reduce distance
+- Surround pressure mode condition:
+  - deployed alive ally count `<= 2`
+  - deployed alive enemy count `>` deployed alive ally count
+- Verified behavior:
+  - last lone ally case shows enemy approach pressure logs
+  - front-blocked case selects side / rear surround cell
+  - only truly blocked enemy actors should wait
+- Verified stable systems:
+  - victory / defeat toast
+  - reinforcement arrival toast
+  - hero identity registry
+  - full auto battle completion path
+- Headless verification:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning 없음
+  - `5v5` actor / target path remains stable
+
+## v0.67k-3 Enemy AI Surround Pressure Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Enemy AI destination priority is now:
+  - attack from current cell
+  - move to an attackable cell
+  - move to a surround cell around the target
+  - otherwise reduce distance
+- Added surround helpers:
+  - `_should_enemy_use_surround_pressure_mode()`
+  - `_get_surround_candidate_cells_around_target()`
+  - `_is_surround_candidate_cell_for_target()`
+- Surround pressure mode turns on when:
+  - deployed alive ally count `<= 2`
+  - deployed alive enemy count `>` deployed alive ally count
+- Added enemy AI logs:
+  - `[ENEMY_AI_ATTACK]`
+  - `[ENEMY_AI_SURROUND]`
+  - `[ENEMY_AI_APPROACH]`
+  - `[ENEMY_AI_WAIT]`
+- Kept damage, move range, attack range, auto-battle step limit, reinforce deploy logic, hero identity registry, toast queue, and scene structure unchanged.
+
+v0.67k-2 Victory / Defeat Toast MVP
+
+## v0.67k-2 Victory / Defeat Toast MVP State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Reused the existing battle toast queue for result display.
+- Added runtime result toast textures:
+  - `battle_result_victory.png`
+  - `battle_result_defeat.png`
+- Added one-shot battle result toast guard:
+  - `has_battle_result_toast_shown`
+- Added result toast helpers:
+  - `_show_battle_result_toast()`
+  - `_get_battle_result_state()`
+  - `_is_battle_result_finalized()`
+  - `_try_show_battle_result_toast_if_needed()`
+- Result criteria:
+  - victory = deployed alive enemy count reaches `0`
+  - defeat = deployed alive ally count reaches `0`
+- Queue tags:
+  - `result_victory`
+  - `result_defeat`
+- Transition guards now stop extra round/turn progression after result finalization.
+- Reinforcement / round / result toasts share the same queue without overlap.
+- Existing reinforce deploy logic, actor/target logic, auto-battle scoring, enemy AI target policy, and UI layer policies remain unchanged.
+- Headless verification target:
+  - victory toast plays once with `battle_result_victory.png`
+  - defeat toast plays once with `battle_result_defeat.png`
+
+v0.67k-1-hotfix Reinforcement Toast Sequence Fix
+
+## v0.67k-1-hotfix Reinforcement Toast Sequence Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Confirmed the original reinforcement toast bug came from reusing the same `RoundToastRoot` / tween path with immediate overwrite by the round-start `BATTLE n` toast.
+- Added runtime battle-toast queue handling:
+  - `_enqueue_battle_toast()`
+  - `_play_next_battle_toast()`
+  - `_finish_battle_toast_playback()`
+- Cleared stale toast playback state during `reset_demo_state()`.
+- Added runtime toast playback state:
+  - `pending_battle_toasts`
+  - `is_battle_toast_playing`
+  - `active_battle_toast_tag`
+- Reinforcement arrival toast is now queued with higher priority than the round-start toast.
+- Expected playback order on reinforce rounds is now:
+  - `지원군 도착!`
+  - `BATTLE 2` or `BATTLE 3`
+- Confirmed headless smoke order:
+  - round `2` = `reinforcement_arrival -> BATTLE 2`
+  - round `3` = `reinforcement_arrival -> BATTLE 3`
+- Reinforcement deploy timing, actor/target filtering, auto-battle scoring, enemy AI target policy, and hero identity registry remain unchanged.
+- Round `3` battle shape remains:
+  - alive deployed count = `10`
+  - actor candidates ally/enemy = `5/5`
+  - target candidates ally/enemy = `5/5`
+
+## v0.67k-1 Reinforcement Arrival Toast MVP State
+- Updated `scripts/battle_web_import_test.gd` and agent docs.
+- Reused the existing `RoundToastRoot` / `RoundToastImage` / `RoundToastLabel` / tween flow for reinforcement arrival.
+- Added `REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH`:
+  - `res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png`
+- Added `REINFORCEMENT_ARRIVAL_TOAST_TEXT`:
+  - `지원군 도착!`
+- Added `_show_reinforcement_arrival_toast()` and generalized the existing toast animation through `_show_battle_toast()`.
+- Kept the round-start toast behavior intact:
+  - `BATTLE n`
+  - existing image / shader / fade flow
+- Added reinforcement arrival toast trigger timing:
+  - round `2` reinforce01 pair deploy 직후 `1회`
+  - round `3` reinforce02 pair deploy 직후 `1회`
+- Confirmed headless smoke logs:
+  - `[REINFORCEMENT_TOAST] round=2 text=지원군 도착!`
+  - `[REINFORCEMENT_TOAST] round=3 text=지원군 도착!`
+- Confirmed round `3` alive count remains `10`.
+- Confirmed round `3` actor candidates ally/enemy remain `5/5`.
+- Confirmed round `3` target candidates ally/enemy remain `5/5`.
+- Kept battle logic unchanged.
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept reinforce deploy conditions unchanged.
+- Kept HP bar / troop label / FacingIndicator behavior unchanged.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+
+## v0.67k Battle Hero Identity Source of Truth Scaffold State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Added runtime `HERO_REGISTRY` for:
+  - `yi_sunsin`
+  - `jeong_dojeon`
+  - `kwon_yul`
+  - `gim_yusin`
+  - `eulji_mundeok`
+  - `guan_yu`
+  - `zhang_fei`
+  - `xiahou_dun`
+  - `liu_bei`
+  - `zhuge_liang`
+- Added `TEST_BATTLE_ROSTER` as the temporary battle-roster contract scaffold:
+  - ally `main_01/02/03` = 이순신 / 정도전 / 권율
+  - ally `reinforce_01/02` = 김유신 / 을지문덕
+  - enemy `main_01/02/03` = 관우 / 장비 / 하후돈
+  - enemy `reinforce_01/02` = 유비 / 제갈량
+- Filled `capacity_slot_metadata_registry[slot_id]["assigned_hero_id"]` from the roster scaffold.
+- Added runtime hero-identity helpers:
+  - `_get_hero_id_for_unit_state()`
+  - `_get_hero_registry_entry()`
+  - `_apply_hero_identity_to_unit()`
+  - `_apply_all_hero_identities()`
+  - `_load_texture_or_null()`
+- Added runtime identity validation logging through `_validate_hero_identity_bindings()`.
+- Hero identity is now applied from `hero_id` instead of trusting scene-authored portrait texture as source of truth:
+  - `display_name`
+  - battlefield portrait badge texture
+  - closeup portrait texture lookup
+- Closeup portrait lookup now prefers `closeup_portrait_path` from the hero registry and falls back to the current portrait badge texture only if needed.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Confirmed `10` battle slots report `IDENTITY_OK` on startup validation.
+- Confirmed ally/enemy main identity mismatches are now corrected at runtime even if scene texture bindings drift.
+- Kept battle logic unchanged.
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept reinforce deploy logic unchanged.
+- Kept HP bar / troop label / FacingIndicator behavior unchanged.
+
+## v0.67k Auto Battle Step Limit 5v5 Sustain Fix State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Replaced the old fixed auto-battle safety cap:
+  - old `AUTO_BATTLE_MAX_STEPS = 40`
+- Added dynamic auto-battle step budget policy:
+  - `AUTO_BATTLE_MIN_MAX_STEPS = 80`
+  - `AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT = 16`
+  - `AUTO_BATTLE_ABSOLUTE_MAX_STEPS = 200`
+- Added `_get_auto_battle_max_steps()` to compute budget from currently deployed alive units.
+- Current computed budgets verify as:
+  - round `1` alive `6` -> max steps `96`
+  - round `2` alive `8` -> max steps `128`
+  - round `3` alive `10` -> max steps `160`
+- Replaced the old generic step-limit stop reason with a clearer battle log message:
+  - `자동전투 안전 제한 도달`
+- Kept infinite-loop protection in place via the absolute upper bound.
+- Kept actor/target filtering unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept damage / move / attack formulas unchanged.
+- Kept reinforce deploy logic unchanged.
+- Kept HP cleanup logic unchanged.
+- Confirmed round `3` actor candidates ally/enemy remain `5/5`.
+- Confirmed round `3` target candidates ally/enemy remain `5/5`.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+
+## v0.67j-5 MVP 5v5 QA Stable State
+- This step is documentation and verification only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- No asset change was made.
+- Confirmed current MVP battle target is fixed to `5v5`:
+  - per side = `3` main + `2` city-origin reinforce
+- Confirmed current round structure:
+  - round `1` = `3v3`
+  - round `2` = reinforce01 deploys -> `4v4`
+  - round `3` = reinforce02 deploys -> `5v5`
+- Confirmed deployed alive count progression:
+  - `6 -> 8 -> 10`
+- Confirmed actor / target candidate progression:
+  - round `1` = `3/3`
+  - round `2` = `4/4`
+  - round `3` = `5/5`
+- Confirmed reinforce01 / reinforce02 visual display restore is stable:
+  - unit token visible
+  - portrait badge visible
+  - HP bar visible
+  - troop label visible
+  - facing indicator visible
+- Confirmed click / target gating works as expected before and after deployment.
+- Confirmed auto battle remains stable on the current MVP `5v5` structure.
+- Confirmed headless project launch exit code `0`.
+- Confirmed headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- Confirmed current larger slot-capacity constants remain future-expansion scaffold only:
+  - `7v7`
+  - `10` total-unit directions
+- Kept current capacity constants for future expansion, but fixed the active MVP stable baseline to `5v5`.
+
+## v0.67j-4 Reinforce02 City-Origin Entry Prototype State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Added real reinforce02 scene/runtime scaffold for both sides:
+  - `ally_reinforce_02`
+  - `enemy_reinforce_02`
+- Added scene nodes for reinforce02:
+  - actual visual root
+  - marker
+  - portrait marker
+  - click area
+  - ally ready frame
+  - ally/enemy facing indicator
+- Added:
+  - `ally_reinforce_02_unit_state`
+  - `enemy_reinforce_02_unit_state`
+- Expanded adapter/runtime state lists to:
+  - ally count = `5`
+  - enemy count = `5`
+  - all count = `10`
+- Confirmed reinforce02 starts as city-origin mock contract with:
+  - `entry_rule = city_reinforcement`
+  - `source_city_id`
+  - `dispatch_type`
+  - `assigned_hero_id`
+  - `assigned_unit_id`
+  - `arrival_round = 3`
+- Confirmed battle-start state:
+  - alive deployed count = `6`
+  - reinforce01 `deployed=false`
+  - reinforce02 `deployed=false`
+  - actor candidates ally/enemy = `3/3`
+  - target candidates ally/enemy = `3/3`
+- Confirmed round `2` state:
+  - reinforce01 pair deploys on existing test trigger
+  - alive deployed count = `8`
+  - actor candidates ally/enemy = `4/4`
+  - target candidates ally/enemy = `4/4`
+- Confirmed round `3` state:
+  - reinforce02 pair deploys from city-origin mock contract
+  - alive deployed count = `10`
+  - actor candidates ally/enemy = `5/5`
+  - target candidates ally/enemy = `5/5`
+  - reinforce02 click / HP / troop visibility restore correctly after deploy
+- Kept reinforce01 round `2` deployment as existing temporary test trigger.
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept HP bar, troop label, HP alpha `0.8`, layer profile, enemy portrait vertical facing behavior, enemy move facing-indicator hide/show timing, and HP `0` cleanup behavior unchanged.
+
+## v0.67j-3 City Reinforcement Contract Scaffold State
+- This step is documentation-first contract definition.
+- No world-map system was implemented.
+- No city system was implemented.
+- No reinforce02 round-spawn prototype was added.
+- Current reinforce meaning is now explicitly defined as future city-origin deployment:
+  - adjacent-city relief force
+  - additional dispatched force from a city/castle
+  - battle-engine entry payload, not a fixed round-spawn gimmick
+- Confirmed current `capacity_slot_metadata_registry` structure is dictionary-backed and can accept future city-origin metadata keys through `_set_capacity_slot_metadata_value()`.
+- Confirmed current default scaffold already seeds:
+  - `entry_rule`
+  - `source_city_id`
+  - `assigned_unit_id`
+- Defined required future reinforce contract keys for city-origin entry:
+  - `source_city_id`
+  - `dispatch_type`
+  - `assigned_hero_id`
+  - `assigned_unit_id`
+  - `arrival_round`
+  - `entry_rule = city_reinforcement`
+- Clarified current reinforce01 behavior:
+  - `ally_reinforce_01` / `enemy_reinforce_01` round `2` deployment is a temporary test trigger
+  - it verifies `deployed=false -> true` transition only
+  - it does not define the final game meaning of reinforcement
+- Clarified reinforce02 direction:
+  - next prototype target is city-origin entry metadata usage
+  - do not implement reinforce02 as a simple round `3` copy of reinforce01
+- Kept battle logic, auto battle, enemy AI, HP/troop UI, and scene structure unchanged.
+
+## v0.67j-2 Reinforce01 QA Stable State
+- This step is documentation and verification only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- Confirmed battle-start deployed roster:
+  - `ally_main_01` = 이순신
+  - `ally_main_02` = 정도전
+  - `ally_main_03` = 권율
+  - `enemy_main_01` = 관우
+  - `enemy_main_02` = 장비
+  - `enemy_main_03` = 하후돈
+- Confirmed battle-start reinforce state:
+  - `ally_reinforce_01` hidden / `deployed=false`
+  - `enemy_reinforce_01` hidden / `deployed=false`
+- Confirmed round `2` reinforce state:
+  - `ally_reinforce_01` visible / `deployed=true`
+  - `enemy_reinforce_01` visible / `deployed=true`
+- Headless verification confirms:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - no `GDScript::reload` warning on the project/scene verification path
+  - pre-deploy alive deployed count = `6`
+  - pre-deploy actor candidates ally/enemy = `3/3`
+  - pre-deploy target candidates ally/enemy = `3/3`
+  - round `2` post-deploy alive deployed count = `8`
+  - round `2` post-deploy actor candidates ally/enemy = `4/4`
+  - round `2` post-deploy target candidates ally/enemy = `4/4`
+  - reinforce01 HP bar / troop label visible after deploy = `true/true`
+  - reinforce01 facing indicator refs present after deploy = `true/true`
+  - auto target parity OK = `true`
+  - enemy AI target parity OK = `true`
+  - enemy actor order parity OK = `true`
+- Confirmed reinforce02 remains empty-container scaffold only:
+  - `ally_reinforce_02`
+  - `enemy_reinforce_02`
+  - `deployed=false` 유지
+  - actor / target / occupied 후보 제외 유지
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept HP bar, troop label, HP alpha `0.8`, unit-over-HP layer order, enemy portrait vertical facing layout, enemy move facing-indicator hide/show timing, and HP `0` cleanup behavior unchanged.
+
+## v0.67j-1 Reinforce01 Entry Prototype State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Added real reinforce01 runtime nodes for:
+  - `ally_reinforce_01`
+  - `enemy_reinforce_01`
+- Added scene nodes for reinforce01:
+  - actual visual root
+  - marker
+  - portrait marker
+  - click area
+  - ally ready frame
+  - ally/enemy facing indicator
+- Added:
+  - `ally_reinforce_01_unit_state`
+  - `enemy_reinforce_01_unit_state`
+- Expanded adapter/runtime state lists to:
+  - ally count = `4`
+  - enemy count = `4`
+  - all count = `8`
+- Kept reinforce02 scaffold-only and undeployed:
+  - `ally_reinforce_02`
+  - `enemy_reinforce_02`
+- Reinforce01 entry policy:
+  - battle start: `active=true`, `deployed=false`, hidden, click disabled
+  - round `2` start: ally/enemy reinforce01 pair deploys once
+  - post-deploy: actor / target / occupied 후보 포함
+- Headless verification confirms:
+  - pre-deploy alive deployed count = `6`
+  - pre-deploy actor candidates ally/enemy = `3/3`
+  - pre-deploy target candidates ally/enemy = `3/3`
+  - round `2` post-deploy alive deployed count = `8`
+  - round `2` post-deploy actor candidates ally/enemy = `4/4`
+  - round `2` post-deploy target candidates ally/enemy = `4/4`
+- Kept auto-battle scoring unchanged.
+- Kept enemy AI target policy unchanged.
+- Kept HP bar, troop label, HP alpha `0.8`, layer profile, enemy portrait vertical offset, and enemy move facing-indicator timing unchanged.
+
+## v0.67i-2 MVP 3v3 QA Stable State
+- This step is documentation and verification only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- Confirmed current `3v3` main-slot structure:
+  - `ally_main_01` = 이순신
+  - `ally_main_02` = 정도전
+  - `ally_main_03` = 권율
+  - `enemy_main_01` = 관우
+  - `enemy_main_02` = 장비
+  - `enemy_main_03` = 하후돈
+- Confirmed reinforce remains scaffold-only:
+  - `ally_reinforce_01` / `ally_reinforce_02`
+  - `enemy_reinforce_01` / `enemy_reinforce_02`
+  - `deployed=false` 유지
+  - actor / target / occupied 후보 제외 유지
+- Headless verification confirms:
+  - ally count = `3`
+  - enemy count = `3`
+  - all count = `6`
+  - actor candidates ally/enemy = `3/3`
+  - target candidates ally/enemy = `3/3`
+  - all alive deployed count = `6`
+  - auto target parity OK = `true`
+  - enemy AI target parity OK = `true`
+  - enemy actor order parity OK = `true`
+- Kept current `3v3` battle logic, auto battle, enemy AI, HP/troop, layer, enemy portrait vertical offset, and enemy facing-indicator move timing unchanged.
+
+## v0.67i-1 MVP 5-Slot Battle Prototype - Main03 Activation Spike State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Activated `main_03` as the first real MVP battle-extension step:
+  - `ally_main_03`
+  - `enemy_main_03`
+- Kept reinforce slots scaffold-only and undeployed:
+  - `ally_reinforce_01`
+  - `ally_reinforce_02`
+  - `enemy_reinforce_01`
+  - `enemy_reinforce_02`
+- Added real scene nodes for `main_03` only:
+  - actual visual root
+  - marker
+  - portrait marker
+  - click area
+  - ally ready frame
+  - ally/enemy facing indicator
+- Added new `BattleUnitState`:
+  - `ally_main_03_unit_state`
+  - `enemy_main_03_unit_state`
+- Expanded adapter/runtime state lists to:
+  - ally count = `3`
+  - enemy count = `3`
+  - all count = `6`
+- Expanded `UnitVisualSlot` runtime cache for:
+  - `ally_main_03`
+  - `enemy_main_03`
+- Kept existing legacy 4-state variables intact.
+- Kept reinforce states uncreated and undeployed.
+- Headless snapshot confirms:
+  - alive ally count = `3`
+  - alive enemy count = `3`
+  - actor candidates ally/enemy = `3/3`
+  - target candidates ally/enemy = `3/3`
+  - all alive deployed count = `6`
+  - enemy actor order parity OK = `true`
+- Kept HP bar, troop label, HP alpha `0.8`, layer profile, enemy portrait vertical offset, enemy facing-indicator move timing, auto battle policy, and enemy AI policy unchanged.
+
+## v0.67h MVP 5-Slot Scene Scaffold State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs only.
+- Kept the existing `Slots` legacy `2v2` structure intact:
+  - `AllyMainSlot`
+  - `AllySupportSlot`
+  - `EnemyMainSlot`
+  - `EnemySupportSlot`
+- Added 6 empty scene slot containers under `Slots` for MVP scaffold only:
+  - `AllyMain03Slot`
+  - `AllyReinforce01Slot`
+  - `AllyReinforce02Slot`
+  - `EnemyMain03Slot`
+  - `EnemyReinforce01Slot`
+  - `EnemyReinforce02Slot`
+- Added `@onready` references for the 6 new empty slot containers.
+- Added `CAPACITY_SLOT_ID_TO_SCENE_SLOT_PATH` as future scene-slot metadata for the MVP `5`-slot bridge.
+- Added one-time startup scaffold snapshot for new slot-container existence only.
+- Did not add new `BattleUnitState`.
+- Did not add new `UnitVisualRoot`, `ClickArea`, `ReadyFrame`, or `FacingIndicator`.
+- Did not register the new empty slots into the `UnitVisualSlot` runtime cache.
+- Kept current `2v2` actor/target results unchanged.
+- Kept auto battle, enemy AI, active/deployed filtering, HP bar, troop label, layer profile, enemy portrait vertical offset, and enemy facing-indicator timing unchanged.
+
+## v0.67c-hotfix7 Enemy Portrait Facing Offset Restore State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Restored enemy portrait offset handling for vertical facing by adding `_get_enemy_portrait_offset_for_facing()`.
+- Enemy main and enemy support portrait placement now uses the scene-authored fallback portrait offset for `FACING_UP` / `FACING_DOWN`, matching the stable top-flag placement instead of the vertical template/fallback path that drifted toward the unit center.
+- Left/right enemy portrait placement remains on the existing template-aware path.
+- Kept ally portrait offset handling unchanged.
+- Kept HP bar position, HP alpha `0.8`, troop label position, troop alpha, unit visual layer profile, battle dust, facing indicator timing, auto battle, and enemy AI unchanged.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+
+## v0.67f-hotfix Enemy Facing Indicator Hide During Move State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Added `_hide_facing_indicator_for_unit()` for unit-scoped indicator visibility control.
+- Enemy actor movement now hides that actor's `FacingIndicator` immediately before the movement tween starts.
+- Enemy movement completion still returns through the existing `_update_facing_indicators()` path, so the indicator is repositioned and shown again at the final location.
+- Kept ally move / facing-selection UX unchanged.
+- Kept auto-battle target policy unchanged.
+- Kept enemy AI actor/target selection logic unchanged.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+
+## v0.67g MVP 3 Main + 2 Reinforce Layout Plan State
+- Added `agent/MVP_3_MAIN_2_REINFORCE_LAYOUT_PLAN.md`.
+- This step is documentation only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- Documented MVP target structure:
+  - ally `3` main + `2` reinforce
+  - enemy `3` main + `2` reinforce
+- Documented current stable `2v2` mapping as the MVP baseline:
+  - `ally_main` -> `ally_main_01`
+  - `ally_support` -> `ally_main_02`
+  - `enemy_main` -> `enemy_main_01`
+  - `enemy_support` -> `enemy_main_02`
+- Documented planned MVP additions:
+  - `ally_main_03`
+  - `ally_reinforce_01`
+  - `ally_reinforce_02`
+  - `enemy_main_03`
+  - `enemy_reinforce_01`
+  - `enemy_reinforce_02`
+- Documented:
+  - main-slot placement concept
+  - reinforce entry-lane concept
+  - editor-first layout policy
+  - scene tree expansion candidates
+  - legacy naming migration caution
+  - future `UnitVisualSlot` / `BattleUnitState` expansion direction
+  - auto-battle, ClickArea, READY, Facing considerations
+  - guide-layer relation
+  - risk list
+  - staged roadmap through `v0.67l`
+
+## v0.67f Deployed/Active Slot Filtering State
+- Hardened active/deployed slot gating in `scripts/battle_web_import_test.gd`.
+- `_is_capacity_slot_active()` and `_is_capacity_slot_deployed()` now explicitly return `false` for empty slot ids.
+- `_is_unit_state_active_by_capacity_slot()` and `_is_unit_state_deployed_by_capacity_slot()` now explicitly return `false` for `null` unit states.
+- Added `_is_unit_state_available_for_battle_slot()` as the shared battle-participation filter:
+  - `unit_state != null`
+  - `unit_state.is_alive()`
+  - capacity slot active = `true`
+  - capacity slot deployed = `true`
+- Alive / actor / target adapter helpers now consistently resolve through the shared active/deployed filter.
+- Occupied-cell paths still read from the same public alive list, so non-deployed future units are excluded from occupied blocking.
+- Added one-time startup deployed/active filter snapshot for:
+  - capacity active slots by side
+  - capacity deployed slots by side
+  - actor candidates by side
+  - target candidates by side
+  - all alive deployed count
+  - current `2v2` parity OK
+- Future reinforce policy is now explicit:
+  - `is_active=true` and `is_deployed=false` units stay excluded from actor candidates
+  - excluded from target candidates
+  - excluded from occupied cells
+  - excluded from click-target participation until deployment
+- Current headless snapshot confirms:
+  - all 4 legacy units remain active/deployed `true`
+  - actor candidates ally = `2`
+  - actor candidates enemy = `2`
+  - target candidates ally = `2`
+  - target candidates enemy = `2`
+  - all alive deployed count = `4`
+  - parity OK = `true`
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept current `2v2` battle result unchanged.
+
+## v0.67e Actor/Target List Adapter Migration State
+- Added actor-candidate adapter helpers in `scripts/battle_web_import_test.gd`:
+  - `_get_actor_candidates_for_side_from_adapter()`
+  - `_get_available_actor_candidates_for_side_from_adapter()`
+- Added target-candidate adapter helpers:
+  - `_get_alive_target_candidates_for_side_from_adapter()`
+  - `_get_target_candidates_for_actor_from_adapter()`
+- Added shared fallback / comparison helpers:
+  - `_get_target_candidates_for_actor()`
+  - `_get_fallback_target_candidates_for_actor()`
+  - `_get_enemy_ai_target_state_from_candidates()`
+  - `_find_best_auto_attack_target_from_candidates()`
+- Kept all actor/target adapter helpers gated by adapter-first with existing fixed-state fallback.
+- Switched `_get_available_auto_units_for_side()` to adapter-first actor candidates with fallback.
+- Switched `_get_alive_auto_targets_for_side()` to adapter-first target candidates with fallback.
+- Switched `_get_enemy_ai_target_state_for_actor()` to read target candidates through the adapter-first target helper while preserving the existing target-selection rule.
+- Kept enemy AI actor order functions unchanged:
+  - `_get_next_available_enemy_ai_actor()`
+  - `_play_enemy_ai_for_actor()`
+- Added one-time startup actor/target adapter snapshot for:
+  - actor candidate ally/enemy count
+  - target candidate count for ally/enemy actors
+  - auto target parity OK
+  - enemy AI target parity OK
+  - enemy actor order parity OK
+- Current headless snapshot confirms:
+  - actor candidates ally count = `2`
+  - actor candidates enemy count = `2`
+  - target candidates for ally actor count = `2`
+  - target candidates for enemy actor count = `2`
+  - auto target parity OK = `true`
+  - enemy AI target parity OK = `true`
+  - enemy actor order parity OK = `true`
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept current `2v2` battle result unchanged.
+
+## v0.67d 2v2 on Scalable Slot Framework State
+- Added adapter-first alive/deployed helper paths in `scripts/battle_web_import_test.gd`.
+- Preserved the existing fixed `2v2` state variables and legacy helper bodies as fallback.
+- Adapter-first helpers now read through the existing `BattleUnitState` side lists and capacity-slot registry.
+- Added:
+  - `_get_alive_unit_states_for_side_from_adapter()`
+  - `_get_alive_deployed_unit_states_for_side()`
+  - `_get_all_alive_unit_states_from_adapter()`
+  - `_is_battle_unit_state_adapter_ready()`
+- Converted these existing helpers to adapter-first with fallback:
+  - `_get_alive_ally_units()`
+  - `_get_alive_enemy_units()`
+  - `_get_all_alive_unit_states()`
+  - `_get_alive_enemy_targets()`
+- Kept current target policy unchanged while allowing alive target lists to resolve from deployed adapter-backed units first.
+- Kept occupied-cell checks on the same public helper path so current `2v2` movement blocking result remains unchanged.
+- Added one-time startup parity snapshot for:
+  - adapter alive ally count
+  - adapter alive enemy count
+  - fallback alive ally count
+  - fallback alive enemy count
+  - active/deployed capacity slots
+  - current `2v2` parity OK flag
+- Confirmed current expected capacity mapping remains:
+  - `ally_main` -> `ally_main_01`
+  - `ally_support` -> `ally_main_02`
+  - `enemy_main` -> `enemy_main_01`
+  - `enemy_support` -> `enemy_main_02`
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Kept enemy AI actor order unchanged.
+- Kept full auto battle policy unchanged.
+
+## Hotfix Focus
+- Confirmed HP/troop refs, visible, alpha, text, and values were valid even while the UI stayed invisible.
+- Restored scene-authored HP/troop draw order by raising HP bars and troop labels above the battlefield after slot migration.
+- Removed runtime HP/troop position overwrites from the hotfix helper and left layout positioning to the existing group reset flow.
+- Added expanded runtime summary with token/hp/troop local-global positions, z-index, and size.
+- Fixed HP bar runtime alpha at `0.8`.
+- Kept troop label alpha at `1.0` for full readability.
+- Reapplies HP bar alpha after group modulate and state refresh paths that were restoring full opacity.
+- Applies a shared visual layer profile so token/portrait render above HP bars while troop labels remain on top.
+- Kept `BattleUnitState` list adapter scaffold in place.
+- Limited `Battle_Fullscreen_Test.tscn` changes to HP/Troop node draw-order restore only.
+
+## Main Scene
+`Battle_Fullscreen_Test.tscn`
+
+Attached scripts:
+- `scripts/battle_web_import_test.gd`
+- `scripts/battle_unit_state.gd`
+- `scripts/unit_visual_slot.gd`
+
+This is the current stable 2v2 Godot battle verification scene.
+
+## Engine / Layout Baseline
+- Godot 4 based SamWar battle engine port and visual experiment.
+- 1920x1080 fullscreen battle board on `Battle_Fullscreen_Test.tscn`.
+- 18x10 logical grid maintained.
+- Scene controls layout.
+- Code controls behavior.
+
+## Current Battle Setup
+- Ally: 이순신, 정도전
+- Enemy: 관우, 장비
+
+Current visual test assignment:
+- 이순신 = `korea_archer`
+- 정도전 = `korea_gunner`
+- 관우 = `china_cavalry`
+- 장비 = `china_infantry`
+
+## Current Battle Flow
+1. One ally actor acts.
+2. One enemy AI actor acts.
+3. Next available ally actor acts.
+4. Next enemy AI actor acts.
+5. New round starts.
+
+Verified principle:
+아군 1부대 행동 -> 적 1부대 AI 행동 -> 다음 아군 1부대 행동.
+
+## Current Working Features
+- 2v2 battle loop works.
+- BATTLE 1 / BATTLE 2 Round Toast works.
+- Basic Battle FX Pack 1 works:
+  - move dust
+  - attack slash
+  - hit spark
+  - damage number
+- Move dust appears only during movement.
+- Idle breathing works.
+- READY frame works.
+- UnitCloseupPanel works.
+- Active ally lock works.
+- Right-click move rollback works.
+- Right-click attack cancel works.
+- HP 0 cleanup works.
+- Headless scene launch has been kept at 0 errors.
+
+## v0.66a UnitVisualSlot Scaffold State
+- Added `scripts/unit_visual_slot.gd`.
+- `UnitVisualSlot` is a `RefCounted` reference adapter only.
+- Prepared cached slot references for:
+  - `ally_main`
+  - `ally_support`
+  - `enemy_main`
+  - `enemy_support`
+- Existing `_get_*_visual_slots()` dictionary functions were preserved.
+- No scene-tree migration was done.
+- ClickArea / READY frame / FacingIndicator parent structure was preserved.
+- Existing 2v2 manual battle loop and full auto battle flow were preserved.
+
+## v0.66b UnitVisualSlot Lookup Integration State
+- Added cache-first lookup helpers for `UnitVisualSlot` references.
+- `UnitVisualSlot` lookup now uses:
+  - `unit_state.slot_id` first
+  - direct `unit_state` comparison fallback second
+  - dictionary-backed slot adapter fallback when cache entry is missing
+- Existing dictionary-returning functions were preserved:
+  - `_get_ally_main_visual_slots()`
+  - `_get_ally_support_visual_slots()`
+  - `_get_enemy_main_visual_slots()`
+  - `_get_enemy_support_visual_slots()`
+  - `_get_visual_slots_for_slot_id()`
+  - `_get_unit_visual_slots_for_state()`
+- Dictionary-returning lookups now safely bridge through `UnitVisualSlot.to_visual_slots_dictionary()` when a slot adapter is available.
+- Added `to_visual_slots_dictionary()` to keep legacy key names stable:
+  - `root`
+  - `token`
+  - `shadow`
+  - `portrait`
+  - `hp_bar`
+  - `troop_label`
+  - `move_dust`
+  - `click_area`
+  - `click_shape`
+  - `ready_frame`
+  - `facing_indicator`
+- Slot cache rebuild still prepares the 4 current combat slots only.
+- No combat formula, turn flow, AI order, auto battle logic, or scene tree structure was intentionally changed.
+- `Battle_Fullscreen_Test.tscn` remained unmodified.
+- ClickArea / READY frame / FacingIndicator parent structure remained unchanged.
+
+## v0.66c-1 UnitVisualSlot Usage Expansion - Safe Helpers State
+- Expanded `UnitVisualSlot` with safe read-only helpers:
+  - `get_visual_group_nodes()`
+  - `has_required_visual_nodes()`
+  - `get_debug_summary()`
+- Kept `UnitVisualSlot` as a `RefCounted` reference adapter only.
+- Expanded slot-first usage only in safe helper paths:
+  - `_debug_print_unit_visual_root_slots()`
+  - `_get_visual_group_nodes_for_unit()`
+  - `_get_click_area_for_unit()`
+  - `_get_facing_indicator_for_unit()`
+- Existing direct comparison fallback remains in those helpers when slot lookup is unavailable.
+- Existing group node functions remain preserved:
+  - `_get_ally_group_nodes()`
+  - `_get_ally_support_group_nodes()`
+  - `_get_enemy_group_nodes()`
+  - `_get_enemy_support_group_nodes()`
+- Cleanup and visibility flow still uses the same public helpers:
+  - `_cleanup_dead_units()`
+  - `_set_unit_visual_group_visible()`
+  - `_set_unit_click_area_enabled()`
+- No combat formula, turn flow, enemy AI flow, auto battle logic, or scene structure was intentionally changed.
+- `Battle_Fullscreen_Test.tscn` remained unmodified.
+- ClickArea / READY frame / FacingIndicator parent structure remained unchanged.
+
+## v0.66c-2 Ready/Facing/Click Slot Helper Expansion State
+- Expanded `UnitVisualSlot` with slot-first UI / click getters:
+  - `get_click_area()`
+  - `get_click_shape()`
+  - `get_ready_frame()`
+  - `get_facing_indicator()`
+  - `has_click_nodes()`
+  - `has_ui_overlay_nodes()`
+- Added `_get_click_shape_for_unit()` in `scripts/battle_web_import_test.gd`.
+- Expanded slot-first helper usage for:
+  - `_get_ready_frame_for_unit()`
+  - `_update_ally_ready_frames()`
+  - `_get_facing_indicator_for_unit()`
+  - `_update_facing_indicators()`
+  - `_set_facing_indicators_visible()`
+  - `_get_click_area_for_unit()`
+- Added `_get_all_unit_states_in_slot_order()` for UI / visibility helper iteration only.
+- Existing direct comparison fallback remains for READY / Facing / Click helpers when slot lookup is unavailable.
+- Existing world-to-`BattleUI` coordinate flow remains unchanged.
+- Existing per-slot facing-indicator position functions remain preserved.
+- ClickArea remains under scene root.
+- READY frame and FacingIndicator remain under `BattleUI`.
+- No combat formula, turn flow, enemy AI, auto battle, or battle-dust logic was intentionally changed.
+- `Battle_Fullscreen_Test.tscn` remained unmodified.
+
+## v0.66c-3 Slot-Based Cleanup / Visibility QA State
+- Rechecked slot-based cleanup / visibility helper paths for the current 2v2 structure.
+- Added narrow `UnitVisualSlot` visibility helpers:
+  - `set_visual_group_visible()`
+  - `set_click_area_enabled()`
+  - `set_facing_indicator_visible()`
+- Added stronger null guards for:
+  - `_get_visual_group_nodes_for_unit()`
+  - `_get_click_area_for_unit()`
+  - `_get_click_shape_for_unit()`
+  - `_get_ready_frame_for_unit()`
+  - `_get_facing_indicator_for_unit()`
+- `_cleanup_dead_units()` now iterates through `_get_all_unit_states_in_slot_order()` for consistency with current slot helper usage.
+- `_set_unit_visual_group_visible()` and `_set_unit_click_area_enabled()` now prefer slot-backed helper control when the slot reference is available and otherwise preserve existing fallback behavior.
+- Debug slot summary now also includes `click_shape` presence for QA.
+- Dead-unit cleanup policy remains unchanged:
+  - visual group hidden
+  - facing indicator hidden
+  - click area disabled
+  - acted-state cleanup preserved
+- No combat formula, turn flow, enemy AI, auto battle, or battle-dust logic was intentionally changed.
+- `Battle_Fullscreen_Test.tscn` remained unmodified.
+- ClickArea / READY frame / FacingIndicator parent structure remained unchanged.
+
+## v0.66d Scene Slot Tree Migration Plan State
+- Added `agent/SCENE_SLOT_TREE_MIGRATION_PLAN.md`.
+- This step is documentation only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- The document defines:
+  - current structure summary
+  - target C-style slot tree direction
+  - migration principles
+  - node classification policy
+  - ClickArea migration judgment
+  - READY / FacingIndicator migration judgment
+  - staged migration roadmap
+  - 3v3 / 4v4 expansion preconditions
+  - risk summary
+  - migration QA checklist
+- Recommended first real migration spike is `v0.66e AllyMainSlot Migration Spike`.
+
+## v0.66e AllyMainSlot Migration Spike State
+- Added `Slots` root and `AllyMainSlot` to `Battle_Fullscreen_Test.tscn`.
+- Moved only `AllyUnitVisualRoot` under `Slots/AllyMainSlot`.
+- Moved only the ally-main actual visual subtree:
+  - `AllyUnitVisualRoot`
+  - `AllyUnitShadow`
+  - `AllyUnitToken`
+  - `AllyMoveDustSprite`
+  - `AllyPortraitBadge`
+  - `AllyHPBar`
+  - `AllyTroopLabel`
+- Kept these nodes unmoved:
+  - `AllyUnitClickArea`
+  - `AllyReadyFrame`
+  - `AllyFacingIndicator`
+- Kept `ally_support`, `enemy_main`, and `enemy_support` visual roots unchanged.
+- Updated ally-main visual node paths in `scripts/battle_web_import_test.gd`.
+- Existing slot dictionary functions and `UnitVisualSlot` cache rebuild remain in use.
+- ClickArea / READY frame / FacingIndicator remain reference-linked only.
+- No combat formula, movement logic, attack logic, enemy AI, auto battle, or battle-dust logic was intentionally changed.
+
+## v0.66f AllySupportSlot Migration State
+- Added `AllySupportSlot` under `Slots` in `Battle_Fullscreen_Test.tscn`.
+- Moved only `AllySupportUnitVisualRoot` under `Slots/AllySupportSlot`.
+- Moved only the ally-support actual visual subtree:
+  - `AllySupportUnitVisualRoot`
+  - `AllySupportUnitShadow`
+  - `AllySupportUnitToken`
+  - `AllySupportMoveDustSprite`
+  - `AllySupportPortraitBadge`
+  - `AllySupportHPBar`
+  - `AllySupportTroopLabel`
+- Kept these nodes unmoved:
+  - `AllySupportUnitClickArea`
+  - `AllySupportReadyFrame`
+  - `AllySupportFacingIndicator`
+- Kept `AllyMainSlot` migrated structure intact.
+- Kept `enemy_main` and `enemy_support` visual roots unchanged.
+- Updated ally-support visual node paths in `scripts/battle_web_import_test.gd`.
+- Existing slot dictionary functions and `UnitVisualSlot` cache rebuild remain in use.
+- ClickArea / READY frame / FacingIndicator remain reference-linked only.
+- No combat formula, movement logic, attack logic, enemy AI, auto battle, or battle-dust logic was intentionally changed.
+
+## v0.66g EnemyMainSlot Migration State
+- Added `EnemyMainSlot` under `Slots` in `Battle_Fullscreen_Test.tscn`.
+- Moved only `EnemyUnitVisualRoot` under `Slots/EnemyMainSlot`.
+- Moved only the enemy-main actual visual subtree:
+  - `EnemyUnitVisualRoot`
+  - `EnemyUnitShadow`
+  - `EnemyUnitToken`
+  - `EnemyMoveDustSprite`
+  - `EnemyPortraitBadge`
+  - `EnemyHPBar`
+  - `EnemyTroopLabel`
+- Kept these nodes unmoved:
+  - `EnemyUnitClickArea`
+  - `EnemyFacingIndicator`
+- Kept `AllyMainSlot` and `AllySupportSlot` migrated structures intact.
+- Kept `enemy_support` visual root unchanged.
+- Updated enemy-main visual node paths in `scripts/battle_web_import_test.gd`.
+- Existing slot dictionary functions and `UnitVisualSlot` cache rebuild remain in use.
+- ClickArea / FacingIndicator remain reference-linked only.
+- Enemy-side `ready_frame` remains null as before.
+- No combat formula, movement logic, attack logic, enemy AI, auto battle, or battle-dust logic was intentionally changed.
+
+## v0.66h EnemySupportSlot Migration State
+- Added `EnemySupportSlot` under `Slots` in `Battle_Fullscreen_Test.tscn`.
+- Moved only `EnemySupportUnitVisualRoot` under `Slots/EnemySupportSlot`.
+- Moved only the enemy-support actual visual subtree:
+  - `EnemySupportUnitVisualRoot`
+  - `EnemySupportUnitShadow`
+  - `EnemySupportUnitToken`
+  - `EnemySupportMoveDustSprite`
+  - `EnemySupportPortraitBadge`
+  - `EnemySupportHPBar`
+  - `EnemySupportTroopLabel`
+- Kept these nodes unmoved:
+  - `EnemySupportUnitClickArea`
+  - `EnemySupportFacingIndicator`
+- Kept `AllyMainSlot`, `AllySupportSlot`, and `EnemyMainSlot` migrated structures intact.
+- Updated enemy-support visual node paths in `scripts/battle_web_import_test.gd`.
+- Existing slot dictionary functions and `UnitVisualSlot` cache rebuild remain in use.
+- ClickArea / FacingIndicator remain reference-linked only.
+- Enemy-side `ready_frame` remains null as before.
+- No combat formula, movement logic, attack logic, enemy AI, auto battle, or battle-dust logic was intentionally changed.
+
+## v0.66i Slot Tree QA Stable State
+- This step is QA / documentation only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- Confirmed 4-slot structure in `Battle_Fullscreen_Test.tscn`:
+  - `Slots/AllyMainSlot/AllyUnitVisualRoot`
+  - `Slots/AllySupportSlot/AllySupportUnitVisualRoot`
+  - `Slots/EnemyMainSlot/EnemyUnitVisualRoot`
+  - `Slots/EnemySupportSlot/EnemySupportUnitVisualRoot`
+- Confirmed scene-root ClickArea parents are unchanged:
+  - `AllyUnitClickArea`
+  - `AllySupportUnitClickArea`
+  - `EnemyUnitClickArea`
+  - `EnemySupportUnitClickArea`
+- Confirmed `BattleUI` overlay parents are unchanged:
+  - `AllyReadyFrame`
+  - `AllySupportReadyFrame`
+  - `AllyFacingIndicator`
+  - `AllySupportFacingIndicator`
+  - `EnemyFacingIndicator`
+  - `EnemySupportFacingIndicator`
+- Confirmed headless scene cache summary:
+  - `ally_main cache=true root=true token=true click=true ready=true facing=true dict=true`
+  - `ally_support cache=true root=true token=true click=true ready=true facing=true dict=true`
+  - `enemy_main cache=true root=true token=true click=true ready=false facing=true dict=true`
+  - `enemy_support cache=true root=true token=true click=true ready=false facing=true dict=true`
+- Confirmed existing dictionary fallback helpers remain present:
+  - `_get_ally_main_visual_slots()`
+  - `_get_ally_support_visual_slots()`
+  - `_get_enemy_main_visual_slots()`
+  - `_get_enemy_support_visual_slots()`
+  - `_get_visual_slots_for_slot_id()`
+  - `_get_unit_visual_slots_for_state()`
+- Headless project launch remained 0 errors.
+- Headless `Battle_Fullscreen_Test.tscn` launch remained 0 errors.
+
+## v0.67a Scalable Battle Slot Capacity Plan State
+- Added `agent/SCALABLE_BATTLE_SLOT_CAPACITY_PLAN.md`.
+- This step is documentation only.
+- No `Battle_Fullscreen_Test.tscn` change was made.
+- No `scripts/battle_web_import_test.gd` change was made.
+- No `scripts/unit_visual_slot.gd` change was made.
+- Defined final slot-capacity target:
+  - `7` main units per side
+  - `3` reinforcement units per side
+  - `10` units per side
+  - `20` units total battle capacity
+- Defined MVP slot-capacity target:
+  - `3` main units per side
+  - `2` reinforcement units per side
+  - `5` units per side
+  - `10` units total battle capacity
+- Recommended legacy `2v2` interpretation:
+  - `ally_main` -> `ally_main_01`
+  - `ally_support` -> `ally_main_02`
+  - `enemy_main` -> `enemy_main_01`
+  - `enemy_support` -> `enemy_main_02`
+- Documented transition direction toward:
+  - array-backed `BattleUnitState` containers
+  - slot registry metadata
+  - reinforcement-aware deployment rules
+  - scalable auto-battle filtering
+- Recommended next implementation step is `v0.67b Slot Registry Array Scaffold`.
+
+## v0.67b Slot Registry Array Scaffold State
+- Added scalable slot-registry scaffold in `scripts/battle_web_import_test.gd`.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept `scripts/unit_visual_slot.gd` unchanged.
+- Added slot-role and entry-rule constants:
+  - `SLOT_ROLE_MAIN`
+  - `SLOT_ROLE_REINFORCE`
+  - `SLOT_ENTRY_INITIAL`
+  - `SLOT_ENTRY_DELAYED`
+  - `SLOT_ENTRY_TRIGGERED`
+  - `SLOT_ENTRY_CITY_REINFORCEMENT`
+- Added capacity constants:
+  - `MAX_MAIN_SLOTS_PER_SIDE = 7`
+  - `MAX_REINFORCE_SLOTS_PER_SIDE = 3`
+  - `MVP_MAIN_SLOTS_PER_SIDE = 3`
+  - `MVP_REINFORCE_SLOTS_PER_SIDE = 2`
+- Added capacity slot scaffold for:
+  - `ally_main_01` through `ally_main_07`
+  - `ally_reinforce_01` through `ally_reinforce_03`
+  - `enemy_main_01` through `enemy_main_07`
+  - `enemy_reinforce_01` through `enemy_reinforce_03`
+- Added legacy mapping scaffold:
+  - `ally_main` -> `ally_main_01`
+  - `ally_support` -> `ally_main_02`
+  - `enemy_main` -> `enemy_main_01`
+  - `enemy_support` -> `enemy_main_02`
+- Added registry helpers for future scaffolding only:
+  - `_build_capacity_slot_metadata_registry()`
+  - `_get_capacity_slot_id_for_legacy_slot_id()`
+  - `_get_legacy_slot_id_for_capacity_slot_id()`
+  - `_get_capacity_slot_metadata()`
+  - `_is_capacity_slot_active()`
+  - `_is_capacity_slot_deployed()`
+  - `_get_active_capacity_slots_for_side()`
+  - `_get_deployed_capacity_slots_for_side()`
+  - `_get_unit_visual_slot_for_capacity_slot_id()`
+- Added one-time debug output for the capacity registry during `_ready()`.
+- Current `2v2` battle execution flow remains unchanged.
+- Auto battle execution flow remains unchanged.
+- Headless project launch remained 0 errors.
+- Headless `Battle_Fullscreen_Test.tscn` launch remained 0 errors.
+
+## v0.67c BattleUnitState List Adapter State
+- Added `BattleUnitState` list/dictionary adapter scaffold in `scripts/battle_web_import_test.gd`.
+- Kept the existing fixed state variables:
+  - `ally_unit_state`
+  - `ally_support_unit_state`
+  - `enemy_unit_state`
+  - `enemy_support_unit_state`
+- Added adapter containers:
+  - `ally_unit_states`
+  - `enemy_unit_states`
+  - `all_battle_unit_states`
+  - `unit_state_by_legacy_slot_id`
+  - `unit_state_by_capacity_slot_id`
+- Added rebuild and lookup helpers:
+  - `_rebuild_battle_unit_state_list_refs()`
+  - `_get_unit_states_for_side()`
+  - `_get_all_battle_unit_states_from_adapter()`
+  - `_get_unit_state_for_legacy_slot_id()`
+  - `_get_unit_state_for_capacity_slot_id()`
+  - `_get_capacity_slot_id_for_unit_state()`
+  - `_get_legacy_slot_id_for_unit_state()`
+  - `_get_deployed_unit_states_for_side()`
+  - `_get_active_unit_states_for_side()`
+  - `_is_unit_state_deployed_by_capacity_slot()`
+  - `_is_unit_state_active_by_capacity_slot()`
+- Adapter rebuild now runs immediately after `_create_demo_unit_states()`.
+- Current headless adapter snapshot confirms:
+  - ally count = `2`
+  - enemy count = `2`
+  - all count = `4`
+  - legacy keys = `ally_main`, `ally_support`, `enemy_main`, `enemy_support`
+  - capacity keys = `ally_main_01`, `ally_main_02`, `enemy_main_01`, `enemy_main_02`
+- Current `2v2` battle execution flow remains unchanged.
+- Auto battle execution flow remains unchanged.
+- `Battle_Fullscreen_Test.tscn` remained unchanged.
+- `scripts/unit_visual_slot.gd` remained unchanged.
+- Headless project launch remained 0 errors.
+- Headless `Battle_Fullscreen_Test.tscn` launch remained 0 errors.
+
+## v0.65g Completed Structure
+- UnitVisualRoot Adapter Layer is in place.
+- Ally main visual nodes are under `AllySide/AllyUnitVisualRoot`.
+- Ally support visual nodes are under `AllySide/AllySupportUnitVisualRoot`.
+- Enemy main visual nodes are under `EnemySide/EnemyUnitVisualRoot`.
+- Enemy support visual nodes are under `EnemySide/EnemySupportUnitVisualRoot`.
+- Actual visual nodes for all 4 combat slots are now grouped under their UnitVisualRoot.
+- ClickArea / READY frame / FacingIndicator / UnitVisualTemplate nodes remain separate for safety.
+- UnitVisualTemplate nodes remain as layout offset references.
+
+## v0.65g Fixes
+- Ally portrait `FACING_UP` / `FACING_DOWN` offset issue fixed.
+- Dead enemy main click priority issue fixed.
+- After Guan Yu dies, Yi Sun-sin and Jeong Do-jeon can attack living Zhang Fei.
+- Enemy support AI remained valid after enemy main death.
+
+## v0.65h Slot Metadata State
+- `BattleUnitState` now includes slot-based metadata:
+  - `slot_id`
+  - `nation`
+  - `portrait_key`
+  - `domain`
+  - `footprint`
+  - `move_fx_profile`
+  - `attack_fx_profile`
+  - `click_area_profile`
+  - `visual_scale_profile`
+- Current demo units carry slot metadata:
+  - Yi Sun-sin = `ally_main` / `korea` / `land` / `1x1` / `arrow`
+  - Jeong Do-jeon = `ally_support` / `korea` / `land` / `1x1` / `gun`
+  - Guan Yu = `enemy_main` / `china` / `land` / `1x1` / `slash`
+  - Zhang Fei = `enemy_support` / `china` / `land` / `1x1` / `slash`
+- Unit visual slot lookup now prioritizes `unit_state.slot_id`.
+- Existing direct `unit_state` comparison fallback remains.
+- No combat formula, turn flow, AI order, or visual node movement changed in v0.65h.
+
+## v0.65i-3 READY/Facing UI Slot Registry State
+- `READY frame` and `FacingIndicator` remain under `BattleUI`.
+- No `BattleUI` node migration was done.
+- No `UnitVisualRoot` parent change was done.
+- Existing visual slot dictionaries still include:
+  - `ready_frame`
+  - `facing_indicator`
+- READY frame refresh now resolves slot UI through slot-based visual slot lookup.
+- FacingIndicator refresh now resolves slot UI through slot-based visual slot lookup.
+- Existing direct `unit_state` comparison fallback remains for anchor/position dispatch safety.
+- `_position_ready_frame_for_unit()` flow is preserved.
+- `_position_facing_indicator_for_ally*()` / `_position_facing_indicator_for_enemy*()` flows are preserved.
+- `_world_to_battle_ui_position()` based UI coordinate conversion is preserved.
+- ClickArea code path was not modified in v0.65i-3.
+- No combat formula, turn flow, AI order, or HP cleanup behavior was intentionally changed.
+
+## v0.65j-1 Auto Battle Policy State
+- Added `agent/AUTO_BATTLE_ACTION_POLICY.md`.
+- This step defines a data-based auto action policy only.
+- No auto battle button was added.
+- No combat script logic was changed.
+- No scene node was changed.
+- Auto battle direction is defined around:
+  - actionable unit selection
+  - living enemy list construction
+  - in-range attack check
+  - target priority scoring
+  - movement destination scoring
+  - move-then-attack or wait decision
+- Auto battle is explicitly defined to use battle data and grid rules, not `ClickArea`.
+- Existing reusable function candidates are documented for later implementation scaffolding.
+
+## v0.65j-2 Auto Battle Helper Scaffold State
+- Added auto battle helper scaffold functions to `scripts/battle_web_import_test.gd`.
+- Added side-based actionable unit helper.
+- Added side-based living target helper.
+- Added demo-damage-based kill-check helper.
+- Added score-based auto attack target helper.
+- Added best auto attack target helper.
+- Added best auto move cell scaffold helper.
+- Added optional auto policy debug snapshot helper.
+- Existing enemy AI flow was not rewired to use these helpers yet.
+- Existing ally manual flow was not rewired to use these helpers yet.
+- `_play_enemy_ai_for_actor()` flow was preserved.
+- `_get_enemy_ai_target_state_for_actor()` flow was preserved.
+- No auto battle button was added.
+- No scene node was changed.
+- No ClickArea code was changed.
+
+## v0.65j-3 Ally Auto Battle One-Action MVP State
+- Added `_run_auto_action_for_active_ally_once()`.
+- Added `_try_auto_attack_for_active_ally()`.
+- Added `_try_auto_move_for_active_ally()`.
+- Added `_auto_wait_active_ally()`.
+- Auto attack can now resolve a best in-range target and start the existing ally attack flow.
+- Auto move is currently limited to move-candidate selection only.
+- Auto move does not execute actual movement yet in this step.
+- Auto facing completion after move is not implemented in this step.
+- Auto wait is scaffold-level only and is not wired to end the ally turn.
+- Auto battle button is still not connected.
+- Full auto battle loop is still not implemented.
+- Existing manual battle flow was preserved.
+- Existing enemy AI flow was preserved.
+- ClickArea code was not modified.
+- No scene node was changed.
+
+## v0.65j-3a Auto Move + Auto Facing State
+- Auto move now reuses the existing `play_basic_move_demo()` execution path.
+- Auto move sets a move target and starts real ally movement when a valid best move cell exists.
+- Added auto-action flags to distinguish auto move/facing from manual move/facing flow.
+- Auto move now auto-completes post-move facing instead of stopping at `PHASE_FACING_SELECT`.
+- Auto facing chooses the nearest living enemy direction using existing facing constants.
+- If no living enemy exists, current facing is preserved.
+- Manual post-move facing UX remains in place for non-auto movement.
+- Auto battle button is still not connected.
+- Full auto battle loop is still not implemented.
+- Existing enemy AI flow was preserved.
+- ClickArea code was not modified.
+- No scene node was changed.
+
+## v0.65j-4 Auto Battle Button State
+- Added `AutoBattleButton` under `BattleUI/CommandBar`.
+- Added `@onready` lookup for `AutoBattleButton`.
+- Connected `auto_battle_button.pressed` to `_run_auto_action_for_active_ally_once()`.
+- Auto battle button currently triggers one active ally auto action only.
+- Full auto battle loop is still not implemented.
+- Existing manual buttons remain in place:
+  - `BasicAttackButton`
+  - `MoveButton`
+  - `WaitButton`
+  - `EndTurnButton`
+- Auto battle button enable/disable state is now tied to ally-command availability inside `_set_phase()`.
+- Existing enemy AI flow was preserved.
+- ClickArea code was not modified.
+- Scene change was limited to the `CommandBar` button addition and label text cleanup.
+
+## v0.65j-5 Full Auto Battle Loop Prototype State
+- Added full auto battle prototype flags:
+  - `is_full_auto_battle_enabled`
+  - `auto_battle_step_count`
+  - `AUTO_BATTLE_MAX_STEPS`
+- `AutoBattleButton` now toggles full auto battle ON/OFF.
+- Auto battle loop is driven through deferred single-step execution, not direct blocking iteration.
+- Current trigger path uses `call_deferred("_tick_full_auto_battle_if_needed")` after ally-turn phase restoration.
+- Full auto battle reuses:
+  - existing ally one-action auto logic
+  - existing enemy AI turn flow
+  - existing move/attack/facing execution paths
+- Auto battle loop currently advances one step at a time and stops on safety conditions.
+- Step limit guard is in place.
+- Auto battle button text switches between `자동전투` and `자동중지`.
+- Auto battle button position/offset/size is not changed by runtime code.
+- Existing manual buttons remain in place.
+- Existing enemy AI flow was preserved.
+- ClickArea code was not modified.
+
+## v0.65j-5a Auto Battle Stop UX Hotfix State
+- `AutoBattleButton` remains clickable while full auto battle is ON.
+- Full auto ON state now forces:
+  - `auto_battle_button.disabled = false`
+  - `auto_battle_button.text = "자동중지"`
+- Full auto OFF state still follows existing ally-command availability for button enable/disable.
+- User stop now routes through `_stop_full_auto_battle("user stop")`.
+- Stop behavior is soft stop only:
+  - current move/attack/enemy AI action is not force-killed
+  - already-running tween/AI flow is allowed to finish
+  - deferred auto tick returns immediately after stop because `is_full_auto_battle_enabled` is false
+- Runtime code still does not touch `AutoBattleButton` position/offset/size.
+- Existing manual buttons remain in place.
+- Existing enemy AI flow was preserved.
+- ClickArea code was not modified.
+
+## v0.65k Battle Dust FX Profile Tuning State
+- Movement dust flow remains unchanged.
+- `_show_move_dust_for_unit()`, `_fade_out_move_dust_for_unit()`, `_hide_all_move_dust_sprites()`, and `_apply_move_dust_template_to_sprite()` remain on the original movement-only path.
+- Added separate battle-dust FX tuning for attack and hit moments only.
+- Battle dust now reuses the existing move-dust textures as source art, but not the move-dust template profile.
+- Battle dust profile is now tuned around:
+  - opacity `0.45 ~ 0.6`
+  - beige / dirt tint
+  - lower foot-level placement
+  - scale `0.75 ~ 0.85`
+  - duration `0.25 ~ 0.45`
+- Attack dust now spawns between attacker and target at a lower position.
+- Hit dust now spawns near the target foot area at a lower position.
+- Battle dust `z_index` stays behind slash / hit spark FX.
+- Existing attack slash / hit spark / damage number flow was preserved.
+- Existing auto battle logic was preserved.
+- `Battle_Fullscreen_Test.tscn` was not modified.
+- ClickArea code was not modified.
+
+## v0.65k-1 Battle Dust Layer + Density Hotfix State
+- Movement dust flow remains unchanged.
+- Movement dust helper functions remain unmodified:
+  - `_show_move_dust_for_unit()`
+  - `_fade_out_move_dust_for_unit()`
+  - `_hide_all_move_dust_sprites()`
+  - `_apply_move_dust_template_to_sprite()`
+- Battle dust now forces `z_as_relative = false` and uses a much lower world `z_index`.
+- Battle dust now sits below slash / hit spark / damage FX and closer to foot-level.
+- Hit dust remains the primary visible battle dust.
+- Attack dust remains present but with reduced density:
+  - lower alpha
+  - smaller scale
+  - lower foot-level placement near the attacker
+- Battle dust profile is now tuned around:
+  - hit opacity `0.18 ~ 0.32`
+  - attack opacity `0.12 ~ 0.22`
+  - dirt tint `Color(0.62, 0.50, 0.34, 1.0)`
+  - hit scale `0.45 ~ 0.65`
+  - attack scale `0.35 ~ 0.5`
+  - duration `0.14 ~ 0.26`
+- `Battle_Fullscreen_Test.tscn` was not modified.
+- Existing auto battle logic was preserved.
+- ClickArea code was not modified.
+
+## v0.65k-2 Dust Source Isolation + Stale Dust Cleanup Hotfix State
+- Large white dust could recur through two paths:
+  - stale `MoveDustSprite` visibility surviving from movement into later attack / counterattack timing
+  - battle-dust FX still reusing the move-dust texture source with density high enough to read as a white cloud after repeated turns
+- Movement dust helper functions remain unchanged:
+  - `_show_move_dust_for_unit()`
+  - `_fade_out_move_dust_for_unit()`
+  - `_hide_all_move_dust_sprites()`
+  - `_apply_move_dust_template_to_sprite()`
+- Stale move dust is now explicitly cleared:
+  - before ally attack demo starts
+  - before enemy basic attack starts
+  - after ally basic attack finishes
+- Attack battle dust is now disabled.
+- Hit battle dust remains as the only battle-dust cue.
+- Battle dust now uses only battle-dust constants for:
+  - alpha
+  - scale
+  - duration
+  - tint
+- Battle dust now tags spawned nodes as `BattleDustFX` and still `queue_free()`s them at tween end.
+- Hit battle dust profile is now tuned around:
+  - opacity `0.10 ~ 0.22`
+  - dirt tint `Color(0.48, 0.38, 0.24, 1.0)`
+  - scale `0.30 ~ 0.48`
+  - duration `0.10 ~ 0.18`
+  - lower world `z_index`
+- `Battle_Fullscreen_Test.tscn` was not modified.
+- Existing auto battle logic was preserved.
+- ClickArea code was not modified.
+
+## Unit Token Asset State
+- Korea / China / Japan infantry / archer / gunner / cavalry token assets are normalized around the 256 baseline.
+- Country/type folder structure is used.
+- `visual_key -> texture path` lookup is maintained.
+- UnitCloseupPanel uses the same visual_key based troop token lookup.
+- Zhang Fei no longer uses the legacy 1024 China infantry token in the current test setup.
+- Guan Yu and Zhang Fei are normalized against the same 256 baseline.
+
+## Structural Notes
+- The 4 UnitVisualRoot nodes are current combat slot roots, not fixed hero-specific roots.
+- Future units such as Mongol troops, naval units, geobukseon, panokseon, tower ships, and siege weapons should be represented through data such as `visual_key`, `unit_type`, `domain`, and `footprint`.
+- ClickArea / READY / FacingIndicator are not inside UnitVisualRoot yet.
+- ClickArea uses collision/input coordinates and should only be migrated in a separate focused step.
+- READY frame and FacingIndicator are UI/CanvasLayer concerns and should be evaluated separately from world visual roots.
+- READY frame and FacingIndicator slot attachment is now cleaned up around slot-based visual slot lookup while staying under `BattleUI`.
+- UnitVisualTemplate nodes are still used as scene-authored layout offset references.
+
+## Debug Notes
+- `_debug_print_unit_visual_root_slots()` currently remains and prints one startup slot check.
+- `[ATTACK_CLICK]` print currently remains and prints only during attack target clicks.
+- `ALLY PORTRAIT OFFSET DEBUG` function may exist, but its reset-time call is removed.
+- Debug cleanup is a future cleanup task, not part of the verified v0.65g behavior.
+
+## QA Notes
+- Headless project launch exit code 0 confirmed after v0.65i-3.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65i-3.
+- Full interactive QA items such as movement, attack, facing selection, and overlap targeting still require in-editor/manual verification.
+- v0.65j-1 is a documentation-only step, so no new runtime QA was required.
+- Headless project launch exit code 0 confirmed after v0.65j-2.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-2.
+- Headless project launch exit code 0 confirmed after v0.65j-3.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-3.
+- Headless project launch exit code 0 confirmed after v0.65j-3a.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-3a.
+- Headless project launch exit code 0 confirmed after v0.65j-4.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-4.
+- Headless project launch exit code 0 confirmed after v0.65j-5.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-5.
+- Headless project launch exit code 0 confirmed after v0.65j-5a.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65j-5a.
+- Headless project launch exit code 0 confirmed after v0.65k.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65k.
+- Headless project launch exit code 0 confirmed after v0.65k-1.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65k-1.
+- Headless project launch exit code 0 confirmed after v0.65k-2.
+- Headless `res://Battle_Fullscreen_Test.tscn` launch exit code 0 confirmed after v0.65k-2.
+
+## Guardrails
+- Do not modify `Battle_WebImport_Test.tscn`.
+- Do not change `attack_range`.
+- Do not change `move_range`.
+- Do not change `distance formula`.
+- Do not change movement range cell calculation.
+- Do not change facing selection logic.
+- Do not change basic attack judgement.
+- Do not change damage formula.
+- Do not change enemy AI order.
+- Do not change active ally lock.
+- Do not change HP 0 cleanup.
+- Do not break BATTLE Round Toast.
+- Do not break Basic Battle FX Pack 1.
+- Do not break UnitCloseupPanel.
+- Do not break ally portrait up/down fix.
+- Do not break dead enemy click priority fix.
+- Preserve right-click move rollback.
+- Preserve right-click attack cancel.
