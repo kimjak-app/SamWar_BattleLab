@@ -1275,6 +1275,7 @@ func _set_phase(new_phase: String) -> void:
 func _configure_floating_ally_command_panel() -> void:
 	if floating_ally_command_panel != null:
 		floating_ally_command_panel.visible = false
+		floating_ally_command_panel.z_index = 200
 		floating_ally_command_panel.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		floating_ally_command_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		var panel_style := StyleBoxFlat.new()
@@ -1317,6 +1318,7 @@ func _configure_command_bar() -> void:
 func _apply_floating_command_button_style(button: Button) -> void:
 	if button == null:
 		return
+	button.z_index = 201
 	button.modulate = Color(1.0, 1.0, 1.0, 1.0)
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.add_theme_color_override("font_color", Color(0.97, 0.95, 0.9, 1.0))

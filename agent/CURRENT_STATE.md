@@ -6,6 +6,24 @@ SamWar_BattleLab
 ## Current Stable Baseline
 v0.67m-1 Result Toast Size + Hold Duration Tuning
 
+## v0.67p-1-hotfix Floating Command Panel Layer Priority State
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
+- Kept battle logic, movement logic, direct move-click UX, enemy AI, formulas, toast logic, and assets unchanged.
+- Raised the floating ally command panel render priority:
+  - panel `z_index = 200`
+  - floating command button `z_index = 201`
+- Kept the floating panel and buttons fully opaque.
+- Kept panel/button `mouse_filter = STOP` so command clicks do not pass through to battlefield elements.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - floating panel `z_index` is above all ally/enemy facing indicators
+  - floating command button `z_index` remains on or above the panel
+  - floating panel/button mouse filtering remains blocking
+  - existing floating panel UX verifier still passes
+  - accelerated headless `5v5` auto battle still reaches `result_victory`
+
 ## v0.67p-2 Direct Move Click UX + Floating Panel Opacity Hotfix State
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
 - Kept assets unchanged.

@@ -2398,7 +2398,7 @@ visible = false
 offset_right = 176.0
 offset_bottom = 214.0
 mouse_filter = 1
-modulate = Color(1, 1, 1, 1)
+z_index = 200
 
 [node name="FloatingBasicAttackButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=584505442]
 layout_mode = 0
@@ -2406,6 +2406,7 @@ offset_left = 12.0
 offset_top = 12.0
 offset_right = 164.0
 offset_bottom = 46.0
+z_index = 201
 text = "기본공격"
 
 [node name="FloatingUniqueSkillButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=1854683531]
@@ -2414,6 +2415,7 @@ offset_left = 12.0
 offset_top = 52.0
 offset_right = 164.0
 offset_bottom = 86.0
+z_index = 201
 disabled = true
 text = "고유특기"
 
@@ -2423,6 +2425,7 @@ offset_left = 12.0
 offset_top = 92.0
 offset_right = 164.0
 offset_bottom = 126.0
+z_index = 201
 disabled = true
 text = "책략"
 
@@ -2432,6 +2435,7 @@ offset_left = 12.0
 offset_top = 132.0
 offset_right = 164.0
 offset_bottom = 166.0
+z_index = 201
 text = "이동"
 
 [node name="FloatingWaitButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=1816183012]
@@ -2440,6 +2444,7 @@ offset_left = 12.0
 offset_top = 172.0
 offset_right = 164.0
 offset_bottom = 206.0
+z_index = 201
 text = "대기"
 
 [node name="RoundToastRoot" type="Control" parent="BattleUI" unique_id=1842740031]

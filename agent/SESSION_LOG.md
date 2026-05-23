@@ -2,6 +2,23 @@
 
 ## 2026-05-24
 
+- v0.67p-1-hotfix Floating Command Panel Layer Priority
+- Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
+- Raised the floating ally command panel draw priority above facing indicators:
+  - panel `z_index = 200`
+  - floating button `z_index = 201`
+- Kept the floating panel and buttons fully opaque.
+- Kept panel/button mouse filtering blocking so panel clicks do not pass through to battlefield elements.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning count `0`.
+- Dedicated headless layer verifier confirmed the floating panel sits above all ally/enemy facing indicators.
+- Existing floating-panel UX verifier still passed:
+  - floating command buttons still work
+  - bottom command bar still works
+  - direct move click and rollback still work
+  - accelerated `5v5` auto battle still reaches `result_victory`
+
 - v0.67p-2 Direct Move Click UX + Floating Panel Opacity Hotfix
 - Updated `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent docs.
 - Restored direct valid-cell move execution without requiring the `이동` button first.
