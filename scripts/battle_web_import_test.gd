@@ -12,7 +12,7 @@ const ALLY_VISUAL_ANCHOR_OFFSET := Vector2(0.0, 0.0)
 const ENEMY_VISUAL_ANCHOR_OFFSET := Vector2(0.0, -8.0)
 const IDLE_SCALE_MULTIPLIER := 1.035
 const IDLE_DURATION := 1.15
-const ACTIVE_ALLY_TURN_PULSE_SCALE := 2.0
+const ACTIVE_ALLY_TURN_PULSE_SCALE := 1.5
 const ACTIVE_ALLY_TURN_PULSE_UP_DURATION := 0.16
 const ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION := 0.26
 const ENEMY_GUARD_STEP_DISTANCE := 18.0
@@ -434,6 +434,7 @@ var ally_reinforce_02_ready_frame_tween: Tween = null
 var unit_closeup_tween: Tween = null
 var active_ally_turn_pulse_tween: Tween = null
 var active_ally_turn_pulse_token: Sprite2D = null
+var active_ally_turn_pulse_portrait: Sprite2D = null
 var active_ally_turn_pulse_unit_state: BattleUnitState = null
 var capacity_slot_metadata_registry: Dictionary = {}
 var ally_idle_tween: Tween
@@ -456,6 +457,16 @@ var ally_reinforce_01_token_base_scale := Vector2.ONE
 var enemy_reinforce_01_token_base_scale := Vector2.ONE
 var ally_reinforce_02_token_base_scale := Vector2.ONE
 var enemy_reinforce_02_token_base_scale := Vector2.ONE
+var ally_portrait_badge_base_scale := Vector2.ONE
+var ally_support_portrait_badge_base_scale := Vector2.ONE
+var ally_main_03_portrait_badge_base_scale := Vector2.ONE
+var ally_reinforce_01_portrait_badge_base_scale := Vector2.ONE
+var ally_reinforce_02_portrait_badge_base_scale := Vector2.ONE
+var enemy_portrait_badge_base_scale := Vector2.ONE
+var enemy_support_portrait_badge_base_scale := Vector2.ONE
+var enemy_main_03_portrait_badge_base_scale := Vector2.ONE
+var enemy_reinforce_01_portrait_badge_base_scale := Vector2.ONE
+var enemy_reinforce_02_portrait_badge_base_scale := Vector2.ONE
 var ally_token_base_texture: Texture2D
 var enemy_token_base_texture: Texture2D
 var ally_token_layout_offset := Vector2.ZERO
@@ -715,18 +726,34 @@ func _ready() -> void:
 	enemy_token_base_scale = enemy_unit_token.scale
 	ally_support_token_base_scale = ally_support_unit_token.scale
 	enemy_support_token_base_scale = enemy_support_unit_token.scale
+	ally_portrait_badge_base_scale = ally_portrait_badge.scale
+	enemy_portrait_badge_base_scale = enemy_portrait_badge.scale
+	ally_support_portrait_badge_base_scale = ally_support_portrait_badge.scale
+	enemy_support_portrait_badge_base_scale = enemy_support_portrait_badge.scale
 	if ally_main_03_unit_token != null:
 		ally_main_03_token_base_scale = ally_main_03_unit_token.scale
+	if ally_main_03_portrait_badge != null:
+		ally_main_03_portrait_badge_base_scale = ally_main_03_portrait_badge.scale
 	if ally_reinforce_01_unit_token != null:
 		ally_reinforce_01_token_base_scale = ally_reinforce_01_unit_token.scale
+	if ally_reinforce_01_portrait_badge != null:
+		ally_reinforce_01_portrait_badge_base_scale = ally_reinforce_01_portrait_badge.scale
 	if ally_reinforce_02_unit_token != null:
 		ally_reinforce_02_token_base_scale = ally_reinforce_02_unit_token.scale
+	if ally_reinforce_02_portrait_badge != null:
+		ally_reinforce_02_portrait_badge_base_scale = ally_reinforce_02_portrait_badge.scale
 	if enemy_main_03_unit_token != null:
 		enemy_main_03_token_base_scale = enemy_main_03_unit_token.scale
+	if enemy_main_03_portrait_badge != null:
+		enemy_main_03_portrait_badge_base_scale = enemy_main_03_portrait_badge.scale
 	if enemy_reinforce_01_unit_token != null:
 		enemy_reinforce_01_token_base_scale = enemy_reinforce_01_unit_token.scale
+	if enemy_reinforce_01_portrait_badge != null:
+		enemy_reinforce_01_portrait_badge_base_scale = enemy_reinforce_01_portrait_badge.scale
 	if enemy_reinforce_02_unit_token != null:
 		enemy_reinforce_02_token_base_scale = enemy_reinforce_02_unit_token.scale
+	if enemy_reinforce_02_portrait_badge != null:
+		enemy_reinforce_02_portrait_badge_base_scale = enemy_reinforce_02_portrait_badge.scale
 	ally_token_base_texture = ally_unit_token.texture
 	enemy_token_base_texture = enemy_unit_token.texture
 	_hide_all_move_dust_sprites()
@@ -1927,6 +1954,15 @@ func _get_visual_token_for_unit(unit_state: BattleUnitState) -> Sprite2D:
 	return null
 
 
+func _get_visual_portrait_badge_for_unit(unit_state: BattleUnitState) -> Sprite2D:
+	if unit_state == null:
+		return null
+	var slot := _get_unit_visual_slot_for_state(unit_state)
+	if slot != null and slot.portrait != null:
+		return slot.portrait
+	return null
+
+
 func _get_visual_token_base_scale_for_unit(unit_state: BattleUnitState) -> Vector2:
 	if unit_state == null:
 		return Vector2.ONE
@@ -1975,6 +2011,54 @@ func _get_visual_token_base_scale_for_unit(unit_state: BattleUnitState) -> Vecto
 	return Vector2.ONE
 
 
+func _get_visual_portrait_badge_base_scale_for_unit(unit_state: BattleUnitState) -> Vector2:
+	if unit_state == null:
+		return Vector2.ONE
+	if unit_state.slot_id != "":
+		match unit_state.slot_id:
+			"ally_main":
+				return ally_portrait_badge_base_scale
+			"ally_support":
+				return ally_support_portrait_badge_base_scale
+			"ally_main_03":
+				return ally_main_03_portrait_badge_base_scale
+			"ally_reinforce_01":
+				return ally_reinforce_01_portrait_badge_base_scale
+			"ally_reinforce_02":
+				return ally_reinforce_02_portrait_badge_base_scale
+			"enemy_main":
+				return enemy_portrait_badge_base_scale
+			"enemy_support":
+				return enemy_support_portrait_badge_base_scale
+			"enemy_main_03":
+				return enemy_main_03_portrait_badge_base_scale
+			"enemy_reinforce_01":
+				return enemy_reinforce_01_portrait_badge_base_scale
+			"enemy_reinforce_02":
+				return enemy_reinforce_02_portrait_badge_base_scale
+	if unit_state == ally_unit_state:
+		return ally_portrait_badge_base_scale
+	if unit_state == ally_support_unit_state:
+		return ally_support_portrait_badge_base_scale
+	if unit_state == ally_main_03_unit_state:
+		return ally_main_03_portrait_badge_base_scale
+	if unit_state == ally_reinforce_01_unit_state:
+		return ally_reinforce_01_portrait_badge_base_scale
+	if unit_state == ally_reinforce_02_unit_state:
+		return ally_reinforce_02_portrait_badge_base_scale
+	if unit_state == enemy_unit_state:
+		return enemy_portrait_badge_base_scale
+	if unit_state == enemy_support_unit_state:
+		return enemy_support_portrait_badge_base_scale
+	if unit_state == enemy_main_03_unit_state:
+		return enemy_main_03_portrait_badge_base_scale
+	if unit_state == enemy_reinforce_01_unit_state:
+		return enemy_reinforce_01_portrait_badge_base_scale
+	if unit_state == enemy_reinforce_02_unit_state:
+		return enemy_reinforce_02_portrait_badge_base_scale
+	return Vector2.ONE
+
+
 func _stop_active_ally_turn_pulse() -> void:
 	if active_ally_turn_pulse_tween != null:
 		active_ally_turn_pulse_tween.kill()
@@ -1984,6 +2068,11 @@ func _stop_active_ally_turn_pulse() -> void:
 		if pulsing_unit_state != null:
 			active_ally_turn_pulse_token.scale = _get_visual_token_base_scale_for_unit(pulsing_unit_state)
 		active_ally_turn_pulse_token = null
+	if active_ally_turn_pulse_portrait != null:
+		var pulsing_portrait_unit_state := active_ally_turn_pulse_unit_state
+		if pulsing_portrait_unit_state != null:
+			active_ally_turn_pulse_portrait.scale = _get_visual_portrait_badge_base_scale_for_unit(pulsing_portrait_unit_state)
+		active_ally_turn_pulse_portrait = null
 	active_ally_turn_pulse_unit_state = null
 
 
@@ -2000,28 +2089,51 @@ func _play_active_ally_turn_pulse(unit_state: BattleUnitState) -> void:
 	if token == null:
 		return
 	var base_scale := _get_visual_token_base_scale_for_unit(unit_state)
+	var portrait := _get_visual_portrait_badge_for_unit(unit_state)
+	var portrait_base_scale := _get_visual_portrait_badge_base_scale_for_unit(unit_state)
 	_stop_active_ally_turn_pulse()
 	_stop_idle_breathing()
 	token.scale = base_scale
+	if portrait != null:
+		portrait.scale = portrait_base_scale
 	active_ally_turn_pulse_token = token
+	active_ally_turn_pulse_portrait = portrait
 	active_ally_turn_pulse_unit_state = unit_state
 	active_ally_turn_pulse_tween = create_tween()
+	active_ally_turn_pulse_tween.set_parallel(true)
 	active_ally_turn_pulse_tween.tween_property(
 		token,
 		"scale",
 		base_scale * ACTIVE_ALLY_TURN_PULSE_SCALE,
 		ACTIVE_ALLY_TURN_PULSE_UP_DURATION
 	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	active_ally_turn_pulse_tween.tween_property(
+	if portrait != null:
+		active_ally_turn_pulse_tween.tween_property(
+			portrait,
+			"scale",
+			portrait_base_scale * ACTIVE_ALLY_TURN_PULSE_SCALE,
+			ACTIVE_ALLY_TURN_PULSE_UP_DURATION
+		).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	active_ally_turn_pulse_tween.chain().tween_property(
 		token,
 		"scale",
 		base_scale,
 		ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION
 	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	if portrait != null:
+		active_ally_turn_pulse_tween.parallel().tween_property(
+			portrait,
+			"scale",
+			portrait_base_scale,
+			ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION
+		).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	active_ally_turn_pulse_tween.finished.connect(func() -> void:
 		token.scale = base_scale
+		if portrait != null:
+			portrait.scale = portrait_base_scale
 		active_ally_turn_pulse_tween = null
 		active_ally_turn_pulse_token = null
+		active_ally_turn_pulse_portrait = null
 		active_ally_turn_pulse_unit_state = null
 		if not is_demo_animating and current_phase == PHASE_ALLY_TURN and not _is_battle_result_finalized():
 			_start_idle_breathing()

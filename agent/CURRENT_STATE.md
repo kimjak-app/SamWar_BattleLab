@@ -6,6 +6,36 @@ SamWar_BattleLab
 ## Current Stable Baseline
 v0.67m-1 Result Toast Size + Hold Duration Tuning
 
+## v0.67p-3-hotfix Active Ally Pulse Portrait Sync State
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Kept `Battle_Fullscreen_Test.tscn` unchanged.
+- Kept enemy AI, formulas, roster/deployment, reinforcement timing, toast logic, hero identity registry, and assets unchanged.
+- Reduced active ally turn pulse tuning:
+  - `ACTIVE_ALLY_TURN_PULSE_SCALE = 1.5`
+  - `ACTIVE_ALLY_TURN_PULSE_UP_DURATION = 0.16`
+  - `ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION = 0.26`
+- Active ally turn pulse now scales both together:
+  - troop / unit token visual
+  - hero portrait badge visual
+- Both the token and portrait pulse now return to their original scene-authored base scales after the pulse.
+- Ally turn start still keeps the floating command panel hidden by default.
+- Clicking the active ally still opens the floating command panel.
+- After movement and post-move facing selection complete, the floating command panel still automatically reopens near the moved ally.
+- Existing panel opacity, layer priority, button handlers, direct move-click UX, and bottom command bar remain intact.
+- Headless verification confirmed:
+  - project launch exit code `0`
+  - `Battle_Fullscreen_Test.tscn` launch exit code `0`
+  - `GDScript` warning count `0`
+  - panel still stays hidden at ally turn start
+  - token pulse peaked around `1.481x`
+  - portrait pulse peaked around `1.412x`
+  - token returned to about `1.003x`
+  - portrait returned to about `1.000x`
+  - clicking the active ally still opens the panel
+  - direct move still reaches facing select and panel reopens after facing completes
+  - existing floating-panel UX verifier still passes
+  - floating `이동`, `기본공격`, `대기`, direct move-click, rollback, and full-auto result reachability remain intact
+
 ## v0.67p-3-hotfix Active Ally Pulse Scale + Post-Move Panel State
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
 - Kept `Battle_Fullscreen_Test.tscn` unchanged.

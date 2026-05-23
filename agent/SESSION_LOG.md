@@ -2,6 +2,34 @@
 
 ## 2026-05-24
 
+- v0.67p-3-hotfix Active Ally Pulse Portrait Sync
+- Updated `scripts/battle_web_import_test.gd` and agent docs only.
+- Reduced the active ally turn pulse scale to `1.5` with:
+  - `ACTIVE_ALLY_TURN_PULSE_UP_DURATION = 0.16`
+  - `ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION = 0.26`
+- Synced the ally-turn pulse across both the troop token and the hero portrait badge.
+- Kept ally turn start panel behavior hidden by default.
+- Kept automatic floating command panel reopen after movement + facing selection completion.
+- Kept click-to-open panel behavior, panel opacity, layer priority, rollback, and bottom command bar intact.
+- Headless project launch exit code `0`.
+- Headless `Battle_Fullscreen_Test.tscn` launch exit code `0`.
+- `GDScript` warning count `0`.
+- Dedicated portrait-sync verifier confirmed:
+  - no auto-open panel at ally turn start
+  - token pulse peak about `1.481x`
+  - portrait pulse peak about `1.412x`
+  - token returns to about `1.003x`
+  - portrait returns to about `1.000x`
+  - clicking the active ally opens the panel
+  - panel reopens after direct move + facing completion
+- Existing floating-panel UX verifier still passed:
+  - floating `기본공격` / `이동` / `대기` still work
+  - direct move-click still works
+  - right-click rollback still works
+  - panel still hides in non-ally-command states
+  - bottom command bar still works
+  - accelerated `5v5` auto battle still reaches `result_victory`
+
 - v0.67p-3-hotfix Active Ally Pulse Scale and Post-Move Panel
 - Updated `scripts/battle_web_import_test.gd` and agent docs only.
 - Increased the active ally turn pulse scale to `2.0` with:
