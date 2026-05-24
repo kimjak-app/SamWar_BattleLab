@@ -12,7 +12,7 @@ Follow the autonomous execution and commit rules in `agent/CODEX_WORKFLOW_RULES.
 ## Stable Baseline
 Current stable baseline is:
 
-`v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus`
+`v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -75,17 +75,21 @@ Do not modify casually:
 - Unique skill damage numbers are larger red labels and unique skills trigger short camera shake.
 - Auto battle can use available ally unique skills before falling back to basic attack / movement / wait.
 - Enemy AI can use available unique skills on enemy turns and after movement rechecks.
+- Unique skill ranges are first-normalized: melee skills require close engagement and AOE remains mid-range.
+- Enemy/auto unique skill selection now checks high-value or fallback-value conditions instead of using every ready skill.
+- Enemy movement, approach, and basic attack pressure are restored in full-auto flow.
 - Unique skill readiness is cooldown-state based; old one-use gating is removed.
 - Directional damage bonus is active for basic attacks, enemy hits, and single-target attack unique skills.
 - Directional multipliers are front `1.0`, side `1.15`, back `1.3`.
+- Formation guide troop icons are readable again while `UniqueSkillReadyIcon` remains `64 x 64`.
 - `SkillInfoPanel` remains deferred and is not implemented in the current scene.
-- Unique skill range balance is deferred.
+- Detailed unique skill range balance remains deferred.
 
 ## Recommended Next Task
-- Current baseline: `v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus`
+- Current baseline: `v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance`
 - Next candidates:
-  - `v0.67x-3 Unique Skill Range Balance Pass`
   - `v0.67y Tactics MVP`
+  - `v0.67y-2 Tactics Fire / Defense Expansion`
   - `v0.68 Terrain Block Layer MVP`
 
 ## Important Direction

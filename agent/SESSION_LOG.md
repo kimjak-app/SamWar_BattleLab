@@ -2,6 +2,14 @@
 
 ## 2026-05-24
 
+### v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance
+- Restored formation-guide `TroopIconRect` nodes to readable `32 x 32` display while keeping `UniqueSkillReadyIcon` at `64 x 64`.
+- Normalized unique skill range helpers so melee unique skills require close engagement and cannon AOE stays mid-range.
+- Added high-value and fallback-value checks for enemy/auto unique skill decisions.
+- Restored full-auto movement / approach / basic attack pressure instead of using every ready unique skill.
+- Kept manual unique skill range/target UX, unique skill toast, large red damage numbers, camera shake, cooldown, and directional damage bonuses intact.
+- Deferred detailed unique skill range balance, `SkillInfoPanel`, and tactics status/explanation UI.
+
 ### v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus
 - Enlarged formation-guide `UniqueSkillReadyIcon` nodes to `64 x 64`.
 - Added front / side / back directional damage helpers with `1.0 / 1.15 / 1.3` multipliers.
@@ -132,7 +140,7 @@
 - Removed top-level priority confusion from older `v0.67k` baseline references while leaving archived history intact.
 
 ### Current stable reference
-- `v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus`
+- `v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance`
 - Stable `5v5` battle loop
 - Stable formation guide + mini log + bottom command bar + floating command panel MVP screen composition
 - Stable ally manual / auto / enemy unique skill MVP with caster-anchored cutin toast

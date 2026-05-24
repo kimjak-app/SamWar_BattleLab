@@ -74,7 +74,12 @@ const UNIQUE_SKILL_EFFECT_APPLY_DELAY := 0.72
 const UNIQUE_SKILL_CUTIN_DISPLAY_SIZE := Vector2(512.0, 288.0)
 const UNIQUE_SKILL_TOAST_SIZE := Vector2(560.0, 360.0)
 const UNIQUE_SKILL_TOAST_WORLD_OFFSET := Vector2(0.0, -210.0)
-const UNIQUE_SKILL_DEFAULT_RANGE := 99
+const UNIQUE_SKILL_DEFAULT_RANGE := 3
+const UNIQUE_SKILL_MELEE_RANGE := 1
+const UNIQUE_SKILL_SHORT_RANGE := 2
+const UNIQUE_SKILL_AOE_RANGE := 4
+const UNIQUE_SKILL_BUFF_RANGE := 4
+const UNIQUE_SKILL_HIGH_VALUE_DAMAGE_DELTA := 12
 const UNIQUE_SKILL_DAMAGE_FONT_SIZE := 42
 const UNIQUE_SKILL_DEFAULT_DAMAGE := 44
 const UNIQUE_SKILL_AOE_DAMAGE := 38
@@ -1638,7 +1643,29 @@ func _clear_unique_skill_targeting_state() -> void:
 func _get_unique_skill_range(caster_state: BattleUnitState, skill_data: Dictionary) -> int:
 	if caster_state == null:
 		return 0
-	return max(int(skill_data.get("range", UNIQUE_SKILL_DEFAULT_RANGE)), 0)
+	var effect_type := String(skill_data.get("effect_type", ""))
+	var default_range := UNIQUE_SKILL_DEFAULT_RANGE
+	match effect_type:
+		"self_defense_single":
+			default_range = UNIQUE_SKILL_MELEE_RANGE
+		"single_damage_adjacent_shake":
+			default_range = UNIQUE_SKILL_SHORT_RANGE
+		"cannon_aoe":
+			default_range = UNIQUE_SKILL_AOE_RANGE
+		"ally_attack_buff":
+			default_range = UNIQUE_SKILL_BUFF_RANGE
+	var requested_range: int = maxi(int(skill_data.get("range", default_range)), 0)
+	match effect_type:
+		"self_defense_single":
+			return mini(requested_range, UNIQUE_SKILL_MELEE_RANGE)
+		"single_damage_adjacent_shake":
+			return mini(requested_range, maxi(UNIQUE_SKILL_MELEE_RANGE, mini(UNIQUE_SKILL_SHORT_RANGE, caster_state.attack_range)))
+		"cannon_aoe":
+			return mini(requested_range, UNIQUE_SKILL_AOE_RANGE)
+		"ally_attack_buff":
+			return mini(requested_range, UNIQUE_SKILL_BUFF_RANGE)
+		_:
+			return mini(requested_range, UNIQUE_SKILL_SHORT_RANGE)
 
 
 func _get_unique_skill_range_cells(caster_state: BattleUnitState, skill_data: Dictionary) -> Array[Vector2i]:
@@ -1762,6 +1789,75 @@ func _count_adjacent_unique_skill_splash_targets(caster_state: BattleUnitState, 
 	return count
 
 
+func _get_unique_skill_aoe_hit_count(caster_state: BattleUnitState, skill_data: Dictionary, primary_target: BattleUnitState) -> int:
+	if caster_state == null or primary_target == null:
+		return 0
+	var radius := int(skill_data.get("radius", 2))
+	var hit_count := 0
+	for target_state in _get_alive_deployed_unit_states_for_side(_get_opposing_side(caster_state.side)):
+		if get_unit_grid_distance(primary_target, target_state) <= radius:
+			hit_count += 1
+	return hit_count
+
+
+func _get_unique_skill_buff_candidate_count(side: String) -> int:
+	var count := 0
+	for unit_state in _get_alive_deployed_unit_states_for_side(side):
+		if not _has_active_unique_skill_attack_buff(unit_state):
+			count += 1
+	return count
+
+
+func _is_unique_skill_high_value_for_actor(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> bool:
+	if caster_state == null or skill_data.is_empty():
+		return false
+	var effect_type := String(skill_data.get("effect_type", ""))
+	match effect_type:
+		"ally_attack_buff":
+			return _get_unique_skill_buff_candidate_count(caster_state.side) >= 2
+		"cannon_aoe":
+			return target_state != null and _get_unique_skill_aoe_hit_count(caster_state, skill_data, target_state) >= 2
+		"self_defense_single":
+			if target_state == null:
+				return false
+			var skill_damage := _get_directional_attack_damage(int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE)), caster_state, target_state)
+			var attack_damage := _get_auto_damage_for_actor_against_target(caster_state, target_state)
+			var angle_type := _get_attack_angle_type(caster_state, target_state)
+			return (
+				skill_damage >= int(target_state.current_hp)
+				or skill_damage >= attack_damage + UNIQUE_SKILL_HIGH_VALUE_DAMAGE_DELTA
+				or (angle_type == ATTACK_ANGLE_BACK and skill_damage >= attack_damage + 6)
+			)
+		"single_damage_adjacent_shake":
+			if target_state == null:
+				return false
+			var skill_damage := _get_directional_attack_damage(int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE)), caster_state, target_state)
+			var attack_damage := _get_auto_damage_for_actor_against_target(caster_state, target_state)
+			return (
+				skill_damage >= int(target_state.current_hp)
+				or _count_adjacent_unique_skill_splash_targets(caster_state, target_state) >= 1
+				or skill_damage >= attack_damage + UNIQUE_SKILL_HIGH_VALUE_DAMAGE_DELTA
+			)
+	return false
+
+
+func _is_unique_skill_fallback_value_for_actor(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> bool:
+	if caster_state == null or skill_data.is_empty():
+		return false
+	var effect_type := String(skill_data.get("effect_type", ""))
+	match effect_type:
+		"ally_attack_buff":
+			return _get_unique_skill_buff_candidate_count(caster_state.side) >= 3
+		"cannon_aoe":
+			return target_state != null and _get_unique_skill_aoe_hit_count(caster_state, skill_data, target_state) >= 2
+		"self_defense_single", "single_damage_adjacent_shake":
+			if target_state == null:
+				return false
+			var skill_damage := _get_directional_attack_damage(int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE)), caster_state, target_state)
+			return skill_damage >= int(target_state.current_hp)
+	return false
+
+
 func _get_unique_skill_clicked_target_at_position(mouse_world_pos: Vector2) -> BattleUnitState:
 	if unique_skill_targeting_caster_state == null or unique_skill_targeting_skill_data.is_empty():
 		return null
@@ -1794,13 +1890,17 @@ func _try_use_unique_skill_on_target(target_state: BattleUnitState) -> void:
 	_begin_unique_skill_sequence(caster_state, skill_data)
 
 
-func _try_auto_unique_skill_for_actor(caster_state: BattleUnitState) -> bool:
+func _try_auto_unique_skill_for_actor(caster_state: BattleUnitState, require_high_value := true) -> bool:
 	if not _can_actor_use_unique_skill(caster_state):
 		return false
 	var skill_data := _get_unique_skill_for_unit(caster_state)
 	if skill_data.is_empty():
 		return false
 	var target_state := _get_best_unique_skill_target_for_actor(caster_state, skill_data)
+	if require_high_value and not _is_unique_skill_high_value_for_actor(caster_state, skill_data, target_state):
+		return false
+	if not require_high_value and not _is_unique_skill_fallback_value_for_actor(caster_state, skill_data, target_state):
+		return false
 	if String(skill_data.get("effect_type", "")) != "ally_attack_buff":
 		if target_state == null:
 			return false
@@ -3710,7 +3810,11 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 		_return_to_ally_turn()
 		return
 	current_enemy_ai_actor_state = enemy_actor_state
-	if _try_auto_unique_skill_for_actor(enemy_actor_state):
+	var immediate_attack_target := _find_best_auto_attack_target(enemy_actor_state)
+	if immediate_attack_target != null and _can_auto_kill_target(enemy_actor_state, immediate_attack_target):
+		_play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state, immediate_attack_target)
+		return
+	if _try_auto_unique_skill_for_actor(enemy_actor_state, true):
 		return
 
 	var decision_plan := _get_enemy_ai_decision_plan_for_actor(enemy_actor_state)
@@ -3858,11 +3962,16 @@ func _play_enemy_actor_basic_attack_or_wait_after_move(enemy_actor_state: Battle
 		_return_to_ally_turn()
 		return
 
-	var target_state := _get_enemy_ai_target_state_for_actor(enemy_actor_state)
-	if _try_auto_unique_skill_for_actor(enemy_actor_state):
+	var attack_target := _find_best_auto_attack_target(enemy_actor_state)
+	if attack_target != null and _can_auto_kill_target(enemy_actor_state, attack_target):
+		_play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state, attack_target)
 		return
-	if target_state != null and is_unit_in_attack_range(enemy_actor_state, target_state):
-		_play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state, target_state)
+	if _try_auto_unique_skill_for_actor(enemy_actor_state, true):
+		return
+	if attack_target != null:
+		_play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state, attack_target)
+		return
+	if _try_auto_unique_skill_for_actor(enemy_actor_state, false):
 		return
 
 	_append_battle_log("%s 대기" % enemy_actor_state.display_name)
@@ -8280,11 +8389,17 @@ func _run_auto_action_for_active_ally_once() -> void:
 	if not _is_active_ally_action_available():
 		return
 
-	if _try_auto_unique_skill_for_actor(active_unit_state):
+	var attack_target := _find_best_auto_attack_target(active_unit_state)
+	if attack_target != null and _can_auto_kill_target(active_unit_state, attack_target):
+		if _try_auto_attack_for_active_ally():
+			return
+	if _try_auto_unique_skill_for_actor(active_unit_state, true):
 		return
 	if _try_auto_attack_for_active_ally():
 		return
 	if _try_auto_move_for_active_ally():
+		return
+	if _try_auto_unique_skill_for_actor(active_unit_state, false):
 		return
 	_auto_wait_active_ally()
 

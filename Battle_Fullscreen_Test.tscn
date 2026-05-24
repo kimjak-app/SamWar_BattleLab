@@ -2438,19 +2438,19 @@ stretch_mode = 5
 
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100125]
 layout_mode = 0
-offset_left = 174.0
-offset_top = 38.0
-offset_right = 206.0
-offset_bottom = 66.0
+offset_left = 148.0
+offset_top = 24.0
+offset_right = 180.0
+offset_bottom = 56.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100126]
 layout_mode = 0
-offset_left = 166.0
-offset_top = 52.0
-offset_right = 214.0
-offset_bottom = 68.0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
 text = "-"
 horizontal_alignment = 1
 
@@ -2510,19 +2510,19 @@ stretch_mode = 5
 
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100127]
 layout_mode = 0
-offset_left = 174.0
-offset_top = 38.0
-offset_right = 206.0
-offset_bottom = 66.0
+offset_left = 148.0
+offset_top = 24.0
+offset_right = 180.0
+offset_bottom = 56.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100128]
 layout_mode = 0
-offset_left = 166.0
-offset_top = 52.0
-offset_right = 214.0
-offset_bottom = 68.0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
 text = "-"
 horizontal_alignment = 1
 
@@ -2582,19 +2582,19 @@ stretch_mode = 5
 
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100129]
 layout_mode = 0
-offset_left = 174.0
-offset_top = 38.0
-offset_right = 206.0
-offset_bottom = 66.0
+offset_left = 148.0
+offset_top = 24.0
+offset_right = 180.0
+offset_bottom = 56.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100130]
 layout_mode = 0
-offset_left = 166.0
-offset_top = 52.0
-offset_right = 214.0
-offset_bottom = 68.0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
 text = "-"
 horizontal_alignment = 1
 
@@ -2654,19 +2654,19 @@ stretch_mode = 5
 
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100131]
 layout_mode = 0
-offset_left = 174.0
-offset_top = 38.0
-offset_right = 206.0
-offset_bottom = 66.0
+offset_left = 148.0
+offset_top = 24.0
+offset_right = 180.0
+offset_bottom = 56.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100132]
 layout_mode = 0
-offset_left = 166.0
-offset_top = 52.0
-offset_right = 214.0
-offset_bottom = 68.0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
 text = "-"
 horizontal_alignment = 1
 
@@ -2726,19 +2726,19 @@ stretch_mode = 5
 
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100133]
 layout_mode = 0
-offset_left = 174.0
-offset_top = 38.0
-offset_right = 206.0
-offset_bottom = 66.0
+offset_left = 148.0
+offset_top = 24.0
+offset_right = 180.0
+offset_bottom = 56.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100134]
 layout_mode = 0
-offset_left = 166.0
-offset_top = 52.0
-offset_right = 214.0
-offset_bottom = 68.0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
 text = "-"
 horizontal_alignment = 1
 
@@ -2814,19 +2814,19 @@ stretch_mode = 5
 
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100125]
 layout_mode = 0
-offset_left = 174.0
-offset_top = 38.0
-offset_right = 206.0
-offset_bottom = 66.0
+offset_left = 148.0
+offset_top = 24.0
+offset_right = 180.0
+offset_bottom = 56.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100126]
 layout_mode = 0
-offset_left = 166.0
-offset_top = 52.0
-offset_right = 214.0
-offset_bottom = 68.0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
 text = "-"
 horizontal_alignment = 1
 
@@ -2886,19 +2886,19 @@ stretch_mode = 5
 
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100127]
 layout_mode = 0
-offset_left = 174.0
-offset_top = 38.0
-offset_right = 206.0
-offset_bottom = 66.0
+offset_left = 148.0
+offset_top = 24.0
+offset_right = 180.0
+offset_bottom = 56.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100128]
 layout_mode = 0
-offset_left = 166.0
-offset_top = 52.0
-offset_right = 214.0
-offset_bottom = 68.0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
 text = "-"
 horizontal_alignment = 1
 
@@ -2958,19 +2958,19 @@ stretch_mode = 5
 
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100129]
 layout_mode = 0
-offset_left = 174.0
-offset_top = 38.0
-offset_right = 206.0
-offset_bottom = 66.0
+offset_left = 148.0
+offset_top = 24.0
+offset_right = 180.0
+offset_bottom = 56.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100130]
 layout_mode = 0
-offset_left = 166.0
-offset_top = 52.0
-offset_right = 214.0
-offset_bottom = 68.0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
 text = "-"
 horizontal_alignment = 1
 
@@ -3030,19 +3030,19 @@ stretch_mode = 5
 
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100131]
 layout_mode = 0
-offset_left = 174.0
-offset_top = 38.0
-offset_right = 206.0
-offset_bottom = 66.0
+offset_left = 148.0
+offset_top = 24.0
+offset_right = 180.0
+offset_bottom = 56.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100132]
 layout_mode = 0
-offset_left = 166.0
-offset_top = 52.0
-offset_right = 214.0
-offset_bottom = 68.0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
 text = "-"
 horizontal_alignment = 1
 
@@ -3102,19 +3102,19 @@ stretch_mode = 5
 
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100133]
 layout_mode = 0
-offset_left = 174.0
-offset_top = 38.0
-offset_right = 206.0
-offset_bottom = 66.0
+offset_left = 148.0
+offset_top = 24.0
+offset_right = 180.0
+offset_bottom = 56.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100134]
 layout_mode = 0
-offset_left = 166.0
-offset_top = 52.0
-offset_right = 214.0
-offset_bottom = 68.0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
 text = "-"
 horizontal_alignment = 1
 

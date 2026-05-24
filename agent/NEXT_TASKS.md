@@ -1,19 +1,19 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus`
+`v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance`
 
 ## Priority 1
-`v0.67x-3 Unique Skill Range Balance Pass`
-
-Goal:
-- rebalance unique skill range / effect radius / target rules after the auto/enemy skill path is stable
-
-## Priority 2
 `v0.67y Tactics MVP`
 
 Goal:
 - turn the floating `책략` placeholder into the next small battle command surface
+
+## Priority 2
+`v0.67y-2 Tactics Fire / Defense Expansion`
+
+Goal:
+- expand Tactics MVP with fire / defense behaviors after the first tactics command surface is stable
 
 ## Priority 3
 `v0.68 Terrain Block Layer MVP`
@@ -22,6 +22,13 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance` is complete.
+- Restored formation-guide troop icon readability while keeping the `UniqueSkillReadyIcon` at `64 x 64`.
+- First-normalized unique skill ranges so melee skills require close range and AOE stays mid-range.
+- Reduced enemy/auto unique skill overuse by requiring high-value or fallback-value conditions.
+- Restored enemy movement / approach / basic attack pressure in full-auto flow.
+- Kept directional damage bonus active with front `1.0`, side `1.15`, back `1.3`.
+- Deferred detailed unique skill range balance, `SkillInfoPanel`, and tactics status/explanation UI.
 - `v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus` is complete.
 - Auto battle can use ally unique skills before normal attack/move/wait fallback.
 - Enemy AI can use unique skills on enemy turns and after movement rechecks.

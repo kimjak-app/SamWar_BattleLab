@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance
+- Restored formation-guide troop icon readability while keeping the `UniqueSkillReadyIcon` at `64 x 64`.
+- First-normalized unique skill ranges so melee skills require close engagement and AOE skills remain mid-range.
+- Reduced enemy/auto unique skill overuse with high-value and fallback-value checks before skill use.
+- Restored enemy movement / approach / basic attack pressure in full-auto battle flow.
+- Preserved directional damage bonus behavior with front `1.0`, side `1.15`, back `1.3`.
+- Kept `SkillInfoPanel`, detailed unique skill range balance, and tactics status/explanation UI deferred.
+
 ## v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus
 - Enabled auto battle ally unique skill use before normal attack / move / wait fallback.
 - Enabled enemy AI unique skill use on enemy turns and after movement rechecks.
