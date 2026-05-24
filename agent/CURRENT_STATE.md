@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix`
+`v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus`
 
 ## Current Implementation Step
+- `v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus`
 - `v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix`
 - `v0.67x-1 Unique Skill Hover Cleanup + Ready Icon`
 - `v0.67x Unique Skill MVP Per Hero Cutin`
@@ -44,8 +45,14 @@ SamWar_BattleLab
 - Unique skill toast no longer shows the old black rectangular backdrop.
 - Unique skill presentation uses a world-anchored ink toast over the caster for `2200ms`, with cutin image and skill name text.
 - Unique skill damage uses larger red damage numbers and short camera shake.
-- `SkillInfoPanel` is deferred as the next UX candidate instead of being added to the current baseline.
-- Enemy / auto unique skill use is deferred.
+- Auto battle can now use available ally unique skills before normal attack/move/wait fallback.
+- Enemy AI can now use available unique skills on enemy turns and after movement rechecks.
+- Unique skill cooldown state is cooldown-based instead of one-use flag based.
+- Directional damage bonus is applied to basic attacks, enemy counter/basic hits, and single-target attack unique skills.
+- Directional multipliers follow the web baseline: front `1.0`, side `1.15`, back `1.3`.
+- Formation guide unique-skill-ready icon display size is now `64 x 64`.
+- `SkillInfoPanel` is deferred as a later UX candidate.
+- Unique skill range balance remains deferred.
 - Floating command panel exists.
 - Direct move-click UX stable.
 - Floating panel stays hidden at ally turn start and opens on active ally click.
@@ -101,9 +108,9 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.67x-2 Enemy And Auto Unique Skill Use + Directional Damage Bonus`
-2. `v0.67x-3 Unique Skill Info Panel`
-3. `v0.67y Tactics MVP`
+1. `v0.67x-3 Unique Skill Range Balance Pass`
+2. `v0.67y Tactics MVP`
+3. `v0.68 Terrain Block Layer MVP`
 
 ## Archive
 - Full historical copies preserved at:

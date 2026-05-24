@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus
+- Enabled auto battle ally unique skill use before normal attack / move / wait fallback.
+- Enabled enemy AI unique skill use on enemy turns and after movement rechecks.
+- Replaced one-use unique skill gating with cooldown-state readiness.
+- Applied directional damage bonus to basic attacks, enemy hits, and single-target attack unique skills.
+- Matched web directional multipliers: front `1.0`, side `1.15`, back `1.3`.
+- Enlarged formation-guide `UniqueSkillReadyIcon` display to `64 x 64`.
+- Kept unique skill range balance and `SkillInfoPanel` deferred.
+
 ## v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix
 - Removed the `is_visible` parameter shadowing warning in the formation guide ready icon helper.
 - Hid the unique skill toast black rectangular backdrop while preserving the cutin image and skill name.

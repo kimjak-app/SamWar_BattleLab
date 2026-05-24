@@ -2,6 +2,16 @@
 
 ## 2026-05-24
 
+### v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus
+- Enlarged formation-guide `UniqueSkillReadyIcon` nodes to `64 x 64`.
+- Added front / side / back directional damage helpers with `1.0 / 1.15 / 1.3` multipliers.
+- Applied directional bonus to basic attacks, enemy hits, and single-target attack unique skills.
+- Changed unique skill readiness from one-use flags to cooldown state.
+- Added auto battle ally unique skill selection before normal attack / move / wait fallback.
+- Added enemy AI unique skill selection on enemy turns and after movement rechecks.
+- Kept manual unique skill range/target flow, backdrop cleanup, tooltip cleanup, damage numbers, and camera shake intact.
+- Deferred `SkillInfoPanel` and unique skill range balance.
+
 ### v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix
 - Removed the `is_visible` shadowing warning in the unique skill ready icon helper.
 - Hid the unique skill toast black backdrop so transparent cutin edges remain visible.
@@ -122,10 +132,11 @@
 - Removed top-level priority confusion from older `v0.67k` baseline references while leaving archived history intact.
 
 ### Current stable reference
-- `v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix`
+- `v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus`
 - Stable `5v5` battle loop
 - Stable formation guide + mini log + bottom command bar + floating command panel MVP screen composition
-- Stable ally manual unique skill MVP with caster-anchored cutin toast
+- Stable ally manual / auto / enemy unique skill MVP with caster-anchored cutin toast
+- Stable directional damage bonus for front / side / back attacks
 - Stable reinforcement / round / result toast flow
 - Stable floating command panel, bottom command bar, direct move-click UX, rollback, post-move reopen, and active ally pivot-locked root pulse
 

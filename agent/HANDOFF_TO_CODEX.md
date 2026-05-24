@@ -12,7 +12,7 @@ Follow the autonomous execution and commit rules in `agent/CODEX_WORKFLOW_RULES.
 ## Stable Baseline
 Current stable baseline is:
 
-`v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix`
+`v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -66,22 +66,27 @@ Do not modify casually:
 - Current test battle `10` heroes have `hero_id`-based unique skill registry entries.
 - Ally manual unique skill use is enabled through `FloatingUniqueSkillButton`.
 - Floating unique skill hover tooltip text is intentionally suppressed; button text remains the visible label.
-- Formation guide cards include an enlarged `36 x 36` `UniqueSkillReadyIcon` for the currently usable active ally only.
+- Formation guide cards include an enlarged `64 x 64` `UniqueSkillReadyIcon` for the currently usable active ally only.
 - Ally manual unique skill use now requires range/target selection before resolution.
 - Unique skill range overlays are purple and valid target cells are gold/orange.
 - Unique skill toast backdrop is hidden/transparent so only the cutin image and skill name read visually.
 - Unique skill presentation is a caster-anchored ink toast with cutin image + skill name for `2200ms`.
 - Unique skills have MVP effects for `cannon_aoe`, `ally_attack_buff`, `self_defense_single`, and `single_damage_adjacent_shake`.
 - Unique skill damage numbers are larger red labels and unique skills trigger short camera shake.
-- `SkillInfoPanel` is deferred to the next UX pass and is not implemented in the current scene.
-- Enemy / auto unique skill use is intentionally deferred.
+- Auto battle can use available ally unique skills before falling back to basic attack / movement / wait.
+- Enemy AI can use available unique skills on enemy turns and after movement rechecks.
+- Unique skill readiness is cooldown-state based; old one-use gating is removed.
+- Directional damage bonus is active for basic attacks, enemy hits, and single-target attack unique skills.
+- Directional multipliers are front `1.0`, side `1.15`, back `1.3`.
+- `SkillInfoPanel` remains deferred and is not implemented in the current scene.
+- Unique skill range balance is deferred.
 
 ## Recommended Next Task
-- Current baseline: `v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix`
+- Current baseline: `v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus`
 - Next candidates:
-  - `v0.67x-2 Enemy And Auto Unique Skill Use + Directional Damage Bonus`
-  - `v0.67x-3 Unique Skill Info Panel`
+  - `v0.67x-3 Unique Skill Range Balance Pass`
   - `v0.67y Tactics MVP`
+  - `v0.68 Terrain Block Layer MVP`
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

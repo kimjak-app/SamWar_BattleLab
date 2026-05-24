@@ -1,36 +1,42 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix`
+`v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus`
 
 ## Priority 1
-`v0.67x-2 Enemy And Auto Unique Skill Use + Directional Damage Bonus`
+`v0.67x-3 Unique Skill Range Balance Pass`
 
 Goal:
-- add enemy / auto unique skill use coverage
-- add or prepare directional damage bonus handling without destabilizing manual ally targeting
+- rebalance unique skill range / effect radius / target rules after the auto/enemy skill path is stable
 
 ## Priority 2
-`v0.67x-3 Unique Skill Info Panel`
-
-Goal:
-- replace the removed hover tooltip with a dedicated adjacent unique skill info panel
-- keep the floating unique skill button clean while exposing name / effect / cooldown detail
-
-## Priority 3
 `v0.67y Tactics MVP`
 
 Goal:
 - turn the floating `책략` placeholder into the next small battle command surface
 
+## Priority 3
+`v0.68 Terrain Block Layer MVP`
+
+Goal:
+- add the first terrain/blocking layer contract for battle movement and targeting
+
 ## Completed / Archived Context
+- `v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus` is complete.
+- Auto battle can use ally unique skills before normal attack/move/wait fallback.
+- Enemy AI can use unique skills on enemy turns and after movement rechecks.
+- Directional damage bonus is applied to basic attacks, enemy hits, and single-target attack unique skills.
+- Directional multipliers are front `1.0`, side `1.15`, back `1.3`.
+- Unique skill readiness now uses cooldown state instead of a one-use flag.
+- Formation-guide `UniqueSkillReadyIcon` is enlarged to `64 x 64`.
+- Deferred `SkillInfoPanel` and unique skill range balance to later passes.
 - `v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix` is complete.
 - Removed the `is_visible` parameter shadowing warning.
 - Removed the black rectangular unique skill toast backdrop.
 - Kept unique skill hover tooltip text suppressed while keeping button text visible.
 - Enlarged the formation-guide unique skill ready icon to `36 x 36`.
 - Changed ally manual unique skill flow to button click -> range/target display -> valid target click -> resolve.
-- Kept `SkillInfoPanel` deferred as `v0.67x-3`.
+- Kept `SkillInfoPanel` deferred as a later UX pass.
 - `v0.67x-1 Unique Skill Hover Cleanup + Ready Icon` is complete.
 - Removed duplicate hover tooltip text from `FloatingUniqueSkillButton`.
 - Added a small formation-guide unique skill ready icon for the currently usable active ally only.
