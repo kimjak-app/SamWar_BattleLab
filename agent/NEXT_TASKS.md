@@ -1,36 +1,37 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67u-3 Formation Guide Card Compact Info Polish`
+`v0.67w Battle Screen Basic UX Stable Lock`
 
 ## Priority 1
-Bottom command bar visual F6 QA
+`v0.67x Battle Screen Visual Polish`
 
 Goal:
-- visually QA the applied bottom command background panel against the 3 TextureButtons
-- keep current button behavior and editor-authored placement stable
+- polish the locked MVP battle screen without changing battle logic
+- keep the current formation guide, mini log, bottom command bar, and floating panel structure intact
 
 ## Priority 2
-Formation Slot Guide visual polish
+`v0.68a Worldmap Battle Roster Contract Prep`
 
 Goal:
-- refine the compact ally/enemy formation guide cards without changing battle logic
-- keep side-panel width modest and battlefield visibility clean
+- prepare roster contract work between worldmap party state and the stable `5v5` battle entry shape
 
 ## Priority 3
-`v0.68a Battle Screen Basic UX Stable`
+`v0.68b Battle Entry / Exit Flow Prep`
 
 Goal:
-- keep the current battle interaction flow stable while visual UX is tightened
-- preserve direct move-click, rollback, post-move reopen, and active ally pulse behavior
-
-## Priority 4
-Worldmap battle roster integration prep
-
-Goal:
-- prepare worldmap-to-battle roster contract work on top of the current stable `5v5` battle baseline
+- prepare clean battle enter/exit flow work on top of the locked MVP battle screen baseline
 
 ## Completed / Archived Context
+- `v0.67w Battle Screen Basic UX Stable Lock` is complete.
+- Locked the current MVP battle-screen UX around:
+  - ally formation guide `5` cards
+  - enemy formation guide `5` cards
+  - lower-left battle mini log
+  - bottom command `TextureButton` bar + background panel
+  - floating command panel
+- Kept legacy large side panels hidden, kept `UnitCloseupPanel` hidden, and kept direct move-click / rollback / post-move reopen / active ally pulse stable.
+- Bottom command bar background is considered good enough for MVP and can remain a later polish candidate.
 - `v0.67v Bottom Command Bar Background Panel Apply` is complete.
 - Applied `bottom_command_bar_bg.png` as the `CommandBar` scene background.
 - Hid the old black `CommandBar` panel fill behind a transparent panel style.

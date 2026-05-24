@@ -2,6 +2,21 @@
 
 ## 2026-05-24
 
+### v0.67w Battle Screen Basic UX Stable Lock
+- Locked the current MVP battle-screen UX baseline without adding new functionality.
+- Verified:
+  - `FormationSlotGuideLayer`
+  - `AllyFormationGuidePanel`
+  - `EnemyFormationGuidePanel`
+  - lower-left `BattleMiniLogPanel`
+  - `CommandBar` with `BottomCommandBarBackground`
+  - `AutoBattleButton`
+  - `EndTurnButton`
+  - disabled `RetreatButton`
+- Confirmed legacy `LeftPanel` / `RightPanel` remain hidden and `UnitCloseupPanel` remains hidden.
+- Confirmed formation guide cards keep compact name / troop / troop-icon / troop-type display with no status text regression.
+- Confirmed floating command panel, direct move-click, right-click rollback, post-move reopen, active ally pulse pivot lock, reinforcement arrival, and result toast path remain stable.
+
 ### v0.67v Bottom Command Bar Background Panel Apply
 - Applied `bottom_command_bar_bg.png` as the scene-authored `CommandBar` background.
 - Added `BottomCommandBarBackground` `TextureRect` behind the 3 bottom command `TextureButton`s.
@@ -73,11 +88,11 @@
 - Removed top-level priority confusion from older `v0.67k` baseline references while leaving archived history intact.
 
 ### Current stable reference
-- `v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable`
+- `v0.67w Battle Screen Basic UX Stable Lock`
 - Stable `5v5` battle loop
-- Stable enemy AI multi-target engagement improvement
+- Stable formation guide + mini log + bottom command bar + floating command panel MVP screen composition
 - Stable reinforcement / round / result toast flow
-- Stable floating command panel, bottom command bar, direct move-click UX, post-move reopen, and active ally pivot-locked root pulse
+- Stable floating command panel, bottom command bar, direct move-click UX, rollback, post-move reopen, and active ally pivot-locked root pulse
 
 ## Archive
 - Full older session history moved to:

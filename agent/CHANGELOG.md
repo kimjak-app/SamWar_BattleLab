@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.67w Battle Screen Basic UX Stable Lock
+- Locked the current battle-screen MVP UX as the stable baseline.
+- Verified the battle UI structure around ally/enemy formation guides, lower-left mini log, bottom command bar, and floating command panel.
+- Confirmed legacy large side panels remain hidden and `UnitCloseupPanel` remains hidden.
+- Confirmed bottom command `TextureButton` handlers, direct move-click, rollback, post-move reopen, active ally pulse pivot lock, reinforcement flow, and result toast flow remain stable.
+- No battle logic change intended.
+
 ## v0.67v Bottom Command Bar Background Panel Apply
 - Applied `bottom_command_bar_bg.png` as the scene-authored `CommandBar` background.
 - Added `BottomCommandBarBackground` under `BattleUI/CommandBar`.

@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67u-3 Formation Guide Card Compact Info Polish`
+`v0.67w Battle Screen Basic UX Stable Lock`
 
 ## Current Implementation Step
+- `v0.67w Battle Screen Basic UX Stable Lock`
 - `v0.67v Bottom Command Bar Background Panel Apply`
 - `v0.67u-3 Formation Guide Card Compact Info Polish`
 - `v0.67u Formation Slot Guide Layout MVP`
@@ -25,10 +26,12 @@ SamWar_BattleLab
 - Bottom command bar art-prep folder/README exists.
 - Bottom command buttons now render as scene-authored image buttons in the editor and runtime.
 - `bottom_command_bar_bg.png` is now applied as the scene-authored `CommandBar` background.
-- Old black `CommandBar` panel fill is now hidden behind a transparent panel style.
+- Old black `CommandBar` panel fill is hidden behind a transparent panel style.
+- Bottom command bar background is considered MVP-sufficient and future tuning is polish-only.
 - `UnitCloseupPanel` is now hidden/reserved for later popup reuse.
 - Formation guide cards now use compact name / troop / troop-icon / troop-type layout.
 - Formation guide status text is removed and active/reserve distinction is style-only.
+- Current battle-screen MVP UX is locked around formation guides + mini log + bottom command bar + floating command panel.
 - Floating command panel exists.
 - Direct move-click UX stable.
 - Floating panel stays hidden at ally turn start and opens on active ally click.
@@ -84,9 +87,9 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. Formation Slot Guide visual polish
-2. Bottom command bar visual F6 QA
-3. `Battle Screen Basic UX Stable` lock
+1. `v0.67x Battle Screen Visual Polish`
+2. `v0.68a Worldmap Battle Roster Contract Prep`
+3. `v0.68b Battle Entry / Exit Flow Prep`
 
 ## Archive
 - Full historical copies preserved at:

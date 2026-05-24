@@ -12,7 +12,7 @@ Follow the autonomous execution and commit rules in `agent/CODEX_WORKFLOW_RULES.
 ## Stable Baseline
 Current stable baseline is:
 
-`v0.67u-3 Formation Guide Card Compact Info Polish`
+`v0.67w Battle Screen Basic UX Stable Lock`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -40,6 +40,7 @@ Do not modify casually:
 - Bottom command buttons are now scene-authored `TextureButton` nodes with the 6 PNG assets connected directly in `Battle_Fullscreen_Test.tscn`.
 - `bottom_command_bar_bg.png` is now applied as the scene-authored `CommandBar` background.
 - The old black `CommandBar` panel fill is hidden via transparent panel styling.
+- Bottom command bar background is treated as MVP-complete and not a blocker for the current baseline.
 - 2D editor visibility for the bottom command buttons is restored.
 - Legacy large `LeftPanel` / `RightPanel` info panels are hidden/deprecated.
 - `BattleMiniLogPanel` and `FormationSlotGuideLayer` are now part of the battle UI.
@@ -47,6 +48,12 @@ Do not modify casually:
 - `UnitCloseupPanel` is hidden and reserved for future popup reuse.
 - Formation guide cards now show portrait + name + troop count + troop icon + troop type.
 - Formation guide status text is removed; active/reserve distinction is style-based.
+- Current locked MVP battle-screen UX is:
+  - left ally formation guide `5` cards
+  - right enemy formation guide `5` cards
+  - lower-left mini log
+  - bottom command bar with `3` ink buttons + background panel
+  - floating command panel over the battlefield interaction flow
 - Floating command panel exists and remains click-to-open.
 - Direct move-click UX remains stable.
 - Post-move floating panel auto-reopen remains stable.
@@ -58,8 +65,11 @@ Do not modify casually:
 - `RetreatButton` remains a disabled placeholder.
 
 ## Recommended Next Task
-- Current task: `v0.67v Bottom Command Bar Background Panel Apply`
-- After completion: bottom command bar visual F6 QA, Formation Guide visual polish, or `Battle Screen Basic UX Stable` lock
+- Current baseline lock: `v0.67w Battle Screen Basic UX Stable Lock`
+- Next candidates:
+  - `v0.67x Battle Screen Visual Polish`
+  - `v0.68a Worldmap Battle Roster Contract Prep`
+  - `v0.68b Battle Entry / Exit Flow Prep`
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.
