@@ -38,6 +38,7 @@ Do not modify casually:
 - Bottom global command bar exists.
 - Bottom command bar art-prep structure now exists under `assets/web_battle/ui/bottom_command/`.
 - Bottom command button actual art helper is now wired in runtime code.
+- Bottom command button PNG 6장은 current runtime path에 applied QA 완료 상태다.
 - Floating command panel exists and remains click-to-open.
 - Direct move-click UX remains stable.
 - Post-move floating panel auto-reopen remains stable.
@@ -45,11 +46,12 @@ Do not modify casually:
 - `5v5` full auto result path is reachable.
 - Headless project / scene launch are expected to remain `0` errors and `GDScript` warnings are expected to remain `0`.
 - `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` remain `Button` nodes with existing handlers reused.
-- Actual bottom command PNG files are still optional; missing files should keep current behavior without load errors.
+- Successful image style apply clears button text to avoid overlay overlap.
+- Missing-file fallback logic is still preserved.
 
 ## Recommended Next Task
-- Current task: `v0.67s Bottom Command Button Actual Asset Integration`
-- After completion: actual bottom button PNG import QA or `v0.67s Floating Command Panel Art Direction Prep`
+- Current task: `v0.67t Bottom Command Button PNG Apply QA`
+- After completion: `v0.67s Floating Command Panel Art Direction Prep` or `Battle Screen Basic UX Stable`
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

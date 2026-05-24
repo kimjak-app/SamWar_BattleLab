@@ -1429,6 +1429,13 @@ func _apply_button_texture_style_if_available(button: Button, normal_path: Strin
 	button.add_theme_stylebox_override("hover", _create_bottom_command_button_stylebox(hover_texture))
 	button.add_theme_stylebox_override("pressed", _create_bottom_command_button_stylebox(pressed_texture if pressed_texture != null else normal_texture))
 	button.add_theme_stylebox_override("disabled", _create_bottom_command_button_stylebox(normal_texture))
+	button.clip_text = false
+	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.expand_icon = true
+	button.set_meta("bottom_command_art_applied", true)
+	if button.tooltip_text == "":
+		button.tooltip_text = button.text
+	button.text = ""
 	return true
 
 
@@ -1541,10 +1548,24 @@ func _refresh_auto_battle_button_state(can_issue_ally_command: bool) -> void:
 		return
 	if is_full_auto_battle_enabled:
 		auto_battle_button.disabled = false
-		auto_battle_button.text = "자동중지"
+		if _has_bottom_command_button_art(auto_battle_button):
+			auto_battle_button.tooltip_text = "자동중지"
+			auto_battle_button.text = ""
+		else:
+			auto_battle_button.text = "자동중지"
 		return
 	auto_battle_button.disabled = not can_issue_ally_command
-	auto_battle_button.text = "자동전투"
+	if _has_bottom_command_button_art(auto_battle_button):
+		auto_battle_button.tooltip_text = "자동전투"
+		auto_battle_button.text = ""
+	else:
+		auto_battle_button.text = "자동전투"
+
+
+func _has_bottom_command_button_art(button: Button) -> bool:
+	if button == null:
+		return false
+	return bool(button.get_meta("bottom_command_art_applied", false))
 
 
 func _end_ally_turn_by_wait() -> void:

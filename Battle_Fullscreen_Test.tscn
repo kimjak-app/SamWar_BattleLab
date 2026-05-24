@@ -2325,10 +2325,10 @@ text = "부대 목록
 autowrap_mode = 2
 
 [node name="CommandBar" type="Panel" parent="BattleUI" unique_id=2130262646]
-offset_left = 626.0
-offset_top = 996.0
-offset_right = 1278.0
-offset_bottom = 1060.0
+offset_left = 496.0
+offset_top = 924.0
+offset_right = 1408.0
+offset_bottom = 1068.0
 
 [node name="CommandBarLabel" type="Label" parent="BattleUI/CommandBar" unique_id=163471327]
 visible = false
@@ -2370,26 +2370,26 @@ text = "대기"
 
 [node name="EndTurnButton" type="Button" parent="BattleUI/CommandBar" unique_id=1902145002]
 layout_mode = 0
-offset_left = 179.0
-offset_top = 18.0
-offset_right = 275.0
-offset_bottom = 50.0
+offset_left = 26.0
+offset_top = 8.0
+offset_right = 282.0
+offset_bottom = 136.0
 text = "턴 종료"
 
 [node name="AutoBattleButton" type="Button" parent="BattleUI/CommandBar" unique_id=1847675653]
 layout_mode = 0
-offset_left = 293.0
-offset_top = 18.0
-offset_right = 397.0
-offset_bottom = 50.0
+offset_left = 302.0
+offset_top = 8.0
+offset_right = 558.0
+offset_bottom = 136.0
 text = "자동전투"
 
 [node name="RetreatButton" type="Button" parent="BattleUI/CommandBar" unique_id=1414351526]
 layout_mode = 0
-offset_left = 413.0
-offset_top = 17.0
-offset_right = 509.0
-offset_bottom = 49.0
+offset_left = 578.0
+offset_top = 8.0
+offset_right = 834.0
+offset_bottom = 136.0
 disabled = true
 text = "후퇴"
 

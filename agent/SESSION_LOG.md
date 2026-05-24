@@ -2,6 +2,15 @@
 
 ## 2026-05-24
 
+### v0.67t Bottom Command Button PNG Apply QA
+- Confirmed all 6 bottom command PNG files exist.
+- Confirmed all 6 PNG files are `512x256` with `Format32bppArgb`.
+- Applied bottom command PNG styles to `AutoBattleButton`, `EndTurnButton`, and `RetreatButton`.
+- Preserved existing `Button` nodes and existing handlers.
+- Preserved `RetreatButton` as a disabled placeholder.
+- Cleared button text only when image style apply succeeded, so visual text overlap is removed while missing-file fallback remains safe.
+- Expanded the scene-authored bottom `CommandBar` layout for `256x128` display buttons.
+
 ### v0.67s Bottom Command Button Actual Asset Integration
 - Added `_try_load_texture_or_null()` for safe optional bottom-command PNG loading.
 - Added `_apply_button_texture_style_if_available()` and kept `_try_apply_bottom_command_button_art()` as the button-key entry point.

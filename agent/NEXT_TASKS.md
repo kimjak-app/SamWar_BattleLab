@@ -4,14 +4,6 @@
 `v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable`
 
 ## Priority 1
-Actual bottom button PNG import QA
-
-Goal:
-- verify imported PNG visuals against the wired bottom command button runtime helper
-- confirm text overlay strategy after real art arrives
-- keep existing handlers reused and fallback safe
-
-## Priority 2
 `v0.67s Floating Command Panel Art Direction Prep`
 
 Requirements:
@@ -19,20 +11,26 @@ Requirements:
 - normal / pressed states
 - current functional panel must remain stable
 
-## Priority 3
+## Priority 2
 `v0.68a Battle Screen Basic UX Stable`
 
 Goal:
 - keep the current battle interaction flow stable while visual UX is tightened
 - preserve direct move-click, rollback, post-move reopen, and active ally pulse behavior
 
-## Priority 4
+## Priority 3
 Worldmap battle roster integration prep
 
 Goal:
 - prepare worldmap-to-battle roster contract work on top of the current stable `5v5` battle baseline
 
 ## Completed / Archived Context
+- `v0.67t Bottom Command Button PNG Apply QA` is complete.
+- Applied all 6 bottom command PNG files to the bottom global command bar.
+- `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` nodes were preserved.
+- Existing handlers were unchanged.
+- `RetreatButton` remains a disabled placeholder.
+- Text overlay is removed only when button image style applies successfully.
 - `v0.67s Bottom Command Button Actual Asset Integration` is complete.
 - Added `_try_load_texture_or_null()`.
 - Added `_apply_button_texture_style_if_available()`.

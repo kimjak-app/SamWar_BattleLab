@@ -7,9 +7,9 @@ SamWar_BattleLab
 `v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable`
 
 ## Current Implementation Step
-- `v0.67s Bottom Command Button Actual Asset Integration`
-- Bottom command button art helper is now wired for actual optional PNG runtime application.
-- Actual PNG files are still optional and may be absent.
+- `v0.67t Bottom Command Button PNG Apply QA`
+- Bottom command button PNG 6장은 runtime에 실제 적용된다.
+- Missing PNG fallback logic is still preserved.
 - Existing bottom command handlers are reused with no intended behavior change.
 
 ## Stable Summary
@@ -21,6 +21,7 @@ SamWar_BattleLab
 - Bottom global command bar exists.
 - Bottom command bar art-prep folder/README exists.
 - Bottom command button actual art fallback helper exists.
+- Bottom command button PNG apply QA completed with text overlay removal on successful image style apply.
 - Floating command panel exists.
 - Direct move-click UX stable.
 - Floating panel stays hidden at ally turn start and opens on active ally click.
@@ -76,10 +77,9 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. Actual bottom button PNG import QA
-2. `v0.67s Floating Command Panel Art Direction Prep`
-3. `Battle Screen Basic UX Stable` lock
-4. Worldmap battle roster integration prep
+1. `v0.67s Floating Command Panel Art Direction Prep`
+2. `Battle Screen Basic UX Stable` lock
+3. Worldmap battle roster integration prep
 
 ## Archive
 - Full historical copies preserved at:

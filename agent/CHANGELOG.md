@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.67t Bottom Command Button PNG Apply QA
+- Applied the 6 real bottom-command PNG files to the bottom global command bar.
+- Kept `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` as existing `Button` nodes with existing handlers unchanged.
+- `RetreatButton` remains a disabled placeholder.
+- Button text is cleared only when image style apply succeeds, so text overlap is avoided without breaking fallback behavior.
+
 ## v0.67s Bottom Command Button Actual Asset Integration
 - Added safe bottom-command art helpers for real optional PNG loading.
 - Kept `Button` nodes and existing handlers unchanged.
