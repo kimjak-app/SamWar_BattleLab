@@ -1,21 +1,21 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable`
+`v0.67u-3 Formation Guide Card Compact Info Polish`
 
 ## Priority 1
+Bottom command bar visual F6 QA
+
+Goal:
+- visually QA the applied bottom command background panel against the 3 TextureButtons
+- keep current button behavior and editor-authored placement stable
+
+## Priority 2
 Formation Slot Guide visual polish
 
 Goal:
 - refine the compact ally/enemy formation guide cards without changing battle logic
 - keep side-panel width modest and battlefield visibility clean
-
-## Priority 2
-Bottom command bar background panel art
-
-Goal:
-- add a clean scene-authored background treatment behind the bottom command PNG buttons
-- keep current button behavior and editor visibility stable
 
 ## Priority 3
 `v0.68a Battle Screen Basic UX Stable`
@@ -31,6 +31,10 @@ Goal:
 - prepare worldmap-to-battle roster contract work on top of the current stable `5v5` battle baseline
 
 ## Completed / Archived Context
+- `v0.67v Bottom Command Bar Background Panel Apply` is complete.
+- Applied `bottom_command_bar_bg.png` as the `CommandBar` scene background.
+- Hid the old black `CommandBar` panel fill behind a transparent panel style.
+- Preserved bottom command `TextureButton` handlers and scene-authored layout.
 - `v0.67u-3 Formation Guide Card Compact Info Polish` is complete.
 - Hid `UnitCloseupPanel` while keeping it reusable.
 - Simplified formation cards and removed status text.

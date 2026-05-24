@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable`
+`v0.67u-3 Formation Guide Card Compact Info Polish`
 
 ## Current Implementation Step
+- `v0.67v Bottom Command Bar Background Panel Apply`
 - `v0.67u-3 Formation Guide Card Compact Info Polish`
 - `v0.67u Formation Slot Guide Layout MVP`
 - Legacy large `LeftPanel` / `RightPanel` info panels are now deprecated/hidden.
@@ -23,6 +24,8 @@ SamWar_BattleLab
 - Bottom global command bar exists.
 - Bottom command bar art-prep folder/README exists.
 - Bottom command buttons now render as scene-authored image buttons in the editor and runtime.
+- `bottom_command_bar_bg.png` is now applied as the scene-authored `CommandBar` background.
+- Old black `CommandBar` panel fill is now hidden behind a transparent panel style.
 - `UnitCloseupPanel` is now hidden/reserved for later popup reuse.
 - Formation guide cards now use compact name / troop / troop-icon / troop-type layout.
 - Formation guide status text is removed and active/reserve distinction is style-only.
@@ -82,7 +85,7 @@ SamWar_BattleLab
 
 ## Current Next Direction
 1. Formation Slot Guide visual polish
-2. Bottom command bar background panel art
+2. Bottom command bar visual F6 QA
 3. `Battle Screen Basic UX Stable` lock
 
 ## Archive

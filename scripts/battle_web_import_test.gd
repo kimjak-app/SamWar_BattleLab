@@ -1399,6 +1399,10 @@ func _configure_floating_ally_command_panel() -> void:
 
 
 func _configure_command_bar() -> void:
+	if command_bar != null:
+		command_bar.mouse_filter = Control.MOUSE_FILTER_PASS
+		var transparent_style := StyleBoxEmpty.new()
+		command_bar.add_theme_stylebox_override("panel", transparent_style)
 	if command_bar_label != null:
 		command_bar_label.visible = false
 	if basic_attack_button != null:

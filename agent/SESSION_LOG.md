@@ -2,6 +2,13 @@
 
 ## 2026-05-24
 
+### v0.67v Bottom Command Bar Background Panel Apply
+- Applied `bottom_command_bar_bg.png` as the scene-authored `CommandBar` background.
+- Added `BottomCommandBarBackground` `TextureRect` behind the 3 bottom command `TextureButton`s.
+- Hid the old black `CommandBar` fill with a transparent panel style override.
+- Kept `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` paths and handlers unchanged.
+- Kept the layout scene-authored with no runtime size/position forcing.
+
 ### v0.67u-3 Formation Guide Card Compact Info Polish
 - Hid `UnitCloseupPanel` and kept it reserved for future popup reuse.
 - Repacked each ally/enemy formation guide slot into portrait / name / troop / troop-icon / troop-type layout.

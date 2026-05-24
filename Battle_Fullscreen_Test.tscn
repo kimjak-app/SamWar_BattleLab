@@ -33,6 +33,7 @@
 [ext_resource type="Texture2D" uid="uid://cjekpf0r03gfq" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_auto_pressed.png" id="31_bottom_auto_pressed"]
 [ext_resource type="Texture2D" uid="uid://bbbbmjqsrd6ie" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_retreat_normal.png" id="32_bottom_retreat_normal"]
 [ext_resource type="Texture2D" uid="uid://bx6h5wmi0ke5v" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_retreat_pressed.png" id="33_bottom_retreat_pressed"]
+[ext_resource type="Texture2D" uid="uid://dpsl7jnstytyj" path="res://assets/web_battle/ui/bottom_command/bottom_command_bar_bg.png" id="34_bottom_command_bar_bg"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -2991,6 +2992,17 @@ offset_left = 1309.0
 offset_top = 959.0
 offset_right = 1885.0
 offset_bottom = 1048.0
+
+[node name="BottomCommandBarBackground" type="TextureRect" parent="BattleUI/CommandBar" unique_id=1448700001]
+layout_mode = 0
+offset_left = -44.0
+offset_top = -48.0
+offset_right = 620.0
+offset_bottom = 118.0
+mouse_filter = 2
+texture = ExtResource("34_bottom_command_bar_bg")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="CommandBarLabel" type="Label" parent="BattleUI/CommandBar" unique_id=163471327]
 visible = false

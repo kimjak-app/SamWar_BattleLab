@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.67v Bottom Command Bar Background Panel Apply
+- Applied `bottom_command_bar_bg.png` as the scene-authored `CommandBar` background.
+- Added `BottomCommandBarBackground` under `BattleUI/CommandBar`.
+- Hid the old black `Panel` fill by overriding the `CommandBar` panel style to transparent.
+- Preserved `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` handlers and layout.
+- No battle logic change intended.
+
 ## v0.67u-3 Formation Guide Card Compact Info Polish
 - Hid `UnitCloseupPanel` while preserving its node structure for later reuse.
 - Reworked ally/enemy formation guide cards into compact portrait / name / troop / troop-icon / troop-type layout.

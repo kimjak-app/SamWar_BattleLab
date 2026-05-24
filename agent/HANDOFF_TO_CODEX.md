@@ -12,7 +12,7 @@ Follow the autonomous execution and commit rules in `agent/CODEX_WORKFLOW_RULES.
 ## Stable Baseline
 Current stable baseline is:
 
-`v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable`
+`v0.67u-3 Formation Guide Card Compact Info Polish`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -38,6 +38,8 @@ Do not modify casually:
 - Bottom global command bar exists.
 - Bottom command bar art-prep structure now exists under `assets/web_battle/ui/bottom_command/`.
 - Bottom command buttons are now scene-authored `TextureButton` nodes with the 6 PNG assets connected directly in `Battle_Fullscreen_Test.tscn`.
+- `bottom_command_bar_bg.png` is now applied as the scene-authored `CommandBar` background.
+- The old black `CommandBar` panel fill is hidden via transparent panel styling.
 - 2D editor visibility for the bottom command buttons is restored.
 - Legacy large `LeftPanel` / `RightPanel` info panels are hidden/deprecated.
 - `BattleMiniLogPanel` and `FormationSlotGuideLayer` are now part of the battle UI.
@@ -56,8 +58,8 @@ Do not modify casually:
 - `RetreatButton` remains a disabled placeholder.
 
 ## Recommended Next Task
-- Current task: `v0.67u-3 Formation Guide Card Compact Info Polish`
-- After completion: Formation guide visual polish, bottom command bar background panel art, or `Battle Screen Basic UX Stable` lock
+- Current task: `v0.67v Bottom Command Bar Background Panel Apply`
+- After completion: bottom command bar visual F6 QA, Formation Guide visual polish, or `Battle Screen Basic UX Stable` lock
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.
