@@ -2335,9 +2335,9 @@ autowrap_mode = 2
 
 [node name="BattleMiniLogPanel" type="Panel" parent="BattleUI" unique_id=1688017001]
 offset_left = 2.0
-offset_top = 913.0
+offset_top = 899.0
 offset_right = 238.0
-offset_bottom = 1045.0
+offset_bottom = 1060.0
 mouse_filter = 2
 
 [node name="BattleMiniLogTitleLabel" type="Label" parent="BattleUI/BattleMiniLogPanel" unique_id=782441901]
@@ -2988,17 +2988,16 @@ text = "-"
 horizontal_alignment = 1
 
 [node name="CommandBar" type="Panel" parent="BattleUI" unique_id=2130262646]
-offset_left = 1309.0
-offset_top = 959.0
-offset_right = 1885.0
-offset_bottom = 1048.0
+offset_left = 1254.0
+offset_top = 948.0
+offset_right = 1830.0
+offset_bottom = 1037.0
 
 [node name="BottomCommandBarBackground" type="TextureRect" parent="BattleUI/CommandBar" unique_id=1448700001]
 layout_mode = 0
-offset_left = -44.0
-offset_top = -48.0
-offset_right = 620.0
-offset_bottom = 118.0
+offset_top = -3.9999695
+offset_right = 576.0
+offset_bottom = 88.00003
 mouse_filter = 2
 texture = ExtResource("34_bottom_command_bar_bg")
 expand_mode = 1
@@ -3045,9 +3044,9 @@ text = "대기"
 [node name="EndTurnButton" type="TextureButton" parent="BattleUI/CommandBar" unique_id=1902145002]
 layout_mode = 0
 offset_left = 222.0
-offset_top = 13.0000305
+offset_top = 10.0000305
 offset_right = 362.0
-offset_bottom = 83.00003
+offset_bottom = 80.00003
 texture_normal = ExtResource("28_bottom_end_turn_normal")
 texture_pressed = ExtResource("29_bottom_end_turn_pressed")
 texture_hover = ExtResource("28_bottom_end_turn_normal")
@@ -3058,9 +3057,9 @@ stretch_mode = 0
 [node name="AutoBattleButton" type="TextureButton" parent="BattleUI/CommandBar" unique_id=1847675653]
 layout_mode = 0
 offset_left = 50.0
-offset_top = 12.0
+offset_top = 11.0
 offset_right = 190.0
-offset_bottom = 83.0
+offset_bottom = 82.0
 texture_normal = ExtResource("30_bottom_auto_normal")
 texture_pressed = ExtResource("31_bottom_auto_pressed")
 texture_hover = ExtResource("30_bottom_auto_normal")
@@ -3070,10 +3069,10 @@ stretch_mode = 0
 
 [node name="RetreatButton" type="TextureButton" parent="BattleUI/CommandBar" unique_id=1414351526]
 layout_mode = 0
-offset_left = 380.0
-offset_top = 15.0
-offset_right = 520.0
-offset_bottom = 85.0
+offset_left = 391.0
+offset_top = 14.0
+offset_right = 531.0
+offset_bottom = 84.0
 disabled = true
 texture_normal = ExtResource("32_bottom_retreat_normal")
 texture_pressed = ExtResource("33_bottom_retreat_pressed")
