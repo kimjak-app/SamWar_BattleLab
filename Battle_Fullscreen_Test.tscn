@@ -3169,6 +3169,46 @@ label_settings = SubResource("LabelSettings_round_toast")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="UniqueSkillToastRoot" type="Control" parent="BattleUI"]
+visible = false
+z_index = 260
+layout_mode = 3
+anchors_preset = 0
+offset_right = 560.0
+offset_bottom = 360.0
+pivot_offset = Vector2(280, 180)
+mouse_filter = 2
+
+[node name="UniqueSkillInkBurst" type="ColorRect" parent="BattleUI/UniqueSkillToastRoot"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 560.0
+offset_bottom = 360.0
+mouse_filter = 2
+color = Color(0.0156863, 0.0117647, 0.00784314, 0.88)
+
+[node name="UniqueSkillCutinImage" type="TextureRect" parent="BattleUI/UniqueSkillToastRoot"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 30.0
+offset_right = 536.0
+offset_bottom = 318.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="UniqueSkillNameLabel" type="Label" parent="BattleUI/UniqueSkillToastRoot"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 252.0
+offset_right = 536.0
+offset_bottom = 336.0
+mouse_filter = 2
+text = "고유특기!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="AllyFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938220]
 offset_left = 353.0
 offset_top = 818.0

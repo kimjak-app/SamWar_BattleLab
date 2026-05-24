@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67w Battle Screen Basic UX Stable Lock`
+`v0.67x Unique Skill MVP Per Hero Cutin`
 
 ## Current Implementation Step
+- `v0.67x Unique Skill MVP Per Hero Cutin`
 - `v0.67w Battle Screen Basic UX Stable Lock`
 - `v0.67v Bottom Command Bar Background Panel Apply`
 - `v0.67u-3 Formation Guide Card Compact Info Polish`
@@ -32,6 +33,11 @@ SamWar_BattleLab
 - Formation guide cards now use compact name / troop / troop-icon / troop-type layout.
 - Formation guide status text is removed and active/reserve distinction is style-only.
 - Current battle-screen MVP UX is locked around formation guides + mini log + bottom command bar + floating command panel.
+- Current battle's `10` heroes now have `hero_id`-based unique skill registry entries.
+- Ally manual unique skill use is enabled from the floating command panel.
+- Unique skill presentation uses a world-anchored ink toast over the caster for `2200ms`, with cutin image and skill name text.
+- Unique skill damage uses larger red damage numbers and short camera shake.
+- Enemy / auto unique skill use is deferred.
 - Floating command panel exists.
 - Direct move-click UX stable.
 - Floating panel stays hidden at ally turn start and opens on active ally click.
@@ -68,7 +74,7 @@ SamWar_BattleLab
   - `후퇴` placeholder
 - Floating command panel currently provides:
   - `기본 공격`
-  - `고유특기` placeholder
+  - `고유특기`
   - `책략` placeholder
   - `이동`
   - `대기`
@@ -87,9 +93,9 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.67x Battle Screen Visual Polish`
-2. `v0.68a Worldmap Battle Roster Contract Prep`
-3. `v0.68b Battle Entry / Exit Flow Prep`
+1. `v0.67x-2 Enemy / Auto Unique Skill Smoke`
+2. `v0.67y Tactics MVP`
+3. `v0.68a Worldmap Battle Roster Contract Prep`
 
 ## Archive
 - Full historical copies preserved at:

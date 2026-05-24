@@ -12,7 +12,7 @@ Follow the autonomous execution and commit rules in `agent/CODEX_WORKFLOW_RULES.
 ## Stable Baseline
 Current stable baseline is:
 
-`v0.67w Battle Screen Basic UX Stable Lock`
+`v0.67x Unique Skill MVP Per Hero Cutin`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -63,13 +63,19 @@ Do not modify casually:
 - `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` are now `TextureButton` nodes with existing handlers reused.
 - Existing handlers remain reused.
 - `RetreatButton` remains a disabled placeholder.
+- Current test battle `10` heroes have `hero_id`-based unique skill registry entries.
+- Ally manual unique skill use is enabled through `FloatingUniqueSkillButton`.
+- Unique skill presentation is a caster-anchored ink toast with cutin image + skill name for `2200ms`.
+- Unique skills have MVP effects for `cannon_aoe`, `ally_attack_buff`, `self_defense_single`, and `single_damage_adjacent_shake`.
+- Unique skill damage numbers are larger red labels and unique skills trigger short camera shake.
+- Enemy / auto unique skill use is intentionally deferred.
 
 ## Recommended Next Task
-- Current baseline lock: `v0.67w Battle Screen Basic UX Stable Lock`
+- Current baseline: `v0.67x Unique Skill MVP Per Hero Cutin`
 - Next candidates:
-  - `v0.67x Battle Screen Visual Polish`
+  - `v0.67x-2 Enemy / Auto Unique Skill Smoke`
+  - `v0.67y Tactics MVP`
   - `v0.68a Worldmap Battle Roster Contract Prep`
-  - `v0.68b Battle Entry / Exit Flow Prep`
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

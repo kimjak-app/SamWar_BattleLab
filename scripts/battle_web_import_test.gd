@@ -66,6 +66,18 @@ const FORMATION_GUIDE_SLOT_NODE_PATHS := {
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH := "res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png"
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE := preload("res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png")
 const REINFORCEMENT_ARRIVAL_TOAST_TEXT := "지원군 도착!"
+const UNIQUE_SKILL_TOAST_DURATION := 2.2
+const UNIQUE_SKILL_EFFECT_APPLY_DELAY := 0.72
+const UNIQUE_SKILL_CUTIN_DISPLAY_SIZE := Vector2(512.0, 288.0)
+const UNIQUE_SKILL_TOAST_SIZE := Vector2(560.0, 360.0)
+const UNIQUE_SKILL_TOAST_WORLD_OFFSET := Vector2(0.0, -210.0)
+const UNIQUE_SKILL_DAMAGE_FONT_SIZE := 42
+const UNIQUE_SKILL_DEFAULT_DAMAGE := 44
+const UNIQUE_SKILL_AOE_DAMAGE := 38
+const UNIQUE_SKILL_SPLASH_DAMAGE := 18
+const UNIQUE_SKILL_ATTACK_BUFF := 6
+const UNIQUE_SKILL_DEFENSE_BUFF := 4
+const UNIQUE_SKILL_USED_FLAG := true
 const VICTORY_TOAST_TEXTURE := preload("res://assets/web_battle/ui/results/battle_result_victory.png")
 const DEFEAT_TOAST_TEXTURE := preload("res://assets/web_battle/ui/results/battle_result_defeat.png")
 const VICTORY_TOAST_TEXT := "승리!"
@@ -180,6 +192,144 @@ const TEST_BATTLE_ROSTER := {
 	"enemy_main_03": "xiahou_dun",
 	"enemy_reinforce_01": "liu_bei",
 	"enemy_reinforce_02": "zhuge_liang",
+}
+const UNIQUE_SKILL_REGISTRY := {
+	"yi_sunsin": {
+		"skill_id": "hakikjin_barrage",
+		"hero_id": "yi_sunsin",
+		"name": "학익진 포격",
+		"toast_text": "학익진 포격!",
+		"effect_type": "cannon_aoe",
+		"power": 44,
+		"radius": 2,
+		"cutin_image_path": "res://assets/web_battle/skill_cutins/yi_sunsin_hakikjin.png",
+		"target_mode": "enemy_auto_aoe",
+		"consumes_action": true,
+		"cooldown_turns": 0,
+		"unique": true,
+	},
+	"jeong_dojeon": {
+		"skill_id": "reform_order",
+		"hero_id": "jeong_dojeon",
+		"name": "개혁령",
+		"toast_text": "개혁령!",
+		"effect_type": "ally_attack_buff",
+		"power": UNIQUE_SKILL_ATTACK_BUFF,
+		"cutin_image_path": "res://assets/web_battle/skill_cutins/jeong_dojeon_reform_order.png",
+		"target_mode": "ally_all",
+		"consumes_action": true,
+		"cooldown_turns": 0,
+		"unique": true,
+	},
+	"kwon_yul": {
+		"skill_id": "gwon_yul_haengju_defense",
+		"hero_id": "kwon_yul",
+		"name": "행주대첩",
+		"toast_text": "행주대첩!",
+		"effect_type": "ally_attack_buff",
+		"power": UNIQUE_SKILL_ATTACK_BUFF,
+		"cutin_image_path": "res://assets/web_battle/skill_cutins/gwon_yul_haengju_defense.png",
+		"target_mode": "ally_all",
+		"consumes_action": true,
+		"cooldown_turns": 0,
+		"unique": true,
+	},
+	"gim_yusin": {
+		"skill_id": "kim_yu_sin_unification_charge",
+		"hero_id": "gim_yusin",
+		"name": "삼국통일 돌격",
+		"toast_text": "삼국통일 돌격!",
+		"effect_type": "self_defense_single",
+		"power": 50,
+		"defense_bonus": UNIQUE_SKILL_DEFENSE_BUFF,
+		"cutin_image_path": "res://assets/web_battle/skill_cutins/kim_yu_sin_unification_charge.png",
+		"target_mode": "enemy_auto_single",
+		"consumes_action": true,
+		"cooldown_turns": 0,
+		"unique": true,
+	},
+	"eulji_mundeok": {
+		"skill_id": "eulji_mundeok_salsu_ambush",
+		"hero_id": "eulji_mundeok",
+		"name": "살수대첩 매복",
+		"toast_text": "살수대첩 매복!",
+		"effect_type": "single_damage_adjacent_shake",
+		"power": 48,
+		"splash": UNIQUE_SKILL_SPLASH_DAMAGE,
+		"cutin_image_path": "res://assets/web_battle/skill_cutins/eulji_mundeok_salsu_ambush.png",
+		"target_mode": "enemy_auto_single",
+		"consumes_action": true,
+		"cooldown_turns": 0,
+		"unique": true,
+	},
+	"guan_yu": {
+		"skill_id": "crescent_blade_slash",
+		"hero_id": "guan_yu",
+		"name": "언월참",
+		"toast_text": "언월참!",
+		"effect_type": "self_defense_single",
+		"power": 54,
+		"defense_bonus": UNIQUE_SKILL_DEFENSE_BUFF,
+		"cutin_image_path": "res://assets/web_battle/skill_cutins/guan_yu_crescent_blade_slash.png",
+		"target_mode": "enemy_auto_single",
+		"consumes_action": true,
+		"cooldown_turns": 0,
+		"unique": true,
+	},
+	"zhang_fei": {
+		"skill_id": "changban_shatter",
+		"hero_id": "zhang_fei",
+		"name": "장판파열",
+		"toast_text": "장판파열!",
+		"effect_type": "single_damage_adjacent_shake",
+		"power": 50,
+		"splash": UNIQUE_SKILL_SPLASH_DAMAGE,
+		"cutin_image_path": "res://assets/web_battle/skill_cutins/zhang_fei_changban_shatter.png",
+		"target_mode": "enemy_auto_single",
+		"consumes_action": true,
+		"cooldown_turns": 0,
+		"unique": true,
+	},
+	"xiahou_dun": {
+		"skill_id": "xiahou_dun_fierce_breakthrough",
+		"hero_id": "xiahou_dun",
+		"name": "맹장돌파",
+		"toast_text": "맹장돌파!",
+		"effect_type": "self_defense_single",
+		"power": 50,
+		"defense_bonus": UNIQUE_SKILL_DEFENSE_BUFF,
+		"cutin_image_path": "res://assets/web_battle/skill_cutins/xiahou_dun_fierce_breakthrough.png",
+		"target_mode": "enemy_auto_single",
+		"consumes_action": true,
+		"cooldown_turns": 0,
+		"unique": true,
+	},
+	"liu_bei": {
+		"skill_id": "liu_bei_banner_of_benevolence",
+		"hero_id": "liu_bei",
+		"name": "인덕의 깃발",
+		"toast_text": "인덕의 깃발!",
+		"effect_type": "ally_attack_buff",
+		"power": UNIQUE_SKILL_ATTACK_BUFF,
+		"cutin_image_path": "res://assets/web_battle/skill_cutins/liu_bei_banner_of_benevolence.png",
+		"target_mode": "ally_all",
+		"consumes_action": true,
+		"cooldown_turns": 0,
+		"unique": true,
+	},
+	"zhuge_liang": {
+		"skill_id": "zhuge_liang_eight_trigram_formation",
+		"hero_id": "zhuge_liang",
+		"name": "팔진도",
+		"toast_text": "팔진도!",
+		"effect_type": "ally_attack_buff",
+		"power": UNIQUE_SKILL_ATTACK_BUFF,
+		"cutin_image_path": "res://assets/web_battle/skill_cutins/zhuge_liang_eight_trigram_formation.png",
+		"target_mode": "ally_all",
+		"consumes_action": true,
+		"cooldown_turns": 0,
+		"unique": true,
+	},
 }
 const ENEMY_MAIN_01_PORTRAIT_TEXTURE := preload("res://assets/web_battle/portraits_battlefield/guan_yu_battlefield.png")
 const ENEMY_MAIN_03_PORTRAIT_TEXTURE := preload("res://assets/web_battle/portraits_battlefield/xiahou_dun_battlefield.png")
@@ -437,6 +587,7 @@ var move_range_cells: Array[ColorRect] = []
 var acted_ally_unit_ids: Dictionary = {}
 var acted_enemy_unit_ids: Dictionary = {}
 var dead_unit_ids: Dictionary = {}
+var used_unique_skill_hero_ids: Dictionary = {}
 var battle_round := 1
 var has_deployed_reinforce_01 := false
 var has_deployed_reinforce_02 := false
@@ -448,6 +599,11 @@ var pending_battle_toasts: Array = []
 var is_battle_toast_playing := false
 var active_battle_toast_tag := ""
 var has_battle_result_toast_shown := false
+var unique_skill_toast_tween: Tween = null
+var is_unique_skill_presenting := false
+var unique_skill_texture_cache: Dictionary = {}
+var camera_shake_tween: Tween = null
+var main_camera_base_position := Vector2.ZERO
 var enemy_ai_last_destination_debug: Dictionary = {}
 var enemy_ai_reserved_destination_cells: Dictionary = {}
 var enemy_ai_reserved_engagement_cells: Dictionary = {}
@@ -749,6 +905,10 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var round_toast_root: Control = get_node_or_null("BattleUI/RoundToastRoot") as Control
 @onready var round_toast_image: TextureRect = get_node_or_null("BattleUI/RoundToastRoot/RoundToastImage") as TextureRect
 @onready var round_toast_label: Label = get_node_or_null("BattleUI/RoundToastRoot/RoundToastLabel") as Label
+@onready var unique_skill_toast_root: Control = get_node_or_null("BattleUI/UniqueSkillToastRoot") as Control
+@onready var unique_skill_ink_burst: ColorRect = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillInkBurst") as ColorRect
+@onready var unique_skill_cutin_image: TextureRect = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillCutinImage") as TextureRect
+@onready var unique_skill_name_label: Label = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillNameLabel") as Label
 @onready var unit_closeup_panel: Panel = get_node_or_null("BattleUI/UnitCloseupPanel") as Panel
 @onready var closeup_hero_portrait: TextureRect = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupHeroPortrait") as TextureRect
 @onready var closeup_troop_image: TextureRect = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupTroopImage") as TextureRect
@@ -830,6 +990,8 @@ func _ready() -> void:
 	_configure_command_bar()
 	if floating_basic_attack_button != null:
 		floating_basic_attack_button.pressed.connect(try_basic_attack)
+	if floating_unique_skill_button != null:
+		floating_unique_skill_button.pressed.connect(_on_unique_skill_button_pressed)
 	if floating_move_button != null:
 		floating_move_button.pressed.connect(play_basic_move_demo)
 	if floating_wait_button != null:
@@ -851,6 +1013,9 @@ func _ready() -> void:
 	if face_down_arrow_button != null:
 		face_down_arrow_button.pressed.connect(_select_post_move_facing.bind(FACING_DOWN))
 	_configure_round_toast()
+	_configure_unique_skill_toast()
+	if main_camera != null:
+		main_camera_base_position = main_camera.position
 	_collect_move_range_cells()
 	_capture_scene_authored_unit_layout_offsets()
 	_rebuild_unit_visual_slot_refs()
@@ -988,6 +1153,7 @@ func reset_demo_state() -> void:
 	ally_has_moved = false
 	battle_round = 1
 	dead_unit_ids.clear()
+	used_unique_skill_hero_ids.clear()
 	has_deployed_reinforce_01 = false
 	has_deployed_reinforce_02 = false
 	_build_capacity_slot_metadata_registry()
@@ -1006,12 +1172,22 @@ func reset_demo_state() -> void:
 	if round_toast_tween != null:
 		round_toast_tween.kill()
 		round_toast_tween = null
+	if unique_skill_toast_tween != null:
+		unique_skill_toast_tween.kill()
+		unique_skill_toast_tween = null
+	if camera_shake_tween != null:
+		camera_shake_tween.kill()
+		camera_shake_tween = null
+	if main_camera != null:
+		main_camera.position = main_camera_base_position
+	is_unique_skill_presenting = false
 	pending_battle_toasts.clear()
 	is_battle_toast_playing = false
 	active_battle_toast_tag = ""
 	has_battle_result_toast_shown = false
 	enemy_ai_last_destination_debug.clear()
 	_hide_round_start_toast()
+	_hide_unique_skill_toast()
 	has_logged_hero_identity_validation = false
 	battle_log_lines = [
 		"아군 준비",
@@ -1324,6 +1500,281 @@ func _finish_basic_attack_demo() -> void:
 	_play_enemy_turn_demo()
 
 
+func _get_unique_skill_for_unit(unit_state: BattleUnitState) -> Dictionary:
+	var hero_id := _get_hero_id_for_unit_state(unit_state)
+	if hero_id == "":
+		return {}
+	return UNIQUE_SKILL_REGISTRY.get(hero_id, {})
+
+
+func _can_use_unique_skill(unit_state: BattleUnitState) -> bool:
+	if unit_state == null:
+		return false
+	if current_phase != PHASE_ALLY_TURN:
+		return false
+	if is_demo_animating or is_unique_skill_presenting:
+		return false
+	if active_unit_side != "ally" or unit_state.side != "ally":
+		return false
+	if unit_state != active_unit_state:
+		return false
+	if not unit_state.is_alive():
+		return false
+	if not _is_active_ally_action_available():
+		return false
+	var hero_id := _get_hero_id_for_unit_state(unit_state)
+	if hero_id == "" or bool(used_unique_skill_hero_ids.get(hero_id, false)):
+		return false
+	return not _get_unique_skill_for_unit(unit_state).is_empty()
+
+
+func _on_unique_skill_button_pressed() -> void:
+	if not _can_use_unique_skill(active_unit_state):
+		_append_battle_log("고유특기 사용 불가")
+		_refresh_floating_ally_command_panel()
+		return
+	var skill_data := _get_unique_skill_for_unit(active_unit_state)
+	if skill_data.is_empty():
+		return
+	_begin_unique_skill_sequence(active_unit_state, skill_data)
+
+
+func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	if caster_state == null or skill_data.is_empty():
+		return
+	is_demo_animating = true
+	is_unique_skill_presenting = true
+	is_floating_ally_command_panel_requested = false
+	_hide_facing_selection_panel()
+	_hide_move_range_overlay()
+	_hide_attack_range_overlay()
+	_clear_move_target_selection()
+	_set_phase(PHASE_RESOLVING)
+	_stop_idle_breathing()
+	_sync_demo_positions()
+	_show_unique_skill_toast_over_unit(caster_state, skill_data)
+	_append_battle_log("%s이 %s을 발동!" % [caster_state.display_name, String(skill_data.get("name", "고유특기"))])
+	_start_unique_skill_camera_shake(String(skill_data.get("effect_type", "")))
+	var remaining_duration := maxf(0.0, UNIQUE_SKILL_TOAST_DURATION - UNIQUE_SKILL_EFFECT_APPLY_DELAY)
+	get_tree().create_timer(UNIQUE_SKILL_EFFECT_APPLY_DELAY).timeout.connect(_apply_unique_skill_effect_if_valid.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
+	get_tree().create_timer(UNIQUE_SKILL_EFFECT_APPLY_DELAY + remaining_duration).timeout.connect(_finalize_unique_skill_action.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
+
+
+func _apply_unique_skill_effect_if_valid(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	if caster_state == null or not caster_state.is_alive():
+		return
+	if not is_unique_skill_presenting:
+		return
+	_apply_unique_skill_effect(caster_state, skill_data)
+
+
+func _show_unique_skill_toast_over_unit(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	if unique_skill_toast_root == null:
+		return
+	if unique_skill_toast_tween != null:
+		unique_skill_toast_tween.kill()
+		unique_skill_toast_tween = null
+	var anchor := _world_to_battle_ui_position(_get_visual_anchor_position_for_unit(caster_state) + UNIQUE_SKILL_TOAST_WORLD_OFFSET)
+	var viewport_size := get_viewport_rect().size
+	var desired_position := anchor - (UNIQUE_SKILL_TOAST_SIZE * 0.5)
+	desired_position.x = clampf(desired_position.x, 12.0, maxf(12.0, viewport_size.x - UNIQUE_SKILL_TOAST_SIZE.x - 12.0))
+	desired_position.y = clampf(desired_position.y, 12.0, maxf(12.0, viewport_size.y - UNIQUE_SKILL_TOAST_SIZE.y - 12.0))
+	unique_skill_toast_root.position = desired_position
+	unique_skill_toast_root.size = UNIQUE_SKILL_TOAST_SIZE
+	unique_skill_toast_root.pivot_offset = UNIQUE_SKILL_TOAST_SIZE * 0.5
+	unique_skill_toast_root.visible = true
+	unique_skill_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	unique_skill_toast_root.scale = Vector2.ONE * 0.85
+	if unique_skill_cutin_image != null:
+		unique_skill_cutin_image.texture = _get_unique_skill_cutin_texture(caster_state, skill_data)
+	if unique_skill_name_label != null:
+		unique_skill_name_label.text = String(skill_data.get("toast_text", "%s!" % String(skill_data.get("name", "고유특기"))))
+
+	unique_skill_toast_tween = create_tween()
+	unique_skill_toast_tween.set_parallel(true)
+	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 1.0, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "scale", Vector2.ONE * 1.03, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	unique_skill_toast_tween.chain().tween_property(unique_skill_toast_root, "scale", Vector2.ONE, 0.13).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	unique_skill_toast_tween.tween_interval(1.2)
+	unique_skill_toast_tween.set_parallel(true)
+	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "position", desired_position + Vector2(0.0, -18.0), 0.75).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 0.0, 0.75).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	unique_skill_toast_tween.chain().tween_callback(_hide_unique_skill_toast)
+
+
+func _get_unique_skill_cutin_texture(caster_state: BattleUnitState, skill_data: Dictionary) -> Texture2D:
+	var path := String(skill_data.get("cutin_image_path", ""))
+	var texture := _load_unique_skill_texture(path)
+	if texture != null:
+		return texture
+	var hero_entry := _get_hero_registry_entry(_get_hero_id_for_unit_state(caster_state))
+	texture = _load_unique_skill_texture(String(hero_entry.get("battlefield_portrait_path", "")))
+	if texture != null:
+		return texture
+	return _load_unique_skill_texture(String(hero_entry.get("closeup_portrait_path", "")))
+
+
+func _load_unique_skill_texture(path: String) -> Texture2D:
+	if path == "":
+		return null
+	if unique_skill_texture_cache.has(path):
+		return unique_skill_texture_cache.get(path) as Texture2D
+	var texture: Texture2D = null
+	if ResourceLoader.exists(path):
+		var loaded_resource := load(path)
+		texture = loaded_resource as Texture2D
+		if texture != null:
+			unique_skill_texture_cache[path] = texture
+			return texture
+	var image := Image.new()
+	if image.load(path) == OK:
+		texture = ImageTexture.create_from_image(image)
+		unique_skill_texture_cache[path] = texture
+	return texture
+
+
+func _apply_unique_skill_effect(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	var effect_type := String(skill_data.get("effect_type", ""))
+	match effect_type:
+		"cannon_aoe":
+			_apply_unique_skill_cannon_aoe(caster_state, skill_data)
+		"ally_attack_buff":
+			_apply_unique_skill_ally_attack_buff(caster_state, skill_data)
+		"self_defense_single":
+			_apply_unique_skill_self_defense_single(caster_state, skill_data)
+		"single_damage_adjacent_shake":
+			_apply_unique_skill_single_damage_adjacent_shake(caster_state, skill_data)
+		_:
+			_apply_unique_skill_self_defense_single(caster_state, skill_data)
+	_update_all_unit_visuals_from_state()
+	_update_ally_ready_frames()
+	_refresh_formation_slot_guides()
+	_cleanup_dead_units()
+
+
+func _apply_unique_skill_cannon_aoe(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	var primary_target := _find_unique_skill_enemy_target(caster_state)
+	if primary_target == null:
+		_append_battle_log("고유특기 대상 없음")
+		return
+	var radius := int(skill_data.get("radius", 2))
+	var damage := int(skill_data.get("power", UNIQUE_SKILL_AOE_DAMAGE))
+	var hit_count := 0
+	for target_state in _get_alive_deployed_unit_states_for_side(_get_opposing_side(caster_state.side)):
+		if get_unit_grid_distance(primary_target, target_state) > radius:
+			continue
+		var applied := target_state.apply_damage(damage)
+		if applied <= 0:
+			continue
+		hit_count += 1
+		var target_pos := _get_visual_anchor_position_for_unit(target_state)
+		_update_unit_visuals_from_state(target_state)
+		_spawn_hit_battle_dust_fx(target_pos)
+		_spawn_hit_spark_fx(target_pos)
+		_spawn_skill_damage_number_fx(target_pos, applied)
+	if hit_count > 0:
+		_append_battle_log("적군 다수에게 %d 피해" % damage)
+
+
+func _apply_unique_skill_ally_attack_buff(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	var buff_amount := int(skill_data.get("power", UNIQUE_SKILL_ATTACK_BUFF))
+	var affected_count := 0
+	for ally_state in _get_alive_deployed_unit_states_for_side(caster_state.side):
+		ally_state.attack += buff_amount
+		affected_count += 1
+		_spawn_buff_number_fx(_get_visual_anchor_position_for_unit(ally_state), "+공 %d" % buff_amount)
+	if affected_count > 0:
+		_append_battle_log("아군 공격력 상승")
+
+
+func _apply_unique_skill_self_defense_single(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	var target_state := _find_unique_skill_enemy_target(caster_state)
+	if target_state == null:
+		_append_battle_log("고유특기 대상 없음")
+		return
+	var damage := int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE))
+	var applied := target_state.apply_damage(damage)
+	caster_state.defense += int(skill_data.get("defense_bonus", UNIQUE_SKILL_DEFENSE_BUFF))
+	_update_unit_visuals_from_state(target_state)
+	var target_pos := _get_visual_anchor_position_for_unit(target_state)
+	_spawn_hit_battle_dust_fx(target_pos)
+	_spawn_hit_spark_fx(target_pos)
+	_spawn_skill_damage_number_fx(target_pos, applied)
+	_spawn_buff_number_fx(_get_visual_anchor_position_for_unit(caster_state), "+방 %d" % int(skill_data.get("defense_bonus", UNIQUE_SKILL_DEFENSE_BUFF)))
+	_append_battle_log("%s에게 %d 피해" % [target_state.display_name, applied])
+
+
+func _apply_unique_skill_single_damage_adjacent_shake(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	var target_state := _find_unique_skill_enemy_target(caster_state)
+	if target_state == null:
+		_append_battle_log("고유특기 대상 없음")
+		return
+	var damage := int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE))
+	var splash_damage := int(skill_data.get("splash", UNIQUE_SKILL_SPLASH_DAMAGE))
+	var applied := target_state.apply_damage(damage)
+	var target_pos := _get_visual_anchor_position_for_unit(target_state)
+	_update_unit_visuals_from_state(target_state)
+	_spawn_hit_battle_dust_fx(target_pos)
+	_spawn_hit_spark_fx(target_pos)
+	_spawn_skill_damage_number_fx(target_pos, applied)
+	for adjacent_state in _get_alive_deployed_unit_states_for_side(_get_opposing_side(caster_state.side)):
+		if adjacent_state == target_state:
+			continue
+		if get_unit_grid_distance(target_state, adjacent_state) > 1:
+			continue
+		var splash_applied := adjacent_state.apply_damage(splash_damage)
+		_update_unit_visuals_from_state(adjacent_state)
+		_spawn_skill_damage_number_fx(_get_visual_anchor_position_for_unit(adjacent_state), splash_applied)
+	_append_battle_log("%s에게 %d 피해" % [target_state.display_name, applied])
+
+
+func _find_unique_skill_enemy_target(caster_state: BattleUnitState) -> BattleUnitState:
+	if caster_state == null:
+		return null
+	if selected_attack_target_state != null and _is_unit_state_available_for_battle_slot(selected_attack_target_state) and selected_attack_target_state.side != caster_state.side:
+		return selected_attack_target_state
+	var best_target: BattleUnitState = null
+	var best_distance := 9999
+	for target_state in _get_alive_deployed_unit_states_for_side(_get_opposing_side(caster_state.side)):
+		var distance := get_unit_grid_distance(caster_state, target_state)
+		if distance < best_distance:
+			best_distance = distance
+			best_target = target_state
+	return best_target
+
+
+func _get_opposing_side(side: String) -> String:
+	if side == "ally":
+		return "enemy"
+	return "ally"
+
+
+func _finalize_unique_skill_action(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	_hide_unique_skill_toast()
+	is_unique_skill_presenting = false
+	is_demo_animating = false
+	_reset_unit_group_positions()
+	_hide_all_move_dust_sprites()
+	_set_all_unit_group_modulates(Color.WHITE)
+	_clear_attack_target_selection()
+	_clear_pending_move_snapshot()
+	_clear_auto_action_flags()
+	var hero_id := _get_hero_id_for_unit_state(caster_state)
+	if hero_id != "":
+		used_unique_skill_hero_ids[hero_id] = UNIQUE_SKILL_USED_FLAG
+	if bool(skill_data.get("consumes_action", true)):
+		_mark_ally_unit_acted(caster_state)
+	_show_unit_closeup_for_ally(caster_state)
+	_update_ally_ready_frames()
+	_cleanup_dead_units()
+	if _is_battle_result_finalized():
+		_set_phase(PHASE_ALLY_TURN)
+		return
+	_set_phase(PHASE_ENEMY_TURN)
+	_append_battle_log("적군 턴")
+	_play_enemy_turn_demo()
+
+
 func _set_phase(new_phase: String) -> void:
 	if new_phase != PHASE_ALLY_TURN:
 		_stop_active_ally_turn_pulse()
@@ -1386,6 +1837,7 @@ func _configure_floating_ally_command_panel() -> void:
 		floating_ally_command_panel.add_theme_stylebox_override("panel", panel_style)
 	if floating_unique_skill_button != null:
 		floating_unique_skill_button.disabled = true
+		floating_unique_skill_button.tooltip_text = "고유특기"
 	if floating_tactics_button != null:
 		floating_tactics_button.disabled = true
 	for button in [
@@ -1494,7 +1946,14 @@ func _refresh_floating_ally_command_panel() -> void:
 	if floating_wait_button != null:
 		floating_wait_button.disabled = not can_issue_ally_command
 	if floating_unique_skill_button != null:
-		floating_unique_skill_button.disabled = true
+		var skill_data := _get_unique_skill_for_unit(active_unit_state)
+		floating_unique_skill_button.disabled = not _can_use_unique_skill(active_unit_state)
+		if not skill_data.is_empty():
+			floating_unique_skill_button.text = String(skill_data.get("name", "고유특기"))
+			floating_unique_skill_button.tooltip_text = String(skill_data.get("name", "고유특기"))
+		else:
+			floating_unique_skill_button.text = "고유특기"
+			floating_unique_skill_button.tooltip_text = "고유특기"
 	if floating_tactics_button != null:
 		floating_tactics_button.disabled = true
 	_position_floating_ally_command_panel()
@@ -4477,6 +4936,38 @@ func _configure_round_toast() -> void:
 		round_toast_label.modulate = Color(1.0, 1.0, 1.0, 0.0)
 
 
+func _configure_unique_skill_toast() -> void:
+	if unique_skill_toast_root != null:
+		unique_skill_toast_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		unique_skill_toast_root.size = UNIQUE_SKILL_TOAST_SIZE
+		unique_skill_toast_root.pivot_offset = UNIQUE_SKILL_TOAST_SIZE * 0.5
+		unique_skill_toast_root.visible = false
+	if unique_skill_ink_burst != null:
+		unique_skill_ink_burst.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		unique_skill_ink_burst.color = Color(0.02, 0.015, 0.008, 0.88)
+		unique_skill_ink_burst.size = UNIQUE_SKILL_TOAST_SIZE
+	if unique_skill_cutin_image != null:
+		unique_skill_cutin_image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		unique_skill_cutin_image.size = UNIQUE_SKILL_CUTIN_DISPLAY_SIZE
+		unique_skill_cutin_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		unique_skill_cutin_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	if unique_skill_name_label != null:
+		unique_skill_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		unique_skill_name_label.add_theme_font_size_override("font_size", 42)
+		unique_skill_name_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.48, 1.0))
+		unique_skill_name_label.add_theme_color_override("font_outline_color", Color(0.04, 0.02, 0.0, 0.95))
+		unique_skill_name_label.add_theme_constant_override("outline_size", 5)
+
+
+func _hide_unique_skill_toast() -> void:
+	if unique_skill_toast_root != null:
+		unique_skill_toast_root.visible = false
+		unique_skill_toast_root.modulate = Color.WHITE
+		unique_skill_toast_root.scale = Vector2.ONE
+	if unique_skill_cutin_image != null:
+		unique_skill_cutin_image.texture = null
+
+
 func _show_round_start_banner() -> void:
 	_show_round_start_toast(battle_round)
 
@@ -4918,6 +5409,77 @@ func _spawn_damage_number_fx(target_pos: Vector2, amount: int) -> void:
 	tween.tween_property(label, "scale", Vector2.ONE * 1.05, 0.75).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(label, "modulate:a", 0.0, 0.75).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.chain().tween_callback(label.queue_free)
+
+
+func _spawn_skill_damage_number_fx(target_pos: Vector2, amount: int) -> void:
+	if battle_fx_root == null:
+		return
+	var label := Label.new()
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.text = "-%d" % maxi(0, amount)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", UNIQUE_SKILL_DAMAGE_FONT_SIZE)
+	label.add_theme_color_override("font_color", Color(1.0, 0.18, 0.08, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.02, 0.0, 0.0, 0.95))
+	label.add_theme_constant_override("outline_size", 5)
+	label.size = Vector2(170.0, 76.0)
+	label.position = target_pos + Vector2(-85.0, -116.0)
+	label.z_index = 36
+	label.modulate = Color.WHITE
+	label.scale = Vector2.ONE * 1.08
+	battle_fx_root.add_child(label)
+
+	var end_position := label.position + Vector2(0.0, -44.0)
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "position", end_position, 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "scale", Vector2.ONE * 1.24, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "modulate:a", 0.0, 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(label.queue_free)
+
+
+func _spawn_buff_number_fx(target_pos: Vector2, text: String) -> void:
+	if battle_fx_root == null:
+		return
+	var label := Label.new()
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 28)
+	label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.42, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.0, 0.9))
+	label.add_theme_constant_override("outline_size", 4)
+	label.size = Vector2(150.0, 56.0)
+	label.position = target_pos + Vector2(-75.0, -132.0)
+	label.z_index = 35
+	battle_fx_root.add_child(label)
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "position", label.position + Vector2(0.0, -24.0), 0.72).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "modulate:a", 0.0, 0.72).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(label.queue_free)
+
+
+func _start_unique_skill_camera_shake(effect_type: String) -> void:
+	if main_camera == null:
+		return
+	if camera_shake_tween != null:
+		camera_shake_tween.kill()
+	main_camera.position = main_camera_base_position
+	var duration := 0.24
+	var strength := 12.0
+	if effect_type == "cannon_aoe" or effect_type == "single_damage_adjacent_shake":
+		duration = 0.30
+		strength = 14.0
+	var shake_steps := 8
+	camera_shake_tween = create_tween()
+	for step in range(shake_steps):
+		var offset := Vector2(randf_range(-strength, strength), randf_range(-strength, strength))
+		camera_shake_tween.tween_property(main_camera, "position", main_camera_base_position + offset, duration / float(shake_steps)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	camera_shake_tween.tween_property(main_camera, "position", main_camera_base_position, 0.04).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
 func _load_random_fx_texture(paths: Array[String]) -> Texture2D:

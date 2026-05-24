@@ -2,6 +2,25 @@
 
 ## 2026-05-24
 
+### v0.67x Unique Skill MVP Per Hero Cutin
+- Added current-roster unique skill registry entries for:
+  - 이순신
+  - 정도전
+  - 권율
+  - 김유신
+  - 을지문덕
+  - 관우
+  - 장비
+  - 하후돈
+  - 유비
+  - 제갈량
+- Connected unique skill cutins under `assets/web_battle/skill_cutins/`.
+- Added `UniqueSkillToastRoot` scene nodes for a caster-anchored ink toast.
+- Kept the presentation timing at `2200ms`.
+- Enabled `FloatingUniqueSkillButton` for active living ally units with available unique skill data.
+- Added MVP effects, large red skill damage numbers, camera shake, battle mini-log entries, and action consumption.
+- Deferred enemy / auto unique skill use.
+
 ### v0.67w Battle Screen Basic UX Stable Lock
 - Locked the current MVP battle-screen UX baseline without adding new functionality.
 - Verified:
@@ -88,9 +107,10 @@
 - Removed top-level priority confusion from older `v0.67k` baseline references while leaving archived history intact.
 
 ### Current stable reference
-- `v0.67w Battle Screen Basic UX Stable Lock`
+- `v0.67x Unique Skill MVP Per Hero Cutin`
 - Stable `5v5` battle loop
 - Stable formation guide + mini log + bottom command bar + floating command panel MVP screen composition
+- Stable ally manual unique skill MVP with caster-anchored cutin toast
 - Stable reinforcement / round / result toast flow
 - Stable floating command panel, bottom command bar, direct move-click UX, rollback, post-move reopen, and active ally pivot-locked root pulse
 

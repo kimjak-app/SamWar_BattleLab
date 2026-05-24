@@ -1,28 +1,35 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67w Battle Screen Basic UX Stable Lock`
+`v0.67x Unique Skill MVP Per Hero Cutin`
 
 ## Priority 1
-`v0.67x Battle Screen Visual Polish`
+`v0.67x-2 Enemy / Auto Unique Skill Smoke`
 
 Goal:
-- polish the locked MVP battle screen without changing battle logic
-- keep the current formation guide, mini log, bottom command bar, and floating panel structure intact
+- add smoke coverage and/or minimal logic for enemy and auto unique skill use
+- keep the current ally manual unique skill MVP stable
 
 ## Priority 2
+`v0.67y Tactics MVP`
+
+Goal:
+- turn the floating `책략` placeholder into the next small battle command surface
+
+## Priority 3
 `v0.68a Worldmap Battle Roster Contract Prep`
 
 Goal:
 - prepare roster contract work between worldmap party state and the stable `5v5` battle entry shape
 
-## Priority 3
-`v0.68b Battle Entry / Exit Flow Prep`
-
-Goal:
-- prepare clean battle enter/exit flow work on top of the locked MVP battle screen baseline
-
 ## Completed / Archived Context
+- `v0.67x Unique Skill MVP Per Hero Cutin` is complete.
+- Added `10` hero unique skill registry entries for the current test battle roster.
+- Linked the `6` new cutin images and existing Yi Sunsin / Jeong Dojeon / Guan Yu / Zhang Fei cutins.
+- Enabled ally manual unique skill use from the floating command panel.
+- Added a world-anchored ink unique skill toast with `2200ms` timing, cutin image, and skill name text.
+- Added large red unique skill damage numbers and short camera shake.
+- Enemy / auto unique skill use is deferred to a future pass.
 - `v0.67w Battle Screen Basic UX Stable Lock` is complete.
 - Locked the current MVP battle-screen UX around:
   - ally formation guide `5` cards

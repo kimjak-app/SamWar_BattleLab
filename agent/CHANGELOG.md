@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.67x Unique Skill MVP Per Hero Cutin
+- Added `10` hero unique skill registry entries for the current battle roster.
+- Linked the `6` new cutin images plus existing Yi Sunsin / Jeong Dojeon / Guan Yu / Zhang Fei cutins.
+- Enabled ally manual unique skill use through the floating command panel.
+- Added a world-anchored ink unique skill toast with cutin image, skill name text, and `2200ms` display timing.
+- Added MVP effects for cannon AOE, ally attack buff, self-defense single strike, and single damage with adjacent shake.
+- Added larger red unique skill damage numbers and short camera shake for unique skills only.
+- Enemy / auto unique skill use remains deferred.
+
 ## v0.67w Battle Screen Basic UX Stable Lock
 - Locked the current battle-screen MVP UX as the stable baseline.
 - Verified the battle UI structure around ally/enemy formation guides, lower-left mini log, bottom command bar, and floating command panel.
