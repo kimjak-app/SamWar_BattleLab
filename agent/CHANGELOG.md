@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix
+- Removed the `is_visible` parameter shadowing warning in the formation guide ready icon helper.
+- Hid the unique skill toast black rectangular backdrop while preserving the cutin image and skill name.
+- Kept `FloatingUniqueSkillButton` hover tooltip text empty while preserving the button label.
+- Enlarged the formation-guide `UniqueSkillReadyIcon` to `36 x 36`.
+- Changed ally manual unique skill UX to enter range/target selection first and resolve only after a valid target click.
+- Added purple unique skill range cells and gold/orange valid target cells using the existing overlay pool.
+- Kept `SkillInfoPanel` deferred to a future pass.
+
 ## v0.67x-1 Unique Skill Hover Cleanup + Ready Icon
 - Removed duplicate hover tooltip text from `FloatingUniqueSkillButton` while keeping the button label itself visible.
 - Added a small `UniqueSkillReadyIcon` to ally/enemy formation guide slots and only show it for the currently usable active ally.

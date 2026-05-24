@@ -1,28 +1,36 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x-1 Unique Skill Hover Cleanup + Ready Icon`
+`v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix`
 
 ## Priority 1
-`v0.67x-2 Unique Skill Info Panel`
+`v0.67x-2 Enemy And Auto Unique Skill Use + Directional Damage Bonus`
+
+Goal:
+- add enemy / auto unique skill use coverage
+- add or prepare directional damage bonus handling without destabilizing manual ally targeting
+
+## Priority 2
+`v0.67x-3 Unique Skill Info Panel`
 
 Goal:
 - replace the removed hover tooltip with a dedicated adjacent unique skill info panel
 - keep the floating unique skill button clean while exposing name / effect / cooldown detail
 
-## Priority 2
+## Priority 3
 `v0.67y Tactics MVP`
 
 Goal:
 - turn the floating `책략` placeholder into the next small battle command surface
 
-## Priority 3
-`v0.68 Terrain Block Layer MVP`
-
-Goal:
-- introduce basic terrain blocking / passability UX without destabilizing the current battle-screen MVP
-
 ## Completed / Archived Context
+- `v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix` is complete.
+- Removed the `is_visible` parameter shadowing warning.
+- Removed the black rectangular unique skill toast backdrop.
+- Kept unique skill hover tooltip text suppressed while keeping button text visible.
+- Enlarged the formation-guide unique skill ready icon to `36 x 36`.
+- Changed ally manual unique skill flow to button click -> range/target display -> valid target click -> resolve.
+- Kept `SkillInfoPanel` deferred as `v0.67x-3`.
 - `v0.67x-1 Unique Skill Hover Cleanup + Ready Icon` is complete.
 - Removed duplicate hover tooltip text from `FloatingUniqueSkillButton`.
 - Added a small formation-guide unique skill ready icon for the currently usable active ally only.

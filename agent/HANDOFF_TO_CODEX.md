@@ -12,7 +12,7 @@ Follow the autonomous execution and commit rules in `agent/CODEX_WORKFLOW_RULES.
 ## Stable Baseline
 Current stable baseline is:
 
-`v0.67x-1 Unique Skill Hover Cleanup + Ready Icon`
+`v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -66,7 +66,10 @@ Do not modify casually:
 - Current test battle `10` heroes have `hero_id`-based unique skill registry entries.
 - Ally manual unique skill use is enabled through `FloatingUniqueSkillButton`.
 - Floating unique skill hover tooltip text is intentionally suppressed; button text remains the visible label.
-- Formation guide cards include a small `UniqueSkillReadyIcon` for the currently usable active ally only.
+- Formation guide cards include an enlarged `36 x 36` `UniqueSkillReadyIcon` for the currently usable active ally only.
+- Ally manual unique skill use now requires range/target selection before resolution.
+- Unique skill range overlays are purple and valid target cells are gold/orange.
+- Unique skill toast backdrop is hidden/transparent so only the cutin image and skill name read visually.
 - Unique skill presentation is a caster-anchored ink toast with cutin image + skill name for `2200ms`.
 - Unique skills have MVP effects for `cannon_aoe`, `ally_attack_buff`, `self_defense_single`, and `single_damage_adjacent_shake`.
 - Unique skill damage numbers are larger red labels and unique skills trigger short camera shake.
@@ -74,11 +77,11 @@ Do not modify casually:
 - Enemy / auto unique skill use is intentionally deferred.
 
 ## Recommended Next Task
-- Current baseline: `v0.67x-1 Unique Skill Hover Cleanup + Ready Icon`
+- Current baseline: `v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix`
 - Next candidates:
-  - `v0.67x-2 Unique Skill Info Panel`
+  - `v0.67x-2 Enemy And Auto Unique Skill Use + Directional Damage Bonus`
+  - `v0.67x-3 Unique Skill Info Panel`
   - `v0.67y Tactics MVP`
-  - `v0.68 Terrain Block Layer MVP`
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

@@ -2,6 +2,15 @@
 
 ## 2026-05-24
 
+### v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix
+- Removed the `is_visible` shadowing warning in the unique skill ready icon helper.
+- Hid the unique skill toast black backdrop so transparent cutin edges remain visible.
+- Enlarged formation-guide `UniqueSkillReadyIcon` nodes to `36 x 36`.
+- Kept unique skill hover tooltip text suppressed while preserving the button label.
+- Changed manual ally unique skill flow to button click -> range/target display -> valid target click -> resolve.
+- Added purple skill range cells and gold/orange valid target cells via the existing overlay pool.
+- Kept `SkillInfoPanel` deferred.
+
 ### v0.67x-1 Unique Skill Hover Cleanup + Ready Icon
 - Removed duplicate hover tooltip text from `FloatingUniqueSkillButton` and kept the skill name only inside the button.
 - Added `UniqueSkillReadyIcon` nodes to the formation guide cards and only light them for the currently usable active ally.
@@ -113,7 +122,7 @@
 - Removed top-level priority confusion from older `v0.67k` baseline references while leaving archived history intact.
 
 ### Current stable reference
-- `v0.67x-1 Unique Skill Hover Cleanup + Ready Icon`
+- `v0.67x-hotfix2 Unique Skill UX Targeting + Backdrop + Ready Icon Fix`
 - Stable `5v5` battle loop
 - Stable formation guide + mini log + bottom command bar + floating command panel MVP screen composition
 - Stable ally manual unique skill MVP with caster-anchored cutin toast

@@ -2423,13 +2423,13 @@ offset_top = 50.0
 offset_right = 212.0
 offset_bottom = 66.0
 
-[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot"]
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=500542164]
 visible = false
 layout_mode = 0
-offset_left = 188.0
-offset_top = 6.0
-offset_right = 206.0
-offset_bottom = 24.0
+offset_left = 184.0
+offset_top = 0.0
+offset_right = 220.0
+offset_bottom = 36.0
 mouse_filter = 2
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
@@ -2438,9 +2438,9 @@ stretch_mode = 5
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100125]
 layout_mode = 0
 offset_left = 174.0
-offset_top = 22.0
+offset_top = 38.0
 offset_right = 206.0
-offset_bottom = 54.0
+offset_bottom = 66.0
 expand_mode = 1
 stretch_mode = 5
 
@@ -2494,13 +2494,13 @@ offset_top = 50.0
 offset_right = 212.0
 offset_bottom = 66.0
 
-[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot"]
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=304743342]
 visible = false
 layout_mode = 0
-offset_left = 188.0
-offset_top = 6.0
-offset_right = 206.0
-offset_bottom = 24.0
+offset_left = 184.0
+offset_top = 0.0
+offset_right = 220.0
+offset_bottom = 36.0
 mouse_filter = 2
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
@@ -2509,9 +2509,9 @@ stretch_mode = 5
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100127]
 layout_mode = 0
 offset_left = 174.0
-offset_top = 22.0
+offset_top = 38.0
 offset_right = 206.0
-offset_bottom = 54.0
+offset_bottom = 66.0
 expand_mode = 1
 stretch_mode = 5
 
@@ -2565,13 +2565,13 @@ offset_top = 50.0
 offset_right = 212.0
 offset_bottom = 66.0
 
-[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot"]
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=1822872128]
 visible = false
 layout_mode = 0
-offset_left = 188.0
-offset_top = 6.0
-offset_right = 206.0
-offset_bottom = 24.0
+offset_left = 184.0
+offset_top = 0.0
+offset_right = 220.0
+offset_bottom = 36.0
 mouse_filter = 2
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
@@ -2580,9 +2580,9 @@ stretch_mode = 5
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100129]
 layout_mode = 0
 offset_left = 174.0
-offset_top = 22.0
+offset_top = 38.0
 offset_right = 206.0
-offset_bottom = 54.0
+offset_bottom = 66.0
 expand_mode = 1
 stretch_mode = 5
 
@@ -2636,13 +2636,13 @@ offset_top = 50.0
 offset_right = 212.0
 offset_bottom = 66.0
 
-[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot"]
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=1758923023]
 visible = false
 layout_mode = 0
-offset_left = 188.0
-offset_top = 6.0
-offset_right = 206.0
-offset_bottom = 24.0
+offset_left = 184.0
+offset_top = 0.0
+offset_right = 220.0
+offset_bottom = 36.0
 mouse_filter = 2
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
@@ -2651,9 +2651,9 @@ stretch_mode = 5
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100131]
 layout_mode = 0
 offset_left = 174.0
-offset_top = 22.0
+offset_top = 38.0
 offset_right = 206.0
-offset_bottom = 54.0
+offset_bottom = 66.0
 expand_mode = 1
 stretch_mode = 5
 
@@ -2707,13 +2707,13 @@ offset_top = 50.0
 offset_right = 212.0
 offset_bottom = 66.0
 
-[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot"]
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=1458160907]
 visible = false
 layout_mode = 0
-offset_left = 188.0
-offset_top = 6.0
-offset_right = 206.0
-offset_bottom = 24.0
+offset_left = 184.0
+offset_top = 0.0
+offset_right = 220.0
+offset_bottom = 36.0
 mouse_filter = 2
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
@@ -2722,9 +2722,9 @@ stretch_mode = 5
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100133]
 layout_mode = 0
 offset_left = 174.0
-offset_top = 22.0
+offset_top = 38.0
 offset_right = 206.0
-offset_bottom = 54.0
+offset_bottom = 66.0
 expand_mode = 1
 stretch_mode = 5
 
@@ -2794,13 +2794,13 @@ offset_top = 50.0
 offset_right = 212.0
 offset_bottom = 66.0
 
-[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot"]
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=2095679621]
 visible = false
 layout_mode = 0
-offset_left = 188.0
-offset_top = 6.0
-offset_right = 206.0
-offset_bottom = 24.0
+offset_left = 184.0
+offset_top = 0.0
+offset_right = 220.0
+offset_bottom = 36.0
 mouse_filter = 2
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
@@ -2809,9 +2809,9 @@ stretch_mode = 5
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100125]
 layout_mode = 0
 offset_left = 174.0
-offset_top = 22.0
+offset_top = 38.0
 offset_right = 206.0
-offset_bottom = 54.0
+offset_bottom = 66.0
 expand_mode = 1
 stretch_mode = 5
 
@@ -2865,13 +2865,13 @@ offset_top = 50.0
 offset_right = 212.0
 offset_bottom = 66.0
 
-[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot"]
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=1797990685]
 visible = false
 layout_mode = 0
-offset_left = 188.0
-offset_top = 6.0
-offset_right = 206.0
-offset_bottom = 24.0
+offset_left = 184.0
+offset_top = 0.0
+offset_right = 220.0
+offset_bottom = 36.0
 mouse_filter = 2
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
@@ -2880,9 +2880,9 @@ stretch_mode = 5
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100127]
 layout_mode = 0
 offset_left = 174.0
-offset_top = 22.0
+offset_top = 38.0
 offset_right = 206.0
-offset_bottom = 54.0
+offset_bottom = 66.0
 expand_mode = 1
 stretch_mode = 5
 
@@ -2936,13 +2936,13 @@ offset_top = 50.0
 offset_right = 212.0
 offset_bottom = 66.0
 
-[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot"]
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=1335771528]
 visible = false
 layout_mode = 0
-offset_left = 188.0
-offset_top = 6.0
-offset_right = 206.0
-offset_bottom = 24.0
+offset_left = 184.0
+offset_top = 0.0
+offset_right = 220.0
+offset_bottom = 36.0
 mouse_filter = 2
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
@@ -2951,9 +2951,9 @@ stretch_mode = 5
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100129]
 layout_mode = 0
 offset_left = 174.0
-offset_top = 22.0
+offset_top = 38.0
 offset_right = 206.0
-offset_bottom = 54.0
+offset_bottom = 66.0
 expand_mode = 1
 stretch_mode = 5
 
@@ -3007,13 +3007,13 @@ offset_top = 50.0
 offset_right = 212.0
 offset_bottom = 66.0
 
-[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot"]
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=1706274008]
 visible = false
 layout_mode = 0
-offset_left = 188.0
-offset_top = 6.0
-offset_right = 206.0
-offset_bottom = 24.0
+offset_left = 184.0
+offset_top = 0.0
+offset_right = 220.0
+offset_bottom = 36.0
 mouse_filter = 2
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
@@ -3022,9 +3022,9 @@ stretch_mode = 5
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100131]
 layout_mode = 0
 offset_left = 174.0
-offset_top = 22.0
+offset_top = 38.0
 offset_right = 206.0
-offset_bottom = 54.0
+offset_bottom = 66.0
 expand_mode = 1
 stretch_mode = 5
 
@@ -3078,13 +3078,13 @@ offset_top = 50.0
 offset_right = 212.0
 offset_bottom = 66.0
 
-[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot"]
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=1887924987]
 visible = false
 layout_mode = 0
-offset_left = 188.0
-offset_top = 6.0
-offset_right = 206.0
-offset_bottom = 24.0
+offset_left = 184.0
+offset_top = 0.0
+offset_right = 220.0
+offset_bottom = 36.0
 mouse_filter = 2
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
@@ -3093,9 +3093,9 @@ stretch_mode = 5
 [node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100133]
 layout_mode = 0
 offset_left = 174.0
-offset_top = 22.0
+offset_top = 38.0
 offset_right = 206.0
-offset_bottom = 54.0
+offset_bottom = 66.0
 expand_mode = 1
 stretch_mode = 5
 
@@ -3290,7 +3290,7 @@ label_settings = SubResource("LabelSettings_round_toast")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="UniqueSkillToastRoot" type="Control" parent="BattleUI"]
+[node name="UniqueSkillToastRoot" type="Control" parent="BattleUI" unique_id=2042465130]
 visible = false
 z_index = 260
 layout_mode = 3
@@ -3300,16 +3300,15 @@ offset_bottom = 360.0
 pivot_offset = Vector2(280, 180)
 mouse_filter = 2
 
-[node name="UniqueSkillInkBurst" type="ColorRect" parent="BattleUI/UniqueSkillToastRoot"]
+[node name="UniqueSkillInkBurst" type="ColorRect" parent="BattleUI/UniqueSkillToastRoot" unique_id=1328257816]
+visible = false
 layout_mode = 0
-offset_left = 0.0
-offset_top = 0.0
 offset_right = 560.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0.0156863, 0.0117647, 0.00784314, 0.88)
+color = Color(1, 1, 1, 0)
 
-[node name="UniqueSkillCutinImage" type="TextureRect" parent="BattleUI/UniqueSkillToastRoot"]
+[node name="UniqueSkillCutinImage" type="TextureRect" parent="BattleUI/UniqueSkillToastRoot" unique_id=181564915]
 layout_mode = 0
 offset_left = 24.0
 offset_top = 30.0
@@ -3319,13 +3318,12 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="UniqueSkillNameLabel" type="Label" parent="BattleUI/UniqueSkillToastRoot"]
+[node name="UniqueSkillNameLabel" type="Label" parent="BattleUI/UniqueSkillToastRoot" unique_id=745933424]
 layout_mode = 0
 offset_left = 24.0
 offset_top = 252.0
 offset_right = 536.0
 offset_bottom = 336.0
-mouse_filter = 2
 text = "고유특기!"
 horizontal_alignment = 1
 vertical_alignment = 1

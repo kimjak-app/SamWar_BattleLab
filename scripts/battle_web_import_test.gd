@@ -23,6 +23,8 @@ const MOVE_HIGHLIGHT_VALID_COLOR := Color(0.172549, 0.623529, 1.0, 0.227451)
 const MOVE_HIGHLIGHT_INVALID_COLOR := Color(1.0, 0.2, 0.2, 0.28)
 const MOVE_RANGE_OVERLAY_COLOR := Color(0.2, 0.55, 1.0, 0.18)
 const ATTACK_RANGE_OVERLAY_COLOR := Color(1.0, 0.32, 0.08, 0.24)
+const UNIQUE_SKILL_RANGE_OVERLAY_COLOR := Color(0.55, 0.24, 1.0, 0.24)
+const UNIQUE_SKILL_TARGET_OVERLAY_COLOR := Color(1.0, 0.72, 0.18, 0.38)
 const MOVE_RANGE_OVERLAY_VISUAL_INSET := Vector2(32.0, 0.0)
 const SHOW_CELL_SIZE_VISUAL_GUIDE := false
 const SHOW_LOGICAL_GRID_14X8_GUIDE := true
@@ -33,6 +35,7 @@ const PHASE_ENEMY_TURN := "enemy_turn"
 const PHASE_RESOLVING := "resolving"
 const PHASE_FACING_SELECT := "facing_select"
 const PHASE_ATTACK_SELECT := "attack_select"
+const PHASE_UNIQUE_SKILL_TARGET_SELECT := "unique_skill_target_select"
 const AUTO_BATTLE_MIN_MAX_STEPS := 80
 const AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT := 16
 const AUTO_BATTLE_ABSOLUTE_MAX_STEPS := 200
@@ -71,6 +74,7 @@ const UNIQUE_SKILL_EFFECT_APPLY_DELAY := 0.72
 const UNIQUE_SKILL_CUTIN_DISPLAY_SIZE := Vector2(512.0, 288.0)
 const UNIQUE_SKILL_TOAST_SIZE := Vector2(560.0, 360.0)
 const UNIQUE_SKILL_TOAST_WORLD_OFFSET := Vector2(0.0, -210.0)
+const UNIQUE_SKILL_DEFAULT_RANGE := 99
 const UNIQUE_SKILL_DAMAGE_FONT_SIZE := 42
 const UNIQUE_SKILL_DEFAULT_DAMAGE := 44
 const UNIQUE_SKILL_AOE_DAMAGE := 38
@@ -568,6 +572,8 @@ var has_selected_move_target := false
 var selected_move_cell := Vector2i(-1, -1)
 var selected_attack_target_state: BattleUnitState = null
 var selected_attack_target_side := ""
+var unique_skill_targeting_caster_state: BattleUnitState = null
+var unique_skill_targeting_skill_data: Dictionary = {}
 var pending_move_snapshot_unit_state: BattleUnitState = null
 var pending_move_snapshot_grid_cell := Vector2i(-1, -1)
 var pending_move_snapshot_unit_position := Vector2.ZERO
@@ -1059,6 +1065,17 @@ func _input(event: InputEvent) -> void:
 		return
 
 	var mouse_world_pos := get_global_mouse_position()
+	if current_phase == PHASE_UNIQUE_SKILL_TARGET_SELECT:
+		var clicked_unique_target := _get_unique_skill_clicked_target_at_position(mouse_world_pos)
+		if clicked_unique_target != null:
+			_try_use_unique_skill_on_target(clicked_unique_target)
+			get_viewport().set_input_as_handled()
+			return
+
+		_append_battle_log("고유특기 대상을 선택하세요")
+		get_viewport().set_input_as_handled()
+		return
+
 	if current_phase == PHASE_ATTACK_SELECT:
 		var clicked_enemy_target := _get_clicked_enemy_unit_at_position(mouse_world_pos)
 		if _is_enemy_click_candidate_alive(clicked_enemy_target):
@@ -1181,6 +1198,7 @@ func reset_demo_state() -> void:
 	if main_camera != null:
 		main_camera.position = main_camera_base_position
 	is_unique_skill_presenting = false
+	_clear_unique_skill_targeting_state()
 	pending_battle_toasts.clear()
 	is_battle_toast_playing = false
 	active_battle_toast_tag = ""
@@ -1510,7 +1528,7 @@ func _get_unique_skill_for_unit(unit_state: BattleUnitState) -> Dictionary:
 func _can_use_unique_skill(unit_state: BattleUnitState) -> bool:
 	if unit_state == null:
 		return false
-	if current_phase != PHASE_ALLY_TURN:
+	if current_phase != PHASE_ALLY_TURN and current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
 		return false
 	if is_demo_animating or is_unique_skill_presenting:
 		return false
@@ -1536,7 +1554,113 @@ func _on_unique_skill_button_pressed() -> void:
 	var skill_data := _get_unique_skill_for_unit(active_unit_state)
 	if skill_data.is_empty():
 		return
-	_begin_unique_skill_sequence(active_unit_state, skill_data)
+	_enter_unique_skill_target_select_mode(active_unit_state, skill_data)
+
+
+func _enter_unique_skill_target_select_mode(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	if not _can_use_unique_skill(caster_state):
+		_append_battle_log("고유특기 사용 불가")
+		return
+	_hide_facing_selection_panel()
+	_clear_move_target_selection()
+	_clear_attack_target_selection()
+	unique_skill_targeting_caster_state = caster_state
+	unique_skill_targeting_skill_data = skill_data.duplicate(true)
+	_set_phase(PHASE_UNIQUE_SKILL_TARGET_SELECT)
+	_show_unique_skill_range_overlay(caster_state, skill_data)
+	is_floating_ally_command_panel_requested = true
+	var target_count := _get_unique_skill_valid_targets(caster_state, skill_data).size()
+	if target_count <= 0:
+		_append_battle_log("고유특기 유효 대상 없음")
+	else:
+		_append_battle_log("%s 대상 선택" % String(skill_data.get("name", "고유특기")))
+
+
+func _cancel_unique_skill_target_select_mode() -> void:
+	if current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
+		return
+	_clear_unique_skill_targeting_state()
+	_hide_unique_skill_range_overlay()
+	_clear_transient_battle_highlights()
+	_set_phase(PHASE_ALLY_TURN)
+	_append_battle_log("고유특기 취소")
+	_refresh_move_target_feedback()
+	_show_move_range_overlay_for_active_unit()
+
+
+func _clear_unique_skill_targeting_state() -> void:
+	unique_skill_targeting_caster_state = null
+	unique_skill_targeting_skill_data = {}
+
+
+func _get_unique_skill_range(caster_state: BattleUnitState, skill_data: Dictionary) -> int:
+	if caster_state == null:
+		return 0
+	return max(int(skill_data.get("range", UNIQUE_SKILL_DEFAULT_RANGE)), 0)
+
+
+func _get_unique_skill_range_cells(caster_state: BattleUnitState, skill_data: Dictionary) -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	if caster_state == null or battle_grid_controller == null:
+		return cells
+	var skill_range := _get_unique_skill_range(caster_state, skill_data)
+	for cell in battle_grid_controller.get_tiles_in_range(caster_state.grid_cell, skill_range):
+		if battle_grid_controller.is_in_bounds(cell):
+			cells.append(cell)
+	return cells
+
+
+func _get_unique_skill_valid_targets(caster_state: BattleUnitState, skill_data: Dictionary) -> Array[BattleUnitState]:
+	var targets: Array[BattleUnitState] = []
+	if caster_state == null:
+		return targets
+	var effect_type := String(skill_data.get("effect_type", ""))
+	var target_side := _get_opposing_side(caster_state.side)
+	if effect_type == "ally_attack_buff":
+		target_side = caster_state.side
+	var skill_range := _get_unique_skill_range(caster_state, skill_data)
+	for unit_state in _get_alive_deployed_unit_states_for_side(target_side):
+		if get_unit_grid_distance(caster_state, unit_state) <= skill_range:
+			targets.append(unit_state)
+	return targets
+
+
+func _is_valid_unique_skill_target(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> bool:
+	if target_state == null or not target_state.is_alive():
+		return false
+	return _get_unique_skill_valid_targets(caster_state, skill_data).has(target_state)
+
+
+func _get_unique_skill_clicked_target_at_position(mouse_world_pos: Vector2) -> BattleUnitState:
+	if unique_skill_targeting_caster_state == null or unique_skill_targeting_skill_data.is_empty():
+		return null
+	var effect_type := String(unique_skill_targeting_skill_data.get("effect_type", ""))
+	var clicked_target: BattleUnitState = null
+	if effect_type == "ally_attack_buff":
+		clicked_target = _get_clicked_ally_unit_at_position(mouse_world_pos)
+	else:
+		clicked_target = _get_clicked_enemy_unit_at_position(mouse_world_pos)
+	if _is_valid_unique_skill_target(unique_skill_targeting_caster_state, unique_skill_targeting_skill_data, clicked_target):
+		return clicked_target
+	return null
+
+
+func _try_use_unique_skill_on_target(target_state: BattleUnitState) -> void:
+	if current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
+		return
+	var caster_state := unique_skill_targeting_caster_state
+	var skill_data := unique_skill_targeting_skill_data.duplicate(true)
+	if not _can_use_unique_skill(caster_state):
+		_cancel_unique_skill_target_select_mode()
+		return
+	if not _is_valid_unique_skill_target(caster_state, skill_data, target_state):
+		_append_battle_log("고유특기 대상이 아닙니다")
+		return
+	selected_attack_target_state = target_state
+	selected_attack_target_side = target_state.side
+	_hide_unique_skill_range_overlay()
+	_clear_unique_skill_targeting_state()
+	_begin_unique_skill_sequence(caster_state, skill_data)
 
 
 func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
@@ -1548,6 +1672,7 @@ func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dic
 	_hide_facing_selection_panel()
 	_hide_move_range_overlay()
 	_hide_attack_range_overlay()
+	_hide_unique_skill_range_overlay()
 	_clear_move_target_selection()
 	_set_phase(PHASE_RESOLVING)
 	_stop_idle_breathing()
@@ -1585,6 +1710,8 @@ func _show_unique_skill_toast_over_unit(caster_state: BattleUnitState, skill_dat
 	unique_skill_toast_root.visible = true
 	unique_skill_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	unique_skill_toast_root.scale = Vector2.ONE * 0.85
+	if unique_skill_ink_burst != null:
+		unique_skill_ink_burst.visible = false
 	if unique_skill_cutin_image != null:
 		unique_skill_cutin_image.texture = _get_unique_skill_cutin_texture(caster_state, skill_data)
 	if unique_skill_name_label != null:
@@ -1788,6 +1915,8 @@ func _set_phase(new_phase: String) -> void:
 			turn_banner.text = "방향 선택 · BATTLE %d" % battle_round
 		PHASE_ATTACK_SELECT:
 			turn_banner.text = "공격 대상 선택 · BATTLE %d" % battle_round
+		PHASE_UNIQUE_SKILL_TARGET_SELECT:
+			turn_banner.text = "고유특기 대상 선택 · BATTLE %d" % battle_round
 		_:
 			turn_banner.text = "처리 중"
 
@@ -1804,7 +1933,7 @@ func _set_phase(new_phase: String) -> void:
 	if end_turn_button != null:
 		end_turn_button.disabled = not can_issue_ally_command
 	_refresh_auto_battle_button_state(can_issue_ally_command)
-	if current_phase == PHASE_FACING_SELECT or current_phase == PHASE_ATTACK_SELECT:
+	if current_phase == PHASE_FACING_SELECT or current_phase == PHASE_ATTACK_SELECT or current_phase == PHASE_UNIQUE_SKILL_TARGET_SELECT:
 		basic_attack_button.disabled = true
 		move_button.disabled = true
 		if wait_button != null:
@@ -1915,7 +2044,7 @@ func _should_show_floating_ally_command_panel() -> bool:
 		return false
 	if is_full_auto_battle_enabled:
 		return false
-	if current_phase != PHASE_ALLY_TURN:
+	if current_phase != PHASE_ALLY_TURN and current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
 		return false
 	if active_unit_state == null:
 		return false
@@ -1947,7 +2076,7 @@ func _refresh_floating_ally_command_panel() -> void:
 		floating_wait_button.disabled = not can_issue_ally_command
 	if floating_unique_skill_button != null:
 		var skill_data := _get_unique_skill_for_unit(active_unit_state)
-		floating_unique_skill_button.disabled = not _can_use_unique_skill(active_unit_state)
+		floating_unique_skill_button.disabled = current_phase != PHASE_ALLY_TURN or not _can_use_unique_skill(active_unit_state)
 		if not skill_data.is_empty():
 			floating_unique_skill_button.text = String(skill_data.get("name", "고유특기"))
 		else:
@@ -2659,10 +2788,10 @@ func _is_unique_skill_ready_for_formation_guide(unit_state: BattleUnitState) -> 
 	return _can_use_unique_skill(unit_state)
 
 
-func _set_formation_slot_unique_skill_ready_icon(icon_rect: TextureRect, is_visible: bool) -> void:
+func _set_formation_slot_unique_skill_ready_icon(icon_rect: TextureRect, should_show: bool) -> void:
 	if icon_rect == null:
 		return
-	icon_rect.visible = is_visible
+	icon_rect.visible = should_show
 
 
 func _get_formation_guide_visual_key(slot_id: String, unit_state: BattleUnitState, hero_entry: Dictionary) -> String:
@@ -3144,9 +3273,13 @@ func _handle_right_click_cancel() -> void:
 	if current_phase == PHASE_ATTACK_SELECT:
 		_cancel_attack_select_mode()
 		return
+	if current_phase == PHASE_UNIQUE_SKILL_TARGET_SELECT:
+		_cancel_unique_skill_target_select_mode()
+		return
 	if current_phase == PHASE_ALLY_TURN:
 		_clear_move_target_selection()
 		_clear_attack_target_selection()
+		_clear_unique_skill_targeting_state()
 		_clear_transient_battle_highlights()
 		_refresh_move_target_feedback()
 		_show_move_range_overlay_for_active_unit()
@@ -4972,8 +5105,9 @@ func _configure_unique_skill_toast() -> void:
 		unique_skill_toast_root.visible = false
 	if unique_skill_ink_burst != null:
 		unique_skill_ink_burst.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		unique_skill_ink_burst.color = Color(0.02, 0.015, 0.008, 0.88)
+		unique_skill_ink_burst.color = Color(1.0, 1.0, 1.0, 0.0)
 		unique_skill_ink_burst.size = UNIQUE_SKILL_TOAST_SIZE
+		unique_skill_ink_burst.visible = false
 	if unique_skill_cutin_image != null:
 		unique_skill_cutin_image.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		unique_skill_cutin_image.size = UNIQUE_SKILL_CUTIN_DISPLAY_SIZE
@@ -5621,6 +5755,48 @@ func _hide_move_range_overlay() -> void:
 func _hide_attack_range_overlay() -> void:
 	for cell in move_range_cells:
 		cell.visible = false
+
+
+func _hide_unique_skill_range_overlay() -> void:
+	for cell in move_range_cells:
+		cell.visible = false
+
+
+func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	_hide_unique_skill_range_overlay()
+	if caster_state == null or battle_grid_controller == null:
+		return
+	var cell_size := battle_grid_controller.get_cell_size()
+	if cell_size.x <= 0.0 or cell_size.y <= 0.0:
+		return
+	var target_cells: Array[Vector2i] = []
+	for target_state in _get_unique_skill_valid_targets(caster_state, skill_data):
+		target_cells.append(target_state.grid_cell)
+	var display_cells: Array[Vector2i] = []
+	for target_cell in target_cells:
+		if not display_cells.has(target_cell):
+			display_cells.append(target_cell)
+	for range_cell in _get_unique_skill_range_cells(caster_state, skill_data):
+		if not display_cells.has(range_cell):
+			display_cells.append(range_cell)
+
+	var index := 0
+	for cell in display_cells:
+		if index >= move_range_cells.size():
+			break
+		var world_pos := battle_grid_controller.grid_to_world(cell)
+		if not _is_move_range_overlay_rect_inside_visual_board(world_pos, cell_size):
+			continue
+
+		var rect := move_range_cells[index]
+		rect.position = world_pos - (cell_size * 0.5)
+		rect.size = cell_size
+		if target_cells.has(cell):
+			rect.color = UNIQUE_SKILL_TARGET_OVERLAY_COLOR
+		else:
+			rect.color = UNIQUE_SKILL_RANGE_OVERLAY_COLOR
+		rect.visible = true
+		index += 1
 
 
 func _show_attack_range_overlay_for_active_unit() -> void:
@@ -7820,7 +7996,12 @@ func _is_active_ally_locked() -> bool:
 		return false
 	if _has_ally_unit_acted(active_unit_state):
 		return false
-	return active_unit_state.has_moved or current_phase == PHASE_FACING_SELECT or current_phase == PHASE_ATTACK_SELECT
+	return (
+		active_unit_state.has_moved
+		or current_phase == PHASE_FACING_SELECT
+		or current_phase == PHASE_ATTACK_SELECT
+		or current_phase == PHASE_UNIQUE_SKILL_TARGET_SELECT
+	)
 
 
 func _is_ally_selection_switch_blocked(unit_state: BattleUnitState) -> bool:
