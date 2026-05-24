@@ -24,9 +24,9 @@ This folder is reserved for the bottom global command bar button art.
 
 ## Current integration status
 - existing handlers are reused
-- current nodes remain `Button`, not `TextureButton`
-- runtime art application is optional and safe
-- if the PNG files do not exist yet, the project keeps the current button behavior and current fallback visuals without load errors
+- current nodes are scene-authored `TextureButton` controls
+- PNGs are connected directly in `Battle_Fullscreen_Test.tscn`
+- `RetreatButton` remains a disabled placeholder while still showing button art
 
 ## Current runtime mapping target
 - `AutoBattleButton` -> `bottom_cmd_auto_normal.png` / `bottom_cmd_auto_pressed.png`

@@ -37,20 +37,6 @@ const AUTO_BATTLE_MIN_MAX_STEPS := 80
 const AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT := 16
 const AUTO_BATTLE_ABSOLUTE_MAX_STEPS := 200
 const MAX_BATTLE_LOG_LINES := 4
-const BOTTOM_COMMAND_BUTTON_ART_PATHS := {
-	"auto_battle": {
-		"normal": "res://assets/web_battle/ui/bottom_command/bottom_cmd_auto_normal.png",
-		"pressed": "res://assets/web_battle/ui/bottom_command/bottom_cmd_auto_pressed.png",
-	},
-	"end_turn": {
-		"normal": "res://assets/web_battle/ui/bottom_command/bottom_cmd_end_turn_normal.png",
-		"pressed": "res://assets/web_battle/ui/bottom_command/bottom_cmd_end_turn_pressed.png",
-	},
-	"retreat": {
-		"normal": "res://assets/web_battle/ui/bottom_command/bottom_cmd_retreat_normal.png",
-		"pressed": "res://assets/web_battle/ui/bottom_command/bottom_cmd_retreat_pressed.png",
-	},
-}
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH := "res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png"
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE := preload("res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png")
 const REINFORCEMENT_ARRIVAL_TOAST_TEXT := "지원군 도착!"
@@ -694,9 +680,9 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var basic_attack_button: Button = $BattleUI/CommandBar/BasicAttackButton
 @onready var move_button: Button = $BattleUI/CommandBar/MoveButton
 @onready var wait_button: Button = get_node_or_null("BattleUI/CommandBar/WaitButton") as Button
-@onready var end_turn_button: Button = get_node_or_null("BattleUI/CommandBar/EndTurnButton") as Button
-@onready var auto_battle_button: Button = get_node_or_null("BattleUI/CommandBar/AutoBattleButton") as Button
-@onready var retreat_button: Button = get_node_or_null("BattleUI/CommandBar/RetreatButton") as Button
+@onready var end_turn_button: BaseButton = get_node_or_null("BattleUI/CommandBar/EndTurnButton") as BaseButton
+@onready var auto_battle_button: BaseButton = get_node_or_null("BattleUI/CommandBar/AutoBattleButton") as BaseButton
+@onready var retreat_button: BaseButton = get_node_or_null("BattleUI/CommandBar/RetreatButton") as BaseButton
 @onready var floating_ally_command_panel: Panel = get_node_or_null("BattleUI/FloatingAllyCommandPanel") as Panel
 @onready var floating_basic_attack_button: Button = get_node_or_null("BattleUI/FloatingAllyCommandPanel/FloatingBasicAttackButton") as Button
 @onready var floating_unique_skill_button: Button = get_node_or_null("BattleUI/FloatingAllyCommandPanel/FloatingUniqueSkillButton") as Button
@@ -1390,61 +1376,12 @@ func _configure_command_bar() -> void:
 		wait_button.visible = false
 		wait_button.disabled = true
 	if retreat_button != null:
-		retreat_button.text = "후퇴"
 		retreat_button.disabled = true
+		retreat_button.tooltip_text = "후퇴"
 	if end_turn_button != null:
-		end_turn_button.text = "턴 종료"
-		_try_apply_bottom_command_button_art(end_turn_button, "end_turn")
+		end_turn_button.tooltip_text = "턴 종료"
 	if auto_battle_button != null:
-		_try_apply_bottom_command_button_art(auto_battle_button, "auto_battle")
-	if retreat_button != null:
-		_try_apply_bottom_command_button_art(retreat_button, "retreat")
-
-
-func _try_apply_bottom_command_button_art(button: Button, button_key: String) -> void:
-	if button == null:
-		return
-	var art_paths: Dictionary = {}
-	if BOTTOM_COMMAND_BUTTON_ART_PATHS.has(button_key):
-		art_paths = BOTTOM_COMMAND_BUTTON_ART_PATHS[button_key]
-	if art_paths.is_empty():
-		return
-	_apply_button_texture_style_if_available(
-		button,
-		String(art_paths.get("normal", "")),
-		String(art_paths.get("pressed", ""))
-	)
-
-
-func _apply_button_texture_style_if_available(button: Button, normal_path: String, pressed_path: String) -> bool:
-	if button == null:
-		return false
-	var normal_texture := _try_load_texture_or_null(normal_path)
-	if normal_texture == null:
-		return false
-	var pressed_texture := _try_load_texture_or_null(pressed_path)
-	var hover_texture := pressed_texture if pressed_texture != null else normal_texture
-	button.flat = true
-	button.add_theme_stylebox_override("normal", _create_bottom_command_button_stylebox(normal_texture))
-	button.add_theme_stylebox_override("hover", _create_bottom_command_button_stylebox(hover_texture))
-	button.add_theme_stylebox_override("pressed", _create_bottom_command_button_stylebox(pressed_texture if pressed_texture != null else normal_texture))
-	button.add_theme_stylebox_override("disabled", _create_bottom_command_button_stylebox(normal_texture))
-	button.clip_text = false
-	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	button.expand_icon = true
-	button.set_meta("bottom_command_art_applied", true)
-	if button.tooltip_text == "":
-		button.tooltip_text = button.text
-	button.text = ""
-	return true
-
-
-func _create_bottom_command_button_stylebox(texture: Texture2D) -> StyleBoxTexture:
-	var style_box := StyleBoxTexture.new()
-	style_box.texture = texture
-	style_box.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
-	style_box.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
-	return style_box
+		auto_battle_button.tooltip_text = "자동전투"
 
 
 func _apply_floating_command_button_style(button: Button) -> void:
@@ -1548,24 +1485,10 @@ func _refresh_auto_battle_button_state(can_issue_ally_command: bool) -> void:
 		return
 	if is_full_auto_battle_enabled:
 		auto_battle_button.disabled = false
-		if _has_bottom_command_button_art(auto_battle_button):
-			auto_battle_button.tooltip_text = "자동중지"
-			auto_battle_button.text = ""
-		else:
-			auto_battle_button.text = "자동중지"
+		auto_battle_button.tooltip_text = "자동중지"
 		return
 	auto_battle_button.disabled = not can_issue_ally_command
-	if _has_bottom_command_button_art(auto_battle_button):
-		auto_battle_button.tooltip_text = "자동전투"
-		auto_battle_button.text = ""
-	else:
-		auto_battle_button.text = "자동전투"
-
-
-func _has_bottom_command_button_art(button: Button) -> bool:
-	if button == null:
-		return false
-	return bool(button.get_meta("bottom_command_art_applied", false))
+	auto_battle_button.tooltip_text = "자동전투"
 
 
 func _end_ally_turn_by_wait() -> void:

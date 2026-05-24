@@ -7,9 +7,9 @@ SamWar_BattleLab
 `v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable`
 
 ## Current Implementation Step
-- `v0.67t Bottom Command Button PNG Apply QA`
-- Bottom command button PNG 6장은 runtime에 실제 적용된다.
-- Missing PNG fallback logic is still preserved.
+- `v0.67t-hotfix Bottom Command TextureButton Scene Fix`
+- Bottom command buttons are now scene-authored `TextureButton` nodes with the 6 PNG assets connected directly in `Battle_Fullscreen_Test.tscn`.
+- Godot 2D editor visibility is restored for the bottom command buttons.
 - Existing bottom command handlers are reused with no intended behavior change.
 
 ## Stable Summary
@@ -20,8 +20,7 @@ SamWar_BattleLab
 - Reinforcement toast stable.
 - Bottom global command bar exists.
 - Bottom command bar art-prep folder/README exists.
-- Bottom command button actual art fallback helper exists.
-- Bottom command button PNG apply QA completed with text overlay removal on successful image style apply.
+- Bottom command buttons now render as scene-authored image buttons in the editor and runtime.
 - Floating command panel exists.
 - Direct move-click UX stable.
 - Floating panel stays hidden at ally turn start and opens on active ally click.
@@ -77,9 +76,9 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.67s Floating Command Panel Art Direction Prep`
-2. `Battle Screen Basic UX Stable` lock
-3. Worldmap battle roster integration prep
+1. Bottom command visual `F6` QA
+2. `v0.67s Floating Command Panel Art Direction Prep`
+3. `Battle Screen Basic UX Stable` lock
 
 ## Archive
 - Full historical copies preserved at:

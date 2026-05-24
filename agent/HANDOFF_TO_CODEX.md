@@ -37,21 +37,21 @@ Do not modify casually:
 - Reinforcement / round / result toast queue is stable.
 - Bottom global command bar exists.
 - Bottom command bar art-prep structure now exists under `assets/web_battle/ui/bottom_command/`.
-- Bottom command button actual art helper is now wired in runtime code.
-- Bottom command button PNG 6장은 current runtime path에 applied QA 완료 상태다.
+- Bottom command buttons are now scene-authored `TextureButton` nodes with the 6 PNG assets connected directly in `Battle_Fullscreen_Test.tscn`.
+- 2D editor visibility for the bottom command buttons is restored.
 - Floating command panel exists and remains click-to-open.
 - Direct move-click UX remains stable.
 - Post-move floating panel auto-reopen remains stable.
 - Active ally pulse uses the unified root pulse with pivot lock at around `1.5x`.
 - `5v5` full auto result path is reachable.
 - Headless project / scene launch are expected to remain `0` errors and `GDScript` warnings are expected to remain `0`.
-- `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` remain `Button` nodes with existing handlers reused.
-- Successful image style apply clears button text to avoid overlay overlap.
-- Missing-file fallback logic is still preserved.
+- `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` are now `TextureButton` nodes with existing handlers reused.
+- Existing handlers remain reused.
+- `RetreatButton` remains a disabled placeholder.
 
 ## Recommended Next Task
-- Current task: `v0.67t Bottom Command Button PNG Apply QA`
-- After completion: `v0.67s Floating Command Panel Art Direction Prep` or `Battle Screen Basic UX Stable`
+- Current task: `v0.67t-hotfix Bottom Command TextureButton Scene Fix`
+- After completion: bottom command visual `F6` QA or `v0.67s Floating Command Panel Art Direction Prep`
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

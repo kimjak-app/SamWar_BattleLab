@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.67t-hotfix Bottom Command TextureButton Scene Fix
+- Converted the 3 bottom command buttons from `Button` to scene-authored `TextureButton`.
+- Connected the 6 PNG assets directly in `Battle_Fullscreen_Test.tscn`.
+- Restored bottom command button visibility in the Godot 2D editor.
+- Kept existing handlers unchanged and kept `RetreatButton` as a disabled placeholder.
+
 ## v0.67t Bottom Command Button PNG Apply QA
 - Applied the 6 real bottom-command PNG files to the bottom global command bar.
 - Kept `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` as existing `Button` nodes with existing handlers unchanged.

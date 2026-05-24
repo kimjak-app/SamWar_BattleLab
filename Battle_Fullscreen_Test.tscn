@@ -27,6 +27,12 @@
 [ext_resource type="Texture2D" uid="uid://b0agd1mvsiajg" path="res://assets/web_battle/portraits_battlefield/eulji_mundeok_battlefield.png" id="25_eulji_mundeok_battlefield"]
 [ext_resource type="Texture2D" uid="uid://3pmby1m7x8sg" path="res://assets/web_battle/portraits_battlefield/liu_bei_battlefield.png" id="26_liu_bei_battlefield"]
 [ext_resource type="Texture2D" uid="uid://d10w86efjwm26" path="res://assets/web_battle/portraits_battlefield/zhuge_liang_battlefield.png" id="27_zhuge_liang_battlefield"]
+[ext_resource type="Texture2D" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_end_turn_normal.png" id="28_bottom_end_turn_normal"]
+[ext_resource type="Texture2D" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_end_turn_pressed.png" id="29_bottom_end_turn_pressed"]
+[ext_resource type="Texture2D" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_auto_normal.png" id="30_bottom_auto_normal"]
+[ext_resource type="Texture2D" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_auto_pressed.png" id="31_bottom_auto_pressed"]
+[ext_resource type="Texture2D" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_retreat_normal.png" id="32_bottom_retreat_normal"]
+[ext_resource type="Texture2D" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_retreat_pressed.png" id="33_bottom_retreat_pressed"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -2368,30 +2374,45 @@ offset_right = 282.0
 offset_bottom = 40.0
 text = "대기"
 
-[node name="EndTurnButton" type="Button" parent="BattleUI/CommandBar" unique_id=1902145002]
+[node name="EndTurnButton" type="TextureButton" parent="BattleUI/CommandBar" unique_id=1902145002]
 layout_mode = 0
 offset_left = 26.0
 offset_top = 8.0
 offset_right = 282.0
 offset_bottom = 136.0
-text = "턴 종료"
+texture_normal = ExtResource("28_bottom_end_turn_normal")
+texture_pressed = ExtResource("29_bottom_end_turn_pressed")
+texture_hover = ExtResource("28_bottom_end_turn_normal")
+texture_disabled = ExtResource("28_bottom_end_turn_normal")
+ignore_texture_size = true
+stretch_mode = 0
 
-[node name="AutoBattleButton" type="Button" parent="BattleUI/CommandBar" unique_id=1847675653]
+[node name="AutoBattleButton" type="TextureButton" parent="BattleUI/CommandBar" unique_id=1847675653]
 layout_mode = 0
-offset_left = 302.0
+offset_left = 316.0
 offset_top = 8.0
-offset_right = 558.0
+offset_right = 572.0
 offset_bottom = 136.0
-text = "자동전투"
+texture_normal = ExtResource("30_bottom_auto_normal")
+texture_pressed = ExtResource("31_bottom_auto_pressed")
+texture_hover = ExtResource("30_bottom_auto_normal")
+texture_disabled = ExtResource("30_bottom_auto_normal")
+ignore_texture_size = true
+stretch_mode = 0
 
-[node name="RetreatButton" type="Button" parent="BattleUI/CommandBar" unique_id=1414351526]
+[node name="RetreatButton" type="TextureButton" parent="BattleUI/CommandBar" unique_id=1414351526]
 layout_mode = 0
-offset_left = 578.0
-offset_top = 8.0
-offset_right = 834.0
-offset_bottom = 136.0
+offset_left = 602.0
+offset_top = 10.0
+offset_right = 858.0
+offset_bottom = 138.0
 disabled = true
-text = "후퇴"
+texture_normal = ExtResource("32_bottom_retreat_normal")
+texture_pressed = ExtResource("33_bottom_retreat_pressed")
+texture_hover = ExtResource("32_bottom_retreat_normal")
+texture_disabled = ExtResource("32_bottom_retreat_normal")
+ignore_texture_size = true
+stretch_mode = 0
 
 [node name="FloatingAllyCommandPanel" type="Panel" parent="BattleUI" unique_id=1536043339]
 visible = false
