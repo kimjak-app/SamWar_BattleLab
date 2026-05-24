@@ -37,6 +37,7 @@ Do not modify casually:
 - Reinforcement / round / result toast queue is stable.
 - Bottom global command bar exists.
 - Bottom command bar art-prep structure now exists under `assets/web_battle/ui/bottom_command/`.
+- Bottom command button actual art helper is now wired in runtime code.
 - Floating command panel exists and remains click-to-open.
 - Direct move-click UX remains stable.
 - Post-move floating panel auto-reopen remains stable.
@@ -47,8 +48,8 @@ Do not modify casually:
 - Actual bottom command PNG files are still optional; missing files should keep current behavior without load errors.
 
 ## Recommended Next Task
-- Current task: `v0.67r Bottom Command Bar Art Asset Structure Prep`
-- After completion: bottom command button actual asset integration or `v0.67s Floating Command Panel Art Direction Prep`
+- Current task: `v0.67s Bottom Command Button Actual Asset Integration`
+- After completion: actual bottom button PNG import QA or `v0.67s Floating Command Panel Art Direction Prep`
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

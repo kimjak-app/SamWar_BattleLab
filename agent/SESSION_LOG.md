@@ -2,6 +2,12 @@
 
 ## 2026-05-24
 
+### v0.67s Bottom Command Button Actual Asset Integration
+- Added `_try_load_texture_or_null()` for safe optional bottom-command PNG loading.
+- Added `_apply_button_texture_style_if_available()` and kept `_try_apply_bottom_command_button_art()` as the button-key entry point.
+- Kept `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` as existing `Button` nodes with existing handlers unchanged.
+- Missing PNG files remain a safe fallback path with no load error and no intended behavior change.
+
 ### v0.67r Bottom Command Bar Art Asset Structure Prep
 - Confirmed the bottom global command bar currently uses `Button` nodes:
   - `AutoBattleButton`

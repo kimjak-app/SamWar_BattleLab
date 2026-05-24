@@ -1409,17 +1409,27 @@ func _try_apply_bottom_command_button_art(button: Button, button_key: String) ->
 		art_paths = BOTTOM_COMMAND_BUTTON_ART_PATHS[button_key]
 	if art_paths.is_empty():
 		return
-	var normal_texture := _load_optional_texture(String(art_paths.get("normal", "")))
+	_apply_button_texture_style_if_available(
+		button,
+		String(art_paths.get("normal", "")),
+		String(art_paths.get("pressed", ""))
+	)
+
+
+func _apply_button_texture_style_if_available(button: Button, normal_path: String, pressed_path: String) -> bool:
+	if button == null:
+		return false
+	var normal_texture := _try_load_texture_or_null(normal_path)
 	if normal_texture == null:
-		return
-	var pressed_texture := _load_optional_texture(String(art_paths.get("pressed", "")))
+		return false
+	var pressed_texture := _try_load_texture_or_null(pressed_path)
 	var hover_texture := pressed_texture if pressed_texture != null else normal_texture
-	var disabled_texture := normal_texture
 	button.flat = true
 	button.add_theme_stylebox_override("normal", _create_bottom_command_button_stylebox(normal_texture))
 	button.add_theme_stylebox_override("hover", _create_bottom_command_button_stylebox(hover_texture))
 	button.add_theme_stylebox_override("pressed", _create_bottom_command_button_stylebox(pressed_texture if pressed_texture != null else normal_texture))
-	button.add_theme_stylebox_override("disabled", _create_bottom_command_button_stylebox(disabled_texture))
+	button.add_theme_stylebox_override("disabled", _create_bottom_command_button_stylebox(normal_texture))
+	return true
 
 
 func _create_bottom_command_button_stylebox(texture: Texture2D) -> StyleBoxTexture:
@@ -5323,10 +5333,14 @@ func _get_visual_token_paths_for_unit(unit_state: BattleUnitState) -> Dictionary
 	return result
 
 
-func _load_optional_texture(path: String) -> Texture2D:
+func _try_load_texture_or_null(path: String) -> Texture2D:
 	if path == "" or not ResourceLoader.exists(path):
 		return null
 	return load(path) as Texture2D
+
+
+func _load_optional_texture(path: String) -> Texture2D:
+	return _try_load_texture_or_null(path)
 
 
 func _get_all_visual_template_roots() -> Array[Node2D]:

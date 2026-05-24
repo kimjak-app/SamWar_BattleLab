@@ -4,12 +4,12 @@
 `v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable`
 
 ## Priority 1
-Bottom command button actual asset integration
+Actual bottom button PNG import QA
 
 Goal:
-- add actual PNG art into the prepared bottom command structure
-- keep existing handlers reused
-- preserve current button behavior and fallback safety when assets are missing during integration work
+- verify imported PNG visuals against the wired bottom command button runtime helper
+- confirm text overlay strategy after real art arrives
+- keep existing handlers reused and fallback safe
 
 ## Priority 2
 `v0.67s Floating Command Panel Art Direction Prep`
@@ -33,6 +33,11 @@ Goal:
 - prepare worldmap-to-battle roster contract work on top of the current stable `5v5` battle baseline
 
 ## Completed / Archived Context
+- `v0.67s Bottom Command Button Actual Asset Integration` is complete.
+- Added `_try_load_texture_or_null()`.
+- Added `_apply_button_texture_style_if_available()`.
+- Kept actual PNG loading optional and fallback-safe.
+- Kept `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` handlers unchanged.
 - `v0.67r Bottom Command Bar Art Asset Structure Prep` is complete.
 - Prepared `assets/web_battle/ui/bottom_command/README.md`.
 - Prepared optional button-art runtime mapping for `AutoBattleButton`, `EndTurnButton`, and `RetreatButton`.

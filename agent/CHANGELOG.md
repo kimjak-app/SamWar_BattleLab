@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.67s Bottom Command Button Actual Asset Integration
+- Added safe bottom-command art helpers for real optional PNG loading.
+- Kept `Button` nodes and existing handlers unchanged.
+- Missing PNG files remain a safe fallback path with no intended behavior change.
+
 ## v0.67r Bottom Command Bar Art Asset Structure Prep
 - Prepared `assets/web_battle/ui/bottom_command/README.md` and the planned button PNG naming structure.
 - Kept `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` as existing `Button` nodes.
