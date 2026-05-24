@@ -2425,13 +2425,13 @@ offset_bottom = 66.0
 
 [node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=500542164]
 visible = false
+z_index = 4
 layout_mode = 0
 offset_left = 188.0
 offset_top = -12.0
 offset_right = 252.0
 offset_bottom = 52.0
 mouse_filter = 2
-z_index = 4
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
 stretch_mode = 5
@@ -2497,13 +2497,13 @@ offset_bottom = 66.0
 
 [node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=304743342]
 visible = false
+z_index = 4
 layout_mode = 0
 offset_left = 188.0
 offset_top = -12.0
 offset_right = 252.0
 offset_bottom = 52.0
 mouse_filter = 2
-z_index = 4
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
 stretch_mode = 5
@@ -2569,13 +2569,13 @@ offset_bottom = 66.0
 
 [node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=1822872128]
 visible = false
+z_index = 4
 layout_mode = 0
 offset_left = 188.0
 offset_top = -12.0
 offset_right = 252.0
 offset_bottom = 52.0
 mouse_filter = 2
-z_index = 4
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
 stretch_mode = 5
@@ -2641,13 +2641,13 @@ offset_bottom = 66.0
 
 [node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=1758923023]
 visible = false
+z_index = 4
 layout_mode = 0
 offset_left = 188.0
 offset_top = -12.0
 offset_right = 252.0
 offset_bottom = 52.0
 mouse_filter = 2
-z_index = 4
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
 stretch_mode = 5
@@ -2713,13 +2713,13 @@ offset_bottom = 66.0
 
 [node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=1458160907]
 visible = false
+z_index = 4
 layout_mode = 0
 offset_left = 188.0
 offset_top = -12.0
 offset_right = 252.0
 offset_bottom = 52.0
 mouse_filter = 2
-z_index = 4
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
 stretch_mode = 5
@@ -2801,13 +2801,13 @@ offset_bottom = 66.0
 
 [node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=2095679621]
 visible = false
+z_index = 4
 layout_mode = 0
 offset_left = 188.0
 offset_top = -12.0
 offset_right = 252.0
 offset_bottom = 52.0
 mouse_filter = 2
-z_index = 4
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
 stretch_mode = 5
@@ -2873,13 +2873,13 @@ offset_bottom = 66.0
 
 [node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=1797990685]
 visible = false
+z_index = 4
 layout_mode = 0
 offset_left = 188.0
 offset_top = -12.0
 offset_right = 252.0
 offset_bottom = 52.0
 mouse_filter = 2
-z_index = 4
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
 stretch_mode = 5
@@ -2945,13 +2945,13 @@ offset_bottom = 66.0
 
 [node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=1335771528]
 visible = false
+z_index = 4
 layout_mode = 0
 offset_left = 188.0
 offset_top = -12.0
 offset_right = 252.0
 offset_bottom = 52.0
 mouse_filter = 2
-z_index = 4
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
 stretch_mode = 5
@@ -3017,13 +3017,13 @@ offset_bottom = 66.0
 
 [node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=1706274008]
 visible = false
+z_index = 4
 layout_mode = 0
 offset_left = 188.0
 offset_top = -12.0
 offset_right = 252.0
 offset_bottom = 52.0
 mouse_filter = 2
-z_index = 4
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
 stretch_mode = 5
@@ -3089,13 +3089,13 @@ offset_bottom = 66.0
 
 [node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=1887924987]
 visible = false
+z_index = 4
 layout_mode = 0
 offset_left = 188.0
 offset_top = -12.0
 offset_right = 252.0
 offset_bottom = 52.0
 mouse_filter = 2
-z_index = 4
 texture = ExtResource("35_unique_skill_ready_icon")
 expand_mode = 1
 stretch_mode = 5
