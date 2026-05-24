@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67x Unique Skill MVP Per Hero Cutin`
+`v0.67x-1 Unique Skill Hover Cleanup + Ready Icon`
 
 ## Current Implementation Step
+- `v0.67x-1 Unique Skill Hover Cleanup + Ready Icon`
 - `v0.67x Unique Skill MVP Per Hero Cutin`
 - `v0.67w Battle Screen Basic UX Stable Lock`
 - `v0.67v Bottom Command Bar Background Panel Apply`
@@ -35,8 +36,11 @@ SamWar_BattleLab
 - Current battle-screen MVP UX is locked around formation guides + mini log + bottom command bar + floating command panel.
 - Current battle's `10` heroes now have `hero_id`-based unique skill registry entries.
 - Ally manual unique skill use is enabled from the floating command panel.
+- Floating unique skill button hover no longer shows duplicate tooltip text over the button.
+- Formation guide cards now show a small unique-skill-ready icon only for the currently usable active ally.
 - Unique skill presentation uses a world-anchored ink toast over the caster for `2200ms`, with cutin image and skill name text.
 - Unique skill damage uses larger red damage numbers and short camera shake.
+- `SkillInfoPanel` is deferred as the next UX candidate instead of being added to the current baseline.
 - Enemy / auto unique skill use is deferred.
 - Floating command panel exists.
 - Direct move-click UX stable.
@@ -93,9 +97,9 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.67x-2 Enemy / Auto Unique Skill Smoke`
+1. `v0.67x-2 Unique Skill Info Panel`
 2. `v0.67y Tactics MVP`
-3. `v0.68a Worldmap Battle Roster Contract Prep`
+3. `v0.68 Terrain Block Layer MVP`
 
 ## Archive
 - Full historical copies preserved at:

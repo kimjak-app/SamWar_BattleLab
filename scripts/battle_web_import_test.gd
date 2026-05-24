@@ -1837,7 +1837,7 @@ func _configure_floating_ally_command_panel() -> void:
 		floating_ally_command_panel.add_theme_stylebox_override("panel", panel_style)
 	if floating_unique_skill_button != null:
 		floating_unique_skill_button.disabled = true
-		floating_unique_skill_button.tooltip_text = "고유특기"
+		floating_unique_skill_button.tooltip_text = ""
 	if floating_tactics_button != null:
 		floating_tactics_button.disabled = true
 	for button in [
@@ -1950,10 +1950,9 @@ func _refresh_floating_ally_command_panel() -> void:
 		floating_unique_skill_button.disabled = not _can_use_unique_skill(active_unit_state)
 		if not skill_data.is_empty():
 			floating_unique_skill_button.text = String(skill_data.get("name", "고유특기"))
-			floating_unique_skill_button.tooltip_text = String(skill_data.get("name", "고유특기"))
 		else:
 			floating_unique_skill_button.text = "고유특기"
-			floating_unique_skill_button.tooltip_text = "고유특기"
+		floating_unique_skill_button.tooltip_text = ""
 	if floating_tactics_button != null:
 		floating_tactics_button.disabled = true
 	_position_floating_ally_command_panel()
@@ -2557,6 +2556,7 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 	var status_label := nodes.get("status_label", null) as Label
 	var troop_icon_rect := nodes.get("troop_icon_rect", null) as TextureRect
 	var troop_type_label := nodes.get("troop_type_label", null) as Label
+	var unique_skill_ready_icon := nodes.get("unique_skill_ready_icon", null) as TextureRect
 	var unit_state := _get_formation_guide_unit_state_for_capacity_slot_id(slot_id)
 	var slot_metadata := _get_capacity_slot_metadata(slot_id)
 	var hero_id := ""
@@ -2592,6 +2592,7 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 		troop_icon_rect.visible = troop_icon_rect.texture != null
 	if troop_type_label != null:
 		troop_type_label.text = _get_troop_type_label_for_visual_key(visual_key, _get_formation_guide_unit_type(slot_id, unit_state, hero_entry))
+	_set_formation_slot_unique_skill_ready_icon(unique_skill_ready_icon, _is_unique_skill_ready_for_formation_guide(unit_state))
 	var style := StyleBoxFlat.new()
 	style.set_corner_radius_all(6)
 	style.set_border_width_all(1)
@@ -2634,7 +2635,34 @@ func _get_formation_guide_panel_nodes(slot_id: String) -> Dictionary:
 		"status_label": root.get_node_or_null("StatusLabel") as Label,
 		"troop_icon_rect": root.get_node_or_null("TroopIconRect") as TextureRect,
 		"troop_type_label": root.get_node_or_null("TroopTypeLabel") as Label,
+		"unique_skill_ready_icon": root.get_node_or_null("UniqueSkillReadyIcon") as TextureRect,
 	}
+
+
+func _get_unique_skill_remaining_cooldown_turns(unit_state: BattleUnitState) -> int:
+	if unit_state == null:
+		return 0
+	var skill_data := _get_unique_skill_for_unit(unit_state)
+	if skill_data.is_empty():
+		return 0
+	var hero_id := _get_hero_id_for_unit_state(unit_state)
+	if hero_id != "" and bool(used_unique_skill_hero_ids.get(hero_id, false)):
+		return max(int(skill_data.get("cooldown_turns", 0)), 1)
+	return max(int(skill_data.get("cooldown_turns", 0)), 0)
+
+
+func _is_unique_skill_ready_for_formation_guide(unit_state: BattleUnitState) -> bool:
+	if unit_state == null:
+		return false
+	if _get_unique_skill_remaining_cooldown_turns(unit_state) > 0:
+		return false
+	return _can_use_unique_skill(unit_state)
+
+
+func _set_formation_slot_unique_skill_ready_icon(icon_rect: TextureRect, is_visible: bool) -> void:
+	if icon_rect == null:
+		return
+	icon_rect.visible = is_visible
 
 
 func _get_formation_guide_visual_key(slot_id: String, unit_state: BattleUnitState, hero_entry: Dictionary) -> String:

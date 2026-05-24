@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.67x-1 Unique Skill Hover Cleanup + Ready Icon
+- Removed duplicate hover tooltip text from `FloatingUniqueSkillButton` while keeping the button label itself visible.
+- Added a small `UniqueSkillReadyIcon` to ally/enemy formation guide slots and only show it for the currently usable active ally.
+- Kept `SkillInfoPanel` deferred to the next UX pass instead of adding a new panel in this patch.
+- No battle logic change intended.
+
 ## v0.67x Unique Skill MVP Per Hero Cutin
 - Added `10` hero unique skill registry entries for the current battle roster.
 - Linked the `6` new cutin images plus existing Yi Sunsin / Jeong Dojeon / Guan Yu / Zhang Fei cutins.

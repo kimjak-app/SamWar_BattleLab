@@ -1,14 +1,14 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x Unique Skill MVP Per Hero Cutin`
+`v0.67x-1 Unique Skill Hover Cleanup + Ready Icon`
 
 ## Priority 1
-`v0.67x-2 Enemy / Auto Unique Skill Smoke`
+`v0.67x-2 Unique Skill Info Panel`
 
 Goal:
-- add smoke coverage and/or minimal logic for enemy and auto unique skill use
-- keep the current ally manual unique skill MVP stable
+- replace the removed hover tooltip with a dedicated adjacent unique skill info panel
+- keep the floating unique skill button clean while exposing name / effect / cooldown detail
 
 ## Priority 2
 `v0.67y Tactics MVP`
@@ -17,12 +17,17 @@ Goal:
 - turn the floating `책략` placeholder into the next small battle command surface
 
 ## Priority 3
-`v0.68a Worldmap Battle Roster Contract Prep`
+`v0.68 Terrain Block Layer MVP`
 
 Goal:
-- prepare roster contract work between worldmap party state and the stable `5v5` battle entry shape
+- introduce basic terrain blocking / passability UX without destabilizing the current battle-screen MVP
 
 ## Completed / Archived Context
+- `v0.67x-1 Unique Skill Hover Cleanup + Ready Icon` is complete.
+- Removed duplicate hover tooltip text from `FloatingUniqueSkillButton`.
+- Added a small formation-guide unique skill ready icon for the currently usable active ally only.
+- Kept `SkillInfoPanel` deferred as the next UX candidate.
+- No battle logic change intended.
 - `v0.67x Unique Skill MVP Per Hero Cutin` is complete.
 - Added `10` hero unique skill registry entries for the current test battle roster.
 - Linked the `6` new cutin images and existing Yi Sunsin / Jeong Dojeon / Guan Yu / Zhang Fei cutins.

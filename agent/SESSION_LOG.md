@@ -2,6 +2,12 @@
 
 ## 2026-05-24
 
+### v0.67x-1 Unique Skill Hover Cleanup + Ready Icon
+- Removed duplicate hover tooltip text from `FloatingUniqueSkillButton` and kept the skill name only inside the button.
+- Added `UniqueSkillReadyIcon` nodes to the formation guide cards and only light them for the currently usable active ally.
+- Kept unique skill toast / damage number / camera shake / range flow unchanged.
+- Deferred `SkillInfoPanel` to the next UX candidate instead of implementing it here.
+
 ### v0.67x Unique Skill MVP Per Hero Cutin
 - Added current-roster unique skill registry entries for:
   - 이순신
@@ -107,7 +113,7 @@
 - Removed top-level priority confusion from older `v0.67k` baseline references while leaving archived history intact.
 
 ### Current stable reference
-- `v0.67x Unique Skill MVP Per Hero Cutin`
+- `v0.67x-1 Unique Skill Hover Cleanup + Ready Icon`
 - Stable `5v5` battle loop
 - Stable formation guide + mini log + bottom command bar + floating command panel MVP screen composition
 - Stable ally manual unique skill MVP with caster-anchored cutin toast
