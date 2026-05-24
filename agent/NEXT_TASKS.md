@@ -4,19 +4,18 @@
 `v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable`
 
 ## Priority 1
-Bottom command visual `F6` QA
+Formation Slot Guide visual polish
 
 Goal:
-- visually confirm the scene-authored bottom `TextureButton` art placement in editor/runtime
-- confirm no distortion or overlap in actual interactive play
+- refine the new ally/enemy formation guide visuals without changing battle logic
+- keep side-panel width modest and battlefield visibility clean
 
 ## Priority 2
-`v0.67s Floating Command Panel Art Direction Prep`
+Active Turn Card refine
 
-Requirements:
-- `기본공격` / `고유특기` / `책략` / `이동` / `대기`
-- normal / pressed states
-- current functional panel must remain stable
+Goal:
+- keep `UnitCloseupPanel` as the current-turn card base
+- improve current-turn clarity without destabilizing the battle UI flow
 
 ## Priority 3
 `v0.68a Battle Screen Basic UX Stable`
@@ -32,6 +31,12 @@ Goal:
 - prepare worldmap-to-battle roster contract work on top of the current stable `5v5` battle baseline
 
 ## Completed / Archived Context
+- `v0.67u Formation Slot Guide Layout MVP` is complete.
+- `BattleMiniLogPanel` is added.
+- `FormationSlotGuideLayer` is added with ally/enemy guide panels.
+- Only main `3` + reinforce `2` per side are shown.
+- Guide UI is display-only with no click behavior.
+- Battle logic is unchanged.
 - `v0.67t-hotfix Bottom Command TextureButton Scene Fix` is complete.
 - Converted `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` from `Button` to scene-authored `TextureButton`.
 - Connected the 6 bottom command PNG assets directly in `Battle_Fullscreen_Test.tscn`.

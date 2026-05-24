@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.67u Formation Slot Guide Layout MVP
+- Hid/deprecated the large legacy `LeftPanel` and `RightPanel` info panels.
+- Added `BattleMiniLogPanel`.
+- Added ally/enemy formation slot guide panels for main `3` + reinforce `2` per side.
+- Kept the guide display-only with no click behavior and no battle logic changes.
+
 ## v0.67t-hotfix Bottom Command TextureButton Scene Fix
 - Converted the 3 bottom command buttons from `Button` to scene-authored `TextureButton`.
 - Connected the 6 PNG assets directly in `Battle_Fullscreen_Test.tscn`.

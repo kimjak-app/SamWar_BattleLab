@@ -2,6 +2,15 @@
 
 ## 2026-05-24
 
+### v0.67u Formation Slot Guide Layout MVP
+- Hid the large legacy `LeftPanel` / `RightPanel` battle info panels.
+- Added `BattleMiniLogPanel` at the lower-left.
+- Added `FormationSlotGuideLayer` with:
+  - `AllyFormationGuidePanel`
+  - `EnemyFormationGuidePanel`
+- Added display-only guide slots for main `3` + reinforce `2` per side.
+- Reused existing hero/slot/deployed state data without changing battle logic.
+
 ### v0.67t-hotfix Bottom Command TextureButton Scene Fix
 - Converted `AutoBattleButton`, `EndTurnButton`, and `RetreatButton` from `Button` to scene-authored `TextureButton`.
 - Connected the 6 bottom command PNG assets directly in `Battle_Fullscreen_Test.tscn`.

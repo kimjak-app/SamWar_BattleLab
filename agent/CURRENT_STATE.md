@@ -7,9 +7,10 @@ SamWar_BattleLab
 `v0.67p-3-hotfix3 Active Ally Pulse Pivot Lock QA Stable`
 
 ## Current Implementation Step
-- `v0.67t-hotfix Bottom Command TextureButton Scene Fix`
-- Bottom command buttons are now scene-authored `TextureButton` nodes with the 6 PNG assets connected directly in `Battle_Fullscreen_Test.tscn`.
-- Godot 2D editor visibility is restored for the bottom command buttons.
+- `v0.67u Formation Slot Guide Layout MVP`
+- Legacy large `LeftPanel` / `RightPanel` info panels are now deprecated/hidden.
+- `BattleMiniLogPanel` and left/right formation slot guide panels are added.
+- Formation guide is display-only and limited to main `3` + reinforce `2` per side.
 - Existing bottom command handlers are reused with no intended behavior change.
 
 ## Stable Summary
@@ -21,6 +22,7 @@ SamWar_BattleLab
 - Bottom global command bar exists.
 - Bottom command bar art-prep folder/README exists.
 - Bottom command buttons now render as scene-authored image buttons in the editor and runtime.
+- Formation slot guide layout now exists for ally/enemy roster state display.
 - Floating command panel exists.
 - Direct move-click UX stable.
 - Floating panel stays hidden at ally turn start and opens on active ally click.
@@ -76,8 +78,8 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. Bottom command visual `F6` QA
-2. `v0.67s Floating Command Panel Art Direction Prep`
+1. Formation Slot Guide visual polish
+2. Active Turn Card refine
 3. `Battle Screen Basic UX Stable` lock
 
 ## Archive

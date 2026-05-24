@@ -39,6 +39,9 @@ Do not modify casually:
 - Bottom command bar art-prep structure now exists under `assets/web_battle/ui/bottom_command/`.
 - Bottom command buttons are now scene-authored `TextureButton` nodes with the 6 PNG assets connected directly in `Battle_Fullscreen_Test.tscn`.
 - 2D editor visibility for the bottom command buttons is restored.
+- Legacy large `LeftPanel` / `RightPanel` info panels are hidden/deprecated.
+- `BattleMiniLogPanel` and `FormationSlotGuideLayer` are now part of the battle UI.
+- Formation slot guide shows only main `3` + reinforce `2` per side and is display-only.
 - Floating command panel exists and remains click-to-open.
 - Direct move-click UX remains stable.
 - Post-move floating panel auto-reopen remains stable.
@@ -50,8 +53,8 @@ Do not modify casually:
 - `RetreatButton` remains a disabled placeholder.
 
 ## Recommended Next Task
-- Current task: `v0.67t-hotfix Bottom Command TextureButton Scene Fix`
-- After completion: bottom command visual `F6` QA or `v0.67s Floating Command Panel Art Direction Prep`
+- Current task: `v0.67u Formation Slot Guide Layout MVP`
+- After completion: Formation Slot Guide visual polish or Active Turn Card refine
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

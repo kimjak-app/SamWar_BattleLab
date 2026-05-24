@@ -37,6 +37,32 @@ const AUTO_BATTLE_MIN_MAX_STEPS := 80
 const AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT := 16
 const AUTO_BATTLE_ABSOLUTE_MAX_STEPS := 200
 const MAX_BATTLE_LOG_LINES := 4
+const ALLY_FORMATION_GUIDE_SLOT_IDS := [
+	"ally_main_01",
+	"ally_main_02",
+	"ally_main_03",
+	"ally_reinforce_01",
+	"ally_reinforce_02",
+]
+const ENEMY_FORMATION_GUIDE_SLOT_IDS := [
+	"enemy_main_01",
+	"enemy_main_02",
+	"enemy_main_03",
+	"enemy_reinforce_01",
+	"enemy_reinforce_02",
+]
+const FORMATION_GUIDE_SLOT_NODE_PATHS := {
+	"ally_main_01": "BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot",
+	"ally_main_02": "BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot",
+	"ally_main_03": "BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot",
+	"ally_reinforce_01": "BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot",
+	"ally_reinforce_02": "BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot",
+	"enemy_main_01": "BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot",
+	"enemy_main_02": "BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot",
+	"enemy_main_03": "BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot",
+	"enemy_reinforce_01": "BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot",
+	"enemy_reinforce_02": "BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot",
+}
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH := "res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png"
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE := preload("res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png")
 const REINFORCEMENT_ARRIVAL_TOAST_TEXT := "지원군 도착!"
@@ -675,6 +701,12 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var top_bar: Panel = $BattleUI/TopBar
 @onready var left_panel: Panel = $BattleUI/LeftPanel
 @onready var right_panel: Panel = $BattleUI/RightPanel
+@onready var battle_mini_log_panel: Panel = get_node_or_null("BattleUI/BattleMiniLogPanel") as Panel
+@onready var battle_mini_log_title_label: Label = get_node_or_null("BattleUI/BattleMiniLogPanel/BattleMiniLogTitleLabel") as Label
+@onready var battle_mini_log_label: Label = get_node_or_null("BattleUI/BattleMiniLogPanel/BattleMiniLogLabel") as Label
+@onready var formation_slot_guide_layer: Control = get_node_or_null("BattleUI/FormationSlotGuideLayer") as Control
+@onready var ally_formation_guide_panel: Panel = get_node_or_null("BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel") as Panel
+@onready var enemy_formation_guide_panel: Panel = get_node_or_null("BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel") as Panel
 @onready var command_bar: Panel = $BattleUI/CommandBar
 @onready var command_bar_label: Label = get_node_or_null("BattleUI/CommandBar/CommandBarLabel") as Label
 @onready var basic_attack_button: Button = $BattleUI/CommandBar/BasicAttackButton
@@ -826,6 +858,7 @@ func _ready() -> void:
 	_apply_facing_arrow_panel_visual_style()
 	_configure_ally_ready_frames()
 	_configure_unit_closeup_panel()
+	_configure_layout_guides()
 	_configure_floating_ally_command_panel()
 	reset_demo_state()
 	_debug_print_unit_visual_root_slots()
@@ -1021,6 +1054,7 @@ func reset_demo_state() -> void:
 	_hide_attack_range_overlay()
 	_hide_facing_selection_panel()
 	_refresh_battle_log()
+	_refresh_formation_slot_guides()
 	cutin_overlay.visible = false
 	result_overlay.visible = false
 	_refresh_move_target_feedback()
@@ -1333,6 +1367,7 @@ func _set_phase(new_phase: String) -> void:
 		_hide_facing_selection_panel()
 	_update_ally_ready_frames()
 	_refresh_floating_ally_command_panel()
+	_refresh_formation_slot_guides()
 	if current_phase == PHASE_ALLY_TURN and is_full_auto_battle_enabled and not is_demo_animating:
 		call_deferred("_tick_full_auto_battle_if_needed")
 
@@ -1757,6 +1792,83 @@ func _refresh_battle_log() -> void:
 	for line in battle_log_lines:
 		log_text += "\n- %s" % line
 	battle_log_preview.text = log_text
+	if battle_mini_log_label != null:
+		var mini_log_text := ""
+		for line in battle_log_lines:
+			if mini_log_text != "":
+				mini_log_text += "\n"
+			mini_log_text += "- %s" % line
+		if mini_log_text == "":
+			mini_log_text = "- 대기 중"
+		battle_mini_log_label.text = mini_log_text
+
+
+func _configure_layout_guides() -> void:
+	if left_panel != null:
+		left_panel.visible = false
+		left_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if right_panel != null:
+		right_panel.visible = false
+		right_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if battle_mini_log_panel != null:
+		battle_mini_log_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var mini_log_style := StyleBoxFlat.new()
+		mini_log_style.bg_color = Color(0.03, 0.04, 0.06, 0.82)
+		mini_log_style.border_color = Color(0.88, 0.79, 0.56, 0.28)
+		mini_log_style.set_border_width_all(1)
+		mini_log_style.set_corner_radius_all(8)
+		battle_mini_log_panel.add_theme_stylebox_override("panel", mini_log_style)
+	if battle_mini_log_title_label != null:
+		battle_mini_log_title_label.add_theme_color_override("font_color", Color(0.96, 0.91, 0.8, 1.0))
+		battle_mini_log_title_label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.88))
+		battle_mini_log_title_label.add_theme_constant_override("outline_size", 2)
+	if battle_mini_log_label != null:
+		battle_mini_log_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.88, 1.0))
+		battle_mini_log_label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.78))
+		battle_mini_log_label.add_theme_constant_override("outline_size", 1)
+	if formation_slot_guide_layer != null:
+		formation_slot_guide_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for panel in [ally_formation_guide_panel, enemy_formation_guide_panel]:
+		if panel == null:
+			continue
+		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var panel_style := StyleBoxFlat.new()
+		panel_style.bg_color = Color(0.025, 0.03, 0.04, 0.76)
+		panel_style.border_color = Color(0.82, 0.74, 0.54, 0.22)
+		panel_style.set_border_width_all(1)
+		panel_style.set_corner_radius_all(8)
+		panel.add_theme_stylebox_override("panel", panel_style)
+	for title_label in [
+		get_node_or_null("BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/TitleLabel") as Label,
+		get_node_or_null("BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/TitleLabel") as Label,
+	]:
+		if title_label == null:
+			continue
+		title_label.add_theme_color_override("font_color", Color(0.96, 0.91, 0.8, 1.0))
+		title_label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.82))
+		title_label.add_theme_constant_override("outline_size", 2)
+	for slot_id in ALLY_FORMATION_GUIDE_SLOT_IDS:
+		_configure_formation_guide_slot(slot_id)
+	for slot_id in ENEMY_FORMATION_GUIDE_SLOT_IDS:
+		_configure_formation_guide_slot(slot_id)
+
+
+func _configure_formation_guide_slot(slot_id: String) -> void:
+	var nodes := _get_formation_guide_panel_nodes(slot_id)
+	var root := nodes.get("root", null) as Panel
+	if root == null:
+		return
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child_name in ["Portrait", "NameLabel", "HpLabel", "StatusLabel"]:
+		var child := root.get_node_or_null(child_name) as Control
+		if child != null:
+			child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for label_name in ["NameLabel", "HpLabel", "StatusLabel"]:
+		var label := root.get_node_or_null(label_name) as Label
+		if label != null:
+			label.add_theme_color_override("font_color", Color(0.93, 0.91, 0.86, 1.0))
+			label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.72))
+			label.add_theme_constant_override("outline_size", 1)
 
 
 # v0.64p-hotfix Enemy Highlight Cleanup
@@ -1937,6 +2049,7 @@ func _show_unit_closeup_for_ally(unit_state: BattleUnitState) -> void:
 	unit_closeup_tween.set_parallel(true)
 	unit_closeup_tween.tween_property(unit_closeup_panel, "scale", Vector2.ONE, 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	unit_closeup_tween.tween_property(unit_closeup_panel, "modulate:a", 1.0, 0.14)
+	_refresh_formation_slot_guides()
 
 
 func _hide_unit_closeup_panel() -> void:
@@ -1945,6 +2058,107 @@ func _hide_unit_closeup_panel() -> void:
 		unit_closeup_tween = null
 	if unit_closeup_panel != null:
 		unit_closeup_panel.visible = false
+	_refresh_formation_slot_guides()
+
+
+func _refresh_formation_slot_guides() -> void:
+	for slot_id in ALLY_FORMATION_GUIDE_SLOT_IDS:
+		_refresh_formation_slot_guide_for_entry(slot_id)
+	for slot_id in ENEMY_FORMATION_GUIDE_SLOT_IDS:
+		_refresh_formation_slot_guide_for_entry(slot_id)
+
+
+func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
+	var nodes := _get_formation_guide_panel_nodes(slot_id)
+	var root := nodes.get("root", null) as Panel
+	if root == null:
+		return
+	var portrait := nodes.get("portrait", null) as TextureRect
+	var name_label := nodes.get("name_label", null) as Label
+	var hp_label := nodes.get("hp_label", null) as Label
+	var status_label := nodes.get("status_label", null) as Label
+	var unit_state := _get_formation_guide_unit_state_for_capacity_slot_id(slot_id)
+	var slot_metadata := _get_capacity_slot_metadata(slot_id)
+	var hero_id := ""
+	if unit_state != null:
+		hero_id = _get_hero_id_for_unit_state(unit_state)
+	if hero_id == "":
+		hero_id = String(slot_metadata.get("assigned_hero_id", ""))
+	if hero_id == "":
+		hero_id = _get_test_battle_roster_hero_id(slot_id)
+	var hero_entry := _get_hero_registry_entry(hero_id)
+	var display_name := String(hero_entry.get("display_name", "미배치"))
+	if unit_state != null and unit_state.display_name != "":
+		display_name = unit_state.display_name
+	var is_deployed := unit_state != null and _is_unit_state_deployed_by_capacity_slot(unit_state)
+	var is_alive := unit_state != null and unit_state.is_alive()
+	var is_active := unit_state != null and unit_state == active_unit_state and is_deployed and is_alive
+	if name_label != null:
+		name_label.text = display_name
+	if hp_label != null:
+		if unit_state != null:
+			hp_label.text = "병력 %d / %d" % [unit_state.current_troops, unit_state.max_troops]
+		else:
+			hp_label.text = "병력 -"
+	if status_label != null:
+		status_label.text = _get_formation_guide_status_text(slot_id, unit_state)
+	if portrait != null:
+		var portrait_path := String(hero_entry.get("battlefield_portrait_path", ""))
+		portrait.texture = _load_texture_or_null(portrait_path)
+	var style := StyleBoxFlat.new()
+	style.set_corner_radius_all(6)
+	style.set_border_width_all(1)
+	if is_active:
+		style.bg_color = Color(0.24, 0.18, 0.08, 0.92)
+		style.border_color = Color(1.0, 0.86, 0.46, 0.95)
+		root.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	elif is_deployed and is_alive:
+		style.bg_color = Color(0.11, 0.13, 0.16, 0.92)
+		style.border_color = Color(0.82, 0.76, 0.62, 0.48)
+		root.modulate = Color(1.0, 1.0, 1.0, 0.98)
+	elif is_deployed and not is_alive:
+		style.bg_color = Color(0.14, 0.08, 0.08, 0.84)
+		style.border_color = Color(0.62, 0.28, 0.28, 0.46)
+		root.modulate = Color(0.82, 0.82, 0.82, 0.82)
+	else:
+		style.bg_color = Color(0.07, 0.08, 0.1, 0.76)
+		style.border_color = Color(0.44, 0.44, 0.46, 0.28)
+		root.modulate = Color(0.78, 0.78, 0.78, 0.9)
+	root.add_theme_stylebox_override("panel", style)
+
+
+func _get_formation_guide_unit_state_for_capacity_slot_id(slot_id: String) -> BattleUnitState:
+	return _get_unit_state_for_capacity_slot_id(slot_id)
+
+
+func _get_formation_guide_status_text(slot_id: String, unit_state: BattleUnitState) -> String:
+	if unit_state != null and unit_state == active_unit_state and _is_unit_state_deployed_by_capacity_slot(unit_state) and unit_state.is_alive():
+		return "행동중"
+	if unit_state != null and _is_unit_state_deployed_by_capacity_slot(unit_state):
+		if unit_state.is_alive():
+			return "출전"
+		return "전멸"
+	var slot_metadata := _get_capacity_slot_metadata(slot_id)
+	var arrival_round := int(slot_metadata.get("arrival_round", 0))
+	if arrival_round > 0:
+		return "R%d 대기" % arrival_round
+	return "지원대기"
+
+
+func _get_formation_guide_panel_nodes(slot_id: String) -> Dictionary:
+	var node_path := String(FORMATION_GUIDE_SLOT_NODE_PATHS.get(slot_id, ""))
+	if node_path == "":
+		return {}
+	var root := get_node_or_null(node_path) as Panel
+	if root == null:
+		return {}
+	return {
+		"root": root,
+		"portrait": root.get_node_or_null("Portrait") as TextureRect,
+		"name_label": root.get_node_or_null("NameLabel") as Label,
+		"hp_label": root.get_node_or_null("HpLabel") as Label,
+		"status_label": root.get_node_or_null("StatusLabel") as Label,
+	}
 
 
 func _get_closeup_portrait_texture_for_unit(unit_state: BattleUnitState) -> Texture2D:
@@ -3410,6 +3624,7 @@ func _deploy_reinforce_unit(unit_state: BattleUnitState) -> void:
 	_apply_group_offset_for_unit(unit_state, Vector2.ZERO)
 	_reset_unit_group_positions()
 	_refresh_facing_indicator_for_unit(unit_state)
+	_refresh_formation_slot_guides()
 	_debug_log_reinforce_visual_state(unit_state)
 
 
@@ -6934,6 +7149,7 @@ func _cleanup_dead_units() -> void:
 				active_unit_state = null
 				_hide_unit_closeup_panel()
 	_update_ally_ready_frames()
+	_refresh_formation_slot_guides()
 	_try_show_battle_result_toast_if_needed()
 
 
@@ -8304,6 +8520,7 @@ func _update_all_unit_visuals_from_state() -> void:
 	for unit_state in _get_all_unit_states_in_slot_order():
 		_update_unit_visuals_from_state(unit_state)
 	_update_facing_indicators()
+	_refresh_formation_slot_guides()
 	_cleanup_dead_units()
 
 
