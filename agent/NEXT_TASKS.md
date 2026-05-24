@@ -7,15 +7,15 @@
 Formation Slot Guide visual polish
 
 Goal:
-- refine the new ally/enemy formation guide visuals without changing battle logic
+- refine the compact ally/enemy formation guide cards without changing battle logic
 - keep side-panel width modest and battlefield visibility clean
 
 ## Priority 2
-Active Turn Card refine
+Bottom command bar background panel art
 
 Goal:
-- keep `UnitCloseupPanel` as the current-turn card base
-- improve current-turn clarity without destabilizing the battle UI flow
+- add a clean scene-authored background treatment behind the bottom command PNG buttons
+- keep current button behavior and editor visibility stable
 
 ## Priority 3
 `v0.68a Battle Screen Basic UX Stable`
@@ -31,6 +31,12 @@ Goal:
 - prepare worldmap-to-battle roster contract work on top of the current stable `5v5` battle baseline
 
 ## Completed / Archived Context
+- `v0.67u-3 Formation Guide Card Compact Info Polish` is complete.
+- Hid `UnitCloseupPanel` while keeping it reusable.
+- Simplified formation cards and removed status text.
+- Added troop icon + troop type label to each formation guide card.
+- Reduced formation card font sizes for a tighter strategy UI read.
+- Active/reserve distinction now relies on visual style instead of text.
 - `v0.67u Formation Slot Guide Layout MVP` is complete.
 - `BattleMiniLogPanel` is added.
 - `FormationSlotGuideLayer` is added with ally/enemy guide panels.

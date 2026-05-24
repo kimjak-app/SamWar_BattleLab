@@ -1859,16 +1859,36 @@ func _configure_formation_guide_slot(slot_id: String) -> void:
 	if root == null:
 		return
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	for child_name in ["Portrait", "NameLabel", "HpLabel", "StatusLabel"]:
+	for child_name in ["Portrait", "NameLabel", "HpLabel", "StatusLabel", "TroopIconRect", "TroopTypeLabel"]:
 		var child := root.get_node_or_null(child_name) as Control
 		if child != null:
 			child.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	for label_name in ["NameLabel", "HpLabel", "StatusLabel"]:
-		var label := root.get_node_or_null(label_name) as Label
-		if label != null:
-			label.add_theme_color_override("font_color", Color(0.93, 0.91, 0.86, 1.0))
-			label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.72))
-			label.add_theme_constant_override("outline_size", 1)
+	var name_label := root.get_node_or_null("NameLabel") as Label
+	var hp_label := root.get_node_or_null("HpLabel") as Label
+	var status_label := root.get_node_or_null("StatusLabel") as Label
+	var troop_type_label := root.get_node_or_null("TroopTypeLabel") as Label
+	for label in [name_label, hp_label, troop_type_label]:
+		if label == null:
+			continue
+		label.add_theme_color_override("font_color", Color(0.93, 0.91, 0.86, 1.0))
+		label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.72))
+		label.add_theme_constant_override("outline_size", 1)
+	if name_label != null:
+		name_label.add_theme_font_size_override("font_size", 15)
+	if hp_label != null:
+		hp_label.add_theme_font_size_override("font_size", 12)
+	if troop_type_label != null:
+		troop_type_label.add_theme_font_size_override("font_size", 11)
+		troop_type_label.add_theme_color_override("font_color", Color(0.86, 0.84, 0.8, 0.96))
+	if status_label != null:
+		status_label.visible = false
+		status_label.text = ""
+		status_label.add_theme_font_size_override("font_size", 1)
+		status_label.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0, 0.0))
+	var troop_icon_rect := root.get_node_or_null("TroopIconRect") as TextureRect
+	if troop_icon_rect != null:
+		troop_icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		troop_icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 
 
 # v0.64p-hotfix Enemy Highlight Cleanup
@@ -2040,15 +2060,10 @@ func _show_unit_closeup_for_ally(unit_state: BattleUnitState) -> void:
 	if closeup_status_label != null:
 		closeup_status_label.text = _get_unit_action_status_text(unit_state)
 
-	unit_closeup_panel.visible = true
-	unit_closeup_panel.scale = Vector2(0.97, 0.97)
-	unit_closeup_panel.modulate = Color(1.0, 1.0, 1.0, 0.92)
 	if unit_closeup_tween != null:
 		unit_closeup_tween.kill()
-	unit_closeup_tween = create_tween()
-	unit_closeup_tween.set_parallel(true)
-	unit_closeup_tween.tween_property(unit_closeup_panel, "scale", Vector2.ONE, 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	unit_closeup_tween.tween_property(unit_closeup_panel, "modulate:a", 1.0, 0.14)
+	unit_closeup_tween = null
+	unit_closeup_panel.visible = false
 	_refresh_formation_slot_guides()
 
 
@@ -2077,6 +2092,8 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 	var name_label := nodes.get("name_label", null) as Label
 	var hp_label := nodes.get("hp_label", null) as Label
 	var status_label := nodes.get("status_label", null) as Label
+	var troop_icon_rect := nodes.get("troop_icon_rect", null) as TextureRect
+	var troop_type_label := nodes.get("troop_type_label", null) as Label
 	var unit_state := _get_formation_guide_unit_state_for_capacity_slot_id(slot_id)
 	var slot_metadata := _get_capacity_slot_metadata(slot_id)
 	var hero_id := ""
@@ -2093,6 +2110,7 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 	var is_deployed := unit_state != null and _is_unit_state_deployed_by_capacity_slot(unit_state)
 	var is_alive := unit_state != null and unit_state.is_alive()
 	var is_active := unit_state != null and unit_state == active_unit_state and is_deployed and is_alive
+	var visual_key := _get_formation_guide_visual_key(slot_id, unit_state, hero_entry)
 	if name_label != null:
 		name_label.text = display_name
 	if hp_label != null:
@@ -2101,48 +2119,41 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 		else:
 			hp_label.text = "병력 -"
 	if status_label != null:
-		status_label.text = _get_formation_guide_status_text(slot_id, unit_state)
+		status_label.visible = false
+		status_label.text = ""
 	if portrait != null:
 		var portrait_path := String(hero_entry.get("battlefield_portrait_path", ""))
 		portrait.texture = _load_texture_or_null(portrait_path)
+	if troop_icon_rect != null:
+		troop_icon_rect.texture = _get_troop_icon_texture_for_visual_key(visual_key, unit_state)
+		troop_icon_rect.visible = troop_icon_rect.texture != null
+	if troop_type_label != null:
+		troop_type_label.text = _get_troop_type_label_for_visual_key(visual_key, _get_formation_guide_unit_type(slot_id, unit_state, hero_entry))
 	var style := StyleBoxFlat.new()
 	style.set_corner_radius_all(6)
 	style.set_border_width_all(1)
 	if is_active:
-		style.bg_color = Color(0.24, 0.18, 0.08, 0.92)
-		style.border_color = Color(1.0, 0.86, 0.46, 0.95)
+		style.bg_color = Color(0.26, 0.2, 0.08, 0.96)
+		style.border_color = Color(1.0, 0.86, 0.46, 0.98)
+		style.set_border_width_all(2)
 		root.modulate = Color(1.0, 1.0, 1.0, 1.0)
 	elif is_deployed and is_alive:
-		style.bg_color = Color(0.11, 0.13, 0.16, 0.92)
-		style.border_color = Color(0.82, 0.76, 0.62, 0.48)
+		style.bg_color = Color(0.12, 0.14, 0.17, 0.92)
+		style.border_color = Color(0.82, 0.76, 0.62, 0.42)
 		root.modulate = Color(1.0, 1.0, 1.0, 0.98)
 	elif is_deployed and not is_alive:
-		style.bg_color = Color(0.14, 0.08, 0.08, 0.84)
-		style.border_color = Color(0.62, 0.28, 0.28, 0.46)
-		root.modulate = Color(0.82, 0.82, 0.82, 0.82)
+		style.bg_color = Color(0.13, 0.08, 0.08, 0.8)
+		style.border_color = Color(0.5, 0.24, 0.24, 0.4)
+		root.modulate = Color(0.66, 0.66, 0.66, 0.74)
 	else:
-		style.bg_color = Color(0.07, 0.08, 0.1, 0.76)
-		style.border_color = Color(0.44, 0.44, 0.46, 0.28)
-		root.modulate = Color(0.78, 0.78, 0.78, 0.9)
+		style.bg_color = Color(0.055, 0.065, 0.08, 0.78)
+		style.border_color = Color(0.38, 0.38, 0.42, 0.22)
+		root.modulate = Color(0.68, 0.68, 0.68, 0.84)
 	root.add_theme_stylebox_override("panel", style)
 
 
 func _get_formation_guide_unit_state_for_capacity_slot_id(slot_id: String) -> BattleUnitState:
 	return _get_unit_state_for_capacity_slot_id(slot_id)
-
-
-func _get_formation_guide_status_text(slot_id: String, unit_state: BattleUnitState) -> String:
-	if unit_state != null and unit_state == active_unit_state and _is_unit_state_deployed_by_capacity_slot(unit_state) and unit_state.is_alive():
-		return "행동중"
-	if unit_state != null and _is_unit_state_deployed_by_capacity_slot(unit_state):
-		if unit_state.is_alive():
-			return "출전"
-		return "전멸"
-	var slot_metadata := _get_capacity_slot_metadata(slot_id)
-	var arrival_round := int(slot_metadata.get("arrival_round", 0))
-	if arrival_round > 0:
-		return "R%d 대기" % arrival_round
-	return "지원대기"
 
 
 func _get_formation_guide_panel_nodes(slot_id: String) -> Dictionary:
@@ -2158,7 +2169,111 @@ func _get_formation_guide_panel_nodes(slot_id: String) -> Dictionary:
 		"name_label": root.get_node_or_null("NameLabel") as Label,
 		"hp_label": root.get_node_or_null("HpLabel") as Label,
 		"status_label": root.get_node_or_null("StatusLabel") as Label,
+		"troop_icon_rect": root.get_node_or_null("TroopIconRect") as TextureRect,
+		"troop_type_label": root.get_node_or_null("TroopTypeLabel") as Label,
 	}
+
+
+func _get_formation_guide_visual_key(slot_id: String, unit_state: BattleUnitState, hero_entry: Dictionary) -> String:
+	if unit_state != null and unit_state.visual_key != "":
+		return unit_state.visual_key
+	var slot_metadata := _get_capacity_slot_metadata(slot_id)
+	var slot_visual_key := String(slot_metadata.get("visual_key", ""))
+	if slot_visual_key != "":
+		return slot_visual_key
+	if unit_state != null and unit_state.unit_type != "":
+		var side_prefix := "ally"
+		if unit_state.side == "enemy":
+			side_prefix = "enemy"
+		return "%s_%s" % [side_prefix, _normalize_unit_type(unit_state.unit_type)]
+	var default_visual_key := String(hero_entry.get("default_visual_key", ""))
+	if default_visual_key != "":
+		return default_visual_key
+	if slot_id.begins_with("enemy_"):
+		return "enemy_infantry"
+	return "ally_infantry"
+
+
+func _get_formation_guide_unit_type(slot_id: String, unit_state: BattleUnitState, hero_entry: Dictionary) -> String:
+	if unit_state != null and unit_state.unit_type != "":
+		return unit_state.unit_type
+	var visual_key := _get_formation_guide_visual_key(slot_id, unit_state, hero_entry)
+	return _infer_unit_type_from_visual_key(visual_key)
+
+
+func _infer_unit_type_from_visual_key(visual_key: String) -> String:
+	var normalized_key := visual_key.to_lower()
+	if normalized_key.contains("archer") or normalized_key.contains("bow"):
+		return UNIT_TYPE_ARCHER
+	if normalized_key.contains("gunner") or normalized_key.contains("firearm") or normalized_key.contains("arquebus"):
+		return UNIT_TYPE_GUNNER
+	if normalized_key.contains("cavalry") or normalized_key.contains("horse"):
+		return UNIT_TYPE_CAVALRY
+	if normalized_key.contains("infantry") or normalized_key.contains("spear") or normalized_key.contains("sword"):
+		return UNIT_TYPE_INFANTRY
+	return UNIT_TYPE_INFANTRY
+
+
+func _get_troop_type_label_for_visual_key(visual_key: String, fallback_unit_type: String = "") -> String:
+	var unit_type := fallback_unit_type
+	if unit_type == "":
+		unit_type = _infer_unit_type_from_visual_key(visual_key)
+	unit_type = _normalize_unit_type(unit_type)
+	match unit_type:
+		UNIT_TYPE_ARCHER:
+			return "궁병"
+		UNIT_TYPE_GUNNER:
+			return "총병"
+		UNIT_TYPE_CAVALRY:
+			return "기병"
+		_:
+			return "보병"
+
+
+func _get_troop_icon_texture_for_visual_key(visual_key: String, unit_state: BattleUnitState = null) -> Texture2D:
+	if unit_state != null:
+		var live_texture := _get_visual_token_texture_for_unit(unit_state, _get_unit_facing(unit_state))
+		if live_texture != null:
+			return live_texture
+	var direct_texture := _get_troop_icon_texture_from_token_paths(visual_key)
+	if direct_texture != null:
+		return direct_texture
+	var inferred_type := _infer_unit_type_from_visual_key(visual_key)
+	for fallback_key in _get_troop_icon_fallback_keys(visual_key, inferred_type):
+		var fallback_texture := _get_troop_icon_texture_from_token_paths(fallback_key)
+		if fallback_texture != null:
+			return fallback_texture
+	return null
+
+
+func _get_troop_icon_texture_from_token_paths(visual_key: String) -> Texture2D:
+	var visual_paths: Dictionary = UNIT_VISUAL_TOKEN_PATHS.get(visual_key, {})
+	if visual_paths.is_empty():
+		return null
+	var texture := _load_optional_texture(String(visual_paths.get("base", "")))
+	if texture != null:
+		return texture
+	return _load_optional_texture(String(visual_paths.get("down", "")))
+
+
+func _get_troop_icon_fallback_keys(visual_key: String, unit_type: String) -> Array[String]:
+	var normalized_type := _normalize_unit_type(unit_type)
+	var fallback_keys: Array[String] = []
+	if visual_key.begins_with("china_"):
+		fallback_keys.append("china_%s" % normalized_type)
+	elif visual_key.begins_with("korea_"):
+		fallback_keys.append("korea_%s" % normalized_type)
+	elif visual_key.begins_with("japan_"):
+		fallback_keys.append("japan_%s" % normalized_type)
+	elif visual_key.begins_with("enemy_"):
+		fallback_keys.append("enemy_%s" % normalized_type)
+	else:
+		fallback_keys.append("ally_%s" % normalized_type)
+	fallback_keys.append("ally_%s" % normalized_type)
+	fallback_keys.append("enemy_%s" % normalized_type)
+	fallback_keys.append("korea_%s" % normalized_type)
+	fallback_keys.append("china_%s" % normalized_type)
+	return fallback_keys
 
 
 func _get_closeup_portrait_texture_for_unit(unit_state: BattleUnitState) -> Texture2D:

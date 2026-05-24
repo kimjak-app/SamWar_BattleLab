@@ -2,6 +2,14 @@
 
 ## 2026-05-24
 
+### v0.67u-3 Formation Guide Card Compact Info Polish
+- Hid `UnitCloseupPanel` and kept it reserved for future popup reuse.
+- Repacked each ally/enemy formation guide slot into portrait / name / troop / troop-icon / troop-type layout.
+- Removed `행동중`, `출전`, `지원대기`, and round-wait status text from the cards.
+- Added troop icon + troop type binding with hero/default visual-key fallback.
+- Reduced guide-card font sizes and kept active/reserve distinction as style-only.
+- Intended scope remained UI-only with no battle-logic change.
+
 ### v0.67u Formation Slot Guide Layout MVP
 - Hid the large legacy `LeftPanel` / `RightPanel` battle info panels.
 - Added `BattleMiniLogPanel` at the lower-left.

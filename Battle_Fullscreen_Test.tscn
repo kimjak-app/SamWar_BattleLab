@@ -2367,9 +2367,9 @@ mouse_filter = 2
 
 [node name="AllyFormationGuidePanel" type="Panel" parent="BattleUI/FormationSlotGuideLayer" unique_id=129510001]
 layout_mode = 0
-offset_top = 294.0
+offset_top = 238.0
 offset_right = 235.0
-offset_bottom = 732.0
+offset_bottom = 676.0
 mouse_filter = 2
 
 [node name="TitleLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel" unique_id=862250101]
@@ -2399,27 +2399,46 @@ stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100102]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 8.0
-offset_right = 204.0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
 offset_bottom = 28.0
 text = "아군 main1"
 
 [node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100103]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 30.0
-offset_right = 204.0
-offset_bottom = 48.0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
 text = "병력 -"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100104]
+visible = false
 layout_mode = 0
-offset_left = 70.0
+offset_left = 168.0
 offset_top = 50.0
-offset_right = 204.0
-offset_bottom = 68.0
-text = "지원대기"
+offset_right = 212.0
+offset_bottom = 66.0
+text = ""
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100125]
+layout_mode = 0
+offset_left = 174.0
+offset_top = 8.0
+offset_right = 206.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100126]
+layout_mode = 0
+offset_left = 166.0
+offset_top = 44.0
+offset_right = 214.0
+offset_bottom = 60.0
+text = "-"
+horizontal_alignment = 1
 
 [node name="AllyMain02GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel" unique_id=147100105]
 layout_mode = 0
@@ -2440,27 +2459,46 @@ stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100107]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 8.0
-offset_right = 204.0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
 offset_bottom = 28.0
 text = "아군 main2"
 
 [node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100108]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 30.0
-offset_right = 204.0
-offset_bottom = 48.0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
 text = "병력 -"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100109]
+visible = false
 layout_mode = 0
-offset_left = 70.0
+offset_left = 168.0
 offset_top = 50.0
-offset_right = 204.0
-offset_bottom = 68.0
-text = "지원대기"
+offset_right = 212.0
+offset_bottom = 66.0
+text = ""
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100127]
+layout_mode = 0
+offset_left = 174.0
+offset_top = 8.0
+offset_right = 206.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100128]
+layout_mode = 0
+offset_left = 166.0
+offset_top = 44.0
+offset_right = 214.0
+offset_bottom = 60.0
+text = "-"
+horizontal_alignment = 1
 
 [node name="AllyMain03GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel" unique_id=147100110]
 layout_mode = 0
@@ -2481,27 +2519,46 @@ stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100112]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 8.0
-offset_right = 204.0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
 offset_bottom = 28.0
 text = "아군 main3"
 
 [node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100113]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 30.0
-offset_right = 204.0
-offset_bottom = 48.0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
 text = "병력 -"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100114]
+visible = false
 layout_mode = 0
-offset_left = 70.0
+offset_left = 168.0
 offset_top = 50.0
-offset_right = 204.0
-offset_bottom = 68.0
-text = "지원대기"
+offset_right = 212.0
+offset_bottom = 66.0
+text = ""
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100129]
+layout_mode = 0
+offset_left = 174.0
+offset_top = 8.0
+offset_right = 206.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100130]
+layout_mode = 0
+offset_left = 166.0
+offset_top = 44.0
+offset_right = 214.0
+offset_bottom = 60.0
+text = "-"
+horizontal_alignment = 1
 
 [node name="AllyReinforce01GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel" unique_id=147100115]
 layout_mode = 0
@@ -2522,27 +2579,46 @@ stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100117]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 8.0
-offset_right = 204.0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
 offset_bottom = 28.0
 text = "지원군 1"
 
 [node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100118]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 30.0
-offset_right = 204.0
-offset_bottom = 48.0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
 text = "병력 -"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100119]
+visible = false
 layout_mode = 0
-offset_left = 70.0
+offset_left = 168.0
 offset_top = 50.0
-offset_right = 204.0
-offset_bottom = 68.0
-text = "지원대기"
+offset_right = 212.0
+offset_bottom = 66.0
+text = ""
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100131]
+layout_mode = 0
+offset_left = 174.0
+offset_top = 8.0
+offset_right = 206.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100132]
+layout_mode = 0
+offset_left = 166.0
+offset_top = 44.0
+offset_right = 214.0
+offset_bottom = 60.0
+text = "-"
+horizontal_alignment = 1
 
 [node name="AllyReinforce02GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel" unique_id=147100120]
 layout_mode = 0
@@ -2563,27 +2639,46 @@ stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100122]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 8.0
-offset_right = 204.0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
 offset_bottom = 28.0
 text = "지원군 2"
 
 [node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100123]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 30.0
-offset_right = 204.0
-offset_bottom = 48.0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
 text = "병력 -"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100124]
+visible = false
 layout_mode = 0
-offset_left = 70.0
+offset_left = 168.0
 offset_top = 50.0
-offset_right = 204.0
-offset_bottom = 68.0
-text = "지원대기"
+offset_right = 212.0
+offset_bottom = 66.0
+text = ""
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100133]
+layout_mode = 0
+offset_left = 174.0
+offset_top = 8.0
+offset_right = 206.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100134]
+layout_mode = 0
+offset_left = 166.0
+offset_top = 44.0
+offset_right = 214.0
+offset_bottom = 60.0
+text = "-"
+horizontal_alignment = 1
 
 [node name="EnemyFormationGuidePanel" type="Panel" parent="BattleUI/FormationSlotGuideLayer" unique_id=129510002]
 layout_mode = 0
@@ -2620,27 +2715,46 @@ stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100102]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 8.0
-offset_right = 204.0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
 offset_bottom = 28.0
 text = "적군 main1"
 
 [node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100103]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 30.0
-offset_right = 204.0
-offset_bottom = 48.0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
 text = "병력 -"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100104]
+visible = false
 layout_mode = 0
-offset_left = 70.0
+offset_left = 168.0
 offset_top = 50.0
-offset_right = 204.0
-offset_bottom = 68.0
-text = "지원대기"
+offset_right = 212.0
+offset_bottom = 66.0
+text = ""
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100125]
+layout_mode = 0
+offset_left = 174.0
+offset_top = 8.0
+offset_right = 206.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100126]
+layout_mode = 0
+offset_left = 166.0
+offset_top = 44.0
+offset_right = 214.0
+offset_bottom = 60.0
+text = "-"
+horizontal_alignment = 1
 
 [node name="EnemyMain02GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel" unique_id=247100105]
 layout_mode = 0
@@ -2661,27 +2775,46 @@ stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100107]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 8.0
-offset_right = 204.0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
 offset_bottom = 28.0
 text = "적군 main2"
 
 [node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100108]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 30.0
-offset_right = 204.0
-offset_bottom = 48.0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
 text = "병력 -"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100109]
+visible = false
 layout_mode = 0
-offset_left = 70.0
+offset_left = 168.0
 offset_top = 50.0
-offset_right = 204.0
-offset_bottom = 68.0
-text = "지원대기"
+offset_right = 212.0
+offset_bottom = 66.0
+text = ""
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100127]
+layout_mode = 0
+offset_left = 174.0
+offset_top = 8.0
+offset_right = 206.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100128]
+layout_mode = 0
+offset_left = 166.0
+offset_top = 44.0
+offset_right = 214.0
+offset_bottom = 60.0
+text = "-"
+horizontal_alignment = 1
 
 [node name="EnemyMain03GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel" unique_id=247100110]
 layout_mode = 0
@@ -2702,27 +2835,46 @@ stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100112]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 8.0
-offset_right = 204.0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
 offset_bottom = 28.0
 text = "적군 main3"
 
 [node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100113]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 30.0
-offset_right = 204.0
-offset_bottom = 48.0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
 text = "병력 -"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100114]
+visible = false
 layout_mode = 0
-offset_left = 70.0
+offset_left = 168.0
 offset_top = 50.0
-offset_right = 204.0
-offset_bottom = 68.0
-text = "지원대기"
+offset_right = 212.0
+offset_bottom = 66.0
+text = ""
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100129]
+layout_mode = 0
+offset_left = 174.0
+offset_top = 8.0
+offset_right = 206.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100130]
+layout_mode = 0
+offset_left = 166.0
+offset_top = 44.0
+offset_right = 214.0
+offset_bottom = 60.0
+text = "-"
+horizontal_alignment = 1
 
 [node name="EnemyReinforce01GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel" unique_id=247100115]
 layout_mode = 0
@@ -2743,27 +2895,46 @@ stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100117]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 8.0
-offset_right = 204.0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
 offset_bottom = 28.0
 text = "적 지원군1"
 
 [node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100118]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 30.0
-offset_right = 204.0
-offset_bottom = 48.0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
 text = "병력 -"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100119]
+visible = false
 layout_mode = 0
-offset_left = 70.0
+offset_left = 168.0
 offset_top = 50.0
-offset_right = 204.0
-offset_bottom = 68.0
-text = "지원대기"
+offset_right = 212.0
+offset_bottom = 66.0
+text = ""
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100131]
+layout_mode = 0
+offset_left = 174.0
+offset_top = 8.0
+offset_right = 206.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100132]
+layout_mode = 0
+offset_left = 166.0
+offset_top = 44.0
+offset_right = 214.0
+offset_bottom = 60.0
+text = "-"
+horizontal_alignment = 1
 
 [node name="EnemyReinforce02GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel" unique_id=247100120]
 layout_mode = 0
@@ -2784,27 +2955,46 @@ stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100122]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 8.0
-offset_right = 204.0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
 offset_bottom = 28.0
 text = "적 지원군2"
 
 [node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100123]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 30.0
-offset_right = 204.0
-offset_bottom = 48.0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
 text = "병력 -"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100124]
+visible = false
 layout_mode = 0
-offset_left = 70.0
+offset_left = 168.0
 offset_top = 50.0
-offset_right = 204.0
-offset_bottom = 68.0
-text = "지원대기"
+offset_right = 212.0
+offset_bottom = 66.0
+text = ""
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100133]
+layout_mode = 0
+offset_left = 174.0
+offset_top = 8.0
+offset_right = 206.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100134]
+layout_mode = 0
+offset_left = 166.0
+offset_top = 44.0
+offset_right = 214.0
+offset_bottom = 60.0
+text = "-"
+horizontal_alignment = 1
 
 [node name="CommandBar" type="Panel" parent="BattleUI" unique_id=2130262646]
 offset_left = 1309.0
@@ -3123,6 +3313,7 @@ offset_bottom = 836.0
 mouse_filter = 2
 
 [node name="UnitCloseupPanel" type="Panel" parent="BattleUI" unique_id=635915241]
+visible = false
 offset_top = 103.0
 offset_right = 236.0
 offset_bottom = 279.0

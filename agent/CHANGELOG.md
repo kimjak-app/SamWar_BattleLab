@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.67u-3 Formation Guide Card Compact Info Polish
+- Hid `UnitCloseupPanel` while preserving its node structure for later reuse.
+- Reworked ally/enemy formation guide cards into compact portrait / name / troop / troop-icon / troop-type layout.
+- Removed card status text and kept active/reserve distinction through visual styling only.
+- Reduced guide-card text sizes for a tighter strategy UI read.
+- Reused existing token textures and hero visual fallback data for troop icon rendering.
+- No battle logic change intended.
+
 ## v0.67u Formation Slot Guide Layout MVP
 - Hid/deprecated the large legacy `LeftPanel` and `RightPanel` info panels.
 - Added `BattleMiniLogPanel`.

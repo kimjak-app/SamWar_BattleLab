@@ -42,6 +42,9 @@ Do not modify casually:
 - Legacy large `LeftPanel` / `RightPanel` info panels are hidden/deprecated.
 - `BattleMiniLogPanel` and `FormationSlotGuideLayer` are now part of the battle UI.
 - Formation slot guide shows only main `3` + reinforce `2` per side and is display-only.
+- `UnitCloseupPanel` is hidden and reserved for future popup reuse.
+- Formation guide cards now show portrait + name + troop count + troop icon + troop type.
+- Formation guide status text is removed; active/reserve distinction is style-based.
 - Floating command panel exists and remains click-to-open.
 - Direct move-click UX remains stable.
 - Post-move floating panel auto-reopen remains stable.
@@ -53,8 +56,8 @@ Do not modify casually:
 - `RetreatButton` remains a disabled placeholder.
 
 ## Recommended Next Task
-- Current task: `v0.67u Formation Slot Guide Layout MVP`
-- After completion: Formation Slot Guide visual polish or Active Turn Card refine
+- Current task: `v0.67u-3 Formation Guide Card Compact Info Polish`
+- After completion: Formation guide visual polish, bottom command bar background panel art, or `Battle Screen Basic UX Stable` lock
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.
