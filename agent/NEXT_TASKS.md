@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x-7 Enemy Retreat Toast Actual Apply`
+`v0.67x-7 Defeat Retreat Toast Actual Apply`
 
 ## Priority 1
 `v0.67y Tactics MVP`
@@ -22,6 +22,10 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67x-7 Defeat Retreat Toast Actual Apply` is complete.
+- Ally/enemy battle exits now snapshot portrait / name / side / fallback line before cleanup and play on the visible scene-authored toast layer.
+- Ally and enemy toasts use separate dialogue pools, default `1.25s` hold, and `1.05s+` sequential queue playback for simultaneous exits.
+- Dead units become untargetable immediately, and full-auto result flow remains stable with the defeat-retreat queue active.
 - `v0.67x-7 Enemy Retreat Toast Actual Apply` is complete.
 - Enemy defeat now snapshots portrait / name / retreat line before cleanup and plays on a dedicated visible toast layer.
 - Simultaneous enemy defeats enqueue sequential retreat toasts while dead units become untargetable immediately.

@@ -2,6 +2,11 @@
 
 ## 2026-05-25
 
+### v0.67x-7 Defeat Retreat Toast Actual Apply
+- Confirmed the existing retreat toast implementation was enemy-only and generalized it for ally/enemy battle exits.
+- Snapshot portrait / name / side / fallback line before cleanup, then play a visible scene-authored toast with separate ally/enemy dialogue pools.
+- Verified enemy single exit, ally single exit, mixed simultaneous queue, immediate untargetable cleanup, scene load, and full-auto victory path.
+
 ### v0.67x-7 Enemy Retreat Toast Actual Apply
 - Confirmed an enemy retreat toast implementation already existed but was a single immediate toast under `BattleUI`, with no snapshot queue.
 - Moved the toast to a dedicated scene-authored layer and switched defeat handling to snapshot queued playback before cleanup.

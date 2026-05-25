@@ -90,16 +90,23 @@ const UNIQUE_SKILL_SPLASH_DAMAGE := 18
 const UNIQUE_SKILL_ATTACK_BUFF := 6
 const UNIQUE_SKILL_DEFENSE_BUFF := 4
 const UNIQUE_SKILL_ATTACK_BUFF_TURNS := 3
-const ENEMY_RETREAT_TOAST_DURATION := 0.95
-const ENEMY_RETREAT_TOAST_CHAIN_DURATION := 0.65
-const ENEMY_RETREAT_TOAST_MAX_QUEUE_PER_CLEANUP := 3
-const ENEMY_RETREAT_TOAST_SIZE := Vector2(560.0, 132.0)
+const DEFEAT_RETREAT_TOAST_DURATION := 1.25
+const DEFEAT_RETREAT_TOAST_CHAIN_DURATION := 1.05
+const DEFEAT_RETREAT_TOAST_MAX_QUEUE_PER_CLEANUP := 3
+const DEFEAT_RETREAT_TOAST_SIZE := Vector2(560.0, 132.0)
 const ENEMY_RETREAT_TOAST_LINES := [
 	"아... 내 능력은 여기까지인가!",
 	"후퇴한다! 훗날을 기약하겠다!",
 	"이 치욕... 잊지 않겠다!",
 	"전열을 물려라!",
 	"오늘의 패배를 기억하겠다!",
+]
+const ALLY_DEFEAT_TOAST_LINES := [
+	"송구합니다... 여기까지입니다!",
+	"더는 버틸 수 없습니다!",
+	"전열에서 물러나겠습니다!",
+	"부디... 뒤를 부탁드립니다!",
+	"아직 쓰러질 수는 없는데...!",
 ]
 const ATTACK_ANGLE_FRONT := "front"
 const ATTACK_ANGLE_SIDE := "side"
@@ -636,10 +643,10 @@ var has_battle_result_toast_shown := false
 var unique_skill_toast_tween: Tween = null
 var is_unique_skill_presenting := false
 var unique_skill_texture_cache: Dictionary = {}
-var enemy_retreat_toast_tween: Tween = null
-var is_enemy_retreat_toast_playing := false
-var enemy_retreat_toast_queue: Array[Dictionary] = []
-var shown_enemy_retreat_toast_unit_ids: Dictionary = {}
+var defeat_retreat_toast_tween: Tween = null
+var is_defeat_retreat_toast_playing := false
+var defeat_retreat_toast_queue: Array[Dictionary] = []
+var shown_defeat_retreat_toast_unit_ids: Dictionary = {}
 var camera_shake_tween: Tween = null
 var main_camera_base_position := Vector2.ZERO
 var enemy_ai_last_destination_debug: Dictionary = {}
@@ -1231,9 +1238,9 @@ func reset_demo_state() -> void:
 	if unique_skill_toast_tween != null:
 		unique_skill_toast_tween.kill()
 		unique_skill_toast_tween = null
-	if enemy_retreat_toast_tween != null:
-		enemy_retreat_toast_tween.kill()
-		enemy_retreat_toast_tween = null
+	if defeat_retreat_toast_tween != null:
+		defeat_retreat_toast_tween.kill()
+		defeat_retreat_toast_tween = null
 	if camera_shake_tween != null:
 		camera_shake_tween.kill()
 		camera_shake_tween = null
@@ -1242,9 +1249,9 @@ func reset_demo_state() -> void:
 	is_unique_skill_presenting = false
 	is_manual_unique_skill_preview_pending = false
 	_clear_unique_skill_targeting_state()
-	is_enemy_retreat_toast_playing = false
-	enemy_retreat_toast_queue.clear()
-	shown_enemy_retreat_toast_unit_ids.clear()
+	is_defeat_retreat_toast_playing = false
+	defeat_retreat_toast_queue.clear()
+	shown_defeat_retreat_toast_unit_ids.clear()
 	pending_battle_toasts.clear()
 	is_battle_toast_playing = false
 	active_battle_toast_tag = ""
@@ -5639,8 +5646,8 @@ func _hide_unique_skill_toast() -> void:
 func _configure_enemy_retreat_toast() -> void:
 	if enemy_retreat_toast_root != null:
 		enemy_retreat_toast_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		enemy_retreat_toast_root.size = ENEMY_RETREAT_TOAST_SIZE
-		enemy_retreat_toast_root.pivot_offset = ENEMY_RETREAT_TOAST_SIZE * 0.5
+		enemy_retreat_toast_root.size = DEFEAT_RETREAT_TOAST_SIZE
+		enemy_retreat_toast_root.pivot_offset = DEFEAT_RETREAT_TOAST_SIZE * 0.5
 		enemy_retreat_toast_root.visible = false
 	if enemy_retreat_portrait != null:
 		enemy_retreat_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -5669,60 +5676,57 @@ func _hide_enemy_retreat_toast() -> void:
 		enemy_retreat_portrait.texture = null
 
 
-func _make_enemy_retreat_toast_snapshot(unit_state: BattleUnitState) -> Dictionary:
-	if unit_state == null or unit_state.side != "enemy":
+func _make_defeat_retreat_toast_snapshot(unit_state: BattleUnitState) -> Dictionary:
+	if unit_state == null or unit_state.side not in ["ally", "enemy"]:
 		return {}
 	return {
 		"unit_id": unit_state.unit_id,
+		"side": unit_state.side,
 		"display_name": unit_state.display_name,
-		"line": _get_enemy_retreat_line(unit_state),
+		"line": _get_defeat_retreat_line(unit_state),
 		"portrait": _get_retreat_toast_portrait_texture(unit_state),
 	}
 
 
-func _queue_enemy_retreat_toast_snapshot(snapshot: Dictionary) -> void:
+func _queue_defeat_retreat_toast_snapshot(snapshot: Dictionary) -> void:
 	if snapshot.is_empty():
 		return
 	if enemy_retreat_toast_root == null:
 		return
-	enemy_retreat_toast_queue.append(snapshot.duplicate(true))
-	print("[RETREAT_TOAST] queued name=%s queue=%d" % [
-		str(snapshot.get("display_name", "")),
-		enemy_retreat_toast_queue.size()
-	])
-	call_deferred("_play_next_enemy_retreat_toast")
+	defeat_retreat_toast_queue.append(snapshot.duplicate(true))
+	call_deferred("_play_next_defeat_retreat_toast")
 
 
-func _play_next_enemy_retreat_toast() -> void:
-	if is_enemy_retreat_toast_playing:
+func _play_next_defeat_retreat_toast() -> void:
+	if is_defeat_retreat_toast_playing:
 		return
 	if enemy_retreat_toast_root == null:
-		enemy_retreat_toast_queue.clear()
+		defeat_retreat_toast_queue.clear()
 		return
-	if enemy_retreat_toast_queue.is_empty():
+	if defeat_retreat_toast_queue.is_empty():
 		return
-	var snapshot: Dictionary = enemy_retreat_toast_queue.pop_front()
-	var hold_duration := ENEMY_RETREAT_TOAST_DURATION
-	if not enemy_retreat_toast_queue.is_empty():
-		hold_duration = ENEMY_RETREAT_TOAST_CHAIN_DURATION
-	_show_enemy_retreat_toast_snapshot(snapshot, hold_duration)
+	var snapshot: Dictionary = defeat_retreat_toast_queue.pop_front()
+	var hold_duration := DEFEAT_RETREAT_TOAST_DURATION
+	if not defeat_retreat_toast_queue.is_empty():
+		hold_duration = DEFEAT_RETREAT_TOAST_CHAIN_DURATION
+	_show_defeat_retreat_toast_snapshot(snapshot, hold_duration)
 
 
-func _show_enemy_retreat_toast_snapshot(snapshot: Dictionary, hold_duration: float) -> void:
+func _show_defeat_retreat_toast_snapshot(snapshot: Dictionary, hold_duration: float) -> void:
 	if snapshot.is_empty() or enemy_retreat_toast_root == null:
 		return
-	if enemy_retreat_toast_tween != null:
-		enemy_retreat_toast_tween.kill()
-		enemy_retreat_toast_tween = null
-	is_enemy_retreat_toast_playing = true
+	if defeat_retreat_toast_tween != null:
+		defeat_retreat_toast_tween.kill()
+		defeat_retreat_toast_tween = null
+	is_defeat_retreat_toast_playing = true
 	var viewport_size := get_viewport_rect().size
 	var desired_position := Vector2(
-		maxf(12.0, (viewport_size.x - ENEMY_RETREAT_TOAST_SIZE.x) * 0.5),
-		maxf(12.0, viewport_size.y - ENEMY_RETREAT_TOAST_SIZE.y - 156.0)
+		maxf(12.0, (viewport_size.x - DEFEAT_RETREAT_TOAST_SIZE.x) * 0.5),
+		maxf(12.0, viewport_size.y - DEFEAT_RETREAT_TOAST_SIZE.y - 156.0)
 	)
 	enemy_retreat_toast_root.position = desired_position
-	enemy_retreat_toast_root.size = ENEMY_RETREAT_TOAST_SIZE
-	enemy_retreat_toast_root.pivot_offset = ENEMY_RETREAT_TOAST_SIZE * 0.5
+	enemy_retreat_toast_root.size = DEFEAT_RETREAT_TOAST_SIZE
+	enemy_retreat_toast_root.pivot_offset = DEFEAT_RETREAT_TOAST_SIZE * 0.5
 	enemy_retreat_toast_root.visible = true
 	enemy_retreat_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	enemy_retreat_toast_root.scale = Vector2.ONE * 0.92
@@ -5730,26 +5734,30 @@ func _show_enemy_retreat_toast_snapshot(snapshot: Dictionary, hold_duration: flo
 		enemy_retreat_portrait.texture = snapshot.get("portrait", null) as Texture2D
 		enemy_retreat_portrait.visible = enemy_retreat_portrait.texture != null
 	if enemy_retreat_name_label != null:
-		enemy_retreat_name_label.text = str(snapshot.get("display_name", "적장"))
+		enemy_retreat_name_label.text = str(snapshot.get("display_name", "장수"))
+		if str(snapshot.get("side", "")) == "ally":
+			enemy_retreat_name_label.add_theme_color_override("font_color", Color(0.58, 0.78, 1.0, 1.0))
+		else:
+			enemy_retreat_name_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.5, 1.0))
 	if enemy_retreat_line_label != null:
-		enemy_retreat_line_label.text = str(snapshot.get("line", "후퇴한다!"))
-	enemy_retreat_toast_tween = create_tween()
-	enemy_retreat_toast_tween.set_parallel(true)
-	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 1.0, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	enemy_retreat_toast_tween.set_parallel(false)
-	enemy_retreat_toast_tween.tween_interval(maxf(0.1, hold_duration))
-	enemy_retreat_toast_tween.set_parallel(true)
-	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "position", desired_position + Vector2(0.0, 12.0), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	enemy_retreat_toast_tween.chain().tween_callback(_finish_enemy_retreat_toast)
+		enemy_retreat_line_label.text = str(snapshot.get("line", "전열에서 물러난다!"))
+	defeat_retreat_toast_tween = create_tween()
+	defeat_retreat_toast_tween.set_parallel(true)
+	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 1.0, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	defeat_retreat_toast_tween.set_parallel(false)
+	defeat_retreat_toast_tween.tween_interval(maxf(DEFEAT_RETREAT_TOAST_CHAIN_DURATION, hold_duration))
+	defeat_retreat_toast_tween.set_parallel(true)
+	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "position", desired_position + Vector2(0.0, 12.0), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	defeat_retreat_toast_tween.chain().tween_callback(_finish_defeat_retreat_toast)
 
 
-func _finish_enemy_retreat_toast() -> void:
-	enemy_retreat_toast_tween = null
-	is_enemy_retreat_toast_playing = false
+func _finish_defeat_retreat_toast() -> void:
+	defeat_retreat_toast_tween = null
+	is_defeat_retreat_toast_playing = false
 	_hide_enemy_retreat_toast()
-	call_deferred("_play_next_enemy_retreat_toast")
+	call_deferred("_play_next_defeat_retreat_toast")
 
 
 func _get_retreat_toast_portrait_texture(unit_state: BattleUnitState) -> Texture2D:
@@ -5763,11 +5771,16 @@ func _get_retreat_toast_portrait_texture(unit_state: BattleUnitState) -> Texture
 	return _get_troop_icon_texture_for_visual_key(unit_state.visual_key, unit_state)
 
 
-func _get_enemy_retreat_line(unit_state: BattleUnitState) -> String:
-	if ENEMY_RETREAT_TOAST_LINES.is_empty():
-		return "후퇴한다!"
-	var line_index := absi(unit_state.unit_id.hash()) % ENEMY_RETREAT_TOAST_LINES.size()
-	return String(ENEMY_RETREAT_TOAST_LINES[line_index])
+func _get_defeat_retreat_line(unit_state: BattleUnitState) -> String:
+	var lines := ENEMY_RETREAT_TOAST_LINES
+	var fallback := "후퇴한다!"
+	if unit_state != null and unit_state.side == "ally":
+		lines = ALLY_DEFEAT_TOAST_LINES
+		fallback = "전열에서 물러나겠습니다!"
+	if lines.is_empty():
+		return fallback
+	var line_index := absi(unit_state.unit_id.hash()) % lines.size()
+	return String(lines[line_index])
 
 
 func _show_round_start_banner() -> void:
@@ -8688,19 +8701,19 @@ func _is_enemy_click_candidate_alive(unit_state: BattleUnitState) -> bool:
 
 
 func _cleanup_dead_units() -> void:
-	var enemy_retreat_toast_count := 0
+	var defeat_retreat_toast_count := 0
 	for unit_state in _get_all_unit_states_in_slot_order():
 		if unit_state == null:
 			continue
 		var is_alive := unit_state.is_alive()
 		var is_deployed_alive := _is_unit_state_available_for_battle_slot(unit_state)
-		if not is_alive and unit_state.side == "enemy" and not bool(shown_enemy_retreat_toast_unit_ids.get(unit_state.unit_id, false)):
-			shown_enemy_retreat_toast_unit_ids[unit_state.unit_id] = true
-			if enemy_retreat_toast_count < ENEMY_RETREAT_TOAST_MAX_QUEUE_PER_CLEANUP:
-				_queue_enemy_retreat_toast_snapshot(_make_enemy_retreat_toast_snapshot(unit_state))
-				enemy_retreat_toast_count += 1
+		if not is_alive and unit_state.side in ["ally", "enemy"] and not bool(shown_defeat_retreat_toast_unit_ids.get(unit_state.unit_id, false)):
+			shown_defeat_retreat_toast_unit_ids[unit_state.unit_id] = true
+			if defeat_retreat_toast_count < DEFEAT_RETREAT_TOAST_MAX_QUEUE_PER_CLEANUP:
+				_queue_defeat_retreat_toast_snapshot(_make_defeat_retreat_toast_snapshot(unit_state))
+				defeat_retreat_toast_count += 1
 			else:
-				_append_battle_log("%s 퇴각" % unit_state.display_name)
+				_append_battle_log("%s 전투이탈" % unit_state.display_name)
 		_set_unit_visual_group_visible(unit_state, is_deployed_alive)
 		_set_unit_click_area_enabled(unit_state, is_deployed_alive)
 		if not is_alive and not bool(dead_unit_ids.get(unit_state.unit_id, false)):

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.67x-7 Defeat Retreat Toast Actual Apply
+- Generalized the existing enemy retreat toast into an ally/enemy defeat-retreat toast queue.
+- Snapshot portrait / name / side / fallback line before cleanup so battle-exit messages remain visible even after units are removed.
+- Added separate ally defeat and enemy retreat dialogue pools with `1.25s` default hold and `1.05s+` queued playback.
+- Kept dead-unit cleanup, untargetable state, victory/defeat result checks, and full-auto flow non-blocking.
+
 ## v0.67x-7 Enemy Retreat Toast Actual Apply
 - Moved the existing enemy retreat toast UI onto a dedicated scene-authored `EnemyRetreatToastLayer` so it is actually visible over battle/result UI.
 - Changed enemy defeat handling to snapshot portrait / name / fallback line before visual cleanup.
