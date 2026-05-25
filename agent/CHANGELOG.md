@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.67y-1 Strategy Status UX + Result Sequence Fix
+- Tuned defeat-retreat toast hold to `1.2s` for the first exit and `1.0s` for queued follow-ups, keeping fade-out after hold.
+- Enlarged battlefield strategy status icons, added formation-guide status summaries, and enlarged troop icons to `52 x 52`.
+- Applied a light `동요` attack/defense penalty through shared damage calculation.
+- Deferred victory/defeat result toast display until defeat-retreat toast playback finishes, and moved strategy status turn decrease to after action/skip resolution.
+
 ## v0.67y Web Strategy Port MVP
 - Ported the web single `strategy` command into the floating `책략` button for manual ally use.
 - Added intelligence-based strategy range / tier / success-rate / outcome helpers and cyan range + valid-target markers.

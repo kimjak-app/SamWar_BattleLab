@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67y Web Strategy Port MVP`
+`v0.67y-1 Strategy Status UX + Result Sequence Fix`
 
 ## Current Implementation Step
+- `v0.67y-1 Strategy Status UX + Result Sequence Fix`
 - `v0.67y Web Strategy Port MVP`
 - `v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune`
 - `v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix`
@@ -48,8 +49,10 @@ SamWar_BattleLab
 - Current battle-screen MVP UX is locked around formation guides + mini log + bottom command bar + floating command panel.
 - Floating `책략` command is enabled for eligible ally units with intelligence-based range, success rate, and outcome tiers.
 - Manual 책략 uses cyan range cells and cyan valid-target markers, then applies `혼란` or `동요` status on success.
-- `혼란` skips the affected unit's action; `동요` is MVP status/log/icon only.
-- Unit markers and formation guide status labels now show compact strategy status icons while active/reserve styling remains unchanged.
+- `혼란` skips the affected unit's action, and status turns now decrease after the affected unit acts or skips.
+- `동요` applies a light attack/defense penalty through the shared directional damage helper.
+- Unit markers and formation guide status labels now show larger/readable strategy status icons and text while active/reserve styling remains unchanged.
+- Last-unit defeat/retreat toasts now finish before victory/defeat result toast display.
 - Enemy/auto 책략 use is deferred to `v0.67y-2 Strategy AI/Auto Expansion`.
 - Current battle's `10` heroes now have `hero_id`-based unique skill registry entries.
 - Ally manual unique skill use is enabled from the floating command panel.
@@ -69,7 +72,7 @@ SamWar_BattleLab
 - Directional damage bonus is applied to basic attacks, enemy counter/basic hits, and single-target attack unique skills.
 - Directional multipliers follow the web baseline: front `1.0`, side `1.15`, back `1.3`.
 - Formation guide unique-skill-ready icon display size is now `64 x 64`.
-- Formation guide troop icons are restored to readable `40 x 40` display while the `UniqueSkillReadyIcon` remains `64 x 64`.
+- Formation guide troop icons are enlarged to `52 x 52` display while the `UniqueSkillReadyIcon` remains `64 x 64`.
 - Unique skill readiness, target collection, manual resolve, and auto/enemy value gates now share range-limited valid target checks.
 - Ally buff unique skills resolve immediately after range preview and only affect valid in-range, unbuffed allies.
 - Manual buff unique skills now show a short range / valid target preview before auto-resolving.
@@ -78,8 +81,8 @@ SamWar_BattleLab
 - Floating ally command panel hides during attack / unique-skill target selection and restores after cancel / resolve.
 - Auto/enemy unique skill use shows a short visual range preview before resolving.
 - Defeated ally/enemy units now snapshot portrait / name / side / fallback line before cleanup and show a visible defeat-retreat toast on a dedicated scene-authored layer.
-- Ally and enemy battle-exit toasts use separate fallback dialogue pools, with `1.5s` display for normal and queued sequential playback.
-- Defeat-retreat toast fade-out is chained after the `1.5s` hold instead of running in parallel with the hold interval.
+- Ally and enemy battle-exit toasts use separate fallback dialogue pools, with `1.2s` first display and `1.0s` queued follow-up display.
+- Defeat-retreat toast fade-out is chained after the configured hold instead of running in parallel with the hold interval.
 - Defeat-retreat toast panel, portrait, name, and dialogue text are reduced to a less intrusive mid-size presentation.
 - Multiple unit defeats in one cleanup enqueue defeat-retreat toasts sequentially without blocking dead-unit cleanup, targeting exclusion, result toasts, or full-auto flow.
 - 이순신 학익진 포격 now uses the same caster-range target helper for valid markers and actual damage targets.

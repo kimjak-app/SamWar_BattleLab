@@ -54,6 +54,8 @@ const STRATEGY_TARGET_MARKER_SCALE := 0.74
 const STRATEGY_EFFECT_COLOR := Color(0.34, 1.0, 0.78, 1.0)
 const STRATEGY_FAIL_COLOR := Color(1.0, 0.24, 0.36, 1.0)
 const STRATEGY_CAST_COLOR := Color(1.0, 0.86, 0.26, 1.0)
+const STRATEGY_SHAKE_ATTACK_MULTIPLIER := 0.9
+const STRATEGY_SHAKE_DEFENSE_DAMAGE_MULTIPLIER := 1.1
 const STATUS_CONFUSION := "confusion"
 const STATUS_SHAKE := "shake"
 const AUTO_BATTLE_MIN_MAX_STEPS := 80
@@ -107,8 +109,8 @@ const UNIQUE_SKILL_SPLASH_DAMAGE := 18
 const UNIQUE_SKILL_ATTACK_BUFF := 6
 const UNIQUE_SKILL_DEFENSE_BUFF := 4
 const UNIQUE_SKILL_ATTACK_BUFF_TURNS := 3
-const DEFEAT_RETREAT_TOAST_DURATION := 1.5
-const DEFEAT_RETREAT_TOAST_CHAIN_DURATION := 1.5
+const DEFEAT_RETREAT_TOAST_FIRST_DURATION := 1.2
+const DEFEAT_RETREAT_TOAST_QUEUED_DURATION := 1.0
 const DEFEAT_RETREAT_TOAST_DEBUG_LOGS := true
 const DEFEAT_RETREAT_TOAST_FADE_IN_DURATION := 0.12
 const DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION := 0.16
@@ -2000,12 +2002,36 @@ func _get_strategy_status_icon_text(unit_state: BattleUnitState) -> String:
 		return ""
 	var icons := PackedStringArray()
 	if unit_state.has_status_effect(STATUS_CONFUSION):
-		icons.append("혼")
+		icons.append("혼%d" % unit_state.get_status_turns(STATUS_CONFUSION))
 	if unit_state.has_status_effect(STATUS_SHAKE):
-		icons.append("⚠")
+		icons.append("⚠%d" % unit_state.get_status_turns(STATUS_SHAKE))
 	if icons.is_empty():
 		return ""
 	return " ".join(icons)
+
+
+func _get_strategy_status_summary_text(unit_state: BattleUnitState) -> String:
+	if unit_state == null or not unit_state.is_alive():
+		return ""
+	if unit_state.has_status_effect(STATUS_CONFUSION):
+		return "혼란 %d턴 · 행동불가" % unit_state.get_status_turns(STATUS_CONFUSION)
+	if unit_state.has_status_effect(STATUS_SHAKE):
+		return ("⚠ 동요 %d턴 · 공/방 -10" % unit_state.get_status_turns(STATUS_SHAKE)) + "%"
+	return ""
+
+
+func _has_strategy_status_effect(unit_state: BattleUnitState, status_id: String) -> bool:
+	return unit_state != null and unit_state.has_status_effect(status_id)
+
+
+func _consume_strategy_status_after_unit_action(unit_state: BattleUnitState) -> void:
+	if unit_state == null:
+		return
+	if unit_state.status_effects.is_empty():
+		return
+	unit_state.tick_status_effects()
+	_refresh_formation_slot_guides()
+	_refresh_strategy_status_icon_labels()
 
 
 func _refresh_strategy_status_icon_labels() -> void:
@@ -2025,7 +2051,7 @@ func _refresh_strategy_status_icon_labels() -> void:
 			label = _create_strategy_status_icon_label()
 			strategy_status_icon_labels_by_unit_id[unit_state.unit_id] = label
 		label.text = status_text
-		label.position = battle_fx_root.to_local(_get_visual_anchor_position_for_unit(unit_state) + Vector2(24.0, -74.0))
+		label.position = battle_fx_root.to_local(_get_visual_anchor_position_for_unit(unit_state) + Vector2(28.0, -92.0))
 		label.visible = true
 	for unit_id_key in strategy_status_icon_labels_by_unit_id.keys():
 		var unit_id := String(unit_id_key)
@@ -2038,11 +2064,11 @@ func _create_strategy_status_icon_label() -> Label:
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 14)
+	label.add_theme_font_size_override("font_size", 24)
 	label.add_theme_color_override("font_color", Color(0.46, 1.0, 0.86, 1.0))
 	label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.95))
-	label.add_theme_constant_override("outline_size", 3)
-	label.size = Vector2(58.0, 26.0)
+	label.add_theme_constant_override("outline_size", 5)
+	label.size = Vector2(78.0, 36.0)
 	label.z_index = 37
 	battle_fx_root.add_child(label)
 	return label
@@ -2059,13 +2085,6 @@ func _clear_strategy_status_icon_labels() -> void:
 	for unit_id_key in strategy_status_icon_labels_by_unit_id.keys():
 		_remove_strategy_status_icon_label(String(unit_id_key))
 	strategy_status_icon_labels_by_unit_id.clear()
-
-
-func _tick_strategy_status_effects_for_side(side: String) -> void:
-	for unit_state in _get_alive_deployed_unit_states_for_side(side):
-		unit_state.tick_status_effects()
-	_refresh_formation_slot_guides()
-	_refresh_strategy_status_icon_labels()
 
 
 func _consume_confused_ally_turn_if_needed() -> bool:
@@ -2652,7 +2671,12 @@ func _get_attack_angle_damage_multiplier(angle_type: String) -> float:
 
 func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnitState, defender_state: BattleUnitState) -> int:
 	var angle_type := _get_attack_angle_type(attacker_state, defender_state)
-	return maxi(1, int(round(float(base_damage) * _get_attack_angle_damage_multiplier(angle_type))))
+	var damage_multiplier := _get_attack_angle_damage_multiplier(angle_type)
+	if _has_strategy_status_effect(attacker_state, STATUS_SHAKE):
+		damage_multiplier *= STRATEGY_SHAKE_ATTACK_MULTIPLIER
+	if _has_strategy_status_effect(defender_state, STATUS_SHAKE):
+		damage_multiplier *= STRATEGY_SHAKE_DEFENSE_DAMAGE_MULTIPLIER
+	return maxi(1, int(round(float(base_damage) * damage_multiplier)))
 
 
 func _append_attack_angle_log(angle_type: String) -> void:
@@ -3345,14 +3369,22 @@ func _configure_formation_guide_slot(slot_id: String) -> void:
 	if status_label != null:
 		status_label.visible = false
 		status_label.text = ""
-		status_label.add_theme_font_size_override("font_size", 12)
+		status_label.position = Vector2(66.0, 52.0)
+		status_label.size = Vector2(92.0, 18.0)
+		status_label.add_theme_font_size_override("font_size", 9)
 		status_label.add_theme_color_override("font_color", Color(0.46, 1.0, 0.86, 1.0))
 		status_label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.9))
 		status_label.add_theme_constant_override("outline_size", 2)
 	var troop_icon_rect := root.get_node_or_null("TroopIconRect") as TextureRect
 	if troop_icon_rect != null:
+		troop_icon_rect.position = Vector2(156.0, 6.0)
+		troop_icon_rect.size = Vector2(52.0, 52.0)
+		troop_icon_rect.custom_minimum_size = Vector2(52.0, 52.0)
 		troop_icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		troop_icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	if troop_type_label != null:
+		troop_type_label.position = Vector2(156.0, 58.0)
+		troop_type_label.size = Vector2(52.0, 14.0)
 
 
 # v0.64p-hotfix Enemy Highlight Cleanup
@@ -3588,7 +3620,7 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 		else:
 			hp_label.text = "병력 -"
 	if status_label != null:
-		var status_text := _get_strategy_status_icon_text(unit_state)
+		var status_text := _get_strategy_status_summary_text(unit_state)
 		status_label.text = status_text
 		status_label.visible = status_text != ""
 	if portrait != null:
@@ -6087,7 +6119,13 @@ func _queue_defeat_retreat_toast_snapshot(snapshot: Dictionary) -> void:
 		return
 	if enemy_retreat_toast_root == null:
 		return
-	defeat_retreat_toast_queue.append(snapshot.duplicate(true))
+	var queued_snapshot := snapshot.duplicate(true)
+	var is_followup_toast := is_defeat_retreat_toast_playing or not defeat_retreat_toast_queue.is_empty()
+	if is_followup_toast:
+		queued_snapshot["hold_duration"] = DEFEAT_RETREAT_TOAST_QUEUED_DURATION
+	else:
+		queued_snapshot["hold_duration"] = DEFEAT_RETREAT_TOAST_FIRST_DURATION
+	defeat_retreat_toast_queue.append(queued_snapshot)
 	call_deferred("_play_next_defeat_retreat_toast")
 
 
@@ -6098,9 +6136,10 @@ func _play_next_defeat_retreat_toast() -> void:
 		defeat_retreat_toast_queue.clear()
 		return
 	if defeat_retreat_toast_queue.is_empty():
+		_try_show_battle_result_toast_if_needed()
 		return
 	var snapshot: Dictionary = defeat_retreat_toast_queue.pop_front()
-	var hold_duration := DEFEAT_RETREAT_TOAST_DURATION
+	var hold_duration := float(snapshot.get("hold_duration", DEFEAT_RETREAT_TOAST_FIRST_DURATION))
 	_show_defeat_retreat_toast_snapshot(snapshot, hold_duration)
 
 
@@ -6142,7 +6181,7 @@ func _show_defeat_retreat_toast_snapshot(snapshot: Dictionary, hold_duration: fl
 	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "scale", Vector2.ONE, DEFEAT_RETREAT_TOAST_FADE_IN_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	defeat_retreat_toast_tween.set_parallel(false)
 	defeat_retreat_toast_tween.chain().tween_callback(_begin_defeat_retreat_toast_hold)
-	defeat_retreat_toast_tween.tween_interval(maxf(DEFEAT_RETREAT_TOAST_CHAIN_DURATION, hold_duration))
+	defeat_retreat_toast_tween.tween_interval(hold_duration)
 	defeat_retreat_toast_tween.chain().tween_callback(_log_defeat_retreat_toast_hold_elapsed)
 	defeat_retreat_toast_tween.chain().set_parallel(true)
 	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 0.0, DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
@@ -6188,7 +6227,10 @@ func _finish_defeat_retreat_toast() -> void:
 	active_defeat_retreat_toast_display_name = ""
 	active_defeat_retreat_toast_side = ""
 	active_defeat_retreat_toast_hold_msec = 0
-	call_deferred("_play_next_defeat_retreat_toast")
+	if defeat_retreat_toast_queue.is_empty():
+		call_deferred("_try_show_battle_result_toast_if_needed")
+	else:
+		call_deferred("_play_next_defeat_retreat_toast")
 
 
 func _get_retreat_toast_portrait_texture(unit_state: BattleUnitState) -> Texture2D:
@@ -6320,6 +6362,8 @@ func _try_show_battle_result_toast_if_needed() -> bool:
 		return false
 	if has_battle_result_toast_shown:
 		return true
+	if is_defeat_retreat_toast_playing or not defeat_retreat_toast_queue.is_empty():
+		return false
 	has_battle_result_toast_shown = true
 	var is_victory := battle_result_state == "victory"
 	_show_battle_result_toast(is_victory)
@@ -6782,8 +6826,6 @@ func _start_new_round() -> void:
 	_reset_enemy_action_locks_for_new_round()
 	_tick_unique_skill_cooldowns_for_side("ally")
 	_tick_unique_skill_cooldowns_for_side("enemy")
-	_tick_strategy_status_effects_for_side("ally")
-	_tick_strategy_status_effects_for_side("enemy")
 	_append_battle_log("BATTLE %d 시작" % battle_round)
 	_try_deploy_reinforce_01_pair()
 	_try_deploy_city_reinforce_02_pair()
@@ -8663,11 +8705,14 @@ func _mark_ally_unit_acted(unit_state: BattleUnitState) -> void:
 		return
 	if unit_state.unit_id == "":
 		return
+	var was_already_acted := _has_ally_unit_acted(unit_state)
 	acted_ally_unit_ids[unit_state.unit_id] = true
 	unit_state.has_acted = true
 	unit_state.has_moved = true
 	if unit_state == active_unit_state:
 		ally_has_moved = true
+	if not was_already_acted:
+		_consume_strategy_status_after_unit_action(unit_state)
 
 
 func _has_ally_unit_acted(unit_state: BattleUnitState) -> bool:
@@ -8694,9 +8739,12 @@ func _mark_enemy_unit_acted(unit_state: BattleUnitState) -> void:
 		return
 	if unit_state.unit_id == "":
 		return
+	var was_already_acted := _has_enemy_unit_acted(unit_state)
 	acted_enemy_unit_ids[unit_state.unit_id] = true
 	unit_state.has_acted = true
 	unit_state.has_moved = true
+	if not was_already_acted:
+		_consume_strategy_status_after_unit_action(unit_state)
 
 
 func _has_enemy_unit_acted(unit_state: BattleUnitState) -> bool:

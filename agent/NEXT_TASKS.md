@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67y Web Strategy Port MVP`
+`v0.67y-1 Strategy Status UX + Result Sequence Fix`
 
 ## Priority 1
 `v0.67y-2 Strategy AI/Auto Expansion`
@@ -22,6 +22,11 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67y-1 Strategy Status UX + Result Sequence Fix` is complete.
+- Defeat-retreat toasts now hold `1.2s` for the first exit and `1.0s` for queued follow-ups, with result toast display deferred until the exit queue finishes.
+- Enlarged battlefield strategy status icons, added formation-guide status summaries, and enlarged troop icons to `52 x 52`.
+- `동요` now applies a light 공/방 `-10%` effect through damage calculation, and strategy status turns decrease after the affected unit acts or skips.
+- Enemy/auto strategy use remains deferred to `v0.67y-2 Strategy AI/Auto Expansion`.
 - `v0.67y Web Strategy Port MVP` is complete.
 - Enabled the floating `책략` command for eligible manual allies with intelligence-based range, success rate, and outcome tiers.
 - Added cyan strategy range/target markers, success/failure resolve, mini-log entries, floating effects, and compact unit/formation `혼란` / `동요` status icons.
