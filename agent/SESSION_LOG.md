@@ -2,6 +2,12 @@
 
 ## 2026-05-25
 
+### v0.67z Unit Visual Attachment / Manual Layout Control Patch
+- Audited the `10` active visual slots and confirmed token, shadow, portrait, HP bar, troop label, and move dust are already under `UnitVisualRoot`.
+- Added runtime marker sync from scene-authored `UnitVisualRoot` global movement so moving a slot/root in the Godot 2D editor drives the shared visual anchor.
+- Switched unit group offset application to global positioning and kept click areas anchored through the `UnitVisualSlot` registry.
+- Kept READY frames, facing indicators, and status badges as UI/FX overlays but positioned from the same slot-synced anchor.
+
 ### v0.67y-3 Web Defend Command + Formation Status Layout Guard
 - Added defend wounded-troop recovery equal to `10%` of missing troops, including green floating recovery text and updated battle-log wording.
 - Added defending-unit hit reactions on basic attacks and single-target unique skills.

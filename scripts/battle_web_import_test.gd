@@ -1111,6 +1111,7 @@ func _ready() -> void:
 	if main_camera != null:
 		main_camera_base_position = main_camera.position
 	_collect_move_range_cells()
+	_sync_unit_markers_to_scene_authored_visual_slots()
 	_capture_scene_authored_unit_layout_offsets()
 	_rebuild_unit_visual_slot_refs()
 	_build_capacity_slot_metadata_registry()
@@ -4991,7 +4992,7 @@ func _apply_group_offset_for_unit(unit_state: BattleUnitState, offset: Vector2) 
 		_apply_group_offset(group_nodes, base_positions, offset)
 	var click_area := _get_click_area_for_unit(unit_state)
 	if click_area != null:
-		click_area.position = visual_anchor + _get_click_area_layout_offset_for_unit(unit_state) + offset
+		click_area.global_position = visual_anchor + _get_click_area_layout_offset_for_unit(unit_state) + offset
 
 
 func _get_unit_visual_slots_for_state(unit_state: BattleUnitState) -> Dictionary:
@@ -7119,7 +7120,7 @@ func _start_new_round() -> void:
 func _apply_group_offset(nodes: Array[CanvasItem], base_positions: Array[Vector2], offset: Vector2) -> void:
 	for index in range(nodes.size()):
 		if nodes[index] != null and index < base_positions.size():
-			nodes[index].position = base_positions[index] + offset
+			_set_canvas_item_world_position(nodes[index], base_positions[index] + offset)
 
 
 func _apply_ally_group_offset(offset: Vector2) -> void:
@@ -7771,6 +7772,76 @@ func _capture_template_slot_offset(template_root: Node2D, slot_name: String, fal
 	return fallback_position - visual_anchor
 
 
+func _get_canvas_item_world_position(node: CanvasItem) -> Vector2:
+	if node == null:
+		return Vector2.ZERO
+	if node is Node2D:
+		return (node as Node2D).global_position
+	if node is Control:
+		return (node as Control).global_position
+	return node.position
+
+
+func _set_canvas_item_world_position(node: CanvasItem, world_position: Vector2) -> void:
+	if node == null:
+		return
+	if node is Node2D:
+		(node as Node2D).global_position = world_position
+	elif node is Control:
+		(node as Control).global_position = world_position
+	else:
+		node.position = world_position
+
+
+func _set_marker_world_position(marker: Marker2D, world_position: Vector2) -> void:
+	if marker != null:
+		marker.global_position = world_position
+
+
+func _get_scene_authored_visual_anchor(root: Node2D, fallback_anchor: Vector2) -> Vector2:
+	if root == null:
+		return fallback_anchor
+	return fallback_anchor + root.global_position
+
+
+func _sync_scene_authored_unit_slot(
+	unit_marker: Marker2D,
+	portrait_marker: Marker2D,
+	root: Node2D,
+	portrait: CanvasItem,
+	side: String
+) -> void:
+	if unit_marker == null:
+		return
+	var fallback_anchor := unit_marker.global_position
+	if side == "enemy":
+		fallback_anchor = _get_enemy_visual_anchor_from_position(unit_marker.global_position)
+	else:
+		fallback_anchor = _get_ally_visual_anchor_from_position(unit_marker.global_position)
+	var visual_anchor := _get_scene_authored_visual_anchor(root, fallback_anchor)
+	if side == "enemy":
+		_set_marker_world_position(unit_marker, visual_anchor - ENEMY_VISUAL_ANCHOR_OFFSET)
+	else:
+		_set_marker_world_position(unit_marker, visual_anchor - ALLY_VISUAL_ANCHOR_OFFSET)
+	if portrait_marker != null and portrait != null:
+		_set_marker_world_position(portrait_marker, _get_canvas_item_world_position(portrait))
+
+
+func _sync_unit_markers_to_scene_authored_visual_slots() -> void:
+	_sync_scene_authored_unit_slot(ally_unit_marker, ally_portrait_marker, ally_unit_visual_root, ally_portrait_badge, "ally")
+	_sync_scene_authored_unit_slot(ally_support_unit_marker, ally_support_portrait_marker, ally_support_unit_visual_root, ally_support_portrait_badge, "ally")
+	_sync_scene_authored_unit_slot(ally_main_03_unit_marker, ally_main_03_portrait_marker, ally_main_03_unit_visual_root, ally_main_03_portrait_badge, "ally")
+	_sync_scene_authored_unit_slot(ally_reinforce_01_unit_marker, ally_reinforce_01_portrait_marker, ally_reinforce_01_unit_visual_root, ally_reinforce_01_portrait_badge, "ally")
+	_sync_scene_authored_unit_slot(ally_reinforce_02_unit_marker, ally_reinforce_02_portrait_marker, ally_reinforce_02_unit_visual_root, ally_reinforce_02_portrait_badge, "ally")
+	_sync_scene_authored_unit_slot(enemy_unit_marker, enemy_portrait_marker, enemy_unit_visual_root, enemy_portrait_badge, "enemy")
+	_sync_scene_authored_unit_slot(enemy_support_unit_marker, enemy_support_portrait_marker, enemy_support_unit_visual_root, enemy_support_portrait_badge, "enemy")
+	_sync_scene_authored_unit_slot(enemy_main_03_unit_marker, enemy_main_03_portrait_marker, enemy_main_03_unit_visual_root, enemy_main_03_portrait_badge, "enemy")
+	_sync_scene_authored_unit_slot(enemy_reinforce_01_unit_marker, enemy_reinforce_01_portrait_marker, enemy_reinforce_01_unit_visual_root, enemy_reinforce_01_portrait_badge, "enemy")
+	_sync_scene_authored_unit_slot(enemy_reinforce_02_unit_marker, enemy_reinforce_02_portrait_marker, enemy_reinforce_02_unit_visual_root, enemy_reinforce_02_portrait_badge, "enemy")
+	if ally_unit_marker != null:
+		current_ally_unit_position = ally_unit_marker.position
+
+
 func _capture_portrait_template_offsets(template_root: Node2D, fallback_offset: Vector2, visual_anchor: Vector2) -> Dictionary:
 	return {
 		FACING_LEFT: _capture_template_slot_offset(
@@ -7985,12 +8056,12 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 		var ally_anchor := _get_ally_visual_anchor_from_position(ally_unit_marker.position)
 		var ally_portrait_fallback := Vector2.ZERO
 		if ally_portrait_badge != null:
-			ally_portrait_fallback = ally_portrait_badge.position - ally_anchor
+			ally_portrait_fallback = _get_canvas_item_world_position(ally_portrait_badge) - ally_anchor
 		if ally_unit_token != null:
 			ally_token_layout_offset = _capture_template_slot_offset(
 				ally_main_template,
 				"TokenSlot",
-				ally_unit_token.position,
+				_get_canvas_item_world_position(ally_unit_token),
 				ally_anchor
 			)
 		if move_dust_template != null:
@@ -7999,7 +8070,7 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 			ally_shadow_layout_offset = _capture_template_slot_offset(
 				ally_main_template,
 				"ShadowSlot",
-				ally_unit_shadow.position,
+				_get_canvas_item_world_position(ally_unit_shadow),
 				ally_anchor
 			)
 		if ally_portrait_badge != null:
@@ -8013,21 +8084,21 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 			ally_hp_bar_layout_offset = _capture_template_slot_offset(
 				ally_main_template,
 				"HPBarSlot",
-				ally_hp_bar.position,
+				_get_canvas_item_world_position(ally_hp_bar),
 				ally_anchor
 			)
 		if ally_troop_label != null:
 			ally_troop_label_layout_offset = _capture_template_slot_offset(
 				ally_main_template,
 				"TroopLabelSlot",
-				ally_troop_label.position,
+				_get_canvas_item_world_position(ally_troop_label),
 				ally_anchor
 			)
 		if ally_unit_click_area != null:
 			ally_click_area_layout_offset = _capture_template_slot_offset(
 				ally_main_template,
 				"ClickAreaSlot",
-				ally_unit_click_area.position,
+				_get_canvas_item_world_position(ally_unit_click_area),
 				ally_anchor
 			)
 		ally_facing_indicator_layout_offset = _capture_template_slot_offset(
@@ -8041,12 +8112,12 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 		var enemy_anchor := _get_enemy_visual_anchor_from_position(enemy_unit_marker.position)
 		var enemy_portrait_fallback := Vector2.ZERO
 		if enemy_portrait_badge != null:
-			enemy_portrait_fallback = enemy_portrait_badge.position - enemy_anchor
+			enemy_portrait_fallback = _get_canvas_item_world_position(enemy_portrait_badge) - enemy_anchor
 		if enemy_unit_token != null:
 			enemy_token_layout_offset = _capture_template_slot_offset(
 				enemy_main_template,
 				"TokenSlot",
-				enemy_unit_token.position,
+				_get_canvas_item_world_position(enemy_unit_token),
 				enemy_anchor
 			)
 		if move_dust_template != null:
@@ -8055,7 +8126,7 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 			enemy_shadow_layout_offset = _capture_template_slot_offset(
 				enemy_main_template,
 				"ShadowSlot",
-				enemy_unit_shadow.position,
+				_get_canvas_item_world_position(enemy_unit_shadow),
 				enemy_anchor
 			)
 		if enemy_portrait_badge != null:
@@ -8069,21 +8140,21 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 			enemy_hp_bar_layout_offset = _capture_template_slot_offset(
 				enemy_main_template,
 				"HPBarSlot",
-				enemy_hp_bar.position,
+				_get_canvas_item_world_position(enemy_hp_bar),
 				enemy_anchor
 			)
 		if enemy_troop_label != null:
 			enemy_troop_label_layout_offset = _capture_template_slot_offset(
 				enemy_main_template,
 				"TroopLabelSlot",
-				enemy_troop_label.position,
+				_get_canvas_item_world_position(enemy_troop_label),
 				enemy_anchor
 			)
 		if enemy_unit_click_area != null:
 			enemy_click_area_layout_offset = _capture_template_slot_offset(
 				enemy_main_template,
 				"ClickAreaSlot",
-				enemy_unit_click_area.position,
+				_get_canvas_item_world_position(enemy_unit_click_area),
 				enemy_anchor
 			)
 		enemy_facing_indicator_layout_offset = _capture_template_slot_offset(
@@ -8097,12 +8168,12 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 		var ally_support_anchor := _get_ally_visual_anchor_from_position(ally_support_unit_marker.position)
 		var ally_support_portrait_fallback := Vector2.ZERO
 		if ally_support_portrait_badge != null:
-			ally_support_portrait_fallback = ally_support_portrait_badge.position - ally_support_anchor
+			ally_support_portrait_fallback = _get_canvas_item_world_position(ally_support_portrait_badge) - ally_support_anchor
 		if ally_support_unit_token != null:
 			ally_support_token_layout_offset = _capture_template_slot_offset(
 				ally_support_template,
 				"TokenSlot",
-				ally_support_unit_token.position,
+				_get_canvas_item_world_position(ally_support_unit_token),
 				ally_support_anchor
 			)
 		if move_dust_template != null:
@@ -8111,7 +8182,7 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 			ally_support_shadow_layout_offset = _capture_template_slot_offset(
 				ally_support_template,
 				"ShadowSlot",
-				ally_support_unit_shadow.position,
+				_get_canvas_item_world_position(ally_support_unit_shadow),
 				ally_support_anchor
 			)
 		if ally_support_portrait_badge != null:
@@ -8125,21 +8196,21 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 			ally_support_hp_bar_layout_offset = _capture_template_slot_offset(
 				ally_support_template,
 				"HPBarSlot",
-				ally_support_hp_bar.position,
+				_get_canvas_item_world_position(ally_support_hp_bar),
 				ally_support_anchor
 			)
 		if ally_support_troop_label != null:
 			ally_support_troop_label_layout_offset = _capture_template_slot_offset(
 				ally_support_template,
 				"TroopLabelSlot",
-				ally_support_troop_label.position,
+				_get_canvas_item_world_position(ally_support_troop_label),
 				ally_support_anchor
 			)
 		if ally_support_unit_click_area != null:
 			ally_support_click_area_layout_offset = _capture_template_slot_offset(
 				ally_support_template,
 				"ClickAreaSlot",
-				ally_support_unit_click_area.position,
+				_get_canvas_item_world_position(ally_support_unit_click_area),
 				ally_support_anchor
 			)
 		ally_support_facing_indicator_layout_offset = _capture_template_slot_offset(
@@ -8153,12 +8224,12 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 		var enemy_support_anchor := _get_enemy_visual_anchor_from_position(enemy_support_unit_marker.position)
 		var enemy_support_portrait_fallback := Vector2.ZERO
 		if enemy_support_portrait_badge != null:
-			enemy_support_portrait_fallback = enemy_support_portrait_badge.position - enemy_support_anchor
+			enemy_support_portrait_fallback = _get_canvas_item_world_position(enemy_support_portrait_badge) - enemy_support_anchor
 		if enemy_support_unit_token != null:
 			enemy_support_token_layout_offset = _capture_template_slot_offset(
 				enemy_support_template,
 				"TokenSlot",
-				enemy_support_unit_token.position,
+				_get_canvas_item_world_position(enemy_support_unit_token),
 				enemy_support_anchor
 			)
 		if move_dust_template != null:
@@ -8167,7 +8238,7 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 			enemy_support_shadow_layout_offset = _capture_template_slot_offset(
 				enemy_support_template,
 				"ShadowSlot",
-				enemy_support_unit_shadow.position,
+				_get_canvas_item_world_position(enemy_support_unit_shadow),
 				enemy_support_anchor
 			)
 		if enemy_support_portrait_badge != null:
@@ -8181,21 +8252,21 @@ func _capture_scene_authored_unit_layout_offsets() -> void:
 			enemy_support_hp_bar_layout_offset = _capture_template_slot_offset(
 				enemy_support_template,
 				"HPBarSlot",
-				enemy_support_hp_bar.position,
+				_get_canvas_item_world_position(enemy_support_hp_bar),
 				enemy_support_anchor
 			)
 		if enemy_support_troop_label != null:
 			enemy_support_troop_label_layout_offset = _capture_template_slot_offset(
 				enemy_support_template,
 				"TroopLabelSlot",
-				enemy_support_troop_label.position,
+				_get_canvas_item_world_position(enemy_support_troop_label),
 				enemy_support_anchor
 			)
 		if enemy_support_unit_click_area != null:
 			enemy_support_click_area_layout_offset = _capture_template_slot_offset(
 				enemy_support_template,
 				"ClickAreaSlot",
-				enemy_support_unit_click_area.position,
+				_get_canvas_item_world_position(enemy_support_unit_click_area),
 				enemy_support_anchor
 			)
 		enemy_support_facing_indicator_layout_offset = _capture_template_slot_offset(

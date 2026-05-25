@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67y-3 Web Defend Command + Formation Status Layout Guard`
+`v0.67z Unit Visual Attachment / Manual Layout Control Patch`
 
 ## Current Implementation Step
+- `v0.67z Unit Visual Attachment / Manual Layout Control Patch`
 - `v0.67y-3 Web Defend Command + Formation Status Layout Guard`
 - `v0.67y-2-hotfix1 Status Icon Readability Fix`
 - `v0.67y-2 Web Defend Command Port + Status Icon Tone Polish`
@@ -85,6 +86,9 @@ SamWar_BattleLab
 - Directional multipliers follow the web baseline: front `1.0`, side `1.15`, back `1.3`.
 - Formation guide unique-skill-ready icon display size is now `64 x 64`.
 - Formation guide troop icons are kept within-card at `46 x 46` display with stronger troop-type text while the `UniqueSkillReadyIcon` remains `64 x 64`.
+- Unit visual marker anchoring now syncs from scene-authored `UnitVisualRoot` global movement at runtime start, so moving a slot/root in the Godot 2D editor moves token, portrait, HP bar, troop label, shadow, move dust, click area, READY frame, facing indicator, and status badges together through the shared visual anchor.
+- Click areas remain scene-level `Area2D` nodes for compatibility, but their runtime positions are now applied from the `UnitVisualSlot` registry with root-relative global positioning.
+- READY frames, facing indicators, and status badges remain UI/FX layer overlays, but they resolve from the same slot-synced visual anchor instead of independent fixed placement.
 - Unique skill readiness, target collection, manual resolve, and auto/enemy value gates now share range-limited valid target checks.
 - Ally buff unique skills resolve immediately after range preview and only affect valid in-range, unbuffed allies.
 - Manual buff unique skills now show a short range / valid target preview before auto-resolving.
@@ -156,9 +160,9 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.67z Unit Visual Attachment / Manual Layout Control Patch`
-2. `v0.68 Battlefield Final Size Expansion`
-3. `v0.68b Terrain Passability Layer MVP`
+1. `v0.68 Battlefield Final Size Expansion`
+2. `v0.68b Terrain Passability Layer MVP`
+3. Later unit visual polish can refine scene hierarchy if direct reparenting becomes necessary.
 
 ## Known / Deferred
 - Detailed unique skill range balance can still be revisited after more skill data is final.

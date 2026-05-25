@@ -1,27 +1,31 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67y-3 Web Defend Command + Formation Status Layout Guard`
-
-## Priority 1
 `v0.67z Unit Visual Attachment / Manual Layout Control Patch`
 
-Goal:
-- move toward explicit unit visual attachment / manual layout control without disturbing the current battle-screen MVP
-
-## Priority 2
+## Priority 1
 `v0.68 Battlefield Final Size Expansion`
 
 Goal:
 - expand the battlefield to the intended final playable size once current UI layout remains stable
 
-## Priority 3
+## Priority 2
 `v0.68b Terrain Passability Layer MVP`
 
 Goal:
 - add the first terrain/passability layer contract for battle movement and targeting
 
+## Priority 3
+`Later Unit Visual Hierarchy Polish`
+
+Goal:
+- only if needed, convert the currently registry-bound click/UI overlay attachments into direct scene children after the layout contract is proven stable
+
 ## Completed / Archived Context
+- `v0.67z Unit Visual Attachment / Manual Layout Control Patch` is complete.
+- Runtime start now syncs unit markers from scene-authored `UnitVisualRoot` global movement, allowing slot/root movement in the Godot 2D editor to become the shared visual anchor.
+- Token, portrait, HP bar, troop label, shadow, move dust, click area, READY frame, facing indicator, and status badges now resolve through the slot-synced visual anchor.
+- Click areas remain root-level `Area2D` nodes for compatibility, while READY/facing/status overlays remain UI/FX nodes positioned from the same anchor.
 - `v0.67y-3 Web Defend Command + Formation Status Layout Guard` is complete.
 - Manual defend now shows `◆ 방어!`, recovers `10%` of missing troops, displays green recovery text, and logs the recovery when applicable.
 - Defending units show a short `◆ 방어` hit reaction when damaged.
