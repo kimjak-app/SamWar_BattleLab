@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.67x-7-hotfix1 Defeat Toast Hold Duration 2s
+- Increased ally defeat and enemy retreat toast hold time to `2.0s`, including sequential queued exits.
+- Kept the existing snapshot queue non-blocking for cleanup, result checks, full-auto flow, and turn progression.
+
 ## v0.67x-7 Defeat Retreat Toast Actual Apply
 - Generalized the existing enemy retreat toast into an ally/enemy defeat-retreat toast queue.
 - Snapshot portrait / name / side / fallback line before cleanup so battle-exit messages remain visible even after units are removed.

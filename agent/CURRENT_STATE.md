@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67x-7 Defeat Retreat Toast Actual Apply`
+`v0.67x-7-hotfix1 Defeat Toast Hold Duration 2s`
 
 ## Current Implementation Step
+- `v0.67x-7-hotfix1 Defeat Toast Hold Duration 2s`
 - `v0.67x-7 Defeat Retreat Toast Actual Apply`
 - `v0.67x-7 Enemy Retreat Toast Actual Apply`
 - `v0.67x-6 Targeting UX + Buff Preview + Retreat Toast Polish`
@@ -68,7 +69,7 @@ SamWar_BattleLab
 - Floating ally command panel hides during attack / unique-skill target selection and restores after cancel / resolve.
 - Auto/enemy unique skill use shows a short visual range preview before resolving.
 - Defeated ally/enemy units now snapshot portrait / name / side / fallback line before cleanup and show a visible defeat-retreat toast on a dedicated scene-authored layer.
-- Ally and enemy battle-exit toasts use separate fallback dialogue pools, with default `1.25s` display and queued `1.05s+` sequential playback for simultaneous exits.
+- Ally and enemy battle-exit toasts use separate fallback dialogue pools, with `2.0s` display for normal and queued sequential playback.
 - Multiple unit defeats in one cleanup enqueue defeat-retreat toasts sequentially without blocking dead-unit cleanup, targeting exclusion, result toasts, or full-auto flow.
 - WASAPI output-device warnings are treated as external Godot/Windows audio warnings because the project does not control audio devices directly.
 - `SkillInfoPanel` is deferred as a later UX candidate.

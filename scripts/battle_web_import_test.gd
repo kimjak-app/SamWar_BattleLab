@@ -90,8 +90,8 @@ const UNIQUE_SKILL_SPLASH_DAMAGE := 18
 const UNIQUE_SKILL_ATTACK_BUFF := 6
 const UNIQUE_SKILL_DEFENSE_BUFF := 4
 const UNIQUE_SKILL_ATTACK_BUFF_TURNS := 3
-const DEFEAT_RETREAT_TOAST_DURATION := 1.25
-const DEFEAT_RETREAT_TOAST_CHAIN_DURATION := 1.05
+const DEFEAT_RETREAT_TOAST_DURATION := 2.0
+const DEFEAT_RETREAT_TOAST_CHAIN_DURATION := 2.0
 const DEFEAT_RETREAT_TOAST_MAX_QUEUE_PER_CLEANUP := 3
 const DEFEAT_RETREAT_TOAST_SIZE := Vector2(560.0, 132.0)
 const ENEMY_RETREAT_TOAST_LINES := [
@@ -5707,8 +5707,6 @@ func _play_next_defeat_retreat_toast() -> void:
 		return
 	var snapshot: Dictionary = defeat_retreat_toast_queue.pop_front()
 	var hold_duration := DEFEAT_RETREAT_TOAST_DURATION
-	if not defeat_retreat_toast_queue.is_empty():
-		hold_duration = DEFEAT_RETREAT_TOAST_CHAIN_DURATION
 	_show_defeat_retreat_toast_snapshot(snapshot, hold_duration)
 
 
