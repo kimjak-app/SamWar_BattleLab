@@ -92,6 +92,9 @@ const UNIQUE_SKILL_DEFENSE_BUFF := 4
 const UNIQUE_SKILL_ATTACK_BUFF_TURNS := 3
 const DEFEAT_RETREAT_TOAST_DURATION := 3.0
 const DEFEAT_RETREAT_TOAST_CHAIN_DURATION := 3.0
+const DEFEAT_RETREAT_TOAST_DEBUG_LOGS := true
+const DEFEAT_RETREAT_TOAST_FADE_IN_DURATION := 0.12
+const DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION := 0.16
 const DEFEAT_RETREAT_TOAST_MAX_QUEUE_PER_CLEANUP := 3
 const DEFEAT_RETREAT_TOAST_SIZE := Vector2(560.0, 132.0)
 const ENEMY_RETREAT_TOAST_LINES := [
@@ -647,6 +650,10 @@ var defeat_retreat_toast_tween: Tween = null
 var is_defeat_retreat_toast_playing := false
 var defeat_retreat_toast_queue: Array[Dictionary] = []
 var shown_defeat_retreat_toast_unit_ids: Dictionary = {}
+var active_defeat_retreat_toast_started_msec := 0
+var active_defeat_retreat_toast_display_name := ""
+var active_defeat_retreat_toast_side := ""
+var active_defeat_retreat_toast_hold_msec := 0
 var camera_shake_tween: Tween = null
 var main_camera_base_position := Vector2.ZERO
 var enemy_ai_last_destination_debug: Dictionary = {}
@@ -1252,6 +1259,10 @@ func reset_demo_state() -> void:
 	is_defeat_retreat_toast_playing = false
 	defeat_retreat_toast_queue.clear()
 	shown_defeat_retreat_toast_unit_ids.clear()
+	active_defeat_retreat_toast_started_msec = 0
+	active_defeat_retreat_toast_display_name = ""
+	active_defeat_retreat_toast_side = ""
+	active_defeat_retreat_toast_hold_msec = 0
 	pending_battle_toasts.clear()
 	is_battle_toast_playing = false
 	active_battle_toast_tag = ""
@@ -5713,6 +5724,9 @@ func _show_defeat_retreat_toast_snapshot(snapshot: Dictionary, hold_duration: fl
 		defeat_retreat_toast_tween.kill()
 		defeat_retreat_toast_tween = null
 	is_defeat_retreat_toast_playing = true
+	active_defeat_retreat_toast_display_name = str(snapshot.get("display_name", "장수"))
+	active_defeat_retreat_toast_side = str(snapshot.get("side", ""))
+	active_defeat_retreat_toast_hold_msec = int(round(hold_duration * 1000.0))
 	var viewport_size := get_viewport_rect().size
 	var desired_position := Vector2(
 		maxf(12.0, (viewport_size.x - DEFEAT_RETREAT_TOAST_SIZE.x) * 0.5),
@@ -5737,20 +5751,56 @@ func _show_defeat_retreat_toast_snapshot(snapshot: Dictionary, hold_duration: fl
 		enemy_retreat_line_label.text = str(snapshot.get("line", "전열에서 물러난다!"))
 	defeat_retreat_toast_tween = create_tween()
 	defeat_retreat_toast_tween.set_parallel(true)
-	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 1.0, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 1.0, DEFEAT_RETREAT_TOAST_FADE_IN_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "scale", Vector2.ONE, DEFEAT_RETREAT_TOAST_FADE_IN_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	defeat_retreat_toast_tween.set_parallel(false)
+	defeat_retreat_toast_tween.chain().tween_callback(_begin_defeat_retreat_toast_hold)
 	defeat_retreat_toast_tween.tween_interval(maxf(DEFEAT_RETREAT_TOAST_CHAIN_DURATION, hold_duration))
-	defeat_retreat_toast_tween.set_parallel(true)
-	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "position", desired_position + Vector2(0.0, 12.0), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	defeat_retreat_toast_tween.chain().tween_callback(_log_defeat_retreat_toast_hold_elapsed)
+	defeat_retreat_toast_tween.chain().set_parallel(true)
+	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 0.0, DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "position", desired_position + Vector2(0.0, 12.0), DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	defeat_retreat_toast_tween.chain().tween_callback(_finish_defeat_retreat_toast)
 
 
+func _begin_defeat_retreat_toast_hold() -> void:
+	active_defeat_retreat_toast_started_msec = Time.get_ticks_msec()
+	if DEFEAT_RETREAT_TOAST_DEBUG_LOGS:
+		print("[DefeatToast] SHOW unit=%s side=%s t=%d hold_ms=%d queue_remaining=%d" % [
+			active_defeat_retreat_toast_display_name,
+			active_defeat_retreat_toast_side,
+			active_defeat_retreat_toast_started_msec,
+			active_defeat_retreat_toast_hold_msec,
+			defeat_retreat_toast_queue.size(),
+		])
+
+
+func _log_defeat_retreat_toast_hold_elapsed() -> void:
+	if not DEFEAT_RETREAT_TOAST_DEBUG_LOGS:
+		return
+	var now_msec := Time.get_ticks_msec()
+	print("[DefeatToast] HOLD_DONE unit=%s t=%d elapsed=%dms" % [
+		active_defeat_retreat_toast_display_name,
+		now_msec,
+		now_msec - active_defeat_retreat_toast_started_msec,
+	])
+
+
 func _finish_defeat_retreat_toast() -> void:
+	if DEFEAT_RETREAT_TOAST_DEBUG_LOGS:
+		var now_msec := Time.get_ticks_msec()
+		print("[DefeatToast] HIDE unit=%s t=%d elapsed=%dms" % [
+			active_defeat_retreat_toast_display_name,
+			now_msec,
+			now_msec - active_defeat_retreat_toast_started_msec,
+		])
 	defeat_retreat_toast_tween = null
 	is_defeat_retreat_toast_playing = false
 	_hide_enemy_retreat_toast()
+	active_defeat_retreat_toast_started_msec = 0
+	active_defeat_retreat_toast_display_name = ""
+	active_defeat_retreat_toast_side = ""
+	active_defeat_retreat_toast_hold_msec = 0
 	call_deferred("_play_next_defeat_retreat_toast")
 
 

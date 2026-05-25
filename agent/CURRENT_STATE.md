@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67x-7-hotfix2 Defeat Toast 3s + Hakikjin Range Sync`
+`v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix`
 
 ## Current Implementation Step
+- `v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix`
 - `v0.67x-7-hotfix2 Defeat Toast 3s + Hakikjin Range Sync`
 - `v0.67x-7-hotfix1 Defeat Toast Hold Duration 2s`
 - `v0.67x-7 Defeat Retreat Toast Actual Apply`
@@ -71,6 +72,7 @@ SamWar_BattleLab
 - Auto/enemy unique skill use shows a short visual range preview before resolving.
 - Defeated ally/enemy units now snapshot portrait / name / side / fallback line before cleanup and show a visible defeat-retreat toast on a dedicated scene-authored layer.
 - Ally and enemy battle-exit toasts use separate fallback dialogue pools, with `3.0s` display for normal and queued sequential playback.
+- Defeat-retreat toast fade-out is chained after the `3.0s` hold instead of running in parallel with the hold interval.
 - Multiple unit defeats in one cleanup enqueue defeat-retreat toasts sequentially without blocking dead-unit cleanup, targeting exclusion, result toasts, or full-auto flow.
 - 이순신 학익진 포격 now uses the same caster-range target helper for valid markers and actual damage targets.
 - WASAPI output-device warnings are treated as external Godot/Windows audio warnings because the project does not control audio devices directly.

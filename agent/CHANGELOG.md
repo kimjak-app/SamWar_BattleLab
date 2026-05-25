@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix
+- Fixed defeat-retreat toast tween sequencing so fade-out starts after the `3.0s` hold instead of overlapping it.
+- Added DEBUG-gated SHOW / HOLD_DONE / HIDE elapsed logs for actual portrait/name/dialogue toast lifetime checks.
+- Kept snapshot queue, cleanup, result checks, turn flow, and full-auto progression non-blocking.
+
 ## v0.67x-7-hotfix2 Defeat Toast 3s + Hakikjin Range Sync
 - Increased ally defeat and enemy retreat toast hold time to `3.0s`, including queued sequential exits.
 - Changed 학익진 포격 damage targets to use the same caster-range valid-target helper as range overlay and target markers.

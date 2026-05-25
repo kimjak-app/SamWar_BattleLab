@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x-7-hotfix2 Defeat Toast 3s + Hakikjin Range Sync`
+`v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix`
 
 ## Priority 1
 `v0.67y Web Strategy Port MVP`
@@ -22,6 +22,8 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix` is complete.
+- Defeat-retreat toast fade-out now starts only after the `3.0s` hold, with DEBUG elapsed logs for SHOW / HOLD_DONE / HIDE.
 - `v0.67x-7-hotfix2 Defeat Toast 3s + Hakikjin Range Sync` is complete.
 - Ally/enemy battle-exit toasts now hold for `3.0s`, and 학익진 표시/피해 대상 now share the same caster-range target helper.
 - `v0.67x-7-hotfix1 Defeat Toast Hold Duration 2s` is complete.
