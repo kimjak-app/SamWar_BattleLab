@@ -1,5 +1,17 @@
 # SESSION LOG
 
+## 2026-05-25
+
+### v0.67x-5 Unique Skill Regression Fix Gate
+- Restored formation-guide `TroopIconRect` nodes to readable `40 x 40` while keeping `UniqueSkillReadyIcon` at `64 x 64`.
+- Unified unique skill readiness and auto/enemy decision gates around range-limited valid targets with no 이순신-only special case.
+- Fixed 정도전 / 권율 buff unique skill manual resolve/reuse and kept 김유신 attack targeting on the same validation path.
+- Limited 유비-style buff skills to in-range unbuffed allies and kept low-value cases falling back to movement/basic attack/wait.
+- Split unique skill range overlay display into persistent purple range cells plus separate gold valid-target markers.
+- Added short auto/enemy unique skill range preview before resolve.
+- Confirmed no project code controls WASAPI/audio output devices.
+- Verified headless project load, scene load, regression smoke, and full-auto result path.
+
 ## 2026-05-24
 
 ### v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance

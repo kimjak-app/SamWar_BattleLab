@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.67x-5 Unique Skill Regression Fix Gate
+- Restored formation-guide troop icons to readable `40 x 40` while preserving `UniqueSkillReadyIcon` at `64 x 64`.
+- Unified unique skill readiness / valid target / auto-enemy value checks around range-limited targets.
+- Fixed 정도전 / 권율 buff unique skill manual resolve and reuse by resolving buff skills immediately and applying only to valid in-range allies.
+- Kept 김유신 and other attack unique skills on the same target validation path.
+- Limited 유비-style buff use to valuable in-range unbuffed allies and preserved basic attack / move / wait fallback.
+- Changed unique skill overlay so purple range cells remain visible with separate gold valid-target markers.
+- Added a short auto/enemy unique skill range preview before resolve.
+- Documented WASAPI output-device warnings as external Godot/Windows audio-device warnings, not battle logic errors.
+
 ## v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance
 - Restored formation-guide troop icon readability while keeping the `UniqueSkillReadyIcon` at `64 x 64`.
 - First-normalized unique skill ranges so melee skills require close engagement and AOE skills remain mid-range.

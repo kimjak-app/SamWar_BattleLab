@@ -25,6 +25,8 @@ const MOVE_RANGE_OVERLAY_COLOR := Color(0.2, 0.55, 1.0, 0.18)
 const ATTACK_RANGE_OVERLAY_COLOR := Color(1.0, 0.32, 0.08, 0.24)
 const UNIQUE_SKILL_RANGE_OVERLAY_COLOR := Color(0.55, 0.24, 1.0, 0.24)
 const UNIQUE_SKILL_TARGET_OVERLAY_COLOR := Color(1.0, 0.72, 0.18, 0.38)
+const UNIQUE_SKILL_TARGET_MARKER_SCALE := 0.68
+const UNIQUE_SKILL_AUTO_PREVIEW_DURATION := 0.42
 const MOVE_RANGE_OVERLAY_VISUAL_INSET := Vector2(32.0, 0.0)
 const SHOW_CELL_SIZE_VISUAL_GUIDE := false
 const SHOW_LOGICAL_GRID_14X8_GUIDE := true
@@ -1621,6 +1623,13 @@ func _enter_unique_skill_target_select_mode(caster_state: BattleUnitState, skill
 		_append_battle_log("고유특기 유효 대상 없음")
 	else:
 		_append_battle_log("%s 대상 선택" % String(skill_data.get("name", "고유특기")))
+		if _should_unique_skill_resolve_without_manual_target(skill_data):
+			var target_state := _get_best_unique_skill_target_for_actor(caster_state, skill_data)
+			_try_use_unique_skill_on_target(target_state)
+
+
+func _should_unique_skill_resolve_without_manual_target(skill_data: Dictionary) -> bool:
+	return String(skill_data.get("effect_type", "")) == "ally_attack_buff"
 
 
 func _cancel_unique_skill_target_select_mode() -> void:
@@ -1705,17 +1714,7 @@ func _is_valid_unique_skill_target(caster_state: BattleUnitState, skill_data: Di
 func _has_valid_unique_skill_action(caster_state: BattleUnitState, skill_data: Dictionary) -> bool:
 	if caster_state == null or skill_data.is_empty():
 		return false
-	var effect_type := String(skill_data.get("effect_type", ""))
-	if effect_type == "ally_attack_buff":
-		return _has_unique_skill_buff_candidate(caster_state.side)
 	return _get_best_unique_skill_target_for_actor(caster_state, skill_data) != null
-
-
-func _has_unique_skill_buff_candidate(side: String) -> bool:
-	for unit_state in _get_alive_deployed_unit_states_for_side(side):
-		if not _has_active_unique_skill_attack_buff(unit_state):
-			return true
-	return false
 
 
 func _get_best_unique_skill_target_for_actor(caster_state: BattleUnitState, skill_data: Dictionary) -> BattleUnitState:
@@ -1800,9 +1799,9 @@ func _get_unique_skill_aoe_hit_count(caster_state: BattleUnitState, skill_data: 
 	return hit_count
 
 
-func _get_unique_skill_buff_candidate_count(side: String) -> int:
+func _get_unique_skill_buff_candidate_count_for_actor(caster_state: BattleUnitState, skill_data: Dictionary) -> int:
 	var count := 0
-	for unit_state in _get_alive_deployed_unit_states_for_side(side):
+	for unit_state in _get_unique_skill_valid_targets(caster_state, skill_data):
 		if not _has_active_unique_skill_attack_buff(unit_state):
 			count += 1
 	return count
@@ -1814,7 +1813,7 @@ func _is_unique_skill_high_value_for_actor(caster_state: BattleUnitState, skill_
 	var effect_type := String(skill_data.get("effect_type", ""))
 	match effect_type:
 		"ally_attack_buff":
-			return _get_unique_skill_buff_candidate_count(caster_state.side) >= 2
+			return _get_unique_skill_buff_candidate_count_for_actor(caster_state, skill_data) >= 2
 		"cannon_aoe":
 			return target_state != null and _get_unique_skill_aoe_hit_count(caster_state, skill_data, target_state) >= 2
 		"self_defense_single":
@@ -1847,7 +1846,7 @@ func _is_unique_skill_fallback_value_for_actor(caster_state: BattleUnitState, sk
 	var effect_type := String(skill_data.get("effect_type", ""))
 	match effect_type:
 		"ally_attack_buff":
-			return _get_unique_skill_buff_candidate_count(caster_state.side) >= 3
+			return _get_unique_skill_buff_candidate_count_for_actor(caster_state, skill_data) >= 3
 		"cannon_aoe":
 			return target_state != null and _get_unique_skill_aoe_hit_count(caster_state, skill_data, target_state) >= 2
 		"self_defense_single", "single_damage_adjacent_shake":
@@ -1911,8 +1910,26 @@ func _try_auto_unique_skill_for_actor(caster_state: BattleUnitState, require_hig
 		selected_attack_target_side = caster_state.side
 	_append_battle_log("%s 고유특기 선택" % caster_state.display_name)
 	is_auto_action_in_progress = caster_state.side == "ally"
+	_begin_auto_unique_skill_preview(caster_state, skill_data)
+	return true
+
+
+func _begin_auto_unique_skill_preview(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	if caster_state == null or skill_data.is_empty():
+		return
+	is_demo_animating = true
+	_hide_facing_selection_panel()
+	_hide_move_range_overlay()
+	_hide_attack_range_overlay()
+	_show_unique_skill_range_overlay(caster_state, skill_data)
+	_refresh_floating_ally_command_panel()
+	get_tree().create_timer(UNIQUE_SKILL_AUTO_PREVIEW_DURATION).timeout.connect(_finish_auto_unique_skill_preview.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
+
+
+func _finish_auto_unique_skill_preview(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	_hide_unique_skill_range_overlay()
+	is_demo_animating = false
 	_begin_unique_skill_sequence(caster_state, skill_data)
-	return is_unique_skill_presenting
 
 
 func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
@@ -2058,7 +2075,7 @@ func _apply_unique_skill_cannon_aoe(caster_state: BattleUnitState, skill_data: D
 func _apply_unique_skill_ally_attack_buff(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
 	var buff_amount := int(skill_data.get("power", UNIQUE_SKILL_ATTACK_BUFF))
 	var affected_count := 0
-	for ally_state in _get_alive_deployed_unit_states_for_side(caster_state.side):
+	for ally_state in _get_unique_skill_valid_targets(caster_state, skill_data):
 		if _has_active_unique_skill_attack_buff(ally_state):
 			continue
 		ally_state.attack += buff_amount
@@ -2117,11 +2134,16 @@ func _apply_unique_skill_single_damage_adjacent_shake(caster_state: BattleUnitSt
 func _find_unique_skill_enemy_target(caster_state: BattleUnitState) -> BattleUnitState:
 	if caster_state == null:
 		return null
-	if selected_attack_target_state != null and _is_unit_state_available_for_battle_slot(selected_attack_target_state) and selected_attack_target_state.side != caster_state.side:
-		return selected_attack_target_state
 	var skill_data := _get_unique_skill_for_unit(caster_state)
 	if skill_data.is_empty():
 		return null
+	if (
+		selected_attack_target_state != null
+		and _is_unit_state_available_for_battle_slot(selected_attack_target_state)
+		and selected_attack_target_state.side != caster_state.side
+		and _is_valid_unique_skill_target(caster_state, skill_data, selected_attack_target_state)
+	):
+		return selected_attack_target_state
 	return _get_best_unique_skill_target_for_actor(caster_state, skill_data)
 
 
@@ -6182,10 +6204,8 @@ func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data:
 	var target_cells: Array[Vector2i] = []
 	for target_state in _get_unique_skill_valid_targets(caster_state, skill_data):
 		target_cells.append(target_state.grid_cell)
+	var range_cells := _get_unique_skill_range_cells(caster_state, skill_data)
 	var display_cells: Array[Vector2i] = []
-	for target_cell in target_cells:
-		if not display_cells.has(target_cell):
-			display_cells.append(target_cell)
 	for range_cell in _get_unique_skill_range_cells(caster_state, skill_data):
 		if not display_cells.has(range_cell):
 			display_cells.append(range_cell)
@@ -6201,11 +6221,23 @@ func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data:
 		var rect := move_range_cells[index]
 		rect.position = world_pos - (cell_size * 0.5)
 		rect.size = cell_size
-		if target_cells.has(cell):
-			rect.color = UNIQUE_SKILL_TARGET_OVERLAY_COLOR
-		else:
-			rect.color = UNIQUE_SKILL_RANGE_OVERLAY_COLOR
+		rect.color = UNIQUE_SKILL_RANGE_OVERLAY_COLOR
 		rect.visible = true
+		index += 1
+	for target_cell in target_cells:
+		if index >= move_range_cells.size():
+			break
+		if not range_cells.has(target_cell):
+			continue
+		var marker_world_pos := battle_grid_controller.grid_to_world(target_cell)
+		if not _is_move_range_overlay_rect_inside_visual_board(marker_world_pos, cell_size):
+			continue
+		var marker_size := cell_size * UNIQUE_SKILL_TARGET_MARKER_SCALE
+		var marker_rect := move_range_cells[index]
+		marker_rect.position = marker_world_pos - (marker_size * 0.5)
+		marker_rect.size = marker_size
+		marker_rect.color = UNIQUE_SKILL_TARGET_OVERLAY_COLOR
+		marker_rect.visible = true
 		index += 1
 
 

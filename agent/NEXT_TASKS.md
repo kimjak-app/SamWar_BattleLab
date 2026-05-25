@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance`
+`v0.67x-5 Unique Skill Regression Fix Gate`
 
 ## Priority 1
 `v0.67y Tactics MVP`
@@ -22,6 +22,12 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67x-5 Unique Skill Regression Fix Gate` is complete.
+- Restored formation-guide troop icons to readable `40 x 40` while keeping `UniqueSkillReadyIcon` at `64 x 64`.
+- Unified unique skill readiness and auto/enemy value checks around range-limited valid targets.
+- Fixed buff unique skill manual resolve/reuse and limited buff effects to valid in-range, unbuffed allies.
+- Added separate valid-target markers over purple unique skill range cells and short auto/enemy range previews.
+- Confirmed WASAPI warning is external to project battle/audio logic.
 - `v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance` is complete.
 - Restored formation-guide troop icon readability while keeping the `UniqueSkillReadyIcon` at `64 x 64`.
 - First-normalized unique skill ranges so melee skills require close range and AOE stays mid-range.
