@@ -2108,7 +2108,7 @@ monitoring = false
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AllyReinforce01UnitClickArea" unique_id=320598076]
-position = Vector2(120, -111)
+position = Vector2(221, -108)
 shape = SubResource("RectangleShape2D_ally_click")
 
 [node name="AllyReinforce02UnitMarker" type="Marker2D" parent="." unique_id=1321009390]
