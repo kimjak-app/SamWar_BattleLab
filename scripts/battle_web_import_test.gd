@@ -24,9 +24,10 @@ const MOVE_HIGHLIGHT_INVALID_COLOR := Color(1.0, 0.2, 0.2, 0.28)
 const MOVE_RANGE_OVERLAY_COLOR := Color(0.2, 0.55, 1.0, 0.18)
 const ATTACK_RANGE_OVERLAY_COLOR := Color(1.0, 0.32, 0.08, 0.24)
 const UNIQUE_SKILL_RANGE_OVERLAY_COLOR := Color(0.55, 0.24, 1.0, 0.24)
-const UNIQUE_SKILL_TARGET_OVERLAY_COLOR := Color(1.0, 0.72, 0.18, 0.38)
-const UNIQUE_SKILL_TARGET_MARKER_SCALE := 0.68
+const UNIQUE_SKILL_TARGET_OVERLAY_COLOR := Color(1.0, 0.76, 0.08, 0.62)
+const UNIQUE_SKILL_TARGET_MARKER_SCALE := 0.78
 const UNIQUE_SKILL_AUTO_PREVIEW_DURATION := 0.42
+const UNIQUE_SKILL_MANUAL_PREVIEW_DURATION := 0.42
 const MOVE_RANGE_OVERLAY_VISUAL_INSET := Vector2(32.0, 0.0)
 const SHOW_CELL_SIZE_VISUAL_GUIDE := false
 const SHOW_LOGICAL_GRID_14X8_GUIDE := true
@@ -89,6 +90,15 @@ const UNIQUE_SKILL_SPLASH_DAMAGE := 18
 const UNIQUE_SKILL_ATTACK_BUFF := 6
 const UNIQUE_SKILL_DEFENSE_BUFF := 4
 const UNIQUE_SKILL_ATTACK_BUFF_TURNS := 3
+const ENEMY_RETREAT_TOAST_DURATION := 0.95
+const ENEMY_RETREAT_TOAST_SIZE := Vector2(560.0, 132.0)
+const ENEMY_RETREAT_TOAST_LINES := [
+	"아... 내 능력은 여기까지인가!",
+	"후퇴한다! 훗날을 기약하겠다!",
+	"이 치욕... 잊지 않겠다!",
+	"전열을 물려라!",
+	"오늘의 패배를 기억하겠다!",
+]
 const ATTACK_ANGLE_FRONT := "front"
 const ATTACK_ANGLE_SIDE := "side"
 const ATTACK_ANGLE_BACK := "back"
@@ -609,6 +619,7 @@ var dead_unit_ids: Dictionary = {}
 var unique_skill_cooldowns_by_hero_id: Dictionary = {}
 var unique_skill_attack_buff_turns_by_unit_id: Dictionary = {}
 var unique_skill_attack_buff_bonus_by_unit_id: Dictionary = {}
+var is_manual_unique_skill_preview_pending := false
 var battle_round := 1
 var has_deployed_reinforce_01 := false
 var has_deployed_reinforce_02 := false
@@ -623,6 +634,8 @@ var has_battle_result_toast_shown := false
 var unique_skill_toast_tween: Tween = null
 var is_unique_skill_presenting := false
 var unique_skill_texture_cache: Dictionary = {}
+var enemy_retreat_toast_tween: Tween = null
+var shown_enemy_retreat_toast_unit_ids: Dictionary = {}
 var camera_shake_tween: Tween = null
 var main_camera_base_position := Vector2.ZERO
 var enemy_ai_last_destination_debug: Dictionary = {}
@@ -930,6 +943,10 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var unique_skill_ink_burst: ColorRect = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillInkBurst") as ColorRect
 @onready var unique_skill_cutin_image: TextureRect = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillCutinImage") as TextureRect
 @onready var unique_skill_name_label: Label = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillNameLabel") as Label
+@onready var enemy_retreat_toast_root: Control = get_node_or_null("BattleUI/EnemyRetreatToastRoot") as Control
+@onready var enemy_retreat_portrait: TextureRect = get_node_or_null("BattleUI/EnemyRetreatToastRoot/EnemyRetreatPortrait") as TextureRect
+@onready var enemy_retreat_name_label: Label = get_node_or_null("BattleUI/EnemyRetreatToastRoot/EnemyRetreatNameLabel") as Label
+@onready var enemy_retreat_line_label: Label = get_node_or_null("BattleUI/EnemyRetreatToastRoot/EnemyRetreatLineLabel") as Label
 @onready var unit_closeup_panel: Panel = get_node_or_null("BattleUI/UnitCloseupPanel") as Panel
 @onready var closeup_hero_portrait: TextureRect = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupHeroPortrait") as TextureRect
 @onready var closeup_troop_image: TextureRect = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupTroopImage") as TextureRect
@@ -1035,6 +1052,7 @@ func _ready() -> void:
 		face_down_arrow_button.pressed.connect(_select_post_move_facing.bind(FACING_DOWN))
 	_configure_round_toast()
 	_configure_unique_skill_toast()
+	_configure_enemy_retreat_toast()
 	if main_camera != null:
 		main_camera_base_position = main_camera.position
 	_collect_move_range_cells()
@@ -1102,7 +1120,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	if current_phase != PHASE_ALLY_TURN:
+	if current_phase != PHASE_ALLY_TURN and current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
 		return
 	if _is_battle_result_finalized():
 		return
@@ -1209,13 +1227,18 @@ func reset_demo_state() -> void:
 	if unique_skill_toast_tween != null:
 		unique_skill_toast_tween.kill()
 		unique_skill_toast_tween = null
+	if enemy_retreat_toast_tween != null:
+		enemy_retreat_toast_tween.kill()
+		enemy_retreat_toast_tween = null
 	if camera_shake_tween != null:
 		camera_shake_tween.kill()
 		camera_shake_tween = null
 	if main_camera != null:
 		main_camera.position = main_camera_base_position
 	is_unique_skill_presenting = false
+	is_manual_unique_skill_preview_pending = false
 	_clear_unique_skill_targeting_state()
+	shown_enemy_retreat_toast_unit_ids.clear()
 	pending_battle_toasts.clear()
 	is_battle_toast_playing = false
 	active_battle_toast_tag = ""
@@ -1223,6 +1246,7 @@ func reset_demo_state() -> void:
 	enemy_ai_last_destination_debug.clear()
 	_hide_round_start_toast()
 	_hide_unique_skill_toast()
+	_hide_enemy_retreat_toast()
 	has_logged_hero_identity_validation = false
 	battle_log_lines = [
 		"아군 준비",
@@ -1377,7 +1401,7 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 
 
 func try_basic_attack() -> void:
-	if current_phase != PHASE_ALLY_TURN:
+	if current_phase != PHASE_ALLY_TURN and current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
 		return
 	if is_demo_animating:
 		return
@@ -1615,6 +1639,7 @@ func _enter_unique_skill_target_select_mode(caster_state: BattleUnitState, skill
 	_clear_attack_target_selection()
 	unique_skill_targeting_caster_state = caster_state
 	unique_skill_targeting_skill_data = skill_data.duplicate(true)
+	is_manual_unique_skill_preview_pending = false
 	_set_phase(PHASE_UNIQUE_SKILL_TARGET_SELECT)
 	_show_unique_skill_range_overlay(caster_state, skill_data)
 	is_floating_ally_command_panel_requested = true
@@ -1625,16 +1650,58 @@ func _enter_unique_skill_target_select_mode(caster_state: BattleUnitState, skill
 		_append_battle_log("%s 대상 선택" % String(skill_data.get("name", "고유특기")))
 		if _should_unique_skill_resolve_without_manual_target(skill_data):
 			var target_state := _get_best_unique_skill_target_for_actor(caster_state, skill_data)
-			_try_use_unique_skill_on_target(target_state)
+			_begin_manual_unique_skill_preview(caster_state, skill_data, target_state)
 
 
 func _should_unique_skill_resolve_without_manual_target(skill_data: Dictionary) -> bool:
 	return String(skill_data.get("effect_type", "")) == "ally_attack_buff"
 
 
+func _begin_manual_unique_skill_preview(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> void:
+	if caster_state == null or skill_data.is_empty() or target_state == null:
+		return
+	if not _is_valid_unique_skill_target(caster_state, skill_data, target_state):
+		return
+	is_manual_unique_skill_preview_pending = true
+	is_demo_animating = true
+	_refresh_floating_ally_command_panel()
+	get_tree().create_timer(UNIQUE_SKILL_MANUAL_PREVIEW_DURATION).timeout.connect(
+		_finish_manual_unique_skill_preview.bind(caster_state, skill_data, target_state),
+		CONNECT_ONE_SHOT
+	)
+
+
+func _finish_manual_unique_skill_preview(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> void:
+	if not is_manual_unique_skill_preview_pending:
+		return
+	if current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
+		is_manual_unique_skill_preview_pending = false
+		is_demo_animating = false
+		return
+	if caster_state == null or not caster_state.is_alive() or skill_data.is_empty():
+		_cancel_unique_skill_target_select_mode()
+		return
+	if unique_skill_targeting_caster_state != caster_state:
+		is_manual_unique_skill_preview_pending = false
+		is_demo_animating = false
+		return
+	if not _is_valid_unique_skill_target(caster_state, skill_data, target_state):
+		_cancel_unique_skill_target_select_mode()
+		return
+	selected_attack_target_state = target_state
+	selected_attack_target_side = target_state.side
+	is_manual_unique_skill_preview_pending = false
+	is_demo_animating = false
+	_hide_unique_skill_range_overlay()
+	_clear_unique_skill_targeting_state()
+	_begin_unique_skill_sequence(caster_state, skill_data)
+
+
 func _cancel_unique_skill_target_select_mode() -> void:
 	if current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
 		return
+	is_manual_unique_skill_preview_pending = false
+	is_demo_animating = false
 	_clear_unique_skill_targeting_state()
 	_hide_unique_skill_range_overlay()
 	_clear_transient_battle_highlights()
@@ -1874,6 +1941,8 @@ func _get_unique_skill_clicked_target_at_position(mouse_world_pos: Vector2) -> B
 func _try_use_unique_skill_on_target(target_state: BattleUnitState) -> void:
 	if current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
 		return
+	if is_manual_unique_skill_preview_pending:
+		return
 	var caster_state := unique_skill_targeting_caster_state
 	var skill_data := unique_skill_targeting_skill_data.duplicate(true)
 	if not _can_use_unique_skill(caster_state):
@@ -1935,6 +2004,7 @@ func _finish_auto_unique_skill_preview(caster_state: BattleUnitState, skill_data
 func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
 	if caster_state == null or skill_data.is_empty():
 		return
+	is_manual_unique_skill_preview_pending = false
 	is_demo_animating = true
 	is_unique_skill_presenting = true
 	is_floating_ally_command_panel_requested = false
@@ -2458,7 +2528,7 @@ func _should_show_floating_ally_command_panel() -> bool:
 		return false
 	if is_full_auto_battle_enabled:
 		return false
-	if current_phase != PHASE_ALLY_TURN and current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
+	if current_phase != PHASE_ALLY_TURN:
 		return false
 	if active_unit_state == null:
 		return false
@@ -5560,6 +5630,95 @@ func _hide_unique_skill_toast() -> void:
 		unique_skill_cutin_image.texture = null
 
 
+func _configure_enemy_retreat_toast() -> void:
+	if enemy_retreat_toast_root != null:
+		enemy_retreat_toast_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		enemy_retreat_toast_root.size = ENEMY_RETREAT_TOAST_SIZE
+		enemy_retreat_toast_root.pivot_offset = ENEMY_RETREAT_TOAST_SIZE * 0.5
+		enemy_retreat_toast_root.visible = false
+	if enemy_retreat_portrait != null:
+		enemy_retreat_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		enemy_retreat_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		enemy_retreat_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	if enemy_retreat_name_label != null:
+		enemy_retreat_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		enemy_retreat_name_label.add_theme_font_size_override("font_size", 25)
+		enemy_retreat_name_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.5, 1.0))
+		enemy_retreat_name_label.add_theme_color_override("font_outline_color", Color(0.04, 0.02, 0.0, 0.98))
+		enemy_retreat_name_label.add_theme_constant_override("outline_size", 4)
+	if enemy_retreat_line_label != null:
+		enemy_retreat_line_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		enemy_retreat_line_label.add_theme_font_size_override("font_size", 27)
+		enemy_retreat_line_label.add_theme_color_override("font_color", Color(0.98, 0.96, 0.88, 1.0))
+		enemy_retreat_line_label.add_theme_color_override("font_outline_color", Color(0.04, 0.02, 0.0, 0.98))
+		enemy_retreat_line_label.add_theme_constant_override("outline_size", 4)
+
+
+func _hide_enemy_retreat_toast() -> void:
+	if enemy_retreat_toast_root != null:
+		enemy_retreat_toast_root.visible = false
+		enemy_retreat_toast_root.modulate = Color.WHITE
+		enemy_retreat_toast_root.scale = Vector2.ONE
+	if enemy_retreat_portrait != null:
+		enemy_retreat_portrait.texture = null
+
+
+func _show_enemy_retreat_toast(unit_state: BattleUnitState) -> void:
+	if unit_state == null or unit_state.side != "enemy":
+		return
+	if enemy_retreat_toast_root == null:
+		return
+	if enemy_retreat_toast_tween != null:
+		enemy_retreat_toast_tween.kill()
+		enemy_retreat_toast_tween = null
+	var viewport_size := get_viewport_rect().size
+	var desired_position := Vector2(
+		maxf(12.0, (viewport_size.x - ENEMY_RETREAT_TOAST_SIZE.x) * 0.5),
+		maxf(12.0, viewport_size.y - ENEMY_RETREAT_TOAST_SIZE.y - 156.0)
+	)
+	enemy_retreat_toast_root.position = desired_position
+	enemy_retreat_toast_root.size = ENEMY_RETREAT_TOAST_SIZE
+	enemy_retreat_toast_root.pivot_offset = ENEMY_RETREAT_TOAST_SIZE * 0.5
+	enemy_retreat_toast_root.visible = true
+	enemy_retreat_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	enemy_retreat_toast_root.scale = Vector2.ONE * 0.92
+	if enemy_retreat_portrait != null:
+		enemy_retreat_portrait.texture = _get_retreat_toast_portrait_texture(unit_state)
+		enemy_retreat_portrait.visible = enemy_retreat_portrait.texture != null
+	if enemy_retreat_name_label != null:
+		enemy_retreat_name_label.text = unit_state.display_name
+	if enemy_retreat_line_label != null:
+		enemy_retreat_line_label.text = _get_enemy_retreat_line(unit_state)
+	enemy_retreat_toast_tween = create_tween()
+	enemy_retreat_toast_tween.set_parallel(true)
+	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 1.0, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	enemy_retreat_toast_tween.set_parallel(false)
+	enemy_retreat_toast_tween.tween_interval(ENEMY_RETREAT_TOAST_DURATION)
+	enemy_retreat_toast_tween.set_parallel(true)
+	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "position", desired_position + Vector2(0.0, 12.0), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	enemy_retreat_toast_tween.chain().tween_callback(_hide_enemy_retreat_toast)
+
+
+func _get_retreat_toast_portrait_texture(unit_state: BattleUnitState) -> Texture2D:
+	var hero_entry := _get_hero_registry_entry(_get_hero_id_for_unit_state(unit_state))
+	var texture := _load_unique_skill_texture(String(hero_entry.get("battlefield_portrait_path", "")))
+	if texture != null:
+		return texture
+	texture = _load_unique_skill_texture(String(hero_entry.get("closeup_portrait_path", "")))
+	if texture != null:
+		return texture
+	return _get_troop_icon_texture_for_visual_key(unit_state.visual_key, unit_state)
+
+
+func _get_enemy_retreat_line(unit_state: BattleUnitState) -> String:
+	if ENEMY_RETREAT_TOAST_LINES.is_empty():
+		return "후퇴한다!"
+	var line_index := absi(unit_state.unit_id.hash()) % ENEMY_RETREAT_TOAST_LINES.size()
+	return String(ENEMY_RETREAT_TOAST_LINES[line_index])
+
+
 func _show_round_start_banner() -> void:
 	_show_round_start_toast(battle_round)
 
@@ -8483,6 +8642,9 @@ func _cleanup_dead_units() -> void:
 			continue
 		var is_alive := unit_state.is_alive()
 		var is_deployed_alive := _is_unit_state_available_for_battle_slot(unit_state)
+		if not is_alive and unit_state.side == "enemy" and not bool(shown_enemy_retreat_toast_unit_ids.get(unit_state.unit_id, false)):
+			shown_enemy_retreat_toast_unit_ids[unit_state.unit_id] = true
+			_show_enemy_retreat_toast(unit_state)
 		_set_unit_visual_group_visible(unit_state, is_deployed_alive)
 		_set_unit_click_area_enabled(unit_state, is_deployed_alive)
 		if not is_alive and not bool(dead_unit_ids.get(unit_state.unit_id, false)):

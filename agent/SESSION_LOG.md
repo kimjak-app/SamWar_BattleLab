@@ -2,6 +2,13 @@
 
 ## 2026-05-25
 
+### v0.67x-6 Targeting UX + Buff Preview + Retreat Toast Polish
+- Added short manual preview before buff unique skills auto-resolve, covering 정도전 and 권율 flows.
+- Hid the floating ally command panel during basic attack / unique-skill target selection and restored it after cancel or resolve.
+- Strengthened the separate gold/orange valid-target marker over persistent purple range cells.
+- Added enemy retreat portrait toast MVP before dead-unit cleanup without blocking battle result or full-auto flow.
+- Verified headless project load, scene load, targeting / buff / retreat smoke, full-auto result path, and `git diff --check`.
+
 ### v0.67x-5 Unique Skill Regression Fix Gate
 - Restored formation-guide `TroopIconRect` nodes to readable `40 x 40` while keeping `UniqueSkillReadyIcon` at `64 x 64`.
 - Unified unique skill readiness and auto/enemy decision gates around range-limited valid targets with no 이순신-only special case.

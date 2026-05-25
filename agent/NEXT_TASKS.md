@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x-5 Unique Skill Regression Fix Gate`
+`v0.67x-6 Targeting UX + Buff Preview + Retreat Toast Polish`
 
 ## Priority 1
 `v0.67y Tactics MVP`
@@ -22,6 +22,11 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67x-6 Targeting UX + Buff Preview + Retreat Toast Polish` is complete.
+- Manual buff unique skills now hide the floating command panel, show range / valid-target preview, then auto-resolve.
+- Attack and unique-skill targeting modes hide the floating command panel and restore it after cancel or resolve.
+- Valid target gold/orange markers were strengthened while preserving purple range cells.
+- Enemy defeat now shows a short portrait retreat toast without blocking cleanup, result toasts, or full-auto flow.
 - `v0.67x-5 Unique Skill Regression Fix Gate` is complete.
 - Restored formation-guide troop icons to readable `40 x 40` while keeping `UniqueSkillReadyIcon` at `64 x 64`.
 - Unified unique skill readiness and auto/enemy value checks around range-limited valid targets.

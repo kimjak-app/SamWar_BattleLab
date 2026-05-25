@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67x-5 Unique Skill Regression Fix Gate`
+`v0.67x-6 Targeting UX + Buff Preview + Retreat Toast Polish`
 
 ## Current Implementation Step
+- `v0.67x-6 Targeting UX + Buff Preview + Retreat Toast Polish`
 - `v0.67x-5 Unique Skill Regression Fix Gate`
 - `v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance`
 - `v0.67x-2 Enemy/Auto Unique Skill + Directional Damage Bonus`
@@ -59,8 +60,12 @@ SamWar_BattleLab
 - Formation guide troop icons are restored to readable `40 x 40` display while the `UniqueSkillReadyIcon` remains `64 x 64`.
 - Unique skill readiness, target collection, manual resolve, and auto/enemy value gates now share range-limited valid target checks.
 - Ally buff unique skills resolve immediately after range preview and only affect valid in-range, unbuffed allies.
+- Manual buff unique skills now show a short range / valid target preview before auto-resolving.
 - Unique skill range overlay keeps purple range cells visible and adds a separate gold target marker on valid target cells.
+- Valid-target markers are enlarged and strengthened for clearer gold/orange read over purple range cells.
+- Floating ally command panel hides during attack / unique-skill target selection and restores after cancel / resolve.
 - Auto/enemy unique skill use shows a short visual range preview before resolving.
+- Defeated enemy units show a short portrait retreat toast before normal cleanup continues.
 - WASAPI output-device warnings are treated as external Godot/Windows audio warnings because the project does not control audio devices directly.
 - `SkillInfoPanel` is deferred as a later UX candidate.
 - Detailed unique skill range / radius balance remains a later pass.

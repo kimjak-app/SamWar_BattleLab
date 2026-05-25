@@ -3338,6 +3338,52 @@ text = "고유특기!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="EnemyRetreatToastRoot" type="Control" parent="BattleUI"]
+visible = false
+z_index = 255
+layout_mode = 3
+anchors_preset = 0
+offset_right = 560.0
+offset_bottom = 132.0
+pivot_offset = Vector2(280, 66)
+mouse_filter = 2
+
+[node name="EnemyRetreatToastBackdrop" type="ColorRect" parent="BattleUI/EnemyRetreatToastRoot"]
+layout_mode = 0
+offset_right = 560.0
+offset_bottom = 132.0
+mouse_filter = 2
+color = Color(0.055, 0.046, 0.038, 0.88)
+
+[node name="EnemyRetreatPortrait" type="TextureRect" parent="BattleUI/EnemyRetreatToastRoot"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = 114.0
+offset_bottom = 118.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="EnemyRetreatNameLabel" type="Label" parent="BattleUI/EnemyRetreatToastRoot"]
+layout_mode = 0
+offset_left = 130.0
+offset_top = 16.0
+offset_right = 532.0
+offset_bottom = 50.0
+text = "적장"
+vertical_alignment = 1
+
+[node name="EnemyRetreatLineLabel" type="Label" parent="BattleUI/EnemyRetreatToastRoot"]
+layout_mode = 0
+offset_left = 130.0
+offset_top = 56.0
+offset_right = 532.0
+offset_bottom = 112.0
+text = "후퇴한다!"
+autowrap_mode = 2
+vertical_alignment = 1
+
 [node name="AllyFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938220]
 offset_left = 353.0
 offset_top = 818.0
