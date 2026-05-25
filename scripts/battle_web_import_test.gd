@@ -56,6 +56,11 @@ const STRATEGY_FAIL_COLOR := Color(1.0, 0.24, 0.36, 1.0)
 const STRATEGY_CAST_COLOR := Color(1.0, 0.86, 0.26, 1.0)
 const STRATEGY_SHAKE_ATTACK_MULTIPLIER := 0.9
 const STRATEGY_SHAKE_DEFENSE_DAMAGE_MULTIPLIER := 1.1
+const DEFEND_DAMAGE_MULTIPLIER := 0.62
+const STATUS_BADGE_COLOR := Color(0.46, 1.0, 0.86, 0.8)
+const STATUS_BADGE_OUTLINE_COLOR := Color(0.02, 0.03, 0.04, 0.62)
+const FORMATION_STATUS_TEXT_COLOR := Color(0.46, 1.0, 0.86, 0.85)
+const FORMATION_STATUS_OUTLINE_COLOR := Color(0.02, 0.03, 0.04, 0.62)
 const STATUS_CONFUSION := "confusion"
 const STATUS_SHAKE := "shake"
 const AUTO_BATTLE_MIN_MAX_STEPS := 80
@@ -1073,7 +1078,7 @@ func _ready() -> void:
 	if floating_tactics_button != null:
 		floating_tactics_button.pressed.connect(_on_strategy_button_pressed)
 	if floating_move_button != null:
-		floating_move_button.pressed.connect(play_basic_move_demo)
+		floating_move_button.pressed.connect(_on_defend_button_pressed)
 	if floating_wait_button != null:
 		floating_wait_button.pressed.connect(_end_ally_turn_by_wait)
 	if face_left_button != null:
@@ -2017,12 +2022,18 @@ func _get_unit_status_display_entries(unit_state: BattleUnitState) -> Array[Dict
 			"badge": "⚠%d" % turns,
 			"summary": ("⚠ 동요 %d턴 · 공/방 -10" % turns) + "%",
 		})
+	if unit_state.is_defending:
+		entries.append({
+			"id": "defend",
+			"badge": "◆",
+			"summary": "◆ 방어 태세",
+		})
 	var attack_buff_bonus := _get_unique_skill_attack_buff_bonus(unit_state)
 	if attack_buff_bonus > 0:
 		entries.append({
 			"id": "unique_attack_buff",
-			"badge": "◆",
-			"summary": "◆ 공격+%d" % attack_buff_bonus,
+			"badge": "▲",
+			"summary": "▲ 공격+%d" % attack_buff_bonus,
 		})
 	var defense_buff_bonus := _get_unique_skill_defense_buff_bonus(unit_state)
 	if defense_buff_bonus > 0:
@@ -2109,8 +2120,8 @@ func _create_strategy_status_icon_label() -> Label:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 24)
-	label.add_theme_color_override("font_color", Color(0.46, 1.0, 0.86, 1.0))
-	label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.95))
+	label.add_theme_color_override("font_color", STATUS_BADGE_COLOR)
+	label.add_theme_color_override("font_outline_color", STATUS_BADGE_OUTLINE_COLOR)
 	label.add_theme_constant_override("outline_size", 5)
 	label.size = Vector2(78.0, 36.0)
 	label.z_index = 37
@@ -2552,6 +2563,7 @@ func _apply_unique_skill_effect(caster_state: BattleUnitState, skill_data: Dicti
 	_update_all_unit_visuals_from_state()
 	_update_ally_ready_frames()
 	_refresh_formation_slot_guides()
+	_refresh_strategy_status_icon_labels()
 	_cleanup_dead_units()
 
 
@@ -2722,6 +2734,8 @@ func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnit
 		damage_multiplier *= STRATEGY_SHAKE_ATTACK_MULTIPLIER
 	if _has_strategy_status_effect(defender_state, STATUS_SHAKE):
 		damage_multiplier *= STRATEGY_SHAKE_DEFENSE_DAMAGE_MULTIPLIER
+	if defender_state != null and defender_state.is_defending:
+		damage_multiplier *= DEFEND_DAMAGE_MULTIPLIER
 	return maxi(1, int(round(float(base_damage) * damage_multiplier)))
 
 
@@ -2935,6 +2949,10 @@ func _configure_floating_ally_command_panel() -> void:
 		floating_tactics_button.text = STRATEGY_NAME
 		floating_tactics_button.tooltip_text = "지력 80 이상 필요"
 		floating_tactics_button.set_meta("strategy_id", STRATEGY_ID)
+	if floating_move_button != null:
+		floating_move_button.disabled = true
+		floating_move_button.text = "방어"
+		floating_move_button.tooltip_text = ""
 	for button in [
 		floating_basic_attack_button,
 		floating_unique_skill_button,
@@ -3033,11 +3051,12 @@ func _refresh_floating_ally_command_panel() -> void:
 		and not is_demo_animating
 		and _is_active_ally_action_available()
 	)
-	var active_unit_has_moved := active_unit_state != null and active_unit_state.has_moved
 	if floating_basic_attack_button != null:
 		floating_basic_attack_button.disabled = not can_issue_ally_command
 	if floating_move_button != null:
-		floating_move_button.disabled = not can_issue_ally_command or active_unit_has_moved
+		floating_move_button.disabled = not can_issue_ally_command
+		floating_move_button.text = "방어"
+		floating_move_button.tooltip_text = ""
 	if floating_wait_button != null:
 		floating_wait_button.disabled = not can_issue_ally_command
 	if floating_unique_skill_button != null:
@@ -3086,6 +3105,52 @@ func _refresh_auto_battle_button_state(can_issue_ally_command: bool) -> void:
 		return
 	auto_battle_button.disabled = not can_issue_ally_command
 	auto_battle_button.tooltip_text = "자동전투"
+
+
+func _on_defend_button_pressed() -> void:
+	if current_phase != PHASE_ALLY_TURN:
+		return
+	if is_demo_animating:
+		return
+	if active_unit_state == null:
+		return
+	if not _is_active_ally_action_available():
+		_append_battle_log("이미 행동한 부대입니다")
+		_set_phase(PHASE_ALLY_TURN)
+		return
+
+	_clear_move_target_selection()
+	_clear_attack_target_selection()
+	_clear_strategy_targeting_state()
+	_hide_move_range_overlay()
+	_hide_attack_range_overlay()
+	_hide_strategy_range_overlay()
+	_hide_unique_skill_range_overlay()
+	_hide_facing_selection_panel()
+	if move_highlight != null:
+		move_highlight.visible = false
+	if attack_highlight != null:
+		attack_highlight.visible = false
+	if floating_ally_command_panel != null:
+		floating_ally_command_panel.visible = false
+	is_floating_ally_command_panel_requested = false
+
+	active_unit_state.is_defending = true
+	active_unit_state.last_action = {"type": "defend"}
+	_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(active_unit_state), "방어", STATUS_BADGE_COLOR)
+	_append_battle_log("%s이 방어 태세를 취했습니다." % active_unit_state.display_name)
+	_mark_ally_unit_acted(active_unit_state)
+	_show_unit_closeup_for_ally(active_unit_state)
+	_update_ally_ready_frames()
+	_refresh_formation_slot_guides()
+	_refresh_strategy_status_icon_labels()
+	_cleanup_dead_units()
+	if _is_battle_result_finalized():
+		_set_phase(PHASE_ALLY_TURN)
+		return
+	_set_phase(PHASE_ENEMY_TURN)
+	_append_battle_log("적군 턴")
+	_play_enemy_turn_demo()
 
 
 func _end_ally_turn_by_wait() -> void:
@@ -3450,8 +3515,8 @@ func _configure_formation_guide_slot(slot_id: String) -> void:
 		status_label.position = Vector2(66.0, 52.0)
 		status_label.size = Vector2(92.0, 18.0)
 		status_label.add_theme_font_size_override("font_size", 9)
-		status_label.add_theme_color_override("font_color", Color(0.46, 1.0, 0.86, 1.0))
-		status_label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.9))
+		status_label.add_theme_color_override("font_color", FORMATION_STATUS_TEXT_COLOR)
+		status_label.add_theme_color_override("font_outline_color", FORMATION_STATUS_OUTLINE_COLOR)
 		status_label.add_theme_constant_override("outline_size", 2)
 	var troop_icon_rect := root.get_node_or_null("TroopIconRect") as TextureRect
 	if troop_icon_rect != null:
@@ -6905,6 +6970,8 @@ func _start_new_round() -> void:
 	_reset_enemy_action_locks_for_new_round()
 	_tick_unique_skill_cooldowns_for_side("ally")
 	_tick_unique_skill_cooldowns_for_side("enemy")
+	_refresh_formation_slot_guides()
+	_refresh_strategy_status_icon_labels()
 	_append_battle_log("BATTLE %d 시작" % battle_round)
 	_try_deploy_reinforce_01_pair()
 	_try_deploy_city_reinforce_02_pair()

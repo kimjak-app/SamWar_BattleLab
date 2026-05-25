@@ -2,6 +2,12 @@
 
 ## 2026-05-25
 
+### v0.67y-2 Web Defend Command Port + Status Icon Tone Polish
+- Reused the floating move button as `방어` and kept movement on direct move-click / bottom command paths.
+- Added manual defend resolve with `is_defending`, action consume, floating `방어`, and mini-log output.
+- Applied defend incoming damage reduction in the existing directional damage helper and clear defend on next action-lock reset.
+- Toned down status badge/text alpha and changed attack-buff display to `▲ 공격+N`.
+
 ### v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish
 - Unified status rendering so strategy statuses and unique-skill buffs share one unit badge / formation text formatter.
 - Added `◆` display for active unique-skill attack / defense buffs on unit badges and formation guide status lines.

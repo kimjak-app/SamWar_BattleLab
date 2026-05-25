@@ -1,10 +1,10 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish`
+`v0.67y-2 Web Defend Command Port + Status Icon Tone Polish`
 
 ## Priority 1
-`v0.67y-2 Strategy AI/Auto Expansion`
+`v0.67y-3 Strategy AI/Auto Expansion`
 
 Goal:
 - allow enemy AI and full-auto allies to use the existing single `strategy` command when stable
@@ -22,6 +22,10 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67y-2 Web Defend Command Port + Status Icon Tone Polish` is complete.
+- Floating panel's former move slot now resolves manual `방어`, while direct move-click remains the movement path.
+- Defend stores `is_defending`, consumes the action, displays `◆ 방어 태세`, and reduces incoming damage through the existing directional damage helper.
+- Status badge/text alpha was toned down; enemy/auto defense use remains deferred.
 - `v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish` is complete.
 - Strategy statuses and unique-skill buffs now share one status display formatter for unit badges and formation-guide status lines.
 - Unique-skill attack / defense buffs display with `◆`, while confusion / shake keep icon-style unit badges and readable formation text.

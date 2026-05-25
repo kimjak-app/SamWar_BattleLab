@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish`
+`v0.67y-2 Web Defend Command Port + Status Icon Tone Polish`
 
 ## Current Implementation Step
+- `v0.67y-2 Web Defend Command Port + Status Icon Tone Polish`
 - `v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish`
 - `v0.67y-1 Strategy Status UX + Result Sequence Fix`
 - `v0.67y Web Strategy Port MVP`
@@ -54,6 +55,9 @@ SamWar_BattleLab
 - `동요` applies a light attack/defense penalty through the shared directional damage helper.
 - Unit markers and formation guide status labels now use one shared status display formatter for strategy statuses and unique-skill buffs.
 - Unique-skill attack / defense buffs show `◆` unit badges and readable formation-guide status text.
+- Floating command panel now uses the former move slot as a manual `방어` command; direct move-click remains the movement path.
+- Manual defend sets `is_defending`, consumes the unit action, shows `◆ 방어 태세`, and reduces incoming directional-helper damage while active.
+- Status badge/text alpha is toned down for a less harsh battle-screen read.
 - Last-unit defeat/retreat toasts now finish before victory/defeat result toast display.
 - Enemy/auto 책략 use is deferred to `v0.67y-2 Strategy AI/Auto Expansion`.
 - Current battle's `10` heroes now have `hero_id`-based unique skill registry entries.

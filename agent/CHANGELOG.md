@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.67y-2 Web Defend Command Port + Status Icon Tone Polish
+- Replaced the floating panel move slot with a manual `방어` command while keeping direct move-click unchanged.
+- Added `is_defending` / defend last-action state, immediate action consume, defend floating text, and mini-log output.
+- Applied defend incoming-damage reduction through the existing directional damage helper and cleared defend on action-lock reset.
+- Updated status display tone and icon rules so defend/defense use `◆`, attack buffs use `▲`, and status text/badges are less harsh.
+
 ## v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish
 - Unified unit/formation status display through shared formatter entries for strategy statuses and unique-skill buffs.
 - Added `◆` unit badges and formation-guide text for active unique-skill attack / defense buffs.

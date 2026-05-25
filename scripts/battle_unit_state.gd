@@ -29,6 +29,8 @@ var grid_cell: Vector2i = Vector2i.ZERO
 var facing: String = "right"
 var has_acted: bool = false
 var has_moved: bool = false
+var is_defending: bool = false
+var last_action: Dictionary = {}
 var status_effects: Dictionary = {}
 
 
@@ -61,6 +63,12 @@ func setup(data: Dictionary) -> void:
 	facing = String(data.get("facing", "right"))
 	has_acted = bool(data.get("has_acted", false))
 	has_moved = bool(data.get("has_moved", false))
+	is_defending = bool(data.get("is_defending", false))
+	var raw_last_action = data.get("last_action", {})
+	if raw_last_action is Dictionary:
+		last_action = (raw_last_action as Dictionary).duplicate(true)
+	else:
+		last_action = {}
 	var raw_status_effects = data.get("status_effects", {})
 	if raw_status_effects is Dictionary:
 		status_effects = (raw_status_effects as Dictionary).duplicate(true)
@@ -97,6 +105,8 @@ func heal(amount: int) -> int:
 func reset_action_flags() -> void:
 	has_acted = false
 	has_moved = false
+	is_defending = false
+	last_action = {}
 
 
 func get_status_turns(effect_id: String) -> int:
