@@ -2,6 +2,12 @@
 
 ## 2026-05-25
 
+### v0.67y-3 Web Defend Command + Formation Status Layout Guard
+- Added defend wounded-troop recovery equal to `10%` of missing troops, including green floating recovery text and updated battle-log wording.
+- Added defending-unit hit reactions on basic attacks and single-target unique skills.
+- Compacted formation-guide status text to the first summary plus `외 N` overflow and trimmed long text with ellipsis.
+- Adjusted formation-guide troop icon/type/status bounds and enlarged the mini-log panel/text area for cleaner layout.
+
 ### v0.67y-2-hotfix1 Status Icon Readability Fix
 - Fixed confusion battlefield badges to render as `◎N` instead of bare numbers.
 - Separated defense `◆` and attack-up `▲` status colors into blue / amber tones across unit badges and formation status text.

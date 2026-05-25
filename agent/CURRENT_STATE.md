@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67y-2-hotfix1 Status Icon Readability Fix`
+`v0.67y-3 Web Defend Command + Formation Status Layout Guard`
 
 ## Current Implementation Step
+- `v0.67y-3 Web Defend Command + Formation Status Layout Guard`
 - `v0.67y-2-hotfix1 Status Icon Readability Fix`
 - `v0.67y-2 Web Defend Command Port + Status Icon Tone Polish`
 - `v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish`
@@ -59,7 +60,9 @@ SamWar_BattleLab
 - Defense / defense-buff status uses steel-blue `◆`, while attack-up uses amber `▲` on unit badges and formation status text.
 - Unique-skill attack / defense buffs show distinct `▲` / `◆` unit badges and readable formation-guide status text.
 - Floating command panel now uses the former move slot as a manual `방어` command; direct move-click remains the movement path.
-- Manual defend sets `is_defending`, consumes the unit action, shows `◆ 방어 태세`, and reduces incoming directional-helper damage while active.
+- Manual defend sets `is_defending`, consumes the unit action, shows `◆ 방어!`, immediately recovers `10%` of missing troops, and reduces incoming directional-helper damage while active.
+- Defending units show a short `◆ 방어` reaction when hit.
+- Formation guide status text now uses one-line compact summaries with `외 N` overflow guarding.
 - Status badge/text alpha is toned down for a less harsh battle-screen read.
 - Last-unit defeat/retreat toasts now finish before victory/defeat result toast display.
 - Enemy/auto 책략 use is deferred to `v0.67y-2 Strategy AI/Auto Expansion`.
@@ -81,7 +84,7 @@ SamWar_BattleLab
 - Directional damage bonus is applied to basic attacks, enemy counter/basic hits, and single-target attack unique skills.
 - Directional multipliers follow the web baseline: front `1.0`, side `1.15`, back `1.3`.
 - Formation guide unique-skill-ready icon display size is now `64 x 64`.
-- Formation guide troop icons are enlarged to `56 x 56` display with stronger troop-type text while the `UniqueSkillReadyIcon` remains `64 x 64`.
+- Formation guide troop icons are kept within-card at `46 x 46` display with stronger troop-type text while the `UniqueSkillReadyIcon` remains `64 x 64`.
 - Unique skill readiness, target collection, manual resolve, and auto/enemy value gates now share range-limited valid target checks.
 - Ally buff unique skills resolve immediately after range preview and only affect valid in-range, unbuffed allies.
 - Manual buff unique skills now show a short range / valid target preview before auto-resolving.
@@ -136,7 +139,7 @@ SamWar_BattleLab
   - `기본 공격`
   - `고유특기`
   - `책략` placeholder
-  - `이동`
+  - `방어`
   - `대기`
 - Right-click rollback remains part of the movement/facing flow.
 
@@ -153,9 +156,9 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.67y Web Strategy Port MVP`
-2. `v0.67y-2 Tactics Fire / Defense Expansion`
-3. `v0.68 Terrain Block Layer MVP`
+1. `v0.67z Unit Visual Attachment / Manual Layout Control Patch`
+2. `v0.68 Battlefield Final Size Expansion`
+3. `v0.68b Terrain Passability Layer MVP`
 
 ## Known / Deferred
 - Detailed unique skill range balance can still be revisited after more skill data is final.

@@ -57,6 +57,7 @@ const STRATEGY_CAST_COLOR := Color(1.0, 0.86, 0.26, 1.0)
 const STRATEGY_SHAKE_ATTACK_MULTIPLIER := 0.9
 const STRATEGY_SHAKE_DEFENSE_DAMAGE_MULTIPLIER := 1.1
 const DEFEND_DAMAGE_MULTIPLIER := 0.62
+const DEFEND_WOUNDED_RECOVERY_RATE := 0.10
 const STATUS_BADGE_COLOR := Color(0.62, 0.82, 0.96, 0.8)
 const STATUS_BADGE_OUTLINE_COLOR := Color(0.02, 0.03, 0.04, 0.62)
 const STATUS_BADGE_DEFENSE_COLOR := Color(0.52, 0.70, 0.90, 0.82)
@@ -65,6 +66,7 @@ const STATUS_BADGE_ATTACK_DOWN_COLOR := Color(0.92, 0.36, 0.26, 0.82)
 const STATUS_BADGE_DEFENSE_DOWN_COLOR := Color(0.66, 0.58, 0.78, 0.82)
 const STATUS_BADGE_CONFUSION_COLOR := Color(0.48, 0.92, 1.0, 0.82)
 const STATUS_BADGE_SHAKE_COLOR := Color(1.0, 0.76, 0.28, 0.82)
+const DEFEND_HEAL_TEXT_COLOR := Color(0.62, 1.0, 0.58, 0.94)
 const FORMATION_STATUS_TEXT_COLOR := Color(0.74, 0.86, 0.94, 0.85)
 const FORMATION_STATUS_OUTLINE_COLOR := Color(0.02, 0.03, 0.04, 0.62)
 const STATUS_CONFUSION := "confusion"
@@ -1597,6 +1599,7 @@ func play_basic_attack_demo() -> void:
 	_spawn_hit_battle_dust_fx(enemy_start)
 	_spawn_hit_spark_fx(enemy_start)
 	_spawn_damage_number_fx(enemy_start, attack_damage)
+	_show_defend_hit_reaction_if_needed(selected_attack_target_state)
 	_append_battle_log("%s 공격" % _get_selected_ally_display_name())
 	_append_attack_angle_log(attack_angle_type)
 	_append_battle_log("%s 피해" % selected_attack_target_state.display_name)
@@ -2073,6 +2076,20 @@ func _get_unit_status_summary_text(unit_state: BattleUnitState) -> String:
 	return " / ".join(summaries)
 
 
+func _get_unit_status_summary_text_compact(unit_state: BattleUnitState) -> String:
+	var summaries := PackedStringArray()
+	for entry in _get_unit_status_display_entries(unit_state):
+		var summary := String(entry.get("summary", ""))
+		if summary != "":
+			summaries.append(summary)
+	if summaries.is_empty():
+		return ""
+	var overflow_count := summaries.size() - 1
+	if overflow_count <= 0:
+		return summaries[0]
+	return "%s 외 %d" % [summaries[0], overflow_count]
+
+
 func _get_status_display_color(status_id: String) -> Color:
 	match status_id:
 		"defend", "unique_defense_buff":
@@ -2107,6 +2124,10 @@ func _get_strategy_status_icon_text(unit_state: BattleUnitState) -> String:
 
 func _get_strategy_status_summary_text(unit_state: BattleUnitState) -> String:
 	return _get_unit_status_summary_text(unit_state)
+
+
+func _get_formation_status_summary_text(unit_state: BattleUnitState) -> String:
+	return _get_unit_status_summary_text_compact(unit_state)
 
 
 func _has_strategy_status_effect(unit_state: BattleUnitState, status_id: String) -> bool:
@@ -2678,6 +2699,7 @@ func _apply_unique_skill_self_defense_single(caster_state: BattleUnitState, skil
 	_spawn_hit_battle_dust_fx(target_pos)
 	_spawn_hit_spark_fx(target_pos)
 	_spawn_skill_damage_number_fx(target_pos, applied)
+	_show_defend_hit_reaction_if_needed(target_state)
 	_spawn_buff_number_fx(_get_visual_anchor_position_for_unit(caster_state), "+방 %d" % defense_bonus)
 	_append_attack_angle_log(angle_type)
 	_append_battle_log("%s에게 %d 피해" % [target_state.display_name, applied])
@@ -2697,6 +2719,7 @@ func _apply_unique_skill_single_damage_adjacent_shake(caster_state: BattleUnitSt
 	_spawn_hit_battle_dust_fx(target_pos)
 	_spawn_hit_spark_fx(target_pos)
 	_spawn_skill_damage_number_fx(target_pos, applied)
+	_show_defend_hit_reaction_if_needed(target_state)
 	for adjacent_state in _get_alive_deployed_unit_states_for_side(_get_opposing_side(caster_state.side)):
 		if adjacent_state == target_state:
 			continue
@@ -2797,6 +2820,12 @@ func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnit
 	if defender_state != null and defender_state.is_defending:
 		damage_multiplier *= DEFEND_DAMAGE_MULTIPLIER
 	return maxi(1, int(round(float(base_damage) * damage_multiplier)))
+
+
+func _show_defend_hit_reaction_if_needed(defender_state: BattleUnitState) -> void:
+	if defender_state == null or not defender_state.is_defending:
+		return
+	_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(defender_state), "◆ 방어", _get_status_display_color("defend"))
 
 
 func _append_attack_angle_log(angle_type: String) -> void:
@@ -3197,8 +3226,15 @@ func _on_defend_button_pressed() -> void:
 
 	active_unit_state.is_defending = true
 	active_unit_state.last_action = {"type": "defend"}
-	_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(active_unit_state), "방어", _get_status_display_color("defend"))
-	_append_battle_log("%s이 방어 태세를 취했습니다." % active_unit_state.display_name)
+	var recovered_troops := _recover_wounded_troops_for_defend(active_unit_state)
+	var active_anchor := _get_visual_anchor_position_for_unit(active_unit_state)
+	_spawn_strategy_text_fx(active_anchor, "◆ 방어!", _get_status_display_color("defend"))
+	if recovered_troops > 0:
+		_spawn_defend_heal_text_fx(active_anchor, "+%d" % recovered_troops)
+		_update_unit_visuals_from_state(active_unit_state)
+		_append_battle_log("%s이 방어 태세를 취하고 부상병 %d명을 수습했습니다." % [active_unit_state.display_name, recovered_troops])
+	else:
+		_append_battle_log("%s이 방어 태세를 취했습니다." % active_unit_state.display_name)
 	_mark_ally_unit_acted(active_unit_state)
 	_show_unit_closeup_for_ally(active_unit_state)
 	_update_ally_ready_frames()
@@ -3211,6 +3247,16 @@ func _on_defend_button_pressed() -> void:
 	_set_phase(PHASE_ENEMY_TURN)
 	_append_battle_log("적군 턴")
 	_play_enemy_turn_demo()
+
+
+func _recover_wounded_troops_for_defend(unit_state: BattleUnitState) -> int:
+	if unit_state == null:
+		return 0
+	var missing_hp := maxi(unit_state.max_hp - unit_state.current_hp, 0)
+	if missing_hp <= 0:
+		return 0
+	var recovery_amount := maxi(1, int(round(float(missing_hp) * DEFEND_WOUNDED_RECOVERY_RATE)))
+	return unit_state.heal(recovery_amount)
 
 
 func _end_ally_turn_by_wait() -> void:
@@ -3575,22 +3621,25 @@ func _configure_formation_guide_slot(slot_id: String) -> void:
 		status_label.visible = false
 		status_label.text = ""
 		status_label.position = Vector2(66.0, 52.0)
-		status_label.size = Vector2(88.0, 18.0)
+		status_label.size = Vector2(94.0, 18.0)
+		status_label.clip_text = true
+		status_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		status_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		status_label.add_theme_font_size_override("font_size", 9)
 		status_label.add_theme_color_override("font_color", FORMATION_STATUS_TEXT_COLOR)
 		status_label.add_theme_color_override("font_outline_color", FORMATION_STATUS_OUTLINE_COLOR)
 		status_label.add_theme_constant_override("outline_size", 2)
 	var troop_icon_rect := root.get_node_or_null("TroopIconRect") as TextureRect
 	if troop_icon_rect != null:
-		troop_icon_rect.position = Vector2(154.0, 4.0)
-		troop_icon_rect.size = Vector2(56.0, 56.0)
-		troop_icon_rect.custom_minimum_size = Vector2(56.0, 56.0)
+		troop_icon_rect.position = Vector2(164.0, 6.0)
+		troop_icon_rect.size = Vector2(46.0, 46.0)
+		troop_icon_rect.custom_minimum_size = Vector2(46.0, 46.0)
 		troop_icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		troop_icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		troop_icon_rect.modulate = Color(1.0, 0.98, 0.9, 1.0)
 	if troop_type_label != null:
-		troop_type_label.position = Vector2(154.0, 60.0)
-		troop_type_label.size = Vector2(56.0, 14.0)
+		troop_type_label.position = Vector2(164.0, 54.0)
+		troop_type_label.size = Vector2(46.0, 14.0)
 
 
 # v0.64p-hotfix Enemy Highlight Cleanup
@@ -3826,7 +3875,7 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 		else:
 			hp_label.text = "병력 -"
 	if status_label != null:
-		var status_text := _get_strategy_status_summary_text(unit_state)
+		var status_text := _get_formation_status_summary_text(unit_state)
 		status_label.text = status_text
 		status_label.add_theme_color_override("font_color", _get_unit_status_summary_color(unit_state))
 		status_label.visible = status_text != ""
@@ -4730,6 +4779,7 @@ func _enemy_reaction_hit_on() -> void:
 		_spawn_hit_battle_dust_fx(target_pos)
 		_spawn_hit_spark_fx(target_pos)
 		_spawn_damage_number_fx(target_pos, attack_damage)
+		_show_defend_hit_reaction_if_needed(target_state)
 		_append_attack_angle_log(attack_angle_type)
 		_cleanup_dead_units()
 	var actor_name := "적군"
@@ -6958,6 +7008,30 @@ func _spawn_buff_number_fx(target_pos: Vector2, text: String) -> void:
 	tween.set_parallel(true)
 	tween.tween_property(label, "position", label.position + Vector2(0.0, -24.0), 0.72).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(label, "modulate:a", 0.0, 0.72).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(label.queue_free)
+
+
+func _spawn_defend_heal_text_fx(target_pos: Vector2, text: String) -> void:
+	if battle_fx_root == null:
+		return
+	var label := Label.new()
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 28)
+	label.add_theme_color_override("font_color", DEFEND_HEAL_TEXT_COLOR)
+	label.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.02, 0.88))
+	label.add_theme_constant_override("outline_size", 4)
+	label.size = Vector2(120.0, 48.0)
+	label.position = target_pos + Vector2(-60.0, -104.0)
+	label.z_index = 36
+	battle_fx_root.add_child(label)
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "position", label.position + Vector2(0.0, -22.0), 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "modulate:a", 0.0, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.chain().tween_callback(label.queue_free)
 
 

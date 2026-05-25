@@ -1,27 +1,31 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67y-2-hotfix1 Status Icon Readability Fix`
+`v0.67y-3 Web Defend Command + Formation Status Layout Guard`
 
 ## Priority 1
-`v0.67y-3 Strategy AI/Auto Expansion`
+`v0.67z Unit Visual Attachment / Manual Layout Control Patch`
 
 Goal:
-- allow enemy AI and full-auto allies to use the existing single `strategy` command when stable
+- move toward explicit unit visual attachment / manual layout control without disturbing the current battle-screen MVP
 
 ## Priority 2
-`v0.67y-2 Strategy Status Polish`
+`v0.68 Battlefield Final Size Expansion`
 
 Goal:
-- polish persistent status icon placement, labels, and any future `동요` gameplay effect
+- expand the battlefield to the intended final playable size once current UI layout remains stable
 
 ## Priority 3
-`v0.68 Terrain Block Layer MVP`
+`v0.68b Terrain Passability Layer MVP`
 
 Goal:
-- add the first terrain/blocking layer contract for battle movement and targeting
+- add the first terrain/passability layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67y-3 Web Defend Command + Formation Status Layout Guard` is complete.
+- Manual defend now shows `◆ 방어!`, recovers `10%` of missing troops, displays green recovery text, and logs the recovery when applicable.
+- Defending units show a short `◆ 방어` hit reaction when damaged.
+- Formation-guide status text is compacted to a one-line summary with `외 N` overflow, and troop/status layout bounds are guarded against overlap.
 - `v0.67y-2-hotfix1 Status Icon Readability Fix` is complete.
 - Confusion unit badges now use `◎N` so turn counts never appear as bare numbers.
 - Defense `◆` and attack-up `▲` use clearly separated blue / amber tones, and formation troop icons are enlarged to `56 x 56` with stronger troop-type text.
