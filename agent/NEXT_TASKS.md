@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix`
+`v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune`
 
 ## Priority 1
 `v0.67y Web Strategy Port MVP`
@@ -22,6 +22,8 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune` is complete.
+- Defeat-retreat toasts now hold for `1.5s`, keep elapsed logs, and use a smaller panel / portrait / text layout.
 - `v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix` is complete.
 - Defeat-retreat toast fade-out now starts only after the `3.0s` hold, with DEBUG elapsed logs for SHOW / HOLD_DONE / HIDE.
 - `v0.67x-7-hotfix2 Defeat Toast 3s + Hakikjin Range Sync` is complete.

@@ -2,6 +2,11 @@
 
 ## 2026-05-25
 
+### v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune
+- Tuned defeat-retreat toast hold from `3.0s` to `1.5s` for single and queued exits.
+- Reduced the scene-authored toast panel / portrait bounds and lowered runtime name / dialogue font sizes.
+- Preserved elapsed logs, snapshot queue playback, and non-blocking battle flow.
+
 ### v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix
 - Traced the short display to defeat-retreat fade-out being appended in parallel with the hold interval.
 - Rechained the tween so the readable hold runs for `3.0s` before fade-out and added DEBUG elapsed logs.

@@ -3630,15 +3630,15 @@ visible = false
 z_index = 255
 layout_mode = 3
 anchors_preset = 0
-offset_right = 560.0
-offset_bottom = 132.0
-pivot_offset = Vector2(280, 66)
+offset_right = 440.0
+offset_bottom = 104.0
+pivot_offset = Vector2(220, 52)
 mouse_filter = 2
 
 [node name="EnemyRetreatToastBackdrop" type="ColorRect" parent="EnemyRetreatToastLayer/EnemyRetreatToastRoot" unique_id=2011296158]
 layout_mode = 0
-offset_right = 560.0
-offset_bottom = 132.0
+offset_right = 440.0
+offset_bottom = 104.0
 mouse_filter = 2
 color = Color(0.055, 0.046, 0.038, 0.88)
 
@@ -3646,27 +3646,27 @@ color = Color(0.055, 0.046, 0.038, 0.88)
 layout_mode = 0
 offset_left = 14.0
 offset_top = 14.0
-offset_right = 114.0
-offset_bottom = 118.0
+offset_right = 89.0
+offset_bottom = 92.0
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
 [node name="EnemyRetreatNameLabel" type="Label" parent="EnemyRetreatToastLayer/EnemyRetreatToastRoot" unique_id=1655577006]
 layout_mode = 0
-offset_left = 130.0
-offset_top = 16.0
-offset_right = 532.0
-offset_bottom = 50.0
+offset_left = 104.0
+offset_top = 11.0
+offset_right = 420.0
+offset_bottom = 38.0
 text = "적장"
 vertical_alignment = 1
 
 [node name="EnemyRetreatLineLabel" type="Label" parent="EnemyRetreatToastLayer/EnemyRetreatToastRoot" unique_id=1996175326]
 layout_mode = 0
-offset_left = 130.0
-offset_top = 56.0
-offset_right = 532.0
-offset_bottom = 112.0
+offset_left = 104.0
+offset_top = 43.0
+offset_right = 420.0
+offset_bottom = 88.0
 text = "후퇴한다!"
 vertical_alignment = 1
 autowrap_mode = 2

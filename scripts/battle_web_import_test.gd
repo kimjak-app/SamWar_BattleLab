@@ -90,13 +90,13 @@ const UNIQUE_SKILL_SPLASH_DAMAGE := 18
 const UNIQUE_SKILL_ATTACK_BUFF := 6
 const UNIQUE_SKILL_DEFENSE_BUFF := 4
 const UNIQUE_SKILL_ATTACK_BUFF_TURNS := 3
-const DEFEAT_RETREAT_TOAST_DURATION := 3.0
-const DEFEAT_RETREAT_TOAST_CHAIN_DURATION := 3.0
+const DEFEAT_RETREAT_TOAST_DURATION := 1.5
+const DEFEAT_RETREAT_TOAST_CHAIN_DURATION := 1.5
 const DEFEAT_RETREAT_TOAST_DEBUG_LOGS := true
 const DEFEAT_RETREAT_TOAST_FADE_IN_DURATION := 0.12
 const DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION := 0.16
 const DEFEAT_RETREAT_TOAST_MAX_QUEUE_PER_CLEANUP := 3
-const DEFEAT_RETREAT_TOAST_SIZE := Vector2(560.0, 132.0)
+const DEFEAT_RETREAT_TOAST_SIZE := Vector2(440.0, 104.0)
 const ENEMY_RETREAT_TOAST_LINES := [
 	"아... 내 능력은 여기까지인가!",
 	"후퇴한다! 훗날을 기약하겠다!",
@@ -5662,16 +5662,16 @@ func _configure_enemy_retreat_toast() -> void:
 		enemy_retreat_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	if enemy_retreat_name_label != null:
 		enemy_retreat_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		enemy_retreat_name_label.add_theme_font_size_override("font_size", 25)
+		enemy_retreat_name_label.add_theme_font_size_override("font_size", 20)
 		enemy_retreat_name_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.5, 1.0))
 		enemy_retreat_name_label.add_theme_color_override("font_outline_color", Color(0.04, 0.02, 0.0, 0.98))
-		enemy_retreat_name_label.add_theme_constant_override("outline_size", 4)
+		enemy_retreat_name_label.add_theme_constant_override("outline_size", 3)
 	if enemy_retreat_line_label != null:
 		enemy_retreat_line_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		enemy_retreat_line_label.add_theme_font_size_override("font_size", 27)
+		enemy_retreat_line_label.add_theme_font_size_override("font_size", 22)
 		enemy_retreat_line_label.add_theme_color_override("font_color", Color(0.98, 0.96, 0.88, 1.0))
 		enemy_retreat_line_label.add_theme_color_override("font_outline_color", Color(0.04, 0.02, 0.0, 0.98))
-		enemy_retreat_line_label.add_theme_constant_override("outline_size", 4)
+		enemy_retreat_line_label.add_theme_constant_override("outline_size", 3)
 
 
 func _hide_enemy_retreat_toast() -> void:

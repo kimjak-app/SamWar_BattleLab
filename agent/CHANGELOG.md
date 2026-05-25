@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune
+- Tuned ally defeat and enemy retreat toast hold time from `3.0s` to `1.5s`, including queued exits.
+- Reduced the defeat-retreat toast panel, portrait, name text, and dialogue text for a less intrusive battle-screen footprint.
+- Kept SHOW / HOLD_DONE / HIDE elapsed logs and the non-blocking snapshot queue intact.
+
 ## v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix
 - Fixed defeat-retreat toast tween sequencing so fade-out starts after the `3.0s` hold instead of overlapping it.
 - Added DEBUG-gated SHOW / HOLD_DONE / HIDE elapsed logs for actual portrait/name/dialogue toast lifetime checks.
