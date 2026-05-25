@@ -2361,10 +2361,9 @@ autowrap_mode = 2
 [node name="FormationSlotGuideLayer" type="Control" parent="BattleUI" unique_id=1927054000]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 1.0
-offset_top = 3.0
-offset_right = 1921.0
-offset_bottom = 1083.0
+offset_left = -22.0
+offset_right = 1898.0
+offset_bottom = 1080.0
 mouse_filter = 2
 
 [node name="AllyFormationGuidePanel" type="Panel" parent="BattleUI/FormationSlotGuideLayer" unique_id=129510001]
