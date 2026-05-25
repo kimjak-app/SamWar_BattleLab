@@ -22,12 +22,14 @@ var current_troops: int = 0
 var max_troops: int = 0
 var attack: int = 0
 var defense: int = 0
+var intelligence: int = 0
 var move_range: int = 0
 var attack_range: int = 0
 var grid_cell: Vector2i = Vector2i.ZERO
 var facing: String = "right"
 var has_acted: bool = false
 var has_moved: bool = false
+var status_effects: Dictionary = {}
 
 
 func setup(data: Dictionary) -> void:
@@ -52,12 +54,18 @@ func setup(data: Dictionary) -> void:
 	max_troops = int(data.get("max_troops", max_hp))
 	attack = int(data.get("attack", 0))
 	defense = int(data.get("defense", 0))
+	intelligence = int(data.get("intelligence", 0))
 	move_range = int(data.get("move_range", 0))
 	attack_range = int(data.get("attack_range", 0))
 	grid_cell = data.get("grid_cell", Vector2i.ZERO)
 	facing = String(data.get("facing", "right"))
 	has_acted = bool(data.get("has_acted", false))
 	has_moved = bool(data.get("has_moved", false))
+	var raw_status_effects = data.get("status_effects", {})
+	if raw_status_effects is Dictionary:
+		status_effects = (raw_status_effects as Dictionary).duplicate(true)
+	else:
+		status_effects = {}
 
 
 static func create(data: Dictionary) -> BattleUnitState:
@@ -89,6 +97,35 @@ func heal(amount: int) -> int:
 func reset_action_flags() -> void:
 	has_acted = false
 	has_moved = false
+
+
+func get_status_turns(effect_id: String) -> int:
+	return maxi(int(status_effects.get(effect_id, 0)), 0)
+
+
+func has_status_effect(effect_id: String) -> bool:
+	return get_status_turns(effect_id) > 0
+
+
+func apply_status_effect(effect_id: String, turns: int) -> void:
+	var normalized_turns := maxi(turns, 0)
+	if normalized_turns <= 0:
+		status_effects.erase(effect_id)
+		return
+	status_effects[effect_id] = maxi(get_status_turns(effect_id), normalized_turns)
+
+
+func tick_status_effects() -> void:
+	var expired_effects: Array[String] = []
+	for effect_key in status_effects.keys():
+		var effect_id := String(effect_key)
+		var remaining_turns := maxi(int(status_effects.get(effect_id, 0)) - 1, 0)
+		if remaining_turns <= 0:
+			expired_effects.append(effect_id)
+		else:
+			status_effects[effect_id] = remaining_turns
+	for effect_id in expired_effects:
+		status_effects.erase(effect_id)
 
 
 func set_grid_cell(cell: Vector2i) -> void:

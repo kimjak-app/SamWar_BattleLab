@@ -39,6 +39,23 @@ const PHASE_RESOLVING := "resolving"
 const PHASE_FACING_SELECT := "facing_select"
 const PHASE_ATTACK_SELECT := "attack_select"
 const PHASE_UNIQUE_SKILL_TARGET_SELECT := "unique_skill_target_select"
+const PHASE_STRATEGY_SELECT := "strategy"
+const STRATEGY_ID := "strategy"
+const STRATEGY_NAME := "책략"
+const STRATEGY_BASE_SUCCESS_RATE := 0.55
+const STRATEGY_MIN_SUCCESS_RATE := 0.25
+const STRATEGY_MAX_SUCCESS_RATE := 0.90
+const STRATEGY_BASIC_INTELLIGENCE := 80
+const STRATEGY_ADVANCED_INTELLIGENCE := 90
+const STRATEGY_MASTER_INTELLIGENCE := 95
+const STRATEGY_RANGE_OVERLAY_COLOR := Color(0.0, 0.82, 0.9, 0.22)
+const STRATEGY_TARGET_OVERLAY_COLOR := Color(0.36, 1.0, 1.0, 0.74)
+const STRATEGY_TARGET_MARKER_SCALE := 0.74
+const STRATEGY_EFFECT_COLOR := Color(0.34, 1.0, 0.78, 1.0)
+const STRATEGY_FAIL_COLOR := Color(1.0, 0.24, 0.36, 1.0)
+const STRATEGY_CAST_COLOR := Color(1.0, 0.86, 0.26, 1.0)
+const STATUS_CONFUSION := "confusion"
+const STATUS_SHAKE := "shake"
 const AUTO_BATTLE_MIN_MAX_STEPS := 80
 const AUTO_BATTLE_STEP_BUDGET_PER_DEPLOYED_UNIT := 16
 const AUTO_BATTLE_ABSOLUTE_MAX_STEPS := 200
@@ -609,6 +626,7 @@ var selected_attack_target_state: BattleUnitState = null
 var selected_attack_target_side := ""
 var unique_skill_targeting_caster_state: BattleUnitState = null
 var unique_skill_targeting_skill_data: Dictionary = {}
+var strategy_targeting_caster_state: BattleUnitState = null
 var pending_move_snapshot_unit_state: BattleUnitState = null
 var pending_move_snapshot_grid_cell := Vector2i(-1, -1)
 var pending_move_snapshot_unit_position := Vector2.ZERO
@@ -631,6 +649,7 @@ var dead_unit_ids: Dictionary = {}
 var unique_skill_cooldowns_by_hero_id: Dictionary = {}
 var unique_skill_attack_buff_turns_by_unit_id: Dictionary = {}
 var unique_skill_attack_buff_bonus_by_unit_id: Dictionary = {}
+var strategy_status_icon_labels_by_unit_id: Dictionary = {}
 var is_manual_unique_skill_preview_pending := false
 var battle_round := 1
 var has_deployed_reinforce_01 := false
@@ -1048,6 +1067,8 @@ func _ready() -> void:
 		floating_basic_attack_button.pressed.connect(try_basic_attack)
 	if floating_unique_skill_button != null:
 		floating_unique_skill_button.pressed.connect(_on_unique_skill_button_pressed)
+	if floating_tactics_button != null:
+		floating_tactics_button.pressed.connect(_on_strategy_button_pressed)
 	if floating_move_button != null:
 		floating_move_button.pressed.connect(play_basic_move_demo)
 	if floating_wait_button != null:
@@ -1097,6 +1118,7 @@ func _process(_delta: float) -> void:
 		_refresh_move_target_feedback()
 	_update_ally_ready_frames()
 	_refresh_floating_ally_command_panel()
+	_refresh_strategy_status_icon_labels()
 
 
 func _input(event: InputEvent) -> void:
@@ -1116,6 +1138,17 @@ func _input(event: InputEvent) -> void:
 		return
 
 	var mouse_world_pos := get_global_mouse_position()
+	if current_phase == PHASE_STRATEGY_SELECT:
+		var clicked_strategy_target := _get_strategy_clicked_target_at_position(mouse_world_pos)
+		if clicked_strategy_target != null:
+			_try_use_strategy_on_target(clicked_strategy_target)
+			get_viewport().set_input_as_handled()
+			return
+
+		_append_battle_log("책략 대상이 되는 적을 선택하세요")
+		get_viewport().set_input_as_handled()
+		return
+
 	if current_phase == PHASE_UNIQUE_SKILL_TARGET_SELECT:
 		var clicked_unique_target := _get_unique_skill_clicked_target_at_position(mouse_world_pos)
 		if clicked_unique_target != null:
@@ -1256,6 +1289,9 @@ func reset_demo_state() -> void:
 	is_unique_skill_presenting = false
 	is_manual_unique_skill_preview_pending = false
 	_clear_unique_skill_targeting_state()
+	_clear_strategy_targeting_state()
+	_hide_strategy_range_overlay()
+	_clear_strategy_status_icon_labels()
 	is_defeat_retreat_toast_playing = false
 	defeat_retreat_toast_queue.clear()
 	shown_defeat_retreat_toast_unit_ids.clear()
@@ -1571,7 +1607,9 @@ func _finish_basic_attack_demo() -> void:
 	is_demo_animating = false
 	_hide_move_range_overlay()
 	_hide_attack_range_overlay()
+	_hide_strategy_range_overlay()
 	_clear_attack_target_selection()
+	_clear_strategy_targeting_state()
 	_clear_pending_move_snapshot()
 	_clear_auto_action_flags()
 	_mark_ally_unit_acted(active_unit_state)
@@ -1738,6 +1776,319 @@ func _cancel_unique_skill_target_select_mode() -> void:
 func _clear_unique_skill_targeting_state() -> void:
 	unique_skill_targeting_caster_state = null
 	unique_skill_targeting_skill_data = {}
+
+
+func _on_strategy_button_pressed() -> void:
+	if not _can_use_strategy(active_unit_state):
+		if active_unit_state != null and active_unit_state.intelligence < STRATEGY_BASIC_INTELLIGENCE:
+			_append_battle_log("지력이 부족해 책략을 펼칠 수 없습니다.")
+		else:
+			_append_battle_log("책략 사용 불가")
+		_refresh_floating_ally_command_panel()
+		return
+	_enter_strategy_target_select_mode(active_unit_state)
+
+
+func _enter_strategy_target_select_mode(caster_state: BattleUnitState) -> void:
+	if not _can_use_strategy(caster_state):
+		_append_battle_log("책략 사용 불가")
+		return
+	if _get_strategy_targets(caster_state).is_empty():
+		_append_battle_log("책략 유효 대상 없음")
+		return
+	_hide_facing_selection_panel()
+	_clear_move_target_selection()
+	_clear_attack_target_selection()
+	_hide_move_range_overlay()
+	_hide_attack_range_overlay()
+	_hide_unique_skill_range_overlay()
+	strategy_targeting_caster_state = caster_state
+	is_floating_ally_command_panel_requested = false
+	if floating_ally_command_panel != null:
+		floating_ally_command_panel.visible = false
+	_set_phase(PHASE_STRATEGY_SELECT)
+	_show_strategy_range_overlay(caster_state)
+	_append_battle_log("책략 대상이 되는 적을 선택하세요.")
+	_append_battle_log("우클릭하면 취소합니다.")
+
+
+func _cancel_strategy_target_select_mode() -> void:
+	if current_phase != PHASE_STRATEGY_SELECT:
+		return
+	_clear_strategy_targeting_state()
+	_hide_strategy_range_overlay()
+	_clear_transient_battle_highlights()
+	is_floating_ally_command_panel_requested = true
+	_set_phase(PHASE_ALLY_TURN)
+	_append_battle_log("책략 취소")
+	_refresh_move_target_feedback()
+	_show_move_range_overlay_for_active_unit()
+
+
+func _clear_strategy_targeting_state() -> void:
+	strategy_targeting_caster_state = null
+
+
+func _can_use_strategy(unit_state: BattleUnitState) -> bool:
+	if unit_state == null:
+		return false
+	if current_phase != PHASE_ALLY_TURN and current_phase != PHASE_STRATEGY_SELECT:
+		return false
+	if is_demo_animating or is_full_auto_battle_enabled:
+		return false
+	if not unit_state.is_alive():
+		return false
+	if unit_state.side != "ally":
+		return false
+	if _has_ally_unit_acted(unit_state):
+		return false
+	if _is_unit_confused(unit_state):
+		return false
+	if unit_state.intelligence < STRATEGY_BASIC_INTELLIGENCE:
+		return false
+	return true
+
+
+func _get_strategy_range(unit_state: BattleUnitState) -> int:
+	if unit_state == null:
+		return 0
+	if unit_state.intelligence >= STRATEGY_MASTER_INTELLIGENCE:
+		return 5
+	if unit_state.intelligence >= STRATEGY_ADVANCED_INTELLIGENCE:
+		return 4
+	if unit_state.intelligence >= STRATEGY_BASIC_INTELLIGENCE:
+		return 3
+	return 0
+
+
+func _get_strategy_tier(unit_state: BattleUnitState) -> String:
+	if unit_state == null:
+		return "none"
+	if unit_state.intelligence >= STRATEGY_MASTER_INTELLIGENCE:
+		return "master"
+	if unit_state.intelligence >= STRATEGY_ADVANCED_INTELLIGENCE:
+		return "advanced"
+	if unit_state.intelligence >= STRATEGY_BASIC_INTELLIGENCE:
+		return "basic"
+	return "none"
+
+
+func _get_strategy_outcome_pool(unit_state: BattleUnitState) -> Array[Dictionary]:
+	var pool: Array[Dictionary] = []
+	match _get_strategy_tier(unit_state):
+		"master":
+			pool.append({"status": STATUS_CONFUSION, "turns": 2})
+			pool.append({"status": STATUS_SHAKE, "turns": 3})
+		"advanced":
+			pool.append({"status": STATUS_CONFUSION, "turns": 1})
+			pool.append({"status": STATUS_SHAKE, "turns": 2})
+		"basic":
+			pool.append({"status": STATUS_SHAKE, "turns": 1})
+	return pool
+
+
+func _get_strategy_targets(caster_state: BattleUnitState) -> Array[BattleUnitState]:
+	var targets: Array[BattleUnitState] = []
+	if caster_state == null or not caster_state.is_alive():
+		return targets
+	var strategy_range := _get_strategy_range(caster_state)
+	if strategy_range <= 0:
+		return targets
+	for unit_state in _get_alive_deployed_unit_states_for_side(_get_opposing_side(caster_state.side)):
+		if get_unit_grid_distance(caster_state, unit_state) <= strategy_range:
+			targets.append(unit_state)
+	return targets
+
+
+func _get_strategy_success_rate(caster_state: BattleUnitState, target_state: BattleUnitState) -> float:
+	if caster_state == null or target_state == null:
+		return STRATEGY_MIN_SUCCESS_RATE
+	var rate := STRATEGY_BASE_SUCCESS_RATE + float(caster_state.intelligence - target_state.intelligence) * 0.01
+	return clampf(rate, STRATEGY_MIN_SUCCESS_RATE, STRATEGY_MAX_SUCCESS_RATE)
+
+
+func _roll_strategy_outcome(caster_state: BattleUnitState) -> Dictionary:
+	var pool := _get_strategy_outcome_pool(caster_state)
+	if pool.is_empty():
+		return {}
+	return pool[randi() % pool.size()].duplicate(true)
+
+
+func _is_valid_strategy_target(caster_state: BattleUnitState, target_state: BattleUnitState) -> bool:
+	if target_state == null or not target_state.is_alive():
+		return false
+	return _get_strategy_targets(caster_state).has(target_state)
+
+
+func _get_strategy_clicked_target_at_position(mouse_world_pos: Vector2) -> BattleUnitState:
+	if strategy_targeting_caster_state == null:
+		return null
+	var clicked_target := _get_clicked_enemy_unit_at_position(mouse_world_pos)
+	if _is_valid_strategy_target(strategy_targeting_caster_state, clicked_target):
+		return clicked_target
+	return null
+
+
+func _try_use_strategy_on_target(target_state: BattleUnitState) -> void:
+	if current_phase != PHASE_STRATEGY_SELECT:
+		return
+	var caster_state := strategy_targeting_caster_state
+	if not _can_use_strategy(caster_state):
+		_cancel_strategy_target_select_mode()
+		return
+	if not _is_valid_strategy_target(caster_state, target_state):
+		_append_battle_log("책략 대상이 아닙니다")
+		return
+	_resolve_strategy(caster_state, target_state)
+
+
+func _resolve_strategy(caster_state: BattleUnitState, target_state: BattleUnitState) -> void:
+	_hide_strategy_range_overlay()
+	_clear_strategy_targeting_state()
+	_clear_move_target_selection()
+	_clear_attack_target_selection()
+	is_floating_ally_command_panel_requested = false
+	if floating_ally_command_panel != null:
+		floating_ally_command_panel.visible = false
+	_set_phase(PHASE_RESOLVING)
+	_append_battle_log("%s이 책략을 펼쳤습니다." % caster_state.display_name)
+	_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(caster_state), "책략!", STRATEGY_CAST_COLOR)
+
+	var success_rate := _get_strategy_success_rate(caster_state, target_state)
+	if randf() <= success_rate:
+		var outcome := _roll_strategy_outcome(caster_state)
+		var status_id := String(outcome.get("status", STATUS_SHAKE))
+		var turns := maxi(int(outcome.get("turns", 1)), 1)
+		target_state.apply_status_effect(status_id, turns)
+		var status_name := _get_strategy_status_display_name(status_id)
+		_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(target_state), "%s %d턴" % [status_name, turns], STRATEGY_EFFECT_COLOR)
+		_append_battle_log("책략 성공! %s에게 %s %d턴!" % [target_state.display_name, status_name, turns])
+	else:
+		_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(target_state), "실패", STRATEGY_FAIL_COLOR)
+		_append_battle_log("책략 실패!")
+
+	_mark_ally_unit_acted(caster_state)
+	_show_unit_closeup_for_ally(caster_state)
+	_update_ally_ready_frames()
+	_refresh_formation_slot_guides()
+	_refresh_strategy_status_icon_labels()
+	_cleanup_dead_units()
+	if _is_battle_result_finalized():
+		_set_phase(PHASE_ALLY_TURN)
+		return
+	_set_phase(PHASE_ENEMY_TURN)
+	_append_battle_log("적군 턴")
+	_play_enemy_turn_demo()
+
+
+func _get_strategy_status_display_name(status_id: String) -> String:
+	match status_id:
+		STATUS_CONFUSION:
+			return "혼란"
+		STATUS_SHAKE:
+			return "동요"
+		_:
+			return "상태"
+
+
+func _is_unit_confused(unit_state: BattleUnitState) -> bool:
+	return unit_state != null and unit_state.has_status_effect(STATUS_CONFUSION)
+
+
+func _get_strategy_status_icon_text(unit_state: BattleUnitState) -> String:
+	if unit_state == null or not unit_state.is_alive():
+		return ""
+	var icons := PackedStringArray()
+	if unit_state.has_status_effect(STATUS_CONFUSION):
+		icons.append("혼")
+	if unit_state.has_status_effect(STATUS_SHAKE):
+		icons.append("⚠")
+	if icons.is_empty():
+		return ""
+	return " ".join(icons)
+
+
+func _refresh_strategy_status_icon_labels() -> void:
+	if battle_fx_root == null:
+		return
+	var alive_unit_ids: Dictionary = {}
+	for unit_state in _get_all_alive_unit_states_from_adapter():
+		if unit_state == null or unit_state.unit_id == "":
+			continue
+		alive_unit_ids[unit_state.unit_id] = true
+		var status_text := _get_strategy_status_icon_text(unit_state)
+		if status_text == "":
+			_remove_strategy_status_icon_label(unit_state.unit_id)
+			continue
+		var label := strategy_status_icon_labels_by_unit_id.get(unit_state.unit_id, null) as Label
+		if label == null or not is_instance_valid(label):
+			label = _create_strategy_status_icon_label()
+			strategy_status_icon_labels_by_unit_id[unit_state.unit_id] = label
+		label.text = status_text
+		label.position = battle_fx_root.to_local(_get_visual_anchor_position_for_unit(unit_state) + Vector2(24.0, -74.0))
+		label.visible = true
+	for unit_id_key in strategy_status_icon_labels_by_unit_id.keys():
+		var unit_id := String(unit_id_key)
+		if not bool(alive_unit_ids.get(unit_id, false)):
+			_remove_strategy_status_icon_label(unit_id)
+
+
+func _create_strategy_status_icon_label() -> Label:
+	var label := Label.new()
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 14)
+	label.add_theme_color_override("font_color", Color(0.46, 1.0, 0.86, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.95))
+	label.add_theme_constant_override("outline_size", 3)
+	label.size = Vector2(58.0, 26.0)
+	label.z_index = 37
+	battle_fx_root.add_child(label)
+	return label
+
+
+func _remove_strategy_status_icon_label(unit_id: String) -> void:
+	var label := strategy_status_icon_labels_by_unit_id.get(unit_id, null) as Label
+	if label != null and is_instance_valid(label):
+		label.queue_free()
+	strategy_status_icon_labels_by_unit_id.erase(unit_id)
+
+
+func _clear_strategy_status_icon_labels() -> void:
+	for unit_id_key in strategy_status_icon_labels_by_unit_id.keys():
+		_remove_strategy_status_icon_label(String(unit_id_key))
+	strategy_status_icon_labels_by_unit_id.clear()
+
+
+func _tick_strategy_status_effects_for_side(side: String) -> void:
+	for unit_state in _get_alive_deployed_unit_states_for_side(side):
+		unit_state.tick_status_effects()
+	_refresh_formation_slot_guides()
+	_refresh_strategy_status_icon_labels()
+
+
+func _consume_confused_ally_turn_if_needed() -> bool:
+	if current_phase != PHASE_ALLY_TURN:
+		return false
+	if active_unit_state == null or active_unit_state.side != "ally":
+		return false
+	if not active_unit_state.is_alive() or _has_ally_unit_acted(active_unit_state):
+		return false
+	if not _is_unit_confused(active_unit_state):
+		return false
+	_append_battle_log("%s은 혼란 상태로 행동할 수 없습니다." % active_unit_state.display_name)
+	_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(active_unit_state), "혼란", STRATEGY_EFFECT_COLOR)
+	_mark_ally_unit_acted(active_unit_state)
+	_update_ally_ready_frames()
+	_refresh_formation_slot_guides()
+	if _is_battle_result_finalized():
+		_set_phase(PHASE_ALLY_TURN)
+		return true
+	_set_phase(PHASE_ENEMY_TURN)
+	_append_battle_log("적군 턴")
+	_play_enemy_turn_demo()
+	return true
 
 
 func _get_unique_skill_range(caster_state: BattleUnitState, skill_data: Dictionary) -> int:
@@ -2383,6 +2734,8 @@ func _finalize_unique_skill_action(caster_state: BattleUnitState, skill_data: Di
 	_hide_all_move_dust_sprites()
 	_set_all_unit_group_modulates(Color.WHITE)
 	_clear_attack_target_selection()
+	_clear_strategy_targeting_state()
+	_hide_strategy_range_overlay()
 	_clear_pending_move_snapshot()
 	_clear_auto_action_flags()
 	_set_unique_skill_cooldown(caster_state, int(skill_data.get("cooldown_turns", 0)))
@@ -2421,6 +2774,8 @@ func _set_phase(new_phase: String) -> void:
 			turn_banner.text = "공격 대상 선택 · BATTLE %d" % battle_round
 		PHASE_UNIQUE_SKILL_TARGET_SELECT:
 			turn_banner.text = "고유특기 대상 선택 · BATTLE %d" % battle_round
+		PHASE_STRATEGY_SELECT:
+			turn_banner.text = "책략 대상 선택 · BATTLE %d" % battle_round
 		_:
 			turn_banner.text = "처리 중"
 
@@ -2437,7 +2792,7 @@ func _set_phase(new_phase: String) -> void:
 	if end_turn_button != null:
 		end_turn_button.disabled = not can_issue_ally_command
 	_refresh_auto_battle_button_state(can_issue_ally_command)
-	if current_phase == PHASE_FACING_SELECT or current_phase == PHASE_ATTACK_SELECT or current_phase == PHASE_UNIQUE_SKILL_TARGET_SELECT:
+	if current_phase == PHASE_FACING_SELECT or current_phase == PHASE_ATTACK_SELECT or current_phase == PHASE_UNIQUE_SKILL_TARGET_SELECT or current_phase == PHASE_STRATEGY_SELECT:
 		basic_attack_button.disabled = true
 		move_button.disabled = true
 		if wait_button != null:
@@ -2452,6 +2807,8 @@ func _set_phase(new_phase: String) -> void:
 	_update_ally_ready_frames()
 	_refresh_floating_ally_command_panel()
 	_refresh_formation_slot_guides()
+	if current_phase == PHASE_ALLY_TURN and not is_demo_animating:
+		call_deferred("_consume_confused_ally_turn_if_needed")
 	if current_phase == PHASE_ALLY_TURN and is_full_auto_battle_enabled and not is_demo_animating:
 		call_deferred("_tick_full_auto_battle_if_needed")
 
@@ -2473,6 +2830,9 @@ func _configure_floating_ally_command_panel() -> void:
 		floating_unique_skill_button.tooltip_text = ""
 	if floating_tactics_button != null:
 		floating_tactics_button.disabled = true
+		floating_tactics_button.text = STRATEGY_NAME
+		floating_tactics_button.tooltip_text = "지력 80 이상 필요"
+		floating_tactics_button.set_meta("strategy_id", STRATEGY_ID)
 	for button in [
 		floating_basic_attack_button,
 		floating_unique_skill_button,
@@ -2587,7 +2947,12 @@ func _refresh_floating_ally_command_panel() -> void:
 			floating_unique_skill_button.text = "고유특기"
 		floating_unique_skill_button.tooltip_text = ""
 	if floating_tactics_button != null:
-		floating_tactics_button.disabled = true
+		floating_tactics_button.disabled = not can_issue_ally_command or not _can_use_strategy(active_unit_state)
+		floating_tactics_button.text = STRATEGY_NAME
+		if active_unit_state != null and active_unit_state.intelligence < STRATEGY_BASIC_INTELLIGENCE:
+			floating_tactics_button.tooltip_text = "지력 80 이상 필요"
+		else:
+			floating_tactics_button.tooltip_text = ""
 	_position_floating_ally_command_panel()
 	floating_ally_command_panel.visible = true
 
@@ -2635,8 +3000,10 @@ func _end_ally_turn_by_wait() -> void:
 
 	_clear_move_target_selection()
 	_clear_attack_target_selection()
+	_clear_strategy_targeting_state()
 	_hide_move_range_overlay()
 	_hide_attack_range_overlay()
+	_hide_strategy_range_overlay()
 	_hide_facing_selection_panel()
 	if move_highlight != null:
 		move_highlight.visible = false
@@ -2978,8 +3345,10 @@ func _configure_formation_guide_slot(slot_id: String) -> void:
 	if status_label != null:
 		status_label.visible = false
 		status_label.text = ""
-		status_label.add_theme_font_size_override("font_size", 1)
-		status_label.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0, 0.0))
+		status_label.add_theme_font_size_override("font_size", 12)
+		status_label.add_theme_color_override("font_color", Color(0.46, 1.0, 0.86, 1.0))
+		status_label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.9))
+		status_label.add_theme_constant_override("outline_size", 2)
 	var troop_icon_rect := root.get_node_or_null("TroopIconRect") as TextureRect
 	if troop_icon_rect != null:
 		troop_icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -3153,7 +3522,11 @@ func _show_unit_closeup_for_ally(unit_state: BattleUnitState) -> void:
 	if closeup_troop_label != null:
 		closeup_troop_label.text = "병력 %d / %d" % [unit_state.current_troops, unit_state.max_troops]
 	if closeup_status_label != null:
-		closeup_status_label.text = _get_unit_action_status_text(unit_state)
+		var strategy_status_text := _get_strategy_status_icon_text(unit_state)
+		if strategy_status_text == "":
+			closeup_status_label.text = _get_unit_action_status_text(unit_state)
+		else:
+			closeup_status_label.text = "%s · %s" % [_get_unit_action_status_text(unit_state), strategy_status_text]
 
 	if unit_closeup_tween != null:
 		unit_closeup_tween.kill()
@@ -3215,8 +3588,9 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 		else:
 			hp_label.text = "병력 -"
 	if status_label != null:
-		status_label.visible = false
-		status_label.text = ""
+		var status_text := _get_strategy_status_icon_text(unit_state)
+		status_label.text = status_text
+		status_label.visible = status_text != ""
 	if portrait != null:
 		var portrait_path := String(hero_entry.get("battlefield_portrait_path", ""))
 		portrait.texture = _load_texture_or_null(portrait_path)
@@ -3762,6 +4136,8 @@ func _play_active_ally_turn_pulse(unit_state: BattleUnitState) -> void:
 func _get_unit_action_status_text(unit_state: BattleUnitState) -> String:
 	if unit_state == null or not unit_state.is_alive():
 		return "DOWN"
+	if _is_unit_confused(unit_state):
+		return "CONFUSED"
 	if _has_ally_unit_acted(unit_state):
 		return "DONE"
 	if unit_state.has_moved:
@@ -3780,10 +4156,15 @@ func _handle_right_click_cancel() -> void:
 	if current_phase == PHASE_UNIQUE_SKILL_TARGET_SELECT:
 		_cancel_unique_skill_target_select_mode()
 		return
+	if current_phase == PHASE_STRATEGY_SELECT:
+		_cancel_strategy_target_select_mode()
+		return
 	if current_phase == PHASE_ALLY_TURN:
 		_clear_move_target_selection()
 		_clear_attack_target_selection()
 		_clear_unique_skill_targeting_state()
+		_clear_strategy_targeting_state()
+		_hide_strategy_range_overlay()
 		_clear_transient_battle_highlights()
 		_refresh_move_target_feedback()
 		_show_move_range_overlay_for_active_unit()
@@ -3922,6 +4303,12 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 		_return_to_ally_turn()
 		return
 	current_enemy_ai_actor_state = enemy_actor_state
+	if _is_unit_confused(enemy_actor_state):
+		_append_battle_log("%s은 혼란 상태로 행동할 수 없습니다." % enemy_actor_state.display_name)
+		_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(enemy_actor_state), "혼란", STRATEGY_EFFECT_COLOR)
+		_mark_enemy_unit_acted(enemy_actor_state)
+		_return_to_ally_turn()
+		return
 	var immediate_attack_target := _find_best_auto_attack_target(enemy_actor_state)
 	if immediate_attack_target != null and _can_auto_kill_target(enemy_actor_state, immediate_attack_target):
 		_play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state, immediate_attack_target)
@@ -6322,6 +6709,30 @@ func _spawn_buff_number_fx(target_pos: Vector2, text: String) -> void:
 	tween.chain().tween_callback(label.queue_free)
 
 
+func _spawn_strategy_text_fx(target_pos: Vector2, text: String, color: Color) -> void:
+	if battle_fx_root == null:
+		return
+	var label := Label.new()
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 26)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.94))
+	label.add_theme_constant_override("outline_size", 4)
+	label.size = Vector2(170.0, 58.0)
+	label.position = target_pos + Vector2(-85.0, -128.0)
+	label.z_index = 36
+	battle_fx_root.add_child(label)
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "position", label.position + Vector2(0.0, -28.0), 0.78).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "modulate:a", 0.0, 0.78).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(label.queue_free)
+
+
 func _start_unique_skill_camera_shake(effect_type: String) -> void:
 	if main_camera == null:
 		return
@@ -6371,6 +6782,8 @@ func _start_new_round() -> void:
 	_reset_enemy_action_locks_for_new_round()
 	_tick_unique_skill_cooldowns_for_side("ally")
 	_tick_unique_skill_cooldowns_for_side("enemy")
+	_tick_strategy_status_effects_for_side("ally")
+	_tick_strategy_status_effects_for_side("enemy")
 	_append_battle_log("BATTLE %d 시작" % battle_round)
 	_try_deploy_reinforce_01_pair()
 	_try_deploy_city_reinforce_02_pair()
@@ -6461,6 +6874,11 @@ func _hide_unique_skill_range_overlay() -> void:
 		cell.visible = false
 
 
+func _hide_strategy_range_overlay() -> void:
+	for cell in move_range_cells:
+		cell.visible = false
+
+
 func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
 	_hide_unique_skill_range_overlay()
 	if caster_state == null or battle_grid_controller == null:
@@ -6504,6 +6922,54 @@ func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data:
 		marker_rect.position = marker_world_pos - (marker_size * 0.5)
 		marker_rect.size = marker_size
 		marker_rect.color = UNIQUE_SKILL_TARGET_OVERLAY_COLOR
+		marker_rect.visible = true
+		index += 1
+
+
+func _show_strategy_range_overlay(caster_state: BattleUnitState) -> void:
+	_hide_strategy_range_overlay()
+	if caster_state == null or battle_grid_controller == null:
+		return
+	var cell_size := battle_grid_controller.get_cell_size()
+	if cell_size.x <= 0.0 or cell_size.y <= 0.0:
+		return
+
+	var target_cells: Array[Vector2i] = []
+	for target_state in _get_strategy_targets(caster_state):
+		target_cells.append(target_state.grid_cell)
+	var range_cells: Array[Vector2i] = []
+	for range_cell in battle_grid_controller.get_tiles_in_range(caster_state.grid_cell, _get_strategy_range(caster_state)):
+		if battle_grid_controller.is_in_bounds(range_cell):
+			range_cells.append(range_cell)
+
+	var index := 0
+	for cell in range_cells:
+		if index >= move_range_cells.size():
+			break
+		var world_pos := battle_grid_controller.grid_to_world(cell)
+		if not _is_move_range_overlay_rect_inside_visual_board(world_pos, cell_size):
+			continue
+
+		var rect := move_range_cells[index]
+		rect.position = world_pos - (cell_size * 0.5)
+		rect.size = cell_size
+		rect.color = STRATEGY_RANGE_OVERLAY_COLOR
+		rect.visible = true
+		index += 1
+
+	for target_cell in target_cells:
+		if index >= move_range_cells.size():
+			break
+		if not range_cells.has(target_cell):
+			continue
+		var marker_world_pos := battle_grid_controller.grid_to_world(target_cell)
+		if not _is_move_range_overlay_rect_inside_visual_board(marker_world_pos, cell_size):
+			continue
+		var marker_size := cell_size * STRATEGY_TARGET_MARKER_SCALE
+		var marker_rect := move_range_cells[index]
+		marker_rect.position = marker_world_pos - (marker_size * 0.5)
+		marker_rect.size = marker_size
+		marker_rect.color = STRATEGY_TARGET_OVERLAY_COLOR
 		marker_rect.visible = true
 		index += 1
 
@@ -6633,6 +7099,7 @@ func _create_demo_unit_states() -> void:
 		"max_troops": int(ALLY_DEMO_HP),
 		"attack": 30,
 		"defense": 12,
+		"intelligence": 92,
 		"move_range": 3,
 		"attack_range": 3,
 		"grid_cell": Vector2i.ZERO,
@@ -6660,6 +7127,7 @@ func _create_demo_unit_states() -> void:
 		"max_troops": 60,
 		"attack": 16,
 		"defense": 12,
+		"intelligence": 96,
 		"move_range": 3,
 		"attack_range": 1,
 		"grid_cell": Vector2i.ZERO,
@@ -6687,6 +7155,7 @@ func _create_demo_unit_states() -> void:
 		"max_troops": 72,
 		"attack": 22,
 		"defense": 13,
+		"intelligence": 84,
 		"move_range": 3,
 		"attack_range": 1,
 		"grid_cell": Vector2i.ZERO,
@@ -6714,6 +7183,7 @@ func _create_demo_unit_states() -> void:
 		"max_troops": 64,
 		"attack": 19,
 		"defense": 11,
+		"intelligence": 78,
 		"move_range": 3,
 		"attack_range": 3,
 		"grid_cell": Vector2i.ZERO,
@@ -6741,6 +7211,7 @@ func _create_demo_unit_states() -> void:
 		"max_troops": 62,
 		"attack": 25,
 		"defense": 12,
+		"intelligence": 88,
 		"move_range": 3,
 		"attack_range": 2,
 		"grid_cell": Vector2i.ZERO,
@@ -6768,6 +7239,7 @@ func _create_demo_unit_states() -> void:
 		"max_troops": int(ENEMY_DEMO_HP),
 		"attack": 34,
 		"defense": 16,
+		"intelligence": 76,
 		"move_range": 3,
 		"attack_range": 1,
 		"grid_cell": Vector2i.ZERO,
@@ -6795,6 +7267,7 @@ func _create_demo_unit_states() -> void:
 		"max_troops": 80,
 		"attack": 24,
 		"defense": 14,
+		"intelligence": 55,
 		"move_range": 3,
 		"attack_range": 1,
 		"grid_cell": Vector2i.ZERO,
@@ -6822,6 +7295,7 @@ func _create_demo_unit_states() -> void:
 		"max_troops": 76,
 		"attack": 26,
 		"defense": 15,
+		"intelligence": 72,
 		"move_range": 3,
 		"attack_range": 1,
 		"grid_cell": Vector2i.ZERO,
@@ -6849,6 +7323,7 @@ func _create_demo_unit_states() -> void:
 		"max_troops": 68,
 		"attack": 20,
 		"defense": 12,
+		"intelligence": 86,
 		"move_range": 3,
 		"attack_range": 3,
 		"grid_cell": Vector2i.ZERO,
@@ -6876,6 +7351,7 @@ func _create_demo_unit_states() -> void:
 		"max_troops": 66,
 		"attack": 25,
 		"defense": 13,
+		"intelligence": 98,
 		"move_range": 3,
 		"attack_range": 2,
 		"grid_cell": Vector2i.ZERO,
@@ -8710,6 +9186,8 @@ func _is_active_ally_action_available() -> bool:
 		return false
 	if not active_unit_state.is_alive():
 		return false
+	if _is_unit_confused(active_unit_state):
+		return false
 	return not _has_ally_unit_acted(active_unit_state)
 
 
@@ -8727,6 +9205,7 @@ func _is_active_ally_locked() -> bool:
 		or current_phase == PHASE_FACING_SELECT
 		or current_phase == PHASE_ATTACK_SELECT
 		or current_phase == PHASE_UNIQUE_SKILL_TARGET_SELECT
+		or current_phase == PHASE_STRATEGY_SELECT
 	)
 
 
@@ -8767,6 +9246,9 @@ func _cleanup_dead_units() -> void:
 			_append_battle_log("%s 전멸" % unit_state.display_name)
 			if selected_attack_target_state == unit_state:
 				_clear_attack_target_selection()
+			if strategy_targeting_caster_state == unit_state:
+				_clear_strategy_targeting_state()
+				_hide_strategy_range_overlay()
 			if pending_move_snapshot_unit_state == unit_state:
 				_clear_pending_move_snapshot()
 			if active_unit_state == unit_state:

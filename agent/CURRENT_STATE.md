@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune`
+`v0.67y Web Strategy Port MVP`
 
 ## Current Implementation Step
+- `v0.67y Web Strategy Port MVP`
 - `v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune`
 - `v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix`
 - `v0.67x-7-hotfix2 Defeat Toast 3s + Hakikjin Range Sync`
@@ -45,6 +46,11 @@ SamWar_BattleLab
 - Formation guide cards now use compact name / troop / troop-icon / troop-type layout.
 - Formation guide status text is removed and active/reserve distinction is style-only.
 - Current battle-screen MVP UX is locked around formation guides + mini log + bottom command bar + floating command panel.
+- Floating `책략` command is enabled for eligible ally units with intelligence-based range, success rate, and outcome tiers.
+- Manual 책략 uses cyan range cells and cyan valid-target markers, then applies `혼란` or `동요` status on success.
+- `혼란` skips the affected unit's action; `동요` is MVP status/log/icon only.
+- Unit markers and formation guide status labels now show compact strategy status icons while active/reserve styling remains unchanged.
+- Enemy/auto 책략 use is deferred to `v0.67y-2 Strategy AI/Auto Expansion`.
 - Current battle's `10` heroes now have `hero_id`-based unique skill registry entries.
 - Ally manual unique skill use is enabled from the floating command panel.
 - Floating unique skill button hover no longer shows duplicate tooltip text over the button.

@@ -2,6 +2,12 @@
 
 ## 2026-05-25
 
+### v0.67y Web Strategy Port MVP
+- Enabled the floating `책략` command for manual ally units with intelligence `80+`.
+- Added strategy mode, cyan range/valid target markers, success/failure resolve, mini-log entries, and floating effects.
+- Added `혼란` / `동요` status storage and compact unit/formation status icons.
+- `혼란` skips affected ally/enemy actions; enemy/auto strategy casting is deferred.
+
 ### v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune
 - Tuned defeat-retreat toast hold from `3.0s` to `1.5s` for single and queued exits.
 - Reduced the scene-authored toast panel / portrait bounds and lowered runtime name / dialogue font sizes.

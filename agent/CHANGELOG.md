@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.67y Web Strategy Port MVP
+- Ported the web single `strategy` command into the floating `책략` button for manual ally use.
+- Added intelligence-based strategy range / tier / success-rate / outcome helpers and cyan range + valid-target markers.
+- Added `혼란` / `동요` status storage, max-turn refresh, compact unit/formation status icons, floating effects, and mini-log entries.
+- `혼란` now skips affected ally/enemy actions; enemy/auto strategy casting is deferred to `v0.67y-2 Strategy AI/Auto Expansion`.
+
 ## v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune
 - Tuned ally defeat and enemy retreat toast hold time from `3.0s` to `1.5s`, including queued exits.
 - Reduced the defeat-retreat toast panel, portrait, name text, and dialogue text for a less intrusive battle-screen footprint.

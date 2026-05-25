@@ -1,19 +1,19 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune`
-
-## Priority 1
 `v0.67y Web Strategy Port MVP`
 
+## Priority 1
+`v0.67y-2 Strategy AI/Auto Expansion`
+
 Goal:
-- turn the floating `책략` placeholder into the next small battle command surface
+- allow enemy AI and full-auto allies to use the existing single `strategy` command when stable
 
 ## Priority 2
-`v0.67y-2 Tactics Fire / Defense Expansion`
+`v0.67y-2 Strategy Status Polish`
 
 Goal:
-- expand Tactics MVP with fire / defense behaviors after the first tactics command surface is stable
+- polish persistent status icon placement, labels, and any future `동요` gameplay effect
 
 ## Priority 3
 `v0.68 Terrain Block Layer MVP`
@@ -22,6 +22,10 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67y Web Strategy Port MVP` is complete.
+- Enabled the floating `책략` command for eligible manual allies with intelligence-based range, success rate, and outcome tiers.
+- Added cyan strategy range/target markers, success/failure resolve, mini-log entries, floating effects, and compact unit/formation `혼란` / `동요` status icons.
+- `혼란` now skips affected ally/enemy actions; enemy/auto strategy use remains deferred to `v0.67y-2 Strategy AI/Auto Expansion`.
 - `v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune` is complete.
 - Defeat-retreat toasts now hold for `1.5s`, keep elapsed logs, and use a smaller panel / portrait / text layout.
 - `v0.67x-7-hotfix3 Defeat Toast Actual 3s Hold Fix` is complete.
