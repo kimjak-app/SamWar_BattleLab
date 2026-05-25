@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67z-2 Deployment Anchor Source Unification`
+`v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 ## Priority 1
 `v0.68 Battlefield Final Size Expansion`
@@ -22,6 +22,10 @@ Goal:
 - only if needed, convert the currently registry-bound click/UI overlay attachments into direct scene children after the layout contract is proven stable
 
 ## Completed / Archived Context
+- `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch` is complete.
+- Battlefield status badges now use the facing indicator line as their placement source instead of a fixed right-side offset.
+- Left-facing units place badges to the right of the arrow, right-facing units place badges to the left, and up/down facings choose the near side of the arrow/portrait line.
+- 김작 F6 visual QA remains: confirm status badges stay near the arrow for 좌→우 / 우→좌 units and do not fully overlap hero faces.
 - `v0.67z-2 Deployment Anchor Source Unification` is complete.
 - Runtime deployment markers now sync from scene-authored `Slot` / `UnitVisualRoot` anchors before state creation and marker-to-grid-cell sync.
 - `UnitMarker` nodes remain in the scene as compatibility sync targets, while manual layout control should happen through the slot/root visual anchors.

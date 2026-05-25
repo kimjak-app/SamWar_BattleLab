@@ -66,6 +66,11 @@ const STATUS_BADGE_ATTACK_DOWN_COLOR := Color(0.92, 0.36, 0.26, 0.82)
 const STATUS_BADGE_DEFENSE_DOWN_COLOR := Color(0.66, 0.58, 0.78, 0.82)
 const STATUS_BADGE_CONFUSION_COLOR := Color(0.48, 0.92, 1.0, 0.82)
 const STATUS_BADGE_SHAKE_COLOR := Color(1.0, 0.76, 0.28, 0.82)
+const STATUS_BADGE_WIDTH := 34.0
+const STATUS_BADGE_HEIGHT := 36.0
+const STATUS_BADGE_GAP := 2.0
+const STATUS_BADGE_ARROW_GAP := 6.0
+const STATUS_BADGE_ARROW_Y_NUDGE := -4.0
 const DEFEND_HEAL_TEXT_COLOR := Color(0.62, 1.0, 0.58, 0.94)
 const FORMATION_STATUS_TEXT_COLOR := Color(0.74, 0.86, 0.94, 0.85)
 const FORMATION_STATUS_OUTLINE_COLOR := Color(0.02, 0.03, 0.04, 0.62)
@@ -2164,7 +2169,7 @@ func _refresh_strategy_status_icon_labels() -> void:
 			badge_root = _create_strategy_status_icon_label()
 			strategy_status_icon_labels_by_unit_id[unit_state.unit_id] = badge_root
 		_sync_strategy_status_icon_label_children(badge_root, status_entries)
-		badge_root.position = battle_fx_root.to_local(_get_visual_anchor_position_for_unit(unit_state) + Vector2(24.0, -72.0))
+		badge_root.position = battle_fx_root.to_local(_get_strategy_status_badge_position_for_unit(unit_state, badge_root.size))
 		badge_root.visible = true
 	for unit_id_key in strategy_status_icon_labels_by_unit_id.keys():
 		var unit_id := String(unit_id_key)
@@ -2175,7 +2180,7 @@ func _refresh_strategy_status_icon_labels() -> void:
 func _create_strategy_status_icon_label() -> Control:
 	var root := Control.new()
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.size = Vector2(118.0, 36.0)
+	root.size = Vector2(STATUS_BADGE_WIDTH, STATUS_BADGE_HEIGHT)
 	root.z_index = 37
 	battle_fx_root.add_child(root)
 	return root
@@ -2184,8 +2189,6 @@ func _create_strategy_status_icon_label() -> Control:
 func _sync_strategy_status_icon_label_children(root: Control, status_entries: Array[Dictionary]) -> void:
 	if root == null:
 		return
-	var badge_width := 34.0
-	var badge_gap := 2.0
 	while root.get_child_count() < status_entries.size():
 		var child_label := Label.new()
 		child_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -2194,11 +2197,11 @@ func _sync_strategy_status_icon_label_children(root: Control, status_entries: Ar
 		child_label.add_theme_font_size_override("font_size", 24)
 		child_label.add_theme_color_override("font_outline_color", STATUS_BADGE_OUTLINE_COLOR)
 		child_label.add_theme_constant_override("outline_size", 5)
-		child_label.size = Vector2(badge_width, 36.0)
+		child_label.size = Vector2(STATUS_BADGE_WIDTH, STATUS_BADGE_HEIGHT)
 		root.add_child(child_label)
 	var entry_count := status_entries.size()
-	var total_width := (badge_width * float(entry_count)) + (badge_gap * float(maxi(entry_count - 1, 0)))
-	var start_x := maxf((root.size.x - total_width) * 0.5, 0.0)
+	var total_width := (STATUS_BADGE_WIDTH * float(entry_count)) + (STATUS_BADGE_GAP * float(maxi(entry_count - 1, 0)))
+	root.size = Vector2(maxf(total_width, STATUS_BADGE_WIDTH), STATUS_BADGE_HEIGHT)
 	for child_index in range(root.get_child_count()):
 		var child_label := root.get_child(child_index) as Label
 		if child_label == null:
@@ -2208,9 +2211,37 @@ func _sync_strategy_status_icon_label_children(root: Control, status_entries: Ar
 			continue
 		var entry := status_entries[child_index]
 		child_label.text = String(entry.get("badge", ""))
-		child_label.position = Vector2(start_x + float(child_index) * (badge_width + badge_gap), 0.0)
+		child_label.position = Vector2(float(child_index) * (STATUS_BADGE_WIDTH + STATUS_BADGE_GAP), 0.0)
 		child_label.add_theme_color_override("font_color", _get_status_display_color_for_entry(entry))
 		child_label.visible = child_label.text != ""
+
+
+func _get_strategy_status_badge_position_for_unit(unit_state: BattleUnitState, badge_size: Vector2) -> Vector2:
+	if unit_state == null:
+		return Vector2.ZERO
+	var facing_anchor := _get_facing_indicator_world_position_for_unit(unit_state)
+	if facing_anchor == Vector2.ZERO:
+		facing_anchor = _get_visual_anchor_position_for_unit(unit_state) + Vector2(-18.0, -100.0)
+	var normalized_facing := _get_unit_facing(unit_state)
+	match normalized_facing:
+		FACING_LEFT:
+			return facing_anchor + Vector2(STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
+		FACING_RIGHT:
+			return facing_anchor + Vector2(-badge_size.x - STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
+		FACING_UP, FACING_DOWN:
+			var visual_anchor := _get_visual_anchor_position_for_unit(unit_state)
+			if facing_anchor.x <= visual_anchor.x:
+				return facing_anchor + Vector2(STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
+			return facing_anchor + Vector2(-badge_size.x - STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
+		_:
+			return facing_anchor + Vector2(STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
+
+
+func _get_facing_indicator_world_position_for_unit(unit_state: BattleUnitState) -> Vector2:
+	var facing_indicator := _get_facing_indicator_for_unit(unit_state)
+	if facing_indicator == null:
+		return Vector2.ZERO
+	return get_viewport().get_canvas_transform().affine_inverse() * facing_indicator.global_position
 
 
 func _remove_strategy_status_icon_label(unit_id: String) -> void:

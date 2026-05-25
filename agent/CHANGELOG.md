@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.67z-3 Strategy Status Badge Near Facing Arrow Patch
+- Changed battlefield status badge placement from a fixed right-side unit offset to a facing-indicator-based position.
+- Left-facing units now place status badges to the right of the arrow, while right-facing units place them to the left.
+- Up/down facings choose the near side of the arrow/portrait line so badges stay visually attached to the unit.
+- Kept status text, colors, strategy effects, defend effects, marker/slot structure, and battlefield size unchanged.
+
 ## v0.67z-2 Deployment Anchor Source Unification
 - Synced all active `5v5` deployment `UnitMarker` nodes from scene-authored `Slot` / `UnitVisualRoot` anchors before demo state creation and marker-to-grid-cell sync.
 - Added slot-id based helpers for resolving unit markers, portrait markers, visual roots, portraits, and visual anchors without hardcoded new coordinates.

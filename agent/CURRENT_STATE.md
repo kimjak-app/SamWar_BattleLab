@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67z-2 Deployment Anchor Source Unification`
+`v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 ## Current Implementation Step
+- `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - `v0.67z-2 Deployment Anchor Source Unification`
 - `v0.67z Unit Visual Attachment / Manual Layout Control Patch`
 - `v0.67y-3 Web Defend Command + Formation Status Layout Guard`
@@ -91,6 +92,7 @@ SamWar_BattleLab
 - `UnitMarker` and `PortraitMarker` nodes are retained as compatibility runtime sync targets; they are not the manual layout source of truth for the active `5v5` visual slots.
 - Click areas remain scene-level `Area2D` nodes for compatibility, but their runtime positions are now applied from the `UnitVisualSlot` registry with root-relative global positioning.
 - READY frames, facing indicators, and status badges remain UI/FX layer overlays, but they resolve from the same slot-synced visual anchor instead of independent fixed placement.
+- Battlefield status badges now position from the facing indicator line instead of a fixed right-side unit offset, keeping defense/buff/debuff/confusion/shake icons close to the arrow and portrait line.
 - Unique skill readiness, target collection, manual resolve, and auto/enemy value gates now share range-limited valid target checks.
 - Ally buff unique skills resolve immediately after range preview and only affect valid in-range, unbuffed allies.
 - Manual buff unique skills now show a short range / valid target preview before auto-resolving.
@@ -167,7 +169,8 @@ SamWar_BattleLab
 3. Later unit visual polish can refine scene hierarchy if direct reparenting becomes necessary.
 
 ## Known / Deferred
-- Codex Godot headless verification for `v0.67z-2` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm the scene load path.
+- 김작 F6 visual QA should confirm left-facing and right-facing units keep status badges near the facing arrow, with up/down facings still close to the portrait/arrow line and not fully overlapping the face.
+- Codex Godot headless verification for `v0.67z-3` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm the scene load path.
 - 김작 F6 visual QA still needs to confirm that moving `Slots/AllyReinforce01Slot` or its `AllyReinforce01UnitVisualRoot` changes 김유신's ROUND 2 spawn position and keeps HP/troop/portrait/click/facing/status alignment natural.
 - Detailed unique skill range balance can still be revisited after more skill data is final.
 - `SkillInfoPanel` remains deferred until unique skill text/effect wording is stable.

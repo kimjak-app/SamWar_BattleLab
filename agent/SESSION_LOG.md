@@ -2,6 +2,14 @@
 
 ## 2026-05-25
 
+### v0.67z-3 Strategy Status Badge Near Facing Arrow Patch
+- Audited `_refresh_strategy_status_icon_labels()` and replaced the fixed visual-anchor right offset with `_get_strategy_status_badge_position_for_unit()`.
+- Status badges now anchor near the facing indicator line: left-facing badges sit to the arrow's right, right-facing badges sit to the arrow's left, and up/down facings choose the near arrow/portrait side.
+- Reduced badge root width to the actual active icon strip width so single/multiple badges do not inherit the old wide spacing.
+- Kept status/effect logic, defend logic, marker/slot structure, and battlefield size unchanged.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+- Left 김작 F6 QA for 좌→우 / 우→좌 / up/down badge distance and hero-face overlap checks.
+
 ### v0.67z-2 Deployment Anchor Source Unification
 - Added deployment-marker sync from scene-authored `Slot` / `UnitVisualRoot` anchors before demo state creation and marker-to-grid-cell sync.
 - Resolved all `10` active visual slot IDs through shared marker/root/portrait helper functions instead of adding unit-specific coordinate patches.

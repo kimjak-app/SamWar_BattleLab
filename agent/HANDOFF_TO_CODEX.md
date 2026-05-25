@@ -20,7 +20,7 @@ At the start of a new Codex session, always follow the `SamWar_BattleLab 자동 
 ## Stable Baseline
 Current stable baseline is:
 
-`v0.67z-2 Deployment Anchor Source Unification`
+`v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -79,6 +79,7 @@ Do not modify casually:
 - `UnitMarker` nodes are retained as compatibility runtime sync targets and should not be deleted casually.
 - Token, portrait, HP bar, troop label, shadow, move dust, click area, READY frame, facing indicator, and status badges are treated as one root-relative visual attachment set through the `UnitVisualSlot` registry.
 - Click areas remain scene-level `Area2D` nodes for compatibility, and READY/facing/status overlays remain UI/FX layer nodes, but all are positioned from the slot-synced visual anchor.
+- Battlefield status badges now place near the facing indicator line instead of using a fixed right-side offset; left-facing units put badges to the arrow's right, right-facing units put badges to the arrow's left, and up/down facings choose the near arrow/portrait side.
 - Ally manual unique skill use now requires range/target selection before resolution.
 - Unique skill range overlays are purple and valid target cells are gold/orange.
 - Unique skill toast backdrop is hidden/transparent so only the cutin image and skill name read visually.
@@ -98,11 +99,12 @@ Do not modify casually:
 - Detailed unique skill range balance remains deferred.
 
 ## Recommended Next Task
-- Current baseline: `v0.67z-2 Deployment Anchor Source Unification`
+- Current baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Next candidates:
   - `v0.68 Battlefield Final Size Expansion`
   - `v0.68b Terrain Passability Layer MVP`
 - 김작 F6 visual QA remains before treating layout feel as final: move `Slots/AllyReinforce01Slot` and confirm ROUND 2 김유신 spawn plus HP/troop/portrait/click/facing/status alignment.
+- 김작 F6 visual QA also remains for status badge placement: confirm 좌→우 / 우→좌 / up/down units keep badges near the arrow and not fully over the hero face.
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.
