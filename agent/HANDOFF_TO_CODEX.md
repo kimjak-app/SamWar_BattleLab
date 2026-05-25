@@ -8,6 +8,14 @@ Before making changes, read:
 5. `agent/HANDOFF_TO_CODEX.md`
 
 Follow the autonomous execution and commit rules in `agent/CODEX_WORKFLOW_RULES.md`, including autonomous commit when the task provides an explicit commit message.
+At the start of a new Codex session, always follow the `SamWar_BattleLab 자동 작업 권한 헤더` section in `agent/CODEX_WORKFLOW_RULES.md`.
+
+## Local Godot Execution Path
+- Godot 실행파일은 설치형이 아닐 수 있으며 PATH에 없을 수 있다.
+- Codex는 Godot 검증 전 `agent/LOCAL_ENV.md`가 존재하는지 확인한다.
+- `agent/LOCAL_ENV.md`가 있으면 그 안의 Godot 실행 경로를 우선 사용한다.
+- PATH의 `godot`, `godot4`, `godot_console`, `godot4_console` 명령이 실패해도, LOCAL_ENV.md의 exe 경로가 있으면 그 경로로 headless 검증을 시도한다.
+- `agent/LOCAL_ENV.md`는 김작 로컬 PC 전용 파일이며 git commit 대상이 아니다.
 
 ## Stable Baseline
 Current stable baseline is:
