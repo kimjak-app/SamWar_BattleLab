@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67y-1 Strategy Status UX + Result Sequence Fix`
+`v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish`
 
 ## Priority 1
 `v0.67y-2 Strategy AI/Auto Expansion`
@@ -22,6 +22,10 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish` is complete.
+- Strategy statuses and unique-skill buffs now share one status display formatter for unit badges and formation-guide status lines.
+- Unique-skill attack / defense buffs display with `◆`, while confusion / shake keep icon-style unit badges and readable formation text.
+- Defeat-retreat toast hide polish now uses a short `0.18s` fade with a subtle scale/position settle after hold.
 - `v0.67y-1 Strategy Status UX + Result Sequence Fix` is complete.
 - Defeat-retreat toasts now hold `1.2s` for the first exit and `1.0s` for queued follow-ups, with result toast display deferred until the exit queue finishes.
 - Enlarged battlefield strategy status icons, added formation-guide status summaries, and enlarged troop icons to `52 x 52`.

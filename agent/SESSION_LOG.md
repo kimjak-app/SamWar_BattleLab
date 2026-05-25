@@ -2,6 +2,12 @@
 
 ## 2026-05-25
 
+### v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish
+- Unified status rendering so strategy statuses and unique-skill buffs share one unit badge / formation text formatter.
+- Added `◆` display for active unique-skill attack / defense buffs on unit badges and formation guide status lines.
+- Changed confusion unit badge to icon-style `N` and kept shake as `⚠N`, with badges closer to the unit.
+- Polished defeat-retreat toast disappearance with a short fade / slight settle after hold.
+
 ### v0.67y-1 Strategy Status UX + Result Sequence Fix
 - Retuned defeat-retreat toast hold to `1.2s` first / `1.0s` queued and deferred result toast display until the exit queue is done.
 - Enlarged battlefield strategy status icons and added formation-guide status summaries below troop counts.

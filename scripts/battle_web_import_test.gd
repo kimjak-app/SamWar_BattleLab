@@ -113,7 +113,7 @@ const DEFEAT_RETREAT_TOAST_FIRST_DURATION := 1.2
 const DEFEAT_RETREAT_TOAST_QUEUED_DURATION := 1.0
 const DEFEAT_RETREAT_TOAST_DEBUG_LOGS := true
 const DEFEAT_RETREAT_TOAST_FADE_IN_DURATION := 0.12
-const DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION := 0.16
+const DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION := 0.18
 const DEFEAT_RETREAT_TOAST_MAX_QUEUE_PER_CLEANUP := 3
 const DEFEAT_RETREAT_TOAST_SIZE := Vector2(440.0, 104.0)
 const ENEMY_RETREAT_TOAST_LINES := [
@@ -651,6 +651,7 @@ var dead_unit_ids: Dictionary = {}
 var unique_skill_cooldowns_by_hero_id: Dictionary = {}
 var unique_skill_attack_buff_turns_by_unit_id: Dictionary = {}
 var unique_skill_attack_buff_bonus_by_unit_id: Dictionary = {}
+var unique_skill_defense_buff_bonus_by_unit_id: Dictionary = {}
 var strategy_status_icon_labels_by_unit_id: Dictionary = {}
 var is_manual_unique_skill_preview_pending := false
 var battle_round := 1
@@ -1259,6 +1260,7 @@ func reset_demo_state() -> void:
 	unique_skill_cooldowns_by_hero_id.clear()
 	unique_skill_attack_buff_turns_by_unit_id.clear()
 	unique_skill_attack_buff_bonus_by_unit_id.clear()
+	unique_skill_defense_buff_bonus_by_unit_id.clear()
 	has_deployed_reinforce_01 = false
 	has_deployed_reinforce_02 = false
 	_build_capacity_slot_metadata_registry()
@@ -1997,27 +1999,69 @@ func _is_unit_confused(unit_state: BattleUnitState) -> bool:
 	return unit_state != null and unit_state.has_status_effect(STATUS_CONFUSION)
 
 
-func _get_strategy_status_icon_text(unit_state: BattleUnitState) -> String:
+func _get_unit_status_display_entries(unit_state: BattleUnitState) -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
 	if unit_state == null or not unit_state.is_alive():
-		return ""
-	var icons := PackedStringArray()
+		return entries
 	if unit_state.has_status_effect(STATUS_CONFUSION):
-		icons.append("혼%d" % unit_state.get_status_turns(STATUS_CONFUSION))
+		var turns := unit_state.get_status_turns(STATUS_CONFUSION)
+		entries.append({
+			"id": STATUS_CONFUSION,
+			"badge": "%d" % turns,
+			"summary": "혼란 %d턴 · 행동불가" % turns,
+		})
 	if unit_state.has_status_effect(STATUS_SHAKE):
-		icons.append("⚠%d" % unit_state.get_status_turns(STATUS_SHAKE))
-	if icons.is_empty():
+		var turns := unit_state.get_status_turns(STATUS_SHAKE)
+		entries.append({
+			"id": STATUS_SHAKE,
+			"badge": "⚠%d" % turns,
+			"summary": ("⚠ 동요 %d턴 · 공/방 -10" % turns) + "%",
+		})
+	var attack_buff_bonus := _get_unique_skill_attack_buff_bonus(unit_state)
+	if attack_buff_bonus > 0:
+		entries.append({
+			"id": "unique_attack_buff",
+			"badge": "◆",
+			"summary": "◆ 공격+%d" % attack_buff_bonus,
+		})
+	var defense_buff_bonus := _get_unique_skill_defense_buff_bonus(unit_state)
+	if defense_buff_bonus > 0:
+		entries.append({
+			"id": "unique_defense_buff",
+			"badge": "◆",
+			"summary": "◆ 방어+%d" % defense_buff_bonus,
+		})
+	return entries
+
+
+func _get_unit_status_badge_text(unit_state: BattleUnitState) -> String:
+	var badges := PackedStringArray()
+	for entry in _get_unit_status_display_entries(unit_state):
+		var badge := String(entry.get("badge", ""))
+		if badge != "" and not badges.has(badge):
+			badges.append(badge)
+	if badges.is_empty():
 		return ""
-	return " ".join(icons)
+	return " ".join(badges)
+
+
+func _get_unit_status_summary_text(unit_state: BattleUnitState) -> String:
+	var summaries := PackedStringArray()
+	for entry in _get_unit_status_display_entries(unit_state):
+		var summary := String(entry.get("summary", ""))
+		if summary != "":
+			summaries.append(summary)
+	if summaries.is_empty():
+		return ""
+	return " / ".join(summaries)
+
+
+func _get_strategy_status_icon_text(unit_state: BattleUnitState) -> String:
+	return _get_unit_status_badge_text(unit_state)
 
 
 func _get_strategy_status_summary_text(unit_state: BattleUnitState) -> String:
-	if unit_state == null or not unit_state.is_alive():
-		return ""
-	if unit_state.has_status_effect(STATUS_CONFUSION):
-		return "혼란 %d턴 · 행동불가" % unit_state.get_status_turns(STATUS_CONFUSION)
-	if unit_state.has_status_effect(STATUS_SHAKE):
-		return ("⚠ 동요 %d턴 · 공/방 -10" % unit_state.get_status_turns(STATUS_SHAKE)) + "%"
-	return ""
+	return _get_unit_status_summary_text(unit_state)
 
 
 func _has_strategy_status_effect(unit_state: BattleUnitState, status_id: String) -> bool:
@@ -2051,7 +2095,7 @@ func _refresh_strategy_status_icon_labels() -> void:
 			label = _create_strategy_status_icon_label()
 			strategy_status_icon_labels_by_unit_id[unit_state.unit_id] = label
 		label.text = status_text
-		label.position = battle_fx_root.to_local(_get_visual_anchor_position_for_unit(unit_state) + Vector2(28.0, -92.0))
+		label.position = battle_fx_root.to_local(_get_visual_anchor_position_for_unit(unit_state) + Vector2(24.0, -72.0))
 		label.visible = true
 	for unit_id_key in strategy_status_icon_labels_by_unit_id.keys():
 		var unit_id := String(unit_id_key)
@@ -2554,13 +2598,15 @@ func _apply_unique_skill_self_defense_single(caster_state: BattleUnitState, skil
 	var damage := _get_directional_attack_damage(int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE)), caster_state, target_state)
 	var angle_type := _get_attack_angle_type(caster_state, target_state)
 	var applied := target_state.apply_damage(damage)
-	caster_state.defense += int(skill_data.get("defense_bonus", UNIQUE_SKILL_DEFENSE_BUFF))
+	var defense_bonus := int(skill_data.get("defense_bonus", UNIQUE_SKILL_DEFENSE_BUFF))
+	caster_state.defense += defense_bonus
+	_set_unique_skill_defense_buff_state(caster_state, defense_bonus)
 	_update_unit_visuals_from_state(target_state)
 	var target_pos := _get_visual_anchor_position_for_unit(target_state)
 	_spawn_hit_battle_dust_fx(target_pos)
 	_spawn_hit_spark_fx(target_pos)
 	_spawn_skill_damage_number_fx(target_pos, applied)
-	_spawn_buff_number_fx(_get_visual_anchor_position_for_unit(caster_state), "+방 %d" % int(skill_data.get("defense_bonus", UNIQUE_SKILL_DEFENSE_BUFF)))
+	_spawn_buff_number_fx(_get_visual_anchor_position_for_unit(caster_state), "+방 %d" % defense_bonus)
 	_append_attack_angle_log(angle_type)
 	_append_battle_log("%s에게 %d 피해" % [target_state.display_name, applied])
 
@@ -2723,12 +2769,42 @@ func _has_active_unique_skill_attack_buff(unit_state: BattleUnitState) -> bool:
 	return int(unique_skill_attack_buff_turns_by_unit_id.get(buff_key, 0)) > 0
 
 
+func _get_unique_skill_attack_buff_bonus(unit_state: BattleUnitState) -> int:
+	var buff_key := _get_unique_skill_attack_buff_key(unit_state)
+	if buff_key == "":
+		return 0
+	if int(unique_skill_attack_buff_turns_by_unit_id.get(buff_key, 0)) <= 0:
+		return 0
+	return maxi(int(unique_skill_attack_buff_bonus_by_unit_id.get(buff_key, 0)), 0)
+
+
 func _set_unique_skill_attack_buff_state(unit_state: BattleUnitState, bonus: int, turns: int) -> void:
 	var buff_key := _get_unique_skill_attack_buff_key(unit_state)
 	if buff_key == "":
 		return
 	unique_skill_attack_buff_bonus_by_unit_id[buff_key] = bonus
 	unique_skill_attack_buff_turns_by_unit_id[buff_key] = maxi(turns, 0)
+
+
+func _get_unique_skill_defense_buff_key(unit_state: BattleUnitState) -> String:
+	if unit_state == null or unit_state.unit_id == "":
+		return ""
+	return unit_state.unit_id
+
+
+func _get_unique_skill_defense_buff_bonus(unit_state: BattleUnitState) -> int:
+	var buff_key := _get_unique_skill_defense_buff_key(unit_state)
+	if buff_key == "":
+		return 0
+	return maxi(int(unique_skill_defense_buff_bonus_by_unit_id.get(buff_key, 0)), 0)
+
+
+func _set_unique_skill_defense_buff_state(unit_state: BattleUnitState, bonus: int) -> void:
+	var buff_key := _get_unique_skill_defense_buff_key(unit_state)
+	if buff_key == "":
+		return
+	var current_bonus := maxi(int(unique_skill_defense_buff_bonus_by_unit_id.get(buff_key, 0)), 0)
+	unique_skill_defense_buff_bonus_by_unit_id[buff_key] = maxi(current_bonus, bonus)
 
 
 func _tick_unique_skill_attack_buffs_for_side(side: String) -> void:
@@ -2748,6 +2824,8 @@ func _tick_unique_skill_attack_buffs_for_side(side: String) -> void:
 			unique_skill_attack_buff_bonus_by_unit_id.erase(buff_key)
 		else:
 			unique_skill_attack_buff_turns_by_unit_id[buff_key] = remaining
+	_refresh_formation_slot_guides()
+	_refresh_strategy_status_icon_labels()
 
 
 func _finalize_unique_skill_action(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
@@ -6185,7 +6263,8 @@ func _show_defeat_retreat_toast_snapshot(snapshot: Dictionary, hold_duration: fl
 	defeat_retreat_toast_tween.chain().tween_callback(_log_defeat_retreat_toast_hold_elapsed)
 	defeat_retreat_toast_tween.chain().set_parallel(true)
 	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 0.0, DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "position", desired_position + Vector2(0.0, 12.0), DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "scale", Vector2.ONE * 0.985, DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	defeat_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "position", desired_position + Vector2(0.0, 6.0), DEFEAT_RETREAT_TOAST_FADE_OUT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	defeat_retreat_toast_tween.chain().tween_callback(_finish_defeat_retreat_toast)
 
 

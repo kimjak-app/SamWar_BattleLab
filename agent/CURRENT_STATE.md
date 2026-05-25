@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67y-1 Strategy Status UX + Result Sequence Fix`
+`v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish`
 
 ## Current Implementation Step
+- `v0.67y-1-hotfix1 Unified Status Display + Toast Fade Polish`
 - `v0.67y-1 Strategy Status UX + Result Sequence Fix`
 - `v0.67y Web Strategy Port MVP`
 - `v0.67x-7-hotfix4 Defeat Toast Duration + Size Tune`
@@ -51,7 +52,8 @@ SamWar_BattleLab
 - Manual 책략 uses cyan range cells and cyan valid-target markers, then applies `혼란` or `동요` status on success.
 - `혼란` skips the affected unit's action, and status turns now decrease after the affected unit acts or skips.
 - `동요` applies a light attack/defense penalty through the shared directional damage helper.
-- Unit markers and formation guide status labels now show larger/readable strategy status icons and text while active/reserve styling remains unchanged.
+- Unit markers and formation guide status labels now use one shared status display formatter for strategy statuses and unique-skill buffs.
+- Unique-skill attack / defense buffs show `◆` unit badges and readable formation-guide status text.
 - Last-unit defeat/retreat toasts now finish before victory/defeat result toast display.
 - Enemy/auto 책략 use is deferred to `v0.67y-2 Strategy AI/Auto Expansion`.
 - Current battle's `10` heroes now have `hero_id`-based unique skill registry entries.
