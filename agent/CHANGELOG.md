@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.67y-2-hotfix1 Status Icon Readability Fix
+- Changed confusion unit badges from bare turn numbers to `◎N` so the status meaning remains visible.
+- Split status tones so defense `◆` uses steel blue and attack-up `▲` uses amber on battlefield badges and formation status lines.
+- Enlarged formation troop icons to `56 x 56` and strengthened troop-type text contrast for faster class reading.
+
 ## v0.67y-2 Web Defend Command Port + Status Icon Tone Polish
 - Replaced the floating panel move slot with a manual `방어` command while keeping direct move-click unchanged.
 - Added `is_defending` / defend last-action state, immediate action consume, defend floating text, and mini-log output.

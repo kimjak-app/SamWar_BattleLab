@@ -57,9 +57,15 @@ const STRATEGY_CAST_COLOR := Color(1.0, 0.86, 0.26, 1.0)
 const STRATEGY_SHAKE_ATTACK_MULTIPLIER := 0.9
 const STRATEGY_SHAKE_DEFENSE_DAMAGE_MULTIPLIER := 1.1
 const DEFEND_DAMAGE_MULTIPLIER := 0.62
-const STATUS_BADGE_COLOR := Color(0.46, 1.0, 0.86, 0.8)
+const STATUS_BADGE_COLOR := Color(0.62, 0.82, 0.96, 0.8)
 const STATUS_BADGE_OUTLINE_COLOR := Color(0.02, 0.03, 0.04, 0.62)
-const FORMATION_STATUS_TEXT_COLOR := Color(0.46, 1.0, 0.86, 0.85)
+const STATUS_BADGE_DEFENSE_COLOR := Color(0.52, 0.70, 0.90, 0.82)
+const STATUS_BADGE_ATTACK_UP_COLOR := Color(1.0, 0.70, 0.28, 0.84)
+const STATUS_BADGE_ATTACK_DOWN_COLOR := Color(0.92, 0.36, 0.26, 0.82)
+const STATUS_BADGE_DEFENSE_DOWN_COLOR := Color(0.66, 0.58, 0.78, 0.82)
+const STATUS_BADGE_CONFUSION_COLOR := Color(0.48, 0.92, 1.0, 0.82)
+const STATUS_BADGE_SHAKE_COLOR := Color(1.0, 0.76, 0.28, 0.82)
+const FORMATION_STATUS_TEXT_COLOR := Color(0.74, 0.86, 0.94, 0.85)
 const FORMATION_STATUS_OUTLINE_COLOR := Color(0.02, 0.03, 0.04, 0.62)
 const STATUS_CONFUSION := "confusion"
 const STATUS_SHAKE := "shake"
@@ -2012,7 +2018,7 @@ func _get_unit_status_display_entries(unit_state: BattleUnitState) -> Array[Dict
 		var turns := unit_state.get_status_turns(STATUS_CONFUSION)
 		entries.append({
 			"id": STATUS_CONFUSION,
-			"badge": "%d" % turns,
+			"badge": "◎%d" % turns,
 			"summary": "혼란 %d턴 · 행동불가" % turns,
 		})
 	if unit_state.has_status_effect(STATUS_SHAKE):
@@ -2067,6 +2073,34 @@ func _get_unit_status_summary_text(unit_state: BattleUnitState) -> String:
 	return " / ".join(summaries)
 
 
+func _get_status_display_color(status_id: String) -> Color:
+	match status_id:
+		"defend", "unique_defense_buff":
+			return STATUS_BADGE_DEFENSE_COLOR
+		"unique_attack_buff":
+			return STATUS_BADGE_ATTACK_UP_COLOR
+		"attack_down":
+			return STATUS_BADGE_ATTACK_DOWN_COLOR
+		"defense_down":
+			return STATUS_BADGE_DEFENSE_DOWN_COLOR
+		STATUS_CONFUSION:
+			return STATUS_BADGE_CONFUSION_COLOR
+		STATUS_SHAKE:
+			return STATUS_BADGE_SHAKE_COLOR
+		_:
+			return STATUS_BADGE_COLOR
+
+
+func _get_status_display_color_for_entry(entry: Dictionary) -> Color:
+	return _get_status_display_color(String(entry.get("id", "")))
+
+
+func _get_unit_status_summary_color(unit_state: BattleUnitState) -> Color:
+	for entry in _get_unit_status_display_entries(unit_state):
+		return _get_status_display_color_for_entry(entry)
+	return FORMATION_STATUS_TEXT_COLOR
+
+
 func _get_strategy_status_icon_text(unit_state: BattleUnitState) -> String:
 	return _get_unit_status_badge_text(unit_state)
 
@@ -2097,40 +2131,66 @@ func _refresh_strategy_status_icon_labels() -> void:
 		if unit_state == null or unit_state.unit_id == "":
 			continue
 		alive_unit_ids[unit_state.unit_id] = true
-		var status_text := _get_strategy_status_icon_text(unit_state)
-		if status_text == "":
+		var status_entries := _get_unit_status_display_entries(unit_state)
+		if status_entries.is_empty():
 			_remove_strategy_status_icon_label(unit_state.unit_id)
 			continue
-		var label := strategy_status_icon_labels_by_unit_id.get(unit_state.unit_id, null) as Label
-		if label == null or not is_instance_valid(label):
-			label = _create_strategy_status_icon_label()
-			strategy_status_icon_labels_by_unit_id[unit_state.unit_id] = label
-		label.text = status_text
-		label.position = battle_fx_root.to_local(_get_visual_anchor_position_for_unit(unit_state) + Vector2(24.0, -72.0))
-		label.visible = true
+		var badge_root := strategy_status_icon_labels_by_unit_id.get(unit_state.unit_id, null) as Control
+		if badge_root == null or not is_instance_valid(badge_root):
+			badge_root = _create_strategy_status_icon_label()
+			strategy_status_icon_labels_by_unit_id[unit_state.unit_id] = badge_root
+		_sync_strategy_status_icon_label_children(badge_root, status_entries)
+		badge_root.position = battle_fx_root.to_local(_get_visual_anchor_position_for_unit(unit_state) + Vector2(24.0, -72.0))
+		badge_root.visible = true
 	for unit_id_key in strategy_status_icon_labels_by_unit_id.keys():
 		var unit_id := String(unit_id_key)
 		if not bool(alive_unit_ids.get(unit_id, false)):
 			_remove_strategy_status_icon_label(unit_id)
 
 
-func _create_strategy_status_icon_label() -> Label:
-	var label := Label.new()
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 24)
-	label.add_theme_color_override("font_color", STATUS_BADGE_COLOR)
-	label.add_theme_color_override("font_outline_color", STATUS_BADGE_OUTLINE_COLOR)
-	label.add_theme_constant_override("outline_size", 5)
-	label.size = Vector2(78.0, 36.0)
-	label.z_index = 37
-	battle_fx_root.add_child(label)
-	return label
+func _create_strategy_status_icon_label() -> Control:
+	var root := Control.new()
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.size = Vector2(118.0, 36.0)
+	root.z_index = 37
+	battle_fx_root.add_child(root)
+	return root
+
+
+func _sync_strategy_status_icon_label_children(root: Control, status_entries: Array[Dictionary]) -> void:
+	if root == null:
+		return
+	var badge_width := 34.0
+	var badge_gap := 2.0
+	while root.get_child_count() < status_entries.size():
+		var child_label := Label.new()
+		child_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		child_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		child_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		child_label.add_theme_font_size_override("font_size", 24)
+		child_label.add_theme_color_override("font_outline_color", STATUS_BADGE_OUTLINE_COLOR)
+		child_label.add_theme_constant_override("outline_size", 5)
+		child_label.size = Vector2(badge_width, 36.0)
+		root.add_child(child_label)
+	var entry_count := status_entries.size()
+	var total_width := (badge_width * float(entry_count)) + (badge_gap * float(maxi(entry_count - 1, 0)))
+	var start_x := maxf((root.size.x - total_width) * 0.5, 0.0)
+	for child_index in range(root.get_child_count()):
+		var child_label := root.get_child(child_index) as Label
+		if child_label == null:
+			continue
+		if child_index >= entry_count:
+			child_label.visible = false
+			continue
+		var entry := status_entries[child_index]
+		child_label.text = String(entry.get("badge", ""))
+		child_label.position = Vector2(start_x + float(child_index) * (badge_width + badge_gap), 0.0)
+		child_label.add_theme_color_override("font_color", _get_status_display_color_for_entry(entry))
+		child_label.visible = child_label.text != ""
 
 
 func _remove_strategy_status_icon_label(unit_id: String) -> void:
-	var label := strategy_status_icon_labels_by_unit_id.get(unit_id, null) as Label
+	var label := strategy_status_icon_labels_by_unit_id.get(unit_id, null) as Control
 	if label != null and is_instance_valid(label):
 		label.queue_free()
 	strategy_status_icon_labels_by_unit_id.erase(unit_id)
@@ -3137,7 +3197,7 @@ func _on_defend_button_pressed() -> void:
 
 	active_unit_state.is_defending = true
 	active_unit_state.last_action = {"type": "defend"}
-	_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(active_unit_state), "방어", STATUS_BADGE_COLOR)
+	_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(active_unit_state), "방어", _get_status_display_color("defend"))
 	_append_battle_log("%s이 방어 태세를 취했습니다." % active_unit_state.display_name)
 	_mark_ally_unit_acted(active_unit_state)
 	_show_unit_closeup_for_ally(active_unit_state)
@@ -3507,27 +3567,30 @@ func _configure_formation_guide_slot(slot_id: String) -> void:
 	if hp_label != null:
 		hp_label.add_theme_font_size_override("font_size", 12)
 	if troop_type_label != null:
-		troop_type_label.add_theme_font_size_override("font_size", 11)
-		troop_type_label.add_theme_color_override("font_color", Color(0.86, 0.84, 0.8, 0.96))
+		troop_type_label.add_theme_font_size_override("font_size", 12)
+		troop_type_label.add_theme_color_override("font_color", Color(0.98, 0.93, 0.78, 1.0))
+		troop_type_label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.04, 0.84))
+		troop_type_label.add_theme_constant_override("outline_size", 2)
 	if status_label != null:
 		status_label.visible = false
 		status_label.text = ""
 		status_label.position = Vector2(66.0, 52.0)
-		status_label.size = Vector2(92.0, 18.0)
+		status_label.size = Vector2(88.0, 18.0)
 		status_label.add_theme_font_size_override("font_size", 9)
 		status_label.add_theme_color_override("font_color", FORMATION_STATUS_TEXT_COLOR)
 		status_label.add_theme_color_override("font_outline_color", FORMATION_STATUS_OUTLINE_COLOR)
 		status_label.add_theme_constant_override("outline_size", 2)
 	var troop_icon_rect := root.get_node_or_null("TroopIconRect") as TextureRect
 	if troop_icon_rect != null:
-		troop_icon_rect.position = Vector2(156.0, 6.0)
-		troop_icon_rect.size = Vector2(52.0, 52.0)
-		troop_icon_rect.custom_minimum_size = Vector2(52.0, 52.0)
+		troop_icon_rect.position = Vector2(154.0, 4.0)
+		troop_icon_rect.size = Vector2(56.0, 56.0)
+		troop_icon_rect.custom_minimum_size = Vector2(56.0, 56.0)
 		troop_icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		troop_icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		troop_icon_rect.modulate = Color(1.0, 0.98, 0.9, 1.0)
 	if troop_type_label != null:
-		troop_type_label.position = Vector2(156.0, 58.0)
-		troop_type_label.size = Vector2(52.0, 14.0)
+		troop_type_label.position = Vector2(154.0, 60.0)
+		troop_type_label.size = Vector2(56.0, 14.0)
 
 
 # v0.64p-hotfix Enemy Highlight Cleanup
@@ -3765,6 +3828,7 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 	if status_label != null:
 		var status_text := _get_strategy_status_summary_text(unit_state)
 		status_label.text = status_text
+		status_label.add_theme_color_override("font_color", _get_unit_status_summary_color(unit_state))
 		status_label.visible = status_text != ""
 	if portrait != null:
 		var portrait_path := String(hero_entry.get("battlefield_portrait_path", ""))

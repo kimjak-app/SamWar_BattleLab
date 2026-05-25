@@ -2,6 +2,11 @@
 
 ## 2026-05-25
 
+### v0.67y-2-hotfix1 Status Icon Readability Fix
+- Fixed confusion battlefield badges to render as `◎N` instead of bare numbers.
+- Separated defense `◆` and attack-up `▲` status colors into blue / amber tones across unit badges and formation status text.
+- Improved formation guide troop readability by enlarging troop icons to `56 x 56` and brightening / outlining troop-type labels.
+
 ### v0.67y-2 Web Defend Command Port + Status Icon Tone Polish
 - Reused the floating move button as `방어` and kept movement on direct move-click / bottom command paths.
 - Added manual defend resolve with `is_defending`, action consume, floating `방어`, and mini-log output.

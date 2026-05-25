@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67y-2 Web Defend Command Port + Status Icon Tone Polish`
+`v0.67y-2-hotfix1 Status Icon Readability Fix`
 
 ## Priority 1
 `v0.67y-3 Strategy AI/Auto Expansion`
@@ -22,6 +22,9 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67y-2-hotfix1 Status Icon Readability Fix` is complete.
+- Confusion unit badges now use `◎N` so turn counts never appear as bare numbers.
+- Defense `◆` and attack-up `▲` use clearly separated blue / amber tones, and formation troop icons are enlarged to `56 x 56` with stronger troop-type text.
 - `v0.67y-2 Web Defend Command Port + Status Icon Tone Polish` is complete.
 - Floating panel's former move slot now resolves manual `방어`, while direct move-click remains the movement path.
 - Defend stores `is_defending`, consumes the action, displays `◆ 방어 태세`, and reduces incoming damage through the existing directional damage helper.
