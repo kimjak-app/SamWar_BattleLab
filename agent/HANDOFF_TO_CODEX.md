@@ -20,7 +20,7 @@ At the start of a new Codex session, always follow the `SamWar_BattleLab 자동 
 ## Stable Baseline
 Current stable baseline is:
 
-`v0.67z Unit Visual Attachment / Manual Layout Control Patch`
+`v0.67z-2 Deployment Anchor Source Unification`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -75,7 +75,8 @@ Do not modify casually:
 - Ally manual unique skill use is enabled through `FloatingUniqueSkillButton`.
 - Floating unique skill hover tooltip text is intentionally suppressed; button text remains the visible label.
 - Formation guide cards include an enlarged `64 x 64` `UniqueSkillReadyIcon` for the currently usable active ally only.
-- Unit visual markers now sync from scene-authored `UnitVisualRoot` global movement at runtime start, so moving a unit slot/root in the Godot 2D editor moves the unit visual group and related click/UI overlays through one shared anchor.
+- Deployment markers now sync from scene-authored `Slot` / `UnitVisualRoot` anchors at runtime start and before demo state creation, so moving a unit slot/root in the Godot 2D editor changes the actual deployment marker/grid-cell source as well as the visual group.
+- `UnitMarker` nodes are retained as compatibility runtime sync targets and should not be deleted casually.
 - Token, portrait, HP bar, troop label, shadow, move dust, click area, READY frame, facing indicator, and status badges are treated as one root-relative visual attachment set through the `UnitVisualSlot` registry.
 - Click areas remain scene-level `Area2D` nodes for compatibility, and READY/facing/status overlays remain UI/FX layer nodes, but all are positioned from the slot-synced visual anchor.
 - Ally manual unique skill use now requires range/target selection before resolution.
@@ -97,10 +98,11 @@ Do not modify casually:
 - Detailed unique skill range balance remains deferred.
 
 ## Recommended Next Task
-- Current baseline: `v0.67z Unit Visual Attachment / Manual Layout Control Patch`
+- Current baseline: `v0.67z-2 Deployment Anchor Source Unification`
 - Next candidates:
   - `v0.68 Battlefield Final Size Expansion`
   - `v0.68b Terrain Passability Layer MVP`
+- 김작 F6 visual QA remains before treating layout feel as final: move `Slots/AllyReinforce01Slot` and confirm ROUND 2 김유신 spawn plus HP/troop/portrait/click/facing/status alignment.
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

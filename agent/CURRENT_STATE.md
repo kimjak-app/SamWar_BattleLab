@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67z Unit Visual Attachment / Manual Layout Control Patch`
+`v0.67z-2 Deployment Anchor Source Unification`
 
 ## Current Implementation Step
+- `v0.67z-2 Deployment Anchor Source Unification`
 - `v0.67z Unit Visual Attachment / Manual Layout Control Patch`
 - `v0.67y-3 Web Defend Command + Formation Status Layout Guard`
 - `v0.67y-2-hotfix1 Status Icon Readability Fix`
@@ -86,7 +87,8 @@ SamWar_BattleLab
 - Directional multipliers follow the web baseline: front `1.0`, side `1.15`, back `1.3`.
 - Formation guide unique-skill-ready icon display size is now `64 x 64`.
 - Formation guide troop icons are kept within-card at `46 x 46` display with stronger troop-type text while the `UniqueSkillReadyIcon` remains `64 x 64`.
-- Unit visual marker anchoring now syncs from scene-authored `UnitVisualRoot` global movement at runtime start, so moving a slot/root in the Godot 2D editor moves token, portrait, HP bar, troop label, shadow, move dust, click area, READY frame, facing indicator, and status badges together through the shared visual anchor.
+- Deployment marker anchoring now syncs from scene-authored `Slot` / `UnitVisualRoot` movement before demo state creation and marker-to-grid-cell sync, so moving a slot/root in the Godot 2D editor changes the actual runtime deployment source as well as token, portrait, HP bar, troop label, shadow, move dust, click area, READY frame, facing indicator, and status badges.
+- `UnitMarker` and `PortraitMarker` nodes are retained as compatibility runtime sync targets; they are not the manual layout source of truth for the active `5v5` visual slots.
 - Click areas remain scene-level `Area2D` nodes for compatibility, but their runtime positions are now applied from the `UnitVisualSlot` registry with root-relative global positioning.
 - READY frames, facing indicators, and status badges remain UI/FX layer overlays, but they resolve from the same slot-synced visual anchor instead of independent fixed placement.
 - Unique skill readiness, target collection, manual resolve, and auto/enemy value gates now share range-limited valid target checks.
@@ -165,6 +167,8 @@ SamWar_BattleLab
 3. Later unit visual polish can refine scene hierarchy if direct reparenting becomes necessary.
 
 ## Known / Deferred
+- Codex Godot headless verification for `v0.67z-2` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm the scene load path.
+- 김작 F6 visual QA still needs to confirm that moving `Slots/AllyReinforce01Slot` or its `AllyReinforce01UnitVisualRoot` changes 김유신's ROUND 2 spawn position and keeps HP/troop/portrait/click/facing/status alignment natural.
 - Detailed unique skill range balance can still be revisited after more skill data is final.
 - `SkillInfoPanel` remains deferred until unique skill text/effect wording is stable.
 - Tactics explanations and status icons belong to the Web Strategy Port MVP track.

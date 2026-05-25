@@ -794,6 +794,7 @@ var enemy_main_03_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 var enemy_reinforce_01_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 var enemy_reinforce_02_facing_indicator_layout_offset := Vector2(-18.0, -96.0)
 var unit_visual_slot_refs_by_id: Dictionary = {}
+var deployment_marker_base_world_positions_by_slot_id: Dictionary = {}
 
 @export var ally_unit_token_up_texture: Texture2D
 @export var ally_unit_token_down_texture: Texture2D
@@ -1111,7 +1112,7 @@ func _ready() -> void:
 	if main_camera != null:
 		main_camera_base_position = main_camera.position
 	_collect_move_range_cells()
-	_sync_unit_markers_to_scene_authored_visual_slots()
+	_sync_deployment_markers_from_scene_visual_anchors()
 	_capture_scene_authored_unit_layout_offsets()
 	_rebuild_unit_visual_slot_refs()
 	_build_capacity_slot_metadata_registry()
@@ -1278,6 +1279,7 @@ func reset_demo_state() -> void:
 	has_deployed_reinforce_01 = false
 	has_deployed_reinforce_02 = false
 	_build_capacity_slot_metadata_registry()
+	_sync_deployment_markers_from_scene_visual_anchors()
 	_hide_all_move_dust_sprites()
 	_set_visual_template_token_sprite_visibility(false)
 	acted_enemy_unit_ids.clear()
@@ -7798,46 +7800,123 @@ func _set_marker_world_position(marker: Marker2D, world_position: Vector2) -> vo
 		marker.global_position = world_position
 
 
+func _get_slot_side_for_scene_visual_slot_id(slot_id: String) -> String:
+	if slot_id.begins_with("enemy_"):
+		return "enemy"
+	return "ally"
+
+
+func _get_unit_marker_for_scene_visual_slot_id(slot_id: String) -> Marker2D:
+	match slot_id:
+		"ally_main":
+			return ally_unit_marker
+		"ally_support":
+			return ally_support_unit_marker
+		"ally_main_03":
+			return ally_main_03_unit_marker
+		"ally_reinforce_01":
+			return ally_reinforce_01_unit_marker
+		"ally_reinforce_02":
+			return ally_reinforce_02_unit_marker
+		"enemy_main":
+			return enemy_unit_marker
+		"enemy_support":
+			return enemy_support_unit_marker
+		"enemy_main_03":
+			return enemy_main_03_unit_marker
+		"enemy_reinforce_01":
+			return enemy_reinforce_01_unit_marker
+		"enemy_reinforce_02":
+			return enemy_reinforce_02_unit_marker
+		_:
+			return null
+
+
+func _get_portrait_marker_for_scene_visual_slot_id(slot_id: String) -> Marker2D:
+	match slot_id:
+		"ally_main":
+			return ally_portrait_marker
+		"ally_support":
+			return ally_support_portrait_marker
+		"ally_main_03":
+			return ally_main_03_portrait_marker
+		"ally_reinforce_01":
+			return ally_reinforce_01_portrait_marker
+		"ally_reinforce_02":
+			return ally_reinforce_02_portrait_marker
+		"enemy_main":
+			return enemy_portrait_marker
+		"enemy_support":
+			return enemy_support_portrait_marker
+		"enemy_main_03":
+			return enemy_main_03_portrait_marker
+		"enemy_reinforce_01":
+			return enemy_reinforce_01_portrait_marker
+		"enemy_reinforce_02":
+			return enemy_reinforce_02_portrait_marker
+		_:
+			return null
+
+
+func _get_visual_root_for_scene_visual_slot_id(slot_id: String) -> Node2D:
+	var slot_visuals := _get_visual_slots_dictionary_fallback_for_slot_id(slot_id)
+	return slot_visuals.get("root") as Node2D
+
+
+func _get_portrait_for_scene_visual_slot_id(slot_id: String) -> CanvasItem:
+	var slot_visuals := _get_visual_slots_dictionary_fallback_for_slot_id(slot_id)
+	return slot_visuals.get("portrait") as CanvasItem
+
+
+func _get_deployment_marker_base_world_position(slot_id: String, unit_marker: Marker2D) -> Vector2:
+	if unit_marker == null:
+		return Vector2.ZERO
+	if not deployment_marker_base_world_positions_by_slot_id.has(slot_id):
+		deployment_marker_base_world_positions_by_slot_id[slot_id] = unit_marker.global_position
+	var marker_world_position: Vector2 = deployment_marker_base_world_positions_by_slot_id.get(slot_id, unit_marker.global_position)
+	return marker_world_position
+
+
+func _get_fallback_visual_anchor_for_deployment_marker(slot_id: String, unit_marker: Marker2D, side: String) -> Vector2:
+	if unit_marker == null:
+		return Vector2.ZERO
+	var marker_world_position := _get_deployment_marker_base_world_position(slot_id, unit_marker)
+	if side == "enemy":
+		return _get_enemy_visual_anchor_from_position(marker_world_position)
+	return _get_ally_visual_anchor_from_position(marker_world_position)
+
+
 func _get_scene_authored_visual_anchor(root: Node2D, fallback_anchor: Vector2) -> Vector2:
 	if root == null:
 		return fallback_anchor
 	return fallback_anchor + root.global_position
 
 
-func _sync_scene_authored_unit_slot(
-	unit_marker: Marker2D,
-	portrait_marker: Marker2D,
-	root: Node2D,
-	portrait: CanvasItem,
-	side: String
-) -> void:
+func _get_scene_visual_anchor_for_slot_id(slot_id: String) -> Vector2:
+	var unit_marker := _get_unit_marker_for_scene_visual_slot_id(slot_id)
 	if unit_marker == null:
-		return
-	var fallback_anchor := unit_marker.global_position
-	if side == "enemy":
-		fallback_anchor = _get_enemy_visual_anchor_from_position(unit_marker.global_position)
-	else:
-		fallback_anchor = _get_ally_visual_anchor_from_position(unit_marker.global_position)
-	var visual_anchor := _get_scene_authored_visual_anchor(root, fallback_anchor)
-	if side == "enemy":
-		_set_marker_world_position(unit_marker, visual_anchor - ENEMY_VISUAL_ANCHOR_OFFSET)
-	else:
-		_set_marker_world_position(unit_marker, visual_anchor - ALLY_VISUAL_ANCHOR_OFFSET)
-	if portrait_marker != null and portrait != null:
-		_set_marker_world_position(portrait_marker, _get_canvas_item_world_position(portrait))
+		return Vector2.ZERO
+	var side := _get_slot_side_for_scene_visual_slot_id(slot_id)
+	var fallback_anchor := _get_fallback_visual_anchor_for_deployment_marker(slot_id, unit_marker, side)
+	var root := _get_visual_root_for_scene_visual_slot_id(slot_id)
+	return _get_scene_authored_visual_anchor(root, fallback_anchor)
 
 
-func _sync_unit_markers_to_scene_authored_visual_slots() -> void:
-	_sync_scene_authored_unit_slot(ally_unit_marker, ally_portrait_marker, ally_unit_visual_root, ally_portrait_badge, "ally")
-	_sync_scene_authored_unit_slot(ally_support_unit_marker, ally_support_portrait_marker, ally_support_unit_visual_root, ally_support_portrait_badge, "ally")
-	_sync_scene_authored_unit_slot(ally_main_03_unit_marker, ally_main_03_portrait_marker, ally_main_03_unit_visual_root, ally_main_03_portrait_badge, "ally")
-	_sync_scene_authored_unit_slot(ally_reinforce_01_unit_marker, ally_reinforce_01_portrait_marker, ally_reinforce_01_unit_visual_root, ally_reinforce_01_portrait_badge, "ally")
-	_sync_scene_authored_unit_slot(ally_reinforce_02_unit_marker, ally_reinforce_02_portrait_marker, ally_reinforce_02_unit_visual_root, ally_reinforce_02_portrait_badge, "ally")
-	_sync_scene_authored_unit_slot(enemy_unit_marker, enemy_portrait_marker, enemy_unit_visual_root, enemy_portrait_badge, "enemy")
-	_sync_scene_authored_unit_slot(enemy_support_unit_marker, enemy_support_portrait_marker, enemy_support_unit_visual_root, enemy_support_portrait_badge, "enemy")
-	_sync_scene_authored_unit_slot(enemy_main_03_unit_marker, enemy_main_03_portrait_marker, enemy_main_03_unit_visual_root, enemy_main_03_portrait_badge, "enemy")
-	_sync_scene_authored_unit_slot(enemy_reinforce_01_unit_marker, enemy_reinforce_01_portrait_marker, enemy_reinforce_01_unit_visual_root, enemy_reinforce_01_portrait_badge, "enemy")
-	_sync_scene_authored_unit_slot(enemy_reinforce_02_unit_marker, enemy_reinforce_02_portrait_marker, enemy_reinforce_02_unit_visual_root, enemy_reinforce_02_portrait_badge, "enemy")
+func _sync_deployment_markers_from_scene_visual_anchors() -> void:
+	for slot_id in VISUAL_SLOT_CACHE_IDS:
+		var unit_marker := _get_unit_marker_for_scene_visual_slot_id(slot_id)
+		if unit_marker == null:
+			continue
+		var side := _get_slot_side_for_scene_visual_slot_id(slot_id)
+		var visual_anchor := _get_scene_visual_anchor_for_slot_id(slot_id)
+		if side == "enemy":
+			_set_marker_world_position(unit_marker, visual_anchor - ENEMY_VISUAL_ANCHOR_OFFSET)
+		else:
+			_set_marker_world_position(unit_marker, visual_anchor - ALLY_VISUAL_ANCHOR_OFFSET)
+		var portrait_marker := _get_portrait_marker_for_scene_visual_slot_id(slot_id)
+		var portrait := _get_portrait_for_scene_visual_slot_id(slot_id)
+		if portrait_marker != null and portrait != null:
+			_set_marker_world_position(portrait_marker, _get_canvas_item_world_position(portrait))
 	if ally_unit_marker != null:
 		current_ally_unit_position = ally_unit_marker.position
 

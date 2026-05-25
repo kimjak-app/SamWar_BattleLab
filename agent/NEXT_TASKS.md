@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67z Unit Visual Attachment / Manual Layout Control Patch`
+`v0.67z-2 Deployment Anchor Source Unification`
 
 ## Priority 1
 `v0.68 Battlefield Final Size Expansion`
@@ -22,6 +22,10 @@ Goal:
 - only if needed, convert the currently registry-bound click/UI overlay attachments into direct scene children after the layout contract is proven stable
 
 ## Completed / Archived Context
+- `v0.67z-2 Deployment Anchor Source Unification` is complete.
+- Runtime deployment markers now sync from scene-authored `Slot` / `UnitVisualRoot` anchors before state creation and marker-to-grid-cell sync.
+- `UnitMarker` nodes remain in the scene as compatibility sync targets, while manual layout control should happen through the slot/root visual anchors.
+- 김작 F6 visual QA remains: move `Slots/AllyReinforce01Slot` and confirm ROUND 2 김유신 spawn plus HP/troop/portrait/click/facing/status alignment.
 - `v0.67z Unit Visual Attachment / Manual Layout Control Patch` is complete.
 - Runtime start now syncs unit markers from scene-authored `UnitVisualRoot` global movement, allowing slot/root movement in the Godot 2D editor to become the shared visual anchor.
 - Token, portrait, HP bar, troop label, shadow, move dust, click area, READY frame, facing indicator, and status badges now resolve through the slot-synced visual anchor.
