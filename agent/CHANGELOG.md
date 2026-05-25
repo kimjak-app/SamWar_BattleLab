@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.67x-7-hotfix2 Defeat Toast 3s + Hakikjin Range Sync
+- Increased ally defeat and enemy retreat toast hold time to `3.0s`, including queued sequential exits.
+- Changed 학익진 포격 damage targets to use the same caster-range valid-target helper as range overlay and target markers.
+- Kept snapshot toast queue, unique skill cooldown/action flow, and full-auto progression non-blocking.
+
 ## v0.67x-7-hotfix1 Defeat Toast Hold Duration 2s
 - Increased ally defeat and enemy retreat toast hold time to `2.0s`, including sequential queued exits.
 - Kept the existing snapshot queue non-blocking for cleanup, result checks, full-auto flow, and turn progression.

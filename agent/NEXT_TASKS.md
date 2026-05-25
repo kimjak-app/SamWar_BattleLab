@@ -1,10 +1,10 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x-7-hotfix1 Defeat Toast Hold Duration 2s`
+`v0.67x-7-hotfix2 Defeat Toast 3s + Hakikjin Range Sync`
 
 ## Priority 1
-`v0.67y Tactics MVP`
+`v0.67y Web Strategy Port MVP`
 
 Goal:
 - turn the floating `책략` placeholder into the next small battle command surface
@@ -22,6 +22,8 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67x-7-hotfix2 Defeat Toast 3s + Hakikjin Range Sync` is complete.
+- Ally/enemy battle-exit toasts now hold for `3.0s`, and 학익진 표시/피해 대상 now share the same caster-range target helper.
 - `v0.67x-7-hotfix1 Defeat Toast Hold Duration 2s` is complete.
 - Ally defeat and enemy retreat toasts now hold for `2.0s`, including sequential queued exits, while the snapshot queue remains non-blocking.
 - `v0.67x-7 Defeat Retreat Toast Actual Apply` is complete.

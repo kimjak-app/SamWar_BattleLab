@@ -90,8 +90,8 @@ const UNIQUE_SKILL_SPLASH_DAMAGE := 18
 const UNIQUE_SKILL_ATTACK_BUFF := 6
 const UNIQUE_SKILL_DEFENSE_BUFF := 4
 const UNIQUE_SKILL_ATTACK_BUFF_TURNS := 3
-const DEFEAT_RETREAT_TOAST_DURATION := 2.0
-const DEFEAT_RETREAT_TOAST_CHAIN_DURATION := 2.0
+const DEFEAT_RETREAT_TOAST_DURATION := 3.0
+const DEFEAT_RETREAT_TOAST_CHAIN_DURATION := 3.0
 const DEFEAT_RETREAT_TOAST_MAX_QUEUE_PER_CLEANUP := 3
 const DEFEAT_RETREAT_TOAST_SIZE := Vector2(560.0, 132.0)
 const ENEMY_RETREAT_TOAST_LINES := [
@@ -1817,12 +1817,8 @@ func _get_best_unique_skill_target_for_actor(caster_state: BattleUnitState, skil
 func _get_best_unique_skill_aoe_target(caster_state: BattleUnitState, skill_data: Dictionary, candidates: Array[BattleUnitState]) -> BattleUnitState:
 	var best_target: BattleUnitState = null
 	var best_score := -999999
-	var radius := int(skill_data.get("radius", 2))
+	var hit_count := _get_unique_skill_cannon_aoe_targets(caster_state, skill_data).size()
 	for target_state in candidates:
-		var hit_count := 0
-		for nearby_state in candidates:
-			if get_unit_grid_distance(target_state, nearby_state) <= radius:
-				hit_count += 1
 		var score := hit_count * 10000
 		score += maxi(0, 200 - get_unit_grid_distance(caster_state, target_state))
 		score += maxi(0, int(target_state.max_hp) - int(target_state.current_hp))
@@ -1871,12 +1867,15 @@ func _count_adjacent_unique_skill_splash_targets(caster_state: BattleUnitState, 
 func _get_unique_skill_aoe_hit_count(caster_state: BattleUnitState, skill_data: Dictionary, primary_target: BattleUnitState) -> int:
 	if caster_state == null or primary_target == null:
 		return 0
-	var radius := int(skill_data.get("radius", 2))
-	var hit_count := 0
-	for target_state in _get_alive_deployed_unit_states_for_side(_get_opposing_side(caster_state.side)):
-		if get_unit_grid_distance(primary_target, target_state) <= radius:
-			hit_count += 1
-	return hit_count
+	return _get_unique_skill_cannon_aoe_targets(caster_state, skill_data).size()
+
+
+func _get_unique_skill_cannon_aoe_targets(caster_state: BattleUnitState, skill_data: Dictionary) -> Array[BattleUnitState]:
+	var targets: Array[BattleUnitState] = []
+	if String(skill_data.get("effect_type", "")) != "cannon_aoe":
+		return targets
+	targets = _get_unique_skill_valid_targets(caster_state, skill_data)
+	return targets
 
 
 func _get_unique_skill_buff_candidate_count_for_actor(caster_state: BattleUnitState, skill_data: Dictionary) -> int:
@@ -2132,16 +2131,13 @@ func _apply_unique_skill_effect(caster_state: BattleUnitState, skill_data: Dicti
 
 
 func _apply_unique_skill_cannon_aoe(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
-	var primary_target := _find_unique_skill_enemy_target(caster_state)
-	if primary_target == null:
+	var target_states := _get_unique_skill_cannon_aoe_targets(caster_state, skill_data)
+	if target_states.is_empty():
 		_append_battle_log("고유특기 대상 없음")
 		return
-	var radius := int(skill_data.get("radius", 2))
 	var damage := int(skill_data.get("power", UNIQUE_SKILL_AOE_DAMAGE))
 	var hit_count := 0
-	for target_state in _get_alive_deployed_unit_states_for_side(_get_opposing_side(caster_state.side)):
-		if get_unit_grid_distance(primary_target, target_state) > radius:
-			continue
+	for target_state in target_states:
 		var applied := target_state.apply_damage(damage)
 		if applied <= 0:
 			continue
