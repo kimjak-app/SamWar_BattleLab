@@ -91,6 +91,8 @@ const UNIQUE_SKILL_ATTACK_BUFF := 6
 const UNIQUE_SKILL_DEFENSE_BUFF := 4
 const UNIQUE_SKILL_ATTACK_BUFF_TURNS := 3
 const ENEMY_RETREAT_TOAST_DURATION := 0.95
+const ENEMY_RETREAT_TOAST_CHAIN_DURATION := 0.65
+const ENEMY_RETREAT_TOAST_MAX_QUEUE_PER_CLEANUP := 3
 const ENEMY_RETREAT_TOAST_SIZE := Vector2(560.0, 132.0)
 const ENEMY_RETREAT_TOAST_LINES := [
 	"아... 내 능력은 여기까지인가!",
@@ -635,6 +637,8 @@ var unique_skill_toast_tween: Tween = null
 var is_unique_skill_presenting := false
 var unique_skill_texture_cache: Dictionary = {}
 var enemy_retreat_toast_tween: Tween = null
+var is_enemy_retreat_toast_playing := false
+var enemy_retreat_toast_queue: Array[Dictionary] = []
 var shown_enemy_retreat_toast_unit_ids: Dictionary = {}
 var camera_shake_tween: Tween = null
 var main_camera_base_position := Vector2.ZERO
@@ -943,10 +947,10 @@ var unit_visual_slot_refs_by_id: Dictionary = {}
 @onready var unique_skill_ink_burst: ColorRect = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillInkBurst") as ColorRect
 @onready var unique_skill_cutin_image: TextureRect = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillCutinImage") as TextureRect
 @onready var unique_skill_name_label: Label = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillNameLabel") as Label
-@onready var enemy_retreat_toast_root: Control = get_node_or_null("BattleUI/EnemyRetreatToastRoot") as Control
-@onready var enemy_retreat_portrait: TextureRect = get_node_or_null("BattleUI/EnemyRetreatToastRoot/EnemyRetreatPortrait") as TextureRect
-@onready var enemy_retreat_name_label: Label = get_node_or_null("BattleUI/EnemyRetreatToastRoot/EnemyRetreatNameLabel") as Label
-@onready var enemy_retreat_line_label: Label = get_node_or_null("BattleUI/EnemyRetreatToastRoot/EnemyRetreatLineLabel") as Label
+@onready var enemy_retreat_toast_root: Control = get_node_or_null("EnemyRetreatToastLayer/EnemyRetreatToastRoot") as Control
+@onready var enemy_retreat_portrait: TextureRect = get_node_or_null("EnemyRetreatToastLayer/EnemyRetreatToastRoot/EnemyRetreatPortrait") as TextureRect
+@onready var enemy_retreat_name_label: Label = get_node_or_null("EnemyRetreatToastLayer/EnemyRetreatToastRoot/EnemyRetreatNameLabel") as Label
+@onready var enemy_retreat_line_label: Label = get_node_or_null("EnemyRetreatToastLayer/EnemyRetreatToastRoot/EnemyRetreatLineLabel") as Label
 @onready var unit_closeup_panel: Panel = get_node_or_null("BattleUI/UnitCloseupPanel") as Panel
 @onready var closeup_hero_portrait: TextureRect = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupHeroPortrait") as TextureRect
 @onready var closeup_troop_image: TextureRect = get_node_or_null("BattleUI/UnitCloseupPanel/CloseupTroopImage") as TextureRect
@@ -1238,6 +1242,8 @@ func reset_demo_state() -> void:
 	is_unique_skill_presenting = false
 	is_manual_unique_skill_preview_pending = false
 	_clear_unique_skill_targeting_state()
+	is_enemy_retreat_toast_playing = false
+	enemy_retreat_toast_queue.clear()
 	shown_enemy_retreat_toast_unit_ids.clear()
 	pending_battle_toasts.clear()
 	is_battle_toast_playing = false
@@ -5663,14 +5669,52 @@ func _hide_enemy_retreat_toast() -> void:
 		enemy_retreat_portrait.texture = null
 
 
-func _show_enemy_retreat_toast(unit_state: BattleUnitState) -> void:
+func _make_enemy_retreat_toast_snapshot(unit_state: BattleUnitState) -> Dictionary:
 	if unit_state == null or unit_state.side != "enemy":
+		return {}
+	return {
+		"unit_id": unit_state.unit_id,
+		"display_name": unit_state.display_name,
+		"line": _get_enemy_retreat_line(unit_state),
+		"portrait": _get_retreat_toast_portrait_texture(unit_state),
+	}
+
+
+func _queue_enemy_retreat_toast_snapshot(snapshot: Dictionary) -> void:
+	if snapshot.is_empty():
 		return
 	if enemy_retreat_toast_root == null:
+		return
+	enemy_retreat_toast_queue.append(snapshot.duplicate(true))
+	print("[RETREAT_TOAST] queued name=%s queue=%d" % [
+		str(snapshot.get("display_name", "")),
+		enemy_retreat_toast_queue.size()
+	])
+	call_deferred("_play_next_enemy_retreat_toast")
+
+
+func _play_next_enemy_retreat_toast() -> void:
+	if is_enemy_retreat_toast_playing:
+		return
+	if enemy_retreat_toast_root == null:
+		enemy_retreat_toast_queue.clear()
+		return
+	if enemy_retreat_toast_queue.is_empty():
+		return
+	var snapshot: Dictionary = enemy_retreat_toast_queue.pop_front()
+	var hold_duration := ENEMY_RETREAT_TOAST_DURATION
+	if not enemy_retreat_toast_queue.is_empty():
+		hold_duration = ENEMY_RETREAT_TOAST_CHAIN_DURATION
+	_show_enemy_retreat_toast_snapshot(snapshot, hold_duration)
+
+
+func _show_enemy_retreat_toast_snapshot(snapshot: Dictionary, hold_duration: float) -> void:
+	if snapshot.is_empty() or enemy_retreat_toast_root == null:
 		return
 	if enemy_retreat_toast_tween != null:
 		enemy_retreat_toast_tween.kill()
 		enemy_retreat_toast_tween = null
+	is_enemy_retreat_toast_playing = true
 	var viewport_size := get_viewport_rect().size
 	var desired_position := Vector2(
 		maxf(12.0, (viewport_size.x - ENEMY_RETREAT_TOAST_SIZE.x) * 0.5),
@@ -5683,22 +5727,29 @@ func _show_enemy_retreat_toast(unit_state: BattleUnitState) -> void:
 	enemy_retreat_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	enemy_retreat_toast_root.scale = Vector2.ONE * 0.92
 	if enemy_retreat_portrait != null:
-		enemy_retreat_portrait.texture = _get_retreat_toast_portrait_texture(unit_state)
+		enemy_retreat_portrait.texture = snapshot.get("portrait", null) as Texture2D
 		enemy_retreat_portrait.visible = enemy_retreat_portrait.texture != null
 	if enemy_retreat_name_label != null:
-		enemy_retreat_name_label.text = unit_state.display_name
+		enemy_retreat_name_label.text = str(snapshot.get("display_name", "적장"))
 	if enemy_retreat_line_label != null:
-		enemy_retreat_line_label.text = _get_enemy_retreat_line(unit_state)
+		enemy_retreat_line_label.text = str(snapshot.get("line", "후퇴한다!"))
 	enemy_retreat_toast_tween = create_tween()
 	enemy_retreat_toast_tween.set_parallel(true)
 	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 1.0, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	enemy_retreat_toast_tween.set_parallel(false)
-	enemy_retreat_toast_tween.tween_interval(ENEMY_RETREAT_TOAST_DURATION)
+	enemy_retreat_toast_tween.tween_interval(maxf(0.1, hold_duration))
 	enemy_retreat_toast_tween.set_parallel(true)
 	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	enemy_retreat_toast_tween.tween_property(enemy_retreat_toast_root, "position", desired_position + Vector2(0.0, 12.0), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	enemy_retreat_toast_tween.chain().tween_callback(_hide_enemy_retreat_toast)
+	enemy_retreat_toast_tween.chain().tween_callback(_finish_enemy_retreat_toast)
+
+
+func _finish_enemy_retreat_toast() -> void:
+	enemy_retreat_toast_tween = null
+	is_enemy_retreat_toast_playing = false
+	_hide_enemy_retreat_toast()
+	call_deferred("_play_next_enemy_retreat_toast")
 
 
 func _get_retreat_toast_portrait_texture(unit_state: BattleUnitState) -> Texture2D:
@@ -8637,6 +8688,7 @@ func _is_enemy_click_candidate_alive(unit_state: BattleUnitState) -> bool:
 
 
 func _cleanup_dead_units() -> void:
+	var enemy_retreat_toast_count := 0
 	for unit_state in _get_all_unit_states_in_slot_order():
 		if unit_state == null:
 			continue
@@ -8644,7 +8696,11 @@ func _cleanup_dead_units() -> void:
 		var is_deployed_alive := _is_unit_state_available_for_battle_slot(unit_state)
 		if not is_alive and unit_state.side == "enemy" and not bool(shown_enemy_retreat_toast_unit_ids.get(unit_state.unit_id, false)):
 			shown_enemy_retreat_toast_unit_ids[unit_state.unit_id] = true
-			_show_enemy_retreat_toast(unit_state)
+			if enemy_retreat_toast_count < ENEMY_RETREAT_TOAST_MAX_QUEUE_PER_CLEANUP:
+				_queue_enemy_retreat_toast_snapshot(_make_enemy_retreat_toast_snapshot(unit_state))
+				enemy_retreat_toast_count += 1
+			else:
+				_append_battle_log("%s 퇴각" % unit_state.display_name)
 		_set_unit_visual_group_visible(unit_state, is_deployed_alive)
 		_set_unit_click_area_enabled(unit_state, is_deployed_alive)
 		if not is_alive and not bool(dead_unit_ids.get(unit_state.unit_id, false)):

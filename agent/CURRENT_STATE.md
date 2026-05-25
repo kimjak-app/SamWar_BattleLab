@@ -4,9 +4,10 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67x-6 Targeting UX + Buff Preview + Retreat Toast Polish`
+`v0.67x-7 Enemy Retreat Toast Actual Apply`
 
 ## Current Implementation Step
+- `v0.67x-7 Enemy Retreat Toast Actual Apply`
 - `v0.67x-6 Targeting UX + Buff Preview + Retreat Toast Polish`
 - `v0.67x-5 Unique Skill Regression Fix Gate`
 - `v0.67x-4 Unique Skill Range + Enemy Skill Priority Rebalance`
@@ -65,7 +66,8 @@ SamWar_BattleLab
 - Valid-target markers are enlarged and strengthened for clearer gold/orange read over purple range cells.
 - Floating ally command panel hides during attack / unique-skill target selection and restores after cancel / resolve.
 - Auto/enemy unique skill use shows a short visual range preview before resolving.
-- Defeated enemy units show a short portrait retreat toast before normal cleanup continues.
+- Defeated enemy units now snapshot portrait / name / fallback line before cleanup and show a visible retreat toast on a dedicated scene-authored layer.
+- Multiple enemy defeats in one cleanup enqueue retreat toasts sequentially without blocking dead-unit cleanup or battle result flow.
 - WASAPI output-device warnings are treated as external Godot/Windows audio warnings because the project does not control audio devices directly.
 - `SkillInfoPanel` is deferred as a later UX candidate.
 - Detailed unique skill range / radius balance remains a later pass.

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.67x-7 Enemy Retreat Toast Actual Apply
+- Moved the existing enemy retreat toast UI onto a dedicated scene-authored `EnemyRetreatToastLayer` so it is actually visible over battle/result UI.
+- Changed enemy defeat handling to snapshot portrait / name / fallback line before visual cleanup.
+- Added a sequential enemy retreat toast queue for simultaneous defeats, capped per cleanup to preserve battle tempo.
+- Kept dead-unit cleanup, untargetable state, victory/defeat result checks, and full-auto flow non-blocking.
+
 ## v0.67x-6 Targeting UX + Buff Preview + Retreat Toast Polish
 - Added manual buff unique-skill range / valid-target preview before auto-resolve for 정도전 / 권율 style skills.
 - Hid the floating ally command panel during attack and unique-skill targeting, then restored it after cancel / resolve.

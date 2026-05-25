@@ -1,7 +1,7 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67x-6 Targeting UX + Buff Preview + Retreat Toast Polish`
+`v0.67x-7 Enemy Retreat Toast Actual Apply`
 
 ## Priority 1
 `v0.67y Tactics MVP`
@@ -22,6 +22,10 @@ Goal:
 - add the first terrain/blocking layer contract for battle movement and targeting
 
 ## Completed / Archived Context
+- `v0.67x-7 Enemy Retreat Toast Actual Apply` is complete.
+- Enemy defeat now snapshots portrait / name / retreat line before cleanup and plays on a dedicated visible toast layer.
+- Simultaneous enemy defeats enqueue sequential retreat toasts while dead units become untargetable immediately.
+- Full-auto result flow remains stable with retreat toast queue active.
 - `v0.67x-6 Targeting UX + Buff Preview + Retreat Toast Polish` is complete.
 - Manual buff unique skills now hide the floating command panel, show range / valid-target preview, then auto-resolve.
 - Attack and unique-skill targeting modes hide the floating command panel and restore it after cancel or resolve.
