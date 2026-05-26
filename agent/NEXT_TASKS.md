@@ -5,7 +5,7 @@ Behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
-Latest UI patch: `v0.68a-fix5 Vertical Facing Status Badge Arrow Tail Fix`
+Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
 ## Priority 1
 `v0.68b WorldMap Region Graph MVP`
@@ -38,6 +38,12 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix` is complete.
+- Changed up/down-facing battlefield status badges from arrow top/bottom tail placement to the arrow's left edge snap.
+- Final status badge placement is `→` left edge, `←` right edge, `↑` left edge, and `↓` left edge.
+- Left/right-facing edge snap from `v0.68a-fix4` remains unchanged.
+- Confusion fallback `◎N` remains.
+- 김작 F6 visual QA remains for vertical side-edge snap, `0-4px` gap, no top/bottom vertical placement, body/face/flag overlap checks, and multi-status badge block alignment.
 - `v0.68a-fix5 Vertical Facing Status Badge Arrow Tail Fix` is complete.
 - Changed up/down-facing battlefield status badges from side/portrait-adjacent placement to arrow-tail placement.
 - Up-facing badges now attach below the arrow bottom edge; down-facing badges attach above the arrow top edge.

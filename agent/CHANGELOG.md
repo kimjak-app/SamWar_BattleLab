@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix
+- Changed up/down-facing battlefield status badges from arrow top/bottom tail placement to the arrow's left edge snap.
+- Final placement is `→` badge left of arrow, `←` badge right of arrow, `↑` badge left of arrow, and `↓` badge left of arrow.
+- Preserved left/right-facing edge snap from `v0.68a-fix4`.
+- Preserved confusion fallback as `◎N`.
+- Kept status effects, turn decrement logic, strategy behavior, defend behavior, unique skills, damage/move/attack formulas, marker/slot structure, battle size, AI, and worldmap contracts unchanged.
+
 ## v0.68a-fix5 Vertical Facing Status Badge Arrow Tail Fix
 - Changed up/down-facing battlefield status badge placement to use facing-arrow tail edge placement instead of portrait/visual-anchor side placement.
 - Up-facing badges now attach below the arrow bottom edge; down-facing badges attach above the arrow top edge.

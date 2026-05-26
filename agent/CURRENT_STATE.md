@@ -8,9 +8,10 @@ Behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
-Latest UI patch: `v0.68a-fix5 Vertical Facing Status Badge Arrow Tail Fix`
+Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
 ## Current Implementation Step
+- `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 - `v0.68a-fix5 Vertical Facing Status Badge Arrow Tail Fix`
 - `v0.68a-fix4 Status Badge Edge Snap To Facing Arrow`
 - `v0.68a-fix3 Status Icon Tighten + Confusion Fallback Restore`
@@ -60,7 +61,7 @@ Latest UI patch: `v0.68a-fix5 Vertical Facing Status Badge Arrow Tail Fix`
 - Battlefield status badges now use a tighter facing-arrow anchor rule for ally, enemy, support, and reinforce units, with up/down facings placed beside the arrow to avoid body-center overlap.
 - Battlefield status badges are tightened further toward the facing arrow with a `2px` arrow gap.
 - Battlefield status badge placement now computes an approximate facing-arrow visual rect and snaps the badge block edge to the arrow edge, avoiding the oversized facing indicator Control width.
-- Vertical-facing battlefield status badges now use the arrow tail edge too: up-facing badges below the arrow, down-facing badges above the arrow.
+- Vertical-facing battlefield status badges now use the arrow's left edge instead of top/bottom tail placement, avoiding the body/flag interior while staying edge-snapped.
 - Confusion battlefield badges now use the stable `◎N` fallback again because the attempted blank-symbol display did not render reliably in Godot.
 - Current battle target is stable `5v5`.
 - `5v5` battle loop stable.
@@ -204,13 +205,14 @@ Latest UI patch: `v0.68a-fix5 Vertical Facing Status Badge Arrow Tail Fix`
 ## Known / Deferred
 - 김작 F6 visual QA should confirm left-facing and right-facing units keep status badges near the facing arrow, with up/down facings still close to the portrait/arrow line and not fully overlapping the face.
 - 김작 F6 visual QA should confirm ally/enemy/support/reinforce status badges all follow the same arrow-backside rule, stay close to the unit, and avoid severe face/arrow overlap.
-- 김작 F6 visual QA should confirm `v0.68a-fix5` status badge blocks follow arrow-tail placement for all facings: `→` left, `←` right, `↑` below, `↓` above, with confusion `◎N`, shake `⚠N`, and multi-icon badges horizontally aligned.
+- 김작 F6 visual QA should confirm `v0.68a-fix6` status badge blocks follow final edge placement: `→` left, `←` right, `↑` left, `↓` left, with confusion `◎N`, shake `⚠N`, and multi-icon badges horizontally aligned.
 - Codex Godot headless verification for `v0.67z-3` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm the scene load path.
 - Codex Godot headless verification for `v0.68a-fix1` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm the status badge placement path.
 - Codex Godot headless verification for `v0.68a-fix2` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm tight status badge placement and confusion `N` display.
 - Codex Godot headless verification for `v0.68a-fix3` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm near-attached status badge placement, confusion `◎N` display, and first-run stability.
 - Codex Godot headless verification for `v0.68a-fix4` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm arrow-edge badge snapping and `0-4px` visual gap.
 - Codex Godot headless verification for `v0.68a-fix5` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm vertical arrow-tail status badge placement.
+- Codex Godot headless verification for `v0.68a-fix6` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm vertical left-edge status badge placement.
 - 김작 F6 visual QA still needs to confirm that moving `Slots/AllyReinforce01Slot` or its `AllyReinforce01UnitVisualRoot` changes 김유신's ROUND 2 spawn position and keeps HP/troop/portrait/click/facing/status alignment natural.
 - Detailed unique skill range balance can still be revisited after more skill data is final.
 - `SkillInfoPanel` remains deferred until unique skill text/effect wording is stable.
