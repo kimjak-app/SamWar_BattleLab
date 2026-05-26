@@ -2,6 +2,13 @@
 
 ## 2026-05-26
 
+### v0.68a-2 Combat Focus Camera Follow
+- Added Camera2D focus helpers in `scripts/battle_web_import_test.gd` while keeping the scene-authored `MainCamera` and CanvasLayer UI foundation intact.
+- Focus timing now covers initial active ally, ally selection, move start/finish, ally attack midpoint, enemy move/attack, strategy target pairs, unique skill presentation, and reinforcement arrival.
+- Split scene-authored camera reset baseline from current focus baseline so unique-skill camera shake returns to the active focus position.
+- Left battlefield scale, deployment recenter, battle formulas, AI behavior, status badge placement, scene files, and assets unchanged.
+- 김작 F6 QA should confirm smooth focus movement, screen-fixed UI, status badge fix6 preservation, and stable camera shake return.
+
 ### v0.68a-1 Camera2D World/UI Layer Foundation
 - Audited `Battle_Fullscreen_Test.tscn` and confirmed scene-authored `MainCamera` exists as `Camera2D` at `Vector2(960, 540)`.
 - Confirmed primary UI containers are CanvasLayer-based: `BattleUI`, `EnemyRetreatToastLayer`, `CutinOverlay`, and `ResultOverlay`.

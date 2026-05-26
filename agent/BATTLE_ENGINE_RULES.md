@@ -33,6 +33,8 @@
 
 ## Current MVP Guard
 - `MainCamera` should control the battle world view while CanvasLayer UI remains screen-fixed.
+- Combat focus camera may follow active units, combat-pair midpoints, strategy/unique skill moments, enemy attacks, and reinforcement arrival, but it must not change battle formulas, AI decisions, grid size, or deployment ownership.
+- Camera shake should return to the current focus baseline rather than an outdated scene-center position.
 - Current stable target:
   - `5v5`
   - reinforcement rounds

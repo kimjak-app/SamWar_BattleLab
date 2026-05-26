@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.68a-2 Combat Focus Camera Follow
+- Added Camera2D combat focus helpers for world-position, unit, combat-pair midpoint, unit focus anchor, and battlefield clamp.
+- Camera focus now triggers on battle start, ally selection, ally move start/finish, ally attack, enemy move/attack, strategy, unique skill, and reinforcement arrival.
+- Unique-skill camera shake now returns to the current focus baseline instead of snapping back to the scene-authored center.
+- No battle formulas, AI decisions, grid size, deployment layout, scene files, or assets were changed.
+
 ## v0.68a-1 Camera2D World/UI Layer Foundation
 - Confirmed `MainCamera` exists as a scene-authored `Camera2D` and marked it enabled in the scene.
 - Added runtime camera configure/reset helpers that make `MainCamera` current and preserve its scene-authored position/zoom baseline.

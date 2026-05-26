@@ -73,6 +73,9 @@ const STATUS_BADGE_ARROW_GAP := 2.0
 const STATUS_BADGE_FACING_ARROW_APPROX_WIDTH := 24.0
 const STATUS_BADGE_FACING_ARROW_APPROX_HEIGHT := 28.0
 const STATUS_BADGE_ARROW_Y_NUDGE := 2.0
+const COMBAT_CAMERA_FOCUS_ENABLED := true
+const COMBAT_CAMERA_FOCUS_DURATION := 0.24
+const COMBAT_CAMERA_CLAMP_PADDING := 180.0
 const DEFEND_HEAL_TEXT_COLOR := Color(0.62, 1.0, 0.58, 0.94)
 const FORMATION_STATUS_TEXT_COLOR := Color(0.74, 0.86, 0.94, 0.85)
 const FORMATION_STATUS_OUTLINE_COLOR := Color(0.02, 0.03, 0.04, 0.62)
@@ -697,6 +700,9 @@ var active_defeat_retreat_toast_display_name := ""
 var active_defeat_retreat_toast_side := ""
 var active_defeat_retreat_toast_hold_msec := 0
 var camera_shake_tween: Tween = null
+var combat_camera_tween: Tween = null
+var main_camera_scene_position := Vector2.ZERO
+var main_camera_scene_zoom := Vector2.ONE
 var main_camera_base_position := Vector2.ZERO
 var main_camera_base_zoom := Vector2.ONE
 var enemy_ai_last_destination_debug: Dictionary = {}
@@ -1141,6 +1147,8 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if current_phase == PHASE_ALLY_TURN and not is_demo_animating:
 		_refresh_move_target_feedback()
+	if combat_camera_tween != null:
+		_refresh_camera_bound_world_overlays()
 	_update_ally_ready_frames()
 	_refresh_floating_ally_command_panel()
 	_refresh_strategy_status_icon_labels()
@@ -1159,6 +1167,8 @@ func _configure_main_camera() -> void:
 	main_camera = camera
 	camera.enabled = true
 	camera.make_current()
+	main_camera_scene_position = camera.position
+	main_camera_scene_zoom = camera.zoom
 	main_camera_base_position = camera.position
 	main_camera_base_zoom = camera.zoom
 
@@ -1167,10 +1177,97 @@ func _reset_main_camera_to_scene_position() -> void:
 	var camera := _get_main_camera_or_null()
 	if camera == null:
 		return
+	if combat_camera_tween != null:
+		combat_camera_tween.kill()
+		combat_camera_tween = null
 	camera.enabled = true
 	camera.make_current()
-	camera.position = main_camera_base_position
-	camera.zoom = main_camera_base_zoom
+	camera.position = main_camera_scene_position
+	camera.zoom = main_camera_scene_zoom
+	main_camera_base_position = main_camera_scene_position
+	main_camera_base_zoom = main_camera_scene_zoom
+	_refresh_camera_bound_world_overlays()
+
+
+func _focus_camera_on_world_position(world_pos: Vector2, immediate: bool = false) -> void:
+	if not COMBAT_CAMERA_FOCUS_ENABLED:
+		return
+	var camera := _get_main_camera_or_null()
+	if camera == null:
+		return
+	var target_position := _clamp_camera_position_to_battlefield(world_pos)
+	if combat_camera_tween != null:
+		combat_camera_tween.kill()
+		combat_camera_tween = null
+	camera.enabled = true
+	camera.make_current()
+	if immediate or is_zero_approx(COMBAT_CAMERA_FOCUS_DURATION):
+		camera.position = target_position
+		_set_camera_focus_base_position(target_position)
+		_refresh_camera_bound_world_overlays()
+		return
+	combat_camera_tween = create_tween()
+	combat_camera_tween.tween_property(camera, "position", target_position, COMBAT_CAMERA_FOCUS_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	combat_camera_tween.tween_callback(_set_camera_focus_base_position.bind(target_position))
+
+
+func _focus_camera_on_unit(unit_state: BattleUnitState, immediate: bool = false) -> void:
+	if unit_state == null:
+		return
+	_focus_camera_on_world_position(_get_camera_focus_position_for_unit(unit_state), immediate)
+
+
+func _focus_camera_on_combat_pair(actor_state: BattleUnitState, target_state: BattleUnitState, immediate: bool = false) -> void:
+	if actor_state == null and target_state == null:
+		return
+	if actor_state == null:
+		_focus_camera_on_unit(target_state, immediate)
+		return
+	if target_state == null:
+		_focus_camera_on_unit(actor_state, immediate)
+		return
+	var actor_position := _get_camera_focus_position_for_unit(actor_state)
+	var target_position := _get_camera_focus_position_for_unit(target_state)
+	_focus_camera_on_world_position((actor_position + target_position) * 0.5, immediate)
+
+
+func _get_camera_focus_position_for_unit(unit_state: BattleUnitState) -> Vector2:
+	if unit_state == null:
+		return main_camera_base_position
+	var anchor_position := _get_visual_anchor_position_for_unit(unit_state)
+	if anchor_position != Vector2.ZERO:
+		return anchor_position
+	if battle_grid_controller != null:
+		return battle_grid_controller.grid_to_world(unit_state.grid_cell)
+	return main_camera_base_position
+
+
+func _clamp_camera_position_to_battlefield(world_pos: Vector2) -> Vector2:
+	if battle_grid_controller == null:
+		return world_pos
+	var board_top_left := battle_grid_controller.get_board_top_left()
+	var board_bottom_right := battle_grid_controller.get_board_bottom_right()
+	if board_top_left == Vector2.ZERO and board_bottom_right == Vector2.ZERO:
+		return world_pos
+	var min_x := minf(board_top_left.x, board_bottom_right.x) - COMBAT_CAMERA_CLAMP_PADDING
+	var max_x := maxf(board_top_left.x, board_bottom_right.x) + COMBAT_CAMERA_CLAMP_PADDING
+	var min_y := minf(board_top_left.y, board_bottom_right.y) - COMBAT_CAMERA_CLAMP_PADDING
+	var max_y := maxf(board_top_left.y, board_bottom_right.y) + COMBAT_CAMERA_CLAMP_PADDING
+	return Vector2(
+		clampf(world_pos.x, min_x, max_x),
+		clampf(world_pos.y, min_y, max_y)
+	)
+
+
+func _set_camera_focus_base_position(world_pos: Vector2) -> void:
+	main_camera_base_position = world_pos
+	combat_camera_tween = null
+	_refresh_camera_bound_world_overlays()
+
+
+func _refresh_camera_bound_world_overlays() -> void:
+	_update_facing_indicators()
+	_refresh_strategy_status_icon_labels()
 
 
 func _input(event: InputEvent) -> void:
@@ -1410,6 +1507,7 @@ func reset_demo_state() -> void:
 	_set_facing_indicators_visible(true)
 	_update_facing_indicators()
 	_show_unit_closeup_for_ally(active_unit_state)
+	_focus_camera_on_unit(active_unit_state, true)
 	_update_ally_ready_frames()
 	_debug_print_battle_unit_state_list_adapter()
 	_debug_print_hp_troop_runtime_visibility_summary()
@@ -1468,6 +1566,7 @@ func play_basic_move_demo() -> void:
 	_set_phase(PHASE_RESOLVING)
 	_stop_idle_breathing()
 	_sync_demo_positions()
+	_focus_camera_on_unit(active_unit_state)
 
 	var target_unit_position := battle_grid_controller.grid_to_world(target_cell)
 	var portrait_offset := _get_selected_ally_portrait_visual_offset()
@@ -1506,6 +1605,7 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 	_fade_out_move_dust_for_unit(active_unit_state)
 	is_demo_animating = false
 	_append_battle_log("%s 이동 완료" % _get_selected_ally_display_name())
+	_focus_camera_on_unit(active_unit_state)
 	if should_auto_select_facing_after_move and is_auto_action_in_progress:
 		_enter_post_move_facing_selection()
 		_select_auto_facing_after_move_for_active_ally()
@@ -1594,6 +1694,7 @@ func play_basic_attack_demo() -> void:
 	_set_phase(PHASE_RESOLVING)
 	_stop_idle_breathing()
 	_sync_demo_positions()
+	_focus_camera_on_combat_pair(active_unit_state, selected_attack_target_state)
 	_hide_all_move_dust_sprites()
 	move_highlight.visible = false
 	damage_text_layer.position = damage_spawn_marker.position
@@ -2005,6 +2106,7 @@ func _resolve_strategy(caster_state: BattleUnitState, target_state: BattleUnitSt
 	if floating_ally_command_panel != null:
 		floating_ally_command_panel.visible = false
 	_set_phase(PHASE_RESOLVING)
+	_focus_camera_on_combat_pair(caster_state, target_state)
 	_append_battle_log("%s이 책략을 펼쳤습니다." % caster_state.display_name)
 	_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(caster_state), "책략!", STRATEGY_CAST_COLOR)
 
@@ -2613,12 +2715,23 @@ func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dic
 	_set_phase(PHASE_RESOLVING)
 	_stop_idle_breathing()
 	_sync_demo_positions()
+	_focus_camera_for_unique_skill(caster_state, skill_data)
 	_show_unique_skill_toast_over_unit(caster_state, skill_data)
 	_append_battle_log("%s이 %s을 발동!" % [caster_state.display_name, String(skill_data.get("name", "고유특기"))])
 	_start_unique_skill_camera_shake(String(skill_data.get("effect_type", "")))
 	var remaining_duration := maxf(0.0, UNIQUE_SKILL_TOAST_DURATION - UNIQUE_SKILL_EFFECT_APPLY_DELAY)
 	get_tree().create_timer(UNIQUE_SKILL_EFFECT_APPLY_DELAY).timeout.connect(_apply_unique_skill_effect_if_valid.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
 	get_tree().create_timer(UNIQUE_SKILL_EFFECT_APPLY_DELAY + remaining_duration).timeout.connect(_finalize_unique_skill_action.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
+
+
+func _focus_camera_for_unique_skill(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	if caster_state == null:
+		return
+	var target_state := _get_best_unique_skill_target_for_actor(caster_state, skill_data)
+	if target_state != null:
+		_focus_camera_on_combat_pair(caster_state, target_state, true)
+		return
+	_focus_camera_on_unit(caster_state, true)
 
 
 func _apply_unique_skill_effect_if_valid(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
@@ -4723,6 +4836,7 @@ func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleU
 	current_enemy_ai_actor_state = enemy_actor_state
 	current_enemy_attack_target_state = target_state
 	_hide_all_move_dust_sprites()
+	_focus_camera_on_combat_pair(enemy_actor_state, target_state)
 
 	_refresh_enemy_facing_for_actor_action(enemy_actor_state, target_state)
 	_reset_unit_group_positions()
@@ -4778,6 +4892,7 @@ func _play_enemy_actor_path_move_then_act(enemy_actor_state: BattleUnitState, mo
 	var target_portrait_position := target_position + portrait_offset
 	_hide_facing_indicator_for_unit(enemy_actor_state)
 	_show_move_dust_for_unit(enemy_actor_state)
+	_focus_camera_on_unit(enemy_actor_state)
 
 	var tween := create_tween()
 	var previous_offset := Vector2.ZERO
@@ -4805,6 +4920,7 @@ func _finish_enemy_actor_basic_move(enemy_actor_state: BattleUnitState, target_p
 	_reset_unit_group_positions()
 	_fade_out_move_dust_for_unit(enemy_actor_state)
 	_update_facing_indicators()
+	_focus_camera_on_unit(enemy_actor_state)
 	_play_enemy_actor_basic_attack_or_wait_after_move(enemy_actor_state)
 
 
@@ -5608,6 +5724,7 @@ func _deploy_city_reinforcement_unit(unit_state: BattleUnitState) -> void:
 	_apply_group_offset_for_unit(unit_state, Vector2.ZERO)
 	_reset_unit_group_positions()
 	_refresh_facing_indicator_for_unit(unit_state)
+	_focus_camera_on_unit(unit_state)
 	_debug_log_reinforce_visual_state(unit_state)
 
 
@@ -5628,6 +5745,7 @@ func _deploy_reinforce_unit(unit_state: BattleUnitState) -> void:
 	_reset_unit_group_positions()
 	_refresh_facing_indicator_for_unit(unit_state)
 	_refresh_formation_slot_guides()
+	_focus_camera_on_unit(unit_state)
 	_debug_log_reinforce_visual_state(unit_state)
 
 
@@ -7131,9 +7249,12 @@ func _start_unique_skill_camera_shake(effect_type: String) -> void:
 	var camera := _get_main_camera_or_null()
 	if camera == null:
 		return
+	if combat_camera_tween != null:
+		combat_camera_tween.kill()
+		combat_camera_tween = null
 	if camera_shake_tween != null:
 		camera_shake_tween.kill()
-	camera.position = main_camera_base_position
+	main_camera_base_position = camera.position
 	var duration := 0.24
 	var strength := 12.0
 	if effect_type == "cannon_aoe" or effect_type == "single_damage_adjacent_shake":
@@ -10207,6 +10328,7 @@ func _select_ally_unit(
 	_clear_move_target_selection()
 	_clear_attack_target_selection()
 	_show_unit_closeup_for_ally(active_unit_state)
+	_focus_camera_on_unit(active_unit_state)
 	_update_ally_ready_frames()
 	if should_log:
 		_append_battle_log("%s 선택" % _get_selected_ally_display_name())

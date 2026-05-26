@@ -7,51 +7,50 @@ Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Pr
 
 Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
-Latest camera foundation: `v0.68a-1 Camera2D World/UI Layer Foundation`
+Latest camera patch: `v0.68a-2 Combat Focus Camera Follow`
 
 ## Priority 1
-`v0.68a-2 Combat Focus Camera Follow`
-
-Goal:
-- add explicit combat-focus camera movement after the Camera2D foundation is verified, without changing battle formulas
-
-## Priority 2
 `v0.68a-3 Battlefield Scale + Deployment Recenter`
 
 Goal:
 - expand/recenter battlefield scale and deployment only after Camera2D world/UI separation is stable
 
-## Priority 3
+## Priority 2
 `v0.68b WorldMap Region Graph MVP`
 
 Goal:
 - create the first region/city/route/connection graph data structure for China, the Korean peninsula, and the Japanese archipelago
 
-## Priority 4
+## Priority 3
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 5
+## Priority 4
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - implement first hero / region / city / army assignment data needed to produce roster candidates
 
-## Priority 6
+## Priority 5
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 7
+## Priority 6
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-2 Combat Focus Camera Follow` is complete.
+- Added Camera2D focus helpers for world position, unit focus, combat-pair midpoint, unit focus anchor, and battlefield clamp.
+- Focus timing now covers battle start, ally selection, ally move start/finish, ally attack, enemy move/attack, strategy, unique skill, and reinforcement arrival.
+- Camera shake now returns to the current focus baseline instead of the original scene position during unique-skill presentation.
+- 김작 F6 QA should confirm smooth combat focus, fixed CanvasLayer UI, status badge fix6 preservation, and no strange return after shake.
 - `v0.68a-1 Camera2D World/UI Layer Foundation` is complete.
 - Confirmed scene-authored `MainCamera` exists as `Camera2D` and configured it as current at runtime.
 - Added MainCamera configure/reset helpers and preserved scene-authored camera position/zoom as the baseline for reset and existing camera shake.
