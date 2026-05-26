@@ -2,6 +2,12 @@
 
 ## 2026-05-26
 
+### v0.68a-4-hotfix3 Unique Skill Cutin Fast Impact Timing
+- Changed `UNIQUE_SKILL_CUTIN_ENTER_DURATION` to `0.10s`, `UNIQUE_SKILL_CUTIN_HOLD_DURATION` to `0.40s`, and `UNIQUE_SKILL_CUTIN_EXIT_DURATION` to `0.12s`.
+- Kept `UNIQUE_SKILL_EFFECT_APPLY_DELAY` as the enter + hold + exit sum, so post-cutin damage/buff/FX and camera shake still follow cut-in exit.
+- Preserved unique skill effects, targeting, cooldowns, AI decisions, formulas, Camera2D policy, battlefield background, and status badge rules.
+- 김작 F6 follow-up: confirm the cut-in hits hard, reads briefly, exits around `0.6s`, and does not break battle tempo.
+
 ### v0.68a-4-hotfix2 Unique Skill Cutin Toast Tempo Match
 - Compared unique skill cut-in tempo against existing battle toast timings: round start hold `1.15s`, reinforcement arrival hold `0.82s`, and battle toast fade timing around `0.42s` in / `0.32s` out.
 - Changed `UNIQUE_SKILL_CUTIN_ENTER_DURATION` to `0.14s`, `UNIQUE_SKILL_CUTIN_HOLD_DURATION` to `0.9s`, and `UNIQUE_SKILL_CUTIN_EXIT_DURATION` to `0.14s`.

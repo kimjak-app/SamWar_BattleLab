@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68a-4-hotfix3 Unique Skill Cutin Fast Impact Timing
+- Tuned unique skill fullscreen cut-in into a short impact presentation.
+- Changed unique skill cut-in timing to `0.10s` enter, `0.40s` hold, and `0.12s` exit, for roughly `0.62s` before battlefield effects resume.
+- Kept `UNIQUE_SKILL_EFFECT_APPLY_DELAY` tied to enter + hold + exit so damage / buff / FX and camera shake begin after the cut-in exits.
+- Preserved unique skill effect values, targets, cooldowns, AI judgment, damage formulas, Camera2D policy, battlefield background, and status badge rules.
+- Added 김작 F6 checks for strong but brief cut-in feel, readable momentary skill presentation, natural post-cutin effects, uninterrupted battle tempo, and clean GDScript warnings.
+
 ## v0.68a-4-hotfix2 Unique Skill Cutin Toast Tempo Match
 - Matched the unique skill fullscreen cut-in closer to turn-exchange toast tempo.
 - Changed unique skill cut-in timing to `0.14s` enter, `0.9s` hold, and `0.14s` exit; the previous `1.5s` hold is no longer used.

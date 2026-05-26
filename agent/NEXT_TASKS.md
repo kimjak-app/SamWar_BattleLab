@@ -9,7 +9,7 @@ Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
 Latest camera/background patch: `v0.68a-3 Battlefield Large Background Apply + Camera Clamp`
 
-Latest skill presentation patch: `v0.68a-4-hotfix2 Unique Skill Cutin Toast Tempo Match`
+Latest skill presentation patch: `v0.68a-4-hotfix3 Unique Skill Cutin Fast Impact Timing`
 
 ## Priority 1
 `v0.68b WorldMap Region Graph MVP`
@@ -42,6 +42,10 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-4-hotfix3 Unique Skill Cutin Fast Impact Timing` is complete.
+- Unique skill cut-in timing now uses `0.10s` enter, `0.40s` hold, and `0.12s` exit for a short strong impact.
+- The cut-in should no longer linger before returning to damage/buff/FX and camera shake.
+- 김작 F6 should confirm the cut-in feels around `0.6s`, remains readable, and no longer interrupts battle tempo.
 - `v0.68a-4-hotfix2 Unique Skill Cutin Toast Tempo Match` is complete.
 - Unique skill cut-in timing now uses `0.14s` enter, `0.9s` hold, and `0.14s` exit, closer to turn-exchange toast tempo.
 - The previous `1.5s` hold is no longer used because it felt too long in 김작 F6.
