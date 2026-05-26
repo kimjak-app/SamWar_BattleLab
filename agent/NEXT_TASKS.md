@@ -4,24 +4,34 @@
 `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 ## Priority 1
-`v0.68 Battlefield Final Size Expansion`
+`v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
 Goal:
-- expand the battlefield to the intended final playable size once current UI layout remains stable
+- prepare agent docs and contract ownership for worldmap, larger hero scale, and future battle launch integration
 
 ## Priority 2
-`v0.68b Terrain Passability Layer MVP`
+`v0.68 WorldMap ↔ BattleContext Contract MVP`
 
 Goal:
-- add the first terrain/passability layer contract for battle movement and targeting
+- define the first worldmap-to-battle roster/context handoff contract while preserving the current stable `5v5` battle baseline
 
 ## Priority 3
+`v0.68b Hero/Army Deployment Contract MVP`
+
+Goal:
+- define hero / army deployment data needed before battle startup consumes external roster placement
+
+## Priority 4
 `Later Unit Visual Hierarchy Polish`
 
 Goal:
 - only if needed, convert the currently registry-bound click/UI overlay attachments into direct scene children after the layout contract is proven stable
 
 ## Completed / Archived Context
+- `v0.67z-4 Agent Role Split Foundation` is complete.
+- Added role-based agent docs for architecture, implementation, QA, runtime QA, visual QA, and workflow management.
+- Kept `CODEX_WORKFLOW_RULES.md` as the canonical source for task classification, autonomous execution, approval handling, and verification depth.
+- Kept the current stable baseline at `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`; no code, scene, or asset changes were made.
 - `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch` is complete.
 - Battlefield status badges now use the facing indicator line as their placement source instead of a fixed right-side offset.
 - Left-facing units place badges to the right of the arrow, right-facing units place badges to the left, and up/down facings choose the near side of the arrow/portrait line.

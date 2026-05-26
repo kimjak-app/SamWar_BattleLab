@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.67z-4 Agent Role Split Foundation
+- Added role-based agent docs for architecture, implementation, QA, runtime QA, visual QA, and workflow management responsibilities.
+- Linked the new role docs from `CODEX_WORKFLOW_RULES.md` while keeping task classification, autonomous execution, approval handling, and verification depth canonical there.
+- Updated handoff, current state, next tasks, changelog, and session log around the new role split.
+- No feature code, scene, or asset changes.
+
 ## v0.67z-3 Strategy Status Badge Near Facing Arrow Patch
 - Changed battlefield status badge placement from a fixed right-side unit offset to a facing-indicator-based position.
 - Left-facing units now place status badges to the right of the arrow, while right-facing units place them to the left.

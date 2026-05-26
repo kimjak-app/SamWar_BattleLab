@@ -7,6 +7,7 @@ SamWar_BattleLab
 `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 ## Current Implementation Step
+- `v0.67z-4 Agent Role Split Foundation`
 - `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - `v0.67z-2 Deployment Anchor Source Unification`
 - `v0.67z Unit Visual Attachment / Manual Layout Control Patch`
@@ -39,6 +40,7 @@ SamWar_BattleLab
 - Existing bottom command handlers are reused with no intended behavior change.
 
 ## Stable Summary
+- Role-based agent docs now split architecture, implementation, QA, runtime QA, visual QA, and workflow manager responsibilities without changing code, scenes, or assets.
 - Current battle target is stable `5v5`.
 - `5v5` battle loop stable.
 - Enemy AI multi-target engagement improved and treated as stable.
@@ -164,9 +166,10 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68 Battlefield Final Size Expansion`
-2. `v0.68b Terrain Passability Layer MVP`
-3. Later unit visual polish can refine scene hierarchy if direct reparenting becomes necessary.
+1. `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
+2. `v0.68 WorldMap ↔ BattleContext Contract MVP`
+3. `v0.68b Hero/Army Deployment Contract MVP`
+4. Later unit visual polish can refine scene hierarchy if direct reparenting becomes necessary.
 
 ## Known / Deferred
 - 김작 F6 visual QA should confirm left-facing and right-facing units keep status badges near the facing arrow, with up/down facings still close to the portrait/arrow line and not fully overlapping the face.

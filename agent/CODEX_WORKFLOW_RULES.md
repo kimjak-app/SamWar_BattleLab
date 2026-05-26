@@ -23,6 +23,16 @@
 ## Purpose
 - These rules define how Codex should classify SamWar_BattleLab tasks, how much it should investigate, and how much verification it should perform before reporting back.
 
+## Role-Based Agent Docs
+- This file remains the canonical source for task classification, autonomous execution, confirmation rules, approval handling, and verification depth.
+- Role-specific agent docs do not replace these rules; they interpret them for recurring responsibilities:
+  - `agent/WORKFLOW_MANAGER.md`: task permission boundaries, commit/push policy, local environment policy, and new-session reading order.
+  - `agent/ARCHITECT_AGENT.md`: architecture boundary review, source-of-truth decisions, and future worldmap / BattleContext contract direction.
+  - `agent/IMPLEMENTATION_AGENT.md`: scoped implementation behavior, in-scope / out-of-scope distinction, docs update expectations, and commit execution.
+  - `agent/QA_AGENT.md`: regression guard ownership and Do Not Break verification expectations.
+  - `agent/RUNTIME_QA_AGENT.md`: Godot executable resolution, headless/runtime verification, and sandbox-blocked runtime QA handling.
+  - `agent/VISUAL_QA_AGENT.md`: Kimjak manual F6 visual QA criteria and final visual-taste authority.
+
 ## Task Classification
 
 ### SIMPLE PATCH

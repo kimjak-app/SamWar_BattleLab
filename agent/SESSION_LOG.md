@@ -1,5 +1,14 @@
 # SESSION LOG
 
+## 2026-05-26
+
+### v0.67z-4 Agent Role Split Foundation
+- Split mixed agent responsibilities into role-based docs: architect, implementation, QA, runtime QA, visual QA, and workflow manager.
+- Kept `CODEX_WORKFLOW_RULES.md` as the canonical source for task classification, autonomous execution, approval handling, and verification depth.
+- Updated `HANDOFF_TO_CODEX.md` reading order and linked `QA_AGENT.md` as the regression guard reference.
+- Updated current state and next tasks toward worldmap / BattleContext / hero-army deployment contract preparation.
+- No feature code, scene, or asset changes.
+
 ## 2026-05-25
 
 ### v0.67z-3 Strategy Status Badge Near Facing Arrow Patch

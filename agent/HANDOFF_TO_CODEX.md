@@ -1,14 +1,21 @@
 # HANDOFF TO CODEX
 
 Before making changes, read:
-1. `agent/CODEX_WORKFLOW_RULES.md`
-2. `agent/GODOT_RULES.md`
-3. `agent/CURRENT_STATE.md`
-4. `agent/NEXT_TASKS.md`
-5. `agent/HANDOFF_TO_CODEX.md`
+1. `agent/WORKFLOW_MANAGER.md`
+2. `agent/CODEX_WORKFLOW_RULES.md`
+3. `agent/ARCHITECT_AGENT.md`
+4. `agent/IMPLEMENTATION_AGENT.md`
+5. `agent/QA_AGENT.md`
+6. `agent/RUNTIME_QA_AGENT.md`
+7. `agent/VISUAL_QA_AGENT.md`
+8. `agent/GODOT_RULES.md`
+9. `agent/CURRENT_STATE.md`
+10. `agent/NEXT_TASKS.md`
+11. `agent/HANDOFF_TO_CODEX.md`
 
 Follow the autonomous execution and commit rules in `agent/CODEX_WORKFLOW_RULES.md`, including autonomous commit when the task provides an explicit commit message.
-At the start of a new Codex session, always follow the `SamWar_BattleLab 자동 작업 권한 헤더` section in `agent/CODEX_WORKFLOW_RULES.md`.
+At the start of a new Codex session, always follow the `SamWar_BattleLab 자동 작업 권한 헤더` section in `agent/WORKFLOW_MANAGER.md` and `agent/CODEX_WORKFLOW_RULES.md`.
+Role-based agent docs are responsibility guides. `agent/CODEX_WORKFLOW_RULES.md` remains the canonical source for task classification, autonomous execution, approval handling, and verification depth.
 
 ## Local Godot Execution Path
 - Godot 실행파일은 설치형이 아닐 수 있으며 PATH에 없을 수 있다.
@@ -101,8 +108,9 @@ Do not modify casually:
 ## Recommended Next Task
 - Current baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Next candidates:
-  - `v0.68 Battlefield Final Size Expansion`
-  - `v0.68b Terrain Passability Layer MVP`
+  - `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
+  - `v0.68 WorldMap ↔ BattleContext Contract MVP`
+  - `v0.68b Hero/Army Deployment Contract MVP`
 - 김작 F6 visual QA remains before treating layout feel as final: move `Slots/AllyReinforce01Slot` and confirm ROUND 2 김유신 spawn plus HP/troop/portrait/click/facing/status alignment.
 - 김작 F6 visual QA also remains for status badge placement: confirm 좌→우 / 우→좌 / up/down units keep badges near the arrow and not fully over the hero face.
 
@@ -114,6 +122,8 @@ Do not modify casually:
 - Worldmap integration should build on the current stable `5v5` roster/battle contract path.
 
 ## Do Not Break
+Canonical regression guard details are also tracked in `agent/QA_AGENT.md`.
+
 - Damage / move / attack formulas.
 - Hero identity registry behavior.
 - Reinforcement deploy timing.
