@@ -7,37 +7,56 @@ Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Pr
 
 Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
+Latest camera foundation: `v0.68a-1 Camera2D World/UI Layer Foundation`
+
 ## Priority 1
+`v0.68a-2 Combat Focus Camera Follow`
+
+Goal:
+- add explicit combat-focus camera movement after the Camera2D foundation is verified, without changing battle formulas
+
+## Priority 2
+`v0.68a-3 Battlefield Scale + Deployment Recenter`
+
+Goal:
+- expand/recenter battlefield scale and deployment only after Camera2D world/UI separation is stable
+
+## Priority 3
 `v0.68b WorldMap Region Graph MVP`
 
 Goal:
 - create the first region/city/route/connection graph data structure for China, the Korean peninsula, and the Japanese archipelago
 
-## Priority 2
+## Priority 4
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 3
+## Priority 5
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - implement first hero / region / city / army assignment data needed to produce roster candidates
 
-## Priority 4
+## Priority 6
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 5
+## Priority 7
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-1 Camera2D World/UI Layer Foundation` is complete.
+- Confirmed scene-authored `MainCamera` exists as `Camera2D` and configured it as current at runtime.
+- Added MainCamera configure/reset helpers and preserved scene-authored camera position/zoom as the baseline for reset and existing camera shake.
+- Kept UI CanvasLayer-based and split combat focus follow plus battlefield scale/recenter into later tasks.
+- 김작 F6 visual QA remains for normal battle display, fixed UI, MainCamera current behavior, existing camera shake, status badge preservation, and stable battle loop.
 - `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix` is complete.
 - Changed up/down-facing battlefield status badges from arrow top/bottom tail placement to the arrow's left edge snap.
 - Final status badge placement is `→` left edge, `←` right edge, `↑` left edge, and `↓` left edge.

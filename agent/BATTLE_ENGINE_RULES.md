@@ -13,6 +13,7 @@
 
 ## Owned By Battle Engine
 - Battle presentation and animation.
+- Camera2D battle-world view control.
 - Turn order and action resolution.
 - Movement, attack, damage, facing, and status resolution.
 - Strategy command execution.
@@ -31,6 +32,7 @@
 - Long-term worldmap troop, supply, ownership, or hero location mutation.
 
 ## Current MVP Guard
+- `MainCamera` should control the battle world view while CanvasLayer UI remains screen-fixed.
 - Current stable target:
   - `5v5`
   - reinforcement rounds

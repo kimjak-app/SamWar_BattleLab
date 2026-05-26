@@ -2,6 +2,16 @@
 
 ## 2026-05-26
 
+### v0.68a-1 Camera2D World/UI Layer Foundation
+- Audited `Battle_Fullscreen_Test.tscn` and confirmed scene-authored `MainCamera` exists as `Camera2D` at `Vector2(960, 540)`.
+- Confirmed primary UI containers are CanvasLayer-based: `BattleUI`, `EnemyRetreatToastLayer`, `CutinOverlay`, and `ResultOverlay`.
+- Added `_get_main_camera_or_null()`, `_configure_main_camera()`, and `_reset_main_camera_to_scene_position()`.
+- Runtime now enables and makes `MainCamera` current, stores scene-authored position/zoom as the camera baseline, and resets camera state before demo reset paths.
+- Updated unique-skill camera shake to use the resolved MainCamera and the same baseline.
+- Did not implement battlefield scale expansion, deployment recenter, combat focus follow, worldmap, or BattleContext runtime injection.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+- Left 김작 F6 QA for normal battle display, fixed UI panels/buttons/toasts, MainCamera current behavior, camera initial framing, existing camera shake, stable battle loop, and status badge preservation.
+
 ### v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix
 - Audited vertical-facing status badge placement after F6 showed top/bottom tail placement pushed badges into awkward body/flag positions.
 - Changed `FACING_UP` and `FACING_DOWN` to use the same arrow-left-edge snap as right-facing units.

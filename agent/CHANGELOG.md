@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68a-1 Camera2D World/UI Layer Foundation
+- Confirmed `MainCamera` exists as a scene-authored `Camera2D` and marked it enabled in the scene.
+- Added runtime camera configure/reset helpers that make `MainCamera` current and preserve its scene-authored position/zoom baseline.
+- Kept existing unique-skill camera shake on `MainCamera` and reset it through the same baseline.
+- Confirmed battle UI is CanvasLayer-based; no battlefield scale, deployment recenter, combat focus follow, worldmap, or BattleContext runtime injection was added.
+- Kept battle logic, formulas, AI, marker/slot structure, status badge rules, and current `5v5` flow unchanged.
+
 ## v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix
 - Changed up/down-facing battlefield status badges from arrow top/bottom tail placement to the arrow's left edge snap.
 - Final placement is `→` badge left of arrow, `←` badge right of arrow, `↑` badge left of arrow, and `↓` badge left of arrow.

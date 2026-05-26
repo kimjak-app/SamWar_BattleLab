@@ -10,7 +10,10 @@ Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Pr
 
 Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
+Latest camera foundation: `v0.68a-1 Camera2D World/UI Layer Foundation`
+
 ## Current Implementation Step
+- `v0.68a-1 Camera2D World/UI Layer Foundation`
 - `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 - `v0.68a-fix5 Vertical Facing Status Badge Arrow Tail Fix`
 - `v0.68a-fix4 Status Badge Edge Snap To Facing Arrow`
@@ -63,6 +66,9 @@ Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 - Battlefield status badge placement now computes an approximate facing-arrow visual rect and snaps the badge block edge to the arrow edge, avoiding the oversized facing indicator Control width.
 - Vertical-facing battlefield status badges now use the arrow's left edge instead of top/bottom tail placement, avoiding the body/flag interior while staying edge-snapped.
 - Confusion battlefield badges now use the stable `◎N` fallback again because the attempted blank-symbol display did not render reliably in Godot.
+- `MainCamera` is scene-authored and runtime-configured as the current Camera2D.
+- Camera reset and unique-skill camera shake now share the stored scene-authored MainCamera position/zoom baseline.
+- Core UI remains CanvasLayer-based and intended to stay screen-fixed while Camera2D controls the battle world view.
 - Current battle target is stable `5v5`.
 - `5v5` battle loop stable.
 - Enemy AI multi-target engagement improved and treated as stable.
@@ -196,11 +202,13 @@ Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b WorldMap Region Graph MVP`
-2. `v0.68c BattleContext Runtime Injection MVP`
-3. `v0.68d Hero/Army Deployment MVP`
-4. `v0.69 Battlefield Variant Loader`
-5. `v0.69b Naval Battle Entry MVP`
+1. `v0.68a-2 Combat Focus Camera Follow`
+2. `v0.68a-3 Battlefield Scale + Deployment Recenter`
+3. `v0.68b WorldMap Region Graph MVP`
+4. `v0.68c BattleContext Runtime Injection MVP`
+5. `v0.68d Hero/Army Deployment MVP`
+6. `v0.69 Battlefield Variant Loader`
+7. `v0.69b Naval Battle Entry MVP`
 
 ## Known / Deferred
 - 김작 F6 visual QA should confirm left-facing and right-facing units keep status badges near the facing arrow, with up/down facings still close to the portrait/arrow line and not fully overlapping the face.
@@ -213,6 +221,7 @@ Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 - Codex Godot headless verification for `v0.68a-fix4` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm arrow-edge badge snapping and `0-4px` visual gap.
 - Codex Godot headless verification for `v0.68a-fix5` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm vertical arrow-tail status badge placement.
 - Codex Godot headless verification for `v0.68a-fix6` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm vertical left-edge status badge placement.
+- Codex Godot headless verification for `v0.68a-1` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm MainCamera current behavior, fixed UI layers, camera shake, and the stable battle loop.
 - 김작 F6 visual QA still needs to confirm that moving `Slots/AllyReinforce01Slot` or its `AllyReinforce01UnitVisualRoot` changes 김유신's ROUND 2 spawn position and keeps HP/troop/portrait/click/facing/status alignment natural.
 - Detailed unique skill range balance can still be revisited after more skill data is final.
 - `SkillInfoPanel` remains deferred until unique skill text/effect wording is stable.

@@ -698,6 +698,7 @@ var active_defeat_retreat_toast_side := ""
 var active_defeat_retreat_toast_hold_msec := 0
 var camera_shake_tween: Tween = null
 var main_camera_base_position := Vector2.ZERO
+var main_camera_base_zoom := Vector2.ONE
 var enemy_ai_last_destination_debug: Dictionary = {}
 var enemy_ai_reserved_destination_cells: Dictionary = {}
 var enemy_ai_reserved_engagement_cells: Dictionary = {}
@@ -1116,8 +1117,7 @@ func _ready() -> void:
 	_configure_round_toast()
 	_configure_unique_skill_toast()
 	_configure_enemy_retreat_toast()
-	if main_camera != null:
-		main_camera_base_position = main_camera.position
+	_configure_main_camera()
 	_collect_move_range_cells()
 	_sync_deployment_markers_from_scene_visual_anchors()
 	_capture_scene_authored_unit_layout_offsets()
@@ -1144,6 +1144,33 @@ func _process(_delta: float) -> void:
 	_update_ally_ready_frames()
 	_refresh_floating_ally_command_panel()
 	_refresh_strategy_status_icon_labels()
+
+
+func _get_main_camera_or_null() -> Camera2D:
+	if main_camera != null:
+		return main_camera
+	return get_node_or_null("MainCamera") as Camera2D
+
+
+func _configure_main_camera() -> void:
+	var camera := _get_main_camera_or_null()
+	if camera == null:
+		return
+	main_camera = camera
+	camera.enabled = true
+	camera.make_current()
+	main_camera_base_position = camera.position
+	main_camera_base_zoom = camera.zoom
+
+
+func _reset_main_camera_to_scene_position() -> void:
+	var camera := _get_main_camera_or_null()
+	if camera == null:
+		return
+	camera.enabled = true
+	camera.make_current()
+	camera.position = main_camera_base_position
+	camera.zoom = main_camera_base_zoom
 
 
 func _input(event: InputEvent) -> void:
@@ -1311,8 +1338,7 @@ func reset_demo_state() -> void:
 	if camera_shake_tween != null:
 		camera_shake_tween.kill()
 		camera_shake_tween = null
-	if main_camera != null:
-		main_camera.position = main_camera_base_position
+	_reset_main_camera_to_scene_position()
 	is_unique_skill_presenting = false
 	is_manual_unique_skill_preview_pending = false
 	_clear_unique_skill_targeting_state()
@@ -7102,11 +7128,12 @@ func _spawn_strategy_text_fx(target_pos: Vector2, text: String, color: Color) ->
 
 
 func _start_unique_skill_camera_shake(effect_type: String) -> void:
-	if main_camera == null:
+	var camera := _get_main_camera_or_null()
+	if camera == null:
 		return
 	if camera_shake_tween != null:
 		camera_shake_tween.kill()
-	main_camera.position = main_camera_base_position
+	camera.position = main_camera_base_position
 	var duration := 0.24
 	var strength := 12.0
 	if effect_type == "cannon_aoe" or effect_type == "single_damage_adjacent_shake":
@@ -7116,8 +7143,8 @@ func _start_unique_skill_camera_shake(effect_type: String) -> void:
 	camera_shake_tween = create_tween()
 	for step in range(shake_steps):
 		var offset := Vector2(randf_range(-strength, strength), randf_range(-strength, strength))
-		camera_shake_tween.tween_property(main_camera, "position", main_camera_base_position + offset, duration / float(shake_steps)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	camera_shake_tween.tween_property(main_camera, "position", main_camera_base_position, 0.04).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		camera_shake_tween.tween_property(camera, "position", main_camera_base_position + offset, duration / float(shake_steps)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	camera_shake_tween.tween_property(camera, "position", main_camera_base_position, 0.04).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
 func _load_random_fx_texture(paths: Array[String]) -> Texture2D:

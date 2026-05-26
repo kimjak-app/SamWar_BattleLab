@@ -46,6 +46,10 @@ Latest UI patch:
 
 `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
+Latest camera foundation:
+
+`v0.68a-1 Camera2D World/UI Layer Foundation`
+
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
 - Core scripts:
@@ -106,6 +110,8 @@ Do not modify casually:
 - Battlefield status badges now snap badge edge to facing-arrow visual edge instead of using the full facing indicator Control width.
 - Vertical-facing battlefield status badges now use left-side arrow edge snap: up-facing and down-facing badges both sit tightly to the arrow's left edge.
 - Confusion battlefield badges use the stable `◎N` fallback because the attempted blank-symbol display did not render reliably in Godot.
+- `MainCamera` is scene-authored `Camera2D`, configured as current at runtime, and reset to its scene-authored position/zoom before battle reset paths.
+- Camera2D controls battle world view only; `BattleUI`, `EnemyRetreatToastLayer`, `CutinOverlay`, and `ResultOverlay` remain CanvasLayer-based screen UI.
 - Ally manual unique skill use now requires range/target selection before resolution.
 - Unique skill range overlays are purple and valid target cells are gold/orange.
 - Unique skill toast backdrop is hidden/transparent so only the cutin image and skill name read visually.
@@ -128,10 +134,12 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Next candidates:
-  - `v0.68 WorldMap ↔ BattleContext Contract MVP`
-  - `v0.68b Hero/Army Deployment Contract MVP`
+  - `v0.68a-2 Combat Focus Camera Follow`
+  - `v0.68a-3 Battlefield Scale + Deployment Recenter`
+  - `v0.68b WorldMap Region Graph MVP`
 - 김작 F6 visual QA remains before treating layout feel as final: move `Slots/AllyReinforce01Slot` and confirm ROUND 2 김유신 spawn plus HP/troop/portrait/click/facing/status alignment.
 - 김작 F6 visual QA also remains for status badge placement: confirm `→` badges sit left of arrow, `←` badges sit right, `↑` and `↓` badges sit tightly on the arrow's left edge, confusion remains `◎N`, and multi-status groups attach as one badge block.
+- 김작 F6 visual QA remains for Camera2D foundation: confirm F6 shows the normal battle screen, fixed UI panels/toasts stay screen-anchored, `MainCamera` is current, existing camera shake still works, and the battle loop remains stable.
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.
