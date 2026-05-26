@@ -44,7 +44,7 @@ Latest docs/workflow baseline:
 
 Latest UI patch:
 
-`v0.68a-fix3 Status Icon Tighten + Confusion Fallback Restore`
+`v0.68a-fix4 Status Badge Edge Snap To Facing Arrow`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -103,7 +103,7 @@ Do not modify casually:
 - `UnitMarker` nodes are retained as compatibility runtime sync targets and should not be deleted casually.
 - Token, portrait, HP bar, troop label, shadow, move dust, click area, READY frame, facing indicator, and status badges are treated as one root-relative visual attachment set through the `UnitVisualSlot` registry.
 - Click areas remain scene-level `Area2D` nodes for compatibility, and READY/facing/status overlays remain UI/FX layer nodes, but all are positioned from the slot-synced visual anchor.
-- Battlefield status badges now sit tighter to the facing arrow with one ally/enemy/support/reinforce rule: right-facing badges sit left of the arrow, left-facing badges sit right of the arrow, and up/down-facing badges use the nearby arrow side that avoids the unit body center.
+- Battlefield status badges now snap badge edge to facing-arrow visual edge instead of using the full facing indicator Control width.
 - Confusion battlefield badges use the stable `◎N` fallback because the attempted blank-symbol display did not render reliably in Godot.
 - Ally manual unique skill use now requires range/target selection before resolution.
 - Unique skill range overlays are purple and valid target cells are gold/orange.
@@ -130,7 +130,7 @@ Do not modify casually:
   - `v0.68 WorldMap ↔ BattleContext Contract MVP`
   - `v0.68b Hero/Army Deployment Contract MVP`
 - 김작 F6 visual QA remains before treating layout feel as final: move `Slots/AllyReinforce01Slot` and confirm ROUND 2 김유신 spawn plus HP/troop/portrait/click/facing/status alignment.
-- 김작 F6 visual QA also remains for status badge placement: confirm ally/enemy/support/reinforce badges stay close to the unit, sit nearly attached behind or beside the facing arrow, avoid up/down body-center overlap, show confusion as `◎N`, and do not heavily overlap the face or arrow.
+- 김작 F6 visual QA also remains for status badge placement: confirm ally/enemy/support/reinforce badges snap to the arrow edge with `0-4px` visual gap, avoid up/down body-center overlap, show confusion as `◎N`, and keep multi-status groups attached as one badge block.
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

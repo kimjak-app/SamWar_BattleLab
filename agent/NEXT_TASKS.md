@@ -5,7 +5,7 @@ Behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
-Latest UI patch: `v0.68a-fix3 Status Icon Tighten + Confusion Fallback Restore`
+Latest UI patch: `v0.68a-fix4 Status Badge Edge Snap To Facing Arrow`
 
 ## Priority 1
 `v0.68b WorldMap Region Graph MVP`
@@ -38,6 +38,12 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-fix4 Status Badge Edge Snap To Facing Arrow` is complete.
+- Changed battlefield status badge placement from full facing-indicator width math to approximate facing-arrow visual edge snapping.
+- Right-facing units snap the badge block's right edge to the arrow's left edge; left-facing units snap the badge block's left edge to the arrow's right edge.
+- Up/down-facing units keep the body-center avoidance side rule while using the same arrow visual edge snap.
+- Confusion fallback `◎N` remains.
+- 김작 F6 visual QA remains for `0-4px` arrow-edge gap, same ally/enemy rule, up/down body-overlap avoidance, confusion `◎N`, and multi-status badge block alignment.
 - `v0.68a-fix3 Status Icon Tighten + Confusion Fallback Restore` is complete.
 - Tightened battlefield status badge placement further from a `6px` arrow gap to a `2px` arrow gap.
 - Restored confusion battlefield badge display from numeric-only `N` to stable `◎N` fallback because the attempted blank-symbol display did not render reliably in Godot.

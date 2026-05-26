@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68a-fix4 Status Badge Edge Snap To Facing Arrow
+- Changed battlefield status badge placement from full facing-indicator Control width math to approximate facing-arrow visual edge snapping.
+- Added approximate facing-arrow visual dimensions for status badge placement so left/right badge blocks attach to arrow edge with a `2px` gap.
+- Kept up/down-facing badge placement on the side that avoids the unit body center while using the same arrow visual edge snap.
+- Preserved confusion fallback as `◎N`.
+- Kept status effects, turn decrement logic, strategy behavior, defend behavior, unique skills, damage/move/attack formulas, marker/slot structure, battle size, AI, and worldmap contracts unchanged.
+
 ## v0.68a-fix3 Status Icon Tighten + Confusion Fallback Restore
 - Tightened battlefield status badge placement further by reducing the arrow gap from `6px` to `2px`.
 - Restored confusion battlefield badge display from numeric-only `N` to the stable `◎N` fallback because the attempted blank-symbol display did not render reliably in Godot.

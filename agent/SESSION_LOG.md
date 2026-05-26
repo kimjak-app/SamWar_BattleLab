@@ -2,6 +2,15 @@
 
 ## 2026-05-26
 
+### v0.68a-fix4 Status Badge Edge Snap To Facing Arrow
+- Audited `_get_strategy_status_badge_position_for_unit()` after F6 showed the badge gap did not visually shrink.
+- Changed the calculation to derive an approximate facing-arrow visual rect instead of treating the full facing indicator Control width as the arrow edge.
+- Snapped right-facing badge blocks by their right edge to the arrow's left edge, and left-facing badge blocks by their left edge to the arrow's right edge, with a `2px` gap.
+- Kept up/down-facing badge placement on the nearby side that avoids body-center overlap.
+- Preserved confusion fallback `◎N` and left status/effect logic unchanged.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+- Left 김작 F6 QA for true arrow-edge attachment, `0-4px` visual gap, ally/enemy parity, up/down body-overlap avoidance, confusion `◎N`, and multi-status badge block alignment.
+
 ### v0.68a-fix3 Status Icon Tighten + Confusion Fallback Restore
 - Tightened `STATUS_BADGE_ARROW_GAP` from `6px` to `2px` so status badges sit closer to the facing arrow.
 - Restored confusion battlefield badge text from numeric-only `N` to the stable `◎N` fallback after the attempted blank-symbol display failed to render reliably in Godot.
