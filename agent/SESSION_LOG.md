@@ -2,6 +2,15 @@
 
 ## 2026-05-26
 
+### v0.68 Agent Contract Split for WorldMap + Hero Scale Prep
+- Added `WORLDMAP_RULES.md`, `HERO_DATA_CONTRACT.md`, `ARMY_DEPLOYMENT_RULES.md`, `BATTLE_CONTEXT_CONTRACT.md`, `BATTLE_ENGINE_RULES.md`, and `SKILL_SYSTEM_RULES.md`.
+- Defined worldmap / army systems as owners of encounter creation, battle type, terrain, region, `map_variant_id`, and roster preparation.
+- Defined the battle engine as a consumer of prepared `BattleContext.roster`, not a direct hero-selection owner.
+- Split `HeroData` static metadata from battle runtime state and documented future army / deployment / skill metadata boundaries.
+- Documented `hero_id` as source of truth, global hero registry direction, BattleContext-only battle engine input, and future naval/coastal/siege expansion hooks.
+- Updated handoff, current state, next tasks, and changelog.
+- Docs-only architecture contract patch; no runtime code, scene, script, or asset changes.
+
 ### v0.67z-4 Agent Role Split Foundation
 - Split mixed agent responsibilities into role-based docs: architect, implementation, QA, runtime QA, visual QA, and workflow manager.
 - Kept `CODEX_WORKFLOW_RULES.md` as the canonical source for task classification, autonomous execution, approval handling, and verification depth.

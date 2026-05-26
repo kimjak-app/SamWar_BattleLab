@@ -1,33 +1,47 @@
 # NEXT TASKS
 
 ## Current Stable Baseline
-`v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
+Behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
+
+Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
 ## Priority 1
-`v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
+`v0.68b WorldMap Region Graph MVP`
 
 Goal:
-- prepare agent docs and contract ownership for worldmap, larger hero scale, and future battle launch integration
+- create the first region/city/route/connection graph data structure for China, the Korean peninsula, and the Japanese archipelago
 
 ## Priority 2
-`v0.68 WorldMap ↔ BattleContext Contract MVP`
+`v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
-- define the first worldmap-to-battle roster/context handoff contract while preserving the current stable `5v5` battle baseline
+- inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
 ## Priority 3
-`v0.68b Hero/Army Deployment Contract MVP`
+`v0.68d Hero/Army Deployment MVP`
 
 Goal:
-- define hero / army deployment data needed before battle startup consumes external roster placement
+- implement first hero / region / city / army assignment data needed to produce roster candidates
 
 ## Priority 4
-`Later Unit Visual Hierarchy Polish`
+`v0.69 Battlefield Variant Loader`
 
 Goal:
-- only if needed, convert the currently registry-bound click/UI overlay attachments into direct scene children after the layout contract is proven stable
+- load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
+
+## Priority 5
+`v0.69b Naval Battle Entry MVP`
+
+Goal:
+- create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep` is complete.
+- Added worldmap, hero data, army deployment, BattleContext, battle engine, and skill system contract docs.
+- Defined the future data flow: worldmap / army encounter -> `BattleContext` -> battle engine consumes `BattleContext.roster`.
+- Documented that battle type, terrain, region, and `map_variant_id` are decided before battle startup by worldmap / region rules.
+- Recorded the next candidates: `v0.68b WorldMap Region Graph MVP`, `v0.68c BattleContext Runtime Injection MVP`, `v0.68d Hero/Army Deployment MVP`, `v0.69 Battlefield Variant Loader`, and `v0.69b Naval Battle Entry MVP`.
+- No code, scene, script, or asset changes were made.
 - `v0.67z-4 Agent Role Split Foundation` is complete.
 - Added role-based agent docs for architecture, implementation, QA, runtime QA, visual QA, and workflow management.
 - Kept `CODEX_WORKFLOW_RULES.md` as the canonical source for task classification, autonomous execution, approval handling, and verification depth.

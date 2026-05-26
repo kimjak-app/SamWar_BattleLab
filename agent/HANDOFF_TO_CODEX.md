@@ -8,14 +8,23 @@ Before making changes, read:
 5. `agent/QA_AGENT.md`
 6. `agent/RUNTIME_QA_AGENT.md`
 7. `agent/VISUAL_QA_AGENT.md`
-8. `agent/GODOT_RULES.md`
-9. `agent/CURRENT_STATE.md`
-10. `agent/NEXT_TASKS.md`
-11. `agent/HANDOFF_TO_CODEX.md`
+8. `agent/WORLDMAP_RULES.md`
+9. `agent/HERO_DATA_CONTRACT.md`
+10. `agent/ARMY_DEPLOYMENT_RULES.md`
+11. `agent/BATTLE_CONTEXT_CONTRACT.md`
+12. `agent/BATTLE_ENGINE_RULES.md`
+13. `agent/SKILL_SYSTEM_RULES.md`
+14. `agent/GODOT_RULES.md`
+15. `agent/CURRENT_STATE.md`
+16. `agent/NEXT_TASKS.md`
+17. `agent/HANDOFF_TO_CODEX.md`
 
 Follow the autonomous execution and commit rules in `agent/CODEX_WORKFLOW_RULES.md`, including autonomous commit when the task provides an explicit commit message.
 At the start of a new Codex session, always follow the `SamWar_BattleLab 자동 작업 권한 헤더` section in `agent/WORKFLOW_MANAGER.md` and `agent/CODEX_WORKFLOW_RULES.md`.
 Role-based agent docs are responsibility guides. `agent/CODEX_WORKFLOW_RULES.md` remains the canonical source for task classification, autonomous execution, approval handling, and verification depth.
+WorldMap integration must respect the `BattleContext` contract.
+BattleEngine must not directly consume global world state.
+Worldmap is not implemented yet, but the worldmap -> battle_context -> battle_engine contract direction is selected.
 
 ## Local Godot Execution Path
 - Godot 실행파일은 설치형이 아닐 수 있으며 PATH에 없을 수 있다.
@@ -28,6 +37,10 @@ Role-based agent docs are responsibility guides. `agent/CODEX_WORKFLOW_RULES.md`
 Current stable baseline is:
 
 `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
+
+Latest docs/workflow baseline:
+
+`v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -106,9 +119,9 @@ Do not modify casually:
 - Detailed unique skill range balance remains deferred.
 
 ## Recommended Next Task
-- Current baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
+- Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
+- Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Next candidates:
-  - `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
   - `v0.68 WorldMap ↔ BattleContext Contract MVP`
   - `v0.68b Hero/Army Deployment Contract MVP`
 - 김작 F6 visual QA remains before treating layout feel as final: move `Slots/AllyReinforce01Slot` and confirm ROUND 2 김유신 spawn plus HP/troop/portrait/click/facing/status alignment.
@@ -120,6 +133,10 @@ Do not modify casually:
 - Scene portrait textures are not the final identity source of truth.
 - `capacity_slot_id -> assigned_hero_id -> HERO_REGISTRY` remains the intended identity path.
 - Worldmap integration should build on the current stable `5v5` roster/battle contract path.
+- The battle engine must not choose heroes directly; it should consume future `BattleContext.roster`.
+- Worldmap / army systems own encounter creation, battle type, terrain, region, and `map_variant_id` selection.
+- BattleEngine must not directly consume global world state.
+- Contract docs for this direction live in `agent/WORLDMAP_RULES.md`, `agent/HERO_DATA_CONTRACT.md`, `agent/ARMY_DEPLOYMENT_RULES.md`, `agent/BATTLE_CONTEXT_CONTRACT.md`, `agent/BATTLE_ENGINE_RULES.md`, and `agent/SKILL_SYSTEM_RULES.md`.
 
 ## Do Not Break
 Canonical regression guard details are also tracked in `agent/QA_AGENT.md`.

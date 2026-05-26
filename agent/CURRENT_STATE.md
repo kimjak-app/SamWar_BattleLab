@@ -4,9 +4,12 @@
 SamWar_BattleLab
 
 ## Current Stable Baseline
-`v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
+Behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
+
+Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
 ## Current Implementation Step
+- `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - `v0.67z-4 Agent Role Split Foundation`
 - `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - `v0.67z-2 Deployment Anchor Source Unification`
@@ -40,6 +43,12 @@ SamWar_BattleLab
 - Existing bottom command handlers are reused with no intended behavior change.
 
 ## Stable Summary
+- Worldmap / hero / army / BattleContext / battle engine / skill contract docs now define the future system boundaries for larger hero scale and worldmap battle launch.
+- The battle engine is documented as a `BattleContext.roster` consumer and must not choose heroes directly.
+- Worldmap / army systems are documented as owners of encounter creation, battle type, terrain, region, and `map_variant_id` selection.
+- Current implementation remains battle-engine-centric MVP, but future architecture is worldmap -> battle_context -> battle_engine.
+- Role-based agent docs are complete.
+- Worldmap / hero-scale prep contract docs are complete.
 - Role-based agent docs now split architecture, implementation, QA, runtime QA, visual QA, and workflow manager responsibilities without changing code, scenes, or assets.
 - Current battle target is stable `5v5`.
 - `5v5` battle loop stable.
@@ -137,6 +146,14 @@ SamWar_BattleLab
 - `scripts/battle_unit_state.gd`
 - `scripts/unit_visual_slot.gd`
 
+## Contract Docs
+- `agent/WORLDMAP_RULES.md`
+- `agent/HERO_DATA_CONTRACT.md`
+- `agent/ARMY_DEPLOYMENT_RULES.md`
+- `agent/BATTLE_CONTEXT_CONTRACT.md`
+- `agent/BATTLE_ENGINE_RULES.md`
+- `agent/SKILL_SYSTEM_RULES.md`
+
 ## Verified Stable Areas
 - Enemy AI can advance and re-route in multi-target states instead of defaulting to passive idle.
 - Victory / defeat result path is reachable in accelerated full auto.
@@ -166,10 +183,11 @@ SamWar_BattleLab
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
-2. `v0.68 WorldMap ↔ BattleContext Contract MVP`
-3. `v0.68b Hero/Army Deployment Contract MVP`
-4. Later unit visual polish can refine scene hierarchy if direct reparenting becomes necessary.
+1. `v0.68b WorldMap Region Graph MVP`
+2. `v0.68c BattleContext Runtime Injection MVP`
+3. `v0.68d Hero/Army Deployment MVP`
+4. `v0.69 Battlefield Variant Loader`
+5. `v0.69b Naval Battle Entry MVP`
 
 ## Known / Deferred
 - 김작 F6 visual QA should confirm left-facing and right-facing units keep status badges near the facing arrow, with up/down facings still close to the portrait/arrow line and not fully overlapping the face.
