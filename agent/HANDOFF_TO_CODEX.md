@@ -60,7 +60,7 @@ Latest camera foundation:
 `v0.68a-3 Battlefield Large Background Apply + Camera Clamp`
 
 - Latest skill presentation patch:
-`v0.68a-4-hotfix2 Unique Skill Cutin Timing Trace`
+`v0.68a-4-hotfix2 Unique Skill Cutin Toast Tempo Match`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -133,9 +133,9 @@ Do not modify casually:
 - Unique skill range overlays are purple and valid target cells are gold/orange.
 - Unique skill presentation uses the existing `BattleUI/UniqueSkillToastRoot` as a screen-fixed wide fullscreen cut-in, independent from Camera2D movement/zoom.
 - Unique skill cut-in uses the existing skill cutin image enlarged to roughly `96%` viewport width and `52%` viewport height, with large skill-name text over the lower banner.
-- Unique skill cut-in timing is `0.18s` enter, `1.5s` hold, `0.18s` exit; actual damage/buff/FX and camera shake begin after the cut-in exits.
+- Unique skill cut-in timing is `0.14s` enter, `0.9s` hold, `0.14s` exit, using a faster turn-exchange-toast-like tempo; actual damage/buff/FX and camera shake begin after the cut-in exits.
 - `UNIQUE_SKILL_CUTIN_TIMING_DEBUG` enables `[UNIQUE_CUTIN]` console logs for SHOW_START, ENTER_DONE, HOLD_START, HOLD_DONE, EXIT_START, HIDE_DONE, and EFFECT_APPLY elapsed times.
-- The fullscreen cut-in tween now uses explicit enter-parallel, hold interval, and exit-parallel sequencing so the hold segment is auditable and not hidden by the exit fade.
+- The fullscreen cut-in tween uses explicit enter-parallel, hold interval, and exit-parallel sequencing; the previous `1.5s` hold is no longer used.
 - The former `global_scale` / `position` local variables in `scripts/battle_web_import_test.gd` were renamed to avoid Node2D property shadowing warnings.
 - Unique skill effect values, target selection, cooldowns, registry data, and AI value gates are unchanged.
 - Unique skills have MVP effects for `cannon_aoe`, `ally_attack_buff`, `self_defense_single`, and `single_damage_adjacent_shake`.
@@ -166,7 +166,8 @@ Do not modify casually:
 - 김작 F6 visual QA remains for the large battlefield: confirm the new background is visible without gray/empty areas during camera follow/shake, current separated starting positions are preserved, and direction/status/UI overlays remain synced.
 - 김작 F6 visual QA remains for fullscreen unique skill cut-ins: confirm the cut-in strongly fills the screen on the 3200x1800 battlefield, UI panels/buttons are not broken, timing is not sluggish, existing damage/buff/FX happens after cut-in exit, camera focus does not jump, camera shake returns to the current focus, status badge fix6 remains intact, and normal attack/strategy/defend flow remains stable.
 - 김작 F6 visual QA remains for `v0.68a-4-hotfix1`: confirm the cut-in/toast holds for about `1.5s`, does not vanish too quickly, enter/exit remain short, post-cutin effects still apply, camera shake returns to current focus, and GDScript warning output no longer includes `global_scale` / `position` shadowing.
-- 김작 F6 visual QA remains for `v0.68a-4-hotfix2`: confirm `[UNIQUE_CUTIN]` SHOW_START / ENTER_DONE / HOLD_START / HOLD_DONE / EXIT_START / HIDE_DONE / EFFECT_APPLY logs appear, HOLD_START to HOLD_DONE is about `1.5s`, and the log clarifies whether enter/exit/effect timing is making the cut-in feel short.
+- `v0.68a-4-hotfix2` timing trace logs remain available for diagnosis, but the `1.5s` hold check is superseded by the toast-tempo match timing.
+- 김작 F6 visual QA remains for `v0.68a-4-hotfix2` tempo match: confirm the cut-in feels close to turn-exchange toast tempo, is still readable, no longer lingers like the `1.5s` hold, enter/exit remain snappy, post-cutin effects still apply, camera shake returns to current focus, and GDScript warnings stay clean.
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

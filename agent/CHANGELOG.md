@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68a-4-hotfix2 Unique Skill Cutin Toast Tempo Match
+- Matched the unique skill fullscreen cut-in closer to turn-exchange toast tempo.
+- Changed unique skill cut-in timing to `0.14s` enter, `0.9s` hold, and `0.14s` exit; the previous `1.5s` hold is no longer used.
+- Referenced existing battle toast timings: round start hold `1.15s`, reinforcement arrival hold `0.82s`, with battle toast enter/fade timing around `0.42s` in and `0.32s` out.
+- Preserved unique skill effect values, targets, cooldowns, AI judgment, damage formulas, Camera2D policy, battlefield background, and status badge rules.
+- Added 김작 F6 checks for readable but faster cut-in tempo, short enter/exit, normal post-cutin effects, camera shake return, and clean GDScript warnings.
+
 ## v0.68a-4-hotfix2 Unique Skill Cutin Timing Trace
 - Added `UNIQUE_SKILL_CUTIN_TIMING_DEBUG` and `[UNIQUE_CUTIN]` console logs for SHOW_START, ENTER_DONE, HOLD_START, HOLD_DONE, EXIT_START, HIDE_DONE, and EFFECT_APPLY.
 - Made the fullscreen unique skill cut-in tween sequence explicit: enter animations run in parallel, then the `1.5s` hold interval, then exit animations run in parallel.

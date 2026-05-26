@@ -9,7 +9,7 @@ Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
 Latest camera/background patch: `v0.68a-3 Battlefield Large Background Apply + Camera Clamp`
 
-Latest skill presentation patch: `v0.68a-4-hotfix2 Unique Skill Cutin Timing Trace`
+Latest skill presentation patch: `v0.68a-4-hotfix2 Unique Skill Cutin Toast Tempo Match`
 
 ## Priority 1
 `v0.68b WorldMap Region Graph MVP`
@@ -42,10 +42,14 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-4-hotfix2 Unique Skill Cutin Toast Tempo Match` is complete.
+- Unique skill cut-in timing now uses `0.14s` enter, `0.9s` hold, and `0.14s` exit, closer to turn-exchange toast tempo.
+- The previous `1.5s` hold is no longer used because it felt too long in 김작 F6.
+- 김작 F6 should confirm the cut-in is readable, not dragged out, returns quickly to battle effects, and keeps camera shake/focus stable.
 - `v0.68a-4-hotfix2 Unique Skill Cutin Timing Trace` is complete.
 - Added debug-gated `[UNIQUE_CUTIN]` timing logs for show, enter done, hold start/done, exit start, hide done, and effect apply.
-- The `1.5s` hold is now traceable through the actual tween interval, with explicit enter / hold / exit sequencing.
-- 김작 F6 should confirm HOLD_START to HOLD_DONE is about `1.5s` and use the console log to judge whether perceived shortness comes from enter/exit/effect timing.
+- Timing trace logs remain available for diagnosing the cut-in sequence, but the `1.5s` hold target is superseded by the toast-tempo match timing.
+- 김작 F6 should use the current `0.9s` hold tempo as the active confirmation target.
 - `v0.68a-4-hotfix1 Unique Skill Cutin Hold + Shadow Warning Fix` is complete.
 - Unique skill cut-in/toast hold is now `1.5s`, while enter/exit remain short.
 - Removed `global_scale` / `position` local-variable shadowing warnings in `scripts/battle_web_import_test.gd`.

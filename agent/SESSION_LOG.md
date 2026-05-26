@@ -2,6 +2,13 @@
 
 ## 2026-05-26
 
+### v0.68a-4-hotfix2 Unique Skill Cutin Toast Tempo Match
+- Compared unique skill cut-in tempo against existing battle toast timings: round start hold `1.15s`, reinforcement arrival hold `0.82s`, and battle toast fade timing around `0.42s` in / `0.32s` out.
+- Changed `UNIQUE_SKILL_CUTIN_ENTER_DURATION` to `0.14s`, `UNIQUE_SKILL_CUTIN_HOLD_DURATION` to `0.9s`, and `UNIQUE_SKILL_CUTIN_EXIT_DURATION` to `0.14s`.
+- Removed the `1.5s` hold from the current unique skill cut-in tempo because 김작 F6 found it too long.
+- Preserved unique skill effect values, targeting, cooldowns, AI decisions, formulas, Camera2D policy, battlefield background, and status badge rules.
+- 김작 F6 follow-up: confirm the cut-in reads clearly, feels close to turn-exchange toast tempo, exits quickly into damage/buff/FX, and keeps camera shake focus stable.
+
 ### v0.68a-4-hotfix2 Unique Skill Cutin Timing Trace
 - Added `UNIQUE_SKILL_CUTIN_TIMING_DEBUG := true`.
 - Added `[UNIQUE_CUTIN]` timing logs for SHOW_START, ENTER_DONE, HOLD_START, HOLD_DONE, EXIT_START, HIDE_DONE, and EFFECT_APPLY.
