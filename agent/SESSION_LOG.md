@@ -2,6 +2,13 @@
 
 ## 2026-05-26
 
+### v0.68a-4-hotfix2 Unique Skill Cutin Timing Trace
+- Added `UNIQUE_SKILL_CUTIN_TIMING_DEBUG := true`.
+- Added `[UNIQUE_CUTIN]` timing logs for SHOW_START, ENTER_DONE, HOLD_START, HOLD_DONE, EXIT_START, HIDE_DONE, and EFFECT_APPLY.
+- Reworked the fullscreen cut-in tween into explicit enter-parallel, hold interval, and exit-parallel sequencing so the `1.5s` hold can be measured directly.
+- Preserved unique skill effect values, targeting, cooldowns, AI decisions, formulas, Camera2D policy, battlefield background, and status badge rules.
+- 김작 F6 follow-up: trigger a unique skill and compare HOLD_START to HOLD_DONE elapsed times, then check whether effect/exit timing explains the short perceived hold.
+
 ### v0.68a-4-hotfix1 Unique Skill Cutin Hold + Shadow Warning Fix
 - Set `UNIQUE_SKILL_CUTIN_HOLD_DURATION` to `1.5s` so the fullscreen unique skill cut-in/toast stays on screen longer.
 - Renamed the local battlefield texture scale variable to `battlefield_global_scale`.

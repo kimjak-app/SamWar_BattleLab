@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.68a-4-hotfix2 Unique Skill Cutin Timing Trace
+- Added `UNIQUE_SKILL_CUTIN_TIMING_DEBUG` and `[UNIQUE_CUTIN]` console logs for SHOW_START, ENTER_DONE, HOLD_START, HOLD_DONE, EXIT_START, HIDE_DONE, and EFFECT_APPLY.
+- Made the fullscreen unique skill cut-in tween sequence explicit: enter animations run in parallel, then the `1.5s` hold interval, then exit animations run in parallel.
+- Kept unique skill effect values, targets, cooldowns, AI judgment, damage formulas, Camera2D policy, battlefield background, and status badge rules unchanged.
+- Added 김작 F6 console checks to verify whether HOLD_START to HOLD_DONE is actually about `1.5s` and whether enter/exit/effect timing explains the perceived shortness.
+
 ## v0.68a-4-hotfix1 Unique Skill Cutin Hold + Shadow Warning Fix
 - Increased unique skill fullscreen cut-in/toast hold from `0.66s` to `1.5s`.
 - Renamed local `global_scale` and `position` variables in `scripts/battle_web_import_test.gd` to remove Node2D property shadowing warnings.

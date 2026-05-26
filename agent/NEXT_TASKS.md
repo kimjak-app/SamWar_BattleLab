@@ -9,7 +9,7 @@ Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
 Latest camera/background patch: `v0.68a-3 Battlefield Large Background Apply + Camera Clamp`
 
-Latest skill presentation patch: `v0.68a-4-hotfix1 Unique Skill Cutin Hold + Shadow Warning Fix`
+Latest skill presentation patch: `v0.68a-4-hotfix2 Unique Skill Cutin Timing Trace`
 
 ## Priority 1
 `v0.68b WorldMap Region Graph MVP`
@@ -42,6 +42,10 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-4-hotfix2 Unique Skill Cutin Timing Trace` is complete.
+- Added debug-gated `[UNIQUE_CUTIN]` timing logs for show, enter done, hold start/done, exit start, hide done, and effect apply.
+- The `1.5s` hold is now traceable through the actual tween interval, with explicit enter / hold / exit sequencing.
+- 김작 F6 should confirm HOLD_START to HOLD_DONE is about `1.5s` and use the console log to judge whether perceived shortness comes from enter/exit/effect timing.
 - `v0.68a-4-hotfix1 Unique Skill Cutin Hold + Shadow Warning Fix` is complete.
 - Unique skill cut-in/toast hold is now `1.5s`, while enter/exit remain short.
 - Removed `global_scale` / `position` local-variable shadowing warnings in `scripts/battle_web_import_test.gd`.
