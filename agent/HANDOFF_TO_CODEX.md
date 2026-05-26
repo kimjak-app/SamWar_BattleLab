@@ -44,7 +44,7 @@ Latest docs/workflow baseline:
 
 Latest UI patch:
 
-`v0.68a-fix4 Status Badge Edge Snap To Facing Arrow`
+`v0.68a-fix5 Vertical Facing Status Badge Arrow Tail Fix`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -104,6 +104,7 @@ Do not modify casually:
 - Token, portrait, HP bar, troop label, shadow, move dust, click area, READY frame, facing indicator, and status badges are treated as one root-relative visual attachment set through the `UnitVisualSlot` registry.
 - Click areas remain scene-level `Area2D` nodes for compatibility, and READY/facing/status overlays remain UI/FX layer nodes, but all are positioned from the slot-synced visual anchor.
 - Battlefield status badges now snap badge edge to facing-arrow visual edge instead of using the full facing indicator Control width.
+- Vertical-facing battlefield status badges now also use arrow tail edge placement: up-facing badges sit below the arrow and down-facing badges sit above the arrow.
 - Confusion battlefield badges use the stable `◎N` fallback because the attempted blank-symbol display did not render reliably in Godot.
 - Ally manual unique skill use now requires range/target selection before resolution.
 - Unique skill range overlays are purple and valid target cells are gold/orange.
@@ -130,7 +131,7 @@ Do not modify casually:
   - `v0.68 WorldMap ↔ BattleContext Contract MVP`
   - `v0.68b Hero/Army Deployment Contract MVP`
 - 김작 F6 visual QA remains before treating layout feel as final: move `Slots/AllyReinforce01Slot` and confirm ROUND 2 김유신 spawn plus HP/troop/portrait/click/facing/status alignment.
-- 김작 F6 visual QA also remains for status badge placement: confirm ally/enemy/support/reinforce badges snap to the arrow edge with `0-4px` visual gap, avoid up/down body-center overlap, show confusion as `◎N`, and keep multi-status groups attached as one badge block.
+- 김작 F6 visual QA also remains for status badge placement: confirm `→` badges sit left of arrow, `←` badges sit right, `↑` badges sit below, `↓` badges sit above, confusion remains `◎N`, and multi-status groups attach as one badge block.
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

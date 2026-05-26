@@ -2,6 +2,15 @@
 
 ## 2026-05-26
 
+### v0.68a-fix5 Vertical Facing Status Badge Arrow Tail Fix
+- Audited vertical-facing status badge placement after F6 showed up/down badges still following the portrait side.
+- Removed the visual-anchor side-choice branch for `FACING_UP` / `FACING_DOWN`.
+- Changed up-facing badges to attach below the arrow bottom edge and down-facing badges to attach above the arrow top edge, centered on the arrow visual rect.
+- Preserved left/right-facing edge snap from `v0.68a-fix4` and kept confusion fallback `◎N`.
+- Preserved status effects, turn decrement logic, strategy behavior, defend behavior, unique skills, damage/move/attack formulas, marker/slot structure, battle size, AI, and worldmap contracts.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+- Left 김작 F6 QA for `→` left, `←` right, `↑` below, `↓` above arrow-tail placement, vertical body-overlap checks, confusion `◎N`, and multi-status badge block alignment.
+
 ### v0.68a-fix4 Status Badge Edge Snap To Facing Arrow
 - Audited `_get_strategy_status_badge_position_for_unit()` after F6 showed the badge gap did not visually shrink.
 - Changed the calculation to derive an approximate facing-arrow visual rect instead of treating the full facing indicator Control width as the arrow edge.

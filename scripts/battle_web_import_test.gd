@@ -2236,16 +2236,16 @@ func _get_strategy_status_badge_position_for_unit(unit_state: BattleUnitState, b
 	if facing_indicator_size.y > arrow_visual_size.y:
 		arrow_visual_origin.y += (facing_indicator_size.y - arrow_visual_size.y) * 0.5
 	var centered_badge_y := (arrow_visual_size.y - badge_size.y) * 0.5 + STATUS_BADGE_ARROW_Y_NUDGE
+	var centered_badge_x := (arrow_visual_size.x - badge_size.x) * 0.5
 	match normalized_facing:
 		FACING_LEFT:
 			return arrow_visual_origin + Vector2(arrow_visual_size.x + STATUS_BADGE_ARROW_GAP, centered_badge_y)
 		FACING_RIGHT:
 			return arrow_visual_origin + Vector2(-badge_size.x - STATUS_BADGE_ARROW_GAP, centered_badge_y)
-		FACING_UP, FACING_DOWN:
-			var visual_anchor := _get_visual_anchor_position_for_unit(unit_state)
-			if arrow_visual_origin.x <= visual_anchor.x:
-				return arrow_visual_origin + Vector2(arrow_visual_size.x + STATUS_BADGE_ARROW_GAP, centered_badge_y)
-			return arrow_visual_origin + Vector2(-badge_size.x - STATUS_BADGE_ARROW_GAP, centered_badge_y)
+		FACING_UP:
+			return arrow_visual_origin + Vector2(centered_badge_x, arrow_visual_size.y + STATUS_BADGE_ARROW_GAP)
+		FACING_DOWN:
+			return arrow_visual_origin + Vector2(centered_badge_x, -badge_size.y - STATUS_BADGE_ARROW_GAP)
 		_:
 			return arrow_visual_origin + Vector2(arrow_visual_size.x + STATUS_BADGE_ARROW_GAP, centered_badge_y)
 

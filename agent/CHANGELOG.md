@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68a-fix5 Vertical Facing Status Badge Arrow Tail Fix
+- Changed up/down-facing battlefield status badge placement to use facing-arrow tail edge placement instead of portrait/visual-anchor side placement.
+- Up-facing badges now attach below the arrow bottom edge; down-facing badges attach above the arrow top edge.
+- Preserved left/right-facing badge edge snap from `v0.68a-fix4`.
+- Preserved confusion fallback as `◎N`.
+- Kept status effects, turn decrement logic, strategy behavior, defend behavior, unique skills, damage/move/attack formulas, marker/slot structure, battle size, AI, and worldmap contracts unchanged.
+
 ## v0.68a-fix4 Status Badge Edge Snap To Facing Arrow
 - Changed battlefield status badge placement from full facing-indicator Control width math to approximate facing-arrow visual edge snapping.
 - Added approximate facing-arrow visual dimensions for status badge placement so left/right badge blocks attach to arrow edge with a `2px` gap.
