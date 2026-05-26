@@ -656,6 +656,7 @@ color = Color(0.0509804, 0.0862745, 0.133333, 1)
 
 [node name="BattlefieldTexture" type="Sprite2D" parent="BattlefieldRoot" unique_id=836791405]
 position = Vector2(797, 327)
+scale = Vector2(0.9, 0.9)
 texture = ExtResource("4_large_battlefield")
 
 [node name="BoardBounds" type="ColorRect" parent="BattlefieldRoot" unique_id=2098836911]
