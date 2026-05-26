@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68a-4 Unique Skill Fullscreen Cut-In Presentation
+- Enlarged unique skill presentation into a screen-fixed wide cut-in on `BattleUI/UniqueSkillToastRoot`.
+- Reused existing per-skill cutin images and skill-name text, scaling the banner to the viewport for the large battlefield / Camera2D focus setup.
+- Sequenced actual unique skill damage / buff / FX and camera shake after the cut-in exits.
+- Preserved unique skill effect values, target rules, cooldowns, registry data, AI value gates, battle formulas, and Camera2D focus policy.
+- Added 김작 F6 checks for cut-in scale, UI overlap feel, timing, post-cutin effect application, camera focus/shake return, status badge fix6, and normal battle flow.
+
 ## v0.68a-3 Battlefield Large Background Apply + Camera Clamp
 - Applied `assets/web_battle/battlefield/battlefield_3200x1800_worldmap_test_01.png` as the `Battle_Fullscreen_Test.tscn` battlefield background.
 - Kept the new battlefield texture at 1:1 scale and centered it as a 3200x1800 world rect.

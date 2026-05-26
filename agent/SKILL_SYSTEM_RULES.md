@@ -71,6 +71,7 @@ SkillData = {
   - `single_damage_adjacent_shake`
 - Current manual unique skill use requires range / target selection before resolution.
 - Current auto/enemy skill use checks value conditions before falling back to basic attack, movement, or wait.
+- Current unique skill presentation uses a screen-fixed wide cut-in first, then applies the existing battle effect logic; presentation scale must not change effect values, targets, cooldowns, or AI value gates.
 
 ## Future Battle-Type Expansion
 - `naval_only` skills.
@@ -87,3 +88,4 @@ SkillData = {
 - Do not restore one-use gating unless explicitly requested.
 - Do not bypass current range-limited valid target checks.
 - Do not make skill metadata depend on scene node names.
+- Do not let cut-in presentation timing or scale alter unique skill formulas, target validity, cooldown state, or registry ownership.

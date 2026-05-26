@@ -9,6 +9,8 @@ Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
 Latest camera/background patch: `v0.68a-3 Battlefield Large Background Apply + Camera Clamp`
 
+Latest skill presentation patch: `v0.68a-4 Unique Skill Fullscreen Cut-In Presentation`
+
 ## Priority 1
 `v0.68b WorldMap Region Graph MVP`
 
@@ -40,6 +42,10 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-4 Unique Skill Fullscreen Cut-In Presentation` is complete.
+- Unique skill presentation now uses a screen-fixed wide cut-in through the existing `BattleUI/UniqueSkillToastRoot`.
+- The cut-in scales with viewport size for the large battlefield / Camera2D focus era, while existing unique skill effect values, target rules, cooldowns, AI value gates, and registry data remain unchanged.
+- 김작 F6 should confirm the fullscreen cut-in scale, UI overlap feel, short enter/hold/exit timing, post-cutin damage/buff/FX, camera focus/shake return, status badge fix6, and normal attack/strategy/defend flow.
 - `v0.68a-3 Battlefield Large Background Apply + Camera Clamp` is complete.
 - Applied `assets/web_battle/battlefield/battlefield_3200x1800_worldmap_test_01.png` to the scene-authored battlefield background.
 - Preserved current separated unit deployment and logical grid structure; no deployment recenter was done.

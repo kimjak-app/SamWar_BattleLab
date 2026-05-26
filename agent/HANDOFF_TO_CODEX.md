@@ -59,6 +59,9 @@ Latest camera foundation:
 - Latest battlefield visual patch:
 `v0.68a-3 Battlefield Large Background Apply + Camera Clamp`
 
+- Latest skill presentation patch:
+`v0.68a-4 Unique Skill Fullscreen Cut-In Presentation`
+
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
 - Core scripts:
@@ -128,8 +131,10 @@ Do not modify casually:
 - Camera clamp prefers the visible battlefield texture rect before falling back to logical board bounds, while current unit deployment remains intentionally unrecentered.
 - Ally manual unique skill use now requires range/target selection before resolution.
 - Unique skill range overlays are purple and valid target cells are gold/orange.
-- Unique skill toast backdrop is hidden/transparent so only the cutin image and skill name read visually.
-- Unique skill presentation is a caster-anchored ink toast with cutin image + skill name for `2200ms`.
+- Unique skill presentation uses the existing `BattleUI/UniqueSkillToastRoot` as a screen-fixed wide fullscreen cut-in, independent from Camera2D movement/zoom.
+- Unique skill cut-in uses the existing skill cutin image enlarged to roughly `96%` viewport width and `52%` viewport height, with large skill-name text over the lower banner.
+- Unique skill cut-in timing is `0.18s` enter, `0.66s` hold, `0.18s` exit; actual damage/buff/FX and camera shake begin after the cut-in exits.
+- Unique skill effect values, target selection, cooldowns, registry data, and AI value gates are unchanged.
 - Unique skills have MVP effects for `cannon_aoe`, `ally_attack_buff`, `self_defense_single`, and `single_damage_adjacent_shake`.
 - Unique skill damage numbers are larger red labels and unique skills trigger short camera shake.
 - Auto battle can use available ally unique skills before falling back to basic attack / movement / wait.
@@ -156,6 +161,7 @@ Do not modify casually:
 - 김작 F6 visual QA remains for combat focus: confirm battle start, ally selection, move completion, attack midpoint, enemy attack midpoint, strategy/unique skill, and reinforcement arrival are visible; UI stays fixed; status badge fix6 remains intact; and camera shake returns to the current focus.
 - 김작 F6 visual QA remains for overlay sync: confirm first-screen facing indicators sit on units, post-move direction arrows appear around the active unit after camera focus, no overlay stays in a stale gray/off-unit area, and camera shake does not desync overlays.
 - 김작 F6 visual QA remains for the large battlefield: confirm the new background is visible without gray/empty areas during camera follow/shake, current separated starting positions are preserved, and direction/status/UI overlays remain synced.
+- 김작 F6 visual QA remains for fullscreen unique skill cut-ins: confirm the cut-in strongly fills the screen on the 3200x1800 battlefield, UI panels/buttons are not broken, timing is not sluggish, existing damage/buff/FX happens after cut-in exit, camera focus does not jump, camera shake returns to the current focus, status badge fix6 remains intact, and normal attack/strategy/defend flow remains stable.
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

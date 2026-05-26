@@ -37,6 +37,7 @@
 - Camera-bound overlays that live on CanvasLayer must recalculate from current Camera2D position/zoom whenever focus changes, especially facing indicators, post-move facing arrows, READY frames, status badges, and floating command panel anchors.
 - Camera clamp should prefer the visible battlefield background rect when a large scene-authored `BattlefieldTexture` is present, so focus movement does not expose gray/empty area.
 - Camera shake should return to the current focus baseline rather than an outdated scene-center position.
+- Unique skill cut-in presentation is CanvasLayer / screen-fixed UI and must not depend on Camera2D zoom, camera position, or world anchor scale; actual unique skill damage / buff / FX remains world/battle logic after presentation.
 - Current stable target:
   - `5v5`
   - reinforcement rounds

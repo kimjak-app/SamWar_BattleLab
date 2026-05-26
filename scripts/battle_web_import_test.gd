@@ -114,11 +114,19 @@ const FORMATION_GUIDE_SLOT_NODE_PATHS := {
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH := "res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png"
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE := preload("res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png")
 const REINFORCEMENT_ARRIVAL_TOAST_TEXT := "지원군 도착!"
-const UNIQUE_SKILL_TOAST_DURATION := 2.2
-const UNIQUE_SKILL_EFFECT_APPLY_DELAY := 0.72
-const UNIQUE_SKILL_CUTIN_DISPLAY_SIZE := Vector2(512.0, 288.0)
-const UNIQUE_SKILL_TOAST_SIZE := Vector2(560.0, 360.0)
-const UNIQUE_SKILL_TOAST_WORLD_OFFSET := Vector2(0.0, -210.0)
+const UNIQUE_SKILL_CUTIN_ENTER_DURATION := 0.18
+const UNIQUE_SKILL_CUTIN_HOLD_DURATION := 0.66
+const UNIQUE_SKILL_CUTIN_EXIT_DURATION := 0.18
+const UNIQUE_SKILL_EFFECT_APPLY_DELAY := UNIQUE_SKILL_CUTIN_ENTER_DURATION + UNIQUE_SKILL_CUTIN_HOLD_DURATION + UNIQUE_SKILL_CUTIN_EXIT_DURATION
+const UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION := 0.75
+const UNIQUE_SKILL_TOAST_DURATION := UNIQUE_SKILL_EFFECT_APPLY_DELAY + UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION
+const UNIQUE_SKILL_CUTIN_VIEWPORT_WIDTH_RATIO := 0.96
+const UNIQUE_SKILL_CUTIN_VIEWPORT_HEIGHT_RATIO := 0.52
+const UNIQUE_SKILL_CUTIN_MAX_HEIGHT_RATIO := 0.58
+const UNIQUE_SKILL_CUTIN_MIN_HEIGHT := 320.0
+const UNIQUE_SKILL_CUTIN_IMAGE_INSET := 24.0
+const UNIQUE_SKILL_CUTIN_NAME_HEIGHT := 96.0
+const UNIQUE_SKILL_CUTIN_NAME_BOTTOM_MARGIN := 22.0
 const UNIQUE_SKILL_DEFAULT_RANGE := 3
 const UNIQUE_SKILL_MELEE_RANGE := 1
 const UNIQUE_SKILL_SHORT_RANGE := 2
@@ -2777,7 +2785,6 @@ func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dic
 	_focus_camera_for_unique_skill(caster_state, skill_data)
 	_show_unique_skill_toast_over_unit(caster_state, skill_data)
 	_append_battle_log("%s이 %s을 발동!" % [caster_state.display_name, String(skill_data.get("name", "고유특기"))])
-	_start_unique_skill_camera_shake(String(skill_data.get("effect_type", "")))
 	var remaining_duration := maxf(0.0, UNIQUE_SKILL_TOAST_DURATION - UNIQUE_SKILL_EFFECT_APPLY_DELAY)
 	get_tree().create_timer(UNIQUE_SKILL_EFFECT_APPLY_DELAY).timeout.connect(_apply_unique_skill_effect_if_valid.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
 	get_tree().create_timer(UNIQUE_SKILL_EFFECT_APPLY_DELAY + remaining_duration).timeout.connect(_finalize_unique_skill_action.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
@@ -2798,6 +2805,7 @@ func _apply_unique_skill_effect_if_valid(caster_state: BattleUnitState, skill_da
 		return
 	if not is_unique_skill_presenting:
 		return
+	_start_unique_skill_camera_shake(String(skill_data.get("effect_type", "")))
 	_apply_unique_skill_effect(caster_state, skill_data)
 
 
@@ -2807,34 +2815,76 @@ func _show_unique_skill_toast_over_unit(caster_state: BattleUnitState, skill_dat
 	if unique_skill_toast_tween != null:
 		unique_skill_toast_tween.kill()
 		unique_skill_toast_tween = null
-	var anchor := _world_to_battle_ui_position(_get_visual_anchor_position_for_unit(caster_state) + UNIQUE_SKILL_TOAST_WORLD_OFFSET)
 	var viewport_size := get_viewport_rect().size
-	var desired_position := anchor - (UNIQUE_SKILL_TOAST_SIZE * 0.5)
-	desired_position.x = clampf(desired_position.x, 12.0, maxf(12.0, viewport_size.x - UNIQUE_SKILL_TOAST_SIZE.x - 12.0))
-	desired_position.y = clampf(desired_position.y, 12.0, maxf(12.0, viewport_size.y - UNIQUE_SKILL_TOAST_SIZE.y - 12.0))
-	unique_skill_toast_root.position = desired_position
-	unique_skill_toast_root.size = UNIQUE_SKILL_TOAST_SIZE
-	unique_skill_toast_root.pivot_offset = UNIQUE_SKILL_TOAST_SIZE * 0.5
+	var cutin_rect := _get_unique_skill_fullscreen_cutin_rect(viewport_size)
+	_layout_unique_skill_fullscreen_cutin(viewport_size, cutin_rect)
+
 	unique_skill_toast_root.visible = true
 	unique_skill_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
-	unique_skill_toast_root.scale = Vector2.ONE * 0.85
+	unique_skill_toast_root.scale = Vector2.ONE
 	if unique_skill_ink_burst != null:
-		unique_skill_ink_burst.visible = false
+		unique_skill_ink_burst.visible = true
+		unique_skill_ink_burst.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	if unique_skill_cutin_image != null:
 		unique_skill_cutin_image.texture = _get_unique_skill_cutin_texture(caster_state, skill_data)
+		unique_skill_cutin_image.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		unique_skill_cutin_image.position = cutin_rect.position + Vector2(-viewport_size.x * 0.16, 0.0)
 	if unique_skill_name_label != null:
 		unique_skill_name_label.text = String(skill_data.get("toast_text", "%s!" % String(skill_data.get("name", "고유특기"))))
+		unique_skill_name_label.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		unique_skill_name_label.position = _get_unique_skill_name_position(cutin_rect) + Vector2(0.0, 24.0)
 
 	unique_skill_toast_tween = create_tween()
 	unique_skill_toast_tween.set_parallel(true)
-	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 1.0, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "scale", Vector2.ONE * 1.03, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	unique_skill_toast_tween.chain().tween_property(unique_skill_toast_root, "scale", Vector2.ONE, 0.13).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	unique_skill_toast_tween.tween_interval(1.2)
+	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	if unique_skill_ink_burst != null:
+		unique_skill_toast_tween.tween_property(unique_skill_ink_burst, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	if unique_skill_cutin_image != null:
+		unique_skill_toast_tween.tween_property(unique_skill_cutin_image, "position", cutin_rect.position, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+		unique_skill_toast_tween.tween_property(unique_skill_cutin_image, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	if unique_skill_name_label != null:
+		unique_skill_toast_tween.tween_property(unique_skill_name_label, "position", _get_unique_skill_name_position(cutin_rect), UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		unique_skill_toast_tween.tween_property(unique_skill_name_label, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	unique_skill_toast_tween.chain().tween_interval(UNIQUE_SKILL_CUTIN_HOLD_DURATION)
 	unique_skill_toast_tween.set_parallel(true)
-	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "position", desired_position + Vector2(0.0, -18.0), 0.75).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 0.0, 0.75).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 0.0, UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	if unique_skill_cutin_image != null:
+		unique_skill_toast_tween.tween_property(unique_skill_cutin_image, "position", cutin_rect.position + Vector2(viewport_size.x * 0.12, 0.0), UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_IN)
 	unique_skill_toast_tween.chain().tween_callback(_hide_unique_skill_toast)
+
+
+func _get_unique_skill_fullscreen_cutin_rect(viewport_size: Vector2) -> Rect2:
+	var width := viewport_size.x * UNIQUE_SKILL_CUTIN_VIEWPORT_WIDTH_RATIO
+	var height := clampf(
+		viewport_size.y * UNIQUE_SKILL_CUTIN_VIEWPORT_HEIGHT_RATIO,
+		minf(UNIQUE_SKILL_CUTIN_MIN_HEIGHT, viewport_size.y * UNIQUE_SKILL_CUTIN_MAX_HEIGHT_RATIO),
+		viewport_size.y * UNIQUE_SKILL_CUTIN_MAX_HEIGHT_RATIO
+	)
+	var position := Vector2((viewport_size.x - width) * 0.5, (viewport_size.y - height) * 0.48)
+	return Rect2(position, Vector2(width, height))
+
+
+func _layout_unique_skill_fullscreen_cutin(viewport_size: Vector2, cutin_rect: Rect2) -> void:
+	unique_skill_toast_root.position = Vector2.ZERO
+	unique_skill_toast_root.size = viewport_size
+	unique_skill_toast_root.pivot_offset = viewport_size * 0.5
+	if unique_skill_ink_burst != null:
+		unique_skill_ink_burst.position = Vector2.ZERO
+		unique_skill_ink_burst.size = viewport_size
+		unique_skill_ink_burst.color = Color(0.0, 0.0, 0.0, 0.42)
+	if unique_skill_cutin_image != null:
+		unique_skill_cutin_image.size = cutin_rect.size
+		unique_skill_cutin_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		unique_skill_cutin_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	if unique_skill_name_label != null:
+		unique_skill_name_label.size = Vector2(cutin_rect.size.x - UNIQUE_SKILL_CUTIN_IMAGE_INSET * 2.0, UNIQUE_SKILL_CUTIN_NAME_HEIGHT)
+
+
+func _get_unique_skill_name_position(cutin_rect: Rect2) -> Vector2:
+	return Vector2(
+		cutin_rect.position.x + UNIQUE_SKILL_CUTIN_IMAGE_INSET,
+		cutin_rect.position.y + cutin_rect.size.y - UNIQUE_SKILL_CUTIN_NAME_HEIGHT - UNIQUE_SKILL_CUTIN_NAME_BOTTOM_MARGIN
+	)
 
 
 func _get_unique_skill_cutin_texture(caster_state: BattleUnitState, skill_data: Dictionary) -> Texture2D:
@@ -6541,25 +6591,25 @@ func _configure_round_toast() -> void:
 func _configure_unique_skill_toast() -> void:
 	if unique_skill_toast_root != null:
 		unique_skill_toast_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		unique_skill_toast_root.size = UNIQUE_SKILL_TOAST_SIZE
-		unique_skill_toast_root.pivot_offset = UNIQUE_SKILL_TOAST_SIZE * 0.5
+		unique_skill_toast_root.position = Vector2.ZERO
+		unique_skill_toast_root.size = get_viewport_rect().size
+		unique_skill_toast_root.pivot_offset = unique_skill_toast_root.size * 0.5
 		unique_skill_toast_root.visible = false
 	if unique_skill_ink_burst != null:
 		unique_skill_ink_burst.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		unique_skill_ink_burst.color = Color(1.0, 1.0, 1.0, 0.0)
-		unique_skill_ink_burst.size = UNIQUE_SKILL_TOAST_SIZE
+		unique_skill_ink_burst.color = Color(0.0, 0.0, 0.0, 0.42)
+		unique_skill_ink_burst.size = get_viewport_rect().size
 		unique_skill_ink_burst.visible = false
 	if unique_skill_cutin_image != null:
 		unique_skill_cutin_image.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		unique_skill_cutin_image.size = UNIQUE_SKILL_CUTIN_DISPLAY_SIZE
 		unique_skill_cutin_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		unique_skill_cutin_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	if unique_skill_name_label != null:
 		unique_skill_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		unique_skill_name_label.add_theme_font_size_override("font_size", 42)
+		unique_skill_name_label.add_theme_font_size_override("font_size", 58)
 		unique_skill_name_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.48, 1.0))
 		unique_skill_name_label.add_theme_color_override("font_outline_color", Color(0.04, 0.02, 0.0, 0.95))
-		unique_skill_name_label.add_theme_constant_override("outline_size", 5)
+		unique_skill_name_label.add_theme_constant_override("outline_size", 7)
 
 
 func _hide_unique_skill_toast() -> void:
@@ -6567,8 +6617,15 @@ func _hide_unique_skill_toast() -> void:
 		unique_skill_toast_root.visible = false
 		unique_skill_toast_root.modulate = Color.WHITE
 		unique_skill_toast_root.scale = Vector2.ONE
+		unique_skill_toast_root.position = Vector2.ZERO
+	if unique_skill_ink_burst != null:
+		unique_skill_ink_burst.visible = false
+		unique_skill_ink_burst.modulate = Color.WHITE
 	if unique_skill_cutin_image != null:
 		unique_skill_cutin_image.texture = null
+		unique_skill_cutin_image.modulate = Color.WHITE
+	if unique_skill_name_label != null:
+		unique_skill_name_label.modulate = Color.WHITE
 
 
 func _configure_enemy_retreat_toast() -> void:
