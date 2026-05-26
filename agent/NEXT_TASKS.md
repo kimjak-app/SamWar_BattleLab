@@ -9,7 +9,7 @@ Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
 Latest camera/background patch: `v0.68a-3 Battlefield Large Background Apply + Camera Clamp`
 
-Latest skill presentation patch: `v0.68a-4-hotfix3 Unique Skill Cutin Fast Impact Timing`
+Latest skill presentation patch: `v0.68a-4-hotfix4 Unique Skill Dynamic Impact Presentation`
 
 ## Priority 1
 `v0.68b WorldMap Region Graph MVP`
@@ -42,6 +42,11 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-4-hotfix4 Unique Skill Dynamic Impact Presentation` is complete.
+- Reused existing unique skill cut-in nodes and added dynamic presentation behavior: ink flash, side-based slide-in, image scale punch, delayed skill-name pop, and fast slide/fade-out.
+- Effect apply timing now includes the delayed-name enter window so battlefield damage/buff/FX and camera shake begin after the cut-in exit.
+- 고유특기 effect values, target selection, cooldowns, AI judgment, formulas, Camera2D policy, battlefield background, and status badge rules remain unchanged.
+- 김작 F6 should confirm the cut-in feels like an attack presentation rather than a large static toast, exits quickly, and connects directly to battlefield FX.
 - `v0.68a-4-hotfix3 Unique Skill Cutin Fast Impact Timing` is complete.
 - Unique skill cut-in timing now uses `0.10s` enter, `0.40s` hold, and `0.12s` exit for a short strong impact.
 - The cut-in should no longer linger before returning to damage/buff/FX and camera shake.

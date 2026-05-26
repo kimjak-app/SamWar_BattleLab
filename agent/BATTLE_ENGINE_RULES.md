@@ -38,6 +38,7 @@
 - Camera clamp should prefer the visible battlefield background rect when a large scene-authored `BattlefieldTexture` is present, so focus movement does not expose gray/empty area.
 - Camera shake should return to the current focus baseline rather than an outdated scene-center position.
 - Unique skill cut-in presentation is CanvasLayer / screen-fixed UI and must not depend on Camera2D zoom, camera position, or world anchor scale; actual unique skill damage / buff / FX remains world/battle logic after presentation.
+- Unique skill impact presentation may use screen-fixed flash, slide, scale punch, and text pop, but battlefield damage / buff / FX and camera shake must still happen after presentation without changing formulas, targets, cooldowns, AI, or Camera2D focus policy.
 - Current stable target:
   - `5v5`
   - reinforcement rounds

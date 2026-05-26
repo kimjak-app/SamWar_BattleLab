@@ -118,7 +118,15 @@ const UNIQUE_SKILL_CUTIN_TIMING_DEBUG := true
 const UNIQUE_SKILL_CUTIN_ENTER_DURATION := 0.10
 const UNIQUE_SKILL_CUTIN_HOLD_DURATION := 0.40
 const UNIQUE_SKILL_CUTIN_EXIT_DURATION := 0.12
-const UNIQUE_SKILL_EFFECT_APPLY_DELAY := UNIQUE_SKILL_CUTIN_ENTER_DURATION + UNIQUE_SKILL_CUTIN_HOLD_DURATION + UNIQUE_SKILL_CUTIN_EXIT_DURATION
+const UNIQUE_SKILL_CUTIN_FLASH_DURATION := 0.08
+const UNIQUE_SKILL_CUTIN_FLASH_COLOR := Color(0.02, 0.0, 0.0, 0.66)
+const UNIQUE_SKILL_CUTIN_SLIDE_IN_RATIO := 0.42
+const UNIQUE_SKILL_CUTIN_SLIDE_OUT_RATIO := 0.24
+const UNIQUE_SKILL_CUTIN_PUNCH_SCALE := 1.10
+const UNIQUE_SKILL_CUTIN_NAME_DELAY := 0.06
+const UNIQUE_SKILL_CUTIN_NAME_POP_SCALE := 1.15
+const UNIQUE_SKILL_CUTIN_NAME_START_OFFSET := Vector2(0.0, 18.0)
+const UNIQUE_SKILL_EFFECT_APPLY_DELAY := UNIQUE_SKILL_CUTIN_NAME_DELAY + UNIQUE_SKILL_CUTIN_ENTER_DURATION + UNIQUE_SKILL_CUTIN_HOLD_DURATION + UNIQUE_SKILL_CUTIN_EXIT_DURATION
 const UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION := 0.75
 const UNIQUE_SKILL_TOAST_DURATION := UNIQUE_SKILL_EFFECT_APPLY_DELAY + UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION
 const UNIQUE_SKILL_CUTIN_VIEWPORT_WIDTH_RATIO := 0.96
@@ -2820,41 +2828,54 @@ func _show_unique_skill_toast_over_unit(caster_state: BattleUnitState, skill_dat
 		unique_skill_toast_tween = null
 	var viewport_size := get_viewport_rect().size
 	var cutin_rect := _get_unique_skill_fullscreen_cutin_rect(viewport_size)
+	var slide_direction := _get_unique_skill_cutin_slide_direction(caster_state)
+	var cutin_position := cutin_rect.position
+	var cutin_enter_position := cutin_position - Vector2(viewport_size.x * UNIQUE_SKILL_CUTIN_SLIDE_IN_RATIO * slide_direction, 0.0)
+	var cutin_exit_position := cutin_position + Vector2(viewport_size.x * UNIQUE_SKILL_CUTIN_SLIDE_OUT_RATIO * slide_direction, 0.0)
+	var name_position := _get_unique_skill_name_position(cutin_rect)
 	_layout_unique_skill_fullscreen_cutin(viewport_size, cutin_rect)
 
 	unique_skill_cutin_timing_start_msec = Time.get_ticks_msec()
-	_log_unique_skill_cutin_timing("SHOW_START", "hold=%.2f enter=%.2f exit=%.2f effect_delay=%.2f toast_duration=%.2f" % [
+	_log_unique_skill_cutin_timing("SHOW_START", "hold=%.2f enter=%.2f exit=%.2f flash=%.2f effect_delay=%.2f toast_duration=%.2f" % [
 		UNIQUE_SKILL_CUTIN_HOLD_DURATION,
 		UNIQUE_SKILL_CUTIN_ENTER_DURATION,
 		UNIQUE_SKILL_CUTIN_EXIT_DURATION,
+		UNIQUE_SKILL_CUTIN_FLASH_DURATION,
 		UNIQUE_SKILL_EFFECT_APPLY_DELAY,
 		UNIQUE_SKILL_TOAST_DURATION
 	])
 	unique_skill_toast_root.visible = true
-	unique_skill_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	unique_skill_toast_root.modulate = Color.WHITE
 	unique_skill_toast_root.scale = Vector2.ONE
 	if unique_skill_ink_burst != null:
 		unique_skill_ink_burst.visible = true
-		unique_skill_ink_burst.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		unique_skill_ink_burst.color = UNIQUE_SKILL_CUTIN_FLASH_COLOR
+		unique_skill_ink_burst.modulate = Color.WHITE
 	if unique_skill_cutin_image != null:
 		unique_skill_cutin_image.texture = _get_unique_skill_cutin_texture(caster_state, skill_data)
 		unique_skill_cutin_image.modulate = Color(1.0, 1.0, 1.0, 0.0)
-		unique_skill_cutin_image.position = cutin_rect.position + Vector2(-viewport_size.x * 0.16, 0.0)
+		unique_skill_cutin_image.position = cutin_enter_position
+		unique_skill_cutin_image.scale = Vector2.ONE * UNIQUE_SKILL_CUTIN_PUNCH_SCALE
+		unique_skill_cutin_image.pivot_offset = cutin_rect.size * 0.5
 	if unique_skill_name_label != null:
 		unique_skill_name_label.text = String(skill_data.get("toast_text", "%s!" % String(skill_data.get("name", "고유특기"))))
 		unique_skill_name_label.modulate = Color(1.0, 1.0, 1.0, 0.0)
-		unique_skill_name_label.position = _get_unique_skill_name_position(cutin_rect) + Vector2(0.0, 24.0)
+		unique_skill_name_label.position = name_position + UNIQUE_SKILL_CUTIN_NAME_START_OFFSET
+		unique_skill_name_label.scale = Vector2.ONE * UNIQUE_SKILL_CUTIN_NAME_POP_SCALE
+		unique_skill_name_label.pivot_offset = unique_skill_name_label.size * 0.5
 
 	unique_skill_toast_tween = create_tween()
-	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 1.0, 0.001)
 	if unique_skill_ink_burst != null:
-		unique_skill_toast_tween.parallel().tween_property(unique_skill_ink_burst, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		unique_skill_toast_tween.parallel().tween_property(unique_skill_ink_burst, "modulate:a", 0.0, UNIQUE_SKILL_CUTIN_FLASH_DURATION).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if unique_skill_cutin_image != null:
-		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "position", cutin_rect.position, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "position", cutin_position, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
 		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "scale", Vector2.ONE, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	if unique_skill_name_label != null:
-		unique_skill_toast_tween.parallel().tween_property(unique_skill_name_label, "position", _get_unique_skill_name_position(cutin_rect), UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		unique_skill_toast_tween.parallel().tween_property(unique_skill_name_label, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		unique_skill_toast_tween.parallel().tween_property(unique_skill_name_label, "position", name_position, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(UNIQUE_SKILL_CUTIN_NAME_DELAY)
+		unique_skill_toast_tween.parallel().tween_property(unique_skill_name_label, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(UNIQUE_SKILL_CUTIN_NAME_DELAY)
+		unique_skill_toast_tween.parallel().tween_property(unique_skill_name_label, "scale", Vector2.ONE, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(UNIQUE_SKILL_CUTIN_NAME_DELAY)
 	unique_skill_toast_tween.chain().tween_callback(_log_unique_skill_cutin_timing.bind("ENTER_DONE"))
 	unique_skill_toast_tween.tween_callback(_log_unique_skill_cutin_timing.bind("HOLD_START", "hold=%.2f" % UNIQUE_SKILL_CUTIN_HOLD_DURATION))
 	unique_skill_toast_tween.tween_interval(UNIQUE_SKILL_CUTIN_HOLD_DURATION)
@@ -2862,8 +2883,18 @@ func _show_unique_skill_toast_over_unit(caster_state: BattleUnitState, skill_dat
 	unique_skill_toast_tween.tween_callback(_log_unique_skill_cutin_timing.bind("EXIT_START"))
 	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 0.0, UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	if unique_skill_cutin_image != null:
-		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "position", cutin_rect.position + Vector2(viewport_size.x * 0.12, 0.0), UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_IN)
+		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "position", cutin_exit_position, UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_IN)
+		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "modulate:a", 0.0, UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	if unique_skill_name_label != null:
+		unique_skill_toast_tween.parallel().tween_property(unique_skill_name_label, "modulate:a", 0.0, UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		unique_skill_toast_tween.parallel().tween_property(unique_skill_name_label, "position", name_position + Vector2(0.0, -16.0), UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	unique_skill_toast_tween.chain().tween_callback(_hide_unique_skill_toast)
+
+
+func _get_unique_skill_cutin_slide_direction(caster_state: BattleUnitState) -> float:
+	if caster_state != null and caster_state.side == "enemy":
+		return -1.0
+	return 1.0
 
 
 func _log_unique_skill_cutin_timing(event_name: String, detail: String = "") -> void:
@@ -6649,11 +6680,14 @@ func _hide_unique_skill_toast() -> void:
 	if unique_skill_ink_burst != null:
 		unique_skill_ink_burst.visible = false
 		unique_skill_ink_burst.modulate = Color.WHITE
+		unique_skill_ink_burst.color = UNIQUE_SKILL_CUTIN_FLASH_COLOR
 	if unique_skill_cutin_image != null:
 		unique_skill_cutin_image.texture = null
 		unique_skill_cutin_image.modulate = Color.WHITE
+		unique_skill_cutin_image.scale = Vector2.ONE
 	if unique_skill_name_label != null:
 		unique_skill_name_label.modulate = Color.WHITE
+		unique_skill_name_label.scale = Vector2.ONE
 
 
 func _configure_enemy_retreat_toast() -> void:

@@ -2,6 +2,13 @@
 
 ## 2026-05-26
 
+### v0.68a-4-hotfix4 Unique Skill Dynamic Impact Presentation
+- Reused the existing fullscreen unique skill nodes for dynamic presentation: `UniqueSkillInkBurst`, `UniqueSkillCutinImage`, and `UniqueSkillNameLabel`.
+- Added a brief ink flash, caster-side-aware slide-in direction, image scale punch from `1.10x` to `1.0x`, delayed skill-name pop, and fast slide/fade-out.
+- Updated effect apply delay to include the delayed skill-name enter timing so battlefield damage/buff/FX and camera shake follow cut-in exit.
+- Preserved unique skill effects, targeting, cooldowns, AI decisions, formulas, Camera2D policy, battlefield background, and status badge rules.
+- 김작 F6 follow-up: confirm slide-in impact, scale punch, brief flash, skill-name pop, quick exit into battlefield FX, camera focus/shake return, UI stability, and status badge fix6.
+
 ### v0.68a-4-hotfix3 Unique Skill Cutin Fast Impact Timing
 - Changed `UNIQUE_SKILL_CUTIN_ENTER_DURATION` to `0.10s`, `UNIQUE_SKILL_CUTIN_HOLD_DURATION` to `0.40s`, and `UNIQUE_SKILL_CUTIN_EXIT_DURATION` to `0.12s`.
 - Kept `UNIQUE_SKILL_EFFECT_APPLY_DELAY` as the enter + hold + exit sum, so post-cutin damage/buff/FX and camera shake still follow cut-in exit.
