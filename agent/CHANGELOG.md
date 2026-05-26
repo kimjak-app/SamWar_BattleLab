@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.68a-4-hotfix1 Unique Skill Cutin Hold + Shadow Warning Fix
+- Increased unique skill fullscreen cut-in/toast hold from `0.66s` to `1.5s`.
+- Renamed local `global_scale` and `position` variables in `scripts/battle_web_import_test.gd` to remove Node2D property shadowing warnings.
+- Preserved unique skill effect values, target rules, cooldowns, AI judgment, damage formulas, Camera2D policy, battlefield background, and status badge rules.
+- Added 김작 F6 checks for the longer hold feel, short enter/exit feel, post-cutin effects, camera shake return, and clean GDScript warning output.
+
 ## v0.68a-4 Unique Skill Fullscreen Cut-In Presentation
 - Enlarged unique skill presentation into a screen-fixed wide cut-in on `BattleUI/UniqueSkillToastRoot`.
 - Reused existing per-skill cutin images and skill-name text, scaling the banner to the viewport for the large battlefield / Camera2D focus setup.

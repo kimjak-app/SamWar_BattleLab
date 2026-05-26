@@ -115,7 +115,7 @@ const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH := "res://assets/web_battle/ui/re
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE := preload("res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png")
 const REINFORCEMENT_ARRIVAL_TOAST_TEXT := "지원군 도착!"
 const UNIQUE_SKILL_CUTIN_ENTER_DURATION := 0.18
-const UNIQUE_SKILL_CUTIN_HOLD_DURATION := 0.66
+const UNIQUE_SKILL_CUTIN_HOLD_DURATION := 1.5
 const UNIQUE_SKILL_CUTIN_EXIT_DURATION := 0.18
 const UNIQUE_SKILL_EFFECT_APPLY_DELAY := UNIQUE_SKILL_CUTIN_ENTER_DURATION + UNIQUE_SKILL_CUTIN_HOLD_DURATION + UNIQUE_SKILL_CUTIN_EXIT_DURATION
 const UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION := 0.75
@@ -1275,10 +1275,10 @@ func _get_battlefield_visual_world_rect() -> Rect2:
 	if battlefield_texture == null or battlefield_texture.texture == null:
 		return Rect2()
 	var texture_size := battlefield_texture.texture.get_size()
-	var global_scale := battlefield_texture.global_scale
+	var battlefield_global_scale := battlefield_texture.global_scale
 	var visual_size := Vector2(
-		texture_size.x * absf(global_scale.x),
-		texture_size.y * absf(global_scale.y)
+		texture_size.x * absf(battlefield_global_scale.x),
+		texture_size.y * absf(battlefield_global_scale.y)
 	)
 	if visual_size.x <= 0.0 or visual_size.y <= 0.0:
 		return Rect2()
@@ -2860,8 +2860,8 @@ func _get_unique_skill_fullscreen_cutin_rect(viewport_size: Vector2) -> Rect2:
 		minf(UNIQUE_SKILL_CUTIN_MIN_HEIGHT, viewport_size.y * UNIQUE_SKILL_CUTIN_MAX_HEIGHT_RATIO),
 		viewport_size.y * UNIQUE_SKILL_CUTIN_MAX_HEIGHT_RATIO
 	)
-	var position := Vector2((viewport_size.x - width) * 0.5, (viewport_size.y - height) * 0.48)
-	return Rect2(position, Vector2(width, height))
+	var cutin_position := Vector2((viewport_size.x - width) * 0.5, (viewport_size.y - height) * 0.48)
+	return Rect2(cutin_position, Vector2(width, height))
 
 
 func _layout_unique_skill_fullscreen_cutin(viewport_size: Vector2, cutin_rect: Rect2) -> void:

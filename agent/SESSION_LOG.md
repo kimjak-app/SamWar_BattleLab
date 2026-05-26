@@ -2,6 +2,13 @@
 
 ## 2026-05-26
 
+### v0.68a-4-hotfix1 Unique Skill Cutin Hold + Shadow Warning Fix
+- Set `UNIQUE_SKILL_CUTIN_HOLD_DURATION` to `1.5s` so the fullscreen unique skill cut-in/toast stays on screen longer.
+- Renamed the local battlefield texture scale variable to `battlefield_global_scale`.
+- Renamed the local cutin rect origin variable to `cutin_position`.
+- Preserved unique skill effects, targeting, cooldowns, AI decisions, formulas, Camera2D policy, battlefield background, and status badge rules.
+- 김작 F6 follow-up: confirm the longer hold feel, short enter/exit, post-cutin damage/buff/FX, camera shake focus return, and no `global_scale` / `position` shadowing warnings.
+
 ### v0.68a-4 Unique Skill Fullscreen Cut-In Presentation
 - Converted the existing `BattleUI/UniqueSkillToastRoot` presentation from a caster-anchored small toast into a screen-fixed wide cut-in.
 - Added viewport-scaled cutin layout, large skill-name overlay, and short `enter / hold / exit` timing before applying the real unique skill effect.

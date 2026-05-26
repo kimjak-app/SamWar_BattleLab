@@ -9,7 +9,7 @@ Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
 Latest camera/background patch: `v0.68a-3 Battlefield Large Background Apply + Camera Clamp`
 
-Latest skill presentation patch: `v0.68a-4 Unique Skill Fullscreen Cut-In Presentation`
+Latest skill presentation patch: `v0.68a-4-hotfix1 Unique Skill Cutin Hold + Shadow Warning Fix`
 
 ## Priority 1
 `v0.68b WorldMap Region Graph MVP`
@@ -42,6 +42,10 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-4-hotfix1 Unique Skill Cutin Hold + Shadow Warning Fix` is complete.
+- Unique skill cut-in/toast hold is now `1.5s`, while enter/exit remain short.
+- Removed `global_scale` / `position` local-variable shadowing warnings in `scripts/battle_web_import_test.gd`.
+- 김작 F6 should confirm the cut-in no longer disappears too quickly, post-cutin damage/buff/FX still applies, camera shake returns to current focus, and GDScript warning output is clean.
 - `v0.68a-4 Unique Skill Fullscreen Cut-In Presentation` is complete.
 - Unique skill presentation now uses a screen-fixed wide cut-in through the existing `BattleUI/UniqueSkillToastRoot`.
 - The cut-in scales with viewport size for the large battlefield / Camera2D focus era, while existing unique skill effect values, target rules, cooldowns, AI value gates, and registry data remain unchanged.
