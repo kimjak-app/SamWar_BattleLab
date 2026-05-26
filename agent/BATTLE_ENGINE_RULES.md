@@ -39,6 +39,7 @@
 - Camera shake should return to the current focus baseline rather than an outdated scene-center position.
 - Unique skill cut-in presentation is CanvasLayer / screen-fixed UI and must not depend on Camera2D zoom, camera position, or world anchor scale; actual unique skill damage / buff / FX remains world/battle logic after presentation.
 - Unique skill impact presentation may use screen-fixed flash, slide, scale punch, and text pop, but battlefield damage / buff / FX and camera shake must still happen after presentation without changing formulas, targets, cooldowns, AI, or Camera2D focus policy.
+- Unique skill punch motion is presentation-only: scale/alpha/position tweens on the screen-fixed cut-in root must reset after playback and must not change battle state, formula timing beyond presentation delay, or camera follow policy.
 - Current stable target:
   - `5v5`
   - reinforcement rounds

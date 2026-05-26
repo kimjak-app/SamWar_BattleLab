@@ -73,6 +73,7 @@ SkillData = {
 - Current auto/enemy skill use checks value conditions before falling back to basic attack, movement, or wait.
 - Current unique skill presentation uses a screen-fixed wide cut-in first, then applies the existing battle effect logic; presentation scale must not change effect values, targets, cooldowns, or AI value gates.
 - Current unique skill impact presentation can add flash / slide / scale punch / text pop, but these remain visual-only and must not affect skill metadata, valid target checks, cooldown state, formulas, or AI value rules.
+- Current unique skill punch motion must reset root scale/position/alpha after playback so repeated skill use cannot accumulate presentation state.
 
 ## Future Battle-Type Expansion
 - `naval_only` skills.
@@ -91,3 +92,4 @@ SkillData = {
 - Do not make skill metadata depend on scene node names.
 - Do not let cut-in presentation timing or scale alter unique skill formulas, target validity, cooldown state, or registry ownership.
 - Do not let dynamic cut-in presentation effects become skill execution logic.
+- Do not add particles, glow shaders, sound, or new skill assets as part of the current punch-motion-only step.

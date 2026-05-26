@@ -60,7 +60,7 @@ Latest camera foundation:
 `v0.68a-3 Battlefield Large Background Apply + Camera Clamp`
 
 - Latest skill presentation patch:
-`v0.68a-4-hotfix4 Unique Skill Dynamic Impact Presentation`
+`v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion`
 
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
@@ -133,8 +133,10 @@ Do not modify casually:
 - Unique skill range overlays are purple and valid target cells are gold/orange.
 - Unique skill presentation uses the existing `BattleUI/UniqueSkillToastRoot` as a screen-fixed wide fullscreen cut-in, independent from Camera2D movement/zoom.
 - Unique skill cut-in uses the existing skill cutin image enlarged to roughly `96%` viewport width and `52%` viewport height, with large skill-name text over the lower banner.
-- Unique skill cut-in now plays as a dynamic impact presentation: short ink flash, side-based slide-in, `1.10x -> 1.0x` image scale punch, delayed skill-name pop, short hold, and fast slide/fade-out.
-- Unique skill cut-in timing uses `0.10s` enter, `0.06s` skill-name delay, `0.40s` hold, and `0.12s` exit; actual damage/buff/FX and camera shake begin after the cut-in exits.
+- Unique skill cut-in now plays as a dynamic impact presentation: short ink flash, side-based slide-in, root scale punch, delayed skill-name pop, short hold, and fast slide/fade-out.
+- Unique skill cut-in root now adds punch motion: alpha fade-in, scale `0.85 -> 1.12 -> 1.0`, minimal `0.08s` hold, then upward fade-out / shrink to `0.92`.
+- Particles, glow shaders, and sound are intentionally deferred and are not part of this cut-in punch step.
+- Unique skill cut-in timing uses `0.14s` enter, `0.04s` skill-name delay, `0.06s` punch settle, `0.08s` hold, and `0.15s` exit; actual damage/buff/FX and camera shake begin after the cut-in exits.
 - `UNIQUE_SKILL_CUTIN_TIMING_DEBUG` enables `[UNIQUE_CUTIN]` console logs for SHOW_START, ENTER_DONE, HOLD_START, HOLD_DONE, EXIT_START, HIDE_DONE, and EFFECT_APPLY elapsed times.
 - The fullscreen cut-in tween uses explicit enter-parallel, hold interval, and exit-parallel sequencing; the previous `1.5s` hold is no longer used.
 - The former `global_scale` / `position` local variables in `scripts/battle_web_import_test.gd` were renamed to avoid Node2D property shadowing warnings.
@@ -171,6 +173,7 @@ Do not modify casually:
 - 김작 F6 visual QA remains for `v0.68a-4-hotfix2` tempo match: confirm the cut-in feels close to turn-exchange toast tempo, is still readable, no longer lingers like the `1.5s` hold, enter/exit remain snappy, post-cutin effects still apply, camera shake returns to current focus, and GDScript warnings stay clean.
 - 김작 F6 visual QA remains for `v0.68a-4-hotfix3`: confirm the cut-in hits strongly without lingering, total feel is around `0.6s`, skill name / general image remains momentarily clear, post-cutin effects apply naturally, battle tempo is not interrupted, and GDScript warnings stay clean.
 - 김작 F6 visual QA remains for `v0.68a-4-hotfix4`: confirm the cut-in does not look like a static large toast, slide-in feels forceful, scale punch is visible, ink flash is brief, skill-name pop reads, cut-in exits quickly into battlefield damage/buff/FX/camera shake, Camera2D does not jump, status badge fix6 remains intact, and normal attack/strategy/defend flow remains stable.
+- 김작 F6 visual QA remains for `v0.68a-4-hotfix6`: confirm the cut-in pops from small scale into a fast overshoot punch, exits upward while shrinking/fading, does not linger or feel like buffering, has no scale/position accumulation on repeated unique skills, and preserves UI, status badge fix6, damage/buff/FX, camera shake, and normal attack/strategy/defend flow.
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

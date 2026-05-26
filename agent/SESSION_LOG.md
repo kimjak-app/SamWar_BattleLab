@@ -2,6 +2,13 @@
 
 ## 2026-05-26
 
+### v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion
+- Added root-level punch motion for unique skill cut-ins: alpha `0 -> 1`, scale `0.85 -> 1.12 -> 1.0`, minimal hold, and upward fade-out / shrink to `0.92`.
+- Kept the existing fullscreen cut-in nodes and avoided particles, glow shaders, sound, and new assets.
+- Updated effect apply timing to stay aligned after the punch/exit motion.
+- Preserved unique skill effects, targeting, cooldowns, AI decisions, formulas, Camera2D policy, battlefield background, and status badge rules.
+- 김작 F6 follow-up: confirm fast punch-in, upward shrink/fade exit, no buffer-like linger, no accumulated scale/position on repeated use, UI stability, and status badge fix6.
+
 ### v0.68a-4-hotfix4 Unique Skill Dynamic Impact Presentation
 - Reused the existing fullscreen unique skill nodes for dynamic presentation: `UniqueSkillInkBurst`, `UniqueSkillCutinImage`, and `UniqueSkillNameLabel`.
 - Added a brief ink flash, caster-side-aware slide-in direction, image scale punch from `1.10x` to `1.0x`, delayed skill-name pop, and fast slide/fade-out.

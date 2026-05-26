@@ -12,10 +12,10 @@ Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
 Latest camera/background patch: `v0.68a-3 Battlefield Large Background Apply + Camera Clamp`
 
-Latest skill presentation patch: `v0.68a-4-hotfix4 Unique Skill Dynamic Impact Presentation`
+Latest skill presentation patch: `v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion`
 
 ## Current Implementation Step
-- `v0.68a-4-hotfix4 Unique Skill Dynamic Impact Presentation`
+- `v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion`
 - `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
 - `v0.68a-2 Combat Focus Camera Follow`
 - `v0.68a-1 Camera2D World/UI Layer Foundation`
@@ -116,8 +116,9 @@ Latest skill presentation patch: `v0.68a-4-hotfix4 Unique Skill Dynamic Impact P
 - Unique skill range uses purple cells and valid targets use gold/orange cells.
 - Unique skill toast no longer shows the old black rectangular backdrop.
 - Unique skill presentation now uses a screen-fixed wide fullscreen cut-in on `BattleUI/UniqueSkillToastRoot`, with the existing cutin image enlarged to roughly `96%` viewport width and `52%` viewport height.
-- Unique skill cut-in presentation now uses a short dynamic impact sequence: screen ink flash, side-based slide-in, `1.10x -> 1.0x` image scale punch, delayed skill-name pop, short hold, and fast slide/fade-out.
-- Unique skill cut-in timing is built from `0.10s` enter, `0.06s` skill-name delay, `0.40s` hold, and `0.12s` exit, with effect apply tied to the full cut-in exit so battlefield damage/buff/FX and camera shake follow immediately after.
+- Unique skill cut-in presentation now uses a short dynamic impact sequence: screen ink flash, side-based slide-in, root scale punch, delayed skill-name pop, short hold, and fast slide/fade-out.
+- Unique skill cut-in root now adds punch motion with alpha fade-in, root scale `0.85 -> 1.12 -> 1.0`, minimal `0.08s` hold, and upward fade-out / shrink to `0.92`; particles, glow shaders, and sound remain deferred.
+- Unique skill cut-in timing is built from `0.14s` enter, `0.04s` skill-name delay, `0.06s` punch settle, `0.08s` hold, and `0.15s` exit, with effect apply tied to the full cut-in exit so battlefield damage/buff/FX and camera shake follow immediately after.
 - Unique skill cut-in timing debug logs are enabled through `UNIQUE_SKILL_CUTIN_TIMING_DEBUG`, reporting SHOW_START, ENTER_DONE, HOLD_START, HOLD_DONE, EXIT_START, HIDE_DONE, and EFFECT_APPLY elapsed times.
 - Unique skill cut-in tween sequencing uses explicit enter-parallel, hold interval, and exit-parallel groups; the `1.5s` hold is no longer used for the current tempo.
 - `global_scale` and `position` local-variable shadowing warnings in `scripts/battle_web_import_test.gd` were removed with meaningful variable names.
@@ -245,6 +246,7 @@ Latest skill presentation patch: `v0.68a-4-hotfix4 Unique Skill Dynamic Impact P
 - 김작 F6 visual QA should confirm `v0.68a-4-hotfix2` tempo match: unique skill cut-in feels close to the turn-exchange toast tempo, does not disappear before the skill can be read, no longer drags like the `1.5s` hold, enter/exit stay snappy, post-cutin effects still apply normally, camera shake returns to current focus, and GDScript warning output is clean.
 - 김작 F6 visual QA should confirm `v0.68a-4-hotfix3`: unique skill cut-in hits strongly but does not linger, total feel is around `0.6s`, skill name / general image read is still clear, post-cutin damage/buff/FX follows naturally, battle tempo is not interrupted, and GDScript warning output is clean.
 - 김작 F6 visual QA should confirm `v0.68a-4-hotfix4`: unique skill cut-in is no longer static, slide-in is forceful, scale punch makes the image feel like it hits the screen, the short ink flash is visible, skill-name pop reads, cut-in exits quickly into damage/buff/FX/camera shake, Camera2D focus does not jump, status badge fix6 stays intact, and normal attack/strategy/defend flow remains stable.
+- 김작 F6 visual QA should confirm `v0.68a-4-hotfix6`: cut-in pops from `0.85` scale into an overshoot punch, settles quickly, does not linger like a buffer pause, exits upward while shrinking/fading, next unique skill has no accumulated scale/position offset, and existing damage/buff/FX/camera shake plus UI/status-badge behavior remain stable.
 - 김작 F6 visual QA still needs to confirm that moving `Slots/AllyReinforce01Slot` or its `AllyReinforce01UnitVisualRoot` changes 김유신's ROUND 2 spawn position and keeps HP/troop/portrait/click/facing/status alignment natural.
 - Detailed unique skill range balance can still be revisited after more skill data is final.
 - `SkillInfoPanel` remains deferred until unique skill text/effect wording is stable.

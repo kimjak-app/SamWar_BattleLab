@@ -115,18 +115,23 @@ const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH := "res://assets/web_battle/ui/re
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE := preload("res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png")
 const REINFORCEMENT_ARRIVAL_TOAST_TEXT := "지원군 도착!"
 const UNIQUE_SKILL_CUTIN_TIMING_DEBUG := true
-const UNIQUE_SKILL_CUTIN_ENTER_DURATION := 0.10
-const UNIQUE_SKILL_CUTIN_HOLD_DURATION := 0.40
-const UNIQUE_SKILL_CUTIN_EXIT_DURATION := 0.12
+const UNIQUE_SKILL_CUTIN_ENTER_DURATION := 0.14
+const UNIQUE_SKILL_CUTIN_HOLD_DURATION := 0.08
+const UNIQUE_SKILL_CUTIN_EXIT_DURATION := 0.15
 const UNIQUE_SKILL_CUTIN_FLASH_DURATION := 0.08
 const UNIQUE_SKILL_CUTIN_FLASH_COLOR := Color(0.02, 0.0, 0.0, 0.66)
 const UNIQUE_SKILL_CUTIN_SLIDE_IN_RATIO := 0.42
 const UNIQUE_SKILL_CUTIN_SLIDE_OUT_RATIO := 0.24
-const UNIQUE_SKILL_CUTIN_PUNCH_SCALE := 1.10
-const UNIQUE_SKILL_CUTIN_NAME_DELAY := 0.06
-const UNIQUE_SKILL_CUTIN_NAME_POP_SCALE := 1.15
+const UNIQUE_SKILL_CUTIN_START_SCALE := 0.85
+const UNIQUE_SKILL_CUTIN_PUNCH_SCALE := 1.12
+const UNIQUE_SKILL_CUTIN_EXIT_SCALE := 0.92
+const UNIQUE_SKILL_CUTIN_EXIT_UP_OFFSET := Vector2(0.0, -30.0)
+const UNIQUE_SKILL_CUTIN_PUNCH_IN_DURATION := 0.08
+const UNIQUE_SKILL_CUTIN_PUNCH_SETTLE_DURATION := 0.06
+const UNIQUE_SKILL_CUTIN_NAME_DELAY := 0.04
+const UNIQUE_SKILL_CUTIN_NAME_POP_SCALE := 1.12
 const UNIQUE_SKILL_CUTIN_NAME_START_OFFSET := Vector2(0.0, 18.0)
-const UNIQUE_SKILL_EFFECT_APPLY_DELAY := UNIQUE_SKILL_CUTIN_NAME_DELAY + UNIQUE_SKILL_CUTIN_ENTER_DURATION + UNIQUE_SKILL_CUTIN_HOLD_DURATION + UNIQUE_SKILL_CUTIN_EXIT_DURATION
+const UNIQUE_SKILL_EFFECT_APPLY_DELAY := UNIQUE_SKILL_CUTIN_NAME_DELAY + UNIQUE_SKILL_CUTIN_ENTER_DURATION + UNIQUE_SKILL_CUTIN_PUNCH_SETTLE_DURATION + UNIQUE_SKILL_CUTIN_HOLD_DURATION + UNIQUE_SKILL_CUTIN_EXIT_DURATION
 const UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION := 0.75
 const UNIQUE_SKILL_TOAST_DURATION := UNIQUE_SKILL_EFFECT_APPLY_DELAY + UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION
 const UNIQUE_SKILL_CUTIN_VIEWPORT_WIDTH_RATIO := 0.96
@@ -2845,8 +2850,9 @@ func _show_unique_skill_toast_over_unit(caster_state: BattleUnitState, skill_dat
 		UNIQUE_SKILL_TOAST_DURATION
 	])
 	unique_skill_toast_root.visible = true
-	unique_skill_toast_root.modulate = Color.WHITE
-	unique_skill_toast_root.scale = Vector2.ONE
+	unique_skill_toast_root.position = Vector2.ZERO
+	unique_skill_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	unique_skill_toast_root.scale = Vector2.ONE * UNIQUE_SKILL_CUTIN_START_SCALE
 	if unique_skill_ink_burst != null:
 		unique_skill_ink_burst.visible = true
 		unique_skill_ink_burst.color = UNIQUE_SKILL_CUTIN_FLASH_COLOR
@@ -2855,7 +2861,7 @@ func _show_unique_skill_toast_over_unit(caster_state: BattleUnitState, skill_dat
 		unique_skill_cutin_image.texture = _get_unique_skill_cutin_texture(caster_state, skill_data)
 		unique_skill_cutin_image.modulate = Color(1.0, 1.0, 1.0, 0.0)
 		unique_skill_cutin_image.position = cutin_enter_position
-		unique_skill_cutin_image.scale = Vector2.ONE * UNIQUE_SKILL_CUTIN_PUNCH_SCALE
+		unique_skill_cutin_image.scale = Vector2.ONE
 		unique_skill_cutin_image.pivot_offset = cutin_rect.size * 0.5
 	if unique_skill_name_label != null:
 		unique_skill_name_label.text = String(skill_data.get("toast_text", "%s!" % String(skill_data.get("name", "고유특기"))))
@@ -2865,23 +2871,26 @@ func _show_unique_skill_toast_over_unit(caster_state: BattleUnitState, skill_dat
 		unique_skill_name_label.pivot_offset = unique_skill_name_label.size * 0.5
 
 	unique_skill_toast_tween = create_tween()
-	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 1.0, 0.001)
+	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_PUNCH_IN_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	unique_skill_toast_tween.parallel().tween_property(unique_skill_toast_root, "scale", Vector2.ONE * UNIQUE_SKILL_CUTIN_PUNCH_SCALE, UNIQUE_SKILL_CUTIN_PUNCH_IN_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
 	if unique_skill_ink_burst != null:
 		unique_skill_toast_tween.parallel().tween_property(unique_skill_ink_burst, "modulate:a", 0.0, UNIQUE_SKILL_CUTIN_FLASH_DURATION).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if unique_skill_cutin_image != null:
 		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "position", cutin_position, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
 		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "scale", Vector2.ONE, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	if unique_skill_name_label != null:
 		unique_skill_toast_tween.parallel().tween_property(unique_skill_name_label, "position", name_position, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(UNIQUE_SKILL_CUTIN_NAME_DELAY)
 		unique_skill_toast_tween.parallel().tween_property(unique_skill_name_label, "modulate:a", 1.0, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(UNIQUE_SKILL_CUTIN_NAME_DELAY)
 		unique_skill_toast_tween.parallel().tween_property(unique_skill_name_label, "scale", Vector2.ONE, UNIQUE_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(UNIQUE_SKILL_CUTIN_NAME_DELAY)
+	unique_skill_toast_tween.chain().tween_property(unique_skill_toast_root, "scale", Vector2.ONE, UNIQUE_SKILL_CUTIN_PUNCH_SETTLE_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	unique_skill_toast_tween.chain().tween_callback(_log_unique_skill_cutin_timing.bind("ENTER_DONE"))
 	unique_skill_toast_tween.tween_callback(_log_unique_skill_cutin_timing.bind("HOLD_START", "hold=%.2f" % UNIQUE_SKILL_CUTIN_HOLD_DURATION))
 	unique_skill_toast_tween.tween_interval(UNIQUE_SKILL_CUTIN_HOLD_DURATION)
 	unique_skill_toast_tween.tween_callback(_log_unique_skill_cutin_timing.bind("HOLD_DONE"))
 	unique_skill_toast_tween.tween_callback(_log_unique_skill_cutin_timing.bind("EXIT_START"))
 	unique_skill_toast_tween.tween_property(unique_skill_toast_root, "modulate:a", 0.0, UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	unique_skill_toast_tween.parallel().tween_property(unique_skill_toast_root, "position", UNIQUE_SKILL_CUTIN_EXIT_UP_OFFSET, UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	unique_skill_toast_tween.parallel().tween_property(unique_skill_toast_root, "scale", Vector2.ONE * UNIQUE_SKILL_CUTIN_EXIT_SCALE, UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	if unique_skill_cutin_image != null:
 		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "position", cutin_exit_position, UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_IN)
 		unique_skill_toast_tween.parallel().tween_property(unique_skill_cutin_image, "modulate:a", 0.0, UNIQUE_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
