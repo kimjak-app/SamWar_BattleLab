@@ -5,7 +5,7 @@ Behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
-Latest UI patch: `v0.68a-fix2 Status Icon Tight Arrow Anchor + Confusion Icon Patch`
+Latest UI patch: `v0.68a-fix3 Status Icon Tighten + Confusion Fallback Restore`
 
 ## Priority 1
 `v0.68b WorldMap Region Graph MVP`
@@ -38,6 +38,11 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-fix3 Status Icon Tighten + Confusion Fallback Restore` is complete.
+- Tightened battlefield status badge placement further from a `6px` arrow gap to a `2px` arrow gap.
+- Restored confusion battlefield badge display from numeric-only `N` to stable `◎N` fallback because the attempted blank-symbol display did not render reliably in Godot.
+- Removed the unused `centered_badge_x` local variable warning.
+- 김작 F6 visual QA remains for near-attached arrow placement, up/down body-overlap avoidance, confusion `◎N`, shake `⚠N`, first-run stability, and multi-icon horizontal alignment.
 - `v0.68a-fix2 Status Icon Tight Arrow Anchor + Confusion Icon Patch` is complete.
 - Tightened battlefield status badge placement to a `6px` arrow gap for horizontal facings.
 - Changed up/down-facing badge placement to use the nearby arrow side that avoids the unit body center.

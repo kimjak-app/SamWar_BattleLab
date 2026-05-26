@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68a-fix3 Status Icon Tighten + Confusion Fallback Restore
+- Tightened battlefield status badge placement further by reducing the arrow gap from `6px` to `2px`.
+- Restored confusion battlefield badge display from numeric-only `N` to the stable `◎N` fallback because the attempted blank-symbol display did not render reliably in Godot.
+- Removed the unused `centered_badge_x` local variable warning in the status badge position helper.
+- Confirmed the status badge refresh path keeps null guards for `battle_fx_root`, `unit_state`, facing indicator lookup, and child labels.
+- Kept status effects, turn decrement logic, strategy behavior, defend behavior, unique skills, damage/move/attack formulas, marker/slot structure, battle size, AI, and worldmap contracts unchanged.
+
 ## v0.68a-fix2 Status Icon Tight Arrow Anchor + Confusion Icon Patch
 - Tightened battlefield status badge placement from a `10px` arrow gap to a `6px` arrow gap.
 - Kept left/right-facing badges directly behind the facing arrow while aligning them closer to the arrow center line.

@@ -69,7 +69,7 @@ const STATUS_BADGE_SHAKE_COLOR := Color(1.0, 0.76, 0.28, 0.82)
 const STATUS_BADGE_WIDTH := 34.0
 const STATUS_BADGE_HEIGHT := 36.0
 const STATUS_BADGE_GAP := 2.0
-const STATUS_BADGE_ARROW_GAP := 6.0
+const STATUS_BADGE_ARROW_GAP := 2.0
 const STATUS_BADGE_ARROW_Y_NUDGE := 2.0
 const DEFEND_HEAL_TEXT_COLOR := Color(0.62, 1.0, 0.58, 0.94)
 const FORMATION_STATUS_TEXT_COLOR := Color(0.74, 0.86, 0.94, 0.85)
@@ -2029,7 +2029,7 @@ func _get_unit_status_display_entries(unit_state: BattleUnitState) -> Array[Dict
 		var turns := unit_state.get_status_turns(STATUS_CONFUSION)
 		entries.append({
 			"id": STATUS_CONFUSION,
-			"badge": "%d" % turns,
+			"badge": "◎%d" % turns,
 			"summary": "혼란 %d턴 · 행동불가" % turns,
 		})
 	if unit_state.has_status_effect(STATUS_SHAKE):
@@ -2227,7 +2227,6 @@ func _get_strategy_status_badge_position_for_unit(unit_state: BattleUnitState, b
 	if facing_anchor == Vector2.ZERO:
 		facing_anchor = _get_visual_anchor_position_for_unit(unit_state) + Vector2(-18.0, -100.0)
 	var normalized_facing := _get_unit_facing(unit_state)
-	var centered_badge_x := (facing_indicator_size.x - badge_size.x) * 0.5
 	var centered_badge_y := (facing_indicator_size.y - badge_size.y) * 0.5 + STATUS_BADGE_ARROW_Y_NUDGE
 	match normalized_facing:
 		FACING_LEFT:
