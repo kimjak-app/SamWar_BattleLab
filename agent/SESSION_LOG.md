@@ -2,6 +2,15 @@
 
 ## 2026-05-26
 
+### v0.68a-fix2 Status Icon Tight Arrow Anchor + Confusion Icon Patch
+- Audited status badge display entries and `_get_strategy_status_badge_position_for_unit()`.
+- Changed confusion battlefield badge text from `◎N` to turn count only, such as `N`.
+- Tightened `STATUS_BADGE_ARROW_GAP` from `10px` to `6px`.
+- Kept horizontal-facing badges behind the arrow and changed up/down-facing badges to the nearby arrow side that avoids body-center overlap.
+- Preserved status effects, turn decrement logic, strategy behavior, defend behavior, unique skills, damage/move/attack formulas, marker/slot structure, battle size, AI, and worldmap contracts.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+- Left 김작 F6 QA for ally/enemy same-rule placement, tight unit distance, up/down body-overlap avoidance, confusion `N`, shake `⚠N`, multi-icon horizontal alignment, and severe face/arrow overlap checks.
+
 ### v0.68a-fix1 Status Icon Anchor Consistency Patch
 - Audited `_refresh_strategy_status_icon_labels()` and `_get_strategy_status_badge_position_for_unit()`.
 - Replaced the old vertical-facing side-choice branch with one shared backside-of-facing-arrow rule for all units.

@@ -5,7 +5,7 @@ Behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
-Latest UI patch: `v0.68a-fix1 Status Icon Anchor Consistency Patch`
+Latest UI patch: `v0.68a-fix2 Status Icon Tight Arrow Anchor + Confusion Icon Patch`
 
 ## Priority 1
 `v0.68b WorldMap Region Graph MVP`
@@ -38,6 +38,11 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-fix2 Status Icon Tight Arrow Anchor + Confusion Icon Patch` is complete.
+- Tightened battlefield status badge placement to a `6px` arrow gap for horizontal facings.
+- Changed up/down-facing badge placement to use the nearby arrow side that avoids the unit body center.
+- Changed confusion battlefield badge display from `◎N` to turn count only, such as `N`.
+- 김작 F6 visual QA remains for tight arrow attachment, up/down body-overlap avoidance, confusion `N`, shake `⚠N`, and multi-icon horizontal alignment.
 - `v0.68a-fix1 Status Icon Anchor Consistency Patch` is complete.
 - Unified battlefield status badge placement for ally, enemy, support, and reinforce units around the facing arrow's backside.
 - Facing rules: right-facing badges left of arrow, left-facing badges right of arrow, up-facing badges below arrow, down-facing badges above arrow.

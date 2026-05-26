@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68a-fix2 Status Icon Tight Arrow Anchor + Confusion Icon Patch
+- Tightened battlefield status badge placement from a `10px` arrow gap to a `6px` arrow gap.
+- Kept left/right-facing badges directly behind the facing arrow while aligning them closer to the arrow center line.
+- Changed up/down-facing badge placement to use the nearby arrow side that avoids putting badges into the unit body center.
+- Changed confusion battlefield badge display from `◎N` to turn count only, such as `N`.
+- Kept status effects, turn decrement logic, strategy behavior, defend behavior, unique skills, damage/move/attack formulas, marker/slot structure, battle size, AI, and worldmap contracts unchanged.
+
 ## v0.68a-fix1 Status Icon Anchor Consistency Patch
 - Unified battlefield status badge placement for ally, enemy, support, and reinforce units.
 - Anchored status badges to the backside of the facing arrow: right-facing units place badges left, left-facing units place badges right, up-facing units place badges below, and down-facing units place badges above.

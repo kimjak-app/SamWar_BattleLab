@@ -8,9 +8,10 @@ Behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
-Latest UI patch: `v0.68a-fix1 Status Icon Anchor Consistency Patch`
+Latest UI patch: `v0.68a-fix2 Status Icon Tight Arrow Anchor + Confusion Icon Patch`
 
 ## Current Implementation Step
+- `v0.68a-fix2 Status Icon Tight Arrow Anchor + Confusion Icon Patch`
 - `v0.68a-fix1 Status Icon Anchor Consistency Patch`
 - `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - `v0.67z-4 Agent Role Split Foundation`
@@ -53,7 +54,8 @@ Latest UI patch: `v0.68a-fix1 Status Icon Anchor Consistency Patch`
 - Role-based agent docs are complete.
 - Worldmap / hero-scale prep contract docs are complete.
 - Role-based agent docs now split architecture, implementation, QA, runtime QA, visual QA, and workflow manager responsibilities without changing code, scenes, or assets.
-- Battlefield status badges now use a unified backside-of-facing-arrow anchor rule for ally, enemy, support, and reinforce units.
+- Battlefield status badges now use a tighter facing-arrow anchor rule for ally, enemy, support, and reinforce units, with up/down facings placed beside the arrow to avoid body-center overlap.
+- Confusion battlefield badges now show turn count only, such as `2`, instead of the old `◎2` form.
 - Current battle target is stable `5v5`.
 - `5v5` battle loop stable.
 - Enemy AI multi-target engagement improved and treated as stable.
@@ -107,7 +109,7 @@ Latest UI patch: `v0.68a-fix1 Status Icon Anchor Consistency Patch`
 - `UnitMarker` and `PortraitMarker` nodes are retained as compatibility runtime sync targets; they are not the manual layout source of truth for the active `5v5` visual slots.
 - Click areas remain scene-level `Area2D` nodes for compatibility, but their runtime positions are now applied from the `UnitVisualSlot` registry with root-relative global positioning.
 - READY frames, facing indicators, and status badges remain UI/FX layer overlays, but they resolve from the same slot-synced visual anchor instead of independent fixed placement.
-- Battlefield status badges now position from the facing indicator line using the arrow's backside: right-facing units place badges left, left-facing units place badges right, up-facing units place badges below, and down-facing units place badges above.
+- Battlefield status badges now position from the facing indicator line using tight arrow adjacency: right-facing units place badges left, left-facing units place badges right, and up/down-facing units place badges on the nearby arrow side that keeps them out of the unit body center.
 - Unique skill readiness, target collection, manual resolve, and auto/enemy value gates now share range-limited valid target checks.
 - Ally buff unique skills resolve immediately after range preview and only affect valid in-range, unbuffed allies.
 - Manual buff unique skills now show a short range / valid target preview before auto-resolving.
@@ -196,8 +198,10 @@ Latest UI patch: `v0.68a-fix1 Status Icon Anchor Consistency Patch`
 ## Known / Deferred
 - 김작 F6 visual QA should confirm left-facing and right-facing units keep status badges near the facing arrow, with up/down facings still close to the portrait/arrow line and not fully overlapping the face.
 - 김작 F6 visual QA should confirm ally/enemy/support/reinforce status badges all follow the same arrow-backside rule, stay close to the unit, and avoid severe face/arrow overlap.
+- 김작 F6 visual QA should confirm `v0.68a-fix2` status badges are closer than `fix1`, up/down-facing badges do not sit inside the body center, confusion renders as `N`, shake remains `⚠N`, and multi-icon badges stay horizontally aligned.
 - Codex Godot headless verification for `v0.67z-3` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm the scene load path.
 - Codex Godot headless verification for `v0.68a-fix1` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm the status badge placement path.
+- Codex Godot headless verification for `v0.68a-fix2` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm tight status badge placement and confusion `N` display.
 - 김작 F6 visual QA still needs to confirm that moving `Slots/AllyReinforce01Slot` or its `AllyReinforce01UnitVisualRoot` changes 김유신's ROUND 2 spawn position and keeps HP/troop/portrait/click/facing/status alignment natural.
 - Detailed unique skill range balance can still be revisited after more skill data is final.
 - `SkillInfoPanel` remains deferred until unique skill text/effect wording is stable.
