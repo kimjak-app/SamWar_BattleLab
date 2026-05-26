@@ -2,6 +2,13 @@
 
 ## 2026-05-26
 
+### v0.68a-3 Battlefield Large Background Apply + Camera Clamp
+- Confirmed the target background exists at `assets/web_battle/battlefield/battlefield_3200x1800_worldmap_test_01.png`.
+- Replaced the scene-authored `BattlefieldTexture` texture reference with the large 3200x1800 battlefield and positioned it as a 1:1 world background centered at `Vector2(1600, 900)`.
+- Updated Camera2D clamp to use the battlefield texture's visual world rect before falling back to board marker bounds.
+- Preserved current separated unit deployment, logical board/grid setup, battle formulas, AI behavior, status badge rules, scene slot structure, and old background asset.
+- 김작 F6 QA should confirm no gray/empty area appears during camera follow/shake and that overlays remain synced on the large background.
+
 ### v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix
 - Audited camera-bound CanvasLayer overlays after F6 showed facing indicators and post-move direction arrows could remain at stale screen positions after Camera2D focus.
 - Updated `_world_to_battle_ui_position()` to compute UI coordinates from current `MainCamera` position/zoom when available.

@@ -1244,6 +1244,9 @@ func _get_camera_focus_position_for_unit(unit_state: BattleUnitState) -> Vector2
 
 
 func _clamp_camera_position_to_battlefield(world_pos: Vector2) -> Vector2:
+	var battlefield_rect := _get_battlefield_visual_world_rect()
+	if battlefield_rect.size.x > 0.0 and battlefield_rect.size.y > 0.0:
+		return _clamp_camera_position_to_world_rect(world_pos, battlefield_rect)
 	if battle_grid_controller == null:
 		return world_pos
 	var board_top_left := battle_grid_controller.get_board_top_left()
@@ -1258,6 +1261,48 @@ func _clamp_camera_position_to_battlefield(world_pos: Vector2) -> Vector2:
 		clampf(world_pos.x, min_x, max_x),
 		clampf(world_pos.y, min_y, max_y)
 	)
+
+
+func _get_battlefield_visual_world_rect() -> Rect2:
+	if battlefield_texture == null or battlefield_texture.texture == null:
+		return Rect2()
+	var texture_size := battlefield_texture.texture.get_size()
+	var global_scale := battlefield_texture.global_scale
+	var visual_size := Vector2(
+		texture_size.x * absf(global_scale.x),
+		texture_size.y * absf(global_scale.y)
+	)
+	if visual_size.x <= 0.0 or visual_size.y <= 0.0:
+		return Rect2()
+	var top_left := battlefield_texture.global_position
+	if battlefield_texture.centered:
+		top_left -= visual_size * 0.5
+	return Rect2(top_left, visual_size)
+
+
+func _clamp_camera_position_to_world_rect(world_pos: Vector2, world_rect: Rect2) -> Vector2:
+	var camera := _get_main_camera_or_null()
+	var camera_zoom := Vector2.ONE
+	if camera != null:
+		camera_zoom = camera.zoom
+	var viewport_size := get_viewport_rect().size
+	var half_view := Vector2(
+		viewport_size.x * 0.5 / maxf(0.001, absf(camera_zoom.x)),
+		viewport_size.y * 0.5 / maxf(0.001, absf(camera_zoom.y))
+	)
+	var min_center := world_rect.position + half_view
+	var max_center := world_rect.position + world_rect.size - half_view
+	var clamped_x := world_pos.x
+	var clamped_y := world_pos.y
+	if min_center.x > max_center.x:
+		clamped_x = world_rect.get_center().x
+	else:
+		clamped_x = clampf(world_pos.x, min_center.x, max_center.x)
+	if min_center.y > max_center.y:
+		clamped_y = world_rect.get_center().y
+	else:
+		clamped_y = clampf(world_pos.y, min_center.y, max_center.y)
+	return Vector2(clamped_x, clamped_y)
 
 
 func _set_camera_focus_base_position(world_pos: Vector2) -> void:

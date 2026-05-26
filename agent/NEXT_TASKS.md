@@ -7,45 +7,44 @@ Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Pr
 
 Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
-Latest camera patch: `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
+Latest camera/background patch: `v0.68a-3 Battlefield Large Background Apply + Camera Clamp`
 
 ## Priority 1
-`v0.68a-3 Battlefield Scale + Deployment Recenter`
-
-Goal:
-- expand/recenter battlefield scale and deployment only after Camera2D world/UI separation is stable
-
-## Priority 2
 `v0.68b WorldMap Region Graph MVP`
 
 Goal:
 - create the first region/city/route/connection graph data structure for China, the Korean peninsula, and the Japanese archipelago
 
-## Priority 3
+## Priority 2
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 4
+## Priority 3
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - implement first hero / region / city / army assignment data needed to produce roster candidates
 
-## Priority 5
+## Priority 4
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 6
+## Priority 5
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-3 Battlefield Large Background Apply + Camera Clamp` is complete.
+- Applied `assets/web_battle/battlefield/battlefield_3200x1800_worldmap_test_01.png` to the scene-authored battlefield background.
+- Preserved current separated unit deployment and logical grid structure; no deployment recenter was done.
+- Camera clamp now prefers the large battlefield texture rect before falling back to logical board bounds.
+- 김작 F6 QA should confirm the large background fills camera movement, no gray/empty area appears, overlays stay synced, and normal combat flow remains stable.
 - `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix` is complete.
 - Changed camera-bound overlay refresh so facing indicators, post-move facing arrows, READY frames, floating command panel, and status badges are recalculated during/after Camera2D focus movement.
 - `_world_to_battle_ui_position()` now derives screen UI coordinates from the current `MainCamera` position/zoom instead of relying only on possibly stale viewport canvas transform data.

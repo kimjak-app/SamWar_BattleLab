@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.68a-3 Battlefield Large Background Apply + Camera Clamp
+- Applied `assets/web_battle/battlefield/battlefield_3200x1800_worldmap_test_01.png` as the `Battle_Fullscreen_Test.tscn` battlefield background.
+- Kept the new battlefield texture at 1:1 scale and centered it as a 3200x1800 world rect.
+- Updated Camera2D clamp to prefer the visible battlefield texture rect, preventing focus movement from exposing gray/empty area when the large background is available.
+- Preserved current separated deployment, logical grid structure, battle formulas, AI, status badge rules, scene slot structure, and existing assets.
+
 ## v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix
 - Made camera-bound CanvasLayer overlays refresh during and after Camera2D focus movement.
 - Changed world-to-UI conversion to use current `MainCamera` position/zoom, avoiding stale viewport canvas transform results immediately after camera movement.

@@ -35,6 +35,7 @@
 - `MainCamera` should control the battle world view while CanvasLayer UI remains screen-fixed.
 - Combat focus camera may follow active units, combat-pair midpoints, strategy/unique skill moments, enemy attacks, and reinforcement arrival, but it must not change battle formulas, AI decisions, grid size, or deployment ownership.
 - Camera-bound overlays that live on CanvasLayer must recalculate from current Camera2D position/zoom whenever focus changes, especially facing indicators, post-move facing arrows, READY frames, status badges, and floating command panel anchors.
+- Camera clamp should prefer the visible battlefield background rect when a large scene-authored `BattlefieldTexture` is present, so focus movement does not expose gray/empty area.
 - Camera shake should return to the current focus baseline rather than an outdated scene-center position.
 - Current stable target:
   - `5v5`
