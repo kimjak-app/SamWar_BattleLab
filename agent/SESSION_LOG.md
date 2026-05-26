@@ -2,6 +2,13 @@
 
 ## 2026-05-26
 
+### v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix
+- Audited camera-bound CanvasLayer overlays after F6 showed facing indicators and post-move direction arrows could remain at stale screen positions after Camera2D focus.
+- Updated `_world_to_battle_ui_position()` to compute UI coordinates from current `MainCamera` position/zoom when available.
+- Switched combat focus movement to a tween method that refreshes camera-bound overlays each step and added deferred refresh after immediate/complete focus.
+- Expanded `_refresh_camera_bound_world_overlays()` to update facing indicators, FacingArrowPanel, READY frames, floating command panel, and status badges.
+- Preserved status badge fix6 rules, Camera2D focus policy, battle formulas, AI, grid/deployment, scene files, and assets.
+
 ### v0.68a-2 Combat Focus Camera Follow
 - Added Camera2D focus helpers in `scripts/battle_web_import_test.gd` while keeping the scene-authored `MainCamera` and CanvasLayer UI foundation intact.
 - Focus timing now covers initial active ally, ally selection, move start/finish, ally attack midpoint, enemy move/attack, strategy target pairs, unique skill presentation, and reinforcement arrival.

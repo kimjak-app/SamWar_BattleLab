@@ -7,7 +7,7 @@ Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Pr
 
 Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
-Latest camera patch: `v0.68a-2 Combat Focus Camera Follow`
+Latest camera patch: `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
 
 ## Priority 1
 `v0.68a-3 Battlefield Scale + Deployment Recenter`
@@ -46,6 +46,10 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix` is complete.
+- Changed camera-bound overlay refresh so facing indicators, post-move facing arrows, READY frames, floating command panel, and status badges are recalculated during/after Camera2D focus movement.
+- `_world_to_battle_ui_position()` now derives screen UI coordinates from the current `MainCamera` position/zoom instead of relying only on possibly stale viewport canvas transform data.
+- 김작 F6 QA should confirm first-screen indicators, post-move direction arrows, status badges, and camera shake remain synced to units.
 - `v0.68a-2 Combat Focus Camera Follow` is complete.
 - Added Camera2D focus helpers for world position, unit focus, combat-pair midpoint, unit focus anchor, and battlefield clamp.
 - Focus timing now covers battle start, ally selection, ally move start/finish, ally attack, enemy move/attack, strategy, unique skill, and reinforcement arrival.

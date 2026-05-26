@@ -10,9 +10,10 @@ Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Pr
 
 Latest UI patch: `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
 
-Latest camera patch: `v0.68a-2 Combat Focus Camera Follow`
+Latest camera patch: `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
 
 ## Current Implementation Step
+- `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
 - `v0.68a-2 Combat Focus Camera Follow`
 - `v0.68a-1 Camera2D World/UI Layer Foundation`
 - `v0.68a-fix6 Vertical Facing Status Badge Side Edge Snap Fix`
@@ -70,6 +71,7 @@ Latest camera patch: `v0.68a-2 Combat Focus Camera Follow`
 - `MainCamera` is scene-authored and runtime-configured as the current Camera2D.
 - Camera reset and unique-skill camera shake now share the stored scene-authored MainCamera position/zoom baseline.
 - Combat focus camera now follows battle start, ally selection, move completion, attack pairs, enemy attacks, strategy/unique skill moments, and reinforcement arrival without changing battle formulas.
+- Camera-bound CanvasLayer overlays now refresh from current Camera2D position during/after focus movement so facing indicators, facing arrow panel, READY frames, floating command panel, and status badges do not keep stale screen positions.
 - Core UI remains CanvasLayer-based and intended to stay screen-fixed while Camera2D controls the battle world view.
 - Current battle target is stable `5v5`.
 - `5v5` battle loop stable.
@@ -224,6 +226,7 @@ Latest camera patch: `v0.68a-2 Combat Focus Camera Follow`
 - Codex Godot headless verification for `v0.68a-fix6` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm vertical left-edge status badge placement.
 - Codex Godot headless verification for `v0.68a-1` was also blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm MainCamera current behavior, fixed UI layers, camera shake, and the stable battle loop.
 - 김작 F6 visual QA should confirm `v0.68a-2` combat focus: battle start and ally selection center naturally, move/attack/enemy attack/strategy/unique skill/reinforcement moments stay visible, UI remains screen-fixed, status badge fix6 remains intact, and camera shake returns to the current focus position.
+- 김작 F6 visual QA should confirm `v0.68a-2-hotfix1` overlay sync: first-screen facing indicators sit on units, post-move FacingArrowPanel appears around the active unit, camera movement does not leave stale overlay positions, status badge fix6 remains intact, and camera shake does not desync overlays.
 - 김작 F6 visual QA still needs to confirm that moving `Slots/AllyReinforce01Slot` or its `AllyReinforce01UnitVisualRoot` changes 김유신's ROUND 2 spawn position and keeps HP/troop/portrait/click/facing/status alignment natural.
 - Detailed unique skill range balance can still be revisited after more skill data is final.
 - `SkillInfoPanel` remains deferred until unique skill text/effect wording is stable.

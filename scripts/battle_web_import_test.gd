@@ -1205,9 +1205,10 @@ func _focus_camera_on_world_position(world_pos: Vector2, immediate: bool = false
 		camera.position = target_position
 		_set_camera_focus_base_position(target_position)
 		_refresh_camera_bound_world_overlays()
+		call_deferred("_refresh_camera_bound_world_overlays")
 		return
 	combat_camera_tween = create_tween()
-	combat_camera_tween.tween_property(camera, "position", target_position, COMBAT_CAMERA_FOCUS_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	combat_camera_tween.tween_method(_set_main_camera_position_for_focus, camera.position, target_position, COMBAT_CAMERA_FOCUS_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	combat_camera_tween.tween_callback(_set_camera_focus_base_position.bind(target_position))
 
 
@@ -1263,10 +1264,23 @@ func _set_camera_focus_base_position(world_pos: Vector2) -> void:
 	main_camera_base_position = world_pos
 	combat_camera_tween = null
 	_refresh_camera_bound_world_overlays()
+	call_deferred("_refresh_camera_bound_world_overlays")
+
+
+func _set_main_camera_position_for_focus(world_pos: Vector2) -> void:
+	var camera := _get_main_camera_or_null()
+	if camera == null:
+		return
+	camera.position = world_pos
+	_refresh_camera_bound_world_overlays()
 
 
 func _refresh_camera_bound_world_overlays() -> void:
 	_update_facing_indicators()
+	if facing_arrow_panel != null and facing_arrow_panel.visible:
+		_position_facing_arrow_panel_near_ally()
+	_update_ally_ready_frames()
+	_refresh_floating_ally_command_panel()
 	_refresh_strategy_status_icon_labels()
 
 
@@ -11736,6 +11750,13 @@ func _set_facing_indicators_visible(should_show: bool) -> void:
 
 
 func _world_to_battle_ui_position(world_pos: Vector2) -> Vector2:
+	var camera := _get_main_camera_or_null()
+	if camera != null and camera.enabled:
+		var viewport_center := get_viewport_rect().size * 0.5
+		var relative_position := world_pos - camera.global_position
+		if not is_zero_approx(camera.global_rotation):
+			relative_position = relative_position.rotated(-camera.global_rotation)
+		return viewport_center + (relative_position * camera.zoom)
 	return get_viewport().get_canvas_transform() * world_pos
 
 

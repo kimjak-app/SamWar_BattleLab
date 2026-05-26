@@ -53,6 +53,9 @@ Latest camera foundation:
 - Latest camera focus patch:
 `v0.68a-2 Combat Focus Camera Follow`
 
+- Latest camera overlay hotfix:
+`v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
+
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
 - Core scripts:
@@ -117,6 +120,7 @@ Do not modify casually:
 - Camera2D controls battle world view only; `BattleUI`, `EnemyRetreatToastLayer`, `CutinOverlay`, and `ResultOverlay` remain CanvasLayer-based screen UI.
 - Combat focus camera follows battle start, ally selection, move resolution, combat pair midpoints, strategy/unique skill presentation, enemy attacks, and reinforcement arrival while preserving CanvasLayer UI.
 - Unique-skill camera shake uses the current focus baseline so it returns to the focused combat view instead of the original scene center.
+- Camera-bound overlays are refreshed during/after Camera2D focus movement, and world-to-UI conversion is based on current `MainCamera` position/zoom so facing indicators and the post-move FacingArrowPanel do not keep stale positions.
 - Ally manual unique skill use now requires range/target selection before resolution.
 - Unique skill range overlays are purple and valid target cells are gold/orange.
 - Unique skill toast backdrop is hidden/transparent so only the cutin image and skill name read visually.
@@ -145,6 +149,7 @@ Do not modify casually:
 - 김작 F6 visual QA also remains for status badge placement: confirm `→` badges sit left of arrow, `←` badges sit right, `↑` and `↓` badges sit tightly on the arrow's left edge, confusion remains `◎N`, and multi-status groups attach as one badge block.
 - 김작 F6 visual QA remains for Camera2D foundation: confirm F6 shows the normal battle screen, fixed UI panels/toasts stay screen-anchored, `MainCamera` is current, existing camera shake still works, and the battle loop remains stable.
 - 김작 F6 visual QA remains for combat focus: confirm battle start, ally selection, move completion, attack midpoint, enemy attack midpoint, strategy/unique skill, and reinforcement arrival are visible; UI stays fixed; status badge fix6 remains intact; and camera shake returns to the current focus.
+- 김작 F6 visual QA remains for overlay sync: confirm first-screen facing indicators sit on units, post-move direction arrows appear around the active unit after camera focus, no overlay stays in a stale gray/off-unit area, and camera shake does not desync overlays.
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.
