@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.68a-fix1 Status Icon Anchor Consistency Patch
+- Unified battlefield status badge placement for ally, enemy, support, and reinforce units.
+- Anchored status badges to the backside of the facing arrow: right-facing units place badges left, left-facing units place badges right, up-facing units place badges below, and down-facing units place badges above.
+- Tightened the arrow-to-badge gap to `10px` so badges stay closer to the unit while preserving horizontal multi-icon layout.
+- Kept status logic, strategy effects, defend effects, marker/slot structure, battle size, AI, and worldmap contracts unchanged.
+
 ## v0.68 Agent Contract Split for WorldMap + Hero Scale Prep
 - Added contract docs for worldmap rules, hero data, army deployment, BattleContext, battle engine boundaries, and skill system rules.
 - Defined the future flow where worldmap / army encounter logic creates `BattleContext` and the battle engine consumes `BattleContext.roster`.

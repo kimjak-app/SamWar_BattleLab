@@ -69,7 +69,7 @@ const STATUS_BADGE_SHAKE_COLOR := Color(1.0, 0.76, 0.28, 0.82)
 const STATUS_BADGE_WIDTH := 34.0
 const STATUS_BADGE_HEIGHT := 36.0
 const STATUS_BADGE_GAP := 2.0
-const STATUS_BADGE_ARROW_GAP := 6.0
+const STATUS_BADGE_ARROW_GAP := 10.0
 const STATUS_BADGE_ARROW_Y_NUDGE := -4.0
 const DEFEND_HEAL_TEXT_COLOR := Color(0.62, 1.0, 0.58, 0.94)
 const FORMATION_STATUS_TEXT_COLOR := Color(0.74, 0.86, 0.94, 0.85)
@@ -2219,22 +2219,26 @@ func _sync_strategy_status_icon_label_children(root: Control, status_entries: Ar
 func _get_strategy_status_badge_position_for_unit(unit_state: BattleUnitState, badge_size: Vector2) -> Vector2:
 	if unit_state == null:
 		return Vector2.ZERO
+	var facing_indicator := _get_facing_indicator_for_unit(unit_state)
 	var facing_anchor := _get_facing_indicator_world_position_for_unit(unit_state)
+	var facing_indicator_size := Vector2.ZERO
+	if facing_indicator != null:
+		facing_indicator_size = facing_indicator.size
 	if facing_anchor == Vector2.ZERO:
 		facing_anchor = _get_visual_anchor_position_for_unit(unit_state) + Vector2(-18.0, -100.0)
 	var normalized_facing := _get_unit_facing(unit_state)
+	var centered_badge_x := (facing_indicator_size.x - badge_size.x) * 0.5
 	match normalized_facing:
 		FACING_LEFT:
-			return facing_anchor + Vector2(STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
+			return facing_anchor + Vector2(facing_indicator_size.x + STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
 		FACING_RIGHT:
 			return facing_anchor + Vector2(-badge_size.x - STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
-		FACING_UP, FACING_DOWN:
-			var visual_anchor := _get_visual_anchor_position_for_unit(unit_state)
-			if facing_anchor.x <= visual_anchor.x:
-				return facing_anchor + Vector2(STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
-			return facing_anchor + Vector2(-badge_size.x - STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
+		FACING_UP:
+			return facing_anchor + Vector2(centered_badge_x, facing_indicator_size.y + STATUS_BADGE_ARROW_GAP)
+		FACING_DOWN:
+			return facing_anchor + Vector2(centered_badge_x, -badge_size.y - STATUS_BADGE_ARROW_GAP)
 		_:
-			return facing_anchor + Vector2(STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
+			return facing_anchor + Vector2(facing_indicator_size.x + STATUS_BADGE_ARROW_GAP, STATUS_BADGE_ARROW_Y_NUDGE)
 
 
 func _get_facing_indicator_world_position_for_unit(unit_state: BattleUnitState) -> Vector2:

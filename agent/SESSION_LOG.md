@@ -2,6 +2,14 @@
 
 ## 2026-05-26
 
+### v0.68a-fix1 Status Icon Anchor Consistency Patch
+- Audited `_refresh_strategy_status_icon_labels()` and `_get_strategy_status_badge_position_for_unit()`.
+- Replaced the old vertical-facing side-choice branch with one shared backside-of-facing-arrow rule for all units.
+- Set status badge gap from the facing arrow to `10px` and kept multi-status icons horizontally arranged.
+- Preserved status/effect logic, defend logic, marker/slot structure, battle size, AI, and worldmap contract docs.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+- Left 김작 F6 QA for ally/enemy/support/reinforce badge distance, arrow-backside placement, face-line fit, and severe overlap checks.
+
 ### v0.68 Agent Contract Split for WorldMap + Hero Scale Prep
 - Added `WORLDMAP_RULES.md`, `HERO_DATA_CONTRACT.md`, `ARMY_DEPLOYMENT_RULES.md`, `BATTLE_CONTEXT_CONTRACT.md`, `BATTLE_ENGINE_RULES.md`, and `SKILL_SYSTEM_RULES.md`.
 - Defined worldmap / army systems as owners of encounter creation, battle type, terrain, region, `map_variant_id`, and roster preparation.

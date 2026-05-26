@@ -42,6 +42,10 @@ Latest docs/workflow baseline:
 
 `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
+Latest UI patch:
+
+`v0.68a-fix1 Status Icon Anchor Consistency Patch`
+
 ## Core Scene And Scripts
 - Core scene: `Battle_Fullscreen_Test.tscn`
 - Core scripts:
@@ -99,7 +103,7 @@ Do not modify casually:
 - `UnitMarker` nodes are retained as compatibility runtime sync targets and should not be deleted casually.
 - Token, portrait, HP bar, troop label, shadow, move dust, click area, READY frame, facing indicator, and status badges are treated as one root-relative visual attachment set through the `UnitVisualSlot` registry.
 - Click areas remain scene-level `Area2D` nodes for compatibility, and READY/facing/status overlays remain UI/FX layer nodes, but all are positioned from the slot-synced visual anchor.
-- Battlefield status badges now place near the facing indicator line instead of using a fixed right-side offset; left-facing units put badges to the arrow's right, right-facing units put badges to the arrow's left, and up/down facings choose the near arrow/portrait side.
+- Battlefield status badges now use one facing-arrow backside rule for ally, enemy, support, and reinforce units: right-facing badges sit left of the arrow, left-facing badges sit right of the arrow, up-facing badges sit below the arrow, and down-facing badges sit above the arrow.
 - Ally manual unique skill use now requires range/target selection before resolution.
 - Unique skill range overlays are purple and valid target cells are gold/orange.
 - Unique skill toast backdrop is hidden/transparent so only the cutin image and skill name read visually.
@@ -125,7 +129,7 @@ Do not modify casually:
   - `v0.68 WorldMap ↔ BattleContext Contract MVP`
   - `v0.68b Hero/Army Deployment Contract MVP`
 - 김작 F6 visual QA remains before treating layout feel as final: move `Slots/AllyReinforce01Slot` and confirm ROUND 2 김유신 spawn plus HP/troop/portrait/click/facing/status alignment.
-- 김작 F6 visual QA also remains for status badge placement: confirm 좌→우 / 우→좌 / up/down units keep badges near the arrow and not fully over the hero face.
+- 김작 F6 visual QA also remains for status badge placement: confirm ally/enemy/support/reinforce badges stay close to the unit, sit on the backside of the facing arrow, align naturally near the hero-face line, and do not heavily overlap the face or arrow.
 
 ## Important Direction
 - Keep the current battle screen interaction baseline stable before new UX/art expansion.

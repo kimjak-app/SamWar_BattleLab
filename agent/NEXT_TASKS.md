@@ -5,6 +5,8 @@ Behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 
 Docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 
+Latest UI patch: `v0.68a-fix1 Status Icon Anchor Consistency Patch`
+
 ## Priority 1
 `v0.68b WorldMap Region Graph MVP`
 
@@ -36,6 +38,11 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68a-fix1 Status Icon Anchor Consistency Patch` is complete.
+- Unified battlefield status badge placement for ally, enemy, support, and reinforce units around the facing arrow's backside.
+- Facing rules: right-facing badges left of arrow, left-facing badges right of arrow, up-facing badges below arrow, down-facing badges above arrow.
+- Reduced arrow-to-badge separation to a tight `10px` anchor gap while preserving horizontal multi-icon layout.
+- 김작 F6 visual QA remains for unit distance, arrow backside placement, face-line fit, and severe overlap checks.
 - `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep` is complete.
 - Added worldmap, hero data, army deployment, BattleContext, battle engine, and skill system contract docs.
 - Defined the future data flow: worldmap / army encounter -> `BattleContext` -> battle engine consumes `BattleContext.roster`.
