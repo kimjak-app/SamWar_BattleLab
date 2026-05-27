@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix
+- Standardized all 13 `CityMarker_*` scene bundles in `WorldMap_Test.tscn` to use local `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D` children.
+- Kept city marker root positions as the scene-authored source of truth, so moving the root in the Godot 2D editor moves icon/dot, label, and click area together.
+- Updated `scripts/worldmap_city_marker.gd` to refresh marker color and label text from local child nodes without assigning world-space label positions.
+- Preserved city metadata, marker click info panel behavior, manual tile layout control, camera clamp behavior, route/army/battle-entry deferrals, and `BattleContext` non-integration.
+
 ## v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix
 - Added scene-authored `ClickArea` / `CollisionShape2D` children under each `CityMarker_*` root in `WorldMap_Test.tscn`.
 - Kept each city icon/dot, name label, and click area attached under its `CityMarker_*` root so moving the root moves the whole marker bundle.

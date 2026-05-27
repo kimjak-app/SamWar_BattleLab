@@ -78,7 +78,7 @@ Latest camera foundation:
 `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
 
 - Latest worldmap marker attachment hotfix:
-`v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix`
+`v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix`
 
 ## Core Scene And Scripts
 - Worldmap foundation scene: `WorldMap_Test.tscn`
@@ -201,6 +201,8 @@ Do not modify casually:
 - Next candidates:
   - `v0.68b-3 WorldMap Route Layer MVP`
   - `v0.68c BattleContext Runtime Injection MVP`
+- 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix5`: move `CityMarker_Hanseong` root and confirm `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D` move together; repeat spot checks on the other 12 cities; Ctrl+S persistence; marker click info panel; camera pan/zoom/clamp; and battle scene stability.
+- Codex Godot headless verification for `v0.68b-2-hotfix5` may be blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output if needed.
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix4`: move `CityMarker_Hanseong` root and confirm marker body, name label, and click area move together; check all other city marker roots; Ctrl+S persistence; marker click info label; camera pan/zoom/clamp; and battle scene stability.
 - Codex Godot headless verification for `v0.68b-2-hotfix4` was blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output.
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix3`: select/move the four Tile nodes in the 2D editor, Ctrl+S, confirm F6 preserves the saved layout, camera clamp follows the current tile union rect, all 13 city markers remain present, and the battle scene is not broken.

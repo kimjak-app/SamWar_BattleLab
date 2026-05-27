@@ -21,7 +21,7 @@ Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 
 Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
 
-Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix`
+Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix`
 
 ## Priority 1
 `v0.68b-3 WorldMap Route Layer MVP`
@@ -54,6 +54,11 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix` is complete.
+- All 13 `CityMarker_*` roots now use explicit local children named `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D`.
+- `scripts/worldmap_city_marker.gd` reads those local children and does not assign separate world-space positions to `NameLabel`.
+- City marker positions remain scene-authored source of truth, and moving a root marker should carry icon/dot, label, and click area together.
+- 김작 2D/F6 should confirm root move attachment for Hanseong and the other 12 cities, click area movement, Ctrl+S persistence, and marker click info panel behavior.
 - `v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix` is complete.
 - Added `ClickArea` / `CollisionShape2D` under every `CityMarker_*` root and kept icon/dot plus label as root children.
 - Added marker click signal plumbing and a minimal `WorldMapUI/CityInfoLabel` update path while preserving marker metadata.

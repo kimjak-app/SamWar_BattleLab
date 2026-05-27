@@ -12,8 +12,8 @@ signal city_selected(marker: WorldMapCityMarker)
 @export var route_types: Dictionary = {}
 @export var web_seed_position: Vector2 = Vector2.ZERO
 
-@onready var marker_body: Polygon2D = get_node_or_null("MarkerBody") as Polygon2D
-@onready var city_name_label: Label = get_node_or_null("CityNameLabel") as Label
+@onready var city_dot: Polygon2D = _get_city_dot()
+@onready var name_label: Label = _get_name_label()
 @onready var click_area: Area2D = get_node_or_null("ClickArea") as Area2D
 
 const OWNER_COLORS := {
@@ -43,12 +43,20 @@ func _process(_delta: float) -> void:
 		_refresh_marker_visuals()
 
 
-func _refresh_marker_visuals() -> void:
-	if city_name_label != null:
-		city_name_label.text = display_name
+func _get_city_dot() -> Polygon2D:
+	return get_node_or_null("CityDot") as Polygon2D
 
-	if marker_body != null:
-		marker_body.color = OWNER_COLORS.get(owner_faction_id, Color(0.9, 0.9, 0.9, 1.0))
+
+func _get_name_label() -> Label:
+	return get_node_or_null("NameLabel") as Label
+
+
+func _refresh_marker_visuals() -> void:
+	if name_label != null:
+		name_label.text = display_name
+
+	if city_dot != null:
+		city_dot.color = OWNER_COLORS.get(owner_faction_id, Color(0.9, 0.9, 0.9, 1.0))
 
 
 func _connect_click_area() -> void:
