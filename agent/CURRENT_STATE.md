@@ -24,7 +24,7 @@ Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 
 Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
 
-Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix`
+Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Current Implementation Step
 - `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
@@ -34,6 +34,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix5 WorldMap City Marker
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
 - `v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix`
 - `v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix`
+- `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 - `v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion`
 - `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
 - `v0.68a-2 Combat Focus Camera Follow`
@@ -89,6 +90,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix5 WorldMap City Marker
 - `CityLayer` now contains 13 scene-authored `CityMarker_*` nodes for Luoyang, Yecheng, Chengdu, Jianye, Karakorum, Pyeongyang, Hanseong, Gyeongju, Sabi, Kyoto, Osaka, Kyushu, and Edo.
 - Each `CityMarker_*` root owns its icon/dot, name label, and click area/collision children so moving the root in the Godot 2D editor moves the whole city marker bundle.
 - Each `CityMarker_*` root now uses the explicit child structure `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D`; runtime refreshes label text/color by local child reference and does not place `NameLabel` in world coordinates.
+- `NameLabel` is now a `Node2D` text node instead of a `Label` / `Control` node, so it follows `CityMarker_*` root movement in the 2D editor.
 - `WorldMapTileLayer`, `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` now share the same explicit zero-offset `WorldMapRoot` coordinate basis.
 - The 13 city markers were re-seeded into the 4-tile combined rect so they sit over the worldmap image in the 2D editor instead of below it.
 - The 13 city markers were re-seeded again against the corrected 1024x1024 editor-visible combined rect after the tile seam fix.
@@ -274,6 +276,8 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix5 WorldMap City Marker
 - 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix3`: the four Tile nodes can be selected and moved in the 2D editor, Ctrl+S preserves the tile layout, F6 does not overwrite Tile positions, camera clamp follows the current tile union rect, all 13 city markers remain present, and `Battle_Fullscreen_Test.tscn` remains stable.
 - 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix4`: moving `CityMarker_Hanseong` root moves icon/dot, name label, and click area together; all other `CityMarker_*` roots behave the same; Ctrl+S preserves positions; clicking a marker updates the info label; camera pan/zoom/clamp remains normal; and `Battle_Fullscreen_Test.tscn` remains stable.
 - 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix5`: moving `CityMarker_Hanseong` root moves `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D` together; all 13 city marker roots use the same child structure; Ctrl+S preserves positions; marker click info panel remains normal.
+- 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix6`: moving each `CityMarker_*` root now moves the Node2D `NameLabel` text visibly with the marker dot and click area; Ctrl+S and F6 preserve the moved bundle.
+- Codex Godot headless verification for `v0.68b-2-hotfix6` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2-hotfix5` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2-hotfix4` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2-hotfix3` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.

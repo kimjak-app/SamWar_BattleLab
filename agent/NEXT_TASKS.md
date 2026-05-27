@@ -21,7 +21,7 @@ Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 
 Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
 
-Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix`
+Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
 `v0.68b-3 WorldMap Route Layer MVP`
@@ -54,6 +54,9 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix` is complete.
+- Converted city `NameLabel` nodes from `Label` / `Control` to Node2D text nodes so marker root movement carries city names in the 2D editor.
+- 김작 2D/F6 should confirm root movement now visibly moves city name text, marker dot, and click area together.
 - `v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix` is complete.
 - All 13 `CityMarker_*` roots now use explicit local children named `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D`.
 - `scripts/worldmap_city_marker.gd` reads those local children and does not assign separate world-space positions to `NameLabel`.

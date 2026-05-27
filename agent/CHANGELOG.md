@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix
+- Replaced all 13 city `NameLabel` nodes in `WorldMap_Test.tscn` from `Label` / `Control` nodes with `Node2D` text nodes using `scripts/worldmap_city_name_label.gd`.
+- Kept `NameLabel` under each `CityMarker_*` root with local `position = Vector2(0, 16)`, so moving the marker root in the 2D editor moves the displayed city name with it.
+- Restored scene-authored `ClickArea/CollisionShape2D` children under each city marker root.
+- Updated `scripts/worldmap_city_marker.gd` to refresh the new Node2D name label through `set_label_text()` while keeping existing marker metadata and click behavior.
+
 ## v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix
 - Standardized all 13 `CityMarker_*` scene bundles in `WorldMap_Test.tscn` to use local `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D` children.
 - Kept city marker root positions as the scene-authored source of truth, so moving the root in the Godot 2D editor moves icon/dot, label, and click area together.

@@ -23,6 +23,7 @@
 ## Current City Marker Foundation
 - `v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix` standardizes each city as one scene-authored marker bundle under `CityLayer`.
 - Each `CityMarker_*` root owns local `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D` children.
+- `NameLabel` should be a `Node2D` worldmap text node, not a `Label` / `Control` node, so marker root movement in the Godot 2D editor carries the city name reliably.
 - Moving a `CityMarker_*` root in the Godot 2D editor should move the icon/dot, label, and click area together.
 - Runtime code may refresh local label text and marker color from metadata, but must not place `NameLabel` with independent world coordinates.
 - Runtime may update label text/color from marker metadata and process click signals, but it must not detach label/click geometry from the marker root.
