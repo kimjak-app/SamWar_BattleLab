@@ -14,6 +14,10 @@
 - City click, city data, route graph, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix` aligns the city marker layer with the four-tile worldmap coordinate space.
+- `WorldMapRoot`, `WorldMapTileLayer`, `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` use the same zero-offset parent coordinate basis.
+- Scene-authored tile positions are A1 `(0, 0)`, A2 `(tile_width, 0)`, B1 `(0, tile_height)`, and B2 `(tile_width, tile_height)` with `Sprite2D.centered = false`.
+- Corrected `CityMarker_*` positions are a one-time seed fix against the 4-tile combined rect; future edits should move the marker nodes directly in the Godot 2D editor.
 - `v0.68b-2 WorldMap City Marker Layer MVP` adds the first 13 city markers under `WorldMap_Test.tscn > WorldMapRoot > CityLayer`.
 - City marker metadata is based on `SamWar_web/data/cities.js`: `id`, `name`, `regionKey`, `ownerFactionId`, `neighbors`, and `routeTypes`.
 - Web `x` / `y` values are only seed/fallback placement data. They are recorded as `web_seed_position` but must not become the final Godot source of truth.

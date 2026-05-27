@@ -18,9 +18,12 @@ Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation
 
 Latest worldmap marker patch: `v0.68b-2 WorldMap City Marker Layer MVP`
 
+Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
+
 ## Current Implementation Step
 - `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
 - `v0.68b-2 WorldMap City Marker Layer MVP`
+- `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion`
 - `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
 - `v0.68a-2 Combat Focus Camera Follow`
@@ -71,6 +74,8 @@ Latest worldmap marker patch: `v0.68b-2 WorldMap City Marker Layer MVP`
 - `WorldMapUI` is CanvasLayer-based and intended to remain screen-fixed during camera movement.
 - `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` exist as empty future worldmap layers only.
 - `CityLayer` now contains 13 scene-authored `CityMarker_*` nodes for Luoyang, Yecheng, Chengdu, Jianye, Karakorum, Pyeongyang, Hanseong, Gyeongju, Sabi, Kyoto, Osaka, Kyushu, and Edo.
+- `WorldMapTileLayer`, `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` now share the same explicit zero-offset `WorldMapRoot` coordinate basis.
+- The 13 city markers were re-seeded into the 4-tile combined rect so they sit over the worldmap image in the 2D editor instead of below it.
 - `scripts/worldmap_city_marker.gd` stores exported marker metadata from `SamWar_web/data/cities.js` and keeps simple label/color visuals on each marker.
 - Web city `x` / `y` coordinates are preserved only as initial `web_seed_position`; final city marker placement is the `CityMarker_*` node position in `WorldMap_Test.tscn`.
 - City clicking, city data, route graph, army movement, battle entry, and `BattleContext` runtime injection remain unimplemented.
@@ -246,6 +251,8 @@ Latest worldmap marker patch: `v0.68b-2 WorldMap City Marker Layer MVP`
 ## Known / Deferred
 - 김작 F6 visual QA should confirm `v0.68b-1` worldmap canvas: 4 tiles appear as one map without visible gap/overlap, tile boundaries do not show obvious seams, Camera2D pan is smooth, camera clamp avoids excessive gray outside area, UI labels remain screen-fixed, `CityLayer` / `RouteLayer` / `ArmyLayer` / `EffectLayer` exist in the scene tree, and `Battle_Fullscreen_Test.tscn` remains stable.
 - 김작 F6 visual QA should confirm `v0.68b-2` city markers: all 13 `CityMarker_*` nodes are visible under `CityLayer`, marker labels/colors are readable enough for MVP placement, moving a marker in the Godot 2D editor and saving preserves that scene-authored position at runtime, camera pan/zoom does not detach markers from the map, and no city click/battle entry behavior exists yet.
+- 김작 F6 visual QA should confirm `v0.68b-2-hotfix1`: in the 2D editor, all 13 city markers sit on top of the 4-tile worldmap image, no marker is scattered in the lower gray area, `CityLayer` and `WorldMapTileLayer` share the same coordinate space, moving a marker and saving preserves runtime position, camera pan/zoom/clamp still works, UI labels stay screen-fixed, and `Battle_Fullscreen_Test.tscn` remains stable.
+- Codex Godot headless verification for `v0.68b-2-hotfix1` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-1` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` project/scene load and GDScript warning cleanliness.
 - 김작 F6 visual QA should confirm left-facing and right-facing units keep status badges near the facing arrow, with up/down facings still close to the portrait/arrow line and not fully overlapping the face.

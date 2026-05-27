@@ -2,6 +2,15 @@
 
 ## 2026-05-28
 
+### v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix
+- Audited `WorldMap_Test.tscn` layer parents and confirmed `WorldMapTileLayer`, `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` all live under `WorldMapRoot`.
+- Made the shared worldmap layer origins explicit at `Vector2(0, 0)` and authored the four tile positions in the scene so the Godot 2D editor shows the same combined rect foundation as runtime.
+- Repositioned all 13 `CityMarker_*` root nodes from the prior oversized seed coordinates to the 4-tile combined rect seed coordinates.
+- Updated `web_seed_position` to match the corrected 4-tile rect seed while preserving scene-authored marker positions as the final source of truth.
+- Kept marker metadata, label/color visuals, camera pan/zoom/clamp behavior, and worldmap UI structure intact.
+- Did not add route drawing, city click expansion, army movement, battle entry, or `BattleContext` runtime injection.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+
 ### v0.68b-2 WorldMap City Marker Layer MVP
 - Read `SamWar_web/data/cities.js` and used its 13 city entries as the marker metadata baseline.
 - Added `scripts/worldmap_city_marker.gd` with exported metadata and simple marker label/color behavior.

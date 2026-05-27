@@ -120,7 +120,7 @@ func _clamp_camera_to_world() -> void:
 func _get_primary_tile_size() -> Vector2:
 	if tile_a1_top_left.texture == null:
 		push_warning("WorldMap tile A1 texture is missing; using fallback layout size.")
-		return Vector2(2048.0, 2048.0)
+		return Vector2(1024.0, 1024.0)
 	return tile_a1_top_left.texture.get_size()
 
 

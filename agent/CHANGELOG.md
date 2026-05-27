@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix
+- Re-aligned `WorldMap_Test.tscn` city markers to the same `WorldMapRoot` coordinate space as `WorldMapTileLayer`.
+- Made `WorldMapRoot`, `WorldMapTileLayer`, `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` explicit zero-offset scene layers.
+- Added scene-authored tile placement for the 2D editor: A1 `(0, 0)`, A2 `(1024, 0)`, B1 `(0, 1024)`, B2 `(1024, 1024)`.
+- Re-seeded all 13 `CityMarker_*` root positions and `web_seed_position` values against the 4-tile combined rect instead of the oversized coordinate space.
+- Kept final city placement source of truth as scene-authored `CityMarker_*`.`position`; runtime code still does not overwrite marker positions from web data.
+- Kept battle scenes, route drawing, army movement, battle entry, and `BattleContext` runtime injection untouched.
+
 ## v0.68b-2 WorldMap City Marker Layer MVP
 - Added 13 scene-authored `CityMarker_*` nodes under `WorldMap_Test.tscn > WorldMapRoot > CityLayer`, based on `SamWar_web/data/cities.js`.
 - Added `scripts/worldmap_city_marker.gd` with exported city metadata: `city_id`, `display_name`, `region_id`, `owner_faction_id`, `neighbors`, `route_types`, and `web_seed_position`.

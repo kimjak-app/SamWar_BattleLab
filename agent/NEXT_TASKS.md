@@ -15,6 +15,8 @@ Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation
 
 Latest worldmap marker patch: `v0.68b-2 WorldMap City Marker Layer MVP`
 
+Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
+
 ## Priority 1
 `v0.68b-3 WorldMap Route Layer MVP`
 
@@ -46,6 +48,11 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix` is complete.
+- Aligned `CityLayer`, `RouteLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` with `WorldMapTileLayer` under the same zero-offset `WorldMapRoot` coordinate basis.
+- Scene-authored the four tile positions and re-seeded all 13 city markers against the 4-tile combined rect so markers sit on the map image in the Godot 2D editor.
+- Preserved the rule that final city position source of truth is `CityMarker_*`.`position` in `WorldMap_Test.tscn`, not web `x` / `y`.
+- 김작 F6 should confirm marker-on-map placement, editor move-and-save persistence, camera pan/zoom/clamp behavior, fixed UI labels, and no battle scene regression.
 - `v0.68b-2 WorldMap City Marker Layer MVP` is complete.
 - Added 13 scene-authored city marker nodes under `WorldMap_Test.tscn > WorldMapRoot > CityLayer`, based on `SamWar_web/data/cities.js`.
 - Added `scripts/worldmap_city_marker.gd` with exported metadata for `city_id`, `display_name`, `region_id`, `owner_faction_id`, `neighbors`, `route_types`, and `web_seed_position`.
