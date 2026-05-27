@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix
+- Fixed `WorldMap_Test.tscn` scene-authored tile positions so the four worldmap tiles attach in the Godot 2D editor, not only at runtime.
+- Set the visible editor tile layout to A1 `(0, 0)`, A2 `(512, 0)`, B1 `(0, 512)`, and B2 `(512, 512)`, matching the tile texture display size.
+- Kept all worldmap layers under the same zero-offset `WorldMapRoot` coordinate basis.
+- Re-seeded the 13 city marker root positions and `web_seed_position` values to the corrected 1024x1024 four-tile combined rect so markers stay on the map image.
+- Preserved the rule that final city positions are scene-authored `CityMarker_*`.`position`; runtime code still does not overwrite marker root positions from web data.
+- Kept battle scenes, route drawing, army movement, battle entry, and `BattleContext` runtime injection untouched.
+
 ## v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix
 - Re-aligned `WorldMap_Test.tscn` city markers to the same `WorldMapRoot` coordinate space as `WorldMapTileLayer`.
 - Made `WorldMapRoot`, `WorldMapTileLayer`, `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` explicit zero-offset scene layers.

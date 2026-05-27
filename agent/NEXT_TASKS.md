@@ -17,6 +17,8 @@ Latest worldmap marker patch: `v0.68b-2 WorldMap City Marker Layer MVP`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
+Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
+
 ## Priority 1
 `v0.68b-3 WorldMap Route Layer MVP`
 
@@ -48,6 +50,11 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix` is complete.
+- Corrected scene-authored tile positions so the Godot 2D editor shows the 4 worldmap tiles as one contiguous map.
+- Re-seeded all 13 city markers to the corrected 1024x1024 four-tile combined rect while preserving `CityMarker_*`.`position` as the future source of truth.
+- Kept camera pan/drag/zoom/clamp behavior, marker metadata, and empty future layers intact.
+- 김작 2D/F6 should confirm seam-free tile display, city markers on the map, debug layer non-interference, camera behavior, fixed UI labels, and battle scene stability.
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix` is complete.
 - Aligned `CityLayer`, `RouteLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` with `WorldMapTileLayer` under the same zero-offset `WorldMapRoot` coordinate basis.
 - Scene-authored the four tile positions and re-seeded all 13 city markers against the 4-tile combined rect so markers sit on the map image in the Godot 2D editor.

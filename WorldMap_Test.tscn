@@ -22,17 +22,17 @@ centered = false
 texture = ExtResource("2_tile_a1")
 
 [node name="Tile_A2_TopRight" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer"]
-position = Vector2(1024, 0)
+position = Vector2(512, 0)
 centered = false
 texture = ExtResource("3_tile_a2")
 
 [node name="Tile_B1_BottomLeft" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer"]
-position = Vector2(0, 1024)
+position = Vector2(0, 512)
 centered = false
 texture = ExtResource("4_tile_b1")
 
 [node name="Tile_B2_BottomRight" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer"]
-position = Vector2(1024, 1024)
+position = Vector2(512, 512)
 centered = false
 texture = ExtResource("5_tile_b2")
 
@@ -43,14 +43,14 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="CityMarker_Luoyang" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(369, 1372)
+position = Vector2(184, 686)
 script = ExtResource("6_city_marker")
 city_id = "luoyang"
 display_name = "낙양"
 region_id = "region.china_mainland"
 owner_faction_id = "chu"
 neighbors = Array[String](["yecheng", "chengdu", "jianye"])
-web_seed_position = Vector2(369, 1372)
+web_seed_position = Vector2(184, 686)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang"]
 color = Color(0.8, 0.24, 0.22, 1)
@@ -65,14 +65,14 @@ text = "낙양"
 horizontal_alignment = 1
 
 [node name="CityMarker_Yecheng" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(389, 1024)
+position = Vector2(195, 512)
 script = ExtResource("6_city_marker")
 city_id = "yecheng"
 display_name = "업성"
 region_id = "region.china_mainland"
 owner_faction_id = "wei"
 neighbors = Array[String](["luoyang", "jianye", "karakorum"])
-web_seed_position = Vector2(389, 1024)
+web_seed_position = Vector2(195, 512)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng"]
 color = Color(0.46, 0.58, 0.72, 1)
@@ -87,14 +87,14 @@ text = "업성"
 horizontal_alignment = 1
 
 [node name="CityMarker_Chengdu" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(287, 1720)
+position = Vector2(143, 860)
 script = ExtResource("6_city_marker")
 city_id = "chengdu"
 display_name = "성도"
 region_id = "region.china_mainland"
 owner_faction_id = "shu"
 neighbors = Array[String](["luoyang", "jianye"])
-web_seed_position = Vector2(287, 1720)
+web_seed_position = Vector2(143, 860)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu"]
 color = Color(0.18, 0.58, 0.32, 1)
@@ -109,7 +109,7 @@ text = "성도"
 horizontal_alignment = 1
 
 [node name="CityMarker_Jianye" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(532, 1802)
+position = Vector2(266, 901)
 script = ExtResource("6_city_marker")
 city_id = "jianye"
 display_name = "건업"
@@ -119,7 +119,7 @@ neighbors = Array[String](["luoyang", "chengdu", "yecheng", "sabi"])
 route_types = {
 "sabi": "sea"
 }
-web_seed_position = Vector2(532, 1802)
+web_seed_position = Vector2(266, 901)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye"]
 color = Color(0.28, 0.72, 0.76, 1)
@@ -134,7 +134,7 @@ text = "건업"
 horizontal_alignment = 1
 
 [node name="CityMarker_Karakorum" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(553, 840)
+position = Vector2(276, 420)
 script = ExtResource("6_city_marker")
 city_id = "karakorum"
 display_name = "카라코룸"
@@ -145,7 +145,7 @@ route_types = {
 "pyeongyang": "land",
 "yecheng": "land"
 }
-web_seed_position = Vector2(553, 840)
+web_seed_position = Vector2(276, 420)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum"]
 color = Color(0.62, 0.52, 0.4, 1)
@@ -160,14 +160,14 @@ text = "카라코룸"
 horizontal_alignment = 1
 
 [node name="CityMarker_Pyeongyang" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(799, 696)
+position = Vector2(399, 348)
 script = ExtResource("6_city_marker")
 city_id = "pyeongyang"
 display_name = "평양"
 region_id = "region.korean_peninsula"
 owner_faction_id = "goguryeo"
 neighbors = Array[String](["hanseong", "karakorum"])
-web_seed_position = Vector2(799, 696)
+web_seed_position = Vector2(399, 348)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang"]
 color = Color(0.35, 0.5, 0.95, 1)
@@ -182,14 +182,14 @@ text = "평양"
 horizontal_alignment = 1
 
 [node name="CityMarker_Hanseong" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(922, 1065)
+position = Vector2(461, 532)
 script = ExtResource("6_city_marker")
 city_id = "hanseong"
 display_name = "한성"
 region_id = "region.korean_peninsula"
 owner_faction_id = "player"
 neighbors = Array[String](["pyeongyang", "gyeongju", "sabi"])
-web_seed_position = Vector2(922, 1065)
+web_seed_position = Vector2(461, 532)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong"]
 color = Color(0.25, 0.62, 1, 1)
@@ -204,7 +204,7 @@ text = "한성"
 horizontal_alignment = 1
 
 [node name="CityMarker_Gyeongju" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(1147, 1331)
+position = Vector2(573, 666)
 script = ExtResource("6_city_marker")
 city_id = "gyeongju"
 display_name = "경주"
@@ -215,7 +215,7 @@ route_types = {
 "kyoto": "sea",
 "osaka": "sea"
 }
-web_seed_position = Vector2(1147, 1331)
+web_seed_position = Vector2(573, 666)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju"]
 color = Color(0.9, 0.74, 0.24, 1)
@@ -230,7 +230,7 @@ text = "경주"
 horizontal_alignment = 1
 
 [node name="CityMarker_Sabi" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(1024, 1372)
+position = Vector2(512, 686)
 script = ExtResource("6_city_marker")
 city_id = "sabi"
 display_name = "사비"
@@ -241,7 +241,7 @@ route_types = {
 "jianye": "sea",
 "kyushu": "sea"
 }
-web_seed_position = Vector2(1024, 1372)
+web_seed_position = Vector2(512, 686)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi"]
 color = Color(0.88, 0.54, 0.28, 1)
@@ -256,7 +256,7 @@ text = "사비"
 horizontal_alignment = 1
 
 [node name="CityMarker_Kyoto" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(1659, 1311)
+position = Vector2(830, 655)
 script = ExtResource("6_city_marker")
 city_id = "kyoto"
 display_name = "교토"
@@ -266,7 +266,7 @@ neighbors = Array[String](["gyeongju", "osaka", "edo"])
 route_types = {
 "gyeongju": "sea"
 }
-web_seed_position = Vector2(1659, 1311)
+web_seed_position = Vector2(830, 655)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto"]
 color = Color(0.58, 0.28, 0.84, 1)
@@ -281,7 +281,7 @@ text = "교토"
 horizontal_alignment = 1
 
 [node name="CityMarker_Osaka" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(1536, 1556)
+position = Vector2(768, 778)
 script = ExtResource("6_city_marker")
 city_id = "osaka"
 display_name = "오사카"
@@ -292,7 +292,7 @@ route_types = {
 "gyeongju": "sea",
 "kyushu": "sea"
 }
-web_seed_position = Vector2(1536, 1556)
+web_seed_position = Vector2(768, 778)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka"]
 color = Color(0.86, 0.48, 0.16, 1)
@@ -307,7 +307,7 @@ text = "오사카"
 horizontal_alignment = 1
 
 [node name="CityMarker_Kyushu" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(1372, 1761)
+position = Vector2(686, 881)
 script = ExtResource("6_city_marker")
 city_id = "kyushu"
 display_name = "큐슈"
@@ -318,7 +318,7 @@ route_types = {
 "osaka": "sea",
 "sabi": "sea"
 }
-web_seed_position = Vector2(1372, 1761)
+web_seed_position = Vector2(686, 881)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu"]
 color = Color(0.64, 0.42, 0.28, 1)
@@ -333,14 +333,14 @@ text = "큐슈"
 horizontal_alignment = 1
 
 [node name="CityMarker_Edo" type="Node2D" parent="WorldMapRoot/CityLayer"]
-position = Vector2(1782, 1167)
+position = Vector2(891, 584)
 script = ExtResource("6_city_marker")
 city_id = "edo"
 display_name = "에도"
 region_id = "region.japanese_archipelago"
 owner_faction_id = "tokugawa"
 neighbors = Array[String](["kyoto"])
-web_seed_position = Vector2(1782, 1167)
+web_seed_position = Vector2(891, 584)
 
 [node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo"]
 color = Color(0.32, 0.72, 0.44, 1)
@@ -364,7 +364,7 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="WorldMapCamera" type="Camera2D" parent="."]
-position = Vector2(1024, 1024)
+position = Vector2(512, 512)
 zoom = Vector2(0.7, 0.7)
 enabled = true
 

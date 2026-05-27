@@ -2,6 +2,15 @@
 
 ## 2026-05-28
 
+### v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix
+- Audited the scene-authored tile layout after 김작 confirmed the 2D editor showed a large gray band between top and bottom tile rows.
+- Changed the editor-visible tile positions to the actual displayed tile spacing: A1 `(0, 0)`, A2 `(512, 0)`, B1 `(0, 512)`, and B2 `(512, 512)`.
+- Kept `Sprite2D.centered = false`, scale default, and zero-offset `WorldMapTileLayer` / `CityLayer` / `RouteLayer` / `ArmyLayer` / `EffectLayer` / `DebugLayer`.
+- Re-seeded all 13 `CityMarker_*` root positions against the corrected 1024x1024 combined rect so markers remain on top of the map image.
+- Preserved scene-authored city marker positions as the final source of truth; runtime only configures/validates tile layout and camera clamp.
+- Did not add route drawing, city click expansion, army movement, battle entry, or `BattleContext` runtime injection.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+
 ### v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix
 - Audited `WorldMap_Test.tscn` layer parents and confirmed `WorldMapTileLayer`, `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` all live under `WorldMapRoot`.
 - Made the shared worldmap layer origins explicit at `Vector2(0, 0)` and authored the four tile positions in the scene so the Godot 2D editor shows the same combined rect foundation as runtime.
