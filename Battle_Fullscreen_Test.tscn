@@ -2368,8 +2368,9 @@ mouse_filter = 2
 
 [node name="AllyFormationGuidePanel" type="Panel" parent="BattleUI/FormationSlotGuideLayer" unique_id=129510001]
 layout_mode = 0
+offset_left = 40.0
 offset_top = 93.0
-offset_right = 235.0
+offset_right = 275.0
 offset_bottom = 531.0
 mouse_filter = 2
 
