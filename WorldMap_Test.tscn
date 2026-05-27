@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://d05f0xjbn7wm1"]
+[gd_scene load_steps=7 format=3 uid="uid://d05f0xjbn7wm1"]
 
-[ext_resource type="Script" path="res://scripts/worldmap_test.gd" id="1_worldmap_test"]
-[ext_resource type="Texture2D" path="res://assets/worldmap/tiles/worldmap_tile_A1_top_left.png" id="2_tile_a1"]
-[ext_resource type="Texture2D" path="res://assets/worldmap/tiles/worldmap_tile_A2_top_right.png" id="3_tile_a2"]
-[ext_resource type="Texture2D" path="res://assets/worldmap/tiles/worldmap_tile_B1_bottom_left.png" id="4_tile_b1"]
-[ext_resource type="Texture2D" path="res://assets/worldmap/tiles/worldmap_tile_B2_bottom_right.png" id="5_tile_b2"]
+[ext_resource type="Script" uid="uid://bqb0xjpgxdwji" path="res://scripts/worldmap_test.gd" id="1_worldmap_test"]
+[ext_resource type="Texture2D" uid="uid://q7dd0tesr1gt" path="res://assets/worldmap/tiles/worldmap_tile_A1_top_left.png" id="2_tile_a1"]
+[ext_resource type="Texture2D" uid="uid://djdn5p3jwek6p" path="res://assets/worldmap/tiles/worldmap_tile_A2_top_right.png" id="3_tile_a2"]
+[ext_resource type="Texture2D" uid="uid://u2kgph1c7cuw" path="res://assets/worldmap/tiles/worldmap_tile_B1_bottom_left.png" id="4_tile_b1"]
+[ext_resource type="Texture2D" uid="uid://crk55oqy0ufpg" path="res://assets/worldmap/tiles/worldmap_tile_B2_bottom_right.png" id="5_tile_b2"]
+[ext_resource type="Script" uid="uid://bek5h4grd01m2" path="res://scripts/worldmap_city_marker.gd" id="6_city_marker"]
 
 [node name="WorldMap_Test" type="Node2D"]
 script = ExtResource("1_worldmap_test")
@@ -32,6 +33,318 @@ texture = ExtResource("5_tile_b2")
 [node name="RouteLayer" type="Node2D" parent="WorldMapRoot"]
 
 [node name="CityLayer" type="Node2D" parent="WorldMapRoot"]
+
+[node name="CityMarker_Luoyang" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(737, 2744)
+script = ExtResource("6_city_marker")
+city_id = "luoyang"
+display_name = "낙양"
+region_id = "region.china_mainland"
+owner_faction_id = "chu"
+neighbors = Array[String](["yecheng", "chengdu", "jianye"])
+web_seed_position = Vector2(737, 2744)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang"]
+color = Color(0.8, 0.24, 0.22, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang"]
+offset_left = -28.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 40.0
+text = "낙양"
+horizontal_alignment = 1
+
+[node name="CityMarker_Yecheng" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(778, 2048)
+script = ExtResource("6_city_marker")
+city_id = "yecheng"
+display_name = "업성"
+region_id = "region.china_mainland"
+owner_faction_id = "wei"
+neighbors = Array[String](["luoyang", "jianye", "karakorum"])
+web_seed_position = Vector2(778, 2048)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng"]
+color = Color(0.46, 0.58, 0.72, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng"]
+offset_left = -28.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 40.0
+text = "업성"
+horizontal_alignment = 1
+
+[node name="CityMarker_Chengdu" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(573, 3441)
+script = ExtResource("6_city_marker")
+city_id = "chengdu"
+display_name = "성도"
+region_id = "region.china_mainland"
+owner_faction_id = "shu"
+neighbors = Array[String](["luoyang", "jianye"])
+web_seed_position = Vector2(573, 3441)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu"]
+color = Color(0.18, 0.58, 0.32, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu"]
+offset_left = -28.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 40.0
+text = "성도"
+horizontal_alignment = 1
+
+[node name="CityMarker_Jianye" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(1065, 3604)
+script = ExtResource("6_city_marker")
+city_id = "jianye"
+display_name = "건업"
+region_id = "region.china_mainland"
+owner_faction_id = "wu"
+neighbors = Array[String](["luoyang", "chengdu", "yecheng", "sabi"])
+route_types = {
+"sabi": "sea"
+}
+web_seed_position = Vector2(1065, 3604)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye"]
+color = Color(0.28, 0.72, 0.76, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Jianye"]
+offset_left = -28.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 40.0
+text = "건업"
+horizontal_alignment = 1
+
+[node name="CityMarker_Karakorum" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(1106, 1679)
+script = ExtResource("6_city_marker")
+city_id = "karakorum"
+display_name = "카라코룸"
+region_id = "region.northern_steppe"
+owner_faction_id = "mongol_faction"
+neighbors = Array[String](["pyeongyang", "yecheng"])
+route_types = {
+"pyeongyang": "land",
+"yecheng": "land"
+}
+web_seed_position = Vector2(1106, 1679)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum"]
+color = Color(0.62, 0.52, 0.4, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum"]
+offset_left = -46.0
+offset_top = 16.0
+offset_right = 46.0
+offset_bottom = 40.0
+text = "카라코룸"
+horizontal_alignment = 1
+
+[node name="CityMarker_Pyeongyang" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(1597, 1393)
+script = ExtResource("6_city_marker")
+city_id = "pyeongyang"
+display_name = "평양"
+region_id = "region.korean_peninsula"
+owner_faction_id = "goguryeo"
+neighbors = Array[String](["hanseong", "karakorum"])
+web_seed_position = Vector2(1597, 1393)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang"]
+color = Color(0.35, 0.5, 0.95, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang"]
+offset_left = -28.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 40.0
+text = "평양"
+horizontal_alignment = 1
+
+[node name="CityMarker_Hanseong" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(1843, 2130)
+script = ExtResource("6_city_marker")
+city_id = "hanseong"
+display_name = "한성"
+region_id = "region.korean_peninsula"
+owner_faction_id = "player"
+neighbors = Array[String](["pyeongyang", "gyeongju", "sabi"])
+web_seed_position = Vector2(1843, 2130)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong"]
+color = Color(0.25, 0.62, 1, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong"]
+offset_left = -28.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 40.0
+text = "한성"
+horizontal_alignment = 1
+
+[node name="CityMarker_Gyeongju" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(2294, 2662)
+script = ExtResource("6_city_marker")
+city_id = "gyeongju"
+display_name = "경주"
+region_id = "region.korean_peninsula"
+owner_faction_id = "silla"
+neighbors = Array[String](["hanseong", "sabi", "kyoto", "osaka"])
+route_types = {
+"kyoto": "sea",
+"osaka": "sea"
+}
+web_seed_position = Vector2(2294, 2662)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju"]
+color = Color(0.9, 0.74, 0.24, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju"]
+offset_left = -28.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 40.0
+text = "경주"
+horizontal_alignment = 1
+
+[node name="CityMarker_Sabi" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(2048, 2744)
+script = ExtResource("6_city_marker")
+city_id = "sabi"
+display_name = "사비"
+region_id = "region.korean_peninsula"
+owner_faction_id = "baekje_faction"
+neighbors = Array[String](["hanseong", "gyeongju", "kyushu", "jianye"])
+route_types = {
+"jianye": "sea",
+"kyushu": "sea"
+}
+web_seed_position = Vector2(2048, 2744)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi"]
+color = Color(0.88, 0.54, 0.28, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Sabi"]
+offset_left = -28.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 40.0
+text = "사비"
+horizontal_alignment = 1
+
+[node name="CityMarker_Kyoto" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(3318, 2621)
+script = ExtResource("6_city_marker")
+city_id = "kyoto"
+display_name = "교토"
+region_id = "region.japanese_archipelago"
+owner_faction_id = "oda"
+neighbors = Array[String](["gyeongju", "osaka", "edo"])
+route_types = {
+"gyeongju": "sea"
+}
+web_seed_position = Vector2(3318, 2621)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto"]
+color = Color(0.58, 0.28, 0.84, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto"]
+offset_left = -28.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 40.0
+text = "교토"
+horizontal_alignment = 1
+
+[node name="CityMarker_Osaka" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(3072, 3113)
+script = ExtResource("6_city_marker")
+city_id = "osaka"
+display_name = "오사카"
+region_id = "region.japanese_archipelago"
+owner_faction_id = "toyotomi"
+neighbors = Array[String](["gyeongju", "kyoto", "kyushu"])
+route_types = {
+"gyeongju": "sea",
+"kyushu": "sea"
+}
+web_seed_position = Vector2(3072, 3113)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka"]
+color = Color(0.86, 0.48, 0.16, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Osaka"]
+offset_left = -34.0
+offset_top = 16.0
+offset_right = 34.0
+offset_bottom = 40.0
+text = "오사카"
+horizontal_alignment = 1
+
+[node name="CityMarker_Kyushu" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(2744, 3523)
+script = ExtResource("6_city_marker")
+city_id = "kyushu"
+display_name = "큐슈"
+region_id = "region.japanese_archipelago"
+owner_faction_id = "kyushu_faction"
+neighbors = Array[String](["sabi", "osaka"])
+route_types = {
+"osaka": "sea",
+"sabi": "sea"
+}
+web_seed_position = Vector2(2744, 3523)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu"]
+color = Color(0.64, 0.42, 0.28, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu"]
+offset_left = -28.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 40.0
+text = "큐슈"
+horizontal_alignment = 1
+
+[node name="CityMarker_Edo" type="Node2D" parent="WorldMapRoot/CityLayer"]
+position = Vector2(3564, 2335)
+script = ExtResource("6_city_marker")
+city_id = "edo"
+display_name = "에도"
+region_id = "region.japanese_archipelago"
+owner_faction_id = "tokugawa"
+neighbors = Array[String](["kyoto"])
+web_seed_position = Vector2(3564, 2335)
+
+[node name="MarkerBody" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo"]
+color = Color(0.32, 0.72, 0.44, 1)
+polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
+
+[node name="CityNameLabel" type="Label" parent="WorldMapRoot/CityLayer/CityMarker_Edo"]
+offset_left = -28.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 40.0
+text = "에도"
+horizontal_alignment = 1
 
 [node name="ArmyLayer" type="Node2D" parent="WorldMapRoot"]
 

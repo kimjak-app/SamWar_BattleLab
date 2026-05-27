@@ -16,8 +16,11 @@ Latest skill presentation patch: `v0.68a-4-hotfix6 Unique Skill Cutin Punch Moti
 
 Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
 
+Latest worldmap marker patch: `v0.68b-2 WorldMap City Marker Layer MVP`
+
 ## Current Implementation Step
 - `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
+- `v0.68b-2 WorldMap City Marker Layer MVP`
 - `v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion`
 - `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
 - `v0.68a-2 Combat Focus Camera Follow`
@@ -67,6 +70,9 @@ Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation
 - `WorldMapCamera` is scene-authored and runtime-configured as the current Camera2D for large-map pan, drag, optional wheel zoom, and viewport/zoom-aware clamp against the combined tile rect.
 - `WorldMapUI` is CanvasLayer-based and intended to remain screen-fixed during camera movement.
 - `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` exist as empty future worldmap layers only.
+- `CityLayer` now contains 13 scene-authored `CityMarker_*` nodes for Luoyang, Yecheng, Chengdu, Jianye, Karakorum, Pyeongyang, Hanseong, Gyeongju, Sabi, Kyoto, Osaka, Kyushu, and Edo.
+- `scripts/worldmap_city_marker.gd` stores exported marker metadata from `SamWar_web/data/cities.js` and keeps simple label/color visuals on each marker.
+- Web city `x` / `y` coordinates are preserved only as initial `web_seed_position`; final city marker placement is the `CityMarker_*` node position in `WorldMap_Test.tscn`.
 - City clicking, city data, route graph, army movement, battle entry, and `BattleContext` runtime injection remain unimplemented.
 - Worldmap / hero / army / BattleContext / battle engine / skill contract docs now define the future system boundaries for larger hero scale and worldmap battle launch.
 - The battle engine is documented as a `BattleContext.roster` consumer and must not choose heroes directly.
@@ -187,6 +193,7 @@ Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation
 ## Core Files
 - `WorldMap_Test.tscn`
 - `scripts/worldmap_test.gd`
+- `scripts/worldmap_city_marker.gd`
 - `Battle_Fullscreen_Test.tscn`
 - `scripts/battle_web_import_test.gd`
 - `scripts/battle_unit_state.gd`
@@ -229,15 +236,17 @@ Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-2 WorldMap City Marker Layer MVP`
-2. `v0.68b-3 WorldMap Route Layer MVP`
-3. `v0.68c BattleContext Runtime Injection MVP`
+1. `v0.68b-3 WorldMap Route Layer MVP`
+2. `v0.68c BattleContext Runtime Injection MVP`
+3. `v0.68d Hero/Army Deployment MVP`
 4. `v0.68d Hero/Army Deployment MVP`
 5. `v0.69 Battlefield Variant Loader`
 6. `v0.69b Naval Battle Entry MVP`
 
 ## Known / Deferred
 - 김작 F6 visual QA should confirm `v0.68b-1` worldmap canvas: 4 tiles appear as one map without visible gap/overlap, tile boundaries do not show obvious seams, Camera2D pan is smooth, camera clamp avoids excessive gray outside area, UI labels remain screen-fixed, `CityLayer` / `RouteLayer` / `ArmyLayer` / `EffectLayer` exist in the scene tree, and `Battle_Fullscreen_Test.tscn` remains stable.
+- 김작 F6 visual QA should confirm `v0.68b-2` city markers: all 13 `CityMarker_*` nodes are visible under `CityLayer`, marker labels/colors are readable enough for MVP placement, moving a marker in the Godot 2D editor and saving preserves that scene-authored position at runtime, camera pan/zoom does not detach markers from the map, and no city click/battle entry behavior exists yet.
+- Codex Godot headless verification for `v0.68b-2` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-1` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` project/scene load and GDScript warning cleanliness.
 - 김작 F6 visual QA should confirm left-facing and right-facing units keep status badges near the facing arrow, with up/down facings still close to the portrait/arrow line and not fully overlapping the face.
 - 김작 F6 visual QA should confirm ally/enemy/support/reinforce status badges all follow the same arrow-backside rule, stay close to the unit, and avoid severe face/arrow overlap.

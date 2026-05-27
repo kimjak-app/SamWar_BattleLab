@@ -13,43 +13,45 @@ Latest skill presentation patch: `v0.68a-4-hotfix6 Unique Skill Cutin Punch Moti
 
 Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
 
+Latest worldmap marker patch: `v0.68b-2 WorldMap City Marker Layer MVP`
+
 ## Priority 1
-`v0.68b-2 WorldMap City Marker Layer MVP`
-
-Goal:
-- add the first visual city marker layer on top of the existing four-tile worldmap canvas without battle entry or BattleContext runtime injection
-
-## Priority 2
 `v0.68b-3 WorldMap Route Layer MVP`
 
 Goal:
-- add the first visual route layer MVP on top of the existing worldmap canvas and future city markers
+- add the first visual route layer MVP on top of the existing worldmap canvas and scene-authored city markers
 
-## Priority 3
+## Priority 2
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 4
+## Priority 3
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - implement first hero / region / city / army assignment data needed to produce roster candidates
 
-## Priority 5
+## Priority 4
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 6
+## Priority 5
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-2 WorldMap City Marker Layer MVP` is complete.
+- Added 13 scene-authored city marker nodes under `WorldMap_Test.tscn > WorldMapRoot > CityLayer`, based on `SamWar_web/data/cities.js`.
+- Added `scripts/worldmap_city_marker.gd` with exported metadata for `city_id`, `display_name`, `region_id`, `owner_faction_id`, `neighbors`, `route_types`, and `web_seed_position`.
+- Treated web `x` / `y` as initial seed/fallback only; final marker placement is the `CityMarker_*` root node position saved in the Godot scene.
+- Kept city click, selection UI, route drawing, army movement, battle entry, and `BattleContext` creation deferred.
+- 김작 F6 should confirm marker visibility/readability, editor move-and-save persistence, camera pan/zoom attachment, and absence of city click/battle entry behavior.
 - `v0.68b-1 WorldMap Four-Tile Canvas Foundation` is complete.
 - Added `WorldMap_Test.tscn` as a 2x2 four-tile visual worldmap canvas using the prepared `assets/worldmap/tiles/` PNGs.
 - Added `scripts/worldmap_test.gd` for `WorldMapCamera` current setup, WASD/arrow pan, right/middle drag pan, optional wheel zoom, and viewport/zoom-aware clamp to the combined tile rect.

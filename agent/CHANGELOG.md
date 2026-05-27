@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-2 WorldMap City Marker Layer MVP
+- Added 13 scene-authored `CityMarker_*` nodes under `WorldMap_Test.tscn > WorldMapRoot > CityLayer`, based on `SamWar_web/data/cities.js`.
+- Added `scripts/worldmap_city_marker.gd` with exported city metadata: `city_id`, `display_name`, `region_id`, `owner_faction_id`, `neighbors`, `route_types`, and `web_seed_position`.
+- Used web `x` / `y` only as initial 4096x4096 seed placement; final city positions are the saved `CityMarker_*` node positions in the Godot scene.
+- Added simple marker body and label visuals so markers are visible and draggable/selectable in the 2D editor.
+- Kept city click, route drawing, army movement, battle entry, and `BattleContext` runtime injection unimplemented.
+- Left existing battle scenes and battle scripts untouched.
+
 ## v0.68b-1 WorldMap Four-Tile Canvas Foundation
 - Added `WorldMap_Test.tscn` with a 2x2 four-tile worldmap canvas using the prepared `assets/worldmap/tiles/` PNGs.
 - Added `scripts/worldmap_test.gd` to position the four Sprite2D tiles from `texture.get_size()`, configure `WorldMapCamera`, and clamp pan/zoom movement to the combined world rect.

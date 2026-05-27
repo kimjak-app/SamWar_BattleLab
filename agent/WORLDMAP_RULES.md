@@ -13,6 +13,15 @@
 - `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` are prepared as empty Node2D layers only.
 - City click, city data, route graph, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
+## Current City Marker Foundation
+- `v0.68b-2 WorldMap City Marker Layer MVP` adds the first 13 city markers under `WorldMap_Test.tscn > WorldMapRoot > CityLayer`.
+- City marker metadata is based on `SamWar_web/data/cities.js`: `id`, `name`, `regionKey`, `ownerFactionId`, `neighbors`, and `routeTypes`.
+- Web `x` / `y` values are only seed/fallback placement data. They are recorded as `web_seed_position` but must not become the final Godot source of truth.
+- Final city placement source of truth is each scene-authored `CityMarker_*` node's `position` in `WorldMap_Test.tscn`.
+- Kimjak may move `CityMarker_*` nodes directly in the Godot 2D editor and save the scene; runtime must preserve those edited positions.
+- `scripts/worldmap_city_marker.gd` stores marker metadata and lightweight visual label/color behavior only. It must not override the marker root position from web data at runtime.
+- City click, selection UI, route drawing, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
+
 ## Canonical Direction
 - The battle engine does not choose heroes directly.
 - The battle engine does not read worldmap state directly.

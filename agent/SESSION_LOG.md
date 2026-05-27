@@ -1,5 +1,15 @@
 # SESSION LOG
 
+## 2026-05-28
+
+### v0.68b-2 WorldMap City Marker Layer MVP
+- Read `SamWar_web/data/cities.js` and used its 13 city entries as the marker metadata baseline.
+- Added `scripts/worldmap_city_marker.gd` with exported metadata and simple marker label/color behavior.
+- Added scene-authored `CityMarker_*` nodes under `WorldMapRoot/CityLayer` for Luoyang, Yecheng, Chengdu, Jianye, Karakorum, Pyeongyang, Hanseong, Gyeongju, Sabi, Kyoto, Osaka, Kyushu, and Edo.
+- Converted web `x` / `y` percent-style values into initial 4096x4096 seed positions and stored them as `web_seed_position`; root node `position` in `WorldMap_Test.tscn` is the final editable source of truth.
+- Preserved the current worldmap camera/canvas foundation and did not add city click, route drawing, army movement, battle entry, or `BattleContext` injection.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+
 ## 2026-05-27
 
 ### v0.68b-1 WorldMap Four-Tile Canvas Foundation

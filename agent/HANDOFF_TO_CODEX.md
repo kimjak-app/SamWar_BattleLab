@@ -65,9 +65,13 @@ Latest camera foundation:
 - Latest worldmap foundation patch:
 `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
 
+- Latest worldmap marker patch:
+`v0.68b-2 WorldMap City Marker Layer MVP`
+
 ## Core Scene And Scripts
 - Worldmap foundation scene: `WorldMap_Test.tscn`
 - Worldmap foundation script: `scripts/worldmap_test.gd`
+- Worldmap city marker script: `scripts/worldmap_city_marker.gd`
 - Core scene: `Battle_Fullscreen_Test.tscn`
 - Core scripts:
   - `scripts/battle_web_import_test.gd`
@@ -83,6 +87,10 @@ Do not modify casually:
 - `WorldMapCamera` is a scene-authored `Camera2D` configured current at runtime with WASD/arrow pan, right/middle mouse drag pan, optional wheel zoom, and clamp against the combined tile rect.
 - `WorldMapUI` is a CanvasLayer with screen-fixed title, camera debug, and input hint labels.
 - `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` exist as empty Node2D layers for future work.
+- `CityLayer` contains the first 13 scene-authored `CityMarker_*` nodes based on `SamWar_web/data/cities.js`.
+- Each city marker stores exported metadata for city id, display name, region id, owner faction id, neighbors, route types, and `web_seed_position`.
+- Web `x` / `y` values are only initial seed/fallback placement data; final marker position source of truth is the `CityMarker_*` node position saved in `WorldMap_Test.tscn`.
+- `scripts/worldmap_city_marker.gd` may update marker label/color visuals but must not overwrite marker root positions from web data at runtime.
 - City click, city data, route graph, army movement, battle entry, and `BattleContext` runtime injection remain unimplemented.
 - Current MVP battle target is stable `5v5`.
 - Round flow is stable:
@@ -170,9 +178,10 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Next candidates:
-  - `v0.68b-2 WorldMap City Marker Layer MVP`
   - `v0.68b-3 WorldMap Route Layer MVP`
   - `v0.68c BattleContext Runtime Injection MVP`
+- 김작 F6 visual QA remains for `v0.68b-2`: confirm all 13 city markers are visible under `CityLayer`, marker labels/colors are readable enough for MVP placement, editor move-and-save persists marker positions, camera pan/zoom keeps markers attached to the map, and no city click/battle entry behavior exists yet.
+- Codex Godot headless verification for `v0.68b-2` was blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output.
 - 김작 F6 visual QA remains for `v0.68b-1`: confirm `WorldMap_Test.tscn` shows all 4 tiles as one map without visible gap/overlap/seam, Camera2D pans smoothly, clamp avoids excessive gray outside area, UI labels stay screen-fixed, future layers exist in the scene tree, and existing `Battle_Fullscreen_Test.tscn` is not broken.
 - Codex Godot headless verification for `v0.68b-1` was blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output.
 - 김작 F6 visual QA remains before treating layout feel as final: move `Slots/AllyReinforce01Slot` and confirm ROUND 2 김유신 spawn plus HP/troop/portrait/click/facing/status alignment.
