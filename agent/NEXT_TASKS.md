@@ -19,6 +19,8 @@ Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 
+Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
+
 ## Priority 1
 `v0.68b-3 WorldMap Route Layer MVP`
 
@@ -50,6 +52,12 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control` is complete.
+- Runtime no longer auto-repositions the four worldmap Tile nodes during `_ready()`.
+- Tile layout source of truth is now the scene-authored Tile node positions in `WorldMap_Test.tscn`.
+- Camera clamp/world rect is calculated from the union of the current tile Sprite2D rects.
+- City marker positions remain scene-authored source of truth and marker nodes/metadata were preserved.
+- 김작 2D/F6 should confirm manual Tile move/save persistence, no runtime overwrite, camera clamp against the tile union rect, city marker presence, and battle scene stability.
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix` is complete.
 - Corrected scene-authored tile positions so the Godot 2D editor shows the 4 worldmap tiles as one contiguous map.
 - Re-seeded all 13 city markers to the corrected 1024x1024 four-tile combined rect while preserving `CityMarker_*`.`position` as the future source of truth.

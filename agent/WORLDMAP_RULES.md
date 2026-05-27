@@ -6,6 +6,10 @@
 - Produces `BattleContext` for the battle engine.
 
 ## Current Canvas Foundation
+- `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control` makes scene-authored Tile node positions the source of truth for worldmap tile layout.
+- Runtime must not overwrite the four Tile node positions during `_ready()`.
+- Runtime camera clamp should read the union of the current tile Sprite2D world rects, not a hardcoded 2x2 layout.
+- Kimjak can manually adjust `Tile_A1_TopLeft`, `Tile_A2_TopRight`, `Tile_B1_BottomLeft`, and `Tile_B2_BottomRight` in the Godot 2D editor and save the scene.
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix` updates the scene-authored four-tile layout so the Godot 2D editor shows one contiguous map for manual city placement.
 - The current editor-visible tile positions are A1 `(0, 0)`, A2 `(512, 0)`, B1 `(0, 512)`, and B2 `(512, 512)`, with `Sprite2D.centered = false`.
 - Runtime tile configuration must match the scene-authored layout result and must not hide a broken editor layout.
@@ -17,6 +21,7 @@
 - City click, city data, route graph, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- City marker positions remain scene-authored `CityMarker_*`.`position`; tile manual layout control does not make web `x` / `y` authoritative.
 - After `v0.68b-2-hotfix2`, corrected `CityMarker_*` seed positions use the 1024x1024 four-tile combined rect so markers sit on the map image in the Godot 2D editor.
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix` aligns the city marker layer with the four-tile worldmap coordinate space.
 - `WorldMapRoot`, `WorldMapTileLayer`, `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` use the same zero-offset parent coordinate basis.

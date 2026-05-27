@@ -22,11 +22,14 @@ Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 
+Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
+
 ## Current Implementation Step
 - `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
 - `v0.68b-2 WorldMap City Marker Layer MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
+- `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
 - `v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion`
 - `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
 - `v0.68a-2 Combat Focus Camera Follow`
@@ -73,6 +76,8 @@ Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 ## Stable Summary
 - `WorldMap_Test.tscn` now exists as the first worldmap visual canvas foundation.
 - `WorldMap_Test.tscn` now has editor-visible seam-free four-tile placement: A1 `(0, 0)`, A2 `(512, 0)`, B1 `(0, 512)`, and B2 `(512, 512)`.
+- Tile node positions are now scene-authored source of truth. Runtime no longer forces A1/A2/B1/B2 positions during `_ready()`.
+- Camera clamp `_world_rect` is calculated from the union of the current tile Sprite2D world rects.
 - The prepared four worldmap tiles are arranged as a 2x2 Sprite2D canvas with `centered = false`: A1/NW at `(0, 0)`, A2/NE at `(tile_width, 0)`, B1/SW at `(0, tile_height)`, and B2/SE at `(tile_width, tile_height)`.
 - `WorldMapCamera` is scene-authored and runtime-configured as the current Camera2D for large-map pan, drag, optional wheel zoom, and viewport/zoom-aware clamp against the combined tile rect.
 - `WorldMapUI` is CanvasLayer-based and intended to remain screen-fixed during camera movement.
@@ -83,6 +88,7 @@ Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - The 13 city markers were re-seeded again against the corrected 1024x1024 editor-visible combined rect after the tile seam fix.
 - `scripts/worldmap_city_marker.gd` stores exported marker metadata from `SamWar_web/data/cities.js` and keeps simple label/color visuals on each marker.
 - Web city `x` / `y` coordinates are preserved only as initial `web_seed_position`; final city marker placement is the `CityMarker_*` node position in `WorldMap_Test.tscn`.
+- City marker positions remain scene-authored source of truth after the manual tile layout control patch.
 - City clicking, city data, route graph, army movement, battle entry, and `BattleContext` runtime injection remain unimplemented.
 - Worldmap / hero / army / BattleContext / battle engine / skill contract docs now define the future system boundaries for larger hero scale and worldmap battle launch.
 - The battle engine is documented as a `BattleContext.roster` consumer and must not choose heroes directly.
@@ -258,6 +264,8 @@ Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - 김작 F6 visual QA should confirm `v0.68b-2` city markers: all 13 `CityMarker_*` nodes are visible under `CityLayer`, marker labels/colors are readable enough for MVP placement, moving a marker in the Godot 2D editor and saving preserves that scene-authored position at runtime, camera pan/zoom does not detach markers from the map, and no city click/battle entry behavior exists yet.
 - 김작 F6 visual QA should confirm `v0.68b-2-hotfix1`: in the 2D editor, all 13 city markers sit on top of the 4-tile worldmap image, no marker is scattered in the lower gray area, `CityLayer` and `WorldMapTileLayer` share the same coordinate space, moving a marker and saving preserves runtime position, camera pan/zoom/clamp still works, UI labels stay screen-fixed, and `Battle_Fullscreen_Test.tscn` remains stable.
 - 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix2`: 4 tiles are contiguous in the 2D editor with no horizontal row gap or vertical column gap, all 13 city markers sit on the map image, debug layers do not obstruct city placement, camera pan/drag/zoom/clamp still works, UI labels stay screen-fixed, and `Battle_Fullscreen_Test.tscn` remains stable.
+- 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix3`: the four Tile nodes can be selected and moved in the 2D editor, Ctrl+S preserves the tile layout, F6 does not overwrite Tile positions, camera clamp follows the current tile union rect, all 13 city markers remain present, and `Battle_Fullscreen_Test.tscn` remains stable.
+- Codex Godot headless verification for `v0.68b-2-hotfix3` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2-hotfix2` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2-hotfix1` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.

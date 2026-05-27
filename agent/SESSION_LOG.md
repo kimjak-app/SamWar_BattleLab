@@ -2,6 +2,15 @@
 
 ## 2026-05-28
 
+### v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control
+- Removed the runtime tile auto-layout behavior that forced tile positions from texture size during `_ready()`.
+- Added tile rect union calculation from the current scene-authored Sprite2D transforms, using each tile's texture size and centered state.
+- Kept the camera clamp driven by `_world_rect`, but `_world_rect` now comes from the saved Tile node layout rather than a hardcoded 2x2 placement.
+- Preserved the 4 tile nodes, 13 city markers, marker metadata, and zero-offset worldmap layers.
+- 김작 can now move `WorldMapRoot/WorldMapTileLayer/Tile_A1_TopLeft`, `Tile_A2_TopRight`, `Tile_B1_BottomLeft`, and `Tile_B2_BottomRight` in the Godot 2D editor, save, and have F6 respect that layout.
+- Did not add route drawing, city click expansion, army movement, battle entry, or `BattleContext` runtime injection.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+
 ### v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix
 - Audited the scene-authored tile layout after 김작 confirmed the 2D editor showed a large gray band between top and bottom tile rows.
 - Changed the editor-visible tile positions to the actual displayed tile spacing: A1 `(0, 0)`, A2 `(512, 0)`, B1 `(0, 512)`, and B2 `(512, 512)`.

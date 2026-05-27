@@ -74,6 +74,9 @@ Latest camera foundation:
 - Latest worldmap tile hotfix:
 `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 
+- Latest worldmap manual layout patch:
+`v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
+
 ## Core Scene And Scripts
 - Worldmap foundation scene: `WorldMap_Test.tscn`
 - Worldmap foundation script: `scripts/worldmap_test.gd`
@@ -90,6 +93,8 @@ Do not modify casually:
 ## Current Verified State
 - `WorldMap_Test.tscn` is the first worldmap visual canvas foundation.
 - `WorldMap_Test.tscn` now stores editor-visible four-tile positions as A1 `(0, 0)`, A2 `(512, 0)`, B1 `(0, 512)`, and B2 `(512, 512)` so the Godot 2D editor can be used for manual city placement.
+- The four Tile node positions are now the scene-authored source of truth; runtime does not overwrite Tile positions during `_ready()`.
+- `scripts/worldmap_test.gd` computes camera clamp/world rect from the union of the current Tile Sprite2D world rects.
 - The four prepared worldmap tiles are arranged as a 2x2 `WorldMapTileLayer` using `Sprite2D.centered = false` and texture-size-based placement.
 - `WorldMapCamera` is a scene-authored `Camera2D` configured current at runtime with WASD/arrow pan, right/middle mouse drag pan, optional wheel zoom, and clamp against the combined tile rect.
 - `WorldMapUI` is a CanvasLayer with screen-fixed title, camera debug, and input hint labels.
@@ -100,6 +105,7 @@ Do not modify casually:
 - After the tile seam fix, the 13 `CityMarker_*` positions are seeded against the corrected 1024x1024 editor-visible combined rect.
 - Each city marker stores exported metadata for city id, display name, region id, owner faction id, neighbors, route types, and `web_seed_position`.
 - Web `x` / `y` values are only initial seed/fallback placement data; final marker position source of truth is the `CityMarker_*` node position saved in `WorldMap_Test.tscn`.
+- City marker positions remain scene-authored source of truth after manual tile layout control.
 - `scripts/worldmap_city_marker.gd` may update marker label/color visuals but must not overwrite marker root positions from web data at runtime.
 - City click, city data, route graph, army movement, battle entry, and `BattleContext` runtime injection remain unimplemented.
 - Current MVP battle target is stable `5v5`.
@@ -190,6 +196,8 @@ Do not modify casually:
 - Next candidates:
   - `v0.68b-3 WorldMap Route Layer MVP`
   - `v0.68c BattleContext Runtime Injection MVP`
+- 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix3`: select/move the four Tile nodes in the 2D editor, Ctrl+S, confirm F6 preserves the saved layout, camera clamp follows the current tile union rect, all 13 city markers remain present, and the battle scene is not broken.
+- Codex Godot headless verification for `v0.68b-2-hotfix3` was blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output.
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix2`: confirm 4 tiles attach as one map in the 2D editor, no gray band appears between rows, no left/right seam gap appears, all 13 city markers sit on the map, debug rects do not block placement, camera pan/zoom/clamp remains normal, UI labels stay fixed, and the battle scene is not broken.
 - Codex Godot headless verification for `v0.68b-2-hotfix2` was blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output.
 - 김작 F6 visual QA remains for `v0.68b-2-hotfix1`: confirm all 13 city markers sit on top of the 4-tile map image in the 2D editor, no marker is in the lower gray area, `CityLayer` and `WorldMapTileLayer` share coordinates, editor move-and-save persists marker positions, camera pan/zoom/clamp remains normal, UI labels stay fixed, and the battle scene is not broken.

@@ -19,7 +19,7 @@ var _is_dragging := false
 
 
 func _ready() -> void:
-	_configure_tiles()
+	_refresh_world_rect_from_scene_tiles()
 	_configure_camera()
 	_update_camera_debug_label()
 
@@ -48,17 +48,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _configure_tiles() -> void:
-	var tile_size := _get_primary_tile_size()
-	tile_a1_top_left.centered = false
-	tile_a2_top_right.centered = false
-	tile_b1_bottom_left.centered = false
-	tile_b2_bottom_right.centered = false
-	tile_a1_top_left.position = Vector2.ZERO
-	tile_a2_top_right.position = Vector2(tile_size.x, 0.0)
-	tile_b1_bottom_left.position = Vector2(0.0, tile_size.y)
-	tile_b2_bottom_right.position = tile_size
-	_world_rect = Rect2(Vector2.ZERO, tile_size * 2.0)
+func _refresh_world_rect_from_scene_tiles() -> void:
+	var tile_rects: Array[Rect2] = []
+	var tiles: Array[Sprite2D] = [tile_a1_top_left, tile_a2_top_right, tile_b1_bottom_left, tile_b2_bottom_right]
+	for tile in tiles:
+		var tile_rect := _get_tile_world_rect(tile)
+		if tile_rect.size != Vector2.ZERO:
+			tile_rects.append(tile_rect)
+
+	if tile_rects.is_empty():
+		push_warning("WorldMap tile rects are unavailable; using fallback camera clamp rect.")
+		_world_rect = Rect2(Vector2.ZERO, Vector2(1024.0, 1024.0))
+		return
+
+	_world_rect = tile_rects[0]
+	for tile_rect_index in range(1, tile_rects.size()):
+		_world_rect = _world_rect.merge(tile_rects[tile_rect_index])
 
 
 func _configure_camera() -> void:
@@ -117,11 +122,33 @@ func _clamp_camera_to_world() -> void:
 	world_map_camera.position = Vector2(clamped_x, clamped_y)
 
 
-func _get_primary_tile_size() -> Vector2:
-	if tile_a1_top_left.texture == null:
-		push_warning("WorldMap tile A1 texture is missing; using fallback layout size.")
-		return Vector2(512.0, 512.0)
-	return tile_a1_top_left.texture.get_size()
+func _get_tile_world_rect(tile: Sprite2D) -> Rect2:
+	if tile == null or tile.texture == null:
+		return Rect2()
+
+	var texture_size := tile.texture.get_size()
+	var local_top_left := Vector2.ZERO
+	if tile.centered:
+		local_top_left = -texture_size * 0.5
+
+	var local_corners: Array[Vector2] = [
+		local_top_left,
+		local_top_left + Vector2(texture_size.x, 0.0),
+		local_top_left + Vector2(0.0, texture_size.y),
+		local_top_left + texture_size,
+	]
+
+	var world_points: Array[Vector2] = []
+	for local_corner in local_corners:
+		world_points.append(tile.to_global(local_corner))
+
+	var min_point := world_points[0]
+	var max_point := world_points[0]
+	for point_index in range(1, world_points.size()):
+		min_point = min_point.min(world_points[point_index])
+		max_point = max_point.max(world_points[point_index])
+
+	return Rect2(min_point, max_point - min_point)
 
 
 func _update_camera_debug_label() -> void:

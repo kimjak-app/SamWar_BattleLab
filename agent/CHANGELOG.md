@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control
+- Changed `scripts/worldmap_test.gd` so runtime no longer overwrites `Tile_A1_TopLeft`, `Tile_A2_TopRight`, `Tile_B1_BottomLeft`, or `Tile_B2_BottomRight` positions.
+- Made scene-authored Tile node positions in `WorldMap_Test.tscn` the source of truth for worldmap tile layout.
+- Camera clamp now reads the union of the current tile Sprite2D world rects, considering texture size, centered state, scale, rotation, and node transform.
+- Preserved scene-authored `CityMarker_*` positions as the city placement source of truth.
+- Kept route drawing, army movement, battle entry, and `BattleContext` runtime injection unimplemented.
+
 ## v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix
 - Fixed `WorldMap_Test.tscn` scene-authored tile positions so the four worldmap tiles attach in the Godot 2D editor, not only at runtime.
 - Set the visible editor tile layout to A1 `(0, 0)`, A2 `(512, 0)`, B1 `(0, 512)`, and B2 `(512, 512)`, matching the tile texture display size.
