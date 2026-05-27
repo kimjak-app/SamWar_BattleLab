@@ -21,6 +21,8 @@ Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 
 Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
 
+Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix`
+
 ## Priority 1
 `v0.68b-3 WorldMap Route Layer MVP`
 
@@ -52,6 +54,11 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix` is complete.
+- Added `ClickArea` / `CollisionShape2D` under every `CityMarker_*` root and kept icon/dot plus label as root children.
+- Added marker click signal plumbing and a minimal `WorldMapUI/CityInfoLabel` update path while preserving marker metadata.
+- City marker positions remain scene-authored source of truth, and moving a root marker should carry its icon, label, and click area together.
+- 김작 2D/F6 should confirm root move attachment, click area alignment, info label update, Ctrl+S persistence, camera behavior, and battle scene stability.
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control` is complete.
 - Runtime no longer auto-repositions the four worldmap Tile nodes during `_ready()`.
 - Tile layout source of truth is now the scene-authored Tile node positions in `WorldMap_Test.tscn`.

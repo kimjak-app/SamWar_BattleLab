@@ -11,8 +11,10 @@ const WORLD_MAP_ZOOM_STEP := 0.1
 @onready var tile_a2_top_right: Sprite2D = $WorldMapRoot/WorldMapTileLayer/Tile_A2_TopRight
 @onready var tile_b1_bottom_left: Sprite2D = $WorldMapRoot/WorldMapTileLayer/Tile_B1_BottomLeft
 @onready var tile_b2_bottom_right: Sprite2D = $WorldMapRoot/WorldMapTileLayer/Tile_B2_BottomRight
+@onready var city_layer: Node2D = $WorldMapRoot/CityLayer
 @onready var world_map_camera: Camera2D = $WorldMapCamera
 @onready var camera_debug_label: Label = $WorldMapUI/CameraDebugLabel
+@onready var city_info_label: Label = $WorldMapUI/CityInfoLabel
 
 var _world_rect := Rect2()
 var _is_dragging := false
@@ -20,6 +22,7 @@ var _is_dragging := false
 
 func _ready() -> void:
 	_refresh_world_rect_from_scene_tiles()
+	_connect_city_markers()
 	_configure_camera()
 	_update_camera_debug_label()
 
@@ -160,3 +163,20 @@ func _update_camera_debug_label() -> void:
 
 func _format_vector2(value: Vector2) -> String:
 	return "(%.0f, %.0f)" % [value.x, value.y]
+
+
+func _connect_city_markers() -> void:
+	for child in city_layer.get_children():
+		var city_marker := child as WorldMapCityMarker
+		if city_marker == null:
+			continue
+		if not city_marker.city_selected.is_connected(_on_city_marker_selected):
+			city_marker.city_selected.connect(_on_city_marker_selected)
+
+
+func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
+	city_info_label.text = "%s  [%s]  Owner: %s" % [
+		city_marker.display_name,
+		city_marker.city_id,
+		city_marker.owner_faction_id,
+	]

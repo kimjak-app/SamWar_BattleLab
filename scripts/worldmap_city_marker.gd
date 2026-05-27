@@ -2,6 +2,8 @@
 class_name WorldMapCityMarker
 extends Node2D
 
+signal city_selected(marker: WorldMapCityMarker)
+
 @export var city_id: String = ""
 @export var display_name: String = ""
 @export var region_id: String = ""
@@ -12,6 +14,7 @@ extends Node2D
 
 @onready var marker_body: Polygon2D = get_node_or_null("MarkerBody") as Polygon2D
 @onready var city_name_label: Label = get_node_or_null("CityNameLabel") as Label
+@onready var click_area: Area2D = get_node_or_null("ClickArea") as Area2D
 
 const OWNER_COLORS := {
 	"player": Color(0.25, 0.62, 1.0, 1.0),
@@ -32,6 +35,7 @@ const OWNER_COLORS := {
 
 func _ready() -> void:
 	_refresh_marker_visuals()
+	_connect_click_area()
 
 
 func _process(_delta: float) -> void:
@@ -45,3 +49,18 @@ func _refresh_marker_visuals() -> void:
 
 	if marker_body != null:
 		marker_body.color = OWNER_COLORS.get(owner_faction_id, Color(0.9, 0.9, 0.9, 1.0))
+
+
+func _connect_click_area() -> void:
+	if click_area == null:
+		return
+	if not click_area.input_event.is_connected(_on_click_area_input_event):
+		click_area.input_event.connect(_on_click_area_input_event)
+
+
+func _on_click_area_input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:
+	if event is InputEventMouseButton:
+		var mouse_button_event := event as InputEventMouseButton
+		if mouse_button_event.button_index == MOUSE_BUTTON_LEFT and mouse_button_event.pressed:
+			city_selected.emit(self)
+			get_viewport().set_input_as_handled()

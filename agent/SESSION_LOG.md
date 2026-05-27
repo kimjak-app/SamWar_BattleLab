@@ -2,6 +2,15 @@
 
 ## 2026-05-28
 
+### v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix
+- Audited `WorldMap_Test.tscn` city marker structure and kept icon/dot and name label as children of each `CityMarker_*` root.
+- Added `ClickArea` and `CollisionShape2D` as children of each `CityMarker_*` root so root movement carries icon, label, and click area together.
+- Added marker click signal plumbing through `scripts/worldmap_city_marker.gd` and connected it from `scripts/worldmap_test.gd`.
+- Added a minimal screen-fixed `WorldMapUI/CityInfoLabel` that updates from marker metadata on click.
+- Preserved current city root positions, metadata, manual tile layout control, and camera behavior.
+- Did not add route drawing, army movement, battle entry, or `BattleContext` runtime injection.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+
 ### v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control
 - Removed the runtime tile auto-layout behavior that forced tile positions from texture size during `_ready()`.
 - Added tile rect union calculation from the current scene-authored Sprite2D transforms, using each tile's texture size and centered state.

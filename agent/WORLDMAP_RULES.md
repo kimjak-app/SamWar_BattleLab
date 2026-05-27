@@ -21,6 +21,10 @@
 - City click, city data, route graph, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix` makes each city a single scene-authored marker bundle under `CityLayer`.
+- Each `CityMarker_*` root owns its icon/dot child, name label child, and click area/collision child.
+- Moving a `CityMarker_*` root in the Godot 2D editor should move the icon, label, and click area together.
+- Runtime may update label text/color from marker metadata and process click signals, but it must not detach label/click geometry from the marker root.
 - City marker positions remain scene-authored `CityMarker_*`.`position`; tile manual layout control does not make web `x` / `y` authoritative.
 - After `v0.68b-2-hotfix2`, corrected `CityMarker_*` seed positions use the 1024x1024 four-tile combined rect so markers sit on the map image in the Godot 2D editor.
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix` aligns the city marker layer with the four-tile worldmap coordinate space.

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix
+- Added scene-authored `ClickArea` / `CollisionShape2D` children under each `CityMarker_*` root in `WorldMap_Test.tscn`.
+- Kept each city icon/dot, name label, and click area attached under its `CityMarker_*` root so moving the root moves the whole marker bundle.
+- Added `WorldMapCityMarker.city_selected` click signal and connected the worldmap scene to update a screen-fixed `WorldMapUI/CityInfoLabel`.
+- Preserved city metadata, `CityMarker_*`.`position` source-of-truth rules, manual tile layout control, and camera clamp behavior.
+- Kept route drawing, army movement, battle entry, and `BattleContext` runtime injection unimplemented.
+
 ## v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control
 - Changed `scripts/worldmap_test.gd` so runtime no longer overwrites `Tile_A1_TopLeft`, `Tile_A2_TopRight`, `Tile_B1_BottomLeft`, or `Tile_B2_BottomRight` positions.
 - Made scene-authored Tile node positions in `WorldMap_Test.tscn` the source of truth for worldmap tile layout.

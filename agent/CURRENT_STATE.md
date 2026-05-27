@@ -24,12 +24,15 @@ Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 
 Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
 
+Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix`
+
 ## Current Implementation Step
 - `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
 - `v0.68b-2 WorldMap City Marker Layer MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
+- `v0.68b-2-hotfix4 WorldMap City Marker Root Attachment Fix`
 - `v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion`
 - `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
 - `v0.68a-2 Combat Focus Camera Follow`
@@ -83,12 +86,14 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 - `WorldMapUI` is CanvasLayer-based and intended to remain screen-fixed during camera movement.
 - `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` exist as empty future worldmap layers only.
 - `CityLayer` now contains 13 scene-authored `CityMarker_*` nodes for Luoyang, Yecheng, Chengdu, Jianye, Karakorum, Pyeongyang, Hanseong, Gyeongju, Sabi, Kyoto, Osaka, Kyushu, and Edo.
+- Each `CityMarker_*` root owns its icon/dot, name label, and click area/collision children so moving the root in the Godot 2D editor moves the whole city marker bundle.
 - `WorldMapTileLayer`, `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` now share the same explicit zero-offset `WorldMapRoot` coordinate basis.
 - The 13 city markers were re-seeded into the 4-tile combined rect so they sit over the worldmap image in the 2D editor instead of below it.
 - The 13 city markers were re-seeded again against the corrected 1024x1024 editor-visible combined rect after the tile seam fix.
 - `scripts/worldmap_city_marker.gd` stores exported marker metadata from `SamWar_web/data/cities.js` and keeps simple label/color visuals on each marker.
 - Web city `x` / `y` coordinates are preserved only as initial `web_seed_position`; final city marker placement is the `CityMarker_*` node position in `WorldMap_Test.tscn`.
 - City marker positions remain scene-authored source of truth after the manual tile layout control patch.
+- City marker click now updates a minimal screen-fixed `WorldMapUI/CityInfoLabel` from marker metadata.
 - City clicking, city data, route graph, army movement, battle entry, and `BattleContext` runtime injection remain unimplemented.
 - Worldmap / hero / army / BattleContext / battle engine / skill contract docs now define the future system boundaries for larger hero scale and worldmap battle launch.
 - The battle engine is documented as a `BattleContext.roster` consumer and must not choose heroes directly.
@@ -265,6 +270,8 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 - 김작 F6 visual QA should confirm `v0.68b-2-hotfix1`: in the 2D editor, all 13 city markers sit on top of the 4-tile worldmap image, no marker is scattered in the lower gray area, `CityLayer` and `WorldMapTileLayer` share the same coordinate space, moving a marker and saving preserves runtime position, camera pan/zoom/clamp still works, UI labels stay screen-fixed, and `Battle_Fullscreen_Test.tscn` remains stable.
 - 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix2`: 4 tiles are contiguous in the 2D editor with no horizontal row gap or vertical column gap, all 13 city markers sit on the map image, debug layers do not obstruct city placement, camera pan/drag/zoom/clamp still works, UI labels stay screen-fixed, and `Battle_Fullscreen_Test.tscn` remains stable.
 - 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix3`: the four Tile nodes can be selected and moved in the 2D editor, Ctrl+S preserves the tile layout, F6 does not overwrite Tile positions, camera clamp follows the current tile union rect, all 13 city markers remain present, and `Battle_Fullscreen_Test.tscn` remains stable.
+- 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix4`: moving `CityMarker_Hanseong` root moves icon/dot, name label, and click area together; all other `CityMarker_*` roots behave the same; Ctrl+S preserves positions; clicking a marker updates the info label; camera pan/zoom/clamp remains normal; and `Battle_Fullscreen_Test.tscn` remains stable.
+- Codex Godot headless verification for `v0.68b-2-hotfix4` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2-hotfix3` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2-hotfix2` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2-hotfix1` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
