@@ -13,7 +13,7 @@ Latest skill presentation patch: `v0.68a-4-hotfix6 Unique Skill Cutin Punch Moti
 
 Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
 
-Latest worldmap marker patch: `v0.68b-2 WorldMap City Marker Layer MVP`
+Latest worldmap marker patch: `v0.68b-3 WorldMap City Castle Icon Apply`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -24,7 +24,7 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-3 WorldMap Route Layer MVP`
+`v0.68b-4 WorldMap Route Layer MVP`
 
 Goal:
 - add the first visual route layer MVP on top of the existing worldmap canvas and scene-authored city markers
@@ -54,6 +54,10 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-3 WorldMap City Castle Icon Apply` is complete.
+- City markers now use regional castle icon children: Korea, China, Japan, and Ordo.
+- `CastleIcon`, Node2D `NameText`, and `ClickArea/CollisionShape2D` remain children of each `CityMarker_*` root, so editor root movement should move the full city bundle.
+- 김작 2D/F6 should confirm icon mapping, icon/name overlap, root movement bundle behavior, click info panel, camera behavior, and battle scene stability.
 - `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix` is complete.
 - Converted city `NameLabel` nodes from `Label` / `Control` to Node2D text nodes so marker root movement carries city names in the 2D editor.
 - 김작 2D/F6 should confirm root movement now visibly moves city name text, marker dot, and click area together.

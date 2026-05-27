@@ -12,9 +12,16 @@ signal city_selected(marker: WorldMapCityMarker)
 @export var route_types: Dictionary = {}
 @export var web_seed_position: Vector2 = Vector2.ZERO
 
+@onready var castle_icon: Sprite2D = get_node_or_null("CastleIcon") as Sprite2D
 @onready var city_dot: Polygon2D = _get_city_dot()
-@onready var name_label: Node = get_node_or_null("NameLabel")
+@onready var name_text: Node = _get_name_text()
 @onready var click_area: Area2D = get_node_or_null("ClickArea") as Area2D
+
+const CITY_CASTLE_ICON_TARGET_HEIGHT := 56.0
+const CASTLE_ICON_KOREA := preload("res://assets/worldmap/city_icons/castle_korea.png")
+const CASTLE_ICON_CHINA := preload("res://assets/worldmap/city_icons/castle_china.png")
+const CASTLE_ICON_JAPAN := preload("res://assets/worldmap/city_icons/castle_japan.png")
+const CASTLE_ICON_ORDO := preload("res://assets/worldmap/city_icons/castle_ordo.png")
 
 const OWNER_COLORS := {
 	"player": Color(0.25, 0.62, 1.0, 1.0),
@@ -47,15 +54,58 @@ func _get_city_dot() -> Polygon2D:
 	return get_node_or_null("CityDot") as Polygon2D
 
 
+func _get_name_text() -> Node:
+	var node := get_node_or_null("NameText")
+	if node == null:
+		node = get_node_or_null("NameLabel")
+	return node
+
+
 func _refresh_marker_visuals() -> void:
-	if name_label != null:
-		if name_label.has_method("set_label_text"):
-			name_label.call("set_label_text", display_name)
-		elif name_label is Label:
-			(name_label as Label).text = display_name
+	if castle_icon != null:
+		_apply_castle_icon()
+
+	if name_text != null:
+		if name_text.has_method("set_label_text"):
+			name_text.call("set_label_text", display_name)
+		elif name_text is Label:
+			(name_text as Label).text = display_name
 
 	if city_dot != null:
 		city_dot.color = OWNER_COLORS.get(owner_faction_id, Color(0.9, 0.9, 0.9, 1.0))
+		city_dot.visible = false
+
+
+func _apply_castle_icon() -> void:
+	var icon_texture := _get_castle_icon_texture()
+	castle_icon.texture = icon_texture
+	castle_icon.centered = true
+	if icon_texture != null and icon_texture.get_height() > 0:
+		var icon_scale := CITY_CASTLE_ICON_TARGET_HEIGHT / float(icon_texture.get_height())
+		castle_icon.scale = Vector2(icon_scale, icon_scale)
+
+
+func _get_castle_icon_texture() -> Texture2D:
+	match city_id:
+		"hanseong", "pyeongyang", "gyeongju", "sabi":
+			return CASTLE_ICON_KOREA
+		"luoyang", "yecheng", "chengdu", "jianye":
+			return CASTLE_ICON_CHINA
+		"kyoto", "osaka", "kyushu", "edo":
+			return CASTLE_ICON_JAPAN
+		"karakorum":
+			return CASTLE_ICON_ORDO
+
+	if region_id == "region.korean_peninsula":
+		return CASTLE_ICON_KOREA
+	if region_id == "region.china_mainland":
+		return CASTLE_ICON_CHINA
+	if region_id == "region.japanese_archipelago":
+		return CASTLE_ICON_JAPAN
+	if region_id == "region.northern_steppe" or owner_faction_id == "mongol_faction":
+		return CASTLE_ICON_ORDO
+
+	return CASTLE_ICON_CHINA
 
 
 func _connect_click_area() -> void:

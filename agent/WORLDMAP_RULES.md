@@ -22,8 +22,12 @@
 
 ## Current City Marker Foundation
 - `v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix` standardizes each city as one scene-authored marker bundle under `CityLayer`.
-- Each `CityMarker_*` root owns local `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D` children.
-- `NameLabel` should be a `Node2D` worldmap text node, not a `Label` / `Control` node, so marker root movement in the Godot 2D editor carries the city name reliably.
+- `v0.68b-3 WorldMap City Castle Icon Apply` replaces the visible city dot with a regional `CastleIcon` Sprite2D child.
+- Korean peninsula cities use `castle_korea.png`, China mainland cities use `castle_china.png`, Japanese archipelago cities use `castle_japan.png`, and Karakorum / northern steppe uses `castle_ordo.png`.
+- Castle icons should be scaled to a shared MVP target height around `56px`; city positions still remain the scene-authored `CityMarker_*`.`position`.
+- Each `CityMarker_*` root owns local city visual/text/click children.
+- Current city marker bundle children are `CastleIcon`, Node2D `NameText`, hidden fallback `CityDot`, and `ClickArea/CollisionShape2D`.
+- `NameText` should be a `Node2D` worldmap text node, not a `Label` / `Control` node, so marker root movement in the Godot 2D editor carries the city name reliably.
 - Moving a `CityMarker_*` root in the Godot 2D editor should move the icon/dot, label, and click area together.
 - Runtime code may refresh local label text and marker color from metadata, but must not place `NameLabel` with independent world coordinates.
 - Runtime may update label text/color from marker metadata and process click signals, but it must not detach label/click geometry from the marker root.

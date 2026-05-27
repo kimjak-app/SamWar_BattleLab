@@ -6,10 +6,10 @@
 [ext_resource type="Texture2D" uid="uid://u2kgph1c7cuw" path="res://assets/worldmap/tiles/worldmap_tile_B1_bottom_left.png" id="4_tile_b1"]
 [ext_resource type="Texture2D" uid="uid://crk55oqy0ufpg" path="res://assets/worldmap/tiles/worldmap_tile_B2_bottom_right.png" id="5_tile_b2"]
 [ext_resource type="Script" uid="uid://bek5h4grd01m2" path="res://scripts/worldmap_city_marker.gd" id="6_city_marker"]
-[ext_resource type="Script" path="res://scripts/worldmap_city_name_label.gd" id="7_city_name_label"]
+[ext_resource type="Script" uid="uid://dnhjqd6n7uxr3" path="res://scripts/worldmap_city_name_label.gd" id="7_city_name_label"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_city_click"]
-radius = 18.0
+radius = 40.0
 
 [node name="WorldMap_Test" type="Node2D" unique_id=2014555566]
 script = ExtResource("1_worldmap_test")
@@ -55,14 +55,17 @@ web_seed_position = Vector2(184, 686)
 color = Color(0.8, 0.24, 0.22, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang" unique_id=1515034208]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang" unique_id=1515034208]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "낙양"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang" unique_id=1074806043]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang/ClickArea" unique_id=1114264051]
+position = Vector2(0, 1)
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Yecheng" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=630356492]
@@ -80,14 +83,16 @@ position = Vector2(1, -2)
 color = Color(0.46, 0.58, 0.72, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng" unique_id=2041772460]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng" unique_id=2041772460]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "업성"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng" unique_id=1341311872]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng/ClickArea" unique_id=1290297989]
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Chengdu" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=562035558]
@@ -104,18 +109,21 @@ web_seed_position = Vector2(143, 860)
 color = Color(0.18, 0.58, 0.32, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu" unique_id=1708417080]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu" unique_id=1708417080]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "성도"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu" unique_id=671334948]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu/ClickArea" unique_id=194873152]
+position = Vector2(1, 2)
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Jianye" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=507432029]
-position = Vector2(1043, 849)
+position = Vector2(1046, 846)
 script = ExtResource("6_city_marker")
 city_id = "jianye"
 display_name = "건업"
@@ -131,14 +139,16 @@ web_seed_position = Vector2(266, 901)
 color = Color(0.28, 0.72, 0.76, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye" unique_id=834072429]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye" unique_id=834072429]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "건업"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye" unique_id=561598932]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye/ClickArea" unique_id=713788623]
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Karakorum" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=81171640]
@@ -160,14 +170,16 @@ position = Vector2(1, 0)
 color = Color(0.62, 0.52, 0.4, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=1787550722]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=1787550722]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "카라코룸"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=918498995]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum/ClickArea" unique_id=2082948760]
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Pyeongyang" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1950069167]
@@ -184,14 +196,16 @@ web_seed_position = Vector2(399, 348)
 color = Color(0.35, 0.5, 0.95, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang" unique_id=937412380]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang" unique_id=937412380]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "평양"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang" unique_id=295293465]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang/ClickArea" unique_id=1624920506]
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Hanseong" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=342105785]
@@ -208,14 +222,16 @@ web_seed_position = Vector2(461, 532)
 color = Color(0.25, 0.62, 1, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong" unique_id=155801755]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong" unique_id=155801755]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "한성"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong" unique_id=15801153]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong/ClickArea" unique_id=1072972968]
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Gyeongju" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=352857378]
@@ -237,14 +253,16 @@ position = Vector2(-1, 0)
 color = Color(0.9, 0.74, 0.24, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju" unique_id=1214544719]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju" unique_id=1214544719]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "경주"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju" unique_id=1430643922]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju/ClickArea" unique_id=65595545]
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Sabi" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1705550825]
@@ -265,14 +283,16 @@ web_seed_position = Vector2(512, 686)
 color = Color(0.88, 0.54, 0.28, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi" unique_id=394125242]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi" unique_id=394125242]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "사비"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi" unique_id=774492166]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi/ClickArea" unique_id=762875636]
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Kyoto" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=345330817]
@@ -292,14 +312,16 @@ web_seed_position = Vector2(830, 655)
 color = Color(0.58, 0.28, 0.84, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto" unique_id=2067049430]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto" unique_id=2067049430]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "교토"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto" unique_id=1676302053]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto/ClickArea" unique_id=2143424071]
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Osaka" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=167775615]
@@ -320,14 +342,16 @@ web_seed_position = Vector2(768, 778)
 color = Color(0.86, 0.48, 0.16, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka" unique_id=1160152793]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka" unique_id=1160152793]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "오사카"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka" unique_id=873076608]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka/ClickArea" unique_id=1010504086]
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Kyushu" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1734896910]
@@ -348,14 +372,16 @@ web_seed_position = Vector2(686, 881)
 color = Color(0.64, 0.42, 0.28, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu" unique_id=93638272]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu" unique_id=93638272]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "큐슈"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu" unique_id=2047052964]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu/ClickArea" unique_id=1031756365]
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Edo" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1646505751]
@@ -373,14 +399,16 @@ position = Vector2(0, 2)
 color = Color(0.32, 0.72, 0.44, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
-[node name="NameLabel" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo" unique_id=1369684222]
-position = Vector2(0, 16)
+[node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo"]
+
+[node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo" unique_id=1369684222]
+position = Vector2(0, 34)
 script = ExtResource("7_city_name_label")
 text = "에도"
 
-[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo"]
+[node name="ClickArea" type="Area2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo" unique_id=2075961323]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo/ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo/ClickArea" unique_id=1350296496]
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="ArmyLayer" type="Node2D" parent="WorldMapRoot" unique_id=712701447]

@@ -66,7 +66,7 @@ Latest camera foundation:
 `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
 
 - Latest worldmap marker patch:
-`v0.68b-2 WorldMap City Marker Layer MVP`
+`v0.68b-3 WorldMap City Castle Icon Apply`
 
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
@@ -199,8 +199,9 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Next candidates:
-  - `v0.68b-3 WorldMap Route Layer MVP`
+  - `v0.68b-4 WorldMap Route Layer MVP`
   - `v0.68c BattleContext Runtime Injection MVP`
+- 김작 2D/F6 visual QA remains for `v0.68b-3`: confirm all 13 cities show castle icons instead of dots, Korea/China/Japan/Ordo icon mapping is correct, `CityMarker_*` root movement carries `CastleIcon`, `NameText`, and `ClickArea/CollisionShape2D`, city names do not severely overlap icons, marker click info panel remains normal, camera pan/zoom/clamp remains normal, and the battle scene is stable.
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix6`: move `CityMarker_Hanseong` root and confirm the Node2D `NameLabel` text visibly moves with `CityDot` and `ClickArea/CollisionShape2D`; repeat spot checks on other city markers; save with Ctrl+S and confirm F6 preserves the bundle.
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix5`: move `CityMarker_Hanseong` root and confirm `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D` move together; repeat spot checks on the other 12 cities; Ctrl+S persistence; marker click info panel; camera pan/zoom/clamp; and battle scene stability.
 - Codex Godot headless verification for `v0.68b-2-hotfix5` may be blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output if needed.

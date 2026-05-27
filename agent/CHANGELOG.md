@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68b-3 WorldMap City Castle Icon Apply
+- Added `CastleIcon` Sprite2D children under all 13 `CityMarker_*` roots in `WorldMap_Test.tscn`.
+- Mapped city castle icons by city/region: Korean peninsula cities use `castle_korea.png`, China mainland cities use `castle_china.png`, Japanese archipelago cities use `castle_japan.png`, and Karakorum uses `castle_ordo.png`.
+- Updated `scripts/worldmap_city_marker.gd` to apply the regional castle texture, scale it to `CITY_CASTLE_ICON_TARGET_HEIGHT = 56.0`, hide the old dot marker, and preserve city metadata / click info behavior.
+- Renamed the marker-local city text node to `NameText` while keeping it Node2D-based so root marker movement carries the castle icon, name text, and click area together.
+- Enlarged the shared city click shape to a 40px radius around the marker root for the castle icon MVP.
+
 ## v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix
 - Replaced all 13 city `NameLabel` nodes in `WorldMap_Test.tscn` from `Label` / `Control` nodes with `Node2D` text nodes using `scripts/worldmap_city_name_label.gd`.
 - Kept `NameLabel` under each `CityMarker_*` root with local `position = Vector2(0, 16)`, so moving the marker root in the 2D editor moves the displayed city name with it.

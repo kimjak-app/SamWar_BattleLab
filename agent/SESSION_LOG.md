@@ -2,6 +2,15 @@
 
 ## 2026-05-28
 
+### v0.68b-3 WorldMap City Castle Icon Apply
+- Confirmed the four city castle icon assets exist under `assets/worldmap/city_icons/`.
+- Added `CastleIcon` Sprite2D children under each `CityMarker_*` root and kept marker root positions unchanged.
+- Renamed marker-local `NameLabel` nodes to `NameText` while preserving Node2D-based city text so root movement carries the name with the icon.
+- Added city/region fallback icon mapping in `scripts/worldmap_city_marker.gd`: Korea, China, Japan, and Ordo.
+- Scaled castle icons to a common target height of `56px`, hid the old `CityDot`, and enlarged the shared city click circle to `40px` radius.
+- Preserved city metadata, click info panel behavior, manual tile layout, camera behavior, route/army/battle deferrals, and battle scenes.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+
 ### v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix
 - Follow-up from 김작 confirmation that the `Label` / `Control`-type city name still did not follow marker root movement as expected in the Godot 2D editor.
 - Added `scripts/worldmap_city_name_label.gd`, a `@tool` `Node2D` text drawer for city names.
