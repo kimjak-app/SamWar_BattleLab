@@ -11,37 +11,50 @@ Latest camera/background patch: `v0.68a-3 Battlefield Large Background Apply + C
 
 Latest skill presentation patch: `v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion`
 
+Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
+
 ## Priority 1
-`v0.68b WorldMap Region Graph MVP`
+`v0.68b-2 WorldMap City Marker Layer MVP`
 
 Goal:
-- create the first region/city/route/connection graph data structure for China, the Korean peninsula, and the Japanese archipelago
+- add the first visual city marker layer on top of the existing four-tile worldmap canvas without battle entry or BattleContext runtime injection
 
 ## Priority 2
+`v0.68b-3 WorldMap Route Layer MVP`
+
+Goal:
+- add the first visual route layer MVP on top of the existing worldmap canvas and future city markers
+
+## Priority 3
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 3
+## Priority 4
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - implement first hero / region / city / army assignment data needed to produce roster candidates
 
-## Priority 4
+## Priority 5
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 5
+## Priority 6
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-1 WorldMap Four-Tile Canvas Foundation` is complete.
+- Added `WorldMap_Test.tscn` as a 2x2 four-tile visual worldmap canvas using the prepared `assets/worldmap/tiles/` PNGs.
+- Added `scripts/worldmap_test.gd` for `WorldMapCamera` current setup, WASD/arrow pan, right/middle drag pan, optional wheel zoom, and viewport/zoom-aware clamp to the combined tile rect.
+- Prepared empty `CityLayer`, `RouteLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer`; no city click, route graph, army movement, battle entry, or `BattleContext` creation was implemented.
+- 김작 F6 should confirm tile attachment, camera movement/clamp, fixed UI labels, empty layer presence, and existing `Battle_Fullscreen_Test.tscn` stability.
 - `v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion` is complete.
 - Added root-level punch motion to the unique skill cut-in: alpha fade-in, `0.85 -> 1.12 -> 1.0` scale, minimal hold, then upward fade-out / shrink to `0.92`.
 - Kept particles, glow shaders, and sound deferred for a later step.

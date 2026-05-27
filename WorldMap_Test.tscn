@@ -1,0 +1,75 @@
+[gd_scene load_steps=6 format=3 uid="uid://d05f0xjbn7wm1"]
+
+[ext_resource type="Script" path="res://scripts/worldmap_test.gd" id="1_worldmap_test"]
+[ext_resource type="Texture2D" path="res://assets/worldmap/tiles/worldmap_tile_A1_top_left.png" id="2_tile_a1"]
+[ext_resource type="Texture2D" path="res://assets/worldmap/tiles/worldmap_tile_A2_top_right.png" id="3_tile_a2"]
+[ext_resource type="Texture2D" path="res://assets/worldmap/tiles/worldmap_tile_B1_bottom_left.png" id="4_tile_b1"]
+[ext_resource type="Texture2D" path="res://assets/worldmap/tiles/worldmap_tile_B2_bottom_right.png" id="5_tile_b2"]
+
+[node name="WorldMap_Test" type="Node2D"]
+script = ExtResource("1_worldmap_test")
+
+[node name="WorldMapRoot" type="Node2D" parent="."]
+
+[node name="WorldMapTileLayer" type="Node2D" parent="WorldMapRoot"]
+
+[node name="Tile_A1_TopLeft" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer"]
+centered = false
+texture = ExtResource("2_tile_a1")
+
+[node name="Tile_A2_TopRight" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer"]
+centered = false
+texture = ExtResource("3_tile_a2")
+
+[node name="Tile_B1_BottomLeft" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer"]
+centered = false
+texture = ExtResource("4_tile_b1")
+
+[node name="Tile_B2_BottomRight" type="Sprite2D" parent="WorldMapRoot/WorldMapTileLayer"]
+centered = false
+texture = ExtResource("5_tile_b2")
+
+[node name="RouteLayer" type="Node2D" parent="WorldMapRoot"]
+
+[node name="CityLayer" type="Node2D" parent="WorldMapRoot"]
+
+[node name="ArmyLayer" type="Node2D" parent="WorldMapRoot"]
+
+[node name="EffectLayer" type="Node2D" parent="WorldMapRoot"]
+
+[node name="DebugLayer" type="Node2D" parent="WorldMapRoot"]
+
+[node name="WorldMapCamera" type="Camera2D" parent="."]
+position = Vector2(2048, 2048)
+zoom = Vector2(0.7, 0.7)
+enabled = true
+
+[node name="WorldMapUI" type="CanvasLayer" parent="."]
+
+[node name="TitleLabel" type="Label" parent="WorldMapUI"]
+offset_left = 20.0
+offset_top = 16.0
+offset_right = 220.0
+offset_bottom = 40.0
+text = "WorldMap Test"
+
+[node name="CameraDebugLabel" type="Label" parent="WorldMapUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -320.0
+offset_top = 16.0
+offset_right = -20.0
+offset_bottom = 40.0
+text = "Camera: (0, 0)  Zoom: 0.70"
+horizontal_alignment = 2
+
+[node name="InstructionLabel" type="Label" parent="WorldMapUI"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -44.0
+offset_right = 520.0
+offset_bottom = -20.0
+text = "WASD/Arrow: move, Right/Middle Drag: pan, Wheel: zoom"

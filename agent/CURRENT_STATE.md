@@ -14,7 +14,10 @@ Latest camera/background patch: `v0.68a-3 Battlefield Large Background Apply + C
 
 Latest skill presentation patch: `v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion`
 
+Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
+
 ## Current Implementation Step
+- `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
 - `v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion`
 - `v0.68a-2-hotfix1 Camera-Bound Overlay Sync Fix`
 - `v0.68a-2 Combat Focus Camera Follow`
@@ -59,6 +62,12 @@ Latest skill presentation patch: `v0.68a-4-hotfix6 Unique Skill Cutin Punch Moti
 - Existing bottom command handlers are reused with no intended behavior change.
 
 ## Stable Summary
+- `WorldMap_Test.tscn` now exists as the first worldmap visual canvas foundation.
+- The prepared four worldmap tiles are arranged as a 2x2 Sprite2D canvas with `centered = false`: A1/NW at `(0, 0)`, A2/NE at `(tile_width, 0)`, B1/SW at `(0, tile_height)`, and B2/SE at `(tile_width, tile_height)`.
+- `WorldMapCamera` is scene-authored and runtime-configured as the current Camera2D for large-map pan, drag, optional wheel zoom, and viewport/zoom-aware clamp against the combined tile rect.
+- `WorldMapUI` is CanvasLayer-based and intended to remain screen-fixed during camera movement.
+- `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` exist as empty future worldmap layers only.
+- City clicking, city data, route graph, army movement, battle entry, and `BattleContext` runtime injection remain unimplemented.
 - Worldmap / hero / army / BattleContext / battle engine / skill contract docs now define the future system boundaries for larger hero scale and worldmap battle launch.
 - The battle engine is documented as a `BattleContext.roster` consumer and must not choose heroes directly.
 - Worldmap / army systems are documented as owners of encounter creation, battle type, terrain, region, and `map_variant_id` selection.
@@ -176,6 +185,8 @@ Latest skill presentation patch: `v0.68a-4-hotfix6 Unique Skill Cutin Punch Moti
 - Actor / target parity is expected to remain stable through the full `5v5` path.
 
 ## Core Files
+- `WorldMap_Test.tscn`
+- `scripts/worldmap_test.gd`
 - `Battle_Fullscreen_Test.tscn`
 - `scripts/battle_web_import_test.gd`
 - `scripts/battle_unit_state.gd`
@@ -218,14 +229,16 @@ Latest skill presentation patch: `v0.68a-4-hotfix6 Unique Skill Cutin Punch Moti
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68a-3 Battlefield Scale + Deployment Recenter`
-2. `v0.68b WorldMap Region Graph MVP`
+1. `v0.68b-2 WorldMap City Marker Layer MVP`
+2. `v0.68b-3 WorldMap Route Layer MVP`
 3. `v0.68c BattleContext Runtime Injection MVP`
 4. `v0.68d Hero/Army Deployment MVP`
 5. `v0.69 Battlefield Variant Loader`
 6. `v0.69b Naval Battle Entry MVP`
 
 ## Known / Deferred
+- 김작 F6 visual QA should confirm `v0.68b-1` worldmap canvas: 4 tiles appear as one map without visible gap/overlap, tile boundaries do not show obvious seams, Camera2D pan is smooth, camera clamp avoids excessive gray outside area, UI labels remain screen-fixed, `CityLayer` / `RouteLayer` / `ArmyLayer` / `EffectLayer` exist in the scene tree, and `Battle_Fullscreen_Test.tscn` remains stable.
+- Codex Godot headless verification for `v0.68b-1` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` project/scene load and GDScript warning cleanliness.
 - 김작 F6 visual QA should confirm left-facing and right-facing units keep status badges near the facing arrow, with up/down facings still close to the portrait/arrow line and not fully overlapping the face.
 - 김작 F6 visual QA should confirm ally/enemy/support/reinforce status badges all follow the same arrow-backside rule, stay close to the unit, and avoid severe face/arrow overlap.
 - 김작 F6 visual QA should confirm `v0.68a-fix6` status badge blocks follow final edge placement: `→` left, `←` right, `↑` left, `↓` left, with confusion `◎N`, shake `⚠N`, and multi-icon badges horizontally aligned.

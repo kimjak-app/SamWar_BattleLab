@@ -1,5 +1,16 @@
 # SESSION LOG
 
+## 2026-05-27
+
+### v0.68b-1 WorldMap Four-Tile Canvas Foundation
+- Created `WorldMap_Test.tscn` as the first worldmap visual canvas scene.
+- Placed four scene-authored Sprite2D tiles under `WorldMapRoot/WorldMapTileLayer` with `centered = false`; runtime layout uses the A1 texture size so A2, B1, and B2 attach as NE, SW, and SE without coordinate compensation.
+- Added `WorldMapCamera` movement foundation with WASD/arrow pan, right/middle mouse drag pan, optional wheel zoom, and viewport/zoom-aware clamp inside the 2x2 map rect.
+- Added screen-fixed `WorldMapUI` labels for title, camera/zoom debug, and input hint.
+- Prepared empty `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` only; no city click, route graph, army movement, battle entry, or `BattleContext` injection was added.
+- Godot headless validation was blocked in Codex by `windows sandbox: spawn setup refresh`; `git diff --check` passed.
+- Kimjak F6 manual QA remains: confirm four tiles attach without visible gap/overlap, camera pan is smooth and clamped, UI labels stay fixed, future layers exist in the scene tree, and `Battle_Fullscreen_Test.tscn` remains stable.
+
 ## 2026-05-26
 
 ### v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion

@@ -5,6 +5,14 @@
 - Owns region, city, route, connection, encounter, and battle launch context decisions.
 - Produces `BattleContext` for the battle engine.
 
+## Current Canvas Foundation
+- `v0.68b-1 WorldMap Four-Tile Canvas Foundation` adds `WorldMap_Test.tscn` as the current visual worldmap canvas foundation.
+- The four prepared tiles under `assets/worldmap/tiles/` are arranged as NW, NE, SW, and SE Sprite2D nodes with `centered = false`.
+- `scripts/worldmap_test.gd` uses the A1 tile texture size to place A2 at `(tile_width, 0)`, B1 at `(0, tile_height)`, and B2 at `(tile_width, tile_height)`.
+- `WorldMapCamera` is the scene-authored Camera2D foundation for large-map pan and zoom, clamped to the combined 2x2 world rect.
+- `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` are prepared as empty Node2D layers only.
+- City click, city data, route graph, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
+
 ## Canonical Direction
 - The battle engine does not choose heroes directly.
 - The battle engine does not read worldmap state directly.

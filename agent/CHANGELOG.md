@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68b-1 WorldMap Four-Tile Canvas Foundation
+- Added `WorldMap_Test.tscn` with a 2x2 four-tile worldmap canvas using the prepared `assets/worldmap/tiles/` PNGs.
+- Added `scripts/worldmap_test.gd` to position the four Sprite2D tiles from `texture.get_size()`, configure `WorldMapCamera`, and clamp pan/zoom movement to the combined world rect.
+- Added empty future strategy layers: `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer`.
+- Kept city clicking, route data, army movement, battle entry, and `BattleContext` runtime injection unimplemented.
+- Left existing battle scenes and battle scripts untouched.
+
 ## v0.68a-4-hotfix6 Unique Skill Cutin Punch Motion
 - Added root-level punch motion to unique skill fullscreen cut-ins: alpha fade-in, scale `0.85 -> 1.12 -> 1.0`, minimal hold, and upward fade-out / shrink to `0.92`.
 - Kept existing cut-in image, skill-name, slide, and ink flash structure while avoiding particles, glow shaders, audio, or new assets.
