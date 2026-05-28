@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP
+- Extended the existing `LeftWorldStatusPanel` web-parity controls with a functional `재상 정책` dropdown and a consolidated `국가 창고` resource card.
+- Inspected local read-only web sources: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\resource_ui.js`.
+- Added `ChancellorPolicyOption` to the root `WorldMap_Test.tscn`; the requested `scenes/WorldMap_Test.tscn` path remains absent in this repo.
+- Bound policy selection to `_player_state.chancellor_policy_id` with web policy options `균형형`, `농업 중심`, `상업 중심`, `무역 중심`, and `군사 중심`.
+- Ported structured policy preview metadata from the web constants so effect text, resource multiplier summary, hero upkeep preview, soldier upkeep preview, and salt preservation preview refresh when the policy changes.
+- Retired the duplicate visible `보유 자원: ...` line and made `국가 창고` the authoritative resource display, with rows bound from `_player_state.resource_stock`, web-like capacities, and status labels.
+- Kept the patch non-simulating: policy changes update UI state and previews only, with no current resource mutation, turn income application, loyalty change, full end-turn simulation, movement, appointment execution, `BattleContext`, battle transition, route/pathfinding, castle icon, or repo-outside web edits.
+- Verification: patch strings present, policy dropdown/helper paths present, warehouse binding/helpers present, duplicate visible resource assignment absent, forbidden implementation search returned no matches, Godot project headless load passed, `WorldMap_Test.tscn` headless load passed, and `git diff --check` passed.
+
 ## v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP
 - Upgraded the existing `LeftWorldStatusPanel` from mostly seed/debug-style text toward web-parity controls for national loyalty, tax level, and chancellor assignment.
 - Inspected local read-only web sources: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, and `js\ui\world_hud_ui.js`.

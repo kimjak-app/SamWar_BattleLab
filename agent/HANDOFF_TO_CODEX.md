@@ -153,6 +153,9 @@ Latest camera foundation:
 - Latest worldmap left panel controls patch:
 `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`
 
+- Latest worldmap left panel policy/warehouse patch:
+`v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -234,6 +237,12 @@ Do not modify casually:
 - Chancellor assignment now uses selected-city stationed heroes from `CITY_HUD_DATA.stationed_hero_ids` resolved through `HERO_DATA`, with `미임명` as the first dropdown option.
 - Chancellor selection updates `_player_state.chancellor_id` only for left-panel UI state and previews imported chancellor-profile effect text; missing portraits fall back to `?`.
 - This remains left-panel UI/data-binding scope only. It did not add turn simulation, resource mutation, loyalty application, policy effect execution, movement, appointment system behavior, `BattleContext`, battle transition, route/pathfinding changes, castle icon changes, or web repo edits.
+- `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP` is complete and updates `scripts/worldmap_test.gd`, root `WorldMap_Test.tscn`, and agent docs.
+- Web parity references inspected were local read-only `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\resource_ui.js`.
+- The left panel now has a functional `재상 정책` dropdown backed by `_player_state.chancellor_policy_id` with web options `균형형`, `농업 중심`, `상업 중심`, `무역 중심`, and `군사 중심`.
+- Policy effect text and preview lines now use structured local metadata aligned with web `CHANCELLOR_POLICY_EFFECTS`, including resource multipliers, hero upkeep preview, soldier upkeep preview, and salt preservation preview. Current resource stock is not changed by policy selection.
+- The old duplicate visible `보유 자원: ...` summary is retired. `국가 창고` is the authoritative left-panel resource display and reads `_player_state.resource_stock` for current amount, capacity, and status rows.
+- This remains left-panel UI/data-binding scope only. It did not add movement, appointment execution beyond UI state, policy effect application to resources, full end-turn simulation, `BattleContext`, battle transition, route/pathfinding changes, castle icon changes, or web repo edits.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -347,13 +356,13 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-3 WorldMap City Detail Hero/Governor Binding QA`
-- `v0.68b-12b-3` goal:
-  - Verify that imported web-aligned hero/city seed data displays correctly in the city detail and selected-city hero/governor/stationed-hero paths.
-  - Confirm city click panel refresh, governor/stationed hero display, hero names/stats, resource/military/rating strings, and existing panel drag/collapse behavior.
+  - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
+- `v0.68b-12b-4` goal:
+  - Verify and improve city detail governor and stationed hero display using the imported web-aligned `CITY_HUD_DATA` / `HERO_DATA` seed data.
+  - Confirm city click panel refresh, governor fallback text, stationed hero display, hero names/stats, resource/military/rating strings, and existing panel drag/collapse behavior.
   - Do not add gameplay logic, movement, appointment execution, policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits.
 - Next candidates:
-  - `v0.68b-12b-3 WorldMap City Detail Hero/Governor Binding QA`
+  - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`
   - `v0.68b-12e Diplomacy Spy Panel Web Content Parity`

@@ -54,6 +54,8 @@ Latest worldmap left panel binding QA patch: `v0.68b-12b-2 WorldMap Left Panel S
 
 Latest worldmap left panel controls patch: `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`
 
+Latest worldmap left panel policy/warehouse patch: `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -84,6 +86,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-1 WorldMap Hero City Seed Data Import`
 - `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA`
 - `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`
+- `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -201,6 +204,12 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - The chancellor portrait area falls back to `?` when no portrait texture exists, so missing portrait assets do not break the card.
 - The active scene modified for this patch is root `WorldMap_Test.tscn`; the requested `scenes/WorldMap_Test.tscn` path is absent in this repo.
 - `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP` remains left-panel UI/data-binding scope only and did not add turn simulation, resource mutation, loyalty application, policy effect execution, movement, appointment system behavior, `BattleContext`, battle transition, route/pathfinding changes, castle icon changes, or web repo edits.
+- `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP` extends the same left-panel parity scope with a functional `재상 정책` dropdown, web-aligned policy labels/descriptions/effect multipliers, and `_player_state.chancellor_policy_id` state binding.
+- `CHANCELLOR_POLICY_DATA` now mirrors the web `CHANCELLOR_POLICY_EFFECTS` preview fields for agriculture, commerce, trade, and military policies. The policy dropdown refreshes effect text and preview lines but does not mutate current resources or apply turn effects.
+- `국가 창고` is now the authoritative visible resource section in the left panel. The old duplicate `보유 자원: ...` line is retired, while warehouse rows read `_player_state.resource_stock` and show current amount, capacity, and status labels for rice, barley, seafood, wood, iron, horses, silk, salt, and gold.
+- Warehouse support previews now show hero upkeep, soldier upkeep, and salt preservation estimates using web constants from `js\constants.js` / `js\core\domestic_income.js`; all remain display-only and non-simulating.
+- `v0.68b-12b-3` modified `scripts/worldmap_test.gd`, root `WorldMap_Test.tscn`, and agent docs. The requested `scenes/WorldMap_Test.tscn` path remains absent in this repo.
+- `v0.68b-12b-3` did not add hero movement, governor/chancellor appointment execution beyond UI state, full end-turn simulation, actual resource/loyalty mutation, `BattleContext`, battle transition, route/pathfinding changes, castle icon changes, or repo-outside web edits.
 - All HUD actions remain placeholder-only. `BattleContext`, battle entry, domestic execution, recruitment, save/load/reset, diplomacy/spy execution, hero/army movement, route click, pathfinding, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
@@ -395,7 +404,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-12b-3 WorldMap City Detail Hero/Governor Binding QA`
+1. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 2. `v0.68b-12c Selected City Panel Web Content Parity`
 3. `v0.68b-12d City Detail Panel Web Content Parity`
 4. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`

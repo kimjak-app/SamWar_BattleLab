@@ -63,24 +63,66 @@ const CHANCELLOR_POLICY_DATA := {
 	"balanced": {
 		"name": "균형형",
 		"description": "보정 없음",
+		"income_multiplier": 1.0,
+		"rice_multiplier": 1.0,
+		"barley_multiplier": 1.0,
+		"seafood_multiplier": 1.0,
+		"gold_multiplier": 1.0,
+		"hero_upkeep_multiplier": 1.0,
+		"soldier_upkeep_preview_multiplier": 1.0,
+		"salt_preservation_multiplier": 1.0,
 	},
 	"agriculture": {
 		"name": "농업 중심",
 		"description": "쌀/보리 수입 증가, 금전 소폭 감소",
+		"income_multiplier": 1.0,
+		"rice_multiplier": 1.15,
+		"barley_multiplier": 1.15,
+		"seafood_multiplier": 1.0,
+		"gold_multiplier": 0.95,
+		"hero_upkeep_multiplier": 1.0,
+		"soldier_upkeep_preview_multiplier": 1.0,
+		"salt_preservation_multiplier": 1.0,
 	},
 	"commerce": {
 		"name": "상업 중심",
 		"description": "금전 수입 증가, 식량 수입 소폭 감소",
+		"income_multiplier": 1.0,
+		"rice_multiplier": 0.95,
+		"barley_multiplier": 0.95,
+		"seafood_multiplier": 1.0,
+		"gold_multiplier": 1.15,
+		"hero_upkeep_multiplier": 1.0,
+		"soldier_upkeep_preview_multiplier": 1.0,
+		"salt_preservation_multiplier": 1.0,
 	},
 	"trade": {
 		"name": "무역 중심",
 		"description": "수산물/금전 소폭 증가, 소금 보존 부담 완화",
+		"income_multiplier": 1.0,
+		"rice_multiplier": 1.0,
+		"barley_multiplier": 1.0,
+		"seafood_multiplier": 1.1,
+		"gold_multiplier": 1.05,
+		"hero_upkeep_multiplier": 1.0,
+		"soldier_upkeep_preview_multiplier": 1.0,
+		"salt_preservation_multiplier": 0.9,
 	},
 	"military": {
 		"name": "군사 중심",
 		"description": "영웅 유지비 감소, 금전 소폭 감소",
+		"income_multiplier": 1.0,
+		"rice_multiplier": 1.0,
+		"barley_multiplier": 1.0,
+		"seafood_multiplier": 1.0,
+		"gold_multiplier": 0.95,
+		"hero_upkeep_multiplier": 0.9,
+		"soldier_upkeep_preview_multiplier": 0.9,
+		"salt_preservation_multiplier": 1.0,
 	},
 }
+
+const CHANCELLOR_POLICY_ORDER := ["balanced", "agriculture", "commerce", "trade", "military"]
 
 const CHANCELLOR_TYPE_LABELS := {
 	"political": "정치형",
@@ -101,6 +143,24 @@ const RESOURCE_LABELS := {
 	"salt": "소금",
 	"gold": "금전",
 }
+
+const RESOURCE_DISPLAY_ORDER := ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt", "gold"]
+const WAREHOUSE_CAPACITY := {
+	"rice": 1000,
+	"barley": 1000,
+	"seafood": 500,
+	"wood": 800,
+	"iron": 500,
+	"horses": 300,
+	"silk": 300,
+	"salt": 400,
+	"gold": 9999,
+}
+const WAREHOUSE_LOW_RATIO := 0.2
+const WAREHOUSE_STABLE_RATIO := 0.8
+const HERO_UPKEEP_RULES := {"rice": 8, "seafood": 3, "silk": 1}
+const SOLDIER_UPKEEP_RULES := {"troops_per_unit": 100, "rice": 6, "barley": 5, "seafood": 1}
+const SALT_PRESERVATION_RULES := {"food_ratio": 0.08, "seafood_ratio": 0.12}
 
 const GOVERNOR_POLICY_DATA := {
 	"follow_chancellor": {
@@ -124,6 +184,7 @@ const GOVERNOR_POLICY_DATA := {
 # v0.68b-12b-1 WorldMap Hero City Seed Data Import
 # v0.68b-12b-2 WorldMap Left Panel Seed Binding QA
 # v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP
+# v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -210,6 +271,7 @@ const CITY_HUD_DATA := {
 @onready var chancellor_name_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy/ChancellorNameLabel
 @onready var chancellor_stats_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy/ChancellorStatsLabel
 @onready var chancellor_assignment_option: OptionButton = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/ChancellorAssignmentOption
+@onready var chancellor_policy_option: OptionButton = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/ChancellorPolicyOption
 @onready var chancellor_policy_description_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/ChancellorPolicyDescriptionLabel
 @onready var resource_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ResourceLabel
 @onready var supply_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SupplyLabel
@@ -854,6 +916,9 @@ func _setup_left_world_controls() -> void:
 		tax_slider.value_changed.connect(_on_tax_slider_value_changed)
 	if not chancellor_assignment_option.item_selected.is_connected(_on_chancellor_assignment_selected):
 		chancellor_assignment_option.item_selected.connect(_on_chancellor_assignment_selected)
+	_populate_chancellor_policy_dropdown()
+	if not chancellor_policy_option.item_selected.is_connected(_on_chancellor_policy_selected):
+		chancellor_policy_option.item_selected.connect(_on_chancellor_policy_selected)
 
 
 func _setup_left_world_status_panel_layout() -> void:
@@ -871,6 +936,8 @@ func _setup_left_world_status_panel_layout() -> void:
 		world_status_hint_label,
 	]:
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	resource_label.visible = false
+	resource_label.text = ""
 	resource_label.add_theme_font_size_override("font_size", 10)
 	supply_label.add_theme_font_size_override("font_size", 10)
 	military_logistics_label.add_theme_font_size_override("font_size", 10)
@@ -915,6 +982,9 @@ func _refresh_left_world_status_panel() -> void:
 	var chancellor_data := _get_hero_entry(chancellor_id)
 	var chancellor_name := _format_hero_name_by_id(chancellor_id, "미임명")
 	var policy_id := str(_player_state.get("chancellor_policy_id", "balanced"))
+	if not CHANCELLOR_POLICY_DATA.has(policy_id):
+		policy_id = "balanced"
+		_player_state["chancellor_policy_id"] = policy_id
 	var policy_data := _get_chancellor_policy_entry(policy_id)
 	chancellor_label.text = "재상"
 	chancellor_portrait_label.text = _get_chancellor_portrait_text(chancellor_data)
@@ -929,11 +999,12 @@ func _refresh_left_world_status_panel() -> void:
 		str(policy_data.get("description", "재상 정책 설명 준비 중")),
 	]
 	_select_option_by_metadata(chancellor_assignment_option, chancellor_id)
-	resource_label.text = "보유 자원: %s" % _format_player_resource_summary()
-	supply_label.text = "%s\n%s\n%s" % [
-		_format_warehouse_summary(),
-		"유지비 preview: 실제 차감 없음",
-		"보존 소금: 보유 %d · 미차감" % _get_player_resource_amount("salt"),
+	_select_option_by_metadata(chancellor_policy_option, policy_id)
+	resource_label.visible = false
+	resource_label.text = ""
+	supply_label.text = "%s\n%s" % [
+		_format_warehouse_summary(policy_id),
+		_format_policy_preview_summary(policy_id),
 	]
 	military_logistics_label.text = "선택 도시: %s · %s · %s\n주둔 장수: %s\n내부 보급망: %s\n내부 병력 재배치: %s" % [
 		selected_city_name,
@@ -1024,15 +1095,147 @@ func _get_player_resource_amount(resource_id: String) -> int:
 	return int(resource_stock.get(resource_id, 0))
 
 
-func _format_warehouse_summary() -> String:
+func _format_warehouse_summary(policy_id: String) -> String:
 	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
 	if resource_stock.is_empty():
 		return "국가 창고: 보유 자원 없음"
-	return "국가 창고: 쌀 %d / 보리 %d / 금전 %d · 표시 전용" % [
-		int(resource_stock.get("rice", 0)),
-		int(resource_stock.get("barley", 0)),
-		int(resource_stock.get("gold", 0)),
+	var lines: Array[String] = ["국가 창고"]
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		var resource_id_string := str(resource_id)
+		var value := int(resource_stock.get(resource_id_string, 0))
+		var capacity := int(WAREHOUSE_CAPACITY.get(resource_id_string, 0))
+		lines.append("%s %d / %d · %s" % [
+			str(RESOURCE_LABELS.get(resource_id_string, resource_id_string)),
+			value,
+			capacity,
+			_get_resource_status_label(resource_id_string, value, capacity),
+		])
+	lines.append(_format_hero_upkeep_preview(policy_id))
+	lines.append(_format_soldier_upkeep_preview(policy_id))
+	lines.append(_format_salt_preservation_preview(policy_id))
+	return "\n".join(lines)
+
+
+func _get_resource_status_label(_resource_id: String, value: int, max_value: int) -> String:
+	if max_value <= 0:
+		return "상한 없음"
+	var ratio := float(value) / float(max_value)
+	if ratio <= WAREHOUSE_LOW_RATIO:
+		return "부족"
+	if ratio <= WAREHOUSE_STABLE_RATIO:
+		return "안정"
+	if ratio <= 1.0:
+		return "충분"
+	return "과잉"
+
+
+func _format_policy_preview_summary(policy_id: String) -> String:
+	return "정책 preview: %s\n%s" % [
+		_format_chancellor_policy_multiplier_summary(policy_id),
+		"현재 보유량은 변경하지 않음",
 	]
+
+
+func _format_chancellor_policy_multiplier_summary(policy_id: String) -> String:
+	var policy_data := _get_chancellor_policy_entry(policy_id)
+	var parts: Array[String] = []
+	for resource_id in ["rice", "barley", "seafood", "gold"]:
+		var resource_id_string := str(resource_id)
+		var multiplier := float(policy_data.get("%s_multiplier" % resource_id_string, 1.0))
+		if not is_equal_approx(multiplier, 1.0):
+			parts.append("%s x%.2f" % [str(RESOURCE_LABELS.get(resource_id_string, resource_id_string)), multiplier])
+	var upkeep_multiplier := float(policy_data.get("hero_upkeep_multiplier", 1.0))
+	if not is_equal_approx(upkeep_multiplier, 1.0):
+		parts.append("영웅 유지비 x%.2f" % upkeep_multiplier)
+	var soldier_multiplier := float(policy_data.get("soldier_upkeep_preview_multiplier", 1.0))
+	if not is_equal_approx(soldier_multiplier, 1.0):
+		parts.append("병사 유지비 x%.2f" % soldier_multiplier)
+	var salt_multiplier := float(policy_data.get("salt_preservation_multiplier", 1.0))
+	if not is_equal_approx(salt_multiplier, 1.0):
+		parts.append("보존 소금 x%.2f" % salt_multiplier)
+	if parts.is_empty():
+		return "보정 없음"
+	return " / ".join(parts)
+
+
+func _format_hero_upkeep_preview(policy_id: String) -> String:
+	var hero_count := _get_owned_hero_ids().size()
+	var costs := {
+		"rice": _apply_policy_cost_multiplier(int(HERO_UPKEEP_RULES["rice"]) * hero_count, policy_id, "hero_upkeep_multiplier"),
+		"seafood": _apply_policy_cost_multiplier(int(HERO_UPKEEP_RULES["seafood"]) * hero_count, policy_id, "hero_upkeep_multiplier"),
+		"silk": _apply_policy_cost_multiplier(int(HERO_UPKEEP_RULES["silk"]) * hero_count, policy_id, "hero_upkeep_multiplier"),
+	}
+	return "영웅 유지비 preview: %s · 실제 차감 없음" % _format_resource_costs(costs, ["rice", "seafood", "silk"])
+
+
+func _format_soldier_upkeep_preview(policy_id: String) -> String:
+	var troop_total := _get_owned_hero_troop_total() + _get_owned_city_garrison_total()
+	var unit_count := int(ceil(float(troop_total) / float(SOLDIER_UPKEEP_RULES["troops_per_unit"])))
+	var costs := {
+		"rice": _apply_policy_cost_multiplier(int(SOLDIER_UPKEEP_RULES["rice"]) * unit_count, policy_id, "soldier_upkeep_preview_multiplier"),
+		"barley": _apply_policy_cost_multiplier(int(SOLDIER_UPKEEP_RULES["barley"]) * unit_count, policy_id, "soldier_upkeep_preview_multiplier"),
+		"seafood": _apply_policy_cost_multiplier(int(SOLDIER_UPKEEP_RULES["seafood"]) * unit_count, policy_id, "soldier_upkeep_preview_multiplier"),
+	}
+	return "병사 유지비 preview: %s · 병력 %d명 기준, 미차감" % [
+		_format_resource_costs(costs, ["rice", "barley", "seafood"]),
+		troop_total,
+	]
+
+
+func _format_salt_preservation_preview(policy_id: String) -> String:
+	var food_total := _get_player_resource_amount("rice") + _get_player_resource_amount("barley")
+	var seafood := _get_player_resource_amount("seafood")
+	var base_need := int(ceil((float(food_total) * float(SALT_PRESERVATION_RULES["food_ratio"])) + (float(seafood) * float(SALT_PRESERVATION_RULES["seafood_ratio"]))))
+	var needed := _apply_policy_cost_multiplier(base_need, policy_id, "salt_preservation_multiplier")
+	var current_salt := _get_player_resource_amount("salt")
+	var status := "안정" if current_salt >= needed else "부족"
+	return "보존 소금 preview: 필요 %d / 보유 %d · %s · 미차감" % [needed, current_salt, status]
+
+
+func _apply_policy_cost_multiplier(amount: int, policy_id: String, multiplier_key: String) -> int:
+	var multiplier := float(_get_chancellor_policy_entry(policy_id).get(multiplier_key, 1.0))
+	var adjusted := amount * multiplier
+	if multiplier < 1.0:
+		return int(floor(adjusted))
+	return int(round(adjusted))
+
+
+func _format_resource_costs(costs: Dictionary, resource_order: Array) -> String:
+	var parts: Array[String] = []
+	for resource_id in resource_order:
+		var resource_id_string := str(resource_id)
+		var amount := int(costs.get(resource_id_string, 0))
+		if amount > 0:
+			parts.append("%s -%d" % [str(RESOURCE_LABELS.get(resource_id_string, resource_id_string)), amount])
+	if parts.is_empty():
+		return "없음"
+	return " / ".join(parts)
+
+
+func _get_owned_hero_ids() -> Array:
+	var hero_ids: Variant = _player_state.get("owned_hero_ids", [])
+	if hero_ids is Array:
+		return hero_ids
+	return []
+
+
+func _get_owned_hero_troop_total() -> int:
+	var total := 0
+	for hero_id in _get_owned_hero_ids():
+		var hero_data := _get_hero_entry(str(hero_id))
+		total += int(hero_data.get("troops", 0))
+	return total
+
+
+func _get_owned_city_garrison_total() -> int:
+	var total := 0
+	var city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not city_ids is Array:
+		return total
+	for city_id in city_ids:
+		var city_data := _get_city_hud_entry(str(city_id))
+		total += int(city_data.get("troops", 0))
+	return total
 
 
 func _normalize_tax_level(value: Variant) -> int:
@@ -1108,6 +1311,15 @@ func _populate_chancellor_assignment_dropdown(city_data: Dictionary) -> void:
 		var hero_name := _format_hero_name_by_id(str(hero_id), "알 수 없는 장수")
 		chancellor_assignment_option.add_item(hero_name)
 		chancellor_assignment_option.set_item_metadata(chancellor_assignment_option.item_count - 1, str(hero_id))
+
+
+func _populate_chancellor_policy_dropdown() -> void:
+	chancellor_policy_option.clear()
+	for policy_id in CHANCELLOR_POLICY_ORDER:
+		var policy_id_string := str(policy_id)
+		var policy_data := _get_chancellor_policy_entry(policy_id_string)
+		chancellor_policy_option.add_item(str(policy_data.get("name", policy_id_string)))
+		chancellor_policy_option.set_item_metadata(chancellor_policy_option.item_count - 1, policy_id_string)
 
 
 func _get_chancellor_portrait_text(hero_data: Dictionary) -> String:
@@ -1238,6 +1450,19 @@ func _on_chancellor_assignment_selected(index: int) -> void:
 	_refresh_left_world_status_panel()
 	var hero_data := _get_hero_entry(chancellor_id)
 	world_status_hint_label.text = "%s · 실제 자원/유지비 효과는 적용하지 않습니다." % _get_chancellor_effect_text(hero_data)
+
+
+func _on_chancellor_policy_selected(index: int) -> void:
+	var policy_id := str(chancellor_policy_option.get_item_metadata(index))
+	if not CHANCELLOR_POLICY_DATA.has(policy_id):
+		policy_id = "balanced"
+	_player_state["chancellor_policy_id"] = policy_id
+	_refresh_left_world_status_panel()
+	var policy_data := _get_chancellor_policy_entry(policy_id)
+	world_status_hint_label.text = "재상 정책: %s · %s · 현재 보유량은 변경하지 않습니다." % [
+		str(policy_data.get("name", policy_id)),
+		str(policy_data.get("description", "재상 정책 설명 준비 중")),
+	]
 
 
 func _format_region_label(region_id: String) -> String:

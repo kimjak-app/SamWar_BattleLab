@@ -51,6 +51,8 @@ Latest worldmap left panel binding QA patch: `v0.68b-12b-2 WorldMap Left Panel S
 
 Latest worldmap left panel controls patch: `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`
 
+Latest worldmap left panel policy/warehouse patch: `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -60,16 +62,17 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-3 WorldMap City Detail Hero/Governor Binding QA`
+`v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 
 Goal:
-- verify that the imported hero/city seed data displays correctly in the existing city detail / selected city hero, governor, and stationed hero paths without adding gameplay execution
+- bring the city detail panel governor and stationed hero display closer to web parity using imported seed data without adding broader gameplay execution
 
 Scope:
-- inspect current city detail and selected-city panel display paths for hero/governor/stationed hero key mismatches
-- confirm imported `HERO_DATA` display names/stats remain usable in existing chips and governor display paths
-- confirm city click refresh keeps city detail and selected city panels aligned with `CITY_HUD_DATA`
-- keep this QA display-only; do not implement movement, appointments, policy effects, turn/resource mutation, battle entry, route changes, or scene layout changes
+- verify city detail governor display, governor fallback text, stationed hero display, and selected-city hero summary against `CITY_HUD_DATA` / `HERO_DATA`
+- add only small display-binding or fallback fixes needed for web-like city detail readability
+- keep governor appointment dropdown/UI state display-only if introduced; do not execute governor appointment behavior
+- confirm city click refresh keeps left panel, city detail, and selected city panels aligned with the selected city seed data
+- keep this task display-only; do not implement movement, appointment execution, policy effects, turn/resource mutation, battle entry, route changes, or broad scene layout changes
 
 Forbidden in this task:
 - no actual hero movement implementation
@@ -138,6 +141,14 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP` is complete.
+- Inspected local read-only web parity sources: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\resource_ui.js`.
+- Modified `scripts/worldmap_test.gd` and root `WorldMap_Test.tscn`; the requested `scenes/WorldMap_Test.tscn` path is absent in this repo.
+- Added a functional `재상 정책` dropdown backed by `_player_state.chancellor_policy_id` with the five web policy options: `균형형`, `농업 중심`, `상업 중심`, `무역 중심`, and `군사 중심`.
+- Ported the web policy effect definitions into local preview metadata so policy selection refreshes effect text, resource multiplier summary, hero upkeep preview, soldier upkeep preview, and salt preservation preview without mutating resources.
+- Retired the duplicate visible `보유 자원: ...` line and consolidated resource display into `국가 창고`, with rows bound from `_player_state.resource_stock`, web-like capacity/status labels, and upkeep/preservation preview lines.
+- Verification passed: patch strings present, policy dropdown/helpers present, warehouse helpers present, duplicate visible resource assignment absent, forbidden implementation search returned no matches, Godot project headless load passed, `WorldMap_Test.tscn` headless load passed, and `git diff --check` passed.
+- No hero movement, governor/chancellor appointment execution beyond UI state, full end-turn simulation, actual resource/loyalty mutation, `BattleContext`, battle transition, route/pathfinding, castle icon, or repo-outside web change was made.
 - `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP` is complete.
 - Inspected local read-only web parity sources: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, and `js\ui\world_hud_ui.js`.
 - Modified `scripts/worldmap_test.gd` and root `WorldMap_Test.tscn`; the requested `scenes/WorldMap_Test.tscn` path is absent in this repo.

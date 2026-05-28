@@ -2,6 +2,18 @@
 
 ## 2026-05-28
 
+### v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP
+- Inspected `scripts/worldmap_test.gd` and the root `WorldMap_Test.tscn` left panel node structure. The requested `scenes/WorldMap_Test.tscn` path does not exist in this repo; the active scene is `WorldMap_Test.tscn`.
+- Inspected local read-only web references for parity: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\resource_ui.js`.
+- Updated `WorldMap_Test.tscn` with a `ChancellorPolicyOption` dropdown in the existing chancellor card.
+- Updated `scripts/worldmap_test.gd` with the patch marker `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`.
+- Chancellor policy selection now uses the five web policy options and stores the selected value in `_player_state.chancellor_policy_id`.
+- Policy effect text and preview lines now come from structured local metadata aligned with web policy effect constants; selecting a policy refreshes visible effect copy, resource multiplier summary, hero upkeep preview, soldier upkeep preview, and salt preservation preview.
+- Retired the duplicate visible `보유 자원: ...` line and consolidated resource display into the `국가 창고` section, which reads `_player_state.resource_stock` for current amount, capacity, and status rows.
+- Verified patch strings, policy dropdown/helpers, warehouse helpers, duplicate visible resource assignment removal, forbidden implementation search, Godot project headless load, `WorldMap_Test.tscn` headless load, and `git diff --check`.
+- No gameplay systems were added: no movement, appointment execution beyond UI state, actual policy effect application, resource mutation, loyalty mutation, full turn simulation, `BattleContext`, battle transition, route/pathfinding, castle icon, or web repo changes.
+- Recommended next task: `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`.
+
 ### v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP
 - Inspected `scripts/worldmap_test.gd` and the root `WorldMap_Test.tscn` left panel node structure. The requested `scenes/WorldMap_Test.tscn` path does not exist in this repo; the active scene is `WorldMap_Test.tscn`.
 - Inspected local read-only web references for parity: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, and `js\ui\world_hud_ui.js`.
