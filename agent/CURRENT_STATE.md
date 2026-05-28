@@ -56,6 +56,8 @@ Latest worldmap left panel controls patch: `v0.68b-12b-2 WorldMap Left Panel Web
 
 Latest worldmap left panel policy/warehouse patch: `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`
 
+Latest worldmap warehouse UI cleanup patch: `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -87,6 +89,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA`
 - `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`
 - `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`
+- `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -210,6 +213,10 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Warehouse support previews now show hero upkeep, soldier upkeep, and salt preservation estimates using web constants from `js\constants.js` / `js\core\domestic_income.js`; all remain display-only and non-simulating.
 - `v0.68b-12b-3` modified `scripts/worldmap_test.gd`, root `WorldMap_Test.tscn`, and agent docs. The requested `scenes/WorldMap_Test.tscn` path remains absent in this repo.
 - `v0.68b-12b-3` did not add hero movement, governor/chancellor appointment execution beyond UI state, full end-turn simulation, actual resource/loyalty mutation, `BattleContext`, battle transition, route/pathfinding changes, castle icon changes, or repo-outside web edits.
+- `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup` narrows the visible `국가 창고` section into a boxed runtime `WarehouseCard` UI.
+- The visible warehouse card now shows only the 9 resource rows (`쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, `소금`, `금전`) with current/max values and status labels sourced from `_player_state.resource_stock`, `WAREHOUSE_CAPACITY`, and `_get_resource_status_label()`.
+- Internal preview lines such as `영웅 유지비`, `병사 유지비 preview`, `보존 소금`, and `유지비 정상` are hidden from the visible warehouse card for this patch; helper data remains available internally for later policy-effect work.
+- `v0.68b-12b-3a` remains UI cleanup only and did not add upkeep/resource production, resource mutation, turn simulation, appointment execution, movement, `BattleContext`, battle transition, route/pathfinding changes, or broader HUD redesign.
 - All HUD actions remain placeholder-only. `BattleContext`, battle entry, domestic execution, recruitment, save/load/reset, diplomacy/spy execution, hero/army movement, route click, pathfinding, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
@@ -404,13 +411,14 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
-2. `v0.68b-12c Selected City Panel Web Content Parity`
-3. `v0.68b-12d City Detail Panel Web Content Parity`
-4. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
-5. `v0.68b-13 Hero Portrait Asset Naming Contract`
-6. `v0.68b-14 Hero Portrait Asset Apply MVP`
-7. `v0.68c BattleContext Runtime Injection MVP`
+1. `v0.68b-12b-3b WorldMap Chancellor Policy Effect Web Parity`
+2. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
+3. `v0.68b-12c Selected City Panel Web Content Parity`
+4. `v0.68b-12d City Detail Panel Web Content Parity`
+5. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
+6. `v0.68b-13 Hero Portrait Asset Naming Contract`
+7. `v0.68b-14 Hero Portrait Asset Apply MVP`
+8. `v0.68c BattleContext Runtime Injection MVP`
 
 ## Known / Deferred
 - 김작 F6 visual QA should confirm `v0.68b-12b Left World HUD Web Content Parity`: left main HUD section order is close to the web left HUD; turn/date/phase display follows web wording; chancellor card resembles the web structure; chancellor policy list/copy matches the web constants; selecting a policy updates explanation only and does not change actual values; national resources, warehouse, supply, troop rebalance, logistics/upkeep, and external trade summaries use web-like copy; button wording follows the web; placeholder feel is reduced; bottom empty space is acceptable; unified panel and Selected City panel structure remain intact; drag/collapse works; city clicks still refresh panels; route lines and sea arrow flow are normal; castle icon visuals stay hidden; existing battle scenes are not broken.

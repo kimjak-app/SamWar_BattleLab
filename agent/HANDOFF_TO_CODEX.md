@@ -156,6 +156,9 @@ Latest camera foundation:
 - Latest worldmap left panel policy/warehouse patch:
 `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`
 
+- Latest worldmap warehouse UI cleanup patch:
+`v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -243,6 +246,11 @@ Do not modify casually:
 - Policy effect text and preview lines now use structured local metadata aligned with web `CHANCELLOR_POLICY_EFFECTS`, including resource multipliers, hero upkeep preview, soldier upkeep preview, and salt preservation preview. Current resource stock is not changed by policy selection.
 - The old duplicate visible `보유 자원: ...` summary is retired. `국가 창고` is the authoritative left-panel resource display and reads `_player_state.resource_stock` for current amount, capacity, and status rows.
 - This remains left-panel UI/data-binding scope only. It did not add movement, appointment execution beyond UI state, policy effect application to resources, full end-turn simulation, `BattleContext`, battle transition, route/pathfinding changes, castle icon changes, or web repo edits.
+- `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup` is complete and updates `scripts/worldmap_test.gd`, root `WorldMap_Test.tscn`, and agent docs.
+- The visible `국가 창고` section now uses a boxed runtime `WarehouseCard` instead of the previous plain multiline `SupplyLabel` output.
+- The card shows only 9 resource rows (`쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, `소금`, `금전`) with current/max values and status labels bound from `_player_state.resource_stock`, `WAREHOUSE_CAPACITY`, and `_get_resource_status_label()`.
+- Internal maintenance/preview lines are hidden from the visible warehouse card: `영웅 유지비`, `병사 유지비 preview`, `보존 소금`, `유지비 정상`, and related explanation lines.
+- This remains a narrow UI cleanup. It did not add upkeep/resource production, resource mutation, turn simulation, appointment execution, movement, `BattleContext`, battle transition, route/pathfinding changes, or broader HUD redesign.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -356,12 +364,13 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
-- `v0.68b-12b-4` goal:
-  - Verify and improve city detail governor and stationed hero display using the imported web-aligned `CITY_HUD_DATA` / `HERO_DATA` seed data.
-  - Confirm city click panel refresh, governor fallback text, stationed hero display, hero names/stats, resource/military/rating strings, and existing panel drag/collapse behavior.
-  - Do not add gameplay logic, movement, appointment execution, policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits.
+  - `v0.68b-12b-3b WorldMap Chancellor Policy Effect Web Parity`
+- `v0.68b-12b-3b` goal:
+  - Verify and refine chancellor policy effect copy/preview behavior against the web implementation.
+  - Keep the cleaned `국가 창고` card row-only unless the task explicitly adds a separate preview area.
+  - Do not add gameplay logic, movement, appointment execution, actual policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits.
 - Next candidates:
+  - `v0.68b-12b-3b WorldMap Chancellor Policy Effect Web Parity`
   - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`

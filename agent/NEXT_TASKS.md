@@ -53,6 +53,8 @@ Latest worldmap left panel controls patch: `v0.68b-12b-2 WorldMap Left Panel Web
 
 Latest worldmap left panel policy/warehouse patch: `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`
 
+Latest worldmap warehouse UI cleanup patch: `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -62,17 +64,16 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
+`v0.68b-12b-3b WorldMap Chancellor Policy Effect Web Parity`
 
 Goal:
-- bring the city detail panel governor and stationed hero display closer to web parity using imported seed data without adding broader gameplay execution
+- verify and refine chancellor policy effect copy/preview behavior against the web implementation without adding actual turn simulation or resource mutation
 
 Scope:
-- verify city detail governor display, governor fallback text, stationed hero display, and selected-city hero summary against `CITY_HUD_DATA` / `HERO_DATA`
-- add only small display-binding or fallback fixes needed for web-like city detail readability
-- keep governor appointment dropdown/UI state display-only if introduced; do not execute governor appointment behavior
-- confirm city click refresh keeps left panel, city detail, and selected city panels aligned with the selected city seed data
-- keep this task display-only; do not implement movement, appointment execution, policy effects, turn/resource mutation, battle entry, route changes, or broad scene layout changes
+- inspect web chancellor policy effect display and preview paths
+- keep the cleaned `국가 창고` card row-only unless the task explicitly adds a separate preview area
+- refine policy effect descriptions, summaries, or preview-only text where needed
+- keep all changes UI/state-preview only; do not apply resources, upkeep, loyalty, turns, movement, battle entry, or broader domestic simulation
 
 Forbidden in this task:
 - no actual hero movement implementation
@@ -87,60 +88,73 @@ Forbidden in this task:
 - no modification to repo-outside `SamWar_web` files
 
 ## Priority 2
+`v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
+
+Goal:
+- bring the city detail panel governor and stationed hero display closer to web parity using imported seed data without adding broader gameplay execution
+
+## Priority 3
 `v0.68b-12c Selected City Panel Web Content Parity`
 
 Goal:
 - align the Godot Selected City / `CityInfoPanel` content more closely with the actual web selected-city render output while keeping all actions display-only
 
-## Priority 3
+## Priority 4
 `v0.68b-12d City Detail Panel Web Content Parity`
 
 Goal:
 - align the unified city-detail mode content more closely with the actual web resource/internal-trade/external-trade render output
 
-## Priority 4
+## Priority 5
 `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
 
 Goal:
 - align the unified diplomacy/spy mode with the actual web diplomacy/spy render output without adding real diplomacy or spy execution
 
-## Priority 5
+## Priority 6
 `v0.68b-13 Hero Portrait Asset Naming Contract`
 
 Goal:
 - define portrait asset naming/lookup rules for web-to-Godot hero HUD reuse without changing runtime hero logic
 
-## Priority 6
+## Priority 7
 `v0.68b-14 Hero Portrait Asset Apply MVP`
 
 Goal:
 - apply available hero portrait assets to the worldmap HUD portrait slots without changing hero logic
 
-## Priority 7
+## Priority 8
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 8
+## Priority 9
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - add hero/army deployment MVP on top of the worldmap contract without breaking current battle fallback
 
-## Priority 9
+## Priority 10
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 10
+## Priority 11
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup` is complete.
+- Modified `scripts/worldmap_test.gd`, root `WorldMap_Test.tscn`, and agent docs; the requested `scenes/WorldMap_Test.tscn` path is absent in this repo.
+- Replaced the visible plain multiline `국가 창고` output with a boxed runtime `WarehouseCard` `PanelContainer`.
+- The visible card now shows only data-bound resource rows for `쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, `소금`, and `금전`, each with current/max and status label.
+- Hidden from visible warehouse UI: `영웅 유지비`, `병사 유지비 preview`, `보존 소금`, `유지비 정상`, and other internal maintenance preview lines.
+- Verification passed: patch strings present, warehouse card/helper paths present, row display bound from `_player_state.resource_stock`, visible `SupplyLabel` output hidden, Godot project headless load passed, `WorldMap_Test.tscn` headless load passed, and `git diff --check` passed.
+- No gameplay systems were added: no movement, appointment execution, actual upkeep/resource production, resource mutation, turn simulation, `BattleContext`, battle transition, route/pathfinding, or broader HUD redesign.
 - `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP` is complete.
 - Inspected local read-only web parity sources: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\resource_ui.js`.
 - Modified `scripts/worldmap_test.gd` and root `WorldMap_Test.tscn`; the requested `scenes/WorldMap_Test.tscn` path is absent in this repo.

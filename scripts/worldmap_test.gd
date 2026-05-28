@@ -185,6 +185,7 @@ const GOVERNOR_POLICY_DATA := {
 # v0.68b-12b-2 WorldMap Left Panel Seed Binding QA
 # v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP
 # v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP
+# v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -319,6 +320,8 @@ var selected_city_marker: WorldMapCityMarker = null
 var _city_markers_by_id: Dictionary = {}
 var _unified_primary_tab := UNIFIED_PANEL_TAB_CITY_DETAIL
 var _selected_diplomacy_spy_tab := DIPLOMACY_SPY_TAB_DIPLOMACY
+var _warehouse_card: PanelContainer
+var _warehouse_resource_row_labels: Dictionary = {}
 var _is_unified_city_panel_collapsed := false
 var _unified_city_panel_expanded_size := Vector2.ZERO
 var _unified_city_detail_primary_button: Button = null
@@ -923,6 +926,7 @@ func _setup_left_world_controls() -> void:
 
 func _setup_left_world_status_panel_layout() -> void:
 	left_world_status_panel.custom_minimum_size.x = 320.0
+	_setup_warehouse_card_ui()
 	for label in [
 		power_label,
 		tax_label,
@@ -942,6 +946,79 @@ func _setup_left_world_status_panel_layout() -> void:
 	supply_label.add_theme_font_size_override("font_size", 10)
 	military_logistics_label.add_theme_font_size_override("font_size", 10)
 	external_trade_label.add_theme_font_size_override("font_size", 10)
+
+
+func _setup_warehouse_card_ui() -> void:
+	if _warehouse_card != null:
+		return
+	var parent := supply_label.get_parent()
+	_warehouse_card = PanelContainer.new()
+	_warehouse_card.name = "WarehouseCard"
+	_warehouse_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.05, 0.08, 0.12, 0.86)
+	panel_style.border_color = Color(0.85, 0.66, 0.32, 0.58)
+	panel_style.set_border_width_all(1)
+	panel_style.set_corner_radius_all(4)
+	panel_style.content_margin_left = 8.0
+	panel_style.content_margin_top = 7.0
+	panel_style.content_margin_right = 8.0
+	panel_style.content_margin_bottom = 7.0
+	_warehouse_card.add_theme_stylebox_override("panel", panel_style)
+	parent.add_child(_warehouse_card)
+	parent.move_child(_warehouse_card, supply_label.get_index())
+
+	var content := VBoxContainer.new()
+	content.name = "WarehouseCardContent"
+	content.add_theme_constant_override("separation", 4)
+	_warehouse_card.add_child(content)
+
+	var title_label := Label.new()
+	title_label.name = "WarehouseTitleLabel"
+	title_label.text = "국가 창고"
+	title_label.add_theme_color_override("font_color", Color(0.98, 0.82, 0.46, 1.0))
+	title_label.add_theme_font_size_override("font_size", 12)
+	content.add_child(title_label)
+
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		var resource_id_string := str(resource_id)
+		var row := HBoxContainer.new()
+		row.name = "WarehouseRow_%s" % resource_id_string
+		row.add_theme_constant_override("separation", 6)
+		content.add_child(row)
+
+		var name_label := Label.new()
+		name_label.name = "ResourceNameLabel"
+		name_label.text = str(RESOURCE_LABELS.get(resource_id_string, resource_id_string))
+		name_label.custom_minimum_size.x = 52.0
+		name_label.add_theme_color_override("font_color", Color(0.82, 0.86, 0.92, 1.0))
+		name_label.add_theme_font_size_override("font_size", 10)
+		row.add_child(name_label)
+
+		var amount_label := Label.new()
+		amount_label.name = "ResourceAmountLabel"
+		amount_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		amount_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		amount_label.add_theme_color_override("font_color", Color(0.90, 0.91, 0.86, 1.0))
+		amount_label.add_theme_font_size_override("font_size", 10)
+		row.add_child(amount_label)
+
+		var status_label := Label.new()
+		status_label.name = "ResourceStatusLabel"
+		status_label.custom_minimum_size.x = 38.0
+		status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		status_label.add_theme_color_override("font_color", Color(0.68, 0.88, 0.72, 1.0))
+		status_label.add_theme_font_size_override("font_size", 10)
+		row.add_child(status_label)
+
+		_warehouse_resource_row_labels[resource_id_string] = {
+			"name": name_label,
+			"amount": amount_label,
+			"status": status_label,
+		}
+
+	supply_label.visible = false
+	supply_label.text = ""
 
 
 func _refresh_left_world_status_panel() -> void:
@@ -1002,10 +1079,9 @@ func _refresh_left_world_status_panel() -> void:
 	_select_option_by_metadata(chancellor_policy_option, policy_id)
 	resource_label.visible = false
 	resource_label.text = ""
-	supply_label.text = "%s\n%s" % [
-		_format_warehouse_summary(policy_id),
-		_format_policy_preview_summary(policy_id),
-	]
+	supply_label.visible = false
+	supply_label.text = ""
+	_refresh_warehouse_card()
 	military_logistics_label.text = "선택 도시: %s · %s · %s\n주둔 장수: %s\n내부 보급망: %s\n내부 병력 재배치: %s" % [
 		selected_city_name,
 		selected_region,
@@ -1095,7 +1171,29 @@ func _get_player_resource_amount(resource_id: String) -> int:
 	return int(resource_stock.get(resource_id, 0))
 
 
-func _format_warehouse_summary(policy_id: String) -> String:
+func _refresh_warehouse_card() -> void:
+	if _warehouse_card == null:
+		return
+	_warehouse_card.visible = true
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		var resource_id_string := str(resource_id)
+		var row_labels: Dictionary = _warehouse_resource_row_labels.get(resource_id_string, {})
+		if row_labels.is_empty():
+			continue
+		var value := int(resource_stock.get(resource_id_string, 0))
+		var capacity := int(WAREHOUSE_CAPACITY.get(resource_id_string, 0))
+		var status := _get_resource_status_label(resource_id_string, value, capacity)
+		var amount_label := row_labels.get("amount") as Label
+		var status_label := row_labels.get("status") as Label
+		if amount_label != null:
+			amount_label.text = "%d / %d" % [value, capacity]
+		if status_label != null:
+			status_label.text = status
+			status_label.add_theme_color_override("font_color", _get_resource_status_color(status))
+
+
+func _format_warehouse_summary(_policy_id: String) -> String:
 	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
 	if resource_stock.is_empty():
 		return "국가 창고: 보유 자원 없음"
@@ -1110,10 +1208,19 @@ func _format_warehouse_summary(policy_id: String) -> String:
 			capacity,
 			_get_resource_status_label(resource_id_string, value, capacity),
 		])
-	lines.append(_format_hero_upkeep_preview(policy_id))
-	lines.append(_format_soldier_upkeep_preview(policy_id))
-	lines.append(_format_salt_preservation_preview(policy_id))
 	return "\n".join(lines)
+
+
+func _get_resource_status_color(status: String) -> Color:
+	match status:
+		"부족":
+			return Color(0.95, 0.48, 0.42, 1.0)
+		"과잉":
+			return Color(0.60, 0.78, 1.0, 1.0)
+		"충분":
+			return Color(0.98, 0.82, 0.46, 1.0)
+		_:
+			return Color(0.68, 0.88, 0.72, 1.0)
 
 
 func _get_resource_status_label(_resource_id: String, value: int, max_value: int) -> String:

@@ -2,6 +2,17 @@
 
 ## 2026-05-28
 
+### v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup
+- Inspected `scripts/worldmap_test.gd` and confirmed the requested `scenes/WorldMap_Test.tscn` path does not exist; the active scene remains root `WorldMap_Test.tscn`.
+- Updated `scripts/worldmap_test.gd` with the patch marker `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`.
+- Replaced the visible plain multiline `국가 창고` text output with a runtime `WarehouseCard` `PanelContainer` using the existing dark HUD card style.
+- The card shows only the 9 resource rows: `쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, `소금`, and `금전`.
+- Each row reads `_player_state.resource_stock`, uses `WAREHOUSE_CAPACITY`, and displays current/max plus the existing status label calculation.
+- Hid `영웅 유지비`, `병사 유지비 preview`, `보존 소금`, `유지비 정상`, and other internal maintenance preview lines from the visible warehouse card while leaving helper data available internally.
+- Verified patch strings, warehouse card/helper paths, data-bound row logic, hidden `SupplyLabel` output, `git diff --check`, Godot project headless load, and `WorldMap_Test.tscn` headless load.
+- No gameplay systems were added: no movement, appointment execution, actual upkeep/resource production, resource mutation, turn simulation, `BattleContext`, battle transition, route/pathfinding, or broader HUD redesign.
+- Recommended next task: `v0.68b-12b-3b WorldMap Chancellor Policy Effect Web Parity`.
+
 ### v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP
 - Inspected `scripts/worldmap_test.gd` and the root `WorldMap_Test.tscn` left panel node structure. The requested `scenes/WorldMap_Test.tscn` path does not exist in this repo; the active scene is `WorldMap_Test.tscn`.
 - Inspected local read-only web references for parity: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\resource_ui.js`.

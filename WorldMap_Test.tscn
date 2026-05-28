@@ -1396,7 +1396,7 @@ autowrap_mode = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 
-[node name="ChancellorPolicyOption" type="OptionButton" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content"]
+[node name="ChancellorPolicyOption" type="OptionButton" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content" unique_id=1220080532]
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 

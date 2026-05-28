@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup
+- Cleaned up the `LeftWorldStatusPanel` `국가 창고` display into a boxed card-style UI focused only on resource rows.
+- Added a runtime `WarehouseCard` `PanelContainer` with dark HUD styling, gold border, section title, and aligned rows for `쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, `소금`, and `금전`.
+- Bound each row from `_player_state.resource_stock` and existing `WAREHOUSE_CAPACITY` / `_get_resource_status_label()` logic so visible values remain data-driven.
+- Hid the previous plain multiline `SupplyLabel` output and stopped rendering internal preview details in the visible warehouse card.
+- Hidden from visible warehouse UI: `영웅 유지비`, `병사 유지비 preview`, `보존 소금`, `유지비 정상`, and other internal maintenance preview lines.
+- Kept internal policy/upkeep helper data available for later tasks; no resource production, upkeep application, turn simulation, appointment behavior, `BattleContext`, battle transition, route/pathfinding, or broader UI redesign was added.
+- Verification: patch strings present, warehouse card helper paths present, rows bound from resource state, visible `SupplyLabel` text cleared/hidden, `git diff --check` passed, Godot project headless load passed, and `WorldMap_Test.tscn` headless load passed.
+
 ## v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP
 - Extended the existing `LeftWorldStatusPanel` web-parity controls with a functional `재상 정책` dropdown and a consolidated `국가 창고` resource card.
 - Inspected local read-only web sources: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\resource_ui.js`.
