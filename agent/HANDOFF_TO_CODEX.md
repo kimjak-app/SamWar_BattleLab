@@ -74,6 +74,9 @@ Latest camera foundation:
 - Latest worldmap route hotfix:
 `v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning`
 
+- Latest worldmap route FX patch:
+`v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -112,6 +115,9 @@ Do not modify casually:
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
 - `Line2D` visualizes baked `Path2D` points. Land routes use muted earth tones and sea routes use pale blue tones.
 - After `v0.68b-4-hotfix1`, land route `Line2D` style is width `4.5` with `Color(0.86, 0.62, 0.32, 0.72)` for better readability on earth-tone terrain; sea route style remains unchanged.
+- `v0.68b-5` adds sea-only arrow flow FX through `ArrowFlowRoot` Path2D nodes and four `PathFollow2D` arrow markers per sea route.
+- Sea arrow flow references each route's scene-authored `Path2D.curve`, moves one-way from `start_city_id` to `end_city_id`, and remains visual-only.
+- Land routes remain line-only with no arrow flow.
 - `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain the other prepared worldmap layers.
 - `CityLayer` contains the first 13 scene-authored `CityMarker_*` nodes based on `SamWar_web/data/cities.js`.
 - Each `CityMarker_*` root contains its marker body, name label, and click area/collision shape so root movement carries the whole city marker bundle.
@@ -210,8 +216,10 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Next candidates:
+  - `v0.68b-5-hotfix1 Sea Route Visual Polish`
   - `v0.68b-6 WorldMap City Position Manual QA Stable`
   - `v0.68c BattleContext Runtime Injection MVP`
+- 김작 F6 visual QA remains for `v0.68b-5`: confirm sea route arrows are visible, follow `Path2D` curves naturally, wrap from route end to start, move at a readable speed, do not cover city names/icons, land routes have no arrows, pan/zoom keeps arrows attached to the map, city click info panel remains normal, and existing battle scenes are stable.
 - 김작 F6 visual QA remains for `v0.68b-4-hotfix1`: confirm land routes are clearly more visible than before, do not disappear into mountain/plain earth tones, do not overpower city castle icons, sea route style still feels unchanged, pan/zoom keeps routes attached, `Path2D` curve editability remains intact, city click info panel still works, and existing battle scenes remain stable.
 - 김작 2D/F6 visual QA remains for `v0.68b-4`: confirm `RouteLayer` route roots have `Path2D` and `Line2D`, route curves are editable in the 2D editor, route lines roughly connect city markers, land/sea routes are visually distinct without covering city markers, camera pan/zoom keeps route lines attached to the map, city click info panel remains normal, and existing battle scenes are stable.
 - Known issue retained: CityMarker root movement / name text attachment still needs manual confirmation and was not changed by the route-layer MVP.

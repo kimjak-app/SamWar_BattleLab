@@ -19,6 +19,8 @@ Latest worldmap route patch: `v0.68b-4 WorldMap Route Layer Path2D MVP`
 
 Latest worldmap route hotfix: `v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning`
 
+Latest worldmap route FX patch: `v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -28,36 +30,49 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
+`v0.68b-5-hotfix1 Sea Route Visual Polish`
+
+Goal:
+- tune sea arrow speed, size, color, and overlap after 김작 F6 review without adding movement, trade, battle entry, or pathfinding logic
+
+## Priority 2
 `v0.68b-6 WorldMap City Position Manual QA Stable`
 
 Goal:
 - confirm and stabilize manual city marker placement / name attachment behavior in the Godot 2D editor
 
-## Priority 2
+## Priority 3
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 3
+## Priority 4
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - implement first hero / region / city / army assignment data needed to produce roster candidates
 
-## Priority 4
+## Priority 5
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 5
+## Priority 6
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP` is complete.
+- Added sea-only visual flow arrows to Gyeongju-Kyoto, Gyeongju-Osaka, Sabi-Kyushu, Sabi-Jianye, and Kyushu-Osaka.
+- Each sea route has an `ArrowFlowRoot` Path2D with four `PathFollow2D` arrow markers and small pale blue Polygon2D arrow sprites.
+- `scripts/worldmap_route_flow_fx.gd` references the route's scene-authored `Path2D.curve`; it does not regenerate curves from city positions.
+- Arrow flow is one-way from `start_city_id` to `end_city_id` for this MVP.
+- Land routes remain line-only. No movement, pathfinding, trade, battle entry, naval battle, or `BattleContext` behavior was added.
+- 김작 F6 should confirm sea arrows flow naturally, wrap cleanly, read at a good speed, do not cover city markers/names, land routes have no arrows, pan/zoom keeps FX attached, city click info remains normal, and battle scenes are stable.
 - `v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning` is complete.
 - Land route visibility was strengthened by changing land `Line2D` width to `4.5` and color to `Color(0.86, 0.62, 0.32, 0.72)`.
 - Sea route style was intentionally kept unchanged.

@@ -2,6 +2,14 @@
 
 ## 2026-05-28
 
+### v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP
+- Added sea-only arrow flow FX to the five current sea routes: Gyeongju-Kyoto, Gyeongju-Osaka, Sabi-Kyushu, Sabi-Jianye, and Kyushu-Osaka.
+- Added `ArrowFlowRoot` Path2D nodes under those route roots, with four `PathFollow2D` arrow markers each.
+- Added `scripts/worldmap_route_flow_fx.gd`; it references the route's scene-authored `Path2D.curve`, keeps arrows evenly spaced in the editor, and advances them along the curve at runtime.
+- Arrow flow direction is MVP one-way from `start_city_id` to `end_city_id`.
+- Land routes remain line-only; no movement, pathfinding, trade, battle entry, naval battle, or `BattleContext` behavior was added.
+- 김작 F6 should confirm sea arrows flow naturally along curves, wrap at route end, do not cover city names/icons, land routes have no arrows, city click info remains normal, and battle scenes remain stable.
+
 ### v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning
 - Tuned only land route visibility after 김작 F6 review found land routes too weak against the map's earth tones.
 - Land route `Line2D` width is now `4.5`; land color is brighter ochre with higher alpha: `Color(0.86, 0.62, 0.32, 0.72)`.

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP
+- Added `scripts/worldmap_route_flow_fx.gd` for sea-only route arrow flow FX.
+- Added `ArrowFlowRoot` Path2D nodes with four `PathFollow2D` arrow markers to each sea route in `WorldMap_Test.tscn`.
+- The arrow flow references the scene-authored route `Path2D.curve` and moves from `start_city_id` to `end_city_id`.
+- Kept land routes as line-only routes with no arrow flow FX.
+- Kept the feature visual-only; no movement, pathfinding, trade, battle entry, naval battle, or `BattleContext` logic was added.
+
 ## v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning
 - Increased land route visibility by changing land `Line2D` width from `2.5` to `4.5`.
 - Changed land route color from muted dark earth `Color(0.72, 0.50, 0.25, 0.44)` to brighter ochre `Color(0.86, 0.62, 0.32, 0.72)`.

@@ -53,6 +53,10 @@
 - Initial route curves are one-time seeds from current `CityMarker_*` root positions only.
 - Land routes use muted earth-tone thin lines; sea routes use pale blue thin lines.
 - `v0.68b-4-hotfix1` tunes land route readability to width `4.5` and `Color(0.86, 0.62, 0.32, 0.72)` while preserving the existing sea route width/color.
+- `v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP` adds visual-only arrow flow FX to sea routes.
+- Sea route arrow flow uses an `ArrowFlowRoot` Path2D that references the route's scene-authored `Path2D.curve`; it must not regenerate route curves from city positions.
+- Sea arrow flow is one-way from `start_city_id` to `end_city_id` for the MVP.
+- Land routes must remain line-only unless a future task explicitly adds land route FX.
 - RouteLayer is a visual/path foundation only. Route click, pathfinding, army movement, battle entry, naval battle logic, and `BattleContext` runtime injection remain deferred.
 - When the same city pair appears from both directions, create only one route node. For route type conflicts, prefer explicit `routeTypes` metadata over default land inference.
 - Known issue retained outside this route-layer scope: CityMarker root movement / name text attachment still needs 김작 manual 2D/F6 confirmation.

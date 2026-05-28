@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://cmjo0skxyub3f" path="res://assets/worldmap/city_icons/castle_ordo.png" id="9_7yvie"]
 [ext_resource type="Texture2D" uid="uid://cxbwdwjl8y87i" path="res://assets/worldmap/city_icons/castle_korea.png" id="10_c1ggt"]
 [ext_resource type="Texture2D" uid="uid://d2itv832yvsak" path="res://assets/worldmap/city_icons/castle_japan.png" id="11_nrcdb"]
+[ext_resource type="Script" uid="uid://cf6xa4routefx" path="res://scripts/worldmap_route_flow_fx.gd" id="12_route_flow_fx"]
 
 [sub_resource type="Curve2D" id="Curve2D_route_luoyang_yecheng"]
 _data = {
@@ -329,6 +330,46 @@ points = PackedVector2Array(1518, 658, 1519.269, 659.38135, 1520.7933, 661.0405,
 width = 2.5
 default_color = Color(0.55, 0.82, 1, 0.48)
 
+[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto"]
+z_index = 1
+script = ExtResource("12_route_flow_fx")
+
+[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.0
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow01"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.25
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow02"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.5
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow03"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.75
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow04"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
 [node name="Route_Gyeongju_Osaka" type="Node2D" parent="WorldMapRoot/RouteLayer" unique_id=1972004847]
 script = ExtResource("8_route_path")
 route_id = "Route_Gyeongju_Osaka"
@@ -344,6 +385,46 @@ points = PackedVector2Array(1518, 658, 1518.7974, 659.6846, 1519.7552, 661.7079,
 width = 2.5
 default_color = Color(0.55, 0.82, 1, 0.48)
 
+[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka"]
+z_index = 1
+script = ExtResource("12_route_flow_fx")
+
+[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.0
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow01"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.25
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow02"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.5
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow03"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.75
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow04"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
 [node name="Route_Sabi_Kyushu" type="Node2D" parent="WorldMapRoot/RouteLayer" unique_id=207339128]
 script = ExtResource("8_route_path")
 route_id = "Route_Sabi_Kyushu"
@@ -358,6 +439,46 @@ curve = SubResource("Curve2D_route_sabi_kyushu")
 points = PackedVector2Array(1426, 695, 1425.9102, 696.75195, 1425.6563, 701.7031, 1425.4751, 705.2356, 1425.2617, 709.3965, 1425.019, 714.12866, 1424.8877, 716.69116, 1424.75, 719.375, 1424.6064, 722.1731, 1424.4575, 725.07837, 1424.3035, 728.08356, 1424.1445, 731.18164, 1423.9813, 734.36536, 1423.814, 737.6277, 1423.6431, 740.96136, 1423.4688, 744.3594, 1423.2916, 747.8145, 1423.1118, 751.3196, 1422.9298, 754.86755, 1422.7461, 758.4512, 1422.5608, 762.0634, 1422.3745, 765.697, 1422.1875, 769.345, 1422, 773, 1421.8125, 776.655, 1421.6255, 780.303, 1421.4392, 783.93665, 1421.2539, 787.5488, 1421.0702, 791.13245, 1420.8882, 794.6804, 1420.7084, 798.1855, 1420.5313, 801.6406, 1420.357, 805.03864, 1420.186, 808.3723, 1420.0187, 811.63464, 1419.8555, 814.81836, 1419.6965, 817.9164, 1419.5425, 820.92163, 1419.3936, 823.8269, 1419.25, 826.625, 1419.1123, 829.30884, 1418.981, 831.87134, 1418.7383, 836.6035, 1418.5249, 840.7644, 1418.3438, 844.2969, 1418.0898, 849.24805, 1418, 851, 1419.3589, 852.12305, 1423.1992, 855.2969, 1425.9392, 857.5613, 1429.1665, 860.2285, 1432.8369, 863.26196, 1434.8246, 864.90454, 1436.9063, 866.625, 1439.0765, 868.4187, 1441.3301, 870.281, 1443.661, 872.2074, 1446.064, 874.19336, 1448.5333, 876.23425, 1451.0637, 878.32544, 1453.6497, 880.46246, 1456.2852, 882.6406, 1458.965, 884.8554, 1461.6838, 887.1023, 1464.4357, 889.3766, 1467.2153, 891.6738, 1470.0171, 893.9893, 1472.8354, 896.3186, 1475.6649, 898.657, 1478.5, 901, 1481.3351, 903.343, 1484.1646, 905.6814, 1486.9829, 908.0107, 1489.7847, 910.3262, 1492.5643, 912.6234, 1495.3162, 914.8977, 1498.0349, 917.1446, 1500.7148, 919.3594, 1503.3505, 921.5376, 1505.9363, 923.67456, 1508.4667, 925.76575, 1510.936, 927.80664, 1513.339, 929.79254, 1515.6699, 931.719, 1517.9233, 933.5813, 1520.0938, 935.375, 1522.1755, 937.09546, 1524.1631, 938.73804, 1527.8335, 941.7715, 1531.0608, 944.4387, 1533.8008, 946.7031, 1537.6411, 949.87695, 1539, 951)
 width = 2.5
 default_color = Color(0.55, 0.82, 1, 0.48)
+
+[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu"]
+z_index = 1
+script = ExtResource("12_route_flow_fx")
+
+[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.0
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow01"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.25
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow02"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.5
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow03"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.75
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow04"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
 [node name="Route_Sabi_Jianye" type="Node2D" parent="WorldMapRoot/RouteLayer" unique_id=125867291]
 script = ExtResource("8_route_path")
@@ -376,6 +497,46 @@ points = PackedVector2Array(1426, 695, 1423.5181, 694.9663, 1420.537, 694.9259, 
 width = 2.5
 default_color = Color(0.55, 0.82, 1, 0.48)
 
+[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye"]
+z_index = 1
+script = ExtResource("12_route_flow_fx")
+
+[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.0
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow01"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.25
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow02"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.5
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow03"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.75
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow04"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
 [node name="Route_Kyushu_Osaka" type="Node2D" parent="WorldMapRoot/RouteLayer" unique_id=1212356011]
 script = ExtResource("8_route_path")
 route_id = "Route_Kyushu_Osaka"
@@ -390,6 +551,46 @@ curve = SubResource("Curve2D_route_kyushu_osaka")
 points = PackedVector2Array(1539, 951, 1540.4038, 951.05615, 1544.3711, 951.21484, 1547.2015, 951.328, 1550.5356, 951.4614, 1554.3275, 951.6131, 1558.5313, 951.78125, 1563.1012, 951.96405, 1567.9917, 952.15967, 1570.5428, 952.2618, 1573.1569, 952.3663, 1575.828, 952.4731, 1578.5508, 952.58203, 1581.3193, 952.6928, 1584.1278, 952.8051, 1586.9708, 952.9188, 1589.8423, 953.0337, 1592.7367, 953.14954, 1595.6483, 953.2659, 1598.5713, 953.3828, 1601.5, 953.5, 1604.4287, 953.6172, 1607.3517, 953.7341, 1610.2633, 953.85046, 1613.1577, 953.9663, 1616.0293, 954.0812, 1618.8721, 954.1949, 1621.6807, 954.3072, 1624.4492, 954.41797, 1627.1719, 954.5269, 1629.8433, 954.6337, 1632.4573, 954.7382, 1635.0083, 954.84033, 1639.8987, 955.03595, 1644.4688, 955.21875, 1648.6726, 955.3869, 1652.4644, 955.5386, 1655.7983, 955.67194, 1658.6289, 955.78516, 1662.5962, 955.94385, 1664, 956, 1664.9209, 954.9331, 1667.5234, 951.91797, 1669.3801, 949.7667, 1671.5674, 947.2329, 1674.0549, 944.3512, 1676.8125, 941.15625, 1679.8103, 937.683, 1683.0186, 933.9663, 1684.692, 932.02747, 1686.407, 930.0409, 1688.1592, 928.01074, 1689.9453, 925.9414, 1691.7615, 923.8373, 1693.6038, 921.70276, 1695.4689, 919.54224, 1697.3525, 917.35986, 1699.2513, 915.1601, 1701.1614, 912.9474, 1703.0789, 910.7258, 1705, 908.5, 1706.9211, 906.2742, 1708.8386, 904.0526, 1710.7487, 901.8399, 1712.6475, 899.64014, 1714.5311, 897.45776, 1716.3962, 895.29724, 1718.2385, 893.1627, 1720.0547, 891.0586, 1721.8408, 888.9893, 1723.593, 886.9591, 1725.3079, 884.97253, 1726.9814, 883.0337, 1730.1897, 879.317, 1733.1875, 875.84375, 1735.9452, 872.64886, 1738.4326, 869.7671, 1740.6199, 867.2333, 1742.4766, 865.08203, 1745.0791, 862.0669, 1746, 861)
 width = 2.5
 default_color = Color(0.55, 0.82, 1, 0.48)
+
+[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka"]
+z_index = 1
+script = ExtResource("12_route_flow_fx")
+
+[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.0
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow01"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.25
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow02"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.5
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow03"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
+
+[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot"]
+loop = true
+rotates = true
+progress_ratio = 0.75
+
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow04"]
+color = Color(0.75, 0.9, 1, 0.85)
+polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
 [node name="CityLayer" type="Node2D" parent="WorldMapRoot" unique_id=1124618027]
 
