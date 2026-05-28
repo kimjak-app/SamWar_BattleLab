@@ -2,6 +2,17 @@
 
 ## 2026-05-28
 
+### v0.68b-12b-2 WorldMap Left Panel Seed Binding QA
+- Inspected `scripts/worldmap_test.gd` and the root `WorldMap_Test.tscn` left panel node structure. The requested `scenes/WorldMap_Test.tscn` path does not exist in this repo; the active scene is `WorldMap_Test.tscn`.
+- Updated only `scripts/worldmap_test.gd` runtime display binding plus agent docs.
+- Added the patch marker `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA`.
+- City marker selection now updates `_player_state.selected_city_id` and refreshes `LeftWorldStatusPanel`.
+- Left panel now reads imported `_player_state`, `CITY_HUD_DATA`, and `HERO_DATA` seeds for selected/origin city, selected city owner/region/governor/stationed heroes, owned city list, owned hero list, resource stock, and no-chancellor fallback.
+- Added safe display helpers for unknown city ids, unknown hero ids, empty governor, empty chancellor, empty stationed heroes, empty owned heroes, and resource stock labels.
+- Verified patch strings and seed blocks, searched for forbidden implementation additions, loaded the Godot project headlessly, loaded `WorldMap_Test.tscn` headlessly, and ran `git diff --check`.
+- No gameplay systems were added: no movement, appointments, policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding, scene layout, castle icon, or web repo changes.
+- Recommended next task: `v0.68b-12b-3 WorldMap City Detail Hero Binding QA`.
+
 ### v0.68b-12b-1 WorldMap Hero City Seed Data Import
 - Used local read-only web data sources from `C:\dev\SamWar_web`: `data/heroes.js`, `data/cities.js`, and `data/battle_rosters.js`.
 - Also checked constants/app-state references for faction IDs, resource keys, initial resource stock, selected city baseline, and web `chancellorHeroId: null` default.

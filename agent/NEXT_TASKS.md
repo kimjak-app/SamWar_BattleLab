@@ -47,6 +47,8 @@ Latest session handoff docs patch: `v0.68b-12b-0.5 Session Handoff Docs Update B
 
 Latest worldmap seed import patch: `v0.68b-12b-1 WorldMap Hero City Seed Data Import`
 
+Latest worldmap left panel binding QA patch: `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -56,15 +58,15 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-2 WorldMap Hero/City Seed Binding QA`
+`v0.68b-12b-3 WorldMap City Detail Hero Binding QA`
 
 Goal:
-- verify that the imported web-aligned hero/city seed data displays correctly in the existing worldmap HUD panels without adding gameplay logic
+- verify that the imported hero/city seed data displays correctly in the existing city detail / selected city hero, governor, and stationed hero paths without adding gameplay execution
 
 Scope:
-- click/inspect current 13 worldmap cities and confirm governor, stationed hero, city loyalty, resource, military, and rating strings still render correctly from `CITY_HUD_DATA`
-- confirm the left HUD handles the web-parity no-chancellor default without runtime errors or misleading policy effects
-- confirm imported `HERO_DATA` display names/stats remain usable in existing chips and governor/chancellor display paths
+- inspect current city detail and selected-city panel display paths for hero/governor/stationed hero key mismatches
+- confirm imported `HERO_DATA` display names/stats remain usable in existing chips and governor display paths
+- confirm city click refresh keeps city detail and selected city panels aligned with `CITY_HUD_DATA`
 - keep this QA display-only; do not implement movement, appointments, policy effects, turn/resource mutation, battle entry, route changes, or scene layout changes
 
 Forbidden in this task:
@@ -134,6 +136,13 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA` is complete.
+- Updated `scripts/worldmap_test.gd` left panel display binding only; no scene file changes were needed because the existing `LeftWorldStatusPanel` labels were sufficient.
+- Verified/fixed left panel reads from `_player_state`, `CITY_HUD_DATA`, and `HERO_DATA`: selected/origin city names, selected city owner/region/governor/stationed heroes, owned city list, owned hero list, resource stock, and web-parity no-chancellor fallback.
+- City marker selection now updates `_player_state.selected_city_id` and refreshes `LeftWorldStatusPanel` so the left panel follows current selected city seed data.
+- Added display-only formatting helpers for city names, hero names, city/hero lists, and player resource stock so the UI shows clean Korean fallback text instead of empty ids or raw unknown keys.
+- Verification passed: patch strings/data blocks present, forbidden implementation search returned no matches, Godot project headless load passed, `WorldMap_Test.tscn` headless load passed, and `git diff --check` passed.
+- No hero movement, governor/chancellor appointment execution, policy effect, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding, scene layout, castle icon, or repo-outside web change was made.
 - `v0.68b-12b-1 WorldMap Hero City Seed Data Import` is complete.
 - Used local read-only web sources `C:\dev\SamWar_web\data\heroes.js`, `C:\dev\SamWar_web\data\cities.js`, `C:\dev\SamWar_web\data\battle_rosters.js`, plus constants/app-state references for faction IDs, resource keys, tax/resource baseline, selected city, and no-chancellor default.
 - Updated `scripts/worldmap_test.gd` only for runtime seed data: `HERO_DATA`, `CITY_HUD_DATA`, and `_player_state`.
@@ -150,7 +159,7 @@ Goal:
 - `v0.68b-12b-0 WorldMap Hero City Seed Data Structure Audit` is complete.
 - Investigation summary: web `heroes.js` is an array with hero identity, faction/side, role, stats, portrait, battlefield portrait, and chancellor profile fields; web `cities.js` carries city identity, ownership, route, governor, loyalty, resource, military, domestic, and yield fields; web `battle_rosters.js` `cityDefenderRosters` is the key city-stationed hero source.
 - Web domestic parity note: `createInitialDomesticPolicy()` initializes `chancellorHeroId` as `null`; `getEligibleChancellorHeroes()` returns active player-side heroes; governor candidates come from selected-city stationed player-side heroes at that city.
-- Godot seed state note: `scripts/worldmap_test.gd` currently owns display-only `HERO_DATA`, `CITY_HUD_DATA`, `CHANCELLOR_POLICY_DATA`, `GOVERNOR_POLICY_DATA`, and `_player_state`. `_player_state.chancellor_id` has been fixed to `"jeong_do_jeon"` and should be explicitly revisited in the next import task.
+- Godot seed state note: `scripts/worldmap_test.gd` currently owns display-only `HERO_DATA`, `CITY_HUD_DATA`, `CHANCELLOR_POLICY_DATA`, `GOVERNOR_POLICY_DATA`, and `_player_state`. `_player_state.chancellor_id` now uses the web-parity empty baseline.
 - `v0.68b-12b Left World HUD Web Content Parity` is complete.
 - The Godot `LeftWorldStatusPanel` was checked against the actual web `world_hud_ui.js` and `resource_ui.js` output instead of adding arbitrary new UI.
 - Runtime copy now follows the web left HUD order: `World Turn`, turn/calendar/owner, `국가충성도`, `세금 수준`, chancellor card, `재상 임명`, `재상 정책`, `보유 자원`, `국가 창고`, `내부 보급망`, `내부 병력 재배치`, `대외 무역`, income/policy/tax summary, wild-army edit, and save/load/reset.

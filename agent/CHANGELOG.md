@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-2 WorldMap Left Panel Seed Binding QA
+- Stabilized existing `LeftWorldStatusPanel` display binding against the imported `_player_state`, `CITY_HUD_DATA`, and `HERO_DATA` seed dictionaries.
+- Updated city marker selection to copy the selected city id into `_player_state.selected_city_id` and refresh the left panel, so selected/origin city display follows current city clicks.
+- Added display-only formatting helpers for city names, hero names, city/hero lists, and player resource stock.
+- Left panel now shows clean seed-backed selected/origin city, selected city owner/region/governor/stationed heroes, owned city list, owned hero list, resource stock, and no-chancellor fallback text.
+- Kept the existing scene-authored `LeftWorldStatusPanel` layout; no scene file changes were needed.
+- Did not implement hero movement, governor/chancellor appointment execution, policy effects, resource/troop/turn processing, `BattleContext`, battle scene transition, combat roster resolution, route/pathfinding changes, scene layout changes, castle icon changes, or repo-outside web file edits.
+- Verification: patch strings/data blocks present, forbidden implementation search returned no matches, Godot project headless load passed, `WorldMap_Test.tscn` headless load passed, and `git diff --check` passed.
+
 ## v0.68b-12b-1 WorldMap Hero City Seed Data Import
 - Aligned `scripts/worldmap_test.gd` seed data with local read-only web sources `C:\dev\SamWar_web\data\heroes.js`, `C:\dev\SamWar_web\data\cities.js`, and `C:\dev\SamWar_web\data\battle_rosters.js`.
 - Updated `HERO_DATA` to preserve existing Godot HUD keys while adding web identity, faction/side, command rank, web role, troop/hp/combat stat, portrait path, unique skill, and chancellor profile seed fields.

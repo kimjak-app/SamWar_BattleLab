@@ -147,6 +147,9 @@ Latest camera foundation:
 - Latest worldmap seed import patch:
 `v0.68b-12b-1 WorldMap Hero City Seed Data Import`
 
+- Latest worldmap left panel binding QA patch:
+`v0.68b-12b-2 WorldMap Left Panel Seed Binding QA`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -207,7 +210,7 @@ Do not modify casually:
 - Web `battle_rosters.js` `cityDefenderRosters` is the key source for each city's stationed hero seed data and should map into `CITY_HUD_DATA.stationed_hero_ids`.
 - Web `app_state.createInitialDomesticPolicy()` initializes `chancellorHeroId: null`; web `getEligibleChancellorHeroes()` considers active heroes where `hero.side === playerFactionId`; web governor candidates are selected-city stationed player-side heroes with `hero.locationCityId === selectedCity.id`.
 - Godot current seed ownership remains in `scripts/worldmap_test.gd`: `HERO_DATA`, `CITY_HUD_DATA`, `CHANCELLOR_POLICY_DATA`, `GOVERNOR_POLICY_DATA`, and `_player_state`.
-- Godot current `_player_state.chancellor_id` has been fixed to `"jeong_do_jeon"`. In `v0.68b-12b-1`, explicitly decide whether to return it to null/empty for web parity; prefer no chancellor / no chancellor effect unless a concrete blocker appears.
+- Godot current `_player_state.chancellor_id` now uses an empty value for web parity with `chancellorHeroId: null`; the left HUD should display `재상 미임명` and no chancellor effect until a future appointment task.
 - Godot current worldmap seed data is display-only string-oriented data, not the full web numeric/stat object model.
 - `v0.68b-12b-1 WorldMap Hero City Seed Data Import` is complete and updates only `scripts/worldmap_test.gd` seed data plus agent docs.
 - Web sources used were local read-only `SamWar_web/data/heroes.js`, `SamWar_web/data/cities.js`, and `SamWar_web/data/battle_rosters.js`, with constants/app-state references for faction IDs, resource keys, selected city, initial resources, and web no-chancellor default.
@@ -215,6 +218,11 @@ Do not modify casually:
 - `CITY_HUD_DATA` preserves existing display strings while adding city identity, owner/nation/region/type, population/gold/food/troop/public-order/commerce/agriculture/defense numeric seeds, `hero_ids`, and nested resource/domestic/yield seed dictionaries.
 - `_player_state` now includes player faction, selected/origin/ruler city, owned city/hero seed lists, resource stock, and an empty `chancellor_id` to match web `chancellorHeroId: null`.
 - The import remains data-only. It did not add movement, appointment execution, policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, castle icon changes, or web repo edits.
+- `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA` is complete and updates only `scripts/worldmap_test.gd` display binding plus agent docs.
+- The existing `LeftWorldStatusPanel` now reads imported `_player_state`, `CITY_HUD_DATA`, and `HERO_DATA` seeds for selected/origin city, selected city owner/region/governor/stationed heroes, owned city list, owned hero list, resource stock, and no-chancellor fallback.
+- City marker selection now updates `_player_state.selected_city_id` and refreshes the left panel so the current selected city seed is shown without adding movement or appointment behavior.
+- The patch added fallback-only display helpers for unknown city/hero ids, empty governor/chancellor states, empty stationed heroes, empty owned heroes, and resource stock formatting.
+- This remains display-only. It did not add movement, appointment execution, policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, castle icon changes, or web repo edits.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -328,13 +336,13 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-2 WorldMap Hero/City Seed Binding QA`
-- `v0.68b-12b-2` goal:
-  - Verify that imported web-aligned hero/city seed data displays correctly in existing worldmap HUD panels.
-  - Confirm no-chancellor default, city click panel refresh, governor/stationed hero chips, resource/military/rating strings, and existing panel drag/collapse behavior.
+  - `v0.68b-12b-3 WorldMap City Detail Hero Binding QA`
+- `v0.68b-12b-3` goal:
+  - Verify that imported web-aligned hero/city seed data displays correctly in the city detail and selected-city hero/governor/stationed-hero paths.
+  - Confirm city click panel refresh, governor/stationed hero display, hero names/stats, resource/military/rating strings, and existing panel drag/collapse behavior.
   - Do not add gameplay logic, movement, appointment execution, policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits.
 - Next candidates:
-  - `v0.68b-12b-2 WorldMap Hero/City Seed Binding QA`
+  - `v0.68b-12b-3 WorldMap City Detail Hero Binding QA`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`
   - `v0.68b-12e Diplomacy Spy Panel Web Content Parity`

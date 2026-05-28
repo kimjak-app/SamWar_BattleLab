@@ -90,6 +90,18 @@ const CHANCELLOR_TYPE_LABELS := {
 	"militaryAdmin": "군정형",
 }
 
+const RESOURCE_LABELS := {
+	"rice": "쌀",
+	"barley": "보리",
+	"seafood": "수산물",
+	"wood": "목재",
+	"iron": "철",
+	"horses": "말",
+	"silk": "비단",
+	"salt": "소금",
+	"gold": "금전",
+}
+
 const GOVERNOR_POLICY_DATA := {
 	"follow_chancellor": {
 		"name": "재상 정책 수행",
@@ -110,6 +122,7 @@ const GOVERNOR_POLICY_DATA := {
 }
 
 # v0.68b-12b-1 WorldMap Hero City Seed Data Import
+# v0.68b-12b-2 WorldMap Left Panel Seed Binding QA
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -544,7 +557,9 @@ func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 	selected_city_id = city_marker.city_id
 	selected_city_marker = city_marker
 	selected_city_marker.set_selected(true)
+	_player_state["selected_city_id"] = selected_city_id
 	city_info_panel.show_city(city_marker)
+	_refresh_left_world_status_panel()
 	_refresh_unified_panel_content()
 
 
@@ -861,10 +876,26 @@ func _setup_left_world_status_panel_layout() -> void:
 
 
 func _refresh_left_world_status_panel() -> void:
+	var selected_state_city_id := str(_player_state.get("selected_city_id", selected_city_id))
+	var origin_city_id := str(_player_state.get("origin_city_id", ""))
+	var selected_city_name := _format_city_name_by_id(selected_state_city_id, "선택 도시 없음")
+	var origin_city_name := _format_city_name_by_id(origin_city_id, "알 수 없는 도시")
+	var selected_city_data := _get_city_hud_entry(selected_state_city_id)
+	var selected_owner_id := str(selected_city_data.get("owner", selected_city_data.get("nation", "")))
+	var selected_owner := "알 수 없는 세력" if selected_owner_id.is_empty() else _format_faction_label(selected_owner_id)
+	var selected_region := str(selected_city_data.get("region", "알 수 없는 지역"))
+	var selected_governor_name := _format_hero_name_by_id(str(selected_city_data.get("governor_id", "")), "태수 없음")
+	var stationed_hero_summary := _format_hero_list(selected_city_data.get("stationed_hero_ids", []), "주둔 장수 없음")
+	var owned_city_summary := _format_city_list(_player_state.get("owned_city_ids", []), "보유 도시 없음")
+	var owned_hero_summary := _format_hero_list(_player_state.get("owned_hero_ids", []), "보유 장수 없음")
 	left_world_status_eyebrow_label.text = "World Turn"
 	turn_label.text = str(_player_state.get("turn_label", "제 1턴"))
 	calendar_label.text = str(_player_state.get("year_label", "154년 봄 1일"))
-	nation_label.text = str(_player_state.get("current_phase_label", "아군 턴"))
+	nation_label.text = "%s · 선택 %s / 기준 %s" % [
+		str(_player_state.get("current_phase_label", "아군 턴")),
+		selected_city_name,
+		origin_city_name,
+	]
 	var national_loyalty := int(_player_state.get("national_loyalty", 0))
 	var tax_level := int(_player_state.get("tax_level", 0))
 	var public_order := int(_player_state.get("public_order", 0))
@@ -881,33 +912,41 @@ func _refresh_left_world_status_panel() -> void:
 	var policy_id := str(_player_state.get("chancellor_policy_id", "balanced"))
 	var policy_data := _get_chancellor_policy_entry(policy_id)
 	chancellor_label.text = "재상"
-	chancellor_portrait_label.text = _get_portrait_initial(chancellor_name)
+	chancellor_portrait_label.text = "-" if chancellor_data.is_empty() else _get_portrait_initial(chancellor_name)
 	chancellor_name_label.text = chancellor_name
 	chancellor_stats_label.text = "%s\n재상 임명: %s\n재상 정책: %s" % [
 		_format_chancellor_type_summary(chancellor_data),
 		chancellor_name,
 		str(policy_data.get("name", policy_id)),
 	]
-	chancellor_policy_description_label.text = "재상 정책: %s\n%s" % [
+	chancellor_policy_description_label.text = "재상 정책: %s\n%s%s" % [
 		str(policy_data.get("name", policy_id)),
 		str(policy_data.get("description", "재상 정책 설명 준비 중")),
+		"\n재상 효과 없음" if chancellor_data.is_empty() else "",
 	]
 	_select_option_by_metadata(chancellor_policy_option, policy_id)
-	resource_label.text = "보유 자원: %s" % str(_player_state.get("resources", "placeholder"))
+	resource_label.text = "보유 자원: %s" % _format_player_resource_summary()
 	supply_label.text = "%s\n%s\n%s" % [
 		str(_player_state.get("warehouse", "국가 창고: 없음")),
 		str(_player_state.get("upkeep", "영웅 유지비: 없음")),
 		str(_player_state.get("salt", "보존 소금: 없음")),
 	]
-	military_logistics_label.text = "내부 보급망: %s\n내부 병력 재배치: %s" % [
+	military_logistics_label.text = "선택 도시: %s · %s · %s\n주둔 장수: %s\n내부 보급망: %s\n내부 병력 재배치: %s" % [
+		selected_city_name,
+		selected_region,
+		selected_owner,
+		stationed_hero_summary,
 		str(_player_state.get("supply", "활성 교역로 0개")),
 		str(_player_state.get("troop_rebalance", "목표 주둔군 충족")),
 	]
 	external_trade_label.text = "대외 무역: %s" % str(_player_state.get("trade", "placeholder"))
-	world_status_hint_label.text = "%s · 재상 정책: %s · %s" % [
+	world_status_hint_label.text = "%s · 재상 정책: %s · %s\n태수: %s · 보유 도시: %s\n보유 장수: %s" % [
 		str(_player_state.get("income", "이번 턴 수입 없음")),
 		str(policy_data.get("name", policy_id)),
 		str(_player_state.get("tax_effect", "세금 효과: 표시 전용")),
+		selected_governor_name,
+		owned_city_summary,
+		owned_hero_summary,
 	]
 	wild_army_edit_button_placeholder.text = "야군 편집"
 	save_button_placeholder.text = "저장"
@@ -921,6 +960,59 @@ func _get_city_hud_entry(city_id: String) -> Dictionary:
 
 func _get_hero_entry(hero_id: String) -> Dictionary:
 	return HERO_DATA.get(hero_id, {})
+
+
+func _format_city_name_by_id(city_id: String, empty_fallback: String) -> String:
+	if city_id.is_empty():
+		return empty_fallback
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.is_empty():
+		return "알 수 없는 도시"
+	return str(city_data.get("name", empty_fallback))
+
+
+func _format_hero_name_by_id(hero_id: String, empty_fallback: String) -> String:
+	if hero_id.is_empty():
+		return empty_fallback
+	var hero_data := _get_hero_entry(hero_id)
+	if hero_data.is_empty():
+		return "알 수 없는 장수"
+	return str(hero_data.get("display_name", hero_data.get("name", empty_fallback)))
+
+
+func _format_city_list(city_ids: Variant, empty_fallback: String) -> String:
+	if not city_ids is Array:
+		return empty_fallback
+	var names: Array[String] = []
+	for city_id in city_ids:
+		names.append(_format_city_name_by_id(str(city_id), "알 수 없는 도시"))
+	if names.is_empty():
+		return empty_fallback
+	return ", ".join(names)
+
+
+func _format_hero_list(hero_ids: Variant, empty_fallback: String) -> String:
+	if not hero_ids is Array:
+		return empty_fallback
+	var names: Array[String] = []
+	for hero_id in hero_ids:
+		names.append(_format_hero_name_by_id(str(hero_id), "알 수 없는 장수"))
+	if names.is_empty():
+		return empty_fallback
+	return ", ".join(names)
+
+
+func _format_player_resource_summary() -> String:
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	if resource_stock.is_empty():
+		return str(_player_state.get("resources", "보유 자원 없음"))
+	var parts: Array[String] = []
+	for resource_id in ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt", "gold"]:
+		parts.append("%s %d" % [
+			str(RESOURCE_LABELS.get(resource_id, resource_id)),
+			int(resource_stock.get(resource_id, 0)),
+		])
+	return " / ".join(parts)
 
 
 func _get_chancellor_policy_entry(policy_id: String) -> Dictionary:
