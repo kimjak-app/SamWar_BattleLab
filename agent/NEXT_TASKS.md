@@ -29,6 +29,8 @@ Latest worldmap HUD structure patch: `v0.68b-8 WorldMap Web HUD Panel Structure 
 
 Latest worldmap HUD visual patch: `v0.68b-8 WorldMap Web HUD Visual Parity MVP`
 
+Latest worldmap HUD data patch: `v0.68b-9 WorldMap HUD Data Binding MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -38,36 +40,48 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-9 WorldMap Domestic Affairs UI Data MVP`
+`v0.68b-10 WorldMap Draggable Panel Parity MVP`
 
 Goal:
-- add the first domestic affairs panel MVP for selected cities without real resource changes, turn processing, battle launch, or hero/army movement
+- make the worldmap HUD panel placement closer to the draggable web HUD without changing city, route, battle, army, or domestic systems
 
 ## Priority 2
+`v0.68b-11 WorldMap Domestic Command UI MVP`
+
+Goal:
+- add the first domestic command UI surface for selected cities while keeping actual resource, turn, recruitment, and policy effects deferred
+
+## Priority 3
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 3
+## Priority 4
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - add hero/army deployment MVP on top of the worldmap contract without breaking current battle fallback
 
-## Priority 4
+## Priority 5
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 5
+## Priority 6
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-9 WorldMap HUD Data Binding MVP` is complete.
+- Referenced the web chancellor/governor/policy/garrison/city-detail HUD modules and data files.
+- Godot `WorldMapUI` now displays local HUD data for player turn/status, chancellor portrait/name/stats/policy, city governor portrait/name/stats/policy, city loyalty, stationed hero chips, and richer city detail resource/military/trade/rating copy.
+- Chancellor and governor policy `OptionButton` controls update local UI state and descriptions only; no resource effects, turn processing, domestic execution, recruitment, hero transfer, army movement, battle entry, or `BattleContext` creation was added.
+- Castle icon visuals remain disabled, and route lines plus sea route arrow flow remain unchanged.
+- 김작 F6 should confirm the chancellor data/policy UI, governor data/policy UI, stationed hero list, CityDetail data binding, placeholder-only buttons, castle icon disabled state, fixed HUD behavior during pan/zoom, route/sea arrow continuity, and existing battle scene stability.
 - `v0.68b-8 WorldMap Web HUD Visual Parity MVP` is complete.
 - Referenced the web `index.html`, `css/main.css`, `world_map_ui.js`, `ui_render.js`, `world_hud_ui.js`, `diplomacy_spy_ui.js`, `resource_ui.js`, and `selected_city_ui.js` structure and styling.
 - Tuned Godot `WorldMapUI` toward the web HUD visual style: dark navy translucent panels, thin gold borders, gold/beige headings, dense small text, inner cards, tab buttons, red action buttons, progress-bar placeholders, and a centered `SamWar Web` title banner.

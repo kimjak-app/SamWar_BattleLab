@@ -1311,6 +1311,67 @@ theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 12
 text = "재상: 미배정 · 균형 정책"
 
+[node name="ChancellorCard" type="PanelContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_inner_card")
+
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="HeaderRow" type="HBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PortraitBox" type="PanelContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow"]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_tab_active")
+
+[node name="PortraitLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/PortraitBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
+theme_override_font_sizes/font_size = 22
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Copy" type="VBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="ChancellorNameLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
+theme_override_font_sizes/font_size = 13
+text = "재상 미임명"
+
+[node name="ChancellorStatsLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 10
+text = "능력: -"
+autowrap_mode = 2
+
+[node name="ChancellorPolicyOption" type="OptionButton" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="ChancellorPolicyDescriptionLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.76, 0.84, 1)
+theme_override_font_sizes/font_size = 10
+text = "재상 정책 설명"
+autowrap_mode = 2
+
 [node name="ResourceLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
@@ -1782,6 +1843,67 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "태수: placeholder"
+
+[node name="GovernorCard" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_inner_card")
+
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 7
+
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="HeaderRow" type="HBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PortraitBox" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_tab_active")
+
+[node name="PortraitLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/PortraitBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
+theme_override_font_sizes/font_size = 20
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Copy" type="VBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="GovernorNameLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/Copy"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
+theme_override_font_sizes/font_size = 12
+text = "태수 미임명"
+
+[node name="GovernorStatsLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/Copy"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 10
+text = "능력: -"
+autowrap_mode = 2
+
+[node name="GovernorPolicyOption" type="OptionButton" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+
+[node name="GovernorPolicyDescriptionLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.76, 0.84, 1)
+theme_override_font_sizes/font_size = 10
+text = "태수 정책 설명"
+autowrap_mode = 2
 
 [node name="SelectedHeroChipLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
 layout_mode = 2

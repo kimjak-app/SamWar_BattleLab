@@ -21,6 +21,12 @@
 - City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-9 WorldMap HUD Data Binding MVP` binds the web-style Godot HUD to local display-only player, hero, policy, and selected-city dictionaries.
+- `LeftWorldStatusPanel` now displays mock-bound turn/calendar/phase, national bars, chancellor portrait slot, chancellor name/stats, chancellor policy selection, resources, supply, logistics, and trade copy.
+- `CityInfoPanel` now displays selected-city governor portrait slot, governor name/stats, governor policy selection, city loyalty, stationed hero chips, military copy, and trade/supply copy.
+- `CityDetailPanel` now displays selected-city resource, loyalty/policy, military, trade, rating, governor, and stationed hero count summaries.
+- Chancellor and governor policy selection is UI state only. It may update labels, descriptions, hint copy, and debug logs, but must not apply domestic effects, mutate resources, advance turns, recruit troops, move heroes, move armies, or create `BattleContext`.
+- The HUD data binding remains a worldmap UI foundation patch. It must not alter city marker positions, route `Path2D` curves, sea arrow flow, castle icon visual-disable state, battle scenes, battle entry, pathfinding, or AI.
 - `v0.68b-8 WorldMap Web HUD Visual Parity MVP` tunes the Godot `WorldMapUI` HUD visuals against the actual web HTML/CSS/JS structure.
 - Web visual references include `index.html`, `css/main.css`, `world_map_ui.js`, `ui_render.js`, `world_hud_ui.js`, `diplomacy_spy_ui.js`, `resource_ui.js`, and `selected_city_ui.js`.
 - The worldmap HUD visual style is dark navy/black translucent panels, thin gold borders, gold/beige eyebrow titles, dense small text, inner dark cards, small tab buttons, red action buttons, and progress-bar placeholders.

@@ -32,6 +32,8 @@ Latest worldmap HUD structure patch: `v0.68b-8 WorldMap Web HUD Panel Structure 
 
 Latest worldmap HUD visual patch: `v0.68b-8 WorldMap Web HUD Visual Parity MVP`
 
+Latest worldmap HUD data patch: `v0.68b-9 WorldMap HUD Data Binding MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -51,6 +53,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch`
 - `v0.68b-8 WorldMap Web HUD Panel Structure Import MVP`
 - `v0.68b-8 WorldMap Web HUD Visual Parity MVP`
+- `v0.68b-9 WorldMap HUD Data Binding MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -113,6 +116,13 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - The new HUD panels are placeholder-only and screen-fixed. City clicks refresh both `CityDetailPanel` and `CityInfoPanel`.
 - `v0.68b-8 WorldMap Web HUD Visual Parity MVP` tunes the Godot HUD closer to the web CSS look: dark navy translucent panels, thin gold borders, gold eyebrow headings, dense text, inner cards, tab buttons, red action buttons, progress-bar placeholders, and a centered `SamWar Web` title banner.
 - The right HUD is arranged in a web-like fixed multi-panel layout with Diplomacy/Spy, City Detail, and Selected City columns. It remains placeholder-only and does not add real systems.
+- `v0.68b-9 WorldMap HUD Data Binding MVP` adds local display dictionaries for player state, hero data, chancellor policies, governor policies, and selected-city HUD data.
+- The left World Turn panel now displays mock-bound turn/calendar/phase, national bars, chancellor portrait slot, chancellor name/stats, chancellor policy selection, resources, supply, logistics, and trade copy.
+- Chancellor policy selection updates local HUD state and description copy only; it does not apply resources, loyalty, upkeep, turn, or domestic effects.
+- Selected City now displays governor portrait slot, governor name/stats, governor policy selection, city loyalty, stationed hero chips, and city military/trade copy from local HUD data.
+- Governor policy selection updates the selected city's local UI policy state only; it does not change city resources, loyalty, troops, recruitment, turn processing, hero transfer, or army state.
+- `CityDetailPanel` now shows selected-city resource, loyalty/policy, military, trade, rating, governor, and stationed hero count data at MVP display scope.
+- All HUD actions remain placeholder-only. `BattleContext`, battle entry, domestic execution, recruitment, save/load/reset, diplomacy/spy execution, hero/army movement, route click, pathfinding, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
 - Route connection meaning is code metadata; the actual route curve is the scene-authored `Path2D.curve` source of truth.
@@ -306,13 +316,15 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-9 WorldMap Domestic Affairs UI Data MVP`
-2. `v0.68c BattleContext Runtime Injection MVP`
-3. `v0.68d Hero/Army Deployment MVP`
-4. `v0.69 Battlefield Variant Loader`
-5. `v0.69b Naval Battle Entry MVP`
+1. `v0.68b-10 WorldMap Draggable Panel Parity MVP`
+2. `v0.68b-11 WorldMap Domestic Command UI MVP`
+3. `v0.68c BattleContext Runtime Injection MVP`
+4. `v0.68d Hero/Army Deployment MVP`
+5. `v0.69 Battlefield Variant Loader`
+6. `v0.69b Naval Battle Entry MVP`
 
 ## Known / Deferred
+- 김작 F6 visual QA should confirm `v0.68b-9 WorldMap HUD Data Binding MVP`: left panel shows chancellor portrait slot, name, stats, current policy, and resources; chancellor policy selection changes the description without applying actual effects; city click updates Selected City and City Detail together; selected city shows governor portrait slot, name, stats, policy, city loyalty, and stationed hero chips; governor policy selection changes the description without changing actual city data; CityDetail shows resource/military/trade/rating/governor/stationed hero count data; all buttons remain placeholder-only; castle icon visuals remain disabled; route lines and sea route arrow flow remain normal; HUD remains fixed during pan/zoom; existing battle scenes remain stable.
 - 김작 F6 visual QA should confirm `v0.68b-8 WorldMap Web HUD Visual Parity MVP`: the left World Turn panel resembles the web version, upper-right Diplomacy/Spy panel is visible, right City Detail panel is visible, right Selected City panel visually resembles the web version, panel color/border/title/button style reads close to the web HUD, city clicks update Selected City and City Detail, buttons do not execute real behavior, panels remain screen-fixed during pan/zoom, panels do not excessively cover the map, castle icon visuals remain disabled, route lines and sea arrow flow remain normal, and existing battle scenes remain stable.
 - 김작 F6 visual QA should confirm `v0.68b-8`: left World Turn/국력/자원 panel is visible, upper-right Diplomacy/Spy panel is visible, right City Detail panel is visible, right Selected City panel is visible, city clicks update City Detail and Selected City together, panels stay screen-fixed during camera pan/zoom, panels do not excessively cover the map, attack/hero-move/domestic buttons do not execute real behavior, castle icon visuals remain disabled, route lines and sea route arrow flow remain normal, and existing battle scenes remain stable.
 - 김작 F6 visual QA should confirm `v0.68b-6a`: castle icons are not visible on the worldmap, city name labels remain visible, simple functional city markers remain visible, city clicking still selects cities, selected cities show `SelectionRing`, `CityInfoPanel` displays normally, route lines and sea route arrow flow remain normal, pan/zoom does not break city clicking, and existing battle scenes remain stable.

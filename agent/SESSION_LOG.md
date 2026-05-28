@@ -2,6 +2,17 @@
 
 ## 2026-05-28
 
+### v0.68b-9 WorldMap HUD Data Binding MVP
+- Checked the actual web data/HUD flow in `world_hud_ui.js`, `selected_city_ui.js`, `resource_ui.js`, `diplomacy_spy_ui.js`, `governor_ui.js`, `garrison_ui.js`, `world_map_ui.js`, `ui_render.js`, `constants.js`, `data/heroes.js`, and `data/cities.js`.
+- Added local Godot HUD display data for player turn/status, chancellor, policies, heroes, selected-city governor, city loyalty/resources/military/trade, and stationed hero IDs.
+- Bound the left World Turn panel to mock player state and added a chancellor portrait slot plus chancellor policy `OptionButton`; policy changes update local UI copy only.
+- Bound selected-city HUD to governor portrait/name/stats, governor policy `OptionButton`, city loyalty, stationed hero chips, and city military/trade copy; policy changes update selected-city UI state only.
+- Bound `CityDetailPanel` to selected city resource/rating/military/trade/governor/stationed hero count data.
+- Kept attack, hero movement, domestic, recruit, diplomacy, spy, save/load/reset, and wild-army controls placeholder-only.
+- Did not add `BattleContext`, battle transition, domestic execution, turn/resource mutation, recruitment, hero/army movement, route/pathfinding logic, or existing battle-scene changes.
+- Castle icon visuals remain disabled; route lines and sea route arrow flow were preserved.
+- 김작 F6 should confirm chancellor portrait/name/policy display, policy description changes, selected-city governor/policy/stationed heroes update on city click, buttons remain non-executing placeholders, HUD stays fixed during pan/zoom, castle icons remain hidden, route/sea arrow flow remains normal, and existing battle scenes remain stable.
+
 ### v0.68b-8 WorldMap Web HUD Visual Parity MVP
 - Checked the actual web visual structure in `SamWar_web/index.html`, `css/main.css`, and the worldmap HUD UI modules.
 - Tuned the Godot `WorldMapUI` HUD toward the web look with dark navy translucent panels, thin gold borders, beige/gold headings, compact text, inner cards, small tab buttons, red action buttons, and progress placeholders.

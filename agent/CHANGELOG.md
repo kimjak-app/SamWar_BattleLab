@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-9 WorldMap HUD Data Binding MVP
+- Added a Godot-side HUD data binding MVP for `WorldMap_Test.tscn` using local display dictionaries for player state, heroes, city HUD data, chancellor policies, and governor policies.
+- Bound the left World Turn panel to turn/calendar/phase, national power/tax/public order bars, chancellor portrait placeholder, chancellor name/stats, current chancellor policy, resource, supply, logistics, and trade placeholder lines.
+- Added chancellor policy `OptionButton` UI; selection updates local HUD state and explanatory copy only, with no resource, turn, or domestic effects applied.
+- Bound selected-city HUD to governor portrait placeholder, governor name/stats, governor policy, city loyalty, stationed hero chip list, city military/trade summary, and placeholder-only action copy.
+- Added governor policy `OptionButton` UI; selection updates the selected city's local policy display only and does not mutate real city resources, turn state, troops, or army data.
+- Strengthened `CityDetailPanel` binding with city resources, loyalty/policy, military, trade, rating, governor name, and stationed hero count.
+- Preserved placeholder-only behavior for attack, hero move, domestic, recruit, diplomacy, spy, save/load/reset, and wild-army edit controls.
+- Preserved castle icon visual disable state, city positions, route lines, sea route arrow flow, existing battle scenes, and the `BattleContext` / battle entry / army movement deferrals.
+
 ## v0.68b-8 WorldMap Web HUD Visual Parity MVP
 - Referenced the web HUD visual sources: `index.html`, `css/main.css`, `world_map_ui.js`, `ui_render.js`, `world_hud_ui.js`, `diplomacy_spy_ui.js`, `resource_ui.js`, and `selected_city_ui.js`.
 - Tuned Godot `WorldMap_Test.tscn > WorldMapUI` toward the web HUD look: dark navy translucent panels, thin gold borders, gold/beige eyebrow headings, dense text, inner cards, tab buttons, red action buttons, and progress-bar placeholders.

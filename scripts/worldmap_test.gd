@@ -47,6 +47,80 @@ const CITY_TYPE_LABELS := {
 	"edo": "동방 성곽",
 }
 
+const CHANCELLOR_POLICY_DATA := {
+	"balanced": {
+		"name": "균형 정책",
+		"description": "국정 전반을 고르게 유지합니다. 실제 수치 효과는 아직 적용하지 않습니다.",
+	},
+	"commerce": {
+		"name": "상업 중심",
+		"description": "금전과 시장 운영을 우선합니다. 이번 단계에서는 설명만 갱신합니다.",
+	},
+	"military": {
+		"name": "군비 확장",
+		"description": "군사 유지와 병참 준비를 우선합니다. 병력/자원 수치는 변경하지 않습니다.",
+	},
+	"stability": {
+		"name": "민심 안정",
+		"description": "치안과 성 충성도를 우선합니다. 턴 처리 효과는 후속 단계에서 연결합니다.",
+	},
+}
+
+const GOVERNOR_POLICY_DATA := {
+	"finance": {
+		"name": "재정 정비",
+		"description": "도시 재정과 창고 흐름을 정비합니다. 실제 자원 증감은 없습니다.",
+	},
+	"security": {
+		"name": "치안 강화",
+		"description": "치안과 성 충성도 관리를 우선합니다. 실제 수치 변경은 없습니다.",
+	},
+	"commerce": {
+		"name": "상업 진흥",
+		"description": "시장과 교역 준비를 우선합니다. 무역 계산은 실행하지 않습니다.",
+	},
+	"military": {
+		"name": "군비 보강",
+		"description": "주둔군과 방어 준비를 우선합니다. 징병이나 병력 이동은 없습니다.",
+	},
+}
+
+const HERO_DATA := {
+	"jeong_do_jeon": {"display_name": "정도전", "role": "재상", "politics": 94, "war": 42, "intelligence": 92, "loyalty": 90, "assigned_city_id": "hanseong"},
+	"yi_sun_sin": {"display_name": "이순신", "role": "수군 지휘", "politics": 76, "war": 96, "intelligence": 88, "loyalty": 98, "assigned_city_id": "hanseong"},
+	"gwon_yul": {"display_name": "권율", "role": "도성 방위", "politics": 74, "war": 88, "intelligence": 76, "loyalty": 87, "assigned_city_id": "hanseong"},
+	"gwanggaeto": {"display_name": "광개토대왕", "role": "북방 원정", "politics": 84, "war": 97, "intelligence": 82, "loyalty": 92, "assigned_city_id": "pyeongyang"},
+	"kim_chun_chu": {"display_name": "김춘추", "role": "외교", "politics": 91, "war": 58, "intelligence": 87, "loyalty": 84, "assigned_city_id": "gyeongju"},
+	"kim_yu_sin": {"display_name": "김유신", "role": "정예 지휘", "politics": 72, "war": 94, "intelligence": 79, "loyalty": 91, "assigned_city_id": "gyeongju"},
+	"uija_wang": {"display_name": "의자왕", "role": "왕도 운영", "politics": 82, "war": 76, "intelligence": 78, "loyalty": 78, "assigned_city_id": "sabi"},
+	"gyebaek": {"display_name": "계백", "role": "결사 방위", "politics": 62, "war": 92, "intelligence": 74, "loyalty": 89, "assigned_city_id": "sabi"},
+	"xiang_yu": {"display_name": "항우", "role": "패왕", "politics": 58, "war": 99, "intelligence": 70, "loyalty": 75, "assigned_city_id": "luoyang"},
+	"cao_cao": {"display_name": "조조", "role": "위왕", "politics": 96, "war": 91, "intelligence": 94, "loyalty": 81, "assigned_city_id": "yecheng"},
+	"zhuge_liang": {"display_name": "제갈량", "role": "책사", "politics": 98, "war": 62, "intelligence": 100, "loyalty": 95, "assigned_city_id": "chengdu"},
+	"sun_ce": {"display_name": "손책", "role": "강동 돌파", "politics": 78, "war": 93, "intelligence": 80, "loyalty": 82, "assigned_city_id": "jianye"},
+	"genghis_khan": {"display_name": "징기스칸", "role": "초원 군주", "politics": 86, "war": 100, "intelligence": 88, "loyalty": 86, "assigned_city_id": "karakorum"},
+	"nobunaga": {"display_name": "노부나가", "role": "개혁 군주", "politics": 92, "war": 90, "intelligence": 88, "loyalty": 80, "assigned_city_id": "kyoto"},
+	"toyotomi_hideyoshi": {"display_name": "도요토미 히데요시", "role": "상업 통치", "politics": 95, "war": 84, "intelligence": 90, "loyalty": 82, "assigned_city_id": "osaka"},
+	"shimazu_yoshihiro": {"display_name": "시마즈 요시히로", "role": "해상 방위", "politics": 70, "war": 92, "intelligence": 78, "loyalty": 83, "assigned_city_id": "kyushu"},
+	"tokugawa_ieyasu": {"display_name": "도쿠가와 이에야스", "role": "동방 행정", "politics": 97, "war": 82, "intelligence": 92, "loyalty": 88, "assigned_city_id": "edo"},
+}
+
+const CITY_HUD_DATA := {
+	"hanseong": {"governor_id": "jeong_do_jeon", "governor_policy_id": "security", "stationed_hero_ids": ["jeong_do_jeon", "yi_sun_sin", "gwon_yul"], "loyalty": 78, "resources": "쌀 ★★★ / 보리 ★★★ / 수산 ★", "military": "주둔군 3개 편제 / 방어도 ★★★", "trade": "한반도 내륙 보급망 중심", "rating": "농업 ★★★ · 상업 ★★★★★ · 교역 ★★★"},
+	"pyeongyang": {"governor_id": "gwanggaeto", "governor_policy_id": "military", "stationed_hero_ids": ["gwanggaeto"], "loyalty": 72, "resources": "쌀 ★★★ / 말 ★★ / 철 ★", "military": "북방 방어 거점 / 기병 예비", "trade": "한성-카라코룸 연결 후보", "rating": "농업 ★★★ · 군사 ★★★★ · 교역 ★★"},
+	"gyeongju": {"governor_id": "kim_chun_chu", "governor_policy_id": "commerce", "stationed_hero_ids": ["kim_chun_chu", "kim_yu_sin"], "loyalty": 76, "resources": "쌀 ★★★ / 수산 ★★★ / 비단 ★★", "military": "동남 해상 접근 방어", "trade": "일본열도 해상 교역 후보", "rating": "농업 ★★★ · 상업 ★★★★ · 교역 ★★★★"},
+	"sabi": {"governor_id": "uija_wang", "governor_policy_id": "finance", "stationed_hero_ids": ["uija_wang", "gyebaek"], "loyalty": 73, "resources": "쌀 ★★★ / 수산 ★★★ / 소금 ★★", "military": "서해 방어 및 건업 항로 감시", "trade": "큐슈/건업 해상 교역 후보", "rating": "농업 ★★★ · 군사 ★★★ · 교역 ★★★★"},
+	"luoyang": {"governor_id": "xiang_yu", "governor_policy_id": "military", "stationed_hero_ids": ["xiang_yu"], "loyalty": 74, "resources": "쌀 ★★★ / 철 ★★★ / 금전 ★★★★★", "military": "중원 핵심 군사 집결지", "trade": "업성-성도-건업 내륙 연결", "rating": "농업 ★★★ · 상업 ★★★★★ · 군사 ★★★★"},
+	"yecheng": {"governor_id": "cao_cao", "governor_policy_id": "security", "stationed_hero_ids": ["cao_cao"], "loyalty": 70, "resources": "보리 ★★★★ / 철 ★★ / 말 ★★", "military": "북중국 방어선", "trade": "낙양-건업-카라코룸 연결", "rating": "농업 ★★★ · 군사 ★★★★ · 교역 ★★"},
+	"chengdu": {"governor_id": "zhuge_liang", "governor_policy_id": "finance", "stationed_hero_ids": ["zhuge_liang"], "loyalty": 72, "resources": "쌀 ★★★★★ / 목재 ★★★ / 비단 ★★", "military": "산악 방어 준비", "trade": "낙양/건업 장거리 내륙 교역", "rating": "농업 ★★★★★ · 행정 ★★★★★ · 교역 ★★"},
+	"jianye": {"governor_id": "sun_ce", "governor_policy_id": "commerce", "stationed_hero_ids": ["sun_ce"], "loyalty": 74, "resources": "수산 ★★★ / 비단 ★★★ / 금전 ★★★★★", "military": "강남 수군 준비", "trade": "사비 해상 교역 후보", "rating": "상업 ★★★★★ · 교역 ★★★★★ · 군사 ★★★"},
+	"karakorum": {"governor_id": "genghis_khan", "governor_policy_id": "military", "stationed_hero_ids": ["genghis_khan"], "loyalty": 78, "resources": "말 ★★★★★ / 보리 ★★★★ / 철 ★★", "military": "초원 기병 본거지", "trade": "평양-업성 북방 연결", "rating": "군사 ★★★★★ · 보급 ★★ · 교역 ★"},
+	"kyoto": {"governor_id": "nobunaga", "governor_policy_id": "commerce", "stationed_hero_ids": ["nobunaga"], "loyalty": 76, "resources": "수산 ★★★★★ / 비단 ★★ / 금전 ★★★", "military": "열도 중앙 방어", "trade": "경주 해상 교역 후보", "rating": "상업 ★★★ · 교역 ★★★★ · 군사 ★★★"},
+	"osaka": {"governor_id": "toyotomi_hideyoshi", "governor_policy_id": "finance", "stationed_hero_ids": ["toyotomi_hideyoshi"], "loyalty": 72, "resources": "수산 ★★★★ / 금전 ★★★★★ / 소금 ★★", "military": "상업 항구 방어", "trade": "경주/큐슈 해상 교역 후보", "rating": "상업 ★★★★★ · 교역 ★★★★★ · 군사 ★★"},
+	"kyushu": {"governor_id": "shimazu_yoshihiro", "governor_policy_id": "military", "stationed_hero_ids": ["shimazu_yoshihiro"], "loyalty": 72, "resources": "수산 ★★★★★ / 소금 ★★★ / 철 ★", "military": "서남 해상 방어", "trade": "사비/오사카 해상 연결", "rating": "해상 ★★★★★ · 군사 ★★★ · 교역 ★★★★"},
+	"edo": {"governor_id": "tokugawa_ieyasu", "governor_policy_id": "security", "stationed_hero_ids": ["tokugawa_ieyasu"], "loyalty": 78, "resources": "쌀 ★★ / 수산 ★★★ / 금전 ★★★", "military": "동방 성곽 방어", "trade": "교토 동방 내륙 연결", "rating": "치안 ★★★★★ · 상업 ★★★ · 군사 ★★★"},
+}
+
 @onready var tile_a1_top_left: Sprite2D = $WorldMapRoot/WorldMapTileLayer/Tile_A1_TopLeft
 @onready var tile_a2_top_right: Sprite2D = $WorldMapRoot/WorldMapTileLayer/Tile_A2_TopRight
 @onready var tile_b1_bottom_left: Sprite2D = $WorldMapRoot/WorldMapTileLayer/Tile_B1_BottomLeft
@@ -55,6 +129,25 @@ const CITY_TYPE_LABELS := {
 @onready var world_map_camera: Camera2D = $WorldMapCamera
 @onready var camera_debug_label: Label = $WorldMapUI/CameraDebugLabel
 @onready var city_info_panel: Node = $WorldMapUI/CityInfoPanel
+@onready var turn_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/TurnLabel
+@onready var calendar_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/CalendarLabel
+@onready var nation_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationLabel
+@onready var power_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/PowerLabel
+@onready var power_bar: ProgressBar = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/PowerBar
+@onready var tax_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/TaxLabel
+@onready var tax_bar: ProgressBar = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/TaxBar
+@onready var security_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/SecurityLabel
+@onready var security_bar: ProgressBar = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/SecurityBar
+@onready var chancellor_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorLabel
+@onready var chancellor_portrait_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/PortraitBox/PortraitLabel
+@onready var chancellor_name_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy/ChancellorNameLabel
+@onready var chancellor_stats_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy/ChancellorStatsLabel
+@onready var chancellor_policy_option: OptionButton = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/ChancellorPolicyOption
+@onready var chancellor_policy_description_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/ChancellorPolicyDescriptionLabel
+@onready var resource_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ResourceLabel
+@onready var supply_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SupplyLabel
+@onready var military_logistics_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/MilitaryLogisticsLabel
+@onready var external_trade_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ExternalTradeLabel
 @onready var world_status_hint_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WorldStatusHintLabel
 @onready var wild_army_edit_button_placeholder: Button = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder
 @onready var save_button_placeholder: Button = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow/SaveButtonPlaceholder
@@ -74,6 +167,7 @@ const CITY_TYPE_LABELS := {
 @onready var city_detail_security_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/SecurityLabel
 @onready var city_detail_military_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/MilitaryLabel
 @onready var city_detail_commerce_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/CommerceLabel
+@onready var city_detail_rating_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/RatingLabel
 @onready var city_detail_status_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/StatusLabel
 @onready var city_detail_hint_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/HintLabel
 @onready var city_detail_domestic_button_placeholder: Button = $WorldMapUI/CityDetailPanel/MarginContainer/Content/DomesticButtonPlaceholder
@@ -83,12 +177,30 @@ var _is_dragging := false
 var selected_city_id: String = ""
 var selected_city_marker: WorldMapCityMarker = null
 var _city_markers_by_id: Dictionary = {}
+var _player_state := {
+	"turn_label": "제 1턴",
+	"year_label": "154년 봄 1일",
+	"current_phase_label": "아군 턴",
+	"national_power": 72,
+	"tax_level": 30,
+	"public_order": 68,
+	"chancellor_id": "jeong_do_jeon",
+	"chancellor_policy_id": "balanced",
+	"resources": "쌀 300 / 보리 250 / 수산물 80 / 목재 100 / 철 50 / 말 30 / 비단 30 / 소금 50 / 금전 500",
+	"supply": "활성 보급로 3개 · 군사 지원 필요 도시: 한성",
+	"logistics": "영웅 병력 + 주둔군 기준, 유지비 preview만 표시",
+	"trade": "대외 무역: 한반도 해상 교역 후보 준비 중",
+}
+var _city_policy_state: Dictionary = {}
 
 
 func _ready() -> void:
 	_refresh_world_rect_from_scene_tiles()
 	_connect_city_markers()
 	city_info_panel.set_city_markers(_city_markers_by_id)
+	city_info_panel.set_hud_data(HERO_DATA, CITY_HUD_DATA, GOVERNOR_POLICY_DATA, _city_policy_state)
+	_setup_chancellor_policy_option()
+	_refresh_left_world_status_panel()
 	_connect_world_hud_placeholders()
 	_reset_city_detail_panel()
 	_configure_camera()
@@ -276,6 +388,7 @@ func _reset_city_detail_panel() -> void:
 	city_detail_security_label.text = "치안: placeholder"
 	city_detail_military_label.text = "군사: placeholder"
 	city_detail_commerce_label.text = "상업: placeholder"
+	city_detail_rating_label.text = "도시 자원 별점: -"
 	city_detail_status_label.text = "상태: 선택 도시 없음"
 	city_detail_hint_label.text = "도시 선택 시 상세 정보가 갱신됩니다."
 
@@ -291,12 +404,119 @@ func _show_city_detail(city_marker: WorldMapCityMarker) -> void:
 		_format_region_label(city_marker.region_id),
 		_format_faction_label(city_marker.owner_faction_id),
 	]
-	city_detail_resource_label.text = "자원: 금전 / 식량 / 특산 연결 예정"
-	city_detail_security_label.text = "치안: 안정도 계산 placeholder"
-	city_detail_military_label.text = "군사: 주둔군 / 방어도 연결 예정"
-	city_detail_commerce_label.text = "상업: 시장 / 무역 수치 연결 예정"
-	city_detail_status_label.text = "상태: %s" % _get_city_detail_status(city_marker)
+	var city_data := _get_city_hud_entry(city_marker.city_id)
+	var governor_id := str(city_data.get("governor_id", ""))
+	var governor_data := _get_hero_entry(governor_id)
+	var governor_name := str(governor_data.get("display_name", "태수 미임명"))
+	var policy_id := _get_city_policy_id(city_marker.city_id, city_data)
+	var policy_data := _get_governor_policy_entry(policy_id)
+	var stationed_hero_ids: Array = city_data.get("stationed_hero_ids", [])
+	var loyalty := int(city_data.get("loyalty", 75))
+	city_detail_resource_label.text = "자원: %s" % str(city_data.get("resources", "식량 자원 / 전략 자원 / 특산 연결 예정"))
+	city_detail_security_label.text = "충성도: %d · 태수 정책: %s" % [loyalty, str(policy_data.get("name", "정책 미정"))]
+	city_detail_military_label.text = "군사: %s" % str(city_data.get("military", "주둔군 / 방어도 연결 예정"))
+	city_detail_commerce_label.text = "교역: %s" % str(city_data.get("trade", "자국무역 / 타국무역 연결 예정"))
+	city_detail_rating_label.text = "도시 자원 별점: %s" % str(city_data.get("rating", "농업/상업/군사 placeholder"))
+	city_detail_status_label.text = "상태: %s · 태수: %s · 배치 무장 %d명" % [
+		_get_city_detail_status(city_marker),
+		governor_name,
+		stationed_hero_ids.size(),
+	]
 	city_detail_hint_label.text = "내정 수치 변경과 턴 처리는 아직 실행하지 않습니다."
+
+
+func _setup_chancellor_policy_option() -> void:
+	chancellor_policy_option.clear()
+	for policy_id in CHANCELLOR_POLICY_DATA.keys():
+		var policy_data: Dictionary = CHANCELLOR_POLICY_DATA[policy_id]
+		chancellor_policy_option.add_item(str(policy_data.get("name", policy_id)))
+		chancellor_policy_option.set_item_metadata(chancellor_policy_option.item_count - 1, policy_id)
+
+	if not chancellor_policy_option.item_selected.is_connected(_on_chancellor_policy_selected):
+		chancellor_policy_option.item_selected.connect(_on_chancellor_policy_selected)
+
+
+func _refresh_left_world_status_panel() -> void:
+	turn_label.text = str(_player_state.get("turn_label", "제 1턴"))
+	calendar_label.text = str(_player_state.get("year_label", "154년 봄 1일"))
+	nation_label.text = str(_player_state.get("current_phase_label", "아군 턴"))
+	var national_power := int(_player_state.get("national_power", 0))
+	var tax_level := int(_player_state.get("tax_level", 0))
+	var public_order := int(_player_state.get("public_order", 0))
+	power_label.text = "국력 %d" % national_power
+	power_bar.value = national_power
+	tax_label.text = "세금 %d" % tax_level
+	tax_bar.value = tax_level
+	security_label.text = "치안 %d" % public_order
+	security_bar.value = public_order
+
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	var chancellor_data := _get_hero_entry(chancellor_id)
+	var chancellor_name := str(chancellor_data.get("display_name", "재상 미임명"))
+	var policy_id := str(_player_state.get("chancellor_policy_id", "balanced"))
+	var policy_data := _get_chancellor_policy_entry(policy_id)
+	chancellor_label.text = "재상: %s · %s" % [chancellor_name, str(policy_data.get("name", policy_id))]
+	chancellor_portrait_label.text = _get_portrait_initial(chancellor_name)
+	chancellor_name_label.text = chancellor_name
+	chancellor_stats_label.text = _format_hero_stats(chancellor_data)
+	chancellor_policy_description_label.text = str(policy_data.get("description", "재상 정책 설명 준비 중"))
+	_select_option_by_metadata(chancellor_policy_option, policy_id)
+	resource_label.text = "보유 자원: %s" % str(_player_state.get("resources", "placeholder"))
+	supply_label.text = "내부 보급망: %s" % str(_player_state.get("supply", "placeholder"))
+	military_logistics_label.text = "내부 병참 계획서: %s" % str(_player_state.get("logistics", "placeholder"))
+	external_trade_label.text = "대외 무역: %s" % str(_player_state.get("trade", "placeholder"))
+
+
+func _get_city_hud_entry(city_id: String) -> Dictionary:
+	return CITY_HUD_DATA.get(city_id, {})
+
+
+func _get_hero_entry(hero_id: String) -> Dictionary:
+	return HERO_DATA.get(hero_id, {})
+
+
+func _get_chancellor_policy_entry(policy_id: String) -> Dictionary:
+	return CHANCELLOR_POLICY_DATA.get(policy_id, CHANCELLOR_POLICY_DATA["balanced"])
+
+
+func _get_governor_policy_entry(policy_id: String) -> Dictionary:
+	return GOVERNOR_POLICY_DATA.get(policy_id, GOVERNOR_POLICY_DATA["finance"])
+
+
+func _get_city_policy_id(city_id: String, city_data: Dictionary) -> String:
+	return str(_city_policy_state.get(city_id, city_data.get("governor_policy_id", "finance")))
+
+
+func _format_hero_stats(hero_data: Dictionary) -> String:
+	if hero_data.is_empty():
+		return "능력: -"
+	return "정 %d / 무 %d / 지 %d / 충 %d" % [
+		int(hero_data.get("politics", 0)),
+		int(hero_data.get("war", 0)),
+		int(hero_data.get("intelligence", 0)),
+		int(hero_data.get("loyalty", 0)),
+	]
+
+
+func _get_portrait_initial(display_name: String) -> String:
+	if display_name.is_empty():
+		return "?"
+	return display_name.left(1)
+
+
+func _select_option_by_metadata(option_button: OptionButton, metadata_value: String) -> void:
+	for index in range(option_button.item_count):
+		if str(option_button.get_item_metadata(index)) == metadata_value:
+			option_button.select(index)
+			return
+
+
+func _on_chancellor_policy_selected(index: int) -> void:
+	var policy_id := str(chancellor_policy_option.get_item_metadata(index))
+	_player_state["chancellor_policy_id"] = policy_id
+	print("[WorldMap] Chancellor policy placeholder selected: %s. No resource or turn effect applied." % policy_id)
+	_refresh_left_world_status_panel()
+	world_status_hint_label.text = "재상 정책 '%s' 선택됨. 실제 효과는 적용하지 않습니다." % str(_get_chancellor_policy_entry(policy_id).get("name", policy_id))
 
 
 func _format_region_label(region_id: String) -> String:
