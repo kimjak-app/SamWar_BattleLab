@@ -21,6 +21,15 @@
 - City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-8 WorldMap Web HUD Panel Structure Import MVP` expands the screen-fixed `WorldMapUI` toward the web `renderAllWorldUI()` layout.
+- The Godot MVP HUD structure is `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and expanded `CityInfoPanel` under the CanvasLayer.
+- `LeftWorldStatusPanel` is a placeholder-only port of the web `renderWorldHud()` shape: world turn, calendar, national status, chancellor, resources, internal supply, logistics, and wild-army edit placeholder.
+- `DiplomacySpyPanel` is a placeholder-only port of the web `renderDiplomacySpyPanel()` shape: diplomacy/spy tabs, faction relation summary, intel summary, and prepared-state copy.
+- `CityDetailPanel` is a placeholder-only port of the web `renderCityDetailPanel()` shape: selected city name, type, region/owner, resource/security/military/commerce placeholders, city status, and domestic placeholder.
+- `CityInfoPanel` remains the selected-city summary and now includes the web selected-city hierarchy at MVP scope: description, city id, region, owner, type, neighbors, route types, status, garrison placeholder, military placeholder, attack placeholder, hero-move placeholder, and domestic placeholder.
+- City marker clicks must refresh both `CityDetailPanel` and `CityInfoPanel` while preserving `selected_city_id`, `selected_city_marker`, and marker-local `SelectionRing`.
+- All HUD actions in this phase are placeholder-only. They must not create `BattleContext`, transition to battle, execute domestic changes, move heroes, move armies, run pathfinding, or alter turn/resource state.
+- Castle icon visuals remain disabled during this HUD work; route lines and sea arrow flow remain unchanged.
 - `v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch` defers castle icon visuals and returns the visible city marker to the lightweight functional `CityDot`.
 - Castle icon assets and `CastleIcon` scene nodes must not be deleted; they are retained with `visible = false` and controlled by `CASTLE_ICON_VISUALS_ENABLED` in `scripts/worldmap_city_marker.gd`.
 - The current visible marker bundle is functional-first: `CityDot`, `NameText`, `SelectionRing`, and `ClickArea/CollisionShape2D` stay under each `CityMarker_*` root.

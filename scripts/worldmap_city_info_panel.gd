@@ -44,22 +44,28 @@ const CITY_TYPE_LABELS := {
 
 @onready var eyebrow_label: Label = $MarginContainer/Content/EyebrowLabel
 @onready var city_name_label: Label = $MarginContainer/Content/CityNameLabel
+@onready var description_label: Label = $MarginContainer/Content/DescriptionLabel
 @onready var city_id_label: Label = $MarginContainer/Content/CityIdLabel
 @onready var region_owner_label: Label = $MarginContainer/Content/RegionOwnerLabel
 @onready var city_type_label: Label = $MarginContainer/Content/CityTypeLabel
 @onready var neighbor_label: Label = $MarginContainer/Content/NeighborLabel
 @onready var route_type_label: Label = $MarginContainer/Content/RouteTypeLabel
 @onready var status_text_label: Label = $MarginContainer/Content/StatusTextLabel
+@onready var garrison_label: Label = $MarginContainer/Content/GarrisonLabel
+@onready var military_info_label: Label = $MarginContainer/Content/MilitaryInfoLabel
+@onready var hint_label: Label = $MarginContainer/Content/HintLabel
 @onready var attack_button_placeholder: Button = $MarginContainer/Content/ButtonRow/AttackButtonPlaceholder
 @onready var hero_move_button_placeholder: Button = $MarginContainer/Content/ButtonRow/HeroMoveButtonPlaceholder
+@onready var domestic_button_placeholder: Button = $MarginContainer/Content/ButtonRow/DomesticButtonPlaceholder
 
 var _city_markers_by_id: Dictionary = {}
 
 
 func _ready() -> void:
-	hide()
 	attack_button_placeholder.pressed.connect(_on_attack_placeholder_pressed)
 	hero_move_button_placeholder.pressed.connect(_on_hero_move_placeholder_pressed)
+	domestic_button_placeholder.pressed.connect(_on_domestic_placeholder_pressed)
+	_show_empty()
 
 
 func set_city_markers(city_markers_by_id: Dictionary) -> void:
@@ -68,11 +74,15 @@ func set_city_markers(city_markers_by_id: Dictionary) -> void:
 
 func show_city(city_marker: WorldMapCityMarker) -> void:
 	if city_marker == null:
-		hide()
+		_show_empty()
 		return
 
-	eyebrow_label.text = "Selected City"
+	eyebrow_label.text = "SELECTED CITY"
 	city_name_label.text = city_marker.display_name
+	description_label.text = "%s 권역의 %s 거점입니다." % [
+		_format_region_label(city_marker.region_id),
+		_format_faction_label(city_marker.owner_faction_id),
+	]
 	city_id_label.text = "id: %s" % city_marker.city_id
 	region_owner_label.text = "%s · %s" % [
 		_format_region_label(city_marker.region_id),
@@ -82,6 +92,25 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 	neighbor_label.text = "인접: %s" % _format_neighbors(city_marker.neighbors)
 	route_type_label.text = "루트: %s" % _format_route_types(city_marker)
 	status_text_label.text = _get_status_text(city_marker)
+	garrison_label.text = "주둔 무장: placeholder"
+	military_info_label.text = "군사 정보: 병력 / 방어 / 보급 데이터 연결 예정"
+	hint_label.text = "도시 행동은 placeholder입니다."
+	show()
+
+
+func _show_empty() -> void:
+	eyebrow_label.text = "SELECTED CITY"
+	city_name_label.text = "도시를 선택하세요"
+	description_label.text = "도시 성 아이콘이 아닌 기능형 마커를 클릭하면 선택 정보가 표시됩니다."
+	city_id_label.text = "id: -"
+	region_owner_label.text = "지역 · 세력: -"
+	city_type_label.text = "유형: -"
+	neighbor_label.text = "인접: -"
+	route_type_label.text = "루트: -"
+	status_text_label.text = "월드맵 HUD 기능은 Godot 이식 중입니다."
+	garrison_label.text = "주둔 무장: placeholder"
+	military_info_label.text = "군사 정보: placeholder"
+	hint_label.text = "공격 / 무장 이동 / 내정은 아직 실행되지 않습니다."
 	show()
 
 
@@ -151,7 +180,14 @@ func _has_player_neighbor(city_marker: WorldMapCityMarker) -> bool:
 
 func _on_attack_placeholder_pressed() -> void:
 	print("[WorldMap] Attack placeholder selected. BattleContext connection is deferred.")
+	hint_label.text = "공격 준비는 다음 단계에서 BattleContext와 연결됩니다."
 
 
 func _on_hero_move_placeholder_pressed() -> void:
 	print("[WorldMap] Hero move placeholder selected. Hero transfer is deferred.")
+	hint_label.text = "무장 이동은 다음 단계에서 Hero/Army 배치와 연결됩니다."
+
+
+func _on_domestic_placeholder_pressed() -> void:
+	print("[WorldMap] Domestic placeholder selected. Domestic execution is deferred.")
+	hint_label.text = "내정 실행은 후속 Domestic Affairs 패널에서 연결됩니다."

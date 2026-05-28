@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-8 WorldMap Web HUD Panel Structure Import MVP
+- Referenced the actual web worldmap HUD sources: `world_map_ui.js`, `ui_render.js`, `world_hud_ui.js`, `diplomacy_spy_ui.js`, `resource_ui.js`, `selected_city_ui.js`, `data/cities.js`, and `data/factions.js`.
+- Expanded `WorldMap_Test.tscn > WorldMapUI` from a single selected-city panel into a web-like HUD MVP: left `LeftWorldStatusPanel`, upper-right `DiplomacySpyPanel`, right `CityDetailPanel`, and expanded selected-city `CityInfoPanel`.
+- Added placeholder-only world turn/status, diplomacy/spy, city detail, selected city, garrison, military, attack, hero-move, domestic, and wild-army edit HUD elements.
+- Updated `scripts/worldmap_test.gd` so city clicks refresh both `CityDetailPanel` and `CityInfoPanel` while preserving `selected_city_id`, `selected_city_marker`, and marker-local `SelectionRing`.
+- Extended `scripts/worldmap_city_info_panel.gd` with selected-city description, garrison placeholder, military placeholder, hint text, and a domestic placeholder button.
+- Kept castle icon visuals disabled and preserved city positions, route lines, sea route arrow flow, battle scenes, `BattleContext`, battle entry, domestic execution, and hero/army movement as deferred.
+
 ## v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch
 - Disabled `CastleIcon` visuals for the current functional marker phase without deleting castle icon nodes or asset files.
 - Kept `CastleIcon` Sprite2D nodes and texture references in `WorldMap_Test.tscn`, with `visible = false` saved for each city.

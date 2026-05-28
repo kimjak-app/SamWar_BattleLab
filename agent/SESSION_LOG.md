@@ -2,6 +2,15 @@
 
 ## 2026-05-28
 
+### v0.68b-8 WorldMap Web HUD Panel Structure Import MVP
+- Checked the actual web HUD structure in `SamWar_web/js/ui/world_map_ui.js`, `ui_render.js`, `world_hud_ui.js`, `diplomacy_spy_ui.js`, `resource_ui.js`, and `selected_city_ui.js`, plus `data/cities.js` and `data/factions.js`.
+- Expanded Godot `WorldMapUI` into a screen-fixed HUD structure closer to the web layout: left World Turn/Status, upper-right Diplomacy/Spy, right City Detail, and expanded Selected City / `CityInfoPanel`.
+- City clicks still update `selected_city_id`, `selected_city_marker`, and `SelectionRing`, and now update both City Detail and Selected City panels together.
+- All new controls are placeholders only: attack, hero movement, domestic, diplomacy, spy, and wild-army edit do not launch real behavior.
+- Did not add `BattleContext`, battle scene transition, domestic execution, resource/turn processing, hero movement, army movement, pathfinding, AI, or naval logic.
+- Castle icon visuals remain disabled; city positions, route lines, and sea route arrow flow were preserved.
+- 김작 F6 should confirm the left status panel, upper-right diplomacy/spy panel, city detail panel, selected city panel, dual panel update on city click, fixed HUD behavior during pan/zoom, placeholder-only buttons, castle icon disable state, route/sea arrow continuity, and battle scene stability.
+
 ### v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch
 - Switched the current worldmap city read from castle icon visuals back to functional markers.
 - Kept all `CastleIcon` nodes and castle icon asset references, but saved each scene node as `visible = false`.

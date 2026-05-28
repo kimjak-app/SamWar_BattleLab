@@ -6,6 +6,46 @@ const WORLD_MAP_MIN_ZOOM := 0.35
 const WORLD_MAP_MAX_ZOOM := 1.6
 const WORLD_MAP_CLAMP_PADDING := 24.0
 const WORLD_MAP_ZOOM_STEP := 0.1
+const PLAYER_FACTION_ID := "player"
+
+const REGION_LABELS := {
+	"region.china_mainland": "중국대륙",
+	"region.korean_peninsula": "한반도",
+	"region.japanese_archipelago": "일본열도",
+	"region.northern_steppe": "북방초원",
+}
+
+const FACTION_LABELS := {
+	"player": "PLAYER",
+	"goguryeo": "GOGURYEO",
+	"baekje_faction": "BAEKJE",
+	"silla": "SILLA",
+	"chu": "CHU",
+	"wei": "WEI",
+	"shu": "SHU",
+	"wu": "WU",
+	"oda": "ODA",
+	"toyotomi": "TOYOTOMI",
+	"kyushu_faction": "KYUSHU",
+	"tokugawa": "TOKUGAWA",
+	"mongol_faction": "MONGOL",
+}
+
+const CITY_TYPE_LABELS := {
+	"hanseong": "상업 수도",
+	"pyeongyang": "북방 요새",
+	"gyeongju": "왕도",
+	"sabi": "강역 거점",
+	"luoyang": "중원 수도",
+	"yecheng": "군사 거점",
+	"chengdu": "산악 거점",
+	"jianye": "강남 항구",
+	"karakorum": "초원 본거지",
+	"kyoto": "열도 수도",
+	"osaka": "상업 항구",
+	"kyushu": "해상 거점",
+	"edo": "동방 성곽",
+}
 
 @onready var tile_a1_top_left: Sprite2D = $WorldMapRoot/WorldMapTileLayer/Tile_A1_TopLeft
 @onready var tile_a2_top_right: Sprite2D = $WorldMapRoot/WorldMapTileLayer/Tile_A2_TopRight
@@ -15,6 +55,21 @@ const WORLD_MAP_ZOOM_STEP := 0.1
 @onready var world_map_camera: Camera2D = $WorldMapCamera
 @onready var camera_debug_label: Label = $WorldMapUI/CameraDebugLabel
 @onready var city_info_panel: Node = $WorldMapUI/CityInfoPanel
+@onready var world_status_hint_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WorldStatusHintLabel
+@onready var wild_army_edit_button_placeholder: Button = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder
+@onready var diplomacy_hint_label: Label = $WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/DiplomacyHintLabel
+@onready var diplomacy_mode_button_placeholder: Button = $WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow/DiplomacyModeButtonPlaceholder
+@onready var spy_mode_button_placeholder: Button = $WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow/SpyModeButtonPlaceholder
+@onready var city_detail_name_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/CityNameLabel
+@onready var city_detail_type_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/CityTypeLabel
+@onready var city_detail_region_owner_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/RegionOwnerLabel
+@onready var city_detail_resource_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/ResourceLabel
+@onready var city_detail_security_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/SecurityLabel
+@onready var city_detail_military_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/MilitaryLabel
+@onready var city_detail_commerce_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/CommerceLabel
+@onready var city_detail_status_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/StatusLabel
+@onready var city_detail_hint_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/HintLabel
+@onready var city_detail_domestic_button_placeholder: Button = $WorldMapUI/CityDetailPanel/MarginContainer/Content/DomesticButtonPlaceholder
 
 var _world_rect := Rect2()
 var _is_dragging := false
@@ -27,6 +82,8 @@ func _ready() -> void:
 	_refresh_world_rect_from_scene_tiles()
 	_connect_city_markers()
 	city_info_panel.set_city_markers(_city_markers_by_id)
+	_connect_world_hud_placeholders()
+	_reset_city_detail_panel()
 	_configure_camera()
 	_update_camera_debug_label()
 
@@ -187,3 +244,92 @@ func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 	selected_city_marker = city_marker
 	selected_city_marker.set_selected(true)
 	city_info_panel.show_city(city_marker)
+	_show_city_detail(city_marker)
+
+
+func _connect_world_hud_placeholders() -> void:
+	wild_army_edit_button_placeholder.pressed.connect(_on_wild_army_edit_placeholder_pressed)
+	diplomacy_mode_button_placeholder.pressed.connect(_on_diplomacy_mode_placeholder_pressed)
+	spy_mode_button_placeholder.pressed.connect(_on_spy_mode_placeholder_pressed)
+	city_detail_domestic_button_placeholder.pressed.connect(_on_city_detail_domestic_placeholder_pressed)
+
+
+func _reset_city_detail_panel() -> void:
+	city_detail_name_label.text = "도시를 선택하세요"
+	city_detail_type_label.text = "유형: -"
+	city_detail_region_owner_label.text = "지역 · 세력: -"
+	city_detail_resource_label.text = "자원: placeholder"
+	city_detail_security_label.text = "치안: placeholder"
+	city_detail_military_label.text = "군사: placeholder"
+	city_detail_commerce_label.text = "상업: placeholder"
+	city_detail_status_label.text = "상태: 선택 도시 없음"
+	city_detail_hint_label.text = "도시 선택 시 상세 정보가 갱신됩니다."
+
+
+func _show_city_detail(city_marker: WorldMapCityMarker) -> void:
+	if city_marker == null:
+		_reset_city_detail_panel()
+		return
+
+	city_detail_name_label.text = city_marker.display_name
+	city_detail_type_label.text = "유형: %s" % _format_city_type(city_marker.city_id)
+	city_detail_region_owner_label.text = "%s · %s" % [
+		_format_region_label(city_marker.region_id),
+		_format_faction_label(city_marker.owner_faction_id),
+	]
+	city_detail_resource_label.text = "자원: 금전 / 식량 / 특산 연결 예정"
+	city_detail_security_label.text = "치안: 안정도 계산 placeholder"
+	city_detail_military_label.text = "군사: 주둔군 / 방어도 연결 예정"
+	city_detail_commerce_label.text = "상업: 시장 / 무역 수치 연결 예정"
+	city_detail_status_label.text = "상태: %s" % _get_city_detail_status(city_marker)
+	city_detail_hint_label.text = "내정 수치 변경과 턴 처리는 아직 실행하지 않습니다."
+
+
+func _format_region_label(region_id: String) -> String:
+	return str(REGION_LABELS.get(region_id, region_id))
+
+
+func _format_faction_label(owner_faction_id: String) -> String:
+	return str(FACTION_LABELS.get(owner_faction_id, owner_faction_id))
+
+
+func _format_city_type(city_id: String) -> String:
+	return str(CITY_TYPE_LABELS.get(city_id, "거점"))
+
+
+func _get_city_detail_status(city_marker: WorldMapCityMarker) -> String:
+	if city_marker.owner_faction_id == PLAYER_FACTION_ID:
+		return "아군 도시"
+	if _has_player_neighbor(city_marker):
+		return "아군 인접 적 도시"
+	if not city_marker.owner_faction_id.is_empty():
+		return "적 도시"
+	return "월드맵 이식 중"
+
+
+func _has_player_neighbor(city_marker: WorldMapCityMarker) -> bool:
+	for neighbor_id in city_marker.neighbors:
+		var neighbor_marker := _city_markers_by_id.get(neighbor_id) as WorldMapCityMarker
+		if neighbor_marker != null and neighbor_marker.owner_faction_id == PLAYER_FACTION_ID:
+			return true
+	return false
+
+
+func _on_wild_army_edit_placeholder_pressed() -> void:
+	print("[WorldMap] Wild army edit placeholder selected. Army editing is deferred.")
+	world_status_hint_label.text = "야군 편집은 후속 Army 단계에서 연결됩니다."
+
+
+func _on_diplomacy_mode_placeholder_pressed() -> void:
+	print("[WorldMap] Diplomacy tab placeholder selected. Diplomacy logic is deferred.")
+	diplomacy_hint_label.text = "외교 행동은 준비 중입니다."
+
+
+func _on_spy_mode_placeholder_pressed() -> void:
+	print("[WorldMap] Spy tab placeholder selected. Spy logic is deferred.")
+	diplomacy_hint_label.text = "첩보 판정은 준비 중입니다."
+
+
+func _on_city_detail_domestic_placeholder_pressed() -> void:
+	print("[WorldMap] City detail domestic placeholder selected. Domestic execution is deferred.")
+	city_detail_hint_label.text = "내정 실행은 아직 수치나 턴 처리와 연결되지 않았습니다."

@@ -1117,84 +1117,350 @@ offset_bottom = 40.0
 text = "Camera: (0, 0)  Zoom: 0.70"
 horizontal_alignment = 2
 
+[node name="LeftWorldStatusPanel" type="PanelContainer" parent="WorldMapUI"]
+offset_left = 16.0
+offset_top = 56.0
+offset_right = 304.0
+offset_bottom = 420.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/LeftWorldStatusPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="EyebrowLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
+theme_override_font_sizes/font_size = 12
+text = "WORLD TURN"
+
+[node name="TurnLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "제 1턴 · 아군 턴"
+
+[node name="CalendarLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+theme_override_font_sizes/font_size = 12
+text = "200년 봄 placeholder"
+
+[node name="NationLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "국력 안정 · 치안 보통 · 세금 표준"
+autowrap_mode = 2
+
+[node name="ChancellorLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "재상: 미배정"
+
+[node name="ResourceLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "자원: 금전 0 / 식량 0 / 소금 0 placeholder"
+autowrap_mode = 2
+
+[node name="SupplyLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "내부 보급망: 준비 중"
+
+[node name="MilitaryLogisticsLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "병참/군사 상태: 점검 중"
+
+[node name="WildArmyEditButtonPlaceholder" type="Button" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+layout_mode = 2
+text = "야군 편집"
+
+[node name="WorldStatusHintLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
+theme_override_font_sizes/font_size = 11
+text = "좌측 HUD는 웹 WorldHud 구조의 MVP placeholder입니다."
+autowrap_mode = 2
+
+[node name="DiplomacySpyPanel" type="PanelContainer" parent="WorldMapUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -380.0
+offset_top = 56.0
+offset_right = -20.0
+offset_bottom = 196.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/DiplomacySpyPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="EyebrowLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
+theme_override_font_sizes/font_size = 12
+text = "DIPLOMACY / SPY"
+
+[node name="TabRow" type="HBoxContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DiplomacyModeButtonPlaceholder" type="Button" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow"]
+layout_mode = 2
+text = "외교"
+
+[node name="SpyModeButtonPlaceholder" type="Button" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow"]
+layout_mode = 2
+text = "첩보"
+
+[node name="RelationLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "주요 세력 관계: PLAYER / 주변 세력 분석 준비 중"
+autowrap_mode = 2
+
+[node name="IntelLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "첩보 결과: 기초 정보 placeholder"
+autowrap_mode = 2
+
+[node name="DiplomacyHintLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
+theme_override_font_sizes/font_size = 11
+text = "외교/첩보 기능은 준비 중입니다."
+autowrap_mode = 2
+
+[node name="CityDetailPanel" type="PanelContainer" parent="WorldMapUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -380.0
+offset_top = 204.0
+offset_right = -20.0
+offset_bottom = 408.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityDetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/CityDetailPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="EyebrowLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
+theme_override_font_sizes/font_size = 12
+text = "CITY DETAIL"
+
+[node name="CityNameLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "도시를 선택하세요"
+
+[node name="CityTypeLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "유형: -"
+
+[node name="RegionOwnerLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "지역 · 세력: -"
+
+[node name="ResourceLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "자원: placeholder"
+
+[node name="SecurityLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "치안: placeholder"
+
+[node name="MilitaryLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "군사: placeholder"
+
+[node name="CommerceLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "상업: placeholder"
+
+[node name="StatusLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
+theme_override_font_sizes/font_size = 12
+text = "상태: 선택 도시 없음"
+autowrap_mode = 2
+
+[node name="DomesticButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+layout_mode = 2
+text = "내정"
+
+[node name="HintLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.76, 0.84, 1)
+theme_override_font_sizes/font_size = 11
+text = "도시 선택 시 상세 정보가 갱신됩니다."
+autowrap_mode = 2
+
 [node name="CityInfoPanel" type="PanelContainer" parent="WorldMapUI" unique_id=1812841544]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -380.0
-offset_top = 64.0
+offset_top = 416.0
 offset_right = -20.0
-offset_bottom = 360.0
+offset_bottom = 638.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 script = ExtResource("13_city_info_panel")
 
 [node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityInfoPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
 
 [node name="Content" type="VBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="EyebrowLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
 theme_override_font_sizes/font_size = 12
-text = "Selected City"
+text = "SELECTED CITY"
 
 [node name="CityNameLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 20
 text = "도시명"
+
+[node name="DescriptionLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+theme_override_font_sizes/font_size = 12
+text = "한 줄 설명"
+autowrap_mode = 2
 
 [node name="CityIdLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 1)
+theme_override_font_sizes/font_size = 12
 text = "id: city_id"
 
 [node name="RegionOwnerLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+theme_override_font_sizes/font_size = 12
 text = "지역 · OWNER"
 
 [node name="CityTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+theme_override_font_sizes/font_size = 12
 text = "유형: 거점"
 
 [node name="NeighborLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
 autowrap_mode = 2
 text = "인접: -"
 
 [node name="RouteTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
 autowrap_mode = 2
 text = "루트: -"
 
 [node name="StatusTextLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
+theme_override_font_sizes/font_size = 12
 autowrap_mode = 2
 text = "월드맵 기능은 Godot 이식 중입니다."
 
+[node name="GarrisonLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "주둔 무장: placeholder"
+
+[node name="MilitaryInfoLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "군사 정보: placeholder"
+autowrap_mode = 2
+
+[node name="HintLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.76, 0.84, 1)
+theme_override_font_sizes/font_size = 11
+text = "도시 행동은 placeholder입니다."
+autowrap_mode = 2
+
 [node name="ButtonRow" type="HBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="AttackButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "공격 준비"
 
 [node name="HeroMoveButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "무장 이동"
+
+[node name="DomesticButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "내정"
 
 [node name="InstructionLabel" type="Label" parent="WorldMapUI" unique_id=192681468]
 anchors_preset = 2
