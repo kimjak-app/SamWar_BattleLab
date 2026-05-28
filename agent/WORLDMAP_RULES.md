@@ -21,6 +21,14 @@
 - City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP` consolidates the former separate `CityDetailPanel` and `DiplomacySpyPanel` surfaces into one `CityDetailPanel`-backed unified HUD panel.
+- Unified panel primary tabs are `도시 상세` and `외교·첩보`.
+- In `도시 상세` mode, the secondary tabs must remain the web-source city detail tabs: `자원`, `자국무역`, and `타국무역`.
+- In `외교·첩보` mode, the secondary tabs are `외교` and `첩보`, and they may update display-only placeholder copy only.
+- The standalone `DiplomacySpyPanel` is hidden at runtime and should not occupy separate worldmap HUD space while this unified panel MVP is active.
+- Unified panel collapse/expand is runtime-only and must not create save files, user config, localStorage, or project setting changes.
+- `CityInfoPanel` / selected-city panel remains independent from the unified panel and should keep its own independent drag behavior.
+- The unified panel must not execute domestic effects, diplomacy/spy effects, resource changes, turn processing, save/load, recruitment, hero transfer, army movement, battle entry, `BattleContext`, pathfinding, route changes, or AI.
 - `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP` removes the retired top `SamWar Web` banner and old `도시 HUD 위치 이동 · Godot MVP fixed` dragbar from the active runtime HUD.
 - The web grouped `city-hud-stack` drag UX is reference-only. Godot worldmap HUD panels should move independently instead of dragging the whole right HUD group together.
 - Current independent draggable panels are `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel`; drag starts only from title/header labels.

@@ -2,6 +2,17 @@
 
 ## 2026-05-28
 
+### v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP
+- Consolidated the previously separate City Detail and Diplomacy/Spy HUD surfaces into the existing `CityDetailPanel` runtime surface.
+- Added primary mode buttons for `도시 상세` and `외교·첩보` in the unified panel header.
+- Reused the existing secondary tab row: city-detail mode shows `자원`, `자국무역`, and `타국무역`; diplomacy/spy mode shows `외교` and `첩보`.
+- Hid the standalone `DiplomacySpyPanel` at runtime so it no longer occupies independent screen space.
+- Implemented real collapse/expand behavior for the unified panel. Collapsed state keeps a compact `도시 상세 열기` header on-screen and reopens from the header/collapse button.
+- Kept the v0.68b-11 independent drag behavior for the unified panel, `CityInfoPanel`, and `LeftWorldStatusPanel`; positions remain runtime-only and are not persisted.
+- Did not add domestic execution, diplomacy/spy execution, resource mutation, turn processing, save/load, `BattleContext`, battle transition, recruitment, hero transfer, army movement, pathfinding, AI, or route logic.
+- Castle icon visuals remain disabled; route lines and sea route arrow flow were preserved.
+- 김작 F6 should confirm the unified panel displays City Detail and Diplomacy/Spy in one panel, primary and secondary tabs switch visible content, collapse/expand reduces map coverage, unified and selected-city panels drag independently, no panel drag pans the camera, city clicks still update unified and Selected City content, all controls remain placeholder-only, castle icons stay hidden, route/sea arrow flow remains normal, and existing battle scenes remain stable.
+
 ### v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP
 - Checked the web `world_map_ui.js` HUD drag flow and confirmed the web version moves a grouped city HUD stack through one drag handle with localStorage persistence.
 - Godot now intentionally uses independent runtime panel drag instead: `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` can each move by left-dragging their title/header labels.

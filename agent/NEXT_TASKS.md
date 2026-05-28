@@ -35,6 +35,8 @@ Latest worldmap domestic web parity patch: `v0.68b-10 WorldMap Domestic Affairs 
 
 Latest worldmap draggable HUD patch: `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP`
 
+Latest worldmap unified panel patch: `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -44,13 +46,13 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12 Hero Portrait Asset Naming Contract`
+`v0.68b-13 Hero Portrait Asset Naming Contract`
 
 Goal:
 - define portrait asset naming/lookup rules for web-to-Godot hero HUD reuse without changing runtime hero logic
 
 ## Priority 2
-`v0.68b-13 Hero Portrait Asset Apply MVP`
+`v0.68b-14 Hero Portrait Asset Apply MVP`
 
 Goal:
 - apply available hero portrait assets to the worldmap HUD portrait slots without changing hero logic
@@ -80,6 +82,17 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP` is complete.
+- The former separate City Detail and Diplomacy/Spy HUD surfaces are consolidated into one `CityDetailPanel`-backed unified panel.
+- Primary tabs are `도시 상세` and `외교·첩보`.
+- City-detail mode keeps the existing secondary tabs: `자원`, `자국무역`, and `타국무역`.
+- Diplomacy/spy mode uses secondary tabs: `외교` and `첩보`, with display-only placeholder copy.
+- The standalone `DiplomacySpyPanel` is hidden at runtime and no longer occupies separate screen space.
+- The unified panel has a compact collapse/expand state with `도시 상세 열기`; no panel position persistence was added.
+- Independent drag remains for the unified panel, `CityInfoPanel`, and `LeftWorldStatusPanel`; `SelectedCityPanel` / `CityInfoPanel` remains separate from the unified panel.
+- No domestic execution, diplomacy/spy execution, resource mutation, turn processing, save/load, `BattleContext`, battle entry, hero transfer, army movement, route/pathfinding, or AI behavior was added.
+- Castle icon visuals remain disabled, and route lines plus sea route arrow flow remain unchanged.
+- 김작 F6 should confirm unified panel structure, primary/secondary tab switching, collapse/expand, independent drag, no camera pan while panel-dragging, city-click data refresh, placeholder-only controls, castle icon disabled state, route/sea arrow continuity, and battle scene stability.
 - `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP` is complete.
 - Referenced the web `world_map_ui.js` grouped `city-hud-stack` draggable flow, but did not copy its grouped movement or localStorage persistence.
 - Godot now hides the retired top `SamWar Web` banner and `도시 HUD 위치 이동 · Godot MVP fixed` dragbar at runtime.

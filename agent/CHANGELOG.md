@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP
+- Consolidated the Godot worldmap City Detail and Diplomacy/Spy HUD surfaces into one `CityDetailPanel`-backed unified panel.
+- Added unified primary tabs for `도시 상세` and `외교·첩보`; the city-detail mode keeps the existing `자원`, `자국무역`, and `타국무역` secondary tabs.
+- Added diplomacy/spy secondary tab behavior using the same tab row: `외교` and `첩보` switch display-only placeholder copy inside the unified panel.
+- Hid the standalone `DiplomacySpyPanel` at runtime so it no longer occupies separate HUD space.
+- Replaced the old City Detail collapse placeholder with a real runtime collapse/expand state; the collapsed panel shows a small `도시 상세 열기` header and can be reopened.
+- Preserved independent dragging for the unified panel, `CityInfoPanel`, and `LeftWorldStatusPanel`; panel positions remain runtime-only and are not saved.
+- Kept all buttons/tabs placeholder-only; no domestic, diplomacy, spy, battle entry, `BattleContext`, save/load, hero transfer, army movement, route, pathfinding, or AI behavior was added.
+- Preserved selected-city data binding, CityInfoPanel independence, castle icon visual-disable state, route lines, sea route arrow flow, and existing battle scenes.
+
 ## v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP
 - Referenced the web `world_map_ui.js` draggable HUD flow, which moves the grouped `city-hud-stack` through one `data-city-hud-drag-handle` and stores an offset in localStorage.
 - Improved the Godot UX instead of copying the grouped web movement: `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` now support independent runtime dragging from their title/header labels.

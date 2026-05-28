@@ -38,6 +38,8 @@ Latest worldmap domestic web parity patch: `v0.68b-10 WorldMap Domestic Affairs 
 
 Latest worldmap draggable HUD patch: `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP`
 
+Latest worldmap unified panel patch: `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -60,6 +62,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-9 WorldMap HUD Data Binding MVP`
 - `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP`
 - `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP`
+- `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -138,6 +141,11 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Godot intentionally improves on the web grouped HUD drag UX: `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` can be dragged independently from title/header labels only.
 - HUD panel drag is runtime-only, screen-space, clamped to keep a visible portion on-screen, and does not write user config, localStorage, save files, or project settings.
 - Buttons, tabs, and chancellor/governor policy `OptionButton` controls remain outside the drag handles and keep placeholder/display-only behavior.
+- `v0.68b-12` consolidates the former separate `CityDetailPanel` and `DiplomacySpyPanel` surfaces into one `CityDetailPanel`-backed unified panel.
+- Unified panel primary tabs are `도시 상세` and `외교·첩보`; city-detail secondary tabs remain `자원`, `자국무역`, and `타국무역`, while diplomacy/spy secondary tabs are `외교` and `첩보`.
+- The standalone `DiplomacySpyPanel` is hidden at runtime and no longer occupies its own HUD space.
+- The unified panel now has a real collapse/expand state with a compact `도시 상세 열기` header; expanded/collapsed position remains runtime-only.
+- `CityInfoPanel` remains separate and independently draggable from the unified panel.
 - All HUD actions remain placeholder-only. `BattleContext`, battle entry, domestic execution, recruitment, save/load/reset, diplomacy/spy execution, hero/army movement, route click, pathfinding, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
@@ -332,14 +340,15 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-11 WorldMap Draggable Panel Web Parity MVP`
-2. `v0.68b-12 Hero Portrait Asset Naming Contract`
+1. `v0.68b-13 Hero Portrait Asset Naming Contract`
+2. `v0.68b-14 Hero Portrait Asset Apply MVP`
 3. `v0.68c BattleContext Runtime Injection MVP`
 4. `v0.68d Hero/Army Deployment MVP`
 5. `v0.69 Battlefield Variant Loader`
 6. `v0.69b Naval Battle Entry MVP`
 
 ## Known / Deferred
+- 김작 F6 visual QA should confirm `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP`: CityDetailPanel and DiplomacySpyPanel appear as one unified panel; primary tabs `도시 상세` / `외교·첩보` are visible; city-detail mode shows `자원` / `자국무역` / `타국무역`; diplomacy/spy mode shows `외교` / `첩보`; tab clicks switch only visible content; collapse makes the panel compact and reopenable; the unified panel and SelectedCityPanel drag independently; panel dragging does not pan the worldmap camera; city clicks still refresh unified and selected-city content; buttons do not execute real systems; route lines and sea arrow flow remain normal; castle icon visuals remain disabled; existing battle scenes remain stable.
 - 김작 F6 visual QA should confirm `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP`: Godot panel structure resembles the actual web HUD source, City Detail tabs/text/buttons follow `resource_ui.js`, Selected City follows `selected_city_ui.js`, chancellor/governor policy options follow web constants, web city/governor/hero roster data is reflected where available, City Detail tab clicks switch displayed content only, policy selection changes description only, buttons do not change resources/turns/battle/movement, city clicks update Selected City and City Detail together, castle icon visuals remain disabled, route lines and sea route arrow flow remain normal, HUD remains fixed during pan/zoom, and existing battle scenes remain stable.
 - 김작 F6 visual QA should confirm `v0.68b-9 WorldMap HUD Data Binding MVP`: left panel shows chancellor portrait slot, name, stats, current policy, and resources; chancellor policy selection changes the description without applying actual effects; city click updates Selected City and City Detail together; selected city shows governor portrait slot, name, stats, policy, city loyalty, and stationed hero chips; governor policy selection changes the description without changing actual city data; CityDetail shows resource/military/trade/rating/governor/stationed hero count data; all buttons remain placeholder-only; castle icon visuals remain disabled; route lines and sea route arrow flow remain normal; HUD remains fixed during pan/zoom; existing battle scenes remain stable.
 - 김작 F6 visual QA should confirm `v0.68b-8 WorldMap Web HUD Visual Parity MVP`: the left World Turn panel resembles the web version, upper-right Diplomacy/Spy panel is visible, right City Detail panel is visible, right Selected City panel visually resembles the web version, panel color/border/title/button style reads close to the web HUD, city clicks update Selected City and City Detail, buttons do not execute real behavior, panels remain screen-fixed during pan/zoom, panels do not excessively cover the map, castle icon visuals remain disabled, route lines and sea arrow flow remain normal, and existing battle scenes remain stable.
