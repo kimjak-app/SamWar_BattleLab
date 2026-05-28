@@ -7,6 +7,9 @@ const WORLD_MAP_MAX_ZOOM := 1.6
 const WORLD_MAP_CLAMP_PADDING := 24.0
 const WORLD_MAP_ZOOM_STEP := 0.1
 const PLAYER_FACTION_ID := "player"
+const CITY_DETAIL_TAB_RESOURCES := "resources"
+const CITY_DETAIL_TAB_INTERNAL_TRADE := "internal-trade"
+const CITY_DETAIL_TAB_EXTERNAL_TRADE := "external-trade"
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -49,76 +52,98 @@ const CITY_TYPE_LABELS := {
 
 const CHANCELLOR_POLICY_DATA := {
 	"balanced": {
-		"name": "균형 정책",
-		"description": "국정 전반을 고르게 유지합니다. 실제 수치 효과는 아직 적용하지 않습니다.",
+		"name": "균형형",
+		"description": "보정 없음",
+	},
+	"agriculture": {
+		"name": "농업 중심",
+		"description": "쌀/보리 수입 증가, 금전 소폭 감소",
 	},
 	"commerce": {
 		"name": "상업 중심",
-		"description": "금전과 시장 운영을 우선합니다. 이번 단계에서는 설명만 갱신합니다.",
+		"description": "금전 수입 증가, 식량 수입 소폭 감소",
+	},
+	"trade": {
+		"name": "무역 중심",
+		"description": "수산물/금전 소폭 증가, 소금 보존 부담 완화",
 	},
 	"military": {
-		"name": "군비 확장",
-		"description": "군사 유지와 병참 준비를 우선합니다. 병력/자원 수치는 변경하지 않습니다.",
-	},
-	"stability": {
-		"name": "민심 안정",
-		"description": "치안과 성 충성도를 우선합니다. 턴 처리 효과는 후속 단계에서 연결합니다.",
+		"name": "군사 중심",
+		"description": "영웅 유지비 감소, 금전 소폭 감소",
 	},
 }
 
 const GOVERNOR_POLICY_DATA := {
-	"finance": {
-		"name": "재정 정비",
-		"description": "도시 재정과 창고 흐름을 정비합니다. 실제 자원 증감은 없습니다.",
+	"follow_chancellor": {
+		"name": "재상 정책 수행",
+		"description": "도시 운영 효과 적용 · Godot에서는 표시 전용",
 	},
-	"security": {
-		"name": "치안 강화",
-		"description": "치안과 성 충성도 관리를 우선합니다. 실제 수치 변경은 없습니다.",
+	"agriculture": {
+		"name": "농업 중심",
+		"description": "도시 운영 효과 적용 · Godot에서는 표시 전용",
 	},
 	"commerce": {
-		"name": "상업 진흥",
-		"description": "시장과 교역 준비를 우선합니다. 무역 계산은 실행하지 않습니다.",
+		"name": "상업 중심",
+		"description": "도시 운영 효과 적용 · Godot에서는 표시 전용",
 	},
 	"military": {
-		"name": "군비 보강",
-		"description": "주둔군과 방어 준비를 우선합니다. 징병이나 병력 이동은 없습니다.",
+		"name": "군사 중심",
+		"description": "도시 운영 효과 적용 · Godot에서는 표시 전용",
 	},
 }
 
 const HERO_DATA := {
 	"jeong_do_jeon": {"display_name": "정도전", "role": "재상", "politics": 94, "war": 42, "intelligence": 92, "loyalty": 90, "assigned_city_id": "hanseong"},
 	"yi_sun_sin": {"display_name": "이순신", "role": "수군 지휘", "politics": 76, "war": 96, "intelligence": 88, "loyalty": 98, "assigned_city_id": "hanseong"},
-	"gwon_yul": {"display_name": "권율", "role": "도성 방위", "politics": 74, "war": 88, "intelligence": 76, "loyalty": 87, "assigned_city_id": "hanseong"},
+	"cheok_jun_gyeong": {"display_name": "척준경", "role": "돌격", "politics": 48, "war": 98, "intelligence": 52, "loyalty": 86, "assigned_city_id": "hanseong"},
 	"gwanggaeto": {"display_name": "광개토대왕", "role": "북방 원정", "politics": 84, "war": 97, "intelligence": 82, "loyalty": 92, "assigned_city_id": "pyeongyang"},
+	"eulji_mundeok": {"display_name": "을지문덕", "role": "책략", "politics": 82, "war": 78, "intelligence": 92, "loyalty": 90, "assigned_city_id": "pyeongyang"},
+	"dorim": {"display_name": "도림", "role": "지원", "politics": 72, "war": 32, "intelligence": 88, "loyalty": 70, "assigned_city_id": "pyeongyang"},
 	"kim_chun_chu": {"display_name": "김춘추", "role": "외교", "politics": 91, "war": 58, "intelligence": 87, "loyalty": 84, "assigned_city_id": "gyeongju"},
 	"kim_yu_sin": {"display_name": "김유신", "role": "정예 지휘", "politics": 72, "war": 94, "intelligence": 79, "loyalty": 91, "assigned_city_id": "gyeongju"},
+	"jang_bo_go": {"display_name": "장보고", "role": "해상 교역", "politics": 78, "war": 74, "intelligence": 82, "loyalty": 84, "assigned_city_id": "gyeongju"},
 	"uija_wang": {"display_name": "의자왕", "role": "왕도 운영", "politics": 82, "war": 76, "intelligence": 78, "loyalty": 78, "assigned_city_id": "sabi"},
 	"gyebaek": {"display_name": "계백", "role": "결사 방위", "politics": 62, "war": 92, "intelligence": 74, "loyalty": 89, "assigned_city_id": "sabi"},
+	"heukchi_sangji": {"display_name": "흑치상지", "role": "복국 지휘", "politics": 70, "war": 82, "intelligence": 86, "loyalty": 88, "assigned_city_id": "sabi"},
 	"xiang_yu": {"display_name": "항우", "role": "패왕", "politics": 58, "war": 99, "intelligence": 70, "loyalty": 75, "assigned_city_id": "luoyang"},
+	"fan_zeng": {"display_name": "범증", "role": "책사", "politics": 94, "war": 35, "intelligence": 97, "loyalty": 78, "assigned_city_id": "luoyang"},
 	"cao_cao": {"display_name": "조조", "role": "위왕", "politics": 96, "war": 91, "intelligence": 94, "loyalty": 81, "assigned_city_id": "yecheng"},
+	"xun_yu": {"display_name": "순욱", "role": "행정", "politics": 96, "war": 30, "intelligence": 98, "loyalty": 86, "assigned_city_id": "yecheng"},
+	"guo_jia": {"display_name": "곽가", "role": "책략", "politics": 82, "war": 34, "intelligence": 97, "loyalty": 82, "assigned_city_id": "yecheng"},
 	"zhuge_liang": {"display_name": "제갈량", "role": "책사", "politics": 98, "war": 62, "intelligence": 100, "loyalty": 95, "assigned_city_id": "chengdu"},
+	"guan_yu": {"display_name": "관우", "role": "장군", "politics": 70, "war": 96, "intelligence": 78, "loyalty": 95, "assigned_city_id": "chengdu"},
+	"zhang_fei": {"display_name": "장비", "role": "돌격", "politics": 52, "war": 94, "intelligence": 58, "loyalty": 92, "assigned_city_id": "chengdu"},
 	"sun_ce": {"display_name": "손책", "role": "강동 돌파", "politics": 78, "war": 93, "intelligence": 80, "loyalty": 82, "assigned_city_id": "jianye"},
+	"zhou_yu": {"display_name": "주유", "role": "수군 책략", "politics": 88, "war": 84, "intelligence": 96, "loyalty": 88, "assigned_city_id": "jianye"},
+	"lu_meng": {"display_name": "여몽", "role": "장군", "politics": 78, "war": 82, "intelligence": 88, "loyalty": 84, "assigned_city_id": "jianye"},
 	"genghis_khan": {"display_name": "징기스칸", "role": "초원 군주", "politics": 86, "war": 100, "intelligence": 88, "loyalty": 86, "assigned_city_id": "karakorum"},
+	"subutai": {"display_name": "수부타이", "role": "기병 지휘", "politics": 72, "war": 94, "intelligence": 88, "loyalty": 86, "assigned_city_id": "karakorum"},
+	"jebe": {"display_name": "제베", "role": "기병", "politics": 58, "war": 90, "intelligence": 76, "loyalty": 82, "assigned_city_id": "karakorum"},
 	"nobunaga": {"display_name": "노부나가", "role": "개혁 군주", "politics": 92, "war": 90, "intelligence": 88, "loyalty": 80, "assigned_city_id": "kyoto"},
+	"takeda_shingen": {"display_name": "다케다 신겐", "role": "기병", "politics": 86, "war": 92, "intelligence": 84, "loyalty": 82, "assigned_city_id": "kyoto"},
 	"toyotomi_hideyoshi": {"display_name": "도요토미 히데요시", "role": "상업 통치", "politics": 95, "war": 84, "intelligence": 90, "loyalty": 82, "assigned_city_id": "osaka"},
+	"kenshin": {"display_name": "우에스기 겐신", "role": "장군", "politics": 80, "war": 94, "intelligence": 84, "loyalty": 82, "assigned_city_id": "osaka"},
 	"shimazu_yoshihiro": {"display_name": "시마즈 요시히로", "role": "해상 방위", "politics": 70, "war": 92, "intelligence": 78, "loyalty": 83, "assigned_city_id": "kyushu"},
+	"konishi_yukinaga": {"display_name": "고니시 유키나가", "role": "교역", "politics": 78, "war": 72, "intelligence": 82, "loyalty": 76, "assigned_city_id": "kyushu"},
 	"tokugawa_ieyasu": {"display_name": "도쿠가와 이에야스", "role": "동방 행정", "politics": 97, "war": 82, "intelligence": 92, "loyalty": 88, "assigned_city_id": "edo"},
+	"honda_masanobu": {"display_name": "혼다 마사노부", "role": "행정", "politics": 90, "war": 52, "intelligence": 92, "loyalty": 84, "assigned_city_id": "edo"},
+	"honda_tadakatsu": {"display_name": "혼다 다다카쓰", "role": "장군", "politics": 72, "war": 95, "intelligence": 76, "loyalty": 88, "assigned_city_id": "edo"},
 }
 
 const CITY_HUD_DATA := {
-	"hanseong": {"governor_id": "jeong_do_jeon", "governor_policy_id": "security", "stationed_hero_ids": ["jeong_do_jeon", "yi_sun_sin", "gwon_yul"], "loyalty": 78, "resources": "쌀 ★★★ / 보리 ★★★ / 수산 ★", "military": "주둔군 3개 편제 / 방어도 ★★★", "trade": "한반도 내륙 보급망 중심", "rating": "농업 ★★★ · 상업 ★★★★★ · 교역 ★★★"},
-	"pyeongyang": {"governor_id": "gwanggaeto", "governor_policy_id": "military", "stationed_hero_ids": ["gwanggaeto"], "loyalty": 72, "resources": "쌀 ★★★ / 말 ★★ / 철 ★", "military": "북방 방어 거점 / 기병 예비", "trade": "한성-카라코룸 연결 후보", "rating": "농업 ★★★ · 군사 ★★★★ · 교역 ★★"},
-	"gyeongju": {"governor_id": "kim_chun_chu", "governor_policy_id": "commerce", "stationed_hero_ids": ["kim_chun_chu", "kim_yu_sin"], "loyalty": 76, "resources": "쌀 ★★★ / 수산 ★★★ / 비단 ★★", "military": "동남 해상 접근 방어", "trade": "일본열도 해상 교역 후보", "rating": "농업 ★★★ · 상업 ★★★★ · 교역 ★★★★"},
-	"sabi": {"governor_id": "uija_wang", "governor_policy_id": "finance", "stationed_hero_ids": ["uija_wang", "gyebaek"], "loyalty": 73, "resources": "쌀 ★★★ / 수산 ★★★ / 소금 ★★", "military": "서해 방어 및 건업 항로 감시", "trade": "큐슈/건업 해상 교역 후보", "rating": "농업 ★★★ · 군사 ★★★ · 교역 ★★★★"},
-	"luoyang": {"governor_id": "xiang_yu", "governor_policy_id": "military", "stationed_hero_ids": ["xiang_yu"], "loyalty": 74, "resources": "쌀 ★★★ / 철 ★★★ / 금전 ★★★★★", "military": "중원 핵심 군사 집결지", "trade": "업성-성도-건업 내륙 연결", "rating": "농업 ★★★ · 상업 ★★★★★ · 군사 ★★★★"},
-	"yecheng": {"governor_id": "cao_cao", "governor_policy_id": "security", "stationed_hero_ids": ["cao_cao"], "loyalty": 70, "resources": "보리 ★★★★ / 철 ★★ / 말 ★★", "military": "북중국 방어선", "trade": "낙양-건업-카라코룸 연결", "rating": "농업 ★★★ · 군사 ★★★★ · 교역 ★★"},
-	"chengdu": {"governor_id": "zhuge_liang", "governor_policy_id": "finance", "stationed_hero_ids": ["zhuge_liang"], "loyalty": 72, "resources": "쌀 ★★★★★ / 목재 ★★★ / 비단 ★★", "military": "산악 방어 준비", "trade": "낙양/건업 장거리 내륙 교역", "rating": "농업 ★★★★★ · 행정 ★★★★★ · 교역 ★★"},
-	"jianye": {"governor_id": "sun_ce", "governor_policy_id": "commerce", "stationed_hero_ids": ["sun_ce"], "loyalty": 74, "resources": "수산 ★★★ / 비단 ★★★ / 금전 ★★★★★", "military": "강남 수군 준비", "trade": "사비 해상 교역 후보", "rating": "상업 ★★★★★ · 교역 ★★★★★ · 군사 ★★★"},
-	"karakorum": {"governor_id": "genghis_khan", "governor_policy_id": "military", "stationed_hero_ids": ["genghis_khan"], "loyalty": 78, "resources": "말 ★★★★★ / 보리 ★★★★ / 철 ★★", "military": "초원 기병 본거지", "trade": "평양-업성 북방 연결", "rating": "군사 ★★★★★ · 보급 ★★ · 교역 ★"},
-	"kyoto": {"governor_id": "nobunaga", "governor_policy_id": "commerce", "stationed_hero_ids": ["nobunaga"], "loyalty": 76, "resources": "수산 ★★★★★ / 비단 ★★ / 금전 ★★★", "military": "열도 중앙 방어", "trade": "경주 해상 교역 후보", "rating": "상업 ★★★ · 교역 ★★★★ · 군사 ★★★"},
-	"osaka": {"governor_id": "toyotomi_hideyoshi", "governor_policy_id": "finance", "stationed_hero_ids": ["toyotomi_hideyoshi"], "loyalty": 72, "resources": "수산 ★★★★ / 금전 ★★★★★ / 소금 ★★", "military": "상업 항구 방어", "trade": "경주/큐슈 해상 교역 후보", "rating": "상업 ★★★★★ · 교역 ★★★★★ · 군사 ★★"},
-	"kyushu": {"governor_id": "shimazu_yoshihiro", "governor_policy_id": "military", "stationed_hero_ids": ["shimazu_yoshihiro"], "loyalty": 72, "resources": "수산 ★★★★★ / 소금 ★★★ / 철 ★", "military": "서남 해상 방어", "trade": "사비/오사카 해상 연결", "rating": "해상 ★★★★★ · 군사 ★★★ · 교역 ★★★★"},
-	"edo": {"governor_id": "tokugawa_ieyasu", "governor_policy_id": "security", "stationed_hero_ids": ["tokugawa_ieyasu"], "loyalty": 78, "resources": "쌀 ★★ / 수산 ★★★ / 금전 ★★★", "military": "동방 성곽 방어", "trade": "교토 동방 내륙 연결", "rating": "치안 ★★★★★ · 상업 ★★★ · 군사 ★★★"},
+	"hanseong": {"governor_id": "", "governor_policy_id": "follow_chancellor", "stationed_hero_ids": ["yi_sun_sin", "jeong_do_jeon", "cheok_jun_gyeong"], "loyalty": 78, "resources": "쌀 ★★★ / 보리 ★★★ / 수산물 ★ / 목재 ★ / 철 ★ / 말 - / 비단 ★★★ / 소금 ★★", "military": "도시 주둔군 300 / 치안 기준 500 / 방어력 3", "trade": "내부 교역로: 평양-경주-사비 연결 후보", "rating": "인구 ★★★★ · 상업력 ★★★★★ · 금전 650"},
+	"pyeongyang": {"governor_id": "gwanggaeto", "governor_policy_id": "military", "stationed_hero_ids": ["gwanggaeto", "eulji_mundeok", "dorim"], "loyalty": 72, "resources": "쌀 ★★★ / 보리 ★★★ / 수산물 ★ / 목재 ★★★ / 철 ★★ / 말 ★★★ / 비단 ★ / 소금 ★", "military": "도시 주둔군 280 / 치안 기준 500 / 방어력 3", "trade": "내부 교역로: 한성-카라코룸 연결 후보", "rating": "인구 ★★★ · 상업력 ★★★ · 금전 420"},
+	"gyeongju": {"governor_id": "kim_chun_chu", "governor_policy_id": "commerce", "stationed_hero_ids": ["kim_chun_chu", "kim_yu_sin", "jang_bo_go"], "loyalty": 76, "resources": "쌀 ★★★ / 보리 ★★ / 수산물 ★★★ / 목재 ★★ / 철 ★ / 말 ★ / 비단 ★★★★ / 소금 ★★", "military": "도시 주둔군 280 / 치안 기준 500 / 방어력 3", "trade": "대외 무역: 경주 ↔ 교토 / 경주 ↔ 오사카 후보", "rating": "인구 ★★★★ · 상업력 ★★★★ · 금전 580"},
+	"sabi": {"governor_id": "uija_wang", "governor_policy_id": "agriculture", "stationed_hero_ids": ["uija_wang", "gyebaek", "heukchi_sangji"], "loyalty": 73, "resources": "쌀 ★★★ / 보리 ★★ / 수산물 ★★★ / 목재 ★★ / 철 ★ / 말 ★ / 비단 ★★★ / 소금 ★★★", "military": "도시 주둔군 300 / 치안 기준 600 / 방어력 3", "trade": "대외 무역: 사비 ↔ 큐슈 / 사비 ↔ 건업 후보", "rating": "인구 ★★★★ · 상업력 ★★★★ · 금전 620"},
+	"luoyang": {"governor_id": "xiang_yu", "governor_policy_id": "military", "stationed_hero_ids": ["xiang_yu", "fan_zeng"], "loyalty": 74, "resources": "쌀 ★★★ / 보리 ★★★ / 수산물 - / 목재 ★ / 철 ★★★ / 말 ★★ / 비단 ★★★★★ / 소금 ★", "military": "도시 주둔군 420 / 치안 기준 1000 / 방어력 4", "trade": "내부 교역로: 업성-성도-건업 내륙 연결", "rating": "인구 ★★★★★ · 상업력 ★★★★★ · 금전 880"},
+	"yecheng": {"governor_id": "cao_cao", "governor_policy_id": "military", "stationed_hero_ids": ["cao_cao", "xun_yu", "guo_jia"], "loyalty": 70, "resources": "쌀 ★★★ / 보리 ★★★★ / 수산물 - / 목재 ★★ / 철 ★★★★★ / 말 ★★★★ / 비단 ★★ / 소금 ★", "military": "도시 주둔군 450 / 치안 기준 1000 / 방어력 5", "trade": "내부 교역로: 낙양-건업-카라코룸 연결", "rating": "인구 ★★★★ · 상업력 ★★★ · 금전 720"},
+	"chengdu": {"governor_id": "zhuge_liang", "governor_policy_id": "agriculture", "stationed_hero_ids": ["zhuge_liang", "guan_yu", "zhang_fei"], "loyalty": 72, "resources": "쌀 ★★★★★ / 보리 ★★★ / 수산물 - / 목재 ★★★★ / 철 ★★ / 말 ★ / 비단 ★★★ / 소금 ★★", "military": "도시 주둔군 350 / 치안 기준 800 / 방어력 4", "trade": "내부 교역로: 낙양/건업 장거리 내륙 교역", "rating": "인구 ★★★★ · 상업력 ★★★ · 금전 640"},
+	"jianye": {"governor_id": "sun_ce", "governor_policy_id": "commerce", "stationed_hero_ids": ["sun_ce", "zhou_yu", "lu_meng"], "loyalty": 74, "resources": "쌀 ★★★ / 보리 ★★ / 수산물 ★★★ / 목재 ★★★★ / 철 ★ / 말 - / 비단 ★★★★ / 소금 ★★★", "military": "도시 주둔군 300 / 치안 기준 600 / 방어력 3", "trade": "대외 무역: 건업 ↔ 사비 후보", "rating": "인구 ★★★★ · 상업력 ★★★★★ · 금전 820"},
+	"karakorum": {"governor_id": "genghis_khan", "governor_policy_id": "military", "stationed_hero_ids": ["genghis_khan", "subutai", "jebe"], "loyalty": 78, "resources": "쌀 ★ / 보리 ★★★★ / 수산물 - / 목재 ★★ / 철 ★★★★ / 말 ★★★★★ / 비단 ★★ / 소금 ★", "military": "도시 주둔군 460 / 치안 기준 900 / 방어력 4", "trade": "내부 교역로: 평양-업성 북방 연결", "rating": "인구 ★★★ · 상업력 ★★ · 금전 620"},
+	"kyoto": {"governor_id": "nobunaga", "governor_policy_id": "commerce", "stationed_hero_ids": ["nobunaga", "takeda_shingen"], "loyalty": 76, "resources": "쌀 ★ / 보리 ★ / 수산물 ★★★★★ / 목재 ★★ / 철 ★ / 말 - / 비단 ★★ / 소금 ★★★★", "military": "도시 주둔군 240 / 치안 기준 500 / 방어력 3", "trade": "대외 무역: 교토 ↔ 경주 후보", "rating": "인구 ★★★ · 상업력 ★★★ · 금전 760"},
+	"osaka": {"governor_id": "toyotomi_hideyoshi", "governor_policy_id": "commerce", "stationed_hero_ids": ["toyotomi_hideyoshi", "kenshin"], "loyalty": 72, "resources": "쌀 ★★ / 보리 ★ / 수산물 ★★★★ / 목재 ★★ / 철 ★ / 말 - / 비단 ★★★ / 소금 ★★★★", "military": "도시 주둔군 260 / 치안 기준 500 / 방어력 3", "trade": "대외 무역: 오사카 ↔ 경주 / 큐슈 후보", "rating": "인구 ★★★★ · 상업력 ★★★★★ · 금전 900"},
+	"kyushu": {"governor_id": "shimazu_yoshihiro", "governor_policy_id": "military", "stationed_hero_ids": ["shimazu_yoshihiro", "konishi_yukinaga"], "loyalty": 72, "resources": "쌀 ★★ / 보리 ★ / 수산물 ★★★★★ / 목재 ★★ / 철 ★ / 말 - / 비단 ★★ / 소금 ★★★★", "military": "도시 주둔군 270 / 치안 기준 500 / 방어력 3", "trade": "대외 무역: 큐슈 ↔ 사비 / 오사카 후보", "rating": "인구 ★★★ · 상업력 ★★★★ · 금전 680"},
+	"edo": {"governor_id": "tokugawa_ieyasu", "governor_policy_id": "follow_chancellor", "stationed_hero_ids": ["tokugawa_ieyasu", "honda_masanobu", "honda_tadakatsu"], "loyalty": 78, "resources": "쌀 ★★ / 보리 ★★ / 수산물 ★★★ / 목재 ★★★ / 철 ★★★ / 말 ★★ / 비단 ★ / 소금 ★★★", "military": "도시 주둔군 380 / 치안 기준 800 / 방어력 4", "trade": "내부 교역로: 교토 동방 내륙 연결", "rating": "인구 ★★★ · 상업력 ★★★ · 금전 700"},
 }
 
 @onready var tile_a1_top_left: Sprite2D = $WorldMapRoot/WorldMapTileLayer/Tile_A1_TopLeft
@@ -192,6 +217,7 @@ var _player_state := {
 	"trade": "대외 무역: 한반도 해상 교역 후보 준비 중",
 }
 var _city_policy_state: Dictionary = {}
+var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
 
 
 func _ready() -> void:
@@ -373,21 +399,22 @@ func _connect_world_hud_placeholders() -> void:
 	reset_button_placeholder.pressed.connect(_on_reset_placeholder_pressed)
 	diplomacy_mode_button_placeholder.pressed.connect(_on_diplomacy_mode_placeholder_pressed)
 	spy_mode_button_placeholder.pressed.connect(_on_spy_mode_placeholder_pressed)
-	city_detail_resource_tab_button_placeholder.pressed.connect(_on_city_detail_tab_placeholder_pressed.bind("자원"))
-	city_detail_internal_trade_tab_button_placeholder.pressed.connect(_on_city_detail_tab_placeholder_pressed.bind("자국무역"))
-	city_detail_external_trade_tab_button_placeholder.pressed.connect(_on_city_detail_tab_placeholder_pressed.bind("타국무역"))
+	city_detail_resource_tab_button_placeholder.pressed.connect(_on_city_detail_tab_pressed.bind(CITY_DETAIL_TAB_RESOURCES))
+	city_detail_internal_trade_tab_button_placeholder.pressed.connect(_on_city_detail_tab_pressed.bind(CITY_DETAIL_TAB_INTERNAL_TRADE))
+	city_detail_external_trade_tab_button_placeholder.pressed.connect(_on_city_detail_tab_pressed.bind(CITY_DETAIL_TAB_EXTERNAL_TRADE))
 	city_detail_collapse_button_placeholder.pressed.connect(_on_city_detail_collapse_placeholder_pressed)
 	city_detail_domestic_button_placeholder.pressed.connect(_on_city_detail_domestic_placeholder_pressed)
 
 
 func _reset_city_detail_panel() -> void:
+	_refresh_city_detail_tab_styles()
 	city_detail_name_label.text = "도시를 선택하세요"
 	city_detail_type_label.text = "유형: -"
 	city_detail_region_owner_label.text = "지역 · 세력: -"
-	city_detail_resource_label.text = "자원: placeholder"
-	city_detail_security_label.text = "치안: placeholder"
-	city_detail_military_label.text = "군사: placeholder"
-	city_detail_commerce_label.text = "상업: placeholder"
+	city_detail_resource_label.text = "도시 상세: 도시를 선택하세요."
+	city_detail_security_label.text = "자원 / 자국무역 / 타국무역 탭은 웹버전 구조를 따릅니다."
+	city_detail_military_label.text = "군사: -"
+	city_detail_commerce_label.text = "상업: -"
 	city_detail_rating_label.text = "도시 자원 별점: -"
 	city_detail_status_label.text = "상태: 선택 도시 없음"
 	city_detail_hint_label.text = "도시 선택 시 상세 정보가 갱신됩니다."
@@ -412,17 +439,88 @@ func _show_city_detail(city_marker: WorldMapCityMarker) -> void:
 	var policy_data := _get_governor_policy_entry(policy_id)
 	var stationed_hero_ids: Array = city_data.get("stationed_hero_ids", [])
 	var loyalty := int(city_data.get("loyalty", 75))
-	city_detail_resource_label.text = "자원: %s" % str(city_data.get("resources", "식량 자원 / 전략 자원 / 특산 연결 예정"))
-	city_detail_security_label.text = "충성도: %d · 태수 정책: %s" % [loyalty, str(policy_data.get("name", "정책 미정"))]
-	city_detail_military_label.text = "군사: %s" % str(city_data.get("military", "주둔군 / 방어도 연결 예정"))
-	city_detail_commerce_label.text = "교역: %s" % str(city_data.get("trade", "자국무역 / 타국무역 연결 예정"))
-	city_detail_rating_label.text = "도시 자원 별점: %s" % str(city_data.get("rating", "농업/상업/군사 placeholder"))
+	_refresh_city_detail_tab_styles()
+	_apply_city_detail_tab_content(city_marker, city_data, loyalty, policy_data)
 	city_detail_status_label.text = "상태: %s · 태수: %s · 배치 무장 %d명" % [
 		_get_city_detail_status(city_marker),
 		governor_name,
 		stationed_hero_ids.size(),
 	]
-	city_detail_hint_label.text = "내정 수치 변경과 턴 처리는 아직 실행하지 않습니다."
+	city_detail_hint_label.text = "웹버전 City Detail 구조 표시 전용입니다. 내정 수치 변경과 턴 처리는 실행하지 않습니다."
+
+
+func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: Dictionary, loyalty: int, policy_data: Dictionary) -> void:
+	match _selected_city_detail_tab:
+		CITY_DETAIL_TAB_INTERNAL_TRADE:
+			city_detail_resource_label.text = "무역/보급 정보: 내부 교역로 %s" % _format_internal_route_summary(city_marker)
+			city_detail_security_label.text = "보급 우선도: 표시 전용 · 이번 턴 배분: 금전 +0 / 식량 +0 / 소금 +0"
+			city_detail_military_label.text = "군사 보급 판단: 도시 역할 %s · %s" % [
+				_get_city_detail_status(city_marker),
+				str(city_data.get("military", "현재 주둔군 / 목표 주둔군 placeholder")),
+			]
+			city_detail_commerce_label.text = "내부 병력 재배치: 최근 이동 없음 · 실제 병력 이동 없음"
+			city_detail_rating_label.text = "자국무역 탭: 무역/보급 정보 · 군사 보급 판단 · 내부 병력 재배치"
+			city_detail_domestic_button_placeholder.text = "무역 조정"
+		CITY_DETAIL_TAB_EXTERNAL_TRADE:
+			city_detail_resource_label.text = "대외 무역 / 세력 관계: %s" % _format_external_trade_target(city_marker)
+			city_detail_security_label.text = "관계: 표시 전용 · 상태: 교역 가능 여부 계산은 웹 후속 로직"
+			city_detail_military_label.text = "운영: 자동 운영 · 교역 강도: 보통 · 효율 100%"
+			city_detail_commerce_label.text = "무역 수익: 금전 +0 / 식량 +0 / 소금 +0 · 주요 품목: 일반 물자"
+			city_detail_rating_label.text = "타국무역 탭 버튼: 무역 조정 / 교역 강화 / 교역 중단 / 교역 재개 placeholder"
+			city_detail_domestic_button_placeholder.text = "무역 조정"
+		_:
+			city_detail_resource_label.text = "식량 자원: %s" % _extract_resource_group(str(city_data.get("resources", "")), ["쌀", "보리", "수산물"])
+			city_detail_security_label.text = "전략 자원: %s" % _extract_resource_group(str(city_data.get("resources", "")), ["목재", "철", "말"])
+			city_detail_military_label.text = "특산 자원: %s" % _extract_resource_group(str(city_data.get("resources", "")), ["비단", "소금"])
+			city_detail_commerce_label.text = "상업: %s · 태수 정책: %s" % [
+				str(city_data.get("rating", "상업력 -")),
+				str(policy_data.get("name", "정책 미정")),
+			]
+			city_detail_rating_label.text = "성충성도: %d · %s" % [loyalty, str(city_data.get("military", "군대 상태 준비 중"))]
+			city_detail_domestic_button_placeholder.text = "무역 조정"
+
+
+func _refresh_city_detail_tab_styles() -> void:
+	_set_city_detail_tab_active(city_detail_resource_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_RESOURCES)
+	_set_city_detail_tab_active(city_detail_internal_trade_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_INTERNAL_TRADE)
+	_set_city_detail_tab_active(city_detail_external_trade_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_EXTERNAL_TRADE)
+
+
+func _set_city_detail_tab_active(button: Button, is_active: bool) -> void:
+	button.modulate = Color(1.0, 0.9, 0.68, 1.0) if is_active else Color(0.82, 0.86, 0.92, 1.0)
+
+
+func _extract_resource_group(resource_summary: String, resource_names: Array[String]) -> String:
+	if resource_summary.is_empty():
+		return "미확인"
+
+	var matches: Array[String] = []
+	for chunk in resource_summary.split(" / "):
+		for resource_name in resource_names:
+			if chunk.begins_with(resource_name):
+				matches.append(chunk)
+				break
+
+	return " / ".join(matches) if not matches.is_empty() else "미확인"
+
+
+func _format_internal_route_summary(city_marker: WorldMapCityMarker) -> String:
+	if city_marker.neighbors.is_empty():
+		return "비활성"
+
+	var linked_names: Array[String] = []
+	for neighbor_id in city_marker.neighbors.slice(0, 2):
+		var neighbor_marker := _city_markers_by_id.get(neighbor_id) as WorldMapCityMarker
+		linked_names.append(neighbor_marker.display_name if neighbor_marker != null else str(neighbor_id))
+	return " / ".join(linked_names)
+
+
+func _format_external_trade_target(city_marker: WorldMapCityMarker) -> String:
+	for neighbor_id in city_marker.neighbors:
+		var neighbor_marker := _city_markers_by_id.get(neighbor_id) as WorldMapCityMarker
+		if neighbor_marker != null and neighbor_marker.owner_faction_id != city_marker.owner_faction_id:
+			return "%s · %s" % [neighbor_marker.display_name, _format_faction_label(neighbor_marker.owner_faction_id)]
+	return "인접 대외 교역 없음"
 
 
 func _setup_chancellor_policy_option() -> void:
@@ -480,11 +578,11 @@ func _get_chancellor_policy_entry(policy_id: String) -> Dictionary:
 
 
 func _get_governor_policy_entry(policy_id: String) -> Dictionary:
-	return GOVERNOR_POLICY_DATA.get(policy_id, GOVERNOR_POLICY_DATA["finance"])
+	return GOVERNOR_POLICY_DATA.get(policy_id, GOVERNOR_POLICY_DATA["follow_chancellor"])
 
 
 func _get_city_policy_id(city_id: String, city_data: Dictionary) -> String:
-	return str(_city_policy_state.get(city_id, city_data.get("governor_policy_id", "finance")))
+	return str(_city_policy_state.get(city_id, city_data.get("governor_policy_id", "follow_chancellor")))
 
 
 func _format_hero_stats(hero_data: Dictionary) -> String:
@@ -579,9 +677,26 @@ func _on_spy_mode_placeholder_pressed() -> void:
 	diplomacy_hint_label.text = "첩보 판정은 준비 중입니다."
 
 
-func _on_city_detail_tab_placeholder_pressed(tab_label: String) -> void:
-	print("[WorldMap] City detail %s tab placeholder selected. City detail logic is deferred." % tab_label)
-	city_detail_hint_label.text = "%s 탭은 외형 placeholder이며 실제 데이터 전환은 없습니다." % tab_label
+func _on_city_detail_tab_pressed(tab_id: String) -> void:
+	if not [CITY_DETAIL_TAB_RESOURCES, CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(tab_id):
+		tab_id = CITY_DETAIL_TAB_RESOURCES
+	_selected_city_detail_tab = tab_id
+	print("[WorldMap] City detail tab selected: %s. Display only; no domestic/trade effect applied." % tab_id)
+	if selected_city_marker != null:
+		_show_city_detail(selected_city_marker)
+	else:
+		_reset_city_detail_panel()
+	city_detail_hint_label.text = "%s 탭 표시 전환됨. 실제 내정/무역 처리는 실행하지 않습니다." % _get_city_detail_tab_label(tab_id)
+
+
+func _get_city_detail_tab_label(tab_id: String) -> String:
+	match tab_id:
+		CITY_DETAIL_TAB_INTERNAL_TRADE:
+			return "자국무역"
+		CITY_DETAIL_TAB_EXTERNAL_TRADE:
+			return "타국무역"
+		_:
+			return "자원"
 
 
 func _on_city_detail_collapse_placeholder_pressed() -> void:

@@ -31,6 +31,8 @@ Latest worldmap HUD visual patch: `v0.68b-8 WorldMap Web HUD Visual Parity MVP`
 
 Latest worldmap HUD data patch: `v0.68b-9 WorldMap HUD Data Binding MVP`
 
+Latest worldmap domestic web parity patch: `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -40,16 +42,16 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-10 WorldMap Draggable Panel Parity MVP`
+`v0.68b-11 WorldMap Draggable Panel Web Parity MVP`
 
 Goal:
 - make the worldmap HUD panel placement closer to the draggable web HUD without changing city, route, battle, army, or domestic systems
 
 ## Priority 2
-`v0.68b-11 WorldMap Domestic Command UI MVP`
+`v0.68b-12 Hero Portrait Asset Naming Contract`
 
 Goal:
-- add the first domestic command UI surface for selected cities while keeping actual resource, turn, recruitment, and policy effects deferred
+- define portrait asset naming/lookup rules for web-to-Godot hero HUD reuse without changing runtime hero logic
 
 ## Priority 3
 `v0.68c BattleContext Runtime Injection MVP`
@@ -76,6 +78,15 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP` is complete.
+- Referenced actual web sources for world HUD, selected city, city detail/resources/trade, diplomacy/spy, governor, garrison, military, constants, app state, city data, hero data, and battle rosters.
+- Godot `CityDetailPanel` now follows the web `resource_ui.js` tab structure: `자원`, `자국무역`, and `타국무역`, with display-only tab switching.
+- Chancellor and governor policy options now follow web constants and labels; policy selection only updates local UI text.
+- City HUD seed data prioritizes web `data/cities.js`, `data/heroes.js`, and `data/battle_rosters.js` for city loyalty/resource/military copy, governors, and stationed hero rosters.
+- Selected City copy now follows `selected_city_ui.js` more closely with `주둔 무장`, `군대 상태`, `공격`, `무장 이동`, and recruit placeholder wording.
+- No domestic execution, resource mutation, turn processing, save/load, `BattleContext`, battle entry, hero transfer, army movement, route/pathfinding, or AI behavior was added.
+- Castle icon visuals remain disabled, and route lines plus sea route arrow flow remain unchanged.
+- 김작 F6 should confirm the web-source parity of tabs/text/buttons, city click dual panel refresh, policy description-only behavior, placeholder-only buttons, castle icon disabled state, HUD fixed behavior during pan/zoom, route/sea arrow continuity, and battle scene stability.
 - `v0.68b-9 WorldMap HUD Data Binding MVP` is complete.
 - Referenced the web chancellor/governor/policy/garrison/city-detail HUD modules and data files.
 - Godot `WorldMapUI` now displays local HUD data for player turn/status, chancellor portrait/name/stats/policy, city governor portrait/name/stats/policy, city loyalty, stationed hero chips, and richer city detail resource/military/trade/rating copy.

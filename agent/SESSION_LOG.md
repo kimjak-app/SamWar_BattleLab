@@ -2,6 +2,16 @@
 
 ## 2026-05-28
 
+### v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP
+- Checked the actual `SamWar_web` source before implementation, including world HUD, selected city, resource/city detail, diplomacy/spy, governor, garrison, military, constants, app state, world rules, city data, hero data, battle rosters, CSS, and HTML.
+- Ported the web City Detail structure into Godot at MVP scope: `자원`, `자국무역`, and `타국무역` tabs now switch display-only content and use web section labels.
+- Changed Godot chancellor/governor policy data to match the web constants and kept policy selection as UI text state only.
+- Updated local Godot city/hero HUD seed data toward the web city/governor/roster sources, including web battle roster stationed heroes and web city loyalty/resource/military summaries.
+- Updated Selected City wording toward the web panel order: `주둔 무장`, `군대 상태`, `공격`, `무장 이동`, and recruit placeholder language.
+- Did not add domestic execution, resource mutation, turn processing, save/load, `BattleContext`, battle transition, recruitment application, hero transfer, army movement, pathfinding, AI, or route logic.
+- Castle icon visuals remain disabled; route lines and sea route arrow flow were preserved.
+- 김작 F6 should confirm web-source parity of City Detail tabs/text/buttons, Selected City wording/order, chancellor/governor policy labels, city roster data, display-only tab/policy behavior, placeholder-only buttons, city-click dual panel refresh, fixed HUD behavior during pan/zoom, castle icon disabled state, route/sea arrow continuity, and existing battle scene stability.
+
 ### v0.68b-9 WorldMap HUD Data Binding MVP
 - Checked the actual web data/HUD flow in `world_hud_ui.js`, `selected_city_ui.js`, `resource_ui.js`, `diplomacy_spy_ui.js`, `governor_ui.js`, `garrison_ui.js`, `world_map_ui.js`, `ui_render.js`, `constants.js`, `data/heroes.js`, and `data/cities.js`.
 - Added local Godot HUD display data for player turn/status, chancellor, policies, heroes, selected-city governor, city loyalty/resources/military/trade, and stationed hero IDs.

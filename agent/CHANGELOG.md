@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP
+- Checked the actual web source structure in `world_hud_ui.js`, `selected_city_ui.js`, `resource_ui.js`, `diplomacy_spy_ui.js`, `world_map_ui.js`, `ui_render.js`, `governor_ui.js`, `garrison_ui.js`, `military_ui.js`, `constants.js`, `app_state.js`, `world_rules.js`, `data/cities.js`, `data/heroes.js`, `data/battle_rosters.js`, `css/main.css`, and `index.html`.
+- Realigned Godot `CityDetailPanel` with the web `resource_ui.js` structure: `자원`, `자국무역`, and `타국무역` tabs now switch display-only content using web section names.
+- Realigned chancellor and governor policy options with web constants: chancellor `균형형/농업 중심/상업 중심/무역 중심/군사 중심`, governor `재상 정책 수행/농업 중심/상업 중심/군사 중심`.
+- Updated selected-city copy toward the web `selected_city_ui.js` order and wording: city status, governor, stationed heroes, military state, attack, hero movement, and recruit placeholders.
+- Reworked local Godot city/hero HUD seed data to prioritize web `data/cities.js`, `data/heroes.js`, and `data/battle_rosters.js` for governors, loyalty/resource/military summaries, and stationed hero rosters.
+- Kept all controls placeholder-only; no domestic execution, resource mutation, turn processing, save/load, `BattleContext`, battle entry, hero transfer, army movement, route/pathfinding, or AI behavior was added.
+- Preserved castle icon visual disable state, city positions, route lines, sea route arrow flow, and existing battle scenes.
+
 ## v0.68b-9 WorldMap HUD Data Binding MVP
 - Added a Godot-side HUD data binding MVP for `WorldMap_Test.tscn` using local display dictionaries for player state, heroes, city HUD data, chancellor policies, and governor policies.
 - Bound the left World Turn panel to turn/calendar/phase, national power/tax/public order bars, chancellor portrait placeholder, chancellor name/stats, current chancellor policy, resource, supply, logistics, and trade placeholder lines.

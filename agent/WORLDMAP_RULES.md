@@ -21,6 +21,14 @@
 - City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP` realigns the Godot worldmap HUD with actual `SamWar_web` source structure instead of adding arbitrary domestic UI.
+- Web parity references include `world_hud_ui.js`, `selected_city_ui.js`, `resource_ui.js`, `diplomacy_spy_ui.js`, `world_map_ui.js`, `ui_render.js`, `governor_ui.js`, `garrison_ui.js`, `military_ui.js`, `constants.js`, `app_state.js`, `world_rules.js`, `data/cities.js`, `data/heroes.js`, `data/battle_rosters.js`, `css/main.css`, and `index.html`.
+- `CityDetailPanel` should follow the web `resource_ui.js` tabs: `자원`, `자국무역`, and `타국무역`. Tab switching may update local display copy only and must not execute resource, trade, supply, troop, or turn logic.
+- `Selected City` / `CityInfoPanel` should follow the web `selected_city_ui.js` hierarchy: city profile, loyalty, city status, governor, garrison, hero transfer placeholder, military panel, and attack placeholder.
+- Chancellor policies should follow the web constants: `균형형`, `농업 중심`, `상업 중심`, `무역 중심`, and `군사 중심`.
+- Governor policies should follow the web constants: `재상 정책 수행`, `농업 중심`, `상업 중심`, and `군사 중심`.
+- City/garrison/governor seed data should prioritize web `data/cities.js`, `data/heroes.js`, and `data/battle_rosters.js`. Unknown data should remain placeholder instead of being expanded into new systems.
+- `v0.68b-10` remains UI/data-display parity only. It must not execute domestic effects, mutate resources, advance turns, save/load, recruit troops, move heroes, move armies, create `BattleContext`, transition to battle, run pathfinding, or alter route/sea-arrow systems.
 - `v0.68b-9 WorldMap HUD Data Binding MVP` binds the web-style Godot HUD to local display-only player, hero, policy, and selected-city dictionaries.
 - `LeftWorldStatusPanel` now displays mock-bound turn/calendar/phase, national bars, chancellor portrait slot, chancellor name/stats, chancellor policy selection, resources, supply, logistics, and trade copy.
 - `CityInfoPanel` now displays selected-city governor portrait slot, governor name/stats, governor policy selection, city loyalty, stationed hero chips, military copy, and trade/supply copy.

@@ -135,11 +135,11 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 		_get_hero_display_name(governor_data, "태수 미임명"),
 		str(policy_data.get("name", "정책 미정")),
 	]
-	selected_hero_chip_label.text = "선택 중인 무장: %s" % _format_stationed_hero_chips(stationed_hero_ids)
-	garrison_label.text = "주둔 무장: %d명 · 이동 기능은 준비 중" % stationed_hero_ids.size()
-	military_info_label.text = "군사 정보: %s" % str(city_data.get("military", "병력 / 방어 / 보급 데이터 연결 예정"))
-	military_state_label.text = "군비 상태: %s" % str(city_data.get("trade", "징병 / 보급 / 방어도 placeholder"))
-	hint_label.text = "도시 행동은 placeholder입니다."
+	selected_hero_chip_label.text = "주둔 무장: %s" % _format_stationed_hero_chips(stationed_hero_ids)
+	garrison_label.text = "주둔 무장 %d명 · 무장 이동 placeholder" % stationed_hero_ids.size()
+	military_info_label.text = "군대 상태: %s" % str(city_data.get("military", "도시 인구 / 주둔군 / 방어력 연결 예정"))
+	military_state_label.text = "모집/보급: %s · 병사 모집 placeholder" % str(city_data.get("trade", "군량 상태 / 치안 상태 준비 중"))
+	hint_label.text = "웹버전 Selected City 구조 표시 전용입니다."
 	show()
 
 
@@ -162,7 +162,7 @@ func _show_empty() -> void:
 	governor_stats_label.text = "능력: -"
 	_setup_governor_policy_option()
 	governor_policy_description_label.text = "도시 선택 시 태수 정책 설명이 표시됩니다."
-	selected_hero_chip_label.text = "선택 중인 무장: -"
+	selected_hero_chip_label.text = "주둔 무장: -"
 	garrison_label.text = "주둔 무장: placeholder"
 	military_info_label.text = "군사 정보: placeholder"
 	military_state_label.text = "군비 상태: placeholder"
@@ -240,7 +240,7 @@ func _get_governor_policy_entry(policy_id: String) -> Dictionary:
 
 
 func _get_city_policy_id(city_id: String, city_data: Dictionary) -> String:
-	return str(_city_policy_state.get(city_id, city_data.get("governor_policy_id", "finance")))
+	return str(_city_policy_state.get(city_id, city_data.get("governor_policy_id", "follow_chancellor")))
 
 
 func _update_governor_card(governor_id: String, governor_data: Dictionary, policy_id: String, policy_data: Dictionary) -> void:
@@ -297,16 +297,16 @@ func _select_option_by_metadata(option_button: OptionButton, metadata_value: Str
 
 
 func _get_status_text(city_marker: WorldMapCityMarker) -> String:
-	if city_marker.owner_faction_id == PLAYER_FACTION_ID:
-		return "아군 거점입니다. 인접한 적 도시가 있으면 전투를 준비할 수 있습니다."
+	if _has_player_neighbor(city_marker) and city_marker.owner_faction_id != PLAYER_FACTION_ID:
+		return "공격을 누르면 출전 무장 선택 후 Phaser 전투 화면으로 진입합니다."
 
-	if _has_player_neighbor(city_marker):
-		return "공격 준비는 다음 단계에서 BattleContext와 연결됩니다."
+	if city_marker.owner_faction_id == PLAYER_FACTION_ID:
+		return "아군 거점입니다. 인접한 적 도시가 있으면 전투 방식 선택 뒤 공격을 시작할 수 있습니다."
 
 	if not city_marker.owner_faction_id.is_empty():
-		return "적 도시입니다. 아군 인접 거점이 있어야 공격할 수 있습니다."
+		return "적 도시입니다. 아군 인접 거점이 없으면 아직 공격할 수 없습니다."
 
-	return "월드맵 기능은 Godot 이식 중입니다."
+	return "전투 시스템은 다음 버전에서 구현 예정입니다."
 
 
 func _has_player_neighbor(city_marker: WorldMapCityMarker) -> bool:

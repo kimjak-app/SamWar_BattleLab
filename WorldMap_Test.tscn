@@ -1951,7 +1951,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_action")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_action")
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 11
-text = "공격 준비"
+text = "공격"
 
 [node name="HeroMoveButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow"]
 layout_mode = 2
