@@ -153,7 +153,14 @@ const CITY_HUD_DATA := {
 @onready var city_layer: Node2D = $WorldMapRoot/CityLayer
 @onready var world_map_camera: Camera2D = $WorldMapCamera
 @onready var camera_debug_label: Label = $WorldMapUI/CameraDebugLabel
+@onready var world_title_panel: Control = $WorldMapUI/WorldTitlePanel
+@onready var right_hud_dragbar: Control = $WorldMapUI/RightHudDragbar
 @onready var city_info_panel: Node = $WorldMapUI/CityInfoPanel
+@onready var city_info_panel_control: Control = $WorldMapUI/CityInfoPanel
+@onready var city_info_eyebrow_label: Label = $WorldMapUI/CityInfoPanel/MarginContainer/Content/EyebrowLabel
+@onready var city_info_city_name_label: Label = $WorldMapUI/CityInfoPanel/MarginContainer/Content/CityNameLabel
+@onready var left_world_status_panel: Control = $WorldMapUI/LeftWorldStatusPanel
+@onready var left_world_status_eyebrow_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/EyebrowLabel
 @onready var turn_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/TurnLabel
 @onready var calendar_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/CalendarLabel
 @onready var nation_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationLabel
@@ -178,9 +185,15 @@ const CITY_HUD_DATA := {
 @onready var save_button_placeholder: Button = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow/SaveButtonPlaceholder
 @onready var load_button_placeholder: Button = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow/LoadButtonPlaceholder
 @onready var reset_button_placeholder: Button = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow/ResetButtonPlaceholder
+@onready var diplomacy_spy_panel: Control = $WorldMapUI/DiplomacySpyPanel
+@onready var diplomacy_spy_eyebrow_label: Label = $WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/EyebrowLabel
+@onready var diplomacy_spy_heading_label: Label = $WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/HeadingLabel
 @onready var diplomacy_hint_label: Label = $WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/DiplomacyHintLabel
 @onready var diplomacy_mode_button_placeholder: Button = $WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow/DiplomacyModeButtonPlaceholder
 @onready var spy_mode_button_placeholder: Button = $WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow/SpyModeButtonPlaceholder
+@onready var city_detail_panel: Control = $WorldMapUI/CityDetailPanel
+@onready var city_detail_eyebrow_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/EyebrowLabel
+@onready var city_detail_heading_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/HeaderRow/HeadingLabel
 @onready var city_detail_resource_tab_button_placeholder: Button = $WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow/ResourceTabButtonPlaceholder
 @onready var city_detail_internal_trade_tab_button_placeholder: Button = $WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow/InternalTradeTabButtonPlaceholder
 @onready var city_detail_external_trade_tab_button_placeholder: Button = $WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow/ExternalTradeTabButtonPlaceholder
@@ -199,6 +212,8 @@ const CITY_HUD_DATA := {
 
 var _world_rect := Rect2()
 var _is_dragging := false
+var _dragging_hud_panel: Control = null
+var _dragging_hud_pointer_offset := Vector2.ZERO
 var selected_city_id: String = ""
 var selected_city_marker: WorldMapCityMarker = null
 var _city_markers_by_id: Dictionary = {}
@@ -221,6 +236,7 @@ var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
 
 
 func _ready() -> void:
+	_hide_retired_top_worldmap_hud()
 	_refresh_world_rect_from_scene_tiles()
 	_connect_city_markers()
 	city_info_panel.set_city_markers(_city_markers_by_id)
@@ -228,6 +244,7 @@ func _ready() -> void:
 	_setup_chancellor_policy_option()
 	_refresh_left_world_status_panel()
 	_connect_world_hud_placeholders()
+	_setup_independent_hud_panel_drag()
 	_reset_city_detail_panel()
 	_configure_camera()
 	_update_camera_debug_label()
@@ -236,6 +253,21 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_handle_keyboard_pan(delta)
 	_update_camera_debug_label()
+
+
+func _input(event: InputEvent) -> void:
+	if _dragging_hud_panel == null:
+		return
+
+	if event is InputEventMouseMotion:
+		var mouse_motion_event := event as InputEventMouseMotion
+		_move_hud_panel_to_screen_position(_dragging_hud_panel, mouse_motion_event.global_position - _dragging_hud_pointer_offset)
+		get_viewport().set_input_as_handled()
+	elif event is InputEventMouseButton:
+		var mouse_button_event := event as InputEventMouseButton
+		if mouse_button_event.button_index == MOUSE_BUTTON_LEFT and not mouse_button_event.pressed:
+			_dragging_hud_panel = null
+			get_viewport().set_input_as_handled()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -255,6 +287,62 @@ func _unhandled_input(event: InputEvent) -> void:
 		world_map_camera.position -= mouse_motion_event.relative / world_map_camera.zoom * WORLD_MAP_CAMERA_DRAG_SPEED
 		_clamp_camera_to_world()
 		get_viewport().set_input_as_handled()
+
+
+func _hide_retired_top_worldmap_hud() -> void:
+	world_title_panel.visible = false
+	right_hud_dragbar.visible = false
+
+
+func _setup_independent_hud_panel_drag() -> void:
+	_register_hud_panel_drag(left_world_status_panel, [left_world_status_eyebrow_label, turn_label])
+	_register_hud_panel_drag(diplomacy_spy_panel, [diplomacy_spy_eyebrow_label, diplomacy_spy_heading_label])
+	_register_hud_panel_drag(city_detail_panel, [city_detail_eyebrow_label, city_detail_heading_label])
+	_register_hud_panel_drag(city_info_panel_control, [city_info_eyebrow_label, city_info_city_name_label])
+
+
+func _register_hud_panel_drag(panel: Control, handles: Array) -> void:
+	if panel == null:
+		return
+
+	for handle in handles:
+		var handle_control := handle as Control
+		if handle_control == null:
+			continue
+		handle_control.mouse_filter = Control.MOUSE_FILTER_STOP
+		if not handle_control.gui_input.is_connected(_on_hud_drag_handle_gui_input):
+			handle_control.gui_input.connect(_on_hud_drag_handle_gui_input.bind(panel, handle_control))
+
+
+func _on_hud_drag_handle_gui_input(event: InputEvent, panel: Control, handle: Control) -> void:
+	if not event is InputEventMouseButton:
+		return
+
+	var mouse_button_event := event as InputEventMouseButton
+	if mouse_button_event.button_index != MOUSE_BUTTON_LEFT or not mouse_button_event.pressed:
+		return
+
+	_dragging_hud_panel = panel
+	_dragging_hud_pointer_offset = mouse_button_event.global_position - panel.global_position
+	panel.move_to_front()
+	handle.accept_event()
+
+
+func _move_hud_panel_to_screen_position(panel: Control, next_global_position: Vector2) -> void:
+	if panel == null:
+		return
+
+	var viewport_size := get_viewport_rect().size
+	var min_visible_size := Vector2(72.0, 42.0)
+	var panel_size := panel.size
+	if panel_size.x <= 0.0 or panel_size.y <= 0.0:
+		panel_size = panel.get_rect().size
+
+	var clamped_global_position := Vector2(
+		clampf(next_global_position.x, -panel_size.x + min_visible_size.x, viewport_size.x - min_visible_size.x),
+		clampf(next_global_position.y, 0.0, viewport_size.y - min_visible_size.y)
+	)
+	panel.global_position = clamped_global_position
 
 
 func _refresh_world_rect_from_scene_tiles() -> void:

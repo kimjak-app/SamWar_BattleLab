@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP
+- Referenced the web `world_map_ui.js` draggable HUD flow, which moves the grouped `city-hud-stack` through one `data-city-hud-drag-handle` and stores an offset in localStorage.
+- Improved the Godot UX instead of copying the grouped web movement: `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` now support independent runtime dragging from their title/header labels.
+- Hid the retired top `SamWar Web` banner and the old `도시 HUD 위치 이동 · Godot MVP fixed` dragbar at runtime.
+- Drag handling uses left mouse on header labels only, moves the active panel to the front, clamps panels so a visible portion remains on-screen, and does not persist positions to disk/user config.
+- Kept buttons, tabs, and policy `OptionButton` controls outside the drag handles so placeholder button/tab/policy behavior remains usable.
+- Preserved city selection, selected-city/City Detail data binding, castle icon visual-disable state, route lines, sea route arrow flow, existing battle scenes, and all no-real-feature boundaries.
+
 ## v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP
 - Checked the actual web source structure in `world_hud_ui.js`, `selected_city_ui.js`, `resource_ui.js`, `diplomacy_spy_ui.js`, `world_map_ui.js`, `ui_render.js`, `governor_ui.js`, `garrison_ui.js`, `military_ui.js`, `constants.js`, `app_state.js`, `world_rules.js`, `data/cities.js`, `data/heroes.js`, `data/battle_rosters.js`, `css/main.css`, and `index.html`.
 - Realigned Godot `CityDetailPanel` with the web `resource_ui.js` structure: `자원`, `자국무역`, and `타국무역` tabs now switch display-only content using web section names.

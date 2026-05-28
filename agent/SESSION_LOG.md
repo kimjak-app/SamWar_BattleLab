@@ -2,6 +2,16 @@
 
 ## 2026-05-28
 
+### v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP
+- Checked the web `world_map_ui.js` HUD drag flow and confirmed the web version moves a grouped city HUD stack through one drag handle with localStorage persistence.
+- Godot now intentionally uses independent runtime panel drag instead: `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` can each move by left-dragging their title/header labels.
+- The old top `SamWar Web` banner and `도시 HUD 위치 이동 · Godot MVP fixed` dragbar are hidden at runtime.
+- Dragging brings only the active panel to the front, clamps panel position so it cannot disappear completely, and does not save positions between runs.
+- Buttons, tabs, and policy `OptionButton` controls remain outside the drag handles and keep their display-only/placeholder behavior.
+- Did not add save/load, domestic execution, resource mutation, turn processing, `BattleContext`, battle transition, recruitment, hero transfer, army movement, pathfinding, AI, or route logic.
+- Castle icon visuals remain disabled; route lines and sea route arrow flow were preserved.
+- 김작 F6 should confirm the top banner/dragbar are gone, each HUD panel drags independently from header labels, other panels do not follow, controls do not start drags, panel dragging does not pan the camera, pan/zoom keeps HUD screen-fixed, city-click panel refresh still works, tabs/policies still work, castle icons remain hidden, route/sea arrow flow remains normal, and existing battle scenes remain stable.
+
 ### v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP
 - Checked the actual `SamWar_web` source before implementation, including world HUD, selected city, resource/city detail, diplomacy/spy, governor, garrison, military, constants, app state, world rules, city data, hero data, battle rosters, CSS, and HTML.
 - Ported the web City Detail structure into Godot at MVP scope: `자원`, `자국무역`, and `타국무역` tabs now switch display-only content and use web section labels.

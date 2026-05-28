@@ -33,6 +33,8 @@ Latest worldmap HUD data patch: `v0.68b-9 WorldMap HUD Data Binding MVP`
 
 Latest worldmap domestic web parity patch: `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP`
 
+Latest worldmap draggable HUD patch: `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -42,16 +44,16 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-11 WorldMap Draggable Panel Web Parity MVP`
-
-Goal:
-- make the worldmap HUD panel placement closer to the draggable web HUD without changing city, route, battle, army, or domestic systems
-
-## Priority 2
 `v0.68b-12 Hero Portrait Asset Naming Contract`
 
 Goal:
 - define portrait asset naming/lookup rules for web-to-Godot hero HUD reuse without changing runtime hero logic
+
+## Priority 2
+`v0.68b-13 Hero Portrait Asset Apply MVP`
+
+Goal:
+- apply available hero portrait assets to the worldmap HUD portrait slots without changing hero logic
 
 ## Priority 3
 `v0.68c BattleContext Runtime Injection MVP`
@@ -78,6 +80,14 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP` is complete.
+- Referenced the web `world_map_ui.js` grouped `city-hud-stack` draggable flow, but did not copy its grouped movement or localStorage persistence.
+- Godot now hides the retired top `SamWar Web` banner and `도시 HUD 위치 이동 · Godot MVP fixed` dragbar at runtime.
+- `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` can move independently by left-dragging their title/header labels.
+- Panel drag is runtime-only, clamps panels so a visible portion stays on-screen, and does not create save files, user config, localStorage, or project setting changes.
+- Buttons, tabs, and policy `OptionButton` controls remain outside the drag handles and keep display-only placeholder behavior.
+- City click data binding, City Detail tabs, selected-city HUD, chancellor/governor policy UI, castle icon disabled state, route lines, sea route arrow flow, and existing battle scenes remain unchanged.
+- 김작 F6 should confirm the removed top UI, independent panel drag, no cross-panel following, header-only drag, control/drag non-conflict, no camera pan while dragging a panel, screen-fixed HUD during pan/zoom, city-click refresh, tab/policy preservation, castle icon disabled state, route/sea arrow continuity, and battle scene stability.
 - `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP` is complete.
 - Referenced actual web sources for world HUD, selected city, city detail/resources/trade, diplomacy/spy, governor, garrison, military, constants, app state, city data, hero data, and battle rosters.
 - Godot `CityDetailPanel` now follows the web `resource_ui.js` tab structure: `자원`, `자국무역`, and `타국무역`, with display-only tab switching.

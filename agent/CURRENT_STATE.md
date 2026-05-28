@@ -36,6 +36,8 @@ Latest worldmap HUD data patch: `v0.68b-9 WorldMap HUD Data Binding MVP`
 
 Latest worldmap domestic web parity patch: `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP`
 
+Latest worldmap draggable HUD patch: `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -57,6 +59,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-8 WorldMap Web HUD Visual Parity MVP`
 - `v0.68b-9 WorldMap HUD Data Binding MVP`
 - `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP`
+- `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -131,6 +134,10 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Governor policy options now follow the web constants: `재상 정책 수행`, `농업 중심`, `상업 중심`, and `군사 중심`.
 - City HUD seed data now prioritizes web `data/cities.js`, `data/heroes.js`, and `data/battle_rosters.js` for governor IDs, city loyalty/resource summaries, military summaries, and stationed hero rosters.
 - Selected City copy now follows the web `selected_city_ui.js` structure more closely, including `주둔 무장`, `군대 상태`, `공격`, `무장 이동`, and `병사 모집` placeholder wording.
+- `v0.68b-11` hides the retired top `SamWar Web` banner and the `도시 HUD 위치 이동 · Godot MVP fixed` dragbar at runtime.
+- Godot intentionally improves on the web grouped HUD drag UX: `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` can be dragged independently from title/header labels only.
+- HUD panel drag is runtime-only, screen-space, clamped to keep a visible portion on-screen, and does not write user config, localStorage, save files, or project settings.
+- Buttons, tabs, and chancellor/governor policy `OptionButton` controls remain outside the drag handles and keep placeholder/display-only behavior.
 - All HUD actions remain placeholder-only. `BattleContext`, battle entry, domestic execution, recruitment, save/load/reset, diplomacy/spy execution, hero/army movement, route click, pathfinding, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.

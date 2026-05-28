@@ -21,6 +21,12 @@
 - City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP` removes the retired top `SamWar Web` banner and old `도시 HUD 위치 이동 · Godot MVP fixed` dragbar from the active runtime HUD.
+- The web grouped `city-hud-stack` drag UX is reference-only. Godot worldmap HUD panels should move independently instead of dragging the whole right HUD group together.
+- Current independent draggable panels are `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel`; drag starts only from title/header labels.
+- Panel positions are runtime-only and must not be persisted to save files, user config, localStorage, or project settings in this phase.
+- Button, tab, and `OptionButton` inputs must remain usable and must not be treated as drag handles.
+- Draggable HUD behavior must stay CanvasLayer/screen-space and must not affect worldmap camera pan/zoom, city marker positions, route curves, sea arrow flow, battle entry, domestic execution, or `BattleContext`.
 - `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP` realigns the Godot worldmap HUD with actual `SamWar_web` source structure instead of adding arbitrary domestic UI.
 - Web parity references include `world_hud_ui.js`, `selected_city_ui.js`, `resource_ui.js`, `diplomacy_spy_ui.js`, `world_map_ui.js`, `ui_render.js`, `governor_ui.js`, `garrison_ui.js`, `military_ui.js`, `constants.js`, `app_state.js`, `world_rules.js`, `data/cities.js`, `data/heroes.js`, `data/battle_rosters.js`, `css/main.css`, and `index.html`.
 - `CityDetailPanel` should follow the web `resource_ui.js` tabs: `자원`, `자국무역`, and `타국무역`. Tab switching may update local display copy only and must not execute resource, trade, supply, troop, or turn logic.
