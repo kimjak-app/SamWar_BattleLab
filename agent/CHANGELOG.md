@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b-1 WorldMap Hero City Seed Data Import
+- Aligned `scripts/worldmap_test.gd` seed data with local read-only web sources `C:\dev\SamWar_web\data\heroes.js`, `C:\dev\SamWar_web\data\cities.js`, and `C:\dev\SamWar_web\data\battle_rosters.js`.
+- Updated `HERO_DATA` to preserve existing Godot HUD keys while adding web identity, faction/side, command rank, web role, troop/hp/combat stat, portrait path, unique skill, and chancellor profile seed fields.
+- Updated `CITY_HUD_DATA` to preserve existing display strings while adding city identity, owner/nation/region/type, population, gold/food/troops, public order, commerce, agriculture, defense, `hero_ids`, resource seed, domestic seed, and yield seed fields.
+- Kept `CITY_HUD_DATA.stationed_hero_ids` aligned with `battle_rosters.js` `cityDefenderRosters` and `governor_id` aligned with `cities.js` `governorHeroId`; Hanseong remains governor-unassigned because the web city seed has no governor.
+- Updated `_player_state` with web-aligned player faction/current city/selected city/owned city/owned hero/resource stock seed values and changed the initial chancellor seed to empty for parity with web `chancellorHeroId: null`.
+- Added inactive reserve `lu_bu` to `HERO_DATA` as seed metadata only; it is not in city rosters and no runtime roster behavior was added.
+- Did not implement hero movement, governor/chancellor appointment logic, policy effects, resource/troop/turn processing, `BattleContext`, battle scene transition, combat roster resolution, route/pathfinding changes, scene layout changes, castle icon changes, or repo-outside web file edits.
+- Verification: patch strings/data blocks present, forbidden implementation search returned no matches, Godot project headless load passed, `WorldMap_Test.tscn` headless load passed, and `git diff --check` passed.
+
 ## v0.68b-12b-0.5 Session Handoff Docs Update Before New Chat
 - Updated agent handoff docs only; no code, scenes, assets, or seed data were modified.
 - Recorded the current worldmap HUD flow through `v0.68b-8 WorldMap Web HUD Visual Parity MVP`, `v0.68b-9 WorldMap HUD Data Binding MVP`, `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP`, `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP`, `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP`, `v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch`, `v0.68b-12b-pre Codex Auto Work Header Rule Documentation`, `v0.68b-12b Left World HUD Web Content Parity`, and `v0.68b-12b-0 WorldMap Hero City Seed Data Structure Audit`.

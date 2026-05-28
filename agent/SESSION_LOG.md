@@ -2,6 +2,18 @@
 
 ## 2026-05-28
 
+### v0.68b-12b-1 WorldMap Hero City Seed Data Import
+- Used local read-only web data sources from `C:\dev\SamWar_web`: `data/heroes.js`, `data/cities.js`, and `data/battle_rosters.js`.
+- Also checked constants/app-state references for faction IDs, resource keys, initial resource stock, selected city baseline, and web `chancellorHeroId: null` default.
+- Updated only seed data in `scripts/worldmap_test.gd`: `HERO_DATA`, `CITY_HUD_DATA`, and `_player_state`.
+- `HERO_DATA` now keeps existing Godot display/stat compatibility fields and adds web seed fields for `id`, `hero_id`, `name`, faction/side/nation, command rank, web role, troops/max troops/max hp, attack/defense/ranges, unique skill id, portrait paths, and chancellor profile.
+- `CITY_HUD_DATA` now keeps existing panel strings and adds web city fields for identity, owner/nation/region/type, population, gold/food/troops, public order, commerce, agriculture, defense, `hero_ids`, resource seeds, domestic seeds, and yield seeds.
+- `cityDefenderRosters` remained the source for stationed hero lists, and `cities.js` `governorHeroId` remained the source for `governor_id`.
+- `_player_state` now records player faction, ruler/current selected city, origin city, owned city/hero seed lists, resource stock, and an empty `chancellor_id` for web parity with no initial chancellor.
+- Verified the patch strings and seed blocks, searched for forbidden implementation additions, loaded the Godot project headlessly, loaded `WorldMap_Test.tscn` headlessly, and ran `git diff --check`.
+- No gameplay systems were added: no movement, appointments, policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding, scene layout, castle icon, or web repo changes.
+- Recommended next task: `v0.68b-12b-2 WorldMap Hero/City Seed Binding QA`.
+
 ### v0.68b-12b-0.5 Session Handoff Docs Update Before New Chat
 - Completed a docs-only handoff update for the next Codex chat. No code, scenes, assets, or actual seed import changes were made.
 - Updated `CURRENT_STATE`, `NEXT_TASKS`, `HANDOFF_TO_CODEX`, `CHANGELOG`, `SESSION_LOG`, and `WORLDMAP_RULES`.
