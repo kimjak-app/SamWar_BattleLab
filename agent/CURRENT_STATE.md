@@ -64,6 +64,8 @@ Latest worldmap turn cycle patch: `v0.68b-12b-5 WorldMap Enemy Turn Return / Tur
 
 Latest worldmap domestic apply patch: `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
 
+Latest worldmap domestic apply QA patch: `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -99,6 +101,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`
 - `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
 - `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
+- `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -240,6 +243,9 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Tax slider and chancellor policy dropdown remain preview controls until turn completion; UI refresh, save, load, reset, and control changes do not apply resources or loyalty.
 - Save/load/reset now serialize the domestic-updated `_player_state.resource_stock`, `national_loyalty`, tax, chancellor id, chancellor policy, phase, turn number, and calendar labels under save version `v0.68b-12b-6`.
 - `v0.68b-12b-6` still does not implement enemy invasion, enemy AI, enemy target selection, enemy movement, city ownership changes, governor appointment execution, soldier upkeep application, salt consumption, internal supply/troop rebalance, `BattleContext`, battle transition, or route/pathfinding changes.
+- `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check` stabilizes the visible domestic apply loop by recording `_player_state.last_domestic_apply_turn`, so a stale or duplicate same-turn callback cannot apply resources/loyalty twice.
+- Save metadata now records `v0.68b-12b-7`, while save/load/reset continue to persist and restore the same `_player_state` fields; reset returns `last_domestic_apply_turn` to the seed baseline and cancels pending enemy/domestic timers.
+- `v0.68b-12b-7` is QA/stabilization only. It does not add enemy invasion, enemy AI, target selection, hero movement, city ownership changes, governor appointment execution, new domestic systems, `BattleContext`, battle transition, or route/pathfinding changes.
 - Combat/world-simulation HUD actions remain mostly placeholder-only. `BattleContext`, battle entry, broader domestic simulation, recruitment, diplomacy/spy execution, hero/army movement, route click, pathfinding, enemy invasion, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
@@ -434,7 +440,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
+1. `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
 2. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 3. `v0.68b-12c Selected City Panel Web Content Parity`
 4. `v0.68b-12d City Detail Panel Web Content Parity`

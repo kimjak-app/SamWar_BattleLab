@@ -61,6 +61,8 @@ Latest worldmap turn cycle patch: `v0.68b-12b-5 WorldMap Enemy Turn Return / Tur
 
 Latest worldmap domestic apply patch: `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
 
+Latest worldmap domestic apply QA patch: `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -70,17 +72,15 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
+`v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
 
 Goal:
-- verify the visible F6 turn-cycle domestic apply flow and tune display/readability or balance only if needed
+- audit the web enemy invasion / enemy turn logic before any Godot implementation
 
 Scope:
-- verify `아군 턴 종료 -> 적군 턴 placeholder -> 다음 아군 턴` visually applies domestic results once
-- confirm warehouse rows, national loyalty bar, turn/calendar labels, and status summary refresh cleanly
-- compare early resource/loyalty deltas against the web-parity MVP values and tune only narrow display/balance issues
-- confirm save/load/reset preserves domestic-applied resources and does not apply on load/reset
-- keep enemy invasion, full enemy AI, battle entry, hero movement, and broader simulation deferred
+- inspect web enemy-turn / invasion source flow and identify data inputs, target selection, invasion trigger timing, battle handoff boundaries, and deferred systems
+- produce a Godot implementation plan that preserves the current 12b-7 domestic apply loop
+- do not implement invasion during the audit
 
 Forbidden in this task:
 - no enemy invasion implementation
@@ -154,6 +154,14 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check` is complete.
+- Modified `scripts/worldmap_test.gd` and agent docs only; root `WorldMap_Test.tscn` was inspected but not modified.
+- Added `_player_state.last_domestic_apply_turn` and a same-turn guard in `_apply_domestic_turn_mvp()` so stale or duplicate callbacks cannot apply domestic resource/loyalty changes twice.
+- Updated save metadata to `v0.68b-12b-7`; save/load/reset continue to persist domestic-updated resources, loyalty, tax, chancellor id/policy, phase, turn, calendar labels, pending state, and the last applied turn guard.
+- QA coverage was static/headless: default cycle path, preview-only tax/policy/chancellor handlers, warehouse/loyalty refresh paths, save/load/reset restoration, capacity/loyalty clamps, and hidden internal warehouse/debug labels.
+- No enemy invasion, enemy AI, target selection, hero movement, city ownership change, governor execution, new domestic system, `BattleContext`, battle transition, route/pathfinding change, or broad simulation was added.
+- Recommended next task: `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`.
+
 - `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP` is complete.
 - Inspected local read-only web references: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\core\world_calendar.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\world_map_ui.js`.
 - Modified `scripts/worldmap_test.gd` and agent docs only; root `WorldMap_Test.tscn` was inspected but not modified.

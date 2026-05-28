@@ -168,6 +168,9 @@ Latest camera foundation:
 - Latest worldmap domestic apply patch:
 `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
 
+- Latest worldmap domestic apply QA patch:
+`v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -278,6 +281,11 @@ Do not modify casually:
 - Tax slider and chancellor policy dropdown remain preview controls until the turn cycle applies them; save/load/reset and UI refresh do not apply domestic changes.
 - Save/load/reset preserve domestic-updated resources, national loyalty, tax level, chancellor id, chancellor policy, turn phase, turn number, and calendar labels through `_player_state`; runtime saves still use `user://worldmap_left_panel_state.json`.
 - The patch did not add enemy invasion, full enemy AI, enemy target selection, enemy hero movement, city ownership changes, governor appointment execution, soldier upkeep application, salt consumption, internal supply/troop rebalance, `BattleContext`, battle transition, route/pathfinding changes, or repo-outside web edits.
+- `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check` is complete and updates `scripts/worldmap_test.gd` plus agent docs only.
+- The QA stabilization adds `_player_state.last_domestic_apply_turn` and a same-turn guard in `_apply_domestic_turn_mvp()` so resources and loyalty cannot be applied twice by a stale or duplicate callback for the same turn.
+- Save metadata now records `v0.68b-12b-7`; save/load/reset continue to preserve domestic-updated resources, national loyalty, tax level, chancellor id/policy, turn phase, turn number, calendar labels, pending state, and the last applied turn guard.
+- The visible left panel still keeps tax/policy/chancellor changes preview-only until full turn completion, refreshes warehouse/loyalty/status after apply, and keeps internal debug/warehouse lines hidden.
+- `v0.68b-12b-7` did not add enemy invasion, enemy AI, target selection, hero movement, city ownership changes, governor execution, new domestic systems, `BattleContext`, battle transition, route/pathfinding changes, or broad simulation.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -391,13 +399,13 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
-- `v0.68b-12b-7` goal:
-  - Verify the visible F6 flow for domestic turn apply after `아군 턴 종료 -> 적군 턴 -> 다음 아군 턴`.
-  - Confirm warehouse rows, loyalty bar, calendar/phase labels, and result status update once per full cycle; tune only narrow display/readability or balance issues if needed.
-  - Do not add enemy invasion, full enemy AI, battle entry, hero movement, appointment execution, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits.
+  - `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
+- `v0.68b-12b-8` goal:
+  - Audit the web enemy invasion / enemy turn logic before any Godot implementation.
+  - Identify source files, trigger timing, target selection inputs, battle handoff boundaries, and deferred systems while preserving the stable 12b-7 domestic apply loop.
+  - Do not implement enemy invasion, full enemy AI, battle entry, hero movement, ownership changes, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits during the audit.
 - Next candidates:
-  - `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
+  - `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
   - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`

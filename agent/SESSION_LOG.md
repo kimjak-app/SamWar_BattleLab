@@ -2,6 +2,15 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check
+- Inspected the required agent docs, `scripts/worldmap_test.gd`, and the active root `WorldMap_Test.tscn`; the scene file was not modified.
+- Updated `scripts/worldmap_test.gd` with the patch marker `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`.
+- Added `_player_state.last_domestic_apply_turn` and a same-turn guard in `_apply_domestic_turn_mvp()` so a stale or duplicate callback cannot apply domestic resource/loyalty changes twice in the same turn.
+- Updated save metadata to `v0.68b-12b-7`; the existing `_player_state` serialization continues to preserve resources, loyalty, tax, chancellor id/policy, phase, turn/calendar, pending state, and last applied turn.
+- Verified the QA scenarios by static/headless checks: one-cycle apply path, preview-only tax/policy/chancellor handlers, warehouse/loyalty/status refresh, save/load/reset restoration, resource/loyalty bounds, and hidden internal warehouse/debug lines.
+- No enemy invasion, enemy AI, target selection, hero movement, city ownership change, governor execution, new domestic system, `BattleContext`, battle transition, route/pathfinding change, or broad simulation was added.
+- Recommended next task: `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`.
+
 ### v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP
 - Inspected `scripts/worldmap_test.gd` and the active root `WorldMap_Test.tscn`; the scene file was not modified.
 - Inspected local read-only web domestic references: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\core\world_calendar.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\world_map_ui.js`.

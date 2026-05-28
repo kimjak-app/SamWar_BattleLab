@@ -213,6 +213,7 @@ const GOVERNOR_POLICY_DATA := {
 # v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP
 # v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP
 # v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP
+# v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -376,6 +377,7 @@ var _player_state := {
 	"year_label": "154년 봄 1일",
 	"current_phase_label": "아군 턴",
 	"domestic_apply_pending": false,
+	"last_domestic_apply_turn": 0,
 	"national_loyalty": 75,
 	"tax_level": 30,
 	"public_order": 68,
@@ -1179,6 +1181,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["chancellor_id"] = ""
 	if not _player_state.has("domestic_apply_pending"):
 		_player_state["domestic_apply_pending"] = false
+	if not _player_state.has("last_domestic_apply_turn"):
+		_player_state["last_domestic_apply_turn"] = 0
 
 
 func _normalize_turn_phase(phase: String) -> String:
@@ -1286,6 +1290,8 @@ func _advance_world_turn_mvp() -> void:
 func _apply_domestic_turn_mvp() -> String:
 	# v0.68b-12b-6: port the web domestic income/tax/policy MVP once per completed player turn.
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	if int(_player_state.get("last_domestic_apply_turn", 0)) == turn_number:
+		return "내정 이미 적용됨"
 	var tax_level := _normalize_tax_level(_player_state.get("tax_level", 30))
 	var policy_id := _normalize_chancellor_policy_id(str(_player_state.get("chancellor_policy_id", "balanced")))
 	var national_effects := _calculate_active_chancellor_national_effects()
@@ -1299,10 +1305,12 @@ func _apply_domestic_turn_mvp() -> String:
 	var after_loyalty := clampi(before_loyalty + loyalty_delta, 0, 100)
 	var applied_loyalty_delta := after_loyalty - before_loyalty
 	_player_state["national_loyalty"] = after_loyalty
+	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
 	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
+		"version": "v0.68b-12b-7",
 		"turn_number": turn_number,
 		"tax_level": tax_level,
 		"chancellor_policy_id": policy_id,
@@ -1522,8 +1530,8 @@ func _get_default_player_state() -> Dictionary:
 func _serialize_worldmap_state() -> Dictionary:
 	_ensure_worldmap_runtime_state_defaults()
 	return {
-		"version": "v0.68b-12b-6",
-		"title": "WorldMap Turn Domestic Apply Web Parity MVP",
+		"version": "v0.68b-12b-7",
+		"title": "WorldMap Domestic Apply Visual QA + Balance Check",
 		"player_state": _player_state.duplicate(true),
 	}
 

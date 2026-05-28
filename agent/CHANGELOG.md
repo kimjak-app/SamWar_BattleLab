@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check
+- Stabilized the visible domestic apply loop in `scripts/worldmap_test.gd` without modifying the root `WorldMap_Test.tscn`.
+- Added `_player_state.last_domestic_apply_turn` and a same-turn guard in `_apply_domestic_turn_mvp()` so stale or duplicate callbacks cannot apply resource/loyalty deltas twice for the same turn.
+- Updated runtime save metadata to `v0.68b-12b-7`; save/load/reset continue to persist the domestic state, turn/calendar, tax/chancellor controls, pending state, and last applied turn guard through `_player_state`.
+- QA-covered the default turn-cycle path, preview-only tax/policy/chancellor handlers, warehouse/loyalty/status refresh paths, save/load/reset restoration, resource capacity clamps, loyalty bounds, and hidden bottom/internal warehouse lines by static/headless verification.
+- Kept the patch bounded: no enemy invasion, enemy AI, target selection, hero movement, city ownership change, governor appointment execution, new domestic systems, `BattleContext`, battle transition, route/pathfinding change, or broad simulation was added.
+- Verification: patch strings present, one-cycle apply guard present, preview-only handlers reviewed, save/load/reset paths reviewed, hidden-line assignments reviewed, forbidden implementation search reviewed, `git diff --check` passed, Godot project headless load passed, and `WorldMap_Test.tscn` headless load passed.
+
 ## v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP
 - Added the first controlled player-side domestic apply path to `scripts/worldmap_test.gd`, running once when the enemy-turn placeholder finishes and the turn loop returns to the next player turn.
 - Inspected local read-only web sources: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\core\world_calendar.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\world_map_ui.js`.
