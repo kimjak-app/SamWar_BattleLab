@@ -1,5 +1,19 @@
 # SESSION LOG
 
+## 2026-05-29
+
+### v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP
+- Inspected `scripts/worldmap_test.gd` and the active root `WorldMap_Test.tscn`; the scene file was not modified.
+- Inspected local read-only web domestic references: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\core\world_calendar.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\world_map_ui.js`.
+- Updated `scripts/worldmap_test.gd` with the patch marker `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`.
+- Added `_apply_domestic_turn_mvp()` and compact local helpers for web-parity owned-city seasonal income, population/commerce tax gold, chancellor policy income multipliers, active chancellor national modifiers, player hero upkeep, tax loyalty delta, warehouse capacity clamp, and result summary formatting.
+- Domestic apply now runs exactly once when the enemy-turn placeholder finishes and the turn loop returns to player phase; `_domestic_turn_apply_pending` prevents duplicate timer callbacks or load/reset paths from applying resources twice.
+- Tax slider changes and chancellor policy selection remain preview-only until full turn completion; UI refresh, save, load, and reset do not apply domestic values.
+- Save metadata now records `v0.68b-12b-6`, and the existing `_player_state` serialization preserves updated resource stock, national loyalty, tax, chancellor id/policy, phase, turn number, and calendar labels.
+- Verification passed: patch strings, domestic apply/helper paths, preview-only handlers, forbidden implementation search review, `git diff --check`, Godot project headless load, and `WorldMap_Test.tscn` headless load.
+- No enemy invasion, enemy AI, target selection, hero movement, city ownership change, governor appointment execution, soldier upkeep application, salt consumption, internal supply/troop rebalance, `BattleContext`, battle transition, route/pathfinding change, or repo-outside web edit was added.
+- Recommended next task: `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`.
+
 ## 2026-05-28
 
 ### v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP

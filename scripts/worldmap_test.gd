@@ -33,6 +33,16 @@ const WORLD_CALENDAR_SEASON_LABELS := {
 	"autumn": "가을",
 	"winter": "겨울",
 }
+const DOMESTIC_INCOME_RULES := {
+	"seafood_per_rating_per_turn": 2,
+	"barley_per_rating_in_spring": 5,
+	"rice_per_rating_in_autumn": 5,
+}
+const POPULATION_TAX_POINT_PER_RATING := 3
+const COMMERCE_TAX_POINT_PER_RATING := 3
+const TAX_POINT_TO_GOLD := 1
+const CHANCELLOR_PRIMARY_RATE := 0.03
+const CHANCELLOR_SECONDARY_RATE := 0.015
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -202,6 +212,7 @@ const GOVERNOR_POLICY_DATA := {
 # v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup
 # v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP
 # v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP
+# v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -343,6 +354,7 @@ var _save_management_status_label: Label
 var _save_management_status := ""
 var _enemy_turn_mvp_timer: Timer
 var _enemy_turn_mvp_pending := false
+var _domestic_turn_apply_pending := false
 var _default_player_state: Dictionary = {}
 var _is_unified_city_panel_collapsed := false
 var _unified_city_panel_expanded_size := Vector2.ZERO
@@ -363,6 +375,7 @@ var _player_state := {
 	"turn_label": "제 1턴",
 	"year_label": "154년 봄 1일",
 	"current_phase_label": "아군 턴",
+	"domestic_apply_pending": false,
 	"national_loyalty": 75,
 	"tax_level": 30,
 	"public_order": 68,
@@ -1164,6 +1177,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["chancellor_policy_id"] = "balanced"
 	if not _player_state.has("chancellor_id"):
 		_player_state["chancellor_id"] = ""
+	if not _player_state.has("domestic_apply_pending"):
+		_player_state["domestic_apply_pending"] = false
 
 
 func _normalize_turn_phase(phase: String) -> String:
@@ -1212,6 +1227,8 @@ func _on_ally_turn_end_pressed() -> void:
 	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
 		_set_save_management_status("이미 적군 턴입니다.")
 		return
+	_domestic_turn_apply_pending = true
+	_player_state["domestic_apply_pending"] = true
 	_set_turn_phase(TURN_PHASE_ENEMY)
 	_run_enemy_turn_mvp()
 
@@ -1243,11 +1260,21 @@ func _finish_enemy_turn_mvp() -> void:
 		return
 	_enemy_turn_mvp_pending = false
 	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_ENEMY:
+		_domestic_turn_apply_pending = false
+		_player_state["domestic_apply_pending"] = false
 		_refresh_left_world_status_panel()
 		return
+	var domestic_summary := ""
+	if _domestic_turn_apply_pending:
+		domestic_summary = _apply_domestic_turn_mvp()
+		_domestic_turn_apply_pending = false
+		_player_state["domestic_apply_pending"] = false
 	_advance_world_turn_mvp()
 	_set_turn_phase(TURN_PHASE_PLAYER)
-	_set_save_management_status("다음 아군 턴 시작")
+	if domestic_summary.is_empty():
+		_set_save_management_status("다음 아군 턴 시작")
+	else:
+		_set_save_management_status("내정 적용 완료 · %s" % domestic_summary)
 
 
 func _advance_world_turn_mvp() -> void:
@@ -1256,8 +1283,234 @@ func _advance_world_turn_mvp() -> void:
 	_update_world_turn_labels()
 
 
+func _apply_domestic_turn_mvp() -> String:
+	# v0.68b-12b-6: port the web domestic income/tax/policy MVP once per completed player turn.
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var tax_level := _normalize_tax_level(_player_state.get("tax_level", 30))
+	var policy_id := _normalize_chancellor_policy_id(str(_player_state.get("chancellor_policy_id", "balanced")))
+	var national_effects := _calculate_active_chancellor_national_effects()
+	var income_delta := _calculate_player_domestic_income_delta(turn_number, tax_level, policy_id, national_effects)
+	var upkeep_delta := _calculate_player_hero_upkeep_delta(policy_id, national_effects)
+	var combined_delta := _combine_resource_deltas(income_delta, upkeep_delta)
+	var applied_delta := _apply_resource_delta(combined_delta)
+	var base_loyalty_delta := _get_tax_loyalty_delta(tax_level)
+	var loyalty_delta := _adjust_loyalty_delta(base_loyalty_delta, float(national_effects.get("national_loyalty_loss_multiplier", 1.0)))
+	var before_loyalty := clampi(int(_player_state.get("national_loyalty", 75)), 0, 100)
+	var after_loyalty := clampi(before_loyalty + loyalty_delta, 0, 100)
+	var applied_loyalty_delta := after_loyalty - before_loyalty
+	_player_state["national_loyalty"] = after_loyalty
+	_player_state["resources"] = _format_player_resource_summary()
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta)
+	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
+	_player_state["last_domestic_apply_result"] = {
+		"turn_number": turn_number,
+		"tax_level": tax_level,
+		"chancellor_policy_id": policy_id,
+		"income_delta": income_delta,
+		"upkeep_delta": upkeep_delta,
+		"resource_delta": applied_delta,
+		"loyalty_delta": applied_loyalty_delta,
+		"national_effects": national_effects,
+	}
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta)
+
+
+func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
+	var safe_turn := maxi(1, turn_number)
+	var zero_based_turn := safe_turn - 1
+	var season_index := int((zero_based_turn % WORLD_CALENDAR_YEAR_TURNS) / WORLD_CALENDAR_SEASON_TURNS)
+	var season_id := str(WORLD_CALENDAR_SEASON_ORDER[season_index])
+	return {
+		"turn": safe_turn,
+		"season": season_id,
+		"season_label": str(WORLD_CALENDAR_SEASON_LABELS.get(season_id, season_id)),
+	}
+
+
+func _create_empty_domestic_income_totals() -> Dictionary:
+	return {"rice": 0, "barley": 0, "seafood": 0, "gold": 0}
+
+
+func _calculate_player_domestic_income_delta(turn_number: int, tax_level: int, policy_id: String, national_effects: Dictionary) -> Dictionary:
+	var calendar := _get_world_calendar_for_turn(turn_number)
+	var totals := _create_empty_domestic_income_totals()
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return totals
+	for city_id in owned_city_ids:
+		var city_data := _get_city_hud_entry(str(city_id))
+		if city_data.is_empty():
+			continue
+		var city_income := _calculate_city_domestic_income(city_data, calendar, tax_level)
+		for resource_id in totals.keys():
+			totals[resource_id] = int(totals.get(resource_id, 0)) + int(city_income.get(resource_id, 0))
+	var policy_totals := _apply_chancellor_policy_to_income_totals(totals, policy_id)
+	return _apply_income_multipliers_to_totals(policy_totals, national_effects)
+
+
+func _calculate_city_domestic_income(city_data: Dictionary, calendar: Dictionary, tax_level: int) -> Dictionary:
+	var resource_seed: Dictionary = city_data.get("resource_seed", {})
+	var income := _create_empty_domestic_income_totals()
+	income["seafood"] = _get_rating(resource_seed, "seafood") * int(DOMESTIC_INCOME_RULES.get("seafood_per_rating_per_turn", 2))
+	if str(calendar.get("season", "")) == "spring":
+		income["barley"] = _get_rating(resource_seed, "barley") * int(DOMESTIC_INCOME_RULES.get("barley_per_rating_in_spring", 5))
+	if str(calendar.get("season", "")) == "autumn":
+		income["rice"] = _get_rating(resource_seed, "rice") * int(DOMESTIC_INCOME_RULES.get("rice_per_rating_in_autumn", 5))
+	income["gold"] = _calculate_city_gold_tax_income(city_data, tax_level)
+	return income
+
+
+func _calculate_city_gold_tax_income(city_data: Dictionary, tax_level: int) -> int:
+	var population_tax_points := _get_city_numeric_rating(city_data, "population_rating", 3) * POPULATION_TAX_POINT_PER_RATING
+	var commerce_tax_points := _get_city_numeric_rating(city_data, "commerce_rating", 0) * COMMERCE_TAX_POINT_PER_RATING
+	var taxable_value := (population_tax_points + commerce_tax_points) * TAX_POINT_TO_GOLD
+	return maxi(0, int(round(float(taxable_value) * _get_tax_gold_multiplier(tax_level))))
+
+
+func _get_rating(source: Dictionary, key: String) -> int:
+	return maxi(0, int(source.get(key, 0)))
+
+
+func _get_city_numeric_rating(city_data: Dictionary, key: String, fallback: int) -> int:
+	return clampi(int(city_data.get(key, fallback)), 1, 5)
+
+
+func _apply_chancellor_policy_to_income_totals(totals: Dictionary, policy_id: String) -> Dictionary:
+	var policy_data: Dictionary = CHANCELLOR_POLICY_DATA.get(_normalize_chancellor_policy_id(policy_id), CHANCELLOR_POLICY_DATA.get("balanced", {}))
+	var income_multiplier := float(policy_data.get("income_multiplier", 1.0))
+	return {
+		"rice": maxi(0, int(round(float(totals.get("rice", 0)) * income_multiplier * float(policy_data.get("rice_multiplier", 1.0))))),
+		"barley": maxi(0, int(round(float(totals.get("barley", 0)) * income_multiplier * float(policy_data.get("barley_multiplier", 1.0))))),
+		"seafood": maxi(0, int(round(float(totals.get("seafood", 0)) * income_multiplier * float(policy_data.get("seafood_multiplier", 1.0))))),
+		"gold": maxi(0, int(round(float(totals.get("gold", 0)) * income_multiplier * float(policy_data.get("gold_multiplier", 1.0))))),
+	}
+
+
+func _calculate_active_chancellor_national_effects() -> Dictionary:
+	var effect := {
+		"rice_multiplier": 1.0,
+		"barley_multiplier": 1.0,
+		"seafood_multiplier": 1.0,
+		"gold_multiplier": 1.0,
+		"hero_upkeep_multiplier": 1.0,
+		"soldier_upkeep_preview_multiplier": 1.0,
+		"salt_preservation_multiplier": 1.0,
+		"national_loyalty_loss_multiplier": 1.0,
+	}
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty():
+		return effect
+	var hero_data := _get_hero_entry(chancellor_id)
+	if hero_data.is_empty() or str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+		return effect
+	_apply_chancellor_type_effect(effect, str(hero_data.get("chancellor_primary_type", "")), float(hero_data.get("chancellor_primary_aptitude", 0)), CHANCELLOR_PRIMARY_RATE)
+	_apply_chancellor_type_effect(effect, str(hero_data.get("chancellor_secondary_type", "")), float(hero_data.get("chancellor_secondary_aptitude", 0)), CHANCELLOR_SECONDARY_RATE)
+	return effect
+
+
+func _apply_chancellor_type_effect(effect: Dictionary, type_id: String, aptitude: float, rate: float) -> void:
+	var strength := maxf(0.0, aptitude) * rate
+	if type_id.is_empty() or strength <= 0.0:
+		return
+	match type_id:
+		"political":
+			effect["national_loyalty_loss_multiplier"] = clampf(float(effect.get("national_loyalty_loss_multiplier", 1.0)) * (1.0 - strength), 0.7, 1.0)
+		"economic":
+			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * (1.0 + strength), 1.0, 1.22)
+		"administrative":
+			effect["hero_upkeep_multiplier"] = clampf(float(effect.get("hero_upkeep_multiplier", 1.0)) * (1.0 - (strength * 0.45)), 0.82, 1.0)
+			effect["salt_preservation_multiplier"] = clampf(float(effect.get("salt_preservation_multiplier", 1.0)) * (1.0 - (strength * 0.45)), 0.82, 1.0)
+		"diplomatic":
+			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * (1.0 + (strength * 0.55)), 1.0, 1.12)
+		"militaryAdmin":
+			effect["soldier_upkeep_preview_multiplier"] = clampf(float(effect.get("soldier_upkeep_preview_multiplier", 1.0)) * (1.0 - (strength * 0.55)), 0.82, 1.0)
+
+
+func _apply_income_multipliers_to_totals(totals: Dictionary, effect: Dictionary) -> Dictionary:
+	return {
+		"rice": maxi(0, int(round(float(totals.get("rice", 0)) * float(effect.get("rice_multiplier", 1.0))))),
+		"barley": maxi(0, int(round(float(totals.get("barley", 0)) * float(effect.get("barley_multiplier", 1.0))))),
+		"seafood": maxi(0, int(round(float(totals.get("seafood", 0)) * float(effect.get("seafood_multiplier", 1.0))))),
+		"gold": maxi(0, int(round(float(totals.get("gold", 0)) * float(effect.get("gold_multiplier", 1.0))))),
+	}
+
+
+func _calculate_player_hero_upkeep_delta(policy_id: String, national_effects: Dictionary) -> Dictionary:
+	var owned_hero_ids: Variant = _player_state.get("owned_hero_ids", [])
+	if not owned_hero_ids is Array:
+		return {}
+	var active_count := 0
+	for hero_id in owned_hero_ids:
+		var hero_data := _get_hero_entry(str(hero_id))
+		if hero_data.is_empty() or str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+			continue
+		if hero_data.get("active", true) == false or hero_data.get("isDead", false) == true or hero_data.get("dead", false) == true:
+			continue
+		active_count += 1
+	var policy_data: Dictionary = CHANCELLOR_POLICY_DATA.get(_normalize_chancellor_policy_id(policy_id), CHANCELLOR_POLICY_DATA.get("balanced", {}))
+	var upkeep_multiplier := float(policy_data.get("hero_upkeep_multiplier", 1.0)) * float(national_effects.get("hero_upkeep_multiplier", 1.0))
+	var delta := {}
+	for resource_id in HERO_UPKEEP_RULES.keys():
+		var base_cost := active_count * int(HERO_UPKEEP_RULES.get(resource_id, 0))
+		var adjusted_cost := _round_discounted_amount(base_cost, upkeep_multiplier)
+		if adjusted_cost > 0:
+			delta[str(resource_id)] = -adjusted_cost
+	return delta
+
+
+func _round_discounted_amount(amount: int, multiplier: float) -> int:
+	var adjusted_amount := float(amount) * multiplier
+	if multiplier < 1.0 and adjusted_amount < float(amount):
+		return maxi(0, int(floor(adjusted_amount)))
+	return maxi(0, int(round(adjusted_amount)))
+
+
+func _combine_resource_deltas(first: Dictionary, second: Dictionary) -> Dictionary:
+	var combined := {}
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		combined[resource_id] = int(first.get(resource_id, 0)) + int(second.get(resource_id, 0))
+	return combined
+
+
+func _apply_resource_delta(delta: Dictionary) -> Dictionary:
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {}).duplicate(true)
+	var applied_delta := {}
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		var resource_key := str(resource_id)
+		var before := int(resource_stock.get(resource_key, 0))
+		var capacity := int(WAREHOUSE_CAPACITY.get(resource_key, 0))
+		var after := before + int(delta.get(resource_key, 0))
+		after = clampi(after, 0, capacity) if capacity > 0 else maxi(0, after)
+		resource_stock[resource_key] = after
+		applied_delta[resource_key] = after - before
+	_player_state["resource_stock"] = resource_stock
+	return applied_delta
+
+
+func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
+	if base_delta >= 0:
+		return base_delta
+	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
+
+
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int) -> String:
+	var parts: Array[String] = []
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		var delta := int(resource_delta.get(resource_id, 0))
+		if delta == 0:
+			continue
+		parts.append("%s %s" % [str(RESOURCE_LABELS.get(resource_id, resource_id)), _format_signed_int(delta)])
+	if loyalty_delta != 0:
+		parts.append("충성도 %s" % _format_signed_int(loyalty_delta))
+	if parts.is_empty():
+		return "변동 없음"
+	return " · ".join(parts)
+
+
 func _cancel_enemy_turn_timer_if_needed() -> void:
 	_enemy_turn_mvp_pending = false
+	_domestic_turn_apply_pending = false
+	_player_state["domestic_apply_pending"] = false
 	if _enemy_turn_mvp_timer != null and not _enemy_turn_mvp_timer.is_stopped():
 		_enemy_turn_mvp_timer.stop()
 
@@ -1269,8 +1522,8 @@ func _get_default_player_state() -> Dictionary:
 func _serialize_worldmap_state() -> Dictionary:
 	_ensure_worldmap_runtime_state_defaults()
 	return {
-		"version": "v0.68b-12b-5",
-		"title": "WorldMap Enemy Turn Return / Turn Cycle MVP",
+		"version": "v0.68b-12b-6",
+		"title": "WorldMap Turn Domestic Apply Web Parity MVP",
 		"player_state": _player_state.duplicate(true),
 	}
 
@@ -1284,6 +1537,10 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 		next_state[key] = restored_state[key]
 	_player_state = next_state
 	_ensure_worldmap_runtime_state_defaults()
+	_domestic_turn_apply_pending = bool(_player_state.get("domestic_apply_pending", false))
+	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_ENEMY:
+		_domestic_turn_apply_pending = false
+		_player_state["domestic_apply_pending"] = false
 	return true
 
 
@@ -1694,7 +1951,11 @@ func _add_chancellor_effect_tag(tags: Array[String], type_id: String) -> void:
 
 
 func _get_chancellor_policy_entry(policy_id: String) -> Dictionary:
-	return CHANCELLOR_POLICY_DATA.get(policy_id, CHANCELLOR_POLICY_DATA["balanced"])
+	return CHANCELLOR_POLICY_DATA.get(_normalize_chancellor_policy_id(policy_id), CHANCELLOR_POLICY_DATA["balanced"])
+
+
+func _normalize_chancellor_policy_id(policy_id: String) -> String:
+	return policy_id if CHANCELLOR_POLICY_DATA.has(policy_id) else "balanced"
 
 
 func _get_governor_policy_entry(policy_id: String) -> Dictionary:

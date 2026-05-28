@@ -62,6 +62,8 @@ Latest worldmap turn/save patch: `v0.68b-12b-4 WorldMap Turn End + Save Manageme
 
 Latest worldmap turn cycle patch: `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
 
+Latest worldmap domestic apply patch: `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -96,6 +98,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`
 - `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`
 - `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
+- `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -232,7 +235,12 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Enemy turn pending state disables the turn-end button during the short placeholder and is cancelled on load/reset so duplicate timers do not stack; loading an enemy-phase save resumes the placeholder return path.
 - Save/load/reset now preserve and restore `turn_phase`, `turn_number`, calendar labels, selected city, resources, tax, loyalty, chancellor id, and chancellor policy through the existing `_player_state` serialization.
 - `v0.68b-12b-5` remains turn-cycle MVP scope only. It does not add enemy invasion, enemy target selection, enemy hero movement, city ownership changes, resource production ticks, domestic turn application, `BattleContext`, battle transition, route/pathfinding changes, or broad AI simulation.
-- Combat/world-simulation HUD actions remain placeholder-only. `BattleContext`, battle entry, domestic execution, recruitment, diplomacy/spy execution, hero/army movement, route click, pathfinding, enemy invasion, and AI remain unimplemented.
+- `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP` applies the first controlled player-side domestic result exactly once when the enemy-turn placeholder finishes and the loop returns to the next player turn.
+- The Godot domestic apply path mirrors the narrow web `domestic_income.js` / `app_state.endWorldTurn()` subset: owned city seasonal income, population/commerce tax gold, chancellor policy income multipliers, active chancellor national gold/loyalty/upkeep multipliers, hero upkeep deduction, tax loyalty impact, warehouse capacity clamp, and a concise status summary.
+- Tax slider and chancellor policy dropdown remain preview controls until turn completion; UI refresh, save, load, reset, and control changes do not apply resources or loyalty.
+- Save/load/reset now serialize the domestic-updated `_player_state.resource_stock`, `national_loyalty`, tax, chancellor id, chancellor policy, phase, turn number, and calendar labels under save version `v0.68b-12b-6`.
+- `v0.68b-12b-6` still does not implement enemy invasion, enemy AI, enemy target selection, enemy movement, city ownership changes, governor appointment execution, soldier upkeep application, salt consumption, internal supply/troop rebalance, `BattleContext`, battle transition, or route/pathfinding changes.
+- Combat/world-simulation HUD actions remain mostly placeholder-only. `BattleContext`, battle entry, broader domestic simulation, recruitment, diplomacy/spy execution, hero/army movement, route click, pathfinding, enemy invasion, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
 - Route connection meaning is code metadata; the actual route curve is the scene-authored `Path2D.curve` source of truth.
@@ -426,7 +434,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
+1. `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
 2. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 3. `v0.68b-12c Selected City Panel Web Content Parity`
 4. `v0.68b-12d City Detail Panel Web Content Parity`

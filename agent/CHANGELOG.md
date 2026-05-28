@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP
+- Added the first controlled player-side domestic apply path to `scripts/worldmap_test.gd`, running once when the enemy-turn placeholder finishes and the turn loop returns to the next player turn.
+- Inspected local read-only web sources: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\core\world_calendar.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\world_map_ui.js`.
+- Ported the narrow web domestic MVP subset: owned-city seasonal income, population/commerce tax gold, chancellor policy income multipliers, active chancellor national modifiers, player hero upkeep deduction, tax loyalty delta, warehouse capacity clamp, and concise result/status text.
+- Added duplicate-apply protection with a pending domestic-apply guard tied to the player-initiated turn-end path; load/reset cancels pending timers and does not apply domestic changes.
+- Kept tax slider and chancellor policy dropdown as preview controls until full turn completion; UI refresh, save, load, reset, tax movement, and policy selection do not mutate resources or loyalty.
+- Updated save metadata to `v0.68b-12b-6` while continuing to serialize the existing `_player_state`, including updated resource stock, national loyalty, tax, chancellor id/policy, phase, turn, and calendar labels.
+- Kept the patch bounded: no enemy invasion, enemy AI, enemy target selection, enemy movement, city ownership changes, governor appointment execution, soldier upkeep application, salt consumption, internal supply/troop rebalance, `BattleContext`, battle transition, route/pathfinding change, or repo-outside web edit was added.
+- Verification: patch strings present, domestic apply/helper paths present, preview handlers reviewed, forbidden implementation search reviewed, `git diff --check` passed, Godot project headless load passed, and `WorldMap_Test.tscn` headless load passed.
+
 ## v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP
 - Closed the minimal worldmap turn loop in `scripts/worldmap_test.gd`: `아군 턴 종료` now enters enemy phase, runs a short placeholder enemy-turn timer, returns to player phase, and increments `turn_number` once per completed cycle.
 - Inspected local read-only web sources: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, `js\main.js`, `js\core\world_calendar.js`, and `js\constants.js`.

@@ -59,6 +59,8 @@ Latest worldmap turn/save patch: `v0.68b-12b-4 WorldMap Turn End + Save Manageme
 
 Latest worldmap turn cycle patch: `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
 
+Latest worldmap domestic apply patch: `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -68,23 +70,23 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
+`v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
 
 Goal:
-- apply the already-previewed left-panel domestic values on completed player turns, after the turn cycle MVP is stable
+- verify the visible F6 turn-cycle domestic apply flow and tune display/readability or balance only if needed
 
 Scope:
-- inspect web turn domestic application for tax income, national loyalty impact, chancellor policy effects, and warehouse/resource updates
-- apply only the safe web-parity domestic/resource updates at the completed turn boundary
-- keep existing left-panel preview/control state as the source for tax and chancellor policy
-- preserve save/load/reset compatibility for updated resources, loyalty, tax, chancellor, policy, phase, and calendar
+- verify `아군 턴 종료 -> 적군 턴 placeholder -> 다음 아군 턴` visually applies domestic results once
+- confirm warehouse rows, national loyalty bar, turn/calendar labels, and status summary refresh cleanly
+- compare early resource/loyalty deltas against the web-parity MVP values and tune only narrow display/balance issues
+- confirm save/load/reset preserves domestic-applied resources and does not apply on load/reset
 - keep enemy invasion, full enemy AI, battle entry, hero movement, and broader simulation deferred
 
 Forbidden in this task:
 - no enemy invasion implementation
 - no enemy city targeting or hero movement
 - no actual governor/chancellor appointment execution
-- no broad domestic engine refactor beyond the requested turn-apply MVP
+- no broad domestic engine refactor beyond visual QA / narrow balance correction
 - no `BattleContext` creation
 - no battle scene transition
 - no route or pathfinding change
@@ -152,6 +154,16 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP` is complete.
+- Inspected local read-only web references: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\core\world_calendar.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, `js\ui\world_hud_ui.js`, and `js\ui\world_map_ui.js`.
+- Modified `scripts/worldmap_test.gd` and agent docs only; root `WorldMap_Test.tscn` was inspected but not modified.
+- Domestic apply now runs once when the enemy-turn placeholder finishes and the game returns to the next player turn.
+- Ported the narrow web MVP subset: seasonal owned-city income, population/commerce tax gold, tax loyalty delta, chancellor policy income multipliers, active chancellor national modifiers, hero upkeep deduction, warehouse capacity clamp, and concise result status.
+- Tax slider and chancellor policy dropdown remain preview-only until turn completion; save/load/reset and UI refresh do not apply domestic changes.
+- Save data version is now `v0.68b-12b-6` and continues to persist `_player_state`, including domestic-updated resources/loyalty, tax, chancellor id/policy, phase, turn, and calendar labels.
+- No enemy invasion, enemy AI, target selection, hero movement, city ownership change, governor appointment execution, soldier upkeep application, salt consumption, `BattleContext`, battle transition, route/pathfinding change, or broad simulation was added.
+- Recommended next task: `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`.
+
 - `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP` is complete.
 - Inspected local read-only web references: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, `js\main.js`, `js\core\world_calendar.js`, and `js\constants.js`.
 - Modified `scripts/worldmap_test.gd` and agent docs only; root `WorldMap_Test.tscn` was inspected but not modified.
