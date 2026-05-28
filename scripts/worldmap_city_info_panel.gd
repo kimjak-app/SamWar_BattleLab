@@ -51,12 +51,17 @@ const CITY_TYPE_LABELS := {
 @onready var neighbor_label: Label = $MarginContainer/Content/NeighborLabel
 @onready var route_type_label: Label = $MarginContainer/Content/RouteTypeLabel
 @onready var status_text_label: Label = $MarginContainer/Content/StatusTextLabel
+@onready var loyalty_label: Label = $MarginContainer/Content/LoyaltyCard/MarginContainer/Content/LoyaltyLabel
+@onready var governor_label: Label = $MarginContainer/Content/GovernorLabel
+@onready var selected_hero_chip_label: Label = $MarginContainer/Content/SelectedHeroChipLabel
 @onready var garrison_label: Label = $MarginContainer/Content/GarrisonLabel
 @onready var military_info_label: Label = $MarginContainer/Content/MilitaryInfoLabel
+@onready var military_state_label: Label = $MarginContainer/Content/MilitaryStateLabel
 @onready var hint_label: Label = $MarginContainer/Content/HintLabel
 @onready var attack_button_placeholder: Button = $MarginContainer/Content/ButtonRow/AttackButtonPlaceholder
 @onready var hero_move_button_placeholder: Button = $MarginContainer/Content/ButtonRow/HeroMoveButtonPlaceholder
 @onready var domestic_button_placeholder: Button = $MarginContainer/Content/ButtonRow/DomesticButtonPlaceholder
+@onready var recruit_button_placeholder: Button = $MarginContainer/Content/RecruitButtonPlaceholder
 
 var _city_markers_by_id: Dictionary = {}
 
@@ -65,6 +70,7 @@ func _ready() -> void:
 	attack_button_placeholder.pressed.connect(_on_attack_placeholder_pressed)
 	hero_move_button_placeholder.pressed.connect(_on_hero_move_placeholder_pressed)
 	domestic_button_placeholder.pressed.connect(_on_domestic_placeholder_pressed)
+	recruit_button_placeholder.pressed.connect(_on_recruit_placeholder_pressed)
 	_show_empty()
 
 
@@ -92,8 +98,12 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 	neighbor_label.text = "인접: %s" % _format_neighbors(city_marker.neighbors)
 	route_type_label.text = "루트: %s" % _format_route_types(city_marker)
 	status_text_label.text = _get_status_text(city_marker)
+	loyalty_label.text = "성 충성도 75 · placeholder 안정"
+	governor_label.text = "태수: placeholder"
+	selected_hero_chip_label.text = "선택 중인 무장: [준비 중] [미배정]"
 	garrison_label.text = "주둔 무장: placeholder"
 	military_info_label.text = "군사 정보: 병력 / 방어 / 보급 데이터 연결 예정"
+	military_state_label.text = "군비 상태: 징병 / 보급 / 방어도 placeholder"
 	hint_label.text = "도시 행동은 placeholder입니다."
 	show()
 
@@ -108,8 +118,12 @@ func _show_empty() -> void:
 	neighbor_label.text = "인접: -"
 	route_type_label.text = "루트: -"
 	status_text_label.text = "월드맵 HUD 기능은 Godot 이식 중입니다."
+	loyalty_label.text = "성 충성도 - · placeholder"
+	governor_label.text = "태수: -"
+	selected_hero_chip_label.text = "선택 중인 무장: -"
 	garrison_label.text = "주둔 무장: placeholder"
 	military_info_label.text = "군사 정보: placeholder"
+	military_state_label.text = "군비 상태: placeholder"
 	hint_label.text = "공격 / 무장 이동 / 내정은 아직 실행되지 않습니다."
 	show()
 
@@ -191,3 +205,8 @@ func _on_hero_move_placeholder_pressed() -> void:
 func _on_domestic_placeholder_pressed() -> void:
 	print("[WorldMap] Domestic placeholder selected. Domestic execution is deferred.")
 	hint_label.text = "내정 실행은 후속 Domestic Affairs 패널에서 연결됩니다."
+
+
+func _on_recruit_placeholder_pressed() -> void:
+	print("[WorldMap] Recruit placeholder selected. Soldier recruitment is deferred.")
+	hint_label.text = "병사 모집은 실제 자원/병력 처리와 연결되지 않았습니다."

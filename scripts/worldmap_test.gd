@@ -57,9 +57,16 @@ const CITY_TYPE_LABELS := {
 @onready var city_info_panel: Node = $WorldMapUI/CityInfoPanel
 @onready var world_status_hint_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WorldStatusHintLabel
 @onready var wild_army_edit_button_placeholder: Button = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder
+@onready var save_button_placeholder: Button = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow/SaveButtonPlaceholder
+@onready var load_button_placeholder: Button = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow/LoadButtonPlaceholder
+@onready var reset_button_placeholder: Button = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow/ResetButtonPlaceholder
 @onready var diplomacy_hint_label: Label = $WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/DiplomacyHintLabel
 @onready var diplomacy_mode_button_placeholder: Button = $WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow/DiplomacyModeButtonPlaceholder
 @onready var spy_mode_button_placeholder: Button = $WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow/SpyModeButtonPlaceholder
+@onready var city_detail_resource_tab_button_placeholder: Button = $WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow/ResourceTabButtonPlaceholder
+@onready var city_detail_internal_trade_tab_button_placeholder: Button = $WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow/InternalTradeTabButtonPlaceholder
+@onready var city_detail_external_trade_tab_button_placeholder: Button = $WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow/ExternalTradeTabButtonPlaceholder
+@onready var city_detail_collapse_button_placeholder: Button = $WorldMapUI/CityDetailPanel/MarginContainer/Content/HeaderRow/CollapseButtonPlaceholder
 @onready var city_detail_name_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/CityNameLabel
 @onready var city_detail_type_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/CityTypeLabel
 @onready var city_detail_region_owner_label: Label = $WorldMapUI/CityDetailPanel/MarginContainer/Content/RegionOwnerLabel
@@ -249,8 +256,15 @@ func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 
 func _connect_world_hud_placeholders() -> void:
 	wild_army_edit_button_placeholder.pressed.connect(_on_wild_army_edit_placeholder_pressed)
+	save_button_placeholder.pressed.connect(_on_save_placeholder_pressed)
+	load_button_placeholder.pressed.connect(_on_load_placeholder_pressed)
+	reset_button_placeholder.pressed.connect(_on_reset_placeholder_pressed)
 	diplomacy_mode_button_placeholder.pressed.connect(_on_diplomacy_mode_placeholder_pressed)
 	spy_mode_button_placeholder.pressed.connect(_on_spy_mode_placeholder_pressed)
+	city_detail_resource_tab_button_placeholder.pressed.connect(_on_city_detail_tab_placeholder_pressed.bind("자원"))
+	city_detail_internal_trade_tab_button_placeholder.pressed.connect(_on_city_detail_tab_placeholder_pressed.bind("자국무역"))
+	city_detail_external_trade_tab_button_placeholder.pressed.connect(_on_city_detail_tab_placeholder_pressed.bind("타국무역"))
+	city_detail_collapse_button_placeholder.pressed.connect(_on_city_detail_collapse_placeholder_pressed)
 	city_detail_domestic_button_placeholder.pressed.connect(_on_city_detail_domestic_placeholder_pressed)
 
 
@@ -320,6 +334,21 @@ func _on_wild_army_edit_placeholder_pressed() -> void:
 	world_status_hint_label.text = "야군 편집은 후속 Army 단계에서 연결됩니다."
 
 
+func _on_save_placeholder_pressed() -> void:
+	print("[WorldMap] Save placeholder selected. Save/load integration is deferred.")
+	world_status_hint_label.text = "저장 기능은 이 HUD 외형 단계에서 실행되지 않습니다."
+
+
+func _on_load_placeholder_pressed() -> void:
+	print("[WorldMap] Load placeholder selected. Save/load integration is deferred.")
+	world_status_hint_label.text = "불러오기 기능은 이 HUD 외형 단계에서 실행되지 않습니다."
+
+
+func _on_reset_placeholder_pressed() -> void:
+	print("[WorldMap] Reset placeholder selected. Reset integration is deferred.")
+	world_status_hint_label.text = "초기화 기능은 이 HUD 외형 단계에서 실행되지 않습니다."
+
+
 func _on_diplomacy_mode_placeholder_pressed() -> void:
 	print("[WorldMap] Diplomacy tab placeholder selected. Diplomacy logic is deferred.")
 	diplomacy_hint_label.text = "외교 행동은 준비 중입니다."
@@ -328,6 +357,16 @@ func _on_diplomacy_mode_placeholder_pressed() -> void:
 func _on_spy_mode_placeholder_pressed() -> void:
 	print("[WorldMap] Spy tab placeholder selected. Spy logic is deferred.")
 	diplomacy_hint_label.text = "첩보 판정은 준비 중입니다."
+
+
+func _on_city_detail_tab_placeholder_pressed(tab_label: String) -> void:
+	print("[WorldMap] City detail %s tab placeholder selected. City detail logic is deferred." % tab_label)
+	city_detail_hint_label.text = "%s 탭은 외형 placeholder이며 실제 데이터 전환은 없습니다." % tab_label
+
+
+func _on_city_detail_collapse_placeholder_pressed() -> void:
+	print("[WorldMap] City detail collapse placeholder selected. Collapse behavior is deferred.")
+	city_detail_hint_label.text = "접기 동작은 placeholder입니다."
 
 
 func _on_city_detail_domestic_placeholder_pressed() -> void:

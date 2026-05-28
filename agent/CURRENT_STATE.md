@@ -30,6 +30,8 @@ Latest worldmap functional marker patch: `v0.68b-6a WorldMap Castle Icon Visual 
 
 Latest worldmap HUD structure patch: `v0.68b-8 WorldMap Web HUD Panel Structure Import MVP`
 
+Latest worldmap HUD visual patch: `v0.68b-8 WorldMap Web HUD Visual Parity MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -48,6 +50,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-6 WorldMap Selected City Panel Web Parity MVP`
 - `v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch`
 - `v0.68b-8 WorldMap Web HUD Panel Structure Import MVP`
+- `v0.68b-8 WorldMap Web HUD Visual Parity MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -108,6 +111,8 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `WorldMapUI` now includes a screen-fixed `CityInfoPanel` MVP based on the web selected city HUD structure.
 - `v0.68b-8` expands `WorldMapUI` toward the web HUD layout: left `LeftWorldStatusPanel`, upper-right `DiplomacySpyPanel`, right `CityDetailPanel`, and expanded `CityInfoPanel` / selected-city summary.
 - The new HUD panels are placeholder-only and screen-fixed. City clicks refresh both `CityDetailPanel` and `CityInfoPanel`.
+- `v0.68b-8 WorldMap Web HUD Visual Parity MVP` tunes the Godot HUD closer to the web CSS look: dark navy translucent panels, thin gold borders, gold eyebrow headings, dense text, inner cards, tab buttons, red action buttons, progress-bar placeholders, and a centered `SamWar Web` title banner.
+- The right HUD is arranged in a web-like fixed multi-panel layout with Diplomacy/Spy, City Detail, and Selected City columns. It remains placeholder-only and does not add real systems.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
 - Route connection meaning is code metadata; the actual route curve is the scene-authored `Path2D.curve` source of truth.
@@ -133,7 +138,9 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - City marker click now updates `selected_city_id`, stores `selected_city_marker`, clears the previous marker selection, shows the selected marker's `SelectionRing`, and refreshes `WorldMapUI/CityInfoPanel`.
 - `CityInfoPanel` displays city name, city id, region/owner, city type, neighbors, route type summary, MVP status text, and attack / hero-move placeholder buttons.
 - `CityInfoPanel` now also includes a short description, garrison placeholder, military information placeholder, hint text, and attack / hero-move / domestic placeholder buttons.
+- `CityInfoPanel` now visually includes web-style selected-city details: loyalty progress placeholder, governor placeholder, selected-hero chips placeholder, military state placeholder, and recruit placeholder button.
 - `CityDetailPanel` displays selected city name, city type, region/owner, resource/security/military/commerce placeholders, and city status. If no city is selected, it prompts the user to select a city.
+- `CityDetailPanel` now visually includes resource / internal trade / external trade tab placeholders and city rating placeholder copy.
 - Attack and hero-move buttons are placeholders only and do not create `BattleContext`, transition to battle, move heroes, move armies, or open domestic detail UI.
 - Attack, hero-move, domestic, wild-army edit, diplomacy, and spy buttons are placeholder-only and only print debug output or update hint labels.
 - City clicking remains a selected-city UI MVP; route clicking, army movement, battle entry, pathfinding, and `BattleContext` runtime injection remain unimplemented.
@@ -299,13 +306,14 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-9 WorldMap Domestic Affairs Panel MVP`
+1. `v0.68b-9 WorldMap Domestic Affairs UI Data MVP`
 2. `v0.68c BattleContext Runtime Injection MVP`
 3. `v0.68d Hero/Army Deployment MVP`
 4. `v0.69 Battlefield Variant Loader`
 5. `v0.69b Naval Battle Entry MVP`
 
 ## Known / Deferred
+- 김작 F6 visual QA should confirm `v0.68b-8 WorldMap Web HUD Visual Parity MVP`: the left World Turn panel resembles the web version, upper-right Diplomacy/Spy panel is visible, right City Detail panel is visible, right Selected City panel visually resembles the web version, panel color/border/title/button style reads close to the web HUD, city clicks update Selected City and City Detail, buttons do not execute real behavior, panels remain screen-fixed during pan/zoom, panels do not excessively cover the map, castle icon visuals remain disabled, route lines and sea arrow flow remain normal, and existing battle scenes remain stable.
 - 김작 F6 visual QA should confirm `v0.68b-8`: left World Turn/국력/자원 panel is visible, upper-right Diplomacy/Spy panel is visible, right City Detail panel is visible, right Selected City panel is visible, city clicks update City Detail and Selected City together, panels stay screen-fixed during camera pan/zoom, panels do not excessively cover the map, attack/hero-move/domestic buttons do not execute real behavior, castle icon visuals remain disabled, route lines and sea route arrow flow remain normal, and existing battle scenes remain stable.
 - 김작 F6 visual QA should confirm `v0.68b-6a`: castle icons are not visible on the worldmap, city name labels remain visible, simple functional city markers remain visible, city clicking still selects cities, selected cities show `SelectionRing`, `CityInfoPanel` displays normally, route lines and sea route arrow flow remain normal, pan/zoom does not break city clicking, and existing battle scenes remain stable.
 - 김작 F6 visual QA should confirm `v0.68b-6`: city markers can be clicked to select a city, the selected city is visually distinguished by its marker-local selection ring, `CityInfoPanel` stays fixed on screen, the panel shows city name/id/region/owner/type/neighbors/routeTypes, attack and hero-move placeholders are visible and do not launch real behavior, pan/zoom does not break city clicking, route lines and sea arrow flow remain normal, city clicking does not break routes or UI, and existing battle scenes remain stable.

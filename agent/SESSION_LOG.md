@@ -2,6 +2,16 @@
 
 ## 2026-05-28
 
+### v0.68b-8 WorldMap Web HUD Visual Parity MVP
+- Checked the actual web visual structure in `SamWar_web/index.html`, `css/main.css`, and the worldmap HUD UI modules.
+- Tuned the Godot `WorldMapUI` HUD toward the web look with dark navy translucent panels, thin gold borders, beige/gold headings, compact text, inner cards, small tab buttons, red action buttons, and progress placeholders.
+- Added a centered `SamWar Web` title banner placeholder.
+- Expanded the left World Turn panel visuals with turn/calendar/owner, national progress bars, chancellor, resources, internal supply, logistics, external trade, wild-army edit, and save/load/reset placeholders.
+- Expanded Diplomacy/Spy, City Detail, and Selected City panel visuals with web-like tabs/cards and placeholder content while keeping city-click selection updates intact.
+- Kept every button placeholder-only; no `BattleContext`, battle transition, domestic execution, diplomacy/spy execution, turn/resource mutation, pathfinding, AI, or hero/army movement was added.
+- Castle icon visuals remain disabled; city positions, route lines, and sea route arrow flow were preserved.
+- 김작 F6 should confirm web-HUD visual similarity, fixed screen placement during pan/zoom, selected-city/city-detail refresh on city click, placeholder-only button behavior, castle icon disabled state, route/sea arrow continuity, and battle scene stability.
+
 ### v0.68b-8 WorldMap Web HUD Panel Structure Import MVP
 - Checked the actual web HUD structure in `SamWar_web/js/ui/world_map_ui.js`, `ui_render.js`, `world_hud_ui.js`, `diplomacy_spy_ui.js`, `resource_ui.js`, and `selected_city_ui.js`, plus `data/cities.js` and `data/factions.js`.
 - Expanded Godot `WorldMapUI` into a screen-fixed HUD structure closer to the web layout: left World Turn/Status, upper-right Diplomacy/Spy, right City Detail, and expanded Selected City / `CityInfoPanel`.

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-8 WorldMap Web HUD Visual Parity MVP
+- Referenced the web HUD visual sources: `index.html`, `css/main.css`, `world_map_ui.js`, `ui_render.js`, `world_hud_ui.js`, `diplomacy_spy_ui.js`, `resource_ui.js`, and `selected_city_ui.js`.
+- Tuned Godot `WorldMap_Test.tscn > WorldMapUI` toward the web HUD look: dark navy translucent panels, thin gold borders, gold/beige eyebrow headings, dense text, inner cards, tab buttons, red action buttons, and progress-bar placeholders.
+- Added a centered `SamWar Web` title banner placeholder and changed the right HUD into a fixed multi-panel visual layout for Diplomacy/Spy, City Detail, and Selected City.
+- Expanded the left World Turn panel visuals with turn/calendar/owner, progress placeholder bars, chancellor, national resources, internal supply, logistics plan, external trade, wild-army edit, and save/load/reset placeholders.
+- Expanded selected-city visuals with loyalty progress placeholder, governor placeholder, selected hero chips placeholder, military state placeholder, recruit placeholder, and web-like button styling.
+- Kept all controls placeholder-only; no `BattleContext`, battle entry, domestic execution, diplomacy/spy logic, turn/resource changes, pathfinding, AI, or hero/army movement was added.
+- Preserved castle icon visual disable state, city positions, route lines, sea route arrow flow, and existing battle scenes.
+
 ## v0.68b-8 WorldMap Web HUD Panel Structure Import MVP
 - Referenced the actual web worldmap HUD sources: `world_map_ui.js`, `ui_render.js`, `world_hud_ui.js`, `diplomacy_spy_ui.js`, `resource_ui.js`, `selected_city_ui.js`, `data/cities.js`, and `data/factions.js`.
 - Expanded `WorldMap_Test.tscn > WorldMapUI` from a single selected-city panel into a web-like HUD MVP: left `LeftWorldStatusPanel`, upper-right `DiplomacySpyPanel`, right `CityDetailPanel`, and expanded selected-city `CityInfoPanel`.

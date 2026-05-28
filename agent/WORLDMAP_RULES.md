@@ -21,6 +21,11 @@
 - City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-8 WorldMap Web HUD Visual Parity MVP` tunes the Godot `WorldMapUI` HUD visuals against the actual web HTML/CSS/JS structure.
+- Web visual references include `index.html`, `css/main.css`, `world_map_ui.js`, `ui_render.js`, `world_hud_ui.js`, `diplomacy_spy_ui.js`, `resource_ui.js`, and `selected_city_ui.js`.
+- The worldmap HUD visual style is dark navy/black translucent panels, thin gold borders, gold/beige eyebrow titles, dense small text, inner dark cards, small tab buttons, red action buttons, and progress-bar placeholders.
+- `WorldMapUI` now includes a centered `SamWar Web` title banner placeholder and a fixed right HUD layout that visually approximates the web `city-hud-stack`.
+- The visual parity layer is UI-only. It must not create `BattleContext`, change scenes, execute domestic changes, run diplomacy/spy logic, move heroes, move armies, alter resources, advance turns, or modify route/sea-arrow systems.
 - `v0.68b-8 WorldMap Web HUD Panel Structure Import MVP` expands the screen-fixed `WorldMapUI` toward the web `renderAllWorldUI()` layout.
 - The Godot MVP HUD structure is `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and expanded `CityInfoPanel` under the CanvasLayer.
 - `LeftWorldStatusPanel` is a placeholder-only port of the web `renderWorldHud()` shape: world turn, calendar, national status, chancellor, resources, internal supply, logistics, and wild-army edit placeholder.

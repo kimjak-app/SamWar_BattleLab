@@ -27,6 +27,8 @@ Latest worldmap functional marker patch: `v0.68b-6a WorldMap Castle Icon Visual 
 
 Latest worldmap HUD structure patch: `v0.68b-8 WorldMap Web HUD Panel Structure Import MVP`
 
+Latest worldmap HUD visual patch: `v0.68b-8 WorldMap Web HUD Visual Parity MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -36,7 +38,7 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-9 WorldMap Domestic Affairs Panel MVP`
+`v0.68b-9 WorldMap Domestic Affairs UI Data MVP`
 
 Goal:
 - add the first domestic affairs panel MVP for selected cities without real resource changes, turn processing, battle launch, or hero/army movement
@@ -66,6 +68,14 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-8 WorldMap Web HUD Visual Parity MVP` is complete.
+- Referenced the web `index.html`, `css/main.css`, `world_map_ui.js`, `ui_render.js`, `world_hud_ui.js`, `diplomacy_spy_ui.js`, `resource_ui.js`, and `selected_city_ui.js` structure and styling.
+- Tuned Godot `WorldMapUI` toward the web HUD visual style: dark navy translucent panels, thin gold borders, gold/beige headings, dense small text, inner cards, tab buttons, red action buttons, progress-bar placeholders, and a centered `SamWar Web` title banner.
+- Left World Turn panel now visually includes turn/calendar/owner, progress placeholder bars, chancellor, national resources, internal supply, logistics plan, external trade, wild-army edit, and save/load/reset placeholders.
+- Diplomacy/Spy, City Detail, and Selected City panels were visually expanded with web-like card/tabs/action styling while remaining placeholder-only.
+- City clicks still refresh City Detail and Selected City; no `BattleContext`, battle entry, domestic execution, diplomacy/spy execution, turn/resource changes, or hero/army movement was added.
+- Castle icon visuals remain disabled, and route line / sea arrow flow were not changed.
+- 김작 F6 should confirm visual similarity to the web HUD, screen-fixed panel behavior, placeholder-only buttons, castle icon disabled state, route/sea arrow continuity, and battle scene stability.
 - `v0.68b-8 WorldMap Web HUD Panel Structure Import MVP` is complete.
 - Godot `WorldMapUI` now mirrors the web worldmap HUD structure at MVP scope: left World Turn/Status panel, upper-right Diplomacy/Spy panel, right City Detail panel, and expanded Selected City / `CityInfoPanel`.
 - The implementation referenced the web `renderAllWorldUI()`, `renderWorldHud()`, `renderDiplomacySpyPanel()`, `renderCityDetailPanel()`, and `renderSelectedCityPanel()` structure.
