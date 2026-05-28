@@ -65,7 +65,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang" unique_id=1515034208]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "낙양"
 
@@ -96,7 +96,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng" unique_id=2041772460]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "업성"
 
@@ -125,7 +125,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu" unique_id=1708417080]
-position = Vector2(0, 34)
+position = Vector2(0, 23)
 script = ExtResource("7_city_name_label")
 text = "성도"
 
@@ -158,7 +158,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye" unique_id=834072429]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "건업"
 
@@ -192,7 +192,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("9_7yvie")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=1787550722]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "카라코룸"
 
@@ -221,7 +221,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang" unique_id=937412380]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "평양"
 
@@ -250,7 +250,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong" unique_id=155801755]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "한성"
 
@@ -284,7 +284,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju" unique_id=1214544719]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "경주"
 
@@ -317,7 +317,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi" unique_id=394125242]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "사비"
 
@@ -349,7 +349,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto" unique_id=2067049430]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "교토"
 
@@ -382,7 +382,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka" unique_id=1160152793]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "오사카"
 
@@ -415,7 +415,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu" unique_id=93638272]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "큐슈"
 
@@ -445,7 +445,7 @@ scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 
 [node name="NameText" type="Node2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo" unique_id=1369684222]
-position = Vector2(0, 34)
+position = Vector2(0, 24)
 script = ExtResource("7_city_name_label")
 text = "에도"
 
