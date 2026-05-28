@@ -39,6 +39,8 @@ Latest worldmap unified panel patch: `v0.68b-12 WorldMap Unified City Detail Dip
 
 Latest worldmap unified panel UX patch: `v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch`
 
+Latest worldmap left HUD content patch: `v0.68b-12b Left World HUD Web Content Parity`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -48,42 +50,68 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
+`v0.68b-12c Selected City Panel Web Content Parity`
+
+Goal:
+- align the Godot Selected City / `CityInfoPanel` content more closely with the actual web selected-city render output while keeping all actions display-only
+
+## Priority 2
+`v0.68b-12d City Detail Panel Web Content Parity`
+
+Goal:
+- align the unified city-detail mode content more closely with the actual web resource/internal-trade/external-trade render output
+
+## Priority 3
+`v0.68b-12e Diplomacy Spy Panel Web Content Parity`
+
+Goal:
+- align the unified diplomacy/spy mode with the actual web diplomacy/spy render output without adding real diplomacy or spy execution
+
+## Priority 4
 `v0.68b-13 Hero Portrait Asset Naming Contract`
 
 Goal:
 - define portrait asset naming/lookup rules for web-to-Godot hero HUD reuse without changing runtime hero logic
 
-## Priority 2
+## Priority 5
 `v0.68b-14 Hero Portrait Asset Apply MVP`
 
 Goal:
 - apply available hero portrait assets to the worldmap HUD portrait slots without changing hero logic
 
-## Priority 3
+## Priority 6
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 4
+## Priority 7
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - add hero/army deployment MVP on top of the worldmap contract without breaking current battle fallback
 
-## Priority 5
+## Priority 8
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 6
+## Priority 9
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b Left World HUD Web Content Parity` is complete.
+- The Godot `LeftWorldStatusPanel` was checked against the actual web `world_hud_ui.js` and `resource_ui.js` output instead of adding arbitrary new UI.
+- Runtime copy now follows the web left HUD order: `World Turn`, turn/calendar/owner, `국가충성도`, `세금 수준`, chancellor card, `재상 임명`, `재상 정책`, `보유 자원`, `국가 창고`, `내부 보급망`, `내부 병력 재배치`, `대외 무역`, income/policy/tax summary, wild-army edit, and save/load/reset.
+- Chancellor card copy now reflects web chancellor profile fields for 정도전, with a portrait initial fallback until the portrait asset contract/apply tasks.
+- Chancellor policy options remain `균형형`, `농업 중심`, `상업 중심`, `무역 중심`, and `군사 중심`; changing the option updates explanation only.
+- Buttons remain placeholders; no real turn, resource, policy effect, save/load/reset, domestic, diplomacy/spy, battle, army, route, pathfinding, or AI behavior was added.
+- Castle icon visuals remain disabled, and route lines plus sea route arrow flow remain unchanged.
+- 김작 F6 should confirm left HUD content parity, section order, chancellor card/policy UI, resource/supply/logistics/trade wording, placeholder-only behavior, bottom spacing, independent drag/collapse preservation, city-click refresh, castle icon disabled state, route/sea arrow continuity, and battle scene stability.
 - `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP` is complete.
 - The former separate City Detail and Diplomacy/Spy HUD surfaces are consolidated into one `CityDetailPanel`-backed unified panel.
 - Primary tabs are `도시 상세` and `외교·첩보`.

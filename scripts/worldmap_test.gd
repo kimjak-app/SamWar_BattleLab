@@ -82,6 +82,14 @@ const CHANCELLOR_POLICY_DATA := {
 	},
 }
 
+const CHANCELLOR_TYPE_LABELS := {
+	"political": "정치형",
+	"economic": "경제형",
+	"administrative": "행정형",
+	"diplomatic": "외교형",
+	"militaryAdmin": "군정형",
+}
+
 const GOVERNOR_POLICY_DATA := {
 	"follow_chancellor": {
 		"name": "재상 정책 수행",
@@ -102,7 +110,7 @@ const GOVERNOR_POLICY_DATA := {
 }
 
 const HERO_DATA := {
-	"jeong_do_jeon": {"display_name": "정도전", "role": "재상", "politics": 94, "war": 42, "intelligence": 92, "loyalty": 90, "assigned_city_id": "hanseong"},
+	"jeong_do_jeon": {"display_name": "정도전", "role": "재상", "politics": 94, "war": 42, "intelligence": 92, "loyalty": 90, "assigned_city_id": "hanseong", "chancellor_primary_type": "political", "chancellor_primary_aptitude": 4, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 3},
 	"yi_sun_sin": {"display_name": "이순신", "role": "수군 지휘", "politics": 76, "war": 96, "intelligence": 88, "loyalty": 98, "assigned_city_id": "hanseong"},
 	"cheok_jun_gyeong": {"display_name": "척준경", "role": "돌격", "politics": 48, "war": 98, "intelligence": 52, "loyalty": 86, "assigned_city_id": "hanseong"},
 	"gwanggaeto": {"display_name": "광개토대왕", "role": "북방 원정", "politics": 84, "war": 97, "intelligence": 82, "loyalty": 92, "assigned_city_id": "pyeongyang"},
@@ -242,15 +250,20 @@ var _player_state := {
 	"turn_label": "제 1턴",
 	"year_label": "154년 봄 1일",
 	"current_phase_label": "아군 턴",
-	"national_power": 72,
+	"national_loyalty": 75,
 	"tax_level": 30,
 	"public_order": 68,
 	"chancellor_id": "jeong_do_jeon",
 	"chancellor_policy_id": "balanced",
 	"resources": "쌀 300 / 보리 250 / 수산물 80 / 목재 100 / 철 50 / 말 30 / 비단 30 / 소금 50 / 금전 500",
-	"supply": "활성 보급로 3개 · 군사 지원 필요 도시: 한성",
-	"logistics": "영웅 병력 + 주둔군 기준, 유지비 preview만 표시",
-	"trade": "대외 무역: 한반도 해상 교역 후보 준비 중",
+	"warehouse": "국가 창고: 쌀 300/1000 정상 · 보리 250/1000 정상 · 수산물 80/500 낮음 · 목재 100/800 낮음 · 철 50/500 낮음 · 말 30/300 낮음 · 비단 30/300 낮음 · 소금 50/400 낮음 · 금전 500/9999 정상",
+	"upkeep": "영웅 유지비: 쌀 -8 / 수산물 -3 / 비단 -1 · 병사 유지비 preview: 쌀 -18 / 보리 -15 / 수산물 -3 (영웅 병력 0명 + 주둔군 300명 기준, 미차감)",
+	"salt": "보존 소금: 필요 50 / 보유 50 / 유지비 정상",
+	"supply": "활성 교역로 3개 · 금전 +0 / 식량 +0 / 소금 +0 · 군사 지원 필요 도시: 한성",
+	"troop_rebalance": "목표 주둔군 충족 · 총 이동 0명",
+	"trade": "활성 교역로 0개 · 이번 턴 수익: 금전 +0 / 식량 +0 / 소금 +0 · 세력 관계: 없음",
+	"income": "이번 턴 수입 없음",
+	"tax_effect": "세금 효과: 인구·상업세 적용, 충성도 0",
 }
 var _city_policy_state: Dictionary = {}
 var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
@@ -263,6 +276,7 @@ func _ready() -> void:
 	city_info_panel.set_city_markers(_city_markers_by_id)
 	city_info_panel.set_hud_data(HERO_DATA, CITY_HUD_DATA, GOVERNOR_POLICY_DATA, _city_policy_state)
 	_setup_chancellor_policy_option()
+	_setup_left_world_status_panel_layout()
 	_refresh_left_world_status_panel()
 	_connect_world_hud_placeholders()
 	_setup_unified_city_detail_diplomacy_panel()
@@ -815,18 +829,40 @@ func _setup_chancellor_policy_option() -> void:
 		chancellor_policy_option.item_selected.connect(_on_chancellor_policy_selected)
 
 
+func _setup_left_world_status_panel_layout() -> void:
+	left_world_status_panel.custom_minimum_size.x = 320.0
+	for label in [
+		power_label,
+		tax_label,
+		security_label,
+		chancellor_stats_label,
+		chancellor_policy_description_label,
+		resource_label,
+		supply_label,
+		military_logistics_label,
+		external_trade_label,
+		world_status_hint_label,
+	]:
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	resource_label.add_theme_font_size_override("font_size", 10)
+	supply_label.add_theme_font_size_override("font_size", 10)
+	military_logistics_label.add_theme_font_size_override("font_size", 10)
+	external_trade_label.add_theme_font_size_override("font_size", 10)
+
+
 func _refresh_left_world_status_panel() -> void:
+	left_world_status_eyebrow_label.text = "World Turn"
 	turn_label.text = str(_player_state.get("turn_label", "제 1턴"))
 	calendar_label.text = str(_player_state.get("year_label", "154년 봄 1일"))
 	nation_label.text = str(_player_state.get("current_phase_label", "아군 턴"))
-	var national_power := int(_player_state.get("national_power", 0))
+	var national_loyalty := int(_player_state.get("national_loyalty", 0))
 	var tax_level := int(_player_state.get("tax_level", 0))
 	var public_order := int(_player_state.get("public_order", 0))
-	power_label.text = "국력 %d" % national_power
-	power_bar.value = national_power
-	tax_label.text = "세금 %d" % tax_level
+	power_label.text = "국가충성도 %d" % national_loyalty
+	power_bar.value = national_loyalty
+	tax_label.text = "세금 수준 %d · %s" % [tax_level, _get_tax_description(tax_level)]
 	tax_bar.value = tax_level
-	security_label.text = "치안 %d" % public_order
+	security_label.text = "치안 %d · 국력/치안은 Godot seed 표시" % public_order
 	security_bar.value = public_order
 
 	var chancellor_id := str(_player_state.get("chancellor_id", ""))
@@ -834,16 +870,39 @@ func _refresh_left_world_status_panel() -> void:
 	var chancellor_name := str(chancellor_data.get("display_name", "재상 미임명"))
 	var policy_id := str(_player_state.get("chancellor_policy_id", "balanced"))
 	var policy_data := _get_chancellor_policy_entry(policy_id)
-	chancellor_label.text = "재상: %s · %s" % [chancellor_name, str(policy_data.get("name", policy_id))]
+	chancellor_label.text = "재상"
 	chancellor_portrait_label.text = _get_portrait_initial(chancellor_name)
 	chancellor_name_label.text = chancellor_name
-	chancellor_stats_label.text = _format_hero_stats(chancellor_data)
-	chancellor_policy_description_label.text = str(policy_data.get("description", "재상 정책 설명 준비 중"))
+	chancellor_stats_label.text = "%s\n재상 임명: %s\n재상 정책: %s" % [
+		_format_chancellor_type_summary(chancellor_data),
+		chancellor_name,
+		str(policy_data.get("name", policy_id)),
+	]
+	chancellor_policy_description_label.text = "재상 정책: %s\n%s" % [
+		str(policy_data.get("name", policy_id)),
+		str(policy_data.get("description", "재상 정책 설명 준비 중")),
+	]
 	_select_option_by_metadata(chancellor_policy_option, policy_id)
 	resource_label.text = "보유 자원: %s" % str(_player_state.get("resources", "placeholder"))
-	supply_label.text = "내부 보급망: %s" % str(_player_state.get("supply", "placeholder"))
-	military_logistics_label.text = "내부 병참 계획서: %s" % str(_player_state.get("logistics", "placeholder"))
+	supply_label.text = "%s\n%s\n%s" % [
+		str(_player_state.get("warehouse", "국가 창고: 없음")),
+		str(_player_state.get("upkeep", "영웅 유지비: 없음")),
+		str(_player_state.get("salt", "보존 소금: 없음")),
+	]
+	military_logistics_label.text = "내부 보급망: %s\n내부 병력 재배치: %s" % [
+		str(_player_state.get("supply", "활성 교역로 0개")),
+		str(_player_state.get("troop_rebalance", "목표 주둔군 충족")),
+	]
 	external_trade_label.text = "대외 무역: %s" % str(_player_state.get("trade", "placeholder"))
+	world_status_hint_label.text = "%s · 재상 정책: %s · %s" % [
+		str(_player_state.get("income", "이번 턴 수입 없음")),
+		str(policy_data.get("name", policy_id)),
+		str(_player_state.get("tax_effect", "세금 효과: 표시 전용")),
+	]
+	wild_army_edit_button_placeholder.text = "야군 편집"
+	save_button_placeholder.text = "저장"
+	load_button_placeholder.text = "불러오기"
+	reset_button_placeholder.text = "초기화"
 
 
 func _get_city_hud_entry(city_id: String) -> Dictionary:
@@ -875,6 +934,41 @@ func _format_hero_stats(hero_data: Dictionary) -> String:
 		int(hero_data.get("intelligence", 0)),
 		int(hero_data.get("loyalty", 0)),
 	]
+
+
+func _format_chancellor_type_summary(hero_data: Dictionary) -> String:
+	if hero_data.is_empty():
+		return "주: 없음\n보조: 없음"
+	return "%s\n%s" % [
+		_format_chancellor_type_line(
+			"주",
+			str(hero_data.get("chancellor_primary_type", "")),
+			int(hero_data.get("chancellor_primary_aptitude", 0))
+		),
+		_format_chancellor_type_line(
+			"보조",
+			str(hero_data.get("chancellor_secondary_type", "")),
+			int(hero_data.get("chancellor_secondary_aptitude", 0))
+		),
+	]
+
+
+func _format_chancellor_type_line(label: String, type_id: String, aptitude: int) -> String:
+	if type_id.is_empty():
+		return "%s: 없음" % label
+	return "%s: %s %d" % [
+		label,
+		str(CHANCELLOR_TYPE_LABELS.get(type_id, type_id)),
+		aptitude,
+	]
+
+
+func _get_tax_description(tax_level: int) -> String:
+	if tax_level < 30:
+		return "가벼운 세금, 충성도 회복"
+	if tax_level > 30:
+		return "무거운 세금, 금전 증가 / 충성도 하락"
+	return "평소 수준"
 
 
 func _get_portrait_initial(display_name: String) -> String:

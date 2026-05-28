@@ -21,6 +21,12 @@
 - City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-12b Left World HUD Web Content Parity` tightens only the Godot left main `LeftWorldStatusPanel` against the actual web `world_hud_ui.js` / `resource_ui.js` output.
+- The left HUD content order should follow the web `renderWorldHud()` flow: `World Turn`, turn number, calendar, turn owner, `국가충성도`, `세금 수준`, `재상`, `재상 임명`, `재상 정책`, `보유 자원`, `국가 창고`, `내부 보급망`, `내부 병력 재배치`, `대외 무역`, income/policy/tax summary, turn/save controls.
+- `renderChancellorCard()` parity means the Godot chancellor card keeps a portrait slot/fallback and shows the chancellor name plus web `주`/`보조` chancellor type lines; it must not invent non-web chancellor categories.
+- `renderChancellorPolicyControl()` parity means chancellor policies remain `균형형`, `농업 중심`, `상업 중심`, `무역 중심`, and `군사 중심`, with web descriptions and description-only selection behavior.
+- Left HUD resource/supply/trade copy may use display-only fallback values when Godot lacks web `lastIncomeResult`, `lastUpkeepResult`, `lastSupplyNetworkResult`, `lastTroopRebalanceResult`, or `lastInterFactionTradeResult`.
+- `v0.68b-12b` must not execute turn processing, tax changes, resource mutation, upkeep, policy effects, save/load/reset, domestic execution, diplomacy/spy actions, battle entry, `BattleContext`, hero transfer, army movement, pathfinding, route mutation, sea arrow changes, or AI.
 - `v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch` tightens the unified panel UX after `v0.68b-12`.
 - Expanded unified panel headers should use the primary tab buttons directly: `도시 상세` and `외교·첩보`, with no duplicate Korean title beside them.
 - Collapsed unified panel text is `도시상세 / 외교·첩보 열기`.

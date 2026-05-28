@@ -104,6 +104,9 @@ Latest camera foundation:
 - Latest worldmap unified panel UX patch:
 `v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch`
 
+- Latest worldmap left HUD content patch:
+`v0.68b-12b Left World HUD Web Content Parity`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -153,6 +156,9 @@ Do not modify casually:
 - Unified panel primary tabs are `도시 상세` and `외교·첩보`; secondary tabs are `자원` / `자국무역` / `타국무역` in city-detail mode and `외교` / `첩보` in diplomacy/spy mode.
 - The standalone `DiplomacySpyPanel` is hidden at runtime. Keep diplomacy/spy behavior display-only until a dedicated feature task.
 - The unified panel has runtime-only collapse/expand; no position/config persistence should be inferred from it.
+- `v0.68b-12b Left World HUD Web Content Parity` realigns only the left main `LeftWorldStatusPanel` runtime copy against the actual web `renderWorldHud()`, `renderChancellorCard()`, `renderChancellorPolicyControl()`, and resource/trade summary wording.
+- The left HUD now displays web-like `World Turn`, turn/calendar/owner, `국가충성도`, `세금 수준`, chancellor portrait fallback/name/type lines, `재상 임명`, `재상 정책`, `보유 자원`, `국가 창고`, `내부 보급망`, `내부 병력 재배치`, `대외 무역`, and save/load/reset button copy.
+- This is still display-only: chancellor policy selection updates explanation/hint text but must not apply policy effects, mutate resources, process turns, save/load/reset, run domestic/diplomacy/spy, move heroes/armies, create `BattleContext`, alter routes/sea arrows, or start battle.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -266,10 +272,14 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Next candidates:
+  - `v0.68b-12c Selected City Panel Web Content Parity`
+  - `v0.68b-12d City Detail Panel Web Content Parity`
+  - `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
   - `v0.68b-13 Hero Portrait Asset Naming Contract`
   - `v0.68b-14 Hero Portrait Asset Apply MVP`
   - `v0.68c BattleContext Runtime Injection MVP`
   - `v0.68d Hero/Army Deployment MVP`
+- 김작 F6 visual QA remains for `v0.68b-12b Left World HUD Web Content Parity`: confirm left HUD section order resembles the web left HUD, turn/date/phase wording is web-like, chancellor card and policy UI match web labels/descriptions, policy selection only updates explanation, resource/warehouse/supply/troop-rebalance/external-trade summaries use web copy, button text matches web save/load/reset and wild-army edit wording, placeholder feel is reduced, bottom blank space is acceptable, other panels remain intact, independent drag/collapse still works, Selected City remains separate, city-click refresh still works, route/sea arrow flow is normal, castle icon visuals remain hidden, and existing battle scenes remain stable.
 - 김작 F6 visual QA remains for `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP`: confirm CityDetailPanel and DiplomacySpyPanel appear as one unified panel, primary tabs `도시 상세` / `외교·첩보` are visible, city-detail mode shows `자원` / `자국무역` / `타국무역`, diplomacy/spy mode shows `외교` / `첩보`, tab clicks switch only display content, collapse reduces the panel to a compact reopenable header, the unified panel and CityInfoPanel drag independently, panel dragging does not pan the camera, city clicks still update unified and selected-city content, buttons do not execute real systems, castle icons stay hidden, route lines / sea arrow flow remain normal, and existing battle scenes remain stable.
 - 김작 F6 visual QA remains for `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP`: confirm the `SamWar Web` banner and `도시 HUD 위치 이동 · Godot MVP fixed` bar are gone, `CityDetailPanel`, `CityInfoPanel`, and `DiplomacySpyPanel` drag independently, other panels do not follow, drag starts only from header labels, buttons/tabs/OptionButtons still click normally, panel dragging does not pan the camera, pan/zoom keeps HUD screen-fixed, city clicks still update Selected City and City Detail, resource/trade tabs and policy UI remain, castle icons stay hidden, route lines / sea arrow flow remain normal, and existing battle scenes remain stable.
 - 김작 F6 visual QA remains for `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP`: confirm Godot panel structure resembles the actual web HUD source, City Detail tabs/text/buttons follow `resource_ui.js`, Selected City follows `selected_city_ui.js`, chancellor/governor policies follow web constants, web city/governor/hero roster data is reflected where available, tab clicks only switch display, policy selection only changes descriptions, all buttons remain placeholder-only, city clicks update Selected City and City Detail together, castle icons remain hidden, route/sea arrow flow remains normal, HUD stays fixed during pan/zoom, and battle scenes remain stable.

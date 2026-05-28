@@ -2,6 +2,17 @@
 
 ## 2026-05-28
 
+### v0.68b-12b Left World HUD Web Content Parity
+- Confirmed the required web files live outside the Godot repo at `C:\dev\SamWar_web`; used them as read-only references and did not modify them.
+- Analyzed `renderWorldHud`, `renderChancellorCard`, `renderChancellorPolicyControl`, `resource_ui.js` resource/trade sections, `constants.js` policy/resource labels, `app_state.js` world/resource/chancellor state, `world_rules.js` domestic seed defaults, `css/main.css`, `index.html`, and `data/heroes.js`.
+- Updated the Godot left main HUD runtime data/copy to follow the web left HUD order: turn/calendar/owner, `국가충성도`, `세금 수준`, chancellor card, chancellor policy, `보유 자원`, `국가 창고`, `내부 보급망`, `내부 병력 재배치`, `대외 무역`, income/policy/tax summary, wild-army edit, and save/load/reset.
+- Added web chancellor type labels and 정도전's web `chancellorProfile` display data so the chancellor card shows `주: 정치형 4` and `보조: 행정형 3` instead of only generic stats.
+- Kept the portrait as a first-character fallback because portrait asset naming/application remains a later task.
+- Kept all buttons and policy selection display-only; policy selection refreshes the description/hint but does not change resources, turn, tax, loyalty, or upkeep.
+- Did not add save/load/reset, domestic execution, turn processing, resource mutation, `BattleContext`, battle transition, recruitment, hero transfer, army movement, pathfinding, AI, route mutation, or sea arrow changes.
+- Castle icon visuals remain disabled; route lines and sea route arrow flow were preserved.
+- 김작 F6 should confirm left HUD section order, turn/date/phase wording, chancellor card structure, policy list/description, resource/warehouse/supply/troop-rebalance/external-trade wording, button copy, reduced placeholder feel, panel bottom spacing, unified panel drag/collapse, Selected City retention, city-click refresh, route/sea arrow flow, castle icons hidden, and existing battle scene stability.
+
 ### v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch
 - Rechecked the web worldmap sources requested for this UX pass, including `diplomacy_spy_ui.js`, `world_hud_ui.js`, `resource_ui.js`, `world_map_ui.js`, `ui_render.js`, `app_state.js`, `world_rules.js`, `constants.js`, `data/cities.js`, `data/heroes.js`, and `css/main.css`.
 - Removed the expanded unified panel's duplicate Korean title; the top row now uses `도시 상세` and `외교·첩보` as the primary tab buttons beside `접기`.

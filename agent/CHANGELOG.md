@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b Left World HUD Web Content Parity
+- Checked the actual web left HUD sources in `C:\dev\SamWar_web`, including `world_hud_ui.js`, `resource_ui.js`, `constants.js`, `app_state.js`, `world_rules.js`, `css/main.css`, `index.html`, and `data/heroes.js`.
+- Realigned the Godot `LeftWorldStatusPanel` runtime copy toward `renderWorldHud()`: `World Turn`, turn/calendar/owner, `국가충성도`, `세금 수준`, chancellor card, chancellor policy, `보유 자원`, `국가 창고`, `내부 보급망`, `내부 병력 재배치`, `대외 무역`, income/policy/tax summary, wild-army edit, and save/load/reset copy.
+- Updated the chancellor card display to follow `renderChancellorCard()` more closely with portrait initial fallback, name, web `주`/`보조` chancellor type lines, `재상 임명`, and `재상 정책` summary.
+- Kept the chancellor policy `OptionButton` aligned with web constants: `균형형`, `농업 중심`, `상업 중심`, `무역 중심`, and `군사 중심`; selection updates explanation text only.
+- Replaced stronger placeholder wording in the left HUD with web-source labels for warehouse, upkeep preview, salt preservation, internal supply, troop rebalance, external trade, save management, and turn/tax summaries.
+- Left all controls display-only; no turn processing, resource mutation, policy effect application, save/load/reset, domestic execution, diplomacy/spy, battle entry, `BattleContext`, hero transfer, army movement, pathfinding, route, sea arrow, or AI behavior was added.
+- Preserved the unified City Detail / Diplomacy panel, Selected City panel, independent drag/collapse behavior, castle icon visual-disable state, route lines, sea arrow flow, and existing battle scenes.
+- 김작 F6 should confirm the left HUD section order/content against the web left HUD, policy description-only behavior, reduced placeholder feel, no excess lower blank space, no other panel regressions, route/sea arrow continuity, castle icons hidden, and existing battle scene stability.
+
 ## v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch
 - Reworked the unified `CityDetailPanel` header so the visible top row is the primary tab pair `도시 상세` / `외교·첩보` plus `접기`, without the duplicate Korean title.
 - Changed the collapsed unified panel label to `도시상세 / 외교·첩보 열기`.
