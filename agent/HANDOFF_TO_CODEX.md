@@ -101,6 +101,9 @@ Latest camera foundation:
 - Latest worldmap unified panel patch:
 `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP`
 
+- Latest worldmap unified panel UX patch:
+`v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 

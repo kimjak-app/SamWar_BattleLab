@@ -21,6 +21,14 @@
 - City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch` tightens the unified panel UX after `v0.68b-12`.
+- Expanded unified panel headers should use the primary tab buttons directly: `도시 상세` and `외교·첩보`, with no duplicate Korean title beside them.
+- Collapsed unified panel text is `도시상세 / 외교·첩보 열기`.
+- Collapsed unified panel headers are draggable independently at runtime; short click opens the panel and drag moves only the unified panel.
+- Unified panel height should shrink toward its visible content and avoid excessive empty lower space, while still remaining screen-clamped.
+- `외교` / `첩보` content should follow the web `diplomacy_spy_ui.js` display structure: `외교 현황`, `외교 행동`, `첩보 가시성`, and `첩보 행동`.
+- Diplomacy action copy may show `사절 교환`, `교섭 요청`, and `교역 압박`; spy action copy may show `정탐`, `유언비어`, and `내통 시도`.
+- These diplomacy/spy entries remain display-only. They must not execute diplomacy, spy, relation, resource, turn, save/load, battle, army, hero transfer, pathfinding, route, or AI logic.
 - `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP` consolidates the former separate `CityDetailPanel` and `DiplomacySpyPanel` surfaces into one `CityDetailPanel`-backed unified HUD panel.
 - Unified panel primary tabs are `도시 상세` and `외교·첩보`.
 - In `도시 상세` mode, the secondary tabs must remain the web-source city detail tabs: `자원`, `자국무역`, and `타국무역`.

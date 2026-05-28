@@ -2,6 +2,17 @@
 
 ## 2026-05-28
 
+### v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch
+- Rechecked the web worldmap sources requested for this UX pass, including `diplomacy_spy_ui.js`, `world_hud_ui.js`, `resource_ui.js`, `world_map_ui.js`, `ui_render.js`, `app_state.js`, `world_rules.js`, `constants.js`, `data/cities.js`, `data/heroes.js`, and `css/main.css`.
+- Removed the expanded unified panel's duplicate Korean title; the top row now uses `도시 상세` and `외교·첩보` as the primary tab buttons beside `접기`.
+- Changed the collapsed unified panel text to `도시상세 / 외교·첩보 열기`.
+- Added collapsed-panel click/drag discrimination so click expands and drag moves the collapsed panel without moving other HUD panels.
+- Replaced the diplomacy/spy placeholder-heavy copy with web-source terms: `외교 현황`, `외교 행동`, `첩보 가시성`, `첩보 행동`, `사절 교환`, `교섭 요청`, `교역 압박`, `정탐`, `유언비어`, and `내통 시도`.
+- Added content-based height resizing for the unified panel to reduce excess empty space at the bottom while keeping the panel screen-clamped.
+- Did not add actual diplomacy, spy, domestic execution, resource mutation, turn processing, save/load, `BattleContext`, battle transition, recruitment, hero transfer, army movement, pathfinding, AI, or route logic.
+- Castle icon visuals remain disabled; route lines and sea route arrow flow were preserved.
+- 김작 F6 should confirm collapsed text and drag, simplified primary tab header, secondary tab switching, web-like diplomacy/spy content, reduced empty panel height, independent unified/selected panel drag, city-click refresh, placeholder-only buttons, castle icons hidden, route/sea arrow continuity, and existing battle scene stability.
+
 ### v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP
 - Consolidated the previously separate City Detail and Diplomacy/Spy HUD surfaces into the existing `CityDetailPanel` runtime surface.
 - Added primary mode buttons for `도시 상세` and `외교·첩보` in the unified panel header.

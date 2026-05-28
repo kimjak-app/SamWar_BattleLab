@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch
+- Reworked the unified `CityDetailPanel` header so the visible top row is the primary tab pair `도시 상세` / `외교·첩보` plus `접기`, without the duplicate Korean title.
+- Changed the collapsed unified panel label to `도시상세 / 외교·첩보 열기`.
+- Added click-vs-drag handling for the collapsed unified panel: a short click expands it, while dragging the collapsed header moves only that panel at runtime.
+- Strengthened the `외교` and `첩보` tab content against web `diplomacy_spy_ui.js`: `외교 현황`, `외교 행동`, `첩보 가시성`, `첩보 행동`, `사절 교환`, `교섭 요청`, `교역 압박`, `정탐`, `유언비어`, and `내통 시도` are now reflected in Godot display copy.
+- Added content-based unified panel height resizing so shorter city-detail or diplomacy/spy tab content reduces excess bottom empty space while staying clamped to the viewport.
+- Preserved independent dragging for the unified panel and selected-city panel, display-only tab/button behavior, castle icon visual-disable state, route lines, sea route arrow flow, and existing battle scenes.
+- Did not add actual diplomacy, spy, domestic, turn, resource, save/load, `BattleContext`, battle entry, hero transfer, army movement, pathfinding, or AI behavior.
+
 ## v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP
 - Consolidated the Godot worldmap City Detail and Diplomacy/Spy HUD surfaces into one `CityDetailPanel`-backed unified panel.
 - Added unified primary tabs for `도시 상세` and `외교·첩보`; the city-detail mode keeps the existing `자원`, `자국무역`, and `타국무역` secondary tabs.

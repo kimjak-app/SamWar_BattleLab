@@ -40,6 +40,8 @@ Latest worldmap draggable HUD patch: `v0.68b-11 WorldMap Independent Draggable P
 
 Latest worldmap unified panel patch: `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP`
 
+Latest worldmap unified panel UX patch: `v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -63,6 +65,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP`
 - `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP`
 - `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP`
+- `v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
