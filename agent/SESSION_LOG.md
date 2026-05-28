@@ -2,6 +2,19 @@
 
 ## 2026-05-28
 
+### v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP
+- Inspected `scripts/worldmap_test.gd` and the root `WorldMap_Test.tscn` left panel node structure. The requested `scenes/WorldMap_Test.tscn` path does not exist in this repo; the active scene is `WorldMap_Test.tscn`.
+- Inspected local read-only web references for parity: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, and `js\ui\world_hud_ui.js`.
+- Updated `WorldMap_Test.tscn` with a left-panel tax `HSlider` and renamed the chancellor option control to `ChancellorAssignmentOption`.
+- Updated `scripts/worldmap_test.gd` with the patch marker `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`.
+- National loyalty now displays seed-backed value/status/progress, while the tax slider updates `_player_state.tax_level`, visible tax label, web-like tax preview, and status text without applying turn income or loyalty changes.
+- Chancellor assignment now shows `미임명` first and populates candidates from the selected city's stationed heroes in `CITY_HUD_DATA`, not from a global hardcoded list.
+- Selecting a chancellor updates only `_player_state.chancellor_id` for left-panel UI state and refreshes the chancellor card/effect preview using imported `HERO_DATA.chancellor_profile`.
+- Portrait fallback now shows a stable `?` placeholder when no portrait texture is available, without blocking assignment display.
+- Verified patch strings and seed blocks, Hanseong stationed hero candidates, dropdown `미임명`, portrait fallback, forbidden implementation search, Godot project headless load, `WorldMap_Test.tscn` headless load, and `git diff --check`.
+- No gameplay systems were added: no turn simulation, resource mutation, loyalty application, policy effects, movement, appointment execution, `BattleContext`, battle transition, route/pathfinding, castle icon, or web repo changes.
+- Recommended next task: `v0.68b-12b-3 WorldMap City Detail Hero/Governor Binding QA`.
+
 ### v0.68b-12b-2 WorldMap Left Panel Seed Binding QA
 - Inspected `scripts/worldmap_test.gd` and the root `WorldMap_Test.tscn` left panel node structure. The requested `scenes/WorldMap_Test.tscn` path does not exist in this repo; the active scene is `WorldMap_Test.tscn`.
 - Updated only `scripts/worldmap_test.gd` runtime display binding plus agent docs.

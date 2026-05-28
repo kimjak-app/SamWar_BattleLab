@@ -123,6 +123,7 @@ const GOVERNOR_POLICY_DATA := {
 
 # v0.68b-12b-1 WorldMap Hero City Seed Data Import
 # v0.68b-12b-2 WorldMap Left Panel Seed Binding QA
+# v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -201,13 +202,14 @@ const CITY_HUD_DATA := {
 @onready var power_bar: ProgressBar = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/PowerBar
 @onready var tax_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/TaxLabel
 @onready var tax_bar: ProgressBar = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/TaxBar
+@onready var tax_slider: HSlider = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/TaxSlider
 @onready var security_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/SecurityLabel
 @onready var security_bar: ProgressBar = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/SecurityBar
 @onready var chancellor_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorLabel
 @onready var chancellor_portrait_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/PortraitBox/PortraitLabel
 @onready var chancellor_name_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy/ChancellorNameLabel
 @onready var chancellor_stats_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy/ChancellorStatsLabel
-@onready var chancellor_policy_option: OptionButton = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/ChancellorPolicyOption
+@onready var chancellor_assignment_option: OptionButton = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/ChancellorAssignmentOption
 @onready var chancellor_policy_description_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/ChancellorPolicyDescriptionLabel
 @onready var resource_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ResourceLabel
 @onready var supply_label: Label = $WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SupplyLabel
@@ -298,7 +300,7 @@ func _ready() -> void:
 	_connect_city_markers()
 	city_info_panel.set_city_markers(_city_markers_by_id)
 	city_info_panel.set_hud_data(HERO_DATA, CITY_HUD_DATA, GOVERNOR_POLICY_DATA, _city_policy_state)
-	_setup_chancellor_policy_option()
+	_setup_left_world_controls()
 	_setup_left_world_status_panel_layout()
 	_refresh_left_world_status_panel()
 	_connect_world_hud_placeholders()
@@ -843,15 +845,15 @@ func _format_external_trade_target(city_marker: WorldMapCityMarker) -> String:
 	return "인접 대외 교역 없음"
 
 
-func _setup_chancellor_policy_option() -> void:
-	chancellor_policy_option.clear()
-	for policy_id in CHANCELLOR_POLICY_DATA.keys():
-		var policy_data: Dictionary = CHANCELLOR_POLICY_DATA[policy_id]
-		chancellor_policy_option.add_item(str(policy_data.get("name", policy_id)))
-		chancellor_policy_option.set_item_metadata(chancellor_policy_option.item_count - 1, policy_id)
-
-	if not chancellor_policy_option.item_selected.is_connected(_on_chancellor_policy_selected):
-		chancellor_policy_option.item_selected.connect(_on_chancellor_policy_selected)
+func _setup_left_world_controls() -> void:
+	tax_slider.min_value = 0.0
+	tax_slider.max_value = 100.0
+	tax_slider.step = 1.0
+	tax_slider.value = float(_normalize_tax_level(_player_state.get("tax_level", 30)))
+	if not tax_slider.value_changed.is_connected(_on_tax_slider_value_changed):
+		tax_slider.value_changed.connect(_on_tax_slider_value_changed)
+	if not chancellor_assignment_option.item_selected.is_connected(_on_chancellor_assignment_selected):
+		chancellor_assignment_option.item_selected.connect(_on_chancellor_assignment_selected)
 
 
 func _setup_left_world_status_panel_layout() -> void:
@@ -897,39 +899,41 @@ func _refresh_left_world_status_panel() -> void:
 		origin_city_name,
 	]
 	var national_loyalty := int(_player_state.get("national_loyalty", 0))
-	var tax_level := int(_player_state.get("tax_level", 0))
+	var tax_level := _normalize_tax_level(_player_state.get("tax_level", 0))
 	var public_order := int(_player_state.get("public_order", 0))
-	power_label.text = "국가충성도 %d" % national_loyalty
+	power_label.text = "국가충성도 %d · %s" % [national_loyalty, _get_loyalty_status(national_loyalty)]
 	power_bar.value = national_loyalty
 	tax_label.text = "세금 수준 %d · %s" % [tax_level, _get_tax_description(tax_level)]
 	tax_bar.value = tax_level
-	security_label.text = "치안 %d · 국력/치안은 Godot seed 표시" % public_order
+	tax_slider.set_value_no_signal(float(tax_level))
+	security_label.text = _format_tax_preview(tax_level, national_loyalty, public_order)
 	security_bar.value = public_order
 
+	_sync_chancellor_assignment_for_selected_city(selected_city_data)
+	_populate_chancellor_assignment_dropdown(selected_city_data)
 	var chancellor_id := str(_player_state.get("chancellor_id", ""))
 	var chancellor_data := _get_hero_entry(chancellor_id)
-	var chancellor_name := str(chancellor_data.get("display_name", "재상 미임명"))
+	var chancellor_name := _format_hero_name_by_id(chancellor_id, "미임명")
 	var policy_id := str(_player_state.get("chancellor_policy_id", "balanced"))
 	var policy_data := _get_chancellor_policy_entry(policy_id)
 	chancellor_label.text = "재상"
-	chancellor_portrait_label.text = "-" if chancellor_data.is_empty() else _get_portrait_initial(chancellor_name)
+	chancellor_portrait_label.text = _get_chancellor_portrait_text(chancellor_data)
 	chancellor_name_label.text = chancellor_name
-	chancellor_stats_label.text = "%s\n재상 임명: %s\n재상 정책: %s" % [
-		_format_chancellor_type_summary(chancellor_data),
+	chancellor_stats_label.text = "%s\n재상 임명: %s" % [
+		"재상 없음" if chancellor_data.is_empty() else _format_chancellor_type_summary(chancellor_data),
 		chancellor_name,
-		str(policy_data.get("name", policy_id)),
 	]
-	chancellor_policy_description_label.text = "재상 정책: %s\n%s%s" % [
+	chancellor_policy_description_label.text = "재상 효과: %s\n재상 정책: %s · %s" % [
+		_get_chancellor_effect_text(chancellor_data),
 		str(policy_data.get("name", policy_id)),
 		str(policy_data.get("description", "재상 정책 설명 준비 중")),
-		"\n재상 효과 없음" if chancellor_data.is_empty() else "",
 	]
-	_select_option_by_metadata(chancellor_policy_option, policy_id)
+	_select_option_by_metadata(chancellor_assignment_option, chancellor_id)
 	resource_label.text = "보유 자원: %s" % _format_player_resource_summary()
 	supply_label.text = "%s\n%s\n%s" % [
-		str(_player_state.get("warehouse", "국가 창고: 없음")),
-		str(_player_state.get("upkeep", "영웅 유지비: 없음")),
-		str(_player_state.get("salt", "보존 소금: 없음")),
+		_format_warehouse_summary(),
+		"유지비 preview: 실제 차감 없음",
+		"보존 소금: 보유 %d · 미차감" % _get_player_resource_amount("salt"),
 	]
 	military_logistics_label.text = "선택 도시: %s · %s · %s\n주둔 장수: %s\n내부 보급망: %s\n내부 병력 재배치: %s" % [
 		selected_city_name,
@@ -943,7 +947,7 @@ func _refresh_left_world_status_panel() -> void:
 	world_status_hint_label.text = "%s · 재상 정책: %s · %s\n태수: %s · 보유 도시: %s\n보유 장수: %s" % [
 		str(_player_state.get("income", "이번 턴 수입 없음")),
 		str(policy_data.get("name", policy_id)),
-		str(_player_state.get("tax_effect", "세금 효과: 표시 전용")),
+		_format_tax_effect_text(tax_level),
 		selected_governor_name,
 		owned_city_summary,
 		owned_hero_summary,
@@ -1013,6 +1017,139 @@ func _format_player_resource_summary() -> String:
 			int(resource_stock.get(resource_id, 0)),
 		])
 	return " / ".join(parts)
+
+
+func _get_player_resource_amount(resource_id: String) -> int:
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	return int(resource_stock.get(resource_id, 0))
+
+
+func _format_warehouse_summary() -> String:
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	if resource_stock.is_empty():
+		return "국가 창고: 보유 자원 없음"
+	return "국가 창고: 쌀 %d / 보리 %d / 금전 %d · 표시 전용" % [
+		int(resource_stock.get("rice", 0)),
+		int(resource_stock.get("barley", 0)),
+		int(resource_stock.get("gold", 0)),
+	]
+
+
+func _normalize_tax_level(value: Variant) -> int:
+	return clampi(int(round(float(value))), 0, 100)
+
+
+func _get_tax_gold_multiplier(tax_level: int) -> float:
+	var normalized_tax := _normalize_tax_level(tax_level)
+	if normalized_tax <= 30:
+		return 0.5 + (float(normalized_tax) / 30.0) * 0.5
+	return 1.0 + (float(normalized_tax - 30) / 70.0)
+
+
+func _get_tax_loyalty_delta(tax_level: int) -> int:
+	var normalized_tax := _normalize_tax_level(tax_level)
+	if normalized_tax > 30:
+		return -int(ceil(float(normalized_tax - 30) / 25.0))
+	if normalized_tax < 30:
+		return int(ceil(float(30 - normalized_tax) / 30.0))
+	return 0
+
+
+func _format_tax_effect_text(tax_level: int) -> String:
+	return "세금 효과: 인구·상업세 적용, 충성도 %s" % _format_signed_int(_get_tax_loyalty_delta(tax_level))
+
+
+func _format_tax_preview(tax_level: int, national_loyalty: int, public_order: int) -> String:
+	return "세금 preview: 금전 x%.2f · 충성도 %s · 현재 %s / 치안 %d" % [
+		_get_tax_gold_multiplier(tax_level),
+		_format_signed_int(_get_tax_loyalty_delta(tax_level)),
+		_get_loyalty_status(national_loyalty),
+		public_order,
+	]
+
+
+func _format_signed_int(value: int) -> String:
+	if value > 0:
+		return "+%d" % value
+	return str(value)
+
+
+func _get_loyalty_status(value: int) -> String:
+	if value >= 85:
+		return "매우 안정"
+	if value >= 70:
+		return "안정"
+	if value >= 55:
+		return "주의"
+	return "위험"
+
+
+func _get_stationed_hero_ids_for_city(city_data: Dictionary) -> Array:
+	var hero_ids: Variant = city_data.get("stationed_hero_ids", city_data.get("hero_ids", []))
+	if hero_ids is Array:
+		return hero_ids
+	return []
+
+
+func _sync_chancellor_assignment_for_selected_city(city_data: Dictionary) -> void:
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty():
+		return
+	var stationed_hero_ids := _get_stationed_hero_ids_for_city(city_data)
+	if not stationed_hero_ids.has(chancellor_id):
+		_player_state["chancellor_id"] = ""
+
+
+func _populate_chancellor_assignment_dropdown(city_data: Dictionary) -> void:
+	chancellor_assignment_option.clear()
+	chancellor_assignment_option.add_item("미임명")
+	chancellor_assignment_option.set_item_metadata(0, "")
+	for hero_id in _get_stationed_hero_ids_for_city(city_data):
+		var hero_name := _format_hero_name_by_id(str(hero_id), "알 수 없는 장수")
+		chancellor_assignment_option.add_item(hero_name)
+		chancellor_assignment_option.set_item_metadata(chancellor_assignment_option.item_count - 1, str(hero_id))
+
+
+func _get_chancellor_portrait_text(hero_data: Dictionary) -> String:
+	if hero_data.is_empty():
+		return "?"
+	var portrait_image := str(hero_data.get("portrait_image", ""))
+	if portrait_image.is_empty() or not ResourceLoader.exists(portrait_image):
+		return "?"
+	return _get_portrait_initial(str(hero_data.get("display_name", hero_data.get("name", ""))))
+
+
+func _get_chancellor_effect_text(hero_data: Dictionary) -> String:
+	if hero_data.is_empty():
+		return "재상 효과 없음"
+	var tags: Array[String] = []
+	_add_chancellor_effect_tag(tags, str(hero_data.get("chancellor_primary_type", "")))
+	_add_chancellor_effect_tag(tags, str(hero_data.get("chancellor_secondary_type", "")))
+	if tags.is_empty():
+		tags.append("균형 운영")
+	return "%s: %s" % [
+		str(hero_data.get("display_name", hero_data.get("name", "알 수 없는 장수"))),
+		" · ".join(tags.slice(0, 3)),
+	]
+
+
+func _add_chancellor_effect_tag(tags: Array[String], type_id: String) -> void:
+	var tag := ""
+	match type_id:
+		"political":
+			tag = "세금 부담 완화"
+		"economic":
+			tag = "금전 수입 증가"
+		"administrative":
+			tag = "유지비 절감"
+		"diplomatic":
+			tag = "교역 기반 금전 보정"
+		"militaryAdmin":
+			tag = "병사 유지비 preview 완화"
+		_:
+			tag = ""
+	if not tag.is_empty() and not tags.has(tag):
+		tags.append(tag)
 
 
 func _get_chancellor_policy_entry(policy_id: String) -> Dictionary:
@@ -1086,12 +1223,21 @@ func _select_option_by_metadata(option_button: OptionButton, metadata_value: Str
 			return
 
 
-func _on_chancellor_policy_selected(index: int) -> void:
-	var policy_id := str(chancellor_policy_option.get_item_metadata(index))
-	_player_state["chancellor_policy_id"] = policy_id
-	print("[WorldMap] Chancellor policy placeholder selected: %s. No resource or turn effect applied." % policy_id)
+func _on_tax_slider_value_changed(value: float) -> void:
+	var tax_level := _normalize_tax_level(value)
+	_player_state["tax_level"] = tax_level
 	_refresh_left_world_status_panel()
-	world_status_hint_label.text = "재상 정책 '%s' 선택됨. 실제 효과는 적용하지 않습니다." % str(_get_chancellor_policy_entry(policy_id).get("name", policy_id))
+	world_status_hint_label.text = "%s · 실제 수입/충성도 적용은 턴 처리에서만 실행됩니다." % _format_tax_effect_text(tax_level)
+
+
+func _on_chancellor_assignment_selected(index: int) -> void:
+	var chancellor_id := str(chancellor_assignment_option.get_item_metadata(index))
+	_player_state["chancellor_id"] = chancellor_id
+	var log_chancellor_id := chancellor_id if not chancellor_id.is_empty() else "unassigned"
+	print("[WorldMap] Chancellor assignment placeholder selected: %s. No policy effect applied." % log_chancellor_id)
+	_refresh_left_world_status_panel()
+	var hero_data := _get_hero_entry(chancellor_id)
+	world_status_hint_label.text = "%s · 실제 자원/유지비 효과는 적용하지 않습니다." % _get_chancellor_effect_text(hero_data)
 
 
 func _format_region_label(region_id: String) -> String:

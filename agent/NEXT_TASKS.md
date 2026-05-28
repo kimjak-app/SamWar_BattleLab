@@ -49,6 +49,8 @@ Latest worldmap seed import patch: `v0.68b-12b-1 WorldMap Hero City Seed Data Im
 
 Latest worldmap left panel binding QA patch: `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA`
 
+Latest worldmap left panel controls patch: `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -58,7 +60,7 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-3 WorldMap City Detail Hero Binding QA`
+`v0.68b-12b-3 WorldMap City Detail Hero/Governor Binding QA`
 
 Goal:
 - verify that the imported hero/city seed data displays correctly in the existing city detail / selected city hero, governor, and stationed hero paths without adding gameplay execution
@@ -136,6 +138,15 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP` is complete.
+- Inspected local read-only web parity sources: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, and `js\ui\world_hud_ui.js`.
+- Modified `scripts/worldmap_test.gd` and root `WorldMap_Test.tscn`; the requested `scenes/WorldMap_Test.tscn` path is absent in this repo.
+- Added a tax slider and web-like tax preview binding: `_player_state.tax_level` updates visible tax value/status and preview text without applying turn income, resources, or loyalty changes.
+- National loyalty now displays seed-backed value/status/progress from `_player_state.national_loyalty`.
+- Chancellor assignment now uses a dropdown populated from selected-city stationed heroes plus first option `미임명`; selection updates only `_player_state.chancellor_id` and refreshes card/effect preview text from `HERO_DATA.chancellor_profile`.
+- Missing portraits use a `?` fallback and do not block chancellor display.
+- Verification passed: patch strings/data blocks present, Hanseong stationed heroes found, dropdown/fallback paths found, forbidden implementation search returned no matches, Godot project headless load passed, `WorldMap_Test.tscn` headless load passed, and `git diff --check` passed.
+- No turn simulation, resource mutation, loyalty application, policy effect execution, movement, appointment system behavior, `BattleContext`, battle transition, route/pathfinding, castle icon, or repo-outside web change was made.
 - `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA` is complete.
 - Updated `scripts/worldmap_test.gd` left panel display binding only; no scene file changes were needed because the existing `LeftWorldStatusPanel` labels were sufficient.
 - Verified/fixed left panel reads from `_player_state`, `CITY_HUD_DATA`, and `HERO_DATA`: selected/origin city names, selected city owner/region/governor/stationed heroes, owned city list, owned hero list, resource stock, and web-parity no-chancellor fallback.

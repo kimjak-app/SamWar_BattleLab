@@ -52,6 +52,8 @@ Latest worldmap seed import patch: `v0.68b-12b-1 WorldMap Hero City Seed Data Im
 
 Latest worldmap left panel binding QA patch: `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA`
 
+Latest worldmap left panel controls patch: `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -81,6 +83,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-0.5 Session Handoff Docs Update Before New Chat`
 - `v0.68b-12b-1 WorldMap Hero City Seed Data Import`
 - `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA`
+- `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -190,6 +193,14 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA` stabilizes existing `LeftWorldStatusPanel` display binding against the imported `_player_state`, `CITY_HUD_DATA`, and `HERO_DATA` seed dictionaries.
 - The left panel now refreshes when a city marker is selected, records the selected city id in `_player_state`, formats selected/origin city names, selected city owner/region/governor/stationed heroes, owned city/hero lists, resource stock, and no-chancellor default fallback text without exposing raw empty ids.
 - `v0.68b-12b-2` remains display-only and did not add movement, appointment execution, policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, scene layout changes, route/pathfinding changes, or castle icon changes.
+- `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP` upgrades the left HUD controls toward the actual web `renderWorldHud()` behavior for national loyalty, tax level, and chancellor assignment.
+- The left national gauge card now has a tax slider bound to `_player_state.tax_level`; it updates visible tax value/status and web-like income/loyalty preview text only, without applying turn income, resource changes, or permanent loyalty deltas.
+- National loyalty now displays a seed-backed label/status/progress bar from `_player_state.national_loyalty`.
+- Chancellor assignment now uses `ChancellorAssignmentOption`: `미임명` is always first, and candidates come from the selected city's `CITY_HUD_DATA.stationed_hero_ids` resolved through `HERO_DATA`.
+- Selecting a chancellor updates only `_player_state.chancellor_id` for UI display and previews imported chancellor-profile effect text; it does not run appointment execution or policy/resource effects.
+- The chancellor portrait area falls back to `?` when no portrait texture exists, so missing portrait assets do not break the card.
+- The active scene modified for this patch is root `WorldMap_Test.tscn`; the requested `scenes/WorldMap_Test.tscn` path is absent in this repo.
+- `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP` remains left-panel UI/data-binding scope only and did not add turn simulation, resource mutation, loyalty application, policy effect execution, movement, appointment system behavior, `BattleContext`, battle transition, route/pathfinding changes, castle icon changes, or web repo edits.
 - All HUD actions remain placeholder-only. `BattleContext`, battle entry, domestic execution, recruitment, save/load/reset, diplomacy/spy execution, hero/army movement, route click, pathfinding, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
@@ -384,7 +395,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-12b-3 WorldMap City Detail Hero Binding QA`
+1. `v0.68b-12b-3 WorldMap City Detail Hero/Governor Binding QA`
 2. `v0.68b-12c Selected City Panel Web Content Parity`
 3. `v0.68b-12d City Detail Panel Web Content Parity`
 4. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`

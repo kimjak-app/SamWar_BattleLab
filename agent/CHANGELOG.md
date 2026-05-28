@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP
+- Upgraded the existing `LeftWorldStatusPanel` from mostly seed/debug-style text toward web-parity controls for national loyalty, tax level, and chancellor assignment.
+- Inspected local read-only web sources: `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, and `js\ui\world_hud_ui.js`.
+- Added a scene-authored tax `HSlider` to the root `WorldMap_Test.tscn` left national gauge card. The requested `scenes/WorldMap_Test.tscn` path is absent in this repo.
+- Bound tax display to `_player_state.tax_level` using web `DOMESTIC_TAX_RULES`-style preview math for gold multiplier and loyalty delta text only.
+- Bound national loyalty label/progress to `_player_state.national_loyalty` with clean status text and no permanent loyalty mutation from the tax slider.
+- Replaced the old chancellor policy option node with `ChancellorAssignmentOption`, populated from the currently selected city's stationed heroes plus the first `미임명` option.
+- Chancellor selection updates only `_player_state.chancellor_id` for left-panel UI state, refreshes the visible chancellor card, and previews chancellor profile effect text from imported `HERO_DATA.chancellor_profile`.
+- Added portrait fallback behavior that uses a dark text placeholder `?` when no portrait path exists or the texture is unavailable.
+- Kept all controls non-simulating: no actual turn income, resource mutation, loyalty application, policy effect execution, movement, appointment system, `BattleContext`, battle transition, route/pathfinding, castle icon, or repo-outside web edits were added.
+- Verification: patch strings/data blocks present, Hanseong stationed hero candidates present, dropdown `미임명` path present, portrait fallback present, forbidden implementation search returned no matches, Godot project headless load passed, `WorldMap_Test.tscn` headless load passed, and `git diff --check` passed.
+
 ## v0.68b-12b-2 WorldMap Left Panel Seed Binding QA
 - Stabilized existing `LeftWorldStatusPanel` display binding against the imported `_player_state`, `CITY_HUD_DATA`, and `HERO_DATA` seed dictionaries.
 - Updated city marker selection to copy the selected city id into `_player_state.selected_city_id` and refresh the left panel, so selected/origin city display follows current city clicks.

@@ -150,6 +150,9 @@ Latest camera foundation:
 - Latest worldmap left panel binding QA patch:
 `v0.68b-12b-2 WorldMap Left Panel Seed Binding QA`
 
+- Latest worldmap left panel controls patch:
+`v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -223,6 +226,14 @@ Do not modify casually:
 - City marker selection now updates `_player_state.selected_city_id` and refreshes the left panel so the current selected city seed is shown without adding movement or appointment behavior.
 - The patch added fallback-only display helpers for unknown city/hero ids, empty governor/chancellor states, empty stationed heroes, empty owned heroes, and resource stock formatting.
 - This remains display-only. It did not add movement, appointment execution, policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, castle icon changes, or web repo edits.
+- `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP` is complete and updates `scripts/worldmap_test.gd`, root `WorldMap_Test.tscn`, and agent docs.
+- Web parity references inspected were local read-only `C:\dev\SamWar_web\data\heroes.js`, `cities.js`, `battle_rosters.js`, `js\core\app_state.js`, `js\core\domestic_income.js`, `js\core\domestic_effects.js`, `js\constants.js`, and `js\ui\world_hud_ui.js`.
+- The requested `scenes/WorldMap_Test.tscn` path is absent; the active worldmap scene remains root `WorldMap_Test.tscn`.
+- The left panel now has seed-backed national loyalty label/status/progress and a tax slider bound to `_player_state.tax_level`.
+- Tax changes update visible value/status and web-like income/loyalty preview text only; they do not apply turn income, resources, or permanent loyalty deltas.
+- Chancellor assignment now uses selected-city stationed heroes from `CITY_HUD_DATA.stationed_hero_ids` resolved through `HERO_DATA`, with `미임명` as the first dropdown option.
+- Chancellor selection updates `_player_state.chancellor_id` only for left-panel UI state and previews imported chancellor-profile effect text; missing portraits fall back to `?`.
+- This remains left-panel UI/data-binding scope only. It did not add turn simulation, resource mutation, loyalty application, policy effect execution, movement, appointment system behavior, `BattleContext`, battle transition, route/pathfinding changes, castle icon changes, or web repo edits.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -336,13 +347,13 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-3 WorldMap City Detail Hero Binding QA`
+  - `v0.68b-12b-3 WorldMap City Detail Hero/Governor Binding QA`
 - `v0.68b-12b-3` goal:
   - Verify that imported web-aligned hero/city seed data displays correctly in the city detail and selected-city hero/governor/stationed-hero paths.
   - Confirm city click panel refresh, governor/stationed hero display, hero names/stats, resource/military/rating strings, and existing panel drag/collapse behavior.
   - Do not add gameplay logic, movement, appointment execution, policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits.
 - Next candidates:
-  - `v0.68b-12b-3 WorldMap City Detail Hero Binding QA`
+  - `v0.68b-12b-3 WorldMap City Detail Hero/Governor Binding QA`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`
   - `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
