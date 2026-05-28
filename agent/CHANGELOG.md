@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68b-4 WorldMap Route Layer Path2D MVP
+- Added scene-authored route nodes under `WorldMap_Test.tscn > WorldMapRoot > RouteLayer`.
+- Added `scripts/worldmap_route_path.gd` so route metadata is code-owned while route shape remains owned by each `Path2D` / `Curve2D`.
+- Seeded initial land / sea route curves from the current `CityMarker_*` root positions using weak land bends and larger sea bends.
+- Added `Line2D` visualization from baked `Path2D` points, with muted earth-tone land routes and pale blue sea routes.
+- Preserved city marker structure and city click behavior; route click, movement, pathfinding, battle entry, and `BattleContext` injection remain deferred.
+
 ## v0.68b-3 WorldMap City Castle Icon Apply
 - Added `CastleIcon` Sprite2D children under all 13 `CityMarker_*` roots in `WorldMap_Test.tscn`.
 - Mapped city castle icons by city/region: Korean peninsula cities use `castle_korea.png`, China mainland cities use `castle_china.png`, Japanese archipelago cities use `castle_japan.png`, and Karakorum uses `castle_ordo.png`.

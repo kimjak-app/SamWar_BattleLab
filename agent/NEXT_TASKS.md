@@ -15,6 +15,8 @@ Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation
 
 Latest worldmap marker patch: `v0.68b-3 WorldMap City Castle Icon Apply`
 
+Latest worldmap route patch: `v0.68b-4 WorldMap Route Layer Path2D MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -24,36 +26,49 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-4 WorldMap Route Layer MVP`
+`v0.68b-5 WorldMap Route Visual Polish`
 
 Goal:
-- add the first visual route layer MVP on top of the existing worldmap canvas and scene-authored city markers
+- polish route readability after 김작 2D/F6 review without changing route metadata, movement, battle entry, or `BattleContext`
 
 ## Priority 2
+`v0.68b-6 WorldMap City Position Manual QA Stable`
+
+Goal:
+- confirm and stabilize manual city marker placement / name attachment behavior in the Godot 2D editor
+
+## Priority 3
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 3
+## Priority 4
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - implement first hero / region / city / army assignment data needed to produce roster candidates
 
-## Priority 4
+## Priority 5
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 5
+## Priority 6
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-4 WorldMap Route Layer Path2D MVP` is complete.
+- Added route roots under `WorldMap_Test.tscn > WorldMapRoot > RouteLayer`, each with metadata, `Path2D`, and `Line2D`.
+- Route meaning is code metadata while actual route shape is scene-authored `Path2D.curve`.
+- Initial routes were seeded from current `CityMarker_*` positions based on web `neighbors` / `routeTypes`; land routes are muted earth-tone and sea routes are pale blue.
+- Route clicking, army movement, pathfinding, battle entry, naval battle logic, and `BattleContext` runtime injection remain deferred.
+- 김작 2D/F6 should confirm route node structure, editable curves, route line visibility during camera pan/zoom, land/sea visual separation, city marker readability, city click info panel behavior, and battle scene stability.
+- Known issue retained: CityMarker root movement / name text attachment still needs manual confirmation and is not treated as a route-layer blocker.
 - `v0.68b-3 WorldMap City Castle Icon Apply` is complete.
 - City markers now use regional castle icon children: Korea, China, Japan, and Ordo.
 - `CastleIcon`, Node2D `NameText`, and `ClickArea/CollisionShape2D` remain children of each `CityMarker_*` root, so editor root movement should move the full city bundle.

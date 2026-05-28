@@ -18,6 +18,8 @@ Latest worldmap foundation patch: `v0.68b-1 WorldMap Four-Tile Canvas Foundation
 
 Latest worldmap marker patch: `v0.68b-3 WorldMap City Castle Icon Apply`
 
+Latest worldmap route patch: `v0.68b-4 WorldMap Route Layer Path2D MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -30,6 +32,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-1 WorldMap Four-Tile Canvas Foundation`
 - `v0.68b-2 WorldMap City Marker Layer MVP`
 - `v0.68b-3 WorldMap City Castle Icon Apply`
+- `v0.68b-4 WorldMap Route Layer Path2D MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -87,7 +90,11 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - The prepared four worldmap tiles are arranged as a 2x2 Sprite2D canvas with `centered = false`: A1/NW at `(0, 0)`, A2/NE at `(tile_width, 0)`, B1/SW at `(0, tile_height)`, and B2/SE at `(tile_width, tile_height)`.
 - `WorldMapCamera` is scene-authored and runtime-configured as the current Camera2D for large-map pan, drag, optional wheel zoom, and viewport/zoom-aware clamp against the combined tile rect.
 - `WorldMapUI` is CanvasLayer-based and intended to remain screen-fixed during camera movement.
-- `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` exist as empty future worldmap layers only.
+- `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
+- Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
+- Route connection meaning is code metadata; the actual route curve is the scene-authored `Path2D.curve` source of truth.
+- Initial route curves are seeded from current `CityMarker_*` root positions but runtime must not regenerate or overwrite existing route curves.
+- `Line2D` visualizes baked `Path2D` points only, with muted earth-tone land routes and pale blue sea routes below the city markers.
 - `CityLayer` now contains 13 scene-authored `CityMarker_*` nodes for Luoyang, Yecheng, Chengdu, Jianye, Karakorum, Pyeongyang, Hanseong, Gyeongju, Sabi, Kyoto, Osaka, Kyushu, and Edo.
 - Each city marker now uses a regional `CastleIcon` Sprite2D instead of the visible dot marker: Korea, China, Japan, and Ordo icon families.
 - Castle icons are scaled to a common `56px` target height and the old `CityDot` is hidden by marker runtime refresh.
@@ -102,7 +109,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Web city `x` / `y` coordinates are preserved only as initial `web_seed_position`; final city marker placement is the `CityMarker_*` node position in `WorldMap_Test.tscn`.
 - City marker positions remain scene-authored source of truth after the manual tile layout control patch.
 - City marker click now updates a minimal screen-fixed `WorldMapUI/CityInfoLabel` from marker metadata.
-- City clicking, city data, route graph, army movement, battle entry, and `BattleContext` runtime injection remain unimplemented.
+- City clicking remains implemented through the minimal screen-fixed city info label; route clicking, army movement, battle entry, pathfinding, and `BattleContext` runtime injection remain unimplemented.
 - Worldmap / hero / army / BattleContext / battle engine / skill contract docs now define the future system boundaries for larger hero scale and worldmap battle launch.
 - The battle engine is documented as a `BattleContext.roster` consumer and must not choose heroes directly.
 - Worldmap / army systems are documented as owners of encounter creation, battle type, terrain, region, and `map_variant_id` selection.
@@ -265,9 +272,9 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-3 WorldMap Route Layer MVP`
-2. `v0.68c BattleContext Runtime Injection MVP`
-3. `v0.68d Hero/Army Deployment MVP`
+1. `v0.68b-5 WorldMap Route Visual Polish`
+2. `v0.68b-6 WorldMap City Position Manual QA Stable`
+3. `v0.68c BattleContext Runtime Injection MVP`
 4. `v0.68d Hero/Army Deployment MVP`
 5. `v0.69 Battlefield Variant Loader`
 6. `v0.69b Naval Battle Entry MVP`
@@ -282,6 +289,8 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix5`: moving `CityMarker_Hanseong` root moves `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D` together; all 13 city marker roots use the same child structure; Ctrl+S preserves positions; marker click info panel remains normal.
 - 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix6`: moving each `CityMarker_*` root now moves the Node2D `NameLabel` text visibly with the marker dot and click area; Ctrl+S and F6 preserve the moved bundle.
 - 김작 2D/F6 visual QA should confirm `v0.68b-3`: all 13 cities show castle icons instead of dots; Korea/China/Japan/Ordo icon mapping is correct; moving a `CityMarker_*` root moves `CastleIcon`, `NameText`, and `ClickArea`; city click info panel, camera pan/zoom/clamp, and the battle scene remain stable.
+- 김작 2D/F6 visual QA should confirm `v0.68b-4`: `RouteLayer` contains route roots with `Path2D` and `Line2D`, `Path2D.curve` points can be directly adjusted in the 2D editor, land/sea routes are visually distinct without covering city markers, F6 shows route lines attached to the worldmap during pan/zoom, city click info panel still works, and existing battle scenes remain stable.
+- Known issue retained for route-layer follow-up context: moving a `CityMarker_*` root may still require manual confirmation that all name text follows perfectly; this was not changed in `v0.68b-4`.
 - Codex Godot headless verification for `v0.68b-3` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2-hotfix6` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2-hotfix5` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.

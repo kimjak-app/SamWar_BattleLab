@@ -8,9 +8,112 @@
 [ext_resource type="Script" uid="uid://bek5h4grd01m2" path="res://scripts/worldmap_city_marker.gd" id="6_city_marker"]
 [ext_resource type="Script" uid="uid://dnhjqd6n7uxr3" path="res://scripts/worldmap_city_name_label.gd" id="7_city_name_label"]
 [ext_resource type="Texture2D" uid="uid://fqs5bonykf0b" path="res://assets/worldmap/city_icons/castle_china.png" id="7_yepeb"]
+[ext_resource type="Script" uid="uid://c6st78routep" path="res://scripts/worldmap_route_path.gd" id="8_route_path"]
 [ext_resource type="Texture2D" uid="uid://cmjo0skxyub3f" path="res://assets/worldmap/city_icons/castle_ordo.png" id="9_7yvie"]
 [ext_resource type="Texture2D" uid="uid://cxbwdwjl8y87i" path="res://assets/worldmap/city_icons/castle_korea.png" id="10_c1ggt"]
 [ext_resource type="Texture2D" uid="uid://d2itv832yvsak" path="res://assets/worldmap/city_icons/castle_japan.png" id="11_nrcdb"]
+
+[sub_resource type="Curve2D" id="Curve2D_route_luoyang_yecheng"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 785, 781, 0, 0, 0, 0, 862, 693, 0, 0, 0, 0, 896, 581)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_luoyang_chengdu"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 785, 781, 0, 0, 0, 0, 613, 854, 0, 0, 0, 0, 479, 984)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_luoyang_jianye"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 785, 781, 0, 0, 0, 0, 909, 843, 0, 0, 0, 0, 1046, 846)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_yecheng_jianye"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 896, 581, 0, 0, 0, 0, 945, 729, 0, 0, 0, 0, 1046, 846)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_yecheng_karakorum"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 896, 581, 0, 0, 0, 0, 1057, 446, 0, 0, 0, 0, 1155, 261)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_hanseong_pyeongyang"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1409, 529, 0, 0, 0, 0, 1358, 477, 0, 0, 0, 0, 1353, 404)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_pyeongyang_karakorum"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1353, 404, 0, 0, 0, 0, 1275, 304, 0, 0, 0, 0, 1155, 261)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_hanseong_gyeongju"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1409, 529, 0, 0, 0, 0, 1448, 607, 0, 0, 0, 0, 1518, 658)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_hanseong_sabi"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1409, 529, 0, 0, 0, 0, 1400, 614, 0, 0, 0, 0, 1426, 695)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_gyeongju_sabi"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1518, 658, 0, 0, 0, 0, 1465, 660, 0, 0, 0, 0, 1426, 695)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_kyoto_osaka"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1798, 775, 0, 0, 0, 0, 1757, 809, 0, 0, 0, 0, 1746, 861)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_kyoto_edo"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1798, 775, 0, 0, 0, 0, 1864, 754, 0, 0, 0, 0, 1903, 696)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_gyeongju_kyoto"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1518, 658, 0, 0, 0, 0, 1631, 781, 0, 0, 0, 0, 1798, 775)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_gyeongju_osaka"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1518, 658, 0, 0, 0, 0, 1589, 808, 0, 0, 0, 0, 1746, 861)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_sabi_kyushu"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1426, 695, 0, 0, 0, 0, 1418, 851, 0, 0, 0, 0, 1539, 951)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_sabi_jianye"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1426, 695, 0, 0, 0, 0, 1205, 692, 0, 0, 0, 0, 1046, 846)
+}
+point_count = 3
+
+[sub_resource type="Curve2D" id="Curve2D_route_kyushu_osaka"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 1539, 951, 0, 0, 0, 0, 1664, 956, 0, 0, 0, 0, 1746, 861)
+}
+point_count = 3
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_city_click"]
 radius = 40.0
@@ -42,6 +145,249 @@ texture = ExtResource("5_tile_b2")
 centered = false
 
 [node name="RouteLayer" type="Node2D" parent="WorldMapRoot" unique_id=474468413]
+
+[node name="Route_Luoyang_Yecheng" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Luoyang_Yecheng"
+start_city_id = "luoyang"
+end_city_id = "yecheng"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Luoyang_Yecheng"]
+curve = SubResource("Curve2D_route_luoyang_yecheng")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Luoyang_Yecheng"]
+points = PackedVector2Array(785, 781, 862, 693, 896, 581)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Luoyang_Chengdu" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Luoyang_Chengdu"
+start_city_id = "luoyang"
+end_city_id = "chengdu"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Luoyang_Chengdu"]
+curve = SubResource("Curve2D_route_luoyang_chengdu")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Luoyang_Chengdu"]
+points = PackedVector2Array(785, 781, 613, 854, 479, 984)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Luoyang_Jianye" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Luoyang_Jianye"
+start_city_id = "luoyang"
+end_city_id = "jianye"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Luoyang_Jianye"]
+curve = SubResource("Curve2D_route_luoyang_jianye")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Luoyang_Jianye"]
+points = PackedVector2Array(785, 781, 909, 843, 1046, 846)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Yecheng_Jianye" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Yecheng_Jianye"
+start_city_id = "yecheng"
+end_city_id = "jianye"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Yecheng_Jianye"]
+curve = SubResource("Curve2D_route_yecheng_jianye")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Yecheng_Jianye"]
+points = PackedVector2Array(896, 581, 945, 729, 1046, 846)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Yecheng_Karakorum" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Yecheng_Karakorum"
+start_city_id = "yecheng"
+end_city_id = "karakorum"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Yecheng_Karakorum"]
+curve = SubResource("Curve2D_route_yecheng_karakorum")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Yecheng_Karakorum"]
+points = PackedVector2Array(896, 581, 1057, 446, 1155, 261)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Hanseong_Pyeongyang" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Hanseong_Pyeongyang"
+start_city_id = "hanseong"
+end_city_id = "pyeongyang"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Hanseong_Pyeongyang"]
+curve = SubResource("Curve2D_route_hanseong_pyeongyang")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Hanseong_Pyeongyang"]
+points = PackedVector2Array(1409, 529, 1358, 477, 1353, 404)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Pyeongyang_Karakorum" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Pyeongyang_Karakorum"
+start_city_id = "pyeongyang"
+end_city_id = "karakorum"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Pyeongyang_Karakorum"]
+curve = SubResource("Curve2D_route_pyeongyang_karakorum")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Pyeongyang_Karakorum"]
+points = PackedVector2Array(1353, 404, 1275, 304, 1155, 261)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Hanseong_Gyeongju" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Hanseong_Gyeongju"
+start_city_id = "hanseong"
+end_city_id = "gyeongju"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Hanseong_Gyeongju"]
+curve = SubResource("Curve2D_route_hanseong_gyeongju")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Hanseong_Gyeongju"]
+points = PackedVector2Array(1409, 529, 1448, 607, 1518, 658)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Hanseong_Sabi" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Hanseong_Sabi"
+start_city_id = "hanseong"
+end_city_id = "sabi"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Hanseong_Sabi"]
+curve = SubResource("Curve2D_route_hanseong_sabi")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Hanseong_Sabi"]
+points = PackedVector2Array(1409, 529, 1400, 614, 1426, 695)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Gyeongju_Sabi" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Gyeongju_Sabi"
+start_city_id = "gyeongju"
+end_city_id = "sabi"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Sabi"]
+curve = SubResource("Curve2D_route_gyeongju_sabi")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Sabi"]
+points = PackedVector2Array(1518, 658, 1465, 660, 1426, 695)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Kyoto_Osaka" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Kyoto_Osaka"
+start_city_id = "kyoto"
+end_city_id = "osaka"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Kyoto_Osaka"]
+curve = SubResource("Curve2D_route_kyoto_osaka")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Kyoto_Osaka"]
+points = PackedVector2Array(1798, 775, 1757, 809, 1746, 861)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Kyoto_Edo" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Kyoto_Edo"
+start_city_id = "kyoto"
+end_city_id = "edo"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Kyoto_Edo"]
+curve = SubResource("Curve2D_route_kyoto_edo")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Kyoto_Edo"]
+points = PackedVector2Array(1798, 775, 1864, 754, 1903, 696)
+width = 2.5
+default_color = Color(0.72, 0.5, 0.25, 0.44)
+
+[node name="Route_Gyeongju_Kyoto" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Gyeongju_Kyoto"
+start_city_id = "gyeongju"
+end_city_id = "kyoto"
+route_type = "sea"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto"]
+curve = SubResource("Curve2D_route_gyeongju_kyoto")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto"]
+points = PackedVector2Array(1518, 658, 1631, 781, 1798, 775)
+width = 2.5
+default_color = Color(0.55, 0.82, 1, 0.48)
+
+[node name="Route_Gyeongju_Osaka" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Gyeongju_Osaka"
+start_city_id = "gyeongju"
+end_city_id = "osaka"
+route_type = "sea"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka"]
+curve = SubResource("Curve2D_route_gyeongju_osaka")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka"]
+points = PackedVector2Array(1518, 658, 1589, 808, 1746, 861)
+width = 2.5
+default_color = Color(0.55, 0.82, 1, 0.48)
+
+[node name="Route_Sabi_Kyushu" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Sabi_Kyushu"
+start_city_id = "sabi"
+end_city_id = "kyushu"
+route_type = "sea"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu"]
+curve = SubResource("Curve2D_route_sabi_kyushu")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu"]
+points = PackedVector2Array(1426, 695, 1418, 851, 1539, 951)
+width = 2.5
+default_color = Color(0.55, 0.82, 1, 0.48)
+
+[node name="Route_Sabi_Jianye" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Sabi_Jianye"
+start_city_id = "sabi"
+end_city_id = "jianye"
+route_type = "sea"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye"]
+curve = SubResource("Curve2D_route_sabi_jianye")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye"]
+points = PackedVector2Array(1426, 695, 1205, 692, 1046, 846)
+width = 2.5
+default_color = Color(0.55, 0.82, 1, 0.48)
+
+[node name="Route_Kyushu_Osaka" type="Node2D" parent="WorldMapRoot/RouteLayer"]
+script = ExtResource("8_route_path")
+route_id = "Route_Kyushu_Osaka"
+start_city_id = "kyushu"
+end_city_id = "osaka"
+route_type = "sea"
+
+[node name="Path2D" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka"]
+curve = SubResource("Curve2D_route_kyushu_osaka")
+
+[node name="Line2D" type="Line2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka"]
+points = PackedVector2Array(1539, 951, 1664, 956, 1746, 861)
+width = 2.5
+default_color = Color(0.55, 0.82, 1, 0.48)
 
 [node name="CityLayer" type="Node2D" parent="WorldMapRoot" unique_id=1124618027]
 
@@ -483,6 +829,13 @@ offset_right = -20.0
 offset_bottom = 40.0
 text = "Camera: (0, 0)  Zoom: 0.70"
 horizontal_alignment = 2
+
+[node name="CityInfoLabel" type="Label" parent="WorldMapUI"]
+offset_left = 20.0
+offset_top = 48.0
+offset_right = 520.0
+offset_bottom = 72.0
+text = "Select a city"
 
 [node name="InstructionLabel" type="Label" parent="WorldMapUI" unique_id=192681468]
 anchors_preset = 2

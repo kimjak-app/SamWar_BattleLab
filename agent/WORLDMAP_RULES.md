@@ -17,8 +17,8 @@
 - The four prepared tiles under `assets/worldmap/tiles/` are arranged as NW, NE, SW, and SE Sprite2D nodes with `centered = false`.
 - `scripts/worldmap_test.gd` uses the A1 tile texture size to place A2 at `(tile_width, 0)`, B1 at `(0, tile_height)`, and B2 at `(tile_width, tile_height)`.
 - `WorldMapCamera` is the scene-authored Camera2D foundation for large-map pan and zoom, clamped to the combined 2x2 world rect.
-- `RouteLayer`, `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` are prepared as empty Node2D layers only.
-- City click, city data, route graph, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
+- `RouteLayer` is now populated by the route foundation described below; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain prepared worldmap layers.
+- City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
 - `v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix` standardizes each city as one scene-authored marker bundle under `CityLayer`.
@@ -43,7 +43,18 @@
 - Final city placement source of truth is each scene-authored `CityMarker_*` node's `position` in `WorldMap_Test.tscn`.
 - Kimjak may move `CityMarker_*` nodes directly in the Godot 2D editor and save the scene; runtime must preserve those edited positions.
 - `scripts/worldmap_city_marker.gd` stores marker metadata and lightweight visual label/color behavior only. It must not override the marker root position from web data at runtime.
-- City click, selection UI, route drawing, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
+- City click and route drawing MVPs exist; selection UI, route interaction, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
+
+## Current Route Layer Foundation
+- `v0.68b-4 WorldMap Route Layer Path2D MVP` adds the first scene-authored route graph under `WorldMap_Test.tscn > WorldMapRoot > RouteLayer`.
+- Route connection meaning is code-owned metadata: `route_id`, `start_city_id`, `end_city_id`, and `route_type`.
+- Actual route shape is scene-owned `Path2D.curve`. Kimjak can adjust `Path2D` / `Curve2D` points directly in the Godot 2D editor and save the scene.
+- Runtime route code may refresh `Line2D` from `Path2D.curve.get_baked_points()`, but it must not overwrite an existing scene-authored curve from city positions.
+- Initial route curves are one-time seeds from current `CityMarker_*` root positions only.
+- Land routes use muted earth-tone thin lines; sea routes use pale blue thin lines.
+- RouteLayer is a visual/path foundation only. Route click, pathfinding, army movement, battle entry, naval battle logic, and `BattleContext` runtime injection remain deferred.
+- When the same city pair appears from both directions, create only one route node. For route type conflicts, prefer explicit `routeTypes` metadata over default land inference.
+- Known issue retained outside this route-layer scope: CityMarker root movement / name text attachment still needs 김작 manual 2D/F6 confirmation.
 
 ## Canonical Direction
 - The battle engine does not choose heroes directly.

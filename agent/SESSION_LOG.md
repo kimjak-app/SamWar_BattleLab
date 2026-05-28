@@ -2,6 +2,14 @@
 
 ## 2026-05-28
 
+### v0.68b-4 WorldMap Route Layer Path2D MVP
+- Added the first route layer MVP to `WorldMap_Test.tscn`.
+- Created route root nodes under `WorldMapRoot/RouteLayer`, each with route metadata, a `Path2D`, and a `Line2D`.
+- Route connection meaning is stored on `scripts/worldmap_route_path.gd`; actual route shape is the scene-authored `Path2D.curve` source of truth.
+- Land routes use muted earth-tone thin lines; sea routes use pale blue thin lines.
+- Did not implement route clicking, army movement, pathfinding, battle entry, naval battle logic, or `BattleContext` runtime injection.
+- Known issue retained: CityMarker root movement / name label attachment still needs 김작 manual 2D/F6 confirmation and is not treated as a blocker for this route-layer work.
+
 ### v0.68b-3 WorldMap City Castle Icon Apply
 - Confirmed the four city castle icon assets exist under `assets/worldmap/city_icons/`.
 - Added `CastleIcon` Sprite2D children under each `CityMarker_*` root and kept marker root positions unchanged.
