@@ -2,6 +2,18 @@
 
 ## 2026-05-28
 
+### v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP
+- Inspected `scripts/worldmap_test.gd` and the active root `WorldMap_Test.tscn` path; no `scenes/WorldMap_Test.tscn` path was used for this task.
+- Inspected local read-only web parity references: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, and `js\main.js`.
+- Updated `scripts/worldmap_test.gd` with the patch marker `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`.
+- Hid remaining visible internal/debug bottom lines under the national warehouse card and added a runtime `저장 관리` title/status area around the existing save button row.
+- Replaced the old `야군 편집` button behavior/text with `아군 턴 종료`.
+- `아군 턴 종료` now updates `_player_state.turn_phase` from `player` to `enemy`, normalizes the visible phase label to `적군 턴`, refreshes the left panel, and enters `_run_enemy_turn_mvp()`.
+- `_run_enemy_turn_mvp()` is a hook only for future enemy invasion logic and does not implement invasion, enemy AI, ownership changes, hero movement, `BattleContext`, battle transition, resource ticks, or turn-cycle return.
+- Added `저장` / `불러오기` / `초기화` behavior using `user://worldmap_left_panel_state.json`; reset restores the startup seed baseline without deleting repo files or using repo files as runtime save storage.
+- Verification passed: patch strings, `아군 턴 종료`, `user://` save path, turn-end/save/reset helpers, `git diff --check`, Godot project headless load, and `WorldMap_Test.tscn` headless load.
+- Recommended next task: `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`.
+
 ### v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup
 - Inspected `scripts/worldmap_test.gd` and confirmed the requested `scenes/WorldMap_Test.tscn` path does not exist; the active scene remains root `WorldMap_Test.tscn`.
 - Updated `scripts/worldmap_test.gd` with the patch marker `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`.

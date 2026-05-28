@@ -58,6 +58,8 @@ Latest worldmap left panel policy/warehouse patch: `v0.68b-12b-3 WorldMap Chance
 
 Latest worldmap warehouse UI cleanup patch: `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`
 
+Latest worldmap turn/save patch: `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -90,6 +92,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`
 - `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`
 - `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`
+- `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -217,7 +220,11 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - The visible warehouse card now shows only the 9 resource rows (`쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, `소금`, `금전`) with current/max values and status labels sourced from `_player_state.resource_stock`, `WAREHOUSE_CAPACITY`, and `_get_resource_status_label()`.
 - Internal preview lines such as `영웅 유지비`, `병사 유지비 preview`, `보존 소금`, and `유지비 정상` are hidden from the visible warehouse card for this patch; helper data remains available internally for later policy-effect work.
 - `v0.68b-12b-3a` remains UI cleanup only and did not add upkeep/resource production, resource mutation, turn simulation, appointment execution, movement, `BattleContext`, battle transition, route/pathfinding changes, or broader HUD redesign.
-- All HUD actions remain placeholder-only. `BattleContext`, battle entry, domestic execution, recruitment, save/load/reset, diplomacy/spy execution, hero/army movement, route click, pathfinding, and AI remain unimplemented.
+- `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP` cleans the bottom of `LeftWorldStatusPanel`: remaining visible internal/debug lines below `국가 창고` are hidden, the old `야군 편집` button is replaced with `아군 턴 종료`, and a web-like `저장 관리` title plus `저장` / `불러오기` / `초기화` row is shown.
+- `아군 턴 종료` now changes `_player_state.turn_phase` from `player` to `enemy`, updates `current_phase_label` to `적군 턴`, refreshes the left panel, and enters `_run_enemy_turn_mvp()` as a future-safe hook only.
+- `_run_enemy_turn_mvp()` intentionally does not run enemy invasion, AI, city ownership changes, hero movement, `BattleContext`, battle transition, resource ticks, or turn advancement back to the player; that return cycle is deferred.
+- Save management now persists the current worldmap/player HUD state to `user://worldmap_left_panel_state.json`, loads it back with clean fallback messages, and resets `_player_state` to the startup seed baseline without writing runtime saves into the repo.
+- Combat/world-simulation HUD actions remain placeholder-only. `BattleContext`, battle entry, domestic execution, recruitment, diplomacy/spy execution, hero/army movement, route click, pathfinding, enemy invasion, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
 - Route connection meaning is code metadata; the actual route curve is the scene-authored `Path2D.curve` source of truth.
@@ -411,7 +418,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-12b-3b WorldMap Chancellor Policy Effect Web Parity`
+1. `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
 2. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 3. `v0.68b-12c Selected City Panel Web Content Parity`
 4. `v0.68b-12d City Detail Panel Web Content Parity`

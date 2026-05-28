@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP
+- Cleaned the `LeftWorldStatusPanel` bottom area after the `국가 창고` card by hiding remaining visible internal/debug lines for selected city, stationed heroes, internal supply, troop rebalance, external trade, and bottom policy/resource explanatory text.
+- Inspected local read-only web sources: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, and `js\main.js`.
+- Replaced the old `야군 편집` action with the web-parity `아군 턴 종료` button.
+- Added `_player_state.turn_phase` / `turn_number` defaults and phase-label normalization so `아군 턴 종료` changes the visible phase from `아군 턴` to `적군 턴` and refreshes the left panel.
+- Added `_run_enemy_turn_mvp()` as a documented enemy-turn hook only. It logs/statuses the placeholder state and intentionally does not perform enemy invasion, AI movement, city ownership changes, `BattleContext`, battle transition, resource ticks, or turn-cycle return.
+- Added a web-like `저장 관리` section with `저장`, `불러오기`, and `초기화`; runtime save data is stored as JSON at `user://worldmap_left_panel_state.json`.
+- Save/load/reset persists and restores the current `_player_state` UI/runtime seed state and resets to the startup baseline without using repo files as runtime save storage.
+- Verification: patch strings present, turn-end/save/hook paths present, save path uses `user://`, bottom debug labels hidden in the left panel refresh path, `git diff --check` passed, Godot project headless load passed, and `WorldMap_Test.tscn` headless load passed.
+
 ## v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup
 - Cleaned up the `LeftWorldStatusPanel` `국가 창고` display into a boxed card-style UI focused only on resource rows.
 - Added a runtime `WarehouseCard` `PanelContainer` with dark HUD styling, gold border, section title, and aligned rows for `쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, `소금`, and `금전`.

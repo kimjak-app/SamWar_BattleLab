@@ -19,6 +19,9 @@ const UNIFIED_PANEL_COLLAPSED_HEIGHT := 48.0
 const UNIFIED_PANEL_MIN_EXPANDED_HEIGHT := 188.0
 const UNIFIED_PANEL_SCREEN_PADDING := 18.0
 const UNIFIED_PANEL_COLLAPSED_DRAG_THRESHOLD := 6.0
+const WORLDMAP_SAVE_PATH := "user://worldmap_left_panel_state.json"
+const TURN_PHASE_PLAYER := "player"
+const TURN_PHASE_ENEMY := "enemy"
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -186,6 +189,7 @@ const GOVERNOR_POLICY_DATA := {
 # v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP
 # v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP
 # v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup
+# v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -322,6 +326,10 @@ var _unified_primary_tab := UNIFIED_PANEL_TAB_CITY_DETAIL
 var _selected_diplomacy_spy_tab := DIPLOMACY_SPY_TAB_DIPLOMACY
 var _warehouse_card: PanelContainer
 var _warehouse_resource_row_labels: Dictionary = {}
+var _save_management_title_label: Label
+var _save_management_status_label: Label
+var _save_management_status := ""
+var _default_player_state: Dictionary = {}
 var _is_unified_city_panel_collapsed := false
 var _unified_city_panel_expanded_size := Vector2.ZERO
 var _unified_city_detail_primary_button: Button = null
@@ -336,6 +344,8 @@ var _player_state := {
 	"origin_city_id": "hanseong",
 	"owned_city_ids": ["hanseong"],
 	"owned_hero_ids": ["yi_sun_sin", "jeong_do_jeon", "cheok_jun_gyeong"],
+	"turn_number": 1,
+	"turn_phase": TURN_PHASE_PLAYER,
 	"turn_label": "제 1턴",
 	"year_label": "154년 봄 1일",
 	"current_phase_label": "아군 턴",
@@ -360,6 +370,8 @@ var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
 
 
 func _ready() -> void:
+	_default_player_state = _player_state.duplicate(true)
+	_ensure_worldmap_runtime_state_defaults()
 	_hide_retired_top_worldmap_hud()
 	_refresh_world_rect_from_scene_tiles()
 	_connect_city_markers()
@@ -631,10 +643,10 @@ func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 
 
 func _connect_world_hud_placeholders() -> void:
-	wild_army_edit_button_placeholder.pressed.connect(_on_wild_army_edit_placeholder_pressed)
-	save_button_placeholder.pressed.connect(_on_save_placeholder_pressed)
-	load_button_placeholder.pressed.connect(_on_load_placeholder_pressed)
-	reset_button_placeholder.pressed.connect(_on_reset_placeholder_pressed)
+	wild_army_edit_button_placeholder.pressed.connect(_on_ally_turn_end_pressed)
+	save_button_placeholder.pressed.connect(_save_worldmap_state)
+	load_button_placeholder.pressed.connect(_load_worldmap_state)
+	reset_button_placeholder.pressed.connect(_reset_worldmap_state)
 	diplomacy_mode_button_placeholder.pressed.connect(_on_diplomacy_mode_placeholder_pressed)
 	spy_mode_button_placeholder.pressed.connect(_on_spy_mode_placeholder_pressed)
 	city_detail_resource_tab_button_placeholder.pressed.connect(_on_unified_secondary_tab_pressed.bind(0))
@@ -927,6 +939,7 @@ func _setup_left_world_controls() -> void:
 func _setup_left_world_status_panel_layout() -> void:
 	left_world_status_panel.custom_minimum_size.x = 320.0
 	_setup_warehouse_card_ui()
+	_setup_save_management_ui()
 	for label in [
 		power_label,
 		tax_label,
@@ -946,6 +959,33 @@ func _setup_left_world_status_panel_layout() -> void:
 	supply_label.add_theme_font_size_override("font_size", 10)
 	military_logistics_label.add_theme_font_size_override("font_size", 10)
 	external_trade_label.add_theme_font_size_override("font_size", 10)
+
+
+func _setup_save_management_ui() -> void:
+	var save_row := save_button_placeholder.get_parent() as Control
+	var parent := save_row.get_parent() as VBoxContainer
+	if parent == null:
+		return
+	military_logistics_label.visible = false
+	external_trade_label.visible = false
+	world_status_hint_label.visible = false
+	if _save_management_title_label == null:
+		_save_management_title_label = Label.new()
+		_save_management_title_label.name = "SaveManagementTitleLabel"
+		_save_management_title_label.text = "저장 관리"
+		_save_management_title_label.add_theme_color_override("font_color", Color(0.98, 0.82, 0.46, 1.0))
+		_save_management_title_label.add_theme_font_size_override("font_size", 12)
+		parent.add_child(_save_management_title_label)
+		parent.move_child(_save_management_title_label, save_row.get_index())
+	if _save_management_status_label == null:
+		_save_management_status_label = Label.new()
+		_save_management_status_label.name = "SaveManagementStatusLabel"
+		_save_management_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_save_management_status_label.add_theme_color_override("font_color", Color(0.95, 0.94, 0.86, 1.0))
+		_save_management_status_label.add_theme_font_size_override("font_size", 11)
+		parent.add_child(_save_management_status_label)
+		parent.move_child(_save_management_status_label, save_row.get_index() + 1)
+	_save_management_status_label.visible = not _save_management_status.is_empty()
 
 
 func _setup_warehouse_card_ui() -> void:
@@ -1022,18 +1062,12 @@ func _setup_warehouse_card_ui() -> void:
 
 
 func _refresh_left_world_status_panel() -> void:
+	_ensure_worldmap_runtime_state_defaults()
 	var selected_state_city_id := str(_player_state.get("selected_city_id", selected_city_id))
 	var origin_city_id := str(_player_state.get("origin_city_id", ""))
 	var selected_city_name := _format_city_name_by_id(selected_state_city_id, "선택 도시 없음")
 	var origin_city_name := _format_city_name_by_id(origin_city_id, "알 수 없는 도시")
 	var selected_city_data := _get_city_hud_entry(selected_state_city_id)
-	var selected_owner_id := str(selected_city_data.get("owner", selected_city_data.get("nation", "")))
-	var selected_owner := "알 수 없는 세력" if selected_owner_id.is_empty() else _format_faction_label(selected_owner_id)
-	var selected_region := str(selected_city_data.get("region", "알 수 없는 지역"))
-	var selected_governor_name := _format_hero_name_by_id(str(selected_city_data.get("governor_id", "")), "태수 없음")
-	var stationed_hero_summary := _format_hero_list(selected_city_data.get("stationed_hero_ids", []), "주둔 장수 없음")
-	var owned_city_summary := _format_city_list(_player_state.get("owned_city_ids", []), "보유 도시 없음")
-	var owned_hero_summary := _format_hero_list(_player_state.get("owned_hero_ids", []), "보유 장수 없음")
 	left_world_status_eyebrow_label.text = "World Turn"
 	turn_label.text = str(_player_state.get("turn_label", "제 1턴"))
 	calendar_label.text = str(_player_state.get("year_label", "154년 봄 1일"))
@@ -1082,27 +1116,136 @@ func _refresh_left_world_status_panel() -> void:
 	supply_label.visible = false
 	supply_label.text = ""
 	_refresh_warehouse_card()
-	military_logistics_label.text = "선택 도시: %s · %s · %s\n주둔 장수: %s\n내부 보급망: %s\n내부 병력 재배치: %s" % [
-		selected_city_name,
-		selected_region,
-		selected_owner,
-		stationed_hero_summary,
-		str(_player_state.get("supply", "활성 교역로 0개")),
-		str(_player_state.get("troop_rebalance", "목표 주둔군 충족")),
-	]
-	external_trade_label.text = "대외 무역: %s" % str(_player_state.get("trade", "placeholder"))
-	world_status_hint_label.text = "%s · 재상 정책: %s · %s\n태수: %s · 보유 도시: %s\n보유 장수: %s" % [
-		str(_player_state.get("income", "이번 턴 수입 없음")),
-		str(policy_data.get("name", policy_id)),
-		_format_tax_effect_text(tax_level),
-		selected_governor_name,
-		owned_city_summary,
-		owned_hero_summary,
-	]
-	wild_army_edit_button_placeholder.text = "야군 편집"
+	military_logistics_label.visible = false
+	military_logistics_label.text = ""
+	external_trade_label.visible = false
+	external_trade_label.text = ""
+	world_status_hint_label.visible = false
+	world_status_hint_label.text = ""
+	wild_army_edit_button_placeholder.text = "아군 턴 종료"
 	save_button_placeholder.text = "저장"
 	load_button_placeholder.text = "불러오기"
 	reset_button_placeholder.text = "초기화"
+	if _save_management_title_label != null:
+		_save_management_title_label.text = "저장 관리"
+	if _save_management_status_label != null:
+		_save_management_status_label.text = _save_management_status
+		_save_management_status_label.visible = not _save_management_status.is_empty()
+
+
+func _ensure_worldmap_runtime_state_defaults() -> void:
+	if not _player_state.has("turn_number"):
+		_player_state["turn_number"] = 1
+	if not _player_state.has("turn_phase"):
+		_player_state["turn_phase"] = TURN_PHASE_PLAYER
+	var phase := _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER)))
+	_player_state["turn_phase"] = phase
+	_player_state["current_phase_label"] = _get_turn_phase_label(phase)
+	if not _player_state.has("turn_label"):
+		_player_state["turn_label"] = "제 %d턴" % int(_player_state.get("turn_number", 1))
+	if not _player_state.has("resource_stock"):
+		_player_state["resource_stock"] = {}
+	if not _player_state.has("chancellor_policy_id"):
+		_player_state["chancellor_policy_id"] = "balanced"
+	if not _player_state.has("chancellor_id"):
+		_player_state["chancellor_id"] = ""
+
+
+func _normalize_turn_phase(phase: String) -> String:
+	return TURN_PHASE_ENEMY if phase == TURN_PHASE_ENEMY else TURN_PHASE_PLAYER
+
+
+func _get_turn_phase_label(phase: String) -> String:
+	return "적군 턴" if _normalize_turn_phase(phase) == TURN_PHASE_ENEMY else "아군 턴"
+
+
+func _set_turn_phase(phase: String) -> void:
+	var normalized_phase := _normalize_turn_phase(phase)
+	_player_state["turn_phase"] = normalized_phase
+	_player_state["current_phase_label"] = _get_turn_phase_label(normalized_phase)
+	_refresh_left_world_status_panel()
+
+
+func _set_save_management_status(message: String) -> void:
+	_save_management_status = message
+	if _save_management_status_label != null:
+		_save_management_status_label.text = message
+		_save_management_status_label.visible = not message.is_empty()
+
+
+func _on_ally_turn_end_pressed() -> void:
+	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
+		_set_save_management_status("이미 적군 턴입니다.")
+		return
+	_set_turn_phase(TURN_PHASE_ENEMY)
+	_run_enemy_turn_mvp()
+
+
+func _run_enemy_turn_mvp() -> void:
+	# v0.68b-12b-4: enemy turn phase hook only. Future patch will port web enemy invasion logic here.
+	print("[WorldMap] Enemy turn MVP hook reached. Enemy invasion, AI, battle context, and battle transition are deferred.")
+	_set_save_management_status("적군 턴: 침공 로직 미실행")
+
+
+func _get_default_player_state() -> Dictionary:
+	return _default_player_state.duplicate(true)
+
+
+func _serialize_worldmap_state() -> Dictionary:
+	_ensure_worldmap_runtime_state_defaults()
+	return {
+		"version": "v0.68b-12b-4",
+		"title": "WorldMap Turn End + Save Management Web Parity MVP",
+		"player_state": _player_state.duplicate(true),
+	}
+
+
+func _apply_worldmap_state(data: Dictionary) -> bool:
+	var restored_state: Variant = data.get("player_state", {})
+	if not restored_state is Dictionary:
+		return false
+	var next_state := _get_default_player_state()
+	for key in restored_state.keys():
+		next_state[key] = restored_state[key]
+	_player_state = next_state
+	_ensure_worldmap_runtime_state_defaults()
+	return true
+
+
+func _save_worldmap_state() -> void:
+	var save_data := _serialize_worldmap_state()
+	var file := FileAccess.open(WORLDMAP_SAVE_PATH, FileAccess.WRITE)
+	if file == null:
+		push_warning("[WorldMap] Failed to open worldmap save path: %s" % WORLDMAP_SAVE_PATH)
+		_set_save_management_status("저장 실패")
+		return
+	file.store_string(JSON.stringify(save_data, "\t"))
+	_set_save_management_status("저장 완료")
+
+
+func _load_worldmap_state() -> void:
+	if not FileAccess.file_exists(WORLDMAP_SAVE_PATH):
+		_set_save_management_status("저장 데이터 없음")
+		return
+	var file := FileAccess.open(WORLDMAP_SAVE_PATH, FileAccess.READ)
+	if file == null:
+		_set_save_management_status("불러오기 실패")
+		return
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	if not parsed is Dictionary or not _apply_worldmap_state(parsed):
+		_set_save_management_status("불러오기 실패")
+		return
+	_refresh_left_world_status_panel()
+	_refresh_unified_panel_content()
+	_set_save_management_status("불러오기 완료")
+
+
+func _reset_worldmap_state() -> void:
+	_player_state = _get_default_player_state()
+	_ensure_worldmap_runtime_state_defaults()
+	_refresh_left_world_status_panel()
+	_refresh_unified_panel_content()
+	_set_save_management_status("초기화 완료")
 
 
 func _get_city_hud_entry(city_id: String) -> Dictionary:
@@ -1546,7 +1689,6 @@ func _on_tax_slider_value_changed(value: float) -> void:
 	var tax_level := _normalize_tax_level(value)
 	_player_state["tax_level"] = tax_level
 	_refresh_left_world_status_panel()
-	world_status_hint_label.text = "%s · 실제 수입/충성도 적용은 턴 처리에서만 실행됩니다." % _format_tax_effect_text(tax_level)
 
 
 func _on_chancellor_assignment_selected(index: int) -> void:
@@ -1555,8 +1697,6 @@ func _on_chancellor_assignment_selected(index: int) -> void:
 	var log_chancellor_id := chancellor_id if not chancellor_id.is_empty() else "unassigned"
 	print("[WorldMap] Chancellor assignment placeholder selected: %s. No policy effect applied." % log_chancellor_id)
 	_refresh_left_world_status_panel()
-	var hero_data := _get_hero_entry(chancellor_id)
-	world_status_hint_label.text = "%s · 실제 자원/유지비 효과는 적용하지 않습니다." % _get_chancellor_effect_text(hero_data)
 
 
 func _on_chancellor_policy_selected(index: int) -> void:
@@ -1565,11 +1705,6 @@ func _on_chancellor_policy_selected(index: int) -> void:
 		policy_id = "balanced"
 	_player_state["chancellor_policy_id"] = policy_id
 	_refresh_left_world_status_panel()
-	var policy_data := _get_chancellor_policy_entry(policy_id)
-	world_status_hint_label.text = "재상 정책: %s · %s · 현재 보유량은 변경하지 않습니다." % [
-		str(policy_data.get("name", policy_id)),
-		str(policy_data.get("description", "재상 정책 설명 준비 중")),
-	]
 
 
 func _format_region_label(region_id: String) -> String:
@@ -1603,23 +1738,19 @@ func _has_player_neighbor(city_marker: WorldMapCityMarker) -> bool:
 
 
 func _on_wild_army_edit_placeholder_pressed() -> void:
-	print("[WorldMap] Wild army edit placeholder selected. Army editing is deferred.")
-	world_status_hint_label.text = "야군 편집은 후속 Army 단계에서 연결됩니다."
+	_on_ally_turn_end_pressed()
 
 
 func _on_save_placeholder_pressed() -> void:
-	print("[WorldMap] Save placeholder selected. Save/load integration is deferred.")
-	world_status_hint_label.text = "저장 기능은 이 HUD 외형 단계에서 실행되지 않습니다."
+	_save_worldmap_state()
 
 
 func _on_load_placeholder_pressed() -> void:
-	print("[WorldMap] Load placeholder selected. Save/load integration is deferred.")
-	world_status_hint_label.text = "불러오기 기능은 이 HUD 외형 단계에서 실행되지 않습니다."
+	_load_worldmap_state()
 
 
 func _on_reset_placeholder_pressed() -> void:
-	print("[WorldMap] Reset placeholder selected. Reset integration is deferred.")
-	world_status_hint_label.text = "초기화 기능은 이 HUD 외형 단계에서 실행되지 않습니다."
+	_reset_worldmap_state()
 
 
 func _on_diplomacy_mode_placeholder_pressed() -> void:

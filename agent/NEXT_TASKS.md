@@ -55,6 +55,8 @@ Latest worldmap left panel policy/warehouse patch: `v0.68b-12b-3 WorldMap Chance
 
 Latest worldmap warehouse UI cleanup patch: `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`
 
+Latest worldmap turn/save patch: `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -64,26 +66,26 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-3b WorldMap Chancellor Policy Effect Web Parity`
+`v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
 
 Goal:
-- verify and refine chancellor policy effect copy/preview behavior against the web implementation without adding actual turn simulation or resource mutation
+- complete the visible MVP turn cycle after `v0.68b-12b-4` by returning from enemy turn to the next ally/player turn
 
 Scope:
-- inspect web chancellor policy effect display and preview paths
-- keep the cleaned `국가 창고` card row-only unless the task explicitly adds a separate preview area
-- refine policy effect descriptions, summaries, or preview-only text where needed
-- keep all changes UI/state-preview only; do not apply resources, upkeep, loyalty, turns, movement, battle entry, or broader domestic simulation
+- inspect web `confirmEnemyTurnResult()` / `advanceWorldTurn()` behavior
+- add a short enemy-turn delay or explicit placeholder return control if needed
+- advance turn number/calendar only if web parity defines the safe MVP path
+- refresh `LeftWorldStatusPanel` and top turn labels when returning to ally/player turn
+- keep enemy invasion, full enemy AI, battle entry, resource ticks, and broader simulation deferred
 
 Forbidden in this task:
-- no actual hero movement implementation
-- no actual governor/chancellor appointment logic
-- no actual policy effect application
-- no actual resource, troop, or turn mutation
+- no enemy invasion implementation
+- no enemy city targeting or hero movement
+- no actual governor/chancellor appointment execution
+- no full domestic income/resource tick pipeline
 - no `BattleContext` creation
 - no battle scene transition
 - no route or pathfinding change
-- no scene layout change
 - no castle icon reactivation
 - no modification to repo-outside `SamWar_web` files
 
@@ -148,6 +150,17 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP` is complete.
+- Inspected local read-only web references: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, and `js\main.js`.
+- Modified `scripts/worldmap_test.gd` and agent docs only; the active worldmap scene remains root `WorldMap_Test.tscn`.
+- Hid the remaining visible bottom internal/debug labels below `국가 창고`, including selected-city/stationed-hero/logistics/trade/policy explanatory bottom lines.
+- Replaced the old `야군 편집` button text with `아군 턴 종료`.
+- `아군 턴 종료` now changes `_player_state.turn_phase` from `player` to `enemy`, updates the visible phase label to `적군 턴`, refreshes the left panel, and calls a documented `_run_enemy_turn_mvp()` hook.
+- The enemy-turn hook is placeholder-only and does not run enemy invasion, AI, ownership changes, hero movement, `BattleContext`, battle transition, resource ticks, or turn-cycle return.
+- Save management now uses `user://worldmap_left_panel_state.json` for runtime JSON save/load and resets `_player_state` to the startup seed baseline; no repo file is used for runtime save data.
+- Verification passed: patch strings present, button/save/hook paths present, hidden-label assignments present, save path uses `user://`, Godot project headless load passed, `WorldMap_Test.tscn` headless load passed, and `git diff --check` passed.
+- Recommended next task: `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`.
+
 - `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup` is complete.
 - Modified `scripts/worldmap_test.gd`, root `WorldMap_Test.tscn`, and agent docs; the requested `scenes/WorldMap_Test.tscn` path is absent in this repo.
 - Replaced the visible plain multiline `국가 창고` output with a boxed runtime `WarehouseCard` `PanelContainer`.

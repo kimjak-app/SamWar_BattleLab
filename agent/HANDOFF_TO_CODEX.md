@@ -159,6 +159,9 @@ Latest camera foundation:
 - Latest worldmap warehouse UI cleanup patch:
 `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`
 
+- Latest worldmap turn/save patch:
+`v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -251,6 +254,11 @@ Do not modify casually:
 - The card shows only 9 resource rows (`쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, `소금`, `금전`) with current/max values and status labels bound from `_player_state.resource_stock`, `WAREHOUSE_CAPACITY`, and `_get_resource_status_label()`.
 - Internal maintenance/preview lines are hidden from the visible warehouse card: `영웅 유지비`, `병사 유지비 preview`, `보존 소금`, `유지비 정상`, and related explanation lines.
 - This remains a narrow UI cleanup. It did not add upkeep/resource production, resource mutation, turn simulation, appointment execution, movement, `BattleContext`, battle transition, route/pathfinding changes, or broader HUD redesign.
+- `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP` is complete and updates `scripts/worldmap_test.gd` plus agent docs only.
+- The left panel bottom now hides remaining internal/debug lines below `국가 창고`, replaces `야군 편집` with `아군 턴 종료`, and shows web-like `저장 관리` controls.
+- `아군 턴 종료` changes `_player_state.turn_phase` from `player` to `enemy`, updates the visible phase label to `적군 턴`, refreshes the left panel, and calls `_run_enemy_turn_mvp()` as a hook only.
+- `_run_enemy_turn_mvp()` is intentionally non-simulating: no enemy invasion, AI, city ownership changes, hero movement, `BattleContext`, battle transition, resource ticks, or player-turn return is implemented yet.
+- Save/load/reset now persists runtime worldmap/player HUD state to `user://worldmap_left_panel_state.json`, restores it with clean fallback messages, and resets to the startup seed baseline without using repo files for runtime saves.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -364,13 +372,13 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-3b WorldMap Chancellor Policy Effect Web Parity`
-- `v0.68b-12b-3b` goal:
-  - Verify and refine chancellor policy effect copy/preview behavior against the web implementation.
-  - Keep the cleaned `국가 창고` card row-only unless the task explicitly adds a separate preview area.
-  - Do not add gameplay logic, movement, appointment execution, actual policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits.
+  - `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
+- `v0.68b-12b-5` goal:
+  - Return from the enemy-turn placeholder state to the next ally/player turn.
+  - Refresh labels and advance turn/calendar only to the safe web-parity extent.
+  - Do not add enemy invasion, full enemy AI, battle entry, resource simulation, movement, appointment execution, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits.
 - Next candidates:
-  - `v0.68b-12b-3b WorldMap Chancellor Policy Effect Web Parity`
+  - `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
   - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`
