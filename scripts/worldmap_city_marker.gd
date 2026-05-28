@@ -19,6 +19,9 @@ signal city_selected(marker: WorldMapCityMarker)
 @onready var click_area: Area2D = get_node_or_null("ClickArea") as Area2D
 
 const CITY_CASTLE_ICON_TARGET_HEIGHT := 56.0
+# Castle icon visuals are disabled for the functional marker phase.
+const CASTLE_ICON_VISUALS_ENABLED := false
+const FUNCTIONAL_CITY_DOT_VISIBLE := true
 const CASTLE_ICON_KOREA := preload("res://assets/worldmap/city_icons/castle_korea.png")
 const CASTLE_ICON_CHINA := preload("res://assets/worldmap/city_icons/castle_china.png")
 const CASTLE_ICON_JAPAN := preload("res://assets/worldmap/city_icons/castle_japan.png")
@@ -66,8 +69,10 @@ func _refresh_marker_visuals() -> void:
 	if selection_ring != null:
 		selection_ring.visible = false
 
-	if castle_icon != null:
+	if castle_icon != null and CASTLE_ICON_VISUALS_ENABLED:
 		_apply_castle_icon()
+	elif castle_icon != null:
+		castle_icon.visible = false
 
 	if name_text != null:
 		if name_text.has_method("set_label_text"):
@@ -77,13 +82,14 @@ func _refresh_marker_visuals() -> void:
 
 	if city_dot != null:
 		city_dot.color = OWNER_COLORS.get(owner_faction_id, Color(0.9, 0.9, 0.9, 1.0))
-		city_dot.visible = false
+		city_dot.visible = FUNCTIONAL_CITY_DOT_VISIBLE
 
 
 func _apply_castle_icon() -> void:
 	var icon_texture := _get_castle_icon_texture()
 	castle_icon.texture = icon_texture
 	castle_icon.centered = true
+	castle_icon.visible = true
 	castle_icon.scale = _get_castle_icon_scale()
 
 
@@ -138,7 +144,10 @@ func set_selected(is_selected: bool) -> void:
 		selection_ring.visible = is_selected
 
 	if castle_icon != null:
-		castle_icon.scale = _get_castle_icon_scale() * (1.08 if is_selected else 1.0)
+		if CASTLE_ICON_VISUALS_ENABLED:
+			castle_icon.scale = _get_castle_icon_scale() * (1.08 if is_selected else 1.0)
+		else:
+			castle_icon.visible = false
 
 	if name_text is WorldMapCityNameLabel:
 		var selected_color := Color(1.0, 0.92, 0.55, 1.0)

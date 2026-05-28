@@ -80,6 +80,9 @@ Latest camera foundation:
 - Latest worldmap selected city UI patch:
 `v0.68b-6 WorldMap Selected City Panel Web Parity MVP`
 
+- Latest worldmap functional marker patch:
+`v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -132,6 +135,8 @@ Do not modify casually:
 - City marker positions remain scene-authored source of truth after manual tile layout control.
 - City marker click updates `selected_city_id`, keeps `selected_city_marker`, clears the previous marker selection, shows the selected marker's `SelectionRing`, and refreshes `WorldMapUI/CityInfoPanel` from marker metadata.
 - `CityInfoPanel` is a reduced Godot port of the web `renderSelectedCityPanel()` shape and displays city name, id, region/owner, type, neighbors, route type summary, MVP status text, and attack / hero-move placeholder buttons.
+- Castle icon visuals are currently disabled for the functional marker phase. `CastleIcon` nodes and castle icon asset references remain in `WorldMap_Test.tscn`, but they are hidden and controlled by `CASTLE_ICON_VISUALS_ENABLED := false`.
+- The visible city marker is currently the lightweight colored `CityDot`; `NameText`, `ClickArea`, `SelectionRing`, selected city state, and `CityInfoPanel` remain active.
 - Attack and hero-move placeholders do not create `BattleContext`, change scenes, move heroes/armies, or open domestic detail UI.
 - Route click, army movement, pathfinding, battle entry, and `BattleContext` runtime injection remain unimplemented.
 - `scripts/worldmap_city_marker.gd` may update marker label/color visuals but must not overwrite marker root positions from web data at runtime.
@@ -222,10 +227,11 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Next candidates:
-  - `v0.68b-7 WorldMap City Position Manual QA Stable`
-  - `v0.68c BattleContext Runtime Injection MVP`
-  - `v0.68d Hero/Army Deployment MVP`
-- 김작 F6 visual QA remains for `v0.68b-6`: confirm city castle icon click selection, selected marker ring readability, fixed `CityInfoPanel` placement, city name/id/region/owner/type/neighbors/routeTypes text, attack / hero-move placeholder visibility, pan/zoom click behavior, route line and sea arrow flow continuity, city click/UI non-regression, and existing battle scene stability.
+  - `v0.68b-7 WorldMap City Selection QA Stable`
+  - `v0.68b-8 WorldMap Selected City Panel Detail Expansion`
+  - `v0.68b-9 WorldMap Domestic Affairs Panel MVP`
+- 김작 F6 visual QA remains for `v0.68b-6a`: confirm castle icons are not visible, city name labels and simple functional markers remain visible, city clicks still select cities, selected markers show `SelectionRing`, `CityInfoPanel` appears normally, route lines and sea arrow flow remain normal, pan/zoom keeps city clicking normal, and existing battle scenes remain stable.
+- 김작 F6 visual QA remains for `v0.68b-6`: confirm city marker click selection, selected marker ring readability, fixed `CityInfoPanel` placement, city name/id/region/owner/type/neighbors/routeTypes text, attack / hero-move placeholder visibility, pan/zoom click behavior, route line and sea arrow flow continuity, city click/UI non-regression, and existing battle scene stability.
 - 김작 F6 visual QA remains for `v0.68b-5`: confirm sea route arrows are visible, follow `Path2D` curves naturally, wrap from route end to start, move at a readable speed, do not cover city names/icons, land routes have no arrows, pan/zoom keeps arrows attached to the map, city click info panel remains normal, and existing battle scenes are stable.
 - 김작 F6 visual QA remains for `v0.68b-4-hotfix1`: confirm land routes are clearly more visible than before, do not disappear into mountain/plain earth tones, do not overpower city castle icons, sea route style still feels unchanged, pan/zoom keeps routes attached, `Path2D` curve editability remains intact, city click info panel still works, and existing battle scenes remain stable.
 - 김작 2D/F6 visual QA remains for `v0.68b-4`: confirm `RouteLayer` route roots have `Path2D` and `Line2D`, route curves are editable in the 2D editor, route lines roughly connect city markers, land/sea routes are visually distinct without covering city markers, camera pan/zoom keeps route lines attached to the map, city click info panel remains normal, and existing battle scenes are stable.

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch
+- Disabled `CastleIcon` visuals for the current functional marker phase without deleting castle icon nodes or asset files.
+- Kept `CastleIcon` Sprite2D nodes and texture references in `WorldMap_Test.tscn`, with `visible = false` saved for each city.
+- Added `CASTLE_ICON_VISUALS_ENABLED := false` in `scripts/worldmap_city_marker.gd` so castle visuals can be re-enabled later from one runtime flag.
+- Restored the lightweight colored `CityDot` as the visible functional city marker while keeping city names, `ClickArea`, metadata, `SelectionRing`, and `CityInfoPanel` behavior.
+- Preserved route lines and sea route arrow flow; no battle entry, `BattleContext`, domestic UI, or hero/army movement behavior was added.
+
 ## v0.68b-6 WorldMap Selected City Panel Web Parity MVP
 - Ported the web `renderSelectedCityPanel()` structure into a reduced Godot `WorldMapUI/CityInfoPanel`.
 - Added `scripts/worldmap_city_info_panel.gd` for selected city name, id, region/owner, type, neighbors, route type summary, and MVP status text.

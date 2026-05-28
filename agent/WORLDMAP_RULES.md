@@ -21,6 +21,10 @@
 - City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch` defers castle icon visuals and returns the visible city marker to the lightweight functional `CityDot`.
+- Castle icon assets and `CastleIcon` scene nodes must not be deleted; they are retained with `visible = false` and controlled by `CASTLE_ICON_VISUALS_ENABLED` in `scripts/worldmap_city_marker.gd`.
+- The current visible marker bundle is functional-first: `CityDot`, `NameText`, `SelectionRing`, and `ClickArea/CollisionShape2D` stay under each `CityMarker_*` root.
+- CityInfoPanel, selected city state, metadata, route lines, and sea arrow flow remain active while castle visuals are deferred.
 - `v0.68b-6 WorldMap Selected City Panel Web Parity MVP` adds selected city state and a screen-fixed `WorldMapUI/CityInfoPanel`.
 - City marker clicks update `selected_city_id`, clear the previous marker selection, show the selected marker's `SelectionRing`, and refresh the panel from marker metadata.
 - Each `CityMarker_*` now owns a hidden `SelectionRing` Polygon2D child behind the castle icon; it remains attached to the marker root during pan/zoom and editor root movement.

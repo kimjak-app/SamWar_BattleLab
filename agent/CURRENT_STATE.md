@@ -26,6 +26,8 @@ Latest worldmap route FX patch: `v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP`
 
 Latest worldmap selected city UI patch: `v0.68b-6 WorldMap Selected City Panel Web Parity MVP`
 
+Latest worldmap functional marker patch: `v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -42,6 +44,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning`
 - `v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP`
 - `v0.68b-6 WorldMap Selected City Panel Web Parity MVP`
+- `v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -110,8 +113,8 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Each sea route has an `ArrowFlowRoot` Path2D that references the route's scene-authored `Path2D.curve` plus four `PathFollow2D` arrow markers.
 - Sea route arrow flow is visual-only and moves one-way from `start_city_id` to `end_city_id`; land routes remain line-only.
 - `CityLayer` now contains 13 scene-authored `CityMarker_*` nodes for Luoyang, Yecheng, Chengdu, Jianye, Karakorum, Pyeongyang, Hanseong, Gyeongju, Sabi, Kyoto, Osaka, Kyushu, and Edo.
-- Each city marker now uses a regional `CastleIcon` Sprite2D instead of the visible dot marker: Korea, China, Japan, and Ordo icon families.
-- Castle icons are scaled to a common `56px` target height and the old `CityDot` is hidden by marker runtime refresh.
+- Castle icon visuals are currently disabled for the functional marker phase. `CastleIcon` nodes and asset references remain in the scene but are hidden through `visible = false` and the `CASTLE_ICON_VISUALS_ENABLED` runtime flag.
+- The lightweight colored `CityDot` is visible again as the current functional city marker while city labels, click areas, selection rings, and metadata remain attached to each `CityMarker_*` root.
 - Each `CityMarker_*` root owns its icon/dot, name label, and click area/collision children so moving the root in the Godot 2D editor moves the whole city marker bundle.
 - Each `CityMarker_*` root owns `CastleIcon`, Node2D `NameText`, and `ClickArea/CollisionShape2D`, so moving the root carries the castle, name, and click area together.
 - Each `CityMarker_*` root now uses the explicit child structure `CityDot`, `NameLabel`, and `ClickArea/CollisionShape2D`; runtime refreshes label text/color by local child reference and does not place `NameLabel` in world coordinates.
@@ -288,15 +291,16 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-7 WorldMap City Position Manual QA Stable`
-2. `v0.68c BattleContext Runtime Injection MVP`
-3. `v0.68d Hero/Army Deployment MVP`
-4. `v0.68b-5-hotfix1 Sea Route Visual Polish`
+1. `v0.68b-7 WorldMap City Selection QA Stable`
+2. `v0.68b-8 WorldMap Selected City Panel Detail Expansion`
+3. `v0.68b-9 WorldMap Domestic Affairs Panel MVP`
+4. `v0.68c BattleContext Runtime Injection MVP`
 5. `v0.69 Battlefield Variant Loader`
 6. `v0.69b Naval Battle Entry MVP`
 
 ## Known / Deferred
-- 김작 F6 visual QA should confirm `v0.68b-6`: city castle icons can be clicked to select a city, the selected city is visually distinguished by its marker-local selection ring, `CityInfoPanel` stays fixed on screen, the panel shows city name/id/region/owner/type/neighbors/routeTypes, attack and hero-move placeholders are visible and do not launch real behavior, pan/zoom does not break city clicking, route lines and sea arrow flow remain normal, city clicking does not break routes or UI, and existing battle scenes remain stable.
+- 김작 F6 visual QA should confirm `v0.68b-6a`: castle icons are not visible on the worldmap, city name labels remain visible, simple functional city markers remain visible, city clicking still selects cities, selected cities show `SelectionRing`, `CityInfoPanel` displays normally, route lines and sea route arrow flow remain normal, pan/zoom does not break city clicking, and existing battle scenes remain stable.
+- 김작 F6 visual QA should confirm `v0.68b-6`: city markers can be clicked to select a city, the selected city is visually distinguished by its marker-local selection ring, `CityInfoPanel` stays fixed on screen, the panel shows city name/id/region/owner/type/neighbors/routeTypes, attack and hero-move placeholders are visible and do not launch real behavior, pan/zoom does not break city clicking, route lines and sea arrow flow remain normal, city clicking does not break routes or UI, and existing battle scenes remain stable.
 - 김작 F6 visual QA should confirm `v0.68b-1` worldmap canvas: 4 tiles appear as one map without visible gap/overlap, tile boundaries do not show obvious seams, Camera2D pan is smooth, camera clamp avoids excessive gray outside area, UI labels remain screen-fixed, `CityLayer` / `RouteLayer` / `ArmyLayer` / `EffectLayer` exist in the scene tree, and `Battle_Fullscreen_Test.tscn` remains stable.
 - 김작 F6 visual QA should confirm `v0.68b-2` city markers: all 13 `CityMarker_*` nodes are visible under `CityLayer`, marker labels/colors are readable enough for MVP placement, moving a marker in the Godot 2D editor and saving preserves that scene-authored position at runtime, camera pan/zoom does not detach markers from the map, and no city click/battle entry behavior exists yet.
 - 김작 F6 visual QA should confirm `v0.68b-2-hotfix1`: in the 2D editor, all 13 city markers sit on top of the 4-tile worldmap image, no marker is scattered in the lower gray area, `CityLayer` and `WorldMapTileLayer` share the same coordinate space, moving a marker and saving preserves runtime position, camera pan/zoom/clamp still works, UI labels stay screen-fixed, and `Battle_Fullscreen_Test.tscn` remains stable.

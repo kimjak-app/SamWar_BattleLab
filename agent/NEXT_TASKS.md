@@ -23,6 +23,8 @@ Latest worldmap route FX patch: `v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP`
 
 Latest worldmap selected city UI patch: `v0.68b-6 WorldMap Selected City Panel Web Parity MVP`
 
+Latest worldmap functional marker patch: `v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -32,28 +34,28 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-7 WorldMap City Position Manual QA Stable`
+`v0.68b-7 WorldMap City Selection QA Stable`
 
 Goal:
-- confirm and stabilize manual city marker placement / name attachment / selection ring behavior in the Godot 2D editor
+- confirm and stabilize city marker click selection, label visibility, selection ring readability, and panel display after castle icon visual disable
 
 ## Priority 2
+`v0.68b-8 WorldMap Selected City Panel Detail Expansion`
+
+Goal:
+- expand the selected city panel details without adding battle entry or movement behavior
+
+## Priority 3
+`v0.68b-9 WorldMap Domestic Affairs Panel MVP`
+
+Goal:
+- add the first domestic affairs panel MVP for selected cities without connecting real hero movement or battle launch
+
+## Priority 4
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
-
-## Priority 3
-`v0.68d Hero/Army Deployment MVP`
-
-Goal:
-- implement first hero / region / city / army assignment data needed to produce roster candidates
-
-## Priority 4
-`v0.68b-5-hotfix1 Sea Route Visual Polish`
-
-Goal:
-- tune sea arrow speed, size, color, and overlap after 김작 F6 review without adding movement, trade, battle entry, or pathfinding logic
 
 ## Priority 5
 `v0.69 Battlefield Variant Loader`
@@ -68,6 +70,12 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch` is complete.
+- Castle icon visuals are deferred for now; all castle icon assets and `CastleIcon` scene nodes remain, but the nodes are hidden.
+- `scripts/worldmap_city_marker.gd` now uses `CASTLE_ICON_VISUALS_ENABLED := false` and restores the colored `CityDot` as the visible functional marker.
+- CityInfoPanel, selected city state, `SelectionRing`, `ClickArea`, `NameText`, and city metadata remain intact.
+- Route lines and sea route arrow flow remain unchanged. No `BattleContext`, battle entry, domestic UI, or real hero/army movement behavior was added.
+- 김작 F6 should confirm castle icons are not visible, city labels and simple markers remain visible, city clicking / selection ring / CityInfoPanel still work, pan/zoom clicking remains normal, route/sea arrow flow remains normal, and battle scenes are stable.
 - `v0.68b-6 WorldMap Selected City Panel Web Parity MVP` is complete.
 - Ported the web selected-city HUD structure into `WorldMapUI/CityInfoPanel`.
 - City marker clicks now update `selected_city_id`, maintain `selected_city_marker`, clear previous marker selection, show the selected marker's `SelectionRing`, and refresh panel metadata.

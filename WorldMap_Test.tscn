@@ -13,7 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://cxbwdwjl8y87i" path="res://assets/worldmap/city_icons/castle_korea.png" id="10_c1ggt"]
 [ext_resource type="Texture2D" uid="uid://d2itv832yvsak" path="res://assets/worldmap/city_icons/castle_japan.png" id="11_nrcdb"]
 [ext_resource type="Script" uid="uid://cf6xa4routefx" path="res://scripts/worldmap_route_flow_fx.gd" id="12_route_flow_fx"]
-[ext_resource type="Script" path="res://scripts/worldmap_city_info_panel.gd" id="13_city_info_panel"]
+[ext_resource type="Script" uid="uid://dhacrdkc66ar8" path="res://scripts/worldmap_city_info_panel.gd" id="13_city_info_panel"]
 
 [sub_resource type="Curve2D" id="Curve2D_route_luoyang_yecheng"]
 _data = {
@@ -609,6 +609,7 @@ color = Color(0.8, 0.24, 0.22, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang" unique_id=466205067]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
@@ -646,6 +647,7 @@ color = Color(0.46, 0.58, 0.72, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng" unique_id=1958600461]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
@@ -681,6 +683,7 @@ color = Color(0.18, 0.58, 0.32, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu" unique_id=1592116492]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
@@ -720,6 +723,7 @@ color = Color(0.28, 0.72, 0.76, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye" unique_id=1075573425]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("7_yepeb")
 
@@ -760,6 +764,7 @@ color = Color(0.62, 0.52, 0.4, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=1233003602]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("9_7yvie")
 
@@ -795,6 +800,7 @@ color = Color(0.35, 0.5, 0.95, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang" unique_id=1618162506]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
@@ -830,6 +836,7 @@ color = Color(0.25, 0.62, 1, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong" unique_id=968113656]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
@@ -870,6 +877,7 @@ color = Color(0.9, 0.74, 0.24, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju" unique_id=69590797]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
@@ -909,6 +917,7 @@ color = Color(0.88, 0.54, 0.28, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi" unique_id=770833669]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("10_c1ggt")
 
@@ -947,6 +956,7 @@ color = Color(0.58, 0.28, 0.84, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto" unique_id=1692800815]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 
@@ -986,6 +996,7 @@ color = Color(0.86, 0.48, 0.16, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka" unique_id=1377964481]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 
@@ -1025,6 +1036,7 @@ color = Color(0.64, 0.42, 0.28, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu" unique_id=322802430]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 
@@ -1061,6 +1073,7 @@ color = Color(0.32, 0.72, 0.44, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
 [node name="CastleIcon" type="Sprite2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo" unique_id=1624340547]
+visible = false
 scale = Vector2(0.21875, 0.21875)
 texture = ExtResource("11_nrcdb")
 

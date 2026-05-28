@@ -2,6 +2,14 @@
 
 ## 2026-05-28
 
+### v0.68b-6a WorldMap Castle Icon Visual Disable Functional Marker Patch
+- Switched the current worldmap city read from castle icon visuals back to functional markers.
+- Kept all `CastleIcon` nodes and castle icon asset references, but saved each scene node as `visible = false`.
+- Added `CASTLE_ICON_VISUALS_ENABLED := false` in `scripts/worldmap_city_marker.gd` so castle icon visuals are deferred but recoverable.
+- Made the existing colored `CityDot` visible again for a simple functional marker while preserving `NameText`, `ClickArea`, metadata, selected city state, `SelectionRing`, and `CityInfoPanel`.
+- Did not change city positions, route lines, sea route arrow flow, battle scenes, `BattleContext`, domestic UI, or hero/army movement.
+- 김작 F6 should confirm castle icons are not visible, city labels and simple markers remain visible, clicks still select cities, `SelectionRing` and `CityInfoPanel` still work, pan/zoom does not break clicking, route/sea arrow flow remains normal, and battle scenes remain stable.
+
 ### v0.68b-6 WorldMap Selected City Panel Web Parity MVP
 - Referenced the web `renderWorldMap()` / `onCitySelect()` / `city-hud-stack` / `renderSelectedCityPanel()` flow and ported the selected-city HUD shape into Godot at MVP scope.
 - Replaced the minimal `CityInfoLabel` click result with a scene-authored `WorldMapUI/CityInfoPanel` backed by `scripts/worldmap_city_info_panel.gd`.
