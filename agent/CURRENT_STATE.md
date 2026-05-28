@@ -60,6 +60,8 @@ Latest worldmap warehouse UI cleanup patch: `v0.68b-12b-3a WorldMap National War
 
 Latest worldmap turn/save patch: `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`
 
+Latest worldmap turn cycle patch: `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -93,6 +95,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`
 - `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`
 - `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`
+- `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -224,6 +227,11 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `아군 턴 종료` now changes `_player_state.turn_phase` from `player` to `enemy`, updates `current_phase_label` to `적군 턴`, refreshes the left panel, and enters `_run_enemy_turn_mvp()` as a future-safe hook only.
 - `_run_enemy_turn_mvp()` intentionally does not run enemy invasion, AI, city ownership changes, hero movement, `BattleContext`, battle transition, resource ticks, or turn advancement back to the player; that return cycle is deferred.
 - Save management now persists the current worldmap/player HUD state to `user://worldmap_left_panel_state.json`, loads it back with clean fallback messages, and resets `_player_state` to the startup seed baseline without writing runtime saves into the repo.
+- `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP` closes the minimal turn loop: `아군 턴 종료` enters enemy phase, `_run_enemy_turn_mvp()` shows a short placeholder state, `_finish_enemy_turn_mvp()` returns to player phase, and `_advance_world_turn_mvp()` increments the turn exactly once per completed cycle.
+- Turn/date labels now mirror the web `world_calendar.js` MVP rule: start year `154`, four seasons in order `봄/여름/가을/겨울`, `10` turns per season, `40` turns per year, displayed as `N년 계절 M턴`.
+- Enemy turn pending state disables the turn-end button during the short placeholder and is cancelled on load/reset so duplicate timers do not stack; loading an enemy-phase save resumes the placeholder return path.
+- Save/load/reset now preserve and restore `turn_phase`, `turn_number`, calendar labels, selected city, resources, tax, loyalty, chancellor id, and chancellor policy through the existing `_player_state` serialization.
+- `v0.68b-12b-5` remains turn-cycle MVP scope only. It does not add enemy invasion, enemy target selection, enemy hero movement, city ownership changes, resource production ticks, domestic turn application, `BattleContext`, battle transition, route/pathfinding changes, or broad AI simulation.
 - Combat/world-simulation HUD actions remain placeholder-only. `BattleContext`, battle entry, domestic execution, recruitment, diplomacy/spy execution, hero/army movement, route click, pathfinding, enemy invasion, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
@@ -418,7 +426,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
+1. `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
 2. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 3. `v0.68b-12c Selected City Panel Web Content Parity`
 4. `v0.68b-12d City Detail Panel Web Content Parity`

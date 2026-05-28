@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP
+- Closed the minimal worldmap turn loop in `scripts/worldmap_test.gd`: `아군 턴 종료` now enters enemy phase, runs a short placeholder enemy-turn timer, returns to player phase, and increments `turn_number` once per completed cycle.
+- Inspected local read-only web sources: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, `js\main.js`, `js\core\world_calendar.js`, and `js\constants.js`.
+- Ported the safe web calendar MVP rule for labels: start year `154`, season order `봄/여름/가을/겨울`, `10` turns per season, and `40` turns per year.
+- Added pending enemy-turn timer guards so the turn-end button is disabled during placeholder processing and load/reset cancels pending timers to avoid duplicate callbacks.
+- Updated save/load/reset compatibility for phase and turn/calendar state through existing `_player_state` serialization; loading an enemy-phase save resumes the placeholder return path.
+- Kept the patch non-simulating: no enemy invasion, enemy target selection, enemy hero movement, city ownership changes, resource production tick, domestic turn application, `BattleContext`, battle transition, route/pathfinding changes, or broad AI simulation was added.
+- Verification: patch strings present, turn-cycle helper paths present, save metadata updated, forbidden implementation search reviewed, `git diff --check` passed, Godot project headless load passed, and `WorldMap_Test.tscn` headless load passed.
+
 ## v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP
 - Cleaned the `LeftWorldStatusPanel` bottom area after the `국가 창고` card by hiding remaining visible internal/debug lines for selected city, stationed heroes, internal supply, troop rebalance, external trade, and bottom policy/resource explanatory text.
 - Inspected local read-only web sources: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, and `js\main.js`.

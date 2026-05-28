@@ -57,6 +57,8 @@ Latest worldmap warehouse UI cleanup patch: `v0.68b-12b-3a WorldMap National War
 
 Latest worldmap turn/save patch: `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`
 
+Latest worldmap turn cycle patch: `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -66,23 +68,23 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
+`v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
 
 Goal:
-- complete the visible MVP turn cycle after `v0.68b-12b-4` by returning from enemy turn to the next ally/player turn
+- apply the already-previewed left-panel domestic values on completed player turns, after the turn cycle MVP is stable
 
 Scope:
-- inspect web `confirmEnemyTurnResult()` / `advanceWorldTurn()` behavior
-- add a short enemy-turn delay or explicit placeholder return control if needed
-- advance turn number/calendar only if web parity defines the safe MVP path
-- refresh `LeftWorldStatusPanel` and top turn labels when returning to ally/player turn
-- keep enemy invasion, full enemy AI, battle entry, resource ticks, and broader simulation deferred
+- inspect web turn domestic application for tax income, national loyalty impact, chancellor policy effects, and warehouse/resource updates
+- apply only the safe web-parity domestic/resource updates at the completed turn boundary
+- keep existing left-panel preview/control state as the source for tax and chancellor policy
+- preserve save/load/reset compatibility for updated resources, loyalty, tax, chancellor, policy, phase, and calendar
+- keep enemy invasion, full enemy AI, battle entry, hero movement, and broader simulation deferred
 
 Forbidden in this task:
 - no enemy invasion implementation
 - no enemy city targeting or hero movement
 - no actual governor/chancellor appointment execution
-- no full domestic income/resource tick pipeline
+- no broad domestic engine refactor beyond the requested turn-apply MVP
 - no `BattleContext` creation
 - no battle scene transition
 - no route or pathfinding change
@@ -150,6 +152,17 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP` is complete.
+- Inspected local read-only web references: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, `js\main.js`, `js\core\world_calendar.js`, and `js\constants.js`.
+- Modified `scripts/worldmap_test.gd` and agent docs only; root `WorldMap_Test.tscn` was inspected but not modified.
+- The Godot left panel now completes `아군 턴 -> 적군 턴 -> 다음 아군 턴` with a short Timer-backed enemy placeholder.
+- `_finish_enemy_turn_mvp()` returns the phase to player, and `_advance_world_turn_mvp()` increments `turn_number` exactly once per completed cycle.
+- Calendar labels now follow the web MVP rule: `154` start year, `10` turns per season, `40` turns per year, seasons `봄/여름/가을/겨울`.
+- Enemy-turn pending state disables `아군 턴 종료` during the placeholder and is cancelled on load/reset to avoid duplicate timers.
+- Save/load/reset preserve phase and turn/calendar state through `_player_state`; loading an enemy-phase save resumes the placeholder return path.
+- No enemy invasion, target selection, hero movement, city ownership change, resource production tick, domestic apply pipeline, `BattleContext`, battle transition, route/pathfinding change, or broad AI simulation was added.
+- Recommended next task: `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`.
+
 - `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP` is complete.
 - Inspected local read-only web references: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, and `js\main.js`.
 - Modified `scripts/worldmap_test.gd` and agent docs only; the active worldmap scene remains root `WorldMap_Test.tscn`.

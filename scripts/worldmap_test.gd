@@ -22,6 +22,17 @@ const UNIFIED_PANEL_COLLAPSED_DRAG_THRESHOLD := 6.0
 const WORLDMAP_SAVE_PATH := "user://worldmap_left_panel_state.json"
 const TURN_PHASE_PLAYER := "player"
 const TURN_PHASE_ENEMY := "enemy"
+const ENEMY_TURN_MVP_DELAY := 0.75
+const WORLD_CALENDAR_START_YEAR := 154
+const WORLD_CALENDAR_SEASON_TURNS := 10
+const WORLD_CALENDAR_YEAR_TURNS := 40
+const WORLD_CALENDAR_SEASON_ORDER := ["spring", "summer", "autumn", "winter"]
+const WORLD_CALENDAR_SEASON_LABELS := {
+	"spring": "봄",
+	"summer": "여름",
+	"autumn": "가을",
+	"winter": "겨울",
+}
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -190,6 +201,7 @@ const GOVERNOR_POLICY_DATA := {
 # v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP
 # v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup
 # v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP
+# v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -329,6 +341,8 @@ var _warehouse_resource_row_labels: Dictionary = {}
 var _save_management_title_label: Label
 var _save_management_status_label: Label
 var _save_management_status := ""
+var _enemy_turn_mvp_timer: Timer
+var _enemy_turn_mvp_pending := false
 var _default_player_state: Dictionary = {}
 var _is_unified_city_panel_collapsed := false
 var _unified_city_panel_expanded_size := Vector2.ZERO
@@ -1123,6 +1137,7 @@ func _refresh_left_world_status_panel() -> void:
 	world_status_hint_label.visible = false
 	world_status_hint_label.text = ""
 	wild_army_edit_button_placeholder.text = "아군 턴 종료"
+	wild_army_edit_button_placeholder.disabled = _enemy_turn_mvp_pending
 	save_button_placeholder.text = "저장"
 	load_button_placeholder.text = "불러오기"
 	reset_button_placeholder.text = "초기화"
@@ -1136,13 +1151,13 @@ func _refresh_left_world_status_panel() -> void:
 func _ensure_worldmap_runtime_state_defaults() -> void:
 	if not _player_state.has("turn_number"):
 		_player_state["turn_number"] = 1
+	_player_state["turn_number"] = maxi(1, int(_player_state.get("turn_number", 1)))
 	if not _player_state.has("turn_phase"):
 		_player_state["turn_phase"] = TURN_PHASE_PLAYER
 	var phase := _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER)))
 	_player_state["turn_phase"] = phase
 	_player_state["current_phase_label"] = _get_turn_phase_label(phase)
-	if not _player_state.has("turn_label"):
-		_player_state["turn_label"] = "제 %d턴" % int(_player_state.get("turn_number", 1))
+	_update_world_turn_labels()
 	if not _player_state.has("resource_stock"):
 		_player_state["resource_stock"] = {}
 	if not _player_state.has("chancellor_policy_id"):
@@ -1166,6 +1181,23 @@ func _set_turn_phase(phase: String) -> void:
 	_refresh_left_world_status_panel()
 
 
+func _update_world_turn_labels() -> void:
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	_player_state["turn_label"] = "제 %d턴" % turn_number
+	_player_state["year_label"] = _format_world_calendar_label(turn_number)
+
+
+func _format_world_calendar_label(turn_number: int) -> String:
+	var safe_turn := maxi(1, turn_number)
+	var zero_based_turn := safe_turn - 1
+	var year := WORLD_CALENDAR_START_YEAR + int(zero_based_turn / WORLD_CALENDAR_YEAR_TURNS)
+	var season_index := int((zero_based_turn % WORLD_CALENDAR_YEAR_TURNS) / WORLD_CALENDAR_SEASON_TURNS)
+	var season_turn := (zero_based_turn % WORLD_CALENDAR_SEASON_TURNS) + 1
+	var season_id := str(WORLD_CALENDAR_SEASON_ORDER[season_index])
+	var season_label := str(WORLD_CALENDAR_SEASON_LABELS.get(season_id, season_id))
+	return "%d년 %s %d턴" % [year, season_label, season_turn]
+
+
 func _set_save_management_status(message: String) -> void:
 	_save_management_status = message
 	if _save_management_status_label != null:
@@ -1174,6 +1206,9 @@ func _set_save_management_status(message: String) -> void:
 
 
 func _on_ally_turn_end_pressed() -> void:
+	if _enemy_turn_mvp_pending:
+		_set_save_management_status("적군 턴 진행 중...")
+		return
 	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
 		_set_save_management_status("이미 적군 턴입니다.")
 		return
@@ -1182,9 +1217,49 @@ func _on_ally_turn_end_pressed() -> void:
 
 
 func _run_enemy_turn_mvp() -> void:
-	# v0.68b-12b-4: enemy turn phase hook only. Future patch will port web enemy invasion logic here.
+	if _enemy_turn_mvp_pending:
+		_set_save_management_status("적군 턴 진행 중...")
+		return
+	# v0.68b-12b-5: enemy turn phase hook only. Future patch will port web enemy invasion simulation here.
 	print("[WorldMap] Enemy turn MVP hook reached. Enemy invasion, AI, battle context, and battle transition are deferred.")
-	_set_save_management_status("적군 턴: 침공 로직 미실행")
+	_enemy_turn_mvp_pending = true
+	_set_save_management_status("적군 턴 진행 중...")
+	_refresh_left_world_status_panel()
+	_get_enemy_turn_mvp_timer().start(ENEMY_TURN_MVP_DELAY)
+
+
+func _get_enemy_turn_mvp_timer() -> Timer:
+	if _enemy_turn_mvp_timer == null:
+		_enemy_turn_mvp_timer = Timer.new()
+		_enemy_turn_mvp_timer.name = "EnemyTurnMvpTimer"
+		_enemy_turn_mvp_timer.one_shot = true
+		add_child(_enemy_turn_mvp_timer)
+		_enemy_turn_mvp_timer.timeout.connect(_finish_enemy_turn_mvp)
+	return _enemy_turn_mvp_timer
+
+
+func _finish_enemy_turn_mvp() -> void:
+	if not _enemy_turn_mvp_pending:
+		return
+	_enemy_turn_mvp_pending = false
+	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_ENEMY:
+		_refresh_left_world_status_panel()
+		return
+	_advance_world_turn_mvp()
+	_set_turn_phase(TURN_PHASE_PLAYER)
+	_set_save_management_status("다음 아군 턴 시작")
+
+
+func _advance_world_turn_mvp() -> void:
+	var next_turn := maxi(1, int(_player_state.get("turn_number", 1))) + 1
+	_player_state["turn_number"] = next_turn
+	_update_world_turn_labels()
+
+
+func _cancel_enemy_turn_timer_if_needed() -> void:
+	_enemy_turn_mvp_pending = false
+	if _enemy_turn_mvp_timer != null and not _enemy_turn_mvp_timer.is_stopped():
+		_enemy_turn_mvp_timer.stop()
 
 
 func _get_default_player_state() -> Dictionary:
@@ -1194,8 +1269,8 @@ func _get_default_player_state() -> Dictionary:
 func _serialize_worldmap_state() -> Dictionary:
 	_ensure_worldmap_runtime_state_defaults()
 	return {
-		"version": "v0.68b-12b-4",
-		"title": "WorldMap Turn End + Save Management Web Parity MVP",
+		"version": "v0.68b-12b-5",
+		"title": "WorldMap Enemy Turn Return / Turn Cycle MVP",
 		"player_state": _player_state.duplicate(true),
 	}
 
@@ -1227,6 +1302,7 @@ func _load_worldmap_state() -> void:
 	if not FileAccess.file_exists(WORLDMAP_SAVE_PATH):
 		_set_save_management_status("저장 데이터 없음")
 		return
+	_cancel_enemy_turn_timer_if_needed()
 	var file := FileAccess.open(WORLDMAP_SAVE_PATH, FileAccess.READ)
 	if file == null:
 		_set_save_management_status("불러오기 실패")
@@ -1238,9 +1314,12 @@ func _load_worldmap_state() -> void:
 	_refresh_left_world_status_panel()
 	_refresh_unified_panel_content()
 	_set_save_management_status("불러오기 완료")
+	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
+		_run_enemy_turn_mvp()
 
 
 func _reset_worldmap_state() -> void:
+	_cancel_enemy_turn_timer_if_needed()
 	_player_state = _get_default_player_state()
 	_ensure_worldmap_runtime_state_defaults()
 	_refresh_left_world_status_panel()

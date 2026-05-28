@@ -162,6 +162,9 @@ Latest camera foundation:
 - Latest worldmap turn/save patch:
 `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`
 
+- Latest worldmap turn cycle patch:
+`v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -259,6 +262,12 @@ Do not modify casually:
 - `아군 턴 종료` changes `_player_state.turn_phase` from `player` to `enemy`, updates the visible phase label to `적군 턴`, refreshes the left panel, and calls `_run_enemy_turn_mvp()` as a hook only.
 - `_run_enemy_turn_mvp()` is intentionally non-simulating: no enemy invasion, AI, city ownership changes, hero movement, `BattleContext`, battle transition, resource ticks, or player-turn return is implemented yet.
 - Save/load/reset now persists runtime worldmap/player HUD state to `user://worldmap_left_panel_state.json`, restores it with clean fallback messages, and resets to the startup seed baseline without using repo files for runtime saves.
+- `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP` is complete and updates `scripts/worldmap_test.gd` plus agent docs only.
+- Web turn-cycle references inspected were local read-only `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, `js\main.js`, `js\core\world_calendar.js`, and `js\constants.js`.
+- The current Godot turn loop is now `아군 턴 -> 적군 턴 -> 다음 아군 턴`: `_run_enemy_turn_mvp()` starts a short placeholder timer, `_finish_enemy_turn_mvp()` returns to player phase, and `_advance_world_turn_mvp()` increments `turn_number` once per completed cycle.
+- Calendar display follows the web calendar MVP rule: start year `154`, season order `봄/여름/가을/겨울`, `10` turns per season, `40` turns per year.
+- Enemy-turn pending state disables the turn-end button during the placeholder and is cancelled on load/reset so duplicate timers do not stack. Save/load/reset preserve phase and turn/calendar state through `_player_state`; loading an enemy-phase save resumes the placeholder return path.
+- The turn-cycle patch did not add enemy invasion, target selection, hero movement, city ownership changes, domestic/resource turn application, `BattleContext`, battle transition, route/pathfinding changes, or broad AI simulation.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -372,13 +381,13 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
-- `v0.68b-12b-5` goal:
-  - Return from the enemy-turn placeholder state to the next ally/player turn.
-  - Refresh labels and advance turn/calendar only to the safe web-parity extent.
-  - Do not add enemy invasion, full enemy AI, battle entry, resource simulation, movement, appointment execution, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits.
+  - `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
+- `v0.68b-12b-6` goal:
+  - Apply already-previewed left-panel domestic values on completed player turns: tax income, national loyalty impact, chancellor policy effects, and warehouse/resource updates.
+  - Use the existing turn-cycle boundary and preserve save/load/reset compatibility.
+  - Do not add enemy invasion, full enemy AI, battle entry, hero movement, appointment execution, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits.
 - Next candidates:
-  - `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
+  - `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
   - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`

@@ -2,6 +2,18 @@
 
 ## 2026-05-28
 
+### v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP
+- Inspected `scripts/worldmap_test.gd` and the active root `WorldMap_Test.tscn`; the scene file was not modified.
+- Inspected local read-only web turn-cycle references: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, `js\main.js`, `js\core\world_calendar.js`, and `js\constants.js`.
+- Updated `scripts/worldmap_test.gd` with the patch marker `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`.
+- Added a Timer-backed enemy-turn placeholder so `아군 턴 종료` changes to `적군 턴`, shows `적군 턴 진행 중...`, then returns to `아군 턴`.
+- Added `_finish_enemy_turn_mvp()` and `_advance_world_turn_mvp()` so each completed enemy placeholder increments `turn_number` exactly once.
+- Calendar labels now follow the web MVP calendar rule: start year `154`, `10` turns per season, `40` turns per year, and seasons `봄/여름/가을/겨울`.
+- Save/load/reset now cancel pending enemy timers as needed and preserve phase/turn/calendar state through `_player_state`; enemy-phase loads resume the placeholder return path.
+- Verification passed: patch strings, turn-cycle helper paths, save metadata, forbidden implementation search, `git diff --check`, Godot project headless load, and `WorldMap_Test.tscn` headless load.
+- No enemy invasion, target selection, hero movement, city ownership change, domestic/resource turn application, `BattleContext`, battle transition, route/pathfinding change, or broad AI simulation was added.
+- Recommended next task: `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`.
+
 ### v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP
 - Inspected `scripts/worldmap_test.gd` and the active root `WorldMap_Test.tscn` path; no `scenes/WorldMap_Test.tscn` path was used for this task.
 - Inspected local read-only web parity references: `C:\dev\SamWar_web\js\core\app_state.js`, `js\core\save_load.js`, `js\ui\world_hud_ui.js`, `js\ui\world_map_ui.js`, and `js\main.js`.
