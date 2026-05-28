@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP
+- Added a web-like pending invasion choice UI in `scripts/worldmap_test.gd`; the active root `WorldMap_Test.tscn` was inspected but not modified.
+- Inspected local read-only web references: `C:\dev\SamWar_web\js\ui\ui_render.js`, `js\ui\world_map_ui.js`, `js\core\app_state.js`, `js\core\world_rules.js`, `js\core\battle_state.js`, `js\core\battle_rules.js`, `js\ui\world_hud_ui.js`, and `js\main.js`.
+- Added runtime `PendingInvasionChoiceCard` under the existing left world status panel, hidden when `_player_state.pending_invasion_event` is empty and visible when an event exists.
+- The card shows `Enemy Invasion`, `적군 침공 발생`, attacker/defender city lines, `방어전을 준비하십시오.`, and `수동 방어` / `자동 방어` buttons.
+- Added placeholder-only button handlers: manual defense reports that manual defense preparation will be connected later, auto defense reports that auto defense will be connected later, and both keep the pending event intact.
+- Blocked/disabled `아군 턴 종료` while a pending invasion event exists so new enemy invasion events cannot stack before the pending choice is handled.
+- Preserved the existing save/load/reset policy: pending invasion event state is excluded from saves and cleared on load/reset, so the card hides after load/reset.
+- Kept the patch bounded: no `BattleContext`, battle scene transition, defense hero deployment UI, auto battle resolution, city ownership change, troop loss, hero movement, enemy AI expansion, route/pathfinding, diplomacy/cooldown rule, or battle result resolution was added.
+- Verification: patch strings present, choice card/button paths present, save/load/reset clearing policy reviewed, forbidden implementation search reviewed, `git diff --check` passed, Godot project headless load passed, and `WorldMap_Test.tscn` headless load passed.
+
 ## v0.68b-12b-9 WorldMap Enemy Invasion Event MVP
 - Added the first Godot enemy invasion event MVP in `scripts/worldmap_test.gd`; the active root `WorldMap_Test.tscn` was inspected but not modified.
 - Rechecked local read-only web sources: `C:\dev\SamWar_web\js\core\world_rules.js`, `js\core\app_state.js`, and `js\core\save_load.js`.

@@ -177,6 +177,9 @@ Latest camera foundation:
 - Latest worldmap enemy invasion event patch:
 `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
 
+- Latest worldmap enemy invasion choice UI patch:
+`v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -303,6 +306,11 @@ Do not modify casually:
 - The event records `type: defense`, `attacker_city_id`, `defender_city_id`, source, and turn number; it selects the defender city and shows `적군 침공 발생: ... · 방어전 준비 필요` in the left world status area.
 - Pending invasion events are excluded from runtime save data and cleared on load/reset; enemy-phase saves load back to player turn, matching the web save/load normalization found in `save_load.js`.
 - `v0.68b-12b-9` intentionally did not create `BattleContext`, transition to battle, change city ownership, move heroes/troops, resolve battle, add pathfinding, add cooldown/diplomacy checks, or implement enemy AI.
+- `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` is complete in `scripts/worldmap_test.gd`; the root `WorldMap_Test.tscn` was inspected but not modified.
+- Godot now creates a runtime `PendingInvasionChoiceCard` in the left world status panel when `_player_state.pending_invasion_event` exists.
+- The card shows web-like defense choice copy: `Enemy Invasion`, `적군 침공 발생`, attacker/defender city lines, `방어전을 준비하십시오.`, and `수동 방어` / `자동 방어` buttons.
+- The two defense buttons are placeholder-only: they update status text and keep the pending event intact. They do not create battle prep data, start battle, auto-resolve, change ownership, or deduct troops.
+- `아군 턴 종료` is disabled/blocked while the pending event exists so enemy invasion events do not stack before the choice flow is handled.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -416,15 +424,15 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
-- `v0.68b-12b-10` goal:
-  - Add a web-like visible pending invasion choice/card for `_player_state.pending_invasion_event`.
-  - Show attacker city, defender city, and manual/auto defense choices as safe deferred controls.
-  - Do not create `BattleContext`, transition to battle, change city ownership, move heroes/troops, apply battle results, alter route/pathfinding, or edit repo-outside web files.
+  - `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
+- `v0.68b-12b-11` goal:
+  - Connect the pending invasion choice UI to a safe battle-prep bridge following `BATTLE_CONTEXT_CONTRACT.md`.
+  - Prepare the defense context from `_player_state.pending_invasion_event` and selected manual/auto mode.
+  - Do not apply final ownership results, troop losses, hero movement, route/pathfinding, or repo-outside web edits.
 - Next candidates:
-  - `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
   - `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
   - `v0.68b-12b-12 WorldMap Enemy Invasion Result / Ownership Apply`
+  - `v0.68b-12b-13 WorldMap Enemy Invasion QA / Save-Load Stabilization`
   - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`

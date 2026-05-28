@@ -2,6 +2,18 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP
+- Inspected the required agent docs, `agent/ENEMY_INVASION_AUDIT.md`, `scripts/worldmap_test.gd`, and the active root `WorldMap_Test.tscn`.
+- Inspected local read-only web references for pending defense choice rendering and routing: `C:\dev\SamWar_web\js\ui\ui_render.js`, `js\ui\world_map_ui.js`, `js\core\app_state.js`, `js\core\world_rules.js`, `js\core\battle_state.js`, `js\core\battle_rules.js`, `js\ui\world_hud_ui.js`, and `js\main.js`.
+- Added a runtime `PendingInvasionChoiceCard` to the existing left world status panel and kept the root scene file unchanged.
+- The card is hidden with no pending event and visible when `_player_state.pending_invasion_event` exists; it shows attacker city, defender city, `적군 침공 발생`, `방어전을 준비하십시오.`, `수동 방어`, and `자동 방어`.
+- Added placeholder-only `수동 방어` / `자동 방어` button handlers that update status text and keep the pending event intact.
+- Disabled/blocked `아군 턴 종료` while a pending invasion event exists so invasion events cannot stack.
+- Save/load/reset policy remains unchanged: saves exclude pending event state, and load/reset clear it so the card hides.
+- Verification passed: `git diff --check`, forbidden implementation search, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- No BattleContext generation, battle scene transition, defense deployment UI, auto battle resolution, city ownership change, troop loss, hero movement, enemy AI expansion, pathfinding, or battle result resolution was added.
+- Recommended next task: `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`.
+
 ### v0.68b-12b-9 WorldMap Enemy Invasion Event MVP
 - Inspected the required agent docs, `agent/ENEMY_INVASION_AUDIT.md`, `scripts/worldmap_test.gd`, and the active root `WorldMap_Test.tscn`.
 - Rechecked local read-only web references: `C:\dev\SamWar_web\js\core\world_rules.js`, `js\core\app_state.js`, and `js\core\save_load.js`.

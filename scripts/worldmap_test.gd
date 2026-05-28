@@ -216,6 +216,7 @@ const GOVERNOR_POLICY_DATA := {
 # v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP
 # v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check
 # v0.68b-12b-9 WorldMap Enemy Invasion Event MVP
+# v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -352,6 +353,12 @@ var _unified_primary_tab := UNIFIED_PANEL_TAB_CITY_DETAIL
 var _selected_diplomacy_spy_tab := DIPLOMACY_SPY_TAB_DIPLOMACY
 var _warehouse_card: PanelContainer
 var _warehouse_resource_row_labels: Dictionary = {}
+var _pending_invasion_choice_card: PanelContainer
+var _pending_invasion_title_label: Label
+var _pending_invasion_detail_label: Label
+var _pending_invasion_instruction_label: Label
+var _manual_defense_button: Button
+var _auto_defense_button: Button
 var _save_management_title_label: Label
 var _save_management_status_label: Label
 var _save_management_status := ""
@@ -972,6 +979,7 @@ func _setup_left_world_controls() -> void:
 func _setup_left_world_status_panel_layout() -> void:
 	left_world_status_panel.custom_minimum_size.x = 320.0
 	_setup_warehouse_card_ui()
+	_setup_pending_invasion_choice_ui()
 	_setup_save_management_ui()
 	for label in [
 		power_label,
@@ -992,6 +1000,86 @@ func _setup_left_world_status_panel_layout() -> void:
 	supply_label.add_theme_font_size_override("font_size", 10)
 	military_logistics_label.add_theme_font_size_override("font_size", 10)
 	external_trade_label.add_theme_font_size_override("font_size", 10)
+
+
+func _setup_pending_invasion_choice_ui() -> void:
+	if _pending_invasion_choice_card != null:
+		return
+	var parent := world_status_hint_label.get_parent()
+	_pending_invasion_choice_card = PanelContainer.new()
+	_pending_invasion_choice_card.name = "PendingInvasionChoiceCard"
+	_pending_invasion_choice_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.11, 0.05, 0.06, 0.92)
+	panel_style.border_color = Color(0.95, 0.46, 0.32, 0.76)
+	panel_style.set_border_width_all(1)
+	panel_style.set_corner_radius_all(4)
+	panel_style.content_margin_left = 9.0
+	panel_style.content_margin_top = 8.0
+	panel_style.content_margin_right = 9.0
+	panel_style.content_margin_bottom = 8.0
+	_pending_invasion_choice_card.add_theme_stylebox_override("panel", panel_style)
+	parent.add_child(_pending_invasion_choice_card)
+	parent.move_child(_pending_invasion_choice_card, world_status_hint_label.get_index())
+
+	var content := VBoxContainer.new()
+	content.name = "PendingInvasionChoiceContent"
+	content.add_theme_constant_override("separation", 5)
+	_pending_invasion_choice_card.add_child(content)
+
+	var eyebrow_label := Label.new()
+	eyebrow_label.name = "EnemyInvasionEyebrowLabel"
+	eyebrow_label.text = "Enemy Invasion"
+	eyebrow_label.add_theme_color_override("font_color", Color(0.98, 0.74, 0.46, 1.0))
+	eyebrow_label.add_theme_font_size_override("font_size", 10)
+	content.add_child(eyebrow_label)
+
+	_pending_invasion_title_label = Label.new()
+	_pending_invasion_title_label.name = "PendingInvasionTitleLabel"
+	_pending_invasion_title_label.text = "적군 침공 발생"
+	_pending_invasion_title_label.add_theme_color_override("font_color", Color(1.0, 0.90, 0.70, 1.0))
+	_pending_invasion_title_label.add_theme_font_size_override("font_size", 14)
+	content.add_child(_pending_invasion_title_label)
+
+	_pending_invasion_detail_label = Label.new()
+	_pending_invasion_detail_label.name = "PendingInvasionDetailLabel"
+	_pending_invasion_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_pending_invasion_detail_label.add_theme_color_override("font_color", Color(0.95, 0.93, 0.85, 1.0))
+	_pending_invasion_detail_label.add_theme_font_size_override("font_size", 11)
+	content.add_child(_pending_invasion_detail_label)
+
+	_pending_invasion_instruction_label = Label.new()
+	_pending_invasion_instruction_label.name = "PendingInvasionInstructionLabel"
+	_pending_invasion_instruction_label.text = "방어전을 준비하십시오."
+	_pending_invasion_instruction_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_pending_invasion_instruction_label.add_theme_color_override("font_color", Color(1.0, 0.76, 0.62, 1.0))
+	_pending_invasion_instruction_label.add_theme_font_size_override("font_size", 11)
+	content.add_child(_pending_invasion_instruction_label)
+
+	var action_row := HBoxContainer.new()
+	action_row.name = "PendingInvasionActionRow"
+	action_row.add_theme_constant_override("separation", 6)
+	content.add_child(action_row)
+
+	_manual_defense_button = Button.new()
+	_manual_defense_button.name = "ManualDefenseButton"
+	_manual_defense_button.text = "수동 방어"
+	_manual_defense_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_manual_defense_button.add_theme_font_size_override("font_size", 11)
+	action_row.add_child(_manual_defense_button)
+	if not _manual_defense_button.pressed.is_connected(_on_manual_defense_pressed):
+		_manual_defense_button.pressed.connect(_on_manual_defense_pressed)
+
+	_auto_defense_button = Button.new()
+	_auto_defense_button.name = "AutoDefenseButton"
+	_auto_defense_button.text = "자동 방어"
+	_auto_defense_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_auto_defense_button.add_theme_font_size_override("font_size", 11)
+	action_row.add_child(_auto_defense_button)
+	if not _auto_defense_button.pressed.is_connected(_on_auto_defense_pressed):
+		_auto_defense_button.pressed.connect(_on_auto_defense_pressed)
+
+	_pending_invasion_choice_card.visible = false
 
 
 func _setup_save_management_ui() -> void:
@@ -1156,8 +1244,9 @@ func _refresh_left_world_status_panel() -> void:
 	var pending_invasion_event := _get_pending_invasion_event_mvp()
 	world_status_hint_label.text = _format_invasion_status_text(pending_invasion_event)
 	world_status_hint_label.visible = not pending_invasion_event.is_empty()
+	_refresh_pending_invasion_choice_ui(pending_invasion_event)
 	wild_army_edit_button_placeholder.text = "아군 턴 종료"
-	wild_army_edit_button_placeholder.disabled = _enemy_turn_mvp_pending
+	wild_army_edit_button_placeholder.disabled = _enemy_turn_mvp_pending or not pending_invasion_event.is_empty()
 	save_button_placeholder.text = "저장"
 	load_button_placeholder.text = "불러오기"
 	reset_button_placeholder.text = "초기화"
@@ -1236,6 +1325,9 @@ func _set_save_management_status(message: String) -> void:
 func _on_ally_turn_end_pressed() -> void:
 	if _enemy_turn_mvp_pending:
 		_set_save_management_status("적군 턴 진행 중...")
+		return
+	if _has_pending_invasion_event_mvp():
+		_set_save_management_status("진행 중인 침공 이벤트를 먼저 처리하십시오.")
 		return
 	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
 		_set_save_management_status("이미 적군 턴입니다.")
@@ -1397,16 +1489,66 @@ func _has_pending_invasion_event_mvp() -> bool:
 	return not _get_pending_invasion_event_mvp().is_empty()
 
 
+func _refresh_pending_invasion_choice_ui(event: Dictionary = {}) -> void:
+	if _pending_invasion_choice_card == null:
+		return
+	if event.is_empty():
+		_pending_invasion_choice_card.visible = false
+		return
+	_pending_invasion_choice_card.visible = true
+	if _pending_invasion_title_label != null:
+		_pending_invasion_title_label.text = "적군 침공 발생"
+	if _pending_invasion_detail_label != null:
+		_pending_invasion_detail_label.text = _format_pending_invasion_detail(event)
+	if _pending_invasion_instruction_label != null:
+		_pending_invasion_instruction_label.text = "방어전을 준비하십시오."
+	if _manual_defense_button != null:
+		_manual_defense_button.text = "수동 방어"
+		_manual_defense_button.disabled = false
+	if _auto_defense_button != null:
+		_auto_defense_button.text = "자동 방어"
+		_auto_defense_button.disabled = false
+
+
+func _on_manual_defense_pressed() -> void:
+	if not _has_pending_invasion_event_mvp():
+		_set_save_management_status("진행 중인 침공 이벤트가 없습니다.")
+		_refresh_left_world_status_panel()
+		return
+	_set_save_management_status("수동 방어 준비 기능은 다음 단계에서 연결됩니다.")
+
+
+func _on_auto_defense_pressed() -> void:
+	if not _has_pending_invasion_event_mvp():
+		_set_save_management_status("진행 중인 침공 이벤트가 없습니다.")
+		_refresh_left_world_status_panel()
+		return
+	_set_save_management_status("자동 방어 기능은 다음 단계에서 연결됩니다.")
+
+
 func _clear_pending_invasion_event_mvp() -> void:
 	_player_state["pending_invasion_event"] = {}
 	_player_state["enemy_invasion_roll_turn"] = 0
 
 
+func _format_pending_invasion_detail(event: Dictionary) -> String:
+	if event.is_empty():
+		return ""
+	var attacker_city_name := _format_city_name_by_id(str(event.get("attacker_city_id", "")), "알 수 없는 적 도시")
+	var defender_city_name := _format_city_name_by_id(str(event.get("defender_city_id", "")), "알 수 없는 아군 도시")
+	return "침공 도시: %s\n방어 도시: %s\n%s → %s" % [
+		attacker_city_name,
+		defender_city_name,
+		attacker_city_name,
+		defender_city_name,
+	]
+
+
 func _format_invasion_status_text(event: Dictionary) -> String:
 	if event.is_empty():
 		return ""
-	var attacker_city_name := _format_city_name_by_id(str(event.get("attacker_city_id", "")), "알 수 없는 도시")
-	var defender_city_name := _format_city_name_by_id(str(event.get("defender_city_id", "")), "알 수 없는 도시")
+	var attacker_city_name := _format_city_name_by_id(str(event.get("attacker_city_id", "")), "알 수 없는 적 도시")
+	var defender_city_name := _format_city_name_by_id(str(event.get("defender_city_id", "")), "알 수 없는 아군 도시")
 	return "적군 침공 발생: %s → %s · 방어전 준비 필요" % [attacker_city_name, defender_city_name]
 
 
@@ -1662,8 +1804,8 @@ func _serialize_worldmap_state() -> Dictionary:
 	saved_player_state["pending_invasion_event"] = {}
 	saved_player_state["enemy_invasion_roll_turn"] = 0
 	return {
-		"version": "v0.68b-12b-9",
-		"title": "WorldMap Enemy Invasion Event MVP",
+		"version": "v0.68b-12b-10",
+		"title": "WorldMap Enemy Invasion Choice UI MVP",
 		"player_state": saved_player_state,
 	}
 

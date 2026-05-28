@@ -67,6 +67,8 @@ Latest worldmap enemy invasion audit patch: `v0.68b-12b-8 WorldMap Enemy Invasio
 
 Latest worldmap enemy invasion event patch: `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
 
+Latest worldmap enemy invasion choice UI patch: `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -76,20 +78,19 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+`v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
 
 Goal:
-- add a web-like pending invasion choice UI/card for the existing Godot `pending_invasion_event`
+- create the safe bridge from the pending invasion choice UI into a prepared defense battle context without applying final city ownership results
 
 Scope:
-- show attacker city, defender city, and concise `적군이 침공했습니다!` style copy
-- add manual defense and auto defense buttons as disabled/deferred or display-only controls unless a separate bridge task approves execution
-- preserve the existing pending event state and visible status without battle transition or ownership changes
-- clear or dismiss behavior must remain explicit and safe; do not silently resolve the invasion
+- convert `_player_state.pending_invasion_event` into the future battle-prep payload following `BATTLE_CONTEXT_CONTRACT.md`
+- connect `수동 방어` / `자동 방어` only as far as a safe preparation state allows
+- keep city ownership, troop loss, and final invasion results deferred
+- preserve current save/load/reset clearing policy unless a dedicated pending battle restore design is added
 
 Forbidden in this task:
 - no battle scene transition
-- no `BattleContext` creation
 - no city ownership change
 - no battle result application
 - no hero movement or troop relocation
@@ -100,16 +101,16 @@ Forbidden in this task:
 - no modification to repo-outside `SamWar_web` files
 
 ## Priority 2
-`v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
-
-Goal:
-- convert a pending invasion event/choice into a defense battle-choice / BattleContext bridge without applying final city ownership results
-
-## Priority 3
 `v0.68b-12b-12 WorldMap Enemy Invasion Result / Ownership Apply MVP`
 
 Goal:
 - apply battle outcome to city ownership, troop return/wounded state, and hero faction/location state after the BattleContext bridge is stable
+
+## Priority 3
+`v0.68b-12b-13 WorldMap Enemy Invasion QA / Save-Load Stabilization`
+
+Goal:
+- verify repeated pending invasion cycles, choice UI behavior, reset/load clearing, no duplicate events, and no unintended battle handoff
 
 ## Priority 4
 `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
@@ -172,6 +173,14 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` is complete.
+- Modified `scripts/worldmap_test.gd` and agent docs only; root `WorldMap_Test.tscn` was inspected but not modified.
+- Added a runtime `PendingInvasionChoiceCard` to the left world status panel, hidden without a pending event and visible when `_player_state.pending_invasion_event` exists.
+- The card shows attacker/defender city details plus `수동 방어` and `자동 방어` placeholder buttons.
+- Button handlers only update safe status text and keep the pending event intact; they do not create battle prep data, start battle, auto-resolve, change ownership, move heroes/troops, or deduct troops.
+- `아군 턴 종료` is disabled/blocked while a pending event exists, and save/load/reset continue to clear pending invasion state.
+- Recommended next task: `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`.
+
 - `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit` is complete.
 - Created `agent/ENEMY_INVASION_AUDIT.md` and updated handoff/current-state docs only; no Godot gameplay code or scene file was modified.
 - Inspected local read-only web sources for enemy turn/invasion flow: `js\core\app_state.js`, `world_rules.js`, `world_calendar.js`, `save_load.js`, `battle_state.js`, `battle_rules.js`, `battle_ai.js`, `js\ui\world_hud_ui.js`, `world_map_ui.js`, `ui_render.js`, `main.js`, and `constants.js`.

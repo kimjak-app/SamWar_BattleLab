@@ -105,6 +105,8 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
 - `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
 - `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
+- `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
+- `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -451,18 +453,23 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 ## Current Next Direction
 Latest worldmap enemy invasion event patch: `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
 
+Latest worldmap enemy invasion choice UI patch: `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+
 Current Godot state:
 - `scripts/worldmap_test.gd` now rolls a web-parity enemy invasion event during the existing enemy-turn placeholder.
 - The MVP uses `ENEMY_INVASION_CHANCE = 0.45`, attacker candidates from enemy-owned scene city markers, and defender candidates from neighboring player-owned markers.
 - On success, `_player_state.pending_invasion_event` records a display-only defense event with `attacker_city_id`, `defender_city_id`, source, and turn number.
-- The left world panel shows a concise Korean invasion status and selects the defender city for visibility.
+- The left world panel shows a concise Korean invasion status, selects the defender city for visibility, and displays a web-like `PendingInvasionChoiceCard`.
+- The choice card shows `적군 침공 발생`, attacker/defender city lines, `방어전을 준비하십시오.`, and `수동 방어` / `자동 방어` buttons.
+- The defense buttons are placeholder-only and update status text; they keep the pending event intact and do not start battle or resolve results.
+- `아군 턴 종료` is disabled/blocked while a pending invasion event exists so enemy events cannot stack before the choice flow is handled.
 - Save/load/reset clear pending invasion state; runtime saves do not persist the pending event, and load normalizes enemy-phase saves back to player turn.
 - No `BattleContext`, battle scene transition, city ownership change, troop loss, hero movement, enemy AI, pathfinding, cooldown, or diplomacy rule was added.
 
 Next direction:
-1. `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
-2. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
-3. `v0.68b-12b-12 WorldMap Enemy Invasion Result / Ownership Apply`
+1. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
+2. `v0.68b-12b-12 WorldMap Enemy Invasion Result / Ownership Apply`
+3. `v0.68b-12b-13 WorldMap Enemy Invasion QA / Save-Load Stabilization`
 4. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 5. `v0.68b-12c Selected City Panel Web Content Parity`
 6. `v0.68b-12d City Detail Panel Web Content Parity`

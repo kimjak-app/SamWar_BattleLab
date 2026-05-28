@@ -106,18 +106,21 @@
 - Save serialization excludes pending invasion state; load/reset clear it, and load normalizes enemy-phase saves back to player turn, following the audited web save/load policy.
 - Still missing by design: pending choice UI/card, manual/auto defense controls, BattleContext bridge, defense deployment, battle handoff, battle result return, city ownership updates, and save/load persistence for resolved world ownership state.
 
-## Recommended Godot Implementation Plan
+## v0.68b-12b-10 Godot Choice UI MVP Status
+- Implemented in `scripts/worldmap_test.gd` only; root `WorldMap_Test.tscn` was inspected but not modified.
+- Godot now renders a runtime `PendingInvasionChoiceCard` from `_player_state.pending_invasion_event`.
+- The card mirrors the web defense choice surface at MVP scope: `Enemy Invasion`, `적군 침공 발생`, attacker city, defender city, `방어전을 준비하십시오.`, `수동 방어`, and `자동 방어`.
+- Manual and auto defense buttons are connected only to safe placeholder status messages and keep the pending event intact.
+- `아군 턴 종료` is disabled/blocked while a pending invasion event exists, preventing duplicate invasion event stacking.
+- Save/load/reset policy remains unchanged: pending invasion state is excluded from saves and cleared by load/reset, so the card hides after normalization.
+- Still missing by design: defense deployment, battle-prep payload creation, battle handoff, auto battle resolution, battle result return, city ownership updates, troop losses, and resolved world ownership persistence.
 
-### v0.68b-12b-10 Enemy Invasion Choice UI MVP
-- Render a web-like pending defense choice card/modal from `_player_state.pending_invasion_event`.
-- Show attacker city, defender city, and manual/auto defense choices.
-- Keep buttons display-only or disabled until the bridge task explicitly connects them.
-- Do not create `BattleContext`, do not transition to battle, do not change ownership, and do not move heroes or troops.
+## Recommended Godot Implementation Plan
 
 ### v0.68b-12b-11 Enemy Invasion BattleContext Bridge
 - Convert a pending invasion event into a defense battle choice structure similar to web `pendingBattleChoice`.
 - Prepare `BattleContext` fields: `type`, `attackerCityId`, `defenderCityId`, `controlMode`.
-- Add minimal manual/auto choice UI if the Godot HUD has a safe place for it.
+- Reuse the existing `수동 방어` / `자동 방어` choice UI from `v0.68b-12b-10`.
 - Do not apply final ownership results in this task.
 
 ### v0.68b-12b-12 Enemy Invasion Result / Ownership Apply
