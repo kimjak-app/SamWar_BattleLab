@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning
+- Increased land route visibility by changing land `Line2D` width from `2.5` to `4.5`.
+- Changed land route color from muted dark earth `Color(0.72, 0.50, 0.25, 0.44)` to brighter ochre `Color(0.86, 0.62, 0.32, 0.72)`.
+- Kept sea route width/color unchanged.
+- Preserved the scene-authored `Path2D.curve` source-of-truth rule; no route curves were regenerated.
+
 ## v0.68b-4 WorldMap Route Layer Path2D MVP
 - Added scene-authored route nodes under `WorldMap_Test.tscn > WorldMapRoot > RouteLayer`.
 - Added `scripts/worldmap_route_path.gd` so route metadata is code-owned while route shape remains owned by each `Path2D` / `Curve2D`.

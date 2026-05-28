@@ -20,6 +20,8 @@ Latest worldmap marker patch: `v0.68b-3 WorldMap City Castle Icon Apply`
 
 Latest worldmap route patch: `v0.68b-4 WorldMap Route Layer Path2D MVP`
 
+Latest worldmap route hotfix: `v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -33,6 +35,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-2 WorldMap City Marker Layer MVP`
 - `v0.68b-3 WorldMap City Castle Icon Apply`
 - `v0.68b-4 WorldMap Route Layer Path2D MVP`
+- `v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -95,6 +98,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Route connection meaning is code metadata; the actual route curve is the scene-authored `Path2D.curve` source of truth.
 - Initial route curves are seeded from current `CityMarker_*` root positions but runtime must not regenerate or overwrite existing route curves.
 - `Line2D` visualizes baked `Path2D` points only, with muted earth-tone land routes and pale blue sea routes below the city markers.
+- `v0.68b-4-hotfix1` increases only land route readability: land route width is `4.5` and land color is `Color(0.86, 0.62, 0.32, 0.72)`, while sea route style remains unchanged.
 - `CityLayer` now contains 13 scene-authored `CityMarker_*` nodes for Luoyang, Yecheng, Chengdu, Jianye, Karakorum, Pyeongyang, Hanseong, Gyeongju, Sabi, Kyoto, Osaka, Kyushu, and Edo.
 - Each city marker now uses a regional `CastleIcon` Sprite2D instead of the visible dot marker: Korea, China, Japan, and Ordo icon families.
 - Castle icons are scaled to a common `56px` target height and the old `CityDot` is hidden by marker runtime refresh.
@@ -272,12 +276,11 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-5 WorldMap Route Visual Polish`
-2. `v0.68b-6 WorldMap City Position Manual QA Stable`
-3. `v0.68c BattleContext Runtime Injection MVP`
-4. `v0.68d Hero/Army Deployment MVP`
-5. `v0.69 Battlefield Variant Loader`
-6. `v0.69b Naval Battle Entry MVP`
+1. `v0.68b-6 WorldMap City Position Manual QA Stable`
+2. `v0.68c BattleContext Runtime Injection MVP`
+3. `v0.68d Hero/Army Deployment MVP`
+4. `v0.69 Battlefield Variant Loader`
+5. `v0.69b Naval Battle Entry MVP`
 
 ## Known / Deferred
 - 김작 F6 visual QA should confirm `v0.68b-1` worldmap canvas: 4 tiles appear as one map without visible gap/overlap, tile boundaries do not show obvious seams, Camera2D pan is smooth, camera clamp avoids excessive gray outside area, UI labels remain screen-fixed, `CityLayer` / `RouteLayer` / `ArmyLayer` / `EffectLayer` exist in the scene tree, and `Battle_Fullscreen_Test.tscn` remains stable.
@@ -290,6 +293,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - 김작 2D/F6 visual QA should confirm `v0.68b-2-hotfix6`: moving each `CityMarker_*` root now moves the Node2D `NameLabel` text visibly with the marker dot and click area; Ctrl+S and F6 preserve the moved bundle.
 - 김작 2D/F6 visual QA should confirm `v0.68b-3`: all 13 cities show castle icons instead of dots; Korea/China/Japan/Ordo icon mapping is correct; moving a `CityMarker_*` root moves `CastleIcon`, `NameText`, and `ClickArea`; city click info panel, camera pan/zoom/clamp, and the battle scene remain stable.
 - 김작 2D/F6 visual QA should confirm `v0.68b-4`: `RouteLayer` contains route roots with `Path2D` and `Line2D`, `Path2D.curve` points can be directly adjusted in the 2D editor, land/sea routes are visually distinct without covering city markers, F6 shows route lines attached to the worldmap during pan/zoom, city click info panel still works, and existing battle scenes remain stable.
+- 김작 F6 visual QA should confirm `v0.68b-4-hotfix1`: land routes are clearly more visible than before, do not disappear into mountain/plain earth tones, do not overpower city castle icons, sea route style still feels unchanged, pan/zoom keeps routes attached, `Path2D` curve editability remains intact, city click info panel still works, and existing battle scenes remain stable.
 - Known issue retained for route-layer follow-up context: moving a `CityMarker_*` root may still require manual confirmation that all name text follows perfectly; this was not changed in `v0.68b-4`.
 - Codex Godot headless verification for `v0.68b-3` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.
 - Codex Godot headless verification for `v0.68b-2-hotfix6` was blocked by the tool sandbox `windows sandbox: spawn setup refresh` error; 김작 local F6/headless QA should confirm `WorldMap_Test.tscn` scene load and GDScript warning cleanliness.

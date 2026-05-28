@@ -52,6 +52,7 @@
 - Runtime route code may refresh `Line2D` from `Path2D.curve.get_baked_points()`, but it must not overwrite an existing scene-authored curve from city positions.
 - Initial route curves are one-time seeds from current `CityMarker_*` root positions only.
 - Land routes use muted earth-tone thin lines; sea routes use pale blue thin lines.
+- `v0.68b-4-hotfix1` tunes land route readability to width `4.5` and `Color(0.86, 0.62, 0.32, 0.72)` while preserving the existing sea route width/color.
 - RouteLayer is a visual/path foundation only. Route click, pathfinding, army movement, battle entry, naval battle logic, and `BattleContext` runtime injection remain deferred.
 - When the same city pair appears from both directions, create only one route node. For route type conflicts, prefer explicit `routeTypes` metadata over default land inference.
 - Known issue retained outside this route-layer scope: CityMarker root movement / name text attachment still needs 김작 manual 2D/F6 confirmation.

@@ -17,6 +17,8 @@ Latest worldmap marker patch: `v0.68b-3 WorldMap City Castle Icon Apply`
 
 Latest worldmap route patch: `v0.68b-4 WorldMap Route Layer Path2D MVP`
 
+Latest worldmap route hotfix: `v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -26,42 +28,41 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-5 WorldMap Route Visual Polish`
-
-Goal:
-- polish route readability after 김작 2D/F6 review without changing route metadata, movement, battle entry, or `BattleContext`
-
-## Priority 2
 `v0.68b-6 WorldMap City Position Manual QA Stable`
 
 Goal:
 - confirm and stabilize manual city marker placement / name attachment behavior in the Godot 2D editor
 
-## Priority 3
+## Priority 2
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 4
+## Priority 3
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - implement first hero / region / city / army assignment data needed to produce roster candidates
 
-## Priority 5
+## Priority 4
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 6
+## Priority 5
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning` is complete.
+- Land route visibility was strengthened by changing land `Line2D` width to `4.5` and color to `Color(0.86, 0.62, 0.32, 0.72)`.
+- Sea route style was intentionally kept unchanged.
+- `Path2D.curve` remains scene-authored; no route paths, city marker positions, route metadata, movement, battle entry, or `BattleContext` behavior changed.
+- 김작 F6 should confirm land routes read clearly on earth-tone terrain without overpowering castle icons, sea route feel is unchanged, pan/zoom keeps routes attached, editable curves remain available, city click info remains normal, and battle scenes are stable.
 - `v0.68b-4 WorldMap Route Layer Path2D MVP` is complete.
 - Added route roots under `WorldMap_Test.tscn > WorldMapRoot > RouteLayer`, each with metadata, `Path2D`, and `Line2D`.
 - Route meaning is code metadata while actual route shape is scene-authored `Path2D.curve`.

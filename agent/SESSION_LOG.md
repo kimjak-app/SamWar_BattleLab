@@ -2,6 +2,13 @@
 
 ## 2026-05-28
 
+### v0.68b-4-hotfix1 WorldMap Land Route Visibility Tuning
+- Tuned only land route visibility after 김작 F6 review found land routes too weak against the map's earth tones.
+- Land route `Line2D` width is now `4.5`; land color is brighter ochre with higher alpha: `Color(0.86, 0.62, 0.32, 0.72)`.
+- Sea route style remains unchanged at width `2.5` and pale blue `Color(0.55, 0.82, 1.0, 0.48)`.
+- Preserved route node structure and scene-authored `Path2D.curve` behavior; no route curves or city marker positions were changed.
+- 김작 F6 should confirm land routes are readable without overpowering castle icons, sea route feel is unchanged, pan/zoom keeps routes attached, and city click info remains normal.
+
 ### v0.68b-4 WorldMap Route Layer Path2D MVP
 - Added the first route layer MVP to `WorldMap_Test.tscn`.
 - Created route root nodes under `WorldMapRoot/RouteLayer`, each with route metadata, a `Path2D`, and a `Line2D`.
