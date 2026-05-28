@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b-10.5 Session Handoff Docs Update Before Stop
+- Updated handoff documentation only; no gameplay code or scene files were modified.
+- Recorded the current stable baseline as `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` at commit `6d3616339e5d555127c5f4eb5eb91160d362aa2e`.
+- Documented the completed WorldMap flow from `v0.68b-12b-1` seed import through `v0.68b-12b-10` enemy invasion choice UI.
+- Documented current implemented systems: web seed import, left panel web-parity controls, turn loop/calendar, save/load/reset, domestic apply, and enemy invasion event/choice UI.
+- Documented explicit deferred systems: right city info cleanup, hero portrait binding, BattleContext generation, battle scene handoff, defense deployment, auto defense, battle return/result ownership apply, enemy AI, internal supply/troop/trade systems, soldier upkeep/salt consumption, and full governor appointment execution.
+- Updated the next recommended task order to start with `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`, then `12b-10b` portrait binding, then `12b-11` BattleContext bridge and later battle handoff/result/ownership tasks.
+- Recorded operational notes: active scene is root `WorldMap_Test.tscn`, `scenes/WorldMap_Test.tscn` may not exist, runtime save path is `user://worldmap_left_panel_state.json`, `agent/LOCAL_ENV.md` and `.godot/` stay ignored, pending invasion state is not persisted, and BattleContext remains intentionally deferred.
+- Verification: docs-only diff reviewed, `git diff --check` passed, `git status --short --ignored` reviewed, and no code/scene files were changed.
+
 ## v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP
 - Added a web-like pending invasion choice UI in `scripts/worldmap_test.gd`; the active root `WorldMap_Test.tscn` was inspected but not modified.
 - Inspected local read-only web references: `C:\dev\SamWar_web\js\ui\ui_render.js`, `js\ui\world_map_ui.js`, `js\core\app_state.js`, `js\core\world_rules.js`, `js\core\battle_state.js`, `js\core\battle_rules.js`, `js\ui\world_hud_ui.js`, and `js\main.js`.

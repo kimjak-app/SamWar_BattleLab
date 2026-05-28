@@ -455,6 +455,10 @@ Latest worldmap enemy invasion event patch: `v0.68b-12b-9 WorldMap Enemy Invasio
 
 Latest worldmap enemy invasion choice UI patch: `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
 
+Current stable baseline: `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+
+Baseline commit: `6d3616339e5d555127c5f4eb5eb91160d362aa2e`
+
 Current Godot state:
 - `scripts/worldmap_test.gd` now rolls a web-parity enemy invasion event during the existing enemy-turn placeholder.
 - The MVP uses `ENEMY_INVASION_CHANCE = 0.45`, attacker candidates from enemy-owned scene city markers, and defender candidates from neighboring player-owned markers.
@@ -465,11 +469,55 @@ Current Godot state:
 - `아군 턴 종료` is disabled/blocked while a pending invasion event exists so enemy events cannot stack before the choice flow is handled.
 - Save/load/reset clear pending invasion state; runtime saves do not persist the pending event, and load normalizes enemy-phase saves back to player turn.
 - No `BattleContext`, battle scene transition, city ownership change, troop loss, hero movement, enemy AI, pathfinding, cooldown, or diplomacy rule was added.
+- User-reported F6 runtime visual check for the current baseline is working normally, and the pending invasion choice UI displays adequately for the current MVP.
+- Active worldmap scene is the root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist in this repo.
+- Runtime save path is `user://worldmap_left_panel_state.json`.
+- `agent/LOCAL_ENV.md` and `.godot/` remain ignored local files and should not be committed.
+
+Completed WorldMap session flow:
+1. `v0.68b-12b-1 WorldMap Hero City Seed Data Import`
+2. `v0.68b-12b-2 WorldMap Left Panel Web Parity Controls MVP`
+3. `v0.68b-12b-3 WorldMap Chancellor Policy + National Warehouse Web Parity MVP`
+4. `v0.68b-12b-3a WorldMap National Warehouse Card UI Cleanup`
+5. `v0.68b-12b-4 WorldMap Turn End + Save Management Web Parity MVP`
+6. `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
+7. `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
+8. `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
+9. `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
+10. `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
+11. `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+
+Current implemented systems:
+- Web hero/city/battle roster seed data imported into Godot worldmap seed structures.
+- Left panel web-parity controls for national loyalty, tax slider, chancellor assignment, chancellor policy, policy effect text, and national warehouse card.
+- Turn system with `아군 턴 종료`, enemy placeholder, return to next ally turn, turn number/calendar advancement.
+- Calendar rule: start year `154`, seasons `봄 / 여름 / 가을 / 겨울`, `10` turns per season, `40` turns per year.
+- Save/load/reset via `user://worldmap_left_panel_state.json`.
+- Domestic apply runs once per full turn cycle and covers tax income, loyalty change, chancellor policy effects, warehouse resource updates, and duplicate apply guard.
+- Enemy invasion MVP covers 45% invasion roll during enemy turn, enemy-owned attacker city, neighboring player-owned defender city, pending event, defender city auto-selection, pending choice card, manual/auto defense placeholder buttons, and turn-end blocking while pending.
+
+Explicitly deferred systems:
+- Right city info panel cleanup.
+- Hero portrait image binding.
+- BattleContext generation.
+- Battle scene handoff.
+- Defense hero deployment UI.
+- Auto defense resolution.
+- Battle result return.
+- City ownership apply.
+- Troop loss / resource loss from battle.
+- Enemy strategic AI and enemy multi-action turn.
+- Internal supply network, troop redistribution, trade cooldown.
+- Soldier upkeep / salt consumption if still deferred.
+- Full governor appointment execution.
 
 Next direction:
-1. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
-2. `v0.68b-12b-12 WorldMap Enemy Invasion Result / Ownership Apply`
-3. `v0.68b-12b-13 WorldMap Enemy Invasion QA / Save-Load Stabilization`
+1. `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
+2. `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
+3. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
+4. `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
+5. `v0.68b-12b-13 WorldMap Battle Result Return MVP`
+6. `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
 4. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 5. `v0.68b-12c Selected City Panel Web Content Parity`
 6. `v0.68b-12d City Detail Panel Web Content Parity`

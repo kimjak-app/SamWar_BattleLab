@@ -69,6 +69,10 @@ Latest worldmap enemy invasion event patch: `v0.68b-12b-9 WorldMap Enemy Invasio
 
 Latest worldmap enemy invasion choice UI patch: `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
 
+Current stable baseline: `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+
+Baseline commit: `6d3616339e5d555127c5f4eb5eb91160d362aa2e`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -78,16 +82,16 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
+`v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
 
 Goal:
-- create the safe bridge from the pending invasion choice UI into a prepared defense battle context without applying final city ownership results
+- clean up the right city information panel and align selected-city display with the web version
 
 Scope:
-- convert `_player_state.pending_invasion_event` into the future battle-prep payload following `BATTLE_CONTEXT_CONTRACT.md`
-- connect `수동 방어` / `자동 방어` only as far as a safe preparation state allows
-- keep city ownership, troop loss, and final invasion results deferred
-- preserve current save/load/reset clearing policy unless a dedicated pending battle restore design is added
+- display owner/nation/region/resources/troops/governor/stationed heroes cleanly
+- remove raw/debug text from the right city info panel where safe
+- make invaded defender city information easy to read after pending invasion auto-selection
+- preserve display-only behavior
 
 Forbidden in this task:
 - no battle scene transition
@@ -101,16 +105,39 @@ Forbidden in this task:
 - no modification to repo-outside `SamWar_web` files
 
 ## Priority 2
-`v0.68b-12b-12 WorldMap Enemy Invasion Result / Ownership Apply MVP`
+`v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
 
 Goal:
-- apply battle outcome to city ownership, troop return/wounded state, and hero faction/location state after the BattleContext bridge is stable
+- bind existing hero portrait assets and keep stable `?` fallback for missing portraits
+
+Scope:
+- use a shared portrait lookup for chancellor card, stationed hero list, right city info panel, and future pending invasion choice hero display
+- do not create new portrait assets unless separately requested
+- do not change hero identity or battle roster logic
 
 ## Priority 3
-`v0.68b-12b-13 WorldMap Enemy Invasion QA / Save-Load Stabilization`
+`v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
 
 Goal:
-- verify repeated pending invasion cycles, choice UI behavior, reset/load clearing, no duplicate events, and no unintended battle handoff
+- convert pending invasion event into battle context data while avoiding direct result/ownership application
+
+## Priority 4
+`v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
+
+Goal:
+- transition from WorldMap to the Godot battle scene and pass battle context safely
+
+## Priority 5
+`v0.68b-12b-13 WorldMap Battle Result Return MVP`
+
+Goal:
+- return from battle scene to worldmap with a result payload
+
+## Priority 6
+`v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
+
+Goal:
+- apply victory/defeat result to city ownership, troops, and resources
 
 ## Priority 4
 `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
@@ -173,6 +200,16 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-10.5 Session Handoff Docs Update Before Stop` documents the current stop point before the next session.
+- Current stable baseline is `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` at commit `6d3616339e5d555127c5f4eb5eb91160d362aa2e`.
+- User-reported F6 runtime visual check is working normally, and the pending invasion choice UI displays correctly enough for the current MVP.
+- Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
+- Runtime save path is `user://worldmap_left_panel_state.json`.
+- `agent/LOCAL_ENV.md` and `.godot/` are ignored local files and must not be committed.
+- Pending invasion event is not persisted on save/load; load/reset clear it according to the web audit policy.
+- BattleContext generation and battle scene handoff remain intentionally deferred.
+- Completed today: `12b-1` seed import, `12b-2` left controls, `12b-3` chancellor policy/warehouse, `12b-3a` warehouse cleanup, `12b-4` turn/save, `12b-5` turn loop, `12b-6` domestic apply, `12b-7` QA, `12b-8` invasion audit, `12b-9` invasion event, and `12b-10` invasion choice UI.
+
 - `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` is complete.
 - Modified `scripts/worldmap_test.gd` and agent docs only; root `WorldMap_Test.tscn` was inspected but not modified.
 - Added a runtime `PendingInvasionChoiceCard` to the left world status panel, hidden without a pending event and visible when `_player_state.pending_invasion_event` exists.

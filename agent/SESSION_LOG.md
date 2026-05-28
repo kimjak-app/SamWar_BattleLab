@@ -2,6 +2,17 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-10.5 Session Handoff Docs Update Before Stop
+- Confirmed local HEAD is `6d36163 v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`.
+- Updated docs only: current state, next tasks, handoff, changelog, session log, and enemy invasion audit.
+- Recorded current stable baseline as `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` at commit `6d3616339e5d555127c5f4eb5eb91160d362aa2e`.
+- Documented today's completed flow: `12b-1` seed import, `12b-2` left controls, `12b-3` chancellor policy/warehouse, `12b-3a` warehouse cleanup, `12b-4` turn/save, `12b-5` turn loop, `12b-6` domestic apply, `12b-7` QA, `12b-8` invasion audit, `12b-9` invasion event, and `12b-10` choice UI.
+- Documented implemented systems: web seed import, left panel controls, turn/calendar, save/load/reset, domestic apply, and enemy invasion event/choice MVP.
+- Documented deferred systems: right city info cleanup, hero portrait binding, BattleContext, battle handoff, defense deployment, auto defense, battle result return, ownership/troop/resource apply, enemy AI, internal supply/troop/trade systems, soldier upkeep/salt consumption, and governor execution.
+- Recorded handoff notes: root `WorldMap_Test.tscn` is active, `scenes/WorldMap_Test.tscn` may not exist, runtime save path is `user://worldmap_left_panel_state.json`, `agent/LOCAL_ENV.md` and `.godot/` are ignored, pending invasion events are not persisted and load/reset clears them, and BattleContext is intentionally deferred.
+- Updated next recommended task order to `12b-10a` right city info panel cleanup, `12b-10b` hero portrait binding, `12b-11` BattleContext bridge, `12b-12` battle scene handoff, `12b-13` battle result return, and `12b-14` ownership/troop apply.
+- Verification: docs-only diff, `git diff --check`, `git status --short --ignored`, and no code/scene file changes.
+
 ### v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP
 - Inspected the required agent docs, `agent/ENEMY_INVASION_AUDIT.md`, `scripts/worldmap_test.gd`, and the active root `WorldMap_Test.tscn`.
 - Inspected local read-only web references for pending defense choice rendering and routing: `C:\dev\SamWar_web\js\ui\ui_render.js`, `js\ui\world_map_ui.js`, `js\core\app_state.js`, `js\core\world_rules.js`, `js\core\battle_state.js`, `js\core\battle_rules.js`, `js\ui\world_hud_ui.js`, and `js\main.js`.
