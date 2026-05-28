@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b-0.5 Session Handoff Docs Update Before New Chat
+- Updated agent handoff docs only; no code, scenes, assets, or seed data were modified.
+- Recorded the current worldmap HUD flow through `v0.68b-8 WorldMap Web HUD Visual Parity MVP`, `v0.68b-9 WorldMap HUD Data Binding MVP`, `v0.68b-10 WorldMap Domestic Affairs Web Source Parity MVP`, `v0.68b-11 WorldMap Independent Draggable Panels + Top Banner Cleanup MVP`, `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP`, `v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch`, `v0.68b-12b-pre Codex Auto Work Header Rule Documentation`, `v0.68b-12b Left World HUD Web Content Parity`, and `v0.68b-12b-0 WorldMap Hero City Seed Data Structure Audit`.
+- Noted that `v0.68b-12b-pre` made `[SamWar_BattleLab 자동 작업 권한 헤더]` mandatory before future SamWar_BattleLab task names/goals.
+- Noted that `v0.68b-12b` included a left HUD web content parity attempt/investigation flow before implementation: inspect web render/resource/trade sources, then keep Godot behavior display-only.
+- Captured the seed data audit result: web `heroes.js` is an array with hero identity, faction/side, role, stats, portrait, battlefield portrait, and chancellor profile fields; web `cities.js` carries city identity, ownership, route, governor, loyalty, resource, military, domestic, and yield fields; web `battle_rosters.js` `cityDefenderRosters` is the city stationed-hero source.
+- Captured web domestic parity notes: `createInitialDomesticPolicy()` starts with `chancellorHeroId: null`; chancellor candidates are active player-side heroes; governor candidates are selected-city stationed player-side heroes at the selected city.
+- Captured Godot seed state: `scripts/worldmap_test.gd` currently owns display-only `HERO_DATA`, `CITY_HUD_DATA`, `CHANCELLOR_POLICY_DATA`, `GOVERNOR_POLICY_DATA`, and `_player_state`; `_player_state.chancellor_id` is currently fixed to `"jeong_do_jeon"` and should be revisited for web parity.
+- Set the immediate next task to `v0.68b-12b-1 WorldMap Hero City Seed Data Import`, a data baseline alignment task using web `heroes.js`, `cities.js`, and `battle_rosters.js` without real movement, appointment, policy, turn/resource mutation, battle, route/pathfinding, scene layout, castle icon, or repo-outside web changes.
+
 ## v0.68b-12b Left World HUD Web Content Parity
 - Checked the actual web left HUD sources in `C:\dev\SamWar_web`, including `world_hud_ui.js`, `resource_ui.js`, `constants.js`, `app_state.js`, `world_rules.js`, `css/main.css`, `index.html`, and `data/heroes.js`.
 - Realigned the Godot `LeftWorldStatusPanel` runtime copy toward `renderWorldHud()`: `World Turn`, turn/calendar/owner, `국가충성도`, `세금 수준`, chancellor card, chancellor policy, `보유 자원`, `국가 창고`, `내부 보급망`, `내부 병력 재배치`, `대외 무역`, income/policy/tax summary, wild-army edit, and save/load/reset copy.

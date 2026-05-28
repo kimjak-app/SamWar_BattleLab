@@ -44,6 +44,10 @@ Latest worldmap unified panel UX patch: `v0.68b-12a Unified City Panel UX Fix + 
 
 Latest worldmap left HUD content patch: `v0.68b-12b Left World HUD Web Content Parity`
 
+Latest worldmap seed data audit patch: `v0.68b-12b-0 WorldMap Hero City Seed Data Structure Audit`
+
+Latest session handoff docs patch: `v0.68b-12b-0.5 Session Handoff Docs Update Before New Chat`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -69,6 +73,8 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12 WorldMap Unified City Detail Diplomacy Panel MVP`
 - `v0.68b-12a Unified City Panel UX Fix + Web Content Parity Patch`
 - `v0.68b-12b Left World HUD Web Content Parity`
+- `v0.68b-12b-0 WorldMap Hero City Seed Data Structure Audit`
+- `v0.68b-12b-0.5 Session Handoff Docs Update Before New Chat`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -153,9 +159,22 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - The unified panel now has a real collapse/expand state with a compact `도시 상세 열기` header; expanded/collapsed position remains runtime-only.
 - `CityInfoPanel` remains separate and independently draggable from the unified panel.
 - `v0.68b-12b` tightens the left main world HUD against the actual web `renderWorldHud()`, `renderChancellorCard()`, `renderChancellorPolicyControl()`, and resource/trade copy.
+- `v0.68b-12b-pre Codex Auto Work Header Rule Documentation` established that future SamWar_BattleLab task prompts must start with `[SamWar_BattleLab 자동 작업 권한 헤더]` before the task name or goal.
+- `v0.68b-12b Left World HUD Web Content Parity` was handled as a web-source investigation and targeted parity pass. The work checked the actual left HUD render functions and resource/trade copy, then kept the Godot change display-only rather than expanding into real domestic systems.
 - `LeftWorldStatusPanel` now uses web-source runtime copy for `World Turn`, turn/calendar/owner, `국가충성도`, `세금 수준`, `재상`, `재상 임명`, `재상 정책`, `보유 자원`, `국가 창고`, `내부 보급망`, `내부 병력 재배치`, `대외 무역`, income/policy/tax summary, wild-army edit, and save/load/reset.
 - The chancellor card keeps a portrait initial fallback but now shows web chancellor type lines such as `주: 정치형 4` and `보조: 행정형 3`; policy options remain the web constants and update display text only.
 - `v0.68b-12b` remains display-only. It does not apply turn, resource, tax, loyalty, upkeep, policy, save/load/reset, domestic, diplomacy/spy, battle, hero transfer, army movement, route, pathfinding, sea arrow, or AI behavior.
+- `v0.68b-12b-0 WorldMap Hero City Seed Data Structure Audit` completed the data-source investigation for the next seed import task without changing code, scenes, or web files.
+- Web `heroes.js` is an array structure. Relevant fields for Godot seed alignment include `id`, `name`, `factionId`, `side`, `role`, `stats`, `portraitImage`, `battlefieldPortraitImage`, and `chancellorProfile`.
+- Web `cities.js` contains city seed fields including `id`, `name`, `region`, `ownerFactionId`, `neighbors`, `routeTypes`, `governorHeroId`, `cityLoyalty`, `resources`, `military`, `domestic`, and `yields`.
+- Web `battle_rosters.js` `cityDefenderRosters` is the key source for city stationed hero seed data.
+- Web chancellor initial value comes from `app_state.createInitialDomesticPolicy()` and is `chancellorHeroId: null`.
+- Web chancellor candidates from `getEligibleChancellorHeroes()` are all active player-side heroes where `hero.side === playerFactionId`.
+- Web governor candidates are heroes in the selected city's `stationedHeroes` where `hero.side === playerFactionId` and `hero.locationCityId === selectedCity.id`.
+- Current Godot worldmap seed data is centered in `scripts/worldmap_test.gd` through `HERO_DATA`, `CITY_HUD_DATA`, `CHANCELLOR_POLICY_DATA`, `GOVERNOR_POLICY_DATA`, and `_player_state`.
+- Current Godot `_player_state.chancellor_id` has been fixed to `"jeong_do_jeon"`; the next task must explicitly decide whether to return this to an unassigned null/empty state for web parity. Prefer the web-parity baseline of no chancellor and no chancellor effect unless a concrete blocker appears.
+- Current Godot data is display-only string seed data, not the full web source numeric/stat object model.
+- `v0.68b-12b-0.5` updates handoff docs only so the next chat can start from `v0.68b-12b-1 WorldMap Hero City Seed Data Import`.
 - All HUD actions remain placeholder-only. `BattleContext`, battle entry, domestic execution, recruitment, save/load/reset, diplomacy/spy execution, hero/army movement, route click, pathfinding, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
@@ -350,12 +369,13 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-12c Selected City Panel Web Content Parity`
-2. `v0.68b-12d City Detail Panel Web Content Parity`
-3. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
-4. `v0.68b-13 Hero Portrait Asset Naming Contract`
-5. `v0.68b-14 Hero Portrait Asset Apply MVP`
-6. `v0.68c BattleContext Runtime Injection MVP`
+1. `v0.68b-12b-1 WorldMap Hero City Seed Data Import`
+2. `v0.68b-12c Selected City Panel Web Content Parity`
+3. `v0.68b-12d City Detail Panel Web Content Parity`
+4. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
+5. `v0.68b-13 Hero Portrait Asset Naming Contract`
+6. `v0.68b-14 Hero Portrait Asset Apply MVP`
+7. `v0.68c BattleContext Runtime Injection MVP`
 
 ## Known / Deferred
 - 김작 F6 visual QA should confirm `v0.68b-12b Left World HUD Web Content Parity`: left main HUD section order is close to the web left HUD; turn/date/phase display follows web wording; chancellor card resembles the web structure; chancellor policy list/copy matches the web constants; selecting a policy updates explanation only and does not change actual values; national resources, warehouse, supply, troop rebalance, logistics/upkeep, and external trade summaries use web-like copy; button wording follows the web; placeholder feel is reduced; bottom empty space is acceptable; unified panel and Selected City panel structure remain intact; drag/collapse works; city clicks still refresh panels; route lines and sea arrow flow are normal; castle icon visuals stay hidden; existing battle scenes are not broken.

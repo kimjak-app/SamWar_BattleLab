@@ -138,6 +138,12 @@ Latest camera foundation:
 - Latest worldmap left HUD content patch:
 `v0.68b-12b Left World HUD Web Content Parity`
 
+- Latest worldmap seed data audit patch:
+`v0.68b-12b-0 WorldMap Hero City Seed Data Structure Audit`
+
+- Latest session handoff docs patch:
+`v0.68b-12b-0.5 Session Handoff Docs Update Before New Chat`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -188,8 +194,18 @@ Do not modify casually:
 - The standalone `DiplomacySpyPanel` is hidden at runtime. Keep diplomacy/spy behavior display-only until a dedicated feature task.
 - The unified panel has runtime-only collapse/expand; no position/config persistence should be inferred from it.
 - `v0.68b-12b Left World HUD Web Content Parity` realigns only the left main `LeftWorldStatusPanel` runtime copy against the actual web `renderWorldHud()`, `renderChancellorCard()`, `renderChancellorPolicyControl()`, and resource/trade summary wording.
+- `v0.68b-12b-pre Codex Auto Work Header Rule Documentation` established the required `[SamWar_BattleLab 자동 작업 권한 헤더]` prompt header rule for future tasks.
+- `v0.68b-12b` was a left HUD web content parity attempt/investigation flow: inspect actual web left HUD and resource/trade sources, adjust Godot display copy only, and keep all domestic/resource/turn/save behavior non-executing.
 - The left HUD now displays web-like `World Turn`, turn/calendar/owner, `국가충성도`, `세금 수준`, chancellor portrait fallback/name/type lines, `재상 임명`, `재상 정책`, `보유 자원`, `국가 창고`, `내부 보급망`, `내부 병력 재배치`, `대외 무역`, and save/load/reset button copy.
 - This is still display-only: chancellor policy selection updates explanation/hint text but must not apply policy effects, mutate resources, process turns, save/load/reset, run domestic/diplomacy/spy, move heroes/armies, create `BattleContext`, alter routes/sea arrows, or start battle.
+- `v0.68b-12b-0 WorldMap Hero City Seed Data Structure Audit` completed the source-data audit for the next Godot seed import task without modifying code, scenes, assets, or repo-outside web files.
+- Web `heroes.js` is an array structure; the next import should align Godot `HERO_DATA` with `id`, `name`, `factionId`, `side`, `role`, `stats`, `portraitImage`, `battlefieldPortraitImage`, and `chancellorProfile`.
+- Web `cities.js` carries `id`, `name`, `region`, `ownerFactionId`, `neighbors`, `routeTypes`, `governorHeroId`, `cityLoyalty`, `resources`, `military`, `domestic`, and `yields`; the next import should preserve these as current display seed data where possible.
+- Web `battle_rosters.js` `cityDefenderRosters` is the key source for each city's stationed hero seed data and should map into `CITY_HUD_DATA.stationed_hero_ids`.
+- Web `app_state.createInitialDomesticPolicy()` initializes `chancellorHeroId: null`; web `getEligibleChancellorHeroes()` considers active heroes where `hero.side === playerFactionId`; web governor candidates are selected-city stationed player-side heroes with `hero.locationCityId === selectedCity.id`.
+- Godot current seed ownership remains in `scripts/worldmap_test.gd`: `HERO_DATA`, `CITY_HUD_DATA`, `CHANCELLOR_POLICY_DATA`, `GOVERNOR_POLICY_DATA`, and `_player_state`.
+- Godot current `_player_state.chancellor_id` has been fixed to `"jeong_do_jeon"`. In `v0.68b-12b-1`, explicitly decide whether to return it to null/empty for web parity; prefer no chancellor / no chancellor effect unless a concrete blocker appears.
+- Godot current worldmap seed data is display-only string-oriented data, not the full web numeric/stat object model.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -302,7 +318,19 @@ Do not modify casually:
 ## Recommended Next Task
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
+- New-chat handoff: 새 채팅에서는 먼저 agent 문서를 순차 읽고, 현재 기준선을 확인한 뒤 `v0.68b-12b-1 WorldMap Hero City Seed Data Import`를 진행한다. 이 작업은 웹버전 hero/city/battle_rosters 데이터를 Godot seed data로 가져오는 작업이며, 실제 기능 실행이 아니라 데이터 기준선 정렬 작업이다.
+- Immediate next task:
+  - `v0.68b-12b-1 WorldMap Hero City Seed Data Import`
+- `v0.68b-12b-1` goal:
+  - Align Godot seed data in `scripts/worldmap_test.gd` with web `heroes.js`, `cities.js`, and `battle_rosters.js`.
+  - Update only the minimal relevant seed structures: `HERO_DATA`, `CITY_HUD_DATA`, and `_player_state`.
+  - Reflect `cityDefenderRosters` into `CITY_HUD_DATA.stationed_hero_ids`.
+  - Reflect `cities.js` `governorHeroId` into `CITY_HUD_DATA.governor_id`.
+  - Preserve available `cityLoyalty`, `resources`, `military`, `population`, and rating-like seed values where they fit current display-only UI.
+  - Reflect hero identity, faction/side, role, stats, portrait fields, battlefield portrait fields, and chancellor profile fields in `HERO_DATA`.
+  - Do not implement actual hero movement, governor/chancellor appointment, policy effects, resource/troop/turn mutation, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, castle icon reactivation, or repo-outside web file edits.
 - Next candidates:
+  - `v0.68b-12b-1 WorldMap Hero City Seed Data Import`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`
   - `v0.68b-12e Diplomacy Spy Panel Web Content Parity`

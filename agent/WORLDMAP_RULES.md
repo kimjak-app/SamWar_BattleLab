@@ -21,6 +21,20 @@
 - City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-12b-0.5 Session Handoff Docs Update Before New Chat` is a docs-only bridge into `v0.68b-12b-1 WorldMap Hero City Seed Data Import`.
+- Next new chat handoff: 새 채팅에서는 먼저 agent 문서를 순차 읽고, 현재 기준선을 확인한 뒤 `v0.68b-12b-1 WorldMap Hero City Seed Data Import`를 진행한다. 이 작업은 웹버전 hero/city/battle_rosters 데이터를 Godot seed data로 가져오는 작업이며, 실제 기능 실행이 아니라 데이터 기준선 정렬 작업이다.
+- `v0.68b-12b-0 WorldMap Hero City Seed Data Structure Audit` established the next seed import source map.
+- Web `heroes.js` is an array structure with hero fields including `id`, `name`, `factionId`, `side`, `role`, `stats`, `portraitImage`, `battlefieldPortraitImage`, and `chancellorProfile`.
+- Web `cities.js` contains city fields including `id`, `name`, `region`, `ownerFactionId`, `neighbors`, `routeTypes`, `governorHeroId`, `cityLoyalty`, `resources`, `military`, `domestic`, and `yields`.
+- Web `battle_rosters.js` `cityDefenderRosters` is the key source for city stationed hero seed data.
+- Web chancellor initial state is `app_state.createInitialDomesticPolicy()` `chancellorHeroId: null`.
+- Web chancellor candidates from `getEligibleChancellorHeroes()` are active heroes where `hero.side === playerFactionId`.
+- Web governor candidates are selected-city stationed heroes where `hero.side === playerFactionId` and `hero.locationCityId === selectedCity.id`.
+- Current Godot worldmap seed data lives in `scripts/worldmap_test.gd` through `HERO_DATA`, `CITY_HUD_DATA`, `CHANCELLOR_POLICY_DATA`, `GOVERNOR_POLICY_DATA`, and `_player_state`.
+- Current Godot `_player_state.chancellor_id` has been fixed to `"jeong_do_jeon"`. The import task must explicitly decide whether to set the default back to null/empty for web parity; prefer no chancellor / no chancellor effect unless blocked.
+- Current Godot seed data is display-only string-oriented data, not the full web numeric/stat object model.
+- `v0.68b-12b-1 WorldMap Hero City Seed Data Import` should align only Godot seed data with web `heroes.js`, `cities.js`, and `battle_rosters.js`: map `cityDefenderRosters` into `CITY_HUD_DATA.stationed_hero_ids`, `governorHeroId` into `CITY_HUD_DATA.governor_id`, city loyalty/resources/military/population/rating-like fields into display seed data where possible, and hero identity/faction/side/role/stats/portrait/chancellor profile fields into `HERO_DATA`.
+- `v0.68b-12b-1` must not implement actual hero movement, governor/chancellor appointment logic, policy effects, resource/troop/turn mutation, `BattleContext`, battle scene transition, route/pathfinding changes, scene layout changes, castle icon reactivation, or repo-outside `SamWar_web` edits.
 - `v0.68b-12b Left World HUD Web Content Parity` tightens only the Godot left main `LeftWorldStatusPanel` against the actual web `world_hud_ui.js` / `resource_ui.js` output.
 - The left HUD content order should follow the web `renderWorldHud()` flow: `World Turn`, turn number, calendar, turn owner, `국가충성도`, `세금 수준`, `재상`, `재상 임명`, `재상 정책`, `보유 자원`, `국가 창고`, `내부 보급망`, `내부 병력 재배치`, `대외 무역`, income/policy/tax summary, turn/save controls.
 - `renderChancellorCard()` parity means the Godot chancellor card keeps a portrait slot/fallback and shows the chancellor name plus web `주`/`보조` chancellor type lines; it must not invent non-web chancellor categories.
