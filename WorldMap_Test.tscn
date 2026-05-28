@@ -120,6 +120,18 @@ point_count = 3
 [sub_resource type="CircleShape2D" id="CircleShape2D_city_click"]
 radius = 40.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_world_hud_inner_card"]
+bg_color = Color(0.047, 0.094, 0.149, 0.68)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.69, 0.46, 0.16)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_city_info_panel"]
 bg_color = Color(0.027, 0.055, 0.09, 0.88)
 border_width_left = 1
@@ -135,29 +147,19 @@ shadow_color = Color(0, 0, 0, 0.35)
 shadow_size = 14
 shadow_offset = Vector2(0, 8)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_world_hud_inner_card"]
-bg_color = Color(0.047, 0.094, 0.149, 0.68)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.82, 0.69, 0.46, 0.16)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_world_hud_progress_track"]
+bg_color = Color(1, 1, 1, 0.09)
+corner_radius_top_left = 99
+corner_radius_top_right = 99
+corner_radius_bottom_right = 99
+corner_radius_bottom_left = 99
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_world_hud_tab"]
-bg_color = Color(0.039, 0.075, 0.122, 0.78)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.82, 0.69, 0.46, 0.28)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_world_hud_progress_fill"]
+bg_color = Color(0.97, 0.84, 0.6, 0.9)
+corner_radius_top_left = 99
+corner_radius_top_right = 99
+corner_radius_bottom_right = 99
+corner_radius_bottom_left = 99
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_world_hud_tab_active"]
 bg_color = Color(0.141, 0.106, 0.051, 0.76)
@@ -183,19 +185,17 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_world_hud_progress_track"]
-bg_color = Color(1, 1, 1, 0.09)
-corner_radius_top_left = 99
-corner_radius_top_right = 99
-corner_radius_bottom_right = 99
-corner_radius_bottom_left = 99
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_world_hud_progress_fill"]
-bg_color = Color(0.97, 0.84, 0.6, 0.9)
-corner_radius_top_left = 99
-corner_radius_top_right = 99
-corner_radius_bottom_right = 99
-corner_radius_bottom_left = 99
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_world_hud_tab"]
+bg_color = Color(0.039, 0.075, 0.122, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.69, 0.46, 0.28)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="WorldMap_Test" type="Node2D" unique_id=2014555566]
 script = ExtResource("1_worldmap_test")
@@ -408,39 +408,47 @@ points = PackedVector2Array(1518, 658, 1519.269, 659.38135, 1520.7933, 661.0405,
 width = 2.5
 default_color = Color(0.55, 0.82, 1, 0.48)
 
-[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto"]
+[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto" unique_id=1077313484]
 z_index = 1
+curve = SubResource("Curve2D_route_gyeongju_kyoto")
 script = ExtResource("12_route_flow_fx")
 
-[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot" unique_id=939994321]
+position = Vector2(1518, 658)
+rotation = 0.82774574
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow01"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow01" unique_id=2079882915]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot" unique_id=1426747206]
+position = Vector2(1574.5137, 719.5149)
+rotation = 0.82774574
+progress = 83.533676
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow02"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow02" unique_id=1688883584]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot" unique_id=2147125986]
+position = Vector2(1631.034, 781.0135)
+rotation = 0.8091511
+progress = 167.06735
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow03"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow03" unique_id=1321760443]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot" unique_id=1052540378]
+position = Vector2(1714.5201, 777.99927)
+rotation = -0.035912696
+progress = 250.60103
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow04"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Kyoto/ArrowFlowRoot/ArrowFollow04" unique_id=1233966575]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
@@ -459,39 +467,47 @@ points = PackedVector2Array(1518, 658, 1518.7974, 659.6846, 1519.7552, 661.7079,
 width = 2.5
 default_color = Color(0.55, 0.82, 1, 0.48)
 
-[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka"]
+[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka" unique_id=1404369566]
 z_index = 1
+curve = SubResource("Curve2D_route_gyeongju_osaka")
 script = ExtResource("12_route_flow_fx")
 
-[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot" unique_id=967762908]
+position = Vector2(1518, 658)
+rotation = 1.1287087
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow01"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow01" unique_id=34511377]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot" unique_id=818359863]
+position = Vector2(1553.4733, 732.94354)
+rotation = 1.1287087
+progress = 82.91483
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow02"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow02" unique_id=968627673]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot" unique_id=1611068786]
+position = Vector2(1588.9186, 807.9194)
+rotation = 1.1287087
+progress = 165.82967
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow03"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow03" unique_id=1571406227]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot" unique_id=724657543]
+position = Vector2(1667.4409, 834.47986)
+rotation = 0.32556733
+progress = 248.7445
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow04"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Gyeongju_Osaka/ArrowFlowRoot/ArrowFollow04" unique_id=246526263]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
@@ -510,39 +526,47 @@ points = PackedVector2Array(1426, 695, 1425.9102, 696.75195, 1425.6563, 701.7031
 width = 2.5
 default_color = Color(0.55, 0.82, 1, 0.48)
 
-[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu"]
+[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu" unique_id=422355562]
 z_index = 1
+curve = SubResource("Curve2D_route_sabi_kyushu")
 script = ExtResource("12_route_flow_fx")
 
-[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot" unique_id=541748943]
+position = Vector2(1426, 695)
+rotation = 1.6220335
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow01"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow01" unique_id=2103644921]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot" unique_id=682214756]
+position = Vector2(1421.9901, 773.19214)
+rotation = 1.6220335
+progress = 78.29487
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow02"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow02" unique_id=1397941503]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot" unique_id=1465160521]
+position = Vector2(1418.1537, 851.24884)
+rotation = 1.4187618
+progress = 156.58974
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow03"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow03" unique_id=45119314]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot" unique_id=1134337833]
+position = Vector2(1478.6483, 901.12256)
+rotation = 0.69066
+progress = 234.88461
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow04"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Kyushu/ArrowFlowRoot/ArrowFollow04" unique_id=1477776453]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
@@ -563,39 +587,47 @@ points = PackedVector2Array(1426, 695, 1423.5181, 694.9663, 1420.537, 694.9259, 
 width = 2.5
 default_color = Color(0.55, 0.82, 1, 0.48)
 
-[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye"]
+[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye" unique_id=1185016562]
 z_index = 1
+curve = SubResource("Curve2D_route_sabi_jianye")
 script = ExtResource("12_route_flow_fx")
 
-[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot" unique_id=1779968604]
+position = Vector2(1426, 695)
+rotation = -3.1280189
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow01"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow01" unique_id=521469488]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot" unique_id=1524884928]
+position = Vector2(1315.417, 693.49884)
+rotation = -3.1280189
+progress = 110.59323
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow02"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow02" unique_id=369478116]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot" unique_id=576608421]
+position = Vector2(1204.8612, 692.06354)
+rotation = 3.1028419
+progress = 221.18646
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow03"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow03" unique_id=1586455266]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot" unique_id=98513306]
+position = Vector2(1125.4403, 769.0578)
+rotation = 2.3721676
+progress = 331.7797
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow04"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Sabi_Jianye/ArrowFlowRoot/ArrowFollow04" unique_id=1247373579]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
@@ -614,39 +646,47 @@ points = PackedVector2Array(1539, 951, 1540.4038, 951.05615, 1544.3711, 951.2148
 width = 2.5
 default_color = Color(0.55, 0.82, 1, 0.48)
 
-[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka"]
+[node name="ArrowFlowRoot" type="Path2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka" unique_id=1757490635]
 z_index = 1
+curve = SubResource("Curve2D_route_kyushu_osaka")
 script = ExtResource("12_route_flow_fx")
 
-[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow01" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot" unique_id=1753022166]
+position = Vector2(1539, 951)
+rotation = 0.03997869
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow01"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow01" unique_id=2065886802]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow02" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot" unique_id=1955018144]
+position = Vector2(1601.5986, 953.50397)
+rotation = 0.039978687
+progress = 62.648743
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow02"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow02" unique_id=1866830649]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow03" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot" unique_id=1186543272]
+position = Vector2(1664.1398, 955.9251)
+rotation = -0.08596921
+progress = 125.297485
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow03"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow03" unique_id=318272488]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
-[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot"]
-loop = true
-rotates = true
+[node name="ArrowFollow04" type="PathFollow2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot" unique_id=1732669064]
+position = Vector2(1705.0646, 908.42523)
+rotation = -0.85871285
+progress = 187.94623
 
-[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow04"]
+[node name="ArrowSprite" type="Polygon2D" parent="WorldMapRoot/RouteLayer/Route_Kyushu_Osaka/ArrowFlowRoot/ArrowFollow04" unique_id=315264669]
+scale = Vector2(0.75, 0.75)
 color = Color(0.75, 0.9, 1, 0.85)
 polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 
@@ -662,14 +702,13 @@ owner_faction_id = "chu"
 neighbors = Array[String](["yecheng", "chengdu", "jianye"])
 web_seed_position = Vector2(184, 686)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang" unique_id=1531268766]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Luoyang" unique_id=1417264083]
-visible = false
 color = Color(0.8, 0.24, 0.22, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
@@ -699,14 +738,13 @@ owner_faction_id = "wei"
 neighbors = Array[String](["luoyang", "jianye", "karakorum"])
 web_seed_position = Vector2(195, 512)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng" unique_id=1676120124]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Yecheng" unique_id=1795904376]
-visible = false
 position = Vector2(1, -2)
 color = Color(0.46, 0.58, 0.72, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
@@ -736,14 +774,13 @@ owner_faction_id = "shu"
 neighbors = Array[String](["luoyang", "jianye"])
 web_seed_position = Vector2(143, 860)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu" unique_id=1217115697]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Chengdu" unique_id=342110932]
-visible = false
 color = Color(0.18, 0.58, 0.32, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
@@ -776,14 +813,13 @@ route_types = {
 }
 web_seed_position = Vector2(266, 901)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye" unique_id=501411525]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Jianye" unique_id=461754331]
-visible = false
 color = Color(0.28, 0.72, 0.76, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
@@ -816,14 +852,13 @@ route_types = {
 }
 web_seed_position = Vector2(276, 420)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=490841285]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Karakorum" unique_id=504928822]
-visible = false
 position = Vector2(1, 0)
 color = Color(0.62, 0.52, 0.4, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
@@ -853,14 +888,13 @@ owner_faction_id = "goguryeo"
 neighbors = Array[String](["hanseong", "karakorum"])
 web_seed_position = Vector2(399, 348)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang" unique_id=1494586791]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Pyeongyang" unique_id=969232397]
-visible = false
 color = Color(0.35, 0.5, 0.95, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
@@ -889,14 +923,13 @@ owner_faction_id = "player"
 neighbors = Array[String](["pyeongyang", "gyeongju", "sabi"])
 web_seed_position = Vector2(461, 532)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong" unique_id=956423328]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Hanseong" unique_id=1978806803]
-visible = false
 color = Color(0.25, 0.62, 1, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
@@ -929,14 +962,13 @@ route_types = {
 }
 web_seed_position = Vector2(573, 666)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju" unique_id=1115292559]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Gyeongju" unique_id=2103931355]
-visible = false
 position = Vector2(-1, 0)
 color = Color(0.9, 0.74, 0.24, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
@@ -970,14 +1002,13 @@ route_types = {
 }
 web_seed_position = Vector2(512, 686)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi" unique_id=1588783433]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Sabi" unique_id=753088931]
-visible = false
 color = Color(0.88, 0.54, 0.28, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
@@ -1009,14 +1040,13 @@ route_types = {
 }
 web_seed_position = Vector2(830, 655)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto" unique_id=1524093161]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyoto" unique_id=2002838387]
-visible = false
 color = Color(0.58, 0.28, 0.84, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
@@ -1049,14 +1079,13 @@ route_types = {
 }
 web_seed_position = Vector2(768, 778)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka" unique_id=2027950186]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Osaka" unique_id=242329786]
-visible = false
 color = Color(0.86, 0.48, 0.16, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
@@ -1089,14 +1118,13 @@ route_types = {
 }
 web_seed_position = Vector2(686, 881)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu" unique_id=1957935140]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Kyushu" unique_id=1952379592]
-visible = false
 color = Color(0.64, 0.42, 0.28, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
 
@@ -1125,14 +1153,13 @@ owner_faction_id = "tokugawa"
 neighbors = Array[String](["kyoto"])
 web_seed_position = Vector2(891, 584)
 
-[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo"]
+[node name="SelectionRing" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo" unique_id=1384074688]
 visible = false
 z_index = -1
 color = Color(1, 0.82, 0.32, 0.42)
 polygon = PackedVector2Array(0, -34, 13, -31, 24, -24, 31, -13, 34, 0, 31, 13, 24, 24, 13, 31, 0, 34, -13, 31, -24, 24, -31, 13, -34, 0, -31, -13, -24, -24, -13, -31)
 
 [node name="CityDot" type="Polygon2D" parent="WorldMapRoot/CityLayer/CityMarker_Edo" unique_id=835873330]
-visible = false
 position = Vector2(0, 2)
 color = Color(0.32, 0.72, 0.44, 1)
 polygon = PackedVector2Array(0, -14, 14, 0, 0, 14, -14, 0)
@@ -1173,21 +1200,21 @@ theme_override_colors/font_color = Color(0.82, 0.69, 0.46, 1)
 theme_override_font_sizes/font_size = 12
 text = "SamWar HUD MVP"
 
-[node name="WorldTitlePanel" type="PanelContainer" parent="WorldMapUI"]
+[node name="WorldTitlePanel" type="PanelContainer" parent="WorldMapUI" unique_id=1600465811]
 offset_left = 464.0
 offset_top = 16.0
 offset_right = 688.0
 offset_bottom = 52.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_inner_card")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/WorldTitlePanel"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/WorldTitlePanel" unique_id=1654239982]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 6
 
-[node name="TitleText" type="Label" parent="WorldMapUI/WorldTitlePanel/MarginContainer"]
+[node name="TitleText" type="Label" parent="WorldMapUI/WorldTitlePanel/MarginContainer" unique_id=1912318136]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 18
@@ -1205,71 +1232,71 @@ offset_bottom = 40.0
 text = "Camera: (0, 0)  Zoom: 0.70"
 horizontal_alignment = 2
 
-[node name="LeftWorldStatusPanel" type="PanelContainer" parent="WorldMapUI"]
+[node name="LeftWorldStatusPanel" type="PanelContainer" parent="WorldMapUI" unique_id=49871230]
 offset_left = 18.0
 offset_top = 56.0
 offset_right = 306.0
 offset_bottom = 626.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/LeftWorldStatusPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/LeftWorldStatusPanel" unique_id=1171476385]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
-[node name="Content" type="VBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer"]
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer" unique_id=720880227]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="EyebrowLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="EyebrowLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=583185699]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
 theme_override_font_sizes/font_size = 12
 text = "WORLD TURN"
 
-[node name="TurnLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="TurnLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=1071792159]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 24
 text = "제 1턴"
 
-[node name="CalendarLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="CalendarLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=479216229]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
 theme_override_font_sizes/font_size = 12
 text = "154년 봄 1일 · 아군 턴"
 
-[node name="NationLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="NationLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=383105125]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "국력 안정 · 치안 보통 · 세금 표준"
 autowrap_mode = 2
 
-[node name="NationalGaugeCard" type="PanelContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="NationalGaugeCard" type="PanelContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=1071593860]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_inner_card")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard" unique_id=693003148]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 
-[node name="GaugeList" type="VBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer"]
+[node name="GaugeList" type="VBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer" unique_id=447706504]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="PowerLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList"]
+[node name="PowerLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList" unique_id=2107185690]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
 text = "국력 72"
 
-[node name="PowerBar" type="ProgressBar" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList"]
+[node name="PowerBar" type="ProgressBar" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList" unique_id=2020037907]
 custom_minimum_size = Vector2(0, 7)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_world_hud_progress_track")
@@ -1277,13 +1304,13 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_world_hud_progress_fill")
 value = 72.0
 show_percentage = false
 
-[node name="TaxLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList"]
+[node name="TaxLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList" unique_id=625841021]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
 text = "세금 30"
 
-[node name="TaxBar" type="ProgressBar" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList"]
+[node name="TaxBar" type="ProgressBar" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList" unique_id=1339671214]
 custom_minimum_size = Vector2(0, 7)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_world_hud_progress_track")
@@ -1291,13 +1318,13 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_world_hud_progress_fill")
 value = 30.0
 show_percentage = false
 
-[node name="SecurityLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList"]
+[node name="SecurityLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList" unique_id=203212160]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
 text = "치안 68"
 
-[node name="SecurityBar" type="ProgressBar" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList"]
+[node name="SecurityBar" type="ProgressBar" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList" unique_id=635685504]
 custom_minimum_size = Vector2(0, 7)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_world_hud_progress_track")
@@ -1305,37 +1332,37 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_world_hud_progress_fill")
 value = 68.0
 show_percentage = false
 
-[node name="ChancellorLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="ChancellorLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=844077084]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 12
 text = "재상: 미배정 · 균형 정책"
 
-[node name="ChancellorCard" type="PanelContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="ChancellorCard" type="PanelContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=867238669]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_inner_card")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard" unique_id=333380474]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 
-[node name="Content" type="VBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer"]
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer" unique_id=1607837285]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="HeaderRow" type="HBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content"]
+[node name="HeaderRow" type="HBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content" unique_id=1107996509]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="PortraitBox" type="PanelContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow"]
+[node name="PortraitBox" type="PanelContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow" unique_id=157625533]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_tab_active")
 
-[node name="PortraitLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/PortraitBox"]
+[node name="PortraitLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/PortraitBox" unique_id=1362107644]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 22
@@ -1343,389 +1370,389 @@ text = "?"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Copy" type="VBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow"]
+[node name="Copy" type="VBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow" unique_id=1570678514]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 2
 
-[node name="ChancellorNameLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy"]
+[node name="ChancellorNameLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy" unique_id=627704418]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 13
 text = "재상 미임명"
 
-[node name="ChancellorStatsLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy"]
+[node name="ChancellorStatsLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy" unique_id=2094231138]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 10
 text = "능력: -"
 autowrap_mode = 2
 
-[node name="ChancellorPolicyOption" type="OptionButton" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content"]
+[node name="ChancellorPolicyOption" type="OptionButton" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content" unique_id=1578362620]
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 
-[node name="ChancellorPolicyDescriptionLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content"]
+[node name="ChancellorPolicyDescriptionLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content" unique_id=325054618]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.76, 0.84, 1)
 theme_override_font_sizes/font_size = 10
 text = "재상 정책 설명"
 autowrap_mode = 2
 
-[node name="ResourceLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="ResourceLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=2023389523]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "국가 자원: 금전 0 / 식량 0 / 소금 0 / 말 0"
 autowrap_mode = 2
 
-[node name="SupplyLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="SupplyLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=1600828110]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "내부 보급망: 활성 교역로 0개 · 지원 필요 없음"
 
-[node name="MilitaryLogisticsLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="MilitaryLogisticsLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=1719866852]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "내부 병참 계획서: 목표 주둔군 산정 준비 중"
 
-[node name="ExternalTradeLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="ExternalTradeLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=459528438]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "대외 무역: 세력 관계 / 교역 수익 placeholder"
 autowrap_mode = 2
 
-[node name="WildArmyEditButtonPlaceholder" type="Button" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="WildArmyEditButtonPlaceholder" type="Button" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=262943670]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_action")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_action")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_action")
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_action")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_action")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_action")
 text = "야군 편집 종료"
 
-[node name="SaveButtonRow" type="HBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="SaveButtonRow" type="HBoxContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=59652095]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="SaveButtonPlaceholder" type="Button" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow"]
+[node name="SaveButtonPlaceholder" type="Button" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow" unique_id=1059191648]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "저장"
 
-[node name="LoadButtonPlaceholder" type="Button" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow"]
+[node name="LoadButtonPlaceholder" type="Button" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow" unique_id=953394869]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "불러오기"
 
-[node name="ResetButtonPlaceholder" type="Button" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow"]
+[node name="ResetButtonPlaceholder" type="Button" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/SaveButtonRow" unique_id=203454223]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "초기화"
 
-[node name="WorldStatusHintLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"]
+[node name="WorldStatusHintLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=153500471]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
 theme_override_font_sizes/font_size = 11
 text = "좌측 HUD는 웹 WorldHud 구조의 MVP placeholder입니다."
 autowrap_mode = 2
 
-[node name="RightHudDragbar" type="PanelContainer" parent="WorldMapUI"]
+[node name="RightHudDragbar" type="PanelContainer" parent="WorldMapUI" unique_id=1850486053]
 offset_left = 340.0
 offset_top = 56.0
 offset_right = 1132.0
 offset_bottom = 88.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_inner_card")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/RightHudDragbar"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/RightHudDragbar" unique_id=1431542425]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 5
 
-[node name="DragLabel" type="Label" parent="WorldMapUI/RightHudDragbar/MarginContainer"]
+[node name="DragLabel" type="Label" parent="WorldMapUI/RightHudDragbar/MarginContainer" unique_id=1292440436]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 11
 text = "도시 HUD 위치 이동 · Godot MVP fixed"
 horizontal_alignment = 1
 
-[node name="DiplomacySpyPanel" type="PanelContainer" parent="WorldMapUI"]
+[node name="DiplomacySpyPanel" type="PanelContainer" parent="WorldMapUI" unique_id=195893152]
 offset_left = 340.0
 offset_top = 96.0
 offset_right = 560.0
 offset_bottom = 410.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/DiplomacySpyPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/DiplomacySpyPanel" unique_id=1438903641]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
-[node name="Content" type="VBoxContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer"]
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer" unique_id=1741773253]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="EyebrowLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content"]
+[node name="EyebrowLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content" unique_id=678552451]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
 theme_override_font_sizes/font_size = 12
 text = "DIPLOMACY / SPY"
 
-[node name="HeadingLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content"]
+[node name="HeadingLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content" unique_id=569194902]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 17
 text = "외교 · 첩보"
 
-[node name="TabRow" type="HBoxContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content"]
+[node name="TabRow" type="HBoxContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content" unique_id=1687121611]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="DiplomacyModeButtonPlaceholder" type="Button" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow"]
+[node name="DiplomacyModeButtonPlaceholder" type="Button" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow" unique_id=323008653]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "외교"
 
-[node name="SpyModeButtonPlaceholder" type="Button" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow"]
+[node name="SpyModeButtonPlaceholder" type="Button" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/TabRow" unique_id=198868842]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "첩보"
 
-[node name="DiplomacyStatusCard" type="PanelContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content"]
+[node name="DiplomacyStatusCard" type="PanelContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content" unique_id=2074550008]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_inner_card")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/DiplomacyStatusCard"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/DiplomacyStatusCard" unique_id=198215810]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 
-[node name="CardContent" type="VBoxContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/DiplomacyStatusCard/MarginContainer"]
+[node name="CardContent" type="VBoxContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/DiplomacyStatusCard/MarginContainer" unique_id=2144329309]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="CardTitle" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/DiplomacyStatusCard/MarginContainer/CardContent"]
+[node name="CardTitle" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/DiplomacyStatusCard/MarginContainer/CardContent" unique_id=557395473]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 12
 text = "외교 현황"
 
-[node name="RelationLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/DiplomacyStatusCard/MarginContainer/CardContent"]
+[node name="RelationLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/DiplomacyStatusCard/MarginContainer/CardContent" unique_id=45827330]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "주요 세력 관계: PLAYER / 주변 세력 분석 준비 중"
 autowrap_mode = 2
 
-[node name="SpyResultCard" type="PanelContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content"]
+[node name="SpyResultCard" type="PanelContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content" unique_id=326388720]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_inner_card")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/SpyResultCard"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/SpyResultCard" unique_id=426366870]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 
-[node name="CardContent" type="VBoxContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/SpyResultCard/MarginContainer"]
+[node name="CardContent" type="VBoxContainer" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/SpyResultCard/MarginContainer" unique_id=173496829]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="CardTitle" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/SpyResultCard/MarginContainer/CardContent"]
+[node name="CardTitle" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/SpyResultCard/MarginContainer/CardContent" unique_id=43793393]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 12
 text = "첩보 결과"
 
-[node name="IntelLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/SpyResultCard/MarginContainer/CardContent"]
+[node name="IntelLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content/SpyResultCard/MarginContainer/CardContent" unique_id=834072856]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "첩보 결과: 기초 정보 placeholder"
 autowrap_mode = 2
 
-[node name="DiplomacyHintLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content"]
+[node name="DiplomacyHintLabel" type="Label" parent="WorldMapUI/DiplomacySpyPanel/MarginContainer/Content" unique_id=1447514515]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
 theme_override_font_sizes/font_size = 11
 text = "외교/첩보 기능은 준비 중입니다."
 autowrap_mode = 2
 
-[node name="CityDetailPanel" type="PanelContainer" parent="WorldMapUI"]
+[node name="CityDetailPanel" type="PanelContainer" parent="WorldMapUI" unique_id=131852180]
 offset_left = 572.0
 offset_top = 96.0
 offset_right = 812.0
 offset_bottom = 520.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityDetailPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityDetailPanel" unique_id=1476225625]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
-[node name="Content" type="VBoxContainer" parent="WorldMapUI/CityDetailPanel/MarginContainer"]
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/CityDetailPanel/MarginContainer" unique_id=2084057452]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="EyebrowLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="EyebrowLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=212772189]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
 theme_override_font_sizes/font_size = 12
 text = "CITY DETAIL"
 
-[node name="HeaderRow" type="HBoxContainer" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="HeaderRow" type="HBoxContainer" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=2074840963]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HeadingLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content/HeaderRow"]
+[node name="HeadingLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content/HeaderRow" unique_id=1769201985]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 17
 text = "도시 상세"
 
-[node name="CollapseButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content/HeaderRow"]
+[node name="CollapseButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content/HeaderRow" unique_id=1809918443]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "접기"
 
-[node name="TabRow" type="HBoxContainer" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="TabRow" type="HBoxContainer" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=770747884]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="ResourceTabButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow"]
+[node name="ResourceTabButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow" unique_id=1210444444]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "자원"
 
-[node name="InternalTradeTabButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow"]
+[node name="InternalTradeTabButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow" unique_id=371924629]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "자국무역"
 
-[node name="ExternalTradeTabButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow"]
+[node name="ExternalTradeTabButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content/TabRow" unique_id=1977119]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "타국무역"
 
-[node name="CityNameLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="CityNameLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=2029671108]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 18
 text = "도시를 선택하세요"
 
-[node name="CityTypeLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="CityTypeLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=329581480]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "유형: -"
 
-[node name="RegionOwnerLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="RegionOwnerLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=669226914]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "지역 · 세력: -"
 
-[node name="ResourceLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="ResourceLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=1458831389]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "자원: placeholder"
 
-[node name="SecurityLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="SecurityLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=163682881]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "치안: placeholder"
 
-[node name="MilitaryLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="MilitaryLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=147683032]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "군사: placeholder"
 
-[node name="CommerceLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="CommerceLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=1040807694]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "상업: placeholder"
 
-[node name="RatingLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="RatingLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=1356720099]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "도시 자원 별점: ★★★☆☆ · 농업/교역 placeholder"
 autowrap_mode = 2
 
-[node name="StatusLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="StatusLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=1920285223]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
 theme_override_font_sizes/font_size = 12
 text = "상태: 선택 도시 없음"
 autowrap_mode = 2
 
-[node name="DomesticButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="DomesticButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=1028788655]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_action")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_action")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_action")
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_action")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_action")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_action")
 text = "내정"
 
-[node name="HintLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content"]
+[node name="HintLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=1197897165]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.76, 0.84, 1)
 theme_override_font_sizes/font_size = 11
@@ -1740,76 +1767,76 @@ offset_bottom = 638.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 script = ExtResource("13_city_info_panel")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityInfoPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityInfoPanel" unique_id=2037877639]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
-[node name="Content" type="VBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer"]
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer" unique_id=1271758552]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="EyebrowLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="EyebrowLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=2014566409]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
 theme_override_font_sizes/font_size = 12
 text = "SELECTED CITY"
 
-[node name="CityNameLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="CityNameLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=728617895]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 24
 text = "도시명"
 
-[node name="DescriptionLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="DescriptionLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=924009868]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
 theme_override_font_sizes/font_size = 12
 text = "한 줄 설명"
 autowrap_mode = 2
 
-[node name="CityIdLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="CityIdLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=225743654]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 1)
 theme_override_font_sizes/font_size = 12
 text = "id: city_id"
 
-[node name="RegionOwnerLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="RegionOwnerLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=1412077826]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
 theme_override_font_sizes/font_size = 12
 text = "지역 · OWNER"
 
-[node name="CityTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="CityTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=116586532]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
 theme_override_font_sizes/font_size = 12
 text = "유형: 거점"
 
-[node name="LoyaltyCard" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="LoyaltyCard" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=1263900356]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_inner_card")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard" unique_id=1056202222]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 7
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 7
 
-[node name="Content" type="VBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard/MarginContainer"]
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard/MarginContainer" unique_id=1682750086]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="LoyaltyLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard/MarginContainer/Content"]
+[node name="LoyaltyLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard/MarginContainer/Content" unique_id=2017632643]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
 text = "성 충성도 75 · 안정"
 
-[node name="LoyaltyBar" type="ProgressBar" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard/MarginContainer/Content"]
+[node name="LoyaltyBar" type="ProgressBar" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard/MarginContainer/Content" unique_id=1477059144]
 custom_minimum_size = Vector2(0, 7)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_world_hud_progress_track")
@@ -1817,58 +1844,58 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_world_hud_progress_fill")
 value = 75.0
 show_percentage = false
 
-[node name="NeighborLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="NeighborLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=1194031792]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-autowrap_mode = 2
 text = "인접: -"
+autowrap_mode = 2
 
-[node name="RouteTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="RouteTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=496479179]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-autowrap_mode = 2
 text = "루트: -"
+autowrap_mode = 2
 
-[node name="StatusTextLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="StatusTextLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=340883158]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
 theme_override_font_sizes/font_size = 12
-autowrap_mode = 2
 text = "월드맵 기능은 Godot 이식 중입니다."
+autowrap_mode = 2
 
-[node name="GovernorLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="GovernorLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=639692605]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "태수: placeholder"
 
-[node name="GovernorCard" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="GovernorCard" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=2090655760]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_inner_card")
 
-[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard"]
+[node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard" unique_id=956640385]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 7
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 7
 
-[node name="Content" type="VBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer"]
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer" unique_id=367006926]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="HeaderRow" type="HBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content"]
+[node name="HeaderRow" type="HBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content" unique_id=22010491]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="PortraitBox" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow"]
+[node name="PortraitBox" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow" unique_id=1450282015]
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_tab_active")
 
-[node name="PortraitLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/PortraitBox"]
+[node name="PortraitLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/PortraitBox" unique_id=411397651]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 20
@@ -1876,110 +1903,110 @@ text = "?"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Copy" type="VBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow"]
+[node name="Copy" type="VBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow" unique_id=413022379]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 2
 
-[node name="GovernorNameLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/Copy"]
+[node name="GovernorNameLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/Copy" unique_id=1203575570]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 12
 text = "태수 미임명"
 
-[node name="GovernorStatsLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/Copy"]
+[node name="GovernorStatsLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/Copy" unique_id=275093836]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 10
 text = "능력: -"
 autowrap_mode = 2
 
-[node name="GovernorPolicyOption" type="OptionButton" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content"]
+[node name="GovernorPolicyOption" type="OptionButton" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content" unique_id=656937246]
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 
-[node name="GovernorPolicyDescriptionLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content"]
+[node name="GovernorPolicyDescriptionLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content" unique_id=1362117779]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.76, 0.84, 1)
 theme_override_font_sizes/font_size = 10
 text = "태수 정책 설명"
 autowrap_mode = 2
 
-[node name="SelectedHeroChipLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="SelectedHeroChipLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=300149712]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 12
 text = "선택 중인 무장: [준비 중] [미배정]"
 autowrap_mode = 2
 
-[node name="GarrisonLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="GarrisonLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=454278629]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "주둔 무장: placeholder"
 
-[node name="MilitaryInfoLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="MilitaryInfoLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=790368638]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "군사 정보: placeholder"
 autowrap_mode = 2
 
-[node name="MilitaryStateLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="MilitaryStateLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=227102862]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "군비 상태: 징병 / 보급 / 방어도 placeholder"
 autowrap_mode = 2
 
-[node name="HintLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="HintLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=934111924]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.76, 0.84, 1)
 theme_override_font_sizes/font_size = 11
 text = "도시 행동은 placeholder입니다."
 autowrap_mode = 2
 
-[node name="ButtonRow" type="HBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="ButtonRow" type="HBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=1027083511]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="AttackButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow"]
+[node name="AttackButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow" unique_id=1889967603]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_action")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_action")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_action")
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_action")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_action")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_action")
 text = "공격"
 
-[node name="HeroMoveButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow"]
+[node name="HeroMoveButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow" unique_id=1992515307]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "무장 이동"
 
-[node name="DomesticButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow"]
+[node name="DomesticButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow" unique_id=868406625]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "내정"
 
-[node name="RecruitButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content"]
+[node name="RecruitButtonPlaceholder" type="Button" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=618512083]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
-theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
 text = "병사 모집"
 
 [node name="InstructionLabel" type="Label" parent="WorldMapUI" unique_id=192681468]
