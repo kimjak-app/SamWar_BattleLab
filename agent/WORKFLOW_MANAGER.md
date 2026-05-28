@@ -25,6 +25,12 @@
 
 작업 완료 후에는 수정 파일 목록, 검증 결과, 커밋 해시를 보고한다.
 
+## Task Header Operating Rule
+- 모든 SamWar_BattleLab Codex 작업 지시문은 반드시 `[SamWar_BattleLab 자동 작업 권한 헤더]`로 시작한다.
+- 이 헤더는 Codex가 repo 내부에서 읽기/검색/수정/검증/agent 문서 업데이트/로컬 git commit까지 자동으로 진행할 수 있는 범위와 금지 작업을 명확히 하는 안전 계약이다.
+- 헤더가 누락된 경우, 작업 지시문을 실행하기 전에 헤더를 먼저 보완한다.
+- 다음 작업이나 다음 세션 지시문을 작성할 때는 위 헤더 전문을 작업명보다 먼저 붙인다.
+
 ## Forbidden Actions
 - Do not run `git push`.
 - Do not delete files.

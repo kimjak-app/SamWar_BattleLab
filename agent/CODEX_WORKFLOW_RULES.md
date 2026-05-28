@@ -20,6 +20,36 @@
 
 작업 완료 후에는 수정 파일 목록, 검증 결과, 커밋 해시를 보고한다.
 
+## Required Task Header Rule
+- 모든 SamWar_BattleLab Codex 작업 지시문은 반드시 `[SamWar_BattleLab 자동 작업 권한 헤더]`로 시작한다.
+- 이 헤더는 Codex가 repo 내부에서 읽기/검색/수정/검증/agent 문서 업데이트/로컬 git commit까지 자동으로 진행할 수 있는 범위와 금지 작업을 명확히 하는 안전 계약이다.
+- 헤더가 누락된 경우, 작업 지시문을 실행하기 전에 헤더를 먼저 보완한다.
+- 다음 헤더 전문을 모든 SamWar_BattleLab Codex 작업 지시문 최상단에 포함한다:
+
+```markdown
+[SamWar_BattleLab 자동 작업 권한 헤더]
+
+이번 작업은 SamWar_BattleLab 폴더 내부 작업이다.
+
+읽기 / 검색 / 코드 수정 / 씬 파일의 필요한 범위 수정 / 검증 실행 / agent 문서 업데이트 / 로컬 git commit까지는 모두 자동으로 진행한다.
+
+중간에 확인 질문하지 말고, 지시문에 적힌 목표 완료까지 진행한다.
+
+단, 아래 작업은 하지 않는다:
+
+* git push
+* 파일 삭제
+* repo 밖 시스템 변경
+* 프로그램 설치
+* 패키지 전역 설치
+* OS 설정 변경
+* 요청 범위 밖 대규모 리팩토링
+
+설치나 repo 밖 변경이 필요하다고 판단되면, 작업을 멈추고 이유와 대안을 보고한다.
+
+작업 완료 후에는 수정 파일 목록, 검증 결과, 커밋 해시를 보고한다.
+```
+
 ## Purpose
 - These rules define how Codex should classify SamWar_BattleLab tasks, how much it should investigate, and how much verification it should perform before reporting back.
 
