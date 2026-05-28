@@ -171,6 +171,9 @@ Latest camera foundation:
 - Latest worldmap domestic apply QA patch:
 `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
 
+- Latest worldmap enemy invasion audit patch:
+`v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -286,6 +289,12 @@ Do not modify casually:
 - Save metadata now records `v0.68b-12b-7`; save/load/reset continue to preserve domestic-updated resources, national loyalty, tax level, chancellor id/policy, turn phase, turn number, calendar labels, pending state, and the last applied turn guard.
 - The visible left panel still keeps tax/policy/chancellor changes preview-only until full turn completion, refreshes warehouse/loyalty/status after apply, and keeps internal debug/warehouse lines hidden.
 - `v0.68b-12b-7` did not add enemy invasion, enemy AI, target selection, hero movement, city ownership changes, governor execution, new domestic systems, `BattleContext`, battle transition, route/pathfinding changes, or broad simulation.
+- `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit` is complete as a docs-only audit. It created `agent/ENEMY_INVASION_AUDIT.md` and did not modify Godot gameplay code or the root `WorldMap_Test.tscn`.
+- Web enemy invasion is rolled in `js/core/app_state.js` `endWorldTurn()` after player-side turn systems using `world_rules.rollEnemyInvasion()` and `ENEMY_INVASION_CHANCE = 0.45`.
+- Web invasion candidates are enemy-owned cities whose `neighbors` include player-owned cities. Selection is random among eligible adjacent pairs; no route type, troop threshold, diplomacy/peace check, city strength priority, cooldown, or multi-action enemy world turn was found.
+- A successful web invasion creates a defense `pendingBattleChoice` with `battleContext: { type: "defense", attackerCityId, defenderCityId }`; battle starts only after manual/auto defense choice, and city ownership changes only after defense battle retreat/return.
+- Web save/load clears pending invasion/battle state and returns to normalized player-turn world mode.
+- Godot gap: current `scripts/worldmap_test.gd` has only the enemy-turn placeholder hook. It still needs an invasion event model, pending battle-choice UI, BattleContext bridge, battle return/result ownership apply, and explicit pending-event save/load policy.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -399,13 +408,15 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
-- `v0.68b-12b-8` goal:
-  - Audit the web enemy invasion / enemy turn logic before any Godot implementation.
-  - Identify source files, trigger timing, target selection inputs, battle handoff boundaries, and deferred systems while preserving the stable 12b-7 domestic apply loop.
-  - Do not implement enemy invasion, full enemy AI, battle entry, hero movement, ownership changes, `BattleContext`, battle transition, route/pathfinding changes, scene layout changes, or web repo edits during the audit.
+  - `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
+- `v0.68b-12b-9` goal:
+  - Use `agent/ENEMY_INVASION_AUDIT.md` to add the first Godot enemy invasion event/log MVP during enemy turn.
+  - Follow the audited web rules at MVP scope: 45% chance, enemy-owned attacker city, neighboring player-owned defender city, visible event/status only.
+  - Do not create `BattleContext`, transition to battle, change city ownership, move heroes/troops, apply battle results, alter route/pathfinding, or edit repo-outside web files.
 - Next candidates:
-  - `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
+  - `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
+  - `v0.68b-12b-10 WorldMap Enemy Invasion BattleContext Bridge`
+  - `v0.68b-12b-11 WorldMap Enemy Invasion Result / Ownership Apply`
   - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`

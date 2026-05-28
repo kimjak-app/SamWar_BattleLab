@@ -2,6 +2,16 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit
+- Inspected the required agent docs plus context-only Godot files `scripts/worldmap_test.gd` and root `WorldMap_Test.tscn`; no gameplay code or scene file was modified.
+- Inspected local read-only web enemy-turn/invasion references: `C:\dev\SamWar_web\js\core\app_state.js`, `world_rules.js`, `world_calendar.js`, `save_load.js`, `battle_state.js`, `battle_rules.js`, `battle_ai.js`, `js\ui\world_hud_ui.js`, `world_map_ui.js`, `ui_render.js`, `main.js`, and `constants.js`.
+- Created `agent/ENEMY_INVASION_AUDIT.md` with source files, web call flow, enemy turn entry, action selection, eligibility, target selection, force/roster selection, BattleContext handoff, ownership/result handling, UI feedback, save/load behavior, Godot gaps, and recommended implementation sequence.
+- Confirmed the web enemy invasion roll happens in `app_state.endWorldTurn()` after player-side turn systems, with `ENEMY_INVASION_CHANCE = 0.45` and candidates from enemy-owned cities adjacent through `neighbors` to player-owned cities.
+- Confirmed successful web invasion creates a defense `pendingBattleChoice` and a minimal defense `battleContext`, while city ownership changes are deferred until defense battle retreat/return.
+- Confirmed web save/load clears pending invasion/battle state and normalizes to player-turn world mode.
+- Updated `CURRENT_STATE`, `NEXT_TASKS`, `HANDOFF_TO_CODEX`, `CHANGELOG`, and this session log with audit results and the next task sequence.
+- Recommended next task: `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`.
+
 ### v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check
 - Inspected the required agent docs, `scripts/worldmap_test.gd`, and the active root `WorldMap_Test.tscn`; the scene file was not modified.
 - Updated `scripts/worldmap_test.gd` with the patch marker `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`.

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit
+- Completed a docs-only audit of the web worldmap enemy invasion flow and added `agent/ENEMY_INVASION_AUDIT.md`.
+- Inspected local read-only web sources: `C:\dev\SamWar_web\js\core\app_state.js`, `world_rules.js`, `world_calendar.js`, `save_load.js`, `battle_state.js`, `battle_rules.js`, `battle_ai.js`, `js\ui\world_hud_ui.js`, `world_map_ui.js`, `ui_render.js`, `main.js`, and `constants.js`.
+- Found that web enemy invasion is rolled from `app_state.endWorldTurn()` after player-side turn systems, using `world_rules.rollEnemyInvasion()` with `ENEMY_INVASION_CHANCE = 0.45`.
+- Documented the web selection rules: eligible candidates are enemy-owned cities with player-owned neighboring cities; selection is random among eligible pairs; route type, troop threshold, diplomacy/peace, city strength priority, cooldown, and multiple enemy world actions were not found in the audited candidate path.
+- Documented the web handoff path: successful invasion creates a defense `pendingBattleChoice` with a minimal defense `battleContext`; manual/auto defense later calls `startBattle()`, and ownership changes only after defense battle retreat/return.
+- Documented save/load behavior: web snapshots normalize to world/player turn and clear pending invasion, pending deployment, active battle, and pending enemy-turn result.
+- Updated current-state, next-task, handoff, changelog, and session docs with the Godot gap analysis and recommended next sequence: `12b-9` event MVP, `12b-10` BattleContext bridge, `12b-11` result/ownership apply.
+- Verification: no gameplay code or scene files changed, audit doc exists, target docs updated, source files/gap analysis/next tasks documented, `git diff --check` passed, and `git status --short --ignored` reviewed.
+
 ## v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check
 - Stabilized the visible domestic apply loop in `scripts/worldmap_test.gd` without modifying the root `WorldMap_Test.tscn`.
 - Added `_player_state.last_domestic_apply_turn` and a same-turn guard in `_apply_domestic_turn_mvp()` so stale or duplicate callbacks cannot apply resource/loyalty deltas twice for the same turn.

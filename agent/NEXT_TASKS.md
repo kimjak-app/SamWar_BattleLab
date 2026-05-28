@@ -63,6 +63,8 @@ Latest worldmap domestic apply patch: `v0.68b-12b-6 WorldMap Turn Domestic Apply
 
 Latest worldmap domestic apply QA patch: `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
 
+Latest worldmap enemy invasion audit patch: `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -72,88 +74,111 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
+`v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
 
 Goal:
-- audit the web enemy invasion / enemy turn logic before any Godot implementation
+- add a web-audited enemy invasion event/log MVP during the enemy turn placeholder without battle transition or ownership changes
 
 Scope:
-- inspect web enemy-turn / invasion source flow and identify data inputs, target selection, invasion trigger timing, battle handoff boundaries, and deferred systems
-- produce a Godot implementation plan that preserves the current 12b-7 domestic apply loop
-- do not implement invasion during the audit
+- use the `v0.68b-12b-8` audit results in `agent/ENEMY_INVASION_AUDIT.md`
+- roll or stage an enemy invasion event using the audited web rules: 45% chance, enemy-owned attacker city, neighboring player-owned defender city
+- show a visible event/log/status and keep the current turn loop safe
+- do not create `BattleContext`, do not transition to battle, do not change city ownership, and do not move heroes/troops
 
 Forbidden in this task:
-- no enemy invasion implementation
-- no enemy city targeting or hero movement
-- no actual governor/chancellor appointment execution
-- no broad domestic engine refactor beyond visual QA / narrow balance correction
-- no `BattleContext` creation
 - no battle scene transition
+- no `BattleContext` creation
+- no city ownership change
+- no battle result application
+- no hero movement or troop relocation
+- no actual governor/chancellor appointment execution
+- no broad domestic engine refactor
 - no route or pathfinding change
 - no castle icon reactivation
 - no modification to repo-outside `SamWar_web` files
 
 ## Priority 2
+`v0.68b-12b-10 WorldMap Enemy Invasion BattleContext Bridge`
+
+Goal:
+- convert a pending invasion event into a defense battle-choice / BattleContext bridge without applying final city ownership results
+
+## Priority 3
+`v0.68b-12b-11 WorldMap Enemy Invasion Result / Ownership Apply MVP`
+
+Goal:
+- apply battle outcome to city ownership, troop return/wounded state, and hero faction/location state after the BattleContext bridge is stable
+
+## Priority 4
 `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 
 Goal:
 - bring the city detail panel governor and stationed hero display closer to web parity using imported seed data without adding broader gameplay execution
 
-## Priority 3
+## Priority 5
 `v0.68b-12c Selected City Panel Web Content Parity`
 
 Goal:
 - align the Godot Selected City / `CityInfoPanel` content more closely with the actual web selected-city render output while keeping all actions display-only
 
-## Priority 4
+## Priority 6
 `v0.68b-12d City Detail Panel Web Content Parity`
 
 Goal:
 - align the unified city-detail mode content more closely with the actual web resource/internal-trade/external-trade render output
 
-## Priority 5
+## Priority 7
 `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
 
 Goal:
 - align the unified diplomacy/spy mode with the actual web diplomacy/spy render output without adding real diplomacy or spy execution
 
-## Priority 6
+## Priority 8
 `v0.68b-13 Hero Portrait Asset Naming Contract`
 
 Goal:
 - define portrait asset naming/lookup rules for web-to-Godot hero HUD reuse without changing runtime hero logic
 
-## Priority 7
+## Priority 9
 `v0.68b-14 Hero Portrait Asset Apply MVP`
 
 Goal:
 - apply available hero portrait assets to the worldmap HUD portrait slots without changing hero logic
 
-## Priority 8
+## Priority 10
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 9
+## Priority 11
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - add hero/army deployment MVP on top of the worldmap contract without breaking current battle fallback
 
-## Priority 10
+## Priority 12
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 11
+## Priority 13
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit` is complete.
+- Created `agent/ENEMY_INVASION_AUDIT.md` and updated handoff/current-state docs only; no Godot gameplay code or scene file was modified.
+- Inspected local read-only web sources for enemy turn/invasion flow: `js\core\app_state.js`, `world_rules.js`, `world_calendar.js`, `save_load.js`, `battle_state.js`, `battle_rules.js`, `battle_ai.js`, `js\ui\world_hud_ui.js`, `world_map_ui.js`, `ui_render.js`, `main.js`, and `constants.js`.
+- Web invasion is rolled in `app_state.endWorldTurn()` after player-side turn systems with `ENEMY_INVASION_CHANCE = 0.45`; candidates are enemy-owned cities whose `neighbors` include player-owned cities.
+- Web target selection is random among eligible adjacent pairs; no troop threshold, route type, diplomacy/peace check, city strength priority, cooldown, or multi-action enemy world turn was found in the audited selection path.
+- Web invasion creates a defense `pendingBattleChoice` and a minimal defense `battleContext` only; battle start and troop allocation happen after manual/auto defense choice, and ownership changes only after battle retreat/return.
+- Web save/load clears pending invasion/battle state and returns to normalized player-turn world mode.
+- Recommended next task: `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`.
+
 - `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check` is complete.
 - Modified `scripts/worldmap_test.gd` and agent docs only; root `WorldMap_Test.tscn` was inspected but not modified.
 - Added `_player_state.last_domestic_apply_turn` and a same-turn guard in `_apply_domestic_turn_mvp()` so stale or duplicate callbacks cannot apply domestic resource/loyalty changes twice.

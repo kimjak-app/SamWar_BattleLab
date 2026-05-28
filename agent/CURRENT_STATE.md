@@ -66,6 +66,8 @@ Latest worldmap domestic apply patch: `v0.68b-12b-6 WorldMap Turn Domestic Apply
 
 Latest worldmap domestic apply QA patch: `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
 
+Latest worldmap enemy invasion audit patch: `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -102,6 +104,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP`
 - `v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP`
 - `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check`
+- `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -246,6 +249,12 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check` stabilizes the visible domestic apply loop by recording `_player_state.last_domestic_apply_turn`, so a stale or duplicate same-turn callback cannot apply resources/loyalty twice.
 - Save metadata now records `v0.68b-12b-7`, while save/load/reset continue to persist and restore the same `_player_state` fields; reset returns `last_domestic_apply_turn` to the seed baseline and cancels pending enemy/domestic timers.
 - `v0.68b-12b-7` is QA/stabilization only. It does not add enemy invasion, enemy AI, target selection, hero movement, city ownership changes, governor appointment execution, new domestic systems, `BattleContext`, battle transition, or route/pathfinding changes.
+- `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit` is complete as a docs-only audit. It inspected the web enemy turn, invasion candidate, BattleChoice/BattleContext, battle result, UI, and save/load source flow without changing Godot code or scenes.
+- Web enemy invasion is triggered inside `app_state.endWorldTurn()` after player-side turn systems. It rolls `world_rules.rollEnemyInvasion()` with `ENEMY_INVASION_CHANCE = 0.45`; candidates are enemy-owned cities adjacent through `neighbors` to player-owned cities.
+- Web target selection is random among eligible adjacent enemy->player city pairs. No troop threshold, route type, diplomacy/peace check, city strength priority, cooldown, or multiple enemy world actions were found in the audited selection path.
+- Web invasion creates a defense `pendingBattleChoice` with `battleContext: { type: "defense", attackerCityId, defenderCityId }`; manual/auto defense then starts battle through `startBattle()`. City ownership changes only after defense battle retreat/return, not when the invasion event is created.
+- Web save/load normalizes to `mode: "world"`, clears `pendingBattleChoice`, `pendingHeroDeployment`, `pendingHeroTransfer`, `battle`, and `pendingEnemyTurnResult`, and forces `world.turnOwner` back to `player`; pending invasion/battle is not resumed after load.
+- Current Godot already has the enemy-turn placeholder hook and domestic turn loop, but lacks an invasion event model, pending battle choice UI, defense deployment bridge, BattleContext handoff, ownership/result apply, and pending-event save/load policy. See `agent/ENEMY_INVASION_AUDIT.md`.
 - Combat/world-simulation HUD actions remain mostly placeholder-only. `BattleContext`, battle entry, broader domestic simulation, recruitment, diplomacy/spy execution, hero/army movement, route click, pathfinding, enemy invasion, and AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
@@ -440,14 +449,16 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
-2. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
-3. `v0.68b-12c Selected City Panel Web Content Parity`
-4. `v0.68b-12d City Detail Panel Web Content Parity`
-5. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
-6. `v0.68b-13 Hero Portrait Asset Naming Contract`
-7. `v0.68b-14 Hero Portrait Asset Apply MVP`
-8. `v0.68c BattleContext Runtime Injection MVP`
+1. `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
+2. `v0.68b-12b-10 WorldMap Enemy Invasion BattleContext Bridge`
+3. `v0.68b-12b-11 WorldMap Enemy Invasion Result / Ownership Apply`
+4. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
+5. `v0.68b-12c Selected City Panel Web Content Parity`
+6. `v0.68b-12d City Detail Panel Web Content Parity`
+7. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
+8. `v0.68b-13 Hero Portrait Asset Naming Contract`
+9. `v0.68b-14 Hero Portrait Asset Apply MVP`
+10. `v0.68c BattleContext Runtime Injection MVP`
 
 ## Known / Deferred
 - 김작 F6 visual QA should confirm `v0.68b-12b Left World HUD Web Content Parity`: left main HUD section order is close to the web left HUD; turn/date/phase display follows web wording; chancellor card resembles the web structure; chancellor policy list/copy matches the web constants; selecting a policy updates explanation only and does not change actual values; national resources, warehouse, supply, troop rebalance, logistics/upkeep, and external trade summaries use web-like copy; button wording follows the web; placeholder feel is reduced; bottom empty space is acceptable; unified panel and Selected City panel structure remain intact; drag/collapse works; city clicks still refresh panels; route lines and sea arrow flow are normal; castle icon visuals stay hidden; existing battle scenes are not broken.
