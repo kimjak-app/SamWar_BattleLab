@@ -97,27 +97,35 @@
 - Godot current save/load persists the left-panel `_player_state`; it does not persist runtime world city ownership or pending invasion events because those systems do not exist yet.
 - The risky step is jumping directly from `_run_enemy_turn_mvp()` to battle scene transition. The web flow has an explicit pending choice and deployment bridge before battle starts, so Godot should preserve that separation.
 
+## v0.68b-12b-9 Godot Event MVP Status
+- Implemented in `scripts/worldmap_test.gd` only; root `WorldMap_Test.tscn` was not modified.
+- Godot now rolls `ENEMY_INVASION_CHANCE = 0.45` once during the existing enemy-turn placeholder path.
+- Candidate pairs use scene-authored `WorldMapCityMarker.owner_faction_id` and `WorldMapCityMarker.neighbors`: attacker must be enemy-owned, defender must be neighboring and player-owned.
+- On success, Godot creates `_player_state.pending_invasion_event` with `type: defense`, `attacker_city_id`, `defender_city_id`, source, and turn number.
+- The defender city is selected and the left world status text shows the pending invasion.
+- Save serialization excludes pending invasion state; load/reset clear it, and load normalizes enemy-phase saves back to player turn, following the audited web save/load policy.
+- Still missing by design: pending choice UI/card, manual/auto defense controls, BattleContext bridge, defense deployment, battle handoff, battle result return, city ownership updates, and save/load persistence for resolved world ownership state.
+
 ## Recommended Godot Implementation Plan
 
-### v0.68b-12b-9 Enemy Invasion Event MVP
-- Add an enemy-turn event roll using web rules: 45% chance, candidates from enemy-owned city neighbors that are player-owned.
-- Create a visible pending invasion event/log/status only.
-- Select and highlight the defending city if safe.
+### v0.68b-12b-10 Enemy Invasion Choice UI MVP
+- Render a web-like pending defense choice card/modal from `_player_state.pending_invasion_event`.
+- Show attacker city, defender city, and manual/auto defense choices.
+- Keep buttons display-only or disabled until the bridge task explicitly connects them.
 - Do not create `BattleContext`, do not transition to battle, do not change ownership, and do not move heroes or troops.
-- Add save/load/reset behavior for either clearing or explicitly preserving the pending event; prefer clearing on load unless a dedicated pending-event restore is implemented.
 
-### v0.68b-12b-10 Enemy Invasion BattleContext Bridge
+### v0.68b-12b-11 Enemy Invasion BattleContext Bridge
 - Convert a pending invasion event into a defense battle choice structure similar to web `pendingBattleChoice`.
 - Prepare `BattleContext` fields: `type`, `attackerCityId`, `defenderCityId`, `controlMode`.
 - Add minimal manual/auto choice UI if the Godot HUD has a safe place for it.
 - Do not apply final ownership results in this task.
 
-### v0.68b-12b-11 Enemy Invasion Result / Ownership Apply
+### v0.68b-12b-12 Enemy Invasion Result / Ownership Apply
 - Apply a returned defense battle result to city ownership, troop state, and hero faction/location state.
 - Preserve web behavior where losing a defense transfers the city to the attacker faction and winning defense returns surviving/wounded troops.
 - Add save/load support for the resulting city ownership and troop state.
 
-### v0.68b-12b-12 Enemy Invasion QA / Save-Load Stabilization
+### v0.68b-12b-13 Enemy Invasion QA / Save-Load Stabilization
 - Verify repeated turn cycles, pending event handling, reset/load behavior, no duplicate invasion rolls, and no battle handoff unless explicitly selected.
 
 ## Deferred Risks

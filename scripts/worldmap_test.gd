@@ -23,6 +23,7 @@ const WORLDMAP_SAVE_PATH := "user://worldmap_left_panel_state.json"
 const TURN_PHASE_PLAYER := "player"
 const TURN_PHASE_ENEMY := "enemy"
 const ENEMY_TURN_MVP_DELAY := 0.75
+const ENEMY_INVASION_CHANCE := 0.45
 const WORLD_CALENDAR_START_YEAR := 154
 const WORLD_CALENDAR_SEASON_TURNS := 10
 const WORLD_CALENDAR_YEAR_TURNS := 40
@@ -214,6 +215,7 @@ const GOVERNOR_POLICY_DATA := {
 # v0.68b-12b-5 WorldMap Enemy Turn Return / Turn Cycle MVP
 # v0.68b-12b-6 WorldMap Turn Domestic Apply Web Parity MVP
 # v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check
+# v0.68b-12b-9 WorldMap Enemy Invasion Event MVP
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -376,6 +378,8 @@ var _player_state := {
 	"turn_label": "제 1턴",
 	"year_label": "154년 봄 1일",
 	"current_phase_label": "아군 턴",
+	"pending_invasion_event": {},
+	"enemy_invasion_roll_turn": 0,
 	"domestic_apply_pending": false,
 	"last_domestic_apply_turn": 0,
 	"national_loyalty": 75,
@@ -1149,8 +1153,9 @@ func _refresh_left_world_status_panel() -> void:
 	military_logistics_label.text = ""
 	external_trade_label.visible = false
 	external_trade_label.text = ""
-	world_status_hint_label.visible = false
-	world_status_hint_label.text = ""
+	var pending_invasion_event := _get_pending_invasion_event_mvp()
+	world_status_hint_label.text = _format_invasion_status_text(pending_invasion_event)
+	world_status_hint_label.visible = not pending_invasion_event.is_empty()
 	wild_army_edit_button_placeholder.text = "아군 턴 종료"
 	wild_army_edit_button_placeholder.disabled = _enemy_turn_mvp_pending
 	save_button_placeholder.text = "저장"
@@ -1183,6 +1188,10 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["domestic_apply_pending"] = false
 	if not _player_state.has("last_domestic_apply_turn"):
 		_player_state["last_domestic_apply_turn"] = 0
+	if not _player_state.has("pending_invasion_event") or not (_player_state["pending_invasion_event"] is Dictionary):
+		_player_state["pending_invasion_event"] = {}
+	if not _player_state.has("enemy_invasion_roll_turn"):
+		_player_state["enemy_invasion_roll_turn"] = 0
 
 
 func _normalize_turn_phase(phase: String) -> String:
@@ -1241,10 +1250,13 @@ func _run_enemy_turn_mvp() -> void:
 	if _enemy_turn_mvp_pending:
 		_set_save_management_status("적군 턴 진행 중...")
 		return
-	# v0.68b-12b-5: enemy turn phase hook only. Future patch will port web enemy invasion simulation here.
-	print("[WorldMap] Enemy turn MVP hook reached. Enemy invasion, AI, battle context, and battle transition are deferred.")
+	# v0.68b-12b-9: event generation only. Future patches will add choice UI and battle handoff.
+	print("[WorldMap] Enemy turn MVP hook reached. Enemy invasion event generation only; AI and battle transition are deferred.")
 	_enemy_turn_mvp_pending = true
 	_set_save_management_status("적군 턴 진행 중...")
+	var invasion_event := _roll_enemy_invasion_event_mvp()
+	if not invasion_event.is_empty():
+		_set_save_management_status(_format_invasion_status_text(invasion_event))
 	_refresh_left_world_status_panel()
 	_get_enemy_turn_mvp_timer().start(ENEMY_TURN_MVP_DELAY)
 
@@ -1275,10 +1287,127 @@ func _finish_enemy_turn_mvp() -> void:
 		_player_state["domestic_apply_pending"] = false
 	_advance_world_turn_mvp()
 	_set_turn_phase(TURN_PHASE_PLAYER)
-	if domestic_summary.is_empty():
+	var pending_invasion_event := _get_pending_invasion_event_mvp()
+	if not pending_invasion_event.is_empty():
+		_set_save_management_status(_format_invasion_status_text(pending_invasion_event))
+	elif domestic_summary.is_empty():
 		_set_save_management_status("다음 아군 턴 시작")
 	else:
 		_set_save_management_status("내정 적용 완료 · %s" % domestic_summary)
+
+
+func _roll_enemy_invasion_event_mvp(roll_value: float = -1.0, candidate_index: int = -1) -> Dictionary:
+	_ensure_worldmap_runtime_state_defaults()
+	if _has_pending_invasion_event_mvp():
+		return {}
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	if int(_player_state.get("enemy_invasion_roll_turn", 0)) == turn_number:
+		return {}
+	_player_state["enemy_invasion_roll_turn"] = turn_number
+	var candidate_pairs := _get_enemy_invasion_pairs_mvp()
+	if candidate_pairs.is_empty():
+		print("[WorldMap] Enemy invasion MVP: no adjacent enemy/player city pairs.")
+		return {}
+	var roll := roll_value if roll_value >= 0.0 else randf()
+	if roll >= ENEMY_INVASION_CHANCE:
+		print("[WorldMap] Enemy invasion MVP: no invasion this turn. roll=%.3f" % roll)
+		return {}
+	var pair_index := candidate_index if candidate_index >= 0 else randi() % candidate_pairs.size()
+	pair_index = clampi(pair_index, 0, candidate_pairs.size() - 1)
+	var selected_pair := candidate_pairs[pair_index] as Dictionary
+	return _create_pending_invasion_event_mvp(
+		str(selected_pair.get("attacker_city_id", "")),
+		str(selected_pair.get("defender_city_id", ""))
+	)
+
+
+func _get_enemy_invasion_pairs_mvp() -> Array[Dictionary]:
+	var pairs: Array[Dictionary] = []
+	for attacker_city_id_variant in _city_markers_by_id.keys():
+		var attacker_city_id := str(attacker_city_id_variant)
+		if not _is_city_owned_by_enemy_mvp(attacker_city_id):
+			continue
+		for defender_city_id_variant in _get_city_neighbors_mvp(attacker_city_id):
+			var defender_city_id := str(defender_city_id_variant)
+			if _is_city_owned_by_player_mvp(defender_city_id):
+				pairs.append({
+					"attacker_city_id": attacker_city_id,
+					"defender_city_id": defender_city_id,
+				})
+	return pairs
+
+
+func _is_city_owned_by_player_mvp(city_id: String) -> bool:
+	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+	if city_marker != null:
+		return city_marker.owner_faction_id == PLAYER_FACTION_ID
+	var city_data := _get_city_hud_entry(city_id)
+	return str(city_data.get("owner", city_data.get("nation", ""))) == PLAYER_FACTION_ID
+
+
+func _is_city_owned_by_enemy_mvp(city_id: String) -> bool:
+	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+	if city_marker != null:
+		return not city_marker.owner_faction_id.is_empty() and city_marker.owner_faction_id != PLAYER_FACTION_ID
+	var city_data := _get_city_hud_entry(city_id)
+	var owner_id := str(city_data.get("owner", city_data.get("nation", "")))
+	return not owner_id.is_empty() and owner_id != PLAYER_FACTION_ID
+
+
+func _get_city_neighbors_mvp(city_id: String) -> Array[String]:
+	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+	if city_marker != null:
+		return city_marker.neighbors.duplicate()
+	var city_data := _get_city_hud_entry(city_id)
+	var neighbors: Array[String] = []
+	var source_neighbors: Variant = city_data.get("neighbors", [])
+	if source_neighbors is Array:
+		for neighbor_id in source_neighbors:
+			neighbors.append(str(neighbor_id))
+	return neighbors
+
+
+func _create_pending_invasion_event_mvp(attacker_city_id: String, defender_city_id: String) -> Dictionary:
+	if attacker_city_id.is_empty() or defender_city_id.is_empty():
+		return {}
+	var event := {
+		"type": "defense",
+		"attacker_city_id": attacker_city_id,
+		"defender_city_id": defender_city_id,
+		"source": "enemy_invasion_mvp",
+		"turn_number": maxi(1, int(_player_state.get("turn_number", 1))),
+	}
+	_player_state["pending_invasion_event"] = event
+	_player_state["selected_city_id"] = defender_city_id
+	_player_state["origin_city_id"] = defender_city_id
+	if _city_markers_by_id.has(defender_city_id):
+		_on_city_marker_selected(_city_markers_by_id[defender_city_id])
+	print("[WorldMap] Enemy invasion MVP event created: %s -> %s" % [attacker_city_id, defender_city_id])
+	return event
+
+
+func _get_pending_invasion_event_mvp() -> Dictionary:
+	var event: Variant = _player_state.get("pending_invasion_event", {})
+	if event is Dictionary:
+		return event
+	return {}
+
+
+func _has_pending_invasion_event_mvp() -> bool:
+	return not _get_pending_invasion_event_mvp().is_empty()
+
+
+func _clear_pending_invasion_event_mvp() -> void:
+	_player_state["pending_invasion_event"] = {}
+	_player_state["enemy_invasion_roll_turn"] = 0
+
+
+func _format_invasion_status_text(event: Dictionary) -> String:
+	if event.is_empty():
+		return ""
+	var attacker_city_name := _format_city_name_by_id(str(event.get("attacker_city_id", "")), "알 수 없는 도시")
+	var defender_city_name := _format_city_name_by_id(str(event.get("defender_city_id", "")), "알 수 없는 도시")
+	return "적군 침공 발생: %s → %s · 방어전 준비 필요" % [attacker_city_name, defender_city_name]
 
 
 func _advance_world_turn_mvp() -> void:
@@ -1529,10 +1658,13 @@ func _get_default_player_state() -> Dictionary:
 
 func _serialize_worldmap_state() -> Dictionary:
 	_ensure_worldmap_runtime_state_defaults()
+	var saved_player_state := _player_state.duplicate(true)
+	saved_player_state["pending_invasion_event"] = {}
+	saved_player_state["enemy_invasion_roll_turn"] = 0
 	return {
-		"version": "v0.68b-12b-7",
-		"title": "WorldMap Domestic Apply Visual QA + Balance Check",
-		"player_state": _player_state.duplicate(true),
+		"version": "v0.68b-12b-9",
+		"title": "WorldMap Enemy Invasion Event MVP",
+		"player_state": saved_player_state,
 	}
 
 
@@ -1545,10 +1677,13 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 		next_state[key] = restored_state[key]
 	_player_state = next_state
 	_ensure_worldmap_runtime_state_defaults()
+	_clear_pending_invasion_event_mvp()
 	_domestic_turn_apply_pending = bool(_player_state.get("domestic_apply_pending", false))
-	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_ENEMY:
-		_domestic_turn_apply_pending = false
-		_player_state["domestic_apply_pending"] = false
+	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
+		_player_state["turn_phase"] = TURN_PHASE_PLAYER
+		_player_state["current_phase_label"] = _get_turn_phase_label(TURN_PHASE_PLAYER)
+	_domestic_turn_apply_pending = false
+	_player_state["domestic_apply_pending"] = false
 	return true
 
 
@@ -1587,6 +1722,7 @@ func _reset_worldmap_state() -> void:
 	_cancel_enemy_turn_timer_if_needed()
 	_player_state = _get_default_player_state()
 	_ensure_worldmap_runtime_state_defaults()
+	_clear_pending_invasion_event_mvp()
 	_refresh_left_world_status_panel()
 	_refresh_unified_panel_content()
 	_set_save_management_status("초기화 완료")

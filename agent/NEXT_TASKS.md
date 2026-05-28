@@ -65,6 +65,8 @@ Latest worldmap domestic apply QA patch: `v0.68b-12b-7 WorldMap Domestic Apply V
 
 Latest worldmap enemy invasion audit patch: `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
 
+Latest worldmap enemy invasion event patch: `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -74,16 +76,16 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
+`v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
 
 Goal:
-- add a web-audited enemy invasion event/log MVP during the enemy turn placeholder without battle transition or ownership changes
+- add a web-like pending invasion choice UI/card for the existing Godot `pending_invasion_event`
 
 Scope:
-- use the `v0.68b-12b-8` audit results in `agent/ENEMY_INVASION_AUDIT.md`
-- roll or stage an enemy invasion event using the audited web rules: 45% chance, enemy-owned attacker city, neighboring player-owned defender city
-- show a visible event/log/status and keep the current turn loop safe
-- do not create `BattleContext`, do not transition to battle, do not change city ownership, and do not move heroes/troops
+- show attacker city, defender city, and concise `적군이 침공했습니다!` style copy
+- add manual defense and auto defense buttons as disabled/deferred or display-only controls unless a separate bridge task approves execution
+- preserve the existing pending event state and visible status without battle transition or ownership changes
+- clear or dismiss behavior must remain explicit and safe; do not silently resolve the invasion
 
 Forbidden in this task:
 - no battle scene transition
@@ -98,13 +100,13 @@ Forbidden in this task:
 - no modification to repo-outside `SamWar_web` files
 
 ## Priority 2
-`v0.68b-12b-10 WorldMap Enemy Invasion BattleContext Bridge`
+`v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
 
 Goal:
-- convert a pending invasion event into a defense battle-choice / BattleContext bridge without applying final city ownership results
+- convert a pending invasion event/choice into a defense battle-choice / BattleContext bridge without applying final city ownership results
 
 ## Priority 3
-`v0.68b-12b-11 WorldMap Enemy Invasion Result / Ownership Apply MVP`
+`v0.68b-12b-12 WorldMap Enemy Invasion Result / Ownership Apply MVP`
 
 Goal:
 - apply battle outcome to city ownership, troop return/wounded state, and hero faction/location state after the BattleContext bridge is stable

@@ -174,6 +174,9 @@ Latest camera foundation:
 - Latest worldmap enemy invasion audit patch:
 `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
 
+- Latest worldmap enemy invasion event patch:
+`v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
+
 - Latest worldmap marker hotfix:
 `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -295,6 +298,11 @@ Do not modify casually:
 - A successful web invasion creates a defense `pendingBattleChoice` with `battleContext: { type: "defense", attackerCityId, defenderCityId }`; battle starts only after manual/auto defense choice, and city ownership changes only after defense battle retreat/return.
 - Web save/load clears pending invasion/battle state and returns to normalized player-turn world mode.
 - Godot gap: current `scripts/worldmap_test.gd` has only the enemy-turn placeholder hook. It still needs an invasion event model, pending battle-choice UI, BattleContext bridge, battle return/result ownership apply, and explicit pending-event save/load policy.
+- `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP` is complete in `scripts/worldmap_test.gd`; the root `WorldMap_Test.tscn` was inspected but not modified.
+- Godot now rolls `ENEMY_INVASION_CHANCE = 0.45` once per enemy placeholder phase, builds candidate pairs from enemy-owned scene city markers whose `neighbors` include player-owned markers, and stores a display-only `_player_state.pending_invasion_event`.
+- The event records `type: defense`, `attacker_city_id`, `defender_city_id`, source, and turn number; it selects the defender city and shows `적군 침공 발생: ... · 방어전 준비 필요` in the left world status area.
+- Pending invasion events are excluded from runtime save data and cleared on load/reset; enemy-phase saves load back to player turn, matching the web save/load normalization found in `save_load.js`.
+- `v0.68b-12b-9` intentionally did not create `BattleContext`, transition to battle, change city ownership, move heroes/troops, resolve battle, add pathfinding, add cooldown/diplomacy checks, or implement enemy AI.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -408,15 +416,15 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
-- `v0.68b-12b-9` goal:
-  - Use `agent/ENEMY_INVASION_AUDIT.md` to add the first Godot enemy invasion event/log MVP during enemy turn.
-  - Follow the audited web rules at MVP scope: 45% chance, enemy-owned attacker city, neighboring player-owned defender city, visible event/status only.
+  - `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+- `v0.68b-12b-10` goal:
+  - Add a web-like visible pending invasion choice/card for `_player_state.pending_invasion_event`.
+  - Show attacker city, defender city, and manual/auto defense choices as safe deferred controls.
   - Do not create `BattleContext`, transition to battle, change city ownership, move heroes/troops, apply battle results, alter route/pathfinding, or edit repo-outside web files.
 - Next candidates:
-  - `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
-  - `v0.68b-12b-10 WorldMap Enemy Invasion BattleContext Bridge`
-  - `v0.68b-12b-11 WorldMap Enemy Invasion Result / Ownership Apply`
+  - `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+  - `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
+  - `v0.68b-12b-12 WorldMap Enemy Invasion Result / Ownership Apply`
   - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`

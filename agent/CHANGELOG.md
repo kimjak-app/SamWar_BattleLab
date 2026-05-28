@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.68b-12b-9 WorldMap Enemy Invasion Event MVP
+- Added the first Godot enemy invasion event MVP in `scripts/worldmap_test.gd`; the active root `WorldMap_Test.tscn` was inspected but not modified.
+- Rechecked local read-only web sources: `C:\dev\SamWar_web\js\core\world_rules.js`, `js\core\app_state.js`, and `js\core\save_load.js`.
+- Ported the audited web candidate rule at event-only scope: `ENEMY_INVASION_CHANCE = 0.45`, attacker is an enemy-owned city marker, defender is a neighboring player-owned city marker, and the selected pair is random.
+- Integrated the roll into the existing enemy-turn placeholder path with a same-turn roll guard and pending-event guard so duplicate timer callbacks cannot create repeated invasion events for the same pending event.
+- Added `_player_state.pending_invasion_event` as a display-only defense event containing attacker city id, defender city id, source, and turn number; no final battle context is created.
+- Added visible left-panel status text for an invasion and selected the defender city for visibility while preserving the existing turn loop and domestic apply behavior.
+- Runtime save data clears/excludes pending invasion event state, and load/reset clear the event; load also normalizes enemy-phase saves back to player turn to avoid resuming a pending invasion roll.
+- Kept the patch bounded: no `BattleContext`, battle scene transition, defense deployment UI, city ownership change, troop loss, hero movement, enemy AI, pathfinding, route-type requirement, diplomacy/cooldown rule, or battle result resolution was added.
+- Verification: patch strings present, invasion constant/helpers present, save/load/reset policy reviewed, forbidden implementation search reviewed, `git diff --check` passed, Godot project headless load passed, and `WorldMap_Test.tscn` headless load passed.
+
 ## v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit
 - Completed a docs-only audit of the web worldmap enemy invasion flow and added `agent/ENEMY_INVASION_AUDIT.md`.
 - Inspected local read-only web sources: `C:\dev\SamWar_web\js\core\app_state.js`, `world_rules.js`, `world_calendar.js`, `save_load.js`, `battle_state.js`, `battle_rules.js`, `battle_ai.js`, `js\ui\world_hud_ui.js`, `world_map_ui.js`, `ui_render.js`, `main.js`, and `constants.js`.

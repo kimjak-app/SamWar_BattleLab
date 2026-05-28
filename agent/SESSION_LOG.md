@@ -2,6 +2,18 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-9 WorldMap Enemy Invasion Event MVP
+- Inspected the required agent docs, `agent/ENEMY_INVASION_AUDIT.md`, `scripts/worldmap_test.gd`, and the active root `WorldMap_Test.tscn`.
+- Rechecked local read-only web references: `C:\dev\SamWar_web\js\core\world_rules.js`, `js\core\app_state.js`, and `js\core\save_load.js`.
+- Added `ENEMY_INVASION_CHANCE = 0.45` and a patch marker for `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`.
+- Integrated `_roll_enemy_invasion_event_mvp()` into the existing enemy-turn placeholder path, using enemy-owned scene city markers and neighboring player-owned markers as the web-parity candidate rule.
+- Added `_player_state.pending_invasion_event` plus helpers for candidate generation, ownership lookup, event creation/clear, and invasion status formatting.
+- The visible left-panel status now reports `적군 침공 발생: {attacker} → {defender} · 방어전 준비 필요`, and the defender city is selected for visibility.
+- Save serialization excludes pending invasion state, load/reset clear it, and load normalizes enemy-phase saves back to player turn; runtime saves continue to use `user://worldmap_left_panel_state.json`.
+- No BattleContext generation, battle scene transition, city ownership change, troop loss, hero movement, enemy AI, pathfinding, diplomacy/cooldown rule, or battle resolution was added.
+- Verification passed: `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- Recommended next task: `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`.
+
 ### v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit
 - Inspected the required agent docs plus context-only Godot files `scripts/worldmap_test.gd` and root `WorldMap_Test.tscn`; no gameplay code or scene file was modified.
 - Inspected local read-only web enemy-turn/invasion references: `C:\dev\SamWar_web\js\core\app_state.js`, `world_rules.js`, `world_calendar.js`, `save_load.js`, `battle_state.js`, `battle_rules.js`, `battle_ai.js`, `js\ui\world_hud_ui.js`, `world_map_ui.js`, `ui_render.js`, `main.js`, and `constants.js`.

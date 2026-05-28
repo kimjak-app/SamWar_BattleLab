@@ -449,9 +449,20 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Current `5v5` actor / target parity.
 
 ## Current Next Direction
-1. `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
-2. `v0.68b-12b-10 WorldMap Enemy Invasion BattleContext Bridge`
-3. `v0.68b-12b-11 WorldMap Enemy Invasion Result / Ownership Apply`
+Latest worldmap enemy invasion event patch: `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
+
+Current Godot state:
+- `scripts/worldmap_test.gd` now rolls a web-parity enemy invasion event during the existing enemy-turn placeholder.
+- The MVP uses `ENEMY_INVASION_CHANCE = 0.45`, attacker candidates from enemy-owned scene city markers, and defender candidates from neighboring player-owned markers.
+- On success, `_player_state.pending_invasion_event` records a display-only defense event with `attacker_city_id`, `defender_city_id`, source, and turn number.
+- The left world panel shows a concise Korean invasion status and selects the defender city for visibility.
+- Save/load/reset clear pending invasion state; runtime saves do not persist the pending event, and load normalizes enemy-phase saves back to player turn.
+- No `BattleContext`, battle scene transition, city ownership change, troop loss, hero movement, enemy AI, pathfinding, cooldown, or diplomacy rule was added.
+
+Next direction:
+1. `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+2. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
+3. `v0.68b-12b-12 WorldMap Enemy Invasion Result / Ownership Apply`
 4. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 5. `v0.68b-12c Selected City Panel Web Content Parity`
 6. `v0.68b-12d City Detail Panel Web Content Parity`
