@@ -14,15 +14,19 @@ const WORLD_MAP_ZOOM_STEP := 0.1
 @onready var city_layer: Node2D = $WorldMapRoot/CityLayer
 @onready var world_map_camera: Camera2D = $WorldMapCamera
 @onready var camera_debug_label: Label = $WorldMapUI/CameraDebugLabel
-@onready var city_info_label: Label = $WorldMapUI/CityInfoLabel
+@onready var city_info_panel: Node = $WorldMapUI/CityInfoPanel
 
 var _world_rect := Rect2()
 var _is_dragging := false
+var selected_city_id: String = ""
+var selected_city_marker: WorldMapCityMarker = null
+var _city_markers_by_id: Dictionary = {}
 
 
 func _ready() -> void:
 	_refresh_world_rect_from_scene_tiles()
 	_connect_city_markers()
+	city_info_panel.set_city_markers(_city_markers_by_id)
 	_configure_camera()
 	_update_camera_debug_label()
 
@@ -170,13 +174,16 @@ func _connect_city_markers() -> void:
 		var city_marker := child as WorldMapCityMarker
 		if city_marker == null:
 			continue
+		_city_markers_by_id[city_marker.city_id] = city_marker
 		if not city_marker.city_selected.is_connected(_on_city_marker_selected):
 			city_marker.city_selected.connect(_on_city_marker_selected)
 
 
 func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
-	city_info_label.text = "%s  [%s]  Owner: %s" % [
-		city_marker.display_name,
-		city_marker.city_id,
-		city_marker.owner_faction_id,
-	]
+	if selected_city_marker != null and selected_city_marker != city_marker:
+		selected_city_marker.set_selected(false)
+
+	selected_city_id = city_marker.city_id
+	selected_city_marker = city_marker
+	selected_city_marker.set_selected(true)
+	city_info_panel.show_city(city_marker)

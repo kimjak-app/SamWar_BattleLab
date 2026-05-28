@@ -13,6 +13,7 @@ signal city_selected(marker: WorldMapCityMarker)
 @export var web_seed_position: Vector2 = Vector2.ZERO
 
 @onready var castle_icon: Sprite2D = get_node_or_null("CastleIcon") as Sprite2D
+@onready var selection_ring: Polygon2D = get_node_or_null("SelectionRing") as Polygon2D
 @onready var city_dot: Polygon2D = _get_city_dot()
 @onready var name_text: Node = _get_name_text()
 @onready var click_area: Area2D = get_node_or_null("ClickArea") as Area2D
@@ -62,6 +63,9 @@ func _get_name_text() -> Node:
 
 
 func _refresh_marker_visuals() -> void:
+	if selection_ring != null:
+		selection_ring.visible = false
+
 	if castle_icon != null:
 		_apply_castle_icon()
 
@@ -80,9 +84,15 @@ func _apply_castle_icon() -> void:
 	var icon_texture := _get_castle_icon_texture()
 	castle_icon.texture = icon_texture
 	castle_icon.centered = true
+	castle_icon.scale = _get_castle_icon_scale()
+
+
+func _get_castle_icon_scale() -> Vector2:
+	var icon_texture := _get_castle_icon_texture()
 	if icon_texture != null and icon_texture.get_height() > 0:
 		var icon_scale := CITY_CASTLE_ICON_TARGET_HEIGHT / float(icon_texture.get_height())
-		castle_icon.scale = Vector2(icon_scale, icon_scale)
+		return Vector2(icon_scale, icon_scale)
+	return Vector2.ONE
 
 
 func _get_castle_icon_texture() -> Texture2D:
@@ -121,3 +131,16 @@ func _on_click_area_input_event(_viewport: Viewport, event: InputEvent, _shape_i
 		if mouse_button_event.button_index == MOUSE_BUTTON_LEFT and mouse_button_event.pressed:
 			city_selected.emit(self)
 			get_viewport().set_input_as_handled()
+
+
+func set_selected(is_selected: bool) -> void:
+	if selection_ring != null:
+		selection_ring.visible = is_selected
+
+	if castle_icon != null:
+		castle_icon.scale = _get_castle_icon_scale() * (1.08 if is_selected else 1.0)
+
+	if name_text is WorldMapCityNameLabel:
+		var selected_color := Color(1.0, 0.92, 0.55, 1.0)
+		var normal_color := Color(1.0, 1.0, 1.0, 1.0)
+		name_text.set("text_color", selected_color if is_selected else normal_color)

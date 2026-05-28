@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-6 WorldMap Selected City Panel Web Parity MVP
+- Ported the web `renderSelectedCityPanel()` structure into a reduced Godot `WorldMapUI/CityInfoPanel`.
+- Added `scripts/worldmap_city_info_panel.gd` for selected city name, id, region/owner, type, neighbors, route type summary, and MVP status text.
+- Added worldmap selected city state in `scripts/worldmap_test.gd`: `selected_city_id`, `selected_city_marker`, marker lookup, previous-selection clear, and panel refresh.
+- Added scene-authored `SelectionRing` children under all 13 `CityMarker_*` nodes and a `WorldMapCityMarker.set_selected()` API.
+- Kept attack and hero movement as placeholder buttons only; no battle entry, `BattleContext`, domestic detail UI, or army movement was implemented.
+- Preserved route layer and sea arrow flow; moved sea arrow initial spacing into `scripts/worldmap_route_flow_fx.gd` so scene load no longer emits `PathFollow2D.progress_ratio` errors.
+
 ## v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP
 - Added `scripts/worldmap_route_flow_fx.gd` for sea-only route arrow flow FX.
 - Added `ArrowFlowRoot` Path2D nodes with four `PathFollow2D` arrow markers to each sea route in `WorldMap_Test.tscn`.

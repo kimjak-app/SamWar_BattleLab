@@ -2,6 +2,15 @@
 
 ## 2026-05-28
 
+### v0.68b-6 WorldMap Selected City Panel Web Parity MVP
+- Referenced the web `renderWorldMap()` / `onCitySelect()` / `city-hud-stack` / `renderSelectedCityPanel()` flow and ported the selected-city HUD shape into Godot at MVP scope.
+- Replaced the minimal `CityInfoLabel` click result with a scene-authored `WorldMapUI/CityInfoPanel` backed by `scripts/worldmap_city_info_panel.gd`.
+- City clicks now update `selected_city_id`, switch the selected `CityMarker`, show a marker-local `SelectionRing`, and refresh the panel.
+- The panel shows city name, city id, region, owner label, city type, neighbors, route type summary, status copy, and attack / hero-move placeholder buttons.
+- Attack and hero-move placeholders only print deferred debug messages; no battle scene transition, `BattleContext`, domestic detail, garrison detail, or army movement behavior was added.
+- Sea route arrow flow and route lines were preserved. Sea arrow initial spacing now runs from script instead of saved `progress_ratio` scene properties, removing scene-load errors while keeping the visual FX.
+- 김작 F6 should confirm city icon click selection, selection ring readability, fixed screen panel placement, listed metadata, placeholder buttons, pan/zoom click behavior, route/sea arrow continuity, and no battle scene regression.
+
 ### v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP
 - Added sea-only arrow flow FX to the five current sea routes: Gyeongju-Kyoto, Gyeongju-Osaka, Sabi-Kyushu, Sabi-Jianye, and Kyushu-Osaka.
 - Added `ArrowFlowRoot` Path2D nodes under those route roots, with four `PathFollow2D` arrow markers each.

@@ -21,6 +21,8 @@ Latest worldmap route hotfix: `v0.68b-4-hotfix1 WorldMap Land Route Visibility T
 
 Latest worldmap route FX patch: `v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP`
 
+Latest worldmap selected city UI patch: `v0.68b-6 WorldMap Selected City Panel Web Parity MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -30,28 +32,28 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-5-hotfix1 Sea Route Visual Polish`
+`v0.68b-7 WorldMap City Position Manual QA Stable`
 
 Goal:
-- tune sea arrow speed, size, color, and overlap after 김작 F6 review without adding movement, trade, battle entry, or pathfinding logic
+- confirm and stabilize manual city marker placement / name attachment / selection ring behavior in the Godot 2D editor
 
 ## Priority 2
-`v0.68b-6 WorldMap City Position Manual QA Stable`
-
-Goal:
-- confirm and stabilize manual city marker placement / name attachment behavior in the Godot 2D editor
-
-## Priority 3
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 4
+## Priority 3
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - implement first hero / region / city / army assignment data needed to produce roster candidates
+
+## Priority 4
+`v0.68b-5-hotfix1 Sea Route Visual Polish`
+
+Goal:
+- tune sea arrow speed, size, color, and overlap after 김작 F6 review without adding movement, trade, battle entry, or pathfinding logic
 
 ## Priority 5
 `v0.69 Battlefield Variant Loader`
@@ -66,6 +68,13 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-6 WorldMap Selected City Panel Web Parity MVP` is complete.
+- Ported the web selected-city HUD structure into `WorldMapUI/CityInfoPanel`.
+- City marker clicks now update `selected_city_id`, maintain `selected_city_marker`, clear previous marker selection, show the selected marker's `SelectionRing`, and refresh panel metadata.
+- The panel displays city name, id, region/owner, city type, neighbors, route type summary, MVP status text, and attack / hero-move placeholder buttons.
+- Attack and hero-move placeholders do not create `BattleContext`, change scenes, move heroes/armies, or open domestic detail UI.
+- Route lines and sea route arrow flow were preserved; sea arrow initial spacing moved into script to avoid scene-load `progress_ratio` errors.
+- 김작 F6 should confirm city selection, selected marker readability, fixed panel placement, metadata text, placeholder buttons, pan/zoom click behavior, route/sea arrow continuity, and battle scene stability.
 - `v0.68b-5 WorldMap Sea Route Arrow Flow FX MVP` is complete.
 - Added sea-only visual flow arrows to Gyeongju-Kyoto, Gyeongju-Osaka, Sabi-Kyushu, Sabi-Jianye, and Kyushu-Osaka.
 - Each sea route has an `ArrowFlowRoot` Path2D with four `PathFollow2D` arrow markers and small pale blue Polygon2D arrow sprites.

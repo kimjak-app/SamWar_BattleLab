@@ -13,6 +13,7 @@ var _source_path: Path2D
 func _ready() -> void:
 	_source_path = _find_source_path()
 	_refresh_source_curve()
+	_space_arrows_along_curve()
 	_refresh_arrow_visuals()
 
 
@@ -68,3 +69,20 @@ func _find_source_path() -> Path2D:
 	if route_root == null:
 		return null
 	return route_root.get_node_or_null("Path2D") as Path2D
+
+
+func _space_arrows_along_curve() -> void:
+	if curve == null:
+		return
+
+	var curve_length := curve.get_baked_length()
+	if curve_length <= 0.0:
+		return
+
+	var arrow_index := 0
+	for child in get_children():
+		var arrow_follow := child as PathFollow2D
+		if arrow_follow == null:
+			continue
+		arrow_follow.progress = curve_length * float(arrow_index) / float(maxi(arrow_count, 1))
+		arrow_index += 1

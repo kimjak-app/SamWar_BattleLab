@@ -21,6 +21,12 @@
 - City marker click and route visualization exist, but route click, city data runtime systems, army movement, battle entry, and `BattleContext` creation remain forbidden until their dedicated tasks.
 
 ## Current City Marker Foundation
+- `v0.68b-6 WorldMap Selected City Panel Web Parity MVP` adds selected city state and a screen-fixed `WorldMapUI/CityInfoPanel`.
+- City marker clicks update `selected_city_id`, clear the previous marker selection, show the selected marker's `SelectionRing`, and refresh the panel from marker metadata.
+- Each `CityMarker_*` now owns a hidden `SelectionRing` Polygon2D child behind the castle icon; it remains attached to the marker root during pan/zoom and editor root movement.
+- `CityInfoPanel` is an MVP port of the web `renderSelectedCityPanel()` structure and displays city name, id, region/owner, type, neighbors, route type summary, status text, and placeholder attack / hero-move buttons.
+- Attack and hero-move buttons are placeholders only. They must not create `BattleContext`, change scenes, move heroes/armies, or start combat until later tasks.
+- Route lines and sea arrow flow remain visual-only. Sea arrow spacing is initialized by `scripts/worldmap_route_flow_fx.gd`, not by saved `PathFollow2D.progress_ratio` scene properties.
 - `v0.68b-2-hotfix5 WorldMap City Marker Label Reparent Fix` standardizes each city as one scene-authored marker bundle under `CityLayer`.
 - `v0.68b-3 WorldMap City Castle Icon Apply` replaces the visible city dot with a regional `CastleIcon` Sprite2D child.
 - Korean peninsula cities use `castle_korea.png`, China mainland cities use `castle_china.png`, Japanese archipelago cities use `castle_japan.png`, and Karakorum / northern steppe uses `castle_ordo.png`.
