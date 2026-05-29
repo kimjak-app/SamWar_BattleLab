@@ -66,6 +66,9 @@ const INVASION_RESULT_UNKNOWN := "unknown"
 const INVASION_RESULT_DEFAULT_OCCUPATION_TROOPS := 100
 const INVASION_RESULT_DEFENDER_WIN_DEFENDER_TROOP_RATE := 0.90
 const INVASION_RESULT_DEFENDER_WIN_ATTACKER_TROOP_RATE := 0.80
+const INVASION_BATTLE_MAX_HEROES_PER_SIDE := 5
+const INVASION_REINFORCEMENT_MAX_HOPS := 2
+const INVASION_REINFORCEMENT_ALLY_FACTIONS := {}
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -1913,6 +1916,12 @@ func _validate_pending_invasion_event_for_battle_context(event: Dictionary) -> D
 func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String) -> Dictionary:
 	var attacker_city_id := str(event.get("attacker_city_id", ""))
 	var defender_city_id := str(event.get("defender_city_id", ""))
+	var attacker_owner := _get_city_owner_id_for_battle_context(attacker_city_id)
+	var defender_owner := _get_city_owner_id_for_battle_context(defender_city_id)
+	var used_hero_ids := {}
+	var attacker_roster := _build_invasion_side_roster_for_battle_context(attacker_city_id, attacker_owner, used_hero_ids, "attacker")
+	var defender_roster := _build_invasion_side_roster_for_battle_context(defender_city_id, defender_owner, used_hero_ids, "defender")
+	_log_invasion_reinforcement_rule_summary(attacker_city_id, defender_city_id, attacker_owner, defender_owner, attacker_roster, defender_roster)
 	return {
 		"type": "defense",
 		"source": "enemy_invasion",
@@ -1923,17 +1932,132 @@ func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String
 		"defender_city_name": _format_city_name_by_id(defender_city_id, "알 수 없는 아군 도시"),
 		"turn_number": maxi(1, int(_player_state.get("turn_number", 1))),
 		"event_turn_number": int(event.get("turn_number", _player_state.get("turn_number", 1))),
-		"attacker_owner": _get_city_owner_id_for_battle_context(attacker_city_id),
-		"defender_owner": _get_city_owner_id_for_battle_context(defender_city_id),
+		"attacker_owner": attacker_owner,
+		"defender_owner": defender_owner,
 		"attacker_troops": _get_city_troops_for_battle_context(attacker_city_id),
 		"defender_troops": _get_city_troops_for_battle_context(defender_city_id),
-		"attacker_hero_ids": _get_city_stationed_hero_ids_for_battle_context(attacker_city_id),
-		"defender_hero_ids": _get_city_stationed_hero_ids_for_battle_context(defender_city_id),
-		"attacker_heroes": _get_city_battle_heroes_for_battle_context(attacker_city_id),
-		"defender_heroes": _get_city_battle_heroes_for_battle_context(defender_city_id),
+		"attacker_hero_ids": attacker_roster.get("hero_ids", []),
+		"defender_hero_ids": defender_roster.get("hero_ids", []),
+		"attacker_heroes": attacker_roster.get("heroes", []),
+		"defender_heroes": defender_roster.get("heroes", []),
+		"attacker_main_hero_ids": attacker_roster.get("main_hero_ids", []),
+		"defender_main_hero_ids": defender_roster.get("main_hero_ids", []),
+		"attacker_support_hero_ids": attacker_roster.get("support_hero_ids", []),
+		"defender_support_hero_ids": defender_roster.get("support_hero_ids", []),
+		"attacker_support_city_ids": attacker_roster.get("support_city_ids", []),
+		"defender_support_city_ids": defender_roster.get("support_city_ids", []),
 		"attacker_governor_id": _get_city_governor_id_for_battle_context(attacker_city_id),
 		"defender_governor_id": _get_city_governor_id_for_battle_context(defender_city_id),
 	}
+
+
+func _build_invasion_side_roster_for_battle_context(source_city_id: String, faction_id: String, used_hero_ids: Dictionary, context_side: String) -> Dictionary:
+	var hero_ids: Array[String] = []
+	var main_hero_ids: Array[String] = []
+	var support_hero_ids: Array[String] = []
+	var support_city_ids: Array[String] = []
+	if source_city_id.is_empty() or not _has_city_for_battle_context(source_city_id):
+		print("[REINFORCE_FALLBACK] side=%s reason=missing_city city=%s" % [context_side, source_city_id])
+		return _build_invasion_roster_result(hero_ids, main_hero_ids, support_hero_ids, support_city_ids)
+	for hero_id in _get_city_stationed_hero_ids_for_battle_context(source_city_id):
+		if _append_invasion_roster_hero_id(hero_ids, main_hero_ids, str(hero_id), used_hero_ids, context_side, source_city_id, "main"):
+			if hero_ids.size() >= INVASION_BATTLE_MAX_HEROES_PER_SIDE:
+				return _build_invasion_roster_result(hero_ids, main_hero_ids, support_hero_ids, support_city_ids)
+	var candidate_city_ids := _get_reinforcement_candidate_city_ids_for_battle_context(source_city_id)
+	print("[REINFORCE_RULE] side=%s source_city=%s faction=%s candidate_cities=%s" % [context_side, source_city_id, faction_id, str(candidate_city_ids)])
+	for candidate_city_id in candidate_city_ids:
+		if hero_ids.size() >= INVASION_BATTLE_MAX_HEROES_PER_SIDE:
+			break
+		if not _has_city_for_battle_context(candidate_city_id):
+			print("[REINFORCE_SKIP] side=%s city=%s reason=missing_city" % [context_side, candidate_city_id])
+			continue
+		var candidate_owner := _get_city_owner_id_for_battle_context(candidate_city_id)
+		if not _are_factions_reinforcement_compatible(faction_id, candidate_owner):
+			print("[REINFORCE_SKIP] side=%s city=%s owner=%s reason=wrong_faction" % [context_side, candidate_city_id, candidate_owner])
+			continue
+		var city_added_hero := false
+		for hero_id in _get_city_stationed_hero_ids_for_battle_context(candidate_city_id):
+			if hero_ids.size() >= INVASION_BATTLE_MAX_HEROES_PER_SIDE:
+				break
+			if _append_invasion_roster_hero_id(hero_ids, support_hero_ids, str(hero_id), used_hero_ids, context_side, candidate_city_id, "support"):
+				city_added_hero = true
+		if city_added_hero and not support_city_ids.has(candidate_city_id):
+			support_city_ids.append(candidate_city_id)
+		elif not city_added_hero:
+			print("[REINFORCE_SKIP] side=%s city=%s reason=no_heroes" % [context_side, candidate_city_id])
+	if hero_ids.is_empty():
+		print("[REINFORCE_FALLBACK] side=%s reason=empty_roster city=%s; sample fallback may be used only as crash guard" % [context_side, source_city_id])
+	return _build_invasion_roster_result(hero_ids, main_hero_ids, support_hero_ids, support_city_ids)
+
+
+func _append_invasion_roster_hero_id(target_hero_ids: Array[String], source_bucket: Array[String], hero_id: String, used_hero_ids: Dictionary, context_side: String, city_id: String, pick_type: String) -> bool:
+	if hero_id.is_empty():
+		return false
+	if used_hero_ids.has(hero_id) or target_hero_ids.has(hero_id):
+		print("[REINFORCE_SKIP] side=%s hero=%s city=%s reason=duplicate" % [context_side, hero_id, city_id])
+		return false
+	if _get_hero_entry(hero_id).is_empty():
+		print("[REINFORCE_SKIP] side=%s hero=%s city=%s reason=missing_hero" % [context_side, hero_id, city_id])
+		return false
+	used_hero_ids[hero_id] = true
+	target_hero_ids.append(hero_id)
+	source_bucket.append(hero_id)
+	print("[REINFORCE_PICK] side=%s type=%s city=%s hero=%s" % [context_side, pick_type, city_id, hero_id])
+	return true
+
+
+func _build_invasion_roster_result(hero_ids: Array[String], main_hero_ids: Array[String], support_hero_ids: Array[String], support_city_ids: Array[String]) -> Dictionary:
+	var heroes: Array[Dictionary] = []
+	for hero_id in hero_ids:
+		var city_id := _get_hero_city_id_for_battle_context(hero_id)
+		var hero_battle_data := _get_hero_battle_data_for_battle_context(hero_id, city_id)
+		if not hero_battle_data.is_empty():
+			heroes.append(hero_battle_data)
+	return {
+		"hero_ids": hero_ids,
+		"heroes": heroes,
+		"main_hero_ids": main_hero_ids,
+		"support_hero_ids": support_hero_ids,
+		"support_city_ids": support_city_ids,
+	}
+
+
+func _get_reinforcement_candidate_city_ids_for_battle_context(source_city_id: String) -> Array[String]:
+	var result: Array[String] = []
+	var seen := {}
+	seen[source_city_id] = true
+	var frontier: Array[String] = [source_city_id]
+	for _hop in range(1, INVASION_REINFORCEMENT_MAX_HOPS + 1):
+		var next_frontier: Array[String] = []
+		for city_id in frontier:
+			for neighbor_id in _get_city_neighbors_mvp(city_id):
+				if seen.has(neighbor_id):
+					continue
+				seen[neighbor_id] = true
+				result.append(neighbor_id)
+				next_frontier.append(neighbor_id)
+		frontier = next_frontier
+	return result
+
+
+func _are_factions_reinforcement_compatible(source_faction_id: String, candidate_faction_id: String) -> bool:
+	if source_faction_id.is_empty() or candidate_faction_id.is_empty():
+		return false
+	if source_faction_id == candidate_faction_id:
+		return true
+	var allies: Variant = INVASION_REINFORCEMENT_ALLY_FACTIONS.get(source_faction_id, [])
+	return allies is Array and (allies as Array).has(candidate_faction_id)
+
+
+func _get_hero_city_id_for_battle_context(hero_id: String) -> String:
+	var hero_data := _get_hero_entry(hero_id)
+	return str(hero_data.get("current_city_id", hero_data.get("city_id", hero_data.get("location_city_id", ""))))
+
+
+func _log_invasion_reinforcement_rule_summary(attacker_city_id: String, defender_city_id: String, attacker_faction_id: String, defender_faction_id: String, attacker_roster: Dictionary, defender_roster: Dictionary) -> void:
+	print("[REINFORCE_RULE] attacker_city=%s defender_city=%s attacker_faction=%s defender_faction=%s" % [attacker_city_id, defender_city_id, attacker_faction_id, defender_faction_id])
+	print("[REINFORCE_RULE] attacker_main=%s attacker_support=%s attacker_support_cities=%s" % [str(attacker_roster.get("main_hero_ids", [])), str(attacker_roster.get("support_hero_ids", [])), str(attacker_roster.get("support_city_ids", []))])
+	print("[REINFORCE_RULE] defender_main=%s defender_support=%s defender_support_cities=%s" % [str(defender_roster.get("main_hero_ids", [])), str(defender_roster.get("support_hero_ids", [])), str(defender_roster.get("support_city_ids", []))])
 
 
 func _has_city_for_battle_context(city_id: String) -> bool:

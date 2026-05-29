@@ -120,3 +120,12 @@ HeroData = {
 - Existing sample unique-skill registry names and cutin paths may be reused as fallback for known compatible heroes when WorldMap context data only supplies generated fallback skill names or missing cutin paths.
 - Existing unique-skill toast frame/animation path should remain intact; common `skill_unknown`/fallback icon is used only when no dedicated skill/cutin asset exists.
 - Full cutin presentation, save/load, capture/wounds/death, hero movement, and resource looting remain out of scope.
+
+## v0.68b-12b-18 Invasion Reinforcement Source Rule
+- Invasion BattleContext hero lists are roster decisions, not global hero registry scans.
+- Main attacker/defender heroes come from each source city's `stationed_hero_ids` / `hero_ids` first.
+- Support heroes may be added only from same-faction or explicit-ally nearby cities within 1-hop/2-hop MVP adjacency.
+- If nearby support is unavailable, the roster stays short; distant heroes must not be inserted just to fill battle capacity.
+- Duplicate `hero_id` values across attacker, defender, and support lists are skipped.
+- Sample battle roster fallback remains only a crash guard for direct sample battles or fully empty/broken context sides.
+- Save/Load placement persistence, hero wounds/capture/death, hero movement, and precise strategic AI remain deferred.

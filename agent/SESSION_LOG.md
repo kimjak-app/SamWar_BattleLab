@@ -2,6 +2,16 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-18 Invasion Reinforcement Source Rule MVP
+- Root cause: WorldMap BattleContext used city stationed rosters, but the battle scene filled any missing context slots from `TEST_BATTLE_ROSTER`, so distant sample heroes such as 성도 유비/제갈량 could appear as support in unrelated invasions.
+- Implemented invasion roster construction in `scripts/worldmap_test.gd`: attacker and defender main rosters start from each side's source city `stationed_hero_ids` / `hero_ids`.
+- Added MVP reinforcement source filtering: same faction or explicit ally only, direct neighbors first and then 2-hop neighbors only. Missing reinforcements are not force-filled from distant cities.
+- Added cross-side duplicate prevention through one `used_hero_ids` set while building attacker and defender rosters.
+- Updated `scripts/battle_web_import_test.gd` so WorldMap context battles deactivate empty context slots instead of falling back to sample heroes. Sample battle fallback remains intact for direct battle launches or fully empty/broken context sides.
+- Added concise `[REINFORCE_RULE]`, `[REINFORCE_PICK]`, `[REINFORCE_SKIP]`, and `[REINFORCE_FALLBACK]` logs for QA.
+- Static 평양 -> 한성 check: 평양 2-hop candidates are 한성/카라코룸/경주/사비/업성, not 성도; same-faction support candidates are empty, so 성도 유비/제갈량 are excluded.
+- Save/Load, hero wounds/capture, hero movement, resource looting, city ownership result logic, and precise strategic AI remain deferred.
+
 ### v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix
 - Confirmed the scale regression source: v0.68b-12b-17 scaled 512-source portraits to `128px`, while the previous battlefield portrait badge baseline was `128x128` portrait assets displayed at scene scale `0.32`, about `41px`.
 - Changed the battlefield Sprite2D portrait badge target to `41px`, preserving the existing badge offsets and UI layout.

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-18 Invasion Reinforcement Source Rule MVP
+- Added WorldMap invasion BattleContext roster source rules in `scripts/worldmap_test.gd`: main attacker/defender heroes come from the attacker/defender city stationed roster first.
+- Reinforcement candidates now come only from same-faction or explicitly allied cities within MVP adjacency range: direct neighbors first, then 2-hop neighbors. No 3-hop or full `HERO_DATA` pool search is used.
+- Missing reinforcements are left empty instead of force-filled from distant cities; fallback is documented and logged as a crash guard only.
+- Updated `scripts/battle_web_import_test.gd` so WorldMap context battles deactivate empty context slots instead of filling them with sample `TEST_BATTLE_ROSTER` heroes.
+- Added concise `[REINFORCE_RULE]`, `[REINFORCE_PICK]`, `[REINFORCE_SKIP]`, and `[REINFORCE_FALLBACK]` logs for source city, faction, candidate city, chosen hero, duplicate, wrong faction, missing city, and empty roster cases.
+- Static 평양 -> 한성 verification excludes 성도 from the 2-hop candidate set, so 성도 유비/제갈량 are not eligible as ordinary support heroes.
+- Save/Load persistence, hero wounds/capture, precise strategic AI, resource looting, and city ownership result logic remain unchanged.
+
 ## v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix
 - Restored battlefield portrait badge sizing in `scripts/battle_web_import_test.gd` to the previous engine baseline: existing `128x128` battlefield portrait assets used scene scale `0.32`, so 512-source portraits now scale to about `41px` on the battlefield badge.
 - Kept the single 512 `portrait_path` source contract. No image files were generated, moved, or deleted, and no `portrait_128_path` / `portrait_512_path` fields were added.

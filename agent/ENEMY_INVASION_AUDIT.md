@@ -217,6 +217,15 @@
 - The existing unique-skill toast frame/animation path is preserved where dedicated assets exist; common fallback icon remains only for missing assets.
 - Still missing by design: full cutin presentation, save/load persistence for hero battle data, hero capture/wounds/death, hero city movement, resource looting, and defense deployment UI.
 
+## v0.68b-12b-18 Invasion Reinforcement Source Rule Status
+- Implemented in `scripts/worldmap_test.gd` and `scripts/battle_web_import_test.gd`.
+- Cause addressed: BattleContext used city rosters, but battle-side context slot fill fell back to sample `TEST_BATTLE_ROSTER` for missing support slots, allowing distant sample heroes to appear.
+- Main attacker/defender rosters now use the attacker/defender source city stationed heroes first.
+- Support candidates are restricted to same-faction or explicit-ally cities within direct/2-hop MVP adjacency; no 3-hop or full-hero-pool search is used.
+- Empty context slots are deactivated in the battle scene, so missing nearby reinforcements stay missing instead of pulling distant sample heroes.
+- Static 평양 -> 한성 check excludes 성도 from the 2-hop candidate set; 성도 유비/제갈량 are not eligible as ordinary support heroes.
+- Still missing by design: Save/Load persistence for resolved roster state, wounds/capture, hero movement, resource looting, and precise strategic AI.
+
 ## Recommended Godot Implementation Plan
 
 ### v0.68b-12b-15 Enemy Invasion Ownership / Troop Apply

@@ -1307,17 +1307,32 @@ func _apply_worldmap_context_side_roster(
 	var city_owner_id := str(context.get("%s_owner" % context_side, ""))
 	var assigned_hero_ids: Array[String] = []
 	var fallback_count := 0
+	var allow_sample_fallback := requested_hero_ids.is_empty()
 	for index in range(slot_ids.size()):
 		var slot_id := str(slot_ids[index])
 		var requested_hero_id := ""
 		if index < requested_hero_ids.size():
 			requested_hero_id = requested_hero_ids[index]
+		if requested_hero_id == "" and not allow_sample_fallback:
+			_deactivate_worldmap_context_slot(slot_id, context_side, city_id, city_name, city_owner_id)
+			continue
 		var resolved_hero_id := _resolve_worldmap_context_hero_id(requested_hero_id)
 		if resolved_hero_id == "":
-			resolved_hero_id = _get_test_battle_roster_hero_id(slot_id)
-			fallback_count += 1
+			if allow_sample_fallback:
+				resolved_hero_id = _get_test_battle_roster_hero_id(slot_id)
+				fallback_count += 1
+				print("[REINFORCE_FALLBACK] battle_side=%s slot=%s reason=empty_context_side sample_hero=%s" % [
+					context_side,
+					slot_id,
+					resolved_hero_id,
+				])
+			else:
+				_deactivate_worldmap_context_slot(slot_id, context_side, city_id, city_name, city_owner_id)
+				continue
 		if resolved_hero_id == "":
 			continue
+		_set_capacity_slot_metadata_value(slot_id, "is_active", true)
+		_set_capacity_slot_metadata_value(slot_id, "is_deployed", not slot_id.contains("_reinforce_"))
 		assigned_hero_ids.append(resolved_hero_id)
 		_set_capacity_slot_metadata_value(slot_id, "assigned_hero_id", resolved_hero_id)
 		_set_capacity_slot_metadata_value(slot_id, "assigned_unit_id", "%s_battle_unit" % resolved_hero_id)
@@ -1337,6 +1352,29 @@ func _apply_worldmap_context_side_roster(
 		"city_name": city_name,
 		"owner": city_owner_id,
 	}
+
+
+func _deactivate_worldmap_context_slot(slot_id: String, context_side: String, city_id: String, city_name: String, city_owner_id: String) -> void:
+	_set_capacity_slot_metadata_value(slot_id, "is_active", false)
+	_set_capacity_slot_metadata_value(slot_id, "is_deployed", false)
+	_set_capacity_slot_metadata_value(slot_id, "entry_rule", "")
+	_set_capacity_slot_metadata_value(slot_id, "assigned_hero_id", "")
+	_set_capacity_slot_metadata_value(slot_id, "assigned_unit_id", "")
+	_set_capacity_slot_metadata_value(slot_id, "source_city_id", city_id)
+	_set_capacity_slot_metadata_value(slot_id, "source_city_name", city_name)
+	_set_capacity_slot_metadata_value(slot_id, "source_owner", city_owner_id)
+	_set_capacity_slot_metadata_value(slot_id, "dispatch_type", "no_reinforcement")
+	_set_capacity_slot_metadata_value(slot_id, "worldmap_context_side", context_side)
+	_set_capacity_slot_metadata_value(slot_id, "worldmap_context_empty", true)
+	var unit_state := _get_unit_state_for_capacity_slot_id(slot_id)
+	if unit_state != null:
+		_set_unit_visual_group_visible(unit_state, false)
+		_set_unit_click_area_enabled(unit_state, false)
+	print("[REINFORCE_SKIP] battle_side=%s slot=%s city=%s reason=no_eligible_context_hero" % [
+		context_side,
+		slot_id,
+		city_id,
+	])
 
 
 func _get_context_hero_ids_for_side(context: Dictionary, context_side: String) -> Array[String]:
@@ -4684,7 +4722,7 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 		hero_id = _get_hero_id_for_unit_state(unit_state)
 	if hero_id == "":
 		hero_id = String(slot_metadata.get("assigned_hero_id", ""))
-	if hero_id == "":
+	if hero_id == "" and not bool(slot_metadata.get("worldmap_context_empty", false)):
 		hero_id = _get_test_battle_roster_hero_id(slot_id)
 	var hero_entry := _get_hero_registry_entry(hero_id)
 	var display_name := String(hero_entry.get("display_name", "미배치"))

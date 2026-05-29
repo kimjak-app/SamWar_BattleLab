@@ -95,13 +95,15 @@ Latest actual hero portrait binding patch: `v0.68b-12b-17 Actual Hero Portrait B
 
 Latest battlefield portrait/skill hotfix: `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
 
+Latest invasion reinforcement source patch: `v0.68b-12b-18 Invasion Reinforcement Source Rule MVP`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
-Current stable baseline: `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
+Current stable baseline: `v0.68b-12b-18 Invasion Reinforcement Source Rule MVP`
 
-Baseline commit: local HEAD after `v0.68b-12b-17a`
+Baseline commit: local HEAD after `v0.68b-12b-18`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -112,17 +114,16 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-17b Hero Portrait Battle F6 QA Follow-up`
+`v0.68b-12b-18a Invasion Reinforcement F6 QA Follow-up`
 
 Goal:
-- F6-check WorldMap invasion manual defense into battle and confirm actual city-roster portraits/skill names display as intended
+- F6-check WorldMap invasion manual defense and confirm reinforcement source rules keep distant city heroes out of unrelated battles
 
 Scope:
-- no new asset generation, image migration, or battle formula changes
+- no Save/Load expansion, hero movement/capture, resource looting, or city ownership result logic changes
 
 Forbidden in this task:
-- no bulk image deletion or mass migration
-- no hero movement/capture, save/load expansion, cutin animation rewrite, or unique-skill balance pass
+- no full strategic AI rewrite, no battle formula change, and no portrait/skill UI rollback
 
 ## Priority 2
 `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`

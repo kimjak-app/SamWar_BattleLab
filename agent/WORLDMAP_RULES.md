@@ -191,6 +191,15 @@
 - Worldmap produces `BattleContext`.
 - Battle engine consumes `BattleContext` and reports battle result back through a future result contract.
 
+## v0.68b-12b-18 Invasion Reinforcement Source Rule
+- WorldMap invasion BattleContext roster creation must use the attacker and defender source city stationed heroes first.
+- Reinforcements are limited to same-faction or explicit-ally cities within MVP adjacency: direct neighbors first, then 2-hop neighbors only.
+- 3-hop cities, disconnected cities, and full `HERO_DATA` pool searches are forbidden for normal reinforcements.
+- If eligible nearby reinforcements are insufficient, leave the roster short. Do not force-fill distant city heroes.
+- Battle-scene sample roster fallback is a crash guard only for direct sample battles or fully empty/broken context sides.
+- 평양 -> 한성 ordinary invasion support must not pull 성도 유비/제갈량 unless a future explicit event/alliance rule says so.
+- Save/Load persistence, wounds/capture, hero movement, resource looting, and precise strategic AI remain outside this rule.
+
 ## Future Expansion Hooks
 - `weather`
 - `season`

@@ -94,6 +94,8 @@ Latest actual hero portrait binding patch: `v0.68b-12b-17 Actual Hero Portrait B
 
 Latest battlefield portrait/skill hotfix: `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
 
+Latest invasion reinforcement source patch: `v0.68b-12b-18 Invasion Reinforcement Source Rule MVP`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -150,6 +152,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-16c Hero Portrait Import Metadata Audit`
 - `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
 - `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
+- `v0.68b-12b-18 Invasion Reinforcement Source Rule MVP`
 - `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 - `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
 - `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -203,6 +206,11 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Existing bottom command handlers are reused with no intended behavior change.
 
 ## Stable Summary
+- `v0.68b-12b-18` adds invasion reinforcement source rules for WorldMap-launched defense battles. Main attacker/defender rosters come from each source city's stationed heroes first.
+- Reinforcements are restricted to same-faction or explicit-ally cities within MVP adjacency: 1-hop first, then 2-hop only. Distant city heroes are no longer force-filled from the global/sample roster.
+- Empty WorldMap context slots are deactivated in the battle scene instead of using sample `TEST_BATTLE_ROSTER` heroes; sample fallback remains only for direct sample battles or crash-guard empty/broken context sides.
+- Static 평양 -> 한성 validation excludes 성도 from the 2-hop candidate set, so 유비/제갈량 are not eligible as ordinary support heroes.
+- Save/Load, hero wounds/capture, hero movement, resource looting, precise strategic AI, and city ownership result behavior remain unchanged/deferred.
 - `WorldMap_Test.tscn` now exists as the first worldmap visual canvas foundation.
 - `WorldMap_Test.tscn` now has editor-visible seam-free four-tile placement: A1 `(0, 0)`, A2 `(512, 0)`, B1 `(0, 512)`, and B2 `(512, 512)`.
 - Tile node positions are now scene-authored source of truth. Runtime no longer forces A1/A2/B1/B2 positions during `_ready()`.

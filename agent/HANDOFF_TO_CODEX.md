@@ -219,6 +219,9 @@ Latest camera foundation:
 - Latest battlefield portrait/skill hotfix:
 `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
 
+- Latest invasion reinforcement source patch:
+`v0.68b-12b-18 Invasion Reinforcement Source Rule MVP`
+
 - Latest warning cleanup hotfix:
 `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
@@ -251,6 +254,10 @@ Do not modify casually:
 - `Battle_Fullscreen_Test.tscn`
 
 ## Current Verified State
+- `v0.68b-12b-18 Invasion Reinforcement Source Rule MVP` is complete. WorldMap-launched invasion battles now build attacker/defender rosters from the source city stationed heroes first and add support only from same-faction or explicit-ally cities within direct/2-hop MVP adjacency.
+- Distant heroes are no longer force-filled into support slots. Empty context slots are deactivated in the battle scene instead of falling back to sample `TEST_BATTLE_ROSTER` heroes; direct sample battle fallback remains intact.
+- 평양 -> 한성 static QA excludes 성도 from the 2-hop candidate set, so 유비/제갈량 are not eligible as ordinary support heroes.
+- Save/Load, hero wounds/capture, hero movement, resource looting, precise strategic AI, and city ownership result behavior remain deferred.
 - `WorldMap_Test.tscn` is the first worldmap visual canvas foundation.
 - `WorldMap_Test.tscn` now stores editor-visible four-tile positions as A1 `(0, 0)`, A2 `(512, 0)`, B1 `(0, 512)`, and B2 `(512, 512)` so the Godot 2D editor can be used for manual city placement.
 - The four Tile node positions are now the scene-authored source of truth; runtime does not overwrite Tile positions during `_ready()`.
