@@ -1,5 +1,12 @@
 # v0.68b-12b-8 Enemy Invasion Web Logic Audit
 
+## v0.68b-12b-23 Hero State Visual Badge Status
+- Wounded/captured placeholder states are now visible in existing roster text surfaces.
+- WorldMap selected-city/right city panel hero lists use runtime-merged hero data and append `[부상]`, `[포로]`, or `[사망]`.
+- Battle formation panels preserve context hero status fields and show the same marker style.
+- Post-battle result card hero summaries use the state marker format.
+- Captured heroes are still not moved, excluded from battle, or removed from city rosters; dead remains unused by result logic.
+
 ## v0.68b-12b-22 Hero Status Placeholder Status
 - Invasion battle results now apply a losing-side hero status placeholder after owner/troop changes are summarized.
 - Deterministic MVP rule: first eligible losing-side hero becomes wounded, second eligible losing-side hero becomes captured, and dead remains unused.

@@ -1,6 +1,14 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-12b-23 Hero State Visual Marker Roster Badge MVP` makes placeholder hero state visible in key roster surfaces.
+- Runtime/display helpers append `[부상]`, `[포로]`, or `[사망]` with priority `dead` -> `captured` -> `wounded`; normal heroes have no marker.
+- WorldMap selected-city hero lists receive merged `_hero_runtime_states`, and battle formation panels preserve context status fields from BattleContext.
+- Post-battle result card hero status lines use the same marker style.
+- Captured heroes are still not removed from rosters or excluded from battle; `dead` is display-safe but not applied by gameplay.
+- Deferred: captured hero battle exclusion, prisoner movement/holding UI, wound recovery, death, and status stat penalties.
+
+## Previous Patch Note
 - `v0.68b-12b-22 Hero Wound Capture Placeholder MVP` applies a deterministic losing-side hero status placeholder after invasion battle results.
 - MVP rule: first eligible losing-side hero is marked `wounded`, second eligible losing-side hero is marked `captured`, and `dead` remains unused.
 - Captured heroes are not removed from city rosters and no prison/movement/recruit/execution/recovery flow is implemented.

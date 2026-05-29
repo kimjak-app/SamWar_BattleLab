@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-23 Hero State Visual Marker Roster Badge MVP
+- Added hero state badge helpers for WorldMap and battle roster display paths.
+- Badge priority is `dead` -> `captured` -> `wounded` -> normal, rendering `[사망]`, `[포로]`, `[부상]`, or no badge.
+- WorldMap selected-city/right city panel hero data now receives runtime `_hero_runtime_states` merged over `HERO_DATA`, so saved/loaded wounded or captured state can be displayed.
+- Right city stationed hero lists and governor labels append the state badge through the existing text labels.
+- BattleContext hero registry entries now preserve `status`, `wounded`, `captured`, and `dead`, and battle formation panels append the badge to the displayed hero name.
+- Post-battle result card hero summaries now reuse the name-with-state marker style.
+- No captured hero battle exclusion, roster removal, prisoner movement, wound recovery, death processing, icon art, or stat penalty system was added.
+
 ## v0.68b-12b-22 Hero Wound Capture Placeholder MVP
 - Added losing-side hero status placeholder application in `scripts/worldmap_test.gd` after invasion battle results.
 - Deterministic MVP rule: first eligible losing-side hero is marked `wounded`, second eligible losing-side hero is marked `captured`, and `dead` is never applied.

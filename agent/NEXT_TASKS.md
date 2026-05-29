@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current Hero State Visual Badge Status
+- `v0.68b-12b-23 Hero State Visual Marker Roster Badge MVP` is complete in code.
+- Hero status display priority is `dead` -> `captured` -> `wounded` -> normal; normal heroes show no badge.
+- WorldMap city hero lists and battle formation panels now append `[부상]`, `[포로]`, or `[사망]` when the runtime/context hero state says so.
+- Post-battle result card state summaries use the same badge style for consistency.
+- Captured heroes are still allowed to remain in city rosters and battle rosters for this placeholder phase.
+- Remaining manual QA: F6 invasion, save, load, then confirm right city panel and battle formation panel preserve the badges without breaking layout.
+
 ## Current Hero State Placeholder Status
 - `v0.68b-12b-22 Hero Wound Capture Placeholder MVP` is complete in code.
 - Losing-side hero status placeholder rule is deterministic: first eligible losing hero becomes wounded, second eligible losing hero becomes captured, dead is never applied.

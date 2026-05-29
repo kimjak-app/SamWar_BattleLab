@@ -1,5 +1,12 @@
 # HERO DATA CONTRACT
 
+## v0.68b-12b-23 Hero State Display Marker
+- Hero status display markers are derived from runtime hero state, not seed `HERO_DATA` mutation.
+- Display priority is `dead` -> `captured` -> `wounded` -> normal, mapping to `[사망]`, `[포로]`, `[부상]`, or no badge.
+- BattleContext hero copies may carry `status`, `wounded`, `captured`, and `dead` so battle formation panels can display the same markers.
+- Captured heroes are not excluded from battle or removed from `stationed_hero_ids` in this MVP.
+- `dead` is display-safe but still not applied by the current battle result placeholder.
+
 ## v0.68b-12b-22 Wound/Capture Placeholder
 - Post-battle wound/capture placeholder state is runtime-only and must not mutate `HERO_DATA`.
 - The temporary MVP rule marks the first eligible losing-side hero as `wounded` and the second eligible losing-side hero as `captured`.

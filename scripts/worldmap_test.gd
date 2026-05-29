@@ -2134,8 +2134,27 @@ func _format_hero_name_list(hero_ids: Array) -> String:
 		var display_name := str(hero_data.get("display_name", hero_data.get("name", hero_id)))
 		if display_name.is_empty():
 			display_name = hero_id
-		names.append(display_name)
+		names.append(_get_hero_display_name_with_state(hero_id, display_name))
 	return "없음" if names.is_empty() else ", ".join(names)
+
+
+func _get_hero_state_badge_text(hero_id: String) -> String:
+	if hero_id.is_empty():
+		return ""
+	var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+	if bool(hero_state.get("dead", false)) or str(hero_state.get("status", "")) == HERO_RUNTIME_STATUS_DEAD:
+		return " [사망]"
+	if bool(hero_state.get("captured", false)) or str(hero_state.get("status", "")) == HERO_RUNTIME_STATUS_CAPTURED:
+		return " [포로]"
+	if bool(hero_state.get("wounded", false)) or str(hero_state.get("status", "")) == HERO_RUNTIME_STATUS_WOUNDED:
+		return " [부상]"
+	return ""
+
+
+func _get_hero_display_name_with_state(hero_id: String, base_name: String) -> String:
+	if hero_id.is_empty():
+		return base_name
+	return "%s%s" % [base_name, _get_hero_state_badge_text(hero_id)]
 
 
 func _apply_defender_win_invasion_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> Dictionary:
@@ -3075,10 +3094,20 @@ func _get_city_hud_data_for_ui() -> Dictionary:
 	return city_hud_data
 
 
+func _get_hero_data_for_ui() -> Dictionary:
+	var hero_data := HERO_DATA.duplicate(true)
+	for hero_id_variant in _hero_runtime_states.keys():
+		var hero_id := str(hero_id_variant)
+		var merged_entry := _get_hero_entry(hero_id)
+		if not merged_entry.is_empty():
+			hero_data[hero_id] = merged_entry
+	return hero_data
+
+
 func _refresh_city_hud_data_bindings() -> void:
 	if city_info_panel == null:
 		return
-	city_info_panel.set_hud_data(HERO_DATA, _get_city_hud_data_for_ui(), GOVERNOR_POLICY_DATA, _city_policy_state)
+	city_info_panel.set_hud_data(_get_hero_data_for_ui(), _get_city_hud_data_for_ui(), GOVERNOR_POLICY_DATA, _city_policy_state)
 
 
 func _serialize_worldmap_city_runtime_state() -> Dictionary:

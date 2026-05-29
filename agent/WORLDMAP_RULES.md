@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-23 Hero State Visual Badge Rule
+- WorldMap UI may display runtime hero state markers in existing text labels without creating new prisoner or wound systems.
+- Display priority is `dead` -> `captured` -> `wounded` -> normal.
+- Marker text is `[사망]`, `[포로]`, `[부상]`, or empty for normal heroes.
+- WorldMap selected-city hero lists should read merged runtime hero state, not seed-only `HERO_DATA`.
+- Captured heroes remain visible in city rosters and may still enter battles until a dedicated captured-hero exclusion patch exists.
+
 ## v0.68b-12b-22 Hero Status Placeholder Rule
 - Invasion battle result may apply placeholder hero status only to the losing side.
 - MVP rule is deterministic and temporary: first eligible losing hero becomes wounded; second eligible losing hero becomes captured; dead is not used.

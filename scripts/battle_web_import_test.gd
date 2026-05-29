@@ -1467,6 +1467,10 @@ func _build_worldmap_context_hero_registry_entry(hero_data: Dictionary) -> Dicti
 		"battlefield_portrait_path": safe_portrait_path,
 		"closeup_portrait_path": safe_portrait_path,
 		"default_visual_key": _get_default_visual_key_for_worldmap_hero(hero_data),
+		"status": str(hero_data.get("status", "normal")),
+		"wounded": bool(hero_data.get("wounded", false)),
+		"captured": bool(hero_data.get("captured", false)),
+		"dead": bool(hero_data.get("dead", false)),
 	}
 
 
@@ -4843,6 +4847,7 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 	var display_name := String(hero_entry.get("display_name", "미배치"))
 	if unit_state != null and unit_state.display_name != "":
 		display_name = unit_state.display_name
+	display_name = _get_hero_display_name_with_state(hero_id, display_name, hero_entry)
 	var is_deployed := unit_state != null and _is_unit_state_deployed_by_capacity_slot(unit_state)
 	var is_alive := unit_state != null and unit_state.is_alive()
 	var is_active := unit_state != null and unit_state == active_unit_state and is_deployed and is_alive
@@ -6183,6 +6188,25 @@ func _get_hero_registry_entry(hero_id: String) -> Dictionary:
 	if worldmap_context_hero_registry.has(hero_id):
 		return worldmap_context_hero_registry.get(hero_id, {})
 	return HERO_REGISTRY.get(hero_id, {})
+
+
+func _get_hero_display_name_with_state(hero_id: String, base_name: String, hero_entry: Dictionary) -> String:
+	if hero_id == "" or hero_entry.is_empty():
+		return base_name
+	return "%s%s" % [base_name, _get_hero_state_badge_text(hero_entry)]
+
+
+func _get_hero_state_badge_text(hero_entry: Dictionary) -> String:
+	if hero_entry.is_empty():
+		return ""
+	var status := str(hero_entry.get("status", "normal")).to_lower()
+	if bool(hero_entry.get("dead", false)) or status == "dead":
+		return " [사망]"
+	if bool(hero_entry.get("captured", false)) or status == "captured":
+		return " [포로]"
+	if bool(hero_entry.get("wounded", false)) or status == "wounded":
+		return " [부상]"
+	return ""
 
 
 func _load_texture_or_null(path: String) -> Texture2D:

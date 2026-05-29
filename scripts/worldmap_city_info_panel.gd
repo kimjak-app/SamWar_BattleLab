@@ -105,6 +105,8 @@ func set_hud_data(hero_data: Dictionary, city_hud_data: Dictionary, governor_pol
 	_governor_policy_data = governor_policy_data
 	_city_policy_state = city_policy_state
 	_setup_governor_policy_option()
+	if not _current_city_id.is_empty() and _city_markers_by_id.has(_current_city_id):
+		show_city(_city_markers_by_id.get(_current_city_id) as WorldMapCityMarker)
 
 
 func set_pending_invasion_event(event: Dictionary) -> void:
@@ -434,7 +436,28 @@ func _format_stationed_hero_list(hero_ids: Array) -> String:
 func _get_hero_display_name(hero_data: Dictionary, fallback: String) -> String:
 	if hero_data.is_empty():
 		return fallback
-	return str(hero_data.get("display_name", fallback))
+	var hero_id := str(hero_data.get("hero_id", hero_data.get("id", "")))
+	var base_name := str(hero_data.get("display_name", fallback))
+	return _get_hero_display_name_with_state(hero_id, base_name, hero_data)
+
+
+func _get_hero_display_name_with_state(hero_id: String, base_name: String, hero_data: Dictionary) -> String:
+	if hero_id.is_empty() or hero_data.is_empty():
+		return base_name
+	return "%s%s" % [base_name, _get_hero_state_badge_text(hero_data)]
+
+
+func _get_hero_state_badge_text(hero_data: Dictionary) -> String:
+	if hero_data.is_empty():
+		return ""
+	var status := str(hero_data.get("status", "normal")).to_lower()
+	if bool(hero_data.get("dead", false)) or status == "dead":
+		return " [사망]"
+	if bool(hero_data.get("captured", false)) or status == "captured":
+		return " [포로]"
+	if bool(hero_data.get("wounded", false)) or status == "wounded":
+		return " [부상]"
+	return ""
 
 
 func _format_hero_stats(hero_data: Dictionary) -> String:
