@@ -2,6 +2,15 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup
+- Fixed the remaining Godot warning: local variable `owner` shadowed the base `Node.owner` property.
+- Root cause: `scripts/battle_web_import_test.gd` used local `owner` inside `_apply_worldmap_context_side_roster()` for WorldMap context owner metadata.
+- Renamed the local to `city_owner_id` and updated only its local metadata references.
+- Behavior preservation: capacity slot `"source_owner"` metadata and returned summary `"owner"` key still receive the same context value; no ownership/apply logic changed.
+- Verification passed: repo-local GDScript search found no remaining `var owner` locals, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- No battle result apply, city ownership logic, troop/resource mutation, invasion flow, battle scene transition, turn/domestic logic, or save/load behavior changed.
+- Remaining risk: interactive F6 should be rechecked because headless load cannot fully prove the live console warning stream across every interaction.
+
 ### v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup
 - Fixed the F6 yellow `Integer division. Decimal part will be discarded.` warning source in `scripts/worldmap_test.gd`.
 - Root cause: calendar helpers used ambiguous integer `/` expressions for `zero_based_turn / WORLD_CALENDAR_YEAR_TURNS` and `(zero_based_turn % WORLD_CALENDAR_YEAR_TURNS) / WORLD_CALENDAR_SEASON_TURNS`.

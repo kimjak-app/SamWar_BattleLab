@@ -83,11 +83,11 @@ Latest worldmap battle result return patch: `v0.68b-12b-14 WorldMap Battle Resul
 
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
-Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
+Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
-Current stable baseline: `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
+Current stable baseline: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
-Baseline commit: local HEAD after `v0.68b-12b-14-hotfix2`
+Baseline commit: local HEAD after `v0.68b-12b-14-hotfix3`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -172,6 +172,12 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup` is complete.
+- Cause: `scripts/battle_web_import_test.gd` used local variable `owner` in `_apply_worldmap_context_side_roster()`, shadowing the base `Node.owner` property.
+- Fix summary: renamed the local to `city_owner_id` and updated only the local metadata references.
+- Behavior remains unchanged: `"source_owner"` metadata and summary `"owner"` output still receive the same WorldMap context value.
+- Verification passed: repo-local GDScript `var owner` search, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining risk: interactive F6 should still confirm the live console has no owner shadow warning after normal UI interaction.
 - `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup` is complete.
 - Cause: WorldMap calendar helpers used ambiguous integer `/` expressions for year and season-index math, triggering Godot reload warnings.
 - Fix summary: `scripts/worldmap_test.gd` now uses explicit `floori(float(... ) / float(...))` for the intended integer calendar divisions.

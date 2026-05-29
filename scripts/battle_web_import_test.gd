@@ -665,6 +665,7 @@ const HIT_SPARK_FX_TEXTURE_PATHS: Array[String] = [
 # v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP
 # v0.68b-12b-13 Battle Roster Context Apply MVP
 # v0.68b-12b-14 WorldMap Battle Result Return MVP
+# v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup
 
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
@@ -1295,7 +1296,7 @@ func _apply_worldmap_context_side_roster(
 	var requested_hero_ids := _get_context_hero_ids_for_side(context, context_side)
 	var city_id := str(context.get("%s_city_id" % context_side, ""))
 	var city_name := str(context.get("%s_city_name" % context_side, ""))
-	var owner := str(context.get("%s_owner" % context_side, ""))
+	var city_owner_id := str(context.get("%s_owner" % context_side, ""))
 	var assigned_hero_ids: Array[String] = []
 	var fallback_count := 0
 	for index in range(slot_ids.size()):
@@ -1314,7 +1315,7 @@ func _apply_worldmap_context_side_roster(
 		_set_capacity_slot_metadata_value(slot_id, "assigned_unit_id", "%s_battle_unit" % resolved_hero_id)
 		_set_capacity_slot_metadata_value(slot_id, "source_city_id", city_id)
 		_set_capacity_slot_metadata_value(slot_id, "source_city_name", city_name)
-		_set_capacity_slot_metadata_value(slot_id, "source_owner", owner)
+		_set_capacity_slot_metadata_value(slot_id, "source_owner", city_owner_id)
 		_set_capacity_slot_metadata_value(slot_id, "dispatch_type", dispatch_type)
 		_set_capacity_slot_metadata_value(slot_id, "worldmap_context_side", context_side)
 		_set_capacity_slot_metadata_value(slot_id, "worldmap_source_hero_id", requested_hero_id)
@@ -1326,7 +1327,7 @@ func _apply_worldmap_context_side_roster(
 		"fallback_count": fallback_count,
 		"city_id": city_id,
 		"city_name": city_name,
-		"owner": owner,
+		"owner": city_owner_id,
 	}
 
 

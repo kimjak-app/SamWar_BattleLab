@@ -82,7 +82,7 @@ Latest worldmap battle result return patch: `v0.68b-12b-14 WorldMap Battle Resul
 
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
-Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
+Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -131,6 +131,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-14 WorldMap Battle Result Return MVP`
 - `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 - `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
+- `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -483,11 +484,16 @@ Latest worldmap BattleContext bridge patch: `v0.68b-12b-11 WorldMap Enemy Invasi
 
 Latest worldmap battle scene handoff patch: `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 
-Current stable baseline: `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
+Current stable baseline: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
-Baseline commit: local HEAD after `v0.68b-12b-14-hotfix2`
+Baseline commit: local HEAD after `v0.68b-12b-14-hotfix3`
 
 Latest hotfix notes:
+- `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup` fixes the Godot `owner` local-variable shadow warning in `scripts/battle_web_import_test.gd`.
+- Warning cause: `_apply_worldmap_context_side_roster()` used local `owner` for WorldMap context owner metadata, shadowing `Node.owner`.
+- The local is now `city_owner_id`; metadata/output keys remain unchanged, so gameplay and ownership behavior are preserved.
+- Verification passed: repo-local GDScript `var owner` search, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining risk: interactive F6 console warning cleanliness still needs 김작 confirmation across live UI interaction paths.
 - `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup` fixes Godot integer division reload warnings in the WorldMap calendar helpers.
 - Warning cause: `scripts/worldmap_test.gd` used ambiguous integer `/` expressions for year and season-index calculation.
 - Calendar behavior is preserved: start year `154`, seasons `봄 / 여름 / 가을 / 겨울`, `10` turns per season, and `40` turns per year.

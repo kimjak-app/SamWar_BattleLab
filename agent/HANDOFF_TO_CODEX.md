@@ -187,7 +187,7 @@ Latest camera foundation:
 `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
 
 - Latest warning cleanup hotfix:
-`v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
+`v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
 - Latest session handoff docs patch:
 `v0.68b-12b-10.5 Session Handoff Docs Update Before Stop`
@@ -358,6 +358,12 @@ Do not modify casually:
 - Behavior preservation: calendar output rules remain start year `154`, seasons `봄 / 여름 / 가을 / 겨울`, `10` turns per season, and `40` turns per year; no gameplay, battle, invasion, turn-cycle, domestic, save/load, panel layout, or portrait behavior changed.
 - Verification passed: patch strings, calendar constants, touched-file integer division scan, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
 - Remaining risk: interactive F6 console warning cleanliness should still be confirmed during live UI interaction.
+- `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup` is complete.
+- Cause: `scripts/battle_web_import_test.gd` used local variable `owner` in `_apply_worldmap_context_side_roster()`, shadowing the base `Node.owner` property.
+- Fix summary: renamed the local to `city_owner_id` and updated only local references.
+- Behavior preservation: `"source_owner"` metadata and summary `"owner"` output still receive the same WorldMap context value; no gameplay, ownership, battle transition, turn/domestic, or save/load behavior changed.
+- Verification passed: repo-local GDScript `var owner` search, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining risk: interactive F6 console warning cleanliness should still be confirmed during live UI interaction.
 - Verification passed: patch strings, guarded visible assignments, forbidden-scope search, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
 - `v0.68b-12b-13 Battle Roster Context Apply MVP` is complete.
 - `Battle_Fullscreen_Test.tscn` remains the selected battle scene.
@@ -368,7 +374,7 @@ Do not modify casually:
 - Selected battle scene is `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; the battle scene reads and clears it at startup, then logs mode and attacker/defender city names while preserving the existing demo battle setup.
 - Direct `Battle_Fullscreen_Test.tscn` launch without WorldMap context remains supported and logs `No WorldMap battle context; using test battle setup`.
-- Current stable baseline for the next session is `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`.
+- Current stable baseline for the next session is `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI is good enough for the current MVP.
 - Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
