@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
+- Added shared portrait lookup/apply helper `scripts/worldmap_hero_portrait_helper.gd` for WorldMap UI reuse.
+- Inspected repo-local asset folders including `assets/web_battle/portraits` and `assets/web_battle/portraits_battlefield`; no image files were moved, deleted, edited, or generated.
+- Portrait lookup uses existing `HERO_DATA` portrait fields such as `portrait_image`, maps legacy seed paths under `assets/portraits/...` to existing `assets/web_battle/portraits/...`, and includes compact compatibility paths for known available portrait files.
+- Updated the left chancellor card and right taesu/governor card to show a `TextureRect` portrait when a texture resolves and keep the existing dark `?` fallback when missing or failed.
+- Kept stationed hero list text-only for this MVP to avoid crowding the cleaned right city panel; future pending invasion/defense UI can call the shared helper.
+- Kept the patch bounded: no BattleContext, battle scene transition, defense deployment, auto defense resolution, city ownership change, troop loss, hero movement, governor/chancellor appointment execution, enemy AI expansion, or asset import/move work was added.
+- Verification: patch strings present, portrait helper/bindings present, `git diff --check` passed, Godot project headless load passed, and root `WorldMap_Test.tscn` headless load passed.
+
 ## v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup
 - Cleaned the right `CityInfoPanel` / selected-city panel in `scripts/worldmap_city_info_panel.gd`, with pending invasion state supplied from `scripts/worldmap_test.gd`.
 - Inspected local read-only web references: `C:\dev\SamWar_web\js\ui\world_map_ui.js`, `js\ui\world_hud_ui.js`, `js\ui\ui_render.js`, `js\ui\selected_city_ui.js`, `js\core\app_state.js`, `js\core\world_rules.js`, `data\cities.js`, and `data\heroes.js`.

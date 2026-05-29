@@ -1,5 +1,7 @@
 extends Node2D
 
+const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper.gd")
+
 const WORLD_MAP_CAMERA_SPEED := 900.0
 const WORLD_MAP_CAMERA_DRAG_SPEED := 1.0
 const WORLD_MAP_MIN_ZOOM := 0.35
@@ -44,6 +46,8 @@ const COMMERCE_TAX_POINT_PER_RATING := 3
 const TAX_POINT_TO_GOLD := 1
 const CHANCELLOR_PRIMARY_RATE := 0.03
 const CHANCELLOR_SECONDARY_RATE := 0.015
+
+# v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -347,6 +351,7 @@ var _world_rect := Rect2()
 var _is_dragging := false
 var _dragging_hud_panel: Control = null
 var _dragging_hud_pointer_offset := Vector2.ZERO
+var _chancellor_portrait_texture_rect: TextureRect = null
 var selected_city_id: String = ""
 var selected_city_marker: WorldMapCityMarker = null
 var _city_markers_by_id: Dictionary = {}
@@ -420,6 +425,7 @@ func _ready() -> void:
 	city_info_panel.set_hud_data(HERO_DATA, CITY_HUD_DATA, GOVERNOR_POLICY_DATA, _city_policy_state)
 	city_info_panel.set_pending_invasion_event(_get_pending_invasion_event_mvp())
 	_setup_left_world_controls()
+	_ensure_chancellor_portrait_texture_rect()
 	_setup_left_world_status_panel_layout()
 	_refresh_left_world_status_panel()
 	_connect_world_hud_placeholders()
@@ -1222,7 +1228,7 @@ func _refresh_left_world_status_panel() -> void:
 		_player_state["chancellor_policy_id"] = policy_id
 	var policy_data := _get_chancellor_policy_entry(policy_id)
 	chancellor_label.text = "재상"
-	chancellor_portrait_label.text = _get_chancellor_portrait_text(chancellor_data)
+	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_chancellor_portrait_texture_rect, chancellor_portrait_label, chancellor_data)
 	chancellor_name_label.text = chancellor_name
 	chancellor_stats_label.text = "%s\n재상 임명: %s" % [
 		"재상 없음" if chancellor_data.is_empty() else _format_chancellor_type_summary(chancellor_data),
@@ -2198,13 +2204,20 @@ func _populate_chancellor_policy_dropdown() -> void:
 		chancellor_policy_option.set_item_metadata(chancellor_policy_option.item_count - 1, policy_id_string)
 
 
-func _get_chancellor_portrait_text(hero_data: Dictionary) -> String:
-	if hero_data.is_empty():
-		return "?"
-	var portrait_image := str(hero_data.get("portrait_image", ""))
-	if portrait_image.is_empty() or not ResourceLoader.exists(portrait_image):
-		return "?"
-	return _get_portrait_initial(str(hero_data.get("display_name", hero_data.get("name", ""))))
+func _ensure_chancellor_portrait_texture_rect() -> void:
+	if _chancellor_portrait_texture_rect != null:
+		return
+	var portrait_box := chancellor_portrait_label.get_parent()
+	if not portrait_box is Control:
+		return
+	_chancellor_portrait_texture_rect = TextureRect.new()
+	_chancellor_portrait_texture_rect.name = "ChancellorPortraitTexture"
+	_chancellor_portrait_texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_chancellor_portrait_texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_chancellor_portrait_texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_chancellor_portrait_texture_rect.visible = false
+	portrait_box.add_child(_chancellor_portrait_texture_rect)
+	_chancellor_portrait_texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
 func _get_chancellor_effect_text(hero_data: Dictionary) -> String:
@@ -2300,12 +2313,6 @@ func _get_tax_description(tax_level: int) -> String:
 	if tax_level > 30:
 		return "무거운 세금, 금전 증가 / 충성도 하락"
 	return "평소 수준"
-
-
-func _get_portrait_initial(display_name: String) -> String:
-	if display_name.is_empty():
-		return "?"
-	return display_name.left(1)
 
 
 func _select_option_by_metadata(option_button: OptionButton, metadata_value: String) -> void:

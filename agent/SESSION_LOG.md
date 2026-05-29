@@ -2,6 +2,18 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
+- Inspected required agent docs, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, root `WorldMap_Test.tscn`, and repo-local portrait/image asset listings.
+- Asset folders inspected included `assets/web_battle/portraits`, `assets/web_battle/portraits_battlefield`, worldmap assets, and battle UI/unit asset listings.
+- Added `scripts/worldmap_hero_portrait_helper.gd` as the shared WorldMap portrait lookup/apply path.
+- Portrait lookup reads existing `HERO_DATA` portrait fields such as `portrait_image`, maps legacy `assets/portraits/...` seed paths to `assets/web_battle/portraits/...`, and includes compact compatibility paths for known available assets.
+- Updated the chancellor card and right taesu/governor card to show resolved portrait textures and hide the `?`; missing or failed texture loads clear the texture and keep the `?` fallback.
+- Kept stationed hero list text-only in this MVP to preserve the compact right-panel layout.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `scripts/worldmap_hero_portrait_helper.gd`, and agent docs.
+- Verification passed: patch/helper strings present, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- No BattleContext, battle scene transition, defense deployment, auto defense resolution, ownership change, troop loss, hero movement, governor/chancellor appointment execution, enemy AI expansion, or asset file edit/move was added.
+- Recommended next task: `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`.
+
 ### v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup
 - Inspected required agent docs, `scripts/worldmap_test.gd`, root `WorldMap_Test.tscn`, and right panel script `scripts/worldmap_city_info_panel.gd`.
 - Inspected local read-only web references: `C:\dev\SamWar_web\js\ui\world_map_ui.js`, `js\ui\world_hud_ui.js`, `js\ui\ui_render.js`, `js\ui\selected_city_ui.js`, `js\core\app_state.js`, `js\core\world_rules.js`, `data\cities.js`, and `data\heroes.js`.

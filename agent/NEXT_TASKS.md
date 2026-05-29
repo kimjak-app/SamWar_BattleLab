@@ -71,9 +71,11 @@ Latest worldmap enemy invasion choice UI patch: `v0.68b-12b-10 WorldMap Enemy In
 
 Latest worldmap right city panel cleanup patch: `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
 
-Current stable baseline: `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
+Latest worldmap hero portrait binding patch: `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
 
-Baseline commit: local HEAD after `v0.68b-12b-10a`
+Current stable baseline: `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
+
+Baseline commit: local HEAD after `v0.68b-12b-10b`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -84,15 +86,15 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
+`v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
 
 Goal:
-- bind existing hero portrait assets and keep stable `?` fallback for missing portraits
+- convert pending invasion event into battle context data while avoiding direct result/ownership application
 
 Scope:
-- use a shared portrait lookup for chancellor card, stationed hero list, right city info panel, and future pending invasion choice hero display
-- do not create new portrait assets unless separately requested
-- do not change hero identity or battle roster logic
+- reuse the existing pending invasion event and choice UI
+- prepare safe manual/auto defense payload data only
+- keep battle result and city ownership application deferred
 
 Forbidden in this task:
 - no battle scene transition
@@ -102,22 +104,22 @@ Forbidden in this task:
 - no actual governor/chancellor appointment execution
 
 ## Priority 2
-`v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
-
-Goal:
-- convert pending invasion event into battle context data while avoiding direct result/ownership application
-
-## Priority 3
 `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 
 Goal:
 - transition from WorldMap to the Godot battle scene and pass battle context safely
 
-## Priority 4
+## Priority 3
 `v0.68b-12b-13 WorldMap Battle Result Return MVP`
 
 Goal:
 - return from battle scene to worldmap with a result payload
+
+## Priority 4
+`v0.68b-12b-14 Enemy Invasion Ownership / Troop Apply`
+
+Goal:
+- apply returned defense result to city ownership, troop state, and hero faction/location state
 
 ## Priority 5
 `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
@@ -186,15 +188,22 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP` is complete.
+- Modified `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `scripts/worldmap_hero_portrait_helper.gd`, and agent docs.
+- Inspected asset folders: `assets/web_battle/portraits`, `assets/web_battle/portraits_battlefield`, and repo-local asset listings.
+- Portrait lookup uses existing `HERO_DATA` fields, maps legacy `assets/portraits/...` seed paths to existing `assets/web_battle/portraits/...`, and keeps `?` fallback for missing/failed textures.
+- Updated chancellor and right taesu/governor portrait boxes; stationed hero list remains text-only for layout safety.
+- Verification passed: patch/helper strings, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- Recommended next task: `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`.
 - `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup` is complete.
 - Modified `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, root `WorldMap_Test.tscn`, and agent docs.
 - Inspected web references: `world_map_ui.js`, `world_hud_ui.js`, `ui_render.js`, `selected_city_ui.js`, `app_state.js`, `world_rules.js`, `data/cities.js`, and `data/heroes.js`.
 - The right selected-city panel now cleanly displays owner/nation/region, population, gold, food, resources, troops, defense, public support/order, commerce, agriculture, taesu/governor, and stationed heroes.
 - Pending invasion defender cities now show `침공 대상 도시 · 방어전 준비 중`; attacker cities show `침공 출발 도시`.
 - Verification passed: patch strings, right-panel strings, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
-- Recommended next task: `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`.
+- Recommended next task after 10a was `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`; it is now complete.
 - `v0.68b-12b-10.5 Session Handoff Docs Update Before Stop` documents the current stop point before the next session.
-- Current stable baseline is `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` at commit `6d3616339e5d555127c5f4eb5eb91160d362aa2e`.
+- Current stable baseline is `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI displays correctly enough for the current MVP.
 - Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
 - Runtime save path is `user://worldmap_left_panel_state.json`.

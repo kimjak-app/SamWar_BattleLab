@@ -183,6 +183,9 @@ Latest camera foundation:
 - Latest worldmap right city panel cleanup patch:
 `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
 
+- Latest worldmap hero portrait binding patch:
+`v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
+
 - Latest session handoff docs patch:
 `v0.68b-12b-10.5 Session Handoff Docs Update Before Stop`
 
@@ -325,7 +328,13 @@ Do not modify casually:
 - Modified files were `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, root `WorldMap_Test.tscn`, and agent docs.
 - Web references inspected were `world_map_ui.js`, `world_hud_ui.js`, `ui_render.js`, `selected_city_ui.js`, `app_state.js`, `world_rules.js`, `data/cities.js`, and `data/heroes.js`.
 - Verification passed: patch strings present, right-panel display strings present, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
-- Current stable baseline for the next session is `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`.
+- `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP` is complete.
+- Added shared portrait helper `scripts/worldmap_hero_portrait_helper.gd`; it reads existing `portrait_image`/portrait path fields, maps legacy `assets/portraits/...` seed paths to `assets/web_battle/portraits/...`, applies compact compatibility paths for known available assets, and safely falls back to `?`.
+- The left chancellor card and right taesu/governor card now create runtime `TextureRect` nodes inside the existing portrait boxes. Valid portraits hide the `?` fallback; missing or failed loads clear the texture and show `?`.
+- Stationed hero list remains text-only in this MVP to avoid crowding the cleaned right panel, but future pending invasion/defense UI can reuse the shared helper.
+- Asset folders inspected: `assets/web_battle/portraits`, `assets/web_battle/portraits_battlefield`, and worldmap/battle asset listings.
+- Verification passed: helper/patch strings present, chancellor/governor bindings present, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- Current stable baseline for the next session is `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI is good enough for the current MVP.
 - Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
@@ -342,6 +351,7 @@ Do not modify casually:
 - Domestic apply once per full turn cycle: tax income, loyalty change, chancellor policy effects, warehouse resource updates, duplicate apply guard.
 - Enemy invasion MVP: 45% roll during enemy turn, enemy-owned attacker, neighboring player-owned defender, pending event, defender city auto-selection, pending choice card, manual/auto placeholder buttons, and ally turn-end blocked while pending.
 - Right selected-city panel cleanup: selected city name, owner/nation/region, population/resources/economy/military values, taesu, stationed hero list, and pending invasion defender/attacker labels are now readable in the right `CityInfoPanel`.
+- Hero portrait binding MVP: the chancellor card and right taesu/governor card use `WorldMapHeroPortraitHelper` to show existing portrait assets where available and keep the stable dark `?` fallback where missing.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -455,13 +465,12 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
-- `v0.68b-12b-10b` goal:
-  - Bind existing hero portrait assets and keep stable `?` fallback for missing assets.
-  - Prefer a shared lookup for chancellor card, stationed hero list, right city info panel, and future pending invasion hero display.
-  - Keep the task asset-binding/display-only; do not change hero identity, city data, BattleContext, or battle handoff.
+  - `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
+- `v0.68b-12b-11` goal:
+  - Convert pending invasion events into safe BattleContext-style defense payload data.
+  - Reuse the existing pending invasion event/choice UI and keep manual/auto selection display-safe.
+  - Do not apply battle results, city ownership, troop losses, or hero movement in this bridge task.
 - Next candidates:
-  - `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
   - `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
   - `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
   - `v0.68b-12b-13 WorldMap Battle Result Return MVP`

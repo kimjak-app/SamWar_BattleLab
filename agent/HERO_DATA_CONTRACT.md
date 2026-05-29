@@ -79,3 +79,9 @@ HeroData = {
 - Do not use scene portrait textures as the final identity source of truth.
 - Keep `hero_id` stable across skill lookup, portrait lookup, battle unit state, and future save data.
 - Do not expand battle-scene-only hardcoded roster data as the long-term hero registry design.
+
+## v0.68b-12b-10b Portrait Binding Note
+- Current WorldMap portrait display uses `scripts/worldmap_hero_portrait_helper.gd`.
+- The helper treats `HERO_DATA` fields such as `portrait_image`, `portrait_path`, `portrait`, `image_path`, and `image` as optional display metadata only.
+- Legacy imported paths under `assets/portraits/...` may be resolved to existing repo assets under `assets/web_battle/portraits/...`.
+- Missing fields, missing files, and failed texture loads must keep the visible `?` fallback and must not change hero identity or gameplay state.

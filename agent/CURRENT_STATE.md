@@ -70,6 +70,8 @@ Latest worldmap enemy invasion audit patch: `v0.68b-12b-8 WorldMap Enemy Invasio
 
 Latest worldmap right city panel cleanup patch: `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
 
+Latest worldmap hero portrait binding patch: `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -109,6 +111,8 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
 - `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
 - `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+- `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
+- `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -488,6 +492,8 @@ Completed WorldMap session flow:
 9. `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
 10. `v0.68b-12b-9 WorldMap Enemy Invasion Event MVP`
 11. `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+12. `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
+13. `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
 
 Current implemented systems:
 - Web hero/city/battle roster seed data imported into Godot worldmap seed structures.
@@ -506,10 +512,15 @@ Current implemented systems:
 - Web source files inspected: `world_map_ui.js`, `world_hud_ui.js`, `ui_render.js`, `selected_city_ui.js`, `app_state.js`, `world_rules.js`, `data/cities.js`, and `data/heroes.js`.
 - Verification passed: patch strings present, right-panel display strings present, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
 - Remaining risk: visual fit still needs Kimjak F6 confirmation because the panel content is denser than before.
+- `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP` is complete.
+- Added `scripts/worldmap_hero_portrait_helper.gd` as the shared portrait lookup/apply path for current and future WorldMap UI.
+- Portrait lookup uses existing `HERO_DATA` portrait fields such as `portrait_image`, maps legacy `assets/portraits/...` seed paths to existing `assets/web_battle/portraits/...` files, and includes compact compatibility paths for known available portrait assets.
+- Updated the left chancellor card and right taesu/governor card so valid portraits display as textures and missing/failed portraits keep the dark `?` fallback.
+- Stationed hero list remains text-only in this MVP to preserve the compact right-panel layout; the shared helper is ready for later pending invasion/defense UI use.
+- Asset folders inspected: `assets/web_battle/portraits`, `assets/web_battle/portraits_battlefield`, and repo-local asset listings.
+- Verification passed: patch strings/helper bindings present, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
 
 Explicitly deferred systems:
-- Right city info panel cleanup.
-- Hero portrait image binding.
 - BattleContext generation.
 - Battle scene handoff.
 - Defense hero deployment UI.
@@ -523,18 +534,15 @@ Explicitly deferred systems:
 - Full governor appointment execution.
 
 Next direction:
-1. `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
-2. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
-3. `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
-4. `v0.68b-12b-13 WorldMap Battle Result Return MVP`
-5. `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
-4. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
-5. `v0.68b-12c Selected City Panel Web Content Parity`
-6. `v0.68b-12d City Detail Panel Web Content Parity`
-7. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
-8. `v0.68b-13 Hero Portrait Asset Naming Contract`
-9. `v0.68b-14 Hero Portrait Asset Apply MVP`
-10. `v0.68c BattleContext Runtime Injection MVP`
+1. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
+2. `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
+3. `v0.68b-12b-13 WorldMap Battle Result Return MVP`
+4. `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
+5. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
+6. `v0.68b-12c Selected City Panel Web Content Parity`
+7. `v0.68b-12d City Detail Panel Web Content Parity`
+8. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
+9. `v0.68c BattleContext Runtime Injection MVP`
 
 ## Known / Deferred
 - 김작 F6 visual QA should confirm `v0.68b-12b Left World HUD Web Content Parity`: left main HUD section order is close to the web left HUD; turn/date/phase display follows web wording; chancellor card resembles the web structure; chancellor policy list/copy matches the web constants; selecting a policy updates explanation only and does not change actual values; national resources, warehouse, supply, troop rebalance, logistics/upkeep, and external trade summaries use web-like copy; button wording follows the web; placeholder feel is reduced; bottom empty space is acceptable; unified panel and Selected City panel structure remain intact; drag/collapse works; city clicks still refresh panels; route lines and sea arrow flow are normal; castle icon visuals stay hidden; existing battle scenes are not broken.

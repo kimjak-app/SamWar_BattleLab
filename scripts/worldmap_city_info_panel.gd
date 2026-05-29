@@ -1,6 +1,7 @@
 class_name WorldMapCityInfoPanel
 extends PanelContainer
 
+const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper.gd")
 const PLAYER_FACTION_ID := "player"
 
 const REGION_LABELS := {
@@ -43,6 +44,7 @@ const CITY_TYPE_LABELS := {
 }
 
 # v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup
+# v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 
 @onready var eyebrow_label: Label = $MarginContainer/Content/EyebrowLabel
 @onready var city_name_label: Label = $MarginContainer/Content/CityNameLabel
@@ -78,10 +80,12 @@ var _governor_policy_data: Dictionary = {}
 var _city_policy_state: Dictionary = {}
 var _pending_invasion_event: Dictionary = {}
 var _current_city_id := ""
+var _governor_portrait_texture_rect: TextureRect = null
 
 
 func _ready() -> void:
 	city_id_label.visible = false
+	_ensure_governor_portrait_texture_rect()
 	attack_button_placeholder.pressed.connect(_on_attack_placeholder_pressed)
 	hero_move_button_placeholder.pressed.connect(_on_hero_move_placeholder_pressed)
 	domestic_button_placeholder.pressed.connect(_on_domestic_placeholder_pressed)
@@ -169,7 +173,7 @@ func _show_empty() -> void:
 	loyalty_label.text = "성 충성도 정보 없음"
 	loyalty_bar.value = 0
 	governor_label.text = "태수 없음"
-	governor_portrait_label.text = "?"
+	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_governor_portrait_texture_rect, governor_portrait_label, {})
 	governor_name_label.text = "태수 없음"
 	governor_stats_label.text = "능력: -"
 	_setup_governor_policy_option()
@@ -380,12 +384,28 @@ func _get_city_policy_id(city_id: String, city_data: Dictionary) -> String:
 
 func _update_governor_card(governor_id: String, governor_data: Dictionary, policy_id: String, policy_data: Dictionary) -> void:
 	var governor_name := _get_hero_display_name(governor_data, "태수 없음")
-	governor_portrait_label.text = _get_portrait_initial(governor_name)
+	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_governor_portrait_texture_rect, governor_portrait_label, governor_data)
 	governor_name_label.text = governor_name
 	governor_stats_label.text = _format_hero_stats(governor_data)
 	governor_policy_description_label.text = str(policy_data.get("description", "태수 정책 설명 준비 중"))
 	_select_option_by_metadata(governor_policy_option, policy_id)
 	governor_policy_option.disabled = governor_id.is_empty()
+
+
+func _ensure_governor_portrait_texture_rect() -> void:
+	if _governor_portrait_texture_rect != null:
+		return
+	var portrait_box := governor_portrait_label.get_parent()
+	if not portrait_box is Control:
+		return
+	_governor_portrait_texture_rect = TextureRect.new()
+	_governor_portrait_texture_rect.name = "GovernorPortraitTexture"
+	_governor_portrait_texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_governor_portrait_texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_governor_portrait_texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_governor_portrait_texture_rect.visible = false
+	portrait_box.add_child(_governor_portrait_texture_rect)
+	_governor_portrait_texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
 func _format_stationed_hero_chips(hero_ids: Array) -> String:
@@ -426,12 +446,6 @@ func _format_hero_stats(hero_data: Dictionary) -> String:
 		int(hero_data.get("intelligence", 0)),
 		int(hero_data.get("loyalty", 0)),
 	]
-
-
-func _get_portrait_initial(display_name: String) -> String:
-	if display_name.is_empty():
-		return "?"
-	return display_name.left(1)
 
 
 func _select_option_by_metadata(option_button: OptionButton, metadata_value: String) -> void:
