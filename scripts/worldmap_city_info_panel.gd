@@ -4,6 +4,8 @@ extends PanelContainer
 const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper.gd")
 const PLAYER_FACTION_ID := "player"
 
+signal attack_requested(city_id: String)
+
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
 	"region.korean_peninsula": "한반도",
@@ -81,6 +83,8 @@ var _city_policy_state: Dictionary = {}
 var _pending_invasion_event: Dictionary = {}
 var _current_city_id := ""
 var _governor_portrait_texture_rect: TextureRect = null
+var _attack_action_enabled := false
+var _attack_action_hint := "공격 준비는 다음 단계에서 BattleContext와 연결됩니다."
 
 
 func _ready() -> void:
@@ -113,6 +117,12 @@ func set_pending_invasion_event(event: Dictionary) -> void:
 	_pending_invasion_event = event.duplicate(true)
 	if not _current_city_id.is_empty():
 		_refresh_pending_invasion_status_line(_current_city_id)
+
+
+func set_attack_action_state(enabled: bool, hint_text: String = "") -> void:
+	_attack_action_enabled = enabled
+	_attack_action_hint = hint_text if not hint_text.is_empty() else ("공격 가능" if enabled else "공격할 수 없는 도시입니다.")
+	_refresh_attack_action_state()
 
 
 func show_city(city_marker: WorldMapCityMarker) -> void:
@@ -157,6 +167,7 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 		str(policy_data.get("name", "정보 없음")),
 		str(policy_data.get("description", "정보 없음")),
 	]
+	_refresh_attack_action_state()
 	show()
 
 
@@ -185,6 +196,8 @@ func _show_empty() -> void:
 	military_info_label.text = "병력: 정보 없음 · 방어: 정보 없음"
 	military_state_label.text = "민심/치안: 정보 없음 · 상업: 정보 없음 · 농업: 정보 없음"
 	hint_label.text = "정보 없음"
+	_attack_action_enabled = false
+	_refresh_attack_action_state()
 	show()
 
 
@@ -536,13 +549,27 @@ func _on_governor_policy_selected(index: int) -> void:
 
 
 func _on_attack_placeholder_pressed() -> void:
-	print("[WorldMap] Attack placeholder selected. BattleContext connection is deferred.")
-	hint_label.text = "공격 준비는 다음 단계에서 BattleContext와 연결됩니다."
+	if _current_city_id.is_empty():
+		hint_label.text = "공격할 도시를 선택하십시오."
+		return
+	if not _attack_action_enabled:
+		hint_label.text = _attack_action_hint
+		return
+	attack_requested.emit(_current_city_id)
 
 
 func _on_hero_move_placeholder_pressed() -> void:
 	print("[WorldMap] Hero move placeholder selected. Hero transfer is deferred.")
 	hint_label.text = "무장 이동은 다음 단계에서 Hero/Army 배치와 연결됩니다."
+
+
+func _refresh_attack_action_state() -> void:
+	if attack_button_placeholder == null:
+		return
+	attack_button_placeholder.text = "공격"
+	attack_button_placeholder.disabled = not _attack_action_enabled
+	attack_button_placeholder.visible = _attack_action_enabled
+	attack_button_placeholder.tooltip_text = _attack_action_hint
 
 
 func _on_domestic_placeholder_pressed() -> void:

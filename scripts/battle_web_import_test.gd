@@ -1248,19 +1248,22 @@ func _read_worldmap_battle_context_handoff() -> void:
 
 func _apply_worldmap_battle_context_handoff(context: Dictionary) -> void:
 	var mode := str(context.get("mode", "manual"))
-	var attacker_city_name := str(context.get("attacker_city_name", "알 수 없는 적 도시"))
-	var defender_city_name := str(context.get("defender_city_name", "알 수 없는 아군 도시"))
+	var attacker_city_name := str(context.get("attacker_city_name", "알 수 없는 공격 도시"))
+	var defender_city_name := str(context.get("defender_city_name", "알 수 없는 방어 도시"))
 	var attacker_city_id := str(context.get("attacker_city_id", ""))
 	var defender_city_id := str(context.get("defender_city_id", ""))
-	print("[Battle] WorldMap battle context received: mode=%s attacker=%s(%s) defender=%s(%s)" % [
+	var battle_type := str(context.get("type", "defense"))
+	print("[Battle] WorldMap battle context received: type=%s mode=%s attacker=%s(%s) defender=%s(%s)" % [
+		battle_type,
 		mode,
 		attacker_city_name,
 		attacker_city_id,
 		defender_city_name,
 		defender_city_id,
 	])
-	_append_battle_log("월드맵 방어전 데이터 수신")
-	_append_battle_log("%s 방어 · %s → %s" % [mode, attacker_city_name, defender_city_name])
+	var battle_label := "공격전" if _is_worldmap_player_attack_context(context) else "방어전"
+	_append_battle_log("월드맵 %s 데이터 수신" % battle_label)
+	_append_battle_log("%s %s · %s → %s" % [mode, battle_label, attacker_city_name, defender_city_name])
 	_setup_worldmap_context_battle_roster(context)
 	_refresh_worldmap_result_return_button()
 
@@ -1272,17 +1275,21 @@ func _setup_worldmap_context_battle_roster(context: Dictionary) -> void:
 		return
 	has_applied_worldmap_context_roster = true
 	_register_worldmap_context_hero_contracts(context)
+	var ally_context_side := "attacker" if _is_worldmap_player_attack_context(context) else "defender"
+	var enemy_context_side := "defender" if _is_worldmap_player_attack_context(context) else "attacker"
+	var ally_dispatch_type := "player_attack_context" if _is_worldmap_player_attack_context(context) else "defense_context"
+	var enemy_dispatch_type := "attack_target_context" if _is_worldmap_player_attack_context(context) else "invasion_context"
 	var ally_result := _apply_worldmap_context_side_roster(
 		context,
-		"defender",
+		ally_context_side,
 		WORLDMAP_CONTEXT_ALLY_SLOT_IDS,
-		"defense_context"
+		ally_dispatch_type
 	)
 	var enemy_result := _apply_worldmap_context_side_roster(
 		context,
-		"attacker",
+		enemy_context_side,
 		WORLDMAP_CONTEXT_ENEMY_SLOT_IDS,
-		"invasion_context"
+		enemy_dispatch_type
 	)
 	worldmap_context_roster_summary = {
 		"ally": ally_result,
@@ -1292,7 +1299,7 @@ func _setup_worldmap_context_battle_roster(context: Dictionary) -> void:
 	_rebuild_battle_unit_state_list_refs()
 	_update_all_unit_visuals_from_state()
 	_refresh_formation_slot_guides()
-	_append_battle_log("월드맵 방어전 편성 적용")
+	_append_battle_log("월드맵 %s 편성 적용" % ("공격전" if _is_worldmap_player_attack_context(context) else "방어전"))
 	_append_battle_log("아군 %d명 · 적군 %d명" % [
 		int(ally_result.get("resolved_count", 0)),
 		int(enemy_result.get("resolved_count", 0)),
@@ -1301,6 +1308,12 @@ func _setup_worldmap_context_battle_roster(context: Dictionary) -> void:
 		str(ally_result.get("assigned_hero_ids", [])),
 		str(enemy_result.get("assigned_hero_ids", [])),
 	])
+
+
+func _is_worldmap_player_attack_context(context: Dictionary) -> bool:
+	var source := str(context.get("source", "")).to_lower()
+	var battle_type := str(context.get("type", "")).to_lower()
+	return source == "player_attack" or battle_type == "attack"
 
 
 func _apply_worldmap_context_side_roster(
@@ -2017,10 +2030,16 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 	if worldmap_battle_context.is_empty():
 		return {}
 	var result := "victory" if battle_result_state == "victory" else "defeat"
-	var winner := "defender" if result == "victory" else "attacker"
+	var is_player_attack := _is_worldmap_player_attack_context(worldmap_battle_context)
+	var winner := "attacker" if is_player_attack and result == "victory" else "defender"
+	if not is_player_attack:
+		winner = "defender" if result == "victory" else "attacker"
+	var result_type := "attack_result" if is_player_attack else "defense_result"
+	var attacker_battle_side := "ally" if is_player_attack else "enemy"
+	var defender_battle_side := "enemy" if is_player_attack else "ally"
 	return {
 		"source": str(worldmap_battle_context.get("source", "enemy_invasion")),
-		"type": "defense_result",
+		"type": result_type,
 		"mode": str(worldmap_battle_context.get("mode", "manual")),
 		"result": result,
 		"winner": winner,
@@ -2032,8 +2051,8 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 		"defender_owner": str(worldmap_battle_context.get("defender_owner", "")),
 		"attacker_troops": maxi(0, int(worldmap_battle_context.get("attacker_troops", 0))),
 		"defender_troops": maxi(0, int(worldmap_battle_context.get("defender_troops", 0))),
-		"attacker_surviving_troops": _sum_alive_deployed_troops_for_side("enemy"),
-		"defender_surviving_troops": _sum_alive_deployed_troops_for_side("ally"),
+		"attacker_surviving_troops": _sum_alive_deployed_troops_for_side(attacker_battle_side),
+		"defender_surviving_troops": _sum_alive_deployed_troops_for_side(defender_battle_side),
 		"turn_number": int(worldmap_battle_context.get("turn_number", 0)),
 	}
 

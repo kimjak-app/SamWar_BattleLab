@@ -2,6 +2,15 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-26 Player City Attack MVP Import
+- Ported the web player city attack MVP into the Godot WorldMap flow.
+- Added selected-city attack request signaling and WorldMap-side enable/disable state for the `공격` button.
+- Implemented direct-neighbor player attack eligibility and source-city resolution using current origin city first, then the first player-owned target neighbor.
+- Built `source: player_attack`, `type: attack` BattleContext payloads with existing city roster/support helpers, preserving captured/dead exclusion and wounded eligibility.
+- Updated battle context side mapping so player attack attacker heroes enter ally slots and target defenders enter enemy slots; enemy-invasion defense mapping remains unchanged.
+- Added player attack result application: victory changes target owner to `player`, defeat keeps target owner, and casualty/result-card/hero-state/save-load flows are reused.
+- Deferred deployment selection, troop allocation, sea/route-type attacks, 2-hop attacks, marching/supply, siege UI, AI counterattack, and enemy hero recruitment.
+
 ### v0.68b-12b-26 Wounded Hero Recovery Turn MVP
 - Added `wounded_turns_remaining` to runtime hero state and save/load normalization.
 - Wounded placeholder state now starts at 3 WorldMap strategy turns; captured/dead/normal state clears the counter.

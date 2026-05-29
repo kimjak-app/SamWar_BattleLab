@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-26 Player City Attack MVP Import
+- Connected `scripts/worldmap_city_info_panel.gd` attack placeholder to a real `attack_requested(city_id)` signal and WorldMap callback.
+- Added player attack eligibility in `scripts/worldmap_test.gd`: enemy target, direct player-owned neighbor, player turn, no pending invasion, and at least one non-captured/dead main attacker in the source city.
+- Added player attack source-city selection using the current valid player origin city first, then the first player-owned target neighbor.
+- Added `source: player_attack`, `type: attack` BattleContext construction with attacker/defender city ids, owners, troops, hero ids, hero payloads, and existing support metadata.
+- Updated `scripts/battle_web_import_test.gd` so player attack contexts place attacker heroes on ally slots and defender heroes on enemy slots, while enemy-invasion defense still maps defender to ally and attacker to enemy.
+- Added player attack result handling in WorldMap: player victory occupies the target city for `player`; player defeat leaves target owner unchanged; existing casualty/result-card/hero-state/save-load paths are reused.
+- No deployment UI, troop allocation UI, sea/route-type attack, 2-hop attack, siege presentation, AI counterattack, or enemy hero recruitment was added.
+
 ## v0.68b-12b-26 Wounded Hero Recovery Turn MVP
 - Added `DEFAULT_WOUNDED_RECOVERY_TURNS := 3` and `wounded_turns_remaining` normalization in `scripts/worldmap_test.gd`.
 - Wounded placeholder application now assigns a 3-turn recovery counter; captured/dead/normal state clears the counter.

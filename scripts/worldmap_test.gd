@@ -59,6 +59,7 @@ const CHANCELLOR_SECONDARY_RATE := 0.015
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
 const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Fullscreen_Test.tscn"
+const PLAYER_ATTACK_CONTEXT_SOURCE := "player_attack"
 const INVASION_RESULT_DEFENDER_WIN := "defender_win"
 const INVASION_RESULT_ATTACKER_WIN := "attacker_win"
 const INVASION_RESULT_RETREAT := "retreat"
@@ -491,6 +492,7 @@ func _ready() -> void:
 	_refresh_world_rect_from_scene_tiles()
 	_connect_city_markers()
 	city_info_panel.set_city_markers(_city_markers_by_id)
+	_connect_city_info_panel_actions()
 	_refresh_city_hud_data_bindings()
 	city_info_panel.set_pending_invasion_event(_get_pending_invasion_event_mvp())
 	_setup_left_world_controls()
@@ -755,10 +757,25 @@ func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 	selected_city_marker = city_marker
 	selected_city_marker.set_selected(true)
 	_player_state["selected_city_id"] = selected_city_id
+	if _is_city_owned_by_player_mvp(selected_city_id):
+		_player_state["origin_city_id"] = selected_city_id
 	city_info_panel.set_pending_invasion_event(_get_pending_invasion_event_mvp())
 	city_info_panel.show_city(city_marker)
+	_refresh_city_info_attack_action_state(city_marker.city_id)
 	_refresh_left_world_status_panel()
 	_refresh_unified_panel_content()
+
+
+func _connect_city_info_panel_actions() -> void:
+	if city_info_panel == null:
+		return
+	var callback := Callable(self, "_on_city_info_attack_requested")
+	if city_info_panel.has_signal("attack_requested") and not city_info_panel.is_connected("attack_requested", callback):
+		city_info_panel.connect("attack_requested", callback)
+
+
+func _on_city_info_attack_requested(city_id: String) -> void:
+	_start_player_attack_battle(city_id, "manual")
 
 
 func _connect_world_hud_placeholders() -> void:
@@ -1415,6 +1432,7 @@ func _refresh_left_world_status_panel() -> void:
 	external_trade_label.text = ""
 	var pending_invasion_event := _get_pending_invasion_event_mvp()
 	city_info_panel.set_pending_invasion_event(pending_invasion_event)
+	_refresh_city_info_attack_action_state(selected_city_id)
 	world_status_hint_label.text = _format_invasion_status_text(pending_invasion_event)
 	world_status_hint_label.visible = not pending_invasion_event.is_empty()
 	_refresh_pending_invasion_choice_ui(pending_invasion_event)
@@ -1680,6 +1698,113 @@ func _get_city_neighbors_mvp(city_id: String) -> Array[String]:
 	return neighbors
 
 
+func _get_player_attack_block_reason(target_city_id: String) -> String:
+	if target_city_id.is_empty() or not _has_city_for_battle_context(target_city_id):
+		return "공격할 수 없는 도시입니다."
+	if _has_pending_invasion_event_mvp():
+		return "현재 처리 중인 침공 이벤트가 있어 공격할 수 없습니다."
+	if _enemy_turn_mvp_pending or _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_PLAYER:
+		return "아군 턴에만 공격할 수 있습니다."
+	if not _is_city_owned_by_enemy_mvp(target_city_id):
+		return "적 도시만 공격할 수 있습니다."
+	var source_city_id := _find_player_attack_source_city(target_city_id)
+	if source_city_id.is_empty():
+		return "인접한 아군 도시가 없습니다."
+	if _get_available_player_attack_main_hero_ids(source_city_id).is_empty():
+		return "출전 가능한 장수가 없습니다."
+	return ""
+
+
+func _can_player_attack_city(target_city_id: String) -> bool:
+	return _get_player_attack_block_reason(target_city_id).is_empty()
+
+
+func _find_player_attack_source_city(target_city_id: String) -> String:
+	if target_city_id.is_empty() or not _has_city_for_battle_context(target_city_id):
+		return ""
+	var target_neighbors := _get_city_neighbors_mvp(target_city_id)
+	var selected_source_id := str(_player_state.get("origin_city_id", ""))
+	if selected_source_id.is_empty():
+		selected_source_id = selected_city_id
+	if not selected_source_id.is_empty() and target_neighbors.has(selected_source_id) and _is_city_owned_by_player_mvp(selected_source_id):
+		return selected_source_id
+	for neighbor_id in target_neighbors:
+		if _is_city_owned_by_player_mvp(str(neighbor_id)):
+			return str(neighbor_id)
+	return ""
+
+
+func _get_available_player_attack_main_hero_ids(source_city_id: String) -> Array[String]:
+	var hero_ids: Array[String] = []
+	if source_city_id.is_empty():
+		return hero_ids
+	for hero_id_variant in _get_city_stationed_hero_ids_for_battle_context(source_city_id):
+		var hero_id := str(hero_id_variant)
+		if hero_id.is_empty():
+			continue
+		if _is_hero_captured_for_battle(hero_id):
+			print("[HERO_BATTLE_EXCLUDE] source=%s city=%s hero=%s reason=%s" % [
+				PLAYER_ATTACK_CONTEXT_SOURCE,
+				source_city_id,
+				hero_id,
+				_get_hero_battle_exclusion_reason(hero_id)
+			])
+			continue
+		hero_ids.append(hero_id)
+	return hero_ids
+
+
+func _refresh_city_info_attack_action_state(city_id: String = "") -> void:
+	if city_info_panel == null:
+		return
+	var target_city_id := city_id if not city_id.is_empty() else selected_city_id
+	var block_reason := _get_player_attack_block_reason(target_city_id)
+	var enabled := block_reason.is_empty()
+	var hint := ""
+	if enabled:
+		var source_city_id := _find_player_attack_source_city(target_city_id)
+		hint = "%s에서 %s 공격 가능" % [
+			_format_city_name_by_id(source_city_id, "인접 아군 도시"),
+			_format_city_name_by_id(target_city_id, "대상 도시")
+		]
+	else:
+		hint = block_reason
+	if city_info_panel.has_method("set_attack_action_state"):
+		city_info_panel.call("set_attack_action_state", enabled, hint)
+
+
+func _start_player_attack_battle(target_city_id: String, mode: String = "manual") -> void:
+	var block_reason := _get_player_attack_block_reason(target_city_id)
+	if not block_reason.is_empty():
+		_set_save_management_status(block_reason)
+		_refresh_city_info_attack_action_state(target_city_id)
+		_refresh_left_world_status_panel()
+		return
+	var source_city_id := _find_player_attack_source_city(target_city_id)
+	if source_city_id.is_empty():
+		_set_save_management_status("인접한 아군 도시가 없습니다.")
+		_refresh_city_info_attack_action_state(target_city_id)
+		_refresh_left_world_status_panel()
+		return
+	var battle_context := _build_player_attack_battle_context(source_city_id, target_city_id, mode)
+	if battle_context.is_empty():
+		_set_save_management_status("공격 전투 데이터 생성 실패")
+		_refresh_left_world_status_panel()
+		return
+	_set_pending_battle_context_mvp(battle_context)
+	_set_save_management_status("%s에서 %s 공격을 시작합니다." % [
+		str(battle_context.get("attacker_city_name", _format_city_name_by_id(source_city_id, "아군 도시"))),
+		str(battle_context.get("defender_city_name", _format_city_name_by_id(target_city_id, "적 도시")))
+	])
+	print("[PLAYER_ATTACK] start source=%s target=%s attacker_heroes=%s defender_heroes=%s" % [
+		source_city_id,
+		target_city_id,
+		str(battle_context.get("attacker_hero_ids", [])),
+		str(battle_context.get("defender_hero_ids", []))
+	])
+	_handoff_battle_context_to_battle_scene(battle_context)
+
+
 func _create_pending_invasion_event_mvp(attacker_city_id: String, defender_city_id: String) -> Dictionary:
 	if attacker_city_id.is_empty() or defender_city_id.is_empty():
 		return {}
@@ -1813,7 +1938,69 @@ func _consume_worldmap_battle_result_if_any() -> void:
 
 
 func _apply_returned_battle_result_mvp(result: Dictionary) -> void:
+	if _is_player_attack_battle_result(result):
+		_apply_player_attack_battle_result(result)
+		return
 	_apply_invasion_battle_result(result)
+
+
+func _is_player_attack_battle_result(result_payload: Dictionary) -> bool:
+	var source := str(result_payload.get("source", "")).to_lower()
+	var result_type := str(result_payload.get("type", "")).to_lower()
+	return source == PLAYER_ATTACK_CONTEXT_SOURCE or result_type.begins_with("attack")
+
+
+func _apply_player_attack_battle_result(result_payload: Dictionary) -> void:
+	var result_kind := _normalize_player_attack_battle_result_kind(result_payload)
+	var defender_city_id := _get_invasion_result_city_id(result_payload, ["defender_city_id", "target_city_id", "city_id"])
+	var attacker_city_id := _get_invasion_result_city_id(result_payload, ["attacker_city_id", "source_city_id", "origin_city_id"])
+	var defender_city_name := str(result_payload.get("defender_city_name", _format_city_name_by_id(defender_city_id, "알 수 없는 적 도시")))
+	var attacker_city_name := str(result_payload.get("attacker_city_name", _format_city_name_by_id(attacker_city_id, "알 수 없는 아군 도시")))
+	var status_message := ""
+	var result_summary: Dictionary = {}
+	if defender_city_id.is_empty() or not _has_city_for_battle_context(defender_city_id):
+		result_summary = _build_invasion_result_summary(INVASION_RESULT_UNKNOWN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, "", "", {}, "공격 결과 확인 필요", [
+			"공격 대상 도시 정보를 찾을 수 없어 소유권 변화는 적용하지 않았습니다.",
+		])
+		status_message = _format_invasion_result_status_from_summary(result_summary)
+	else:
+		match result_kind:
+			INVASION_RESULT_ATTACKER_WIN:
+				result_summary = _apply_player_attack_win_result(defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, result_payload)
+				status_message = _format_invasion_result_status_from_summary(result_summary)
+			INVASION_RESULT_DEFENDER_WIN:
+				result_summary = _apply_player_attack_loss_result(defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, result_payload)
+				status_message = _format_invasion_result_status_from_summary(result_summary)
+			INVASION_RESULT_RETREAT:
+				var current_owner := _get_city_owner_id_for_battle_context(defender_city_id)
+				result_summary = _build_invasion_result_summary(result_kind, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, current_owner, current_owner, {}, "공격 종료", [
+					"%s 공격이 취소/퇴각 처리되었습니다." % defender_city_name,
+					"소유권 변화 없음.",
+				])
+				status_message = _format_invasion_result_status_from_summary(result_summary)
+			_:
+				var current_owner := _get_city_owner_id_for_battle_context(defender_city_id)
+				result_summary = _build_invasion_result_summary(result_kind, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, current_owner, current_owner, {}, "공격 결과 확인 필요", [
+					"%s 공격 결과를 해석할 수 없어 소유권 변화는 적용하지 않았습니다." % defender_city_name,
+				])
+				status_message = _format_invasion_result_status_from_summary(result_summary)
+	if not result_summary.is_empty():
+		result_summary = _apply_invasion_hero_state_placeholder(result_payload, result_summary)
+		status_message = _format_invasion_result_status_from_summary(result_summary)
+		_sync_worldmap_hero_locations_from_city_runtime_states()
+	if not defender_city_id.is_empty():
+		_select_city_after_invasion_result(defender_city_id)
+	_refresh_city_info_attack_action_state(defender_city_id)
+	_show_post_battle_result_summary(result_summary)
+	_set_save_management_status(status_message)
+	_refresh_left_world_status_panel()
+	_refresh_unified_panel_content()
+	print("[PLAYER_ATTACK_RESULT] result=%s attacker_city=%s defender_city=%s status=%s" % [
+		result_kind,
+		attacker_city_id,
+		defender_city_id,
+		status_message
+	])
 
 
 func _apply_invasion_battle_result(result_payload: Dictionary) -> void:
@@ -1910,6 +2097,28 @@ func _normalize_invasion_battle_result_kind(result_payload: Dictionary) -> Strin
 		return INVASION_RESULT_DEFENDER_WIN
 	if ["attacker", "enemy"].has(winner):
 		return INVASION_RESULT_ATTACKER_WIN
+	return INVASION_RESULT_UNKNOWN
+
+
+func _normalize_player_attack_battle_result_kind(result_payload: Dictionary) -> String:
+	var winner := str(result_payload.get("winner", "")).to_lower()
+	if ["attacker", "player", "ally"].has(winner):
+		return INVASION_RESULT_ATTACKER_WIN
+	if ["defender", "enemy"].has(winner):
+		return INVASION_RESULT_DEFENDER_WIN
+	if result_payload.has("is_player_win") and result_payload.get("is_player_win") is bool:
+		return INVASION_RESULT_ATTACKER_WIN if bool(result_payload.get("is_player_win")) else INVASION_RESULT_DEFENDER_WIN
+	var result_tokens: Array[String] = []
+	for key in ["result", "battle_result", "outcome", "state"]:
+		if result_payload.has(key):
+			result_tokens.append(str(result_payload.get(key, "")).to_lower())
+	for token in result_tokens:
+		if ["player_win", "attacker_win", "victory", "win"].has(token):
+			return INVASION_RESULT_ATTACKER_WIN
+		if ["player_loss", "defender_win", "defeat", "lose", "loss"].has(token):
+			return INVASION_RESULT_DEFENDER_WIN
+		if ["retreat", "cancel", "cancelled", "canceled", "aborted"].has(token):
+			return INVASION_RESULT_RETREAT
 	return INVASION_RESULT_UNKNOWN
 
 
@@ -2243,6 +2452,57 @@ func _apply_attacker_win_invasion_result(defender_city_id: String, attacker_city
 	])
 
 
+func _apply_player_attack_win_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> Dictionary:
+	var old_owner := _get_city_owner_id_for_battle_context(defender_city_id)
+	var casualty_result := _calculate_invasion_casualty_result(INVASION_RESULT_ATTACKER_WIN, defender_city_id, attacker_city_id, result_payload)
+	var defender_before_troops := int(casualty_result.get("defender_before", _get_city_troops_for_battle_context(defender_city_id)))
+	var attacker_before_troops := int(casualty_result.get("attacker_before", _get_city_troops_for_battle_context(attacker_city_id)))
+	var occupied_city_troops := int(casualty_result.get("occupied_city_troops", INVASION_RESULT_DEFAULT_OCCUPATION_TROOPS))
+	var attacker_source_remaining := int(casualty_result.get("attacker_source_remaining_troops", 0))
+	_set_city_runtime_owner(defender_city_id, PLAYER_FACTION_ID)
+	_set_city_runtime_troops(defender_city_id, occupied_city_troops)
+	print("[PLAYER_ATTACK_RESULT] apply=attacker_win city=%s before=%d after=%d reason=occupied_by_player" % [
+		defender_city_id,
+		defender_before_troops,
+		occupied_city_troops
+	])
+	if not attacker_city_id.is_empty() and _has_city_for_battle_context(attacker_city_id):
+		_set_city_runtime_troops(attacker_city_id, attacker_source_remaining)
+		print("[PLAYER_ATTACK_RESULT] apply=attacker_win city=%s before=%d after=%d reason=occupation_detached" % [
+			attacker_city_id,
+			attacker_before_troops,
+			attacker_source_remaining
+		])
+	return _build_invasion_result_summary(INVASION_RESULT_ATTACKER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, PLAYER_FACTION_ID, casualty_result, "도시 점령", [
+		"%s을 점령했습니다." % defender_city_name,
+	])
+
+
+func _apply_player_attack_loss_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> Dictionary:
+	var old_owner := _get_city_owner_id_for_battle_context(defender_city_id)
+	var casualty_result := _calculate_invasion_casualty_result(INVASION_RESULT_DEFENDER_WIN, defender_city_id, attacker_city_id, result_payload)
+	var defender_before := int(casualty_result.get("defender_before", 0))
+	var attacker_before := int(casualty_result.get("attacker_before", 0))
+	var defender_after := int(casualty_result.get("defender_remaining_troops", defender_before))
+	var attacker_after := int(casualty_result.get("attacker_remaining_troops", attacker_before))
+	_set_city_runtime_troops(defender_city_id, defender_after)
+	print("[PLAYER_ATTACK_RESULT] apply=defender_win city=%s before=%d after=%d reason=target_defended" % [
+		defender_city_id,
+		defender_before,
+		defender_after
+	])
+	if not attacker_city_id.is_empty() and _has_city_for_battle_context(attacker_city_id):
+		_set_city_runtime_troops(attacker_city_id, attacker_after)
+		print("[PLAYER_ATTACK_RESULT] apply=defender_win city=%s before=%d after=%d reason=attacker_retreat" % [
+			attacker_city_id,
+			attacker_before,
+			attacker_after
+		])
+	return _build_invasion_result_summary(INVASION_RESULT_DEFENDER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, old_owner, casualty_result, "공격 실패", [
+		"%s 공격에 실패했습니다." % defender_city_name,
+	])
+
+
 func _calculate_invasion_casualty_result(result_kind: String, defender_city_id: String, attacker_city_id: String, result_payload: Dictionary) -> Dictionary:
 	var defender_before := _clamp_invasion_troops(_get_city_troops_for_battle_context(defender_city_id))
 	var attacker_before := _clamp_invasion_troops(_get_city_troops_for_battle_context(attacker_city_id))
@@ -2454,6 +2714,51 @@ func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String
 		"defender_city_name": _format_city_name_by_id(defender_city_id, "알 수 없는 아군 도시"),
 		"turn_number": maxi(1, int(_player_state.get("turn_number", 1))),
 		"event_turn_number": int(event.get("turn_number", _player_state.get("turn_number", 1))),
+		"attacker_owner": attacker_owner,
+		"defender_owner": defender_owner,
+		"attacker_troops": _get_city_troops_for_battle_context(attacker_city_id),
+		"defender_troops": _get_city_troops_for_battle_context(defender_city_id),
+		"attacker_hero_ids": attacker_roster.get("hero_ids", []),
+		"defender_hero_ids": defender_roster.get("hero_ids", []),
+		"attacker_heroes": attacker_roster.get("heroes", []),
+		"defender_heroes": defender_roster.get("heroes", []),
+		"attacker_main_hero_ids": attacker_roster.get("main_hero_ids", []),
+		"defender_main_hero_ids": defender_roster.get("main_hero_ids", []),
+		"attacker_support_hero_ids": attacker_roster.get("support_hero_ids", []),
+		"defender_support_hero_ids": defender_roster.get("support_hero_ids", []),
+		"attacker_support_city_ids": attacker_roster.get("support_city_ids", []),
+		"defender_support_city_ids": defender_roster.get("support_city_ids", []),
+		"attacker_governor_id": _get_city_governor_id_for_battle_context(attacker_city_id),
+		"defender_governor_id": _get_city_governor_id_for_battle_context(defender_city_id),
+	}
+
+
+func _build_player_attack_battle_context(source_city_id: String, target_city_id: String, mode: String = "manual") -> Dictionary:
+	var attacker_city_id := source_city_id
+	var defender_city_id := target_city_id
+	if attacker_city_id.is_empty() or defender_city_id.is_empty():
+		return {}
+	if not _has_city_for_battle_context(attacker_city_id) or not _has_city_for_battle_context(defender_city_id):
+		return {}
+	var attacker_owner := _get_city_owner_id_for_battle_context(attacker_city_id)
+	var defender_owner := _get_city_owner_id_for_battle_context(defender_city_id)
+	var used_hero_ids := {}
+	var attacker_roster := _build_invasion_side_roster_for_battle_context(attacker_city_id, attacker_owner, used_hero_ids, "attacker")
+	var defender_roster := _build_invasion_side_roster_for_battle_context(defender_city_id, defender_owner, used_hero_ids, "defender")
+	var attacker_main_hero_ids: Array = attacker_roster.get("main_hero_ids", [])
+	if attacker_main_hero_ids.is_empty():
+		print("[PLAYER_ATTACK] context_build_blocked source=%s target=%s reason=no_main_attackers" % [attacker_city_id, defender_city_id])
+		return {}
+	_log_invasion_reinforcement_rule_summary(attacker_city_id, defender_city_id, attacker_owner, defender_owner, attacker_roster, defender_roster)
+	return {
+		"type": "attack",
+		"source": PLAYER_ATTACK_CONTEXT_SOURCE,
+		"mode": "auto" if mode == "auto" else "manual",
+		"attacker_city_id": attacker_city_id,
+		"defender_city_id": defender_city_id,
+		"attacker_city_name": _format_city_name_by_id(attacker_city_id, "알 수 없는 아군 도시"),
+		"defender_city_name": _format_city_name_by_id(defender_city_id, "알 수 없는 적 도시"),
+		"turn_number": maxi(1, int(_player_state.get("turn_number", 1))),
 		"attacker_owner": attacker_owner,
 		"defender_owner": defender_owner,
 		"attacker_troops": _get_city_troops_for_battle_context(attacker_city_id),

@@ -1,5 +1,14 @@
 # CURRENT STATE
 
+## v0.68b-12b-26 Player City Attack MVP Import
+- Player attack MVP is now connected from the WorldMap selected city panel: enemy cities with a directly adjacent player city can expose the `공격` button.
+- Attack source city selection follows the web MVP rule: use the current valid player origin city if it neighbors the target, otherwise use the first player-owned target neighbor.
+- Player attack creates a WorldMap BattleContext with `source: player_attack` and `type: attack`, then reuses the existing Battle_Fullscreen_Test handoff.
+- Battle scene context mapping now treats player attack attacker roster as ally-side and target defender roster as enemy-side; enemy-invasion defense mapping remains unchanged.
+- Player attack results no longer fall through the enemy-invasion unknown path: player victory occupies the target city for `player`, while player defeat preserves the target owner.
+- Existing casualty, result-card, hero status placeholder, captured/dead exclusion, wounded battle penalty/recovery, and save/load runtime persistence flows are reused.
+- Still deferred: deployment selection UI, troop allocation UI, sea/route-type attacks, 2-hop attacks, marching/supply cost, siege presentation, AI counterattack, and enemy hero recruitment.
+
 ## v0.68b-12b-26 Wounded Hero Recovery Turn MVP
 - Hero runtime state now includes `wounded_turns_remaining`.
 - New wounded placeholder applications assign `DEFAULT_WOUNDED_RECOVERY_TURNS = 3`; captured/dead/normal states keep recovery turns at `0`.

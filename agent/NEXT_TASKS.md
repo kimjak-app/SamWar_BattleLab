@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current Player Attack MVP Status
+- `v0.68b-12b-26 Player City Attack MVP Import` is complete in code.
+- Enemy cities directly adjacent to a player-owned city can enable the selected-city `공격` button.
+- Player attack uses `source: player_attack`, `type: attack`, player source city as attacker, and target enemy city as defender.
+- The battle scene maps player attack attacker roster to ally slots and defender roster to enemy slots while preserving enemy-invasion defense mapping.
+- Player victory changes target city owner to `player`; player defeat keeps target owner unchanged. Existing casualty/result-card/save-load paths are reused.
+- Remaining manual QA: F6 select adjacent/non-adjacent enemy cities, confirm button state, enter battle, verify context side mapping, win/loss result application, save/load persistence, and enemy-invasion regression.
+- Still deferred: deployment hero selection, troop allocation, sea/route-type attack, 2-hop attack, marching/supply, siege-specific UI, AI counterattack, and enemy hero recruit/conversion.
+
 ## Current Wounded Recovery Status
 - `v0.68b-12b-26 Wounded Hero Recovery Turn MVP` is complete in code.
 - Wounded heroes receive `wounded_turns_remaining = 3` when the placeholder wound is applied.

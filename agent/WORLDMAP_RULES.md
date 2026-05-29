@@ -1,5 +1,14 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-26 Player City Attack MVP Rule
+- Player attack is allowed only against enemy-owned target cities that are directly adjacent to at least one player-owned city.
+- Source city resolution uses the current valid player origin city first; otherwise it uses the first player-owned neighbor of the target city.
+- WorldMap must block player attack during pending enemy invasion/event handling or non-player turn state.
+- Player attack BattleContext uses `source: player_attack` and `type: attack`; attacker is the player source city and defender is the enemy target city.
+- Captured/dead heroes remain battle-ineligible; wounded heroes remain battle-eligible and keep their existing battle penalties.
+- Player victory occupies the target city for `player`; player defeat keeps the target owner unchanged.
+- MVP excludes deployment selection, troop allocation UI, sea/route-type attacks, 2-hop attacks, marching/supply costs, siege-specific UI, AI counterattack, and enemy hero recruitment.
+
 ## v0.68b-12b-26 Wounded Recovery Turn Rule
 - Wounded recovery is based on WorldMap strategy turns only.
 - Default MVP wound duration is 3 WorldMap turns via `wounded_turns_remaining`.
