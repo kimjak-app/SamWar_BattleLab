@@ -765,6 +765,15 @@ Canonical regression guard details are also tracked in `agent/QA_AGENT.md`.
 - Player attack result summary now uses clearer occupation/failure copy; owner/troop logic is unchanged.
 - F6 manual QA was not performed by Codex in this environment; verify panel size/position, SpinBox input, supply shortage states, sortie transition, victory/defeat result, save/load, and enemy invasion regression.
 
+## v0.68b-12b-32 Handoff
+- CommandRank/commandLimit parity is implemented in `scripts/worldmap_test.gd` and surfaced in `scripts/player_attack_deployment_panel.gd`.
+- Web constants are mirrored: `governor=10000`, `general=8000`, `lieutenant=6000`, `officer=5000`; unknown rank falls back to officer, and legacy `captain` maps to `lieutenant`.
+- A city governor receives governor command rank for allocation without changing hero data.
+- Player attack deployment rows now show command label/limit, and SpinBox max is capped by `min(command_limit, source_city_troops - 1)`.
+- Confirm validation clamps allocation by command limit and remaining source garrison before source troop pre-decrement.
+- Enemy invasion defense default allocation and player attack defender allocation now use commandLimit distribution; the old even allocation helper remains as fallback.
+- F6 manual QA remains required for visible command-limit display, over-limit input blocking, player attack win/loss troop accounting, enemy invasion defense win/loss, and woundedQueue save/load/recovery.
+
 ## v0.68b-12b-27 Handoff
 - Player attack no longer jumps directly into `Battle_Fullscreen_Test.tscn`; `_start_player_attack_battle()` opens `PlayerAttackDeploymentPanel`.
 - New script: `scripts/player_attack_deployment_panel.gd`.

@@ -82,6 +82,22 @@ const HERO_RUNTIME_STATUS_CAPTURED := "captured"
 const HERO_RUNTIME_STATUS_DEAD := "dead"
 const DEFAULT_WOUNDED_RECOVERY_TURNS := 3
 const PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS := 1
+const COMMAND_RANK_GOVERNOR := "governor"
+const COMMAND_RANK_GENERAL := "general"
+const COMMAND_RANK_LIEUTENANT := "lieutenant"
+const COMMAND_RANK_OFFICER := "officer"
+const COMMAND_RANK_LABELS := {
+	"governor": "태수",
+	"general": "장군",
+	"lieutenant": "부장",
+	"officer": "군관",
+}
+const COMMAND_RANK_LIMITS := {
+	"governor": 10000,
+	"general": 8000,
+	"lieutenant": 6000,
+	"officer": 5000,
+}
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -1892,6 +1908,7 @@ func _get_deployable_player_heroes_for_city(city_id: String) -> Array[Dictionary
 		if _is_hero_captured_for_battle(hero_id):
 			print("[PLAYER_ATTACK_DEPLOY_SKIP] city=%s hero=%s reason=%s" % [city_id, hero_id, _get_hero_battle_exclusion_reason(hero_id)])
 			continue
+		var command_summary := _get_hero_command_summary_for_city_mvp(hero_entry, city_id)
 		var deploy_entry := {
 			"hero_id": hero_id,
 			"display_name": str(hero_entry.get("display_name", hero_entry.get("name", hero_id))),
@@ -1900,6 +1917,9 @@ func _get_deployable_player_heroes_for_city(city_id: String) -> Array[Dictionary
 			"war": int(hero_entry.get("war", hero_entry.get("attack", 0))),
 			"intelligence": int(hero_entry.get("intelligence", 0)),
 			"leadership": int(hero_entry.get("leadership", hero_entry.get("command", hero_entry.get("war", 0)))),
+			"command_rank": str(command_summary.get("command_rank", COMMAND_RANK_OFFICER)),
+			"command_label": str(command_summary.get("command_label", "군관")),
+			"command_limit": int(command_summary.get("command_limit", 0)),
 		}
 		heroes.append(deploy_entry)
 	return heroes
@@ -1913,9 +1933,9 @@ func _confirm_player_attack_deployment(deployment: Dictionary) -> void:
 		return
 	var source_city_id := str(deployment.get("source_city_id", ""))
 	var target_city_id := str(deployment.get("target_city_id", ""))
-	var selected_hero_ids: Array[String] = _normalize_hero_id_array(deployment.get("selected_hero_ids", []))
-	var troop_allocation: Dictionary = deployment.get("attacker_troop_allocation", {}).duplicate(true)
-	var supply_cost: Dictionary = deployment.get("supply_cost", {}).duplicate(true)
+	var selected_hero_ids: Array[String] = _normalize_hero_id_array(validation.get("selected_hero_ids", deployment.get("selected_hero_ids", [])))
+	var troop_allocation: Dictionary = validation.get("attacker_troop_allocation", deployment.get("attacker_troop_allocation", {})).duplicate(true)
+	var supply_cost: Dictionary = validation.get("supply_cost", deployment.get("supply_cost", {})).duplicate(true)
 	var total_allocated_troops := int(validation.get("total_troops", 0))
 	var source_troops_before := _get_city_troops_for_battle_context(source_city_id)
 	var source_troops_after := maxi(0, source_troops_before - total_allocated_troops)
@@ -1978,14 +1998,23 @@ func _validate_player_attack_deployment(deployment: Dictionary) -> Dictionary:
 		return {"ok": false, "message": "장수를 1명 이상 선택하십시오."}
 	var available_hero_ids := _get_available_player_attack_main_hero_ids(source_city_id)
 	var troop_allocation: Dictionary = deployment.get("attacker_troop_allocation", {})
+	var clamped_allocation := {}
 	var total_troops := 0
+	var remaining_garrison := maxi(0, _get_city_troops_for_battle_context(source_city_id) - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
 	for hero_id in selected_hero_ids:
 		if not available_hero_ids.has(hero_id):
 			return {"ok": false, "message": "출전 불가 장수가 포함되어 있습니다: %s" % hero_id}
-		var troop_count := maxi(0, int(troop_allocation.get(hero_id, 0)))
+		var hero_entry := _get_hero_entry(hero_id)
+		var command_limit := _get_hero_command_limit_for_city_mvp(hero_entry, source_city_id)
+		if command_limit <= 0:
+			return {"ok": false, "message": "지휘 한계가 없는 장수가 포함되어 있습니다: %s" % hero_id}
+		var requested_troops := maxi(0, int(troop_allocation.get(hero_id, 0)))
+		var troop_count := mini(mini(requested_troops, command_limit), remaining_garrison)
 		if troop_count <= 0:
 			return {"ok": false, "message": "선택 장수마다 병력 1 이상을 배정하십시오."}
+		clamped_allocation[hero_id] = troop_count
 		total_troops += troop_count
+		remaining_garrison = maxi(0, remaining_garrison - troop_count)
 	var max_deployable := maxi(0, _get_city_troops_for_battle_context(source_city_id) - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
 	if total_troops <= 0 or total_troops > max_deployable:
 		return {"ok": false, "message": "출정 병력은 1 이상, 도시 병력-1 이하이어야 합니다."}
@@ -1997,7 +2026,14 @@ func _validate_player_attack_deployment(deployment: Dictionary) -> Dictionary:
 		return {"ok": false, "message": "보급 비용 preview가 현재 병력 배정과 일치하지 않습니다."}
 	if not _can_pay_player_attack_supply_cost(source_city_id, expected_cost):
 		return {"ok": false, "message": "식량/금/소금이 부족합니다."}
-	return {"ok": true, "message": "출정 가능", "total_troops": total_troops}
+	return {
+		"ok": true,
+		"message": "출정 가능",
+		"total_troops": total_troops,
+		"selected_hero_ids": selected_hero_ids,
+		"attacker_troop_allocation": clamped_allocation,
+		"supply_cost": expected_cost,
+	}
 
 
 func _calculate_player_attack_supply_cost(total_troops: int) -> Dictionary:
@@ -3120,8 +3156,8 @@ func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String
 	var used_hero_ids := {}
 	var attacker_roster := _build_invasion_side_roster_for_battle_context(attacker_city_id, attacker_owner, used_hero_ids, "attacker")
 	var defender_roster := _build_invasion_side_roster_for_battle_context(defender_city_id, defender_owner, used_hero_ids, "defender")
-	var attacker_troop_allocation := _build_even_troop_allocation_for_heroes(attacker_roster.get("hero_ids", []), _get_city_troops_for_battle_context(attacker_city_id))
-	var defender_troop_allocation := _build_even_troop_allocation_for_heroes(defender_roster.get("hero_ids", []), _get_city_troops_for_battle_context(defender_city_id))
+	var attacker_troop_allocation := _build_command_limit_troop_allocation_for_heroes(attacker_roster.get("hero_ids", []), _get_city_troops_for_battle_context(attacker_city_id), attacker_city_id)
+	var defender_troop_allocation := _build_command_limit_troop_allocation_for_heroes(defender_roster.get("hero_ids", []), _get_city_troops_for_battle_context(defender_city_id), defender_city_id)
 	attacker_roster = _apply_troop_allocation_to_roster(attacker_roster, attacker_troop_allocation, attacker_city_id)
 	defender_roster = _apply_troop_allocation_to_roster(defender_roster, defender_troop_allocation, defender_city_id)
 	_log_invasion_reinforcement_rule_summary(attacker_city_id, defender_city_id, attacker_owner, defender_owner, attacker_roster, defender_roster)
@@ -3172,7 +3208,7 @@ func _build_player_attack_battle_context(source_city_id: String, target_city_id:
 	var used_hero_ids := {}
 	var attacker_roster := _build_player_attack_selected_roster_for_battle_context(attacker_city_id, selected_attacker_hero_ids, attacker_troop_allocation, used_hero_ids)
 	var defender_roster := _build_invasion_side_roster_for_battle_context(defender_city_id, defender_owner, used_hero_ids, "defender")
-	var defender_troop_allocation := _build_even_troop_allocation_for_heroes(defender_roster.get("hero_ids", []), _get_city_troops_for_battle_context(defender_city_id))
+	var defender_troop_allocation := _build_command_limit_troop_allocation_for_heroes(defender_roster.get("hero_ids", []), _get_city_troops_for_battle_context(defender_city_id), defender_city_id)
 	defender_roster = _apply_troop_allocation_to_roster(defender_roster, defender_troop_allocation, defender_city_id)
 	var attacker_main_hero_ids: Array = attacker_roster.get("main_hero_ids", [])
 	if attacker_main_hero_ids.is_empty():
@@ -3226,6 +3262,8 @@ func _build_player_attack_selected_roster_for_battle_context(source_city_id: Str
 	if source_heroes.is_empty():
 		source_heroes = _get_available_player_attack_main_hero_ids(source_city_id)
 	for hero_id in source_heroes:
+		if not selected_hero_ids.is_empty() and maxi(0, int(troop_allocation.get(str(hero_id), 0))) <= 0:
+			continue
 		if _append_invasion_roster_hero_id(hero_ids, main_hero_ids, str(hero_id), used_hero_ids, "attacker", source_city_id, "selected_main"):
 			if hero_ids.size() >= INVASION_BATTLE_MAX_HEROES_PER_SIDE:
 				break
@@ -3234,7 +3272,11 @@ func _build_player_attack_selected_roster_for_battle_context(source_city_id: Str
 		var hero_battle_data := _get_hero_battle_data_for_battle_context(hero_id, source_city_id)
 		if hero_battle_data.is_empty():
 			continue
-		var assigned_troops := maxi(0, int(troop_allocation.get(hero_id, hero_battle_data.get("troops", 0))))
+		var command_summary := _get_hero_command_summary_for_city_mvp(hero_battle_data, source_city_id)
+		hero_battle_data["command_rank"] = str(command_summary.get("command_rank", COMMAND_RANK_OFFICER))
+		hero_battle_data["command_label"] = str(command_summary.get("command_label", "군관"))
+		hero_battle_data["command_limit"] = int(command_summary.get("command_limit", 0))
+		var assigned_troops := mini(maxi(0, int(troop_allocation.get(hero_id, hero_battle_data.get("troops", 0)))), int(hero_battle_data.get("command_limit", 0)))
 		if assigned_troops > 0:
 			hero_battle_data["troop_count"] = assigned_troops
 			hero_battle_data["troops"] = assigned_troops
@@ -3267,6 +3309,53 @@ func _build_even_troop_allocation_for_heroes(hero_ids_source: Array, total_troop
 	return allocation
 
 
+func _build_command_limit_troop_allocation_for_heroes(hero_ids_source: Array, total_troops: int, source_city_id: String) -> Dictionary:
+	var allocation := {}
+	var hero_ids := _normalize_hero_id_array(hero_ids_source)
+	var active_heroes: Array[Dictionary] = []
+	var total_command_limit := 0
+	for hero_id in hero_ids:
+		allocation[hero_id] = 0
+		var hero_data := _get_hero_entry(hero_id)
+		if hero_data.is_empty():
+			continue
+		var command_limit := _get_hero_command_limit_for_city_mvp(hero_data, source_city_id)
+		if command_limit <= 0:
+			continue
+		active_heroes.append({
+			"hero_id": hero_id,
+			"limit": command_limit,
+		})
+		total_command_limit += command_limit
+	var remaining := mini(maxi(0, int(total_troops)), total_command_limit)
+	while remaining > 0:
+		var open_heroes: Array[Dictionary] = []
+		for entry in active_heroes:
+			var hero_id := str(entry.get("hero_id", ""))
+			var limit := maxi(0, int(entry.get("limit", 0)))
+			if int(allocation.get(hero_id, 0)) < limit:
+				open_heroes.append(entry)
+		if open_heroes.is_empty():
+			break
+		var share := maxi(1, int(ceil(float(remaining) / float(open_heroes.size()))))
+		var assigned_this_pass := 0
+		for entry in open_heroes:
+			var hero_id := str(entry.get("hero_id", ""))
+			var limit := maxi(0, int(entry.get("limit", 0)))
+			var room := maxi(0, limit - int(allocation.get(hero_id, 0)))
+			var amount := mini(mini(room, share), remaining)
+			if amount <= 0:
+				continue
+			allocation[hero_id] = int(allocation.get(hero_id, 0)) + amount
+			assigned_this_pass += amount
+			remaining -= amount
+			if remaining <= 0:
+				break
+		if assigned_this_pass <= 0:
+			break
+	return allocation
+
+
 func _apply_troop_allocation_to_roster(roster: Dictionary, allocation: Dictionary, fallback_city_id: String) -> Dictionary:
 	var next_roster := roster.duplicate(true)
 	var heroes: Array[Dictionary] = []
@@ -3276,6 +3365,10 @@ func _apply_troop_allocation_to_roster(roster: Dictionary, allocation: Dictionar
 		if hero_battle_data.is_empty():
 			continue
 		var allocated := maxi(0, int(allocation.get(hero_id, hero_battle_data.get("troops", 0))))
+		var command_summary := _get_hero_command_summary_for_city_mvp(hero_battle_data, fallback_city_id)
+		hero_battle_data["command_rank"] = str(command_summary.get("command_rank", COMMAND_RANK_OFFICER))
+		hero_battle_data["command_label"] = str(command_summary.get("command_label", "군관"))
+		hero_battle_data["command_limit"] = int(command_summary.get("command_limit", 0))
 		if allocated > 0:
 			hero_battle_data["troops"] = allocated
 			hero_battle_data["troop_count"] = allocated
@@ -3528,7 +3621,39 @@ func _format_hero_contract_skill_desc(hero_data: Dictionary, role_contract: Dict
 
 
 func _get_city_governor_id_for_battle_context(city_id: String) -> String:
-	return str(_get_city_hud_entry(city_id).get("governor_id", ""))
+	var city_entry := _get_city_hud_entry(city_id)
+	return str(city_entry.get("governor_id", city_entry.get("governorHeroId", "")))
+
+
+func _normalize_command_rank_mvp(raw_rank: Variant) -> String:
+	var rank := str(raw_rank).strip_edges()
+	if COMMAND_RANK_LIMITS.has(rank):
+		return rank
+	if rank == "captain":
+		return COMMAND_RANK_LIEUTENANT
+	return COMMAND_RANK_OFFICER
+
+
+func _get_hero_command_rank_for_city_mvp(hero_data: Dictionary, city_id: String) -> String:
+	var hero_id := str(hero_data.get("hero_id", hero_data.get("id", "")))
+	var governor_id := _get_city_governor_id_for_battle_context(city_id)
+	if not hero_id.is_empty() and not governor_id.is_empty() and hero_id == governor_id:
+		return COMMAND_RANK_GOVERNOR
+	return _normalize_command_rank_mvp(hero_data.get("command_rank", hero_data.get("commandRank", COMMAND_RANK_OFFICER)))
+
+
+func _get_hero_command_limit_for_city_mvp(hero_data: Dictionary, city_id: String) -> int:
+	var rank := _get_hero_command_rank_for_city_mvp(hero_data, city_id)
+	return maxi(0, int(COMMAND_RANK_LIMITS.get(rank, COMMAND_RANK_LIMITS.get(COMMAND_RANK_OFFICER, 5000))))
+
+
+func _get_hero_command_summary_for_city_mvp(hero_data: Dictionary, city_id: String) -> Dictionary:
+	var rank := _get_hero_command_rank_for_city_mvp(hero_data, city_id)
+	return {
+		"command_rank": rank,
+		"command_label": str(COMMAND_RANK_LABELS.get(rank, COMMAND_RANK_LABELS.get(COMMAND_RANK_OFFICER, "군관"))),
+		"command_limit": _get_hero_command_limit_for_city_mvp(hero_data, city_id),
+	}
 
 
 func _set_pending_battle_context_mvp(battle_context: Dictionary) -> void:

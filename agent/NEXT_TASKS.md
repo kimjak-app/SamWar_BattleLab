@@ -896,6 +896,14 @@ Goal:
 - F6 manual QA still needed: adjacent enemy city click -> deployment panel open -> hero select/deselect -> SpinBox allocation -> supply shortage block -> sortie -> battle transition -> win/loss owner result -> save/load resource stock.
 - Next recommended patch: F6 QA/hotfix for deployment panel interaction and optional actual troop allocation mapping in battle visuals if design approves.
 
+## v0.68b-12b-32 CommandRank CommandLimit Allocation Parity
+- Implemented web-parity command rank constants and labels: governor 10000, general 8000, lieutenant 6000, officer 5000.
+- Governor rule: a hero matching the city `governor_id` / `governorHeroId` is treated as governor rank for allocation.
+- Player attack deployment now displays command limit and caps each SpinBox by command limit plus available source-city deployable troops.
+- Confirm validation re-clamps selected allocations by command limit and source reserve before BattleContext handoff.
+- Player attack defender allocation and enemy invasion attacker/defender default allocation now use commandLimit distribution instead of raw even split.
+- Next recommended patch: F6 QA for commandLimit UI, allocation clamp, player attack win/loss, enemy invasion defense win/loss, and woundedQueue save/load/recovery.
+
 ## v0.68b-12b-27 Player Attack Deployment UI MVP
 - Implemented: player attack button now opens a deployment preparation panel instead of entering battle immediately.
 - Rules: deployable heroes come from the selected source city; captured/dead heroes are excluded; wounded heroes remain selectable and display their state badge.

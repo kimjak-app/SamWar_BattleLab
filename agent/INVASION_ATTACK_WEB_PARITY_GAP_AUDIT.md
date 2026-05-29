@@ -12,7 +12,17 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
 - Fixed: defense victory now returns player survivors/wounded to the defender city and enemy wounded to the attacker city woundedQueue.
 - Fixed: defense defeat now clears/occupies the defender city with enemy survivors/wounded and sends player wounded to the nearest player-owned neighbor when available.
 - Still requires F6 QA: player attack defender pre-decrement, defense win/loss accounting, woundedQueue save/load, and WorldMap turn recovery.
-- Remaining non-P0 gaps: commandRank/commandLimit clamp, defense deployment UI, lastBattleTroopResult-style UI history, captured-city hero recruit/conversion policy.
+- Remaining non-P0 gaps after v31: commandRank/commandLimit clamp, defense deployment UI, lastBattleTroopResult-style UI history, captured-city hero recruit/conversion policy.
+
+## v0.68b-12b-32 Resolution Update
+
+- Fixed: commandRank / commandLimit allocation parity now mirrors web values (`governor=10000`, `general=8000`, `lieutenant=6000`, `officer=5000`).
+- Fixed: city governor hero is treated as governor rank for that city's allocation.
+- Fixed: player attack deployment UI shows commandLimit and caps SpinBox max by commandLimit plus source deployable troops.
+- Fixed: player attack confirm validation re-clamps allocation by commandLimit and source reserve before BattleContext handoff.
+- Fixed: player attack defender allocation and enemy invasion attacker/defender default allocations now use commandLimit distribution.
+- Still requires F6 QA: commandLimit UI display, over-limit input blocking, player attack win/loss accounting, enemy invasion defense win/loss accounting, woundedQueue save/load, and WorldMap turn recovery.
+- Remaining non-P0 gaps after v32: defense deployment UI, lastBattleTroopResult-style UI history, captured-city hero recruit/conversion policy.
 
 ## Files Inspected
 
@@ -373,7 +383,7 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
 | Area | Web Implemented | Godot Implemented | Gap | Priority | Recommended Patch |
 |---|---:|---:|---|---|---|
 | Player attack eligibility/source city | Yes | Yes | Minor mode-state differences | P2 | Revisit with more pending world states |
-| Player attack deployment UI | Yes | Partial | No commandRank/commandLimit clamp | P1 | Add command limit helper/clamp |
+| Player attack deployment UI | Yes | Yes | F6 commandLimit UI QA pending | P1 | Manual QA |
 | Player source troop decrement | Yes | Yes | Needs F6 save/load QA | P1 | Manual QA |
 | Player attack defender pre-decrement | Yes | Yes | F6/save-load QA pending | P1 | Manual QA |
 | Battle unit allocated troop fields | Yes | Yes | Needs F6 context QA | P1 | Debug/QA assertions |

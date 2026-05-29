@@ -337,3 +337,13 @@
 - Supply is checked and paid from the source city's runtime `resource_stock`; missing food/rice, gold, or salt fields are defaulted only for the source city when deployment opens.
 - Source-city `resource_stock` is saved/loaded through `worldmap_city_state`. BattleContext carries selected attacker ids, per-hero troop allocation, supply cost, and supply source city id.
 - Deferred: sea route attacks, 2-hop attacks, travel time, in-battle supply penalties, supply plunder/loss recovery, troop type composition, manual support selection, siege-specific UI, and hero recruitment/faction conversion.
+
+## v0.68b-12b-32 CommandRank / CommandLimit Allocation Rules
+- Godot follows the web command rank constants: `governor=10000`, `general=8000`, `lieutenant=6000`, `officer=5000`.
+- Labels follow web copy: 태수, 장군, 부장, 군관.
+- Unknown command rank falls back to `officer`; legacy `captain` is normalized to `lieutenant`.
+- A city governor is treated as `governor` rank for that city when calculating command limit.
+- Player attack deployment UI must show each deployable hero's command limit and cap allocation input by commandLimit and source deployable troops.
+- Confirm validation must clamp allocation again before BattleContext handoff; UI validation alone is not authoritative.
+- Default allocations for player attack defenders and enemy invasion attack/defense sides use commandLimit distribution, capped by city garrison and total command limit.
+- Troop count still does not scale battle HP/attack/defense. Allocated troops remain accounting metadata for survivor/wounded/dead and woundedQueue results.

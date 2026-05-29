@@ -28,9 +28,9 @@ var _cancel_button: Button
 
 func _ready() -> void:
 	visible = false
-	custom_minimum_size = Vector2(560.0, 560.0)
-	size = Vector2(560.0, 560.0)
-	position = Vector2(520.0, 120.0)
+	custom_minimum_size = Vector2(720.0, 560.0)
+	size = Vector2(720.0, 560.0)
+	position = Vector2(430.0, 120.0)
 	z_index = 320
 	_build_layout()
 
@@ -90,7 +90,7 @@ func _build_layout() -> void:
 	content.add_child(hero_title)
 
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(532.0, 230.0)
+	scroll.custom_minimum_size = Vector2(692.0, 230.0)
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content.add_child(scroll)
 
@@ -183,7 +183,7 @@ func _add_hero_row(hero: Dictionary, default_selected: bool) -> void:
 	row.add_child(state_label)
 
 	var stat_label := Label.new()
-	stat_label.custom_minimum_size.x = 110.0
+	stat_label.custom_minimum_size.x = 100.0
 	stat_label.text = "무 %d / 지 %d / 통 %d" % [
 		int(hero.get("war", 0)),
 		int(hero.get("intelligence", 0)),
@@ -193,20 +193,33 @@ func _add_hero_row(hero: Dictionary, default_selected: bool) -> void:
 	stat_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	row.add_child(stat_label)
 
+	var command_label := Label.new()
+	command_label.custom_minimum_size.x = 126.0
+	command_label.text = "%s %d명" % [
+		str(hero.get("command_label", "군관")),
+		maxi(0, int(hero.get("command_limit", 0))),
+	]
+	command_label.clip_text = true
+	command_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	row.add_child(command_label)
+
+	var hero_command_limit := maxi(0, int(hero.get("command_limit", _payload.get("max_deployable_troops", 0))))
+	var max_for_hero := mini(hero_command_limit, maxi(0, int(_payload.get("max_deployable_troops", 0))))
 	var spin := SpinBox.new()
 	spin.min_value = 0.0
-	spin.max_value = float(maxi(0, int(_payload.get("max_deployable_troops", 0))))
+	spin.max_value = float(max_for_hero)
 	spin.step = 10.0
 	spin.prefix = "병력 "
 	spin.custom_minimum_size.x = 118.0
-	spin.value = 1.0 if default_selected else 0.0
-	spin.editable = default_selected
+	spin.value = 1.0 if default_selected and max_for_hero > 0 else 0.0
+	spin.editable = default_selected and max_for_hero > 0
 	spin.value_changed.connect(_on_troop_value_changed.bind(hero_id))
 	row.add_child(spin)
 
 	_hero_controls[hero_id] = {
 		"check": check,
 		"spin": spin,
+		"command_limit": hero_command_limit,
 	}
 
 
@@ -214,9 +227,9 @@ func _on_selection_changed(selected: bool, hero_id: String) -> void:
 	var controls: Dictionary = _hero_controls.get(hero_id, {})
 	var spin := controls.get("spin", null) as SpinBox
 	if spin != null:
-		spin.editable = selected
+		spin.editable = selected and int(spin.max_value) > 0
 		if selected and int(spin.value) <= 0:
-			spin.value = 1.0
+			spin.value = 1.0 if int(spin.max_value) > 0 else 0.0
 		elif not selected:
 			spin.value = 0.0
 	_refresh_state()
@@ -243,6 +256,16 @@ func _refresh_state() -> void:
 		warnings.append("도시에 최소 1명의 병력은 남겨야 합니다.")
 	if total_troops > source_troops:
 		warnings.append("배정 병력이 주둔 병력을 초과했습니다.")
+	for hero_id_variant in _hero_controls.keys():
+		var hero_id := str(hero_id_variant)
+		var controls: Dictionary = _hero_controls.get(hero_id, {})
+		var check := controls.get("check", null) as CheckBox
+		var spin := controls.get("spin", null) as SpinBox
+		if check == null or spin == null or not check.button_pressed:
+			continue
+		var command_limit := maxi(0, int(controls.get("command_limit", 0)))
+		if int(spin.value) > command_limit:
+			warnings.append("%s 병력이 지휘한계를 초과했습니다." % _get_hero_display_name(hero_id))
 	var missing_supply := _get_missing_supply_reasons(cost)
 	for reason in missing_supply:
 		warnings.append(reason)
@@ -312,6 +335,8 @@ func _collect_deployment() -> Dictionary:
 		if check == null or spin == null or not check.button_pressed:
 			continue
 		var troops := maxi(0, int(spin.value))
+		var command_limit := maxi(0, int(controls.get("command_limit", spin.max_value)))
+		troops = mini(troops, command_limit)
 		selected_hero_ids.append(hero_id)
 		troop_allocation[hero_id] = troops
 		total_troops += troops
@@ -341,6 +366,17 @@ func _can_pay_supply_cost(cost: Dictionary) -> bool:
 	return int(_payload.get("food_available", 0)) >= int(cost.get("food", 0)) \
 		and int(_payload.get("gold_available", 0)) >= int(cost.get("gold", 0)) \
 		and int(_payload.get("salt_available", 0)) >= int(cost.get("salt", 0))
+
+
+func _get_hero_display_name(hero_id: String) -> String:
+	var heroes: Array = _payload.get("heroes", [])
+	for hero_variant in heroes:
+		if not (hero_variant is Dictionary):
+			continue
+		var hero: Dictionary = hero_variant
+		if str(hero.get("hero_id", "")) == hero_id:
+			return str(hero.get("display_name", hero_id))
+	return hero_id
 
 
 func _on_confirm_pressed() -> void:

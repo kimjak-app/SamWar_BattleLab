@@ -951,6 +951,15 @@
 
 ## Older History
 - Older detailed history is archived at `agent/archive/v0.67-docs_agent_docs_slimdown/CHANGELOG_full_before_slimdown.md`.
+## v0.68b-12b-32 CommandRank CommandLimit Allocation Parity
+- Mirrored web command rank constants: governor 10000, general 8000, lieutenant 6000, officer 5000.
+- Added command rank normalization, governor command-rank override, commandLimit summary helpers, and commandLimit-based default troop allocation.
+- Player attack deployment UI now displays command limit and caps per-hero SpinBox allocation by commandLimit and source deployable troops.
+- Player attack confirm validation now re-clamps selected allocation by commandLimit before source troop pre-decrement and BattleContext handoff.
+- Player attack defender allocation and enemy invasion attacker/defender default allocation now use commandLimit distribution.
+- Preserved troop accounting, woundedQueue, captured/dead exclusion, wounded hero penalties, and save/load structures.
+- F6 manual QA remains pending for UI display, clamp behavior, player attack win/loss, enemy invasion defense, and woundedQueue recovery.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
 - Added explicit total assigned troops and remaining garrison troop summary.

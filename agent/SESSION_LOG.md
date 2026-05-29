@@ -1070,6 +1070,15 @@
 ## Archive
 - Full older session history moved to:
   - `agent/archive/v0.67-docs_agent_docs_slimdown/SESSION_LOG_full_before_slimdown.md`
+## v0.68b-12b-32 CommandRank CommandLimit Allocation Parity
+- Read SamWar_web command rank constants and allocation helpers from `constants.js` and `app_state.js`.
+- Added Godot command rank helpers matching web values and governor override behavior.
+- Added commandLimit metadata to deployment payloads and BattleContext hero payloads.
+- Updated player attack deployment UI to show command label/limit and cap SpinBox max by commandLimit.
+- Updated confirm validation to clamp allocations by commandLimit and source reserve.
+- Replaced player attack defender and enemy invasion attacker/defender default even allocations with commandLimit allocation.
+- Verification pending at this log point: full Godot headless scene loads and F6 manual QA.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
 - Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.
