@@ -951,6 +951,16 @@
 
 ## Older History
 - Older detailed history is archived at `agent/archive/v0.67-docs_agent_docs_slimdown/CHANGELOG_full_before_slimdown.md`.
+## v0.68b-12b-33D Defense Deployment Panel Parity
+- Reused `PlayerAttackDeploymentPanel` as a shared attack/defense deployment panel through `deployment_type`.
+- Enemy invasion manual/auto defense now opens a defense preparation panel instead of immediately entering battle.
+- Added defense deployment payload, validation, confirm, and BattleContext update flow.
+- Defense candidates are defender-city stationed player heroes after captured/dead exclusion; wounded heroes remain selectable.
+- Defense allocation uses per-hero SpinBox, commandLimit clamp, at least one selected defender, positive troop allocation, and defender-city reserve guard.
+- BattleContext carries `selected_defender_hero_ids`, selected defender allocation, and defender total allocation before existing troop pre-decrement.
+- Preserved enemy attacker automatic commandLimit allocation, pre-decrement, troop outcome, woundedQueue, and result application rules.
+- F6 manual QA remains pending.
+
 ## v0.68b-12b-32 CommandRank CommandLimit Allocation Parity
 - Mirrored web command rank constants: governor 10000, general 8000, lieutenant 6000, officer 5000.
 - Added command rank normalization, governor command-rank override, commandLimit summary helpers, and commandLimit-based default troop allocation.

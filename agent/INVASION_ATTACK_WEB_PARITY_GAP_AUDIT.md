@@ -24,6 +24,15 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
 - Still requires F6 QA: commandLimit UI display, over-limit input blocking, player attack win/loss accounting, enemy invasion defense win/loss accounting, woundedQueue save/load, and WorldMap turn recovery.
 - Remaining non-P0 gaps after v32: defense deployment UI, lastBattleTroopResult-style UI history, captured-city hero recruit/conversion policy.
 
+## v0.68b-12b-33D Resolution Update
+
+- Fixed: enemy invasion manual/auto defense now opens a defense deployment panel before battle handoff.
+- Fixed: defense deployment uses defender-city player heroes with captured/dead exclusion and wounded inclusion.
+- Fixed: defense allocation uses commandLimit display/clamp and writes selected defender ids/allocation into BattleContext.
+- Fixed: existing attacker auto allocation and attacker/defender pre-decrement remain in the defense confirm path.
+- Still requires F6 QA: defense panel open/cancel, defender allocation clamp, battle transition, defense victory/defeat accounting, woundedQueue save/load/recovery, and player attack regression.
+- Remaining gaps after v33D: lastBattleTroopResult-style UI history, captured-city hero recruit/conversion policy, and dedicated defense deployment UX polish.
+
 ## Files Inspected
 
 ### Web
@@ -389,7 +398,7 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
 | Battle unit allocated troop fields | Yes | Yes | Needs F6 context QA | P1 | Debug/QA assertions |
 | Player attack troop outcome | Yes | Yes | F6 win/loss QA pending | P1 | Manual QA |
 | Enemy invasion candidate roll | Yes | Partial | Godot richer MVP, timing parity not fully confirmed | P1 | Recheck after defense troop parity |
-| Defense deployment/default allocation | Yes | Partial | Default allocation exists; manual defense deployment UI missing | P1 | Defense deployment UI later |
+| Defense deployment/default allocation | Yes | Yes | F6 defense panel QA pending | P1 | Manual QA / UX polish |
 | Enemy attacker pre-decrement in defense | Yes | Yes | F6/save-load QA pending | P1 | Manual QA |
 | Defense result troop return | Yes | Yes | F6 win/loss QA pending | P1 | Manual QA |
 | Defense retreat city | Yes | Yes | No-retreat wounded are logged as lost | P1 | F6 no-retreat edge QA |
@@ -397,5 +406,5 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
 | Troop woundedQueue defense | Yes | Yes | F6/save-load/turn recovery QA pending | P1 | Manual QA |
 | Hero wounded/captured/dead | No direct parity | Yes | Godot-specific system | P2 | Keep separate from troop queue |
 | Save/load city troops/resources/queue | Yes | Yes | No lastBattleTroopResult persistence | P2 | Optional result history |
-| Attack/defense UX | Yes | Partial | Defense deployment and recovery notification missing | P1/P2 | Defense deploy UI later |
+| Attack/defense UX | Yes | Partial | Defense deployment exists; recovery notification and polish missing | P1/P2 | Manual QA / UX polish |
 | Hero recruit/conversion on capture | Yes | No | Intentionally deferred | Deferred | Prisoner/recruit policy patch |

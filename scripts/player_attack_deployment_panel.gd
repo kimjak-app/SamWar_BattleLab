@@ -134,21 +134,39 @@ func _populate() -> void:
 		child.queue_free()
 	_hero_controls.clear()
 
-	_city_label.text = "%s → %s" % [
-		str(_payload.get("source_city_name", "출발 도시")),
-		str(_payload.get("target_city_name", "대상 도시")),
-	]
-	_troop_label.text = "출발 도시: %s · 공격 대상: %s\n주둔 병력: %d · 최대 출정: %d" % [
-		str(_payload.get("source_city_name", "출발 도시")),
-		str(_payload.get("target_city_name", "대상 도시")),
-		int(_payload.get("source_troops", 0)),
-		int(_payload.get("max_deployable_troops", 0)),
-	]
-	_resource_label.text = "보유 보급: 식량 %d · 금 %d · 소금 %d" % [
-		int(_payload.get("food_available", 0)),
-		int(_payload.get("gold_available", 0)),
-		int(_payload.get("salt_available", 0)),
-	]
+	var is_defense := _is_defense_deployment()
+	_title_label.text = "방어 준비" if is_defense else "출정 준비"
+	_confirm_button.text = "방어 확정" if is_defense else "출정"
+	if is_defense:
+		_city_label.text = "%s의 침공을 %s에서 방어" % [
+			str(_payload.get("target_city_name", "침공 도시")),
+			str(_payload.get("source_city_name", "방어 도시")),
+		]
+		_troop_label.text = "침공군: %s · 방어 도시: %s\n방어 도시 주둔 병력: %d · 최대 방어 배정: %d" % [
+			str(_payload.get("target_city_name", "침공 도시")),
+			str(_payload.get("source_city_name", "방어 도시")),
+			int(_payload.get("source_troops", 0)),
+			int(_payload.get("max_deployable_troops", 0)),
+		]
+	else:
+		_city_label.text = "%s → %s" % [
+			str(_payload.get("source_city_name", "출발 도시")),
+			str(_payload.get("target_city_name", "대상 도시")),
+		]
+		_troop_label.text = "출발 도시: %s · 공격 대상: %s\n주둔 병력: %d · 최대 출정: %d" % [
+			str(_payload.get("source_city_name", "출발 도시")),
+			str(_payload.get("target_city_name", "대상 도시")),
+			int(_payload.get("source_troops", 0)),
+			int(_payload.get("max_deployable_troops", 0)),
+		]
+	if is_defense:
+		_resource_label.text = "방어전은 현재 보급 비용을 추가 차감하지 않습니다."
+	else:
+		_resource_label.text = "보유 보급: 식량 %d · 금 %d · 소금 %d" % [
+			int(_payload.get("food_available", 0)),
+			int(_payload.get("gold_available", 0)),
+			int(_payload.get("salt_available", 0)),
+		]
 
 	var heroes: Array = _payload.get("heroes", [])
 	for index in range(heroes.size()):
@@ -249,9 +267,9 @@ func _refresh_state() -> void:
 	var cost := _calculate_supply_cost(total_troops)
 	var warnings: Array[String] = []
 	if selected_count <= 0:
-		warnings.append("출정할 장수를 1명 이상 선택해야 합니다.")
+		warnings.append("방어할 장수를 1명 이상 선택해야 합니다." if _is_defense_deployment() else "출정할 장수를 1명 이상 선택해야 합니다.")
 	if total_troops <= 0:
-		warnings.append("출정 병력을 배정하십시오.")
+		warnings.append("방어 병력을 배정하십시오." if _is_defense_deployment() else "출정 병력을 배정하십시오.")
 	if total_troops > max_deployable:
 		warnings.append("도시에 최소 1명의 병력은 남겨야 합니다.")
 	if total_troops > source_troops:
@@ -266,21 +284,27 @@ func _refresh_state() -> void:
 		var command_limit := maxi(0, int(controls.get("command_limit", 0)))
 		if int(spin.value) > command_limit:
 			warnings.append("%s 병력이 지휘한계를 초과했습니다." % _get_hero_display_name(hero_id))
-	var missing_supply := _get_missing_supply_reasons(cost)
-	for reason in missing_supply:
-		warnings.append(reason)
-	_allocation_summary_label.text = "총 출정 병력: %d\n잔여 주둔 병력: %d" % [
+	if not _is_defense_deployment():
+		var missing_supply := _get_missing_supply_reasons(cost)
+		for reason in missing_supply:
+			warnings.append(reason)
+	_allocation_summary_label.text = "%s: %d\n잔여 주둔 병력: %d" % [
+		"방어 배정 병력" if _is_defense_deployment() else "총 출정 병력",
 		total_troops,
 		remaining_troops,
 	]
-	_supply_label.text = "보급 필요량\n%s\n%s\n%s" % [
-		_format_supply_line("식량", int(cost.get("food", 0)), int(_payload.get("food_available", 0))),
-		_format_supply_line("금", int(cost.get("gold", 0)), int(_payload.get("gold_available", 0))),
-		_format_supply_line("소금", int(cost.get("salt", 0)), int(_payload.get("salt_available", 0))),
-	]
+	if _is_defense_deployment():
+		_supply_label.text = "방어 배정은 보급 비용을 추가로 소모하지 않습니다."
+	else:
+		_supply_label.text = "보급 필요량\n%s\n%s\n%s" % [
+			_format_supply_line("식량", int(cost.get("food", 0)), int(_payload.get("food_available", 0))),
+			_format_supply_line("금", int(cost.get("gold", 0)), int(_payload.get("gold_available", 0))),
+			_format_supply_line("소금", int(cost.get("salt", 0)), int(_payload.get("salt_available", 0))),
+		]
 	_warning_label.text = " · ".join(warnings)
 	if warnings.is_empty():
-		_button_hint_label.text = "출정 가능: %s 병력 %d명" % [
+		_button_hint_label.text = "%s 가능: %s 병력 %d명" % [
+			"방어" if _is_defense_deployment() else "출정",
 			str(_payload.get("target_city_name", "대상 도시")),
 			total_troops,
 		]
@@ -342,10 +366,13 @@ func _collect_deployment() -> Dictionary:
 		total_troops += troops
 	var supply_cost := _calculate_supply_cost(total_troops)
 	return {
+		"deployment_type": str(_payload.get("deployment_type", "attack")),
 		"source_city_id": str(_payload.get("source_city_id", "")),
 		"target_city_id": str(_payload.get("target_city_id", "")),
+		"mode": str(_payload.get("mode", "manual")),
 		"selected_hero_ids": selected_hero_ids,
 		"attacker_troop_allocation": troop_allocation,
+		"defender_troop_allocation": troop_allocation,
 		"total_assigned_troops": total_troops,
 		"supply_cost": supply_cost,
 		"supply_source_city_id": str(_payload.get("source_city_id", "")),
@@ -366,6 +393,10 @@ func _can_pay_supply_cost(cost: Dictionary) -> bool:
 	return int(_payload.get("food_available", 0)) >= int(cost.get("food", 0)) \
 		and int(_payload.get("gold_available", 0)) >= int(cost.get("gold", 0)) \
 		and int(_payload.get("salt_available", 0)) >= int(cost.get("salt", 0))
+
+
+func _is_defense_deployment() -> bool:
+	return str(_payload.get("deployment_type", "attack")) == "defense"
 
 
 func _get_hero_display_name(hero_id: String) -> String:

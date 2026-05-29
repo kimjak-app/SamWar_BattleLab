@@ -347,3 +347,14 @@
 - Confirm validation must clamp allocation again before BattleContext handoff; UI validation alone is not authoritative.
 - Default allocations for player attack defenders and enemy invasion attack/defense sides use commandLimit distribution, capped by city garrison and total command limit.
 - Troop count still does not scale battle HP/attack/defense. Allocated troops remain accounting metadata for survivor/wounded/dead and woundedQueue results.
+
+## v0.68b-12b-33D Defense Deployment Rules
+- Enemy invasion defense must open a deployment panel before battle handoff for both manual and auto defense choices.
+- Defense candidates are the defender city's stationed player heroes after battle-exclusion filtering. Captured/dead heroes are excluded; wounded heroes remain selectable.
+- Defense deployment uses the same commandLimit display and clamp rules as player attack deployment.
+- Defense confirmation requires at least one selected defender and positive troop allocation per selected hero.
+- Total defender allocation cannot exceed defender city troops minus one, preserving a minimum city garrison reserve.
+- Confirmed defense BattleContext must carry `selected_defender_hero_ids`, `defender_troop_allocation`, `defender_total_allocated_troops`, and `defender_source_city_id`.
+- Enemy attacker allocation remains automatic commandLimit allocation. No enemy attacker manual selection UI is implemented.
+- Existing attacker/defender source-city pre-decrement and woundedQueue result rules remain authoritative after defense confirmation.
+- Canceling the defense panel must not clear the pending invasion event.

@@ -1070,6 +1070,16 @@
 ## Archive
 - Full older session history moved to:
   - `agent/archive/v0.67-docs_agent_docs_slimdown/SESSION_LOG_full_before_slimdown.md`
+## v0.68b-12b-33D Defense Deployment Panel Parity
+- Extended `PlayerAttackDeploymentPanel` with defense mode labels and confirm behavior.
+- Rewired enemy invasion manual/auto defense buttons to open the deployment panel first.
+- Added defense deployment payload construction from pending invasion event.
+- Added defense deployment validation and confirm flow with commandLimit/source reserve clamp.
+- Added selected defender roster support in enemy invasion BattleContext generation.
+- Preserved existing attacker auto allocation, attacker/defender pre-decrement helper, result outcome payload, and woundedQueue result flow.
+- Verification performed: `git diff --check`, Godot project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load.
+- F6 manual QA remains required for actual click flow and win/loss accounting.
+
 ## v0.68b-12b-32 CommandRank CommandLimit Allocation Parity
 - Read SamWar_web command rank constants and allocation helpers from `constants.js` and `app_state.js`.
 - Added Godot command rank helpers matching web values and governor override behavior.

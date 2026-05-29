@@ -2106,11 +2106,14 @@ func _get_city_supply_resource_amount(city_id: String, resource_id: String) -> i
 
 
 func _on_player_attack_deployment_confirmed(deployment: Dictionary) -> void:
+	if str(deployment.get("deployment_type", "attack")) == "defense":
+		_confirm_defense_deployment(deployment)
+		return
 	_confirm_player_attack_deployment(deployment)
 
 
 func _on_player_attack_deployment_cancelled() -> void:
-	_set_save_management_status("출정 준비 취소")
+	_set_save_management_status("방어 준비 취소 · 침공 이벤트 유지" if _has_pending_invasion_event_mvp() else "출정 준비 취소")
 	_refresh_left_world_status_panel()
 
 
@@ -2168,11 +2171,11 @@ func _refresh_pending_invasion_choice_ui(event: Dictionary = {}) -> void:
 
 
 func _on_manual_defense_pressed() -> void:
-	_start_pending_invasion_battle_scene_handoff("manual")
+	_open_defense_deployment_panel_from_pending_invasion("manual")
 
 
 func _on_auto_defense_pressed() -> void:
-	_start_pending_invasion_battle_scene_handoff("auto")
+	_open_defense_deployment_panel_from_pending_invasion("auto")
 
 
 func _start_pending_invasion_battle_scene_handoff(mode: String) -> void:
@@ -2206,6 +2209,135 @@ func _prepare_pending_invasion_battle_context(mode: String) -> Dictionary:
 		_set_save_management_status("수동 방어 전투 데이터 준비 완료 · 다음 단계에서 전투 화면으로 이동")
 	_refresh_left_world_status_panel()
 	return battle_context
+
+
+func _open_defense_deployment_panel_from_pending_invasion(mode: String = "manual") -> void:
+	var normalized_mode := "auto" if mode == "auto" else "manual"
+	var event := _get_pending_invasion_event_mvp()
+	var payload := _build_defense_deployment_payload(event, normalized_mode)
+	if payload.is_empty():
+		_set_save_management_status("방어 준비 패널 생성 실패")
+		_refresh_left_world_status_panel()
+		return
+	_ensure_player_attack_deployment_panel()
+	if _player_attack_deployment_panel == null:
+		_set_save_management_status("방어 준비 패널을 찾을 수 없습니다.")
+		_refresh_left_world_status_panel()
+		return
+	if _player_attack_deployment_panel.has_method("open"):
+		_player_attack_deployment_panel.call("open", payload)
+	_set_save_management_status("%s의 침공을 %s에서 방어 준비" % [
+		str(payload.get("target_city_name", "침공 도시")),
+		str(payload.get("source_city_name", "방어 도시")),
+	])
+	_refresh_left_world_status_panel()
+
+
+func _build_defense_deployment_payload(event: Dictionary, mode: String) -> Dictionary:
+	var validation := _validate_pending_invasion_event_for_battle_context(event)
+	if not bool(validation.get("ok", false)):
+		return {}
+	var attacker_city_id := str(event.get("attacker_city_id", ""))
+	var defender_city_id := str(event.get("defender_city_id", ""))
+	var defender_troops := _get_city_troops_for_battle_context(defender_city_id)
+	var max_deployable := maxi(0, defender_troops - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
+	var heroes := _get_deployable_player_heroes_for_city(defender_city_id)
+	if heroes.is_empty() or max_deployable <= 0:
+		return {}
+	return {
+		"deployment_type": "defense",
+		"mode": "auto" if mode == "auto" else "manual",
+		"source_city_id": defender_city_id,
+		"target_city_id": attacker_city_id,
+		"source_city_name": _format_city_name_by_id(defender_city_id, "방어 도시"),
+		"target_city_name": _format_city_name_by_id(attacker_city_id, "침공 도시"),
+		"source_troops": defender_troops,
+		"max_deployable_troops": max_deployable,
+		"food_available": 0,
+		"gold_available": 0,
+		"salt_available": 0,
+		"heroes": heroes,
+	}
+
+
+func _confirm_defense_deployment(deployment: Dictionary) -> void:
+	var validation := _validate_defense_deployment(deployment)
+	if not bool(validation.get("ok", false)):
+		_set_save_management_status(str(validation.get("message", "방어 조건을 확인하십시오.")))
+		_refresh_left_world_status_panel()
+		return
+	var event := _get_pending_invasion_event_mvp()
+	var mode := str(deployment.get("mode", "manual"))
+	var selected_hero_ids: Array[String] = _normalize_hero_id_array(validation.get("selected_hero_ids", []))
+	var defender_troop_allocation: Dictionary = validation.get("defender_troop_allocation", {}).duplicate(true)
+	var battle_context := _build_battle_context_from_pending_invasion(event, mode, selected_hero_ids, defender_troop_allocation)
+	if battle_context.is_empty():
+		_set_save_management_status("방어 전투 데이터 생성 실패")
+		_refresh_left_world_status_panel()
+		return
+	battle_context["selected_defender_hero_ids"] = selected_hero_ids.duplicate()
+	battle_context["defender_troop_allocation"] = defender_troop_allocation.duplicate(true)
+	battle_context["defender_total_allocated_troops"] = int(validation.get("total_troops", 0))
+	battle_context["defender_source_city_id"] = str(deployment.get("source_city_id", ""))
+	battle_context = _apply_context_side_troop_pre_decrement_mvp(battle_context, "attacker", "attacker_troop_deployed_from_city")
+	battle_context = _apply_context_side_troop_pre_decrement_mvp(battle_context, "defender", "defender_troop_deployed_from_city")
+	if _player_attack_deployment_panel != null and _player_attack_deployment_panel.has_method("close"):
+		_player_attack_deployment_panel.call("close")
+	_set_pending_battle_context_mvp(battle_context)
+	_set_save_management_status("%s 방어 배정 완료 · 병력 %d명" % [
+		str(battle_context.get("defender_city_name", "방어 도시")),
+		int(validation.get("total_troops", 0)),
+	])
+	print("[DEFENSE_DEPLOY] city=%s selected=%s allocation=%s" % [
+		str(deployment.get("source_city_id", "")),
+		str(selected_hero_ids),
+		str(defender_troop_allocation),
+	])
+	_refresh_left_world_status_panel()
+	_handoff_battle_context_to_battle_scene(battle_context)
+
+
+func _validate_defense_deployment(deployment: Dictionary) -> Dictionary:
+	var event := _get_pending_invasion_event_mvp()
+	var validation := _validate_pending_invasion_event_for_battle_context(event)
+	if not bool(validation.get("ok", false)):
+		return validation
+	var defender_city_id := str(event.get("defender_city_id", ""))
+	var attacker_city_id := str(event.get("attacker_city_id", ""))
+	if str(deployment.get("source_city_id", "")) != defender_city_id or str(deployment.get("target_city_id", "")) != attacker_city_id:
+		return {"ok": false, "message": "방어 배정 도시가 현재 침공 이벤트와 일치하지 않습니다."}
+	var selected_hero_ids := _normalize_hero_id_array(deployment.get("selected_hero_ids", []))
+	if selected_hero_ids.is_empty():
+		return {"ok": false, "message": "방어 장수를 1명 이상 선택하십시오."}
+	var available_hero_ids := _get_available_player_attack_main_hero_ids(defender_city_id)
+	var troop_allocation: Dictionary = deployment.get("defender_troop_allocation", deployment.get("attacker_troop_allocation", {}))
+	var clamped_allocation := {}
+	var total_troops := 0
+	var remaining_garrison := maxi(0, _get_city_troops_for_battle_context(defender_city_id) - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
+	for hero_id in selected_hero_ids:
+		if not available_hero_ids.has(hero_id):
+			return {"ok": false, "message": "방어 출전 불가 장수가 포함되어 있습니다: %s" % hero_id}
+		var hero_entry := _get_hero_entry(hero_id)
+		var command_limit := _get_hero_command_limit_for_city_mvp(hero_entry, defender_city_id)
+		if command_limit <= 0:
+			return {"ok": false, "message": "지휘 한계가 없는 장수가 포함되어 있습니다: %s" % hero_id}
+		var requested_troops := maxi(0, int(troop_allocation.get(hero_id, 0)))
+		var troop_count := mini(mini(requested_troops, command_limit), remaining_garrison)
+		if troop_count <= 0:
+			return {"ok": false, "message": "선택 방어 장수마다 병력 1 이상을 배정하십시오."}
+		clamped_allocation[hero_id] = troop_count
+		total_troops += troop_count
+		remaining_garrison = maxi(0, remaining_garrison - troop_count)
+	var max_deployable := maxi(0, _get_city_troops_for_battle_context(defender_city_id) - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
+	if total_troops <= 0 or total_troops > max_deployable:
+		return {"ok": false, "message": "방어 병력은 1 이상, 도시 병력-1 이하이어야 합니다."}
+	return {
+		"ok": true,
+		"message": "방어 가능",
+		"total_troops": total_troops,
+		"selected_hero_ids": selected_hero_ids,
+		"defender_troop_allocation": clamped_allocation,
+	}
 
 
 func _handoff_battle_context_to_battle_scene(battle_context: Dictionary) -> void:
@@ -3148,16 +3280,22 @@ func _validate_pending_invasion_event_for_battle_context(event: Dictionary) -> D
 	return {"ok": true, "message": ""}
 
 
-func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String) -> Dictionary:
+func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String, selected_defender_hero_ids: Array[String] = [], defender_troop_allocation_override: Dictionary = {}) -> Dictionary:
 	var attacker_city_id := str(event.get("attacker_city_id", ""))
 	var defender_city_id := str(event.get("defender_city_id", ""))
 	var attacker_owner := _get_city_owner_id_for_battle_context(attacker_city_id)
 	var defender_owner := _get_city_owner_id_for_battle_context(defender_city_id)
 	var used_hero_ids := {}
 	var attacker_roster := _build_invasion_side_roster_for_battle_context(attacker_city_id, attacker_owner, used_hero_ids, "attacker")
-	var defender_roster := _build_invasion_side_roster_for_battle_context(defender_city_id, defender_owner, used_hero_ids, "defender")
+	var defender_roster := {}
+	if selected_defender_hero_ids.is_empty():
+		defender_roster = _build_invasion_side_roster_for_battle_context(defender_city_id, defender_owner, used_hero_ids, "defender")
+	else:
+		defender_roster = _build_selected_side_roster_for_battle_context(defender_city_id, selected_defender_hero_ids, defender_troop_allocation_override, used_hero_ids, "defender")
 	var attacker_troop_allocation := _build_command_limit_troop_allocation_for_heroes(attacker_roster.get("hero_ids", []), _get_city_troops_for_battle_context(attacker_city_id), attacker_city_id)
 	var defender_troop_allocation := _build_command_limit_troop_allocation_for_heroes(defender_roster.get("hero_ids", []), _get_city_troops_for_battle_context(defender_city_id), defender_city_id)
+	if not selected_defender_hero_ids.is_empty():
+		defender_troop_allocation = defender_troop_allocation_override.duplicate(true)
 	attacker_roster = _apply_troop_allocation_to_roster(attacker_roster, attacker_troop_allocation, attacker_city_id)
 	defender_roster = _apply_troop_allocation_to_roster(defender_roster, defender_troop_allocation, defender_city_id)
 	_log_invasion_reinforcement_rule_summary(attacker_city_id, defender_city_id, attacker_owner, defender_owner, attacker_roster, defender_roster)
@@ -3181,6 +3319,7 @@ func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String
 		"defender_total_allocated_troops": _sum_troop_allocation(defender_troop_allocation),
 		"attacker_source_city_id": attacker_city_id,
 		"defender_source_city_id": defender_city_id,
+		"selected_defender_hero_ids": _normalize_hero_id_array(selected_defender_hero_ids),
 		"attacker_hero_ids": attacker_roster.get("hero_ids", []),
 		"defender_hero_ids": defender_roster.get("hero_ids", []),
 		"attacker_heroes": attacker_roster.get("heroes", []),
@@ -3254,6 +3393,10 @@ func _build_player_attack_battle_context(source_city_id: String, target_city_id:
 
 
 func _build_player_attack_selected_roster_for_battle_context(source_city_id: String, selected_hero_ids: Array[String], troop_allocation: Dictionary, used_hero_ids: Dictionary) -> Dictionary:
+	return _build_selected_side_roster_for_battle_context(source_city_id, selected_hero_ids, troop_allocation, used_hero_ids, "attacker")
+
+
+func _build_selected_side_roster_for_battle_context(source_city_id: String, selected_hero_ids: Array[String], troop_allocation: Dictionary, used_hero_ids: Dictionary, side_label: String) -> Dictionary:
 	var hero_ids: Array[String] = []
 	var main_hero_ids: Array[String] = []
 	var support_hero_ids: Array[String] = []
@@ -3264,7 +3407,7 @@ func _build_player_attack_selected_roster_for_battle_context(source_city_id: Str
 	for hero_id in source_heroes:
 		if not selected_hero_ids.is_empty() and maxi(0, int(troop_allocation.get(str(hero_id), 0))) <= 0:
 			continue
-		if _append_invasion_roster_hero_id(hero_ids, main_hero_ids, str(hero_id), used_hero_ids, "attacker", source_city_id, "selected_main"):
+		if _append_invasion_roster_hero_id(hero_ids, main_hero_ids, str(hero_id), used_hero_ids, side_label, source_city_id, "selected_main"):
 			if hero_ids.size() >= INVASION_BATTLE_MAX_HEROES_PER_SIDE:
 				break
 	var heroes: Array[Dictionary] = []

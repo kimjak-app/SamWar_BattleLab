@@ -774,6 +774,15 @@ Canonical regression guard details are also tracked in `agent/QA_AGENT.md`.
 - Enemy invasion defense default allocation and player attack defender allocation now use commandLimit distribution; the old even allocation helper remains as fallback.
 - F6 manual QA remains required for visible command-limit display, over-limit input blocking, player attack win/loss troop accounting, enemy invasion defense win/loss, and woundedQueue save/load/recovery.
 
+## v0.68b-12b-33D Handoff
+- `PlayerAttackDeploymentPanel` is now shared by player attack and enemy invasion defense through `deployment_type`.
+- Manual/auto defense buttons call `_open_defense_deployment_panel_from_pending_invasion()` instead of immediate battle handoff.
+- Defense mode panel title/copy changes to 방어 준비 / 방어 확정 and suppresses extra supply-cost validation.
+- Defense confirm path is `_confirm_defense_deployment()` -> `_build_battle_context_from_pending_invasion(..., selected_defender_hero_ids, allocation)` -> existing attacker/defender pre-decrement -> battle handoff.
+- BattleContext now carries `selected_defender_hero_ids`, selected `defender_troop_allocation`, `defender_total_allocated_troops`, and existing before/after pre-decrement metadata.
+- Cancel only closes the panel/status and keeps `pending_invasion_event`.
+- F6 QA still needed: invasion popup -> defense panel open, defender selection/allocation, commandLimit clamp, battle transition, defense victory/defeat accounting, woundedQueue recovery, and player attack regression.
+
 ## v0.68b-12b-27 Handoff
 - Player attack no longer jumps directly into `Battle_Fullscreen_Test.tscn`; `_start_player_attack_battle()` opens `PlayerAttackDeploymentPanel`.
 - New script: `scripts/player_attack_deployment_panel.gd`.

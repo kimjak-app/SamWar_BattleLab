@@ -904,6 +904,14 @@ Goal:
 - Player attack defender allocation and enemy invasion attacker/defender default allocation now use commandLimit distribution instead of raw even split.
 - Next recommended patch: F6 QA for commandLimit UI, allocation clamp, player attack win/loss, enemy invasion defense win/loss, and woundedQueue save/load/recovery.
 
+## v0.68b-12b-33D Defense Deployment Panel Parity
+- Enemy invasion manual/auto defense buttons now open the shared deployment panel in defense mode before battle handoff.
+- Defense candidates come from the defender city stationed player heroes; captured/dead are excluded and wounded remain selectable.
+- Defense rows show state badge and commandLimit; SpinBox allocation is capped by commandLimit and defender city deployable troops.
+- Defense confirm adds `selected_defender_hero_ids`, selected `defender_troop_allocation`, and `defender_total_allocated_troops` to BattleContext.
+- Existing enemy attacker commandLimit auto allocation, pre-decrement, troop outcome, woundedQueue, and result apply flows are retained.
+- Cancel keeps the pending invasion event. UX/UI polish and F6 manual QA remain the next work.
+
 ## v0.68b-12b-27 Player Attack Deployment UI MVP
 - Implemented: player attack button now opens a deployment preparation panel instead of entering battle immediately.
 - Rules: deployable heroes come from the selected source city; captured/dead heroes are excluded; wounded heroes remain selectable and display their state badge.
