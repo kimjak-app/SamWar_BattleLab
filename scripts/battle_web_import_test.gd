@@ -111,6 +111,9 @@ const FORMATION_GUIDE_SLOT_NODE_PATHS := {
 	"enemy_reinforce_01": "BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot",
 	"enemy_reinforce_02": "BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot",
 }
+const BATTLE_PORTRAIT_SLOT_SIZE := 128.0
+const UNKNOWN_HERO_PORTRAIT_FALLBACK_PATH := "res://assets/web_battle/unit_tokens/unit_blue_battlefield.png"
+const GENERIC_SKILL_TOAST_FALLBACK_PATH := "res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png"
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH := "res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png"
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE := preload("res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png")
 const REINFORCEMENT_ARRIVAL_TOAST_TEXT := "지원군 도착!"
@@ -1374,13 +1377,21 @@ func _register_worldmap_context_hero_contracts(context: Dictionary) -> void:
 			worldmap_context_hero_registry[resolved_hero_id] = registry_entry
 			worldmap_context_unique_skill_registry[source_hero_id] = skill_entry
 			worldmap_context_unique_skill_registry[resolved_hero_id] = skill_entry
+			print("[WORLD_CONTEXT_HERO] hero=%s resolved=%s portrait=%s skill=%s" % [
+				source_hero_id,
+				resolved_hero_id,
+				String(registry_entry.get("battlefield_portrait_path", "")).get_file(),
+				String(skill_entry.get("name", "")),
+			])
 
 
 func _build_worldmap_context_hero_registry_entry(hero_data: Dictionary) -> Dictionary:
 	var portrait_path := str(hero_data.get("portrait_path", ""))
-	var safe_portrait_path := portrait_path if not portrait_path.is_empty() and ResourceLoader.exists(portrait_path) else ""
+	var safe_portrait_path := _resolve_hero_portrait_path(hero_data)
 	return {
+		"hero_id": str(hero_data.get("hero_id", "")),
 		"display_name": str(hero_data.get("display_name", hero_data.get("name", hero_data.get("hero_id", "")))),
+		"portrait_path": portrait_path,
 		"battlefield_portrait_path": safe_portrait_path,
 		"closeup_portrait_path": safe_portrait_path,
 		"default_visual_key": _get_default_visual_key_for_worldmap_hero(hero_data),
@@ -1394,6 +1405,7 @@ func _build_worldmap_context_unique_skill_entry(hero_data: Dictionary) -> Dictio
 		"hero_id": str(hero_data.get("hero_id", "")),
 		"name": str(hero_data.get("skill_name", "고유특기")),
 		"toast_text": "%s!" % str(hero_data.get("skill_name", "고유특기")),
+		"description": str(hero_data.get("skill_desc", "")),
 		"effect_type": battle_effect_type,
 		"power": int(hero_data.get("skill_power", hero_data.get("skill_value", UNIQUE_SKILL_ATTACK_BUFF))),
 		"range": maxi(0, int(hero_data.get("skill_range", UNIQUE_SKILL_DEFAULT_RANGE))),
@@ -1409,6 +1421,30 @@ func _get_existing_resource_path(path: String) -> String:
 	if path.is_empty():
 		return ""
 	return path if ResourceLoader.exists(path) else ""
+
+
+func _resolve_hero_portrait_path(hero_data: Dictionary) -> String:
+	for key in ["portrait_path", "battlefield_portrait_path", "closeup_portrait_path"]:
+		var portrait_path := String(hero_data.get(key, ""))
+		if portrait_path != "" and ResourceLoader.exists(portrait_path):
+			return portrait_path
+	if ResourceLoader.exists(UNKNOWN_HERO_PORTRAIT_FALLBACK_PATH):
+		return UNKNOWN_HERO_PORTRAIT_FALLBACK_PATH
+	return ""
+
+
+func _resolve_hero_portrait_texture(hero_data: Dictionary) -> Texture2D:
+	return _load_texture_or_null(_resolve_hero_portrait_path(hero_data))
+
+
+func _apply_battle_portrait_texture_to_sprite(sprite: Sprite2D, texture: Texture2D) -> void:
+	if sprite == null or texture == null:
+		return
+	sprite.texture = texture
+	var max_dimension := maxf(float(texture.get_width()), float(texture.get_height()))
+	if max_dimension > 0.0:
+		var scale_ratio := BATTLE_PORTRAIT_SLOT_SIZE / max_dimension
+		sprite.scale = Vector2.ONE * scale_ratio
 
 
 func _get_default_visual_key_for_worldmap_hero(hero_data: Dictionary) -> String:
@@ -2274,9 +2310,11 @@ func _get_unique_skill_for_unit(unit_state: BattleUnitState) -> Dictionary:
 	var hero_id := _get_hero_id_for_unit_state(unit_state)
 	if hero_id == "":
 		return {}
+	if worldmap_context_unique_skill_registry.has(hero_id):
+		return worldmap_context_unique_skill_registry.get(hero_id, {})
 	if UNIQUE_SKILL_REGISTRY.has(hero_id):
 		return UNIQUE_SKILL_REGISTRY.get(hero_id, {})
-	return worldmap_context_unique_skill_registry.get(hero_id, {})
+	return {}
 
 
 func _can_use_unique_skill(unit_state: BattleUnitState) -> bool:
@@ -3364,16 +3402,12 @@ func _get_unique_skill_name_position(cutin_rect: Rect2) -> Vector2:
 	)
 
 
-func _get_unique_skill_cutin_texture(caster_state: BattleUnitState, skill_data: Dictionary) -> Texture2D:
+func _get_unique_skill_cutin_texture(_caster_state: BattleUnitState, skill_data: Dictionary) -> Texture2D:
 	var path := String(skill_data.get("cutin_image_path", ""))
 	var texture := _load_unique_skill_texture(path)
 	if texture != null:
 		return texture
-	var hero_entry := _get_hero_registry_entry(_get_hero_id_for_unit_state(caster_state))
-	texture = _load_unique_skill_texture(String(hero_entry.get("battlefield_portrait_path", "")))
-	if texture != null:
-		return texture
-	return _load_unique_skill_texture(String(hero_entry.get("closeup_portrait_path", "")))
+	return _load_unique_skill_texture(GENERIC_SKILL_TOAST_FALLBACK_PATH)
 
 
 func _load_unique_skill_texture(path: String) -> Texture2D:
@@ -3388,10 +3422,6 @@ func _load_unique_skill_texture(path: String) -> Texture2D:
 		if texture != null:
 			unique_skill_texture_cache[path] = texture
 			return texture
-	var image := Image.new()
-	if image.load(path) == OK:
-		texture = ImageTexture.create_from_image(image)
-		unique_skill_texture_cache[path] = texture
 	return texture
 
 
@@ -4647,8 +4677,10 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 		status_label.add_theme_color_override("font_color", _get_unit_status_summary_color(unit_state))
 		status_label.visible = status_text != ""
 	if portrait != null:
-		var portrait_path := String(hero_entry.get("battlefield_portrait_path", ""))
-		portrait.texture = _load_texture_or_null(portrait_path)
+		portrait.custom_minimum_size = Vector2(52.0, 52.0)
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		portrait.texture = _resolve_hero_portrait_texture(hero_entry)
 	if troop_icon_rect != null:
 		troop_icon_rect.texture = _get_troop_icon_texture_for_visual_key(visual_key, unit_state)
 		troop_icon_rect.visible = troop_icon_rect.texture != null
@@ -4831,19 +4863,14 @@ func _get_troop_icon_fallback_keys(visual_key: String, unit_type: String) -> Arr
 
 func _get_closeup_portrait_texture_for_unit(unit_state: BattleUnitState) -> Texture2D:
 	var hero_entry := _get_hero_registry_entry(_get_hero_id_for_unit_state(unit_state))
-	var closeup_portrait_path := String(hero_entry.get("closeup_portrait_path", ""))
-	var closeup_texture := _load_texture_or_null(closeup_portrait_path)
-	if closeup_texture != null:
-		return closeup_texture
-	return _get_ally_portrait_texture_for_unit(unit_state)
+	return _resolve_hero_portrait_texture(hero_entry)
 
 
 func _get_ally_portrait_texture_for_unit(unit_state: BattleUnitState) -> Texture2D:
 	var hero_entry := _get_hero_registry_entry(_get_hero_id_for_unit_state(unit_state))
-	var battlefield_portrait_path := String(hero_entry.get("battlefield_portrait_path", ""))
-	var battlefield_portrait_texture := _load_texture_or_null(battlefield_portrait_path)
-	if battlefield_portrait_texture != null:
-		return battlefield_portrait_texture
+	var resolved_texture := _resolve_hero_portrait_texture(hero_entry)
+	if resolved_texture != null:
+		return resolved_texture
 	var slot := _get_unit_visual_slot_for_state(unit_state)
 	if slot != null and slot.portrait != null:
 		return slot.portrait.texture
@@ -4981,6 +5008,33 @@ func _get_visual_portrait_badge_base_scale_for_unit(unit_state: BattleUnitState)
 	if unit_state == enemy_reinforce_02_unit_state:
 		return enemy_reinforce_02_portrait_badge_base_scale
 	return Vector2.ONE
+
+
+func _set_visual_portrait_badge_base_scale_for_unit(unit_state: BattleUnitState, scale_value: Vector2) -> void:
+	if unit_state == null:
+		return
+	if unit_state.slot_id != "":
+		match unit_state.slot_id:
+			"ally_main":
+				ally_portrait_badge_base_scale = scale_value
+			"ally_support":
+				ally_support_portrait_badge_base_scale = scale_value
+			"ally_main_03":
+				ally_main_03_portrait_badge_base_scale = scale_value
+			"ally_reinforce_01":
+				ally_reinforce_01_portrait_badge_base_scale = scale_value
+			"ally_reinforce_02":
+				ally_reinforce_02_portrait_badge_base_scale = scale_value
+			"enemy_main":
+				enemy_portrait_badge_base_scale = scale_value
+			"enemy_support":
+				enemy_support_portrait_badge_base_scale = scale_value
+			"enemy_main_03":
+				enemy_main_03_portrait_badge_base_scale = scale_value
+			"enemy_reinforce_01":
+				enemy_reinforce_01_portrait_badge_base_scale = scale_value
+			"enemy_reinforce_02":
+				enemy_reinforce_02_portrait_badge_base_scale = scale_value
 
 
 func _get_visual_root_base_scale_for_unit(unit_state: BattleUnitState) -> Vector2:
@@ -5897,9 +5951,9 @@ func _get_hero_id_for_unit_state(unit_state: BattleUnitState) -> String:
 func _get_hero_registry_entry(hero_id: String) -> Dictionary:
 	if hero_id == "":
 		return {}
-	if HERO_REGISTRY.has(hero_id):
-		return HERO_REGISTRY.get(hero_id, {})
-	return worldmap_context_hero_registry.get(hero_id, {})
+	if worldmap_context_hero_registry.has(hero_id):
+		return worldmap_context_hero_registry.get(hero_id, {})
+	return HERO_REGISTRY.get(hero_id, {})
 
 
 func _load_texture_or_null(path: String) -> Texture2D:
@@ -5907,6 +5961,8 @@ func _load_texture_or_null(path: String) -> Texture2D:
 		return null
 	if hero_identity_texture_cache.has(path):
 		return hero_identity_texture_cache.get(path) as Texture2D
+	if not ResourceLoader.exists(path):
+		return null
 	var loaded_resource := load(path)
 	var texture := loaded_resource as Texture2D
 	if texture != null:
@@ -5929,11 +5985,11 @@ func _apply_hero_identity_to_unit(unit_state: BattleUnitState) -> void:
 	var default_visual_key := String(hero_entry.get("default_visual_key", ""))
 	if default_visual_key != "":
 		unit_state.visual_key = default_visual_key
-	var battlefield_portrait_path := String(hero_entry.get("battlefield_portrait_path", ""))
-	var battlefield_portrait_texture := _load_texture_or_null(battlefield_portrait_path)
+	var battlefield_portrait_texture := _resolve_hero_portrait_texture(hero_entry)
 	var slot := _get_unit_visual_slot_for_state(unit_state)
 	if battlefield_portrait_texture != null and slot != null and slot.portrait is Sprite2D:
-		(slot.portrait as Sprite2D).texture = battlefield_portrait_texture
+		_apply_battle_portrait_texture_to_sprite(slot.portrait as Sprite2D, battlefield_portrait_texture)
+		_set_visual_portrait_badge_base_scale_for_unit(unit_state, (slot.portrait as Sprite2D).scale)
 
 
 func _apply_all_hero_identities() -> void:
@@ -5951,7 +6007,7 @@ func _validate_hero_identity_bindings() -> void:
 		var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
 		var hero_id := _get_hero_id_for_unit_state(unit_state)
 		var hero_entry := _get_hero_registry_entry(hero_id)
-		var expected_path := String(hero_entry.get("battlefield_portrait_path", ""))
+		var expected_path := _resolve_hero_portrait_path(hero_entry)
 		var expected_filename := expected_path.get_file()
 		var slot := _get_unit_visual_slot_for_state(unit_state)
 		var actual_path := ""

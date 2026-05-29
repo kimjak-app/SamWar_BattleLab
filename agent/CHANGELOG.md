@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP
+- Updated `scripts/battle_web_import_test.gd` so WorldMap context hero and skill registries take priority over sample `HERO_REGISTRY` / `UNIQUE_SKILL_REGISTRY` fallbacks when a battle is launched from WorldMap context.
+- Added a safe hero portrait resolver that checks `portrait_path` / portrait registry fields with `ResourceLoader.exists()` before loading and falls back to a named common unknown portrait texture instead of a specific sample hero face.
+- Battle portrait `Sprite2D` slots now load the single 512-source `portrait_path` texture and scale it to the existing 128 portrait slot target. No split `portrait_128_path` / `portrait_512_path` fields or new image files were added.
+- Formation guide and closeup portrait lookups now use the same resolver/fallback path.
+- Unique-skill toast lookup now prefers WorldMap context `skill_name` / skill data and uses a common skill fallback icon when no dedicated skill toast/cutin image exists.
+- Cutin presentation, save/load expansion, capture/wounds/death, hero movement, and resource looting remain unimplemented.
+
 ## v0.68b-12b-16c Hero Portrait Import Metadata Audit
 - Audited Godot hero portrait import metadata policy without changing battle logic, `HERO_DATA`, image files, or existing 128 folders.
 - Confirmed this repo already tracks many `.png.import` files, including the current `assets/heroes/portraits/**` portrait imports, despite `.gitignore` also ignoring the generated `.import/` cache directory.

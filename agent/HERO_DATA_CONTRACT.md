@@ -104,3 +104,11 @@ HeroData = {
 - `portrait_path` remains the single 512-source portrait field, and `cutin_path` remains separate for future cutin/effect presentation.
 - Hero IDs do not need to match asset filenames exactly; explicit `portrait_path` / `cutin_path` fields are authoritative for the asset contract.
 - Save/load placement persistence, capture/wound/death, full hero movement, precise skill balance, and cutin presentation are still deferred.
+
+## v0.68b-12b-17 Actual Battle Portrait Binding
+- Battle UI now resolves actual WorldMap context `portrait_path` data before sample battle registry portrait data, so overlapping sample ids do not override the real WorldMap hero portrait.
+- The single `portrait_path` remains the 512-source portrait field. Battle portrait Sprite2D slots display that texture by scaling it to the existing 128 target size; no `portrait_128_path` or `portrait_512_path` split is allowed.
+- Missing portraits must use a named common unknown portrait fallback, not a specific hero portrait.
+- Unique-skill toast text should prefer the WorldMap context `skill_name`; `skill_desc` is copied into the runtime skill entry for UI reuse.
+- Dedicated skill toast/cutin images remain optional. Missing assets use a common skill fallback icon, and full cutin presentation remains deferred.
+- Save/load persistence, hero capture/wounds/death, hero movement, and resource looting remain outside this contract step.

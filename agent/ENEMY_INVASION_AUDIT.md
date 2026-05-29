@@ -201,6 +201,14 @@
 - 척준경 was moved out of 한성 and into 평양, avoiding duplicate city placement.
 - The patch keeps result handling, ownership apply, troop apply, save/load, capture/wounds, resource loss, and cutin presentation unchanged.
 
+## v0.68b-12b-17 Actual Hero Portrait Binding Status
+- Implemented in `scripts/battle_web_import_test.gd`.
+- WorldMap-launched defense battles now prefer `worldmap_context_hero_registry` portrait data over sample `HERO_REGISTRY` data, preserving actual BattleContext `portrait_path` values for overlapping hero ids.
+- Battle portrait Sprite2D slots load the single 512-source `portrait_path` through a ResourceLoader-safe resolver and scale it to the existing 128 target size.
+- Missing portraits use a named common unknown portrait fallback instead of a specific sample hero portrait.
+- Unique-skill lookup now prefers WorldMap context skill data, so context `skill_name` drives the unique-skill toast text; missing skill toast/cutin assets use a common skill fallback icon.
+- Still missing by design: full cutin presentation, save/load persistence for hero battle data, hero capture/wounds/death, hero city movement, resource looting, and defense deployment UI.
+
 ## Recommended Godot Implementation Plan
 
 ### v0.68b-12b-15 Enemy Invasion Ownership / Troop Apply

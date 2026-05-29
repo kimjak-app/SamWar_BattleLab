@@ -91,13 +91,15 @@ Latest worldmap hero placement data patch: `v0.68b-12b-16b Hero Placement Data P
 
 Latest hero portrait import metadata audit: `v0.68b-12b-16c Hero Portrait Import Metadata Audit`
 
+Latest actual hero portrait binding patch: `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
-Current stable baseline: `v0.68b-12b-16c Hero Portrait Import Metadata Audit`
+Current stable baseline: `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
 
-Baseline commit: local HEAD after `v0.68b-12b-16c`
+Baseline commit: local HEAD after `v0.68b-12b-17`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -108,15 +110,13 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
+`v0.68b-12b-17a Hero Portrait Battle F6 QA Follow-up`
 
 Goal:
-- safely bind actual hero portrait assets from the existing `portrait_path` contract and add the MVP skill toast UI path
+- F6-check WorldMap invasion manual defense into battle and confirm actual city-roster portraits/skill names display as intended
 
 Scope:
-- keep `portrait_path` as the single 512-source field and downscale for 128 battle slots
-- add safe resolver/fallback behavior without bulk asset moves or deleting existing 128 folders
-- preserve current battle logic and hero seed data while wiring presentation assets
+- no new asset generation, image migration, or battle formula changes
 
 Forbidden in this task:
 - no bulk image deletion or mass migration
@@ -183,6 +183,10 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP` is complete.
+- BattleContext `portrait_path` data is now bound into battle UI portraits before sample HERO_REGISTRY fallback data, and Sprite2D portrait slots scale the single 512-source image to the existing 128 target size.
+- Missing portraits use a named common unknown portrait fallback, not a specific sample hero portrait; missing skill toast/cutin images use a common skill fallback icon.
+- Unique-skill toast names now prefer WorldMap context `skill_name` data. Cutin presentation, save/load, capture/wounds/death, hero movement, and resource looting remain deferred.
 - `v0.68b-12b-16c Hero Portrait Import Metadata Audit` is complete.
 - Existing repo policy is to track many Godot `.png.import` files, including `assets/heroes/portraits/**`, while `.gitignore` ignores the generated `.import/` cache directory.
 - No untracked or ignored `assets/heroes/portraits` `.import` files remained after audit, so this task did not delete files or add new portrait import metadata.
