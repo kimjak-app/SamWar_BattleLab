@@ -1,6 +1,13 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-12b-18b Roster Panel Source Auto Battle End Hotfix` closes the remaining formation-panel sample roster leak after the 18a battlefield-slot fix.
+- Confirmed source: `_refresh_formation_slot_guide_for_entry()` could resolve hero identity through capacity-slot `unit_state` before checking WorldMap context-empty metadata, so hidden support slots could still show sample 김유신/을지문덕/유비/제갈량 in the side panels.
+- WorldMap context panels now hide empty/inactive context slots and do not call `TEST_BATTLE_ROSTER` fallback; direct `Battle_Fullscreen_Test.tscn` sample fallback remains intact.
+- Auto battle now stops at finalized victory/defeat, and deferred phase/auto tick paths have battle-end guards to prevent extra turns after result.
+- Next QA should F6-check 백제/사비 invasion panel roster, no sample support cells, result-stop timing for auto battle, and worldmap return.
+
+## Previous Patch Note
 - `v0.68b-12b-18a Reinforcement Fallback Leak + Toast Facing Layer Hotfix` blocks sample `TEST_BATTLE_ROSTER` fallback for `enemy_invasion` / WorldMap context slots.
 - The confirmed leak source was battle-side fallback, not the WorldMap reinforcement city/faction filter; empty invasion support slots now stay inactive instead of pulling sample heroes such as 유비/제갈량.
 - `RoundToastRoot` has explicit high z order, and battle/unique-skill toast playback suppresses facing indicators until the toast finishes, then restores them from current unit state.

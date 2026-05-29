@@ -758,6 +758,8 @@ var pending_battle_toasts: Array = []
 var is_battle_toast_playing := false
 var active_battle_toast_tag := ""
 var has_battle_result_toast_shown := false
+var has_logged_battle_end_guard := false
+var roster_panel_slot_log_signatures: Dictionary = {}
 var unique_skill_toast_tween: Tween = null
 var is_unique_skill_presenting := false
 var unique_skill_cutin_timing_start_msec := 0
@@ -2083,6 +2085,8 @@ func reset_demo_state() -> void:
 	is_battle_toast_playing = false
 	active_battle_toast_tag = ""
 	has_battle_result_toast_shown = false
+	has_logged_battle_end_guard = false
+	roster_panel_slot_log_signatures.clear()
 	enemy_ai_last_destination_debug.clear()
 	_hide_round_start_toast()
 	_hide_unique_skill_toast()
@@ -3885,9 +3889,13 @@ func _set_phase(new_phase: String) -> void:
 		_:
 			turn_banner.text = "처리 중"
 
+	var battle_finished := _is_battle_result_finalized()
+	if battle_finished:
+		_handle_battle_end_guard("set_phase")
 	var can_issue_ally_command := (
 		current_phase == PHASE_ALLY_TURN
 		and not is_demo_animating
+		and not battle_finished
 		and _is_active_ally_action_available()
 	)
 	var active_unit_has_moved := active_unit_state != null and active_unit_state.has_moved
@@ -3913,9 +3921,9 @@ func _set_phase(new_phase: String) -> void:
 	_update_ally_ready_frames()
 	_refresh_floating_ally_command_panel()
 	_refresh_formation_slot_guides()
-	if current_phase == PHASE_ALLY_TURN and not is_demo_animating:
+	if current_phase == PHASE_ALLY_TURN and not is_demo_animating and not battle_finished:
 		call_deferred("_consume_confused_ally_turn_if_needed")
-	if current_phase == PHASE_ALLY_TURN and is_full_auto_battle_enabled and not is_demo_animating:
+	if current_phase == PHASE_ALLY_TURN and is_full_auto_battle_enabled and not is_demo_animating and not battle_finished:
 		call_deferred("_tick_full_auto_battle_if_needed")
 
 
@@ -4753,13 +4761,75 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 	var unique_skill_ready_icon := nodes.get("unique_skill_ready_icon", null) as TextureRect
 	var unit_state := _get_formation_guide_unit_state_for_capacity_slot_id(slot_id)
 	var slot_metadata := _get_capacity_slot_metadata(slot_id)
+	var panel_side := "ally" if slot_id.begins_with("ally_") else "enemy"
+	var is_worldmap_context_slot := str(slot_metadata.get("worldmap_context_side", "")) != ""
+	var slot_is_active := bool(slot_metadata.get("is_active", false))
+	var slot_is_context_empty := bool(slot_metadata.get("worldmap_context_empty", false))
+	if is_worldmap_context_slot and (slot_is_context_empty or not slot_is_active):
+		root.visible = false
+		root.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		if portrait != null:
+			portrait.texture = null
+		if name_label != null:
+			name_label.text = "미배치"
+		if hp_label != null:
+			hp_label.text = "병력 -"
+		if status_label != null:
+			status_label.text = ""
+			status_label.visible = false
+		if troop_icon_rect != null:
+			troop_icon_rect.texture = null
+			troop_icon_rect.visible = false
+		if troop_type_label != null:
+			troop_type_label.text = ""
+		_set_formation_slot_unique_skill_ready_icon(unique_skill_ready_icon, false)
+		_log_roster_panel_slot_state(
+			slot_id,
+			"hidden:%s:%s" % [str(slot_is_active), str(slot_is_context_empty)],
+			"[ROSTER_PANEL_SKIP] source=worldmap_context side=%s slot=%s active=%s reason=hidden_empty_slot" % [
+				panel_side,
+				slot_id,
+				str(slot_is_active)
+			]
+		)
+		return
+	root.visible = true
 	var hero_id := ""
-	if unit_state != null:
+	if is_worldmap_context_slot:
+		hero_id = String(slot_metadata.get("assigned_hero_id", ""))
+	elif unit_state != null:
 		hero_id = _get_hero_id_for_unit_state(unit_state)
 	if hero_id == "":
 		hero_id = String(slot_metadata.get("assigned_hero_id", ""))
-	if hero_id == "" and not bool(slot_metadata.get("worldmap_context_empty", false)):
+	if hero_id == "" and not is_worldmap_context_slot:
 		hero_id = _get_test_battle_roster_hero_id(slot_id)
+	if is_worldmap_context_slot and hero_id == "":
+		root.visible = false
+		if portrait != null:
+			portrait.texture = null
+		if name_label != null:
+			name_label.text = "미배치"
+		if hp_label != null:
+			hp_label.text = "병력 -"
+		if status_label != null:
+			status_label.text = ""
+			status_label.visible = false
+		if troop_icon_rect != null:
+			troop_icon_rect.texture = null
+			troop_icon_rect.visible = false
+		if troop_type_label != null:
+			troop_type_label.text = ""
+		_set_formation_slot_unique_skill_ready_icon(unique_skill_ready_icon, false)
+		_log_roster_panel_slot_state(
+			slot_id,
+			"hidden:missing_context_hero",
+			"[ROSTER_PANEL_SKIP] source=worldmap_context side=%s slot=%s active=%s reason=missing_context_hero" % [
+				panel_side,
+				slot_id,
+				str(slot_is_active)
+			]
+		)
+		return
 	var hero_entry := _get_hero_registry_entry(hero_id)
 	var display_name := String(hero_entry.get("display_name", "미배치"))
 	if unit_state != null and unit_state.display_name != "":
@@ -4791,6 +4861,21 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 	if troop_type_label != null:
 		troop_type_label.text = _get_troop_type_label_for_visual_key(visual_key, _get_formation_guide_unit_type(slot_id, unit_state, hero_entry))
 	_set_formation_slot_unique_skill_ready_icon(unique_skill_ready_icon, _is_unique_skill_ready_for_formation_guide(unit_state))
+	var panel_source := "worldmap_context" if is_worldmap_context_slot else "sample_battle"
+	var panel_reason := "context_slot" if is_worldmap_context_slot else "sample_fallback"
+	_log_roster_panel_slot_state(
+		slot_id,
+		"shown:%s:%s:%s" % [panel_source, hero_id, str(slot_is_active)],
+		"[ROSTER_PANEL_SLOT] source=%s side=%s slot=%s hero_id=%s display_name=%s active=%s reason=%s" % [
+			panel_source,
+			panel_side,
+			slot_id,
+			hero_id,
+			display_name,
+			str(slot_is_active),
+			panel_reason
+		]
+	)
 	var style := StyleBoxFlat.new()
 	style.set_corner_radius_all(6)
 	style.set_border_width_all(1)
@@ -4812,6 +4897,14 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 		style.border_color = Color(0.38, 0.38, 0.42, 0.22)
 		root.modulate = Color(0.68, 0.68, 0.68, 0.84)
 	root.add_theme_stylebox_override("panel", style)
+
+
+func _log_roster_panel_slot_state(slot_id: String, signature: String, message: String) -> void:
+	var log_key := "%s|%s" % [slot_id, signature]
+	if bool(roster_panel_slot_log_signatures.get(log_key, false)):
+		return
+	roster_panel_slot_log_signatures[log_key] = true
+	print(message)
 
 
 func _get_formation_guide_unit_state_for_capacity_slot_id(slot_id: String) -> BattleUnitState:
@@ -5728,6 +5821,7 @@ func _return_to_ally_turn() -> void:
 	_clear_transient_battle_highlights()
 	_cleanup_dead_units()
 	if _is_battle_result_finalized():
+		_handle_battle_end_guard("return_to_ally_turn")
 		_set_phase(PHASE_ALLY_TURN)
 		return
 	_reset_unit_group_positions()
@@ -7561,10 +7655,32 @@ func _is_battle_result_finalized() -> bool:
 	return _get_battle_result_state() != ""
 
 
+func _handle_battle_end_guard(source: String) -> bool:
+	var battle_result_state := _get_battle_result_state()
+	if battle_result_state == "":
+		return false
+	if is_full_auto_battle_enabled:
+		_stop_full_auto_battle("battle result finalized")
+		print("[AUTO_BATTLE_STOP] source=%s reason=battle_result_finalized state=%s" % [
+			source,
+			battle_result_state
+		])
+	if not has_logged_battle_end_guard:
+		has_logged_battle_end_guard = true
+		print("[BATTLE_END] source=%s state=%s ally_alive=%d enemy_alive=%d" % [
+			source,
+			battle_result_state,
+			_get_alive_deployed_unit_states_for_side("ally").size(),
+			_get_alive_deployed_unit_states_for_side("enemy").size()
+		])
+	return true
+
+
 func _try_show_battle_result_toast_if_needed() -> bool:
 	var battle_result_state := _get_battle_result_state()
 	if battle_result_state == "":
 		return false
+	_handle_battle_end_guard("result_toast")
 	if has_battle_result_toast_shown:
 		return true
 	if is_defeat_retreat_toast_playing or not defeat_retreat_toast_queue.is_empty():
@@ -10433,6 +10549,9 @@ func _toggle_full_auto_battle() -> void:
 
 
 func _set_full_auto_battle_enabled(enabled: bool) -> void:
+	if enabled and _handle_battle_end_guard("auto_enable"):
+		print("[AUTO_STEP_BLOCKED] source=auto_enable reason=battle_over")
+		return
 	is_full_auto_battle_enabled = enabled
 	auto_battle_step_count = 0
 	var can_issue_ally_command := (
@@ -10465,10 +10584,14 @@ func _stop_full_auto_battle(reason: String) -> void:
 	_refresh_auto_battle_button_state(can_issue_ally_command)
 	if reason != "":
 		_append_battle_log("자동전투 중지: %s" % reason)
+		print("[AUTO_BATTLE_STOP] reason=%s" % reason)
 
 
 func _tick_full_auto_battle_if_needed() -> void:
 	if not is_full_auto_battle_enabled:
+		return
+	if _handle_battle_end_guard("auto_tick"):
+		print("[AUTO_STEP_BLOCKED] source=auto_tick reason=battle_over")
 		return
 	if is_demo_animating:
 		return

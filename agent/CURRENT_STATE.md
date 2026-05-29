@@ -1,5 +1,11 @@
 # CURRENT STATE
 
+## v0.68b-12b-18b Roster Panel Source + Auto Battle End Hotfix
+- Formation/roster side panels now follow the same WorldMap context roster source as battlefield slots; empty or inactive context slots are hidden instead of displaying sample `TEST_BATTLE_ROSTER` heroes.
+- Confirmed panel leak source: panel refresh read the existing capacity-slot `unit_state` first, and `_get_hero_id_for_unit_state()` could still resolve sample fallback heroes such as 김유신/을지문덕/유비/제갈량.
+- Auto battle now stops when victory/defeat is finalized, and phase/auto tick entry points block additional post-result turn advancement.
+- Remaining QA: live F6 enemy-invasion should confirm empty support panel cells stay hidden, panels match actual deployed/context heroes, no extra auto turns occur after result, and worldmap return remains stable.
+
 ## v0.68b-12b-18a Reinforcement Fallback Leak + Toast Facing Layer Hotfix
 - Battle-side root cause fixed: the 유비/제갈량 leak came from `TEST_BATTLE_ROSTER` fallback in WorldMap context slot fill, not from the WorldMap 1-hop/2-hop reinforcement filter.
 - `enemy_invasion` / WorldMap context battles now deactivate empty context slots instead of filling them from the sample roster; direct sample battle fallback remains available outside invasion context.

@@ -1,5 +1,11 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-18b Formation Panel Context Source Guard
+- WorldMap enemy-invasion formation/roster panels must use the same BattleContext roster source as battlefield slots.
+- Empty or inactive context support slots are valid and must remain hidden/disabled in the side panels; they must not display sample `TEST_BATTLE_ROSTER` heroes.
+- Direct `Battle_Fullscreen_Test.tscn` sample fallback remains test-only and does not apply to normal WorldMap invasion panels.
+- The same-faction/ally plus 1-hop/2-hop reinforcement source rule remains unchanged.
+
 ## v0.68b-12b-18a Invasion Context Fallback Guard
 - WorldMap `enemy_invasion` BattleContext slots must not use sample `TEST_BATTLE_ROSTER` fallback when requested hero ids are missing.
 - Missing nearby support is valid: leave the context slot inactive/hidden rather than pulling distant or sample heroes.

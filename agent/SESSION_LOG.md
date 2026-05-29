@@ -2,6 +2,15 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-18b Roster Panel Source + Auto Battle End Hotfix
+- Confirmed the formation-panel leak source: after 18a deactivated empty WorldMap context slots, the side-panel refresh still read capacity-slot `unit_state` first, which could resolve sample `TEST_BATTLE_ROSTER` heroes.
+- Changed WorldMap context panel refresh so assigned context `hero_id` is authoritative; empty/inactive context slots are hidden and never sample-filled.
+- Added bounded roster-panel source logs for shown/hidden panel slots while preserving direct sample battle fallback.
+- Confirmed auto battle extra-turn source: result toast/final state existed, but full-auto and deferred ally-turn/auto tick paths were not stopped at every entry point.
+- Added battle-end guard handling for result toast, phase setting, return-to-ally-turn, auto-enable, and auto tick paths; full auto stops at finalized victory/defeat.
+- Verification passed: `git diff --check`, no split portrait fields in `scripts`, Godot project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load with sample fallback intact.
+- Remaining QA: live F6 백제/사비 invasion should verify no sample panel heroes in empty support cells, auto battle stops immediately after result, and worldmap return remains stable.
+
 ### v0.68b-12b-18a Reinforcement Fallback Leak + Toast Facing Layer Hotfix
 - Fixed the confirmed battle-side leak: `enemy_invasion` / WorldMap context slots no longer use `TEST_BATTLE_ROSTER` fallback when requested hero ids are missing.
 - Missing invasion support now deactivates the empty slot instead of force-filling sample heroes; direct sample battle fallback remains preserved outside invasion context.

@@ -1,6 +1,12 @@
 # NEXT TASKS
 
 ## Current Hotfix Status
+- `v0.68b-12b-18b Roster Panel Source Auto Battle End Hotfix` is complete in code.
+- WorldMap enemy-invasion formation panels now hide empty/inactive context slots and no longer display sample roster heroes from stale capacity-slot unit state fallback.
+- Auto battle result guards stop the full-auto loop at victory/defeat and block deferred auto tick / ally-turn scheduling after battle end.
+- Remaining manual QA: F6 백제/사비 invasion should verify no 김유신/을지문덕/유비/제갈량 panel leak when those heroes are not in context, auto battle stops immediately at result, and worldmap return remains stable.
+
+## Previous Hotfix Status
 - `v0.68b-12b-18a Reinforcement Fallback Leak + Toast Facing Layer Hotfix` is complete in code.
 - Enemy-invasion WorldMap context slots no longer use `TEST_BATTLE_ROSTER` when requested heroes are missing; missing support remains an inactive empty slot.
 - Direct `Battle_Fullscreen_Test.tscn` sample battle fallback remains intact when no WorldMap invasion context is present.

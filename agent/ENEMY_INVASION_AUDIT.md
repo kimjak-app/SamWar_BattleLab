@@ -1,5 +1,12 @@
 # v0.68b-12b-8 Enemy Invasion Web Logic Audit
 
+## v0.68b-12b-18b Roster Panel + Auto Battle End Status
+- Remaining sample hero leak source fixed in the battle scene formation panels: panel refresh used capacity-slot `unit_state` before context-empty metadata, so inactive support slots could still show sample 김유신/을지문덕/유비/제갈량.
+- WorldMap enemy-invasion panels now hide empty/inactive context support slots and do not call sample `TEST_BATTLE_ROSTER` fallback for those cells.
+- Direct battle sample fallback remains intact when no WorldMap context is present.
+- Auto battle now stops at finalized victory/defeat, and deferred auto tick / ally-turn scheduling is blocked after battle end.
+- Remaining manual QA: F6 백제/사비 invasion should confirm panel roster matches actual context units, no sample support cells appear, auto battle stops immediately after result, and worldmap return still works.
+
 ## v0.68b-12b-18a Reinforcement Fallback Leak + Toast Layer Status
 - Root cause confirmed and fixed in the battle scene: the 유비/제갈량 leak was `TEST_BATTLE_ROSTER` fallback in context slot fill, not the WorldMap same-faction/2-hop filter.
 - For `enemy_invasion` / WorldMap context battles, empty support slots are now deactivated instead of filled with sample roster heroes.

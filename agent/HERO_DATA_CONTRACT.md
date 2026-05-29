@@ -1,5 +1,11 @@
 # HERO DATA CONTRACT
 
+## v0.68b-12b-18b Formation Panel Identity Guard
+- Formation/roster panels in WorldMap context battles must display only context-assigned `hero_id` identities.
+- A stale or sample `BattleUnitState` must not override an empty/inactive context slot in the side panels.
+- Missing context heroes keep the panel slot hidden/disabled; `TEST_BATTLE_ROSTER` remains a direct sample battle fallback only.
+- No new `portrait_128_path` / `portrait_512_path` fields are introduced; the existing `portrait_path` and `skill_name` contracts remain unchanged.
+
 ## v0.68b-12b-18a Battle Context Slot Fallback Guard
 - WorldMap `enemy_invasion` rosters must keep `hero_id` identity from BattleContext data; missing slots are inactive instead of sample-filled.
 - `TEST_BATTLE_ROSTER` remains a direct sample battle fallback and must not become a hidden source of WorldMap support heroes.
