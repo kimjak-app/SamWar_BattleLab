@@ -68,6 +68,8 @@ Latest worldmap domestic apply QA patch: `v0.68b-12b-7 WorldMap Domestic Apply V
 
 Latest worldmap enemy invasion audit patch: `v0.68b-12b-8 WorldMap Enemy Invasion Web Logic Audit`
 
+Latest worldmap right city panel cleanup patch: `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -495,6 +497,15 @@ Current implemented systems:
 - Save/load/reset via `user://worldmap_left_panel_state.json`.
 - Domestic apply runs once per full turn cycle and covers tax income, loyalty change, chancellor policy effects, warehouse resource updates, and duplicate apply guard.
 - Enemy invasion MVP covers 45% invasion roll during enemy turn, enemy-owned attacker city, neighboring player-owned defender city, pending event, defender city auto-selection, pending choice card, manual/auto defense placeholder buttons, and turn-end blocking while pending.
+- `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup` is complete.
+- The right `CityInfoPanel` now uses existing `_player_state`, `CITY_HUD_DATA`, `HERO_DATA`, city marker data, and pending invasion state for clean selected-city display.
+- Selected cities show name, owner/nation/region, population, gold, food, resource ratings, troops, defense, public support/order, commerce, agriculture, governor/taesu, and stationed hero names without raw id-first display or dictionary/debug text.
+- No selected city shows `선택 도시 없음` and `월드맵에서 도시를 선택하십시오.`; empty governor and garrison states show `태수 없음` and `주둔 장수 없음`.
+- If the selected city is the pending invasion defender, the right panel shows `침공 대상 도시 · 방어전 준비 중`; if it is the attacker, it shows `침공 출발 도시`.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, root `WorldMap_Test.tscn`, and agent docs.
+- Web source files inspected: `world_map_ui.js`, `world_hud_ui.js`, `ui_render.js`, `selected_city_ui.js`, `app_state.js`, `world_rules.js`, `data/cities.js`, and `data/heroes.js`.
+- Verification passed: patch strings present, right-panel display strings present, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- Remaining risk: visual fit still needs Kimjak F6 confirmation because the panel content is denser than before.
 
 Explicitly deferred systems:
 - Right city info panel cleanup.
@@ -512,12 +523,11 @@ Explicitly deferred systems:
 - Full governor appointment execution.
 
 Next direction:
-1. `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
-2. `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
-3. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
-4. `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
-5. `v0.68b-12b-13 WorldMap Battle Result Return MVP`
-6. `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
+1. `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
+2. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
+3. `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
+4. `v0.68b-12b-13 WorldMap Battle Result Return MVP`
+5. `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
 4. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 5. `v0.68b-12c Selected City Panel Web Content Parity`
 6. `v0.68b-12d City Detail Panel Web Content Parity`

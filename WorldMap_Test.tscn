@@ -1796,32 +1796,33 @@ text = "SELECTED CITY"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 24
-text = "도시명"
+text = "선택 도시 없음"
 
 [node name="DescriptionLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=924009868]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
 theme_override_font_sizes/font_size = 12
-text = "한 줄 설명"
+text = "월드맵에서 도시를 선택하십시오."
 autowrap_mode = 2
 
 [node name="CityIdLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=225743654]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 1)
 theme_override_font_sizes/font_size = 12
-text = "id: city_id"
+text = ""
 
 [node name="RegionOwnerLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=1412077826]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
 theme_override_font_sizes/font_size = 12
-text = "지역 · OWNER"
+text = "소유: 정보 없음 · 지역: 정보 없음"
 
 [node name="CityTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=116586532]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
 theme_override_font_sizes/font_size = 12
-text = "유형: 거점"
+text = "유형: 정보 없음"
 
 [node name="LoyaltyCard" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=1263900356]
 layout_mode = 2
@@ -1842,7 +1843,7 @@ theme_override_constants/separation = 5
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
-text = "성 충성도 75 · 안정"
+text = "성 충성도 정보 없음"
 
 [node name="LoyaltyBar" type="ProgressBar" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard/MarginContainer/Content" unique_id=1477059144]
 custom_minimum_size = Vector2(0, 7)
@@ -1856,14 +1857,14 @@ show_percentage = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = "인접: -"
+text = "인구: 정보 없음 · 금전: 정보 없음 · 식량: 정보 없음"
 autowrap_mode = 2
 
 [node name="RouteTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=496479179]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = "루트: -"
+text = "자원: 정보 없음"
 autowrap_mode = 2
 
 [node name="StatusTextLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=340883158]
@@ -1877,7 +1878,7 @@ autowrap_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = "태수: placeholder"
+text = "태수 없음"
 
 [node name="GovernorCard" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=2090655760]
 layout_mode = 2
@@ -1920,7 +1921,7 @@ theme_override_constants/separation = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 12
-text = "태수 미임명"
+text = "태수 없음"
 
 [node name="GovernorStatsLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/Copy" unique_id=275093836]
 layout_mode = 2
@@ -1944,34 +1945,34 @@ autowrap_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 12
-text = "선택 중인 무장: [준비 중] [미배정]"
+text = "주둔 장수"
 autowrap_mode = 2
 
 [node name="GarrisonLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=454278629]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = "주둔 무장: placeholder"
+text = "주둔 장수 없음"
 
 [node name="MilitaryInfoLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=790368638]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = "군사 정보: placeholder"
+text = "병력: 정보 없음 · 방어: 정보 없음"
 autowrap_mode = 2
 
 [node name="MilitaryStateLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=227102862]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = "군비 상태: 징병 / 보급 / 방어도 placeholder"
+text = "민심/치안: 정보 없음 · 상업: 정보 없음 · 농업: 정보 없음"
 autowrap_mode = 2
 
 [node name="HintLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=934111924]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.76, 0.84, 1)
 theme_override_font_sizes/font_size = 11
-text = "도시 행동은 placeholder입니다."
+text = "정보 없음"
 autowrap_mode = 2
 
 [node name="ButtonRow" type="HBoxContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=1027083511]

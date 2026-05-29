@@ -217,6 +217,7 @@ const GOVERNOR_POLICY_DATA := {
 # v0.68b-12b-7 WorldMap Domestic Apply Visual QA + Balance Check
 # v0.68b-12b-9 WorldMap Enemy Invasion Event MVP
 # v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP
+# v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -417,6 +418,7 @@ func _ready() -> void:
 	_connect_city_markers()
 	city_info_panel.set_city_markers(_city_markers_by_id)
 	city_info_panel.set_hud_data(HERO_DATA, CITY_HUD_DATA, GOVERNOR_POLICY_DATA, _city_policy_state)
+	city_info_panel.set_pending_invasion_event(_get_pending_invasion_event_mvp())
 	_setup_left_world_controls()
 	_setup_left_world_status_panel_layout()
 	_refresh_left_world_status_panel()
@@ -677,6 +679,7 @@ func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 	selected_city_marker = city_marker
 	selected_city_marker.set_selected(true)
 	_player_state["selected_city_id"] = selected_city_id
+	city_info_panel.set_pending_invasion_event(_get_pending_invasion_event_mvp())
 	city_info_panel.show_city(city_marker)
 	_refresh_left_world_status_panel()
 	_refresh_unified_panel_content()
@@ -1242,6 +1245,7 @@ func _refresh_left_world_status_panel() -> void:
 	external_trade_label.visible = false
 	external_trade_label.text = ""
 	var pending_invasion_event := _get_pending_invasion_event_mvp()
+	city_info_panel.set_pending_invasion_event(pending_invasion_event)
 	world_status_hint_label.text = _format_invasion_status_text(pending_invasion_event)
 	world_status_hint_label.visible = not pending_invasion_event.is_empty()
 	_refresh_pending_invasion_choice_ui(pending_invasion_event)

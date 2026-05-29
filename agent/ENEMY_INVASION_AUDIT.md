@@ -125,6 +125,12 @@
 - BattleContext generation and battle scene handoff remain intentionally deferred.
 - Before implementing battle handoff, the next session should first clean up right city info panel readability and bind existing hero portrait assets.
 
+## v0.68b-12b-10a Right City Panel Cleanup Status
+- Implemented in `scripts/worldmap_city_info_panel.gd` with pending invasion state supplied from `scripts/worldmap_test.gd`; root `WorldMap_Test.tscn` initial right-panel fallback text was also cleaned.
+- The right selected-city panel now reads existing seed data for city name, owner/nation/region, population, gold, food, resource ratings, troops, defense, public support/order, commerce, agriculture, taesu/governor, and stationed heroes.
+- Pending invasion state remains display-only: the defender city shows `침공 대상 도시 · 방어전 준비 중`, and the attacker city shows `침공 출발 도시`.
+- Still missing by design: portrait asset binding, defense deployment, battle-prep payload creation, BattleContext bridge, battle handoff, auto defense resolution, battle result return, city ownership updates, troop losses, and resolved world ownership persistence.
+
 ## Recommended Godot Implementation Plan
 
 ### v0.68b-12b-10a Right City Info Panel Web Parity Cleanup

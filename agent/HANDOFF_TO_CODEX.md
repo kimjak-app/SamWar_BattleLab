@@ -180,6 +180,9 @@ Latest camera foundation:
 - Latest worldmap enemy invasion choice UI patch:
 `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
 
+- Latest worldmap right city panel cleanup patch:
+`v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
+
 - Latest session handoff docs patch:
 `v0.68b-12b-10.5 Session Handoff Docs Update Before Stop`
 
@@ -315,7 +318,14 @@ Do not modify casually:
 - The two defense buttons are placeholder-only: they update status text and keep the pending event intact. They do not create battle prep data, start battle, auto-resolve, change ownership, or deduct troops.
 - `아군 턴 종료` is disabled/blocked while the pending event exists so enemy invasion events do not stack before the choice flow is handled.
 - `v0.68b-12b-10.5 Session Handoff Docs Update Before Stop` is a docs-only wrap-up. No gameplay code or scene file should be inferred as changed by this handoff.
-- Current stable baseline for the next session is `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` at commit `6d3616339e5d555127c5f4eb5eb91160d362aa2e`.
+- `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup` is complete.
+- The right `CityInfoPanel` now displays selected city name, owner/nation/region, population, gold, food, resource ratings, troops, defense, public support/order, commerce, agriculture, taesu/governor, and stationed hero names from existing seed data.
+- The no-selection fallback is clean (`선택 도시 없음`, `월드맵에서 도시를 선택하십시오.`), and the panel avoids raw ids as primary display, raw nulls, dictionary dumps, and old visible placeholder blocks.
+- Pending invasion display is still read-only: defender city shows `침공 대상 도시 · 방어전 준비 중`; attacker city shows `침공 출발 도시`.
+- Modified files were `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, root `WorldMap_Test.tscn`, and agent docs.
+- Web references inspected were `world_map_ui.js`, `world_hud_ui.js`, `ui_render.js`, `selected_city_ui.js`, `app_state.js`, `world_rules.js`, `data/cities.js`, and `data/heroes.js`.
+- Verification passed: patch strings present, right-panel display strings present, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- Current stable baseline for the next session is `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI is good enough for the current MVP.
 - Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
@@ -331,6 +341,7 @@ Do not modify casually:
 - Save/load/reset via `user://worldmap_left_panel_state.json`.
 - Domestic apply once per full turn cycle: tax income, loyalty change, chancellor policy effects, warehouse resource updates, duplicate apply guard.
 - Enemy invasion MVP: 45% roll during enemy turn, enemy-owned attacker, neighboring player-owned defender, pending event, defender city auto-selection, pending choice card, manual/auto placeholder buttons, and ally turn-end blocked while pending.
+- Right selected-city panel cleanup: selected city name, owner/nation/region, population/resources/economy/military values, taesu, stationed hero list, and pending invasion defender/attacker labels are now readable in the right `CityInfoPanel`.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
 - Route connection meaning is controlled by exported metadata on `scripts/worldmap_route_path.gd`.
 - Actual route shape is controlled by each scene-authored `Path2D.curve`; runtime must not regenerate or overwrite existing route curves.
@@ -444,13 +455,12 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
-- `v0.68b-12b-10a` goal:
-  - Clean up the right city information panel and align selected city display with the web version.
-  - Display owner/nation/region/resources/troops/governor/stationed heroes cleanly, remove raw/debug text, and make invaded defender city info easy to read.
-  - Keep the task UI/data cleanup only; do not add BattleContext, battle handoff, ownership, troop loss, or broader gameplay execution.
+  - `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
+- `v0.68b-12b-10b` goal:
+  - Bind existing hero portrait assets and keep stable `?` fallback for missing assets.
+  - Prefer a shared lookup for chancellor card, stationed hero list, right city info panel, and future pending invasion hero display.
+  - Keep the task asset-binding/display-only; do not change hero identity, city data, BattleContext, or battle handoff.
 - Next candidates:
-  - `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
   - `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
   - `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
   - `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`

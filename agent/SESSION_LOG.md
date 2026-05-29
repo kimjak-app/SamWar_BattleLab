@@ -2,6 +2,17 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup
+- Inspected required agent docs, `scripts/worldmap_test.gd`, root `WorldMap_Test.tscn`, and right panel script `scripts/worldmap_city_info_panel.gd`.
+- Inspected local read-only web references: `C:\dev\SamWar_web\js\ui\world_map_ui.js`, `js\ui\world_hud_ui.js`, `js\ui\ui_render.js`, `js\ui\selected_city_ui.js`, `js\core\app_state.js`, `js\core\world_rules.js`, `data\cities.js`, and `data\heroes.js`.
+- Updated the right selected-city panel to show city name, owner/nation/region, population, gold, food, resource ratings, troops, defense, public support/order, commerce, agriculture, governor/taesu, and stationed hero names from existing seed data.
+- Hid raw city id display and replaced old runtime placeholder/debug-style text with clean Korean fallbacks: `선택 도시 없음`, `태수 없음`, `주둔 장수 없음`, `알 수 없는 장수`, and `정보 없음`.
+- Added display-only pending invasion city clarity: defender city shows `침공 대상 도시 · 방어전 준비 중`; attacker city shows `침공 출발 도시`.
+- Modified only `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, root `WorldMap_Test.tscn`, and agent docs; no repo-outside web files were changed.
+- Verification passed: patch strings, right-panel strings, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- No BattleContext, battle scene transition, defense deployment UI, auto defense resolution, city ownership change, troop loss, hero movement, governor appointment execution, enemy AI, pathfinding, or route logic was added.
+- Recommended next task: `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`.
+
 ### v0.68b-12b-10.5 Session Handoff Docs Update Before Stop
 - Confirmed local HEAD is `6d36163 v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`.
 - Updated docs only: current state, next tasks, handoff, changelog, session log, and enemy invasion audit.

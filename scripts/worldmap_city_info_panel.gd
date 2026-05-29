@@ -42,6 +42,8 @@ const CITY_TYPE_LABELS := {
 	"edo": "동방 성곽",
 }
 
+# v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup
+
 @onready var eyebrow_label: Label = $MarginContainer/Content/EyebrowLabel
 @onready var city_name_label: Label = $MarginContainer/Content/CityNameLabel
 @onready var description_label: Label = $MarginContainer/Content/DescriptionLabel
@@ -74,10 +76,12 @@ var _hero_data: Dictionary = {}
 var _city_hud_data: Dictionary = {}
 var _governor_policy_data: Dictionary = {}
 var _city_policy_state: Dictionary = {}
+var _pending_invasion_event: Dictionary = {}
 var _current_city_id := ""
 
 
 func _ready() -> void:
+	city_id_label.visible = false
 	attack_button_placeholder.pressed.connect(_on_attack_placeholder_pressed)
 	hero_move_button_placeholder.pressed.connect(_on_hero_move_placeholder_pressed)
 	domestic_button_placeholder.pressed.connect(_on_domestic_placeholder_pressed)
@@ -99,6 +103,12 @@ func set_hud_data(hero_data: Dictionary, city_hud_data: Dictionary, governor_pol
 	_setup_governor_policy_option()
 
 
+func set_pending_invasion_event(event: Dictionary) -> void:
+	_pending_invasion_event = event.duplicate(true)
+	if not _current_city_id.is_empty():
+		_refresh_pending_invasion_status_line(_current_city_id)
+
+
 func show_city(city_marker: WorldMapCityMarker) -> void:
 	if city_marker == null:
 		_show_empty()
@@ -111,62 +121,64 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 	var governor_data := _get_hero_entry(governor_id)
 	var policy_id := _get_city_policy_id(city_marker.city_id, city_data)
 	var policy_data := _get_governor_policy_entry(policy_id)
-	var stationed_hero_ids: Array = city_data.get("stationed_hero_ids", [])
+	var stationed_hero_ids := _get_city_stationed_hero_ids(city_data)
 
 	eyebrow_label.text = "SELECTED CITY"
-	city_name_label.text = city_marker.display_name
-	description_label.text = "%s 권역의 %s 거점입니다." % [
-		_format_region_label(city_marker.region_id),
-		_format_faction_label(city_marker.owner_faction_id),
+	city_name_label.text = _get_city_display_name(city_marker.city_id, city_marker.display_name)
+	description_label.text = "소유: %s · 지역: %s" % [
+		_get_city_owner_label(city_marker, city_data),
+		_get_city_region_label(city_marker, city_data),
 	]
-	city_id_label.text = "id: %s" % city_marker.city_id
-	region_owner_label.text = "%s · %s" % [
-		_format_region_label(city_marker.region_id),
-		_format_faction_label(city_marker.owner_faction_id),
+	city_id_label.visible = false
+	city_id_label.text = ""
+	region_owner_label.text = "세력: %s · 국가: %s" % [
+		_get_city_owner_label(city_marker, city_data),
+		_get_city_nation_label(city_marker, city_data),
 	]
 	city_type_label.text = "유형: %s" % _format_city_type(city_marker.city_id)
-	neighbor_label.text = "인접: %s" % _format_neighbors(city_marker.neighbors)
-	route_type_label.text = "루트: %s" % _format_route_types(city_marker)
-	status_text_label.text = _get_status_text(city_marker)
+	neighbor_label.text = _format_city_core_info(city_data)
+	route_type_label.text = _format_city_resource_info(city_data)
+	status_text_label.text = _format_pending_invasion_city_status(city_marker.city_id)
 	loyalty_label.text = "성 충성도 %d · 표시 전용" % loyalty
 	loyalty_bar.value = loyalty
 	_update_governor_card(governor_id, governor_data, policy_id, policy_data)
-	governor_label.text = "태수: %s · 정책: %s" % [
-		_get_hero_display_name(governor_data, "태수 미임명"),
-		str(policy_data.get("name", "정책 미정")),
+	governor_label.text = "태수: %s" % _get_hero_display_name(governor_data, "태수 없음")
+	selected_hero_chip_label.text = "주둔 장수"
+	garrison_label.text = _format_stationed_hero_list(stationed_hero_ids)
+	military_info_label.text = _format_city_defense_info(city_data)
+	military_state_label.text = _format_city_domestic_info(city_data)
+	hint_label.text = "정책: %s · %s" % [
+		str(policy_data.get("name", "정보 없음")),
+		str(policy_data.get("description", "정보 없음")),
 	]
-	selected_hero_chip_label.text = "주둔 무장: %s" % _format_stationed_hero_chips(stationed_hero_ids)
-	garrison_label.text = "주둔 무장 %d명 · 무장 이동 placeholder" % stationed_hero_ids.size()
-	military_info_label.text = "군대 상태: %s" % str(city_data.get("military", "도시 인구 / 주둔군 / 방어력 연결 예정"))
-	military_state_label.text = "모집/보급: %s · 병사 모집 placeholder" % str(city_data.get("trade", "군량 상태 / 치안 상태 준비 중"))
-	hint_label.text = "웹버전 Selected City 구조 표시 전용입니다."
 	show()
 
 
 func _show_empty() -> void:
 	_current_city_id = ""
 	eyebrow_label.text = "SELECTED CITY"
-	city_name_label.text = "도시를 선택하세요"
-	description_label.text = "도시 성 아이콘이 아닌 기능형 마커를 클릭하면 선택 정보가 표시됩니다."
-	city_id_label.text = "id: -"
-	region_owner_label.text = "지역 · 세력: -"
-	city_type_label.text = "유형: -"
-	neighbor_label.text = "인접: -"
-	route_type_label.text = "루트: -"
-	status_text_label.text = "월드맵 HUD 기능은 Godot 이식 중입니다."
-	loyalty_label.text = "성 충성도 - · placeholder"
+	city_name_label.text = "선택 도시 없음"
+	description_label.text = "월드맵에서 도시를 선택하십시오."
+	city_id_label.visible = false
+	city_id_label.text = ""
+	region_owner_label.text = "소유: 정보 없음 · 지역: 정보 없음"
+	city_type_label.text = "유형: 정보 없음"
+	neighbor_label.text = "인구: 정보 없음 · 금전: 정보 없음 · 식량: 정보 없음"
+	route_type_label.text = "자원: 정보 없음"
+	status_text_label.text = "선택 도시 없음"
+	loyalty_label.text = "성 충성도 정보 없음"
 	loyalty_bar.value = 0
-	governor_label.text = "태수: -"
+	governor_label.text = "태수 없음"
 	governor_portrait_label.text = "?"
-	governor_name_label.text = "태수 미임명"
+	governor_name_label.text = "태수 없음"
 	governor_stats_label.text = "능력: -"
 	_setup_governor_policy_option()
 	governor_policy_description_label.text = "도시 선택 시 태수 정책 설명이 표시됩니다."
-	selected_hero_chip_label.text = "주둔 무장: -"
-	garrison_label.text = "주둔 무장: placeholder"
-	military_info_label.text = "군사 정보: placeholder"
-	military_state_label.text = "군비 상태: placeholder"
-	hint_label.text = "공격 / 무장 이동 / 내정은 아직 실행되지 않습니다."
+	selected_hero_chip_label.text = "주둔 장수"
+	garrison_label.text = "주둔 장수 없음"
+	military_info_label.text = "병력: 정보 없음 · 방어: 정보 없음"
+	military_state_label.text = "민심/치안: 정보 없음 · 상업: 정보 없음 · 농업: 정보 없음"
+	hint_label.text = "정보 없음"
 	show()
 
 
@@ -185,6 +197,8 @@ func _format_region_label(region_id: String) -> String:
 
 
 func _format_faction_label(owner_faction_id: String) -> String:
+	if owner_faction_id.is_empty():
+		return "정보 없음"
 	return str(FACTION_LABELS.get(owner_faction_id, owner_faction_id))
 
 
@@ -227,6 +241,127 @@ func _get_city_hud_entry(city_id: String) -> Dictionary:
 	return _city_hud_data.get(city_id, {})
 
 
+func _get_city_display_name(city_id: String, fallback: String = "알 수 없는 도시") -> String:
+	var city_data := _get_city_hud_entry(city_id)
+	if not city_data.is_empty():
+		return str(city_data.get("name", fallback))
+	if not fallback.is_empty():
+		return fallback
+	return "알 수 없는 도시"
+
+
+func _get_city_owner_label(city_marker: WorldMapCityMarker, city_data: Dictionary) -> String:
+	var owner_id := str(city_data.get("owner", ""))
+	if owner_id.is_empty() and city_marker != null:
+		owner_id = city_marker.owner_faction_id
+	return _format_faction_label(owner_id)
+
+
+func _get_city_nation_label(city_marker: WorldMapCityMarker, city_data: Dictionary) -> String:
+	var nation_id := str(city_data.get("nation", ""))
+	if nation_id.is_empty() and city_marker != null:
+		nation_id = city_marker.owner_faction_id
+	return _format_faction_label(nation_id)
+
+
+func _get_city_region_label(city_marker: WorldMapCityMarker, city_data: Dictionary) -> String:
+	var region_label := str(city_data.get("region", ""))
+	if not region_label.is_empty():
+		return region_label
+	if city_marker != null:
+		return _format_region_label(city_marker.region_id)
+	return "정보 없음"
+
+
+func _get_city_stationed_hero_ids(city_data: Dictionary) -> Array:
+	var hero_ids: Variant = city_data.get("stationed_hero_ids", city_data.get("hero_ids", []))
+	if hero_ids is Array:
+		return hero_ids
+	return []
+
+
+func _format_city_core_info(city_data: Dictionary) -> String:
+	return "인구: %s · 금전: %s · 식량: %s" % [
+		_format_number_field(city_data, "population"),
+		_format_number_field(city_data, "gold"),
+		_format_number_field(city_data, "food"),
+	]
+
+
+func _format_city_resource_info(city_data: Dictionary) -> String:
+	var resource_seed: Dictionary = city_data.get("resource_seed", {})
+	var resource_parts: Array[String] = []
+	for resource_id in ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt"]:
+		if resource_seed.has(resource_id):
+			resource_parts.append("%s %d" % [_get_resource_label(resource_id), int(resource_seed.get(resource_id, 0))])
+	if resource_parts.is_empty():
+		return "자원: 정보 없음"
+	return "자원: %s" % " / ".join(resource_parts)
+
+
+func _format_city_defense_info(city_data: Dictionary) -> String:
+	return "병력: %s · 방어: %s · 치안 기준: %s" % [
+		_format_number_field(city_data, "troops"),
+		_format_number_field(city_data, "defense"),
+		_format_military_summary_value(city_data, "securityRequiredTroops"),
+	]
+
+
+func _format_city_domestic_info(city_data: Dictionary) -> String:
+	return "민심: %s · 치안: %s · 상업: %s · 농업: %s" % [
+		_format_domestic_summary_value(city_data, "publicSupport", "정보 없음"),
+		_format_number_field(city_data, "public_order"),
+		_format_number_field(city_data, "commerce"),
+		_format_number_field(city_data, "agriculture"),
+	]
+
+
+func _format_number_field(data: Dictionary, key: String, fallback: String = "정보 없음") -> String:
+	if not data.has(key):
+		return fallback
+	return "%d" % int(data.get(key, 0))
+
+
+func _format_domestic_summary_value(city_data: Dictionary, key: String, fallback: String = "정보 없음") -> String:
+	var domestic_seed: Dictionary = city_data.get("domestic_seed", {})
+	if not domestic_seed.has(key):
+		return fallback
+	return "%d" % int(domestic_seed.get(key, 0))
+
+
+func _format_military_summary_value(city_data: Dictionary, key: String, fallback: String = "정보 없음") -> String:
+	var military_text := str(city_data.get("military", ""))
+	if key == "securityRequiredTroops" and not military_text.is_empty():
+		var parts := military_text.split("/")
+		for part in parts:
+			var trimmed := str(part).strip_edges()
+			if trimmed.begins_with("치안 기준"):
+				return trimmed.trim_prefix("치안 기준").strip_edges()
+	return fallback
+
+
+func _get_resource_label(resource_id: String) -> String:
+	match resource_id:
+		"rice":
+			return "쌀"
+		"barley":
+			return "보리"
+		"seafood":
+			return "수산물"
+		"wood":
+			return "목재"
+		"iron":
+			return "철"
+		"horses":
+			return "말"
+		"silk":
+			return "비단"
+		"salt":
+			return "소금"
+		_:
+			return resource_id
+
+
 func _get_hero_entry(hero_id: String) -> Dictionary:
 	return _hero_data.get(hero_id, {})
 
@@ -244,7 +379,7 @@ func _get_city_policy_id(city_id: String, city_data: Dictionary) -> String:
 
 
 func _update_governor_card(governor_id: String, governor_data: Dictionary, policy_id: String, policy_data: Dictionary) -> void:
-	var governor_name := _get_hero_display_name(governor_data, "태수 미임명")
+	var governor_name := _get_hero_display_name(governor_data, "태수 없음")
 	governor_portrait_label.text = _get_portrait_initial(governor_name)
 	governor_name_label.text = governor_name
 	governor_stats_label.text = _format_hero_stats(governor_data)
@@ -255,15 +390,25 @@ func _update_governor_card(governor_id: String, governor_data: Dictionary, polic
 
 func _format_stationed_hero_chips(hero_ids: Array) -> String:
 	if hero_ids.is_empty():
-		return "배치 무장 없음"
+		return "주둔 장수 없음"
 
 	var chip_texts: Array[String] = []
 	for hero_id in hero_ids:
 		var hero_data := _get_hero_entry(str(hero_id))
-		var hero_name := _get_hero_display_name(hero_data, str(hero_id))
+		var hero_name := _get_hero_display_name(hero_data, "알 수 없는 장수")
 		var role := str(hero_data.get("role", "무장"))
 		chip_texts.append("[%s · %s · %s]" % [hero_name, role, _format_hero_stats(hero_data)])
 	return " ".join(chip_texts)
+
+
+func _format_stationed_hero_list(hero_ids: Array) -> String:
+	if hero_ids.is_empty():
+		return "주둔 장수 없음"
+	var lines: Array[String] = []
+	for hero_id in hero_ids:
+		var hero_data := _get_hero_entry(str(hero_id))
+		lines.append("· %s" % _get_hero_display_name(hero_data, "알 수 없는 장수"))
+	return "\n".join(lines)
 
 
 func _get_hero_display_name(hero_data: Dictionary, fallback: String) -> String:
@@ -297,6 +442,8 @@ func _select_option_by_metadata(option_button: OptionButton, metadata_value: Str
 
 
 func _get_status_text(city_marker: WorldMapCityMarker) -> String:
+	if city_marker == null:
+		return "정보 없음"
 	if _has_player_neighbor(city_marker) and city_marker.owner_faction_id != PLAYER_FACTION_ID:
 		return "공격을 누르면 출전 무장 선택 후 Phaser 전투 화면으로 진입합니다."
 
@@ -307,6 +454,20 @@ func _get_status_text(city_marker: WorldMapCityMarker) -> String:
 		return "적 도시입니다. 아군 인접 거점이 없으면 아직 공격할 수 없습니다."
 
 	return "전투 시스템은 다음 버전에서 구현 예정입니다."
+
+
+func _format_pending_invasion_city_status(city_id: String) -> String:
+	if _pending_invasion_event.is_empty():
+		return "도시 상태: %s" % _get_status_text(_city_markers_by_id.get(city_id) as WorldMapCityMarker)
+	if str(_pending_invasion_event.get("defender_city_id", "")) == city_id:
+		return "침공 대상 도시 · 방어전 준비 중"
+	if str(_pending_invasion_event.get("attacker_city_id", "")) == city_id:
+		return "침공 출발 도시"
+	return "도시 상태: %s" % _get_status_text(_city_markers_by_id.get(city_id) as WorldMapCityMarker)
+
+
+func _refresh_pending_invasion_status_line(city_id: String) -> void:
+	status_text_label.text = _format_pending_invasion_city_status(city_id)
 
 
 func _has_player_neighbor(city_marker: WorldMapCityMarker) -> bool:
@@ -326,12 +487,12 @@ func _on_governor_policy_selected(index: int) -> void:
 	var city_data := _get_city_hud_entry(_current_city_id)
 	var governor_data := _get_hero_entry(str(city_data.get("governor_id", "")))
 	governor_policy_description_label.text = str(policy_data.get("description", "태수 정책 설명 준비 중"))
-	governor_label.text = "태수: %s · 정책: %s" % [
-		_get_hero_display_name(governor_data, "태수 미임명"),
-		str(policy_data.get("name", policy_id)),
-	]
+	governor_label.text = "태수: %s" % _get_hero_display_name(governor_data, "태수 없음")
 	print("[WorldMap] Governor policy placeholder selected: %s for %s. No city stat or turn effect applied." % [policy_id, _current_city_id])
-	hint_label.text = "태수 정책 '%s' 선택됨. 실제 도시 수치는 변경하지 않습니다." % str(policy_data.get("name", policy_id))
+	hint_label.text = "정책: %s · %s" % [
+		str(policy_data.get("name", policy_id)),
+		str(policy_data.get("description", "정보 없음")),
+	]
 
 
 func _on_attack_placeholder_pressed() -> void:

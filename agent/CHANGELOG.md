@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup
+- Cleaned the right `CityInfoPanel` / selected-city panel in `scripts/worldmap_city_info_panel.gd`, with pending invasion state supplied from `scripts/worldmap_test.gd`.
+- Inspected local read-only web references: `C:\dev\SamWar_web\js\ui\world_map_ui.js`, `js\ui\world_hud_ui.js`, `js\ui\ui_render.js`, `js\ui\selected_city_ui.js`, `js\core\app_state.js`, `js\core\world_rules.js`, `data\cities.js`, and `data\heroes.js`.
+- The selected city panel now shows a clean Korean layout for city name, owner/nation/region, population, gold, food, resource ratings, troops, defense, public support/order, commerce, agriculture, governor/taesu, and stationed heroes.
+- No selected city now displays `선택 도시 없음` and `월드맵에서 도시를 선택하십시오.` without raw ids, nulls, dictionary dumps, or visible placeholder blocks.
+- Pending invasion integration remains display-only: selected defender cities show `침공 대상 도시 · 방어전 준비 중`, while selected attacker cities show `침공 출발 도시`.
+- Kept the patch bounded: no BattleContext, battle scene transition, defense deployment, auto defense resolution, ownership change, troop loss, hero movement, governor appointment execution, enemy AI expansion, pathfinding, or route logic was added.
+- Verification: patch strings present, right-panel fallback/field/taesu/stationed-hero/pending-invasion strings present, `git diff --check` passed, Godot project headless load passed, and root `WorldMap_Test.tscn` headless load passed.
+
 ## v0.68b-12b-10.5 Session Handoff Docs Update Before Stop
 - Updated handoff documentation only; no gameplay code or scene files were modified.
 - Recorded the current stable baseline as `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` at commit `6d3616339e5d555127c5f4eb5eb91160d362aa2e`.

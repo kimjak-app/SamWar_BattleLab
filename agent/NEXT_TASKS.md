@@ -69,9 +69,11 @@ Latest worldmap enemy invasion event patch: `v0.68b-12b-9 WorldMap Enemy Invasio
 
 Latest worldmap enemy invasion choice UI patch: `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
 
-Current stable baseline: `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+Latest worldmap right city panel cleanup patch: `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
 
-Baseline commit: `6d3616339e5d555127c5f4eb5eb91160d362aa2e`
+Current stable baseline: `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
+
+Baseline commit: local HEAD after `v0.68b-12b-10a`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -82,29 +84,6 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
-
-Goal:
-- clean up the right city information panel and align selected-city display with the web version
-
-Scope:
-- display owner/nation/region/resources/troops/governor/stationed heroes cleanly
-- remove raw/debug text from the right city info panel where safe
-- make invaded defender city information easy to read after pending invasion auto-selection
-- preserve display-only behavior
-
-Forbidden in this task:
-- no battle scene transition
-- no city ownership change
-- no battle result application
-- no hero movement or troop relocation
-- no actual governor/chancellor appointment execution
-- no broad domestic engine refactor
-- no route or pathfinding change
-- no castle icon reactivation
-- no modification to repo-outside `SamWar_web` files
-
-## Priority 2
 `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
 
 Goal:
@@ -115,25 +94,32 @@ Scope:
 - do not create new portrait assets unless separately requested
 - do not change hero identity or battle roster logic
 
-## Priority 3
+Forbidden in this task:
+- no battle scene transition
+- no city ownership change
+- no battle result application
+- no hero movement or troop relocation
+- no actual governor/chancellor appointment execution
+
+## Priority 2
 `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
 
 Goal:
 - convert pending invasion event into battle context data while avoiding direct result/ownership application
 
-## Priority 4
+## Priority 3
 `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 
 Goal:
 - transition from WorldMap to the Godot battle scene and pass battle context safely
 
-## Priority 5
+## Priority 4
 `v0.68b-12b-13 WorldMap Battle Result Return MVP`
 
 Goal:
 - return from battle scene to worldmap with a result payload
 
-## Priority 6
+## Priority 5
 `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
 
 Goal:
@@ -200,6 +186,13 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup` is complete.
+- Modified `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, root `WorldMap_Test.tscn`, and agent docs.
+- Inspected web references: `world_map_ui.js`, `world_hud_ui.js`, `ui_render.js`, `selected_city_ui.js`, `app_state.js`, `world_rules.js`, `data/cities.js`, and `data/heroes.js`.
+- The right selected-city panel now cleanly displays owner/nation/region, population, gold, food, resources, troops, defense, public support/order, commerce, agriculture, taesu/governor, and stationed heroes.
+- Pending invasion defender cities now show `침공 대상 도시 · 방어전 준비 중`; attacker cities show `침공 출발 도시`.
+- Verification passed: patch strings, right-panel strings, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- Recommended next task: `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`.
 - `v0.68b-12b-10.5 Session Handoff Docs Update Before Stop` documents the current stop point before the next session.
 - Current stable baseline is `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` at commit `6d3616339e5d555127c5f4eb5eb91160d362aa2e`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI displays correctly enough for the current MVP.
