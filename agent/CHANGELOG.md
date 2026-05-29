@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-12b-30 Invasion Attack Web Parity Gap Audit
+- Added `agent/INVASION_ATTACK_WEB_PARITY_GAP_AUDIT.md`.
+- Compared web player attack, enemy invasion/defense, battle result formulas, troop woundedQueue, save/load cleanup, and UI/UX flows against current Godot.
+- Confirmed Godot 29A implements player source troop decrement, allocated troop fields, player attack outcome formulas, and player attack woundedQueue persistence.
+- Identified P0 gaps: player attack defender garrison pre-decrement, defense battle allocation/result parity, defense woundedQueue/retreat-city troop return, and woundedQueue F6/save-load QA.
+- Identified P1 gaps: commandRank/commandLimit allocation clamp, defense default allocation/deployment UI, and player attack F6 allocation QA.
+- Marked hero recruit/faction conversion on captured cities, prisoner soldier handling, troop-count combat scaling, and siege-specific formulas as deferred.
+
 ## v0.68b-12b-29A Web-Parity Troop Allocation Wounded Queue Import
 - Subtracted player attack sortie troops from the source city at deployment confirmation and stored source before/after garrison values in the `player_attack` BattleContext.
 - Preserved per-hero `attacker_troop_allocation`, total allocated troops, and defender allocation metadata through BattleContext and battle result return payloads.

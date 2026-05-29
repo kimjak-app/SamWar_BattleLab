@@ -1,5 +1,12 @@
 # NEXT TASKS
 
+## Current Web-Parity Gap Audit Status
+- `v0.68b-12b-30 Invasion Attack Web Parity Gap Audit` is complete as a docs-only audit.
+- New audit document: `agent/INVASION_ATTACK_WEB_PARITY_GAP_AUDIT.md`.
+- Next P0 patch should address player attack defender garrison pre-decrement and enemy invasion defense troop allocation/result parity.
+- Defense parity must include source-city pre-decrement for both player defender and enemy attacker, allocated troop result payloads, woundedQueue application, and retreat-city wounded return when defense is lost.
+- P1 follow-up: commandRank/commandLimit allocation clamp and F6 save/load/turn recovery QA.
+
 ## Current Web-Parity Troop Allocation Status
 - `v0.68b-12b-29A Web-Parity Troop Allocation Wounded Queue Import` is complete in code.
 - Player attack confirmation now subtracts total allocated sortie troops from the source city immediately, while preserving `attacker_total_allocated_troops`, source before/after troops, and per-hero allocation metadata in BattleContext.

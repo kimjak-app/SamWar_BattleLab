@@ -1,5 +1,11 @@
 # CURRENT STATE
 
+## v0.68b-12b-30 Invasion Attack Web Parity Gap Audit
+- Docs-only audit created `agent/INVASION_ATTACK_WEB_PARITY_GAP_AUDIT.md` comparing SamWar_web attack/defense/result/woundedQueue/save-load/UI flows against current Godot.
+- P0 gaps confirmed: player attack defender garrison pre-decrement, enemy invasion defense troop allocation/result parity, defense woundedQueue/retreat-city handling, and F6/save-load QA for troop woundedQueue recovery.
+- P1 gaps confirmed: commandRank/commandLimit allocation clamp, player attack allocation F6 QA, and defense deployment UI/default allocation follow-up.
+- Deferred by design: hero recruit/faction conversion on captured cities, prisoner soldier handling, troop-count combat scaling, and siege-specific formulas.
+
 ## v0.68b-12b-29A Web-Parity Troop Allocation Wounded Queue Import
 - Player attack deployment confirmation now immediately subtracts the selected sortie troops from the source city garrison and records before/after troop counts in the `player_attack` BattleContext.
 - BattleContext preserves per-hero `attacker_troop_allocation`, total allocated troops, source city id, and defender allocation metadata; battle units now carry `allocated_troops` / `initial_allocated_troops` without scaling HP or combat power by troop count.

@@ -2,6 +2,13 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-30 Invasion Attack Web Parity Gap Audit
+- Performed a docs-only comparison of SamWar_web and Godot invasion/attack parity.
+- Inspected web `world_rules.js`, `app_state.js`, `battle_state.js`, `save_load.js`, and relevant UI modules for attack choice, defense choice, deployment, troop allocation, result return, woundedQueue, and save/load behavior.
+- Inspected Godot `worldmap_test.gd`, `worldmap_city_info_panel.gd`, `player_attack_deployment_panel.gd`, `battle_web_import_test.gd`, and `battle_unit_state.gd`.
+- Added `agent/INVASION_ATTACK_WEB_PARITY_GAP_AUDIT.md` with P0/P1/P2/Deferred classification and a final summary table.
+- P0 next work: defender garrison pre-decrement for player attack, defense allocation/result parity, defense woundedQueue/retreat-city return, and woundedQueue F6/save-load QA.
+
 ### v0.68b-12b-29A Web-Parity Troop Allocation + Wounded Queue Import
 - Added player attack deployment troop decrement: selected sortie troops are removed from the source city before battle scene handoff.
 - Preserved allocation metadata through `player_attack` BattleContext, including per-hero allocation, total allocated troops, source city id, and source before/after garrison values.

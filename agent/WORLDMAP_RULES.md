@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-30 Web Parity Gap Audit Rule
+- Current P0 parity target is troop accounting consistency across both player attack and enemy invasion defense.
+- Player attack must next subtract defender allocated troops from the defender city before battle start, matching the web enemy-side pre-decrement rule.
+- Enemy invasion defense must next use allocated troop outcomes, woundedQueue, and retreat-city wounded return instead of the older bounded casualty MVP.
+- CommandRank/commandLimit allocation clamp is required for web parity but is P1 behind troop-accounting correctness.
+- Hero recruit/conversion on captured cities remains deferred until prisoner/recruit policy is explicitly defined.
+
 ## v0.68b-12b-29A Web-Parity Troop Allocation Rule
 - Player attack deployment confirmation subtracts total allocated sortie troops from the source city immediately; source city must still keep at least one garrison troop.
 - BattleContext must preserve `attacker_troop_allocation`, `attacker_total_allocated_troops`, `attacker_source_city_id`, and source-city before/after troop values.
