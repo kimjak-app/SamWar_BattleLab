@@ -2157,6 +2157,28 @@ func _get_hero_display_name_with_state(hero_id: String, base_name: String) -> St
 	return "%s%s" % [base_name, _get_hero_state_badge_text(hero_id)]
 
 
+func _is_hero_captured_for_battle(hero_id: String) -> bool:
+	if hero_id.is_empty():
+		return false
+	var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+	var status := str(hero_state.get("status", HERO_RUNTIME_STATUS_NORMAL))
+	if bool(hero_state.get("dead", false)) or status == HERO_RUNTIME_STATUS_DEAD:
+		return true
+	if bool(hero_state.get("captured", false)) or status == HERO_RUNTIME_STATUS_CAPTURED:
+		return true
+	return false
+
+
+func _get_hero_battle_exclusion_reason(hero_id: String) -> String:
+	var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+	var status := str(hero_state.get("status", HERO_RUNTIME_STATUS_NORMAL))
+	if bool(hero_state.get("dead", false)) or status == HERO_RUNTIME_STATUS_DEAD:
+		return "dead"
+	if bool(hero_state.get("captured", false)) or status == HERO_RUNTIME_STATUS_CAPTURED:
+		return "captured"
+	return ""
+
+
 func _apply_defender_win_invasion_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> Dictionary:
 	var old_owner := _get_city_owner_id_for_battle_context(defender_city_id)
 	var casualty_result := _calculate_invasion_casualty_result(INVASION_RESULT_DEFENDER_WIN, defender_city_id, attacker_city_id, result_payload)
@@ -2488,8 +2510,24 @@ func _append_invasion_roster_hero_id(target_hero_ids: Array[String], source_buck
 	if used_hero_ids.has(hero_id) or target_hero_ids.has(hero_id):
 		print("[REINFORCE_SKIP] side=%s hero=%s city=%s reason=duplicate" % [context_side, hero_id, city_id])
 		return false
-	if _get_hero_entry(hero_id).is_empty():
+	var hero_entry := _get_hero_entry(hero_id)
+	if hero_entry.is_empty():
 		print("[REINFORCE_SKIP] side=%s hero=%s city=%s reason=missing_hero" % [context_side, hero_id, city_id])
+		return false
+	if _is_hero_captured_for_battle(hero_id):
+		var reason := _get_hero_battle_exclusion_reason(hero_id)
+		var display_name := str(hero_entry.get("display_name", hero_entry.get("name", hero_id)))
+		print("[HERO_BATTLE_EXCLUDE] side=%s type=%s city=%s hero=%s display_name=%s status=%s captured=%s reason=%s" % [
+			context_side,
+			pick_type,
+			city_id,
+			hero_id,
+			display_name,
+			str(hero_entry.get("status", HERO_RUNTIME_STATUS_NORMAL)),
+			str(bool(hero_entry.get("captured", false))),
+			reason,
+		])
+		print("[REINFORCE_SKIP] side=%s hero=%s city=%s reason=%s" % [context_side, hero_id, city_id, reason])
 		return false
 	used_hero_ids[hero_id] = true
 	target_hero_ids.append(hero_id)

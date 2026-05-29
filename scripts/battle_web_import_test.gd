@@ -1350,6 +1350,21 @@ func _apply_worldmap_context_side_roster(
 				continue
 		if resolved_hero_id == "":
 			continue
+		var resolved_hero_entry := _get_hero_registry_entry(resolved_hero_id)
+		if _is_hero_entry_excluded_from_context_battle(resolved_hero_entry):
+			var reason := _get_hero_entry_context_exclusion_reason(resolved_hero_entry)
+			print("[CONTEXT_HERO_EXCLUDE] source=%s side=%s slot=%s hero=%s display_name=%s status=%s captured=%s reason=%s" % [
+				str(context.get("source", "")),
+				context_side,
+				slot_id,
+				resolved_hero_id,
+				str(resolved_hero_entry.get("display_name", resolved_hero_id)),
+				str(resolved_hero_entry.get("status", "normal")),
+				str(bool(resolved_hero_entry.get("captured", false))),
+				reason,
+			])
+			_deactivate_worldmap_context_slot(slot_id, context_side, city_id, city_name, city_owner_id)
+			continue
 		_set_capacity_slot_metadata_value(slot_id, "is_active", true)
 		_set_capacity_slot_metadata_value(slot_id, "is_deployed", not slot_id.contains("_reinforce_"))
 		assigned_hero_ids.append(resolved_hero_id)
@@ -6206,6 +6221,26 @@ func _get_hero_state_badge_text(hero_entry: Dictionary) -> String:
 		return " [포로]"
 	if bool(hero_entry.get("wounded", false)) or status == "wounded":
 		return " [부상]"
+	return ""
+
+
+func _is_hero_entry_excluded_from_context_battle(hero_entry: Dictionary) -> bool:
+	if hero_entry.is_empty():
+		return false
+	var status := str(hero_entry.get("status", "normal")).to_lower()
+	if bool(hero_entry.get("dead", false)) or status == "dead":
+		return true
+	if bool(hero_entry.get("captured", false)) or status == "captured":
+		return true
+	return false
+
+
+func _get_hero_entry_context_exclusion_reason(hero_entry: Dictionary) -> String:
+	var status := str(hero_entry.get("status", "normal")).to_lower()
+	if bool(hero_entry.get("dead", false)) or status == "dead":
+		return "dead"
+	if bool(hero_entry.get("captured", false)) or status == "captured":
+		return "captured"
 	return ""
 
 

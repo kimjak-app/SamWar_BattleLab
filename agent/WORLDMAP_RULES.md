@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-24 Captured Hero Battle Exclusion Rule
+- Captured heroes remain in city `stationed_hero_ids` / `hero_ids` and must still be visible in WorldMap city information with `[포로]`.
+- BattleContext roster generation must exclude heroes with `captured == true` or `status == "captured"`.
+- `dead == true` or `status == "dead"` is also treated as battle-ineligible as a safety guard, although death is not currently applied by gameplay.
+- Wounded heroes are not excluded in this MVP.
+- The exclusion applies to main attacker/defender rosters and nearby reinforcement/support candidates; missing eligible heroes must not be force-filled from sample rosters.
+
 ## v0.68b-12b-23 Hero State Visual Badge Rule
 - WorldMap UI may display runtime hero state markers in existing text labels without creating new prisoner or wound systems.
 - Display priority is `dead` -> `captured` -> `wounded` -> normal.

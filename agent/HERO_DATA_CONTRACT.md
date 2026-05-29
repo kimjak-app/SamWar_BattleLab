@@ -1,5 +1,12 @@
 # HERO DATA CONTRACT
 
+## v0.68b-12b-24 Captured Battle Exclusion
+- Captured state is a runtime/save state, not a seed `HERO_DATA` mutation.
+- `captured == true` or `status == "captured"` makes a hero ineligible for invasion BattleContext roster construction.
+- `dead == true` or `status == "dead"` is also battle-ineligible as a defensive guard, but dead remains unused by current result logic.
+- Wounded heroes remain battle-eligible until a dedicated wounded penalty/exclusion patch exists.
+- Captured heroes are not removed from city rosters in this MVP; city UI can still show `[포로]` while battle rosters omit the hero.
+
 ## v0.68b-12b-23 Hero State Display Marker
 - Hero status display markers are derived from runtime hero state, not seed `HERO_DATA` mutation.
 - Display priority is `dead` -> `captured` -> `wounded` -> normal, mapping to `[사망]`, `[포로]`, `[부상]`, or no badge.

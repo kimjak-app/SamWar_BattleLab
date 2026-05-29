@@ -1,5 +1,12 @@
 # v0.68b-12b-8 Enemy Invasion Web Logic Audit
 
+## v0.68b-12b-24 Captured Battle Exclusion Status
+- Enemy-invasion BattleContext roster generation now excludes captured/dead heroes from main rosters and support candidates.
+- Captured heroes remain in city rosters for WorldMap display and save/load continuity, but they are no longer eligible to appear in battle formation panels or battlefield slots.
+- Wounded heroes remain eligible for this MVP.
+- The battle scene has a defensive context guard that deactivates captured/dead context slots if invalid data reaches the scene.
+- Remaining deferred audit items: prisoner holding/movement, recruit/execute/release, wound recovery, wounded penalties, and real death processing.
+
 ## v0.68b-12b-23 Hero State Visual Badge Status
 - Wounded/captured placeholder states are now visible in existing roster text surfaces.
 - WorldMap selected-city/right city panel hero lists use runtime-merged hero data and append `[부상]`, `[포로]`, or `[사망]`.

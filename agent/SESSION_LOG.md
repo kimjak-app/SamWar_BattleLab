@@ -2,6 +2,14 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-24 Captured Hero Battle Exclusion / Holding Placeholder MVP
+- Added a WorldMap battle-exclusion helper for captured/dead hero runtime state.
+- BattleContext roster creation now skips captured/dead heroes for main attacker/defender rosters and same-faction/2-hop support picks.
+- Captured heroes remain in city rosters and WorldMap city information; wounded heroes are intentionally still eligible for battle.
+- Added battle-scene context slot protection so captured/dead context heroes are deactivated before unit assignment.
+- Existing `worldmap_hero_state` save/load status persistence is reused; no new save payload fields were added.
+- Deferred prisoner holding/movement, recruitment/execution/release, wound recovery, wounded penalties, and actual death handling.
+
 ### v0.68b-12b-23 Hero State Visual Marker / Roster Status Badge MVP
 - Added display helpers that mark hero state as `[부상]`, `[포로]`, or `[사망]` with priority `dead` -> `captured` -> `wounded`; normal heroes show no marker.
 - Merged `_hero_runtime_states` into the WorldMap hero data passed to the selected-city info panel.

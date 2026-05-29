@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current Captured Hero Battle Exclusion Status
+- `v0.68b-12b-24 Captured Hero Battle Exclusion MVP` is complete in code.
+- Captured heroes remain visible in city rosters with `[포로]`, but they are excluded from WorldMap invasion attacker/defender/support battle rosters.
+- Exclusion applies to `captured == true`, `status == "captured"`, and safety `dead == true`; wounded heroes still enter battles.
+- Battle scene context assignment also blocks captured/dead context heroes and deactivates the affected slot.
+- Remaining manual QA: F6 capture a hero, save/load, confirm the city panel still shows `[포로]`, then start another battle and confirm that hero is absent from formation/battlefield.
+- Still deferred: prisoner movement/holding UI, recruit/execute/release, wound recovery, wounded penalties, and real death handling.
+
 ## Current Hero State Visual Badge Status
 - `v0.68b-12b-23 Hero State Visual Marker Roster Badge MVP` is complete in code.
 - Hero status display priority is `dead` -> `captured` -> `wounded` -> normal; normal heroes show no badge.
