@@ -2,6 +2,17 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
+- Inspected required agent docs, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `scripts/worldmap_hero_portrait_helper.gd`, root `WorldMap_Test.tscn`, and local read-only web battle/invasion references.
+- Web references inspected: `C:\dev\SamWar_web\js\core\battle_state.js`, `js\core\battle_rules.js`, `js\core\world_rules.js`, `js\core\app_state.js`, `js\ui\world_map_ui.js`, `js\ui\world_hud_ui.js`, `js\main.js`, `data\battle_rosters.js`, `data\cities.js`, and `data\heroes.js`.
+- Updated `scripts/worldmap_test.gd` so `수동 방어` and `자동 방어` validate the current pending invasion event and create runtime `_player_state.pending_battle_context`.
+- BattleContext data now includes `type: defense`, `source: enemy_invasion`, `mode`, attacker/defender ids and names, turn numbers, owner ids, troops, stationed hero ids, and governor ids from existing marker/HUD seed data.
+- Save/load/reset policy is runtime-only: saves exclude both pending invasion event and pending battle context, while load/reset clear both and normalize back to the world/player turn path.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_hero_portrait_helper.gd.uid`, and agent docs.
+- Verification passed: patch strings, context/validation/manual/auto paths, forbidden implementation search, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- No battle scene transition, defense deployment UI, auto battle resolution, city ownership change, troop/resource loss, hero movement, governor appointment execution, enemy AI expansion, pathfinding, diplomacy/cooldown, or result apply was added.
+- Recommended next task: `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`.
+
 ### v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 - Inspected required agent docs, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, root `WorldMap_Test.tscn`, and repo-local portrait/image asset listings.
 - Asset folders inspected included `assets/web_battle/portraits`, `assets/web_battle/portraits_battlefield`, worldmap assets, and battle UI/unit asset listings.

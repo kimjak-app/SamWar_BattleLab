@@ -72,6 +72,8 @@ Latest worldmap right city panel cleanup patch: `v0.68b-12b-10a WorldMap Right C
 
 Latest worldmap hero portrait binding patch: `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
 
+Latest worldmap BattleContext bridge patch: `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -113,6 +115,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
 - `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
 - `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
+- `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -262,8 +265,8 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Web target selection is random among eligible adjacent enemy->player city pairs. No troop threshold, route type, diplomacy/peace check, city strength priority, cooldown, or multiple enemy world actions were found in the audited selection path.
 - Web invasion creates a defense `pendingBattleChoice` with `battleContext: { type: "defense", attackerCityId, defenderCityId }`; manual/auto defense then starts battle through `startBattle()`. City ownership changes only after defense battle retreat/return, not when the invasion event is created.
 - Web save/load normalizes to `mode: "world"`, clears `pendingBattleChoice`, `pendingHeroDeployment`, `pendingHeroTransfer`, `battle`, and `pendingEnemyTurnResult`, and forces `world.turnOwner` back to `player`; pending invasion/battle is not resumed after load.
-- Current Godot already has the enemy-turn placeholder hook and domestic turn loop, but lacks an invasion event model, pending battle choice UI, defense deployment bridge, BattleContext handoff, ownership/result apply, and pending-event save/load policy. See `agent/ENEMY_INVASION_AUDIT.md`.
-- Combat/world-simulation HUD actions remain mostly placeholder-only. `BattleContext`, battle entry, broader domestic simulation, recruitment, diplomacy/spy execution, hero/army movement, route click, pathfinding, enemy invasion, and AI remain unimplemented.
+- Current Godot has the enemy-turn placeholder hook, domestic turn loop, enemy invasion event model, pending battle choice UI, runtime BattleContext bridge, and pending-event/context save/load clearing policy. It still lacks battle scene handoff, defense deployment bridge, ownership/result apply, and resolved world ownership persistence. See `agent/ENEMY_INVASION_AUDIT.md`.
+- Combat/world-simulation HUD actions remain mostly placeholder-only. Battle entry, broader domestic simulation, recruitment, diplomacy/spy execution, hero/army movement, route click, pathfinding, and enemy strategic AI remain unimplemented.
 - `RouteLayer` now contains scene-authored route roots for the first web-neighbor route graph MVP; `CityLayer`, `ArmyLayer`, `EffectLayer`, and `DebugLayer` remain future worldmap layers.
 - Each route root owns exported route metadata plus a child `Path2D` and `Line2D`.
 - Route connection meaning is code metadata; the actual route curve is the scene-authored `Path2D.curve` source of truth.
@@ -461,9 +464,11 @@ Latest worldmap enemy invasion event patch: `v0.68b-12b-9 WorldMap Enemy Invasio
 
 Latest worldmap enemy invasion choice UI patch: `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
 
-Current stable baseline: `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
+Latest worldmap BattleContext bridge patch: `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
 
-Baseline commit: `6d3616339e5d555127c5f4eb5eb91160d362aa2e`
+Current stable baseline: `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
+
+Baseline commit: local HEAD after `v0.68b-12b-11`
 
 Current Godot state:
 - `scripts/worldmap_test.gd` now rolls a web-parity enemy invasion event during the existing enemy-turn placeholder.
@@ -471,10 +476,11 @@ Current Godot state:
 - On success, `_player_state.pending_invasion_event` records a display-only defense event with `attacker_city_id`, `defender_city_id`, source, and turn number.
 - The left world panel shows a concise Korean invasion status, selects the defender city for visibility, and displays a web-like `PendingInvasionChoiceCard`.
 - The choice card shows `적군 침공 발생`, attacker/defender city lines, `방어전을 준비하십시오.`, and `수동 방어` / `자동 방어` buttons.
-- The defense buttons are placeholder-only and update status text; they keep the pending event intact and do not start battle or resolve results.
+- The defense buttons now validate the pending invasion event and create runtime `_player_state.pending_battle_context`; they keep the pending event intact and do not start battle or resolve results.
+- Pending battle context includes defense type/source/mode, attacker/defender ids and names, turn numbers, owner ids, troops, stationed hero ids, and governor ids from existing marker/HUD seed data.
 - `아군 턴 종료` is disabled/blocked while a pending invasion event exists so enemy events cannot stack before the choice flow is handled.
-- Save/load/reset clear pending invasion state; runtime saves do not persist the pending event, and load normalizes enemy-phase saves back to player turn.
-- No `BattleContext`, battle scene transition, city ownership change, troop loss, hero movement, enemy AI, pathfinding, cooldown, or diplomacy rule was added.
+- Save/load/reset clear pending invasion and pending battle context state; runtime saves do not persist either runtime choice object, and load normalizes enemy-phase saves back to player turn.
+- No battle scene transition, city ownership change, troop loss, hero movement, enemy AI, pathfinding, cooldown, diplomacy rule, defense deployment UI, or battle result apply was added.
 - User-reported F6 runtime visual check for the current baseline is working normally, and the pending invasion choice UI displays adequately for the current MVP.
 - Active worldmap scene is the root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist in this repo.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
@@ -494,6 +500,7 @@ Completed WorldMap session flow:
 11. `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP`
 12. `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup`
 13. `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
+14. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
 
 Current implemented systems:
 - Web hero/city/battle roster seed data imported into Godot worldmap seed structures.
@@ -519,9 +526,12 @@ Current implemented systems:
 - Stationed hero list remains text-only in this MVP to preserve the compact right-panel layout; the shared helper is ready for later pending invasion/defense UI use.
 - Asset folders inspected: `assets/web_battle/portraits`, `assets/web_battle/portraits_battlefield`, and repo-local asset listings.
 - Verification passed: patch strings/helper bindings present, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge` is complete.
+- Manual and auto defense buttons now create runtime-only pending battle context data from `_player_state.pending_invasion_event`.
+- Validation requires a defense event, known attacker/defender cities, enemy-owned attacker, and player-owned defender; invalid inputs fail safely with a Korean status message and no scene transition.
+- The context is excluded from save serialization and cleared on load/reset along with pending invasion event state, matching the web save/load policy.
 
 Explicitly deferred systems:
-- BattleContext generation.
 - Battle scene handoff.
 - Defense hero deployment UI.
 - Auto defense resolution.
@@ -534,15 +544,14 @@ Explicitly deferred systems:
 - Full governor appointment execution.
 
 Next direction:
-1. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
-2. `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
-3. `v0.68b-12b-13 WorldMap Battle Result Return MVP`
-4. `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
-5. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
-6. `v0.68b-12c Selected City Panel Web Content Parity`
-7. `v0.68b-12d City Detail Panel Web Content Parity`
-8. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
-9. `v0.68c BattleContext Runtime Injection MVP`
+1. `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
+2. `v0.68b-12b-13 WorldMap Battle Result Return MVP`
+3. `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
+4. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
+5. `v0.68b-12c Selected City Panel Web Content Parity`
+6. `v0.68b-12d City Detail Panel Web Content Parity`
+7. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
+8. `v0.68c BattleContext Runtime Injection MVP`
 
 ## Known / Deferred
 - 김작 F6 visual QA should confirm `v0.68b-12b Left World HUD Web Content Parity`: left main HUD section order is close to the web left HUD; turn/date/phase display follows web wording; chancellor card resembles the web structure; chancellor policy list/copy matches the web constants; selecting a policy updates explanation only and does not change actual values; national resources, warehouse, supply, troop rebalance, logistics/upkeep, and external trade summaries use web-like copy; button wording follows the web; placeholder feel is reduced; bottom empty space is acceptable; unified panel and Selected City panel structure remain intact; drag/collapse works; city clicks still refresh panels; route lines and sea arrow flow are normal; castle icon visuals stay hidden; existing battle scenes are not broken.

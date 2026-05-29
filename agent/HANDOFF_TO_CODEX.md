@@ -318,7 +318,7 @@ Do not modify casually:
 - `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` is complete in `scripts/worldmap_test.gd`; the root `WorldMap_Test.tscn` was inspected but not modified.
 - Godot now creates a runtime `PendingInvasionChoiceCard` in the left world status panel when `_player_state.pending_invasion_event` exists.
 - The card shows web-like defense choice copy: `Enemy Invasion`, `적군 침공 발생`, attacker/defender city lines, `방어전을 준비하십시오.`, and `수동 방어` / `자동 방어` buttons.
-- The two defense buttons are placeholder-only: they update status text and keep the pending event intact. They do not create battle prep data, start battle, auto-resolve, change ownership, or deduct troops.
+- The two defense buttons now create runtime-only battle prep data: they validate `_player_state.pending_invasion_event`, write `_player_state.pending_battle_context`, update status text, and keep the pending event intact. They do not start battle, auto-resolve, change ownership, or deduct troops.
 - `아군 턴 종료` is disabled/blocked while the pending event exists so enemy invasion events do not stack before the choice flow is handled.
 - `v0.68b-12b-10.5 Session Handoff Docs Update Before Stop` is a docs-only wrap-up. No gameplay code or scene file should be inferred as changed by this handoff.
 - `v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup` is complete.
@@ -334,13 +334,17 @@ Do not modify casually:
 - Stationed hero list remains text-only in this MVP to avoid crowding the cleaned right panel, but future pending invasion/defense UI can reuse the shared helper.
 - Asset folders inspected: `assets/web_battle/portraits`, `assets/web_battle/portraits_battlefield`, and worldmap/battle asset listings.
 - Verification passed: helper/patch strings present, chancellor/governor bindings present, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
-- Current stable baseline for the next session is `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`.
+- `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge` is complete.
+- Manual/auto defense context creation includes defense type/source/mode, attacker/defender city ids and names, turn numbers, owner ids, troop totals, stationed hero ids, and governor ids from existing marker/HUD seed data.
+- Validation fails safely for missing event, non-defense type, unknown city ids, non-enemy attacker, or non-player defender; failed validation clears only the runtime pending battle context.
+- Runtime save policy follows the web audit: pending invasion event and pending battle context are excluded from save serialization and cleared on load/reset normalization.
+- Current stable baseline for the next session is `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI is good enough for the current MVP.
 - Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
 - `agent/LOCAL_ENV.md` and `.godot/` are ignored local files and must not be committed.
-- Pending invasion event is not persisted on save/load; load/reset clear it following the web audit policy.
-- BattleContext generation, battle scene handoff, defense deployment, auto defense resolution, battle result return, city ownership apply, troop/resource battle loss, enemy strategic AI, enemy multi-action turns, internal supply network, troop redistribution, trade cooldown, soldier upkeep/salt consumption, and full governor appointment execution are still deferred.
+- Pending invasion event and pending battle context are not persisted on save/load; load/reset clear both following the web audit policy.
+- Battle scene handoff, defense deployment, auto defense resolution, battle result return, city ownership apply, troop/resource battle loss, enemy strategic AI, enemy multi-action turns, internal supply network, troop redistribution, trade cooldown, soldier upkeep/salt consumption, and full governor appointment execution are still deferred.
 
 ## Current WorldMap MVP Systems
 - Web hero/city/battle roster seed data imported into Godot.
@@ -349,7 +353,8 @@ Do not modify casually:
 - Calendar rule: start year `154`, seasons `봄 / 여름 / 가을 / 겨울`, `10` turns per season, `40` turns per year.
 - Save/load/reset via `user://worldmap_left_panel_state.json`.
 - Domestic apply once per full turn cycle: tax income, loyalty change, chancellor policy effects, warehouse resource updates, duplicate apply guard.
-- Enemy invasion MVP: 45% roll during enemy turn, enemy-owned attacker, neighboring player-owned defender, pending event, defender city auto-selection, pending choice card, manual/auto placeholder buttons, and ally turn-end blocked while pending.
+- Enemy invasion MVP: 45% roll during enemy turn, enemy-owned attacker, neighboring player-owned defender, pending event, defender city auto-selection, pending choice card, manual/auto battle context creation, and ally turn-end blocked while pending.
+- BattleContext bridge MVP: `_player_state.pending_battle_context` is runtime-only and stores defense source/mode, attacker/defender ids and names, turn numbers, owners, troops, stationed hero ids, and governor ids for future handoff.
 - Right selected-city panel cleanup: selected city name, owner/nation/region, population/resources/economy/military values, taesu, stationed hero list, and pending invasion defender/attacker labels are now readable in the right `CityInfoPanel`.
 - Hero portrait binding MVP: the chancellor card and right taesu/governor card use `WorldMapHeroPortraitHelper` to show existing portrait assets where available and keep the stable dark `?` fallback where missing.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
@@ -465,13 +470,12 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
-- `v0.68b-12b-11` goal:
-  - Convert pending invasion events into safe BattleContext-style defense payload data.
-  - Reuse the existing pending invasion event/choice UI and keep manual/auto selection display-safe.
-  - Do not apply battle results, city ownership, troop losses, or hero movement in this bridge task.
+  - `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
+- `v0.68b-12b-12` goal:
+  - Validate and consume the prepared runtime pending battle context.
+  - Transition from WorldMap to the Godot battle scene safely.
+  - Do not apply battle results, city ownership, troop losses, or hero movement in this handoff task.
 - Next candidates:
-  - `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
   - `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
   - `v0.68b-12b-13 WorldMap Battle Result Return MVP`
   - `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`

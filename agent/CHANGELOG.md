@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
+- Added a safe runtime BattleContext bridge in `scripts/worldmap_test.gd`; `WorldMap_Test.tscn`, `scripts/worldmap_city_info_panel.gd`, and `scripts/worldmap_hero_portrait_helper.gd` were inspected but not modified for this patch.
+- Inspected local read-only web references: `C:\dev\SamWar_web\js\core\battle_state.js`, `js\core\battle_rules.js`, `js\core\world_rules.js`, `js\core\app_state.js`, `js\ui\world_map_ui.js`, `js\ui\world_hud_ui.js`, `js\main.js`, `data\battle_rosters.js`, `data\cities.js`, and `data\heroes.js`.
+- Manual and auto defense buttons now validate `_player_state.pending_invasion_event`, build `_player_state.pending_battle_context`, and show concise Korean preparation status without opening battle scenes or dumping raw dictionaries.
+- BattleContext MVP shape includes defense type/source/mode, attacker/defender city ids and names, turn numbers, owner ids, troop totals, stationed hero ids, and governor ids where available from current seed/state.
+- Validation fails safely for missing event, non-defense type, unknown attacker/defender city ids, non-enemy attacker ownership, or non-player defender ownership; failure clears only the runtime pending battle context.
+- Save/load/reset policy follows the web audit: pending invasion event and pending battle context are runtime-only, excluded from save serialization, and cleared on load/reset normalization.
+- Kept the patch bounded: no battle scene transition, defense deployment UI, auto battle resolution, battle result application, city ownership mutation, troop/resource loss, hero movement, governor appointment execution, enemy AI expansion, pathfinding, diplomacy, cooldowns, or multiple enemy actions were added.
+- Verification: patch strings present, context/validation/manual/auto paths present, forbidden implementation search reviewed, `git diff --check` passed, Godot project headless load passed, and root `WorldMap_Test.tscn` headless load passed.
+
 ## v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 - Added shared portrait lookup/apply helper `scripts/worldmap_hero_portrait_helper.gd` for WorldMap UI reuse.
 - Inspected repo-local asset folders including `assets/web_battle/portraits` and `assets/web_battle/portraits_battlefield`; no image files were moved, deleted, edited, or generated.

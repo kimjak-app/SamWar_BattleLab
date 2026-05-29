@@ -116,14 +116,14 @@
 - Still missing by design: defense deployment, battle-prep payload creation, battle handoff, auto battle resolution, battle result return, city ownership updates, troop losses, and resolved world ownership persistence.
 
 ## v0.68b-12b-10.5 Session Handoff Status
-- Current stable baseline for the next session is `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` at commit `6d3616339e5d555127c5f4eb5eb91160d362aa2e`.
+- This historical handoff has been superseded. Current stable baseline is `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI is acceptable for the current MVP.
 - Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
 - `agent/LOCAL_ENV.md` and `.godot/` remain ignored local files and must not be committed.
-- Pending invasion event is not persisted on save/load, and load/reset clear it according to the web audit policy.
-- BattleContext generation and battle scene handoff remain intentionally deferred.
-- Before implementing battle handoff, the next session should first clean up right city info panel readability and bind existing hero portrait assets.
+- Pending invasion event and pending battle context are not persisted on save/load, and load/reset clear both according to the web audit policy.
+- Battle scene handoff remains intentionally deferred.
+- Right city info panel cleanup, hero portrait binding, and BattleContext bridge are complete; the next task should use the prepared context for safe battle scene handoff.
 
 ## v0.68b-12b-10a Right City Panel Cleanup Status
 - Implemented in `scripts/worldmap_city_info_panel.gd` with pending invasion state supplied from `scripts/worldmap_test.gd`; root `WorldMap_Test.tscn` initial right-panel fallback text was also cleaned.
@@ -131,22 +131,15 @@
 - Pending invasion state remains display-only: the defender city shows `침공 대상 도시 · 방어전 준비 중`, and the attacker city shows `침공 출발 도시`.
 - Still missing by design: portrait asset binding, defense deployment, battle-prep payload creation, BattleContext bridge, battle handoff, auto defense resolution, battle result return, city ownership updates, troop losses, and resolved world ownership persistence.
 
+## v0.68b-12b-11 BattleContext Bridge Status
+- Implemented in `scripts/worldmap_test.gd`; root `WorldMap_Test.tscn`, `scripts/worldmap_city_info_panel.gd`, and `scripts/worldmap_hero_portrait_helper.gd` were inspected but not modified for this bridge.
+- Godot now converts `_player_state.pending_invasion_event` into runtime-only `_player_state.pending_battle_context` when the player clicks `수동 방어` or `자동 방어`.
+- The context shape includes `type: defense`, `source: enemy_invasion`, `mode`, attacker/defender city ids and names, turn numbers, owner ids, troop totals, stationed hero ids, and governor ids from existing marker/HUD seed data.
+- Validation requires a pending defense event, known attacker and defender city ids, an enemy-owned attacker, and a player-owned defender. Invalid input fails safely and does not create a context.
+- Save/load/reset policy follows the web audit: pending invasion event and pending battle context are excluded from saves and cleared during load/reset normalization.
+- Still missing by design: actual battle scene handoff, defense hero deployment, auto battle resolution, battle result return, city ownership updates, troop/resource losses, and resolved world ownership persistence.
+
 ## Recommended Godot Implementation Plan
-
-### v0.68b-12b-10a Right City Info Panel Web Parity Cleanup
-- Clean up the right city information panel before battle handoff work.
-- Make selected/defender city owner, nation, region, resources, troops, governor, and stationed hero data readable without raw debug text.
-
-### v0.68b-12b-10b Hero Portrait Asset Binding MVP
-- Bind existing hero portrait assets where available.
-- Keep `?` fallback for missing portraits.
-- Prefer shared lookup for chancellor card, stationed hero list, right city info panel, and future pending invasion choice hero display.
-
-### v0.68b-12b-11 Enemy Invasion BattleContext Bridge
-After the two cleanup tasks above, convert a pending invasion event into a defense battle choice structure similar to web `pendingBattleChoice`.
-- Prepare safe battle context data from `type`, `attackerCityId`, `defenderCityId`, and selected control mode.
-- Reuse the existing `수동 방어` / `자동 방어` choice UI from `v0.68b-12b-10`.
-- Do not apply final ownership results in this task.
 
 ### v0.68b-12b-12 Enemy Invasion Battle Scene Handoff MVP
 - Transition from WorldMap to the Godot battle scene and pass battle context safely.

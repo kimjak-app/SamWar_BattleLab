@@ -48,6 +48,7 @@ const CHANCELLOR_PRIMARY_RATE := 0.03
 const CHANCELLOR_SECONDARY_RATE := 0.015
 
 # v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
+# v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -392,6 +393,7 @@ var _player_state := {
 	"year_label": "154년 봄 1일",
 	"current_phase_label": "아군 턴",
 	"pending_invasion_event": {},
+	"pending_battle_context": {},
 	"enemy_invasion_roll_turn": 0,
 	"domestic_apply_pending": false,
 	"last_domestic_apply_turn": 0,
@@ -1289,6 +1291,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_domestic_apply_turn"] = 0
 	if not _player_state.has("pending_invasion_event") or not (_player_state["pending_invasion_event"] is Dictionary):
 		_player_state["pending_invasion_event"] = {}
+	if not _player_state.has("pending_battle_context") or not (_player_state["pending_battle_context"] is Dictionary):
+		_player_state["pending_battle_context"] = {}
 	if not _player_state.has("enemy_invasion_roll_turn"):
 		_player_state["enemy_invasion_roll_turn"] = 0
 
@@ -1472,6 +1476,7 @@ func _get_city_neighbors_mvp(city_id: String) -> Array[String]:
 func _create_pending_invasion_event_mvp(attacker_city_id: String, defender_city_id: String) -> Dictionary:
 	if attacker_city_id.is_empty() or defender_city_id.is_empty():
 		return {}
+	_clear_pending_battle_context_mvp()
 	var event := {
 		"type": "defense",
 		"attacker_city_id": attacker_city_id,
@@ -1511,7 +1516,7 @@ func _refresh_pending_invasion_choice_ui(event: Dictionary = {}) -> void:
 	if _pending_invasion_detail_label != null:
 		_pending_invasion_detail_label.text = _format_pending_invasion_detail(event)
 	if _pending_invasion_instruction_label != null:
-		_pending_invasion_instruction_label.text = "방어전을 준비하십시오."
+		_pending_invasion_instruction_label.text = _format_pending_battle_context_status_for_event(event)
 	if _manual_defense_button != null:
 		_manual_defense_button.text = "수동 방어"
 		_manual_defense_button.disabled = false
@@ -1521,23 +1526,141 @@ func _refresh_pending_invasion_choice_ui(event: Dictionary = {}) -> void:
 
 
 func _on_manual_defense_pressed() -> void:
-	if not _has_pending_invasion_event_mvp():
-		_set_save_management_status("진행 중인 침공 이벤트가 없습니다.")
-		_refresh_left_world_status_panel()
-		return
-	_set_save_management_status("수동 방어 준비 기능은 다음 단계에서 연결됩니다.")
+	_prepare_pending_invasion_battle_context("manual")
 
 
 func _on_auto_defense_pressed() -> void:
-	if not _has_pending_invasion_event_mvp():
-		_set_save_management_status("진행 중인 침공 이벤트가 없습니다.")
+	_prepare_pending_invasion_battle_context("auto")
+
+
+func _prepare_pending_invasion_battle_context(mode: String) -> void:
+	var normalized_mode := "auto" if mode == "auto" else "manual"
+	var event := _get_pending_invasion_event_mvp()
+	var validation := _validate_pending_invasion_event_for_battle_context(event)
+	if not bool(validation.get("ok", false)):
+		_clear_pending_battle_context_mvp()
+		_set_save_management_status("전투 데이터 생성 실패 · %s" % str(validation.get("message", "침공 이벤트 확인 필요")))
 		_refresh_left_world_status_panel()
 		return
-	_set_save_management_status("자동 방어 기능은 다음 단계에서 연결됩니다.")
+	var battle_context := _build_battle_context_from_pending_invasion(event, normalized_mode)
+	if battle_context.is_empty():
+		_clear_pending_battle_context_mvp()
+		_set_save_management_status("전투 데이터 생성 실패")
+		_refresh_left_world_status_panel()
+		return
+	_set_pending_battle_context_mvp(battle_context)
+	if normalized_mode == "auto":
+		_set_save_management_status("자동 방어 전투 데이터 준비 완료 · 자동 해결은 아직 미구현")
+	else:
+		_set_save_management_status("수동 방어 전투 데이터 준비 완료 · 다음 단계에서 전투 화면으로 이동")
+	_refresh_left_world_status_panel()
+
+
+func _validate_pending_invasion_event_for_battle_context(event: Dictionary) -> Dictionary:
+	if event.is_empty():
+		return {"ok": false, "message": "진행 중인 침공 이벤트가 없습니다."}
+	if str(event.get("type", "")) != "defense":
+		return {"ok": false, "message": "방어전 이벤트가 아닙니다."}
+	var attacker_city_id := str(event.get("attacker_city_id", ""))
+	var defender_city_id := str(event.get("defender_city_id", ""))
+	if not _has_city_for_battle_context(attacker_city_id):
+		return {"ok": false, "message": "침공 도시 정보를 찾을 수 없습니다."}
+	if not _has_city_for_battle_context(defender_city_id):
+		return {"ok": false, "message": "방어 도시 정보를 찾을 수 없습니다."}
+	if not _is_city_owned_by_enemy_mvp(attacker_city_id):
+		return {"ok": false, "message": "침공 도시가 적 소유가 아닙니다."}
+	if not _is_city_owned_by_player_mvp(defender_city_id):
+		return {"ok": false, "message": "방어 도시가 아군 소유가 아닙니다."}
+	return {"ok": true, "message": ""}
+
+
+func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String) -> Dictionary:
+	var attacker_city_id := str(event.get("attacker_city_id", ""))
+	var defender_city_id := str(event.get("defender_city_id", ""))
+	return {
+		"type": "defense",
+		"source": "enemy_invasion",
+		"mode": "auto" if mode == "auto" else "manual",
+		"attacker_city_id": attacker_city_id,
+		"defender_city_id": defender_city_id,
+		"attacker_city_name": _format_city_name_by_id(attacker_city_id, "알 수 없는 적 도시"),
+		"defender_city_name": _format_city_name_by_id(defender_city_id, "알 수 없는 아군 도시"),
+		"turn_number": maxi(1, int(_player_state.get("turn_number", 1))),
+		"event_turn_number": int(event.get("turn_number", _player_state.get("turn_number", 1))),
+		"attacker_owner": _get_city_owner_id_for_battle_context(attacker_city_id),
+		"defender_owner": _get_city_owner_id_for_battle_context(defender_city_id),
+		"attacker_troops": _get_city_troops_for_battle_context(attacker_city_id),
+		"defender_troops": _get_city_troops_for_battle_context(defender_city_id),
+		"attacker_hero_ids": _get_city_stationed_hero_ids_for_battle_context(attacker_city_id),
+		"defender_hero_ids": _get_city_stationed_hero_ids_for_battle_context(defender_city_id),
+		"attacker_governor_id": _get_city_governor_id_for_battle_context(attacker_city_id),
+		"defender_governor_id": _get_city_governor_id_for_battle_context(defender_city_id),
+	}
+
+
+func _has_city_for_battle_context(city_id: String) -> bool:
+	if city_id.is_empty():
+		return false
+	return _city_markers_by_id.has(city_id) or not _get_city_hud_entry(city_id).is_empty()
+
+
+func _get_city_owner_id_for_battle_context(city_id: String) -> String:
+	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+	if city_marker != null and not city_marker.owner_faction_id.is_empty():
+		return city_marker.owner_faction_id
+	var city_data := _get_city_hud_entry(city_id)
+	return str(city_data.get("owner", city_data.get("nation", "")))
+
+
+func _get_city_troops_for_battle_context(city_id: String) -> int:
+	var city_data := _get_city_hud_entry(city_id)
+	return maxi(0, int(city_data.get("troops", 0)))
+
+
+func _get_city_stationed_hero_ids_for_battle_context(city_id: String) -> Array:
+	var hero_ids: Array = []
+	for hero_id in _get_stationed_hero_ids_for_city(_get_city_hud_entry(city_id)):
+		hero_ids.append(str(hero_id))
+	return hero_ids
+
+
+func _get_city_governor_id_for_battle_context(city_id: String) -> String:
+	return str(_get_city_hud_entry(city_id).get("governor_id", ""))
+
+
+func _set_pending_battle_context_mvp(battle_context: Dictionary) -> void:
+	_player_state["pending_battle_context"] = battle_context.duplicate(true)
+
+
+func _get_pending_battle_context_mvp() -> Dictionary:
+	var battle_context: Variant = _player_state.get("pending_battle_context", {})
+	if battle_context is Dictionary:
+		return battle_context
+	return {}
+
+
+func _clear_pending_battle_context_mvp() -> void:
+	_player_state["pending_battle_context"] = {}
+
+
+func _format_pending_battle_context_status_for_event(event: Dictionary) -> String:
+	var battle_context := _get_pending_battle_context_mvp()
+	if event.is_empty() or battle_context.is_empty():
+		return "방어전을 준비하십시오."
+	if str(battle_context.get("source", "")) != "enemy_invasion":
+		return "방어전을 준비하십시오."
+	if str(battle_context.get("attacker_city_id", "")) != str(event.get("attacker_city_id", "")):
+		return "방어전을 준비하십시오."
+	if str(battle_context.get("defender_city_id", "")) != str(event.get("defender_city_id", "")):
+		return "방어전을 준비하십시오."
+	if str(battle_context.get("mode", "")) == "auto":
+		return "자동 방어 전투 데이터 준비 완료 · 자동 해결은 아직 미구현"
+	return "수동 방어 전투 데이터 준비 완료 · 다음 단계에서 전투 화면으로 이동"
 
 
 func _clear_pending_invasion_event_mvp() -> void:
 	_player_state["pending_invasion_event"] = {}
+	_clear_pending_battle_context_mvp()
 	_player_state["enemy_invasion_roll_turn"] = 0
 
 
@@ -1812,10 +1935,11 @@ func _serialize_worldmap_state() -> Dictionary:
 	_ensure_worldmap_runtime_state_defaults()
 	var saved_player_state := _player_state.duplicate(true)
 	saved_player_state["pending_invasion_event"] = {}
+	saved_player_state["pending_battle_context"] = {}
 	saved_player_state["enemy_invasion_roll_turn"] = 0
 	return {
-		"version": "v0.68b-12b-10",
-		"title": "WorldMap Enemy Invasion Choice UI MVP",
+		"version": "v0.68b-12b-11",
+		"title": "WorldMap Enemy Invasion BattleContext Bridge",
 		"player_state": saved_player_state,
 	}
 
