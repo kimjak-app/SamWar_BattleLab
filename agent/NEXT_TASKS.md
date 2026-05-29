@@ -77,9 +77,11 @@ Latest worldmap BattleContext bridge patch: `v0.68b-12b-11 WorldMap Enemy Invasi
 
 Latest worldmap battle scene handoff patch: `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 
-Current stable baseline: `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
+Latest battle roster context patch: `v0.68b-12b-13 Battle Roster Context Apply MVP`
 
-Baseline commit: local HEAD after `v0.68b-12b-12`
+Current stable baseline: `v0.68b-12b-13 Battle Roster Context Apply MVP`
+
+Baseline commit: local HEAD after `v0.68b-12b-13`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -90,7 +92,7 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-13 WorldMap Battle Result Return MVP`
+`v0.68b-12b-14 WorldMap Battle Result Return MVP`
 
 Goal:
 - return from battle scene to worldmap with a safe result payload
@@ -172,13 +174,16 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
-- `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP` is complete.
+- `v0.68b-12b-13 Battle Roster Context Apply MVP` is complete.
+- WorldMap-launched battles now adapt the existing `Battle_Fullscreen_Test.tscn` demo capacity slots with defender/attacker governor and stationed hero ids where those ids resolve to the battle hero registry.
+- Missing, empty, or unknown context hero ids fall back to the existing per-slot `TEST_BATTLE_ROSTER`, so direct battle testing and incomplete WorldMap rosters remain stable.
+- Combat HP/troop scaling from city garrison values is deferred; this patch only applies context roster identity/metadata and concise battle log feedback.
 - Modified `scripts/worldmap_test.gd`, `scripts/battle_web_import_test.gd`, and agent docs.
 - Selected battle scene: `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff strategy: runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; the battle scene reads and clears it on startup, with no save/autoload/project-setting persistence.
 - Manual/auto defense now prepares context, stores the full context payload, and transitions to the battle scene. Direct battle scene launch without context still uses the existing demo setup.
 - Verification passed: patch strings, handoff/intake paths, forbidden implementation search, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and direct `Battle_Fullscreen_Test.tscn` headless load.
-- Recommended next task: `v0.68b-12b-13 WorldMap Battle Result Return MVP`.
+- Recommended next task: `v0.68b-12b-14 WorldMap Battle Result Return MVP`.
 - `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge` is complete.
 - Modified `scripts/worldmap_test.gd`, `scripts/worldmap_hero_portrait_helper.gd.uid`, and agent docs.
 - Inspected web references: `battle_state.js`, `battle_rules.js`, `world_rules.js`, `app_state.js`, `world_map_ui.js`, `world_hud_ui.js`, `main.js`, `battle_rosters.js`, `cities.js`, and `heroes.js`.

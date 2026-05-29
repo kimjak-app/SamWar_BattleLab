@@ -148,13 +148,23 @@
 - Direct battle scene launch without context is preserved and falls back to the existing test battle setup.
 - Still missing by design: battle result return, city ownership updates, troop/resource losses, hero movement/capture, defense deployment UI, and auto battle resolution.
 
+## v0.68b-12b-13 Battle Roster Context Apply Status
+- Implemented in `scripts/battle_web_import_test.gd` only.
+- WorldMap-launched defense battles now adapt the existing `Battle_Fullscreen_Test.tscn` capacity slots from handoff context instead of creating a new battle scene or roster engine.
+- Defender governor/stationed hero ids map to ally slots; attacker governor/stationed hero ids map to enemy slots.
+- Current compatible web/Godot hero ids resolve through a compact map, including `yi_sun_sin` -> `yi_sunsin`, `jeong_do_jeon` -> `jeong_dojeon`, and `kim_yu_sin` -> `gim_yusin`.
+- Missing context, empty hero arrays, unknown hero ids, and missing governors safely fall back to the existing `TEST_BATTLE_ROSTER`.
+- Direct battle scene launch remains unchanged when no `samwar_worldmap_battle_context` metadata exists.
+- City troop/garrison scaling remains deferred; this patch applies identity/metadata and concise battle log feedback only.
+- Still missing by design: battle result return, city ownership updates, troop/resource losses, hero movement/capture, defense deployment UI, and auto battle resolution.
+
 ## Recommended Godot Implementation Plan
 
-### v0.68b-12b-13 Battle Result Return MVP
+### v0.68b-12b-14 Battle Result Return MVP
 - Return from battle scene to worldmap with a result payload.
 - Keep city ownership/troop/resource application deferred to the next task.
 
-### v0.68b-12b-14 Enemy Invasion Ownership / Troop Apply
+### v0.68b-12b-15 Enemy Invasion Ownership / Troop Apply
 - Apply a returned defense battle result to city ownership, troop state, and hero faction/location state.
 - Preserve web behavior where losing a defense transfers the city to the attacker faction and winning defense returns surviving/wounded troops.
 - Add save/load support for the resulting city ownership and troop state.

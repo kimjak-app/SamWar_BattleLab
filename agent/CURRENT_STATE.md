@@ -76,6 +76,8 @@ Latest worldmap BattleContext bridge patch: `v0.68b-12b-11 WorldMap Enemy Invasi
 
 Latest worldmap battle scene handoff patch: `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 
+Latest battle roster context patch: `v0.68b-12b-13 Battle Roster Context Apply MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -119,6 +121,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
 - `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
 - `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
+- `v0.68b-12b-13 Battle Roster Context Apply MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -471,9 +474,9 @@ Latest worldmap BattleContext bridge patch: `v0.68b-12b-11 WorldMap Enemy Invasi
 
 Latest worldmap battle scene handoff patch: `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 
-Current stable baseline: `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
+Current stable baseline: `v0.68b-12b-13 Battle Roster Context Apply MVP`
 
-Baseline commit: local HEAD after `v0.68b-12b-12`
+Baseline commit: local HEAD after `v0.68b-12b-13`
 
 Current Godot state:
 - `scripts/worldmap_test.gd` now rolls a web-parity enemy invasion event during the existing enemy-turn placeholder.
@@ -537,7 +540,11 @@ Current implemented systems:
 - Manual and auto defense buttons now create runtime-only pending battle context data from `_player_state.pending_invasion_event`.
 - Validation requires a defense event, known attacker/defender cities, enemy-owned attacker, and player-owned defender; invalid inputs fail safely with a Korean status message and no scene transition.
 - The context is excluded from save serialization and cleared on load/reset along with pending invasion event state, matching the web save/load policy.
-- `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP` is complete.
+- `v0.68b-12b-13 Battle Roster Context Apply MVP` is complete.
+- `Battle_Fullscreen_Test.tscn` still launches directly with the existing demo roster when no WorldMap context metadata exists.
+- When WorldMap handoff context exists, `scripts/battle_web_import_test.gd` adapts the existing ally/enemy capacity slots from defender/attacker governor and stationed hero ids where those ids resolve to the current battle hero registry; unknown or missing heroes fall back per-slot to `TEST_BATTLE_ROSTER`.
+- The battle scene logs `월드맵 방어전 편성 적용` and keeps city names/mode visible through the handoff log path.
+- City troop counts remain context metadata for now; combat HP/troop scaling is deferred to avoid a balance rewrite.
 - Selected battle scene: `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff strategy: runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; no autoload, save file, project setting, or repo runtime file was added.
 - Manual/auto defense now transitions to the battle scene after context preparation. The battle scene preserves direct standalone test launch by falling back to the existing demo setup when context is absent.
@@ -555,8 +562,8 @@ Explicitly deferred systems:
 - Full governor appointment execution.
 
 Next direction:
-1. `v0.68b-12b-13 WorldMap Battle Result Return MVP`
-2. `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
+1. `v0.68b-12b-14 WorldMap Battle Result Return MVP`
+2. `v0.68b-12b-15 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
 3. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 4. `v0.68b-12c Selected City Panel Web Content Parity`
 5. `v0.68b-12d City Detail Panel Web Content Parity`

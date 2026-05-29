@@ -296,6 +296,35 @@ const TEST_BATTLE_ROSTER := {
 	"enemy_reinforce_01": "liu_bei",
 	"enemy_reinforce_02": "zhuge_liang",
 }
+const WORLDMAP_CONTEXT_ALLY_SLOT_IDS := [
+	"ally_main_01",
+	"ally_main_02",
+	"ally_main_03",
+	"ally_reinforce_01",
+	"ally_reinforce_02",
+]
+const WORLDMAP_CONTEXT_ENEMY_SLOT_IDS := [
+	"enemy_main_01",
+	"enemy_main_02",
+	"enemy_main_03",
+	"enemy_reinforce_01",
+	"enemy_reinforce_02",
+]
+const WORLDMAP_CONTEXT_HERO_ID_COMPATIBILITY := {
+	"yi_sun_sin": "yi_sunsin",
+	"jeong_do_jeon": "jeong_dojeon",
+	"kim_yu_sin": "gim_yusin",
+	"gim_yusin": "gim_yusin",
+	"yi_sunsin": "yi_sunsin",
+	"jeong_dojeon": "jeong_dojeon",
+	"kwon_yul": "kwon_yul",
+	"eulji_mundeok": "eulji_mundeok",
+	"guan_yu": "guan_yu",
+	"zhang_fei": "zhang_fei",
+	"xiahou_dun": "xiahou_dun",
+	"liu_bei": "liu_bei",
+	"zhuge_liang": "zhuge_liang",
+}
 const UNIQUE_SKILL_REGISTRY := {
 	"yi_sunsin": {
 		"skill_id": "hakikjin_barrage",
@@ -634,6 +663,7 @@ const HIT_SPARK_FX_TEXTURE_PATHS: Array[String] = [
 # v0.64y Ally Ready Frame + Unit Selection Close-up Panel
 # v0.64y-hotfix Scene-Authored Closeup Panel Position
 # v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP
+# v0.68b-12b-13 Battle Roster Context Apply MVP
 
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 
@@ -645,6 +675,8 @@ var facing_indicators_should_be_visible := true
 var current_phase := PHASE_ALLY_TURN
 var battle_log_lines: Array[String] = []
 var worldmap_battle_context: Dictionary = {}
+var has_applied_worldmap_context_roster := false
+var worldmap_context_roster_summary: Dictionary = {}
 var current_ally_unit_position := Vector2.ZERO
 var current_ally_portrait_position := Vector2.ZERO
 var ally_unit_state: BattleUnitState
@@ -1208,6 +1240,128 @@ func _apply_worldmap_battle_context_handoff(context: Dictionary) -> void:
 	])
 	_append_battle_log("월드맵 방어전 데이터 수신")
 	_append_battle_log("%s 방어 · %s → %s" % [mode, attacker_city_name, defender_city_name])
+	_setup_worldmap_context_battle_roster(context)
+
+
+func _setup_worldmap_context_battle_roster(context: Dictionary) -> void:
+	if has_applied_worldmap_context_roster:
+		return
+	if context.is_empty():
+		return
+	has_applied_worldmap_context_roster = true
+	var ally_result := _apply_worldmap_context_side_roster(
+		context,
+		"defender",
+		WORLDMAP_CONTEXT_ALLY_SLOT_IDS,
+		"defense_context"
+	)
+	var enemy_result := _apply_worldmap_context_side_roster(
+		context,
+		"attacker",
+		WORLDMAP_CONTEXT_ENEMY_SLOT_IDS,
+		"invasion_context"
+	)
+	worldmap_context_roster_summary = {
+		"ally": ally_result,
+		"enemy": enemy_result,
+	}
+	_apply_all_hero_identities()
+	_rebuild_battle_unit_state_list_refs()
+	_update_all_unit_visuals_from_state()
+	_refresh_formation_slot_guides()
+	_append_battle_log("월드맵 방어전 편성 적용")
+	_append_battle_log("아군 %d명 · 적군 %d명" % [
+		int(ally_result.get("resolved_count", 0)),
+		int(enemy_result.get("resolved_count", 0)),
+	])
+	print("[Battle] WorldMap roster applied: ally=%s enemy=%s" % [
+		str(ally_result.get("assigned_hero_ids", [])),
+		str(enemy_result.get("assigned_hero_ids", [])),
+	])
+
+
+func _apply_worldmap_context_side_roster(
+	context: Dictionary,
+	context_side: String,
+	slot_ids: Array,
+	dispatch_type: String
+) -> Dictionary:
+	var requested_hero_ids := _get_context_hero_ids_for_side(context, context_side)
+	var city_id := str(context.get("%s_city_id" % context_side, ""))
+	var city_name := str(context.get("%s_city_name" % context_side, ""))
+	var owner := str(context.get("%s_owner" % context_side, ""))
+	var assigned_hero_ids: Array[String] = []
+	var fallback_count := 0
+	for index in range(slot_ids.size()):
+		var slot_id := str(slot_ids[index])
+		var requested_hero_id := ""
+		if index < requested_hero_ids.size():
+			requested_hero_id = requested_hero_ids[index]
+		var resolved_hero_id := _resolve_worldmap_context_hero_id(requested_hero_id)
+		if resolved_hero_id == "":
+			resolved_hero_id = _get_test_battle_roster_hero_id(slot_id)
+			fallback_count += 1
+		if resolved_hero_id == "":
+			continue
+		assigned_hero_ids.append(resolved_hero_id)
+		_set_capacity_slot_metadata_value(slot_id, "assigned_hero_id", resolved_hero_id)
+		_set_capacity_slot_metadata_value(slot_id, "assigned_unit_id", "%s_battle_unit" % resolved_hero_id)
+		_set_capacity_slot_metadata_value(slot_id, "source_city_id", city_id)
+		_set_capacity_slot_metadata_value(slot_id, "source_city_name", city_name)
+		_set_capacity_slot_metadata_value(slot_id, "source_owner", owner)
+		_set_capacity_slot_metadata_value(slot_id, "dispatch_type", dispatch_type)
+		_set_capacity_slot_metadata_value(slot_id, "worldmap_context_side", context_side)
+		_set_capacity_slot_metadata_value(slot_id, "worldmap_source_hero_id", requested_hero_id)
+		_apply_worldmap_context_hero_to_unit_state(slot_id, resolved_hero_id)
+	return {
+		"requested_hero_ids": requested_hero_ids,
+		"assigned_hero_ids": assigned_hero_ids,
+		"resolved_count": assigned_hero_ids.size(),
+		"fallback_count": fallback_count,
+		"city_id": city_id,
+		"city_name": city_name,
+		"owner": owner,
+	}
+
+
+func _get_context_hero_ids_for_side(context: Dictionary, context_side: String) -> Array[String]:
+	var hero_ids: Array[String] = []
+	var seen := {}
+	var governor_id := str(context.get("%s_governor_id" % context_side, ""))
+	_append_unique_context_hero_id(hero_ids, seen, governor_id)
+	var raw_hero_ids: Variant = context.get("%s_hero_ids" % context_side, [])
+	if raw_hero_ids is Array:
+		for raw_hero_id in raw_hero_ids:
+			_append_unique_context_hero_id(hero_ids, seen, str(raw_hero_id))
+	return hero_ids
+
+
+func _append_unique_context_hero_id(hero_ids: Array[String], seen: Dictionary, hero_id: String) -> void:
+	if hero_id == "":
+		return
+	if seen.has(hero_id):
+		return
+	seen[hero_id] = true
+	hero_ids.append(hero_id)
+
+
+func _resolve_worldmap_context_hero_id(worldmap_hero_id: String) -> String:
+	if worldmap_hero_id == "":
+		return ""
+	var resolved_hero_id := str(WORLDMAP_CONTEXT_HERO_ID_COMPATIBILITY.get(worldmap_hero_id, worldmap_hero_id))
+	if HERO_REGISTRY.has(resolved_hero_id):
+		return resolved_hero_id
+	return ""
+
+
+func _apply_worldmap_context_hero_to_unit_state(slot_id: String, hero_id: String) -> void:
+	if slot_id == "" or hero_id == "":
+		return
+	var unit_state := _get_unit_state_for_capacity_slot_id(slot_id)
+	if unit_state == null:
+		return
+	unit_state.unit_id = "%s_battle_unit" % hero_id
+	_apply_hero_identity_to_unit(unit_state)
 
 
 func _process(_delta: float) -> void:
@@ -1526,6 +1680,8 @@ func hide_result() -> void:
 func reset_demo_state() -> void:
 	is_demo_animating = false
 	ally_has_moved = false
+	has_applied_worldmap_context_roster = false
+	worldmap_context_roster_summary = {}
 	battle_round = 1
 	dead_unit_ids.clear()
 	unique_skill_cooldowns_by_hero_id.clear()

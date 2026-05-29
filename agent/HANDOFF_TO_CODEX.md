@@ -338,11 +338,16 @@ Do not modify casually:
 - Manual/auto defense context creation includes defense type/source/mode, attacker/defender city ids and names, turn numbers, owner ids, troop totals, stationed hero ids, and governor ids from existing marker/HUD seed data.
 - Validation fails safely for missing event, non-defense type, unknown city ids, non-enemy attacker, or non-player defender; failed validation clears only the runtime pending battle context.
 - Runtime save policy follows the web audit: pending invasion event and pending battle context are excluded from save serialization and cleared on load/reset normalization.
-- `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP` is complete.
+- `v0.68b-12b-13 Battle Roster Context Apply MVP` is complete.
+- `Battle_Fullscreen_Test.tscn` remains the selected battle scene.
+- Handoff strategy is still runtime-only through Godot `Engine` metadata key `samwar_worldmap_battle_context`; the battle scene reads it once and direct scene launch keeps the demo setup.
+- WorldMap context roster behavior: defender governor/stationed hero ids map onto ally slots, attacker governor/stationed hero ids map onto enemy slots, and current battle-registry-compatible ids replace demo identities where safe.
+- Fallback behavior: empty hero arrays, unknown hero ids, missing governor ids, and direct battle launch all keep the existing `TEST_BATTLE_ROSTER` slot identities.
+- City troop/garrison values are not applied to combat HP yet; troop scaling remains deferred.
 - Selected battle scene is `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; the battle scene reads and clears it at startup, then logs mode and attacker/defender city names while preserving the existing demo battle setup.
 - Direct `Battle_Fullscreen_Test.tscn` launch without WorldMap context remains supported and logs `No WorldMap battle context; using test battle setup`.
-- Current stable baseline for the next session is `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`.
+- Current stable baseline for the next session is `v0.68b-12b-13 Battle Roster Context Apply MVP`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI is good enough for the current MVP.
 - Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
@@ -475,14 +480,14 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-13 WorldMap Battle Result Return MVP`
-- `v0.68b-12b-13` goal:
+  - `v0.68b-12b-14 WorldMap Battle Result Return MVP`
+- `v0.68b-12b-14` goal:
   - Create a safe battle-to-worldmap result payload path.
   - Return to WorldMap without applying final ownership/troop/resource consequences yet.
   - Preserve the existing standalone battle scene test path.
 - Next candidates:
-  - `v0.68b-12b-13 WorldMap Battle Result Return MVP`
-  - `v0.68b-12b-14 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
+  - `v0.68b-12b-14 WorldMap Battle Result Return MVP`
+  - `v0.68b-12b-15 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
   - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`

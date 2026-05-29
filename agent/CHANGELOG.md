@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.68b-12b-13 Battle Roster Context Apply MVP
+- Updated `scripts/battle_web_import_test.gd` so `Battle_Fullscreen_Test.tscn` applies WorldMap handoff context to the existing battle capacity slots when launched from WorldMap.
+- Inspected local read-only web references: `C:\dev\SamWar_web\data\battle_rosters.js`, `data\heroes.js`, `data\cities.js`, `js\core\battle_state.js`, `js\core\battle_rules.js`, `js\core\battle_ai.js`, `js\core\world_rules.js`, and `js\core\app_state.js`.
+- Roster mapping follows the web defense direction: defender governor/stationed hero ids feed ally slots, attacker governor/stationed hero ids feed enemy slots.
+- Added a compact compatibility map for current battle-registry hero ids such as `yi_sun_sin` -> `yi_sunsin`, `jeong_do_jeon` -> `jeong_dojeon`, and `kim_yu_sin` -> `gim_yusin`.
+- Direct battle scene launch remains unchanged: if no `samwar_worldmap_battle_context` metadata exists, the existing `TEST_BATTLE_ROSTER` demo setup is used.
+- Fallback behavior is safe for missing context, empty hero arrays, unknown hero ids, missing governors, and missing portraits; unresolved heroes fall back per slot to the demo roster.
+- City troop/garrison values are kept as context metadata only for now; combat HP/troop scaling remains deferred to avoid a balance rewrite.
+- Kept the patch bounded: no battle result return, WorldMap ownership apply, WorldMap troop/resource mutation, auto battle resolution, defense deployment UI, or broad battle refactor was added.
+- Verification: patch strings present, direct/context paths reviewed, forbidden implementation search reviewed, `git diff --check` passed, Godot project headless load passed, root `WorldMap_Test.tscn` headless load passed, and root `Battle_Fullscreen_Test.tscn` headless load passed.
+
 ## v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP
 - Connected WorldMap pending invasion defense choices to the current stable battle scene `Battle_Fullscreen_Test.tscn`.
 - Added runtime-only handoff in `scripts/worldmap_test.gd`: manual/auto defense builds or reuses pending battle context, stores a deep copy in Godot `Engine` metadata, and calls `change_scene_to_file("res://Battle_Fullscreen_Test.tscn")`.

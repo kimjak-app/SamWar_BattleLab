@@ -2,6 +2,17 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-13 Battle Roster Context Apply MVP
+- Confirmed current HEAD baseline after `v0.68b-12b-12` and inspected required agent docs, battle controller, WorldMap handoff references, and local web roster/battle source references.
+- Web references inspected: `C:\dev\SamWar_web\data\battle_rosters.js`, `data\heroes.js`, `data\cities.js`, `js\core\battle_state.js`, `js\core\battle_rules.js`, `js\core\battle_ai.js`, `js\core\world_rules.js`, and `js\core\app_state.js`.
+- Updated `scripts/battle_web_import_test.gd` to apply WorldMap defense context to the existing demo capacity-slot roster only when `samwar_worldmap_battle_context` metadata exists.
+- Defender governor/stationed hero ids now map to ally slots, attacker governor/stationed hero ids map to enemy slots, and compatible web/Godot hero ids resolve through a compact local compatibility map.
+- Direct `Battle_Fullscreen_Test.tscn` launch without context preserves the existing `TEST_BATTLE_ROSTER` demo setup.
+- Missing/empty/unknown hero ids and missing governors fall back per slot to the demo roster; city troop scaling remains deferred.
+- Verification passed: patch strings, context roster paths, fallback paths, forbidden implementation search, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- No battle result return, WorldMap ownership apply, WorldMap troop/resource mutation, auto battle resolution, defense deployment UI, hero movement/capture, or broad battle refactor was added.
+- Recommended next task: `v0.68b-12b-14 WorldMap Battle Result Return MVP`.
+
 ### v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP
 - Inspected required agent docs, WorldMap scripts/scene, battle scenes, battle controller script, project settings, and BattleContext/battle engine contract docs.
 - Selected `Battle_Fullscreen_Test.tscn` as the handoff target because it is the documented current stable 5v5 battle scene and uses `scripts/battle_web_import_test.gd`.
@@ -11,7 +22,7 @@
 - Direct battle test launch remains supported: missing context falls back to the existing demo setup and logs `No WorldMap battle context; using test battle setup`.
 - Verification passed: patch strings, battle scene path, handoff/intake paths, forbidden implementation search, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and direct `Battle_Fullscreen_Test.tscn` headless load.
 - No battle result return, ownership change, troop/resource loss, hero movement/capture, auto battle resolution, defense deployment UI, enemy AI, pathfinding, diplomacy/cooldown, or broad battle refactor was added.
-- Recommended next task: `v0.68b-12b-13 WorldMap Battle Result Return MVP`.
+- Historical note: this recommendation was superseded by `v0.68b-12b-13 Battle Roster Context Apply MVP`.
 
 ### v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
 - Inspected required agent docs, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `scripts/worldmap_hero_portrait_helper.gd`, root `WorldMap_Test.tscn`, and local read-only web battle/invasion references.
