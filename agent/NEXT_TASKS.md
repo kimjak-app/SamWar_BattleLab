@@ -1,5 +1,11 @@
 # NEXT TASKS
 
+## Current Hotfix Status
+- `v0.68b-12b-18a Reinforcement Fallback Leak + Toast Facing Layer Hotfix` is complete in code.
+- Enemy-invasion WorldMap context slots no longer use `TEST_BATTLE_ROSTER` when requested heroes are missing; missing support remains an inactive empty slot.
+- Direct `Battle_Fullscreen_Test.tscn` sample battle fallback remains intact when no WorldMap invasion context is present.
+- Remaining manual QA: 사비/백제 invasion must not show `liu_bei` / `zhuge_liang` as support, and turn/reinforcement/unique-skill toasts must hide facing arrows until the toast ends.
+
 ## Current Stable Baseline
 Behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 

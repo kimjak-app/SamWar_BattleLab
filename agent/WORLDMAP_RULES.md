@@ -1,5 +1,11 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-18a Invasion Context Fallback Guard
+- WorldMap `enemy_invasion` BattleContext slots must not use sample `TEST_BATTLE_ROSTER` fallback when requested hero ids are missing.
+- Missing nearby support is valid: leave the context slot inactive/hidden rather than pulling distant or sample heroes.
+- Direct battle sample fallback remains a battle-scene test path only, not a normal WorldMap invasion reinforcement source.
+- The 1-hop/2-hop same-faction/ally reinforcement rule from `v0.68b-12b-18` remains unchanged.
+
 ## Role
 - Defines the future SamWar worldmap system contract.
 - Owns region, city, route, connection, encounter, and battle launch context decisions.

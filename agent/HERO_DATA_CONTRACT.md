@@ -1,5 +1,10 @@
 # HERO DATA CONTRACT
 
+## v0.68b-12b-18a Battle Context Slot Fallback Guard
+- WorldMap `enemy_invasion` rosters must keep `hero_id` identity from BattleContext data; missing slots are inactive instead of sample-filled.
+- `TEST_BATTLE_ROSTER` remains a direct sample battle fallback and must not become a hidden source of WorldMap support heroes.
+- This preserves the existing `portrait_path` / `skill_name` binding contract and does not add new portrait fields or hero placement data.
+
 ## Role
 - Defines the future hero data contract.
 - Separates static hero metadata from battle runtime state.

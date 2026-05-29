@@ -1,5 +1,11 @@
 # CURRENT STATE
 
+## v0.68b-12b-18a Reinforcement Fallback Leak + Toast Facing Layer Hotfix
+- Battle-side root cause fixed: the 유비/제갈량 leak came from `TEST_BATTLE_ROSTER` fallback in WorldMap context slot fill, not from the WorldMap 1-hop/2-hop reinforcement filter.
+- `enemy_invasion` / WorldMap context battles now deactivate empty context slots instead of filling them from the sample roster; direct sample battle fallback remains available outside invasion context.
+- `RoundToastRoot` now has an explicit high `z_index`, and battle/unique-skill toasts temporarily hide facing indicators until playback ends.
+- Remaining QA: live F6 사비/백제 invasion should confirm no `liu_bei` / `zhuge_liang` support leak, toast arrows stay hidden, and arrows restore afterward.
+
 ## Project
 SamWar_BattleLab
 

@@ -2,6 +2,13 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-18a Reinforcement Fallback Leak + Toast Facing Layer Hotfix
+- Fixed the confirmed battle-side leak: `enemy_invasion` / WorldMap context slots no longer use `TEST_BATTLE_ROSTER` fallback when requested hero ids are missing.
+- Missing invasion support now deactivates the empty slot instead of force-filling sample heroes; direct sample battle fallback remains preserved outside invasion context.
+- Added context slot decision logs for sample fallback allow/skip/fallback cases.
+- Raised `RoundToastRoot` above facing indicators and temporarily hides facing indicators during battle toast and unique-skill toast playback, restoring them after playback ends.
+- Remaining QA: F6 사비/백제 invasion should confirm no `liu_bei` / `zhuge_liang` support leak, empty support slots stay hidden, toast arrows stay hidden during toasts, arrows restore afterward, and auto battle/worldmap return remain stable.
+
 ### v0.68b-12b-18 Invasion Reinforcement Source Rule MVP
 - Root cause: WorldMap BattleContext used city stationed rosters, but the battle scene filled any missing context slots from `TEST_BATTLE_ROSTER`, so distant sample heroes such as 성도 유비/제갈량 could appear as support in unrelated invasions.
 - Implemented invasion roster construction in `scripts/worldmap_test.gd`: attacker and defender main rosters start from each side's source city `stationed_hero_ids` / `hero_ids`.

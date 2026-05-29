@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68b-12b-18a Reinforcement Fallback Leak Toast Layer Hotfix
+- Fixed the confirmed 유비/제갈량 support leak source in `scripts/battle_web_import_test.gd`: WorldMap `enemy_invasion` context sides no longer fill empty slots from `TEST_BATTLE_ROSTER`.
+- Empty invasion support slots now deactivate and stay hidden when nearby eligible reinforcements are unavailable; direct sample battle fallback remains available outside WorldMap invasion context.
+- Added concise `[CONTEXT_SLOT]`, `[CONTEXT_SLOT_SKIP]`, and `[CONTEXT_SLOT_FALLBACK]` logs around context slot fallback decisions.
+- Set `RoundToastRoot.z_index = 300` and suppress facing indicators during round/reinforcement/unique-skill toast playback, restoring them after the toast ends.
+- Deferred/manual QA: F6 사비/백제 invasion support leak check, toast arrow visibility/restoration, automatic battle flow, and worldmap return.
+
 ## v0.68b-12b-18 Invasion Reinforcement Source Rule MVP
 - Added WorldMap invasion BattleContext roster source rules in `scripts/worldmap_test.gd`: main attacker/defender heroes come from the attacker/defender city stationed roster first.
 - Reinforcement candidates now come only from same-faction or explicitly allied cities within MVP adjacency range: direct neighbors first, then 2-hop neighbors. No 3-hop or full `HERO_DATA` pool search is used.

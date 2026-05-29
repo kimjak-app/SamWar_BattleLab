@@ -1,5 +1,12 @@
 # v0.68b-12b-8 Enemy Invasion Web Logic Audit
 
+## v0.68b-12b-18a Reinforcement Fallback Leak + Toast Layer Status
+- Root cause confirmed and fixed in the battle scene: the 유비/제갈량 leak was `TEST_BATTLE_ROSTER` fallback in context slot fill, not the WorldMap same-faction/2-hop filter.
+- For `enemy_invasion` / WorldMap context battles, empty support slots are now deactivated instead of filled with sample roster heroes.
+- 사비/백제 context still skips 성도/촉 heroes by faction rule; missing support should remain empty.
+- Toast layering hotfix: `RoundToastRoot` now has explicit high z order, and facing indicators are hidden during round/reinforcement/unique-skill toast playback and restored afterward.
+- Remaining manual QA: F6 사비/백제 invasion support leak check, empty slot visibility, toast arrow suppression/restoration, auto battle, and worldmap return.
+
 ## Source Files Inspected
 - `C:\dev\SamWar_web\js\core\app_state.js`
 - `C:\dev\SamWar_web\js\core\world_rules.js`

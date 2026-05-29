@@ -1,5 +1,11 @@
 # HANDOFF TO CODEX
 
+## Latest Patch Note
+- `v0.68b-12b-18a Reinforcement Fallback Leak + Toast Facing Layer Hotfix` blocks sample `TEST_BATTLE_ROSTER` fallback for `enemy_invasion` / WorldMap context slots.
+- The confirmed leak source was battle-side fallback, not the WorldMap reinforcement city/faction filter; empty invasion support slots now stay inactive instead of pulling sample heroes such as 유비/제갈량.
+- `RoundToastRoot` has explicit high z order, and battle/unique-skill toast playback suppresses facing indicators until the toast finishes, then restores them from current unit state.
+- Next QA should F6-check 사비/백제 invasion support, direct sample battle fallback, toast arrow hiding/restoration, and auto battle stability.
+
 ## Required Instruction Header
 Every next SamWar_BattleLab Codex task handoff must begin with `[SamWar_BattleLab 자동 작업 권한 헤더]` before the task name or goal.
 

@@ -762,6 +762,9 @@ var unique_skill_toast_tween: Tween = null
 var is_unique_skill_presenting := false
 var unique_skill_cutin_timing_start_msec := 0
 var unique_skill_texture_cache: Dictionary = {}
+var battle_toast_suppresses_facing_indicators := false
+var unique_skill_toast_suppresses_facing_indicators := false
+var facing_indicators_visible_before_toast := true
 var defeat_retreat_toast_tween: Tween = null
 var is_defeat_retreat_toast_playing := false
 var defeat_retreat_toast_queue: Array[Dictionary] = []
@@ -1307,13 +1310,27 @@ func _apply_worldmap_context_side_roster(
 	var city_owner_id := str(context.get("%s_owner" % context_side, ""))
 	var assigned_hero_ids: Array[String] = []
 	var fallback_count := 0
-	var allow_sample_fallback := requested_hero_ids.is_empty()
+	var blocks_sample_fallback := _is_worldmap_invasion_context_for_roster(context)
+	var allows_crash_guard_fallback := _allows_sample_roster_crash_guard(context)
+	if allows_crash_guard_fallback:
+		blocks_sample_fallback = false
+	var allow_sample_fallback := requested_hero_ids.is_empty() and not blocks_sample_fallback
+	print("[CONTEXT_SLOT] source=%s side=%s requested=%s sample_fallback=%s" % [
+		str(context.get("source", "")),
+		context_side,
+		str(requested_hero_ids),
+		str(allow_sample_fallback),
+	])
 	for index in range(slot_ids.size()):
 		var slot_id := str(slot_ids[index])
 		var requested_hero_id := ""
 		if index < requested_hero_ids.size():
 			requested_hero_id = requested_hero_ids[index]
 		if requested_hero_id == "" and not allow_sample_fallback:
+			print("[CONTEXT_SLOT_SKIP] slot=%s side=%s reason=empty_context_slot_no_fallback" % [
+				slot_id,
+				context_side,
+			])
 			_deactivate_worldmap_context_slot(slot_id, context_side, city_id, city_name, city_owner_id)
 			continue
 		var resolved_hero_id := _resolve_worldmap_context_hero_id(requested_hero_id)
@@ -1321,7 +1338,7 @@ func _apply_worldmap_context_side_roster(
 			if allow_sample_fallback:
 				resolved_hero_id = _get_test_battle_roster_hero_id(slot_id)
 				fallback_count += 1
-				print("[REINFORCE_FALLBACK] battle_side=%s slot=%s reason=empty_context_side sample_hero=%s" % [
+				print("[CONTEXT_SLOT_FALLBACK] battle_side=%s slot=%s reason=sample_or_crash_guard sample_hero=%s" % [
 					context_side,
 					slot_id,
 					resolved_hero_id,
@@ -1392,6 +1409,21 @@ func _get_context_hero_ids_for_side(context: Dictionary, context_side: String) -
 		for raw_hero_id in raw_hero_ids:
 			_append_unique_context_hero_id(hero_ids, seen, str(raw_hero_id))
 	return hero_ids
+
+
+func _is_worldmap_invasion_context_for_roster(context: Dictionary) -> bool:
+	var source := str(context.get("source", ""))
+	if source == "enemy_invasion" or source == "enemy_invasion_mvp":
+		return true
+	if source.contains("enemy_invasion"):
+		return true
+	return str(context.get("attacker_city_id", "")) != "" or str(context.get("defender_city_id", "")) != ""
+
+
+func _allows_sample_roster_crash_guard(context: Dictionary) -> bool:
+	if str(context.get("attacker_city_id", "")) != "" or str(context.get("defender_city_id", "")) != "":
+		return false
+	return _get_context_hero_ids_for_side(context, "attacker").is_empty() and _get_context_hero_ids_for_side(context, "defender").is_empty()
 
 
 func _register_worldmap_context_hero_contracts(context: Dictionary) -> void:
@@ -2033,6 +2065,9 @@ func reset_demo_state() -> void:
 	_reset_main_camera_to_scene_position()
 	is_unique_skill_presenting = false
 	is_manual_unique_skill_preview_pending = false
+	battle_toast_suppresses_facing_indicators = false
+	unique_skill_toast_suppresses_facing_indicators = false
+	facing_indicators_visible_before_toast = true
 	_clear_unique_skill_targeting_state()
 	_clear_strategy_targeting_state()
 	_hide_strategy_range_overlay()
@@ -3348,6 +3383,7 @@ func _show_unique_skill_toast_over_unit(caster_state: BattleUnitState, skill_dat
 	if unique_skill_toast_tween != null:
 		unique_skill_toast_tween.kill()
 		unique_skill_toast_tween = null
+	_set_toast_facing_indicator_suppression("unique_skill", true)
 	var viewport_size := get_viewport_rect().size
 	var cutin_rect := _get_unique_skill_fullscreen_cutin_rect(viewport_size)
 	var slide_direction := _get_unique_skill_cutin_slide_direction(caster_state)
@@ -7234,6 +7270,7 @@ func _hide_unique_skill_toast() -> void:
 	if unique_skill_name_label != null:
 		unique_skill_name_label.modulate = Color.WHITE
 		unique_skill_name_label.scale = Vector2.ONE
+	_set_toast_facing_indicator_suppression("unique_skill", false)
 
 
 func _configure_enemy_retreat_toast() -> void:
@@ -7562,6 +7599,7 @@ func _show_battle_toast(
 	if round_toast_tween != null:
 		round_toast_tween.kill()
 		round_toast_tween = null
+	_set_toast_facing_indicator_suppression("battle", true)
 
 	var resolved_scale_multiplier := maxf(toast_scale_multiplier, 0.01)
 
@@ -7626,6 +7664,7 @@ func _finish_battle_toast_playback() -> void:
 	round_toast_tween = null
 	is_battle_toast_playing = false
 	active_battle_toast_tag = ""
+	_set_toast_facing_indicator_suppression("battle", false)
 	call_deferred("_play_next_battle_toast")
 
 
@@ -10670,15 +10709,16 @@ func _set_unit_visual_group_visible(unit_state: BattleUnitState, should_show: bo
 			if node != null:
 				node.visible = should_show
 	_restore_unit_visual_group_modulate_for_unit(unit_state, should_show)
+	var toast_suppressed := battle_toast_suppresses_facing_indicators or unique_skill_toast_suppresses_facing_indicators
 	if slot != null:
-		slot.set_facing_indicator_visible(should_show and facing_indicators_should_be_visible and _is_unit_state_deployed_by_capacity_slot(unit_state))
+		slot.set_facing_indicator_visible(should_show and facing_indicators_should_be_visible and not toast_suppressed and _is_unit_state_deployed_by_capacity_slot(unit_state))
 		return
 	for node in _get_visual_group_nodes_for_unit(unit_state):
 		if node != null:
 			node.visible = should_show
 	var facing_indicator := _get_facing_indicator_for_unit(unit_state)
 	if facing_indicator != null:
-		facing_indicator.visible = should_show and facing_indicators_should_be_visible and _is_unit_state_deployed_by_capacity_slot(unit_state)
+		facing_indicator.visible = should_show and facing_indicators_should_be_visible and not toast_suppressed and _is_unit_state_deployed_by_capacity_slot(unit_state)
 
 
 func _restore_unit_visual_group_modulate_for_unit(unit_state: BattleUnitState, should_show: bool) -> void:
@@ -10932,7 +10972,8 @@ func _refresh_facing_indicator_for_unit(unit_state: BattleUnitState) -> void:
 	if unit_state == null or facing_indicator == null:
 		return
 	facing_indicator.text = _get_facing_arrow_text(unit_state.facing)
-	facing_indicator.visible = facing_indicators_should_be_visible and _is_unit_state_available_for_battle_slot(unit_state)
+	var toast_suppressed := battle_toast_suppresses_facing_indicators or unique_skill_toast_suppresses_facing_indicators
+	facing_indicator.visible = facing_indicators_should_be_visible and not toast_suppressed and _is_unit_state_available_for_battle_slot(unit_state)
 	_position_facing_indicator_for_unit(unit_state)
 
 
@@ -12454,10 +12495,29 @@ func _position_facing_indicator_for_enemy_reinforce_02() -> void:
 
 func _set_facing_indicators_visible(should_show: bool) -> void:
 	facing_indicators_should_be_visible = should_show
+	var effective_should_show := should_show and not (battle_toast_suppresses_facing_indicators or unique_skill_toast_suppresses_facing_indicators)
 	for unit_state in _get_all_unit_states_in_slot_order():
 		var facing_indicator := _get_facing_indicator_for_unit(unit_state)
 		if facing_indicator != null:
-			facing_indicator.visible = should_show and _is_unit_state_available_for_battle_slot(unit_state)
+			facing_indicator.visible = effective_should_show and _is_unit_state_available_for_battle_slot(unit_state)
+
+
+func _set_toast_facing_indicator_suppression(toast_kind: String, should_suppress: bool) -> void:
+	var was_suppressed := battle_toast_suppresses_facing_indicators or unique_skill_toast_suppresses_facing_indicators
+	if should_suppress and not was_suppressed:
+		facing_indicators_visible_before_toast = facing_indicators_should_be_visible
+	match toast_kind:
+		"battle":
+			battle_toast_suppresses_facing_indicators = should_suppress
+		"unique_skill":
+			unique_skill_toast_suppresses_facing_indicators = should_suppress
+	var is_suppressed := battle_toast_suppresses_facing_indicators or unique_skill_toast_suppresses_facing_indicators
+	if is_suppressed:
+		_set_facing_indicators_visible(facing_indicators_should_be_visible)
+		return
+	_set_facing_indicators_visible(facing_indicators_visible_before_toast)
+	if facing_indicators_visible_before_toast:
+		_update_facing_indicators()
 
 
 func _world_to_battle_ui_position(world_pos: Vector2) -> Vector2:

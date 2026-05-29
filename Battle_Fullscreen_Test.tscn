@@ -3268,6 +3268,7 @@ text = "대기"
 
 [node name="RoundToastRoot" type="Control" parent="BattleUI" unique_id=1842740031]
 visible = false
+z_index = 300
 layout_mode = 3
 anchors_preset = 0
 offset_right = 1920.0
