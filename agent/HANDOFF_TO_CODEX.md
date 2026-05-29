@@ -1,6 +1,14 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-12b-31 Player/Defense Troop Accounting Parity Fix` closes the P0 troop-accounting gaps from the web parity audit.
+- Player attack now subtracts defender allocated troops from the target city before battle, and preserves defender before/after metadata in the BattleContext/result payload.
+- Enemy invasion defense now builds and pre-decrements both attacker and defender troop allocations before battle handoff.
+- Battle result payload now includes player/enemy troop outcomes for defense battles as well as attack battles.
+- Defense victory/defeat now apply survivor/wounded/dead results through city garrison and troop woundedQueue rules, including nearest-player-neighbor wounded retreat on defense defeat.
+- Manual F6 QA remains required for queue persistence/recovery and win/loss city accounting.
+
+## Previous Patch Note
 - `v0.68b-12b-30 Invasion Attack Web Parity Gap Audit` is a docs-only audit comparing SamWar_web and Godot invasion/attack parity.
 - New document: `agent/INVASION_ATTACK_WEB_PARITY_GAP_AUDIT.md`.
 - Confirmed P0: player attack defender garrison pre-decrement is missing; defense battle troop allocation/result parity is missing; defense woundedQueue/nearest-player retreat-city handling is missing; woundedQueue F6/save-load QA remains required.

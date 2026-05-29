@@ -1764,6 +1764,16 @@ func _find_player_attack_source_city(target_city_id: String) -> String:
 	return ""
 
 
+func _find_nearest_player_owned_neighbor_city_mvp(city_id: String) -> String:
+	if city_id.is_empty():
+		return ""
+	for neighbor_id in _get_city_neighbors_mvp(city_id):
+		var neighbor_city_id := str(neighbor_id)
+		if _is_city_owned_by_player_mvp(neighbor_city_id):
+			return neighbor_city_id
+	return ""
+
+
 func _get_available_player_attack_main_hero_ids(source_city_id: String) -> Array[String]:
 	var hero_ids: Array[String] = []
 	if source_city_id.is_empty():
@@ -1920,6 +1930,7 @@ func _confirm_player_attack_deployment(deployment: Dictionary) -> void:
 	battle_context["attacker_source_city_troops_after"] = source_troops_after
 	battle_context["troop_deployed_from_city"] = true
 	_set_city_runtime_troops(source_city_id, source_troops_after)
+	battle_context = _apply_context_side_troop_pre_decrement_mvp(battle_context, "defender", "defender_troop_deployed_from_city")
 	_pay_player_attack_supply_cost(source_city_id, supply_cost)
 	if _player_attack_deployment_panel != null:
 		if _player_attack_deployment_panel.has_method("close"):
@@ -2150,6 +2161,8 @@ func _prepare_pending_invasion_battle_context(mode: String) -> Dictionary:
 		_set_save_management_status("전투 데이터 생성 실패")
 		_refresh_left_world_status_panel()
 		return {}
+	battle_context = _apply_context_side_troop_pre_decrement_mvp(battle_context, "attacker", "attacker_troop_deployed_from_city")
+	battle_context = _apply_context_side_troop_pre_decrement_mvp(battle_context, "defender", "defender_troop_deployed_from_city")
 	_set_pending_battle_context_mvp(battle_context)
 	if normalized_mode == "auto":
 		_set_save_management_status("자동 방어 전투 데이터 준비 완료 · 자동 해결은 아직 미구현")
@@ -2660,57 +2673,107 @@ func _get_hero_battle_exclusion_reason(hero_id: String) -> String:
 
 func _apply_defender_win_invasion_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> Dictionary:
 	var old_owner := _get_city_owner_id_for_battle_context(defender_city_id)
-	var casualty_result := _calculate_invasion_casualty_result(INVASION_RESULT_DEFENDER_WIN, defender_city_id, attacker_city_id, result_payload)
-	var defender_before := int(casualty_result.get("defender_before", 0))
-	var attacker_before := int(casualty_result.get("attacker_before", 0))
-	var defender_after := int(casualty_result.get("defender_remaining_troops", defender_before))
-	var attacker_after := int(casualty_result.get("attacker_remaining_troops", attacker_before))
+	var defender_before := _get_city_troops_for_battle_context(defender_city_id)
+	var attacker_before := _get_city_troops_for_battle_context(attacker_city_id)
+	var player_outcome := _get_player_troop_outcome_from_result(result_payload)
+	var enemy_outcome := _get_enemy_troop_outcome_from_result(result_payload)
+	var player_survivors := maxi(0, int(player_outcome.get("survivors", 0)))
+	var player_wounded := maxi(0, int(player_outcome.get("wounded", 0)))
+	var player_dead := maxi(0, int(player_outcome.get("dead", 0)))
+	var enemy_wounded := maxi(0, int(enemy_outcome.get("wounded", 0)))
+	var defender_after := defender_before + player_survivors
 	_set_city_runtime_troops(defender_city_id, defender_after)
-	print("[INVASION_TROOP_APPLY] result=defender_win city=%s before=%d after=%d reason=defender_city_survived" % [
+	_add_wounded_to_city_mvp(defender_city_id, player_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
+	_add_wounded_to_city_mvp(attacker_city_id, enemy_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
+	var casualty_result := {
+		"defender_before": defender_before,
+		"defender_remaining_troops": defender_after,
+		"attacker_before": attacker_before,
+		"attacker_remaining_troops": attacker_before,
+		"attacker_source_remaining_troops": attacker_before,
+		"occupied_city_troops": 0,
+		"player_troop_outcome": player_outcome,
+		"enemy_troop_outcome": enemy_outcome,
+	}
+	print("[INVASION_TROOP_APPLY] result=defender_win city=%s before=%d survivors=%d wounded=%d after=%d reason=defender_city_survived" % [
 		defender_city_id,
 		defender_before,
+		player_survivors,
+		player_wounded,
 		defender_after
 	])
-	if not attacker_city_id.is_empty() and _has_city_for_battle_context(attacker_city_id):
-		_set_city_runtime_troops(attacker_city_id, attacker_after)
-		print("[INVASION_TROOP_APPLY] result=defender_win city=%s before=%d after=%d reason=attacker_retreat" % [
-			attacker_city_id,
-			attacker_before,
-			attacker_after
-		])
+	print("[INVASION_TROOP_APPLY] result=defender_win city=%s before=%d enemy_wounded=%d after=%d reason=attacker_wounded_return" % [
+		attacker_city_id,
+		attacker_before,
+		enemy_wounded,
+		_get_city_troops_for_battle_context(attacker_city_id)
+	])
 	return _build_invasion_result_summary(INVASION_RESULT_DEFENDER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, old_owner, casualty_result, "방어 성공", [
 		"%s을 지켜냈습니다." % defender_city_name,
+		"방어군 출전 %d / 생존 %d / 부상 %d / 전사 %d" % [
+			int(player_outcome.get("allocated", 0)),
+			player_survivors,
+			player_wounded,
+			player_dead,
+		],
+		"적 부상병 %d명은 %s에서 %d턴 후 회복됩니다." % [enemy_wounded, attacker_city_name, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS],
 	])
 
 
 func _apply_attacker_win_invasion_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> Dictionary:
 	var old_owner := _get_city_owner_id_for_battle_context(defender_city_id)
 	var attacker_owner := str(result_payload.get("attacker_owner", _get_city_owner_id_for_battle_context(attacker_city_id)))
-	var casualty_result := _calculate_invasion_casualty_result(INVASION_RESULT_ATTACKER_WIN, defender_city_id, attacker_city_id, result_payload)
-	var defender_before_troops := int(casualty_result.get("defender_before", _get_city_troops_for_battle_context(defender_city_id)))
-	var attacker_before_troops := int(casualty_result.get("attacker_before", _get_city_troops_for_battle_context(attacker_city_id)))
-	var occupied_city_troops := int(casualty_result.get("occupied_city_troops", INVASION_RESULT_DEFAULT_OCCUPATION_TROOPS))
-	var attacker_source_remaining := int(casualty_result.get("attacker_source_remaining_troops", 0))
+	var defender_before_troops := _get_city_troops_for_battle_context(defender_city_id)
+	var attacker_before_troops := _get_city_troops_for_battle_context(attacker_city_id)
+	var player_outcome := _get_player_troop_outcome_from_result(result_payload)
+	var enemy_outcome := _get_enemy_troop_outcome_from_result(result_payload)
+	var enemy_survivors := maxi(0, int(enemy_outcome.get("survivors", 0)))
+	var enemy_wounded := maxi(0, int(enemy_outcome.get("wounded", 0)))
+	var enemy_dead := maxi(0, int(enemy_outcome.get("dead", 0)))
+	var player_wounded := maxi(0, int(player_outcome.get("wounded", 0)))
+	var player_dead := maxi(0, int(player_outcome.get("dead", 0)))
+	var retreat_city_id := _find_nearest_player_owned_neighbor_city_mvp(defender_city_id)
 	if attacker_owner.is_empty():
-		return _build_invasion_result_summary(INVASION_RESULT_UNKNOWN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, old_owner, casualty_result, "전투 결과 확인 필요", [
+		return _build_invasion_result_summary(INVASION_RESULT_UNKNOWN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, old_owner, {}, "전투 결과 확인 필요", [
 			"%s이 함락되었으나 공격 세력 정보가 없어 소유권 변화 없이 정리했습니다." % defender_city_name,
 		])
 	_set_city_runtime_owner(defender_city_id, attacker_owner)
-	_set_city_runtime_troops(defender_city_id, occupied_city_troops)
+	_set_city_runtime_troops(defender_city_id, enemy_survivors)
+	_clear_city_wounded_queue_mvp(defender_city_id)
+	_add_wounded_to_city_mvp(defender_city_id, enemy_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
+	if not retreat_city_id.is_empty():
+		_add_wounded_to_city_mvp(retreat_city_id, player_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
+	else:
+		print("[INVASION_TROOP_APPLY] result=attacker_win defender=%s player_wounded_lost=%d reason=no_retreat_city" % [defender_city_id, player_wounded])
+	var casualty_result := {
+		"defender_before": defender_before_troops,
+		"defender_remaining_troops": enemy_survivors,
+		"attacker_before": attacker_before_troops,
+		"attacker_remaining_troops": attacker_before_troops,
+		"attacker_source_remaining_troops": attacker_before_troops,
+		"occupied_city_troops": enemy_survivors,
+		"player_troop_outcome": player_outcome,
+		"enemy_troop_outcome": enemy_outcome,
+		"retreat_city_id": retreat_city_id,
+	}
 	print("[INVASION_TROOP_APPLY] result=attacker_win city=%s before=%d after=%d reason=occupied_city" % [
 		defender_city_id,
 		defender_before_troops,
-		occupied_city_troops
+		enemy_survivors
 	])
-	if not attacker_city_id.is_empty() and _has_city_for_battle_context(attacker_city_id):
-		_set_city_runtime_troops(attacker_city_id, attacker_source_remaining)
-		print("[INVASION_TROOP_APPLY] result=attacker_win city=%s before=%d after=%d reason=occupation_detached" % [
-			attacker_city_id,
-			attacker_before_troops,
-			attacker_source_remaining
-		])
 	return _build_invasion_result_summary(INVASION_RESULT_ATTACKER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, attacker_owner, casualty_result, "도시 함락", [
 		"%s이 %s에 점령되었습니다." % [defender_city_name, _format_faction_label(attacker_owner)],
+		"공격군 출전 %d / 생존 %d / 부상 %d / 전사 %d" % [
+			int(enemy_outcome.get("allocated", 0)),
+			enemy_survivors,
+			enemy_wounded,
+			enemy_dead,
+		],
+		"방어군 부상 %d / 전사 %d%s" % [
+			player_wounded,
+			player_dead,
+			(" · 후송지: %s" % _format_city_name_by_id(retreat_city_id, retreat_city_id)) if not retreat_city_id.is_empty() else " · 후송지 없음",
+		],
 	])
 
 
@@ -2763,7 +2826,8 @@ func _apply_player_attack_loss_result(defender_city_id: String, attacker_city_id
 	var enemy_outcome := _get_enemy_troop_outcome_from_result(result_payload)
 	var player_wounded := maxi(0, int(player_outcome.get("wounded", 0)))
 	var player_dead := maxi(0, int(player_outcome.get("dead", 0)))
-	var defender_after := maxi(0, int(enemy_outcome.get("survivors", defender_before)))
+	var enemy_survivors := maxi(0, int(enemy_outcome.get("survivors", 0)))
+	var defender_after := defender_before + enemy_survivors
 	_set_city_runtime_troops(defender_city_id, defender_after)
 	_add_wounded_to_city_mvp(defender_city_id, maxi(0, int(enemy_outcome.get("wounded", 0))), PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
 	_add_wounded_to_city_mvp(attacker_city_id, player_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
@@ -2952,6 +3016,34 @@ func _set_city_runtime_troops(city_id: String, troops: int) -> void:
 	_refresh_city_hud_data_bindings()
 
 
+func _apply_context_side_troop_pre_decrement_mvp(battle_context: Dictionary, side_prefix: String, deployed_key: String) -> Dictionary:
+	var context := battle_context.duplicate(true)
+	if bool(context.get(deployed_key, false)):
+		return context
+	var source_city_id := str(context.get("%s_source_city_id" % side_prefix, context.get("%s_city_id" % side_prefix, "")))
+	var total_key := "%s_total_allocated_troops" % side_prefix
+	var requested_total := maxi(0, int(context.get(total_key, 0)))
+	if source_city_id.is_empty() or requested_total <= 0:
+		return context
+	var before_troops := _get_city_troops_for_battle_context(source_city_id)
+	var deployed_total := mini(requested_total, before_troops)
+	var after_troops := maxi(0, before_troops - deployed_total)
+	context[total_key] = deployed_total
+	context["%s_source_city_id" % side_prefix] = source_city_id
+	context["%s_source_city_troops_before" % side_prefix] = before_troops
+	context["%s_source_city_troops_after" % side_prefix] = after_troops
+	context[deployed_key] = deployed_total > 0
+	_set_city_runtime_troops(source_city_id, after_troops)
+	print("[TROOP_PRE_DEPLOY] side=%s city=%s before=%d allocated=%d after=%d" % [
+		side_prefix,
+		source_city_id,
+		before_troops,
+		deployed_total,
+		after_troops,
+	])
+	return context
+
+
 func _set_city_runtime_stationed_hero_ids(city_id: String, stationed_hero_ids: Array) -> void:
 	if city_id.is_empty():
 		return
@@ -3028,6 +3120,10 @@ func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String
 	var used_hero_ids := {}
 	var attacker_roster := _build_invasion_side_roster_for_battle_context(attacker_city_id, attacker_owner, used_hero_ids, "attacker")
 	var defender_roster := _build_invasion_side_roster_for_battle_context(defender_city_id, defender_owner, used_hero_ids, "defender")
+	var attacker_troop_allocation := _build_even_troop_allocation_for_heroes(attacker_roster.get("hero_ids", []), _get_city_troops_for_battle_context(attacker_city_id))
+	var defender_troop_allocation := _build_even_troop_allocation_for_heroes(defender_roster.get("hero_ids", []), _get_city_troops_for_battle_context(defender_city_id))
+	attacker_roster = _apply_troop_allocation_to_roster(attacker_roster, attacker_troop_allocation, attacker_city_id)
+	defender_roster = _apply_troop_allocation_to_roster(defender_roster, defender_troop_allocation, defender_city_id)
 	_log_invasion_reinforcement_rule_summary(attacker_city_id, defender_city_id, attacker_owner, defender_owner, attacker_roster, defender_roster)
 	return {
 		"type": "defense",
@@ -3043,6 +3139,12 @@ func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String
 		"defender_owner": defender_owner,
 		"attacker_troops": _get_city_troops_for_battle_context(attacker_city_id),
 		"defender_troops": _get_city_troops_for_battle_context(defender_city_id),
+		"attacker_troop_allocation": attacker_troop_allocation.duplicate(true),
+		"defender_troop_allocation": defender_troop_allocation.duplicate(true),
+		"attacker_total_allocated_troops": _sum_troop_allocation(attacker_troop_allocation),
+		"defender_total_allocated_troops": _sum_troop_allocation(defender_troop_allocation),
+		"attacker_source_city_id": attacker_city_id,
+		"defender_source_city_id": defender_city_id,
 		"attacker_hero_ids": attacker_roster.get("hero_ids", []),
 		"defender_hero_ids": defender_roster.get("hero_ids", []),
 		"attacker_heroes": attacker_roster.get("heroes", []),

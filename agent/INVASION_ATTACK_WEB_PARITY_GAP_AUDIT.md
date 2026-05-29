@@ -4,6 +4,16 @@ Baseline: `v0.68b-12b-29A Web-Parity Troop Allocation Wounded Queue Import` / `b
 
 Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
 
+## v0.68b-12b-31 Resolution Update
+
+- Fixed: player attack defender garrison pre-decrement now subtracts defender allocated troops before battle handoff.
+- Fixed: enemy invasion defense BattleContext now includes attacker/defender troop allocation, total allocated troops, and source-city pre-decrement metadata.
+- Fixed: defense battle result payload now carries `player_troop_outcome` for the player defender side and `enemy_troop_outcome` for the enemy attacker side.
+- Fixed: defense victory now returns player survivors/wounded to the defender city and enemy wounded to the attacker city woundedQueue.
+- Fixed: defense defeat now clears/occupies the defender city with enemy survivors/wounded and sends player wounded to the nearest player-owned neighbor when available.
+- Still requires F6 QA: player attack defender pre-decrement, defense win/loss accounting, woundedQueue save/load, and WorldMap turn recovery.
+- Remaining non-P0 gaps: commandRank/commandLimit clamp, defense deployment UI, lastBattleTroopResult-style UI history, captured-city hero recruit/conversion policy.
+
 ## Files Inspected
 
 ### Web
@@ -90,15 +100,15 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
   - `startBattle()` builds `enemyTroopAllocation` from the defender city for attack battles and subtracts `enemyTroopAllocation.totalAllocatedTroops` from that city before battle if separate from source (`app_state.js:1356-1383`).
 - Godot status:
   - 29A builds `defender_troop_allocation`, `defender_total_allocated_troops`, and defender unit allocated fields (`worldmap_test.gd:3070-3115`, `3168-3193`).
-  - Godot does not pre-decrement defender city garrison before battle start.
+  - 31 pre-decrements defender city garrison before battle start.
 - Gap:
-  - Metadata/outcome parity exists, but enemy defender garrison pre-decrement parity is missing.
+  - Fixed in 31; F6/save-load QA remains.
 - Risk:
-  - High. Defender troops can be counted as still in the city during battle and then also used in outcome application, creating troop accounting drift.
+  - Medium until F6 confirms no double-count or missing-count drift.
 - Recommended patch:
-  - Next patch should subtract defender allocated troops at player attack battle confirmation/start, with a double-decrement guard and save/load persistence.
+  - Manual QA.
 - Priority:
-  - P0
+  - P1
 
 ### BattleContext / Battle Unit Allocation Fields
 
@@ -144,31 +154,31 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
   - `buildDefaultDefenseDeployment()` auto-selects defender city player heroes and default troop allocations by command limits (`app_state.js:930-959`).
   - `startBattle()` uses this deployment for defense if no pending deployment exists (`app_state.js:1353-1355`).
 - Godot status:
-  - Enemy invasion defense can launch BattleContext, but there is no player defense deployment panel or command-limit troop allocation equivalent.
-  - Existing Godot invasion result still uses `_calculate_invasion_casualty_result()` MVP rates for defense (`worldmap_test.gd:2268-2322`, `2661-2714`, `2831-2911`).
+  - 31 adds default attacker/defender allocation metadata and allocated troop result handling for defense.
+  - Manual defense deployment UI and command-limit troop allocation remain missing.
 - Gap:
-  - Defense battle does not use the 29A allocated troop outcome / woundedQueue parity path.
+  - Core result parity fixed in 31; defense deployment UI remains a P1 gap.
 - Risk:
-  - High. Player attack and defense battles now use different troop accounting models.
+  - Medium until F6 confirms defense win/loss accounting.
 - Recommended patch:
-  - Add defense deployment/default allocation parity and pass defense allocations through the battle scene result payload.
+  - Manual QA, then add defense deployment UI later.
 - Priority:
-  - P0
+  - P1
 
 ### Enemy Attacker Garrison Decrement in Defense
 
 - Web status:
   - For defense battles, `enemySourceCity` is the attacker city; enemy allocation is built and pre-decremented (`app_state.js:1356-1383`).
 - Godot status:
-  - Enemy invasion attacker rosters exist, but no allocated troop pre-decrement parity for enemy attacker city is present in the defense flow.
+  - 31 pre-decrements enemy attacker source city for defense battles.
 - Gap:
-  - Enemy attacker city can keep full city troops while its attack force is in battle.
+  - Fixed in 31; F6/save-load QA remains.
 - Risk:
-  - High. This is the defense equivalent of the player-attack defender pre-decrement gap.
+  - Medium until manual QA confirms no drift.
 - Recommended patch:
-  - Include enemy attacker allocation and source-city pre-decrement in the same defense troop parity patch.
+  - Manual QA.
 - Priority:
-  - P0
+  - P1
 
 ### Defense Victory / Defeat Result Handling
 
@@ -176,17 +186,16 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
   - Defense lost: occupy defender city, clear captured city garrison, apply enemy troop return to captured city, and player wounded to nearest player-owned neighbor (`app_state.js:1578-1601`).
   - Defense won: return player survivors/wounded to defender city; enemy wounded returns to enemy source city without survivors (`app_state.js:1602-1609`).
 - Godot status:
-  - Defense victory/defeat use bounded casualty formulas and city owner/troop changes (`worldmap_test.gd:2661-2714`, `2831-2911`).
-  - Godot does not apply troop woundedQueue to invasion defense outcomes.
+  - 31 applies allocated troop outcomes and troop woundedQueue to invasion defense outcomes.
   - Godot has support rules, captured/dead exclusion, and hero status placeholders.
 - Gap:
-  - Defense result troop return, retreat city, and woundedQueue handling are not web parity.
+  - Fixed in 31 for core troop accounting; F6 edge QA remains.
 - Risk:
-  - High. Defense battles are currently the biggest post-29A parity gap.
+  - Medium until defense win/loss QA is complete.
 - Recommended patch:
-  - Implement defense troop outcome application using web `returnFromBattle()` rules.
+  - Manual QA.
 - Priority:
-  - P0
+  - P1
 
 ## Battle Result
 
@@ -196,16 +205,16 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
   - `calculateBattleUnitSurvivors()` uses `floor(initialAllocatedTroops * hp/maxHp)` (`app_state.js:320-330`).
   - `calculateBattleTroopOutcome()` and `calculateEnemyBattleTroopOutcome()` apply the win/defeat formulas (`app_state.js:332-386`).
 - Godot status:
-  - `battle_web_import_test.gd` now mirrors this for player attack payloads (`battle_web_import_test.gd:2085-2128`).
-  - `worldmap_test.gd` includes fallback outcome helpers for player attack (`worldmap_test.gd:2797-2828`).
+  - `battle_web_import_test.gd` now mirrors this for player attack and enemy invasion defense payloads (`battle_web_import_test.gd:2085-2128`).
+  - `worldmap_test.gd` includes fallback outcome helpers for result application (`worldmap_test.gd:2797-2828`).
 - Gap:
-  - Player attack parity is implemented; defense/invasion still uses old MVP casualty formula.
+  - Core formula parity fixed in 31 for attack and defense; F6 QA remains.
 - Risk:
-  - High for defense, low for player attack.
+  - Medium until manual QA confirms payload/result branch mapping.
 - Recommended patch:
-  - Reuse the 29A outcome payload path for `source == enemy_invasion`.
+  - Manual QA.
 - Priority:
-  - P0
+  - P1
 
 ### Captured City Garrison / Hero Recruitment
 
@@ -265,15 +274,15 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
   - Save/load preserves city `military.woundedQueue` through world city merge (`save_load.js:180-276`; `world_rules.js:250-264`).
 - Godot status:
   - 29A adds city `woundedQueue` / `wounded_queue`, save/load, and `_apply_wounded_recovery_for_world_turn_mvp()` (`worldmap_test.gd:3489-3581`, `3996-4111`).
-  - Currently applied to player attack outcomes, not full defense/invasion outcomes.
+  - Applied to player attack in 29A and enemy invasion defense in 31.
 - Gap:
-  - Player attack woundedQueue is implemented; defense/invasion woundedQueue parity is missing.
+  - Core defense woundedQueue parity fixed in 31; save-load/turn-recovery QA remains.
 - Risk:
-  - High for defense result consistency; medium for persistence until F6 save/load QA is complete.
+  - Medium until F6 save/load QA is complete.
 - Recommended patch:
-  - Extend woundedQueue to defense result application and manually QA save/load/turn recovery.
+  - Manual QA.
 - Priority:
-  - P0
+  - P1
 
 ## Save / Load
 
@@ -326,7 +335,7 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
 - Risk:
   - Medium. Defense troop parity likely needs a default allocation first, then optional UI.
 - Recommended patch:
-  - P0 should implement default defense allocation/result parity; manual defense deployment UI can follow.
+  - Manual defense deployment UI can follow after troop accounting QA.
 - Priority:
   - P1
 
@@ -345,22 +354,19 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
 - Priority:
   - P2
 
-## P0 Recommendations
+## Remaining Recommendations After v31
 
-1. **Player attack defender garrison pre-decrement parity**
-   - Implement defender allocation source-city troop decrement at battle start for `source == player_attack`.
-   - Add double-decrement guard and ensure victory/defeat result application does not count undeployed defender garrison as active battle troops.
+1. **Manual F6 troop accounting QA**
+   - Verify player attack defender pre-decrement, defense source pre-decrement, defense win/loss result application, woundedQueue save/load, and turn recovery.
 
-2. **Enemy invasion defense troop allocation/result parity**
-   - Add defense default player troop allocation, enemy attacker allocation, and both source-city pre-decrements.
-   - Reuse 29A battle unit allocated troop fields and HP-ratio survivor formulas for `source == enemy_invasion`.
+2. **CommandRank / commandLimit allocation clamp**
+   - Add web-style per-hero command limit allocation constraints without changing troop combat scaling.
 
-3. **Defense woundedQueue / retreat-city parity**
-   - Defense win: player survivors/wounded return to defender city, enemy wounded return to attacker source without survivors.
-   - Defense loss: city occupied, captured city garrison cleared, enemy survivors/wounded enter captured city, player wounded return to nearest player-owned neighbor if available.
+3. **Defense deployment UI**
+   - Current defense parity uses default allocation. A manual defense deployment UI remains a P1 UX follow-up.
 
-4. **WoundedQueue F6/save-load QA**
-   - Verify queue persistence, `turnsLeft` decrement, garrison recovery, and result-card/city panel clarity after both player attack and defense parity are wired.
+4. **Deferred capture/recruit policy**
+   - Captured city hero recruit/conversion is still deferred until prisoner/recruit rules are explicitly defined.
 
 ## Final Summary Table
 
@@ -369,16 +375,16 @@ Scope: docs-only audit. No gameplay, UI, or battle logic was changed.
 | Player attack eligibility/source city | Yes | Yes | Minor mode-state differences | P2 | Revisit with more pending world states |
 | Player attack deployment UI | Yes | Partial | No commandRank/commandLimit clamp | P1 | Add command limit helper/clamp |
 | Player source troop decrement | Yes | Yes | Needs F6 save/load QA | P1 | Manual QA |
-| Player attack defender pre-decrement | Yes | No | Defender allocation not removed before battle | P0 | Defender garrison pre-decrement patch |
+| Player attack defender pre-decrement | Yes | Yes | F6/save-load QA pending | P1 | Manual QA |
 | Battle unit allocated troop fields | Yes | Yes | Needs F6 context QA | P1 | Debug/QA assertions |
 | Player attack troop outcome | Yes | Yes | F6 win/loss QA pending | P1 | Manual QA |
 | Enemy invasion candidate roll | Yes | Partial | Godot richer MVP, timing parity not fully confirmed | P1 | Recheck after defense troop parity |
-| Defense deployment/default allocation | Yes | No | No web-style defense allocation | P0 | Defense allocation parity patch |
-| Enemy attacker pre-decrement in defense | Yes | No | Attacker city troop accounting drift | P0 | Defense source pre-decrement patch |
-| Defense result troop return | Yes | No | Uses old casualty MVP, not allocated outcomes | P0 | Defense troop result parity patch |
-| Defense retreat city | Yes | No | Player wounded do not return to nearest player neighbor | P0 | Defense retreat-city woundedQueue patch |
+| Defense deployment/default allocation | Yes | Partial | Default allocation exists; manual defense deployment UI missing | P1 | Defense deployment UI later |
+| Enemy attacker pre-decrement in defense | Yes | Yes | F6/save-load QA pending | P1 | Manual QA |
+| Defense result troop return | Yes | Yes | F6 win/loss QA pending | P1 | Manual QA |
+| Defense retreat city | Yes | Yes | No-retreat wounded are logged as lost | P1 | F6 no-retreat edge QA |
 | Troop woundedQueue player attack | Yes | Yes | F6/save-load QA pending | P1 | Manual QA |
-| Troop woundedQueue defense | Yes | No | Defense outcomes do not use queue | P0 | Extend queue to defense |
+| Troop woundedQueue defense | Yes | Yes | F6/save-load/turn recovery QA pending | P1 | Manual QA |
 | Hero wounded/captured/dead | No direct parity | Yes | Godot-specific system | P2 | Keep separate from troop queue |
 | Save/load city troops/resources/queue | Yes | Yes | No lastBattleTroopResult persistence | P2 | Optional result history |
 | Attack/defense UX | Yes | Partial | Defense deployment and recovery notification missing | P1/P2 | Defense deploy UI later |

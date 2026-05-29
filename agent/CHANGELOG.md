@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-12b-31 Player Defense Troop Accounting Parity Fix
+- Added player attack defender garrison pre-decrement using `defender_total_allocated_troops` and preserved defender source city before/after metadata.
+- Added enemy invasion defense attacker/defender troop allocations and pre-decrement for both source cities before battle handoff.
+- Extended battle result payload generation so defense battles also return `player_troop_outcome` and `enemy_troop_outcome`.
+- Reworked defense victory result application to return player survivors/wounded to the defended city and enemy wounded to the attacker city woundedQueue.
+- Reworked defense defeat result application to occupy the defender city with enemy survivors/wounded and return player wounded to the nearest player-owned neighbor when one exists.
+- Kept troop counts out of HP/attack/defense scaling and left commandRank/commandLimit clamp, defense deployment UI, hero recruit/conversion, prisoner soldiers, and siege formulas deferred.
+
 ## v0.68b-12b-30 Invasion Attack Web Parity Gap Audit
 - Added `agent/INVASION_ATTACK_WEB_PARITY_GAP_AUDIT.md`.
 - Compared web player attack, enemy invasion/defense, battle result formulas, troop woundedQueue, save/load cleanup, and UI/UX flows against current Godot.

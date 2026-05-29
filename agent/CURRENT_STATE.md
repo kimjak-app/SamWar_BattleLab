@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.68b-12b-31 Player/Defense Troop Accounting Parity Fix
+- Player attack now pre-decrements the enemy defender city by `defender_total_allocated_troops` before battle handoff, in addition to the existing player source city decrement.
+- Enemy invasion defense BattleContext now carries attacker/defender troop allocations, total allocated troops, source city ids, and pre-decrement before/after metadata for both sides.
+- Battle result payloads now include `player_troop_outcome` / `enemy_troop_outcome` for both player attack and enemy invasion defense, using the same allocated-troop HP-ratio survivor formula.
+- Defense victory now returns player survivors/wounded to the defended city and enemy wounded to the attacker city woundedQueue; defense defeat now occupies the city with enemy survivors/wounded and routes player wounded to the nearest player-owned neighbor if available.
+- WoundedQueue save/load and turn recovery remain wired from 29A. F6 QA is still required for player attack defender pre-decrement, defense win/loss accounting, queue persistence, and recovery.
+- Still deferred: commandRank/commandLimit clamp, defense deployment UI, captured city hero recruit/conversion, prisoner soldier systems, troop-count combat scaling, and siege formulas.
+
 ## v0.68b-12b-30 Invasion Attack Web Parity Gap Audit
 - Docs-only audit created `agent/INVASION_ATTACK_WEB_PARITY_GAP_AUDIT.md` comparing SamWar_web attack/defense/result/woundedQueue/save-load/UI flows against current Godot.
 - P0 gaps confirmed: player attack defender garrison pre-decrement, enemy invasion defense troop allocation/result parity, defense woundedQueue/retreat-city handling, and F6/save-load QA for troop woundedQueue recovery.

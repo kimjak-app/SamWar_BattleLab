@@ -2065,13 +2065,21 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 		"defender_source_city_id": str(worldmap_battle_context.get("defender_source_city_id", worldmap_battle_context.get("defender_city_id", ""))),
 		"attacker_source_city_troops_before": maxi(0, int(worldmap_battle_context.get("attacker_source_city_troops_before", 0))),
 		"attacker_source_city_troops_after": maxi(0, int(worldmap_battle_context.get("attacker_source_city_troops_after", 0))),
+		"defender_source_city_troops_before": maxi(0, int(worldmap_battle_context.get("defender_source_city_troops_before", 0))),
+		"defender_source_city_troops_after": maxi(0, int(worldmap_battle_context.get("defender_source_city_troops_after", 0))),
 		"troop_deployed_from_city": bool(worldmap_battle_context.get("troop_deployed_from_city", false)),
+		"attacker_troop_deployed_from_city": bool(worldmap_battle_context.get("attacker_troop_deployed_from_city", false)),
+		"defender_troop_deployed_from_city": bool(worldmap_battle_context.get("defender_troop_deployed_from_city", false)),
 		"turn_number": int(worldmap_battle_context.get("turn_number", 0)),
 	}
 	if is_player_attack:
 		var player_did_win := result == "victory"
 		payload["player_troop_outcome"] = _calculate_player_attack_troop_outcome_from_units(attacker_battle_side, worldmap_battle_context.get("attacker_troop_allocation", {}), player_did_win, str(payload.get("attacker_source_city_id", "")))
 		payload["enemy_troop_outcome"] = _calculate_player_attack_troop_outcome_from_units(defender_battle_side, worldmap_battle_context.get("defender_troop_allocation", {}), not player_did_win, str(payload.get("defender_source_city_id", "")))
+	else:
+		var player_defender_did_win := result == "victory"
+		payload["player_troop_outcome"] = _calculate_player_attack_troop_outcome_from_units(defender_battle_side, worldmap_battle_context.get("defender_troop_allocation", {}), player_defender_did_win, str(payload.get("defender_source_city_id", "")))
+		payload["enemy_troop_outcome"] = _calculate_player_attack_troop_outcome_from_units(attacker_battle_side, worldmap_battle_context.get("attacker_troop_allocation", {}), not player_defender_did_win, str(payload.get("attacker_source_city_id", "")))
 	return payload
 
 

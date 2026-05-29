@@ -2,6 +2,15 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-31 Player/Defense Troop Accounting Parity Fix
+- Implemented player attack defender garrison pre-decrement before battle handoff.
+- Added defense BattleContext troop allocation metadata for enemy attacker and player defender sides.
+- Added pre-decrement for both enemy attacker source city and player defender source city during enemy invasion defense battle preparation.
+- Extended battle result payload outcome calculation to non-player-attack defense contexts.
+- Replaced defense result troop application with allocated outcome parity and troop woundedQueue rules.
+- Added nearest player-owned neighbor lookup for defense-defeat wounded return; if no retreat city exists, player wounded are logged as lost for this MVP.
+- Verified with `git diff --check`, Godot project headless load, WorldMap scene headless load, and Battle scene headless load. F6 manual QA remains required.
+
 ### v0.68b-12b-30 Invasion Attack Web Parity Gap Audit
 - Performed a docs-only comparison of SamWar_web and Godot invasion/attack parity.
 - Inspected web `world_rules.js`, `app_state.js`, `battle_state.js`, `save_load.js`, and relevant UI modules for attack choice, defense choice, deployment, troop allocation, result return, woundedQueue, and save/load behavior.

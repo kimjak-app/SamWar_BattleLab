@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current Troop Accounting Parity Status
+- `v0.68b-12b-31 Player/Defense Troop Accounting Parity Fix` is complete in code.
+- Player attack now pre-decrements defender city garrison using defender allocation before battle handoff.
+- Enemy invasion defense now pre-decrements both enemy attacker source city and player defender source city, then applies allocated troop outcomes on result return.
+- Defense victory/defeat now use troop woundedQueue: defense win returns player survivors/wounded to defender city and enemy wounded to attacker city; defense loss sends enemy survivors/wounded to the captured city and player wounded to nearest player-owned neighbor if found.
+- Remaining QA: F6 player attack win/loss, defense win/loss, save/load woundedQueue, and WorldMap turn recovery.
+- Next recommended patch: commandRank/commandLimit allocation clamp or a dedicated F6 QA/hotfix pass if manual testing finds troop accounting drift.
+
 ## Current Web-Parity Gap Audit Status
 - `v0.68b-12b-30 Invasion Attack Web Parity Gap Audit` is complete as a docs-only audit.
 - New audit document: `agent/INVASION_ATTACK_WEB_PARITY_GAP_AUDIT.md`.

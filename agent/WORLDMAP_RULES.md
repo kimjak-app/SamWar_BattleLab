@@ -1,5 +1,13 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-31 Troop Accounting Parity Rule
+- Both sides' allocated troops must be subtracted from their source city garrison before battle handoff.
+- Player attack: attacker allocation is subtracted from the player source city; defender allocation is subtracted from the enemy target city.
+- Enemy invasion defense: attacker allocation is subtracted from the enemy attacker city; defender allocation is subtracted from the player defender city.
+- Result application must add only survivor troops and woundedQueue entries back to the appropriate post-battle city. Pre-deployed troops must not also remain in the source garrison.
+- Defense victory returns player survivors/wounded to the defended city and enemy wounded to attacker city woundedQueue.
+- Defense defeat sends enemy survivors/wounded to the captured city and player wounded to the nearest player-owned neighbor; no-retreat wounded are logged as lost in this MVP.
+
 ## v0.68b-12b-30 Web Parity Gap Audit Rule
 - Current P0 parity target is troop accounting consistency across both player attack and enemy invasion defense.
 - Player attack must next subtract defender allocated troops from the defender city before battle start, matching the web enemy-side pre-decrement rule.
