@@ -1489,6 +1489,7 @@ func _build_worldmap_context_hero_registry_entry(hero_data: Dictionary) -> Dicti
 		"wounded": bool(hero_data.get("wounded", false)),
 		"captured": bool(hero_data.get("captured", false)),
 		"dead": bool(hero_data.get("dead", false)),
+		"wounded_turns_remaining": maxi(0, int(hero_data.get("wounded_turns_remaining", 0))),
 	}
 
 
@@ -6228,6 +6229,9 @@ func _get_hero_state_badge_text(hero_entry: Dictionary) -> String:
 	if bool(hero_entry.get("captured", false)) or status == "captured":
 		return " [포로]"
 	if bool(hero_entry.get("wounded", false)) or status == "wounded":
+		var turns_remaining := maxi(0, int(hero_entry.get("wounded_turns_remaining", 0)))
+		if turns_remaining > 0:
+			return " [부상 %d턴]" % turns_remaining
 		return " [부상]"
 	return ""
 

@@ -1,5 +1,13 @@
 # v0.68b-12b-8 Enemy Invasion Web Logic Audit
 
+## v0.68b-12b-26 Wounded Recovery Status
+- Wounded heroes now carry `wounded_turns_remaining` after invasion battle result placeholder application.
+- The MVP default recovery duration is 3 WorldMap strategy turns.
+- Recovery ticks during WorldMap turn advancement only and does not run inside battle rounds or auto-battle turns.
+- At `0`, the hero returns to normal state, removing `[부상 N턴]` display and v25 wounded battle penalties.
+- Captured/dead heroes are not recovery targets and keep the wound counter at `0`.
+- Remaining deferred audit items: treatment UI/items, ability-based recovery duration, prisoner release/recruit/execute, and death handling.
+
 ## v0.68b-12b-25 Wounded Battle Penalty Status
 - Enemy-invasion battles now keep wounded heroes eligible while applying battle-side wounded penalties.
 - MVP values are attack damage `75%`, incoming damage to wounded defenders `120%`, and wounded caster unique-skill numeric effects `70%`.

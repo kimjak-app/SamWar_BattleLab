@@ -1,5 +1,14 @@
 # CURRENT STATE
 
+## v0.68b-12b-26 Wounded Hero Recovery Turn MVP
+- Hero runtime state now includes `wounded_turns_remaining`.
+- New wounded placeholder applications assign `DEFAULT_WOUNDED_RECOVERY_TURNS = 3`; captured/dead/normal states keep recovery turns at `0`.
+- Wound recovery advances once per WorldMap strategy turn in `_advance_world_turn_mvp()`, not during battle turns.
+- Each WorldMap turn reduces wounded turns by 1; at `0`, the hero returns to `status: normal`, `wounded: false`, and the v25 battle penalty no longer applies.
+- WorldMap city info, battle formation panels, and post-battle result summaries can show `[부상 N턴]`.
+- Save/load persists `wounded_turns_remaining`; older wounded saves without the field are normalized to the 3-turn MVP default.
+- Still deferred: treatment buildings, recovery items, ability-based recovery duration, prisoner release/recruit/execute, and death handling.
+
 ## v0.68b-12b-25 Wounded Hero Battle Penalty MVP
 - Wounded heroes remain battle-eligible and keep `[부상]` display markers in WorldMap/Battle roster surfaces.
 - Battle damage now applies MVP wounded penalties in the battle scene: basic attack damage `75%`, wounded defender incoming damage `120%` as a defense-performance penalty, and unique-skill numeric effects `70%`.

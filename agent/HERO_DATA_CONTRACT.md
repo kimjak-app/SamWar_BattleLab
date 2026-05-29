@@ -1,5 +1,13 @@
 # HERO DATA CONTRACT
 
+## v0.68b-12b-26 Wounded Recovery Turns
+- Hero runtime state now includes `wounded_turns_remaining`.
+- New wounded state starts at 3 turns for this MVP; normal/captured/dead states use `0`.
+- Save/load persists `wounded_turns_remaining` through `worldmap_hero_state`.
+- Existing wounded save data without the counter should normalize to the 3-turn MVP default.
+- Display helpers may render wounded heroes as `[부상 N턴]`; recovery to `0` clears `wounded` and returns `status` to `normal`.
+- Captured/dead heroes do not recover through this wound timer.
+
 ## v0.68b-12b-25 Wounded Battle Penalty
 - Wounded state remains runtime/save state and must not mutate seed `HERO_DATA`.
 - `wounded == true` or `status == "wounded"` does not exclude a hero from battle.

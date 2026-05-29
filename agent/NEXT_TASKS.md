@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current Wounded Recovery Status
+- `v0.68b-12b-26 Wounded Hero Recovery Turn MVP` is complete in code.
+- Wounded heroes receive `wounded_turns_remaining = 3` when the placeholder wound is applied.
+- Recovery ticks once per WorldMap strategy turn through `_advance_world_turn_mvp()`; battle turns do not reduce the counter.
+- UI marker format is `[부상 N턴]`, and recovery to `0` resets `status` to `normal`, clears `wounded`, removes the badge, and disables v25 penalties.
+- Existing save/load persists the recovery counter through `worldmap_hero_state`; old wounded saves without the counter are normalized to 3 turns.
+- Remaining manual QA: F6 wound result, save/load, turn advance 3 -> 2 -> 1 -> normal, then confirm battle penalty is gone.
+- Still deferred: treatment UI, recovery items, ability-based recovery duration, prisoner release/recruit/execute, and death handling.
+
 ## Current Wounded Hero Battle Penalty Status
 - `v0.68b-12b-25 Wounded Hero Battle Penalty MVP` is complete in code.
 - Wounded heroes still enter battles and keep `[부상]` badges; captured/dead heroes remain excluded.

@@ -456,6 +456,9 @@ func _get_hero_state_badge_text(hero_data: Dictionary) -> String:
 	if bool(hero_data.get("captured", false)) or status == "captured":
 		return " [포로]"
 	if bool(hero_data.get("wounded", false)) or status == "wounded":
+		var turns_remaining := maxi(0, int(hero_data.get("wounded_turns_remaining", 0)))
+		if turns_remaining > 0:
+			return " [부상 %d턴]" % turns_remaining
 		return " [부상]"
 	return ""
 

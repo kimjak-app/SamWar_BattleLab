@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-26 Wounded Hero Recovery Turn MVP
+- Added `DEFAULT_WOUNDED_RECOVERY_TURNS := 3` and `wounded_turns_remaining` normalization in `scripts/worldmap_test.gd`.
+- Wounded placeholder application now assigns a 3-turn recovery counter; captured/dead/normal state clears the counter.
+- WorldMap strategy turn advancement now ticks wounded recovery once through `_advance_world_turn_mvp()`.
+- Heroes recover to `status: normal`, `wounded: false`, and `wounded_turns_remaining: 0` when the counter reaches zero.
+- `worldmap_hero_state` save/load now persists `wounded_turns_remaining`, and older wounded payloads without the field are normalized to 3 turns.
+- WorldMap city info, battle formation panels, and result-card naming paths now show `[부상 N턴]` when a wounded hero has remaining recovery turns.
+- No treatment UI, recovery item, ability-based recovery duration, prisoner release/recruit/execute, or death handling was added.
+
 ## v0.68b-12b-25 Wounded Hero Battle Penalty MVP
 - Added wounded combat penalty constants and helpers in `scripts/battle_web_import_test.gd`.
 - Wounded heroes remain eligible for battle and keep existing `[부상]` labels; captured/dead exclusion remains unchanged.

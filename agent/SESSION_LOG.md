@@ -2,6 +2,14 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-26 Wounded Hero Recovery Turn MVP
+- Added `wounded_turns_remaining` to runtime hero state and save/load normalization.
+- Wounded placeholder state now starts at 3 WorldMap strategy turns; captured/dead/normal state clears the counter.
+- Recovery ticks only when `_advance_world_turn_mvp()` advances the WorldMap turn, not during battle rounds.
+- Recovery logs `[HERO_RECOVERY_TICK]` and `[HERO_RECOVERED]`; recovered heroes return to `normal` and lose the wounded battle penalty.
+- Updated WorldMap city info and battle formation badge text to show `[부상 N턴]`.
+- Deferred treatment UI/items, ability-based recovery duration, prisoner release/recruit/execute, and death handling.
+
 ### v0.68b-12b-25 Wounded Hero Battle Penalty MVP
 - Added battle-side wounded helper lookup through the existing hero registry/context hero registry state fields.
 - Kept wounded heroes battle-eligible and preserved `[부상]` display behavior.

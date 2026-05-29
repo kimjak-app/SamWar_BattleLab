@@ -78,6 +78,7 @@ const HERO_RUNTIME_STATUS_NORMAL := "normal"
 const HERO_RUNTIME_STATUS_WOUNDED := "wounded"
 const HERO_RUNTIME_STATUS_CAPTURED := "captured"
 const HERO_RUNTIME_STATUS_DEAD := "dead"
+const DEFAULT_WOUNDED_RECOVERY_TURNS := 3
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -2087,23 +2088,27 @@ func _set_hero_runtime_status_placeholder(hero_id: String, status: String) -> bo
 			hero_state["wounded"] = true
 			hero_state["captured"] = false
 			hero_state["dead"] = false
+			hero_state["wounded_turns_remaining"] = DEFAULT_WOUNDED_RECOVERY_TURNS
 		HERO_RUNTIME_STATUS_CAPTURED:
 			hero_state["status"] = HERO_RUNTIME_STATUS_CAPTURED
 			hero_state["wounded"] = false
 			hero_state["captured"] = true
 			hero_state["dead"] = false
+			hero_state["wounded_turns_remaining"] = 0
 		_:
 			hero_state["status"] = HERO_RUNTIME_STATUS_NORMAL
 			hero_state["wounded"] = false
 			hero_state["captured"] = false
 			hero_state["dead"] = false
+			hero_state["wounded_turns_remaining"] = 0
 	_hero_runtime_states[hero_id] = hero_state
-	print("[HERO_STATE_APPLY] hero=%s status=%s wounded=%s captured=%s dead=%s city=%s" % [
+	print("[HERO_STATE_APPLY] hero=%s status=%s wounded=%s captured=%s dead=%s wounded_turns=%d city=%s" % [
 		hero_id,
 		str(hero_state.get("status", HERO_RUNTIME_STATUS_NORMAL)),
 		str(hero_state.get("wounded", false)),
 		str(hero_state.get("captured", false)),
 		str(hero_state.get("dead", false)),
+		int(hero_state.get("wounded_turns_remaining", 0)),
 		str(hero_state.get("current_city_id", ""))
 	])
 	return true
@@ -2147,6 +2152,9 @@ func _get_hero_state_badge_text(hero_id: String) -> String:
 	if bool(hero_state.get("captured", false)) or str(hero_state.get("status", "")) == HERO_RUNTIME_STATUS_CAPTURED:
 		return " [포로]"
 	if bool(hero_state.get("wounded", false)) or str(hero_state.get("status", "")) == HERO_RUNTIME_STATUS_WOUNDED:
+		var turns_remaining := maxi(0, int(hero_state.get("wounded_turns_remaining", 0)))
+		if turns_remaining > 0:
+			return " [부상 %d턴]" % turns_remaining
 		return " [부상]"
 	return ""
 
@@ -2762,7 +2770,38 @@ func _format_invasion_status_text(event: Dictionary) -> String:
 func _advance_world_turn_mvp() -> void:
 	var next_turn := maxi(1, int(_player_state.get("turn_number", 1))) + 1
 	_player_state["turn_number"] = next_turn
+	_advance_wounded_hero_recovery_turns()
 	_update_world_turn_labels()
+	_refresh_city_hud_data_bindings()
+
+
+func _advance_wounded_hero_recovery_turns() -> void:
+	for hero_id_variant in _hero_runtime_states.keys():
+		var hero_id := str(hero_id_variant)
+		var raw_state: Variant = _hero_runtime_states.get(hero_id, {})
+		if not raw_state is Dictionary:
+			continue
+		var hero_state := _normalize_hero_runtime_state(hero_id, raw_state as Dictionary)
+		if bool(hero_state.get("dead", false)) or bool(hero_state.get("captured", false)):
+			hero_state["wounded"] = false
+			hero_state["wounded_turns_remaining"] = 0
+			_hero_runtime_states[hero_id] = hero_state
+			continue
+		if not bool(hero_state.get("wounded", false)) and str(hero_state.get("status", HERO_RUNTIME_STATUS_NORMAL)) != HERO_RUNTIME_STATUS_WOUNDED:
+			continue
+		var before_turns := maxi(0, int(hero_state.get("wounded_turns_remaining", DEFAULT_WOUNDED_RECOVERY_TURNS)))
+		var after_turns := maxi(0, before_turns - 1)
+		print("[HERO_RECOVERY_TICK] hero=%s before=%d after=%d" % [hero_id, before_turns, after_turns])
+		if after_turns <= 0:
+			hero_state["status"] = HERO_RUNTIME_STATUS_NORMAL
+			hero_state["wounded"] = false
+			hero_state["wounded_turns_remaining"] = 0
+			print("[HERO_RECOVERED] hero=%s status=normal" % hero_id)
+		else:
+			hero_state["status"] = HERO_RUNTIME_STATUS_WOUNDED
+			hero_state["wounded"] = true
+			hero_state["wounded_turns_remaining"] = after_turns
+		_hero_runtime_states[hero_id] = hero_state
 
 
 func _apply_domestic_turn_mvp() -> String:
@@ -3194,14 +3233,16 @@ func _serialize_worldmap_hero_runtime_state() -> Dictionary:
 			"wounded": bool(source.get("wounded", false)),
 			"captured": bool(source.get("captured", false)),
 			"dead": bool(source.get("dead", false)),
+			"wounded_turns_remaining": maxi(0, int(source.get("wounded_turns_remaining", 0))),
 		}
-		print("[HERO_STATE_SAVE] hero=%s current_city=%s status=%s wounded=%s captured=%s dead=%s" % [
+		print("[HERO_STATE_SAVE] hero=%s current_city=%s status=%s wounded=%s captured=%s dead=%s wounded_turns=%d" % [
 			hero_id,
 			current_city_id,
 			str(source.get("status", HERO_RUNTIME_STATUS_NORMAL)),
 			str(source.get("wounded", false)),
 			str(source.get("captured", false)),
-			str(source.get("dead", false))
+			str(source.get("dead", false)),
+			maxi(0, int(source.get("wounded_turns_remaining", 0)))
 		])
 	return serialized
 
@@ -3277,13 +3318,14 @@ func _apply_worldmap_hero_runtime_state(raw_state: Variant) -> void:
 		_hero_runtime_states[hero_id] = normalized_state
 		_remove_hero_from_other_city_runtime_rosters(hero_id, current_city_id)
 		_ensure_hero_in_city_runtime_roster(hero_id, current_city_id)
-		print("[HERO_STATE_LOAD] hero=%s current_city=%s status=%s wounded=%s captured=%s dead=%s" % [
+		print("[HERO_STATE_LOAD] hero=%s current_city=%s status=%s wounded=%s captured=%s dead=%s wounded_turns=%d" % [
 			hero_id,
 			current_city_id,
 			str(normalized_state.get("status", HERO_RUNTIME_STATUS_NORMAL)),
 			str(normalized_state.get("wounded", false)),
 			str(normalized_state.get("captured", false)),
-			str(normalized_state.get("dead", false))
+			str(normalized_state.get("dead", false)),
+			maxi(0, int(normalized_state.get("wounded_turns_remaining", 0)))
 		])
 
 
@@ -3339,14 +3381,37 @@ func _normalize_hero_runtime_state(hero_id: String, raw_state: Dictionary = {}) 
 	var status := str(raw_state.get("status", HERO_RUNTIME_STATUS_NORMAL)).to_lower()
 	if not [HERO_RUNTIME_STATUS_NORMAL, HERO_RUNTIME_STATUS_WOUNDED, HERO_RUNTIME_STATUS_CAPTURED, HERO_RUNTIME_STATUS_DEAD].has(status):
 		status = HERO_RUNTIME_STATUS_NORMAL
+	var is_dead := bool(raw_state.get("dead", status == HERO_RUNTIME_STATUS_DEAD))
+	var is_captured := bool(raw_state.get("captured", status == HERO_RUNTIME_STATUS_CAPTURED))
+	var is_wounded := bool(raw_state.get("wounded", status == HERO_RUNTIME_STATUS_WOUNDED))
+	var wounded_turns := maxi(0, int(raw_state.get("wounded_turns_remaining", 0)))
+	if is_dead:
+		status = HERO_RUNTIME_STATUS_DEAD
+		is_captured = false
+		is_wounded = false
+		wounded_turns = 0
+	elif is_captured:
+		status = HERO_RUNTIME_STATUS_CAPTURED
+		is_wounded = false
+		wounded_turns = 0
+	elif is_wounded or status == HERO_RUNTIME_STATUS_WOUNDED:
+		status = HERO_RUNTIME_STATUS_WOUNDED
+		is_wounded = true
+		if wounded_turns <= 0:
+			wounded_turns = DEFAULT_WOUNDED_RECOVERY_TURNS
+	else:
+		status = HERO_RUNTIME_STATUS_NORMAL
+		is_wounded = false
+		wounded_turns = 0
 	return {
 		"current_city_id": current_city_id,
 		"city_id": current_city_id,
 		"location_city_id": current_city_id,
 		"status": status,
-		"wounded": bool(raw_state.get("wounded", status == HERO_RUNTIME_STATUS_WOUNDED)),
-		"captured": bool(raw_state.get("captured", status == HERO_RUNTIME_STATUS_CAPTURED)),
-		"dead": bool(raw_state.get("dead", status == HERO_RUNTIME_STATUS_DEAD)),
+		"wounded": is_wounded,
+		"captured": is_captured,
+		"dead": is_dead,
+		"wounded_turns_remaining": wounded_turns,
 	}
 
 

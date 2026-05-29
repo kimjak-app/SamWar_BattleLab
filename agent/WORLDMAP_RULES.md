@@ -1,5 +1,13 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-26 Wounded Recovery Turn Rule
+- Wounded recovery is based on WorldMap strategy turns only.
+- Default MVP wound duration is 3 WorldMap turns via `wounded_turns_remaining`.
+- Battle rounds, auto-battle turns, and battle-scene timers must not reduce wounded recovery turns.
+- When `wounded_turns_remaining` reaches `0`, the hero returns to normal state and loses wounded battle penalties.
+- Captured/dead heroes are not recovery targets and keep wound recovery turns at `0`.
+- UI may display `[부상 N턴]`; treatment buildings, recovery items, and ability-based recovery duration are out of scope.
+
 ## v0.68b-12b-25 Wounded Battle Penalty Rule
 - Wounded heroes remain eligible for BattleContext rosters and battle deployment.
 - Wounded markers should remain visible in existing roster labels as `[부상]`.
