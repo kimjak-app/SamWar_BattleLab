@@ -2,6 +2,18 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP
+- Confirmed the existing battle sample data structure in `scripts/battle_web_import_test.gd`: `HERO_REGISTRY`, `TEST_BATTLE_ROSTER`, and `UNIQUE_SKILL_REGISTRY`.
+- Confirmed actual WorldMap hero placement comes from `scripts/worldmap_test.gd` `HERO_DATA` plus city `stationed_hero_ids` / `hero_ids`.
+- Added WorldMap hero battle contract helpers that build mutable BattleContext copies instead of mutating seed dictionaries.
+- BattleContext now carries `attacker_heroes` and `defender_heroes` arrays with combat fields, 512-source `portrait_path`, separate `cutin_path`, and required unique-skill fields for every included actual hero.
+- Skill fields are generated from existing `unique_skill_id` plus role-based temporary contracts; balance remains intentionally rough.
+- Battle scene now accepts context hero/skill data through runtime registries and still falls back to `TEST_BATTLE_ROSTER` when a hero is missing or unsupported.
+- Portrait contract decision: one `portrait_path` points at 512-source assets; 128 battle slots should scale down from that same source. No `portrait_128_path` / `portrait_512_path` split was introduced.
+- Cutin contract decision: cutin/effect images use separate `cutin_path`; files are not required yet and are not bulk-added.
+- Existing 128 folders were not deleted; actual image binding is deferred to `v0.68b-12b-17` or `16a`.
+- Verification passed: `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, root `Battle_Fullscreen_Test.tscn` headless load, no new portrait split fields, and direct sample battle fallback remained intact.
+
 ### v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix
 - Fixed the F6 manual invasion battle return crash: `_set_city_runtime_troops()` attempted to assign into a read-only city Dictionary.
 - Root cause: `CITY_HUD_DATA` is seed/static city data and may be read-only; the previous MVP wrote `troops`, `owner`, and `nation` directly into that dictionary.

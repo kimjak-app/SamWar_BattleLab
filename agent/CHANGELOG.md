@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP
+- Added a runtime hero battle-data contract path for WorldMap invasion BattleContext in `scripts/worldmap_test.gd`.
+- Existing sample battle structure confirmed: `scripts/battle_web_import_test.gd` owns `HERO_REGISTRY`, `TEST_BATTLE_ROSTER`, and `UNIQUE_SKILL_REGISTRY`; direct battle launch still uses that fallback unchanged.
+- Actual WorldMap heroes remain sourced from `HERO_DATA` and city `stationed_hero_ids` / `hero_ids`; BattleContext now includes `attacker_heroes` and `defender_heroes` enriched from that data.
+- Every BattleContext hero copy now carries combat contract fields including `unit_type`, `troop_count`, `leadership` / `command`, `war`, `attack`, `defense`, `intelligence`, `move_range` / `mobility`, `attack_range`, `skill_id`, `skill_name`, `skill_desc`, `skill_effect_type`, `skill_power` / `skill_value`, `skill_range`, `skill_cooldown`, and `skill_toast_icon`.
+- Added portrait/cutin contract fields: one canonical 512-source `portrait_path` under `res://assets/heroes/portraits/{nation}/{nation}_{hero_id}.png`, and separate `cutin_path` under `res://assets/heroes/cutins/{nation}/{nation}_{hero_id}_cutin.png`.
+- The 128 battle slots are expected to scale down from `portrait_path`; no `portrait_128_path` or `portrait_512_path` split was added, and existing 128 folders were not deleted.
+- Battle scene now registers WorldMap context hero/skill data into runtime registries before roster assignment; missing or unsupported heroes still fall back to `TEST_BATTLE_ROSTER`.
+- Image loading remains safe: context portrait/cutin paths are treated as contract data and only passed to battle runtime if `ResourceLoader.exists()` confirms the file exists.
+- Deferred: actual bulk image binding, 512 asset import, cutin presentation completion, save/load expansion, hero movement/capture/wounds/death, resource looting, and precise unique-skill balance.
+- Verification: `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, root `Battle_Fullscreen_Test.tscn` headless load, no new `portrait_128_path` / `portrait_512_path` fields, and existing sample battle fallback output stayed intact.
+
 ## v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix
 - Fixed F6 manual invasion battle return crash in `scripts/worldmap_test.gd`: `Dictionary is in read-only state` during `_set_city_runtime_troops()`.
 - Cause: the previous result-apply MVP wrote `troops`, `owner`, and `nation` directly into `CITY_HUD_DATA` city dictionaries, which can be read-only seed/static data in Godot.

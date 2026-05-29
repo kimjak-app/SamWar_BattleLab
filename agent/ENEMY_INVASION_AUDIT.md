@@ -185,6 +185,15 @@
 - Verification passed: `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
 - Remaining risk: live F6 manual invasion return path still needs exact click-through confirmation for the original crash report.
 
+## v0.68b-12b-16 Hero Battle Data + Unique Skill Contract Status
+- Implemented in `scripts/worldmap_test.gd` and `scripts/battle_web_import_test.gd`.
+- WorldMap defense BattleContext now carries actual city hero battle copies in `defender_heroes` and `attacker_heroes`, alongside the existing hero-id arrays for compatibility.
+- Each copied hero includes combat fields, one `portrait_path`, one separate `cutin_path`, and required unique-skill fields.
+- Battle runtime registers context hero/skill data into runtime registries before roster assignment, then falls back to the existing sample roster when data is missing or unsupported.
+- Portrait contract is 512-source only; 128 battle slots should downscale from `portrait_path`. No split `portrait_128_path` / `portrait_512_path` fields were introduced.
+- Existing 128 folders were not deleted, no bulk images were moved or added, and cutin image binding remains future work.
+- Save/load persistence for hero battle contract data remains unimplemented by design.
+
 ## Recommended Godot Implementation Plan
 
 ### v0.68b-12b-15 Enemy Invasion Ownership / Troop Apply

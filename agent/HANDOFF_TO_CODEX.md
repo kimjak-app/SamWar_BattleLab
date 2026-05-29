@@ -204,6 +204,9 @@ Latest camera foundation:
 - Latest worldmap invasion result hotfix:
 `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
 
+- Latest worldmap hero battle contract patch:
+`v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
+
 - Latest warning cleanup hotfix:
 `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
@@ -392,7 +395,10 @@ Do not modify casually:
 - Selected battle scene is `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; the battle scene reads and clears it at startup, then logs mode and attacker/defender city names while preserving the existing demo battle setup.
 - Direct `Battle_Fullscreen_Test.tscn` launch without WorldMap context remains supported and logs `No WorldMap battle context; using test battle setup`.
-- Current stable baseline for the next session is `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`.
+- Current stable baseline for the next session is `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`.
+- `v0.68b-12b-16` adds actual city hero battle-data copies to WorldMap BattleContext via `attacker_heroes` / `defender_heroes`, with required combat fields and unique-skill fields for every included hero.
+- Portrait contract is one 512-source `portrait_path`; 128 battle slots should scale that same source. Cutin/effect images are separate `cutin_path` fields. Existing 128 folders remain and were not deleted.
+- Battle scene registers WorldMap context hero/skill data into runtime registries, and still falls back to `TEST_BATTLE_ROSTER` when data is missing or unsupported.
 - `v0.68b-12b-15-hotfix1` fixes the read-only city Dictionary crash on F6 manual invasion battle return. Runtime owner/troop changes now duplicate seed/current city state into `_city_runtime_states`, mutate only that runtime copy, and rebind the right panel from merged seed + runtime data.
 - `v0.68b-12b-15` result apply is complete: WorldMap consumes returned enemy-invasion defense payloads, preserves ownership on defense victory, transfers the target city to the attacker owner on defense defeat, applies safe nonnegative troop changes, clears pending invasion/context, and refreshes marker/right panel/world HUD.
 - Battle result payloads now include attacker/defender owner ids, starting troop counts, and deployed survivor troop totals.
@@ -415,6 +421,7 @@ Do not modify casually:
 - BattleContext bridge MVP: `_player_state.pending_battle_context` is runtime-only and stores defense source/mode, attacker/defender ids and names, turn numbers, owners, troops, stationed hero ids, and governor ids for future handoff.
 - Battle scene handoff MVP: manual/auto defense stores the full context payload in runtime-only `Engine` metadata and transitions to `Battle_Fullscreen_Test.tscn`; the battle controller consumes the context if present and otherwise keeps the standalone test battle path.
 - Invasion result apply MVP: returned defense result payloads are interpreted safely, defense wins keep target ownership, defense losses transfer target ownership to the attacker and set safe occupation troops, and retreat/unknown outcomes never change ownership.
+- Hero battle contract MVP: BattleContext now carries actual city hero battle copies and unique-skill contract data while preserving current direct sample battle fallback.
 - Right selected-city panel cleanup: selected city name, owner/nation/region, population/resources/economy/military values, taesu, stationed hero list, and pending invasion defender/attacker labels are now readable in the right `CityInfoPanel`.
 - Hero portrait binding MVP: the chancellor card and right taesu/governor card use `WorldMapHeroPortraitHelper` to show existing portrait assets where available and keep the stable dark `?` fallback where missing.
 - `RouteLayer` contains the first scene-authored route graph MVP: each route root owns route metadata, a `Path2D`, and a `Line2D`.
@@ -530,13 +537,14 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-16 WorldMap Invasion Result Persistence / QA Follow-up`
-- `v0.68b-12b-16` goal:
-  - Decide and implement a narrow persistence contract for resolved city ownership/troop state if desired.
-  - F6-verify manual defense victory, defeat, retreat/cancel, and unknown result paths.
-  - Keep hero capture/movement, resource loss, detailed casualties, AI strategy, and multi-invasion queues deferred unless explicitly scoped.
+  - `v0.68b-12b-17 WorldMap Hero Portrait Resolver Apply MVP`
+- `v0.68b-12b-17` goal:
+  - Safely bind actual hero `portrait_path` / `cutin_path` data where files exist.
+  - Downscale the same 512-source `portrait_path` for 128 battle slots.
+  - Keep existing 128 folders, no bulk image deletion or migration.
 - Next candidates:
-  - `v0.68b-12b-16 WorldMap Invasion Result Persistence / QA Follow-up`
+  - `v0.68b-12b-17 WorldMap Hero Portrait Resolver Apply MVP`
+  - `v0.68b-12b-16a WorldMap Hero Battle Data F6 QA Follow-up`
   - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`
   - `v0.68b-12d City Detail Panel Web Content Parity`

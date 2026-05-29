@@ -85,13 +85,15 @@ Latest worldmap invasion result apply patch: `v0.68b-12b-15 WorldMap Invasion Re
 
 Latest worldmap invasion result hotfix: `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
 
+Latest worldmap hero battle contract patch: `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
-Current stable baseline: `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
+Current stable baseline: `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
 
-Baseline commit: local HEAD after `v0.68b-12b-15-hotfix1`
+Baseline commit: local HEAD after `v0.68b-12b-16`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -102,18 +104,18 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-16 WorldMap Invasion Result Persistence / QA Follow-up`
+`v0.68b-12b-17 WorldMap Hero Portrait Resolver Apply MVP`
 
 Goal:
-- decide whether resolved runtime city ownership/troop changes should be persisted in save/load and add focused F6 QA coverage for the full manual invasion battle-return flow
+- safely bind actual hero `portrait_path` / `cutin_path` contract data to WorldMap/Battle UI where files exist, with fallback when files are missing
 
 Scope:
-- verify defense victory, defense defeat, retreat/cancel, and unknown result behavior through the live UI
-- keep hero capture/movement, resource loss, detailed casualties, AI recalculation, and multi-invasion queues deferred unless explicitly scoped
+- keep `portrait_path` as the single 512-source field and downscale for 128 battle slots
+- add safe resolver/fallback behavior without bulk asset moves or deleting existing 128 folders
 
 Forbidden in this task:
-- no hero capture or hero city movement unless a separate task explicitly authorizes it
-- no broad save/load schema rewrite without a narrow persistence contract
+- no bulk image deletion or mass migration
+- no hero movement/capture, save/load expansion, cutin animation rewrite, or unique-skill balance pass
 
 ## Priority 2
 `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
@@ -176,6 +178,14 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP` is complete.
+- Existing sample battle data confirmed in `scripts/battle_web_import_test.gd`: `HERO_REGISTRY`, `TEST_BATTLE_ROSTER`, and `UNIQUE_SKILL_REGISTRY`.
+- Actual WorldMap heroes are sourced from `scripts/worldmap_test.gd` `HERO_DATA` and city `stationed_hero_ids` / `hero_ids`.
+- BattleContext now includes `attacker_heroes` and `defender_heroes` enriched with combat fields, one `portrait_path`, separate `cutin_path`, and required unique-skill fields.
+- Portrait contract is one 512-source `portrait_path`; 128 battle slots should downscale from it. No `portrait_128_path` / `portrait_512_path` split was added.
+- Existing 128 folders were not deleted; actual image resolver/binding is deferred to `v0.68b-12b-17` or `16a`.
+- Battle runtime registers context hero/skill data into runtime registries and preserves sample roster fallback when data is missing or unsupported.
+- Save/load expansion remains unimplemented.
 - `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix` is complete.
 - Cause: `_set_city_runtime_troops()` / owner apply wrote into `CITY_HUD_DATA` seed city dictionaries, which can be read-only in Godot.
 - Fix summary: added mutable `_city_runtime_states`; runtime owner/troop changes duplicate seed/current city state with `duplicate(true)`, mutate only the copy, and rebind the right panel from merged seed + runtime data.

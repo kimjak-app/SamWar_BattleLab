@@ -667,6 +667,7 @@ const HIT_SPARK_FX_TEXTURE_PATHS: Array[String] = [
 # v0.68b-12b-14 WorldMap Battle Result Return MVP
 # v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup
 # v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP
+# v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP
 
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
@@ -682,6 +683,8 @@ var battle_log_lines: Array[String] = []
 var worldmap_battle_context: Dictionary = {}
 var has_applied_worldmap_context_roster := false
 var worldmap_context_roster_summary: Dictionary = {}
+var worldmap_context_hero_registry: Dictionary = {}
+var worldmap_context_unique_skill_registry: Dictionary = {}
 var worldmap_return_button: Button = null
 var current_ally_unit_position := Vector2.ZERO
 var current_ally_portrait_position := Vector2.ZERO
@@ -1257,6 +1260,7 @@ func _setup_worldmap_context_battle_roster(context: Dictionary) -> void:
 	if context.is_empty():
 		return
 	has_applied_worldmap_context_roster = true
+	_register_worldmap_context_hero_contracts(context)
 	var ally_result := _apply_worldmap_context_side_roster(
 		context,
 		"defender",
@@ -1337,11 +1341,105 @@ func _get_context_hero_ids_for_side(context: Dictionary, context_side: String) -
 	var seen := {}
 	var governor_id := str(context.get("%s_governor_id" % context_side, ""))
 	_append_unique_context_hero_id(hero_ids, seen, governor_id)
+	var raw_heroes: Variant = context.get("%s_heroes" % context_side, [])
+	if raw_heroes is Array:
+		for raw_hero in raw_heroes:
+			if raw_hero is Dictionary:
+				_append_unique_context_hero_id(hero_ids, seen, str((raw_hero as Dictionary).get("hero_id", "")))
 	var raw_hero_ids: Variant = context.get("%s_hero_ids" % context_side, [])
 	if raw_hero_ids is Array:
 		for raw_hero_id in raw_hero_ids:
 			_append_unique_context_hero_id(hero_ids, seen, str(raw_hero_id))
 	return hero_ids
+
+
+func _register_worldmap_context_hero_contracts(context: Dictionary) -> void:
+	worldmap_context_hero_registry.clear()
+	worldmap_context_unique_skill_registry.clear()
+	for context_side in ["defender", "attacker"]:
+		var raw_heroes: Variant = context.get("%s_heroes" % context_side, [])
+		if not raw_heroes is Array:
+			continue
+		for raw_hero in raw_heroes:
+			if not raw_hero is Dictionary:
+				continue
+			var hero_data := (raw_hero as Dictionary).duplicate(true)
+			var source_hero_id := str(hero_data.get("hero_id", ""))
+			if source_hero_id.is_empty():
+				continue
+			var resolved_hero_id := str(WORLDMAP_CONTEXT_HERO_ID_COMPATIBILITY.get(source_hero_id, source_hero_id))
+			var registry_entry := _build_worldmap_context_hero_registry_entry(hero_data)
+			var skill_entry := _build_worldmap_context_unique_skill_entry(hero_data)
+			worldmap_context_hero_registry[source_hero_id] = registry_entry
+			worldmap_context_hero_registry[resolved_hero_id] = registry_entry
+			worldmap_context_unique_skill_registry[source_hero_id] = skill_entry
+			worldmap_context_unique_skill_registry[resolved_hero_id] = skill_entry
+
+
+func _build_worldmap_context_hero_registry_entry(hero_data: Dictionary) -> Dictionary:
+	var portrait_path := str(hero_data.get("portrait_path", ""))
+	var safe_portrait_path := portrait_path if not portrait_path.is_empty() and ResourceLoader.exists(portrait_path) else ""
+	return {
+		"display_name": str(hero_data.get("display_name", hero_data.get("name", hero_data.get("hero_id", "")))),
+		"battlefield_portrait_path": safe_portrait_path,
+		"closeup_portrait_path": safe_portrait_path,
+		"default_visual_key": _get_default_visual_key_for_worldmap_hero(hero_data),
+	}
+
+
+func _build_worldmap_context_unique_skill_entry(hero_data: Dictionary) -> Dictionary:
+	var battle_effect_type := str(hero_data.get("battle_effect_type", "ally_attack_buff"))
+	return {
+		"skill_id": str(hero_data.get("skill_id", hero_data.get("unique_skill_id", ""))),
+		"hero_id": str(hero_data.get("hero_id", "")),
+		"name": str(hero_data.get("skill_name", "고유특기")),
+		"toast_text": "%s!" % str(hero_data.get("skill_name", "고유특기")),
+		"effect_type": battle_effect_type,
+		"power": int(hero_data.get("skill_power", hero_data.get("skill_value", UNIQUE_SKILL_ATTACK_BUFF))),
+		"range": maxi(0, int(hero_data.get("skill_range", UNIQUE_SKILL_DEFAULT_RANGE))),
+		"cutin_image_path": _get_existing_resource_path(str(hero_data.get("cutin_path", ""))),
+		"target_mode": _get_target_mode_for_worldmap_skill_effect(battle_effect_type),
+		"consumes_action": true,
+		"cooldown_turns": maxi(0, int(hero_data.get("skill_cooldown", 0))),
+		"unique": true,
+	}
+
+
+func _get_existing_resource_path(path: String) -> String:
+	if path.is_empty():
+		return ""
+	return path if ResourceLoader.exists(path) else ""
+
+
+func _get_default_visual_key_for_worldmap_hero(hero_data: Dictionary) -> String:
+	var unit_type := str(hero_data.get("unit_type", "infantry"))
+	var faction_id := str(hero_data.get("faction_id", hero_data.get("nation", "")))
+	var region_key := "china"
+	if faction_id in ["player", "goryeo_joseon", "goguryeo", "silla", "baekje_faction"]:
+		region_key = "korea"
+	elif faction_id in ["oda", "toyotomi", "kyushu_faction", "tokugawa"]:
+		region_key = "japan"
+	elif faction_id == "mongol_faction":
+		region_key = "china"
+	match unit_type:
+		"archer":
+			return "%s_archer" % region_key
+		"cavalry":
+			return "%s_cavalry" % region_key
+		"support":
+			return "%s_gunner" % region_key
+		_:
+			return "%s_infantry" % region_key
+
+
+func _get_target_mode_for_worldmap_skill_effect(effect_type: String) -> String:
+	match effect_type:
+		"ally_attack_buff":
+			return "ally_all"
+		"cannon_aoe":
+			return "enemy_auto_aoe"
+		_:
+			return "enemy_auto_single"
 
 
 func _append_unique_context_hero_id(hero_ids: Array[String], seen: Dictionary, hero_id: String) -> void:
@@ -1359,6 +1457,10 @@ func _resolve_worldmap_context_hero_id(worldmap_hero_id: String) -> String:
 	var resolved_hero_id := str(WORLDMAP_CONTEXT_HERO_ID_COMPATIBILITY.get(worldmap_hero_id, worldmap_hero_id))
 	if HERO_REGISTRY.has(resolved_hero_id):
 		return resolved_hero_id
+	if worldmap_context_hero_registry.has(resolved_hero_id):
+		return resolved_hero_id
+	if worldmap_context_hero_registry.has(worldmap_hero_id):
+		return worldmap_hero_id
 	return ""
 
 
@@ -1787,6 +1889,8 @@ func reset_demo_state() -> void:
 	ally_has_moved = false
 	has_applied_worldmap_context_roster = false
 	worldmap_context_roster_summary = {}
+	worldmap_context_hero_registry.clear()
+	worldmap_context_unique_skill_registry.clear()
 	_refresh_worldmap_result_return_button()
 	battle_round = 1
 	dead_unit_ids.clear()
@@ -2170,7 +2274,9 @@ func _get_unique_skill_for_unit(unit_state: BattleUnitState) -> Dictionary:
 	var hero_id := _get_hero_id_for_unit_state(unit_state)
 	if hero_id == "":
 		return {}
-	return UNIQUE_SKILL_REGISTRY.get(hero_id, {})
+	if UNIQUE_SKILL_REGISTRY.has(hero_id):
+		return UNIQUE_SKILL_REGISTRY.get(hero_id, {})
+	return worldmap_context_unique_skill_registry.get(hero_id, {})
 
 
 func _can_use_unique_skill(unit_state: BattleUnitState) -> bool:
@@ -5791,7 +5897,9 @@ func _get_hero_id_for_unit_state(unit_state: BattleUnitState) -> String:
 func _get_hero_registry_entry(hero_id: String) -> Dictionary:
 	if hero_id == "":
 		return {}
-	return HERO_REGISTRY.get(hero_id, {})
+	if HERO_REGISTRY.has(hero_id):
+		return HERO_REGISTRY.get(hero_id, {})
+	return worldmap_context_hero_registry.get(hero_id, {})
 
 
 func _load_texture_or_null(path: String) -> Texture2D:

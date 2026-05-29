@@ -85,3 +85,14 @@ HeroData = {
 - The helper treats `HERO_DATA` fields such as `portrait_image`, `portrait_path`, `portrait`, `image_path`, and `image` as optional display metadata only.
 - Legacy imported paths under `assets/portraits/...` may be resolved to existing repo assets under `assets/web_battle/portraits/...`.
 - Missing fields, missing files, and failed texture loads must keep the visible `?` fallback and must not change hero identity or gameplay state.
+
+## v0.68b-12b-16 Battle Data + Unique Skill Contract
+- Every actual WorldMap hero that enters BattleContext must have a battle-data copy with combat fields and unique-skill fields.
+- Required battle copy fields include `hero_id`, `display_name` / `name`, `faction_id` / `nation` / `owner`, `city_id` / `current_city_id`, `unit_type`, `troop_count` / `troops`, `leadership` / `command`, `war` / `attack`, `defense`, `intelligence`, `move_range` / `mobility`, `attack_range`, `portrait_path`, `cutin_path`, `skill_id`, `skill_name`, `skill_desc`, `skill_effect_type`, `skill_power` / `skill_value`, `skill_range`, `skill_cooldown`, and `skill_toast_icon`.
+- `portrait_path` is the single canonical portrait field and represents a 512x512 source image. Do not add `portrait_128_path` or `portrait_512_path`.
+- Battle UI slots that need 128px portraits should load the same `portrait_path` safely and downscale in UI.
+- Unique-skill cutin/effect images are separate from portraits and use `cutin_path`.
+- Recommended path contracts are `res://assets/heroes/portraits/{nation}/{nation}_{hero_id}.png` and `res://assets/heroes/cutins/{nation}/{nation}_{hero_id}_cutin.png`.
+- Existing 128 image folders are retained for now and must not be deleted as part of this contract step.
+- `v0.68b-12b-16` does not add bulk image assets or complete image binding. Safe resolver/binding work is deferred to `v0.68b-12b-17` or `16a`.
+- Save/load persistence for hero battle data remains unimplemented; BattleContext copies are runtime handoff data.

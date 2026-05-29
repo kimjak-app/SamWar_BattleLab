@@ -240,6 +240,7 @@ const GOVERNOR_POLICY_DATA := {
 # v0.68b-12b-9 WorldMap Enemy Invasion Event MVP
 # v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP
 # v0.68b-12b-10a WorldMap Right City Info Panel Web Parity Cleanup
+# v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP
 # Seed-only alignment from SamWar_web data/heroes.js, data/cities.js, and data/battle_rosters.js.
 const HERO_DATA := {
 	"yi_sun_sin": {"id": "yi_sun_sin", "hero_id": "yi_sun_sin", "display_name": "이순신", "name": "이순신", "role": "수군 지휘", "web_role": "ranged", "faction_id": "goryeo_joseon", "force_id": "goryeo_joseon", "side": "player", "nation": "player", "command_rank": "general", "politics": 76, "war": 90, "intelligence": 85, "loyalty": 98, "assigned_city_id": "hanseong", "city_id": "hanseong", "location_city_id": "hanseong", "troops": 110, "max_troops": 110, "max_hp": 110, "attack": 32, "defense": 16, "move_range": 2, "attack_range": 3, "skill_range": 3, "unique_skill_id": "hakikjin_barrage", "portrait_image": "assets/portraits/yi_sunsin_portrait.png", "battlefield_portrait_image": "assets/portraits_battlefield/yi_sunsin_battlefield.png", "chancellor_primary_type": "militaryAdmin", "chancellor_primary_aptitude": 5, "chancellor_secondary_type": "administrative", "chancellor_secondary_aptitude": 2},
@@ -295,6 +296,31 @@ const CITY_HUD_DATA := {
 	"kyushu": {"id": "kyushu", "name": "큐슈", "owner": "kyushu_faction", "nation": "kyushu_faction", "region": "일본열도", "region_key": "region.japanese_archipelago", "type": "coastal_trade_city", "population": 42000, "population_rating": 3, "commerce_rating": 4, "gold": 680, "food": 296, "troops": 270, "public_order": 70, "commerce": 78, "agriculture": 48, "defense": 3, "governor_id": "shimazu_yoshihiro", "governor_policy_id": "military", "stationed_hero_ids": ["shimazu_yoshihiro", "konishi_yukinaga"], "hero_ids": ["shimazu_yoshihiro", "konishi_yukinaga"], "loyalty": 72, "resources": "쌀 ★★ / 보리 ★ / 수산물 ★★★★★ / 목재 ★★ / 철 ★ / 말 - / 비단 ★★ / 소금 ★★★★", "military": "도시 주둔군 270 / 치안 기준 500 / 방어력 3", "trade": "대외 무역: 큐슈 ↔ 사비 / 오사카 후보", "rating": "인구 ★★★ · 상업력 ★★★★ · 금전 680", "resource_seed": {"rice": 2, "barley": 1, "seafood": 5, "wood": 2, "iron": 1, "horses": 0, "silk": 2, "salt": 4, "gold": 680, "specialty": 2}, "domestic_seed": {"publicSupport": 64, "publicOrder": 70, "agriculture": 48, "commerce": 78, "stability": 62}, "yield_seed": {"riceHarvest": 190, "barleyHarvest": 60, "seafoodPerTurn": 46, "commerceIncome": 165, "specialtyIncome": 500}},
 	"edo": {"id": "edo", "name": "에도", "owner": "tokugawa", "nation": "tokugawa", "region": "일본열도", "region_key": "region.japanese_archipelago", "type": "military_fortress", "population": 46000, "population_rating": 3, "commerce_rating": 3, "gold": 700, "food": 368, "troops": 380, "public_order": 78, "commerce": 60, "agriculture": 54, "defense": 4, "governor_id": "tokugawa_ieyasu", "governor_policy_id": "follow_chancellor", "stationed_hero_ids": ["tokugawa_ieyasu", "honda_masanobu", "honda_tadakatsu"], "hero_ids": ["tokugawa_ieyasu", "honda_masanobu", "honda_tadakatsu"], "loyalty": 78, "resources": "쌀 ★★ / 보리 ★★ / 수산물 ★★★ / 목재 ★★★ / 철 ★★★ / 말 ★★ / 비단 ★ / 소금 ★★★", "military": "도시 주둔군 380 / 치안 기준 800 / 방어력 4", "trade": "내부 교역로: 교토 동방 내륙 연결", "rating": "인구 ★★★ · 상업력 ★★★ · 금전 700", "resource_seed": {"rice": 2, "barley": 2, "seafood": 3, "wood": 3, "iron": 3, "horses": 2, "silk": 1, "salt": 3, "gold": 700, "specialty": 1}, "domestic_seed": {"publicSupport": 72, "publicOrder": 78, "agriculture": 54, "commerce": 60, "stability": 74}, "yield_seed": {"riceHarvest": 240, "barleyHarvest": 100, "seafoodPerTurn": 28, "commerceIncome": 130, "specialtyIncome": 300}},
 }
+
+const HERO_BATTLE_ROLE_CONTRACTS := {
+	"melee": {"unit_type": "infantry", "skill_effect_type": "power_strike", "battle_effect_type": "single_damage_adjacent_shake", "skill_power": 44, "skill_range": 1, "attack_range": 1, "move_range": 3},
+	"cavalry": {"unit_type": "cavalry", "skill_effect_type": "charge_bonus", "battle_effect_type": "self_defense_single", "skill_power": 42, "skill_range": 2, "attack_range": 1, "move_range": 4},
+	"ranged": {"unit_type": "archer", "skill_effect_type": "arrow_volley", "battle_effect_type": "cannon_aoe", "skill_power": 38, "skill_range": 3, "attack_range": 3, "move_range": 3},
+	"support": {"unit_type": "support", "skill_effect_type": "rally", "battle_effect_type": "ally_attack_buff", "skill_power": 6, "skill_range": 4, "attack_range": 1, "move_range": 3},
+}
+const HERO_BATTLE_DEFAULT_ROLE_CONTRACT := {"unit_type": "infantry", "skill_effect_type": "command_aura", "battle_effect_type": "ally_attack_buff", "skill_power": 6, "skill_range": 3, "attack_range": 1, "move_range": 3}
+const HERO_PORTRAIT_NATION_BY_FACTION := {
+	"player": "korea",
+	"goryeo_joseon": "korea",
+	"goguryeo": "korea",
+	"silla": "korea",
+	"baekje_faction": "korea",
+	"chu": "china",
+	"wei": "china",
+	"shu": "china",
+	"wu": "china",
+	"oda": "japan",
+	"toyotomi": "japan",
+	"kyushu_faction": "japan",
+	"tokugawa": "japan",
+	"mongol_faction": "mongol",
+}
+const HERO_BATTLE_TOAST_ICON_FALLBACK := "skill_unknown"
 
 @onready var tile_a1_top_left: Sprite2D = $WorldMapRoot/WorldMapTileLayer/Tile_A1_TopLeft
 @onready var tile_a2_top_right: Sprite2D = $WorldMapRoot/WorldMapTileLayer/Tile_A2_TopRight
@@ -1899,6 +1925,8 @@ func _build_battle_context_from_pending_invasion(event: Dictionary, mode: String
 		"defender_troops": _get_city_troops_for_battle_context(defender_city_id),
 		"attacker_hero_ids": _get_city_stationed_hero_ids_for_battle_context(attacker_city_id),
 		"defender_hero_ids": _get_city_stationed_hero_ids_for_battle_context(defender_city_id),
+		"attacker_heroes": _get_city_battle_heroes_for_battle_context(attacker_city_id),
+		"defender_heroes": _get_city_battle_heroes_for_battle_context(defender_city_id),
 		"attacker_governor_id": _get_city_governor_id_for_battle_context(attacker_city_id),
 		"defender_governor_id": _get_city_governor_id_for_battle_context(defender_city_id),
 	}
@@ -1928,6 +1956,88 @@ func _get_city_stationed_hero_ids_for_battle_context(city_id: String) -> Array:
 	for hero_id in _get_stationed_hero_ids_for_city(_get_city_hud_entry(city_id)):
 		hero_ids.append(str(hero_id))
 	return hero_ids
+
+
+func _get_city_battle_heroes_for_battle_context(city_id: String) -> Array[Dictionary]:
+	var battle_heroes: Array[Dictionary] = []
+	for hero_id in _get_city_stationed_hero_ids_for_battle_context(city_id):
+		var hero_battle_data := _get_hero_battle_data_for_battle_context(str(hero_id), city_id)
+		if not hero_battle_data.is_empty():
+			battle_heroes.append(hero_battle_data)
+	return battle_heroes
+
+
+func _get_hero_battle_data_for_battle_context(hero_id: String, fallback_city_id: String) -> Dictionary:
+	var hero_data := _get_hero_entry(hero_id)
+	if hero_data.is_empty():
+		return {}
+	var battle_data := hero_data.duplicate(true)
+	var normalized_hero_id := str(battle_data.get("hero_id", battle_data.get("id", hero_id)))
+	var role := str(battle_data.get("web_role", battle_data.get("role", ""))).to_lower()
+	var role_contract: Dictionary = HERO_BATTLE_ROLE_CONTRACTS.get(role, HERO_BATTLE_DEFAULT_ROLE_CONTRACT).duplicate(true)
+	var faction_id := str(battle_data.get("faction_id", battle_data.get("force_id", battle_data.get("nation", ""))))
+	var current_city_id := str(battle_data.get("current_city_id", battle_data.get("city_id", battle_data.get("location_city_id", fallback_city_id))))
+	var skill_id := str(battle_data.get("skill_id", battle_data.get("unique_skill_id", "%s_skill" % normalized_hero_id)))
+	battle_data["hero_id"] = normalized_hero_id
+	battle_data["display_name"] = str(battle_data.get("display_name", battle_data.get("name", normalized_hero_id)))
+	battle_data["faction_id"] = faction_id
+	battle_data["force_id"] = str(battle_data.get("force_id", faction_id))
+	battle_data["nation"] = str(battle_data.get("nation", faction_id))
+	battle_data["owner"] = str(battle_data.get("owner", battle_data.get("nation", faction_id)))
+	battle_data["current_city_id"] = current_city_id
+	battle_data["city_id"] = current_city_id
+	battle_data["unit_type"] = str(battle_data.get("unit_type", role_contract.get("unit_type", "infantry")))
+	battle_data["troop_count"] = maxi(0, int(battle_data.get("troop_count", battle_data.get("troops", 0))))
+	battle_data["troops"] = int(battle_data["troop_count"])
+	battle_data["leadership"] = int(battle_data.get("leadership", battle_data.get("command", battle_data.get("war", 70))))
+	battle_data["command"] = int(battle_data["leadership"])
+	battle_data["war"] = int(battle_data.get("war", battle_data.get("attack", 60)))
+	battle_data["attack"] = int(battle_data.get("attack", maxi(10, floori(float(int(battle_data["war"])) / 3.0))))
+	battle_data["defense"] = int(battle_data.get("defense", 12))
+	battle_data["intelligence"] = int(battle_data.get("intelligence", 60))
+	battle_data["move_range"] = maxi(1, int(battle_data.get("move_range", role_contract.get("move_range", 3))))
+	battle_data["mobility"] = int(battle_data["move_range"])
+	battle_data["attack_range"] = maxi(1, int(battle_data.get("attack_range", role_contract.get("attack_range", 1))))
+	battle_data["portrait_path"] = _get_hero_contract_portrait_path(normalized_hero_id, faction_id)
+	battle_data["cutin_path"] = _get_hero_contract_cutin_path(normalized_hero_id, faction_id)
+	battle_data["skill_id"] = skill_id
+	battle_data["skill_name"] = _format_hero_contract_skill_name(battle_data)
+	battle_data["skill_desc"] = _format_hero_contract_skill_desc(battle_data, role_contract)
+	battle_data["skill_effect_type"] = str(battle_data.get("skill_effect_type", role_contract.get("skill_effect_type", "command_aura")))
+	battle_data["battle_effect_type"] = str(battle_data.get("battle_effect_type", role_contract.get("battle_effect_type", "ally_attack_buff")))
+	battle_data["skill_power"] = int(battle_data.get("skill_power", role_contract.get("skill_power", 6)))
+	battle_data["skill_value"] = int(battle_data["skill_power"])
+	battle_data["skill_range"] = maxi(0, int(battle_data.get("skill_range", role_contract.get("skill_range", 3))))
+	battle_data["skill_cooldown"] = maxi(0, int(battle_data.get("skill_cooldown", 0)))
+	battle_data["skill_toast_icon"] = str(battle_data.get("skill_toast_icon", HERO_BATTLE_TOAST_ICON_FALLBACK))
+	return battle_data
+
+
+func _get_hero_contract_nation_key(faction_id: String) -> String:
+	return str(HERO_PORTRAIT_NATION_BY_FACTION.get(faction_id, "unknown"))
+
+
+func _get_hero_contract_portrait_path(hero_id: String, faction_id: String) -> String:
+	var nation_key := _get_hero_contract_nation_key(faction_id)
+	return "res://assets/heroes/portraits/%s/%s_%s.png" % [nation_key, nation_key, hero_id]
+
+
+func _get_hero_contract_cutin_path(hero_id: String, faction_id: String) -> String:
+	var nation_key := _get_hero_contract_nation_key(faction_id)
+	return "res://assets/heroes/cutins/%s/%s_%s_cutin.png" % [nation_key, nation_key, hero_id]
+
+
+func _format_hero_contract_skill_name(hero_data: Dictionary) -> String:
+	return str(hero_data.get("skill_name", "%s 전법" % str(hero_data.get("display_name", "장수"))))
+
+
+func _format_hero_contract_skill_desc(hero_data: Dictionary, role_contract: Dictionary) -> String:
+	if hero_data.has("skill_desc") and not str(hero_data.get("skill_desc", "")).is_empty():
+		return str(hero_data.get("skill_desc"))
+	return "%s의 %s 계열 임시 고유특기입니다." % [
+		str(hero_data.get("display_name", "장수")),
+		str(role_contract.get("skill_effect_type", "command_aura")),
+	]
 
 
 func _get_city_governor_id_for_battle_context(city_id: String) -> String:

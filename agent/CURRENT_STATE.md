@@ -84,6 +84,8 @@ Latest worldmap invasion result apply patch: `v0.68b-12b-15 WorldMap Invasion Re
 
 Latest worldmap invasion result hotfix: `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
 
+Latest worldmap hero battle contract patch: `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -135,6 +137,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-14 WorldMap Battle Result Return MVP`
 - `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`
 - `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
+- `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
 - `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 - `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
 - `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -494,11 +497,20 @@ Latest worldmap invasion result apply patch: `v0.68b-12b-15 WorldMap Invasion Re
 
 Latest worldmap invasion result hotfix: `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
 
-Current stable baseline: `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
+Latest worldmap hero battle contract patch: `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
 
-Baseline commit: local HEAD after `v0.68b-12b-15-hotfix1`
+Current stable baseline: `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
+
+Baseline commit: local HEAD after `v0.68b-12b-16`
 
 Latest hotfix notes:
+- `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP` prepares actual city heroes for BattleContext.
+- WorldMap BattleContext now includes `attacker_heroes` and `defender_heroes` enriched from `HERO_DATA` and city `stationed_hero_ids`.
+- Every included actual hero gets combat fields plus required unique-skill fields in the runtime handoff copy.
+- Portrait contract is one 512-source `portrait_path`; 128 battle slots should downscale from that source. `cutin_path` is separate for skill/cutin imagery.
+- Existing 128 folders remain; actual image binding and asset import are deferred to `v0.68b-12b-17` or `16a`.
+- Battle scene registers context hero/skill runtime data before roster assignment and preserves the sample roster fallback.
+- Save/load expansion for hero battle data is still not implemented.
 - `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix` fixes the F6 crash where invasion-result troop apply wrote into a read-only city Dictionary.
 - Cause: `CITY_HUD_DATA` is seed/static data and may be read-only; previous result apply assigned `troops`, `owner`, and `nation` directly into that seed dictionary.
 - Runtime owner/troop changes now use mutable `_city_runtime_states` entries created via `duplicate(true)`, and the right panel receives a merged seed + runtime city data map.
@@ -539,6 +551,7 @@ Current Godot state:
 - `scripts/battle_web_import_test.gd` now returns battle result payload owner/troop fields for WorldMap result application.
 - `scripts/worldmap_test.gd` consumes returned invasion results, applies defense victory/defeat/retreat/unknown branches, clears pending state, and refreshes city marker/right panel/world HUD.
 - Runtime city owner/troop result changes are stored in `_city_runtime_states` instead of mutating read-only seed dictionaries.
+- Actual city hero battle contract data is now carried in `attacker_heroes` / `defender_heroes` for future battle UI/image binding.
 - `아군 턴 종료` is disabled/blocked while a pending invasion event exists so enemy events cannot stack before the choice flow is handled.
 - Save/load/reset clear pending invasion and pending battle context state; runtime saves do not persist either runtime choice object, and load normalizes enemy-phase saves back to player turn.
 - Runtime defense defeat can change city ownership and target-city troops for the current session; save/load persistence for resolved city state remains deferred.
