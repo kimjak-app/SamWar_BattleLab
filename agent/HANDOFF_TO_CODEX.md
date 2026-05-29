@@ -733,6 +733,14 @@ Canonical regression guard details are also tracked in `agent/QA_AGENT.md`.
 - Post-move panel reopen.
 - Active ally pulse pivot lock.
 - Current `5v5` actor / target parity.
+## v0.68b-12b-28 Handoff
+- Deployment UX polish is in `scripts/player_attack_deployment_panel.gd` and player_attack feedback copy is in `scripts/worldmap_test.gd`.
+- Panel now shows source/target, source troops, max deployable troops, total assigned troops, remaining garrison, and supply enough/shortage lines.
+- Confirm is blocked with visible reason for no selected hero, zero troops, source reserve violation, troop overflow, and food/gold/salt shortage.
+- Confirm feedback logs `[PLAYER_ATTACK_DEPLOY]` and sets WorldMap status with assigned troop and supply consumption.
+- Player attack result summary now uses clearer occupation/failure copy; owner/troop logic is unchanged.
+- F6 manual QA was not performed by Codex in this environment; verify panel size/position, SpinBox input, supply shortage states, sortie transition, victory/defeat result, save/load, and enemy invasion regression.
+
 ## v0.68b-12b-27 Handoff
 - Player attack no longer jumps directly into `Battle_Fullscreen_Test.tscn`; `_start_player_attack_battle()` opens `PlayerAttackDeploymentPanel`.
 - New script: `scripts/player_attack_deployment_panel.gd`.

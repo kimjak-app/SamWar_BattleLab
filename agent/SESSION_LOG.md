@@ -1045,6 +1045,13 @@
 ## Archive
 - Full older session history moved to:
   - `agent/archive/v0.67-docs_agent_docs_slimdown/SESSION_LOG_full_before_slimdown.md`
+## v0.68b-12b-28 Player Attack Deployment UX Polish
+- Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
+- Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.
+- Added sortie confirmation feedback and clearer player attack result messages.
+- Verification: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- F6 manual QA could not be executed in this Codex session; remaining manual checks are panel open/size, hero selection, troop SpinBox, supply shortage blocking, battle transition, victory/defeat result, save/load, and enemy invasion regression.
+
 ## v0.68b-12b-27 Player Attack Deployment UI MVP
 - Added `scripts/player_attack_deployment_panel.gd` as a compact runtime deployment panel.
 - Rewired player attack button flow so attack opens deployment UI first, then confirms into the existing BattleContext handoff.

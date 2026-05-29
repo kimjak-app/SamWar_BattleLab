@@ -925,6 +925,15 @@
 
 ## Older History
 - Older detailed history is archived at `agent/archive/v0.67-docs_agent_docs_slimdown/CHANGELOG_full_before_slimdown.md`.
+## v0.68b-12b-28 Player Attack Deployment UX Polish
+- Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
+- Added explicit total assigned troops and remaining garrison troop summary.
+- Added per-resource supply preview lines with enough/shortage text for food/rice, gold, and salt.
+- Added clearer sortie-blocking reason text near the confirm button.
+- Added stronger sortie confirmation feedback with assigned troop and supply consumption details.
+- Improved player_attack victory/defeat result copy without changing owner/troop application logic.
+- F6 manual QA remains pending; headless project/worldmap/battle scene loads passed.
+
 ## v0.68b-12b-27 Player Attack Deployment UI MVP
 - Added a runtime player attack deployment panel before battle handoff.
 - Added deployable hero selection from the player source city; captured/dead heroes are excluded and wounded heroes remain selectable with badges.

@@ -1,5 +1,13 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-28 Player Attack Deployment UX Rule
+- Deployment panel must show source city, target city, source troops, total assigned troops, remaining garrison, and food/rice, gold, and salt supply status.
+- Confirm must be blocked and explained when no hero is selected, selected troops are zero, assigned troops exceed source city troops, source city would fall below one troop, or food/gold/salt is insufficient.
+- Supply status text should show `충분` or `부족` per resource. The formula remains food/rice = troops, gold = ceil(troops * 0.2), salt = ceil(troops * 0.1).
+- Sortie confirmation should provide immediate WorldMap feedback with source/target, assigned troops, and supply consumption.
+- Player attack result card copy should distinguish occupation success from attack failure. Owner/troop application logic remains unchanged.
+- F6 manual QA is required for panel readability and click flow because headless validation cannot exercise SpinBox and button interaction.
+
 ## v0.68b-12b-26 Player City Attack MVP Rule
 - Player attack is allowed only against enemy-owned target cities that are directly adjacent to at least one player-owned city.
 - Source city resolution uses the current valid player origin city first; otherwise it uses the first player-owned neighbor of the target city.

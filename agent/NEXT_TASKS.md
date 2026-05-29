@@ -865,6 +865,13 @@ Goal:
   - `agent/archive/v0.67-docs_agent_docs_slimdown/CURRENT_STATE_full_before_slimdown.md`
   - `agent/archive/v0.67-docs_agent_docs_slimdown/CHANGELOG_full_before_slimdown.md`
   - `agent/archive/v0.67-docs_agent_docs_slimdown/SESSION_LOG_full_before_slimdown.md`
+## v0.68b-12b-28 Player Attack Deployment UX Polish
+- Completed polish pass for deployment readability: wider centered panel, clearer source/target header, total deployment troops, remaining garrison, source city troops, and supply status lines.
+- Supply status now displays enough/shortage text per food/rice, gold, and salt; confirm blocking reasons are shown next to the sortie button.
+- Confirm feedback and player_attack result messages were strengthened.
+- F6 manual QA still needed: adjacent enemy city click -> deployment panel open -> hero select/deselect -> SpinBox allocation -> supply shortage block -> sortie -> battle transition -> win/loss owner result -> save/load resource stock.
+- Next recommended patch: F6 QA/hotfix for deployment panel interaction and optional actual troop allocation mapping in battle visuals if design approves.
+
 ## v0.68b-12b-27 Player Attack Deployment UI MVP
 - Implemented: player attack button now opens a deployment preparation panel instead of entering battle immediately.
 - Rules: deployable heroes come from the selected source city; captured/dead heroes are excluded; wounded heroes remain selectable and display their state badge.

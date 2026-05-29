@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.68b-12b-28 Player Attack Deployment UX Polish
+- Player attack deployment panel now uses a wider 560px layout with viewport clamp, stronger title/source-target header, separated source/target/troop/resource summary, scrollable hero rows, and persistent confirm/cancel controls.
+- Deployment UI now shows total assigned troops, remaining garrison troops, and per-resource supply lines with `충분` / `부족` text.
+- Disabled/blocked deployment reasons now appear near the confirm button: no hero selected, zero troop assignment, source-city garrison reserve violation, troop overflow, or food/gold/salt shortage.
+- Confirm feedback now logs and displays the source city, target city, assigned troops, and food/gold/salt consumption before battle handoff.
+- Player attack result copy is strengthened: victory says the target was occupied by the source city's expeditionary force; defeat says the expeditionary force retreated/was beaten back.
+- Codex verification: headless project, WorldMap scene, Battle scene, and `git diff --check` passed. F6 manual click QA remains required for panel sizing, SpinBox feel, battle transition, victory/defeat, and save/load.
+
 ## v0.68b-12b-26 Player City Attack MVP Import
 - Player attack MVP is now connected from the WorldMap selected city panel: enemy cities with a directly adjacent player city can expose the `공격` button.
 - Attack source city selection follows the web MVP rule: use the current valid player origin city if it neighbors the target, otherwise use the first player-owned target neighbor.

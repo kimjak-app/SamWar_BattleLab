@@ -1915,9 +1915,19 @@ func _confirm_player_attack_deployment(deployment: Dictionary) -> void:
 		if _player_attack_deployment_panel.has_method("close"):
 			_player_attack_deployment_panel.call("close")
 	_set_pending_battle_context_mvp(battle_context)
-	_set_save_management_status("%s에서 %s 공격을 시작합니다." % [
+	var deploy_feedback := "%s에서 %s으로 출정합니다! 출정 병력 %d / 식량 %d, 금 %d, 소금 %d 소모" % [
 		str(battle_context.get("attacker_city_name", _format_city_name_by_id(source_city_id, "아군 도시"))),
-		str(battle_context.get("defender_city_name", _format_city_name_by_id(target_city_id, "적 도시")))
+		str(battle_context.get("defender_city_name", _format_city_name_by_id(target_city_id, "적 도시"))),
+		int(validation.get("total_troops", 0)),
+		int(supply_cost.get("food", 0)),
+		int(supply_cost.get("gold", 0)),
+		int(supply_cost.get("salt", 0)),
+	]
+	_set_save_management_status(deploy_feedback)
+	print("[PLAYER_ATTACK_DEPLOY] %s selected=%s allocation=%s" % [
+		deploy_feedback,
+		str(selected_hero_ids),
+		str(troop_allocation),
 	])
 	print("[PLAYER_ATTACK] start source=%s target=%s attacker_heroes=%s defender_heroes=%s" % [
 		source_city_id,
@@ -2710,7 +2720,8 @@ func _apply_player_attack_win_result(defender_city_id: String, attacker_city_id:
 			attacker_source_remaining
 		])
 	return _build_invasion_result_summary(INVASION_RESULT_ATTACKER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, PLAYER_FACTION_ID, casualty_result, "도시 점령", [
-		"%s을 점령했습니다." % defender_city_name,
+		"%s 점령 성공!" % defender_city_name,
+		"%s의 출정군이 %s을 장악했습니다." % [attacker_city_name, defender_city_name],
 	])
 
 
@@ -2735,7 +2746,8 @@ func _apply_player_attack_loss_result(defender_city_id: String, attacker_city_id
 			attacker_after
 		])
 	return _build_invasion_result_summary(INVASION_RESULT_DEFENDER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, old_owner, casualty_result, "공격 실패", [
-		"%s 공격에 실패했습니다." % defender_city_name,
+		"%s 공격 실패" % defender_city_name,
+		"출정군이 패퇴했습니다.",
 	])
 
 
