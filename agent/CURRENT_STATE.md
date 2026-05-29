@@ -80,6 +80,8 @@ Latest battle roster context patch: `v0.68b-12b-13 Battle Roster Context Apply M
 
 Latest worldmap battle result return patch: `v0.68b-12b-14 WorldMap Battle Result Return MVP`
 
+Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -125,6 +127,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 - `v0.68b-12b-13 Battle Roster Context Apply MVP`
 - `v0.68b-12b-14 WorldMap Battle Result Return MVP`
+- `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -477,9 +480,14 @@ Latest worldmap BattleContext bridge patch: `v0.68b-12b-11 WorldMap Enemy Invasi
 
 Latest worldmap battle scene handoff patch: `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 
-Current stable baseline: `v0.68b-12b-14 WorldMap Battle Result Return MVP`
+Current stable baseline: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
-Baseline commit: local HEAD after `v0.68b-12b-14`
+Baseline commit: local HEAD after `v0.68b-12b-14-hotfix1`
+
+Latest hotfix notes:
+- `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard` fixes the F6 runtime error where `_refresh_unified_panel_chrome()` assigned `.visible` on a nil unified panel chrome node.
+- `scripts/worldmap_test.gd` now guards runtime-created primary tab buttons and scene tab controls before `.visible` / `.modulate` writes, with a concise one-time warning if a chrome node is missing.
+- No gameplay behavior, battle result apply, city ownership, troop/resource mutation, invasion flow, turn logic, domestic apply, or save/load behavior changed.
 
 Current Godot state:
 - `scripts/worldmap_test.gd` now rolls a web-parity enemy invasion event during the existing enemy-turn placeholder.

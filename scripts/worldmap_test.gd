@@ -51,6 +51,7 @@ const CHANCELLOR_SECONDARY_RATE := 0.015
 # v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
 # v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP
 # v0.68b-12b-14 WorldMap Battle Result Return MVP
+# v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard
 
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
@@ -383,6 +384,7 @@ var _is_unified_city_panel_collapsed := false
 var _unified_city_panel_expanded_size := Vector2.ZERO
 var _unified_city_detail_primary_button: Button = null
 var _unified_diplomacy_spy_primary_button: Button = null
+var _has_warned_missing_unified_panel_chrome := false
 var _collapsed_unified_panel_click_candidate := false
 var _collapsed_unified_panel_drag_started := false
 var _collapsed_unified_panel_click_start_position := Vector2.ZERO
@@ -729,6 +731,9 @@ func _setup_unified_city_detail_diplomacy_panel() -> void:
 func _ensure_unified_primary_tab_buttons() -> void:
 	if _unified_city_detail_primary_button != null and _unified_diplomacy_spy_primary_button != null:
 		return
+	if city_detail_header_row == null:
+		_warn_missing_unified_panel_chrome("HeaderRow")
+		return
 
 	_unified_city_detail_primary_button = _create_unified_primary_tab_button("도시 상세", UNIFIED_PANEL_TAB_CITY_DETAIL)
 	_unified_diplomacy_spy_primary_button = _create_unified_primary_tab_button("외교·첩보", UNIFIED_PANEL_TAB_DIPLOMACY_SPY)
@@ -751,27 +756,64 @@ func _create_unified_primary_tab_button(label_text: String, tab_id: String) -> B
 	return button
 
 
+func _warn_missing_unified_panel_chrome(node_name: String) -> void:
+	if _has_warned_missing_unified_panel_chrome:
+		return
+	_has_warned_missing_unified_panel_chrome = true
+	push_warning("[WorldMap] Unified panel chrome node missing: %s" % node_name)
+
+
 func _refresh_unified_panel_chrome() -> void:
 	if _is_unified_city_panel_collapsed:
 		return
 
-	city_detail_heading_label.visible = false
-	_unified_city_detail_primary_button.visible = true
-	_unified_diplomacy_spy_primary_button.visible = true
-	_unified_city_detail_primary_button.modulate = Color(1.0, 0.9, 0.68, 1.0) if _unified_primary_tab == UNIFIED_PANEL_TAB_CITY_DETAIL else Color(0.82, 0.86, 0.92, 1.0)
-	_unified_diplomacy_spy_primary_button.modulate = Color(1.0, 0.9, 0.68, 1.0) if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY else Color(0.82, 0.86, 0.92, 1.0)
-	city_detail_secondary_tab_row.visible = true
-	if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
-		city_detail_resource_tab_button_placeholder.text = "외교"
-		city_detail_internal_trade_tab_button_placeholder.text = "첩보"
-		city_detail_external_trade_tab_button_placeholder.visible = false
-		_set_city_detail_tab_active(city_detail_resource_tab_button_placeholder, _selected_diplomacy_spy_tab == DIPLOMACY_SPY_TAB_DIPLOMACY)
-		_set_city_detail_tab_active(city_detail_internal_trade_tab_button_placeholder, _selected_diplomacy_spy_tab == DIPLOMACY_SPY_TAB_SPY)
+	_ensure_unified_primary_tab_buttons()
+	if city_detail_heading_label != null:
+		city_detail_heading_label.visible = false
+	if _unified_city_detail_primary_button != null:
+		_unified_city_detail_primary_button.visible = true
+		_unified_city_detail_primary_button.modulate = Color(1.0, 0.9, 0.68, 1.0) if _unified_primary_tab == UNIFIED_PANEL_TAB_CITY_DETAIL else Color(0.82, 0.86, 0.92, 1.0)
 	else:
-		city_detail_resource_tab_button_placeholder.text = "자원"
-		city_detail_internal_trade_tab_button_placeholder.text = "자국무역"
-		city_detail_external_trade_tab_button_placeholder.text = "타국무역"
-		city_detail_external_trade_tab_button_placeholder.visible = true
+		_warn_missing_unified_panel_chrome("CityDetailPrimaryButton")
+	if _unified_diplomacy_spy_primary_button != null:
+		_unified_diplomacy_spy_primary_button.visible = true
+		_unified_diplomacy_spy_primary_button.modulate = Color(1.0, 0.9, 0.68, 1.0) if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY else Color(0.82, 0.86, 0.92, 1.0)
+	else:
+		_warn_missing_unified_panel_chrome("DiplomacySpyPrimaryButton")
+	if city_detail_secondary_tab_row != null:
+		city_detail_secondary_tab_row.visible = true
+	else:
+		_warn_missing_unified_panel_chrome("TabRow")
+
+	if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
+		if city_detail_resource_tab_button_placeholder != null:
+			city_detail_resource_tab_button_placeholder.text = "외교"
+			_set_city_detail_tab_active(city_detail_resource_tab_button_placeholder, _selected_diplomacy_spy_tab == DIPLOMACY_SPY_TAB_DIPLOMACY)
+		else:
+			_warn_missing_unified_panel_chrome("ResourceTabButtonPlaceholder")
+		if city_detail_internal_trade_tab_button_placeholder != null:
+			city_detail_internal_trade_tab_button_placeholder.text = "첩보"
+			_set_city_detail_tab_active(city_detail_internal_trade_tab_button_placeholder, _selected_diplomacy_spy_tab == DIPLOMACY_SPY_TAB_SPY)
+		else:
+			_warn_missing_unified_panel_chrome("InternalTradeTabButtonPlaceholder")
+		if city_detail_external_trade_tab_button_placeholder != null:
+			city_detail_external_trade_tab_button_placeholder.visible = false
+		else:
+			_warn_missing_unified_panel_chrome("ExternalTradeTabButtonPlaceholder")
+	else:
+		if city_detail_resource_tab_button_placeholder != null:
+			city_detail_resource_tab_button_placeholder.text = "자원"
+		else:
+			_warn_missing_unified_panel_chrome("ResourceTabButtonPlaceholder")
+		if city_detail_internal_trade_tab_button_placeholder != null:
+			city_detail_internal_trade_tab_button_placeholder.text = "자국무역"
+		else:
+			_warn_missing_unified_panel_chrome("InternalTradeTabButtonPlaceholder")
+		if city_detail_external_trade_tab_button_placeholder != null:
+			city_detail_external_trade_tab_button_placeholder.text = "타국무역"
+			city_detail_external_trade_tab_button_placeholder.visible = true
+		else:
+			_warn_missing_unified_panel_chrome("ExternalTradeTabButtonPlaceholder")
 		_refresh_city_detail_tab_styles()
 
 
@@ -944,6 +986,9 @@ func _refresh_city_detail_tab_styles() -> void:
 
 
 func _set_city_detail_tab_active(button: Button, is_active: bool) -> void:
+	if button == null:
+		_warn_missing_unified_panel_chrome("CityDetailTabButton")
+		return
 	button.modulate = Color(1.0, 0.9, 0.68, 1.0) if is_active else Color(0.82, 0.86, 0.92, 1.0)
 
 

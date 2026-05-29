@@ -345,6 +345,11 @@ Do not modify casually:
 - WorldMap consumes and clears the result metadata on startup, shows a Korean defense success/failure status, clears pending invasion event and pending battle context, hides the pending choice card, and refreshes HUD panels.
 - Direct `Battle_Fullscreen_Test.tscn` launch remains preserved because no WorldMap context keeps the return button hidden and the demo setup unchanged.
 - Final ownership, troop/resource, wounded, hero movement/capture, and persistence apply remain deferred to the next task.
+- `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard` is complete.
+- Cause: `_refresh_unified_panel_chrome()` assumed unified panel chrome nodes and runtime-created primary tab buttons were always non-null before `.visible` writes.
+- Fix summary: `scripts/worldmap_test.gd` guards unified panel chrome `.visible` / `.modulate` writes and warns once if a chrome node is missing.
+- `WorldMap_Test.tscn` was inspected but not modified for this hotfix.
+- Verification passed: patch strings, guarded visible assignments, forbidden-scope search, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
 - `v0.68b-12b-13 Battle Roster Context Apply MVP` is complete.
 - `Battle_Fullscreen_Test.tscn` remains the selected battle scene.
 - Handoff strategy is still runtime-only through Godot `Engine` metadata key `samwar_worldmap_battle_context`; the battle scene reads it once and direct scene launch keeps the demo setup.
@@ -354,13 +359,13 @@ Do not modify casually:
 - Selected battle scene is `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; the battle scene reads and clears it at startup, then logs mode and attacker/defender city names while preserving the existing demo battle setup.
 - Direct `Battle_Fullscreen_Test.tscn` launch without WorldMap context remains supported and logs `No WorldMap battle context; using test battle setup`.
-- Current stable baseline for the next session is `v0.68b-12b-14 WorldMap Battle Result Return MVP`.
+- Current stable baseline for the next session is `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI is good enough for the current MVP.
 - Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
 - `agent/LOCAL_ENV.md` and `.godot/` are ignored local files and must not be committed.
 - Pending invasion event and pending battle context are not persisted on save/load; load/reset clear both following the web audit policy. The scene handoff context is also runtime-only and not saved to `user://`.
-- Defense deployment, auto defense resolution, battle result return, city ownership apply, troop/resource battle loss, enemy strategic AI, enemy multi-action turns, internal supply network, troop redistribution, trade cooldown, soldier upkeep/salt consumption, and full governor appointment execution are still deferred.
+- Defense deployment, auto defense resolution, city ownership apply, troop/resource battle loss, enemy strategic AI, enemy multi-action turns, internal supply network, troop redistribution, trade cooldown, soldier upkeep/salt consumption, and full governor appointment execution are still deferred.
 
 ## Current WorldMap MVP Systems
 - Web hero/city/battle roster seed data imported into Godot.

@@ -2,6 +2,14 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard
+- Fixed the F6 runtime error `_refresh_unified_panel_chrome: Invalid assignment of property or key 'visible' ... Nil`.
+- Cause: unified panel chrome refresh assumed primary tab buttons and tab-row controls were always available before assigning `.visible`.
+- Changed `scripts/worldmap_test.gd` only: added patch marker, guarded primary tab button creation, added null checks around unified panel chrome `.visible` / `.modulate` writes, and added a one-time warning helper for missing chrome nodes.
+- `WorldMap_Test.tscn` was inspected but not modified for this hotfix.
+- Verification passed: patch strings, guarded visible assignments, forbidden-scope search, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- Remaining risk: interactive F6 should be rechecked visually because headless load cannot reproduce every click/drag path.
+
 ### v0.68b-12b-14 WorldMap Battle Result Return MVP
 - Confirmed current HEAD baseline `0217bd160b23981c06e9108c0fbaf3e41ed7f776` from `v0.68b-12b-13 Battle Roster Context Apply MVP`.
 - Inspected required agent docs, WorldMap scripts/scene, battle controller/scene, and local web battle return references.

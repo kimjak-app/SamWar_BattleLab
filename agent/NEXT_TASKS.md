@@ -81,9 +81,11 @@ Latest battle roster context patch: `v0.68b-12b-13 Battle Roster Context Apply M
 
 Latest worldmap battle result return patch: `v0.68b-12b-14 WorldMap Battle Result Return MVP`
 
-Current stable baseline: `v0.68b-12b-14 WorldMap Battle Result Return MVP`
+Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
-Baseline commit: local HEAD after `v0.68b-12b-14`
+Current stable baseline: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
+
+Baseline commit: local HEAD after `v0.68b-12b-14-hotfix1`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -168,6 +170,12 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard` is complete.
+- Cause: `_refresh_unified_panel_chrome()` assumed unified panel chrome nodes and runtime-created primary tab buttons were always non-null before `.visible` writes.
+- Fix summary: `scripts/worldmap_test.gd` now guards unified panel chrome `.visible` / `.modulate` writes and warns once if a chrome node is missing.
+- `WorldMap_Test.tscn` was inspected but not modified for this hotfix.
+- Verification passed: patch strings, guarded visible assignments, forbidden-scope search, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
+- Remaining risk: interactive F6 should be rechecked visually because headless load cannot reproduce every click/drag path.
 - `v0.68b-12b-14 WorldMap Battle Result Return MVP` is complete.
 - Modified `scripts/worldmap_test.gd`, `scripts/battle_web_import_test.gd`, and agent docs.
 - Battle result payload uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_result` with source/type/mode/result/winner, attacker/defender city ids and names, and turn number.

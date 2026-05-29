@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard
+- Fixed a WorldMap F6 runtime error in `scripts/worldmap_test.gd` where `_refresh_unified_panel_chrome()` could assign `.visible` on missing unified panel chrome nodes.
+- Cause: the unified panel chrome refresh path assumed runtime-created primary tab buttons and scene tab controls were always non-null.
+- Added guarded primary-tab creation, null checks before `.visible` / `.modulate` writes, and a concise one-time warning for missing unified panel chrome nodes.
+- Kept the hotfix bounded: no gameplay behavior, battle result apply, city ownership, troop/resource mutation, invasion flow, turn logic, domestic apply, or save/load behavior was changed.
+- Verification: patch strings present, `_refresh_unified_panel_chrome()` visible writes guarded, `git diff --check` passed, Godot project headless load passed, and root `WorldMap_Test.tscn` headless load passed.
+
 ## v0.68b-12b-14 WorldMap Battle Result Return MVP
 - Added runtime-only battle result return in `scripts/battle_web_import_test.gd` and `scripts/worldmap_test.gd`.
 - Inspected local read-only web references: `C:\dev\SamWar_web\js\core\battle_state.js`, `js\core\battle_rules.js`, `js\core\world_rules.js`, `js\core\app_state.js`, `js\ui\world_map_ui.js`, `js\ui\world_hud_ui.js`, and `js\main.js`.
