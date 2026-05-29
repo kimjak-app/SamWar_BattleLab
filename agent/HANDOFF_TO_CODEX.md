@@ -201,6 +201,9 @@ Latest camera foundation:
 - Latest worldmap invasion result apply patch:
 `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`
 
+- Latest worldmap invasion result hotfix:
+`v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
+
 - Latest warning cleanup hotfix:
 `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
@@ -389,7 +392,8 @@ Do not modify casually:
 - Selected battle scene is `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; the battle scene reads and clears it at startup, then logs mode and attacker/defender city names while preserving the existing demo battle setup.
 - Direct `Battle_Fullscreen_Test.tscn` launch without WorldMap context remains supported and logs `No WorldMap battle context; using test battle setup`.
-- Current stable baseline for the next session is `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`.
+- Current stable baseline for the next session is `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`.
+- `v0.68b-12b-15-hotfix1` fixes the read-only city Dictionary crash on F6 manual invasion battle return. Runtime owner/troop changes now duplicate seed/current city state into `_city_runtime_states`, mutate only that runtime copy, and rebind the right panel from merged seed + runtime data.
 - `v0.68b-12b-15` result apply is complete: WorldMap consumes returned enemy-invasion defense payloads, preserves ownership on defense victory, transfers the target city to the attacker owner on defense defeat, applies safe nonnegative troop changes, clears pending invasion/context, and refreshes marker/right panel/world HUD.
 - Battle result payloads now include attacker/defender owner ids, starting troop counts, and deployed survivor troop totals.
 - Retreat/cancel/aborted/unknown results clear pending state safely and do not change ownership.

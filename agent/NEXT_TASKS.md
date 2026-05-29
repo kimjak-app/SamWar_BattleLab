@@ -83,13 +83,15 @@ Latest worldmap battle result return patch: `v0.68b-12b-14 WorldMap Battle Resul
 
 Latest worldmap invasion result apply patch: `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`
 
+Latest worldmap invasion result hotfix: `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
-Current stable baseline: `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`
+Current stable baseline: `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
 
-Baseline commit: local HEAD after `v0.68b-12b-15`
+Baseline commit: local HEAD after `v0.68b-12b-15-hotfix1`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -174,6 +176,12 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix` is complete.
+- Cause: `_set_city_runtime_troops()` / owner apply wrote into `CITY_HUD_DATA` seed city dictionaries, which can be read-only in Godot.
+- Fix summary: added mutable `_city_runtime_states`; runtime owner/troop changes duplicate seed/current city state with `duplicate(true)`, mutate only the copy, and rebind the right panel from merged seed + runtime data.
+- Warning cleanup: unused `_apply_attacker_win_invasion_result()` attacker city name parameter is now `_attacker_city_name`.
+- Verification passed: `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining risk: exact live F6 manual invasion return path still needs click-through confirmation.
 - `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP` is complete.
 - Implemented in `scripts/worldmap_test.gd` and `scripts/battle_web_import_test.gd`.
 - Payload handling now accepts result/winner/is_player_win variants, owner ids, starting troops, and surviving deployed troops.

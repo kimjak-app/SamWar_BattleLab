@@ -176,6 +176,15 @@
 - Retreat/cancel/aborted/unknown results clear pending invasion safely and never change ownership.
 - Still missing by design: hero capture, hero city movement, resource losses/looting, detailed casualty calculation, defense deployment UI, auto battle resolution, AI strategy recalculation, multi-invasion queue, and save/load persistence expansion for resolved city ownership/troops.
 
+## v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix Status
+- Implemented in `scripts/worldmap_test.gd`.
+- Cause: result apply wrote `troops`, `owner`, and `nation` directly into `CITY_HUD_DATA` seed city dictionaries, which can be read-only in Godot.
+- Fix: runtime result changes now use `_city_runtime_states`; source city dictionaries are deep-copied with `duplicate(true)`, mutated as runtime state, and served through `_get_city_hud_entry()`.
+- The right `CityInfoPanel` receives a merged seed + runtime city data map so changed ownership/troops display without mutating seed data.
+- Warning cleanup: unused attacker-city-name parameter is now `_attacker_city_name`.
+- Verification passed: `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining risk: live F6 manual invasion return path still needs exact click-through confirmation for the original crash report.
+
 ## Recommended Godot Implementation Plan
 
 ### v0.68b-12b-15 Enemy Invasion Ownership / Troop Apply

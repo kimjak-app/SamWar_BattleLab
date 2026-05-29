@@ -2,6 +2,16 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix
+- Fixed the F6 manual invasion battle return crash: `_set_city_runtime_troops()` attempted to assign into a read-only city Dictionary.
+- Root cause: `CITY_HUD_DATA` is seed/static city data and may be read-only; the previous MVP wrote `troops`, `owner`, and `nation` directly into that dictionary.
+- Added `_city_runtime_states` as the mutable runtime city-state map for invasion-result ownership/troop changes.
+- `_set_city_runtime_troops()` and `_set_city_runtime_owner()` now create a `duplicate(true)` city-state copy, mutate only that runtime copy, and store it by `city_id`.
+- `_get_city_hud_entry()` now prefers runtime city state when available, while `CityInfoPanel` receives a merged seed + runtime data map so the right panel reflects changed owner/troops.
+- Renamed unused `_apply_attacker_win_invasion_result()` parameter to `_attacker_city_name`.
+- Verification passed: `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining risk: live F6 manual invasion victory/defeat return should still be clicked through to confirm the reported read-only crash is gone in the exact UI path.
+
 ### v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP
 - Implemented bounded WorldMap invasion battle result application in `scripts/worldmap_test.gd`.
 - Root cause addressed: the previous return path received the battle result payload but intentionally stopped before ownership/troop apply, so invasion outcomes did not alter city runtime state.

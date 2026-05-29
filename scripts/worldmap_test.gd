@@ -54,6 +54,7 @@ const CHANCELLOR_SECONDARY_RATE := 0.015
 # v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup
 # v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard
 # v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP
+# v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix
 
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
@@ -397,6 +398,7 @@ var _has_warned_missing_unified_panel_chrome := false
 var _collapsed_unified_panel_click_candidate := false
 var _collapsed_unified_panel_drag_started := false
 var _collapsed_unified_panel_click_start_position := Vector2.ZERO
+var _city_runtime_states: Dictionary = {}
 var _player_state := {
 	"player_faction_id": "player",
 	"ruler_current_city_id": "hanseong",
@@ -441,7 +443,7 @@ func _ready() -> void:
 	_refresh_world_rect_from_scene_tiles()
 	_connect_city_markers()
 	city_info_panel.set_city_markers(_city_markers_by_id)
-	city_info_panel.set_hud_data(HERO_DATA, CITY_HUD_DATA, GOVERNOR_POLICY_DATA, _city_policy_state)
+	_refresh_city_hud_data_bindings()
 	city_info_panel.set_pending_invasion_event(_get_pending_invasion_event_mvp())
 	_setup_left_world_controls()
 	_ensure_chancellor_portrait_texture_rect()
@@ -1774,7 +1776,7 @@ func _apply_defender_win_invasion_result(defender_city_id: String, attacker_city
 	]
 
 
-func _apply_attacker_win_invasion_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> String:
+func _apply_attacker_win_invasion_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, _attacker_city_name: String, result_payload: Dictionary) -> String:
 	var attacker_owner := str(result_payload.get("attacker_owner", _get_city_owner_id_for_battle_context(attacker_city_id)))
 	var defender_before_troops := _get_city_troops_for_battle_context(defender_city_id)
 	if attacker_owner.is_empty():
@@ -1807,24 +1809,31 @@ func _get_result_troop_value(result_payload: Dictionary, keys: Array[String], fa
 func _set_city_runtime_owner(city_id: String, owner_id: String) -> void:
 	if city_id.is_empty() or owner_id.is_empty():
 		return
-	var city_data := _get_city_hud_entry(city_id)
-	if not city_data.is_empty():
-		city_data["owner"] = owner_id
-		city_data["nation"] = owner_id
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	if city_data.is_empty():
+		push_warning("[WorldMap] Runtime owner apply skipped; city not found: %s" % city_id)
+		return
+	city_data["owner"] = owner_id
+	city_data["nation"] = owner_id
+	_city_runtime_states[city_id] = city_data
 	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
 	if city_marker != null:
 		city_marker.owner_faction_id = owner_id
 		city_marker._refresh_marker_visuals()
 	_update_owned_city_ids_after_runtime_owner_change(city_id, owner_id)
+	_refresh_city_hud_data_bindings()
 
 
 func _set_city_runtime_troops(city_id: String, troops: int) -> void:
 	if city_id.is_empty():
 		return
-	var city_data := _get_city_hud_entry(city_id)
+	var city_data := _get_mutable_city_runtime_state(city_id)
 	if city_data.is_empty():
+		push_warning("[WorldMap] Runtime troop apply skipped; city not found: %s" % city_id)
 		return
-	city_data["troops"] = maxi(0, troops)
+	city_data["troops"] = maxi(0, int(troops))
+	_city_runtime_states[city_id] = city_data
+	_refresh_city_hud_data_bindings()
 
 
 func _update_owned_city_ids_after_runtime_owner_change(city_id: String, owner_id: String) -> void:
@@ -2250,6 +2259,8 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 		next_state[key] = restored_state[key]
 	_player_state = next_state
 	_ensure_worldmap_runtime_state_defaults()
+	_city_runtime_states.clear()
+	_refresh_city_hud_data_bindings()
 	_clear_pending_invasion_event_mvp()
 	_domestic_turn_apply_pending = bool(_player_state.get("domestic_apply_pending", false))
 	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
@@ -2295,6 +2306,8 @@ func _reset_worldmap_state() -> void:
 	_cancel_enemy_turn_timer_if_needed()
 	_player_state = _get_default_player_state()
 	_ensure_worldmap_runtime_state_defaults()
+	_city_runtime_states.clear()
+	_refresh_city_hud_data_bindings()
 	_clear_pending_invasion_event_mvp()
 	_refresh_left_world_status_panel()
 	_refresh_unified_panel_content()
@@ -2302,7 +2315,38 @@ func _reset_worldmap_state() -> void:
 
 
 func _get_city_hud_entry(city_id: String) -> Dictionary:
+	if _city_runtime_states.has(city_id):
+		var runtime_city_state: Variant = _city_runtime_states.get(city_id, {})
+		if runtime_city_state is Dictionary:
+			return runtime_city_state
 	return CITY_HUD_DATA.get(city_id, {})
+
+
+func _get_mutable_city_runtime_state(city_id: String) -> Dictionary:
+	if city_id.is_empty():
+		return {}
+	var source_city_state := _get_city_hud_entry(city_id)
+	if source_city_state.is_empty():
+		return {}
+	var mutable_city_state := source_city_state.duplicate(true)
+	_city_runtime_states[city_id] = mutable_city_state
+	return mutable_city_state
+
+
+func _get_city_hud_data_for_ui() -> Dictionary:
+	var city_hud_data := CITY_HUD_DATA.duplicate(true)
+	for city_id_variant in _city_runtime_states.keys():
+		var city_id := str(city_id_variant)
+		var city_state: Variant = _city_runtime_states.get(city_id, {})
+		if city_state is Dictionary:
+			city_hud_data[city_id] = (city_state as Dictionary).duplicate(true)
+	return city_hud_data
+
+
+func _refresh_city_hud_data_bindings() -> void:
+	if city_info_panel == null:
+		return
+	city_info_panel.set_hud_data(HERO_DATA, _get_city_hud_data_for_ui(), GOVERNOR_POLICY_DATA, _city_policy_state)
 
 
 func _get_hero_entry(hero_id: String) -> Dictionary:
