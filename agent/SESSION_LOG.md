@@ -2,6 +2,17 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP
+- Inspected required agent docs, WorldMap scripts/scene, battle scenes, battle controller script, project settings, and BattleContext/battle engine contract docs.
+- Selected `Battle_Fullscreen_Test.tscn` as the handoff target because it is the documented current stable 5v5 battle scene and uses `scripts/battle_web_import_test.gd`.
+- Implemented runtime-only handoff through Godot `Engine` metadata key `samwar_worldmap_battle_context`; no save file, repo file, autoload, or persistent setting was added.
+- Updated `scripts/worldmap_test.gd` so `수동 방어` and `자동 방어` prepare context, store a deep copy for handoff, and transition to `res://Battle_Fullscreen_Test.tscn`.
+- Updated `scripts/battle_web_import_test.gd` to read and clear the handoff context, store it locally, and log attacker/defender city names plus manual/auto mode.
+- Direct battle test launch remains supported: missing context falls back to the existing demo setup and logs `No WorldMap battle context; using test battle setup`.
+- Verification passed: patch strings, battle scene path, handoff/intake paths, forbidden implementation search, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and direct `Battle_Fullscreen_Test.tscn` headless load.
+- No battle result return, ownership change, troop/resource loss, hero movement/capture, auto battle resolution, defense deployment UI, enemy AI, pathfinding, diplomacy/cooldown, or broad battle refactor was added.
+- Recommended next task: `v0.68b-12b-13 WorldMap Battle Result Return MVP`.
+
 ### v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
 - Inspected required agent docs, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `scripts/worldmap_hero_portrait_helper.gd`, root `WorldMap_Test.tscn`, and local read-only web battle/invasion references.
 - Web references inspected: `C:\dev\SamWar_web\js\core\battle_state.js`, `js\core\battle_rules.js`, `js\core\world_rules.js`, `js\core\app_state.js`, `js\ui\world_map_ui.js`, `js\ui\world_hud_ui.js`, `js\main.js`, `data\battle_rosters.js`, `data\cities.js`, and `data\heroes.js`.

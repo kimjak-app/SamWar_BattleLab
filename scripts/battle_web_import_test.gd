@@ -633,6 +633,9 @@ const HIT_SPARK_FX_TEXTURE_PATHS: Array[String] = [
 # v0.64x Enemy Multi AI Activation MVP
 # v0.64y Ally Ready Frame + Unit Selection Close-up Panel
 # v0.64y-hotfix Scene-Authored Closeup Panel Position
+# v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP
+
+const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 
 var is_demo_animating := false
 var ally_has_moved := false
@@ -641,6 +644,7 @@ var enemy_has_manual_facing := false
 var facing_indicators_should_be_visible := true
 var current_phase := PHASE_ALLY_TURN
 var battle_log_lines: Array[String] = []
+var worldmap_battle_context: Dictionary = {}
 var current_ally_unit_position := Vector2.ZERO
 var current_ally_portrait_position := Vector2.ZERO
 var ally_unit_state: BattleUnitState
@@ -1158,6 +1162,7 @@ func _ready() -> void:
 	_configure_layout_guides()
 	_configure_floating_ally_command_panel()
 	reset_demo_state()
+	_read_worldmap_battle_context_handoff()
 	_debug_print_unit_visual_root_slots()
 	_debug_print_mvp_scene_slot_scaffold_snapshot_once()
 	_debug_print_capacity_slot_registry()
@@ -1165,6 +1170,44 @@ func _ready() -> void:
 	_debug_print_adapter_alive_parity_snapshot_once()
 	_debug_print_actor_target_adapter_snapshot_once()
 	_debug_print_deployed_active_filter_snapshot_once()
+
+
+func _read_worldmap_battle_context_handoff() -> void:
+	worldmap_battle_context = {}
+	if not Engine.has_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY):
+		print("[Battle] No WorldMap battle context; using test battle setup")
+		_append_battle_log("월드맵 전투 데이터 없음 · 테스트 전투")
+		return
+	var context: Variant = Engine.get_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY)
+	Engine.remove_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY)
+	if not context is Dictionary:
+		print("[Battle] Invalid WorldMap battle context; using test battle setup")
+		_append_battle_log("월드맵 전투 데이터 오류 · 테스트 전투")
+		return
+	var context_dict := context as Dictionary
+	if context_dict.is_empty():
+		print("[Battle] Empty WorldMap battle context; using test battle setup")
+		_append_battle_log("월드맵 전투 데이터 없음 · 테스트 전투")
+		return
+	worldmap_battle_context = context_dict.duplicate(true)
+	_apply_worldmap_battle_context_handoff(worldmap_battle_context)
+
+
+func _apply_worldmap_battle_context_handoff(context: Dictionary) -> void:
+	var mode := str(context.get("mode", "manual"))
+	var attacker_city_name := str(context.get("attacker_city_name", "알 수 없는 적 도시"))
+	var defender_city_name := str(context.get("defender_city_name", "알 수 없는 아군 도시"))
+	var attacker_city_id := str(context.get("attacker_city_id", ""))
+	var defender_city_id := str(context.get("defender_city_id", ""))
+	print("[Battle] WorldMap battle context received: mode=%s attacker=%s(%s) defender=%s(%s)" % [
+		mode,
+		attacker_city_name,
+		attacker_city_id,
+		defender_city_name,
+		defender_city_id,
+	])
+	_append_battle_log("월드맵 방어전 데이터 수신")
+	_append_battle_log("%s 방어 · %s → %s" % [mode, attacker_city_name, defender_city_name])
 
 
 func _process(_delta: float) -> void:

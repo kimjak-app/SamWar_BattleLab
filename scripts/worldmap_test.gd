@@ -49,6 +49,10 @@ const CHANCELLOR_SECONDARY_RATE := 0.015
 
 # v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 # v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
+# v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP
+
+const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
+const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Fullscreen_Test.tscn"
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -1526,14 +1530,21 @@ func _refresh_pending_invasion_choice_ui(event: Dictionary = {}) -> void:
 
 
 func _on_manual_defense_pressed() -> void:
-	_prepare_pending_invasion_battle_context("manual")
+	_start_pending_invasion_battle_scene_handoff("manual")
 
 
 func _on_auto_defense_pressed() -> void:
-	_prepare_pending_invasion_battle_context("auto")
+	_start_pending_invasion_battle_scene_handoff("auto")
 
 
-func _prepare_pending_invasion_battle_context(mode: String) -> void:
+func _start_pending_invasion_battle_scene_handoff(mode: String) -> void:
+	var battle_context := _prepare_pending_invasion_battle_context(mode)
+	if battle_context.is_empty():
+		return
+	_handoff_battle_context_to_battle_scene(battle_context)
+
+
+func _prepare_pending_invasion_battle_context(mode: String) -> Dictionary:
 	var normalized_mode := "auto" if mode == "auto" else "manual"
 	var event := _get_pending_invasion_event_mvp()
 	var validation := _validate_pending_invasion_event_for_battle_context(event)
@@ -1541,19 +1552,45 @@ func _prepare_pending_invasion_battle_context(mode: String) -> void:
 		_clear_pending_battle_context_mvp()
 		_set_save_management_status("전투 데이터 생성 실패 · %s" % str(validation.get("message", "침공 이벤트 확인 필요")))
 		_refresh_left_world_status_panel()
-		return
+		return {}
 	var battle_context := _build_battle_context_from_pending_invasion(event, normalized_mode)
 	if battle_context.is_empty():
 		_clear_pending_battle_context_mvp()
 		_set_save_management_status("전투 데이터 생성 실패")
 		_refresh_left_world_status_panel()
-		return
+		return {}
 	_set_pending_battle_context_mvp(battle_context)
 	if normalized_mode == "auto":
 		_set_save_management_status("자동 방어 전투 데이터 준비 완료 · 자동 해결은 아직 미구현")
 	else:
 		_set_save_management_status("수동 방어 전투 데이터 준비 완료 · 다음 단계에서 전투 화면으로 이동")
 	_refresh_left_world_status_panel()
+	return battle_context
+
+
+func _handoff_battle_context_to_battle_scene(battle_context: Dictionary) -> void:
+	if battle_context.is_empty():
+		_set_save_management_status("전투 화면 이동 실패 · 전투 데이터 없음")
+		_refresh_left_world_status_panel()
+		return
+	if not ResourceLoader.exists(WORLDMAP_BATTLE_SCENE_PATH):
+		if Engine.has_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY):
+			Engine.remove_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY)
+		_set_save_management_status("전투 화면 이동 실패 · 전투 씬 없음")
+		_refresh_left_world_status_panel()
+		return
+	var handoff_context := battle_context.duplicate(true)
+	Engine.set_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY, handoff_context)
+	_set_save_management_status("전투 화면 이동 중 · %s → %s" % [
+		str(handoff_context.get("attacker_city_name", "알 수 없는 적 도시")),
+		str(handoff_context.get("defender_city_name", "알 수 없는 아군 도시")),
+	])
+	var transition_result := get_tree().change_scene_to_file(WORLDMAP_BATTLE_SCENE_PATH)
+	if transition_result != OK:
+		if Engine.has_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY):
+			Engine.remove_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY)
+		_set_save_management_status("전투 화면 이동 실패")
+		_refresh_left_world_status_panel()
 
 
 func _validate_pending_invasion_event_for_battle_context(event: Dictionary) -> Dictionary:
