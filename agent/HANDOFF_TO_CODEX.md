@@ -733,3 +733,10 @@ Canonical regression guard details are also tracked in `agent/QA_AGENT.md`.
 - Post-move panel reopen.
 - Active ally pulse pivot lock.
 - Current `5v5` actor / target parity.
+## v0.68b-12b-27 Handoff
+- Player attack no longer jumps directly into `Battle_Fullscreen_Test.tscn`; `_start_player_attack_battle()` opens `PlayerAttackDeploymentPanel`.
+- New script: `scripts/player_attack_deployment_panel.gd`.
+- Confirm path: panel `deployment_confirmed` -> `_confirm_player_attack_deployment()` -> source-city supply validation/payment -> `_build_player_attack_battle_context(..., selected_hero_ids, allocation, supply_cost)` -> existing battle handoff.
+- BattleContext now carries `selected_attacker_hero_ids`, `attacker_troop_allocation`, `supply_cost`, and `supply_source_city_id`.
+- Source-city supply stock is runtime city state `resource_stock`; missing food/rice, gold, or salt is defaulted only for the source city when opening deployment. Save/load persists this field in `worldmap_city_state`.
+- Manual QA still needed for F6 click flow, UI sizing, insufficient resource blocking, post-deployment win/loss result, and save/load after source-city supply payment.

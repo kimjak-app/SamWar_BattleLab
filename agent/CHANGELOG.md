@@ -925,3 +925,11 @@
 
 ## Older History
 - Older detailed history is archived at `agent/archive/v0.67-docs_agent_docs_slimdown/CHANGELOG_full_before_slimdown.md`.
+## v0.68b-12b-27 Player Attack Deployment UI MVP
+- Added a runtime player attack deployment panel before battle handoff.
+- Added deployable hero selection from the player source city; captured/dead heroes are excluded and wounded heroes remain selectable with badges.
+- Added per-hero troop SpinBox allocation with minimum selection/positive troop validation and source-city troop reserve guard.
+- Added supply preview and validation: food/rice = assigned troops, gold = ceil(troops * 0.2), salt = ceil(troops * 0.1).
+- Added source-city runtime `resource_stock` defaulting/payment and city save/load persistence for supply stock.
+- Extended `player_attack` BattleContext with selected attacker ids, troop allocation, supply cost, and supply source city id.
+- Deferred sea/2-hop attacks, troop type UI, in-battle supply effects, support selection UI, plunder, siege UI, and hero recruit/faction conversion.

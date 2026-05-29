@@ -293,3 +293,12 @@
 - Do not make battle scripts select armies directly from city or region state.
 - Do not encode region-specific map selection inside the battle engine.
 - Do not treat scene node placement as worldmap deployment data.
+## v0.68b-12b-27 Player Attack Deployment Rules
+- Player attack uses a deployment preparation step before battle scene handoff.
+- Source city selection remains direct-neighbor MVP: current valid player source city first, otherwise the first player-owned neighbor of the enemy target.
+- Deployable heroes are the source city's stationed heroes after battle-exclusion filtering. Captured/dead heroes are excluded; wounded heroes remain deployable and keep their wounded badge/penalty.
+- Deployment requires at least one selected hero and positive troop allocation. Total assigned troops cannot exceed source city troops minus one, so the source city keeps at least one garrison troop.
+- Supply cost MVP formula: food/rice = assigned troops, gold = ceil(assigned troops * 0.2), salt = ceil(assigned troops * 0.1).
+- Supply is checked and paid from the source city's runtime `resource_stock`; missing food/rice, gold, or salt fields are defaulted only for the source city when deployment opens.
+- Source-city `resource_stock` is saved/loaded through `worldmap_city_state`. BattleContext carries selected attacker ids, per-hero troop allocation, supply cost, and supply source city id.
+- Deferred: sea route attacks, 2-hop attacks, travel time, in-battle supply penalties, supply plunder/loss recovery, troop type composition, manual support selection, siege-specific UI, and hero recruitment/faction conversion.

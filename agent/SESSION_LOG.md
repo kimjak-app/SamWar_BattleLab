@@ -1045,3 +1045,10 @@
 ## Archive
 - Full older session history moved to:
   - `agent/archive/v0.67-docs_agent_docs_slimdown/SESSION_LOG_full_before_slimdown.md`
+## v0.68b-12b-27 Player Attack Deployment UI MVP
+- Added `scripts/player_attack_deployment_panel.gd` as a compact runtime deployment panel.
+- Rewired player attack button flow so attack opens deployment UI first, then confirms into the existing BattleContext handoff.
+- Implemented deployable hero filtering, troop allocation validation, source-city reserve guard, and source-city supply preview/payment.
+- Added `selected_attacker_hero_ids`, `attacker_troop_allocation`, `supply_cost`, and `supply_source_city_id` to `player_attack` context.
+- Added source-city `resource_stock` runtime defaults and save/load persistence in city overrides.
+- Verification performed by Codex: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load. F6 manual deployment QA remains required.

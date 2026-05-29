@@ -865,3 +865,10 @@ Goal:
   - `agent/archive/v0.67-docs_agent_docs_slimdown/CURRENT_STATE_full_before_slimdown.md`
   - `agent/archive/v0.67-docs_agent_docs_slimdown/CHANGELOG_full_before_slimdown.md`
   - `agent/archive/v0.67-docs_agent_docs_slimdown/SESSION_LOG_full_before_slimdown.md`
+## v0.68b-12b-27 Player Attack Deployment UI MVP
+- Implemented: player attack button now opens a deployment preparation panel instead of entering battle immediately.
+- Rules: deployable heroes come from the selected source city; captured/dead heroes are excluded; wounded heroes remain selectable and display their state badge.
+- Troops: at least one hero and positive troop assignment are required; total deployment is capped at source city troops minus 1.
+- Supplies: preview and validation use food/rice = troops, gold = ceil(troops * 0.2), salt = ceil(troops * 0.1); payment is taken from the source city's runtime `resource_stock`.
+- Persistence: source-city `resource_stock` is included in city runtime save/load overrides.
+- Next recommended patch: F6 QA for deployment panel UX, troop allocation edge cases, save/load after supply payment, and player_attack win/loss after deployment.
