@@ -210,6 +210,9 @@ Latest camera foundation:
 - Latest worldmap hero placement data patch:
 `v0.68b-12b-16b Hero Placement Data Patch`
 
+- Latest hero portrait import metadata audit:
+`v0.68b-12b-16c Hero Portrait Import Metadata Audit`
+
 - Latest warning cleanup hotfix:
 `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
@@ -398,7 +401,9 @@ Do not modify casually:
 - Selected battle scene is `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; the battle scene reads and clears it at startup, then logs mode and attacker/defender city names while preserving the existing demo battle setup.
 - Direct `Battle_Fullscreen_Test.tscn` launch without WorldMap context remains supported and logs `No WorldMap battle context; using test battle setup`.
-- Current stable baseline for the next session is `v0.68b-12b-16b Hero Placement Data Patch`.
+- Current stable baseline for the next session is `v0.68b-12b-16c Hero Portrait Import Metadata Audit`.
+- `v0.68b-12b-16c` confirmed the repo already tracks Godot `.png.import` files, including `assets/heroes/portraits/**`, while `.gitignore` ignores the generated `.import/` cache directory. No untracked portrait `.import` files remained, so none were deleted or newly added.
+- Next task is `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`.
 - `v0.68b-12b-16b` adds/strengthens 유비, 권율, 척준경, 여포, and 하후돈 in WorldMap `HERO_DATA`, with confirmed unique skill names and explicit `portrait_path` / `cutin_path` contracts.
 - Placement is now 성도: 유비, 한성: 권율, 평양: 척준경, 낙양: 여포, 업성: 하후돈. 척준경 is no longer stationed in 한성.
 - `v0.68b-12b-16` adds actual city hero battle-data copies to WorldMap BattleContext via `attacker_heroes` / `defender_heroes`, with required combat fields and unique-skill fields for every included hero.
@@ -542,13 +547,14 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-17 WorldMap Hero Portrait Resolver Apply MVP`
+  - `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
 - `v0.68b-12b-17` goal:
-  - Safely bind actual hero `portrait_path` / `cutin_path` data where files exist.
+  - Safely bind actual hero portrait assets from the existing `portrait_path` data where files exist.
+  - Add the MVP skill toast UI path without changing battle formulas or HERO_DATA.
   - Downscale the same 512-source `portrait_path` for 128 battle slots.
   - Keep existing 128 folders, no bulk image deletion or migration.
 - Next candidates:
-  - `v0.68b-12b-17 WorldMap Hero Portrait Resolver Apply MVP`
+  - `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
   - `v0.68b-12b-16a WorldMap Hero Battle Data F6 QA Follow-up`
   - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`

@@ -88,6 +88,8 @@ Latest worldmap hero battle contract patch: `v0.68b-12b-16 WorldMap Hero Battle 
 
 Latest worldmap hero placement data patch: `v0.68b-12b-16b Hero Placement Data Patch`
 
+Latest hero portrait import metadata audit: `v0.68b-12b-16c Hero Portrait Import Metadata Audit`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -141,6 +143,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
 - `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
 - `v0.68b-12b-16b Hero Placement Data Patch`
+- `v0.68b-12b-16c Hero Portrait Import Metadata Audit`
 - `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 - `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
 - `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -504,11 +507,16 @@ Latest worldmap hero battle contract patch: `v0.68b-12b-16 WorldMap Hero Battle 
 
 Latest worldmap hero placement data patch: `v0.68b-12b-16b Hero Placement Data Patch`
 
-Current stable baseline: `v0.68b-12b-16b Hero Placement Data Patch`
+Latest hero portrait import metadata audit: `v0.68b-12b-16c Hero Portrait Import Metadata Audit`
 
-Baseline commit: local HEAD after `v0.68b-12b-16b`
+Current stable baseline: `v0.68b-12b-16c Hero Portrait Import Metadata Audit`
+
+Baseline commit: local HEAD after `v0.68b-12b-16c`
 
 Latest hotfix notes:
+- `v0.68b-12b-16c Hero Portrait Import Metadata Audit` confirmed this repo already tracks Godot `.png.import` files, including the current `assets/heroes/portraits/**` portrait imports, despite `.gitignore` also ignoring the generated `.import/` cache directory.
+- No untracked or ignored `assets/heroes/portraits` `.import` files remained in the working tree, so no import metadata files were deleted or newly added in this audit.
+- Next implementation task is `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`.
 - `v0.68b-12b-16b Hero Placement Data Patch` adds/strengthens 유비, 권율, 척준경, 여포, and 하후돈 as battle-ready WorldMap heroes.
 - City placement now has 유비 in 성도, 권율 in 한성, 척준경 in 평양, 여포 in 낙양, and 하후돈 in 업성; 척준경 is no longer stationed in 한성.
 - Confirmed skill names: 유비 `인의의 깃발`, 권율 `행주대첩 항전`, 척준경 `검왕돌파`, 여포 `무쌍난무`, 하후돈 `발검돌파`.

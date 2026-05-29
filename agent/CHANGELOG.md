@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.68b-12b-16c Hero Portrait Import Metadata Audit
+- Audited Godot hero portrait import metadata policy without changing battle logic, `HERO_DATA`, image files, or existing 128 folders.
+- Confirmed this repo already tracks many `.png.import` files, including the current `assets/heroes/portraits/**` portrait imports, despite `.gitignore` also ignoring the generated `.import/` cache directory.
+- `assets/heroes/portraits` had no remaining untracked or ignored `.import` files, so no portrait import metadata files were deleted or newly added.
+- Next task is `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`.
+
 ## v0.68b-12b-16b Hero Placement Data Patch
 - Updated `scripts/worldmap_test.gd` hero seed data for five key heroes: `liu_bei`, `kwon_yul`, `cheok_jun_gyeong`, `lu_bu`, and `xiahou_dun`.
 - Added or strengthened combat/skill contract fields for those heroes, including `unit_type`, troop counts, command/leadership, attack/defense/mobility/ranges, `unique_skill_id`, `skill_id`, `skill_name`, `skill_desc`, `skill_effect_type`, `skill_power`, `skill_cooldown`, and `skill_toast_icon`.

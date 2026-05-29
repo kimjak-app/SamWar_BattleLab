@@ -2,6 +2,13 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-16c Hero Portrait Import Metadata Audit
+- Ran the requested import metadata audit: `git status --short`, `git ls-files "*.import"`, `Get-ChildItem assets\heroes\portraits -Recurse -Filter "*.import"`, and `.gitignore` import-rule checks.
+- Policy result: the repo tracks many Godot `.png.import` files, including all listed `assets/heroes/portraits/**` portrait imports, while `.gitignore` ignores the generated `.import/` cache directory.
+- Current `assets/heroes/portraits` had no untracked or ignored `.import` files, so the audit did not delete files and did not add new portrait import metadata.
+- Kept the task bounded to metadata/docs only: no battle logic, `HERO_DATA`, image movement/deletion, or 128-folder changes.
+- Next task is `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`.
+
 ### v0.68b-12b-16b Hero Placement Data Patch
 - Confirmed target hero IDs against current code: `liu_bei`, `kwon_yul`, `cheok_jun_gyeong`, `lu_bu`, and `xiahou_dun`.
 - Added missing WorldMap `HERO_DATA` entries for 유비, 권율, and 하후돈; strengthened existing 척준경 and 여포 data from contract/fallback state into full battle-ready hero records.

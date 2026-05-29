@@ -89,13 +89,15 @@ Latest worldmap hero battle contract patch: `v0.68b-12b-16 WorldMap Hero Battle 
 
 Latest worldmap hero placement data patch: `v0.68b-12b-16b Hero Placement Data Patch`
 
+Latest hero portrait import metadata audit: `v0.68b-12b-16c Hero Portrait Import Metadata Audit`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
-Current stable baseline: `v0.68b-12b-16b Hero Placement Data Patch`
+Current stable baseline: `v0.68b-12b-16c Hero Portrait Import Metadata Audit`
 
-Baseline commit: local HEAD after `v0.68b-12b-16b`
+Baseline commit: local HEAD after `v0.68b-12b-16c`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -106,14 +108,15 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-17 WorldMap Hero Portrait Resolver Apply MVP`
+`v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
 
 Goal:
-- safely bind actual hero `portrait_path` / `cutin_path` contract data to WorldMap/Battle UI where files exist, with fallback when files are missing
+- safely bind actual hero portrait assets from the existing `portrait_path` contract and add the MVP skill toast UI path
 
 Scope:
 - keep `portrait_path` as the single 512-source field and downscale for 128 battle slots
 - add safe resolver/fallback behavior without bulk asset moves or deleting existing 128 folders
+- preserve current battle logic and hero seed data while wiring presentation assets
 
 Forbidden in this task:
 - no bulk image deletion or mass migration
@@ -180,6 +183,10 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-16c Hero Portrait Import Metadata Audit` is complete.
+- Existing repo policy is to track many Godot `.png.import` files, including `assets/heroes/portraits/**`, while `.gitignore` ignores the generated `.import/` cache directory.
+- No untracked or ignored `assets/heroes/portraits` `.import` files remained after audit, so this task did not delete files or add new portrait import metadata.
+- Next task is `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`.
 - `v0.68b-12b-16b Hero Placement Data Patch` is complete.
 - 유비, 권율, 척준경, 여포, and 하후돈 now have battle-ready WorldMap hero data with confirmed unique skill names.
 - City placement is updated: 성도 includes 유비, 한성 includes 권율 and excludes 척준경, 평양 includes 척준경, 낙양 includes 여포, and 업성 includes 하후돈.
