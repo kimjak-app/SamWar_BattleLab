@@ -216,6 +216,9 @@ Latest camera foundation:
 - Latest actual hero portrait binding patch:
 `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
 
+- Latest battlefield portrait/skill hotfix:
+`v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
+
 - Latest warning cleanup hotfix:
 `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
@@ -404,7 +407,9 @@ Do not modify casually:
 - Selected battle scene is `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; the battle scene reads and clears it at startup, then logs mode and attacker/defender city names while preserving the existing demo battle setup.
 - Direct `Battle_Fullscreen_Test.tscn` launch without WorldMap context remains supported and logs `No WorldMap battle context; using test battle setup`.
-- Current stable baseline for the next session is `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`.
+- Current stable baseline for the next session is `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`.
+- `v0.68b-12b-17a` restores battlefield portrait badge scale to the old engine baseline: 128px battlefield portraits at scene scale `0.32`, so 512-source `portrait_path` textures display at roughly `41px` on battlefield badges.
+- Skill display now treats `장수명 전법` as fallback-only. WorldMap context skill entries reuse existing sample skill names/cutin paths when context data only contains generated fallback names, preserving the old toast frame/animation path where assets exist.
 - `v0.68b-12b-17` binds WorldMap BattleContext `portrait_path` into battle UI portraits, scales the single 512-source portrait into the existing 128 Sprite2D portrait slots, and prefers WorldMap context `skill_name` for unique-skill toast text.
 - Missing hero portraits use the named common unknown portrait fallback, and missing skill toast/cutin images use a common skill fallback icon. Full cutin presentation, save/load, capture/wounds/death, hero movement, and resource looting remain deferred.
 - `v0.68b-12b-16c` confirmed the repo already tracks Godot `.png.import` files, including `assets/heroes/portraits/**`, while `.gitignore` ignores the generated `.import/` cache directory. No untracked portrait `.import` files remained, so none were deleted or newly added.
@@ -551,12 +556,12 @@ Do not modify casually:
 - Current stable behavior baseline: `v0.67z-3 Strategy Status Badge Near Facing Arrow Patch`
 - Current docs/contract baseline: `v0.68 Agent Contract Split for WorldMap + Hero Scale Prep`
 - Immediate next task:
-  - `v0.68b-12b-17a Hero Portrait Battle F6 QA Follow-up`
-- `v0.68b-12b-17a` goal:
+  - `v0.68b-12b-17b Hero Portrait Battle F6 QA Follow-up`
+- `v0.68b-12b-17b` goal:
   - F6-check WorldMap invasion manual defense into battle and confirm actual city-roster portraits/skill names display as intended.
   - Keep existing 128 folders, no bulk image deletion or migration, and no battle formula changes.
 - Next candidates:
-  - `v0.68b-12b-17a Hero Portrait Battle F6 QA Follow-up`
+  - `v0.68b-12b-17b Hero Portrait Battle F6 QA Follow-up`
   - `v0.68b-12b-16a WorldMap Hero Battle Data F6 QA Follow-up`
   - `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
   - `v0.68b-12c Selected City Panel Web Content Parity`

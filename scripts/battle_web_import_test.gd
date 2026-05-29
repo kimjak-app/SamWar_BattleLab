@@ -111,7 +111,7 @@ const FORMATION_GUIDE_SLOT_NODE_PATHS := {
 	"enemy_reinforce_01": "BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot",
 	"enemy_reinforce_02": "BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot",
 }
-const BATTLE_PORTRAIT_SLOT_SIZE := 128.0
+const BATTLEFIELD_PORTRAIT_BADGE_SIZE := 41.0
 const UNKNOWN_HERO_PORTRAIT_FALLBACK_PATH := "res://assets/web_battle/unit_tokens/unit_blue_battlefield.png"
 const GENERIC_SKILL_TOAST_FALLBACK_PATH := "res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png"
 const REINFORCEMENT_ARRIVAL_TOAST_TEXTURE_PATH := "res://assets/web_battle/ui/reinforcement/reinforcement_arrival_toast_01.png"
@@ -332,8 +332,8 @@ const UNIQUE_SKILL_REGISTRY := {
 	"yi_sunsin": {
 		"skill_id": "hakikjin_barrage",
 		"hero_id": "yi_sunsin",
-		"name": "학익진 포격",
-		"toast_text": "학익진 포격!",
+		"name": "학익진",
+		"toast_text": "학익진!",
 		"effect_type": "cannon_aoe",
 		"power": 44,
 		"radius": 2,
@@ -1399,22 +1399,52 @@ func _build_worldmap_context_hero_registry_entry(hero_data: Dictionary) -> Dicti
 
 
 func _build_worldmap_context_unique_skill_entry(hero_data: Dictionary) -> Dictionary:
+	var sample_skill_entry := _get_sample_unique_skill_entry_for_worldmap_hero(hero_data)
 	var battle_effect_type := str(hero_data.get("battle_effect_type", "ally_attack_buff"))
+	if battle_effect_type == "ally_attack_buff" and not sample_skill_entry.is_empty():
+		battle_effect_type = str(sample_skill_entry.get("effect_type", battle_effect_type))
+	var cutin_path := _get_existing_resource_path(str(hero_data.get("cutin_path", "")))
+	if cutin_path == "" and not sample_skill_entry.is_empty():
+		cutin_path = _get_existing_resource_path(str(sample_skill_entry.get("cutin_image_path", "")))
+	var skill_name := _resolve_worldmap_context_skill_name(hero_data, sample_skill_entry)
 	return {
 		"skill_id": str(hero_data.get("skill_id", hero_data.get("unique_skill_id", ""))),
 		"hero_id": str(hero_data.get("hero_id", "")),
-		"name": str(hero_data.get("skill_name", "고유특기")),
-		"toast_text": "%s!" % str(hero_data.get("skill_name", "고유특기")),
+		"name": skill_name,
+		"toast_text": "%s!" % skill_name,
 		"description": str(hero_data.get("skill_desc", "")),
 		"effect_type": battle_effect_type,
-		"power": int(hero_data.get("skill_power", hero_data.get("skill_value", UNIQUE_SKILL_ATTACK_BUFF))),
+		"power": int(hero_data.get("skill_power", hero_data.get("skill_value", sample_skill_entry.get("power", UNIQUE_SKILL_ATTACK_BUFF)))),
 		"range": maxi(0, int(hero_data.get("skill_range", UNIQUE_SKILL_DEFAULT_RANGE))),
-		"cutin_image_path": _get_existing_resource_path(str(hero_data.get("cutin_path", ""))),
+		"cutin_image_path": cutin_path,
 		"target_mode": _get_target_mode_for_worldmap_skill_effect(battle_effect_type),
 		"consumes_action": true,
 		"cooldown_turns": maxi(0, int(hero_data.get("skill_cooldown", 0))),
 		"unique": true,
 	}
+
+
+func _get_sample_unique_skill_entry_for_worldmap_hero(hero_data: Dictionary) -> Dictionary:
+	var source_hero_id := str(hero_data.get("hero_id", ""))
+	var resolved_hero_id := str(WORLDMAP_CONTEXT_HERO_ID_COMPATIBILITY.get(source_hero_id, source_hero_id))
+	if UNIQUE_SKILL_REGISTRY.has(resolved_hero_id):
+		return UNIQUE_SKILL_REGISTRY.get(resolved_hero_id, {})
+	if UNIQUE_SKILL_REGISTRY.has(source_hero_id):
+		return UNIQUE_SKILL_REGISTRY.get(source_hero_id, {})
+	return {}
+
+
+func _resolve_worldmap_context_skill_name(hero_data: Dictionary, sample_skill_entry: Dictionary) -> String:
+	var explicit_skill_name := str(hero_data.get("skill_name", ""))
+	var display_name := str(hero_data.get("display_name", hero_data.get("name", "장수")))
+	if explicit_skill_name != "" and explicit_skill_name != "%s 전법" % display_name:
+		return explicit_skill_name
+	var sample_skill_name := str(sample_skill_entry.get("name", ""))
+	if sample_skill_name != "":
+		return sample_skill_name
+	if explicit_skill_name != "":
+		return explicit_skill_name
+	return "%s 전법" % display_name
 
 
 func _get_existing_resource_path(path: String) -> String:
@@ -1443,7 +1473,7 @@ func _apply_battle_portrait_texture_to_sprite(sprite: Sprite2D, texture: Texture
 	sprite.texture = texture
 	var max_dimension := maxf(float(texture.get_width()), float(texture.get_height()))
 	if max_dimension > 0.0:
-		var scale_ratio := BATTLE_PORTRAIT_SLOT_SIZE / max_dimension
+		var scale_ratio := BATTLEFIELD_PORTRAIT_BADGE_SIZE / max_dimension
 		sprite.scale = Vector2.ONE * scale_ratio
 
 
@@ -2013,7 +2043,7 @@ func reset_demo_state() -> void:
 	_set_all_unit_group_modulates(Color.WHITE)
 	for unit_state in _get_all_unit_states_in_slot_order():
 		_restore_hp_troop_runtime_visibility_for_unit(unit_state)
-	cutin_name_label.text = "학익진 포격"
+	cutin_name_label.text = "학익진"
 	cutin_quote_label.text = "사정거리 안 모든 적을 포격하라!"
 	result_title_label.text = "승리"
 	damage_text_layer.position = damage_spawn_marker.position

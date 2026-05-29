@@ -209,6 +209,14 @@
 - Unique-skill lookup now prefers WorldMap context skill data, so context `skill_name` drives the unique-skill toast text; missing skill toast/cutin assets use a common skill fallback icon.
 - Still missing by design: full cutin presentation, save/load persistence for hero battle data, hero capture/wounds/death, hero city movement, resource looting, and defense deployment UI.
 
+## v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix Status
+- Implemented in `scripts/battle_web_import_test.gd`.
+- Battlefield portrait badges now scale 512-source portraits to the previous engine display baseline of about `41px`, matching old `128x128` battlefield portraits at scene scale `0.32`.
+- `portrait_path` remains the only portrait source; no 128 images or split portrait fields were added.
+- Generated `장수명 전법` names are now fallback-only. Known heroes can reuse existing sample unique-skill registry names and cutin paths when WorldMap context data lacks explicit skill names or dedicated cutin assets.
+- The existing unique-skill toast frame/animation path is preserved where dedicated assets exist; common fallback icon remains only for missing assets.
+- Still missing by design: full cutin presentation, save/load persistence for hero battle data, hero capture/wounds/death, hero city movement, resource looting, and defense deployment UI.
+
 ## Recommended Godot Implementation Plan
 
 ### v0.68b-12b-15 Enemy Invasion Ownership / Troop Apply

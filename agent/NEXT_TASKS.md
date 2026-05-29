@@ -93,13 +93,15 @@ Latest hero portrait import metadata audit: `v0.68b-12b-16c Hero Portrait Import
 
 Latest actual hero portrait binding patch: `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
 
+Latest battlefield portrait/skill hotfix: `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
-Current stable baseline: `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
+Current stable baseline: `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
 
-Baseline commit: local HEAD after `v0.68b-12b-17`
+Baseline commit: local HEAD after `v0.68b-12b-17a`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -110,7 +112,7 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-17a Hero Portrait Battle F6 QA Follow-up`
+`v0.68b-12b-17b Hero Portrait Battle F6 QA Follow-up`
 
 Goal:
 - F6-check WorldMap invasion manual defense into battle and confirm actual city-roster portraits/skill names display as intended
@@ -183,6 +185,11 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix` is complete.
+- Battlefield portrait badge display now uses the previous engine baseline size: old `128x128` battlefield portraits at scene scale `0.32`, so 512-source portraits are scaled to roughly `41px` in the battlefield badge.
+- `portrait_path` remains the single 512 source; no new 128 files or split portrait fields were added.
+- Unique-skill display now prefers real `skill_name`; `장수명 전법` is fallback only. Existing sample unique-skill names/cutin paths are reused when WorldMap context only supplied fallback skill data.
+- Existing unique-skill toast frame/animation path is preserved, with common `skill_unknown`/fallback icon only when no dedicated skill/cutin image exists. Full cutin presentation remains deferred.
 - `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP` is complete.
 - BattleContext `portrait_path` data is now bound into battle UI portraits before sample HERO_REGISTRY fallback data, and Sprite2D portrait slots scale the single 512-source image to the existing 128 target size.
 - Missing portraits use a named common unknown portrait fallback, not a specific sample hero portrait; missing skill toast/cutin images use a common skill fallback icon.

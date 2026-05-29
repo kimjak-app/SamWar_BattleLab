@@ -92,6 +92,8 @@ Latest hero portrait import metadata audit: `v0.68b-12b-16c Hero Portrait Import
 
 Latest actual hero portrait binding patch: `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
 
+Latest battlefield portrait/skill hotfix: `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -147,6 +149,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-16b Hero Placement Data Patch`
 - `v0.68b-12b-16c Hero Portrait Import Metadata Audit`
 - `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
+- `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
 - `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 - `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
 - `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -514,11 +517,18 @@ Latest hero portrait import metadata audit: `v0.68b-12b-16c Hero Portrait Import
 
 Latest actual hero portrait binding patch: `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
 
-Current stable baseline: `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP`
+Latest battlefield portrait/skill hotfix: `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
 
-Baseline commit: local HEAD after `v0.68b-12b-17`
+Current stable baseline: `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix`
+
+Baseline commit: local HEAD after `v0.68b-12b-17a`
 
 Latest hotfix notes:
+- `v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix` restores battlefield portrait badge scale to the previous engine baseline: old `128x128` battlefield portraits used scene scale `0.32`, so 512-source portraits now target about `41px` on the battlefield instead of `128px`.
+- The 512 single `portrait_path` source remains; no 128 replacement files or `portrait_128_path` / `portrait_512_path` fields were added.
+- WorldMap context skill names now treat `장수명 전법` only as a fallback. If context skill data is missing or fallback-generated, the existing sample unique-skill registry supplies the actual skill name and cutin path where available, preserving the old toast frame/asset path.
+- `yi_sunsin` now displays `학익진`; `eulji_mundeok` keeps `살수대첩 매복`; confirmed v0.68b-12b-16b heroes keep 유비 `인의의 깃발`, 권율 `행주대첩 항전`, 척준경 `검왕돌파`, 여포 `무쌍난무`, and 하후돈 `발검돌파`.
+- Dedicated skill/cutin images are still optional; missing assets use the common skill fallback icon. Full cutin presentation, save/load expansion, capture/wounds/death, and hero movement remain unimplemented.
 - `v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP` binds WorldMap BattleContext `portrait_path` data into battle UI portraits before sample HERO_REGISTRY fallbacks can override it.
 - Battle portrait Sprite2D slots now load the single 512-source `portrait_path` and scale it to the existing 128 portrait slot target; no `portrait_128_path` / `portrait_512_path` split was added.
 - Missing portrait files resolve to a named common unknown portrait fallback instead of a specific sample hero face.

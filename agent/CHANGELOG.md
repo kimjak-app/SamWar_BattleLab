@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix
+- Restored battlefield portrait badge sizing in `scripts/battle_web_import_test.gd` to the previous engine baseline: existing `128x128` battlefield portrait assets used scene scale `0.32`, so 512-source portraits now scale to about `41px` on the battlefield badge.
+- Kept the single 512 `portrait_path` source contract. No image files were generated, moved, or deleted, and no `portrait_128_path` / `portrait_512_path` fields were added.
+- Changed WorldMap context skill entry creation so real `skill_name` is preferred and `장수명 전법` is used only as a final fallback.
+- When context skill data only has a generated fallback name or missing cutin path, the existing sample unique-skill registry supplies the established skill name and cutin path where available. This preserves the existing unique-skill toast frame/animation path instead of forcing the common fallback icon.
+- Updated sample Yi Sunsin skill display from `학익진 포격` to `학익진`; Eulji Mundeok keeps `살수대첩 매복`, and v0.68b-12b-16b heroes keep their confirmed skill names.
+- Full cutin presentation, save/load expansion, capture/wounds/death, hero movement, and resource looting remain unimplemented.
+
 ## v0.68b-12b-17 Actual Hero Portrait Binding + Skill Toast UI MVP
 - Updated `scripts/battle_web_import_test.gd` so WorldMap context hero and skill registries take priority over sample `HERO_REGISTRY` / `UNIQUE_SKILL_REGISTRY` fallbacks when a battle is launched from WorldMap context.
 - Added a safe hero portrait resolver that checks `portrait_path` / portrait registry fields with `ResourceLoader.exists()` before loading and falls back to a named common unknown portrait texture instead of a specific sample hero face.

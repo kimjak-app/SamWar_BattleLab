@@ -112,3 +112,11 @@ HeroData = {
 - Unique-skill toast text should prefer the WorldMap context `skill_name`; `skill_desc` is copied into the runtime skill entry for UI reuse.
 - Dedicated skill toast/cutin images remain optional. Missing assets use a common skill fallback icon, and full cutin presentation remains deferred.
 - Save/load persistence, hero capture/wounds/death, hero movement, and resource looting remain outside this contract step.
+
+## v0.68b-12b-17a Battlefield Portrait Scale + Skill Name Hotfix
+- Battlefield portrait badges must preserve the old engine display scale: previous `128x128` battlefield portrait assets used scene scale `0.32`, so 512-source `portrait_path` images should display at roughly `41px` in battlefield Sprite2D badges.
+- The 512 `portrait_path` remains the single source. Do not add split portrait fields or generate 128 portrait files.
+- Skill UI should prefer actual `skill_name`. `장수명 전법` is allowed only when no explicit or registry-backed skill name exists.
+- Existing sample unique-skill registry names and cutin paths may be reused as fallback for known compatible heroes when WorldMap context data only supplies generated fallback skill names or missing cutin paths.
+- Existing unique-skill toast frame/animation path should remain intact; common `skill_unknown`/fallback icon is used only when no dedicated skill/cutin asset exists.
+- Full cutin presentation, save/load, capture/wounds/death, hero movement, and resource looting remain out of scope.
