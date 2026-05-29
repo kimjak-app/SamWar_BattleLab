@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-19 WorldMap Battle Result Save Load Persistence MVP
+- Extended `scripts/worldmap_test.gd` save payload to include `worldmap_city_state` runtime overrides for city owner/nation/owner_faction_id, troops, and stationed hero ids.
+- Added `worldmap_hero_state` runtime overrides for hero current city id fields (`current_city_id`, `city_id`, `location_city_id`).
+- Load now keeps seed data read-only, clears stale runtime state, applies city/hero overrides with missing id skip logs, refreshes city marker ownership, and rebinds WorldMap UI data.
+- Invasion result application now syncs hero runtime locations from mutable city runtime rosters after pending invasion cleanup.
+- Save/load clears pending invasion event/context and `enemy_invasion_roll_turn`, so resolved invasion prompts do not reappear after reload.
+- Added concise `[SAVE_WORLD_STATE]`, `[LOAD_WORLD_STATE]`, `[SAVE_CITY_STATE]`, `[LOAD_CITY_STATE]`, `[SAVE_HERO_STATE]`, `[LOAD_HERO_STATE]`, and `[LOAD_STATE_SKIP]` logs.
+- Deferred: hero wounds/capture/death, resource looting, precise casualty calculation, AI strategy recalculation, and multi-invasion queues.
+
 ## v0.68b-12b-18c Reinforcement Toast Auto Battle Final Stop Hotfix
 - Fixed false reinforcement arrival toast display in `scripts/battle_web_import_test.gd`: support arrival toasts now require at least one actually deployed arriving unit.
 - Root cause: the round-based reinforcement path attempted deployment and always queued the toast/log, even if WorldMap context support slots were inactive/empty and no unit was deployed.

@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-19 Battle Result Persistence Rule
+- WorldMap battle-result changes must persist as runtime overrides, not seed mutations.
+- Save payload uses `worldmap_city_state` for city owner/nation/owner_faction_id, troops, and stationed hero ids, and `worldmap_hero_state` for hero current city ids.
+- Load order is seed data first, then runtime override merge into mutable state, then city marker/UI refresh.
+- Resolved pending invasion event/context must be cleared in save/load so an already resolved invasion does not reappear.
+- This MVP does not persist wounds, capture, death, resource looting, precise casualty math, AI strategy recalculation, or multi-invasion queues.
+
 ## v0.68b-12b-18b Formation Panel Context Source Guard
 - WorldMap enemy-invasion formation/roster panels must use the same BattleContext roster source as battlefield slots.
 - Empty or inactive context support slots are valid and must remain hidden/disabled in the side panels; they must not display sample `TEST_BATTLE_ROSTER` heroes.

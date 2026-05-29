@@ -1,5 +1,12 @@
 # v0.68b-12b-8 Enemy Invasion Web Logic Audit
 
+## v0.68b-12b-19 Battle Result Persistence Status
+- Invasion battle result owner/troop changes are now save/load participants through WorldMap city runtime overrides.
+- City stationed hero ids and hero current city ids are included in runtime persistence so later BattleContext roster construction can use loaded placement state.
+- Load clears pending invasion event/context and does not restore stale battle choice UI for completed results.
+- Seed dictionaries remain read-only sources; loaded changes are applied to mutable runtime city/hero state.
+- Deferred: wounds, capture, death, resource looting, precise casualty formulas, strategic AI recalculation, and multi-invasion queues.
+
 ## v0.68b-12b-18c Reinforcement Toast + Auto Stop Status
 - False no-support reinforcement toast fixed in the battle scene: toast display now depends on a nonempty actual arriving unit list, not only on the reinforcement round check.
 - Inactive/hidden WorldMap context support slots are excluded from arrival readiness and deployment, so missing support no longer produces turn-3 arrival toast copy.

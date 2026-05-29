@@ -1,5 +1,12 @@
 # HERO DATA CONTRACT
 
+## v0.68b-12b-19 Hero Location Persistence
+- `HERO_DATA` remains seed/static metadata; save/load location changes use runtime hero overrides.
+- `worldmap_hero_state` persists only current city identity fields for this MVP: `current_city_id`, `city_id`, and `location_city_id`.
+- City rosters are persisted through `worldmap_city_state.stationed_hero_ids` / `hero_ids`; load merges these into mutable city runtime state and synchronizes hero current-city overrides.
+- Missing hero ids or city ids in save data are skipped with logs instead of mutating seed data or crashing.
+- Capture, wounds, death, prisoner state, and detailed post-battle hero status remain unimplemented.
+
 ## v0.68b-12b-18b Formation Panel Identity Guard
 - Formation/roster panels in WorldMap context battles must display only context-assigned `hero_id` identities.
 - A stale or sample `BattleUnitState` must not override an empty/inactive context slot in the side panels.

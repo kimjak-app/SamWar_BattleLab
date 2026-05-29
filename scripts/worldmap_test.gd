@@ -432,6 +432,7 @@ var _collapsed_unified_panel_click_candidate := false
 var _collapsed_unified_panel_drag_started := false
 var _collapsed_unified_panel_click_start_position := Vector2.ZERO
 var _city_runtime_states: Dictionary = {}
+var _hero_runtime_states: Dictionary = {}
 var _player_state := {
 	"player_faction_id": "player",
 	"ruler_current_city_id": "hanseong",
@@ -1727,6 +1728,7 @@ func _apply_invasion_battle_result(result_payload: Dictionary) -> void:
 				status_message = "전투 결과 확인 필요: %s 방어전 결과를 해석할 수 없어 소유권 변경 없이 정리했습니다." % defender_city_name
 
 	_clear_pending_invasion_event_mvp()
+	_sync_worldmap_hero_locations_from_city_runtime_states()
 	if not defender_city_id.is_empty():
 		_select_city_after_invasion_result(defender_city_id)
 	_refresh_pending_invasion_choice_ui({})
@@ -1848,6 +1850,8 @@ func _set_city_runtime_owner(city_id: String, owner_id: String) -> void:
 		return
 	city_data["owner"] = owner_id
 	city_data["nation"] = owner_id
+	city_data["owner_faction_id"] = owner_id
+	city_data["faction"] = owner_id
 	_city_runtime_states[city_id] = city_data
 	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
 	if city_marker != null:
@@ -1866,6 +1870,30 @@ func _set_city_runtime_troops(city_id: String, troops: int) -> void:
 		return
 	city_data["troops"] = maxi(0, int(troops))
 	_city_runtime_states[city_id] = city_data
+	_refresh_city_hud_data_bindings()
+
+
+func _set_city_runtime_stationed_hero_ids(city_id: String, stationed_hero_ids: Array) -> void:
+	if city_id.is_empty():
+		return
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	if city_data.is_empty():
+		push_warning("[WorldMap] Runtime hero roster apply skipped; city not found: %s" % city_id)
+		return
+	var normalized_hero_ids: Array[String] = []
+	for hero_id_variant in stationed_hero_ids:
+		var hero_id := str(hero_id_variant)
+		if hero_id.is_empty() or normalized_hero_ids.has(hero_id):
+			continue
+		if _get_hero_seed_entry(hero_id).is_empty():
+			print("[LOAD_STATE_SKIP] type=city_stationed_hero city=%s hero=%s reason=missing_hero" % [city_id, hero_id])
+			continue
+		normalized_hero_ids.append(hero_id)
+	city_data["stationed_hero_ids"] = normalized_hero_ids
+	city_data["hero_ids"] = normalized_hero_ids
+	_city_runtime_states[city_id] = city_data
+	for hero_id in normalized_hero_ids:
+		_set_hero_runtime_city(hero_id, city_id)
 	_refresh_city_hud_data_bindings()
 
 
@@ -2481,10 +2509,18 @@ func _serialize_worldmap_state() -> Dictionary:
 	saved_player_state["pending_invasion_event"] = {}
 	saved_player_state["pending_battle_context"] = {}
 	saved_player_state["enemy_invasion_roll_turn"] = 0
+	var city_state := _serialize_worldmap_city_runtime_state()
+	var hero_state := _serialize_worldmap_hero_runtime_state()
+	print("[SAVE_WORLD_STATE] city_overrides=%d hero_overrides=%d pending_invasion_cleared=true" % [
+		city_state.size(),
+		hero_state.size()
+	])
 	return {
-		"version": "v0.68b-12b-11",
-		"title": "WorldMap Enemy Invasion BattleContext Bridge",
+		"version": "v0.68b-12b-19",
+		"title": "WorldMap Battle Result Save Load Persistence MVP",
 		"player_state": saved_player_state,
+		"worldmap_city_state": city_state,
+		"worldmap_hero_state": hero_state,
 	}
 
 
@@ -2498,6 +2534,11 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 	_player_state = next_state
 	_ensure_worldmap_runtime_state_defaults()
 	_city_runtime_states.clear()
+	_hero_runtime_states.clear()
+	_apply_worldmap_city_runtime_state(data.get("worldmap_city_state", {}))
+	_apply_worldmap_hero_runtime_state(data.get("worldmap_hero_state", {}))
+	_sync_worldmap_hero_locations_from_city_runtime_states()
+	_refresh_city_marker_owner_states_from_runtime()
 	_refresh_city_hud_data_bindings()
 	_clear_pending_invasion_event_mvp()
 	_domestic_turn_apply_pending = bool(_player_state.get("domestic_apply_pending", false))
@@ -2506,6 +2547,10 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 		_player_state["current_phase_label"] = _get_turn_phase_label(TURN_PHASE_PLAYER)
 	_domestic_turn_apply_pending = false
 	_player_state["domestic_apply_pending"] = false
+	print("[LOAD_WORLD_STATE] city_overrides=%d hero_overrides=%d pending_invasion_cleared=true" % [
+		_city_runtime_states.size(),
+		_hero_runtime_states.size()
+	])
 	return true
 
 
@@ -2545,6 +2590,8 @@ func _reset_worldmap_state() -> void:
 	_player_state = _get_default_player_state()
 	_ensure_worldmap_runtime_state_defaults()
 	_city_runtime_states.clear()
+	_hero_runtime_states.clear()
+	_refresh_city_marker_owner_states_from_runtime()
 	_refresh_city_hud_data_bindings()
 	_clear_pending_invasion_event_mvp()
 	_refresh_left_world_status_panel()
@@ -2587,8 +2634,229 @@ func _refresh_city_hud_data_bindings() -> void:
 	city_info_panel.set_hud_data(HERO_DATA, _get_city_hud_data_for_ui(), GOVERNOR_POLICY_DATA, _city_policy_state)
 
 
-func _get_hero_entry(hero_id: String) -> Dictionary:
+func _serialize_worldmap_city_runtime_state() -> Dictionary:
+	var serialized := {}
+	for city_id_variant in _city_runtime_states.keys():
+		var city_id := str(city_id_variant)
+		var city_state: Variant = _city_runtime_states.get(city_id, {})
+		if not city_state is Dictionary:
+			continue
+		var source := city_state as Dictionary
+		var city_payload := {
+			"owner": str(source.get("owner", source.get("nation", ""))),
+			"nation": str(source.get("nation", source.get("owner", ""))),
+			"owner_faction_id": str(source.get("owner_faction_id", source.get("owner", source.get("nation", "")))),
+			"faction": str(source.get("faction", source.get("owner", source.get("nation", "")))),
+			"troops": maxi(0, int(source.get("troops", 0))),
+			"stationed_hero_ids": _normalize_hero_id_array(source.get("stationed_hero_ids", source.get("hero_ids", []))),
+		}
+		city_payload["hero_ids"] = (city_payload["stationed_hero_ids"] as Array).duplicate()
+		serialized[city_id] = city_payload
+		print("[SAVE_CITY_STATE] city=%s owner=%s troops=%d heroes=%s" % [
+			city_id,
+			str(city_payload.get("owner", "")),
+			int(city_payload.get("troops", 0)),
+			str(city_payload.get("stationed_hero_ids", []))
+		])
+	return serialized
+
+
+func _serialize_worldmap_hero_runtime_state() -> Dictionary:
+	var serialized := {}
+	for hero_id_variant in _hero_runtime_states.keys():
+		var hero_id := str(hero_id_variant)
+		var hero_state: Variant = _hero_runtime_states.get(hero_id, {})
+		if not hero_state is Dictionary:
+			continue
+		var source := hero_state as Dictionary
+		var current_city_id := str(source.get("current_city_id", source.get("city_id", "")))
+		if current_city_id.is_empty():
+			continue
+		serialized[hero_id] = {
+			"current_city_id": current_city_id,
+			"city_id": current_city_id,
+			"location_city_id": current_city_id,
+		}
+		print("[SAVE_HERO_STATE] hero=%s current_city=%s" % [hero_id, current_city_id])
+	return serialized
+
+
+func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
+	if raw_state == null:
+		return
+	if not raw_state is Dictionary:
+		print("[LOAD_STATE_SKIP] type=worldmap_city_state reason=not_dictionary")
+		return
+	for city_id_variant in (raw_state as Dictionary).keys():
+		var city_id := str(city_id_variant)
+		var city_payload: Variant = (raw_state as Dictionary).get(city_id, {})
+		if not city_payload is Dictionary:
+			print("[LOAD_STATE_SKIP] type=city city=%s reason=not_dictionary" % city_id)
+			continue
+		if _get_city_hud_entry(city_id).is_empty() and not CITY_HUD_DATA.has(city_id):
+			print("[LOAD_STATE_SKIP] type=city city=%s reason=missing_city" % city_id)
+			continue
+		var source := city_payload as Dictionary
+		var city_state: Dictionary = CITY_HUD_DATA.get(city_id, {}).duplicate(true)
+		if city_state.is_empty():
+			print("[LOAD_STATE_SKIP] type=city city=%s reason=missing_seed" % city_id)
+			continue
+		var owner_id := str(source.get("owner", source.get("nation", source.get("owner_faction_id", ""))))
+		if not owner_id.is_empty():
+			city_state["owner"] = owner_id
+			city_state["nation"] = str(source.get("nation", owner_id))
+			city_state["owner_faction_id"] = str(source.get("owner_faction_id", owner_id))
+			city_state["faction"] = str(source.get("faction", owner_id))
+		if source.has("troops"):
+			city_state["troops"] = maxi(0, int(source.get("troops", 0)))
+		var stationed_hero_ids := _normalize_hero_id_array(source.get("stationed_hero_ids", source.get("hero_ids", city_state.get("stationed_hero_ids", []))))
+		city_state["stationed_hero_ids"] = stationed_hero_ids
+		city_state["hero_ids"] = stationed_hero_ids.duplicate()
+		_city_runtime_states[city_id] = city_state
+		for hero_id in stationed_hero_ids:
+			_set_hero_runtime_city(hero_id, city_id)
+		print("[LOAD_CITY_STATE] city=%s owner=%s troops=%d heroes=%s" % [
+			city_id,
+			str(city_state.get("owner", "")),
+			int(city_state.get("troops", 0)),
+			str(stationed_hero_ids)
+		])
+
+
+func _apply_worldmap_hero_runtime_state(raw_state: Variant) -> void:
+	if raw_state == null:
+		return
+	if not raw_state is Dictionary:
+		print("[LOAD_STATE_SKIP] type=worldmap_hero_state reason=not_dictionary")
+		return
+	for hero_id_variant in (raw_state as Dictionary).keys():
+		var hero_id := str(hero_id_variant)
+		var hero_payload: Variant = (raw_state as Dictionary).get(hero_id, {})
+		if not hero_payload is Dictionary:
+			print("[LOAD_STATE_SKIP] type=hero hero=%s reason=not_dictionary" % hero_id)
+			continue
+		if _get_hero_seed_entry(hero_id).is_empty():
+			print("[LOAD_STATE_SKIP] type=hero hero=%s reason=missing_hero" % hero_id)
+			continue
+		var current_city_id := str((hero_payload as Dictionary).get("current_city_id", (hero_payload as Dictionary).get("city_id", "")))
+		if current_city_id.is_empty():
+			print("[LOAD_STATE_SKIP] type=hero hero=%s reason=missing_city_id" % hero_id)
+			continue
+		if not CITY_HUD_DATA.has(current_city_id) and _get_city_hud_entry(current_city_id).is_empty():
+			print("[LOAD_STATE_SKIP] type=hero hero=%s city=%s reason=missing_city" % [hero_id, current_city_id])
+			continue
+		_set_hero_runtime_city(hero_id, current_city_id)
+		_remove_hero_from_other_city_runtime_rosters(hero_id, current_city_id)
+		_ensure_hero_in_city_runtime_roster(hero_id, current_city_id)
+		print("[LOAD_HERO_STATE] hero=%s current_city=%s" % [hero_id, current_city_id])
+
+
+func _refresh_city_marker_owner_states_from_runtime() -> void:
+	for city_id_variant in _city_markers_by_id.keys():
+		var city_id := str(city_id_variant)
+		var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+		if city_marker == null:
+			continue
+		var city_data := _get_city_hud_entry(city_id)
+		var owner_id := str(city_data.get("owner_faction_id", city_data.get("owner", city_data.get("nation", city_marker.owner_faction_id))))
+		if not owner_id.is_empty():
+			city_marker.owner_faction_id = owner_id
+			city_marker._refresh_marker_visuals()
+
+
+func _get_hero_seed_entry(hero_id: String) -> Dictionary:
 	return HERO_DATA.get(hero_id, {})
+
+
+func _get_hero_entry(hero_id: String) -> Dictionary:
+	var hero_data := _get_hero_seed_entry(hero_id)
+	if hero_data.is_empty():
+		return {}
+	var result := hero_data.duplicate(true)
+	var runtime_state: Variant = _hero_runtime_states.get(hero_id, {})
+	if runtime_state is Dictionary:
+		for key in (runtime_state as Dictionary).keys():
+			result[key] = (runtime_state as Dictionary).get(key)
+	return result
+
+
+func _normalize_hero_id_array(raw_hero_ids: Variant) -> Array[String]:
+	var result: Array[String] = []
+	if not raw_hero_ids is Array:
+		return result
+	for hero_id_variant in raw_hero_ids:
+		var hero_id := str(hero_id_variant)
+		if hero_id.is_empty() or result.has(hero_id):
+			continue
+		if _get_hero_seed_entry(hero_id).is_empty():
+			print("[LOAD_STATE_SKIP] type=hero_array hero=%s reason=missing_hero" % hero_id)
+			continue
+		result.append(hero_id)
+	return result
+
+
+func _set_hero_runtime_city(hero_id: String, city_id: String) -> void:
+	if hero_id.is_empty() or city_id.is_empty():
+		return
+	if _get_hero_seed_entry(hero_id).is_empty():
+		return
+	var hero_state: Dictionary = {}
+	var existing_state: Variant = _hero_runtime_states.get(hero_id, {})
+	if existing_state is Dictionary:
+		hero_state = (existing_state as Dictionary).duplicate(true)
+	hero_state["current_city_id"] = city_id
+	hero_state["city_id"] = city_id
+	hero_state["location_city_id"] = city_id
+	_hero_runtime_states[hero_id] = hero_state
+
+
+func _ensure_hero_in_city_runtime_roster(hero_id: String, city_id: String) -> void:
+	if hero_id.is_empty() or city_id.is_empty():
+		return
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	if city_data.is_empty():
+		return
+	var stationed_hero_ids := _normalize_hero_id_array(city_data.get("stationed_hero_ids", city_data.get("hero_ids", [])))
+	if not stationed_hero_ids.has(hero_id):
+		stationed_hero_ids.append(hero_id)
+	city_data["stationed_hero_ids"] = stationed_hero_ids
+	city_data["hero_ids"] = stationed_hero_ids.duplicate()
+	_city_runtime_states[city_id] = city_data
+
+
+func _remove_hero_from_other_city_runtime_rosters(hero_id: String, current_city_id: String) -> void:
+	if hero_id.is_empty():
+		return
+	var city_ids := {}
+	for city_id_variant in CITY_HUD_DATA.keys():
+		city_ids[str(city_id_variant)] = true
+	for city_id_variant in _city_runtime_states.keys():
+		city_ids[str(city_id_variant)] = true
+	for city_id_variant in city_ids.keys():
+		var city_id := str(city_id_variant)
+		if city_id == current_city_id:
+			continue
+		var city_data := _get_city_hud_entry(city_id)
+		var stationed_hero_ids := _normalize_hero_id_array(city_data.get("stationed_hero_ids", city_data.get("hero_ids", [])))
+		if not stationed_hero_ids.has(hero_id):
+			continue
+		stationed_hero_ids.erase(hero_id)
+		var mutable_city_state := _get_mutable_city_runtime_state(city_id)
+		if mutable_city_state.is_empty():
+			continue
+		mutable_city_state["stationed_hero_ids"] = stationed_hero_ids
+		mutable_city_state["hero_ids"] = stationed_hero_ids.duplicate()
+		_city_runtime_states[city_id] = mutable_city_state
+
+
+func _sync_worldmap_hero_locations_from_city_runtime_states() -> void:
+	for city_id_variant in _city_runtime_states.keys():
+		var city_id := str(city_id_variant)
+		var city_state: Variant = _city_runtime_states.get(city_id, {})
+		if not city_state is Dictionary:
+			continue
+		for hero_id in _normalize_hero_id_array((city_state as Dictionary).get("stationed_hero_ids", (city_state as Dictionary).get("hero_ids", []))):
+			_set_hero_runtime_city(hero_id, city_id)
 
 
 func _format_city_name_by_id(city_id: String, empty_fallback: String) -> String:

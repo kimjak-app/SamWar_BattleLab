@@ -1,6 +1,13 @@
 # NEXT TASKS
 
-## Current Hotfix Status
+## Current Persistence Status
+- `v0.68b-12b-19 WorldMap Battle Result Save/Load Persistence MVP` is complete in code.
+- Battle-result city owner/troop runtime overrides now persist through save/load via `worldmap_city_state`.
+- City stationed hero ids and hero current city ids now persist through `worldmap_city_state` / `worldmap_hero_state`, merged over seed data on load.
+- Pending invasion event/context is cleared in saved/restored state, preventing resolved invasions from reappearing after reload.
+- Remaining manual QA: F6 invasion result, save, load, city marker/right panel owner and troops, hero roster source for a new battle, and no duplicate pending invasion UI.
+
+## Previous Hotfix Status
 - `v0.68b-12b-18c Reinforcement Toast Auto Battle Final Stop Hotfix` is complete in code.
 - Support arrival toast now skips when the actual arriving unit list is empty; inactive/hidden WorldMap context support slots are excluded from arrival checks.
 - Battle result finalized guards now block deferred turn, enemy action, auto action, round-start toast, reinforcement toast, and support deployment paths.
