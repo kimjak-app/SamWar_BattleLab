@@ -83,9 +83,11 @@ Latest worldmap battle result return patch: `v0.68b-12b-14 WorldMap Battle Resul
 
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
-Current stable baseline: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
+Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
 
-Baseline commit: local HEAD after `v0.68b-12b-14-hotfix1`
+Current stable baseline: `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
+
+Baseline commit: local HEAD after `v0.68b-12b-14-hotfix2`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -170,6 +172,12 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup` is complete.
+- Cause: WorldMap calendar helpers used ambiguous integer `/` expressions for year and season-index math, triggering Godot reload warnings.
+- Fix summary: `scripts/worldmap_test.gd` now uses explicit `floori(float(... ) / float(...))` for the intended integer calendar divisions.
+- Calendar behavior remains unchanged: start year `154`, seasons `봄 / 여름 / 가을 / 겨울`, `10` turns per season, and `40` turns per year.
+- Verification passed: patch strings, calendar constants, obvious touched-file integer division scan, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining risk: interactive F6 should still confirm the live console has no yellow integer division warnings after normal UI interaction.
 - `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard` is complete.
 - Cause: `_refresh_unified_panel_chrome()` assumed unified panel chrome nodes and runtime-created primary tab buttons were always non-null before `.visible` writes.
 - Fix summary: `scripts/worldmap_test.gd` now guards unified panel chrome `.visible` / `.modulate` writes and warns once if a chrome node is missing.

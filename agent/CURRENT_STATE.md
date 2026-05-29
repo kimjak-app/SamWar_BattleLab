@@ -82,6 +82,8 @@ Latest worldmap battle result return patch: `v0.68b-12b-14 WorldMap Battle Resul
 
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
+Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -128,6 +130,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-13 Battle Roster Context Apply MVP`
 - `v0.68b-12b-14 WorldMap Battle Result Return MVP`
 - `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
+- `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -480,11 +483,16 @@ Latest worldmap BattleContext bridge patch: `v0.68b-12b-11 WorldMap Enemy Invasi
 
 Latest worldmap battle scene handoff patch: `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 
-Current stable baseline: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
+Current stable baseline: `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
 
-Baseline commit: local HEAD after `v0.68b-12b-14-hotfix1`
+Baseline commit: local HEAD after `v0.68b-12b-14-hotfix2`
 
 Latest hotfix notes:
+- `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup` fixes Godot integer division reload warnings in the WorldMap calendar helpers.
+- Warning cause: `scripts/worldmap_test.gd` used ambiguous integer `/` expressions for year and season-index calculation.
+- Calendar behavior is preserved: start year `154`, seasons `봄 / 여름 / 가을 / 겨울`, `10` turns per season, and `40` turns per year.
+- Verification passed: patch strings, calendar constants, ambiguous calendar division cleanup, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining risk: interactive F6 console warning cleanliness still needs 김작 confirmation across live UI interaction paths.
 - `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard` fixes the F6 runtime error where `_refresh_unified_panel_chrome()` assigned `.visible` on a nil unified panel chrome node.
 - `scripts/worldmap_test.gd` now guards runtime-created primary tab buttons and scene tab controls before `.visible` / `.modulate` writes, with a concise one-time warning if a chrome node is missing.
 - No gameplay behavior, battle result apply, city ownership, troop/resource mutation, invasion flow, turn logic, domestic apply, or save/load behavior changed.

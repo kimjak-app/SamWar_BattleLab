@@ -2,6 +2,16 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup
+- Fixed the F6 yellow `Integer division. Decimal part will be discarded.` warning source in `scripts/worldmap_test.gd`.
+- Root cause: calendar helpers used ambiguous integer `/` expressions for `zero_based_turn / WORLD_CALENDAR_YEAR_TURNS` and `(zero_based_turn % WORLD_CALENDAR_YEAR_TURNS) / WORLD_CALENDAR_SEASON_TURNS`.
+- Replaced those calendar divisions with explicit `floori(float(... ) / float(...))` integer intent.
+- Preserved calendar behavior: start year remains `154`, seasons remain `봄 / 여름 / 가을 / 겨울`, season length remains `10` turns, and year length remains `40` turns.
+- Inspected recently touched warning candidates: `scripts/worldmap_test.gd`, `scripts/battle_web_import_test.gd`, `scripts/worldmap_city_info_panel.gd`, and `scripts/worldmap_hero_portrait_helper.gd`.
+- Verification passed: patch strings, calendar constants, no remaining obvious ambiguous calendar divisions in touched files, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- No battle result ownership apply, troop/resource loss apply, city ownership change, invasion logic, BattleContext behavior, scene transition behavior, turn cycle behavior, domestic apply behavior, save/load behavior, panel redesign, or portrait binding behavior was changed.
+- Remaining risk: interactive F6 should be rechecked because headless load cannot fully prove the live console warning stream across every interaction.
+
 ### v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard
 - Fixed the F6 runtime error `_refresh_unified_panel_chrome: Invalid assignment of property or key 'visible' ... Nil`.
 - Cause: unified panel chrome refresh assumed primary tab buttons and tab-row controls were always available before assigning `.visible`.

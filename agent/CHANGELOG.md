@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup
+- Fixed Godot yellow `GDScript::reload: Integer division. Decimal part will be discarded.` warnings in `scripts/worldmap_test.gd`.
+- Cause: WorldMap calendar helpers used integer `/` for year and season-index calculation: `zero_based_turn / 40` and `(zero_based_turn % 40) / 10`.
+- Made the intended integer division explicit with `floori(float(... ) / float(...))` while preserving the calendar contract: start year `154`, `10` turns per season, and `40` turns per year.
+- Kept the hotfix bounded: no gameplay behavior, battle result ownership apply, troop/resource mutation, invasion flow, turn cycle behavior, domestic apply, save/load, panel layout redesign, or portrait binding behavior was changed.
+- Verification: patch strings present, calendar constants reviewed, ambiguous calendar integer divisions removed, `git diff --check` passed, Godot project headless load passed, root `WorldMap_Test.tscn` headless load passed, and root `Battle_Fullscreen_Test.tscn` headless load passed.
+- Remaining risk: full interactive F6 console warning cleanliness still needs 김작 visual/runtime confirmation because headless scene load does not exercise every UI interaction path.
+
 ## v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard
 - Fixed a WorldMap F6 runtime error in `scripts/worldmap_test.gd` where `_refresh_unified_panel_chrome()` could assign `.visible` on missing unified panel chrome nodes.
 - Cause: the unified panel chrome refresh path assumed runtime-created primary tab buttons and scene tab controls were always non-null.

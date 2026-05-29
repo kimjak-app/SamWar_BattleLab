@@ -51,6 +51,7 @@ const CHANCELLOR_SECONDARY_RATE := 0.015
 # v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
 # v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP
 # v0.68b-12b-14 WorldMap Battle Result Return MVP
+# v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup
 # v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard
 
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
@@ -1373,8 +1374,8 @@ func _update_world_turn_labels() -> void:
 func _format_world_calendar_label(turn_number: int) -> String:
 	var safe_turn := maxi(1, turn_number)
 	var zero_based_turn := safe_turn - 1
-	var year := WORLD_CALENDAR_START_YEAR + int(zero_based_turn / WORLD_CALENDAR_YEAR_TURNS)
-	var season_index := int((zero_based_turn % WORLD_CALENDAR_YEAR_TURNS) / WORLD_CALENDAR_SEASON_TURNS)
+	var year := WORLD_CALENDAR_START_YEAR + floori(float(zero_based_turn) / float(WORLD_CALENDAR_YEAR_TURNS))
+	var season_index := floori(float(zero_based_turn % WORLD_CALENDAR_YEAR_TURNS) / float(WORLD_CALENDAR_SEASON_TURNS))
 	var season_turn := (zero_based_turn % WORLD_CALENDAR_SEASON_TURNS) + 1
 	var season_id := str(WORLD_CALENDAR_SEASON_ORDER[season_index])
 	var season_label := str(WORLD_CALENDAR_SEASON_LABELS.get(season_id, season_id))
@@ -1862,7 +1863,7 @@ func _apply_domestic_turn_mvp() -> String:
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
 	var safe_turn := maxi(1, turn_number)
 	var zero_based_turn := safe_turn - 1
-	var season_index := int((zero_based_turn % WORLD_CALENDAR_YEAR_TURNS) / WORLD_CALENDAR_SEASON_TURNS)
+	var season_index := floori(float(zero_based_turn % WORLD_CALENDAR_YEAR_TURNS) / float(WORLD_CALENDAR_SEASON_TURNS))
 	var season_id := str(WORLD_CALENDAR_SEASON_ORDER[season_index])
 	return {
 		"turn": safe_turn,
