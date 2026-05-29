@@ -664,8 +664,11 @@ const HIT_SPARK_FX_TEXTURE_PATHS: Array[String] = [
 # v0.64y-hotfix Scene-Authored Closeup Panel Position
 # v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP
 # v0.68b-12b-13 Battle Roster Context Apply MVP
+# v0.68b-12b-14 WorldMap Battle Result Return MVP
 
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
+const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
+const WORLDMAP_SCENE_PATH := "res://WorldMap_Test.tscn"
 
 var is_demo_animating := false
 var ally_has_moved := false
@@ -677,6 +680,7 @@ var battle_log_lines: Array[String] = []
 var worldmap_battle_context: Dictionary = {}
 var has_applied_worldmap_context_roster := false
 var worldmap_context_roster_summary: Dictionary = {}
+var worldmap_return_button: Button = null
 var current_ally_unit_position := Vector2.ZERO
 var current_ally_portrait_position := Vector2.ZERO
 var ally_unit_state: BattleUnitState
@@ -1193,6 +1197,7 @@ func _ready() -> void:
 	_configure_unit_closeup_panel()
 	_configure_layout_guides()
 	_configure_floating_ally_command_panel()
+	_configure_worldmap_result_return_button()
 	reset_demo_state()
 	_read_worldmap_battle_context_handoff()
 	_debug_print_unit_visual_root_slots()
@@ -1241,6 +1246,7 @@ func _apply_worldmap_battle_context_handoff(context: Dictionary) -> void:
 	_append_battle_log("월드맵 방어전 데이터 수신")
 	_append_battle_log("%s 방어 · %s → %s" % [mode, attacker_city_name, defender_city_name])
 	_setup_worldmap_context_battle_roster(context)
+	_refresh_worldmap_result_return_button()
 
 
 func _setup_worldmap_context_battle_roster(context: Dictionary) -> void:
@@ -1677,11 +1683,96 @@ func hide_result() -> void:
 	result_overlay.visible = false
 
 
+func _configure_worldmap_result_return_button() -> void:
+	if battle_ui == null or worldmap_return_button != null:
+		return
+	worldmap_return_button = Button.new()
+	worldmap_return_button.name = "WorldMapResultReturnButton"
+	worldmap_return_button.text = "월드맵으로 돌아가기"
+	worldmap_return_button.visible = false
+	worldmap_return_button.custom_minimum_size = Vector2(220.0, 42.0)
+	worldmap_return_button.anchor_left = 0.5
+	worldmap_return_button.anchor_right = 0.5
+	worldmap_return_button.anchor_top = 1.0
+	worldmap_return_button.anchor_bottom = 1.0
+	worldmap_return_button.offset_left = -110.0
+	worldmap_return_button.offset_right = 110.0
+	worldmap_return_button.offset_top = -138.0
+	worldmap_return_button.offset_bottom = -96.0
+	worldmap_return_button.mouse_filter = Control.MOUSE_FILTER_STOP
+	worldmap_return_button.tooltip_text = "전투 결과를 월드맵으로 전달합니다."
+	worldmap_return_button.pressed.connect(_on_worldmap_result_return_pressed)
+	battle_ui.add_child(worldmap_return_button)
+
+
+func _refresh_worldmap_result_return_button() -> void:
+	if worldmap_return_button == null:
+		return
+	var can_return := _has_worldmap_battle_context() and _is_battle_result_finalized()
+	worldmap_return_button.visible = can_return
+	worldmap_return_button.disabled = not can_return
+	if can_return:
+		var result_label := "승리" if _get_battle_result_state() == "victory" else "패배"
+		worldmap_return_button.text = "월드맵으로 돌아가기 · %s" % result_label
+
+
+func _has_worldmap_battle_context() -> bool:
+	return not worldmap_battle_context.is_empty()
+
+
+func _on_worldmap_result_return_pressed() -> void:
+	_return_to_worldmap_with_result()
+
+
+func _return_to_worldmap_with_result() -> void:
+	if not _has_worldmap_battle_context():
+		_append_battle_log("월드맵 전투 데이터 없음")
+		_refresh_worldmap_result_return_button()
+		return
+	var battle_result_state := _get_battle_result_state()
+	if battle_result_state == "":
+		_append_battle_log("전투가 아직 종료되지 않았습니다.")
+		_refresh_worldmap_result_return_button()
+		return
+	var result_payload := _build_worldmap_battle_result_payload(battle_result_state)
+	if result_payload.is_empty():
+		_append_battle_log("월드맵 결과 데이터 생성 실패")
+		return
+	Engine.set_meta(WORLDMAP_BATTLE_RESULT_META_KEY, result_payload.duplicate(true))
+	print("[Battle] WorldMap battle result prepared: %s" % str(result_payload))
+	var transition_result := get_tree().change_scene_to_file(WORLDMAP_SCENE_PATH)
+	if transition_result != OK:
+		if Engine.has_meta(WORLDMAP_BATTLE_RESULT_META_KEY):
+			Engine.remove_meta(WORLDMAP_BATTLE_RESULT_META_KEY)
+		_append_battle_log("월드맵 복귀 실패")
+		_refresh_worldmap_result_return_button()
+
+
+func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dictionary:
+	if worldmap_battle_context.is_empty():
+		return {}
+	var result := "victory" if battle_result_state == "victory" else "defeat"
+	var winner := "defender" if result == "victory" else "attacker"
+	return {
+		"source": str(worldmap_battle_context.get("source", "enemy_invasion")),
+		"type": "defense_result",
+		"mode": str(worldmap_battle_context.get("mode", "manual")),
+		"result": result,
+		"winner": winner,
+		"attacker_city_id": str(worldmap_battle_context.get("attacker_city_id", "")),
+		"defender_city_id": str(worldmap_battle_context.get("defender_city_id", "")),
+		"attacker_city_name": str(worldmap_battle_context.get("attacker_city_name", "알 수 없는 적 도시")),
+		"defender_city_name": str(worldmap_battle_context.get("defender_city_name", "알 수 없는 아군 도시")),
+		"turn_number": int(worldmap_battle_context.get("turn_number", 0)),
+	}
+
+
 func reset_demo_state() -> void:
 	is_demo_animating = false
 	ally_has_moved = false
 	has_applied_worldmap_context_roster = false
 	worldmap_context_roster_summary = {}
+	_refresh_worldmap_result_return_button()
 	battle_round = 1
 	dead_unit_ids.clear()
 	unique_skill_cooldowns_by_hero_id.clear()
@@ -7197,6 +7288,7 @@ func _try_show_battle_result_toast_if_needed() -> bool:
 	has_battle_result_toast_shown = true
 	var is_victory := battle_result_state == "victory"
 	_show_battle_result_toast(is_victory)
+	_refresh_worldmap_result_return_button()
 	print("[BATTLE_RESULT] state=%s ally_alive=%d enemy_alive=%d" % [
 		battle_result_state,
 		_get_alive_deployed_unit_states_for_side("ally").size(),

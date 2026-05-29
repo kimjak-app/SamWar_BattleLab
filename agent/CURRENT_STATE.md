@@ -78,6 +78,8 @@ Latest worldmap battle scene handoff patch: `v0.68b-12b-12 WorldMap Enemy Invasi
 
 Latest battle roster context patch: `v0.68b-12b-13 Battle Roster Context Apply MVP`
 
+Latest worldmap battle result return patch: `v0.68b-12b-14 WorldMap Battle Result Return MVP`
+
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
 Latest worldmap tile hotfix: `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
@@ -122,6 +124,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
 - `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 - `v0.68b-12b-13 Battle Roster Context Apply MVP`
+- `v0.68b-12b-14 WorldMap Battle Result Return MVP`
 - `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 - `v0.68b-2-hotfix2 WorldMap Tile Editor Seam Fix`
 - `v0.68b-2-hotfix3 WorldMap Manual Tile Layout Control`
@@ -474,9 +477,9 @@ Latest worldmap BattleContext bridge patch: `v0.68b-12b-11 WorldMap Enemy Invasi
 
 Latest worldmap battle scene handoff patch: `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 
-Current stable baseline: `v0.68b-12b-13 Battle Roster Context Apply MVP`
+Current stable baseline: `v0.68b-12b-14 WorldMap Battle Result Return MVP`
 
-Baseline commit: local HEAD after `v0.68b-12b-13`
+Baseline commit: local HEAD after `v0.68b-12b-14`
 
 Current Godot state:
 - `scripts/worldmap_test.gd` now rolls a web-parity enemy invasion event during the existing enemy-turn placeholder.
@@ -545,6 +548,11 @@ Current implemented systems:
 - When WorldMap handoff context exists, `scripts/battle_web_import_test.gd` adapts the existing ally/enemy capacity slots from defender/attacker governor and stationed hero ids where those ids resolve to the current battle hero registry; unknown or missing heroes fall back per-slot to `TEST_BATTLE_ROSTER`.
 - The battle scene logs `월드맵 방어전 편성 적용` and keeps city names/mode visible through the handoff log path.
 - City troop counts remain context metadata for now; combat HP/troop scaling is deferred to avoid a balance rewrite.
+- `v0.68b-12b-14 WorldMap Battle Result Return MVP` is complete.
+- Battle result return uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_result`; no save file, repo runtime file, autoload, or project setting was added.
+- WorldMap-launched battles show a runtime `월드맵으로 돌아가기` button after victory/defeat, build a defense result payload, and transition back to root `WorldMap_Test.tscn`.
+- WorldMap consumes and clears the result metadata on startup, shows a defense success/failure status, clears pending invasion event and pending battle context, and refreshes HUD panels.
+- Final ownership, troop, resource, wounded, hero movement/capture, and persistence apply remain deferred.
 - Selected battle scene: `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff strategy: runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; no autoload, save file, project setting, or repo runtime file was added.
 - Manual/auto defense now transitions to the battle scene after context preparation. The battle scene preserves direct standalone test launch by falling back to the existing demo setup when context is absent.
@@ -553,7 +561,6 @@ Current implemented systems:
 Explicitly deferred systems:
 - Defense hero deployment UI.
 - Auto defense resolution.
-- Battle result return.
 - City ownership apply.
 - Troop loss / resource loss from battle.
 - Enemy strategic AI and enemy multi-action turn.
@@ -562,13 +569,12 @@ Explicitly deferred systems:
 - Full governor appointment execution.
 
 Next direction:
-1. `v0.68b-12b-14 WorldMap Battle Result Return MVP`
-2. `v0.68b-12b-15 WorldMap Enemy Invasion Ownership/Troop Apply MVP`
-3. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
-4. `v0.68b-12c Selected City Panel Web Content Parity`
-5. `v0.68b-12d City Detail Panel Web Content Parity`
-6. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
-7. `v0.68c BattleContext Runtime Injection MVP`
+1. `v0.68b-12b-15 WorldMap Invasion Result Ownership/Troop Apply MVP`
+2. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
+3. `v0.68b-12c Selected City Panel Web Content Parity`
+4. `v0.68b-12d City Detail Panel Web Content Parity`
+5. `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
+6. `v0.68c BattleContext Runtime Injection MVP`
 
 ## Known / Deferred
 - 김작 F6 visual QA should confirm `v0.68b-12b Left World HUD Web Content Parity`: left main HUD section order is close to the web left HUD; turn/date/phase display follows web wording; chancellor card resembles the web structure; chancellor policy list/copy matches the web constants; selecting a policy updates explanation only and does not change actual values; national resources, warehouse, supply, troop rebalance, logistics/upkeep, and external trade summaries use web-like copy; button wording follows the web; placeholder feel is reduced; bottom empty space is acceptable; unified panel and Selected City panel structure remain intact; drag/collapse works; city clicks still refresh panels; route lines and sea arrow flow are normal; castle icon visuals stay hidden; existing battle scenes are not broken.

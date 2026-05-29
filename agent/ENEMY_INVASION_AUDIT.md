@@ -116,13 +116,13 @@
 - Still missing by design: defense deployment, battle-prep payload creation, battle handoff, auto battle resolution, battle result return, city ownership updates, troop losses, and resolved world ownership persistence.
 
 ## v0.68b-12b-10.5 Session Handoff Status
-- This historical handoff has been superseded. Current stable baseline is `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`.
+- This historical handoff has been superseded. Current stable baseline is `v0.68b-12b-14 WorldMap Battle Result Return MVP`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI is acceptable for the current MVP.
 - Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
 - `agent/LOCAL_ENV.md` and `.godot/` remain ignored local files and must not be committed.
 - Pending invasion event and pending battle context are not persisted on save/load, and load/reset clear both according to the web audit policy.
-- Battle scene handoff is complete; battle result return remains intentionally deferred.
+- Battle scene handoff and battle result return are complete; ownership/troop/resource apply remains intentionally deferred.
 - Right city info panel cleanup, hero portrait binding, BattleContext bridge, and safe battle scene handoff are complete.
 
 ## v0.68b-12b-10a Right City Panel Cleanup Status
@@ -158,11 +158,16 @@
 - City troop/garrison scaling remains deferred; this patch applies identity/metadata and concise battle log feedback only.
 - Still missing by design: battle result return, city ownership updates, troop/resource losses, hero movement/capture, defense deployment UI, and auto battle resolution.
 
-## Recommended Godot Implementation Plan
+## v0.68b-12b-14 Battle Result Return Status
+- Implemented in `scripts/battle_web_import_test.gd` and `scripts/worldmap_test.gd`.
+- Battle result return uses separate runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_result`.
+- Battle payload shape includes source, type `defense_result`, mode, result `victory`/`defeat`, winner `defender`/`attacker`, attacker/defender city ids and names, and turn number.
+- WorldMap-launched battles show a runtime `월드맵으로 돌아가기` button after victory/defeat; pressing it stores the payload and transitions to root `WorldMap_Test.tscn`.
+- WorldMap reads and clears the payload on startup, shows a defense result status, clears pending invasion event and pending battle context, hides the pending choice card, and refreshes panels.
+- Direct `Battle_Fullscreen_Test.tscn` launch remains unchanged when no WorldMap context exists.
+- Still missing by design: city ownership updates, troop/resource losses, wounded handling, hero movement/capture, defense deployment UI, auto battle resolution, and resolved world ownership persistence.
 
-### v0.68b-12b-14 Battle Result Return MVP
-- Return from battle scene to worldmap with a result payload.
-- Keep city ownership/troop/resource application deferred to the next task.
+## Recommended Godot Implementation Plan
 
 ### v0.68b-12b-15 Enemy Invasion Ownership / Troop Apply
 - Apply a returned defense battle result to city ownership, troop state, and hero faction/location state.

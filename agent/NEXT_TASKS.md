@@ -79,9 +79,11 @@ Latest worldmap battle scene handoff patch: `v0.68b-12b-12 WorldMap Enemy Invasi
 
 Latest battle roster context patch: `v0.68b-12b-13 Battle Roster Context Apply MVP`
 
-Current stable baseline: `v0.68b-12b-13 Battle Roster Context Apply MVP`
+Latest worldmap battle result return patch: `v0.68b-12b-14 WorldMap Battle Result Return MVP`
 
-Baseline commit: local HEAD after `v0.68b-12b-13`
+Current stable baseline: `v0.68b-12b-14 WorldMap Battle Result Return MVP`
+
+Baseline commit: local HEAD after `v0.68b-12b-14`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -92,88 +94,89 @@ Latest worldmap manual layout patch: `v0.68b-2-hotfix3 WorldMap Manual Tile Layo
 Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker Node2D NameLabel Fix`
 
 ## Priority 1
-`v0.68b-12b-14 WorldMap Battle Result Return MVP`
+`v0.68b-12b-15 WorldMap Invasion Result Ownership/Troop Apply MVP`
 
 Goal:
-- return from battle scene to worldmap with a safe result payload
+- apply the returned defense battle result to worldmap city ownership and troop/resource state
 
 Scope:
-- produce/receive a battle result payload without applying ownership or troop/resource consequences
-- keep worldmap mutation deferred to the ownership/troop apply task
+- consume the already returned battle result payload
+- apply final world ownership/troop/resource consequences in a bounded MVP
 
 Forbidden in this task:
-- no city ownership change
-- no final battle result application to world state
 - no hero movement or troop relocation
 - no actual governor/chancellor appointment execution
 
 ## Priority 2
-`v0.68b-12b-14 WorldMap Enemy Invasion Ownership / Troop Apply`
-
-Goal:
-- apply a returned defense battle result to city ownership and troop state
-
-## Priority 3
 `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 
 Goal:
 - bring the city detail panel governor and stationed hero display closer to web parity using imported seed data without adding broader gameplay execution
 
-## Priority 4
+## Priority 3
 `v0.68b-12c Selected City Panel Web Content Parity`
 
 Goal:
 - align the Godot Selected City / `CityInfoPanel` content more closely with the actual web selected-city render output while keeping all actions display-only
 
-## Priority 5
+## Priority 4
 `v0.68b-12d City Detail Panel Web Content Parity`
 
 Goal:
 - align the unified city-detail mode content more closely with the actual web resource/internal-trade/external-trade render output
 
-## Priority 6
+## Priority 5
 `v0.68b-12e Diplomacy Spy Panel Web Content Parity`
 
 Goal:
 - align the unified diplomacy/spy mode with the actual web diplomacy/spy render output without adding real diplomacy or spy execution
 
-## Priority 7
+## Priority 6
 `v0.68b-13 Hero Portrait Asset Naming Contract`
 
 Goal:
 - define portrait asset naming/lookup rules for web-to-Godot hero HUD reuse without changing runtime hero logic
 
-## Priority 8
+## Priority 7
 `v0.68b-14 Hero Portrait Asset Apply MVP`
 
 Goal:
 - apply available hero portrait assets to the worldmap HUD portrait slots without changing hero logic
 
-## Priority 9
+## Priority 8
 `v0.68c BattleContext Runtime Injection MVP`
 
 Goal:
 - inject prepared `BattleContext` data into battle startup while preserving the current stable `5v5` fallback path
 
-## Priority 10
+## Priority 9
 `v0.68d Hero/Army Deployment MVP`
 
 Goal:
 - add hero/army deployment MVP on top of the worldmap contract without breaking current battle fallback
 
-## Priority 11
+## Priority 10
 `v0.69 Battlefield Variant Loader`
 
 Goal:
 - load battlefield map variants from `BattleContext.map_variant_id` without changing battle formulas or roster ownership
 
-## Priority 12
+## Priority 11
 `v0.69b Naval Battle Entry MVP`
 
 Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-14 WorldMap Battle Result Return MVP` is complete.
+- Modified `scripts/worldmap_test.gd`, `scripts/battle_web_import_test.gd`, and agent docs.
+- Battle result payload uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_result` with source/type/mode/result/winner, attacker/defender city ids and names, and turn number.
+- WorldMap-launched battles now show a `월드맵으로 돌아가기` button after victory/defeat; pressing it stores the payload and transitions to root `WorldMap_Test.tscn`.
+- WorldMap consumes and clears the payload on startup, shows a defense result status, clears pending invasion/context, hides the pending choice card, and refreshes panels.
+- Direct battle scene launch remains preserved because the return button stays hidden without WorldMap context.
+- No ownership, troop/resource, wounded, hero movement/capture, auto resolution, combat balance, or save architecture changes were added.
+- Verification passed: patch strings, result metadata paths, forbidden implementation search, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Recommended next task: `v0.68b-12b-15 WorldMap Invasion Result Ownership/Troop Apply MVP`.
 - `v0.68b-12b-13 Battle Roster Context Apply MVP` is complete.
 - WorldMap-launched battles now adapt the existing `Battle_Fullscreen_Test.tscn` demo capacity slots with defender/attacker governor and stationed hero ids where those ids resolve to the battle hero registry.
 - Missing, empty, or unknown context hero ids fall back to the existing per-slot `TEST_BATTLE_ROSTER`, so direct battle testing and incomplete WorldMap rosters remain stable.
@@ -206,13 +209,13 @@ Goal:
 - Verification passed: patch strings, right-panel strings, `git diff --check`, Godot project headless load, and root `WorldMap_Test.tscn` headless load.
 - Recommended next task after 10a was `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`; it is now complete.
 - `v0.68b-12b-10.5 Session Handoff Docs Update Before Stop` documents the current stop point before the next session.
-- Current stable baseline is `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`.
+- Current stable baseline is `v0.68b-12b-14 WorldMap Battle Result Return MVP`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI displays correctly enough for the current MVP.
 - Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
 - `agent/LOCAL_ENV.md` and `.godot/` are ignored local files and must not be committed.
 - Pending invasion event and pending battle context are not persisted on save/load; load/reset clear both according to the web audit policy.
-- Battle scene handoff is complete; battle result return remains intentionally deferred.
+- Battle scene handoff and battle result return are complete; ownership/troop/resource apply remains intentionally deferred.
 - Completed today: `12b-1` seed import, `12b-2` left controls, `12b-3` chancellor policy/warehouse, `12b-3a` warehouse cleanup, `12b-4` turn/save, `12b-5` turn loop, `12b-6` domestic apply, `12b-7` QA, `12b-8` invasion audit, `12b-9` invasion event, and `12b-10` invasion choice UI.
 
 - `v0.68b-12b-10 WorldMap Enemy Invasion Choice UI MVP` is complete.

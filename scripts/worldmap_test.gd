@@ -50,8 +50,10 @@ const CHANCELLOR_SECONDARY_RATE := 0.015
 # v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 # v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
 # v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP
+# v0.68b-12b-14 WorldMap Battle Result Return MVP
 
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
+const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
 const WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Fullscreen_Test.tscn"
 
 const REGION_LABELS := {
@@ -433,6 +435,7 @@ func _ready() -> void:
 	_setup_left_world_controls()
 	_ensure_chancellor_portrait_texture_rect()
 	_setup_left_world_status_panel_layout()
+	_consume_worldmap_battle_result_if_any()
 	_refresh_left_world_status_panel()
 	_connect_world_hud_placeholders()
 	_setup_unified_city_detail_diplomacy_panel()
@@ -1591,6 +1594,53 @@ func _handoff_battle_context_to_battle_scene(battle_context: Dictionary) -> void
 			Engine.remove_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY)
 		_set_save_management_status("전투 화면 이동 실패")
 		_refresh_left_world_status_panel()
+
+
+func _consume_worldmap_battle_result_if_any() -> void:
+	if not Engine.has_meta(WORLDMAP_BATTLE_RESULT_META_KEY):
+		return
+	var result_payload: Variant = Engine.get_meta(WORLDMAP_BATTLE_RESULT_META_KEY)
+	Engine.remove_meta(WORLDMAP_BATTLE_RESULT_META_KEY)
+	if not result_payload is Dictionary:
+		_set_save_management_status("전투 결과 수신 실패")
+		return
+	var result := (result_payload as Dictionary).duplicate(true)
+	if result.is_empty():
+		_set_save_management_status("전투 결과 수신 실패")
+		return
+	_apply_returned_battle_result_mvp(result)
+
+
+func _apply_returned_battle_result_mvp(result: Dictionary) -> void:
+	_clear_pending_invasion_event_mvp()
+	var defender_city_id := str(result.get("defender_city_id", ""))
+	if not defender_city_id.is_empty():
+		_player_state["selected_city_id"] = defender_city_id
+		var defender_marker := _city_markers_by_id.get(defender_city_id) as WorldMapCityMarker
+		if defender_marker != null:
+			if selected_city_marker != null and selected_city_marker != defender_marker:
+				selected_city_marker.set_selected(false)
+			selected_city_id = defender_city_id
+			selected_city_marker = defender_marker
+			selected_city_marker.set_selected(true)
+			city_info_panel.show_city(defender_marker)
+	_set_save_management_status(_format_battle_result_status(result))
+	_refresh_pending_invasion_choice_ui({})
+	city_info_panel.set_pending_invasion_event({})
+	_refresh_unified_panel_content()
+	print("[WorldMap] Battle result received without ownership/troop apply: %s" % str(result))
+
+
+func _format_battle_result_status(result: Dictionary) -> String:
+	var defender_city_name := str(result.get("defender_city_name", "알 수 없는 아군 도시"))
+	var attacker_city_name := str(result.get("attacker_city_name", "알 수 없는 적 도시"))
+	var battle_result := str(result.get("result", ""))
+	var winner := str(result.get("winner", ""))
+	if battle_result == "victory" or winner == "defender":
+		return "방어 성공: %s을 지켜냈습니다. · 결과 적용은 다음 단계" % defender_city_name
+	if battle_result == "defeat" or winner == "attacker":
+		return "방어 실패: %s이 함락 위기에 놓였습니다. · 점령 적용은 아직 미구현" % defender_city_name
+	return "전투 결과 수신 완료: %s → %s" % [attacker_city_name, defender_city_name]
 
 
 func _validate_pending_invasion_event_for_battle_context(event: Dictionary) -> Dictionary:

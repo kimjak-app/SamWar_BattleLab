@@ -2,6 +2,18 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-14 WorldMap Battle Result Return MVP
+- Confirmed current HEAD baseline `0217bd160b23981c06e9108c0fbaf3e41ed7f776` from `v0.68b-12b-13 Battle Roster Context Apply MVP`.
+- Inspected required agent docs, WorldMap scripts/scene, battle controller/scene, and local web battle return references.
+- Web references inspected: `C:\dev\SamWar_web\js\core\battle_state.js`, `js\core\battle_rules.js`, `js\core\world_rules.js`, `js\core\app_state.js`, `js\ui\world_map_ui.js`, `js\ui\world_hud_ui.js`, and `js\main.js`.
+- Added battle-side runtime result payload creation with `samwar_worldmap_battle_result`, including source/type/mode/result/winner, attacker/defender city ids and names, and turn number.
+- Added a runtime `월드맵으로 돌아가기` button that appears only for WorldMap-launched battles after victory/defeat and transitions to root `WorldMap_Test.tscn`.
+- Added WorldMap result intake that consumes and clears metadata, shows defense success/failure status, clears pending invasion/context, hides the pending choice card, and refreshes panels.
+- Direct battle scene launch remains preserved because no WorldMap context keeps the return button hidden and the demo battle path unchanged.
+- Verification passed: patch strings, result metadata paths, forbidden implementation search, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- No city ownership change, troop/resource loss apply, hero movement/capture, auto battle resolution change, combat balance change, defense deployment UI, or broad battle refactor was added.
+- Recommended next task: `v0.68b-12b-15 WorldMap Invasion Result Ownership/Troop Apply MVP`.
+
 ### v0.68b-12b-13 Battle Roster Context Apply MVP
 - Confirmed current HEAD baseline after `v0.68b-12b-12` and inspected required agent docs, battle controller, WorldMap handoff references, and local web roster/battle source references.
 - Web references inspected: `C:\dev\SamWar_web\data\battle_rosters.js`, `data\heroes.js`, `data\cities.js`, `js\core\battle_state.js`, `js\core\battle_rules.js`, `js\core\battle_ai.js`, `js\core\world_rules.js`, and `js\core\app_state.js`.

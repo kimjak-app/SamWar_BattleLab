@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b-14 WorldMap Battle Result Return MVP
+- Added runtime-only battle result return in `scripts/battle_web_import_test.gd` and `scripts/worldmap_test.gd`.
+- Inspected local read-only web references: `C:\dev\SamWar_web\js\core\battle_state.js`, `js\core\battle_rules.js`, `js\core\world_rules.js`, `js\core\app_state.js`, `js\ui\world_map_ui.js`, `js\ui\world_hud_ui.js`, and `js\main.js`.
+- Battle result payload uses Godot `Engine` metadata key `samwar_worldmap_battle_result` with source/type/mode/result/winner, attacker/defender city ids and names, and turn number.
+- WorldMap-launched battles now reveal a runtime `월드맵으로 돌아가기` button after victory/defeat; pressing it stores the result payload and transitions back to `res://WorldMap_Test.tscn`.
+- Direct `Battle_Fullscreen_Test.tscn` launch remains unchanged: missing WorldMap context keeps the return button hidden and the demo battle path intact.
+- WorldMap consumes and clears the result metadata on startup, shows a Korean result status, clears pending invasion event and pending battle context, hides the pending choice card, and refreshes panels.
+- Kept the patch bounded: no city ownership change, troop/resource loss apply, hero movement/capture, auto battle resolution change, combat balance change, defense deployment UI, or broad battle refactor was added.
+- Verification: patch strings present, result metadata paths present, forbidden implementation search reviewed, `git diff --check` passed, Godot project headless load passed, root `WorldMap_Test.tscn` headless load passed, and root `Battle_Fullscreen_Test.tscn` direct headless load passed.
+
 ## v0.68b-12b-13 Battle Roster Context Apply MVP
 - Updated `scripts/battle_web_import_test.gd` so `Battle_Fullscreen_Test.tscn` applies WorldMap handoff context to the existing battle capacity slots when launched from WorldMap.
 - Inspected local read-only web references: `C:\dev\SamWar_web\data\battle_rosters.js`, `data\heroes.js`, `data\cities.js`, `js\core\battle_state.js`, `js\core\battle_rules.js`, `js\core\battle_ai.js`, `js\core\world_rules.js`, and `js\core\app_state.js`.
