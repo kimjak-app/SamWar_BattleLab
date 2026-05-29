@@ -80,6 +80,8 @@ Latest battle roster context patch: `v0.68b-12b-13 Battle Roster Context Apply M
 
 Latest worldmap battle result return patch: `v0.68b-12b-14 WorldMap Battle Result Return MVP`
 
+Latest worldmap invasion result apply patch: `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -129,6 +131,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 - `v0.68b-12b-13 Battle Roster Context Apply MVP`
 - `v0.68b-12b-14 WorldMap Battle Result Return MVP`
+- `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`
 - `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 - `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
 - `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -484,11 +487,21 @@ Latest worldmap BattleContext bridge patch: `v0.68b-12b-11 WorldMap Enemy Invasi
 
 Latest worldmap battle scene handoff patch: `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
 
-Current stable baseline: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
+Latest worldmap invasion result apply patch: `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`
 
-Baseline commit: local HEAD after `v0.68b-12b-14-hotfix3`
+Current stable baseline: `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`
+
+Baseline commit: local HEAD after `v0.68b-12b-15`
 
 Latest hotfix notes:
+- `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP` applies returned enemy-invasion defense results at bounded runtime scope.
+- Result payload handling now accepts result/winner/is_player_win variants plus attacker/defender owner and troop fields.
+- Defense victory preserves city ownership, clears pending invasion/context, refreshes UI, and applies minimal nonnegative troop reductions where current/payload troop data exists.
+- Defense defeat transfers the target city to the attacker owner through existing `owner` / `nation` city fields and marker `owner_faction_id`, updates `_player_state.owned_city_ids`, applies safe occupation troops, and refreshes right panel/marker/world HUD.
+- Retreat/cancel/aborted/unknown results clear pending state safely and do not change ownership.
+- Deferred: hero capture, hero movement, resource loss, detailed casualty formulas, save/load persistence expansion for resolved city ownership, AI strategy recalculation, and multi-invasion queues.
+- Verification passed: patch strings, `git diff --check`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining risk: full interactive F6 should still verify manual victory/defeat/retreat return behavior.
 - `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup` fixes the Godot `owner` local-variable shadow warning in `scripts/battle_web_import_test.gd`.
 - Warning cause: `_apply_worldmap_context_side_roster()` used local `owner` for WorldMap context owner metadata, shadowing `Node.owner`.
 - The local is now `city_owner_id`; metadata/output keys remain unchanged, so gameplay and ownership behavior are preserved.
@@ -512,9 +525,12 @@ Current Godot state:
 - The defense buttons now validate the pending invasion event, create runtime `_player_state.pending_battle_context`, hand off a deep copy through Godot `Engine` metadata, and transition to `Battle_Fullscreen_Test.tscn`.
 - Pending battle context includes defense type/source/mode, attacker/defender ids and names, turn numbers, owner ids, troops, stationed hero ids, and governor ids from existing marker/HUD seed data.
 - `scripts/battle_web_import_test.gd` reads the handoff context once, clears the metadata, stores local `worldmap_battle_context`, and logs the manual/auto mode plus attacker/defender city names.
+- `scripts/battle_web_import_test.gd` now returns battle result payload owner/troop fields for WorldMap result application.
+- `scripts/worldmap_test.gd` consumes returned invasion results, applies defense victory/defeat/retreat/unknown branches, clears pending state, and refreshes city marker/right panel/world HUD.
 - `아군 턴 종료` is disabled/blocked while a pending invasion event exists so enemy events cannot stack before the choice flow is handled.
 - Save/load/reset clear pending invasion and pending battle context state; runtime saves do not persist either runtime choice object, and load normalizes enemy-phase saves back to player turn.
-- No city ownership change, troop loss, hero movement, enemy AI, pathfinding, cooldown, diplomacy rule, defense deployment UI, auto battle resolution, or battle result apply was added.
+- Runtime defense defeat can change city ownership and target-city troops for the current session; save/load persistence for resolved city state remains deferred.
+- No hero movement/capture, resource loss, enemy AI, pathfinding, cooldown, diplomacy rule, defense deployment UI, auto battle resolution, or detailed casualty formula was added.
 - User-reported F6 runtime visual check for the current baseline is working normally, and the pending invasion choice UI displays adequately for the current MVP.
 - Active worldmap scene is the root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist in this repo.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
@@ -536,6 +552,7 @@ Completed WorldMap session flow:
 13. `v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP`
 14. `v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge`
 15. `v0.68b-12b-12 WorldMap Enemy Invasion Battle Scene Handoff MVP`
+16. `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`
 
 Current implemented systems:
 - Web hero/city/battle roster seed data imported into Godot worldmap seed structures.
@@ -574,7 +591,11 @@ Current implemented systems:
 - Battle result return uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_result`; no save file, repo runtime file, autoload, or project setting was added.
 - WorldMap-launched battles show a runtime `월드맵으로 돌아가기` button after victory/defeat, build a defense result payload, and transition back to root `WorldMap_Test.tscn`.
 - WorldMap consumes and clears the result metadata on startup, shows a defense success/failure status, clears pending invasion event and pending battle context, and refreshes HUD panels.
-- Final ownership, troop, resource, wounded, hero movement/capture, and persistence apply remain deferred.
+- `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP` is complete.
+- Returned defense battle payloads now include attacker/defender owner ids, starting troop counts, and deployed survivor troop totals.
+- WorldMap result apply preserves ownership on defense victory, transfers the target city to the attacker owner on defense defeat, applies safe nonnegative troop changes, clears pending invasion/context, and refreshes marker/right panel/world HUD.
+- Retreat/cancel/aborted/unknown results are safe no-ownership-change branches.
+- Resource loss, wounded handling, hero movement/capture, detailed casualty calculation, AI recalculation, multi-invasion queues, and save/load persistence expansion remain deferred.
 - Selected battle scene: `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff strategy: runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; no autoload, save file, project setting, or repo runtime file was added.
 - Manual/auto defense now transitions to the battle scene after context preparation. The battle scene preserves direct standalone test launch by falling back to the existing demo setup when context is absent.
@@ -583,15 +604,17 @@ Current implemented systems:
 Explicitly deferred systems:
 - Defense hero deployment UI.
 - Auto defense resolution.
-- City ownership apply.
-- Troop loss / resource loss from battle.
+- Save/load persistence expansion for resolved city ownership/troop state.
+- Resource loss from battle.
+- Detailed casualty calculation beyond the current minimal troop apply.
+- Hero capture and hero city movement.
 - Enemy strategic AI and enemy multi-action turn.
 - Internal supply network, troop redistribution, trade cooldown.
 - Soldier upkeep / salt consumption if still deferred.
 - Full governor appointment execution.
 
 Next direction:
-1. `v0.68b-12b-15 WorldMap Invasion Result Ownership/Troop Apply MVP`
+1. `v0.68b-12b-16 WorldMap Invasion Result Persistence / QA Follow-up`
 2. `v0.68b-12b-4 WorldMap City Detail Governor / Stationed Hero Web Parity MVP`
 3. `v0.68b-12c Selected City Panel Web Content Parity`
 4. `v0.68b-12d City Detail Panel Web Content Parity`

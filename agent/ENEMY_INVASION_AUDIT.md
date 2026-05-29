@@ -116,13 +116,13 @@
 - Still missing by design: defense deployment, battle-prep payload creation, battle handoff, auto battle resolution, battle result return, city ownership updates, troop losses, and resolved world ownership persistence.
 
 ## v0.68b-12b-10.5 Session Handoff Status
-- This historical handoff has been superseded. Current stable baseline is `v0.68b-12b-14 WorldMap Battle Result Return MVP`.
+- This historical handoff has been superseded. Current stable baseline is `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`.
 - User-reported F6 runtime visual check is working normally, and the pending invasion choice UI is acceptable for the current MVP.
 - Active worldmap scene is root-level `WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` may not exist.
 - Runtime save path is `user://worldmap_left_panel_state.json`.
 - `agent/LOCAL_ENV.md` and `.godot/` remain ignored local files and must not be committed.
 - Pending invasion event and pending battle context are not persisted on save/load, and load/reset clear both according to the web audit policy.
-- Battle scene handoff and battle result return are complete; ownership/troop/resource apply remains intentionally deferred.
+- Battle scene handoff, battle result return, and bounded runtime ownership/troop apply are complete; persistence, resource loss, and detailed casualty handling remain deferred.
 - Right city info panel cleanup, hero portrait binding, BattleContext bridge, and safe battle scene handoff are complete.
 
 ## v0.68b-12b-10a Right City Panel Cleanup Status
@@ -165,14 +165,23 @@
 - WorldMap-launched battles show a runtime `월드맵으로 돌아가기` button after victory/defeat; pressing it stores the payload and transitions to root `WorldMap_Test.tscn`.
 - WorldMap reads and clears the payload on startup, shows a defense result status, clears pending invasion event and pending battle context, hides the pending choice card, and refreshes panels.
 - Direct `Battle_Fullscreen_Test.tscn` launch remains unchanged when no WorldMap context exists.
-- Still missing by design: city ownership updates, troop/resource losses, wounded handling, hero movement/capture, defense deployment UI, auto battle resolution, and resolved world ownership persistence.
+- Superseded by `v0.68b-12b-15` for bounded runtime ownership/troop application.
+
+## v0.68b-12b-15 Invasion Result Ownership Troop Apply Status
+- Implemented in `scripts/worldmap_test.gd` and `scripts/battle_web_import_test.gd`.
+- Battle result payloads now include attacker/defender owner ids, starting troop counts, and deployed survivor troop totals.
+- WorldMap result handling accepts result/winner/is_player_win variants and treats unknown values as safe no-ownership-change outcomes.
+- Defense victory preserves target-city ownership, clears pending invasion/context, refreshes UI, and applies minimal nonnegative troop reductions when current/payload troop data exists.
+- Defense defeat transfers the target city to the attacker owner using existing `owner` / `nation` city fields plus `WorldMapCityMarker.owner_faction_id`, updates `_player_state.owned_city_ids`, applies safe occupation troops, clears pending state, and refreshes marker/right panel/world HUD.
+- Retreat/cancel/aborted/unknown results clear pending invasion safely and never change ownership.
+- Still missing by design: hero capture, hero city movement, resource losses/looting, detailed casualty calculation, defense deployment UI, auto battle resolution, AI strategy recalculation, multi-invasion queue, and save/load persistence expansion for resolved city ownership/troops.
 
 ## Recommended Godot Implementation Plan
 
 ### v0.68b-12b-15 Enemy Invasion Ownership / Troop Apply
-- Apply a returned defense battle result to city ownership, troop state, and hero faction/location state.
-- Preserve web behavior where losing a defense transfers the city to the attacker faction and winning defense returns surviving/wounded troops.
-- Add save/load support for the resulting city ownership and troop state.
+- Complete at bounded MVP runtime scope.
+- Follow-up: decide whether resolved city ownership/troop changes should be persisted through save/load.
+- Follow-up: F6-verify manual victory, defeat, retreat/cancel, and unknown result branches through the full UI flow.
 
 ## Deferred Risks
 - Web invasion candidate selection ignores troop thresholds, route type, diplomacy, and city strength. Porting it exactly may feel abrupt if Godot UI lacks a player response layer.

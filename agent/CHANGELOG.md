@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP
+- Applied returned WorldMap enemy-invasion battle results in `scripts/worldmap_test.gd` through a bounded `_apply_invasion_battle_result()` flow.
+- Warning/cause context: the previous result-return MVP only consumed the payload, cleared pending invasion state, and displayed a status; ownership/troop application remained intentionally deferred.
+- Extended `scripts/battle_web_import_test.gd` result payloads with attacker/defender owner ids, starting troop counts, and surviving deployed troop totals so WorldMap can apply a minimal runtime result.
+- Defense victory keeps target-city ownership unchanged, clears the pending invasion/context, shows a defense-success message, and applies minimal nonnegative troop reductions when current/payload troop fields are available.
+- Defense defeat transfers the target city to the attacker owner using existing `owner` / `nation` city fields plus `WorldMapCityMarker.owner_faction_id`, updates the player owned-city list, sets safe occupation troops from attacker survivors or a fallback, and refreshes marker/panels.
+- Retreat/cancel/aborted/unknown results do not change ownership, clear the pending invasion safely, and show a non-crashing Korean status message.
+- Kept deferred: hero capture, hero city movement, resource losses/looting, detailed casualty calculation, AI strategy recalculation, multi-invasion queues, and save/load persistence expansion for resolved city ownership.
+- Verification: patch strings present, `git diff --check` passed, Godot project headless load passed, root `WorldMap_Test.tscn` headless load passed, and root `Battle_Fullscreen_Test.tscn` headless load passed with no integer division or owner-shadow warnings in headless output.
+- Remaining risk: full interactive F6 flow should still confirm manual defense, battle return button, victory/defeat ownership visuals, and retreat/unknown handling because headless scene load cannot click through the complete battle loop.
+
 ## v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup
 - Fixed the remaining Godot warning where local variable `owner` shadowed the base `Node.owner` property.
 - Cause: `scripts/battle_web_import_test.gd` used a local `owner` variable while applying WorldMap context-side roster metadata.

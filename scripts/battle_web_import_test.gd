@@ -666,6 +666,7 @@ const HIT_SPARK_FX_TEXTURE_PATHS: Array[String] = [
 # v0.68b-12b-13 Battle Roster Context Apply MVP
 # v0.68b-12b-14 WorldMap Battle Result Return MVP
 # v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup
+# v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP
 
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
@@ -1764,8 +1765,21 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 		"defender_city_id": str(worldmap_battle_context.get("defender_city_id", "")),
 		"attacker_city_name": str(worldmap_battle_context.get("attacker_city_name", "알 수 없는 적 도시")),
 		"defender_city_name": str(worldmap_battle_context.get("defender_city_name", "알 수 없는 아군 도시")),
+		"attacker_owner": str(worldmap_battle_context.get("attacker_owner", "")),
+		"defender_owner": str(worldmap_battle_context.get("defender_owner", "")),
+		"attacker_troops": maxi(0, int(worldmap_battle_context.get("attacker_troops", 0))),
+		"defender_troops": maxi(0, int(worldmap_battle_context.get("defender_troops", 0))),
+		"attacker_surviving_troops": _sum_alive_deployed_troops_for_side("enemy"),
+		"defender_surviving_troops": _sum_alive_deployed_troops_for_side("ally"),
 		"turn_number": int(worldmap_battle_context.get("turn_number", 0)),
 	}
+
+
+func _sum_alive_deployed_troops_for_side(side: String) -> int:
+	var total := 0
+	for unit_state in _get_alive_deployed_unit_states_for_side(side):
+		total += maxi(0, int(unit_state.current_troops))
+	return total
 
 
 func reset_demo_state() -> void:
