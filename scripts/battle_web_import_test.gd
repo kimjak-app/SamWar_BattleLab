@@ -58,6 +58,9 @@ const STRATEGY_SHAKE_ATTACK_MULTIPLIER := 0.9
 const STRATEGY_SHAKE_DEFENSE_DAMAGE_MULTIPLIER := 1.1
 const DEFEND_DAMAGE_MULTIPLIER := 0.62
 const DEFEND_WOUNDED_RECOVERY_RATE := 0.10
+const WOUNDED_ATTACK_DAMAGE_MULTIPLIER := 0.75
+const WOUNDED_DEFENSE_INCOMING_DAMAGE_MULTIPLIER := 1.20
+const WOUNDED_SKILL_EFFECT_MULTIPLIER := 0.70
 const STATUS_BADGE_COLOR := Color(0.62, 0.82, 0.96, 0.8)
 const STATUS_BADGE_OUTLINE_COLOR := Color(0.02, 0.03, 0.04, 0.62)
 const STATUS_BADGE_DEFENSE_COLOR := Color(0.52, 0.70, 0.90, 0.82)
@@ -2386,7 +2389,7 @@ func play_basic_attack_demo() -> void:
 
 	_spawn_attack_slash_fx(ally_start, enemy_start)
 
-	var attack_damage := _get_directional_attack_damage(int(DEMO_DAMAGE), active_unit_state, selected_attack_target_state)
+	var attack_damage := _get_directional_attack_damage(int(DEMO_DAMAGE), active_unit_state, selected_attack_target_state, true, true)
 	var attack_angle_type := _get_attack_angle_type(active_unit_state, selected_attack_target_state)
 	selected_attack_target_state.apply_damage(attack_damage)
 	_update_enemy_target_visuals_from_state(selected_attack_target_state)
@@ -3184,9 +3187,9 @@ func _get_best_unique_skill_aoe_target(caster_state: BattleUnitState, skill_data
 func _get_best_unique_skill_single_target(caster_state: BattleUnitState, skill_data: Dictionary, candidates: Array[BattleUnitState]) -> BattleUnitState:
 	var best_target: BattleUnitState = null
 	var best_score := -999999
-	var damage := int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE))
+	var damage := _get_unique_skill_effect_amount(caster_state, skill_data, "power", UNIQUE_SKILL_DEFAULT_DAMAGE, false)
 	for target_state in candidates:
-		var projected_damage := _get_directional_attack_damage(damage, caster_state, target_state)
+		var projected_damage := _get_directional_attack_damage(damage, caster_state, target_state, false, false)
 		var score := 0
 		if projected_damage >= int(target_state.current_hp):
 			score += 100000
@@ -3251,7 +3254,7 @@ func _is_unique_skill_high_value_for_actor(caster_state: BattleUnitState, skill_
 		"self_defense_single":
 			if target_state == null:
 				return false
-			var skill_damage := _get_directional_attack_damage(int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE)), caster_state, target_state)
+			var skill_damage := _get_directional_attack_damage(_get_unique_skill_effect_amount(caster_state, skill_data, "power", UNIQUE_SKILL_DEFAULT_DAMAGE, false), caster_state, target_state, false, false)
 			var attack_damage := _get_auto_damage_for_actor_against_target(caster_state, target_state)
 			var angle_type := _get_attack_angle_type(caster_state, target_state)
 			return (
@@ -3262,7 +3265,7 @@ func _is_unique_skill_high_value_for_actor(caster_state: BattleUnitState, skill_
 		"single_damage_adjacent_shake":
 			if target_state == null:
 				return false
-			var skill_damage := _get_directional_attack_damage(int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE)), caster_state, target_state)
+			var skill_damage := _get_directional_attack_damage(_get_unique_skill_effect_amount(caster_state, skill_data, "power", UNIQUE_SKILL_DEFAULT_DAMAGE, false), caster_state, target_state, false, false)
 			var attack_damage := _get_auto_damage_for_actor_against_target(caster_state, target_state)
 			return (
 				skill_damage >= int(target_state.current_hp)
@@ -3284,7 +3287,7 @@ func _is_unique_skill_fallback_value_for_actor(caster_state: BattleUnitState, sk
 		"self_defense_single", "single_damage_adjacent_shake":
 			if target_state == null:
 				return false
-			var skill_damage := _get_directional_attack_damage(int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE)), caster_state, target_state)
+			var skill_damage := _get_directional_attack_damage(_get_unique_skill_effect_amount(caster_state, skill_data, "power", UNIQUE_SKILL_DEFAULT_DAMAGE, false), caster_state, target_state, false, false)
 			return skill_damage >= int(target_state.current_hp)
 	return false
 
@@ -3586,10 +3589,11 @@ func _apply_unique_skill_cannon_aoe(caster_state: BattleUnitState, skill_data: D
 	if target_states.is_empty():
 		_append_battle_log("고유특기 대상 없음")
 		return
-	var damage := int(skill_data.get("power", UNIQUE_SKILL_AOE_DAMAGE))
+	var damage := _get_unique_skill_effect_amount(caster_state, skill_data, "power", UNIQUE_SKILL_AOE_DAMAGE)
 	var hit_count := 0
 	for target_state in target_states:
-		var applied := target_state.apply_damage(damage)
+		var target_damage := _apply_wounded_incoming_damage_penalty(target_state, damage)
+		var applied := target_state.apply_damage(target_damage)
 		if applied <= 0:
 			continue
 		hit_count += 1
@@ -3603,7 +3607,7 @@ func _apply_unique_skill_cannon_aoe(caster_state: BattleUnitState, skill_data: D
 
 
 func _apply_unique_skill_ally_attack_buff(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
-	var buff_amount := int(skill_data.get("power", UNIQUE_SKILL_ATTACK_BUFF))
+	var buff_amount := _get_unique_skill_effect_amount(caster_state, skill_data, "power", UNIQUE_SKILL_ATTACK_BUFF)
 	var affected_count := 0
 	for ally_state in _get_unique_skill_valid_targets(caster_state, skill_data):
 		if _has_active_unique_skill_attack_buff(ally_state):
@@ -3621,10 +3625,10 @@ func _apply_unique_skill_self_defense_single(caster_state: BattleUnitState, skil
 	if target_state == null:
 		_append_battle_log("고유특기 대상 없음")
 		return
-	var damage := _get_directional_attack_damage(int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE)), caster_state, target_state)
+	var damage := _get_directional_attack_damage(_get_unique_skill_effect_amount(caster_state, skill_data, "power", UNIQUE_SKILL_DEFAULT_DAMAGE), caster_state, target_state, false, true)
 	var angle_type := _get_attack_angle_type(caster_state, target_state)
 	var applied := target_state.apply_damage(damage)
-	var defense_bonus := int(skill_data.get("defense_bonus", UNIQUE_SKILL_DEFENSE_BUFF))
+	var defense_bonus := _get_unique_skill_effect_amount(caster_state, skill_data, "defense_bonus", UNIQUE_SKILL_DEFENSE_BUFF)
 	caster_state.defense += defense_bonus
 	_set_unique_skill_defense_buff_state(caster_state, defense_bonus)
 	_update_unit_visuals_from_state(target_state)
@@ -3643,9 +3647,9 @@ func _apply_unique_skill_single_damage_adjacent_shake(caster_state: BattleUnitSt
 	if target_state == null:
 		_append_battle_log("고유특기 대상 없음")
 		return
-	var damage := _get_directional_attack_damage(int(skill_data.get("power", UNIQUE_SKILL_DEFAULT_DAMAGE)), caster_state, target_state)
+	var damage := _get_directional_attack_damage(_get_unique_skill_effect_amount(caster_state, skill_data, "power", UNIQUE_SKILL_DEFAULT_DAMAGE), caster_state, target_state, false, true)
 	var angle_type := _get_attack_angle_type(caster_state, target_state)
-	var splash_damage := int(skill_data.get("splash", UNIQUE_SKILL_SPLASH_DAMAGE))
+	var splash_damage := _get_unique_skill_effect_amount(caster_state, skill_data, "splash", UNIQUE_SKILL_SPLASH_DAMAGE)
 	var applied := target_state.apply_damage(damage)
 	var target_pos := _get_visual_anchor_position_for_unit(target_state)
 	_update_unit_visuals_from_state(target_state)
@@ -3658,7 +3662,8 @@ func _apply_unique_skill_single_damage_adjacent_shake(caster_state: BattleUnitSt
 			continue
 		if get_unit_grid_distance(target_state, adjacent_state) > 1:
 			continue
-		var splash_applied := adjacent_state.apply_damage(splash_damage)
+		var adjusted_splash_damage := _apply_wounded_incoming_damage_penalty(adjacent_state, splash_damage)
+		var splash_applied := adjacent_state.apply_damage(adjusted_splash_damage)
 		_update_unit_visuals_from_state(adjacent_state)
 		_spawn_skill_damage_number_fx(_get_visual_anchor_position_for_unit(adjacent_state), splash_applied)
 	_append_attack_angle_log(angle_type)
@@ -3743,7 +3748,7 @@ func _get_attack_angle_damage_multiplier(angle_type: String) -> float:
 			return FRONT_ATTACK_DAMAGE_MULTIPLIER
 
 
-func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnitState, defender_state: BattleUnitState) -> int:
+func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnitState, defender_state: BattleUnitState, apply_attacker_wounded_penalty := true, should_log_wounded_penalty := false) -> int:
 	var angle_type := _get_attack_angle_type(attacker_state, defender_state)
 	var damage_multiplier := _get_attack_angle_damage_multiplier(angle_type)
 	if _has_strategy_status_effect(attacker_state, STATUS_SHAKE):
@@ -3752,7 +3757,10 @@ func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnit
 		damage_multiplier *= STRATEGY_SHAKE_DEFENSE_DAMAGE_MULTIPLIER
 	if defender_state != null and defender_state.is_defending:
 		damage_multiplier *= DEFEND_DAMAGE_MULTIPLIER
-	return maxi(1, int(round(float(base_damage) * damage_multiplier)))
+	var damage := maxi(1, int(round(float(base_damage) * damage_multiplier)))
+	if apply_attacker_wounded_penalty:
+		damage = _apply_wounded_amount_multiplier(attacker_state, "attack", damage, should_log_wounded_penalty)
+	return _apply_wounded_incoming_damage_penalty(defender_state, damage, should_log_wounded_penalty)
 
 
 func _show_defend_hit_reaction_if_needed(defender_state: BattleUnitState) -> void:
@@ -5839,7 +5847,7 @@ func _enemy_reaction_hit_on() -> void:
 	if target_state == null:
 		target_state = _get_enemy_ai_target_state_for_actor(current_enemy_ai_actor_state)
 	if target_state != null and target_state.is_alive():
-		var attack_damage := _get_directional_attack_damage(int(ENEMY_DEMO_DAMAGE), current_enemy_ai_actor_state, target_state)
+		var attack_damage := _get_directional_attack_damage(int(ENEMY_DEMO_DAMAGE), current_enemy_ai_actor_state, target_state, true, true)
 		var attack_angle_type := _get_attack_angle_type(current_enemy_ai_actor_state, target_state)
 		target_state.apply_damage(attack_damage)
 		_update_ally_target_visuals_from_state(target_state)
@@ -6222,6 +6230,75 @@ func _get_hero_state_badge_text(hero_entry: Dictionary) -> String:
 	if bool(hero_entry.get("wounded", false)) or status == "wounded":
 		return " [부상]"
 	return ""
+
+
+func _is_unit_hero_wounded(unit_state: BattleUnitState) -> bool:
+	if unit_state == null:
+		return false
+	var hero_id := _get_hero_id_for_unit_state(unit_state)
+	if hero_id == "":
+		return false
+	var hero_entry := _get_hero_registry_entry(hero_id)
+	if hero_entry.is_empty():
+		return false
+	var status := str(hero_entry.get("status", "normal")).to_lower()
+	return bool(hero_entry.get("wounded", false)) or status == "wounded"
+
+
+func _get_wounded_penalty_multiplier(unit_state: BattleUnitState, penalty_type: String) -> float:
+	if not _is_unit_hero_wounded(unit_state):
+		return 1.0
+	match penalty_type:
+		"attack":
+			return WOUNDED_ATTACK_DAMAGE_MULTIPLIER
+		"defense":
+			return 0.80
+		"skill":
+			return WOUNDED_SKILL_EFFECT_MULTIPLIER
+		_:
+			return 1.0
+
+
+func _get_unique_skill_effect_amount(caster_state: BattleUnitState, skill_data: Dictionary, field_name: String, fallback_amount: int, should_log_wounded_penalty := true) -> int:
+	var amount := maxi(0, int(skill_data.get(field_name, fallback_amount)))
+	return _apply_wounded_amount_multiplier(caster_state, "skill", amount, should_log_wounded_penalty)
+
+
+func _apply_wounded_amount_multiplier(unit_state: BattleUnitState, penalty_type: String, amount: int, should_log_wounded_penalty := true) -> int:
+	if amount <= 0:
+		return 0
+	var multiplier := _get_wounded_penalty_multiplier(unit_state, penalty_type)
+	if is_equal_approx(multiplier, 1.0):
+		return amount
+	var adjusted := maxi(1, int(round(float(amount) * multiplier)))
+	if should_log_wounded_penalty and adjusted != amount:
+		_log_wounded_penalty(unit_state, penalty_type, multiplier, amount, adjusted)
+	return adjusted
+
+
+func _apply_wounded_incoming_damage_penalty(unit_state: BattleUnitState, amount: int, should_log_wounded_penalty := true) -> int:
+	if amount <= 0:
+		return 0
+	if not _is_unit_hero_wounded(unit_state):
+		return amount
+	var adjusted := maxi(1, int(round(float(amount) * WOUNDED_DEFENSE_INCOMING_DAMAGE_MULTIPLIER)))
+	if should_log_wounded_penalty and adjusted != amount:
+		_log_wounded_penalty(unit_state, "defense", WOUNDED_DEFENSE_INCOMING_DAMAGE_MULTIPLIER, amount, adjusted)
+	return adjusted
+
+
+func _log_wounded_penalty(unit_state: BattleUnitState, penalty_type: String, multiplier: float, before_amount: int, after_amount: int) -> void:
+	if unit_state == null:
+		return
+	var hero_id := _get_hero_id_for_unit_state(unit_state)
+	print("[WOUNDED_PENALTY] hero=%s name=%s type=%s multiplier=%.2f before=%d after=%d" % [
+		hero_id,
+		unit_state.display_name,
+		penalty_type,
+		multiplier,
+		before_amount,
+		after_amount,
+	])
 
 
 func _is_hero_entry_excluded_from_context_battle(hero_entry: Dictionary) -> bool:

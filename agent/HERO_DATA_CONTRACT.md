@@ -1,5 +1,12 @@
 # HERO DATA CONTRACT
 
+## v0.68b-12b-25 Wounded Battle Penalty
+- Wounded state remains runtime/save state and must not mutate seed `HERO_DATA`.
+- `wounded == true` or `status == "wounded"` does not exclude a hero from battle.
+- Battle MVP penalties are attack damage `75%`, defense as incoming damage `120%`, and unique-skill numeric effects `70%`.
+- Captured/dead state remains battle-ineligible; wounded state is a performance penalty only.
+- Save/load continues through existing `worldmap_hero_state` fields; no new save schema is introduced for the penalty.
+
 ## v0.68b-12b-24 Captured Battle Exclusion
 - Captured state is a runtime/save state, not a seed `HERO_DATA` mutation.
 - `captured == true` or `status == "captured"` makes a hero ineligible for invasion BattleContext roster construction.

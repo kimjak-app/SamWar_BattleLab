@@ -2,6 +2,14 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-25 Wounded Hero Battle Penalty MVP
+- Added battle-side wounded helper lookup through the existing hero registry/context hero registry state fields.
+- Kept wounded heroes battle-eligible and preserved `[부상]` display behavior.
+- Applied MVP penalties: attack damage `75%`, wounded defender incoming damage `120%`, and unique-skill numeric effects `70%`.
+- Unique skill penalty covers damage, splash, attack buff, and defense buff values without changing toast presentation.
+- Captured/dead battle exclusion remains unchanged; no new save/load fields were added.
+- Deferred wound recovery, treatment UI, prisoner systems, death handling, and refined stat-based wound balance.
+
 ### v0.68b-12b-24 Captured Hero Battle Exclusion / Holding Placeholder MVP
 - Added a WorldMap battle-exclusion helper for captured/dead hero runtime state.
 - BattleContext roster creation now skips captured/dead heroes for main attacker/defender rosters and same-faction/2-hop support picks.

@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current Wounded Hero Battle Penalty Status
+- `v0.68b-12b-25 Wounded Hero Battle Penalty MVP` is complete in code.
+- Wounded heroes still enter battles and keep `[부상]` badges; captured/dead heroes remain excluded.
+- MVP penalty values: attack damage `75%`, defense represented as incoming damage `120%`, and unique-skill numeric effects `70%`.
+- The battle scene reads wounded state through the existing WorldMap context hero registry / hero registry lookup and does not add save fields.
+- Remaining manual QA: F6 wounded hero save/load, enter a new battle, confirm `[부상]` remains and `[WOUNDED_PENALTY]` logs appear for attack/defense/skill cases.
+- Still deferred: wound recovery turns, treatment UI, prisoner systems, death handling, and refined stat-based wound balance.
+
 ## Current Captured Hero Battle Exclusion Status
 - `v0.68b-12b-24 Captured Hero Battle Exclusion MVP` is complete in code.
 - Captured heroes remain visible in city rosters with `[포로]`, but they are excluded from WorldMap invasion attacker/defender/support battle rosters.

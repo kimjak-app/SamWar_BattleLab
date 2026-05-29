@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-25 Wounded Hero Battle Penalty MVP
+- Added wounded combat penalty constants and helpers in `scripts/battle_web_import_test.gd`.
+- Wounded heroes remain eligible for battle and keep existing `[부상]` labels; captured/dead exclusion remains unchanged.
+- Basic attack damage now applies a `0.75` wounded attacker multiplier on actual damage resolution.
+- Wounded defenders now take `1.20x` incoming damage as the MVP defense-performance penalty.
+- Unique-skill numeric effects now apply a `0.70` wounded caster multiplier for damage, splash, attack buff, and defense buff amounts.
+- No new save fields were added; battle penalty lookup uses the existing context/hero registry status fields preserved from `worldmap_hero_state`.
+- No wound recovery, treatment UI, prisoner flow, death processing, or full stat-balance pass was added.
+
 ## v0.68b-12b-24 Captured Hero Battle Exclusion MVP
 - Added captured/dead battle-exclusion helpers in `scripts/worldmap_test.gd`.
 - WorldMap invasion BattleContext roster construction now skips heroes whose runtime state is `captured == true`, `status == "captured"`, or `dead == true`.

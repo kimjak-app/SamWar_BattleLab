@@ -1,5 +1,12 @@
 # v0.68b-12b-8 Enemy Invasion Web Logic Audit
 
+## v0.68b-12b-25 Wounded Battle Penalty Status
+- Enemy-invasion battles now keep wounded heroes eligible while applying battle-side wounded penalties.
+- MVP values are attack damage `75%`, incoming damage to wounded defenders `120%`, and wounded caster unique-skill numeric effects `70%`.
+- Captured/dead exclusion from v24 remains active, so captured heroes do not enter invasion BattleContext rosters.
+- Save/load relies on existing hero status persistence; no new persistence fields were added.
+- Remaining deferred audit items: wound recovery, treatment UI, prisoner movement/recruit/execute/release, death handling, and refined stat-based wounded balance.
+
 ## v0.68b-12b-24 Captured Battle Exclusion Status
 - Enemy-invasion BattleContext roster generation now excludes captured/dead heroes from main rosters and support candidates.
 - Captured heroes remain in city rosters for WorldMap display and save/load continuity, but they are no longer eligible to appear in battle formation panels or battlefield slots.

@@ -1,6 +1,14 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-12b-25 Wounded Hero Battle Penalty MVP` keeps wounded heroes battle-eligible but weakens their combat output.
+- Wounded penalty MVP values are attack damage `75%`, defense as incoming damage `120%`, and unique-skill numeric effects `70%`.
+- Unique-skill damage, splash, attack buff, and defense buff amounts use the skill penalty; the toast/name presentation is unchanged.
+- The battle scene reads wounded state from preserved context hero status fields; save/load continues through existing `worldmap_hero_state`.
+- Captured/dead exclusion from v24 remains intact, while wounded heroes are intentionally not excluded.
+- Deferred: wound recovery, treatment UI, prisoner movement/recruit/execute/release, real death handling, and refined ability-based wound balance.
+
+## Previous Patch Note
 - `v0.68b-12b-24 Captured Hero Battle Exclusion MVP` keeps captured heroes in WorldMap city rosters but excludes them from future invasion BattleContext rosters.
 - The exclusion guard treats `captured == true`, `status == "captured"`, and safety `dead == true` as ineligible for battle; wounded heroes remain eligible.
 - Support/reinforcement candidate picks use the same guard, so captured heroes are skipped instead of becoming reinforcements.

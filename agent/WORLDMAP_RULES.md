@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-25 Wounded Battle Penalty Rule
+- Wounded heroes remain eligible for BattleContext rosters and battle deployment.
+- Wounded markers should remain visible in existing roster labels as `[부상]`.
+- Battle MVP penalties are attack damage `75%`, defense represented by incoming damage `120%`, and unique-skill numeric effects `70%`.
+- Captured/dead heroes remain battle-ineligible under the v24 exclusion rule.
+- Wound recovery, treatment UI, prisoner systems, death handling, and refined stat-based wounded penalties are still out of scope.
+
 ## v0.68b-12b-24 Captured Hero Battle Exclusion Rule
 - Captured heroes remain in city `stationed_hero_ids` / `hero_ids` and must still be visible in WorldMap city information with `[포로]`.
 - BattleContext roster generation must exclude heroes with `captured == true` or `status == "captured"`.
