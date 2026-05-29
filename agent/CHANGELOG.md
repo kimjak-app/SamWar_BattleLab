@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-18c Reinforcement Toast Auto Battle Final Stop Hotfix
+- Fixed false reinforcement arrival toast display in `scripts/battle_web_import_test.gd`: support arrival toasts now require at least one actually deployed arriving unit.
+- Root cause: the round-based reinforcement path attempted deployment and always queued the toast/log, even if WorldMap context support slots were inactive/empty and no unit was deployed.
+- `reinforce_01` and city reinforcement arrival paths now collect successful arriving hero ids, skip toast on an empty list, and log `[REINFORCEMENT_TOAST_SKIP]` / `[REINFORCEMENT_ARRIVAL]`.
+- Inactive context support slots are excluded from city reinforcement readiness and generic reinforcement deploy checks.
+- Strengthened result-finalized guards across enemy turn/action callbacks, move/attack finish callbacks, confused ally auto-consume, round start, reinforcement deploy checks, auto action start, and toast enqueue/playback.
+- Non-result pending/current battle toasts are cleared or blocked after victory/defeat finalization; result toast and worldmap return remain intact.
+- Deferred/manual QA: F6 no-support invasion turn-3 toast check, sample battle real support toast check, immediate auto battle stop after victory/defeat, and worldmap return.
+
 ## v0.68b-12b-18b Roster Panel Source Auto Battle End Hotfix
 - Fixed the remaining formation-panel sample roster leak in `scripts/battle_web_import_test.gd`: WorldMap context panel slots now use assigned context hero ids first and hide empty/inactive context slots.
 - Root cause: `_refresh_formation_slot_guide_for_entry()` read capacity-slot `unit_state` first, and `_get_hero_id_for_unit_state()` could still return `TEST_BATTLE_ROSTER` fallback identities for inactive support slots.

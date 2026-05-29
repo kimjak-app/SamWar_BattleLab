@@ -1,6 +1,12 @@
 # NEXT TASKS
 
 ## Current Hotfix Status
+- `v0.68b-12b-18c Reinforcement Toast Auto Battle Final Stop Hotfix` is complete in code.
+- Support arrival toast now skips when the actual arriving unit list is empty; inactive/hidden WorldMap context support slots are excluded from arrival checks.
+- Battle result finalized guards now block deferred turn, enemy action, auto action, round-start toast, reinforcement toast, and support deployment paths.
+- Remaining manual QA: F6 invasion with no support should not show the turn-3 support toast, sample battle should still show support toast when sample reinforcements arrive, and auto battle should stop immediately after victory/defeat.
+
+## Previous Hotfix Status
 - `v0.68b-12b-18b Roster Panel Source Auto Battle End Hotfix` is complete in code.
 - WorldMap enemy-invasion formation panels now hide empty/inactive context slots and no longer display sample roster heroes from stale capacity-slot unit state fallback.
 - Auto battle result guards stop the full-auto loop at victory/defeat and block deferred auto tick / ally-turn scheduling after battle end.

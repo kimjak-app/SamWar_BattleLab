@@ -1,5 +1,11 @@
 # v0.68b-12b-8 Enemy Invasion Web Logic Audit
 
+## v0.68b-12b-18c Reinforcement Toast + Auto Stop Status
+- False no-support reinforcement toast fixed in the battle scene: toast display now depends on a nonempty actual arriving unit list, not only on the reinforcement round check.
+- Inactive/hidden WorldMap context support slots are excluded from arrival readiness and deployment, so missing support no longer produces turn-3 arrival toast copy.
+- Victory/defeat finalization now blocks non-result toast queue/playback, reinforcement checks, round start, enemy action callbacks, and auto battle action entry.
+- Remaining manual QA: F6 no-support invasion turn-3 toast absence, direct sample support toast preservation, immediate auto stop after result, and worldmap return.
+
 ## v0.68b-12b-18b Roster Panel + Auto Battle End Status
 - Remaining sample hero leak source fixed in the battle scene formation panels: panel refresh used capacity-slot `unit_state` before context-empty metadata, so inactive support slots could still show sample 김유신/을지문덕/유비/제갈량.
 - WorldMap enemy-invasion panels now hide empty/inactive context support slots and do not call sample `TEST_BATTLE_ROSTER` fallback for those cells.

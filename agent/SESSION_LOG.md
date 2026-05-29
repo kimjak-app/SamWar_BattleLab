@@ -2,6 +2,15 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-18c Reinforcement Toast + Auto Battle Final Stop Hotfix
+- Confirmed the false support-toast path: reinforcement arrival logic keyed off round/deploy attempt state and queued the toast even when no active support unit actually deployed.
+- Changed reinforcement deployment helpers to return success/failure and made toast display require a nonempty arriving hero-id list.
+- Empty/inactive WorldMap context support slots are excluded from generic and city reinforcement arrival checks; support toast is skipped with `[REINFORCEMENT_TOAST_SKIP]` when no unit arrives.
+- Strengthened battle-result final guards across deferred enemy callbacks, move/attack finish callbacks, confused ally consume, round start, auto action start, reinforcement checks, and non-result toast queue/playback.
+- Result-finalized state now clears or blocks non-result toasts while preserving result toast and worldmap return behavior.
+- Verification passed: `git diff --check`, no split portrait fields in `scripts`, Godot project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load with sample fallback intact.
+- Remaining QA: live F6 should confirm no turn-3 support toast in no-support invasion, sample support toast still appears when real support arrives, auto battle stops immediately at result, and worldmap return remains stable.
+
 ### v0.68b-12b-18b Roster Panel Source + Auto Battle End Hotfix
 - Confirmed the formation-panel leak source: after 18a deactivated empty WorldMap context slots, the side-panel refresh still read capacity-slot `unit_state` first, which could resolve sample `TEST_BATTLE_ROSTER` heroes.
 - Changed WorldMap context panel refresh so assigned context `hero_id` is authoritative; empty/inactive context slots are hidden and never sample-filled.

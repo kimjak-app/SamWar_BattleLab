@@ -2226,6 +2226,10 @@ func play_basic_move_demo() -> void:
 
 
 func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_position: Vector2, target_cell: Vector2i) -> void:
+	if _handle_battle_end_guard("ally_move_finish"):
+		is_demo_animating = false
+		print("[TURN_ADVANCE_BLOCKED] source=ally_move_finish reason=result_finalized")
+		return
 	_sync_selected_ally_markers_to_position(target_unit_position, target_portrait_position)
 	active_unit_state.set_grid_cell(target_cell)
 	_refresh_ally_facing_toward_enemy_if_not_manual()
@@ -2405,7 +2409,8 @@ func _finish_basic_attack_demo() -> void:
 	_show_unit_closeup_for_ally(active_unit_state)
 	_update_ally_ready_frames()
 	_cleanup_dead_units()
-	if _is_battle_result_finalized():
+	if _handle_battle_end_guard("ally_attack_finish"):
+		print("[TURN_ADVANCE_BLOCKED] source=ally_attack_finish reason=result_finalized")
 		_set_phase(PHASE_ALLY_TURN)
 		return
 	_set_phase(PHASE_ENEMY_TURN)
@@ -3032,6 +3037,9 @@ func _clear_strategy_status_icon_labels() -> void:
 
 
 func _consume_confused_ally_turn_if_needed() -> bool:
+	if _handle_battle_end_guard("confused_ally_turn"):
+		print("[TURN_ADVANCE_BLOCKED] source=confused_ally_turn reason=result_finalized")
+		return true
 	if current_phase != PHASE_ALLY_TURN:
 		return false
 	if active_unit_state == null or active_unit_state.side != "ally":
@@ -3045,7 +3053,8 @@ func _consume_confused_ally_turn_if_needed() -> bool:
 	_mark_ally_unit_acted(active_unit_state)
 	_update_ally_ready_frames()
 	_refresh_formation_slot_guides()
-	if _is_battle_result_finalized():
+	if _handle_battle_end_guard("confused_ally_turn_after_mark"):
+		print("[TURN_ADVANCE_BLOCKED] source=confused_ally_turn_after_mark reason=result_finalized")
 		_set_phase(PHASE_ALLY_TURN)
 		return true
 	_set_phase(PHASE_ENEMY_TURN)
@@ -5585,13 +5594,17 @@ func _play_enemy_turn_demo() -> void:
 
 
 func _play_enemy_ai_turn() -> void:
+	if _handle_battle_end_guard("enemy_turn_start"):
+		print("[TURN_ADVANCE_BLOCKED] source=enemy_turn_start reason=result_finalized")
+		return
 	is_demo_animating = true
 	_stop_idle_breathing()
 	basic_attack_button.disabled = true
 	_clear_transient_battle_highlights()
 	_cleanup_dead_units()
-	if _is_battle_result_finalized():
+	if _handle_battle_end_guard("enemy_turn_after_cleanup"):
 		is_demo_animating = false
+		print("[TURN_ADVANCE_BLOCKED] source=enemy_turn_after_cleanup reason=result_finalized")
 		return
 	_debug_print_combat_distance("ENEMY_TURN_START")
 
@@ -5605,6 +5618,9 @@ func _play_enemy_ai_turn() -> void:
 
 
 func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
+	if _handle_battle_end_guard("enemy_actor_start"):
+		print("[TURN_ADVANCE_BLOCKED] source=enemy_actor_start reason=result_finalized")
+		return
 	if enemy_actor_state == null or not enemy_actor_state.is_alive():
 		_return_to_ally_turn()
 		return
@@ -5747,6 +5763,10 @@ func _finish_enemy_basic_move(target_position: Vector2, target_portrait_position
 
 
 func _finish_enemy_actor_basic_move(enemy_actor_state: BattleUnitState, target_position: Vector2, target_portrait_position: Vector2, target_cell: Vector2i) -> void:
+	if _handle_battle_end_guard("enemy_move_finish"):
+		is_demo_animating = false
+		print("[TURN_ADVANCE_BLOCKED] source=enemy_move_finish reason=result_finalized")
+		return
 	if enemy_actor_state == null:
 		_return_to_ally_turn()
 		return
@@ -5766,6 +5786,10 @@ func _play_enemy_basic_attack_or_wait_after_move() -> void:
 
 
 func _play_enemy_actor_basic_attack_or_wait_after_move(enemy_actor_state: BattleUnitState) -> void:
+	if _handle_battle_end_guard("enemy_after_move_action"):
+		is_demo_animating = false
+		print("[TURN_ADVANCE_BLOCKED] source=enemy_after_move_action reason=result_finalized")
+		return
 	if enemy_actor_state == null:
 		_return_to_ally_turn()
 		return
@@ -5788,6 +5812,9 @@ func _play_enemy_actor_basic_attack_or_wait_after_move(enemy_actor_state: Battle
 
 
 func _enemy_reaction_hit_on() -> void:
+	if _handle_battle_end_guard("enemy_reaction_hit"):
+		print("[TURN_ADVANCE_BLOCKED] source=enemy_reaction_hit reason=result_finalized")
+		return
 	var target_state := current_enemy_attack_target_state
 	if target_state == null:
 		target_state = _get_enemy_ai_target_state_for_actor(current_enemy_ai_actor_state)
@@ -5810,6 +5837,10 @@ func _enemy_reaction_hit_on() -> void:
 
 
 func _finish_enemy_actor_basic_attack(enemy_actor_state: BattleUnitState) -> void:
+	if _handle_battle_end_guard("enemy_attack_finish"):
+		is_demo_animating = false
+		print("[TURN_ADVANCE_BLOCKED] source=enemy_attack_finish reason=result_finalized")
+		return
 	_mark_enemy_unit_acted(enemy_actor_state)
 	_return_to_ally_turn()
 
@@ -6538,6 +6569,8 @@ func _is_city_reinforcement_ready_to_arrive(slot_id: String) -> bool:
 	var slot_metadata := _get_capacity_slot_metadata(slot_id)
 	if slot_metadata.is_empty():
 		return false
+	if not bool(slot_metadata.get("is_active", false)):
+		return false
 	if String(slot_metadata.get("entry_rule", "")) != SLOT_ENTRY_CITY_REINFORCEMENT:
 		return false
 	if bool(slot_metadata.get("is_deployed", false)):
@@ -6546,14 +6579,17 @@ func _is_city_reinforcement_ready_to_arrive(slot_id: String) -> bool:
 	return arrival_round > 0 and battle_round >= arrival_round
 
 
-func _deploy_city_reinforcement_unit(unit_state: BattleUnitState) -> void:
+func _deploy_city_reinforcement_unit(unit_state: BattleUnitState) -> bool:
 	if unit_state == null:
-		return
+		return false
+	if _handle_battle_end_guard("city_reinforcement_deploy"):
+		print("[REINFORCEMENT_BLOCKED] source=city_reinforcement_deploy reason=result_finalized")
+		return false
 	var capacity_slot_id := _get_capacity_slot_id_for_unit_state(unit_state)
 	if capacity_slot_id == "":
-		return
+		return false
 	if not _is_city_reinforcement_ready_to_arrive(capacity_slot_id):
-		return
+		return false
 	_set_capacity_slot_metadata_value(capacity_slot_id, "is_deployed", true)
 	_set_capacity_slot_metadata_value(capacity_slot_id, "entry_rule", SLOT_ENTRY_CITY_REINFORCEMENT)
 	var unit_marker := _get_unit_marker_for_unit(unit_state)
@@ -6568,13 +6604,19 @@ func _deploy_city_reinforcement_unit(unit_state: BattleUnitState) -> void:
 	_refresh_facing_indicator_for_unit(unit_state)
 	_focus_camera_on_unit(unit_state)
 	_debug_log_reinforce_visual_state(unit_state)
+	return true
 
 
-func _deploy_reinforce_unit(unit_state: BattleUnitState) -> void:
+func _deploy_reinforce_unit(unit_state: BattleUnitState) -> bool:
 	if unit_state == null:
-		return
+		return false
+	if _handle_battle_end_guard("reinforcement_deploy"):
+		print("[REINFORCEMENT_BLOCKED] source=reinforcement_deploy reason=result_finalized")
+		return false
+	if not _is_unit_state_active_by_capacity_slot(unit_state):
+		return false
 	if _is_unit_state_deployed_by_capacity_slot(unit_state):
-		return
+		return false
 	_set_unit_deployed(unit_state, true)
 	var unit_marker := _get_unit_marker_for_unit(unit_state)
 	if unit_marker != null:
@@ -6589,6 +6631,7 @@ func _deploy_reinforce_unit(unit_state: BattleUnitState) -> void:
 	_refresh_formation_slot_guides()
 	_focus_camera_on_unit(unit_state)
 	_debug_log_reinforce_visual_state(unit_state)
+	return true
 
 
 func _debug_log_reinforce_visual_state(unit_state: BattleUnitState) -> void:
@@ -6666,18 +6709,28 @@ func _debug_log_reinforce_visual_state(unit_state: BattleUnitState) -> void:
 
 
 func _try_deploy_reinforce_01_pair() -> void:
+	if _handle_battle_end_guard("reinforce_01_check"):
+		print("[REINFORCEMENT_BLOCKED] source=reinforce_01_check reason=result_finalized")
+		return
 	if has_deployed_reinforce_01:
 		return
 	if battle_round < 2:
 		return
-	_deploy_reinforce_unit(ally_reinforce_01_unit_state)
-	_deploy_reinforce_unit(enemy_reinforce_01_unit_state)
+	var arriving_units: Array[String] = []
+	if _deploy_reinforce_unit(ally_reinforce_01_unit_state):
+		arriving_units.append(_get_hero_id_for_unit_state(ally_reinforce_01_unit_state))
+	if _deploy_reinforce_unit(enemy_reinforce_01_unit_state):
+		arriving_units.append(_get_hero_id_for_unit_state(enemy_reinforce_01_unit_state))
 	has_deployed_reinforce_01 = true
+	if arriving_units.is_empty():
+		print("[REINFORCEMENT_TOAST_SKIP] source=reinforce_01 round=%d reason=no_arriving_units" % battle_round)
+		return
 	_reset_unit_group_positions()
 	_update_ally_ready_frames()
 	_update_facing_indicators()
-	_show_reinforcement_arrival_toast(battle_round)
+	_show_reinforcement_arrival_toast(battle_round, arriving_units)
 	_append_battle_log("지원군 선봉 등장")
+	print("[REINFORCEMENT_ARRIVAL] source=reinforce_01 round=%d arriving=%s" % [battle_round, str(arriving_units)])
 	print("[REINFORCE01] deployed round=%d ally=%s enemy=%s all_alive_deployed=%d" % [
 		battle_round,
 		str(_is_unit_state_deployed_by_capacity_slot(ally_reinforce_01_unit_state)),
@@ -6687,22 +6740,30 @@ func _try_deploy_reinforce_01_pair() -> void:
 
 
 func _try_deploy_city_reinforce_02_pair() -> void:
+	if _handle_battle_end_guard("city_reinforce_02_check"):
+		print("[REINFORCEMENT_BLOCKED] source=city_reinforce_02_check reason=result_finalized")
+		return
 	if has_deployed_reinforce_02:
 		return
 	var ally_slot_id := "ally_reinforce_02"
 	var enemy_slot_id := "enemy_reinforce_02"
-	if not _is_city_reinforcement_ready_to_arrive(ally_slot_id):
+	if not _is_city_reinforcement_ready_to_arrive(ally_slot_id) and not _is_city_reinforcement_ready_to_arrive(enemy_slot_id):
 		return
-	if not _is_city_reinforcement_ready_to_arrive(enemy_slot_id):
-		return
-	_deploy_city_reinforcement_unit(ally_reinforce_02_unit_state)
-	_deploy_city_reinforcement_unit(enemy_reinforce_02_unit_state)
+	var arriving_units: Array[String] = []
+	if _deploy_city_reinforcement_unit(ally_reinforce_02_unit_state):
+		arriving_units.append(_get_hero_id_for_unit_state(ally_reinforce_02_unit_state))
+	if _deploy_city_reinforcement_unit(enemy_reinforce_02_unit_state):
+		arriving_units.append(_get_hero_id_for_unit_state(enemy_reinforce_02_unit_state))
 	has_deployed_reinforce_02 = true
+	if arriving_units.is_empty():
+		print("[REINFORCEMENT_TOAST_SKIP] source=city_reinforce_02 round=%d reason=no_arriving_units" % battle_round)
+		return
 	_reset_unit_group_positions()
 	_update_ally_ready_frames()
 	_update_facing_indicators()
-	_show_reinforcement_arrival_toast(battle_round)
+	_show_reinforcement_arrival_toast(battle_round, arriving_units)
 	_append_battle_log("도시 지원군 도착")
+	print("[REINFORCEMENT_ARRIVAL] source=city_reinforce_02 round=%d arriving=%s" % [battle_round, str(arriving_units)])
 	var ally_metadata := _get_capacity_slot_metadata(ally_slot_id)
 	var enemy_metadata := _get_capacity_slot_metadata(enemy_slot_id)
 	print("[CITY_REINFORCE02] ally_city=%s ally_dispatch=%s ally_round=%d enemy_city=%s enemy_dispatch=%s enemy_round=%d all_alive_deployed=%d" % [
@@ -7556,6 +7617,9 @@ func _get_defeat_retreat_line(unit_state: BattleUnitState) -> String:
 
 
 func _show_round_start_banner() -> void:
+	if _handle_battle_end_guard("round_start_banner"):
+		print("[TOAST_BLOCKED] source=round_start_banner reason=result_finalized")
+		return
 	_show_round_start_toast(battle_round)
 
 
@@ -7563,10 +7627,17 @@ func _show_round_start_toast(round_num: int) -> void:
 	_enqueue_battle_toast(round_toast_default_texture, "BATTLE %d" % round_num, 1.15, 0, "round_start")
 
 
-func _show_reinforcement_arrival_toast(arrival_round: int) -> void:
+func _show_reinforcement_arrival_toast(arrival_round: int, arriving_units: Array[String] = []) -> void:
+	if _handle_battle_end_guard("reinforcement_toast"):
+		print("[REINFORCEMENT_TOAST_SKIP] round=%d reason=result_finalized" % arrival_round)
+		return
+	if arriving_units.is_empty():
+		print("[REINFORCEMENT_TOAST_SKIP] round=%d reason=no_arriving_units" % arrival_round)
+		return
 	_enqueue_battle_toast(REINFORCEMENT_ARRIVAL_TOAST_TEXTURE, REINFORCEMENT_ARRIVAL_TOAST_TEXT, 0.82, 100, "reinforcement_arrival")
-	print("[REINFORCEMENT_TOAST] queued round=%d text=%s texture=%s" % [
+	print("[REINFORCEMENT_TOAST] queued round=%d arriving=%s text=%s texture=%s" % [
 		arrival_round,
+		str(arriving_units),
 		REINFORCEMENT_ARRIVAL_TOAST_TEXT,
 		_get_toast_texture_debug_name(REINFORCEMENT_ARRIVAL_TOAST_TEXTURE)
 	])
@@ -7598,6 +7669,9 @@ func _enqueue_battle_toast(
 	toast_tag: String = "generic",
 	toast_scale_multiplier: float = 1.0
 ) -> void:
+	if _is_battle_result_finalized() and not _is_result_toast_tag(toast_tag):
+		print("[TOAST_BLOCKED] tag=%s reason=result_finalized" % toast_tag)
+		return
 	var toast_entry := {
 		"texture": toast_texture,
 		"text": toast_text,
@@ -7632,6 +7706,11 @@ func _play_next_battle_toast() -> void:
 	var hold_duration := float(toast_entry.get("hold_duration", 1.0))
 	var toast_scale_multiplier := maxf(float(toast_entry.get("scale_multiplier", 1.0)), 0.01)
 	active_battle_toast_tag = str(toast_entry.get("tag", "generic"))
+	if _is_battle_result_finalized() and not _is_result_toast_tag(active_battle_toast_tag):
+		print("[TOAST_BLOCKED] tag=%s reason=result_finalized_playback" % active_battle_toast_tag)
+		active_battle_toast_tag = ""
+		call_deferred("_play_next_battle_toast")
+		return
 	print("[BATTLE_TOAST_PLAY] tag=%s text=%s texture=%s queue_remaining=%d" % [
 		active_battle_toast_tag,
 		toast_text,
@@ -7655,10 +7734,38 @@ func _is_battle_result_finalized() -> bool:
 	return _get_battle_result_state() != ""
 
 
+func _is_result_toast_tag(toast_tag: String) -> bool:
+	return toast_tag.begins_with("result_")
+
+
+func _clear_non_result_battle_toasts(source: String) -> void:
+	var kept_toasts: Array = []
+	var removed_count := 0
+	for toast_entry in pending_battle_toasts:
+		var toast_tag := str(toast_entry.get("tag", "generic"))
+		if _is_result_toast_tag(toast_tag):
+			kept_toasts.append(toast_entry)
+		else:
+			removed_count += 1
+	pending_battle_toasts = kept_toasts
+	if removed_count > 0:
+		print("[TOAST_BLOCKED] source=%s reason=result_finalized cleared=%d" % [source, removed_count])
+	if is_battle_toast_playing and not _is_result_toast_tag(active_battle_toast_tag):
+		if round_toast_tween != null:
+			round_toast_tween.kill()
+			round_toast_tween = null
+		_hide_round_start_toast()
+		is_battle_toast_playing = false
+		active_battle_toast_tag = ""
+		_set_toast_facing_indicator_suppression("battle", false)
+		print("[TOAST_BLOCKED] source=%s reason=result_finalized active_toast_cancelled" % source)
+
+
 func _handle_battle_end_guard(source: String) -> bool:
 	var battle_result_state := _get_battle_result_state()
 	if battle_result_state == "":
 		return false
+	_clear_non_result_battle_toasts(source)
 	if is_full_auto_battle_enabled:
 		_stop_full_auto_battle("battle result finalized")
 		print("[AUTO_BATTLE_STOP] source=%s reason=battle_result_finalized state=%s" % [
@@ -8169,7 +8276,8 @@ func _create_fx_sprite(texture: Texture2D, world_pos: Vector2) -> Sprite2D:
 
 
 func _start_new_round() -> void:
-	if _is_battle_result_finalized():
+	if _handle_battle_end_guard("start_new_round"):
+		print("[TURN_ADVANCE_BLOCKED] source=start_new_round reason=result_finalized")
 		return
 	battle_round += 1
 	_clear_pending_move_snapshot()
@@ -10707,6 +10815,9 @@ func _auto_wait_active_ally() -> void:
 
 
 func _run_auto_action_for_active_ally_once() -> void:
+	if _handle_battle_end_guard("auto_action_start"):
+		print("[AUTO_STEP_BLOCKED] source=auto_action_start reason=result_finalized")
+		return
 	if active_unit_state == null:
 		return
 	if active_unit_side != "ally":

@@ -1,6 +1,13 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-12b-18c Reinforcement Toast Auto Battle Final Stop Hotfix` closes the support-toast and post-result auto-turn leak left after 18b.
+- Confirmed source: reinforcement toast was tied to round/deploy attempt flow, not to a nonempty actual arriving unit list, so no-support WorldMap context battles could still show the arrival toast.
+- Reinforcement arrival now records successful deployed units and skips toast/log copy when the list is empty; inactive context slots are not arrival candidates.
+- Result-finalized guards now block non-result toast enqueue/playback, enemy callbacks, move/attack finish callbacks, round start, auto action, and reinforcement deployment checks.
+- Next QA should F6-check no turn-3 support toast when support is absent, sample battle support toast when real sample support arrives, immediate auto stop after result, and worldmap return.
+
+## Previous Patch Note
 - `v0.68b-12b-18b Roster Panel Source Auto Battle End Hotfix` closes the remaining formation-panel sample roster leak after the 18a battlefield-slot fix.
 - Confirmed source: `_refresh_formation_slot_guide_for_entry()` could resolve hero identity through capacity-slot `unit_state` before checking WorldMap context-empty metadata, so hidden support slots could still show sample 김유신/을지문덕/유비/제갈량 in the side panels.
 - WorldMap context panels now hide empty/inactive context slots and do not call `TEST_BATTLE_ROSTER` fallback; direct `Battle_Fullscreen_Test.tscn` sample fallback remains intact.
