@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-21 Post Battle Result Panel Polish MVP
+- Added a display-only post-battle result summary path in `scripts/worldmap_test.gd` after WorldMap invasion battle return.
+- Reused the left World HUD by adding a compact `PostBattleResultCard` programmatically instead of creating a new scene or large UI flow.
+- Defender victory summaries show city defense success, ownership retention, defender city troop change, and attacker source-city troop change.
+- Attacker victory summaries show city fall, ownership change, defender city/occupation troops, and attacker source-city troop change.
+- Retreat/unknown paths now produce non-crashing summary copy with ownership-change notes.
+- Result summaries are not saved/restored; save/load still persists the actual owner/troop/runtime hero state only.
+- Deferred: prisoner/wound/death display, resource loot display, detailed battle statistics, and a full result report UI.
+
 ## v0.68b-12b-20 Invasion Casualty Formula Hero State MVP
 - Added MVP invasion casualty calculation in `scripts/worldmap_test.gd` for defender-win and attacker-win result application.
 - Defense victory now preserves ownership, applies a bounded defender city troop loss, and applies heavier attacker source-city troop loss.

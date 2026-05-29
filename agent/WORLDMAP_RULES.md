@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-21 Post-Battle Result Summary Rule
+- WorldMap invasion battle return should present an immediate display-only result summary after applying owner/troop changes.
+- Defender win, attacker win/city fall, retreat, and unknown results should have separate readable copy.
+- The summary may show ownership change/retention, defender city troop change, attacker source-city troop change, and occupation troops.
+- Result summary UI state is not save/load data; persistence remains limited to actual runtime city/hero state.
+- Do not add prisoner/wound/death, resource loot, detailed combat statistics, or full report UI until dedicated patches.
+
 ## v0.68b-12b-20 Invasion Casualty / Hero State Rule
 - Invasion result troop changes must be applied to mutable runtime city state, not seed city dictionaries.
 - Defender victory preserves ownership, applies bounded defender city losses, and applies heavier attacker source-city losses.

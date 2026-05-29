@@ -1,5 +1,12 @@
 # v0.68b-12b-8 Enemy Invasion Web Logic Audit
 
+## v0.68b-12b-21 Result Panel Status
+- Invasion battle return now builds a display-only result summary after applying the battle result.
+- Defender win, attacker win/city fall, retreat, and unknown paths produce separate summary titles/copy.
+- The WorldMap left HUD result card shows ownership change/retention, city troop change, attacker source-city troop change, and occupation troops when present.
+- Result summary is not persisted; save/load remains responsible only for actual owner/troop/hero runtime state.
+- Remaining deferred audit items: prisoner/wound/death display, resource loot display, detailed combat statistics, and a full result report UI.
+
 ## v0.68b-12b-20 Casualty + Hero State Status
 - Invasion battle results now apply MVP casualty math instead of only minimal troop updates.
 - Defender victory keeps ownership, lowers defender city troops within clamp guards, and heavily reduces attacker source-city troops.

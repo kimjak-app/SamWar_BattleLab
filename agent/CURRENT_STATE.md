@@ -1,5 +1,12 @@
 # CURRENT STATE
 
+## v0.68b-12b-21 Post-Battle Result Panel Polish MVP
+- WorldMap return after an invasion battle now builds a display-only post-battle result summary and shows it in a compact left-HUD result card.
+- The summary separates defender win, attacker win/city fall, retreat, and unknown result copy.
+- The result card highlights ownership change/retention, defender city troop change, attacker source-city troop change, and occupation troops when present.
+- The result summary is immediate guidance only and is not saved/restored; owner/troop persistence remains handled by the v19/v20 runtime state save/load path.
+- Still deferred: prisoner/wound/death display, resource loot display, detailed combat statistics, and a full result report UI.
+
 ## v0.68b-12b-20 Invasion Casualty Formula + Hero State MVP
 - Invasion result application now uses an MVP casualty calculation instead of the previous minimal troop-rate apply.
 - Defense victory keeps city ownership, reduces defender city troops by a bounded MVP loss rate, and heavily reduces attacker source-city troops.
