@@ -1,5 +1,14 @@
 # CURRENT STATE
 
+## v0.68b-12b-29A Web-Parity Troop Allocation Wounded Queue Import
+- Player attack deployment confirmation now immediately subtracts the selected sortie troops from the source city garrison and records before/after troop counts in the `player_attack` BattleContext.
+- BattleContext preserves per-hero `attacker_troop_allocation`, total allocated troops, source city id, and defender allocation metadata; battle units now carry `allocated_troops` / `initial_allocated_troops` without scaling HP or combat power by troop count.
+- Battle return payload now calculates player/enemy troop outcomes from allocated troops and remaining HP ratio: victory keeps HP-ratio survivors, wounds 30% of losses, and marks the rest dead; defeat forces survivors to 0, wounds 50% of allocated troops, and marks the rest dead.
+- Player attack victory puts survivor troops in the occupied target city and queues wounded troops there for 3 WorldMap turns; player attack defeat keeps the target owner and queues player wounded troops back at the source city.
+- City runtime save/load now preserves troop `woundedQueue` entries, and WorldMap turn advance recovers completed queue entries into city garrison troops.
+- Hero wounded/captured/dead runtime state remains separate from troop woundedQueue; captured/dead exclusion and wounded hero battle penalties remain unchanged.
+- Still deferred: troop-count combat scaling, in-battle supply effects, defender pre-battle garrison decrement parity, troop types, siege formulas, prisoner soldiers, loot, and hero recruit/faction conversion.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Player attack deployment panel now uses a wider 560px layout with viewport clamp, stronger title/source-target header, separated source/target/troop/resource summary, scrollable hero rows, and persistent confirm/cancel controls.
 - Deployment UI now shows total assigned troops, remaining garrison troops, and per-resource supply lines with `충분` / `부족` text.

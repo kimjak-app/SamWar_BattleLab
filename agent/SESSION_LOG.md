@@ -2,6 +2,15 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-29A Web-Parity Troop Allocation + Wounded Queue Import
+- Added player attack deployment troop decrement: selected sortie troops are removed from the source city before battle scene handoff.
+- Preserved allocation metadata through `player_attack` BattleContext, including per-hero allocation, total allocated troops, source city id, and source before/after garrison values.
+- Added battle unit allocated troop fields and result-payload survivor accounting based on allocated troops and remaining HP ratio, without scaling HP or combat stats by troop count.
+- Applied web-parity troop outcomes: victory survivor count uses HP ratio with 30% wounded losses; defeat has 0 survivors with 50% wounded allocated troops.
+- Added city troop `woundedQueue` persistence and recovery on WorldMap turn advance; this is separate from hero wounded status and battle penalties.
+- Updated player attack victory/defeat result application so survivors/wounded go to the occupied target on victory, while defeat queues wounded troops back at the source.
+- Deferred defender pre-battle garrison decrement parity, troop-count combat scaling, in-battle supply effects, troop types, siege formulas, loot, and prisoner soldier handling.
+
 ### v0.68b-12b-26 Player City Attack MVP Import
 - Ported the web player city attack MVP into the Godot WorldMap flow.
 - Added selected-city attack request signaling and WorldMap-side enable/disable state for the `공격` button.

@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current Web-Parity Troop Allocation Status
+- `v0.68b-12b-29A Web-Parity Troop Allocation Wounded Queue Import` is complete in code.
+- Player attack confirmation now subtracts total allocated sortie troops from the source city immediately, while preserving `attacker_total_allocated_troops`, source before/after troops, and per-hero allocation metadata in BattleContext.
+- Battle units preserve `allocated_troops` / `initial_allocated_troops`; troop counts are used for post-battle survivor/wounded/dead calculations only and do not scale HP, attack, or defense.
+- Player attack outcome follows web parity: victory uses HP-ratio survivors, wounded = floor(losses * 0.30), dead = remainder; defeat forces survivors to 0, wounded = floor(allocated * 0.50), dead = remainder.
+- Troop woundedQueue is city-level soldier recovery data, separate from hero wound state. Queue entries recover into city garrison after 3 WorldMap strategy turns.
+- Remaining manual QA: F6 deploy 1200 from a 5000-garrison city, confirm immediate 3800 source troops, win/lose a player attack, save/load owner/garrison/woundedQueue, and advance turns until wounded troops recover.
+- Still deferred: troop-count combat scaling, in-battle supply effects, defender pre-battle garrison decrement parity, troop type composition, siege-specific formulas, loot, and prisoner soldier handling.
+
 ## Current Player Attack MVP Status
 - `v0.68b-12b-26 Player City Attack MVP Import` is complete in code.
 - Enemy cities directly adjacent to a player-owned city can enable the selected-city `공격` button.

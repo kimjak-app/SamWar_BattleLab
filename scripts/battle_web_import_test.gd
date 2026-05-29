@@ -1503,6 +1503,10 @@ func _build_worldmap_context_hero_registry_entry(hero_data: Dictionary) -> Dicti
 		"captured": bool(hero_data.get("captured", false)),
 		"dead": bool(hero_data.get("dead", false)),
 		"wounded_turns_remaining": maxi(0, int(hero_data.get("wounded_turns_remaining", 0))),
+		"troops": maxi(0, int(hero_data.get("troops", hero_data.get("troop_count", 0)))),
+		"max_troops": maxi(0, int(hero_data.get("max_troops", hero_data.get("troops", hero_data.get("troop_count", 0))))),
+		"allocated_troops": maxi(0, int(hero_data.get("allocated_troops", 0))),
+		"initial_allocated_troops": maxi(0, int(hero_data.get("initial_allocated_troops", hero_data.get("allocated_troops", 0)))),
 	}
 
 
@@ -2037,7 +2041,7 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 	var result_type := "attack_result" if is_player_attack else "defense_result"
 	var attacker_battle_side := "ally" if is_player_attack else "enemy"
 	var defender_battle_side := "enemy" if is_player_attack else "ally"
-	return {
+	var payload := {
 		"source": str(worldmap_battle_context.get("source", "enemy_invasion")),
 		"type": result_type,
 		"mode": str(worldmap_battle_context.get("mode", "manual")),
@@ -2053,8 +2057,22 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 		"defender_troops": maxi(0, int(worldmap_battle_context.get("defender_troops", 0))),
 		"attacker_surviving_troops": _sum_alive_deployed_troops_for_side(attacker_battle_side),
 		"defender_surviving_troops": _sum_alive_deployed_troops_for_side(defender_battle_side),
+		"attacker_total_allocated_troops": maxi(0, int(worldmap_battle_context.get("attacker_total_allocated_troops", worldmap_battle_context.get("attacker_troops", 0)))),
+		"defender_total_allocated_troops": maxi(0, int(worldmap_battle_context.get("defender_total_allocated_troops", worldmap_battle_context.get("defender_troops", 0)))),
+		"attacker_troop_allocation": worldmap_battle_context.get("attacker_troop_allocation", {}),
+		"defender_troop_allocation": worldmap_battle_context.get("defender_troop_allocation", {}),
+		"attacker_source_city_id": str(worldmap_battle_context.get("attacker_source_city_id", worldmap_battle_context.get("attacker_city_id", ""))),
+		"defender_source_city_id": str(worldmap_battle_context.get("defender_source_city_id", worldmap_battle_context.get("defender_city_id", ""))),
+		"attacker_source_city_troops_before": maxi(0, int(worldmap_battle_context.get("attacker_source_city_troops_before", 0))),
+		"attacker_source_city_troops_after": maxi(0, int(worldmap_battle_context.get("attacker_source_city_troops_after", 0))),
+		"troop_deployed_from_city": bool(worldmap_battle_context.get("troop_deployed_from_city", false)),
 		"turn_number": int(worldmap_battle_context.get("turn_number", 0)),
 	}
+	if is_player_attack:
+		var player_did_win := result == "victory"
+		payload["player_troop_outcome"] = _calculate_player_attack_troop_outcome_from_units(attacker_battle_side, worldmap_battle_context.get("attacker_troop_allocation", {}), player_did_win, str(payload.get("attacker_source_city_id", "")))
+		payload["enemy_troop_outcome"] = _calculate_player_attack_troop_outcome_from_units(defender_battle_side, worldmap_battle_context.get("defender_troop_allocation", {}), not player_did_win, str(payload.get("defender_source_city_id", "")))
+	return payload
 
 
 func _sum_alive_deployed_troops_for_side(side: String) -> int:
@@ -2062,6 +2080,52 @@ func _sum_alive_deployed_troops_for_side(side: String) -> int:
 	for unit_state in _get_alive_deployed_unit_states_for_side(side):
 		total += maxi(0, int(unit_state.current_troops))
 	return total
+
+
+func _calculate_unit_surviving_allocated_troops(unit_state: BattleUnitState) -> int:
+	if unit_state == null:
+		return 0
+	var initial_troops := maxi(0, int(unit_state.initial_allocated_troops if unit_state.initial_allocated_troops > 0 else unit_state.allocated_troops))
+	if initial_troops <= 0:
+		return 0
+	if unit_state.current_hp <= 0:
+		return 0
+	var max_hp := maxf(1.0, float(unit_state.max_hp))
+	var survival_ratio := clampf(float(unit_state.current_hp) / max_hp, 0.0, 1.0)
+	return mini(initial_troops, int(floor(float(initial_troops) * survival_ratio)))
+
+
+func _calculate_player_attack_troop_outcome_from_units(side: String, allocation_source: Variant, did_side_win: bool, source_city_id: String) -> Dictionary:
+	var allocation := {}
+	if allocation_source is Dictionary:
+		allocation = (allocation_source as Dictionary).duplicate(true)
+	var allocated := 0
+	for hero_id_variant in allocation.keys():
+		allocated += maxi(0, int(allocation.get(hero_id_variant, 0)))
+	var raw_survivors := 0
+	var survivor_allocations := {}
+	for unit_state in _get_deployed_unit_states_for_side(side):
+		var hero_id := _get_hero_id_for_unit_state(unit_state)
+		if hero_id == "" or not allocation.has(hero_id):
+			continue
+		var unit_survivors := _calculate_unit_surviving_allocated_troops(unit_state)
+		survivor_allocations[hero_id] = unit_survivors
+		raw_survivors += unit_survivors
+	var survivors := mini(allocated, raw_survivors) if did_side_win else 0
+	var losses := maxi(0, allocated - survivors)
+	var wounded := int(floor(float(losses) * 0.30)) if did_side_win else int(floor(float(allocated) * 0.50))
+	wounded = clampi(wounded, 0, allocated)
+	var dead := maxi(0, allocated - survivors - wounded)
+	return {
+		"source_city_id": source_city_id,
+		"allocated": allocated,
+		"survivors": survivors,
+		"losses": losses,
+		"wounded": wounded,
+		"dead": dead,
+		"allocations": allocation,
+		"survivor_allocations": survivor_allocations,
+	}
 
 
 func reset_demo_state() -> void:
@@ -6373,6 +6437,13 @@ func _apply_hero_identity_to_unit(unit_state: BattleUnitState) -> void:
 	var default_visual_key := String(hero_entry.get("default_visual_key", ""))
 	if default_visual_key != "":
 		unit_state.visual_key = default_visual_key
+	var allocated_troops := maxi(0, int(hero_entry.get("allocated_troops", 0)))
+	var initial_allocated_troops := maxi(0, int(hero_entry.get("initial_allocated_troops", allocated_troops)))
+	if allocated_troops > 0 or initial_allocated_troops > 0:
+		unit_state.allocated_troops = allocated_troops
+		unit_state.initial_allocated_troops = initial_allocated_troops if initial_allocated_troops > 0 else allocated_troops
+		unit_state.current_troops = allocated_troops
+		unit_state.max_troops = maxi(allocated_troops, int(hero_entry.get("max_troops", allocated_troops)))
 	var battlefield_portrait_texture := _resolve_hero_portrait_texture(hero_entry)
 	var slot := _get_unit_visual_slot_for_state(unit_state)
 	if battlefield_portrait_texture != null and slot != null and slot.portrait is Sprite2D:

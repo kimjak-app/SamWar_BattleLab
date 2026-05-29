@@ -1,5 +1,17 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-29A Web-Parity Troop Allocation Rule
+- Player attack deployment confirmation subtracts total allocated sortie troops from the source city immediately; source city must still keep at least one garrison troop.
+- BattleContext must preserve `attacker_troop_allocation`, `attacker_total_allocated_troops`, `attacker_source_city_id`, and source-city before/after troop values.
+- Battle units may store `allocated_troops` and `initial_allocated_troops`, but troop count must not scale HP, attack, defense, unit size, or animation in this patch.
+- Survivor calculation uses `floor(initialAllocatedTroops * clamp(hp / maxHp, 0, 1))` for alive winning units. Defeated side survivors are forced to `0` for player attack outcome accounting.
+- Player attack victory formula: survivors = min(allocated, raw survivors), losses = allocated - survivors, wounded = floor(losses * 0.30), dead = allocated - survivors - wounded.
+- Player attack defeat formula: survivors = 0, wounded = floor(allocated * 0.50), dead = allocated - wounded.
+- Troop `woundedQueue` is city-level soldier recovery data, not hero wound state. Entry shape is `{ "turnsLeft": 3, "troops": wounded_troops }`.
+- WorldMap strategy turn advance reduces woundedQueue `turnsLeft`; entries at `0` recover into city garrison and are removed.
+- Player attack victory puts survivors in the occupied target city and queues wounded troops there. Player attack defeat queues wounded troops at the source city and does not immediately return survivors.
+- Captured/dead hero exclusion and wounded hero battle penalties remain separate systems.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Rule
 - Deployment panel must show source city, target city, source troops, total assigned troops, remaining garrison, and food/rice, gold, and salt supply status.
 - Confirm must be blocked and explained when no hero is selected, selected troops are zero, assigned troops exceed source city troops, source city would fall below one troop, or food/gold/salt is insufficient.

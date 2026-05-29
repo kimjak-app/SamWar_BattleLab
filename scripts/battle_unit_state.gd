@@ -20,6 +20,8 @@ var current_hp: int = 0
 var max_hp: int = 0
 var current_troops: int = 0
 var max_troops: int = 0
+var allocated_troops: int = 0
+var initial_allocated_troops: int = 0
 var attack: int = 0
 var defense: int = 0
 var intelligence: int = 0
@@ -54,6 +56,8 @@ func setup(data: Dictionary) -> void:
 	max_hp = int(data.get("max_hp", current_hp))
 	current_troops = int(data.get("current_troops", current_hp))
 	max_troops = int(data.get("max_troops", max_hp))
+	allocated_troops = maxi(0, int(data.get("allocated_troops", data.get("troops", current_troops))))
+	initial_allocated_troops = maxi(0, int(data.get("initial_allocated_troops", allocated_troops)))
 	attack = int(data.get("attack", 0))
 	defense = int(data.get("defense", 0))
 	intelligence = int(data.get("intelligence", 0))

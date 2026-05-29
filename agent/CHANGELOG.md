@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b-29A Web-Parity Troop Allocation Wounded Queue Import
+- Subtracted player attack sortie troops from the source city at deployment confirmation and stored source before/after garrison values in the `player_attack` BattleContext.
+- Preserved per-hero `attacker_troop_allocation`, total allocated troops, and defender allocation metadata through BattleContext and battle result return payloads.
+- Added `allocated_troops` and `initial_allocated_troops` to battle unit state setup and context hero identity application without changing HP/maxHP from troop counts.
+- Added allocated-troop survivor calculation in the battle scene using remaining HP ratio for winning sides, with defeat forcing survivors to 0.
+- Added web-parity player attack troop outcomes: win wounded = floor(losses * 0.30), defeat wounded = floor(allocated * 0.50), dead = remaining losses.
+- Added city-level troop `woundedQueue` helpers, save/load persistence, and WorldMap turn recovery into garrison troops after 3 turns.
+- Player attack victory now places survivors and woundedQueue in the occupied target city; player attack defeat queues wounded troops at the source city and leaves survivors at 0.
+- Deferred: defender-side pre-battle troop decrement, troop-count combat scaling, supply combat effects, troop types, siege formulas, loot, and prisoner soldier handling.
+
 ## v0.68b-12b-26 Player City Attack MVP Import
 - Connected `scripts/worldmap_city_info_panel.gd` attack placeholder to a real `attack_requested(city_id)` signal and WorldMap callback.
 - Added player attack eligibility in `scripts/worldmap_test.gd`: enemy target, direct player-owned neighbor, player turn, no pending invasion, and at least one non-captured/dead main attacker in the source city.

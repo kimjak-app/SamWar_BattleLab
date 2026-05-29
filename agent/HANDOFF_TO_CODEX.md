@@ -1,6 +1,15 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-12b-29A Web-Parity Troop Allocation Wounded Queue Import` ports the web troop allocation and wounded soldier queue rules into the Godot player attack path.
+- Deployment confirmation subtracts allocated sortie troops from the player source city before battle handoff and records source before/after troop values in the BattleContext.
+- Battle units now carry `allocated_troops` and `initial_allocated_troops`; these fields drive result accounting but do not scale HP, attack, defense, unit size, or animation.
+- Player attack result payloads include player/enemy troop outcomes. Victory uses HP-ratio survivors plus 30% wounded losses; defeat has 0 survivors and 50% wounded allocated troops.
+- Victory transfers player survivors to the occupied target city and queues wounded troops there; defeat queues player wounded troops at the source city while the target owner remains unchanged.
+- City `woundedQueue` persists through save/load and recovers into garrison troops on WorldMap strategy turn advance after 3 turns.
+- Deferred: defender pre-battle garrison decrement parity, troop-count combat effects, in-battle supply effects, troop types, siege math, loot, and prisoner soldier systems.
+
+## Previous Patch Note
 - `v0.68b-12b-26 Player City Attack MVP Import` ports the web player city attack flow into the Godot WorldMap MVP.
 - The selected-city `공격` button now emits an attack request and WorldMap enables it only for enemy cities with a directly adjacent player-owned city and no pending invasion/turn conflict.
 - Player attack BattleContext uses `source: player_attack`, `type: attack`, source city as attacker, target city as defender, and the existing city-roster/support helper with captured/dead exclusion.
