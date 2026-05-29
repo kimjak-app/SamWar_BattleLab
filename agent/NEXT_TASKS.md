@@ -87,13 +87,15 @@ Latest worldmap invasion result hotfix: `v0.68b-12b-15-hotfix1 ReadOnly City Dic
 
 Latest worldmap hero battle contract patch: `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
 
+Latest worldmap hero placement data patch: `v0.68b-12b-16b Hero Placement Data Patch`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
-Current stable baseline: `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
+Current stable baseline: `v0.68b-12b-16b Hero Placement Data Patch`
 
-Baseline commit: local HEAD after `v0.68b-12b-16`
+Baseline commit: local HEAD after `v0.68b-12b-16b`
 
 Latest worldmap marker hotfix: `v0.68b-2-hotfix1 WorldMap City Marker Coordinate Space Fix`
 
@@ -178,6 +180,11 @@ Goal:
 - create the first naval battle entry path from sea route / coastal encounter data through `BattleContext`
 
 ## Completed / Archived Context
+- `v0.68b-12b-16b Hero Placement Data Patch` is complete.
+- 유비, 권율, 척준경, 여포, and 하후돈 now have battle-ready WorldMap hero data with confirmed unique skill names.
+- City placement is updated: 성도 includes 유비, 한성 includes 권율 and excludes 척준경, 평양 includes 척준경, 낙양 includes 여포, and 업성 includes 하후돈.
+- Portrait/cutin contract remains one 512-source `portrait_path` plus separate `cutin_path`; no split portrait fields were added.
+- Save/load placement persistence, capture/wounds, hero movement systems, precise skill balance, and cutin presentation remain deferred.
 - `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP` is complete.
 - Existing sample battle data confirmed in `scripts/battle_web_import_test.gd`: `HERO_REGISTRY`, `TEST_BATTLE_ROSTER`, and `UNIQUE_SKILL_REGISTRY`.
 - Actual WorldMap heroes are sourced from `scripts/worldmap_test.gd` `HERO_DATA` and city `stationed_hero_ids` / `hero_ids`.

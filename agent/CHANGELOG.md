@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-12b-16b Hero Placement Data Patch
+- Updated `scripts/worldmap_test.gd` hero seed data for five key heroes: `liu_bei`, `kwon_yul`, `cheok_jun_gyeong`, `lu_bu`, and `xiahou_dun`.
+- Added or strengthened combat/skill contract fields for those heroes, including `unit_type`, troop counts, command/leadership, attack/defense/mobility/ranges, `unique_skill_id`, `skill_id`, `skill_name`, `skill_desc`, `skill_effect_type`, `skill_power`, `skill_cooldown`, and `skill_toast_icon`.
+- Applied confirmed unique skill names: 유비 `인의의 깃발`, 권율 `행주대첩 항전`, 척준경 `검왕돌파`, 여포 `무쌍난무`, 하후돈 `발검돌파`.
+- Updated city placement: 유비 -> 성도, 권율 -> 한성, 척준경 -> 평양, 여포 -> 낙양, 하후돈 -> 업성. 척준경 was removed from 한성 and moved to 평양.
+- Preserved the 512-source portrait contract with one `portrait_path` and separate `cutin_path`; no `portrait_128_path` / `portrait_512_path` fields were added.
+- Adjusted WorldMap BattleContext hero-copy logic to preserve explicit `portrait_path` / `cutin_path` values when present, so hero IDs can differ from normalized asset filenames.
+- Verification: `git diff --check`, target hero/skill/path strings, city roster strings, no split portrait fields in `scripts`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Deferred: save/load hero placement persistence expansion, capture/wound/death, hero movement system, precise unique-skill balancing, and cutin presentation.
+
 ## v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP
 - Added a runtime hero battle-data contract path for WorldMap invasion BattleContext in `scripts/worldmap_test.gd`.
 - Existing sample battle structure confirmed: `scripts/battle_web_import_test.gd` owns `HERO_REGISTRY`, `TEST_BATTLE_ROSTER`, and `UNIQUE_SKILL_REGISTRY`; direct battle launch still uses that fallback unchanged.

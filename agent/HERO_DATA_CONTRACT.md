@@ -96,3 +96,11 @@ HeroData = {
 - Existing 128 image folders are retained for now and must not be deleted as part of this contract step.
 - `v0.68b-12b-16` does not add bulk image assets or complete image binding. Safe resolver/binding work is deferred to `v0.68b-12b-17` or `16a`.
 - Save/load persistence for hero battle data remains unimplemented; BattleContext copies are runtime handoff data.
+
+## v0.68b-12b-16b Hero Placement Data Patch
+- The five placement-patch heroes now have full WorldMap hero battle data and unique-skill data: `liu_bei`, `kwon_yul`, `cheok_jun_gyeong`, `lu_bu`, and `xiahou_dun`.
+- Confirmed skill names are part of the data contract for these records: 유비 `인의의 깃발`, 권율 `행주대첩 항전`, 척준경 `검왕돌파`, 여포 `무쌍난무`, 하후돈 `발검돌파`.
+- City placement contract: 유비 -> 성도, 권율 -> 한성, 척준경 -> 평양, 여포 -> 낙양, 하후돈 -> 업성. The same `hero_id` must not appear in two city rosters.
+- `portrait_path` remains the single 512-source portrait field, and `cutin_path` remains separate for future cutin/effect presentation.
+- Hero IDs do not need to match asset filenames exactly; explicit `portrait_path` / `cutin_path` fields are authoritative for the asset contract.
+- Save/load placement persistence, capture/wound/death, full hero movement, precise skill balance, and cutin presentation are still deferred.

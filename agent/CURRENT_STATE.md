@@ -86,6 +86,8 @@ Latest worldmap invasion result hotfix: `v0.68b-12b-15-hotfix1 ReadOnly City Dic
 
 Latest worldmap hero battle contract patch: `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
 
+Latest worldmap hero placement data patch: `v0.68b-12b-16b Hero Placement Data Patch`
+
 Latest worldmap unified panel hotfix: `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 
 Latest warning cleanup hotfix: `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -138,6 +140,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - `v0.68b-12b-15 WorldMap Invasion Result Ownership Troop Apply MVP`
 - `v0.68b-12b-15-hotfix1 ReadOnly City Dictionary Troop Apply Fix`
 - `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
+- `v0.68b-12b-16b Hero Placement Data Patch`
 - `v0.68b-12b-14-hotfix1 Unified Panel Chrome Nil Visible Guard`
 - `v0.68b-12b-14-hotfix2 Integer Division Warning Cleanup`
 - `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
@@ -499,11 +502,17 @@ Latest worldmap invasion result hotfix: `v0.68b-12b-15-hotfix1 ReadOnly City Dic
 
 Latest worldmap hero battle contract patch: `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
 
-Current stable baseline: `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
+Latest worldmap hero placement data patch: `v0.68b-12b-16b Hero Placement Data Patch`
 
-Baseline commit: local HEAD after `v0.68b-12b-16`
+Current stable baseline: `v0.68b-12b-16b Hero Placement Data Patch`
+
+Baseline commit: local HEAD after `v0.68b-12b-16b`
 
 Latest hotfix notes:
+- `v0.68b-12b-16b Hero Placement Data Patch` adds/strengthens 유비, 권율, 척준경, 여포, and 하후돈 as battle-ready WorldMap heroes.
+- City placement now has 유비 in 성도, 권율 in 한성, 척준경 in 평양, 여포 in 낙양, and 하후돈 in 업성; 척준경 is no longer stationed in 한성.
+- Confirmed skill names: 유비 `인의의 깃발`, 권율 `행주대첩 항전`, 척준경 `검왕돌파`, 여포 `무쌍난무`, 하후돈 `발검돌파`.
+- The 512 single `portrait_path` plus separate `cutin_path` contract remains; save/load, capture/wounds, hero movement, exact balance, and cutin presentation remain deferred.
 - `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP` prepares actual city heroes for BattleContext.
 - WorldMap BattleContext now includes `attacker_heroes` and `defender_heroes` enriched from `HERO_DATA` and city `stationed_hero_ids`.
 - Every included actual hero gets combat fields plus required unique-skill fields in the runtime handoff copy.

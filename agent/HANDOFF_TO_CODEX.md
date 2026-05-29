@@ -207,6 +207,9 @@ Latest camera foundation:
 - Latest worldmap hero battle contract patch:
 `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`
 
+- Latest worldmap hero placement data patch:
+`v0.68b-12b-16b Hero Placement Data Patch`
+
 - Latest warning cleanup hotfix:
 `v0.68b-12b-14-hotfix3 Owner Shadow Warning Cleanup`
 
@@ -395,7 +398,9 @@ Do not modify casually:
 - Selected battle scene is `Battle_Fullscreen_Test.tscn`, using `scripts/battle_web_import_test.gd`.
 - Handoff uses runtime-only Godot `Engine` metadata key `samwar_worldmap_battle_context`; the battle scene reads and clears it at startup, then logs mode and attacker/defender city names while preserving the existing demo battle setup.
 - Direct `Battle_Fullscreen_Test.tscn` launch without WorldMap context remains supported and logs `No WorldMap battle context; using test battle setup`.
-- Current stable baseline for the next session is `v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP`.
+- Current stable baseline for the next session is `v0.68b-12b-16b Hero Placement Data Patch`.
+- `v0.68b-12b-16b` adds/strengthens 유비, 권율, 척준경, 여포, and 하후돈 in WorldMap `HERO_DATA`, with confirmed unique skill names and explicit `portrait_path` / `cutin_path` contracts.
+- Placement is now 성도: 유비, 한성: 권율, 평양: 척준경, 낙양: 여포, 업성: 하후돈. 척준경 is no longer stationed in 한성.
 - `v0.68b-12b-16` adds actual city hero battle-data copies to WorldMap BattleContext via `attacker_heroes` / `defender_heroes`, with required combat fields and unique-skill fields for every included hero.
 - Portrait contract is one 512-source `portrait_path`; 128 battle slots should scale that same source. Cutin/effect images are separate `cutin_path` fields. Existing 128 folders remain and were not deleted.
 - Battle scene registers WorldMap context hero/skill data into runtime registries, and still falls back to `TEST_BATTLE_ROSTER` when data is missing or unsupported.

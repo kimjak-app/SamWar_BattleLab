@@ -2,6 +2,15 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-16b Hero Placement Data Patch
+- Confirmed target hero IDs against current code: `liu_bei`, `kwon_yul`, `cheok_jun_gyeong`, `lu_bu`, and `xiahou_dun`.
+- Added missing WorldMap `HERO_DATA` entries for 유비, 권율, and 하후돈; strengthened existing 척준경 and 여포 data from contract/fallback state into full battle-ready hero records.
+- Applied confirmed unique skill names and effects: 유비 `인의의 깃발` / `command_aura`, 권율 `행주대첩 항전` / `guard_stance`, 척준경 `검왕돌파` / `power_strike`, 여포 `무쌍난무` / `charge_bonus`, 하후돈 `발검돌파` / `charge_bonus`.
+- Updated city rosters: 성도 includes 유비, 한성 includes 권율 and no longer includes 척준경, 평양 includes 척준경, 낙양 includes 여포, and 업성 includes 하후돈.
+- Kept the 512 portrait contract as one `portrait_path` and separate `cutin_path`; no split 128/512 portrait fields were introduced.
+- Verification passed: `git diff --check`, target hero/skill/path strings, city roster strings, no split portrait fields in `scripts`, Godot project headless load, root `WorldMap_Test.tscn` headless load, and root `Battle_Fullscreen_Test.tscn` headless load.
+- Kept image files untouched; save/load expansion, capture/wounds, hero movement systems, detailed balance, and cutin presentation remain deferred.
+
 ### v0.68b-12b-16 WorldMap Hero Battle Data Unique Skill Contract MVP
 - Confirmed the existing battle sample data structure in `scripts/battle_web_import_test.gd`: `HERO_REGISTRY`, `TEST_BATTLE_ROSTER`, and `UNIQUE_SKILL_REGISTRY`.
 - Confirmed actual WorldMap hero placement comes from `scripts/worldmap_test.gd` `HERO_DATA` plus city `stationed_hero_ids` / `hero_ids`.

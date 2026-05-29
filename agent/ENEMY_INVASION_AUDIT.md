@@ -194,6 +194,13 @@
 - Existing 128 folders were not deleted, no bulk images were moved or added, and cutin image binding remains future work.
 - Save/load persistence for hero battle contract data remains unimplemented by design.
 
+## v0.68b-12b-16b Hero Placement Data Patch Status
+- Implemented in `scripts/worldmap_test.gd`.
+- Five additional key heroes are now battle-contract ready for WorldMap invasion BattleContext: 유비, 권율, 척준경, 여포, and 하후돈.
+- Placement changes affect the city defender roster source used by invasion BattleContext: 성도 includes 유비, 한성 includes 권율, 평양 includes 척준경, 낙양 includes 여포, and 업성 includes 하후돈.
+- 척준경 was moved out of 한성 and into 평양, avoiding duplicate city placement.
+- The patch keeps result handling, ownership apply, troop apply, save/load, capture/wounds, resource loss, and cutin presentation unchanged.
+
 ## Recommended Godot Implementation Plan
 
 ### v0.68b-12b-15 Enemy Invasion Ownership / Troop Apply
