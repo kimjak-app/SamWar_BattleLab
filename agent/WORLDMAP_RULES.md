@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-20 Invasion Casualty / Hero State Rule
+- Invasion result troop changes must be applied to mutable runtime city state, not seed city dictionaries.
+- Defender victory preserves ownership, applies bounded defender city losses, and applies heavier attacker source-city losses.
+- Attacker victory transfers ownership and applies occupation troops from attacker survivor/fallback values while reducing the attacker source city.
+- All invasion troop values must be integer-normalized and clamped to safe nonnegative bounds; current loss rates are MVP placeholders, not final balance.
+- Hero runtime state may persist future status fields (`status`, `wounded`, `captured`, `dead`), but this patch does not execute actual wound/capture/death outcomes.
+
 ## v0.68b-12b-19 Battle Result Persistence Rule
 - WorldMap battle-result changes must persist as runtime overrides, not seed mutations.
 - Save payload uses `worldmap_city_state` for city owner/nation/owner_faction_id, troops, and stationed hero ids, and `worldmap_hero_state` for hero current city ids.

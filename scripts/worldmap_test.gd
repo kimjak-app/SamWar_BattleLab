@@ -64,11 +64,20 @@ const INVASION_RESULT_ATTACKER_WIN := "attacker_win"
 const INVASION_RESULT_RETREAT := "retreat"
 const INVASION_RESULT_UNKNOWN := "unknown"
 const INVASION_RESULT_DEFAULT_OCCUPATION_TROOPS := 100
-const INVASION_RESULT_DEFENDER_WIN_DEFENDER_TROOP_RATE := 0.90
-const INVASION_RESULT_DEFENDER_WIN_ATTACKER_TROOP_RATE := 0.80
+const INVASION_MIN_CITY_TROOPS := 30
+const INVASION_MIN_OCCUPATION_TROOPS := 80
+const INVASION_MAX_REASONABLE_CITY_TROOPS := 99999
+const INVASION_DEFENDER_WIN_DEFENDER_LOSS_RATE := 0.15
+const INVASION_DEFENDER_WIN_ATTACKER_LOSS_RATE := 0.70
+const INVASION_ATTACKER_WIN_DEFENDER_LOSS_RATE := 0.75
+const INVASION_ATTACKER_WIN_ATTACKER_LOSS_RATE := 0.35
 const INVASION_BATTLE_MAX_HEROES_PER_SIDE := 5
 const INVASION_REINFORCEMENT_MAX_HOPS := 2
 const INVASION_REINFORCEMENT_ALLY_FACTIONS := {}
+const HERO_RUNTIME_STATUS_NORMAL := "normal"
+const HERO_RUNTIME_STATUS_WOUNDED := "wounded"
+const HERO_RUNTIME_STATUS_CAPTURED := "captured"
+const HERO_RUNTIME_STATUS_DEAD := "dead"
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -1788,18 +1797,24 @@ func _get_invasion_result_city_id(result_payload: Dictionary, keys: Array[String
 
 
 func _apply_defender_win_invasion_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> String:
-	var defender_before := _get_city_troops_for_battle_context(defender_city_id)
-	var defender_after := _get_result_troop_value(result_payload, ["defender_surviving_troops", "defender_remaining_troops", "player_surviving_troops"], -1)
-	if defender_after < 0 and defender_before > 0:
-		defender_after = int(round(float(defender_before) * INVASION_RESULT_DEFENDER_WIN_DEFENDER_TROOP_RATE))
-	if defender_after >= 0:
-		_set_city_runtime_troops(defender_city_id, clampi(defender_after, 0, defender_before if defender_before > 0 else defender_after))
-	var attacker_before := _get_city_troops_for_battle_context(attacker_city_id)
-	var attacker_after := _get_result_troop_value(result_payload, ["attacker_surviving_troops", "attacker_remaining_troops", "enemy_surviving_troops"], -1)
-	if attacker_after < 0 and attacker_before > 0:
-		attacker_after = int(round(float(attacker_before) * INVASION_RESULT_DEFENDER_WIN_ATTACKER_TROOP_RATE))
-	if not attacker_city_id.is_empty() and _has_city_for_battle_context(attacker_city_id) and attacker_after >= 0:
-		_set_city_runtime_troops(attacker_city_id, clampi(attacker_after, 0, attacker_before if attacker_before > 0 else attacker_after))
+	var casualty_result := _calculate_invasion_casualty_result(INVASION_RESULT_DEFENDER_WIN, defender_city_id, attacker_city_id, result_payload)
+	var defender_before := int(casualty_result.get("defender_before", 0))
+	var attacker_before := int(casualty_result.get("attacker_before", 0))
+	var defender_after := int(casualty_result.get("defender_remaining_troops", defender_before))
+	var attacker_after := int(casualty_result.get("attacker_remaining_troops", attacker_before))
+	_set_city_runtime_troops(defender_city_id, defender_after)
+	print("[INVASION_TROOP_APPLY] result=defender_win city=%s before=%d after=%d reason=defender_city_survived" % [
+		defender_city_id,
+		defender_before,
+		defender_after
+	])
+	if not attacker_city_id.is_empty() and _has_city_for_battle_context(attacker_city_id):
+		_set_city_runtime_troops(attacker_city_id, attacker_after)
+		print("[INVASION_TROOP_APPLY] result=defender_win city=%s before=%d after=%d reason=attacker_retreat" % [
+			attacker_city_id,
+			attacker_before,
+			attacker_after
+		])
 	return "방어 성공: %s을 지켜냈습니다. · %s 병력 %d→%d · %s 병력 %d→%d" % [
 		defender_city_name,
 		defender_city_name,
@@ -1813,31 +1828,126 @@ func _apply_defender_win_invasion_result(defender_city_id: String, attacker_city
 
 func _apply_attacker_win_invasion_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, _attacker_city_name: String, result_payload: Dictionary) -> String:
 	var attacker_owner := str(result_payload.get("attacker_owner", _get_city_owner_id_for_battle_context(attacker_city_id)))
-	var defender_before_troops := _get_city_troops_for_battle_context(defender_city_id)
+	var casualty_result := _calculate_invasion_casualty_result(INVASION_RESULT_ATTACKER_WIN, defender_city_id, attacker_city_id, result_payload)
+	var defender_before_troops := int(casualty_result.get("defender_before", _get_city_troops_for_battle_context(defender_city_id)))
+	var attacker_before_troops := int(casualty_result.get("attacker_before", _get_city_troops_for_battle_context(attacker_city_id)))
+	var occupied_city_troops := int(casualty_result.get("occupied_city_troops", INVASION_RESULT_DEFAULT_OCCUPATION_TROOPS))
+	var attacker_source_remaining := int(casualty_result.get("attacker_source_remaining_troops", 0))
 	if attacker_owner.is_empty():
 		return "방어 실패: %s이 함락되었으나 공격 세력 정보가 없어 소유권 변경 없이 정리했습니다." % defender_city_name
 	_set_city_runtime_owner(defender_city_id, attacker_owner)
-	var occupation_troops := _get_result_troop_value(result_payload, ["attacker_surviving_troops", "attacker_remaining_troops", "enemy_surviving_troops"], -1)
-	if occupation_troops <= 0:
-		occupation_troops = _get_result_troop_value(result_payload, ["attacker_troops", "enemy_troops"], -1)
-		if occupation_troops > 0:
-			occupation_troops = maxi(1, int(round(float(occupation_troops) * 0.5)))
-	if occupation_troops <= 0:
-		occupation_troops = INVASION_RESULT_DEFAULT_OCCUPATION_TROOPS
-	_set_city_runtime_troops(defender_city_id, maxi(0, occupation_troops))
-	return "도시 함락: %s이 %s에 점령되었습니다. · %s 잔존 병력 %d→%d" % [
+	_set_city_runtime_troops(defender_city_id, occupied_city_troops)
+	print("[INVASION_TROOP_APPLY] result=attacker_win city=%s before=%d after=%d reason=occupied_city" % [
+		defender_city_id,
+		defender_before_troops,
+		occupied_city_troops
+	])
+	if not attacker_city_id.is_empty() and _has_city_for_battle_context(attacker_city_id):
+		_set_city_runtime_troops(attacker_city_id, attacker_source_remaining)
+		print("[INVASION_TROOP_APPLY] result=attacker_win city=%s before=%d after=%d reason=occupation_detached" % [
+			attacker_city_id,
+			attacker_before_troops,
+			attacker_source_remaining
+		])
+	return "도시 함락: %s이 %s에 점령되었습니다. · %s 병력 %d→%d · 점령 병력 %d" % [
 		defender_city_name,
 		_format_faction_label(attacker_owner),
 		defender_city_name,
 		defender_before_troops,
 		_get_city_troops_for_battle_context(defender_city_id),
+		occupied_city_troops,
 	]
+
+
+func _calculate_invasion_casualty_result(result_kind: String, defender_city_id: String, attacker_city_id: String, result_payload: Dictionary) -> Dictionary:
+	var defender_before := _clamp_invasion_troops(_get_city_troops_for_battle_context(defender_city_id))
+	var attacker_before := _clamp_invasion_troops(_get_city_troops_for_battle_context(attacker_city_id))
+	if defender_city_id.is_empty() or not _has_city_for_battle_context(defender_city_id):
+		print("[INVASION_CASUALTY] result=%s reason=missing_defender_city defender_city=%s" % [result_kind, defender_city_id])
+		return {
+			"attacker_before": attacker_before,
+			"defender_before": defender_before,
+			"attacker_remaining_troops": attacker_before,
+			"defender_remaining_troops": defender_before,
+			"occupied_city_troops": 0,
+			"attacker_source_remaining_troops": attacker_before,
+			"attacker_loss": 0,
+			"defender_loss": 0,
+		}
+	var attacker_payload_survivors := _get_result_troop_value(result_payload, ["attacker_surviving_troops", "attacker_remaining_troops", "enemy_surviving_troops"], -1)
+	var defender_payload_survivors := _get_result_troop_value(result_payload, ["defender_surviving_troops", "defender_remaining_troops", "player_surviving_troops"], -1)
+	var attacker_remaining := attacker_before
+	var defender_remaining := defender_before
+	var occupied_city_troops := 0
+	var attacker_source_remaining := attacker_before
+	match result_kind:
+		INVASION_RESULT_DEFENDER_WIN:
+			defender_remaining = _resolve_invasion_remaining_troops(defender_before, defender_payload_survivors, INVASION_DEFENDER_WIN_DEFENDER_LOSS_RATE, INVASION_MIN_CITY_TROOPS)
+			attacker_remaining = _resolve_invasion_remaining_troops(attacker_before, attacker_payload_survivors, INVASION_DEFENDER_WIN_ATTACKER_LOSS_RATE, 0)
+			attacker_source_remaining = attacker_remaining
+		INVASION_RESULT_ATTACKER_WIN:
+			defender_remaining = _resolve_invasion_remaining_troops(defender_before, defender_payload_survivors, INVASION_ATTACKER_WIN_DEFENDER_LOSS_RATE, 0)
+			attacker_remaining = _resolve_invasion_remaining_troops(attacker_before, attacker_payload_survivors, INVASION_ATTACKER_WIN_ATTACKER_LOSS_RATE, 0)
+			occupied_city_troops = _resolve_occupation_troops(attacker_remaining, attacker_before, result_payload)
+			attacker_source_remaining = _clamp_invasion_troops(maxi(0, attacker_remaining - occupied_city_troops))
+		_:
+			pass
+	var result := {
+		"attacker_before": attacker_before,
+		"defender_before": defender_before,
+		"attacker_remaining_troops": attacker_remaining,
+		"defender_remaining_troops": defender_remaining,
+		"occupied_city_troops": occupied_city_troops,
+		"attacker_source_remaining_troops": attacker_source_remaining,
+		"attacker_loss": maxi(0, attacker_before - attacker_remaining),
+		"defender_loss": maxi(0, defender_before - defender_remaining),
+	}
+	print("[INVASION_CASUALTY] result=%s attacker=%d->%d loss=%d defender=%d->%d loss=%d occupied=%d source_remaining=%d" % [
+		result_kind,
+		attacker_before,
+		attacker_remaining,
+		int(result.get("attacker_loss", 0)),
+		defender_before,
+		defender_remaining,
+		int(result.get("defender_loss", 0)),
+		occupied_city_troops,
+		attacker_source_remaining
+	])
+	return result
+
+
+func _resolve_invasion_remaining_troops(before_troops: int, payload_survivors: int, loss_rate: float, minimum_when_present: int) -> int:
+	var before := _clamp_invasion_troops(before_troops)
+	if before <= 0:
+		return 0
+	var remaining := payload_survivors
+	if remaining < 0:
+		remaining = int(round(float(before) * (1.0 - clampf(loss_rate, 0.0, 1.0))))
+	remaining = clampi(_clamp_invasion_troops(remaining), 0, before)
+	if minimum_when_present > 0:
+		remaining = clampi(maxi(minimum_when_present, remaining), 0, before)
+	return remaining
+
+
+func _resolve_occupation_troops(attacker_remaining: int, attacker_before: int, result_payload: Dictionary) -> int:
+	var remaining := _clamp_invasion_troops(attacker_remaining)
+	if remaining <= 0:
+		var fallback_source := _get_result_troop_value(result_payload, ["attacker_troops", "enemy_troops"], attacker_before)
+		remaining = _resolve_invasion_remaining_troops(fallback_source, -1, INVASION_ATTACKER_WIN_ATTACKER_LOSS_RATE, 0)
+	if remaining <= 0:
+		return INVASION_MIN_OCCUPATION_TROOPS
+	var occupation_troops := maxi(INVASION_MIN_OCCUPATION_TROOPS, int(round(float(remaining) * 0.60)))
+	return _clamp_invasion_troops(occupation_troops)
+
+
+func _clamp_invasion_troops(troops: int) -> int:
+	return clampi(int(troops), 0, INVASION_MAX_REASONABLE_CITY_TROOPS)
 
 
 func _get_result_troop_value(result_payload: Dictionary, keys: Array[String], fallback: int) -> int:
 	for key in keys:
 		if result_payload.has(key):
-			return maxi(0, int(result_payload.get(key, fallback)))
+			return _clamp_invasion_troops(int(result_payload.get(key, fallback)))
 	return fallback
 
 
@@ -2668,7 +2778,7 @@ func _serialize_worldmap_hero_runtime_state() -> Dictionary:
 		var hero_state: Variant = _hero_runtime_states.get(hero_id, {})
 		if not hero_state is Dictionary:
 			continue
-		var source := hero_state as Dictionary
+		var source := _normalize_hero_runtime_state(hero_id, hero_state as Dictionary)
 		var current_city_id := str(source.get("current_city_id", source.get("city_id", "")))
 		if current_city_id.is_empty():
 			continue
@@ -2676,8 +2786,19 @@ func _serialize_worldmap_hero_runtime_state() -> Dictionary:
 			"current_city_id": current_city_id,
 			"city_id": current_city_id,
 			"location_city_id": current_city_id,
+			"status": str(source.get("status", HERO_RUNTIME_STATUS_NORMAL)),
+			"wounded": bool(source.get("wounded", false)),
+			"captured": bool(source.get("captured", false)),
+			"dead": bool(source.get("dead", false)),
 		}
-		print("[SAVE_HERO_STATE] hero=%s current_city=%s" % [hero_id, current_city_id])
+		print("[HERO_STATE_SAVE] hero=%s current_city=%s status=%s wounded=%s captured=%s dead=%s" % [
+			hero_id,
+			current_city_id,
+			str(source.get("status", HERO_RUNTIME_STATUS_NORMAL)),
+			str(source.get("wounded", false)),
+			str(source.get("captured", false)),
+			str(source.get("dead", false))
+		])
 	return serialized
 
 
@@ -2738,17 +2859,28 @@ func _apply_worldmap_hero_runtime_state(raw_state: Variant) -> void:
 		if _get_hero_seed_entry(hero_id).is_empty():
 			print("[LOAD_STATE_SKIP] type=hero hero=%s reason=missing_hero" % hero_id)
 			continue
-		var current_city_id := str((hero_payload as Dictionary).get("current_city_id", (hero_payload as Dictionary).get("city_id", "")))
+		var normalized_state := _normalize_hero_runtime_state(hero_id, hero_payload as Dictionary)
+		var current_city_id := str(normalized_state.get("current_city_id", normalized_state.get("city_id", "")))
 		if current_city_id.is_empty():
 			print("[LOAD_STATE_SKIP] type=hero hero=%s reason=missing_city_id" % hero_id)
 			continue
 		if not CITY_HUD_DATA.has(current_city_id) and _get_city_hud_entry(current_city_id).is_empty():
 			print("[LOAD_STATE_SKIP] type=hero hero=%s city=%s reason=missing_city" % [hero_id, current_city_id])
 			continue
-		_set_hero_runtime_city(hero_id, current_city_id)
+		normalized_state["current_city_id"] = current_city_id
+		normalized_state["city_id"] = current_city_id
+		normalized_state["location_city_id"] = current_city_id
+		_hero_runtime_states[hero_id] = normalized_state
 		_remove_hero_from_other_city_runtime_rosters(hero_id, current_city_id)
 		_ensure_hero_in_city_runtime_roster(hero_id, current_city_id)
-		print("[LOAD_HERO_STATE] hero=%s current_city=%s" % [hero_id, current_city_id])
+		print("[HERO_STATE_LOAD] hero=%s current_city=%s status=%s wounded=%s captured=%s dead=%s" % [
+			hero_id,
+			current_city_id,
+			str(normalized_state.get("status", HERO_RUNTIME_STATUS_NORMAL)),
+			str(normalized_state.get("wounded", false)),
+			str(normalized_state.get("captured", false)),
+			str(normalized_state.get("dead", false))
+		])
 
 
 func _refresh_city_marker_owner_states_from_runtime() -> void:
@@ -2795,15 +2927,34 @@ func _normalize_hero_id_array(raw_hero_ids: Variant) -> Array[String]:
 	return result
 
 
+func _normalize_hero_runtime_state(hero_id: String, raw_state: Dictionary = {}) -> Dictionary:
+	var seed_entry := _get_hero_seed_entry(hero_id)
+	var current_city_id := str(raw_state.get("current_city_id", raw_state.get("city_id", raw_state.get("location_city_id", ""))))
+	if current_city_id.is_empty() and not seed_entry.is_empty():
+		current_city_id = str(seed_entry.get("current_city_id", seed_entry.get("city_id", seed_entry.get("location_city_id", ""))))
+	var status := str(raw_state.get("status", HERO_RUNTIME_STATUS_NORMAL)).to_lower()
+	if not [HERO_RUNTIME_STATUS_NORMAL, HERO_RUNTIME_STATUS_WOUNDED, HERO_RUNTIME_STATUS_CAPTURED, HERO_RUNTIME_STATUS_DEAD].has(status):
+		status = HERO_RUNTIME_STATUS_NORMAL
+	return {
+		"current_city_id": current_city_id,
+		"city_id": current_city_id,
+		"location_city_id": current_city_id,
+		"status": status,
+		"wounded": bool(raw_state.get("wounded", status == HERO_RUNTIME_STATUS_WOUNDED)),
+		"captured": bool(raw_state.get("captured", status == HERO_RUNTIME_STATUS_CAPTURED)),
+		"dead": bool(raw_state.get("dead", status == HERO_RUNTIME_STATUS_DEAD)),
+	}
+
+
 func _set_hero_runtime_city(hero_id: String, city_id: String) -> void:
 	if hero_id.is_empty() or city_id.is_empty():
 		return
 	if _get_hero_seed_entry(hero_id).is_empty():
 		return
-	var hero_state: Dictionary = {}
+	var hero_state: Dictionary = _normalize_hero_runtime_state(hero_id)
 	var existing_state: Variant = _hero_runtime_states.get(hero_id, {})
 	if existing_state is Dictionary:
-		hero_state = (existing_state as Dictionary).duplicate(true)
+		hero_state = _normalize_hero_runtime_state(hero_id, existing_state as Dictionary)
 	hero_state["current_city_id"] = city_id
 	hero_state["city_id"] = city_id
 	hero_state["location_city_id"] = city_id

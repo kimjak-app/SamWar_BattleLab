@@ -2,6 +2,14 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-20 Invasion Casualty Formula + Hero State MVP
+- Replaced minimal invasion troop-rate result apply with a bounded casualty helper for defender victory and attacker victory.
+- Defender victory keeps ownership, reduces defender city troops modestly, and reduces attacker source-city troops heavily.
+- Attacker victory transfers ownership, derives occupation troops from attacker survivor/fallback values, and reduces the attacker source city by the occupation commitment.
+- Added nonnegative troop clamp guards and `[INVASION_CASUALTY]` / `[INVASION_TROOP_APPLY]` logs for result QA.
+- Extended hero runtime state save/load with `status`, `wounded`, `captured`, and `dead`; old save payloads default to `normal` / `false`.
+- Deferred actual wound/capture/death judgment, hero removal/holding movement, resource looting, detailed power-based casualty, AI strategy recalculation, and multi-invasion queues.
+
 ### v0.68b-12b-19 WorldMap Battle Result Save/Load Persistence MVP
 - Inspected existing WorldMap save/load flow in `scripts/worldmap_test.gd`: it saved `player_state`, intentionally cleared pending invasion fields, and previously discarded `_city_runtime_states` on load.
 - Added city runtime persistence for battle-result owner/nation/owner_faction_id, troops, and stationed hero ids without mutating `CITY_HUD_DATA`.

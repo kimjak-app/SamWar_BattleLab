@@ -1,5 +1,11 @@
 # HERO DATA CONTRACT
 
+## v0.68b-12b-20 Hero Runtime Status Fields
+- `HERO_DATA` remains seed/static metadata; post-battle status fields belong to `_hero_runtime_states` and save/load overrides.
+- `worldmap_hero_state` now persists `status`, `wounded`, `captured`, and `dead` in addition to current city identity fields.
+- Missing status fields in older save data default to `status: "normal"`, `wounded: false`, `captured: false`, and `dead: false`.
+- This patch only prepares the storage contract; it does not remove heroes from cities, move prisoners, roll wounds, roll capture, or mark deaths from battle results.
+
 ## v0.68b-12b-19 Hero Location Persistence
 - `HERO_DATA` remains seed/static metadata; save/load location changes use runtime hero overrides.
 - `worldmap_hero_state` persists only current city identity fields for this MVP: `current_city_id`, `city_id`, and `location_city_id`.

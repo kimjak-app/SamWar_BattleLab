@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current Casualty / Hero State Status
+- `v0.68b-12b-20 Invasion Casualty Formula Hero State MVP` is complete in code.
+- Invasion results now calculate MVP attacker/defender losses and apply clamped city troop changes for defense victory and defense defeat.
+- Attacker victory now assigns occupation troops from attacker survivors/fallback values and leaves the attacker source city with the remaining clamped troop count.
+- `worldmap_hero_state` now persists `status`, `wounded`, `captured`, and `dead` with default `normal` / `false` values for old save data.
+- Remaining manual QA: F6 defense win/loss save/load should confirm owner/troops persist, hero state defaults save/load, and no pending invasion duplicate appears.
+- Still deferred: actual wound/capture/death rolls, hero removal/holding movement, resource looting, detailed battle-power casualty balance, AI strategy recalculation, and multi-invasion queues.
+
 ## Current Persistence Status
 - `v0.68b-12b-19 WorldMap Battle Result Save/Load Persistence MVP` is complete in code.
 - Battle-result city owner/troop runtime overrides now persist through save/load via `worldmap_city_state`.

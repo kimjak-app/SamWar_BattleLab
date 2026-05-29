@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-12b-20 Invasion Casualty Formula Hero State MVP
+- Added MVP invasion casualty calculation in `scripts/worldmap_test.gd` for defender-win and attacker-win result application.
+- Defense victory now preserves ownership, applies a bounded defender city troop loss, and applies heavier attacker source-city troop loss.
+- Defense defeat now transfers city ownership, applies occupation troops from attacker survivors/fallbacks, and reduces the attacker source city by the detached occupation force.
+- Troop values are normalized through nonnegative clamp guards with a temporary upper bound; current rates are MVP balance placeholders.
+- Extended `worldmap_hero_state` save/load with `status`, `wounded`, `captured`, and `dead` while defaulting missing fields to `normal` / `false`.
+- No actual wound/capture/death roll, hero removal, resource looting, strategic AI recalculation, or multi-invasion queue behavior was implemented.
+
 ## v0.68b-12b-19 WorldMap Battle Result Save Load Persistence MVP
 - Extended `scripts/worldmap_test.gd` save payload to include `worldmap_city_state` runtime overrides for city owner/nation/owner_faction_id, troops, and stationed hero ids.
 - Added `worldmap_hero_state` runtime overrides for hero current city id fields (`current_city_id`, `city_id`, `location_city_id`).

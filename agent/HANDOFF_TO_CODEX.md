@@ -1,6 +1,13 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-12b-20 Invasion Casualty Formula Hero State MVP` adds bounded MVP casualty application and hero status persistence fields.
+- Defense victory keeps ownership while applying clamped defender city losses and heavier attacker source-city losses; defense defeat transfers ownership and applies occupation troops from attacker survivors/fallbacks.
+- Troop math is intentionally temporary balance and clamps values to safe nonnegative bounds.
+- `worldmap_hero_state` now stores `status`, `wounded`, `captured`, and `dead`, defaulting missing fields to `normal` / `false`.
+- Deferred systems remain out of scope: actual wound/capture/death rolls, hero holding/movement after capture, resource looting, precise battle-power casualty math, AI strategy recalculation, and multi-invasion queues.
+
+## Previous Patch Note
 - `v0.68b-12b-19 WorldMap Battle Result Save/Load Persistence MVP` persists invasion-result worldmap runtime state.
 - Save data now carries `worldmap_city_state` for city owner/nation/owner_faction_id, troops, and stationed hero ids, plus `worldmap_hero_state` for hero current city ids.
 - Load starts from seed city/hero data and applies runtime overrides into `_city_runtime_states` / `_hero_runtime_states`, then refreshes city marker ownership and worldmap UI.

@@ -1,5 +1,12 @@
 # v0.68b-12b-8 Enemy Invasion Web Logic Audit
 
+## v0.68b-12b-20 Casualty + Hero State Status
+- Invasion battle results now apply MVP casualty math instead of only minimal troop updates.
+- Defender victory keeps ownership, lowers defender city troops within clamp guards, and heavily reduces attacker source-city troops.
+- Attacker victory transfers ownership, assigns occupation troops from attacker survivors/fallbacks, and reduces attacker source-city troops by the detached occupation amount.
+- Hero runtime save/load now carries `status`, `wounded`, `captured`, and `dead` with old-save defaults of `normal` / `false`.
+- Remaining deferred audit items: actual wound/capture/death rolls, prisoner movement, resource looting, detailed battle-power casualty formula, AI strategy recalculation, and multi-invasion queues.
+
 ## v0.68b-12b-19 Battle Result Persistence Status
 - Invasion battle result owner/troop changes are now save/load participants through WorldMap city runtime overrides.
 - City stationed hero ids and hero current city ids are included in runtime persistence so later BattleContext roster construction can use loaded placement state.
