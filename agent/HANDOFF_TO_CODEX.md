@@ -1,6 +1,13 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-12b-22 Hero Wound Capture Placeholder MVP` applies a deterministic losing-side hero status placeholder after invasion battle results.
+- MVP rule: first eligible losing-side hero is marked `wounded`, second eligible losing-side hero is marked `captured`, and `dead` remains unused.
+- Captured heroes are not removed from city rosters and no prison/movement/recruit/execution/recovery flow is implemented.
+- Status changes are stored in `_hero_runtime_states`, continue through `worldmap_hero_state` save/load, and are summarized in the post-battle result card.
+- Deferred: actual capture movement, prison UI, recruitment/execution, wound recovery turns, death, stat-based rolls, and detailed prisoner panels.
+
+## Previous Patch Note
 - `v0.68b-12b-21 Post Battle Result Panel Polish MVP` adds an immediate WorldMap post-battle result summary card.
 - Invasion result return now builds a display-only summary for defender win, attacker win/city fall, retreat, and unknown paths.
 - The card lists ownership change/retention, defender city troop change, attacker source-city troop change, and occupation troops when present.

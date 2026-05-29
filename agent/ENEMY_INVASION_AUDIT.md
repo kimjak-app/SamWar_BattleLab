@@ -1,5 +1,12 @@
 # v0.68b-12b-8 Enemy Invasion Web Logic Audit
 
+## v0.68b-12b-22 Hero Status Placeholder Status
+- Invasion battle results now apply a losing-side hero status placeholder after owner/troop changes are summarized.
+- Deterministic MVP rule: first eligible losing-side hero becomes wounded, second eligible losing-side hero becomes captured, and dead remains unused.
+- Captured heroes remain in their city rosters; this is status display/persistence only, not a prison or movement system.
+- Post-battle result card includes a compact hero status summary line.
+- Remaining deferred audit items: actual prisoner movement, prison/recruit/execution UI, wound recovery turns, death, stat-based rolls, and detailed prisoner panels.
+
 ## v0.68b-12b-21 Result Panel Status
 - Invasion battle return now builds a display-only result summary after applying the battle result.
 - Defender win, attacker win/city fall, retreat, and unknown paths produce separate summary titles/copy.

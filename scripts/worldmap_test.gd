@@ -1854,6 +1854,9 @@ func _apply_invasion_battle_result(result_payload: Dictionary) -> void:
 					"%s 방어전 결과를 해석할 수 없어 소유권 변화는 적용하지 않았습니다." % defender_city_name,
 				])
 				status_message = _format_invasion_result_status_from_summary(result_summary)
+	if not result_summary.is_empty():
+		result_summary = _apply_invasion_hero_state_placeholder(result_payload, result_summary)
+		status_message = _format_invasion_result_status_from_summary(result_summary)
 
 	_clear_pending_invasion_event_mvp()
 	_sync_worldmap_hero_locations_from_city_runtime_states()
@@ -1995,6 +1998,144 @@ func _format_invasion_result_status_from_summary(summary: Dictionary) -> String:
 	if lines.is_empty():
 		return title
 	return "%s: %s" % [title, str(lines[0])]
+
+
+func _apply_invasion_hero_state_placeholder(result_payload: Dictionary, result_summary: Dictionary) -> Dictionary:
+	var updated_summary := result_summary.duplicate(true)
+	var result_kind := str(updated_summary.get("result", _normalize_invasion_battle_result_kind(result_payload)))
+	var losing_side := ""
+	var losing_city_id := ""
+	match result_kind:
+		INVASION_RESULT_DEFENDER_WIN:
+			losing_side = "attacker"
+			losing_city_id = str(updated_summary.get("attacker_source_city_id", _get_invasion_result_city_id(result_payload, ["attacker_city_id", "source_city_id", "origin_city_id"])))
+		INVASION_RESULT_ATTACKER_WIN:
+			losing_side = "defender"
+			losing_city_id = str(updated_summary.get("city_id", _get_invasion_result_city_id(result_payload, ["defender_city_id", "target_city_id", "city_id"])))
+		_:
+			updated_summary["hero_state_result"] = {
+				"wounded_hero_ids": [],
+				"captured_hero_ids": [],
+				"dead_hero_ids": [],
+				"skipped_hero_ids": [],
+				"losing_side": losing_side,
+			}
+			_append_hero_state_result_lines(updated_summary)
+			print("[HERO_STATE_RESULT] result=%s losing_side=%s wounded=[] captured=[] skipped=[] dead=[]" % [result_kind, losing_side])
+			return updated_summary
+	var losing_hero_ids := _get_city_stationed_hero_ids_for_battle_context(losing_city_id)
+	var wounded_hero_ids: Array[String] = []
+	var captured_hero_ids: Array[String] = []
+	var skipped_hero_ids: Array[String] = []
+	for hero_id_variant in losing_hero_ids:
+		var hero_id := str(hero_id_variant)
+		if not _is_hero_eligible_for_placeholder_state(hero_id):
+			skipped_hero_ids.append(hero_id)
+			print("[HERO_STATE_SKIP] result=%s side=%s hero=%s reason=already_captured_or_dead_or_missing" % [result_kind, losing_side, hero_id])
+			continue
+		if wounded_hero_ids.is_empty():
+			if _set_hero_runtime_status_placeholder(hero_id, HERO_RUNTIME_STATUS_WOUNDED):
+				wounded_hero_ids.append(hero_id)
+			continue
+		if captured_hero_ids.is_empty() and not wounded_hero_ids.has(hero_id):
+			if _set_hero_runtime_status_placeholder(hero_id, HERO_RUNTIME_STATUS_CAPTURED):
+				captured_hero_ids.append(hero_id)
+			continue
+		if not wounded_hero_ids.is_empty() and not captured_hero_ids.is_empty():
+			break
+	updated_summary["hero_state_result"] = {
+		"wounded_hero_ids": wounded_hero_ids,
+		"captured_hero_ids": captured_hero_ids,
+		"dead_hero_ids": [],
+		"skipped_hero_ids": skipped_hero_ids,
+		"losing_side": losing_side,
+		"losing_city_id": losing_city_id,
+	}
+	_append_hero_state_result_lines(updated_summary)
+	print("[HERO_STATE_RESULT] result=%s losing_side=%s wounded=%s captured=%s skipped=%s dead=[]" % [
+		result_kind,
+		losing_side,
+		str(wounded_hero_ids),
+		str(captured_hero_ids),
+		str(skipped_hero_ids)
+	])
+	return updated_summary
+
+
+func _is_hero_eligible_for_placeholder_state(hero_id: String) -> bool:
+	if hero_id.is_empty() or _get_hero_seed_entry(hero_id).is_empty():
+		return false
+	var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+	return not bool(hero_state.get("captured", false)) and not bool(hero_state.get("dead", false))
+
+
+func _get_existing_hero_runtime_state(hero_id: String) -> Dictionary:
+	var existing_state: Variant = _hero_runtime_states.get(hero_id, {})
+	if existing_state is Dictionary:
+		return existing_state as Dictionary
+	return {}
+
+
+func _set_hero_runtime_status_placeholder(hero_id: String, status: String) -> bool:
+	if hero_id.is_empty() or _get_hero_seed_entry(hero_id).is_empty():
+		print("[HERO_STATE_SKIP] hero=%s status=%s reason=missing_hero" % [hero_id, status])
+		return false
+	var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+	match status:
+		HERO_RUNTIME_STATUS_WOUNDED:
+			hero_state["status"] = HERO_RUNTIME_STATUS_WOUNDED
+			hero_state["wounded"] = true
+			hero_state["captured"] = false
+			hero_state["dead"] = false
+		HERO_RUNTIME_STATUS_CAPTURED:
+			hero_state["status"] = HERO_RUNTIME_STATUS_CAPTURED
+			hero_state["wounded"] = false
+			hero_state["captured"] = true
+			hero_state["dead"] = false
+		_:
+			hero_state["status"] = HERO_RUNTIME_STATUS_NORMAL
+			hero_state["wounded"] = false
+			hero_state["captured"] = false
+			hero_state["dead"] = false
+	_hero_runtime_states[hero_id] = hero_state
+	print("[HERO_STATE_APPLY] hero=%s status=%s wounded=%s captured=%s dead=%s city=%s" % [
+		hero_id,
+		str(hero_state.get("status", HERO_RUNTIME_STATUS_NORMAL)),
+		str(hero_state.get("wounded", false)),
+		str(hero_state.get("captured", false)),
+		str(hero_state.get("dead", false)),
+		str(hero_state.get("current_city_id", ""))
+	])
+	return true
+
+
+func _append_hero_state_result_lines(result_summary: Dictionary) -> void:
+	var hero_state_result: Variant = result_summary.get("hero_state_result", {})
+	if not hero_state_result is Dictionary:
+		return
+	var state_result := hero_state_result as Dictionary
+	var wounded_hero_ids: Array = state_result.get("wounded_hero_ids", [])
+	var captured_hero_ids: Array = state_result.get("captured_hero_ids", [])
+	var message_lines: Array = result_summary.get("message_lines", [])
+	if wounded_hero_ids.is_empty() and captured_hero_ids.is_empty():
+		message_lines.append("장수 상태 변화 없음")
+	else:
+		var wounded_text := _format_hero_name_list(wounded_hero_ids) if not wounded_hero_ids.is_empty() else "없음"
+		var captured_text := _format_hero_name_list(captured_hero_ids) if not captured_hero_ids.is_empty() else "없음"
+		message_lines.append("장수 상태: 부상 %s / 포로 상태 %s" % [wounded_text, captured_text])
+	result_summary["message_lines"] = message_lines
+
+
+func _format_hero_name_list(hero_ids: Array) -> String:
+	var names: Array[String] = []
+	for hero_id_variant in hero_ids:
+		var hero_id := str(hero_id_variant)
+		var hero_data := _get_hero_entry(hero_id)
+		var display_name := str(hero_data.get("display_name", hero_data.get("name", hero_id)))
+		if display_name.is_empty():
+			display_name = hero_id
+		names.append(display_name)
+	return "없음" if names.is_empty() else ", ".join(names)
 
 
 func _apply_defender_win_invasion_result(defender_city_id: String, attacker_city_id: String, defender_city_name: String, attacker_city_name: String, result_payload: Dictionary) -> Dictionary:

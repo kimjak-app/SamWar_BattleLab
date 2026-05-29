@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current Hero State Placeholder Status
+- `v0.68b-12b-22 Hero Wound Capture Placeholder MVP` is complete in code.
+- Losing-side hero status placeholder rule is deterministic: first eligible losing hero becomes wounded, second eligible losing hero becomes captured, dead is never applied.
+- Captured heroes remain in city rosters for this MVP; no prison/movement/recruit/execution/recovery system exists yet.
+- Hero status changes are runtime overrides and persist through existing `worldmap_hero_state` save/load.
+- Post-battle result card now shows a one-line hero status summary.
+- Remaining manual QA: F6 invasion result, save, load, and confirm wounded/captured status remains while rosters stay intact.
+
 ## Current Result Panel Status
 - `v0.68b-12b-21 Post Battle Result Panel Polish MVP` is complete in code.
 - WorldMap invasion battle return now creates a display-only result summary for defender win, attacker win, retreat, and unknown result paths.

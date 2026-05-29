@@ -2,6 +2,15 @@
 
 ## 2026-05-29
 
+### v0.68b-12b-22 Hero Wound/Capture Placeholder MVP
+- Confirmed `_hero_runtime_states` and `worldmap_hero_state` already carry `status`, `wounded`, `captured`, and `dead` fields from v20.
+- Added deterministic losing-side placeholder logic after invasion result summary creation.
+- MVP rule: first eligible losing-side hero becomes `wounded`, second eligible losing-side hero becomes `captured`; dead is always left false.
+- Skips missing heroes and heroes already captured/dead; captured heroes remain in their city rosters for this placeholder phase.
+- Added `[HERO_STATE_APPLY]`, `[HERO_STATE_SKIP]`, and `[HERO_STATE_RESULT]` logs.
+- Added a one-line hero status summary to the post-battle result card.
+- Deferred actual prisoner movement, prison/recruit/execution UI, wound recovery turns, death, stat-based rolls, and detailed prisoner panels.
+
 ### v0.68b-12b-21 Post-Battle Result Panel Polish MVP
 - Confirmed the previous WorldMap battle result return displayed only a compact status string through the save-management status label.
 - Added a reusable `PostBattleResultCard` to the left World HUD at runtime, without adding scene files or changing battle UI.

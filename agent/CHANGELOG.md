@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-12b-22 Hero Wound Capture Placeholder MVP
+- Added losing-side hero status placeholder application in `scripts/worldmap_test.gd` after invasion battle results.
+- Deterministic MVP rule: first eligible losing-side hero is marked `wounded`, second eligible losing-side hero is marked `captured`, and `dead` is never applied.
+- Existing captured/dead or missing heroes are skipped with concise `[HERO_STATE_SKIP]` logs.
+- Status changes update `_hero_runtime_states` only; `HERO_DATA` and city rosters are not mutated for prisoner movement.
+- Captured heroes remain in `stationed_hero_ids` / `hero_ids`; no prison, recruitment, execution, movement, or recovery system was added.
+- The post-battle result card now includes a compact hero status summary line.
+- Existing `worldmap_hero_state` save/load persists the new wounded/captured placeholder state.
+
 ## v0.68b-12b-21 Post Battle Result Panel Polish MVP
 - Added a display-only post-battle result summary path in `scripts/worldmap_test.gd` after WorldMap invasion battle return.
 - Reused the left World HUD by adding a compact `PostBattleResultCard` programmatically instead of creating a new scene or large UI flow.

@@ -1,5 +1,12 @@
 # HERO DATA CONTRACT
 
+## v0.68b-12b-22 Wound/Capture Placeholder
+- Post-battle wound/capture placeholder state is runtime-only and must not mutate `HERO_DATA`.
+- The temporary MVP rule marks the first eligible losing-side hero as `wounded` and the second eligible losing-side hero as `captured`.
+- `dead` is not used in this MVP and should remain false.
+- Captured heroes are not removed from city rosters yet; `stationed_hero_ids` and `hero_ids` remain intact until a dedicated prisoner movement system is implemented.
+- Save/load persists these status flags through `worldmap_hero_state`; older saves still default missing fields to `normal` / `false`.
+
 ## v0.68b-12b-20 Hero Runtime Status Fields
 - `HERO_DATA` remains seed/static metadata; post-battle status fields belong to `_hero_runtime_states` and save/load overrides.
 - `worldmap_hero_state` now persists `status`, `wounded`, `captured`, and `dead` in addition to current city identity fields.

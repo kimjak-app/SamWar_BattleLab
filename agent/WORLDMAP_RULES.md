@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.68b-12b-22 Hero Status Placeholder Rule
+- Invasion battle result may apply placeholder hero status only to the losing side.
+- MVP rule is deterministic and temporary: first eligible losing hero becomes wounded; second eligible losing hero becomes captured; dead is not used.
+- Captured heroes remain in city `stationed_hero_ids` / `hero_ids` until a dedicated prisoner movement system exists.
+- Hero status changes must use `_hero_runtime_states` and `worldmap_hero_state`, not seed `HERO_DATA` mutation.
+- Post-battle result summary may show the placeholder hero state line, but no prison, recruitment, execution, recovery, death, or stat-based roll system exists yet.
+
 ## v0.68b-12b-21 Post-Battle Result Summary Rule
 - WorldMap invasion battle return should present an immediate display-only result summary after applying owner/troop changes.
 - Defender win, attacker win/city fall, retreat, and unknown results should have separate readable copy.
