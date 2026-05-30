@@ -2,6 +2,22 @@
 
 ## 2026-05-30
 
+### v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions
+- Started from baseline commit `1505053` / `v0.68b-13-6C1 Troop Move Manual MVP`.
+- `HANDOFF_P2C2_REBALANCE_SUGGESTIONS.md` was not present at repo root or under `agent/`, so implementation followed the explicit task text.
+- Confirmed `ROLE_TARGET_GARRISON_RATIO` was not present and added it minimally for the requested target-garrison formula.
+- Implemented C2 only. Did not implement UI, suggestion cards, automatic movement, direct troop writes, resource changes, C1 validation formula changes, Phase A/B/P0-1/P0-2 calculation changes, battle/invasion/defense changes, or save/load core rewrites.
+- Added `_calculate_troop_rebalance_suggestions()`: reads `_calculate_all_city_supply_states()`, uses `owned_city_ids`, builds hub/rear surplus suppliers and frontline shortage demands, processes shortage/surplus in descending order, calls `_can_move_troops` for each candidate, stores `last_troop_rebalance_suggestions`, and returns the array.
+- Added `_apply_troop_rebalance_suggestion()`: extracts `from`, `to`, and `amount`, then calls `_move_troops`; C2 does not call `_set_city_runtime_troops`.
+- Ran `rg` for new constant/functions: present.
+- Confirmed only `scripts/worldmap_test.gd` changed before docs; `battle_web_import_test.gd` was not modified.
+- Ran `git diff --check`: passed.
+- Ran Godot headless project load: passed.
+- Ran Godot headless `WorldMap_Test.tscn` load: passed.
+- Ran Godot `--headless --check-only`: timed out after 124 seconds, inconclusive.
+- Ran a temporary headless QA runner, then deleted it before commit. It confirmed start state with Hanseong only produced 0 suggestions; crafted Hanseong/Gyeongju scenario produced 1 valid suggestion; all suggestions passed `_can_move_troops`; suggestion calculation preserved world troop total and city troop values; `_apply_troop_rebalance_suggestion` moved through `_move_troops` with total preservation; save/load preserved moved city troops through the existing C1 path.
+- Remaining risks: no C2 UI yet; target-garrison ratios are first-pass constants; manual F6 QA remains for any future approval UI.
+
 ### v0.68b-13-6C1 Troop Move Manual MVP
 - Started from baseline commit `3fdb56d` / `v0.68b-13-5A City Info Display Spacing Micro Polish`.
 - `HANDOFF_P2C_TROOP_REBALANCE.md` was not present at repo root or under `agent/`, so implementation followed the explicit task text.

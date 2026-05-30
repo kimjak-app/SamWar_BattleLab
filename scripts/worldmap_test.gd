@@ -84,6 +84,11 @@ const SUPPLY_SECURITY_PENALTY := -1
 const SUPPLY_UPKEEP_DISCOUNT_PER_CITY := 0.03
 const SUPPLY_UPKEEP_DISCOUNT_FLOOR := 0.85
 const TROOP_MOVE_MIN_GARRISON_RATIO := 0.6
+const ROLE_TARGET_GARRISON_RATIO := {
+	"hub": 0.006,
+	"rear": 0.006,
+	"frontline": 0.01,
+}
 
 # v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 # v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
@@ -3568,6 +3573,93 @@ func _move_troops(from_id: String, to_id: String, amount: int) -> bool:
 		str(total_preserved),
 	])
 	return total_preserved
+
+
+func _calculate_troop_rebalance_suggestions() -> Array:
+	var suggestions: Array = []
+	var supply_states := _calculate_all_city_supply_states()
+	var city_states: Variant = supply_states.get("city_states", {})
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not city_states is Dictionary or not owned_city_ids is Array:
+		_player_state["last_troop_rebalance_suggestions"] = suggestions
+		return suggestions
+
+	var suppliers: Array[Dictionary] = []
+	var demands: Array[Dictionary] = []
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		var city_state: Variant = (city_states as Dictionary).get(city_id, {})
+		if not city_state is Dictionary:
+			continue
+		var city_data := _get_city_hud_entry(city_id)
+		if city_data.is_empty():
+			continue
+		var role := str((city_state as Dictionary).get("role", "rear"))
+		var target_ratio := float(ROLE_TARGET_GARRISON_RATIO.get(role, ROLE_TARGET_GARRISON_RATIO.get("rear", 0.0)))
+		var target := maxi(0, int(floor(float(maxi(0, int(city_data.get("population", 0)))) * target_ratio)))
+		var current_troops := _get_city_troops_for_battle_context(city_id)
+		var surplus := maxi(0, current_troops - target)
+		var shortage := maxi(0, target - current_troops)
+		if role != "frontline" and surplus > 0:
+			suppliers.append({
+				"city_id": city_id,
+				"role": role,
+				"surplus": surplus,
+			})
+		elif role == "frontline" and shortage > 0:
+			demands.append({
+				"city_id": city_id,
+				"role": role,
+				"shortage": shortage,
+			})
+
+	demands.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.get("shortage", 0)) > int(b.get("shortage", 0))
+	)
+	suppliers.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.get("surplus", 0)) > int(b.get("surplus", 0))
+	)
+
+	for demand in demands:
+		var to_id := str(demand.get("city_id", ""))
+		var to_role := str(demand.get("role", "frontline"))
+		var shortage_left := int(demand.get("shortage", 0))
+		for supplier_index in range(suppliers.size()):
+			if shortage_left <= 0:
+				break
+			var supplier: Dictionary = suppliers[supplier_index]
+			var from_id := str(supplier.get("city_id", ""))
+			var from_role := str(supplier.get("role", "rear"))
+			var supplier_surplus := int(supplier.get("surplus", 0))
+			var amount := mini(supplier_surplus, shortage_left)
+			if amount <= 0:
+				continue
+			var validation := _can_move_troops(from_id, to_id, amount)
+			if not bool(validation.get("ok", false)):
+				continue
+			suggestions.append({
+				"from": from_id,
+				"to": to_id,
+				"amount": amount,
+				"reason": "후방 %s 잉여 병력 %d명 → 전선 %s 보강" % [from_id, amount, to_id],
+				"from_role": from_role,
+				"to_role": to_role,
+				"from_surplus_before": supplier_surplus,
+				"to_shortage_before": shortage_left,
+			})
+			supplier["surplus"] = supplier_surplus - amount
+			suppliers[supplier_index] = supplier
+			shortage_left -= amount
+
+	_player_state["last_troop_rebalance_suggestions"] = suggestions
+	return suggestions
+
+
+func _apply_troop_rebalance_suggestion(suggestion: Dictionary) -> bool:
+	var from_id := str(suggestion.get("from", ""))
+	var to_id := str(suggestion.get("to", ""))
+	var amount := int(suggestion.get("amount", 0))
+	return _move_troops(from_id, to_id, amount)
 
 
 func _get_world_city_troop_total() -> int:

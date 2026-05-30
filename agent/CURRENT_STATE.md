@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions
+- Implemented Phase C C2 in `scripts/worldmap_test.gd` as pure chancellor troop-rebalance suggestion calculation only. No UI, suggestion cards, automatic execution, resource movement, battle changes, save/load core changes, or calculation rewrites were added.
+- `HANDOFF_P2C2_REBALANCE_SUGGESTIONS.md` was not present at repo root or under `agent/`, so the explicit task text was used as the implementation source. `ROLE_TARGET_GARRISON_RATIO` was also absent and was added as the minimal target-garrison ratio table needed by the requested formula.
+- Added `_calculate_troop_rebalance_suggestions()`: it reads `_calculate_all_city_supply_states()`, uses `owned_city_ids`, treats `hub/rear` as suppliers and `frontline` as demand, sorts shortage/surplus per the task rule, validates every candidate through `_can_move_troops`, stores `_player_state["last_troop_rebalance_suggestions"]`, and returns the suggestions array.
+- Added `_apply_troop_rebalance_suggestion(suggestion)`: it extracts `from`, `to`, and `amount`, then delegates movement to C1 `_move_troops`. C2 does not call `_set_city_runtime_troops` and does not directly set troop values.
+- Not changed: C1 `_can_move_troops` / `_move_troops` validation formulas, P0-1, P0-2, Phase A trade, Phase B supply connectivity, battle/invasion/defense logic, `battle_web_import_test.gd`, and save/load core structure.
+- QA confirmed start state with only Hanseong owned returns 0 suggestions; a crafted multi-city scenario produced a Hanseong -> Gyeongju suggestion; all suggestions passed `_can_move_troops`; suggestion calculation preserved world troop total and per-city troops; applying a suggestion moved through `_move_troops` and preserved total troops; save/load preserved moved troops through the existing C1 path.
+- Remaining risks: C2 has no UI surface yet; target-garrison ratios are first-pass constants because no existing `ROLE_TARGET_GARRISON_RATIO` was found; QA is headless/API-driven, so future UI approval flow still needs manual F6 validation.
+- Next task candidates: `City Panel Rebuild / Chancellor Suggestion UI` or `Troop Move UI from/to/amount Control Polish`.
+
 ## v0.68b-13-6C1 Troop Move Manual MVP
 - Implemented Phase C C1 only in `scripts/worldmap_test.gd`: manual city-to-city troop movement between player-owned cities. C2 chancellor suggestions and automatic redistribution were not implemented.
 - Precheck result: no new lock flag was needed. Existing runtime gates are reused: `_enemy_turn_mvp_pending`, `_player_state.pending_invasion_event`, `_player_state.pending_battle_context`, `Engine` battle context meta, and `turn_phase == player` for management-phase movement.

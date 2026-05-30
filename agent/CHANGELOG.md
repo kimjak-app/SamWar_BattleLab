@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions
+- Added Phase C C2 chancellor troop rebalance suggestion calculation to `scripts/worldmap_test.gd`.
+- Added `ROLE_TARGET_GARRISON_RATIO` as the target-garrison ratio table required by the C2 formula because no existing constant was present.
+- Added `_calculate_troop_rebalance_suggestions()` to compute rear/hub surplus -> frontline shortage suggestions from existing supply roles.
+- Each generated suggestion includes `from`, `to`, `amount`, `reason`, `from_role`, `to_role`, `from_surplus_before`, and `to_shortage_before`.
+- Every suggestion is validated through existing C1 `_can_move_troops`; calculation stores `last_troop_rebalance_suggestions` and does not move troops.
+- Added `_apply_troop_rebalance_suggestion()` as a future approval hook that delegates to `_move_troops`.
+- Did not implement UI, suggestion cards, automatic redistribution, direct troop writes in C2, C1 validation formula changes, resource changes, Phase A/B/P0-1/P0-2 calculation changes, battle/invasion/defense changes, or save/load core rewrites.
+
 ## v0.68b-13-6C1 Troop Move Manual MVP
 - Added Phase C C1 manual troop movement to `scripts/worldmap_test.gd`.
 - Added minimum source-city garrison rule with `TROOP_MOVE_MIN_GARRISON_RATIO := 0.6`.

@@ -1,6 +1,16 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions` implements Phase C C2 as pure suggestion calculation only.
+- No UI, suggestion cards, automatic redistribution, direct troop writes, resource changes, battle changes, save/load core rewrites, or C1 validation formula changes were implemented.
+- `HANDOFF_P2C2_REBALANCE_SUGGESTIONS.md` was not found in the repo; implementation followed the explicit task text. `ROLE_TARGET_GARRISON_RATIO` was absent and was added minimally for the requested target-garrison formula.
+- Added `_calculate_troop_rebalance_suggestions()`: reads existing Phase B supply states, builds `hub/rear` surplus suppliers and `frontline` shortage demands, processes larger shortages first and larger surplus suppliers first, validates candidates with `_can_move_troops`, stores `last_troop_rebalance_suggestions`, and returns the array.
+- Added `_apply_troop_rebalance_suggestion(suggestion)`: extracts `from`, `to`, and `amount`, then delegates to C1 `_move_troops`. C2 does not call `_set_city_runtime_troops`.
+- QA confirmed start-state 0 suggestions, crafted multi-city suggestion generation, all suggestions passing `_can_move_troops`, suggestion calculation preserving world and per-city troops, apply preserving total troops through `_move_troops`, and save/load preserving moved troops.
+- Remaining risks: no approval UI yet; first-pass target-garrison ratios should be balance-reviewed; future UI flow needs F6 manual QA.
+- Next candidates: `City Panel Rebuild / Chancellor Suggestion UI` or `Troop Move UI from/to/amount Control Polish`.
+
+## Previous Patch Note
 - `v0.68b-13-6C1 Troop Move Manual MVP` implements Phase C C1 only: manual troop movement between player-owned cities.
 - C2 chancellor suggestions and automatic troop redistribution were not implemented.
 - Precheck: existing state was sufficient for movement locking. Reused `_enemy_turn_mvp_pending`, pending invasion event, pending battle context, `Engine` battle context meta, and `turn_phase == player`; no new lock flag was added.

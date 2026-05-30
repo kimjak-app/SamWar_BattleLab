@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Current Troop Rebalance C2 Status
+- `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions` is complete in code/docs as C2 suggestion calculation only.
+- No UI, suggestion card surface, automatic redistribution, direct troop writes, resource changes, battle changes, or save/load core rewrites were implemented.
+- `_calculate_troop_rebalance_suggestions()` computes candidate moves from existing supply role state: `hub/rear` suppliers with surplus and `frontline` demand cities with shortage.
+- Every suggestion is validated by C1 `_can_move_troops`; C2 does not call `_set_city_runtime_troops` and does not directly set `troops`.
+- `_apply_troop_rebalance_suggestion()` is the future approval hook and only delegates to `_move_troops(from, to, amount)`.
+- QA confirmed suggestion calculation does not change world or city troop totals, start state has 0 suggestions, a crafted multi-city scenario generates a valid suggestion, apply preserves total troops, and save/load preserves the moved troop state via the existing C1 path.
+- Remaining risks: no UI approval path yet; `ROLE_TARGET_GARRISON_RATIO` was absent and is now a first-pass table; manual F6 QA remains for future UI flow.
+- Next candidates: `City Panel Rebuild / Chancellor Suggestion UI` or `Troop Move UI from/to/amount Control Polish`.
+
 ## Current Troop Move C1 Status
 - `v0.68b-13-6C1 Troop Move Manual MVP` is complete in code/docs as C1 only.
 - Manual troop movement is implemented through existing City Detail internal/supply tab action: selected player city is source, first connected player-owned city is destination, and amount is capped at 100 and available surplus above minimum garrison.
