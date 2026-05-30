@@ -75,6 +75,14 @@ const TRADE_ROUTE_CAP := {
 # v0.68b-13-2B Trade balance tuning (web parity restore)
 const TRADE_GLOBAL_DAMPENER := 0.5
 const TRADE_FOOD_FACTOR := 1.5
+const SUPPLY_INCOME_BONUS := 1.10
+const SUPPLY_INCOME_PENALTY := 0.80
+const SUPPLY_LOYALTY_BONUS := 1
+const SUPPLY_LOYALTY_PENALTY := -2
+const SUPPLY_SECURITY_BONUS := 1
+const SUPPLY_SECURITY_PENALTY := -1
+const SUPPLY_UPKEEP_DISCOUNT_PER_CITY := 0.03
+const SUPPLY_UPKEEP_DISCOUNT_FLOOR := 0.85
 
 # v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 # v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
@@ -535,6 +543,7 @@ var _player_state := {
 	"tax_effect": "세금 효과: 인구·상업세 적용, 충성도 0",
 	"faction_relations": {},
 	"last_inter_faction_trade_result": {},
+	"last_supply_state_result": {},
 }
 var _city_policy_state: Dictionary = {}
 var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
@@ -1553,6 +1562,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["faction_relations"] = {}
 	if not _player_state.has("last_inter_faction_trade_result") or not (_player_state["last_inter_faction_trade_result"] is Dictionary):
 		_player_state["last_inter_faction_trade_result"] = {}
+	if not _player_state.has("last_supply_state_result") or not (_player_state["last_supply_state_result"] is Dictionary):
+		_player_state["last_supply_state_result"] = {}
 
 
 func _normalize_turn_phase(phase: String) -> String:
@@ -4023,8 +4034,9 @@ func _apply_domestic_turn_mvp() -> String:
 	var tax_level := _normalize_tax_level(_player_state.get("tax_level", 30))
 	var policy_id := _normalize_chancellor_policy_id(str(_player_state.get("chancellor_policy_id", "balanced")))
 	var national_effects := _calculate_active_chancellor_national_effects()
-	var income_delta := _calculate_player_domestic_income_delta(turn_number, tax_level, policy_id, national_effects)
-	var upkeep_delta := _calculate_player_hero_upkeep_delta(policy_id, national_effects)
+	var supply_states := _calculate_all_city_supply_states()
+	var income_delta := _calculate_player_domestic_income_delta(turn_number, tax_level, policy_id, national_effects, supply_states)
+	var upkeep_delta := _calculate_player_hero_upkeep_delta(policy_id, national_effects, supply_states)
 	var combined_delta := _combine_resource_deltas(income_delta, upkeep_delta)
 	var applied_delta := _apply_resource_delta(combined_delta)
 	var inter_faction_trade_result := _apply_player_inter_faction_trade_income(turn_number)
@@ -4034,7 +4046,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var after_loyalty := clampi(before_loyalty + loyalty_delta, 0, 100)
 	var applied_loyalty_delta := after_loyalty - before_loyalty
 	_player_state["national_loyalty"] = after_loyalty
-	var city_loyalty_drift_result := _apply_city_loyalty_drift_for_world_turn(tax_level, policy_id)
+	var city_loyalty_drift_result := _apply_city_loyalty_drift_for_world_turn(tax_level, policy_id, supply_states)
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
 	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result)
@@ -4049,6 +4061,7 @@ func _apply_domestic_turn_mvp() -> String:
 		"resource_delta": applied_delta,
 		"loyalty_delta": applied_loyalty_delta,
 		"national_effects": national_effects,
+		"supply_state_result": supply_states,
 		"inter_faction_trade_result": inter_faction_trade_result,
 		"city_loyalty_drift_result": city_loyalty_drift_result,
 	}
@@ -4071,7 +4084,7 @@ func _create_empty_domestic_income_totals() -> Dictionary:
 	return {"rice": 0, "barley": 0, "seafood": 0, "gold": 0}
 
 
-func _calculate_player_domestic_income_delta(turn_number: int, tax_level: int, policy_id: String, national_effects: Dictionary) -> Dictionary:
+func _calculate_player_domestic_income_delta(turn_number: int, tax_level: int, policy_id: String, national_effects: Dictionary, supply_states: Dictionary = {}) -> Dictionary:
 	var calendar := _get_world_calendar_for_turn(turn_number)
 	var totals := _create_empty_domestic_income_totals()
 	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
@@ -4082,6 +4095,8 @@ func _calculate_player_domestic_income_delta(turn_number: int, tax_level: int, p
 		if city_data.is_empty():
 			continue
 		var city_effects := _calculate_city_domestic_effects(city_data, policy_id)
+		var city_supply_state := _get_supply_city_state(supply_states, city_id)
+		_apply_supply_income_effect(city_effects, city_supply_state)
 		var city_income := _calculate_city_domestic_income(city_data, calendar, tax_level, city_effects)
 		for resource_id in totals.keys():
 			totals[resource_id] = int(totals.get(resource_id, 0)) + int(city_income.get(resource_id, 0))
@@ -4251,6 +4266,25 @@ func _apply_income_multipliers_to_totals(totals: Dictionary, effect: Dictionary)
 	}
 
 
+func _apply_supply_income_effect(effect: Dictionary, supply_state: Dictionary) -> void:
+	var income_multiplier := float(supply_state.get("income_multiplier", 1.0))
+	if is_equal_approx(income_multiplier, 1.0):
+		return
+	effect["rice_multiplier"] = float(effect.get("rice_multiplier", 1.0)) * income_multiplier
+	effect["barley_multiplier"] = float(effect.get("barley_multiplier", 1.0)) * income_multiplier
+	effect["seafood_multiplier"] = float(effect.get("seafood_multiplier", 1.0)) * income_multiplier
+	effect["gold_multiplier"] = float(effect.get("gold_multiplier", 1.0)) * income_multiplier
+
+
+func _get_supply_city_state(supply_states: Dictionary, city_id: String) -> Dictionary:
+	var city_states: Variant = supply_states.get("city_states", {})
+	if city_states is Dictionary:
+		var state: Variant = (city_states as Dictionary).get(city_id, {})
+		if state is Dictionary:
+			return state
+	return {}
+
+
 func _create_empty_inter_faction_trade_totals() -> Dictionary:
 	return {"gold": 0, "rice": 0, "barley": 0, "seafood": 0, "salt": 0}
 
@@ -4382,11 +4416,130 @@ func _get_city_owner_faction_id(city_data: Dictionary) -> String:
 	return str(city_data.get("owner_faction_id", city_data.get("owner", city_data.get("nation", ""))))
 
 
+func _get_player_supply_hub_id() -> String:
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return ""
+	var selected_hub_id := ""
+	var selected_population := -1
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		var city_data := _get_city_hud_entry(city_id)
+		if city_data.is_empty() or _get_city_owner_faction_id(city_data) != PLAYER_FACTION_ID:
+			continue
+		var population := maxi(0, int(city_data.get("population", 0)))
+		if population > selected_population:
+			selected_population = population
+			selected_hub_id = city_id
+	return selected_hub_id
+
+
+func _is_city_supply_connected(city_id: String, hub_id: String) -> bool:
+	if city_id.is_empty() or hub_id.is_empty():
+		return false
+	if city_id == hub_id:
+		return true
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.is_empty() or _get_city_owner_faction_id(city_data) != PLAYER_FACTION_ID:
+		return false
+	var visited := {}
+	var queue: Array[String] = [city_id]
+	while not queue.is_empty():
+		var current_city_id := str(queue.pop_front())
+		if current_city_id == hub_id:
+			return true
+		if visited.has(current_city_id):
+			continue
+		visited[current_city_id] = true
+		var city_marker := _city_markers_by_id.get(current_city_id) as WorldMapCityMarker
+		if city_marker == null:
+			continue
+		for neighbor_id_variant in city_marker.neighbors:
+			var neighbor_id := str(neighbor_id_variant)
+			if visited.has(neighbor_id):
+				continue
+			var neighbor_data := _get_city_hud_entry(neighbor_id)
+			if neighbor_data.is_empty() or _get_city_owner_faction_id(neighbor_data) != PLAYER_FACTION_ID:
+				continue
+			queue.append(neighbor_id)
+	return false
+
+
+func _calculate_city_supply_state(city_id: String, hub_id: String) -> Dictionary:
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.is_empty() or _get_city_owner_faction_id(city_data) != PLAYER_FACTION_ID:
+		return {}
+	var role := "rear"
+	var has_enemy_neighbor := false
+	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+	if city_marker != null:
+		for neighbor_id_variant in city_marker.neighbors:
+			var neighbor_data := _get_city_hud_entry(str(neighbor_id_variant))
+			if not neighbor_data.is_empty() and _get_city_owner_faction_id(neighbor_data) != PLAYER_FACTION_ID:
+				has_enemy_neighbor = true
+				break
+	if city_id == hub_id:
+		role = "hub"
+	elif has_enemy_neighbor:
+		role = "frontline"
+	var supplied := true if role == "hub" else _is_city_supply_connected(city_id, hub_id)
+	var isolated := role != "hub" and not supplied
+	var income_multiplier := 1.0
+	var loyalty_delta := 0
+	var security_delta := 0
+	if role == "frontline":
+		if supplied:
+			income_multiplier = SUPPLY_INCOME_BONUS
+			loyalty_delta = SUPPLY_LOYALTY_BONUS
+			security_delta = SUPPLY_SECURITY_BONUS
+		elif isolated:
+			income_multiplier = SUPPLY_INCOME_PENALTY
+			loyalty_delta = SUPPLY_LOYALTY_PENALTY
+			security_delta = SUPPLY_SECURITY_PENALTY
+	return {
+		"city_id": city_id,
+		"hub_id": hub_id,
+		"role": role,
+		"supplied": supplied,
+		"isolated": isolated,
+		"income_multiplier": income_multiplier,
+		"loyalty_delta": loyalty_delta,
+		"security_delta": security_delta,
+	}
+
+
+func _calculate_all_city_supply_states() -> Dictionary:
+	var hub_id := _get_player_supply_hub_id()
+	var city_states := {}
+	var supplied_frontline_count := 0
+	var isolated_count := 0
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if owned_city_ids is Array:
+		for city_id_variant in owned_city_ids:
+			var city_id := str(city_id_variant)
+			var city_state := _calculate_city_supply_state(city_id, hub_id)
+			if city_state.is_empty():
+				continue
+			city_states[city_id] = city_state
+			if str(city_state.get("role", "")) == "frontline" and bool(city_state.get("supplied", false)):
+				supplied_frontline_count += 1
+			if bool(city_state.get("isolated", false)):
+				isolated_count += 1
+	var result := {
+		"hub_id": hub_id,
+		"supplied_frontline_count": supplied_frontline_count,
+		"isolated_count": isolated_count,
+		"city_states": city_states,
+	}
+	_player_state["last_supply_state_result"] = result
+	return result
+
+
 func _get_city_loyalty_value(city_data: Dictionary) -> int:
 	return clampi(int(city_data.get("cityLoyalty", city_data.get("loyalty", 75))), 0, 100)
 
 
-func _apply_city_loyalty_drift_for_world_turn(tax_level: int, policy_id: String) -> Dictionary:
+func _apply_city_loyalty_drift_for_world_turn(tax_level: int, policy_id: String, supply_states: Dictionary = {}) -> Dictionary:
 	var result := {"tax_level": tax_level, "policy_id": policy_id, "cities": []}
 	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
 	if not owned_city_ids is Array:
@@ -4398,7 +4551,7 @@ func _apply_city_loyalty_drift_for_world_turn(tax_level: int, policy_id: String)
 		if city_data.is_empty():
 			continue
 		var before_loyalty := _get_city_loyalty_value(city_data)
-		var drift := _calculate_city_loyalty_drift(city_data, tax_level, policy_id)
+		var drift := _calculate_city_loyalty_drift(city_data, tax_level, policy_id, _get_supply_city_state(supply_states, city_id))
 		var after_loyalty := clampi(before_loyalty + int(drift.get("delta", 0)), 0, 100)
 		city_data["loyalty"] = after_loyalty
 		city_data["cityLoyalty"] = after_loyalty
@@ -4418,7 +4571,7 @@ func _apply_city_loyalty_drift_for_world_turn(tax_level: int, policy_id: String)
 	return result
 
 
-func _calculate_city_loyalty_drift(city_data: Dictionary, tax_level: int, policy_id: String) -> Dictionary:
+func _calculate_city_loyalty_drift(city_data: Dictionary, tax_level: int, policy_id: String, supply_state: Dictionary = {}) -> Dictionary:
 	var city_effects := _calculate_city_domestic_effects(city_data, policy_id)
 	var tax_delta := _adjust_loyalty_delta(_get_tax_loyalty_delta(tax_level), float(city_effects.get("city_loyalty_loss_multiplier", 1.0)))
 	var garrison_troops := maxi(0, int(city_data.get("troops", 0)))
@@ -4433,6 +4586,8 @@ func _calculate_city_loyalty_drift(city_data: Dictionary, tax_level: int, policy
 		security_delta = 1
 	elif security_troops < security_required_troops:
 		security_delta = -1
+	var supply_security_delta := int(supply_state.get("security_delta", 0))
+	security_delta += supply_security_delta
 	var commerce_rating := _get_city_numeric_rating(city_data, "commerce_rating", 3)
 	var population_rating := _get_city_numeric_rating(city_data, "population_rating", 3)
 	var economy_score := clampi((commerce_rating * 10) + (population_rating * 8) + int(round((float(city_effects.get("gold_multiplier", 1.0)) - 1.0) * 80.0)), 0, 100)
@@ -4448,7 +4603,8 @@ func _calculate_city_loyalty_drift(city_data: Dictionary, tax_level: int, policy
 		military_burden_delta = -2
 	elif troop_population_ratio > 0.35:
 		military_burden_delta = -1
-	var preliminary_delta := tax_delta + security_delta + economy_delta + military_burden_delta
+	var supply_delta := int(supply_state.get("loyalty_delta", 0))
+	var preliminary_delta := tax_delta + security_delta + economy_delta + military_burden_delta + supply_delta
 	var governor_id := str(city_data.get("governor_id", city_data.get("governorHeroId", "")))
 	var governor_data := _get_hero_entry(governor_id)
 	var control_delta := 0
@@ -4464,6 +4620,10 @@ func _calculate_city_loyalty_drift(city_data: Dictionary, tax_level: int, policy
 		reasons.append("economy=%s" % _format_signed_int(economy_delta))
 	if military_burden_delta != 0:
 		reasons.append("military=%s" % _format_signed_int(military_burden_delta))
+	if supply_delta != 0:
+		reasons.append("supply=%s" % _format_signed_int(supply_delta))
+	if supply_security_delta != 0:
+		reasons.append("supply_security=%s" % _format_signed_int(supply_security_delta))
 	if control_delta != 0:
 		reasons.append("control=%s" % _format_signed_int(control_delta))
 	return {
@@ -4471,6 +4631,8 @@ func _calculate_city_loyalty_drift(city_data: Dictionary, tax_level: int, policy
 		"delta": delta,
 		"tax_delta": tax_delta,
 		"security_delta": security_delta,
+		"supply_delta": supply_delta,
+		"supply_security_delta": supply_security_delta,
 		"economy_delta": economy_delta,
 		"military_burden_delta": military_burden_delta,
 		"control_delta": control_delta,
@@ -4479,6 +4641,7 @@ func _calculate_city_loyalty_drift(city_data: Dictionary, tax_level: int, policy
 		"economy_score": economy_score,
 		"troop_population_ratio": troop_population_ratio,
 		"city_loyalty_loss_multiplier": float(city_effects.get("city_loyalty_loss_multiplier", 1.0)),
+		"supply_state": supply_state,
 		"reasons": reasons,
 	}
 
@@ -4511,7 +4674,7 @@ func _governor_has_aptitude(governor_data: Dictionary, type_id: String, threshol
 	return aptitude >= float(threshold)
 
 
-func _calculate_player_hero_upkeep_delta(policy_id: String, national_effects: Dictionary) -> Dictionary:
+func _calculate_player_hero_upkeep_delta(policy_id: String, national_effects: Dictionary, supply_states: Dictionary = {}) -> Dictionary:
 	var owned_hero_ids: Variant = _player_state.get("owned_hero_ids", [])
 	if not owned_hero_ids is Array:
 		return {}
@@ -4524,7 +4687,9 @@ func _calculate_player_hero_upkeep_delta(policy_id: String, national_effects: Di
 			continue
 		active_count += 1
 	var policy_data: Dictionary = CHANCELLOR_POLICY_DATA.get(_normalize_chancellor_policy_id(policy_id), CHANCELLOR_POLICY_DATA.get("balanced", {}))
-	var upkeep_multiplier := float(policy_data.get("hero_upkeep_multiplier", 1.0)) * float(national_effects.get("hero_upkeep_multiplier", 1.0))
+	var supplied_frontline_count := maxi(0, int(supply_states.get("supplied_frontline_count", 0)))
+	var supply_upkeep_multiplier := maxf(SUPPLY_UPKEEP_DISCOUNT_FLOOR, 1.0 - (SUPPLY_UPKEEP_DISCOUNT_PER_CITY * float(supplied_frontline_count)))
+	var upkeep_multiplier := float(policy_data.get("hero_upkeep_multiplier", 1.0)) * float(national_effects.get("hero_upkeep_multiplier", 1.0)) * supply_upkeep_multiplier
 	var delta := {}
 	for resource_id in HERO_UPKEEP_RULES.keys():
 		var base_cost := active_count * int(HERO_UPKEEP_RULES.get(resource_id, 0))

@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.68b-13-4 Phase B Supply Connectivity Bonus MVP
+- Added Phase B supply connectivity constants and helpers to `scripts/worldmap_test.gd`.
+- Added player supply hub selection by largest owned-city population and BFS connectivity through player-owned neighbor cities only.
+- Added per-city supply state with `hub`, `frontline`, and `rear` roles; enemy/other-faction adjacent player cities are frontline, and non-hub disconnected cities are isolated.
+- Added whole-turn supply calculation once in `_apply_domestic_turn_mvp` and stored the summary in `last_supply_state_result`.
+- Wired supply state into domestic income by multiplying existing city effects instead of replacing P0-1 governor/chancellor policy effects.
+- Wired supply state into P0-2 city loyalty drift as separate loyalty and security adjustments while preserving the final `-3..+3` clamp.
+- Wired supplied-frontline count into hero upkeep as a bounded discount.
+- Kept the national single-warehouse model; no city-specific resource storage or resource transfer pipeline was added.
+- Did not implement Phase C troop redistribution, battle/invasion/defense supply effects, Phase A trade formula changes, save/load core rewrites, or supply UI.
+- Kept `worldmap_test_FULL.gd` out of the commit as the untracked source integration file.
+
 ## v0.68b-13-3 Final Merged WorldMap Domestic Trade Loyalty QA
 - Applied `worldmap_test_FULL.gd` to `scripts/worldmap_test.gd`.
 - Confirmed the merged file contains P0-1 governor income effects, P0-2 city loyalty drift, Phase A inter-faction trade income, and trade tuning C.

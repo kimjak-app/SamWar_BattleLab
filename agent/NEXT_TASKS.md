@@ -1,5 +1,16 @@
 # NEXT TASKS
 
+## Current Phase B Supply Connectivity Status
+- `v0.68b-13-4 Phase B Supply Connectivity Bonus MVP` is complete in code/docs.
+- Phase B is implemented as a connectivity bonus/penalty system layered into existing domestic income, P0-2 city loyalty drift, and hero upkeep. It does not move resources and does not split the national warehouse.
+- Supply state is recalculated once per domestic turn through `_calculate_all_city_supply_states()` and stored for inspection in `last_supply_state_result`.
+- `last_supply_state_result` structure: `hub_id`, `supplied_frontline_count`, `isolated_count`, and `city_states` keyed by city id with role/supplied/isolated/income/loyalty/security fields.
+- Starting state expectation: Hanseong is the supply hub; with only Hanseong owned, there should be no frontline supply bonus or isolation penalty.
+- Not implemented: Phase C troop redistribution, city-level warehouses, city-to-city resource movement, isolated-frontline upkeep surcharge, supply UI, and battle/invasion/defense supply effects.
+- `worldmap_test_FULL.gd` is treated as an untracked source integration file and must not be committed unless explicitly requested.
+- Remaining manual QA: F6 multi-city ownership frontline/rear classification, connected frontline income `x1.10`, loyalty/security bonus, supplied-frontline upkeep discount, crafted isolation case income `x0.80` and loyalty/security penalties, and save/load confirming supply state recalculates from ownership rather than persisted values.
+- Next recommended task: F6/manual QA and balance review for Phase B supply, then only proceed to Phase C troop redistribution if explicitly scoped.
+
 ## Current Final Domestic/Trade/Loyalty Merge QA Status
 - `v0.68b-13-3 Final Merged WorldMap Domestic Trade Loyalty QA` is complete in code/docs.
 - `worldmap_test_FULL.gd` was applied to `scripts/worldmap_test.gd`.

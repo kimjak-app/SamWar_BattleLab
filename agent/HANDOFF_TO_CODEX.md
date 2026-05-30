@@ -1,6 +1,18 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-13-4 Phase B Supply Connectivity Bonus MVP` implements the redesigned Phase B as connectivity-gated domestic modifiers, not as resource movement.
+- The national single-warehouse model remains intact. No city-level warehouse split, city-to-city transfer logic, or Phase C troop redistribution was added.
+- Supply helpers in `scripts/worldmap_test.gd`: `_get_player_supply_hub_id`, `_is_city_supply_connected`, `_calculate_city_supply_state`, and `_calculate_all_city_supply_states`.
+- `_apply_domestic_turn_mvp` calculates `supply_states` once, then passes the same result into domestic income, hero upkeep, and city loyalty drift.
+- Frontline supplied cities receive income `x1.10`, loyalty `+1`, security `+1`; isolated frontline cities receive income `x0.80`, loyalty `-2`, security `-1`; hub/rear cities receive no bonus.
+- Hero upkeep discount uses `max(0.85, 1.0 - 0.03 * supplied_frontline_count)`. Isolated-frontline upkeep surcharge is deferred as a remaining risk.
+- `last_supply_state_result` is stored with `hub_id`, `supplied_frontline_count`, `isolated_count`, and `city_states`. It is recalculated each turn and is not a save/load payload extension.
+- `worldmap_test_FULL.gd` is treated as an untracked source integration file and is not part of this commit.
+- Verification passed for `rg`, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and Godot `--check-only`.
+- F6 manual QA remains for multi-city frontline/rear classification, connected and isolated cases, save/load recalculation, and visual/domestic summary sanity.
+
+## Latest Patch Note
 - `v0.68b-13-3 Final Merged WorldMap Domestic Trade Loyalty QA` applied `worldmap_test_FULL.gd` to `scripts/worldmap_test.gd`.
 - The final merged WorldMap file contains P0-1 governor income effects, P0-2 city loyalty drift, Phase A inter-faction trade income, and trade tuning C.
 - Trade tuning C values are confirmed in code: `TRADE_GLOBAL_DAMPENER := 0.5` and `TRADE_FOOD_FACTOR := 1.5`.

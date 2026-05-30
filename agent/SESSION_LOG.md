@@ -2,6 +2,20 @@
 
 ## 2026-05-30
 
+### v0.68b-13-4 Phase B Supply Connectivity Bonus MVP
+- Started from HEAD `8cad028`; tracked changes were clean and `worldmap_test_FULL.gd` was kept out of the commit as the untracked source integration file.
+- `HANDOFF_P2B_SUPPLY_REDESIGN.md` was not present in the repo, so implementation followed the explicit task scope.
+- Added the requested Phase B supply constants and helper functions in `scripts/worldmap_test.gd`.
+- Implemented hub selection by largest player-owned city population; starting state should resolve Hanseong as hub.
+- Implemented BFS supply connectivity through player-owned city marker neighbors only, with visited tracking.
+- Implemented city supply roles and state summary: hub/rear/frontline, supplied, isolated, income multiplier, loyalty delta, and security delta.
+- Wired one supply-state calculation into `_apply_domestic_turn_mvp`, then shared it with income, hero upkeep, and city loyalty drift.
+- Applied supplied-frontline income `x1.10`, isolated-frontline income `x0.80`, supplied-frontline loyalty/security bonuses, isolated-frontline loyalty/security penalties, and supplied-frontline upkeep discount with `0.85` floor.
+- Did not add Phase C troop redistribution, resource movement, city-level warehouse state, Phase A trade changes, battle/invasion/defense changes, or save/load core rewrites.
+- `last_supply_state_result` stores `hub_id`, `supplied_frontline_count`, `isolated_count`, and `city_states`; this is recalculated each turn rather than treated as save/load source of truth.
+- Verified with `rg`, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and Godot `--check-only`.
+- F6 manual QA was not executed in this environment; multi-city connected/isolation scenarios and save/load recalculation remain manual.
+
 ### v0.68b-13-3 Final Merged WorldMap Domestic Trade Loyalty QA
 - Confirmed starting HEAD `fdd41fc` and clean tracked status before applying the uploaded file; `worldmap_test_FULL.gd` was present as an untracked source file.
 - Copied `worldmap_test_FULL.gd` over `scripts/worldmap_test.gd` without creating a backup file.

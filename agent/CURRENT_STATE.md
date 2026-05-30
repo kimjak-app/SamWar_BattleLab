@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.68b-13-4 Phase B Supply Connectivity Bonus MVP
+- Implemented Phase B as a connectivity-gated supply bonus system in `scripts/worldmap_test.gd`; this is not a city-by-city warehouse or resource movement pipeline.
+- Added supply constants for income bonus/penalty, loyalty bonus/penalty, security bonus/penalty, and supplied-frontline upkeep discount with a floor.
+- Added supply hub and connectivity helpers: `_get_player_supply_hub_id`, `_is_city_supply_connected`, `_calculate_city_supply_state`, and `_calculate_all_city_supply_states`.
+- Player supply hub is the owned city with the largest `population`; current starting state should pick Hanseong because it is the only owned city and has population 50000.
+- `_apply_domestic_turn_mvp` calculates `supply_states` once at the start of the domestic turn and shares that result with domestic income, hero upkeep, and city loyalty drift.
+- Income effects are multiplied only for frontline cities: supplied frontline `x1.10`, isolated frontline `x0.80`, rear/hub no change. Existing P0-1 governor effects are preserved and multiplied rather than replaced.
+- City loyalty drift now accepts a supply state: supplied frontline adds loyalty `+1` and security `+1`; isolated frontline adds loyalty `-2` and security `-1`; final P0-2 clamp remains `-3..+3`.
+- Hero upkeep now receives a supplied-frontline discount: `max(0.85, 1.0 - 0.03 * supplied_frontline_count)`. Isolated-frontline upkeep surcharge is intentionally not implemented in this MVP.
+- `_player_state["last_supply_state_result"]` stores `{hub_id, supplied_frontline_count, isolated_count, city_states}`. Supply state is recalculated each turn from owners/owned cities/neighbors and is not a separate save/load field.
+- Phase C troop redistribution, city-specific warehouses, city-to-city resource movement, Phase A trade formula changes, battle/invasion/defense changes, and save/load core rewrites were not implemented.
+- `worldmap_test_FULL.gd` is treated as an untracked source integration file and is not part of this commit.
+- Verification: `rg`, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and Godot `--check-only` passed. F6 manual QA remains for connected/isolation scenarios and save/load recalculation behavior.
+
 ## v0.68b-13-3 Final Merged WorldMap Domestic Trade Loyalty QA
 - Applied `worldmap_test_FULL.gd` into `scripts/worldmap_test.gd`.
 - The integrated file keeps P0-1 governor income effects, P0-2 city loyalty drift, Phase A inter-faction trade income, and trade tuning C values.
