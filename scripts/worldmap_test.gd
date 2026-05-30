@@ -49,6 +49,9 @@ const CHANCELLOR_PRIMARY_RATE := 0.03
 const CHANCELLOR_SECONDARY_RATE := 0.015
 const GOVERNOR_PRIMARY_RATE := 0.025
 const GOVERNOR_SECONDARY_RATE := 0.0125
+const CITY_LOYALTY_DRIFT_MIN := -3
+const CITY_LOYALTY_DRIFT_MAX := 3
+const STATIONED_HERO_SECURITY_WEIGHT := 1.0
 const FACTION_RELATION_STATUS := {
 	"ALLIED": "allied",
 	"NEUTRAL": "neutral",
@@ -4028,6 +4031,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var after_loyalty := clampi(before_loyalty + loyalty_delta, 0, 100)
 	var applied_loyalty_delta := after_loyalty - before_loyalty
 	_player_state["national_loyalty"] = after_loyalty
+	var city_loyalty_drift_result := _apply_city_loyalty_drift_for_world_turn(tax_level, policy_id)
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
 	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result)
@@ -4043,6 +4047,7 @@ func _apply_domestic_turn_mvp() -> String:
 		"loyalty_delta": applied_loyalty_delta,
 		"national_effects": national_effects,
 		"inter_faction_trade_result": inter_faction_trade_result,
+		"city_loyalty_drift_result": city_loyalty_drift_result,
 	}
 	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result)
 
@@ -4378,6 +4383,131 @@ func _get_city_loyalty_value(city_data: Dictionary) -> int:
 	return clampi(int(city_data.get("cityLoyalty", city_data.get("loyalty", 75))), 0, 100)
 
 
+func _apply_city_loyalty_drift_for_world_turn(tax_level: int, policy_id: String) -> Dictionary:
+	var result := {"tax_level": tax_level, "policy_id": policy_id, "cities": []}
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		_player_state["last_city_loyalty_drift_result"] = result
+		return result
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		var city_data := _get_mutable_city_runtime_state(city_id)
+		if city_data.is_empty():
+			continue
+		var before_loyalty := _get_city_loyalty_value(city_data)
+		var drift := _calculate_city_loyalty_drift(city_data, tax_level, policy_id)
+		var after_loyalty := clampi(before_loyalty + int(drift.get("delta", 0)), 0, 100)
+		city_data["loyalty"] = after_loyalty
+		city_data["cityLoyalty"] = after_loyalty
+		_city_runtime_states[city_id] = city_data
+		drift["before_loyalty"] = before_loyalty
+		drift["after_loyalty"] = after_loyalty
+		(result["cities"] as Array).append(drift)
+		print("[CITY_LOYALTY_DRIFT] city=%s before=%d delta=%d after=%d reasons=%s" % [
+			city_id,
+			before_loyalty,
+			int(drift.get("delta", 0)),
+			after_loyalty,
+			str(drift.get("reasons", [])),
+		])
+	_player_state["last_city_loyalty_drift_result"] = result
+	_refresh_city_hud_data_bindings()
+	return result
+
+
+func _calculate_city_loyalty_drift(city_data: Dictionary, tax_level: int, policy_id: String) -> Dictionary:
+	var city_effects := _calculate_city_domestic_effects(city_data, policy_id)
+	var tax_delta := _adjust_loyalty_delta(_get_tax_loyalty_delta(tax_level), float(city_effects.get("city_loyalty_loss_multiplier", 1.0)))
+	var garrison_troops := maxi(0, int(city_data.get("troops", 0)))
+	var stationed_hero_troops := 0
+	for hero_id in _get_stationed_hero_ids_for_city(city_data):
+		var hero_data := _get_hero_entry(str(hero_id))
+		stationed_hero_troops += maxi(0, int(hero_data.get("troops", hero_data.get("troop_count", 0))))
+	var security_troops := int(round(float(garrison_troops) + (float(stationed_hero_troops) * STATIONED_HERO_SECURITY_WEIGHT)))
+	var security_required_troops := _get_city_security_required_troops(city_data)
+	var security_delta := 0
+	if security_troops >= int(ceil(float(security_required_troops) * 1.2)):
+		security_delta = 1
+	elif security_troops < security_required_troops:
+		security_delta = -1
+	var commerce_rating := _get_city_numeric_rating(city_data, "commerce_rating", 3)
+	var population_rating := _get_city_numeric_rating(city_data, "population_rating", 3)
+	var economy_score := clampi((commerce_rating * 10) + (population_rating * 8) + int(round((float(city_effects.get("gold_multiplier", 1.0)) - 1.0) * 80.0)), 0, 100)
+	var economy_delta := 0
+	if economy_score >= 75:
+		economy_delta = 1
+	elif economy_score < 50:
+		economy_delta = -1
+	var population := maxi(1, int(city_data.get("population", 30000)))
+	var troop_population_ratio := float(garrison_troops) / float(population)
+	var military_burden_delta := 0
+	if troop_population_ratio > 0.45:
+		military_burden_delta = -2
+	elif troop_population_ratio > 0.35:
+		military_burden_delta = -1
+	var preliminary_delta := tax_delta + security_delta + economy_delta + military_burden_delta
+	var governor_id := str(city_data.get("governor_id", city_data.get("governorHeroId", "")))
+	var governor_data := _get_hero_entry(governor_id)
+	var control_delta := 0
+	if preliminary_delta < 0 and not governor_data.is_empty() and (_governor_has_aptitude(governor_data, "administrative", 3) or _governor_has_aptitude(governor_data, "political", 3)):
+		control_delta = 1
+	var delta := clampi(preliminary_delta + control_delta, CITY_LOYALTY_DRIFT_MIN, CITY_LOYALTY_DRIFT_MAX)
+	var reasons: Array[String] = []
+	if tax_delta != 0:
+		reasons.append("tax=%s" % _format_signed_int(tax_delta))
+	if security_delta != 0:
+		reasons.append("security=%s" % _format_signed_int(security_delta))
+	if economy_delta != 0:
+		reasons.append("economy=%s" % _format_signed_int(economy_delta))
+	if military_burden_delta != 0:
+		reasons.append("military=%s" % _format_signed_int(military_burden_delta))
+	if control_delta != 0:
+		reasons.append("control=%s" % _format_signed_int(control_delta))
+	return {
+		"city_id": str(city_data.get("id", "")),
+		"delta": delta,
+		"tax_delta": tax_delta,
+		"security_delta": security_delta,
+		"economy_delta": economy_delta,
+		"military_burden_delta": military_burden_delta,
+		"control_delta": control_delta,
+		"security_troops": security_troops,
+		"security_required_troops": security_required_troops,
+		"economy_score": economy_score,
+		"troop_population_ratio": troop_population_ratio,
+		"city_loyalty_loss_multiplier": float(city_effects.get("city_loyalty_loss_multiplier", 1.0)),
+		"reasons": reasons,
+	}
+
+
+func _get_city_security_required_troops(city_data: Dictionary) -> int:
+	var military_text := str(city_data.get("military", ""))
+	var marker := "치안 기준"
+	var marker_index := military_text.find(marker)
+	if marker_index >= 0:
+		var number_text := ""
+		for index in range(marker_index + marker.length(), military_text.length()):
+			var character := military_text.substr(index, 1)
+			if character >= "0" and character <= "9":
+				number_text += character
+			elif not number_text.is_empty():
+				break
+		if not number_text.is_empty():
+			return maxi(1, int(number_text))
+	return 500
+
+
+func _governor_has_aptitude(governor_data: Dictionary, type_id: String, threshold: int) -> bool:
+	if governor_data.is_empty() or type_id.is_empty():
+		return false
+	var aptitude := 0.0
+	if str(governor_data.get("chancellor_primary_type", "")) == type_id:
+		aptitude += float(governor_data.get("chancellor_primary_aptitude", 0))
+	if str(governor_data.get("chancellor_secondary_type", "")) == type_id:
+		aptitude += float(governor_data.get("chancellor_secondary_aptitude", 0)) * 0.5
+	return aptitude >= float(threshold)
+
+
 func _calculate_player_hero_upkeep_delta(policy_id: String, national_effects: Dictionary) -> Dictionary:
 	var owned_hero_ids: Variant = _player_state.get("owned_hero_ids", [])
 	if not owned_hero_ids is Array:
@@ -4633,6 +4763,8 @@ func _serialize_worldmap_city_runtime_state() -> Dictionary:
 			"owner_faction_id": str(source.get("owner_faction_id", source.get("owner", source.get("nation", "")))),
 			"faction": str(source.get("faction", source.get("owner", source.get("nation", "")))),
 			"troops": maxi(0, int(source.get("troops", 0))),
+			"loyalty": _get_city_loyalty_value(source),
+			"cityLoyalty": _get_city_loyalty_value(source),
 			"stationed_hero_ids": _normalize_hero_id_array(source.get("stationed_hero_ids", source.get("hero_ids", []))),
 		}
 		if source.has("resource_stock") and source.get("resource_stock") is Dictionary:
@@ -4713,6 +4845,10 @@ func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
 			city_state["faction"] = str(source.get("faction", owner_id))
 		if source.has("troops"):
 			city_state["troops"] = maxi(0, int(source.get("troops", 0)))
+		if source.has("loyalty") or source.has("cityLoyalty"):
+			var loaded_loyalty := clampi(int(source.get("cityLoyalty", source.get("loyalty", city_state.get("loyalty", 75)))), 0, 100)
+			city_state["loyalty"] = loaded_loyalty
+			city_state["cityLoyalty"] = loaded_loyalty
 		if source.has("resource_stock") and source.get("resource_stock") is Dictionary:
 			var resource_stock := {}
 			for resource_id in (source.get("resource_stock") as Dictionary).keys():

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-13-2 City Loyalty Drift Patch Acceptance QA
+- Added P0-2 city loyalty drift constants to `scripts/worldmap_test.gd`: `CITY_LOYALTY_DRIFT_MIN := -3`, `CITY_LOYALTY_DRIFT_MAX := 3`, and `STATIONED_HERO_SECURITY_WEIGHT := 1.0`.
+- Added `_apply_city_loyalty_drift_for_world_turn`, `_calculate_city_loyalty_drift`, `_get_city_security_required_troops`, and `_governor_has_aptitude`.
+- Wired `_apply_city_loyalty_drift_for_world_turn(tax_level, policy_id)` into `_apply_domestic_turn_mvp` after national loyalty update.
+- City loyalty drift now combines tax delta, city security delta, economy delta, military burden delta, and political/administrative governor control mitigation, then clamps to `-3..+3`.
+- P0-1 `city_loyalty_loss_multiplier` is now consumed through `_adjust_loyalty_delta` for city tax loyalty drift.
+- `recruitable_troops_bonus` remains unconnected and is not used by this patch.
+- City loyalty writes through `_get_mutable_city_runtime_state` into `_city_runtime_states`; existing city runtime save/load now minimally preserves `loyalty` and `cityLoyalty`.
+- Did not implement Phase A trade, Phase B internal supply, Phase C troop redistribution, battle/invasion/defense changes, governor income formula rewrites, recruitable troop consumers, or save/load core rewrites.
+
 ## v0.68b-13-2A Inter-Faction Trade Income MVP
 - Added Phase A inter-faction trade income MVP to `scripts/worldmap_test.gd`.
 - Added relation/trade constants: `FACTION_RELATION_STATUS`, `TRADE_SUSPENSION_TURNS := 3`, `RELATION_TRADE_MULTIPLIER`, and `TRADE_ROUTE_CAP`.

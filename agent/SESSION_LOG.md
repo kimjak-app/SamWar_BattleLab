@@ -2,6 +2,16 @@
 
 ## 2026-05-30
 
+### v0.68b-13-2 City Loyalty Drift Patch Acceptance QA
+- Checked requested P0-2 gates in `scripts/worldmap_test.gd`; city loyalty drift constants/functions/wiring were missing.
+- `PATCH_NOTE_P0-2_city_loyalty.md` was not present in the repo, so the implementation followed the explicit task formula and the referenced web `domestic_effects.js` functions.
+- Added the three requested constants and four requested functions only.
+- Wired city loyalty drift at the end of `_apply_domestic_turn_mvp`, after national loyalty update.
+- P0-1 `city_loyalty_loss_multiplier` is now used for city tax loyalty drift; `recruitable_troops_bonus` remains unconnected.
+- City loyalty now persists through existing city runtime save/load payloads via `loyalty` and `cityLoyalty`; save/load core structure was not rewritten.
+- Phase A trade was not implemented in this task. Since this branch already had Phase A, the docs record future merge order caution for P0-1 income, Phase A trade, upkeep, national loyalty, and P0-2 city drift.
+- Verified with `rg`, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. Godot `--check-only` timed out locally.
+
 ### v0.68b-13-2A Inter-Faction Trade Income MVP
 - Implemented Phase A only for inter-faction trade income.
 - Could not find `HANDOFF_P2_TRADE_SUPPLY_DESIGN.md` or `CODEX_PROMPTS.md` in the repo; proceeded from the explicit task scope and the requested web source functions in `SamWar_web/js/core/inter_faction_trade.js`.

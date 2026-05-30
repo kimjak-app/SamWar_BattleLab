@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current City Loyalty Drift Status
+- `v0.68b-13-2 City Loyalty Drift Patch Acceptance QA` is complete in code/docs.
+- P0-2 city loyalty drift now applies per owned city through `_get_mutable_city_runtime_state` and `_city_runtime_states`.
+- P0-1 `city_loyalty_loss_multiplier` is now consumed for city tax loyalty drift. `recruitable_troops_bonus` remains intentionally unconnected.
+- City runtime save/load now minimally preserves `loyalty` / `cityLoyalty`; save/load core structure was not rewritten.
+- Phase A trade was not implemented by this task. In this branch Phase A already exists, so future merges must keep `_apply_domestic_turn_mvp` ordering clear: P0-1 governor income, Phase A trade income if present, hero upkeep, national loyalty, P0-2 city loyalty drift.
+- Remaining manual QA: F6 high-tax multi-turn city loyalty drift, national-vs-city loyalty separation, save/load persistence, low-security city decline, and political/admin governor mitigation.
+
 ## Current Inter-Faction Trade Income Status
 - `v0.68b-13-2A Inter-Faction Trade Income MVP` is complete in code/docs.
 - Phase A only was implemented: player-owned cities scan adjacent other-faction city markers, calculate route income, apply player totals through `_apply_resource_delta(...)`, and store `last_inter_faction_trade_result`.

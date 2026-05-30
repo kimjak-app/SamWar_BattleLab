@@ -1,6 +1,16 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-13-2 City Loyalty Drift Patch Acceptance QA` applies the P0-2 city loyalty drift patch to `scripts/worldmap_test.gd`.
+- The patch adds the requested constants and four helpers: `_apply_city_loyalty_drift_for_world_turn`, `_calculate_city_loyalty_drift`, `_get_city_security_required_troops`, and `_governor_has_aptitude`.
+- `_apply_domestic_turn_mvp` now applies city loyalty drift after national loyalty update and stores details in `last_city_loyalty_drift_result` / `last_domestic_apply_result.city_loyalty_drift_result`.
+- P0-1 `city_loyalty_loss_multiplier` is now consumed by city tax loyalty drift via `_adjust_loyalty_delta`.
+- `recruitable_troops_bonus` is still not connected to recruitment, security bonuses, or any consumer.
+- City loyalty is stored through `_get_mutable_city_runtime_state` / `_city_runtime_states`; `loyalty` and `cityLoyalty` are included in the existing city runtime save/load payload without rewriting save/load core structure.
+- Phase A trade was not implemented in this task. This branch already contains Phase A from `v0.68b-13-2A`; future merges should keep the intended turn order: P0-1 governor income, Phase A trade income if present, hero upkeep, national loyalty, then P0-2 city loyalty drift.
+- Verification passed for `rg`, `git diff --check`, Godot headless project load, and `WorldMap_Test.tscn` headless load. `--check-only` timed out locally.
+
+## Previous Patch Note
 - `v0.68b-13-2A Inter-Faction Trade Income MVP` implements Phase A only.
 - WorldMap domestic turn processing now calculates adjacent inter-faction trade routes from player-owned cities and applies player trade income through `_apply_resource_delta(...)`.
 - Relations are stored lazily in `_player_state["faction_relations"]` using sorted `a|b` keys; absent relation keys fall back to `neutral`.

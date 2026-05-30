@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.68b-13-2 City Loyalty Drift Patch Acceptance QA
+- P0-2 city loyalty drift was missing and is now minimally wired into `scripts/worldmap_test.gd`.
+- Added `CITY_LOYALTY_DRIFT_MIN := -3`, `CITY_LOYALTY_DRIFT_MAX := 3`, and `STATIONED_HERO_SECURITY_WEIGHT := 1.0`.
+- Added city loyalty drift application at the end of `_apply_domestic_turn_mvp`, after national loyalty update. Existing Phase A trade code was already present in this branch and was not newly implemented by this patch.
+- Added `_apply_city_loyalty_drift_for_world_turn`, `_calculate_city_loyalty_drift`, `_get_city_security_required_troops`, and `_governor_has_aptitude`.
+- P0-1 `city_loyalty_loss_multiplier` is now consumed by city tax loyalty drift through `_adjust_loyalty_delta`; political governor/chancellor fallback effects can soften city tax loyalty loss.
+- `recruitable_troops_bonus` remains unconnected and is still not consumed by loyalty, recruitment, or military systems.
+- City loyalty is written through `_get_mutable_city_runtime_state` into `_city_runtime_states`, with `loyalty` and `cityLoyalty` minimally included in city runtime save/load payloads.
+- Phase A trade implementation, Phase B internal supply network, Phase C troop redistribution, battle/invasion/defense, governor income formulas, and save/load core structure were not rewritten.
+- Merge/order caution for future Phase A work: `_apply_domestic_turn_mvp` should preserve the intended order of P0-1 governor income, Phase A trade income if present, hero upkeep, national loyalty, then P0-2 city loyalty drift.
+- Verification: `rg`, `git diff --check`, Godot headless project load, and `WorldMap_Test.tscn` headless load passed. Godot `--check-only` timed out locally.
+
 ## v0.68b-13-2A Inter-Faction Trade Income MVP
 - Phase A only: added inter-faction trade income to the WorldMap domestic turn pipeline in `scripts/worldmap_test.gd`.
 - The MVP reuses city marker neighbors, `_get_city_hud_entry(...)`, `resource_seed`, and `_apply_resource_delta(...)`; it does not add trade setup UI or diplomacy manipulation UI.
