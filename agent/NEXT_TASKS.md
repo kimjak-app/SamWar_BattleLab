@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Current City Info Trade/Supply/Loyalty Display Status
+- `v0.68b-13-5 City Info Trade Supply Loyalty Display Polish` is complete in code/docs as display-only polish.
+- Internal/supply tab now surfaces existing Phase B supply result fields for the selected city: role, supplied/isolated state, income multiplier, loyalty delta, and security delta.
+- Internal/supply tab now surfaces latest city loyalty drift factors from existing result state: tax, security, economy, military, supply, supply_security, control, and `reasons[]`.
+- External trade tab now surfaces latest Phase A trade result state: route count, applied totals with player totals fallback, gold/rice/barley/seafood/salt summary, and selected-city route snippets.
+- Turn result/status text now includes display-only summaries for trade income, supply state counts, and city loyalty drift counts/large drops.
+- No P0-1/P0-2/Phase A/Phase B calculation logic, result structure, resource values, loyalty values, upkeep values, Phase C troop redistribution, battle/invasion/defense logic, or save/load core code was changed.
+- Remaining risks: headless QA only; long text may need visual spacing polish; supply tab display uses the existing supply calculation helper and can refresh the runtime summary.
+- Next candidates: `v0.68b-13-6 Phase C Internal Troop Rebalance MVP` or additional `Supply/Trade UI Polish`.
+
 ## Current Phase B F6 QA Closeout Status
 - `v0.68b-13-4A Supply Connectivity F6 QA Closeout` is complete as QA/documentation only; no new feature implementation was done.
 - Start state verified: Hanseong is hub, only Hanseong is owned, no frontline bonus, no isolated penalty, and turn end advances normally.

@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.68b-13-5 City Info Trade Supply Loyalty Display Polish
+- Implemented display-only polish in `scripts/worldmap_test.gd`; no P0-1 governor income, P0-2 city loyalty drift, Phase A trade, Phase B supply, resource, loyalty, upkeep, battle, invasion, defense, or save/load core calculation logic was changed.
+- City Detail internal/trade tab now displays existing supply result fields for the selected city: `role`, supplied/isolated state, `income_multiplier`, `loyalty_delta`, and `security_delta`.
+- City Detail internal/trade tab also displays the latest city loyalty drift result for the selected city using existing `reasons[]` and delta fields: tax, security, economy, military, supply, supply_security, and control. If no result exists, it shows that there is no recent turn result.
+- City Detail external/trade tab now displays the latest `_player_state["last_inter_faction_trade_result"]`: route count, applied trade totals when available with player totals as fallback, and up to three routes that include the selected city.
+- Turn result/status summary now includes display-only summaries for trade income, supply hub/supplied-frontline/isolated counts, and city loyalty drift changed-city/large-drop counts.
+- Added formatting helpers only; they build strings from existing result/state dictionaries and do not mutate resources, loyalty, upkeep, trade totals, supply classification, or result payload structure.
+- Verification passed: `rg` helper/tab checks, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless display QA runner. Godot `--check-only` timed out locally after 125 seconds.
+- Remaining risks: QA was headless rather than visual mouse-driven F6; selected-city supply display calls the existing supply state calculation and may refresh `last_supply_state_result` as an inspection summary; long route/drift strings may need later UI spacing polish.
+- Next task candidates: `v0.68b-13-6 Phase C Internal Troop Rebalance MVP` or `Supply/Trade UI Polish 추가`.
+
 ## v0.68b-13-4A Supply Connectivity F6 QA Closeout
 - Phase B supply connectivity was QA-closed against `WorldMap_Test.tscn` on 2026-05-30 with no gameplay code changes.
 - Start-state QA passed: F6 WorldMap headless scene load succeeds; Hanseong resolves as the supply hub; with only Hanseong owned, `supplied_frontline_count = 0`, `isolated_count = 0`, and Hanseong role is `hub`.

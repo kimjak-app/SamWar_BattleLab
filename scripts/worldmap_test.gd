@@ -1027,21 +1027,23 @@ func _show_city_detail(city_marker: WorldMapCityMarker) -> void:
 func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: Dictionary, loyalty: int, policy_data: Dictionary) -> void:
 	match _selected_city_detail_tab:
 		CITY_DETAIL_TAB_INTERNAL_TRADE:
-			city_detail_resource_label.text = "무역/보급 정보: 내부 교역로 %s" % _format_internal_route_summary(city_marker)
-			city_detail_security_label.text = "보급 우선도: 표시 전용 · 이번 턴 배분: 금전 +0 / 식량 +0 / 소금 +0"
-			city_detail_military_label.text = "군사 보급 판단: 도시 역할 %s · %s" % [
-				_get_city_detail_status(city_marker),
-				str(city_data.get("military", "현재 주둔군 / 목표 주둔군 placeholder")),
+			var supply_state := _get_display_supply_state_for_city(city_marker.city_id)
+			city_detail_resource_label.text = "내부 교역로: %s\n%s" % [
+				_format_internal_route_summary(city_marker),
+				_format_city_supply_state_display(supply_state),
 			]
-			city_detail_commerce_label.text = "내부 병력 재배치: 최근 이동 없음 · 실제 병력 이동 없음"
-			city_detail_rating_label.text = "자국무역 탭: 무역/보급 정보 · 군사 보급 판단 · 내부 병력 재배치"
+			city_detail_security_label.text = _format_city_supply_adjustment_display(supply_state)
+			city_detail_military_label.text = "군사 보급 판단: %s" % str(city_data.get("military", "현재 주둔군 / 목표 주둔군 placeholder"))
+			city_detail_commerce_label.text = _format_city_loyalty_drift_display(city_marker.city_id)
+			city_detail_rating_label.text = "자국무역/보급 탭: 기존 보급 result와 최근 충성도 drift result 표시 전용"
 			city_detail_domestic_button_placeholder.text = "무역 조정"
 		CITY_DETAIL_TAB_EXTERNAL_TRADE:
+			var last_trade_result: Dictionary = _player_state.get("last_inter_faction_trade_result", {})
 			city_detail_resource_label.text = "대외 무역 / 세력 관계: %s" % _format_external_trade_target(city_marker)
-			city_detail_security_label.text = "관계: 표시 전용 · 상태: 교역 가능 여부 계산은 웹 후속 로직"
-			city_detail_military_label.text = "운영: 자동 운영 · 교역 강도: 보통 · 효율 100%"
-			city_detail_commerce_label.text = "무역 수익: 금전 +0 / 식량 +0 / 소금 +0 · 주요 품목: 일반 물자"
-			city_detail_rating_label.text = "타국무역 탭 버튼: 무역 조정 / 교역 강화 / 교역 중단 / 교역 재개 placeholder"
+			city_detail_security_label.text = _format_trade_result_summary(last_trade_result)
+			city_detail_military_label.text = _format_trade_resource_totals_display(_get_trade_display_totals(last_trade_result))
+			city_detail_commerce_label.text = _format_city_trade_route_display(city_marker.city_id, last_trade_result)
+			city_detail_rating_label.text = "타국무역 탭: 마지막 세력간 무역 result 표시 전용"
 			city_detail_domestic_button_placeholder.text = "무역 조정"
 		_:
 			city_detail_resource_label.text = "식량 자원: %s" % _extract_resource_group(str(city_data.get("resources", "")), ["쌀", "보리", "수산물"])
@@ -1164,6 +1166,138 @@ func _format_external_trade_target(city_marker: WorldMapCityMarker) -> String:
 		if neighbor_marker != null and neighbor_marker.owner_faction_id != city_marker.owner_faction_id:
 			return "%s · %s" % [neighbor_marker.display_name, _format_faction_label(neighbor_marker.owner_faction_id)]
 	return "인접 대외 교역 없음"
+
+
+func _get_display_supply_state_for_city(city_id: String) -> Dictionary:
+	var supply_result := _calculate_all_city_supply_states()
+	var city_states: Variant = supply_result.get("city_states", {})
+	if city_states is Dictionary:
+		var city_state: Variant = (city_states as Dictionary).get(city_id, {})
+		if city_state is Dictionary:
+			return city_state
+	return {}
+
+
+func _format_city_supply_state_display(supply_state: Dictionary) -> String:
+	if supply_state.is_empty():
+		return "보급 상태: 플레이어 소유 도시가 아니거나 보급 result 없음"
+	var state_label := "isolated" if bool(supply_state.get("isolated", false)) else ("supplied" if bool(supply_state.get("supplied", false)) else "unsupplied")
+	return "보급 역할: %s · 보급 상태: %s · 수입 배수 x%.2f" % [
+		str(supply_state.get("role", "rear")),
+		state_label,
+		float(supply_state.get("income_multiplier", 1.0)),
+	]
+
+
+func _format_city_supply_adjustment_display(supply_state: Dictionary) -> String:
+	if supply_state.is_empty():
+		return "보급 보정: 최근 보급 결과 없음"
+	return "보급 보정: 충성도 %s · 치안 %s" % [
+		_format_signed_int(int(supply_state.get("loyalty_delta", 0))),
+		_format_signed_int(int(supply_state.get("security_delta", 0))),
+	]
+
+
+func _format_city_loyalty_drift_display(city_id: String) -> String:
+	var drift_result: Dictionary = _player_state.get("last_city_loyalty_drift_result", {})
+	var city_drift := _get_city_loyalty_drift_entry(city_id, drift_result)
+	if city_drift.is_empty():
+		return "최근 loyalty drift: 최근 턴 결과 없음"
+	var reasons: Array = city_drift.get("reasons", [])
+	var reason_text := " / ".join(_string_array_from_variant_array(reasons))
+	if reason_text.is_empty():
+		reason_text = "요인 없음"
+	return "최근 loyalty drift: %s\n세금 %s · 치안 %s · 경제 %s · 군사 %s · 보급 %s · 보급치안 %s · 통제 %s\n요인: %s" % [
+		_format_signed_int(int(city_drift.get("delta", 0))),
+		_format_signed_int(int(city_drift.get("tax_delta", 0))),
+		_format_signed_int(int(city_drift.get("security_delta", 0))),
+		_format_signed_int(int(city_drift.get("economy_delta", 0))),
+		_format_signed_int(int(city_drift.get("military_burden_delta", 0))),
+		_format_signed_int(int(city_drift.get("supply_delta", 0))),
+		_format_signed_int(int(city_drift.get("supply_security_delta", 0))),
+		_format_signed_int(int(city_drift.get("control_delta", 0))),
+		reason_text,
+	]
+
+
+func _get_city_loyalty_drift_entry(city_id: String, drift_result: Dictionary) -> Dictionary:
+	var cities: Variant = drift_result.get("cities", [])
+	if not cities is Array:
+		return {}
+	for city_drift_variant in cities:
+		if not city_drift_variant is Dictionary:
+			continue
+		var city_drift := city_drift_variant as Dictionary
+		if str(city_drift.get("city_id", "")) == city_id:
+			return city_drift
+	return {}
+
+
+func _string_array_from_variant_array(values: Array) -> Array[String]:
+	var result: Array[String] = []
+	for value in values:
+		var text := str(value)
+		if not text.is_empty():
+			result.append(text)
+	return result
+
+
+func _get_trade_display_totals(result: Dictionary) -> Dictionary:
+	var applied_totals: Variant = result.get("applied_player_totals", {})
+	if applied_totals is Dictionary and not (applied_totals as Dictionary).is_empty():
+		return applied_totals
+	var player_totals: Variant = result.get("player_totals", {})
+	if player_totals is Dictionary:
+		return player_totals
+	return {}
+
+
+func _format_trade_result_summary(result: Dictionary) -> String:
+	if result.is_empty():
+		return "최근 세력간 무역: 최근 턴 결과 없음"
+	return "최근 세력간 무역: 루트 %d개 · %s" % [
+		int(result.get("route_count", 0)),
+		_format_trade_resource_totals_display(_get_trade_display_totals(result)),
+	]
+
+
+func _format_trade_resource_totals_display(totals: Dictionary) -> String:
+	var parts: Array[String] = []
+	for resource_id in ["gold", "rice", "barley", "seafood", "salt"]:
+		var delta := int(totals.get(resource_id, 0))
+		parts.append("%s %s" % [str(RESOURCE_LABELS.get(resource_id, resource_id)), _format_signed_int(delta)])
+	return " / ".join(parts)
+
+
+func _format_city_trade_route_display(city_id: String, result: Dictionary) -> String:
+	if result.is_empty():
+		return "포함 루트: 최근 턴 결과 없음"
+	var routes: Variant = result.get("routes", [])
+	if not routes is Array:
+		return "포함 루트: 기록 없음"
+	var lines: Array[String] = []
+	for route_variant in routes:
+		if not route_variant is Dictionary:
+			continue
+		var route := route_variant as Dictionary
+		var city_a_id := str(route.get("city_a_id", ""))
+		var city_b_id := str(route.get("city_b_id", ""))
+		if city_a_id != city_id and city_b_id != city_id:
+			continue
+		lines.append("%s-%s · 금전 %s / 쌀 %s / 보리 %s / 수산 %s / 소금 %s" % [
+			_format_city_name_by_id(city_a_id, city_a_id),
+			_format_city_name_by_id(city_b_id, city_b_id),
+			_format_signed_int(int(route.get("gold", 0))),
+			_format_signed_int(int(route.get("rice", 0))),
+			_format_signed_int(int(route.get("barley", 0))),
+			_format_signed_int(int(route.get("seafood", 0))),
+			_format_signed_int(int(route.get("salt", 0))),
+		])
+		if lines.size() >= 3:
+			break
+	if lines.is_empty():
+		return "포함 루트: 이 도시가 포함된 최근 무역 루트 없음"
+	return "포함 루트:\n%s" % "\n".join(lines)
 
 
 func _setup_left_world_controls() -> void:
@@ -4049,7 +4183,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var city_loyalty_drift_result := _apply_city_loyalty_drift_for_world_turn(tax_level, policy_id, supply_states)
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
 		"version": "v0.68b-12b-7",
@@ -4065,7 +4199,7 @@ func _apply_domestic_turn_mvp() -> String:
 		"inter_faction_trade_result": inter_faction_trade_result,
 		"city_loyalty_drift_result": city_loyalty_drift_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -4734,7 +4868,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -4745,13 +4879,17 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		parts.append("충성도 %s" % _format_signed_int(loyalty_delta))
 	if not inter_faction_trade_result.is_empty():
 		parts.append(_format_inter_faction_trade_summary(inter_faction_trade_result))
+	if not supply_state_result.is_empty():
+		parts.append(_format_supply_state_summary(supply_state_result))
+	if not city_loyalty_drift_result.is_empty():
+		parts.append(_format_city_loyalty_drift_summary(city_loyalty_drift_result))
 	if parts.is_empty():
 		return "변동 없음"
 	return " · ".join(parts)
 
 
 func _format_inter_faction_trade_summary(result: Dictionary) -> String:
-	var applied_totals: Dictionary = result.get("applied_player_totals", {})
+	var applied_totals := _get_trade_display_totals(result)
 	var trade_parts: Array[String] = []
 	for resource_id in ["gold", "rice", "barley", "seafood", "salt"]:
 		var delta := int(applied_totals.get(resource_id, 0))
@@ -4760,6 +4898,37 @@ func _format_inter_faction_trade_summary(result: Dictionary) -> String:
 	if trade_parts.is_empty():
 		return "무역 수입 없음"
 	return "무역 수입 %d개: %s" % [int(result.get("route_count", 0)), " / ".join(trade_parts)]
+
+
+func _format_supply_state_summary(result: Dictionary) -> String:
+	if result.is_empty():
+		return "보급 상태 없음"
+	return "보급 hub %s · supplied frontline %d · isolated %d" % [
+		_format_city_name_by_id(str(result.get("hub_id", "")), str(result.get("hub_id", "-"))),
+		int(result.get("supplied_frontline_count", 0)),
+		int(result.get("isolated_count", 0)),
+	]
+
+
+func _format_city_loyalty_drift_summary(result: Dictionary) -> String:
+	var cities: Variant = result.get("cities", [])
+	if not cities is Array or (cities as Array).is_empty():
+		return "도시 충성도 변동 없음"
+	var changed_count := 0
+	var large_drop_parts: Array[String] = []
+	for city_drift_variant in cities:
+		if not city_drift_variant is Dictionary:
+			continue
+		var city_drift := city_drift_variant as Dictionary
+		var delta := int(city_drift.get("delta", 0))
+		if delta != 0:
+			changed_count += 1
+		if delta <= -2:
+			var city_id := str(city_drift.get("city_id", ""))
+			large_drop_parts.append("%s %s" % [_format_city_name_by_id(city_id, city_id), _format_signed_int(delta)])
+	if large_drop_parts.is_empty():
+		return "도시 충성도 변동 %d개" % changed_count
+	return "도시 충성도 변동 %d개 · 하락 %s" % [changed_count, " / ".join(large_drop_parts)]
 
 
 func _cancel_enemy_turn_timer_if_needed() -> void:

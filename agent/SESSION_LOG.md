@@ -2,6 +2,22 @@
 
 ## 2026-05-30
 
+### v0.68b-13-5 City Info Trade Supply Loyalty Display Polish
+- Started from baseline commit `aaef579` / `v0.68b-13-4A Supply Connectivity F6 QA Closeout`.
+- Kept the work to `scripts/worldmap_test.gd` display polish plus agent docs; no P0-1/P0-2/Phase A/Phase B calculations, result schemas, resources, loyalty, upkeep, Phase C troop redistribution, battle/invasion/defense logic, or save/load core were changed.
+- Updated the existing `CITY_DETAIL_TAB_INTERNAL_TRADE` case to display current selected-city supply role/state/income multiplier/loyalty/security fields from existing supply result data.
+- Updated the internal tab to show latest selected-city loyalty drift factors from existing `last_city_loyalty_drift_result` entries and `reasons[]`.
+- Updated the existing `CITY_DETAIL_TAB_EXTERNAL_TRADE` case to display latest trade route count, applied totals with player totals fallback, gold/rice/barley/seafood/salt, and selected-city route snippets from `last_inter_faction_trade_result`.
+- Updated domestic turn summary formatting so the status/log text includes existing trade, supply, and city loyalty drift summaries.
+- Added formatting helpers only; helpers build strings/arrays and do not apply resources or mutate gameplay values. The selected-city supply display uses the existing `_calculate_all_city_supply_states()` source and therefore can refresh the runtime `last_supply_state_result` summary.
+- Verified helper/tab presence with `rg`.
+- Ran `git diff --check`: passed.
+- Ran Godot headless project load: passed.
+- Ran Godot headless `WorldMap_Test.tscn` load: passed.
+- Ran Godot `--headless --check-only`: timed out after 125 seconds, inconclusive.
+- Ran a temporary headless display QA runner, then deleted it before commit. It confirmed turn result text includes trade/supply/loyalty summaries, external tab matches latest trade result, internal tab matches supply/drift result, and tab display did not change resources or national loyalty after the turn.
+- Remaining risks: manual visual F6 mouse QA still recommended; long multi-line label text may need later spacing polish.
+
 ### v0.68b-13-4A Supply Connectivity F6 QA Closeout
 - Started from clean tracked status at baseline commit `99b8a21` / `v0.68b-13-4 Phase B Supply Connectivity Bonus MVP`.
 - Performed QA/documentation only; no new feature implementation, Phase C troop redistribution, resource movement, supply UI, trade formula changes, combat/invasion/defense rewrites, or save/load core rewrites were made.

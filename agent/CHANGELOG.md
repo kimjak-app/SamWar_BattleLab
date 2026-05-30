@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.68b-13-5 City Info Trade Supply Loyalty Display Polish
+- Filled the existing City Detail internal/external trade tab cases with display-only result/state text.
+- Internal/supply tab now displays selected-city supply role, supplied/isolated state, income multiplier, loyalty delta, and security delta from existing Phase B supply state.
+- Internal/supply tab now displays latest selected-city loyalty drift factors from existing result fields and `reasons[]`.
+- External trade tab now displays latest Phase A trade route count, applied totals with player totals fallback, gold/rice/barley/seafood/salt summary, and selected-city route snippets.
+- Turn result/status summary now includes trade, supply, and city loyalty drift summary text.
+- Added formatting helpers only; did not change P0-1, P0-2, Phase A, Phase B, resources, loyalty, upkeep, result structure, Phase C, battle/invasion/defense, or save/load core behavior.
+
 ## v0.68b-13-4A Supply Connectivity F6 QA Closeout
 - Documented Phase B F6/headless QA results without changing gameplay code.
 - Verified starting WorldMap supply state: Hanseong hub, no frontline bonus, no isolated penalty, and normal turn progression.

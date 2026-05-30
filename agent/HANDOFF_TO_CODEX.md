@@ -1,6 +1,18 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-13-5 City Info Trade Supply Loyalty Display Polish` fills existing City Detail internal/external trade tab cases and turn result text with existing result/state data only.
+- This is display-only. It does not change P0-1 governor income, P0-2 city loyalty drift, Phase A trade, Phase B supply connectivity, resources, loyalty, upkeep, result schemas, Phase C troop redistribution, battle/invasion/defense, or save/load core logic.
+- Internal/supply tab display source: `_calculate_all_city_supply_states().city_states[city_id]`, using existing `role`, `supplied`, `isolated`, `income_multiplier`, `loyalty_delta`, and `security_delta`.
+- Internal/supply tab loyalty display source: `_player_state["last_city_loyalty_drift_result"]`, using existing selected-city `reasons[]` and tax/security/economy/military/supply/supply_security/control delta fields.
+- External trade tab display source: `_player_state["last_inter_faction_trade_result"]`, using `route_count`, `applied_player_totals` with `player_totals` fallback, and `routes` filtered to the selected city.
+- Turn result/status text now includes trade income summary, supply hub/supplied-frontline/isolated summary, and city loyalty drift changed-city/large-drop summary.
+- Added formatting helpers only: trade result summary, supply state summary, city loyalty drift summary, selected-city supply display, selected-city drift display, and selected-city route display.
+- Verification passed for `rg`, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless display QA runner. `--check-only` timed out locally after 125 seconds.
+- Remaining risks: no manual visual F6 mouse QA yet; long detail text may need later spacing polish; supply tab display refreshes the runtime supply summary because it uses the existing supply calculation helper.
+- Next candidates: `v0.68b-13-6 Phase C Internal Troop Rebalance MVP` or additional `Supply/Trade UI Polish`.
+
+## Previous Patch Note
 - `v0.68b-13-4A Supply Connectivity F6 QA Closeout` completed Phase B supply connectivity QA/documentation with no gameplay code changes.
 - QA used `WorldMap_Test.tscn` plus a temporary headless runner, then removed the runner before commit.
 - Starting state passed: Hanseong is the supply hub; with only Hanseong owned, there are no supplied frontlines and no isolated cities; turn end advances and records domestic/trade results.
