@@ -2,6 +2,22 @@
 
 ## 2026-05-30
 
+### v0.68b-13-5A City Info Display Spacing Micro Polish
+- Started from baseline commit `b564292` / `v0.68b-13-5 City Info Trade Supply Loyalty Display Polish`.
+- Kept the code change to 13-5 display helper output only. `_apply_*`, `_calculate_*`, `_is_*`, `_move_*`, P0-1, P0-2, Phase A, Phase B, result structure, resources, loyalty, upkeep, troops, Phase C, battle/invasion/defense, and save/load were not modified.
+- Added section titles to the display helper output: supply state, supply adjustment, trade, trade routes, and loyalty drift.
+- Split long route and loyalty drift text into multiple lines.
+- Normalized empty states to recent-result messages such as recent trade/supply/loyalty results not being present.
+- Replaced the prior route display loop cap with `routes.slice(0, 3)` over the existing route order and an `외 N개` suffix. The route source array is not mutated.
+- Verified scoped diff with `git diff -U0`; changes are limited to formatting helper output.
+- Verified route limit is a simple slice and the temporary QA confirmed the original routes array was unchanged after formatting.
+- Ran `git diff --check`: passed.
+- Ran Godot headless project load: passed.
+- Ran Godot headless `WorldMap_Test.tscn` load: passed.
+- Ran Godot `--headless --check-only`: timed out after 124 seconds, inconclusive.
+- Ran a temporary headless display-spacing QA runner, then deleted it before commit. It confirmed section titles/line breaks, route `외 1개`, first-three route display, original route array immutability, and no resource/national loyalty/Hanseong troop changes from display calls.
+- Remaining risks: manual F6 visual QA still needed for actual font/spacing; Phase C remains unimplemented.
+
 ### v0.68b-13-5 City Info Trade Supply Loyalty Display Polish
 - Started from baseline commit `aaef579` / `v0.68b-13-4A Supply Connectivity F6 QA Closeout`.
 - Kept the work to `scripts/worldmap_test.gd` display polish plus agent docs; no P0-1/P0-2/Phase A/Phase B calculations, result schemas, resources, loyalty, upkeep, Phase C troop redistribution, battle/invasion/defense logic, or save/load core were changed.

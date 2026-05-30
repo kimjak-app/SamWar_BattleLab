@@ -1,6 +1,15 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-13-5A City Info Display Spacing Micro Polish` is a display-formatting-only follow-up to 13-5.
+- It only changes 13-5 helper output strings: adds section titles, line breaks, and normalized empty-state copy for trade/supply/loyalty display text.
+- Route display now uses the existing routes array in current order with `slice(0, 3)` and an `외 N개` suffix for remaining routes. It does not sort, prioritize, filter by value, or mutate the original routes array.
+- No calculation logic, result structure, real resource/loyalty/upkeep/troop values, P0-1, P0-2, Phase A, Phase B, Phase C, battle/invasion/defense, or save/load code was changed.
+- Verification passed for scoped diff review, route slice/original-array mutation QA, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless display-spacing QA runner. Godot `--check-only` timed out locally after 124 seconds.
+- Remaining risks: manual visual F6 mouse QA is still needed for actual label spacing/font rendering; Phase C remains unimplemented.
+- Next candidate: `v0.68b-13-6 Phase C Internal Troop Rebalance MVP`.
+
+## Previous Patch Note
 - `v0.68b-13-5 City Info Trade Supply Loyalty Display Polish` fills existing City Detail internal/external trade tab cases and turn result text with existing result/state data only.
 - This is display-only. It does not change P0-1 governor income, P0-2 city loyalty drift, Phase A trade, Phase B supply connectivity, resources, loyalty, upkeep, result schemas, Phase C troop redistribution, battle/invasion/defense, or save/load core logic.
 - Internal/supply tab display source: `_calculate_all_city_supply_states().city_states[city_id]`, using existing `role`, `supplied`, `isolated`, `income_multiplier`, `loyalty_delta`, and `security_delta`.

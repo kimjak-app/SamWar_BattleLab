@@ -1,5 +1,14 @@
 # CURRENT STATE
 
+## v0.68b-13-5A City Info Display Spacing Micro Polish
+- Applied a micro polish pass to `scripts/worldmap_test.gd` display formatting only.
+- Only 13-5 display helper output was changed: section titles were added, long supply/trade/loyalty strings were split across lines, and empty-state wording was normalized to recent-result messages.
+- Route display now uses the existing `routes` array order with `slice(0, 3)` only, then shows the remaining count as `외 N개`; the original routes array is not mutated and no sorting, prioritization, or value-based filtering was added.
+- Calculation logic, result structures, and actual resource/loyalty/upkeep/troop values were not changed. P0-1, P0-2, Phase A, Phase B, battle/invasion/defense, save/load, and Phase C remain untouched.
+- Verification passed: scoped diff review, route slice/original-array mutation check, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless display-spacing QA runner. Godot `--check-only` timed out locally after 124 seconds.
+- Remaining risks: no manual visual F6 mouse QA yet; section-title glyph rendering should be checked in the target font; Phase C is still not implemented.
+- Next task candidate: `v0.68b-13-6 Phase C Internal Troop Rebalance MVP`.
+
 ## v0.68b-13-5 City Info Trade Supply Loyalty Display Polish
 - Implemented display-only polish in `scripts/worldmap_test.gd`; no P0-1 governor income, P0-2 city loyalty drift, Phase A trade, Phase B supply, resource, loyalty, upkeep, battle, invasion, defense, or save/load core calculation logic was changed.
 - City Detail internal/trade tab now displays existing supply result fields for the selected city: `role`, supplied/isolated state, `income_multiplier`, `loyalty_delta`, and `security_delta`.

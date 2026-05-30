@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current City Info Display Spacing Status
+- `v0.68b-13-5A City Info Display Spacing Micro Polish` is complete as display formatting only.
+- The pass added section titles, line breaks, and consistent empty-state copy to the 13-5 trade/supply/loyalty display helper output.
+- Route display is capped with a simple `routes.slice(0, 3)` in existing order and an `외 N개` suffix; no route sorting, prioritization, or source array mutation was added.
+- Calculation logic, result structures, real resource/loyalty/upkeep/troop values, P0-1, P0-2, Phase A, Phase B, battle/invasion/defense, save/load, and Phase C were not changed.
+- Remaining risk: manual visual F6 QA is still recommended for final spacing/font rendering.
+- Next candidate: `v0.68b-13-6 Phase C Internal Troop Rebalance MVP`.
+
 ## Current City Info Trade/Supply/Loyalty Display Status
 - `v0.68b-13-5 City Info Trade Supply Loyalty Display Polish` is complete in code/docs as display-only polish.
 - Internal/supply tab now surfaces existing Phase B supply result fields for the selected city: role, supplied/isolated state, income multiplier, loyalty delta, and security delta.

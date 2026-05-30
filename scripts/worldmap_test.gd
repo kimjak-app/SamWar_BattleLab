@@ -1180,9 +1180,9 @@ func _get_display_supply_state_for_city(city_id: String) -> Dictionary:
 
 func _format_city_supply_state_display(supply_state: Dictionary) -> String:
 	if supply_state.is_empty():
-		return "보급 상태: 플레이어 소유 도시가 아니거나 보급 result 없음"
+		return "■ 보급 상태\n최근 보급 결과 없음"
 	var state_label := "isolated" if bool(supply_state.get("isolated", false)) else ("supplied" if bool(supply_state.get("supplied", false)) else "unsupplied")
-	return "보급 역할: %s · 보급 상태: %s · 수입 배수 x%.2f" % [
+	return "■ 보급 상태\n역할: %s\n상태: %s\n수입 배수: x%.2f" % [
 		str(supply_state.get("role", "rear")),
 		state_label,
 		float(supply_state.get("income_multiplier", 1.0)),
@@ -1191,8 +1191,8 @@ func _format_city_supply_state_display(supply_state: Dictionary) -> String:
 
 func _format_city_supply_adjustment_display(supply_state: Dictionary) -> String:
 	if supply_state.is_empty():
-		return "보급 보정: 최근 보급 결과 없음"
-	return "보급 보정: 충성도 %s · 치안 %s" % [
+		return "■ 보급 보정\n최근 보급 결과 없음"
+	return "■ 보급 보정\n충성도: %s\n치안: %s" % [
 		_format_signed_int(int(supply_state.get("loyalty_delta", 0))),
 		_format_signed_int(int(supply_state.get("security_delta", 0))),
 	]
@@ -1202,12 +1202,12 @@ func _format_city_loyalty_drift_display(city_id: String) -> String:
 	var drift_result: Dictionary = _player_state.get("last_city_loyalty_drift_result", {})
 	var city_drift := _get_city_loyalty_drift_entry(city_id, drift_result)
 	if city_drift.is_empty():
-		return "최근 loyalty drift: 최근 턴 결과 없음"
+		return "■ 충성도 변화\n최근 충성도 변화 기록 없음"
 	var reasons: Array = city_drift.get("reasons", [])
 	var reason_text := " / ".join(_string_array_from_variant_array(reasons))
 	if reason_text.is_empty():
 		reason_text = "요인 없음"
-	return "최근 loyalty drift: %s\n세금 %s · 치안 %s · 경제 %s · 군사 %s · 보급 %s · 보급치안 %s · 통제 %s\n요인: %s" % [
+	return "■ 충성도 변화\n최근 변화: %s\n세금: %s · 치안: %s · 경제: %s\n군사: %s · 보급: %s · 보급치안: %s · 통제: %s\n요인: %s" % [
 		_format_signed_int(int(city_drift.get("delta", 0))),
 		_format_signed_int(int(city_drift.get("tax_delta", 0))),
 		_format_signed_int(int(city_drift.get("security_delta", 0))),
@@ -1254,8 +1254,8 @@ func _get_trade_display_totals(result: Dictionary) -> Dictionary:
 
 func _format_trade_result_summary(result: Dictionary) -> String:
 	if result.is_empty():
-		return "최근 세력간 무역: 최근 턴 결과 없음"
-	return "최근 세력간 무역: 루트 %d개 · %s" % [
+		return "■ 무역\n최근 무역 결과 없음"
+	return "■ 무역\n최근 세력간 무역: 루트 %d개\n%s" % [
 		int(result.get("route_count", 0)),
 		_format_trade_resource_totals_display(_get_trade_display_totals(result)),
 	]
@@ -1269,22 +1269,23 @@ func _format_trade_resource_totals_display(totals: Dictionary) -> String:
 	return " / ".join(parts)
 
 
-func _format_city_trade_route_display(city_id: String, result: Dictionary) -> String:
+func _format_city_trade_route_display(_city_id: String, result: Dictionary) -> String:
 	if result.is_empty():
-		return "포함 루트: 최근 턴 결과 없음"
+		return "■ 무역 루트\n최근 무역 결과 없음"
 	var routes: Variant = result.get("routes", [])
 	if not routes is Array:
-		return "포함 루트: 기록 없음"
+		return "■ 무역 루트\n최근 무역 결과 없음"
+	var route_list := routes as Array
+	var max_route_count := 3
+	var display_routes := route_list.slice(0, mini(max_route_count, route_list.size()))
 	var lines: Array[String] = []
-	for route_variant in routes:
+	for route_variant in display_routes:
 		if not route_variant is Dictionary:
 			continue
 		var route := route_variant as Dictionary
 		var city_a_id := str(route.get("city_a_id", ""))
 		var city_b_id := str(route.get("city_b_id", ""))
-		if city_a_id != city_id and city_b_id != city_id:
-			continue
-		lines.append("%s-%s · 금전 %s / 쌀 %s / 보리 %s / 수산 %s / 소금 %s" % [
+		lines.append("%s-%s\n금전 %s / 쌀 %s / 보리 %s\n수산 %s / 소금 %s" % [
 			_format_city_name_by_id(city_a_id, city_a_id),
 			_format_city_name_by_id(city_b_id, city_b_id),
 			_format_signed_int(int(route.get("gold", 0))),
@@ -1293,11 +1294,11 @@ func _format_city_trade_route_display(city_id: String, result: Dictionary) -> St
 			_format_signed_int(int(route.get("seafood", 0))),
 			_format_signed_int(int(route.get("salt", 0))),
 		])
-		if lines.size() >= 3:
-			break
 	if lines.is_empty():
-		return "포함 루트: 이 도시가 포함된 최근 무역 루트 없음"
-	return "포함 루트:\n%s" % "\n".join(lines)
+		return "■ 무역 루트\n최근 무역 결과 없음"
+	var remaining_count := maxi(0, route_list.size() - display_routes.size())
+	var suffix := "\n외 %d개" % remaining_count if remaining_count > 0 else ""
+	return "■ 무역 루트\n%s%s" % ["\n".join(lines), suffix]
 
 
 func _setup_left_world_controls() -> void:

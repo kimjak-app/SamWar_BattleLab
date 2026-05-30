@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.68b-13-5A City Info Display Spacing Micro Polish
+- Polished 13-5 City Info display helper output only.
+- Added section titles and line breaks for supply state, supply adjustments, trade result, trade routes, and loyalty drift details.
+- Normalized empty-state wording to recent-result messages.
+- Limited route display with a simple existing-order `routes.slice(0, 3)` and `외 N개` suffix; routes are not sorted, prioritized, filtered by value, or mutated.
+- Did not change calculation logic, result structures, actual resource/loyalty/upkeep/troop values, P0-1, P0-2, Phase A, Phase B, Phase C, battle/invasion/defense, or save/load.
+
 ## v0.68b-13-5 City Info Trade Supply Loyalty Display Polish
 - Filled the existing City Detail internal/external trade tab cases with display-only result/state text.
 - Internal/supply tab now displays selected-city supply role, supplied/isolated state, income multiplier, loyalty delta, and security delta from existing Phase B supply state.
