@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-13-6C1 Troop Move Manual MVP
+- Added Phase C C1 manual troop movement to `scripts/worldmap_test.gd`.
+- Added minimum source-city garrison rule with `TROOP_MOVE_MIN_GARRISON_RATIO := 0.6`.
+- Added validation for positive amount, player ownership, different cities, peacetime, all-player supply path, and minimum garrison.
+- Added movement execution that writes only through `_set_city_runtime_troops`, subtracting from source and adding the same amount to destination.
+- Added `last_troop_move_result` runtime summary with source, destination, amount, turn, post-move troop counts, and total-preservation audit fields.
+- Added minimal City Detail internal/supply tab action for selected-city source movement.
+- Did not implement C2 chancellor suggestions, automatic redistribution, resource movement, calculation formula changes, battle scene changes, battle troop formula changes, or save/load core rewrites.
+
 ## v0.68b-13-5A City Info Display Spacing Micro Polish
 - Polished 13-5 City Info display helper output only.
 - Added section titles and line breaks for supply state, supply adjustments, trade result, trade routes, and loyalty drift details.

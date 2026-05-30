@@ -2,6 +2,26 @@
 
 ## 2026-05-30
 
+### v0.68b-13-6C1 Troop Move Manual MVP
+- Started from baseline commit `3fdb56d` / `v0.68b-13-5A City Info Display Spacing Micro Polish`.
+- `HANDOFF_P2C_TROOP_REBALANCE.md` was not present at repo root or under `agent/`, so implementation followed the explicit task text.
+- Precheck confirmed existing movement-lock state: `_enemy_turn_mvp_pending`, `_player_state.pending_invasion_event`, `_player_state.pending_battle_context`, `Engine` battle context meta, and `turn_phase`. No new flag was added.
+- Implemented C1 only. Did not implement C2 chancellor suggestions, automatic redistribution, resource movement, P0-1/P0-2/Phase A/Phase B calculation changes, battle scene edits, battle troop formula changes, battle/invasion/defense rewrites, or save/load core rewrites.
+- Added `TROOP_MOVE_MIN_GARRISON_RATIO := 0.6`.
+- Added `_is_supply_path_between` using BFS through player-owned marker neighbors only, with visited tracking.
+- Added `_get_city_min_garrison` using `_get_city_security_required_troops(city) * 0.6` rounded with current style.
+- Added `_is_peacetime_for_troop_move`, `_can_move_troops`, `_move_troops`, and a world city troop total audit helper.
+- `_move_troops` validates first, then calls `_set_city_runtime_troops` for source `-amount` and destination `+amount`, and records `last_troop_move_result`.
+- Added minimal manual UI in the existing City Detail internal/supply tab and existing action button. The selected city is source, the first connected player-owned city in existing `owned_city_ids` is target, and amount is capped at 100 and source surplus over minimum garrison.
+- Ran `rg` for new constants/helpers: present.
+- Confirmed only `scripts/worldmap_test.gd` changed before docs; `battle_web_import_test.gd` was not modified.
+- Ran `git diff --check`: passed.
+- Ran Godot headless project load: passed.
+- Ran Godot headless `WorldMap_Test.tscn` load: passed.
+- Ran Godot `--headless --check-only`: timed out after 124 seconds, inconclusive.
+- Ran a temporary headless QA runner, then deleted it before commit. It confirmed peacetime gate success, min-garrison value `300`, min-garrison rejection, no-supply-path rejection, movement success, world troop total preservation `5770 -> 5770`, source/destination troop deltas, `last_troop_move_result`, save/load troop preservation, player attack BattleContext reading moved Hanseong troops, and pending-invasion movement rejection.
+- Remaining risks: UI is minimal and does not expose explicit target/amount controls; manual F6 visual QA is still recommended.
+
 ### v0.68b-13-5A City Info Display Spacing Micro Polish
 - Started from baseline commit `b564292` / `v0.68b-13-5 City Info Trade Supply Loyalty Display Polish`.
 - Kept the code change to 13-5 display helper output only. `_apply_*`, `_calculate_*`, `_is_*`, `_move_*`, P0-1, P0-2, Phase A, Phase B, result structure, resources, loyalty, upkeep, troops, Phase C, battle/invasion/defense, and save/load were not modified.

@@ -1,6 +1,18 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-13-6C1 Troop Move Manual MVP` implements Phase C C1 only: manual troop movement between player-owned cities.
+- C2 chancellor suggestions and automatic troop redistribution were not implemented.
+- Precheck: existing state was sufficient for movement locking. Reused `_enemy_turn_mvp_pending`, pending invasion event, pending battle context, `Engine` battle context meta, and `turn_phase == player`; no new lock flag was added.
+- Added `TROOP_MOVE_MIN_GARRISON_RATIO := 0.6` and C1 helpers for supply-path validation, minimum garrison, peacetime gate, validation, movement, total troop audit, and minimal UI preview.
+- Movement rule: `_can_move_troops` must pass; `_move_troops` then writes source and destination only with `_set_city_runtime_troops(from, from - amount)` and `_set_city_runtime_troops(to, to + amount)`.
+- The manual UI is intentionally minimal: City Detail internal/supply tab uses the selected city as source, first connected player-owned city in existing `owned_city_ids` as target, and up to 100 movable surplus troops as amount.
+- QA runner confirmed total troop preservation, minimum garrison rejection, no supply path rejection, pending invasion rejection, save/load troop preservation, and player attack BattleContext reading the moved troops.
+- Not changed: resource_stock, P0-1, P0-2, Phase A trade, Phase B supply calculations, battle scene logic, battle troop formulas, battle/invasion/defense logic, and save/load core structure.
+- Remaining risks: minimal UI lacks explicit target/amount controls; F6 visual/manual QA is recommended; last move summary is persisted through existing full `_player_state`.
+- Next candidate: `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions`.
+
+## Previous Patch Note
 - `v0.68b-13-5A City Info Display Spacing Micro Polish` is a display-formatting-only follow-up to 13-5.
 - It only changes 13-5 helper output strings: adds section titles, line breaks, and normalized empty-state copy for trade/supply/loyalty display text.
 - Route display now uses the existing routes array in current order with `slice(0, 3)` and an `외 N개` suffix for remaining routes. It does not sort, prioritize, filter by value, or mutate the original routes array.

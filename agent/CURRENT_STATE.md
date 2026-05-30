@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.68b-13-6C1 Troop Move Manual MVP
+- Implemented Phase C C1 only in `scripts/worldmap_test.gd`: manual city-to-city troop movement between player-owned cities. C2 chancellor suggestions and automatic redistribution were not implemented.
+- Precheck result: no new lock flag was needed. Existing runtime gates are reused: `_enemy_turn_mvp_pending`, `_player_state.pending_invasion_event`, `_player_state.pending_battle_context`, `Engine` battle context meta, and `turn_phase == player` for management-phase movement.
+- Added `TROOP_MOVE_MIN_GARRISON_RATIO := 0.6`, `_is_supply_path_between`, `_get_city_min_garrison`, `_is_peacetime_for_troop_move`, `_can_move_troops`, `_move_troops`, and small display/preview helpers.
+- Reused existing player ownership and troop helpers: `_is_city_owned_by_player_mvp`, `_get_city_troops_for_battle_context`, `_set_city_runtime_troops`, `_get_city_security_required_troops`, marker neighbors, and existing runtime city state.
+- `_can_move_troops` rejects invalid amount, non-player ownership, same city, non-peacetime, missing all-player supply path, and moves that would drop the source city below `security_required_troops * 0.6`.
+- `_move_troops` only runs after validation, writes through `_set_city_runtime_troops(from, from - amount)` and `_set_city_runtime_troops(to, to + amount)`, and records `_player_state["last_troop_move_result"]`.
+- Minimal UI uses the existing City Detail internal/supply tab and existing action button: selected city is the source, the first connected player-owned city in `owned_city_ids` is the target, and the move amount is capped at 100 and the source city's movable surplus above minimum garrison.
+- QA confirmed troop total preservation, min-garrison rejection, no-supply-path rejection, pending-invasion peacetime rejection, save/load troop preservation, and moved troops feeding player attack BattleContext input.
+- Not changed: C2 suggestions, resource_stock, P0-1, P0-2, Phase A trade, Phase B supply calculations, battle scene logic, battle formulas, save/load core structure, and battle/invasion/defense logic.
+- Remaining risks: UI is intentionally minimal and lacks explicit from/to/amount controls; manual F6 mouse QA is still recommended; save payload still persists full `_player_state`, including the new last move summary.
+- Next task candidate: `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions`.
+
 ## v0.68b-13-5A City Info Display Spacing Micro Polish
 - Applied a micro polish pass to `scripts/worldmap_test.gd` display formatting only.
 - Only 13-5 display helper output was changed: section titles were added, long supply/trade/loyalty strings were split across lines, and empty-state wording was normalized to recent-result messages.

@@ -83,6 +83,7 @@ const SUPPLY_SECURITY_BONUS := 1
 const SUPPLY_SECURITY_PENALTY := -1
 const SUPPLY_UPKEEP_DISCOUNT_PER_CITY := 0.03
 const SUPPLY_UPKEEP_DISCOUNT_FLOOR := 0.85
+const TROOP_MOVE_MIN_GARRISON_RATIO := 0.6
 
 # v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 # v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
@@ -1028,6 +1029,7 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 	match _selected_city_detail_tab:
 		CITY_DETAIL_TAB_INTERNAL_TRADE:
 			var supply_state := _get_display_supply_state_for_city(city_marker.city_id)
+			var troop_move_preview := _get_troop_move_preview_for_city(city_marker.city_id)
 			city_detail_resource_label.text = "내부 교역로: %s\n%s" % [
 				_format_internal_route_summary(city_marker),
 				_format_city_supply_state_display(supply_state),
@@ -1035,8 +1037,8 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_security_label.text = _format_city_supply_adjustment_display(supply_state)
 			city_detail_military_label.text = "군사 보급 판단: %s" % str(city_data.get("military", "현재 주둔군 / 목표 주둔군 placeholder"))
 			city_detail_commerce_label.text = _format_city_loyalty_drift_display(city_marker.city_id)
-			city_detail_rating_label.text = "자국무역/보급 탭: 기존 보급 result와 최근 충성도 drift result 표시 전용"
-			city_detail_domestic_button_placeholder.text = "무역 조정"
+			city_detail_rating_label.text = _format_troop_move_preview_display(troop_move_preview)
+			city_detail_domestic_button_placeholder.text = _format_troop_move_button_text(troop_move_preview)
 		CITY_DETAIL_TAB_EXTERNAL_TRADE:
 			var last_trade_result: Dictionary = _player_state.get("last_inter_faction_trade_result", {})
 			city_detail_resource_label.text = "대외 무역 / 세력 관계: %s" % _format_external_trade_target(city_marker)
@@ -1299,6 +1301,90 @@ func _format_city_trade_route_display(_city_id: String, result: Dictionary) -> S
 	var remaining_count := maxi(0, route_list.size() - display_routes.size())
 	var suffix := "\n외 %d개" % remaining_count if remaining_count > 0 else ""
 	return "■ 무역 루트\n%s%s" % ["\n".join(lines), suffix]
+
+
+func _get_troop_move_preview_for_city(from_id: String) -> Dictionary:
+	if from_id.is_empty():
+		return {"ok": false, "reason": "ownership", "message": "도시를 선택하십시오."}
+	var amount := _get_troop_move_default_amount(from_id)
+	var target_id := _get_default_troop_move_target_city(from_id, amount)
+	if target_id.is_empty():
+		return {
+			"ok": false,
+			"reason": "no_supply_path",
+			"from": from_id,
+			"amount": amount,
+			"message": "보급 경로로 연결된 이동 대상 도시가 없습니다.",
+		}
+	var validation := _can_move_troops(from_id, target_id, amount)
+	validation["from"] = from_id
+	validation["to"] = target_id
+	validation["amount"] = amount
+	return validation
+
+
+func _get_troop_move_default_amount(from_id: String) -> int:
+	var movable := maxi(0, _get_city_troops_for_battle_context(from_id) - _get_city_min_garrison(from_id))
+	return mini(100, movable)
+
+
+func _get_default_troop_move_target_city(from_id: String, amount: int) -> String:
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return ""
+	var fallback_connected_city_id := ""
+	for city_id_variant in owned_city_ids:
+		var to_id := str(city_id_variant)
+		if to_id.is_empty() or to_id == from_id:
+			continue
+		if not _is_city_owned_by_player_mvp(to_id):
+			continue
+		if not _is_supply_path_between(from_id, to_id):
+			continue
+		if fallback_connected_city_id.is_empty():
+			fallback_connected_city_id = to_id
+		if bool(_can_move_troops(from_id, to_id, amount).get("ok", false)):
+			return to_id
+	return fallback_connected_city_id
+
+
+func _format_troop_move_preview_display(preview: Dictionary) -> String:
+	var from_id := str(preview.get("from", ""))
+	var to_id := str(preview.get("to", ""))
+	if bool(preview.get("ok", false)):
+		return "■ 수동 병력 이동\n%s → %s\n이동 가능: %d명 · 최소 잔류 %d명" % [
+			_format_city_name_by_id(from_id, from_id),
+			_format_city_name_by_id(to_id, to_id),
+			int(preview.get("amount", 0)),
+			int(preview.get("min_keep", 0)),
+		]
+	return "■ 수동 병력 이동\n이동 불가: %s" % _format_troop_move_reason(preview)
+
+
+func _format_troop_move_button_text(preview: Dictionary) -> String:
+	if bool(preview.get("ok", false)):
+		return "병력 %d 이동" % int(preview.get("amount", 0))
+	return "병력 이동 불가"
+
+
+func _format_troop_move_reason(result: Dictionary) -> String:
+	var reason := str(result.get("reason", ""))
+	match reason:
+		"amount":
+			return "이동 병력이 1 이상이어야 합니다."
+		"ownership":
+			return "출발/도착 도시가 모두 플레이어 소유여야 합니다."
+		"same_city":
+			return "같은 도시로는 이동할 수 없습니다."
+		"not_peacetime":
+			return "전투/침공 예약 중에는 이동할 수 없습니다."
+		"no_supply_path":
+			return "두 도시 사이에 아군 보급 경로가 없습니다."
+		"min_garrison":
+			return "출발 도시 최소 잔류 병력을 유지해야 합니다."
+		_:
+			var message := str(result.get("message", ""))
+			return message if not message.is_empty() else "이동 조건을 만족하지 않습니다."
 
 
 func _setup_left_world_controls() -> void:
@@ -3363,6 +3449,132 @@ func _set_city_runtime_troops(city_id: String, troops: int) -> void:
 	city_data["troops"] = maxi(0, int(troops))
 	_city_runtime_states[city_id] = city_data
 	_refresh_city_hud_data_bindings()
+
+
+func _is_supply_path_between(from_id: String, to_id: String) -> bool:
+	if from_id.is_empty() or to_id.is_empty():
+		return false
+	if from_id == to_id:
+		return true
+	if not _is_city_owned_by_player_mvp(from_id) or not _is_city_owned_by_player_mvp(to_id):
+		return false
+	var visited := {}
+	var queue: Array[String] = [from_id]
+	while not queue.is_empty():
+		var current_city_id := str(queue.pop_front())
+		if current_city_id == to_id:
+			return true
+		if visited.has(current_city_id):
+			continue
+		visited[current_city_id] = true
+		var city_marker := _city_markers_by_id.get(current_city_id) as WorldMapCityMarker
+		if city_marker == null:
+			continue
+		for neighbor_id_variant in city_marker.neighbors:
+			var neighbor_id := str(neighbor_id_variant)
+			if visited.has(neighbor_id):
+				continue
+			if not _is_city_owned_by_player_mvp(neighbor_id):
+				continue
+			queue.append(neighbor_id)
+	return false
+
+
+func _get_city_min_garrison(city_id: String) -> int:
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.is_empty():
+		return 0
+	return maxi(0, int(round(float(_get_city_security_required_troops(city_data)) * TROOP_MOVE_MIN_GARRISON_RATIO)))
+
+
+func _is_peacetime_for_troop_move() -> bool:
+	if _enemy_turn_mvp_pending:
+		return false
+	if _has_pending_invasion_event_mvp():
+		return false
+	if not _get_pending_battle_context_mvp().is_empty():
+		return false
+	if Engine.has_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY):
+		return false
+	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_PLAYER:
+		return false
+	return true
+
+
+func _can_move_troops(from_id: String, to_id: String, amount: int) -> Dictionary:
+	if amount <= 0:
+		return {"ok": false, "reason": "amount"}
+	if from_id == to_id:
+		return {"ok": false, "reason": "same_city"}
+	if not _is_city_owned_by_player_mvp(from_id) or not _is_city_owned_by_player_mvp(to_id):
+		return {"ok": false, "reason": "ownership"}
+	if not _is_peacetime_for_troop_move():
+		return {"ok": false, "reason": "not_peacetime"}
+	if not _is_supply_path_between(from_id, to_id):
+		return {"ok": false, "reason": "no_supply_path"}
+	var from_troops := _get_city_troops_for_battle_context(from_id)
+	var min_keep := _get_city_min_garrison(from_id)
+	if from_troops - amount < min_keep:
+		return {
+			"ok": false,
+			"reason": "min_garrison",
+			"min_keep": min_keep,
+			"from_troops": from_troops,
+		}
+	return {"ok": true, "min_keep": min_keep}
+
+
+func _move_troops(from_id: String, to_id: String, amount: int) -> bool:
+	var validation := _can_move_troops(from_id, to_id, amount)
+	if not bool(validation.get("ok", false)):
+		_player_state["last_troop_move_result"] = {
+			"ok": false,
+			"from": from_id,
+			"to": to_id,
+			"amount": amount,
+			"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+			"reason": str(validation.get("reason", "")),
+		}
+		return false
+	var total_before := _get_world_city_troop_total()
+	var from_troops := _get_city_troops_for_battle_context(from_id)
+	var to_troops := _get_city_troops_for_battle_context(to_id)
+	var from_after := from_troops - amount
+	var to_after := to_troops + amount
+	_set_city_runtime_troops(from_id, from_after)
+	_set_city_runtime_troops(to_id, to_after)
+	var total_after := _get_world_city_troop_total()
+	var total_preserved := total_before == total_after
+	_player_state["last_troop_move_result"] = {
+		"ok": true,
+		"from": from_id,
+		"to": to_id,
+		"amount": amount,
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"from_after": from_after,
+		"to_after": to_after,
+		"total_before": total_before,
+		"total_after": total_after,
+		"total_preserved": total_preserved,
+	}
+	print("[TROOP_MOVE] from=%s to=%s amount=%d from_after=%d to_after=%d total=%d->%d preserved=%s" % [
+		from_id,
+		to_id,
+		amount,
+		from_after,
+		to_after,
+		total_before,
+		total_after,
+		str(total_preserved),
+	])
+	return total_preserved
+
+
+func _get_world_city_troop_total() -> int:
+	var total := 0
+	for city_id_variant in CITY_HUD_DATA.keys():
+		total += _get_city_troops_for_battle_context(str(city_id_variant))
+	return total
 
 
 func _apply_context_side_troop_pre_decrement_mvp(battle_context: Dictionary, side_prefix: String, deployed_key: String) -> Dictionary:
@@ -6019,5 +6231,18 @@ func _set_unified_city_panel_collapsed(is_collapsed: bool) -> void:
 
 
 func _on_city_detail_domestic_placeholder_pressed() -> void:
+	if _unified_primary_tab == UNIFIED_PANEL_TAB_CITY_DETAIL and _selected_city_detail_tab == CITY_DETAIL_TAB_INTERNAL_TRADE and selected_city_marker != null:
+		var preview := _get_troop_move_preview_for_city(selected_city_marker.city_id)
+		if bool(preview.get("ok", false)) and _move_troops(str(preview.get("from", "")), str(preview.get("to", "")), int(preview.get("amount", 0))):
+			_set_save_management_status("병력 이동 완료: %s → %s · %d명" % [
+				_format_city_name_by_id(str(preview.get("from", "")), "출발 도시"),
+				_format_city_name_by_id(str(preview.get("to", "")), "도착 도시"),
+				int(preview.get("amount", 0)),
+			])
+		else:
+			_set_save_management_status("병력 이동 불가: %s" % _format_troop_move_reason(preview))
+		_refresh_left_world_status_panel()
+		_refresh_unified_panel_content()
+		return
 	print("[WorldMap] City detail domestic placeholder selected. Domestic execution is deferred.")
 	city_detail_hint_label.text = "내정 실행은 아직 수치나 턴 처리와 연결되지 않았습니다."

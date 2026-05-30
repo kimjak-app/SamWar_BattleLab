@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Current Troop Move C1 Status
+- `v0.68b-13-6C1 Troop Move Manual MVP` is complete in code/docs as C1 only.
+- Manual troop movement is implemented through existing City Detail internal/supply tab action: selected player city is source, first connected player-owned city is destination, and amount is capped at 100 and available surplus above minimum garrison.
+- C2 chancellor suggestions and automatic redistribution are not implemented.
+- Movement writes only via `_set_city_runtime_troops`; source loses the amount and destination gains the same amount.
+- Peacetime gate reuses existing `_enemy_turn_mvp_pending`, pending invasion event, pending battle context, battle context meta, and player turn phase checks. No new lock flag was added.
+- QA confirmed total troop preservation, min-garrison rejection, no-supply-path rejection, pending-invasion rejection, save/load troop preservation, and moved troops reflected in player attack BattleContext input.
+- Remaining risks: minimal UI only, no explicit amount/target selector yet, and manual F6 mouse QA remains recommended.
+- Next candidate: `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions`.
+
 ## Current City Info Display Spacing Status
 - `v0.68b-13-5A City Info Display Spacing Micro Polish` is complete as display formatting only.
 - The pass added section titles, line breaks, and consistent empty-state copy to the 13-5 trade/supply/loyalty display helper output.
