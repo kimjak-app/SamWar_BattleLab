@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Current Phase B F6 QA Closeout Status
+- `v0.68b-13-4A Supply Connectivity F6 QA Closeout` is complete as QA/documentation only; no new feature implementation was done.
+- Start state verified: Hanseong is hub, only Hanseong is owned, no frontline bonus, no isolated penalty, and turn end advances normally.
+- Connected multi-city scenario verified: player-owned Pyeongyang, Gyeongju, and Sabi classify as supplied frontlines with friendly paths to Hanseong; supplied-frontline count drives income `x1.10`, loyalty `+1`, security `+1`, and bounded hero-upkeep discount.
+- Isolated scenario verified with player-owned Kyoto disconnected from Hanseong: isolated frontline income `x0.80`, loyalty `-2`, security `-1`; no isolated upkeep surcharge is applied in the MVP.
+- Save/load verified: loaded ownership/city runtime data can be used to recalculate supply from topology; `last_supply_state_result` is only a runtime summary and may be stale immediately after load until recalculation overwrites it.
+- Light regressions verified: Phase A trade income, city loyalty/runtime save-load, `faction_relations` save payload, player attack context build, and enemy invasion/defense event creation.
+- Remaining risks: headless/API-driven QA only, no visual supply-state UI, stale loaded `last_supply_state_result` before recalculation, and no Phase C troop redistribution.
+- Next candidates: `v0.68b-13-5 Phase C Internal Troop Rebalance MVP` or `City Info Supply State Display Polish`.
+
 ## Current Phase B Supply Connectivity Status
 - `v0.68b-13-4 Phase B Supply Connectivity Bonus MVP` is complete in code/docs.
 - Phase B is implemented as a connectivity bonus/penalty system layered into existing domestic income, P0-2 city loyalty drift, and hero upkeep. It does not move resources and does not split the national warehouse.

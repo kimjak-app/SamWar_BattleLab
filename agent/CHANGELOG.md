@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-13-4A Supply Connectivity F6 QA Closeout
+- Documented Phase B F6/headless QA results without changing gameplay code.
+- Verified starting WorldMap supply state: Hanseong hub, no frontline bonus, no isolated penalty, and normal turn progression.
+- Verified connected multi-city ownership classification and supplied-frontline bonuses for income, loyalty, security, and hero-upkeep discount floor.
+- Verified isolated disconnected frontline behavior with Kyoto: income penalty, loyalty penalty, security penalty, and no isolated upkeep surcharge.
+- Verified save/load recalculation behavior: `last_supply_state_result` can be stale immediately after load but is overwritten by topology-based recalculation.
+- Verified light regressions for Phase A trade income, city loyalty/runtime save-load, `faction_relations`, player attack context creation, and enemy invasion/defense event creation.
+- Recorded remaining risks and next task candidates: Phase C internal troop rebalance or City Info supply-state display polish.
+
 ## v0.68b-13-4 Phase B Supply Connectivity Bonus MVP
 - Added Phase B supply connectivity constants and helpers to `scripts/worldmap_test.gd`.
 - Added player supply hub selection by largest owned-city population and BFS connectivity through player-owned neighbor cities only.

@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.68b-13-4A Supply Connectivity F6 QA Closeout
+- Phase B supply connectivity was QA-closed against `WorldMap_Test.tscn` on 2026-05-30 with no gameplay code changes.
+- Start-state QA passed: F6 WorldMap headless scene load succeeds; Hanseong resolves as the supply hub; with only Hanseong owned, `supplied_frontline_count = 0`, `isolated_count = 0`, and Hanseong role is `hub`.
+- Actual turn progression passed through `_on_ally_turn_end_pressed()` / `_finish_enemy_turn_mvp()`: world turn advanced, domestic result was recorded, Phase A trade result remained present, and Hanseong city loyalty drift applied normally.
+- Multi-city QA passed by setting Pyeongyang, Gyeongju, and Sabi to player-owned: Hanseong remained the highest-population hub, all three adjacent border cities classified as `frontline`, each had a friendly route back to hub, and `supplied_frontline_count = 3`.
+- Supplied-frontline bonuses passed: income multiplier `x1.10`, loyalty drift supply `+1`, security `+1`, calculated gold income increased versus no-supply baseline, hero upkeep discount reduced upkeep, and `SUPPLY_UPKEEP_DISCOUNT_FLOOR = 0.85` held under an exaggerated count.
+- Isolated QA passed by setting Kyoto to player-owned while Hanseong remained hub: Kyoto classified as disconnected `frontline`, `supplied = false`, `isolated = true`, income multiplier `x0.80`, loyalty drift supply `-2`, security `-1`, and no isolated upkeep surcharge was applied, which is expected for this MVP.
+- Save/load QA passed with a caveat: loaded `_player_state` can still carry a stale `last_supply_state_result` because full `_player_state` is persisted, but the next `_calculate_all_city_supply_states()` recalculates from loaded ownership and marker neighbors and overwrites the stale summary. Treat `last_supply_state_result` as runtime inspection output, not authoritative save data.
+- Regression checks passed lightly: Phase A inter-faction trade income still applied after load, city loyalty/runtime city state serialized and loaded, `faction_relations` remained in the save payload, player attack BattleContext still built, and enemy invasion/defense event creation still worked.
+- Remaining risks: QA was headless/API-driven rather than mouse-driven visual F6 QA; save files may contain stale `last_supply_state_result` until a supply recalculation/domestic turn runs; no supply UI exists; isolated upkeep surcharge, resource movement, Phase C troop redistribution, and battle/invasion/defense supply effects remain out of scope.
+- Next task candidates: `v0.68b-13-5 Phase C Internal Troop Rebalance MVP` or `City Info Supply State Display Polish`.
+
 ## v0.68b-13-4 Phase B Supply Connectivity Bonus MVP
 - Implemented Phase B as a connectivity-gated supply bonus system in `scripts/worldmap_test.gd`; this is not a city-by-city warehouse or resource movement pipeline.
 - Added supply constants for income bonus/penalty, loyalty bonus/penalty, security bonus/penalty, and supplied-frontline upkeep discount with a floor.

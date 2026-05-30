@@ -1,6 +1,18 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-13-4A Supply Connectivity F6 QA Closeout` completed Phase B supply connectivity QA/documentation with no gameplay code changes.
+- QA used `WorldMap_Test.tscn` plus a temporary headless runner, then removed the runner before commit.
+- Starting state passed: Hanseong is the supply hub; with only Hanseong owned, there are no supplied frontlines and no isolated cities; turn end advances and records domestic/trade results.
+- Connected scenario passed: Pyeongyang, Gyeongju, and Sabi as player-owned cities classify as supplied frontlines with paths back to Hanseong.
+- Bonus checks passed: supplied frontline income `x1.10`, loyalty `+1`, security `+1`, supplied-frontline hero upkeep discount, and the `0.85` discount floor.
+- Isolated scenario passed: Kyoto as a player-owned disconnected city classifies as isolated frontline with income `x0.80`, loyalty `-2`, and security `-1`; no isolated upkeep surcharge is expected in this MVP.
+- Save/load behavior: loaded `_player_state` may contain a stale `last_supply_state_result`, but the next supply calculation recomputes from owner/owned-city/neighbor topology and overwrites it. Do not treat the loaded summary as authoritative.
+- Light regressions passed for Phase A trade, city loyalty/runtime save-load, `faction_relations` persistence shape, player attack BattleContext build, and enemy invasion/defense event creation.
+- Remaining risks: headless/API QA only, no visual supply-state UI, possible stale loaded runtime summary before recalculation, no Phase C troop redistribution, and no battle/invasion/defense supply effects.
+- Next candidates: `v0.68b-13-5 Phase C Internal Troop Rebalance MVP` or `City Info Supply State Display Polish`.
+
+## Previous Patch Note
 - `v0.68b-13-4 Phase B Supply Connectivity Bonus MVP` implements the redesigned Phase B as connectivity-gated domestic modifiers, not as resource movement.
 - The national single-warehouse model remains intact. No city-level warehouse split, city-to-city transfer logic, or Phase C troop redistribution was added.
 - Supply helpers in `scripts/worldmap_test.gd`: `_get_player_supply_hub_id`, `_is_city_supply_connected`, `_calculate_city_supply_state`, and `_calculate_all_city_supply_states`.

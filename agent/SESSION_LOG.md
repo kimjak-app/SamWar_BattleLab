@@ -2,6 +2,20 @@
 
 ## 2026-05-30
 
+### v0.68b-13-4A Supply Connectivity F6 QA Closeout
+- Started from clean tracked status at baseline commit `99b8a21` / `v0.68b-13-4 Phase B Supply Connectivity Bonus MVP`.
+- Performed QA/documentation only; no new feature implementation, Phase C troop redistribution, resource movement, supply UI, trade formula changes, combat/invasion/defense rewrites, or save/load core rewrites were made.
+- Ran a temporary headless QA runner against `WorldMap_Test.tscn`, then deleted the runner before committing.
+- Start-state checks passed: Hanseong resolves as hub, Hanseong role is `hub`, `supplied_frontline_count = 0`, `isolated_count = 0`.
+- Turn progression check passed: `_on_ally_turn_end_pressed()` followed by `_finish_enemy_turn_mvp()` advanced the world turn, recorded domestic apply result, and preserved Phase A trade result.
+- Connected scenario checks passed after making Pyeongyang, Gyeongju, and Sabi player-owned: each classified as supplied frontline with a path to Hanseong, and `supplied_frontline_count = 3`.
+- Bonus checks passed: supplied frontline income `x1.10`, loyalty supply delta `+1`, security supply delta `+1`, calculated gold income above no-supply baseline, hero upkeep discount lower than no-supply baseline, and `SUPPLY_UPKEEP_DISCOUNT_FLOOR = 0.85`.
+- Isolated scenario checks passed after making Kyoto player-owned while disconnected from Hanseong: Kyoto classified as isolated frontline with income `x0.80`, loyalty `-2`, security `-1`, lower calculated gold than baseline, and no isolated upkeep surcharge.
+- Save/load checks passed with caveat: a stale `last_supply_state_result` inside saved `_player_state` can load back, but `_calculate_all_city_supply_states()` recalculates from loaded ownership/neighbors and overwrites it.
+- Regression checks passed lightly: Phase A trade income after load, city loyalty/runtime city state payload, `faction_relations` payload, player attack BattleContext build, and enemy invasion/defense event creation.
+- Verification commands passed: Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and the temporary QA runner.
+- Remaining risks: headless/API-driven QA rather than full mouse-driven visual F6 pass; no supply-state UI; loaded runtime summary can be stale before recalculation; Phase C troop redistribution remains future work.
+
 ### v0.68b-13-4 Phase B Supply Connectivity Bonus MVP
 - Started from HEAD `8cad028`; tracked changes were clean and `worldmap_test_FULL.gd` was kept out of the commit as the untracked source integration file.
 - `HANDOFF_P2B_SUPPLY_REDESIGN.md` was not present in the repo, so implementation followed the explicit task scope.
