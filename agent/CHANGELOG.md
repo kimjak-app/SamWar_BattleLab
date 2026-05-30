@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.68b-13-2A Inter-Faction Trade Income MVP
+- Added Phase A inter-faction trade income MVP to `scripts/worldmap_test.gd`.
+- Added relation/trade constants: `FACTION_RELATION_STATUS`, `TRADE_SUSPENSION_TURNS := 3`, `RELATION_TRADE_MULTIPLIER`, and `TRADE_ROUTE_CAP`.
+- Added lazy flat `faction_relations` state under `_player_state`; relation keys use sorted `a|b`, missing keys fall back to `neutral`, and same-faction pairs are excluded.
+- Added route helpers for relation keys, trade eligibility, trade pair keys, route value calculation, inter-faction trade result calculation, and player income application.
+- Integrated trade income into `_apply_domestic_turn_mvp` after domestic income/upkeep resource application, preserving the existing domestic result and adding `inter_faction_trade_result`.
+- Stored `last_inter_faction_trade_result` with `turn`, `route_count`, `player_totals`, `routes`, and `applied_player_totals`.
+- Reused existing `_apply_resource_delta` for warehouse-cap clamping and existing `_player_state` full save/load persistence.
+- Did not implement Phase B internal supply network, Phase C troop redistribution, diplomacy manipulation UI, trade setting UI, battle/invasion/defense changes, governor income formula rewrites, or P0-2 loyalty/recruitment connection.
+
 ## v0.68b-13-1 Governor Income Effect Patch Acceptance QA
 - Confirmed the requested P0-1 governor income patch gates were absent from `scripts/worldmap_test.gd`, then added only the narrow missing domestic-income patch points.
 - Added `GOVERNOR_PRIMARY_RATE := 0.025` and `GOVERNOR_SECONDARY_RATE := 0.0125`.

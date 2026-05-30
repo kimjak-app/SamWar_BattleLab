@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.68b-13-2A Inter-Faction Trade Income MVP
+- Phase A only: added inter-faction trade income to the WorldMap domestic turn pipeline in `scripts/worldmap_test.gd`.
+- The MVP reuses city marker neighbors, `_get_city_hud_entry(...)`, `resource_seed`, and `_apply_resource_delta(...)`; it does not add trade setup UI or diplomacy manipulation UI.
+- Added flat `_player_state["faction_relations"]` support with sorted `a|b` relation keys. Missing relation keys fall back to `neutral`, and same-faction pairs are not eligible for inter-faction trade.
+- Added `last_inter_faction_trade_result` with structure: `turn`, `route_count`, `player_totals`, `routes`, and `applied_player_totals`.
+- Active routes are generated only from player-owned cities to adjacent other-faction cities. `neutral` and `allied` can trade; `hostile` and `suspended` cannot.
+- Phase B internal supply network is not implemented. Phase C troop redistribution is not implemented. P0-2 city loyalty/recruitment consumers are not connected.
+- Save/load uses existing full `_player_state` persistence, so `faction_relations` and `last_inter_faction_trade_result` require no separate save/load path.
+- Verification: `rg`, `git diff --check`, Godot headless project load, and `WorldMap_Test.tscn` headless load passed. Godot `--check-only` timed out locally.
+
 ## v0.68b-13-1 Governor Income Effect Patch Acceptance QA
 - Reviewed `scripts/worldmap_test.gd` for the existing P0-1 governor income patch gates; the required governor income constants/functions/signature/pass-through were missing and were added only in the domestic income calculation area.
 - Added city-level governor domestic effects with `GOVERNOR_PRIMARY_RATE := 0.025` and `GOVERNOR_SECONDARY_RATE := 0.0125`, then passed `city_effects` into `_calculate_city_domestic_income(...)` before existing chancellor policy/national multipliers.

@@ -49,6 +49,26 @@ const CHANCELLOR_PRIMARY_RATE := 0.03
 const CHANCELLOR_SECONDARY_RATE := 0.015
 const GOVERNOR_PRIMARY_RATE := 0.025
 const GOVERNOR_SECONDARY_RATE := 0.0125
+const FACTION_RELATION_STATUS := {
+	"ALLIED": "allied",
+	"NEUTRAL": "neutral",
+	"HOSTILE": "hostile",
+	"SUSPENDED": "suspended",
+}
+const TRADE_SUSPENSION_TURNS := 3
+const RELATION_TRADE_MULTIPLIER := {
+	"allied": 1.25,
+	"neutral": 1.0,
+	"hostile": 0.0,
+	"suspended": 0.0,
+}
+const TRADE_ROUTE_CAP := {
+	"gold": 90,
+	"rice": 20,
+	"barley": 20,
+	"seafood": 22,
+	"salt": 16,
+}
 
 # v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 # v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
@@ -507,6 +527,8 @@ var _player_state := {
 	"trade": "활성 교역로 0개 · 이번 턴 수익: 금전 +0 / 식량 +0 / 소금 +0 · 세력 관계: 없음",
 	"income": "이번 턴 수입 없음",
 	"tax_effect": "세금 효과: 인구·상업세 적용, 충성도 0",
+	"faction_relations": {},
+	"last_inter_faction_trade_result": {},
 }
 var _city_policy_state: Dictionary = {}
 var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
@@ -1473,8 +1495,9 @@ func _refresh_left_world_status_panel() -> void:
 	_refresh_warehouse_card()
 	military_logistics_label.visible = false
 	military_logistics_label.text = ""
-	external_trade_label.visible = false
-	external_trade_label.text = ""
+	var last_trade_result: Dictionary = _player_state.get("last_inter_faction_trade_result", {})
+	external_trade_label.visible = not last_trade_result.is_empty()
+	external_trade_label.text = _format_inter_faction_trade_summary(last_trade_result) if external_trade_label.visible else ""
 	var pending_invasion_event := _get_pending_invasion_event_mvp()
 	city_info_panel.set_pending_invasion_event(pending_invasion_event)
 	_refresh_city_info_attack_action_state(selected_city_id)
@@ -1520,6 +1543,10 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["pending_battle_context"] = {}
 	if not _player_state.has("enemy_invasion_roll_turn"):
 		_player_state["enemy_invasion_roll_turn"] = 0
+	if not _player_state.has("faction_relations") or not (_player_state["faction_relations"] is Dictionary):
+		_player_state["faction_relations"] = {}
+	if not _player_state.has("last_inter_faction_trade_result") or not (_player_state["last_inter_faction_trade_result"] is Dictionary):
+		_player_state["last_inter_faction_trade_result"] = {}
 
 
 func _normalize_turn_phase(phase: String) -> String:
@@ -3994,6 +4021,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var upkeep_delta := _calculate_player_hero_upkeep_delta(policy_id, national_effects)
 	var combined_delta := _combine_resource_deltas(income_delta, upkeep_delta)
 	var applied_delta := _apply_resource_delta(combined_delta)
+	var inter_faction_trade_result := _apply_player_inter_faction_trade_income(turn_number)
 	var base_loyalty_delta := _get_tax_loyalty_delta(tax_level)
 	var loyalty_delta := _adjust_loyalty_delta(base_loyalty_delta, float(national_effects.get("national_loyalty_loss_multiplier", 1.0)))
 	var before_loyalty := clampi(int(_player_state.get("national_loyalty", 75)), 0, 100)
@@ -4002,7 +4030,7 @@ func _apply_domestic_turn_mvp() -> String:
 	_player_state["national_loyalty"] = after_loyalty
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
 		"version": "v0.68b-12b-7",
@@ -4014,8 +4042,9 @@ func _apply_domestic_turn_mvp() -> String:
 		"resource_delta": applied_delta,
 		"loyalty_delta": applied_loyalty_delta,
 		"national_effects": national_effects,
+		"inter_faction_trade_result": inter_faction_trade_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -4214,6 +4243,141 @@ func _apply_income_multipliers_to_totals(totals: Dictionary, effect: Dictionary)
 	}
 
 
+func _create_empty_inter_faction_trade_totals() -> Dictionary:
+	return {"gold": 0, "rice": 0, "barley": 0, "seafood": 0, "salt": 0}
+
+
+func _make_faction_relation_key(faction_a: String, faction_b: String) -> String:
+	var ids := [faction_a, faction_b]
+	ids.sort()
+	return "%s|%s" % [str(ids[0]), str(ids[1])]
+
+
+func _get_faction_relation_status(faction_a: String, faction_b: String) -> String:
+	if faction_a.is_empty() or faction_b.is_empty() or faction_a == faction_b:
+		return FACTION_RELATION_STATUS["NEUTRAL"]
+	var relations: Dictionary = _player_state.get("faction_relations", {})
+	var relation_key := _make_faction_relation_key(faction_a, faction_b)
+	var raw_relation: Variant = relations.get(relation_key, FACTION_RELATION_STATUS["NEUTRAL"])
+	var status := ""
+	if raw_relation is Dictionary:
+		status = str((raw_relation as Dictionary).get("status", FACTION_RELATION_STATUS["NEUTRAL"]))
+	else:
+		status = str(raw_relation)
+	match status:
+		"allied", "trade":
+			return FACTION_RELATION_STATUS["ALLIED"]
+		"hostile", "war":
+			return FACTION_RELATION_STATUS["HOSTILE"]
+		"suspended", "trade_suspended", "trade_paused":
+			return FACTION_RELATION_STATUS["SUSPENDED"]
+		_:
+			return FACTION_RELATION_STATUS["NEUTRAL"]
+
+
+func _can_trade_between_factions(faction_a: String, faction_b: String) -> bool:
+	if faction_a.is_empty() or faction_b.is_empty() or faction_a == faction_b:
+		return false
+	var status := _get_faction_relation_status(faction_a, faction_b)
+	return status == FACTION_RELATION_STATUS["NEUTRAL"] or status == FACTION_RELATION_STATUS["ALLIED"]
+
+
+func _make_trade_pair_key(city_a_id: String, city_b_id: String) -> String:
+	var ids := [city_a_id, city_b_id]
+	ids.sort()
+	return "%s|%s" % [str(ids[0]), str(ids[1])]
+
+
+func _calculate_trade_route_value(city_a: Dictionary, city_b: Dictionary) -> Dictionary:
+	var city_a_id := str(city_a.get("id", ""))
+	var city_b_id := str(city_b.get("id", ""))
+	var faction_a := _get_city_owner_faction_id(city_a)
+	var faction_b := _get_city_owner_faction_id(city_b)
+	var relation_status := _get_faction_relation_status(faction_a, faction_b)
+	var resource_seed_a: Dictionary = city_a.get("resource_seed", {})
+	var resource_seed_b: Dictionary = city_b.get("resource_seed", {})
+	var base_gold := (_get_city_numeric_rating(city_a, "commerce_rating", 0) + _get_city_numeric_rating(city_b, "commerce_rating", 0)) * 3
+	var average_loyalty := (float(_get_city_loyalty_value(city_a)) + float(_get_city_loyalty_value(city_b))) / 2.0
+	var loyalty_multiplier := 1.0
+	if average_loyalty >= 75.0:
+		loyalty_multiplier = 1.05
+	elif average_loyalty < 50.0:
+		loyalty_multiplier = 0.9
+	var relation_multiplier := float(RELATION_TRADE_MULTIPLIER.get(relation_status, 1.0))
+	var multiplier := loyalty_multiplier * relation_multiplier
+	return {
+		"city_a_id": city_a_id,
+		"city_b_id": city_b_id,
+		"faction_a": faction_a,
+		"faction_b": faction_b,
+		"relation_status": relation_status,
+		"gold": int(floor(clampf(float(base_gold) * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("gold", 90))))),
+		"rice": int(floor(clampf(float(_get_rating(resource_seed_a, "rice") + _get_rating(resource_seed_b, "rice")) * 4.0 * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("rice", 20))))),
+		"barley": int(floor(clampf(float(_get_rating(resource_seed_a, "barley") + _get_rating(resource_seed_b, "barley")) * 4.0 * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("barley", 20))))),
+		"seafood": int(floor(clampf(float(_get_rating(resource_seed_a, "seafood") + _get_rating(resource_seed_b, "seafood")) * 8.0 * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("seafood", 22))))),
+		"salt": int(floor(clampf(float(_get_rating(resource_seed_a, "salt") + _get_rating(resource_seed_b, "salt")) * 5.0 * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("salt", 16))))),
+	}
+
+
+func _calculate_inter_faction_trade_result(turn_number: int) -> Dictionary:
+	var routes: Array = []
+	var seen_route_keys := {}
+	var player_totals := _create_empty_inter_faction_trade_totals()
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return {"turn": turn_number, "route_count": 0, "player_totals": player_totals, "routes": routes}
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		var city_a := _get_city_hud_entry(city_id)
+		var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+		if city_a.is_empty() or city_marker == null:
+			continue
+		var faction_a := _get_city_owner_faction_id(city_a)
+		for neighbor_id_variant in city_marker.neighbors:
+			var neighbor_id := str(neighbor_id_variant)
+			var city_b := _get_city_hud_entry(neighbor_id)
+			if city_b.is_empty():
+				continue
+			var faction_b := _get_city_owner_faction_id(city_b)
+			if faction_a == faction_b or not _can_trade_between_factions(faction_a, faction_b):
+				continue
+			var route_key := _make_trade_pair_key(city_id, neighbor_id)
+			if seen_route_keys.has(route_key):
+				continue
+			seen_route_keys[route_key] = true
+			var route := _calculate_trade_route_value(city_a, city_b)
+			routes.append(route)
+			for resource_id in player_totals.keys():
+				player_totals[resource_id] = int(player_totals.get(resource_id, 0)) + int(route.get(resource_id, 0))
+	return {
+		"turn": turn_number,
+		"route_count": routes.size(),
+		"player_totals": player_totals,
+		"routes": routes,
+	}
+
+
+func _apply_player_inter_faction_trade_income(turn_number: int) -> Dictionary:
+	var result := _calculate_inter_faction_trade_result(turn_number)
+	var applied_totals := _apply_resource_delta(result.get("player_totals", {}))
+	result["applied_player_totals"] = applied_totals
+	_player_state["last_inter_faction_trade_result"] = result
+	print("[INTER_FACTION_TRADE_INCOME] turn=%d routes=%d applied=%s" % [
+		turn_number,
+		int(result.get("route_count", 0)),
+		str(applied_totals),
+	])
+	return result
+
+
+func _get_city_owner_faction_id(city_data: Dictionary) -> String:
+	return str(city_data.get("owner_faction_id", city_data.get("owner", city_data.get("nation", ""))))
+
+
+func _get_city_loyalty_value(city_data: Dictionary) -> int:
+	return clampi(int(city_data.get("cityLoyalty", city_data.get("loyalty", 75))), 0, 100)
+
+
 func _calculate_player_hero_upkeep_delta(policy_id: String, national_effects: Dictionary) -> Dictionary:
 	var owned_hero_ids: Variant = _player_state.get("owned_hero_ids", [])
 	if not owned_hero_ids is Array:
@@ -4272,7 +4436,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -4281,9 +4445,23 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		parts.append("%s %s" % [str(RESOURCE_LABELS.get(resource_id, resource_id)), _format_signed_int(delta)])
 	if loyalty_delta != 0:
 		parts.append("충성도 %s" % _format_signed_int(loyalty_delta))
+	if not inter_faction_trade_result.is_empty():
+		parts.append(_format_inter_faction_trade_summary(inter_faction_trade_result))
 	if parts.is_empty():
 		return "변동 없음"
 	return " · ".join(parts)
+
+
+func _format_inter_faction_trade_summary(result: Dictionary) -> String:
+	var applied_totals: Dictionary = result.get("applied_player_totals", {})
+	var trade_parts: Array[String] = []
+	for resource_id in ["gold", "rice", "barley", "seafood", "salt"]:
+		var delta := int(applied_totals.get(resource_id, 0))
+		if delta != 0:
+			trade_parts.append("%s %s" % [str(RESOURCE_LABELS.get(resource_id, resource_id)), _format_signed_int(delta)])
+	if trade_parts.is_empty():
+		return "무역 수입 없음"
+	return "무역 수입 %d개: %s" % [int(result.get("route_count", 0)), " / ".join(trade_parts)]
 
 
 func _cancel_enemy_turn_timer_if_needed() -> void:

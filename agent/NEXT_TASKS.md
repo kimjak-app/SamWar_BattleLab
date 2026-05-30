@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current Inter-Faction Trade Income Status
+- `v0.68b-13-2A Inter-Faction Trade Income MVP` is complete in code/docs.
+- Phase A only was implemented: player-owned cities scan adjacent other-faction city markers, calculate route income, apply player totals through `_apply_resource_delta(...)`, and store `last_inter_faction_trade_result`.
+- `last_inter_faction_trade_result` structure is `turn`, `route_count`, `player_totals`, `routes`, and `applied_player_totals`.
+- Relation state is lazy and flat under `_player_state["faction_relations"]`; keys are sorted `a|b`, and missing keys fall back to `neutral`.
+- Not implemented: Phase B internal supply network, Phase C troop redistribution, diplomacy manipulation UI, trade setting UI, and P0-2 loyalty/recruitment consumers.
+- Remaining manual QA: F6 turn-end resource increase, same-faction route exclusion, hostile/suspended route exclusion, warehouse cap clamp via `_apply_resource_delta`, and save/load preservation of `faction_relations`.
+
 ## Current Governor Income Effect QA Status
 - `v0.68b-13-1 Governor Income Effect Patch Acceptance QA` is complete in code/docs.
 - Required P0-1 gates now exist in `scripts/worldmap_test.gd`: `GOVERNOR_PRIMARY_RATE`, `GOVERNOR_SECONDARY_RATE`, `_calculate_city_domestic_effects`, `_apply_governor_type_effect`, `_apply_governor_policy_effect`, the `city_effects: Dictionary = {}` city-income parameter, and the player-income city-effects pass-through.

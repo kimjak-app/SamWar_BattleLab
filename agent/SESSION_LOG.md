@@ -2,6 +2,16 @@
 
 ## 2026-05-30
 
+### v0.68b-13-2A Inter-Faction Trade Income MVP
+- Implemented Phase A only for inter-faction trade income.
+- Could not find `HANDOFF_P2_TRADE_SUPPLY_DESIGN.md` or `CODEX_PROMPTS.md` in the repo; proceeded from the explicit task scope and the requested web source functions in `SamWar_web/js/core/inter_faction_trade.js`.
+- Added relation constants, lazy `faction_relations`, sorted `a|b` relation keys, neutral fallback for missing relation keys, and same-faction route exclusion.
+- Added trade route calculation from player-owned city marker neighbors to adjacent other-faction cities.
+- Added route result storage under `last_inter_faction_trade_result` with `turn`, `route_count`, `player_totals`, `routes`, and `applied_player_totals`.
+- Integrated trade income after domestic income/upkeep resource application through `_apply_resource_delta`, preserving existing warehouse clamping and full `_player_state` save/load behavior.
+- Did not implement Phase B internal supply network, Phase C troop redistribution, diplomacy manipulation UI, trade settings UI, battle/invasion/defense changes, or P0-2 loyalty/recruitment consumers.
+- Verified with `rg`, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. Godot `--check-only` timed out locally.
+
 ### v0.68b-13-1 Governor Income Effect Patch Acceptance QA
 - Checked `scripts/worldmap_test.gd` for the requested acceptance gates. The governor income constants/functions/signature/pass-through were missing before this pass.
 - Added the missing P0-1 governor income patch points only in the domestic income area.

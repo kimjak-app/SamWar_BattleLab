@@ -1,6 +1,15 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-13-2A Inter-Faction Trade Income MVP` implements Phase A only.
+- WorldMap domestic turn processing now calculates adjacent inter-faction trade routes from player-owned cities and applies player trade income through `_apply_resource_delta(...)`.
+- Relations are stored lazily in `_player_state["faction_relations"]` using sorted `a|b` keys; absent relation keys fall back to `neutral`.
+- `last_inter_faction_trade_result` is saved in `_player_state` with `turn`, `route_count`, `player_totals`, `routes`, and `applied_player_totals`.
+- `neutral` and `allied` trade; `hostile` and `suspended` do not. Same-faction city pairs are excluded.
+- No Phase B internal supply network, Phase C troop redistribution, diplomacy manipulation UI, trade setting UI, battle/invasion/defense changes, or P0-2 loyalty/recruitment connection was added.
+- Verification passed for `rg`, `git diff --check`, Godot headless project load, and `WorldMap_Test.tscn` headless load. `--check-only` timed out locally.
+
+## Previous Patch Note
 - `v0.68b-13-1 Governor Income Effect Patch Acceptance QA` reviewed and accepted the P0-1 governor income patch in `scripts/worldmap_test.gd`.
 - The requested gates were missing, so only the narrow domestic-income patch points were added: governor rates, city effect calculation, governor type/policy effect helpers, city-income `city_effects` parameter, and player-income pass-through.
 - Governor city effects now apply before the existing chancellor policy and national multipliers. No battle, invasion, defense, save/load, or scene logic was changed.
