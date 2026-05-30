@@ -1,6 +1,14 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-13-1 Governor Income Effect Patch Acceptance QA` reviewed and accepted the P0-1 governor income patch in `scripts/worldmap_test.gd`.
+- The requested gates were missing, so only the narrow domestic-income patch points were added: governor rates, city effect calculation, governor type/policy effect helpers, city-income `city_effects` parameter, and player-income pass-through.
+- Governor city effects now apply before the existing chancellor policy and national multipliers. No battle, invasion, defense, save/load, or scene logic was changed.
+- `city_loyalty_loss_multiplier` and `recruitable_troops_bonus` are intentionally retained in the effect dictionary without current Godot consumers.
+- Verified with `rg`, Godot headless project load, and `WorldMap_Test.tscn` headless load. `--check-only` timed out locally, so treat that specific check as inconclusive.
+- F6 follow-up should compare Hanseong turn-end income before/after governor assignment and again after save/load; current Hanseong candidate effects may round to no visible income-number change at default values.
+
+## Previous Patch Note
 - `v0.68b-12b-31 Player/Defense Troop Accounting Parity Fix` closes the P0 troop-accounting gaps from the web parity audit.
 - Player attack now subtracts defender allocated troops from the target city before battle, and preserves defender before/after metadata in the BattleContext/result payload.
 - Enemy invasion defense now builds and pre-decrements both attacker and defender troop allocations before battle handoff.

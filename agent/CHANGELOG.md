@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-13-1 Governor Income Effect Patch Acceptance QA
+- Confirmed the requested P0-1 governor income patch gates were absent from `scripts/worldmap_test.gd`, then added only the narrow missing domestic-income patch points.
+- Added `GOVERNOR_PRIMARY_RATE := 0.025` and `GOVERNOR_SECONDARY_RATE := 0.0125`.
+- Added `_calculate_city_domestic_effects`, `_apply_governor_type_effect`, and `_apply_governor_policy_effect` using the existing chancellor profile fields and web-parity governor policy multipliers.
+- Updated `_calculate_city_domestic_income(..., city_effects: Dictionary = {})` so city-level effects apply before existing chancellor policy and national multipliers.
+- Updated `_calculate_player_domestic_income_delta` to calculate city effects per owned city and pass them into city income.
+- Left `city_loyalty_loss_multiplier` and `recruitable_troops_bonus` as effect fields only; current Godot code has no loyalty/recruitment consumer for them yet.
+- No battle, invasion, defense, save/load, deployment, scene, broad refactor, function move, or whole-file rewrite was performed.
+
 ## v0.68b-12b-31 Player Defense Troop Accounting Parity Fix
 - Added player attack defender garrison pre-decrement using `defender_total_allocated_troops` and preserved defender source city before/after metadata.
 - Added enemy invasion defense attacker/defender troop allocations and pre-decrement for both source cities before battle handoff.

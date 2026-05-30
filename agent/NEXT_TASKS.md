@@ -1,5 +1,12 @@
 # NEXT TASKS
 
+## Current Governor Income Effect QA Status
+- `v0.68b-13-1 Governor Income Effect Patch Acceptance QA` is complete in code/docs.
+- Required P0-1 gates now exist in `scripts/worldmap_test.gd`: `GOVERNOR_PRIMARY_RATE`, `GOVERNOR_SECONDARY_RATE`, `_calculate_city_domestic_effects`, `_apply_governor_type_effect`, `_apply_governor_policy_effect`, the `city_effects: Dictionary = {}` city-income parameter, and the player-income city-effects pass-through.
+- Verification completed with `rg`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. `--check-only` timed out locally and should be retried if a stable check-only command is available.
+- Remaining QA: F6 assign a Hanseong governor, compare turn-end income before/after, save/load, then repeat. Be aware current Hanseong candidates can round to no visible income delta at default values; inspect effect presence/logs if the UI resource numbers do not move.
+- Expected non-consumers: `city_loyalty_loss_multiplier` and `recruitable_troops_bonus` are present in effects but not consumed by current Godot loyalty/recruitment systems yet.
+
 ## Current Troop Accounting Parity Status
 - `v0.68b-12b-31 Player/Defense Troop Accounting Parity Fix` is complete in code.
 - Player attack now pre-decrements defender city garrison using defender allocation before battle handoff.

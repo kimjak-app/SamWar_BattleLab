@@ -1,5 +1,17 @@
 # SESSION LOG
 
+## 2026-05-30
+
+### v0.68b-13-1 Governor Income Effect Patch Acceptance QA
+- Checked `scripts/worldmap_test.gd` for the requested acceptance gates. The governor income constants/functions/signature/pass-through were missing before this pass.
+- Added the missing P0-1 governor income patch points only in the domestic income area.
+- Verified patch strings with `rg`.
+- Ran Godot `--headless --path . --quit`: passed.
+- Ran Godot `--headless --path . WorldMap_Test.tscn --quit`: passed.
+- Tried Godot `--headless --path . --check-only`: timed out locally before completion, so no pass/fail result was recorded for that mode.
+- Documented that `city_loyalty_loss_multiplier` and `recruitable_troops_bonus` are expected to have no current Godot consumers.
+- Manual F6 save/load QA remains recommended; Hanseong default governor candidates may not produce a visible rounded turn-income delta despite effects being calculated.
+
 ## 2026-05-29
 
 ### v0.68b-12b-31 Player/Defense Troop Accounting Parity Fix

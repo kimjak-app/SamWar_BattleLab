@@ -47,6 +47,8 @@ const COMMERCE_TAX_POINT_PER_RATING := 3
 const TAX_POINT_TO_GOLD := 1
 const CHANCELLOR_PRIMARY_RATE := 0.03
 const CHANCELLOR_SECONDARY_RATE := 0.015
+const GOVERNOR_PRIMARY_RATE := 0.025
+const GOVERNOR_SECONDARY_RATE := 0.0125
 
 # v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 # v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
@@ -4042,14 +4044,15 @@ func _calculate_player_domestic_income_delta(turn_number: int, tax_level: int, p
 		var city_data := _get_city_hud_entry(str(city_id))
 		if city_data.is_empty():
 			continue
-		var city_income := _calculate_city_domestic_income(city_data, calendar, tax_level)
+		var city_effects := _calculate_city_domestic_effects(city_data, policy_id)
+		var city_income := _calculate_city_domestic_income(city_data, calendar, tax_level, city_effects)
 		for resource_id in totals.keys():
 			totals[resource_id] = int(totals.get(resource_id, 0)) + int(city_income.get(resource_id, 0))
 	var policy_totals := _apply_chancellor_policy_to_income_totals(totals, policy_id)
 	return _apply_income_multipliers_to_totals(policy_totals, national_effects)
 
 
-func _calculate_city_domestic_income(city_data: Dictionary, calendar: Dictionary, tax_level: int) -> Dictionary:
+func _calculate_city_domestic_income(city_data: Dictionary, calendar: Dictionary, tax_level: int, city_effects: Dictionary = {}) -> Dictionary:
 	var resource_seed: Dictionary = city_data.get("resource_seed", {})
 	var income := _create_empty_domestic_income_totals()
 	income["seafood"] = _get_rating(resource_seed, "seafood") * int(DOMESTIC_INCOME_RULES.get("seafood_per_rating_per_turn", 2))
@@ -4058,7 +4061,7 @@ func _calculate_city_domestic_income(city_data: Dictionary, calendar: Dictionary
 	if str(calendar.get("season", "")) == "autumn":
 		income["rice"] = _get_rating(resource_seed, "rice") * int(DOMESTIC_INCOME_RULES.get("rice_per_rating_in_autumn", 5))
 	income["gold"] = _calculate_city_gold_tax_income(city_data, tax_level)
-	return income
+	return _apply_income_multipliers_to_totals(income, city_effects)
 
 
 func _calculate_city_gold_tax_income(city_data: Dictionary, tax_level: int) -> int:
@@ -4109,6 +4112,39 @@ func _calculate_active_chancellor_national_effects() -> Dictionary:
 	return effect
 
 
+func _calculate_city_domestic_effects(city_data: Dictionary, chancellor_policy_id: String) -> Dictionary:
+	var effect := {
+		"rice_multiplier": 1.0,
+		"barley_multiplier": 1.0,
+		"seafood_multiplier": 1.0,
+		"gold_multiplier": 1.0,
+		"hero_upkeep_multiplier": 1.0,
+		"soldier_upkeep_preview_multiplier": 1.0,
+		"salt_preservation_multiplier": 1.0,
+		"national_loyalty_loss_multiplier": 1.0,
+		"city_loyalty_loss_multiplier": 1.0,
+		"recruitable_troops_bonus": 0,
+	}
+	var governor_id := str(city_data.get("governor_id", city_data.get("governorHeroId", "")))
+	var city_id := str(city_data.get("id", ""))
+	var governor_data := _get_hero_entry(governor_id)
+	if not governor_data.is_empty() and str(governor_data.get("side", "")) == PLAYER_FACTION_ID and str(governor_data.get("location_city_id", governor_data.get("city_id", ""))) == city_id:
+		_apply_governor_type_effect(effect, str(governor_data.get("chancellor_primary_type", "")), float(governor_data.get("chancellor_primary_aptitude", 0)), GOVERNOR_PRIMARY_RATE)
+		_apply_governor_type_effect(effect, str(governor_data.get("chancellor_secondary_type", "")), float(governor_data.get("chancellor_secondary_aptitude", 0)), GOVERNOR_SECONDARY_RATE)
+	else:
+		var chancellor_id := str(_player_state.get("chancellor_id", ""))
+		var chancellor_data := _get_hero_entry(chancellor_id)
+		if not chancellor_data.is_empty() and str(chancellor_data.get("side", "")) == PLAYER_FACTION_ID:
+			var primary_strength := maxf(0.0, float(chancellor_data.get("chancellor_primary_aptitude", 0))) * CHANCELLOR_PRIMARY_RATE
+			var secondary_strength := maxf(0.0, float(chancellor_data.get("chancellor_secondary_aptitude", 0))) * CHANCELLOR_SECONDARY_RATE
+			if str(chancellor_data.get("chancellor_primary_type", "")) == "political" and primary_strength > 0.0:
+				effect["city_loyalty_loss_multiplier"] = clampf(float(effect.get("city_loyalty_loss_multiplier", 1.0)) * (1.0 - (primary_strength * 0.4)), 0.85, 1.0)
+			if str(chancellor_data.get("chancellor_secondary_type", "")) == "political" and secondary_strength > 0.0:
+				effect["city_loyalty_loss_multiplier"] = clampf(float(effect.get("city_loyalty_loss_multiplier", 1.0)) * (1.0 - (secondary_strength * 0.4)), 0.85, 1.0)
+	_apply_governor_policy_effect(effect, _get_city_policy_id(city_id, city_data), chancellor_policy_id)
+	return effect
+
+
 func _apply_chancellor_type_effect(effect: Dictionary, type_id: String, aptitude: float, rate: float) -> void:
 	var strength := maxf(0.0, aptitude) * rate
 	if type_id.is_empty() or strength <= 0.0:
@@ -4125,6 +4161,48 @@ func _apply_chancellor_type_effect(effect: Dictionary, type_id: String, aptitude
 			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * (1.0 + (strength * 0.55)), 1.0, 1.12)
 		"militaryAdmin":
 			effect["soldier_upkeep_preview_multiplier"] = clampf(float(effect.get("soldier_upkeep_preview_multiplier", 1.0)) * (1.0 - (strength * 0.55)), 0.82, 1.0)
+
+
+func _apply_governor_type_effect(effect: Dictionary, type_id: String, aptitude: float, rate: float) -> void:
+	var strength := maxf(0.0, aptitude) * rate
+	if type_id.is_empty() or strength <= 0.0:
+		return
+	match type_id:
+		"political":
+			effect["city_loyalty_loss_multiplier"] = clampf(float(effect.get("city_loyalty_loss_multiplier", 1.0)) * (1.0 - strength), 0.72, 1.0)
+		"economic":
+			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * (1.0 + strength), 1.0, 1.22)
+		"administrative":
+			effect["rice_multiplier"] = clampf(float(effect.get("rice_multiplier", 1.0)) * (1.0 + (strength * 0.45)), 1.0, 1.14)
+			effect["barley_multiplier"] = clampf(float(effect.get("barley_multiplier", 1.0)) * (1.0 + (strength * 0.45)), 1.0, 1.14)
+			effect["seafood_multiplier"] = clampf(float(effect.get("seafood_multiplier", 1.0)) * (1.0 + (strength * 0.3)), 1.0, 1.1)
+		"diplomatic":
+			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * (1.0 + (strength * 0.55)), 1.0, 1.12)
+		"militaryAdmin":
+			effect["recruitable_troops_bonus"] = int(effect.get("recruitable_troops_bonus", 0)) + int(round(maxf(0.0, aptitude) * 12.0))
+
+
+func _apply_governor_policy_effect(effect: Dictionary, governor_policy_id: String, chancellor_policy_id: String) -> void:
+	match governor_policy_id:
+		"agriculture":
+			effect["rice_multiplier"] = clampf(float(effect.get("rice_multiplier", 1.0)) * 1.08, 0.75, 1.35)
+			effect["barley_multiplier"] = clampf(float(effect.get("barley_multiplier", 1.0)) * 1.08, 0.75, 1.35)
+			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * 0.97, 0.75, 1.4)
+		"commerce":
+			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * 1.08, 0.75, 1.4)
+			effect["rice_multiplier"] = clampf(float(effect.get("rice_multiplier", 1.0)) * 0.97, 0.75, 1.35)
+			effect["barley_multiplier"] = clampf(float(effect.get("barley_multiplier", 1.0)) * 0.97, 0.75, 1.35)
+		"military":
+			effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * 0.97, 0.75, 1.4)
+			effect["recruitable_troops_bonus"] = int(effect.get("recruitable_troops_bonus", 0)) + 40
+		"follow_chancellor":
+			if chancellor_policy_id == "agriculture":
+				effect["rice_multiplier"] = clampf(float(effect.get("rice_multiplier", 1.0)) * 1.03, 0.75, 1.35)
+				effect["barley_multiplier"] = clampf(float(effect.get("barley_multiplier", 1.0)) * 1.03, 0.75, 1.35)
+			elif chancellor_policy_id == "commerce" or chancellor_policy_id == "trade":
+				effect["gold_multiplier"] = clampf(float(effect.get("gold_multiplier", 1.0)) * 1.03, 0.75, 1.4)
+			elif chancellor_policy_id == "military":
+				effect["recruitable_troops_bonus"] = int(effect.get("recruitable_troops_bonus", 0)) + 20
 
 
 func _apply_income_multipliers_to_totals(totals: Dictionary, effect: Dictionary) -> Dictionary:
