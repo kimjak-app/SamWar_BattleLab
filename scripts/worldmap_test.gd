@@ -72,6 +72,9 @@ const TRADE_ROUTE_CAP := {
 	"seafood": 22,
 	"salt": 16,
 }
+# v0.68b-13-2B Trade balance tuning (web parity restore)
+const TRADE_GLOBAL_DAMPENER := 0.5
+const TRADE_FOOD_FACTOR := 1.5
 
 # v0.68b-12b-10b WorldMap Hero Portrait Asset Binding MVP
 # v0.68b-12b-11 WorldMap Enemy Invasion BattleContext Bridge
@@ -4309,7 +4312,7 @@ func _calculate_trade_route_value(city_a: Dictionary, city_b: Dictionary) -> Dic
 	elif average_loyalty < 50.0:
 		loyalty_multiplier = 0.9
 	var relation_multiplier := float(RELATION_TRADE_MULTIPLIER.get(relation_status, 1.0))
-	var multiplier := loyalty_multiplier * relation_multiplier
+	var multiplier := loyalty_multiplier * relation_multiplier * TRADE_GLOBAL_DAMPENER
 	return {
 		"city_a_id": city_a_id,
 		"city_b_id": city_b_id,
@@ -4317,10 +4320,10 @@ func _calculate_trade_route_value(city_a: Dictionary, city_b: Dictionary) -> Dic
 		"faction_b": faction_b,
 		"relation_status": relation_status,
 		"gold": int(floor(clampf(float(base_gold) * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("gold", 90))))),
-		"rice": int(floor(clampf(float(_get_rating(resource_seed_a, "rice") + _get_rating(resource_seed_b, "rice")) * 4.0 * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("rice", 20))))),
-		"barley": int(floor(clampf(float(_get_rating(resource_seed_a, "barley") + _get_rating(resource_seed_b, "barley")) * 4.0 * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("barley", 20))))),
-		"seafood": int(floor(clampf(float(_get_rating(resource_seed_a, "seafood") + _get_rating(resource_seed_b, "seafood")) * 8.0 * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("seafood", 22))))),
-		"salt": int(floor(clampf(float(_get_rating(resource_seed_a, "salt") + _get_rating(resource_seed_b, "salt")) * 5.0 * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("salt", 16))))),
+		"rice": int(floor(clampf(float(_get_rating(resource_seed_a, "rice") + _get_rating(resource_seed_b, "rice")) * TRADE_FOOD_FACTOR * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("rice", 20))))),
+		"barley": int(floor(clampf(float(_get_rating(resource_seed_a, "barley") + _get_rating(resource_seed_b, "barley")) * TRADE_FOOD_FACTOR * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("barley", 20))))),
+		"seafood": int(floor(clampf(float(_get_rating(resource_seed_a, "seafood") + _get_rating(resource_seed_b, "seafood")) * TRADE_FOOD_FACTOR * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("seafood", 22))))),
+		"salt": int(floor(clampf(float(_get_rating(resource_seed_a, "salt") + _get_rating(resource_seed_b, "salt")) * TRADE_FOOD_FACTOR * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("salt", 16))))),
 	}
 
 

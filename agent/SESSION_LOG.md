@@ -2,6 +2,18 @@
 
 ## 2026-05-30
 
+### v0.68b-13-3 Final Merged WorldMap Domestic Trade Loyalty QA
+- Confirmed starting HEAD `fdd41fc` and clean tracked status before applying the uploaded file; `worldmap_test_FULL.gd` was present as an untracked source file.
+- Copied `worldmap_test_FULL.gd` over `scripts/worldmap_test.gd` without creating a backup file.
+- Verified core strings: P0-1 governor income, P0-2 city loyalty drift, Phase A trade income, `TRADE_GLOBAL_DAMPENER`, and `TRADE_FOOD_FACTOR`.
+- Confirmed `_apply_domestic_turn_mvp` order: income, upkeep, Phase A trade, national loyalty, city loyalty drift.
+- Reviewed `git diff`; only trade tuning C changed versus previous HEAD, with no battle/invasion/defense diff.
+- Static trade check: Hanseong has Pyeongyang, Gyeongju, and Sabi neighbors; tuned gold income calculates to +40.
+- `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load passed.
+- Godot `--check-only` timed out locally.
+- F6 manual QA was not executed in this environment; trade display, city loyalty save/load, `faction_relations` save/load, and light battle/invasion/defense entry checks remain manual.
+- Phase B supply connectivity was not implemented. Next task recorded as `v0.68b-13-4 Phase B Supply Connectivity Bonus MVP`.
+
 ### v0.68b-13-2 City Loyalty Drift Patch Acceptance QA
 - Checked requested P0-2 gates in `scripts/worldmap_test.gd`; city loyalty drift constants/functions/wiring were missing.
 - `PATCH_NOTE_P0-2_city_loyalty.md` was not present in the repo, so the implementation followed the explicit task formula and the referenced web `domestic_effects.js` functions.

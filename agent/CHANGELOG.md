@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.68b-13-3 Final Merged WorldMap Domestic Trade Loyalty QA
+- Applied `worldmap_test_FULL.gd` to `scripts/worldmap_test.gd`.
+- Confirmed the merged file contains P0-1 governor income effects, P0-2 city loyalty drift, Phase A inter-faction trade income, and trade tuning C.
+- Added/confirmed trade tuning C values: `TRADE_GLOBAL_DAMPENER := 0.5` and `TRADE_FOOD_FACTOR := 1.5`.
+- Trade route value calculation now applies the global dampener and uses `TRADE_FOOD_FACTOR` for rice, barley, seafood, and salt.
+- Confirmed `_apply_domestic_turn_mvp` order: income, upkeep, Phase A trade, national loyalty, city loyalty drift.
+- Diff review found no battle, invasion, or defense logic changes from the integrated file application.
+- Did not implement Phase B supply connectivity, internal supply network, troop redistribution, or new gameplay systems.
+
 ## v0.68b-13-2 City Loyalty Drift Patch Acceptance QA
 - Added P0-2 city loyalty drift constants to `scripts/worldmap_test.gd`: `CITY_LOYALTY_DRIFT_MIN := -3`, `CITY_LOYALTY_DRIFT_MAX := 3`, and `STATIONED_HERO_SECURITY_WEIGHT := 1.0`.
 - Added `_apply_city_loyalty_drift_for_world_turn`, `_calculate_city_loyalty_drift`, `_get_city_security_required_troops`, and `_governor_has_aptitude`.

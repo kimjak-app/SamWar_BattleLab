@@ -1,6 +1,17 @@
 # HANDOFF TO CODEX
 
 ## Latest Patch Note
+- `v0.68b-13-3 Final Merged WorldMap Domestic Trade Loyalty QA` applied `worldmap_test_FULL.gd` to `scripts/worldmap_test.gd`.
+- The final merged WorldMap file contains P0-1 governor income effects, P0-2 city loyalty drift, Phase A inter-faction trade income, and trade tuning C.
+- Trade tuning C values are confirmed in code: `TRADE_GLOBAL_DAMPENER := 0.5` and `TRADE_FOOD_FACTOR := 1.5`.
+- `_apply_domestic_turn_mvp` preserves the integrated order: income, upkeep, Phase A trade, national loyalty, then city loyalty drift.
+- Diff review against previous HEAD showed only trade tuning C changes and no battle/invasion/defense code changes.
+- Static route check confirms Hanseong routes to Pyeongyang, Gyeongju, and Sabi, with tuned gold income totaling +40.
+- Headless project and WorldMap scene loads pass; `--check-only` times out locally.
+- F6 manual QA is still needed for visual trade income display, city loyalty save/load, `faction_relations` save/load, governor income sanity, and light battle/invasion/defense entry regression.
+- Phase B supply connectivity was not implemented. Next task: `v0.68b-13-4 Phase B Supply Connectivity Bonus MVP`.
+
+## Previous Patch Note
 - `v0.68b-13-2 City Loyalty Drift Patch Acceptance QA` applies the P0-2 city loyalty drift patch to `scripts/worldmap_test.gd`.
 - The patch adds the requested constants and four helpers: `_apply_city_loyalty_drift_for_world_turn`, `_calculate_city_loyalty_drift`, `_get_city_security_required_troops`, and `_governor_has_aptitude`.
 - `_apply_domestic_turn_mvp` now applies city loyalty drift after national loyalty update and stores details in `last_city_loyalty_drift_result` / `last_domestic_apply_result.city_loyalty_drift_result`.

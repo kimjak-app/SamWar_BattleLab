@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.68b-13-3 Final Merged WorldMap Domestic Trade Loyalty QA
+- Applied `worldmap_test_FULL.gd` into `scripts/worldmap_test.gd`.
+- The integrated file keeps P0-1 governor income effects, P0-2 city loyalty drift, Phase A inter-faction trade income, and trade tuning C values.
+- Trade tuning C is present: `TRADE_GLOBAL_DAMPENER := 0.5` and `TRADE_FOOD_FACTOR := 1.5`.
+- `_apply_domestic_turn_mvp` order was checked: income calculation, upkeep calculation/application, Phase A trade income application, national loyalty update, then P0-2 city loyalty drift.
+- Diff review showed only trade tuning C changes against the previous HEAD: dampener constant, food factor constant, route multiplier dampening, and food-resource factor replacement. No battle/invasion/defense diff was present.
+- Static route verification: Hanseong neighbors are Pyeongyang, Gyeongju, and Sabi; tuned gold routes calculate as 12 + 14 + 14 = 40.
+- Headless verification passed for project load and `WorldMap_Test.tscn` load. `--check-only` timed out locally.
+- F6 manual QA was not executed in this environment; city loyalty save/load, `faction_relations` save/load, visual trade income display, and light battle/invasion/defense entry checks remain manual.
+- Phase B supply connectivity was not implemented. Next task: `v0.68b-13-4 Phase B Supply Connectivity Bonus MVP`.
+
 ## v0.68b-13-2 City Loyalty Drift Patch Acceptance QA
 - P0-2 city loyalty drift was missing and is now minimally wired into `scripts/worldmap_test.gd`.
 - Added `CITY_LOYALTY_DRIFT_MIN := -3`, `CITY_LOYALTY_DRIFT_MAX := 3`, and `STATIONED_HERO_SECURITY_WEIGHT := 1.0`.

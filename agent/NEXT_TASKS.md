@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current Final Domestic/Trade/Loyalty Merge QA Status
+- `v0.68b-13-3 Final Merged WorldMap Domestic Trade Loyalty QA` is complete in code/docs.
+- `worldmap_test_FULL.gd` was applied to `scripts/worldmap_test.gd`.
+- Integrated state includes P0-1 governor income, P0-2 city loyalty drift, Phase A trade income, and trade tuning C.
+- Trade tuning C confirmed: `TRADE_GLOBAL_DAMPENER := 0.5`, `TRADE_FOOD_FACTOR := 1.5`.
+- Static Hanseong trade check: Pyeongyang, Gyeongju, and Sabi are the 3 adjacent trade routes; tuned gold income is approximately +40 total.
+- F6 manual QA remains: turn-end trade display, city loyalty divergence at high tax, city loyalty save/load, `faction_relations` save/load, governor income sanity, and light battle/invasion/defense entry regression.
+- Phase B supply connectivity is not implemented. Next recommended task: `v0.68b-13-4 Phase B Supply Connectivity Bonus MVP`.
+
 ## Current City Loyalty Drift Status
 - `v0.68b-13-2 City Loyalty Drift Patch Acceptance QA` is complete in code/docs.
 - P0-2 city loyalty drift now applies per owned city through `_get_mutable_city_runtime_state` and `_city_runtime_states`.
