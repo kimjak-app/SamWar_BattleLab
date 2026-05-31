@@ -555,6 +555,7 @@ var _player_state := {
 	"tax_effect": "세금 효과: 인구·상업세 적용, 충성도 0",
 	"faction_relations": {},
 	"last_inter_faction_trade_result": {},
+	"last_trade_market_result": {},
 	"last_supply_state_result": {},
 	"last_public_support_result": {},
 	"last_seasonal_loyalty_result": {},
@@ -1929,6 +1930,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["faction_relations"] = {}
 	if not _player_state.has("last_inter_faction_trade_result") or not (_player_state["last_inter_faction_trade_result"] is Dictionary):
 		_player_state["last_inter_faction_trade_result"] = {}
+	if not _player_state.has("last_trade_market_result") or not (_player_state["last_trade_market_result"] is Dictionary):
+		_player_state["last_trade_market_result"] = {}
 	if not _player_state.has("last_supply_state_result") or not (_player_state["last_supply_state_result"] is Dictionary):
 		_player_state["last_supply_state_result"] = {}
 	if not _player_state.has("last_public_support_result") or not (_player_state["last_public_support_result"] is Dictionary):
@@ -5874,9 +5877,10 @@ func _apply_domestic_turn_mvp() -> String:
 	var national_tech_progress_result := _advance_national_tech_progress_for_world_turn()
 	var city_tech_progress_result := _advance_city_tech_progress_for_world_turn()
 	var tech_effect_result := _apply_completed_tech_effects_for_world_turn()
+	var trade_market_result := _update_trade_market_for_world_turn(supply_states)
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
 		"version": "v0.69-4",
@@ -5898,8 +5902,9 @@ func _apply_domestic_turn_mvp() -> String:
 		"national_tech_progress_result": national_tech_progress_result,
 		"city_tech_progress_result": city_tech_progress_result,
 		"tech_effect_result": tech_effect_result,
+		"trade_market_result": trade_market_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -6128,6 +6133,139 @@ func _get_supply_city_state(supply_states: Dictionary, city_id: String) -> Dicti
 		if state is Dictionary:
 			return state
 	return {}
+
+
+func _get_trade_market_base_prices() -> Dictionary:
+	return {
+		"rice": 60,
+		"barley": 50,
+		"seafood": 70,
+		"salt": 95,
+		"silk": 125,
+		"iron": 80,
+		"wood": 45,
+		"horse": 150,
+	}
+
+
+func _get_trade_resource_display_name(resource_id: String) -> String:
+	match resource_id:
+		"rice":
+			return "쌀"
+		"barley":
+			return "보리"
+		"seafood":
+			return "수산물"
+		"salt":
+			return "소금"
+		"silk":
+			return "비단"
+		"iron":
+			return "철"
+		"wood":
+			return "목재"
+		"horse":
+			return "말"
+		_:
+			return resource_id
+
+
+func _get_trade_season_multiplier(resource_id: String, turn_number: int) -> float:
+	var calendar := _get_world_calendar_for_turn(turn_number)
+	match str(calendar.get("season", "")):
+		"spring":
+			if resource_id == "barley":
+				return 0.85
+		"summer":
+			if resource_id == "rice" or resource_id == "barley":
+				return 1.10
+		"autumn":
+			if resource_id == "rice":
+				return 0.85
+		"winter":
+			if resource_id == "rice" or resource_id == "barley" or resource_id == "salt":
+				return 1.20
+			if resource_id == "seafood":
+				return 1.10
+	return 1.0
+
+
+func _get_trade_situation_multiplier(resource_id: String, context: Dictionary = {}) -> float:
+	var multiplier := 1.0
+	if bool(context.get("war_state", false)) and (resource_id == "iron" or resource_id == "horse"):
+		multiplier *= 1.30
+	if bool(context.get("abundant_harvest", false)) and (resource_id == "rice" or resource_id == "barley"):
+		multiplier *= 0.80
+	if bool(context.get("famine", false)) and (resource_id == "rice" or resource_id == "barley"):
+		multiplier *= 1.40
+	if int(context.get("supply_isolated_count", 0)) > 0 and (resource_id == "rice" or resource_id == "barley" or resource_id == "salt"):
+		multiplier *= 1.20
+	if bool(context.get("alliance_recently_signed", false)) and resource_id == "silk":
+		multiplier *= 1.15
+	return multiplier
+
+
+func _get_trade_market_trend(total_multiplier: float) -> String:
+	if total_multiplier >= 1.25:
+		return "up_strong"
+	if total_multiplier > 1.05:
+		return "up"
+	if total_multiplier <= 0.85:
+		return "down_strong"
+	if total_multiplier < 0.95:
+		return "down"
+	return "flat"
+
+
+func _calculate_trade_market_prices(turn_number: int, context: Dictionary = {}) -> Dictionary:
+	var safe_turn := maxi(1, turn_number)
+	var calendar := _get_world_calendar_for_turn(safe_turn)
+	var prices := {}
+	var base_prices := _get_trade_market_base_prices()
+	for resource_id_variant in base_prices.keys():
+		var resource_id := str(resource_id_variant)
+		var base_price := int(base_prices.get(resource_id, 0))
+		var season_multiplier := _get_trade_season_multiplier(resource_id, safe_turn)
+		var situation_multiplier := _get_trade_situation_multiplier(resource_id, context)
+		var total_multiplier := season_multiplier * situation_multiplier
+		prices[resource_id] = {
+			"name": _get_trade_resource_display_name(resource_id),
+			"base_price": base_price,
+			"season_multiplier": season_multiplier,
+			"situation_multiplier": situation_multiplier,
+			"price": maxi(0, int(round(float(base_price) * total_multiplier))),
+			"trend": _get_trade_market_trend(total_multiplier),
+		}
+	return {
+		"turn": safe_turn,
+		"season": str(calendar.get("season", "")),
+		"season_label": str(calendar.get("season_label", "")),
+		"context": context.duplicate(true),
+		"prices": prices,
+	}
+
+
+func _get_trade_market_context_from_state(supply_state_result: Dictionary = {}) -> Dictionary:
+	var supply_source := supply_state_result
+	if supply_source.is_empty():
+		var last_supply: Variant = _player_state.get("last_supply_state_result", {})
+		if last_supply is Dictionary:
+			supply_source = last_supply
+	return {
+		"war_state": false,
+		"famine": false,
+		"abundant_harvest": false,
+		"alliance_recently_signed": false,
+		"supply_isolated_count": int(supply_source.get("isolated_count", 0)),
+	}
+
+
+func _update_trade_market_for_world_turn(supply_state_result: Dictionary = {}) -> Dictionary:
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var context := _get_trade_market_context_from_state(supply_state_result)
+	var result := _calculate_trade_market_prices(turn_number, context)
+	_player_state["last_trade_market_result"] = result
+	return result
 
 
 func _create_empty_inter_faction_trade_totals() -> Dictionary:
@@ -6759,7 +6897,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}, tech_effect_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}, tech_effect_result: Dictionary = {}, trade_market_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -6794,6 +6932,10 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		var effect_summary := _format_tech_effect_summary(tech_effect_result)
 		if not effect_summary.is_empty():
 			parts.append(effect_summary)
+	if not trade_market_result.is_empty():
+		var market_summary := _format_trade_market_summary(trade_market_result)
+		if not market_summary.is_empty():
+			parts.append(market_summary)
 	if parts.is_empty():
 		return "변동 없음"
 	return " · ".join(parts)
@@ -6809,6 +6951,33 @@ func _format_inter_faction_trade_summary(result: Dictionary) -> String:
 	if trade_parts.is_empty():
 		return "무역 수입 없음"
 	return "무역 수입 %d개: %s" % [int(result.get("route_count", 0)), " / ".join(trade_parts)]
+
+
+func _format_trade_market_summary(result: Dictionary) -> String:
+	var prices: Variant = result.get("prices", {})
+	if not prices is Dictionary:
+		return ""
+	var parts: Array[String] = []
+	for resource_id in ["rice", "salt", "silk"]:
+		var entry: Variant = (prices as Dictionary).get(resource_id, {})
+		if not entry is Dictionary:
+			continue
+		parts.append("%s %dG %s" % [
+			str((entry as Dictionary).get("name", _get_trade_resource_display_name(resource_id))),
+			int((entry as Dictionary).get("price", 0)),
+			_get_trade_market_trend_symbol(str((entry as Dictionary).get("trend", "flat"))),
+		])
+	return "" if parts.is_empty() else "시세: %s" % " / ".join(parts)
+
+
+func _get_trade_market_trend_symbol(trend: String) -> String:
+	match trend:
+		"up_strong", "up":
+			return "↑"
+		"down_strong", "down":
+			return "↓"
+		_:
+			return "→"
 
 
 func _format_supply_state_summary(result: Dictionary) -> String:

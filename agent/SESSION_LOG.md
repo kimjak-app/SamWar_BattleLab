@@ -2,6 +2,19 @@
 
 ## 2026-05-31
 
+### v0.69-9 Trade Deepening Data Market Price MVP
+- Started from baseline commit `547699fa8365bdf53c085dfef59150e809b5a05b` / `v0.69-8B Tech Effect Application MVP`.
+- Implemented deterministic trade market price data/calculation in `scripts/worldmap_test.gd`.
+- Added `_get_trade_market_base_prices`, `_get_trade_resource_display_name`, `_get_trade_season_multiplier`, `_get_trade_situation_multiplier`, `_calculate_trade_market_prices`, and `_update_trade_market_for_world_turn`.
+- Recorded market prices in `_player_state["last_trade_market_result"]` with `turn`, `season`, `season_label`, `context`, and per-resource price entries.
+- Connected market update to the domestic turn pipeline after tech progress/effects so the current supply isolation count can influence prices.
+- Added a compact turn summary line for market prices.
+- Kept existing Phase A inter-faction trade income unchanged and separate.
+- Did not implement manual trade, resource exchange, trade agreements, diplomacy, maritime trade, pirate loss, hero trade traits, random price volatility, trade UI, battle changes, or save/load core rewrites.
+- QA runner confirmed base prices, seasonal wrap, situation multipliers, deterministic calculation, no resource stock mutation, no inter-faction trade result mutation, and `last_trade_market_result` recording.
+- Next candidates are `v0.69-9B Specialty Trade Data MVP` or `v0.69-10 Diplomacy Relation Score MVP`.
+- Remaining risks: market prices are calculation-only until transaction systems exist; most situation flags are future-context placeholders; final F6 trade UX validation remains deferred.
+
 ### v0.69-8B Tech Effect Application MVP
 - Started from baseline commit `f4c21f9d2d46712c2e1e9c40f66f768db323cada` / `v0.69-8 Tech Start Progress Pipeline MVP`.
 - Implemented the first Tech Effect Application MVP in `scripts/worldmap_test.gd`.

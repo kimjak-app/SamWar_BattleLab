@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.69-9 Trade Market Price Handoff
+- `v0.69-9 Trade Deepening Data Market Price MVP` is implemented in `scripts/worldmap_test.gd`.
+- This is a data/calculation/recording layer only. It must remain separate from existing Phase A inter-faction trade income.
+- New market result field: `_player_state["last_trade_market_result"]`.
+- Result structure includes `turn`, `season`, `season_label`, `context`, and `prices`; each price entry includes `name`, `base_price`, `season_multiplier`, `situation_multiplier`, `price`, and `trend`.
+- Current market context defaults: `war_state=false`, `famine=false`, `abundant_harvest=false`, `alliance_recently_signed=false`; `supply_isolated_count` is pulled from the current/last supply result when available.
+- The calculation is deterministic. Do not add random price volatility until a focused follow-up.
+- Existing Phase A trade income and `last_inter_faction_trade_result` are not replaced and should not be reshaped by market-price work.
+- Not implemented: manual trade, resource exchange execution, trade agreements, diplomacy, maritime trade, pirate losses, hero trade traits, and trade UI.
+- Next candidates: `v0.69-9B Specialty Trade Data MVP` or `v0.69-10 Diplomacy Relation Score MVP`.
+- Remaining risks: market prices have no transaction consumer yet; situation context depends on future event/diplomacy systems; F6/manual UX validation is deferred to later UI work.
+
 ## v0.69-8B Tech Effect Application Handoff
 - `v0.69-8B Tech Effect Application MVP` is implemented in `scripts/worldmap_test.gd`.
 - Effects apply from completed tech only. In-progress tech has no effect.

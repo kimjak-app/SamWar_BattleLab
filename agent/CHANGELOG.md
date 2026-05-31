@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.69-9 Trade Deepening Data Market Price MVP
+- Added trade market base price data for `rice`, `barley`, `seafood`, `salt`, `silk`, `iron`, `wood`, and `horse`; `gold` remains excluded as the pricing basis.
+- Added deterministic season and situation multiplier helpers for market prices.
+- Added `_calculate_trade_market_prices()` and `_update_trade_market_for_world_turn()`.
+- Added `_player_state["last_trade_market_result"]` recording with per-resource price/trend details.
+- Domestic turn summary now includes one compact market-price line.
+- Existing Phase A inter-faction trade income remains unchanged and separate.
+- Not implemented: manual trade, resource exchange, trade agreements, maritime trade, pirate loss, hero trade traits, random market volatility, and trade UI.
+
 ## v0.69-8B Tech Effect Application MVP
 - Added first completed-tech effect consumers to `scripts/worldmap_test.gd`.
 - Added `_apply_completed_tech_effects_for_world_turn`, national/city domestic-income multiplier helpers, and `applied_tech_effects` duplicate prevention state.

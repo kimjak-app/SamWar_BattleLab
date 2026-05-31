@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current v0.69-9 Trade Market Price Status
+- `v0.69-9 Trade Deepening Data Market Price MVP` is complete in code/docs.
+- Trade deepening is now started as a separate market-price data layer and does not replace Phase A inter-faction trade income.
+- Market prices are deterministic and recorded in `_player_state["last_trade_market_result"]`.
+- No manual trade, resource exchange, trade agreement, maritime trade, pirate loss, hero trade trait, random volatility, or trade UI exists yet.
+- Recommended next task:
+  - `v0.69-9B Specialty Trade Data MVP`
+  - Alternative: `v0.69-10 Diplomacy Relation Score MVP`
+
 ## Current v0.69-8B Tech Effect Application Status
 - `v0.69-8B Tech Effect Application MVP` is complete in code/docs.
 - Implemented effects: `legal_reform` one-time publicSupport `+5`, `tax_reform` domestic gold income `+10%`, `street_market` city domestic gold income `+5%`, `barracks` automatic conscription gate, and `conscription_system` automatic conscription add `+10%`.

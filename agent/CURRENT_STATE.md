@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.69-9 Trade Deepening Data Market Price MVP
+- Implemented the first Trade Deepening Data + Market Price MVP in `scripts/worldmap_test.gd`.
+- Added deterministic market price helpers for resource base prices, display names, seasonal multipliers, situation multipliers, and market trend classification.
+- Market price resources are `rice`, `barley`, `seafood`, `salt`, `silk`, `iron`, `wood`, and `horse`; `gold` is excluded because it is the pricing basis.
+- Seasonal prices use the existing 40-turn calendar: turns `1..10` spring, `11..20` summer, `21..30` autumn, `31..40` winter, and turn `41` wraps to spring.
+- Situation context is future-proof only: `war_state`, `famine`, `abundant_harvest`, `supply_isolated_count`, and `alliance_recently_signed`. No event system, war system, diplomacy, or alliance implementation was added.
+- `_update_trade_market_for_world_turn()` records `_player_state["last_trade_market_result"]` with `turn`, `season`, `season_label`, `context`, and per-resource `prices` entries containing `name`, `base_price`, `season_multiplier`, `situation_multiplier`, `price`, and `trend`.
+- The domestic turn pipeline updates the market once after tech progress/effect handling and before the summary is finalized. This lets the existing supply isolation result feed `supply_isolated_count`.
+- Turn summary now includes one compact market line such as `시세: 쌀 60G → / 소금 114G ↑ / 비단 125G →`.
+- Existing Phase A inter-faction trade income remains separate and unchanged. Market prices do not apply resources, do not execute trades, and do not alter faction relations.
+- Not implemented: manual trade, resource exchange execution, trade agreements, maritime trade, pirate loss, hero trade traits, random price volatility, trade UI, and additional tech effects.
+- Verification passed: `rg` for new market helpers/result field, temporary QA runner, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. Godot `--check-only` timed out locally.
+- QA runner confirmed base prices, seasonal wrap, war/famine/abundant/isolated/alliance multipliers, deterministic prices, no `resource_stock` mutation, no inter-faction trade result mutation, and `last_trade_market_result` recording.
+- Next candidates: `v0.69-9B Specialty Trade Data MVP` or `v0.69-10 Diplomacy Relation Score MVP`.
+- Remaining risks: the market is calculation-only and has no transaction consumer yet; situation context mostly defaults false until future event/diplomacy systems exist; final F6 trade UX validation remains for later UI work.
+
 ## v0.69-8B Tech Effect Application MVP
 - Implemented the first Tech Effect Application MVP in `scripts/worldmap_test.gd`.
 - Effects apply only from completed techs. In-progress techs still have no effect.
