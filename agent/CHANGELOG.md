@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock
+- Added five confirmed design lock documents under `agent/`:
+  - `CONFIRMED_LOYALTY_PUBLICSUPPORT_DESIGN.md`
+  - `CONFIRMED_NATIONAL_TECHTREE_DESIGN.md`
+  - `CONFIRMED_CITY_TECHTREE_DESIGN.md`
+  - `CONFIRMED_TRADE_SYSTEM_DESIGN.md`
+  - `CONFIRMED_DIPLOMACY_ESPIONAGE_REVOLT.md`
+- Locked v0.68b as the web MVP port plus first-pass domestic logic baseline at `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions` / commit `aec588b`.
+- Recorded completed first-pass domestic logic: governor income effects, city loyalty drift, inter-faction trade income, trade tuning, supply connectivity bonus, City Detail display, manual troop movement C1, and chancellor troop rebalance suggestions C2.
+- Recorded the v0.69 EASTWAR strategic simulation foundation principles: `publicSupport` for livelihood/domestic stability, `loyalty` for voluntary military service will/military operation reliability, and `security` as the pressure variable affecting both.
+- Recorded the v0.69 task order from Public Support MVP through Diplomacy/Espionage Foundation MVP, with final WorldMap UX/UI information architecture deferred to v0.70.
+- Documentation only. Did not modify `scripts/worldmap_test.gd` or implement public support, loyalty formula changes, troop movement formula changes, tech tree, trade deepening, diplomacy, espionage, revolt, UI, battle/invasion/defense, or save/load changes.
+
 ## v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions
 - Added Phase C C2 chancellor troop rebalance suggestion calculation to `scripts/worldmap_test.gd`.
 - Added `ROLE_TARGET_GARRISON_RATIO` as the target-garrison ratio table required by the C2 formula because no existing constant was present.

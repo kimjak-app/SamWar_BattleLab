@@ -1,5 +1,28 @@
 # HANDOFF TO CODEX
 
+## v0.69-0 Roadmap Handoff
+- `v0.69` is not a simple feature-addition track. It is the start of the EASTWAR strategic simulation foundation.
+- Build beyond the existing web-version MVP depth. The v0.68b baseline is closed at `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions` / commit `aec588b`.
+- Public support, loyalty, and security are the central axes for national operation, troops, revolt pressure, tech progression, diplomacy, and espionage.
+- Do not build final UI first. Implement the v0.69 strategic logic foundations first, then perform final WorldMap UX/UI information architecture in `v0.70-1`.
+- Confirmed design documents now live in `agent/`:
+  - `CONFIRMED_LOYALTY_PUBLICSUPPORT_DESIGN.md`
+  - `CONFIRMED_NATIONAL_TECHTREE_DESIGN.md`
+  - `CONFIRMED_CITY_TECHTREE_DESIGN.md`
+  - `CONFIRMED_TRADE_SYSTEM_DESIGN.md`
+  - `CONFIRMED_DIPLOMACY_ESPIONAGE_REVOLT.md`
+- Next implementation order:
+  1. `v0.69-1 Public Support MVP`
+  2. `v0.69-2 Seasonal Loyalty From Public Support MVP`
+  3. `v0.69-3 Troop Move Loyalty Efficiency Final Patch`
+  4. `v0.69-4 Recruitment/Conscription Foundation MVP`
+  5. `v0.69-5 Revolt Warning Foundation MVP`
+  6. `v0.69-6 National Tech Tree Data MVP`
+  7. `v0.69-7 City Tech Tree Data MVP`
+  8. `v0.69-8 Trade Deepening MVP`
+  9. `v0.69-9 Diplomacy/Espionage Foundation MVP`
+  10. `v0.70-1 WorldMap Final UX/UI Information Architecture`
+
 ## Latest Patch Note
 - `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions` implements Phase C C2 as pure suggestion calculation only.
 - No UI, suggestion cards, automatic redistribution, direct troop writes, resource changes, battle changes, save/load core rewrites, or C1 validation formula changes were implemented.

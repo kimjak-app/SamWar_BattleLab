@@ -1,5 +1,23 @@
 # SESSION LOG
 
+## 2026-05-31
+
+### v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock
+- Started from clean tracked status at baseline commit `aec588b`.
+- Performed documentation-only roadmap lock for v0.69.
+- Added confirmed design lock documents under `agent/`:
+  - `CONFIRMED_LOYALTY_PUBLICSUPPORT_DESIGN.md`
+  - `CONFIRMED_NATIONAL_TECHTREE_DESIGN.md`
+  - `CONFIRMED_CITY_TECHTREE_DESIGN.md`
+  - `CONFIRMED_TRADE_SYSTEM_DESIGN.md`
+  - `CONFIRMED_DIPLOMACY_ESPIONAGE_REVOLT.md`
+- Updated `CURRENT_STATE.md` to close v0.68b as the web MVP port plus first-pass domestic logic baseline and to start v0.69 as the EASTWAR Strategic Simulation Foundation stage.
+- Updated `NEXT_TASKS.md` with the ordered v0.69 roadmap from Public Support MVP through Diplomacy/Espionage Foundation MVP, followed by `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+- Updated `HANDOFF_TO_CODEX.md` to emphasize that v0.69 is a strategic simulation foundation transition, not a UI-first feature pass.
+- Updated `CHANGELOG.md` with the documentation-only scope and explicit non-implementation boundaries.
+- Did not modify `scripts/worldmap_test.gd`.
+- Did not implement public support, loyalty formula changes, troop movement formula changes, tech tree, trade deepening, diplomacy, espionage, revolt, UI, battle/invasion/defense, or save/load changes.
+
 ## 2026-05-30
 
 ### v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions

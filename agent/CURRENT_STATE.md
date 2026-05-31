@@ -1,5 +1,33 @@
 # CURRENT STATE
 
+## v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock
+- Documentation-only roadmap lock. No code, scene, UI, battle, invasion, defense, save/load, troop movement, loyalty formula, public support, tech tree, trade deepening, diplomacy, espionage, or revolt implementation was done.
+- v0.68b is closed as the web MVP port plus first-pass domestic logic baseline.
+- Latest stable baseline:
+  - `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions`
+  - Commit: `aec588b`
+- Completed first-pass domestic logic in the v0.68b baseline:
+  - Governor income effects.
+  - City-level loyalty drift.
+  - Inter-faction trade income.
+  - Trade tuning.
+  - Supply connectivity bonus.
+  - City Detail display.
+  - Manual troop movement C1.
+  - Chancellor troop rebalance suggestions C2.
+- v0.69 begins the EASTWAR Strategic Simulation Foundation stage.
+- v0.69 top-level principles:
+  - `publicSupport` = livelihood and domestic stability.
+  - `loyalty` = voluntary military service will and military operation reliability.
+  - `security` = public order pressure that affects both public support and loyalty.
+- Final UX/UI work is deferred until after the core v0.69 strategic systems are implemented.
+- Confirmed design documents added under `agent/`:
+  - `CONFIRMED_LOYALTY_PUBLICSUPPORT_DESIGN.md`
+  - `CONFIRMED_NATIONAL_TECHTREE_DESIGN.md`
+  - `CONFIRMED_CITY_TECHTREE_DESIGN.md`
+  - `CONFIRMED_TRADE_SYSTEM_DESIGN.md`
+  - `CONFIRMED_DIPLOMACY_ESPIONAGE_REVOLT.md`
+
 ## v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions
 - Implemented Phase C C2 in `scripts/worldmap_test.gd` as pure chancellor troop-rebalance suggestion calculation only. No UI, suggestion cards, automatic execution, resource movement, battle changes, save/load core changes, or calculation rewrites were added.
 - `HANDOFF_P2C2_REBALANCE_SUGGESTIONS.md` was not present at repo root or under `agent/`, so the explicit task text was used as the implementation source. `ROLE_TARGET_GARRISON_RATIO` was also absent and was added as the minimal target-garrison ratio table needed by the requested formula.

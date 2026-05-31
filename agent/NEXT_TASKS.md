@@ -1,5 +1,26 @@
 # NEXT TASKS
 
+## v0.69 EASTWAR Strategic Simulation Foundation Roadmap
+- v0.68b is closed at `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions` / commit `aec588b`.
+- v0.69 work starts from strategic simulation foundations, not UI-first expansion.
+- Implement systems in this order:
+  1. `v0.69-1 Public Support MVP`
+  2. `v0.69-2 Seasonal Loyalty From Public Support MVP`
+  3. `v0.69-3 Troop Move Loyalty Efficiency Final Patch`
+  4. `v0.69-4 Recruitment/Conscription Foundation MVP`
+  5. `v0.69-5 Revolt Warning Foundation MVP`
+  6. `v0.69-6 National Tech Tree Data MVP`
+  7. `v0.69-7 City Tech Tree Data MVP`
+  8. `v0.69-8 Trade Deepening MVP`
+  9. `v0.69-9 Diplomacy/Espionage Foundation MVP`
+  10. `v0.70-1 WorldMap Final UX/UI Information Architecture`
+- Confirmed design inputs are locked in:
+  - `agent/CONFIRMED_LOYALTY_PUBLICSUPPORT_DESIGN.md`
+  - `agent/CONFIRMED_NATIONAL_TECHTREE_DESIGN.md`
+  - `agent/CONFIRMED_CITY_TECHTREE_DESIGN.md`
+  - `agent/CONFIRMED_TRADE_SYSTEM_DESIGN.md`
+  - `agent/CONFIRMED_DIPLOMACY_ESPIONAGE_REVOLT.md`
+
 ## Current Troop Rebalance C2 Status
 - `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions` is complete in code/docs as C2 suggestion calculation only.
 - No UI, suggestion card surface, automatic redistribution, direct troop writes, resource changes, battle changes, or save/load core rewrites were implemented.
