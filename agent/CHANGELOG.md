@@ -1,6 +1,8 @@
 # CHANGELOG
 
 ## v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock
+- Compared the five latest confirmed design inputs under `_incoming_confirmed_designs/` against the official `agent/CONFIRMED_*` documents.
+- Replaced the official `agent/` design documents with the incoming confirmed versions, keeping `_incoming_confirmed_designs/` out of the commit scope.
 - Added five confirmed design lock documents under `agent/`:
   - `CONFIRMED_LOYALTY_PUBLICSUPPORT_DESIGN.md`
   - `CONFIRMED_NATIONAL_TECHTREE_DESIGN.md`

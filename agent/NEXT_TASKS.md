@@ -3,6 +3,7 @@
 ## v0.69 EASTWAR Strategic Simulation Foundation Roadmap
 - v0.68b is closed at `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions` / commit `aec588b`.
 - v0.69 work starts from strategic simulation foundations, not UI-first expansion.
+- The official `agent/CONFIRMED_*` design documents now reflect the latest confirmed inputs from `_incoming_confirmed_designs/`. The incoming folder is staging input only and must not be committed by future roadmap/documentation tasks.
 - Implement systems in this order:
   1. `v0.69-1 Public Support MVP`
   2. `v0.69-2 Seasonal Loyalty From Public Support MVP`

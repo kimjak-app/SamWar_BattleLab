@@ -1,24 +1,195 @@
-# CONFIRMED TRADE SYSTEM DESIGN
+# 삼국WAR 무역 시스템 확정 설계 v1.0
 
-## Status
-- Confirmed design lock for `v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock`.
-- This document is design-only. No trade deepening, trade UI, diplomacy integration, save/load, economy formula, battle, invasion, or defense implementation is included in this task.
+---
 
-## Current Baseline
-- v0.68b already contains first-pass inter-faction trade income and trade tuning.
-- The current MVP is enough to close the v0.68b baseline.
+## 기본 구조
 
-## v0.69 Direction
-- Trade should deepen into a strategic system connected to city geography, faction relations, public support, security, and diplomacy.
-- Trade must remain distinct from internal supply connectivity.
-- Trade deepening should not rewrite battle, invasion, defense, or troop movement formulas as part of the roadmap lock.
+```
+무역 = 자동 + 수동 선택
 
-## v0.69 Placement
-- `v0.69-8 Trade Deepening MVP` is the planned implementation step after public support, loyalty, recruitment, revolt warning, and tech data foundations.
+자동 (재상·태수 일임):
+외교형 재상 → 국가 무역 루트 자동 최적화
+경제형 태수 → 도시 무역 자동 관리
+→ 능력 높으면 최적화 / 낮으면 비효율
 
-## Deferred
-- Trade-route UI.
-- Diplomatic trade agreements.
-- Blockade or suspension mechanics.
-- Trade risk, smuggling, and unrest effects.
-- Save/load schema changes.
+수동 (플레이어 직접):
+루트 직접 개설·차단
+거래 품목 직접 설정
+협정 직접 체결
+시세 보고 직접 판단
+```
+
+---
+
+## 1. 무역 종류
+
+### 자국 내 무역
+```
+보급망 연결 (Phase B, 이미 구현)
+보급 연결된 도시 간 자원 효율 보너스
+```
+
+### 타국 무역 (세력간)
+```
+Phase A, 이미 구현
+인접 타 세력 도시와 자동 교역로
+관계에 따라 배수:
+  allied  → ×1.25
+  neutral → ×1.0
+  hostile → 거래 불가
+```
+
+---
+
+## 2. 특산물 거래
+
+```
+자동 (재상·태수 일임):
+외교형 재상 → 유리한 특산물 거래 자동 탐색·체결
+경제형 태수 → 도시 특산물 자동 수출입 설정
+→ 재상·태수 능력 높을수록 더 유리한 거래
+
+수동 (플레이어 직접):
+어느 도시와 뭘 교환할지 직접 설정
+거래 비율 직접 조정
+유리한 협정 직접 협상
+```
+
+---
+
+## 3. 교환 비율 (환율)
+
+```
+희귀도 기준 기본 교환 비율:
+비단 (희귀) → 1 : 2~3 (소금·수산물)
+말   (희귀) → 1 : 2~3 (식량·목재)
+철          → 1 : 1.5 (목재·식량)
+소금        → 1 : 1   (수산물)
+
+외교 관계에 따라 비율 변동:
+동맹 → 유리한 비율
+중립 → 기본 비율
+적대 → 거래 불가
+```
+
+---
+
+## 4. 자원 시세 시스템
+
+### 시세 구조
+```
+실제 시세 = 기준가 × 계절/상황 보정 × 랜덤 변동
+
+UI 표시:
+비단  125G ↑
+철     80G →
+소금   95G ↑↑
+식량   60G ↓
+말    150G →
+목재   45G ↓
+```
+
+### 상황별 시세 변동
+```
+평시    → 기준가 ±10% 랜덤
+전쟁    → 철·말 기준가 +30% ±15%
+풍년    → 식량 기준가 -20% ±10%
+흉년    → 식량 기준가 +40% ±15%
+겨울    → 식량·소금 +20% ±10%
+동맹 체결 → 비단 수요 증가 → 비단 시세 ↑
+보급 끊김 → 식량·소금 폭등
+```
+
+### 계절별 시세
+```
+봄  → 보리 시세 ↓ (수확 직후)
+여름 → 식량 시세 ↑ (부족기)
+가을 → 쌀 시세 ↓ (수확 직후)
+겨울 → 식량·소금 시세 급등
+```
+
+### 재상 능력 연동
+```
+외교형 재상 능력 높음 → 시세 최적 타이밍 자동 거래
+외교형 재상 능력 낮음 → 시세 무시, 손해 거래
+플레이어 직접 → 시세 보고 직접 판단
+```
+
+---
+
+## 5. 치안·수군과 무역 손실
+
+### 육상 무역 (도적떼)
+```
+치안 70 이상 → 손실 없음
+치안 50~70  → 무역량 -10% (도적떼)
+치안 30~50  → 무역량 -25% (도적 활개)
+치안 30 미만 → 무역량 -50% (거의 못 함)
+
+대책: 주둔군으로 치안 유지
+```
+
+### 해상 무역 (해적)
+```
+수군 충분 → 손실 없음
+수군 부족 → 무역량 -15% (해적)
+수군 없음 → 무역량 -40% (해적 장악)
+
+대책: 수군으로 해적 차단
+```
+
+---
+
+## 6. 해상 무역 보호 특화 영웅
+
+```
+한국:
+장보고 → 해상 무역 손실 0% + 무역 수입 +20%
+이순신 → 해적 완전 차단 + 수군 전투력 극대화
+
+중국:
+여몽   → 해상 치안 +30% + 수군 전투력 ↑
+
+일본:
+고니시 유키나가 → 해상 무역 루트 추가 개설 가능
+                   (역사적 대상인 출신)
+
+※ 앞으로 추가할 무장들 중에도
+  "해상 무역 특화" 특성 부여 가능
+  → 무장 특성 시스템의 한 카테고리
+```
+
+---
+
+## 7. 무역 테크트리 연동
+
+```
+실크로드 (도시 테크) → 육상 무역 루트 추가
+무역항 (도시 테크)   → 해상 무역 루트 추가
+대상단 (도시 테크)   → 육상 무역 수입 ↑
+동맹 체계 (국가 테크) → 무역 배수 강화
+천하 외교 (국가 테크) → 전국 무역 극대화
+```
+
+---
+
+## 8. 무장 특성 카테고리 (현재까지)
+
+```
+전투 특성  → 이순신(수군), 권율(방어)
+해양 특성  → 장보고, 여몽, 고니시
+내정 특성  → 정도전(행정)
+무역 특성  → 장보고, 고니시
+
+※ 무장 전체 특성 설계는 별도 세션에서
+```
+
+---
+
+## 미확정 (다음 논의)
+```
+- 기준가 수치 (자원별 기본 시세)
+- 랜덤 시드 방식 (턴마다? 계절마다?)
+- 무역 UI 상세 (시세판 표시 방식)
+- 치안 기준 수치 밸런싱
+```

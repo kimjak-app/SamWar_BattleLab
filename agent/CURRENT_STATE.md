@@ -2,25 +2,40 @@
 
 ## v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock
 - Documentation-only roadmap lock. No code, scene, UI, battle, invasion, defense, save/load, troop movement, loyalty formula, public support, tech tree, trade deepening, diplomacy, espionage, or revolt implementation was done.
+- The five official confirmed design documents in `agent/` were compared against the latest `_incoming_confirmed_designs/` inputs and replaced with the incoming confirmed versions. `_incoming_confirmed_designs/` remains an input staging folder and is not a commit target.
 - v0.68b is closed as the web MVP port plus first-pass domestic logic baseline.
+- v0.68b 계열은 웹 MVP 이식 및 내정 1차 로직 완료 기준선이다.
 - Latest stable baseline:
   - `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions`
   - Commit: `aec588b`
 - Completed first-pass domestic logic in the v0.68b baseline:
   - Governor income effects.
+  - 태수 수입 효과.
   - City-level loyalty drift.
+  - 도시별 충성도 드리프트.
   - Inter-faction trade income.
+  - 세력간 무역 수입.
   - Trade tuning.
+  - 무역 튜닝.
   - Supply connectivity bonus.
+  - 보급 연결성 보너스.
   - City Detail display.
+  - City Detail 표시.
   - Manual troop movement C1.
+  - 수동 병력 이동 C1.
   - Chancellor troop rebalance suggestions C2.
+  - 재상 병력 재배분 제안 C2.
 - v0.69 begins the EASTWAR Strategic Simulation Foundation stage.
+- v0.69부터는 EASTWAR Strategic Simulation Foundation 단계로 진입한다.
 - v0.69 top-level principles:
   - `publicSupport` = livelihood and domestic stability.
+  - 민심 `publicSupport` = 먹고 살기 / 내정 안정.
   - `loyalty` = voluntary military service will and military operation reliability.
+  - 충성도 `loyalty` = 자발적 참군 의지 / 군사 운영.
   - `security` = public order pressure that affects both public support and loyalty.
+  - 치안 `security` = 민심과 충성도 모두에 영향.
 - Final UX/UI work is deferred until after the core v0.69 strategic systems are implemented.
+- 최종 UX/UI는 v0.69 핵심 전략 시스템 구현 후 진행한다.
 - Confirmed design documents added under `agent/`:
   - `CONFIRMED_LOYALTY_PUBLICSUPPORT_DESIGN.md`
   - `CONFIRMED_NATIONAL_TECHTREE_DESIGN.md`

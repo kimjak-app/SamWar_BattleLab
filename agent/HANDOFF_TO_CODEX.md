@@ -5,6 +5,8 @@
 - Build beyond the existing web-version MVP depth. The v0.68b baseline is closed at `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions` / commit `aec588b`.
 - Public support, loyalty, and security are the central axes for national operation, troops, revolt pressure, tech progression, diplomacy, and espionage.
 - Do not build final UI first. Implement the v0.69 strategic logic foundations first, then perform final WorldMap UX/UI information architecture in `v0.70-1`.
+- `_incoming_confirmed_designs/` is a temporary input staging folder and is not a commit target.
+- The current official `agent/CONFIRMED_*` documents have been replaced with the latest incoming confirmed designs for v0.69.
 - Confirmed design documents now live in `agent/`:
   - `CONFIRMED_LOYALTY_PUBLICSUPPORT_DESIGN.md`
   - `CONFIRMED_NATIONAL_TECHTREE_DESIGN.md`

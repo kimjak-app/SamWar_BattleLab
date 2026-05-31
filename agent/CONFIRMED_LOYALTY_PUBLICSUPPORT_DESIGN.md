@@ -1,27 +1,297 @@
-# CONFIRMED LOYALTY PUBLIC SUPPORT DESIGN
+# 삼국WAR 민심·충성도 확정 설계 v1.0
 
-## Status
-- Confirmed design lock for `v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock`.
-- This document is design-only. No public support, loyalty, security, recruitment, revolt, troop movement, UI, save/load, battle, invasion, or defense implementation is included in this task.
+---
 
-## Core Separation
-- `publicSupport` means livelihood and domestic stability: food, tax pressure, safety, economic confidence, and local administration.
-- `loyalty` means voluntary military commitment: willingness to serve, remain mobilized, accept troop movement, and endure campaign burden.
-- `security` means public order and coercive stability: it affects both `publicSupport` and `loyalty`.
+## 1. 기본 정의
 
-## Top-Level Principle
-- Public support is not a renamed loyalty value.
-- Loyalty is not a renamed morale value.
-- Security is the bridge pressure variable that can protect stability or reveal unrest.
-- v0.69 systems should treat public support and loyalty as separate strategic axes.
+```
+민심(publicSupport) = 먹고 살기 (내정)
+충성도(loyalty)     = 자발적 참군 의지 (군사)
+치안(security)      = 민심 + 충성도 둘 다 영향
+```
 
-## Intended v0.69 Flow
-1. Public support MVP establishes city-level livelihood and domestic stability.
-2. Seasonal loyalty derives part of its pressure from public support.
-3. Troop movement uses loyalty efficiency as a military-operation constraint.
-4. Recruitment and conscription consume the public support / loyalty distinction.
-5. Revolt warning uses public support, loyalty, and security as the foundation.
+---
 
-## Deferred
-- Final UI/UX information architecture is deferred until after the v0.69 core strategic logic exists.
-- No formulas are changed by this document.
+## 2. 민심 (publicSupport)
+
+### 변화 속도
+```
+매턴 변화 (빠름)
+기본 단위 = ±1%/턴
+```
+
+### 민심 변화 공식 (매턴 덧셈)
+```
+농업 잉여 있으면  → +1%
+농업 잉여 없으면  → -1%
+
+상업 흑자 있으면  → +1%
+상업 흑자 없으면  → -1%
+
+세율 0~30        → +1%
+세율 31~60       → -1%
+세율 61~90       → -2%
+세율 91~100      → -3%
+
+보급 끊기면       → -2%
+
+최대: +3%/턴
+최악: -7%/턴
+```
+
+### 민심 구성 요소
+```
+세금   → 세율 30 기준점 (이미 구현)
+농업   → 식량 잉여/부족 (쌀·보리·수산물)
+상업   → 금전 흑자/적자
+보급   → 보급 연결/차단
+```
+
+---
+
+## 3. 치안 (security)
+
+```
+주둔군 ≥ 치안기준      → 치안 정상 → 민심·충성도 ↑
+주둔군 < 치안기준      → 치안 미달 → 민심·충성도 ↓
+주둔군/인구 > 0.35    → 군사부담 → 민심 ↓
+주둔군/인구 > 0.45    → 군사부담 급증 → 민심 급락
+```
+
+스위트스팟: 치안기준 충족하되 인구 대비 35% 이하 유지
+
+---
+
+## 4. 보급
+
+```
+보급 연결 → 정상
+보급 끊기면 → 민심 -2%/턴 + 충성도 -2/계절
+```
+
+---
+
+## 5. 자원 쓰임새
+
+```
+금전        → 장수 녹봉 + 병사 녹봉 → 충성도
+식량        → 백성 먹고 살기 → 민심
+비단        → 장수 녹봉 (금전+식량+비단 세트) → 충성도
+소금        → 식량 보존 → 민심(평시) + 보급(전시)
+말+목재+철  → 병사 장비 보강 → 충성도
+```
+
+### 장수(영웅) 녹봉
+```
+영웅 녹봉 = 금전 + 식량 + 비단
+```
+
+### 병사 녹봉
+```
+병사 녹봉 = 금전 + 식량
+금전 잉여 → 녹봉 지급 → 충성도 ↑
+금전 적자 → 녹봉 못 줌 → 충성도 ↓
+```
+
+---
+
+## 6. 식량 종류와 계절
+
+```
+1년 = 40턴
+봄  = 1~10턴
+여름 = 11~20턴
+가을 = 21~30턴
+겨울 = 31~40턴
+```
+
+```
+10턴째 (봄)  → 보리 수확 (한 번에 많이)
+30턴째 (가을) → 쌀 수확 (한 번에 많이)
+매턴          → 수산물 (꾸준히 조금씩)
+```
+
+### 계절별 식량 흐름
+```
+봄(10턴)  → 보리 수확 → 식량 ↑ → 민심 ↑
+여름      → 수산물만  → 식량 관리 필요
+가을(30턴) → 쌀 수확  → 식량 ↑ → 민심 ↑
+겨울      → 수산물만  → 가장 힘든 계절 (소금 보존 중요)
+```
+
+---
+
+## 7. 도시 특성
+
+```
+해안도시 (사비·경주·건업·교토·오사카·큐슈):
+수산물 풍부 → 매턴 식량 안정
+소금 풍부   → 식량 보존 강함
+→ 겨울 민심 안정
+
+내륙도시 (한성·평양·낙양·업성·성도):
+쌀·보리 풍부 → 봄·가을 식량 강함
+소금 부족    → 겨울 식량 보존 취약
+→ 겨울 민심 관리 필요
+```
+
+```
+해안 도시 점령 = 겨울 생존 전략
+소금 + 수산물 확보 = 장기전 유리
+```
+
+---
+
+## 8. 충성도 (loyalty)
+
+### 변화 속도
+```
+10턴(계절)마다 변화 (느림)
+```
+
+### 충성도 변화 공식 (계절마다)
+
+**올라가는 것:**
+```
+치안 충족 (주둔군 ≥ 치안기준) → +1/계절
+금전 잉여 → 병사 녹봉 지급   → +1/계절
+말+목재+철 잉여 → 장비 보강  → +1/계절
+민심 90 이상 누적             → +2/계절
+민심 80 이상 누적             → +1/계절
+```
+
+**내려가는 것:**
+```
+치안 미달                → -1/계절
+금전 적자 → 녹봉 못 줌  → -1/계절
+보급 끊김               → -2/계절
+민심 80 미만 누적        → -1/계절
+민심 60 미만 누적        → -2/계절
+민심 40 미만 누적        → -3/계절
+```
+
+### 민심 → 충성도 상관관계 (계절마다)
+```
+민심 90 이상 → 충성도 +2
+민심 80 이상 → 충성도 +1
+민심 80      → 충성도 유지
+민심 80 미만 → 충성도 -1
+민심 60 미만 → 충성도 -2
+민심 40 미만 → 충성도 -3
+```
+
+---
+
+## 9. 징병 공식
+
+```
+징병 가능 병력 = 인구 × 징병비율
+
+충성도 100      → 인구의 50%
+충성도 90 이상  → 인구의 40%
+충성도 80 이상  → 인구의 30%
+충성도 60 이상  → 인구의 20%
+충성도 40 이상  → 인구의 10%
+충성도 40 미만  → 인구의 5%
+충성도 20 미만  → 징병 불가 + 반란 위험
+```
+
+### 예시 (한성 인구 50,000)
+```
+충성도 100 → 최대 25,000명
+충성도 90  → 최대 20,000명
+충성도 80  → 최대 15,000명
+충성도 60  → 최대 10,000명
+충성도 40  → 최대  5,000명
+충성도 20  → 징병 불가
+```
+
+---
+
+## 10. 병력 이동 효율
+
+```
+실제 도착 병력 = 이동 병력 × (보내는 도시 충성도 / 100)
+
+예시:
+한성 충성도 90 → 100명 이동 → 90명 도착
+한성 충성도 50 → 100명 이동 → 50명 도착
+한성 충성도 20 → 100명 이동 → 20명만 도착
+```
+
+충성도 높은 도시에서만 효율적인 병력 이동 가능.
+
+---
+
+## 11. 선순환 / 악순환
+
+**선순환:**
+```
+내정 잘 함
+→ 농업·상업 흑자 → 민심 ↑
+→ 민심 80 이상 → 충성도 ↑
+→ 징병 많이 됨 + 이동 효율 ↑
+→ 전쟁 유리
+```
+
+**악순환:**
+```
+내정 소홀
+→ 식량·금전 부족 → 민심 ↓
+→ 민심 80 미만 → 충성도 ↓
+→ 징병 적고 이동 손실 큼
+→ 전쟁 불리 → 보급 끊김
+→ 민심·충성도 더 하락
+```
+
+---
+
+---
+
+## 12. 징병 vs 모병
+
+### 기본 정의
+```
+징병 = 강제 차출, 매턴 천천히 모집
+       한계 = 충성도로 결정 (9번 징병 공식 참고)
+
+모병 = 자발적 지원, 금전으로 즉시 모집
+       한계 = 민심으로 결정
+       매턴 가능 (민심 한계 + 금전 소비가 자연 브레이크)
+```
+
+### 모병 1회 한계 (민심 기준)
+```
+민심 90 이상 → 1회 최대 500명
+민심 80 이상 → 1회 최대 300명
+민심 60 이상 → 1회 최대 200명
+민심 40 이상 → 1회 최대 100명
+민심 40 미만 → 모병 불가
+```
+
+### 모병 비용
+```
+100명당 금전 100 + 식량 50
+
+예시:
+500명 모병 = 금전 500 + 식량 250
+300명 모병 = 금전 300 + 식량 150
+100명 모병 = 금전 100 + 식량 50
+```
+
+### 역할 분리
+```
+징병 → 충성도가 높아야 많이 모임 (느리지만 무료)
+모병 → 민심이 높아야 많이 모임 (즉시지만 유료)
+```
+
+---
+
+## 미확정 (다음 논의)
+```
+- 농업·상업 개발 방법 (어떻게 올리나)
+- 기술 개념
+- 반란 세부 조건
+- 외교·첩보
+- 충성도 상한선
+```
