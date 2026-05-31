@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.69-13 Espionage Action Foundation Handoff
+- `v0.69-13 Espionage Action Foundation MVP` is implemented in `scripts/worldmap_test.gd`.
+- The requested guide file `GUIDE_v0.69_12_13_to_v0.70.md` was not found in the repo; implementation followed the explicit v0.69-13 task requirements.
+- Added helper/API actions: `_disrupt_city_loyalty`, `_instigate_revolt`, and `_drive_wedge`, with matching validation and forced-roll helpers for QA.
+- Loyalty disruption directly lowers city loyalty for this MVP. It does not create pending seasonal loyalty penalties.
+- Revolt instigation records `_player_state["revolt_instigation"][city_id]` for 3 turns with a `probability_boost`; it does not cause revolt, neutralization, battle, or owner changes.
+- Wedge driving lowers relation score between two allied non-player factions only. It does not auto-break alliance status.
+- Detection penalties change relation scores only: loyalty disruption `-40`, revolt instigation `-60`, wedge detection `-20` against each target faction from the player.
+- All spy actions reuse shared `spy_cooldown`. The existing primary political chancellor cooldown `-2` policy is applied to new actions.
+- Not implemented: assassination, real revolt, suppression battle, war declaration, automatic hostile conversion, alliance break, espionage UI, battle/invasion/defense changes, or save/load core rewrites.
+- v0.69 is ready to pivot toward `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+- Remaining risks: action values are MVP balance; all actions are API-only; revolt boost has no real revolt consumer yet.
+
 ## v0.69-12 Diplomacy Action Foundation Handoff
 - `v0.69-12 Diplomacy Action Foundation MVP` is implemented in `scripts/worldmap_test.gd`.
 - The requested guide file `GUIDE_v0.69_12_13_to_v0.70.md` was not found in the repo; implementation followed the explicit v0.69-12 task requirements.

@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.69-13 Espionage Action Foundation MVP
+- Implemented the espionage action foundation finish pass in `scripts/worldmap_test.gd`.
+- Added three chancellor-driven spy actions using the existing info gathering/publicSupport disruption structure: loyalty disruption, revolt instigation, and wedge driving.
+- Loyalty disruption directly lowers target city loyalty in the MVP. Effect by political aptitude: `5 -> 10`, `4 -> 7`, `3 -> 5`, `2 -> 3`, `1 -> 1`.
+- Loyalty disruption cost is `gold 500 + silk 50`; base cooldown is `10`, or `8` for a primary political chancellor. Detection cancels the effect and applies relation score `-40`.
+- Revolt instigation requires target publicSupport `<= 50` and loyalty `<= 40`. Success records `_player_state["revolt_instigation"][city_id]` with `turns_remaining = 3` and aptitude-based probability boost. It does not trigger real revolt.
+- Revolt instigation cost is `gold 800 + silk 100`; base cooldown is `15`, or `13` for a primary political chancellor. Detection cancels the record and applies relation score `-60`.
+- Wedge driving requires two non-player factions that currently have `allied` status. Success lowers only their relation score; allied status is not auto-broken.
+- Wedge cost is `gold 600 + silk 150`; base cooldown is `12`, or `10` for a primary political chancellor. Detection applies relation score `-20` to player-vs-each-target and does not affect the two targets.
+- Added result records: `last_spy_loyalty_disrupt_result`, `last_spy_revolt_instigation_result`, `last_revolt_instigation_tick_result`, and `last_spy_wedge_result`.
+- The existing shared `spy_cooldown` remains the common cooldown for information gathering, publicSupport disruption, loyalty disruption, revolt instigation, and wedge driving.
+- Not implemented: assassination, actual revolt occurrence, owner neutral conversion, suppression battle, declaration of war, automatic hostile conversion, alliance break, or espionage UI.
+- `GUIDE_v0.69_12_13_to_v0.70.md` was not present in the repo, so implementation followed the explicit v0.69-13 task scope.
+- v0.69 espionage action foundation is now broad enough to transition toward `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+- Verification passed: `rg` for new helpers/result fields, temporary QA runner, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. Godot `--check-only` timed out locally.
+- Remaining risks: all actions are helper/API-only without UI; revolt instigation is a stored boost only; spy action balance and final F6 UX validation remain pending.
+
 ## v0.69-12 Diplomacy Action Foundation MVP
 - Implemented the first diplomacy action foundation after tribute in `scripts/worldmap_test.gd`.
 - Added helper/API actions only: `_propose_alliance(target_faction_id, resource_package, duration_turns)`, `_request_military_support(target_faction_id)`, and `_propose_trade_agreement(target_faction_id)`.

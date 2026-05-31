@@ -90,6 +90,25 @@ const SPY_COOLDOWN_TURNS := 6
 const SPY_PUBLIC_SUPPORT_DISRUPT_COST := {"gold": 300}
 const SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS := 8
 const SPY_DETECTED_RELATION_PENALTY_PUBLIC_SUPPORT := -30
+const SPY_LOYALTY_DISRUPT_COST := {
+	"gold": 500,
+	"silk": 50,
+}
+const SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS := 10
+const SPY_DETECTED_RELATION_PENALTY_LOYALTY := -40
+const SPY_REVOLT_INSTIGATION_COST := {
+	"gold": 800,
+	"silk": 100,
+}
+const SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS := 15
+const SPY_REVOLT_INSTIGATION_DURATION_TURNS := 3
+const SPY_DETECTED_RELATION_PENALTY_REVOLT := -60
+const SPY_WEDGE_COST := {
+	"gold": 600,
+	"silk": 150,
+}
+const SPY_WEDGE_COOLDOWN_TURNS := 12
+const SPY_DETECTED_RELATION_PENALTY_WEDGE := -20
 const TRADE_SUSPENSION_TURNS := 3
 const RELATION_TRADE_MULTIPLIER := {
 	"allied": 1.25,
@@ -585,6 +604,7 @@ var _player_state := {
 	"last_alliance_proposal_result": {},
 	"last_military_support_result": {},
 	"last_trade_agreement_result": {},
+	"revolt_instigation": {},
 	"last_supply_state_result": {},
 	"last_public_support_result": {},
 	"last_seasonal_loyalty_result": {},
@@ -1978,6 +1998,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_military_support_result"] = {}
 	if not _player_state.has("last_trade_agreement_result") or not (_player_state["last_trade_agreement_result"] is Dictionary):
 		_player_state["last_trade_agreement_result"] = {}
+	if not _player_state.has("revolt_instigation") or not (_player_state["revolt_instigation"] is Dictionary):
+		_player_state["revolt_instigation"] = {}
 	if not _player_state.has("spy_cooldown"):
 		_player_state["spy_cooldown"] = 0
 	_player_state["spy_cooldown"] = maxi(0, int(_player_state.get("spy_cooldown", 0)))
@@ -1987,6 +2009,14 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_spy_cooldown_result"] = {}
 	if not _player_state.has("last_spy_public_support_disrupt_result") or not (_player_state["last_spy_public_support_disrupt_result"] is Dictionary):
 		_player_state["last_spy_public_support_disrupt_result"] = {}
+	if not _player_state.has("last_spy_loyalty_disrupt_result") or not (_player_state["last_spy_loyalty_disrupt_result"] is Dictionary):
+		_player_state["last_spy_loyalty_disrupt_result"] = {}
+	if not _player_state.has("last_spy_revolt_instigation_result") or not (_player_state["last_spy_revolt_instigation_result"] is Dictionary):
+		_player_state["last_spy_revolt_instigation_result"] = {}
+	if not _player_state.has("last_revolt_instigation_tick_result") or not (_player_state["last_revolt_instigation_tick_result"] is Dictionary):
+		_player_state["last_revolt_instigation_tick_result"] = {}
+	if not _player_state.has("last_spy_wedge_result") or not (_player_state["last_spy_wedge_result"] is Dictionary):
+		_player_state["last_spy_wedge_result"] = {}
 	if not _player_state.has("last_supply_state_result") or not (_player_state["last_supply_state_result"] is Dictionary):
 		_player_state["last_supply_state_result"] = {}
 	if not _player_state.has("last_public_support_result") or not (_player_state["last_public_support_result"] is Dictionary):
@@ -5915,6 +5945,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var diplomacy_normalize_result := _normalize_faction_relations_for_world_state()
 	var diplomacy_cooldown_result := _advance_diplomacy_cooldowns_for_world_turn()
 	var spy_cooldown_result := _advance_spy_cooldown_for_world_turn()
+	var revolt_instigation_tick_result := _advance_revolt_instigation_for_world_turn()
 	var supply_states := _calculate_all_city_supply_states()
 	var income_delta := _calculate_player_domestic_income_delta(turn_number, tax_level, policy_id, national_effects, supply_states)
 	var upkeep_delta := _calculate_player_hero_upkeep_delta(policy_id, national_effects, supply_states)
@@ -5953,6 +5984,7 @@ func _apply_domestic_turn_mvp() -> String:
 		"diplomacy_normalize_result": diplomacy_normalize_result,
 		"diplomacy_cooldown_result": diplomacy_cooldown_result,
 		"spy_cooldown_result": spy_cooldown_result,
+		"revolt_instigation_tick_result": revolt_instigation_tick_result,
 		"supply_state_result": supply_states,
 		"inter_faction_trade_result": inter_faction_trade_result,
 		"public_support_result": public_support_result,
@@ -7052,6 +7084,10 @@ func _get_spy_public_support_disrupt_cooldown_turns() -> int:
 	return maxi(1, SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS - (2 if _is_current_chancellor_political_type() else 0))
 
 
+func _get_spy_action_cooldown_turns(base_cooldown: int) -> int:
+	return maxi(1, base_cooldown - (2 if _is_current_chancellor_political_type() else 0))
+
+
 func _disrupt_city_public_support(target_city_id: String, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
 	var check := _can_disrupt_city_public_support(target_city_id)
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
@@ -7110,6 +7146,467 @@ func _disrupt_city_public_support(target_city_id: String, forced_roll: int = -1,
 		"cooldown": cooldown,
 	}
 	_player_state["last_spy_public_support_disrupt_result"] = result
+	return result
+
+
+func _get_spy_loyalty_disrupt_amount(political_aptitude: int) -> int:
+	match clampi(political_aptitude, 0, 5):
+		5:
+			return 10
+		4:
+			return 7
+		3:
+			return 5
+		2:
+			return 3
+		1:
+			return 1
+		_:
+			return 0
+
+
+func _get_spy_loyalty_disrupt_cost(_target_city_id: String) -> Dictionary:
+	return SPY_LOYALTY_DISRUPT_COST.duplicate(true)
+
+
+func _can_disrupt_city_loyalty(target_city_id: String) -> Dictionary:
+	var city_data := _get_city_hud_entry(target_city_id)
+	if target_city_id.is_empty() or city_data.is_empty():
+		return {"ok": false, "reason": "invalid_target"}
+	if _is_city_owned_by_player_mvp(target_city_id):
+		return {"ok": false, "reason": "own_city"}
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty() or _get_hero_entry(chancellor_id).is_empty():
+		return {"ok": false, "reason": "no_chancellor"}
+	var political_aptitude := _get_current_chancellor_political_aptitude()
+	if political_aptitude <= 0:
+		return {"ok": false, "reason": "no_political_aptitude"}
+	var spy_cooldown := maxi(0, int(_player_state.get("spy_cooldown", 0)))
+	if spy_cooldown > 0:
+		return {"ok": false, "reason": "cooldown", "cooldown": spy_cooldown}
+	var security := _get_city_security_score_for_spy(target_city_id)
+	var loyalty := _get_city_loyalty_value(city_data)
+	if security >= 100 and loyalty >= 100:
+		return {"ok": false, "reason": "iron_wall", "security": security, "loyalty": loyalty}
+	var cost := _get_spy_loyalty_disrupt_cost(target_city_id)
+	var payment_check := _can_pay_generic_resource_cost(cost)
+	if not bool(payment_check.get("ok", false)):
+		return {"ok": false, "reason": "resources", "cost": cost, "missing": payment_check.get("missing", {})}
+	return {
+		"ok": true,
+		"political_aptitude": political_aptitude,
+		"effect_amount": _get_spy_loyalty_disrupt_amount(political_aptitude),
+		"cost": cost,
+		"success_chance": _get_spy_info_success_chance(),
+		"detection_chance": _calculate_spy_detection_chance(target_city_id),
+	}
+
+
+func _roll_spy_loyalty_disrupt_result(target_city_id: String, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	var check := _can_disrupt_city_loyalty(target_city_id)
+	if not bool(check.get("ok", false)):
+		return {"ok": false, "reason": str(check.get("reason", "unknown")), "target_city_id": target_city_id, "success": false, "detected": false}
+	var roll := forced_roll if forced_roll >= 0 else (randi() % 100) + 1
+	var detection_roll := forced_detection_roll if forced_detection_roll >= 0 else (randi() % 100) + 1
+	roll = clampi(roll, 1, 100)
+	detection_roll = clampi(detection_roll, 1, 100)
+	var success_chance := int(check.get("success_chance", 0))
+	var detection_chance := int(check.get("detection_chance", 0))
+	var detected := detection_roll <= detection_chance
+	var success := roll <= success_chance
+	return {
+		"ok": true,
+		"target_city_id": target_city_id,
+		"political_aptitude": int(check.get("political_aptitude", 0)),
+		"effect_amount": int(check.get("effect_amount", 0)),
+		"cost": check.get("cost", {}),
+		"roll": roll,
+		"success_chance": success_chance,
+		"success": success,
+		"detection_roll": detection_roll,
+		"detection_chance": detection_chance,
+		"detected": detected,
+		"effect_applied": success and not detected,
+	}
+
+
+func _disrupt_city_loyalty(target_city_id: String, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	var check := _can_disrupt_city_loyalty(target_city_id)
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var city_data := _get_city_hud_entry(target_city_id)
+	var target_faction := _get_city_owner_faction_id(city_data) if not city_data.is_empty() else ""
+	var before_loyalty := _get_city_loyalty_value(city_data) if not city_data.is_empty() else 75
+	if not bool(check.get("ok", false)):
+		var failed_result := {
+			"turn": turn_number,
+			"target_city_id": target_city_id,
+			"target_faction": target_faction,
+			"success": false,
+			"detected": false,
+			"effect_applied": false,
+			"reason": str(check.get("reason", "unknown")),
+			"loyalty_before": before_loyalty,
+			"loyalty_after": before_loyalty,
+			"relation_penalty": 0,
+			"cost": check.get("cost", _get_spy_loyalty_disrupt_cost(target_city_id)),
+			"cooldown": 0,
+		}
+		_player_state["last_spy_loyalty_disrupt_result"] = failed_result
+		return failed_result
+	var roll_result := _roll_spy_loyalty_disrupt_result(target_city_id, forced_roll, forced_detection_roll)
+	var cost: Dictionary = check.get("cost", {})
+	_apply_generic_resource_cost(cost)
+	var cooldown := _get_spy_action_cooldown_turns(SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS)
+	_player_state["spy_cooldown"] = cooldown
+	var relation_penalty := 0
+	var after_loyalty := before_loyalty
+	var effect_applied := bool(roll_result.get("effect_applied", false))
+	if bool(roll_result.get("detected", false)):
+		relation_penalty = SPY_DETECTED_RELATION_PENALTY_LOYALTY
+		if not target_faction.is_empty():
+			_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction, relation_penalty, "spy_loyalty_disrupt_detected")
+	elif effect_applied:
+		after_loyalty = clampi(before_loyalty - int(roll_result.get("effect_amount", 0)), 0, 100)
+		_set_city_loyalty_value(target_city_id, after_loyalty)
+	var result := {
+		"turn": turn_number,
+		"target_city_id": target_city_id,
+		"target_faction": target_faction,
+		"political_aptitude": int(roll_result.get("political_aptitude", 0)),
+		"roll": int(roll_result.get("roll", -1)),
+		"success_chance": int(roll_result.get("success_chance", 0)),
+		"success": bool(roll_result.get("success", false)),
+		"detection_roll": int(roll_result.get("detection_roll", -1)),
+		"detection_chance": int(roll_result.get("detection_chance", 0)),
+		"detected": bool(roll_result.get("detected", false)),
+		"effect_amount": int(roll_result.get("effect_amount", 0)),
+		"effect_applied": effect_applied and not bool(roll_result.get("detected", false)),
+		"loyalty_before": before_loyalty,
+		"loyalty_after": after_loyalty,
+		"relation_penalty": relation_penalty,
+		"cost": cost,
+		"cooldown": cooldown,
+	}
+	_player_state["last_spy_loyalty_disrupt_result"] = result
+	return result
+
+
+func _get_spy_revolt_instigation_boost(political_aptitude: int) -> int:
+	match clampi(political_aptitude, 0, 5):
+		5:
+			return 50
+		4:
+			return 35
+		3:
+			return 20
+		2:
+			return 10
+		1:
+			return 5
+		_:
+			return 0
+
+
+func _get_spy_revolt_instigation_cost(_target_city_id: String) -> Dictionary:
+	return SPY_REVOLT_INSTIGATION_COST.duplicate(true)
+
+
+func _can_instigate_revolt(target_city_id: String) -> Dictionary:
+	var city_data := _get_city_hud_entry(target_city_id)
+	if target_city_id.is_empty() or city_data.is_empty():
+		return {"ok": false, "reason": "invalid_target"}
+	if _is_city_owned_by_player_mvp(target_city_id):
+		return {"ok": false, "reason": "own_city"}
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty() or _get_hero_entry(chancellor_id).is_empty():
+		return {"ok": false, "reason": "no_chancellor"}
+	var political_aptitude := _get_current_chancellor_political_aptitude()
+	if political_aptitude <= 0:
+		return {"ok": false, "reason": "no_political_aptitude"}
+	var spy_cooldown := maxi(0, int(_player_state.get("spy_cooldown", 0)))
+	if spy_cooldown > 0:
+		return {"ok": false, "reason": "cooldown", "cooldown": spy_cooldown}
+	var security := _get_city_security_score_for_spy(target_city_id)
+	var loyalty := _get_city_loyalty_value(city_data)
+	if security >= 100 and loyalty >= 100:
+		return {"ok": false, "reason": "iron_wall", "security": security, "loyalty": loyalty}
+	var public_support := _get_city_public_support(target_city_id)
+	if public_support > 50:
+		return {"ok": false, "reason": "prerequisite_public_support", "publicSupport": public_support}
+	if loyalty > 40:
+		return {"ok": false, "reason": "prerequisite_loyalty", "loyalty": loyalty}
+	var cost := _get_spy_revolt_instigation_cost(target_city_id)
+	var payment_check := _can_pay_generic_resource_cost(cost)
+	if not bool(payment_check.get("ok", false)):
+		return {"ok": false, "reason": "resources", "cost": cost, "missing": payment_check.get("missing", {})}
+	return {
+		"ok": true,
+		"political_aptitude": political_aptitude,
+		"probability_boost": _get_spy_revolt_instigation_boost(political_aptitude),
+		"cost": cost,
+		"success_chance": _get_spy_info_success_chance(),
+		"detection_chance": _calculate_spy_detection_chance(target_city_id),
+		"publicSupport": public_support,
+		"loyalty": loyalty,
+	}
+
+
+func _roll_spy_revolt_instigation_result(target_city_id: String, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	var check := _can_instigate_revolt(target_city_id)
+	if not bool(check.get("ok", false)):
+		return {"ok": false, "reason": str(check.get("reason", "unknown")), "target_city_id": target_city_id, "success": false, "detected": false}
+	var roll := forced_roll if forced_roll >= 0 else (randi() % 100) + 1
+	var detection_roll := forced_detection_roll if forced_detection_roll >= 0 else (randi() % 100) + 1
+	roll = clampi(roll, 1, 100)
+	detection_roll = clampi(detection_roll, 1, 100)
+	var success_chance := int(check.get("success_chance", 0))
+	var detection_chance := int(check.get("detection_chance", 0))
+	var detected := detection_roll <= detection_chance
+	var success := roll <= success_chance
+	return {
+		"ok": true,
+		"target_city_id": target_city_id,
+		"political_aptitude": int(check.get("political_aptitude", 0)),
+		"probability_boost": int(check.get("probability_boost", 0)),
+		"cost": check.get("cost", {}),
+		"roll": roll,
+		"success_chance": success_chance,
+		"success": success,
+		"detection_roll": detection_roll,
+		"detection_chance": detection_chance,
+		"detected": detected,
+		"effect_applied": success and not detected,
+	}
+
+
+func _instigate_revolt(target_city_id: String, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	var check := _can_instigate_revolt(target_city_id)
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var city_data := _get_city_hud_entry(target_city_id)
+	var target_faction := _get_city_owner_faction_id(city_data) if not city_data.is_empty() else ""
+	if not bool(check.get("ok", false)):
+		var failed_result := {
+			"turn": turn_number,
+			"target_city_id": target_city_id,
+			"target_faction": target_faction,
+			"success": false,
+			"detected": false,
+			"effect_applied": false,
+			"reason": str(check.get("reason", "unknown")),
+			"relation_penalty": 0,
+			"cost": check.get("cost", _get_spy_revolt_instigation_cost(target_city_id)),
+			"cooldown": 0,
+		}
+		_player_state["last_spy_revolt_instigation_result"] = failed_result
+		return failed_result
+	var roll_result := _roll_spy_revolt_instigation_result(target_city_id, forced_roll, forced_detection_roll)
+	var cost: Dictionary = check.get("cost", {})
+	_apply_generic_resource_cost(cost)
+	var cooldown := _get_spy_action_cooldown_turns(SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS)
+	_player_state["spy_cooldown"] = cooldown
+	var relation_penalty := 0
+	var effect_applied := bool(roll_result.get("effect_applied", false))
+	if bool(roll_result.get("detected", false)):
+		relation_penalty = SPY_DETECTED_RELATION_PENALTY_REVOLT
+		if not target_faction.is_empty():
+			_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction, relation_penalty, "spy_revolt_instigation_detected")
+	elif effect_applied:
+		var instigations: Dictionary = _player_state.get("revolt_instigation", {}) if _player_state.get("revolt_instigation", {}) is Dictionary else {}
+		instigations[target_city_id] = {
+			"turns_remaining": SPY_REVOLT_INSTIGATION_DURATION_TURNS,
+			"probability_boost": int(roll_result.get("probability_boost", 0)),
+			"source": "spy",
+			"started_turn": turn_number,
+		}
+		_player_state["revolt_instigation"] = instigations
+	var result := {
+		"turn": turn_number,
+		"target_city_id": target_city_id,
+		"target_faction": target_faction,
+		"political_aptitude": int(roll_result.get("political_aptitude", 0)),
+		"roll": int(roll_result.get("roll", -1)),
+		"success_chance": int(roll_result.get("success_chance", 0)),
+		"success": bool(roll_result.get("success", false)),
+		"detection_roll": int(roll_result.get("detection_roll", -1)),
+		"detection_chance": int(roll_result.get("detection_chance", 0)),
+		"detected": bool(roll_result.get("detected", false)),
+		"probability_boost": int(roll_result.get("probability_boost", 0)),
+		"effect_applied": effect_applied and not bool(roll_result.get("detected", false)),
+		"relation_penalty": relation_penalty,
+		"cost": cost,
+		"cooldown": cooldown,
+	}
+	_player_state["last_spy_revolt_instigation_result"] = result
+	return result
+
+
+func _advance_revolt_instigation_for_world_turn() -> Dictionary:
+	var instigations: Dictionary = _player_state.get("revolt_instigation", {}) if _player_state.get("revolt_instigation", {}) is Dictionary else {}
+	var changed: Array = []
+	var expired: Array = []
+	for city_id_variant in instigations.keys():
+		var city_id := str(city_id_variant)
+		var entry_variant: Variant = instigations.get(city_id, {})
+		if not entry_variant is Dictionary:
+			expired.append(city_id)
+			continue
+		var entry := (entry_variant as Dictionary).duplicate(true)
+		var before_turns := maxi(0, int(entry.get("turns_remaining", 0)))
+		var after_turns := maxi(0, before_turns - 1)
+		if after_turns <= 0:
+			expired.append(city_id)
+		else:
+			entry["turns_remaining"] = after_turns
+			instigations[city_id] = entry
+		changed.append({"city_id": city_id, "before": before_turns, "after": after_turns})
+	for city_id_variant in expired:
+		instigations.erase(str(city_id_variant))
+	_player_state["revolt_instigation"] = instigations
+	var result := {
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"changed": changed,
+		"expired": expired,
+		"active_count": instigations.size(),
+	}
+	_player_state["last_revolt_instigation_tick_result"] = result
+	return result
+
+
+func _get_spy_wedge_relation_delta(political_aptitude: int) -> int:
+	match clampi(political_aptitude, 0, 5):
+		5:
+			return 30
+		4:
+			return 20
+		3:
+			return 15
+		2:
+			return 10
+		1:
+			return 5
+		_:
+			return 0
+
+
+func _get_spy_wedge_cost(_target_faction_a: String, _target_faction_b: String) -> Dictionary:
+	return SPY_WEDGE_COST.duplicate(true)
+
+
+func _calculate_spy_wedge_detection_chance() -> int:
+	return clampi(20 - (10 if _is_current_chancellor_political_type() else 0), 0, 95)
+
+
+func _can_drive_wedge(target_faction_a: String, target_faction_b: String) -> Dictionary:
+	if target_faction_a.is_empty() or target_faction_b.is_empty() or target_faction_a == target_faction_b:
+		return {"ok": false, "reason": "invalid_target"}
+	if target_faction_a == PLAYER_FACTION_ID or target_faction_b == PLAYER_FACTION_ID:
+		return {"ok": false, "reason": "self_target"}
+	var status := _get_faction_relation_status(target_faction_a, target_faction_b)
+	if status != FACTION_RELATION_STATUS["ALLIED"]:
+		return {"ok": false, "reason": "not_allied", "status": status}
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty() or _get_hero_entry(chancellor_id).is_empty():
+		return {"ok": false, "reason": "no_chancellor"}
+	var political_aptitude := _get_current_chancellor_political_aptitude()
+	if political_aptitude <= 0:
+		return {"ok": false, "reason": "no_political_aptitude"}
+	var spy_cooldown := maxi(0, int(_player_state.get("spy_cooldown", 0)))
+	if spy_cooldown > 0:
+		return {"ok": false, "reason": "cooldown", "cooldown": spy_cooldown}
+	var cost := _get_spy_wedge_cost(target_faction_a, target_faction_b)
+	var payment_check := _can_pay_generic_resource_cost(cost)
+	if not bool(payment_check.get("ok", false)):
+		return {"ok": false, "reason": "resources", "cost": cost, "missing": payment_check.get("missing", {})}
+	return {
+		"ok": true,
+		"political_aptitude": political_aptitude,
+		"relation_delta": _get_spy_wedge_relation_delta(political_aptitude),
+		"cost": cost,
+		"success_chance": _get_spy_info_success_chance(),
+		"detection_chance": _calculate_spy_wedge_detection_chance(),
+		"status": status,
+	}
+
+
+func _roll_spy_wedge_result(target_faction_a: String, target_faction_b: String, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	var check := _can_drive_wedge(target_faction_a, target_faction_b)
+	if not bool(check.get("ok", false)):
+		return {"ok": false, "reason": str(check.get("reason", "unknown")), "success": false, "detected": false}
+	var roll := forced_roll if forced_roll >= 0 else (randi() % 100) + 1
+	var detection_roll := forced_detection_roll if forced_detection_roll >= 0 else (randi() % 100) + 1
+	roll = clampi(roll, 1, 100)
+	detection_roll = clampi(detection_roll, 1, 100)
+	var success_chance := int(check.get("success_chance", 0))
+	var detection_chance := int(check.get("detection_chance", 0))
+	var detected := detection_roll <= detection_chance
+	var success := roll <= success_chance
+	return {
+		"ok": true,
+		"target_faction_a": target_faction_a,
+		"target_faction_b": target_faction_b,
+		"political_aptitude": int(check.get("political_aptitude", 0)),
+		"relation_delta": int(check.get("relation_delta", 0)),
+		"cost": check.get("cost", {}),
+		"roll": roll,
+		"success_chance": success_chance,
+		"success": success,
+		"detection_roll": detection_roll,
+		"detection_chance": detection_chance,
+		"detected": detected,
+		"effect_applied": success and not detected,
+	}
+
+
+func _drive_wedge(target_faction_a: String, target_faction_b: String, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	var check := _can_drive_wedge(target_faction_a, target_faction_b)
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	if not bool(check.get("ok", false)):
+		var failed_result := {
+			"turn": turn_number,
+			"target_faction_a": target_faction_a,
+			"target_faction_b": target_faction_b,
+			"success": false,
+			"detected": false,
+			"effect_applied": false,
+			"reason": str(check.get("reason", "unknown")),
+			"relation_delta": 0,
+			"player_relation_penalty": 0,
+			"cost": check.get("cost", _get_spy_wedge_cost(target_faction_a, target_faction_b)),
+			"cooldown": 0,
+		}
+		_player_state["last_spy_wedge_result"] = failed_result
+		return failed_result
+	var roll_result := _roll_spy_wedge_result(target_faction_a, target_faction_b, forced_roll, forced_detection_roll)
+	var cost: Dictionary = check.get("cost", {})
+	_apply_generic_resource_cost(cost)
+	var cooldown := _get_spy_action_cooldown_turns(SPY_WEDGE_COOLDOWN_TURNS)
+	_player_state["spy_cooldown"] = cooldown
+	var effect_applied := bool(roll_result.get("effect_applied", false))
+	var player_relation_penalty := 0
+	if bool(roll_result.get("detected", false)):
+		player_relation_penalty = SPY_DETECTED_RELATION_PENALTY_WEDGE
+		_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction_a, player_relation_penalty, "spy_wedge_detected")
+		_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction_b, player_relation_penalty, "spy_wedge_detected")
+	elif effect_applied:
+		_adjust_faction_relation_score(target_faction_a, target_faction_b, -int(roll_result.get("relation_delta", 0)), "spy_wedge")
+	var result := {
+		"turn": turn_number,
+		"target_faction_a": target_faction_a,
+		"target_faction_b": target_faction_b,
+		"political_aptitude": int(roll_result.get("political_aptitude", 0)),
+		"roll": int(roll_result.get("roll", -1)),
+		"success_chance": int(roll_result.get("success_chance", 0)),
+		"success": bool(roll_result.get("success", false)),
+		"detection_roll": int(roll_result.get("detection_roll", -1)),
+		"detection_chance": int(roll_result.get("detection_chance", 0)),
+		"detected": bool(roll_result.get("detected", false)),
+		"relation_delta": int(roll_result.get("relation_delta", 0)),
+		"effect_applied": effect_applied and not bool(roll_result.get("detected", false)),
+		"player_relation_penalty": player_relation_penalty,
+		"cost": cost,
+		"cooldown": cooldown,
+	}
+	_player_state["last_spy_wedge_result"] = result
 	return result
 
 
@@ -7420,6 +7917,16 @@ func _calculate_all_city_supply_states() -> Dictionary:
 
 func _get_city_loyalty_value(city_data: Dictionary) -> int:
 	return clampi(int(city_data.get("cityLoyalty", city_data.get("loyalty", 75))), 0, 100)
+
+
+func _set_city_loyalty_value(city_id: String, value: int) -> void:
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	if city_data.is_empty():
+		return
+	var normalized_value := clampi(value, 0, 100)
+	city_data["loyalty"] = normalized_value
+	city_data["cityLoyalty"] = normalized_value
+	_city_runtime_states[city_id] = city_data
 
 
 func _get_city_public_support(city_id: String) -> int:
@@ -7927,6 +8434,43 @@ func _format_spy_cooldown_summary(result: Dictionary) -> String:
 
 
 func _format_last_spy_summary(turn_number: int) -> String:
+	for result_key in ["last_spy_wedge_result", "last_spy_revolt_instigation_result", "last_spy_loyalty_disrupt_result"]:
+		var action_result_variant: Variant = _player_state.get(result_key, {})
+		if not action_result_variant is Dictionary:
+			continue
+		var action_result := action_result_variant as Dictionary
+		if int(action_result.get("turn", 0)) != maxi(1, turn_number):
+			continue
+		if bool(action_result.get("detected", false)):
+			if result_key == "last_spy_wedge_result":
+				return "첩보 이간질 발각: 관계 %d / %d" % [
+					int(action_result.get("player_relation_penalty", 0)),
+					int(action_result.get("player_relation_penalty", 0)),
+				]
+			return "첩보 발각: %s 관계 %d" % [
+				str(FACTION_LABELS.get(str(action_result.get("target_faction", "")), str(action_result.get("target_faction", "")))),
+				int(action_result.get("relation_penalty", 0)),
+			]
+		if bool(action_result.get("effect_applied", false)):
+			match result_key:
+				"last_spy_loyalty_disrupt_result":
+					return "첩보 충성도 교란 성공: %s 충성도 -%d" % [
+						_format_city_name_by_id(str(action_result.get("target_city_id", "")), str(action_result.get("target_city_id", ""))),
+						int(action_result.get("effect_amount", 0)),
+					]
+				"last_spy_revolt_instigation_result":
+					return "첩보 반란 조장 성공: %s 위험 보정 +%d" % [
+						_format_city_name_by_id(str(action_result.get("target_city_id", "")), str(action_result.get("target_city_id", ""))),
+						int(action_result.get("probability_boost", 0)),
+					]
+				"last_spy_wedge_result":
+					return "첩보 이간질 성공: %s-%s 관계 -%d" % [
+						str(FACTION_LABELS.get(str(action_result.get("target_faction_a", "")), str(action_result.get("target_faction_a", "")))),
+						str(FACTION_LABELS.get(str(action_result.get("target_faction_b", "")), str(action_result.get("target_faction_b", "")))),
+						int(action_result.get("relation_delta", 0)),
+					]
+		if action_result.has("success") and action_result.has("roll"):
+			return "첩보 실패"
 	var disrupt_result: Variant = _player_state.get("last_spy_public_support_disrupt_result", {})
 	if disrupt_result is Dictionary:
 		var public_support_result := disrupt_result as Dictionary

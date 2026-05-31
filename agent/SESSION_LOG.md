@@ -2,6 +2,20 @@
 
 ## 2026-06-01
 
+### v0.69-13 Espionage Action Foundation MVP
+- Started from baseline commit `3da9193b33b523b5de6d0230a988f4d374bbc108` / `v0.69-12 Diplomacy Action Foundation MVP`.
+- `GUIDE_v0.69_12_13_to_v0.70.md` was not present in the repo, so this pass followed the explicit v0.69-13 task text.
+- Implemented loyalty disruption, revolt instigation, and wedge driving in `scripts/worldmap_test.gd`.
+- Reused the existing chancellor political aptitude, spy success chance, detection chance, generic resource cost, relation score adjustment, city publicSupport, city loyalty, and shared `spy_cooldown` structures.
+- Loyalty disruption uses cost `gold 500 + silk 50`, base cooldown `10`, political-primary cooldown `8`, and detection penalty `-40`.
+- Revolt instigation uses cost `gold 800 + silk 100`, base cooldown `15`, political-primary cooldown `13`, and detection penalty `-60`. Success records a 3-turn boost only.
+- Wedge driving uses cost `gold 600 + silk 150`, base cooldown `12`, political-primary cooldown `10`, and detection penalty `-20` against each target faction from the player.
+- Added `_advance_revolt_instigation_for_world_turn()` and connected it to the domestic turn pipeline. It only decrements/removes stored boosts.
+- Did not implement assassination, actual revolt, owner neutral conversion, suppression battle, war declaration, automatic hostile conversion, alliance break, UI, or battle/invasion/defense changes.
+- QA runner confirmed own/enemy validation, aptitude effect tables, forced success/failure/detection behavior, cost deduction, cooldown set/decrement path, relation penalties, no status auto-change, no owner change, wedge allied-only gate, publicSupport disruption still working, and save/load preservation of relevant state.
+- v0.69 can now move toward `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+- Remaining risks: all spy actions are API-only; revolt boost has no real revolt consumer; final balance and F6 UX validation are pending.
+
 ### v0.69-12 Diplomacy Action Foundation MVP
 - Started from baseline commit `b74c40e` / `v0.69-11B`.
 - `GUIDE_v0.69_12_13_to_v0.70.md` was not present in the repo, so this pass followed the explicit v0.69-12 task text.

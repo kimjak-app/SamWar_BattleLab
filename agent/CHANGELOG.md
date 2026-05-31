@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.69-13 Espionage Action Foundation MVP
+- Added loyalty disruption, revolt instigation, and wedge driving spy action helpers to `scripts/worldmap_test.gd`.
+- Added loyalty disruption cost/cooldown/detected penalty and aptitude-based effect table.
+- Loyalty disruption success directly lowers target city loyalty in the MVP; detection cancels the effect and applies relation score `-40`.
+- Added revolt instigation cost/cooldown/detected penalty and aptitude-based probability boost table.
+- Revolt instigation success records a 3-turn `revolt_instigation` entry only. It does not trigger real revolt, owner change, or battle.
+- Added `_advance_revolt_instigation_for_world_turn()` and connected it to the domestic turn pipeline for duration decrement/removal.
+- Added wedge cost/cooldown and aptitude-based relation delta table.
+- Wedge success lowers relation score between two allied non-player factions; detection penalizes player relations with both target factions by `-20` each.
+- Added new result records for loyalty disruption, revolt instigation, revolt instigation tick, and wedge actions.
+- Reused the existing shared `spy_cooldown` and forced-roll QA pattern from info gathering/publicSupport disruption.
+- Did not implement assassination, real revolt, owner neutral conversion, suppression battle, declaration of war, status auto-conversion, alliance break, UI, battle changes, or save/load core rewrites.
+
 ## v0.69-12 Diplomacy Action Foundation MVP
 - Added foundation diplomacy action helpers for alliance proposal, military support request, and trade agreement proposal.
 - Added deterministic alliance acceptance chance and threshold. Accepted alliance changes relation status to `allied` and records `alliance_turns_remaining`.

@@ -1,5 +1,18 @@
 # NEXT TASKS
 
+## Current v0.69-13 Espionage Action Foundation Status
+- `v0.69-13 Espionage Action Foundation MVP` is complete in code/docs.
+- Implemented loyalty disruption, revolt instigation, and wedge driving as helper/API-only spy actions.
+- Existing `v0.69-11` info gathering and `v0.69-11B` publicSupport disruption remain the foundation and were not rewritten.
+- Shared `spy_cooldown` now covers information gathering, publicSupport disruption, loyalty disruption, revolt instigation, and wedge driving.
+- Detection applies relation score penalties but never auto-converts status, declares war, breaks alliance, triggers revolt, or changes city owner.
+- Assassination, actual revolt occurrence, owner neutral conversion, suppression battle, war declaration, and espionage UI remain unimplemented.
+- `GUIDE_v0.69_12_13_to_v0.70.md` was not present in the repo; this pass followed the explicit task text.
+- v0.69 strategic/diplomacy/espionage foundation can now move toward final UX/UI architecture.
+- Recommended next task:
+  - `v0.70-1 WorldMap Final UX/UI Information Architecture`
+  - Alternative: `v0.69-13A Espionage/Diplomacy Foundation Audit`
+
 ## Current v0.69-12 Diplomacy Action Foundation Status
 - `v0.69-12 Diplomacy Action Foundation MVP` is complete in code/docs.
 - Implemented helper/API-only alliance proposal, military support request, and trade agreement proposal.
