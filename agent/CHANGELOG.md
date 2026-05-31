@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.69-2 Seasonal Loyalty From Public Support MVP
+- Added `_is_seasonal_loyalty_turn`, `_get_next_seasonal_loyalty_turn`, `_calculate_loyalty_delta_from_public_support`, and `_apply_seasonal_loyalty_from_public_support` to `scripts/worldmap_test.gd`.
+- Added `_player_state["last_seasonal_loyalty_result"]` for seasonal loyalty result recording.
+- Connected seasonal loyalty after publicSupport drift and existing P0-2 city loyalty drift in `_apply_domestic_turn_mvp`.
+- Implemented MVP publicSupport thresholds for seasonal loyalty: `90+ => +2`, `80+ => +1`, `60..79 => -1`, `40..59 => -2`, `0..39 => -3`.
+- Added minimal City Detail and turn-summary display for seasonal loyalty results.
+- Kept publicSupport calculation formula unchanged and kept existing P0-2 city loyalty drift intact.
+- Deferred payroll/gold surplus and equipment surplus loyalty modifiers to a future pass.
+- Did not implement recruitment/conscription, troop-move loyalty efficiency, revolt, tech trees, trade deepening, diplomacy/espionage, battle/invasion/defense changes, save/load core rewrites, or large UI refactors.
+
 ## v0.69-1 Public Support MVP
 - Added city-level `publicSupport` runtime support to `scripts/worldmap_test.gd`.
 - Added `CITY_PUBLIC_SUPPORT_DEFAULT := 70`, `PUBLIC_SUPPORT_DELTA_MIN := -7`, and `PUBLIC_SUPPORT_DELTA_MAX := 3`.

@@ -1,12 +1,23 @@
 # HANDOFF TO CODEX
 
+## v0.69-2 Seasonal Loyalty Handoff
+- `v0.69-2 Seasonal Loyalty From Public Support MVP` is implemented in `scripts/worldmap_test.gd`.
+- Public support remains a separate fast-changing domestic stability axis; loyalty remains the slower military-operation axis.
+- Seasonal loyalty bridge applies only on `turn_number % 10 == 0`, matching the current 10-turn season calendar and current domestic-apply-before-turn-advance flow.
+- Current domestic turn order: publicSupport drift -> existing P0-2 city loyalty drift -> seasonal loyalty from publicSupport.
+- Existing P0-2 city loyalty drift was not removed, replaced, or merged into publicSupport.
+- Seasonal publicSupport thresholds are locked for this MVP: `90+ +2`, `80+ +1`, `60..79 -1`, `40..59 -2`, `0..39 -3`.
+- Payroll/gold surplus and equipment surplus loyalty factors are not implemented yet; leave them for a later focused pass.
+- Next task should be `v0.69-3 Troop Move Loyalty Efficiency Final Patch`.
+- Remaining risks: minimal UI display only; seasonal bridge is publicSupport-only and does not yet include payroll/equipment/supply seasonal modifiers beyond the existing P0-2/supply systems.
+
 ## v0.69-1 Public Support MVP Handoff
 - `v0.69-1 Public Support MVP` is implemented in `scripts/worldmap_test.gd`.
 - `publicSupport` is a separate city runtime value from existing `loyalty` / `cityLoyalty`. Do not merge, rename, or replace loyalty with public support.
-- Existing P0-2 city loyalty drift remains active and separate. Public support is not seasonally reflected into loyalty yet.
+- Existing P0-2 city loyalty drift remains active and separate. This v0.69-1 note is superseded by v0.69-2, where publicSupport is seasonally reflected into loyalty.
 - `publicSupport` defaults to `70`, clamps `0..100`, saves/loads through the existing city runtime payload, and records turn output in `_player_state["last_public_support_result"]`.
 - Domestic turn order now applies public support drift after income/upkeep/trade resource application and before national/city loyalty drift. This is intentionally non-coupled for v0.69-1.
-- Next task should be `v0.69-2 Seasonal Loyalty From Public Support MVP`.
+- Next task after v0.69-2 should be `v0.69-3 Troop Move Loyalty Efficiency Final Patch`.
 - Remaining risks: the MVP food/commerce checks use current `resource_stock` plus recent domestic/trade result fallback, not a complete city-level economy model; UI display is minimal.
 
 ## v0.69-0 Roadmap Handoff

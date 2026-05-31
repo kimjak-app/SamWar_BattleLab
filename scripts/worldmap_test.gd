@@ -554,6 +554,7 @@ var _player_state := {
 	"last_inter_faction_trade_result": {},
 	"last_supply_state_result": {},
 	"last_public_support_result": {},
+	"last_seasonal_loyalty_result": {},
 }
 var _city_policy_state: Dictionary = {}
 var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
@@ -1047,7 +1048,10 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_military_label.text = "군사 보급 판단: %s" % str(city_data.get("military", "현재 주둔군 / 목표 주둔군 placeholder"))
 			city_detail_commerce_label.text = "%s\n%s" % [
 				_format_city_public_support_display(city_marker.city_id),
-				_format_city_loyalty_drift_display(city_marker.city_id),
+				"%s\n%s" % [
+					_format_city_loyalty_drift_display(city_marker.city_id),
+					_format_city_seasonal_loyalty_display(city_marker.city_id),
+				],
 			]
 			city_detail_rating_label.text = _format_troop_move_preview_display(troop_move_preview)
 			city_detail_domestic_button_placeholder.text = _format_troop_move_button_text(troop_move_preview)
@@ -1256,6 +1260,28 @@ func _format_city_public_support_display(city_id: String) -> String:
 		_format_signed_int(int(support_result.get("commerce_delta", 0))),
 		_format_signed_int(int(support_result.get("supply_delta", 0))),
 		reason_text,
+	]
+
+
+func _format_city_seasonal_loyalty_display(city_id: String) -> String:
+	var result: Dictionary = _player_state.get("last_seasonal_loyalty_result", {})
+	if result.is_empty():
+		return "■ 계절 충성도\n다음 계절 반영 대기"
+	if not bool(result.get("applied", false)):
+		var next_turn := _get_next_seasonal_loyalty_turn(maxi(1, int(result.get("turn", _player_state.get("turn_number", 1)))))
+		return "■ 계절 충성도\n비계절 턴 · 다음 반영: %d턴" % next_turn
+	var city_results: Variant = result.get("city_results", {})
+	if not city_results is Dictionary or not (city_results as Dictionary).has(city_id):
+		return "■ 계절 충성도\n이번 계절 반영 기록 없음"
+	var city_result: Variant = (city_results as Dictionary).get(city_id, {})
+	if not city_result is Dictionary:
+		return "■ 계절 충성도\n이번 계절 반영 기록 없음"
+	var seasonal_result := city_result as Dictionary
+	return "■ 계절 충성도\n민심 %d → 충성도 %s\n%d → %d" % [
+		int(seasonal_result.get("publicSupport", _get_city_public_support(city_id))),
+		_format_signed_int(int(seasonal_result.get("delta", 0))),
+		int(seasonal_result.get("before_loyalty", 0)),
+		int(seasonal_result.get("after_loyalty", 0)),
 	]
 
 
@@ -1824,6 +1850,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_supply_state_result"] = {}
 	if not _player_state.has("last_public_support_result") or not (_player_state["last_public_support_result"] is Dictionary):
 		_player_state["last_public_support_result"] = {}
+	if not _player_state.has("last_seasonal_loyalty_result") or not (_player_state["last_seasonal_loyalty_result"] is Dictionary):
+		_player_state["last_seasonal_loyalty_result"] = {}
 
 
 func _normalize_turn_phase(phase: String) -> String:
@@ -4521,12 +4549,13 @@ func _apply_domestic_turn_mvp() -> String:
 	var applied_loyalty_delta := after_loyalty - before_loyalty
 	_player_state["national_loyalty"] = after_loyalty
 	var city_loyalty_drift_result := _apply_city_loyalty_drift_for_world_turn(tax_level, policy_id, supply_states)
+	var seasonal_loyalty_result := _apply_seasonal_loyalty_from_public_support(turn_number, supply_states)
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
-		"version": "v0.69-1",
+		"version": "v0.69-2",
 		"turn_number": turn_number,
 		"tax_level": tax_level,
 		"chancellor_policy_id": policy_id,
@@ -4539,8 +4568,9 @@ func _apply_domestic_turn_mvp() -> String:
 		"inter_faction_trade_result": inter_faction_trade_result,
 		"public_support_result": public_support_result,
 		"city_loyalty_drift_result": city_loyalty_drift_result,
+		"seasonal_loyalty_result": seasonal_loyalty_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -4553,6 +4583,16 @@ func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
 		"season": season_id,
 		"season_label": str(WORLD_CALENDAR_SEASON_LABELS.get(season_id, season_id)),
 	}
+
+
+func _is_seasonal_loyalty_turn(turn_number: int) -> bool:
+	return maxi(1, turn_number) % WORLD_CALENDAR_SEASON_TURNS == 0
+
+
+func _get_next_seasonal_loyalty_turn(turn_number: int) -> int:
+	var safe_turn := maxi(1, turn_number)
+	var remainder := safe_turn % WORLD_CALENDAR_SEASON_TURNS
+	return safe_turn if remainder == 0 else safe_turn + (WORLD_CALENDAR_SEASON_TURNS - remainder)
 
 
 func _create_empty_domestic_income_totals() -> Dictionary:
@@ -5128,6 +5168,72 @@ func _apply_city_public_support_drift_for_world_turn(tax_level: int, supply_stat
 	return result
 
 
+func _calculate_loyalty_delta_from_public_support(public_support: int) -> int:
+	var value := clampi(public_support, 0, 100)
+	if value >= 90:
+		return 2
+	if value >= 80:
+		return 1
+	if value >= 60:
+		return -1
+	if value >= 40:
+		return -2
+	return -3
+
+
+func _apply_seasonal_loyalty_from_public_support(turn_number: int, supply_states: Dictionary = {}) -> Dictionary:
+	var safe_turn := maxi(1, turn_number)
+	var result := {
+		"turn": safe_turn,
+		"applied": false,
+		"city_results": {},
+	}
+	if not _is_seasonal_loyalty_turn(safe_turn):
+		result["next_turn"] = _get_next_seasonal_loyalty_turn(safe_turn)
+		result["reason"] = "not_seasonal_turn"
+		_player_state["last_seasonal_loyalty_result"] = result
+		return result
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		result["applied"] = true
+		_player_state["last_seasonal_loyalty_result"] = result
+		return result
+	result["applied"] = true
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		var city_data := _get_mutable_city_runtime_state(city_id)
+		if city_data.is_empty():
+			continue
+		var public_support := _get_city_public_support(city_id)
+		var before_loyalty := _get_city_loyalty_value(city_data)
+		var delta := _calculate_loyalty_delta_from_public_support(public_support)
+		var after_loyalty := clampi(before_loyalty + delta, 0, 100)
+		city_data["loyalty"] = after_loyalty
+		city_data["cityLoyalty"] = after_loyalty
+		_city_runtime_states[city_id] = city_data
+		var reasons: Array[String] = ["publicSupport=%d" % public_support]
+		var city_result := {
+			"publicSupport": public_support,
+			"before_loyalty": before_loyalty,
+			"after_loyalty": after_loyalty,
+			"delta": after_loyalty - before_loyalty,
+			"raw_delta": delta,
+			"reasons": reasons,
+		}
+		(result["city_results"] as Dictionary)[city_id] = city_result
+		print("[SEASONAL_LOYALTY_PUBLIC_SUPPORT] turn=%d city=%s publicSupport=%d before=%d delta=%d after=%d" % [
+			safe_turn,
+			city_id,
+			public_support,
+			before_loyalty,
+			int(city_result.get("delta", 0)),
+			after_loyalty,
+		])
+	_player_state["last_seasonal_loyalty_result"] = result
+	_refresh_city_hud_data_bindings()
+	return result
+
+
 func _apply_city_loyalty_drift_for_world_turn(tax_level: int, policy_id: String, supply_states: Dictionary = {}) -> Dictionary:
 	var result := {"tax_level": tax_level, "policy_id": policy_id, "cities": []}
 	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
@@ -5323,7 +5429,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -5340,6 +5446,8 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		parts.append(_format_city_loyalty_drift_summary(city_loyalty_drift_result))
 	if not public_support_result.is_empty():
 		parts.append(_format_public_support_summary(public_support_result))
+	if bool(seasonal_loyalty_result.get("applied", false)):
+		parts.append(_format_seasonal_loyalty_summary(seasonal_loyalty_result))
 	if parts.is_empty():
 		return "변동 없음"
 	return " · ".join(parts)
@@ -5407,6 +5515,26 @@ func _format_public_support_summary(result: Dictionary) -> String:
 	if drop_parts.is_empty():
 		return "민심 변동 %d개" % changed_count
 	return "민심 변동 %d개 · 하락 %s" % [changed_count, " / ".join(drop_parts)]
+
+
+func _format_seasonal_loyalty_summary(result: Dictionary) -> String:
+	var city_results: Variant = result.get("city_results", {})
+	if not city_results is Dictionary or (city_results as Dictionary).is_empty():
+		return "계절 충성도 반영 없음"
+	var changed_count := 0
+	var parts: Array[String] = []
+	for city_id_variant in (city_results as Dictionary).keys():
+		var city_id := str(city_id_variant)
+		var city_result: Variant = (city_results as Dictionary).get(city_id, {})
+		if not city_result is Dictionary:
+			continue
+		var delta := int((city_result as Dictionary).get("delta", 0))
+		if delta != 0:
+			changed_count += 1
+			parts.append("%s %s" % [_format_city_name_by_id(city_id, city_id), _format_signed_int(delta)])
+	if parts.is_empty():
+		return "계절 충성도 반영 %d개" % changed_count
+	return "계절 충성도 반영 %d개: %s" % [changed_count, " / ".join(parts)]
 
 
 func _cancel_enemy_turn_timer_if_needed() -> void:

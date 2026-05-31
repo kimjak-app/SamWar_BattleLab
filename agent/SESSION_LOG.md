@@ -2,6 +2,23 @@
 
 ## 2026-05-31
 
+### v0.69-2 Seasonal Loyalty From Public Support MVP
+- Started from baseline commit `76b9015` / `v0.69-1 Public Support MVP`.
+- Implemented publicSupport-to-loyalty seasonal bridge only in `scripts/worldmap_test.gd`.
+- Added `_is_seasonal_loyalty_turn(turn_number)` with MVP rule `turn_number % 10 == 0`; current domestic apply runs before `_advance_world_turn_mvp()`, so turn 10 is the first seasonal apply point.
+- Added `_calculate_loyalty_delta_from_public_support(public_support)` with thresholds `90+ +2`, `80+ +1`, `60..79 -1`, `40..59 -2`, and `0..39 -3`.
+- Added `_apply_seasonal_loyalty_from_public_support(turn_number, supply_states)` and `last_seasonal_loyalty_result`.
+- Wired domestic turn order as publicSupport drift, existing P0-2 city loyalty drift, then seasonal loyalty from publicSupport.
+- Added minimal City Detail and turn summary display for seasonal loyalty.
+- Did not modify publicSupport calculation formula. Did not remove or replace P0-2 city loyalty drift.
+- Payroll/gold surplus and equipment surplus loyalty factors are deferred.
+- Verification passed: `rg`, publicSupport formula diff review, P0-2 loyalty drift diff review, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless QA runner.
+- QA runner confirmed non-seasonal skip, seasonal apply, publicSupport `95 -> +2`, `85 -> +1`, `70 -> -1`, `50 -> -2`, `30 -> -3`, loyalty clamp `0..100`, publicSupport unchanged by seasonal loyalty, save/load city loyalty preservation, and `last_seasonal_loyalty_result` recording.
+- Godot `--headless --check-only` timed out after 129 seconds and is recorded as inconclusive.
+- Remaining risks: seasonal bridge currently uses publicSupport only; payroll/equipment/supply seasonal modifiers and final UI polish are later work.
+
+## 2026-05-31
+
 ### v0.69-1 Public Support MVP
 - Started from baseline commit `fe73fc4` / `v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock`.
 - Implemented city-level `publicSupport` only in `scripts/worldmap_test.gd`.

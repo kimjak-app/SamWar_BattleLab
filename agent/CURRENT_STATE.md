@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.69-2 Seasonal Loyalty From Public Support MVP
+- Implemented seasonal city loyalty adjustment from city `publicSupport` in `scripts/worldmap_test.gd`.
+- v0.69 structure is now represented at MVP level: `publicSupport` changes every domestic turn, while the new seasonal loyalty bridge applies only on seasonal turns.
+- Seasonal turn helper added: `_is_seasonal_loyalty_turn(turn_number)`, using the MVP rule `turn_number % 10 == 0` because the WorldMap calendar uses 10 turns per season and domestic apply runs before `_advance_world_turn_mvp()`.
+- Added `_calculate_loyalty_delta_from_public_support(public_support)` with the locked MVP thresholds: `90+ => +2`, `80+ => +1`, `60..79 => -1`, `40..59 => -2`, `0..39 => -3`.
+- Added `_apply_seasonal_loyalty_from_public_support(turn_number, supply_states)` and `_player_state["last_seasonal_loyalty_result"]`.
+- Domestic turn order is now: publicSupport drift, existing P0-2 city loyalty drift, then seasonal loyalty from publicSupport if the turn is seasonal. P0-2 city loyalty drift remains active and was not replaced.
+- City Detail internal/supply tab shows the latest seasonal loyalty status, and turn summary shows seasonal loyalty only when it applies.
+- Not implemented: payroll/gold surplus loyalty, equipment surplus loyalty, recruitment/conscription, troop-move loyalty efficiency, revolt, tech trees, trade deepening, diplomacy/espionage, combat/invasion/defense changes, save/load core rewrites, or large UI refactors.
+- Verification passed: `rg` function/field checks, diff review confirming publicSupport calculation formula and P0-2 loyalty drift were not removed/replaced, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary QA runner for non-seasonal skip, seasonal apply, `95/+2`, `85/+1`, `70/-1`, `50/-2`, `30/-3`, loyalty clamp, publicSupport unchanged by seasonal loyalty, save/load city loyalty preservation, and `last_seasonal_loyalty_result`. Godot `--check-only` timed out locally after 129 seconds.
+- Remaining risks: seasonal bridge currently uses publicSupport only; payroll/equipment/supply seasonal loyalty modifiers are deliberately deferred to later v0.69 passes; visual display is minimal.
+
 ## v0.69-1 Public Support MVP
 - Implemented city-level `publicSupport` MVP in `scripts/worldmap_test.gd` as the first EASTWAR strategic simulation foundation system.
 - `publicSupport` is stored per city in `_city_runtime_states` with default `70`, clamped to `0..100`, and preserved through the existing city runtime save/load payload via the minimal `publicSupport` field.
@@ -8,7 +20,7 @@
 - Domestic turn now applies public support drift after income/upkeep/trade resource application and before existing national/city loyalty drift. `last_public_support_result` records per-city before/after/delta/reasons.
 - City Detail internal/supply tab and the domestic turn summary now show minimal public support status and recent delta.
 - Public support and loyalty remain separate axes. Existing `loyalty` / `cityLoyalty` fields and P0-2 city loyalty drift were not replaced or deleted.
-- Public support is not yet seasonally reflected into loyalty. `v0.69-2 Seasonal Loyalty From Public Support MVP` remains the next task.
+- Superseded by `v0.69-2`: publicSupport is now seasonally reflected into loyalty on 10-turn seasonal boundaries.
 - Not implemented: recruitment/conscription, troop-move loyalty efficiency, revolt, tech trees, trade deepening, diplomacy/espionage, battle/invasion/defense changes, save/load core rewrite, or large UI refactor.
 - Verification passed: `rg` function/field checks, scoped loyalty diff review, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless QA runner for default 70, stable rise, high-tax drop, isolated `supply_delta -2`, `+3/-7` clamps, save/load preservation, loyalty non-interference, and `last_public_support_result`. Godot `--check-only` timed out locally after 130 seconds.
 - Remaining risks: food/commerce surplus detection is MVP-level and uses current national `resource_stock` plus recent domestic/trade result fallbacks rather than a full city-level economy model; display is minimal and should receive later UX polish after v0.69 core systems.
