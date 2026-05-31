@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.69-4 Recruitment/Conscription Foundation MVP
+- Implemented recruitment/conscription foundation logic in `scripts/worldmap_test.gd`.
+- Conscription is loyalty-based: `_get_conscription_capacity_by_loyalty(city_id)` calculates the city conscription capacity from current city `loyalty` / `cityLoyalty`, and `_get_city_conscription_available(city_id)` subtracts current stationed troops from that capacity.
+- Automatic conscription is a slow free growth MVP: `_apply_city_conscription_for_world_turn()` runs for player-owned cities in the domestic turn after publicSupport drift, existing city loyalty drift, and seasonal loyalty from publicSupport, then adds `min(available, 100)` troops through `_set_city_runtime_troops`.
+- Conscription directly changes only city troops. It does not reduce population and does not directly change `publicSupport` or `loyalty`.
+- Recruitment is publicSupport-based: `_get_recruitment_limit_by_public_support(city_id)` sets one-time recruitment limits from current city `publicSupport`.
+- Recruitment is an immediate paid growth MVP: `_recruit_troops(city_id, amount)` validates ownership, 100-troop amount units, publicSupport limit, peacetime state, and resource affordability, then increases city troops and pays resources.
+- Recruitment cost is `gold = amount` and `food = amount / 2`, matching the 100 troops -> gold 100 + food 50 rule.
+- MVP food pool payment is national `resource_stock` deduction in this order: `rice -> barley -> seafood`. No new food resource model or resource_stock structure was introduced.
+- Recruitment directly changes only troops and national resources. It does not reduce population, does not directly change `publicSupport`, does not directly change `loyalty`, and does not implement recruitment fatigue/publicSupport decline.
+- City Detail internal/supply tab now shows minimal text for conscription capacity, available conscription, expected automatic conscription, recruitment limit, and sample recruitment cost. This is temporary display only, not final UX.
+- Current validation remains headless/API-centered. Real F6 mouse-based UX verification for these displays is deferred to the June City Detail/WorldMap UI overhaul.
+- Not implemented: population decrease, recruitment fatigue, publicSupport loss from recruitment, recruitment button/panel, revolt, tech trees, trade deepening, diplomacy/espionage, battle scene changes, save/load core rewrite, or large UI refactor.
+- Verification passed: `rg` checks for all new helpers/result fields, scoped diff review confirming publicSupport/seasonal loyalty/troop move/P0-2 formulas were not modified, `battle_web_import_test.gd` unchanged review, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary QA runner. Godot `--check-only` timed out locally after 134 seconds.
+- QA runner confirmed loyalty capacity thresholds, available capacity clamp at current troops, automatic conscription `min(available, 100)`, no direct publicSupport/loyalty changes from conscription, save/load troop preservation, publicSupport recruitment limits, recruitment cost, resource shortage rejection, successful recruitment troop/resource changes, no direct publicSupport/loyalty changes from recruitment, no automatic recruitment during conscription, and last result recording.
+- Remaining risks: recruitment has no player-facing execution UI yet; national food-pool deduction is MVP-level; no population/fatigue effects exist yet; final manual UX verification is deferred to the June UI pass.
+
 ## v0.69-3A Strategic Logic Checkpoint Documentation
 - Documentation-only checkpoint for the completed v0.69-1 through v0.69-3 strategic logic foundation.
 - Completed strategic logic chain:
@@ -11,7 +28,7 @@
 - Current verification is headless/API-centered. Real F6 mouse-based UX verification is intentionally deferred until the June city information panel and WorldMap UX/UI redesign phase.
 - Current City Detail UI remains a minimal display and temporary connection surface for the v0.69 logic. It is not final UX.
 - Starting in June, feature-by-feature manual verification should run alongside the city information panel and WorldMap UX/UI overhaul.
-- Next implementation candidate remains `v0.69-4 Recruitment/Conscription Foundation MVP`, but UX validation for the v0.69-1 through v0.69-3 systems should be revisited during the later UI redesign.
+- Superseded by `v0.69-4`: recruitment/conscription foundation is now implemented. UX validation for the v0.69-1 through v0.69-4 systems should be revisited during the later UI redesign.
 - No code, formulas, UI, recruitment, revolt, tech tree, trade deepening, diplomacy, espionage, or save/load work was done in this checkpoint.
 - Remaining risks: headless/API QA validates the strategic logic path, but mouse flow, visual clarity, Korean copy fit, and final player-facing comprehension remain open until the June UI verification pass.
 

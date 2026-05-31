@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.69-4 Recruitment Conscription Foundation MVP
+- Added loyalty-based conscription helpers to `scripts/worldmap_test.gd`: `_get_conscription_capacity_by_loyalty`, `_get_city_conscription_available`, and `_apply_city_conscription_for_world_turn`.
+- Automatic conscription now runs in the domestic turn after publicSupport drift, existing city loyalty drift, and seasonal loyalty from publicSupport, adding `min(available, 100)` troops to player-owned cities below capacity.
+- Added publicSupport-based recruitment helpers: `_get_recruitment_limit_by_public_support`, `_calculate_recruitment_cost`, `_can_recruit_troops`, and `_recruit_troops`.
+- Added minimal recruitment resource helpers: `_can_pay_recruitment_cost` and `_apply_recruitment_cost`.
+- Recruitment cost is `gold = amount` and `food = amount / 2`; MVP food payment deducts from national `resource_stock` in order `rice -> barley -> seafood`.
+- Added `_player_state["last_conscription_result"]` and `_player_state["last_recruitment_result"]`.
+- Added minimal City Detail internal/supply display for conscription capacity, available amount, automatic conscription estimate, recruitment limit, and sample cost.
+- Kept publicSupport and loyalty as separate axes: conscription uses loyalty; recruitment uses publicSupport.
+- Did not implement population decrease, recruitment fatigue, publicSupport/loyalty loss from recruitment, recruitment UI, revolt, tech trees, trade deepening, diplomacy/espionage, battle scene changes, save/load core rewrites, or large UI refactors.
+
 ## v0.69-3A Strategic Logic Checkpoint Documentation
 - Added a documentation-only checkpoint for completed v0.69-1 through v0.69-3 strategic logic.
 - Recorded `v0.69-1 Public Support MVP`, `v0.69-2 Seasonal Loyalty From Public Support MVP`, and `v0.69-3 Troop Move Loyalty Efficiency Final Patch` as complete.

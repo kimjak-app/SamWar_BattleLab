@@ -555,6 +555,8 @@ var _player_state := {
 	"last_supply_state_result": {},
 	"last_public_support_result": {},
 	"last_seasonal_loyalty_result": {},
+	"last_conscription_result": {},
+	"last_recruitment_result": {},
 }
 var _city_policy_state: Dictionary = {}
 var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
@@ -1053,7 +1055,10 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 					_format_city_seasonal_loyalty_display(city_marker.city_id),
 				],
 			]
-			city_detail_rating_label.text = _format_troop_move_preview_display(troop_move_preview)
+			city_detail_rating_label.text = "%s\n%s" % [
+				_format_troop_move_preview_display(troop_move_preview),
+				_format_city_recruitment_conscription_display(city_marker.city_id),
+			]
 			city_detail_domestic_button_placeholder.text = _format_troop_move_button_text(troop_move_preview)
 		CITY_DETAIL_TAB_EXTERNAL_TRADE:
 			var last_trade_result: Dictionary = _player_state.get("last_inter_faction_trade_result", {})
@@ -1282,6 +1287,34 @@ func _format_city_seasonal_loyalty_display(city_id: String) -> String:
 		_format_signed_int(int(seasonal_result.get("delta", 0))),
 		int(seasonal_result.get("before_loyalty", 0)),
 		int(seasonal_result.get("after_loyalty", 0)),
+	]
+
+
+func _format_city_recruitment_conscription_display(city_id: String) -> String:
+	var conscription_capacity := _get_conscription_capacity_by_loyalty(city_id)
+	var conscription_available := _get_city_conscription_available(city_id)
+	var conscription_expected := mini(conscription_available, 100)
+	var recruitment_limit := _get_recruitment_limit_by_public_support(city_id)
+	var sample_amount := 100 if recruitment_limit >= 100 else 0
+	var sample_cost := _calculate_recruitment_cost(sample_amount)
+	var cost_text := "모병 불가" if sample_amount <= 0 else "100명: 금전 %d + 식량 %d" % [
+		int(sample_cost.get("gold", 0)),
+		int(sample_cost.get("food", 0)),
+	]
+	var last_conscription: Dictionary = _player_state.get("last_conscription_result", {})
+	var city_results: Variant = last_conscription.get("city_results", {})
+	var last_added := 0
+	if city_results is Dictionary and (city_results as Dictionary).has(city_id):
+		var city_result: Variant = (city_results as Dictionary).get(city_id, {})
+		if city_result is Dictionary:
+			last_added = int((city_result as Dictionary).get("added", 0))
+	return "■ 징병/모병 MVP\n징병 한계: %d · 가능 %d · 턴당 예상 +%d\n최근 자동 징병: +%d\n모병 1회 한계: %d · 비용 %s\n식량 차감: 쌀 → 보리 → 수산물" % [
+		conscription_capacity,
+		conscription_available,
+		conscription_expected,
+		last_added,
+		recruitment_limit,
+		cost_text,
 	]
 
 
@@ -1858,6 +1891,10 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_public_support_result"] = {}
 	if not _player_state.has("last_seasonal_loyalty_result") or not (_player_state["last_seasonal_loyalty_result"] is Dictionary):
 		_player_state["last_seasonal_loyalty_result"] = {}
+	if not _player_state.has("last_conscription_result") or not (_player_state["last_conscription_result"] is Dictionary):
+		_player_state["last_conscription_result"] = {}
+	if not _player_state.has("last_recruitment_result") or not (_player_state["last_recruitment_result"] is Dictionary):
+		_player_state["last_recruitment_result"] = {}
 
 
 func _normalize_turn_phase(phase: String) -> String:
@@ -3662,6 +3699,215 @@ func _calculate_troop_move_arrived_amount(commanded_amount: int, from_loyalty: i
 	return maxi(0, int(floor(float(safe_amount) * float(safe_loyalty) / 100.0)))
 
 
+func _get_conscription_capacity_by_loyalty(city_id: String) -> int:
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.is_empty():
+		return 0
+	var loyalty := _get_city_loyalty_value(city_data)
+	var population := maxi(0, int(city_data.get("population", 0)))
+	var ratio := 0.05
+	if loyalty < 20:
+		ratio = 0.0
+	elif loyalty < 40:
+		ratio = 0.05
+	elif loyalty < 60:
+		ratio = 0.10
+	elif loyalty < 80:
+		ratio = 0.20
+	elif loyalty < 90:
+		ratio = 0.30
+	elif loyalty < 100:
+		ratio = 0.40
+	else:
+		ratio = 0.50
+	return maxi(0, int(floor(float(population) * ratio)))
+
+
+func _get_city_conscription_available(city_id: String) -> int:
+	var capacity := _get_conscription_capacity_by_loyalty(city_id)
+	var current_troops := _get_city_troops_for_battle_context(city_id)
+	return maxi(0, capacity - current_troops)
+
+
+func _apply_city_conscription_for_world_turn() -> Dictionary:
+	var result := {
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"applied": false,
+		"city_results": {},
+	}
+	if not _is_peacetime_for_troop_move():
+		result["reason"] = "not_peacetime"
+		_player_state["last_conscription_result"] = result
+		return result
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		_player_state["last_conscription_result"] = result
+		return result
+	result["applied"] = true
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		if not _is_city_owned_by_player_mvp(city_id):
+			continue
+		var city_data := _get_city_hud_entry(city_id)
+		if city_data.is_empty():
+			continue
+		var loyalty := _get_city_loyalty_value(city_data)
+		var population := maxi(0, int(city_data.get("population", 0)))
+		var capacity := _get_conscription_capacity_by_loyalty(city_id)
+		var available_before := _get_city_conscription_available(city_id)
+		var before_troops := _get_city_troops_for_battle_context(city_id)
+		var added := mini(available_before, 100)
+		var after_troops := before_troops + added
+		if added > 0:
+			_set_city_runtime_troops(city_id, after_troops)
+		var city_result := {
+			"loyalty": loyalty,
+			"population": population,
+			"capacity": capacity,
+			"available_before": available_before,
+			"before_troops": before_troops,
+			"after_troops": after_troops,
+			"added": added,
+		}
+		(result["city_results"] as Dictionary)[city_id] = city_result
+		print("[CONSCRIPT_WORLD_TURN] city=%s loyalty=%d population=%d capacity=%d available=%d added=%d troops=%d->%d" % [
+			city_id,
+			loyalty,
+			population,
+			capacity,
+			available_before,
+			added,
+			before_troops,
+			after_troops,
+		])
+	_player_state["last_conscription_result"] = result
+	if not (result["city_results"] as Dictionary).is_empty():
+		_refresh_city_hud_data_bindings()
+	return result
+
+
+func _get_recruitment_limit_by_public_support(city_id: String) -> int:
+	var public_support := _get_city_public_support(city_id)
+	if public_support >= 90:
+		return 500
+	if public_support >= 80:
+		return 300
+	if public_support >= 60:
+		return 200
+	if public_support >= 40:
+		return 100
+	return 0
+
+
+func _calculate_recruitment_cost(amount: int) -> Dictionary:
+	var safe_amount := maxi(0, amount)
+	return {
+		"gold": safe_amount,
+		"food": int(floor(float(safe_amount) / 2.0)),
+	}
+
+
+func _get_total_recruitment_food_stock() -> int:
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	return maxi(0, int(resource_stock.get("rice", 0))) + maxi(0, int(resource_stock.get("barley", 0))) + maxi(0, int(resource_stock.get("seafood", 0)))
+
+
+func _can_pay_recruitment_cost(cost: Dictionary) -> bool:
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	return int(resource_stock.get("gold", 0)) >= int(cost.get("gold", 0)) and _get_total_recruitment_food_stock() >= int(cost.get("food", 0))
+
+
+func _apply_recruitment_cost(cost: Dictionary) -> Dictionary:
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {}).duplicate(true)
+	var before_stock := resource_stock.duplicate(true)
+	var gold_cost := maxi(0, int(cost.get("gold", 0)))
+	resource_stock["gold"] = maxi(0, int(resource_stock.get("gold", 0)) - gold_cost)
+	var remaining_food := maxi(0, int(cost.get("food", 0)))
+	var food_paid := {}
+	for resource_id in ["rice", "barley", "seafood"]:
+		var before_amount := maxi(0, int(resource_stock.get(resource_id, 0)))
+		var paid := mini(before_amount, remaining_food)
+		if paid > 0:
+			resource_stock[resource_id] = before_amount - paid
+			remaining_food -= paid
+		food_paid[resource_id] = paid
+	_player_state["resource_stock"] = resource_stock
+	return {
+		"before": before_stock,
+		"after": resource_stock.duplicate(true),
+		"gold": gold_cost,
+		"food": maxi(0, int(cost.get("food", 0))) - remaining_food,
+		"food_breakdown": food_paid,
+		"food_order": ["rice", "barley", "seafood"],
+	}
+
+
+func _can_recruit_troops(city_id: String, amount: int) -> Dictionary:
+	if not _is_city_owned_by_player_mvp(city_id):
+		return {"ok": false, "reason": "ownership"}
+	if amount <= 0 or amount % 100 != 0:
+		return {"ok": false, "reason": "amount"}
+	if not _is_peacetime_for_troop_move():
+		return {"ok": false, "reason": "not_peacetime"}
+	var public_support := _get_city_public_support(city_id)
+	var limit := _get_recruitment_limit_by_public_support(city_id)
+	if public_support < 40 or amount > limit:
+		return {"ok": false, "reason": "public_support", "limit": limit, "publicSupport": public_support}
+	var cost := _calculate_recruitment_cost(amount)
+	if not _can_pay_recruitment_cost(cost):
+		return {"ok": false, "reason": "resources", "cost": cost, "limit": limit, "publicSupport": public_support}
+	return {
+		"ok": true,
+		"cost": cost,
+		"limit": limit,
+		"publicSupport": public_support,
+	}
+
+
+func _recruit_troops(city_id: String, amount: int) -> bool:
+	var validation := _can_recruit_troops(city_id, amount)
+	if not bool(validation.get("ok", false)):
+		_player_state["last_recruitment_result"] = {
+			"ok": false,
+			"city_id": city_id,
+			"amount": amount,
+			"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+			"reason": str(validation.get("reason", "")),
+		}
+		return false
+	var before_support := _get_city_public_support(city_id)
+	var before_loyalty := _get_city_loyalty_value(_get_city_hud_entry(city_id))
+	var before_troops := _get_city_troops_for_battle_context(city_id)
+	var cost: Dictionary = validation.get("cost", {})
+	var paid_cost := _apply_recruitment_cost(cost)
+	var after_troops := before_troops + amount
+	_set_city_runtime_troops(city_id, after_troops)
+	_player_state["last_recruitment_result"] = {
+		"ok": true,
+		"city_id": city_id,
+		"amount": amount,
+		"cost": cost,
+		"paid_cost": paid_cost,
+		"publicSupport": before_support,
+		"loyalty": before_loyalty,
+		"before_troops": before_troops,
+		"after_troops": after_troops,
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+	}
+	print("[RECRUIT_TROOPS] city=%s amount=%d publicSupport=%d loyalty=%d troops=%d->%d cost=%s paid=%s" % [
+		city_id,
+		amount,
+		before_support,
+		before_loyalty,
+		before_troops,
+		after_troops,
+		str(cost),
+		str(paid_cost),
+	])
+	_refresh_city_hud_data_bindings()
+	return true
+
+
 func _calculate_troop_rebalance_suggestions() -> Array:
 	var suggestions: Array = []
 	var supply_states := _calculate_all_city_supply_states()
@@ -4575,12 +4821,13 @@ func _apply_domestic_turn_mvp() -> String:
 	_player_state["national_loyalty"] = after_loyalty
 	var city_loyalty_drift_result := _apply_city_loyalty_drift_for_world_turn(tax_level, policy_id, supply_states)
 	var seasonal_loyalty_result := _apply_seasonal_loyalty_from_public_support(turn_number, supply_states)
+	var conscription_result := _apply_city_conscription_for_world_turn()
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
-		"version": "v0.69-2",
+		"version": "v0.69-4",
 		"turn_number": turn_number,
 		"tax_level": tax_level,
 		"chancellor_policy_id": policy_id,
@@ -4594,8 +4841,9 @@ func _apply_domestic_turn_mvp() -> String:
 		"public_support_result": public_support_result,
 		"city_loyalty_drift_result": city_loyalty_drift_result,
 		"seasonal_loyalty_result": seasonal_loyalty_result,
+		"conscription_result": conscription_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -5454,7 +5702,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -5473,6 +5721,8 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		parts.append(_format_public_support_summary(public_support_result))
 	if bool(seasonal_loyalty_result.get("applied", false)):
 		parts.append(_format_seasonal_loyalty_summary(seasonal_loyalty_result))
+	if bool(conscription_result.get("applied", false)):
+		parts.append(_format_conscription_summary(conscription_result))
 	if parts.is_empty():
 		return "변동 없음"
 	return " · ".join(parts)
@@ -5498,6 +5748,23 @@ func _format_supply_state_summary(result: Dictionary) -> String:
 		int(result.get("supplied_frontline_count", 0)),
 		int(result.get("isolated_count", 0)),
 	]
+
+
+func _format_conscription_summary(result: Dictionary) -> String:
+	var city_results: Variant = result.get("city_results", {})
+	if not city_results is Dictionary:
+		return "징병 +0"
+	var total_added := 0
+	var changed_cities := 0
+	for city_id_variant in (city_results as Dictionary).keys():
+		var city_result: Variant = (city_results as Dictionary).get(city_id_variant, {})
+		if not city_result is Dictionary:
+			continue
+		var added := int((city_result as Dictionary).get("added", 0))
+		total_added += added
+		if added > 0:
+			changed_cities += 1
+	return "징병 +%d · %d개 도시" % [total_added, changed_cities]
 
 
 func _format_city_loyalty_drift_summary(result: Dictionary) -> String:

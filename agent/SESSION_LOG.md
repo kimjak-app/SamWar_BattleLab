@@ -2,6 +2,27 @@
 
 ## 2026-05-31
 
+### v0.69-4 Recruitment/Conscription Foundation MVP
+- Started from baseline commit `9df4e49` / `v0.69-3A Strategic Logic Checkpoint Documentation`.
+- Implemented recruitment/conscription foundation logic in `scripts/worldmap_test.gd`.
+- Added loyalty-based conscription capacity and available helpers.
+- Added automatic domestic-turn conscription as slow free troop growth: player-owned cities add `min(available, 100)` troops when below loyalty-based capacity.
+- Placed automatic conscription after publicSupport drift, existing P0-2 city loyalty drift, and seasonal loyalty from publicSupport so it uses current post-seasonal loyalty.
+- Added publicSupport-based recruitment limit, cost, validation, and execution helpers.
+- Recruitment is immediate paid troop growth and is helper/API only in this MVP. No explicit recruitment button/panel was added.
+- Recruitment cost uses `gold = amount` and `food = amount / 2`; MVP food payment deducts national `resource_stock` in order `rice -> barley -> seafood`.
+- Added `last_conscription_result` and `last_recruitment_result` recording.
+- Added minimal City Detail internal/supply text for conscription and recruitment values.
+- Did not reduce population. Did not directly change publicSupport or loyalty from conscription/recruitment. Did not implement recruitment fatigue or publicSupport decline.
+- Did not modify publicSupport formula, seasonal loyalty formula, troop movement loyalty-efficiency formula, P0-1/P0-2/Phase A/Phase B calculations, battle scene code, save/load core, revolt, tech trees, trade deepening, diplomacy/espionage, or large UI.
+- Verification passed: `rg` for new helpers/result fields, scoped diff reviews, `battle_web_import_test.gd` unchanged, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless QA runner.
+- QA runner confirmed conscription capacity thresholds, available=0 when troops meet capacity, auto conscription adds only `min(available, 100)`, no direct publicSupport/loyalty changes, save/load troop preservation, recruitment limits by publicSupport, recruitment costs, resource shortage rejection, successful recruitment troop/resource changes, no automatic recruitment, and last-result recording.
+- Godot `--headless --check-only` timed out after 134 seconds and is recorded as inconclusive.
+- Real F6 mouse-based UX verification remains deferred to the June City Detail/WorldMap UI overhaul.
+- Remaining risks: no explicit recruitment UI, MVP-level national food-pool payment, no population/fatigue effects, and final UX validation still pending.
+
+## 2026-05-31
+
 ### v0.69-3A Strategic Logic Checkpoint Documentation
 - Started from baseline commit `0b6defa` / `v0.69-3 Troop Move Loyalty Efficiency Final Patch`.
 - Performed documentation-only checkpoint work.

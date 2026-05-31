@@ -1,5 +1,16 @@
 # NEXT TASKS
 
+## Current v0.69-4 Recruitment/Conscription Status
+- `v0.69-4 Recruitment/Conscription Foundation MVP` is complete in code/docs.
+- Conscription is loyalty-based and represents slow free troop growth. It runs automatically during the domestic turn and adds up to `100` troops per owned city if the city is below its loyalty-based conscription capacity.
+- Recruitment is publicSupport-based and represents immediate paid troop growth. It is implemented as helper/API logic only; no explicit recruitment button or panel exists yet.
+- Recruitment cost is `gold = amount` and `food = amount / 2`. MVP food deduction uses the national food pool in order: `rice -> barley -> seafood`.
+- Neither conscription nor recruitment reduces population in this MVP.
+- Recruitment does not directly reduce publicSupport or loyalty; recruitment fatigue/publicSupport decline remains deferred.
+- Current City Detail display remains a minimal temporary surface for conscription/recruitment values.
+- Real F6 mouse-based UX verification remains deferred to the June City Detail/WorldMap UI overhaul.
+- Next required implementation candidate: `v0.69-5 Revolt Warning Foundation MVP`.
+
 ## Current v0.69-3A Strategic Logic Checkpoint Status
 - `v0.69-3A Strategic Logic Checkpoint Documentation` is complete as a documentation-only checkpoint.
 - `v0.69-1 Public Support MVP`, `v0.69-2 Seasonal Loyalty From Public Support MVP`, and `v0.69-3 Troop Move Loyalty Efficiency Final Patch` are complete.
@@ -7,7 +18,7 @@
 - Current verification remains headless/API-centered. Actual F6 mouse-based UX verification is deferred until the June city information panel and WorldMap UX/UI redesign phase.
 - Current City Detail UI is a minimal temporary display/connection layer, not the final player-facing UX.
 - June UI work should include feature-by-feature manual checks for publicSupport display, seasonal loyalty display, troop movement preview/status copy, and C2 approval movement result readability.
-- Next implementation candidate remains `v0.69-4 Recruitment/Conscription Foundation MVP`, but UX verification should be coordinated with the later UI overhaul rather than treated as complete now.
+- Superseded by `v0.69-4`: recruitment/conscription foundation is complete. UX verification should still be coordinated with the later UI overhaul rather than treated as complete now.
 
 ## Current v0.69-3 Troop Move Loyalty Efficiency Status
 - `v0.69-3 Troop Move Loyalty Efficiency Final Patch` is complete in code/docs.
@@ -15,7 +26,7 @@
 - Movement is no longer total-preserving: commanded troops all depart, only `floor(commanded_amount * from_loyalty / 100.0)` arrive, and the remainder is recorded as loss.
 - C2 chancellor rebalance approval continues through `_move_troops`, so approved C2 movement uses the same loyalty-based loss formula.
 - `publicSupport` is not directly used by troop movement. Movement uses the current city loyalty value after any seasonal publicSupport-to-loyalty effects have already been applied.
-- Next required implementation candidate remains `v0.69-4 Recruitment/Conscription Foundation MVP`; F6 mouse UX verification is deferred to the June UI pass.
+- Superseded by `v0.69-4`: recruitment/conscription foundation is complete; F6 mouse UX verification is still deferred to the June UI pass.
 
 ## Current v0.69-2 Seasonal Loyalty Status
 - `v0.69-2 Seasonal Loyalty From Public Support MVP` is complete in code/docs.
@@ -41,8 +52,8 @@
   1. `v0.69-1 Public Support MVP` - complete.
   2. `v0.69-2 Seasonal Loyalty From Public Support MVP` - complete.
   3. `v0.69-3 Troop Move Loyalty Efficiency Final Patch` - complete.
-  4. `v0.69-4 Recruitment/Conscription Foundation MVP` - next.
-  5. `v0.69-5 Revolt Warning Foundation MVP`
+  4. `v0.69-4 Recruitment/Conscription Foundation MVP` - complete.
+  5. `v0.69-5 Revolt Warning Foundation MVP` - next.
   6. `v0.69-6 National Tech Tree Data MVP`
   7. `v0.69-7 City Tech Tree Data MVP`
   8. `v0.69-8 Trade Deepening MVP`

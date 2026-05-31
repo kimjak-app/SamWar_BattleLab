@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.69-4 Recruitment/Conscription Handoff
+- `v0.69-4 Recruitment/Conscription Foundation MVP` is implemented in `scripts/worldmap_test.gd`.
+- Conscription is loyalty-based. Use `_get_conscription_capacity_by_loyalty(city_id)` and `_get_city_conscription_available(city_id)` for capacity/available calculations.
+- Automatic conscription is slow and free: `_apply_city_conscription_for_world_turn()` runs after publicSupport drift, existing city loyalty drift, and seasonal loyalty from publicSupport in the domestic turn, then adds `min(available, 100)` troops.
+- Conscription does not reduce population and does not directly change publicSupport or loyalty.
+- Recruitment is publicSupport-based. Use `_get_recruitment_limit_by_public_support(city_id)`, `_calculate_recruitment_cost(amount)`, `_can_recruit_troops(city_id, amount)`, and `_recruit_troops(city_id, amount)`.
+- Recruitment is immediate and paid, but currently helper/API only. Do not assume a final UI exists.
+- Recruitment cost is `gold = amount` and `food = amount / 2`; MVP food payment uses national `resource_stock` in order `rice -> barley -> seafood`.
+- Recruitment does not reduce population, does not directly change publicSupport or loyalty, and does not implement fatigue/publicSupport decline yet.
+- Current City Detail output is a temporary minimal display. Real F6 mouse-based UX verification belongs with the June City Detail/WorldMap UI overhaul.
+- Next task should be `v0.69-5 Revolt Warning Foundation MVP`.
+- Remaining risks: no explicit recruitment UI, MVP national food-pool payment, no population/fatigue effects, and no final UX validation yet.
+
 ## v0.69-3A Strategic Logic Checkpoint Handoff
 - `v0.69-3A Strategic Logic Checkpoint Documentation` is documentation-only. No code or formulas were changed.
 - v0.69-1 through v0.69-3 are complete as the first strategic logic foundation block:
@@ -10,7 +23,7 @@
 - Current validation coverage is headless/API-oriented. Do not treat the temporary City Detail surfaces as final UX validation.
 - Real F6 mouse-based UX verification should be performed during the June city information panel and WorldMap UX/UI redesign phase.
 - Current City Detail UI is a minimal temporary display/connection surface. Avoid polishing it as final UI before the planned redesign.
-- Next implementation candidate is still `v0.69-4 Recruitment/Conscription Foundation MVP`, but manual UX verification for v0.69-1 through v0.69-3 should be revisited alongside the later UI overhaul.
+- Superseded by `v0.69-4`: recruitment/conscription foundation is implemented. Manual UX verification for v0.69-1 through v0.69-4 should still be revisited alongside the later UI overhaul.
 
 ## v0.69-3 Troop Move Loyalty Efficiency Handoff
 - `v0.69-3 Troop Move Loyalty Efficiency Final Patch` is implemented in `scripts/worldmap_test.gd`.
@@ -20,7 +33,7 @@
 - `last_troop_move_result` records commanded/departed/arrived/lost/from_loyalty plus source/destination after values; `amount` remains for compatibility.
 - C2 approval still goes through `_apply_troop_rebalance_suggestion()` -> `_move_troops()`, so C2 receives the same loyalty-based loss automatically. Do not add C2 automatic execution or a separate direct-write path.
 - `publicSupport` is not a direct troop movement input. Movement uses current city loyalty, which may already include seasonal publicSupport effects from v0.69-2.
-- Next task should be `v0.69-4 Recruitment/Conscription Foundation MVP`.
+- Superseded by `v0.69-4`: recruitment/conscription foundation is implemented.
 - Remaining risks: minimal movement UI still lacks explicit target/amount controls, and manual F6 visual QA remains useful for display copy.
 
 ## v0.69-2 Seasonal Loyalty Handoff
