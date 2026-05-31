@@ -1,6 +1,7 @@
 # NEXT TASKS
 
 ## Next: v0.70-1 WorldMap Final UX/UI Information Architecture
+- `v0.69-14A GDScript Reload Warning Cleanup Before v0.70` is complete; v0.70 can start with reload-warning cleanup already applied.
 - `v0.69-14 EASTWAR Strategic Logic Final Checkpoint` closes the v0.69 strategic logic track.
 - Next implementation session should start with `v0.70-1 WorldMap Final UX/UI Information Architecture`.
 - v0.70 is primarily an information architecture and UX/UI pass over the v0.69 logic, not a new strategic-logic expansion pass.

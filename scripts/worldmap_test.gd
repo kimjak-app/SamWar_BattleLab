@@ -3986,11 +3986,11 @@ func _apply_generic_resource_cost(cost: Dictionary) -> Dictionary:
 			var remaining_food := required_amount
 			var food_paid := {}
 			for food_resource_id in ["rice", "barley", "seafood"]:
-				var before_amount := maxi(0, int(resource_stock.get(food_resource_id, 0)))
-				var paid_amount := mini(before_amount, remaining_food)
-				resource_stock[food_resource_id] = before_amount - paid_amount
-				remaining_food -= paid_amount
-				food_paid[food_resource_id] = paid_amount
+				var food_before_amount := maxi(0, int(resource_stock.get(food_resource_id, 0)))
+				var food_paid_amount := mini(food_before_amount, remaining_food)
+				resource_stock[food_resource_id] = food_before_amount - food_paid_amount
+				remaining_food -= food_paid_amount
+				food_paid[food_resource_id] = food_paid_amount
 			paid["food"] = food_paid
 			continue
 		var before_amount := maxi(0, int(resource_stock.get(resource_id, 0)))
@@ -4116,10 +4116,10 @@ func _get_national_tech_definitions() -> Dictionary:
 	}
 
 
-func _make_national_tech_definition(id: String, name: String, branch: String, tier: String, requires: Array, required_chancellor_type: String, conditions: Dictionary, cost: Dictionary, effect_summary: String) -> Dictionary:
+func _make_national_tech_definition(id: String, tech_name: String, branch: String, tier: String, requires: Array, required_chancellor_type: String, conditions: Dictionary, cost: Dictionary, effect_summary: String) -> Dictionary:
 	return {
 		"id": id,
-		"name": name,
+		"name": tech_name,
 		"branch": branch,
 		"tier": tier,
 		"requires": requires.duplicate(true),
@@ -4442,10 +4442,10 @@ func _get_city_tech_definitions() -> Dictionary:
 	}
 
 
-func _make_city_tech_definition(id: String, name: String, branch: String, tier: String, requires: Array, required_governor_type: String, required_national_tech: Array, conditions: Dictionary, cost: Dictionary, effect_summary: String) -> Dictionary:
+func _make_city_tech_definition(id: String, tech_name: String, branch: String, tier: String, requires: Array, required_governor_type: String, required_national_tech: Array, conditions: Dictionary, cost: Dictionary, effect_summary: String) -> Dictionary:
 	return {
 		"id": id,
-		"name": name,
+		"name": tech_name,
 		"branch": branch,
 		"tier": tier,
 		"requires": requires.duplicate(true),
@@ -6951,7 +6951,10 @@ func _build_spy_info_payload(target_city_id: String, fields: Array, estimated: b
 					var runtime_state: Dictionary = _city_runtime_states.get(target_city_id, {}) if _city_runtime_states.get(target_city_id, {}) is Dictionary else {}
 					var city_tech: Dictionary = runtime_state.get("city_tech", {}) if runtime_state.get("city_tech", {}) is Dictionary else {}
 					var completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
-					tech_payload["city_completed"] = completed.keys() if not completed.is_empty() else "not_available"
+					if not completed.is_empty():
+						tech_payload["city_completed"] = completed.keys()
+					else:
+						tech_payload["city_completed"] = "not_available"
 				payload["tech"] = tech_payload
 	if estimated and not payload.has("troops_estimated") and payload.has("troops"):
 		payload["troops_estimated"] = int(round(float(int(payload.get("troops", 0))) / 500.0)) * 500
@@ -8056,7 +8059,7 @@ func _calculate_loyalty_delta_from_public_support(public_support: int) -> int:
 	return -3
 
 
-func _apply_seasonal_loyalty_from_public_support(turn_number: int, supply_states: Dictionary = {}) -> Dictionary:
+func _apply_seasonal_loyalty_from_public_support(turn_number: int, _supply_states: Dictionary = {}) -> Dictionary:
 	var safe_turn := maxi(1, turn_number)
 	var result := {
 		"turn": safe_turn,

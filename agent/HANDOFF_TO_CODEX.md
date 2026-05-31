@@ -1,5 +1,11 @@
 # HANDOFF TO CODEX
 
+## v0.69-14A GDScript Reload Warning Cleanup Handoff
+- `v0.69-14A GDScript Reload Warning Cleanup Before v0.70` is complete in `scripts/worldmap_test.gd`.
+- This pass only cleaned Godot GDScript reload warnings before `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+- No strategic logic, formulas, balance values, save/load structure, battle, invasion, diplomacy, espionage, tech, trade, or resource behavior was intentionally changed.
+- The next task remains `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+
 ## v0.69-14 EASTWAR Strategic Logic Final Checkpoint Handoff
 - Start any new chat/session from this baseline unless the user explicitly provides a newer commit:
   - `v0.69-13 Espionage Action Foundation MVP`

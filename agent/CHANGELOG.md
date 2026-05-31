@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.69-14A GDScript Reload Warning Cleanup Before v0.70
+- Cleaned GDScript reload warnings in `scripts/worldmap_test.gd` before entering `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+- Renamed food-cost inner-block variables to avoid `before_amount` / `paid_amount` parent-block declaration warnings while preserving paid-cost payload values.
+- Renamed tech definition factory parameters from `name` to `tech_name` to avoid `Node.name` shadowing warnings.
+- Replaced the mixed-type spy tech payload ternary with an equivalent `if` branch to avoid the ternary compatibility warning.
+- Renamed the unused seasonal-loyalty parameter to `_supply_states`.
+- No strategic logic, formulas, balance values, save/load structure, battle, invasion, diplomacy, espionage, tech, trade, or resource behavior was intentionally changed.
+
 ## v0.69-14 EASTWAR Strategic Logic Final Checkpoint
 - Added a documentation-only checkpoint closing the v0.69 EASTWAR strategic logic track.
 - Recorded `v0.69-13 Espionage Action Foundation MVP` / commit `0565f2d5f0acfde609e9df9e96d8e3b25726196c` as the final v0.69 strategic logic baseline.

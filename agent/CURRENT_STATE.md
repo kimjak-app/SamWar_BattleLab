@@ -1,5 +1,11 @@
 # CURRENT STATE
 
+## v0.69-14A GDScript Reload Warning Cleanup Before v0.70
+- Completed a warning-cleanup pass before entering `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+- Cleaned `scripts/worldmap_test.gd` GDScript reload warnings for duplicate local variable declarations, `Node.name` parameter shadowing, one mixed-type ternary, and an intentionally unused seasonal-loyalty parameter.
+- No strategic logic, formulas, balance values, save/load structure, battle, invasion, diplomacy, espionage, tech, trade, or resource behavior was intentionally changed.
+- Remaining work is `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+
 ## v0.69-14 EASTWAR Strategic Logic Final Checkpoint
 - v0.69 strategic logic implementation is closed at baseline:
   - `v0.69-13 Espionage Action Foundation MVP`
