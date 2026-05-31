@@ -2,6 +2,22 @@
 
 ## 2026-06-01
 
+### v0.69-10B Tribute Diplomacy Action MVP
+- Started from baseline commit `ef1e5aa6d3fd53ba2ecbc29a04aa8ee44082e872` / `v0.69-10 Diplomacy Relation Score MVP`.
+- Implemented the first diplomacy action MVP, tribute, in `scripts/worldmap_test.gd`.
+- Added tribute cost helper with MVP cost `gold 300` + `silk 100`.
+- Added deterministic tribute relation gain `+20`, within the documented `15..25` future balance range.
+- Added `_can_send_tribute` and `_send_tribute` with validation for invalid/self targets, hostile status, suspended status, active cooldown, and insufficient resources.
+- Tribute uses a separate `tribute_cooldown` field set to `5` turns. The existing relation `cooldown` field is not reused.
+- Added `_advance_diplomacy_cooldowns_for_world_turn` and connected it to the domestic world turn after relation normalization.
+- Added `last_tribute_result` and `last_diplomacy_cooldown_result`.
+- Kept status separate from score; tribute does not auto-convert status to allied or hostile.
+- Kept Phase A trade multiplier status-based and unchanged.
+- Did not implement alliance proposal, trade agreement, declaration of war, espionage, revolt instigation, specialty trade execution, diplomacy UI, battle changes, or save/load core rewrites.
+- QA runner confirmed tribute validation, cost payment, score gain/clamp, status non-conversion, cooldown set/decrement/re-enable behavior, save/load preservation, Phase A trade income invariance, and no unintended publicSupport/loyalty/troop/tech mutation.
+- Next candidates are `v0.69-10C Alliance War Status Foundation MVP` or `v0.69-11 Espionage Info Gathering MVP`.
+- Remaining risks: no player-facing UI trigger exists; fixed tribute cost/gain need future balance review; no AI response exists.
+
 ### v0.69-10 Diplomacy Relation Score MVP
 - Started from baseline commit `64351822aa0acd80079b135862c983bec4803043` / `v0.69-9 Trade Deepening Data Market Price MVP`.
 - Implemented score-based diplomacy relation foundation in `scripts/worldmap_test.gd`.

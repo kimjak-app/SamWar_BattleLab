@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Current v0.69-10B Tribute Diplomacy Action Status
+- `v0.69-10B Tribute Diplomacy Action MVP` is complete in code/docs.
+- Tribute costs `gold 300` + `silk 100` and increases relation score by deterministic `+20`.
+- Tribute uses a separate `tribute_cooldown` field set to `5` turns; existing relation `cooldown` is not reused.
+- Status does not auto-convert to allied/hostile from tribute score changes.
+- No alliance proposal, trade agreement, declaration of war, espionage, revolt instigation, specialty trade execution, or diplomacy UI exists yet.
+- Recommended next task:
+  - `v0.69-10C Alliance War Status Foundation MVP`
+  - Alternative: `v0.69-11 Espionage Info Gathering MVP`
+
 ## Current v0.69-10 Diplomacy Relation Score Status
 - `v0.69-10 Diplomacy Relation Score MVP` is complete in code/docs.
 - `faction_relations` now carries `score 0..100` alongside existing `status` and `cooldown`.

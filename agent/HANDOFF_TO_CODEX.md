@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.69-10B Tribute Diplomacy Action Handoff
+- `v0.69-10B Tribute Diplomacy Action MVP` is implemented in `scripts/worldmap_test.gd`.
+- Tribute is the first diplomacy action and is currently helper/API only.
+- Cost is fixed for MVP: `gold 300` + `silk 100`.
+- Relation gain is fixed for MVP: deterministic `+20`, clamped by existing score bounds.
+- Tribute rejects invalid/self targets, `hostile`, `suspended`, active `tribute_cooldown`, and insufficient resources.
+- Tribute uses separate `tribute_cooldown`, not the existing relation `cooldown`; this avoids collision with Phase A trade/suspended-status behavior.
+- Domestic turn decreases `tribute_cooldown` once per world turn through `_advance_diplomacy_cooldowns_for_world_turn()`.
+- Status must not auto-convert to allied or hostile from tribute score changes.
+- Phase A trade remains status-based. Do not make score or tribute affect trade income without a scoped future task.
+- Not implemented: alliance proposal, trade agreement, declaration of war, espionage, revolt instigation, specialty trade execution, AI response, or diplomacy UI.
+- Next candidates: `v0.69-10C Alliance War Status Foundation MVP` or `v0.69-11 Espionage Info Gathering MVP`.
+- Remaining risks: no player-facing trigger exists; fixed cost/gain need balance review; no diplomatic response/AI behavior exists.
+
 ## v0.69-10 Diplomacy Relation Score Handoff
 - `v0.69-10 Diplomacy Relation Score MVP` is implemented in `scripts/worldmap_test.gd`.
 - `faction_relations` entries now normalize to `{"status": String, "score": int, "cooldown": int}`.

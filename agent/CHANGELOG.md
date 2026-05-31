@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.69-10B Tribute Diplomacy Action MVP
+- Added the first diplomacy action MVP: tribute sending.
+- Added tribute constants: cooldown `5` turns, relation gain bounds `15..25`, and MVP base cost `gold 300` + `silk 100`.
+- Added `_get_tribute_cost`, `_can_send_tribute`, `_calculate_tribute_relation_gain`, `_send_tribute`, and `_advance_diplomacy_cooldowns_for_world_turn`.
+- Tribute relation gain is deterministic `+20` for MVP and uses the existing score clamp.
+- Tribute uses separate `tribute_cooldown`; existing relation `cooldown` is preserved.
+- Added `last_tribute_result` and `last_diplomacy_cooldown_result`.
+- Kept status separate from score. Tribute does not auto-convert status to allied or hostile.
+- Kept Phase A trade multiplier status-based and unchanged.
+- Did not implement alliance proposal, trade agreement, declaration of war, espionage, revolt instigation, specialty trade execution, diplomacy UI, battle changes, or save/load core rewrites.
+
 ## v0.69-10 Diplomacy Relation Score MVP
 - Added diplomacy relation score constants and helpers to `scripts/worldmap_test.gd`.
 - `faction_relations` entries now normalize to `status`, `score`, and `cooldown` while preserving existing status/cooldown values.

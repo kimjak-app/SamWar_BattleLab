@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.69-10B Tribute Diplomacy Action MVP
+- Implemented the first diplomacy action MVP, tribute, in `scripts/worldmap_test.gd`.
+- Tribute is API/helper only. No diplomacy UI, button, alliance proposal, trade agreement, declaration of war, espionage, revolt instigation, or specialty trade execution was added.
+- Tribute cost MVP is deterministic: `gold 300` + `silk 100`.
+- Tribute relation gain MVP is deterministic `+20`, clamped through the existing relation score `0..100` rules.
+- Tribute can target neutral/allied factions and is rejected for invalid/self targets, hostile status, suspended status, active tribute cooldown, or insufficient resources.
+- Tribute sets a separate `tribute_cooldown` field to `5` turns. The existing relation `cooldown` field is preserved and not reused, avoiding Phase A trade/suspended-status conflict.
+- Added helpers: `_get_tribute_cost`, `_can_send_tribute`, `_calculate_tribute_relation_gain`, `_send_tribute`, and `_advance_diplomacy_cooldowns_for_world_turn`.
+- Added result records: `_player_state["last_tribute_result"]` and `_player_state["last_diplomacy_cooldown_result"]`.
+- Domestic world turn now decreases `tribute_cooldown` once per turn after relation normalization.
+- Status still does not auto-convert to allied or hostile from score changes. Phase A trade multiplier remains status-based and unchanged.
+- Verification passed: `rg` for tribute helpers/result fields, temporary QA runner, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. Godot `--check-only` timed out locally.
+- QA runner confirmed neutral allowed, hostile/suspended/self/resource shortage rejected, cost subtraction, score `+20`, score clamp to `100`, no status auto-allied, `tribute_cooldown` set/decremented/reset behavior, save/load preservation, Phase A trade income invariance, and no unintended publicSupport/loyalty/troop/tech mutation.
+- Next candidates: `v0.69-10C Alliance War Status Foundation MVP` or `v0.69-11 Espionage Info Gathering MVP`.
+- Remaining risks: tribute has no player-facing UI; gain/cost are fixed MVP values; no AI/diplomacy response exists; final F6 diplomacy UX validation remains deferred.
+
 ## v0.69-10 Diplomacy Relation Score MVP
 - Implemented the first Diplomacy Relation Score MVP in `scripts/worldmap_test.gd`.
 - `faction_relations` now supports score-based relationship data while preserving existing status behavior: each normalized relation entry has `status`, `score`, and `cooldown`.
