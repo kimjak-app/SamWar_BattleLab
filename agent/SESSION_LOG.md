@@ -2,6 +2,16 @@
 
 ## 2026-06-01
 
+### v0.69-14 EASTWAR Strategic Logic Final Checkpoint
+- Started from baseline commit `0565f2d5f0acfde609e9df9e96d8e3b25726196c` / `v0.69-13 Espionage Action Foundation MVP`.
+- Performed a documentation-only checkpoint. No code implementation was added.
+- Recorded v0.69 as the completed EASTWAR strategic simulation logic foundation.
+- Summarized the completed v0.69 systems from publicSupport and loyalty through tech, trade, diplomacy, and espionage foundations.
+- Documented that most v0.69 verification was helper/API/headless QA and that real F6 mouse-based UX verification should happen during the v0.70 WorldMap final UI pass.
+- Updated the handoff so the next new chat/session starts from `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+- Noted that current City Detail / WorldMap UI is temporary/minimal and that v0.70 should prioritize information architecture before additional logic.
+- Deferred high-risk follow-ups beyond v0.70 UI foundation: real revolt, neutral owner conversion, suppression battle, assassination, actual allied military support troop movement, and joint invasion.
+
 ### v0.69-13 Espionage Action Foundation MVP
 - Started from baseline commit `3da9193b33b523b5de6d0230a988f4d374bbc108` / `v0.69-12 Diplomacy Action Foundation MVP`.
 - `GUIDE_v0.69_12_13_to_v0.70.md` was not present in the repo, so this pass followed the explicit v0.69-13 task text.

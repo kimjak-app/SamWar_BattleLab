@@ -1,5 +1,29 @@
 # CURRENT STATE
 
+## v0.69-14 EASTWAR Strategic Logic Final Checkpoint
+- v0.69 strategic logic implementation is closed at baseline:
+  - `v0.69-13 Espionage Action Foundation MVP`
+  - Commit: `0565f2d5f0acfde609e9df9e96d8e3b25726196c`
+- Completed v0.69 core logic:
+  1. `publicSupport` 민심
+  2. seasonal loyalty 민심 기반 계절 충성도
+  3. troop move loyalty efficiency 충성도 기반 병력 이동 손실
+  4. recruitment/conscription 징병/모병
+  5. revolt warning 반란 경고
+  6. national tech data 국가 테크 데이터
+  7. city tech data 도시 테크 데이터
+  8. tech start/progress/effect 테크 착수/진행/일부 효과
+  9. trade market price 무역 시세
+  10. diplomacy relation score 외교 관계 점수
+  11. tribute diplomacy 조공
+  12. alliance proposal / military support request / trade agreement 외교 액션 foundation
+  13. espionage info gathering 첩보 정보수집
+  14. public support disrupt / loyalty disrupt / revolt instigation / wedge 첩보 액션 foundation
+- Most v0.69 logic has been verified through helper/API/headless QA rather than final mouse-driven play UX.
+- Real F6 mouse-based UX verification is deferred to `v0.70` WorldMap final UI work and should be performed feature by feature during the UI pass.
+- Current City Detail / WorldMap UI remains a temporary display and minimal connection layer, not the final information architecture.
+- Next baseline direction: `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+
 ## v0.69-13 Espionage Action Foundation MVP
 - Implemented the espionage action foundation finish pass in `scripts/worldmap_test.gd`.
 - Added three chancellor-driven spy actions using the existing info gathering/publicSupport disruption structure: loyalty disruption, revolt instigation, and wedge driving.

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.69-14 EASTWAR Strategic Logic Final Checkpoint
+- Added a documentation-only checkpoint closing the v0.69 EASTWAR strategic logic track.
+- Recorded `v0.69-13 Espionage Action Foundation MVP` / commit `0565f2d5f0acfde609e9df9e96d8e3b25726196c` as the final v0.69 strategic logic baseline.
+- Summarized completed v0.69 systems: publicSupport, seasonal loyalty, loyalty-based troop move loss, recruitment/conscription, revolt warning, national/city tech data, tech pipeline/effects, trade market price, diplomacy score/actions, and espionage actions.
+- Documented that v0.69 verification is mostly helper/API/headless QA and that real F6 mouse-based UX verification moves to the v0.70 WorldMap final UI pass.
+- Prepared handoff for `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+- No code, UI, formula, save/load, battle, invasion, defense, diplomacy, espionage, revolt, tech, or trade logic changes were made.
+
 ## v0.69-13 Espionage Action Foundation MVP
 - Added loyalty disruption, revolt instigation, and wedge driving spy action helpers to `scripts/worldmap_test.gd`.
 - Added loyalty disruption cost/cooldown/detected penalty and aptitude-based effect table.

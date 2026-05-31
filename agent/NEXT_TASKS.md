@@ -1,5 +1,27 @@
 # NEXT TASKS
 
+## Next: v0.70-1 WorldMap Final UX/UI Information Architecture
+- `v0.69-14 EASTWAR Strategic Logic Final Checkpoint` closes the v0.69 strategic logic track.
+- Next implementation session should start with `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+- v0.70 is primarily an information architecture and UX/UI pass over the v0.69 logic, not a new strategic-logic expansion pass.
+- v0.70 main goals:
+  1. 도시 패널 재구성
+  2. 태수 임명 UI
+  3. 재상/국가 운영 UI
+  4. 테크트리 전용 창 + 아이콘/이미지 연결
+  5. 무역/시세/외교/첩보 UI
+  6. 병력 이동 from/to/amount UI
+  7. 재상 병력 재배분 제안 카드 UI
+  8. 반란 경고/위험 표시
+  9. v0.69 로직 F6 수동 검증
+- High-risk follow-ups after v0.70 UI foundation:
+  1. 실제 반란 발생
+  2. 도시 neutral 전환
+  3. 반란 진압 전투
+  4. 암살
+  5. 동맹 군사 지원 실제 병력 이동
+  6. 공동 침공
+
 ## Current v0.69-13 Espionage Action Foundation Status
 - `v0.69-13 Espionage Action Foundation MVP` is complete in code/docs.
 - Implemented loyalty disruption, revolt instigation, and wedge driving as helper/API-only spy actions.

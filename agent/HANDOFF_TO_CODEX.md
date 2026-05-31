@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.69-14 EASTWAR Strategic Logic Final Checkpoint Handoff
+- Start any new chat/session from this baseline unless the user explicitly provides a newer commit:
+  - `v0.69-13 Espionage Action Foundation MVP`
+  - Commit: `0565f2d5f0acfde609e9df9e96d8e3b25726196c`
+- v0.69 strategic simulation logic is now considered complete enough for the next phase.
+- The next task should be `v0.70-1 WorldMap Final UX/UI Information Architecture`.
+- v0.70 should begin with information structure and UX/UI design, not additional strategic logic.
+- The first priority is to decide how the v0.69 systems should be exposed, grouped, summarized, and operated in the WorldMap UI.
+- During UI work, if behavior looks wrong, first isolate whether it is a display/state-binding issue or an actual v0.69 logic bug.
+- Modify v0.69 logic only when F6 manual validation identifies a clear bug; keep those fixes minimal and scoped.
+- Existing City Detail / WorldMap UI is temporary and should not be treated as final UX.
+- High-risk systems still deferred beyond UI foundation: real revolt, neutral owner conversion, suppression battle, assassination, actual allied military support troop movement, and joint invasion.
+
 ## v0.69-13 Espionage Action Foundation Handoff
 - `v0.69-13 Espionage Action Foundation MVP` is implemented in `scripts/worldmap_test.gd`.
 - The requested guide file `GUIDE_v0.69_12_13_to_v0.70.md` was not found in the repo; implementation followed the explicit v0.69-13 task requirements.
