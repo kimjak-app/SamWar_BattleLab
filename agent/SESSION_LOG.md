@@ -2,6 +2,22 @@
 
 ## 2026-06-01
 
+### v0.69-11 Espionage Info Gathering MVP
+- Started from baseline commit `dd61a57cbaa9dc7da484b80d9ff76ad5f557dab6` / `v0.69-10B Tribute Diplomacy Action MVP`.
+- Implemented chancellor-driven enemy city information gathering in `scripts/worldmap_test.gd`.
+- Added political aptitude lookup using existing chancellor hero data.
+- Added success chance table for political aptitude `5/4/3/2/1 -> 80/65/50/35/20`.
+- Added visibility levels from `troops_estimated` at aptitude `1` up to troops/resources/publicSupport/loyalty/governor/tech at aptitude `5`.
+- Added target detection chance based on security/public order and loyalty, with primary political chancellor detection `-10`.
+- Added forced-roll spy result helper for deterministic QA and `_gather_spy_info()` result/payload recording.
+- Added `spy_cooldown`, `last_spy_result`, and `last_spy_cooldown_result`; cooldown is base `6`, or `4` for primary political chancellor.
+- Connected spy cooldown decrement to the domestic world turn. No automatic spy action is run.
+- Detection is recorded only. No relation score penalty, status change, war, revolt, or target-city mutation was added.
+- Did not implement publicSupport disruption, loyalty disruption, revolt instigation, alienation, assassination, espionage UI, battle changes, or save/load core rewrites.
+- QA runner confirmed no-chancellor/no-political/own-city blocks, success and visibility tables, enemy target availability, forced success/failure/detection, payload fields, cooldown `4/6`, cooldown decrement, save/load preservation, and no target city/relation/resource/tech mutation.
+- Next candidates are `v0.69-11B Espionage Public Support Disrupt MVP` or `v0.69-10C Alliance War Status Foundation MVP`.
+- Remaining risks: no UI trigger exists; detection has no gameplay penalty yet; target tech visibility is limited by existing data.
+
 ### v0.69-10B Tribute Diplomacy Action MVP
 - Started from baseline commit `ef1e5aa6d3fd53ba2ecbc29a04aa8ee44082e872` / `v0.69-10 Diplomacy Relation Score MVP`.
 - Implemented the first diplomacy action MVP, tribute, in `scripts/worldmap_test.gd`.

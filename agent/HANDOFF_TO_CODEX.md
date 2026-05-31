@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.69-11 Espionage Info Gathering Handoff
+- `v0.69-11 Espionage Info Gathering MVP` is implemented in `scripts/worldmap_test.gd`.
+- Espionage subject is the current chancellor. If no chancellor is assigned, info gathering is unavailable.
+- Political aptitude is read from existing chancellor hero data. Primary political type gives detection `-10` and cooldown `-2`.
+- Success chance table: aptitude `5 -> 80`, `4 -> 65`, `3 -> 50`, `2 -> 35`, `1 -> 20`.
+- Visibility table: aptitude `5` shows troops/resources/publicSupport/loyalty/governor/tech; `4` shows troops/resources/publicSupport/loyalty; `3` shows troops/resources; `2` shows troops; `1` shows deterministic troop estimate.
+- `_roll_spy_info_result()` supports forced rolls for deterministic tests. `_gather_spy_info()` records result and payload.
+- Detection is recorded only. Do not add relation penalties, status changes, war, or revolt effects unless explicitly scoped.
+- Spy cooldown is `_player_state["spy_cooldown"]`: base `6`, primary political chancellor `4`.
+- Not implemented: publicSupport disruption, loyalty disruption, revolt instigation, alienation, assassination, espionage UI, alliance/trade agreement, or war declaration.
+- Next candidates: `v0.69-11B Espionage Public Support Disrupt MVP` or `v0.69-10C Alliance War Status Foundation MVP`.
+- Remaining risks: no player-facing espionage trigger exists; detection penalty is deferred; target national/city tech visibility is constrained by existing data structures.
+
 ## v0.69-10B Tribute Diplomacy Action Handoff
 - `v0.69-10B Tribute Diplomacy Action MVP` is implemented in `scripts/worldmap_test.gd`.
 - Tribute is the first diplomacy action and is currently helper/API only.

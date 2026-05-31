@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.69-11 Espionage Info Gathering MVP
+- Implemented the first Espionage Info Gathering MVP in `scripts/worldmap_test.gd`.
+- Espionage subject is the current chancellor. No chancellor means spy info gathering is unavailable.
+- Political aptitude is read from the existing chancellor hero data. Political primary/secondary aptitude enables spy info gathering; primary political type gets the MVP cooldown bonus.
+- Success chance by political aptitude: aptitude `5 -> 80`, `4 -> 65`, `3 -> 50`, `2 -> 35`, `1 -> 20`.
+- Information visibility by aptitude: `5` reveals troops/resources/publicSupport/loyalty/governor/tech, `4` reveals troops/resources/publicSupport/loyalty, `3` reveals troops/resources, `2` reveals troops, and `1` reveals deterministic estimated troops.
+- Added detection chance calculation from target city security/public order and loyalty. Political primary chancellor reduces detection chance by `10`.
+- `_gather_spy_info()` supports forced rolls for deterministic QA, records success/failure/detected state, and creates payload only on success.
+- Detection is recorded only. No relation penalty, status change, war, revolt, or target-city mutation is applied in this MVP.
+- Added `spy_cooldown` and `_advance_spy_cooldown_for_world_turn()`. Base cooldown is `6`; primary political chancellor cooldown is `4`.
+- Added result records: `_player_state["last_spy_result"]` and `_player_state["last_spy_cooldown_result"]`.
+- Not implemented: publicSupport disruption, loyalty disruption, revolt instigation, alienation, assassination, espionage UI, war declaration, alliance/trade agreement, or battle/invasion/defense changes.
+- Verification passed: `rg` for spy helpers/result fields, temporary QA runner, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. Godot `--check-only` timed out locally.
+- QA runner confirmed no-chancellor/no-political/own-city blocks, success chance table, visibility table, enemy-city availability, forced success/failure/detection, payload fields, cooldown `4/6`, cooldown decrement, save/load preservation, and no target city/relation/resource/tech mutation.
+- Next candidates: `v0.69-11B Espionage Public Support Disrupt MVP` or `v0.69-10C Alliance War Status Foundation MVP`.
+- Remaining risks: random live execution is helper-only without UI; detection has no gameplay penalty yet; target tech/national data remains limited by existing data structures; final F6 espionage UX validation remains deferred.
+
 ## v0.69-10B Tribute Diplomacy Action MVP
 - Implemented the first diplomacy action MVP, tribute, in `scripts/worldmap_test.gd`.
 - Tribute is API/helper only. No diplomacy UI, button, alliance proposal, trade agreement, declaration of war, espionage, revolt instigation, or specialty trade execution was added.

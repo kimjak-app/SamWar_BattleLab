@@ -74,6 +74,7 @@ const TRIBUTE_BASE_COST := {
 	"gold": 300,
 	"silk": 100,
 }
+const SPY_COOLDOWN_TURNS := 6
 const TRADE_SUSPENSION_TURNS := 3
 const RELATION_TRADE_MULTIPLIER := {
 	"allied": 1.25,
@@ -1953,6 +1954,13 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_diplomacy_cooldown_result"] = {}
 	if not _player_state.has("last_tribute_result") or not (_player_state["last_tribute_result"] is Dictionary):
 		_player_state["last_tribute_result"] = {}
+	if not _player_state.has("spy_cooldown"):
+		_player_state["spy_cooldown"] = 0
+	_player_state["spy_cooldown"] = maxi(0, int(_player_state.get("spy_cooldown", 0)))
+	if not _player_state.has("last_spy_result") or not (_player_state["last_spy_result"] is Dictionary):
+		_player_state["last_spy_result"] = {}
+	if not _player_state.has("last_spy_cooldown_result") or not (_player_state["last_spy_cooldown_result"] is Dictionary):
+		_player_state["last_spy_cooldown_result"] = {}
 	if not _player_state.has("last_supply_state_result") or not (_player_state["last_supply_state_result"] is Dictionary):
 		_player_state["last_supply_state_result"] = {}
 	if not _player_state.has("last_public_support_result") or not (_player_state["last_public_support_result"] is Dictionary):
@@ -5880,6 +5888,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var national_effects := _calculate_active_chancellor_national_effects()
 	var diplomacy_normalize_result := _normalize_faction_relations_for_world_state()
 	var diplomacy_cooldown_result := _advance_diplomacy_cooldowns_for_world_turn()
+	var spy_cooldown_result := _advance_spy_cooldown_for_world_turn()
 	var supply_states := _calculate_all_city_supply_states()
 	var income_delta := _calculate_player_domestic_income_delta(turn_number, tax_level, policy_id, national_effects, supply_states)
 	var upkeep_delta := _calculate_player_hero_upkeep_delta(policy_id, national_effects, supply_states)
@@ -5903,7 +5912,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var trade_market_result := _update_trade_market_for_world_turn(supply_states)
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
 		"version": "v0.69-4",
@@ -5917,6 +5926,7 @@ func _apply_domestic_turn_mvp() -> String:
 		"national_effects": national_effects,
 		"diplomacy_normalize_result": diplomacy_normalize_result,
 		"diplomacy_cooldown_result": diplomacy_cooldown_result,
+		"spy_cooldown_result": spy_cooldown_result,
 		"supply_state_result": supply_states,
 		"inter_faction_trade_result": inter_faction_trade_result,
 		"public_support_result": public_support_result,
@@ -5929,7 +5939,7 @@ func _apply_domestic_turn_mvp() -> String:
 		"tech_effect_result": tech_effect_result,
 		"trade_market_result": trade_market_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -6495,6 +6505,256 @@ func _advance_diplomacy_cooldowns_for_world_turn() -> Dictionary:
 		"changed": changed,
 	}
 	_player_state["last_diplomacy_cooldown_result"] = result
+	return result
+
+
+func _get_current_chancellor_political_aptitude() -> int:
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty():
+		return 0
+	var hero_data := _get_hero_entry(chancellor_id)
+	if hero_data.is_empty() or str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+		return 0
+	var aptitude := 0
+	if str(hero_data.get("chancellor_primary_type", "")) == "political":
+		aptitude = maxi(aptitude, int(hero_data.get("chancellor_primary_aptitude", 0)))
+	if str(hero_data.get("chancellor_secondary_type", "")) == "political":
+		aptitude = maxi(aptitude, int(hero_data.get("chancellor_secondary_aptitude", 0)))
+	return clampi(aptitude, 0, 5)
+
+
+func _is_current_chancellor_political_type() -> bool:
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty():
+		return false
+	var hero_data := _get_hero_entry(chancellor_id)
+	if hero_data.is_empty() or str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+		return false
+	return str(hero_data.get("chancellor_primary_type", "")) == "political"
+
+
+func _get_spy_info_success_chance() -> int:
+	match _get_current_chancellor_political_aptitude():
+		5:
+			return 80
+		4:
+			return 65
+		3:
+			return 50
+		2:
+			return 35
+		1:
+			return 20
+		_:
+			return 0
+
+
+func _get_city_security_score_for_spy(target_city_id: String) -> int:
+	var city_data := _get_city_hud_entry(target_city_id)
+	if city_data.is_empty():
+		return 0
+	if city_data.has("security"):
+		return clampi(int(city_data.get("security", 0)), 0, 100)
+	if city_data.has("public_order"):
+		return clampi(int(city_data.get("public_order", 0)), 0, 100)
+	var domestic_seed: Dictionary = city_data.get("domestic_seed", {}) if city_data.get("domestic_seed", {}) is Dictionary else {}
+	if domestic_seed.has("publicOrder"):
+		return clampi(int(domestic_seed.get("publicOrder", 0)), 0, 100)
+	var required := maxi(1, _get_city_security_required_troops(city_data))
+	var troops := _get_city_troops_for_battle_context(target_city_id)
+	return clampi(int(round((float(troops) / float(required)) * 100.0)), 0, 100)
+
+
+func _calculate_spy_detection_chance(target_city_id: String) -> int:
+	var city_data := _get_city_hud_entry(target_city_id)
+	if city_data.is_empty():
+		return 0
+	var detection := 20
+	var security := _get_city_security_score_for_spy(target_city_id)
+	var loyalty := _get_city_loyalty_value(city_data)
+	if security >= 90:
+		detection += 35
+	elif security >= 70:
+		detection += 20
+	if loyalty >= 90:
+		detection += 25
+	elif loyalty >= 70:
+		detection += 15
+	if _is_current_chancellor_political_type():
+		detection -= 10
+	return clampi(detection, 0, 95)
+
+
+func _get_spy_info_visibility_level(political_aptitude: int) -> Dictionary:
+	var aptitude := clampi(political_aptitude, 0, 5)
+	match aptitude:
+		5:
+			return {"fields": ["troops", "resources", "publicSupport", "loyalty", "governor", "tech"], "estimated": false}
+		4:
+			return {"fields": ["troops", "resources", "publicSupport", "loyalty"], "estimated": false}
+		3:
+			return {"fields": ["troops", "resources"], "estimated": false}
+		2:
+			return {"fields": ["troops"], "estimated": false}
+		1:
+			return {"fields": ["troops_estimated"], "estimated": true}
+		_:
+			return {"fields": [], "estimated": false}
+
+
+func _can_gather_spy_info(target_city_id: String) -> Dictionary:
+	var city_data := _get_city_hud_entry(target_city_id)
+	if target_city_id.is_empty() or city_data.is_empty():
+		return {"ok": false, "reason": "invalid_target"}
+	if _is_city_owned_by_player_mvp(target_city_id):
+		return {"ok": false, "reason": "own_city"}
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty() or _get_hero_entry(chancellor_id).is_empty():
+		return {"ok": false, "reason": "no_chancellor"}
+	var political_aptitude := _get_current_chancellor_political_aptitude()
+	if political_aptitude <= 0:
+		return {"ok": false, "reason": "no_political_aptitude"}
+	var spy_cooldown := maxi(0, int(_player_state.get("spy_cooldown", 0)))
+	if spy_cooldown > 0:
+		return {"ok": false, "reason": "cooldown", "cooldown": spy_cooldown}
+	var security := _get_city_security_score_for_spy(target_city_id)
+	var loyalty := _get_city_loyalty_value(city_data)
+	if security >= 100 and loyalty >= 100:
+		return {"ok": false, "reason": "iron_wall", "security": security, "loyalty": loyalty}
+	var visibility := _get_spy_info_visibility_level(political_aptitude)
+	return {
+		"ok": true,
+		"political_aptitude": political_aptitude,
+		"success_chance": _get_spy_info_success_chance(),
+		"detection_chance": _calculate_spy_detection_chance(target_city_id),
+		"fields": visibility.get("fields", []),
+		"estimated": bool(visibility.get("estimated", false)),
+	}
+
+
+func _roll_spy_info_result(target_city_id: String, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	var check := _can_gather_spy_info(target_city_id)
+	if not bool(check.get("ok", false)):
+		return {
+			"ok": false,
+			"reason": str(check.get("reason", "unknown")),
+			"target_city_id": target_city_id,
+			"success": false,
+			"detected": false,
+		}
+	var roll := forced_roll if forced_roll >= 0 else (randi() % 100) + 1
+	var detection_roll := forced_detection_roll if forced_detection_roll >= 0 else (randi() % 100) + 1
+	roll = clampi(roll, 1, 100)
+	detection_roll = clampi(detection_roll, 1, 100)
+	var success_chance := int(check.get("success_chance", 0))
+	var detection_chance := int(check.get("detection_chance", 0))
+	return {
+		"ok": true,
+		"target_city_id": target_city_id,
+		"success": roll <= success_chance,
+		"detected": detection_roll <= detection_chance,
+		"roll": roll,
+		"detection_roll": detection_roll,
+		"success_chance": success_chance,
+		"detection_chance": detection_chance,
+		"political_aptitude": int(check.get("political_aptitude", 0)),
+		"fields": check.get("fields", []),
+		"estimated": bool(check.get("estimated", false)),
+	}
+
+
+func _build_spy_info_payload(target_city_id: String, fields: Array, estimated: bool = false) -> Dictionary:
+	var city_data := _get_city_hud_entry(target_city_id)
+	if city_data.is_empty():
+		return {}
+	var payload := {"city_id": target_city_id, "city_name": _format_city_name_by_id(target_city_id, target_city_id)}
+	for field_variant in fields:
+		var field := str(field_variant)
+		match field:
+			"troops":
+				payload["troops"] = _get_city_troops_for_battle_context(target_city_id)
+			"troops_estimated":
+				var troops := _get_city_troops_for_battle_context(target_city_id)
+				payload["troops_estimated"] = int(round(float(troops) / 500.0)) * 500
+			"resources":
+				if city_data.has("resource_seed") and city_data.get("resource_seed") is Dictionary:
+					payload["resources"] = (city_data.get("resource_seed") as Dictionary).duplicate(true)
+				elif city_data.has("resources"):
+					payload["resources"] = str(city_data.get("resources", "not_available"))
+				else:
+					payload["resources"] = "not_available"
+			"publicSupport":
+				var domestic_seed: Dictionary = city_data.get("domestic_seed", {}) if city_data.get("domestic_seed", {}) is Dictionary else {}
+				if city_data.has("publicSupport"):
+					payload["publicSupport"] = _get_city_public_support(target_city_id)
+				elif domestic_seed.has("publicSupport"):
+					payload["publicSupport"] = clampi(int(domestic_seed.get("publicSupport", CITY_PUBLIC_SUPPORT_DEFAULT)), 0, 100)
+				else:
+					payload["publicSupport"] = "not_available"
+			"loyalty":
+				payload["loyalty"] = _get_city_loyalty_value(city_data)
+			"governor":
+				var governor_id := str(city_data.get("governor_id", city_data.get("governorHeroId", "")))
+				payload["governor"] = governor_id if not governor_id.is_empty() else "not_available"
+			"tech":
+				var tech_payload := {"city_completed": "not_available", "national_completed": "not_available"}
+				if _city_runtime_states.has(target_city_id):
+					var runtime_state: Dictionary = _city_runtime_states.get(target_city_id, {}) if _city_runtime_states.get(target_city_id, {}) is Dictionary else {}
+					var city_tech: Dictionary = runtime_state.get("city_tech", {}) if runtime_state.get("city_tech", {}) is Dictionary else {}
+					var completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
+					tech_payload["city_completed"] = completed.keys() if not completed.is_empty() else "not_available"
+				payload["tech"] = tech_payload
+	if estimated and not payload.has("troops_estimated") and payload.has("troops"):
+		payload["troops_estimated"] = int(round(float(int(payload.get("troops", 0))) / 500.0)) * 500
+		payload.erase("troops")
+	return payload
+
+
+func _get_spy_cooldown_turns() -> int:
+	return maxi(1, SPY_COOLDOWN_TURNS - (2 if _is_current_chancellor_political_type() else 0))
+
+
+func _gather_spy_info(target_city_id: String, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	var roll_result := _roll_spy_info_result(target_city_id, forced_roll, forced_detection_roll)
+	var cooldown := 0
+	var payload := {}
+	if bool(roll_result.get("ok", false)):
+		cooldown = _get_spy_cooldown_turns()
+		_player_state["spy_cooldown"] = cooldown
+		if bool(roll_result.get("success", false)):
+			payload = _build_spy_info_payload(target_city_id, roll_result.get("fields", []), bool(roll_result.get("estimated", false)))
+	var result := {
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"target_city_id": target_city_id,
+		"success": bool(roll_result.get("success", false)),
+		"detected": bool(roll_result.get("detected", false)),
+		"roll": int(roll_result.get("roll", -1)),
+		"detection_roll": int(roll_result.get("detection_roll", -1)),
+		"success_chance": int(roll_result.get("success_chance", 0)),
+		"detection_chance": int(roll_result.get("detection_chance", 0)),
+		"political_aptitude": int(roll_result.get("political_aptitude", 0)),
+		"fields": roll_result.get("fields", []),
+		"payload": payload,
+		"cooldown": cooldown,
+		"success_valid": bool(roll_result.get("ok", false)),
+	}
+	if not bool(roll_result.get("ok", false)):
+		result["reason"] = str(roll_result.get("reason", "unknown"))
+	_player_state["last_spy_result"] = result
+	return result
+
+
+func _advance_spy_cooldown_for_world_turn() -> Dictionary:
+	var before_cooldown := maxi(0, int(_player_state.get("spy_cooldown", 0)))
+	var after_cooldown := maxi(0, before_cooldown - 1)
+	_player_state["spy_cooldown"] = after_cooldown
+	var result := {
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"before": before_cooldown,
+		"after": after_cooldown,
+		"changed": before_cooldown != after_cooldown,
+	}
+	_player_state["last_spy_cooldown_result"] = result
 	return result
 
 
@@ -7166,7 +7426,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}, tech_effect_result: Dictionary = {}, trade_market_result: Dictionary = {}, diplomacy_normalize_result: Dictionary = {}, diplomacy_cooldown_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}, tech_effect_result: Dictionary = {}, trade_market_result: Dictionary = {}, diplomacy_normalize_result: Dictionary = {}, diplomacy_cooldown_result: Dictionary = {}, spy_cooldown_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -7216,6 +7476,13 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 	var tribute_summary := _format_last_tribute_summary(maxi(1, int(diplomacy_cooldown_result.get("turn", _player_state.get("turn_number", 1)))))
 	if not tribute_summary.is_empty():
 		parts.append(tribute_summary)
+	if not spy_cooldown_result.is_empty():
+		var spy_cooldown_summary := _format_spy_cooldown_summary(spy_cooldown_result)
+		if not spy_cooldown_summary.is_empty():
+			parts.append(spy_cooldown_summary)
+	var spy_summary := _format_last_spy_summary(maxi(1, int(spy_cooldown_result.get("turn", _player_state.get("turn_number", 1)))))
+	if not spy_summary.is_empty():
+		parts.append(spy_summary)
 	if parts.is_empty():
 		return "변동 없음"
 	return " · ".join(parts)
@@ -7280,6 +7547,26 @@ func _format_last_tribute_summary(turn_number: int) -> String:
 		int(tribute_result.get("relation_gain", 0)),
 		int(tribute_result.get("after_score", 0)),
 	]
+
+
+func _format_spy_cooldown_summary(result: Dictionary) -> String:
+	if not bool(result.get("changed", false)):
+		return ""
+	return "첩보 쿨다운 감소: %d→%d" % [int(result.get("before", 0)), int(result.get("after", 0))]
+
+
+func _format_last_spy_summary(turn_number: int) -> String:
+	var result: Variant = _player_state.get("last_spy_result", {})
+	if not result is Dictionary:
+		return ""
+	var spy_result := result as Dictionary
+	if int(spy_result.get("turn", 0)) != maxi(1, turn_number):
+		return ""
+	if not bool(spy_result.get("success_valid", true)):
+		return ""
+	var outcome := "성공" if bool(spy_result.get("success", false)) else "실패"
+	var detected_text := " / 발각" if bool(spy_result.get("detected", false)) else ""
+	return "첩보 결과: %s%s" % [outcome, detected_text]
 
 
 func _get_trade_market_trend_symbol(trend: String) -> String:

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.69-11 Espionage Info Gathering MVP
+- Added chancellor-driven spy information gathering helpers to `scripts/worldmap_test.gd`.
+- Added `SPY_COOLDOWN_TURNS := 6`, `spy_cooldown`, `last_spy_result`, and `last_spy_cooldown_result`.
+- Added political aptitude lookup, political-primary detection/cooldown bonus checks, success chance calculation, detection chance calculation, visibility level calculation, spy validation, roll, payload, execution, and cooldown helpers.
+- Success chances are aptitude-based: `5/4/3/2/1 -> 80/65/50/35/20`.
+- Payload visibility scales from estimated troops at aptitude `1` to troops/resources/publicSupport/loyalty/governor/tech at aptitude `5`.
+- Detection is recorded only; no relation penalty, status change, war, revolt, or target-city mutation is applied.
+- Connected spy cooldown decrement to the domestic world turn. No automatic spy action is run.
+- Did not implement publicSupport disruption, loyalty disruption, revolt instigation, alienation, assassination, espionage UI, diplomacy status changes, battle changes, or save/load core rewrites.
+
 ## v0.69-10B Tribute Diplomacy Action MVP
 - Added the first diplomacy action MVP: tribute sending.
 - Added tribute constants: cooldown `5` turns, relation gain bounds `15..25`, and MVP base cost `gold 300` + `silk 100`.

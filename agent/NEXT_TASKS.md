@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Current v0.69-11 Espionage Info Gathering Status
+- `v0.69-11 Espionage Info Gathering MVP` is complete in code/docs.
+- Spy info gathering is chancellor-driven and requires political aptitude.
+- Detection is recorded only; no relation/status/war/revolt penalty is applied yet.
+- Spy cooldown is stored in `_player_state["spy_cooldown"]`, with base `6` turns and primary political chancellor `4` turns.
+- No publicSupport disruption, loyalty disruption, revolt instigation, alienation, assassination, espionage UI, alliance, trade agreement, or war declaration exists yet.
+- Recommended next task:
+  - `v0.69-11B Espionage Public Support Disrupt MVP`
+  - Alternative: `v0.69-10C Alliance War Status Foundation MVP`
+
 ## Current v0.69-10B Tribute Diplomacy Action Status
 - `v0.69-10B Tribute Diplomacy Action MVP` is complete in code/docs.
 - Tribute costs `gold 300` + `silk 100` and increases relation score by deterministic `+20`.
