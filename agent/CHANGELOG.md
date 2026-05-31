@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.69-1 Public Support MVP
+- Added city-level `publicSupport` runtime support to `scripts/worldmap_test.gd`.
+- Added `CITY_PUBLIC_SUPPORT_DEFAULT := 70`, `PUBLIC_SUPPORT_DELTA_MIN := -7`, and `PUBLIC_SUPPORT_DELTA_MAX := 3`.
+- Added `_get_city_public_support`, `_set_city_public_support`, `_calculate_city_public_support_delta`, and `_apply_city_public_support_drift_for_world_turn`.
+- Public support drift uses MVP tax, food, commerce, and supply-isolation components, with final delta clamped to `-7..+3`.
+- Domestic turn now records `_player_state["last_public_support_result"]` and includes public support in `last_domestic_apply_result`.
+- City runtime save/load minimally preserves `publicSupport` without rewriting the save/load core structure.
+- City Detail internal/supply tab and domestic turn summary show minimal public support values and recent deltas.
+- Kept public support and loyalty as separate axes. Existing `loyalty` / `cityLoyalty` and P0-2 city loyalty drift were not replaced.
+- Did not implement Seasonal Loyalty From Public Support, recruitment/conscription, troop-move loyalty efficiency, revolt, tech trees, trade deepening, diplomacy/espionage, battle/invasion/defense changes, save/load core rewrites, or large UI refactors.
+
 ## v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock
 - Compared the five latest confirmed design inputs under `_incoming_confirmed_designs/` against the official `agent/CONFIRMED_*` documents.
 - Replaced the official `agent/` design documents with the incoming confirmed versions, keeping `_incoming_confirmed_designs/` out of the commit scope.

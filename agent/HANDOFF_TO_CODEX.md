@@ -1,5 +1,14 @@
 # HANDOFF TO CODEX
 
+## v0.69-1 Public Support MVP Handoff
+- `v0.69-1 Public Support MVP` is implemented in `scripts/worldmap_test.gd`.
+- `publicSupport` is a separate city runtime value from existing `loyalty` / `cityLoyalty`. Do not merge, rename, or replace loyalty with public support.
+- Existing P0-2 city loyalty drift remains active and separate. Public support is not seasonally reflected into loyalty yet.
+- `publicSupport` defaults to `70`, clamps `0..100`, saves/loads through the existing city runtime payload, and records turn output in `_player_state["last_public_support_result"]`.
+- Domestic turn order now applies public support drift after income/upkeep/trade resource application and before national/city loyalty drift. This is intentionally non-coupled for v0.69-1.
+- Next task should be `v0.69-2 Seasonal Loyalty From Public Support MVP`.
+- Remaining risks: the MVP food/commerce checks use current `resource_stock` plus recent domestic/trade result fallback, not a complete city-level economy model; UI display is minimal.
+
 ## v0.69-0 Roadmap Handoff
 - `v0.69` is not a simple feature-addition track. It is the start of the EASTWAR strategic simulation foundation.
 - Build beyond the existing web-version MVP depth. The v0.68b baseline is closed at `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions` / commit `aec588b`.

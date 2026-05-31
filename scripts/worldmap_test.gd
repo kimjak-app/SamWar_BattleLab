@@ -49,6 +49,9 @@ const CHANCELLOR_PRIMARY_RATE := 0.03
 const CHANCELLOR_SECONDARY_RATE := 0.015
 const GOVERNOR_PRIMARY_RATE := 0.025
 const GOVERNOR_SECONDARY_RATE := 0.0125
+const CITY_PUBLIC_SUPPORT_DEFAULT := 70
+const PUBLIC_SUPPORT_DELTA_MIN := -7
+const PUBLIC_SUPPORT_DELTA_MAX := 3
 const CITY_LOYALTY_DRIFT_MIN := -3
 const CITY_LOYALTY_DRIFT_MAX := 3
 const STATIONED_HERO_SECURITY_WEIGHT := 1.0
@@ -550,6 +553,7 @@ var _player_state := {
 	"faction_relations": {},
 	"last_inter_faction_trade_result": {},
 	"last_supply_state_result": {},
+	"last_public_support_result": {},
 }
 var _city_policy_state: Dictionary = {}
 var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
@@ -1041,7 +1045,10 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			]
 			city_detail_security_label.text = _format_city_supply_adjustment_display(supply_state)
 			city_detail_military_label.text = "군사 보급 판단: %s" % str(city_data.get("military", "현재 주둔군 / 목표 주둔군 placeholder"))
-			city_detail_commerce_label.text = _format_city_loyalty_drift_display(city_marker.city_id)
+			city_detail_commerce_label.text = "%s\n%s" % [
+				_format_city_public_support_display(city_marker.city_id),
+				_format_city_loyalty_drift_display(city_marker.city_id),
+			]
 			city_detail_rating_label.text = _format_troop_move_preview_display(troop_move_preview)
 			city_detail_domestic_button_placeholder.text = _format_troop_move_button_text(troop_move_preview)
 		CITY_DETAIL_TAB_EXTERNAL_TRADE:
@@ -1223,6 +1230,31 @@ func _format_city_loyalty_drift_display(city_id: String) -> String:
 		_format_signed_int(int(city_drift.get("supply_delta", 0))),
 		_format_signed_int(int(city_drift.get("supply_security_delta", 0))),
 		_format_signed_int(int(city_drift.get("control_delta", 0))),
+		reason_text,
+	]
+
+
+func _format_city_public_support_display(city_id: String) -> String:
+	var value := _get_city_public_support(city_id)
+	var result: Dictionary = _player_state.get("last_public_support_result", {})
+	var city_results: Variant = result.get("city_results", {})
+	if not city_results is Dictionary or not (city_results as Dictionary).has(city_id):
+		return "■ 민심\n민심: %d\n최근 민심 변화 기록 없음" % value
+	var city_result: Variant = (city_results as Dictionary).get(city_id, {})
+	if not city_result is Dictionary:
+		return "■ 민심\n민심: %d\n최근 민심 변화 기록 없음" % value
+	var support_result := city_result as Dictionary
+	var reasons: Array = support_result.get("reasons", [])
+	var reason_text := " / ".join(_string_array_from_variant_array(reasons))
+	if reason_text.is_empty():
+		reason_text = "요인 없음"
+	return "■ 민심\n민심: %d (%s)\n사유: 세율 %s, 식량 %s, 상업 %s, 보급 %s\n요인: %s" % [
+		int(support_result.get("after", value)),
+		_format_signed_int(int(support_result.get("delta", 0))),
+		_format_signed_int(int(support_result.get("tax_delta", 0))),
+		_format_signed_int(int(support_result.get("food_delta", 0))),
+		_format_signed_int(int(support_result.get("commerce_delta", 0))),
+		_format_signed_int(int(support_result.get("supply_delta", 0))),
 		reason_text,
 	]
 
@@ -1790,6 +1822,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_inter_faction_trade_result"] = {}
 	if not _player_state.has("last_supply_state_result") or not (_player_state["last_supply_state_result"] is Dictionary):
 		_player_state["last_supply_state_result"] = {}
+	if not _player_state.has("last_public_support_result") or not (_player_state["last_public_support_result"] is Dictionary):
+		_player_state["last_public_support_result"] = {}
 
 
 func _normalize_turn_phase(phase: String) -> String:
@@ -4479,6 +4513,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var combined_delta := _combine_resource_deltas(income_delta, upkeep_delta)
 	var applied_delta := _apply_resource_delta(combined_delta)
 	var inter_faction_trade_result := _apply_player_inter_faction_trade_income(turn_number)
+	var public_support_result := _apply_city_public_support_drift_for_world_turn(tax_level, supply_states)
 	var base_loyalty_delta := _get_tax_loyalty_delta(tax_level)
 	var loyalty_delta := _adjust_loyalty_delta(base_loyalty_delta, float(national_effects.get("national_loyalty_loss_multiplier", 1.0)))
 	var before_loyalty := clampi(int(_player_state.get("national_loyalty", 75)), 0, 100)
@@ -4488,10 +4523,10 @@ func _apply_domestic_turn_mvp() -> String:
 	var city_loyalty_drift_result := _apply_city_loyalty_drift_for_world_turn(tax_level, policy_id, supply_states)
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
-		"version": "v0.68b-12b-7",
+		"version": "v0.69-1",
 		"turn_number": turn_number,
 		"tax_level": tax_level,
 		"chancellor_policy_id": policy_id,
@@ -4502,9 +4537,10 @@ func _apply_domestic_turn_mvp() -> String:
 		"national_effects": national_effects,
 		"supply_state_result": supply_states,
 		"inter_faction_trade_result": inter_faction_trade_result,
+		"public_support_result": public_support_result,
 		"city_loyalty_drift_result": city_loyalty_drift_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -4978,6 +5014,120 @@ func _get_city_loyalty_value(city_data: Dictionary) -> int:
 	return clampi(int(city_data.get("cityLoyalty", city_data.get("loyalty", 75))), 0, 100)
 
 
+func _get_city_public_support(city_id: String) -> int:
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.is_empty():
+		return CITY_PUBLIC_SUPPORT_DEFAULT
+	return clampi(int(city_data.get("publicSupport", CITY_PUBLIC_SUPPORT_DEFAULT)), 0, 100)
+
+
+func _set_city_public_support(city_id: String, value: int) -> void:
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	if city_data.is_empty():
+		return
+	city_data["publicSupport"] = clampi(value, 0, 100)
+	_city_runtime_states[city_id] = city_data
+
+
+func _calculate_city_public_support_delta(city_id: String, tax_level: int, supply_state: Dictionary = {}) -> Dictionary:
+	var normalized_tax := _normalize_tax_level(tax_level)
+	var tax_delta := 1
+	if normalized_tax > 90:
+		tax_delta = -3
+	elif normalized_tax > 60:
+		tax_delta = -2
+	elif normalized_tax > 30:
+		tax_delta = -1
+	var food_delta := 1 if _has_city_public_support_food_surplus(city_id) else -1
+	var commerce_delta := 1 if _has_city_public_support_commerce_surplus(city_id) else -1
+	var supply_delta := -2 if bool(supply_state.get("isolated", false)) else 0
+	var delta := clampi(tax_delta + food_delta + commerce_delta + supply_delta, PUBLIC_SUPPORT_DELTA_MIN, PUBLIC_SUPPORT_DELTA_MAX)
+	var reasons: Array[String] = [
+		"tax=%s" % _format_signed_int(tax_delta),
+		"food=%s" % _format_signed_int(food_delta),
+		"commerce=%s" % _format_signed_int(commerce_delta),
+		"supply=%s" % _format_signed_int(supply_delta),
+	]
+	return {
+		"city_id": city_id,
+		"delta": delta,
+		"reasons": reasons,
+		"tax_delta": tax_delta,
+		"food_delta": food_delta,
+		"commerce_delta": commerce_delta,
+		"supply_delta": supply_delta,
+		"supply_state": supply_state,
+	}
+
+
+func _has_city_public_support_food_surplus(_city_id: String) -> bool:
+	var last_domestic: Dictionary = _player_state.get("last_domestic_apply_result", {})
+	var income_delta: Variant = last_domestic.get("income_delta", {})
+	if income_delta is Dictionary:
+		var recent_food := int((income_delta as Dictionary).get("rice", 0)) + int((income_delta as Dictionary).get("barley", 0)) + int((income_delta as Dictionary).get("seafood", 0))
+		if recent_food != 0:
+			return recent_food > 0
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	return int(resource_stock.get("rice", 0)) + int(resource_stock.get("barley", 0)) + int(resource_stock.get("seafood", 0)) > 0
+
+
+func _has_city_public_support_commerce_surplus(_city_id: String) -> bool:
+	var last_domestic: Dictionary = _player_state.get("last_domestic_apply_result", {})
+	var income_delta: Variant = last_domestic.get("income_delta", {})
+	if income_delta is Dictionary and int((income_delta as Dictionary).get("gold", 0)) != 0:
+		return int((income_delta as Dictionary).get("gold", 0)) > 0
+	var last_trade: Variant = _player_state.get("last_inter_faction_trade_result", {})
+	var applied_trade: Variant = {}
+	if last_trade is Dictionary:
+		applied_trade = (last_trade as Dictionary).get("applied_player_totals", {})
+	if applied_trade is Dictionary and int((applied_trade as Dictionary).get("gold", 0)) != 0:
+		return int((applied_trade as Dictionary).get("gold", 0)) > 0
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	return int(resource_stock.get("gold", 0)) > 0
+
+
+func _apply_city_public_support_drift_for_world_turn(tax_level: int, supply_states: Dictionary = {}) -> Dictionary:
+	var result := {
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"city_results": {},
+	}
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		_player_state["last_public_support_result"] = result
+		return result
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		var city_data := _get_mutable_city_runtime_state(city_id)
+		if city_data.is_empty():
+			continue
+		var before_support := _get_city_public_support(city_id)
+		var drift := _calculate_city_public_support_delta(city_id, tax_level, _get_supply_city_state(supply_states, city_id))
+		var after_support := clampi(before_support + int(drift.get("delta", 0)), 0, 100)
+		city_data["publicSupport"] = after_support
+		_city_runtime_states[city_id] = city_data
+		var city_result := {
+			"before": before_support,
+			"after": after_support,
+			"delta": after_support - before_support,
+			"reasons": drift.get("reasons", []),
+			"tax_delta": int(drift.get("tax_delta", 0)),
+			"food_delta": int(drift.get("food_delta", 0)),
+			"commerce_delta": int(drift.get("commerce_delta", 0)),
+			"supply_delta": int(drift.get("supply_delta", 0)),
+		}
+		(result["city_results"] as Dictionary)[city_id] = city_result
+		print("[PUBLIC_SUPPORT_DRIFT] city=%s before=%d delta=%d after=%d reasons=%s" % [
+			city_id,
+			before_support,
+			int(city_result.get("delta", 0)),
+			after_support,
+			str(city_result.get("reasons", [])),
+		])
+	_player_state["last_public_support_result"] = result
+	_refresh_city_hud_data_bindings()
+	return result
+
+
 func _apply_city_loyalty_drift_for_world_turn(tax_level: int, policy_id: String, supply_states: Dictionary = {}) -> Dictionary:
 	var result := {"tax_level": tax_level, "policy_id": policy_id, "cities": []}
 	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
@@ -5173,7 +5323,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -5188,6 +5338,8 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		parts.append(_format_supply_state_summary(supply_state_result))
 	if not city_loyalty_drift_result.is_empty():
 		parts.append(_format_city_loyalty_drift_summary(city_loyalty_drift_result))
+	if not public_support_result.is_empty():
+		parts.append(_format_public_support_summary(public_support_result))
 	if parts.is_empty():
 		return "변동 없음"
 	return " · ".join(parts)
@@ -5234,6 +5386,27 @@ func _format_city_loyalty_drift_summary(result: Dictionary) -> String:
 	if large_drop_parts.is_empty():
 		return "도시 충성도 변동 %d개" % changed_count
 	return "도시 충성도 변동 %d개 · 하락 %s" % [changed_count, " / ".join(large_drop_parts)]
+
+
+func _format_public_support_summary(result: Dictionary) -> String:
+	var city_results: Variant = result.get("city_results", {})
+	if not city_results is Dictionary or (city_results as Dictionary).is_empty():
+		return "민심 변동 없음"
+	var changed_count := 0
+	var drop_parts: Array[String] = []
+	for city_id_variant in (city_results as Dictionary).keys():
+		var city_id := str(city_id_variant)
+		var city_result: Variant = (city_results as Dictionary).get(city_id, {})
+		if not city_result is Dictionary:
+			continue
+		var delta := int((city_result as Dictionary).get("delta", 0))
+		if delta != 0:
+			changed_count += 1
+		if delta < 0:
+			drop_parts.append("%s %s" % [_format_city_name_by_id(city_id, city_id), _format_signed_int(delta)])
+	if drop_parts.is_empty():
+		return "민심 변동 %d개" % changed_count
+	return "민심 변동 %d개 · 하락 %s" % [changed_count, " / ".join(drop_parts)]
 
 
 func _cancel_enemy_turn_timer_if_needed() -> void:
@@ -5405,6 +5578,7 @@ func _serialize_worldmap_city_runtime_state() -> Dictionary:
 			"owner_faction_id": str(source.get("owner_faction_id", source.get("owner", source.get("nation", "")))),
 			"faction": str(source.get("faction", source.get("owner", source.get("nation", "")))),
 			"troops": maxi(0, int(source.get("troops", 0))),
+			"publicSupport": _get_city_public_support(city_id),
 			"loyalty": _get_city_loyalty_value(source),
 			"cityLoyalty": _get_city_loyalty_value(source),
 			"stationed_hero_ids": _normalize_hero_id_array(source.get("stationed_hero_ids", source.get("hero_ids", []))),
@@ -5491,6 +5665,8 @@ func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
 			var loaded_loyalty := clampi(int(source.get("cityLoyalty", source.get("loyalty", city_state.get("loyalty", 75)))), 0, 100)
 			city_state["loyalty"] = loaded_loyalty
 			city_state["cityLoyalty"] = loaded_loyalty
+		if source.has("publicSupport"):
+			city_state["publicSupport"] = clampi(int(source.get("publicSupport", CITY_PUBLIC_SUPPORT_DEFAULT)), 0, 100)
 		if source.has("resource_stock") and source.get("resource_stock") is Dictionary:
 			var resource_stock := {}
 			for resource_id in (source.get("resource_stock") as Dictionary).keys():

@@ -1,12 +1,20 @@
 # NEXT TASKS
 
+## Current v0.69-1 Public Support Status
+- `v0.69-1 Public Support MVP` is complete in code/docs.
+- City-level `publicSupport` now exists as a separate city runtime field from `loyalty` / `cityLoyalty`, with default `70`, `0..100` clamp, minimal save/load preservation, and `last_public_support_result` turn output.
+- Public support drift currently uses MVP tax, food, commerce, and supply isolation inputs and clamps total delta to `-7..+3`.
+- Public support does not affect loyalty yet. Existing P0-2 city loyalty drift remains separate.
+- Next required task: `v0.69-2 Seasonal Loyalty From Public Support MVP`.
+- Remaining risks: food/commerce surplus checks are MVP approximations from current stock/recent result state; final UI/UX remains deferred.
+
 ## v0.69 EASTWAR Strategic Simulation Foundation Roadmap
 - v0.68b is closed at `v0.68b-13-6C2 Chancellor Troop Rebalance Suggestions` / commit `aec588b`.
 - v0.69 work starts from strategic simulation foundations, not UI-first expansion.
 - The official `agent/CONFIRMED_*` design documents now reflect the latest confirmed inputs from `_incoming_confirmed_designs/`. The incoming folder is staging input only and must not be committed by future roadmap/documentation tasks.
 - Implement systems in this order:
-  1. `v0.69-1 Public Support MVP`
-  2. `v0.69-2 Seasonal Loyalty From Public Support MVP`
+  1. `v0.69-1 Public Support MVP` - complete.
+  2. `v0.69-2 Seasonal Loyalty From Public Support MVP` - next.
   3. `v0.69-3 Troop Move Loyalty Efficiency Final Patch`
   4. `v0.69-4 Recruitment/Conscription Foundation MVP`
   5. `v0.69-5 Revolt Warning Foundation MVP`

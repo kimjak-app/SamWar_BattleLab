@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.69-1 Public Support MVP
+- Implemented city-level `publicSupport` MVP in `scripts/worldmap_test.gd` as the first EASTWAR strategic simulation foundation system.
+- `publicSupport` is stored per city in `_city_runtime_states` with default `70`, clamped to `0..100`, and preserved through the existing city runtime save/load payload via the minimal `publicSupport` field.
+- Added `publicSupport` helpers: `_get_city_public_support`, `_set_city_public_support`, `_calculate_city_public_support_delta`, and `_apply_city_public_support_drift_for_world_turn`.
+- Public support delta is calculated separately from loyalty using tax, food, commerce, and Phase B supply isolation inputs, then clamped to `-7..+3`.
+- Domestic turn now applies public support drift after income/upkeep/trade resource application and before existing national/city loyalty drift. `last_public_support_result` records per-city before/after/delta/reasons.
+- City Detail internal/supply tab and the domestic turn summary now show minimal public support status and recent delta.
+- Public support and loyalty remain separate axes. Existing `loyalty` / `cityLoyalty` fields and P0-2 city loyalty drift were not replaced or deleted.
+- Public support is not yet seasonally reflected into loyalty. `v0.69-2 Seasonal Loyalty From Public Support MVP` remains the next task.
+- Not implemented: recruitment/conscription, troop-move loyalty efficiency, revolt, tech trees, trade deepening, diplomacy/espionage, battle/invasion/defense changes, save/load core rewrite, or large UI refactor.
+- Verification passed: `rg` function/field checks, scoped loyalty diff review, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless QA runner for default 70, stable rise, high-tax drop, isolated `supply_delta -2`, `+3/-7` clamps, save/load preservation, loyalty non-interference, and `last_public_support_result`. Godot `--check-only` timed out locally after 130 seconds.
+- Remaining risks: food/commerce surplus detection is MVP-level and uses current national `resource_stock` plus recent domestic/trade result fallbacks rather than a full city-level economy model; display is minimal and should receive later UX polish after v0.69 core systems.
+
 ## v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock
 - Documentation-only roadmap lock. No code, scene, UI, battle, invasion, defense, save/load, troop movement, loyalty formula, public support, tech tree, trade deepening, diplomacy, espionage, or revolt implementation was done.
 - The five official confirmed design documents in `agent/` were compared against the latest `_incoming_confirmed_designs/` inputs and replaced with the incoming confirmed versions. `_incoming_confirmed_designs/` remains an input staging folder and is not a commit target.

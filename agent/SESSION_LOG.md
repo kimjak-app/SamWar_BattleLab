@@ -2,6 +2,21 @@
 
 ## 2026-05-31
 
+### v0.69-1 Public Support MVP
+- Started from baseline commit `fe73fc4` / `v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock`.
+- Implemented city-level `publicSupport` only in `scripts/worldmap_test.gd`.
+- Added `publicSupport` default/clamp constants, getter/setter helpers, delta calculation, turn application, and `last_public_support_result`.
+- Wired public support drift into `_apply_domestic_turn_mvp` after income/upkeep/trade resource application and before existing national/city loyalty drift.
+- Preserved existing `loyalty` / `cityLoyalty` fields and P0-2 city loyalty drift. Public support does not affect loyalty in this version.
+- Added minimal City Detail internal/supply tab display and one-line domestic summary integration for public support changes.
+- Added minimal city runtime save/load field preservation for `publicSupport` without rewriting save/load core structure.
+- Verification passed: `rg` for new symbols, scoped diff review confirming loyalty functions were not removed/replaced, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless QA runner.
+- QA runner confirmed default `publicSupport = 70`, stable low-tax public support rise, high-tax drop, isolated `supply_delta = -2`, `+3/-7` delta clamps, save/load preservation, loyalty unchanged by public support drift, and `last_public_support_result` recording.
+- Godot `--headless --check-only` timed out after 130 seconds and is recorded as inconclusive.
+- Remaining risks: MVP food/commerce surplus uses current national stock plus recent result fallbacks; final UX/UI and publicSupport-to-loyalty seasonal linkage are deferred.
+
+## 2026-05-31
+
 ### v0.69-0 EASTWAR Strategic Simulation Foundation Roadmap Lock
 - Started from clean tracked status at baseline commit `aec588b`.
 - Performed documentation-only roadmap lock for v0.69.
