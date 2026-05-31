@@ -2,6 +2,26 @@
 
 ## 2026-05-31
 
+### v0.69-8 Tech Start Progress Pipeline MVP
+- Started from baseline commit `adb9ce7c2dbfa3bd019abe882a6120b0fff8a788` / `v0.69-7A National City Tech Data Consistency Audit`.
+- Implemented the common national/city tech start and progress pipeline in `scripts/worldmap_test.gd`.
+- Added `_get_tech_duration_turns(tier)` with MVP defaults: basic 4, mid 9, advanced 18, capstone 28, rare 30.
+- Added generic resource cost check/deduction helpers. `food` uses the existing rice+barley+seafood pool and deducts in order `rice -> barley -> seafood`.
+- Implemented `_start_national_tech(tech_id)` and `_start_city_tech(city_id, tech_id)` as real MVP start functions.
+- Start flow now checks requirements/cost, deducts cost, registers `in_progress`, records duration/remaining turns, and writes `last_tech_start_result`.
+- Added `_advance_national_tech_progress_for_world_turn()` and `_advance_city_tech_progress_for_world_turn()`.
+- Completed tech moves from `in_progress` to `completed`; completed entries include `effect_summary` and `effect_applied: false`.
+- Connected tech progress to `_apply_domestic_turn_mvp()` after revolt warning, under the existing `last_domestic_apply_turn` guard so same-turn duplicate calls do not double-decrement.
+- Added minimal turn-summary text for completed national/city tech.
+- Did not implement tech effect application, UI, auto tech selection, governor/chancellor auto progress, formula changes, battle/invasion/defense changes, or save/load core rewrites.
+- Verification passed: `rg` for new/changed helpers and result fields, temporary QA runner, scoped diff reviews, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load.
+- QA runner confirmed national/city tech start, cost deduction, in-progress registration, duration setup, progress decrement, completed migration, completed restart block, city tech completion, food-pool deduction order, cost shortage rejection, placeholder-condition rejection, no publicSupport/loyalty/troop mutation from tech progress helpers, no effect application, and no same-turn double decrement.
+- Godot `--headless --check-only` timed out after 134 seconds and is recorded as inconclusive.
+- Next candidates are `v0.69-8B Tech Effect Application MVP` or `v0.69-9 Trade Deepening MVP`.
+- Remaining risks: no effect application, no player-facing UI, no automatic selection, and several placeholder conditions still block advanced techs.
+
+## 2026-05-31
+
 ### v0.69-7A National City Tech Data Consistency Audit
 - Started from baseline commit `3a5ac0f35adcca50ef42813511c3ed9d50f9be0c` / `v0.69-7 City Tech Tree Data MVP`.
 - Completed National/City Tech Data Consistency Audit in `scripts/worldmap_test.gd`.

@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.69-8 Tech Start Progress Pipeline MVP
+- Implemented Tech Start/Progress Pipeline MVP in `scripts/worldmap_test.gd`.
+- National and city tech can now start, deduct cost, enter `in_progress`, decrement `remaining_turns` once per domestic world turn, and move to `completed` when `remaining_turns <= 0`.
+- Added `_get_tech_duration_turns(tier)` with MVP duration defaults: basic `4`, mid `9`, advanced `18`, capstone `28`, rare `30`. Definition `duration_turns` overrides this if present.
+- Added generic resource cost helpers `_can_pay_generic_resource_cost(cost)` and `_apply_generic_resource_cost(cost)`. `food` is handled as the existing rice+barley+seafood pool and deducted in order `rice -> barley -> seafood`.
+- `_start_national_tech(tech_id)` now performs the MVP start flow: requirement/cost check, cost deduction, duration setup, `national_tech.in_progress` registration, and `last_tech_start_result` recording.
+- `_start_city_tech(city_id, tech_id)` now performs the same MVP start flow for per-city `city_tech.in_progress`.
+- Added `_advance_national_tech_progress_for_world_turn()` and `_advance_city_tech_progress_for_world_turn()`.
+- Completed entries include `effect_summary` and `effect_applied: false`. No tech effect is applied yet.
+- Domestic turn pipeline now advances tech progress after publicSupport drift, city loyalty drift, seasonal loyalty, conscription, and revolt warning. This keeps tech progress once-per-domestic-turn under the existing `last_domestic_apply_turn` duplicate guard.
+- Turn summary/status includes minimal completion text only when a national or city tech completes.
+- Not implemented: tech effect application, UI, auto tech selection, governor/chancellor auto progress, or final UX.
+- Verification passed: `rg` for new/changed helpers and result fields, temporary QA runner, scoped diff review, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. Godot `--check-only` timed out locally after 134 seconds.
+- QA runner confirmed national/city tech start, cost deduction, `in_progress` registration, duration/remaining turns, progress decrement, completed migration, in-progress removal, completed restart block, food cost order, cost shortage block, placeholder-condition block, no publicSupport/loyalty/troop mutation from tech progress helpers, no effect application, and no duplicate domestic-turn decrement.
+- Next candidates: `v0.69-8B Tech Effect Application MVP` or `v0.69-9 Trade Deepening MVP`.
+- Remaining risks: effects are still only recorded as pending; no UI exists to choose/start tech; `connected_supply_city_count`, duration tuning, and maritime data linkage remain future work.
+
 ## v0.69-7A National City Tech Data Consistency Audit
 - Completed National/City Tech Data Consistency Audit in `scripts/worldmap_test.gd`.
 - Added `_validate_tech_data_consistency()` as a QA/debug helper only. It checks definitions and returns missing refs, invalid cost keys, invalid aptitude types, missing image fields, and placeholder conditions without mutating player state, resources, troops, publicSupport, or loyalty.

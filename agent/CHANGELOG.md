@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.69-8 Tech Start Progress Pipeline MVP
+- Implemented the national/city tech start and progress pipeline in `scripts/worldmap_test.gd`.
+- Added `_get_tech_duration_turns(tier)` and definition-duration fallback handling.
+- Added generic resource-cost helpers for shared tech cost checks and deduction, including `food` as the rice+barley+seafood pool.
+- Changed `_start_national_tech(tech_id)` from a no-op skeleton into the MVP start flow: validation, cost deduction, duration setup, `in_progress` registration, and `last_tech_start_result`.
+- Changed `_start_city_tech(city_id, tech_id)` into the equivalent city tech start flow.
+- Added `_advance_national_tech_progress_for_world_turn()` and `_advance_city_tech_progress_for_world_turn()`.
+- Tech completion now moves entries from `in_progress` to `completed` and records `effect_summary` plus `effect_applied: false`.
+- Connected tech progress to the domestic turn pipeline after revolt warning, using the existing once-per-turn domestic apply guard to prevent duplicate decrement.
+- Added minimal turn-summary completion text for completed national/city tech.
+- Did not implement tech effects, UI, automatic tech selection, governor/chancellor auto progress, publicSupport/loyalty/recruitment/revolt/trade/supply/troop move formula changes, battle/invasion/defense changes, or save/load core rewrites.
+
 ## v0.69-7A National City Tech Data Consistency Audit
 - Added `_validate_tech_data_consistency()` to `scripts/worldmap_test.gd` as a QA/debug-only tech data audit helper.
 - Audited city `required_national_tech` references against national tech definitions.

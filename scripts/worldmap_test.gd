@@ -3859,32 +3859,66 @@ func _get_total_recruitment_food_stock() -> int:
 	return maxi(0, int(resource_stock.get("rice", 0))) + maxi(0, int(resource_stock.get("barley", 0))) + maxi(0, int(resource_stock.get("seafood", 0)))
 
 
-func _can_pay_recruitment_cost(cost: Dictionary) -> bool:
+func _can_pay_generic_resource_cost(cost: Dictionary) -> Dictionary:
+	var missing := {}
 	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
-	return int(resource_stock.get("gold", 0)) >= int(cost.get("gold", 0)) and _get_total_recruitment_food_stock() >= int(cost.get("food", 0))
+	for resource_id_variant in cost.keys():
+		var resource_id := str(resource_id_variant)
+		var required_amount := maxi(0, int(cost.get(resource_id_variant, 0)))
+		var available_amount := _get_total_recruitment_food_stock() if resource_id == "food" else maxi(0, int(resource_stock.get(resource_id, 0)))
+		if available_amount < required_amount:
+			missing[resource_id] = required_amount - available_amount
+	return {
+		"ok": missing.is_empty(),
+		"cost": cost.duplicate(true),
+		"missing": missing,
+	}
 
 
-func _apply_recruitment_cost(cost: Dictionary) -> Dictionary:
+func _apply_generic_resource_cost(cost: Dictionary) -> Dictionary:
 	var resource_stock: Dictionary = _player_state.get("resource_stock", {}).duplicate(true)
 	var before_stock := resource_stock.duplicate(true)
-	var gold_cost := maxi(0, int(cost.get("gold", 0)))
-	resource_stock["gold"] = maxi(0, int(resource_stock.get("gold", 0)) - gold_cost)
-	var remaining_food := maxi(0, int(cost.get("food", 0)))
-	var food_paid := {}
-	for resource_id in ["rice", "barley", "seafood"]:
+	var paid := {}
+	for resource_id_variant in cost.keys():
+		var resource_id := str(resource_id_variant)
+		var required_amount := maxi(0, int(cost.get(resource_id_variant, 0)))
+		if resource_id == "food":
+			var remaining_food := required_amount
+			var food_paid := {}
+			for food_resource_id in ["rice", "barley", "seafood"]:
+				var before_amount := maxi(0, int(resource_stock.get(food_resource_id, 0)))
+				var paid_amount := mini(before_amount, remaining_food)
+				resource_stock[food_resource_id] = before_amount - paid_amount
+				remaining_food -= paid_amount
+				food_paid[food_resource_id] = paid_amount
+			paid["food"] = food_paid
+			continue
 		var before_amount := maxi(0, int(resource_stock.get(resource_id, 0)))
-		var paid := mini(before_amount, remaining_food)
-		if paid > 0:
-			resource_stock[resource_id] = before_amount - paid
-			remaining_food -= paid
-		food_paid[resource_id] = paid
+		var paid_amount := mini(before_amount, required_amount)
+		resource_stock[resource_id] = before_amount - paid_amount
+		paid[resource_id] = paid_amount
 	_player_state["resource_stock"] = resource_stock
 	return {
 		"before": before_stock,
 		"after": resource_stock.duplicate(true),
-		"gold": gold_cost,
-		"food": maxi(0, int(cost.get("food", 0))) - remaining_food,
-		"food_breakdown": food_paid,
+		"cost": cost.duplicate(true),
+		"paid": paid,
+	}
+
+
+func _can_pay_recruitment_cost(cost: Dictionary) -> bool:
+	return bool(_can_pay_generic_resource_cost(cost).get("ok", false))
+
+
+func _apply_recruitment_cost(cost: Dictionary) -> Dictionary:
+	var result := _apply_generic_resource_cost(cost)
+	var paid: Dictionary = result.get("paid", {})
+	return {
+		"before": result.get("before", {}),
+		"after": result.get("after", {}),
+		"gold": int(paid.get("gold", 0)),
+		"food": maxi(0, int(cost.get("food", 0))),
+		"food_breakdown": paid.get("food", {}),
 		"food_order": ["rice", "barley", "seafood"],
 	}
 
@@ -4025,7 +4059,8 @@ func _get_completed_national_tech_ids() -> Array:
 func _is_national_tech_completed(tech_id: String) -> bool:
 	_ensure_national_tech_state()
 	var completed: Dictionary = (_player_state["national_tech"] as Dictionary).get("completed", {})
-	return bool(completed.get(tech_id, false))
+	var completed_value: Variant = completed.get(tech_id, false)
+	return true if completed_value is Dictionary else bool(completed_value)
 
 
 func _is_national_tech_in_progress(tech_id: String) -> bool:
@@ -4038,6 +4073,28 @@ func _get_national_tech_definition(tech_id: String) -> Dictionary:
 	var definitions := _get_national_tech_definitions()
 	var definition: Variant = definitions.get(tech_id, {})
 	return (definition as Dictionary).duplicate(true) if definition is Dictionary else {}
+
+
+func _get_tech_duration_turns(tier: String) -> int:
+	match tier:
+		"basic":
+			return 4
+		"mid":
+			return 9
+		"advanced":
+			return 18
+		"capstone":
+			return 28
+		"rare":
+			return 30
+		_:
+			return 9
+
+
+func _get_tech_definition_duration(definition: Dictionary) -> int:
+	if definition.has("duration_turns"):
+		return maxi(1, int(definition.get("duration_turns", 1)))
+	return _get_tech_duration_turns(str(definition.get("tier", "mid")))
 
 
 func _get_current_chancellor_aptitude_type() -> String:
@@ -4179,18 +4236,11 @@ func _get_average_city_commerce_for_national_tech() -> float:
 func _can_pay_national_tech_cost(tech_id: String) -> Dictionary:
 	var definition := _get_national_tech_definition(tech_id)
 	var cost: Dictionary = definition.get("cost", {}) if not definition.is_empty() else {}
-	var missing := {}
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
-	for resource_id_variant in cost.keys():
-		var resource_id := str(resource_id_variant)
-		var required_amount := maxi(0, int(cost.get(resource_id_variant, 0)))
-		var available_amount := _get_total_recruitment_food_stock() if resource_id == "food" else maxi(0, int(resource_stock.get(resource_id, 0)))
-		if available_amount < required_amount:
-			missing[resource_id] = required_amount - available_amount
+	var payment_check := _can_pay_generic_resource_cost(cost)
 	return {
-		"ok": not definition.is_empty() and missing.is_empty(),
+		"ok": not definition.is_empty() and bool(payment_check.get("ok", false)),
 		"cost": cost.duplicate(true),
-		"missing": missing,
+		"missing": payment_check.get("missing", {}),
 	}
 
 
@@ -4218,13 +4268,45 @@ func _can_start_national_tech(tech_id: String) -> Dictionary:
 
 
 func _start_national_tech(tech_id: String) -> bool:
+	_ensure_national_tech_state()
 	var start_check := _can_start_national_tech(tech_id)
-	_player_state["last_national_tech_start_check"] = {
+	if not bool(start_check.get("ok", false)):
+		_player_state["last_tech_start_result"] = {
+			"ok": false,
+			"type": "national",
+			"tech_id": tech_id,
+			"reasons": start_check.get("reasons", []),
+			"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		}
+		_player_state["last_national_tech_start_check"] = _player_state["last_tech_start_result"]
+		return false
+	var definition := _get_national_tech_definition(tech_id)
+	var cost: Dictionary = definition.get("cost", {})
+	var paid_cost := _apply_generic_resource_cost(cost)
+	var duration := _get_tech_definition_duration(definition)
+	var national_tech: Dictionary = _player_state["national_tech"]
+	var in_progress: Dictionary = national_tech.get("in_progress", {})
+	in_progress[tech_id] = {
 		"tech_id": tech_id,
-		"ok": bool(start_check.get("ok", false)),
-		"reasons": start_check.get("reasons", []),
+		"started_turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"remaining_turns": duration,
+		"duration_turns": duration,
+		"type": "national",
 	}
-	return false
+	national_tech["in_progress"] = in_progress
+	_player_state["national_tech"] = national_tech
+	_player_state["last_tech_start_result"] = {
+		"ok": true,
+		"type": "national",
+		"tech_id": tech_id,
+		"cost": cost.duplicate(true),
+		"paid_cost": paid_cost,
+		"remaining_turns": duration,
+		"duration_turns": duration,
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+	}
+	_player_state["last_national_tech_start_check"] = _player_state["last_tech_start_result"]
+	return true
 
 
 func _get_city_tech_definitions() -> Dictionary:
@@ -4303,7 +4385,8 @@ func _get_completed_city_tech_ids(city_id: String) -> Array:
 func _is_city_tech_completed(city_id: String, tech_id: String) -> bool:
 	var city_tech := _ensure_city_tech_state(city_id)
 	var completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
-	return bool(completed.get(tech_id, false))
+	var completed_value: Variant = completed.get(tech_id, false)
+	return true if completed_value is Dictionary else bool(completed_value)
 
 
 func _is_city_tech_in_progress(city_id: String, tech_id: String) -> bool:
@@ -4449,18 +4532,11 @@ func _is_city_coastal_for_city_tech(city_id: String) -> bool:
 func _can_pay_city_tech_cost(city_id: String, tech_id: String) -> Dictionary:
 	var definition := _get_city_tech_definition(tech_id)
 	var cost: Dictionary = definition.get("cost", {}) if not definition.is_empty() and not _get_city_hud_entry(city_id).is_empty() else {}
-	var missing := {}
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
-	for resource_id_variant in cost.keys():
-		var resource_id := str(resource_id_variant)
-		var required_amount := maxi(0, int(cost.get(resource_id_variant, 0)))
-		var available_amount := _get_total_recruitment_food_stock() if resource_id == "food" else maxi(0, int(resource_stock.get(resource_id, 0)))
-		if available_amount < required_amount:
-			missing[resource_id] = required_amount - available_amount
+	var payment_check := _can_pay_generic_resource_cost(cost)
 	return {
-		"ok": not definition.is_empty() and not _get_city_hud_entry(city_id).is_empty() and missing.is_empty(),
+		"ok": not definition.is_empty() and not _get_city_hud_entry(city_id).is_empty() and bool(payment_check.get("ok", false)),
 		"cost": cost.duplicate(true),
-		"missing": missing,
+		"missing": payment_check.get("missing", {}),
 	}
 
 
@@ -4489,14 +4565,144 @@ func _can_start_city_tech(city_id: String, tech_id: String) -> Dictionary:
 
 
 func _start_city_tech(city_id: String, tech_id: String) -> bool:
+	_ensure_city_tech_state(city_id)
 	var start_check := _can_start_city_tech(city_id, tech_id)
-	_player_state["last_city_tech_start_check"] = {
+	if not bool(start_check.get("ok", false)):
+		_player_state["last_tech_start_result"] = {
+			"ok": false,
+			"type": "city",
+			"city_id": city_id,
+			"tech_id": tech_id,
+			"reasons": start_check.get("reasons", []),
+			"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		}
+		_player_state["last_city_tech_start_check"] = _player_state["last_tech_start_result"]
+		return false
+	var definition := _get_city_tech_definition(tech_id)
+	var cost: Dictionary = definition.get("cost", {})
+	var paid_cost := _apply_generic_resource_cost(cost)
+	var duration := _get_tech_definition_duration(definition)
+	var city_state := _get_mutable_city_runtime_state(city_id)
+	var city_tech: Dictionary = city_state.get("city_tech", {})
+	var in_progress: Dictionary = city_tech.get("in_progress", {}) if city_tech.get("in_progress", {}) is Dictionary else {}
+	in_progress[tech_id] = {
 		"city_id": city_id,
 		"tech_id": tech_id,
-		"ok": bool(start_check.get("ok", false)),
-		"reasons": start_check.get("reasons", []),
+		"started_turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"remaining_turns": duration,
+		"duration_turns": duration,
+		"type": "city",
 	}
-	return false
+	city_tech["in_progress"] = in_progress
+	city_state["city_tech"] = city_tech
+	_city_runtime_states[city_id] = city_state
+	_player_state["last_tech_start_result"] = {
+		"ok": true,
+		"type": "city",
+		"city_id": city_id,
+		"tech_id": tech_id,
+		"cost": cost.duplicate(true),
+		"paid_cost": paid_cost,
+		"remaining_turns": duration,
+		"duration_turns": duration,
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+	}
+	_player_state["last_city_tech_start_check"] = _player_state["last_tech_start_result"]
+	return true
+
+
+func _advance_national_tech_progress_for_world_turn() -> Dictionary:
+	_ensure_national_tech_state()
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var result := {"turn": turn_number, "advanced": [], "completed": []}
+	var national_tech: Dictionary = _player_state["national_tech"]
+	var in_progress: Dictionary = national_tech.get("in_progress", {})
+	var completed: Dictionary = national_tech.get("completed", {})
+	for tech_id_variant in in_progress.keys().duplicate():
+		var tech_id := str(tech_id_variant)
+		var entry_variant: Variant = in_progress.get(tech_id_variant, {})
+		if not entry_variant is Dictionary:
+			continue
+		var entry := (entry_variant as Dictionary).duplicate(true)
+		var before_remaining := maxi(0, int(entry.get("remaining_turns", 0)))
+		var after_remaining := before_remaining - 1
+		var definition := _get_national_tech_definition(tech_id)
+		if after_remaining <= 0:
+			var completed_entry := {
+				"completed_turn": turn_number,
+				"tech_id": tech_id,
+				"effect_summary": str(definition.get("effect_summary", "")),
+				"effect_applied": false,
+			}
+			completed[tech_id] = completed_entry
+			in_progress.erase(tech_id_variant)
+			(result["completed"] as Array).append(completed_entry)
+		else:
+			entry["remaining_turns"] = after_remaining
+			in_progress[tech_id] = entry
+			(result["advanced"] as Array).append({
+				"tech_id": tech_id,
+				"before_remaining": before_remaining,
+				"after_remaining": after_remaining,
+				"type": "national",
+			})
+	national_tech["in_progress"] = in_progress
+	national_tech["completed"] = completed
+	_player_state["national_tech"] = national_tech
+	_player_state["last_national_tech_progress_result"] = result
+	return result
+
+
+func _advance_city_tech_progress_for_world_turn() -> Dictionary:
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var result := {"turn": turn_number, "advanced": [], "completed": []}
+	for city_id_variant in _city_runtime_states.keys():
+		var city_id := str(city_id_variant)
+		var city_state: Variant = _city_runtime_states.get(city_id, {})
+		if not city_state is Dictionary:
+			continue
+		var source := (city_state as Dictionary).duplicate(true)
+		if not source.has("city_tech") or not source.get("city_tech") is Dictionary:
+			continue
+		var city_tech: Dictionary = source.get("city_tech", {})
+		var in_progress: Dictionary = city_tech.get("in_progress", {}) if city_tech.get("in_progress", {}) is Dictionary else {}
+		var completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
+		for tech_id_variant in in_progress.keys().duplicate():
+			var tech_id := str(tech_id_variant)
+			var entry_variant: Variant = in_progress.get(tech_id_variant, {})
+			if not entry_variant is Dictionary:
+				continue
+			var entry := (entry_variant as Dictionary).duplicate(true)
+			var before_remaining := maxi(0, int(entry.get("remaining_turns", 0)))
+			var after_remaining := before_remaining - 1
+			var definition := _get_city_tech_definition(tech_id)
+			if after_remaining <= 0:
+				var completed_entry := {
+					"completed_turn": turn_number,
+					"city_id": city_id,
+					"tech_id": tech_id,
+					"effect_summary": str(definition.get("effect_summary", "")),
+					"effect_applied": false,
+				}
+				completed[tech_id] = completed_entry
+				in_progress.erase(tech_id_variant)
+				(result["completed"] as Array).append(completed_entry)
+			else:
+				entry["remaining_turns"] = after_remaining
+				in_progress[tech_id] = entry
+				(result["advanced"] as Array).append({
+					"city_id": city_id,
+					"tech_id": tech_id,
+					"before_remaining": before_remaining,
+					"after_remaining": after_remaining,
+					"type": "city",
+				})
+		city_tech["in_progress"] = in_progress
+		city_tech["completed"] = completed
+		source["city_tech"] = city_tech
+		_city_runtime_states[city_id] = source
+	_player_state["last_city_tech_progress_result"] = result
+	return result
 
 
 func _validate_tech_data_consistency() -> Dictionary:
@@ -5560,9 +5766,11 @@ func _apply_domestic_turn_mvp() -> String:
 	var seasonal_loyalty_result := _apply_seasonal_loyalty_from_public_support(turn_number, supply_states)
 	var conscription_result := _apply_city_conscription_for_world_turn()
 	var revolt_warning_result := _apply_revolt_warning_check_for_world_turn()
+	var national_tech_progress_result := _advance_national_tech_progress_for_world_turn()
+	var city_tech_progress_result := _advance_city_tech_progress_for_world_turn()
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
 		"version": "v0.69-4",
@@ -5581,8 +5789,10 @@ func _apply_domestic_turn_mvp() -> String:
 		"seasonal_loyalty_result": seasonal_loyalty_result,
 		"conscription_result": conscription_result,
 		"revolt_warning_result": revolt_warning_result,
+		"national_tech_progress_result": national_tech_progress_result,
+		"city_tech_progress_result": city_tech_progress_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -6441,7 +6651,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -6464,6 +6674,14 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		parts.append(_format_conscription_summary(conscription_result))
 	if not revolt_warning_result.is_empty():
 		parts.append(_format_revolt_warning_summary(revolt_warning_result))
+	if not national_tech_progress_result.is_empty():
+		var national_summary := _format_national_tech_progress_summary(national_tech_progress_result)
+		if not national_summary.is_empty():
+			parts.append(national_summary)
+	if not city_tech_progress_result.is_empty():
+		var city_summary := _format_city_tech_progress_summary(city_tech_progress_result)
+		if not city_summary.is_empty():
+			parts.append(city_summary)
 	if parts.is_empty():
 		return "변동 없음"
 	return " · ".join(parts)
@@ -6516,6 +6734,36 @@ func _format_revolt_warning_summary(result: Dictionary) -> String:
 	if warning_count > 0:
 		return "반란 경고 도시 %d개" % warning_count
 	return "반란 경고 0개 · 위험 0개"
+
+
+func _format_national_tech_progress_summary(result: Dictionary) -> String:
+	var completed: Variant = result.get("completed", [])
+	if not completed is Array or (completed as Array).is_empty():
+		return ""
+	var parts: Array[String] = []
+	for entry_variant in completed:
+		if not entry_variant is Dictionary:
+			continue
+		var tech_id := str((entry_variant as Dictionary).get("tech_id", ""))
+		var definition := _get_national_tech_definition(tech_id)
+		parts.append(str(definition.get("name", tech_id)))
+	return "" if parts.is_empty() else "국가 테크 완료: %s" % " / ".join(parts)
+
+
+func _format_city_tech_progress_summary(result: Dictionary) -> String:
+	var completed: Variant = result.get("completed", [])
+	if not completed is Array or (completed as Array).is_empty():
+		return ""
+	var parts: Array[String] = []
+	for entry_variant in completed:
+		if not entry_variant is Dictionary:
+			continue
+		var entry := entry_variant as Dictionary
+		var city_id := str(entry.get("city_id", ""))
+		var tech_id := str(entry.get("tech_id", ""))
+		var definition := _get_city_tech_definition(tech_id)
+		parts.append("%s / %s" % [_format_city_name_by_id(city_id, city_id), str(definition.get("name", tech_id))])
+	return "" if parts.is_empty() else "도시 테크 완료: %s" % " / ".join(parts)
 
 
 func _format_city_loyalty_drift_summary(result: Dictionary) -> String:

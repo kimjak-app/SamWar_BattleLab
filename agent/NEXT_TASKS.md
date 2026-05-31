@@ -1,13 +1,21 @@
 # NEXT TASKS
 
+## Current v0.69-8 Tech Start Progress Pipeline Status
+- `v0.69-8 Tech Start Progress Pipeline MVP` is complete in code/docs.
+- National and city tech now share the MVP lifecycle: start after checks, pay cost, register `in_progress`, decrement `remaining_turns`, and move to `completed`.
+- Completed entries record `effect_summary` and `effect_applied: false`; actual tech effects remain unimplemented.
+- There is still no tech UI, no auto tech selection, and no governor/chancellor auto progress selection.
+- Next implementation candidates:
+  - `v0.69-8B Tech Effect Application MVP`
+  - `v0.69-9 Trade Deepening MVP`
+
 ## Current v0.69-7A Tech Data Consistency Audit Status
 - `v0.69-7A National City Tech Data Consistency Audit` is complete in code/docs.
 - National/city tech references, prerequisite IDs, cost keys, aptitude types, and image placeholder fields have been audited.
 - The documented national tech `logistics_system` / `병참 제도` was added so `dried_fish_supply_base` has a valid `required_national_tech` reference.
 - `_validate_tech_data_consistency()` is available as a QA/debug helper only and does not mutate gameplay state.
 - Placeholder conditions remain deliberately blocking and documented.
-- Next implementation candidate:
-  - `v0.69-8 Tech Start/Progress Pipeline MVP`
+- Superseded by `v0.69-8`: Tech Start/Progress Pipeline MVP is complete.
 
 ## Current v0.69-7 City Tech Tree Data Status
 - `v0.69-7 City Tech Tree Data MVP` is complete in code/docs.

@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.69-8 Tech Start Progress Pipeline Handoff
+- `v0.69-8 Tech Start Progress Pipeline MVP` is implemented in `scripts/worldmap_test.gd`.
+- National and city tech can now start, pay costs, enter `in_progress`, advance by domestic world turns, and migrate to `completed`.
+- Use `_start_national_tech(tech_id)` and `_start_city_tech(city_id, tech_id)` for starting tech. Both require `_can_start_*` to pass and deduct cost on success.
+- Use `_advance_national_tech_progress_for_world_turn()` and `_advance_city_tech_progress_for_world_turn()` for per-turn progress. The domestic turn pipeline already calls both after revolt warning.
+- `_get_tech_duration_turns(tier)` provides MVP defaults: basic `4`, mid `9`, advanced `18`, capstone `28`, rare `30`. Definition `duration_turns` overrides this if added later.
+- Generic cost helpers support `food` as rice+barley+seafood pool, deducted in order `rice -> barley -> seafood`.
+- Completed entries include `effect_summary` and `effect_applied: false`.
+- Do not assume effects exist. No national/city tech effect is applied yet.
+- No UI or automatic tech selection exists. Start calls are helper/API only until a later UI/task explicitly wires player choices.
+- Existing publicSupport, loyalty, recruitment, revolt, trade, supply, troop movement, battle, invasion, defense, and save/load core behavior must remain untouched unless explicitly scoped.
+- Next candidates are `v0.69-8B Tech Effect Application MVP` or `v0.69-9 Trade Deepening MVP`.
+- Remaining risks: no player-facing selection UI, no effect application, no automatic selection, and several placeholder conditions still block advanced techs.
+
 ## v0.69-7A Tech Data Consistency Audit Handoff
 - `v0.69-7A National City Tech Data Consistency Audit` is complete in `scripts/worldmap_test.gd`.
 - `_validate_tech_data_consistency()` audits national/city tech definitions only. It must remain QA/debug-only unless a future task explicitly scopes runtime use.
@@ -8,7 +22,7 @@
 - National tech definitions now include `icon_path` and `image_path` as empty-string placeholders. Do not load images or add UI unless explicitly scoped.
 - Placeholder conditions still block and must not be auto-passed: `chancellor_type_turns`, `governor_type_turns`, `food_surplus_turns`, `connected_supply_city_count`, `has_hero_yi_sunsin`, `has_city_tech_mint`, `has_silkroad_or_trade_port`, `neutral_faction_count`, and `allied_faction_count`.
 - `food` is still an MVP cost key for the rice+barley+seafood food pool. No cost deduction exists in this audit.
-- Next candidate is `v0.69-8 Tech Start/Progress Pipeline MVP`.
+- Superseded by `v0.69-8`: Tech Start/Progress Pipeline MVP is implemented.
 - Remaining risks: `connected_supply_city_count` needs a real source later; `maritime` is an allowed type but no dedicated hero data source is wired yet; no tech lifecycle, effects, UI, or final F6 UX validation exists.
 
 ## v0.69-7 City Tech Tree Data Handoff
