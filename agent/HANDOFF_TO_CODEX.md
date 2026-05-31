@@ -1,5 +1,16 @@
 # HANDOFF TO CODEX
 
+## v0.69-7A Tech Data Consistency Audit Handoff
+- `v0.69-7A National City Tech Data Consistency Audit` is complete in `scripts/worldmap_test.gd`.
+- `_validate_tech_data_consistency()` audits national/city tech definitions only. It must remain QA/debug-only unless a future task explicitly scopes runtime use.
+- The audit checks `required_national_tech`, city and national `requires`, allowed cost keys, allowed aptitude/governor/chancellor types, `icon_path` / `image_path`, and placeholder condition keys.
+- `logistics_system` / `병참 제도` now exists as a national tech so `dried_fish_supply_base` no longer points to a missing national tech ID.
+- National tech definitions now include `icon_path` and `image_path` as empty-string placeholders. Do not load images or add UI unless explicitly scoped.
+- Placeholder conditions still block and must not be auto-passed: `chancellor_type_turns`, `governor_type_turns`, `food_surplus_turns`, `connected_supply_city_count`, `has_hero_yi_sunsin`, `has_city_tech_mint`, `has_silkroad_or_trade_port`, `neutral_faction_count`, and `allied_faction_count`.
+- `food` is still an MVP cost key for the rice+barley+seafood food pool. No cost deduction exists in this audit.
+- Next candidate is `v0.69-8 Tech Start/Progress Pipeline MVP`.
+- Remaining risks: `connected_supply_city_count` needs a real source later; `maritime` is an allowed type but no dedicated hero data source is wired yet; no tech lifecycle, effects, UI, or final F6 UX validation exists.
+
 ## v0.69-7 City Tech Tree Data Handoff
 - `v0.69-7 City Tech Tree Data MVP` is implemented in `scripts/worldmap_test.gd`.
 - Scope is data/state/check helpers only. No UI, start, cost deduction, turn progress, completion, effect application, or governor auto-selection exists yet.
@@ -12,7 +23,8 @@
 - City tech and national tech are separate. Advanced city tech may require completed national tech through `required_national_tech`.
 - Placeholder conditions must not pass automatically: `governor_type_turns`, `food_surplus_turns`, `connected_supply_city_count`, and `has_hero_yi_sunsin`.
 - Maritime governor requirements currently fail unless a future hero/runtime entry explicitly provides `maritime`; no new hero data model was added.
-- Next candidates are `v0.69-8 Tech Start/Progress Pipeline MVP` or `v0.69-6B National Tech Start/Progress MVP`.
+- Superseded by `v0.69-7A`: National/City tech data consistency audit is complete.
+- Next candidate is `v0.69-8 Tech Start/Progress Pipeline MVP`.
 - Remaining risks: placeholder conditions block advanced branch techs until supporting systems exist; no research lifecycle, effect application, UI, or final F6 UX validation exists yet.
 
 ## v0.69-6 National Tech Tree Data Handoff

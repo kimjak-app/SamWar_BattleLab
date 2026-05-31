@@ -2,6 +2,25 @@
 
 ## 2026-05-31
 
+### v0.69-7A National City Tech Data Consistency Audit
+- Started from baseline commit `3a5ac0f35adcca50ef42813511c3ed9d50f9be0c` / `v0.69-7 City Tech Tree Data MVP`.
+- Completed National/City Tech Data Consistency Audit in `scripts/worldmap_test.gd`.
+- Added `_validate_tech_data_consistency()` as a QA/debug-only helper that checks definitions without mutating player_state, resources, troops, publicSupport, or loyalty.
+- Required national tech cross-check found `mint -> unified_currency`, `armored_infantry -> military_reform`, and `turtle_ship -> military_reform` valid.
+- Required national tech cross-check found `dried_fish_supply_base -> logistics_system` missing; added documented national tech `logistics_system` / `병참 제도` as the minimal correction.
+- City and national `requires` cross-checks pass with no missing prerequisite IDs.
+- Cost key audit passes against allowed keys; `food` remains the MVP rice+barley+seafood pool key.
+- Aptitude type audit passes; `maritime` remains allowed even though current hero data may not provide a dedicated maritime source.
+- Added `icon_path` and `image_path` placeholders to national tech definitions. No image loading or UI was added.
+- Placeholder conditions remain blocking: `chancellor_type_turns`, `governor_type_turns`, `food_surplus_turns`, `connected_supply_city_count`, `has_hero_yi_sunsin`, `has_city_tech_mint`, `has_silkroad_or_trade_port`, `neutral_faction_count`, and `allied_faction_count`.
+- Did not implement tech progress/completion, cost deduction, effect application, UI, formula changes, battle/invasion/defense changes, or save/load core rewrites.
+- Verification passed: `rg` for audit helper, temporary QA runner, scoped diff reviews, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load.
+- Godot `--headless --check-only` timed out after 134 seconds and is recorded as inconclusive.
+- Next candidate is `v0.69-8 Tech Start/Progress Pipeline MVP`.
+- Remaining risks: `connected_supply_city_count` still needs a real data source; maritime remains data-allowed but not hero-data-backed; tech lifecycle/effects/UI are still unimplemented.
+
+## 2026-05-31
+
 ### v0.69-7 City Tech Tree Data MVP
 - Started from baseline commit `f4f80e8` / `v0.69-6 National Tech Tree Data MVP`.
 - Implemented City Tech Tree Data MVP in `scripts/worldmap_test.gd`.

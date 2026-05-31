@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.69-7A National City Tech Data Consistency Audit
+- Completed National/City Tech Data Consistency Audit in `scripts/worldmap_test.gd`.
+- Added `_validate_tech_data_consistency()` as a QA/debug helper only. It checks definitions and returns missing refs, invalid cost keys, invalid aptitude types, missing image fields, and placeholder conditions without mutating player state, resources, troops, publicSupport, or loyalty.
+- Required national tech cross-check: `mint -> unified_currency`, `armored_infantry -> military_reform`, and `turtle_ship -> military_reform` were valid. `dried_fish_supply_base -> logistics_system` was missing and was corrected by adding the documented national tech `logistics_system` / `병참 제도`.
+- City tech `requires` cross-check: all city prerequisite IDs now resolve inside `_get_city_tech_definitions()`.
+- National tech `requires` cross-check: all national prerequisite IDs now resolve inside `_get_national_tech_definitions()`.
+- Cost key audit passed against `gold`, `food`, `rice`, `barley`, `seafood`, `silk`, `iron`, `wood`, `salt`, and `horse`. `food` remains an MVP food-pool key checked as rice+barley+seafood.
+- Aptitude type audit passed for `administrative`, `economic`, `militaryAdmin`, `diplomatic`, `political`, and `maritime`; empty strings remain allowed.
+- National tech definitions now include empty `icon_path` and `image_path` fields, matching city tech definitions. No image loading or UI was added.
+- Placeholder conditions remain blocking/not auto-passed: `chancellor_type_turns`, `governor_type_turns`, `food_surplus_turns`, `connected_supply_city_count`, `has_hero_yi_sunsin`, `has_city_tech_mint`, `has_silkroad_or_trade_port`, `neutral_faction_count`, and `allied_faction_count`.
+- Not implemented: national/city tech progress, completion, cost deduction, effect application, UI, or governor auto-selection.
+- Verification passed: `rg` for audit helper, temporary QA runner, scoped diff review, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. Godot `--check-only` timed out locally after 134 seconds.
+- Next candidate: `v0.69-8 Tech Start/Progress Pipeline MVP`.
+- Remaining risks: `connected_supply_city_count` is now shared as a placeholder condition for both `logistics_system` and `dried_fish_supply_base`; maritime governor type is allowed but not currently backed by a dedicated hero data source unless future data adds it; no research lifecycle or final F6 UX validation exists yet.
+
 ## v0.69-7 City Tech Tree Data MVP
 - Implemented City Tech Tree Data MVP in `scripts/worldmap_test.gd`.
 - This pass is data/state/check helpers only. It does not start city tech, deduct costs, progress turns, complete techs, apply effects, add UI, or run governor auto-selection.

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.69-7A National City Tech Data Consistency Audit
+- Added `_validate_tech_data_consistency()` to `scripts/worldmap_test.gd` as a QA/debug-only tech data audit helper.
+- Audited city `required_national_tech` references against national tech definitions.
+- Added the documented national tech `logistics_system` / `병참 제도` to resolve the `dried_fish_supply_base` required national tech reference.
+- Audited city tech `requires` and national tech `requires` references; no missing prerequisite IDs remain.
+- Audited cost keys against the allowed resource keys and kept `food` as the MVP rice+barley+seafood pool key.
+- Audited chancellor/governor aptitude type values against the allowed type list including `maritime`.
+- Added empty `icon_path` and `image_path` fields to national tech definitions to match city tech image placeholder shape.
+- Documented placeholder conditions that must not auto-pass: `chancellor_type_turns`, `governor_type_turns`, `food_surplus_turns`, `connected_supply_city_count`, `has_hero_yi_sunsin`, `has_city_tech_mint`, `has_silkroad_or_trade_port`, `neutral_faction_count`, and `allied_faction_count`.
+- Did not implement national/city tech progress, completion, cost deduction, effect application, UI, publicSupport/loyalty/recruitment/revolt/trade/supply/troop move formula changes, battle/invasion/defense changes, or save/load core rewrites.
+
 ## v0.69-7 City Tech Tree Data MVP
 - Added City Tech Tree Data MVP to `scripts/worldmap_test.gd`.
 - Added `_get_city_tech_definitions()` for the MVP city tech branch spine across agriculture, commerce, fishery/coastal, military, and coastal/naval techs.

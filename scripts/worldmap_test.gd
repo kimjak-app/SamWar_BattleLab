@@ -3970,6 +3970,7 @@ func _get_national_tech_definitions() -> Dictionary:
 		"military_training_order": _make_national_tech_definition("military_training_order", "군사 훈련령", "military", "mid", ["conscription_system"], "", {"avg_loyalty": 60}, {"iron": 200, "gold": 400, "food": 300}, "군사 훈련 기반."),
 		"military_reform": _make_national_tech_definition("military_reform", "군사 개혁", "military", "advanced", ["military_training_order"], "militaryAdmin", {"chancellor_type_turns": 5}, {"iron": 500, "gold": 600, "food": 400}, "군사 개혁 기반."),
 		"standing_army": _make_national_tech_definition("standing_army", "상비군", "military", "capstone", ["military_reform"], "", {"avg_loyalty": 75, "owned_city_count": 4}, {"iron": 800, "gold": 1000, "food": 800}, "상비군 기반."),
+		"logistics_system": _make_national_tech_definition("logistics_system", "병참 제도", "military", "advanced", ["military_training_order"], "", {"connected_supply_city_count": 3}, {"food": 500, "salt": 300, "gold": 400}, "원정 보급 안정 기반."),
 		"envoy_dispatch": _make_national_tech_definition("envoy_dispatch", "사신 파견", "diplomatic", "basic", ["national_foundation"], "diplomatic", {}, {"gold": 300, "silk": 200}, "사신 파견 기반."),
 		"diplomacy_system": _make_national_tech_definition("diplomacy_system", "외교 체계", "diplomatic", "mid", ["envoy_dispatch"], "", {"neutral_faction_count": 2}, {"gold": 400, "silk": 300}, "외교 체계 기반."),
 		"alliance_system": _make_national_tech_definition("alliance_system", "동맹 체계", "diplomatic", "advanced", ["diplomacy_system"], "diplomatic", {"allied_faction_count": 1, "chancellor_type_turns": 5}, {"gold": 600, "silk": 400}, "동맹 체계 기반."),
@@ -3992,6 +3993,8 @@ func _make_national_tech_definition(id: String, name: String, branch: String, ti
 		"conditions": conditions.duplicate(true),
 		"cost": cost.duplicate(true),
 		"effect_summary": effect_summary,
+		"icon_path": "",
+		"image_path": "",
 	}
 
 
@@ -4092,7 +4095,7 @@ func _is_national_tech_condition_met(condition_key: String, required_value: Vari
 			return _get_average_city_loyalty_for_national_tech() >= float(required_value)
 		"avg_commerce":
 			return _get_average_city_commerce_for_national_tech() >= float(required_value)
-		"chancellor_type_turns", "allied_faction_count", "neutral_faction_count", "has_city_tech_mint", "has_silkroad_or_trade_port":
+		"chancellor_type_turns", "connected_supply_city_count", "allied_faction_count", "neutral_faction_count", "has_city_tech_mint", "has_silkroad_or_trade_port":
 			return false
 		_:
 			return false
@@ -4102,6 +4105,8 @@ func _get_national_tech_condition_missing_reason(condition_key: String, required
 	match condition_key:
 		"chancellor_type_turns":
 			return "chancellor_type_turns_not_tracked:%s" % str(required_value)
+		"connected_supply_city_count":
+			return "connected_supply_city_count_not_supported_yet:%s" % str(required_value)
 		"allied_faction_count":
 			return "allied_faction_count_not_supported_yet:%s" % str(required_value)
 		"neutral_faction_count":
@@ -4492,6 +4497,92 @@ func _start_city_tech(city_id: String, tech_id: String) -> bool:
 		"reasons": start_check.get("reasons", []),
 	}
 	return false
+
+
+func _validate_tech_data_consistency() -> Dictionary:
+	var national_definitions := _get_national_tech_definitions()
+	var city_definitions := _get_city_tech_definitions()
+	var allowed_aptitude_types := ["administrative", "economic", "militaryAdmin", "diplomatic", "political", "maritime"]
+	var allowed_cost_keys := ["gold", "food", "rice", "barley", "seafood", "silk", "iron", "wood", "salt", "horse"]
+	var placeholder_condition_keys := [
+		"chancellor_type_turns",
+		"governor_type_turns",
+		"food_surplus_turns",
+		"connected_supply_city_count",
+		"has_hero_yi_sunsin",
+		"has_city_tech_mint",
+		"has_silkroad_or_trade_port",
+		"neutral_faction_count",
+		"allied_faction_count",
+	]
+	var missing_national_refs: Array[Dictionary] = []
+	var missing_city_refs: Array[Dictionary] = []
+	var invalid_cost_keys: Array[Dictionary] = []
+	var invalid_aptitude_types: Array[Dictionary] = []
+	var missing_image_fields: Array[Dictionary] = []
+	var placeholder_conditions: Array[Dictionary] = []
+	for tech_id_variant in national_definitions.keys():
+		var tech_id := str(tech_id_variant)
+		var definition: Dictionary = national_definitions.get(tech_id_variant, {})
+		for required_id_variant in definition.get("requires", []):
+			var required_id := str(required_id_variant)
+			if not national_definitions.has(required_id):
+				missing_national_refs.append({"scope": "national_requires", "tech_id": tech_id, "missing_id": required_id})
+		var required_chancellor_type := str(definition.get("required_chancellor_type", ""))
+		if not required_chancellor_type.is_empty() and not allowed_aptitude_types.has(required_chancellor_type):
+			invalid_aptitude_types.append({"scope": "national", "tech_id": tech_id, "field": "required_chancellor_type", "value": required_chancellor_type})
+		_validate_tech_definition_cost_keys("national", tech_id, definition, allowed_cost_keys, invalid_cost_keys)
+		_validate_tech_definition_image_fields("national", tech_id, definition, missing_image_fields)
+		_collect_tech_placeholder_conditions("national", tech_id, definition, placeholder_condition_keys, placeholder_conditions)
+	for tech_id_variant in city_definitions.keys():
+		var tech_id := str(tech_id_variant)
+		var definition: Dictionary = city_definitions.get(tech_id_variant, {})
+		for required_id_variant in definition.get("requires", []):
+			var required_id := str(required_id_variant)
+			if not city_definitions.has(required_id):
+				missing_city_refs.append({"scope": "city_requires", "tech_id": tech_id, "missing_id": required_id})
+		for national_id_variant in definition.get("required_national_tech", []):
+			var national_id := str(national_id_variant)
+			if not national_definitions.has(national_id):
+				missing_national_refs.append({"scope": "city_required_national_tech", "tech_id": tech_id, "missing_id": national_id})
+		var required_governor_type := str(definition.get("required_governor_type", ""))
+		if not required_governor_type.is_empty() and not allowed_aptitude_types.has(required_governor_type):
+			invalid_aptitude_types.append({"scope": "city", "tech_id": tech_id, "field": "required_governor_type", "value": required_governor_type})
+		_validate_tech_definition_cost_keys("city", tech_id, definition, allowed_cost_keys, invalid_cost_keys)
+		_validate_tech_definition_image_fields("city", tech_id, definition, missing_image_fields)
+		_collect_tech_placeholder_conditions("city", tech_id, definition, placeholder_condition_keys, placeholder_conditions)
+	var ok := missing_national_refs.is_empty() and missing_city_refs.is_empty() and invalid_cost_keys.is_empty() and invalid_aptitude_types.is_empty() and missing_image_fields.is_empty()
+	return {
+		"ok": ok,
+		"missing_national_refs": missing_national_refs,
+		"missing_city_refs": missing_city_refs,
+		"invalid_cost_keys": invalid_cost_keys,
+		"invalid_aptitude_types": invalid_aptitude_types,
+		"missing_image_fields": missing_image_fields,
+		"placeholder_conditions": placeholder_conditions,
+	}
+
+
+func _validate_tech_definition_cost_keys(scope: String, tech_id: String, definition: Dictionary, allowed_cost_keys: Array, invalid_cost_keys: Array) -> void:
+	var cost: Dictionary = definition.get("cost", {}) if definition.get("cost", {}) is Dictionary else {}
+	for cost_key_variant in cost.keys():
+		var cost_key := str(cost_key_variant)
+		if not allowed_cost_keys.has(cost_key):
+			invalid_cost_keys.append({"scope": scope, "tech_id": tech_id, "cost_key": cost_key})
+
+
+func _validate_tech_definition_image_fields(scope: String, tech_id: String, definition: Dictionary, missing_image_fields: Array) -> void:
+	for field_name in ["icon_path", "image_path"]:
+		if not definition.has(field_name):
+			missing_image_fields.append({"scope": scope, "tech_id": tech_id, "field": field_name})
+
+
+func _collect_tech_placeholder_conditions(scope: String, tech_id: String, definition: Dictionary, placeholder_condition_keys: Array, placeholder_conditions: Array) -> void:
+	var conditions: Dictionary = definition.get("conditions", {}) if definition.get("conditions", {}) is Dictionary else {}
+	for condition_key_variant in conditions.keys():
+		var condition_key := str(condition_key_variant)
+		if placeholder_condition_keys.has(condition_key):
+			placeholder_conditions.append({"scope": scope, "tech_id": tech_id, "condition": condition_key, "required": conditions.get(condition_key_variant)})
 
 
 func _calculate_city_revolt_risk(city_id: String) -> Dictionary:
