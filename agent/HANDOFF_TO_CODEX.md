@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.69-3A Strategic Logic Checkpoint Handoff
+- `v0.69-3A Strategic Logic Checkpoint Documentation` is documentation-only. No code or formulas were changed.
+- v0.69-1 through v0.69-3 are complete as the first strategic logic foundation block:
+  - `publicSupport` changes through domestic stability.
+  - `publicSupport` affects city `loyalty` on seasonal turns.
+  - Current city `loyalty` controls troop movement loss.
+- Treat the strategic chain `publicSupport -> seasonal loyalty -> troop movement efficiency/loss` as the locked v0.69 foundation unless a later task explicitly reopens balance.
+- Current validation coverage is headless/API-oriented. Do not treat the temporary City Detail surfaces as final UX validation.
+- Real F6 mouse-based UX verification should be performed during the June city information panel and WorldMap UX/UI redesign phase.
+- Current City Detail UI is a minimal temporary display/connection surface. Avoid polishing it as final UI before the planned redesign.
+- Next implementation candidate is still `v0.69-4 Recruitment/Conscription Foundation MVP`, but manual UX verification for v0.69-1 through v0.69-3 should be revisited alongside the later UI overhaul.
+
 ## v0.69-3 Troop Move Loyalty Efficiency Handoff
 - `v0.69-3 Troop Move Loyalty Efficiency Final Patch` is implemented in `scripts/worldmap_test.gd`.
 - C1 manual troop movement now uses the final source-city loyalty efficiency formula instead of total preservation.

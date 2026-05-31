@@ -1,12 +1,21 @@
 # NEXT TASKS
 
+## Current v0.69-3A Strategic Logic Checkpoint Status
+- `v0.69-3A Strategic Logic Checkpoint Documentation` is complete as a documentation-only checkpoint.
+- `v0.69-1 Public Support MVP`, `v0.69-2 Seasonal Loyalty From Public Support MVP`, and `v0.69-3 Troop Move Loyalty Efficiency Final Patch` are complete.
+- The v0.69 strategic foundation chain is locked at logic level: `publicSupport` -> seasonal `loyalty` -> troop movement loss.
+- Current verification remains headless/API-centered. Actual F6 mouse-based UX verification is deferred until the June city information panel and WorldMap UX/UI redesign phase.
+- Current City Detail UI is a minimal temporary display/connection layer, not the final player-facing UX.
+- June UI work should include feature-by-feature manual checks for publicSupport display, seasonal loyalty display, troop movement preview/status copy, and C2 approval movement result readability.
+- Next implementation candidate remains `v0.69-4 Recruitment/Conscription Foundation MVP`, but UX verification should be coordinated with the later UI overhaul rather than treated as complete now.
+
 ## Current v0.69-3 Troop Move Loyalty Efficiency Status
 - `v0.69-3 Troop Move Loyalty Efficiency Final Patch` is complete in code/docs.
 - C1 manual troop movement now uses source-city loyalty as the final movement efficiency formula.
 - Movement is no longer total-preserving: commanded troops all depart, only `floor(commanded_amount * from_loyalty / 100.0)` arrive, and the remainder is recorded as loss.
 - C2 chancellor rebalance approval continues through `_move_troops`, so approved C2 movement uses the same loyalty-based loss formula.
 - `publicSupport` is not directly used by troop movement. Movement uses the current city loyalty value after any seasonal publicSupport-to-loyalty effects have already been applied.
-- Next required task: `v0.69-4 Recruitment/Conscription Foundation MVP`.
+- Next required implementation candidate remains `v0.69-4 Recruitment/Conscription Foundation MVP`; F6 mouse UX verification is deferred to the June UI pass.
 
 ## Current v0.69-2 Seasonal Loyalty Status
 - `v0.69-2 Seasonal Loyalty From Public Support MVP` is complete in code/docs.

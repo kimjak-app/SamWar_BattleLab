@@ -2,6 +2,19 @@
 
 ## 2026-05-31
 
+### v0.69-3A Strategic Logic Checkpoint Documentation
+- Started from baseline commit `0b6defa` / `v0.69-3 Troop Move Loyalty Efficiency Final Patch`.
+- Performed documentation-only checkpoint work.
+- Recorded `v0.69-1 Public Support MVP`, `v0.69-2 Seasonal Loyalty From Public Support MVP`, and `v0.69-3 Troop Move Loyalty Efficiency Final Patch` as complete.
+- Recorded the strategic logic chain as the current v0.69 foundation: `publicSupport` -> seasonal `loyalty` -> troop movement loss.
+- Recorded that current verification is headless/API-centered and that actual F6 mouse-based UX verification is deferred to the June city information panel and WorldMap UX/UI redesign phase.
+- Recorded that the current City Detail UI is a minimal temporary display/connection surface rather than final UX.
+- Recorded that `v0.69-4 Recruitment/Conscription Foundation MVP` remains the next implementation candidate, with UX verification to be coordinated with later UI overhaul work.
+- Did not modify `scripts/worldmap_test.gd` or any code. Did not change publicSupport, loyalty, troop movement, recruitment, revolt, tech tree, trade, diplomacy, espionage, UI, or save/load behavior.
+- Verification planned: confirm `scripts/worldmap_test.gd` unchanged, run `git diff --check`, and confirm CURRENT_STATE/NEXT_TASKS/HANDOFF_TO_CODEX contain the follow-up validation principle.
+
+## 2026-05-31
+
 ### v0.69-3 Troop Move Loyalty Efficiency Final Patch
 - Started from baseline commit `79036b0` / `v0.69-2 Seasonal Loyalty From Public Support MVP`.
 - Implemented source-city loyalty based movement loss in `scripts/worldmap_test.gd`.

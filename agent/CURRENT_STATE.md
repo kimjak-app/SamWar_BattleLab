@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.69-3A Strategic Logic Checkpoint Documentation
+- Documentation-only checkpoint for the completed v0.69-1 through v0.69-3 strategic logic foundation.
+- Completed strategic logic chain:
+  - `v0.69-1 Public Support MVP`
+  - `v0.69-2 Seasonal Loyalty From Public Support MVP`
+  - `v0.69-3 Troop Move Loyalty Efficiency Final Patch`
+- The core v0.69 foundation is now locked at the logic level: city `publicSupport` affects seasonal city `loyalty`, and current city `loyalty` drives troop movement loss.
+- This establishes the intended EASTWAR chain: livelihood/domestic stability -> seasonal military will -> military-operation efficiency.
+- Current verification is headless/API-centered. Real F6 mouse-based UX verification is intentionally deferred until the June city information panel and WorldMap UX/UI redesign phase.
+- Current City Detail UI remains a minimal display and temporary connection surface for the v0.69 logic. It is not final UX.
+- Starting in June, feature-by-feature manual verification should run alongside the city information panel and WorldMap UX/UI overhaul.
+- Next implementation candidate remains `v0.69-4 Recruitment/Conscription Foundation MVP`, but UX validation for the v0.69-1 through v0.69-3 systems should be revisited during the later UI redesign.
+- No code, formulas, UI, recruitment, revolt, tech tree, trade deepening, diplomacy, espionage, or save/load work was done in this checkpoint.
+- Remaining risks: headless/API QA validates the strategic logic path, but mouse flow, visual clarity, Korean copy fit, and final player-facing comprehension remain open until the June UI verification pass.
+
 ## v0.69-3 Troop Move Loyalty Efficiency Final Patch
 - Implemented the final loyalty-based troop movement loss formula in `scripts/worldmap_test.gd`.
 - C1 manual movement no longer preserves total troop count. The old total-preservation movement was an MVP validation structure and is replaced in v0.69-3.
