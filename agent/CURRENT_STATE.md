@@ -1,5 +1,26 @@
 # CURRENT STATE
 
+## v0.69-7 City Tech Tree Data MVP
+- Implemented City Tech Tree Data MVP in `scripts/worldmap_test.gd`.
+- This pass is data/state/check helpers only. It does not start city tech, deduct costs, progress turns, complete techs, apply effects, add UI, or run governor auto-selection.
+- Added `_get_city_tech_definitions()` with the MVP branch spine for agriculture, commerce, fishery/coastal, military, and coastal/naval techs.
+- Each city tech definition includes `icon_path` and `image_path` placeholders as empty strings for later tech UI image connection. No `load()` or UI display was added.
+- Added per-city `city_tech` runtime state with `completed`, `in_progress`, and `available_cache`, normalized by `_ensure_city_tech_state(city_id)`.
+- Added lookup helpers: `_get_completed_city_tech_ids`, `_is_city_tech_completed`, `_is_city_tech_in_progress`, and `_get_city_tech_definition`.
+- Added `_get_city_governor_aptitude_type(city_id)` using the existing city governor id and existing hero aptitude fields. No new hero/governor data model was created.
+- Added `_check_city_tech_requirements(city_id, tech_id)` for city prerequisites, required national tech, required governor type, agriculture/commerce/fishery rating, population, loyalty, and coastal checks.
+- Added `_can_pay_city_tech_cost(city_id, tech_id)` using current `resource_stock`; `food` cost is checked as the existing rice+barley+seafood pool and is not deducted.
+- Added `_can_start_city_tech(city_id, tech_id)` to combine completed/in-progress, requirement, and cost checks.
+- `_start_city_tech(city_id, tech_id)` is intentionally a no-op skeleton that records the last start check and returns `false`; actual start/cost/progress/complete/effect application is deferred.
+- Minimal save/load preservation was added for the `city_tech` field in city runtime state. Save/load core flow was not rewritten.
+- Placeholder conditions are not auto-passed. They return missing conditions: `governor_type_turns_not_tracked`, `food_surplus_turns_not_supported_yet`, `connected_supply_city_count_not_supported_yet`, and `has_hero_yi_sunsin_not_supported_yet`.
+- Not implemented: national tech progress/completion, city tech start/progress/completion, cost deduction, tech effects, city tech UI, governor auto tech selection, or final UX.
+- PublicSupport, loyalty, recruitment/conscription, revolt, national tech formulas, trade, supply, troop movement, battle/invasion/defense, and save/load core formulas/logic were not changed.
+- Verification passed: `rg` checks for city tech helpers/state, scoped diff review confirming no large UI/battle/save-load/core formula changes, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary QA runner. Godot `--check-only` timed out locally after 134 seconds.
+- QA runner confirmed required definitions, icon/image placeholders, prerequisite blocking, national tech unlock blocking, governor mismatch blocking, coastal true/false checks, loyalty true/false checks, placeholder blocking, cost shortage reporting, completed/in-progress blocking, and no resource/troop/publicSupport/loyalty mutation from check helpers.
+- Next candidates: `v0.69-8 Tech Start/Progress Pipeline MVP` or `v0.69-6B National Tech Start/Progress MVP`.
+- Remaining risks: placeholder conditions block several advanced techs; maritime governor type has no dedicated data source in current hero data unless a hero explicitly carries that type; no research lifecycle, effect application, UI, or final F6 UX validation exists yet.
+
 ## v0.69-6 National Tech Tree Data MVP
 - Implemented National Tech Tree Data MVP in `scripts/worldmap_test.gd`.
 - This pass is data/state/check helpers only. It does not start tech research, deduct costs, progress turns, complete techs, apply effects, or add UI.
@@ -16,7 +37,8 @@
 - PublicSupport, loyalty, revolt, recruitment/conscription, troop movement, trade, supply, battle/invasion/defense, and save/load core formulas/logic were not changed.
 - Verification passed: `rg` checks for national tech helpers/state, scoped diff review confirming no UI/battle/save-load/core formula changes, `battle_web_import_test.gd` unchanged review, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary QA runner. Godot `--check-only` timed out locally after 134 seconds.
 - QA runner confirmed definitions, national_foundation availability, prerequisite blocking, chancellor type mismatch, owned city count, national loyalty, average loyalty, average commerce, placeholder blocking, cost shortage reporting, completed/in-progress blocking, and no player_state/resource/troop mutation from check helpers.
-- Next candidates: `v0.69-6B National Tech Start/Progress MVP` or `v0.69-7 City Tech Tree Data MVP`.
+- Superseded by `v0.69-7`: City Tech Tree Data MVP is complete.
+- Next candidates: `v0.69-8 Tech Start/Progress Pipeline MVP` or `v0.69-6B National Tech Start/Progress MVP`.
 - Remaining risks: chancellor type duration, faction counts, city mint tech, and silkroad/trade-port checks are placeholders; no research lifecycle or effect application exists yet; UI/F6 validation is deferred.
 
 ## v0.69-5 Revolt Warning Foundation MVP

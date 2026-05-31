@@ -4222,6 +4222,278 @@ func _start_national_tech(tech_id: String) -> bool:
 	return false
 
 
+func _get_city_tech_definitions() -> Dictionary:
+	return {
+		"improved_farming_tools": _make_city_tech_definition("improved_farming_tools", "농기구 개량", "agriculture", "basic", [], "", [], {}, {"iron": 100}, "농업 생산 기반을 정비한다."),
+		"irrigation_channel": _make_city_tech_definition("irrigation_channel", "관개수로", "agriculture", "mid", ["improved_farming_tools"], "administrative", [], {"agriculture_rating": 35}, {"wood": 300, "iron": 150}, "관개 기반을 확장한다."),
+		"reservoir": _make_city_tech_definition("reservoir", "저수지", "agriculture", "advanced", ["irrigation_channel"], "", [], {"population": 20000}, {"wood": 500, "iron": 200}, "식량 안정 기반을 확장한다."),
+		"double_cropping": _make_city_tech_definition("double_cropping", "이모작", "agriculture", "advanced", ["reservoir"], "", [], {"food_surplus_turns": 3}, {"gold": 500, "food": 200}, "계절 식량 생산 기반을 강화한다."),
+		"granary_region": _make_city_tech_definition("granary_region", "곡창지대", "agriculture", "capstone", ["double_cropping"], "administrative", [], {"agriculture_rating": 80, "loyalty": 70, "governor_type_turns": 5}, {"wood": 800, "iron": 500, "gold": 1000}, "도시를 곡창 거점으로 육성한다."),
+		"street_market": _make_city_tech_definition("street_market", "노점시장", "commerce", "basic", [], "", [], {}, {"gold": 100}, "기초 상업 기반을 연다."),
+		"permanent_market": _make_city_tech_definition("permanent_market", "상설시장", "commerce", "mid", ["street_market"], "", [], {"commerce_rating": 20}, {"wood": 200, "gold": 200}, "상설 거래 기반을 구축한다."),
+		"large_market": _make_city_tech_definition("large_market", "대형시장", "commerce", "advanced", ["permanent_market"], "", [], {"commerce_rating": 40, "population": 20000}, {"wood": 300, "gold": 400}, "대형 상업 기반을 구축한다."),
+		"currency_system": _make_city_tech_definition("currency_system", "화폐제도", "commerce", "advanced", ["large_market"], "administrative", [], {"commerce_rating": 55}, {"iron": 200, "gold": 600}, "도시 단위 화폐 운용 기반을 마련한다."),
+		"mint": _make_city_tech_definition("mint", "조폐소", "commerce", "capstone", ["currency_system"], "economic", ["unified_currency"], {"commerce_rating": 75, "loyalty": 60, "governor_type_turns": 5}, {"iron": 500, "gold": 1000}, "국가 화폐 통일 이후 도시 조폐 거점을 연다."),
+		"fishing_village": _make_city_tech_definition("fishing_village", "어촌 형성", "fishery", "basic", [], "", [], {"is_coastal_city": true}, {"wood": 100, "food": 50}, "해안 도시의 어업 기반을 연다."),
+		"coastal_fishing": _make_city_tech_definition("coastal_fishing", "연안 어업", "fishery", "mid", ["fishing_village"], "", [], {"fishery_rating": 20}, {"wood": 200, "gold": 100}, "연안 어업 생산 기반을 강화한다."),
+		"fishing_fleet": _make_city_tech_definition("fishing_fleet", "어선단", "fishery", "advanced", ["coastal_fishing"], "maritime", [], {"fishery_rating": 35}, {"wood": 400, "iron": 100, "gold": 200}, "어선단 운용 기반을 마련한다."),
+		"dried_fish_supply_base": _make_city_tech_definition("dried_fish_supply_base", "건어물 보급기지", "fishery", "capstone", ["fishing_fleet"], "", ["logistics_system"], {"fishery_rating": 65, "connected_supply_city_count": 2}, {"wood": 400, "salt": 300, "gold": 500}, "수산물 기반 보급 거점을 준비한다."),
+		"barracks": _make_city_tech_definition("barracks", "병영 설치", "military", "basic", [], "", [], {}, {"wood": 200, "gold": 100}, "기초 군사 시설을 설치한다."),
+		"infantry_training": _make_city_tech_definition("infantry_training", "보병 훈련", "military", "mid", ["barracks"], "militaryAdmin", [], {}, {"iron": 100, "food": 200, "gold": 200}, "보병 훈련 기반을 마련한다."),
+		"elite_infantry": _make_city_tech_definition("elite_infantry", "정예 보병", "military", "advanced", ["infantry_training"], "", [], {"loyalty": 60}, {"iron": 300, "gold": 400}, "충성도 기반 정예 보병을 준비한다."),
+		"armored_infantry": _make_city_tech_definition("armored_infantry", "철갑 보병", "military", "capstone", ["elite_infantry"], "militaryAdmin", ["military_reform"], {"loyalty": 75, "governor_type_turns": 5}, {"iron": 800, "gold": 800, "food": 400}, "군사 개혁 이후 철갑 보병 기반을 연다."),
+		"siege_unit": _make_city_tech_definition("siege_unit", "공성 부대", "military", "advanced", ["elite_infantry"], "militaryAdmin", [], {}, {"wood": 500, "iron": 300, "gold": 500}, "공성 부대 편성 기반을 마련한다."),
+		"siege_engine": _make_city_tech_definition("siege_engine", "공성 병기", "military", "capstone", ["siege_unit"], "", [], {}, {"wood": 600, "iron": 600, "gold": 800}, "공성 병기 제작 기반을 마련한다."),
+		"port": _make_city_tech_definition("port", "항구", "commerce", "basic", [], "", [], {"is_coastal_city": true}, {"wood": 400, "gold": 300}, "해안 도시 항구 기반을 연다."),
+		"shipyard": _make_city_tech_definition("shipyard", "조선소", "commerce", "mid", ["port"], "", [], {"is_coastal_city": true}, {"wood": 600, "iron": 400, "gold": 500}, "조선 기반을 마련한다."),
+		"large_shipyard": _make_city_tech_definition("large_shipyard", "대형조선소", "commerce", "advanced", ["shipyard"], "maritime", [], {}, {"wood": 1000, "iron": 600, "gold": 800}, "대형 함선 건조 기반을 준비한다."),
+		"turtle_ship": _make_city_tech_definition("turtle_ship", "거북선", "military", "rare", ["large_shipyard"], "", ["military_reform"], {"has_hero_yi_sunsin": true, "loyalty": 85}, {"iron": 1200, "wood": 1200, "gold": 2000}, "특수 수군 병기 기반을 준비한다."),
+	}
+
+
+func _make_city_tech_definition(id: String, name: String, branch: String, tier: String, requires: Array, required_governor_type: String, required_national_tech: Array, conditions: Dictionary, cost: Dictionary, effect_summary: String) -> Dictionary:
+	return {
+		"id": id,
+		"name": name,
+		"branch": branch,
+		"tier": tier,
+		"requires": requires.duplicate(true),
+		"required_governor_type": required_governor_type,
+		"required_national_tech": required_national_tech.duplicate(true),
+		"conditions": conditions.duplicate(true),
+		"cost": cost.duplicate(true),
+		"effect_summary": effect_summary,
+		"icon_path": "",
+		"image_path": "",
+	}
+
+
+func _ensure_city_tech_state(city_id: String) -> Dictionary:
+	var city_state := _get_mutable_city_runtime_state(city_id)
+	if city_state.is_empty():
+		return {}
+	var city_tech: Dictionary = city_state.get("city_tech", {}) if city_state.get("city_tech", {}) is Dictionary else {}
+	if not city_tech.has("completed") or not (city_tech["completed"] is Dictionary):
+		city_tech["completed"] = {}
+	if not city_tech.has("in_progress") or not (city_tech["in_progress"] is Dictionary):
+		city_tech["in_progress"] = {}
+	if not city_tech.has("available_cache") or not (city_tech["available_cache"] is Dictionary):
+		city_tech["available_cache"] = {}
+	city_state["city_tech"] = city_tech
+	_city_runtime_states[city_id] = city_state
+	return city_tech
+
+
+func _get_completed_city_tech_ids(city_id: String) -> Array:
+	var city_tech := _ensure_city_tech_state(city_id)
+	var completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
+	var result: Array[String] = []
+	for tech_id_variant in completed.keys():
+		var tech_id := str(tech_id_variant)
+		if bool(completed.get(tech_id_variant, false)):
+			result.append(tech_id)
+	return result
+
+
+func _is_city_tech_completed(city_id: String, tech_id: String) -> bool:
+	var city_tech := _ensure_city_tech_state(city_id)
+	var completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
+	return bool(completed.get(tech_id, false))
+
+
+func _is_city_tech_in_progress(city_id: String, tech_id: String) -> bool:
+	var city_tech := _ensure_city_tech_state(city_id)
+	var in_progress: Dictionary = city_tech.get("in_progress", {}) if city_tech.get("in_progress", {}) is Dictionary else {}
+	return bool(in_progress.get(tech_id, false))
+
+
+func _get_city_tech_definition(tech_id: String) -> Dictionary:
+	var definitions := _get_city_tech_definitions()
+	var definition: Variant = definitions.get(tech_id, {})
+	return (definition as Dictionary).duplicate(true) if definition is Dictionary else {}
+
+
+func _get_city_governor_aptitude_type(city_id: String) -> String:
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.is_empty():
+		return ""
+	var governor_id := str(city_data.get("governor_id", city_data.get("governorHeroId", "")))
+	if governor_id.is_empty():
+		return ""
+	var hero_data := _get_hero_entry(governor_id)
+	if hero_data.is_empty():
+		return ""
+	var primary_type := str(hero_data.get("chancellor_primary_type", ""))
+	if not primary_type.is_empty():
+		return primary_type
+	return str(hero_data.get("chancellor_secondary_type", ""))
+
+
+func _check_city_tech_requirements(city_id: String, tech_id: String) -> Dictionary:
+	var definition := _get_city_tech_definition(tech_id)
+	var reasons: Array[String] = []
+	var missing_requires: Array[String] = []
+	var missing_national_tech: Array[String] = []
+	var missing_conditions: Array[String] = []
+	if definition.is_empty():
+		return {"ok": false, "reasons": ["tech_not_found"], "missing_requires": missing_requires, "missing_national_tech": missing_national_tech, "missing_conditions": missing_conditions}
+	if _get_city_hud_entry(city_id).is_empty():
+		return {"ok": false, "reasons": ["city_not_found"], "missing_requires": missing_requires, "missing_national_tech": missing_national_tech, "missing_conditions": ["city_not_found"]}
+	var requires: Array = definition.get("requires", [])
+	for required_id_variant in requires:
+		var required_id := str(required_id_variant)
+		if not _is_city_tech_completed(city_id, required_id):
+			missing_requires.append(required_id)
+			reasons.append("missing_city_tech:%s" % required_id)
+	var national_requires: Array = definition.get("required_national_tech", [])
+	for national_tech_id_variant in national_requires:
+		var national_tech_id := str(national_tech_id_variant)
+		if not _is_national_tech_completed(national_tech_id):
+			missing_national_tech.append(national_tech_id)
+			reasons.append("missing_national_tech:%s" % national_tech_id)
+	var required_governor_type := str(definition.get("required_governor_type", ""))
+	if not required_governor_type.is_empty() and _get_city_governor_aptitude_type(city_id) != required_governor_type:
+		missing_conditions.append("required_governor_type:%s" % required_governor_type)
+		reasons.append("required_governor_type:%s" % required_governor_type)
+	var conditions: Dictionary = definition.get("conditions", {})
+	for condition_key_variant in conditions.keys():
+		var condition_key := str(condition_key_variant)
+		var required_value: Variant = conditions.get(condition_key_variant)
+		if not _is_city_tech_condition_met(city_id, condition_key, required_value):
+			var reason := _get_city_tech_condition_missing_reason(condition_key, required_value)
+			missing_conditions.append(reason)
+			reasons.append(reason)
+	return {
+		"ok": missing_requires.is_empty() and missing_national_tech.is_empty() and missing_conditions.is_empty(),
+		"reasons": reasons,
+		"missing_requires": missing_requires,
+		"missing_national_tech": missing_national_tech,
+		"missing_conditions": missing_conditions,
+	}
+
+
+func _is_city_tech_condition_met(city_id: String, condition_key: String, required_value: Variant) -> bool:
+	match condition_key:
+		"agriculture_rating":
+			return _get_city_tech_agriculture_value(city_id) >= int(required_value)
+		"commerce_rating":
+			return _get_city_tech_commerce_value(city_id) >= int(required_value)
+		"fishery_rating":
+			return _get_city_tech_fishery_value(city_id) >= int(required_value)
+		"population":
+			return maxi(0, int(_get_city_hud_entry(city_id).get("population", 0))) >= int(required_value)
+		"loyalty":
+			return _get_city_loyalty_value(_get_city_hud_entry(city_id)) >= int(required_value)
+		"is_coastal_city":
+			return _is_city_coastal_for_city_tech(city_id) == bool(required_value)
+		"governor_type_turns", "food_surplus_turns", "connected_supply_city_count", "has_hero_yi_sunsin":
+			return false
+		_:
+			return false
+
+
+func _get_city_tech_condition_missing_reason(condition_key: String, required_value: Variant) -> String:
+	match condition_key:
+		"governor_type_turns":
+			return "governor_type_turns_not_tracked:%s" % str(required_value)
+		"food_surplus_turns":
+			return "food_surplus_turns_not_supported_yet:%s" % str(required_value)
+		"connected_supply_city_count":
+			return "connected_supply_city_count_not_supported_yet:%s" % str(required_value)
+		"has_hero_yi_sunsin":
+			return "has_hero_yi_sunsin_not_supported_yet"
+		_:
+			return "%s:%s" % [condition_key, str(required_value)]
+
+
+func _get_city_tech_agriculture_value(city_id: String) -> int:
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.has("agriculture"):
+		return maxi(0, int(city_data.get("agriculture", 0)))
+	var domestic_seed: Dictionary = city_data.get("domestic_seed", {}) if city_data.get("domestic_seed", {}) is Dictionary else {}
+	if domestic_seed.has("agriculture"):
+		return maxi(0, int(domestic_seed.get("agriculture", 0)))
+	var resource_seed: Dictionary = city_data.get("resource_seed", {}) if city_data.get("resource_seed", {}) is Dictionary else {}
+	return maxi(0, int(resource_seed.get("rice", 0)) + int(resource_seed.get("barley", 0))) * 10
+
+
+func _get_city_tech_commerce_value(city_id: String) -> int:
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.has("commerce"):
+		return maxi(0, int(city_data.get("commerce", 0)))
+	var domestic_seed: Dictionary = city_data.get("domestic_seed", {}) if city_data.get("domestic_seed", {}) is Dictionary else {}
+	if domestic_seed.has("commerce"):
+		return maxi(0, int(domestic_seed.get("commerce", 0)))
+	return maxi(0, int(city_data.get("commerce_rating", 0))) * 20
+
+
+func _get_city_tech_fishery_value(city_id: String) -> int:
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.has("fishery"):
+		return maxi(0, int(city_data.get("fishery", 0)))
+	var resource_seed: Dictionary = city_data.get("resource_seed", {}) if city_data.get("resource_seed", {}) is Dictionary else {}
+	return maxi(0, int(resource_seed.get("seafood", 0))) * 20
+
+
+func _is_city_coastal_for_city_tech(city_id: String) -> bool:
+	var city_data := _get_city_hud_entry(city_id)
+	var city_type := str(city_data.get("type", ""))
+	return city_type.find("coastal") >= 0 or city_type.find("port") >= 0 or city_type.find("maritime") >= 0
+
+
+func _can_pay_city_tech_cost(city_id: String, tech_id: String) -> Dictionary:
+	var definition := _get_city_tech_definition(tech_id)
+	var cost: Dictionary = definition.get("cost", {}) if not definition.is_empty() and not _get_city_hud_entry(city_id).is_empty() else {}
+	var missing := {}
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	for resource_id_variant in cost.keys():
+		var resource_id := str(resource_id_variant)
+		var required_amount := maxi(0, int(cost.get(resource_id_variant, 0)))
+		var available_amount := _get_total_recruitment_food_stock() if resource_id == "food" else maxi(0, int(resource_stock.get(resource_id, 0)))
+		if available_amount < required_amount:
+			missing[resource_id] = required_amount - available_amount
+	return {
+		"ok": not definition.is_empty() and not _get_city_hud_entry(city_id).is_empty() and missing.is_empty(),
+		"cost": cost.duplicate(true),
+		"missing": missing,
+	}
+
+
+func _can_start_city_tech(city_id: String, tech_id: String) -> Dictionary:
+	var reasons: Array[String] = []
+	if _get_city_hud_entry(city_id).is_empty():
+		return {"ok": false, "requirements": {"ok": false, "reasons": ["city_not_found"], "missing_requires": [], "missing_national_tech": [], "missing_conditions": ["city_not_found"]}, "cost": {"ok": false, "cost": {}, "missing": {}}, "reasons": ["city_not_found"]}
+	if _get_city_tech_definition(tech_id).is_empty():
+		return {"ok": false, "requirements": {"ok": false, "reasons": ["tech_not_found"], "missing_requires": [], "missing_national_tech": [], "missing_conditions": []}, "cost": {"ok": false, "cost": {}, "missing": {}}, "reasons": ["tech_not_found"]}
+	if _is_city_tech_completed(city_id, tech_id):
+		reasons.append("already_completed")
+	if _is_city_tech_in_progress(city_id, tech_id):
+		reasons.append("already_in_progress")
+	var requirements := _check_city_tech_requirements(city_id, tech_id)
+	var cost := _can_pay_city_tech_cost(city_id, tech_id)
+	if not bool(requirements.get("ok", false)):
+		reasons.append_array(_string_array_from_variant_array(requirements.get("reasons", [])))
+	if not bool(cost.get("ok", false)):
+		reasons.append("cost")
+	return {
+		"ok": reasons.is_empty(),
+		"requirements": requirements,
+		"cost": cost,
+		"reasons": reasons,
+	}
+
+
+func _start_city_tech(city_id: String, tech_id: String) -> bool:
+	var start_check := _can_start_city_tech(city_id, tech_id)
+	_player_state["last_city_tech_start_check"] = {
+		"city_id": city_id,
+		"tech_id": tech_id,
+		"ok": bool(start_check.get("ok", false)),
+		"reasons": start_check.get("reasons", []),
+	}
+	return false
+
+
 func _calculate_city_revolt_risk(city_id: String) -> Dictionary:
 	var public_support := _get_city_public_support(city_id)
 	var loyalty := _get_city_loyalty_value(_get_city_hud_entry(city_id))
@@ -6393,6 +6665,8 @@ func _serialize_worldmap_city_runtime_state() -> Dictionary:
 		}
 		if source.has("resource_stock") and source.get("resource_stock") is Dictionary:
 			city_payload["resource_stock"] = (source.get("resource_stock") as Dictionary).duplicate(true)
+		if source.has("city_tech") and source.get("city_tech") is Dictionary:
+			city_payload["city_tech"] = (source.get("city_tech") as Dictionary).duplicate(true)
 		var wounded_queue := _get_city_wounded_queue_mvp(source)
 		if not wounded_queue.is_empty():
 			city_payload["woundedQueue"] = wounded_queue
@@ -6481,6 +6755,15 @@ func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
 				var resource_key := str(resource_id)
 				resource_stock[resource_key] = maxi(0, int((source.get("resource_stock") as Dictionary).get(resource_key, 0)))
 			city_state["resource_stock"] = resource_stock
+		if source.has("city_tech") and source.get("city_tech") is Dictionary:
+			var city_tech: Dictionary = (source.get("city_tech") as Dictionary).duplicate(true)
+			if not city_tech.has("completed") or not (city_tech["completed"] is Dictionary):
+				city_tech["completed"] = {}
+			if not city_tech.has("in_progress") or not (city_tech["in_progress"] is Dictionary):
+				city_tech["in_progress"] = {}
+			if not city_tech.has("available_cache") or not (city_tech["available_cache"] is Dictionary):
+				city_tech["available_cache"] = {}
+			city_state["city_tech"] = city_tech
 		var wounded_queue := _get_city_wounded_queue_mvp(source)
 		if not wounded_queue.is_empty():
 			city_state["woundedQueue"] = wounded_queue

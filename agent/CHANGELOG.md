@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.69-7 City Tech Tree Data MVP
+- Added City Tech Tree Data MVP to `scripts/worldmap_test.gd`.
+- Added `_get_city_tech_definitions()` for the MVP city tech branch spine across agriculture, commerce, fishery/coastal, military, and coastal/naval techs.
+- Added `icon_path` and `image_path` fields to every city tech definition as empty-string placeholders for future tech UI image connection.
+- Added `_ensure_city_tech_state(city_id)` and per-city `city_tech` state with `completed`, `in_progress`, and `available_cache`.
+- Added city tech lookup helpers for completed ids, completed state, in-progress state, and single definition retrieval.
+- Added `_get_city_governor_aptitude_type(city_id)` using existing governor and hero aptitude fields.
+- Added `_check_city_tech_requirements`, `_can_pay_city_tech_cost`, and `_can_start_city_tech`.
+- Added `_start_city_tech` as a no-op skeleton that returns `false`; actual start/cost deduction/progress/completion/effects remain deferred.
+- Placeholder conditions deliberately fail with reasons for unsupported systems: governor type turns, food surplus turns, connected supply city count, and Yi Sun-sin hero presence.
+- Food costs are checked against the existing rice+barley+seafood pool and are not deducted.
+- City runtime save/load now minimally preserves `city_tech` state without rewriting the save/load core flow.
+- Did not implement national tech progress/completion, city tech UI, governor auto tech selection, tech progress, tech completion, tech effects, battle/invasion/defense changes, save/load core rewrite, or changes to existing publicSupport/loyalty/recruitment/revolt/national tech/trade/supply/troop move formulas.
+
 ## v0.69-6 National Tech Tree Data MVP
 - Added National Tech Tree Data MVP to `scripts/worldmap_test.gd`.
 - Added `_get_national_tech_definitions()` for the MVP national tech branch spine across foundation, administrative, economic, military, diplomatic, and political branches.

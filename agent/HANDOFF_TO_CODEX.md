@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.69-7 City Tech Tree Data Handoff
+- `v0.69-7 City Tech Tree Data MVP` is implemented in `scripts/worldmap_test.gd`.
+- Scope is data/state/check helpers only. No UI, start, cost deduction, turn progress, completion, effect application, or governor auto-selection exists yet.
+- City tech definitions are returned by `_get_city_tech_definitions()`.
+- Definition records include `icon_path` and `image_path` as empty-string placeholders for later tech UI image connection. Do not load images or add UI in follow-up logic tasks unless explicitly scoped.
+- Per-city state is `city_tech = {"completed": {}, "in_progress": {}, "available_cache": {}}`, normalized by `_ensure_city_tech_state(city_id)`.
+- Use `_check_city_tech_requirements(city_id, tech_id)`, `_can_pay_city_tech_cost(city_id, tech_id)`, and `_can_start_city_tech(city_id, tech_id)` for validation.
+- `_start_city_tech(city_id, tech_id)` is intentionally a no-op skeleton returning `false`; it only records `last_city_tech_start_check`.
+- Food cost is checked as the existing rice+barley+seafood pool. No cost is deducted in this MVP.
+- City tech and national tech are separate. Advanced city tech may require completed national tech through `required_national_tech`.
+- Placeholder conditions must not pass automatically: `governor_type_turns`, `food_surplus_turns`, `connected_supply_city_count`, and `has_hero_yi_sunsin`.
+- Maritime governor requirements currently fail unless a future hero/runtime entry explicitly provides `maritime`; no new hero data model was added.
+- Next candidates are `v0.69-8 Tech Start/Progress Pipeline MVP` or `v0.69-6B National Tech Start/Progress MVP`.
+- Remaining risks: placeholder conditions block advanced branch techs until supporting systems exist; no research lifecycle, effect application, UI, or final F6 UX validation exists yet.
+
 ## v0.69-6 National Tech Tree Data Handoff
 - `v0.69-6 National Tech Tree Data MVP` is implemented in `scripts/worldmap_test.gd`.
 - Scope is data/state/check helpers only. No UI, start, cost deduction, turn progress, completion, or effect application exists yet.
@@ -9,8 +24,8 @@
 - `_start_national_tech(tech_id)` is intentionally a no-op skeleton returning `false`; it only records `last_national_tech_start_check`.
 - Food cost is checked as the existing rice+barley+seafood pool. No cost is deducted in this MVP.
 - Placeholder conditions must not pass automatically: `chancellor_type_turns`, `allied_faction_count`, `neutral_faction_count`, `has_city_tech_mint`, and `has_silkroad_or_trade_port`.
-- City tech tree is not implemented. Keep national tech and city tech separate.
-- Next candidates are `v0.69-6B National Tech Start/Progress MVP` or `v0.69-7 City Tech Tree Data MVP`.
+- Superseded by `v0.69-7`: City Tech Tree Data MVP is implemented. Keep national tech and city tech separate.
+- Next candidates are `v0.69-8 Tech Start/Progress Pipeline MVP` or `v0.69-6B National Tech Start/Progress MVP`.
 - Remaining risks: placeholder conditions block later branch techs until supporting systems exist; no research lifecycle, effect application, or UI exists yet.
 
 ## v0.69-5 Revolt Warning Handoff
@@ -103,7 +118,7 @@
   4. `v0.69-4 Recruitment/Conscription Foundation MVP`
   5. `v0.69-5 Revolt Warning Foundation MVP`
   6. `v0.69-6 National Tech Tree Data MVP`
-  7. `v0.69-7 City Tech Tree Data MVP`
+  7. `v0.69-7 City Tech Tree Data MVP` - complete
   8. `v0.69-8 Trade Deepening MVP`
   9. `v0.69-9 Diplomacy/Espionage Foundation MVP`
   10. `v0.70-1 WorldMap Final UX/UI Information Architecture`

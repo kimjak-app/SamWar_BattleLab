@@ -1,13 +1,21 @@
 # NEXT TASKS
 
+## Current v0.69-7 City Tech Tree Data Status
+- `v0.69-7 City Tech Tree Data MVP` is complete in code/docs.
+- City tech now has data definitions, per-city runtime state containers, lookup helpers, requirement checks, cost checks, and start-eligibility checks.
+- This pass does not start city tech, deduct costs, progress turns, complete techs, apply effects, add UI, or run governor auto tech selection.
+- `icon_path` and `image_path` are present as empty-string placeholders for later tech UI image connection.
+- Placeholder conditions are deliberately blocking: `governor_type_turns`, `food_surplus_turns`, `connected_supply_city_count`, and `has_hero_yi_sunsin`.
+- Next implementation candidates:
+  - `v0.69-8 Tech Start/Progress Pipeline MVP`
+  - `v0.69-6B National Tech Start/Progress MVP`
+
 ## Current v0.69-6 National Tech Tree Data Status
 - `v0.69-6 National Tech Tree Data MVP` is complete in code/docs.
 - National tech now has data definitions, player state containers, lookup helpers, requirement checks, cost checks, and start-eligibility checks.
 - This pass does not start research, deduct costs, progress turns, complete techs, apply effects, or add UI.
 - Placeholder conditions are deliberately blocking: `chancellor_type_turns`, `allied_faction_count`, `neutral_faction_count`, `has_city_tech_mint`, and `has_silkroad_or_trade_port`.
-- Next implementation candidates:
-  - `v0.69-6B National Tech Start/Progress MVP`
-  - `v0.69-7 City Tech Tree Data MVP`
+- Superseded by `v0.69-7`: City Tech Tree Data MVP is complete.
 
 ## Current v0.69-5 Revolt Warning Status
 - `v0.69-5 Revolt Warning Foundation MVP` is complete in code/docs.
@@ -74,10 +82,13 @@
   4. `v0.69-4 Recruitment/Conscription Foundation MVP` - complete.
   5. `v0.69-5 Revolt Warning Foundation MVP` - complete.
   6. `v0.69-6 National Tech Tree Data MVP` - complete.
-  7. `v0.69-7 City Tech Tree Data MVP`
+  7. `v0.69-7 City Tech Tree Data MVP` - complete.
   8. `v0.69-8 Trade Deepening MVP`
   9. `v0.69-9 Diplomacy/Espionage Foundation MVP`
   10. `v0.70-1 WorldMap Final UX/UI Information Architecture`
+- Immediate post-data candidates before committing to the next roadmap branch:
+  - `v0.69-8 Tech Start/Progress Pipeline MVP`
+  - `v0.69-6B National Tech Start/Progress MVP`
 - Confirmed design inputs are locked in:
   - `agent/CONFIRMED_LOYALTY_PUBLICSUPPORT_DESIGN.md`
   - `agent/CONFIRMED_NATIONAL_TECHTREE_DESIGN.md`

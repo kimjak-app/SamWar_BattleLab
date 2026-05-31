@@ -2,6 +2,26 @@
 
 ## 2026-05-31
 
+### v0.69-7 City Tech Tree Data MVP
+- Started from baseline commit `f4f80e8` / `v0.69-6 National Tech Tree Data MVP`.
+- Implemented City Tech Tree Data MVP in `scripts/worldmap_test.gd`.
+- Added city tech definitions for agriculture, commerce, fishery/coastal, military, and coastal/naval MVP branches.
+- Added `icon_path` and `image_path` placeholders as empty strings for future tech UI image connection.
+- Added per-city `city_tech` runtime state with `completed`, `in_progress`, and `available_cache`, normalized through `_ensure_city_tech_state(city_id)`.
+- Added lookup helpers, city governor aptitude type lookup, requirement checks, cost checks, and start eligibility checks.
+- Added `_start_city_tech` as a no-op skeleton returning `false`; it does not deduct costs or register progress.
+- Placeholder conditions are blocking and reported as missing: `governor_type_turns`, `food_surplus_turns`, `connected_supply_city_count`, and `has_hero_yi_sunsin`.
+- Food cost is checked as rice+barley+seafood pool only. No resource deduction occurs.
+- Minimal save/load preservation was added for the city runtime `city_tech` field without rewriting save/load core flow.
+- Did not implement national tech progress/completion, city tech start/progress/completion, effect application, UI, governor auto-selection, battle/invasion/defense changes, save/load core rewrite, or changes to publicSupport/loyalty/recruitment/revolt/national tech/trade/supply/troop move formulas.
+- Verification passed: `rg` for new helpers/state, scoped diff reviews, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless QA runner.
+- QA runner confirmed required definitions, icon/image placeholders, prerequisite blocking, national tech requirement blocking, governor mismatch blocking, coastal true/false checks, loyalty true/false checks, placeholder blocking, cost missing report, completed/in-progress blocking, and no mutation from check helpers.
+- Godot `--headless --check-only` timed out after 134 seconds and is recorded as inconclusive.
+- Next candidates are `v0.69-8 Tech Start/Progress Pipeline MVP` or `v0.69-6B National Tech Start/Progress MVP`.
+- Remaining risks: placeholder conditions block several advanced city techs; maritime governor type is not backed by current hero data unless explicitly added later; no research lifecycle, effects, UI, or final UX validation exists yet.
+
+## 2026-05-31
+
 ### v0.69-6 National Tech Tree Data MVP
 - Started from baseline commit `c3c181c` / `v0.69-5 Revolt Warning Foundation MVP`.
 - Implemented National Tech Tree Data MVP in `scripts/worldmap_test.gd`.
@@ -15,7 +35,8 @@
 - Verification passed: `rg` for new helpers/state, scoped diff reviews, `battle_web_import_test.gd` unchanged, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless QA runner.
 - QA runner confirmed definitions, foundation start eligibility, prerequisite blocking, chancellor mismatch blocking, owned city count, national loyalty, average loyalty, average commerce, placeholder blocking, cost missing report, completed/in-progress blocking, and no mutation from check helpers.
 - Godot `--headless --check-only` timed out after 134 seconds and is recorded as inconclusive.
-- Next candidates are `v0.69-6B National Tech Start/Progress MVP` or `v0.69-7 City Tech Tree Data MVP`.
+- Superseded by `v0.69-7`: City Tech Tree Data MVP is complete.
+- Next candidates are `v0.69-8 Tech Start/Progress Pipeline MVP` or `v0.69-6B National Tech Start/Progress MVP`.
 - Remaining risks: placeholder conditions block several techs; no research lifecycle, effects, UI, or final UX validation exists yet.
 
 ## 2026-05-31
