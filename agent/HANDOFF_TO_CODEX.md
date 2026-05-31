@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.69-8B Tech Effect Application Handoff
+- `v0.69-8B Tech Effect Application MVP` is implemented in `scripts/worldmap_test.gd`.
+- Effects apply from completed tech only. In-progress tech has no effect.
+- One-time effect: `legal_reform` applies publicSupport `+5` to all player-owned cities once. Duplicate prevention is stored in `_player_state["applied_tech_effects"]["national"]["legal_reform"]`.
+- Continuous income effects: `tax_reform` gives domestic gold income `x1.10`; `street_market` gives city domestic gold income `x1.05`. These do not affect inter-faction trade income.
+- Conscription effects: completed city `barracks` is now required for automatic conscription. Completed national `conscription_system` changes only turnly automatic conscription add by `x1.10`, capped by available amount. Capacity is unchanged.
+- Recognized but no consumer yet: `national_foundation`, `improved_farming_tools`, and `fishing_village`.
+- `last_tech_effect_result` records applied effects and no-consumer recognized effects.
+- Do not assume battle/special-unit/diplomacy/revolt/trade-deepening effects exist. Those are not implemented.
+- No tech UI or auto tech selection exists yet.
+- Next candidate is `v0.69-9 Trade Deepening MVP`.
+- Remaining risks: barracks gating changes automatic conscription balance; most tech effects are still pending; no final F6 UX validation exists.
+
 ## v0.69-8 Tech Start Progress Pipeline Handoff
 - `v0.69-8 Tech Start Progress Pipeline MVP` is implemented in `scripts/worldmap_test.gd`.
 - National and city tech can now start, pay costs, enter `in_progress`, advance by domestic world turns, and migrate to `completed`.
@@ -11,7 +24,7 @@
 - Do not assume effects exist. No national/city tech effect is applied yet.
 - No UI or automatic tech selection exists. Start calls are helper/API only until a later UI/task explicitly wires player choices.
 - Existing publicSupport, loyalty, recruitment, revolt, trade, supply, troop movement, battle, invasion, defense, and save/load core behavior must remain untouched unless explicitly scoped.
-- Next candidates are `v0.69-8B Tech Effect Application MVP` or `v0.69-9 Trade Deepening MVP`.
+- Superseded by `v0.69-8B`: first Tech Effect Application MVP is implemented.
 - Remaining risks: no player-facing selection UI, no effect application, no automatic selection, and several placeholder conditions still block advanced techs.
 
 ## v0.69-7A Tech Data Consistency Audit Handoff

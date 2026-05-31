@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.69-8B Tech Effect Application MVP
+- Added first completed-tech effect consumers to `scripts/worldmap_test.gd`.
+- Added `_apply_completed_tech_effects_for_world_turn`, national/city domestic-income multiplier helpers, and `applied_tech_effects` duplicate prevention state.
+- Implemented `legal_reform` as a one-time national effect: all player-owned cities receive publicSupport `+5`, clamped to `0..100`.
+- Implemented `tax_reform` as domestic gold income `x1.10`. Inter-faction trade income is not affected.
+- Implemented `street_market` as city domestic gold income `x1.05`. Inter-faction trade income is not affected.
+- Implemented `barracks` as the automatic conscription gate. Cities without completed `barracks` add `0` and record reason `barracks_required`.
+- Implemented `conscription_system` as turnly automatic conscription add `x1.10`, capped by available conscription. Conscription capacity is unchanged.
+- Recognized no-consumer effects for `national_foundation`, `improved_farming_tools`, and `fishing_village`.
+- Did not implement all tech effects, battle effects, turtle ship/special units, diplomacy/espionage, real revolt, trade deepening/market prices, tech UI, auto tech selection, battle scene changes, or save/load core rewrites.
+
 ## v0.69-8 Tech Start Progress Pipeline MVP
 - Implemented the national/city tech start and progress pipeline in `scripts/worldmap_test.gd`.
 - Added `_get_tech_duration_turns(tier)` and definition-duration fallback handling.

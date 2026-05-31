@@ -2,6 +2,25 @@
 
 ## 2026-05-31
 
+### v0.69-8B Tech Effect Application MVP
+- Started from baseline commit `f4c21f9d2d46712c2e1e9c40f66f768db323cada` / `v0.69-8 Tech Start Progress Pipeline MVP`.
+- Implemented the first Tech Effect Application MVP in `scripts/worldmap_test.gd`.
+- Added one-time completed tech effect handling through `_apply_completed_tech_effects_for_world_turn()`.
+- Implemented `legal_reform`: all player-owned cities get publicSupport `+5` once, with duplicate prevention via `applied_tech_effects`.
+- Implemented `tax_reform`: domestic gold income `x1.10`; inter-faction trade income is not affected.
+- Implemented `street_market`: city domestic gold income `x1.05`; inter-faction trade income is not affected.
+- Implemented `barracks`: automatic conscription now requires completed city `barracks`; missing barracks records reason `barracks_required`.
+- Implemented `conscription_system`: turnly automatic conscription add `x1.10`, capped by available conscription. Capacity remains unchanged.
+- Recorded no-consumer recognized effects for `national_foundation`, `improved_farming_tools`, and `fishing_village`.
+- Did not implement all tech effects, battle effects, turtle ship/special units, diplomacy/espionage, real revolt, trade deepening, tech UI, auto tech selection, battle scene changes, or save/load core rewrites.
+- Verification passed: `rg` checks, temporary QA runner, scoped diff review, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load.
+- QA runner confirmed legal_reform +5 and duplicate prevention, applied_tech_effects save/load preservation, tax_reform/street_market domestic gold multipliers and non-trade behavior, multiplier stacking, barracks conscription gate, conscription_system +10% add with cap, no-consumer recognition, and no unintended loyalty/troop/resource mutation.
+- Godot `--headless --check-only` timed out after 134 seconds and is recorded as inconclusive.
+- Next candidate is `v0.69-9 Trade Deepening MVP`.
+- Remaining risks: most tech effects are still pending; barracks gating needs balance review; no tech UI or final F6 UX validation exists.
+
+## 2026-05-31
+
 ### v0.69-8 Tech Start Progress Pipeline MVP
 - Started from baseline commit `adb9ce7c2dbfa3bd019abe882a6120b0fff8a788` / `v0.69-7A National City Tech Data Consistency Audit`.
 - Implemented the common national/city tech start and progress pipeline in `scripts/worldmap_test.gd`.

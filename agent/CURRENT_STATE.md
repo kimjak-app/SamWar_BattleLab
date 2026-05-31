@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.69-8B Tech Effect Application MVP
+- Implemented the first Tech Effect Application MVP in `scripts/worldmap_test.gd`.
+- Effects apply only from completed techs. In-progress techs still have no effect.
+- Added completed-tech effect helpers and `_apply_completed_tech_effects_for_world_turn()`.
+- One-time effect implemented: `legal_reform` applies publicSupport `+5` to all player-owned cities once, clamped to `0..100`, with duplicate prevention through `_player_state["applied_tech_effects"]["national"]["legal_reform"]`.
+- Continuous national effect implemented: `tax_reform` applies domestic gold income `x1.10`. This applies only to domestic gold income, not inter-faction trade income.
+- Continuous city effect implemented: `street_market` applies that city's domestic gold income `x1.05`. This applies only to domestic gold income, not inter-faction trade income.
+- Conscription tech effects implemented: `barracks` gates automatic conscription by city; cities without completed `barracks` record added `0` and reason `barracks_required`. `conscription_system` applies turnly automatic conscription add `x1.10`, capped by available conscription. Capacity is unchanged.
+- Recognized but no consumer yet: `national_foundation`, `improved_farming_tools`, and `fishing_village`.
+- Completed effect results include `last_tech_effect_result`; recognized no-consumer effects are recorded without changing values.
+- No battle effects, turtle ship, special unit, diplomacy/espionage, real revolt, trade deepening, tech UI, or auto tech selection was implemented.
+- Verification passed: `rg` checks for effect helpers/result fields, temporary QA runner, scoped diff review, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. Godot `--check-only` timed out locally after 134 seconds.
+- QA runner confirmed legal_reform one-time publicSupport +5 and duplicate prevention, applied_tech_effects save/load preservation, tax_reform domestic gold x1.10 without trade change, street_market city domestic gold x1.05, combined multiplier, barracks conscription gate, conscription_system +10% add with available cap, no-consumer recognition, and no unintended loyalty/troop/resource mutation.
+- Next candidates: `v0.69-9 Trade Deepening MVP` or a focused follow-up for additional tech effects.
+- Remaining risks: tech UI/selection still does not exist; many tech effects remain unimplemented; barracks gating changes automatic conscription balance and needs later gameplay review; no final F6 UX validation exists.
+
 ## v0.69-8 Tech Start Progress Pipeline MVP
 - Implemented Tech Start/Progress Pipeline MVP in `scripts/worldmap_test.gd`.
 - National and city tech can now start, deduct cost, enter `in_progress`, decrement `remaining_turns` once per domestic world turn, and move to `completed` when `remaining_turns <= 0`.

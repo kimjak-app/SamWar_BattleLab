@@ -3776,6 +3776,10 @@ func _get_city_conscription_available(city_id: String) -> int:
 	return maxi(0, capacity - current_troops)
 
 
+func _get_conscription_turn_add_multiplier() -> float:
+	return 1.10 if _is_national_tech_completed("conscription_system") else 1.0
+
+
 func _apply_city_conscription_for_world_turn() -> Dictionary:
 	var result := {
 		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
@@ -3803,7 +3807,12 @@ func _apply_city_conscription_for_world_turn() -> Dictionary:
 		var capacity := _get_conscription_capacity_by_loyalty(city_id)
 		var available_before := _get_city_conscription_available(city_id)
 		var before_troops := _get_city_troops_for_battle_context(city_id)
-		var added := mini(available_before, 100)
+		var reason := ""
+		var base_add := mini(available_before, 100)
+		var added := mini(available_before, int(floor(float(base_add) * _get_conscription_turn_add_multiplier())))
+		if not _is_city_tech_completed(city_id, "barracks"):
+			reason = "barracks_required"
+			added = 0
 		var after_troops := before_troops + added
 		if added > 0:
 			_set_city_runtime_troops(city_id, after_troops)
@@ -3815,6 +3824,9 @@ func _apply_city_conscription_for_world_turn() -> Dictionary:
 			"before_troops": before_troops,
 			"after_troops": after_troops,
 			"added": added,
+			"base_add": base_add,
+			"multiplier": _get_conscription_turn_add_multiplier(),
+			"reason": reason,
 		}
 		(result["city_results"] as Dictionary)[city_id] = city_result
 		print("[CONSCRIPT_WORLD_TURN] city=%s loyalty=%d population=%d capacity=%d available=%d added=%d troops=%d->%d" % [
@@ -4054,6 +4066,10 @@ func _get_completed_national_tech_ids() -> Array:
 		if bool(completed.get(tech_id_variant, false)):
 			result.append(tech_id)
 	return result
+
+
+func _get_completed_national_tech_effect_ids() -> Array:
+	return _get_completed_national_tech_ids()
 
 
 func _is_national_tech_completed(tech_id: String) -> bool:
@@ -4382,6 +4398,10 @@ func _get_completed_city_tech_ids(city_id: String) -> Array:
 	return result
 
 
+func _get_completed_city_tech_effect_ids(city_id: String) -> Array:
+	return _get_completed_city_tech_ids(city_id)
+
+
 func _is_city_tech_completed(city_id: String, tech_id: String) -> bool:
 	var city_tech := _ensure_city_tech_state(city_id)
 	var completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
@@ -4702,6 +4722,91 @@ func _advance_city_tech_progress_for_world_turn() -> Dictionary:
 		source["city_tech"] = city_tech
 		_city_runtime_states[city_id] = source
 	_player_state["last_city_tech_progress_result"] = result
+	return result
+
+
+func _ensure_applied_tech_effect_state() -> void:
+	if not _player_state.has("applied_tech_effects") or not (_player_state["applied_tech_effects"] is Dictionary):
+		_player_state["applied_tech_effects"] = {}
+	var applied: Dictionary = _player_state["applied_tech_effects"]
+	if not applied.has("national") or not (applied["national"] is Dictionary):
+		applied["national"] = {}
+	if not applied.has("city") or not (applied["city"] is Dictionary):
+		applied["city"] = {}
+	_player_state["applied_tech_effects"] = applied
+
+
+func _is_national_tech_effect_applied(tech_id: String) -> bool:
+	_ensure_applied_tech_effect_state()
+	var applied: Dictionary = (_player_state["applied_tech_effects"] as Dictionary).get("national", {})
+	return bool(applied.get(tech_id, false))
+
+
+func _mark_national_tech_effect_applied(tech_id: String) -> void:
+	_ensure_applied_tech_effect_state()
+	var applied: Dictionary = _player_state["applied_tech_effects"]
+	var national_applied: Dictionary = applied.get("national", {})
+	national_applied[tech_id] = true
+	applied["national"] = national_applied
+	_player_state["applied_tech_effects"] = applied
+
+
+func _apply_completed_tech_effects_for_world_turn() -> Dictionary:
+	_ensure_applied_tech_effect_state()
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var result := {
+		"turn": turn_number,
+		"applied": [],
+		"recognized_no_consumer": [],
+	}
+	if _is_national_tech_completed("legal_reform") and not _is_national_tech_effect_applied("legal_reform"):
+		var city_results := {}
+		var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+		if owned_city_ids is Array:
+			for city_id_variant in owned_city_ids:
+				var city_id := str(city_id_variant)
+				if not _is_city_owned_by_player_mvp(city_id):
+					continue
+				var before_support := _get_city_public_support(city_id)
+				var after_support := clampi(before_support + 5, 0, 100)
+				_set_city_public_support(city_id, after_support)
+				city_results[city_id] = {
+					"before": before_support,
+					"after": after_support,
+					"delta": after_support - before_support,
+				}
+		_mark_national_tech_effect_applied("legal_reform")
+		(result["applied"] as Array).append({
+			"type": "national",
+			"tech_id": "legal_reform",
+			"effect": "publicSupport +5",
+			"city_results": city_results,
+		})
+	if _is_national_tech_completed("national_foundation"):
+		(result["recognized_no_consumer"] as Array).append({"type": "national", "tech_id": "national_foundation", "reason": "no_consumer_yet"})
+	for city_id_variant in _city_runtime_states.keys():
+		var city_id := str(city_id_variant)
+		if _is_city_tech_completed(city_id, "improved_farming_tools"):
+			(result["recognized_no_consumer"] as Array).append({"type": "city", "city_id": city_id, "tech_id": "improved_farming_tools", "reason": "no_consumer_yet"})
+		if _is_city_tech_completed(city_id, "fishing_village"):
+			(result["recognized_no_consumer"] as Array).append({"type": "city", "city_id": city_id, "tech_id": "fishing_village", "reason": "no_consumer_yet"})
+	_player_state["last_tech_effect_result"] = result
+	return result
+
+
+func _get_national_tech_domestic_income_multipliers() -> Dictionary:
+	return {"gold": 1.10 if _is_national_tech_completed("tax_reform") else 1.0}
+
+
+func _get_city_tech_domestic_income_multipliers(city_id: String) -> Dictionary:
+	return {"gold": 1.05 if _is_city_tech_completed(city_id, "street_market") else 1.0}
+
+
+func _apply_tech_income_multipliers_to_effects(city_id: String, city_effects: Dictionary) -> Dictionary:
+	var result := city_effects.duplicate(true)
+	var national_multipliers := _get_national_tech_domestic_income_multipliers()
+	var city_multipliers := _get_city_tech_domestic_income_multipliers(city_id)
+	result["gold_multiplier"] = float(result.get("gold_multiplier", 1.0)) * float(national_multipliers.get("gold", 1.0)) * float(city_multipliers.get("gold", 1.0))
 	return result
 
 
@@ -5768,9 +5873,10 @@ func _apply_domestic_turn_mvp() -> String:
 	var revolt_warning_result := _apply_revolt_warning_check_for_world_turn()
 	var national_tech_progress_result := _advance_national_tech_progress_for_world_turn()
 	var city_tech_progress_result := _advance_city_tech_progress_for_world_turn()
+	var tech_effect_result := _apply_completed_tech_effects_for_world_turn()
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
 		"version": "v0.69-4",
@@ -5791,8 +5897,9 @@ func _apply_domestic_turn_mvp() -> String:
 		"revolt_warning_result": revolt_warning_result,
 		"national_tech_progress_result": national_tech_progress_result,
 		"city_tech_progress_result": city_tech_progress_result,
+		"tech_effect_result": tech_effect_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -5834,6 +5941,7 @@ func _calculate_player_domestic_income_delta(turn_number: int, tax_level: int, p
 		var city_effects := _calculate_city_domestic_effects(city_data, policy_id)
 		var city_supply_state := _get_supply_city_state(supply_states, city_id)
 		_apply_supply_income_effect(city_effects, city_supply_state)
+		city_effects = _apply_tech_income_multipliers_to_effects(str(city_id), city_effects)
 		var city_income := _calculate_city_domestic_income(city_data, calendar, tax_level, city_effects)
 		for resource_id in totals.keys():
 			totals[resource_id] = int(totals.get(resource_id, 0)) + int(city_income.get(resource_id, 0))
@@ -6651,7 +6759,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}, tech_effect_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -6682,6 +6790,10 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		var city_summary := _format_city_tech_progress_summary(city_tech_progress_result)
 		if not city_summary.is_empty():
 			parts.append(city_summary)
+	if not tech_effect_result.is_empty():
+		var effect_summary := _format_tech_effect_summary(tech_effect_result)
+		if not effect_summary.is_empty():
+			parts.append(effect_summary)
 	if parts.is_empty():
 		return "변동 없음"
 	return " · ".join(parts)
@@ -6764,6 +6876,30 @@ func _format_city_tech_progress_summary(result: Dictionary) -> String:
 		var definition := _get_city_tech_definition(tech_id)
 		parts.append("%s / %s" % [_format_city_name_by_id(city_id, city_id), str(definition.get("name", tech_id))])
 	return "" if parts.is_empty() else "도시 테크 완료: %s" % " / ".join(parts)
+
+
+func _format_tech_effect_summary(result: Dictionary) -> String:
+	var parts: Array[String] = []
+	var applied: Variant = result.get("applied", [])
+	if applied is Array:
+		for entry_variant in applied:
+			if not entry_variant is Dictionary:
+				continue
+			var entry := entry_variant as Dictionary
+			var tech_id := str(entry.get("tech_id", ""))
+			if tech_id == "legal_reform":
+				parts.append("테크 효과 적용: 법률 정비 → 전국 민심 +5")
+	var recognized: Variant = result.get("recognized_no_consumer", [])
+	if recognized is Array and not (recognized as Array).is_empty():
+		for entry_variant in recognized:
+			if not entry_variant is Dictionary:
+				continue
+			var entry := entry_variant as Dictionary
+			var tech_id := str(entry.get("tech_id", ""))
+			if tech_id == "national_foundation":
+				parts.append("테크 효과 인식: 국가 기반 정비 효과는 소비처 없음")
+				break
+	return " · ".join(parts)
 
 
 func _format_city_loyalty_drift_summary(result: Dictionary) -> String:

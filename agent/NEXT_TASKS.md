@@ -1,13 +1,20 @@
 # NEXT TASKS
 
+## Current v0.69-8B Tech Effect Application Status
+- `v0.69-8B Tech Effect Application MVP` is complete in code/docs.
+- Implemented effects: `legal_reform` one-time publicSupport `+5`, `tax_reform` domestic gold income `+10%`, `street_market` city domestic gold income `+5%`, `barracks` automatic conscription gate, and `conscription_system` automatic conscription add `+10%`.
+- Recognized but no consumer yet: `national_foundation`, `improved_farming_tools`, and `fishing_village`.
+- Trade income is not affected by `tax_reform` or `street_market`.
+- Battle effects, special units, tech UI, and auto tech selection remain unimplemented.
+- Next implementation candidate:
+  - `v0.69-9 Trade Deepening MVP`
+
 ## Current v0.69-8 Tech Start Progress Pipeline Status
 - `v0.69-8 Tech Start Progress Pipeline MVP` is complete in code/docs.
 - National and city tech now share the MVP lifecycle: start after checks, pay cost, register `in_progress`, decrement `remaining_turns`, and move to `completed`.
 - Completed entries record `effect_summary` and `effect_applied: false`; actual tech effects remain unimplemented.
 - There is still no tech UI, no auto tech selection, and no governor/chancellor auto progress selection.
-- Next implementation candidates:
-  - `v0.69-8B Tech Effect Application MVP`
-  - `v0.69-9 Trade Deepening MVP`
+- Superseded by `v0.69-8B`: first Tech Effect Application MVP is complete.
 
 ## Current v0.69-7A Tech Data Consistency Audit Status
 - `v0.69-7A National City Tech Data Consistency Audit` is complete in code/docs.
