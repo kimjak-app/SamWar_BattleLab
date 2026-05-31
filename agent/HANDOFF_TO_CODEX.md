@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.69-10 Diplomacy Relation Score Handoff
+- `v0.69-10 Diplomacy Relation Score MVP` is implemented in `scripts/worldmap_test.gd`.
+- `faction_relations` entries now normalize to `{"status": String, "score": int, "cooldown": int}`.
+- Score is clamped to `0..100`; missing scores default to `50`.
+- `relation_band` is derived from score only: `friendly >=70`, `neutral 31..69`, `hostile <=30`.
+- `status` and `relation_band` are separate. Do not auto-convert `friendly` to `allied` or `hostile` band to `hostile` status without a scoped diplomacy-action task.
+- Phase A trade remains status-based. `RELATION_TRADE_MULTIPLIER` and the trade income formula should remain unchanged unless explicitly scoped.
+- Trade routes may carry `relation_score` and `relation_band` as display/debug fields; they must not affect income.
+- Current result fields: `_player_state["last_diplomacy_relation_result"]` and `_player_state["last_diplomacy_normalize_result"]`.
+- Not implemented: tribute, trade agreements, alliance proposal/acceptance, declaration of war, espionage, revolt instigation, specialty trade execution, or diplomacy UI.
+- Next candidates: `v0.69-10B Tribute Diplomacy Action MVP` or `v0.69-11 Espionage Info Gathering MVP`.
+- Remaining risks: relation score has no gameplay action consumer yet; normalization initializes all known city-owner faction pairs; final F6 diplomacy UX remains future work.
+
 ## v0.69-9 Trade Market Price Handoff
 - `v0.69-9 Trade Deepening Data Market Price MVP` is implemented in `scripts/worldmap_test.gd`.
 - This is a data/calculation/recording layer only. It must remain separate from existing Phase A inter-faction trade income.

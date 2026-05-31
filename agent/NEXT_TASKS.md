@@ -1,5 +1,16 @@
 # NEXT TASKS
 
+## Current v0.69-10 Diplomacy Relation Score Status
+- `v0.69-10 Diplomacy Relation Score MVP` is complete in code/docs.
+- `faction_relations` now carries `score 0..100` alongside existing `status` and `cooldown`.
+- `relation_band` is derived from score and remains separate from `status`.
+- Allied/hostile conversion is not automatic; future explicit diplomacy actions must change status.
+- Phase A trade multiplier remains status-based and unchanged.
+- No tribute, trade agreement, alliance proposal, declaration of war, espionage, revolt instigation, specialty trade execution, or diplomacy UI exists yet.
+- Recommended next task:
+  - `v0.69-10B Tribute Diplomacy Action MVP`
+  - Alternative: `v0.69-11 Espionage Info Gathering MVP`
+
 ## Current v0.69-9 Trade Market Price Status
 - `v0.69-9 Trade Deepening Data Market Price MVP` is complete in code/docs.
 - Trade deepening is now started as a separate market-price data layer and does not replace Phase A inter-faction trade income.

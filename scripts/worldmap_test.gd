@@ -64,6 +64,9 @@ const FACTION_RELATION_STATUS := {
 	"HOSTILE": "hostile",
 	"SUSPENDED": "suspended",
 }
+const DIPLOMACY_SCORE_MIN := 0
+const DIPLOMACY_SCORE_MAX := 100
+const DIPLOMACY_DEFAULT_SCORE := 50
 const TRADE_SUSPENSION_TURNS := 3
 const RELATION_TRADE_MULTIPLIER := {
 	"allied": 1.25,
@@ -1428,9 +1431,12 @@ func _format_city_trade_route_display(_city_id: String, result: Dictionary) -> S
 		var route := route_variant as Dictionary
 		var city_a_id := str(route.get("city_a_id", ""))
 		var city_b_id := str(route.get("city_b_id", ""))
-		lines.append("%s-%s\n금전 %s / 쌀 %s / 보리 %s\n수산 %s / 소금 %s" % [
+		lines.append("%s-%s\n%s / score %d / band %s\n금전 %s / 쌀 %s / 보리 %s\n수산 %s / 소금 %s" % [
 			_format_city_name_by_id(city_a_id, city_a_id),
 			_format_city_name_by_id(city_b_id, city_b_id),
+			str(route.get("relation_status", FACTION_RELATION_STATUS["NEUTRAL"])),
+			int(route.get("relation_score", DIPLOMACY_DEFAULT_SCORE)),
+			str(route.get("relation_band", _get_faction_relation_band(int(route.get("relation_score", DIPLOMACY_DEFAULT_SCORE))))),
 			_format_signed_int(int(route.get("gold", 0))),
 			_format_signed_int(int(route.get("rice", 0))),
 			_format_signed_int(int(route.get("barley", 0))),
@@ -1932,6 +1938,10 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_inter_faction_trade_result"] = {}
 	if not _player_state.has("last_trade_market_result") or not (_player_state["last_trade_market_result"] is Dictionary):
 		_player_state["last_trade_market_result"] = {}
+	if not _player_state.has("last_diplomacy_relation_result") or not (_player_state["last_diplomacy_relation_result"] is Dictionary):
+		_player_state["last_diplomacy_relation_result"] = {}
+	if not _player_state.has("last_diplomacy_normalize_result") or not (_player_state["last_diplomacy_normalize_result"] is Dictionary):
+		_player_state["last_diplomacy_normalize_result"] = {}
 	if not _player_state.has("last_supply_state_result") or not (_player_state["last_supply_state_result"] is Dictionary):
 		_player_state["last_supply_state_result"] = {}
 	if not _player_state.has("last_public_support_result") or not (_player_state["last_public_support_result"] is Dictionary):
@@ -5857,6 +5867,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var tax_level := _normalize_tax_level(_player_state.get("tax_level", 30))
 	var policy_id := _normalize_chancellor_policy_id(str(_player_state.get("chancellor_policy_id", "balanced")))
 	var national_effects := _calculate_active_chancellor_national_effects()
+	var diplomacy_normalize_result := _normalize_faction_relations_for_world_state()
 	var supply_states := _calculate_all_city_supply_states()
 	var income_delta := _calculate_player_domestic_income_delta(turn_number, tax_level, policy_id, national_effects, supply_states)
 	var upkeep_delta := _calculate_player_hero_upkeep_delta(policy_id, national_effects, supply_states)
@@ -5880,7 +5891,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var trade_market_result := _update_trade_market_for_world_turn(supply_states)
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
 		"version": "v0.69-4",
@@ -5892,6 +5903,7 @@ func _apply_domestic_turn_mvp() -> String:
 		"resource_delta": applied_delta,
 		"loyalty_delta": applied_loyalty_delta,
 		"national_effects": national_effects,
+		"diplomacy_normalize_result": diplomacy_normalize_result,
 		"supply_state_result": supply_states,
 		"inter_faction_trade_result": inter_faction_trade_result,
 		"public_support_result": public_support_result,
@@ -5904,7 +5916,7 @@ func _apply_domestic_turn_mvp() -> String:
 		"tech_effect_result": tech_effect_result,
 		"trade_market_result": trade_market_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -6278,17 +6290,7 @@ func _make_faction_relation_key(faction_a: String, faction_b: String) -> String:
 	return "%s|%s" % [str(ids[0]), str(ids[1])]
 
 
-func _get_faction_relation_status(faction_a: String, faction_b: String) -> String:
-	if faction_a.is_empty() or faction_b.is_empty() or faction_a == faction_b:
-		return FACTION_RELATION_STATUS["NEUTRAL"]
-	var relations: Dictionary = _player_state.get("faction_relations", {})
-	var relation_key := _make_faction_relation_key(faction_a, faction_b)
-	var raw_relation: Variant = relations.get(relation_key, FACTION_RELATION_STATUS["NEUTRAL"])
-	var status := ""
-	if raw_relation is Dictionary:
-		status = str((raw_relation as Dictionary).get("status", FACTION_RELATION_STATUS["NEUTRAL"]))
-	else:
-		status = str(raw_relation)
+func _normalize_faction_relation_status(status: String) -> String:
 	match status:
 		"allied", "trade":
 			return FACTION_RELATION_STATUS["ALLIED"]
@@ -6298,6 +6300,146 @@ func _get_faction_relation_status(faction_a: String, faction_b: String) -> Strin
 			return FACTION_RELATION_STATUS["SUSPENDED"]
 		_:
 			return FACTION_RELATION_STATUS["NEUTRAL"]
+
+
+func _get_faction_relation_band(score: int) -> String:
+	var normalized_score := clampi(score, DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+	if normalized_score >= 70:
+		return "friendly"
+	if normalized_score <= 30:
+		return "hostile"
+	return "neutral"
+
+
+func _ensure_faction_relation_entry(faction_a: String, faction_b: String) -> Dictionary:
+	if faction_a.is_empty() or faction_b.is_empty() or faction_a == faction_b:
+		return {
+			"status": FACTION_RELATION_STATUS["NEUTRAL"],
+			"score": DIPLOMACY_DEFAULT_SCORE,
+			"cooldown": 0,
+		}
+	if not _player_state.has("faction_relations") or not (_player_state["faction_relations"] is Dictionary):
+		_player_state["faction_relations"] = {}
+	var relations: Dictionary = _player_state["faction_relations"]
+	var relation_key := _make_faction_relation_key(faction_a, faction_b)
+	var raw_entry: Variant = relations.get(relation_key, {})
+	var entry := {}
+	if raw_entry is Dictionary:
+		entry = (raw_entry as Dictionary).duplicate(true)
+		entry["status"] = _normalize_faction_relation_status(str(entry.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
+	else:
+		entry["status"] = _normalize_faction_relation_status(str(raw_entry))
+	if not entry.has("score"):
+		entry["score"] = DIPLOMACY_DEFAULT_SCORE
+	entry["score"] = clampi(int(entry.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+	if not entry.has("cooldown"):
+		entry["cooldown"] = 0
+	entry["cooldown"] = maxi(0, int(entry.get("cooldown", 0)))
+	relations[relation_key] = entry
+	_player_state["faction_relations"] = relations
+	return entry
+
+
+func _get_faction_relation_entry(faction_a: String, faction_b: String) -> Dictionary:
+	return _ensure_faction_relation_entry(faction_a, faction_b)
+
+
+func _get_faction_relation_score(faction_a: String, faction_b: String) -> int:
+	var entry := _get_faction_relation_entry(faction_a, faction_b)
+	return clampi(int(entry.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+
+
+func _get_faction_relation_status(faction_a: String, faction_b: String) -> String:
+	if faction_a.is_empty() or faction_b.is_empty() or faction_a == faction_b:
+		return FACTION_RELATION_STATUS["NEUTRAL"]
+	var entry := _get_faction_relation_entry(faction_a, faction_b)
+	return _normalize_faction_relation_status(str(entry.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
+
+
+func _adjust_faction_relation_score(faction_a: String, faction_b: String, delta: int, reason: String = "") -> Dictionary:
+	var entry := _ensure_faction_relation_entry(faction_a, faction_b)
+	var before_score := clampi(int(entry.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+	var after_score := clampi(before_score + delta, DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+	entry["score"] = after_score
+	var relation_key := _make_faction_relation_key(faction_a, faction_b)
+	var relations: Dictionary = _player_state.get("faction_relations", {})
+	relations[relation_key] = entry
+	_player_state["faction_relations"] = relations
+	var result := {
+		"faction_a": faction_a,
+		"faction_b": faction_b,
+		"before_score": before_score,
+		"after_score": after_score,
+		"delta": after_score - before_score,
+		"status": str(entry.get("status", FACTION_RELATION_STATUS["NEUTRAL"])),
+		"band": _get_faction_relation_band(after_score),
+		"reason": reason,
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+	}
+	_player_state["last_diplomacy_relation_result"] = result
+	return result
+
+
+func _get_known_faction_ids_for_diplomacy() -> Array:
+	var known := {}
+	known[PLAYER_FACTION_ID] = true
+	for city_id_variant in CITY_HUD_DATA.keys():
+		var city_data: Dictionary = CITY_HUD_DATA.get(city_id_variant, {})
+		var owner_id := _get_city_owner_faction_id(city_data)
+		if not owner_id.is_empty():
+			known[owner_id] = true
+	var relations: Variant = _player_state.get("faction_relations", {})
+	if relations is Dictionary:
+		for relation_key_variant in (relations as Dictionary).keys():
+			var parts := str(relation_key_variant).split("|")
+			for part in parts:
+				var faction_id := str(part)
+				if not faction_id.is_empty():
+					known[faction_id] = true
+	var faction_ids: Array = known.keys()
+	faction_ids.sort()
+	return faction_ids
+
+
+func _normalize_faction_relations_for_world_state() -> Dictionary:
+	var faction_ids := _get_known_faction_ids_for_diplomacy()
+	var ensured_count := 0
+	var created_count := 0
+	var patched_score_count := 0
+	var patched_status_count := 0
+	var patched_cooldown_count := 0
+	for i in range(faction_ids.size()):
+		for j in range(i + 1, faction_ids.size()):
+			var faction_a := str(faction_ids[i])
+			var faction_b := str(faction_ids[j])
+			var relation_key := _make_faction_relation_key(faction_a, faction_b)
+			var relations_before: Dictionary = _player_state.get("faction_relations", {})
+			var existed := relations_before.has(relation_key)
+			var raw_entry: Variant = relations_before.get(relation_key, {})
+			var had_score := raw_entry is Dictionary and (raw_entry as Dictionary).has("score")
+			var had_status := raw_entry is Dictionary and (raw_entry as Dictionary).has("status")
+			var had_cooldown := raw_entry is Dictionary and (raw_entry as Dictionary).has("cooldown")
+			_ensure_faction_relation_entry(faction_a, faction_b)
+			ensured_count += 1
+			if not existed:
+				created_count += 1
+			elif not had_score:
+				patched_score_count += 1
+			if existed and not had_status:
+				patched_status_count += 1
+			if existed and not had_cooldown:
+				patched_cooldown_count += 1
+	var result := {
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"known_faction_count": faction_ids.size(),
+		"ensured_count": ensured_count,
+		"created_count": created_count,
+		"patched_score_count": patched_score_count,
+		"patched_status_count": patched_status_count,
+		"patched_cooldown_count": patched_cooldown_count,
+	}
+	_player_state["last_diplomacy_normalize_result"] = result
+	return result
 
 
 func _can_trade_between_factions(faction_a: String, faction_b: String) -> bool:
@@ -6319,6 +6461,8 @@ func _calculate_trade_route_value(city_a: Dictionary, city_b: Dictionary) -> Dic
 	var faction_a := _get_city_owner_faction_id(city_a)
 	var faction_b := _get_city_owner_faction_id(city_b)
 	var relation_status := _get_faction_relation_status(faction_a, faction_b)
+	var relation_score := _get_faction_relation_score(faction_a, faction_b)
+	var relation_band := _get_faction_relation_band(relation_score)
 	var resource_seed_a: Dictionary = city_a.get("resource_seed", {})
 	var resource_seed_b: Dictionary = city_b.get("resource_seed", {})
 	var base_gold := (_get_city_numeric_rating(city_a, "commerce_rating", 0) + _get_city_numeric_rating(city_b, "commerce_rating", 0)) * 3
@@ -6336,6 +6480,8 @@ func _calculate_trade_route_value(city_a: Dictionary, city_b: Dictionary) -> Dic
 		"faction_a": faction_a,
 		"faction_b": faction_b,
 		"relation_status": relation_status,
+		"relation_score": relation_score,
+		"relation_band": relation_band,
 		"gold": int(floor(clampf(float(base_gold) * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("gold", 90))))),
 		"rice": int(floor(clampf(float(_get_rating(resource_seed_a, "rice") + _get_rating(resource_seed_b, "rice")) * TRADE_FOOD_FACTOR * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("rice", 20))))),
 		"barley": int(floor(clampf(float(_get_rating(resource_seed_a, "barley") + _get_rating(resource_seed_b, "barley")) * TRADE_FOOD_FACTOR * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("barley", 20))))),
@@ -6897,7 +7043,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}, tech_effect_result: Dictionary = {}, trade_market_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}, tech_effect_result: Dictionary = {}, trade_market_result: Dictionary = {}, diplomacy_normalize_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -6936,6 +7082,10 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		var market_summary := _format_trade_market_summary(trade_market_result)
 		if not market_summary.is_empty():
 			parts.append(market_summary)
+	if not diplomacy_normalize_result.is_empty():
+		var diplomacy_summary := _format_diplomacy_normalize_summary(diplomacy_normalize_result)
+		if not diplomacy_summary.is_empty():
+			parts.append(diplomacy_summary)
 	if parts.is_empty():
 		return "변동 없음"
 	return " · ".join(parts)
@@ -6968,6 +7118,14 @@ func _format_trade_market_summary(result: Dictionary) -> String:
 			_get_trade_market_trend_symbol(str((entry as Dictionary).get("trend", "flat"))),
 		])
 	return "" if parts.is_empty() else "시세: %s" % " / ".join(parts)
+
+
+func _format_diplomacy_normalize_summary(result: Dictionary) -> String:
+	var created_count := int(result.get("created_count", 0))
+	var patched_count := int(result.get("patched_score_count", 0)) + int(result.get("patched_status_count", 0)) + int(result.get("patched_cooldown_count", 0))
+	if created_count <= 0 and patched_count <= 0:
+		return ""
+	return "외교 관계 정규화 %d건 · 보정 %d건" % [int(result.get("ensured_count", 0)), patched_count]
 
 
 func _get_trade_market_trend_symbol(trend: String) -> String:

@@ -1,5 +1,21 @@
 # SESSION LOG
 
+## 2026-06-01
+
+### v0.69-10 Diplomacy Relation Score MVP
+- Started from baseline commit `64351822aa0acd80079b135862c983bec4803043` / `v0.69-9 Trade Deepening Data Market Price MVP`.
+- Implemented score-based diplomacy relation foundation in `scripts/worldmap_test.gd`.
+- Added `DIPLOMACY_SCORE_MIN`, `DIPLOMACY_SCORE_MAX`, and `DIPLOMACY_DEFAULT_SCORE`.
+- Added relation entry normalization so existing or new `faction_relations` entries contain `status`, `score`, and `cooldown`.
+- Added `_get_faction_relation_score`, `_get_faction_relation_band`, `_adjust_faction_relation_score`, and `_normalize_faction_relations_for_world_state`.
+- Kept `status` and `relation_band` separate. Score changes do not auto-change status to allied or hostile.
+- Kept Phase A trade income status-based; route entries now include `relation_score` and `relation_band` for display/debug context only.
+- Domestic turn now normalizes faction relations before Phase A trade calculation.
+- Did not implement tribute, trade agreement, alliance proposal, declaration of war, espionage, revolt instigation, specialty trade execution, diplomacy UI, battle changes, or save/load core rewrites.
+- QA runner confirmed score patching, status/cooldown preservation, score clamp, band thresholds, status non-conversion, Phase A trade income invariance, route score/band fields, save/load preservation, and no resource/publicSupport/loyalty/troop/tech mutation.
+- Next candidates are `v0.69-10B Tribute Diplomacy Action MVP` or `v0.69-11 Espionage Info Gathering MVP`.
+- Remaining risks: score has no diplomacy action consumer yet; normalization creates all known city-owner faction pairs; final F6 diplomacy UX validation remains deferred.
+
 ## 2026-05-31
 
 ### v0.69-9 Trade Deepening Data Market Price MVP

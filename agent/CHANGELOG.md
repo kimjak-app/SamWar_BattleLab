@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.69-10 Diplomacy Relation Score MVP
+- Added diplomacy relation score constants and helpers to `scripts/worldmap_test.gd`.
+- `faction_relations` entries now normalize to `status`, `score`, and `cooldown` while preserving existing status/cooldown values.
+- Added score adjustment and normalization result records: `last_diplomacy_relation_result` and `last_diplomacy_normalize_result`.
+- Added score-derived `relation_band` values: `friendly`, `neutral`, and `hostile`.
+- Kept `status` separate from `relation_band`; no automatic allied/hostile conversion was added.
+- Kept Phase A trade multiplier status-based and unchanged. Trade routes now include `relation_score` and `relation_band` as display/debug fields only.
+- Did not implement tribute, trade agreements, alliance proposal/acceptance, declaration of war, espionage, revolt instigation, specialty trade execution, diplomacy UI, battle changes, or save/load core rewrites.
+
 ## v0.69-9 Trade Deepening Data Market Price MVP
 - Added trade market base price data for `rice`, `barley`, `seafood`, `salt`, `silk`, `iron`, `wood`, and `horse`; `gold` remains excluded as the pricing basis.
 - Added deterministic season and situation multiplier helpers for market prices.

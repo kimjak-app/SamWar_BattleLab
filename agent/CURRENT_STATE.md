@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.69-10 Diplomacy Relation Score MVP
+- Implemented the first Diplomacy Relation Score MVP in `scripts/worldmap_test.gd`.
+- `faction_relations` now supports score-based relationship data while preserving existing status behavior: each normalized relation entry has `status`, `score`, and `cooldown`.
+- Added score bounds and default: `DIPLOMACY_SCORE_MIN = 0`, `DIPLOMACY_SCORE_MAX = 100`, `DIPLOMACY_DEFAULT_SCORE = 50`.
+- Added relation helpers: `_ensure_faction_relation_entry`, `_get_faction_relation_entry`, `_get_faction_relation_score`, `_get_faction_relation_band`, `_adjust_faction_relation_score`, and `_normalize_faction_relations_for_world_state`.
+- `relation_band` is separate from `status`: score `>=70` is `friendly`, `31..69` is `neutral`, and `<=30` is `hostile`.
+- Allied/hostile status does not change automatically from score. `allied`, `hostile`, and `suspended` statuses are preserved until future explicit diplomacy actions.
+- Phase A inter-faction trade still uses status-based multipliers only. Score/band are added to trade route output for display/debug context and do not affect income.
+- Domestic world turn normalizes known faction pairs once before Phase A trade calculation; this only creates/patches relation entries and does not auto-adjust scores.
+- Added result records: `_player_state["last_diplomacy_relation_result"]` and `_player_state["last_diplomacy_normalize_result"]`.
+- Not implemented: tribute, trade agreements, alliance proposal/acceptance, declaration of war, espionage, revolt instigation, specialty trade execution, or diplomacy UI.
+- Verification passed: `rg` for diplomacy helpers/result fields, temporary QA runner, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. Godot `--check-only` timed out locally.
+- QA runner confirmed default score patching, status/cooldown preservation, new neutral score entries, score clamp `0..100`, band thresholds, no automatic status conversion, Phase A trade income unchanged by score, route score/band fields, save/load score preservation, and no resource/publicSupport/loyalty/troop/tech mutation.
+- Next candidates: `v0.69-10B Tribute Diplomacy Action MVP` or `v0.69-11 Espionage Info Gathering MVP`.
+- Remaining risks: score has no player-facing action consumer yet; normalization currently initializes all known city-owner faction pairs; final diplomacy UI/F6 UX validation remains deferred.
+
 ## v0.69-9 Trade Deepening Data Market Price MVP
 - Implemented the first Trade Deepening Data + Market Price MVP in `scripts/worldmap_test.gd`.
 - Added deterministic market price helpers for resource base prices, display names, seasonal multipliers, situation multipliers, and market trend classification.
