@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.69-3 Troop Move Loyalty Efficiency Final Patch
+- Replaced C1 troop movement total preservation with the final source-city loyalty movement efficiency formula in `scripts/worldmap_test.gd`.
+- Added `_calculate_troop_move_arrived_amount(commanded_amount, from_loyalty)`.
+- `_move_troops` now subtracts the full commanded/departed amount from the source city and adds only the loyalty-adjusted arrived amount to the destination city.
+- `last_troop_move_result` now records `commanded_amount`, `departed_amount`, `arrived_amount`, `lost_amount`, `from_loyalty`, source/destination after values, turn, and compatibility `amount`.
+- `_can_move_troops` validation remains commanded-amount based, including minimum source-garrison checks.
+- `_apply_troop_rebalance_suggestion` still delegates to `_move_troops`, so C2 approval uses the same loyalty-loss formula without direct troop writes.
+- Added minimal movement preview/status copy for arrived and lost troops.
+- `publicSupport` is not used directly for movement loss; movement uses current city loyalty after any seasonal effects.
+- Did not change publicSupport calculation, seasonal loyalty calculation, P0-2 city loyalty drift, recruitment/conscription, revolt, tech trees, trade deepening, diplomacy/espionage, battle/invasion/defense logic, battle scene code, save/load core, or large UI.
+
 ## v0.69-2 Seasonal Loyalty From Public Support MVP
 - Added `_is_seasonal_loyalty_turn`, `_get_next_seasonal_loyalty_turn`, `_calculate_loyalty_delta_from_public_support`, and `_apply_seasonal_loyalty_from_public_support` to `scripts/worldmap_test.gd`.
 - Added `_player_state["last_seasonal_loyalty_result"]` for seasonal loyalty result recording.

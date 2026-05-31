@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.69-3 Troop Move Loyalty Efficiency Final Patch
+- Implemented the final loyalty-based troop movement loss formula in `scripts/worldmap_test.gd`.
+- C1 manual movement no longer preserves total troop count. The old total-preservation movement was an MVP validation structure and is replaced in v0.69-3.
+- Final formula: `commanded_amount` departs from the source city, `arrived_amount = floor(commanded_amount * from_loyalty / 100.0)`, and `lost_amount = commanded_amount - arrived_amount`.
+- Source city troops decrease by `departed_amount`; destination city troops increase only by `arrived_amount`. `lost_amount` is recorded as desertion/straggler loss during movement.
+- Movement loss uses the source city's current `loyalty` / `cityLoyalty` via the existing city loyalty helper. `publicSupport` is not used directly; it only matters later through already-seasonalized loyalty.
+- `_can_move_troops` remains commanded-amount based, including the minimum source-garrison check against `from_troops - commanded_amount`.
+- `_player_state["last_troop_move_result"]` now records `commanded_amount`, `departed_amount`, `arrived_amount`, `lost_amount`, `from_loyalty`, source/destination post-move troops, and turn information while keeping `amount` for compatibility.
+- C2 chancellor rebalance approval still delegates to `_move_troops`, so approved C2 movement receives the same loyalty loss formula without separate execution logic.
+- City Detail movement preview and success status now show commanded, expected/actual arrived troops, and lost troops with minimal display changes.
+- Not changed: Phase A/B/P0-1/P0-2 formulas, publicSupport formula, seasonal loyalty formula, recruitment/conscription, revolt, tech trees, trade deepening, diplomacy/espionage, battle scene logic, battle/invasion/defense logic, save/load core structure, or large UI.
+- Verification passed: `rg` checks for troop movement fields/helpers, `_can_move_troops` commanded-amount review, `_apply_troop_rebalance_suggestion` delegation review, scoped diff review confirming `battle_web_import_test.gd` and publicSupport/seasonal/P0-2 formulas were not changed, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary QA runner. Godot `--check-only` timed out locally after 134 seconds.
+- QA runner confirmed loyalty `100/90/50/20` with 100 commanded troops produces arrivals `100/90/50/20` and losses `0/10/50/80`, minimum-garrison validation still uses commanded amount, save/load preserves post-move troops, player attack BattleContext reads the destination troops after movement, C2 approval applies the same loss formula, and `last_troop_move_result` records commanded/arrived/lost/from_loyalty.
+- Remaining risks: the current movement UI remains intentionally minimal and still lacks explicit target/amount controls; manual F6 visual QA is recommended for final Korean copy and button/status readability.
+
 ## v0.69-2 Seasonal Loyalty From Public Support MVP
 - Implemented seasonal city loyalty adjustment from city `publicSupport` in `scripts/worldmap_test.gd`.
 - v0.69 structure is now represented at MVP level: `publicSupport` changes every domestic turn, while the new seasonal loyalty bridge applies only on seasonal turns.

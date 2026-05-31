@@ -1,12 +1,20 @@
 # NEXT TASKS
 
+## Current v0.69-3 Troop Move Loyalty Efficiency Status
+- `v0.69-3 Troop Move Loyalty Efficiency Final Patch` is complete in code/docs.
+- C1 manual troop movement now uses source-city loyalty as the final movement efficiency formula.
+- Movement is no longer total-preserving: commanded troops all depart, only `floor(commanded_amount * from_loyalty / 100.0)` arrive, and the remainder is recorded as loss.
+- C2 chancellor rebalance approval continues through `_move_troops`, so approved C2 movement uses the same loyalty-based loss formula.
+- `publicSupport` is not directly used by troop movement. Movement uses the current city loyalty value after any seasonal publicSupport-to-loyalty effects have already been applied.
+- Next required task: `v0.69-4 Recruitment/Conscription Foundation MVP`.
+
 ## Current v0.69-2 Seasonal Loyalty Status
 - `v0.69-2 Seasonal Loyalty From Public Support MVP` is complete in code/docs.
 - `publicSupport` remains the fast domestic-stability axis and changes every turn through v0.69-1 logic.
 - City `loyalty` now receives a slow seasonal adjustment from publicSupport only on `turn_number % 10 == 0`.
 - Existing P0-2 city loyalty drift remains active and separate.
 - Payroll/gold surplus and equipment surplus seasonal loyalty factors are documented in the confirmed design but intentionally deferred.
-- Next required task: `v0.69-3 Troop Move Loyalty Efficiency Final Patch`.
+- Superseded by `v0.69-3`: troop movement now consumes the current loyalty value as movement efficiency.
 
 ## Current v0.69-1 Public Support Status
 - `v0.69-1 Public Support MVP` is complete in code/docs.
@@ -23,8 +31,8 @@
 - Implement systems in this order:
   1. `v0.69-1 Public Support MVP` - complete.
   2. `v0.69-2 Seasonal Loyalty From Public Support MVP` - complete.
-  3. `v0.69-3 Troop Move Loyalty Efficiency Final Patch` - next.
-  4. `v0.69-4 Recruitment/Conscription Foundation MVP`
+  3. `v0.69-3 Troop Move Loyalty Efficiency Final Patch` - complete.
+  4. `v0.69-4 Recruitment/Conscription Foundation MVP` - next.
   5. `v0.69-5 Revolt Warning Foundation MVP`
   6. `v0.69-6 National Tech Tree Data MVP`
   7. `v0.69-7 City Tech Tree Data MVP`

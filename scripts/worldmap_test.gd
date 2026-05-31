@@ -1415,10 +1415,16 @@ func _format_troop_move_preview_display(preview: Dictionary) -> String:
 	var from_id := str(preview.get("from", ""))
 	var to_id := str(preview.get("to", ""))
 	if bool(preview.get("ok", false)):
-		return "■ 수동 병력 이동\n%s → %s\n이동 가능: %d명 · 최소 잔류 %d명" % [
+		var commanded_amount := int(preview.get("amount", 0))
+		var from_loyalty := _get_city_loyalty_value(_get_city_hud_entry(from_id))
+		var expected_arrived := _calculate_troop_move_arrived_amount(commanded_amount, from_loyalty)
+		var expected_lost := maxi(0, commanded_amount - expected_arrived)
+		return "■ 수동 병력 이동\n%s → %s\n명령: %d명 · 예상 도착 %d명 · 이탈 %d명\n최소 잔류 %d명" % [
 			_format_city_name_by_id(from_id, from_id),
 			_format_city_name_by_id(to_id, to_id),
-			int(preview.get("amount", 0)),
+			commanded_amount,
+			expected_arrived,
+			expected_lost,
 			int(preview.get("min_keep", 0)),
 		]
 	return "■ 수동 병력 이동\n이동 불가: %s" % _format_troop_move_reason(preview)
@@ -3599,6 +3605,7 @@ func _move_troops(from_id: String, to_id: String, amount: int) -> bool:
 			"from": from_id,
 			"to": to_id,
 			"amount": amount,
+			"commanded_amount": amount,
 			"turn": maxi(1, int(_player_state.get("turn_number", 1))),
 			"reason": str(validation.get("reason", "")),
 		}
@@ -3606,35 +3613,53 @@ func _move_troops(from_id: String, to_id: String, amount: int) -> bool:
 	var total_before := _get_world_city_troop_total()
 	var from_troops := _get_city_troops_for_battle_context(from_id)
 	var to_troops := _get_city_troops_for_battle_context(to_id)
-	var from_after := from_troops - amount
-	var to_after := to_troops + amount
+	var commanded_amount := amount
+	var departed_amount := commanded_amount
+	var from_loyalty := _get_city_loyalty_value(_get_city_hud_entry(from_id))
+	var arrived_amount := _calculate_troop_move_arrived_amount(commanded_amount, from_loyalty)
+	var lost_amount := maxi(0, departed_amount - arrived_amount)
+	var from_after := from_troops - departed_amount
+	var to_after := to_troops + arrived_amount
 	_set_city_runtime_troops(from_id, from_after)
 	_set_city_runtime_troops(to_id, to_after)
 	var total_after := _get_world_city_troop_total()
-	var total_preserved := total_before == total_after
 	_player_state["last_troop_move_result"] = {
 		"ok": true,
 		"from": from_id,
 		"to": to_id,
 		"amount": amount,
+		"commanded_amount": commanded_amount,
+		"departed_amount": departed_amount,
+		"arrived_amount": arrived_amount,
+		"lost_amount": lost_amount,
+		"from_loyalty": from_loyalty,
 		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
 		"from_after": from_after,
 		"to_after": to_after,
 		"total_before": total_before,
 		"total_after": total_after,
-		"total_preserved": total_preserved,
+		"total_loss": total_before - total_after,
 	}
-	print("[TROOP_MOVE] from=%s to=%s amount=%d from_after=%d to_after=%d total=%d->%d preserved=%s" % [
+	print("[TROOP_MOVE] from=%s to=%s commanded=%d departed=%d arrived=%d lost=%d loyalty=%d from_after=%d to_after=%d total=%d->%d" % [
 		from_id,
 		to_id,
-		amount,
+		commanded_amount,
+		departed_amount,
+		arrived_amount,
+		lost_amount,
+		from_loyalty,
 		from_after,
 		to_after,
 		total_before,
 		total_after,
-		str(total_preserved),
 	])
-	return total_preserved
+	return true
+
+
+func _calculate_troop_move_arrived_amount(commanded_amount: int, from_loyalty: int) -> int:
+	var safe_amount := maxi(0, commanded_amount)
+	var safe_loyalty := clampi(from_loyalty, 0, 100)
+	return maxi(0, int(floor(float(safe_amount) * float(safe_loyalty) / 100.0)))
 
 
 func _calculate_troop_rebalance_suggestions() -> Array:
@@ -6630,10 +6655,13 @@ func _on_city_detail_domestic_placeholder_pressed() -> void:
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_CITY_DETAIL and _selected_city_detail_tab == CITY_DETAIL_TAB_INTERNAL_TRADE and selected_city_marker != null:
 		var preview := _get_troop_move_preview_for_city(selected_city_marker.city_id)
 		if bool(preview.get("ok", false)) and _move_troops(str(preview.get("from", "")), str(preview.get("to", "")), int(preview.get("amount", 0))):
-			_set_save_management_status("병력 이동 완료: %s → %s · %d명" % [
+			var move_result: Dictionary = _player_state.get("last_troop_move_result", {})
+			_set_save_management_status("%s → %s %d명 이동 명령: %d명 도착, %d명 이탈" % [
 				_format_city_name_by_id(str(preview.get("from", "")), "출발 도시"),
 				_format_city_name_by_id(str(preview.get("to", "")), "도착 도시"),
-				int(preview.get("amount", 0)),
+				int(move_result.get("commanded_amount", preview.get("amount", 0))),
+				int(move_result.get("arrived_amount", 0)),
+				int(move_result.get("lost_amount", 0)),
 			])
 		else:
 			_set_save_management_status("병력 이동 불가: %s" % _format_troop_move_reason(preview))

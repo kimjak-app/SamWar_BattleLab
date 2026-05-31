@@ -1,5 +1,16 @@
 # HANDOFF TO CODEX
 
+## v0.69-3 Troop Move Loyalty Efficiency Handoff
+- `v0.69-3 Troop Move Loyalty Efficiency Final Patch` is implemented in `scripts/worldmap_test.gd`.
+- C1 manual troop movement now uses the final source-city loyalty efficiency formula instead of total preservation.
+- Movement formula is locked: all `commanded_amount` troops depart, `arrived_amount = floor(commanded_amount * from_loyalty / 100.0)` arrive, and `lost_amount` is recorded as movement loss.
+- `_can_move_troops` still validates against the commanded amount, including the minimum source-garrison guard.
+- `last_troop_move_result` records commanded/departed/arrived/lost/from_loyalty plus source/destination after values; `amount` remains for compatibility.
+- C2 approval still goes through `_apply_troop_rebalance_suggestion()` -> `_move_troops()`, so C2 receives the same loyalty-based loss automatically. Do not add C2 automatic execution or a separate direct-write path.
+- `publicSupport` is not a direct troop movement input. Movement uses current city loyalty, which may already include seasonal publicSupport effects from v0.69-2.
+- Next task should be `v0.69-4 Recruitment/Conscription Foundation MVP`.
+- Remaining risks: minimal movement UI still lacks explicit target/amount controls, and manual F6 visual QA remains useful for display copy.
+
 ## v0.69-2 Seasonal Loyalty Handoff
 - `v0.69-2 Seasonal Loyalty From Public Support MVP` is implemented in `scripts/worldmap_test.gd`.
 - Public support remains a separate fast-changing domestic stability axis; loyalty remains the slower military-operation axis.
@@ -8,7 +19,7 @@
 - Existing P0-2 city loyalty drift was not removed, replaced, or merged into publicSupport.
 - Seasonal publicSupport thresholds are locked for this MVP: `90+ +2`, `80+ +1`, `60..79 -1`, `40..59 -2`, `0..39 -3`.
 - Payroll/gold surplus and equipment surplus loyalty factors are not implemented yet; leave them for a later focused pass.
-- Next task should be `v0.69-3 Troop Move Loyalty Efficiency Final Patch`.
+- Superseded by v0.69-3 for the next military-operation consumer of current loyalty.
 - Remaining risks: minimal UI display only; seasonal bridge is publicSupport-only and does not yet include payroll/equipment/supply seasonal modifiers beyond the existing P0-2/supply systems.
 
 ## v0.69-1 Public Support MVP Handoff

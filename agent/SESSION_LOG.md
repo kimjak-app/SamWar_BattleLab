@@ -2,6 +2,23 @@
 
 ## 2026-05-31
 
+### v0.69-3 Troop Move Loyalty Efficiency Final Patch
+- Started from baseline commit `79036b0` / `v0.69-2 Seasonal Loyalty From Public Support MVP`.
+- Implemented source-city loyalty based movement loss in `scripts/worldmap_test.gd`.
+- Replaced C1 movement total preservation with the final formula: `arrived_amount = floor(commanded_amount * from_loyalty / 100.0)`, with the remainder recorded as `lost_amount`.
+- Kept `_can_move_troops` validation on commanded amount, including minimum garrison.
+- Extended `last_troop_move_result` with commanded/departed/arrived/lost/from_loyalty and post-move city troop values while keeping `amount` for compatibility.
+- Kept C2 approval on the existing `_apply_troop_rebalance_suggestion()` -> `_move_troops()` path so C2 applies the same loss formula.
+- Added minimal preview/status text showing commanded, arrived, and lost troops.
+- Did not use `publicSupport` directly for movement loss; movement uses current city loyalty after seasonal publicSupport effects.
+- Did not change Phase A/B/P0-1/P0-2 formulas, publicSupport formula, seasonal loyalty formula, recruitment/conscription, revolt, tech trees, trade deepening, diplomacy/espionage, battle scene code, battle/invasion/defense logic, save/load core, or large UI.
+- Verification passed: `rg` checks, `_can_move_troops` commanded validation review, C2 delegation review, `battle_web_import_test.gd` unchanged review, publicSupport/seasonal/P0-2 formula diff review, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless QA runner.
+- Godot `--headless --check-only` timed out after 134 seconds and is recorded as inconclusive.
+- QA runner confirmed loyalty `100/90/50/20` cases, minimum-garrison commanded check, save/load post-move troop preservation, player attack BattleContext destination troop read, C2 approval loss formula, and `last_troop_move_result` recording.
+- Remaining risks: movement UI remains minimal and manual F6 visual QA is still recommended for final display feel.
+
+## 2026-05-31
+
 ### v0.69-2 Seasonal Loyalty From Public Support MVP
 - Started from baseline commit `76b9015` / `v0.69-1 Public Support MVP`.
 - Implemented publicSupport-to-loyalty seasonal bridge only in `scripts/worldmap_test.gd`.
