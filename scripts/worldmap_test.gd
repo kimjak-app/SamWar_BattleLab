@@ -561,6 +561,7 @@ var _player_state := {
 	"last_conscription_result": {},
 	"last_recruitment_result": {},
 	"last_revolt_warning_result": {},
+	"national_tech": {"completed": {}, "in_progress": {}, "available_cache": {}},
 }
 var _city_policy_state: Dictionary = {}
 var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
@@ -1940,6 +1941,7 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_recruitment_result"] = {}
 	if not _player_state.has("last_revolt_warning_result") or not (_player_state["last_revolt_warning_result"] is Dictionary):
 		_player_state["last_revolt_warning_result"] = {}
+	_ensure_national_tech_state()
 
 
 func _normalize_turn_phase(phase: String) -> String:
@@ -3951,6 +3953,273 @@ func _recruit_troops(city_id: String, amount: int) -> bool:
 	])
 	_refresh_city_hud_data_bindings()
 	return true
+
+
+func _get_national_tech_definitions() -> Dictionary:
+	return {
+		"national_foundation": _make_national_tech_definition("national_foundation", "국가 기반 정비", "foundation", "basic", [], "", {}, {"gold": 200}, "국가 테크트리 기초를 연다."),
+		"legal_reform": _make_national_tech_definition("legal_reform", "법률 정비", "administrative", "basic", ["national_foundation"], "administrative", {}, {"gold": 300, "silk": 100}, "법률 정비 기반."),
+		"bureaucracy_system": _make_national_tech_definition("bureaucracy_system", "관료 체계", "administrative", "mid", ["legal_reform"], "", {"owned_city_count": 2}, {"gold": 500, "silk": 200}, "관료 체계 기반."),
+		"local_administration": _make_national_tech_definition("local_administration", "지방 행정", "administrative", "mid", ["bureaucracy_system"], "", {"owned_city_count": 3, "governor_assigned_city_count": 2}, {"gold": 600, "silk": 300}, "지방 행정 기반."),
+		"centralization": _make_national_tech_definition("centralization", "중앙집권", "administrative", "capstone", ["local_administration"], "administrative", {"national_loyalty": 70, "owned_city_count": 5, "chancellor_type_turns": 10}, {"gold": 1000, "silk": 500}, "중앙집권 기반."),
+		"tax_reform": _make_national_tech_definition("tax_reform", "세제 개혁", "economic", "basic", ["national_foundation"], "economic", {}, {"gold": 400}, "세제 개혁 기반."),
+		"equal_tax": _make_national_tech_definition("equal_tax", "균등세", "economic", "mid", ["tax_reform"], "", {"owned_city_count": 2}, {"gold": 500, "silk": 100}, "균등세 기반."),
+		"unified_currency": _make_national_tech_definition("unified_currency", "화폐 통일", "economic", "advanced", ["equal_tax"], "economic", {"avg_commerce": 50, "chancellor_type_turns": 5}, {"gold": 800, "iron": 200}, "화폐 통일 기반."),
+		"national_economy": _make_national_tech_definition("national_economy", "국가 경제", "economic", "capstone", ["unified_currency"], "", {"owned_city_count": 4, "has_city_tech_mint": true}, {"gold": 1500, "silk": 500}, "국가 경제 기반."),
+		"conscription_system": _make_national_tech_definition("conscription_system", "징병 제도", "military", "basic", ["national_foundation"], "militaryAdmin", {}, {"gold": 300, "food": 200}, "징병 제도 기반."),
+		"military_training_order": _make_national_tech_definition("military_training_order", "군사 훈련령", "military", "mid", ["conscription_system"], "", {"avg_loyalty": 60}, {"iron": 200, "gold": 400, "food": 300}, "군사 훈련 기반."),
+		"military_reform": _make_national_tech_definition("military_reform", "군사 개혁", "military", "advanced", ["military_training_order"], "militaryAdmin", {"chancellor_type_turns": 5}, {"iron": 500, "gold": 600, "food": 400}, "군사 개혁 기반."),
+		"standing_army": _make_national_tech_definition("standing_army", "상비군", "military", "capstone", ["military_reform"], "", {"avg_loyalty": 75, "owned_city_count": 4}, {"iron": 800, "gold": 1000, "food": 800}, "상비군 기반."),
+		"envoy_dispatch": _make_national_tech_definition("envoy_dispatch", "사신 파견", "diplomatic", "basic", ["national_foundation"], "diplomatic", {}, {"gold": 300, "silk": 200}, "사신 파견 기반."),
+		"diplomacy_system": _make_national_tech_definition("diplomacy_system", "외교 체계", "diplomatic", "mid", ["envoy_dispatch"], "", {"neutral_faction_count": 2}, {"gold": 400, "silk": 300}, "외교 체계 기반."),
+		"alliance_system": _make_national_tech_definition("alliance_system", "동맹 체계", "diplomatic", "advanced", ["diplomacy_system"], "diplomatic", {"allied_faction_count": 1, "chancellor_type_turns": 5}, {"gold": 600, "silk": 400}, "동맹 체계 기반."),
+		"world_diplomacy": _make_national_tech_definition("world_diplomacy", "천하 외교", "diplomatic", "capstone", ["alliance_system"], "", {"allied_faction_count": 2, "has_silkroad_or_trade_port": true}, {"gold": 1000, "silk": 800}, "천하 외교 기반."),
+		"inspection_system": _make_national_tech_definition("inspection_system", "감찰 제도", "political", "mid", ["bureaucracy_system"], "political", {}, {"gold": 400, "silk": 200}, "감찰 제도 기반."),
+		"anti_corruption": _make_national_tech_definition("anti_corruption", "부패 방지", "political", "advanced", ["inspection_system"], "", {"national_loyalty": 65}, {"gold": 600, "silk": 300}, "부패 방지 기반."),
+		"spy_network_system": _make_national_tech_definition("spy_network_system", "첩보 체계", "political", "mid", ["diplomacy_system"], "political", {}, {"gold": 500, "silk": 200}, "첩보 체계 기반."),
+		"intelligence_organization": _make_national_tech_definition("intelligence_organization", "첩보 조직", "political", "advanced", ["spy_network_system"], "", {"owned_city_count": 3}, {"gold": 800, "silk": 400}, "첩보 조직 기반."),
+	}
+
+
+func _make_national_tech_definition(id: String, name: String, branch: String, tier: String, requires: Array, required_chancellor_type: String, conditions: Dictionary, cost: Dictionary, effect_summary: String) -> Dictionary:
+	return {
+		"id": id,
+		"name": name,
+		"branch": branch,
+		"tier": tier,
+		"requires": requires.duplicate(true),
+		"required_chancellor_type": required_chancellor_type,
+		"conditions": conditions.duplicate(true),
+		"cost": cost.duplicate(true),
+		"effect_summary": effect_summary,
+	}
+
+
+func _ensure_national_tech_state() -> void:
+	if not _player_state.has("national_tech") or not (_player_state["national_tech"] is Dictionary):
+		_player_state["national_tech"] = {}
+	var national_tech: Dictionary = _player_state["national_tech"]
+	if not national_tech.has("completed") or not (national_tech["completed"] is Dictionary):
+		national_tech["completed"] = {}
+	if not national_tech.has("in_progress") or not (national_tech["in_progress"] is Dictionary):
+		national_tech["in_progress"] = {}
+	if not national_tech.has("available_cache") or not (national_tech["available_cache"] is Dictionary):
+		national_tech["available_cache"] = {}
+	_player_state["national_tech"] = national_tech
+
+
+func _get_completed_national_tech_ids() -> Array:
+	_ensure_national_tech_state()
+	var completed: Dictionary = (_player_state["national_tech"] as Dictionary).get("completed", {})
+	var result: Array[String] = []
+	for tech_id_variant in completed.keys():
+		var tech_id := str(tech_id_variant)
+		if bool(completed.get(tech_id_variant, false)):
+			result.append(tech_id)
+	return result
+
+
+func _is_national_tech_completed(tech_id: String) -> bool:
+	_ensure_national_tech_state()
+	var completed: Dictionary = (_player_state["national_tech"] as Dictionary).get("completed", {})
+	return bool(completed.get(tech_id, false))
+
+
+func _is_national_tech_in_progress(tech_id: String) -> bool:
+	_ensure_national_tech_state()
+	var in_progress: Dictionary = (_player_state["national_tech"] as Dictionary).get("in_progress", {})
+	return bool(in_progress.get(tech_id, false))
+
+
+func _get_national_tech_definition(tech_id: String) -> Dictionary:
+	var definitions := _get_national_tech_definitions()
+	var definition: Variant = definitions.get(tech_id, {})
+	return (definition as Dictionary).duplicate(true) if definition is Dictionary else {}
+
+
+func _get_current_chancellor_aptitude_type() -> String:
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty():
+		return ""
+	var hero_data := _get_hero_entry(chancellor_id)
+	if hero_data.is_empty() or str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+		return ""
+	return str(hero_data.get("chancellor_primary_type", ""))
+
+
+func _check_national_tech_requirements(tech_id: String) -> Dictionary:
+	var definition := _get_national_tech_definition(tech_id)
+	var reasons: Array[String] = []
+	var missing_requires: Array[String] = []
+	var missing_conditions: Array[String] = []
+	if definition.is_empty():
+		return {"ok": false, "reasons": ["tech_not_found"], "missing_requires": missing_requires, "missing_conditions": missing_conditions}
+	var requires: Array = definition.get("requires", [])
+	for required_id_variant in requires:
+		var required_id := str(required_id_variant)
+		if not _is_national_tech_completed(required_id):
+			missing_requires.append(required_id)
+			reasons.append("missing_required:%s" % required_id)
+	var required_chancellor_type := str(definition.get("required_chancellor_type", ""))
+	if not required_chancellor_type.is_empty() and _get_current_chancellor_aptitude_type() != required_chancellor_type:
+		missing_conditions.append("required_chancellor_type:%s" % required_chancellor_type)
+		reasons.append("required_chancellor_type:%s" % required_chancellor_type)
+	var conditions: Dictionary = definition.get("conditions", {})
+	for condition_key_variant in conditions.keys():
+		var condition_key := str(condition_key_variant)
+		var required_value: Variant = conditions.get(condition_key_variant)
+		if not _is_national_tech_condition_met(condition_key, required_value):
+			var reason := _get_national_tech_condition_missing_reason(condition_key, required_value)
+			missing_conditions.append(reason)
+			reasons.append(reason)
+	return {
+		"ok": missing_requires.is_empty() and missing_conditions.is_empty(),
+		"reasons": reasons,
+		"missing_requires": missing_requires,
+		"missing_conditions": missing_conditions,
+	}
+
+
+func _is_national_tech_condition_met(condition_key: String, required_value: Variant) -> bool:
+	match condition_key:
+		"owned_city_count":
+			return _get_owned_city_count_for_national_tech() >= int(required_value)
+		"governor_assigned_city_count":
+			return _get_governor_assigned_city_count_for_national_tech() >= int(required_value)
+		"national_loyalty":
+			return clampi(int(_player_state.get("national_loyalty", 75)), 0, 100) >= int(required_value)
+		"avg_loyalty":
+			return _get_average_city_loyalty_for_national_tech() >= float(required_value)
+		"avg_commerce":
+			return _get_average_city_commerce_for_national_tech() >= float(required_value)
+		"chancellor_type_turns", "allied_faction_count", "neutral_faction_count", "has_city_tech_mint", "has_silkroad_or_trade_port":
+			return false
+		_:
+			return false
+
+
+func _get_national_tech_condition_missing_reason(condition_key: String, required_value: Variant) -> String:
+	match condition_key:
+		"chancellor_type_turns":
+			return "chancellor_type_turns_not_tracked:%s" % str(required_value)
+		"allied_faction_count":
+			return "allied_faction_count_not_supported_yet:%s" % str(required_value)
+		"neutral_faction_count":
+			return "neutral_faction_count_not_supported_yet:%s" % str(required_value)
+		"has_city_tech_mint":
+			return "has_city_tech_mint_not_supported_yet"
+		"has_silkroad_or_trade_port":
+			return "has_silkroad_or_trade_port_not_supported_yet"
+		_:
+			return "%s:%s" % [condition_key, str(required_value)]
+
+
+func _get_owned_city_count_for_national_tech() -> int:
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return 0
+	var count := 0
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		if _is_city_owned_by_player_mvp(city_id):
+			count += 1
+	return count
+
+
+func _get_governor_assigned_city_count_for_national_tech() -> int:
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return 0
+	var count := 0
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		if not _is_city_owned_by_player_mvp(city_id):
+			continue
+		var city_data := _get_city_hud_entry(city_id)
+		if not str(city_data.get("governor_id", city_data.get("governorHeroId", ""))).is_empty():
+			count += 1
+	return count
+
+
+func _get_average_city_loyalty_for_national_tech() -> float:
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return 0.0
+	var total := 0
+	var count := 0
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		if not _is_city_owned_by_player_mvp(city_id):
+			continue
+		total += _get_city_loyalty_value(_get_city_hud_entry(city_id))
+		count += 1
+	return 0.0 if count <= 0 else float(total) / float(count)
+
+
+func _get_average_city_commerce_for_national_tech() -> float:
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return 0.0
+	var total := 0
+	var count := 0
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		if not _is_city_owned_by_player_mvp(city_id):
+			continue
+		total += _get_city_numeric_rating(_get_city_hud_entry(city_id), "commerce_rating", 0) * 20
+		count += 1
+	return 0.0 if count <= 0 else float(total) / float(count)
+
+
+func _can_pay_national_tech_cost(tech_id: String) -> Dictionary:
+	var definition := _get_national_tech_definition(tech_id)
+	var cost: Dictionary = definition.get("cost", {}) if not definition.is_empty() else {}
+	var missing := {}
+	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	for resource_id_variant in cost.keys():
+		var resource_id := str(resource_id_variant)
+		var required_amount := maxi(0, int(cost.get(resource_id_variant, 0)))
+		var available_amount := _get_total_recruitment_food_stock() if resource_id == "food" else maxi(0, int(resource_stock.get(resource_id, 0)))
+		if available_amount < required_amount:
+			missing[resource_id] = required_amount - available_amount
+	return {
+		"ok": not definition.is_empty() and missing.is_empty(),
+		"cost": cost.duplicate(true),
+		"missing": missing,
+	}
+
+
+func _can_start_national_tech(tech_id: String) -> Dictionary:
+	_ensure_national_tech_state()
+	var reasons: Array[String] = []
+	if _get_national_tech_definition(tech_id).is_empty():
+		return {"ok": false, "requirements": {"ok": false, "reasons": ["tech_not_found"], "missing_requires": [], "missing_conditions": []}, "cost": {"ok": false, "cost": {}, "missing": {}}, "reasons": ["tech_not_found"]}
+	if _is_national_tech_completed(tech_id):
+		reasons.append("already_completed")
+	if _is_national_tech_in_progress(tech_id):
+		reasons.append("already_in_progress")
+	var requirements := _check_national_tech_requirements(tech_id)
+	var cost := _can_pay_national_tech_cost(tech_id)
+	if not bool(requirements.get("ok", false)):
+		reasons.append_array(_string_array_from_variant_array(requirements.get("reasons", [])))
+	if not bool(cost.get("ok", false)):
+		reasons.append("cost")
+	return {
+		"ok": reasons.is_empty(),
+		"requirements": requirements,
+		"cost": cost,
+		"reasons": reasons,
+	}
+
+
+func _start_national_tech(tech_id: String) -> bool:
+	var start_check := _can_start_national_tech(tech_id)
+	_player_state["last_national_tech_start_check"] = {
+		"tech_id": tech_id,
+		"ok": bool(start_check.get("ok", false)),
+		"reasons": start_check.get("reasons", []),
+	}
+	return false
 
 
 func _calculate_city_revolt_risk(city_id: String) -> Dictionary:

@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.69-6 National Tech Tree Data MVP
+- Added National Tech Tree Data MVP to `scripts/worldmap_test.gd`.
+- Added `_get_national_tech_definitions()` for the MVP national tech branch spine across foundation, administrative, economic, military, diplomatic, and political branches.
+- Added `_ensure_national_tech_state()` and `_player_state["national_tech"]` with `completed`, `in_progress`, and `available_cache`.
+- Added national tech lookup helpers for completed ids, completed state, in-progress state, and single definition retrieval.
+- Added `_get_current_chancellor_aptitude_type()` using the existing assigned chancellor hero data.
+- Added `_check_national_tech_requirements`, `_can_pay_national_tech_cost`, and `_can_start_national_tech`.
+- Added `_start_national_tech` as a no-op skeleton that returns `false`; actual start/cost deduction/progress/completion/effects remain deferred.
+- Placeholder conditions deliberately fail with reasons for unsupported systems: chancellor type turns, allied faction count, neutral faction count, city mint tech, and silkroad/trade-port.
+- Food costs are checked against the existing rice+barley+seafood pool and are not deducted.
+- Did not implement city tech tree, UI, auto tech selection, tech progress, tech completion, tech effects, battle/invasion/defense changes, save/load core rewrite, or changes to existing publicSupport/loyalty/revolt/recruitment/trade/supply formulas.
+
 ## v0.69-5 Revolt Warning Foundation MVP
 - Added revolt risk state constants: `REVOLT_RISK_STABLE`, `REVOLT_RISK_WARNING`, and `REVOLT_RISK_DANGER`.
 - Added `_calculate_city_revolt_risk(city_id)` to calculate city revolt warning/danger from current publicSupport and loyalty.

@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.69-6 National Tech Tree Data Handoff
+- `v0.69-6 National Tech Tree Data MVP` is implemented in `scripts/worldmap_test.gd`.
+- Scope is data/state/check helpers only. No UI, start, cost deduction, turn progress, completion, or effect application exists yet.
+- National tech definitions are returned by `_get_national_tech_definitions()`.
+- Player state is `_player_state["national_tech"] = {"completed": {}, "in_progress": {}, "available_cache": {}}`, normalized by `_ensure_national_tech_state()`.
+- Use `_check_national_tech_requirements(tech_id)`, `_can_pay_national_tech_cost(tech_id)`, and `_can_start_national_tech(tech_id)` for validation.
+- `_start_national_tech(tech_id)` is intentionally a no-op skeleton returning `false`; it only records `last_national_tech_start_check`.
+- Food cost is checked as the existing rice+barley+seafood pool. No cost is deducted in this MVP.
+- Placeholder conditions must not pass automatically: `chancellor_type_turns`, `allied_faction_count`, `neutral_faction_count`, `has_city_tech_mint`, and `has_silkroad_or_trade_port`.
+- City tech tree is not implemented. Keep national tech and city tech separate.
+- Next candidates are `v0.69-6B National Tech Start/Progress MVP` or `v0.69-7 City Tech Tree Data MVP`.
+- Remaining risks: placeholder conditions block later branch techs until supporting systems exist; no research lifecycle, effect application, or UI exists yet.
+
 ## v0.69-5 Revolt Warning Handoff
 - `v0.69-5 Revolt Warning Foundation MVP` is implemented in `scripts/worldmap_test.gd`.
 - Revolt warning is a read-only calculation over current city `publicSupport` and `loyalty`.
@@ -11,7 +24,7 @@
 - This MVP does not trigger revolts, does not change owner to neutral, does not create suppression battles, and does not integrate espionage revolt agitation.
 - Map markers, icon/color UX, and final UI are deferred to later UI work. Current City Detail text is temporary minimal display.
 - PublicSupport, loyalty, conscription/recruitment, troop movement, P0-1/P0-2/Phase A/Phase B, battle, and save/load formulas/cores must remain untouched unless a future task explicitly scopes them.
-- Next task should be `v0.69-6 National Tech Tree Data MVP`.
+- Superseded by `v0.69-6`: National Tech Tree Data MVP is implemented.
 - Remaining risks: warning-only foundation, no actual event lifecycle, no espionage integration, no map warning UI, and no final F6 UX validation yet.
 
 ## v0.69-4 Recruitment/Conscription Handoff

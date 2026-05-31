@@ -1,5 +1,24 @@
 # CURRENT STATE
 
+## v0.69-6 National Tech Tree Data MVP
+- Implemented National Tech Tree Data MVP in `scripts/worldmap_test.gd`.
+- This pass is data/state/check helpers only. It does not start tech research, deduct costs, progress turns, complete techs, apply effects, or add UI.
+- Added `_get_national_tech_definitions()` with the MVP branch spine for foundation, administrative, economic, military, diplomatic, and political national techs.
+- Added national tech state under `_player_state["national_tech"]` with `completed`, `in_progress`, and `available_cache`, initialized by `_ensure_national_tech_state()`.
+- Added lookup helpers: `_get_completed_national_tech_ids`, `_is_national_tech_completed`, `_is_national_tech_in_progress`, and `_get_national_tech_definition`.
+- Added `_get_current_chancellor_aptitude_type()` using the existing assigned chancellor hero's primary chancellor type. No new chancellor system was created.
+- Added `_check_national_tech_requirements(tech_id)` for prerequisite, required chancellor type, owned city count, governor-assigned city count, national loyalty, average loyalty, and average commerce checks.
+- Added `_can_pay_national_tech_cost(tech_id)` using current `resource_stock`; `food` cost is checked as the existing rice+barley+seafood pool and is not deducted.
+- Added `_can_start_national_tech(tech_id)` to combine completed/in-progress, requirement, and cost checks.
+- `_start_national_tech(tech_id)` is intentionally a no-op skeleton that records the last start check and returns `false`; actual start/cost/progress/complete/effect application is deferred.
+- Placeholder conditions are not auto-passed. They return missing conditions: `chancellor_type_turns_not_tracked`, `allied_faction_count_not_supported_yet`, `neutral_faction_count_not_supported_yet`, `has_city_tech_mint_not_supported_yet`, and `has_silkroad_or_trade_port_not_supported_yet`.
+- Not implemented: city tech tree, national tech start/progress/completion, cost deduction, effects, UI, auto tech selection, or final UX.
+- PublicSupport, loyalty, revolt, recruitment/conscription, troop movement, trade, supply, battle/invasion/defense, and save/load core formulas/logic were not changed.
+- Verification passed: `rg` checks for national tech helpers/state, scoped diff review confirming no UI/battle/save-load/core formula changes, `battle_web_import_test.gd` unchanged review, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary QA runner. Godot `--check-only` timed out locally after 134 seconds.
+- QA runner confirmed definitions, national_foundation availability, prerequisite blocking, chancellor type mismatch, owned city count, national loyalty, average loyalty, average commerce, placeholder blocking, cost shortage reporting, completed/in-progress blocking, and no player_state/resource/troop mutation from check helpers.
+- Next candidates: `v0.69-6B National Tech Start/Progress MVP` or `v0.69-7 City Tech Tree Data MVP`.
+- Remaining risks: chancellor type duration, faction counts, city mint tech, and silkroad/trade-port checks are placeholders; no research lifecycle or effect application exists yet; UI/F6 validation is deferred.
+
 ## v0.69-5 Revolt Warning Foundation MVP
 - Implemented revolt warning foundation logic in `scripts/worldmap_test.gd`.
 - Revolt warning uses the combined `publicSupport + loyalty` condition only.

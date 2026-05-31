@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current v0.69-6 National Tech Tree Data Status
+- `v0.69-6 National Tech Tree Data MVP` is complete in code/docs.
+- National tech now has data definitions, player state containers, lookup helpers, requirement checks, cost checks, and start-eligibility checks.
+- This pass does not start research, deduct costs, progress turns, complete techs, apply effects, or add UI.
+- Placeholder conditions are deliberately blocking: `chancellor_type_turns`, `allied_faction_count`, `neutral_faction_count`, `has_city_tech_mint`, and `has_silkroad_or_trade_port`.
+- Next implementation candidates:
+  - `v0.69-6B National Tech Start/Progress MVP`
+  - `v0.69-7 City Tech Tree Data MVP`
+
 ## Current v0.69-5 Revolt Warning Status
 - `v0.69-5 Revolt Warning Foundation MVP` is complete in code/docs.
 - Revolt warning uses the combined `publicSupport + loyalty` condition.
@@ -8,7 +17,7 @@
 - The system records warning/danger counts in `last_revolt_warning_result` and shows minimal City Detail/turn-summary text.
 - Actual revolt occurrence, city neutralization, suppression battles, espionage revolt agitation, map markers, and final UI are not implemented.
 - Real F6 mouse-based UX verification remains deferred to the June City Detail/WorldMap UI overhaul.
-- Next required implementation candidate: `v0.69-6 National Tech Tree Data MVP`.
+- Superseded by `v0.69-6`: National Tech Tree Data MVP is complete.
 
 ## Current v0.69-4 Recruitment/Conscription Status
 - `v0.69-4 Recruitment/Conscription Foundation MVP` is complete in code/docs.
@@ -64,7 +73,7 @@
   3. `v0.69-3 Troop Move Loyalty Efficiency Final Patch` - complete.
   4. `v0.69-4 Recruitment/Conscription Foundation MVP` - complete.
   5. `v0.69-5 Revolt Warning Foundation MVP` - complete.
-  6. `v0.69-6 National Tech Tree Data MVP` - next.
+  6. `v0.69-6 National Tech Tree Data MVP` - complete.
   7. `v0.69-7 City Tech Tree Data MVP`
   8. `v0.69-8 Trade Deepening MVP`
   9. `v0.69-9 Diplomacy/Espionage Foundation MVP`

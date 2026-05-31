@@ -2,6 +2,24 @@
 
 ## 2026-05-31
 
+### v0.69-6 National Tech Tree Data MVP
+- Started from baseline commit `c3c181c` / `v0.69-5 Revolt Warning Foundation MVP`.
+- Implemented National Tech Tree Data MVP in `scripts/worldmap_test.gd`.
+- Added national tech definitions for the MVP branch spine: foundation, administrative, economic, military, diplomatic, and political.
+- Added `national_tech` player state with `completed`, `in_progress`, and `available_cache`, normalized through `_ensure_national_tech_state()`.
+- Added lookup helpers, current chancellor primary aptitude type lookup, requirement checks, cost checks, and start eligibility checks.
+- Added `_start_national_tech` as a no-op skeleton returning `false`; it does not deduct costs or register progress.
+- Placeholder conditions are blocking and reported as missing: `chancellor_type_turns`, `allied_faction_count`, `neutral_faction_count`, `has_city_tech_mint`, and `has_silkroad_or_trade_port`.
+- Food cost is checked as rice+barley+seafood pool only. No resource deduction occurs.
+- Did not implement city tech tree, national tech start/progress/completion, effect application, UI, auto tech selection, battle/invasion/defense changes, save/load core rewrite, or changes to publicSupport/loyalty/revolt/recruitment/trade/supply formulas.
+- Verification passed: `rg` for new helpers/state, scoped diff reviews, `battle_web_import_test.gd` unchanged, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless QA runner.
+- QA runner confirmed definitions, foundation start eligibility, prerequisite blocking, chancellor mismatch blocking, owned city count, national loyalty, average loyalty, average commerce, placeholder blocking, cost missing report, completed/in-progress blocking, and no mutation from check helpers.
+- Godot `--headless --check-only` timed out after 134 seconds and is recorded as inconclusive.
+- Next candidates are `v0.69-6B National Tech Start/Progress MVP` or `v0.69-7 City Tech Tree Data MVP`.
+- Remaining risks: placeholder conditions block several techs; no research lifecycle, effects, UI, or final UX validation exists yet.
+
+## 2026-05-31
+
 ### v0.69-5 Revolt Warning Foundation MVP
 - Started from baseline commit `dd531db` / `v0.69-4 Recruitment Conscription Foundation MVP`.
 - Implemented revolt warning foundation logic in `scripts/worldmap_test.gd`.
