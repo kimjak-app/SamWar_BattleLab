@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.69-12 Diplomacy Action Foundation Handoff
+- `v0.69-12 Diplomacy Action Foundation MVP` is implemented in `scripts/worldmap_test.gd`.
+- The requested guide file `GUIDE_v0.69_12_13_to_v0.70.md` was not found in the repo; implementation followed the explicit v0.69-12 task requirements.
+- Added API/helper actions: `_propose_alliance`, `_request_military_support`, and `_propose_trade_agreement`.
+- Alliance proposal is deterministic for MVP QA: acceptance chance is relation score + resource-package bonus, clamped to `0..95`; accepted at `>= 70`.
+- Alliance proposal pays the provided resource package on attempt. On success it sets relation `status` to `allied` and records `alliance_turns_remaining`.
+- Military support requires `allied`; success/failure is recorded only. Do not infer troop movement, joint invasion, battle support, or defense support from this helper.
+- Military support rejection applies relation score `-20`; third and later repeated rejection applies `-40`.
+- Trade agreement requires relation score `>= 50`, costs `gold 200 + silk 50`, records a 20-turn agreement, and adds `+0.15` to Phase A route relation multiplier via `_get_trade_agreement_bonus_multiplier`.
+- Phase A base status multipliers remain unchanged. The trade agreement bonus is additive and separate from `RELATION_TRADE_MULTIPLIER`.
+- Not implemented: war declaration, actual military support troop transfer, joint invasion, alliance/trade duration expiry, diplomacy UI, trade transaction execution, or save/load core rewrites.
+- Remaining risks: deterministic diplomacy acceptance needs balance review; recorded durations currently do not tick down; final F6 diplomacy UX remains future work.
+
 ## v0.69-11B Espionage Public Support Disrupt Handoff
 - `v0.69-11B Espionage Public Support Disrupt MVP` is implemented in `scripts/worldmap_test.gd`.
 - This is the first offensive espionage action and only affects target city publicSupport.

@@ -2,6 +2,18 @@
 
 ## 2026-06-01
 
+### v0.69-12 Diplomacy Action Foundation MVP
+- Started from baseline commit `b74c40e` / `v0.69-11B`.
+- `GUIDE_v0.69_12_13_to_v0.70.md` was not present in the repo, so this pass followed the explicit v0.69-12 task text.
+- Implemented `_propose_alliance`, `_request_military_support`, and `_propose_trade_agreement` in `scripts/worldmap_test.gd`.
+- Added deterministic alliance acceptance chance. High-score/resource packages can pass the `>= 70` threshold; accepted alliances set `allied` and record duration.
+- Alliance proposals deduct the provided resource package on attempt.
+- Military support requires allied status and records result only. Rejection applies relation `-20`; third and later repeated rejection applies `-40`.
+- Trade agreements require relation score `>= 50`, cost `gold 200 + silk 50`, and add a separate `+0.15` trade route bonus without changing base Phase A relation multipliers.
+- Did not implement war declaration, actual troop support movement, joint invasion, battle/invasion/defense changes, diplomacy UI, or publicSupport/loyalty/tech/supply formula changes.
+- QA runner confirmed alliance chance values, accepted alliance status/duration, proposal cost deduction, military support allied-only gate, rejection penalties, trade agreement score gate, trade agreement cost deduction, and route bonus.
+- Remaining risks: guide file is absent; acceptance values are MVP balance; alliance/trade duration expiry is not yet advanced by turn pipeline; no UI trigger exists.
+
 ### v0.69-11B Espionage Public Support Disrupt MVP
 - Started from baseline commit `e3cf2f57fb0ada9e902976f1d8622f347c37ed56` / `v0.69-11 Espionage Info Gathering MVP`.
 - Implemented the first offensive espionage action, publicSupport disruption, in `scripts/worldmap_test.gd`.

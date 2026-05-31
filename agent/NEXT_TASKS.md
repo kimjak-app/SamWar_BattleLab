@@ -1,5 +1,18 @@
 # NEXT TASKS
 
+## Current v0.69-12 Diplomacy Action Foundation Status
+- `v0.69-12 Diplomacy Action Foundation MVP` is complete in code/docs.
+- Implemented helper/API-only alliance proposal, military support request, and trade agreement proposal.
+- Alliance proposal pays the provided `resource_package`, uses deterministic acceptance chance, and on success sets `allied` plus `alliance_turns_remaining`.
+- Military support is allowed only for `allied` relations and records acceptance/rejection only. No troop movement, joint invasion, or battle handoff exists.
+- Military support rejection penalty is `-20`; third and later repeated rejection penalty is `-40`.
+- Trade agreement requires relation score `>= 50`, costs `gold 200 + silk 50`, and applies a separate Phase A trade route bonus `+0.15`.
+- `GUIDE_v0.69_12_13_to_v0.70.md` was not present in the repo; this pass followed the explicit task text.
+- No declaration of war, alliance expiry turn processing, trade transaction execution, diplomacy UI, or auto diplomacy exists yet.
+- Recommended next task:
+  - `v0.69-13 Diplomacy/Trade/Alliance Duration Audit`
+  - Alternative: `v0.70-1 WorldMap Final UX/UI Information Architecture`
+
 ## Current v0.69-11B Espionage Public Support Disrupt Status
 - `v0.69-11B Espionage Public Support Disrupt MVP` is complete in code/docs.
 - Only publicSupport disruption is implemented as an offensive espionage action.

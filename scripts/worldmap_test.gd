@@ -74,6 +74,18 @@ const TRIBUTE_BASE_COST := {
 	"gold": 300,
 	"silk": 100,
 }
+const ALLIANCE_ACCEPTANCE_THRESHOLD := 70
+const MILITARY_SUPPORT_ACCEPTANCE_THRESHOLD := 80
+const MILITARY_SUPPORT_REJECT_PENALTY := -20
+const MILITARY_SUPPORT_REPEATED_REJECT_PENALTY := -40
+const MILITARY_SUPPORT_REPEATED_REJECT_THRESHOLD := 3
+const TRADE_AGREEMENT_SCORE_REQUIREMENT := 50
+const TRADE_AGREEMENT_TURNS := 20
+const TRADE_AGREEMENT_MULTIPLIER_BONUS := 0.15
+const TRADE_AGREEMENT_COST := {
+	"gold": 200,
+	"silk": 50,
+}
 const SPY_COOLDOWN_TURNS := 6
 const SPY_PUBLIC_SUPPORT_DISRUPT_COST := {"gold": 300}
 const SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS := 8
@@ -570,6 +582,9 @@ var _player_state := {
 	"faction_relations": {},
 	"last_inter_faction_trade_result": {},
 	"last_trade_market_result": {},
+	"last_alliance_proposal_result": {},
+	"last_military_support_result": {},
+	"last_trade_agreement_result": {},
 	"last_supply_state_result": {},
 	"last_public_support_result": {},
 	"last_seasonal_loyalty_result": {},
@@ -1957,6 +1972,12 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_diplomacy_cooldown_result"] = {}
 	if not _player_state.has("last_tribute_result") or not (_player_state["last_tribute_result"] is Dictionary):
 		_player_state["last_tribute_result"] = {}
+	if not _player_state.has("last_alliance_proposal_result") or not (_player_state["last_alliance_proposal_result"] is Dictionary):
+		_player_state["last_alliance_proposal_result"] = {}
+	if not _player_state.has("last_military_support_result") or not (_player_state["last_military_support_result"] is Dictionary):
+		_player_state["last_military_support_result"] = {}
+	if not _player_state.has("last_trade_agreement_result") or not (_player_state["last_trade_agreement_result"] is Dictionary):
+		_player_state["last_trade_agreement_result"] = {}
 	if not _player_state.has("spy_cooldown"):
 		_player_state["spy_cooldown"] = 0
 	_player_state["spy_cooldown"] = maxi(0, int(_player_state.get("spy_cooldown", 0)))
@@ -6366,6 +6387,17 @@ func _ensure_faction_relation_entry(faction_a: String, faction_b: String) -> Dic
 	if not entry.has("tribute_cooldown"):
 		entry["tribute_cooldown"] = 0
 	entry["tribute_cooldown"] = maxi(0, int(entry.get("tribute_cooldown", 0)))
+	if not entry.has("alliance_turns_remaining"):
+		entry["alliance_turns_remaining"] = 0
+	entry["alliance_turns_remaining"] = maxi(0, int(entry.get("alliance_turns_remaining", 0)))
+	if not entry.has("trade_agreement_turns_remaining"):
+		entry["trade_agreement_turns_remaining"] = 0
+	entry["trade_agreement_turns_remaining"] = maxi(0, int(entry.get("trade_agreement_turns_remaining", 0)))
+	entry["trade_agreement_active"] = bool(entry.get("trade_agreement_active", false)) and int(entry.get("trade_agreement_turns_remaining", 0)) > 0
+	entry["trade_agreement_bonus"] = TRADE_AGREEMENT_MULTIPLIER_BONUS if bool(entry.get("trade_agreement_active", false)) else 0.0
+	if not entry.has("military_support_rejection_count"):
+		entry["military_support_rejection_count"] = 0
+	entry["military_support_rejection_count"] = maxi(0, int(entry.get("military_support_rejection_count", 0)))
 	relations[relation_key] = entry
 	_player_state["faction_relations"] = relations
 	return entry
@@ -6409,6 +6441,186 @@ func _adjust_faction_relation_score(faction_a: String, faction_b: String, delta:
 	}
 	_player_state["last_diplomacy_relation_result"] = result
 	return result
+
+
+func _normalize_diplomacy_resource_package(resource_package: Dictionary) -> Dictionary:
+	var normalized := {}
+	for resource_id_variant in resource_package.keys():
+		var resource_id := str(resource_id_variant)
+		var amount := maxi(0, int(resource_package.get(resource_id_variant, 0)))
+		if amount > 0:
+			normalized[resource_id] = amount
+	return normalized
+
+
+func _calculate_alliance_acceptance_chance(target_faction_id: String, resource_package: Dictionary, duration_turns: int) -> int:
+	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+		return 0
+	var score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction_id)
+	var package := _normalize_diplomacy_resource_package(resource_package)
+	var package_bonus := int(floor(float(package.get("gold", 0)) / 20.0)) + int(floor(float(package.get("silk", 0)) / 10.0))
+	var duration_penalty := maxi(0, duration_turns - TRADE_AGREEMENT_TURNS)
+	return clampi(score + package_bonus - duration_penalty, 0, 95)
+
+
+func _propose_alliance(target_faction_id: String, resource_package: Dictionary, duration_turns: int) -> bool:
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var package := _normalize_diplomacy_resource_package(resource_package)
+	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+		_player_state["last_alliance_proposal_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "invalid_target", "resource_package": package}
+		return false
+	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
+	if status == FACTION_RELATION_STATUS["HOSTILE"] or status == FACTION_RELATION_STATUS["SUSPENDED"]:
+		_player_state["last_alliance_proposal_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": status, "status": status, "resource_package": package}
+		return false
+	if duration_turns <= 0:
+		_player_state["last_alliance_proposal_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "duration", "status": status, "resource_package": package}
+		return false
+	var payment_check := _can_pay_generic_resource_cost(package)
+	if not bool(payment_check.get("ok", false)):
+		_player_state["last_alliance_proposal_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "resources", "status": status, "resource_package": package, "missing": payment_check.get("missing", {})}
+		return false
+	var payment_result := _apply_generic_resource_cost(package)
+	var acceptance_chance := _calculate_alliance_acceptance_chance(target_faction_id, package, duration_turns)
+	var accepted := acceptance_chance >= ALLIANCE_ACCEPTANCE_THRESHOLD
+	var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction_id)
+	var relations: Dictionary = _player_state.get("faction_relations", {})
+	var updated_relation: Dictionary = relations.get(relation_key, relation)
+	if accepted:
+		updated_relation["status"] = FACTION_RELATION_STATUS["ALLIED"]
+		updated_relation["alliance_turns_remaining"] = duration_turns
+		updated_relation["alliance_resource_package"] = package.duplicate(true)
+		updated_relation["military_support_rejection_count"] = 0
+		relations[relation_key] = updated_relation
+		_player_state["faction_relations"] = relations
+	_player_state["last_alliance_proposal_result"] = {
+		"turn": turn_number,
+		"target_faction_id": target_faction_id,
+		"resource_package": package,
+		"cost": package,
+		"payment": payment_result,
+		"acceptance_chance": acceptance_chance,
+		"acceptance_threshold": ALLIANCE_ACCEPTANCE_THRESHOLD,
+		"accepted": accepted,
+		"success": accepted,
+		"status": FACTION_RELATION_STATUS["ALLIED"] if accepted else status,
+		"duration_turns": duration_turns if accepted else 0,
+	}
+	return accepted
+
+
+func _calculate_military_support_acceptance_chance(target_faction_id: String) -> int:
+	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+		return 0
+	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var score := clampi(int(relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+	var rejection_count := maxi(0, int(relation.get("military_support_rejection_count", 0)))
+	return clampi(score - rejection_count * 10, 0, 95)
+
+
+func _request_military_support(target_faction_id: String) -> bool:
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+		_player_state["last_military_support_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "invalid_target"}
+		return false
+	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
+	if status != FACTION_RELATION_STATUS["ALLIED"]:
+		_player_state["last_military_support_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "not_allied", "status": status}
+		return false
+	var acceptance_chance := _calculate_military_support_acceptance_chance(target_faction_id)
+	var accepted := acceptance_chance >= MILITARY_SUPPORT_ACCEPTANCE_THRESHOLD
+	var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction_id)
+	var relations: Dictionary = _player_state.get("faction_relations", {})
+	var updated_relation: Dictionary = relations.get(relation_key, relation)
+	var before_score := clampi(int(updated_relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+	var rejection_count := maxi(0, int(updated_relation.get("military_support_rejection_count", 0)))
+	var relation_penalty := 0
+	var after_score := before_score
+	if accepted:
+		updated_relation["military_support_rejection_count"] = 0
+	else:
+		rejection_count += 1
+		relation_penalty = MILITARY_SUPPORT_REPEATED_REJECT_PENALTY if rejection_count >= MILITARY_SUPPORT_REPEATED_REJECT_THRESHOLD else MILITARY_SUPPORT_REJECT_PENALTY
+		var relation_result := _adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction_id, relation_penalty, "military_support_rejected")
+		after_score = int(relation_result.get("after_score", before_score))
+		relations = _player_state.get("faction_relations", {})
+		updated_relation = relations.get(relation_key, updated_relation)
+		updated_relation["military_support_rejection_count"] = rejection_count
+	relations[relation_key] = updated_relation
+	_player_state["faction_relations"] = relations
+	_player_state["last_military_support_result"] = {
+		"turn": turn_number,
+		"target_faction_id": target_faction_id,
+		"success": accepted,
+		"accepted": accepted,
+		"status": status,
+		"acceptance_chance": acceptance_chance,
+		"acceptance_threshold": MILITARY_SUPPORT_ACCEPTANCE_THRESHOLD,
+		"before_score": before_score,
+		"after_score": after_score,
+		"relation_penalty": relation_penalty,
+		"rejection_count": rejection_count,
+		"support_recorded": accepted,
+		"troops_moved": 0,
+	}
+	return accepted
+
+
+func _get_trade_agreement_cost(_target_faction_id: String) -> Dictionary:
+	return TRADE_AGREEMENT_COST.duplicate(true)
+
+
+func _propose_trade_agreement(target_faction_id: String) -> bool:
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+		_player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "reason": "invalid_target"}
+		return false
+	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
+	if status == FACTION_RELATION_STATUS["HOSTILE"] or status == FACTION_RELATION_STATUS["SUSPENDED"]:
+		_player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "reason": status, "status": status}
+		return false
+	var score := clampi(int(relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+	if score < TRADE_AGREEMENT_SCORE_REQUIREMENT:
+		_player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "reason": "relation_score", "score": score, "required_score": TRADE_AGREEMENT_SCORE_REQUIREMENT, "status": status}
+		return false
+	var cost := _get_trade_agreement_cost(target_faction_id)
+	var payment_check := _can_pay_generic_resource_cost(cost)
+	if not bool(payment_check.get("ok", false)):
+		_player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "reason": "resources", "score": score, "cost": cost, "missing": payment_check.get("missing", {}), "status": status}
+		return false
+	var payment_result := _apply_generic_resource_cost(cost)
+	var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction_id)
+	var relations: Dictionary = _player_state.get("faction_relations", {})
+	var updated_relation: Dictionary = relations.get(relation_key, relation)
+	updated_relation["trade_agreement_active"] = true
+	updated_relation["trade_agreement_turns_remaining"] = TRADE_AGREEMENT_TURNS
+	updated_relation["trade_agreement_bonus"] = TRADE_AGREEMENT_MULTIPLIER_BONUS
+	relations[relation_key] = updated_relation
+	_player_state["faction_relations"] = relations
+	_player_state["last_trade_agreement_result"] = {
+		"turn": turn_number,
+		"target_faction_id": target_faction_id,
+		"success": true,
+		"score": score,
+		"status": status,
+		"cost": cost,
+		"payment": payment_result,
+		"duration_turns": TRADE_AGREEMENT_TURNS,
+		"trade_multiplier_bonus": TRADE_AGREEMENT_MULTIPLIER_BONUS,
+	}
+	return true
+
+
+func _get_trade_agreement_bonus_multiplier(faction_a: String, faction_b: String) -> float:
+	if faction_a.is_empty() or faction_b.is_empty() or faction_a == faction_b:
+		return 0.0
+	var relation := _ensure_faction_relation_entry(faction_a, faction_b)
+	if bool(relation.get("trade_agreement_active", false)) and int(relation.get("trade_agreement_turns_remaining", 0)) > 0:
+		return float(relation.get("trade_agreement_bonus", TRADE_AGREEMENT_MULTIPLIER_BONUS))
+	return 0.0
 
 
 func _get_tribute_cost(_target_faction: String) -> Dictionary:
@@ -7012,7 +7224,8 @@ func _calculate_trade_route_value(city_a: Dictionary, city_b: Dictionary) -> Dic
 		loyalty_multiplier = 1.05
 	elif average_loyalty < 50.0:
 		loyalty_multiplier = 0.9
-	var relation_multiplier := float(RELATION_TRADE_MULTIPLIER.get(relation_status, 1.0))
+	var trade_agreement_bonus := _get_trade_agreement_bonus_multiplier(faction_a, faction_b)
+	var relation_multiplier := float(RELATION_TRADE_MULTIPLIER.get(relation_status, 1.0)) + trade_agreement_bonus
 	var multiplier := loyalty_multiplier * relation_multiplier * TRADE_GLOBAL_DAMPENER
 	return {
 		"city_a_id": city_a_id,
@@ -7022,6 +7235,7 @@ func _calculate_trade_route_value(city_a: Dictionary, city_b: Dictionary) -> Dic
 		"relation_status": relation_status,
 		"relation_score": relation_score,
 		"relation_band": relation_band,
+		"trade_agreement_bonus": trade_agreement_bonus,
 		"gold": int(floor(clampf(float(base_gold) * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("gold", 90))))),
 		"rice": int(floor(clampf(float(_get_rating(resource_seed_a, "rice") + _get_rating(resource_seed_b, "rice")) * TRADE_FOOD_FACTOR * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("rice", 20))))),
 		"barley": int(floor(clampf(float(_get_rating(resource_seed_a, "barley") + _get_rating(resource_seed_b, "barley")) * TRADE_FOOD_FACTOR * multiplier, 0.0, float(TRADE_ROUTE_CAP.get("barley", 20))))),

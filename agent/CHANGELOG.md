@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.69-12 Diplomacy Action Foundation MVP
+- Added foundation diplomacy action helpers for alliance proposal, military support request, and trade agreement proposal.
+- Added deterministic alliance acceptance chance and threshold. Accepted alliance changes relation status to `allied` and records `alliance_turns_remaining`.
+- Alliance proposal deducts the provided resource package on attempt.
+- Added military support request validation requiring `allied` status. The MVP records support acceptance/rejection only and never moves troops.
+- Added military support rejection penalties: `-20` normally and `-40` on the third and later repeated rejection.
+- Added trade agreement proposal requiring relation score `>= 50`, with MVP cost `gold 200 + silk 50`.
+- Added trade agreement state fields and a separate Phase A trade route bonus `+0.15`; base relation status multipliers remain unchanged.
+- Added result records: `last_alliance_proposal_result`, `last_military_support_result`, and `last_trade_agreement_result`.
+- Did not implement declaration of war, actual military support movement, joint invasion, battle/invasion/defense changes, diplomacy UI, trade transaction execution, publicSupport/loyalty/tech/supply formula changes, or save/load core rewrites.
+
 ## v0.69-11B Espionage Public Support Disrupt MVP
 - Added the first offensive espionage action MVP: publicSupport disruption.
 - Added fixed cost `{"gold": 300}`, cooldown `8`, and detected relation penalty `-30`.

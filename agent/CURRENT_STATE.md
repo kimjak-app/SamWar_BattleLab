@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.69-12 Diplomacy Action Foundation MVP
+- Implemented the first diplomacy action foundation after tribute in `scripts/worldmap_test.gd`.
+- Added helper/API actions only: `_propose_alliance(target_faction_id, resource_package, duration_turns)`, `_request_military_support(target_faction_id)`, and `_propose_trade_agreement(target_faction_id)`.
+- `GUIDE_v0.69_12_13_to_v0.70.md` was not present in the repo, so implementation followed the explicit v0.69-12 task scope and verification requirements.
+- Alliance proposal uses deterministic MVP acceptance chance: relation score + package bonus, clamped to `0..95`, accepted at `>= 70`. Proposal package is paid when the proposal is attempted.
+- Successful alliance sets relation `status = allied`, records `alliance_turns_remaining`, and does not declare war or move troops.
+- Military support requests require `allied` status. The MVP records acceptance/rejection only; it does not move troops or create joint invasion.
+- Military support rejection applies relation score `-20`; the third and later repeated rejection applies `-40`.
+- Trade agreement requires relation score `>= 50`, costs `gold 200 + silk 50`, records `trade_agreement_turns_remaining = 20`, and adds Phase A trade route bonus `+0.15` through a separate trade-agreement bonus field.
+- Existing publicSupport, loyalty, tech, supply, espionage, troop movement, battle, invasion, and defense formulas were not intentionally changed.
+- No diplomacy UI, war declaration, actual military support movement, joint invasion, or trade transaction execution was implemented.
+- Verification passed: `rg` for new helpers/result fields, temporary QA runner, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load.
+- Remaining risks: acceptance formulas are deterministic MVP policy pending balance; alliance/trade agreement duration is recorded but not yet expired by a turn pipeline; no player-facing diplomacy action UI exists.
+
 ## v0.69-11B Espionage Public Support Disrupt MVP
 - Implemented the first offensive espionage action MVP, publicSupport disruption, in `scripts/worldmap_test.gd`.
 - This task implements only publicSupport disruption. Loyalty disruption, revolt instigation, alienation, assassination, and real revolt remain unimplemented.
