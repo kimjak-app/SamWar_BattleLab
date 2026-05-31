@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.69-11B Espionage Public Support Disrupt MVP
+- Implemented the first offensive espionage action MVP, publicSupport disruption, in `scripts/worldmap_test.gd`.
+- This task implements only publicSupport disruption. Loyalty disruption, revolt instigation, alienation, assassination, and real revolt remain unimplemented.
+- Added fixed MVP cost: `SPY_PUBLIC_SUPPORT_DISRUPT_COST = {"gold": 300}`.
+- Added disruption amount by political aptitude: `5 -> 20`, `4 -> 15`, `3 -> 10`, `2 -> 5`, `1 -> 3`.
+- Added helpers: `_get_spy_public_support_disrupt_amount`, `_get_spy_public_support_disrupt_cost`, `_can_disrupt_city_public_support`, `_roll_spy_public_support_disrupt_result`, and `_disrupt_city_public_support`.
+- Disruption uses the existing shared `spy_cooldown`. Base cooldown is `8`; primary political chancellor applies the existing `-2` cooldown bonus, making it `6`.
+- If disruption succeeds and is not detected, target city publicSupport decreases by the aptitude-based amount, clamped to `0..100`.
+- If detected, the effect is canceled, target publicSupport is unchanged, and relation score changes by `-30` through `_adjust_faction_relation_score(..., "spy_public_support_disrupt_detected")`.
+- Detection does not auto-convert status to hostile, does not declare war, does not trigger revolt, and does not change owner.
+- Added `_player_state["last_spy_public_support_disrupt_result"]`.
+- Verification passed: `rg` for new helpers/result field, temporary QA runner, `git diff --check`, Godot headless project load, and Godot headless `WorldMap_Test.tscn` load. Godot `--check-only` timed out locally.
+- QA runner confirmed no-chancellor/no-political/own-city/resource/iron-wall blocks, effect amount table, success without detection publicSupport decrease, failure without detection no change, detection cancels effect and applies relation `-30`, no automatic hostile status, cooldown set/decrement, save/load preservation, and no unintended loyalty/troop/tech mutation.
+- Next candidates: `v0.69-11C Espionage Detection Penalty Audit` or `v0.69-10C Alliance War Status Foundation MVP`.
+- Remaining risks: no player-facing espionage action UI exists; detection penalty is limited to score only; repeated disruption balance needs later tuning; final F6 espionage UX validation remains deferred.
+
 ## v0.69-11 Espionage Info Gathering MVP
 - Implemented the first Espionage Info Gathering MVP in `scripts/worldmap_test.gd`.
 - Espionage subject is the current chancellor. No chancellor means spy info gathering is unavailable.

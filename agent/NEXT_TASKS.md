@@ -1,5 +1,17 @@
 # NEXT TASKS
 
+## Current v0.69-11B Espionage Public Support Disrupt Status
+- `v0.69-11B Espionage Public Support Disrupt MVP` is complete in code/docs.
+- Only publicSupport disruption is implemented as an offensive espionage action.
+- Cost is fixed at `gold 300`; effect is political aptitude-based.
+- Detected disruption cancels the publicSupport effect and applies relation score `-30`.
+- Status does not auto-convert to hostile and war is not declared.
+- The action uses shared `spy_cooldown`: base `8`, primary political chancellor `6`.
+- No loyalty disruption, revolt instigation, alienation, assassination, real revolt, or espionage UI exists yet.
+- Recommended next task:
+  - `v0.69-11C Espionage Detection Penalty Audit`
+  - Alternative: `v0.69-10C Alliance War Status Foundation MVP`
+
 ## Current v0.69-11 Espionage Info Gathering Status
 - `v0.69-11 Espionage Info Gathering MVP` is complete in code/docs.
 - Spy info gathering is chancellor-driven and requires political aptitude.

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.69-11B Espionage Public Support Disrupt MVP
+- Added the first offensive espionage action MVP: publicSupport disruption.
+- Added fixed cost `{"gold": 300}`, cooldown `8`, and detected relation penalty `-30`.
+- Added political aptitude disruption amount helper: aptitude `5/4/3/2/1 -> 20/15/10/5/3`.
+- Added validation, forced-roll result, and execution helpers for publicSupport disruption.
+- Successful non-detected disruption lowers target city publicSupport and clamps it to `0..100`.
+- Detected disruption cancels the publicSupport effect and applies relation score `-30`; status does not auto-convert and war is not declared.
+- Reused shared `spy_cooldown`; primary political chancellor applies the existing cooldown `-2` bonus.
+- Added `last_spy_public_support_disrupt_result`.
+- Did not implement loyalty disruption, revolt instigation, alienation, assassination, real revolt, owner neutral conversion, espionage UI, battle changes, or save/load core rewrites.
+
 ## v0.69-11 Espionage Info Gathering MVP
 - Added chancellor-driven spy information gathering helpers to `scripts/worldmap_test.gd`.
 - Added `SPY_COOLDOWN_TURNS := 6`, `spy_cooldown`, `last_spy_result`, and `last_spy_cooldown_result`.

@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.69-11B Espionage Public Support Disrupt Handoff
+- `v0.69-11B Espionage Public Support Disrupt MVP` is implemented in `scripts/worldmap_test.gd`.
+- This is the first offensive espionage action and only affects target city publicSupport.
+- Cost is fixed: `gold 300`.
+- Effect amount by political aptitude: `5 -> 20`, `4 -> 15`, `3 -> 10`, `2 -> 5`, `1 -> 3`.
+- The action uses shared `spy_cooldown`: base `8`, primary political chancellor `6`.
+- If detected, effect is canceled and relation score receives `-30` with reason `spy_public_support_disrupt_detected`.
+- Detection does not auto-change relation status, declare war, trigger revolt, or change city owner.
+- Do not add loyalty disruption, revolt instigation, alienation, assassination, or real revolt unless a future task explicitly scopes it.
+- Not implemented: espionage UI, diplomacy status conversion, war declaration, battle/invasion/defense changes, or save/load core rewrites.
+- Next candidates: `v0.69-11C Espionage Detection Penalty Audit` or `v0.69-10C Alliance War Status Foundation MVP`.
+- Remaining risks: no UI trigger exists; detection penalty only changes score; disruption balance needs later review.
+
 ## v0.69-11 Espionage Info Gathering Handoff
 - `v0.69-11 Espionage Info Gathering MVP` is implemented in `scripts/worldmap_test.gd`.
 - Espionage subject is the current chancellor. If no chancellor is assigned, info gathering is unavailable.

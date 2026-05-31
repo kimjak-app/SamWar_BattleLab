@@ -75,6 +75,9 @@ const TRIBUTE_BASE_COST := {
 	"silk": 100,
 }
 const SPY_COOLDOWN_TURNS := 6
+const SPY_PUBLIC_SUPPORT_DISRUPT_COST := {"gold": 300}
+const SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS := 8
+const SPY_DETECTED_RELATION_PENALTY_PUBLIC_SUPPORT := -30
 const TRADE_SUSPENSION_TURNS := 3
 const RELATION_TRADE_MULTIPLIER := {
 	"allied": 1.25,
@@ -1961,6 +1964,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_spy_result"] = {}
 	if not _player_state.has("last_spy_cooldown_result") or not (_player_state["last_spy_cooldown_result"] is Dictionary):
 		_player_state["last_spy_cooldown_result"] = {}
+	if not _player_state.has("last_spy_public_support_disrupt_result") or not (_player_state["last_spy_public_support_disrupt_result"] is Dictionary):
+		_player_state["last_spy_public_support_disrupt_result"] = {}
 	if not _player_state.has("last_supply_state_result") or not (_player_state["last_supply_state_result"] is Dictionary):
 		_player_state["last_supply_state_result"] = {}
 	if not _player_state.has("last_public_support_result") or not (_player_state["last_public_support_result"] is Dictionary):
@@ -6744,6 +6749,158 @@ func _gather_spy_info(target_city_id: String, forced_roll: int = -1, forced_dete
 	return result
 
 
+func _get_spy_public_support_disrupt_amount(political_aptitude: int) -> int:
+	match clampi(political_aptitude, 0, 5):
+		5:
+			return 20
+		4:
+			return 15
+		3:
+			return 10
+		2:
+			return 5
+		1:
+			return 3
+		_:
+			return 0
+
+
+func _get_spy_public_support_disrupt_cost(_target_city_id: String) -> Dictionary:
+	return SPY_PUBLIC_SUPPORT_DISRUPT_COST.duplicate(true)
+
+
+func _can_disrupt_city_public_support(target_city_id: String) -> Dictionary:
+	var city_data := _get_city_hud_entry(target_city_id)
+	if target_city_id.is_empty() or city_data.is_empty():
+		return {"ok": false, "reason": "invalid_target"}
+	if _is_city_owned_by_player_mvp(target_city_id):
+		return {"ok": false, "reason": "own_city"}
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty() or _get_hero_entry(chancellor_id).is_empty():
+		return {"ok": false, "reason": "no_chancellor"}
+	var political_aptitude := _get_current_chancellor_political_aptitude()
+	if political_aptitude <= 0:
+		return {"ok": false, "reason": "no_political_aptitude"}
+	var spy_cooldown := maxi(0, int(_player_state.get("spy_cooldown", 0)))
+	if spy_cooldown > 0:
+		return {"ok": false, "reason": "cooldown", "cooldown": spy_cooldown}
+	var security := _get_city_security_score_for_spy(target_city_id)
+	var loyalty := _get_city_loyalty_value(city_data)
+	if security >= 100 and loyalty >= 100:
+		return {"ok": false, "reason": "iron_wall", "security": security, "loyalty": loyalty}
+	var cost := _get_spy_public_support_disrupt_cost(target_city_id)
+	var payment_check := _can_pay_generic_resource_cost(cost)
+	if not bool(payment_check.get("ok", false)):
+		return {"ok": false, "reason": "resources", "cost": cost, "missing": payment_check.get("missing", {})}
+	return {
+		"ok": true,
+		"political_aptitude": political_aptitude,
+		"effect_amount": _get_spy_public_support_disrupt_amount(political_aptitude),
+		"cost": cost,
+		"success_chance": _get_spy_info_success_chance(),
+		"detection_chance": _calculate_spy_detection_chance(target_city_id),
+	}
+
+
+func _roll_spy_public_support_disrupt_result(target_city_id: String, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	var check := _can_disrupt_city_public_support(target_city_id)
+	if not bool(check.get("ok", false)):
+		return {
+			"ok": false,
+			"reason": str(check.get("reason", "unknown")),
+			"target_city_id": target_city_id,
+			"success": false,
+			"detected": false,
+		}
+	var roll := forced_roll if forced_roll >= 0 else (randi() % 100) + 1
+	var detection_roll := forced_detection_roll if forced_detection_roll >= 0 else (randi() % 100) + 1
+	roll = clampi(roll, 1, 100)
+	detection_roll = clampi(detection_roll, 1, 100)
+	var success_chance := int(check.get("success_chance", 0))
+	var detection_chance := int(check.get("detection_chance", 0))
+	var detected := detection_roll <= detection_chance
+	var success := roll <= success_chance
+	return {
+		"ok": true,
+		"target_city_id": target_city_id,
+		"political_aptitude": int(check.get("political_aptitude", 0)),
+		"effect_amount": int(check.get("effect_amount", 0)),
+		"cost": check.get("cost", {}),
+		"roll": roll,
+		"success_chance": success_chance,
+		"success": success,
+		"detection_roll": detection_roll,
+		"detection_chance": detection_chance,
+		"detected": detected,
+		"effect_applied": success and not detected,
+	}
+
+
+func _get_spy_public_support_disrupt_cooldown_turns() -> int:
+	return maxi(1, SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS - (2 if _is_current_chancellor_political_type() else 0))
+
+
+func _disrupt_city_public_support(target_city_id: String, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	var check := _can_disrupt_city_public_support(target_city_id)
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var city_data := _get_city_hud_entry(target_city_id)
+	var target_faction := _get_city_owner_faction_id(city_data) if not city_data.is_empty() else ""
+	var before_support := _get_city_public_support(target_city_id) if not city_data.is_empty() else CITY_PUBLIC_SUPPORT_DEFAULT
+	if not bool(check.get("ok", false)):
+		var failed_result := {
+			"turn": turn_number,
+			"target_city_id": target_city_id,
+			"target_faction": target_faction,
+			"success": false,
+			"detected": false,
+			"effect_applied": false,
+			"reason": str(check.get("reason", "unknown")),
+			"publicSupport_before": before_support,
+			"publicSupport_after": before_support,
+			"relation_penalty": 0,
+			"cost": check.get("cost", _get_spy_public_support_disrupt_cost(target_city_id)),
+			"cooldown": 0,
+		}
+		_player_state["last_spy_public_support_disrupt_result"] = failed_result
+		return failed_result
+	var roll_result := _roll_spy_public_support_disrupt_result(target_city_id, forced_roll, forced_detection_roll)
+	var cost: Dictionary = check.get("cost", {})
+	_apply_generic_resource_cost(cost)
+	var cooldown := _get_spy_public_support_disrupt_cooldown_turns()
+	_player_state["spy_cooldown"] = cooldown
+	var relation_penalty := 0
+	var after_support := before_support
+	var effect_applied := bool(roll_result.get("effect_applied", false))
+	if bool(roll_result.get("detected", false)):
+		relation_penalty = SPY_DETECTED_RELATION_PENALTY_PUBLIC_SUPPORT
+		if not target_faction.is_empty():
+			_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction, relation_penalty, "spy_public_support_disrupt_detected")
+	elif effect_applied:
+		after_support = clampi(before_support - int(roll_result.get("effect_amount", 0)), 0, 100)
+		_set_city_public_support(target_city_id, after_support)
+	var result := {
+		"turn": turn_number,
+		"target_city_id": target_city_id,
+		"target_faction": target_faction,
+		"political_aptitude": int(roll_result.get("political_aptitude", 0)),
+		"roll": int(roll_result.get("roll", -1)),
+		"success_chance": int(roll_result.get("success_chance", 0)),
+		"success": bool(roll_result.get("success", false)),
+		"detection_roll": int(roll_result.get("detection_roll", -1)),
+		"detection_chance": int(roll_result.get("detection_chance", 0)),
+		"detected": bool(roll_result.get("detected", false)),
+		"effect_amount": int(roll_result.get("effect_amount", 0)),
+		"effect_applied": effect_applied and not bool(roll_result.get("detected", false)),
+		"publicSupport_before": before_support,
+		"publicSupport_after": after_support,
+		"relation_penalty": relation_penalty,
+		"cost": cost,
+		"cooldown": cooldown,
+	}
+	_player_state["last_spy_public_support_disrupt_result"] = result
+	return result
+
+
 func _advance_spy_cooldown_for_world_turn() -> Dictionary:
 	var before_cooldown := maxi(0, int(_player_state.get("spy_cooldown", 0)))
 	var after_cooldown := maxi(0, before_cooldown - 1)
@@ -7556,6 +7713,22 @@ func _format_spy_cooldown_summary(result: Dictionary) -> String:
 
 
 func _format_last_spy_summary(turn_number: int) -> String:
+	var disrupt_result: Variant = _player_state.get("last_spy_public_support_disrupt_result", {})
+	if disrupt_result is Dictionary:
+		var public_support_result := disrupt_result as Dictionary
+		if int(public_support_result.get("turn", 0)) == maxi(1, turn_number):
+			if bool(public_support_result.get("detected", false)):
+				return "첩보 발각: %s 관계 %d" % [
+					str(FACTION_LABELS.get(str(public_support_result.get("target_faction", "")), str(public_support_result.get("target_faction", "")))),
+					int(public_support_result.get("relation_penalty", 0)),
+				]
+			if bool(public_support_result.get("effect_applied", false)):
+				return "첩보 민심 교란 성공: %s 민심 -%d" % [
+					_format_city_name_by_id(str(public_support_result.get("target_city_id", "")), str(public_support_result.get("target_city_id", ""))),
+					int(public_support_result.get("effect_amount", 0)),
+				]
+			if public_support_result.has("success") and public_support_result.has("roll"):
+				return "첩보 실패"
 	var result: Variant = _player_state.get("last_spy_result", {})
 	if not result is Dictionary:
 		return ""

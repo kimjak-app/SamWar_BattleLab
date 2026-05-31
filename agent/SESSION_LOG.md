@@ -2,6 +2,20 @@
 
 ## 2026-06-01
 
+### v0.69-11B Espionage Public Support Disrupt MVP
+- Started from baseline commit `e3cf2f57fb0ada9e902976f1d8622f347c37ed56` / `v0.69-11 Espionage Info Gathering MVP`.
+- Implemented the first offensive espionage action, publicSupport disruption, in `scripts/worldmap_test.gd`.
+- Added fixed cost `gold 300`, cooldown `8`, and detected relation penalty `-30`.
+- Added aptitude-based effect amounts: `5/4/3/2/1 -> 20/15/10/5/3`.
+- Added `_can_disrupt_city_public_support`, `_roll_spy_public_support_disrupt_result`, and `_disrupt_city_public_support`.
+- Reused shared `spy_cooldown`; primary political chancellor applies cooldown `-2`, so disruption cooldown is `6` for primary political chancellors.
+- Successful non-detected disruption lowers target publicSupport. Failed non-detected disruption leaves publicSupport unchanged.
+- Detected disruption cancels the effect and applies relation score `-30`; status does not auto-convert to hostile and war is not declared.
+- Did not implement loyalty disruption, revolt instigation, alienation, assassination, real revolt, owner neutral conversion, espionage UI, battle changes, or save/load core rewrites.
+- QA runner confirmed validation failures, iron-wall block, effect amount table, success/failure/detection outcomes, relation penalty, status non-conversion, cooldown set/decrement, save/load preservation, and no unintended loyalty/troop/tech mutation.
+- Next candidates are `v0.69-11C Espionage Detection Penalty Audit` or `v0.69-10C Alliance War Status Foundation MVP`.
+- Remaining risks: no player-facing UI trigger exists; detection penalty is score-only; disruption balance needs later review.
+
 ### v0.69-11 Espionage Info Gathering MVP
 - Started from baseline commit `dd61a57cbaa9dc7da484b80d9ff76ad5f557dab6` / `v0.69-10B Tribute Diplomacy Action MVP`.
 - Implemented chancellor-driven enemy city information gathering in `scripts/worldmap_test.gd`.
