@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.69-5 Revolt Warning Foundation MVP
+- Added revolt risk state constants: `REVOLT_RISK_STABLE`, `REVOLT_RISK_WARNING`, and `REVOLT_RISK_DANGER`.
+- Added `_calculate_city_revolt_risk(city_id)` to calculate city revolt warning/danger from current publicSupport and loyalty.
+- Added `_apply_revolt_warning_check_for_world_turn()` to scan player-owned cities and record `_player_state["last_revolt_warning_result"]`.
+- Connected revolt warning after publicSupport drift, city loyalty drift, seasonal loyalty, and conscription in the domestic turn.
+- Warning requires both publicSupport and loyalty `<= 40`; danger requires both publicSupport and loyalty `<= 30`.
+- Added minimal City Detail and turn-summary text for revolt warning/danger counts and reasons.
+- This is warning-only foundation logic. Did not implement actual revolt occurrence, neutral owner changes, suppression battles, espionage revolt agitation, map markers, or final UI.
+- Did not modify publicSupport, seasonal loyalty, conscription/recruitment, troop move, P0-1/P0-2/Phase A/Phase B, battle scene, save/load core, tech tree, trade deepening, diplomacy, or espionage formulas/logic.
+
 ## v0.69-4 Recruitment Conscription Foundation MVP
 - Added loyalty-based conscription helpers to `scripts/worldmap_test.gd`: `_get_conscription_capacity_by_loyalty`, `_get_city_conscription_available`, and `_apply_city_conscription_for_world_turn`.
 - Automatic conscription now runs in the domestic turn after publicSupport drift, existing city loyalty drift, and seasonal loyalty from publicSupport, adding `min(available, 100)` troops to player-owned cities below capacity.

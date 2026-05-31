@@ -17,6 +17,9 @@ const CITY_DETAIL_TAB_INTERNAL_TRADE := "internal-trade"
 const CITY_DETAIL_TAB_EXTERNAL_TRADE := "external-trade"
 const DIPLOMACY_SPY_TAB_DIPLOMACY := "diplomacy"
 const DIPLOMACY_SPY_TAB_SPY := "spy"
+const REVOLT_RISK_STABLE := "stable"
+const REVOLT_RISK_WARNING := "warning"
+const REVOLT_RISK_DANGER := "danger"
 const UNIFIED_PANEL_COLLAPSED_LABEL := "도시상세 / 외교·첩보 열기"
 const UNIFIED_PANEL_COLLAPSED_HEIGHT := 48.0
 const UNIFIED_PANEL_MIN_EXPANDED_HEIGHT := 188.0
@@ -557,6 +560,7 @@ var _player_state := {
 	"last_seasonal_loyalty_result": {},
 	"last_conscription_result": {},
 	"last_recruitment_result": {},
+	"last_revolt_warning_result": {},
 }
 var _city_policy_state: Dictionary = {}
 var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
@@ -1052,7 +1056,10 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 				_format_city_public_support_display(city_marker.city_id),
 				"%s\n%s" % [
 					_format_city_loyalty_drift_display(city_marker.city_id),
-					_format_city_seasonal_loyalty_display(city_marker.city_id),
+					"%s\n%s" % [
+						_format_city_seasonal_loyalty_display(city_marker.city_id),
+						_format_city_revolt_risk_display(city_marker.city_id),
+					],
 				],
 			]
 			city_detail_rating_label.text = "%s\n%s" % [
@@ -1316,6 +1323,42 @@ func _format_city_recruitment_conscription_display(city_id: String) -> String:
 		recruitment_limit,
 		cost_text,
 	]
+
+
+func _format_city_revolt_risk_display(city_id: String) -> String:
+	var risk_result := _get_last_or_current_city_revolt_risk(city_id)
+	var risk := str(risk_result.get("risk", REVOLT_RISK_STABLE))
+	var risk_label := _format_revolt_risk_label(risk)
+	var reasons: Array = risk_result.get("reasons", [])
+	var reason_text := " / ".join(_string_array_from_variant_array(reasons))
+	if reason_text.is_empty():
+		reason_text = "요인 없음"
+	return "■ 반란 위험\n반란 위험: %s — 민심 %d, 충성도 %d\n요인: %s" % [
+		risk_label,
+		int(risk_result.get("publicSupport", _get_city_public_support(city_id))),
+		int(risk_result.get("loyalty", _get_city_loyalty_value(_get_city_hud_entry(city_id)))),
+		reason_text,
+	]
+
+
+func _get_last_or_current_city_revolt_risk(city_id: String) -> Dictionary:
+	var result: Dictionary = _player_state.get("last_revolt_warning_result", {})
+	var city_results: Variant = result.get("city_results", {})
+	if city_results is Dictionary and (city_results as Dictionary).has(city_id):
+		var city_result: Variant = (city_results as Dictionary).get(city_id, {})
+		if city_result is Dictionary:
+			return city_result as Dictionary
+	return _calculate_city_revolt_risk(city_id)
+
+
+func _format_revolt_risk_label(risk: String) -> String:
+	match risk:
+		REVOLT_RISK_DANGER:
+			return "위험"
+		REVOLT_RISK_WARNING:
+			return "경고"
+		_:
+			return "안정"
 
 
 func _get_city_loyalty_drift_entry(city_id: String, drift_result: Dictionary) -> Dictionary:
@@ -1895,6 +1938,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_conscription_result"] = {}
 	if not _player_state.has("last_recruitment_result") or not (_player_state["last_recruitment_result"] is Dictionary):
 		_player_state["last_recruitment_result"] = {}
+	if not _player_state.has("last_revolt_warning_result") or not (_player_state["last_revolt_warning_result"] is Dictionary):
+		_player_state["last_revolt_warning_result"] = {}
 
 
 func _normalize_turn_phase(phase: String) -> String:
@@ -3908,6 +3953,66 @@ func _recruit_troops(city_id: String, amount: int) -> bool:
 	return true
 
 
+func _calculate_city_revolt_risk(city_id: String) -> Dictionary:
+	var public_support := _get_city_public_support(city_id)
+	var loyalty := _get_city_loyalty_value(_get_city_hud_entry(city_id))
+	var risk := REVOLT_RISK_STABLE
+	var reasons: Array[String] = []
+	if public_support <= 40:
+		reasons.append("민심 40 이하")
+	if loyalty <= 40:
+		reasons.append("충성도 40 이하")
+	if public_support <= 30:
+		reasons.append("민심 30 이하")
+	if loyalty <= 30:
+		reasons.append("충성도 30 이하")
+	if public_support <= 30 and loyalty <= 30:
+		risk = REVOLT_RISK_DANGER
+	elif public_support <= 40 and loyalty <= 40:
+		risk = REVOLT_RISK_WARNING
+	return {
+		"city_id": city_id,
+		"publicSupport": public_support,
+		"loyalty": loyalty,
+		"risk": risk,
+		"warning": risk == REVOLT_RISK_WARNING,
+		"danger": risk == REVOLT_RISK_DANGER,
+		"reasons": reasons,
+	}
+
+
+func _apply_revolt_warning_check_for_world_turn() -> Dictionary:
+	var result := {
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"warning_count": 0,
+		"danger_count": 0,
+		"city_results": {},
+	}
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		_player_state["last_revolt_warning_result"] = result
+		return result
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		if not _is_city_owned_by_player_mvp(city_id):
+			continue
+		var city_result := _calculate_city_revolt_risk(city_id)
+		(result["city_results"] as Dictionary)[city_id] = city_result
+		if bool(city_result.get("danger", false)):
+			result["danger_count"] = int(result.get("danger_count", 0)) + 1
+		elif bool(city_result.get("warning", false)):
+			result["warning_count"] = int(result.get("warning_count", 0)) + 1
+		print("[REVOLT_WARNING_CHECK] city=%s publicSupport=%d loyalty=%d risk=%s reasons=%s" % [
+			city_id,
+			int(city_result.get("publicSupport", 0)),
+			int(city_result.get("loyalty", 0)),
+			str(city_result.get("risk", REVOLT_RISK_STABLE)),
+			str(city_result.get("reasons", [])),
+		])
+	_player_state["last_revolt_warning_result"] = result
+	return result
+
+
 func _calculate_troop_rebalance_suggestions() -> Array:
 	var suggestions: Array = []
 	var supply_states := _calculate_all_city_supply_states()
@@ -4822,9 +4927,10 @@ func _apply_domestic_turn_mvp() -> String:
 	var city_loyalty_drift_result := _apply_city_loyalty_drift_for_world_turn(tax_level, policy_id, supply_states)
 	var seasonal_loyalty_result := _apply_seasonal_loyalty_from_public_support(turn_number, supply_states)
 	var conscription_result := _apply_city_conscription_for_world_turn()
+	var revolt_warning_result := _apply_revolt_warning_check_for_world_turn()
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
 		"version": "v0.69-4",
@@ -4842,8 +4948,9 @@ func _apply_domestic_turn_mvp() -> String:
 		"city_loyalty_drift_result": city_loyalty_drift_result,
 		"seasonal_loyalty_result": seasonal_loyalty_result,
 		"conscription_result": conscription_result,
+		"revolt_warning_result": revolt_warning_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -5702,7 +5809,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -5723,6 +5830,8 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		parts.append(_format_seasonal_loyalty_summary(seasonal_loyalty_result))
 	if bool(conscription_result.get("applied", false)):
 		parts.append(_format_conscription_summary(conscription_result))
+	if not revolt_warning_result.is_empty():
+		parts.append(_format_revolt_warning_summary(revolt_warning_result))
 	if parts.is_empty():
 		return "변동 없음"
 	return " · ".join(parts)
@@ -5765,6 +5874,16 @@ func _format_conscription_summary(result: Dictionary) -> String:
 		if added > 0:
 			changed_cities += 1
 	return "징병 +%d · %d개 도시" % [total_added, changed_cities]
+
+
+func _format_revolt_warning_summary(result: Dictionary) -> String:
+	var warning_count := int(result.get("warning_count", 0))
+	var danger_count := int(result.get("danger_count", 0))
+	if danger_count > 0:
+		return "반란 위험 도시 %d개 · 경고 %d개" % [danger_count, warning_count]
+	if warning_count > 0:
+		return "반란 경고 도시 %d개" % warning_count
+	return "반란 경고 0개 · 위험 0개"
 
 
 func _format_city_loyalty_drift_summary(result: Dictionary) -> String:

@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.69-5 Revolt Warning Handoff
+- `v0.69-5 Revolt Warning Foundation MVP` is implemented in `scripts/worldmap_test.gd`.
+- Revolt warning is a read-only calculation over current city `publicSupport` and `loyalty`.
+- Risk states are exactly `stable`, `warning`, and `danger`.
+- `warning` means both publicSupport and loyalty are `<= 40`.
+- `danger` means both publicSupport and loyalty are `<= 30`.
+- `_calculate_city_revolt_risk(city_id)` returns the per-city risk payload. `_apply_revolt_warning_check_for_world_turn()` scans player-owned cities and records `last_revolt_warning_result`.
+- Domestic turn runs revolt warning after publicSupport drift, city loyalty drift, seasonal loyalty, and conscription so the check reads current values.
+- This MVP does not trigger revolts, does not change owner to neutral, does not create suppression battles, and does not integrate espionage revolt agitation.
+- Map markers, icon/color UX, and final UI are deferred to later UI work. Current City Detail text is temporary minimal display.
+- PublicSupport, loyalty, conscription/recruitment, troop movement, P0-1/P0-2/Phase A/Phase B, battle, and save/load formulas/cores must remain untouched unless a future task explicitly scopes them.
+- Next task should be `v0.69-6 National Tech Tree Data MVP`.
+- Remaining risks: warning-only foundation, no actual event lifecycle, no espionage integration, no map warning UI, and no final F6 UX validation yet.
+
 ## v0.69-4 Recruitment/Conscription Handoff
 - `v0.69-4 Recruitment/Conscription Foundation MVP` is implemented in `scripts/worldmap_test.gd`.
 - Conscription is loyalty-based. Use `_get_conscription_capacity_by_loyalty(city_id)` and `_get_city_conscription_available(city_id)` for capacity/available calculations.
@@ -10,7 +24,7 @@
 - Recruitment cost is `gold = amount` and `food = amount / 2`; MVP food payment uses national `resource_stock` in order `rice -> barley -> seafood`.
 - Recruitment does not reduce population, does not directly change publicSupport or loyalty, and does not implement fatigue/publicSupport decline yet.
 - Current City Detail output is a temporary minimal display. Real F6 mouse-based UX verification belongs with the June City Detail/WorldMap UI overhaul.
-- Next task should be `v0.69-5 Revolt Warning Foundation MVP`.
+- Superseded by `v0.69-5`: revolt warning foundation is implemented.
 - Remaining risks: no explicit recruitment UI, MVP national food-pool payment, no population/fatigue effects, and no final UX validation yet.
 
 ## v0.69-3A Strategic Logic Checkpoint Handoff

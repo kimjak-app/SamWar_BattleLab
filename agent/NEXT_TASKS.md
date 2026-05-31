@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Current v0.69-5 Revolt Warning Status
+- `v0.69-5 Revolt Warning Foundation MVP` is complete in code/docs.
+- Revolt warning uses the combined `publicSupport + loyalty` condition.
+- `warning`: both publicSupport and loyalty are `<= 40`.
+- `danger`: both publicSupport and loyalty are `<= 30`.
+- The system records warning/danger counts in `last_revolt_warning_result` and shows minimal City Detail/turn-summary text.
+- Actual revolt occurrence, city neutralization, suppression battles, espionage revolt agitation, map markers, and final UI are not implemented.
+- Real F6 mouse-based UX verification remains deferred to the June City Detail/WorldMap UI overhaul.
+- Next required implementation candidate: `v0.69-6 National Tech Tree Data MVP`.
+
 ## Current v0.69-4 Recruitment/Conscription Status
 - `v0.69-4 Recruitment/Conscription Foundation MVP` is complete in code/docs.
 - Conscription is loyalty-based and represents slow free troop growth. It runs automatically during the domestic turn and adds up to `100` troops per owned city if the city is below its loyalty-based conscription capacity.
@@ -9,7 +19,7 @@
 - Recruitment does not directly reduce publicSupport or loyalty; recruitment fatigue/publicSupport decline remains deferred.
 - Current City Detail display remains a minimal temporary surface for conscription/recruitment values.
 - Real F6 mouse-based UX verification remains deferred to the June City Detail/WorldMap UI overhaul.
-- Next required implementation candidate: `v0.69-5 Revolt Warning Foundation MVP`.
+- Superseded by `v0.69-5`: revolt warning foundation is complete.
 
 ## Current v0.69-3A Strategic Logic Checkpoint Status
 - `v0.69-3A Strategic Logic Checkpoint Documentation` is complete as a documentation-only checkpoint.
@@ -53,8 +63,8 @@
   2. `v0.69-2 Seasonal Loyalty From Public Support MVP` - complete.
   3. `v0.69-3 Troop Move Loyalty Efficiency Final Patch` - complete.
   4. `v0.69-4 Recruitment/Conscription Foundation MVP` - complete.
-  5. `v0.69-5 Revolt Warning Foundation MVP` - next.
-  6. `v0.69-6 National Tech Tree Data MVP`
+  5. `v0.69-5 Revolt Warning Foundation MVP` - complete.
+  6. `v0.69-6 National Tech Tree Data MVP` - next.
   7. `v0.69-7 City Tech Tree Data MVP`
   8. `v0.69-8 Trade Deepening MVP`
   9. `v0.69-9 Diplomacy/Espionage Foundation MVP`

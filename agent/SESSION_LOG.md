@@ -2,6 +2,26 @@
 
 ## 2026-05-31
 
+### v0.69-5 Revolt Warning Foundation MVP
+- Started from baseline commit `dd531db` / `v0.69-4 Recruitment Conscription Foundation MVP`.
+- Implemented revolt warning foundation logic in `scripts/worldmap_test.gd`.
+- Added `REVOLT_RISK_STABLE`, `REVOLT_RISK_WARNING`, and `REVOLT_RISK_DANGER`.
+- Added `_calculate_city_revolt_risk(city_id)` using current city publicSupport and loyalty only.
+- Added `_apply_revolt_warning_check_for_world_turn()` to scan player-owned cities, aggregate warning/danger counts, and record `last_revolt_warning_result`.
+- Warning threshold: publicSupport `<= 40` and loyalty `<= 40`.
+- Danger threshold: publicSupport `<= 30` and loyalty `<= 30`.
+- Connected revolt warning after publicSupport drift, city loyalty drift, seasonal loyalty from publicSupport, and conscription in `_apply_domestic_turn_mvp`.
+- Added minimal City Detail and turn-summary display for revolt risk.
+- Did not implement actual revolt occurrence, neutral owner changes, suppression battles, espionage revolt agitation, map markers, or final UI.
+- Did not modify publicSupport, seasonal loyalty, conscription/recruitment, troop movement, P0-1/P0-2/Phase A/Phase B, battle scene code, save/load core, tech tree, trade deepening, diplomacy, or espionage formulas/logic.
+- Verification passed: `rg` for new constants/helpers/result field, scoped diff reviews for owner/neutral/save-load/formula non-changes, `battle_web_import_test.gd` unchanged, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary headless QA runner.
+- QA runner confirmed stable/warning/danger thresholds, low-only cases, result recording, warning/danger count aggregation, no publicSupport/loyalty/troops/owner mutation, and turn summary danger text.
+- Godot `--headless --check-only` timed out after 134 seconds and is recorded as inconclusive.
+- Real F6 mouse-based UX verification remains deferred to the June City Detail/WorldMap UI overhaul.
+- Remaining risks: warning-only system; no actual revolt lifecycle, no espionage integration, no map warning UI, and no final UX validation yet.
+
+## 2026-05-31
+
 ### v0.69-4 Recruitment/Conscription Foundation MVP
 - Started from baseline commit `9df4e49` / `v0.69-3A Strategic Logic Checkpoint Documentation`.
 - Implemented recruitment/conscription foundation logic in `scripts/worldmap_test.gd`.

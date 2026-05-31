@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.69-5 Revolt Warning Foundation MVP
+- Implemented revolt warning foundation logic in `scripts/worldmap_test.gd`.
+- Revolt warning uses the combined `publicSupport + loyalty` condition only.
+- Risk states are locked to three levels: `stable`, `warning`, and `danger`.
+- Warning threshold: `publicSupport <= 40` and `loyalty <= 40`.
+- Danger threshold: `publicSupport <= 30` and `loyalty <= 30`.
+- Added `_calculate_city_revolt_risk(city_id)` to read current city publicSupport and loyalty and return risk flags plus reasons.
+- Added `_apply_revolt_warning_check_for_world_turn()` to scan player-owned cities, aggregate `warning_count` and `danger_count`, and record `_player_state["last_revolt_warning_result"]`.
+- Domestic turn order is now: publicSupport drift, existing city loyalty drift, seasonal loyalty from publicSupport, conscription, then revolt warning check. This lets revolt warning read the latest publicSupport and loyalty values.
+- City Detail internal/supply area shows minimal revolt risk text with current publicSupport, loyalty, and reasons. Turn summary includes revolt warning/danger counts.
+- This MVP is calculation/recording/display only. It does not trigger revolts, does not change city owner to neutral, does not create suppression battles, and does not modify troops.
+- Espionage-driven revolt agitation is not implemented. Map warning markers, icons, colors, and final UI are deferred.
+- PublicSupport, seasonal loyalty, conscription/recruitment, troop movement, P0-1/P0-2/Phase A/Phase B, battle, and save/load formulas/cores were not changed.
+- Current validation remains headless/API-centered. Real F6 mouse-based UX verification is deferred to the June City Detail/WorldMap UI overhaul.
+- Verification passed: `rg` checks for revolt helpers/constants/result field, scoped diff review confirming no owner/neutral/save-load/core formula changes, `battle_web_import_test.gd` unchanged review, `git diff --check`, Godot headless project load, Godot headless `WorldMap_Test.tscn` load, and a temporary QA runner. Godot `--check-only` timed out locally after 134 seconds.
+- QA runner confirmed stable/warning/danger thresholds, low-only cases do not escalate to warning/danger, result recording, warning/danger counts, no publicSupport/loyalty/troop/owner mutation, and turn summary danger text.
+- Remaining risks: this is warning-only; actual revolt occurrence, neutralization, suppression battle flow, espionage agitation, map markers, and final UX remain future work.
+
 ## v0.69-4 Recruitment/Conscription Foundation MVP
 - Implemented recruitment/conscription foundation logic in `scripts/worldmap_test.gd`.
 - Conscription is loyalty-based: `_get_conscription_capacity_by_loyalty(city_id)` calculates the city conscription capacity from current city `loyalty` / `cityLoyalty`, and `_get_city_conscription_available(city_id)` subtracts current stationed troops from that capacity.
