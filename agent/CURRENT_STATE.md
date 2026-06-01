@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-2 Battle Overlay Shape + Wave Tuning
+- Completed the second v0.70 battle visual detail polish task.
+- `Battle_Fullscreen_Test.tscn` `MainCamera` default zoom is now `0.84`, showing more battlefield scenery than the v0.70-1 `0.88` baseline.
+- Movement/attack range overlays now render as clipped-corner octagonal tactical tiles through `scripts/battle_range_overlay_tile.gd`, while continuing to reuse the existing `MoveRangeOverlayLayer` cell pool.
+- Overlay tiles now draw a low-alpha fill, softer inner fill, clear outline, and subtle inner highlight so terrain remains visible while the tactical area reads more clearly.
+- Wave/stagger reveal is stronger: distance delay is `0.04s` per grid step, cells start at `0.86` scale, pop to `1.04`, then settle to `1.0`.
+- Default logical grid remains hidden; internal grid coordinates, movement/attack range calculation, click conversion, and all battle rules remain unchanged.
+- No damage formula, movement/attack 판정, AI, result, wounded, prisoner, death, or WorldMap UX logic was intentionally changed.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load. GDScript warning/error output was clean in headless load.
+- 김작 F6 manual QA remains required for zoom `0.84` feel, unit size, octagonal tile readability, outline strength, fill alpha, terrain visibility, wave timing, and click feel.
+- Next candidates:
+  - `v0.70-3 Battle Overlay Visual Fine Tuning`
+  - `v0.70-4 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-1 Battle Visual Detail Polish Start
 - Completed the first v0.70 detail-polish task on the battle engine visual layer.
 - Default battle logical grid display is now hidden for normal play; the internal grid coordinate, cell calculation, movement range, attack range, and click conversion logic remain unchanged.

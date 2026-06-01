@@ -2254,7 +2254,7 @@ texture = ExtResource("13_move_dust_01")
 
 [node name="MainCamera" type="Camera2D" parent="." unique_id=1502905262]
 position = Vector2(960, 540)
-zoom = Vector2(0.88, 0.88)
+zoom = Vector2(0.84, 0.84)
 
 [node name="BattleUI" type="CanvasLayer" parent="." unique_id=1570436259]
 

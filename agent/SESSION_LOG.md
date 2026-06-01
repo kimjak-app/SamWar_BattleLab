@@ -2,6 +2,19 @@
 
 ## 2026-06-01
 
+### v0.70-2 Battle Overlay Shape + Wave Tuning
+- Started from baseline `v0.70-1 Battle Visual Detail Polish Start` / base commit `60bdf2cc5955180a93cf4ea9e439d1a103f6cf7e`.
+- Focused only on battle visual/UX overlay tuning and deferred WorldMap final IA work.
+- Changed the scene-authored `MainCamera` zoom from `0.88` to `0.84` to show more battlefield background.
+- Added `scripts/battle_range_overlay_tile.gd` so existing range overlay `ColorRect` cells draw as clipped-corner octagonal tactical tiles.
+- Kept the existing `MoveRangeOverlayLayer` cell pool and movement/attack range calculations unchanged.
+- Tuned tile rendering with low-alpha fill, softer inner fill, clear outline, and subtle inner highlight for a less debug-like tactical UI read.
+- Strengthened range wave timing to distance `* 0.04s`, with alpha fade and scale `0.86 -> 1.04 -> 1.0`.
+- Preserved tween cleanup on overlay hide paths to avoid delayed ghost cells during cancel, action resolve, or selection changes.
+- No battle rules, move/attack 판정, damage formula, AI, result, wounded/prisoner/death, or WorldMap UX logic was intentionally changed.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load. GDScript warning/error output was clean.
+- F6 manual QA remains: zoom `0.84` feel, background visibility, unit size, octagonal tile shape, outline clarity, fill alpha, terrain visibility, wave direction/timing, direct move click, attack click, right-click cancel, floating command panel, and auto/turn progression.
+
 ### v0.70-1 Battle Visual Detail Polish Start
 - Started from baseline `v0.69-14A GDScript Reload Warning Cleanup Before v0.70` / base commit `f0795b4`.
 - Focused the first v0.70 detail-polish pass on battle-engine visuals, deferring WorldMap final UX/UI work.

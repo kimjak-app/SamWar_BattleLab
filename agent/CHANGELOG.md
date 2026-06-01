@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-2 Battle Overlay Shape + Wave Tuning
+- Adjusted `Battle_Fullscreen_Test.tscn` `MainCamera` zoom from `0.88` to `0.84` for a wider battlefield view.
+- Added `scripts/battle_range_overlay_tile.gd`, a lightweight `ColorRect` draw script for clipped-corner octagonal tactical tiles.
+- Reused the existing `MoveRangeOverlayLayer` cell pool and attached the tile draw script at runtime instead of adding external assets or a new UI system.
+- Changed movement/attack overlays from flat translucent rectangles to octagonal cells with low-alpha fill, softer inner fill, clear outline, and subtle inner highlight.
+- Tuned movement styling toward blue and attack styling toward red/orange-red while keeping terrain visible beneath the overlay.
+- Strengthened wave/stagger reveal to `0.04s` per grid distance with scale `0.86 -> 1.04 -> 1.0` and alpha fade-in.
+- Kept overlay tween cleanup on hide paths so cancel, movement, attack, strategy, and unique-skill transitions do not leave ghost cells.
+- Did not change battle rules, movement/attack 판정, damage formulas, AI, results, wounded/prisoner/death logic, or WorldMap UX/UI logic.
+
 ## v0.70-1 Battle Visual Detail Polish Start
 - Hid the default logical grid guide in normal battle play while leaving the internal grid and debug flag intact.
 - Set `Battle_Fullscreen_Test.tscn` `MainCamera` zoom to `0.88` so the battlefield art reads wider without changing the scene-authored camera position.

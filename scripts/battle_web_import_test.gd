@@ -1,5 +1,6 @@
 extends Node2D
 
+const BattleRangeOverlayTileScript := preload("res://scripts/battle_range_overlay_tile.gd")
 const DEMO_DAMAGE := 12.0
 const ENEMY_DEMO_DAMAGE := 8.0
 const ALLY_DEMO_HP := 94.0
@@ -21,18 +22,28 @@ const MOVE_TARGET_VALID_COLOR := Color(0.45, 1.0, 0.55, 1.0)
 const MOVE_TARGET_INVALID_COLOR := Color(1.0, 0.35, 0.35, 1.0)
 const MOVE_HIGHLIGHT_VALID_COLOR := Color(0.172549, 0.623529, 1.0, 0.227451)
 const MOVE_HIGHLIGHT_INVALID_COLOR := Color(1.0, 0.2, 0.2, 0.28)
-const MOVE_RANGE_OVERLAY_COLOR := Color(0.16, 0.62, 1.0, 0.28)
-const ATTACK_RANGE_OVERLAY_COLOR := Color(1.0, 0.2, 0.16, 0.30)
+const MOVE_RANGE_OVERLAY_COLOR := Color(0.12, 0.58, 1.0, 0.17)
+const MOVE_RANGE_OVERLAY_OUTLINE_COLOR := Color(0.42, 0.88, 1.0, 0.86)
+const MOVE_RANGE_OVERLAY_HIGHLIGHT_COLOR := Color(0.78, 0.96, 1.0, 0.34)
+const ATTACK_RANGE_OVERLAY_COLOR := Color(1.0, 0.18, 0.12, 0.20)
+const ATTACK_RANGE_OVERLAY_OUTLINE_COLOR := Color(1.0, 0.48, 0.28, 0.88)
+const ATTACK_RANGE_OVERLAY_HIGHLIGHT_COLOR := Color(1.0, 0.78, 0.54, 0.32)
 const UNIQUE_SKILL_RANGE_OVERLAY_COLOR := Color(0.55, 0.24, 1.0, 0.24)
+const UNIQUE_SKILL_RANGE_OVERLAY_OUTLINE_COLOR := Color(0.78, 0.54, 1.0, 0.84)
+const UNIQUE_SKILL_RANGE_OVERLAY_HIGHLIGHT_COLOR := Color(0.92, 0.78, 1.0, 0.30)
 const UNIQUE_SKILL_TARGET_OVERLAY_COLOR := Color(1.0, 0.76, 0.08, 0.62)
+const UNIQUE_SKILL_TARGET_OVERLAY_OUTLINE_COLOR := Color(1.0, 0.88, 0.24, 0.92)
+const UNIQUE_SKILL_TARGET_OVERLAY_HIGHLIGHT_COLOR := Color(1.0, 0.96, 0.66, 0.38)
 const UNIQUE_SKILL_TARGET_MARKER_SCALE := 0.78
 const UNIQUE_SKILL_AUTO_PREVIEW_DURATION := 0.42
 const UNIQUE_SKILL_MANUAL_PREVIEW_DURATION := 0.42
 const MOVE_RANGE_OVERLAY_VISUAL_INSET := Vector2(32.0, 0.0)
 const RANGE_OVERLAY_CELL_INSET_RATIO := 0.08
-const RANGE_OVERLAY_CELL_APPEAR_DURATION := 0.16
-const RANGE_OVERLAY_CELL_STAGGER := 0.026
-const RANGE_OVERLAY_CELL_START_SCALE := Vector2(0.72, 0.72)
+const RANGE_OVERLAY_CELL_APPEAR_DURATION := 0.15
+const RANGE_OVERLAY_CELL_SETTLE_DURATION := 0.07
+const RANGE_OVERLAY_CELL_STAGGER := 0.04
+const RANGE_OVERLAY_CELL_START_SCALE := Vector2(0.86, 0.86)
+const RANGE_OVERLAY_CELL_POP_SCALE := Vector2(1.04, 1.04)
 const SHOW_CELL_SIZE_VISUAL_GUIDE := false
 const SHOW_LOGICAL_GRID_14X8_GUIDE := false
 const MELEE_ADJACENT_QA_MODE := false
@@ -8602,11 +8613,13 @@ func _collect_move_range_cells() -> void:
 	for child in move_range_overlay_layer.get_children():
 		if child is ColorRect:
 			var cell := child as ColorRect
+			cell.set_script(BattleRangeOverlayTileScript)
 			move_range_cells.append(cell)
 			cell.visible = false
 			cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			cell.modulate = Color(1.0, 1.0, 1.0, 0.0)
 			cell.scale = Vector2.ONE
+			cell.color = Color.TRANSPARENT
 
 
 func _hide_move_range_overlay() -> void:
@@ -8657,7 +8670,7 @@ func _get_cells_wave_order(cells: Array[Vector2i], origin_cell: Vector2i, max_di
 	return ordered_cells
 
 
-func _show_range_overlay_cell(rect: ColorRect, cell: Vector2i, cell_size: Vector2, color: Color, origin_cell: Vector2i, should_animate := true, marker_scale := 1.0) -> void:
+func _show_range_overlay_cell(rect: ColorRect, cell: Vector2i, cell_size: Vector2, fill_color: Color, origin_cell: Vector2i, should_animate := true, marker_scale := 1.0, outline_color := Color.TRANSPARENT, highlight_color := Color.TRANSPARENT) -> void:
 	if rect == null or battle_grid_controller == null:
 		return
 	var inset := Vector2(
@@ -8669,7 +8682,11 @@ func _show_range_overlay_cell(rect: ColorRect, cell: Vector2i, cell_size: Vector
 	rect.position = world_pos - (visual_size * 0.5)
 	rect.size = visual_size
 	rect.pivot_offset = visual_size * 0.5
-	rect.color = color
+	rect.color = Color.TRANSPARENT
+	if rect.has_method("set_tile_style"):
+		rect.call("set_tile_style", fill_color, outline_color, highlight_color)
+	else:
+		rect.color = fill_color
 	rect.visible = true
 	if not should_animate:
 		rect.modulate = Color(1.0, 1.0, 1.0, 1.0)
@@ -8687,7 +8704,9 @@ func _show_range_overlay_cell(rect: ColorRect, cell: Vector2i, cell_size: Vector
 	tween.tween_interval(delay)
 	tween.set_parallel(true)
 	tween.tween_property(rect, "modulate:a", 1.0, RANGE_OVERLAY_CELL_APPEAR_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(rect, "scale", Vector2.ONE, RANGE_OVERLAY_CELL_APPEAR_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(rect, "scale", RANGE_OVERLAY_CELL_POP_SCALE, RANGE_OVERLAY_CELL_APPEAR_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.chain()
+	tween.tween_property(rect, "scale", Vector2.ONE, RANGE_OVERLAY_CELL_SETTLE_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
 func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
@@ -8716,7 +8735,7 @@ func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data:
 			continue
 
 		var rect := move_range_cells[index]
-		_show_range_overlay_cell(rect, cell, cell_size, UNIQUE_SKILL_RANGE_OVERLAY_COLOR, caster_state.grid_cell)
+		_show_range_overlay_cell(rect, cell, cell_size, UNIQUE_SKILL_RANGE_OVERLAY_COLOR, caster_state.grid_cell, true, 1.0, UNIQUE_SKILL_RANGE_OVERLAY_OUTLINE_COLOR, UNIQUE_SKILL_RANGE_OVERLAY_HIGHLIGHT_COLOR)
 		index += 1
 	for target_cell in target_cells:
 		if index >= move_range_cells.size():
@@ -8727,7 +8746,7 @@ func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data:
 		if not _is_move_range_overlay_rect_inside_visual_board(marker_world_pos, cell_size):
 			continue
 		var marker_rect := move_range_cells[index]
-		_show_range_overlay_cell(marker_rect, target_cell, cell_size, UNIQUE_SKILL_TARGET_OVERLAY_COLOR, caster_state.grid_cell, true, UNIQUE_SKILL_TARGET_MARKER_SCALE)
+		_show_range_overlay_cell(marker_rect, target_cell, cell_size, UNIQUE_SKILL_TARGET_OVERLAY_COLOR, caster_state.grid_cell, true, UNIQUE_SKILL_TARGET_MARKER_SCALE, UNIQUE_SKILL_TARGET_OVERLAY_OUTLINE_COLOR, UNIQUE_SKILL_TARGET_OVERLAY_HIGHLIGHT_COLOR)
 		index += 1
 
 
@@ -8757,7 +8776,7 @@ func _show_strategy_range_overlay(caster_state: BattleUnitState) -> void:
 			continue
 
 		var rect := move_range_cells[index]
-		_show_range_overlay_cell(rect, cell, cell_size, STRATEGY_RANGE_OVERLAY_COLOR, caster_state.grid_cell)
+		_show_range_overlay_cell(rect, cell, cell_size, STRATEGY_RANGE_OVERLAY_COLOR, caster_state.grid_cell, true, 1.0, STRATEGY_TARGET_OVERLAY_COLOR, Color(0.78, 1.0, 1.0, 0.28))
 		index += 1
 
 	for target_cell in target_cells:
@@ -8769,7 +8788,7 @@ func _show_strategy_range_overlay(caster_state: BattleUnitState) -> void:
 		if not _is_move_range_overlay_rect_inside_visual_board(marker_world_pos, cell_size):
 			continue
 		var marker_rect := move_range_cells[index]
-		_show_range_overlay_cell(marker_rect, target_cell, cell_size, STRATEGY_TARGET_OVERLAY_COLOR, caster_state.grid_cell, true, STRATEGY_TARGET_MARKER_SCALE)
+		_show_range_overlay_cell(marker_rect, target_cell, cell_size, STRATEGY_TARGET_OVERLAY_COLOR, caster_state.grid_cell, true, STRATEGY_TARGET_MARKER_SCALE, Color(0.72, 1.0, 1.0, 0.88), Color(0.9, 1.0, 1.0, 0.36))
 		index += 1
 
 
@@ -8804,7 +8823,7 @@ func _show_attack_range_overlay_for_active_unit() -> void:
 			continue
 
 		var rect := move_range_cells[index]
-		_show_range_overlay_cell(rect, cell, cell_size, ATTACK_RANGE_OVERLAY_COLOR, origin_cell)
+		_show_range_overlay_cell(rect, cell, cell_size, ATTACK_RANGE_OVERLAY_COLOR, origin_cell, true, 1.0, ATTACK_RANGE_OVERLAY_OUTLINE_COLOR, ATTACK_RANGE_OVERLAY_HIGHLIGHT_COLOR)
 		index += 1
 
 
@@ -8843,7 +8862,7 @@ func _show_move_range_overlay_for_active_unit() -> void:
 			continue
 
 		var rect := move_range_cells[index]
-		_show_range_overlay_cell(rect, cell, cell_size, MOVE_RANGE_OVERLAY_COLOR, origin_cell)
+		_show_range_overlay_cell(rect, cell, cell_size, MOVE_RANGE_OVERLAY_COLOR, origin_cell, true, 1.0, MOVE_RANGE_OVERLAY_OUTLINE_COLOR, MOVE_RANGE_OVERLAY_HIGHLIGHT_COLOR)
 		index += 1
 
 

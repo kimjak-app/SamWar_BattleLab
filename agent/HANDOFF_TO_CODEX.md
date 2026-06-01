@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-2 Battle Overlay Shape + Wave Tuning Handoff
+- `v0.70-2 Battle Overlay Shape + Wave Tuning` is complete in `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and `scripts/battle_range_overlay_tile.gd`.
+- `MainCamera` default zoom is now `Vector2(0.84, 0.84)`. The camera position remains scene-authored.
+- Default play still hides the logical grid guide; `SHOW_LOGICAL_GRID_14X8_GUIDE` remains `false` for normal play and available as a future debug flag.
+- Range overlays still use the existing `MoveRangeOverlayLayer` ColorRect pool. Each cell now receives a lightweight `BattleRangeOverlayTile` draw script at runtime.
+- The tile draw script renders clipped-corner octagonal cells with low-alpha fill, softer inner fill, clear outline, and subtle inner highlight. No external assets were added.
+- Movement tiles use blue styling; attack tiles use red/orange-red styling. Unique skill and strategy overlays share the same tactical tile renderer for consistency.
+- Wave/stagger reveal is now stronger: `0.04s` delay per Manhattan distance, scale `0.86 -> 1.04 -> 1.0`, and alpha `0 -> 1`.
+- Existing overlay hide paths still kill active range tweens before hiding cells, so quick cancel/selection changes should not leave delayed ghost overlays.
+- No battle rules, move/attack 판정, damage formulas, AI, results, woundedQueue, prisoner/death, or WorldMap UX logic was intentionally changed.
+- Headless project load and `Battle_Fullscreen_Test.tscn` load passed with clean warning/error output.
+- 김작 F6 QA should confirm zoom `0.84` feel, background visibility, unit size, octagonal tile read, outline strength, alpha/terrain visibility, wave direction/timing, direct move click, attack click, right-click cancel, floating command panel, and turn/auto flow.
+- Next candidates:
+  - `v0.70-3 Battle Overlay Visual Fine Tuning`
+  - `v0.70-4 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-1 Battle Visual Detail Polish Start Handoff
 - `v0.70-1 Battle Visual Detail Polish Start` is complete in `Battle_Fullscreen_Test.tscn` and `scripts/battle_web_import_test.gd`.
 - Default play no longer shows the logical grid guide. The debug flag `SHOW_LOGICAL_GRID_14X8_GUIDE` remains available for future development use.

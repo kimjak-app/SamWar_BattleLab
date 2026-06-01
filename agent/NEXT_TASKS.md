@@ -1,15 +1,15 @@
 # NEXT TASKS
 
-## Next: v0.70-2 Battle Overlay Visual Tuning
-- `v0.70-1 Battle Visual Detail Polish Start` is complete.
-- v0.70 detail polish started from battle-engine visuals: default grid hidden, Camera2D zoomed out slightly, movement/attack overlays polished, and range display now appears with a unit-centered wave/stagger animation.
+## Next: v0.70-3 Battle Overlay Visual Fine Tuning
+- `v0.70-2 Battle Overlay Shape + Wave Tuning` is complete.
+- Battle overlay polish now has hidden default grid, Camera2D zoom `0.84`, octagonal tactical range tiles, clearer outlines, softer fill/inner highlight, and stronger unit-centered wave/stagger reveal.
 - No battle rules, formulas, AI, battle result, wounded/prisoner/death, or WorldMap UX logic was intentionally changed.
 - Recommended next visual polish task:
-  - `v0.70-2 Battle Overlay Visual Tuning`
+  - `v0.70-3 Battle Overlay Visual Fine Tuning`
 - Recommended WorldMap follow-up:
-  - `v0.70-3 WorldMap Final IA Blueprint + Panel Skeleton`
+  - `v0.70-4 WorldMap Final IA Blueprint + Panel Skeleton`
 
-## Deferred: v0.70-3 WorldMap Final UX/UI Information Architecture
+## Deferred: v0.70-4 WorldMap Final UX/UI Information Architecture
 - `v0.69-14A GDScript Reload Warning Cleanup Before v0.70` is complete; v0.70 can continue with reload-warning cleanup already applied.
 - `v0.69-14 EASTWAR Strategic Logic Final Checkpoint` closes the v0.69 strategic logic track.
 - WorldMap final UX/UI work is deferred until after the first battle visual polish pass.
