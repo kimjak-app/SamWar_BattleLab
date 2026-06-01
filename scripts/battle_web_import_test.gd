@@ -165,9 +165,9 @@ const SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID := "yi_sunsin"
 const SPECIALTY_SKILL_YI_SUNSIN_CUTIN_PORTRAIT_PATH := "res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png"
 const SPECIALTY_SKILL_CUTIN_VIDEO_PATHS := {
 	"yi_sunsin": [
+		"res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv",
 		"res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.webm",
 		"res://assets/ui/cutin/videos/Yi Sun Sin Cutin Bg.webm",
-		"res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv",
 		"res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4",
 	],
 	"kwon_yul": [
@@ -3646,9 +3646,15 @@ func _assign_specialty_skill_cutin_video_stream_for_hero(hero_id: String) -> boo
 	var candidate_paths: Array = SPECIALTY_SKILL_CUTIN_VIDEO_PATHS.get(hero_id, [])
 	for path_variant in candidate_paths:
 		var path := String(path_variant)
-		if _assign_specialty_skill_cutin_video_stream(path):
-			print("[SPECIALTY_CUTIN] selected_video=%s hero=%s" % [path, hero_id])
-			return true
+		if path == "" or not FileAccess.file_exists(path):
+			continue
+		print("[SPECIALTY_CUTIN] selected_video_candidate=%s hero=%s" % [path, hero_id])
+		if not _assign_specialty_skill_cutin_video_stream(path):
+			print("[SPECIALTY_CUTIN] selected_video_load_failed=%s hero=%s fallback=png_text" % [path, hero_id])
+			return false
+		print("[SPECIALTY_CUTIN] selected_video=%s hero=%s" % [path, hero_id])
+		return true
+	print("[SPECIALTY_CUTIN] selected_video=none hero=%s fallback=png_text" % hero_id)
 	return false
 
 
@@ -3656,8 +3662,7 @@ func _assign_specialty_skill_cutin_video_stream(path: String) -> bool:
 	if path == "":
 		return false
 	if not ResourceLoader.exists(path):
-		if FileAccess.file_exists(path):
-			print("[SPECIALTY_CUTIN] video asset exists but is not a loadable Godot VideoStream: %s" % path)
+		print("[SPECIALTY_CUTIN] video asset exists but is not a loadable Godot VideoStream: %s" % path)
 		return false
 	var loaded_resource := load(path)
 	var video_stream := loaded_resource as VideoStream

@@ -1,5 +1,18 @@
 # SESSION LOG
 
+## 2026-06-02
+
+### v0.70-7 Cutin OGV Video Fallback
+- Started from latest local state after `v0.70-6 Cutin WebM Video Connection + Center Layout Fix`.
+- Focused only on Yi Sunsin cutin video selection and load fallback. Unique-skill 판정/effect/damage, AI, results, battle overlay, camera, pop wave, direction-selection, and WorldMap UX were not intentionally changed.
+- Confirmed tracked Yi Sunsin cutin assets include `assets/ui/cutin/portraits/yi_sun_sin_cutin.png`, `assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv`, and `assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4`. The requested snake_case WebM path is kept as a fallback candidate, but it was not present in tracked files during this pass.
+- Confirmed no tracked `.ogv.import` file exists; Godot has a `yi_sun_sin_cutin_bg.ogv.uid` sidecar for the OGV asset.
+- Updated Yi Sunsin cutin video selection to `ogv > webm > mp4`, with `yi_sun_sin_cutin_bg.ogv` selected before WebM/MP4 when present.
+- Added debug logs for selected video candidate, successful selected video, no candidate, and selected-candidate load failure.
+- Preserved the existing `VideoStreamPlayer_Cutin` start/hide stop-and-clear behavior and the PNG/text fallback path.
+- Preserved the centered v0.70-6 cutin banner/card layout.
+- F6 manual QA remains: OGV visibility, centered banner feel, PNG/text fallback, 3-second pacing, post-cutin effect continuation, no soft lock, and normal battle flow.
+
 ## 2026-06-01
 
 ### v0.70-6 Cutin WebM Video Connection + Center Layout Fix

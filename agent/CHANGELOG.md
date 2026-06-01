@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-7 Cutin OGV Video Fallback
+- Changed Yi Sunsin specialty cutin video selection to prioritize `ogv > webm > mp4`.
+- Moved `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv` to the first Yi Sunsin video candidate so it is selected before WebM/MP4 when present.
+- Added explicit selected-candidate, selected-video, no-video, and selected-candidate load-failure logs for the specialty cutin video path.
+- Kept `VideoStreamPlayer_Cutin` reuse and the existing start/hide stop/clear behavior so repeat activation restarts cleanly.
+- Preserved PNG/text fallback when the selected OGV cannot load as a Godot `VideoStream`.
+- Preserved the centered cutin banner/card layout from v0.70-6.
+- Did not change unique-skill effect/damage formulas, movement/attack 판정, AI, results, wounded/prisoner/death logic, battle overlay, camera, pop wave, direction-selection, or WorldMap UX/UI logic.
+
 ## v0.70-6 Cutin WebM Video Connection + Center Layout Fix
 - Changed Yi Sunsin specialty cutin video selection to prioritize WebM before OGV and MP4 fallback.
 - Included the actual tracked repo WebM filename `Yi Sun Sin Cutin Bg.webm` in the candidate list while preserving the expected snake_case candidate path for future normalized assets.

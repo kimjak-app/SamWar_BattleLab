@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-7 Cutin OGV Video Fallback Handoff
+- `v0.70-7 Cutin OGV Video Fallback` is complete for ally `yi_sunsin` only.
+- `scripts/battle_web_import_test.gd` now selects Yi Sunsin cutin video candidates in priority order: `yi_sun_sin_cutin_bg.ogv`, `yi_sun_sin_cutin_bg.webm`, legacy spaced WebM compatibility candidate, then `yi_sun_sin_cutin_bg.mp4`.
+- The selected existing candidate is logged with `[SPECIALTY_CUTIN] selected_video_candidate=...`; successful load logs `selected_video=...`; selected-candidate load failure logs `selected_video_load_failed=... fallback=png_text`.
+- OGV existence now wins over WebM/MP4. If the OGV exists but cannot load as a Godot `VideoStream`, the video layer remains safe and the existing PNG/text cutin continues.
+- The existing `VideoStreamPlayer_Cutin` node is reused and still stopped/cleared on start and hide, so repeat activation should restart from the beginning.
+- The centered cutin banner/card layout from v0.70-6 remains unchanged.
+- No unique-skill 판정, effect, damage, buff/debuff, AI, results, woundedQueue, prisoner/death, battle overlay, camera, pop wave, direction-selection, or WorldMap UX logic was intentionally changed.
+- 김작 F6 QA should confirm OGV visibility, centered banner/card composition, portrait/text fallback, 3-second pacing, post-cutin effect continuation, no soft lock, and normal battle flow.
+- Next candidates:
+  - `v0.70-8 Specialty Skill Cutin Visual Polish`
+  - `v0.70-9 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-10 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-6 Cutin WebM Video Connection + Center Layout Fix Handoff
 - `v0.70-6 Cutin WebM Video Connection + Center Layout Fix` is complete for ally `yi_sunsin` only.
 - `scripts/battle_web_import_test.gd` now selects Yi Sunsin cutin video candidates in priority order: `yi_sun_sin_cutin_bg.webm`, actual repo file `Yi Sun Sin Cutin Bg.webm`, `yi_sun_sin_cutin_bg.ogv`, then `yi_sun_sin_cutin_bg.mp4`.

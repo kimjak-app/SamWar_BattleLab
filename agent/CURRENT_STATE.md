@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-7 Cutin OGV Video Fallback
+- Completed the Yi Sunsin cutin OGV video fallback pass.
+- Yi Sunsin specialty cutin video selection now prioritizes `ogv > webm > mp4`, with `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv` first.
+- The existing `VideoStreamPlayer_Cutin` node is still reused. Cutin start stops/clears the previous stream, selects the first existing candidate, attempts to load it, and starts playback from the beginning when load succeeds. Cutin hide still stops and clears the stream.
+- If the selected OGV exists but cannot load as a Godot `VideoStream`, the cutin logs the load failure and keeps the PNG + hero name + skill name presentation instead of breaking the flow.
+- The centered cutin banner/card layout from v0.70-6 was not changed.
+- Unique-skill effect logic, damage, 판정, AI, result, wounded/prisoner/death, battle overlay, camera, pop wave, direction-selection, and WorldMap UX logic were not intentionally changed.
+- Remaining risk: Codex headless can confirm project/scene load and selected-candidate logging structure, but real OGV frame visibility still requires Kimjak F6 visual QA.
+- 김작 F6 manual QA should confirm OGV video visibility, centered banner layout, PNG/text fallback, 3-second pacing, post-cutin effect continuation, no soft lock, and normal auto/turn flow.
+- Next candidates:
+  - `v0.70-8 Specialty Skill Cutin Visual Polish`
+  - `v0.70-9 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-10 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-6 Cutin WebM Video Connection + Center Layout Fix
 - Completed the Yi Sunsin cutin WebM connection and center-layout fix pass.
 - Yi Sunsin specialty cutin now uses a video candidate priority list: snake_case WebM, actual repo WebM (`Yi Sun Sin Cutin Bg.webm`), OGV, then MP4 fallback.
