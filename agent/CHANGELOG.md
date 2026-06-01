@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-9 VideoStreamPlayer Cutin Debug Pass
+- Added focused diagnostic logging for the Yi Sunsin specialty cutin VideoStreamPlayer pipeline.
+- Logged video candidate `FileAccess`/`ResourceLoader`/`load()`/class/cast results and assigned stream state so VP8 WebM loading can be separated from player rendering issues.
+- Logged `VideoStreamPlayer_Cutin` visibility, modulation, size, position, global position, z-index, parent state, draw-order indexes, and `is_playing()` at start, after `play()`, and after about `0.3s`.
+- Added `CUTIN_VIDEO_DEBUG_FORCE_TOP := false` for local visual isolation without affecting normal play by default.
+- Added `_debug_play_cutin_video_only()` as a manual QA helper for 3-second VideoStreamPlayer-only playback.
+- Made cutin runtime z-index order explicit while preserving the existing scene child order: darken, video, slash, hero, text.
+- Preserved the VP8 WebM-first candidate priority, central cutin banner/card layout, PNG/text fallback, busy guard, and post-cutin unique-skill effect continuation.
+- Did not change unique-skill effect/damage formulas, movement/attack 판정, AI, results, wounded/prisoner/death logic, battle overlay, camera, pop wave, direction-selection, or WorldMap UX/UI logic.
+
 ## v0.70-8 Cutin VP8 WebM Video Connection
 - Changed Yi Sunsin specialty cutin video selection to prioritize `vp8 webm > ogv > webm > mp4`.
 - Moved `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm` to the first Yi Sunsin video candidate so the VP8 WebM 8M version is the final priority format.

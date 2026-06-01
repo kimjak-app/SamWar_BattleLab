@@ -163,6 +163,7 @@ const UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION := 0.75
 const UNIQUE_SKILL_TOAST_DURATION := UNIQUE_SKILL_EFFECT_APPLY_DELAY + UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION
 const SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID := "yi_sunsin"
 const SPECIALTY_SKILL_YI_SUNSIN_CUTIN_PORTRAIT_PATH := "res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png"
+const CUTIN_VIDEO_DEBUG_FORCE_TOP := false
 const SPECIALTY_SKILL_CUTIN_VIDEO_PATHS := {
 	"yi_sunsin": [
 		"res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm",
@@ -3592,8 +3593,12 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 		specialty_skill_cutin_darken.color = Color(0.0196078, 0.027451, 0.0392157, 0.0)
 	if specialty_skill_cutin_video != null:
 		specialty_skill_cutin_video.visible = true
+		_prepare_specialty_skill_cutin_video_node(cutin_rect)
+		_log_specialty_skill_cutin_video_player_state("start_before_assign")
 		if _assign_specialty_skill_cutin_video_stream_for_hero(SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID):
 			specialty_skill_cutin_video.play()
+		_log_specialty_skill_cutin_video_player_state("after_play_call")
+		_log_specialty_skill_cutin_video_player_state_later("after_0_3s", 0.3)
 	if specialty_skill_cutin_slash != null:
 		specialty_skill_cutin_slash.position = slash_base_position + Vector2(-cutin_rect.size.x * 0.12, 0.0)
 		specialty_skill_cutin_slash.color = Color(1.0, 0.84, 0.36, 0.0)
@@ -3644,6 +3649,7 @@ func _assign_specialty_skill_cutin_video_stream_for_hero(hero_id: String) -> boo
 	specialty_skill_cutin_video.stop()
 	specialty_skill_cutin_video.stream = null
 	var candidate_paths: Array = SPECIALTY_SKILL_CUTIN_VIDEO_PATHS.get(hero_id, [])
+	_log_specialty_skill_cutin_video_candidates(hero_id, candidate_paths)
 	for path_variant in candidate_paths:
 		var path := String(path_variant)
 		if path == "" or not FileAccess.file_exists(path):
@@ -3661,16 +3667,171 @@ func _assign_specialty_skill_cutin_video_stream_for_hero(hero_id: String) -> boo
 func _assign_specialty_skill_cutin_video_stream(path: String) -> bool:
 	if path == "":
 		return false
-	if not ResourceLoader.exists(path):
+	var loader_exists := ResourceLoader.exists(path)
+	print("[SPECIALTY_CUTIN_VIDEO_LOAD] path=%s resource_loader_exists=%s" % [path, str(loader_exists)])
+	if not loader_exists:
 		print("[SPECIALTY_CUTIN] video asset exists but is not a loadable Godot VideoStream: %s" % path)
 		return false
 	var loaded_resource := load(path)
+	print("[SPECIALTY_CUTIN_VIDEO_LOAD] path=%s load_null=%s class=%s" % [
+		path,
+		str(loaded_resource == null),
+		_get_debug_object_class_name(loaded_resource),
+	])
 	var video_stream := loaded_resource as VideoStream
 	if video_stream == null:
 		print("[SPECIALTY_CUTIN] video resource is not a VideoStream: %s" % path)
 		return false
 	specialty_skill_cutin_video.stream = video_stream
+	print("[SPECIALTY_CUTIN_VIDEO_LOAD] path=%s stream_set=%s stream_class=%s" % [
+		path,
+		str(specialty_skill_cutin_video.stream != null),
+		_get_debug_object_class_name(specialty_skill_cutin_video.stream),
+	])
 	return true
+
+
+func _log_specialty_skill_cutin_video_candidates(hero_id: String, candidate_paths: Array) -> void:
+	for path_variant in candidate_paths:
+		var path := String(path_variant)
+		var file_exists := path != "" and FileAccess.file_exists(path)
+		var loader_exists := path != "" and ResourceLoader.exists(path)
+		var loaded_resource: Resource = null
+		if loader_exists:
+			loaded_resource = load(path)
+		print("[SPECIALTY_CUTIN_VIDEO_CANDIDATE] hero=%s path=%s file_exists=%s resource_loader_exists=%s load_null=%s class=%s is_video_stream=%s" % [
+			hero_id,
+			path,
+			str(file_exists),
+			str(loader_exists),
+			str(loaded_resource == null),
+			_get_debug_object_class_name(loaded_resource),
+			str(loaded_resource is VideoStream),
+		])
+
+
+func _get_debug_object_class_name(value: Object) -> String:
+	if value == null:
+		return "null"
+	return value.get_class()
+
+
+func _prepare_specialty_skill_cutin_video_node(cutin_rect: Rect2) -> void:
+	if specialty_skill_cutin_video == null:
+		return
+	specialty_skill_cutin_video.visible = true
+	specialty_skill_cutin_video.modulate = Color.WHITE
+	specialty_skill_cutin_video.self_modulate = Color.WHITE
+	specialty_skill_cutin_video.position = cutin_rect.position
+	specialty_skill_cutin_video.size = cutin_rect.size
+	if specialty_skill_cutin_video.size.x <= 1.0 or specialty_skill_cutin_video.size.y <= 1.0:
+		specialty_skill_cutin_video.size = Vector2(maxf(cutin_rect.size.x, 320.0), maxf(cutin_rect.size.y, 180.0))
+	specialty_skill_cutin_video.z_index = 1
+	if specialty_skill_cutin_darken != null:
+		specialty_skill_cutin_darken.z_index = 0
+	if specialty_skill_cutin_slash != null:
+		specialty_skill_cutin_slash.z_index = 2
+	if specialty_skill_cutin_hero != null:
+		specialty_skill_cutin_hero.z_index = 3
+	if specialty_skill_cutin_text != null:
+		specialty_skill_cutin_text.z_index = 4
+	if CUTIN_VIDEO_DEBUG_FORCE_TOP:
+		specialty_skill_cutin_video.position = cutin_rect.position - Vector2(24.0, 24.0)
+		specialty_skill_cutin_video.size = cutin_rect.size + Vector2(48.0, 48.0)
+		specialty_skill_cutin_video.z_index = 100
+
+
+func _log_specialty_skill_cutin_video_player_state(stage: String) -> void:
+	if specialty_skill_cutin_video == null:
+		print("[SPECIALTY_CUTIN_VIDEO_STATE] stage=%s video_node=null" % stage)
+		return
+	var parent_control := specialty_skill_cutin_video.get_parent() as Control
+	print("[SPECIALTY_CUTIN_VIDEO_STATE] stage=%s stream_set=%s stream_class=%s is_playing=%s visible=%s modulate=%s self_modulate=%s position=%s global_position=%s size=%s z_index=%d parent=%s parent_visible=%s parent_modulate=%s index=%d debug_force_top=%s" % [
+		stage,
+		str(specialty_skill_cutin_video.stream != null),
+		_get_debug_object_class_name(specialty_skill_cutin_video.stream),
+		str(specialty_skill_cutin_video.is_playing()),
+		str(specialty_skill_cutin_video.visible),
+		str(specialty_skill_cutin_video.modulate),
+		str(specialty_skill_cutin_video.self_modulate),
+		str(specialty_skill_cutin_video.position),
+		str(specialty_skill_cutin_video.global_position),
+		str(specialty_skill_cutin_video.size),
+		specialty_skill_cutin_video.z_index,
+		str(parent_control.name) if parent_control != null else "null",
+		str(parent_control.visible) if parent_control != null else "null",
+		str(parent_control.modulate) if parent_control != null else "null",
+		specialty_skill_cutin_video.get_index(),
+		str(CUTIN_VIDEO_DEBUG_FORCE_TOP),
+	])
+	_log_specialty_skill_cutin_draw_order(stage)
+
+
+func _log_specialty_skill_cutin_draw_order(stage: String) -> void:
+	print("[SPECIALTY_CUTIN_DRAW_ORDER] stage=%s darken_index=%s darken_z=%s video_index=%s video_z=%s slash_index=%s slash_z=%s hero_index=%s hero_z=%s text_index=%s text_z=%s" % [
+		stage,
+		_get_debug_node_index(specialty_skill_cutin_darken),
+		_get_debug_node_z_index(specialty_skill_cutin_darken),
+		_get_debug_node_index(specialty_skill_cutin_video),
+		_get_debug_node_z_index(specialty_skill_cutin_video),
+		_get_debug_node_index(specialty_skill_cutin_slash),
+		_get_debug_node_z_index(specialty_skill_cutin_slash),
+		_get_debug_node_index(specialty_skill_cutin_hero),
+		_get_debug_node_z_index(specialty_skill_cutin_hero),
+		_get_debug_node_index(specialty_skill_cutin_text),
+		_get_debug_node_z_index(specialty_skill_cutin_text),
+	])
+
+
+func _get_debug_node_index(node: Node) -> String:
+	if node == null:
+		return "null"
+	return str(node.get_index())
+
+
+func _get_debug_node_z_index(node: CanvasItem) -> String:
+	if node == null:
+		return "null"
+	return str(node.z_index)
+
+
+func _log_specialty_skill_cutin_video_player_state_later(stage: String, delay: float) -> void:
+	_log_specialty_skill_cutin_video_player_state_later_async(stage, delay)
+
+
+func _log_specialty_skill_cutin_video_player_state_later_async(stage: String, delay: float) -> void:
+	await get_tree().create_timer(maxf(0.0, delay)).timeout
+	_log_specialty_skill_cutin_video_player_state(stage)
+
+
+func _debug_play_cutin_video_only() -> void:
+	if specialty_skill_cutin_layer == null or specialty_skill_cutin_video == null:
+		print("[SPECIALTY_CUTIN_VIDEO_ONLY] unavailable layer_or_video_missing")
+		return
+	var viewport_size := get_viewport_rect().size
+	var cutin_rect := _layout_specialty_skill_cutin(viewport_size)
+	if specialty_skill_cutin_tween != null:
+		specialty_skill_cutin_tween.kill()
+		specialty_skill_cutin_tween = null
+	specialty_skill_cutin_layer.visible = true
+	specialty_skill_cutin_layer.modulate = Color.WHITE
+	specialty_skill_cutin_layer.position = Vector2.ZERO
+	specialty_skill_cutin_layer.scale = Vector2.ONE
+	if specialty_skill_cutin_darken != null:
+		specialty_skill_cutin_darken.color = Color(0.0196078, 0.027451, 0.0392157, 0.35)
+	if specialty_skill_cutin_slash != null:
+		specialty_skill_cutin_slash.color = Color(1.0, 0.84, 0.36, 0.0)
+	if specialty_skill_cutin_hero != null:
+		specialty_skill_cutin_hero.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	if specialty_skill_cutin_text != null:
+		specialty_skill_cutin_text.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	_prepare_specialty_skill_cutin_video_node(cutin_rect)
+	var assigned := _assign_specialty_skill_cutin_video_stream_for_hero(SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID)
+	if assigned:
+		specialty_skill_cutin_video.play()
+	_log_specialty_skill_cutin_video_player_state("video_only_after_play")
+	await get_tree().create_timer(SPECIALTY_SKILL_CUTIN_TOTAL_DURATION).timeout
+	_hide_specialty_skill_cutin()
 
 
 func _focus_camera_for_unique_skill(caster_state: BattleUnitState, skill_data: Dictionary) -> void:

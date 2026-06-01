@@ -1,5 +1,24 @@
 # CURRENT STATE
 
+## v0.70-9 VideoStreamPlayer Cutin Debug Pass
+- Completed the first SamWar practical VideoStreamPlayer pipeline diagnostic pass for the Yi Sunsin specialty cutin.
+- Added focused cutin video diagnostics in `scripts/battle_web_import_test.gd`: candidate path, `ResourceLoader.exists`, `load()` null/class result, `VideoStream` cast result, assigned stream class, `VideoStreamPlayer_Cutin.is_playing()`, visible/modulate/self_modulate, size, position/global_position, z-index, parent state, and draw-order indexes.
+- The diagnostic logs run at cutin start before assignment, immediately after `play()`, and again after about `0.3s`; they do not log every frame.
+- Added `CUTIN_VIDEO_DEBUG_FORCE_TOP := false`. When locally changed to `true`, it enlarges/raises `VideoStreamPlayer_Cutin` above the cutin layer for visual isolation; the committed default remains `false`.
+- Added `_debug_play_cutin_video_only()` as a manual QA helper that can play only the selected cutin video for 3 seconds without automatically running in normal play.
+- Preserved the current priority `vp8 webm > ogv > webm > mp4`; current local asset check still finds `yi_sun_sin_cutin_bg_vp8.webm` and `yi_sun_sin_cutin_bg.mp4`, while the requested OGV and snake_case non-VP8 WebM fallbacks are absent.
+- The scene-authored child order already matched the desired stack: `ColorRect_Darken`, `VideoStreamPlayer_Cutin`, `TextureRect_Slash`, `TextureRect_Hero`, `Control_Text`. Runtime z-index is now made explicit in the same order.
+- The central cutin banner/card layout, Yi Sunsin PNG/text fallback, busy guard, and 3-second cutin flow were preserved.
+- Unique-skill effect logic, damage, 판정, AI, result, wounded/prisoner/death, battle overlay, camera, pop wave, direction-selection, and WorldMap UX logic were not intentionally changed.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load. No GDScript warning/error output was observed in those headless checks.
+- No tracked `.webm.uid`, `.webm.import`, or other video sidecar was generated for `yi_sun_sin_cutin_bg_vp8.webm` during Codex verification.
+- Remaining risk: Codex headless scene load does not auto-trigger the Yi Sunsin cutin, so actual frame visibility and the new `[SPECIALTY_CUTIN_VIDEO_*]` runtime logs still require Kimjak F6/manual helper verification.
+- 김작 F6 manual QA should confirm `_vp8.webm` is selected, stream class is non-null, player size is non-zero, `is_playing()` becomes true, the video is visible, debug force-top isolates rendering if needed, PNG/text fallback remains intact, and the skill effect continues after cutin exit.
+- Next candidates:
+  - `v0.70-10 Specialty Skill Cutin Visual Polish`
+  - `v0.70-11 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-12 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-8 Cutin VP8 WebM Video Connection
 - Completed the Yi Sunsin cutin VP8 WebM connection pass.
 - Yi Sunsin specialty cutin video selection now prioritizes `vp8 webm > ogv > webm > mp4`, with `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm` first.

@@ -2,6 +2,20 @@
 
 ## 2026-06-02
 
+### v0.70-9 VideoStreamPlayer Cutin Debug Pass
+- Started from local `v0.70-8 Cutin VP8 WebM Video Connection`.
+- Treated this as the first practical SamWar VideoStreamPlayer pipeline diagnostic task, not as visual polish.
+- Added candidate diagnostics for the Yi Sunsin cutin video path: candidate path, file existence, `ResourceLoader.exists`, `load()` null/class result, and `VideoStream` cast result.
+- Added player diagnostics for `VideoStreamPlayer_Cutin`: stream set/class, `is_playing()`, visible/modulate/self_modulate, size, position/global_position, z-index, parent visible/modulate, and draw-order indexes.
+- Kept logs to start-before-assign, after-play-call, and after about `0.3s` to avoid frame-spam.
+- Added `CUTIN_VIDEO_DEBUG_FORCE_TOP := false`; final committed default is false.
+- Added `_debug_play_cutin_video_only()` for manual QA-only 3-second VideoStreamPlayer playback without changing normal play flow.
+- Confirmed the scene child order already matches darken -> video -> slash -> hero -> text, and made runtime z-index match that order.
+- Confirmed local tracked asset state: `yi_sun_sin_cutin_bg_vp8.webm` and MP4 are present; requested OGV and snake_case non-VP8 WebM fallback files are absent; no tracked video sidecar was generated.
+- Preserved central cutin layout, PNG/text fallback, busy guard, 3-second flow, and post-cutin unique-skill effect continuation.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load with no GDScript warning/error output observed.
+- Codex headless load does not auto-trigger the Yi Sunsin cutin, so F6/manual QA remains required for actual video frame visibility and new console log interpretation.
+
 ### v0.70-8 Cutin VP8 WebM Video Connection
 - Started from latest local state after `v0.70-7 Cutin OGV Video Fallback`.
 - Focused only on Yi Sunsin cutin video selection and load fallback. Unique-skill 판정/effect/damage, AI, results, battle overlay, camera, pop wave, direction-selection, and WorldMap UX were not intentionally changed.
