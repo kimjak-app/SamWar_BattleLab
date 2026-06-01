@@ -1,5 +1,25 @@
 # CURRENT STATE
 
+## v0.70-10 VideoStreamTheora Direct Load Test
+- Completed the Yi Sunsin specialty cutin VideoStreamTheora direct-load diagnostic pass.
+- Yi Sunsin specialty cutin video selection now prioritizes `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv` first, then VP8 WebM, legacy OGV, snake_case WebM, and MP4.
+- Confirmed local asset state: `yi_sun_sin_cutin.png`, `yi_sun_sin_cutin_bg_theora_540p.ogv`, `yi_sun_sin_cutin_bg_vp8.webm`, and `yi_sun_sin_cutin_bg.mp4` exist; `yi_sun_sin_cutin_bg.ogv` and `yi_sun_sin_cutin_bg.webm` are absent.
+- Candidate diagnostics now log path, `FileAccess.file_exists`, `ResourceLoader.exists`, load-null result, loaded class, `is VideoStream`, and a failure-guess field for each candidate.
+- Theora 540p OGV now gets a direct fallback attempt when `ResourceLoader.load()` does not produce a `VideoStream`: `VideoStreamTheora.new()` is created, its `file` property is checked and set dynamically, and the result is logged before assigning to `VideoStreamPlayer_Cutin`.
+- `VideoStreamPlayer_Cutin` reuse, start stop/clear, stream assignment logging, `is_playing`, size, z-index, parent/draw-order diagnostics, delayed `0.3s` state log, and hide stop/clear behavior are preserved.
+- `CUTIN_VIDEO_DEBUG_FORCE_TOP := false` remains committed as false for optional local visual isolation.
+- The centered cutin banner/card layout, Yi Sunsin PNG/text fallback, busy guard, 3-second cutin timing, and post-cutin unique-skill effect continuation were preserved.
+- Unique-skill effect logic, damage, 판정, AI, result, wounded/prisoner/death, battle overlay, camera, pop wave, direction-selection, and WorldMap UX logic were not intentionally changed.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load. No GDScript warning/error output was observed in those headless checks.
+- Headless scene load does not auto-trigger the Yi Sunsin cutin, so actual ResourceLoader results, direct Theora result, `is_playing`, and frame visibility still require Kimjak F6/manual helper verification.
+- No tracked `.ogv.uid`, `.ogv.import`, or other video sidecar for `yi_sun_sin_cutin_bg_theora_540p.ogv` was observed after Codex verification.
+- 김작 F6 manual QA should confirm the selected candidate is `_theora_540p.ogv`, candidate logs include `failure_guess`, direct Theora logs appear if ResourceLoader fails, stream class is non-null when assignment succeeds, `is_playing()` becomes true, video is visible, debug force-top isolates rendering if needed, PNG/text fallback remains intact, the cutin exits after 3 seconds, and the skill effect continues after cutin exit.
+- Next candidates:
+  - `v0.70-11 VideoStreamPlayer Final Fix or Alternative Pipeline Decision`
+  - `v0.70-12 Specialty Skill Cutin Visual Polish`
+  - `v0.70-13 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-14 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-9 VideoStreamPlayer Cutin Debug Pass
 - Completed the first SamWar practical VideoStreamPlayer pipeline diagnostic pass for the Yi Sunsin specialty cutin.
 - Added focused cutin video diagnostics in `scripts/battle_web_import_test.gd`: candidate path, `ResourceLoader.exists`, `load()` null/class result, `VideoStream` cast result, assigned stream class, `VideoStreamPlayer_Cutin.is_playing()`, visible/modulate/self_modulate, size, position/global_position, z-index, parent state, and draw-order indexes.

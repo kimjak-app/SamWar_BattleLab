@@ -2,6 +2,19 @@
 
 ## 2026-06-02
 
+### v0.70-10 VideoStreamTheora Direct Load Test
+- Started from local `v0.70-9 VideoStreamPlayer Cutin Debug Pass` plus asset commit `9fe21d2 Add Yi Sun-sin Theora 540p cutin video`.
+- Focused only on the Yi Sunsin specialty cutin video loading pipeline. Unique-skill 판정/effect/damage, AI, result, wounded/prisoner/death, battle overlay, camera, pop wave, direction-selection, and WorldMap UX were not intentionally changed.
+- Confirmed assets: PNG, Theora 540p OGV, VP8 WebM, and MP4 exist; legacy `yi_sun_sin_cutin_bg.ogv` and `yi_sun_sin_cutin_bg.webm` are absent.
+- Updated Yi Sunsin candidate priority to Theora 540p OGV first, then VP8 WebM, legacy OGV, snake_case WebM, and MP4.
+- Kept ResourceLoader diagnostics and added failure-guess output for each candidate/load attempt.
+- Added the Theora direct fallback path using `VideoStreamTheora.new()` with dynamic `file` property verification and logging.
+- Preserved `VideoStreamPlayer_Cutin` reuse, stop/clear before assignment, play after stream assignment, delayed state logging, and stop/clear on hide.
+- Preserved `CUTIN_VIDEO_DEBUG_FORCE_TOP := false`, centered cutin layout, PNG/text fallback, busy guard, 3-second flow, and post-cutin unique-skill effect continuation.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load with no GDScript warning/error output observed.
+- No tracked `.ogv.uid`, `.ogv.import`, or other video sidecar for `yi_sun_sin_cutin_bg_theora_540p.ogv` was observed after Codex verification.
+- Codex headless load does not auto-trigger the Yi Sunsin cutin, so F6/manual QA remains required for selected `_theora_540p.ogv`, ResourceLoader logs, direct Theora logs, stream class, `is_playing`, visible video, debug force-top behavior, fallback integrity, and post-cutin effect continuation.
+
 ### v0.70-9 VideoStreamPlayer Cutin Debug Pass
 - Started from local `v0.70-8 Cutin VP8 WebM Video Connection`.
 - Treated this as the first practical SamWar VideoStreamPlayer pipeline diagnostic task, not as visual polish.

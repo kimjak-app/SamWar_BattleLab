@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-10 VideoStreamTheora Direct Load Test
+- Changed Yi Sunsin specialty cutin video selection to prioritize the new Godot-stability-first Theora 540p OGV before VP8 WebM, legacy OGV, snake_case WebM, and MP4.
+- Added `SPECIALTY_SKILL_YI_SUNSIN_THEORA_540P_PATH` for the selected Theora asset path.
+- Strengthened candidate/load diagnostics with `FileAccess.file_exists`, `ResourceLoader.exists`, load-null result, loaded class, `is VideoStream`, and failure-guess output.
+- Added a Theora-only direct fallback path: when ResourceLoader does not produce a `VideoStream`, the code creates `VideoStreamTheora`, verifies and sets its `file` property, logs the result, and assigns it to the existing `VideoStreamPlayer_Cutin` when valid.
+- Kept `VideoStreamPlayer_Cutin` reuse, stop/clear before assignment, play-from-start behavior, delayed state logs, and hide stop/clear behavior.
+- Preserved `CUTIN_VIDEO_DEBUG_FORCE_TOP := false`, the centered cutin layout, PNG/text fallback, busy guard, 3-second pacing, and post-cutin unique-skill effect continuation.
+- Did not change unique-skill effect/damage formulas, movement/attack 판정, AI, results, wounded/prisoner/death logic, battle overlay, camera, pop wave, direction-selection, or WorldMap UX/UI logic.
+
 ## v0.70-9 VideoStreamPlayer Cutin Debug Pass
 - Added focused diagnostic logging for the Yi Sunsin specialty cutin VideoStreamPlayer pipeline.
 - Logged video candidate `FileAccess`/`ResourceLoader`/`load()`/class/cast results and assigned stream state so VP8 WebM loading can be separated from player rendering issues.

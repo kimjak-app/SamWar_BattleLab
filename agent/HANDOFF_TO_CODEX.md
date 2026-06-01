@@ -1,5 +1,30 @@
 # HANDOFF TO CODEX
 
+## v0.70-10 VideoStreamTheora Direct Load Test Handoff
+- `v0.70-10 VideoStreamTheora Direct Load Test` is complete for ally `yi_sunsin` only.
+- Yi Sunsin video candidate priority is now:
+  1. `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv`
+  2. `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm`
+  3. `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv`
+  4. `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.webm`
+  5. `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4`
+- Theora 540p OGV is selected first when present, and selected-candidate logs should show `_theora_540p.ogv`.
+- Candidate diagnostics log `FileAccess.file_exists`, `ResourceLoader.exists`, load-null result, loaded resource class, `is VideoStream`, and a concise failure guess.
+- If the Theora 540p OGV does not load as a `VideoStream` through `ResourceLoader.load()`, the code attempts `VideoStreamTheora.new()`, verifies the dynamic `file` property, sets it to the OGV path, logs the direct result, and assigns it to `VideoStreamPlayer_Cutin` when possible.
+- If both ResourceLoader and direct Theora creation fail, the cutin remains PNG/text fallback and does not block the existing unique-skill effect flow.
+- `VideoStreamPlayer_Cutin` is still the existing scene node. It is stopped and cleared before assignment, played from the beginning after successful stream assignment, and stopped/cleared on cutin hide.
+- `CUTIN_VIDEO_DEBUG_FORCE_TOP` remains committed as `false`; set it locally to `true` only for manual visual isolation.
+- The centered v0.70-6/v0.70-9 cutin layout, Yi Sunsin PNG/text fallback, busy guard, and 3-second pacing were preserved.
+- No unique-skill 판정/effect/damage, AI, results, woundedQueue, prisoner/death, battle overlay, camera, pop wave, direction-selection, or WorldMap UX logic was intentionally changed.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load with no GDScript warning/error output observed.
+- Current asset state: Theora 540p OGV, VP8 WebM, MP4, and PNG are present; legacy `yi_sun_sin_cutin_bg.ogv` and `yi_sun_sin_cutin_bg.webm` are absent. No tracked Theora `.uid` or `.import` sidecar was observed after headless verification.
+- Kimjak F6/manual QA should check console logs for selected `_theora_540p.ogv`, ResourceLoader results, direct Theora results if ResourceLoader fails, non-null stream class, `is_playing() == true`, actual video visibility, debug force-top behavior if needed, PNG/text fallback, 3-second exit, and post-cutin effect continuation.
+- Next candidates:
+  - `v0.70-11 VideoStreamPlayer Final Fix or Alternative Pipeline Decision`
+  - `v0.70-12 Specialty Skill Cutin Visual Polish`
+  - `v0.70-13 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-14 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-9 VideoStreamPlayer Cutin Debug Pass Handoff
 - `v0.70-9 VideoStreamPlayer Cutin Debug Pass` is complete for ally `yi_sunsin` only.
 - This is the first practical SamWar VideoStreamPlayer pipeline diagnostic pass for future intro, event cutscene, battle cutin, and result-video needs.

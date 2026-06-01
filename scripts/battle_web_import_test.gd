@@ -163,9 +163,11 @@ const UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION := 0.75
 const UNIQUE_SKILL_TOAST_DURATION := UNIQUE_SKILL_EFFECT_APPLY_DELAY + UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION
 const SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID := "yi_sunsin"
 const SPECIALTY_SKILL_YI_SUNSIN_CUTIN_PORTRAIT_PATH := "res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png"
+const SPECIALTY_SKILL_YI_SUNSIN_THEORA_540P_PATH := "res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv"
 const CUTIN_VIDEO_DEBUG_FORCE_TOP := false
 const SPECIALTY_SKILL_CUTIN_VIDEO_PATHS := {
 	"yi_sunsin": [
+		SPECIALTY_SKILL_YI_SUNSIN_THEORA_540P_PATH,
 		"res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm",
 		"res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv",
 		"res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.webm",
@@ -3667,20 +3669,32 @@ func _assign_specialty_skill_cutin_video_stream_for_hero(hero_id: String) -> boo
 func _assign_specialty_skill_cutin_video_stream(path: String) -> bool:
 	if path == "":
 		return false
+	var file_exists := FileAccess.file_exists(path)
 	var loader_exists := ResourceLoader.exists(path)
-	print("[SPECIALTY_CUTIN_VIDEO_LOAD] path=%s resource_loader_exists=%s" % [path, str(loader_exists)])
-	if not loader_exists:
-		print("[SPECIALTY_CUTIN] video asset exists but is not a loadable Godot VideoStream: %s" % path)
-		return false
-	var loaded_resource := load(path)
-	print("[SPECIALTY_CUTIN_VIDEO_LOAD] path=%s load_null=%s class=%s" % [
+	var loaded_resource: Resource = null
+	if loader_exists:
+		loaded_resource = ResourceLoader.load(path)
+	var video_stream := loaded_resource as VideoStream
+	print("[SPECIALTY_CUTIN_VIDEO_LOAD] path=%s file_exists=%s resource_loader_exists=%s load_null=%s class=%s is_video_stream=%s failure_guess=%s" % [
 		path,
+		str(file_exists),
+		str(loader_exists),
 		str(loaded_resource == null),
 		_get_debug_object_class_name(loaded_resource),
+		str(video_stream != null),
+		_get_specialty_skill_cutin_video_load_failure_guess(path, file_exists, loader_exists, loaded_resource, video_stream),
 	])
-	var video_stream := loaded_resource as VideoStream
 	if video_stream == null:
-		print("[SPECIALTY_CUTIN] video resource is not a VideoStream: %s" % path)
+		if path == SPECIALTY_SKILL_YI_SUNSIN_THEORA_540P_PATH:
+			video_stream = _create_specialty_skill_cutin_theora_stream_direct(path)
+		if video_stream == null:
+			print("[SPECIALTY_CUTIN] video resource is not a VideoStream: %s" % path)
+			return false
+		print("[SPECIALTY_CUTIN_VIDEO_LOAD] path=%s direct_theora_stream_class=%s" % [
+			path,
+			_get_debug_object_class_name(video_stream),
+		])
+	if video_stream == null:
 		return false
 	specialty_skill_cutin_video.stream = video_stream
 	print("[SPECIALTY_CUTIN_VIDEO_LOAD] path=%s stream_set=%s stream_class=%s" % [
@@ -3698,16 +3712,71 @@ func _log_specialty_skill_cutin_video_candidates(hero_id: String, candidate_path
 		var loader_exists := path != "" and ResourceLoader.exists(path)
 		var loaded_resource: Resource = null
 		if loader_exists:
-			loaded_resource = load(path)
-		print("[SPECIALTY_CUTIN_VIDEO_CANDIDATE] hero=%s path=%s file_exists=%s resource_loader_exists=%s load_null=%s class=%s is_video_stream=%s" % [
+			loaded_resource = ResourceLoader.load(path)
+		var video_stream := loaded_resource as VideoStream
+		print("[SPECIALTY_CUTIN_VIDEO_CANDIDATE] hero=%s path=%s file_exists=%s resource_loader_exists=%s load_null=%s class=%s is_video_stream=%s failure_guess=%s" % [
 			hero_id,
 			path,
 			str(file_exists),
 			str(loader_exists),
 			str(loaded_resource == null),
 			_get_debug_object_class_name(loaded_resource),
-			str(loaded_resource is VideoStream),
+			str(video_stream != null),
+			_get_specialty_skill_cutin_video_load_failure_guess(path, file_exists, loader_exists, loaded_resource, video_stream),
 		])
+
+
+func _get_specialty_skill_cutin_video_load_failure_guess(path: String, file_exists: bool, loader_exists: bool, loaded_resource: Resource, video_stream: VideoStream) -> String:
+	if path == "":
+		return "empty_path"
+	if not file_exists:
+		return "file_missing"
+	if not loader_exists:
+		return "resource_loader_does_not_recognize_path_or_import"
+	if loaded_resource == null:
+		return "resource_loader_load_returned_null"
+	if video_stream == null:
+		return "loaded_resource_is_not_videostream"
+	return "none"
+
+
+func _create_specialty_skill_cutin_theora_stream_direct(path: String) -> VideoStream:
+	print("[SPECIALTY_CUTIN_VIDEO_THEORA_DIRECT] path=%s start file_exists=%s" % [path, str(FileAccess.file_exists(path))])
+	if path == "" or not FileAccess.file_exists(path):
+		print("[SPECIALTY_CUTIN_VIDEO_THEORA_DIRECT] path=%s result=null reason=file_missing" % path)
+		return null
+	var direct_stream := VideoStreamTheora.new()
+	if direct_stream == null:
+		print("[SPECIALTY_CUTIN_VIDEO_THEORA_DIRECT] path=%s result=null reason=class_unavailable" % path)
+		return null
+	if not _debug_object_has_property(direct_stream, "file"):
+		print("[SPECIALTY_CUTIN_VIDEO_THEORA_DIRECT] path=%s result=null class=%s reason=file_property_unavailable" % [
+			path,
+			_get_debug_object_class_name(direct_stream),
+		])
+		return null
+	direct_stream.set("file", path)
+	var configured_file := str(direct_stream.get("file"))
+	print("[SPECIALTY_CUTIN_VIDEO_THEORA_DIRECT] path=%s class=%s file_property=%s is_video_stream=%s" % [
+		path,
+		_get_debug_object_class_name(direct_stream),
+		configured_file,
+		str(direct_stream is VideoStream),
+	])
+	if configured_file == "":
+		print("[SPECIALTY_CUTIN_VIDEO_THEORA_DIRECT] path=%s result=null reason=file_property_not_applied" % path)
+		return null
+	return direct_stream as VideoStream
+
+
+func _debug_object_has_property(value: Object, property_name: String) -> bool:
+	if value == null:
+		return false
+	for property_info in value.get_property_list():
+		var property_data := property_info as Dictionary
+		if String(property_data.get("name", "")) == property_name:
+			return true
+	return false
 
 
 func _get_debug_object_class_name(value: Object) -> String:

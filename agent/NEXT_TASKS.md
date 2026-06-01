@@ -1,5 +1,19 @@
 # NEXT TASKS
 
+## Next: v0.70-11 VideoStreamPlayer Final Fix or Alternative Pipeline Decision
+- `v0.70-10 VideoStreamTheora Direct Load Test` is complete.
+- Ally Yi Sunsin cutin now selects `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv` before VP8 WebM, legacy OGV, snake_case WebM, and MP4.
+- Candidate diagnostics now include `FileAccess`, `ResourceLoader`, load-null, class, `is VideoStream`, and failure-guess fields.
+- Theora 540p OGV has a ResourceLoader path plus a direct `VideoStreamTheora.new()` fallback path that sets the dynamic `file` property when available.
+- `CUTIN_VIDEO_DEBUG_FORCE_TOP` remains available for local visual isolation and is committed as `false`.
+- The centered cutin banner/card layout, PNG/text fallback, 3-second timing, busy guard, and post-cutin unique-skill effect flow are preserved.
+- Kimjak F6 QA remains decisive for actual video frame visibility and console log interpretation.
+- Recommended next tasks:
+  - `v0.70-11 VideoStreamPlayer Final Fix or Alternative Pipeline Decision`
+  - `v0.70-12 Specialty Skill Cutin Visual Polish`
+  - `v0.70-13 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-14 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## Next: v0.70-10 Specialty Skill Cutin Visual Polish
 - `v0.70-9 VideoStreamPlayer Cutin Debug Pass` is complete.
 - Ally Yi Sunsin cutin still prioritizes `vp8 webm > ogv > webm > mp4` and selects `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm` first when present.
