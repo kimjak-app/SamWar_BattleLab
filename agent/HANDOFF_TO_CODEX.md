@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-4 Battle Overlay Rollback Shape + Palette Retune Handoff
+- `v0.70-4 Battle Overlay Rollback Shape + Palette Retune` is complete in `scripts/battle_web_import_test.gd`, `scripts/battle_range_overlay_tile.gd`, and `scripts/battle_facing_arrow_tile_button.gd`.
+- Camera zoom remains unchanged at the v0.70-2/v0.70-3 value `Vector2(0.84, 0.84)`; this pass did not touch camera framing.
+- Default play still hides the logical grid guide; `SHOW_LOGICAL_GRID_14X8_GUIDE` remains `false`.
+- The successful v0.70-3 pop wave reveal is preserved, including distance-based delay, smaller starting scale, stronger overshoot, settle scale, tween cleanup, and quick cancel behavior.
+- The v0.70-3 center-fade/internal band rendering was removed from range overlays so cells read as one clean octagonal tile rather than stacked inner octagons.
+- Movement range was retuned to a clearer blue tactical color. Attack range, single-target, multi-target/unique-skill, and strategy overlays remain visually distinct.
+- Direction-selection arrow buttons keep the octagonal tile draw script and short pop reveal, but their color is restored to the gold/yellow direction-selection role instead of movement blue.
+- No battle rules, move/attack 판정, damage formulas, AI, results, woundedQueue, prisoner/death, or WorldMap UX logic was intentionally changed.
+- Headless project load and `Battle_Fullscreen_Test.tscn` load passed with clean warning/error output.
+- 김작 F6 QA should confirm pop wave retention, no stacked internal octagons, v0.70-2-like simple octagonal tile shape, better movement blue, role-color separation, restored direction-selection color, and click feel.
+- Next candidates:
+  - `v0.70-5 Battle Overlay Fine Color Tuning`
+  - `v0.70-6 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-3 Battle Overlay Palette + Pop Wave Polish Handoff
 - `v0.70-3 Battle Overlay Palette + Pop Wave Polish` is complete in `scripts/battle_web_import_test.gd`, `scripts/battle_range_overlay_tile.gd`, and `scripts/battle_facing_arrow_tile_button.gd`.
 - Camera zoom remains at the v0.70-2 value `Vector2(0.84, 0.84)`; this pass did not further adjust camera framing.

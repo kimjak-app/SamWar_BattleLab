@@ -6,7 +6,6 @@ var tile_outline_color := Color(0.46, 0.86, 1.0, 0.82)
 var tile_highlight_color := Color(0.78, 0.96, 1.0, 0.34)
 var corner_cut_ratio := 0.18
 var outline_width := 2.0
-var edge_band_width := 2.0
 
 
 func _ready() -> void:
@@ -31,27 +30,7 @@ func _draw() -> void:
 	closed_outer.append(outer_points[0])
 
 	draw_polygon(outer_points, PackedColorArray([tile_fill_color]))
-	_draw_center_fade_bands()
 	draw_polyline(closed_outer, tile_outline_color, outline_width, true)
-
-
-func _draw_center_fade_bands() -> void:
-	var band_specs := [
-		{"scale": 0.92, "alpha": 0.70, "width": edge_band_width + 0.8},
-		{"scale": 0.78, "alpha": 0.42, "width": edge_band_width},
-		{"scale": 0.64, "alpha": 0.25, "width": edge_band_width * 0.75},
-		{"scale": 0.50, "alpha": 0.12, "width": edge_band_width * 0.55},
-	]
-	for spec in band_specs:
-		var band_points := _make_octagon_points(size, float(spec["scale"]))
-		band_points.append(band_points[0])
-		var band_color := Color(
-			tile_highlight_color.r,
-			tile_highlight_color.g,
-			tile_highlight_color.b,
-			tile_highlight_color.a * float(spec["alpha"])
-		)
-		draw_polyline(band_points, band_color, float(spec["width"]), true)
 
 
 func _make_octagon_points(rect_size: Vector2, point_scale: float) -> PackedVector2Array:

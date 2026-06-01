@@ -2,6 +2,18 @@
 
 ## 2026-06-01
 
+### v0.70-4 Battle Overlay Rollback Shape + Palette Retune
+- Started from latest local HEAD after `v0.70-3 Battle Overlay Palette Pop Wave Polish`.
+- Focused only on battle overlay visual rollback/palette tuning; camera zoom remained at `0.84` and the default grid remained hidden.
+- Preserved the successful v0.70-3 pop wave/stagger timing, distance-based scale overshoot, settle behavior, and tween cleanup.
+- Removed the center-fade/internal band rendering that made overlay tiles look like stacked inner octagons.
+- Restored overlay tiles to a simpler single-fill octagonal structure closer to v0.70-2.
+- Retuned movement range to a clearer blue tactical tone and restored stronger role separation for attack, single-target, multi-target/unique-skill, and strategy overlays.
+- Restored direction-selection tiles to the original gold/yellow role color while keeping the octagonal shape and short pop reveal.
+- No battle rules, move/attack 판정, damage formula, AI, result, wounded/prisoner/death, or WorldMap UX logic was intentionally changed.
+- Verification passed: Godot headless project load and `Battle_Fullscreen_Test.tscn` headless load. GDScript warning/error output was clean.
+- F6 manual QA remains: pop wave retention, no multi-layer internal octagons, simple v0.70-2-like tile shape, movement blue taste, role-color separation, restored direction-selection color, and click feel.
+
 ### v0.70-3 Battle Overlay Palette + Pop Wave Polish
 - Started from latest local HEAD after `v0.70-2 Battle Overlay Shape + Wave Tuning`.
 - Focused only on battle overlay visual/UX polish; camera zoom remained at `0.84`.

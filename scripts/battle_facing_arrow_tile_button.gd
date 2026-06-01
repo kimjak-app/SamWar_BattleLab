@@ -25,7 +25,6 @@ func _draw() -> void:
 
 	var draw_fill := tile_fill_color
 	var draw_outline := tile_outline_color
-	var draw_highlight := tile_highlight_color
 	if button_pressed:
 		draw_fill.a *= 1.35
 		draw_outline.a = minf(draw_outline.a * 1.16, 1.0)
@@ -37,15 +36,6 @@ func _draw() -> void:
 	var closed_outer := outer_points.duplicate()
 	closed_outer.append(outer_points[0])
 	draw_polygon(outer_points, PackedColorArray([draw_fill]))
-	for scale_alpha in [[0.88, 0.60, 2.6], [0.70, 0.34, 1.8], [0.52, 0.16, 1.2]]:
-		var band_points := _make_octagon_points(size, float(scale_alpha[0]))
-		band_points.append(band_points[0])
-		draw_polyline(
-			band_points,
-			Color(draw_highlight.r, draw_highlight.g, draw_highlight.b, draw_highlight.a * float(scale_alpha[1])),
-			float(scale_alpha[2]),
-			true
-		)
 	draw_polyline(closed_outer, draw_outline, outline_width, true)
 
 

@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.70-4 Battle Overlay Rollback Shape + Palette Retune
+- Completed the fourth v0.70 battle overlay polish task.
+- Preserved the v0.70-3 pop wave/stagger reveal: range cells still appear from the active unit outward with distance-based delay and scale overshoot.
+- Removed the v0.70-3 multi-layer internal octagon/center-fade band rendering from range overlay tiles and restored a simpler single-fill octagonal tactical tile structure closer to v0.70-2.
+- Retuned movement range from the muddy steel-gray v0.70-3 tone to a clearer blue tactical palette while avoiding bright sky-blue/mint.
+- Attack range, single-target, multi-target/unique-skill, and strategy overlays remain color-distinct with restored stronger role colors.
+- Direction-selection arrow buttons keep the octagonal tile shape and pop reveal, but their role color is restored to the original gold/yellow direction-selection family instead of matching movement tiles.
+- Camera zoom remains unchanged at `0.84`; default logical grid remains hidden.
+- No battle rules, movement/attack 판정, damage formula, AI, result, wounded, prisoner, death, or WorldMap UX logic was intentionally changed.
+- Verification passed: Godot headless project load and `Battle_Fullscreen_Test.tscn` headless load. GDScript warning/error output was clean in headless load.
+- 김작 F6 manual QA remains required for pop wave retention, removal of stacked internal octagons, v0.70-2-like simple tile shape, movement blue taste, role-color separation, direction-selection color restoration, and click feel.
+- Next candidates:
+  - `v0.70-5 Battle Overlay Fine Color Tuning`
+  - `v0.70-6 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-3 Battle Overlay Palette + Pop Wave Polish
 - Completed the third v0.70 battle overlay polish task.
 - Movement, attack, single-target, and multi-target overlay colors remain distinct, but the palette is now more muted and tactical: movement uses steel blue-gray, attack uses coral/rose red, single-target uses toned amber, multi-target uses muted violet, and strategy remains subdued teal.

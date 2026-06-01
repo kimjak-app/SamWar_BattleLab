@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-4 Battle Overlay Rollback Shape + Palette Retune
+- Preserved the successful v0.70-3 pop wave reveal and range overlay tween cleanup.
+- Removed the v0.70-3 center-fade/internal band rendering that made overlay cells look like multiple stacked octagons.
+- Restored range tiles to a simpler single-fill octagonal tactical shape closer to v0.70-2.
+- Retuned movement range to a clearer blue tactical color instead of the muddy v0.70-3 steel-gray tone.
+- Kept attack range, single-target, multi-target/unique-skill, and strategy overlays color-distinct with stronger restored role colors.
+- Restored direction-selection arrow tile color to the original gold/yellow role family while keeping the octagonal button shape and pop reveal.
+- Did not change camera zoom, default grid hiding, battle rules, movement/attack 판정, damage formulas, AI, results, wounded/prisoner/death logic, or WorldMap UX/UI logic.
+
 ## v0.70-3 Battle Overlay Palette + Pop Wave Polish
 - Retuned the range overlay palette while keeping movement, attack, single-target, multi-target, and strategy displays visually distinct.
 - Changed movement range away from bright sky blue toward a muted steel blue-gray tactical tone.
