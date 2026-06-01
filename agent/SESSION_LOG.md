@@ -2,6 +2,19 @@
 
 ## 2026-06-02
 
+### v0.70-8 Cutin VP8 WebM Video Connection
+- Started from latest local state after `v0.70-7 Cutin OGV Video Fallback`.
+- Focused only on Yi Sunsin cutin video selection and load fallback. Unique-skill 판정/effect/damage, AI, results, battle overlay, camera, pop wave, direction-selection, and WorldMap UX were not intentionally changed.
+- Confirmed required Yi Sunsin cutin assets exist: `assets/ui/cutin/portraits/yi_sun_sin_cutin.png` and `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm`.
+- Confirmed tracked fallback state in this local repo: `assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4` exists, while `assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv` and `assets/ui/cutin/videos/yi_sun_sin_cutin_bg.webm` are not present.
+- Updated Yi Sunsin cutin video selection to `vp8 webm > ogv > webm > mp4`, with `yi_sun_sin_cutin_bg_vp8.webm` selected first when present.
+- Kept OGV as unstable fallback only and did not delete or convert video assets.
+- Preserved the existing `VideoStreamPlayer_Cutin` start/hide stop-and-clear behavior and the PNG/text fallback path.
+- Preserved the centered v0.70-6/v0.70-7 cutin banner/card layout.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load with no GDScript warning/error output observed.
+- No tracked `.webm.uid`, `.webm.import`, or other video sidecar was generated for `yi_sun_sin_cutin_bg_vp8.webm` during Codex verification.
+- F6 manual QA remains: VP8 WebM visibility, image quality, centered banner feel, PNG/text fallback, 3-second pacing, post-cutin effect continuation, no soft lock, and normal battle flow.
+
 ### v0.70-7 Cutin OGV Video Fallback
 - Started from latest local state after `v0.70-6 Cutin WebM Video Connection + Center Layout Fix`.
 - Focused only on Yi Sunsin cutin video selection and load fallback. Unique-skill 판정/effect/damage, AI, results, battle overlay, camera, pop wave, direction-selection, and WorldMap UX were not intentionally changed.

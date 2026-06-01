@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.70-8 Cutin VP8 WebM Video Connection
+- Completed the Yi Sunsin cutin VP8 WebM connection pass.
+- Yi Sunsin specialty cutin video selection now prioritizes `vp8 webm > ogv > webm > mp4`, with `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm` first.
+- The final priority use format is the FFmpeg-converted VP8 WebM 8M version. OGV remains only as an unstable fallback and was not deleted.
+- The existing `VideoStreamPlayer_Cutin` node is still reused. Cutin start stops/clears the previous stream, selects the first existing loadable candidate, and starts playback from the beginning when load succeeds. Cutin hide still stops and clears the stream.
+- If VP8 WebM or any fallback video cannot load as a Godot `VideoStream`, the cutin logs the failed candidate and keeps the PNG + hero name + skill name presentation instead of breaking the flow.
+- The centered cutin banner/card layout from v0.70-6/v0.70-7 was not changed.
+- Unique-skill effect logic, damage, 판정, AI, result, wounded/prisoner/death, battle overlay, camera, pop wave, direction-selection, and WorldMap UX logic were not intentionally changed.
+- Asset check: `assets/ui/cutin/portraits/yi_sun_sin_cutin.png`, `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm`, and `assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4` are present. The requested OGV and snake_case non-VP8 WebM fallback files are not present in the current tracked asset list.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load. No GDScript warning/error output or WebM stream/import warning was observed in those headless checks.
+- No tracked `.webm.uid`, `.webm.import`, or other video sidecar was generated for `yi_sun_sin_cutin_bg_vp8.webm` during Codex verification.
+- Remaining risk: Codex headless can confirm project/scene load and candidate order, but actual VP8 WebM frame visibility, image quality, and playback smoothness still require Kimjak F6 visual QA.
+- 김작 F6 manual QA should confirm VP8 WebM visibility, image quality, centered banner layout, PNG/text fallback, 3-second pacing, post-cutin effect continuation, no soft lock, and normal auto/turn flow.
+- Next candidates:
+  - `v0.70-9 Specialty Skill Cutin Visual Polish`
+  - `v0.70-10 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-11 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-7 Cutin OGV Video Fallback
 - Completed the Yi Sunsin cutin OGV video fallback pass.
 - Yi Sunsin specialty cutin video selection now prioritizes `ogv > webm > mp4`, with `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv` first.

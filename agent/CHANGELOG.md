@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-8 Cutin VP8 WebM Video Connection
+- Changed Yi Sunsin specialty cutin video selection to prioritize `vp8 webm > ogv > webm > mp4`.
+- Moved `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm` to the first Yi Sunsin video candidate so the VP8 WebM 8M version is the final priority format.
+- Kept OGV only as an unstable fallback and preserved existing WebM/MP4 fallback slots without deleting any assets.
+- Kept `VideoStreamPlayer_Cutin` reuse and the existing start/hide stop/clear behavior so repeat activation restarts cleanly.
+- Allowed failed video candidate loads to continue to later fallback candidates while preserving PNG/text fallback when no video can be loaded.
+- Preserved the centered cutin banner/card layout from v0.70-6/v0.70-7.
+- Did not change unique-skill effect/damage formulas, movement/attack 판정, AI, results, wounded/prisoner/death logic, battle overlay, camera, pop wave, direction-selection, or WorldMap UX/UI logic.
+
 ## v0.70-7 Cutin OGV Video Fallback
 - Changed Yi Sunsin specialty cutin video selection to prioritize `ogv > webm > mp4`.
 - Moved `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv` to the first Yi Sunsin video candidate so it is selected before WebM/MP4 when present.

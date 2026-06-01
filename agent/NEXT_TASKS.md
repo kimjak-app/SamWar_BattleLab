@@ -1,16 +1,17 @@
 # NEXT TASKS
 
-## Next: v0.70-8 Specialty Skill Cutin Visual Polish
-- `v0.70-7 Cutin OGV Video Fallback` is complete.
-- Ally Yi Sunsin cutin now prioritizes `ogv > webm > mp4` and selects `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv` before WebM/MP4.
-- The centered v0.70-6 cutin banner/card layout is preserved.
-- PNG/text fallback remains intact if the selected OGV cannot load or play as a Godot `VideoStream`.
+## Next: v0.70-9 Specialty Skill Cutin Visual Polish
+- `v0.70-8 Cutin VP8 WebM Video Connection` is complete.
+- Ally Yi Sunsin cutin now prioritizes `vp8 webm > ogv > webm > mp4` and selects `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm` first when present.
+- The final priority use format is the FFmpeg-converted VP8 WebM 8M version. OGV remains only as an unstable fallback.
+- The centered v0.70-6/v0.70-7 cutin banner/card layout is preserved.
+- PNG/text fallback remains intact if VP8 WebM or any fallback video cannot load or play as a Godot `VideoStream`.
 - No unique-skill effect logic, formulas, AI, battle result, wounded/prisoner/death, overlay, camera, pop wave, direction-selection, or WorldMap UX logic was intentionally changed.
 - Recommended next cutin polish tasks:
-  - `v0.70-8 Specialty Skill Cutin Visual Polish`
-  - `v0.70-9 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-9 Specialty Skill Cutin Visual Polish`
+  - `v0.70-10 Add Kwon Yul and Jeong Do Jeon Cutins`
 - Recommended WorldMap follow-up:
-  - `v0.70-10 WorldMap Final IA Blueprint + Panel Skeleton`
+  - `v0.70-11 WorldMap Final IA Blueprint + Panel Skeleton`
 
 ## Next: v0.70-7 Specialty Skill Cutin Visual Polish
 - `v0.70-6 Cutin WebM Video Connection + Center Layout Fix` is complete.
