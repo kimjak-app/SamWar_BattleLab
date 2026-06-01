@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-1 Battle Visual Detail Polish Start Handoff
+- `v0.70-1 Battle Visual Detail Polish Start` is complete in `Battle_Fullscreen_Test.tscn` and `scripts/battle_web_import_test.gd`.
+- Default play no longer shows the logical grid guide. The debug flag `SHOW_LOGICAL_GRID_14X8_GUIDE` remains available for future development use.
+- `MainCamera` default zoom is `Vector2(0.88, 0.88)`, preserving the scene-authored camera position while showing more of the 3200x1800 battlefield art.
+- Movement and attack overlays continue to reuse the existing `MoveRangeOverlayLayer` cell pool; movement is blue, attack is red, and cells are inset from full-cell bounds.
+- Overlay presentation now animates from the selected/casting unit outward using short distance-based staggered alpha/scale tweens.
+- Overlay hide paths clear active range tweens before hiding cells, preventing stale/ghost overlay nodes after cancel, movement, attack, strategy, or skill transitions.
+- No battle rules, move/attack 판정, damage formulas, AI, results, woundedQueue, prisoner/death, or WorldMap UX logic was intentionally changed.
+- Headless project load and `Battle_Fullscreen_Test.tscn` load passed. Manual F6 QA remains for camera feel, background readability, unit size, overlay visual taste, wave timing, right-click cancel, direct move click, attack click, floating command panel, and turn/auto flow.
+- Next candidates:
+  - `v0.70-2 Battle Overlay Visual Tuning`
+  - `v0.70-3 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.69-14A GDScript Reload Warning Cleanup Handoff
 - `v0.69-14A GDScript Reload Warning Cleanup Before v0.70` is complete in `scripts/worldmap_test.gd`.
 - This pass only cleaned Godot GDScript reload warnings before `v0.70-1 WorldMap Final UX/UI Information Architecture`.

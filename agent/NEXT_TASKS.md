@@ -1,11 +1,20 @@
 # NEXT TASKS
 
-## Next: v0.70-1 WorldMap Final UX/UI Information Architecture
-- `v0.69-14A GDScript Reload Warning Cleanup Before v0.70` is complete; v0.70 can start with reload-warning cleanup already applied.
+## Next: v0.70-2 Battle Overlay Visual Tuning
+- `v0.70-1 Battle Visual Detail Polish Start` is complete.
+- v0.70 detail polish started from battle-engine visuals: default grid hidden, Camera2D zoomed out slightly, movement/attack overlays polished, and range display now appears with a unit-centered wave/stagger animation.
+- No battle rules, formulas, AI, battle result, wounded/prisoner/death, or WorldMap UX logic was intentionally changed.
+- Recommended next visual polish task:
+  - `v0.70-2 Battle Overlay Visual Tuning`
+- Recommended WorldMap follow-up:
+  - `v0.70-3 WorldMap Final IA Blueprint + Panel Skeleton`
+
+## Deferred: v0.70-3 WorldMap Final UX/UI Information Architecture
+- `v0.69-14A GDScript Reload Warning Cleanup Before v0.70` is complete; v0.70 can continue with reload-warning cleanup already applied.
 - `v0.69-14 EASTWAR Strategic Logic Final Checkpoint` closes the v0.69 strategic logic track.
-- Next implementation session should start with `v0.70-1 WorldMap Final UX/UI Information Architecture`.
-- v0.70 is primarily an information architecture and UX/UI pass over the v0.69 logic, not a new strategic-logic expansion pass.
-- v0.70 main goals:
+- WorldMap final UX/UI work is deferred until after the first battle visual polish pass.
+- WorldMap v0.70 remains primarily an information architecture and UX/UI pass over the v0.69 logic, not a new strategic-logic expansion pass.
+- WorldMap v0.70 main goals:
   1. 도시 패널 재구성
   2. 태수 임명 UI
   3. 재상/국가 운영 UI

@@ -2,6 +2,18 @@
 
 ## 2026-06-01
 
+### v0.70-1 Battle Visual Detail Polish Start
+- Started from baseline `v0.69-14A GDScript Reload Warning Cleanup Before v0.70` / base commit `f0795b4`.
+- Focused the first v0.70 detail-polish pass on battle-engine visuals, deferring WorldMap final UX/UI work.
+- Hid the default logical grid by setting the normal-play grid flag off and saving `LogicalGridGuideLayer` hidden in `Battle_Fullscreen_Test.tscn`.
+- Set the scene-authored `MainCamera` zoom to `0.88`, showing more battlefield background art without forcing camera position from code.
+- Improved movement/attack range overlay read by using stronger translucent blue/red cells with inset bounds.
+- Added quick distance-based range overlay wave/stagger reveal from the selected/casting unit with alpha and scale tweening.
+- Added tween cleanup on range overlay hide paths to prevent stale cells after cancel, movement, attack, strategy, or unique-skill transitions.
+- Reused the existing `MoveRangeOverlayLayer` cell pool. No external assets, new large UI system, battle formula change, AI change, result change, wounded/prisoner/death change, or WorldMap UX logic change was made.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load. GDScript reload warning/error output was clean in the headless load.
+- F6 manual QA remains: camera zoom-out feel, background readability, unit size, hidden default grid feel, move/attack overlay visual taste, wave timing, direct move click, attack click, right-click cancel, floating command panel, and auto/turn progression.
+
 ### v0.69-14A GDScript Reload Warning Cleanup Before v0.70
 - Cleaned the reported Godot GDScript reload warnings in `scripts/worldmap_test.gd` before `v0.70-1 WorldMap Final UX/UI Information Architecture`.
 - Renamed inner food-cost variables to avoid `before_amount` / `paid_amount` parent-block redeclaration warnings.

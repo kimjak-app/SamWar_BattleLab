@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-1 Battle Visual Detail Polish Start
+- Hid the default logical grid guide in normal battle play while leaving the internal grid and debug flag intact.
+- Set `Battle_Fullscreen_Test.tscn` `MainCamera` zoom to `0.88` so the battlefield art reads wider without changing the scene-authored camera position.
+- Tuned movement and attack range overlay colors to stronger translucent blue/red cells with a small visual inset.
+- Added distance-based wave/stagger overlay reveal from the active unit using short alpha/scale tweens.
+- Added range overlay tween cleanup on hide paths so cancel, movement, attack, strategy, and unique-skill transitions do not leave ghost cells.
+- Reused the existing scene-authored `MoveRangeOverlayLayer` cell pool; no external assets or new large UI system were added.
+- Did not change battle rules, movement/attack 판정, damage formulas, AI, results, wounded/prisoner/death logic, or WorldMap UX/UI logic.
+
 ## v0.69-14A GDScript Reload Warning Cleanup Before v0.70
 - Cleaned GDScript reload warnings in `scripts/worldmap_test.gd` before entering `v0.70-1 WorldMap Final UX/UI Information Architecture`.
 - Renamed food-cost inner-block variables to avoid `before_amount` / `paid_amount` parent-block declaration warnings while preserving paid-cost payload values.

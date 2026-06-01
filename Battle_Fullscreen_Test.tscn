@@ -719,6 +719,7 @@ width = 1.0
 default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
 
 [node name="LogicalGridGuideLayer" type="Node2D" parent="." unique_id=1380411007]
+visible = false
 z_index = 1
 
 [node name="GridVertical_00" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352001]
@@ -2253,6 +2254,7 @@ texture = ExtResource("13_move_dust_01")
 
 [node name="MainCamera" type="Camera2D" parent="." unique_id=1502905262]
 position = Vector2(960, 540)
+zoom = Vector2(0.88, 0.88)
 
 [node name="BattleUI" type="CanvasLayer" parent="." unique_id=1570436259]
 

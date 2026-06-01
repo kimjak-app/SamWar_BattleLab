@@ -21,16 +21,20 @@ const MOVE_TARGET_VALID_COLOR := Color(0.45, 1.0, 0.55, 1.0)
 const MOVE_TARGET_INVALID_COLOR := Color(1.0, 0.35, 0.35, 1.0)
 const MOVE_HIGHLIGHT_VALID_COLOR := Color(0.172549, 0.623529, 1.0, 0.227451)
 const MOVE_HIGHLIGHT_INVALID_COLOR := Color(1.0, 0.2, 0.2, 0.28)
-const MOVE_RANGE_OVERLAY_COLOR := Color(0.2, 0.55, 1.0, 0.18)
-const ATTACK_RANGE_OVERLAY_COLOR := Color(1.0, 0.32, 0.08, 0.24)
+const MOVE_RANGE_OVERLAY_COLOR := Color(0.16, 0.62, 1.0, 0.28)
+const ATTACK_RANGE_OVERLAY_COLOR := Color(1.0, 0.2, 0.16, 0.30)
 const UNIQUE_SKILL_RANGE_OVERLAY_COLOR := Color(0.55, 0.24, 1.0, 0.24)
 const UNIQUE_SKILL_TARGET_OVERLAY_COLOR := Color(1.0, 0.76, 0.08, 0.62)
 const UNIQUE_SKILL_TARGET_MARKER_SCALE := 0.78
 const UNIQUE_SKILL_AUTO_PREVIEW_DURATION := 0.42
 const UNIQUE_SKILL_MANUAL_PREVIEW_DURATION := 0.42
 const MOVE_RANGE_OVERLAY_VISUAL_INSET := Vector2(32.0, 0.0)
+const RANGE_OVERLAY_CELL_INSET_RATIO := 0.08
+const RANGE_OVERLAY_CELL_APPEAR_DURATION := 0.16
+const RANGE_OVERLAY_CELL_STAGGER := 0.026
+const RANGE_OVERLAY_CELL_START_SCALE := Vector2(0.72, 0.72)
 const SHOW_CELL_SIZE_VISUAL_GUIDE := false
-const SHOW_LOGICAL_GRID_14X8_GUIDE := true
+const SHOW_LOGICAL_GRID_14X8_GUIDE := false
 const MELEE_ADJACENT_QA_MODE := false
 const MELEE_QA_ENEMY_OFFSET := Vector2i(1, 0)
 const PHASE_ALLY_TURN := "ally_turn"
@@ -741,6 +745,7 @@ var current_attack_animation_target_state: BattleUnitState = null
 var current_enemy_attack_target_state: BattleUnitState = null
 var current_enemy_ai_actor_state: BattleUnitState = null
 var move_range_cells: Array[ColorRect] = []
+var range_overlay_tweens: Array[Tween] = []
 var acted_ally_unit_ids: Dictionary = {}
 var acted_enemy_unit_ids: Dictionary = {}
 var dead_unit_ids: Dictionary = {}
@@ -8599,26 +8604,90 @@ func _collect_move_range_cells() -> void:
 			var cell := child as ColorRect
 			move_range_cells.append(cell)
 			cell.visible = false
+			cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			cell.modulate = Color(1.0, 1.0, 1.0, 0.0)
+			cell.scale = Vector2.ONE
 
 
 func _hide_move_range_overlay() -> void:
+	_clear_range_overlay_tweens()
 	for cell in move_range_cells:
+		cell.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		cell.scale = Vector2.ONE
 		cell.visible = false
 
 
 func _hide_attack_range_overlay() -> void:
+	_clear_range_overlay_tweens()
 	for cell in move_range_cells:
+		cell.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		cell.scale = Vector2.ONE
 		cell.visible = false
 
 
 func _hide_unique_skill_range_overlay() -> void:
+	_clear_range_overlay_tweens()
 	for cell in move_range_cells:
+		cell.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		cell.scale = Vector2.ONE
 		cell.visible = false
 
 
 func _hide_strategy_range_overlay() -> void:
+	_clear_range_overlay_tweens()
 	for cell in move_range_cells:
+		cell.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		cell.scale = Vector2.ONE
 		cell.visible = false
+
+
+func _clear_range_overlay_tweens() -> void:
+	for tween in range_overlay_tweens:
+		if tween != null:
+			tween.kill()
+	range_overlay_tweens.clear()
+
+
+func _get_cells_wave_order(cells: Array[Vector2i], origin_cell: Vector2i, max_distance: int) -> Array[Vector2i]:
+	var ordered_cells: Array[Vector2i] = []
+	for distance in range(maxi(0, max_distance) + 1):
+		for cell in cells:
+			if battle_grid_controller != null and battle_grid_controller.get_distance(origin_cell, cell) == distance:
+				ordered_cells.append(cell)
+	return ordered_cells
+
+
+func _show_range_overlay_cell(rect: ColorRect, cell: Vector2i, cell_size: Vector2, color: Color, origin_cell: Vector2i, should_animate := true, marker_scale := 1.0) -> void:
+	if rect == null or battle_grid_controller == null:
+		return
+	var inset := Vector2(
+		cell_size.x * RANGE_OVERLAY_CELL_INSET_RATIO,
+		cell_size.y * RANGE_OVERLAY_CELL_INSET_RATIO
+	)
+	var visual_size := (cell_size - (inset * 2.0)) * marker_scale
+	var world_pos := battle_grid_controller.grid_to_world(cell)
+	rect.position = world_pos - (visual_size * 0.5)
+	rect.size = visual_size
+	rect.pivot_offset = visual_size * 0.5
+	rect.color = color
+	rect.visible = true
+	if not should_animate:
+		rect.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		rect.scale = Vector2.ONE
+		return
+
+	rect.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	rect.scale = RANGE_OVERLAY_CELL_START_SCALE
+	var wave_distance := 0
+	if battle_grid_controller != null:
+		wave_distance = battle_grid_controller.get_distance(origin_cell, cell)
+	var delay := float(wave_distance) * RANGE_OVERLAY_CELL_STAGGER
+	var tween := create_tween()
+	range_overlay_tweens.append(tween)
+	tween.tween_interval(delay)
+	tween.set_parallel(true)
+	tween.tween_property(rect, "modulate:a", 1.0, RANGE_OVERLAY_CELL_APPEAR_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(rect, "scale", Vector2.ONE, RANGE_OVERLAY_CELL_APPEAR_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
@@ -8636,6 +8705,7 @@ func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data:
 	for range_cell in _get_unique_skill_range_cells(caster_state, skill_data):
 		if not display_cells.has(range_cell):
 			display_cells.append(range_cell)
+	display_cells = _get_cells_wave_order(display_cells, caster_state.grid_cell, _get_unique_skill_range(caster_state, skill_data))
 
 	var index := 0
 	for cell in display_cells:
@@ -8646,10 +8716,7 @@ func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data:
 			continue
 
 		var rect := move_range_cells[index]
-		rect.position = world_pos - (cell_size * 0.5)
-		rect.size = cell_size
-		rect.color = UNIQUE_SKILL_RANGE_OVERLAY_COLOR
-		rect.visible = true
+		_show_range_overlay_cell(rect, cell, cell_size, UNIQUE_SKILL_RANGE_OVERLAY_COLOR, caster_state.grid_cell)
 		index += 1
 	for target_cell in target_cells:
 		if index >= move_range_cells.size():
@@ -8659,12 +8726,8 @@ func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data:
 		var marker_world_pos := battle_grid_controller.grid_to_world(target_cell)
 		if not _is_move_range_overlay_rect_inside_visual_board(marker_world_pos, cell_size):
 			continue
-		var marker_size := cell_size * UNIQUE_SKILL_TARGET_MARKER_SCALE
 		var marker_rect := move_range_cells[index]
-		marker_rect.position = marker_world_pos - (marker_size * 0.5)
-		marker_rect.size = marker_size
-		marker_rect.color = UNIQUE_SKILL_TARGET_OVERLAY_COLOR
-		marker_rect.visible = true
+		_show_range_overlay_cell(marker_rect, target_cell, cell_size, UNIQUE_SKILL_TARGET_OVERLAY_COLOR, caster_state.grid_cell, true, UNIQUE_SKILL_TARGET_MARKER_SCALE)
 		index += 1
 
 
@@ -8683,6 +8746,7 @@ func _show_strategy_range_overlay(caster_state: BattleUnitState) -> void:
 	for range_cell in battle_grid_controller.get_tiles_in_range(caster_state.grid_cell, _get_strategy_range(caster_state)):
 		if battle_grid_controller.is_in_bounds(range_cell):
 			range_cells.append(range_cell)
+	range_cells = _get_cells_wave_order(range_cells, caster_state.grid_cell, _get_strategy_range(caster_state))
 
 	var index := 0
 	for cell in range_cells:
@@ -8693,10 +8757,7 @@ func _show_strategy_range_overlay(caster_state: BattleUnitState) -> void:
 			continue
 
 		var rect := move_range_cells[index]
-		rect.position = world_pos - (cell_size * 0.5)
-		rect.size = cell_size
-		rect.color = STRATEGY_RANGE_OVERLAY_COLOR
-		rect.visible = true
+		_show_range_overlay_cell(rect, cell, cell_size, STRATEGY_RANGE_OVERLAY_COLOR, caster_state.grid_cell)
 		index += 1
 
 	for target_cell in target_cells:
@@ -8707,12 +8768,8 @@ func _show_strategy_range_overlay(caster_state: BattleUnitState) -> void:
 		var marker_world_pos := battle_grid_controller.grid_to_world(target_cell)
 		if not _is_move_range_overlay_rect_inside_visual_board(marker_world_pos, cell_size):
 			continue
-		var marker_size := cell_size * STRATEGY_TARGET_MARKER_SCALE
 		var marker_rect := move_range_cells[index]
-		marker_rect.position = marker_world_pos - (marker_size * 0.5)
-		marker_rect.size = marker_size
-		marker_rect.color = STRATEGY_TARGET_OVERLAY_COLOR
-		marker_rect.visible = true
+		_show_range_overlay_cell(marker_rect, target_cell, cell_size, STRATEGY_TARGET_OVERLAY_COLOR, caster_state.grid_cell, true, STRATEGY_TARGET_MARKER_SCALE)
 		index += 1
 
 
@@ -8728,6 +8785,7 @@ func _show_attack_range_overlay_for_active_unit() -> void:
 	var origin_cell := active_unit_state.grid_cell
 	var attack_range := active_unit_state.attack_range
 	var range_cells: Array[Vector2i] = battle_grid_controller.get_tiles_in_range(origin_cell, attack_range)
+	range_cells = _get_cells_wave_order(range_cells, origin_cell, attack_range)
 	var cell_size := battle_grid_controller.get_cell_size()
 	if cell_size.x <= 0.0 or cell_size.y <= 0.0:
 		return
@@ -8746,10 +8804,7 @@ func _show_attack_range_overlay_for_active_unit() -> void:
 			continue
 
 		var rect := move_range_cells[index]
-		rect.position = world_pos - (cell_size * 0.5)
-		rect.size = cell_size
-		rect.color = ATTACK_RANGE_OVERLAY_COLOR
-		rect.visible = true
+		_show_range_overlay_cell(rect, cell, cell_size, ATTACK_RANGE_OVERLAY_COLOR, origin_cell)
 		index += 1
 
 
@@ -8769,6 +8824,7 @@ func _show_move_range_overlay_for_active_unit() -> void:
 	var origin_cell := active_unit_state.grid_cell
 	var move_range := active_unit_state.move_range
 	var valid_cells: Array[Vector2i] = battle_grid_controller.get_tiles_in_range(origin_cell, move_range)
+	valid_cells = _get_cells_wave_order(valid_cells, origin_cell, move_range)
 	var cell_size := battle_grid_controller.get_cell_size()
 	if cell_size.x <= 0.0 or cell_size.y <= 0.0:
 		return
@@ -8787,10 +8843,7 @@ func _show_move_range_overlay_for_active_unit() -> void:
 			continue
 
 		var rect := move_range_cells[index]
-		rect.position = world_pos - (cell_size * 0.5)
-		rect.size = cell_size
-		rect.color = MOVE_RANGE_OVERLAY_COLOR
-		rect.visible = true
+		_show_range_overlay_cell(rect, cell, cell_size, MOVE_RANGE_OVERLAY_COLOR, origin_cell)
 		index += 1
 
 

@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-1 Battle Visual Detail Polish Start
+- Completed the first v0.70 detail-polish task on the battle engine visual layer.
+- Default battle logical grid display is now hidden for normal play; the internal grid coordinate, cell calculation, movement range, attack range, and click conversion logic remain unchanged.
+- `Battle_Fullscreen_Test.tscn` `MainCamera` default zoom is set to `0.88`, showing roughly 10-15% more battlefield art while preserving the scene-authored camera position.
+- Movement and attack range overlays now use stronger translucent blue/red cells with a small inset so they read less like a full debug grid.
+- Range overlays now appear with a quick unit-centered wave/stagger alpha and scale tween, and overlay hide paths kill outstanding tweens to avoid ghost cells.
+- No battle rules, damage formula, movement/attack 판정, AI, result, wounded, prisoner, or death logic was intentionally changed.
+- v0.70 detail polish has started from battle-engine visuals; WorldMap final UX/UI work is deferred to a later task.
+- Verification passed: Godot headless project load and `Battle_Fullscreen_Test.tscn` headless load. F6 manual visual QA remains required for camera feel, overlay taste, wave timing, and click feel.
+- Next candidates:
+  - `v0.70-2 Battle Overlay Visual Tuning`
+  - `v0.70-3 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.69-14A GDScript Reload Warning Cleanup Before v0.70
 - Completed a warning-cleanup pass before entering `v0.70-1 WorldMap Final UX/UI Information Architecture`.
 - Cleaned `scripts/worldmap_test.gd` GDScript reload warnings for duplicate local variable declarations, `Node.name` parameter shadowing, one mixed-type ternary, and an intentionally unused seasonal-loyalty parameter.
