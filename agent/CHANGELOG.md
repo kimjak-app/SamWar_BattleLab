@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-10A VideoStreamPlayer Debug Checkpoint Documentation
+- Added a documentation-only checkpoint for the current Yi Sunsin VideoStreamPlayer investigation after `v0.70-10`.
+- Recorded that the cutin layer, PNG portrait, hero/skill text, centered layout, 3-second exit, busy guard, fallback, and post-cutin unique-skill effect flow are intact.
+- Recorded the current VideoStreamPlayer progress: Theora 540p OGV is recognized as `VideoStream` in the Godot editor after FileSystem selection, and a local `.ogv.uid` sidecar was generated.
+- Recorded the current blocker: Theora 540p OGV playback shows rainbow/glitch-like corruption, shifting the active hypothesis to Theora encoding/decoding compatibility rather than missing file or layout/z-index/size.
+- Documented why VideoStreamPlayer remains a must-solve pipeline for intro, specialty cutins, battle result videos, worldmap event cutscenes, opening, and ending.
+- Added next-task handoff for `v0.70-11 Cutin Safe Theora Encoding Test`, including conservative 360p and q6/g64 540p ffmpeg candidate commands.
+- Did not modify code, scene, or asset files.
+
 ## v0.70-10 VideoStreamTheora Direct Load Test
 - Changed Yi Sunsin specialty cutin video selection to prioritize the new Godot-stability-first Theora 540p OGV before VP8 WebM, legacy OGV, snake_case WebM, and MP4.
 - Added `SPECIALTY_SKILL_YI_SUNSIN_THEORA_540P_PATH` for the selected Theora asset path.

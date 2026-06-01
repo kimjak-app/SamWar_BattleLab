@@ -2,6 +2,16 @@
 
 ## 2026-06-02
 
+### v0.70-10A VideoStreamPlayer Debug Checkpoint Documentation
+- Started from `v0.70-10 VideoStreamTheora Direct Load Test` commit `22c519f8654600229000e3f833a39867a23a769a`.
+- Documentation-only pass. Code, scene, and asset files were not intentionally modified.
+- Recorded current cutin stability: Yi Sunsin cutin layer, PNG portrait, hero name, skill name, centered layout, 3-second timing, busy guard, fallback, and post-cutin effect flow remain functional.
+- Recorded VideoStreamPlayer progress: previous WebM/MP4 attempts failed as loadable `VideoStream` resources, but selecting `yi_sun_sin_cutin_bg_theora_540p.ogv` in Godot FileSystem made the Inspector show `VideoStream`, and a local `.ogv.uid` sidecar appeared.
+- Recorded current problem: Theora 540p OGV playback reaches the video path but displays rainbow/glitch-like corrupted output, so the active issue is likely Theora encoding/decoding compatibility.
+- Recorded why VideoStreamPlayer remains required for future intro, specialty cutin, battle result, worldmap event, opening, and ending videos; image sequence fallback remains last resort.
+- Added next-chat handoff for `v0.70-11 Cutin Safe Theora Encoding Test` with conservative 360p and q6/g64 540p ffmpeg candidate commands.
+- Added next-chat reading order: `WORKFLOW_MANAGER`, `CODEX_WORKFLOW_RULES`, `GODOT_RULES`, `CURRENT_STATE`, `NEXT_TASKS`, `HANDOFF_TO_CODEX`, `CHANGELOG`, and `SESSION_LOG`.
+
 ### v0.70-10 VideoStreamTheora Direct Load Test
 - Started from local `v0.70-9 VideoStreamPlayer Cutin Debug Pass` plus asset commit `9fe21d2 Add Yi Sun-sin Theora 540p cutin video`.
 - Focused only on the Yi Sunsin specialty cutin video loading pipeline. Unique-skill 판정/effect/damage, AI, result, wounded/prisoner/death, battle overlay, camera, pop wave, direction-selection, and WorldMap UX were not intentionally changed.

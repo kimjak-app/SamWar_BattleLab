@@ -1,5 +1,26 @@
 # NEXT TASKS
 
+## Next: v0.70-11 Cutin Safe Theora Encoding Test
+- `v0.70-10A VideoStreamPlayer Debug Checkpoint Documentation` is complete as a documentation-only checkpoint after `v0.70-10`.
+- Current cutin presentation is stable: Yi Sunsin cutin layer, PNG portrait, hero/skill text, centered layout, 3-second exit, post-cutin unique-skill effect flow, busy guard, and PNG/text fallback are intact.
+- VideoStreamPlayer progress: the Theora 540p OGV reached Godot editor recognition as a `VideoStream` after FileSystem selection, and a local `.ogv.uid` sidecar appeared.
+- Current blocker: Theora 540p OGV playback appears rainbow/glitch-corrupted, so the active hypothesis is Theora encoding/decoding compatibility, not missing file or VideoStreamPlayer layout/z-index/size.
+- Keep pursuing VideoStreamPlayer because intro, specialty cutins, battle result videos, worldmap event cutscenes, opening, and ending all need a real video pipeline. Image sequence fallback remains a last-resort alternative.
+- Recommended next task goal: create and test a more conservative Godot-friendly Theora encode.
+- Candidate 360p safe encode:
+  - `ffmpeg -y -i "assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4" -t 3 -vf "scale=640:360:flags=lanczos,fps=24,format=yuv420p" -pix_fmt yuv420p -c:v libtheora -q:v 5 -g 48 -an "assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_360p_safe.ogv"`
+- Candidate 540p q6/g64 retry:
+  - `ffmpeg -y -i "assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4" -t 3 -vf "scale=960:540,fps=24,format=yuv420p" -pix_fmt yuv420p -c:v libtheora -q:v 6 -g 64 -an "assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p_q6_g64.ogv"`
+- Next chat reading order:
+  - `agent/WORKFLOW_MANAGER.md`
+  - `agent/CODEX_WORKFLOW_RULES.md`
+  - `agent/GODOT_RULES.md`
+  - `agent/CURRENT_STATE.md`
+  - `agent/NEXT_TASKS.md`
+  - `agent/HANDOFF_TO_CODEX.md`
+  - `agent/CHANGELOG.md`
+  - `agent/SESSION_LOG.md`
+
 ## Next: v0.70-11 VideoStreamPlayer Final Fix or Alternative Pipeline Decision
 - `v0.70-10 VideoStreamTheora Direct Load Test` is complete.
 - Ally Yi Sunsin cutin now selects `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv` before VP8 WebM, legacy OGV, snake_case WebM, and MP4.

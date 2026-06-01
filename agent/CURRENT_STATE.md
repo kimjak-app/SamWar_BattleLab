@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-10A VideoStreamPlayer Debug Checkpoint Documentation
+- Completed a documentation-only checkpoint after `v0.70-10 VideoStreamTheora Direct Load Test` at commit `22c519f8654600229000e3f833a39867a23a769a`.
+- Current cutin system state: the Yi Sunsin specialty cutin layer displays normally, the PNG hero portrait and hero/skill text display normally, the centered cutin layout is applied, the 3-second cutin timeline still exits into the existing unique-skill effect flow, and the busy guard / PNG-text fallback structure remains intact.
+- VideoStreamPlayer progress: earlier WebM/MP4 candidates were visible to `FileAccess` but did not load as Godot `VideoStream` resources (`load_null=true`, `is_video_stream=false`). After selecting `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv` in the Godot editor FileSystem, the Inspector showed it as a `VideoStream`, and `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv.uid` was generated locally.
+- Current problem: the Theora 540p OGV appears to reach the Godot video resource/playback path, but playback shows rainbow/glitch-like corrupted color/frame output. The issue is now judged to be Theora encoding/decoding compatibility rather than missing file, z-index, layout, size, or fallback flow.
+- Confirmed current experiment assets: `assets/ui/cutin/portraits/yi_sun_sin_cutin.png`, `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv`, and local `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv.uid`. The current experiment baseline is Theora OGV; previous VP8 WebM/MP4/legacy OGV entries remain historical/fallback context.
+- Conclusion: VideoStreamPlayer or an equivalent video pipeline remains a must-solve foundation for game intro video, specialty cutins, victory/defeat videos, worldmap event cutscenes, opening, and ending. Image sequences remain a last-resort workaround, not the next preferred path.
+- Recommended next task: `v0.70-11 Cutin Safe Theora Encoding Test`.
+- Suggested next encoding candidates:
+  - `ffmpeg -y -i "assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4" -t 3 -vf "scale=640:360:flags=lanczos,fps=24,format=yuv420p" -pix_fmt yuv420p -c:v libtheora -q:v 5 -g 48 -an "assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_360p_safe.ogv"`
+  - `ffmpeg -y -i "assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4" -t 3 -vf "scale=960:540,fps=24,format=yuv420p" -pix_fmt yuv420p -c:v libtheora -q:v 6 -g 64 -an "assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p_q6_g64.ogv"`
+- Next chat reading order: `agent/WORKFLOW_MANAGER.md`, `agent/CODEX_WORKFLOW_RULES.md`, `agent/GODOT_RULES.md`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`.
+- This pass changed documentation only. No code, scene, or asset file was intentionally modified.
+
 ## v0.70-10 VideoStreamTheora Direct Load Test
 - Completed the Yi Sunsin specialty cutin VideoStreamTheora direct-load diagnostic pass.
 - Yi Sunsin specialty cutin video selection now prioritizes `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv` first, then VP8 WebM, legacy OGV, snake_case WebM, and MP4.
