@@ -3626,9 +3626,9 @@ offset_right = 160.0
 offset_bottom = 280.0
 text = "↓"
 
-[node name="SkillCutinLayer" type="Control" parent="BattleUI"]
+[node name="SkillCutinLayer" type="Control" parent="BattleUI" unique_id=1892770997]
 visible = false
-layout_mode = 2
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -3636,7 +3636,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ColorRect_Darken" type="ColorRect" parent="BattleUI/SkillCutinLayer"]
+[node name="ColorRect_Darken" type="ColorRect" parent="BattleUI/SkillCutinLayer" unique_id=1229770517]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -3646,7 +3646,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.0196078, 0.027451, 0.0392157, 0)
 
-[node name="VideoStreamPlayer_Cutin" type="VideoStreamPlayer" parent="BattleUI/SkillCutinLayer"]
+[node name="VideoStreamPlayer_Cutin" type="VideoStreamPlayer" parent="BattleUI/SkillCutinLayer" unique_id=1848363035]
 layout_mode = 0
 offset_left = 69.0
 offset_top = 117.0
@@ -3655,7 +3655,7 @@ offset_bottom = 531.0
 mouse_filter = 2
 expand = true
 
-[node name="TextureRect_Slash" type="ColorRect" parent="BattleUI/SkillCutinLayer"]
+[node name="TextureRect_Slash" type="ColorRect" parent="BattleUI/SkillCutinLayer" unique_id=1105785789]
 layout_mode = 0
 offset_left = 150.0
 offset_top = 258.0
@@ -3665,7 +3665,7 @@ rotation = -0.16
 mouse_filter = 2
 color = Color(1, 0.84, 0.36, 0)
 
-[node name="TextureRect_Hero" type="TextureRect" parent="BattleUI/SkillCutinLayer"]
+[node name="TextureRect_Hero" type="TextureRect" parent="BattleUI/SkillCutinLayer" unique_id=1101124744]
 layout_mode = 0
 offset_left = 286.0
 offset_top = 59.0
@@ -3676,27 +3676,24 @@ texture = ExtResource("36_yi_sun_sin_video_cutin_portrait")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Control_Text" type="Control" parent="BattleUI/SkillCutinLayer"]
-layout_mode = 0
+[node name="Control_Text" type="Control" parent="BattleUI/SkillCutinLayer" unique_id=369091395]
+anchors_preset = 0
 offset_left = 617.0
 offset_top = 357.0
 offset_right = 1104.0
 offset_bottom = 481.0
 mouse_filter = 2
 
-[node name="Label_HeroName" type="Label" parent="BattleUI/SkillCutinLayer/Control_Text"]
+[node name="Label_HeroName" type="Label" parent="BattleUI/SkillCutinLayer/Control_Text" unique_id=1199016319]
 layout_mode = 0
-offset_left = 0.0
-offset_top = 0.0
 offset_right = 466.0
 offset_bottom = 46.0
 text = "이순신"
 label_settings = SubResource("1")
 horizontal_alignment = 1
 
-[node name="Label_SkillName" type="Label" parent="BattleUI/SkillCutinLayer/Control_Text"]
+[node name="Label_SkillName" type="Label" parent="BattleUI/SkillCutinLayer/Control_Text" unique_id=756910915]
 layout_mode = 0
-offset_left = 0.0
 offset_top = 52.0
 offset_right = 487.0
 offset_bottom = 138.0
@@ -3704,7 +3701,7 @@ text = "학익진!"
 label_settings = SubResource("1")
 horizontal_alignment = 1
 
-[node name="AnimationPlayer_Cutin" type="AnimationPlayer" parent="BattleUI/SkillCutinLayer"]
+[node name="AnimationPlayer_Cutin" type="AnimationPlayer" parent="BattleUI/SkillCutinLayer" unique_id=887263827]
 
 [node name="EnemyRetreatToastLayer" type="CanvasLayer" parent="." unique_id=2063384101]
 layer = 30
