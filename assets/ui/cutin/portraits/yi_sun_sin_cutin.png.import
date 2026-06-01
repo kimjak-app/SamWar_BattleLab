@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://j6e21aihjtxx"
-path="res://.godot/imported/yi_sun_sin_cutin.png-acf22945a79211c6996255e0cabfcbc4.ctex"
+path="res://.godot/imported/yi_sun_sin_cutin.png-9b8ef80905d5b4c516cd03533e72ca66.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/cutin/새 폴더/portraits/yi_sun_sin_cutin.png"
-dest_files=["res://.godot/imported/yi_sun_sin_cutin.png-acf22945a79211c6996255e0cabfcbc4.ctex"]
+source_file="res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png"
+dest_files=["res://.godot/imported/yi_sun_sin_cutin.png-9b8ef80905d5b4c516cd03533e72ca66.ctex"]
 
 [params]
 

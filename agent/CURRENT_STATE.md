@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.70-5 Specialty Skill Video Cutin MVP
+- Completed the first specialty-skill video cutin MVP for ally `yi_sunsin`.
+- Added a reusable scene-authored `BattleUI/SkillCutinLayer` with darken layer, `VideoStreamPlayer`, slash accent, transparent PNG hero portrait, hero name label, skill name label, and an `AnimationPlayer` placeholder for future editor-authored polish.
+- Ally Yi Sunsin unique skill now attempts the new 3-second cutin first and delays existing unique-skill effect application until the cutin finishes.
+- Yi Sunsin cutin uses `res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png` for the transparent PNG portrait and checks `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4` for the video background.
+- The mp4 asset exists in the repo, but no Godot-imported VideoStream metadata was found during this pass. Runtime code detects this and keeps the cutin flow alive with the darken/portrait/text presentation; `ogv` or `webm` conversion may still be needed for actual video playback.
+- If the Yi Sunsin cutin layer or portrait cannot be loaded, the existing unique-skill toast fallback path remains in use. Non-Yi-Sunsin heroes continue to use the existing toast/cutin flow.
+- Busy guard prevents a second specialty cutin from overlapping an active one.
+- Existing unique-skill effect, damage, buff/debuff, AI, result, wounded/prisoner/death, battle overlay, camera, pop wave, direction-selection, and WorldMap UX logic were not intentionally changed.
+- Verification passed: Godot headless project load and `Battle_Fullscreen_Test.tscn` headless load. GDScript warning/error output was clean after fixing one enum typo and one full-rect size warning.
+- 김작 F6 manual QA remains required for actual mp4 playback, cutin impact, 3-second length, portrait placement, skill-name readability, post-cutin effect continuation, fallback behavior, and battle-flow feel.
+- Next candidates:
+  - `v0.70-6 Specialty Skill Cutin Visual Polish`
+  - `v0.70-7 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-8 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-4 Battle Overlay Rollback Shape + Palette Retune
 - Completed the fourth v0.70 battle overlay polish task.
 - Preserved the v0.70-3 pop wave/stagger reveal: range cells still appear from the active unit outward with distance-based delay and scale overshoot.

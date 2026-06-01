@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-5 Specialty Skill Video Cutin MVP
+- Added a reusable scene-authored `BattleUI/SkillCutinLayer` for specialty skill cutins.
+- Connected ally Yi Sunsin unique skill to the new cutin MVP with darken layer, `VideoStreamPlayer`, slash accent, transparent PNG portrait, hero name, and skill name text.
+- Used `res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png` for the Yi Sunsin cutin portrait.
+- Added mp4 path detection for `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4`; the file exists, but Godot VideoStream import/playback remains a follow-up risk if ResourceLoader cannot load mp4 directly.
+- Delayed Yi Sunsin unique-skill effect application until the 3-second cutin finishes, then continued through the existing effect/finalize flow.
+- Kept the old unique-skill toast as fallback for missing cutin nodes/assets and for all non-Yi-Sunsin heroes.
+- Added a busy guard so specialty cutin requests do not overlap.
+- Did not change unique-skill damage/effect formulas, movement/attack 판정, AI, results, wounded/prisoner/death logic, battle overlay, camera, pop wave, direction-selection, or WorldMap UX/UI logic.
+
 ## v0.70-4 Battle Overlay Rollback Shape + Palette Retune
 - Preserved the successful v0.70-3 pop wave reveal and range overlay tween cleanup.
 - Removed the v0.70-3 center-fade/internal band rendering that made overlay cells look like multiple stacked octagons.

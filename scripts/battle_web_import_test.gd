@@ -161,6 +161,16 @@ const UNIQUE_SKILL_CUTIN_NAME_START_OFFSET := Vector2(0.0, 18.0)
 const UNIQUE_SKILL_EFFECT_APPLY_DELAY := UNIQUE_SKILL_CUTIN_NAME_DELAY + UNIQUE_SKILL_CUTIN_ENTER_DURATION + UNIQUE_SKILL_CUTIN_PUNCH_SETTLE_DURATION + UNIQUE_SKILL_CUTIN_HOLD_DURATION + UNIQUE_SKILL_CUTIN_EXIT_DURATION
 const UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION := 0.75
 const UNIQUE_SKILL_TOAST_DURATION := UNIQUE_SKILL_EFFECT_APPLY_DELAY + UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION
+const SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID := "yi_sunsin"
+const SPECIALTY_SKILL_YI_SUNSIN_CUTIN_PORTRAIT_PATH := "res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png"
+const SPECIALTY_SKILL_YI_SUNSIN_CUTIN_VIDEO_PATH := "res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4"
+const SPECIALTY_SKILL_CUTIN_TOTAL_DURATION := 3.0
+const SPECIALTY_SKILL_CUTIN_DARKEN_ALPHA := 0.55
+const SPECIALTY_SKILL_CUTIN_ENTER_DURATION := 0.28
+const SPECIALTY_SKILL_CUTIN_TEXT_DELAY := 0.42
+const SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION := 0.23
+const SPECIALTY_SKILL_CUTIN_EXIT_START := 2.55
+const SPECIALTY_SKILL_CUTIN_EXIT_DURATION := 0.45
 const UNIQUE_SKILL_CUTIN_VIEWPORT_WIDTH_RATIO := 0.96
 const UNIQUE_SKILL_CUTIN_VIEWPORT_HEIGHT_RATIO := 0.52
 const UNIQUE_SKILL_CUTIN_MAX_HEIGHT_RATIO := 0.58
@@ -787,6 +797,8 @@ var has_battle_result_toast_shown := false
 var has_logged_battle_end_guard := false
 var roster_panel_slot_log_signatures: Dictionary = {}
 var unique_skill_toast_tween: Tween = null
+var specialty_skill_cutin_tween: Tween = null
+var is_specialty_skill_cutin_playing := false
 var is_unique_skill_presenting := false
 var unique_skill_cutin_timing_start_msec := 0
 var unique_skill_texture_cache: Dictionary = {}
@@ -1113,6 +1125,15 @@ var deployment_marker_base_world_positions_by_slot_id: Dictionary = {}
 @onready var unique_skill_ink_burst: ColorRect = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillInkBurst") as ColorRect
 @onready var unique_skill_cutin_image: TextureRect = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillCutinImage") as TextureRect
 @onready var unique_skill_name_label: Label = get_node_or_null("BattleUI/UniqueSkillToastRoot/UniqueSkillNameLabel") as Label
+@onready var specialty_skill_cutin_layer: Control = get_node_or_null("BattleUI/SkillCutinLayer") as Control
+@onready var specialty_skill_cutin_darken: ColorRect = get_node_or_null("BattleUI/SkillCutinLayer/ColorRect_Darken") as ColorRect
+@onready var specialty_skill_cutin_video: VideoStreamPlayer = get_node_or_null("BattleUI/SkillCutinLayer/VideoStreamPlayer_Cutin") as VideoStreamPlayer
+@onready var specialty_skill_cutin_slash: ColorRect = get_node_or_null("BattleUI/SkillCutinLayer/TextureRect_Slash") as ColorRect
+@onready var specialty_skill_cutin_hero: TextureRect = get_node_or_null("BattleUI/SkillCutinLayer/TextureRect_Hero") as TextureRect
+@onready var specialty_skill_cutin_text: Control = get_node_or_null("BattleUI/SkillCutinLayer/Control_Text") as Control
+@onready var specialty_skill_cutin_hero_name_label: Label = get_node_or_null("BattleUI/SkillCutinLayer/Control_Text/Label_HeroName") as Label
+@onready var specialty_skill_cutin_skill_name_label: Label = get_node_or_null("BattleUI/SkillCutinLayer/Control_Text/Label_SkillName") as Label
+@onready var specialty_skill_cutin_animation_player: AnimationPlayer = get_node_or_null("BattleUI/SkillCutinLayer/AnimationPlayer_Cutin") as AnimationPlayer
 @onready var enemy_retreat_toast_root: Control = get_node_or_null("EnemyRetreatToastLayer/EnemyRetreatToastRoot") as Control
 @onready var enemy_retreat_portrait: TextureRect = get_node_or_null("EnemyRetreatToastLayer/EnemyRetreatToastRoot/EnemyRetreatPortrait") as TextureRect
 @onready var enemy_retreat_name_label: Label = get_node_or_null("EnemyRetreatToastLayer/EnemyRetreatToastRoot/EnemyRetreatNameLabel") as Label
@@ -1224,6 +1245,7 @@ func _ready() -> void:
 		face_down_arrow_button.pressed.connect(_select_post_move_facing.bind(FACING_DOWN))
 	_configure_round_toast()
 	_configure_unique_skill_toast()
+	_configure_specialty_skill_cutin()
 	_configure_enemy_retreat_toast()
 	_configure_main_camera()
 	_collect_move_range_cells()
@@ -2195,6 +2217,10 @@ func reset_demo_state() -> void:
 	if unique_skill_toast_tween != null:
 		unique_skill_toast_tween.kill()
 		unique_skill_toast_tween = null
+	if specialty_skill_cutin_tween != null:
+		specialty_skill_cutin_tween.kill()
+		specialty_skill_cutin_tween = null
+	_hide_specialty_skill_cutin()
 	if defeat_retreat_toast_tween != null:
 		defeat_retreat_toast_tween.kill()
 		defeat_retreat_toast_tween = null
@@ -3500,11 +3526,119 @@ func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dic
 	_stop_idle_breathing()
 	_sync_demo_positions()
 	_focus_camera_for_unique_skill(caster_state, skill_data)
-	_show_unique_skill_toast_over_unit(caster_state, skill_data)
+	var effect_apply_delay := UNIQUE_SKILL_EFFECT_APPLY_DELAY
+	var presentation_duration := UNIQUE_SKILL_TOAST_DURATION
+	if _show_specialty_skill_video_cutin(caster_state, skill_data):
+		effect_apply_delay = SPECIALTY_SKILL_CUTIN_TOTAL_DURATION
+		presentation_duration = SPECIALTY_SKILL_CUTIN_TOTAL_DURATION + UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION
+	else:
+		_show_unique_skill_toast_over_unit(caster_state, skill_data)
 	_append_battle_log("%s이 %s을 발동!" % [caster_state.display_name, String(skill_data.get("name", "고유특기"))])
-	var remaining_duration := maxf(0.0, UNIQUE_SKILL_TOAST_DURATION - UNIQUE_SKILL_EFFECT_APPLY_DELAY)
-	get_tree().create_timer(UNIQUE_SKILL_EFFECT_APPLY_DELAY).timeout.connect(_apply_unique_skill_effect_if_valid.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
-	get_tree().create_timer(UNIQUE_SKILL_EFFECT_APPLY_DELAY + remaining_duration).timeout.connect(_finalize_unique_skill_action.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
+	var remaining_duration := maxf(0.0, presentation_duration - effect_apply_delay)
+	get_tree().create_timer(effect_apply_delay).timeout.connect(_apply_unique_skill_effect_if_valid.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
+	get_tree().create_timer(effect_apply_delay + remaining_duration).timeout.connect(_finalize_unique_skill_action.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
+
+
+func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data: Dictionary) -> bool:
+	if not _can_show_yi_sunsin_specialty_cutin(caster_state, skill_data):
+		return false
+	if is_specialty_skill_cutin_playing:
+		return false
+	if specialty_skill_cutin_layer == null or specialty_skill_cutin_hero == null or specialty_skill_cutin_skill_name_label == null:
+		return false
+
+	var portrait_texture := _load_unique_skill_texture(SPECIALTY_SKILL_YI_SUNSIN_CUTIN_PORTRAIT_PATH)
+	if portrait_texture == null:
+		return false
+
+	_hide_unique_skill_toast()
+	unique_skill_cutin_timing_start_msec = Time.get_ticks_msec()
+	_log_unique_skill_cutin_timing("VIDEO_CUTIN_START", "hero=yi_sunsin duration=%.2f" % SPECIALTY_SKILL_CUTIN_TOTAL_DURATION)
+
+	var viewport_size := get_viewport_rect().size
+	_layout_specialty_skill_cutin(viewport_size)
+	_set_toast_facing_indicator_suppression("unique_skill", true)
+	is_specialty_skill_cutin_playing = true
+
+	if specialty_skill_cutin_tween != null:
+		specialty_skill_cutin_tween.kill()
+		specialty_skill_cutin_tween = null
+
+	var hero_base_position := specialty_skill_cutin_hero.position
+	var text_base_position := specialty_skill_cutin_text.position if specialty_skill_cutin_text != null else Vector2.ZERO
+	var slash_base_position := specialty_skill_cutin_slash.position if specialty_skill_cutin_slash != null else Vector2.ZERO
+
+	specialty_skill_cutin_layer.visible = true
+	specialty_skill_cutin_layer.modulate = Color.WHITE
+	specialty_skill_cutin_layer.position = Vector2(-viewport_size.x * 0.08, 0.0)
+	if specialty_skill_cutin_darken != null:
+		specialty_skill_cutin_darken.color = Color(0.0196078, 0.027451, 0.0392157, 0.0)
+	if specialty_skill_cutin_video != null:
+		specialty_skill_cutin_video.visible = true
+		if _assign_specialty_skill_cutin_video_stream(SPECIALTY_SKILL_YI_SUNSIN_CUTIN_VIDEO_PATH):
+			specialty_skill_cutin_video.play()
+	if specialty_skill_cutin_slash != null:
+		specialty_skill_cutin_slash.position = slash_base_position + Vector2(-180.0, 0.0)
+		specialty_skill_cutin_slash.color = Color(1.0, 0.84, 0.36, 0.0)
+	if specialty_skill_cutin_hero != null:
+		specialty_skill_cutin_hero.texture = portrait_texture
+		specialty_skill_cutin_hero.position = hero_base_position + Vector2(-220.0, 0.0)
+		specialty_skill_cutin_hero.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	if specialty_skill_cutin_text != null:
+		specialty_skill_cutin_text.position = text_base_position + Vector2(80.0, 0.0)
+		specialty_skill_cutin_text.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		specialty_skill_cutin_text.scale = Vector2.ONE * 0.82
+	if specialty_skill_cutin_hero_name_label != null:
+		specialty_skill_cutin_hero_name_label.text = caster_state.display_name
+	if specialty_skill_cutin_skill_name_label != null:
+		specialty_skill_cutin_skill_name_label.text = String(skill_data.get("toast_text", "%s!" % String(skill_data.get("name", "학익진"))))
+
+	specialty_skill_cutin_tween = create_tween()
+	if specialty_skill_cutin_darken != null:
+		specialty_skill_cutin_tween.tween_property(specialty_skill_cutin_darken, "color", Color(0.0196078, 0.027451, 0.0392157, SPECIALTY_SKILL_CUTIN_DARKEN_ALPHA), 0.15).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_layer, "position", Vector2.ZERO, SPECIALTY_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	if specialty_skill_cutin_slash != null:
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_slash, "position", slash_base_position, 0.18).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(0.10)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_slash, "color", Color(1.0, 0.84, 0.36, 0.42), 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(0.10)
+	if specialty_skill_cutin_hero != null:
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "position", hero_base_position, SPECIALTY_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(0.20)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "modulate:a", 1.0, SPECIALTY_SKILL_CUTIN_ENTER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(0.20)
+	if specialty_skill_cutin_text != null:
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "position", text_base_position, SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "modulate:a", 1.0, SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "scale", Vector2.ONE, SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY)
+	specialty_skill_cutin_tween.chain().tween_interval(maxf(0.0, SPECIALTY_SKILL_CUTIN_EXIT_START - SPECIALTY_SKILL_CUTIN_TEXT_DELAY - SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION))
+	specialty_skill_cutin_tween.tween_callback(_log_unique_skill_cutin_timing.bind("VIDEO_CUTIN_EXIT_START"))
+	specialty_skill_cutin_tween.tween_property(specialty_skill_cutin_layer, "modulate:a", 0.0, SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_layer, "position", Vector2(viewport_size.x * 0.12, 0.0), SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_IN)
+	specialty_skill_cutin_tween.chain().tween_callback(_hide_specialty_skill_cutin)
+	return true
+
+
+func _can_show_yi_sunsin_specialty_cutin(caster_state: BattleUnitState, _skill_data: Dictionary) -> bool:
+	if caster_state == null or caster_state.side != "ally":
+		return false
+	return _get_hero_id_for_unit_state(caster_state) == SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID
+
+
+func _assign_specialty_skill_cutin_video_stream(path: String) -> bool:
+	if specialty_skill_cutin_video == null:
+		return false
+	specialty_skill_cutin_video.stop()
+	specialty_skill_cutin_video.stream = null
+	if path == "":
+		return false
+	if not ResourceLoader.exists(path):
+		if FileAccess.file_exists(path):
+			print("[SPECIALTY_CUTIN] mp4 asset exists but is not a loadable Godot VideoStream: %s" % path)
+		return false
+	var loaded_resource := load(path)
+	var video_stream := loaded_resource as VideoStream
+	if video_stream == null:
+		print("[SPECIALTY_CUTIN] video resource is not a VideoStream: %s" % path)
+		return false
+	specialty_skill_cutin_video.stream = video_stream
+	return true
 
 
 func _focus_camera_for_unique_skill(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
@@ -3989,6 +4123,7 @@ func _tick_unique_skill_attack_buffs_for_side(side: String) -> void:
 
 func _finalize_unique_skill_action(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
 	_hide_unique_skill_toast()
+	_hide_specialty_skill_cutin()
 	is_unique_skill_presenting = false
 	is_demo_animating = false
 	_reset_unit_group_positions()
@@ -7678,6 +7813,90 @@ func _configure_unique_skill_toast() -> void:
 		unique_skill_name_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.48, 1.0))
 		unique_skill_name_label.add_theme_color_override("font_outline_color", Color(0.04, 0.02, 0.0, 0.95))
 		unique_skill_name_label.add_theme_constant_override("outline_size", 7)
+
+
+func _configure_specialty_skill_cutin() -> void:
+	if specialty_skill_cutin_layer != null:
+		specialty_skill_cutin_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		specialty_skill_cutin_layer.visible = false
+		specialty_skill_cutin_layer.position = Vector2.ZERO
+		specialty_skill_cutin_layer.modulate = Color.WHITE
+	if specialty_skill_cutin_darken != null:
+		specialty_skill_cutin_darken.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		specialty_skill_cutin_darken.color = Color(0.0196078, 0.027451, 0.0392157, 0.0)
+	if specialty_skill_cutin_video != null:
+		specialty_skill_cutin_video.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		specialty_skill_cutin_video.visible = true
+		specialty_skill_cutin_video.stream = null
+	if specialty_skill_cutin_slash != null:
+		specialty_skill_cutin_slash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		specialty_skill_cutin_slash.color = Color(1.0, 0.84, 0.36, 0.0)
+	if specialty_skill_cutin_hero != null:
+		specialty_skill_cutin_hero.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		specialty_skill_cutin_hero.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		specialty_skill_cutin_hero.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	if specialty_skill_cutin_text != null:
+		specialty_skill_cutin_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		specialty_skill_cutin_text.modulate = Color.WHITE
+	if specialty_skill_cutin_hero_name_label != null:
+		specialty_skill_cutin_hero_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		specialty_skill_cutin_hero_name_label.add_theme_font_size_override("font_size", 34)
+		specialty_skill_cutin_hero_name_label.add_theme_color_override("font_color", Color(0.92, 0.94, 1.0, 0.96))
+		specialty_skill_cutin_hero_name_label.add_theme_color_override("font_outline_color", Color(0.02, 0.025, 0.035, 0.98))
+		specialty_skill_cutin_hero_name_label.add_theme_constant_override("outline_size", 5)
+	if specialty_skill_cutin_skill_name_label != null:
+		specialty_skill_cutin_skill_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		specialty_skill_cutin_skill_name_label.add_theme_font_size_override("font_size", 76)
+		specialty_skill_cutin_skill_name_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.34, 1.0))
+		specialty_skill_cutin_skill_name_label.add_theme_color_override("font_outline_color", Color(0.04, 0.02, 0.0, 1.0))
+		specialty_skill_cutin_skill_name_label.add_theme_constant_override("outline_size", 9)
+	if specialty_skill_cutin_animation_player != null:
+		specialty_skill_cutin_animation_player.stop()
+
+
+func _layout_specialty_skill_cutin(viewport_size: Vector2) -> void:
+	if specialty_skill_cutin_darken != null:
+		specialty_skill_cutin_darken.position = Vector2.ZERO
+	if specialty_skill_cutin_video != null:
+		specialty_skill_cutin_video.position = Vector2.ZERO
+	if specialty_skill_cutin_slash != null:
+		specialty_skill_cutin_slash.position = Vector2(viewport_size.x * 0.06, viewport_size.y * 0.30)
+		specialty_skill_cutin_slash.size = Vector2(viewport_size.x * 0.88, 64.0)
+	if specialty_skill_cutin_hero != null:
+		specialty_skill_cutin_hero.position = Vector2(viewport_size.x * 0.06, viewport_size.y * 0.08)
+		specialty_skill_cutin_hero.size = Vector2(viewport_size.x * 0.43, viewport_size.y * 0.82)
+	if specialty_skill_cutin_text != null:
+		specialty_skill_cutin_text.position = Vector2(viewport_size.x * 0.49, viewport_size.y * 0.31)
+		specialty_skill_cutin_text.size = Vector2(viewport_size.x * 0.48, viewport_size.y * 0.28)
+		specialty_skill_cutin_text.pivot_offset = specialty_skill_cutin_text.size * 0.5
+	if specialty_skill_cutin_hero_name_label != null:
+		specialty_skill_cutin_hero_name_label.size = Vector2(viewport_size.x * 0.42, 48.0)
+	if specialty_skill_cutin_skill_name_label != null:
+		specialty_skill_cutin_skill_name_label.position = Vector2(0.0, 54.0)
+		specialty_skill_cutin_skill_name_label.size = Vector2(viewport_size.x * 0.48, 104.0)
+
+
+func _hide_specialty_skill_cutin() -> void:
+	if specialty_skill_cutin_video != null:
+		specialty_skill_cutin_video.stop()
+		specialty_skill_cutin_video.stream = null
+	if specialty_skill_cutin_layer != null:
+		if specialty_skill_cutin_layer.visible:
+			_log_unique_skill_cutin_timing("VIDEO_CUTIN_HIDE_DONE")
+		specialty_skill_cutin_layer.visible = false
+		specialty_skill_cutin_layer.modulate = Color.WHITE
+		specialty_skill_cutin_layer.position = Vector2.ZERO
+	if specialty_skill_cutin_darken != null:
+		specialty_skill_cutin_darken.color = Color(0.0196078, 0.027451, 0.0392157, 0.0)
+	if specialty_skill_cutin_slash != null:
+		specialty_skill_cutin_slash.color = Color(1.0, 0.84, 0.36, 0.0)
+	if specialty_skill_cutin_hero != null:
+		specialty_skill_cutin_hero.modulate = Color.WHITE
+	if specialty_skill_cutin_text != null:
+		specialty_skill_cutin_text.modulate = Color.WHITE
+		specialty_skill_cutin_text.scale = Vector2.ONE
+	is_specialty_skill_cutin_playing = false
+	_set_toast_facing_indicator_suppression("unique_skill", false)
 
 
 func _hide_unique_skill_toast() -> void:

@@ -1,5 +1,22 @@
 # HANDOFF TO CODEX
 
+## v0.70-5 Specialty Skill Video Cutin MVP Handoff
+- `v0.70-5 Specialty Skill Video Cutin MVP` is complete for ally `yi_sunsin` only.
+- `Battle_Fullscreen_Test.tscn` now has a reusable scene-authored `BattleUI/SkillCutinLayer` with `ColorRect_Darken`, `VideoStreamPlayer_Cutin`, `TextureRect_Slash`, `TextureRect_Hero`, `Control_Text/Label_HeroName`, `Control_Text/Label_SkillName`, and `AnimationPlayer_Cutin`.
+- `scripts/battle_web_import_test.gd` routes ally Yi Sunsin unique-skill presentation through the new 3-second specialty cutin and schedules the existing unique-skill effect after the cutin duration.
+- The effect path remains the existing `_apply_unique_skill_effect_if_valid` / `_apply_unique_skill_effect` flow; only presentation timing changes for Yi Sunsin.
+- The transparent portrait asset is `res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png`.
+- The mp4 asset path is `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4`. The file exists, but no imported Godot VideoStream metadata was found, so runtime code logs and continues with portrait/text cutin if ResourceLoader cannot load the mp4. `ogv` or `webm` remains a likely follow-up for real video playback.
+- Non-Yi-Sunsin heroes continue to use the existing unique-skill toast/cutin flow. If the Yi Sunsin layer or portrait is missing, the old toast fallback is used.
+- A busy guard prevents overlapping specialty cutins.
+- No battle rules, movement/attack 판정, damage formulas, buff/debuff effects, AI, results, woundedQueue, prisoner/death, battle overlay, camera, pop wave, direction-selection, or WorldMap UX logic was intentionally changed.
+- Headless project load and `Battle_Fullscreen_Test.tscn` load passed with clean warning/error output.
+- 김작 F6 QA should confirm actual mp4 playback or fallback behavior, cutin impact, 3-second pacing, portrait placement, text readability, effect continuation after cutin, no soft lock, and normal battle flow.
+- Next candidates:
+  - `v0.70-6 Specialty Skill Cutin Visual Polish`
+  - `v0.70-7 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-8 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-4 Battle Overlay Rollback Shape + Palette Retune Handoff
 - `v0.70-4 Battle Overlay Rollback Shape + Palette Retune` is complete in `scripts/battle_web_import_test.gd`, `scripts/battle_range_overlay_tile.gd`, and `scripts/battle_facing_arrow_tile_button.gd`.
 - Camera zoom remains unchanged at the v0.70-2/v0.70-3 value `Vector2(0.84, 0.84)`; this pass did not touch camera framing.

@@ -2,6 +2,18 @@
 
 ## 2026-06-01
 
+### v0.70-5 Specialty Skill Video Cutin MVP
+- Started from latest local HEAD after `v0.70-4 Battle Overlay Rollback Shape + Palette Retune`.
+- Focused only on ally Yi Sunsin unique-skill presentation; battle rules, formulas, AI, results, overlays, camera, pop wave, direction-selection, and WorldMap UX were not intentionally changed.
+- Found the requested assets in repo: `assets/ui/cutin/portraits/yi_sun_sin_cutin.png` and `assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4`.
+- Added a reusable scene-authored `BattleUI/SkillCutinLayer` with darken, video player, slash accent, transparent portrait, hero name, skill name, and animation-player placeholder nodes.
+- Connected ally `yi_sunsin` unique skill to a 3-second specialty cutin path and delayed existing effect application until the cutin finishes.
+- Preserved existing toast fallback for non-Yi-Sunsin heroes and for Yi Sunsin if the specialty cutin layer or portrait cannot be loaded.
+- Added a busy guard to prevent overlapping specialty cutins.
+- mp4 playback remains a risk: the mp4 file exists, but no imported Godot VideoStream metadata was found. Runtime code logs this and continues with the portrait/text cutin if ResourceLoader cannot load the video.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load. GDScript warning/error output was clean after fixing one enum typo and one full-rect size warning.
+- F6 manual QA remains: video playback, cutin impact, 3-second pacing, portrait placement, skill-name readability, effect continuation after cutin, fallback behavior, no soft lock, and normal battle flow.
+
 ### v0.70-4 Battle Overlay Rollback Shape + Palette Retune
 - Started from latest local HEAD after `v0.70-3 Battle Overlay Palette Pop Wave Polish`.
 - Focused only on battle overlay visual rollback/palette tuning; camera zoom remained at `0.84` and the default grid remained hidden.
