@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-6 Cutin WebM Video Connection + Center Layout Fix Handoff
+- `v0.70-6 Cutin WebM Video Connection + Center Layout Fix` is complete for ally `yi_sunsin` only.
+- `scripts/battle_web_import_test.gd` now selects Yi Sunsin cutin video candidates in priority order: `yi_sun_sin_cutin_bg.webm`, actual repo file `Yi Sun Sin Cutin Bg.webm`, `yi_sun_sin_cutin_bg.ogv`, then `yi_sun_sin_cutin_bg.mp4`.
+- The cutin video stream is stopped/cleared before assignment and stopped/cleared again on hide, so repeat activation should start from the beginning when a loadable stream is available.
+- `BattleUI/SkillCutinLayer` remains scene-authored and reusable. `VideoStreamPlayer_Cutin` was changed to a free-positioned centered banner area so code can size it without full-anchor warnings.
+- The Yi Sunsin cutin layout is now centered: the video/card rect is centered, the portrait is placed inside the central composition, hero/skill text is center-aligned, and the animation uses center scale/fade instead of lateral slide.
+- Kwon Yul and Jeong Do Jeon WebM assets are present in repo as `Kwon Yul Cutin Bg.webm` and `Jeong Do Jeon Cutin Bg.webm`. Their activation wiring remains deferred.
+- Godot headless load did not create tracked `.import` files for WebM assets. If F6 still does not display video, the remaining risk is Godot runtime WebM import/playback support; fallback PNG/text cutin still runs.
+- No unique-skill 판정, effect, damage, buff/debuff, AI, results, woundedQueue, prisoner/death, battle overlay, camera, pop wave, direction-selection, or WorldMap UX logic was intentionally changed.
+- Headless project load and `Battle_Fullscreen_Test.tscn` load passed with clean warning/error output.
+- 김작 F6 QA should confirm WebM visibility, centered banner/card composition, portrait/text placement, 3-second pacing, post-cutin effect continuation, no soft lock, and normal battle flow.
+- Next candidates:
+  - `v0.70-7 Specialty Skill Cutin Visual Polish`
+  - `v0.70-8 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-9 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-5 Specialty Skill Video Cutin MVP Handoff
 - `v0.70-5 Specialty Skill Video Cutin MVP` is complete for ally `yi_sunsin` only.
 - `Battle_Fullscreen_Test.tscn` now has a reusable scene-authored `BattleUI/SkillCutinLayer` with `ColorRect_Darken`, `VideoStreamPlayer_Cutin`, `TextureRect_Slash`, `TextureRect_Hero`, `Control_Text/Label_HeroName`, `Control_Text/Label_SkillName`, and `AnimationPlayer_Cutin`.

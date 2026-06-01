@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.70-6 Cutin WebM Video Connection + Center Layout Fix
+- Completed the Yi Sunsin cutin WebM connection and center-layout fix pass.
+- Yi Sunsin specialty cutin now uses a video candidate priority list: snake_case WebM, actual repo WebM (`Yi Sun Sin Cutin Bg.webm`), OGV, then MP4 fallback.
+- Existing `VideoStreamPlayer_Cutin` is reused; cutin start stops/clears the previous stream, assigns the first loadable candidate, and starts playback from the beginning. Cutin hide stops and clears the stream.
+- The cutin presentation no longer slides in from one side. It uses a centered banner/card layout with center-based scale/fade entry and exit.
+- Yi Sunsin portrait size remains close to the v0.70-5 feel, but the portrait, hero name, and skill name are arranged around the centered cutin banner instead of reading as left-heavy.
+- Kwon Yul and Jeong Do Jeon WebM assets are present as `Kwon Yul Cutin Bg.webm` and `Jeong Do Jeon Cutin Bg.webm`; they are not connected to activation yet.
+- Godot headless did not generate tracked `.import` files for the WebM assets. If runtime VideoStream loading still fails in F6, a Godot-supported imported video format/path may still be needed, but PNG/text fallback remains intact.
+- Unique-skill effect logic, damage, 판정, AI, result, wounded/prisoner/death, battle overlay, camera, pop wave, direction-selection, and WorldMap UX logic were not intentionally changed.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load with clean warning/error output.
+- 김작 F6 manual QA remains required for actual WebM visibility, centered banner feel, portrait/text composition, 3-second pacing, post-cutin effect continuation, no soft lock, and normal battle flow.
+- Next candidates:
+  - `v0.70-7 Specialty Skill Cutin Visual Polish`
+  - `v0.70-8 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-9 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-5 Specialty Skill Video Cutin MVP
 - Completed the first specialty-skill video cutin MVP for ally `yi_sunsin`.
 - Added a reusable scene-authored `BattleUI/SkillCutinLayer` with darken layer, `VideoStreamPlayer`, slash accent, transparent PNG hero portrait, hero name label, skill name label, and an `AnimationPlayer` placeholder for future editor-authored polish.

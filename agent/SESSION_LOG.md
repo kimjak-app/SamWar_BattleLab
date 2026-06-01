@@ -2,6 +2,18 @@
 
 ## 2026-06-01
 
+### v0.70-6 Cutin WebM Video Connection + Center Layout Fix
+- Started from base commit `e6c0a170b428dfa2bf1da845d831a917530ca35f` / `v0.70-5 Specialty Skill Video Cutin MVP`.
+- Focused only on Yi Sunsin cutin video connection and layout. Unique-skill 판정/effect/damage, AI, results, battle overlay, camera, pop wave, direction-selection, and WorldMap UX were not intentionally changed.
+- Confirmed tracked WebM assets exist in `assets/ui/cutin/videos/`: `Yi Sun Sin Cutin Bg.webm`, `Kwon Yul Cutin Bg.webm`, and `Jeong Do Jeon Cutin Bg.webm`.
+- Updated Yi Sunsin cutin video selection to prioritize WebM candidates, then OGV, then MP4. The actual repo WebM filename is included before OGV/MP4 fallback.
+- Reworked the cutin from side-biased slide placement into a centered banner/card composition with center scale/fade entry and exit.
+- Kept Yi Sunsin PNG size feel close to v0.70-5 while arranging portrait, hero name, and skill name around the centered composition.
+- Preserved busy guard and PNG/text fallback when no candidate video can be loaded.
+- Godot headless did not generate tracked WebM `.import` files, so actual F6 WebM playback remains a manual QA item.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load with clean warning/error output.
+- F6 manual QA remains: WebM visibility, centered banner feel, portrait/text composition, 3-second pacing, post-cutin effect continuation, no soft lock, and normal battle flow.
+
 ### v0.70-5 Specialty Skill Video Cutin MVP
 - Started from latest local HEAD after `v0.70-4 Battle Overlay Rollback Shape + Palette Retune`.
 - Focused only on ally Yi Sunsin unique-skill presentation; battle rules, formulas, AI, results, overlays, camera, pop wave, direction-selection, and WorldMap UX were not intentionally changed.

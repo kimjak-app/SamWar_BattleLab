@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-6 Cutin WebM Video Connection + Center Layout Fix
+- Changed Yi Sunsin specialty cutin video selection to prioritize WebM before OGV and MP4 fallback.
+- Included the actual tracked repo WebM filename `Yi Sun Sin Cutin Bg.webm` in the candidate list while preserving the expected snake_case candidate path for future normalized assets.
+- Added future candidate lists for Kwon Yul and Jeong Do Jeon WebM assets without connecting their activation flow.
+- Reworked the cutin layout from side-biased slide placement into a centered banner/card composition.
+- Changed cutin entry/exit to center-based scale/fade while preserving the 3-second presentation and existing post-cutin effect scheduling.
+- Kept `VideoStreamPlayer_Cutin` reusable and cleared/stopped the stream on hide so repeat playback can start from the beginning.
+- Preserved PNG/text fallback when no candidate video can be loaded.
+- Did not change unique-skill effect/damage formulas, movement/attack 판정, AI, results, wounded/prisoner/death logic, battle overlay, camera, pop wave, direction-selection, or WorldMap UX/UI logic.
+
 ## v0.70-5 Specialty Skill Video Cutin MVP
 - Added a reusable scene-authored `BattleUI/SkillCutinLayer` for specialty skill cutins.
 - Connected ally Yi Sunsin unique skill to the new cutin MVP with darken layer, `VideoStreamPlayer`, slash accent, transparent PNG portrait, hero name, and skill name text.

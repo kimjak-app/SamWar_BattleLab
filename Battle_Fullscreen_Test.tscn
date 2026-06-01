@@ -3647,31 +3647,30 @@ mouse_filter = 2
 color = Color(0.0196078, 0.027451, 0.0392157, 0)
 
 [node name="VideoStreamPlayer_Cutin" type="VideoStreamPlayer" parent="BattleUI/SkillCutinLayer"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 0
+offset_left = 69.0
+offset_top = 117.0
+offset_right = 1083.0
+offset_bottom = 531.0
 mouse_filter = 2
 expand = true
 
 [node name="TextureRect_Slash" type="ColorRect" parent="BattleUI/SkillCutinLayer"]
 layout_mode = 0
-offset_left = 72.0
-offset_top = 194.0
-offset_right = 1080.0
-offset_bottom = 256.0
+offset_left = 150.0
+offset_top = 258.0
+offset_right = 1002.0
+offset_bottom = 322.0
 rotation = -0.16
 mouse_filter = 2
 color = Color(1, 0.84, 0.36, 0)
 
 [node name="TextureRect_Hero" type="TextureRect" parent="BattleUI/SkillCutinLayer"]
 layout_mode = 0
-offset_left = 82.0
-offset_top = 86.0
-offset_right = 560.0
-offset_bottom = 648.0
+offset_left = 286.0
+offset_top = 59.0
+offset_right = 781.0
+offset_bottom = 590.0
 mouse_filter = 2
 texture = ExtResource("36_yi_sun_sin_video_cutin_portrait")
 expand_mode = 1
@@ -3679,29 +3678,31 @@ stretch_mode = 5
 
 [node name="Control_Text" type="Control" parent="BattleUI/SkillCutinLayer"]
 layout_mode = 0
-offset_left = 520.0
-offset_top = 202.0
-offset_right = 1100.0
-offset_bottom = 438.0
+offset_left = 617.0
+offset_top = 357.0
+offset_right = 1104.0
+offset_bottom = 481.0
 mouse_filter = 2
 
 [node name="Label_HeroName" type="Label" parent="BattleUI/SkillCutinLayer/Control_Text"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = 0.0
-offset_right = 520.0
+offset_right = 466.0
 offset_bottom = 46.0
 text = "이순신"
 label_settings = SubResource("1")
+horizontal_alignment = 1
 
 [node name="Label_SkillName" type="Label" parent="BattleUI/SkillCutinLayer/Control_Text"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = 52.0
-offset_right = 560.0
+offset_right = 487.0
 offset_bottom = 138.0
 text = "학익진!"
 label_settings = SubResource("1")
+horizontal_alignment = 1
 
 [node name="AnimationPlayer_Cutin" type="AnimationPlayer" parent="BattleUI/SkillCutinLayer"]
 

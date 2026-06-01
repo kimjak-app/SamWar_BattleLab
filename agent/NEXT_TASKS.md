@@ -1,16 +1,17 @@
 # NEXT TASKS
 
-## Next: v0.70-6 Specialty Skill Cutin Visual Polish
-- `v0.70-5 Specialty Skill Video Cutin MVP` is complete.
-- Ally Yi Sunsin unique skill now has a reusable scene-authored cutin layer, transparent PNG portrait, hero/skill text, 3-second presentation timing, mp4 path detection, and fallback to the existing toast path when the specialty cutin cannot be shown.
+## Next: v0.70-7 Specialty Skill Cutin Visual Polish
+- `v0.70-6 Cutin WebM Video Connection + Center Layout Fix` is complete.
+- Ally Yi Sunsin cutin now prioritizes WebM video candidates, keeps PNG/text fallback, and uses a centered cutin banner/card layout with center scale/fade timing instead of side-biased slide placement.
+- Kwon Yul and Jeong Do Jeon WebM assets are present but not wired to activation yet.
 - No battle rules, formulas, AI, battle result, wounded/prisoner/death, overlay, camera, pop wave, direction-selection, or WorldMap UX logic was intentionally changed.
 - Recommended next cutin polish tasks:
-  - `v0.70-6 Specialty Skill Cutin Visual Polish`
-  - `v0.70-7 Add Kwon Yul and Jeong Do Jeon Cutins`
+  - `v0.70-7 Specialty Skill Cutin Visual Polish`
+  - `v0.70-8 Add Kwon Yul and Jeong Do Jeon Cutins`
 - Recommended WorldMap follow-up:
-  - `v0.70-8 WorldMap Final IA Blueprint + Panel Skeleton`
+  - `v0.70-9 WorldMap Final IA Blueprint + Panel Skeleton`
 
-## Deferred: v0.70-8 WorldMap Final UX/UI Information Architecture
+## Deferred: v0.70-9 WorldMap Final UX/UI Information Architecture
 - `v0.69-14A GDScript Reload Warning Cleanup Before v0.70` is complete; v0.70 can continue with reload-warning cleanup already applied.
 - `v0.69-14 EASTWAR Strategic Logic Final Checkpoint` closes the v0.69 strategic logic track.
 - WorldMap final UX/UI work is deferred until after the first battle visual polish pass.
