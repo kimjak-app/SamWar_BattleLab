@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-3 Battle Overlay Palette + Pop Wave Polish Handoff
+- `v0.70-3 Battle Overlay Palette + Pop Wave Polish` is complete in `scripts/battle_web_import_test.gd`, `scripts/battle_range_overlay_tile.gd`, and `scripts/battle_facing_arrow_tile_button.gd`.
+- Camera zoom remains at the v0.70-2 value `Vector2(0.84, 0.84)`; this pass did not further adjust camera framing.
+- Default play still hides the logical grid guide; `SHOW_LOGICAL_GRID_14X8_GUIDE` remains `false`.
+- Overlay colors remain type-distinct but are now toned down: movement steel blue-gray, attack coral/rose red, single-target toned amber, multi-target muted violet, and strategy subdued teal.
+- Range tile rendering now uses edge-band center-fade instead of a clear small inner octagon, keeping a visible tactical outline while allowing terrain to show through the tile center.
+- Pop wave reveal is stronger than v0.70-2: delay is `0.06s` per grid distance, cells start smaller, overshoot more strongly, and settle back to `1.0`.
+- Direction selection arrow buttons now get a matching octagonal tile draw script and a short pop reveal, while preserving the existing Button click paths.
+- No battle rules, move/attack 판정, damage formulas, AI, results, woundedQueue, prisoner/death, or WorldMap UX logic was intentionally changed.
+- Headless project load and `Battle_Fullscreen_Test.tscn` load passed with clean warning/error output.
+- 김작 F6 QA should confirm distinct-but-cohesive palette, reduced sky-blue/casual feel, center-fade interior, terrain visibility, visible unit-centered pop wave, near/far pop strength, direction tile unification, and click feel.
+- Next candidates:
+  - `v0.70-4 Battle Overlay Fine Color Tuning`
+  - `v0.70-5 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-2 Battle Overlay Shape + Wave Tuning Handoff
 - `v0.70-2 Battle Overlay Shape + Wave Tuning` is complete in `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and `scripts/battle_range_overlay_tile.gd`.
 - `MainCamera` default zoom is now `Vector2(0.84, 0.84)`. The camera position remains scene-authored.

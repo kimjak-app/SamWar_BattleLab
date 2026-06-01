@@ -1,24 +1,21 @@
-class_name BattleRangeOverlayTile
-extends ColorRect
+class_name BattleFacingArrowTileButton
+extends Button
 
-var tile_fill_color := Color(0.16, 0.62, 1.0, 0.16)
-var tile_outline_color := Color(0.46, 0.86, 1.0, 0.82)
-var tile_highlight_color := Color(0.78, 0.96, 1.0, 0.34)
+var tile_fill_color := Color(0.28, 0.34, 0.45, 0.34)
+var tile_outline_color := Color(0.58, 0.68, 0.84, 0.9)
+var tile_highlight_color := Color(0.78, 0.86, 1.0, 0.38)
 var corner_cut_ratio := 0.18
 var outline_width := 2.0
-var edge_band_width := 2.0
 
 
 func _ready() -> void:
-	color = Color.TRANSPARENT
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flat = true
 
 
 func set_tile_style(fill_color: Color, outline_color: Color, highlight_color: Color) -> void:
 	tile_fill_color = fill_color
 	tile_outline_color = outline_color
 	tile_highlight_color = highlight_color
-	color = Color.TRANSPARENT
 	queue_redraw()
 
 
@@ -26,32 +23,30 @@ func _draw() -> void:
 	if size.x <= 2.0 or size.y <= 2.0:
 		return
 
+	var draw_fill := tile_fill_color
+	var draw_outline := tile_outline_color
+	var draw_highlight := tile_highlight_color
+	if button_pressed:
+		draw_fill.a *= 1.35
+		draw_outline.a = minf(draw_outline.a * 1.16, 1.0)
+	elif is_hovered():
+		draw_fill.a *= 1.18
+		draw_outline.a = minf(draw_outline.a * 1.08, 1.0)
+
 	var outer_points := _make_octagon_points(size, 1.0)
 	var closed_outer := outer_points.duplicate()
 	closed_outer.append(outer_points[0])
-
-	draw_polygon(outer_points, PackedColorArray([tile_fill_color]))
-	_draw_center_fade_bands()
-	draw_polyline(closed_outer, tile_outline_color, outline_width, true)
-
-
-func _draw_center_fade_bands() -> void:
-	var band_specs := [
-		{"scale": 0.92, "alpha": 0.70, "width": edge_band_width + 0.8},
-		{"scale": 0.78, "alpha": 0.42, "width": edge_band_width},
-		{"scale": 0.64, "alpha": 0.25, "width": edge_band_width * 0.75},
-		{"scale": 0.50, "alpha": 0.12, "width": edge_band_width * 0.55},
-	]
-	for spec in band_specs:
-		var band_points := _make_octagon_points(size, float(spec["scale"]))
+	draw_polygon(outer_points, PackedColorArray([draw_fill]))
+	for scale_alpha in [[0.88, 0.60, 2.6], [0.70, 0.34, 1.8], [0.52, 0.16, 1.2]]:
+		var band_points := _make_octagon_points(size, float(scale_alpha[0]))
 		band_points.append(band_points[0])
-		var band_color := Color(
-			tile_highlight_color.r,
-			tile_highlight_color.g,
-			tile_highlight_color.b,
-			tile_highlight_color.a * float(spec["alpha"])
+		draw_polyline(
+			band_points,
+			Color(draw_highlight.r, draw_highlight.g, draw_highlight.b, draw_highlight.a * float(scale_alpha[1])),
+			float(scale_alpha[2]),
+			true
 		)
-		draw_polyline(band_points, band_color, float(spec["width"]), true)
+	draw_polyline(closed_outer, draw_outline, outline_width, true)
 
 
 func _make_octagon_points(rect_size: Vector2, point_scale: float) -> PackedVector2Array:

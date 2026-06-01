@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-3 Battle Overlay Palette + Pop Wave Polish
+- Retuned the range overlay palette while keeping movement, attack, single-target, multi-target, and strategy displays visually distinct.
+- Changed movement range away from bright sky blue toward a muted steel blue-gray tactical tone.
+- Changed attack range toward a toned coral/rose red, single-target markers toward amber, multi-target/unique-skill range toward muted violet, and strategy toward subdued teal.
+- Updated `scripts/battle_range_overlay_tile.gd` so tile interiors read as center-fade edge bands rather than a separate small inner octagon.
+- Strengthened pop wave reveal with larger distance-based delay and stronger distance-sensitive scale overshoot.
+- Added `scripts/battle_facing_arrow_tile_button.gd` and applied it to direction-selection arrow buttons so the four direction tiles share the same octagonal tactical design language.
+- Preserved existing range cell pool, Button click paths, movement/attack calculations, and overlay tween cleanup.
+- Did not change battle rules, movement/attack 판정, damage formulas, AI, results, wounded/prisoner/death logic, or WorldMap UX/UI logic.
+
 ## v0.70-2 Battle Overlay Shape + Wave Tuning
 - Adjusted `Battle_Fullscreen_Test.tscn` `MainCamera` zoom from `0.88` to `0.84` for a wider battlefield view.
 - Added `scripts/battle_range_overlay_tile.gd`, a lightweight `ColorRect` draw script for clipped-corner octagonal tactical tiles.

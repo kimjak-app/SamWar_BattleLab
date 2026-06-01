@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-3 Battle Overlay Palette + Pop Wave Polish
+- Completed the third v0.70 battle overlay polish task.
+- Movement, attack, single-target, and multi-target overlay colors remain distinct, but the palette is now more muted and tactical: movement uses steel blue-gray, attack uses coral/rose red, single-target uses toned amber, multi-target uses muted violet, and strategy remains subdued teal.
+- `scripts/battle_range_overlay_tile.gd` now favors center-fade style edge bands instead of a distinct small inner octagon, keeping the outline clear while letting terrain show through the center.
+- Pop wave reveal is stronger: range cells start smaller at distance-sensitive scale, pop up to a stronger overshoot, then settle to `1.0`, with `0.06s` delay per grid distance.
+- Direction selection arrow buttons now use the same octagonal tactical tile design language through `scripts/battle_facing_arrow_tile_button.gd`, with matching fill/outline/highlight and a short pop reveal.
+- Current Camera2D zoom remains unchanged from v0.70-2 at `0.84`; default logical grid remains hidden.
+- No battle rules, movement/attack 판정, damage formula, AI, result, wounded, prisoner, death, or WorldMap UX logic was intentionally changed.
+- Verification passed: Godot headless project load and `Battle_Fullscreen_Test.tscn` headless load. GDScript warning/error output was clean in headless load.
+- 김작 F6 manual QA remains required for palette taste, center-fade readability, terrain visibility, pop wave timing, direction tile unification, and click feel.
+- Next candidates:
+  - `v0.70-4 Battle Overlay Fine Color Tuning`
+  - `v0.70-5 WorldMap Final IA Blueprint + Panel Skeleton`
+
 ## v0.70-2 Battle Overlay Shape + Wave Tuning
 - Completed the second v0.70 battle visual detail polish task.
 - `Battle_Fullscreen_Test.tscn` `MainCamera` default zoom is now `0.84`, showing more battlefield scenery than the v0.70-1 `0.88` baseline.

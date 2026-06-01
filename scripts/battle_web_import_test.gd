@@ -1,6 +1,7 @@
 extends Node2D
 
 const BattleRangeOverlayTileScript := preload("res://scripts/battle_range_overlay_tile.gd")
+const BattleFacingArrowTileButtonScript := preload("res://scripts/battle_facing_arrow_tile_button.gd")
 const DEMO_DAMAGE := 12.0
 const ENEMY_DEMO_DAMAGE := 8.0
 const ALLY_DEMO_HP := 94.0
@@ -22,28 +23,29 @@ const MOVE_TARGET_VALID_COLOR := Color(0.45, 1.0, 0.55, 1.0)
 const MOVE_TARGET_INVALID_COLOR := Color(1.0, 0.35, 0.35, 1.0)
 const MOVE_HIGHLIGHT_VALID_COLOR := Color(0.172549, 0.623529, 1.0, 0.227451)
 const MOVE_HIGHLIGHT_INVALID_COLOR := Color(1.0, 0.2, 0.2, 0.28)
-const MOVE_RANGE_OVERLAY_COLOR := Color(0.12, 0.58, 1.0, 0.17)
-const MOVE_RANGE_OVERLAY_OUTLINE_COLOR := Color(0.42, 0.88, 1.0, 0.86)
-const MOVE_RANGE_OVERLAY_HIGHLIGHT_COLOR := Color(0.78, 0.96, 1.0, 0.34)
-const ATTACK_RANGE_OVERLAY_COLOR := Color(1.0, 0.18, 0.12, 0.20)
-const ATTACK_RANGE_OVERLAY_OUTLINE_COLOR := Color(1.0, 0.48, 0.28, 0.88)
-const ATTACK_RANGE_OVERLAY_HIGHLIGHT_COLOR := Color(1.0, 0.78, 0.54, 0.32)
-const UNIQUE_SKILL_RANGE_OVERLAY_COLOR := Color(0.55, 0.24, 1.0, 0.24)
-const UNIQUE_SKILL_RANGE_OVERLAY_OUTLINE_COLOR := Color(0.78, 0.54, 1.0, 0.84)
-const UNIQUE_SKILL_RANGE_OVERLAY_HIGHLIGHT_COLOR := Color(0.92, 0.78, 1.0, 0.30)
-const UNIQUE_SKILL_TARGET_OVERLAY_COLOR := Color(1.0, 0.76, 0.08, 0.62)
-const UNIQUE_SKILL_TARGET_OVERLAY_OUTLINE_COLOR := Color(1.0, 0.88, 0.24, 0.92)
-const UNIQUE_SKILL_TARGET_OVERLAY_HIGHLIGHT_COLOR := Color(1.0, 0.96, 0.66, 0.38)
+const MOVE_RANGE_OVERLAY_COLOR := Color(0.353, 0.416, 0.529, 0.20)
+const MOVE_RANGE_OVERLAY_OUTLINE_COLOR := Color(0.541, 0.631, 0.769, 0.86)
+const MOVE_RANGE_OVERLAY_HIGHLIGHT_COLOR := Color(0.706, 0.776, 0.894, 0.34)
+const ATTACK_RANGE_OVERLAY_COLOR := Color(0.902, 0.357, 0.471, 0.21)
+const ATTACK_RANGE_OVERLAY_OUTLINE_COLOR := Color(0.961, 0.494, 0.588, 0.88)
+const ATTACK_RANGE_OVERLAY_HIGHLIGHT_COLOR := Color(1.0, 0.690, 0.710, 0.32)
+const UNIQUE_SKILL_RANGE_OVERLAY_COLOR := Color(0.557, 0.420, 0.686, 0.22)
+const UNIQUE_SKILL_RANGE_OVERLAY_OUTLINE_COLOR := Color(0.694, 0.557, 0.824, 0.84)
+const UNIQUE_SKILL_RANGE_OVERLAY_HIGHLIGHT_COLOR := Color(0.804, 0.710, 0.910, 0.30)
+const UNIQUE_SKILL_TARGET_OVERLAY_COLOR := Color(0.788, 0.588, 0.290, 0.32)
+const UNIQUE_SKILL_TARGET_OVERLAY_OUTLINE_COLOR := Color(0.925, 0.710, 0.392, 0.90)
+const UNIQUE_SKILL_TARGET_OVERLAY_HIGHLIGHT_COLOR := Color(1.0, 0.835, 0.560, 0.34)
 const UNIQUE_SKILL_TARGET_MARKER_SCALE := 0.78
 const UNIQUE_SKILL_AUTO_PREVIEW_DURATION := 0.42
 const UNIQUE_SKILL_MANUAL_PREVIEW_DURATION := 0.42
 const MOVE_RANGE_OVERLAY_VISUAL_INSET := Vector2(32.0, 0.0)
 const RANGE_OVERLAY_CELL_INSET_RATIO := 0.08
-const RANGE_OVERLAY_CELL_APPEAR_DURATION := 0.15
-const RANGE_OVERLAY_CELL_SETTLE_DURATION := 0.07
-const RANGE_OVERLAY_CELL_STAGGER := 0.04
-const RANGE_OVERLAY_CELL_START_SCALE := Vector2(0.86, 0.86)
-const RANGE_OVERLAY_CELL_POP_SCALE := Vector2(1.04, 1.04)
+const RANGE_OVERLAY_CELL_APPEAR_DURATION := 0.16
+const RANGE_OVERLAY_CELL_SETTLE_DURATION := 0.08
+const RANGE_OVERLAY_CELL_STAGGER := 0.06
+const RANGE_OVERLAY_CELL_BASE_START_SCALE := 0.74
+const RANGE_OVERLAY_CELL_BASE_POP_SCALE := 1.14
+const RANGE_OVERLAY_CELL_DISTANCE_SCALE_STEP := 0.02
 const SHOW_CELL_SIZE_VISUAL_GUIDE := false
 const SHOW_LOGICAL_GRID_14X8_GUIDE := false
 const MELEE_ADJACENT_QA_MODE := false
@@ -63,8 +65,12 @@ const STRATEGY_MAX_SUCCESS_RATE := 0.90
 const STRATEGY_BASIC_INTELLIGENCE := 80
 const STRATEGY_ADVANCED_INTELLIGENCE := 90
 const STRATEGY_MASTER_INTELLIGENCE := 95
-const STRATEGY_RANGE_OVERLAY_COLOR := Color(0.0, 0.82, 0.9, 0.22)
-const STRATEGY_TARGET_OVERLAY_COLOR := Color(0.36, 1.0, 1.0, 0.74)
+const STRATEGY_RANGE_OVERLAY_COLOR := Color(0.310, 0.620, 0.660, 0.22)
+const STRATEGY_RANGE_OVERLAY_OUTLINE_COLOR := Color(0.490, 0.800, 0.820, 0.84)
+const STRATEGY_RANGE_OVERLAY_HIGHLIGHT_COLOR := Color(0.700, 0.910, 0.920, 0.30)
+const STRATEGY_TARGET_OVERLAY_COLOR := Color(0.420, 0.760, 0.790, 0.36)
+const STRATEGY_TARGET_OVERLAY_OUTLINE_COLOR := Color(0.640, 0.930, 0.940, 0.88)
+const STRATEGY_TARGET_OVERLAY_HIGHLIGHT_COLOR := Color(0.820, 1.0, 1.0, 0.34)
 const STRATEGY_TARGET_MARKER_SCALE := 0.74
 const STRATEGY_EFFECT_COLOR := Color(0.34, 1.0, 0.78, 1.0)
 const STRATEGY_FAIL_COLOR := Color(1.0, 0.24, 0.36, 1.0)
@@ -757,6 +763,7 @@ var current_enemy_attack_target_state: BattleUnitState = null
 var current_enemy_ai_actor_state: BattleUnitState = null
 var move_range_cells: Array[ColorRect] = []
 var range_overlay_tweens: Array[Tween] = []
+var facing_arrow_button_tweens: Array[Tween] = []
 var acted_ally_unit_ids: Dictionary = {}
 var acted_enemy_unit_ids: Dictionary = {}
 var dead_unit_ids: Dictionary = {}
@@ -4404,6 +4411,7 @@ func _show_facing_selection_panel() -> void:
 	if facing_arrow_panel != null:
 		facing_arrow_panel_position = facing_arrow_panel.position
 		facing_arrow_panel_size = facing_arrow_panel.size
+	_play_facing_arrow_button_pop()
 	print("SHOW FACING ARROW PANEL visible=%s pos=%s size=%s" % [
 		str(facing_arrow_panel != null and facing_arrow_panel.visible),
 		str(facing_arrow_panel_position),
@@ -4412,6 +4420,7 @@ func _show_facing_selection_panel() -> void:
 
 
 func _hide_facing_selection_panel() -> void:
+	_clear_facing_arrow_button_tweens()
 	if facing_selection_panel != null:
 		facing_selection_panel.visible = false
 	if facing_arrow_panel != null:
@@ -4482,32 +4491,16 @@ func _apply_facing_arrow_button_style(button: Button) -> void:
 	if button == null:
 		return
 
+	button.set_script(BattleFacingArrowTileButtonScript)
 	button.modulate = Color(1.0, 1.0, 1.0, FACING_ARROW_BUTTON_ALPHA)
-	button.flat = false
+	button.flat = true
+	if button.has_method("set_tile_style"):
+		button.call("set_tile_style", Color(0.353, 0.416, 0.529, 0.36), Color(0.541, 0.631, 0.769, 0.9), Color(0.706, 0.776, 0.894, 0.36))
 
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = Color(1.0, 0.92, 0.55, 0.12)
-	normal.border_color = Color(1.0, 0.92, 0.65, 0.4)
-	normal.set_border_width_all(2)
-	normal.set_corner_radius_all(4)
-
-	var hover := StyleBoxFlat.new()
-	hover.bg_color = Color(1.0, 0.94, 0.6, 0.18)
-	hover.border_color = Color(1.0, 0.94, 0.7, 0.52)
-	hover.set_border_width_all(2)
-	hover.set_corner_radius_all(4)
-
-	var pressed := StyleBoxFlat.new()
-	pressed.bg_color = Color(1.0, 0.86, 0.42, 0.22)
-	pressed.border_color = Color(1.0, 0.92, 0.65, 0.6)
-	pressed.set_border_width_all(2)
-	pressed.set_corner_radius_all(4)
-
-	var disabled := StyleBoxFlat.new()
-	disabled.bg_color = Color(0.65, 0.58, 0.2, 0.12)
-	disabled.border_color = Color(0.85, 0.76, 0.3, 0.32)
-	disabled.set_border_width_all(2)
-	disabled.set_corner_radius_all(4)
+	var normal := StyleBoxEmpty.new()
+	var hover := StyleBoxEmpty.new()
+	var pressed := StyleBoxEmpty.new()
+	var disabled := StyleBoxEmpty.new()
 
 	button.add_theme_stylebox_override("normal", normal)
 	button.add_theme_stylebox_override("hover", hover)
@@ -4520,6 +4513,33 @@ func _apply_facing_arrow_button_style(button: Button) -> void:
 	button.add_theme_color_override("font_outline_color", Color(0.1, 0.07, 0.0, 0.8))
 	button.add_theme_constant_override("outline_size", 3)
 	button.add_theme_font_size_override("font_size", 36)
+
+
+func _clear_facing_arrow_button_tweens() -> void:
+	for tween in facing_arrow_button_tweens:
+		if tween != null:
+			tween.kill()
+	facing_arrow_button_tweens.clear()
+
+
+func _play_facing_arrow_button_pop() -> void:
+	_clear_facing_arrow_button_tweens()
+	var buttons := [face_up_arrow_button, face_right_arrow_button, face_down_arrow_button, face_left_arrow_button]
+	for index in range(buttons.size()):
+		var button := buttons[index] as Button
+		if button == null or not button.visible:
+			continue
+		button.pivot_offset = button.size * 0.5
+		button.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		button.scale = Vector2(0.78, 0.78)
+		var tween := create_tween()
+		facing_arrow_button_tweens.append(tween)
+		tween.tween_interval(float(index) * 0.025)
+		tween.set_parallel(true)
+		tween.tween_property(button, "modulate:a", FACING_ARROW_BUTTON_ALPHA, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween.tween_property(button, "scale", Vector2(1.10, 1.10), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tween.chain()
+		tween.tween_property(button, "scale", Vector2.ONE, 0.06).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
 func _enter_post_move_facing_selection() -> void:
@@ -8693,20 +8713,38 @@ func _show_range_overlay_cell(rect: ColorRect, cell: Vector2i, cell_size: Vector
 		rect.scale = Vector2.ONE
 		return
 
-	rect.modulate = Color(1.0, 1.0, 1.0, 0.0)
-	rect.scale = RANGE_OVERLAY_CELL_START_SCALE
 	var wave_distance := 0
 	if battle_grid_controller != null:
 		wave_distance = battle_grid_controller.get_distance(origin_cell, cell)
+	rect.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	rect.scale = _get_range_overlay_start_scale(wave_distance)
 	var delay := float(wave_distance) * RANGE_OVERLAY_CELL_STAGGER
 	var tween := create_tween()
 	range_overlay_tweens.append(tween)
 	tween.tween_interval(delay)
 	tween.set_parallel(true)
 	tween.tween_property(rect, "modulate:a", 1.0, RANGE_OVERLAY_CELL_APPEAR_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(rect, "scale", RANGE_OVERLAY_CELL_POP_SCALE, RANGE_OVERLAY_CELL_APPEAR_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(rect, "scale", _get_range_overlay_pop_scale(wave_distance), RANGE_OVERLAY_CELL_APPEAR_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.chain()
 	tween.tween_property(rect, "scale", Vector2.ONE, RANGE_OVERLAY_CELL_SETTLE_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+
+func _get_range_overlay_start_scale(wave_distance: int) -> Vector2:
+	var scale_value := clampf(
+		RANGE_OVERLAY_CELL_BASE_START_SCALE + (float(maxi(wave_distance - 1, 0)) * RANGE_OVERLAY_CELL_DISTANCE_SCALE_STEP),
+		0.74,
+		0.82
+	)
+	return Vector2(scale_value, scale_value)
+
+
+func _get_range_overlay_pop_scale(wave_distance: int) -> Vector2:
+	var scale_value := clampf(
+		RANGE_OVERLAY_CELL_BASE_POP_SCALE - (float(maxi(wave_distance - 1, 0)) * RANGE_OVERLAY_CELL_DISTANCE_SCALE_STEP * 1.5),
+		1.05,
+		1.14
+	)
+	return Vector2(scale_value, scale_value)
 
 
 func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
@@ -8776,7 +8814,7 @@ func _show_strategy_range_overlay(caster_state: BattleUnitState) -> void:
 			continue
 
 		var rect := move_range_cells[index]
-		_show_range_overlay_cell(rect, cell, cell_size, STRATEGY_RANGE_OVERLAY_COLOR, caster_state.grid_cell, true, 1.0, STRATEGY_TARGET_OVERLAY_COLOR, Color(0.78, 1.0, 1.0, 0.28))
+		_show_range_overlay_cell(rect, cell, cell_size, STRATEGY_RANGE_OVERLAY_COLOR, caster_state.grid_cell, true, 1.0, STRATEGY_RANGE_OVERLAY_OUTLINE_COLOR, STRATEGY_RANGE_OVERLAY_HIGHLIGHT_COLOR)
 		index += 1
 
 	for target_cell in target_cells:
@@ -8788,7 +8826,7 @@ func _show_strategy_range_overlay(caster_state: BattleUnitState) -> void:
 		if not _is_move_range_overlay_rect_inside_visual_board(marker_world_pos, cell_size):
 			continue
 		var marker_rect := move_range_cells[index]
-		_show_range_overlay_cell(marker_rect, target_cell, cell_size, STRATEGY_TARGET_OVERLAY_COLOR, caster_state.grid_cell, true, STRATEGY_TARGET_MARKER_SCALE, Color(0.72, 1.0, 1.0, 0.88), Color(0.9, 1.0, 1.0, 0.36))
+		_show_range_overlay_cell(marker_rect, target_cell, cell_size, STRATEGY_TARGET_OVERLAY_COLOR, caster_state.grid_cell, true, STRATEGY_TARGET_MARKER_SCALE, STRATEGY_TARGET_OVERLAY_OUTLINE_COLOR, STRATEGY_TARGET_OVERLAY_HIGHLIGHT_COLOR)
 		index += 1
 
 

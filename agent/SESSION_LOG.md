@@ -2,6 +2,18 @@
 
 ## 2026-06-01
 
+### v0.70-3 Battle Overlay Palette + Pop Wave Polish
+- Started from latest local HEAD after `v0.70-2 Battle Overlay Shape + Wave Tuning`.
+- Focused only on battle overlay visual/UX polish; camera zoom remained at `0.84`.
+- Retuned movement, attack, single-target, multi-target, and strategy colors into a more cohesive toned tactical palette while preserving type distinction.
+- Updated `BattleRangeOverlayTile` rendering from inner-octagon layering to center-fade edge bands so terrain shows more naturally through the tile center.
+- Strengthened wave timing to `0.06s` per grid distance and changed pop scaling to distance-sensitive start/overshoot values.
+- Added `BattleFacingArrowTileButton` and applied it to the four direction-selection arrow buttons, preserving the existing button click handlers while matching the octagonal overlay design language.
+- Added short pop reveal for direction-selection tiles.
+- No battle rules, move/attack 판정, damage formula, AI, result, wounded/prisoner/death, or WorldMap UX logic was intentionally changed.
+- Verification passed: Godot headless project load and `Battle_Fullscreen_Test.tscn` headless load. GDScript warning/error output was clean.
+- F6 manual QA remains: distinct but cohesive overlay palette, reduced sky-blue casual feel, center-fade interior, natural terrain visibility, visible unit-centered pop wave, near/far pop strength, direction tile unification, and click feel.
+
 ### v0.70-2 Battle Overlay Shape + Wave Tuning
 - Started from baseline `v0.70-1 Battle Visual Detail Polish Start` / base commit `60bdf2cc5955180a93cf4ea9e439d1a103f6cf7e`.
 - Focused only on battle visual/UX overlay tuning and deferred WorldMap final IA work.
