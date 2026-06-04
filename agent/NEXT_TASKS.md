@@ -1499,6 +1499,11 @@ Goal:
 - Added large red unique skill damage numbers and short camera shake.
 - Enemy / auto unique skill use is deferred to a future pass.
 - `v0.67w Battle Screen Basic UX Stable Lock` is complete.
+## v0.70-13a Battle Intro Wide Hold Timing Polish
+- Completed: battle intro wide-shot hold is longer and zoom-in is slightly slower.
+- Manual QA: confirm the wide battlefield shot now has enough time to be appreciated, zoom-in no longer feels rushed, UI still appears after zoom, and skip still works instantly.
+- No combat logic, cutin/result video, archer/gunner FX, or worldmap changes were made.
+
 ## v0.70-13 Battle Intro Camera Zoom Patch
 - Completed: battle start now opens with a wide battlefield camera shot, then zooms into the normal gameplay camera state.
 - Intro hides `BattleUI` during the camera move and restores it afterward.

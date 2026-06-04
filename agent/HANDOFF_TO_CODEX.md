@@ -1623,6 +1623,16 @@ Do not modify casually:
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix4`: move `CityMarker_Hanseong` root and confirm marker body, name label, and click area move together; check all other city marker roots; Ctrl+S persistence; marker click info label; camera pan/zoom/clamp; and battle scene stability.
 - Codex Godot headless verification for `v0.68b-2-hotfix4` was blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output.
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix3`: select/move the four Tile nodes in the 2D editor, Ctrl+S, confirm F6 preserves the saved layout, camera clamp follows the current tile union rect, all 13 city markers remain present, and the battle scene is not broken.
+## v0.70-13a Handoff
+- Battle intro timing was polished after QA feedback that gameplay zoom started too quickly.
+- Current values:
+  - `BATTLE_INTRO_WIDE_HOLD_SEC = 0.85`
+  - `BATTLE_INTRO_ZOOM_SEC = 1.15`
+  - `BATTLE_INTRO_UI_FADE_SEC = 0.25` unchanged
+- Skip behavior, UI restore timing, input guard, and gameplay camera restoration are unchanged from v0.70-13.
+- No battle logic, result/worldmap flow, cutin/result video assets, archer volley FX, or gunner shot FX should be considered changed.
+- Manual QA: confirm the wide shot is appreciable without dragging, zoom-in feels less rushed, UI appears after zoom, and skip remains immediate.
+
 ## v0.70-13 Handoff
 - Battle start now has a visual-only intro camera zoom sequence.
 - Implementation is in `scripts/battle_web_import_test.gd`:

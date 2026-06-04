@@ -1732,6 +1732,13 @@ Explicitly deferred systems:
 - Auto defense resolution.
 - Save/load persistence expansion for resolved city ownership/troop state.
 - Resource loss from battle.
+## v0.70-13a Battle Intro Wide Hold Timing Polish
+- Battle intro wide-shot hold was increased so the battlefield background is readable before zoom-in begins.
+- Zoom-in duration was slightly increased to make the camera move feel less abrupt.
+- Skip behavior, UI restore timing, input guard, and gameplay camera restoration remain unchanged.
+- No battle logic, turn flow, result/worldmap flow, cutin/result video assets, archer FX, or gunner FX changes are intended.
+- Manual QA should confirm the intro now gives enough time to appreciate the battlefield without feeling slow.
+
 ## v0.70-13 Battle Intro Camera Zoom Patch
 - Battle start now plays a visual-only intro camera sequence: wide battlefield shot first, then smooth zoom into the normal gameplay camera position/zoom.
 - `MainCamera` final gameplay state is captured before the intro and restored after completion or skip.

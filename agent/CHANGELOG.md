@@ -1565,6 +1565,12 @@
 - Button text is cleared only when image style apply succeeds, so text overlap is avoided without breaking fallback behavior.
 
 ## v0.67s Bottom Command Button Actual Asset Integration
+## v0.70-13a Battle Intro Wide Hold Timing Polish
+- Increased battle intro wide-shot hold from `0.4s` to `0.85s`.
+- Increased battle intro zoom-in duration from `1.0s` to `1.15s`.
+- Kept UI restore after zoom completion and kept skip behavior unchanged.
+- No battle logic, result/worldmap flow, cutin/result video assets, archer volley FX, or gunner shot FX were changed.
+
 ## v0.70-13 Battle Intro Camera Zoom Patch
 - Added battle-start intro camera presentation using the existing `MainCamera`.
 - Captures the normal gameplay camera position/zoom, starts from a wider battlefield view, then tweens back to the captured gameplay camera state.

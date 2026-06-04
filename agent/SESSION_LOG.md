@@ -1999,6 +1999,14 @@
 ### v0.67t Bottom Command Button PNG Apply QA
 - Confirmed all 6 bottom command PNG files exist.
 - Confirmed all 6 PNG files are `512x256` with `Format32bppArgb`.
+### v0.70-13a Battle Intro Wide Hold Timing Polish
+- Tuned battle intro timing after visible QA found the zoom entered gameplay too quickly.
+- `BATTLE_INTRO_WIDE_HOLD_SEC` changed from `0.4` to `0.85`.
+- `BATTLE_INTRO_ZOOM_SEC` changed from `1.0` to `1.15`.
+- `BATTLE_INTRO_UI_FADE_SEC`, skip input, UI restore, input guard, and gameplay camera restore behavior were left unchanged.
+- No battle logic, result/worldmap flow, cutin/result video assets, archer volley FX, or gunner shot FX changes were intended.
+- Manual visual QA remains: confirm the wide-shot now feels appreciable and the zoom no longer feels rushed.
+
 ### v0.70-13 Battle Intro Camera Zoom Patch
 - Added a battle-start camera intro in `scripts/battle_web_import_test.gd`.
 - The intro captures the final gameplay camera state, moves `MainCamera` to a wider battlefield shot, holds briefly, then zooms back to the captured gameplay view.
