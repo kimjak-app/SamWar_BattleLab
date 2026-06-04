@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-6b Jeong Do Jeon q8 Source Replacement Handoff
+- Current task starts after `5c9b8cc 정도전 고유특기 영상 교체`, where the Jeong Do Jeon source MP4 was replaced.
+- Verified source path:
+  `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4`
+- Source ffprobe: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+- Regenerated runtime q8 Theora path:
+  `assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv`
+- Output ffprobe: Theora, 1920x1080, yuv420p, `30/1`, duration `2.000000`, size `7101765` bytes.
+- Jeong Do Jeon mapping remains unchanged in `scripts/battle_web_import_test.gd`: the q8 OGV remains first, followed by existing WebM/MP4 fallbacks.
+- Jeong Do Jeon title remains `res://assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png`.
+- Yi Sunsin and Kwon Yul q8 mappings/assets were not touched.
+- The source-replacement commit had tracked `assets/video_test/theora_safe/` frame-capture `.import` junk; this pass removes only those tracked junk files and preserves the real q7/q8 test OGVs plus `README.md`.
+- Verification completed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader checks showing Jeong Do Jeon q8 OGV loads as `VideoStreamTheora` and title PNG loads as `CompressedTexture2D`.
+- Next visible QA should confirm the new Jeong Do Jeon video appears in battle, no black screen occurs, the 개혁령 title appears, and battle flow returns.
+
 ## v0.70-7a Tactical Panel Distance + Move Cell Clickability Handoff
 - Current task refines the v0.70-7 floating command panel overlap fix in `scripts/battle_web_import_test.gd`.
 - Command panel placement now keeps the selected unit as the spatial anchor:

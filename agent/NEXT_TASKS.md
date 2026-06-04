@@ -1,5 +1,18 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Replaced Jeong Do Jeon q8 Cutin Video
+- `v0.70-6b Jeong Do Jeon Source Replacement + q8 Theora Regeneration` regenerated the existing first-candidate q8 Theora OGV from the newly replaced source MP4.
+- Runtime first-candidate path remains unchanged:
+  `res://assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv`
+- The title PNG path remains unchanged:
+  `res://assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png`
+- Manual visual QA should confirm:
+  1. Jeong Do Jeon now displays the newly replaced video in the actual battle flow.
+  2. No black-screen playback appears.
+  3. The 개혁령 title image still appears correctly.
+  4. The cutin exits and battle flow returns normally.
+  5. Yi Sunsin and Kwon Yul q8 cutins remain unaffected.
+
 ## Next: F6 Visual QA for Tactical Panel Distance and Move Cell Clickability
 - `v0.70-7a Tactical Panel Distance Clamp + Move Cell Clickability Fix` tightens the previous overlap avoidance so the floating panel prefers nearby positions and only uses screen-corner fallbacks as a last resort.
 - Valid highlighted move-cell clicks now run before enemy unit hit testing, which targets the reported cell below/near Xiahou Dun being visually reachable but not clickable.

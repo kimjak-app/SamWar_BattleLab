@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-6b Jeong Do Jeon Source Replacement + q8 Theora Regeneration
+- Verified the replaced Jeong Do Jeon source MP4 at `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4`.
+- Source ffprobe: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+- Regenerated `assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv` from the new source using the q8 1920x Theora preset with Vorbis audio.
+- Output ffprobe: Theora, 1920x1080, yuv420p, `30/1`, duration `2.000000`, size `7101765` bytes.
+- Preserved the existing Jeong Do Jeon mapping/fallback chain; no script mapping change was needed.
+- Preserved Yi Sunsin q8 OGV/mapping/timing, Kwon Yul q8 OGV/mapping, Jeong Do Jeon title PNG, and legacy fallback videos.
+- Removed only the accidental tracked Godot `.import` frame-capture junk under `assets/video_test/theora_safe/` introduced by the source-replacement commit.
+- Verification passed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader checks for the regenerated OGV/title PNG.
+
 ## v0.70-7a Tactical Panel Distance Clamp + Move Cell Clickability Fix
 - Refined floating command panel placement so the panel remains attached to the selected unit when possible.
 - Added distance-from-selected-unit scoring and a large viewport-corner fallback penalty to the existing tactical-cell overlap score.

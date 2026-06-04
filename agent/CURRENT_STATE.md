@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-6b Jeong Do Jeon Source Replacement + q8 Theora Regeneration
+- Built on `5c9b8cc 정도전 고유특기 영상 교체`, which replaced `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4`.
+- New Jeong Do Jeon source ffprobe: `codec_name=h264`, `width=1920`, `height=1080`, `pix_fmt=yuv420p`, `avg_frame_rate=30000/1001`, `duration=2.002000`.
+- Regenerated only `assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv` from the new source with the q8 1920x Theora preset.
+- Regenerated output ffprobe: `codec_name=theora`, `width=1920`, `height=1080`, `pix_fmt=yuv420p`, `avg_frame_rate=30/1`, `duration=2.000000`, size `7101765` bytes.
+- Jeong Do Jeon mapping remains unchanged: `res://assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv` is still the first candidate, with existing WebM/MP4 fallbacks preserved.
+- Yi Sunsin q8 OGV/mapping/timing, Kwon Yul q8 OGV/mapping, and Jeong Do Jeon title PNG were not modified.
+- Removed only accidental tracked Godot import junk under `assets/video_test/theora_safe/` from the source-replacement commit; preserved the actual q7/q8 test `.ogv` files and `README.md`.
+- Verification passed: source ffprobe, output ffprobe, `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader checks for Jeong Do Jeon q8 OGV/title PNG.
+- Remaining QA: visible battle-flow QA should confirm the new Jeong Do Jeon video displays, no black screen appears, the 개혁령 title appears, and battle flow returns after the cutin.
+
 ## v0.70-7a Tactical Panel Distance Clamp + Move Cell Clickability Fix
 - Built on `694065a Prevent battle command panel from blocking tactical cells`.
 - Fixed the Kim Yu-sin visible-QA issue where the floating command panel could jump to a detached lower-right safe corner after overlap avoidance.
