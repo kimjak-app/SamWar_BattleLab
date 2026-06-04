@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Gunner Muzzle Flash + Tracer FX
+- `v0.70-10` adds visual-only primitive gunner FX for normal/basic attacks.
+- Current gunner units expected to show the effect:
+  1. Jeong Do Jeon / `jeong_dojeon` / `korea_gunner`.
+  2. Eulji Mundeok / `eulji_mundeok` / `korea_gunner`.
+  3. Zhuge Liang / `zhuge_liang` / `china_gunner`.
+- The effect uses runtime `Polygon2D`, `Line2D`, and small `Node2D` spark/smoke primitives only; no gunner asset file was added.
+- Manual visual QA should confirm:
+  1. Jeong Do Jeon, Eulji Mundeok, and Zhuge Liang basic attacks show a short muzzle flash near the attacker.
+  2. A thin tracer appears nearly instantly and feels much faster than archer arrows.
+  3. Target impact has a compact spark/pop and small smoke fade.
+  4. The effect does not look like a slow projectile or lingering arrow pin.
+  5. Yi Sunsin, Kim Yu-sin, Liu Bei, Kwon Yul, Guan Yu, Zhang Fei, and Xiahou Dun basic attacks do not show gunner FX.
+  6. Strategy and unique/special skills, including Gaehyeokryeong, Salsu Daechop, and Eight Trigram Formation, do not show gunner FX.
+  7. Damage, hit results, turn progression, and WorldMap return behavior remain unchanged.
+
 ## Next: F6 Visual QA for Curved Archer Volley + Timing Guard
 - `v0.70-9c` tunes the visual-only multi-arrow volley for archer normal/basic attacks.
 - Current archer units expected to show the volley:

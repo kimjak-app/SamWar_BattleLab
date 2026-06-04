@@ -377,6 +377,14 @@ const ARROW_CURVE_OFFSET_MIN := 12.0
 const ARROW_CURVE_OFFSET_MAX := 28.0
 const ARROW_VOLLEY_COMPLETION_PAD_SEC := 0.06
 const ARROW_BASIC_ATTACK_MOTION_DURATION_SEC := 0.46
+const GUNNER_MUZZLE_FLASH_DURATION := 0.07
+const GUNNER_TRACER_DURATION := 0.07
+const GUNNER_IMPACT_POP_BEGIN := 0.0
+const GUNNER_IMPACT_DURATION := 0.16
+const GUNNER_SMOKE_LINGER_DURATION := 0.34
+const GUNNER_TRACER_WIDTH := 1.55
+const GUNNER_IMPACT_SCATTER := 10.0
+const GUNNER_VISUAL_BLOCKING_DURATION := 0.18
 const ALLOW_BREAKTHROUGH_MOVE := false
 const FACING_ARROW_BUTTON_SIZE_SCALE := 0.96
 const FACING_ARROW_PANEL_ALPHA := 1.0
@@ -2665,6 +2673,7 @@ func play_basic_attack_demo() -> void:
 	var ally_lunge_offset := direction * ATTACK_LUNGE_DISTANCE
 	var enemy_recoil_offset := direction * 12.0
 	var is_archer_basic_attack := _is_archer_unit(active_unit_state)
+	var is_gunner_basic_attack := _is_gunner_unit(active_unit_state)
 
 	var tween := create_tween()
 	tween.tween_method(_apply_selected_ally_group_offset, Vector2.ZERO, ally_lunge_offset, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
@@ -2678,11 +2687,15 @@ func play_basic_attack_demo() -> void:
 	tween.tween_method(_set_enemy_target_group_modulate, Color(1.0, 0.45, 0.45, 1.0), Color.WHITE, 0.18)
 	if is_archer_basic_attack:
 		tween.chain().tween_interval(_get_arrow_volley_completion_extra_wait())
+	elif is_gunner_basic_attack:
+		tween.chain().tween_interval(_get_gunner_visual_completion_extra_wait())
 	tween.finished.connect(_finish_basic_attack_demo)
 
 	_spawn_attack_slash_fx(ally_start, enemy_start)
 	if is_archer_basic_attack:
 		_play_arrow_projectile_effect(ally_start, enemy_start)
+	elif is_gunner_basic_attack:
+		_play_gunner_shot_effect(ally_start, enemy_start)
 
 	var attack_damage := _get_directional_attack_damage(int(DEMO_DAMAGE), active_unit_state, selected_attack_target_state, true, true)
 	var attack_angle_type := _get_attack_angle_type(active_unit_state, selected_attack_target_state)
@@ -6575,9 +6588,12 @@ func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleU
 	var attacker_anchor := _get_enemy_actor_visual_anchor_position(enemy_actor_state)
 	var target_anchor := _get_ally_target_visual_anchor_position(target_state)
 	var is_archer_basic_attack := _is_archer_unit(enemy_actor_state)
+	var is_gunner_basic_attack := _is_gunner_unit(enemy_actor_state)
 	_spawn_attack_slash_fx(attacker_anchor, target_anchor)
 	if is_archer_basic_attack:
 		_play_arrow_projectile_effect(attacker_anchor, target_anchor)
+	elif is_gunner_basic_attack:
+		_play_gunner_shot_effect(attacker_anchor, target_anchor)
 
 	var tween := create_tween()
 	tween.tween_interval(0.16)
@@ -6593,6 +6609,8 @@ func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleU
 	tween.tween_method(_set_ally_target_group_modulate, Color(1.0, 0.45, 0.45, 1.0), Color.WHITE, 0.18)
 	if is_archer_basic_attack:
 		tween.chain().tween_interval(_get_arrow_volley_completion_extra_wait())
+	elif is_gunner_basic_attack:
+		tween.chain().tween_interval(_get_gunner_visual_completion_extra_wait())
 	tween.chain().tween_callback(_finish_enemy_actor_basic_attack.bind(enemy_actor_state))
 
 
@@ -9290,6 +9308,133 @@ func _spawn_arrow_impact_pin(target_impact_pos: Vector2, arrow_angle: float) -> 
 	tween.tween_callback(pin_root.queue_free)
 
 
+func _play_gunner_shot_effect(source_pos: Vector2, target_pos: Vector2) -> void:
+	if battle_fx_root == null:
+		return
+	var shot_vector := target_pos - source_pos
+	if shot_vector.length() <= 0.1:
+		shot_vector = Vector2.RIGHT
+	var shot_direction := shot_vector.normalized()
+	var impact_pos := target_pos + Vector2(
+		randf_range(-GUNNER_IMPACT_SCATTER, GUNNER_IMPACT_SCATTER),
+		randf_range(-GUNNER_IMPACT_SCATTER, GUNNER_IMPACT_SCATTER)
+	)
+	var muzzle_pos := source_pos + shot_direction * 20.0
+	_spawn_gunner_muzzle_flash(muzzle_pos, shot_direction)
+	_spawn_gunner_tracer(muzzle_pos, impact_pos)
+	_spawn_gunner_impact_pop(impact_pos, shot_direction)
+
+
+func _get_gunner_visual_completion_extra_wait() -> float:
+	return maxf(0.0, GUNNER_VISUAL_BLOCKING_DURATION - ARROW_BASIC_ATTACK_MOTION_DURATION_SEC)
+
+
+func _spawn_gunner_muzzle_flash(source_pos: Vector2, shot_direction: Vector2) -> void:
+	if battle_fx_root == null:
+		return
+	if shot_direction.length() <= 0.1:
+		shot_direction = Vector2.RIGHT
+	var flash := Polygon2D.new()
+	flash.name = "GunnerMuzzleFlash"
+	flash.z_as_relative = false
+	flash.z_index = 29
+	flash.position = battle_fx_root.to_local(source_pos)
+	flash.rotation = shot_direction.angle()
+	flash.polygon = PackedVector2Array([
+		Vector2(-4.0, -4.0),
+		Vector2(15.0, 0.0),
+		Vector2(-4.0, 4.0),
+		Vector2(2.0, 0.0)
+	])
+	flash.color = Color(1.0, 0.73, 0.25, 0.95)
+	flash.scale = Vector2.ONE * 0.65
+	flash.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	battle_fx_root.add_child(flash)
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(flash, "scale", Vector2.ONE * 1.25, GUNNER_MUZZLE_FLASH_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(flash, "modulate:a", 0.0, GUNNER_MUZZLE_FLASH_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(flash.queue_free)
+
+
+func _spawn_gunner_tracer(source_pos: Vector2, target_pos: Vector2) -> void:
+	if battle_fx_root == null:
+		return
+	var tracer := Line2D.new()
+	tracer.name = "GunnerTracer"
+	tracer.z_as_relative = false
+	tracer.z_index = 28
+	tracer.points = PackedVector2Array([
+		battle_fx_root.to_local(source_pos),
+		battle_fx_root.to_local(target_pos)
+	])
+	tracer.width = GUNNER_TRACER_WIDTH
+	tracer.default_color = Color(1.0, 0.88, 0.44, 0.82)
+	tracer.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	battle_fx_root.add_child(tracer)
+
+	var tween := create_tween()
+	tween.tween_property(tracer, "modulate:a", 0.0, GUNNER_TRACER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_callback(tracer.queue_free)
+
+
+func _spawn_gunner_impact_pop(target_pos: Vector2, shot_direction: Vector2) -> void:
+	if battle_fx_root == null:
+		return
+	if shot_direction.length() <= 0.1:
+		shot_direction = Vector2.RIGHT
+	var impact_root := Node2D.new()
+	impact_root.name = "GunnerImpactPop"
+	impact_root.z_as_relative = false
+	impact_root.z_index = 30
+	impact_root.position = battle_fx_root.to_local(target_pos)
+	impact_root.rotation = shot_direction.angle()
+	impact_root.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	battle_fx_root.add_child(impact_root)
+
+	for spark_index in range(4):
+		var spark := Line2D.new()
+		spark.name = "GunnerImpactSpark"
+		var spark_length := randf_range(5.0, 10.0)
+		spark.points = PackedVector2Array([Vector2.ZERO, Vector2(spark_length, 0.0)])
+		spark.width = randf_range(1.1, 1.7)
+		spark.default_color = Color(1.0, 0.78, 0.34, 0.9)
+		spark.rotation = randf_range(-PI, PI)
+		impact_root.add_child(spark)
+
+	var smoke_root := Node2D.new()
+	smoke_root.name = "GunnerSmokePuff"
+	smoke_root.z_as_relative = false
+	smoke_root.z_index = 27
+	smoke_root.position = battle_fx_root.to_local(target_pos + Vector2(randf_range(-4.0, 4.0), randf_range(-5.0, 2.0)))
+	smoke_root.modulate = Color(0.62, 0.58, 0.52, 0.42)
+	battle_fx_root.add_child(smoke_root)
+	for smoke_index in range(3):
+		var smoke_line := Line2D.new()
+		smoke_line.name = "GunnerSmokeLine"
+		smoke_line.points = PackedVector2Array([Vector2(-3.0, 0.0), Vector2(3.0, 0.0)])
+		smoke_line.width = 1.4
+		smoke_line.default_color = Color(0.62, 0.58, 0.52, 0.5)
+		smoke_line.rotation = randf_range(-PI, PI)
+		smoke_line.position = Vector2(randf_range(-4.0, 4.0), randf_range(-4.0, 4.0))
+		smoke_root.add_child(smoke_line)
+
+	var impact_tween := create_tween()
+	if GUNNER_IMPACT_POP_BEGIN > 0.0:
+		impact_tween.tween_interval(GUNNER_IMPACT_POP_BEGIN)
+	impact_tween.set_parallel(true)
+	impact_tween.tween_property(impact_root, "scale", Vector2.ONE * 1.18, GUNNER_IMPACT_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	impact_tween.tween_property(impact_root, "modulate:a", 0.0, GUNNER_IMPACT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	impact_tween.chain().tween_callback(impact_root.queue_free)
+
+	var smoke_tween := create_tween()
+	smoke_tween.set_parallel(true)
+	smoke_tween.tween_property(smoke_root, "scale", Vector2.ONE * 1.35, GUNNER_SMOKE_LINGER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	smoke_tween.tween_property(smoke_root, "modulate:a", 0.0, GUNNER_SMOKE_LINGER_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	smoke_tween.chain().tween_callback(smoke_root.queue_free)
+
+
 func _spawn_attack_slash_fx(attacker_pos: Vector2, target_pos: Vector2) -> void:
 	var texture := _load_random_fx_texture(ATTACK_SLASH_FX_TEXTURE_PATHS)
 	if texture == null:
@@ -10506,6 +10651,20 @@ func _is_archer_unit(unit_state: BattleUnitState) -> bool:
 	var hero_entry := _get_hero_registry_entry(hero_id)
 	var default_visual_key := String(hero_entry.get("default_visual_key", ""))
 	return default_visual_key != "" and _infer_unit_type_from_visual_key(default_visual_key) == UNIT_TYPE_ARCHER
+
+
+func _is_gunner_unit(unit_state: BattleUnitState) -> bool:
+	if unit_state == null:
+		return false
+	if _normalize_unit_type(unit_state.unit_type) == UNIT_TYPE_GUNNER:
+		return true
+	var visual_key := _get_visual_key_for_unit(unit_state)
+	if visual_key != "" and _infer_unit_type_from_visual_key(visual_key) == UNIT_TYPE_GUNNER:
+		return true
+	var hero_id := _get_hero_id_for_unit_state(unit_state)
+	var hero_entry := _get_hero_registry_entry(hero_id)
+	var default_visual_key := String(hero_entry.get("default_visual_key", ""))
+	return default_visual_key != "" and _infer_unit_type_from_visual_key(default_visual_key) == UNIT_TYPE_GUNNER
 
 
 func _get_visual_fallback_key_for_unit(unit_state: BattleUnitState) -> String:

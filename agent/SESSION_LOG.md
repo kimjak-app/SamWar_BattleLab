@@ -1,5 +1,18 @@
 # SESSION LOG
 
+## 2026-06-05
+
+### v0.70-10 Gunner Muzzle Flash + Tracer Impact Visual
+- Started from clean repo state at `6262206 Add curved archer volley path and completion timing guard`.
+- Confirmed gunner unit data uses `UNIT_TYPE_GUNNER` plus `korea_gunner` / `china_gunner` visual keys.
+- Added `_is_gunner_unit()` using existing unit type, visual key inference, and hero default visual key fallback.
+- Added `_play_gunner_shot_effect()` to the ally and enemy normal/basic attack visual hook path only.
+- Added runtime primitive muzzle flash, tracer, target spark impact, and smoke fade functions.
+- Kept gunner FX separate from archer volley; archer and gunner hooks are mutually exclusive.
+- No gunner assets were created.
+- Kept the effect visual-only and gunner-basic-attack-only: no damage, hit, troop, turn, unique-skill, cutin, q8 mapping, or WorldMap logic changes were intended.
+- Remaining manual QA: verify Jeong Do Jeon / Eulji Mundeok / Zhuge Liang basic attacks show a short sharp muzzle/tracer/impact effect, and non-gunners/special skills do not.
+
 ## 2026-06-04
 
 ### v0.70-9c Archer Curved Volley + Visual Completion Timing Guard

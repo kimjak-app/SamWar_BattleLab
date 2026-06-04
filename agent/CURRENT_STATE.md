@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-10 Gunner Muzzle Flash + Tracer Impact Visual
+- Added a visual-only gunner normal/basic attack FX path in `scripts/battle_web_import_test.gd`.
+- Current gunner units are resolved from unit type / visual key data: `jeong_dojeon` (`korea_gunner`), `eulji_mundeok` (`korea_gunner`), and `zhuge_liang` (`china_gunner`).
+- Gunner attacks now call `_play_gunner_shot_effect()` from the same ally/enemy basic attack visual hook family as archer volleys, but through a separate `_is_gunner_unit()` predicate.
+- New runtime primitive functions: `_spawn_gunner_muzzle_flash`, `_spawn_gunner_tracer`, and `_spawn_gunner_impact_pop`.
+- No gunner bullet, muzzle flash, tracer, or smoke asset was created; the effect uses runtime `Polygon2D`, `Line2D`, and `Node2D` primitives under the battle FX layer.
+- The effect shows a short directional muzzle flash, fast thin tracer, target spark impact, and small smoke fade.
+- Gunner visual blocking is intentionally short (`GUNNER_VISUAL_BLOCKING_DURATION = 0.18`) and the existing basic-attack motion already covers it; smoke fade remains non-blocking.
+- The hook is limited to gunner normal/basic attacks and does not run from unique/special skills, strategy, cutins, damage calculation, turn progression, or WorldMap return logic.
+- No cutin assets, q8 Theora mappings, title PNGs, or WorldMap files were changed.
+- Remaining QA: visible battle QA should confirm Jeong Do Jeon / Eulji Mundeok / Zhuge Liang basic attacks show a sharp muzzle flash, tracer, impact, and smoke, while archers/non-gunners and special skills do not.
+
 ## v0.70-9c Archer Curved Volley + Visual Completion Timing Guard
 - Tuned the visual-only archer basic-attack volley in `scripts/battle_web_import_test.gd` for natural motion and action sequencing.
 - Normal/basic attacks by archer units now spawn `ARROW_VOLLEY_VISUAL_COUNT = 9` small runtime `Line2D` arrows with wider staggered launches, slower travel, target-side scatter, and brief impact pins.

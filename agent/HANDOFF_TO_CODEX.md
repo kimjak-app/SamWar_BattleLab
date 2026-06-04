@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.70-10 Gunner Muzzle Flash + Tracer Impact Visual Handoff
+- Current patch is battle visual FX only in `scripts/battle_web_import_test.gd`.
+- Gunner normal/basic attacks now call `_play_gunner_shot_effect()` from the ally and enemy basic-attack animation paths only.
+- `_is_gunner_unit()` resolves gunner eligibility through normalized `unit_type`, visual key inference, and hero default visual key fallback.
+- Runtime gunner FX uses `Polygon2D`, `Line2D`, and small `Node2D` primitive spark/smoke nodes; no PNG/SVG/sprite gunner asset was created.
+- Added constants including `GUNNER_MUZZLE_FLASH_DURATION`, `GUNNER_TRACER_DURATION`, `GUNNER_IMPACT_POP_BEGIN`, and `GUNNER_SMOKE_LINGER_DURATION`.
+- Added `_spawn_gunner_muzzle_flash()`, `_spawn_gunner_tracer()`, and `_spawn_gunner_impact_pop()`.
+- Current gunner units expected to trigger the effect are `jeong_dojeon`, `eulji_mundeok`, and `zhuge_liang`.
+- The effect is intentionally much faster than archer arrows: short muzzle flash, near-instant tracer fade, compact target spark, and small non-blocking smoke fade.
+- Unique/special skills, strategy, cutin playback, q8 Theora mappings/assets, damage/hit/troop/turn logic, and WorldMap flow were not changed.
+- Next visible QA should check gunner basic attacks for a sharp "탕" feel and spot-check archer/non-gunner basic attacks plus unique skills for absence of gunner FX.
+
 ## v0.70-9c Archer Curved Volley + Visual Completion Timing Guard Handoff
 - Current patch is battle visual FX tuning and animation sequencing only in `scripts/battle_web_import_test.gd`.
 - Archer normal/basic attacks now call `_play_arrow_projectile_effect()` from the ally and enemy basic-attack animation paths only.

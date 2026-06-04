@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-10 Gunner Muzzle Flash + Tracer Impact Visual
+- Added gunner-only normal/basic attack FX in `scripts/battle_web_import_test.gd`.
+- Added `_play_gunner_shot_effect`, `_spawn_gunner_muzzle_flash`, `_spawn_gunner_tracer`, and `_spawn_gunner_impact_pop`.
+- Added gunner timing constants including `GUNNER_MUZZLE_FLASH_DURATION`, `GUNNER_TRACER_DURATION`, `GUNNER_IMPACT_POP_BEGIN`, and `GUNNER_SMOKE_LINGER_DURATION`.
+- Gunner eligibility uses existing unit type / visual-key resolution, covering `jeong_dojeon`, `eulji_mundeok`, and `zhuge_liang` when they resolve as gunners.
+- Runtime gunner FX is generated with primitive `Polygon2D`, `Line2D`, and `Node2D` spark/smoke nodes; no new gunner asset files were added.
+- The effect adds a short directional muzzle flash, fast thin tracer, compact impact spark, and small smoke fade on top of the existing attack FX flow.
+- Preserved existing archer volley behavior and combat resolution; gunner and archer hooks are mutually exclusive.
+- Did not change damage, hit chance, troop loss, turn progression, unique/special skill effects, cutin assets/mappings, or WorldMap logic.
+
 ## v0.70-9c Archer Curved Volley + Visual Completion Timing Guard
 - Tuned archer-only normal/basic attack volley FX in `scripts/battle_web_import_test.gd`.
 - Added `_play_arrow_projectile_effect`, `_spawn_arrow_projectile`, and `_spawn_arrow_impact_pin`.
