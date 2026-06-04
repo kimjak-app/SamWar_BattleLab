@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-7b Kim Yu-sin Tactical Cell Clickability Root-Cause Fix
+- Built on `19afc67 Replace Jeong Do Jeon q8 cutin video source`.
+- Diagnosed the recurring Kim Yu-sin visible-QA issue as two tactical input problems in `scripts/battle_web_import_test.gd`, not a cutin/video problem.
+- Command panel placement still had too much room to choose detached viewport-corner fallback positions; distance scoring was strengthened and corner fallback penalty was raised so nearby selected-unit candidates remain preferred.
+- Move-cell clickability root cause: during ally turn, ally unit click hit testing ran before valid highlighted move-cell handling. A reachable empty cell near/below Kwon Yul could be inside Kwon Yul's click area and therefore select Kwon Yul instead of moving Kim Yu-sin.
+- Ally-turn input now tries valid highlighted move-cell clicks before ally unit selection. Occupied ally cells remain invalid move targets, so clicking an actual ally unit still selects that ally after the move check fails.
+- Ally click selection now resolves overlapping ally click areas by closest unit rather than first alive ally order.
+- Disabled/non-pickable unit click areas are ignored by the manual click-area hit test, preventing hidden/reserve click areas from consuming battlefield clicks.
+- No cutin video assets, q8 Theora mappings, title PNGs, production cutin files, or WorldMap logic were changed.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining QA: visible battle QA should select Kim Yu-sin, confirm the command panel stays attached near the selected unit, and confirm the highlighted cell below/near Kwon Yul moves Kim Yu-sin if it is shown as reachable.
+
 ## v0.70-6b Jeong Do Jeon Source Replacement + q8 Theora Regeneration
 - Built on `5c9b8cc 정도전 고유특기 영상 교체`, which replaced `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4`.
 - New Jeong Do Jeon source ffprobe: `codec_name=h264`, `width=1920`, `height=1080`, `pix_fmt=yuv420p`, `avg_frame_rate=30000/1001`, `duration=2.002000`.

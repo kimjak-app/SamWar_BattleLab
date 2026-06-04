@@ -49,8 +49,8 @@ const RANGE_OVERLAY_CELL_DISTANCE_SCALE_STEP := 0.02
 const FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN := 12.0
 const FLOATING_COMMAND_PANEL_ANCHOR_GAP := 22.0
 const FLOATING_COMMAND_PANEL_GRID_AVOID_PADDING := 10.0
-const FLOATING_COMMAND_PANEL_DISTANCE_SCORE_WEIGHT := 3.0
-const FLOATING_COMMAND_PANEL_FAR_FALLBACK_SCORE := 16000.0
+const FLOATING_COMMAND_PANEL_DISTANCE_SCORE_WEIGHT := 8.0
+const FLOATING_COMMAND_PANEL_FAR_FALLBACK_SCORE := 1000000.0
 const FLOATING_COMMAND_PANEL_NEAR_CANDIDATE_COUNT := 8
 const SHOW_CELL_SIZE_VISUAL_GUIDE := false
 const SHOW_LOGICAL_GRID_14X8_GUIDE := false
@@ -2025,13 +2025,13 @@ func _input(event: InputEvent) -> void:
 	if _is_battle_result_finalized():
 		return
 
-	var clicked_ally_unit := _get_clicked_ally_unit_at_position(mouse_world_pos)
-	if clicked_ally_unit != null:
-		_select_ally_unit(clicked_ally_unit, true, true, false)
+	if _try_handle_valid_move_cell_click(mouse_world_pos):
 		get_viewport().set_input_as_handled()
 		return
 
-	if _try_handle_valid_move_cell_click(mouse_world_pos):
+	var clicked_ally_unit := _get_clicked_ally_unit_at_position(mouse_world_pos)
+	if clicked_ally_unit != null:
+		_select_ally_unit(clicked_ally_unit, true, true, false)
 		get_viewport().set_input_as_handled()
 		return
 
@@ -12498,6 +12498,8 @@ func _is_click_inside_unit_click_area(unit_state: BattleUnitState, mouse_pos: Ve
 	var click_shape := _get_click_shape_for_unit(unit_state)
 	if click_area == null or click_shape == null or click_shape.shape == null:
 		return false
+	if not click_area.input_pickable:
+		return false
 
 	var local_pos := click_area.to_local(mouse_pos) - click_shape.position
 	if click_shape.shape is RectangleShape2D:
@@ -12510,10 +12512,13 @@ func _is_click_inside_unit_click_area(unit_state: BattleUnitState, mouse_pos: Ve
 
 
 func _get_clicked_ally_unit_at_position(mouse_pos: Vector2) -> BattleUnitState:
+	var hit_candidates: Array[BattleUnitState] = []
 	for unit_state in _get_alive_ally_units():
 		if _is_click_inside_unit_click_area(unit_state, mouse_pos):
-			return unit_state
-	return null
+			hit_candidates.append(unit_state)
+	if hit_candidates.is_empty():
+		return null
+	return _get_closest_unit_state_to_click_position(hit_candidates, mouse_pos)
 
 
 func _get_clicked_enemy_unit_at_position(mouse_pos: Vector2) -> BattleUnitState:

@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.70-7b Kim Yu-sin Tactical Cell Clickability Handoff
+- Current patch is battle tactical UX/input only in `scripts/battle_web_import_test.gd`.
+- Root cause diagnosis: with Kim Yu-sin selected, a highlighted empty move cell near/below Kwon Yul could fall inside Kwon Yul's ally click area. Ally selection ran before valid grid movement, so the click selected Kwon Yul instead of moving Kim Yu-sin.
+- Ally-turn input now attempts `_try_handle_valid_move_cell_click()` before `_get_clicked_ally_unit_at_position()`.
+- This preserves normal ally selection because occupied ally cells are still rejected by `is_valid_move_target()` before selection runs.
+- Floating command panel scoring now has a stronger selected-unit distance penalty and a much larger corner fallback penalty, reducing lower-left/lower-right detached panel placement.
+- Ally click hit testing now mirrors the enemy-side approach by choosing the closest hit candidate when ally click areas overlap.
+- Disabled/non-pickable click areas are ignored by manual unit click hit testing, which helps avoid hidden/reserve visual roots consuming battlefield clicks.
+- Verification completed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+- No cutin OGV assets, title PNGs, q8 mappings, production video files, or WorldMap logic were modified.
+- Next visible QA should check Kim Yu-sin panel placement, the Kwon Yul-adjacent highlighted move cell, command buttons, and battle-flow stability.
+
 ## v0.70-6b Jeong Do Jeon q8 Source Replacement Handoff
 - Current task starts after `5c9b8cc 정도전 고유특기 영상 교체`, where the Jeong Do Jeon source MP4 was replaced.
 - Verified source path:

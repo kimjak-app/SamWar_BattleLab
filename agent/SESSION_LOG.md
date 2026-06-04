@@ -2,6 +2,22 @@
 
 ## 2026-06-04
 
+### v0.70-7b Kim Yu-sin Tactical Cell Clickability Root-Cause Fix
+- Started from `19afc67 Replace Jeong Do Jeon q8 cutin video source`.
+- Confirmed the working tree only had regenerated untracked Theora-safe `.import` junk before editing; no cutin/video or WorldMap changes were pending.
+- Re-inspected the current v0.70-7/v0.70-7a command panel placement and input priority code.
+- Found that ally-turn input still selected ally units before trying valid highlighted move-cell clicks.
+- Root cause for the Kim Yu-sin / Kwon Yul-adjacent cell: a visible valid move cell could overlap Kwon Yul's ally click area, causing Kwon Yul selection to win before Kim Yu-sin movement was attempted.
+- Moved valid move-cell click handling before ally unit selection during ally turn; occupied ally cells remain invalid move targets, so direct ally selection still works after the move check fails.
+- Strengthened panel placement distance behavior by raising the selected-unit distance weight and making viewport-corner fallback positions a true last resort.
+- Changed ally click hit resolution to choose the closest clicked ally when click areas overlap.
+- Added a guard so disabled/non-pickable click areas are ignored by the manual unit hit test.
+- Verification passed: `git diff --check`.
+- Verification passed: Godot headless project load.
+- Verification passed: Godot headless load of `Battle_Fullscreen_Test.tscn`.
+- No cutin assets, q8 mappings, title PNGs, production videos, or WorldMap logic were changed.
+- Remaining manual QA: select Kim Yu-sin, confirm panel attachment, click the highlighted cell below/near Kwon Yul, and confirm command buttons/battle flow remain stable.
+
 ### v0.70-6b Jeong Do Jeon Source Replacement + q8 Theora Regeneration
 - Started from clean repo state at `5c9b8cc 정도전 고유특기 영상 교체`.
 - Confirmed the latest commit replaced `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4` and also accidentally tracked Godot Theora-safe frame `.import` junk.

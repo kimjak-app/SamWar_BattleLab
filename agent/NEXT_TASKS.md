@@ -1,5 +1,18 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Kim Yu-sin Tactical Cell Clickability
+- `v0.70-7b Kim Yu-sin Tactical Cell Clickability Root-Cause Fix` changes ally-turn input priority so valid highlighted move-cell clicks run before ally unit selection.
+- This targets the repeated case where Kim Yu-sin is selected and a reachable cell below/near Kwon Yul appears highlighted but clicking it selects or hits the nearby ally click area instead of moving.
+- Command panel scoring now makes detached viewport-corner fallbacks much less likely, keeping the panel closer to the selected unit when possible.
+- Manual visual QA should confirm:
+  1. Select Kim Yu-sin.
+  2. Confirm the command panel does not jump far to the lower-left or lower-right unless there is no usable near placement.
+  3. Confirm the highlighted move cell below/near Kwon Yul can be clicked if it is visibly reachable.
+  4. Confirm blocked cells are not shown as reachable move targets.
+  5. Confirm `이동`, `기본공격`, `책략`, `고유특기`, `방어`, and `대기` still work normally.
+  6. Confirm battle flow remains stable after movement and command selection.
+- No cutin/video/mapping QA is required for this patch beyond confirming those files were untouched.
+
 ## Next: F6 Visual QA for Replaced Jeong Do Jeon q8 Cutin Video
 - `v0.70-6b Jeong Do Jeon Source Replacement + q8 Theora Regeneration` regenerated the existing first-candidate q8 Theora OGV from the newly replaced source MP4.
 - Runtime first-candidate path remains unchanged:

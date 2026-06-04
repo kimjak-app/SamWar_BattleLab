@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-7b Kim Yu-sin Tactical Cell Clickability Root-Cause Fix
+- Strengthened floating command panel distance scoring so selected-unit-near candidates beat detached viewport-corner fallback positions unless the fallback is truly necessary.
+- Fixed Kim Yu-sin move-cell clickability by trying valid highlighted move-cell clicks before ally unit selection during ally turn.
+- Diagnosed the Kwon Yul-adjacent unreachable-feeling cell as likely ally click-area preemption of a valid highlighted move target; rendered move overlays already filter through `is_valid_move_target()`.
+- Changed ally click selection to collect overlapping ally click areas and choose the closest unit, matching the safer enemy click selection pattern.
+- Ignored disabled/non-pickable unit click areas in the manual hit test so hidden/reserve click areas cannot consume battlefield clicks.
+- Did not change cutin assets, q8 Theora mappings, title PNGs, production video files, or WorldMap logic.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+
 ## v0.70-6b Jeong Do Jeon Source Replacement + q8 Theora Regeneration
 - Verified the replaced Jeong Do Jeon source MP4 at `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4`.
 - Source ffprobe: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
