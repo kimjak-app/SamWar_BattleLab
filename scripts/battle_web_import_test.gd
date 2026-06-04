@@ -985,6 +985,7 @@ var camera_shake_tween: Tween = null
 var combat_camera_tween: Tween = null
 var battle_intro_camera_tween: Tween = null
 var battle_intro_camera_playing := false
+var battle_intro_camera_has_started := false
 var battle_intro_gameplay_camera_position := Vector2.ZERO
 var battle_intro_gameplay_camera_zoom := Vector2.ONE
 var battle_intro_has_gameplay_camera_state := false
@@ -1979,12 +1980,13 @@ func _get_battle_intro_wide_camera_state() -> Dictionary:
 
 
 func _play_battle_intro_camera_zoom() -> void:
-	if battle_intro_camera_playing:
+	if battle_intro_camera_playing or battle_intro_camera_has_started:
 		return
 	var camera := _get_main_camera_or_null()
 	if camera == null:
 		_set_battle_intro_ui_visible(true)
 		return
+	battle_intro_has_gameplay_camera_state = false
 	if not _capture_battle_gameplay_camera_state():
 		_set_battle_intro_ui_visible(true)
 		return
@@ -1997,6 +1999,7 @@ func _play_battle_intro_camera_zoom() -> void:
 	if battle_intro_camera_tween != null:
 		battle_intro_camera_tween.kill()
 		battle_intro_camera_tween = null
+	battle_intro_camera_has_started = true
 	battle_intro_camera_playing = true
 	print("[BATTLE_INTRO_CAMERA] %s" % BATTLE_INTRO_CAMERA_ZOOM_BEGIN)
 	_set_battle_intro_ui_visible(false)
@@ -2017,23 +2020,24 @@ func _play_battle_intro_camera_zoom() -> void:
 
 
 func _finish_battle_intro_camera_zoom() -> void:
-	if not battle_intro_camera_playing:
+	_complete_battle_intro_camera_zoom("natural_finish", false)
+
+
+func _skip_battle_intro_camera_zoom() -> void:
+	_complete_battle_intro_camera_zoom("skip_input", true)
+
+
+func _complete_battle_intro_camera_zoom(source: String, should_kill_tween: bool) -> void:
+	if not battle_intro_camera_playing and not battle_intro_has_gameplay_camera_state:
 		return
+	if should_kill_tween and battle_intro_camera_tween != null:
+		battle_intro_camera_tween.kill()
 	battle_intro_camera_playing = false
 	battle_intro_camera_tween = null
 	_apply_battle_gameplay_camera_state()
 	_set_battle_intro_ui_visible(true)
-
-
-func _skip_battle_intro_camera_zoom() -> void:
-	if not battle_intro_camera_playing:
-		return
-	if battle_intro_camera_tween != null:
-		battle_intro_camera_tween.kill()
-		battle_intro_camera_tween = null
-	battle_intro_camera_playing = false
-	_apply_battle_gameplay_camera_state()
-	_set_battle_intro_ui_visible(true)
+	battle_intro_has_gameplay_camera_state = false
+	print("[BATTLE_INTRO_CAMERA] complete source=%s" % source)
 
 
 func _is_battle_intro_skip_input(event: InputEvent) -> bool:
@@ -2332,14 +2336,17 @@ func hide_cutin() -> void:
 
 func show_result() -> void:
 	_sync_overlay_positions()
+	_hide_battle_result_video_overlay()
 	result_overlay.visible = true
 	cutin_overlay.visible = false
+	if result_backdrop != null:
+		result_backdrop.visible = true
+		result_backdrop.position = Vector2.ZERO
+		result_backdrop.size = get_viewport_rect().size
 	if result_image != null:
 		result_image.visible = true
 	if result_title_label != null:
 		result_title_label.visible = true
-	if battle_result_video_player != null:
-		battle_result_video_player.visible = false
 
 
 func hide_result() -> void:
@@ -2434,8 +2441,10 @@ func _create_battle_result_theora_stream_direct(path: String) -> VideoStream:
 
 
 func _play_battle_result_video_before_toast(battle_result_state: String) -> bool:
-	if battle_result_state == "" or is_battle_result_video_playing:
+	if battle_result_state == "":
 		return false
+	if is_battle_result_video_playing:
+		return pending_battle_result_video_state == battle_result_state
 	var video_path := _get_battle_result_video_path(battle_result_state)
 	if not _assign_battle_result_video_stream(video_path):
 		return false
@@ -2476,7 +2485,7 @@ func _complete_battle_result_video_before_toast(source: String) -> void:
 		return
 	battle_result_video_completion_handled = true
 	var battle_result_state := pending_battle_result_video_state
-	_hide_battle_result_video_overlay()
+	_hide_battle_result_video_overlay(false)
 	if battle_result_state == "":
 		battle_result_state = _get_battle_result_state()
 	_show_battle_result_toast_after_video(battle_result_state)
@@ -2484,13 +2493,17 @@ func _complete_battle_result_video_before_toast(source: String) -> void:
 	print("[BATTLE_RESULT_VIDEO] complete source=%s state=%s" % [source, battle_result_state])
 
 
-func _hide_battle_result_video_overlay() -> void:
+func _hide_battle_result_video_overlay(should_clear_completion_guard: bool = true) -> void:
 	is_battle_result_video_playing = false
 	pending_battle_result_video_state = ""
+	if should_clear_completion_guard:
+		battle_result_video_completion_handled = false
 	if battle_result_video_player != null:
 		battle_result_video_player.stop()
 		battle_result_video_player.visible = false
 		battle_result_video_player.stream = null
+	if result_backdrop != null:
+		result_backdrop.visible = false
 	if result_image != null:
 		result_image.visible = true
 	if result_title_label != null:
@@ -2726,6 +2739,7 @@ func reset_demo_state() -> void:
 		battle_intro_camera_tween.kill()
 		battle_intro_camera_tween = null
 	battle_intro_camera_playing = false
+	battle_intro_camera_has_started = false
 	battle_intro_has_gameplay_camera_state = false
 	_set_battle_intro_ui_visible(true)
 	_reset_main_camera_to_scene_position()

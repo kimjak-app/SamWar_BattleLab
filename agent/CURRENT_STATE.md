@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.70-13b Battle Cinematic Lifecycle Guard Audit
+- Baseline: `v0.70-13a Battle Intro Wide Hold Timing Polish Stable` at HEAD `6f46bf1`.
+- Git commit analysis summary: HEAD `6f46bf1` only tuned intro timing in `scripts/battle_web_import_test.gd` (`BATTLE_INTRO_WIDE_HOLD_SEC 0.4 -> 0.85`, `BATTLE_INTRO_ZOOM_SEC 1.0 -> 1.15`) plus agent docs; the broader intro implementation came from `493c8e8`, and result video panel flow came from `d2dbefa` / `76e0421`.
+- Modified files: `scripts/battle_web_import_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`.
+- Lifecycle guard reinforcement:
+  - Battle intro now has a per-reset `battle_intro_camera_has_started` guard so duplicate start calls do not create a second tween or re-hide UI.
+  - Natural finish and skip finish now share `_complete_battle_intro_camera_zoom()`, so camera restore, UI restore, tween cleanup, and gameplay-camera-state cleanup run through one path.
+  - Repeated skip input is idempotent because the shared completion path exits once intro playback/state is already cleared.
+  - Result video cleanup now explicitly clears the video stream, player visibility, backdrop visibility, pending result state, and completion guard when hiding outside the normal completion path.
+  - Repeated result video start calls for the same pending result now report already handled instead of falling through to duplicate toast fallback.
+- Verification result: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load passed; manual F6 QA is still needed for visible intro/video feel.
+- Next candidate work:
+  1. `v0.70-13c Battle WorldMap Return Contract Prep`
+  2. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-15 WorldMap Domestic UX Detail Polish`
+
 ## v0.70-12 Battle Result Video Before Victory/Defeat Toast
 - Added battle result presentation videos before the existing victory/defeat result toast flow.
 - Source MP4s:

@@ -1,5 +1,28 @@
 # HANDOFF TO CODEX
 
+## v0.70-13b Battle Cinematic Lifecycle Guard Audit Handoff
+- Baseline: `v0.70-13a Battle Intro Wide Hold Timing Polish Stable` (`6f46bf1` before this patch).
+- Required git analysis was performed before editing:
+  - `git status --short`: clean.
+  - Recent log: `6f46bf1` intro timing polish, `493c8e8` intro camera zoom patch, `76e0421` result panel size polish, `d2dbefa` result video before toasts.
+  - HEAD changed files: agent docs plus `scripts/battle_web_import_test.gd`.
+  - HEAD script delta only changed `BATTLE_INTRO_WIDE_HOLD_SEC` and `BATTLE_INTRO_ZOOM_SEC`.
+- Runtime code touched only `scripts/battle_web_import_test.gd`.
+- Battle intro guard notes:
+  - `battle_intro_camera_has_started` prevents duplicate intro starts in one reset/battle lifecycle.
+  - `_finish_battle_intro_camera_zoom()` and `_skip_battle_intro_camera_zoom()` now route through `_complete_battle_intro_camera_zoom()`.
+  - The shared completion path kills the tween when needed, restores gameplay camera position/zoom, restores `BattleUI`, clears gameplay-camera-state capture, and ignores repeated completion/skip calls.
+- Result video guard notes:
+  - `_hide_battle_result_video_overlay()` now explicitly clears/hides the video stream/player and result backdrop.
+  - Normal video completion preserves the completion guard while it queues the existing toast; external hide/reset paths clear the guard for the next battle.
+  - `_play_battle_result_video_before_toast()` treats same-state repeated calls while a video is pending as already handled, avoiding duplicate toast fallback.
+- Preserved scope: no combat formula, attack/damage/victory judgment, unique skill cutin, archer volley, gunner FX, BattleContext, WorldMap city/domestic/trade/relationship, scene, asset, or project setting changes.
+- Verification in this session passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load. Manual F6 QA remains useful for visible timing and result video playback.
+- Next candidate work:
+  1. `v0.70-13c Battle WorldMap Return Contract Prep`
+  2. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-15 WorldMap Domestic UX Detail Polish`
+
 ## v0.70-12 Battle Result Video Before Victory/Defeat Toast Handoff
 - Current patch is battle result presentation only.
 - Result source MP4s:

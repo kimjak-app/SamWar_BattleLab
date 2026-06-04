@@ -2,6 +2,32 @@
 
 ## 2026-06-05
 
+### v0.70-13b Battle Cinematic Lifecycle Guard Audit
+- Started from clean baseline `6f46bf1 Tune battle intro wide shot hold timing`, documented as `v0.70-13a Battle Intro Wide Hold Timing Polish Stable`.
+- Required git analysis:
+  - `git status --short`: clean before edits.
+  - Recent log: `6f46bf1`, `493c8e8`, `76e0421`, `d2dbefa`, `edac641`, `3800c99`, `6262206`, `740fea0`.
+  - `git show --stat HEAD` / `git show --name-only HEAD` / `git show --stat HEAD~1..HEAD`: HEAD modified five agent docs and `scripts/battle_web_import_test.gd`.
+  - HEAD script diff changed only intro timing constants: wide hold `0.4 -> 0.85`, zoom `1.0 -> 1.15`.
+- Inspected the related cinematic commits:
+  - `493c8e8`: battle intro camera wide-shot / zoom-in, UI hide/restore, skip input, input guards.
+  - `d2dbefa`: result video before existing victory/defeat toast, fallback timer, WorldMap return refresh.
+  - `76e0421`: centered 16:9 result video panel sizing.
+- Updated `scripts/battle_web_import_test.gd` only for lifecycle guards:
+  - Added duplicate-start guard for battle intro via `battle_intro_camera_has_started`.
+  - Routed intro natural finish and skip finish through `_complete_battle_intro_camera_zoom()`.
+  - Made repeated skip/finish calls idempotent after camera/UI cleanup.
+  - Kept intro completion camera restore limited to captured gameplay camera state; no combat camera formula changes.
+  - Hardened result video hide/reset path to clear stream, visibility, backdrop, pending state, and completion guard.
+  - Guarded repeated same-state result video starts while playback is already pending.
+- Agent docs updated: `CURRENT_STATE`, `NEXT_TASKS`, `HANDOFF_TO_CODEX`, `CHANGELOG`, and `SESSION_LOG`.
+- No battle calculation, attack/damage/result judgment, unique skill cutin, archer volley, gunner FX, BattleContext, WorldMap logic, scene, asset, or `project.godot` changes were intended.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load. Visible F6 QA remains recommended for intro feel, skip spam, victory/defeat result video, and WorldMap return button flow.
+- Next candidate work:
+  1. `v0.70-13c Battle WorldMap Return Contract Prep`
+  2. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-15 WorldMap Domestic UX Detail Polish`
+
 ### v0.70-12 Battle Result Video Before Victory/Defeat Toast
 - Started from `edac641 Set unit type attack range baseline for test battle`.
 - Confirmed the expected source MP4s exist under `assets/video_source_test/result_dry_run/`.

@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Next: v0.70-13c Battle WorldMap Return Contract Prep
+- `v0.70-13b Battle Cinematic Lifecycle Guard Audit` is the current local guard-audit patch, built on `v0.70-13a Battle Intro Wide Hold Timing Polish Stable`.
+- Commit analysis summary: latest baseline `6f46bf1` changed only intro timing and docs; inspected related intro/result commits confirmed the active cinematic lifecycle lives in `scripts/battle_web_import_test.gd`.
+- Guard status:
+  1. Battle intro duplicate start is blocked per reset.
+  2. Battle intro natural finish and skip share one cleanup path.
+  3. Skip spam is idempotent after the first cleanup.
+  4. Intro completion restores gameplay camera position/zoom and `BattleUI`.
+  5. Result video hide/cleanup clears stream, panel visibility, backdrop visibility, pending state, and completion guard.
+  6. Result video repeated same-state start does not cause a duplicate result toast fallback.
+- Modified files: `scripts/battle_web_import_test.gd` plus agent docs.
+- Manual QA still recommended: F6 intro natural finish, click/Space/Enter/Esc skip, skip spam, victory/defeat result video -> toast order, and WorldMap return button visibility after result.
+- Next candidate work:
+  1. `v0.70-13c Battle WorldMap Return Contract Prep`
+  2. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-15 WorldMap Domestic UX Detail Polish`
+
 ## Next: F6 QA for Battle Result Videos Before Toasts
 - `v0.70-12` adds dedicated victory/defeat result videos before the existing result toast.
 - Expected flow:

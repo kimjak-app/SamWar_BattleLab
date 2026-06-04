@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-13b Battle Cinematic Lifecycle Guard Audit
+- Built on `v0.70-13a Battle Intro Wide Hold Timing Polish Stable` (`6f46bf1`).
+- Analyzed latest git history before edits: HEAD only adjusted intro wide hold / zoom timing and agent docs; `493c8e8` introduced battle intro camera zoom lifecycle; `d2dbefa` and `76e0421` introduced/polished result video before result toasts.
+- Added `battle_intro_camera_has_started` to prevent duplicate intro startup within one battle reset lifecycle.
+- Unified intro natural finish and skip cleanup through `_complete_battle_intro_camera_zoom()`.
+- Ensured intro cleanup restores gameplay camera position/zoom, restores `BattleUI`, clears tween references, and clears captured gameplay-camera state once.
+- Hardened result video lifecycle cleanup so player stream, visibility, backdrop visibility, pending result state, and completion guard are reset in the correct paths.
+- Guarded repeated same-state result video start while video playback is already pending so it does not fall through to a duplicate toast path.
+- Modified files: `scripts/battle_web_import_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`.
+- Did not change battle calculations, attack/damage/win-loss judgment, unique skill cutins, archer/gunner FX, BattleContext, WorldMap logic, scenes, assets, or project settings.
+
 ## v0.70-12 Battle Result Video Before Victory/Defeat Toast
 - Added victory/defeat result source MP4s under `assets/video_source_test/result_dry_run/`.
 - Encoded q8 1920x Theora result videos under `assets/ui/result/videos/`.
