@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-5e Yi Sun-sin Final Exit Snap Tuning
+- Preserved the current Hakikjin readable-hold and large-burst behavior.
+- Shortened Yi Sunsin's post-title linger by moving `SPECIALTY_SKILL_CUTIN_EXIT_START` from `2.55` to `1.18`.
+- Reduced the final cutin fade/exit duration from `0.45` to `0.14` for a sharper snap-like finish.
+- Reduced `SPECIALTY_SKILL_CUTIN_TOTAL_DURATION` from `3.0` to `1.38` so battle-flow continuation is not delayed by the old long tail.
+- Changed the final Yi Sunsin exit drift to a quick left/down motion, ending at `Vector2(-86.0, 14.0)` from the hero base position.
+- Preserved q8 Theora first-candidate path, existing fallback chain, title PNG asset path, and battle-flow continuation.
+- Did not change Kwon Yul / Jeong Do Jeon mappings, production cutin assets, battle logic, or WorldMap logic.
+- Verification passed: `git diff --check`, Godot headless project load, battle scene headless load, and direct ResourceLoader checks for Hakikjin PNG and q8 OGV.
+
 ## v0.70-5d Hakikjin Readable Hold + Large Burst Fade Tuning
 - Kept Yi Sunsin portrait scale and vertical balance unchanged from v0.70-5c.
 - Increased Hakikjin readable hold before the burst so the title does not disappear too quickly.

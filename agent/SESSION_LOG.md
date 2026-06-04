@@ -2,6 +2,22 @@
 
 ## 2026-06-04
 
+### v0.70-5e Yi Sun-sin Final Exit Snap Tuning
+- Started from clean repo state at `fbe1219 Tune Hakikjin hold timing and large burst fade`.
+- Focused only on final cutin tail/exit timing for the Yi Sunsin specialty cutin.
+- Kept Hakikjin title behavior unchanged: readable hold, large burst scale `2.25`, fade-out, and upward drift.
+- Preserved the Hakikjin-first structure; Hakikjin still finishes before Yi Sunsin and before the full cutin exit.
+- Shortened final tail by changing `SPECIALTY_SKILL_CUTIN_EXIT_START` from `2.55` to `1.18`.
+- Reduced final fade duration by changing `SPECIALTY_SKILL_CUTIN_EXIT_DURATION` from `0.45` to `0.14`.
+- Reduced `SPECIALTY_SKILL_CUTIN_TOTAL_DURATION` from `3.0` to `1.38` so the unique-skill effect and battle-flow continuation are aligned with the faster visible exit.
+- Tuned the final Yi Sunsin exit drift to a quick left/down movement ending at `hero_base_position + Vector2(-86.0, 14.0)`.
+- Preserved q8 Theora first candidate and all existing fallbacks. Kwon Yul / Jeong Do Jeon mappings were not changed.
+- Verification passed: `git diff --check`.
+- Verification passed: Godot headless project load.
+- Verification passed: Godot headless load of `Battle_Fullscreen_Test.tscn`.
+- Direct ResourceLoader verification passed: Hakikjin PNG loads as `CompressedTexture2D`, q8 OGV loads as `VideoStreamTheora`.
+- Remaining manual QA: visible F6 battle flow should confirm Hakikjin exits first, Yi Sunsin only lingers briefly, the final cutin snaps out, and battle rhythm feels better.
+
 ### v0.70-5d Hakikjin Readable Hold + Large Burst Fade Tuning
 - Started from clean repo state at `1134d80 Increase Hakikjin burst scale and tune Yi Sun-sin balance`.
 - Focused only on Hakikjin readable hold and large burst fade timing.

@@ -185,13 +185,13 @@ const SPECIALTY_SKILL_CUTIN_VIDEO_PATHS := {
 		"res://assets/ui/cutin/videos/Jeong Do Jeon Cutin Bg.webm",
 	],
 }
-const SPECIALTY_SKILL_CUTIN_TOTAL_DURATION := 3.0
+const SPECIALTY_SKILL_CUTIN_TOTAL_DURATION := 1.38
 const SPECIALTY_SKILL_CUTIN_DARKEN_ALPHA := 0.68
 const SPECIALTY_SKILL_CUTIN_ENTER_DURATION := 0.24
 const SPECIALTY_SKILL_CUTIN_TEXT_DELAY := 0.32
 const SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION := 0.68
-const SPECIALTY_SKILL_CUTIN_EXIT_START := 2.55
-const SPECIALTY_SKILL_CUTIN_EXIT_DURATION := 0.45
+const SPECIALTY_SKILL_CUTIN_EXIT_START := 1.18
+const SPECIALTY_SKILL_CUTIN_EXIT_DURATION := 0.14
 const SPECIALTY_SKILL_CUTIN_HERO_ENTER_OFFSET := Vector2(-390.0, 16.0)
 const SPECIALTY_SKILL_CUTIN_HERO_START_SCALE := 1.08
 const SPECIALTY_SKILL_CUTIN_HERO_SETTLE_SCALE := 1.0
@@ -3659,7 +3659,7 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 	specialty_skill_cutin_tween.tween_property(specialty_skill_cutin_layer, "modulate:a", 0.0, SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_layer, "scale", Vector2.ONE * 0.98, SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_IN)
 	if specialty_skill_cutin_hero != null:
-		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "position", hero_base_position + Vector2(-70.0, -18.0), SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "position", hero_base_position + Vector2(-86.0, 14.0), SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	if specialty_skill_cutin_slash != null:
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_slash, "color", SPECIALTY_SKILL_CUTIN_ACCENT_EXIT_COLOR, SPECIALTY_SKILL_CUTIN_EXIT_DURATION * 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	specialty_skill_cutin_tween.chain().tween_callback(_hide_specialty_skill_cutin)

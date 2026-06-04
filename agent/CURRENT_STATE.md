@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-5e Yi Sun-sin Final Exit Snap Tuning
+- Built on `fbe1219 Tune Hakikjin hold timing and large burst fade`.
+- Preserved the current Hakikjin-first exit structure: Hakikjin still appears, holds/readably bursts, and disappears before Yi Sunsin exits.
+- Shortened the post-title Yi Sunsin linger by moving the full cutin exit start from `2.55s` to `1.18s`, leaving roughly `0.18s` after Hakikjin's burst fade completes.
+- Reduced the final full-cutin exit duration from `0.45s` to `0.14s` for a sharper snap-like finish.
+- Reduced `SPECIALTY_SKILL_CUTIN_TOTAL_DURATION` from `3.0s` to `1.38s` so the unique-skill effect continuation and battle-flow rhythm no longer wait behind an invisible long tail.
+- Added a subtle fast left/down hero drift during the final fade, changing the final Yi Sunsin exit motion to `Vector2(-86.0, 14.0)`.
+- q8 Theora playback remains first in the Yi Sunsin video candidate chain, and all existing fallbacks remain preserved.
+- No Kwon Yul / Jeong Do Jeon mapping, production cutin asset, battle logic, or WorldMap logic was changed.
+- Verification passed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader verification for Hakikjin PNG and q8 OGV.
+- Remaining QA: visible F6/manual battle QA should confirm Hakikjin still exits before Yi Sunsin, Yi Sunsin no longer lingers too long, the final cutin disappears sharply, and battle rhythm feels better.
+
 ## v0.70-5d Hakikjin Readable Hold + Large Burst Fade Tuning
 - Built on `1134d80 Increase Hakikjin burst scale and tune Yi Sun-sin balance`.
 - Kept Yi Sunsin portrait scale and vertical balance unchanged from v0.70-5c; no additional portrait scale or position change was made.

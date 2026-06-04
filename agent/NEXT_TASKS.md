@@ -1,5 +1,17 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Yi Sun-sin Final Exit Snap
+- `v0.70-5e Yi Sun-sin Final Exit Snap Tuning` keeps the accepted Hakikjin readable-hold and large-burst behavior, but shortens the tail after that event.
+- Hakikjin still exits before Yi Sunsin; Yi Sunsin now remains only briefly afterward before the full cutin snaps out.
+- Timing baseline: full cutin exit starts at `1.18s`, final fade duration is `0.14s`, and total cutin duration is now `1.38s`.
+- Manual visual QA should confirm:
+  1. Hakikjin still exits before Yi Sunsin.
+  2. Yi Sunsin no longer lingers too long after the title burst.
+  3. The final cutin disappearance feels sharp and decisive.
+  4. Battle rhythm resumes more immediately.
+  5. q8 Theora playback and battle-flow return still work.
+- If accepted, this should be treated as the current Yi Sunsin final-exit timing baseline.
+
 ## Next: F6 Visual QA for Hakikjin Readable Hold and Large Burst Fade
 - `v0.70-5d Hakikjin Readable Hold + Large Burst Fade Tuning` keeps Yi Sunsin composition stable and focuses on Hakikjin readability.
 - Hakikjin now appears at readable base size, holds briefly, then expands dramatically to `2.25` while fading and drifting upward.

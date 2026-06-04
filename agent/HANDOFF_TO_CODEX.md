@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-5e Yi Sun-sin Final Exit Snap Handoff
+- Current Yi Sunsin cutin keeps the v0.70-5d Hakikjin title behavior unchanged: readable hold, large burst to `2.25`, fade-out, and upward drift.
+- Hakikjin still exits before Yi Sunsin, preserving the current dynamic title-first disappearance structure.
+- Final tail timing is now much shorter: `SPECIALTY_SKILL_CUTIN_EXIT_START := 1.18`, `SPECIALTY_SKILL_CUTIN_EXIT_DURATION := 0.14`, and `SPECIALTY_SKILL_CUTIN_TOTAL_DURATION := 1.38`.
+- The intended timing is Hakikjin burst completes around `1.00s`, Yi Sunsin lingers roughly `0.18s`, then the whole cutin snaps out quickly.
+- Final Yi Sunsin drift is a subtle fast left/down motion to `hero_base_position + Vector2(-86.0, 14.0)` during the `0.14s` exit fade.
+- q8 Theora remains the first Yi Sunsin video candidate:
+  `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`.
+- Existing fallbacks remain preserved after q8: 540p Theora, VP8 WebM, legacy OGV/WebM, and MP4.
+- Kwon Yul / Jeong Do Jeon mappings were not changed.
+- Verification completed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader checks for Hakikjin PNG and q8 OGV.
+- Next visible QA should check only: Hakikjin still exits first, Yi Sunsin tail is no longer too long, the final disappearance feels sharp, and battle rhythm resumes better.
+
 ## v0.70-5d Hakikjin Readable Hold + Large Burst Fade Handoff
 - Current Yi Sunsin cutin keeps the v0.70-5c portrait scale and balance unchanged.
 - Yi Sunsin portrait layout remains `viewport_size.x * 0.86`, `viewport_size.y * 1.42`, left overflow `size.x * 0.28`, and `+28px` vertical balance offset.
