@@ -1,5 +1,23 @@
 # HANDOFF TO CODEX
 
+## v0.70-6a Kwon Yul + Jeong Do Jeon q8 Theora Dry Run Handoff
+- New production dry-run OGVs:
+  1. `assets/ui/cutin/videos/kwon_yul_cutin_bg_theora_q8_1920x.ogv`
+  2. `assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv`
+- Kwon Yul OGV ffprobe: `codec_name=theora`, `width=1920`, `height=1080`, `pix_fmt=yuv420p`, `avg_frame_rate=30/1`, `duration=2.000000`, size `9054001` bytes.
+- Jeong Do Jeon OGV ffprobe: `codec_name=theora`, `width=1920`, `height=1080`, `pix_fmt=yuv420p`, `avg_frame_rate=30/1`, `duration=2.000000`, size `4472743` bytes.
+- Runtime mapping first candidates:
+  1. Kwon Yul: `res://assets/ui/cutin/videos/kwon_yul_cutin_bg_theora_q8_1920x.ogv`
+  2. Jeong Do Jeon: `res://assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv`
+- Existing Kwon Yul / Jeong Do Jeon WebM fallbacks remain after q8, and existing MP4 fallback paths are available after those.
+- Yi Sunsin q8 mapping, fallback chain, timing, title animation, and video asset were not changed.
+- Title PNGs are wired through per-hero config:
+  1. Kwon Yul: `res://assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png`
+  2. Jeong Do Jeon: `res://assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png`
+- `SPECIALTY_SKILL_CUTIN_CONFIGS` now carries per-hero portrait/title layout values so Kwon Yul and Jeong Do Jeon can be tuned independently from Yi Sunsin.
+- Verification completed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader checks for q8 OGVs/title PNGs.
+- Next visible QA should check Kwon Yul and Jeong Do Jeon q8 playback, title appearance, no black-screen/color failure, battle-flow return, and whether their initial independent layout defaults need hero-specific polish.
+
 ## v0.70-6 Kwon Yul + Jeong Do Jeon Cutin Asset Intake Handoff
 - Latest inspected intake commit: `c7173fb 컷인 관련`.
 - Ready source MP4s:

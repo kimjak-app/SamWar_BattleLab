@@ -166,6 +166,12 @@ const SPECIALTY_SKILL_YI_SUNSIN_CUTIN_PORTRAIT_PATH := "res://assets/ui/cutin/po
 const SPECIALTY_SKILL_YI_SUNSIN_HAKIKJIN_TITLE_PATH := "res://assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png"
 const SPECIALTY_SKILL_YI_SUNSIN_THEORA_Q8_1920X_PATH := "res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv"
 const SPECIALTY_SKILL_YI_SUNSIN_THEORA_540P_PATH := "res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv"
+const SPECIALTY_SKILL_KWON_YUL_CUTIN_PORTRAIT_PATH := "res://assets/ui/cutin/portraits/kwon_yul_cutin.png"
+const SPECIALTY_SKILL_KWON_YUL_TITLE_PATH := "res://assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png"
+const SPECIALTY_SKILL_KWON_YUL_THEORA_Q8_1920X_PATH := "res://assets/ui/cutin/videos/kwon_yul_cutin_bg_theora_q8_1920x.ogv"
+const SPECIALTY_SKILL_JEONG_DOJEON_CUTIN_PORTRAIT_PATH := "res://assets/ui/cutin/portraits/jeong_do_jeon_cutin.png"
+const SPECIALTY_SKILL_JEONG_DOJEON_TITLE_PATH := "res://assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png"
+const SPECIALTY_SKILL_JEONG_DOJEON_THEORA_Q8_1920X_PATH := "res://assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv"
 const CUTIN_VIDEO_DEBUG_FORCE_TOP := false
 const SPECIALTY_SKILL_CUTIN_VIDEO_PATHS := {
 	"yi_sunsin": [
@@ -177,13 +183,58 @@ const SPECIALTY_SKILL_CUTIN_VIDEO_PATHS := {
 		"res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4",
 	],
 	"kwon_yul": [
+		SPECIALTY_SKILL_KWON_YUL_THEORA_Q8_1920X_PATH,
 		"res://assets/ui/cutin/videos/kwon_yul_cutin_bg.webm",
 		"res://assets/ui/cutin/videos/Kwon Yul Cutin Bg.webm",
+		"res://assets/ui/cutin/videos/kwon_yul_cutin_bg.mp4",
 	],
 	"jeong_dojeon": [
+		SPECIALTY_SKILL_JEONG_DOJEON_THEORA_Q8_1920X_PATH,
 		"res://assets/ui/cutin/videos/jeong_do_jeon_cutin_bg.webm",
 		"res://assets/ui/cutin/videos/Jeong Do Jeon Cutin Bg.webm",
+		"res://assets/ui/cutin/videos/jeong_do_jeon_cutin_bg.mp4",
 	],
+}
+const SPECIALTY_SKILL_CUTIN_CONFIGS := {
+	"yi_sunsin": {
+		"portrait_path": SPECIALTY_SKILL_YI_SUNSIN_CUTIN_PORTRAIT_PATH,
+		"title_path": SPECIALTY_SKILL_YI_SUNSIN_HAKIKJIN_TITLE_PATH,
+		"hero_width_ratio": 0.86,
+		"hero_height_ratio": 1.42,
+		"hero_left_overflow": 0.28,
+		"hero_y_anchor": 0.55,
+		"hero_y_offset": 28.0,
+		"title_x_ratio": 0.53,
+		"title_y_ratio": 0.22,
+		"title_width_ratio": 0.44,
+		"title_height_ratio": 0.32,
+	},
+	"kwon_yul": {
+		"portrait_path": SPECIALTY_SKILL_KWON_YUL_CUTIN_PORTRAIT_PATH,
+		"title_path": SPECIALTY_SKILL_KWON_YUL_TITLE_PATH,
+		"hero_width_ratio": 0.80,
+		"hero_height_ratio": 1.30,
+		"hero_left_overflow": 0.23,
+		"hero_y_anchor": 0.53,
+		"hero_y_offset": 18.0,
+		"title_x_ratio": 0.55,
+		"title_y_ratio": 0.20,
+		"title_width_ratio": 0.42,
+		"title_height_ratio": 0.31,
+	},
+	"jeong_dojeon": {
+		"portrait_path": SPECIALTY_SKILL_JEONG_DOJEON_CUTIN_PORTRAIT_PATH,
+		"title_path": SPECIALTY_SKILL_JEONG_DOJEON_TITLE_PATH,
+		"hero_width_ratio": 0.76,
+		"hero_height_ratio": 1.24,
+		"hero_left_overflow": 0.19,
+		"hero_y_anchor": 0.52,
+		"hero_y_offset": 24.0,
+		"title_x_ratio": 0.56,
+		"title_y_ratio": 0.21,
+		"title_width_ratio": 0.42,
+		"title_height_ratio": 0.31,
+	},
 }
 const SPECIALTY_SKILL_CUTIN_TOTAL_DURATION := 1.38
 const SPECIALTY_SKILL_CUTIN_DARKEN_ALPHA := 0.68
@@ -3571,27 +3622,32 @@ func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dic
 
 
 func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data: Dictionary) -> bool:
-	if not _can_show_yi_sunsin_specialty_cutin(caster_state, skill_data):
+	var hero_id := _get_specialty_skill_video_cutin_hero_id(caster_state, skill_data)
+	if hero_id == "":
 		return false
 	if is_specialty_skill_cutin_playing:
 		return false
 	if specialty_skill_cutin_layer == null or specialty_skill_cutin_hero == null or specialty_skill_cutin_skill_title == null:
 		return false
 
-	var portrait_texture := _load_unique_skill_texture(SPECIALTY_SKILL_YI_SUNSIN_CUTIN_PORTRAIT_PATH)
+	var cutin_config := _get_specialty_skill_cutin_config(hero_id)
+	var portrait_path := String(cutin_config.get("portrait_path", ""))
+	var portrait_texture := _load_unique_skill_texture(portrait_path)
 	if portrait_texture == null:
+		push_warning("[SPECIALTY_CUTIN] Missing portrait image for %s: %s" % [hero_id, portrait_path])
 		return false
-	var title_texture := _load_unique_skill_texture(SPECIALTY_SKILL_YI_SUNSIN_HAKIKJIN_TITLE_PATH)
+	var title_path := String(cutin_config.get("title_path", ""))
+	var title_texture := _load_unique_skill_texture(title_path)
 	if title_texture == null:
-		push_warning("[SPECIALTY_CUTIN] Missing Hakikjin title image: %s" % SPECIALTY_SKILL_YI_SUNSIN_HAKIKJIN_TITLE_PATH)
+		push_warning("[SPECIALTY_CUTIN] Missing title image for %s: %s" % [hero_id, title_path])
 		return false
 
 	_hide_unique_skill_toast()
 	unique_skill_cutin_timing_start_msec = Time.get_ticks_msec()
-	_log_unique_skill_cutin_timing("VIDEO_CUTIN_START", "hero=yi_sunsin duration=%.2f" % SPECIALTY_SKILL_CUTIN_TOTAL_DURATION)
+	_log_unique_skill_cutin_timing("VIDEO_CUTIN_START", "hero=%s duration=%.2f" % [hero_id, SPECIALTY_SKILL_CUTIN_TOTAL_DURATION])
 
 	var viewport_size := get_viewport_rect().size
-	var cutin_rect := _layout_specialty_skill_cutin(viewport_size)
+	var cutin_rect := _layout_specialty_skill_cutin(viewport_size, hero_id)
 	_set_toast_facing_indicator_suppression("unique_skill", true)
 	is_specialty_skill_cutin_playing = true
 
@@ -3615,7 +3671,7 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 		_prepare_specialty_skill_cutin_video_node(cutin_rect)
 		specialty_skill_cutin_video.modulate = Color(0.82, 0.9, 1.0, 0.96)
 		_log_specialty_skill_cutin_video_player_state("start_before_assign")
-		if _assign_specialty_skill_cutin_video_stream_for_hero(SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID):
+		if _assign_specialty_skill_cutin_video_stream_for_hero(hero_id):
 			specialty_skill_cutin_video.play()
 		_log_specialty_skill_cutin_video_player_state("after_play_call")
 		_log_specialty_skill_cutin_video_player_state_later("after_0_3s", 0.3)
@@ -3666,10 +3722,21 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 	return true
 
 
-func _can_show_yi_sunsin_specialty_cutin(caster_state: BattleUnitState, _skill_data: Dictionary) -> bool:
+func _get_specialty_skill_video_cutin_hero_id(caster_state: BattleUnitState, _skill_data: Dictionary) -> String:
 	if caster_state == null or caster_state.side != "ally":
-		return false
-	return _get_hero_id_for_unit_state(caster_state) == SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID
+		return ""
+	var hero_id := _get_hero_id_for_unit_state(caster_state)
+	if not SPECIALTY_SKILL_CUTIN_CONFIGS.has(hero_id):
+		return ""
+	return hero_id
+
+
+func _get_specialty_skill_cutin_config(hero_id: String) -> Dictionary:
+	return SPECIALTY_SKILL_CUTIN_CONFIGS.get(hero_id, SPECIALTY_SKILL_CUTIN_CONFIGS.get(SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID, {}))
+
+
+func _get_specialty_skill_cutin_config_float(config: Dictionary, key: String, fallback: float) -> float:
+	return float(config.get(key, fallback))
 
 
 func _assign_specialty_skill_cutin_video_stream_for_hero(hero_id: String) -> bool:
@@ -3712,7 +3779,7 @@ func _assign_specialty_skill_cutin_video_stream(path: String) -> bool:
 		_get_specialty_skill_cutin_video_load_failure_guess(path, file_exists, loader_exists, loaded_resource, video_stream),
 	])
 	if video_stream == null:
-		if path == SPECIALTY_SKILL_YI_SUNSIN_THEORA_Q8_1920X_PATH or path == SPECIALTY_SKILL_YI_SUNSIN_THEORA_540P_PATH:
+		if path.get_extension().to_lower() == "ogv":
 			video_stream = _create_specialty_skill_cutin_theora_stream_direct(path)
 		if video_stream == null:
 			print("[SPECIALTY_CUTIN] video resource is not a VideoStream: %s" % path)
@@ -8135,7 +8202,8 @@ func _configure_specialty_skill_cutin() -> void:
 		specialty_skill_cutin_animation_player.stop()
 
 
-func _layout_specialty_skill_cutin(viewport_size: Vector2) -> Rect2:
+func _layout_specialty_skill_cutin(viewport_size: Vector2, hero_id: String = SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID) -> Rect2:
+	var cutin_config := _get_specialty_skill_cutin_config(hero_id)
 	var cutin_size := Vector2(viewport_size.x * 0.88, viewport_size.y * 0.64)
 	cutin_size.x = clampf(cutin_size.x, 880.0, viewport_size.x * 0.92)
 	cutin_size.y = clampf(cutin_size.y, 360.0, viewport_size.y * 0.72)
@@ -8150,17 +8218,26 @@ func _layout_specialty_skill_cutin(viewport_size: Vector2) -> Rect2:
 		specialty_skill_cutin_slash.position = cutin_rect.position + Vector2(cutin_rect.size.x * 0.47, cutin_rect.size.y * 0.67)
 		specialty_skill_cutin_slash.size = Vector2(cutin_rect.size.x * 0.44, 18.0)
 	if specialty_skill_cutin_hero != null:
-		specialty_skill_cutin_hero.size = Vector2(viewport_size.x * 0.86, viewport_size.y * 1.42)
+		var hero_width_ratio := _get_specialty_skill_cutin_config_float(cutin_config, "hero_width_ratio", 0.86)
+		var hero_height_ratio := _get_specialty_skill_cutin_config_float(cutin_config, "hero_height_ratio", 1.42)
+		var hero_left_overflow := _get_specialty_skill_cutin_config_float(cutin_config, "hero_left_overflow", 0.28)
+		var hero_y_anchor := _get_specialty_skill_cutin_config_float(cutin_config, "hero_y_anchor", 0.55)
+		var hero_y_offset := _get_specialty_skill_cutin_config_float(cutin_config, "hero_y_offset", 28.0)
+		specialty_skill_cutin_hero.size = Vector2(viewport_size.x * hero_width_ratio, viewport_size.y * hero_height_ratio)
 		specialty_skill_cutin_hero.position = Vector2(
-			cutin_rect.position.x - specialty_skill_cutin_hero.size.x * 0.28,
-			viewport_size.y * 0.5 - specialty_skill_cutin_hero.size.y * 0.55 + 28.0
+			cutin_rect.position.x - specialty_skill_cutin_hero.size.x * hero_left_overflow,
+			viewport_size.y * 0.5 - specialty_skill_cutin_hero.size.y * hero_y_anchor + hero_y_offset
 		)
 		specialty_skill_cutin_hero.pivot_offset = specialty_skill_cutin_hero.size * 0.5
 	if specialty_skill_cutin_text != null:
-		specialty_skill_cutin_text.size = Vector2(cutin_rect.size.x * 0.44, cutin_rect.size.y * 0.32)
+		var title_width_ratio := _get_specialty_skill_cutin_config_float(cutin_config, "title_width_ratio", 0.44)
+		var title_height_ratio := _get_specialty_skill_cutin_config_float(cutin_config, "title_height_ratio", 0.32)
+		var title_x_ratio := _get_specialty_skill_cutin_config_float(cutin_config, "title_x_ratio", 0.53)
+		var title_y_ratio := _get_specialty_skill_cutin_config_float(cutin_config, "title_y_ratio", 0.22)
+		specialty_skill_cutin_text.size = Vector2(cutin_rect.size.x * title_width_ratio, cutin_rect.size.y * title_height_ratio)
 		specialty_skill_cutin_text.position = Vector2(
-			cutin_rect.position.x + cutin_rect.size.x * 0.53,
-			cutin_rect.position.y + cutin_rect.size.y * 0.22
+			cutin_rect.position.x + cutin_rect.size.x * title_x_ratio,
+			cutin_rect.position.y + cutin_rect.size.y * title_y_ratio
 		)
 		specialty_skill_cutin_text.pivot_offset = specialty_skill_cutin_text.size * 0.5
 	if specialty_skill_cutin_skill_title != null:

@@ -2,6 +2,24 @@
 
 ## 2026-06-04
 
+### v0.70-6a Kwon Yul + Jeong Do Jeon q8 Theora Production Dry Runs
+- Started from the clean asset-intake checkpoint `46f60c0 Remove Theora safe import junk after cutin asset intake`.
+- Re-read workflow/Godot/current-state docs before changing runtime assets or mappings.
+- Reconfirmed source MP4 specs with ffprobe:
+  - Kwon Yul: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+  - Jeong Do Jeon: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+- Encoded Kwon Yul with libtheora q8 and Vorbis audio to `assets/ui/cutin/videos/kwon_yul_cutin_bg_theora_q8_1920x.ogv`; ffprobe result is theora, 1920x1080, yuv420p, `30/1`, duration `2.000000`, size `9054001` bytes.
+- Encoded Jeong Do Jeon with libtheora q8 and Vorbis audio to `assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv`; ffprobe result is theora, 1920x1080, yuv420p, `30/1`, duration `2.000000`, size `4472743` bytes.
+- Ran Godot import to generate OGV `.uid` metadata, then removed only the regenerated `assets/video_test/theora_safe/` `.import` and q7/q8 `.uid` test junk.
+- Updated `scripts/battle_web_import_test.gd` so Kwon Yul and Jeong Do Jeon q8 OGVs are first candidates in their cutin chains while preserving fallbacks and leaving Yi Sunsin unchanged.
+- Wired Kwon Yul title PNG `res://assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png` and Jeong Do Jeon title PNG `res://assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png`.
+- Added per-hero cutin config entries for Yi Sunsin, Kwon Yul, and Jeong Do Jeon to allow independent portrait/title layout tuning later.
+- Verification passed: `git diff --check`.
+- Verification passed: Godot headless project load.
+- Verification passed: Godot headless load of `Battle_Fullscreen_Test.tscn`.
+- Direct ResourceLoader verification passed: Kwon Yul and Jeong Do Jeon q8 OGVs load as `VideoStreamTheora`; both title PNGs load as `CompressedTexture2D`; Yi Sunsin q8/title resources still load.
+- Remaining manual QA: visible battle flow should confirm Kwon Yul and Jeong Do Jeon q8 playback, title image display, no black screen, layout suitability, and battle-flow return.
+
 ### v0.70-6 Kwon Yul + Jeong Do Jeon Cutin Source Asset Intake
 - Started from clean repo state after `c7173fb 컷인 관련`.
 - Inspected `git show --name-status --oneline HEAD`; latest commit added Kwon Yul and Jeong Do Jeon source MP4s, added two title PNGs, and modified `assets/ui/cutin/portraits/jeong_do_jeon_cutin.png`.

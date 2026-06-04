@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-6a Kwon Yul + Jeong Do Jeon q8 Theora Production Dry Runs
+- Reconfirmed Kwon Yul and Jeong Do Jeon source MP4 specs before encoding: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+- Encoded `assets/ui/cutin/videos/kwon_yul_cutin_bg_theora_q8_1920x.ogv` with libtheora q8 at 1920x1080 / `30/1` / duration `2.000000`; output size is `9054001` bytes.
+- Encoded `assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv` with libtheora q8 at 1920x1080 / `30/1` / duration `2.000000`; output size is `4472743` bytes.
+- Added Godot `.uid` metadata for both new production dry-run OGVs and verified they load as `VideoStreamTheora`.
+- Added Kwon Yul and Jeong Do Jeon q8 Theora paths as first candidates in their cutin video fallback chains.
+- Preserved existing WebM fallbacks and added existing MP4 fallback paths after the q8 entries; no existing production video was overwritten or deleted.
+- Wired Kwon Yul and Jeong Do Jeon title PNGs into the specialty cutin presentation layer.
+- Added per-hero cutin config entries so portrait scale/position and title placement can be tuned independently for Yi Sunsin, Kwon Yul, and Jeong Do Jeon.
+- Preserved Yi Sunsin q8 mapping, final timing, title animation, and fallback chain.
+- Verification passed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader checks for q8 OGV/title resources.
+
 ## v0.70-6 Kwon Yul + Jeong Do Jeon Cutin Source Asset Intake
 - Verified latest intake commit `c7173fb 컷인 관련`.
 - Confirmed Kwon Yul source MP4 at `assets/video_source_test/production_dry_run/kwon_yul_cutin_source_02s.mp4`.

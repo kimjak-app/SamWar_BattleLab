@@ -1,19 +1,21 @@
 # NEXT TASKS
 
-## Next: Kwon Yul / Jeong Do Jeon q8 Theora Production Dry Runs
-- `v0.70-6 Kwon Yul + Jeong Do Jeon Cutin Source Asset Intake` verified source assets for both heroes.
-- Source MP4 paths are ready:
-  1. `assets/video_source_test/production_dry_run/kwon_yul_cutin_source_02s.mp4`
-  2. `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4`
-- Both sources are h264, 1920x1080, yuv420p, `30000/1001` fps, and `2.002000s`.
-- Title PNG paths are ready and have Godot import metadata:
-  1. `assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png`
-  2. `assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png`
-- Recommended next sequence:
-  1. Encode Kwon Yul as a separate q8 1920x Theora production dry-run asset without overwriting existing production files.
-  2. Connect only Kwon Yul with a preserved fallback chain and run Godot/visual QA.
-  3. Repeat the same encode/connect/QA flow for Jeong Do Jeon.
-  4. After playback is stable, tune each hero's cinematic cutin layout individually.
+## Next: F6 Visual QA for Kwon Yul / Jeong Do Jeon q8 Theora Dry Runs
+- `v0.70-6a Kwon Yul + Jeong Do Jeon q8 Theora Production Dry Runs` encoded and connected both heroes to new q8 1920x Theora dry-run assets.
+- Runtime first-candidate paths are:
+  1. `res://assets/ui/cutin/videos/kwon_yul_cutin_bg_theora_q8_1920x.ogv`
+  2. `res://assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv`
+- Title PNG paths are wired:
+  1. `res://assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png`
+  2. `res://assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png`
+- Both q8 OGVs load as `VideoStreamTheora`; both title PNGs load as `CompressedTexture2D`; Godot headless project and `Battle_Fullscreen_Test.tscn` load passed.
+- Manual visual QA should confirm:
+  1. Kwon Yul q8 video and title image appear in the actual battle flow.
+  2. Jeong Do Jeon q8 video and title image appear in the actual battle flow.
+  3. Neither cutin shows black-screen playback or obvious color corruption.
+  4. Battle flow returns after each cutin.
+  5. Per-hero layout overrides are sufficient for later independent tuning.
+- If playback is accepted, next patch should tune Kwon Yul and Jeong Do Jeon cinematic layouts separately instead of sharing identical Yi Sunsin values.
 
 ## Next: F6 Visual QA for Yi Sun-sin Final Exit Snap
 - `v0.70-5e Yi Sun-sin Final Exit Snap Tuning` keeps the accepted Hakikjin readable-hold and large-burst behavior, but shortens the tail after that event.

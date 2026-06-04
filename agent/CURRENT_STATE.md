@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.70-6a Kwon Yul + Jeong Do Jeon q8 Theora Production Dry Runs
+- Built on clean checkpoint `46f60c0 Remove Theora safe import junk after cutin asset intake`.
+- Reconfirmed source MP4s before encoding:
+  - `assets/video_source_test/production_dry_run/kwon_yul_cutin_source_02s.mp4`: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+  - `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4`: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+- Added q8 1920x Theora production dry-run outputs without overwriting existing production videos:
+  - `assets/ui/cutin/videos/kwon_yul_cutin_bg_theora_q8_1920x.ogv` (`theora`, 1920x1080, yuv420p, `30/1`, duration `2.000000`, size `9054001` bytes).
+  - `assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv` (`theora`, 1920x1080, yuv420p, `30/1`, duration `2.000000`, size `4472743` bytes).
+- Godot import metadata is present for both new OGVs, and direct ResourceLoader checks load them as `VideoStreamTheora`.
+- Kwon Yul and Jeong Do Jeon cutin video chains now try their q8 Theora files first, then preserve existing WebM fallbacks and include existing MP4 fallback paths.
+- Yi Sunsin q8 path, final timing, title animation, and fallback chain were preserved.
+- Kwon Yul title image is wired to `assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png`; Jeong Do Jeon title image is wired to `assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png`.
+- Added per-hero cutin presentation config entries so Kwon Yul, Jeong Do Jeon, and Yi Sunsin can keep independent portrait scale/position and title placement values.
+- Verification passed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader checks for Kwon Yul / Jeong Do Jeon q8 OGVs plus title PNGs.
+- Remaining QA: visible battle-flow QA should confirm Kwon Yul and Jeong Do Jeon video/title playback, non-black display, per-hero layout suitability, and battle-flow return.
+
 ## v0.70-6 Kwon Yul + Jeong Do Jeon Cutin Source Asset Intake
 - Inspected latest asset intake commit `c7173fb 컷인 관련`.
 - Commit `c7173fb` added the expected source MP4 files:
