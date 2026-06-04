@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-12 Battle Result Video Before Victory/Defeat Toast
+- Added victory/defeat result source MP4s under `assets/video_source_test/result_dry_run/`.
+- Encoded q8 1920x Theora result videos under `assets/ui/result/videos/`.
+- Added `ResultOverlay/VideoStreamPlayer_Result` to `Battle_Fullscreen_Test.tscn`.
+- Added result video constants and dedicated playback helpers in `scripts/battle_web_import_test.gd`.
+- `_try_show_battle_result_toast_if_needed()` now first attempts `_play_battle_result_video_before_toast()` and only queues the existing result toast after the video finishes.
+- Existing result toast UI/resources/text/timing are preserved through `_show_battle_result_toast_after_video()`.
+- Added load-failure fallback to the existing toast and a `BATTLE_RESULT_VIDEO_FALLBACK_DURATION_SEC` timer guard if the video `finished` signal does not arrive.
+- Did not change victory/defeat judgment, battle result payload, WorldMap result return logic, special-skill cutin mappings/assets, archer volley FX, or gunner shot FX.
+
 ## v0.70-11 Unit Type Attack Range Baseline
 - Added `_get_default_attack_range_for_unit_type()` and `_get_default_attack_range_for_visual_key()` in `scripts/battle_web_import_test.gd`.
 - Normal/basic attack range defaults are now explicit: infantry `1`, cavalry `1`, archer `3`, gunner `4`.

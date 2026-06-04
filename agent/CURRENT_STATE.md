@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.70-12 Battle Result Video Before Victory/Defeat Toast
+- Added battle result presentation videos before the existing victory/defeat result toast flow.
+- Source MP4s:
+  - `assets/video_source_test/result_dry_run/victory_result_source_04s.mp4`: h264, 1920x1080, yuv420p, `30000/1001`, duration `4.004000`.
+  - `assets/video_source_test/result_dry_run/defeat_result_source_04s.mp4`: h264, 1920x1080, yuv420p, `30000/1001`, duration `4.004000`.
+- Generated q8 Theora outputs:
+  - `assets/ui/result/videos/victory_result_theora_q8_1920x.ogv`: Theora, 1920x1080, yuv420p, `30/1`, duration `4.000000`, size `13550758` bytes.
+  - `assets/ui/result/videos/defeat_result_theora_q8_1920x.ogv`: Theora, 1920x1080, yuv420p, `30/1`, duration `4.000000`, size `8176454` bytes.
+- `Battle_Fullscreen_Test.tscn` now has a dedicated `ResultOverlay/VideoStreamPlayer_Result` node for result videos.
+- `scripts/battle_web_import_test.gd` now attempts to play the victory/defeat result video after result finalization and before queuing the existing result toast.
+- Existing victory/defeat toast textures, text, duration, and scale behavior are preserved; only the start point is delayed until video completion.
+- Result video load failure falls back immediately to the existing result toast, and a duration-based fallback timer prevents a missing `finished` signal from blocking the toast.
+- Battle result judgment, WorldMap result payload/return flow, cutin mappings/assets, archer volley FX, and gunner shot FX were not changed.
+- Remaining QA: visible battle QA should confirm victory and defeat videos play before the corresponding result toast and that WorldMap return/result flow still behaves as before.
+
 ## v0.70-11 Unit Type Attack Range Baseline
 - Added a normal/basic attack range baseline for the test battle in `scripts/battle_web_import_test.gd`.
 - Unit type defaults are now explicit:

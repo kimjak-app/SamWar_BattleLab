@@ -355,6 +355,9 @@ const VICTORY_TOAST_TEXT := "승리!"
 const DEFEAT_TOAST_TEXT := "패배"
 const RESULT_TOAST_SCALE_MULTIPLIER := 1.18
 const RESULT_TOAST_HOLD_EXTRA_SECONDS := 2.0
+const BATTLE_RESULT_VICTORY_VIDEO_PATH := "res://assets/ui/result/videos/victory_result_theora_q8_1920x.ogv"
+const BATTLE_RESULT_DEFEAT_VIDEO_PATH := "res://assets/ui/result/videos/defeat_result_theora_q8_1920x.ogv"
+const BATTLE_RESULT_VIDEO_FALLBACK_DURATION_SEC := 4.35
 const FACING_LEFT := "left"
 const FACING_RIGHT := "right"
 const FACING_UP := "up"
@@ -947,6 +950,9 @@ var pending_battle_toasts: Array = []
 var is_battle_toast_playing := false
 var active_battle_toast_tag := ""
 var has_battle_result_toast_shown := false
+var is_battle_result_video_playing := false
+var pending_battle_result_video_state := ""
+var battle_result_video_completion_handled := false
 var has_logged_battle_end_guard := false
 var roster_panel_slot_log_signatures: Dictionary = {}
 var unique_skill_toast_tween: Tween = null
@@ -1303,6 +1309,7 @@ var deployment_marker_base_world_positions_by_slot_id: Dictionary = {}
 @onready var cutin_name_label: Label = $CutinOverlay/CutinNameLabel
 @onready var cutin_quote_label: Label = $CutinOverlay/CutinQuoteLabel
 @onready var result_overlay: CanvasLayer = $ResultOverlay
+@onready var battle_result_video_player: VideoStreamPlayer = get_node_or_null("ResultOverlay/VideoStreamPlayer_Result") as VideoStreamPlayer
 @onready var result_image: TextureRect = $ResultOverlay/ResultImage
 @onready var result_title_label: Label = $ResultOverlay/ResultTitleLabel
 
@@ -1399,6 +1406,7 @@ func _ready() -> void:
 	_configure_unique_skill_toast()
 	_configure_specialty_skill_cutin()
 	_configure_enemy_retreat_toast()
+	_configure_battle_result_video()
 	_configure_main_camera()
 	_collect_move_range_cells()
 	_sync_deployment_markers_from_scene_visual_anchors()
@@ -2160,10 +2168,148 @@ func show_result() -> void:
 	_sync_overlay_positions()
 	result_overlay.visible = true
 	cutin_overlay.visible = false
+	if result_image != null:
+		result_image.visible = true
+	if result_title_label != null:
+		result_title_label.visible = true
+	if battle_result_video_player != null:
+		battle_result_video_player.visible = false
 
 
 func hide_result() -> void:
 	result_overlay.visible = false
+	_hide_battle_result_video_overlay()
+
+
+func _configure_battle_result_video() -> void:
+	if battle_result_video_player == null:
+		return
+	battle_result_video_player.visible = false
+	battle_result_video_player.expand = true
+	battle_result_video_player.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if not battle_result_video_player.finished.is_connected(_on_battle_result_video_finished):
+		battle_result_video_player.finished.connect(_on_battle_result_video_finished)
+
+
+func _get_battle_result_video_path(battle_result_state: String) -> String:
+	if battle_result_state == "victory":
+		return BATTLE_RESULT_VICTORY_VIDEO_PATH
+	if battle_result_state == "defeat":
+		return BATTLE_RESULT_DEFEAT_VIDEO_PATH
+	return ""
+
+
+func _assign_battle_result_video_stream(path: String) -> bool:
+	if battle_result_video_player == null or path == "":
+		return false
+	battle_result_video_player.stop()
+	battle_result_video_player.stream = null
+	var file_exists := FileAccess.file_exists(path)
+	var loader_exists := ResourceLoader.exists(path)
+	var loaded_resource: Resource = null
+	if loader_exists:
+		loaded_resource = ResourceLoader.load(path)
+	var video_stream := loaded_resource as VideoStream
+	print("[BATTLE_RESULT_VIDEO_LOAD] path=%s file_exists=%s resource_loader_exists=%s load_null=%s class=%s is_video_stream=%s" % [
+		path,
+		str(file_exists),
+		str(loader_exists),
+		str(loaded_resource == null),
+		_get_debug_object_class_name(loaded_resource),
+		str(video_stream != null),
+	])
+	if video_stream == null and path.get_extension().to_lower() == "ogv":
+		video_stream = _create_battle_result_theora_stream_direct(path)
+	if video_stream == null:
+		print("[BATTLE_RESULT_VIDEO] load_failed path=%s fallback=toast" % path)
+		return false
+	battle_result_video_player.stream = video_stream
+	return battle_result_video_player.stream != null
+
+
+func _create_battle_result_theora_stream_direct(path: String) -> VideoStream:
+	if path == "" or not FileAccess.file_exists(path):
+		return null
+	var direct_stream := VideoStreamTheora.new()
+	if direct_stream == null or not _debug_object_has_property(direct_stream, "file"):
+		return null
+	direct_stream.set("file", path)
+	if str(direct_stream.get("file")) == "":
+		return null
+	return direct_stream as VideoStream
+
+
+func _play_battle_result_video_before_toast(battle_result_state: String) -> bool:
+	if battle_result_state == "" or is_battle_result_video_playing:
+		return false
+	var video_path := _get_battle_result_video_path(battle_result_state)
+	if not _assign_battle_result_video_stream(video_path):
+		return false
+	_sync_overlay_positions()
+	pending_battle_result_video_state = battle_result_state
+	battle_result_video_completion_handled = false
+	is_battle_result_video_playing = true
+	if cutin_overlay != null:
+		cutin_overlay.visible = false
+	if result_overlay != null:
+		result_overlay.visible = true
+	if result_image != null:
+		result_image.visible = false
+	if result_title_label != null:
+		result_title_label.visible = false
+	battle_result_video_player.position = Vector2.ZERO
+	battle_result_video_player.size = get_viewport_rect().size
+	battle_result_video_player.visible = true
+	battle_result_video_player.play()
+	get_tree().create_timer(BATTLE_RESULT_VIDEO_FALLBACK_DURATION_SEC).timeout.connect(
+		_on_battle_result_video_fallback_timeout.bind(battle_result_state)
+	)
+	print("[BATTLE_RESULT_VIDEO] play state=%s path=%s" % [battle_result_state, video_path])
+	return true
+
+
+func _on_battle_result_video_finished() -> void:
+	_complete_battle_result_video_before_toast("finished_signal")
+
+
+func _on_battle_result_video_fallback_timeout(battle_result_state: String) -> void:
+	if pending_battle_result_video_state != battle_result_state:
+		return
+	_complete_battle_result_video_before_toast("fallback_timer")
+
+
+func _complete_battle_result_video_before_toast(source: String) -> void:
+	if battle_result_video_completion_handled:
+		return
+	battle_result_video_completion_handled = true
+	var battle_result_state := pending_battle_result_video_state
+	_hide_battle_result_video_overlay()
+	if battle_result_state == "":
+		battle_result_state = _get_battle_result_state()
+	_show_battle_result_toast_after_video(battle_result_state)
+	_refresh_worldmap_result_return_button()
+	print("[BATTLE_RESULT_VIDEO] complete source=%s state=%s" % [source, battle_result_state])
+
+
+func _hide_battle_result_video_overlay() -> void:
+	is_battle_result_video_playing = false
+	pending_battle_result_video_state = ""
+	if battle_result_video_player != null:
+		battle_result_video_player.stop()
+		battle_result_video_player.visible = false
+		battle_result_video_player.stream = null
+	if result_image != null:
+		result_image.visible = true
+	if result_title_label != null:
+		result_title_label.visible = true
+	if result_overlay != null:
+		result_overlay.visible = false
+
+
+func _show_battle_result_toast_after_video(battle_result_state: String) -> void:
+	if battle_result_state == "":
+		return
+	_show_battle_result_toast(battle_result_state == "victory")
 
 
 func _configure_worldmap_result_return_button() -> void:
@@ -2404,6 +2550,9 @@ func reset_demo_state() -> void:
 	is_battle_toast_playing = false
 	active_battle_toast_tag = ""
 	has_battle_result_toast_shown = false
+	is_battle_result_video_playing = false
+	pending_battle_result_video_state = ""
+	battle_result_video_completion_handled = false
 	has_logged_battle_end_guard = false
 	roster_panel_slot_log_signatures.clear()
 	enemy_ai_last_destination_debug.clear()
@@ -2455,6 +2604,7 @@ func reset_demo_state() -> void:
 	_refresh_formation_slot_guides()
 	cutin_overlay.visible = false
 	result_overlay.visible = false
+	_hide_battle_result_video_overlay()
 	_refresh_move_target_feedback()
 	_show_move_range_overlay_for_active_unit()
 	_set_facing_indicators_visible(true)
@@ -8919,8 +9069,8 @@ func _try_show_battle_result_toast_if_needed() -> bool:
 	if is_defeat_retreat_toast_playing or not defeat_retreat_toast_queue.is_empty():
 		return false
 	has_battle_result_toast_shown = true
-	var is_victory := battle_result_state == "victory"
-	_show_battle_result_toast(is_victory)
+	if not _play_battle_result_video_before_toast(battle_result_state):
+		_show_battle_result_toast_after_video(battle_result_state)
 	_refresh_worldmap_result_return_button()
 	print("[BATTLE_RESULT] state=%s ally_alive=%d enemy_alive=%d" % [
 		battle_result_state,

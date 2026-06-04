@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-12 Battle Result Video Before Victory/Defeat Toast Handoff
+- Current patch is battle result presentation only.
+- Result source MP4s:
+  1. `assets/video_source_test/result_dry_run/victory_result_source_04s.mp4`
+  2. `assets/video_source_test/result_dry_run/defeat_result_source_04s.mp4`
+- Generated q8 result OGVs:
+  1. `res://assets/ui/result/videos/victory_result_theora_q8_1920x.ogv`
+  2. `res://assets/ui/result/videos/defeat_result_theora_q8_1920x.ogv`
+- `Battle_Fullscreen_Test.tscn` contains `ResultOverlay/VideoStreamPlayer_Result`.
+- `scripts/battle_web_import_test.gd` now uses `_play_battle_result_video_before_toast()` from `_try_show_battle_result_toast_if_needed()`.
+- Existing victory/defeat toast display is preserved through `_show_battle_result_toast_after_video()` and happens only after video completion or fallback.
+- Result video load failure falls back immediately to the existing toast; `BATTLE_RESULT_VIDEO_FALLBACK_DURATION_SEC` prevents a missing finish signal from blocking result presentation.
+- Battle result judgment, WorldMap result payload/return, cutin mappings/assets, archer volley FX, and gunner shot FX were not changed.
+- Next visible QA should verify victory and defeat paths independently: result video first, then existing toast, then normal WorldMap result/return behavior.
+
 ## v0.70-11 Unit Type Attack Range Baseline Handoff
 - Current patch is battle test data/baseline only in `scripts/battle_web_import_test.gd`.
 - Added `_get_default_attack_range_for_unit_type()` and `_get_default_attack_range_for_visual_key()`.

@@ -2,6 +2,22 @@
 
 ## 2026-06-05
 
+### v0.70-12 Battle Result Video Before Victory/Defeat Toast
+- Started from `edac641 Set unit type attack range baseline for test battle`.
+- Confirmed the expected source MP4s exist under `assets/video_source_test/result_dry_run/`.
+- Source ffprobe:
+  - Victory: h264, 1920x1080, yuv420p, `30000/1001`, duration `4.004000`.
+  - Defeat: h264, 1920x1080, yuv420p, `30000/1001`, duration `4.004000`.
+- Encoded q8 Theora result videos:
+  - `assets/ui/result/videos/victory_result_theora_q8_1920x.ogv`: Theora, 1920x1080, yuv420p, `30/1`, duration `4.000000`, size `13550758` bytes.
+  - `assets/ui/result/videos/defeat_result_theora_q8_1920x.ogv`: Theora, 1920x1080, yuv420p, `30/1`, duration `4.000000`, size `8176454` bytes.
+- Added a dedicated `ResultOverlay/VideoStreamPlayer_Result` node to the battle scene.
+- Added result-video-before-toast playback helpers in `scripts/battle_web_import_test.gd`.
+- Existing victory/defeat toast behavior is preserved and now starts after result video completion.
+- Added load-failure fallback and a duration-based fallback timer guard so the existing toast still appears if video playback fails.
+- No battle result judgment, WorldMap result payload/return, cutin mapping/assets, archer volley FX, or gunner shot FX changes were intended.
+- Remaining manual QA: win and lose a battle in F6 and confirm the result video appears before the matching toast and WorldMap return still works.
+
 ### v0.70-11 Unit Type Attack Range Baseline
 - Started from clean repo state at `3800c99 Add gunner muzzle flash and tracer impact visual`.
 - Diagnosed the short gunner range as test battle unit setup data in `scripts/battle_web_import_test.gd`.

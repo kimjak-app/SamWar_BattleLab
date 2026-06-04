@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Next: F6 QA for Battle Result Videos Before Toasts
+- `v0.70-12` adds dedicated victory/defeat result videos before the existing result toast.
+- Expected flow:
+  1. Victory result finalizes.
+  2. `victory_result_theora_q8_1920x.ogv` plays.
+  3. Existing victory toast appears after the video.
+  4. Existing result/WorldMap return flow remains available.
+- Defeat follows the same sequence with `defeat_result_theora_q8_1920x.ogv`.
+- Manual visual QA should confirm:
+  1. Victory video appears before victory toast.
+  2. Defeat video appears before defeat toast.
+  3. Toast does not appear twice.
+  4. Video load/finish does not block the battle result state.
+  5. WorldMap return/result handoff remains unchanged.
+  6. Existing special-skill cutins, archer volley FX, and gunner shot FX are unaffected.
+
 ## Next: F6 QA for Unit Type Attack Range Baseline
 - `v0.70-11` sets the test battle normal/basic attack range baseline by unit type.
 - Expected normal attack ranges:

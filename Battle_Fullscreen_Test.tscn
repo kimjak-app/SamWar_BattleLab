@@ -3786,6 +3786,13 @@ offset_right = 1152.0
 offset_bottom = 720.0
 color = Color(0.0196078, 0.0392157, 0.0588235, 0.627451)
 
+[node name="VideoStreamPlayer_Result" type="VideoStreamPlayer" parent="ResultOverlay"]
+visible = false
+offset_right = 1152.0
+offset_bottom = 720.0
+mouse_filter = 2
+expand = true
+
 [node name="ResultImage" type="TextureRect" parent="ResultOverlay" unique_id=1179974900]
 offset_left = 356.0
 offset_top = 154.0
