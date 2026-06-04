@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-5 Yi Sun-sin Cutin Cinematic Layout Polish
+- Yi Sunsin q8 Theora playback remains the active production dry-run baseline through `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`; the existing fallback chain remains preserved.
+- Identified the current presentation problem: the cutin read as a flat portrait pasted over video, the thick yellow diagonal bar felt cheap, and the hero/skill typography lacked impact.
+- Polished the Yi Sunsin specialty cutin presentation layer into a more cinematic layered composition: battle dim overlay, moving q8 OGV background, larger foreground Yi Sunsin portrait, restrained accent FX, and stronger typography.
+- The Yi Sunsin foreground portrait is now staged larger and more dominant on the left/center-left, closer to the old high-impact Guan Yu toast scale while keeping the living Theora background.
+- Reworked the former yellow slash into a thin steel-blue/sea-spray accent with softer opacity and entrance timing instead of a thick gold bar.
+- Typography now treats `이순신` as a secondary hero-name title and `학익진!` as the main impact text, using cooler hero-name color, warm ivory/gold skill text, stronger outline, and shadow for readability over motion.
+- Entrance timing now staggers dim/video, hero slide/settle, text reveal, and accent motion; exit fades and slightly drifts the presentation before returning to the existing battle flow.
+- Scope was limited to `Battle_Fullscreen_Test.tscn`, `scripts/battle_web_import_test.gd`, and agent documentation. No video asset was re-encoded and no Kwon Yul / Jeong Do Jeon cutin mapping was changed.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining QA: headless checks cannot judge cinematic feel, text taste, or frame-level visual composition. Kimjak should run F6/manual battle QA and check hero scale/presence, text quality, removal of the tacky yellow slash, overall cinematic feel, and battle-flow return.
+- Future extension path: once the Yi Sunsin polished layout is visually accepted, reuse the same q8 Theora pipeline and layered presentation direction for Kwon Yul / Jeong Do Jeon without changing their mappings prematurely.
+
 ## v0.70-4a Yi Sun-sin q8 Theora Manual QA Documentation
 - Manual Godot battle-flow QA passed for the Yi Sunsin q8 Theora production dry-run baseline from commit `f3d53e0`.
 - User confirmed the q8 cutin finally displays correctly in the actual Godot battle flow: "드디어 제대로 뜸! 깔끔하게 떠^^".

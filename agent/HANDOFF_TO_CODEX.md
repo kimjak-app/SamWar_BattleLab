@@ -1,5 +1,16 @@
 # HANDOFF TO CODEX
 
+## v0.70-5 Yi Sun-sin Cutin Cinematic Layout Polish Handoff
+- Yi Sunsin q8 Theora playback remains the stable dry-run baseline and still uses `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv` first.
+- Existing Yi Sunsin fallback chain remains preserved after q8: 540p Theora, VP8 WebM, legacy OGV/WebM, and MP4.
+- Presentation polish has been applied to the existing specialty cutin layer in `Battle_Fullscreen_Test.tscn` and `scripts/battle_web_import_test.gd`.
+- Main visual changes: larger left/center-left Yi Sunsin foreground portrait, stronger `이순신` and `학익진!` typography, deeper dim, restrained steel-blue/sea-spray accent replacing the old yellow slash, and staggered entrance/exit animation.
+- The improvement is currently applied through the shared Yi Sunsin specialty cutin presentation path; it is suitable as a reference for future Kwon Yul / Jeong Do Jeon cutins, but their mappings were not changed in this pass.
+- No video assets were re-encoded and no production cutin files were deleted or overwritten.
+- Verification completed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Manual visual QA remains the next decisive step. In F6/battle flow, check hero scale/presence, `학익진!` readability and impact, absence of the old tacky yellow slash, overall cinematic/naval feel, clean cutin exit, and battle-flow return.
+- If the visual pass is accepted, next work can either lock this as the Yi Sunsin cinematic baseline or extend the q8 Theora/layered cutin pipeline to Kwon Yul and Jeong Do Jeon one hero at a time.
+
 ## v0.70-4a Yi Sun-sin q8 Theora Manual QA Handoff
 - Latest confirmed working cutin-video baseline: `f3d53e0 Add Yi Sun-sin q8 Theora production cutin dry run`.
 - Yi Sunsin q8 dry-run asset: `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`.

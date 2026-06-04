@@ -1,5 +1,25 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Yi Sun-sin Cinematic Cutin Polish
+- `v0.70-5 Yi Sun-sin Cutin Cinematic Layout Polish` upgrades presentation while preserving the q8 Theora production dry-run playback baseline.
+- Current Yi Sunsin cutin still tries `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv` first, with the 540p Theora / VP8 WebM / legacy OGV-WebM / MP4 fallback chain preserved.
+- The foreground portrait is larger and more heroic, the thick yellow diagonal slash has been replaced by a restrained steel-blue/sea-spray accent, and `이순신` / `학익진!` now use stronger staged typography.
+- Manual visual QA should check:
+  1. Yi Sunsin portrait scale and presence.
+  2. `학익진!` impact and readability against the moving OGV.
+  3. Removal/replacement of the tacky yellow slash.
+  4. Overall cinematic/naval/martial feel.
+  5. Clean cutin exit and post-cutin battle-flow return.
+- If accepted, treat the Yi Sunsin q8 Theora cinematic layout as the visual baseline before expanding the same pipeline to Kwon Yul / Jeong Do Jeon.
+
+## Next: Expand q8 Theora Cutin Pipeline After Yi Sun-sin Visual Baseline
+- Use the Yi Sunsin q8 Theora and layered cinematic presentation as the reference direction.
+- Candidate expansion path:
+  1. Prepare or verify source assets for Kwon Yul and Jeong Do Jeon.
+  2. Encode separate q8 or performance-appropriate Theora candidates without overwriting existing production files.
+  3. Connect one hero at a time with fallback chains preserved.
+  4. Run manual F6 QA for playback, color, text readability, cutin exit, and battle-flow return.
+
 ## Next: Expand q8 Theora Cutin Pipeline After Yi Sun-sin Manual QA Pass
 - `v0.70-4a Yi Sun-sin q8 Theora Manual QA Documentation` records a successful manual Godot battle-flow QA pass.
 - Stable baseline: commit `f3d53e0` connects Yi Sunsin to `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv` first, with existing fallbacks preserved.

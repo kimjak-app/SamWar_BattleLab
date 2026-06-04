@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-5 Yi Sun-sin Cutin Cinematic Layout Polish
+- Polished the Yi Sunsin specialty cutin presentation while preserving the working q8 Theora video path and existing fallback chain.
+- Enlarged and repositioned the foreground Yi Sunsin portrait so the composition has stronger hero-splash presence over the moving OGV background.
+- Reworked the thick yellow diagonal slash into a restrained steel-blue/sea-spray accent with softer opacity and less UI-like styling.
+- Added dedicated scene label settings for the Yi Sunsin cutin hero name and skill name, making `이순신` secondary and `학익진!` the main impact text.
+- Tuned runtime layout and animation timing: deeper background dim, hero slide/settle, staggered text reveal, accent motion, and a cleaner fade/drift exit.
+- Preserved Yi Sunsin q8 Theora first-candidate mapping, 540p Theora / VP8 WebM / legacy OGV-WebM / MP4 fallbacks, and the existing post-cutin battle-flow continuation.
+- Did not re-encode video assets, delete production cutin files, or change Kwon Yul / Jeong Do Jeon cutin mappings.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Manual visual QA remains required for final judgment of hero scale, typography taste, accent quality, cinematic feel, and battle-flow return in visible play.
+
 ## v0.70-4a Yi Sun-sin q8 Theora Manual QA Documentation
 - Documented Kimjak's manual Godot battle-flow QA success for the Yi Sunsin q8 Theora production dry-run connected in commit `f3d53e0`.
 - Confirmed by user report that the Yi Sunsin q8 cutin finally displays correctly in the actual battle flow.

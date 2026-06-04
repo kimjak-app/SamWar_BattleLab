@@ -2,6 +2,21 @@
 
 ## 2026-06-04
 
+### v0.70-5 Yi Sun-sin Cutin Cinematic Layout Polish
+- Started from the stable Yi Sunsin q8 Theora production dry-run baseline, with the cutin video playing correctly in real Godot battle flow.
+- Confirmed the current task was presentation polish, not playback repair or asset conversion.
+- Kept `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv` as the first Yi Sunsin cutin video candidate and preserved all existing fallbacks.
+- Identified the presentation weakness: flat pasted-on portrait feel, a tacky thick yellow diagonal bar, and low-impact `이순신` / `학익진!` text.
+- Updated `Battle_Fullscreen_Test.tscn` with dedicated label settings for the Yi Sunsin cutin hero name and skill name.
+- Updated `scripts/battle_web_import_test.gd` cutin layout so the Yi Sunsin portrait is much larger, placed left/center-left, and staged over the moving q8 OGV background.
+- Reworked the former yellow slash into a thin steel-blue/sea-spray accent and changed runtime color/timing to keep it restrained.
+- Tuned the animation sequence: deeper dim, immediate video layer, hero slide/settle, staggered text reveal, subtle text impact scale, accent entrance, and fade/drift exit.
+- Scope stayed on the cutin presentation layer and docs. No `.ogv` was re-encoded, no production cutin file was deleted, and no Kwon Yul / Jeong Do Jeon mapping was modified.
+- Verification passed: `git diff --check`.
+- Verification passed: Godot headless project load using `Godot_v4.6.2-stable_win64_console.exe`.
+- Verification passed: Godot headless load of `Battle_Fullscreen_Test.tscn` with existing identity/battle setup logs and no blocking error observed.
+- Codex headless verification cannot judge final cinematic taste, so F6/manual visual QA remains required for hero scale/presence, text quality, accent quality, overall feel, and battle-flow return.
+
 ### v0.70-4a Yi Sun-sin q8 Theora Manual QA Documentation
 - Started from latest commit `f3d53e0 Add Yi Sun-sin q8 Theora production cutin dry run`.
 - Confirmed `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv` exists.
