@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-9 Archer Volley Multi-Arrow Impact Visual
+- Added archer-only normal/basic attack volley FX in `scripts/battle_web_import_test.gd`.
+- Added `_play_arrow_projectile_effect`, `_spawn_arrow_projectile`, and `_spawn_arrow_impact_pin`.
+- Added volley timing/impact constants including `ARROW_VOLLEY_VISUAL_COUNT` and `ARROW_IMPACT_POP_BEGIN`.
+- Archer eligibility uses existing unit type / visual-key resolution, covering `yi_sunsin`, `gim_yusin`, and `liu_bei` when they resolve as archers.
+- Runtime arrows and impact pins are generated with `Line2D`; no new arrow asset files were added.
+- Preserved existing slash/spark/dust FX and combat resolution while layering arrows on top for archer basic attacks only.
+- Did not change damage, hit chance, troop loss, turn progression, unique/special skill effects, cutin assets/mappings, or WorldMap logic.
+
 ## v0.70-8b Yi Sun-sin + Eulji Mundeok Mirrored Cutin Layouts
 - Mirrored only Yi Sunsin and Eulji Mundeok specialty cutin presentation configs.
 - Yi Sunsin now places the portrait on the right and Hakikjin title image on the left.

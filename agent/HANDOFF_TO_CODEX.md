@@ -1,5 +1,16 @@
 # HANDOFF TO CODEX
 
+## v0.70-9 Archer Volley Multi-Arrow Impact Visual Handoff
+- Current patch is battle visual FX only in `scripts/battle_web_import_test.gd`.
+- Archer normal/basic attacks now call `_play_arrow_projectile_effect()` from the ally and enemy basic-attack animation paths only.
+- `_is_archer_unit()` resolves archer eligibility through normalized `unit_type`, visual key inference, and hero default visual key fallback.
+- Runtime arrows use `Line2D`; no PNG/SVG/sprite arrow asset was created.
+- Added constants including `ARROW_VOLLEY_VISUAL_COUNT` and `ARROW_IMPACT_POP_BEGIN`.
+- Added `_spawn_arrow_projectile()` for staggered source-to-target travel and `_spawn_arrow_impact_pin()` for short pinned impact feedback.
+- Current archer units expected to trigger the volley are `yi_sunsin`, `gim_yusin`, and `liu_bei`.
+- Unique/special skills, strategy, cutin playback, q8 Theora mappings/assets, damage/hit/troop/turn logic, and WorldMap flow were not changed.
+- Next visible QA should check archer basic attacks for staggered "pop-pop-pop" arrow impact, and spot-check non-archer basic attacks plus unique skills for absence of the arrow volley.
+
 ## v0.70-8b Yi Sunsin + Eulji Mundeok Mirrored Cutin Layout Handoff
 - Current patch is layout-direction only in `scripts/battle_web_import_test.gd`.
 - Yi Sunsin config now sets `layout_mirror: true`, places the oversized portrait from the right side, and moves the Hakikjin title image to the left.

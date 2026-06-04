@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.70-9 Archer Volley Multi-Arrow Impact Visual
+- Added a visual-only archer basic-attack volley in `scripts/battle_web_import_test.gd`.
+- Normal/basic attacks by archer units now spawn `ARROW_VOLLEY_VISUAL_COUNT` small runtime `Line2D` arrows with short staggered launches, target-side scatter, and brief impact pins.
+- Current archer units are resolved from unit type / visual key data: `yi_sunsin` (`korea_archer`), `gim_yusin` (`korea_archer`), and `liu_bei` (`china_archer`).
+- New functions: `_play_arrow_projectile_effect`, `_spawn_arrow_projectile`, and `_spawn_arrow_impact_pin`.
+- No arrow image/SVG/PNG asset was created; the effect is generated at runtime under the existing battle FX layer.
+- The hook is limited to ally/enemy normal basic attack paths and does not run from unique/special skills, strategy, cutins, cannon AOE, charge skills, damage calculation, turn progression, or WorldMap return logic.
+- No cutin assets, q8 Theora mappings, title PNGs, or WorldMap files were changed.
+- Remaining QA: visible battle QA should confirm Yi Sunsin / Kim Yu-sin / Liu Bei basic attacks show staggered small arrows and impact pins, while gunner/infantry/cavalry attacks and all special skills do not.
+
 ## v0.70-8b Yi Sun-sin + Eulji Mundeok Mirrored Cutin Layout
 - Built on `e69dd46 을지문덕,김유신까지 컷인 완성`.
 - Mirrored only Yi Sunsin and Eulji Mundeok specialty cutin composition in `scripts/battle_web_import_test.gd`.

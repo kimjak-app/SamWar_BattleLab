@@ -363,6 +363,16 @@ const UNIT_TYPE_INFANTRY := "infantry"
 const UNIT_TYPE_ARCHER := "archer"
 const UNIT_TYPE_GUNNER := "gunner"
 const UNIT_TYPE_CAVALRY := "cavalry"
+const ARROW_VOLLEY_VISUAL_COUNT := 5
+const ARROW_STAGGER_MIN_SEC := 0.03
+const ARROW_STAGGER_MAX_SEC := 0.08
+const ARROW_TRAVEL_MIN_SEC := 0.18
+const ARROW_TRAVEL_MAX_SEC := 0.32
+const ARROW_TARGET_OFFSET_MIN := 10.0
+const ARROW_TARGET_OFFSET_MAX := 22.0
+const ARROW_PIN_LINGER_MIN_SEC := 0.35
+const ARROW_PIN_LINGER_MAX_SEC := 0.60
+const ARROW_IMPACT_POP_BEGIN := 0.0
 const ALLOW_BREAKTHROUGH_MOVE := false
 const FACING_ARROW_BUTTON_SIZE_SCALE := 0.96
 const FACING_ARROW_PANEL_ALPHA := 1.0
@@ -2664,6 +2674,8 @@ func play_basic_attack_demo() -> void:
 	tween.finished.connect(_finish_basic_attack_demo)
 
 	_spawn_attack_slash_fx(ally_start, enemy_start)
+	if _is_archer_unit(active_unit_state):
+		_play_arrow_projectile_effect(ally_start, enemy_start)
 
 	var attack_damage := _get_directional_attack_damage(int(DEMO_DAMAGE), active_unit_state, selected_attack_target_state, true, true)
 	var attack_angle_type := _get_attack_angle_type(active_unit_state, selected_attack_target_state)
@@ -6553,7 +6565,11 @@ func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleU
 	var guard_direction := (_get_ally_target_visual_anchor_position(target_state) - _get_enemy_actor_visual_anchor_position(enemy_actor_state)).normalized()
 	var guard_offset := guard_direction * ENEMY_GUARD_STEP_DISTANCE
 	var ally_recoil_offset := guard_direction * 16.0
-	_spawn_attack_slash_fx(_get_enemy_actor_visual_anchor_position(enemy_actor_state), _get_ally_target_visual_anchor_position(target_state))
+	var attacker_anchor := _get_enemy_actor_visual_anchor_position(enemy_actor_state)
+	var target_anchor := _get_ally_target_visual_anchor_position(target_state)
+	_spawn_attack_slash_fx(attacker_anchor, target_anchor)
+	if _is_archer_unit(enemy_actor_state):
+		_play_arrow_projectile_effect(attacker_anchor, target_anchor)
 
 	var tween := create_tween()
 	tween.tween_interval(0.16)
@@ -9139,6 +9155,99 @@ func _spawn_battle_dust_fx(
 	tween.tween_callback(sprite.queue_free)
 
 
+func _play_arrow_projectile_effect(source_pos: Vector2, target_pos: Vector2) -> void:
+	if battle_fx_root == null:
+		return
+	var impact_direction := target_pos - source_pos
+	if impact_direction.length() <= 0.1:
+		impact_direction = Vector2.RIGHT
+	for arrow_index in range(ARROW_VOLLEY_VISUAL_COUNT):
+		var target_offset := Vector2(
+			randf_range(-ARROW_TARGET_OFFSET_MAX, ARROW_TARGET_OFFSET_MAX),
+			randf_range(-ARROW_TARGET_OFFSET_MAX, ARROW_TARGET_OFFSET_MAX)
+		)
+		if target_offset.length() < ARROW_TARGET_OFFSET_MIN:
+			target_offset = target_offset.normalized() * ARROW_TARGET_OFFSET_MIN
+			if target_offset.length() <= 0.1:
+				target_offset = Vector2(ARROW_TARGET_OFFSET_MIN, 0.0).rotated(randf_range(0.0, TAU))
+		var launch_delay := float(arrow_index) * randf_range(ARROW_STAGGER_MIN_SEC, ARROW_STAGGER_MAX_SEC)
+		var travel_duration := randf_range(ARROW_TRAVEL_MIN_SEC, ARROW_TRAVEL_MAX_SEC)
+		var normalized_direction := impact_direction.normalized()
+		var source_jitter := Vector2(-normalized_direction.y, normalized_direction.x) * randf_range(-8.0, 8.0)
+		_spawn_arrow_projectile(source_pos + source_jitter, target_pos + target_offset, launch_delay, travel_duration)
+
+
+func _spawn_arrow_projectile(source_pos: Vector2, target_impact_pos: Vector2, launch_delay: float, travel_duration: float) -> void:
+	if battle_fx_root == null:
+		return
+	var travel_vector := target_impact_pos - source_pos
+	if travel_vector.length() <= 0.1:
+		travel_vector = Vector2.RIGHT
+	var projectile := Line2D.new()
+	projectile.name = "ArrowProjectileVisual"
+	projectile.points = PackedVector2Array([Vector2(-13.0, 0.0), Vector2(7.0, 0.0)])
+	projectile.width = randf_range(1.25, 1.75)
+	projectile.default_color = Color(0.94, 0.84, 0.54, 0.94)
+	projectile.z_as_relative = false
+	projectile.z_index = 27
+	projectile.position = battle_fx_root.to_local(source_pos)
+	projectile.rotation = travel_vector.angle()
+	projectile.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	battle_fx_root.add_child(projectile)
+
+	var tween := create_tween()
+	if launch_delay > 0.0:
+		tween.tween_interval(launch_delay)
+	tween.tween_callback(func() -> void:
+		if is_instance_valid(projectile):
+			projectile.modulate.a = 1.0
+	)
+	tween.tween_property(projectile, "position", battle_fx_root.to_local(target_impact_pos), travel_duration).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	tween.tween_callback(func() -> void:
+		if is_instance_valid(projectile):
+			_spawn_arrow_impact_pin(target_impact_pos, projectile.rotation)
+			projectile.queue_free()
+	)
+
+
+func _spawn_arrow_impact_pin(target_impact_pos: Vector2, arrow_angle: float) -> void:
+	if battle_fx_root == null:
+		return
+	var pin_root := Node2D.new()
+	pin_root.name = "ArrowImpactPin"
+	pin_root.z_as_relative = false
+	pin_root.z_index = 28
+	pin_root.position = battle_fx_root.to_local(target_impact_pos)
+	pin_root.rotation = arrow_angle + randf_range(-0.16, 0.16)
+	pin_root.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	pin_root.scale = Vector2.ONE * 0.82
+	battle_fx_root.add_child(pin_root)
+
+	var pin_line := Line2D.new()
+	pin_line.name = "ArrowPinLine"
+	pin_line.points = PackedVector2Array([Vector2(-8.0, 0.0), Vector2(5.0, 0.0)])
+	pin_line.width = 1.7
+	pin_line.default_color = Color(0.88, 0.74, 0.44, 0.96)
+	pin_root.add_child(pin_line)
+
+	var pop_line := Line2D.new()
+	pop_line.name = "ArrowImpactPop"
+	pop_line.points = PackedVector2Array([Vector2(-3.5, -3.5), Vector2(3.5, 3.5)])
+	pop_line.width = 1.2
+	pop_line.default_color = Color(1.0, 0.93, 0.65, 0.75)
+	pop_line.rotation = randf_range(-0.7, 0.7)
+	pin_root.add_child(pop_line)
+
+	var linger_duration := randf_range(ARROW_PIN_LINGER_MIN_SEC, ARROW_PIN_LINGER_MAX_SEC)
+	var tween := create_tween()
+	if ARROW_IMPACT_POP_BEGIN > 0.0:
+		tween.tween_interval(ARROW_IMPACT_POP_BEGIN)
+	tween.tween_property(pin_root, "scale", Vector2.ONE * 1.12, 0.05).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_interval(linger_duration)
+	tween.tween_property(pin_root, "modulate:a", 0.0, 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_callback(pin_root.queue_free)
+
+
 func _spawn_attack_slash_fx(attacker_pos: Vector2, target_pos: Vector2) -> void:
 	var texture := _load_random_fx_texture(ATTACK_SLASH_FX_TEXTURE_PATHS)
 	if texture == null:
@@ -10341,6 +10450,20 @@ func _get_visual_key_for_unit(unit_state: BattleUnitState) -> String:
 	if unit_state.side == "enemy":
 		side_prefix = "enemy"
 	return "%s_%s" % [side_prefix, _normalize_unit_type(unit_state.unit_type)]
+
+
+func _is_archer_unit(unit_state: BattleUnitState) -> bool:
+	if unit_state == null:
+		return false
+	if _normalize_unit_type(unit_state.unit_type) == UNIT_TYPE_ARCHER:
+		return true
+	var visual_key := _get_visual_key_for_unit(unit_state)
+	if visual_key != "" and _infer_unit_type_from_visual_key(visual_key) == UNIT_TYPE_ARCHER:
+		return true
+	var hero_id := _get_hero_id_for_unit_state(unit_state)
+	var hero_entry := _get_hero_registry_entry(hero_id)
+	var default_visual_key := String(hero_entry.get("default_visual_key", ""))
+	return default_visual_key != "" and _infer_unit_type_from_visual_key(default_visual_key) == UNIT_TYPE_ARCHER
 
 
 func _get_visual_fallback_key_for_unit(unit_state: BattleUnitState) -> String:
