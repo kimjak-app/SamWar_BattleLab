@@ -1,5 +1,20 @@
 # NEXT TASKS
 
+## Next: Kwon Yul / Jeong Do Jeon q8 Theora Production Dry Runs
+- `v0.70-6 Kwon Yul + Jeong Do Jeon Cutin Source Asset Intake` verified source assets for both heroes.
+- Source MP4 paths are ready:
+  1. `assets/video_source_test/production_dry_run/kwon_yul_cutin_source_02s.mp4`
+  2. `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4`
+- Both sources are h264, 1920x1080, yuv420p, `30000/1001` fps, and `2.002000s`.
+- Title PNG paths are ready and have Godot import metadata:
+  1. `assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png`
+  2. `assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png`
+- Recommended next sequence:
+  1. Encode Kwon Yul as a separate q8 1920x Theora production dry-run asset without overwriting existing production files.
+  2. Connect only Kwon Yul with a preserved fallback chain and run Godot/visual QA.
+  3. Repeat the same encode/connect/QA flow for Jeong Do Jeon.
+  4. After playback is stable, tune each hero's cinematic cutin layout individually.
+
 ## Next: F6 Visual QA for Yi Sun-sin Final Exit Snap
 - `v0.70-5e Yi Sun-sin Final Exit Snap Tuning` keeps the accepted Hakikjin readable-hold and large-burst behavior, but shortens the tail after that event.
 - Hakikjin still exits before Yi Sunsin; Yi Sunsin now remains only briefly afterward before the full cutin snaps out.

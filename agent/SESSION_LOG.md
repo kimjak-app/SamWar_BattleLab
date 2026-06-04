@@ -2,6 +2,20 @@
 
 ## 2026-06-04
 
+### v0.70-6 Kwon Yul + Jeong Do Jeon Cutin Source Asset Intake
+- Started from clean repo state after `c7173fb 컷인 관련`.
+- Inspected `git show --name-status --oneline HEAD`; latest commit added Kwon Yul and Jeong Do Jeon source MP4s, added two title PNGs, and modified `assets/ui/cutin/portraits/jeong_do_jeon_cutin.png`.
+- Verified no `assets/video_test/theora_safe/` files were added by the latest commit.
+- ffprobe for `assets/video_source_test/production_dry_run/kwon_yul_cutin_source_02s.mp4`: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+- ffprobe for `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4`: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+- Verified `assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png` is `1133x639`, PNG color type `6`, alpha true.
+- Verified `assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png` is `1133x639`, PNG color type `6`, alpha true.
+- Ran Godot `--import` to generate required texture import metadata for the new title PNGs.
+- Added `assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png.import` and `assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png.import`.
+- Removed only the incidental untracked `test_safe_q7_1280x.ogv.uid` and `test_safe_q8_1920x.ogv.uid` files generated under `assets/video_test/theora_safe/`.
+- Direct Godot resource verification passed for both title PNGs as `CompressedTexture2D`; source MP4s remain ffmpeg source assets and are not Godot ResourceLoader resources.
+- No production mapping or Yi Sunsin q8 baseline file/mapping was changed.
+
 ### v0.70-5e Yi Sun-sin Final Exit Snap Tuning
 - Started from clean repo state at `fbe1219 Tune Hakikjin hold timing and large burst fade`.
 - Focused only on final cutin tail/exit timing for the Yi Sunsin specialty cutin.

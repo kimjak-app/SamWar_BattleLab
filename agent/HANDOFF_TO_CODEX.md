@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-6 Kwon Yul + Jeong Do Jeon Cutin Asset Intake Handoff
+- Latest inspected intake commit: `c7173fb 컷인 관련`.
+- Ready source MP4s:
+  1. `assets/video_source_test/production_dry_run/kwon_yul_cutin_source_02s.mp4`
+  2. `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4`
+- Both source MP4s ffprobe as h264, 1920x1080, yuv420p, `30000/1001` fps, duration `2.002000`.
+- Ready title PNGs:
+  1. `assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png`
+  2. `assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png`
+- Both title PNGs are `1133x639` RGBA/transparent and now have matching Godot `.import` metadata.
+- Direct Godot ResourceLoader verification passes for both title PNGs as `CompressedTexture2D`.
+- The source MP4s are source/ffmpeg inputs, not Godot runtime resources; verify them with ffprobe and encode separate Theora outputs before mapping.
+- No production mapping was connected for Kwon Yul or Jeong Do Jeon in this intake pass.
+- Yi Sunsin q8 Theora baseline and fallback chain were not changed.
+- Next recommended task: encode and connect Kwon Yul q8 Theora dry-run first, then repeat for Jeong Do Jeon, preserving existing production files and adding fallbacks one hero at a time.
+
 ## v0.70-5e Yi Sun-sin Final Exit Snap Handoff
 - Current Yi Sunsin cutin keeps the v0.70-5d Hakikjin title behavior unchanged: readable hold, large burst to `2.25`, fade-out, and upward drift.
 - Hakikjin still exits before Yi Sunsin, preserving the current dynamic title-first disappearance structure.

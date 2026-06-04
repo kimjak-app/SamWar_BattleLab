@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.70-6 Kwon Yul + Jeong Do Jeon Cutin Source Asset Intake
+- Inspected latest asset intake commit `c7173fb 컷인 관련`.
+- Commit `c7173fb` added the expected source MP4 files:
+  - `assets/video_source_test/production_dry_run/kwon_yul_cutin_source_02s.mp4`
+  - `assets/video_source_test/production_dry_run/jeong_do_jeon_cutin_source_02s.mp4`
+- Kwon Yul source ffprobe: `codec_name=h264`, `width=1920`, `height=1080`, `pix_fmt=yuv420p`, `avg_frame_rate=30000/1001`, `duration=2.002000`.
+- Jeong Do Jeon source ffprobe: `codec_name=h264`, `width=1920`, `height=1080`, `pix_fmt=yuv420p`, `avg_frame_rate=30000/1001`, `duration=2.002000`.
+- Verified title PNG assets:
+  - `assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png` (`1133x639`, RGBA/transparent)
+  - `assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png` (`1133x639`, RGBA/transparent)
+- Added the required Godot texture import metadata for both new title PNGs so they load as `CompressedTexture2D`.
+- Godot `--import` also generated test OGV `.uid` files under `assets/video_test/theora_safe/`; those were removed specifically and were not tracked.
+- No production cutin mapping, Yi Sunsin q8 mapping/file, Kwon Yul / Jeong Do Jeon mapping, production video asset, battle logic, or WorldMap logic was changed.
+- Next candidates: Kwon Yul q8 Theora production dry run, Jeong Do Jeon q8 Theora production dry run, then per-hero cinematic cutin layout tuning.
+
 ## v0.70-5e Yi Sun-sin Final Exit Snap Tuning
 - Built on `fbe1219 Tune Hakikjin hold timing and large burst fade`.
 - Preserved the current Hakikjin-first exit structure: Hakikjin still appears, holds/readably bursts, and disappears before Yi Sunsin exits.
