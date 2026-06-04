@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-5c Yi Sun-sin Vertical Balance + Hakikjin Large Burst-Out Tuning
+- Kept Yi Sunsin portrait scale approximately stable and nudged the oversized portrait downward by `28px` for better vertical balance.
+- Increased Hakikjin title burst scale from the previous smaller burst to a much stronger large burst-out.
+- Hakikjin now appears/readable, scales to `1.72`, then fades out while expanding to `1.90`.
+- Added slight upward drift during the title fade burst.
+- Preserved q8 Theora first-candidate path, existing fallback chain, title PNG asset path, and battle-flow continuation.
+- Did not change Kwon Yul / Jeong Do Jeon mappings, production cutin assets, battle logic, or WorldMap logic.
+- Verification passed: `git diff --check`, Godot headless project load, battle scene headless load, and direct ResourceLoader checks for Hakikjin PNG and q8 OGV.
+
 ## v0.70-5b Yi Sun-sin Dominance + Hakikjin Pop-and-Burst Tuning
 - Increased Yi Sunsin portrait dominance beyond the v0.70-5a layout by enlarging the screen-relative portrait size and pushing it farther left.
 - Kept the Hakikjin title PNG asset path unchanged.

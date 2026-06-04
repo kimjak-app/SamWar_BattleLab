@@ -197,7 +197,7 @@ const SPECIALTY_SKILL_CUTIN_HERO_START_SCALE := 1.08
 const SPECIALTY_SKILL_CUTIN_HERO_SETTLE_SCALE := 1.0
 const SPECIALTY_SKILL_CUTIN_TEXT_ENTER_OFFSET := Vector2(140.0, -8.0)
 const SPECIALTY_SKILL_CUTIN_TEXT_START_SCALE := 1.0
-const SPECIALTY_SKILL_CUTIN_TEXT_IMPACT_SCALE := 1.26
+const SPECIALTY_SKILL_CUTIN_TEXT_IMPACT_SCALE := 1.72
 const SPECIALTY_SKILL_CUTIN_ACCENT_ENTER_OFFSET := Vector2(160.0, -8.0)
 const SPECIALTY_SKILL_CUTIN_ACCENT_COLOR := Color(0.78, 0.91, 1.0, 0.34)
 const SPECIALTY_SKILL_CUTIN_ACCENT_EXIT_COLOR := Color(0.78, 0.91, 1.0, 0.0)
@@ -3648,9 +3648,10 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 	if specialty_skill_cutin_text != null:
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "position", text_base_position, SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY)
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "modulate:a", 1.0, 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY)
-		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "scale", Vector2.ONE * SPECIALTY_SKILL_CUTIN_TEXT_IMPACT_SCALE, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY)
-		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "modulate:a", 0.0, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY + 0.20)
-		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "scale", Vector2.ONE * 1.34, 0.18).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY + 0.20)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "scale", Vector2.ONE * SPECIALTY_SKILL_CUTIN_TEXT_IMPACT_SCALE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY + 0.08)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY + 0.20)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "scale", Vector2.ONE * 1.90, 0.22).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY + 0.20)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "position", text_base_position + Vector2(0.0, -18.0), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY + 0.20)
 	specialty_skill_cutin_tween.chain().tween_interval(maxf(0.0, SPECIALTY_SKILL_CUTIN_EXIT_START - SPECIALTY_SKILL_CUTIN_TEXT_DELAY - SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION))
 	specialty_skill_cutin_tween.tween_callback(_log_unique_skill_cutin_timing.bind("VIDEO_CUTIN_EXIT_START"))
 	specialty_skill_cutin_tween.tween_property(specialty_skill_cutin_layer, "modulate:a", 0.0, SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
@@ -8150,7 +8151,7 @@ func _layout_specialty_skill_cutin(viewport_size: Vector2) -> Rect2:
 		specialty_skill_cutin_hero.size = Vector2(viewport_size.x * 0.86, viewport_size.y * 1.42)
 		specialty_skill_cutin_hero.position = Vector2(
 			cutin_rect.position.x - specialty_skill_cutin_hero.size.x * 0.28,
-			viewport_size.y * 0.5 - specialty_skill_cutin_hero.size.y * 0.55
+			viewport_size.y * 0.5 - specialty_skill_cutin_hero.size.y * 0.55 + 28.0
 		)
 		specialty_skill_cutin_hero.pivot_offset = specialty_skill_cutin_hero.size * 0.5
 	if specialty_skill_cutin_text != null:

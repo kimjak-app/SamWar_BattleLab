@@ -1,5 +1,16 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Hakikjin Large Burst-Out
+- `v0.70-5c Yi Sun-sin Vertical Balance + Hakikjin Large Burst-Out Tuning` keeps Yi Sunsin scale roughly stable and moves the oversized portrait down slightly for top/bottom balance.
+- Hakikjin now appears at base size, rapidly grows much larger, and disappears while continuing to enlarge.
+- Manual visual QA should confirm:
+  1. Yi Sunsin top/bottom spacing feels balanced.
+  2. Hakikjin grows dramatically while disappearing.
+  3. The cutin feels more impactful and less label-like.
+  4. q8 Theora playback remains clean.
+  5. Battle-flow return still works.
+- If accepted, this should be treated as the current Yi Sunsin title-burst baseline.
+
 ## Next: F6 Visual QA for Yi Sun-sin Dominance and Hakikjin Burst
 - `v0.70-5b Yi Sun-sin Dominance + Hakikjin Pop-and-Burst Tuning` further enlarges and left-shifts the Yi Sunsin portrait.
 - Hakikjin title image now performs a short burst: appears, expands strongly, and fades/disappears instead of sitting statically.

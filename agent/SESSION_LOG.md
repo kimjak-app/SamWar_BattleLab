@@ -2,6 +2,22 @@
 
 ## 2026-06-04
 
+### v0.70-5c Yi Sun-sin Vertical Balance + Hakikjin Large Burst-Out Tuning
+- Started from clean repo state at `7bdaefd Increase Yi Sun-sin dominance and animate Hakikjin burst`.
+- Focused only on Yi Sunsin vertical balance and Hakikjin title burst behavior.
+- Kept Yi Sunsin scale at the current oversized layout: `viewport_size.x * 0.86`, `viewport_size.y * 1.42`.
+- Nudged Yi Sunsin downward by `28px` in `_layout_specialty_skill_cutin()` to improve top/bottom spacing balance.
+- Kept Hakikjin title image path unchanged: `res://assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png`.
+- Increased Hakikjin impact scale from `1.26` to `1.72`.
+- Increased Hakikjin fade-out enlargement from `1.34` to `1.90`.
+- Added upward drift of `18px` during the Hakikjin fade burst.
+- Preserved q8 Theora first candidate and all existing fallbacks. Kwon Yul / Jeong Do Jeon mappings were not changed.
+- Verification passed: `git diff --check`.
+- Verification passed: Godot headless project load.
+- Verification passed: Godot headless load of `Battle_Fullscreen_Test.tscn`.
+- Direct ResourceLoader verification passed: Hakikjin PNG loads as `CompressedTexture2D`, q8 OGV loads as `VideoStreamTheora`.
+- Remaining manual QA: visible F6 battle flow should confirm vertical balance, dramatic Hakikjin burst-out, stronger impact feel, and battle-flow return.
+
 ### v0.70-5b Yi Sun-sin Dominance + Hakikjin Pop-and-Burst Tuning
 - Started from clean repo state at `09e92ba Integrate Hakikjin title image and tune Yi Sun-sin cutin impact`.
 - Focused only on Yi Sunsin specialty cutin presentation tuning.
