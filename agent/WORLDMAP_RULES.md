@@ -1,5 +1,17 @@
 # WORLDMAP RULES
 
+## v0.70-13c Battle WorldMap Return Contract Rule
+- WorldMap -> Battle handoff currently uses `Engine` meta key `samwar_worldmap_battle_context`; Battle -> WorldMap return currently uses `samwar_worldmap_battle_result`.
+- The battle scene path for WorldMap handoff is `res://Battle_Fullscreen_Test.tscn`; the battle return scene path is `res://WorldMap_Test.tscn`.
+- Player attack context must continue to identify itself with `source: "player_attack"` and `type: "attack"`.
+- Enemy invasion defense context must continue to identify itself with `source: "enemy_invasion"` and `type: "defense"`.
+- Side-specific city and troop keys are the active contract: `attacker_city_id`, `defender_city_id`, `attacker_source_city_id`, `defender_source_city_id`, `attacker_troop_allocation`, `defender_troop_allocation`, `attacker_total_allocated_troops`, `defender_total_allocated_troops`, and side-specific source-city troop before/after keys.
+- Result payload currently uses `result` plus `winner`, not separate `battle_result`, `winner_side`, or `loser_side` keys. WorldMap normalizers accept several aliases, but Battle emits the documented keys only.
+- Result troop accounting currently travels through `player_troop_outcome` and `enemy_troop_outcome` dictionaries with `source_city_id`, `allocated`, `survivors`, `losses`, `wounded`, `dead`, `allocations`, and `survivor_allocations`.
+- There is no explicit payload-level `result_applied` flag. One-shot behavior currently relies on immediate Engine meta removal and existing pending context/event cleanup.
+- Do not introduce generic city/troop aliases or default city ids unless a later migration explicitly updates both Battle and WorldMap consumers.
+- v0.70-14 camera handoff work should use existing city marker lookup and camera helpers before the final scene handoff, while preserving the current Engine meta boundary.
+
 ## v0.68b-12b-31 Troop Accounting Parity Rule
 - Both sides' allocated troops must be subtracted from their source city garrison before battle handoff.
 - Player attack: attacker allocation is subtracted from the player source city; defender allocation is subtracted from the enemy target city.

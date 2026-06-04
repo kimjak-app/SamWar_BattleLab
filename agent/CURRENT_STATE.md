@@ -1,5 +1,28 @@
 # CURRENT STATE
 
+## v0.70-13c Battle WorldMap Return Contract Prep
+- Baseline: `v0.70-13b Battle Cinematic Lifecycle Guard Audit` at HEAD `f56903d5c265e7443e68387e01886d28cda8cf5a`.
+- Git commit analysis summary: HEAD `f56903d` changed only `scripts/battle_web_import_test.gd` and five agent docs for cinematic lifecycle guards. No WorldMap script, scene, `project.godot`, battle calculation, or battle-result contract file changed in the baseline commit.
+- Modified files: agent docs only (`agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`).
+- WorldMap -> Battle entry contract:
+  - `scripts/worldmap_test.gd` uses `Engine.set_meta("samwar_worldmap_battle_context", context)` then `change_scene_to_file("res://Battle_Fullscreen_Test.tscn")`.
+  - Player attack context is built through `_start_player_attack_battle()`, `_confirm_player_attack_deployment()`, and `_build_player_attack_battle_context()` with `source: "player_attack"` and `type: "attack"`.
+  - Enemy invasion defense context is built from pending invasion event data through deployment confirmation and `_build_battle_context_from_pending_invasion()` with `source: "enemy_invasion"` and `type: "defense"`.
+- Battle internal context contract:
+  - `scripts/battle_web_import_test.gd` consumes `samwar_worldmap_battle_context` in `_read_worldmap_battle_context_handoff()`, removes the meta immediately, applies rosters, and keeps `worldmap_battle_context` for return payload generation.
+  - Battle result state remains `victory` / `defeat` from `_get_battle_result_state()` only; this audit did not change result judgment.
+- Battle -> WorldMap return contract:
+  - `_return_to_worldmap_with_result()` builds a payload through `_build_worldmap_battle_result_payload()`, stores it as `Engine` meta `samwar_worldmap_battle_result`, then returns to `res://WorldMap_Test.tscn`.
+  - `worldmap_test.gd` consumes the result once in `_consume_worldmap_battle_result_if_any()`, removes the meta, and dispatches to existing player-attack or invasion result application.
+- Existing contract keys: `source`, `type`, `mode`, `attacker_city_id`, `defender_city_id`, `attacker_owner`, `defender_owner`, `attacker_hero_ids`, `defender_hero_ids`, `attacker_heroes`, `defender_heroes`, `attacker_troop_allocation`, `defender_troop_allocation`, `attacker_total_allocated_troops`, `defender_total_allocated_troops`, side-specific `*_source_city_id`, side-specific `*_source_city_troops_before/after`, `result`, `winner`, `player_troop_outcome`, and `enemy_troop_outcome`.
+- Missing or non-literal contract keys: `battle_mode`, `battle_type`, generic `source_city_id`, generic `target_city_id`, explicit `attacker_faction_id` / `defender_faction_id`, generic `deployed_troops` / `assigned_troops`, generic `source_city_remaining_troops`, generic `target_city_garrison`, `loser_side`, `captured` hero list, explicit `worldmap_return_scene` payload key, structured `return_context` / `pending_worldmap_result`, and explicit `result_applied` flag.
+- v0.70-14 safe connection points: use `_city_markers_by_id`, `world_map_camera`, `_configure_camera()`, `_apply_zoom()`, `_clamp_camera_to_world()`, and the final `_handoff_battle_context_to_battle_scene()` call after preserving the existing Engine meta timing.
+- Verification result: docs-only diff, `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, `WorldMap_Test.tscn` headless load, and string check for `v0.70-13c Battle WorldMap Return Contract Prep` are the expected validation set.
+- Next candidate work:
+  1. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
+  2. `v0.70-15 WorldMap City Click UX Polish`
+  3. `v0.70-16 WorldMap Domestic UX Detail Polish`
+
 ## v0.70-13b Battle Cinematic Lifecycle Guard Audit
 - Baseline: `v0.70-13a Battle Intro Wide Hold Timing Polish Stable` at HEAD `6f46bf1`.
 - Git commit analysis summary: HEAD `6f46bf1` only tuned intro timing in `scripts/battle_web_import_test.gd` (`BATTLE_INTRO_WIDE_HOLD_SEC 0.4 -> 0.85`, `BATTLE_INTRO_ZOOM_SEC 1.0 -> 1.15`) plus agent docs; the broader intro implementation came from `493c8e8`, and result video panel flow came from `d2dbefa` / `76e0421`.

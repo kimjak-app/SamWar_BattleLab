@@ -1,21 +1,24 @@
 # NEXT TASKS
 
-## Next: v0.70-13c Battle WorldMap Return Contract Prep
-- `v0.70-13b Battle Cinematic Lifecycle Guard Audit` is the current local guard-audit patch, built on `v0.70-13a Battle Intro Wide Hold Timing Polish Stable`.
-- Commit analysis summary: latest baseline `6f46bf1` changed only intro timing and docs; inspected related intro/result commits confirmed the active cinematic lifecycle lives in `scripts/battle_web_import_test.gd`.
-- Guard status:
-  1. Battle intro duplicate start is blocked per reset.
-  2. Battle intro natural finish and skip share one cleanup path.
-  3. Skip spam is idempotent after the first cleanup.
-  4. Intro completion restores gameplay camera position/zoom and `BattleUI`.
-  5. Result video hide/cleanup clears stream, panel visibility, backdrop visibility, pending state, and completion guard.
-  6. Result video repeated same-state start does not cause a duplicate result toast fallback.
-- Modified files: `scripts/battle_web_import_test.gd` plus agent docs.
-- Manual QA still recommended: F6 intro natural finish, click/Space/Enter/Esc skip, skip spam, victory/defeat result video -> toast order, and WorldMap return button visibility after result.
+## Next: v0.70-14 WorldMap Battle Entry Camera Zoom Handoff
+- `v0.70-13c Battle WorldMap Return Contract Prep` is the current contract audit baseline, built on `v0.70-13b Battle Cinematic Lifecycle Guard Audit` (`f56903d`).
+- Contract audit summary:
+  1. WorldMap launches battle through `Engine` meta key `samwar_worldmap_battle_context` and `res://Battle_Fullscreen_Test.tscn`.
+  2. Battle returns results through `Engine` meta key `samwar_worldmap_battle_result` and `res://WorldMap_Test.tscn`.
+  3. Player attack uses `source: "player_attack"` and `type: "attack"`; enemy invasion defense uses `source: "enemy_invasion"` and `type: "defense"`.
+  4. Result payload uses `result: "victory" | "defeat"` and `winner: "attacker" | "defender"`.
+  5. Troop accounting contract is side-specific through `attacker_*` / `defender_*` allocation and source-city keys.
+- v0.70-14 safe connection points:
+  1. Player attack source/target city ids are known before `_confirm_player_attack_deployment()` calls `_handoff_battle_context_to_battle_scene()`.
+  2. Defense attacker/defender city ids are known from `_create_pending_invasion_event_mvp()` and pending invasion deployment confirmation.
+  3. City marker lookup is already available through `_city_markers_by_id`.
+  4. Camera control is centralized around `world_map_camera`, `_configure_camera()`, `_apply_zoom()`, and `_clamp_camera_to_world()`.
+  5. Preserve Engine meta timing in `_handoff_battle_context_to_battle_scene()` when adding any pre-battle camera handoff.
+- Do not implement ownership/troop/hero-result changes in v0.70-14; those are already existing result application systems and were outside v0.70-13c.
 - Next candidate work:
-  1. `v0.70-13c Battle WorldMap Return Contract Prep`
-  2. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
-  3. `v0.70-15 WorldMap Domestic UX Detail Polish`
+  1. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
+  2. `v0.70-15 WorldMap City Click UX Polish`
+  3. `v0.70-16 WorldMap Domestic UX Detail Polish`
 
 ## Next: F6 QA for Battle Result Videos Before Toasts
 - `v0.70-12` adds dedicated victory/defeat result videos before the existing result toast.

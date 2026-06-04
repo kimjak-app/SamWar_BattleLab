@@ -1,5 +1,34 @@
 # HANDOFF TO CODEX
 
+## v0.70-13c Battle WorldMap Return Contract Prep Handoff
+- Baseline: `v0.70-13b Battle Cinematic Lifecycle Guard Audit` (`f56903d5c265e7443e68387e01886d28cda8cf5a` before this patch).
+- Required git analysis was performed before editing:
+  - `git status --short`: clean.
+  - Recent log confirmed HEAD `f56903d` followed `6f46bf1`, `493c8e8`, `76e0421`, and `d2dbefa`.
+  - HEAD changed files: `scripts/battle_web_import_test.gd` plus five agent docs.
+  - HEAD core script delta was cinematic lifecycle guard only; no WorldMap script, scene, `project.godot`, combat formula, or battle-result application code changed in that commit.
+- Runtime code was not modified in this patch.
+- WorldMap -> Battle flow:
+  - Player attack starts from target-city attack UI, resolves a player-owned adjacent source city, opens deployment, builds context in `_build_player_attack_battle_context()`, and hands it off through `_handoff_battle_context_to_battle_scene()`.
+  - Enemy invasion defense starts from `_create_pending_invasion_event_mvp()`, opens manual/auto defense deployment, builds context in `_build_battle_context_from_pending_invasion()`, and uses the same handoff.
+  - Handoff key/path: `samwar_worldmap_battle_context` and `res://Battle_Fullscreen_Test.tscn`.
+- Battle internal flow:
+  - `_read_worldmap_battle_context_handoff()` consumes/removes `samwar_worldmap_battle_context`.
+  - `_setup_worldmap_context_battle_roster()` maps attacker/defender rosters into battle slots.
+  - `_get_battle_result_state()` currently produces only `victory`, `defeat`, or empty string.
+  - Result video/toast flow remains before the existing WorldMap return button refresh.
+- Battle -> WorldMap flow:
+  - `_return_to_worldmap_with_result()` builds `_build_worldmap_battle_result_payload()`, writes `samwar_worldmap_battle_result`, and changes to `res://WorldMap_Test.tscn`.
+  - `_consume_worldmap_battle_result_if_any()` removes the meta once and dispatches through `_apply_returned_battle_result_mvp()`.
+  - Existing result application functions already mutate runtime city/troop/hero state; v0.70-13c only documents that contract and does not change behavior.
+- Existing contract keys: `source`, `type`, `mode`, `attacker_city_id`, `defender_city_id`, `attacker_owner`, `defender_owner`, `attacker_hero_ids`, `defender_hero_ids`, `attacker_heroes`, `defender_heroes`, `attacker_troop_allocation`, `defender_troop_allocation`, `attacker_total_allocated_troops`, `defender_total_allocated_troops`, `attacker_source_city_id`, `defender_source_city_id`, side-specific source troop before/after keys, `result`, `winner`, `player_troop_outcome`, and `enemy_troop_outcome`.
+- Missing or non-literal keys: `battle_mode`, `battle_type`, generic `source_city_id`, generic `target_city_id`, explicit faction-id keys, generic deployed/assigned troop keys, generic source-city remaining troop key, generic target garrison key, `loser_side`, captured hero list, payload-level `worldmap_return_scene`, structured `return_context`, `pending_worldmap_result`, and explicit `result_applied`.
+- v0.70-14 should use `_city_markers_by_id` and `world_map_camera` for camera prep, then preserve `_handoff_battle_context_to_battle_scene()` as the final transition/meta boundary.
+- Next candidate work:
+  1. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
+  2. `v0.70-15 WorldMap City Click UX Polish`
+  3. `v0.70-16 WorldMap Domestic UX Detail Polish`
+
 ## v0.70-13b Battle Cinematic Lifecycle Guard Audit Handoff
 - Baseline: `v0.70-13a Battle Intro Wide Hold Timing Polish Stable` (`6f46bf1` before this patch).
 - Required git analysis was performed before editing:

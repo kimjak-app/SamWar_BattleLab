@@ -2,6 +2,25 @@
 
 ## 2026-06-05
 
+### v0.70-13c Battle WorldMap Return Contract Prep
+- Started from clean baseline `f56903d v0.70-13b Battle Cinematic Lifecycle Guard Audit`.
+- Required git analysis:
+  - `git status --short`: clean before edits.
+  - Recent log: `f56903d`, `6f46bf1`, `493c8e8`, `76e0421`, `d2dbefa`, `edac641`, `3800c99`, `6262206`, `740fea0`, `da200ac`.
+  - `git show --stat HEAD` / `git show --name-only HEAD` / `git show --stat HEAD~1..HEAD`: HEAD modified five agent docs and `scripts/battle_web_import_test.gd`.
+  - HEAD script work was battle cinematic lifecycle guard only; no WorldMap entry/return code changed in the baseline commit.
+- Read required project docs and audited the required files: `scripts/battle_web_import_test.gd`, `scripts/worldmap_test.gd`, `WorldMap_Test.tscn`, and `project.godot`.
+- WorldMap -> Battle finding: both player attack and enemy invasion defense converge on `_handoff_battle_context_to_battle_scene()`, which writes `samwar_worldmap_battle_context` and changes to `res://Battle_Fullscreen_Test.tscn`.
+- Battle internal finding: battle consumes/removes the context meta once, applies worldmap rosters, stores `worldmap_battle_context`, and builds return payload only after final `victory` / `defeat`.
+- Battle -> WorldMap finding: battle writes `samwar_worldmap_battle_result` and returns to `res://WorldMap_Test.tscn`; worldmap consumes/removes the result meta and dispatches to existing attack/defense result application.
+- Documented current contract keys, missing/non-literal keys, and v0.70-14 camera handoff connection points.
+- No runtime code changes were made; this was a contract audit and documentation patch.
+- Verification target: `git diff --check`, Godot headless project load, battle scene headless load, worldmap scene headless load, docs string check, and post-commit clean status.
+- Next candidate work:
+  1. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
+  2. `v0.70-15 WorldMap City Click UX Polish`
+  3. `v0.70-16 WorldMap Domestic UX Detail Polish`
+
 ### v0.70-13b Battle Cinematic Lifecycle Guard Audit
 - Started from clean baseline `6f46bf1 Tune battle intro wide shot hold timing`, documented as `v0.70-13a Battle Intro Wide Hold Timing Polish Stable`.
 - Required git analysis:

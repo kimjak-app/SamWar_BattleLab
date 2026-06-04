@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-13c Battle WorldMap Return Contract Prep
+- Built on `v0.70-13b Battle Cinematic Lifecycle Guard Audit` (`f56903d`).
+- Analyzed latest git history before edits: HEAD contained cinematic lifecycle guard changes in `scripts/battle_web_import_test.gd` plus agent docs; no WorldMap entry/return contract code changed in that baseline.
+- Audited WorldMap -> Battle entry through `scripts/worldmap_test.gd`, including player attack deployment, enemy invasion defense deployment, BattleContext construction, and Engine meta handoff.
+- Audited Battle internal context consumption and result payload generation in `scripts/battle_web_import_test.gd`.
+- Audited Battle -> WorldMap return through `samwar_worldmap_battle_result`, `res://WorldMap_Test.tscn`, and existing result dispatch in `worldmap_test.gd`.
+- Documented existing contract keys and missing/non-literal keys for the next camera handoff work.
+- Documented v0.70-14 safe connection points: `_city_markers_by_id`, `world_map_camera`, camera clamp/zoom helpers, and `_handoff_battle_context_to_battle_scene()`.
+- Modified files: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`.
+- Did not modify runtime scripts, scenes, assets, `project.godot`, combat calculations, battle result judgment, WorldMap city ownership, troop application, hero status application, or the battle return button flow.
+
 ## v0.70-13b Battle Cinematic Lifecycle Guard Audit
 - Built on `v0.70-13a Battle Intro Wide Hold Timing Polish Stable` (`6f46bf1`).
 - Analyzed latest git history before edits: HEAD only adjusted intro wide hold / zoom timing and agent docs; `493c8e8` introduced battle intro camera zoom lifecycle; `d2dbefa` and `76e0421` introduced/polished result video before result toasts.
