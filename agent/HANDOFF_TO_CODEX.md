@@ -1,5 +1,29 @@
 # HANDOFF TO CODEX
 
+## v0.70-8 Kim Yu-sin + Eulji Mundeok Special-Skill Cutin Handoff
+- Kim Yu-sin and Eulji Mundeok are now integrated into the existing specialty unique-skill cutin system in `scripts/battle_web_import_test.gd`.
+- Scope is explicitly unique/special-skill activation only; no reinforcement-arrival cutin hook was added.
+- New source MP4s:
+  1. `assets/video_source_test/production_dry_run/kim_yu_sin_cutin_source_02s.mp4`
+  2. `assets/video_source_test/production_dry_run/eulji_mundeok_cutin_source_02s.mp4`
+- Both sources ffprobe as h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+- New q8 Theora runtime assets:
+  1. `res://assets/ui/cutin/videos/kim_yu_sin_cutin_bg_theora_q8_1920x.ogv`
+  2. `res://assets/ui/cutin/videos/eulji_mundeok_cutin_bg_theora_q8_1920x.ogv`
+- Output ffprobe:
+  1. Kim Yu-sin: Theora, 1920x1080, yuv420p, `30/1`, duration `2.000000`, size `6365944` bytes.
+  2. Eulji Mundeok: Theora, 1920x1080, yuv420p, `30/1`, stream duration `N/A`, format duration `2.005333`, size `8318109` bytes.
+- Portrait/title paths:
+  1. `res://assets/ui/cutin/portraits/kim_yu_sin_cutin.png`
+  2. `res://assets/ui/cutin/titles/kim_yu_sin_samguktongil_title.png`
+  3. `res://assets/ui/cutin/portraits/eulji_mundeok_cutin.png`
+  4. `res://assets/ui/cutin/titles/eulji_mundeok_salsudaecheop_title.png`
+- `SPECIALTY_SKILL_CUTIN_VIDEO_PATHS` and `SPECIALTY_SKILL_CUTIN_CONFIGS` now include `gim_yusin` and `eulji_mundeok`.
+- No older Kim Yu-sin / Eulji Mundeok fallback video files were present, so their q8 OGVs are currently primary-only candidates.
+- Existing Yi Sunsin, Kwon Yul, and Jeong Do Jeon q8 mappings/configs/fallbacks were preserved.
+- Verification completed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and ResourceLoader checks for all new cutin resources plus existing Yi/Kwon/Jeong q8 OGVs.
+- Next visible QA should trigger Kim Yu-sin and Eulji Mundeok unique skills, verify no reinforcement-arrival trigger, confirm non-black playback/title/portrait display, and confirm battle-flow return.
+
 ## v0.70-7b Kim Yu-sin Tactical Cell Clickability Handoff
 - Current patch is battle tactical UX/input only in `scripts/battle_web_import_test.gd`.
 - Root cause diagnosis: with Kim Yu-sin selected, a highlighted empty move cell near/below Kwon Yul could fall inside Kwon Yul's ally click area. Ally selection ran before valid grid movement, so the click selected Kwon Yul instead of moving Kim Yu-sin.

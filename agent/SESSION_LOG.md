@@ -2,6 +2,28 @@
 
 ## 2026-06-04
 
+### v0.70-8 Kim Yu-sin + Eulji Mundeok Special-Skill Cutin Integration
+- Started from `514e2ff 버그 수정및 기본유닛 컷인 완성`.
+- Confirmed the six expected Kim Yu-sin / Eulji Mundeok source assets existed in the repo as untracked files.
+- Confirmed existing specialty cutins are triggered from `_begin_unique_skill_sequence()` and `_show_specialty_skill_video_cutin()`, not reinforcement arrival.
+- Verified source MP4s with ffprobe:
+  - Kim Yu-sin: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+  - Eulji Mundeok: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+- Verified portrait/title PNG dimensions and alpha:
+  - Kim Yu-sin portrait `1672x941`, title `1133x639`.
+  - Eulji Mundeok portrait `1672x941`, title `1133x639`.
+- Encoded Kim Yu-sin and Eulji Mundeok source MP4s to q8 1920x Theora OGVs under `assets/ui/cutin/videos/`.
+- Output ffprobe:
+  - Kim Yu-sin q8 OGV: Theora, 1920x1080, yuv420p, `30/1`, duration `2.000000`, size `6365944` bytes.
+  - Eulji Mundeok q8 OGV: Theora, 1920x1080, yuv420p, `30/1`, stream duration `N/A`, format duration `2.005333`, size `8318109` bytes.
+- Ran Godot import to generate PNG `.import` metadata and q8 OGV `.uid` metadata for the new production cutin resources.
+- Added `gim_yusin` and `eulji_mundeok` to the existing special-skill cutin video/config dictionaries.
+- Confirmed no older Kim Yu-sin / Eulji Mundeok legacy fallback videos existed; q8 OGV is the primary candidate for each.
+- Removed only tracked Theora-safe frame-capture `.import` junk and the regenerated untracked q7/q8 test `.uid` junk; preserved real test OGV outputs.
+- Direct ResourceLoader verification passed for Kim/Eulji q8 OGVs, portrait/title PNGs, and existing Yi/Kwon/Jeong q8 OGVs.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining manual QA: trigger Kim Yu-sin and Eulji Mundeok unique skills in battle and confirm video/title/portrait display, no black screen, no reinforcement-arrival trigger, and battle-flow return.
+
 ### v0.70-7c GDScript Position Parameter Shadow Warning Cleanup
 - Started from `599d8e2 Fix Kim Yu-sin tactical panel and move cell clickability`.
 - Found the remaining Node2D `position` shadow warning in `scripts/battle_web_import_test.gd` command-panel helper parameters.

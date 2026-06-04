@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v0.70-8 Kim Yu-sin + Eulji Mundeok Special-Skill Cutin Integration
+- Verified Kim Yu-sin and Eulji Mundeok source MP4s: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+- Verified new portrait/title PNG assets with alpha:
+  - `kim_yu_sin_cutin.png`, `kim_yu_sin_samguktongil_title.png`
+  - `eulji_mundeok_cutin.png`, `eulji_mundeok_salsudaecheop_title.png`
+- Encoded q8 1920x Theora outputs:
+  - `assets/ui/cutin/videos/kim_yu_sin_cutin_bg_theora_q8_1920x.ogv`, Theora 1920x1080, yuv420p, `30/1`, duration `2.000000`, size `6365944` bytes.
+  - `assets/ui/cutin/videos/eulji_mundeok_cutin_bg_theora_q8_1920x.ogv`, Theora 1920x1080, yuv420p, `30/1`, stream duration `N/A`, format duration `2.005333`, size `8318109` bytes.
+- Added `gim_yusin` and `eulji_mundeok` to `SPECIALTY_SKILL_CUTIN_VIDEO_PATHS` and `SPECIALTY_SKILL_CUTIN_CONFIGS`.
+- Wired each hero's portrait/title path into the existing specialty cutin presentation layer with conservative independent layout values.
+- Preserved Yi Sunsin, Kwon Yul, and Jeong Do Jeon q8 mappings/configs/fallback chains.
+- Did not add or modify any reinforcement-arrival cutin hook; trigger remains unique/special-skill activation through `_begin_unique_skill_sequence()`.
+- Removed tracked Theora-safe frame-capture `.import` junk using limited pathspecs only.
+- Verification passed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and ResourceLoader checks for new and existing cutin resources.
+
 ## v0.70-7b Kim Yu-sin Tactical Cell Clickability Root-Cause Fix
 - Strengthened floating command panel distance scoring so selected-unit-near candidates beat detached viewport-corner fallback positions unless the fallback is truly necessary.
 - Fixed Kim Yu-sin move-cell clickability by trying valid highlighted move-cell clicks before ally unit selection during ally turn.

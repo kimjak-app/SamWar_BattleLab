@@ -1,5 +1,26 @@
 # CURRENT STATE
 
+## v0.70-8 Kim Yu-sin + Eulji Mundeok Special-Skill Cutin Integration
+- Scope correction: Kim Yu-sin and Eulji Mundeok were integrated into the existing unique/special-skill cinematic cutin system only; no reinforcement-arrival cutin hook was added.
+- Verified newly supplied source assets:
+  - `assets/video_source_test/production_dry_run/kim_yu_sin_cutin_source_02s.mp4`: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+  - `assets/video_source_test/production_dry_run/eulji_mundeok_cutin_source_02s.mp4`: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
+- Verified portrait/title PNGs:
+  - `assets/ui/cutin/portraits/kim_yu_sin_cutin.png` (`1672x941`, RGBA/transparent).
+  - `assets/ui/cutin/titles/kim_yu_sin_samguktongil_title.png` (`1133x639`, RGBA/transparent).
+  - `assets/ui/cutin/portraits/eulji_mundeok_cutin.png` (`1672x941`, RGBA/transparent).
+  - `assets/ui/cutin/titles/eulji_mundeok_salsudaecheop_title.png` (`1133x639`, RGBA/transparent).
+- Encoded new q8 1920x Theora special-skill cutin outputs:
+  - `assets/ui/cutin/videos/kim_yu_sin_cutin_bg_theora_q8_1920x.ogv`: Theora, 1920x1080, yuv420p, `30/1`, duration `2.000000`, size `6365944` bytes.
+  - `assets/ui/cutin/videos/eulji_mundeok_cutin_bg_theora_q8_1920x.ogv`: Theora, 1920x1080, yuv420p, `30/1`, stream duration `N/A`, format duration `2.005333`, size `8318109` bytes.
+- Added Godot import metadata for the new portrait/title PNGs and OGV `.uid` metadata for both q8 Theora outputs.
+- `scripts/battle_web_import_test.gd` now adds first-candidate q8 video paths and per-hero cutin presentation configs for `gim_yusin` and `eulji_mundeok`.
+- Existing Yi Sunsin, Kwon Yul, and Jeong Do Jeon q8 paths/configs/fallback chains were preserved.
+- Kim Yu-sin and Eulji Mundeok have q8 primary paths only; no older legacy fallback video existed in `assets/ui/cutin/videos/` for those heroes.
+- Removed tracked `assets/video_test/theora_safe/` frame-capture `.import` junk again with limited pathspecs only; preserved the real q7/q8 test `.ogv` outputs and `README.md`.
+- Verification passed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader checks for the two new OGVs, four PNGs, plus existing Yi/Kwon/Jeong q8 OGVs.
+- Remaining QA: visible battle QA should trigger Kim Yu-sin and Eulji Mundeok unique skills and confirm q8 video, portrait/title, non-black playback, skill effect continuation, and battle-flow return.
+
 ## v0.70-7b Kim Yu-sin Tactical Cell Clickability Root-Cause Fix
 - Built on `19afc67 Replace Jeong Do Jeon q8 cutin video source`.
 - Diagnosed the recurring Kim Yu-sin visible-QA issue as two tactical input problems in `scripts/battle_web_import_test.gd`, not a cutin/video problem.

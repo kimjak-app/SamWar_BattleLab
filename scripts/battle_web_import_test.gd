@@ -178,6 +178,12 @@ const SPECIALTY_SKILL_KWON_YUL_THEORA_Q8_1920X_PATH := "res://assets/ui/cutin/vi
 const SPECIALTY_SKILL_JEONG_DOJEON_CUTIN_PORTRAIT_PATH := "res://assets/ui/cutin/portraits/jeong_do_jeon_cutin.png"
 const SPECIALTY_SKILL_JEONG_DOJEON_TITLE_PATH := "res://assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png"
 const SPECIALTY_SKILL_JEONG_DOJEON_THEORA_Q8_1920X_PATH := "res://assets/ui/cutin/videos/jeong_do_jeon_cutin_bg_theora_q8_1920x.ogv"
+const SPECIALTY_SKILL_GIM_YUSIN_CUTIN_PORTRAIT_PATH := "res://assets/ui/cutin/portraits/kim_yu_sin_cutin.png"
+const SPECIALTY_SKILL_GIM_YUSIN_TITLE_PATH := "res://assets/ui/cutin/titles/kim_yu_sin_samguktongil_title.png"
+const SPECIALTY_SKILL_GIM_YUSIN_THEORA_Q8_1920X_PATH := "res://assets/ui/cutin/videos/kim_yu_sin_cutin_bg_theora_q8_1920x.ogv"
+const SPECIALTY_SKILL_EULJI_MUNDEOK_CUTIN_PORTRAIT_PATH := "res://assets/ui/cutin/portraits/eulji_mundeok_cutin.png"
+const SPECIALTY_SKILL_EULJI_MUNDEOK_TITLE_PATH := "res://assets/ui/cutin/titles/eulji_mundeok_salsudaecheop_title.png"
+const SPECIALTY_SKILL_EULJI_MUNDEOK_THEORA_Q8_1920X_PATH := "res://assets/ui/cutin/videos/eulji_mundeok_cutin_bg_theora_q8_1920x.ogv"
 const CUTIN_VIDEO_DEBUG_FORCE_TOP := false
 const SPECIALTY_SKILL_CUTIN_VIDEO_PATHS := {
 	"yi_sunsin": [
@@ -199,6 +205,12 @@ const SPECIALTY_SKILL_CUTIN_VIDEO_PATHS := {
 		"res://assets/ui/cutin/videos/jeong_do_jeon_cutin_bg.webm",
 		"res://assets/ui/cutin/videos/Jeong Do Jeon Cutin Bg.webm",
 		"res://assets/ui/cutin/videos/jeong_do_jeon_cutin_bg.mp4",
+	],
+	"gim_yusin": [
+		SPECIALTY_SKILL_GIM_YUSIN_THEORA_Q8_1920X_PATH,
+	],
+	"eulji_mundeok": [
+		SPECIALTY_SKILL_EULJI_MUNDEOK_THEORA_Q8_1920X_PATH,
 	],
 }
 const SPECIALTY_SKILL_CUTIN_CONFIGS := {
@@ -236,6 +248,32 @@ const SPECIALTY_SKILL_CUTIN_CONFIGS := {
 		"hero_left_overflow": 0.19,
 		"hero_y_anchor": 0.52,
 		"hero_y_offset": 24.0,
+		"title_x_ratio": 0.56,
+		"title_y_ratio": 0.21,
+		"title_width_ratio": 0.42,
+		"title_height_ratio": 0.31,
+	},
+	"gim_yusin": {
+		"portrait_path": SPECIALTY_SKILL_GIM_YUSIN_CUTIN_PORTRAIT_PATH,
+		"title_path": SPECIALTY_SKILL_GIM_YUSIN_TITLE_PATH,
+		"hero_width_ratio": 0.82,
+		"hero_height_ratio": 1.34,
+		"hero_left_overflow": 0.24,
+		"hero_y_anchor": 0.53,
+		"hero_y_offset": 18.0,
+		"title_x_ratio": 0.55,
+		"title_y_ratio": 0.20,
+		"title_width_ratio": 0.42,
+		"title_height_ratio": 0.31,
+	},
+	"eulji_mundeok": {
+		"portrait_path": SPECIALTY_SKILL_EULJI_MUNDEOK_CUTIN_PORTRAIT_PATH,
+		"title_path": SPECIALTY_SKILL_EULJI_MUNDEOK_TITLE_PATH,
+		"hero_width_ratio": 0.78,
+		"hero_height_ratio": 1.28,
+		"hero_left_overflow": 0.21,
+		"hero_y_anchor": 0.52,
+		"hero_y_offset": 22.0,
 		"title_x_ratio": 0.56,
 		"title_y_ratio": 0.21,
 		"title_width_ratio": 0.42,

@@ -1,5 +1,26 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Kim Yu-sin / Eulji Mundeok Special-Skill Cutins
+- `v0.70-8 Kim Yu-sin + Eulji Mundeok Special-Skill Cutin Integration` adds both heroes to the existing specialty unique-skill cinematic cutin path.
+- Scope is explicitly special-skill activation only. There is no reinforcement-arrival cutin hook.
+- Runtime first-candidate paths are:
+  1. `res://assets/ui/cutin/videos/kim_yu_sin_cutin_bg_theora_q8_1920x.ogv`
+  2. `res://assets/ui/cutin/videos/eulji_mundeok_cutin_bg_theora_q8_1920x.ogv`
+- Title PNG paths are:
+  1. `res://assets/ui/cutin/titles/kim_yu_sin_samguktongil_title.png`
+  2. `res://assets/ui/cutin/titles/eulji_mundeok_salsudaecheop_title.png`
+- Portrait PNG paths are:
+  1. `res://assets/ui/cutin/portraits/kim_yu_sin_cutin.png`
+  2. `res://assets/ui/cutin/portraits/eulji_mundeok_cutin.png`
+- Manual visual QA should confirm:
+  1. Kim Yu-sin cutin plays when using his unique skill, not when he appears as reinforcement.
+  2. Eulji Mundeok cutin plays when using his unique skill, not when he appears as reinforcement.
+  3. No black-screen playback appears.
+  4. Portrait and title image appear.
+  5. Skill effect and battle flow resume after the cutin.
+  6. Existing Yi Sunsin, Kwon Yul, and Jeong Do Jeon cutins remain unaffected.
+- If accepted, later visual tuning can adjust Kim Yu-sin and Eulji Mundeok per-hero layout values independently.
+
 ## Next: F6 Visual QA for Kim Yu-sin Tactical Cell Clickability
 - `v0.70-7b Kim Yu-sin Tactical Cell Clickability Root-Cause Fix` changes ally-turn input priority so valid highlighted move-cell clicks run before ally unit selection.
 - This targets the repeated case where Kim Yu-sin is selected and a reachable cell below/near Kwon Yul appears highlighted but clicking it selects or hits the nearby ally click area instead of moving.
