@@ -46,6 +46,9 @@ const RANGE_OVERLAY_CELL_STAGGER := 0.06
 const RANGE_OVERLAY_CELL_BASE_START_SCALE := 0.74
 const RANGE_OVERLAY_CELL_BASE_POP_SCALE := 1.14
 const RANGE_OVERLAY_CELL_DISTANCE_SCALE_STEP := 0.02
+const FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN := 12.0
+const FLOATING_COMMAND_PANEL_ANCHOR_GAP := 22.0
+const FLOATING_COMMAND_PANEL_GRID_AVOID_PADDING := 10.0
 const SHOW_CELL_SIZE_VISUAL_GUIDE := false
 const SHOW_LOGICAL_GRID_14X8_GUIDE := false
 const MELEE_ADJACENT_QA_MODE := false
@@ -2520,6 +2523,7 @@ func _enter_attack_select_mode() -> void:
 	_clear_move_target_selection()
 	_clear_attack_target_selection()
 	_hide_move_range_overlay()
+	_hide_floating_ally_command_panel_for_tactical_selection()
 	_set_phase(PHASE_ATTACK_SELECT)
 	_show_attack_range_overlay_for_active_unit()
 	_append_battle_log("공격 대상 선택")
@@ -2745,9 +2749,9 @@ func _enter_unique_skill_target_select_mode(caster_state: BattleUnitState, skill
 	unique_skill_targeting_caster_state = caster_state
 	unique_skill_targeting_skill_data = skill_data.duplicate(true)
 	is_manual_unique_skill_preview_pending = false
+	_hide_floating_ally_command_panel_for_tactical_selection()
 	_set_phase(PHASE_UNIQUE_SKILL_TARGET_SELECT)
 	_show_unique_skill_range_overlay(caster_state, skill_data)
-	is_floating_ally_command_panel_requested = true
 	var target_count := _get_unique_skill_valid_targets(caster_state, skill_data).size()
 	if target_count <= 0:
 		_append_battle_log("고유특기 유효 대상 없음")
@@ -2810,6 +2814,7 @@ func _cancel_unique_skill_target_select_mode() -> void:
 	_clear_unique_skill_targeting_state()
 	_hide_unique_skill_range_overlay()
 	_clear_transient_battle_highlights()
+	is_floating_ally_command_panel_requested = true
 	_set_phase(PHASE_ALLY_TURN)
 	_append_battle_log("고유특기 취소")
 	_refresh_move_target_feedback()
@@ -2846,9 +2851,7 @@ func _enter_strategy_target_select_mode(caster_state: BattleUnitState) -> void:
 	_hide_attack_range_overlay()
 	_hide_unique_skill_range_overlay()
 	strategy_targeting_caster_state = caster_state
-	is_floating_ally_command_panel_requested = false
-	if floating_ally_command_panel != null:
-		floating_ally_command_panel.visible = false
+	_hide_floating_ally_command_panel_for_tactical_selection()
 	_set_phase(PHASE_STRATEGY_SELECT)
 	_show_strategy_range_overlay(caster_state)
 	_append_battle_log("책략 대상이 되는 적을 선택하세요.")
@@ -4662,6 +4665,8 @@ func _should_show_floating_ally_command_panel() -> bool:
 		return false
 	if not is_floating_ally_command_panel_requested:
 		return false
+	if _is_tactical_target_selection_mode():
+		return false
 	if _is_battle_result_finalized():
 		return false
 	if is_demo_animating:
@@ -4718,9 +4723,31 @@ func _refresh_floating_ally_command_panel() -> void:
 	floating_ally_command_panel.visible = true
 
 
+func _hide_floating_ally_command_panel_for_tactical_selection() -> void:
+	is_floating_ally_command_panel_requested = false
+	if floating_ally_command_panel != null:
+		floating_ally_command_panel.visible = false
+		floating_ally_command_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func _restore_floating_ally_command_panel_input() -> void:
+	if floating_ally_command_panel != null:
+		floating_ally_command_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	for button in [
+		floating_basic_attack_button,
+		floating_unique_skill_button,
+		floating_tactics_button,
+		floating_move_button,
+		floating_wait_button,
+	]:
+		if button != null:
+			button.mouse_filter = Control.MOUSE_FILTER_STOP
+
+
 func _position_floating_ally_command_panel() -> void:
 	if floating_ally_command_panel == null or active_unit_state == null:
 		return
+	_restore_floating_ally_command_panel_input()
 	var ui_anchor := _world_to_battle_ui_position(_get_visual_anchor_position_for_unit(active_unit_state))
 	var panel_size := floating_ally_command_panel.size
 	var minimum_size := floating_ally_command_panel.get_combined_minimum_size()
@@ -4729,11 +4756,98 @@ func _position_floating_ally_command_panel() -> void:
 	if panel_size.x <= 0.0 or panel_size.y <= 0.0:
 		panel_size = Vector2(176.0, 214.0)
 	floating_ally_command_panel.size = panel_size
-	var desired_position := ui_anchor + Vector2(52.0, -panel_size.y - 20.0)
-	var viewport_size := get_viewport_rect().size
-	desired_position.x = clampf(desired_position.x, 12.0, maxf(12.0, viewport_size.x - panel_size.x - 12.0))
-	desired_position.y = clampf(desired_position.y, 12.0, maxf(12.0, viewport_size.y - panel_size.y - 12.0))
+	var desired_position := _choose_floating_ally_command_panel_position(ui_anchor, panel_size)
 	floating_ally_command_panel.position = desired_position
+
+
+func _is_tactical_target_selection_mode() -> bool:
+	return (
+		current_phase == PHASE_ATTACK_SELECT
+		or current_phase == PHASE_STRATEGY_SELECT
+		or current_phase == PHASE_UNIQUE_SKILL_TARGET_SELECT
+	)
+
+
+func _choose_floating_ally_command_panel_position(ui_anchor: Vector2, panel_size: Vector2) -> Vector2:
+	var viewport_size := get_viewport_rect().size
+	var cell_rects := _get_visible_tactical_cell_ui_rects()
+	var candidates := _get_floating_ally_command_panel_candidate_positions(ui_anchor, panel_size, viewport_size)
+	var best_position := _clamp_floating_ally_command_panel_position(
+		ui_anchor + Vector2(52.0, -panel_size.y - FLOATING_COMMAND_PANEL_ANCHOR_GAP),
+		panel_size,
+		viewport_size
+	)
+	var best_score := INF
+	for index in range(candidates.size()):
+		var clamped_position := _clamp_floating_ally_command_panel_position(candidates[index], panel_size, viewport_size)
+		var score := _score_floating_ally_command_panel_position(clamped_position, panel_size, cell_rects) + (float(index) * 0.01)
+		if score < best_score:
+			best_score = score
+			best_position = clamped_position
+			if is_zero_approx(score):
+				break
+	return best_position
+
+
+func _get_floating_ally_command_panel_candidate_positions(ui_anchor: Vector2, panel_size: Vector2, viewport_size: Vector2) -> Array[Vector2]:
+	var gap := FLOATING_COMMAND_PANEL_ANCHOR_GAP
+	return [
+		ui_anchor + Vector2(gap, -panel_size.y * 0.5),
+		ui_anchor + Vector2(-panel_size.x - gap, -panel_size.y * 0.5),
+		ui_anchor + Vector2(-panel_size.x * 0.5, -panel_size.y - gap),
+		ui_anchor + Vector2(-panel_size.x * 0.5, gap),
+		Vector2(viewport_size.x - panel_size.x - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, viewport_size.y - panel_size.y - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN),
+		Vector2(FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, viewport_size.y - panel_size.y - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN),
+		Vector2(viewport_size.x - panel_size.x - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN),
+		Vector2(FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN),
+	]
+
+
+func _clamp_floating_ally_command_panel_position(position: Vector2, panel_size: Vector2, viewport_size: Vector2) -> Vector2:
+	return Vector2(
+		clampf(position.x, FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, maxf(FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, viewport_size.x - panel_size.x - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN)),
+		clampf(position.y, FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, maxf(FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, viewport_size.y - panel_size.y - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN))
+	)
+
+
+func _score_floating_ally_command_panel_position(position: Vector2, panel_size: Vector2, cell_rects: Array[Rect2]) -> float:
+	var panel_rect := Rect2(position, panel_size)
+	panel_rect = panel_rect.grow(FLOATING_COMMAND_PANEL_GRID_AVOID_PADDING)
+	var score := 0.0
+	for cell_rect in cell_rects:
+		score += _get_rect_overlap_area(panel_rect, cell_rect)
+	return score
+
+
+func _get_rect_overlap_area(a: Rect2, b: Rect2) -> float:
+	var left := maxf(a.position.x, b.position.x)
+	var top := maxf(a.position.y, b.position.y)
+	var right := minf(a.position.x + a.size.x, b.position.x + b.size.x)
+	var bottom := minf(a.position.y + a.size.y, b.position.y + b.size.y)
+	if right <= left or bottom <= top:
+		return 0.0
+	return (right - left) * (bottom - top)
+
+
+func _get_visible_tactical_cell_ui_rects() -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	var camera := _get_main_camera_or_null()
+	var zoom := Vector2.ONE
+	if camera != null and camera.enabled:
+		zoom = camera.zoom
+	for cell_rect in move_range_cells:
+		if cell_rect == null or not cell_rect.visible:
+			continue
+		var local_center := cell_rect.position + (cell_rect.size * 0.5)
+		var world_center := local_center
+		if cell_rect.get_parent() is Node2D:
+			world_center = (cell_rect.get_parent() as Node2D).to_global(local_center)
+		var ui_center := _world_to_battle_ui_position(world_center)
+		var ui_size := Vector2(absf(cell_rect.size.x * zoom.x * cell_rect.scale.x), absf(cell_rect.size.y * zoom.y * cell_rect.scale.y))
+		if ui_size.x <= 0.0 or ui_size.y <= 0.0:
+			continue
+		rects.append(Rect2(ui_center - (ui_size * 0.5), ui_size))
+	return rects
 
 
 func _refresh_auto_battle_button_state(can_issue_ally_command: bool) -> void:
@@ -6138,6 +6252,7 @@ func _cancel_attack_select_mode() -> void:
 	_hide_attack_range_overlay()
 	_clear_attack_target_selection()
 	_clear_transient_battle_highlights()
+	is_floating_ally_command_panel_requested = true
 	_set_phase(PHASE_ALLY_TURN)
 	_append_battle_log("공격 취소")
 	_refresh_move_target_feedback()

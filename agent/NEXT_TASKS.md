@@ -1,5 +1,16 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Tactical Command Panel Grid Overlap
+- `v0.70-7 Tactical Command Panel Grid Overlap Avoidance` adds automatic placement avoidance for `FloatingAllyCommandPanel` and hides the panel during explicit target-selection phases.
+- Manual visual QA should confirm:
+  1. Select an ally near visible reachable hexes.
+  2. Confirm the floating command panel chooses a position that does not cover important move/attack cells when possible.
+  3. Click `기본공격`, `책략`, or `고유특기` and confirm the panel hides or stops blocking target cells/units.
+  4. Click a movement or target cell that used to be blocked by the panel.
+  5. Confirm the intended move/attack/skill/strategy flow proceeds.
+  6. Right-click cancel from target selection and confirm the command panel can return normally.
+- If accepted, treat this as the tactical command panel non-blocking baseline before considering a draggable panel.
+
 ## Next: F6 Visual QA for Kwon Yul / Jeong Do Jeon q8 Theora Dry Runs
 - `v0.70-6a Kwon Yul + Jeong Do Jeon q8 Theora Production Dry Runs` encoded and connected both heroes to new q8 1920x Theora dry-run assets.
 - Runtime first-candidate paths are:

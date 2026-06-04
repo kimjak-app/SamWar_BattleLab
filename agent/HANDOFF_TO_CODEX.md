@@ -1,5 +1,24 @@
 # HANDOFF TO CODEX
 
+## v0.70-7 Tactical Command Panel Grid Overlap Handoff
+- Current task fixed floating command panel click blocking in `scripts/battle_web_import_test.gd`.
+- `FloatingAllyCommandPanel` now places itself with candidate scoring instead of a single fixed offset:
+  - selected unit right
+  - selected unit left
+  - above
+  - below
+  - safe viewport corners
+- The scoring compares the panel rect against visible tactical overlay cell rects and chooses the least-overlapping in-viewport position.
+- Explicit target-selection modes hide the panel:
+  - `PHASE_ATTACK_SELECT`
+  - `PHASE_STRATEGY_SELECT`
+  - `PHASE_UNIQUE_SKILL_TARGET_SELECT`
+- The hide helper also sets the panel mouse filter to `IGNORE`; display refresh restores normal `STOP` filtering before showing the panel again.
+- Attack/unique/strategy command button behavior is otherwise unchanged, and right-click cancel returns to ally command selection with the panel request restored.
+- No cutin OGV assets, title PNGs, q8 mappings, or WorldMap logic were modified.
+- Verification completed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Next visible QA should check unit selection near reachable hexes, panel avoidance, target-mode hiding, clicking cells that were previously covered, and normal command button behavior.
+
 ## v0.70-6a Kwon Yul + Jeong Do Jeon q8 Theora Dry Run Handoff
 - New production dry-run OGVs:
   1. `assets/ui/cutin/videos/kwon_yul_cutin_bg_theora_q8_1920x.ogv`

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-7 Tactical Command Panel Grid Overlap Avoidance
+- Added grid-overlap avoidance for `BattleUI/FloatingAllyCommandPanel`.
+- The floating command panel now scores several candidate positions around the active ally and safe viewport corners against visible tactical cell overlay rects.
+- The panel is clamped inside the viewport and placed at the zero-overlap or least-overlap candidate.
+- Added a shared tactical-selection hide helper that hides the panel and changes its panel mouse filter to `IGNORE`.
+- Attack target select, unique-skill target select, and strategy target select now hide the floating panel while the user is expected to click grid/target elements.
+- Attack and unique-skill cancel paths restore the command-panel request when returning to ally turn; strategy keeps its existing restore behavior through the same hide helper.
+- Preserved existing command button wiring and combat behavior.
+- Did not change cutin assets, q8 Theora mappings, title PNGs, Yi Sunsin timing, Kwon Yul / Jeong Do Jeon cutin mapping, or WorldMap logic.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+
 ## v0.70-6a Kwon Yul + Jeong Do Jeon q8 Theora Production Dry Runs
 - Reconfirmed Kwon Yul and Jeong Do Jeon source MP4 specs before encoding: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
 - Encoded `assets/ui/cutin/videos/kwon_yul_cutin_bg_theora_q8_1920x.ogv` with libtheora q8 at 1920x1080 / `30/1` / duration `2.000000`; output size is `9054001` bytes.

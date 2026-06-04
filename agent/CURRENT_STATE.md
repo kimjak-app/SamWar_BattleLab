@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-7 Tactical Command Panel Grid Overlap Avoidance
+- Identified battle UX bug: `BattleUI/FloatingAllyCommandPanel` could sit over visible move/attack/target cells and consume mouse input before the grid click reached tactical selection.
+- Added automatic floating command panel placement scoring in `scripts/battle_web_import_test.gd`.
+- The panel now evaluates candidate positions around the selected ally and screen corners, clamps them inside the viewport, and chooses the position with the least overlap against visible tactical cell overlay rects.
+- Added tactical target-selection suppression: attack target select, unique-skill target select, and strategy target select hide the floating command panel and switch its panel mouse filter to `IGNORE` while grid/unit targeting is active.
+- Right-click cancel paths for attack and unique-skill target selection restore the command panel request when returning to ally command selection; strategy cancel already restores it and now uses the same hide helper.
+- Existing command buttons and combat rules are preserved: basic attack, unique skill, strategy, defend, and wait behavior are unchanged.
+- No cutin OGV assets, title PNGs, q8 mappings, Yi Sunsin timing, Kwon Yul / Jeong Do Jeon mappings, or WorldMap logic were changed.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining QA: visible battle QA should confirm the panel avoids reachable cells when a unit is selected, hides during attack/strategy/unique target selection, and no longer blocks clicks on cells that used to be covered.
+
 ## v0.70-6a Kwon Yul + Jeong Do Jeon q8 Theora Production Dry Runs
 - Built on clean checkpoint `46f60c0 Remove Theora safe import junk after cutin asset intake`.
 - Reconfirmed source MP4s before encoding:

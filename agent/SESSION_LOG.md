@@ -2,6 +2,22 @@
 
 ## 2026-06-04
 
+### v0.70-7 Tactical Command Panel Grid Overlap Avoidance
+- Started from `ce4d7c7 Add Kwon Yul and Jeong Do Jeon q8 Theora cutin dry runs`.
+- Cleared only regenerated untracked `assets/video_test/theora_safe/*.import` junk before editing; no production or test `.ogv` files were removed.
+- Located the floating command panel in `scripts/battle_web_import_test.gd` as `BattleUI/FloatingAllyCommandPanel`.
+- Confirmed the panel uses `Control.MOUSE_FILTER_STOP`, so when it overlaps reachable grid cells the UI can block tactical clicks.
+- Added floating panel placement helpers: candidate generation, viewport clamp, visible tactical cell rect collection, overlap area scoring, and least-overlap choice.
+- The panel now considers visible move/attack/strategy/unique overlay cells and moves around the selected ally or to a safe viewport corner when needed.
+- Added `_hide_floating_ally_command_panel_for_tactical_selection()` and `_restore_floating_ally_command_panel_input()`.
+- Attack target select, unique-skill target select, and strategy target select now hide the panel while target interaction is active.
+- Attack and unique-skill cancel paths now restore panel request state when returning to ally turn; strategy cancel already restored request state.
+- Verification passed: `git diff --check`.
+- Verification passed: Godot headless project load.
+- Verification passed: Godot headless load of `Battle_Fullscreen_Test.tscn`.
+- No cutin assets, q8 mappings, title PNGs, or WorldMap logic were changed.
+- Remaining manual QA: visible battle flow should confirm the panel avoids reachable cells, hides during target selection, no longer blocks covered cells, and command buttons still work.
+
 ### v0.70-6a Kwon Yul + Jeong Do Jeon q8 Theora Production Dry Runs
 - Started from the clean asset-intake checkpoint `46f60c0 Remove Theora safe import junk after cutin asset intake`.
 - Re-read workflow/Godot/current-state docs before changing runtime assets or mappings.
