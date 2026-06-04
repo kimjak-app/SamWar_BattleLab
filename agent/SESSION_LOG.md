@@ -2,6 +2,17 @@
 
 ## 2026-06-04
 
+### v0.70-4a Yi Sun-sin q8 Theora Manual QA Documentation
+- Started from latest commit `f3d53e0 Add Yi Sun-sin q8 Theora production cutin dry run`.
+- Confirmed `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv` exists.
+- Confirmed `scripts/battle_web_import_test.gd` had no working-tree changes before this documentation-only pass.
+- Kimjak manually ran the Godot battle scene and confirmed the Yi Sunsin q8 Theora cutin displays correctly in the real battle flow.
+- User QA quote: "드디어 제대로 뜸! 깔끔하게 떠^^".
+- Recorded visual QA result: playback is clean, no black-screen lock was observed, no obvious color corruption was observed, and the q8 1920x Theora quality is acceptable for production dry-run.
+- Documented `f3d53e0` as the current working q8 Theora dry-run connection baseline for Yi Sunsin.
+- Existing fallback chain remains in place after q8: 540p Theora, VP8 WebM, legacy OGV/WebM, and MP4.
+- Documentation-only scope: no production cutin files, `.ogv` files, `scripts/battle_web_import_test.gd`, battle logic, WorldMap logic, or cutin logic were modified.
+
 ### v0.70-4 Production Cutin Theora Dry Run - Yi Sun-sin q8
 - Started from commit `17c6334 Replace Yi Sun-sin dry-run source with real 1080p 2s asset` with a clean worktree.
 - Confirmed source exists: `assets/video_source_test/production_dry_run/yi_sun_sin_cutin_source_02s.mp4`.

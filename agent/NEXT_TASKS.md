@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Next: Expand q8 Theora Cutin Pipeline After Yi Sun-sin Manual QA Pass
+- `v0.70-4a Yi Sun-sin q8 Theora Manual QA Documentation` records a successful manual Godot battle-flow QA pass.
+- Stable baseline: commit `f3d53e0` connects Yi Sunsin to `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv` first, with existing fallbacks preserved.
+- User confirmed the actual battle-flow cutin displays cleanly: no black-screen lock, no obvious color corruption, and acceptable q8 1920x Theora quality for production dry-run.
+- Recommended next candidates:
+  1. Confirm the Yi Sunsin q8 dry-run checkpoint as the stable cutin-video baseline.
+  2. Extend the q8 Theora encode/connect pipeline to Kwon Yul and Jeong Do Jeon cutins.
+  3. Run focused QA for cutin exit, unique-skill effect continuation, and battle-flow return.
+  4. Document q8 file-size and runtime-performance criteria if the 1920x asset becomes the production default.
+
 ## Next: F6 Visual QA for Yi Sun-sin q8 Theora Production Cutin Dry Run
 - `v0.70-4 Production Cutin Theora Dry Run - Yi Sun-sin q8` is implemented.
 - Current Yi Sunsin cutin dry-run path is `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`.

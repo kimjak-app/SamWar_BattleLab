@@ -1,5 +1,14 @@
 # HANDOFF TO CODEX
 
+## v0.70-4a Yi Sun-sin q8 Theora Manual QA Handoff
+- Latest confirmed working cutin-video baseline: `f3d53e0 Add Yi Sun-sin q8 Theora production cutin dry run`.
+- Yi Sunsin q8 dry-run asset: `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`.
+- Kimjak manually verified the actual Godot battle flow and confirmed the q8 Yi Sunsin cutin displays correctly.
+- User QA summary: "드디어 제대로 뜸! 깔끔하게 떠^^".
+- Manual visual result: clean playback, no black-screen lock, no obvious color corruption, and q8 1920x Theora quality acceptable for production dry-run.
+- Current Yi Sunsin candidate chain remains q8 1920x Theora first, then 540p Theora, VP8 WebM, legacy OGV/WebM, and MP4.
+- Next work can treat Yi Sunsin q8 as the stable dry-run checkpoint and either expand the pipeline to Kwon Yul / Jeong Do Jeon or run deeper QA around cutin exit, unique-skill effect continuation, battle-flow return, and runtime performance/file-size criteria.
+
 ## v0.70-4 Production Cutin Theora Dry Run - Yi Sun-sin q8 Handoff
 - The real Yi Sun-sin dry-run source is tracked at `assets/video_source_test/production_dry_run/yi_sun_sin_cutin_source_02s.mp4`.
 - Source ffprobe: h264, 1920x1080, yuv420p, `30000/1001` fps, duration `2.002000`.
