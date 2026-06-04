@@ -373,6 +373,10 @@ const ARROW_TARGET_OFFSET_MAX := 22.0
 const ARROW_PIN_LINGER_MIN_SEC := 0.35
 const ARROW_PIN_LINGER_MAX_SEC := 0.60
 const ARROW_IMPACT_POP_BEGIN := 0.0
+const ARROW_CURVE_OFFSET_MIN := 12.0
+const ARROW_CURVE_OFFSET_MAX := 28.0
+const ARROW_VOLLEY_COMPLETION_PAD_SEC := 0.06
+const ARROW_BASIC_ATTACK_MOTION_DURATION_SEC := 0.46
 const ALLOW_BREAKTHROUGH_MOVE := false
 const FACING_ARROW_BUTTON_SIZE_SCALE := 0.96
 const FACING_ARROW_PANEL_ALPHA := 1.0
@@ -2660,6 +2664,7 @@ func play_basic_attack_demo() -> void:
 	var direction := (enemy_start - ally_start).normalized()
 	var ally_lunge_offset := direction * ATTACK_LUNGE_DISTANCE
 	var enemy_recoil_offset := direction * 12.0
+	var is_archer_basic_attack := _is_archer_unit(active_unit_state)
 
 	var tween := create_tween()
 	tween.tween_method(_apply_selected_ally_group_offset, Vector2.ZERO, ally_lunge_offset, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
@@ -2671,10 +2676,12 @@ func play_basic_attack_demo() -> void:
 	tween.tween_method(_apply_selected_ally_group_offset, ally_lunge_offset, Vector2.ZERO, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_method(_apply_enemy_target_group_offset, enemy_recoil_offset, Vector2.ZERO, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_method(_set_enemy_target_group_modulate, Color(1.0, 0.45, 0.45, 1.0), Color.WHITE, 0.18)
+	if is_archer_basic_attack:
+		tween.chain().tween_interval(_get_arrow_volley_completion_extra_wait())
 	tween.finished.connect(_finish_basic_attack_demo)
 
 	_spawn_attack_slash_fx(ally_start, enemy_start)
-	if _is_archer_unit(active_unit_state):
+	if is_archer_basic_attack:
 		_play_arrow_projectile_effect(ally_start, enemy_start)
 
 	var attack_damage := _get_directional_attack_damage(int(DEMO_DAMAGE), active_unit_state, selected_attack_target_state, true, true)
@@ -6567,8 +6574,9 @@ func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleU
 	var ally_recoil_offset := guard_direction * 16.0
 	var attacker_anchor := _get_enemy_actor_visual_anchor_position(enemy_actor_state)
 	var target_anchor := _get_ally_target_visual_anchor_position(target_state)
+	var is_archer_basic_attack := _is_archer_unit(enemy_actor_state)
 	_spawn_attack_slash_fx(attacker_anchor, target_anchor)
-	if _is_archer_unit(enemy_actor_state):
+	if is_archer_basic_attack:
 		_play_arrow_projectile_effect(attacker_anchor, target_anchor)
 
 	var tween := create_tween()
@@ -6583,6 +6591,8 @@ func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleU
 	tween.tween_method(_apply_enemy_actor_group_offset.bind(enemy_actor_state), guard_offset, Vector2.ZERO, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_method(_apply_ally_target_group_offset, ally_recoil_offset, Vector2.ZERO, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_method(_set_ally_target_group_modulate, Color(1.0, 0.45, 0.45, 1.0), Color.WHITE, 0.18)
+	if is_archer_basic_attack:
+		tween.chain().tween_interval(_get_arrow_volley_completion_extra_wait())
 	tween.chain().tween_callback(_finish_enemy_actor_basic_attack.bind(enemy_actor_state))
 
 
@@ -9177,12 +9187,39 @@ func _play_arrow_projectile_effect(source_pos: Vector2, target_pos: Vector2) -> 
 		_spawn_arrow_projectile(source_pos + source_jitter, target_pos + target_offset, launch_delay, travel_duration)
 
 
+func _get_arrow_curve_midpoint(source_pos: Vector2, target_impact_pos: Vector2) -> Vector2:
+	var travel_vector := target_impact_pos - source_pos
+	if travel_vector.length() <= 0.1:
+		travel_vector = Vector2.RIGHT
+	var travel_direction := travel_vector.normalized()
+	var perpendicular := Vector2(-travel_direction.y, travel_direction.x)
+	var curve_amount := randf_range(ARROW_CURVE_OFFSET_MIN, ARROW_CURVE_OFFSET_MAX)
+	var side_offset := randf_range(-curve_amount * 0.45, curve_amount * 0.45)
+	return source_pos.lerp(target_impact_pos, 0.5) + perpendicular * side_offset + Vector2(0.0, -curve_amount)
+
+
+func _get_arrow_volley_blocking_duration() -> float:
+	var latest_launch_delay := float(maxi(0, ARROW_VOLLEY_VISUAL_COUNT - 1)) * ARROW_STAGGER_MAX_SEC
+	return latest_launch_delay + ARROW_TRAVEL_MAX_SEC + ARROW_IMPACT_POP_BEGIN + ARROW_VOLLEY_COMPLETION_PAD_SEC
+
+
+func _get_arrow_volley_completion_extra_wait() -> float:
+	return maxf(0.0, _get_arrow_volley_blocking_duration() - ARROW_BASIC_ATTACK_MOTION_DURATION_SEC)
+
+
 func _spawn_arrow_projectile(source_pos: Vector2, target_impact_pos: Vector2, launch_delay: float, travel_duration: float) -> void:
 	if battle_fx_root == null:
 		return
 	var travel_vector := target_impact_pos - source_pos
 	if travel_vector.length() <= 0.1:
 		travel_vector = Vector2.RIGHT
+	var curved_mid_pos := _get_arrow_curve_midpoint(source_pos, target_impact_pos)
+	var first_segment := curved_mid_pos - source_pos
+	var second_segment := target_impact_pos - curved_mid_pos
+	if first_segment.length() <= 0.1:
+		first_segment = travel_vector
+	if second_segment.length() <= 0.1:
+		second_segment = travel_vector
 	var projectile := Line2D.new()
 	projectile.name = "ArrowProjectileVisual"
 	projectile.points = PackedVector2Array([Vector2(-16.0, 0.0), Vector2(9.0, 0.0)])
@@ -9191,7 +9228,7 @@ func _spawn_arrow_projectile(source_pos: Vector2, target_impact_pos: Vector2, la
 	projectile.z_as_relative = false
 	projectile.z_index = 27
 	projectile.position = battle_fx_root.to_local(source_pos)
-	projectile.rotation = travel_vector.angle()
+	projectile.rotation = first_segment.angle()
 	projectile.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	battle_fx_root.add_child(projectile)
 
@@ -9202,10 +9239,15 @@ func _spawn_arrow_projectile(source_pos: Vector2, target_impact_pos: Vector2, la
 		if is_instance_valid(projectile):
 			projectile.modulate.a = 1.0
 	)
-	tween.tween_property(projectile, "position", battle_fx_root.to_local(target_impact_pos), travel_duration).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	tween.tween_property(projectile, "position", battle_fx_root.to_local(curved_mid_pos), travel_duration * 0.45).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_callback(func() -> void:
 		if is_instance_valid(projectile):
-			_spawn_arrow_impact_pin(target_impact_pos, projectile.rotation)
+			projectile.rotation = second_segment.angle()
+	)
+	tween.tween_property(projectile, "position", battle_fx_root.to_local(target_impact_pos), travel_duration * 0.55).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	tween.tween_callback(func() -> void:
+		if is_instance_valid(projectile):
+			_spawn_arrow_impact_pin(target_impact_pos, second_segment.angle())
 			projectile.queue_free()
 	)
 

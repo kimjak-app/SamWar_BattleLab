@@ -1,15 +1,18 @@
 # CURRENT STATE
 
-## v0.70-9b Archer Volley Readability Tuning
-- Tuned the visual-only archer basic-attack volley in `scripts/battle_web_import_test.gd` for readability.
+## v0.70-9c Archer Curved Volley + Visual Completion Timing Guard
+- Tuned the visual-only archer basic-attack volley in `scripts/battle_web_import_test.gd` for natural motion and action sequencing.
 - Normal/basic attacks by archer units now spawn `ARROW_VOLLEY_VISUAL_COUNT = 9` small runtime `Line2D` arrows with wider staggered launches, slower travel, target-side scatter, and brief impact pins.
 - Current archer units are resolved from unit type / visual key data: `yi_sunsin` (`korea_archer`), `gim_yusin` (`korea_archer`), and `liu_bei` (`china_archer`).
 - New functions: `_play_arrow_projectile_effect`, `_spawn_arrow_projectile`, and `_spawn_arrow_impact_pin`.
+- Arrow projectiles now use `_get_arrow_curve_midpoint()` with subtle `ARROW_CURVE_OFFSET_MIN` / `ARROW_CURVE_OFFSET_MAX` arc offsets instead of perfectly straight source-to-target travel.
+- Archer basic attacks now use `_get_arrow_volley_blocking_duration()` / `_get_arrow_volley_completion_extra_wait()` so the next action waits until the last arrow flight and immediate impact have completed.
+- Pin fade remains non-blocking; only flight plus initial impact is guarded to preserve battle rhythm.
 - No arrow image/SVG/PNG asset was created; the effect is generated at runtime under the existing battle FX layer.
 - Arrow timing now uses a `0.05`-`0.12` second launch stagger and `0.34`-`0.50` second travel window so arrows read more like arrows than fast gunner shots.
 - The hook is limited to ally/enemy normal basic attack paths and does not run from unique/special skills, strategy, cutins, cannon AOE, charge skills, damage calculation, turn progression, or WorldMap return logic.
 - No cutin assets, q8 Theora mappings, title PNGs, or WorldMap files were changed.
-- Remaining QA: visible battle QA should confirm Yi Sunsin / Kim Yu-sin / Liu Bei basic attacks show a heavier, slower, readable arrow stream with impact pins, while gunner/infantry/cavalry attacks and all special skills do not.
+- Remaining QA: visible battle QA should confirm Yi Sunsin / Kim Yu-sin / Liu Bei basic attacks show a heavier, slower, subtly curved arrow stream, and that the next unit does not start moving before the arrows land.
 
 ## v0.70-8b Yi Sun-sin + Eulji Mundeok Mirrored Cutin Layout
 - Built on `e69dd46 을지문덕,김유신까지 컷인 완성`.

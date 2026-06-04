@@ -2,15 +2,15 @@
 
 ## 2026-06-04
 
-### v0.70-9b Archer Volley Readability Tuning
-- Started from clean repo state at `da200ac Add archer volley projectile impact visual`.
-- Tuned the existing runtime `Line2D` arrow volley for better readability after visible QA feedback.
-- Increased `ARROW_VOLLEY_VISUAL_COUNT` from 5 to 9.
-- Slowed travel timing from `0.18`-`0.32` seconds to `0.34`-`0.50` seconds.
-- Widened launch stagger from `0.03`-`0.08` seconds to `0.05`-`0.12` seconds.
-- Slightly lengthened and brightened the arrow stroke so the arrows read more like arrows and less like bullet tracers.
+### v0.70-9c Archer Curved Volley + Visual Completion Timing Guard
+- Started from clean repo state at `740fea0 Tune archer volley readability and slower arrow travel`.
+- Preserved the existing v0.70-9b runtime `Line2D` arrow readability baseline: 9 arrows, `0.34`-`0.50` second travel, and `0.05`-`0.12` second stagger.
+- Kept the slightly lengthened/brightened arrow stroke so the arrows read more like arrows and less like bullet tracers.
+- Added subtle curved source-midpoint-impact projectile travel using `_get_arrow_curve_midpoint()`.
+- Added an archer-only basic attack completion guard using `_get_arrow_volley_blocking_duration()` / `_get_arrow_volley_completion_extra_wait()` so the next action waits for the last arrow flight and initial impact.
+- Pin linger/fade remains non-blocking after the flight/impact guard.
 - Kept the effect visual-only and archer-basic-attack-only: no damage, hit, troop, turn, unique-skill, cutin, q8 mapping, or WorldMap logic changes were intended.
-- Remaining manual QA: verify Yi Sunsin / Kim Yu-sin / Liu Bei basic attacks show a heavier slower arrow stream, and non-archers/special skills do not.
+- Remaining manual QA: verify Yi Sunsin / Kim Yu-sin / Liu Bei basic attacks show a heavier slower curved arrow stream, that the next action waits until arrow impact, and that non-archers/special skills do not show the volley.
 
 ### v0.70-8b Yi Sun-sin + Eulji Mundeok Mirrored Cutin Layouts
 - Started from clean repo state at `e69dd46 을지문덕,김유신까지 컷인 완성`.

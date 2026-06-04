@@ -1,12 +1,14 @@
 # CHANGELOG
 
-## v0.70-9b Archer Volley Readability Tuning
+## v0.70-9c Archer Curved Volley + Visual Completion Timing Guard
 - Tuned archer-only normal/basic attack volley FX in `scripts/battle_web_import_test.gd`.
 - Added `_play_arrow_projectile_effect`, `_spawn_arrow_projectile`, and `_spawn_arrow_impact_pin`.
 - Added volley timing/impact constants including `ARROW_VOLLEY_VISUAL_COUNT` and `ARROW_IMPACT_POP_BEGIN`.
-- Increased `ARROW_VOLLEY_VISUAL_COUNT` from 5 to 9 for a heavier volley.
-- Slowed arrow travel from `0.18`-`0.32` seconds to `0.34`-`0.50` seconds and widened launch stagger from `0.03`-`0.08` seconds to `0.05`-`0.12` seconds.
-- Slightly lengthened and brightened the runtime `Line2D` arrow stroke for better readability without adding assets.
+- Preserved the v0.70-9b readability baseline: `ARROW_VOLLEY_VISUAL_COUNT = 9`, `0.34`-`0.50` second travel, and `0.05`-`0.12` second launch stagger.
+- Kept the slightly longer/brighter runtime `Line2D` arrow stroke for readability without adding assets.
+- Added `ARROW_CURVE_OFFSET_MIN`, `ARROW_CURVE_OFFSET_MAX`, and `_get_arrow_curve_midpoint()` so arrows fly through a subtle curved midpoint instead of a perfectly straight line.
+- Added `ARROW_VOLLEY_COMPLETION_PAD_SEC`, `_get_arrow_volley_blocking_duration()`, and `_get_arrow_volley_completion_extra_wait()` to keep archer basic-attack sequencing from advancing before the last arrow flight/impact completes.
+- The sequencing guard does not block on the full pinned-arrow linger/fade.
 - Archer eligibility uses existing unit type / visual-key resolution, covering `yi_sunsin`, `gim_yusin`, and `liu_bei` when they resolve as archers.
 - Runtime arrows and impact pins are generated with `Line2D`; no new arrow asset files were added.
 - Preserved existing slash/spark/dust FX and combat resolution while layering arrows on top for archer basic attacks only.
