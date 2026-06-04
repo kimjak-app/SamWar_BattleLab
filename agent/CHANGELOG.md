@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-5a Yi Sun-sin Hero Scale + Skill Title Image Impact Tuning
+- Integrated `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png` as the Hakikjin skill-title image and added the necessary Godot `.import` metadata.
+- Removed the visible `이순신` hero-name label from the Yi Sunsin specialty cutin.
+- Replaced the plain `학익진!` label node with a `TextureRect` title-image node.
+- Increased Yi Sunsin portrait size and pushed the portrait further left/center-left so it overflows the cutin frame for stronger hero impact.
+- Tightened hero entry motion into a faster left-to-right whoosh with overshoot/settle.
+- Strengthened title-image entrance with a larger impact pop before settling into the hold.
+- Preserved the q8 Theora first-candidate path, existing fallback chain, and post-cutin battle-flow continuation.
+- Did not re-encode video assets, delete production cutin files, or change Kwon Yul / Jeong Do Jeon mappings.
+- Verification passed: `git diff --check`, Godot headless project load, battle scene headless load, and direct ResourceLoader checks for the PNG title and q8 OGV.
+
 ## v0.70-5 Yi Sun-sin Cutin Cinematic Layout Polish
 - Polished the Yi Sunsin specialty cutin presentation while preserving the working q8 Theora video path and existing fallback chain.
 - Enlarged and repositioned the foreground Yi Sunsin portrait so the composition has stronger hero-splash presence over the moving OGV background.

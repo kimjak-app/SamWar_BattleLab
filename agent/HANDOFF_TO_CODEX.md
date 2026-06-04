@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-5a Yi Sun-sin Hero Scale + Skill Title Image Impact Handoff
+- Current Yi Sunsin presentation now uses image-based Hakikjin title art: `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png`.
+- Required import metadata is present at `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png.import`.
+- The old visible `이순신` name label has been removed from the cutin scene, and the old plain `학익진!` label has been replaced by `TextureRect_SkillTitle`.
+- Runtime path: `scripts/battle_web_import_test.gd` loads `res://assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png` into the title TextureRect before playing the cutin.
+- Yi Sunsin portrait layout is intentionally oversized and pushed left/center-left so it overflows the panel for stronger hero-cutin impact.
+- Motion has been tuned toward a faster hero whoosh plus overshoot/settle, followed by a stronger title-image pop.
+- q8 Theora playback remains first in the Yi Sunsin video candidate chain:
+  `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`.
+- Existing fallbacks remain preserved after q8: 540p Theora, VP8 WebM, legacy OGV/WebM, and MP4.
+- Kwon Yul / Jeong Do Jeon cutin mappings were not changed.
+- Verification completed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader checks for the title PNG and q8 OGV.
+- Next visual QA should focus only on whether the hero is large enough, `이순신` text is gone, the Hakikjin title image has enough impact, composition feels premium, and battle-flow return still works.
+
 ## v0.70-5 Yi Sun-sin Cutin Cinematic Layout Polish Handoff
 - Yi Sunsin q8 Theora playback remains the stable dry-run baseline and still uses `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv` first.
 - Existing Yi Sunsin fallback chain remains preserved after q8: 540p Theora, VP8 WebM, legacy OGV/WebM, and MP4.

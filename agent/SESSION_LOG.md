@@ -2,6 +2,24 @@
 
 ## 2026-06-04
 
+### v0.70-5a Yi Sun-sin Hero Scale + Skill Title Image Impact Tuning
+- Started from latest local baseline after `6264171 고유특기글씨업로드`, which tracked `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png`.
+- Confirmed the expected title image exists at `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png` and is tracked.
+- Replaced the old `Label_HeroName` / `Label_SkillName` cutin text nodes with a single `TextureRect_SkillTitle` image node under `BattleUI/SkillCutinLayer/Control_Text`.
+- Removed runtime references to the hero-name and skill-name labels from `scripts/battle_web_import_test.gd`.
+- Added `SPECIALTY_SKILL_YI_SUNSIN_HAKIKJIN_TITLE_PATH` and load validation for the title PNG before starting the specialty cutin.
+- Increased Yi Sunsin portrait layout from the previous large size to a much larger panel-overflowing hero-splash size and moved it further left/center-left.
+- Tuned the hero entrance to a faster left-to-right whoosh with overshoot and settle.
+- Tuned the title image entrance to a stronger pop scale sequence after the hero settles.
+- Ran Godot import for the new title PNG. This generated the intended `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png.import`.
+- Godot import also produced out-of-scope untracked test OGV `.uid` files under `assets/video_test/theora_safe/`; those two generated files were removed specifically without running a broad clean.
+- Verification passed: `git diff --check`.
+- Verification passed: Godot headless project load.
+- Verification passed: Godot headless load of `Battle_Fullscreen_Test.tscn`.
+- Direct ResourceLoader verification passed: title PNG loads as `CompressedTexture2D`, q8 OGV loads as `VideoStreamTheora`.
+- q8 Theora path and fallback chain remain preserved. Kwon Yul / Jeong Do Jeon mappings were not changed.
+- Remaining manual QA: visible F6 battle flow should confirm larger hero impact, removed `이순신` text, Hakikjin PNG title quality, forceful motion, premium composition, and battle-flow return.
+
 ### v0.70-5 Yi Sun-sin Cutin Cinematic Layout Polish
 - Started from the stable Yi Sunsin q8 Theora production dry-run baseline, with the cutin video playing correctly in real Godot battle flow.
 - Confirmed the current task was presentation polish, not playback repair or asset conversion.

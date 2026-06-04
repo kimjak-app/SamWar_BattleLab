@@ -1,5 +1,16 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Hakikjin Title Image Cutin Impact
+- `v0.70-5a Yi Sun-sin Hero Scale + Skill Title Image Impact Tuning` removes the `이순신` name text and replaces the plain `학익진!` label with `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png`.
+- The Yi Sunsin portrait is now much larger, pushed left/center-left, and allowed to overflow the cutin panel for a stronger hero-splash silhouette.
+- Manual visual QA should confirm:
+  1. Yi Sunsin is large and heroic enough.
+  2. `이순신` text is fully gone.
+  3. The Hakikjin PNG title reads clearly and feels premium.
+  4. Hero whoosh and title pop feel forceful rather than floaty.
+  5. q8 Theora playback and battle-flow return still work.
+- If the title image is accepted, this becomes the Yi Sunsin presentation baseline before adapting the same image-title approach to other hero cutins.
+
 ## Next: F6 Visual QA for Yi Sun-sin Cinematic Cutin Polish
 - `v0.70-5 Yi Sun-sin Cutin Cinematic Layout Polish` upgrades presentation while preserving the q8 Theora production dry-run playback baseline.
 - Current Yi Sunsin cutin still tries `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv` first, with the 540p Theora / VP8 WebM / legacy OGV-WebM / MP4 fallback chain preserved.

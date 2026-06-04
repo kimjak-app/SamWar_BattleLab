@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-5a Yi Sun-sin Hero Scale + Skill Title Image Impact Tuning
+- Built on `c810da9` plus the tracked title asset upload at `6264171`.
+- Integrated the transparent PNG skill-title image `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png` for Hakikjin and added its Godot import metadata `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png.import`.
+- Removed the visible `이순신` hero-name text from the specialty cutin presentation.
+- Replaced the plain `학익진!` label with `BattleUI/SkillCutinLayer/Control_Text/TextureRect_SkillTitle`, loaded from `res://assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png`.
+- Increased the Yi Sunsin foreground portrait scale significantly from the v0.70-5 layout and moved it further left/center-left so it overflows the cutin panel for stronger hero-splash impact.
+- Strengthened motion timing: faster left-to-right hero whoosh, overshoot/settle, and a stronger title-image pop sequence before hold/exit.
+- q8 Theora playback remains first in the Yi Sunsin video candidate chain, and the existing 540p Theora / VP8 WebM / legacy OGV-WebM / MP4 fallbacks remain preserved.
+- No q8 OGV re-encode, no production cutin deletion, and no Kwon Yul / Jeong Do Jeon mapping change was made.
+- Verification passed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader verification for the title PNG as `CompressedTexture2D` and q8 OGV as `VideoStreamTheora`.
+- Remaining QA: visible F6/manual battle QA should confirm the hero is now large enough, `이순신` text is gone, the Hakikjin title image feels impactful, composition feels premium, and battle-flow return still works.
+
 ## v0.70-5 Yi Sun-sin Cutin Cinematic Layout Polish
 - Yi Sunsin q8 Theora playback remains the active production dry-run baseline through `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`; the existing fallback chain remains preserved.
 - Identified the current presentation problem: the cutin read as a flat portrait pasted over video, the thick yellow diagonal bar felt cheap, and the hero/skill typography lacked impact.
