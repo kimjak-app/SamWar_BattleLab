@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.70-8b Yi Sun-sin + Eulji Mundeok Mirrored Cutin Layouts
+- Mirrored only Yi Sunsin and Eulji Mundeok specialty cutin presentation configs.
+- Yi Sunsin now places the portrait on the right and Hakikjin title image on the left.
+- Eulji Mundeok now places the portrait on the right and Salsu Daechop title image on the left.
+- Added `layout_mirror` handling so mirrored heroes enter from the right and their title image enters from the left while non-mirrored heroes keep existing motion.
+- Preserved Kwon Yul, Jeong Do Jeon, and Kim Yu-sin hero-left/title-right layout values.
+- Did not change q8 OGV assets, video mapping order, fallback chains, special-skill trigger logic, cutin assets, WorldMap logic, or battle command behavior.
+
 ## v0.70-8 Kim Yu-sin + Eulji Mundeok Special-Skill Cutin Integration
 - Verified Kim Yu-sin and Eulji Mundeok source MP4s: h264, 1920x1080, yuv420p, `30000/1001`, duration `2.002000`.
 - Verified new portrait/title PNG assets with alpha:

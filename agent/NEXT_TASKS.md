@@ -1,5 +1,20 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Mirrored Yi Sunsin / Eulji Mundeok Cutin Layouts
+- `v0.70-8b` mirrors only Yi Sunsin and Eulji Mundeok specialty cutin layouts.
+- Expected layout:
+  1. Yi Sunsin: hero portrait right, Hakikjin title image left.
+  2. Eulji Mundeok: hero portrait right, Salsu Daechop title image left.
+  3. Kwon Yul / Jeong Do Jeon / Kim Yu-sin remain hero portrait left, title image right.
+- No cutin video mapping, q8 OGV asset, fallback chain, special-skill trigger logic, or WorldMap logic changed.
+- Manual visual QA should confirm:
+  1. Yi Sunsin unique skill shows the mirrored composition cleanly.
+  2. Eulji Mundeok unique skill shows the mirrored composition cleanly.
+  3. Mirrored portrait entry direction feels natural from the right.
+  4. Mirrored title placement remains readable on the left.
+  5. Kwon Yul, Jeong Do Jeon, and Kim Yu-sin layouts did not drift.
+  6. Battle flow returns normally after each cutin.
+
 ## Next: F6 Visual QA for Kim Yu-sin / Eulji Mundeok Special-Skill Cutins
 - `v0.70-8 Kim Yu-sin + Eulji Mundeok Special-Skill Cutin Integration` adds both heroes to the existing specialty unique-skill cinematic cutin path.
 - Scope is explicitly special-skill activation only. There is no reinforcement-arrival cutin hook.

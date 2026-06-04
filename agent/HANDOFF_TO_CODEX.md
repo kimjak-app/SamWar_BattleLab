@@ -1,5 +1,15 @@
 # HANDOFF TO CODEX
 
+## v0.70-8b Yi Sunsin + Eulji Mundeok Mirrored Cutin Layout Handoff
+- Current patch is layout-direction only in `scripts/battle_web_import_test.gd`.
+- Yi Sunsin config now sets `layout_mirror: true`, places the oversized portrait from the right side, and moves the Hakikjin title image to the left.
+- Eulji Mundeok config now sets `layout_mirror: true`, places the portrait from the right side, and moves the Salsu Daechop title image to the left.
+- `_show_specialty_skill_video_cutin()` mirrors portrait enter/settle/exit offsets and title enter offset only when `layout_mirror` is true.
+- `_layout_specialty_skill_cutin()` keeps the old left-overflow path by default and uses `hero_right_overflow` only for mirrored configs.
+- Kwon Yul, Jeong Do Jeon, and Kim Yu-sin remain on the existing hero-left/title-right config values.
+- No video path mapping, fallback chain, special-skill trigger, production asset, or WorldMap logic was changed.
+- Next visible QA should check Yi Sunsin and Eulji Mundeok right-hero/left-title composition, then spot-check Kwon Yul / Jeong Do Jeon / Kim Yu-sin for unchanged layout.
+
 ## v0.70-8 Kim Yu-sin + Eulji Mundeok Special-Skill Cutin Handoff
 - Kim Yu-sin and Eulji Mundeok are now integrated into the existing specialty unique-skill cutin system in `scripts/battle_web_import_test.gd`.
 - Scope is explicitly unique/special-skill activation only; no reinforcement-arrival cutin hook was added.

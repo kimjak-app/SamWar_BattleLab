@@ -2,6 +2,14 @@
 
 ## 2026-06-04
 
+### v0.70-8b Yi Sun-sin + Eulji Mundeok Mirrored Cutin Layouts
+- Started from clean repo state at `e69dd46 을지문덕,김유신까지 컷인 완성`.
+- Confirmed current specialty cutin presentation uses per-hero config in `scripts/battle_web_import_test.gd`.
+- Changed only Yi Sunsin and Eulji Mundeok configs to mirrored layout: hero portrait right, title image left.
+- Added mirrored enter/settle/exit offset handling keyed by `layout_mirror`, preserving default motion for all other heroes.
+- Kept Kwon Yul, Jeong Do Jeon, and Kim Yu-sin configs in the existing hero-left/title-right layout.
+- No q8 OGV path, fallback chain, trigger flow, production asset, or WorldMap logic was changed.
+
 ### v0.70-8 Kim Yu-sin + Eulji Mundeok Special-Skill Cutin Integration
 - Started from `514e2ff 버그 수정및 기본유닛 컷인 완성`.
 - Confirmed the six expected Kim Yu-sin / Eulji Mundeok source assets existed in the repo as untracked files.

@@ -220,12 +220,14 @@ const SPECIALTY_SKILL_CUTIN_CONFIGS := {
 		"hero_width_ratio": 0.86,
 		"hero_height_ratio": 1.42,
 		"hero_left_overflow": 0.28,
+		"hero_right_overflow": 0.28,
 		"hero_y_anchor": 0.55,
 		"hero_y_offset": 28.0,
-		"title_x_ratio": 0.53,
+		"title_x_ratio": 0.04,
 		"title_y_ratio": 0.22,
 		"title_width_ratio": 0.44,
 		"title_height_ratio": 0.32,
+		"layout_mirror": true,
 	},
 	"kwon_yul": {
 		"portrait_path": SPECIALTY_SKILL_KWON_YUL_CUTIN_PORTRAIT_PATH,
@@ -272,12 +274,14 @@ const SPECIALTY_SKILL_CUTIN_CONFIGS := {
 		"hero_width_ratio": 0.78,
 		"hero_height_ratio": 1.28,
 		"hero_left_overflow": 0.21,
+		"hero_right_overflow": 0.21,
 		"hero_y_anchor": 0.52,
 		"hero_y_offset": 22.0,
-		"title_x_ratio": 0.56,
+		"title_x_ratio": 0.05,
 		"title_y_ratio": 0.21,
 		"title_width_ratio": 0.42,
 		"title_height_ratio": 0.31,
+		"layout_mirror": true,
 	},
 }
 const SPECIALTY_SKILL_CUTIN_TOTAL_DURATION := 1.38
@@ -3706,6 +3710,16 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 	var hero_base_position := specialty_skill_cutin_hero.position
 	var text_base_position := specialty_skill_cutin_text.position if specialty_skill_cutin_text != null else Vector2.ZERO
 	var slash_base_position := specialty_skill_cutin_slash.position if specialty_skill_cutin_slash != null else Vector2.ZERO
+	var is_mirrored_layout := bool(cutin_config.get("layout_mirror", false))
+	var hero_enter_offset := SPECIALTY_SKILL_CUTIN_HERO_ENTER_OFFSET
+	var hero_settle_overshoot := Vector2(28.0, 0.0)
+	var hero_exit_offset := Vector2(-86.0, 14.0)
+	var text_enter_offset := SPECIALTY_SKILL_CUTIN_TEXT_ENTER_OFFSET
+	if is_mirrored_layout:
+		hero_enter_offset.x = absf(hero_enter_offset.x)
+		hero_settle_overshoot.x = -hero_settle_overshoot.x
+		hero_exit_offset.x = absf(hero_exit_offset.x)
+		text_enter_offset.x = -absf(text_enter_offset.x)
 
 	specialty_skill_cutin_layer.visible = true
 	specialty_skill_cutin_layer.modulate = Color.WHITE
@@ -3728,11 +3742,11 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 		specialty_skill_cutin_slash.color = SPECIALTY_SKILL_CUTIN_ACCENT_EXIT_COLOR
 	if specialty_skill_cutin_hero != null:
 		specialty_skill_cutin_hero.texture = portrait_texture
-		specialty_skill_cutin_hero.position = hero_base_position + SPECIALTY_SKILL_CUTIN_HERO_ENTER_OFFSET
+		specialty_skill_cutin_hero.position = hero_base_position + hero_enter_offset
 		specialty_skill_cutin_hero.modulate = Color(1.0, 1.0, 1.0, 0.0)
 		specialty_skill_cutin_hero.scale = Vector2.ONE * SPECIALTY_SKILL_CUTIN_HERO_START_SCALE
 	if specialty_skill_cutin_text != null:
-		specialty_skill_cutin_text.position = text_base_position + SPECIALTY_SKILL_CUTIN_TEXT_ENTER_OFFSET
+		specialty_skill_cutin_text.position = text_base_position + text_enter_offset
 		specialty_skill_cutin_text.modulate = Color(1.0, 1.0, 1.0, 0.0)
 		specialty_skill_cutin_text.scale = Vector2.ONE * SPECIALTY_SKILL_CUTIN_TEXT_START_SCALE
 	if specialty_skill_cutin_skill_title != null:
@@ -3746,7 +3760,7 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_slash, "position", slash_base_position, 0.28).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(0.16)
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_slash, "color", SPECIALTY_SKILL_CUTIN_ACCENT_COLOR, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(0.18)
 	if specialty_skill_cutin_hero != null:
-		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "position", hero_base_position + Vector2(28.0, 0.0), SPECIALTY_SKILL_CUTIN_ENTER_DURATION * 0.72).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(0.08)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "position", hero_base_position + hero_settle_overshoot, SPECIALTY_SKILL_CUTIN_ENTER_DURATION * 0.72).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(0.08)
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "modulate:a", 1.0, SPECIALTY_SKILL_CUTIN_ENTER_DURATION * 0.72).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(0.08)
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "scale", Vector2.ONE * 1.035, SPECIALTY_SKILL_CUTIN_ENTER_DURATION * 0.72).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(0.08)
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "position", hero_base_position, SPECIALTY_SKILL_CUTIN_ENTER_DURATION * 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(0.08 + SPECIALTY_SKILL_CUTIN_ENTER_DURATION * 0.72)
@@ -3763,7 +3777,7 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 	specialty_skill_cutin_tween.tween_property(specialty_skill_cutin_layer, "modulate:a", 0.0, SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_layer, "scale", Vector2.ONE * 0.98, SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_IN)
 	if specialty_skill_cutin_hero != null:
-		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "position", hero_base_position + Vector2(-86.0, 14.0), SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "position", hero_base_position + hero_exit_offset, SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	if specialty_skill_cutin_slash != null:
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_slash, "color", SPECIALTY_SKILL_CUTIN_ACCENT_EXIT_COLOR, SPECIALTY_SKILL_CUTIN_EXIT_DURATION * 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	specialty_skill_cutin_tween.chain().tween_callback(_hide_specialty_skill_cutin)
@@ -8416,11 +8430,16 @@ func _layout_specialty_skill_cutin(viewport_size: Vector2, hero_id: String = SPE
 		var hero_width_ratio := _get_specialty_skill_cutin_config_float(cutin_config, "hero_width_ratio", 0.86)
 		var hero_height_ratio := _get_specialty_skill_cutin_config_float(cutin_config, "hero_height_ratio", 1.42)
 		var hero_left_overflow := _get_specialty_skill_cutin_config_float(cutin_config, "hero_left_overflow", 0.28)
+		var hero_right_overflow := _get_specialty_skill_cutin_config_float(cutin_config, "hero_right_overflow", hero_left_overflow)
 		var hero_y_anchor := _get_specialty_skill_cutin_config_float(cutin_config, "hero_y_anchor", 0.55)
 		var hero_y_offset := _get_specialty_skill_cutin_config_float(cutin_config, "hero_y_offset", 28.0)
+		var is_mirrored_layout := bool(cutin_config.get("layout_mirror", false))
 		specialty_skill_cutin_hero.size = Vector2(viewport_size.x * hero_width_ratio, viewport_size.y * hero_height_ratio)
+		var hero_x_position := cutin_rect.position.x - specialty_skill_cutin_hero.size.x * hero_left_overflow
+		if is_mirrored_layout:
+			hero_x_position = cutin_rect.position.x + cutin_rect.size.x - specialty_skill_cutin_hero.size.x * (1.0 - hero_right_overflow)
 		specialty_skill_cutin_hero.position = Vector2(
-			cutin_rect.position.x - specialty_skill_cutin_hero.size.x * hero_left_overflow,
+			hero_x_position,
 			viewport_size.y * 0.5 - specialty_skill_cutin_hero.size.y * hero_y_anchor + hero_y_offset
 		)
 		specialty_skill_cutin_hero.pivot_offset = specialty_skill_cutin_hero.size * 0.5
