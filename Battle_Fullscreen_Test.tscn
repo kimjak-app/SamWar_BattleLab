@@ -76,6 +76,22 @@ font_color = Color(0.952941, 0.917647, 0.85098, 1)
 outline_size = 6
 outline_color = Color(0.0313726, 0.0627451, 0.0941176, 1)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_round_toast_ink"]
+shader = ExtResource("11_round_toast_shader")
+shader_parameter/progress = 0.0
+shader_parameter/edge_softness = 0.12
+shader_parameter/noise_strength = 0.18
+shader_parameter/spread_center = Vector2(0.5, 0.5)
+
+[sub_resource type="LabelSettings" id="LabelSettings_round_toast"]
+font_size = 72
+font_color = Color(1, 0.894118, 0.611765, 1)
+outline_size = 3
+outline_color = Color(0.0784314, 0.0431373, 0.0117647, 0.82)
+shadow_size = 2
+shadow_color = Color(0.0156863, 0.0117647, 0.00784314, 0.45)
+shadow_offset = Vector2(2, 3)
+
 [sub_resource type="LabelSettings" id="LabelSettings_yi_cutin_hero"]
 font_size = 34
 font_color = Color(0.78, 0.88, 0.94, 1)
@@ -93,22 +109,6 @@ outline_color = Color(0.0313726, 0.0509804, 0.0745098, 0.96)
 shadow_size = 3
 shadow_color = Color(0, 0, 0, 0.52)
 shadow_offset = Vector2(3, 5)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_round_toast_ink"]
-shader = ExtResource("11_round_toast_shader")
-shader_parameter/progress = 0.0
-shader_parameter/edge_softness = 0.12
-shader_parameter/noise_strength = 0.18
-shader_parameter/spread_center = Vector2(0.5, 0.5)
-
-[sub_resource type="LabelSettings" id="LabelSettings_round_toast"]
-font_size = 72
-font_color = Color(1, 0.894118, 0.611765, 1)
-outline_size = 3
-outline_color = Color(0.0784314, 0.0431373, 0.0117647, 0.82)
-shadow_size = 2
-shadow_color = Color(0.0156863, 0.0117647, 0.00784314, 0.45)
-shadow_offset = Vector2(2, 3)
 
 [node name="Battle_Fullscreen_Test" type="Node2D" unique_id=1929995568]
 script = ExtResource("1_script")
@@ -3708,7 +3708,6 @@ offset_right = 466.0
 offset_bottom = 46.0
 text = "이순신"
 label_settings = SubResource("LabelSettings_yi_cutin_hero")
-horizontal_alignment = 0
 
 [node name="Label_SkillName" type="Label" parent="BattleUI/SkillCutinLayer/Control_Text" unique_id=756910915]
 layout_mode = 0
@@ -3717,7 +3716,6 @@ offset_right = 487.0
 offset_bottom = 138.0
 text = "학익진!"
 label_settings = SubResource("LabelSettings_yi_cutin_skill")
-horizontal_alignment = 0
 
 [node name="AnimationPlayer_Cutin" type="AnimationPlayer" parent="BattleUI/SkillCutinLayer" unique_id=887263827]
 
