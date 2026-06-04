@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-5d Hakikjin Readable Hold + Large Burst Fade Handoff
+- Current Yi Sunsin cutin keeps the v0.70-5c portrait scale and balance unchanged.
+- Yi Sunsin portrait layout remains `viewport_size.x * 0.86`, `viewport_size.y * 1.42`, left overflow `size.x * 0.28`, and `+28px` vertical balance offset.
+- Hakikjin title image still uses `res://assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png`.
+- Hakikjin title timing now includes a readable hold before burst: `SPECIALTY_SKILL_CUTIN_TEXT_READABLE_HOLD := 0.34`.
+- Hakikjin burst duration is `0.34`, scales to `2.25`, fades to alpha `0.0`, and drifts upward by `22px`.
+- Hakikjin still disappears before Yi Sunsin exits, preserving the dynamic logo-burst rhythm.
+- q8 Theora remains the first Yi Sunsin video candidate:
+  `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`.
+- Existing fallbacks remain preserved after q8: 540p Theora, VP8 WebM, legacy OGV/WebM, and MP4.
+- Kwon Yul / Jeong Do Jeon mappings were not changed.
+- Verification completed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader checks for Hakikjin PNG and q8 OGV.
+- Next visible QA should check only: Hakikjin readable hold, large fade burst, Yi Sunsin positioning, overall satisfaction, and battle-flow return.
+
 ## v0.70-5c Yi Sun-sin Balance + Hakikjin Large Burst Handoff
 - Current Yi Sunsin cutin keeps the large portrait scale from v0.70-5b but nudges the portrait down by `28px` for vertical balance.
 - Yi Sunsin portrait layout remains `viewport_size.x * 0.86`, `viewport_size.y * 1.42`, with left overflow at `size.x * 0.28`.

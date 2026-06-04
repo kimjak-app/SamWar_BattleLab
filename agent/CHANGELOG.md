@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-5d Hakikjin Readable Hold + Large Burst Fade Tuning
+- Kept Yi Sunsin portrait scale and vertical balance unchanged from v0.70-5c.
+- Increased Hakikjin readable hold before the burst so the title does not disappear too quickly.
+- Changed Hakikjin burst fade to enlarge dramatically to `2.25` while fading out.
+- Added a `22px` upward drift during the burst fade.
+- Hakikjin still exits before Yi Sunsin, keeping the cutin dynamic rather than turning the title into a long static label.
+- Preserved q8 Theora first-candidate path, existing fallback chain, title PNG asset path, and battle-flow continuation.
+- Did not change Kwon Yul / Jeong Do Jeon mappings, production cutin assets, battle logic, or WorldMap logic.
+- Verification passed: `git diff --check`, Godot headless project load, battle scene headless load, and direct ResourceLoader checks for Hakikjin PNG and q8 OGV.
+
 ## v0.70-5c Yi Sun-sin Vertical Balance + Hakikjin Large Burst-Out Tuning
 - Kept Yi Sunsin portrait scale approximately stable and nudged the oversized portrait downward by `28px` for better vertical balance.
 - Increased Hakikjin title burst scale from the previous smaller burst to a much stronger large burst-out.

@@ -2,6 +2,22 @@
 
 ## 2026-06-04
 
+### v0.70-5d Hakikjin Readable Hold + Large Burst Fade Tuning
+- Started from clean repo state at `1134d80 Increase Hakikjin burst scale and tune Yi Sun-sin balance`.
+- Focused only on Hakikjin readable hold and large burst fade timing.
+- Kept Yi Sunsin portrait layout unchanged from v0.70-5c: `viewport_size.x * 0.86`, `viewport_size.y * 1.42`, left overflow `size.x * 0.28`, and `+28px` vertical balance offset.
+- Kept Hakikjin title image path unchanged: `res://assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png`.
+- Increased Hakikjin sequence length by changing `SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION` from `0.38` to `0.68`.
+- Added explicit title timing constants: `SPECIALTY_SKILL_CUTIN_TEXT_READABLE_HOLD := 0.34` and `SPECIALTY_SKILL_CUTIN_TEXT_BURST_DURATION := 0.34`.
+- Changed Hakikjin impact scale from `1.72` to `2.25`.
+- Reworked title tweening so Hakikjin appears at readable base scale, holds briefly, then scales to `2.25` while fading to alpha `0.0` and drifting upward `22px`.
+- Preserved q8 Theora first candidate and all existing fallbacks. Kwon Yul / Jeong Do Jeon mappings were not changed.
+- Verification passed: `git diff --check`.
+- Verification passed: Godot headless project load.
+- Verification passed: Godot headless load of `Battle_Fullscreen_Test.tscn`.
+- Direct ResourceLoader verification passed: Hakikjin PNG loads as `CompressedTexture2D`, q8 OGV loads as `VideoStreamTheora`.
+- Remaining manual QA: visible F6 battle flow should confirm readable hold, dramatic burst fade, Yi Sunsin position, satisfying impact feel, and battle-flow return.
+
 ### v0.70-5c Yi Sun-sin Vertical Balance + Hakikjin Large Burst-Out Tuning
 - Started from clean repo state at `7bdaefd Increase Yi Sun-sin dominance and animate Hakikjin burst`.
 - Focused only on Yi Sunsin vertical balance and Hakikjin title burst behavior.

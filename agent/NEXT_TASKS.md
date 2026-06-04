@@ -1,5 +1,17 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Hakikjin Readable Hold and Large Burst Fade
+- `v0.70-5d Hakikjin Readable Hold + Large Burst Fade Tuning` keeps Yi Sunsin composition stable and focuses on Hakikjin readability.
+- Hakikjin now appears at readable base size, holds briefly, then expands dramatically to `2.25` while fading and drifting upward.
+- Hakikjin still disappears before Yi Sunsin exits, preserving the dynamic cutin rhythm.
+- Manual visual QA should confirm:
+  1. Hakikjin stays visible long enough to read.
+  2. Hakikjin grows very large while disappearing.
+  3. Yi Sunsin remains well positioned.
+  4. The cutin feels more satisfying overall.
+  5. q8 Theora playback and battle-flow return still work.
+- If accepted, this should be treated as the current Yi Sunsin readable-title-burst baseline.
+
 ## Next: F6 Visual QA for Hakikjin Large Burst-Out
 - `v0.70-5c Yi Sun-sin Vertical Balance + Hakikjin Large Burst-Out Tuning` keeps Yi Sunsin scale roughly stable and moves the oversized portrait down slightly for top/bottom balance.
 - Hakikjin now appears at base size, rapidly grows much larger, and disappears while continuing to enlarge.

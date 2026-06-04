@@ -189,7 +189,7 @@ const SPECIALTY_SKILL_CUTIN_TOTAL_DURATION := 3.0
 const SPECIALTY_SKILL_CUTIN_DARKEN_ALPHA := 0.68
 const SPECIALTY_SKILL_CUTIN_ENTER_DURATION := 0.24
 const SPECIALTY_SKILL_CUTIN_TEXT_DELAY := 0.32
-const SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION := 0.38
+const SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION := 0.68
 const SPECIALTY_SKILL_CUTIN_EXIT_START := 2.55
 const SPECIALTY_SKILL_CUTIN_EXIT_DURATION := 0.45
 const SPECIALTY_SKILL_CUTIN_HERO_ENTER_OFFSET := Vector2(-390.0, 16.0)
@@ -197,7 +197,9 @@ const SPECIALTY_SKILL_CUTIN_HERO_START_SCALE := 1.08
 const SPECIALTY_SKILL_CUTIN_HERO_SETTLE_SCALE := 1.0
 const SPECIALTY_SKILL_CUTIN_TEXT_ENTER_OFFSET := Vector2(140.0, -8.0)
 const SPECIALTY_SKILL_CUTIN_TEXT_START_SCALE := 1.0
-const SPECIALTY_SKILL_CUTIN_TEXT_IMPACT_SCALE := 1.72
+const SPECIALTY_SKILL_CUTIN_TEXT_IMPACT_SCALE := 2.25
+const SPECIALTY_SKILL_CUTIN_TEXT_READABLE_HOLD := 0.34
+const SPECIALTY_SKILL_CUTIN_TEXT_BURST_DURATION := 0.34
 const SPECIALTY_SKILL_CUTIN_ACCENT_ENTER_OFFSET := Vector2(160.0, -8.0)
 const SPECIALTY_SKILL_CUTIN_ACCENT_COLOR := Color(0.78, 0.91, 1.0, 0.34)
 const SPECIALTY_SKILL_CUTIN_ACCENT_EXIT_COLOR := Color(0.78, 0.91, 1.0, 0.0)
@@ -3646,12 +3648,12 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "position", hero_base_position, SPECIALTY_SKILL_CUTIN_ENTER_DURATION * 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(0.08 + SPECIALTY_SKILL_CUTIN_ENTER_DURATION * 0.72)
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_hero, "scale", Vector2.ONE * SPECIALTY_SKILL_CUTIN_HERO_SETTLE_SCALE, SPECIALTY_SKILL_CUTIN_ENTER_DURATION * 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(0.08 + SPECIALTY_SKILL_CUTIN_ENTER_DURATION * 0.72)
 	if specialty_skill_cutin_text != null:
-		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "position", text_base_position, SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY)
+		var title_burst_delay := SPECIALTY_SKILL_CUTIN_TEXT_DELAY + SPECIALTY_SKILL_CUTIN_TEXT_READABLE_HOLD
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "position", text_base_position, 0.14).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY)
 		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "modulate:a", 1.0, 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY)
-		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "scale", Vector2.ONE * SPECIALTY_SKILL_CUTIN_TEXT_IMPACT_SCALE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY + 0.08)
-		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY + 0.20)
-		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "scale", Vector2.ONE * 1.90, 0.22).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY + 0.20)
-		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "position", text_base_position + Vector2(0.0, -18.0), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(SPECIALTY_SKILL_CUTIN_TEXT_DELAY + 0.20)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "scale", Vector2.ONE * SPECIALTY_SKILL_CUTIN_TEXT_IMPACT_SCALE, SPECIALTY_SKILL_CUTIN_TEXT_BURST_DURATION).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT).set_delay(title_burst_delay)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "modulate:a", 0.0, SPECIALTY_SKILL_CUTIN_TEXT_BURST_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN).set_delay(title_burst_delay)
+		specialty_skill_cutin_tween.parallel().tween_property(specialty_skill_cutin_text, "position", text_base_position + Vector2(0.0, -22.0), SPECIALTY_SKILL_CUTIN_TEXT_BURST_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(title_burst_delay)
 	specialty_skill_cutin_tween.chain().tween_interval(maxf(0.0, SPECIALTY_SKILL_CUTIN_EXIT_START - SPECIALTY_SKILL_CUTIN_TEXT_DELAY - SPECIALTY_SKILL_CUTIN_TEXT_POP_DURATION))
 	specialty_skill_cutin_tween.tween_callback(_log_unique_skill_cutin_timing.bind("VIDEO_CUTIN_EXIT_START"))
 	specialty_skill_cutin_tween.tween_property(specialty_skill_cutin_layer, "modulate:a", 0.0, SPECIALTY_SKILL_CUTIN_EXIT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
