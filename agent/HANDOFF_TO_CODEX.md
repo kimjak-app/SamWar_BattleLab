@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-4 Production Cutin Theora Dry Run - Yi Sun-sin q8 Handoff
+- The real Yi Sun-sin dry-run source is tracked at `assets/video_source_test/production_dry_run/yi_sun_sin_cutin_source_02s.mp4`.
+- Source ffprobe: h264, 1920x1080, yuv420p, `30000/1001` fps, duration `2.002000`.
+- New production dry-run output: `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`, with Godot sidecar `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv.uid`.
+- Output ffprobe: theora, 1920x1080, yuv420p, `30/1` fps, duration `2.000000`, size `7580014` bytes.
+- `scripts/battle_web_import_test.gd` now tries the q8 1920x OGV first for `yi_sunsin` only:
+  1. `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`
+  2. `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv`
+  3. `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm`
+  4. `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv`
+  5. `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.webm`
+  6. `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.mp4`
+- Existing production cutin files were preserved and remain available as fallbacks. Kwon Yul and Jeong Do Jeon cutin mappings were not changed.
+- Verification completed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct Godot resource verification for the new OGV as `VideoStreamTheora`.
+- Codex headless did not auto-trigger the Yi Sunsin cutin. Kimjak F6/manual QA remains required for selected q8 OGV logs, visible non-black playback, color correctness, finished/exit behavior, post-cutin unique-skill effect, and normal battle-flow return.
+
 ## v0.70-3 Portable FFmpeg + Theora Safe Encode Handoff
 - `v0.70-3 Portable FFmpeg Setup + Theora Safe Encode Execution` is complete.
 - FFmpeg is available repo-locally at `tools/ffmpeg/bin/ffmpeg.exe`; ffprobe is at `tools/ffmpeg/bin/ffprobe.exe`.

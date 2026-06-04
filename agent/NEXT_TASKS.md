@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Yi Sun-sin q8 Theora Production Cutin Dry Run
+- `v0.70-4 Production Cutin Theora Dry Run - Yi Sun-sin q8` is implemented.
+- Current Yi Sunsin cutin dry-run path is `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`.
+- Source: `assets/video_source_test/production_dry_run/yi_sun_sin_cutin_source_02s.mp4`.
+- Output: `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv` plus Godot sidecar `assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv.uid`.
+- Output spec: Theora, 1920x1080, yuv420p, 30fps, duration `2.000000`, size `7580014` bytes.
+- Godot headless project load, battle scene load, and direct resource verification passed; the OGV loads as `VideoStreamTheora`.
+- Kimjak F6/manual QA should trigger Yi Sunsin's specialty cutin in the real battle flow and confirm: q8 OGV is selected, playback starts, no black screen, colors match the source tone, the clip finishes, the 3-second cutin presentation exits, post-cutin unique-skill effect applies, and battle flow resumes.
+- Existing production MP4/WebM/540p OGV files are preserved and remain fallbacks.
+
 ## Next: Apply Safe Theora Preset to Production Candidate
 - `v0.70-3 Portable FFmpeg Setup + Theora Safe Encode Execution` is complete.
 - Safe test outputs now exist under `assets/video_test/theora_safe/`.

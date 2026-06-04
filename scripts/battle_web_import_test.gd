@@ -163,10 +163,12 @@ const UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION := 0.75
 const UNIQUE_SKILL_TOAST_DURATION := UNIQUE_SKILL_EFFECT_APPLY_DELAY + UNIQUE_SKILL_POST_EFFECT_HOLD_DURATION
 const SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID := "yi_sunsin"
 const SPECIALTY_SKILL_YI_SUNSIN_CUTIN_PORTRAIT_PATH := "res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png"
+const SPECIALTY_SKILL_YI_SUNSIN_THEORA_Q8_1920X_PATH := "res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv"
 const SPECIALTY_SKILL_YI_SUNSIN_THEORA_540P_PATH := "res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_540p.ogv"
 const CUTIN_VIDEO_DEBUG_FORCE_TOP := false
 const SPECIALTY_SKILL_CUTIN_VIDEO_PATHS := {
 	"yi_sunsin": [
+		SPECIALTY_SKILL_YI_SUNSIN_THEORA_Q8_1920X_PATH,
 		SPECIALTY_SKILL_YI_SUNSIN_THEORA_540P_PATH,
 		"res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_vp8.webm",
 		"res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg.ogv",
@@ -3685,7 +3687,7 @@ func _assign_specialty_skill_cutin_video_stream(path: String) -> bool:
 		_get_specialty_skill_cutin_video_load_failure_guess(path, file_exists, loader_exists, loaded_resource, video_stream),
 	])
 	if video_stream == null:
-		if path == SPECIALTY_SKILL_YI_SUNSIN_THEORA_540P_PATH:
+		if path == SPECIALTY_SKILL_YI_SUNSIN_THEORA_Q8_1920X_PATH or path == SPECIALTY_SKILL_YI_SUNSIN_THEORA_540P_PATH:
 			video_stream = _create_specialty_skill_cutin_theora_stream_direct(path)
 		if video_stream == null:
 			print("[SPECIALTY_CUTIN] video resource is not a VideoStream: %s" % path)
