@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-2 Theora Safe Encoding Test Handoff
+- Scope was limited to test-only video source/output, a dev test scene, and docs. Battle logic, WorldMap logic, and production cutin assets were not changed.
+- Source file for the current test: `assets/video_source_test/cutin_test_01.mp4`.
+- Test output folder: `assets/video_test/theora_safe/`.
+- Expected output filenames:
+  1. `assets/video_test/theora_safe/test_safe_q7_1280x.ogv`
+  2. `assets/video_test/theora_safe/test_safe_q8_1920x.ogv`
+  3. `assets/video_test/theora_safe/test_safe_q7_1280x_noaudio.ogv` only if audio encode fails and `-an` fallback is needed
+- FFmpeg status: not available in PATH, and no repo-local `ffmpeg.exe` / `ffprobe.exe` was found. No `.ogv` outputs were created by Codex in this pass.
+- Godot test scene: `scenes/dev/video_theora_test.tscn`.
+- Test script: `scripts/video_theora_test.gd`.
+- The scene uses `VideoStreamPlayer` with `expand = true`, starts loading on `_ready()`, and allows quick switching through q7/q8/noaudio candidates via the dropdown or left/right UI actions.
+- Verification completed: `git diff --check`, Godot headless project load, and Godot headless load of `scenes/dev/video_theora_test.tscn`.
+- Verification not completed: actual q7/q8 `.ogv` load, non-black frame playback, and color correctness. These require FFmpeg output files.
+- Next agent should run the requested FFmpeg commands once FFmpeg is available, then visually test q7 and q8 in the dev scene before recommending any production replacement.
+
 ## v0.70-10A VideoStreamPlayer Debug Checkpoint Handoff
 - `v0.70-10A VideoStreamPlayer Debug Checkpoint Documentation` is complete. This was documentation-only; no code, scene, or asset file was intentionally modified.
 - Baseline commit before this documentation pass: `22c519f8654600229000e3f833a39867a23a769a` (`v0.70-10 VideoStreamTheora Direct Load Test`).

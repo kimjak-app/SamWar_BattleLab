@@ -1,5 +1,28 @@
 # SESSION LOG
 
+## 2026-06-04
+
+### v0.70-2 Theora Safe Encoding Test + Godot Color Playback Verification
+- Started from current `git status` where `assets/video_source_test/` was the only new user-provided test source folder.
+- Read the required agent docs before implementation.
+- Confirmed test source: `assets/video_source_test/cutin_test_01.mp4` (`2314245` bytes).
+- Confirmed production cutin candidates exist separately under `assets/ui/cutin/videos/`, including `yi_sun_sin_cutin_bg.mp4`, `yi_sun_sin_cutin_bg_vp8.webm`, and `yi_sun_sin_cutin_bg_theora_540p.ogv`.
+- Created test output folder `assets/video_test/theora_safe/` and documented the expected q7/q8/noaudio `.ogv` output names in its README.
+- Attempted FFmpeg discovery with `ffmpeg -version`, `Get-Command ffmpeg`, and repo-local executable search. Result: FFmpeg was not available, so no Theora encode command was executed successfully.
+- FFmpeg commands intended for this test:
+  - `ffmpeg -y -i "assets/video_source_test/cutin_test_01.mp4" -vf "fps=30,scale=1280:-2:flags=lanczos,format=yuv420p" -c:v libtheora -q:v 7 -g 60 -c:a libvorbis -q:a 4 "assets/video_test/theora_safe/test_safe_q7_1280x.ogv"`
+  - `ffmpeg -y -i "assets/video_source_test/cutin_test_01.mp4" -vf "fps=30,scale=1920:-2:flags=lanczos,format=yuv420p" -c:v libtheora -q:v 8 -g 60 -c:a libvorbis -q:a 4 "assets/video_test/theora_safe/test_safe_q8_1920x.ogv"`
+  - fallback if needed: `ffmpeg -y -i "assets/video_source_test/cutin_test_01.mp4" -an -vf "fps=30,scale=1280:-2:flags=lanczos,format=yuv420p" -c:v libtheora -q:v 7 -g 60 "assets/video_test/theora_safe/test_safe_q7_1280x_noaudio.ogv"`
+- Added `scenes/dev/video_theora_test.tscn`, an isolated test scene that is not connected to existing battle or worldmap flow.
+- Added `scripts/video_theora_test.gd` for stream switching and logs: stream path, `FileAccess.file_exists`, `ResourceLoader.exists`, load result, direct Theora fallback, `is_playing()`, and `finished`.
+- Verification passed: `git diff --check`.
+- Verification passed: Godot headless project load using `Godot_v4.6.2-stable_win64_console.exe`.
+- Verification passed: Godot headless load of `scenes/dev/video_theora_test.tscn`; because `.ogv` outputs are missing, it cleanly logs `reason=missing file` instead of crashing.
+- Playback result: not verified. The `.ogv` output files were not generated.
+- Color result: not verified. No actual q7/q8 frame playback was available for visual color judgment.
+- Current recommendation: test q7 1280x first once FFmpeg is available; do not choose a final production preset until q7 and q8 are both visually checked in Godot.
+- Remaining risks: local FFmpeg availability, audio-track fallback behavior, actual Theora resource import/load result, non-black playback, color corruption, and q8 1920x performance.
+
 ## 2026-06-02
 
 ### v0.70-10A VideoStreamPlayer Debug Checkpoint Documentation

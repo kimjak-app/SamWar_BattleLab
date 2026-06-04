@@ -1,5 +1,18 @@
 # NEXT TASKS
 
+## Next: Complete v0.70-2 Theora Safe Encoding Playback QA
+- `v0.70-2 Theora Safe Encoding Test + Godot Color Playback Verification` is partially complete.
+- Source confirmed: `assets/video_source_test/cutin_test_01.mp4`.
+- Test output folder prepared: `assets/video_test/theora_safe/`.
+- Godot test scene prepared: `scenes/dev/video_theora_test.tscn`.
+- Current blocker: `ffmpeg` is not available in PATH and no repo-local FFmpeg binary was found, so no q7/q8 `.ogv` files were generated.
+- Next local action when FFmpeg is available:
+  - `ffmpeg -y -i "assets/video_source_test/cutin_test_01.mp4" -vf "fps=30,scale=1280:-2:flags=lanczos,format=yuv420p" -c:v libtheora -q:v 7 -g 60 -c:a libvorbis -q:a 4 "assets/video_test/theora_safe/test_safe_q7_1280x.ogv"`
+  - `ffmpeg -y -i "assets/video_source_test/cutin_test_01.mp4" -vf "fps=30,scale=1920:-2:flags=lanczos,format=yuv420p" -c:v libtheora -q:v 8 -g 60 -c:a libvorbis -q:a 4 "assets/video_test/theora_safe/test_safe_q8_1920x.ogv"`
+  - If audio encoding fails, retry q7 with `-an` to create `assets/video_test/theora_safe/test_safe_q7_1280x_noaudio.ogv`.
+- Then open `scenes/dev/video_theora_test.tscn`, switch between q7/q8/noaudio candidates, and record whether each loads as `VideoStream`, plays non-black frames, and preserves normal color.
+- Do not copy test output into `assets/ui/cutin/videos/` until Godot visual playback is confirmed.
+
 ## Next: v0.70-11 Cutin Safe Theora Encoding Test
 - `v0.70-10A VideoStreamPlayer Debug Checkpoint Documentation` is complete as a documentation-only checkpoint after `v0.70-10`.
 - Current cutin presentation is stable: Yi Sunsin cutin layer, PNG portrait, hero/skill text, centered layout, 3-second exit, post-cutin unique-skill effect flow, busy guard, and PNG/text fallback are intact.

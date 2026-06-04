@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-2 Theora Safe Encoding Test + Godot Color Playback Verification
+- Confirmed the current test source path: `assets/video_source_test/cutin_test_01.mp4`.
+- Confirmed production cutin videos remain under `assets/ui/cutin/videos/` and were not overwritten or modified.
+- Added `assets/video_test/theora_safe/README.md` to reserve the safe Theora test output folder and document expected `.ogv` filenames.
+- Added `scenes/dev/video_theora_test.tscn`, an isolated dev-only Godot VideoStreamPlayer test scene.
+- Added `scripts/video_theora_test.gd` with q7/q8/noaudio candidate switching, stream path logs, file/resource load logs, direct `VideoStreamTheora` fallback logs, `is_playing()` state logs, and `finished` signal logging.
+- Did not modify battle logic, WorldMap logic, production cutin runtime selection, or production video assets.
+- FFmpeg was not available in the current local environment, so the requested Theora q7/q8 `.ogv` outputs were not generated in this pass.
+- Godot headless project and test-scene load verification passed; actual `.ogv` playback/color verification remains pending until output files are generated.
+
 ## v0.70-10A VideoStreamPlayer Debug Checkpoint Documentation
 - Added a documentation-only checkpoint for the current Yi Sunsin VideoStreamPlayer investigation after `v0.70-10`.
 - Recorded that the cutin layer, PNG portrait, hero/skill text, centered layout, 3-second exit, busy guard, fallback, and post-cutin unique-skill effect flow are intact.

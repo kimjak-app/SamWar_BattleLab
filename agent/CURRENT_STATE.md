@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-2 Theora Safe Encoding Test + Godot Color Playback Verification
+- Started the safe Theora test from the non-production source `assets/video_source_test/cutin_test_01.mp4`.
+- Confirmed existing production cutin video files remain separate under `assets/ui/cutin/videos/`; this pass did not overwrite or modify production cutin assets.
+- Added test output folder `assets/video_test/theora_safe/` with a README documenting expected `.ogv` outputs.
+- FFmpeg was not available in the current shell PATH and no repo-local `ffmpeg.exe` / `ffprobe.exe` was found, so the requested q7/q8 Theora `.ogv` files were not generated in this Codex pass.
+- Added independent Godot test scene `scenes/dev/video_theora_test.tscn` and script `scripts/video_theora_test.gd`.
+- The test scene uses `VideoStreamPlayer`, `expand = true`, autoload/play-on-ready behavior, an `OptionButton` to switch q7/q8/noaudio candidates, and logs stream path, file existence, ResourceLoader result, direct `VideoStreamTheora` fallback, `is_playing()`, and `finished`.
+- Verification passed: `git diff --check`, Godot headless project load, and Godot headless load of `scenes/dev/video_theora_test.tscn`.
+- Current Godot test result: the scene opens and reports the expected missing q7 output path without crashing. Actual `.ogv` import/resource load, non-black frame playback, and color correctness could not be verified because FFmpeg output files do not exist yet.
+- Recommendation is not final yet. Once FFmpeg is available, test q7 1280x first as the safer candidate, then q8 1920x for quality/performance comparison.
+- Remaining risk: Theora color corruption cannot be resolved until real q7/q8 outputs are generated and visually checked in Godot.
+
 ## v0.70-10A VideoStreamPlayer Debug Checkpoint Documentation
 - Completed a documentation-only checkpoint after `v0.70-10 VideoStreamTheora Direct Load Test` at commit `22c519f8654600229000e3f833a39867a23a769a`.
 - Current cutin system state: the Yi Sunsin specialty cutin layer displays normally, the PNG hero portrait and hero/skill text display normally, the centered cutin layout is applied, the 3-second cutin timeline still exits into the existing unique-skill effect flow, and the busy guard / PNG-text fallback structure remains intact.
