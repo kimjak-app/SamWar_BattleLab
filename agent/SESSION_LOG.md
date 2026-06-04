@@ -2,6 +2,13 @@
 
 ## 2026-06-04
 
+### v0.70-7c GDScript Position Parameter Shadow Warning Cleanup
+- Started from `599d8e2 Fix Kim Yu-sin tactical panel and move cell clickability`.
+- Found the remaining Node2D `position` shadow warning in `scripts/battle_web_import_test.gd` command-panel helper parameters.
+- Renamed `_clamp_floating_ally_command_panel_position(position, ...)` and `_score_floating_ally_command_panel_position(position, ...)` parameters to `panel_position`.
+- No behavior change intended; this only removes the base `Node2D.position` property shadow warning after the Kim Yu-sin tactical fix.
+- No cutin assets, q8 mappings, title PNGs, production videos, or WorldMap logic were changed.
+
 ### v0.70-7b Kim Yu-sin Tactical Cell Clickability Root-Cause Fix
 - Started from `19afc67 Replace Jeong Do Jeon q8 cutin video source`.
 - Confirmed the working tree only had regenerated untracked Theora-safe `.import` junk before editing; no cutin/video or WorldMap changes were pending.

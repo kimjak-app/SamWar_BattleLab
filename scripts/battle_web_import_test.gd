@@ -4813,20 +4813,20 @@ func _get_floating_ally_command_panel_candidate_positions(ui_anchor: Vector2, pa
 	]
 
 
-func _clamp_floating_ally_command_panel_position(position: Vector2, panel_size: Vector2, viewport_size: Vector2) -> Vector2:
+func _clamp_floating_ally_command_panel_position(panel_position: Vector2, panel_size: Vector2, viewport_size: Vector2) -> Vector2:
 	return Vector2(
-		clampf(position.x, FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, maxf(FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, viewport_size.x - panel_size.x - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN)),
-		clampf(position.y, FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, maxf(FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, viewport_size.y - panel_size.y - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN))
+		clampf(panel_position.x, FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, maxf(FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, viewport_size.x - panel_size.x - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN)),
+		clampf(panel_position.y, FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, maxf(FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, viewport_size.y - panel_size.y - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN))
 	)
 
 
-func _score_floating_ally_command_panel_position(position: Vector2, panel_size: Vector2, cell_rects: Array[Rect2], ui_anchor: Vector2, is_far_fallback: bool) -> float:
-	var panel_rect := Rect2(position, panel_size)
+func _score_floating_ally_command_panel_position(panel_position: Vector2, panel_size: Vector2, cell_rects: Array[Rect2], ui_anchor: Vector2, is_far_fallback: bool) -> float:
+	var panel_rect := Rect2(panel_position, panel_size)
 	panel_rect = panel_rect.grow(FLOATING_COMMAND_PANEL_GRID_AVOID_PADDING)
 	var score := 0.0
 	for cell_rect in cell_rects:
 		score += _get_rect_overlap_area(panel_rect, cell_rect)
-	var panel_center := position + (panel_size * 0.5)
+	var panel_center := panel_position + (panel_size * 0.5)
 	score += panel_center.distance_to(ui_anchor) * FLOATING_COMMAND_PANEL_DISTANCE_SCORE_WEIGHT
 	if is_far_fallback:
 		score += FLOATING_COMMAND_PANEL_FAR_FALLBACK_SCORE
