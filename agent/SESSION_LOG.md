@@ -2,6 +2,31 @@
 
 ## 2026-06-05
 
+### v0.70-13d Battle Movement Facing Direction Polish
+- Started from clean actual HEAD `0c91744 v0.70-13c Battle WorldMap Return Contract Prep`; user-requested baseline `f56903d v0.70-13b Battle Cinematic Lifecycle Guard Audit` was the immediate parent code baseline because v0.70-13c changed docs only.
+- Required git analysis:
+  - `git status --short`: clean before edits.
+  - Recent log: `0c91744`, `f56903d`, `6f46bf1`, `493c8e8`, `76e0421`, `d2dbefa`, `edac641`, `3800c99`, `6262206`, `740fea0`.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: HEAD modified only six agent docs for v0.70-13c.
+- Inspected `scripts/battle_web_import_test.gd` movement and facing paths:
+  - Ally movement: `play_basic_move_demo()` path tween loop and `_finish_basic_move_demo()`.
+  - Enemy movement: `_play_enemy_actor_path_move_then_act()` path tween loop and `_finish_enemy_actor_basic_move()`.
+  - Pathfinding: `_find_ally_move_path()` and `_find_enemy_path_to_destination_for_actor()` were read but not modified.
+  - Facing visuals: `_set_unit_facing()`, `_apply_unit_facing_visuals()`, `_apply_token_facing_visual()`, and facing-aware portrait offset helpers.
+- Updated segment movement visuals:
+  - Added horizontal-facing helper from `from_cell` / `to_cell`.
+  - Added segment-start movement-facing application for ally and enemy path movement.
+  - Vertical-only segments keep existing facing.
+  - Current group offset is reapplied after facing change to avoid a visual snap during tween movement.
+- Updated ally move finish so last movement-facing visual is preserved until the existing direction-selection UI applies the final chosen facing.
+- No pathfinding, move range, move duration, action flow, combat formula, WorldMap logic, intro guard, or result-video lifecycle changes were intended.
+- Verification target: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, docs string check, and post-commit clean status.
+- Manual F6 QA remains recommended for the visual cases in the task instruction.
+- Next candidate work:
+  1. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
+  2. `v0.70-15 WorldMap City Click UX Polish`
+  3. `v0.70-16 WorldMap Domestic UX Detail Polish`
+
 ### v0.70-13c Battle WorldMap Return Contract Prep
 - Started from clean baseline `f56903d v0.70-13b Battle Cinematic Lifecycle Guard Audit`.
 - Required git analysis:

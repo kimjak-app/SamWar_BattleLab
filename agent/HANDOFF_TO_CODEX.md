@@ -1,5 +1,26 @@
 # HANDOFF TO CODEX
 
+## v0.70-13d Battle Movement Facing Direction Polish Handoff
+- Baseline requested: `v0.70-13b Battle Cinematic Lifecycle Guard Audit` (`f56903d5c265e7443e68387e01886d28cda8cf5a`). Actual pre-edit HEAD was `0c91744 v0.70-13c Battle WorldMap Return Contract Prep`, a docs-only contract audit on top of that baseline.
+- Required git analysis was performed before editing:
+  - `git status --short`: clean.
+  - Recent log showed `0c91744` on top of `f56903d`, `6f46bf1`, `493c8e8`, and result-video commits.
+  - HEAD changed only agent docs for v0.70-13c; the target battle movement code still came from the v0.70-13b code baseline.
+- Runtime code touched only `scripts/battle_web_import_test.gd`.
+- Root cause: movement tween loops used path offsets correctly but did not update `unit_state.facing` per segment, and ally movement finish immediately called `_refresh_ally_facing_toward_enemy_if_not_manual()`, which could erase the last movement-facing visual before direction selection.
+- Implementation:
+  - Added `_get_horizontal_facing_from_step()` and `_apply_unit_movement_facing()`.
+  - Inserted a `tween_callback()` before each ally and enemy segment tween.
+  - Horizontal segments update `FACING_RIGHT` / `FACING_LEFT`; vertical-only segments keep the current facing.
+  - The helper reapplies existing facing visuals and reapplies the current movement offset so portrait placement and token flip stay synchronized without snapping the moving group.
+  - Ally move finish now calls `_apply_unit_facing_visuals()` instead of auto-facing toward the enemy.
+- Preserved scope: no pathfinding, move range, move timing, action/turn flow, attack/damage/result judgment, cutin, archer volley, gunner FX, BattleContext, WorldMap, scene, asset, result video, or battle intro lifecycle changes.
+- Manual F6 QA should confirm right move, left move, vertical-only move, vertical-then-left, vertical-then-right, lower vertical-then-horizontal turns, final direction selection, and token/portrait alignment.
+- Next candidate work:
+  1. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
+  2. `v0.70-15 WorldMap City Click UX Polish`
+  3. `v0.70-16 WorldMap Domestic UX Detail Polish`
+
 ## v0.70-13c Battle WorldMap Return Contract Prep Handoff
 - Baseline: `v0.70-13b Battle Cinematic Lifecycle Guard Audit` (`f56903d5c265e7443e68387e01886d28cda8cf5a` before this patch).
 - Required git analysis was performed before editing:

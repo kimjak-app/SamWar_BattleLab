@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-13d Battle Movement Facing Direction Polish
+- Built on the requested `v0.70-13b Battle Cinematic Lifecycle Guard Audit` code baseline; actual pre-edit HEAD was `0c91744 v0.70-13c Battle WorldMap Return Contract Prep`, which was docs-only.
+- Fixed movement visual facing so ally and enemy path movement update left/right facing at each horizontal segment start.
+- Added `_get_horizontal_facing_from_step()` and `_apply_unit_movement_facing()` in `scripts/battle_web_import_test.gd`.
+- Vertical-only movement preserves the current facing instead of forcing up/down or a new left/right state.
+- Reused existing token flip/texture logic through `_apply_unit_facing_visuals()` and `_apply_token_facing_visual()`.
+- Reapplied the current movement offset after segment-facing updates so the token and hero portrait placement stay aligned during path movement.
+- Preserved final post-move direction selection as the final facing owner; ally movement no longer immediately re-faces toward the enemy before direction selection.
+- Modified files: `scripts/battle_web_import_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`.
+- Did not change pathfinding, move range, move duration/speed, action/turn flow, combat calculations, attack/damage/result judgment, cutins, archer/gunner FX, BattleContext, WorldMap logic, scenes, assets, project settings, intro lifecycle, or result-video lifecycle.
+
 ## v0.70-13c Battle WorldMap Return Contract Prep
 - Built on `v0.70-13b Battle Cinematic Lifecycle Guard Audit` (`f56903d`).
 - Analyzed latest git history before edits: HEAD contained cinematic lifecycle guard changes in `scripts/battle_web_import_test.gd` plus agent docs; no WorldMap entry/return contract code changed in that baseline.

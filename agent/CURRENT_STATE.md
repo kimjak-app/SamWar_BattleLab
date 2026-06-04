@@ -1,5 +1,25 @@
 # CURRENT STATE
 
+## v0.70-13d Battle Movement Facing Direction Polish
+- Baseline requested: `v0.70-13b Battle Cinematic Lifecycle Guard Audit` at `f56903d5c265e7443e68387e01886d28cda8cf5a`; actual working HEAD before this patch was `0c91744 v0.70-13c Battle WorldMap Return Contract Prep`, which only added agent contract docs on top of that baseline.
+- Problem summary: movement paths were valid, but unit token facing could keep its previous left/right visual during a later horizontal segment, making the unit appear to backstep after vertical-then-horizontal movement.
+- Modified files: `scripts/battle_web_import_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`.
+- Segment facing correction:
+  - Ally and enemy path tween loops now run `_apply_unit_movement_facing()` immediately before each segment tween starts.
+  - `_get_horizontal_facing_from_step()` returns `right` when `to_cell.x > from_cell.x`, `left` when `to_cell.x < from_cell.x`, and otherwise preserves the fallback facing for pure vertical movement.
+  - Pure up/down movement does not force a new facing; the last facing remains until a horizontal segment appears.
+- Unit/hero visual sync:
+  - Existing token facing visuals remain the single flip/texture path through `_apply_unit_facing_visuals()` and `_apply_token_facing_visual()`.
+  - Hero `PortraitBadge` remains unflipped per Godot facing rule, but its facing-aware offset is recomputed through `_apply_group_offset_for_unit()` using the same unit facing.
+- Final facing:
+  - Ally movement finish now preserves the last movement-facing state instead of immediately re-facing toward the enemy.
+  - Existing post-move direction selection still overwrites the visual facing when the player or auto flow chooses a final direction.
+- Verification result: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load are the expected validation set; visible F6 QA is still recommended for movement feel.
+- Next candidate work:
+  1. `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`
+  2. `v0.70-15 WorldMap City Click UX Polish`
+  3. `v0.70-16 WorldMap Domestic UX Detail Polish`
+
 ## v0.70-13c Battle WorldMap Return Contract Prep
 - Baseline: `v0.70-13b Battle Cinematic Lifecycle Guard Audit` at HEAD `f56903d5c265e7443e68387e01886d28cda8cf5a`.
 - Git commit analysis summary: HEAD `f56903d` changed only `scripts/battle_web_import_test.gd` and five agent docs for cinematic lifecycle guards. No WorldMap script, scene, `project.godot`, battle calculation, or battle-result contract file changed in the baseline commit.

@@ -2901,6 +2901,7 @@ func play_basic_move_demo() -> void:
 	var previous_offset := Vector2.ZERO
 	var step_duration := 0.14
 	for path_index in range(1, move_path.size()):
+		tween.tween_callback(_apply_unit_movement_facing.bind(active_unit_state, move_path[path_index - 1], move_path[path_index], previous_offset))
 		var waypoint_world := battle_grid_controller.grid_to_world(move_path[path_index])
 		var next_offset := waypoint_world - start_unit_position
 		tween.tween_method(_apply_selected_ally_group_offset, previous_offset, next_offset, step_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -2917,7 +2918,7 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 		return
 	_sync_selected_ally_markers_to_position(target_unit_position, target_portrait_position)
 	active_unit_state.set_grid_cell(target_cell)
-	_refresh_ally_facing_toward_enemy_if_not_manual()
+	_apply_unit_facing_visuals()
 	_debug_print_combat_distance("MOVE_FINISH")
 	_update_cell_size_visual_guide(active_unit_state.grid_cell)
 	print("ALLY MOVED grid_cell: ", active_unit_state.grid_cell, " target_cell: ", target_cell)
@@ -7030,6 +7031,7 @@ func _play_enemy_actor_path_move_then_act(enemy_actor_state: BattleUnitState, mo
 	var previous_offset := Vector2.ZERO
 	var step_duration := 0.14
 	for path_index in range(1, move_path.size()):
+		tween.tween_callback(_apply_unit_movement_facing.bind(enemy_actor_state, move_path[path_index - 1], move_path[path_index], previous_offset))
 		var waypoint_world := battle_grid_controller.grid_to_world(move_path[path_index])
 		var next_offset := waypoint_world - start_unit_position
 		tween.tween_method(_apply_enemy_actor_group_offset.bind(enemy_actor_state), previous_offset, next_offset, step_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -14382,6 +14384,27 @@ func _set_unit_facing(unit_state: BattleUnitState, facing: String) -> void:
 	if unit_state == null:
 		return
 	unit_state.facing = _normalize_facing(facing)
+
+
+func _get_horizontal_facing_from_step(from_cell: Vector2i, to_cell: Vector2i, fallback_facing: String) -> String:
+	if to_cell.x > from_cell.x:
+		return FACING_RIGHT
+	if to_cell.x < from_cell.x:
+		return FACING_LEFT
+	return _normalize_facing(fallback_facing)
+
+
+func _apply_unit_movement_facing(unit_state: BattleUnitState, from_cell: Vector2i, to_cell: Vector2i, current_offset: Vector2 = Vector2.ZERO) -> void:
+	if unit_state == null:
+		return
+	if to_cell.x == from_cell.x:
+		return
+	var next_facing := _get_horizontal_facing_from_step(from_cell, to_cell, unit_state.facing)
+	if not _is_horizontal_facing(next_facing):
+		return
+	_set_unit_facing(unit_state, next_facing)
+	_apply_unit_facing_visuals()
+	_apply_group_offset_for_unit(unit_state, current_offset)
 
 
 func _face_unit_toward_cell(unit_state: BattleUnitState, target_cell: Vector2i) -> void:

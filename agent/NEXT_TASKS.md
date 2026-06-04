@@ -1,7 +1,13 @@
 # NEXT TASKS
 
 ## Next: v0.70-14 WorldMap Battle Entry Camera Zoom Handoff
-- `v0.70-13c Battle WorldMap Return Contract Prep` is the current contract audit baseline, built on `v0.70-13b Battle Cinematic Lifecycle Guard Audit` (`f56903d`).
+- `v0.70-13d Battle Movement Facing Direction Polish` is the current battle visual-facing polish, built on the `v0.70-13b Battle Cinematic Lifecycle Guard Audit` code baseline plus the docs-only `v0.70-13c` contract audit.
+- Movement-facing polish summary:
+  1. Pathfinding, move range, move speed, action flow, and combat formulas were not changed.
+  2. Ally and enemy path movement now applies horizontal facing at each segment start.
+  3. Pure vertical movement preserves the previous facing.
+  4. Unit token facing and hero portrait placement are refreshed together through the existing visual-slot group layout.
+  5. Post-move direction selection still owns the final player-selected facing.
 - Contract audit summary:
   1. WorldMap launches battle through `Engine` meta key `samwar_worldmap_battle_context` and `res://Battle_Fullscreen_Test.tscn`.
   2. Battle returns results through `Engine` meta key `samwar_worldmap_battle_result` and `res://WorldMap_Test.tscn`.
