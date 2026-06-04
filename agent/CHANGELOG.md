@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-7a Tactical Panel Distance Clamp + Move Cell Clickability Fix
+- Refined floating command panel placement so the panel remains attached to the selected unit when possible.
+- Added distance-from-selected-unit scoring and a large viewport-corner fallback penalty to the existing tactical-cell overlap score.
+- Added near diagonal panel candidate positions before screen-corner fallback positions.
+- Fixed valid move-cell click priority during ally turn by trying valid grid movement before enemy unit click hit testing.
+- Diagnosed the Xiahou Dun-adjacent click issue as likely enemy click-area preemption of a highlighted valid move cell, not a cutin or worldmap issue.
+- Preserved existing command-panel target-selection hiding, direct move-click action flow, basic attack, unique skill, strategy, defend, and wait behavior.
+- Did not change cutin assets, q8 Theora mappings, title PNGs, production cutin files, or WorldMap logic.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+
 ## v0.70-7 Tactical Command Panel Grid Overlap Avoidance
 - Added grid-overlap avoidance for `BattleUI/FloatingAllyCommandPanel`.
 - The floating command panel now scores several candidate positions around the active ally and safe viewport corners against visible tactical cell overlay rects.

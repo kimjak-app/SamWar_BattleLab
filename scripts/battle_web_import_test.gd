@@ -49,6 +49,9 @@ const RANGE_OVERLAY_CELL_DISTANCE_SCALE_STEP := 0.02
 const FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN := 12.0
 const FLOATING_COMMAND_PANEL_ANCHOR_GAP := 22.0
 const FLOATING_COMMAND_PANEL_GRID_AVOID_PADDING := 10.0
+const FLOATING_COMMAND_PANEL_DISTANCE_SCORE_WEIGHT := 3.0
+const FLOATING_COMMAND_PANEL_FAR_FALLBACK_SCORE := 16000.0
+const FLOATING_COMMAND_PANEL_NEAR_CANDIDATE_COUNT := 8
 const SHOW_CELL_SIZE_VISUAL_GUIDE := false
 const SHOW_LOGICAL_GRID_14X8_GUIDE := false
 const MELEE_ADJACENT_QA_MODE := false
@@ -2025,6 +2028,10 @@ func _input(event: InputEvent) -> void:
 	var clicked_ally_unit := _get_clicked_ally_unit_at_position(mouse_world_pos)
 	if clicked_ally_unit != null:
 		_select_ally_unit(clicked_ally_unit, true, true, false)
+		get_viewport().set_input_as_handled()
+		return
+
+	if _try_handle_valid_move_cell_click(mouse_world_pos):
 		get_viewport().set_input_as_handled()
 		return
 
@@ -4780,12 +4787,11 @@ func _choose_floating_ally_command_panel_position(ui_anchor: Vector2, panel_size
 	var best_score := INF
 	for index in range(candidates.size()):
 		var clamped_position := _clamp_floating_ally_command_panel_position(candidates[index], panel_size, viewport_size)
-		var score := _score_floating_ally_command_panel_position(clamped_position, panel_size, cell_rects) + (float(index) * 0.01)
+		var is_far_fallback := index >= FLOATING_COMMAND_PANEL_NEAR_CANDIDATE_COUNT
+		var score := _score_floating_ally_command_panel_position(clamped_position, panel_size, cell_rects, ui_anchor, is_far_fallback) + (float(index) * 0.01)
 		if score < best_score:
 			best_score = score
 			best_position = clamped_position
-			if is_zero_approx(score):
-				break
 	return best_position
 
 
@@ -4796,6 +4802,10 @@ func _get_floating_ally_command_panel_candidate_positions(ui_anchor: Vector2, pa
 		ui_anchor + Vector2(-panel_size.x - gap, -panel_size.y * 0.5),
 		ui_anchor + Vector2(-panel_size.x * 0.5, -panel_size.y - gap),
 		ui_anchor + Vector2(-panel_size.x * 0.5, gap),
+		ui_anchor + Vector2(gap, gap),
+		ui_anchor + Vector2(-panel_size.x - gap, gap),
+		ui_anchor + Vector2(gap, -panel_size.y - gap),
+		ui_anchor + Vector2(-panel_size.x - gap, -panel_size.y - gap),
 		Vector2(viewport_size.x - panel_size.x - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, viewport_size.y - panel_size.y - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN),
 		Vector2(FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, viewport_size.y - panel_size.y - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN),
 		Vector2(viewport_size.x - panel_size.x - FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN, FLOATING_COMMAND_PANEL_VIEWPORT_MARGIN),
@@ -4810,12 +4820,16 @@ func _clamp_floating_ally_command_panel_position(position: Vector2, panel_size: 
 	)
 
 
-func _score_floating_ally_command_panel_position(position: Vector2, panel_size: Vector2, cell_rects: Array[Rect2]) -> float:
+func _score_floating_ally_command_panel_position(position: Vector2, panel_size: Vector2, cell_rects: Array[Rect2], ui_anchor: Vector2, is_far_fallback: bool) -> float:
 	var panel_rect := Rect2(position, panel_size)
 	panel_rect = panel_rect.grow(FLOATING_COMMAND_PANEL_GRID_AVOID_PADDING)
 	var score := 0.0
 	for cell_rect in cell_rects:
 		score += _get_rect_overlap_area(panel_rect, cell_rect)
+	var panel_center := position + (panel_size * 0.5)
+	score += panel_center.distance_to(ui_anchor) * FLOATING_COMMAND_PANEL_DISTANCE_SCORE_WEIGHT
+	if is_far_fallback:
+		score += FLOATING_COMMAND_PANEL_FAR_FALLBACK_SCORE
 	return score
 
 
@@ -4987,6 +5001,34 @@ func _is_move_range_overlay_visible() -> bool:
 		if overlay_cell != null and overlay_cell.visible:
 			return true
 	return false
+
+
+func _try_handle_valid_move_cell_click(mouse_world_pos: Vector2) -> bool:
+	if current_phase != PHASE_ALLY_TURN:
+		return false
+	if active_unit_state == null or battle_grid_controller == null:
+		return false
+	var target_cell := battle_grid_controller.world_to_grid(mouse_world_pos)
+	if not battle_grid_controller.is_in_bounds(target_cell):
+		return false
+	if not is_valid_move_target(target_cell):
+		return false
+
+	var origin_cell := get_active_move_origin_cell()
+	var distance := battle_grid_controller.get_distance(origin_cell, target_cell)
+	var move_range := get_active_move_range()
+	var is_occupied := is_cell_occupied(target_cell)
+	print("Move target selected: %s occupied=%s VALID=true distance=%d range=%d" % [
+		_format_cell(target_cell),
+		str(is_occupied),
+		distance,
+		move_range,
+	])
+	if _try_direct_move_to_cell(target_cell):
+		return true
+
+	set_move_target_cell(target_cell)
+	return true
 
 
 func _try_direct_move_to_cell(target_cell: Vector2i) -> bool:

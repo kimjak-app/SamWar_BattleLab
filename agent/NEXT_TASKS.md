@@ -1,5 +1,17 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Tactical Panel Distance and Move Cell Clickability
+- `v0.70-7a Tactical Panel Distance Clamp + Move Cell Clickability Fix` tightens the previous overlap avoidance so the floating panel prefers nearby positions and only uses screen-corner fallbacks as a last resort.
+- Valid highlighted move-cell clicks now run before enemy unit hit testing, which targets the reported cell below/near Xiahou Dun being visually reachable but not clickable.
+- Manual visual QA should confirm:
+  1. Select Kim Yu-sin.
+  2. Confirm the command panel no longer feels detached in the lower-right corner unless every nearby position is clearly worse.
+  3. Confirm the highlighted move cell below/near Xiahou Dun can be clicked if it is visibly reachable.
+  4. Confirm unreachable/blocked cells are not shown as move targets.
+  5. Confirm `이동`, `기본공격`, `책략`, `고유특기`, `방어`, and `대기` still work normally.
+  6. Confirm battle flow remains stable after movement and target selection.
+- If accepted, this becomes the tactical command panel placement/input baseline before considering draggable panel behavior.
+
 ## Next: F6 Visual QA for Tactical Command Panel Grid Overlap
 - `v0.70-7 Tactical Command Panel Grid Overlap Avoidance` adds automatic placement avoidance for `FloatingAllyCommandPanel` and hides the panel during explicit target-selection phases.
 - Manual visual QA should confirm:

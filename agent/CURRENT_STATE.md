@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-7a Tactical Panel Distance Clamp + Move Cell Clickability Fix
+- Built on `694065a Prevent battle command panel from blocking tactical cells`.
+- Fixed the Kim Yu-sin visible-QA issue where the floating command panel could jump to a detached lower-right safe corner after overlap avoidance.
+- `scripts/battle_web_import_test.gd` now scores command-panel candidates by tactical-cell overlap plus distance from the selected unit, and applies a large penalty to viewport-corner fallback positions.
+- Added near diagonal panel candidates so the panel has more attached positions before considering screen-corner fallbacks.
+- Diagnosed the Xiahou Dun-adjacent move-cell click issue as an input priority problem: a valid highlighted move cell could be preempted by an enemy unit click area before the grid move target handler ran.
+- Added a valid move-cell click path before enemy hit testing during ally turn, so visibly reachable cells remain clickable even if an enemy click area overlaps the same screen region.
+- Existing command behavior is preserved: basic attack, unique skill, strategy, defend, wait, target-selection hiding, and direct move-click still use the same action paths.
+- No cutin video assets, q8 Theora mappings, title PNGs, production cutin files, or WorldMap logic were changed.
+- Verification passed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Remaining QA: visible battle QA should select Kim Yu-sin and confirm the panel stays near the unit; then click the highlighted move cell below/near Xiahou Dun and confirm it moves if highlighted as reachable.
+
 ## v0.70-7 Tactical Command Panel Grid Overlap Avoidance
 - Identified battle UX bug: `BattleUI/FloatingAllyCommandPanel` could sit over visible move/attack/target cells and consume mouse input before the grid click reached tactical selection.
 - Added automatic floating command panel placement scoring in `scripts/battle_web_import_test.gd`.

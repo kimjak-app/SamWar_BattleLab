@@ -2,6 +2,20 @@
 
 ## 2026-06-04
 
+### v0.70-7a Tactical Panel Distance Clamp + Move Cell Clickability Fix
+- Started from clean repo state at `694065a Prevent battle command panel from blocking tactical cells`.
+- Re-read the workflow/Godot/current-state docs and inspected the current v0.70-7 floating command panel patch.
+- Confirmed the previous panel scorer used tactical-cell overlap only, so any zero-overlap screen-corner fallback could win without considering distance from the selected unit.
+- Added command panel distance scoring, far fallback penalty, and additional near diagonal candidates to keep the panel close to the selected unit unless nearby positions are substantially worse.
+- Investigated the visible move cell below/near Xiahou Dun and identified a likely input-priority cause: enemy unit hit testing ran before valid move-cell handling in ally turn.
+- Added `_try_handle_valid_move_cell_click()` before enemy hit testing so a visibly valid movement target can be selected even if an enemy click area overlaps the same screen region.
+- Preserved target-selection panel hiding, command buttons, direct move-click, attack target selection for actual enemy cells, and battle continuation behavior.
+- Verification passed: `git diff --check`.
+- Verification passed: Godot headless project load.
+- Verification passed: Godot headless load of `Battle_Fullscreen_Test.tscn`.
+- No cutin assets, q8 mappings, title PNGs, production video files, or WorldMap logic were changed.
+- Remaining manual QA: select Kim Yu-sin and confirm the panel is not detached; click the highlighted move cell below/near Xiahou Dun and confirm it is clickable if highlighted.
+
 ### v0.70-7 Tactical Command Panel Grid Overlap Avoidance
 - Started from `ce4d7c7 Add Kwon Yul and Jeong Do Jeon q8 Theora cutin dry runs`.
 - Cleared only regenerated untracked `assets/video_test/theora_safe/*.import` junk before editing; no production or test `.ogv` files were removed.

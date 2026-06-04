@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-7a Tactical Panel Distance + Move Cell Clickability Handoff
+- Current task refines the v0.70-7 floating command panel overlap fix in `scripts/battle_web_import_test.gd`.
+- Command panel placement now keeps the selected unit as the spatial anchor:
+  - overlap against visible tactical cells is still the primary blocker check
+  - distance from the selected unit is now part of the score
+  - viewport-corner fallback candidates carry a large penalty
+  - near diagonal candidates were added before fallback corners
+- This should prevent the Kim Yu-sin case where the panel avoided cells by jumping too far to the lower-right and feeling detached from the action context.
+- Move-cell clickability diagnosis: the highlighted cell below/near Xiahou Dun was likely a valid move target whose click was intercepted by the enemy unit click area because enemy hit testing ran before grid move-target handling.
+- Ally-turn input now tries a valid move-cell click before enemy hit testing. Occupied/enemy cells remain invalid move targets, so normal enemy attack selection still works when clicking actual enemy targets.
+- Existing target-selection panel hiding from v0.70-7 remains intact.
+- No cutin OGV assets, title PNGs, q8 mappings, or WorldMap logic were modified.
+- Verification completed: `git diff --check`, Godot headless project load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Next visible QA should check Kim Yu-sin panel attachment, the Xiahou Dun-adjacent highlighted move cell, command button behavior, and battle-flow stability.
+
 ## v0.70-7 Tactical Command Panel Grid Overlap Handoff
 - Current task fixed floating command panel click blocking in `scripts/battle_web_import_test.gd`.
 - `FloatingAllyCommandPanel` now places itself with candidate scoring instead of a single fixed offset:
