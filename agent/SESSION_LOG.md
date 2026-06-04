@@ -1999,6 +1999,14 @@
 ### v0.67t Bottom Command Button PNG Apply QA
 - Confirmed all 6 bottom command PNG files exist.
 - Confirmed all 6 PNG files are `512x256` with `Format32bppArgb`.
+### v0.70-12a Battle Result Video Panel Size Polish
+- Adjusted `VideoStreamPlayer_Result` so victory/defeat result videos no longer render full-screen.
+- Added result-video panel sizing helpers in `scripts/battle_web_import_test.gd`; video is centered in a 16:9 panel while the dim backdrop remains full-screen.
+- Kept the existing video-before-toast flow, fallback timer/load-failure path, and existing victory/defeat toast behavior.
+- Included Godot-generated UID metadata for the two result OGV resources.
+- No result payload/worldmap flow, special-skill cutin mapping, archer volley, or gunner shot behavior was intentionally changed.
+- Manual visual QA remains: win/loss result video panel size, aspect ratio, video -> toast order, and result return flow.
+
 - Applied bottom command PNG styles to `AutoBattleButton`, `EndTurnButton`, and `RetreatButton`.
 - Preserved existing `Button` nodes and existing handlers.
 - Preserved `RetreatButton` as a disabled placeholder.

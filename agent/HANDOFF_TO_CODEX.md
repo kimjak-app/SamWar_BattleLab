@@ -1623,6 +1623,15 @@ Do not modify casually:
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix4`: move `CityMarker_Hanseong` root and confirm marker body, name label, and click area move together; check all other city marker roots; Ctrl+S persistence; marker click info label; camera pan/zoom/clamp; and battle scene stability.
 - Codex Godot headless verification for `v0.68b-2-hotfix4` was blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output.
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix3`: select/move the four Tile nodes in the 2D editor, Ctrl+S, confirm F6 preserves the saved layout, camera clamp follows the current tile union rect, all 13 city markers remain present, and the battle scene is not broken.
+## v0.70-12a Handoff
+- Battle result videos now use a centered cinematic panel instead of full-screen playback.
+- Implementation is in `scripts/battle_web_import_test.gd`: `_get_battle_result_video_panel_rect()` computes a centered 16:9 rect and `_prepare_battle_result_video_panel()` applies it before playback.
+- `Battle_Fullscreen_Test.tscn` has the result video node default rect set to the same panel footprint; runtime still recalculates from viewport size.
+- Victory/defeat result flow remains: result video -> existing result toast -> existing return/result handling.
+- Result video load failure and fallback timer still route to the existing toast.
+- No cutin mappings/assets, archer/gunner FX, battle result payload, or worldmap logic should be considered changed.
+- Manual visual QA: confirm victory and defeat videos appear as a central panel, keep readable aspect, do not duplicate toasts, and preserve result/worldmap flow.
+
 - Codex Godot headless verification for `v0.68b-2-hotfix3` was blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output.
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix2`: confirm 4 tiles attach as one map in the 2D editor, no gray band appears between rows, no left/right seam gap appears, all 13 city markers sit on the map, debug rects do not block placement, camera pan/zoom/clamp remains normal, UI labels stay fixed, and the battle scene is not broken.
 - Codex Godot headless verification for `v0.68b-2-hotfix2` was blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output.

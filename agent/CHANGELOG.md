@@ -1565,6 +1565,13 @@
 - Button text is cleared only when image style apply succeeds, so text overlap is avoided without breaking fallback behavior.
 
 ## v0.67s Bottom Command Button Actual Asset Integration
+## v0.70-12a Battle Result Video Panel Size Polish
+- Changed battle result video playback from full-viewport video to a centered cinematic panel.
+- Added viewport-ratio panel sizing constants for result videos and kept the dim backdrop full-screen.
+- Preserved the existing result sequence: video playback, then the current victory/defeat toast.
+- Preserved load-failure fallback to the existing result toast.
+- No battle result payload, worldmap logic, special-skill cutin mappings, archer volley FX, or gunner shot FX were changed.
+
 - Added safe bottom-command art helpers for real optional PNG loading.
 - Kept `Button` nodes and existing handlers unchanged.
 - Missing PNG files remain a safe fallback path with no intended behavior change.

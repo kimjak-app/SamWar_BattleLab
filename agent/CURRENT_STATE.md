@@ -1732,6 +1732,14 @@ Explicitly deferred systems:
 - Auto defense resolution.
 - Save/load persistence expansion for resolved city ownership/troop state.
 - Resource loss from battle.
+## v0.70-12a Battle Result Video Panel Size Polish
+- Battle result videos now display as a centered cinematic panel instead of filling the entire viewport.
+- The result video player keeps a full-screen dim backdrop, but the video itself is constrained to a centered 16:9 panel sized from the viewport.
+- Existing flow is preserved: result video -> existing victory/defeat toast -> existing result/worldmap return handling.
+- Result video load failure fallback still shows the existing toast immediately.
+- No battle result payload, worldmap logic, special-skill cutin mapping, archer FX, or gunner FX changes are intended.
+- Manual visual QA should confirm victory and defeat result videos are no longer full-screen, keep their aspect ratio, and still hand off to the existing toast/result flow.
+
 - Detailed casualty calculation beyond the current minimal troop apply.
 - Hero capture and hero city movement.
 - Enemy strategic AI and enemy multi-action turn.

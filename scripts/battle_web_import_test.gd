@@ -358,6 +358,10 @@ const RESULT_TOAST_HOLD_EXTRA_SECONDS := 2.0
 const BATTLE_RESULT_VICTORY_VIDEO_PATH := "res://assets/ui/result/videos/victory_result_theora_q8_1920x.ogv"
 const BATTLE_RESULT_DEFEAT_VIDEO_PATH := "res://assets/ui/result/videos/defeat_result_theora_q8_1920x.ogv"
 const BATTLE_RESULT_VIDEO_FALLBACK_DURATION_SEC := 4.35
+const BATTLE_RESULT_VIDEO_PANEL_WIDTH_RATIO := 0.88
+const BATTLE_RESULT_VIDEO_PANEL_HEIGHT_RATIO := 9.0 / 16.0
+const BATTLE_RESULT_VIDEO_PANEL_MAX_HEIGHT_RATIO := 0.60
+const BATTLE_RESULT_VIDEO_PANEL_DIM_ALPHA := 0.64
 const FACING_LEFT := "left"
 const FACING_RIGHT := "right"
 const FACING_UP := "up"
@@ -1309,6 +1313,7 @@ var deployment_marker_base_world_positions_by_slot_id: Dictionary = {}
 @onready var cutin_name_label: Label = $CutinOverlay/CutinNameLabel
 @onready var cutin_quote_label: Label = $CutinOverlay/CutinQuoteLabel
 @onready var result_overlay: CanvasLayer = $ResultOverlay
+@onready var result_backdrop: ColorRect = get_node_or_null("ResultOverlay/ResultBackdrop") as ColorRect
 @onready var battle_result_video_player: VideoStreamPlayer = get_node_or_null("ResultOverlay/VideoStreamPlayer_Result") as VideoStreamPlayer
 @onready var result_image: TextureRect = $ResultOverlay/ResultImage
 @onready var result_title_label: Label = $ResultOverlay/ResultTitleLabel
@@ -2191,6 +2196,34 @@ func _configure_battle_result_video() -> void:
 		battle_result_video_player.finished.connect(_on_battle_result_video_finished)
 
 
+func _get_battle_result_video_panel_rect(viewport_size: Vector2) -> Rect2:
+	var viewport_margin := 24.0
+	var max_width = max(0.0, viewport_size.x - viewport_margin * 2.0)
+	var max_height = max(0.0, viewport_size.y * BATTLE_RESULT_VIDEO_PANEL_MAX_HEIGHT_RATIO)
+	var panel_width = min(viewport_size.x * BATTLE_RESULT_VIDEO_PANEL_WIDTH_RATIO, max_width)
+	var panel_height = panel_width * BATTLE_RESULT_VIDEO_PANEL_HEIGHT_RATIO
+	if panel_height > max_height:
+		panel_height = max_height
+		panel_width = panel_height / BATTLE_RESULT_VIDEO_PANEL_HEIGHT_RATIO
+	var panel_size := Vector2(panel_width, panel_height)
+	var panel_position := (viewport_size - panel_size) * 0.5
+	return Rect2(panel_position, panel_size)
+
+
+func _prepare_battle_result_video_panel(panel_rect: Rect2) -> void:
+	if result_backdrop != null:
+		result_backdrop.visible = true
+		result_backdrop.position = Vector2.ZERO
+		result_backdrop.size = get_viewport_rect().size
+		result_backdrop.color = Color(0.0196078, 0.0392157, 0.0588235, BATTLE_RESULT_VIDEO_PANEL_DIM_ALPHA)
+	if battle_result_video_player == null:
+		return
+	battle_result_video_player.position = panel_rect.position
+	battle_result_video_player.size = panel_rect.size
+	battle_result_video_player.expand = true
+	battle_result_video_player.visible = true
+
+
 func _get_battle_result_video_path(battle_result_state: String) -> String:
 	if battle_result_state == "victory":
 		return BATTLE_RESULT_VICTORY_VIDEO_PATH
@@ -2257,9 +2290,8 @@ func _play_battle_result_video_before_toast(battle_result_state: String) -> bool
 		result_image.visible = false
 	if result_title_label != null:
 		result_title_label.visible = false
-	battle_result_video_player.position = Vector2.ZERO
-	battle_result_video_player.size = get_viewport_rect().size
-	battle_result_video_player.visible = true
+	var video_panel_rect := _get_battle_result_video_panel_rect(get_viewport_rect().size)
+	_prepare_battle_result_video_panel(video_panel_rect)
 	battle_result_video_player.play()
 	get_tree().create_timer(BATTLE_RESULT_VIDEO_FALLBACK_DURATION_SEC).timeout.connect(
 		_on_battle_result_video_fallback_timeout.bind(battle_result_state)

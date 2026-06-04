@@ -1499,6 +1499,13 @@ Goal:
 - Added large red unique skill damage numbers and short camera shake.
 - Enemy / auto unique skill use is deferred to a future pass.
 - `v0.67w Battle Screen Basic UX Stable Lock` is complete.
+## v0.70-12a Battle Result Video Panel Size Polish
+- Completed: victory/defeat result videos were resized from full-screen playback to a centered cinematic panel.
+- Preserve this order in QA: result video first, then the existing victory/defeat toast.
+- Manual QA: confirm both victory and defeat videos appear as a central wide panel, are not distorted, and still return to the existing result/worldmap flow.
+- No cutin, archer/gunner FX, or worldmap task was changed by this polish pass.
+- Next planned task remains `v0.70-13 Battle Intro Camera Zoom Patch`.
+
 - Locked the current MVP battle-screen UX around:
   - ally formation guide `5` cards
   - enemy formation guide `5` cards
