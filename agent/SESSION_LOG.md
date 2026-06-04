@@ -2,14 +2,15 @@
 
 ## 2026-06-04
 
-### v0.70-9 Archer Volley Multi-Arrow Impact Visual
-- Started from clean repo state at `c763428 Mirror Yi Sun-sin and Eulji Mundeok cutin layouts`.
-- Located normal/basic attack visual hooks in ally `play_basic_attack_demo()` and enemy `_play_enemy_actor_basic_attack_from_current_cell()`.
-- Added `_is_archer_unit()` using existing unit type, visual key inference, and hero default visual key fallback.
-- Added a runtime `Line2D` arrow volley with `_play_arrow_projectile_effect()`, `_spawn_arrow_projectile()`, and `_spawn_arrow_impact_pin()`.
-- Added `ARROW_VOLLEY_VISUAL_COUNT` and `ARROW_IMPACT_POP_BEGIN` plus stagger/travel/scatter/linger constants.
-- Kept the effect visual-only: no damage, hit, troop, turn, unique-skill, cutin, q8 mapping, or WorldMap logic changes were intended.
-- Remaining manual QA: verify Yi Sunsin / Kim Yu-sin / Liu Bei basic attacks show the small staggered arrow impact, and non-archers/special skills do not.
+### v0.70-9b Archer Volley Readability Tuning
+- Started from clean repo state at `da200ac Add archer volley projectile impact visual`.
+- Tuned the existing runtime `Line2D` arrow volley for better readability after visible QA feedback.
+- Increased `ARROW_VOLLEY_VISUAL_COUNT` from 5 to 9.
+- Slowed travel timing from `0.18`-`0.32` seconds to `0.34`-`0.50` seconds.
+- Widened launch stagger from `0.03`-`0.08` seconds to `0.05`-`0.12` seconds.
+- Slightly lengthened and brightened the arrow stroke so the arrows read more like arrows and less like bullet tracers.
+- Kept the effect visual-only and archer-basic-attack-only: no damage, hit, troop, turn, unique-skill, cutin, q8 mapping, or WorldMap logic changes were intended.
+- Remaining manual QA: verify Yi Sunsin / Kim Yu-sin / Liu Bei basic attacks show a heavier slower arrow stream, and non-archers/special skills do not.
 
 ### v0.70-8b Yi Sun-sin + Eulji Mundeok Mirrored Cutin Layouts
 - Started from clean repo state at `e69dd46 을지문덕,김유신까지 컷인 완성`.

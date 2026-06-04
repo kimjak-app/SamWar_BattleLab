@@ -1,18 +1,20 @@
 # NEXT TASKS
 
-## Next: F6 Visual QA for Archer Volley Basic-Attack FX
-- `v0.70-9` adds a visual-only multi-arrow volley for archer normal/basic attacks.
+## Next: F6 Visual QA for Archer Volley Readability
+- `v0.70-9b` tunes the visual-only multi-arrow volley for archer normal/basic attacks.
 - Current archer units expected to show the volley:
   1. Yi Sunsin / `yi_sunsin` / `korea_archer`.
   2. Kim Yu-sin / `gim_yusin` / `korea_archer`.
   3. Liu Bei / `liu_bei` / `china_archer`.
 - The effect uses runtime `Line2D` arrows and impact pins only; no arrow asset file was added.
+- The volley now uses 9 arrows, slower `0.34`-`0.50` second travel, and wider `0.05`-`0.12` second launch stagger.
 - Manual visual QA should confirm:
-  1. Yi Sunsin, Kim Yu-sin, and Liu Bei basic attacks fire several small arrows with slight stagger.
-  2. Arrows land near the target with small scattered impact pins and do not cover the unit too heavily.
-  3. Jeong Do Jeon, Kwon Yul, Eulji Mundeok, Guan Yu, Zhang Fei, Xiahou Dun, and Zhuge Liang basic attacks do not show arrow volley.
-  4. Strategy and unique/special skills, including Hakikjin cannon AOE, Samguk Tongil charge, and Salsu Daechop, do not show arrow volley.
-  5. Damage, hit results, turn progression, and WorldMap return behavior remain unchanged.
+  1. Yi Sunsin, Kim Yu-sin, and Liu Bei basic attacks fire a clearly heavier stream of small arrows.
+  2. Arrows are slower and readable in flight, distinct from future gunner-shot speed.
+  3. Arrows land near the target with small scattered impact pins and do not cover the unit too heavily.
+  4. Jeong Do Jeon, Kwon Yul, Eulji Mundeok, Guan Yu, Zhang Fei, Xiahou Dun, and Zhuge Liang basic attacks do not show arrow volley.
+  5. Strategy and unique/special skills, including Hakikjin cannon AOE, Samguk Tongil charge, and Salsu Daechop, do not show arrow volley.
+  6. Damage, hit results, turn progression, and WorldMap return behavior remain unchanged.
 
 ## Next: F6 Visual QA for Mirrored Yi Sunsin / Eulji Mundeok Cutin Layouts
 - `v0.70-8b` mirrors only Yi Sunsin and Eulji Mundeok specialty cutin layouts.

@@ -1,15 +1,17 @@
 # HANDOFF TO CODEX
 
-## v0.70-9 Archer Volley Multi-Arrow Impact Visual Handoff
-- Current patch is battle visual FX only in `scripts/battle_web_import_test.gd`.
+## v0.70-9b Archer Volley Readability Tuning Handoff
+- Current patch is battle visual FX tuning only in `scripts/battle_web_import_test.gd`.
 - Archer normal/basic attacks now call `_play_arrow_projectile_effect()` from the ally and enemy basic-attack animation paths only.
 - `_is_archer_unit()` resolves archer eligibility through normalized `unit_type`, visual key inference, and hero default visual key fallback.
 - Runtime arrows use `Line2D`; no PNG/SVG/sprite arrow asset was created.
 - Added constants including `ARROW_VOLLEY_VISUAL_COUNT` and `ARROW_IMPACT_POP_BEGIN`.
 - Added `_spawn_arrow_projectile()` for staggered source-to-target travel and `_spawn_arrow_impact_pin()` for short pinned impact feedback.
+- Readability tuning changed volley density from 5 to 9 arrows, widened launch stagger to `0.05`-`0.12` seconds, and slowed travel to `0.34`-`0.50` seconds.
+- Projectile line length/contrast were slightly increased while keeping arrows small enough not to cover units.
 - Current archer units expected to trigger the volley are `yi_sunsin`, `gim_yusin`, and `liu_bei`.
 - Unique/special skills, strategy, cutin playback, q8 Theora mappings/assets, damage/hit/troop/turn logic, and WorldMap flow were not changed.
-- Next visible QA should check archer basic attacks for staggered "pop-pop-pop" arrow impact, and spot-check non-archer basic attacks plus unique skills for absence of the arrow volley.
+- Next visible QA should check archer basic attacks for a heavier, slower, readable arrow stream with staggered impact pins, and spot-check non-archer basic attacks plus unique skills for absence of the arrow volley.
 
 ## v0.70-8b Yi Sunsin + Eulji Mundeok Mirrored Cutin Layout Handoff
 - Current patch is layout-direction only in `scripts/battle_web_import_test.gd`.
