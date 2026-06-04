@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-5b Yi Sun-sin Dominance + Hakikjin Pop-and-Burst Tuning
+- Built on `09e92ba Integrate Hakikjin title image and tune Yi Sun-sin cutin impact`.
+- Increased Yi Sunsin portrait dominance again: the foreground portrait now uses a larger screen-relative layout and is pushed farther left with more panel overflow.
+- Hakikjin title image remains `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png`.
+- Changed Hakikjin title motion from a settled/static hold into a short impact burst: appear, expand strongly, then fade out while continuing to enlarge.
+- The target feeling is now `나타난다 -> 확 커진다 -> 사라진다`, so the title reads as a strike-impact skill logo rather than a persistent label.
+- q8 Theora playback remains first in the Yi Sunsin video candidate chain, and the existing fallback chain remains preserved.
+- No Kwon Yul / Jeong Do Jeon mapping, production cutin asset, battle logic, or WorldMap logic was changed.
+- Verification passed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader verification for Hakikjin PNG and q8 OGV.
+- Remaining QA: visible F6/manual battle QA should confirm Yi Sunsin is dominant enough, Hakikjin appears/expands/disappears dynamically, the composition feels more forceful, and battle-flow return still works.
+
 ## v0.70-5a Yi Sun-sin Hero Scale + Skill Title Image Impact Tuning
 - Built on `c810da9` plus the tracked title asset upload at `6264171`.
 - Integrated the transparent PNG skill-title image `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png` for Hakikjin and added its Godot import metadata `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png.import`.

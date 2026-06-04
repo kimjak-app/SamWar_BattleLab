@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-5b Yi Sun-sin Dominance + Hakikjin Burst Handoff
+- Current Yi Sunsin cutin presentation has been tuned for stronger dominance and a more dynamic Hakikjin title burst.
+- Yi Sunsin portrait is intentionally very large: `viewport_size.x * 0.86`, `viewport_size.y * 1.42`, with left overflow at `size.x * 0.28`.
+- Hero entry starts farther off-left with `SPECIALTY_SKILL_CUTIN_HERO_ENTER_OFFSET := Vector2(-390.0, 16.0)` and keeps the whoosh/settle behavior.
+- Hakikjin title image still uses `res://assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png`.
+- Hakikjin title animation now appears quickly, scales up to `1.26`, then fades out while expanding to `1.34`; it should no longer sit statically.
+- q8 Theora remains the first Yi Sunsin video candidate:
+  `res://assets/ui/cutin/videos/yi_sun_sin_cutin_bg_theora_q8_1920x.ogv`.
+- Existing fallbacks remain preserved after q8: 540p Theora, VP8 WebM, legacy OGV/WebM, and MP4.
+- Kwon Yul / Jeong Do Jeon mappings were not changed.
+- Verification completed: `git diff --check`, Godot headless project load, `Battle_Fullscreen_Test.tscn` headless load, and direct ResourceLoader checks for Hakikjin PNG and q8 OGV.
+- Next visible QA should check only: Yi Sunsin dominance, Hakikjin appears/expands/disappears, composition dynamism, and battle-flow return.
+
 ## v0.70-5a Yi Sun-sin Hero Scale + Skill Title Image Impact Handoff
 - Current Yi Sunsin presentation now uses image-based Hakikjin title art: `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png`.
 - Required import metadata is present at `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png.import`.

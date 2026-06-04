@@ -1,5 +1,16 @@
 # NEXT TASKS
 
+## Next: F6 Visual QA for Yi Sun-sin Dominance and Hakikjin Burst
+- `v0.70-5b Yi Sun-sin Dominance + Hakikjin Pop-and-Burst Tuning` further enlarges and left-shifts the Yi Sunsin portrait.
+- Hakikjin title image now performs a short burst: appears, expands strongly, and fades/disappears instead of sitting statically.
+- Manual visual QA should confirm:
+  1. Yi Sunsin dominates the left side enough.
+  2. Hakikjin appears, expands, and disappears clearly.
+  3. The cutin feels more dynamic and forceful.
+  4. q8 Theora playback remains clean.
+  5. Battle-flow return still works.
+- If accepted, this becomes the current Yi Sunsin hero-cutin presentation baseline.
+
 ## Next: F6 Visual QA for Hakikjin Title Image Cutin Impact
 - `v0.70-5a Yi Sun-sin Hero Scale + Skill Title Image Impact Tuning` removes the `이순신` name text and replaces the plain `학익진!` label with `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png`.
 - The Yi Sunsin portrait is now much larger, pushed left/center-left, and allowed to overflow the cutin panel for a stronger hero-splash silhouette.

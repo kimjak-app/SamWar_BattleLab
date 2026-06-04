@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.70-5b Yi Sun-sin Dominance + Hakikjin Pop-and-Burst Tuning
+- Increased Yi Sunsin portrait dominance beyond the v0.70-5a layout by enlarging the screen-relative portrait size and pushing it farther left.
+- Kept the Hakikjin title PNG asset path unchanged.
+- Reworked Hakikjin title animation from a static/settled hold into an impact burst: fast appearance, stronger scale-up, then fade-out while expanding.
+- Preserved the q8 Theora first-candidate path and existing fallback chain.
+- Did not change Kwon Yul / Jeong Do Jeon mappings, production cutin assets, battle logic, or WorldMap logic.
+- Verification passed: `git diff --check`, Godot headless project load, battle scene headless load, and direct ResourceLoader checks for Hakikjin PNG and q8 OGV.
+
 ## v0.70-5a Yi Sun-sin Hero Scale + Skill Title Image Impact Tuning
 - Integrated `assets/ui/cutin/titles/yi_sun_sin_hakikjin_title.png` as the Hakikjin skill-title image and added the necessary Godot `.import` metadata.
 - Removed the visible `이순신` hero-name label from the Yi Sunsin specialty cutin.
