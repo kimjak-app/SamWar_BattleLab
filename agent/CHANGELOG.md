@@ -1565,6 +1565,14 @@
 - Button text is cleared only when image style apply succeeds, so text overlap is avoided without breaking fallback behavior.
 
 ## v0.67s Bottom Command Button Actual Asset Integration
+## v0.70-13 Battle Intro Camera Zoom Patch
+- Added battle-start intro camera presentation using the existing `MainCamera`.
+- Captures the normal gameplay camera position/zoom, starts from a wider battlefield view, then tweens back to the captured gameplay camera state.
+- Hides `BattleUI` during the intro and restores it after completion or skip.
+- Added intro skip handling for mouse click, Space, Enter, numpad Enter, and Esc.
+- Guarded battle input and command-button entry points while the intro camera is playing.
+- No combat rules, grid visibility, battle result/worldmap flow, cutin/result video assets, archer volley FX, or gunner shot FX were changed.
+
 ## v0.70-12a Battle Result Video Panel Size Polish
 - Changed battle result video playback from full-viewport video to a centered cinematic panel.
 - Added viewport-ratio panel sizing constants for result videos and kept the dim backdrop full-screen.

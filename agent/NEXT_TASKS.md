@@ -1499,6 +1499,13 @@ Goal:
 - Added large red unique skill damage numbers and short camera shake.
 - Enemy / auto unique skill use is deferred to a future pass.
 - `v0.67w Battle Screen Basic UX Stable Lock` is complete.
+## v0.70-13 Battle Intro Camera Zoom Patch
+- Completed: battle start now opens with a wide battlefield camera shot, then zooms into the normal gameplay camera state.
+- Intro hides `BattleUI` during the camera move and restores it afterward.
+- Skip is available with mouse click, Space, Enter, numpad Enter, or Esc.
+- Manual QA: confirm the battlefield art is readable first, the zoom lands on the normal play view, UI returns correctly, skip works, and battle controls remain normal.
+- No grid, combat logic, cutin/result video asset, archer/gunner FX, or worldmap changes were made.
+
 ## v0.70-12a Battle Result Video Panel Size Polish
 - Completed: victory/defeat result videos were resized from full-screen playback to a centered cinematic panel.
 - Preserve this order in QA: result video first, then the existing victory/defeat toast.

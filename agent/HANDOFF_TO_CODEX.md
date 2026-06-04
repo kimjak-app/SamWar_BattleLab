@@ -1623,6 +1623,18 @@ Do not modify casually:
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix4`: move `CityMarker_Hanseong` root and confirm marker body, name label, and click area move together; check all other city marker roots; Ctrl+S persistence; marker click info label; camera pan/zoom/clamp; and battle scene stability.
 - Codex Godot headless verification for `v0.68b-2-hotfix4` was blocked by `windows sandbox: spawn setup refresh`; run local F6/headless QA for `WorldMap_Test.tscn` load and GDScript warning output.
 - 김작 2D/F6 visual QA remains for `v0.68b-2-hotfix3`: select/move the four Tile nodes in the 2D editor, Ctrl+S, confirm F6 preserves the saved layout, camera clamp follows the current tile union rect, all 13 city markers remain present, and the battle scene is not broken.
+## v0.70-13 Handoff
+- Battle start now has a visual-only intro camera zoom sequence.
+- Implementation is in `scripts/battle_web_import_test.gd`:
+  - `_capture_battle_gameplay_camera_state()` stores normal gameplay camera position/zoom.
+  - `_play_battle_intro_camera_zoom()` starts from a wider battlefield shot and tweens back to gameplay.
+  - `_skip_battle_intro_camera_zoom()` immediately restores gameplay camera/UI.
+  - `_set_battle_intro_ui_visible()` hides/restores `BattleUI`.
+- Skip input during the intro: mouse click, Space, Enter, numpad Enter, or Esc.
+- Input/button guards prevent move/attack/strategy/unique skill/wait/auto actions while the intro is playing.
+- No grid logic, combat logic, battle result/worldmap flow, cutin/result video assets, archer volley FX, or gunner shot FX should be considered changed.
+- Manual visual QA: check wide battlefield readability, zoom landing position, UI restore, skip behavior, and normal battle controls after intro completion/skip.
+
 ## v0.70-12a Handoff
 - Battle result videos now use a centered cinematic panel instead of full-screen playback.
 - Implementation is in `scripts/battle_web_import_test.gd`: `_get_battle_result_video_panel_rect()` computes a centered 16:9 rect and `_prepare_battle_result_video_panel()` applies it before playback.

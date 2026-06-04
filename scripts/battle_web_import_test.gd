@@ -106,6 +106,11 @@ const STATUS_BADGE_ARROW_Y_NUDGE := 2.0
 const COMBAT_CAMERA_FOCUS_ENABLED := true
 const COMBAT_CAMERA_FOCUS_DURATION := 0.24
 const COMBAT_CAMERA_CLAMP_PADDING := 180.0
+const BATTLE_INTRO_CAMERA_ZOOM_BEGIN := "battle_intro_camera_zoom_begin"
+const BATTLE_INTRO_WIDE_HOLD_SEC := 0.4
+const BATTLE_INTRO_ZOOM_SEC := 1.0
+const BATTLE_INTRO_UI_FADE_SEC := 0.25
+const BATTLE_INTRO_WIDE_ZOOM_SCALE := 0.94
 const DEFEND_HEAL_TEXT_COLOR := Color(0.62, 1.0, 0.58, 0.94)
 const FORMATION_STATUS_TEXT_COLOR := Color(0.74, 0.86, 0.94, 0.85)
 const FORMATION_STATUS_OUTLINE_COLOR := Color(0.02, 0.03, 0.04, 0.62)
@@ -978,6 +983,12 @@ var active_defeat_retreat_toast_side := ""
 var active_defeat_retreat_toast_hold_msec := 0
 var camera_shake_tween: Tween = null
 var combat_camera_tween: Tween = null
+var battle_intro_camera_tween: Tween = null
+var battle_intro_camera_playing := false
+var battle_intro_gameplay_camera_position := Vector2.ZERO
+var battle_intro_gameplay_camera_zoom := Vector2.ONE
+var battle_intro_has_gameplay_camera_state := false
+var battle_intro_battle_ui_was_visible := true
 var main_camera_scene_position := Vector2.ZERO
 var main_camera_scene_zoom := Vector2.ONE
 var main_camera_base_position := Vector2.ZERO
@@ -1907,8 +1918,148 @@ func _reset_main_camera_to_scene_position() -> void:
 	_refresh_camera_bound_world_overlays()
 
 
+func _is_battle_intro_camera_playing() -> bool:
+	return battle_intro_camera_playing
+
+
+func _capture_battle_gameplay_camera_state() -> bool:
+	var camera := _get_main_camera_or_null()
+	if camera == null:
+		battle_intro_has_gameplay_camera_state = false
+		return false
+	battle_intro_gameplay_camera_position = camera.position
+	battle_intro_gameplay_camera_zoom = camera.zoom
+	battle_intro_has_gameplay_camera_state = true
+	return true
+
+
+func _apply_battle_gameplay_camera_state() -> void:
+	if not battle_intro_has_gameplay_camera_state:
+		return
+	var camera := _get_main_camera_or_null()
+	if camera == null:
+		return
+	camera.enabled = true
+	camera.make_current()
+	camera.position = battle_intro_gameplay_camera_position
+	camera.zoom = battle_intro_gameplay_camera_zoom
+	main_camera_base_position = battle_intro_gameplay_camera_position
+	main_camera_base_zoom = battle_intro_gameplay_camera_zoom
+	_refresh_camera_bound_world_overlays()
+	call_deferred("_refresh_camera_bound_world_overlays")
+
+
+func _set_battle_intro_ui_visible(should_show: bool) -> void:
+	if battle_ui == null:
+		return
+	if should_show:
+		battle_ui.visible = battle_intro_battle_ui_was_visible
+		return
+	battle_intro_battle_ui_was_visible = battle_ui.visible
+	battle_ui.visible = false
+
+
+func _get_battle_intro_wide_camera_state() -> Dictionary:
+	var gameplay_position := battle_intro_gameplay_camera_position
+	var gameplay_zoom := battle_intro_gameplay_camera_zoom
+	var wide_position := gameplay_position
+	var wide_zoom_value = maxf(0.001, minf(absf(gameplay_zoom.x), absf(gameplay_zoom.y)) * 0.58)
+	var battlefield_rect := _get_battlefield_visual_world_rect()
+	if battlefield_rect.size.x > 0.0 and battlefield_rect.size.y > 0.0:
+		var viewport_size := get_viewport_rect().size
+		var fit_zoom_x := viewport_size.x / maxf(1.0, battlefield_rect.size.x)
+		var fit_zoom_y := viewport_size.y / maxf(1.0, battlefield_rect.size.y)
+		wide_zoom_value = minf(wide_zoom_value, minf(fit_zoom_x, fit_zoom_y) * BATTLE_INTRO_WIDE_ZOOM_SCALE)
+		wide_position = battlefield_rect.get_center()
+	wide_zoom_value = minf(wide_zoom_value, maxf(0.001, minf(absf(gameplay_zoom.x), absf(gameplay_zoom.y)) * 0.82))
+	return {
+		"position": wide_position,
+		"zoom": Vector2.ONE * maxf(0.001, wide_zoom_value),
+	}
+
+
+func _play_battle_intro_camera_zoom() -> void:
+	if battle_intro_camera_playing:
+		return
+	var camera := _get_main_camera_or_null()
+	if camera == null:
+		_set_battle_intro_ui_visible(true)
+		return
+	if not _capture_battle_gameplay_camera_state():
+		_set_battle_intro_ui_visible(true)
+		return
+	if combat_camera_tween != null:
+		combat_camera_tween.kill()
+		combat_camera_tween = null
+	if camera_shake_tween != null:
+		camera_shake_tween.kill()
+		camera_shake_tween = null
+	if battle_intro_camera_tween != null:
+		battle_intro_camera_tween.kill()
+		battle_intro_camera_tween = null
+	battle_intro_camera_playing = true
+	print("[BATTLE_INTRO_CAMERA] %s" % BATTLE_INTRO_CAMERA_ZOOM_BEGIN)
+	_set_battle_intro_ui_visible(false)
+	var wide_state := _get_battle_intro_wide_camera_state()
+	camera.enabled = true
+	camera.make_current()
+	camera.position = wide_state.get("position", battle_intro_gameplay_camera_position)
+	camera.zoom = wide_state.get("zoom", battle_intro_gameplay_camera_zoom)
+	_refresh_camera_bound_world_overlays()
+
+	battle_intro_camera_tween = create_tween()
+	battle_intro_camera_tween.tween_interval(BATTLE_INTRO_WIDE_HOLD_SEC)
+	battle_intro_camera_tween.set_parallel(true)
+	battle_intro_camera_tween.tween_property(camera, "position", battle_intro_gameplay_camera_position, BATTLE_INTRO_ZOOM_SEC).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	battle_intro_camera_tween.tween_property(camera, "zoom", battle_intro_gameplay_camera_zoom, BATTLE_INTRO_ZOOM_SEC).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	battle_intro_camera_tween.set_parallel(false)
+	battle_intro_camera_tween.tween_callback(_finish_battle_intro_camera_zoom)
+
+
+func _finish_battle_intro_camera_zoom() -> void:
+	if not battle_intro_camera_playing:
+		return
+	battle_intro_camera_playing = false
+	battle_intro_camera_tween = null
+	_apply_battle_gameplay_camera_state()
+	_set_battle_intro_ui_visible(true)
+
+
+func _skip_battle_intro_camera_zoom() -> void:
+	if not battle_intro_camera_playing:
+		return
+	if battle_intro_camera_tween != null:
+		battle_intro_camera_tween.kill()
+		battle_intro_camera_tween = null
+	battle_intro_camera_playing = false
+	_apply_battle_gameplay_camera_state()
+	_set_battle_intro_ui_visible(true)
+
+
+func _is_battle_intro_skip_input(event: InputEvent) -> bool:
+	if event is InputEventMouseButton:
+		var mouse_event := event as InputEventMouseButton
+		return mouse_event.pressed and (
+			mouse_event.button_index == MOUSE_BUTTON_LEFT
+			or mouse_event.button_index == MOUSE_BUTTON_RIGHT
+		)
+	if event is InputEventKey:
+		var key_event := event as InputEventKey
+		if not key_event.pressed or key_event.echo:
+			return false
+		return (
+			key_event.keycode == KEY_SPACE
+			or key_event.keycode == KEY_ENTER
+			or key_event.keycode == KEY_KP_ENTER
+			or key_event.keycode == KEY_ESCAPE
+		)
+	return false
+
+
 func _focus_camera_on_world_position(world_pos: Vector2, immediate: bool = false) -> void:
 	if not COMBAT_CAMERA_FOCUS_ENABLED:
+		return
+	if _is_battle_intro_camera_playing():
 		return
 	var camera := _get_main_camera_or_null()
 	if camera == null:
@@ -2048,6 +2199,11 @@ func _refresh_camera_bound_world_overlays() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if _is_battle_intro_camera_playing():
+		if _is_battle_intro_skip_input(event):
+			_skip_battle_intro_camera_zoom()
+		get_viewport().set_input_as_handled()
+		return
 	if not (event is InputEventMouseButton):
 		return
 
@@ -2153,6 +2309,11 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _is_battle_intro_camera_playing():
+		if _is_battle_intro_skip_input(event):
+			_skip_battle_intro_camera_zoom()
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseButton:
 		var mouse_event := event as InputEventMouseButton
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT or mouse_event.button_index == MOUSE_BUTTON_RIGHT:
@@ -2561,6 +2722,12 @@ func reset_demo_state() -> void:
 	if camera_shake_tween != null:
 		camera_shake_tween.kill()
 		camera_shake_tween = null
+	if battle_intro_camera_tween != null:
+		battle_intro_camera_tween.kill()
+		battle_intro_camera_tween = null
+	battle_intro_camera_playing = false
+	battle_intro_has_gameplay_camera_state = false
+	_set_battle_intro_ui_visible(true)
 	_reset_main_camera_to_scene_position()
 	is_unique_skill_presenting = false
 	is_manual_unique_skill_preview_pending = false
@@ -2649,9 +2816,12 @@ func reset_demo_state() -> void:
 	_start_idle_breathing()
 	_hide_all_move_dust_sprites()
 	_show_round_start_toast(battle_round)
+	call_deferred("_play_battle_intro_camera_zoom")
 
 
 func play_basic_move_demo() -> void:
+	if _is_battle_intro_camera_playing():
+		return
 	if is_demo_animating or current_phase != PHASE_ALLY_TURN:
 		return
 	if active_unit_state == null or active_unit_side != "ally":
@@ -2753,6 +2923,8 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 
 
 func try_basic_attack() -> void:
+	if _is_battle_intro_camera_playing():
+		return
 	if current_phase != PHASE_ALLY_TURN and current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
 		return
 	if is_demo_animating:
@@ -2822,6 +2994,8 @@ func _try_attack_enemy_target_from_attack_select(target_state: BattleUnitState) 
 
 
 func play_basic_attack_demo() -> void:
+	if _is_battle_intro_camera_playing():
+		return
 	if is_demo_animating or (current_phase != PHASE_ALLY_TURN and current_phase != PHASE_ATTACK_SELECT):
 		return
 	if selected_attack_target_state == null:
@@ -2992,6 +3166,8 @@ func _can_actor_use_unique_skill(unit_state: BattleUnitState) -> bool:
 
 
 func _on_unique_skill_button_pressed() -> void:
+	if _is_battle_intro_camera_playing():
+		return
 	if not _can_use_unique_skill(active_unit_state):
 		_append_battle_log("고유특기 사용 불가")
 		_refresh_floating_ally_command_panel()
@@ -3090,6 +3266,8 @@ func _clear_unique_skill_targeting_state() -> void:
 
 
 func _on_strategy_button_pressed() -> void:
+	if _is_battle_intro_camera_playing():
+		return
 	if not _can_use_strategy(active_unit_state):
 		if active_unit_state != null and active_unit_state.intelligence < STRATEGY_BASIC_INTELLIGENCE:
 			_append_battle_log("지력이 부족해 책략을 펼칠 수 없습니다.")
@@ -4814,6 +4992,7 @@ func _set_phase(new_phase: String) -> void:
 		current_phase == PHASE_ALLY_TURN
 		and not is_demo_animating
 		and not battle_finished
+		and not _is_battle_intro_camera_playing()
 		and _is_active_ally_action_available()
 	)
 	var active_unit_has_moved := active_unit_state != null and active_unit_state.has_moved
@@ -4839,9 +5018,9 @@ func _set_phase(new_phase: String) -> void:
 	_update_ally_ready_frames()
 	_refresh_floating_ally_command_panel()
 	_refresh_formation_slot_guides()
-	if current_phase == PHASE_ALLY_TURN and not is_demo_animating and not battle_finished:
+	if current_phase == PHASE_ALLY_TURN and not is_demo_animating and not battle_finished and not _is_battle_intro_camera_playing():
 		call_deferred("_consume_confused_ally_turn_if_needed")
-	if current_phase == PHASE_ALLY_TURN and is_full_auto_battle_enabled and not is_demo_animating and not battle_finished:
+	if current_phase == PHASE_ALLY_TURN and is_full_auto_battle_enabled and not is_demo_animating and not battle_finished and not _is_battle_intro_camera_playing():
 		call_deferred("_tick_full_auto_battle_if_needed")
 
 
@@ -5142,6 +5321,8 @@ func _refresh_auto_battle_button_state(can_issue_ally_command: bool) -> void:
 
 
 func _on_defend_button_pressed() -> void:
+	if _is_battle_intro_camera_playing():
+		return
 	if current_phase != PHASE_ALLY_TURN:
 		return
 	if is_demo_animating:
@@ -5205,6 +5386,8 @@ func _recover_wounded_troops_for_defend(unit_state: BattleUnitState) -> int:
 
 
 func _end_ally_turn_by_wait() -> void:
+	if _is_battle_intro_camera_playing():
+		return
 	if current_phase != PHASE_ALLY_TURN:
 		return
 	if is_demo_animating:
@@ -12328,6 +12511,8 @@ func _select_auto_facing_after_move_for_active_ally() -> void:
 
 
 func _toggle_full_auto_battle() -> void:
+	if _is_battle_intro_camera_playing():
+		return
 	if is_full_auto_battle_enabled:
 		_stop_full_auto_battle("user stop")
 		return

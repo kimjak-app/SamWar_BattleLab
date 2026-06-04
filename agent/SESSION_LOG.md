@@ -1999,6 +1999,16 @@
 ### v0.67t Bottom Command Button PNG Apply QA
 - Confirmed all 6 bottom command PNG files exist.
 - Confirmed all 6 PNG files are `512x256` with `Format32bppArgb`.
+### v0.70-13 Battle Intro Camera Zoom Patch
+- Added a battle-start camera intro in `scripts/battle_web_import_test.gd`.
+- The intro captures the final gameplay camera state, moves `MainCamera` to a wider battlefield shot, holds briefly, then zooms back to the captured gameplay view.
+- `BattleUI` is hidden during the intro and restored after completion or skip; battlefield background and units remain visible.
+- Skip input is handled through mouse click, Space, Enter, numpad Enter, or Esc.
+- Battle input, button commands, auto battle enable, and camera focus calls are guarded while the intro is playing.
+- Verification performed during implementation: `git diff --check`, Godot project headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- No battle logic, grid logic, worldmap flow, cutin/result video assets, archer volley FX, or gunner shot FX changes were intended.
+- Manual visual QA remains: confirm wide-shot composition, smooth zoom, UI restore timing, skip behavior, and normal controls after skip/completion.
+
 ### v0.70-12a Battle Result Video Panel Size Polish
 - Adjusted `VideoStreamPlayer_Result` so victory/defeat result videos no longer render full-screen.
 - Added result-video panel sizing helpers in `scripts/battle_web_import_test.gd`; video is centered in a 16:9 panel while the dim backdrop remains full-screen.
