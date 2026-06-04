@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.70-11 Unit Type Attack Range Baseline
+- Added a normal/basic attack range baseline for the test battle in `scripts/battle_web_import_test.gd`.
+- Unit type defaults are now explicit:
+  - infantry: `attack_range = 1`
+  - cavalry: `attack_range = 1`
+  - archer: `attack_range = 3`
+  - gunner: `attack_range = 4`
+- Test battle unit creation now uses `_get_default_attack_range_for_unit_type()` instead of scattered literal range values.
+- Affected test battle ranges:
+  - Jeong Do Jeon / `jeong_dojeon` / `korea_gunner`: `4`
+  - Eulji Mundeok / `eulji_mundeok` / `korea_gunner`: `4`
+  - Zhuge Liang / `zhuge_liang` / `china_gunner`: `4`
+  - Yi Sunsin / Kim Yu-sin / Liu Bei archer units: `3`
+  - Kwon Yul / Guan Yu / Zhang Fei / Xiahou Dun melee units: `1`
+- This is normal/basic attack range data only; unique skill range, strategy range, move range, damage, hit, troop, turn progression, FX, cutin mappings, and WorldMap files were not changed.
+- WorldMap context data was inspected but not rewritten; explicit WorldMap hero ranges remain outside this test battle baseline patch.
+- Remaining QA: visible battle QA should confirm gunner attack overlays show 4-cell normal attack range, archers show 3-cell range, melee units remain adjacent-only, and special skill/strategy ranges remain unchanged.
+
 ## v0.70-10 Gunner Muzzle Flash + Tracer Impact Visual
 - Added a visual-only gunner normal/basic attack FX path in `scripts/battle_web_import_test.gd`.
 - Current gunner units are resolved from unit type / visual key data: `jeong_dojeon` (`korea_gunner`), `eulji_mundeok` (`korea_gunner`), and `zhuge_liang` (`china_gunner`).

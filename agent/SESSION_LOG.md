@@ -2,6 +2,20 @@
 
 ## 2026-06-05
 
+### v0.70-11 Unit Type Attack Range Baseline
+- Started from clean repo state at `3800c99 Add gunner muzzle flash and tracer impact visual`.
+- Diagnosed the short gunner range as test battle unit setup data in `scripts/battle_web_import_test.gd`.
+- Added unit-type normal attack range helpers:
+  - infantry: `1`
+  - cavalry: `1`
+  - archer: `3`
+  - gunner: `4`
+- Updated test battle `BattleUnitState.create()` attack ranges to use the baseline helper.
+- Jeong Do Jeon, Eulji Mundeok, and Zhuge Liang now resolve to normal gunner `attack_range = 4`.
+- Yi Sunsin, Kim Yu-sin, and Liu Bei remain archer `attack_range = 3`; infantry/cavalry remain adjacent `attack_range = 1`.
+- WorldMap source data was inspected but not rewritten in this patch; this task is scoped to test battle range consistency.
+- No unique skill range, strategy range, move range, damage, hit, troop, turn, archer/gunner FX, cutin mapping, or WorldMap script changes were intended.
+
 ### v0.70-10 Gunner Muzzle Flash + Tracer Impact Visual
 - Started from clean repo state at `6262206 Add curved archer volley path and completion timing guard`.
 - Confirmed gunner unit data uses `UNIT_TYPE_GUNNER` plus `korea_gunner` / `china_gunner` visual keys.

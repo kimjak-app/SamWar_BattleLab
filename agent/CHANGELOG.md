@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-11 Unit Type Attack Range Baseline
+- Added `_get_default_attack_range_for_unit_type()` and `_get_default_attack_range_for_visual_key()` in `scripts/battle_web_import_test.gd`.
+- Normal/basic attack range defaults are now explicit: infantry `1`, cavalry `1`, archer `3`, gunner `4`.
+- Updated test battle unit creation to use the unit-type baseline helper instead of scattered literal `attack_range` values.
+- Fixed the test battle gunner baseline so Jeong Do Jeon, Eulji Mundeok, and Zhuge Liang resolve to normal `attack_range = 4`.
+- Preserved archer normal `attack_range = 3` for Yi Sunsin, Kim Yu-sin, and Liu Bei.
+- Preserved melee normal `attack_range = 1` for infantry/cavalry units.
+- Did not change unique skill range, strategy range, move range, damage, hit chance, troop loss, turn progression, archer/gunner FX, cutin assets/mappings, or WorldMap scripts.
+- WorldMap context attack range data was inspected but not rewritten; explicit WorldMap ranges remain untouched by this test battle baseline patch.
+
 ## v0.70-10 Gunner Muzzle Flash + Tracer Impact Visual
 - Added gunner-only normal/basic attack FX in `scripts/battle_web_import_test.gd`.
 - Added `_play_gunner_shot_effect`, `_spawn_gunner_muzzle_flash`, `_spawn_gunner_tracer`, and `_spawn_gunner_impact_pop`.

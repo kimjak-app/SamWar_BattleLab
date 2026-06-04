@@ -1,5 +1,19 @@
 # NEXT TASKS
 
+## Next: F6 QA for Unit Type Attack Range Baseline
+- `v0.70-11` sets the test battle normal/basic attack range baseline by unit type.
+- Expected normal attack ranges:
+  1. Infantry: `1`.
+  2. Cavalry: `1`.
+  3. Archer: `3`.
+  4. Gunner: `4`.
+- Current test battle checks:
+  1. Jeong Do Jeon, Eulji Mundeok, and Zhuge Liang should show 4-cell gunner normal attack range.
+  2. Yi Sunsin, Kim Yu-sin, and Liu Bei should show 3-cell archer normal attack range.
+  3. Kwon Yul, Guan Yu, Zhang Fei, and Xiahou Dun should remain 1-cell melee normal attack range.
+  4. Unique skill range, strategy range, move range, damage, FX, cutin playback, and WorldMap return behavior should remain unchanged.
+- WorldMap source data was inspected but not rewritten in this patch; this task is scoped to the test battle baseline.
+
 ## Next: F6 Visual QA for Gunner Muzzle Flash + Tracer FX
 - `v0.70-10` adds visual-only primitive gunner FX for normal/basic attacks.
 - Current gunner units expected to show the effect:

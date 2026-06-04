@@ -10057,7 +10057,7 @@ func _create_demo_unit_states() -> void:
 		"defense": 12,
 		"intelligence": 92,
 		"move_range": 3,
-		"attack_range": 3,
+		"attack_range": _get_default_attack_range_for_unit_type(UNIT_TYPE_ARCHER),
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_RIGHT,
 	})
@@ -10085,7 +10085,7 @@ func _create_demo_unit_states() -> void:
 		"defense": 12,
 		"intelligence": 96,
 		"move_range": 3,
-		"attack_range": 1,
+		"attack_range": _get_default_attack_range_for_unit_type(UNIT_TYPE_GUNNER),
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_RIGHT,
 	})
@@ -10113,7 +10113,7 @@ func _create_demo_unit_states() -> void:
 		"defense": 13,
 		"intelligence": 84,
 		"move_range": 3,
-		"attack_range": 1,
+		"attack_range": _get_default_attack_range_for_unit_type(UNIT_TYPE_INFANTRY),
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_RIGHT,
 	})
@@ -10141,7 +10141,7 @@ func _create_demo_unit_states() -> void:
 		"defense": 11,
 		"intelligence": 78,
 		"move_range": 3,
-		"attack_range": 3,
+		"attack_range": _get_default_attack_range_for_unit_type(UNIT_TYPE_ARCHER),
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_RIGHT,
 	})
@@ -10169,7 +10169,7 @@ func _create_demo_unit_states() -> void:
 		"defense": 12,
 		"intelligence": 88,
 		"move_range": 3,
-		"attack_range": 2,
+		"attack_range": _get_default_attack_range_for_unit_type(UNIT_TYPE_GUNNER),
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_RIGHT,
 	})
@@ -10197,7 +10197,7 @@ func _create_demo_unit_states() -> void:
 		"defense": 16,
 		"intelligence": 76,
 		"move_range": 3,
-		"attack_range": 1,
+		"attack_range": _get_default_attack_range_for_unit_type(UNIT_TYPE_CAVALRY),
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_LEFT,
 	})
@@ -10225,7 +10225,7 @@ func _create_demo_unit_states() -> void:
 		"defense": 14,
 		"intelligence": 55,
 		"move_range": 3,
-		"attack_range": 1,
+		"attack_range": _get_default_attack_range_for_unit_type(UNIT_TYPE_INFANTRY),
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_LEFT,
 	})
@@ -10253,7 +10253,7 @@ func _create_demo_unit_states() -> void:
 		"defense": 15,
 		"intelligence": 72,
 		"move_range": 3,
-		"attack_range": 1,
+		"attack_range": _get_default_attack_range_for_unit_type(UNIT_TYPE_INFANTRY),
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_LEFT,
 	})
@@ -10281,7 +10281,7 @@ func _create_demo_unit_states() -> void:
 		"defense": 12,
 		"intelligence": 86,
 		"move_range": 3,
-		"attack_range": 3,
+		"attack_range": _get_default_attack_range_for_unit_type(UNIT_TYPE_ARCHER),
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_LEFT,
 	})
@@ -10309,7 +10309,7 @@ func _create_demo_unit_states() -> void:
 		"defense": 13,
 		"intelligence": 98,
 		"move_range": 3,
-		"attack_range": 2,
+		"attack_range": _get_default_attack_range_for_unit_type(UNIT_TYPE_GUNNER),
 		"grid_cell": Vector2i.ZERO,
 		"facing": FACING_LEFT,
 	})
@@ -10604,6 +10604,22 @@ func _normalize_unit_type(unit_type: String) -> String:
 			return unit_type
 		_:
 			return UNIT_TYPE_INFANTRY
+
+
+func _get_default_attack_range_for_unit_type(unit_type: String) -> int:
+	match _normalize_unit_type(unit_type):
+		UNIT_TYPE_ARCHER:
+			return 3
+		UNIT_TYPE_GUNNER:
+			return 4
+		UNIT_TYPE_CAVALRY:
+			return 1
+		_:
+			return 1
+
+
+func _get_default_attack_range_for_visual_key(visual_key: String) -> int:
+	return _get_default_attack_range_for_unit_type(_infer_unit_type_from_visual_key(visual_key))
 
 
 func _get_visual_template_for_slot(slot_key: String, unit_type: String = UNIT_TYPE_INFANTRY) -> Node2D:

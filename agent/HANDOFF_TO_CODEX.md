@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-11 Unit Type Attack Range Baseline Handoff
+- Current patch is battle test data/baseline only in `scripts/battle_web_import_test.gd`.
+- Added `_get_default_attack_range_for_unit_type()` and `_get_default_attack_range_for_visual_key()`.
+- Test battle normal/basic attack range baseline:
+  1. Infantry: `1`.
+  2. Cavalry: `1`.
+  3. Archer: `3`.
+  4. Gunner: `4`.
+- Jeong Do Jeon, Eulji Mundeok, and Zhuge Liang now use the gunner baseline of `4`, so gunner normal attack range is no longer shorter than archer range in the test battle.
+- Yi Sunsin, Kim Yu-sin, and Liu Bei remain archer baseline `3`; melee infantry/cavalry remain `1`.
+- Unique skill ranges, strategy ranges, move ranges, archer volley FX, gunner shot FX, cutin assets/mappings, damage/hit/troop/turn logic, and WorldMap scripts were not changed.
+- WorldMap context source data was inspected but left untouched; this patch does not rewrite explicit WorldMap hero attack ranges.
+- Next visible QA should check normal attack range overlays by unit type and confirm special skill/strategy ranges still behave as before.
+
 ## v0.70-10 Gunner Muzzle Flash + Tracer Impact Visual Handoff
 - Current patch is battle visual FX only in `scripts/battle_web_import_test.gd`.
 - Gunner normal/basic attacks now call `_play_gunner_shot_effect()` from the ally and enemy basic-attack animation paths only.
