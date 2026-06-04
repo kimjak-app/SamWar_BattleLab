@@ -11,6 +11,7 @@
 - Verified both title PNGs are `1133x639` RGBA/transparent images.
 - Added required Godot `.import` metadata for both new title PNGs after Godot `--import`, and verified they load as `CompressedTexture2D`.
 - Removed only the two untracked `assets/video_test/theora_safe/test_safe_q*_*.ogv.uid` files generated incidentally by import; no broad clean was run.
+- Removed tracked `assets/video_test/theora_safe/` frame-capture `.import` junk with limited pathspecs while preserving the q7/q8 `.ogv` test outputs and `README.md`.
 - Did not change production cutin mappings, Yi Sunsin q8 mapping/file, production video assets, battle logic, or WorldMap logic.
 
 ## v0.70-5e Yi Sun-sin Final Exit Snap Tuning

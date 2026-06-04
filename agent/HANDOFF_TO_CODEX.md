@@ -12,6 +12,7 @@
 - Both title PNGs are `1133x639` RGBA/transparent and now have matching Godot `.import` metadata.
 - Direct Godot ResourceLoader verification passes for both title PNGs as `CompressedTexture2D`.
 - The source MP4s are source/ffmpeg inputs, not Godot runtime resources; verify them with ffprobe and encode separate Theora outputs before mapping.
+- Tracked Theora safe frame-capture `.import` junk has been removed; the actual q7/q8 `.ogv` test outputs and `README.md` remain tracked.
 - No production mapping was connected for Kwon Yul or Jeong Do Jeon in this intake pass.
 - Yi Sunsin q8 Theora baseline and fallback chain were not changed.
 - Next recommended task: encode and connect Kwon Yul q8 Theora dry-run first, then repeat for Jeong Do Jeon, preserving existing production files and adding fallbacks one hero at a time.

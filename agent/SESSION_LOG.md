@@ -13,6 +13,8 @@
 - Ran Godot `--import` to generate required texture import metadata for the new title PNGs.
 - Added `assets/ui/cutin/titles/kwon_yul_haengjudaecheop_title.png.import` and `assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png.import`.
 - Removed only the incidental untracked `test_safe_q7_1280x.ogv.uid` and `test_safe_q8_1920x.ogv.uid` files generated under `assets/video_test/theora_safe/`.
+- Removed tracked frame-capture import junk under `assets/video_test/theora_safe/`: `godot_q7_frame*.png.import`, `godot_q8_frame*.png.import`, `godot_q7_frame.wav.import`, `godot_q8_frame.wav.import`, and `source_frame_1s.png.import`.
+- Preserved `assets/video_test/theora_safe/README.md`, `test_safe_q7_1280x.ogv`, and `test_safe_q8_1920x.ogv`.
 - Direct Godot resource verification passed for both title PNGs as `CompressedTexture2D`; source MP4s remain ffmpeg source assets and are not Godot ResourceLoader resources.
 - No production mapping or Yi Sunsin q8 baseline file/mapping was changed.
 

@@ -12,6 +12,7 @@
   - `assets/ui/cutin/titles/jeong_do_jeon_gaehyeokryeong_title.png` (`1133x639`, RGBA/transparent)
 - Added the required Godot texture import metadata for both new title PNGs so they load as `CompressedTexture2D`.
 - Godot `--import` also generated test OGV `.uid` files under `assets/video_test/theora_safe/`; those were removed specifically and were not tracked.
+- Removed tracked Theora safe frame-capture Godot import junk under `assets/video_test/theora_safe/` using limited `git rm` patterns only; preserved `README.md`, `test_safe_q7_1280x.ogv`, and `test_safe_q8_1920x.ogv`.
 - No production cutin mapping, Yi Sunsin q8 mapping/file, Kwon Yul / Jeong Do Jeon mapping, production video asset, battle logic, or WorldMap logic was changed.
 - Next candidates: Kwon Yul q8 Theora production dry run, Jeong Do Jeon q8 Theora production dry run, then per-hero cinematic cutin layout tuning.
 
