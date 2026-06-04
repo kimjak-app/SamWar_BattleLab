@@ -26,6 +26,7 @@ var _current_index := 0
 
 
 func _ready() -> void:
+	_apply_command_line_stream_selection()
 	for stream_info in STREAMS:
 		stream_selector.add_item(stream_info["label"])
 	stream_selector.select(_current_index)
@@ -34,6 +35,17 @@ func _ready() -> void:
 	reload_button.pressed.connect(_reload_current_stream)
 	video_player.finished.connect(_on_video_finished)
 	_load_current_stream(true)
+
+
+func _apply_command_line_stream_selection() -> void:
+	var args := OS.get_cmdline_user_args()
+	for arg in args:
+		if arg == "--video-test-q7":
+			_current_index = 0
+		elif arg == "--video-test-q8":
+			_current_index = 1
+		elif arg == "--video-test-q7-noaudio":
+			_current_index = 2
 
 
 func _process(_delta: float) -> void:

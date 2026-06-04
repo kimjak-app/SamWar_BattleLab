@@ -2,6 +2,34 @@
 
 ## 2026-06-04
 
+### v0.70-3 Portable FFmpeg Setup + Theora Safe Encode Execution
+- Started from previous commit `4c1aa6342a07594546611e15748d53f0dbccaed8`.
+- Confirmed existing files: `assets/video_source_test/cutin_test_01.mp4`, `assets/video_test/theora_safe/`, `scenes/dev/video_theora_test.tscn`, and `scripts/video_theora_test.gd`.
+- Confirmed FFmpeg was still unavailable from PATH via `ffmpeg -version`, `Get-Command ffmpeg`, and `where.exe ffmpeg`.
+- Downloaded gyan.dev portable FFmpeg essentials zip to `tools/ffmpeg/ffmpeg-release-essentials.zip`, extracted to `tools/ffmpeg/extracted/`, and copied `ffmpeg.exe` / `ffprobe.exe` to `tools/ffmpeg/bin/`.
+- Verified FFmpeg and ffprobe version: `8.1.1-essentials_build-www.gyan.dev`.
+- Left `tools/ffmpeg/` ignored because the zip and binaries are about 100MB each and should remain a local dependency.
+- Encoded q7:
+  - `.\tools\ffmpeg\bin\ffmpeg.exe -y -i "assets/video_source_test/cutin_test_01.mp4" -vf "fps=30,scale=1280:-2:flags=lanczos,format=yuv420p" -c:v libtheora -q:v 7 -g 60 -c:a libvorbis -q:a 4 "assets/video_test/theora_safe/test_safe_q7_1280x.ogv"`
+  - Output size: `3426729` bytes.
+- Encoded q8:
+  - `.\tools\ffmpeg\bin\ffmpeg.exe -y -i "assets/video_source_test/cutin_test_01.mp4" -vf "fps=30,scale=1920:-2:flags=lanczos,format=yuv420p" -c:v libtheora -q:v 8 -g 60 -c:a libvorbis -q:a 4 "assets/video_test/theora_safe/test_safe_q8_1920x.ogv"`
+  - Output size: `7295937` bytes.
+- No audio fallback was needed; both files encoded with Vorbis stereo audio.
+- ffprobe q7 video: `codec_name=theora`, `width=1280`, `height=720`, `pix_fmt=yuv420p`, `avg_frame_rate=30/1`, `duration=2.166667`.
+- ffprobe q7 audio: `codec_name=vorbis`, `sample_rate=48000`, `channels=2`, `duration=2.154667`.
+- ffprobe q8 video: `codec_name=theora`, `width=1920`, `height=1080`, `pix_fmt=yuv420p`, `avg_frame_rate=30/1`, `duration=2.166667`.
+- ffprobe q8 audio: `codec_name=vorbis`, `sample_rate=48000`, `channels=2`, `duration=2.154667`.
+- Updated `scripts/video_theora_test.gd` to accept `--video-test-q7` and `--video-test-q8` for repeatable diagnostics.
+- Godot headless q7 load: `file_exists=true`, `resource_exists=true`, `loaded_class=VideoStreamTheora`, `is_video_stream=true`, `is_playing=true`.
+- Godot headless q8 load: `file_exists=true`, `resource_exists=true`, `loaded_class=VideoStreamTheora`, `is_video_stream=true`, `is_playing=true`.
+- Godot headless movie-maker capture crashed with dummy renderer texture storage error, so visual capture was rerun with the normal Windows display driver.
+- Godot Windows display-driver movie-maker q7: recorded 75 frames at 30fps, emitted `finished signal`, and produced non-black frames.
+- Godot Windows display-driver movie-maker q8: recorded 75 frames at 30fps, emitted `finished signal`, and produced non-black frames.
+- Visual color result from representative captured frames: q7 and q8 both preserve the source's muted brown/gray war-scene tone; no rainbow/glitch corruption, red/blue/green channel swap, severe washout, oversaturation, crushed contrast, or black-frame lock was observed.
+- Final recommendation: q7 1280x as the safe Theora preset because it satisfies Godot load/play/color and is substantially smaller/lighter than q8.
+- Production cutin assets, battle logic, WorldMap logic, and cutin activation logic were not modified.
+
 ### v0.70-2 Theora Safe Encoding Test + Godot Color Playback Verification
 - Started from current `git status` where `assets/video_source_test/` was the only new user-provided test source folder.
 - Read the required agent docs before implementation.

@@ -1,5 +1,17 @@
 # NEXT TASKS
 
+## Next: Apply Safe Theora Preset to Production Candidate
+- `v0.70-3 Portable FFmpeg Setup + Theora Safe Encode Execution` is complete.
+- Safe test outputs now exist under `assets/video_test/theora_safe/`.
+- Recommended safe preset is q7 1280x:
+  - `fps=30,scale=1280:-2:flags=lanczos,format=yuv420p`
+  - `libtheora -q:v 7 -g 60`
+  - `libvorbis -q:a 4`
+- q7 and q8 both load in Godot as `VideoStreamTheora`, reach `is_playing=true`, render non-black frames, and preserve normal source-like color in captured frames.
+- q7 is preferred for production-candidate conversion because it is `3426729` bytes versus q8 `7295937` bytes and meets the stability/color goal.
+- Next task should convert a production candidate into a separate test/proposed output first, then manually verify in the real cutin layer before replacing any production asset.
+- Do not overwrite `assets/ui/cutin/videos/` directly without an explicit production replacement task.
+
 ## Next: Complete v0.70-2 Theora Safe Encoding Playback QA
 - `v0.70-2 Theora Safe Encoding Test + Godot Color Playback Verification` is partially complete.
 - Source confirmed: `assets/video_source_test/cutin_test_01.mp4`.

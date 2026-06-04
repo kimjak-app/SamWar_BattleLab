@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.70-3 Portable FFmpeg Setup + Theora Safe Encode Execution
+- Completed repo-local portable FFmpeg setup under ignored `tools/ffmpeg/`.
+- Downloaded `ffmpeg-release-essentials.zip` from gyan.dev into `tools/ffmpeg/`, extracted it locally, and copied `ffmpeg.exe` / `ffprobe.exe` to `tools/ffmpeg/bin/`.
+- FFmpeg path used: `tools/ffmpeg/bin/ffmpeg.exe`; FFprobe path used: `tools/ffmpeg/bin/ffprobe.exe`.
+- FFmpeg version: `8.1.1-essentials_build-www.gyan.dev`, with `libtheora` and `libvorbis` enabled.
+- Added `.gitignore` entries so the portable FFmpeg zip/binaries and Godot movie-maker diagnostic frames are local dependencies/artifacts, not commit targets.
+- Encoded test-only outputs from `assets/video_source_test/cutin_test_01.mp4`:
+  - `assets/video_test/theora_safe/test_safe_q7_1280x.ogv` (`3426729` bytes)
+  - `assets/video_test/theora_safe/test_safe_q8_1920x.ogv` (`7295937` bytes)
+- Both encodes succeeded with audio; no noaudio fallback was needed.
+- ffprobe q7: `codec_name=theora`, `width=1280`, `height=720`, `pix_fmt=yuv420p`, `avg_frame_rate=30/1`, `duration=2.166667`; audio `codec_name=vorbis`, `sample_rate=48000`, `channels=2`, `duration=2.154667`.
+- ffprobe q8: `codec_name=theora`, `width=1920`, `height=1080`, `pix_fmt=yuv420p`, `avg_frame_rate=30/1`, `duration=2.166667`; audio `codec_name=vorbis`, `sample_rate=48000`, `channels=2`, `duration=2.154667`.
+- Godot headless test scene load confirmed both q7 and q8 load through `ResourceLoader` as `VideoStreamTheora` and reach `is_playing=true`.
+- Godot Windows display-driver movie-maker verification confirmed q7 and q8 both render 75 frames, emit `finished signal`, and do not stick on black.
+- Visual color check from representative Godot-captured frames: q7 and q8 keep the source's muted brown/gray war-scene tone. No rainbow corruption, red/blue/green channel swap, severe washout, oversaturation, crushed contrast, or black-frame lock was observed.
+- Recommended final safe Theora preset: q7 1280x (`fps=30,scale=1280:-2:flags=lanczos,format=yuv420p`, `libtheora -q:v 7 -g 60`, `libvorbis -q:a 4`) because it satisfies Godot load/play/color and is less than half the q8 file size.
+- Production cutin assets, battle logic, WorldMap logic, and cutin activation logic were not modified.
+
 ## v0.70-2 Theora Safe Encoding Test + Godot Color Playback Verification
 - Started the safe Theora test from the non-production source `assets/video_source_test/cutin_test_01.mp4`.
 - Confirmed existing production cutin video files remain separate under `assets/ui/cutin/videos/`; this pass did not overwrite or modify production cutin assets.

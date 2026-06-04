@@ -1,5 +1,29 @@
 # HANDOFF TO CODEX
 
+## v0.70-3 Portable FFmpeg + Theora Safe Encode Handoff
+- `v0.70-3 Portable FFmpeg Setup + Theora Safe Encode Execution` is complete.
+- FFmpeg is available repo-locally at `tools/ffmpeg/bin/ffmpeg.exe`; ffprobe is at `tools/ffmpeg/bin/ffprobe.exe`.
+- FFmpeg version used: `8.1.1-essentials_build-www.gyan.dev`.
+- `tools/ffmpeg/` is ignored and should not be committed because the zip and binaries are large local dependencies.
+- Test source: `assets/video_source_test/cutin_test_01.mp4`.
+- Generated committed test outputs:
+  - `assets/video_test/theora_safe/test_safe_q7_1280x.ogv` (`3426729` bytes)
+  - `assets/video_test/theora_safe/test_safe_q8_1920x.ogv` (`7295937` bytes)
+- Actual q7 command:
+  - `.\tools\ffmpeg\bin\ffmpeg.exe -y -i "assets/video_source_test/cutin_test_01.mp4" -vf "fps=30,scale=1280:-2:flags=lanczos,format=yuv420p" -c:v libtheora -q:v 7 -g 60 -c:a libvorbis -q:a 4 "assets/video_test/theora_safe/test_safe_q7_1280x.ogv"`
+- Actual q8 command:
+  - `.\tools\ffmpeg\bin\ffmpeg.exe -y -i "assets/video_source_test/cutin_test_01.mp4" -vf "fps=30,scale=1920:-2:flags=lanczos,format=yuv420p" -c:v libtheora -q:v 8 -g 60 -c:a libvorbis -q:a 4 "assets/video_test/theora_safe/test_safe_q8_1920x.ogv"`
+- No noaudio fallback was needed.
+- ffprobe q7: Theora, 1280x720, yuv420p, 30/1 fps, duration `2.166667`; Vorbis stereo 48000Hz audio.
+- ffprobe q8: Theora, 1920x1080, yuv420p, 30/1 fps, duration `2.166667`; Vorbis stereo 48000Hz audio.
+- Godot verification:
+  - q7 and q8 both load as `VideoStreamTheora` through `ResourceLoader`.
+  - q7 and q8 both reach `is_playing=true` in `scenes/dev/video_theora_test.tscn`.
+  - q7 and q8 both emitted `finished signal` during Windows display-driver movie-maker capture.
+  - Captured frames were non-black and source-like in color; no rainbow corruption or obvious RGB channel swap was observed.
+- Recommended safe preset: q7 1280x. It meets load/play/color requirements and is much smaller/lighter than q8.
+- Next work should use the q7 preset on a production-candidate source into a separate proposed/test output first. Do not overwrite production cutin assets without explicit instruction.
+
 ## v0.70-2 Theora Safe Encoding Test Handoff
 - Scope was limited to test-only video source/output, a dev test scene, and docs. Battle logic, WorldMap logic, and production cutin assets were not changed.
 - Source file for the current test: `assets/video_source_test/cutin_test_01.mp4`.

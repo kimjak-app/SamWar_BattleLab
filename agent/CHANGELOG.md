@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.70-3 Portable FFmpeg Setup + Theora Safe Encode Execution
+- Prepared repo-local portable FFmpeg under ignored `tools/ffmpeg/` without changing system PATH.
+- Downloaded and extracted gyan.dev `ffmpeg-release-essentials.zip`, then copied `ffmpeg.exe` and `ffprobe.exe` into `tools/ffmpeg/bin/` for direct calls.
+- Added `.gitignore` rules for local FFmpeg binaries/zip/extraction and Godot movie-maker diagnostic frame outputs.
+- Encoded `assets/video_source_test/cutin_test_01.mp4` into test-only Theora outputs:
+  - `assets/video_test/theora_safe/test_safe_q7_1280x.ogv`
+  - `assets/video_test/theora_safe/test_safe_q8_1920x.ogv`
+- Confirmed both outputs are Theora/yuv420p/30fps with Vorbis stereo audio by ffprobe.
+- Verified `scenes/dev/video_theora_test.tscn` loads q7 and q8 as `VideoStreamTheora` and starts playback in Godot.
+- Used Godot movie-maker with the normal Windows display driver to capture q7/q8 playback frames; both rendered non-black frames and normal source-like color.
+- Updated `scripts/video_theora_test.gd` with command-line stream selection for repeatable q7/q8 diagnostics.
+- Recommended q7 1280x as the final safe Theora preset for future production-candidate conversion.
+- Did not modify production cutin assets, battle logic, WorldMap logic, or cutin activation logic.
+
 ## v0.70-2 Theora Safe Encoding Test + Godot Color Playback Verification
 - Confirmed the current test source path: `assets/video_source_test/cutin_test_01.mp4`.
 - Confirmed production cutin videos remain under `assets/ui/cutin/videos/` and were not overwritten or modified.
