@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect
+- Built on requested `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish` (`7f937fe`); actual pre-edit HEAD was clean `fd2eb4e 월드맵작업`, which changed only `WorldMap_Test.tscn`.
+- Added `GovernorAssignOption` to the selected-city `GovernorCard`.
+- Added `governor_assignment_requested(city_id, governor_id)` to `scripts/worldmap_city_info_panel.gd`.
+- Populates governor candidates from the selected city's `stationed_hero_ids`, with `미임명` as the first entry.
+- Connected governor assignment in `scripts/worldmap_test.gd` so the selected city's mutable runtime `governor_id` is updated and the selected-city/city-detail UI refreshes.
+- Preserved the existing `GovernorPolicyOption` runtime path through `_city_policy_state[city_id]`.
+- Saved/loaded city `governor_id`, city `governor_policy_id`, and top-level `city_policy_state`, with fallback compatibility for older saves.
+- Replaced selected-city governor policy copy that exposed `재상 정책 수행`, `Godot에서는 표시 전용`, placeholder/no-effect text, or "No city stat or turn effect applied".
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change governor exclusivity, hero movement, stationed rosters, wounded/captured/dead governor rules, domestic/trade/relation formulas, turn-income/security calculations, city ownership/troop/resource calculations, battle scripts, `BattleContext`, `project.godot`, `.uid`/`.ogv` assets, or new assets.
+
 ## v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish
 - Built on `v0.70-17b Restore Theora Test UID Files` (`9b8b186`) after the residual `WorldMap_Test.tscn` scene serialization diff was restored and the repo was clean.
 - Added a selected-city panel startup anchor helper in `scripts/worldmap_test.gd` so `CityInfoPanel` starts at the shared top baseline and right-side 10px margin while remaining a `WorldMapUI` CanvasLayer child.

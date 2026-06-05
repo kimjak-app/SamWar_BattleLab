@@ -1943,6 +1943,10 @@ theme_override_font_sizes/font_size = 10
 text = "능력: -"
 autowrap_mode = 2
 
+[node name="GovernorAssignOption" type="OptionButton" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+
 [node name="GovernorPolicyOption" type="OptionButton" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content/GovernorCard/MarginContainer/Content" unique_id=656937246]
 layout_mode = 2
 theme_override_font_sizes/font_size = 10

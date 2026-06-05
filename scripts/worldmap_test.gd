@@ -351,20 +351,20 @@ const PLAYER_ATTACK_WOUNDED_QUEUE_TURNS := 3
 
 const GOVERNOR_POLICY_DATA := {
 	"follow_chancellor": {
-		"name": "재상 정책 수행",
-		"description": "도시 운영 효과 적용 · Godot에서는 표시 전용",
+		"name": "균형 운영",
+		"description": "효과: 국가 운영 방향을 따른 도시 보정",
 	},
 	"agriculture": {
 		"name": "농업 중심",
-		"description": "도시 운영 효과 적용 · Godot에서는 표시 전용",
+		"description": "효과: 농업 산출 강화",
 	},
 	"commerce": {
 		"name": "상업 중심",
-		"description": "도시 운영 효과 적용 · Godot에서는 표시 전용",
+		"description": "효과: 상업 수입 강화",
 	},
 	"military": {
 		"name": "군사 중심",
-		"description": "도시 운영 효과 적용 · Godot에서는 표시 전용",
+		"description": "효과: 병력 운영 보정",
 	},
 }
 
@@ -973,10 +973,32 @@ func _connect_city_info_panel_actions() -> void:
 	var callback := Callable(self, "_on_city_info_attack_requested")
 	if city_info_panel.has_signal("attack_requested") and not city_info_panel.is_connected("attack_requested", callback):
 		city_info_panel.connect("attack_requested", callback)
+	var governor_assignment_callback := Callable(self, "_on_city_info_governor_assignment_requested")
+	if city_info_panel.has_signal("governor_assignment_requested") and not city_info_panel.is_connected("governor_assignment_requested", governor_assignment_callback):
+		city_info_panel.connect("governor_assignment_requested", governor_assignment_callback)
 
 
 func _on_city_info_attack_requested(city_id: String) -> void:
 	_start_player_attack_battle(city_id, "manual")
+
+
+func _on_city_info_governor_assignment_requested(city_id: String, governor_id: String) -> void:
+	if city_id.is_empty():
+		return
+	var city_state := _get_mutable_city_runtime_state(city_id)
+	if city_state.is_empty():
+		return
+	var normalized_governor_id := governor_id.strip_edges()
+	if not normalized_governor_id.is_empty():
+		var stationed_hero_ids := _normalize_hero_id_array(city_state.get("stationed_hero_ids", city_state.get("hero_ids", [])))
+		if not stationed_hero_ids.has(normalized_governor_id):
+			push_warning("[WorldMap] Ignored governor assignment outside stationed heroes: city=%s hero=%s" % [city_id, normalized_governor_id])
+			return
+	city_state["governor_id"] = normalized_governor_id
+	_refresh_city_hud_data_bindings()
+	if _city_markers_by_id.has(city_id):
+		city_info_panel.show_city(_city_markers_by_id.get(city_id) as WorldMapCityMarker)
+	_refresh_unified_panel_content()
 
 
 func _connect_world_hud_placeholders() -> void:
@@ -8963,6 +8985,7 @@ func _serialize_worldmap_state() -> Dictionary:
 	saved_player_state["enemy_invasion_roll_turn"] = 0
 	var city_state := _serialize_worldmap_city_runtime_state()
 	var hero_state := _serialize_worldmap_hero_runtime_state()
+	var city_policy_state := _serialize_worldmap_city_policy_state()
 	print("[SAVE_WORLD_STATE] city_overrides=%d hero_overrides=%d pending_invasion_cleared=true" % [
 		city_state.size(),
 		hero_state.size()
@@ -8973,6 +8996,7 @@ func _serialize_worldmap_state() -> Dictionary:
 		"player_state": saved_player_state,
 		"worldmap_city_state": city_state,
 		"worldmap_hero_state": hero_state,
+		"city_policy_state": city_policy_state,
 	}
 
 
@@ -8987,7 +9011,9 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 	_ensure_worldmap_runtime_state_defaults()
 	_city_runtime_states.clear()
 	_hero_runtime_states.clear()
+	_city_policy_state.clear()
 	_apply_worldmap_city_runtime_state(data.get("worldmap_city_state", {}))
+	_apply_worldmap_city_policy_state(data.get("city_policy_state", {}))
 	_apply_worldmap_hero_runtime_state(data.get("worldmap_hero_state", {}))
 	_sync_worldmap_hero_locations_from_city_runtime_states()
 	_refresh_city_marker_owner_states_from_runtime()
@@ -9044,6 +9070,7 @@ func _reset_worldmap_state() -> void:
 	_ensure_worldmap_runtime_state_defaults()
 	_city_runtime_states.clear()
 	_hero_runtime_states.clear()
+	_city_policy_state.clear()
 	_refresh_city_marker_owner_states_from_runtime()
 	_refresh_city_hud_data_bindings()
 	_clear_pending_invasion_event_mvp()
@@ -9111,6 +9138,8 @@ func _serialize_worldmap_city_runtime_state() -> Dictionary:
 			"nation": str(source.get("nation", source.get("owner", ""))),
 			"owner_faction_id": str(source.get("owner_faction_id", source.get("owner", source.get("nation", "")))),
 			"faction": str(source.get("faction", source.get("owner", source.get("nation", "")))),
+			"governor_id": str(source.get("governor_id", "")),
+			"governor_policy_id": _get_city_policy_id(city_id, source),
 			"troops": maxi(0, int(source.get("troops", 0))),
 			"publicSupport": _get_city_public_support(city_id),
 			"loyalty": _get_city_loyalty_value(source),
@@ -9133,6 +9162,18 @@ func _serialize_worldmap_city_runtime_state() -> Dictionary:
 			int(city_payload.get("troops", 0)),
 			str(city_payload.get("stationed_hero_ids", []))
 		])
+	return serialized
+
+
+func _serialize_worldmap_city_policy_state() -> Dictionary:
+	var serialized := {}
+	for city_id_variant in _city_policy_state.keys():
+		var city_id := str(city_id_variant)
+		if city_id.is_empty() or _get_city_hud_entry(city_id).is_empty():
+			continue
+		var policy_id := str(_city_policy_state.get(city_id, ""))
+		if GOVERNOR_POLICY_DATA.has(policy_id):
+			serialized[city_id] = policy_id
 	return serialized
 
 
@@ -9197,6 +9238,13 @@ func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
 			city_state["faction"] = str(source.get("faction", owner_id))
 		if source.has("troops"):
 			city_state["troops"] = maxi(0, int(source.get("troops", 0)))
+		if source.has("governor_id") or source.has("governorHeroId"):
+			city_state["governor_id"] = str(source.get("governor_id", source.get("governorHeroId", "")))
+		if source.has("governor_policy_id"):
+			var loaded_policy_id := str(source.get("governor_policy_id", "follow_chancellor"))
+			if GOVERNOR_POLICY_DATA.has(loaded_policy_id):
+				city_state["governor_policy_id"] = loaded_policy_id
+				_city_policy_state[city_id] = loaded_policy_id
 		if source.has("loyalty") or source.has("cityLoyalty"):
 			var loaded_loyalty := clampi(int(source.get("cityLoyalty", source.get("loyalty", city_state.get("loyalty", 75)))), 0, 100)
 			city_state["loyalty"] = loaded_loyalty
@@ -9234,6 +9282,21 @@ func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
 			int(city_state.get("troops", 0)),
 			str(stationed_hero_ids)
 		])
+
+
+func _apply_worldmap_city_policy_state(raw_state: Variant) -> void:
+	if raw_state == null:
+		return
+	if not raw_state is Dictionary:
+		print("[LOAD_STATE_SKIP] type=city_policy_state reason=not_dictionary")
+		return
+	for city_id_variant in (raw_state as Dictionary).keys():
+		var city_id := str(city_id_variant)
+		if _get_city_hud_entry(city_id).is_empty() and not CITY_HUD_DATA.has(city_id):
+			continue
+		var policy_id := str((raw_state as Dictionary).get(city_id, ""))
+		if GOVERNOR_POLICY_DATA.has(policy_id):
+			_city_policy_state[city_id] = policy_id
 
 
 func _apply_worldmap_hero_runtime_state(raw_state: Variant) -> void:

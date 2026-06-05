@@ -1,5 +1,23 @@
 # NEXT TASKS
 
+## Next: v0.70-20 WorldMap Selected City Panel Troop Stats Polish
+- `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` is the current selected-city governor connection baseline.
+- v0.70-19 summary:
+  1. Actual pre-edit HEAD was `fd2eb4e 월드맵작업`, one clean local scene-only commit on top of `v0.70-18`.
+  2. `GovernorAssignOption` was added inside the selected-city `GovernorCard`.
+  3. Governor candidates are restricted to the selected city's `stationed_hero_ids`, with `미임명` as the first option.
+  4. Assignment emits `governor_assignment_requested(city_id, governor_id)` and `worldmap_test.gd` updates the selected city's runtime `governor_id`.
+  5. Existing `GovernorPolicyOption` remains the city policy selector and continues to update `_city_policy_state[city_id]`.
+  6. Save/load now preserves city `governor_id`, city `governor_policy_id`, and top-level `city_policy_state`.
+  7. Selected-city governor policy copy no longer exposes `재상 정책 수행`, `Godot에서는 표시 전용`, placeholder/no-effect text, or "No city stat or turn effect applied".
+- Preserved scope: no global governor exclusivity, hero movement, stationed roster mutation, wounded/captured/dead governor release, domestic/trade/relation formula changes, turn-income/security redesign, city ownership/troop/resource changes, battle scripts, or `project.godot`.
+- Manual F6 QA should confirm governor assignment dropdown, per-city assignment refresh, policy description refresh, save/load persistence, right-panel drag, city switching, and unchanged battle entry.
+- Next candidate work:
+  1. `v0.70-20 WorldMap Selected City Panel Troop Stats Polish`
+  2. `v0.70-21 WorldMap City Detail Panel Right Side Polish`
+  3. `v0.70-22 WorldMap Battle Entry Camera Zoom Handoff`
+  4. `v0.70-23 Governor Assignment Exclusivity & Hero State Rules`
+
 ## Next: v0.70-19 WorldMap Selected City Panel Troop & Governor Polish
 - `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish` is the current selected-city panel baseline.
 - v0.70-18 summary:

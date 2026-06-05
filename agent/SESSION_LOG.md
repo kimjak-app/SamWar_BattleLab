@@ -2,6 +2,27 @@
 
 ## 2026-06-05
 
+### v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect
+- Started from clean actual HEAD `fd2eb4e 월드맵작업`; requested baseline `7f937fe v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish` was one local commit behind.
+- Required git analysis:
+  - `git status --short`: clean.
+  - Recent log: `fd2eb4e`, `7f937fe`, `9b8b186`, `110f0e8`, `91713d8`, `4535a3f`, `5dec9b2`, `502f1eb`, `ab91b34`, `e53a9fb`.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: HEAD changed only `WorldMap_Test.tscn`.
+- Inspected required docs and the selected-city governor/policy paths in `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and `scripts/worldmap_city_info_panel.gd`.
+- Implemented minimal governor connection:
+  - Added `GovernorAssignOption` to the selected-city governor card.
+  - Added a `governor_assignment_requested` signal from the panel.
+  - Populated assignment choices from selected-city `stationed_hero_ids` plus `미임명`.
+  - Updated mutable city runtime `governor_id` in `worldmap_test.gd` and refreshed selected-city/city-detail display.
+  - Kept the existing governor policy dropdown connected to `_city_policy_state`.
+- Save/load:
+  - City runtime save includes `governor_id` and `governor_policy_id`.
+  - Top-level `city_policy_state` is saved and loaded.
+  - Missing keys in older saves fall back to seed city data/default policy.
+- Removed selected-city governor policy developer wording: no visible `재상 정책 수행`, `Godot에서는 표시 전용`, placeholder/no-effect, or "No city stat or turn effect applied" copy remains in this path.
+- Preserved governor effect formulas, chancellor/tax formulas, domestic/trade/relation formulas, hero movement, stationed rosters, governor exclusivity, wounded/captured/dead coupling, city ownership/troop/resource calculations, battle scripts, `BattleContext`, and `project.godot`.
+- Verification passed: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load. Manual F6 QA remains recommended for dropdown/save-load behavior.
+
 ### v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish
 - Started from clean `9b8b186 v0.70-17b Restore Theora Test UID Files`.
 - Required git analysis:

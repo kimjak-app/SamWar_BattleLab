@@ -5,6 +5,7 @@ const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper
 const PLAYER_FACTION_ID := "player"
 
 signal attack_requested(city_id: String)
+signal governor_assignment_requested(city_id: String, governor_id: String)
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -63,6 +64,7 @@ const CITY_TYPE_LABELS := {
 @onready var governor_portrait_label: Label = $MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/PortraitBox/PortraitLabel
 @onready var governor_name_label: Label = $MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/Copy/GovernorNameLabel
 @onready var governor_stats_label: Label = $MarginContainer/Content/GovernorCard/MarginContainer/Content/HeaderRow/Copy/GovernorStatsLabel
+@onready var governor_assign_option: OptionButton = $MarginContainer/Content/GovernorCard/MarginContainer/Content/GovernorAssignOption
 @onready var governor_policy_option: OptionButton = $MarginContainer/Content/GovernorCard/MarginContainer/Content/GovernorPolicyOption
 @onready var governor_policy_description_label: Label = $MarginContainer/Content/GovernorCard/MarginContainer/Content/GovernorPolicyDescriptionLabel
 @onready var selected_hero_chip_label: Label = $MarginContainer/Content/SelectedHeroChipLabel
@@ -95,6 +97,8 @@ func _ready() -> void:
 	hero_move_button_placeholder.pressed.connect(_on_hero_move_placeholder_pressed)
 	domestic_button_placeholder.pressed.connect(_on_domestic_placeholder_pressed)
 	recruit_button_placeholder.pressed.connect(_on_recruit_placeholder_pressed)
+	if not governor_assign_option.item_selected.is_connected(_on_governor_assignment_selected):
+		governor_assign_option.item_selected.connect(_on_governor_assignment_selected)
 	if not governor_policy_option.item_selected.is_connected(_on_governor_policy_selected):
 		governor_policy_option.item_selected.connect(_on_governor_policy_selected)
 	_show_empty()
@@ -153,6 +157,7 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 	status_text_label.text = ""
 	loyalty_label.text = "성 충성도 %d" % loyalty
 	loyalty_bar.value = loyalty
+	_setup_governor_assign_option(city_data, governor_id)
 	_update_governor_card(governor_id, governor_data, policy_id, policy_data)
 	governor_label.text = ""
 	selected_hero_chip_label.text = "주둔 장수"
@@ -186,6 +191,7 @@ func _show_empty() -> void:
 	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_governor_portrait_texture_rect, governor_portrait_label, {})
 	governor_name_label.text = "태수 없음"
 	governor_stats_label.text = "능력: -"
+	_setup_governor_assign_option({}, "")
 	_setup_governor_policy_option()
 	governor_policy_description_label.text = "도시 선택 시 태수 정책 설명이 표시됩니다."
 	selected_hero_chip_label.text = "주둔 장수"
@@ -217,6 +223,24 @@ func _setup_governor_policy_option() -> void:
 		var policy_data: Dictionary = _governor_policy_data[policy_id]
 		governor_policy_option.add_item(str(policy_data.get("name", policy_id)))
 		governor_policy_option.set_item_metadata(governor_policy_option.item_count - 1, policy_id)
+
+
+func _setup_governor_assign_option(city_data: Dictionary, governor_id: String) -> void:
+	if governor_assign_option == null:
+		return
+	governor_assign_option.clear()
+	governor_assign_option.add_item("미임명")
+	governor_assign_option.set_item_metadata(0, "")
+	for hero_id in _get_city_stationed_hero_ids(city_data):
+		var hero_id_string := str(hero_id)
+		if hero_id_string.is_empty():
+			continue
+		var hero_data := _get_hero_entry(hero_id_string)
+		var hero_name := _get_hero_display_name(hero_data, hero_id_string)
+		governor_assign_option.add_item(hero_name)
+		governor_assign_option.set_item_metadata(governor_assign_option.item_count - 1, hero_id_string)
+	_select_option_by_metadata(governor_assign_option, governor_id)
+	governor_assign_option.disabled = _current_city_id.is_empty()
 
 
 func _format_region_label(region_id: String) -> String:
@@ -410,7 +434,7 @@ func _update_governor_card(governor_id: String, governor_data: Dictionary, polic
 	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_governor_portrait_texture_rect, governor_portrait_label, governor_data)
 	governor_name_label.text = governor_name
 	governor_stats_label.text = _format_hero_stats(governor_data)
-	governor_policy_description_label.text = str(policy_data.get("description", "태수 정책 설명 준비 중"))
+	governor_policy_description_label.text = _format_governor_policy_description(policy_data)
 	_select_option_by_metadata(governor_policy_option, policy_id)
 	governor_policy_option.disabled = governor_id.is_empty()
 
@@ -496,6 +520,8 @@ func _format_hero_stats(hero_data: Dictionary) -> String:
 
 
 func _select_option_by_metadata(option_button: OptionButton, metadata_value: String) -> void:
+	if option_button == null:
+		return
 	for index in range(option_button.item_count):
 		if str(option_button.get_item_metadata(index)) == metadata_value:
 			option_button.select(index)
@@ -546,16 +572,23 @@ func _on_governor_policy_selected(index: int) -> void:
 	var policy_id := str(governor_policy_option.get_item_metadata(index))
 	_city_policy_state[_current_city_id] = policy_id
 	var policy_data := _get_governor_policy_entry(policy_id)
-	var city_data := _get_city_hud_entry(_current_city_id)
-	var governor_data := _get_hero_entry(str(city_data.get("governor_id", "")))
-	governor_policy_description_label.text = str(policy_data.get("description", "태수 정책 설명 준비 중"))
+	governor_policy_description_label.text = _format_governor_policy_description(policy_data)
 	governor_label.text = ""
 	governor_label.visible = false
-	print("[WorldMap] Governor policy placeholder selected: %s for %s. No city stat or turn effect applied." % [policy_id, _current_city_id])
-	hint_label.text = "정책: %s · %s" % [
-		str(policy_data.get("name", policy_id)),
-		str(policy_data.get("description", "정보 없음")),
-	]
+	print("[WorldMap] Governor policy selected: %s for %s" % [policy_id, _current_city_id])
+	hint_label.text = "태수 정책: %s" % _format_governor_policy_description(policy_data)
+
+
+func _on_governor_assignment_selected(index: int) -> void:
+	if _current_city_id.is_empty() or governor_assign_option == null:
+		return
+	var governor_id := str(governor_assign_option.get_item_metadata(index))
+	governor_assignment_requested.emit(_current_city_id, governor_id)
+
+
+func _format_governor_policy_description(policy_data: Dictionary) -> String:
+	var description := str(policy_data.get("description", "태수 정책 설명 준비 중")).strip_edges()
+	return description if not description.is_empty() else "정책: 보정 없음"
 
 
 func _on_attack_placeholder_pressed() -> void:

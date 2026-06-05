@@ -1,5 +1,13 @@
 # WORLDMAP RULES
 
+## v0.70-19 Selected City Governor Assignment and Policy Connect Rule
+- `CityInfoPanel` may expose a governor assignment dropdown, but candidates are limited to the selected city's current `stationed_hero_ids` plus `미임명`.
+- Governor assignment changes only the selected city's mutable runtime `governor_id`. It must not move heroes, mutate `stationed_hero_ids`, or enforce global duplicate-governor rules until a dedicated task defines those rules.
+- `GovernorPolicyOption` remains the selected-city governor policy selector and updates `_city_policy_state[city_id]`.
+- Save/load must preserve city `governor_id`, city `governor_policy_id`, and top-level `city_policy_state`, while older saves fall back to seed city data/default policy.
+- Selected-city governor policy copy must not expose `재상 정책 수행`, `Godot에서는 표시 전용`, placeholder/no-effect wording, or "No city stat or turn effect applied".
+- This connection work must not change governor effect formulas, chancellor/tax formulas, domestic/trade/relation formulas, turn-income/security calculations, hero movement, wounded/captured/dead coupling, city ownership/troop/resource calculations, battle entry, `BattleContext`, or battle scenes.
+
 ## v0.70-18 Selected City Panel Anchor and Summary Slim Rule
 - `CityInfoPanel` must remain a direct `WorldMapUI` CanvasLayer child so it is independent from `WorldMapCamera` pan/zoom and battle-entry camera handoff motion.
 - The selected-city panel startup position is right-side fixed at the shared `WORLD_UI_TOP_MARGIN = 10.0` and a 10px right margin for the current viewport baseline.

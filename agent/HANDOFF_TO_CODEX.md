@@ -1,5 +1,27 @@
 # HANDOFF TO CODEX
 
+## v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect Handoff
+- Baseline requested: `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish` (`7f937fe`). Actual pre-edit HEAD was `fd2eb4e 월드맵작업`, a clean local commit modifying only `WorldMap_Test.tscn`; it was preserved.
+- Required git analysis was performed before editing:
+  - `git status --short`: clean.
+  - Recent log confirmed `fd2eb4e` on top of `7f937fe`.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: HEAD changed only `WorldMap_Test.tscn`.
+- Runtime/scene files touched: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and `scripts/worldmap_city_info_panel.gd`.
+- Governor assignment:
+  - Added `GovernorAssignOption` under `WorldMapUI/CityInfoPanel/.../GovernorCard/.../Content`.
+  - `WorldMapCityInfoPanel` now exposes `governor_assignment_requested(city_id, governor_id)`.
+  - Candidate list is `미임명` plus the selected city's `stationed_hero_ids`.
+  - `worldmap_test.gd` handles the signal and updates the mutable city runtime `governor_id`; it does not move heroes or mutate `stationed_hero_ids`.
+- Governor policy:
+  - Existing `GovernorPolicyOption` still updates `_city_policy_state[city_id]`.
+  - `GOVERNOR_POLICY_DATA` copy was changed to player-facing wording, so selected-city UI no longer shows `재상 정책 수행`, `Godot에서는 표시 전용`, placeholder/no-effect copy, or "No city stat or turn effect applied".
+- Persistence:
+  - City runtime save now includes `governor_id` and `governor_policy_id`.
+  - Top-level `city_policy_state` is saved and loaded.
+  - Older saves fall back to seed `governor_id` / `governor_policy_id` when these keys are missing.
+- Explicitly excluded: governor exclusivity, hero movement, wounded/captured/dead governor release, domestic/trade/relation formula changes, turn-income/security redesign, city ownership/troop/resource calculations, battle scripts, and `project.godot`.
+- Verification passed: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, `Battle_Fullscreen_Test.tscn` headless load, and docs marker check. Manual F6 QA remains recommended for dropdown interaction and save/load.
+
 ## v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish Handoff
 - Baseline: `v0.70-17b Restore Theora Test UID Files` (`9b8b186`) after `WorldMap_Test.tscn` residual serialization diff was restored and the repo was clean.
 - Required git analysis was performed before editing:
