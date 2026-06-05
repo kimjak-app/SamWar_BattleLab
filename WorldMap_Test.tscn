@@ -1192,6 +1192,7 @@ zoom = Vector2(0.7, 0.7)
 [node name="WorldMapUI" type="CanvasLayer" parent="." unique_id=1714646027]
 
 [node name="TitleLabel" type="Label" parent="WorldMapUI" unique_id=5899274]
+visible = false
 offset_left = 20.0
 offset_top = 18.0
 offset_right = 180.0
@@ -1235,9 +1236,9 @@ horizontal_alignment = 2
 [node name="LeftWorldStatusPanel" type="PanelContainer" parent="WorldMapUI" unique_id=49871230]
 anchors_preset = 0
 offset_left = 18.0
-offset_top = 56.0
+offset_top = 16.0
 offset_right = 338.0
-offset_bottom = 626.0
+offset_bottom = 586.0
 custom_minimum_size = Vector2(320, 570)
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 
@@ -1510,9 +1511,9 @@ horizontal_alignment = 1
 
 [node name="DiplomacySpyPanel" type="PanelContainer" parent="WorldMapUI" unique_id=195893152]
 offset_left = 340.0
-offset_top = 96.0
+offset_top = 16.0
 offset_right = 560.0
-offset_bottom = 410.0
+offset_bottom = 330.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 
 [node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/DiplomacySpyPanel" unique_id=1438903641]
@@ -1625,9 +1626,9 @@ autowrap_mode = 2
 
 [node name="CityDetailPanel" type="PanelContainer" parent="WorldMapUI" unique_id=131852180]
 offset_left = 572.0
-offset_top = 96.0
+offset_top = 16.0
 offset_right = 812.0
-offset_bottom = 520.0
+offset_bottom = 440.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 
 [node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityDetailPanel" unique_id=1476225625]
@@ -1774,9 +1775,9 @@ autowrap_mode = 2
 
 [node name="CityInfoPanel" type="PanelContainer" parent="WorldMapUI" unique_id=1812841544]
 offset_left = 824.0
-offset_top = 96.0
+offset_top = 16.0
 offset_right = 1132.0
-offset_bottom = 638.0
+offset_bottom = 558.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 script = ExtResource("13_city_info_panel")
 

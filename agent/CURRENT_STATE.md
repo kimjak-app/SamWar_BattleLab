@@ -1,5 +1,29 @@
 # CURRENT STATE
 
+## v0.70-14a WorldMap Panel Top Margin Baseline Polish
+- Baseline: `v0.70-14 WorldMap Left Panel Anchor & World Turn Lock` at HEAD `ab91b34`.
+- Current HEAD analysis summary: `ab91b34` changed `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and six agent docs for the left-panel anchor / World Turn lock. Two pre-existing untracked Godot `.ogv.uid` files under `assets/video_test/theora_safe/` remain untouched.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`.
+- Panel Y position analysis before patch:
+  - `LeftWorldStatusPanel`: top `56`, left `18`, size `320 x 570`.
+  - `CityInfoPanel` / `SELECTED CITY`: top `96`, left `824`, width `308`.
+  - `CityDetailPanel` / `CITY DETAIL`: top `96`, left `572`, width `240`.
+  - `DiplomacySpyPanel`: top `96`, left `340`, width `220`.
+  - `TitleLabel` / `SamWar HUD MVP`: top `18`, which would overlap the raised left panel.
+- Common top margin baseline:
+  - Added `WORLD_UI_TOP_MARGIN = 16.0` and `WORLD_UI_LEFT_MARGIN = 18.0` in `scripts/worldmap_test.gd`.
+  - Scene offsets now place the left panel, selected-city panel, city-detail panel, and diplomacy/spy panel at top `16` while preserving each X position, width, and height.
+  - `_lock_worldmap_fixed_panel_top_margin()` reapplies top-left screen anchors and the shared top margin at runtime for the fixed HUD panels.
+- Debug label handling: `WorldMapUI/TitleLabel` is hidden in the scene and again in `_hide_retired_top_worldmap_hud()`; the node is not deleted.
+- Camera independence: all affected panels remain direct `WorldMapUI` `CanvasLayer` children, so `WorldMapCamera` pan/zoom and battle-entry handoff motion do not move or scale them.
+- Preserved scope: no `scripts/battle_web_import_test.gd`, `project.godot`, battle calculation, BattleContext, city data, city click/battle entry, domestic/trade/relation formula, panel content, or asset changes.
+- Verification result: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, `Battle_Fullscreen_Test.tscn` headless load, and docs string check passed before commit. Manual F6 QA remains recommended for visible top alignment.
+- Next candidate work:
+  1. `v0.70-15 WorldMap Left Panel Visual Hierarchy Polish`
+  2. `v0.70-16 WorldMap Left Panel Resource Warehouse Polish`
+  3. `v0.70-17 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-18 WorldMap Battle Entry Camera Zoom Handoff`
+
 ## v0.70-14 WorldMap Left Panel Anchor & World Turn Lock
 - Baseline requested: `v0.70-13d Battle Movement Facing Direction Polish` at `8991b9b51f91aead893df51f2ee07e1b532bed34`; actual pre-edit HEAD was `e53a9fb v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`, which is preserved and not reverted.
 - Current HEAD analysis summary: actual HEAD `e53a9fb` changed `scripts/worldmap_test.gd` plus six agent docs for the battle-entry camera handoff. Two untracked Godot `.ogv.uid` files existed before this patch and were left untouched.

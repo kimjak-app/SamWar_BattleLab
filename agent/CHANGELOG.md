@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-14a WorldMap Panel Top Margin Baseline Polish
+- Built on `v0.70-14 WorldMap Left Panel Anchor & World Turn Lock` (`ab91b34`).
+- Analyzed latest git history before edits and confirmed the only pre-existing worktree noise was two untracked Godot `.ogv.uid` files, left untouched.
+- Added `WORLD_UI_TOP_MARGIN = 16.0` and `WORLD_UI_LEFT_MARGIN = 18.0` in `scripts/worldmap_test.gd`.
+- Updated `WorldMap_Test.tscn` so `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` all start at top `16` while preserving current X positions, widths, heights, content, and styles.
+- Added `_lock_worldmap_fixed_panel_top_margin()` / `_lock_screen_panel_top_margin()` to reapply the common top baseline to the fixed WorldMap information panels at runtime.
+- Hid the retired `WorldMapUI/TitleLabel` / `SamWar HUD MVP` debug label in the scene and runtime guard path to prevent overlap with the raised left panel.
+- Confirmed the affected panels remain `WorldMapUI` CanvasLayer children and independent from `WorldMapCamera` pan/zoom.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`.
+- Did not change `scripts/battle_web_import_test.gd`, `project.godot`, battle calculations, BattleContext, city data, city click/battle entry, domestic/trade/relation formulas, panel information structure, or assets.
+
 ## v0.70-14 WorldMap Left Panel Anchor & World Turn Lock
 - Built on requested `v0.70-13d Battle Movement Facing Direction Polish`; actual pre-edit HEAD was `e53a9fb v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`.
 - Analyzed latest git history before edits and confirmed existing untracked `.ogv.uid` files were pre-existing and left untouched.

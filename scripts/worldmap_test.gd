@@ -13,7 +13,9 @@ const WORLD_BATTLE_ENTRY_PAN_SEC := 0.55
 const WORLD_BATTLE_ENTRY_ZOOM_SEC := 0.45
 const WORLD_BATTLE_ENTRY_HOLD_SEC := 0.15
 const WORLD_BATTLE_ENTRY_TARGET_ZOOM := Vector2(1.35, 1.35)
-const LEFT_WORLD_STATUS_PANEL_TOP_LEFT := Vector2(18.0, 56.0)
+const WORLD_UI_TOP_MARGIN := 16.0
+const WORLD_UI_LEFT_MARGIN := 18.0
+const LEFT_WORLD_STATUS_PANEL_TOP_LEFT := Vector2(WORLD_UI_LEFT_MARGIN, WORLD_UI_TOP_MARGIN)
 const LEFT_WORLD_STATUS_PANEL_SIZE := Vector2(320.0, 570.0)
 const PLAYER_FACTION_ID := "player"
 const UNIFIED_PANEL_TAB_CITY_DETAIL := "city-detail"
@@ -648,6 +650,7 @@ func _ready() -> void:
 	_connect_world_hud_placeholders()
 	_setup_unified_city_detail_diplomacy_panel()
 	_setup_independent_hud_panel_drag()
+	_lock_worldmap_fixed_panel_top_margin()
 	_reset_city_detail_panel()
 	_configure_camera()
 	_update_camera_debug_label()
@@ -724,6 +727,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _hide_retired_top_worldmap_hud() -> void:
+	var retired_title_label := get_node_or_null("WorldMapUI/TitleLabel") as Control
+	if retired_title_label != null:
+		retired_title_label.visible = false
 	world_title_panel.visible = false
 	right_hud_dragbar.visible = false
 
@@ -731,6 +737,24 @@ func _hide_retired_top_worldmap_hud() -> void:
 func _setup_independent_hud_panel_drag() -> void:
 	_register_hud_panel_drag(city_detail_panel, [city_detail_eyebrow_label, city_detail_heading_label])
 	_register_hud_panel_drag(city_info_panel_control, [city_info_eyebrow_label, city_info_city_name_label])
+
+
+func _lock_worldmap_fixed_panel_top_margin() -> void:
+	_lock_left_world_status_panel_anchor()
+	_lock_screen_panel_top_margin(diplomacy_spy_panel)
+	_lock_screen_panel_top_margin(city_detail_panel)
+	_lock_screen_panel_top_margin(city_info_panel_control)
+
+
+func _lock_screen_panel_top_margin(panel: Control) -> void:
+	if panel == null:
+		return
+
+	var current_size := panel.size
+	panel.set_anchors_preset(Control.PRESET_TOP_LEFT, true)
+	panel.position = Vector2(panel.position.x, WORLD_UI_TOP_MARGIN)
+	if current_size != Vector2.ZERO:
+		panel.size = current_size
 
 
 func _register_hud_panel_drag(panel: Control, handles: Array) -> void:

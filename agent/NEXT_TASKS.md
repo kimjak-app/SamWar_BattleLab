@@ -1,6 +1,23 @@
 # NEXT TASKS
 
 ## Next: v0.70-15 WorldMap Left Panel Visual Hierarchy Polish
+- `v0.70-14a WorldMap Panel Top Margin Baseline Polish` is the current WorldMap fixed-panel top-margin baseline.
+- Baseline: `v0.70-14 WorldMap Left Panel Anchor & World Turn Lock` at HEAD `ab91b34`.
+- v0.70-14a summary:
+  1. Required git analysis confirmed the prior left-panel lock commit and only pre-existing untracked Godot `.ogv.uid` files.
+  2. `WorldMapUI` remains a `CanvasLayer`; left, selected-city, city-detail, and diplomacy/spy panels remain screen-fixed during camera pan/zoom.
+  3. Initial panel top values were split: left panel `56`, right/city panels `96`.
+  4. Added shared `WORLD_UI_TOP_MARGIN = 16.0` and moved all fixed WorldMap information panels to top `16` while preserving X position, width, height, content, and behavior.
+  5. `SamWar HUD MVP` debug `TitleLabel` is hidden, not deleted, to prevent overlap with the raised left panel.
+- Preserved scope: no battle script, BattleContext, city data, city click/battle entry, domestic/trade/relation formula, project setting, asset, panel content, or panel redesign changes.
+- Manual F6 QA should confirm all fixed panels share the same top baseline, remain independent during WASD/arrow pan, wheel zoom, and drag pan, and keep existing controls/content intact.
+- Next candidate work:
+  1. `v0.70-15 WorldMap Left Panel Visual Hierarchy Polish`
+  2. `v0.70-16 WorldMap Left Panel Resource Warehouse Polish`
+  3. `v0.70-17 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-18 WorldMap Battle Entry Camera Zoom Handoff`
+
+## Previous: v0.70-14 WorldMap Left Panel Anchor & World Turn Lock
 - `v0.70-14 WorldMap Left Panel Anchor & World Turn Lock` is now the current left HUD stability patch.
 - v0.70-14 left panel summary:
   1. Requested baseline was `v0.70-13d Battle Movement Facing Direction Polish`; actual pre-edit HEAD was `e53a9fb v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`.

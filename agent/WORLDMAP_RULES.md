@@ -1,9 +1,17 @@
 # WORLDMAP RULES
 
+## v0.70-14a Fixed Panel Top Margin Baseline Rule
+- The current fixed WorldMap information panels share one top baseline: `WORLD_UI_TOP_MARGIN = 16.0`.
+- `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` must remain direct `WorldMapUI` CanvasLayer children unless a later task explicitly changes the HUD root contract.
+- These panels should stay screen-fixed during `WorldMapCamera` pan/zoom, mouse drag pan, wheel zoom, and battle-entry camera handoff.
+- Initial scene offsets should preserve each panel's X position, width, height, content order, and web-parity information structure while using top `16`.
+- The retired `WorldMapUI/TitleLabel` / `SamWar HUD MVP` debug label should stay hidden unless a future debug task deliberately re-enables it in a non-overlapping position.
+- Do not use this top-margin baseline work to redesign the left panel, right panel, city detail panel, diplomacy panel, city click behavior, battle entry, domestic/trade/relation formulas, or BattleContext.
+
 ## v0.70-14 Left Panel Anchor & World Turn Lock Rule
 - `LeftWorldStatusPanel` must remain a `WorldMapUI` CanvasLayer child so it is independent from `WorldMapCamera` pan/zoom and battle-entry camera handoff motion.
 - The left panel is intentionally fixed to the screen top-left. It should not be registered as a draggable HUD panel unless a later task explicitly reintroduces a lock/unlock UX.
-- The stable runtime anchor is top-left `(18, 56)` with size/minimum size `320 x 570` for the current 1920x1080 viewport baseline.
+- Superseded by v0.70-14a: the stable runtime anchor is top-left `(18, 16)` with size/minimum size `320 x 570` for the current 1920x1080 viewport baseline.
 - The World Turn header block must stay at the top of the left panel content in this order: `EyebrowLabel`, `TurnLabel`, `CalendarLabel`, `NationLabel`, optional `WorldTurnSeparator`.
 - Runtime cards such as pending invasion, post-battle result, save management, warehouse, and status hints must be inserted below the World Turn header block.
 - Left-panel anchor work must not change worldmap camera logic, city marker/click behavior, battle entry, BattleContext, domestic/trade/relation formulas, right-panel structure, or battle scenes.

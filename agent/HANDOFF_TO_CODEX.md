@@ -1,5 +1,30 @@
 # HANDOFF TO CODEX
 
+## v0.70-14a WorldMap Panel Top Margin Baseline Polish Handoff
+- Baseline: `v0.70-14 WorldMap Left Panel Anchor & World Turn Lock` (`ab91b34` before this patch).
+- Required git analysis was performed before editing:
+  - `git status --short`: two pre-existing untracked Godot `.ogv.uid` files under `assets/video_test/theora_safe/`.
+  - Recent log confirmed `ab91b34 v0.70-14 WorldMap Left Panel Anchor & World Turn Lock`, `e53a9fb v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`, and `8991b9b v0.70-13d`.
+  - HEAD changed files were `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and six agent docs for the left-panel anchor patch.
+- Runtime/scene files touched: `WorldMap_Test.tscn` and `scripts/worldmap_test.gd`.
+- Panel position findings:
+  - `LeftWorldStatusPanel` was top `56`.
+  - `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` were top `96`.
+  - The retired `TitleLabel` / `SamWar HUD MVP` was top `18` and would overlap after raising the left panel.
+- Implementation:
+  - Added `WORLD_UI_TOP_MARGIN = 16.0` and `WORLD_UI_LEFT_MARGIN = 18.0`.
+  - Moved `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` to top `16` in the scene while preserving their current X, width, and height.
+  - Added `_lock_worldmap_fixed_panel_top_margin()` and `_lock_screen_panel_top_margin()` so the same top baseline is reapplied at runtime.
+  - Hid `WorldMapUI/TitleLabel` in the scene and in `_hide_retired_top_worldmap_hud()`; the node remains available for future debug use.
+- Camera independence: all affected panels remain under `WorldMapUI` CanvasLayer and are not moved under the world/camera node tree.
+- Preserved scope: no `scripts/battle_web_import_test.gd`, `project.godot`, city data, city click, battle entry, domestic/trade/relation formulas, BattleContext, battle scenes, assets, or panel content changes.
+- Manual F6 QA should confirm top baseline alignment, no debug label overlap, panel independence during pan/zoom/drag, and unchanged left/right panel content.
+- Next candidate work:
+  1. `v0.70-15 WorldMap Left Panel Visual Hierarchy Polish`
+  2. `v0.70-16 WorldMap Left Panel Resource Warehouse Polish`
+  3. `v0.70-17 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-18 WorldMap Battle Entry Camera Zoom Handoff`
+
 ## v0.70-14 WorldMap Left Panel Anchor & World Turn Lock Handoff
 - Baseline requested: `v0.70-13d Battle Movement Facing Direction Polish` (`8991b9b51f91aead893df51f2ee07e1b532bed34`). Actual pre-edit HEAD was `e53a9fb v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`; this previous local commit was preserved.
 - Required git analysis was performed before editing:
