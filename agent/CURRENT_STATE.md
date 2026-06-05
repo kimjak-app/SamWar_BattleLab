@@ -1,5 +1,14 @@
 # CURRENT STATE
 
+## v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work
+- Baseline: after `v0.70-16 WorldMap Left Panel Chancellor Card Polish`; pre-cleanup HEAD was `91713d8 제거목적`.
+- Current HEAD analysis summary: `91713d8` added only two tracked Godot `.uid` files: `assets/video_test/theora_safe/test_safe_q7_1280x.ogv.uid` and `assets/video_test/theora_safe/test_safe_q8_1920x.ogv.uid`.
+- Removed the incorrectly tracked Theora test `.uid` artifacts with `git rm`; the `.ogv` source files were not deleted, and `git clean` was not used.
+- `WorldMap_Test.tscn` was analyzed only. Its current diff is scene serialization around the left panel (`anchors_preset` removal, property ordering, empty `text` removal, and newline string serialization). It was not staged or committed. WorldMap_Test.tscn modified remains uncommitted.
+- Modified files committed for this cleanup: the two `.uid` deletions plus `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, and `agent/SESSION_LOG.md`.
+- No scripts, scenes, `project.godot`, `.ogv` sources, or selected-city panel logic were changed by this cleanup commit.
+- Next task must decide whether to keep, normalize, or revert the uncommitted `WorldMap_Test.tscn` serialization diff before starting selected-city panel work.
+
 ## v0.70-16 WorldMap Left Panel Chancellor Card Polish
 - Baseline: `v0.70-15 WorldMap Left Panel Header & Tax Slim Polish` at HEAD `5dec9b2`.
 - Current HEAD analysis summary: `5dec9b2` changed `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and six agent docs for the left-panel header/tax slim patch. `git status --short` showed only the two pre-existing untracked Godot `.uid` files under `assets/video_test/theora_safe/`; pre-existing untracked Godot .uid files ignored.

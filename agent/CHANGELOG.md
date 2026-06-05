@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work
+- Built on the state after `v0.70-16 WorldMap Left Panel Chancellor Card Polish`; pre-cleanup HEAD was `91713d8 제거목적`.
+- Confirmed HEAD `91713d8` added only the two Theora test Godot `.uid` artifacts.
+- Removed `assets/video_test/theora_safe/test_safe_q7_1280x.ogv.uid` and `assets/video_test/theora_safe/test_safe_q8_1920x.ogv.uid` from tracking and disk with `git rm`.
+- Preserved `assets/video_test/theora_safe/test_safe_q7_1280x.ogv` and `assets/video_test/theora_safe/test_safe_q8_1920x.ogv`; `git clean` was not used.
+- Analyzed the existing `WorldMap_Test.tscn` working-tree diff and left it uncommitted. WorldMap_Test.tscn modified remains uncommitted.
+- Modified files for the cleanup commit: the two `.uid` deletions plus `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, and `agent/SESSION_LOG.md`.
+- Did not change `WorldMap_Test.tscn`, scripts, battle scenes, `project.godot`, `.ogv` sources, or selected-city panel behavior in this commit.
+
 ## v0.70-16 WorldMap Left Panel Chancellor Card Polish
 - Built on `v0.70-15 WorldMap Left Panel Header & Tax Slim Polish` (`5dec9b2`).
 - Analyzed latest git history before edits and confirmed the only pre-existing worktree noise was two untracked Godot `.uid` files, left untouched; pre-existing untracked Godot .uid files ignored.

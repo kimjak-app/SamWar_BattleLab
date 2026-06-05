@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work Handoff
+- Baseline: after `v0.70-16 WorldMap Left Panel Chancellor Card Polish`; pre-cleanup HEAD was `91713d8 제거목적`.
+- Required git analysis was performed before cleanup:
+  - `git status --short`: `WorldMap_Test.tscn` was tracked modified.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: HEAD added only `assets/video_test/theora_safe/test_safe_q7_1280x.ogv.uid` and `assets/video_test/theora_safe/test_safe_q8_1920x.ogv.uid`.
+  - `git diff -- WorldMap_Test.tscn`: current scene diff is left-panel scene serialization/property ordering plus newline string serialization, not right selected-city work.
+- Cleanup:
+  - Removed the two incorrectly tracked Theora test `.uid` files with `git rm`.
+  - Preserved `test_safe_q7_1280x.ogv` and `test_safe_q8_1920x.ogv`.
+  - Did not use `git clean`.
+- Important carryover: `WorldMap_Test.tscn modified remains uncommitted`. It was analyzed only and intentionally not staged or committed in this cleanup.
+- No scripts, `project.godot`, `.ogv` sources, battle scenes, or selected-city panel logic were changed.
+- Next selected-city-panel task should first decide how to handle the existing `WorldMap_Test.tscn` diff before making new scene edits.
+
 ## v0.70-16 WorldMap Left Panel Chancellor Card Polish Handoff
 - Baseline: `v0.70-15 WorldMap Left Panel Header & Tax Slim Polish` (`5dec9b2` before this patch).
 - Required git analysis was performed before editing:

@@ -1,5 +1,20 @@
 # NEXT TASKS
 
+## Next: Resolve WorldMap_Test.tscn Before Selected City Panel Work
+- `v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work` removes incorrectly tracked Theora test `.uid` artifacts after `v0.70-16`.
+- Cleanup summary:
+  1. Pre-cleanup HEAD `91713d8 제거목적` added only `test_safe_q7_1280x.ogv.uid` and `test_safe_q8_1920x.ogv.uid`.
+  2. Those two tracked `.uid` files were removed from the repo and deleted locally with `git rm`.
+  3. The `.ogv` source files under `assets/video_test/theora_safe/` were preserved.
+  4. `git clean` was not used.
+  5. `WorldMap_Test.tscn` remains modified and uncommitted; the diff appears to be Godot scene serialization around the left panel, not selected-city panel work.
+- Before `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish`, decide whether to keep/normalize/revert the current `WorldMap_Test.tscn` diff. Do not mix that existing diff silently into selected-city work.
+- Next candidate work:
+  1. `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish`
+  2. `v0.70-19 WorldMap Selected City Panel Troop & Governor Polish`
+  3. `v0.70-20 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-21 WorldMap Battle Entry Camera Zoom Handoff`
+
 ## Next: v0.70-17 WorldMap Left Panel Resource Warehouse Polish
 - `v0.70-16 WorldMap Left Panel Chancellor Card Polish` is the current WorldMap left-panel chancellor-card baseline.
 - Baseline: `v0.70-15 WorldMap Left Panel Header & Tax Slim Polish` at HEAD `5dec9b2`.
