@@ -1,5 +1,31 @@
 # CURRENT STATE
 
+## v0.70-14 WorldMap Battle Entry Camera Zoom Handoff
+- Baseline: `v0.70-13d Battle Movement Facing Direction Polish` at HEAD `8991b9b51f91aead893df51f2ee07e1b532bed34`.
+- Current HEAD analysis summary: HEAD `8991b9b` modified `scripts/battle_web_import_test.gd` plus five agent docs for movement-facing polish only. Two untracked Godot `.ogv.uid` files existed before this patch and were left untouched.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`.
+- WorldMap battle entry flow:
+  - Player attack still builds/validates deployment, applies existing troop/supply pre-decrement, stores pending battle context, then calls `_handoff_battle_context_to_battle_scene()`.
+  - Enemy invasion defense still builds pending invasion deployment, applies existing attacker/defender troop pre-decrement, stores pending battle context, then calls the same handoff.
+  - The final `Engine.set_meta("samwar_worldmap_battle_context", context)` and `change_scene_to_file("res://Battle_Fullscreen_Test.tscn")` moved into `_change_scene_to_battle_with_context()` so camera handoff can run immediately before that unchanged final transition.
+- Source/target city lookup:
+  - `_get_worldmap_city_visual_position()` reads `_city_markers_by_id[city_id].global_position` first.
+  - It falls back only to existing city data position-style fields if marker lookup is unavailable; missing coordinates return `null` and immediately skip animation.
+  - `_build_worldmap_battle_entry_focus()` uses source/target when both exist and focuses toward the target with a simple `lerp(0.72)`; target-only and source-only fallback remain supported.
+- Camera handoff helper structure:
+  - `_start_worldmap_battle_entry_camera_handoff()` sets a one-shot in-progress guard, clamps the target focus against the existing world rect, tweens `world_map_camera.position` and `zoom`, holds briefly, then calls the existing transition callable.
+  - `_complete_worldmap_battle_entry_camera_handoff()` is the single natural-finish and skip completion path.
+  - `_skip_worldmap_battle_entry_camera_handoff()` supports left-click, Space, Enter, keypad Enter, and Esc during handoff only.
+- Guard/fallback:
+  - `_worldmap_battle_entry_handoff_in_progress` blocks repeated player attack, defense button, deployment confirmation, camera pan/zoom input, and duplicate final handoff while the tween is active.
+  - If camera, callable, focus, or city coordinates are unavailable, the code calls the existing battle transition immediately without creating default city ids.
+- Verification result: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load are the validation set for this patch; visible F6 QA is still recommended for camera feel and repeated-click behavior.
+- Preserved scope: no `scripts/battle_web_import_test.gd`, scene, asset, `project.godot`, battle calculation, BattleContext key, ownership, troop-result, hero-status, domestic, trade, or relation logic changes.
+- Next candidate work:
+  1. `v0.70-15 WorldMap Battle Entry Camera Handoff Timing Polish`
+  2. `v0.70-16 WorldMap City Click UX Polish`
+  3. `v0.70-17 WorldMap Domestic UX Detail Polish`
+
 ## v0.70-13d Battle Movement Facing Direction Polish
 - Baseline requested: `v0.70-13b Battle Cinematic Lifecycle Guard Audit` at `f56903d5c265e7443e68387e01886d28cda8cf5a`; actual working HEAD before this patch was `0c91744 v0.70-13c Battle WorldMap Return Contract Prep`, which only added agent contract docs on top of that baseline.
 - Problem summary: movement paths were valid, but unit token facing could keep its previous left/right visual during a later horizontal segment, making the unit appear to backstep after vertical-then-horizontal movement.

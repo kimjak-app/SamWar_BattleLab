@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-14 WorldMap Battle Entry Camera Zoom Handoff
+- Built on `v0.70-13d Battle Movement Facing Direction Polish` (`8991b9b51f91aead893df51f2ee07e1b532bed34`).
+- Analyzed latest git history before edits: HEAD changed only battle movement-facing code in `scripts/battle_web_import_test.gd` plus agent docs; two untracked Godot `.ogv.uid` files already existed and were left untouched.
+- Added a WorldMap camera handoff in `scripts/worldmap_test.gd` immediately before the existing battle scene transition.
+- Split final battle transition into `_change_scene_to_battle_with_context()` so `Engine.set_meta("samwar_worldmap_battle_context", context)` and `change_scene_to_file("res://Battle_Fullscreen_Test.tscn")` remain the final boundary after the camera tween.
+- Added `_get_worldmap_city_visual_position()` and `_build_worldmap_battle_entry_focus()` to resolve source/target city visual coordinates from existing city markers and focus toward the battle target.
+- Added `_start_worldmap_battle_entry_camera_handoff()`, `_complete_worldmap_battle_entry_camera_handoff()`, and `_skip_worldmap_battle_entry_camera_handoff()` for one-shot pan/zoom/hold/skip lifecycle.
+- Added `_worldmap_battle_entry_handoff_in_progress` duplicate-entry guard around player attack, defense choice, deployment confirmation, final handoff, and camera input while the handoff is active.
+- Missing camera or city coordinates fall back immediately to the existing battle transition without generating fake ids or changing BattleContext keys.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`.
+- Did not change `scripts/battle_web_import_test.gd`, scenes, assets, `project.godot`, combat formulas, battle intro/result video, BattleContext structure, ownership/troop/hero result application, domestic, trade, or relation logic.
+
 ## v0.70-13d Battle Movement Facing Direction Polish
 - Built on the requested `v0.70-13b Battle Cinematic Lifecycle Guard Audit` code baseline; actual pre-edit HEAD was `0c91744 v0.70-13c Battle WorldMap Return Contract Prep`, which was docs-only.
 - Fixed movement visual facing so ally and enemy path movement update left/right facing at each horizontal segment start.

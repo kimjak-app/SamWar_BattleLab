@@ -9,6 +9,10 @@ const WORLD_MAP_MIN_ZOOM := 0.35
 const WORLD_MAP_MAX_ZOOM := 1.6
 const WORLD_MAP_CLAMP_PADDING := 24.0
 const WORLD_MAP_ZOOM_STEP := 0.1
+const WORLD_BATTLE_ENTRY_PAN_SEC := 0.55
+const WORLD_BATTLE_ENTRY_ZOOM_SEC := 0.45
+const WORLD_BATTLE_ENTRY_HOLD_SEC := 0.15
+const WORLD_BATTLE_ENTRY_TARGET_ZOOM := Vector2(1.35, 1.35)
 const PLAYER_FACTION_ID := "player"
 const UNIFIED_PANEL_TAB_CITY_DETAIL := "city-detail"
 const UNIFIED_PANEL_TAB_DIPLOMACY_SPY := "diplomacy-spy"
@@ -566,6 +570,12 @@ var _collapsed_unified_panel_drag_started := false
 var _collapsed_unified_panel_click_start_position := Vector2.ZERO
 var _city_runtime_states: Dictionary = {}
 var _hero_runtime_states: Dictionary = {}
+var _worldmap_battle_entry_handoff_in_progress := false
+var _worldmap_battle_entry_handoff_completed := false
+var _worldmap_battle_entry_handoff_continue_callable := Callable()
+var _worldmap_battle_entry_handoff_tween: Tween = null
+var _worldmap_battle_entry_handoff_target_position := Vector2.ZERO
+var _worldmap_battle_entry_handoff_target_zoom := Vector2.ZERO
 var _player_state := {
 	"player_faction_id": "player",
 	"ruler_current_city_id": "hanseong",
@@ -642,11 +652,20 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		_update_camera_debug_label()
+		return
 	_handle_keyboard_pan(delta)
 	_update_camera_debug_label()
 
 
 func _input(event: InputEvent) -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		if _is_worldmap_battle_entry_handoff_skip_event(event):
+			_skip_worldmap_battle_entry_camera_handoff()
+		get_viewport().set_input_as_handled()
+		return
+
 	if _dragging_hud_panel == null:
 		return
 
@@ -678,6 +697,12 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		if _is_worldmap_battle_entry_handoff_skip_event(event):
+			_skip_worldmap_battle_entry_camera_handoff()
+		get_viewport().set_input_as_handled()
+		return
+
 	if event is InputEventMouseButton:
 		var mouse_button_event := event as InputEventMouseButton
 		if mouse_button_event.button_index == MOUSE_BUTTON_MIDDLE or mouse_button_event.button_index == MOUSE_BUTTON_RIGHT:
@@ -2342,6 +2367,10 @@ func _refresh_city_info_attack_action_state(city_id: String = "") -> void:
 
 
 func _start_player_attack_battle(target_city_id: String, mode: String = "manual") -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		_set_save_management_status("전투 화면 이동 중입니다.")
+		_refresh_left_world_status_panel()
+		return
 	var block_reason := _get_player_attack_block_reason(target_city_id)
 	if not block_reason.is_empty():
 		_set_save_management_status(block_reason)
@@ -2438,6 +2467,10 @@ func _get_deployable_player_heroes_for_city(city_id: String) -> Array[Dictionary
 
 
 func _confirm_player_attack_deployment(deployment: Dictionary) -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		_set_save_management_status("전투 화면 이동 중입니다.")
+		_refresh_left_world_status_panel()
+		return
 	var validation := _validate_player_attack_deployment(deployment)
 	if not bool(validation.get("ok", false)):
 		_set_save_management_status(str(validation.get("message", "출정 조건을 확인하십시오.")))
@@ -2683,14 +2716,26 @@ func _refresh_pending_invasion_choice_ui(event: Dictionary = {}) -> void:
 
 
 func _on_manual_defense_pressed() -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		_set_save_management_status("전투 화면 이동 중입니다.")
+		_refresh_left_world_status_panel()
+		return
 	_open_defense_deployment_panel_from_pending_invasion("manual")
 
 
 func _on_auto_defense_pressed() -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		_set_save_management_status("전투 화면 이동 중입니다.")
+		_refresh_left_world_status_panel()
+		return
 	_open_defense_deployment_panel_from_pending_invasion("auto")
 
 
 func _start_pending_invasion_battle_scene_handoff(mode: String) -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		_set_save_management_status("전투 화면 이동 중입니다.")
+		_refresh_left_world_status_panel()
+		return
 	var battle_context := _prepare_pending_invasion_battle_context(mode)
 	if battle_context.is_empty():
 		return
@@ -2724,6 +2769,10 @@ func _prepare_pending_invasion_battle_context(mode: String) -> Dictionary:
 
 
 func _open_defense_deployment_panel_from_pending_invasion(mode: String = "manual") -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		_set_save_management_status("전투 화면 이동 중입니다.")
+		_refresh_left_world_status_panel()
+		return
 	var normalized_mode := "auto" if mode == "auto" else "manual"
 	var event := _get_pending_invasion_event_mvp()
 	var payload := _build_defense_deployment_payload(event, normalized_mode)
@@ -2773,6 +2822,10 @@ func _build_defense_deployment_payload(event: Dictionary, mode: String) -> Dicti
 
 
 func _confirm_defense_deployment(deployment: Dictionary) -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		_set_save_management_status("전투 화면 이동 중입니다.")
+		_refresh_left_world_status_panel()
+		return
 	var validation := _validate_defense_deployment(deployment)
 	if not bool(validation.get("ok", false)):
 		_set_save_management_status(str(validation.get("message", "방어 조건을 확인하십시오.")))
@@ -2853,6 +2906,10 @@ func _validate_defense_deployment(deployment: Dictionary) -> Dictionary:
 
 
 func _handoff_battle_context_to_battle_scene(battle_context: Dictionary) -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		_set_save_management_status("전투 화면 이동 중입니다.")
+		_refresh_left_world_status_panel()
+		return
 	if battle_context.is_empty():
 		_set_save_management_status("전투 화면 이동 실패 · 전투 데이터 없음")
 		_refresh_left_world_status_panel()
@@ -2864,6 +2921,12 @@ func _handoff_battle_context_to_battle_scene(battle_context: Dictionary) -> void
 		_refresh_left_world_status_panel()
 		return
 	var handoff_context := battle_context.duplicate(true)
+	var source_city_id := str(handoff_context.get("attacker_city_id", handoff_context.get("attacker_source_city_id", "")))
+	var target_city_id := str(handoff_context.get("defender_city_id", handoff_context.get("defender_source_city_id", "")))
+	_start_worldmap_battle_entry_camera_handoff(source_city_id, target_city_id, Callable(self, "_change_scene_to_battle_with_context").bind(handoff_context))
+
+
+func _change_scene_to_battle_with_context(handoff_context: Dictionary) -> void:
 	Engine.set_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY, handoff_context)
 	_set_save_management_status("전투 화면 이동 중 · %s → %s" % [
 		str(handoff_context.get("attacker_city_name", "알 수 없는 적 도시")),
@@ -2875,6 +2938,135 @@ func _handoff_battle_context_to_battle_scene(battle_context: Dictionary) -> void
 			Engine.remove_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY)
 		_set_save_management_status("전투 화면 이동 실패")
 		_refresh_left_world_status_panel()
+
+
+func _get_worldmap_city_visual_position(city_id: String) -> Variant:
+	if city_id.is_empty():
+		return null
+	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+	if city_marker != null:
+		return city_marker.global_position
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.is_empty():
+		return null
+	var position_value: Variant = city_data.get("position", city_data.get("world_position", city_data.get("map_position", city_data.get("web_seed_position", null))))
+	if position_value is Vector2:
+		return position_value
+	if position_value is Dictionary:
+		var position_dict := position_value as Dictionary
+		return Vector2(float(position_dict.get("x", 0.0)), float(position_dict.get("y", 0.0)))
+	if position_value is Array:
+		var position_array := position_value as Array
+		if position_array.size() >= 2:
+			return Vector2(float(position_array[0]), float(position_array[1]))
+	return null
+
+
+func _build_worldmap_battle_entry_focus(source_city_id: String, target_city_id: String) -> Dictionary:
+	var source_position_variant: Variant = _get_worldmap_city_visual_position(source_city_id)
+	var target_position_variant: Variant = _get_worldmap_city_visual_position(target_city_id)
+	if target_position_variant is Vector2 and source_position_variant is Vector2:
+		var source_position: Vector2 = source_position_variant
+		var target_position: Vector2 = target_position_variant
+		return {"position": source_position.lerp(target_position, 0.72)}
+	if target_position_variant is Vector2:
+		return {"position": target_position_variant}
+	if source_position_variant is Vector2:
+		return {"position": source_position_variant}
+	return {}
+
+
+func _start_worldmap_battle_entry_camera_handoff(source_city_id: String, target_city_id: String, continue_callable: Callable) -> void:
+	if _worldmap_battle_entry_handoff_in_progress:
+		return
+	if not continue_callable.is_valid():
+		return
+	var focus := _build_worldmap_battle_entry_focus(source_city_id, target_city_id)
+	if world_map_camera == null or focus.is_empty():
+		continue_callable.call()
+		return
+	var focus_position: Variant = focus.get("position", null)
+	if not focus_position is Vector2:
+		continue_callable.call()
+		return
+
+	_worldmap_battle_entry_handoff_in_progress = true
+	_worldmap_battle_entry_handoff_completed = false
+	_worldmap_battle_entry_handoff_continue_callable = continue_callable
+	var target_zoom_value := clampf(maxf(world_map_camera.zoom.x, WORLD_BATTLE_ENTRY_TARGET_ZOOM.x), WORLD_MAP_MIN_ZOOM, WORLD_MAP_MAX_ZOOM)
+	_worldmap_battle_entry_handoff_target_zoom = Vector2(target_zoom_value, target_zoom_value)
+	var target_position: Vector2 = focus_position
+	_worldmap_battle_entry_handoff_target_position = _get_clamped_worldmap_camera_position_for_zoom(target_position, _worldmap_battle_entry_handoff_target_zoom)
+	_set_save_management_status("전투 지역 접근 중 · %s → %s" % [
+		_format_city_name_by_id(source_city_id, "출발 도시"),
+		_format_city_name_by_id(target_city_id, "대상 도시"),
+	])
+	_refresh_left_world_status_panel()
+
+	_worldmap_battle_entry_handoff_tween = create_tween()
+	_worldmap_battle_entry_handoff_tween.set_parallel(true)
+	_worldmap_battle_entry_handoff_tween.tween_property(world_map_camera, "position", _worldmap_battle_entry_handoff_target_position, WORLD_BATTLE_ENTRY_PAN_SEC).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_worldmap_battle_entry_handoff_tween.tween_property(world_map_camera, "zoom", _worldmap_battle_entry_handoff_target_zoom, WORLD_BATTLE_ENTRY_ZOOM_SEC).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_worldmap_battle_entry_handoff_tween.set_parallel(false)
+	_worldmap_battle_entry_handoff_tween.tween_interval(WORLD_BATTLE_ENTRY_HOLD_SEC)
+	_worldmap_battle_entry_handoff_tween.tween_callback(_complete_worldmap_battle_entry_camera_handoff)
+
+
+func _complete_worldmap_battle_entry_camera_handoff() -> void:
+	if _worldmap_battle_entry_handoff_completed:
+		return
+	_worldmap_battle_entry_handoff_completed = true
+	var continue_callable := _worldmap_battle_entry_handoff_continue_callable
+	_worldmap_battle_entry_handoff_in_progress = false
+	_worldmap_battle_entry_handoff_continue_callable = Callable()
+	_worldmap_battle_entry_handoff_tween = null
+	if continue_callable.is_valid():
+		continue_callable.call()
+
+
+func _skip_worldmap_battle_entry_camera_handoff() -> void:
+	if not _worldmap_battle_entry_handoff_in_progress:
+		return
+	if _worldmap_battle_entry_handoff_tween != null:
+		_worldmap_battle_entry_handoff_tween.kill()
+		_worldmap_battle_entry_handoff_tween = null
+	if world_map_camera != null:
+		world_map_camera.position = _worldmap_battle_entry_handoff_target_position
+		if _worldmap_battle_entry_handoff_target_zoom != Vector2.ZERO:
+			world_map_camera.zoom = _worldmap_battle_entry_handoff_target_zoom
+		_clamp_camera_to_world()
+	_complete_worldmap_battle_entry_camera_handoff()
+
+
+func _is_worldmap_battle_entry_handoff_skip_event(event: InputEvent) -> bool:
+	if event is InputEventKey:
+		var key_event := event as InputEventKey
+		return key_event.pressed and not key_event.echo and [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER, KEY_ESCAPE].has(key_event.keycode)
+	if event is InputEventMouseButton:
+		var mouse_button_event := event as InputEventMouseButton
+		return mouse_button_event.pressed and mouse_button_event.button_index == MOUSE_BUTTON_LEFT
+	return false
+
+
+func _get_clamped_worldmap_camera_position_for_zoom(target_position: Vector2, zoom: Vector2) -> Vector2:
+	if _world_rect.size == Vector2.ZERO:
+		return target_position
+	var viewport_size := get_viewport_rect().size
+	var safe_zoom := Vector2(maxf(zoom.x, 0.001), maxf(zoom.y, 0.001))
+	var half_visible_size := viewport_size / (safe_zoom * 2.0)
+	var min_center := _world_rect.position + half_visible_size - Vector2.ONE * WORLD_MAP_CLAMP_PADDING
+	var max_center := _world_rect.end - half_visible_size + Vector2.ONE * WORLD_MAP_CLAMP_PADDING
+	var clamped_x := target_position.x
+	var clamped_y := target_position.y
+	if min_center.x > max_center.x:
+		clamped_x = _world_rect.get_center().x
+	else:
+		clamped_x = clampf(target_position.x, min_center.x, max_center.x)
+	if min_center.y > max_center.y:
+		clamped_y = _world_rect.get_center().y
+	else:
+		clamped_y = clampf(target_position.y, min_center.y, max_center.y)
+	return Vector2(clamped_x, clamped_y)
 
 
 func _consume_worldmap_battle_result_if_any() -> void:

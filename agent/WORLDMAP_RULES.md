@@ -1,5 +1,14 @@
 # WORLDMAP RULES
 
+## v0.70-14 Battle Entry Camera Handoff Rule
+- WorldMap battle-entry camera handoff must remain a wrapper around the existing final transition boundary, not a replacement for BattleContext creation or result handling.
+- Player attack and enemy invasion defense must continue to build/validate context and run existing troop pre-decrement before `_handoff_battle_context_to_battle_scene()`.
+- City focus lookup should use `_city_markers_by_id` and scene-authored `WorldMapCityMarker.global_position` first; if visual coordinates are missing, skip the camera handoff and call the existing transition immediately.
+- Handoff may tween `world_map_camera.position` and `world_map_camera.zoom`, but must use existing world-rect clamp behavior and must not change `WorldMap_Test.tscn` camera ownership unless a future scene patch explicitly requires it.
+- `_worldmap_battle_entry_handoff_in_progress` is the duplicate-entry guard for attack buttons, defense buttons, deployment confirmation, final handoff, and camera input while the tween is active.
+- Skip input is valid only during handoff and must complete through the same one-shot path as natural tween completion.
+- Do not add default city ids, new BattleContext keys, city ownership changes, troop-result changes, hero-state changes, battle intro changes, or result-video changes as part of the camera handoff.
+
 ## v0.70-13c Battle WorldMap Return Contract Rule
 - WorldMap -> Battle handoff currently uses `Engine` meta key `samwar_worldmap_battle_context`; Battle -> WorldMap return currently uses `samwar_worldmap_battle_result`.
 - The battle scene path for WorldMap handoff is `res://Battle_Fullscreen_Test.tscn`; the battle return scene path is `res://WorldMap_Test.tscn`.

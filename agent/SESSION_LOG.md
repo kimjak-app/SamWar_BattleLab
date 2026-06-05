@@ -2,6 +2,29 @@
 
 ## 2026-06-05
 
+### v0.70-14 WorldMap Battle Entry Camera Zoom Handoff
+- Started from requested baseline `8991b9b v0.70-13d Battle Movement Facing Direction Polish`.
+- Required git analysis:
+  - `git status --short`: pre-existing untracked `assets/video_test/theora_safe/test_safe_q7_1280x.ogv.uid` and `test_safe_q8_1920x.ogv.uid`.
+  - Recent log: `8991b9b`, `0c91744`, `f56903d`, `6f46bf1`, `493c8e8`, `76e0421`, `d2dbefa`, `edac641`, `3800c99`, `6262206`.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: HEAD modified five agent docs and `scripts/battle_web_import_test.gd` for v0.70-13d movement-facing polish.
+- Read required docs and inspected `scripts/worldmap_test.gd`, `WorldMap_Test.tscn`, `scripts/player_attack_deployment_panel.gd`, `project.godot`, `scripts/worldmap_city_marker.gd`, `agent/WORLDMAP_RULES.md`, `agent/HERO_DATA_CONTRACT.md`, and `agent/ENEMY_INVASION_AUDIT.md`.
+- WorldMap camera finding: `WorldMap_Test.tscn` already has root `WorldMapCamera`; `_configure_camera()` sets zoom `0.7`, `_apply_zoom()` increases zoom value for zoom-in, and `_clamp_camera_to_world()` constrains camera center to the existing world rect.
+- Battle entry finding: player attack and enemy invasion defense both converge on `_handoff_battle_context_to_battle_scene()` after existing validation/context build and troop pre-decrement.
+- Implemented the camera handoff in `scripts/worldmap_test.gd` only:
+  - City visual positions come from `_city_markers_by_id` marker `global_position`, with safe fallback to existing city data position fields.
+  - Focus uses source/target when both exist and weights toward target with `lerp(0.72)`.
+  - Camera tween pans and zooms to clamped focus, holds briefly, then calls `_change_scene_to_battle_with_context()`.
+  - Skip input is limited to the handoff state and supports left-click, Space, Enter, keypad Enter, and Esc.
+  - Duplicate entry guard blocks repeated attack/defense/deployment/handoff and camera input while active.
+- Preserved existing battle context keys, Engine meta keys, troop pre-decrement timing, result application, battle scene intro, and all battle calculations.
+- Verification target: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, `Battle_Fullscreen_Test.tscn` headless load, docs string check, and tracked post-commit status.
+- Manual F6 QA remains recommended for camera timing/focus, skip feel, repeated-click guard, and enemy invasion defense path.
+- Next candidate work:
+  1. `v0.70-15 WorldMap Battle Entry Camera Handoff Timing Polish`
+  2. `v0.70-16 WorldMap City Click UX Polish`
+  3. `v0.70-17 WorldMap Domestic UX Detail Polish`
+
 ### v0.70-13d Battle Movement Facing Direction Polish
 - Started from clean actual HEAD `0c91744 v0.70-13c Battle WorldMap Return Contract Prep`; user-requested baseline `f56903d v0.70-13b Battle Cinematic Lifecycle Guard Audit` was the immediate parent code baseline because v0.70-13c changed docs only.
 - Required git analysis:
