@@ -1,6 +1,21 @@
 # NEXT TASKS
 
-## Current: v0.70-22 WorldMap Implemented Help Modal MVP
+## Current: v0.70-23 WorldMap City Detail Resource Tab Slim Polish
+- `v0.70-23` 정리 방향:
+  1. City Detail 자원 탭은 도시 이름, 자원 잠재력, 경제 잠재력 중심으로 유지한다.
+  2. Selected City Panel과 중복되는 유형/세력/충성도/병력/치안/방어/태수/상태 정보는 자원 탭에 다시 넣지 않는다.
+  3. `식량 자원`, `전략 자원`, `특산 자원`은 분류 라벨로 색상 구분하고 실제 자원명/별점은 과하게 튀지 않게 유지한다.
+  4. `자국무역` / `타국무역`은 무역 계열 하위 탭 방향으로 유지한다.
+  5. 테크트리 UI, 연구 시작, 농업/상업/군사/특산/무역 확장은 후속 작업으로 남긴다.
+  6. 도움말 MVP, 병사 충원, 태수/공격/전투 흐름은 보존한다.
+- Next candidate work:
+  1. Manual F6 QA for City Detail 자원 탭 slim display and trade tab switching.
+  2. Manual F6 QA for retained help/recruitment/governor/attack flows.
+  3. `v0.70-24 WorldMap City Tech Tree UI MVP`
+  4. `v0.70-25 WorldMap Battle Entry Camera Zoom Handoff`
+  5. `v0.70-26 Governor Assignment Exclusivity & Hero State Rules`
+
+## Previous: v0.70-22 WorldMap Implemented Help Modal MVP
 - `v0.70-22` adds small help buttons and one reusable modal for implemented WorldMap systems only.
 - Completed direction:
   1. 국가충성도 help focuses on tax burden, political chancellor mitigation, and stable domestic operation.
@@ -9,12 +24,6 @@
   4. 치안 help focuses on stationed troops, supply, minimum garrison, and invasion/battle readiness.
   5. 주둔무장 help focuses on current usage: governor candidates, battle deployment, city defense, and governor command-limit contribution.
   6. Help copy must not present unimplemented hero personal loyalty increase actions or expose formulas/multipliers.
-- Next candidate work:
-  1. Manual F6 QA for all five help buttons and close behavior.
-  2. Manual F6 QA for retained attack/governor/transfer/recruitment flows.
-  3. `v0.70-23 WorldMap City Detail Panel Right Side Polish`
-  4. `v0.70-24 WorldMap Battle Entry Camera Zoom Handoff`
-  5. `v0.70-25 Governor Assignment Exclusivity & Hero State Rules`
 
 ## Previous: v0.70-21 WorldMap Recruitment Loyalty-Based Connect
 - `v0.70-21` connects the Selected City Panel recruitment area to actual WorldMap recruitment while keeping internal calculation detail out of the UI.

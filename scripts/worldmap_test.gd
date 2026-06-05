@@ -21,6 +21,7 @@ const SELECTED_CITY_INFO_PANEL_SIZE := Vector2(308.0, 542.0)
 const PLAYER_FACTION_ID := "player"
 const UNIFIED_PANEL_TAB_CITY_DETAIL := "city-detail"
 const UNIFIED_PANEL_TAB_DIPLOMACY_SPY := "diplomacy-spy"
+const UNIFIED_PANEL_TAB_TRADE := "trade"
 const CITY_DETAIL_TAB_RESOURCES := "resources"
 const CITY_DETAIL_TAB_INTERNAL_TRADE := "internal-trade"
 const CITY_DETAIL_TAB_EXTERNAL_TRADE := "external-trade"
@@ -574,6 +575,7 @@ var _is_unified_city_panel_collapsed := false
 var _unified_city_panel_expanded_size := Vector2.ZERO
 var _unified_city_detail_primary_button: Button = null
 var _unified_diplomacy_spy_primary_button: Button = null
+var _unified_trade_primary_button: Button = null
 var _has_warned_missing_unified_panel_chrome := false
 var _collapsed_unified_panel_click_candidate := false
 var _collapsed_unified_panel_drag_started := false
@@ -1143,7 +1145,8 @@ func _connect_world_hud_placeholders() -> void:
 func _setup_unified_city_detail_diplomacy_panel() -> void:
 	diplomacy_spy_panel.visible = false
 	_unified_city_panel_expanded_size = city_detail_panel.size
-	city_detail_eyebrow_label.text = "CITY DETAIL / DIPLOMACY"
+	city_detail_eyebrow_label.visible = false
+	city_detail_eyebrow_label.text = ""
 	city_detail_heading_label.visible = false
 	city_detail_heading_label.text = ""
 	city_detail_collapse_button_placeholder.text = "접기"
@@ -1153,7 +1156,7 @@ func _setup_unified_city_detail_diplomacy_panel() -> void:
 
 
 func _ensure_unified_primary_tab_buttons() -> void:
-	if _unified_city_detail_primary_button != null and _unified_diplomacy_spy_primary_button != null:
+	if _unified_city_detail_primary_button != null and _unified_diplomacy_spy_primary_button != null and _unified_trade_primary_button != null:
 		return
 	if city_detail_header_row == null:
 		_warn_missing_unified_panel_chrome("HeaderRow")
@@ -1161,6 +1164,7 @@ func _ensure_unified_primary_tab_buttons() -> void:
 
 	_unified_city_detail_primary_button = _create_unified_primary_tab_button("도시 상세", UNIFIED_PANEL_TAB_CITY_DETAIL)
 	_unified_diplomacy_spy_primary_button = _create_unified_primary_tab_button("외교·첩보", UNIFIED_PANEL_TAB_DIPLOMACY_SPY)
+	_unified_trade_primary_button = _create_unified_primary_tab_button("무역", UNIFIED_PANEL_TAB_TRADE)
 	var collapse_index := city_detail_header_row.get_children().find(city_detail_collapse_button_placeholder)
 	if collapse_index < 0:
 		collapse_index = city_detail_header_row.get_child_count()
@@ -1168,12 +1172,14 @@ func _ensure_unified_primary_tab_buttons() -> void:
 	city_detail_header_row.move_child(_unified_city_detail_primary_button, collapse_index)
 	city_detail_header_row.add_child(_unified_diplomacy_spy_primary_button)
 	city_detail_header_row.move_child(_unified_diplomacy_spy_primary_button, collapse_index + 1)
+	city_detail_header_row.add_child(_unified_trade_primary_button)
+	city_detail_header_row.move_child(_unified_trade_primary_button, collapse_index + 2)
 
 
 func _create_unified_primary_tab_button(label_text: String, tab_id: String) -> Button:
 	var button := Button.new()
 	button.text = label_text
-	button.custom_minimum_size = Vector2(82.0, 24.0)
+	button.custom_minimum_size = Vector2(64.0, 24.0)
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.add_theme_font_size_override("font_size", 11)
 	button.pressed.connect(_on_unified_primary_tab_pressed.bind(tab_id))
@@ -1192,6 +1198,9 @@ func _refresh_unified_panel_chrome() -> void:
 		return
 
 	_ensure_unified_primary_tab_buttons()
+	if city_detail_eyebrow_label != null:
+		city_detail_eyebrow_label.visible = false
+		city_detail_eyebrow_label.text = ""
 	if city_detail_heading_label != null:
 		city_detail_heading_label.visible = false
 	if _unified_city_detail_primary_button != null:
@@ -1204,6 +1213,11 @@ func _refresh_unified_panel_chrome() -> void:
 		_unified_diplomacy_spy_primary_button.modulate = Color(1.0, 0.9, 0.68, 1.0) if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY else Color(0.82, 0.86, 0.92, 1.0)
 	else:
 		_warn_missing_unified_panel_chrome("DiplomacySpyPrimaryButton")
+	if _unified_trade_primary_button != null:
+		_unified_trade_primary_button.visible = true
+		_unified_trade_primary_button.modulate = Color(1.0, 0.9, 0.68, 1.0) if _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE else Color(0.82, 0.86, 0.92, 1.0)
+	else:
+		_warn_missing_unified_panel_chrome("TradePrimaryButton")
 	if city_detail_secondary_tab_row != null:
 		city_detail_secondary_tab_row.visible = true
 	else:
@@ -1224,21 +1238,41 @@ func _refresh_unified_panel_chrome() -> void:
 			city_detail_external_trade_tab_button_placeholder.visible = false
 		else:
 			_warn_missing_unified_panel_chrome("ExternalTradeTabButtonPlaceholder")
-	else:
+	elif _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE:
+		if not [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(_selected_city_detail_tab):
+			_selected_city_detail_tab = CITY_DETAIL_TAB_INTERNAL_TRADE
 		if city_detail_resource_tab_button_placeholder != null:
-			city_detail_resource_tab_button_placeholder.text = "자원"
+			city_detail_resource_tab_button_placeholder.visible = false
 		else:
 			_warn_missing_unified_panel_chrome("ResourceTabButtonPlaceholder")
 		if city_detail_internal_trade_tab_button_placeholder != null:
 			city_detail_internal_trade_tab_button_placeholder.text = "자국무역"
+			city_detail_internal_trade_tab_button_placeholder.visible = true
+			_set_city_detail_tab_active(city_detail_internal_trade_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_INTERNAL_TRADE)
 		else:
 			_warn_missing_unified_panel_chrome("InternalTradeTabButtonPlaceholder")
 		if city_detail_external_trade_tab_button_placeholder != null:
 			city_detail_external_trade_tab_button_placeholder.text = "타국무역"
 			city_detail_external_trade_tab_button_placeholder.visible = true
+			_set_city_detail_tab_active(city_detail_external_trade_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_EXTERNAL_TRADE)
 		else:
 			_warn_missing_unified_panel_chrome("ExternalTradeTabButtonPlaceholder")
-		_refresh_city_detail_tab_styles()
+	else:
+		_selected_city_detail_tab = CITY_DETAIL_TAB_RESOURCES
+		if city_detail_resource_tab_button_placeholder != null:
+			city_detail_resource_tab_button_placeholder.text = "자원"
+			city_detail_resource_tab_button_placeholder.visible = true
+			_set_city_detail_tab_active(city_detail_resource_tab_button_placeholder, true)
+		else:
+			_warn_missing_unified_panel_chrome("ResourceTabButtonPlaceholder")
+		if city_detail_internal_trade_tab_button_placeholder != null:
+			city_detail_internal_trade_tab_button_placeholder.visible = false
+		else:
+			_warn_missing_unified_panel_chrome("InternalTradeTabButtonPlaceholder")
+		if city_detail_external_trade_tab_button_placeholder != null:
+			city_detail_external_trade_tab_button_placeholder.visible = false
+		else:
+			_warn_missing_unified_panel_chrome("ExternalTradeTabButtonPlaceholder")
 
 
 func _refresh_unified_panel_content() -> void:
@@ -1247,7 +1281,12 @@ func _refresh_unified_panel_content() -> void:
 		return
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
 		_show_unified_diplomacy_spy_content()
+	elif _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE and selected_city_marker != null:
+		if not [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(_selected_city_detail_tab):
+			_selected_city_detail_tab = CITY_DETAIL_TAB_INTERNAL_TRADE
+		_show_city_detail(selected_city_marker)
 	elif selected_city_marker != null:
+		_selected_city_detail_tab = CITY_DETAIL_TAB_RESOURCES
 		_show_city_detail(selected_city_marker)
 	else:
 		_reset_city_detail_panel()
@@ -1261,14 +1300,15 @@ func _reset_city_detail_panel() -> void:
 
 	_refresh_city_detail_tab_styles()
 	city_detail_name_label.text = "도시를 선택하세요"
-	city_detail_type_label.text = "유형: -"
-	city_detail_region_owner_label.text = "지역 · 세력: -"
-	city_detail_resource_label.text = "도시 상세: 도시를 선택하세요."
-	city_detail_security_label.text = "자원 / 자국무역 / 타국무역 탭은 웹버전 구조를 따릅니다."
-	city_detail_military_label.text = "군사: -"
-	city_detail_commerce_label.text = "상업: -"
-	city_detail_rating_label.text = "도시 자원 별점: -"
-	city_detail_status_label.text = "상태: 선택 도시 없음"
+	_set_city_detail_body_labels_visible(true)
+	city_detail_type_label.text = ""
+	city_detail_region_owner_label.text = ""
+	city_detail_resource_label.text = "도시를 선택하면 자원과 경제 잠재력이 표시됩니다."
+	city_detail_security_label.text = ""
+	city_detail_military_label.text = ""
+	city_detail_commerce_label.text = ""
+	city_detail_rating_label.text = ""
+	city_detail_status_label.text = ""
 	city_detail_hint_label.text = "도시 선택 시 상세 정보가 갱신됩니다."
 	_queue_unified_city_panel_resize()
 
@@ -1283,41 +1323,30 @@ func _show_city_detail(city_marker: WorldMapCityMarker) -> void:
 		return
 
 	city_detail_name_label.text = city_marker.display_name
-	city_detail_type_label.text = "유형: %s" % _format_city_type(city_marker.city_id)
-	city_detail_region_owner_label.text = "%s · %s" % [
-		_format_region_label(city_marker.region_id),
-		_format_faction_label(city_marker.owner_faction_id),
-	]
 	var city_data := _get_city_hud_entry(city_marker.city_id)
-	var governor_id := str(city_data.get("governor_id", ""))
-	var governor_data := _get_hero_entry(governor_id)
-	var governor_name := str(governor_data.get("display_name", "태수 미임명"))
 	var policy_id := _get_city_policy_id(city_marker.city_id, city_data)
 	var policy_data := _get_governor_policy_entry(policy_id)
-	var stationed_hero_ids: Array = city_data.get("stationed_hero_ids", [])
 	var loyalty := int(city_data.get("loyalty", 75))
 	_refresh_city_detail_tab_styles()
 	_apply_city_detail_tab_content(city_marker, city_data, loyalty, policy_data)
-	city_detail_status_label.text = "상태: %s · 태수: %s · 배치 무장 %d명" % [
-		_get_city_detail_status(city_marker),
-		governor_name,
-		stationed_hero_ids.size(),
-	]
-	city_detail_hint_label.text = "웹버전 City Detail 구조 표시 전용입니다. 내정 수치 변경과 턴 처리는 실행하지 않습니다."
 	_queue_unified_city_panel_resize()
 
 
-func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: Dictionary, loyalty: int, policy_data: Dictionary) -> void:
+func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: Dictionary, _loyalty: int, _policy_data: Dictionary) -> void:
 	match _selected_city_detail_tab:
 		CITY_DETAIL_TAB_INTERNAL_TRADE:
+			_set_city_detail_body_labels_visible(true)
+			_apply_city_detail_default_text_tone()
 			var supply_state := _get_display_supply_state_for_city(city_marker.city_id)
 			var troop_move_preview := _get_troop_move_preview_for_city(city_marker.city_id)
+			city_detail_type_label.text = "무역"
+			city_detail_region_owner_label.text = "자국무역"
 			city_detail_resource_label.text = "내부 교역로: %s\n%s" % [
 				_format_internal_route_summary(city_marker),
 				_format_city_supply_state_display(supply_state),
 			]
 			city_detail_security_label.text = _format_city_supply_adjustment_display(supply_state)
-			city_detail_military_label.text = "군사 보급 판단: %s" % str(city_data.get("military", "현재 주둔군 / 목표 주둔군 placeholder"))
+			city_detail_military_label.text = "군사 보급 판단: %s" % str(city_data.get("military", "군사 보급 정보 없음"))
 			city_detail_commerce_label.text = "%s\n%s" % [
 				_format_city_public_support_display(city_marker.city_id),
 				"%s\n%s" % [
@@ -1333,28 +1362,105 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 				_format_city_recruitment_conscription_display(city_marker.city_id),
 			]
 			city_detail_domestic_button_placeholder.text = _format_troop_move_button_text(troop_move_preview)
+			city_detail_status_label.text = ""
+			city_detail_hint_label.text = "자국무역과 보급 흐름을 확인합니다."
 		CITY_DETAIL_TAB_EXTERNAL_TRADE:
+			_set_city_detail_body_labels_visible(true)
+			_apply_city_detail_default_text_tone()
 			var last_trade_result: Dictionary = _player_state.get("last_inter_faction_trade_result", {})
+			city_detail_type_label.text = "무역"
+			city_detail_region_owner_label.text = "타국무역"
 			city_detail_resource_label.text = "대외 무역 / 세력 관계: %s" % _format_external_trade_target(city_marker)
 			city_detail_security_label.text = _format_trade_result_summary(last_trade_result)
 			city_detail_military_label.text = _format_trade_resource_totals_display(_get_trade_display_totals(last_trade_result))
 			city_detail_commerce_label.text = _format_city_trade_route_display(city_marker.city_id, last_trade_result)
-			city_detail_rating_label.text = "타국무역 탭: 마지막 세력간 무역 result 표시 전용"
+			city_detail_rating_label.text = "최근 세력간 무역 결과를 표시합니다."
 			city_detail_domestic_button_placeholder.text = "무역 조정"
+			city_detail_status_label.text = ""
+			city_detail_hint_label.text = "세력 간 무역 흐름을 확인합니다."
 		_:
-			city_detail_resource_label.text = "식량 자원: %s" % _extract_resource_group(str(city_data.get("resources", "")), ["쌀", "보리", "수산물"])
-			city_detail_security_label.text = "전략 자원: %s" % _extract_resource_group(str(city_data.get("resources", "")), ["목재", "철", "말"])
-			city_detail_military_label.text = "특산 자원: %s" % _extract_resource_group(str(city_data.get("resources", "")), ["비단", "소금"])
-			city_detail_commerce_label.text = "상업: %s · 태수 정책: %s" % [
-				str(city_data.get("rating", "상업력 -")),
-				str(policy_data.get("name", "정책 미정")),
-			]
-			city_detail_rating_label.text = "성충성도: %d · %s" % [loyalty, str(city_data.get("military", "군대 상태 준비 중"))]
-			city_detail_domestic_button_placeholder.text = "무역 조정"
+			_apply_city_detail_resource_tab_content(city_data)
+
+
+func _apply_city_detail_resource_tab_content(city_data: Dictionary) -> void:
+	_set_city_detail_body_labels_visible(true)
+	city_detail_type_label.text = "식량 자원"
+	city_detail_type_label.add_theme_color_override("font_color", Color(0.96, 0.74, 0.34, 1.0))
+	city_detail_region_owner_label.text = _extract_resource_group(str(city_data.get("resources", "")), ["쌀", "보리", "수산물"])
+	city_detail_region_owner_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
+	city_detail_resource_label.text = "전략 자원"
+	city_detail_resource_label.add_theme_color_override("font_color", Color(0.62, 0.76, 0.88, 1.0))
+	city_detail_security_label.text = _extract_resource_group(str(city_data.get("resources", "")), ["목재", "철", "말"])
+	city_detail_security_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
+	city_detail_military_label.text = "특산 자원"
+	city_detail_military_label.add_theme_color_override("font_color", Color(0.78, 0.56, 0.88, 1.0))
+	city_detail_commerce_label.text = _extract_resource_group(str(city_data.get("resources", "")), ["비단", "소금"])
+	city_detail_commerce_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
+	city_detail_rating_label.text = "경제\n인구 %s / 상업력 %s\n금전 %d" % [
+		_format_star_rating(_get_city_numeric_rating(city_data, "population_rating", 0)),
+		_format_star_rating(_get_city_numeric_rating(city_data, "commerce_rating", 0)),
+		maxi(0, int(city_data.get("gold", 0))),
+	]
+	city_detail_rating_label.add_theme_color_override("font_color", Color(0.95, 0.92, 0.82, 1.0))
+	city_detail_status_label.text = ""
+	city_detail_status_label.visible = false
+	city_detail_hint_label.text = "자원과 경제 잠재력은 테크 개발과 도시 운영의 기준이 됩니다."
+	city_detail_domestic_button_placeholder.visible = false
+
+
+func _set_city_detail_body_labels_visible(visible: bool) -> void:
+	for label in [
+		city_detail_type_label,
+		city_detail_region_owner_label,
+		city_detail_resource_label,
+		city_detail_security_label,
+		city_detail_military_label,
+		city_detail_commerce_label,
+		city_detail_rating_label,
+		city_detail_status_label,
+		city_detail_hint_label,
+	]:
+		if label != null:
+			label.visible = visible
+	if city_detail_domestic_button_placeholder != null:
+		city_detail_domestic_button_placeholder.visible = visible
+
+
+func _apply_city_detail_default_text_tone() -> void:
+	for label in [
+		city_detail_type_label,
+		city_detail_region_owner_label,
+		city_detail_resource_label,
+		city_detail_security_label,
+		city_detail_military_label,
+		city_detail_commerce_label,
+		city_detail_rating_label,
+	]:
+		if label != null:
+			label.add_theme_color_override("font_color", Color(0.82, 0.86, 0.92, 1.0))
+	if city_detail_status_label != null:
+		city_detail_status_label.add_theme_color_override("font_color", Color(0.95, 0.94, 0.86, 1.0))
+	if city_detail_hint_label != null:
+		city_detail_hint_label.add_theme_color_override("font_color", Color(0.7, 0.76, 0.84, 1.0))
+	if city_detail_domestic_button_placeholder != null:
+		city_detail_domestic_button_placeholder.visible = true
+
+
+func _format_star_rating(value: int, max_value: int = 5) -> String:
+	var safe_max := maxi(1, max_value)
+	var filled := clampi(value, 0, safe_max)
+	if filled <= 0:
+		return "-"
+	var stars := ""
+	for _index in range(filled):
+		stars += "★"
+	return stars
 
 
 func _show_unified_diplomacy_spy_content() -> void:
 	_refresh_unified_panel_chrome()
+	_set_city_detail_body_labels_visible(true)
+	_apply_city_detail_default_text_tone()
 	city_detail_name_label.text = "외교·첩보"
 	var selected_city_name := "미선택"
 	var selected_city_label := "미선택"
@@ -1418,10 +1524,12 @@ func _refresh_city_detail_tab_styles() -> void:
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
 		_refresh_unified_panel_chrome()
 		return
+	if _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE:
+		_set_city_detail_tab_active(city_detail_internal_trade_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_INTERNAL_TRADE)
+		_set_city_detail_tab_active(city_detail_external_trade_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_EXTERNAL_TRADE)
+		return
 
 	_set_city_detail_tab_active(city_detail_resource_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_RESOURCES)
-	_set_city_detail_tab_active(city_detail_internal_trade_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_INTERNAL_TRADE)
-	_set_city_detail_tab_active(city_detail_external_trade_tab_button_placeholder, _selected_city_detail_tab == CITY_DETAIL_TAB_EXTERNAL_TRADE)
 
 
 func _set_city_detail_tab_active(button: Button, is_active: bool) -> void:
@@ -10328,9 +10436,13 @@ func _on_spy_mode_placeholder_pressed() -> void:
 
 
 func _on_unified_primary_tab_pressed(tab_id: String) -> void:
-	if not [UNIFIED_PANEL_TAB_CITY_DETAIL, UNIFIED_PANEL_TAB_DIPLOMACY_SPY].has(tab_id):
+	if not [UNIFIED_PANEL_TAB_CITY_DETAIL, UNIFIED_PANEL_TAB_DIPLOMACY_SPY, UNIFIED_PANEL_TAB_TRADE].has(tab_id):
 		tab_id = UNIFIED_PANEL_TAB_CITY_DETAIL
 	_unified_primary_tab = tab_id
+	if _unified_primary_tab == UNIFIED_PANEL_TAB_CITY_DETAIL:
+		_selected_city_detail_tab = CITY_DETAIL_TAB_RESOURCES
+	elif _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE and not [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(_selected_city_detail_tab):
+		_selected_city_detail_tab = CITY_DETAIL_TAB_INTERNAL_TRADE
 	print("[WorldMap] Unified city panel primary tab selected: %s. Display only." % tab_id)
 	_refresh_unified_panel_content()
 
@@ -10341,26 +10453,36 @@ func _on_unified_secondary_tab_pressed(tab_index: int) -> void:
 		print("[WorldMap] Unified diplomacy/spy tab selected: %s. Display only." % _selected_diplomacy_spy_tab)
 		_show_unified_diplomacy_spy_content()
 		return
+	if _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE:
+		_selected_city_detail_tab = CITY_DETAIL_TAB_EXTERNAL_TRADE if tab_index == 2 else CITY_DETAIL_TAB_INTERNAL_TRADE
+		print("[WorldMap] Unified trade tab selected: %s. Display only." % _selected_city_detail_tab)
+		if selected_city_marker != null:
+			_show_city_detail(selected_city_marker)
+		else:
+			_reset_city_detail_panel()
+		_queue_unified_city_panel_resize()
+		return
 
-	var city_tab_id := CITY_DETAIL_TAB_RESOURCES
-	if tab_index == 1:
-		city_tab_id = CITY_DETAIL_TAB_INTERNAL_TRADE
-	elif tab_index == 2:
-		city_tab_id = CITY_DETAIL_TAB_EXTERNAL_TRADE
-	_on_city_detail_tab_pressed(city_tab_id)
+	_on_city_detail_tab_pressed(CITY_DETAIL_TAB_RESOURCES)
 
 
 func _on_city_detail_tab_pressed(tab_id: String) -> void:
 	if not [CITY_DETAIL_TAB_RESOURCES, CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(tab_id):
 		tab_id = CITY_DETAIL_TAB_RESOURCES
-	_unified_primary_tab = UNIFIED_PANEL_TAB_CITY_DETAIL
+	if [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(tab_id):
+		_unified_primary_tab = UNIFIED_PANEL_TAB_TRADE
+	else:
+		_unified_primary_tab = UNIFIED_PANEL_TAB_CITY_DETAIL
 	_selected_city_detail_tab = tab_id
 	print("[WorldMap] City detail tab selected: %s. Display only; no domestic/trade effect applied." % tab_id)
 	if selected_city_marker != null:
 		_show_city_detail(selected_city_marker)
 	else:
 		_reset_city_detail_panel()
-	city_detail_hint_label.text = "%s 탭 표시 전환됨. 실제 내정/무역 처리는 실행하지 않습니다." % _get_city_detail_tab_label(tab_id)
+	if tab_id == CITY_DETAIL_TAB_RESOURCES:
+		city_detail_hint_label.text = "자원과 경제 잠재력은 테크 개발과 도시 운영의 기준이 됩니다."
+	else:
+		city_detail_hint_label.text = "%s 흐름을 확인합니다." % _get_city_detail_tab_label(tab_id)
 	_queue_unified_city_panel_resize()
 
 
@@ -10418,6 +10540,8 @@ func _set_unified_city_panel_collapsed(is_collapsed: bool) -> void:
 		_unified_city_detail_primary_button.visible = not is_collapsed
 	if _unified_diplomacy_spy_primary_button != null:
 		_unified_diplomacy_spy_primary_button.visible = not is_collapsed
+	if _unified_trade_primary_button != null:
+		_unified_trade_primary_button.visible = not is_collapsed
 
 	if is_collapsed:
 		city_detail_heading_label.visible = true

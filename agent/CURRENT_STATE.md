@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-23 WorldMap City Detail Resource Tab Slim Polish
+- Baseline: `v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix` at `789c2de`.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail 자원 탭을 slim polish하여 도시 이름, 자원 잠재력, 경제 잠재력 중심으로 정리했다.
+- 자원 탭은 식량 자원 / 전략 자원 / 특산 자원 분류와 경제 블록의 인구 / 상업력 / 금전만 보여준다.
+- Selected City Panel과 중복되는 유형, 세력, 성 충성도, 병력, 치안 기준, 방어력, 태수, 상태, 배치 무장 정보는 자원 탭에서 제거했다.
+- 상단 1차 탭은 `도시 상세`, `외교·첩보`, `무역`, `접기` 구조로 정리했고, `자국무역` / `타국무역`은 무역 계열 하위 탭으로 분리했다.
+- `CITY DETAIL / DIPLOMACY`, 웹버전 표시 전용 문구, 내정 수치 변경/턴 처리 미실행 placeholder 문구는 보이는 자원 탭 경로에서 제거했다.
+- 테크트리 UI, 연구 시작, 도시 데이터 수치, 내정/무역/외교/전투 계산식은 변경하지 않았다. 도시 상세/외교·첩보/무역 패널 정리 후 테크트리 UI 본격 작업이 다음 후보로 남아 있다.
+- 도움말 MVP, 병사 충원, 태수 임명, 태수 정책, 공격 버튼, 전투 진입/BattleContext 흐름은 보존했다.
+
 ## v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix
 - Baseline: `v0.70-22 WorldMap Implemented Help Modal MVP` at `720c0a9`.
 - Fixed the new selected-city help-row layout anchor ternary in `scripts/worldmap_city_info_panel.gd`.

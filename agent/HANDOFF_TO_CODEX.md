@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-23 WorldMap City Detail Resource Tab Slim Polish Handoff
+- Baseline: `v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix` (`789c2de`).
+- Runtime/scene files touched: `scripts/worldmap_test.gd` and `WorldMap_Test.tscn`.
+- City Detail resource view now acts as a deep-view panel for city resource/economy potential rather than repeating the Selected City Panel.
+- Resource tab content:
+  - City name at the top.
+  - `식량 자원`: rice/barley/seafood star potential.
+  - `전략 자원`: wood/iron/horse star potential.
+  - `특산 자원`: silk/salt star potential.
+  - `경제`: population stars, commerce stars, and gold.
+- Removed duplicate resource-tab display of city type, faction/region, city loyalty, troops, security baseline, defense, status, governor, and stationed hero count.
+- Unified panel primary tabs are now `도시 상세`, `외교·첩보`, `무역`, and `접기`; `자국무역` / `타국무역` are handled as trade-family secondary tabs.
+- Existing diplomacy/spy content, selected-city help modal, recruitment, governor assignment/policy, attack, save/load, battle entry, BattleContext, and formulas were preserved.
+- Tech tree UI remains deferred. The next natural follow-up is city tech-tree UI work after this city detail / diplomacy-spy / trade panel split.
+- Manual F6 QA should confirm Hanseong resource tab display, colored category labels, no duplicate Selected City info, trade tab switching, diplomacy/spy switching, and retained help/recruit/governor/attack behavior.
+
 ## v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix Handoff
 - Baseline: `v0.70-22 WorldMap Implemented Help Modal MVP` (`720c0a9`).
 - Runtime file touched: `scripts/worldmap_city_info_panel.gd`.

@@ -2,6 +2,20 @@
 
 ## 2026-06-05
 
+### v0.70-23 WorldMap City Detail Resource Tab Slim Polish
+- Started from clean `789c2de v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix`.
+- Required reading completed: workflow/current/next/handoff/WorldMap rules, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, and `WorldMap_Test.tscn`.
+- Inspected unified City Detail / diplomacy-spy panel setup, primary/secondary tab refresh, city detail reset/show/content functions, and existing resource/trade display helpers.
+- Implemented:
+  - Hid the old English City Detail eyebrow/title path.
+  - Added `무역` as a primary unified-panel tab.
+  - Kept `도시 상세` resource view separate from `외교·첩보` and moved `자국무역` / `타국무역` into the trade secondary-tab flow.
+  - Rebuilt the resource tab body around city name, food/strategy/special resource potential, and economy potential.
+  - Removed duplicate type/faction/loyalty/troop/security/defense/status/governor/stationed-hero copy from the resource tab.
+  - Added compact resource category coloring for `식량 자원`, `전략 자원`, and `특산 자원`.
+- Preserved help modal topics, recruitment, governor assignment, governor policy, attack button, save/load, battle entry, BattleContext, city data values, formulas, `project.godot`, and assets.
+- Tech tree UI remains deferred after the city detail / diplomacy-spy / trade panel cleanup.
+
 ### v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix
 - Started from clean `720c0a9 v0.70-22 WorldMap Implemented Help Modal MVP`.
 - Checked the v0.70-22 GDScript diff and searched ternary patterns in `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.

@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-23 WorldMap City Detail Resource Tab Slim Polish
+- Built on `v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix` (`789c2de`).
+- Slimmed the City Detail resource tab to city name, resource potential, and economy potential.
+- Resource tab now shows `식량 자원`, `전략 자원`, `특산 자원`, and `경제` blocks, with gold placed under economy.
+- Removed Selected City Panel duplication from the resource tab: type/faction, loyalty, troops, security baseline, defense, status, governor, and stationed hero count.
+- Removed visible `CITY DETAIL / DIPLOMACY` / web-version display-only / no-domestic-turn placeholder copy from the City Detail resource path.
+- Reorganized unified panel primary tabs to `도시 상세`, `외교·첩보`, `무역`, and `접기`.
+- Moved `자국무역` / `타국무역` into the trade-family secondary tab flow without rewriting trade calculations.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change city data values, resource seeds, domestic formulas, governor/chancellor formulas, trade/diplomacy/spy calculations, battle scripts, BattleContext, save/load schema, `project.godot`, or assets.
+- Tech tree UI remains a follow-up after this panel split. Help MVP, recruitment, governor, attack, and battle flows were preserved.
+
 ## v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix
 - Built on `v0.70-22 WorldMap Implemented Help Modal MVP` (`720c0a9`).
 - Replaced the newly added selected-city help-row anchor ternary with an explicit `Control` variable and `if/else` assignment.

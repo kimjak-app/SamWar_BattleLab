@@ -1,5 +1,16 @@
 # WORLDMAP RULES
 
+## v0.70-23 City Detail Resource Tab Slim Rule
+- City Detail resource tab is a deep-view panel for city resource and economy potential, not a duplicate of the Selected City Panel.
+- Resource tab should show city name, `식량 자원`, `전략 자원`, `특산 자원`, and `경제` only at this stage.
+- Gold belongs in the economy block with population and commerce, not in the resource category block.
+- Do not show duplicated Selected City data in the resource tab: type, faction/region ownership, city loyalty, troops, security baseline, defense, status, governor, stationed hero count, or selected-city action state.
+- Keep category labels visually distinguishable from resource names, while preserving the existing dark panel / gold accent WorldMap tone.
+- Unified panel primary tabs should stay conceptually split as `도시 상세`, `외교·첩보`, and `무역`; `자국무역` / `타국무역` belong under the trade family.
+- City tech-tree UI, research start, and agriculture/commerce/military/special/trade expansion remain deferred until a dedicated tech-tree task.
+- This polish must not change city data values, resource seeds, domestic formulas, governor/chancellor formulas, trade/diplomacy/spy calculations, battle scenes, BattleContext, save/load schema, `project.godot`, or assets.
+- Preserve the existing help modal MVP, recruitment, governor assignment/policy, attack, panel drag, and battle handoff flows.
+
 ## v0.70-22 Implemented Help Modal Rule
 - WorldMap help UI must describe only currently implemented behavior.
 - Help buttons may be small `?` controls near important values, but must not move or rename existing stable Label/Button/OptionButton paths.
