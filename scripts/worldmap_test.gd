@@ -13,7 +13,7 @@ const WORLD_BATTLE_ENTRY_PAN_SEC := 0.55
 const WORLD_BATTLE_ENTRY_ZOOM_SEC := 0.45
 const WORLD_BATTLE_ENTRY_HOLD_SEC := 0.15
 const WORLD_BATTLE_ENTRY_TARGET_ZOOM := Vector2(1.35, 1.35)
-const WORLD_UI_TOP_MARGIN := 16.0
+const WORLD_UI_TOP_MARGIN := 10.0
 const WORLD_UI_LEFT_MARGIN := 18.0
 const LEFT_WORLD_STATUS_PANEL_TOP_LEFT := Vector2(WORLD_UI_LEFT_MARGIN, WORLD_UI_TOP_MARGIN)
 const LEFT_WORLD_STATUS_PANEL_SIZE := Vector2(320.0, 570.0)
@@ -1653,6 +1653,8 @@ func _setup_left_world_controls() -> void:
 func _setup_left_world_status_panel_layout() -> void:
 	_lock_left_world_status_panel_anchor()
 	_lock_world_turn_header_order()
+	_setup_left_world_header_slim_ui()
+	_setup_left_world_tax_slim_ui()
 	_setup_warehouse_card_ui()
 	_setup_pending_invasion_choice_ui()
 	_setup_post_battle_result_ui()
@@ -1676,6 +1678,24 @@ func _setup_left_world_status_panel_layout() -> void:
 	supply_label.add_theme_font_size_override("font_size", 10)
 	military_logistics_label.add_theme_font_size_override("font_size", 10)
 	external_trade_label.add_theme_font_size_override("font_size", 10)
+
+
+func _setup_left_world_header_slim_ui() -> void:
+	left_world_status_eyebrow_label.visible = false
+	left_world_status_eyebrow_label.text = ""
+	turn_label.visible = false
+	turn_label.text = ""
+	nation_label.visible = false
+	nation_label.text = ""
+	calendar_label.visible = true
+	calendar_label.add_theme_font_size_override("font_size", 16)
+
+
+func _setup_left_world_tax_slim_ui() -> void:
+	tax_bar.visible = false
+	security_label.visible = false
+	security_label.text = ""
+	security_bar.visible = false
 
 
 func _lock_left_world_status_panel_anchor() -> void:
@@ -1955,18 +1975,11 @@ func _setup_warehouse_card_ui() -> void:
 func _refresh_left_world_status_panel() -> void:
 	_ensure_worldmap_runtime_state_defaults()
 	var selected_state_city_id := str(_player_state.get("selected_city_id", selected_city_id))
-	var origin_city_id := str(_player_state.get("origin_city_id", ""))
-	var selected_city_name := _format_city_name_by_id(selected_state_city_id, "선택 도시 없음")
-	var origin_city_name := _format_city_name_by_id(origin_city_id, "알 수 없는 도시")
 	var selected_city_data := _get_city_hud_entry(selected_state_city_id)
-	left_world_status_eyebrow_label.text = "World Turn"
-	turn_label.text = str(_player_state.get("turn_label", "제 1턴"))
-	calendar_label.text = str(_player_state.get("year_label", "154년 봄 1일"))
-	nation_label.text = "%s · 선택 %s / 기준 %s" % [
-		str(_player_state.get("current_phase_label", "아군 턴")),
-		selected_city_name,
-		origin_city_name,
-	]
+	left_world_status_eyebrow_label.visible = false
+	turn_label.visible = false
+	calendar_label.text = str(_player_state.get("year_label", "154년 봄 1턴"))
+	nation_label.visible = false
 	var national_loyalty := int(_player_state.get("national_loyalty", 0))
 	var tax_level := _normalize_tax_level(_player_state.get("tax_level", 0))
 	var public_order := int(_player_state.get("public_order", 0))
@@ -1974,9 +1987,12 @@ func _refresh_left_world_status_panel() -> void:
 	power_bar.value = national_loyalty
 	tax_label.text = "세금 수준 %d · %s" % [tax_level, _get_tax_description(tax_level)]
 	tax_bar.value = tax_level
+	tax_bar.visible = false
 	tax_slider.set_value_no_signal(float(tax_level))
-	security_label.text = _format_tax_preview(tax_level, national_loyalty, public_order)
+	security_label.text = ""
+	security_label.visible = false
 	security_bar.value = public_order
+	security_bar.visible = false
 
 	_sync_chancellor_assignment_for_selected_city(selected_city_data)
 	_populate_chancellor_assignment_dropdown(selected_city_data)

@@ -1,5 +1,28 @@
 # HANDOFF TO CODEX
 
+## v0.70-15 WorldMap Left Panel Header & Tax Slim Polish Handoff
+- Baseline: `v0.70-14a WorldMap Panel Top Margin Baseline Polish` (`502f1eb` before this patch).
+- Required git analysis was performed before editing:
+  - `git status --short`: two pre-existing untracked Godot `.uid` files under `assets/video_test/theora_safe/`; pre-existing untracked Godot .uid files ignored.
+  - Recent log confirmed `502f1eb v0.70-14a`, `ab91b34 v0.70-14 Left Panel Anchor`, `e53a9fb v0.70-14 Battle Entry Camera Handoff`, and `8991b9b v0.70-13d`.
+  - HEAD changed files were `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and six agent docs for the common top-margin baseline.
+- Runtime/scene files touched: `WorldMap_Test.tscn` and `scripts/worldmap_test.gd`.
+- Implementation:
+  - Reduced the shared fixed-panel top baseline from `WORLD_UI_TOP_MARGIN = 16.0` to `10.0`; scene offsets for `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` match that baseline while preserving X/width/height.
+  - Added slim setup helpers for the left header/tax card.
+  - Left header now visually shows only the runtime calendar/turn line such as `154년 봄 1턴`.
+  - `EyebrowLabel`, `TurnLabel`, and `NationLabel` remain in the scene but are hidden; this preserves existing node paths.
+  - Kept national loyalty label/bar and tax label/slider; hid the tax duplicate bar, tax preview label, and public-order duplicate bar.
+- Camera independence: affected panels remain `WorldMapUI` CanvasLayer children and are still locked by the fixed-panel top-margin runtime guard.
+- Preserved scope: no `scripts/battle_web_import_test.gd`, `project.godot`, city data, city click, battle entry, domestic/trade/relation formulas, chancellor formulas, tax calculations, save/load structure, BattleContext, battle scenes, assets, or right/city-detail panel content changes.
+- Verification: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, `Battle_Fullscreen_Test.tscn` headless load, and docs marker check passed.
+- Manual F6 QA should confirm one-line left header, removed preview/duplicate bars, tax slider stability, top baseline alignment, and unchanged pan/zoom independence.
+- Next candidate work:
+  1. `v0.70-16 WorldMap Left Panel Chancellor Card Polish`
+  2. `v0.70-17 WorldMap Left Panel Resource Warehouse Polish`
+  3. `v0.70-18 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-19 WorldMap Battle Entry Camera Zoom Handoff`
+
 ## v0.70-14a WorldMap Panel Top Margin Baseline Polish Handoff
 - Baseline: `v0.70-14 WorldMap Left Panel Anchor & World Turn Lock` (`ab91b34` before this patch).
 - Required git analysis was performed before editing:

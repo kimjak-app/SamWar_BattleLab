@@ -1,18 +1,26 @@
 # WORLDMAP RULES
 
+## v0.70-15 Left Panel Header and Tax Slim Rule
+- The current fixed WorldMap information panels share one top baseline: `WORLD_UI_TOP_MARGIN = 10.0`.
+- `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` must remain direct `WorldMapUI` CanvasLayer children and screen-fixed during camera pan/zoom, mouse drag pan, wheel zoom, and battle-entry camera handoff.
+- `LeftWorldStatusPanel` runtime anchor is top-left `(18, 10)` with size/minimum size `320 x 570` for the current 1920x1080 viewport baseline.
+- The left panel top header is intentionally slim: only the runtime `CalendarLabel` line such as `154년 봄 1턴` should be visible. `EyebrowLabel`, `TurnLabel`, and `NationLabel` may remain as hidden nodes to preserve existing node paths.
+- The left panel tax card should show one national loyalty label/bar and one tax level label/slider. Do not reintroduce the long tax preview sentence, duplicate tax bar, or duplicate public-order bar unless a later UX task explicitly asks for it.
+- This polish must not change city data, city click behavior, battle entry, BattleContext, domestic/trade/relation formulas, chancellor formulas, tax internal calculations, save/load structure, or battle scenes.
+
 ## v0.70-14a Fixed Panel Top Margin Baseline Rule
-- The current fixed WorldMap information panels share one top baseline: `WORLD_UI_TOP_MARGIN = 16.0`.
+- Superseded by v0.70-15: the current fixed WorldMap information panels share `WORLD_UI_TOP_MARGIN = 10.0`; the prior v0.70-14a value was `16.0`.
 - `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` must remain direct `WorldMapUI` CanvasLayer children unless a later task explicitly changes the HUD root contract.
 - These panels should stay screen-fixed during `WorldMapCamera` pan/zoom, mouse drag pan, wheel zoom, and battle-entry camera handoff.
-- Initial scene offsets should preserve each panel's X position, width, height, content order, and web-parity information structure while using top `16`.
+- Initial scene offsets should preserve each panel's X position, width, height, content order, and web-parity information structure while using the current shared top baseline.
 - The retired `WorldMapUI/TitleLabel` / `SamWar HUD MVP` debug label should stay hidden unless a future debug task deliberately re-enables it in a non-overlapping position.
 - Do not use this top-margin baseline work to redesign the left panel, right panel, city detail panel, diplomacy panel, city click behavior, battle entry, domestic/trade/relation formulas, or BattleContext.
 
 ## v0.70-14 Left Panel Anchor & World Turn Lock Rule
 - `LeftWorldStatusPanel` must remain a `WorldMapUI` CanvasLayer child so it is independent from `WorldMapCamera` pan/zoom and battle-entry camera handoff motion.
 - The left panel is intentionally fixed to the screen top-left. It should not be registered as a draggable HUD panel unless a later task explicitly reintroduces a lock/unlock UX.
-- Superseded by v0.70-14a: the stable runtime anchor is top-left `(18, 16)` with size/minimum size `320 x 570` for the current 1920x1080 viewport baseline.
-- The World Turn header block must stay at the top of the left panel content in this order: `EyebrowLabel`, `TurnLabel`, `CalendarLabel`, `NationLabel`, optional `WorldTurnSeparator`.
+- Superseded by v0.70-15: the stable runtime anchor is top-left `(18, 10)` with size/minimum size `320 x 570` for the current 1920x1080 viewport baseline.
+- The World Turn header block node paths should stay at the top of the left panel content, but v0.70-15 intentionally makes only `CalendarLabel` visible in that block.
 - Runtime cards such as pending invasion, post-battle result, save management, warehouse, and status hints must be inserted below the World Turn header block.
 - Left-panel anchor work must not change worldmap camera logic, city marker/click behavior, battle entry, BattleContext, domestic/trade/relation formulas, right-panel structure, or battle scenes.
 

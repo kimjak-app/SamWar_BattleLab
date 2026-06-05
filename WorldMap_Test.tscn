@@ -1236,9 +1236,9 @@ horizontal_alignment = 2
 [node name="LeftWorldStatusPanel" type="PanelContainer" parent="WorldMapUI" unique_id=49871230]
 anchors_preset = 0
 offset_left = 18.0
-offset_top = 16.0
+offset_top = 10.0
 offset_right = 338.0
-offset_bottom = 586.0
+offset_bottom = 580.0
 custom_minimum_size = Vector2(320, 570)
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 
@@ -1254,12 +1254,14 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="EyebrowLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=583185699]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
 theme_override_font_sizes/font_size = 12
 text = "WORLD TURN"
 
 [node name="TurnLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=1071792159]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 24
@@ -1268,10 +1270,11 @@ text = "제 1턴"
 [node name="CalendarLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=479216229]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
-theme_override_font_sizes/font_size = 12
-text = "154년 봄 1일 · 아군 턴"
+theme_override_font_sizes/font_size = 16
+text = "154년 봄 1턴"
 
 [node name="NationLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=383105125]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
@@ -1317,6 +1320,7 @@ theme_override_font_sizes/font_size = 11
 text = "세금 30"
 
 [node name="TaxBar" type="ProgressBar" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList" unique_id=1339671214]
+visible = false
 custom_minimum_size = Vector2(0, 7)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_world_hud_progress_track")
@@ -1329,12 +1333,14 @@ layout_mode = 2
 value = 30.0
 
 [node name="SecurityLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList" unique_id=203212160]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 11
 text = "치안 68"
 
 [node name="SecurityBar" type="ProgressBar" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList" unique_id=635685504]
+visible = false
 custom_minimum_size = Vector2(0, 7)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_world_hud_progress_track")
@@ -1511,9 +1517,9 @@ horizontal_alignment = 1
 
 [node name="DiplomacySpyPanel" type="PanelContainer" parent="WorldMapUI" unique_id=195893152]
 offset_left = 340.0
-offset_top = 16.0
+offset_top = 10.0
 offset_right = 560.0
-offset_bottom = 330.0
+offset_bottom = 324.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 
 [node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/DiplomacySpyPanel" unique_id=1438903641]
@@ -1626,9 +1632,9 @@ autowrap_mode = 2
 
 [node name="CityDetailPanel" type="PanelContainer" parent="WorldMapUI" unique_id=131852180]
 offset_left = 572.0
-offset_top = 16.0
+offset_top = 10.0
 offset_right = 812.0
-offset_bottom = 440.0
+offset_bottom = 434.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 
 [node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/CityDetailPanel" unique_id=1476225625]
@@ -1775,9 +1781,9 @@ autowrap_mode = 2
 
 [node name="CityInfoPanel" type="PanelContainer" parent="WorldMapUI" unique_id=1812841544]
 offset_left = 824.0
-offset_top = 16.0
+offset_top = 10.0
 offset_right = 1132.0
-offset_bottom = 558.0
+offset_bottom = 552.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 script = ExtResource("13_city_info_panel")
 

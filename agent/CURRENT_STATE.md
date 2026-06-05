@@ -1,5 +1,24 @@
 # CURRENT STATE
 
+## v0.70-15 WorldMap Left Panel Header & Tax Slim Polish
+- Baseline: `v0.70-14a WorldMap Panel Top Margin Baseline Polish` at HEAD `502f1eb`.
+- Current HEAD analysis summary: `502f1eb` changed `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and six agent docs for the fixed-panel top-margin baseline. `git status --short` showed only two pre-existing untracked Godot `.uid` files under `assets/video_test/theora_safe/`; pre-existing untracked Godot .uid files ignored.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`.
+- Left panel header slim:
+  - `CalendarLabel` is the only visible top turn line and displays the existing runtime calendar string such as `154년 봄 1턴`.
+  - `World Turn`, `제 N턴`, and phase/selected/base-city header labels remain as nodes but are hidden/text-cleared where safe.
+- Tax section slim:
+  - Kept `국가충성도 N · 상태`, one loyalty bar, `세금 수준 N · 설명`, and the existing tax slider.
+  - Hid the tax level duplicate bar, long tax preview label, and public-order duplicate bar while preserving tax level normalization, slider value sync, loyalty/public-order reads, and turn/save logic.
+- Common top margin: `WORLD_UI_TOP_MARGIN` changed from `16.0` to `10.0`; left, selected-city, city-detail, and diplomacy/spy panels keep their X positions, widths, heights, and CanvasLayer camera independence.
+- Preserved scope: no `scripts/battle_web_import_test.gd`, `project.godot`, battle calculations, BattleContext, city data, city click/battle entry, domestic/trade/relation formula, chancellor formula, tax internal calculation, save/load structure, or asset changes.
+- Verification result: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, `Battle_Fullscreen_Test.tscn` headless load, and docs string check passed before commit. Manual F6 QA remains recommended for visible left-panel density and top alignment.
+- Next candidate work:
+  1. `v0.70-16 WorldMap Left Panel Chancellor Card Polish`
+  2. `v0.70-17 WorldMap Left Panel Resource Warehouse Polish`
+  3. `v0.70-18 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-19 WorldMap Battle Entry Camera Zoom Handoff`
+
 ## v0.70-14a WorldMap Panel Top Margin Baseline Polish
 - Baseline: `v0.70-14 WorldMap Left Panel Anchor & World Turn Lock` at HEAD `ab91b34`.
 - Current HEAD analysis summary: `ab91b34` changed `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and six agent docs for the left-panel anchor / World Turn lock. Two pre-existing untracked Godot `.ogv.uid` files under `assets/video_test/theora_safe/` remain untouched.

@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Next: v0.70-16 WorldMap Left Panel Chancellor Card Polish
+- `v0.70-15 WorldMap Left Panel Header & Tax Slim Polish` is the current WorldMap left-panel header/tax density baseline.
+- Baseline: `v0.70-14a WorldMap Panel Top Margin Baseline Polish` at HEAD `502f1eb`.
+- v0.70-15 summary:
+  1. Required git analysis confirmed `502f1eb v0.70-14a WorldMap Panel Top Margin Baseline Polish`; only the two pre-existing untracked Godot `.uid` files were present and ignored.
+  2. `WORLD_UI_TOP_MARGIN` was reduced from `16.0` to `10.0`, so left, selected-city, city-detail, and diplomacy/spy panels share the slightly higher top baseline.
+  3. The left panel top header now shows only the existing calendar/turn text, e.g. `154년 봄 1턴`; `World Turn`, `제 N턴`, and phase/selected/base-city header lines are hidden without deleting nodes.
+  4. The tax card now exposes one national loyalty label/bar plus one tax level label/slider; the tax preview sentence and duplicate bars are hidden.
+  5. `WorldMapUI` CanvasLayer placement and camera pan/zoom independence remain unchanged.
+- Preserved scope: no battle script, BattleContext, city data, city click/battle entry, domestic/trade/relation formula, chancellor formula, tax internal calculation, save/load structure, project setting, asset, or right/city-detail panel content changes.
+- Manual F6 QA should confirm the one-line header, no tax preview/duplicate bars, slider stability, turn-end/save/load stability, and fixed panel independence during pan/zoom/drag.
+- Next candidate work:
+  1. `v0.70-16 WorldMap Left Panel Chancellor Card Polish`
+  2. `v0.70-17 WorldMap Left Panel Resource Warehouse Polish`
+  3. `v0.70-18 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-19 WorldMap Battle Entry Camera Zoom Handoff`
+
 ## Next: v0.70-15 WorldMap Left Panel Visual Hierarchy Polish
 - `v0.70-14a WorldMap Panel Top Margin Baseline Polish` is the current WorldMap fixed-panel top-margin baseline.
 - Baseline: `v0.70-14 WorldMap Left Panel Anchor & World Turn Lock` at HEAD `ab91b34`.

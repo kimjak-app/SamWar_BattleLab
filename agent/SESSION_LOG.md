@@ -2,6 +2,32 @@
 
 ## 2026-06-05
 
+### v0.70-15 WorldMap Left Panel Header & Tax Slim Polish
+- Started from `502f1eb v0.70-14a WorldMap Panel Top Margin Baseline Polish`.
+- Required git analysis:
+  - `git status --short`: pre-existing untracked `assets/video_test/theora_safe/test_safe_q7_1280x.ogv.uid` and `test_safe_q8_1920x.ogv.uid`; pre-existing untracked Godot .uid files ignored.
+  - Recent log: `502f1eb`, `ab91b34`, `e53a9fb`, `8991b9b`, `0c91744`, `f56903d`, `6f46bf1`, `493c8e8`, `76e0421`, `d2dbefa`.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: HEAD modified `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and six agent docs for the panel top-margin baseline.
+- Read required docs and inspected `WorldMap_Test.tscn` plus `scripts/worldmap_test.gd`.
+- Panel/header findings:
+  - `WorldMapUI` is a `CanvasLayer`; fixed panels are already camera-independent.
+  - `LeftWorldStatusPanel` contained visible `World Turn`, `TurnLabel`, `CalendarLabel`, and phase/selected/base-city `NationLabel` lines.
+  - The tax card contained national loyalty, tax label/bar/slider, and a long tax preview/public-order label/bar path.
+- Implemented minimal slim polish:
+  - Reduced shared `WORLD_UI_TOP_MARGIN` from `16.0` to `10.0`.
+  - Kept the left header visually to one calendar/turn line such as `154년 봄 1턴`.
+  - Hid `World Turn`, `제 N턴`, and phase/selected/base-city header labels without deleting nodes.
+  - Kept one national loyalty label/bar and one tax level label/slider.
+  - Hid the duplicate tax bar, tax preview text, and public-order duplicate bar.
+- Preserved worldmap city data, city click, battle entry, camera handoff logic, domestic/trade/relation formulas, chancellor formulas, tax calculations, save/load structure, battle scenes, and `project.godot`.
+- Verification passed: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, `Battle_Fullscreen_Test.tscn` headless load, and docs marker check.
+- Manual F6 QA remains recommended for one-line header appearance, tax slider interaction, turn end/save/load, and visible top baseline alignment.
+- Next candidate work:
+  1. `v0.70-16 WorldMap Left Panel Chancellor Card Polish`
+  2. `v0.70-17 WorldMap Left Panel Resource Warehouse Polish`
+  3. `v0.70-18 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-19 WorldMap Battle Entry Camera Zoom Handoff`
+
 ### v0.70-14a WorldMap Panel Top Margin Baseline Polish
 - Started from `ab91b34 v0.70-14 WorldMap Left Panel Anchor & World Turn Lock`.
 - Required git analysis:

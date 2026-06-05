@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-15 WorldMap Left Panel Header & Tax Slim Polish
+- Built on `v0.70-14a WorldMap Panel Top Margin Baseline Polish` (`502f1eb`).
+- Analyzed latest git history before edits and confirmed the only pre-existing worktree noise was two untracked Godot `.uid` files, left untouched; pre-existing untracked Godot .uid files ignored.
+- Reduced shared fixed-panel `WORLD_UI_TOP_MARGIN` from `16.0` to `10.0` in `scripts/worldmap_test.gd`.
+- Updated `WorldMap_Test.tscn` so `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` start at top `10` while preserving current X positions, widths, heights, content order, and styles.
+- Slimmed the left panel turn header to one visible runtime calendar/turn line such as `154년 봄 1턴`; `World Turn`, `제 N턴`, and phase/selected/base-city header labels remain as hidden nodes.
+- Slimmed the tax card to national loyalty label/bar plus tax level label/slider; the duplicate tax bar, tax preview sentence, and public-order duplicate bar are hidden.
+- Kept tax normalization, slider sync, loyalty/public-order state reads, turn-end use, save/load structure, and CanvasLayer camera independence intact.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`.
+- Did not change `scripts/battle_web_import_test.gd`, `project.godot`, battle calculations, BattleContext, city data, city click/battle entry, domestic/trade/relation formulas, chancellor formulas, tax internal calculations, save/load structure, right/city-detail panel content, or assets.
+
 ## v0.70-14a WorldMap Panel Top Margin Baseline Polish
 - Built on `v0.70-14 WorldMap Left Panel Anchor & World Turn Lock` (`ab91b34`).
 - Analyzed latest git history before edits and confirmed the only pre-existing worktree noise was two untracked Godot `.ogv.uid` files, left untouched.
