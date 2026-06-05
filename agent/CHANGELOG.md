@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix
+- Built on `v0.70-22 WorldMap Implemented Help Modal MVP` (`720c0a9`).
+- Replaced the newly added selected-city help-row anchor ternary with an explicit `Control` variable and `if/else` assignment.
+- Fixed the Godot 4 reload risk: `Values of the ternary operator are not mutually compatible`.
+- Modified files: `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, and `agent/SESSION_LOG.md`.
+- Did not change help copy, UI layout intent, formulas, battle scenes, save/load, `project.godot`, or assets.
+
 ## v0.70-22 WorldMap Implemented Help Modal MVP
 - Built on `v0.70-21 WorldMap Recruitment Loyalty-Based Connect` (`5d730bb`).
 - Added five WorldMap help topics for 국가충성도, 성 충성도, 민심, 치안, and 주둔무장.

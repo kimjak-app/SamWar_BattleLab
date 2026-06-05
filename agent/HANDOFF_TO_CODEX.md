@@ -1,5 +1,12 @@
 # HANDOFF TO CODEX
 
+## v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix Handoff
+- Baseline: `v0.70-22 WorldMap Implemented Help Modal MVP` (`720c0a9`).
+- Runtime file touched: `scripts/worldmap_city_info_panel.gd`.
+- The hotfix only changes the selected-city help-row layout anchor from a ternary to an explicit `Control` variable plus `if/else`.
+- Cause: the ternary mixed `_domestic_help_row` (`HBoxContainer`) and `military_state_label` (`Label`) as alternate values, which can trip Godot 4 GDScript compatibility checks.
+- Help modal topics, copy, button placement intent, formulas, battle scenes, save/load, `project.godot`, and assets are unchanged.
+
 ## v0.70-22 WorldMap Implemented Help Modal MVP Handoff
 - Baseline: `v0.70-21 WorldMap Recruitment Loyalty-Based Connect` (`5d730bb`).
 - Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.

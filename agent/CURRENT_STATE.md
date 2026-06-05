@@ -1,5 +1,12 @@
 # CURRENT STATE
 
+## v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix
+- Baseline: `v0.70-22 WorldMap Implemented Help Modal MVP` at `720c0a9`.
+- Fixed the new selected-city help-row layout anchor ternary in `scripts/worldmap_city_info_panel.gd`.
+- Root cause: the added ternary mixed `_domestic_help_row` (`HBoxContainer`) and `military_state_label` (`Label`) as alternate values, which can trigger Godot 4 GDScript ternary type compatibility reload errors.
+- The expression now uses an explicitly typed `Control` anchor plus `if/else`.
+- Help copy, UI structure, formulas, battle scenes, save/load, `project.godot`, and assets were not changed.
+
 ## v0.70-22 WorldMap Implemented Help Modal MVP
 - Baseline: `v0.70-21 WorldMap Recruitment Loyalty-Based Connect` at `5d730bb`.
 - Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

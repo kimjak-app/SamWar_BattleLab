@@ -2,6 +2,13 @@
 
 ## 2026-06-05
 
+### v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix
+- Started from clean `720c0a9 v0.70-22 WorldMap Implemented Help Modal MVP`.
+- Checked the v0.70-22 GDScript diff and searched ternary patterns in `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.
+- Fixed the added `_apply_selected_city_layout_order()` ternary that selected between `_domestic_help_row` and `military_state_label`.
+- Replaced it with an explicit `Control` variable and `if/else` assignment to avoid GDScript ternary type compatibility reload errors.
+- Preserved help text, topic coverage, UI structure, domestic formulas, battle scenes, save/load, `project.godot`, and assets.
+
 ### v0.70-22 WorldMap Implemented Help Modal MVP
 - Started from clean `5d730bb v0.70-21 WorldMap Recruitment Loyalty-Based Connect`.
 - Required reading completed: workflow/current/next/handoff/WorldMap rules, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, and `WorldMap_Test.tscn`.

@@ -497,7 +497,10 @@ func _apply_selected_city_layout_order() -> void:
 	var button_row := attack_button_placeholder.get_parent() as Control if attack_button_placeholder != null else null
 	_move_child_after(content, military_state_label, loyalty_card)
 	_move_child_after(content, _domestic_help_row, military_state_label)
-	_move_child_after(content, governor_label, _domestic_help_row if _domestic_help_row != null else military_state_label)
+	var governor_label_anchor: Control = military_state_label
+	if _domestic_help_row != null:
+		governor_label_anchor = _domestic_help_row
+	_move_child_after(content, governor_label, governor_label_anchor)
 	_move_child_after(content, governor_card, governor_label)
 	_move_child_after(content, _garrison_card, governor_card)
 	_move_child_after(content, hero_move_button_placeholder, _garrison_card)
