@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-17b Restore Theora Test UID Files
+- Baseline: `v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work` at HEAD `110f0e8`.
+- Current HEAD analysis summary: `v0.70-17a` deleted the two Theora test Godot `.uid` files after identifying them as cleanup artifacts, while `WorldMap_Test.tscn` remained modified and uncommitted.
+- Restored `assets/video_test/theora_safe/test_safe_q7_1280x.ogv.uid` and `assets/video_test/theora_safe/test_safe_q8_1920x.ogv.uid` from `HEAD~1`.
+- Godot resource UID reference stability takes priority for these Theora test assets, so the `.uid` files are retained in the repo.
+- The `.ogv` source files were not changed.
+- `WorldMap_Test.tscn` was not staged, committed, or discarded in this restore commit. WorldMap_Test.tscn modified remains uncommitted.
+- Modified files committed for this restore: the two `.uid` files plus `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, and `agent/SESSION_LOG.md`.
+- No scripts, `project.godot`, battle scenes, `.ogv` sources, or selected-city panel logic were changed.
+- Next task must still decide how to handle the existing `WorldMap_Test.tscn` diff before selected-city panel work.
+
 ## v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work
 - Baseline: after `v0.70-16 WorldMap Left Panel Chancellor Card Polish`; pre-cleanup HEAD was `91713d8 제거목적`.
 - Current HEAD analysis summary: `91713d8` added only two tracked Godot `.uid` files: `assets/video_test/theora_safe/test_safe_q7_1280x.ogv.uid` and `assets/video_test/theora_safe/test_safe_q8_1920x.ogv.uid`.

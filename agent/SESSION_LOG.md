@@ -2,6 +2,21 @@
 
 ## 2026-06-05
 
+### v0.70-17b Restore Theora Test UID Files
+- Started from `110f0e8 v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work` with `WorldMap_Test.tscn` tracked modified.
+- Required git analysis:
+  - `git status --short`: `M WorldMap_Test.tscn`.
+  - Recent log: `110f0e8`, `91713d8`, `4535a3f`, `5dec9b2`, `502f1eb`, `ab91b34`, `e53a9fb`, `8991b9b`, `0c91744`, `f56903d`.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: HEAD deleted the two Theora test `.uid` files and updated five agent docs for v0.70-17a.
+- Restored the two Theora test `.uid` files from `HEAD~1`:
+  - `assets/video_test/theora_safe/test_safe_q7_1280x.ogv.uid`
+  - `assets/video_test/theora_safe/test_safe_q8_1920x.ogv.uid`
+- The `.uid` files are retained for Godot resource UID reference stability.
+- The `.ogv` source files were preserved.
+- `WorldMap_Test.tscn` was not staged, committed, or discarded. WorldMap_Test.tscn modified remains uncommitted.
+- No scripts, `project.godot`, battle scenes, selected-city panel logic, or `.ogv` source files were changed.
+- Next task before selected-city panel work: explicitly decide whether to keep, normalize, or revert the existing `WorldMap_Test.tscn` diff.
+
 ### v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work
 - Started from reported state: HEAD `91713d8 제거목적` with `WorldMap_Test.tscn` tracked modified.
 - Required git analysis:

@@ -1,6 +1,20 @@
 # NEXT TASKS
 
 ## Next: Resolve WorldMap_Test.tscn Before Selected City Panel Work
+- `v0.70-17b Restore Theora Test UID Files` restores the two Theora test Godot `.uid` files deleted by `v0.70-17a`.
+- Restore summary:
+  1. Restored `test_safe_q7_1280x.ogv.uid` and `test_safe_q8_1920x.ogv.uid` from `HEAD~1`.
+  2. The `.uid` files are retained for Godot resource UID reference stability.
+  3. The `.ogv` source files under `assets/video_test/theora_safe/` were preserved.
+  4. `WorldMap_Test.tscn` remains modified and uncommitted; it was not staged, committed, or discarded.
+- Before `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish`, decide whether to keep, normalize, or revert the current `WorldMap_Test.tscn` diff. Do not mix that existing diff silently into selected-city work.
+- Next candidate work:
+  1. `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish`
+  2. `v0.70-19 WorldMap Selected City Panel Troop & Governor Polish`
+  3. `v0.70-20 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-21 WorldMap Battle Entry Camera Zoom Handoff`
+
+## Next: Resolve WorldMap_Test.tscn Before Selected City Panel Work
 - `v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work` removes incorrectly tracked Theora test `.uid` artifacts after `v0.70-16`.
 - Cleanup summary:
   1. Pre-cleanup HEAD `91713d8 제거목적` added only `test_safe_q7_1280x.ogv.uid` and `test_safe_q8_1920x.ogv.uid`.
