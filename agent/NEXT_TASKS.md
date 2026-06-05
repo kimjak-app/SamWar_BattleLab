@@ -1,6 +1,22 @@
 # NEXT TASKS
 
 ## Next: v0.70-21 WorldMap City Detail Panel Right Side Polish
+- `v0.70-20a WorldMap Selected City Panel Layout Order Polish` is the current selected-city panel layout baseline.
+- v0.70-20a summary:
+  1. Selected-city panel display order is now city summary -> city state summary -> governor -> garrison -> hero transfer -> military summary -> recruit.
+  2. `민심 / 치안 / 상업 / 농업` moved directly under city loyalty as a compact city-state summary.
+  3. Governor card keeps `효과: ...` and `정책: ...` inside the card and no longer repeats the lower `태수 정책: 효과: ...` hint.
+  4. `주둔 무장` rows are wrapped in a card-style container with portrait/name/stat rows.
+  5. `무장 이동` sits directly below the garrison card and keeps the existing inline transfer UI.
+  6. The selected-city `내정` button is hidden; domestic work is deferred.
+  7. `병력 / 방어 / 치안 기준` sits below garrison/transfer, and `병사 모집` sits below that military summary.
+- Preserved scope: no governor assignment logic, governor policy save/load, hero transfer data movement, battle/BattleContext, formulas, recruit processing, `project.godot`, `.uid`, `.ogv`, or asset changes.
+- Next candidate work:
+  1. `v0.70-21 WorldMap City Detail Panel Right Side Polish`
+  2. `v0.70-22 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-23 Governor Assignment Exclusivity & Hero State Rules`
+
+## Previous: v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish
 - `v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish` is the current selected-city governor/garrison/hero-transfer baseline.
 - v0.70-20 summary:
   1. Selected-city governor card now has a visible `태수` section title.

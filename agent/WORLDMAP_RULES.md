@@ -1,5 +1,15 @@
 # WORLDMAP RULES
 
+## v0.70-20a Selected City Panel Layout Order Rule
+- The selected-city panel should present information in this order: city name, faction, type, city loyalty, `민심 / 치안 / 상업 / 농업`, governor card, garrison card, hero transfer button/panel, `병력 / 방어 / 치안 기준`, and recruit button.
+- The city state summary (`민심 / 치안 / 상업 / 농업`) belongs directly under the loyalty card and should remain a compact decision summary, not a debug/formula display.
+- Governor effect/policy copy belongs inside the governor card as `효과: ...` and `정책: ...`. Do not reintroduce a lower duplicate `태수 정책: 효과: ...` hint.
+- The `주둔 무장` display should remain card-bounded and show compact portrait/name/stat rows using the existing portrait helper path.
+- `무장 이동` belongs near the garrison section and must keep the existing v0.70-20 inline transfer contract.
+- The selected-city `내정` button is hidden until City Detail / Domestic Panel work defines its real UX.
+- `병사 모집` may remain as a button below the military summary, but actual recruitment processing must not be added without a dedicated task.
+- Do not change governor assignment logic, governor policy persistence, hero transfer data movement, battle entry, BattleContext, domestic/chancellor/governor formulas, `project.godot`, `.uid` / `.ogv`, or assets as part of this layout rule.
+
 ## v0.70-20 Selected City Governor, Garrison, and Hero Transfer Rule
 - The selected-city governor card should show a visible `태수` section title above portrait/name/stats, `GovernorAssignOption`, `GovernorPolicyOption`, and policy effect copy.
 - `GovernorAssignOption` and `GovernorPolicyOption` remain the stable governor assignment/policy controls and must not be repurposed for hero transfer.

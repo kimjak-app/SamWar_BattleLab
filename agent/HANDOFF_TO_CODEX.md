@@ -1,5 +1,38 @@
 # HANDOFF TO CODEX
 
+## v0.70-20a WorldMap Selected City Panel Layout Order Polish Handoff
+- Baseline: `v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish` (`0e5cd21717d1364a591a0abfaf42e732eb17550a`).
+- Runtime file touched: `scripts/worldmap_city_info_panel.gd`.
+- Scene file touched only for selected-city panel metadata serialization (`WorldMap_Test.tscn` / `GovernorAssignOption` unique id); no broad scene layout redesign was made.
+- Selected-city visible order:
+  1. City name.
+  2. `세력`.
+  3. `유형`.
+  4. `성 충성도`.
+  5. `민심 / 치안 / 상업 / 농업`.
+  6. `태수` card.
+  7. `주둔 무장` card.
+  8. `무장 이동` button and inline transfer UI.
+  9. `병력 / 방어 / 치안 기준`.
+  10. `병사 모집`.
+- Governor card:
+  - Keeps existing `GovernorAssignOption` and `GovernorPolicyOption` connections.
+  - Shows effect/policy inside the governor card as `효과: ...` and `정책: ...`.
+  - The lower duplicated `태수 정책: 효과: ...` hint path is hidden.
+- Garrison card:
+  - Runtime `GarrisonCard` wraps the existing `주둔 무장` title plus portrait/name/stat rows.
+  - Portraits continue to reuse `WorldMapHeroPortraitHelper`.
+- Action layout:
+  - `무장 이동` moved directly below the garrison card and keeps the v0.70-20 inline transfer behavior.
+  - Selected-city `내정` button is hidden for now; City Detail / Domestic work remains deferred.
+  - `병사 모집` is placed below the military summary; no recruitment processing was implemented.
+- Explicitly preserved: governor assignment logic, governor policy save/load, hero transfer data movement, battle scripts, BattleContext, domestic/chancellor/governor formulas, recruit logic, `project.godot`, `.uid` / `.ogv`, and assets.
+- Manual F6 QA should confirm the visual order, garrison card boundary, hidden domestic button, no duplicate governor policy hint, and retained governor dropdown / policy dropdown / transfer UI behavior.
+- Next candidate work:
+  1. `v0.70-21 WorldMap City Detail Panel Right Side Polish`
+  2. `v0.70-22 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-23 Governor Assignment Exclusivity & Hero State Rules`
+
 ## v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish Handoff
 - Baseline: `v0.70-19a Agent Docs Handoff & ChatCoach Role Lock` (`5b1d131d4ea8eaa2e2746e479a90c77837741304`).
 - Runtime files touched: `scripts/worldmap_city_info_panel.gd` and `scripts/worldmap_test.gd`.

@@ -86,6 +86,7 @@ var _city_policy_state: Dictionary = {}
 var _pending_invasion_event: Dictionary = {}
 var _current_city_id := ""
 var _governor_portrait_texture_rect: TextureRect = null
+var _garrison_card: PanelContainer = null
 var _garrison_list_container: VBoxContainer = null
 var _hero_transfer_panel: PanelContainer = null
 var _hero_transfer_hero_option: OptionButton = null
@@ -104,6 +105,7 @@ func _ready() -> void:
 	_ensure_governor_portrait_texture_rect()
 	_ensure_garrison_list_container()
 	_ensure_hero_transfer_panel()
+	_apply_selected_city_layout_order()
 	attack_button_placeholder.pressed.connect(_on_attack_placeholder_pressed)
 	hero_move_button_placeholder.pressed.connect(_on_hero_move_placeholder_pressed)
 	domestic_button_placeholder.pressed.connect(_on_domestic_placeholder_pressed)
@@ -180,11 +182,9 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 	_refresh_hero_transfer_panel(city_data)
 	military_info_label.text = _format_city_defense_info(city_data)
 	military_state_label.text = _format_city_domestic_info(city_data)
-	hint_label.text = "정책: %s · %s" % [
-		str(policy_data.get("name", "정보 없음")),
-		str(policy_data.get("description", "정보 없음")),
-	]
+	hint_label.text = ""
 	_refresh_attack_action_state()
+	_apply_selected_city_layout_order()
 	show()
 
 
@@ -220,9 +220,10 @@ func _show_empty() -> void:
 	_refresh_hero_transfer_panel({})
 	military_info_label.text = "병력: 정보 없음 · 방어: 정보 없음"
 	military_state_label.text = "민심/치안: 정보 없음 · 상업: 정보 없음 · 농업: 정보 없음"
-	hint_label.text = "정보 없음"
+	hint_label.text = ""
 	_attack_action_enabled = false
 	_refresh_attack_action_state()
+	_apply_selected_city_layout_order()
 	show()
 
 
@@ -234,6 +235,11 @@ func _apply_selected_city_summary_slim_visibility() -> void:
 	neighbor_label.visible = false
 	route_type_label.visible = false
 	status_text_label.visible = false
+	hint_label.visible = false
+	domestic_button_placeholder.text = ""
+	domestic_button_placeholder.tooltip_text = ""
+	domestic_button_placeholder.disabled = true
+	domestic_button_placeholder.visible = false
 
 
 func _setup_governor_policy_option() -> void:
@@ -455,9 +461,54 @@ func _update_governor_card(governor_id: String, governor_data: Dictionary, polic
 	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_governor_portrait_texture_rect, governor_portrait_label, governor_data)
 	governor_name_label.text = governor_name
 	governor_stats_label.text = _format_hero_stats(governor_data)
-	governor_policy_description_label.text = _format_governor_policy_description(policy_data)
+	governor_policy_description_label.text = _format_governor_policy_description(policy_id, policy_data)
 	_select_option_by_metadata(governor_policy_option, policy_id)
 	governor_policy_option.disabled = governor_id.is_empty()
+
+
+func _apply_selected_city_layout_order() -> void:
+	var content := get_node_or_null("MarginContainer/Content") as VBoxContainer
+	if content == null:
+		return
+	var loyalty_card := _get_direct_child_under(content, loyalty_label) as Control
+	var governor_card := _get_direct_child_under(content, governor_assign_option) as Control
+	var button_row := attack_button_placeholder.get_parent() as Control if attack_button_placeholder != null else null
+	_move_child_after(content, military_state_label, loyalty_card)
+	_move_child_after(content, governor_label, military_state_label)
+	_move_child_after(content, governor_card, governor_label)
+	_move_child_after(content, _garrison_card, governor_card)
+	_move_child_after(content, hero_move_button_placeholder, _garrison_card)
+	_move_child_after(content, _hero_transfer_panel, hero_move_button_placeholder)
+	_move_child_after(content, military_info_label, _hero_transfer_panel if _hero_transfer_panel != null else hero_move_button_placeholder)
+	_move_child_after(content, recruit_button_placeholder, military_info_label)
+	if button_row != null:
+		_move_child_after(content, button_row, recruit_button_placeholder)
+		button_row.visible = attack_button_placeholder.visible
+	domestic_button_placeholder.text = ""
+	domestic_button_placeholder.tooltip_text = ""
+	domestic_button_placeholder.disabled = true
+	domestic_button_placeholder.visible = false
+	hint_label.visible = false
+
+
+func _get_direct_child_under(parent: Node, node: Node) -> Node:
+	var current := node
+	while current != null:
+		if current.get_parent() == parent:
+			return current
+		current = current.get_parent()
+	return null
+
+
+func _move_child_after(parent: Node, child: Node, after_child: Node) -> void:
+	if parent == null or child == null or after_child == null:
+		return
+	if child.get_parent() != parent:
+		var old_parent := child.get_parent()
+		if old_parent != null:
+			old_parent.remove_child(child)
+		parent.add_child(child)
+	parent.move_child(child, mini(after_child.get_index() + 1, parent.get_child_count() - 1))
 
 
 func _ensure_garrison_list_container() -> void:
@@ -466,12 +517,29 @@ func _ensure_garrison_list_container() -> void:
 	var content := get_node_or_null("MarginContainer/Content") as VBoxContainer
 	if content == null:
 		return
+	_garrison_card = PanelContainer.new()
+	_garrison_card.name = "GarrisonCard"
+	var card_margin := MarginContainer.new()
+	card_margin.name = "MarginContainer"
+	card_margin.add_theme_constant_override("margin_left", 6)
+	card_margin.add_theme_constant_override("margin_top", 6)
+	card_margin.add_theme_constant_override("margin_right", 6)
+	card_margin.add_theme_constant_override("margin_bottom", 6)
+	var card_content := VBoxContainer.new()
+	card_content.name = "Content"
+	card_content.add_theme_constant_override("separation", 4)
+	if selected_hero_chip_label.get_parent() != null:
+		selected_hero_chip_label.get_parent().remove_child(selected_hero_chip_label)
+	card_content.add_child(selected_hero_chip_label)
 	_garrison_list_container = VBoxContainer.new()
 	_garrison_list_container.name = "GarrisonList"
 	_garrison_list_container.add_theme_constant_override("separation", 4)
-	var insert_index := garrison_label.get_index() + 1 if garrison_label != null else content.get_child_count()
-	content.add_child(_garrison_list_container)
-	content.move_child(_garrison_list_container, insert_index)
+	card_content.add_child(_garrison_list_container)
+	card_margin.add_child(card_content)
+	_garrison_card.add_child(card_margin)
+	var insert_index := selected_hero_chip_label.get_index() if selected_hero_chip_label != null and selected_hero_chip_label.get_parent() == content else content.get_child_count()
+	content.add_child(_garrison_card)
+	content.move_child(_garrison_card, insert_index)
 
 
 func _ensure_hero_transfer_panel() -> void:
@@ -731,11 +799,12 @@ func _on_governor_policy_selected(index: int) -> void:
 	var policy_id := str(governor_policy_option.get_item_metadata(index))
 	_city_policy_state[_current_city_id] = policy_id
 	var policy_data := _get_governor_policy_entry(policy_id)
-	governor_policy_description_label.text = _format_governor_policy_description(policy_data)
-	governor_label.text = ""
-	governor_label.visible = false
+	governor_policy_description_label.text = _format_governor_policy_description(policy_id, policy_data)
+	governor_label.text = "태수"
+	governor_label.visible = true
 	print("[WorldMap] Governor policy selected: %s for %s" % [policy_id, _current_city_id])
-	hint_label.text = "태수 정책: %s" % _format_governor_policy_description(policy_data)
+	hint_label.text = ""
+	hint_label.visible = false
 
 
 func _on_governor_assignment_selected(index: int) -> void:
@@ -849,9 +918,14 @@ func show_hero_transfer_result(message: String) -> void:
 		hint_label.text = message
 
 
-func _format_governor_policy_description(policy_data: Dictionary) -> String:
+func _format_governor_policy_description(policy_id: String, policy_data: Dictionary) -> String:
 	var description := str(policy_data.get("description", "태수 정책 설명 준비 중")).strip_edges()
-	return description if not description.is_empty() else "정책: 보정 없음"
+	var policy_name := str(policy_data.get("name", policy_id)).strip_edges()
+	if description.is_empty():
+		description = "보정 없음"
+	if policy_name.is_empty():
+		policy_name = "보정 없음"
+	return "효과: %s\n정책: %s" % [description, policy_name]
 
 
 func _on_attack_placeholder_pressed() -> void:
@@ -879,11 +953,15 @@ func _refresh_attack_action_state() -> void:
 	attack_button_placeholder.disabled = not _attack_action_enabled
 	attack_button_placeholder.visible = _attack_action_enabled
 	attack_button_placeholder.tooltip_text = _attack_action_hint
+	var button_row := attack_button_placeholder.get_parent() as Control
+	if button_row != null:
+		button_row.visible = _attack_action_enabled
 
 
 func _on_domestic_placeholder_pressed() -> void:
 	print("[WorldMap] Domestic placeholder selected. Domestic execution is deferred.")
-	hint_label.text = "내정 실행은 후속 Domestic Affairs 패널에서 연결됩니다."
+	hint_label.text = ""
+	hint_label.visible = false
 
 
 func _on_recruit_placeholder_pressed() -> void:

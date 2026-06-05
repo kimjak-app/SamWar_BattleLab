@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.70-20a WorldMap Selected City Panel Layout Order Polish
+- Baseline: `v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish` at `0e5cd21717d1364a591a0abfaf42e732eb17550a`.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Selected-city panel order is now: city name -> faction -> type -> city loyalty -> public/security/commerce/agriculture summary -> governor card -> garrison card -> hero transfer button/inline transfer UI -> troop/defense/security baseline -> recruit button.
+- Moved `민심 / 치안 / 상업 / 농업` directly under the city loyalty card as a compact city-state summary.
+- Governor card display now keeps effect/policy copy inside the card in the same compact style as the left chancellor card: `효과: ...` and `정책: ...`.
+- Removed the duplicate lower policy hint path that could repeat `태수 정책: 효과: ...`; `HintLabel` stays hidden for this selected-city summary path.
+- Wrapped the selected-city `주둔 무장` rows in a `GarrisonCard` panel container so the portrait/name/stat list has a clear card boundary matching the governor-card tone.
+- Moved `무장 이동` directly below the garrison card while preserving the v0.70-20 inline transfer UI and data movement logic.
+- Hid the selected-city `내정` button/path for now; Domestic Panel work remains deferred to city-detail/domestic follow-up.
+- Moved the military summary (`병력 / 방어 / 치안 기준`) below garrison/transfer, and placed `병사 모집` below that summary without implementing actual recruitment processing.
+- Preserved scope: no governor assignment logic changes, no governor policy save/load changes, no hero transfer data logic changes, no battle/BattleContext changes, no domestic/chancellor/governor formula changes, no recruit implementation, and no `project.godot` changes.
+- `WorldMap_Test.tscn` contains the selected-city panel scene serialization metadata change for `GovernorAssignOption` unique id; no broader scene layout redesign was made.
+- Next candidate work:
+  1. `v0.70-21 WorldMap City Detail Panel Right Side Polish`
+  2. `v0.70-22 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-23 Governor Assignment Exclusivity & Hero State Rules`
+
 ## v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish
 - Baseline: `v0.70-19a Agent Docs Handoff & ChatCoach Role Lock` at `5b1d131d4ea8eaa2e2746e479a90c77837741304`.
 - Modified files: `scripts/worldmap_city_info_panel.gd`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

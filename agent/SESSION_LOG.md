@@ -2,6 +2,21 @@
 
 ## 2026-06-05
 
+### v0.70-20a WorldMap Selected City Panel Layout Order Polish
+- Started from `0e5cd21 v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish`.
+- Required git analysis:
+  - `git status --short`: `WorldMap_Test.tscn` already had a selected-city panel serialization metadata diff.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: v0.70-20 changed selected-city panel scripts and agent docs.
+  - The pre-existing scene diff was limited to `GovernorAssignOption` `unique_id` serialization and was kept as part of this selected-city panel polish scope.
+- Implemented:
+  - Reordered the selected-city panel to city summary, loyalty, `민심 / 치안 / 상업 / 농업`, governor card, garrison card, hero transfer, military summary, and recruit button.
+  - Kept governor effect/policy inside the governor card and removed duplicate lower governor policy hint output.
+  - Wrapped the `주둔 무장` portrait/name/stat rows in a card-style `GarrisonCard`.
+  - Moved `무장 이동` under the garrison card while keeping the v0.70-20 transfer UI and data path.
+  - Hid the selected-city `내정` button/path.
+  - Placed `병력 / 방어 / 치안 기준` below garrison/transfer and `병사 모집` below that summary.
+- Preserved governor assignment logic, governor policy save/load, hero transfer data movement, battle/BattleContext, domestic/chancellor/governor formulas, recruit processing, `project.godot`, `.uid` / `.ogv`, and assets.
+
 ### v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish
 - Started from clean `5b1d131 v0.70-19a Agent Docs Handoff & ChatCoach Role Lock`.
 - Required git analysis:
