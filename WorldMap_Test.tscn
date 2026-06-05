@@ -1233,10 +1233,12 @@ text = "Camera: (0, 0)  Zoom: 0.70"
 horizontal_alignment = 2
 
 [node name="LeftWorldStatusPanel" type="PanelContainer" parent="WorldMapUI" unique_id=49871230]
+anchors_preset = 0
 offset_left = 18.0
 offset_top = 56.0
-offset_right = 306.0
+offset_right = 338.0
 offset_bottom = 626.0
+custom_minimum_size = Vector2(320, 570)
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 
 [node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/LeftWorldStatusPanel" unique_id=1171476385]
@@ -1274,6 +1276,9 @@ theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
 text = "국력 안정 · 치안 보통 · 세금 표준"
 autowrap_mode = 2
+
+[node name="WorldTurnSeparator" type="HSeparator" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=1719184832]
+layout_mode = 2
 
 [node name="NationalGaugeCard" type="PanelContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=1071593860]
 layout_mode = 2

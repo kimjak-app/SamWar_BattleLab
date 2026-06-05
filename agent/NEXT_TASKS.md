@@ -1,19 +1,20 @@
 # NEXT TASKS
 
-## Next: v0.70-15 WorldMap Battle Entry Camera Handoff Timing Polish
-- `v0.70-14 WorldMap Battle Entry Camera Zoom Handoff` is now the current WorldMap battle-entry transition patch.
-- v0.70-14 summary:
-  1. Baseline was `v0.70-13d Battle Movement Facing Direction Polish` at `8991b9b51f91aead893df51f2ee07e1b532bed34`.
-  2. Player attack and enemy invasion defense still build context and pre-decrement troops before the final handoff.
-  3. `_handoff_battle_context_to_battle_scene()` now starts a short WorldMap camera pan/zoom toward source/target city focus before calling `_change_scene_to_battle_with_context()`.
-  4. City coordinates come from `_city_markers_by_id` first, with safe fallback to existing city-data position fields and immediate transition when coordinates are missing.
-  5. `_worldmap_battle_entry_handoff_in_progress` blocks duplicate attack/defense/deployment/handoff input, and Space/Enter/Esc/left-click can skip only while handoff is active.
-- Preserved scope: no battle script, battle intro, BattleContext key, result application, ownership/troop/hero state, scene, asset, or project setting changes.
-- Manual F6 QA should tune feel before adding larger WorldMap UX work: player attack handoff, enemy invasion defense handoff, repeated-click prevention, skip timing, and fallback transition.
+## Next: v0.70-15 WorldMap Left Panel Visual Hierarchy Polish
+- `v0.70-14 WorldMap Left Panel Anchor & World Turn Lock` is now the current left HUD stability patch.
+- v0.70-14 left panel summary:
+  1. Requested baseline was `v0.70-13d Battle Movement Facing Direction Polish`; actual pre-edit HEAD was `e53a9fb v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`.
+  2. `LeftWorldStatusPanel` remains under `WorldMapUI` CanvasLayer, so it stays screen-fixed during camera pan/zoom.
+  3. The panel is explicitly top-left anchored at `(18, 56)` with size/minimum size `320 x 570`.
+  4. `World Turn`, turn number, calendar, and phase/city line are kept as the first header block, followed by a minimal separator.
+  5. Left panel dragging is disabled; right-side panel dragging remains unchanged.
+- Preserved scope: no battle script, BattleContext, city data, city click, battle entry, domestic/trade/relation formula, project setting, asset, or right-panel redesign changes.
+- Manual F6 QA should confirm the left panel remains fixed during WASD/arrow pan, wheel zoom, middle/right drag pan, and camera handoff; confirm World Turn stays visually at the top and existing buttons/options remain visible.
 - Next candidate work:
-  1. `v0.70-15 WorldMap Battle Entry Camera Handoff Timing Polish`
-  2. `v0.70-16 WorldMap City Click UX Polish`
-  3. `v0.70-17 WorldMap Domestic UX Detail Polish`
+  1. `v0.70-15 WorldMap Left Panel Visual Hierarchy Polish`
+  2. `v0.70-16 WorldMap Left Panel Resource Warehouse Polish`
+  3. `v0.70-17 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-18 WorldMap Battle Entry Camera Zoom Handoff`
 
 ## Next: F6 QA for Battle Result Videos Before Toasts
 - `v0.70-12` adds dedicated victory/defeat result videos before the existing result toast.

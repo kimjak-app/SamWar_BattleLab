@@ -1,5 +1,30 @@
 # HANDOFF TO CODEX
 
+## v0.70-14 WorldMap Left Panel Anchor & World Turn Lock Handoff
+- Baseline requested: `v0.70-13d Battle Movement Facing Direction Polish` (`8991b9b51f91aead893df51f2ee07e1b532bed34`). Actual pre-edit HEAD was `e53a9fb v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`; this previous local commit was preserved.
+- Required git analysis was performed before editing:
+  - `git status --short`: two pre-existing untracked Godot `.ogv.uid` files under `assets/video_test/theora_safe/`.
+  - Recent log showed `e53a9fb`, `8991b9b`, `0c91744`, `f56903d`, and prior battle cinematic/result-video commits.
+  - HEAD changed files: `scripts/worldmap_test.gd` plus six agent docs for the camera handoff patch.
+- Runtime/scene files touched: `WorldMap_Test.tscn` and `scripts/worldmap_test.gd`.
+- Left panel structure:
+  - `WorldMap_Test.tscn` has `WorldMapUI` as a `CanvasLayer`.
+  - `LeftWorldStatusPanel` is a direct `PanelContainer` child of `WorldMapUI`, with `MarginContainer/Content` as its `VBoxContainer`.
+  - World Turn labels are the first content children: `EyebrowLabel`, `TurnLabel`, `CalendarLabel`, `NationLabel`.
+- Implementation:
+  - Scene now explicitly anchors `LeftWorldStatusPanel` top-left and uses `(18, 56)` / `320 x 570`.
+  - Added `WorldTurnSeparator` after `NationLabel`.
+  - `_lock_left_world_status_panel_anchor()` reapplies top-left anchor/position/size/min-size at runtime.
+  - `_lock_world_turn_header_order()` keeps the World Turn labels and separator as the first content block.
+  - `_setup_independent_hud_panel_drag()` no longer registers the left panel as draggable, while right-side panel drag behavior is unchanged.
+- Preserved scope: no `scripts/battle_web_import_test.gd`, `project.godot`, combat logic, BattleContext, city data, city click, battle entry, domestic/trade/relation formulas, right panel redesign, or assets were changed.
+- Manual F6 QA should confirm fixed top-left panel, World Turn header feel, no movement under pan/zoom/drag, no lost turn/save/load/reset/chancellor/warehouse controls, and no right panel regression.
+- Next candidate work:
+  1. `v0.70-15 WorldMap Left Panel Visual Hierarchy Polish`
+  2. `v0.70-16 WorldMap Left Panel Resource Warehouse Polish`
+  3. `v0.70-17 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-18 WorldMap Battle Entry Camera Zoom Handoff`
+
 ## v0.70-14 WorldMap Battle Entry Camera Zoom Handoff Handoff
 - Baseline: `v0.70-13d Battle Movement Facing Direction Polish` (`8991b9b51f91aead893df51f2ee07e1b532bed34` before this patch).
 - Required git analysis was performed before editing:

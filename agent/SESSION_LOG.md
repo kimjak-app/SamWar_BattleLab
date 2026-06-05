@@ -2,6 +2,29 @@
 
 ## 2026-06-05
 
+### v0.70-14 WorldMap Left Panel Anchor & World Turn Lock
+- Started from actual HEAD `e53a9fb v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`; user-requested baseline `8991b9b v0.70-13d Battle Movement Facing Direction Polish` was already one commit behind local HEAD.
+- Required git analysis:
+  - `git status --short`: pre-existing untracked `assets/video_test/theora_safe/test_safe_q7_1280x.ogv.uid` and `test_safe_q8_1920x.ogv.uid`.
+  - Recent log: `e53a9fb`, `8991b9b`, `0c91744`, `f56903d`, `6f46bf1`, `493c8e8`, `76e0421`, `d2dbefa`, `edac641`, `3800c99`.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: HEAD modified `scripts/worldmap_test.gd` and six agent docs for battle-entry camera handoff.
+- Inspected required docs, `WorldMap_Test.tscn`, and `scripts/worldmap_test.gd`.
+- Left panel finding: `LeftWorldStatusPanel` is a `PanelContainer` under `WorldMapUI` CanvasLayer, so it is already screen-space and independent from `WorldMapCamera` pan/zoom.
+- World Turn finding: top labels are `EyebrowLabel`, `TurnLabel`, `CalendarLabel`, and `NationLabel` inside `MarginContainer/Content` `VBoxContainer`; runtime cards are inserted below existing content.
+- Implemented minimal layout lock:
+  - Scene top-left anchor and size/min-size for `LeftWorldStatusPanel`.
+  - Scene `WorldTurnSeparator` after `NationLabel`.
+  - Runtime anchor/position/size guard.
+  - Runtime World Turn child order guard.
+  - Removed left panel drag registration while keeping right-side panel drag behavior.
+- Verification target: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, `Battle_Fullscreen_Test.tscn` headless load, docs string check, and tracked post-commit status.
+- Manual F6 QA remains recommended for visible fixed-panel behavior during pan/zoom/drag and for confirming existing left controls are still reachable.
+- Next candidate work:
+  1. `v0.70-15 WorldMap Left Panel Visual Hierarchy Polish`
+  2. `v0.70-16 WorldMap Left Panel Resource Warehouse Polish`
+  3. `v0.70-17 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-18 WorldMap Battle Entry Camera Zoom Handoff`
+
 ### v0.70-14 WorldMap Battle Entry Camera Zoom Handoff
 - Started from requested baseline `8991b9b v0.70-13d Battle Movement Facing Direction Polish`.
 - Required git analysis:

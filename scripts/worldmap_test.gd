@@ -13,6 +13,8 @@ const WORLD_BATTLE_ENTRY_PAN_SEC := 0.55
 const WORLD_BATTLE_ENTRY_ZOOM_SEC := 0.45
 const WORLD_BATTLE_ENTRY_HOLD_SEC := 0.15
 const WORLD_BATTLE_ENTRY_TARGET_ZOOM := Vector2(1.35, 1.35)
+const LEFT_WORLD_STATUS_PANEL_TOP_LEFT := Vector2(18.0, 56.0)
+const LEFT_WORLD_STATUS_PANEL_SIZE := Vector2(320.0, 570.0)
 const PLAYER_FACTION_ID := "player"
 const UNIFIED_PANEL_TAB_CITY_DETAIL := "city-detail"
 const UNIFIED_PANEL_TAB_DIPLOMACY_SPY := "diplomacy-spy"
@@ -727,7 +729,6 @@ func _hide_retired_top_worldmap_hud() -> void:
 
 
 func _setup_independent_hud_panel_drag() -> void:
-	_register_hud_panel_drag(left_world_status_panel, [left_world_status_eyebrow_label, turn_label])
 	_register_hud_panel_drag(city_detail_panel, [city_detail_eyebrow_label, city_detail_heading_label])
 	_register_hud_panel_drag(city_info_panel_control, [city_info_eyebrow_label, city_info_city_name_label])
 
@@ -1626,7 +1627,8 @@ func _setup_left_world_controls() -> void:
 
 
 func _setup_left_world_status_panel_layout() -> void:
-	left_world_status_panel.custom_minimum_size.x = 320.0
+	_lock_left_world_status_panel_anchor()
+	_lock_world_turn_header_order()
 	_setup_warehouse_card_ui()
 	_setup_pending_invasion_choice_ui()
 	_setup_post_battle_result_ui()
@@ -1650,6 +1652,34 @@ func _setup_left_world_status_panel_layout() -> void:
 	supply_label.add_theme_font_size_override("font_size", 10)
 	military_logistics_label.add_theme_font_size_override("font_size", 10)
 	external_trade_label.add_theme_font_size_override("font_size", 10)
+
+
+func _lock_left_world_status_panel_anchor() -> void:
+	if left_world_status_panel == null:
+		return
+	left_world_status_panel.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
+	left_world_status_panel.position = LEFT_WORLD_STATUS_PANEL_TOP_LEFT
+	left_world_status_panel.size = LEFT_WORLD_STATUS_PANEL_SIZE
+	left_world_status_panel.custom_minimum_size = LEFT_WORLD_STATUS_PANEL_SIZE
+
+
+func _lock_world_turn_header_order() -> void:
+	var content := left_world_status_eyebrow_label.get_parent() as VBoxContainer
+	if content == null:
+		return
+	var ordered_nodes: Array[Node] = [
+		left_world_status_eyebrow_label,
+		turn_label,
+		calendar_label,
+		nation_label,
+	]
+	var separator := content.get_node_or_null("WorldTurnSeparator") as HSeparator
+	if separator != null:
+		ordered_nodes.append(separator)
+	for node_index in range(ordered_nodes.size()):
+		var child := ordered_nodes[node_index]
+		if child != null and child.get_parent() == content:
+			content.move_child(child, node_index)
 
 
 func _setup_pending_invasion_choice_ui() -> void:

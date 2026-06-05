@@ -1,5 +1,13 @@
 # WORLDMAP RULES
 
+## v0.70-14 Left Panel Anchor & World Turn Lock Rule
+- `LeftWorldStatusPanel` must remain a `WorldMapUI` CanvasLayer child so it is independent from `WorldMapCamera` pan/zoom and battle-entry camera handoff motion.
+- The left panel is intentionally fixed to the screen top-left. It should not be registered as a draggable HUD panel unless a later task explicitly reintroduces a lock/unlock UX.
+- The stable runtime anchor is top-left `(18, 56)` with size/minimum size `320 x 570` for the current 1920x1080 viewport baseline.
+- The World Turn header block must stay at the top of the left panel content in this order: `EyebrowLabel`, `TurnLabel`, `CalendarLabel`, `NationLabel`, optional `WorldTurnSeparator`.
+- Runtime cards such as pending invasion, post-battle result, save management, warehouse, and status hints must be inserted below the World Turn header block.
+- Left-panel anchor work must not change worldmap camera logic, city marker/click behavior, battle entry, BattleContext, domestic/trade/relation formulas, right-panel structure, or battle scenes.
+
 ## v0.70-14 Battle Entry Camera Handoff Rule
 - WorldMap battle-entry camera handoff must remain a wrapper around the existing final transition boundary, not a replacement for BattleContext creation or result handling.
 - Player attack and enemy invasion defense must continue to build/validate context and run existing troop pre-decrement before `_handoff_battle_context_to_battle_scene()`.

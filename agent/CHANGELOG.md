@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-14 WorldMap Left Panel Anchor & World Turn Lock
+- Built on requested `v0.70-13d Battle Movement Facing Direction Polish`; actual pre-edit HEAD was `e53a9fb v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`.
+- Analyzed latest git history before edits and confirmed existing untracked `.ogv.uid` files were pre-existing and left untouched.
+- Stabilized `WorldMap_Test.tscn` `WorldMapUI/LeftWorldStatusPanel` as a top-left anchored screen UI panel at `(18, 56)` with size/minimum size `320 x 570`.
+- Added `WorldTurnSeparator` after the top World Turn labels so the turn header reads as a fixed head area before the national/chancellor/warehouse/save sections.
+- Added `_lock_left_world_status_panel_anchor()` in `scripts/worldmap_test.gd` to reapply top-left anchor, position, size, and minimum size at runtime.
+- Added `_lock_world_turn_header_order()` to keep `World Turn`, turn number, calendar, phase/city line, and separator as the first children of the left panel content.
+- Removed left panel drag registration while preserving right-side panel drag registration.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`.
+- Did not change `scripts/battle_web_import_test.gd`, `project.godot`, battle calculations, BattleContext, city data, city click/battle entry, domestic/trade/relation formulas, right panel redesign, or assets.
+
 ## v0.70-14 WorldMap Battle Entry Camera Zoom Handoff
 - Built on `v0.70-13d Battle Movement Facing Direction Polish` (`8991b9b51f91aead893df51f2ee07e1b532bed34`).
 - Analyzed latest git history before edits: HEAD changed only battle movement-facing code in `scripts/battle_web_import_test.gd` plus agent docs; two untracked Godot `.ogv.uid` files already existed and were left untouched.

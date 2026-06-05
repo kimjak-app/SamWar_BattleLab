@@ -1,5 +1,28 @@
 # CURRENT STATE
 
+## v0.70-14 WorldMap Left Panel Anchor & World Turn Lock
+- Baseline requested: `v0.70-13d Battle Movement Facing Direction Polish` at `8991b9b51f91aead893df51f2ee07e1b532bed34`; actual pre-edit HEAD was `e53a9fb v0.70-14 WorldMap Battle Entry Camera Zoom Handoff`, which is preserved and not reverted.
+- Current HEAD analysis summary: actual HEAD `e53a9fb` changed `scripts/worldmap_test.gd` plus six agent docs for the battle-entry camera handoff. Two untracked Godot `.ogv.uid` files existed before this patch and were left untouched.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`.
+- Left panel structure analysis:
+  - `LeftWorldStatusPanel` is a `PanelContainer` under `WorldMapUI`, and `WorldMapUI` is a root `CanvasLayer`, so the panel is already screen-space UI and independent from `WorldMapCamera`.
+  - The panel content is `MarginContainer/Content` as a `VBoxContainer`; the first labels are `EyebrowLabel` (`World Turn`), `TurnLabel`, `CalendarLabel`, and `NationLabel`.
+  - Below that, the existing order continues through national gauges/tax preview, chancellor, warehouse/save management runtime cards, and status hints.
+- World Turn lock:
+  - `WorldTurnSeparator` was added directly after `NationLabel` to make the top turn area read as a stable header section without converting the whole panel to a scroll redesign.
+  - `_lock_world_turn_header_order()` keeps `EyebrowLabel`, `TurnLabel`, `CalendarLabel`, `NationLabel`, and `WorldTurnSeparator` at the top even after runtime UI cards are inserted below.
+- Anchor/position stabilization:
+  - Scene offsets now explicitly anchor `LeftWorldStatusPanel` top-left at `(18, 56)` with size/minimum size `320 x 570`.
+  - `_lock_left_world_status_panel_anchor()` reapplies the same top-left preset, position, size, and minimum size at runtime.
+  - Left panel drag registration was removed; right-side draggable panels keep their existing drag behavior.
+- Verification result: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed before docs commit.
+- Preserved scope: no `scripts/battle_web_import_test.gd`, `project.godot`, battle calculation, BattleContext, city data, city click/battle entry, domestic/trade/relation formula, right panel redesign, or asset changes.
+- Next candidate work:
+  1. `v0.70-15 WorldMap Left Panel Visual Hierarchy Polish`
+  2. `v0.70-16 WorldMap Left Panel Resource Warehouse Polish`
+  3. `v0.70-17 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-18 WorldMap Battle Entry Camera Zoom Handoff`
+
 ## v0.70-14 WorldMap Battle Entry Camera Zoom Handoff
 - Baseline: `v0.70-13d Battle Movement Facing Direction Polish` at HEAD `8991b9b51f91aead893df51f2ee07e1b532bed34`.
 - Current HEAD analysis summary: HEAD `8991b9b` modified `scripts/battle_web_import_test.gd` plus five agent docs for movement-facing polish only. Two untracked Godot `.ogv.uid` files existed before this patch and were left untouched.
