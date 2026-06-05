@@ -1,5 +1,23 @@
 # NEXT TASKS
 
+## Next: v0.70-17 WorldMap Left Panel Resource Warehouse Polish
+- `v0.70-16 WorldMap Left Panel Chancellor Card Polish` is the current WorldMap left-panel chancellor-card baseline.
+- Baseline: `v0.70-15 WorldMap Left Panel Header & Tax Slim Polish` at HEAD `5dec9b2`.
+- v0.70-16 summary:
+  1. Required git analysis confirmed `5dec9b2 v0.70-15 WorldMap Left Panel Header & Tax Slim Polish`; only the two pre-existing untracked Godot `.uid` files were present and ignored.
+  2. `WORLD_UI_LEFT_MARGIN` was reduced from `18.0` to `10.0`, matching `WORLD_UI_TOP_MARGIN` for the left panel only.
+  3. Chancellor unassigned state now centers on `미임명` and removes repeated `재상 없음` / `재상 임명: 미임명` copy.
+  4. Assigned chancellor state keeps the name once, preserves primary/secondary aptitude lines, and removes `재상 임명: 이름` plus name repetition from the effect line.
+  5. Chancellor effect/policy display now reads `효과: ...` and `정책: ...`, while calculation and dropdown state remain unchanged.
+  6. Chancellor portrait frame is larger (`56 x 64`) with clipped/aspect-covered runtime texture display.
+- Preserved scope: no battle script, BattleContext, city data, city click/battle entry, camera handoff, domestic/trade/relation formula, chancellor effect/policy calculation, tax calculation, save/load structure, project setting, asset, warehouse polish, or right/city-detail panel content changes.
+- Manual F6 QA should confirm left margin feel, unassigned/assigned chancellor copy, portrait crop, dropdown behavior, turn end, save/load/reset, and unchanged right/city-detail panels.
+- Next candidate work:
+  1. `v0.70-17 WorldMap Left Panel Resource Warehouse Polish`
+  2. `v0.70-18 WorldMap City Detail Panel Right Side Polish`
+  3. `v0.70-19 WorldMap Battle Entry Camera Zoom Handoff`
+  4. `v0.70-20 WorldMap Left Panel Save Button Polish`
+
 ## Next: v0.70-16 WorldMap Left Panel Chancellor Card Polish
 - `v0.70-15 WorldMap Left Panel Header & Tax Slim Polish` is the current WorldMap left-panel header/tax density baseline.
 - Baseline: `v0.70-14a WorldMap Panel Top Margin Baseline Polish` at HEAD `502f1eb`.

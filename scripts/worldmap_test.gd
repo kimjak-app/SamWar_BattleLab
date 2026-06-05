@@ -14,7 +14,7 @@ const WORLD_BATTLE_ENTRY_ZOOM_SEC := 0.45
 const WORLD_BATTLE_ENTRY_HOLD_SEC := 0.15
 const WORLD_BATTLE_ENTRY_TARGET_ZOOM := Vector2(1.35, 1.35)
 const WORLD_UI_TOP_MARGIN := 10.0
-const WORLD_UI_LEFT_MARGIN := 18.0
+const WORLD_UI_LEFT_MARGIN := 10.0
 const LEFT_WORLD_STATUS_PANEL_TOP_LEFT := Vector2(WORLD_UI_LEFT_MARGIN, WORLD_UI_TOP_MARGIN)
 const LEFT_WORLD_STATUS_PANEL_SIZE := Vector2(320.0, 570.0)
 const PLAYER_FACTION_ID := "player"
@@ -2007,13 +2007,10 @@ func _refresh_left_world_status_panel() -> void:
 	chancellor_label.text = "재상"
 	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_chancellor_portrait_texture_rect, chancellor_portrait_label, chancellor_data)
 	chancellor_name_label.text = chancellor_name
-	chancellor_stats_label.text = "%s\n재상 임명: %s" % [
-		"재상 없음" if chancellor_data.is_empty() else _format_chancellor_type_summary(chancellor_data),
-		chancellor_name,
-	]
-	chancellor_policy_description_label.text = "재상 효과: %s\n재상 정책: %s · %s" % [
+	chancellor_stats_label.visible = not chancellor_data.is_empty()
+	chancellor_stats_label.text = _format_chancellor_type_summary(chancellor_data) if not chancellor_data.is_empty() else ""
+	chancellor_policy_description_label.text = "효과: %s\n정책: %s" % [
 		_get_chancellor_effect_text(chancellor_data),
-		str(policy_data.get("name", policy_id)),
 		str(policy_data.get("description", "재상 정책 설명 준비 중")),
 	]
 	_select_option_by_metadata(chancellor_assignment_option, chancellor_id)
@@ -9733,10 +9730,13 @@ func _ensure_chancellor_portrait_texture_rect() -> void:
 	var portrait_box := chancellor_portrait_label.get_parent()
 	if not portrait_box is Control:
 		return
+	var portrait_box_control := portrait_box as Control
+	portrait_box_control.custom_minimum_size = Vector2(56.0, 64.0)
+	portrait_box_control.clip_contents = true
 	_chancellor_portrait_texture_rect = TextureRect.new()
 	_chancellor_portrait_texture_rect.name = "ChancellorPortraitTexture"
 	_chancellor_portrait_texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_chancellor_portrait_texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_chancellor_portrait_texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	_chancellor_portrait_texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_chancellor_portrait_texture_rect.visible = false
 	portrait_box.add_child(_chancellor_portrait_texture_rect)
@@ -9745,16 +9745,13 @@ func _ensure_chancellor_portrait_texture_rect() -> void:
 
 func _get_chancellor_effect_text(hero_data: Dictionary) -> String:
 	if hero_data.is_empty():
-		return "재상 효과 없음"
+		return "없음"
 	var tags: Array[String] = []
 	_add_chancellor_effect_tag(tags, str(hero_data.get("chancellor_primary_type", "")))
 	_add_chancellor_effect_tag(tags, str(hero_data.get("chancellor_secondary_type", "")))
 	if tags.is_empty():
 		tags.append("균형 운영")
-	return "%s: %s" % [
-		str(hero_data.get("display_name", hero_data.get("name", "알 수 없는 장수"))),
-		" · ".join(tags.slice(0, 3)),
-	]
+	return ", ".join(tags.slice(0, 3))
 
 
 func _add_chancellor_effect_tag(tags: Array[String], type_id: String) -> void:
@@ -9769,7 +9766,7 @@ func _add_chancellor_effect_tag(tags: Array[String], type_id: String) -> void:
 		"diplomatic":
 			tag = "교역 기반 금전 보정"
 		"militaryAdmin":
-			tag = "병사 유지비 preview 완화"
+			tag = "병사 유지비 완화"
 		_:
 			tag = ""
 	if not tag.is_empty() and not tags.has(tag):

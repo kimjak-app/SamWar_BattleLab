@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.70-16 WorldMap Left Panel Chancellor Card Polish
+- Baseline: `v0.70-15 WorldMap Left Panel Header & Tax Slim Polish` at HEAD `5dec9b2`.
+- Current HEAD analysis summary: `5dec9b2` changed `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and six agent docs for the left-panel header/tax slim patch. `git status --short` showed only the two pre-existing untracked Godot `.uid` files under `assets/video_test/theora_safe/`; pre-existing untracked Godot .uid files ignored.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`.
+- Left panel margin: `WORLD_UI_LEFT_MARGIN` changed from `18.0` to `10.0`, so `LeftWorldStatusPanel` now anchors at `(10, 10)` with the same `320 x 570` size. Right-side and city-detail panel X positions were not changed.
+- Chancellor unassigned state: the card now shows `미임명` as the core state and removes repeated `재상 없음` / `재상 임명: 미임명` copy. Dropdowns remain visible.
+- Chancellor assigned state: the chancellor name remains once in the summary line; `재상 임명: 이름` and effect-line name repetition were removed. Primary/secondary aptitude lines remain visible only when a chancellor is assigned.
+- Chancellor effect/policy copy: effect text is now `효과: ...` without repeating the hero name, and policy copy is `정책: ...` without repeating the selected policy name already shown in the dropdown.
+- Chancellor portrait: the portrait frame changed from `42 x 42` to `56 x 64`, clips content, and runtime `TextureRect` uses aspect-covered rendering for a larger face-focused view while preserving the placeholder path.
+- Preserved scope: no `scripts/battle_web_import_test.gd`, `project.godot`, battle calculations, BattleContext, city data, city click/battle entry, camera handoff, domestic/trade/relation formula, chancellor effect/policy calculations, tax calculations, save/load structure, right/city-detail panel content, warehouse polish, or asset changes.
+- Verification result: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, `Battle_Fullscreen_Test.tscn` headless load, and docs string check passed before commit. Manual F6 QA remains recommended for visible portrait crop and dropdown interactions.
+- Next candidate work:
+  1. `v0.70-17 WorldMap Left Panel Resource Warehouse Polish`
+  2. `v0.70-18 WorldMap City Detail Panel Right Side Polish`
+  3. `v0.70-19 WorldMap Battle Entry Camera Zoom Handoff`
+  4. `v0.70-20 WorldMap Left Panel Save Button Polish`
+
 ## v0.70-15 WorldMap Left Panel Header & Tax Slim Polish
 - Baseline: `v0.70-14a WorldMap Panel Top Margin Baseline Polish` at HEAD `502f1eb`.
 - Current HEAD analysis summary: `502f1eb` changed `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and six agent docs for the fixed-panel top-margin baseline. `git status --short` showed only two pre-existing untracked Godot `.uid` files under `assets/video_test/theora_safe/`; pre-existing untracked Godot .uid files ignored.

@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-16 WorldMap Left Panel Chancellor Card Polish
+- Built on `v0.70-15 WorldMap Left Panel Header & Tax Slim Polish` (`5dec9b2`).
+- Analyzed latest git history before edits and confirmed the only pre-existing worktree noise was two untracked Godot `.uid` files, left untouched; pre-existing untracked Godot .uid files ignored.
+- Reduced `WORLD_UI_LEFT_MARGIN` from `18.0` to `10.0` in `scripts/worldmap_test.gd` so the left panel X margin matches the current top margin.
+- Updated `WorldMap_Test.tscn` so `LeftWorldStatusPanel` starts at left `10` / right `330`, preserving its width, height, top margin, content order, and CanvasLayer placement.
+- Simplified the chancellor card unassigned state to `미임명` with `효과: 없음` and `정책: 보정 없음`.
+- Removed assigned-state name repetition from `재상 임명: 이름` and from the effect text; the name appears once in the top summary and dropdown selection remains allowed.
+- Changed chancellor effect/policy display to `효과: ...` / `정책: ...` while preserving existing calculation and dropdown state.
+- Enlarged the chancellor portrait frame from `42 x 42` to `56 x 64`, enabled clipping, and changed the runtime portrait `TextureRect` to aspect-covered display.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`.
+- Did not change `scripts/battle_web_import_test.gd`, `project.godot`, battle calculations, BattleContext, city data, city click/battle entry, camera handoff, domestic/trade/relation formulas, chancellor effect/policy calculations, tax internal calculations, save/load structure, warehouse polish, right/city-detail panel content, or assets.
+
 ## v0.70-15 WorldMap Left Panel Header & Tax Slim Polish
 - Built on `v0.70-14a WorldMap Panel Top Margin Baseline Polish` (`502f1eb`).
 - Analyzed latest git history before edits and confirmed the only pre-existing worktree noise was two untracked Godot `.uid` files, left untouched; pre-existing untracked Godot .uid files ignored.

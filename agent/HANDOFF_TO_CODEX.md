@@ -1,5 +1,29 @@
 # HANDOFF TO CODEX
 
+## v0.70-16 WorldMap Left Panel Chancellor Card Polish Handoff
+- Baseline: `v0.70-15 WorldMap Left Panel Header & Tax Slim Polish` (`5dec9b2` before this patch).
+- Required git analysis was performed before editing:
+  - `git status --short`: two pre-existing untracked Godot `.uid` files under `assets/video_test/theora_safe/`; pre-existing untracked Godot .uid files ignored.
+  - Recent log confirmed `5dec9b2 v0.70-15`, `502f1eb v0.70-14a`, `ab91b34 v0.70-14 Left Panel Anchor`, and `e53a9fb v0.70-14 Battle Entry Camera Handoff`.
+  - HEAD changed files were `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and six agent docs for the header/tax slim patch.
+- Runtime/scene files touched: `WorldMap_Test.tscn` and `scripts/worldmap_test.gd`.
+- Implementation:
+  - Reduced only the left panel X baseline from `WORLD_UI_LEFT_MARGIN = 18.0` to `10.0`; the panel remains `320 x 570` at top `10`.
+  - Scene `LeftWorldStatusPanel` offsets now use left `10`, right `330`; right-side panels were not moved.
+  - Chancellor card unassigned state shows `미임명` and `효과: 없음` / `정책: 보정 없음` without repeated unassigned copy.
+  - Assigned state shows the name once in `ChancellorNameLabel`, keeps primary/secondary aptitude lines, and removes `재상 임명: 이름`.
+  - `_get_chancellor_effect_text()` now returns only effect tags, so the effect line no longer repeats the chancellor name.
+  - Policy description line no longer repeats the policy name already visible in the dropdown.
+  - Chancellor portrait frame is now `56 x 64`, clips content, and the runtime `TextureRect` uses aspect-covered display.
+- Preserved scope: no `scripts/battle_web_import_test.gd`, `project.godot`, city data, city click, battle entry, camera handoff, domestic/trade/relation formulas, chancellor effect/policy calculations, tax calculations, save/load structure, BattleContext, battle scenes, assets, warehouse polish, or right/city-detail panel content changes.
+- Verification: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, `Battle_Fullscreen_Test.tscn` headless load, and docs marker check passed.
+- Manual F6 QA should confirm left margin feel, chancellor unassigned/assigned copy, portrait crop, dropdown behavior, and no warehouse/right-panel drift.
+- Next candidate work:
+  1. `v0.70-17 WorldMap Left Panel Resource Warehouse Polish`
+  2. `v0.70-18 WorldMap City Detail Panel Right Side Polish`
+  3. `v0.70-19 WorldMap Battle Entry Camera Zoom Handoff`
+  4. `v0.70-20 WorldMap Left Panel Save Button Polish`
+
 ## v0.70-15 WorldMap Left Panel Header & Tax Slim Polish Handoff
 - Baseline: `v0.70-14a WorldMap Panel Top Margin Baseline Polish` (`502f1eb` before this patch).
 - Required git analysis was performed before editing:

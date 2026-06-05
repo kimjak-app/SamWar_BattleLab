@@ -2,6 +2,32 @@
 
 ## 2026-06-05
 
+### v0.70-16 WorldMap Left Panel Chancellor Card Polish
+- Started from `5dec9b2 v0.70-15 WorldMap Left Panel Header & Tax Slim Polish`.
+- Required git analysis:
+  - `git status --short`: pre-existing untracked `assets/video_test/theora_safe/test_safe_q7_1280x.ogv.uid` and `test_safe_q8_1920x.ogv.uid`; pre-existing untracked Godot .uid files ignored.
+  - Recent log: `5dec9b2`, `502f1eb`, `ab91b34`, `e53a9fb`, `8991b9b`, `0c91744`, `f56903d`, `6f46bf1`, `493c8e8`, `76e0421`.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: HEAD modified `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and six agent docs for the left panel header/tax slim polish.
+- Read required docs and inspected `WorldMap_Test.tscn` plus `scripts/worldmap_test.gd`.
+- Chancellor card findings:
+  - `LeftWorldStatusPanel` was at `(18, 10)` while the top baseline was `10`.
+  - The chancellor card used `PortraitBox` at `42 x 42`, `ChancellorNameLabel`, `ChancellorStatsLabel`, assignment/policy dropdowns, and `ChancellorPolicyDescriptionLabel`.
+  - Runtime copy repeated unassigned/assigned state through `재상 없음`, `재상 임명: ...`, `재상 효과: 이름: ...`, and `재상 정책: 정책명 · ...`.
+- Implemented minimal polish:
+  - Changed left panel X baseline to `10` without moving right-side panels.
+  - Simplified unassigned display to `미임명`, `효과: 없음`, and `정책: 보정 없음`.
+  - Kept assigned name once, kept primary/secondary aptitude lines, and removed repeated assignment/name copy.
+  - Shortened effect/policy labels to `효과:` and `정책:` without changing underlying effect/policy calculation.
+  - Enlarged the chancellor portrait frame to `56 x 64`, enabled clipping, and used aspect-covered portrait display.
+- Preserved worldmap city data, city click, battle entry, camera handoff logic, domestic/trade/relation formulas, chancellor formulas, tax calculations, save/load structure, warehouse content, right/city-detail panels, battle scenes, and `project.godot`.
+- Verification passed: `git diff --check`, Godot headless project load, `WorldMap_Test.tscn` headless load, `Battle_Fullscreen_Test.tscn` headless load, and docs marker check.
+- Manual F6 QA remains recommended for visible margin, portrait crop, unassigned/assigned copy, dropdown interaction, turn end, save/load/reset, and unchanged right panels.
+- Next candidate work:
+  1. `v0.70-17 WorldMap Left Panel Resource Warehouse Polish`
+  2. `v0.70-18 WorldMap City Detail Panel Right Side Polish`
+  3. `v0.70-19 WorldMap Battle Entry Camera Zoom Handoff`
+  4. `v0.70-20 WorldMap Left Panel Save Button Polish`
+
 ### v0.70-15 WorldMap Left Panel Header & Tax Slim Polish
 - Started from `502f1eb v0.70-14a WorldMap Panel Top Margin Baseline Polish`.
 - Required git analysis:

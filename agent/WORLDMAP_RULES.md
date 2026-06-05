@@ -1,9 +1,18 @@
 # WORLDMAP RULES
 
+## v0.70-16 Left Panel Chancellor Card Rule
+- The current left WorldMap status panel anchor is top-left `(10, 10)` with size/minimum size `320 x 570`.
+- Keep `WORLD_UI_TOP_MARGIN = 10.0` and `WORLD_UI_LEFT_MARGIN = 10.0` unless a later panel-baseline task changes both deliberately.
+- Right-side fixed panels keep their own existing X positions; chancellor-card polish must not move `DiplomacySpyPanel`, `CityDetailPanel`, or `CityInfoPanel`.
+- Chancellor card unassigned display should stay compact: `미임명`, dropdowns, `효과: 없음`, and `정책: 보정 없음`. Do not reintroduce repeated `재상 없음` / `재상 임명: 미임명` copy.
+- Chancellor card assigned display should show the chancellor name once in the summary area, then primary/secondary aptitude lines. Do not repeat `재상 임명: 이름` or `효과: 이름: ...` in descriptive copy.
+- Chancellor policy/effect labels are display-only polish. Do not change chancellor effect calculations, policy data, dropdown behavior, tax formulas, save/load structure, city data, battle entry, or BattleContext as part of this rule.
+- Chancellor portrait frame currently uses `56 x 64`, clipped, aspect-covered display for the runtime texture and the same frame for the `?` placeholder.
+
 ## v0.70-15 Left Panel Header and Tax Slim Rule
 - The current fixed WorldMap information panels share one top baseline: `WORLD_UI_TOP_MARGIN = 10.0`.
 - `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` must remain direct `WorldMapUI` CanvasLayer children and screen-fixed during camera pan/zoom, mouse drag pan, wheel zoom, and battle-entry camera handoff.
-- `LeftWorldStatusPanel` runtime anchor is top-left `(18, 10)` with size/minimum size `320 x 570` for the current 1920x1080 viewport baseline.
+- Superseded by v0.70-16 for the left-panel X margin: `LeftWorldStatusPanel` runtime anchor is top-left `(10, 10)` with size/minimum size `320 x 570` for the current 1920x1080 viewport baseline.
 - The left panel top header is intentionally slim: only the runtime `CalendarLabel` line such as `154년 봄 1턴` should be visible. `EyebrowLabel`, `TurnLabel`, and `NationLabel` may remain as hidden nodes to preserve existing node paths.
 - The left panel tax card should show one national loyalty label/bar and one tax level label/slider. Do not reintroduce the long tax preview sentence, duplicate tax bar, or duplicate public-order bar unless a later UX task explicitly asks for it.
 - This polish must not change city data, city click behavior, battle entry, BattleContext, domestic/trade/relation formulas, chancellor formulas, tax internal calculations, save/load structure, or battle scenes.

@@ -1235,9 +1235,9 @@ horizontal_alignment = 2
 
 [node name="LeftWorldStatusPanel" type="PanelContainer" parent="WorldMapUI" unique_id=49871230]
 anchors_preset = 0
-offset_left = 18.0
+offset_left = 10.0
 offset_top = 10.0
-offset_right = 338.0
+offset_right = 330.0
 offset_bottom = 580.0
 custom_minimum_size = Vector2(320, 570)
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
@@ -1352,7 +1352,7 @@ show_percentage = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.973, 0.843, 0.596, 1)
 theme_override_font_sizes/font_size = 12
-text = "재상: 미배정 · 균형 정책"
+text = "재상"
 
 [node name="ChancellorCard" type="PanelContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=867238669]
 layout_mode = 2
@@ -1374,14 +1374,15 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="PortraitBox" type="PanelContainer" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow" unique_id=157625533]
-custom_minimum_size = Vector2(42, 42)
+clip_contents = true
+custom_minimum_size = Vector2(56, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_world_hud_tab_active")
 
 [node name="PortraitLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/PortraitBox" unique_id=1362107644]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 24
 text = "?"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -1395,13 +1396,14 @@ theme_override_constants/separation = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.953, 0.918, 0.851, 1)
 theme_override_font_sizes/font_size = 13
-text = "재상 미임명"
+text = "미임명"
 
 [node name="ChancellorStatsLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content/HeaderRow/Copy" unique_id=2094231138]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 10
-text = "능력: -"
+text = ""
 autowrap_mode = 2
 
 [node name="ChancellorAssignmentOption" type="OptionButton" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content" unique_id=1578362620]
@@ -1416,7 +1418,7 @@ theme_override_font_sizes/font_size = 11
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.76, 0.84, 1)
 theme_override_font_sizes/font_size = 10
-text = "재상 정책 설명"
+text = "효과: 없음\n정책: 보정 없음"
 autowrap_mode = 2
 
 [node name="ResourceLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=2023389523]
