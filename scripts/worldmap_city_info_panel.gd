@@ -89,6 +89,7 @@ var _attack_action_hint := "공격 준비는 다음 단계에서 BattleContext�
 
 func _ready() -> void:
 	city_id_label.visible = false
+	_apply_selected_city_summary_slim_visibility()
 	_ensure_governor_portrait_texture_rect()
 	attack_button_placeholder.pressed.connect(_on_attack_placeholder_pressed)
 	hero_move_button_placeholder.pressed.connect(_on_hero_move_placeholder_pressed)
@@ -139,26 +140,21 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 	var policy_data := _get_governor_policy_entry(policy_id)
 	var stationed_hero_ids := _get_city_stationed_hero_ids(city_data)
 
-	eyebrow_label.text = "SELECTED CITY"
+	_apply_selected_city_summary_slim_visibility()
+	eyebrow_label.text = ""
 	city_name_label.text = _get_city_display_name(city_marker.city_id, city_marker.display_name)
-	description_label.text = "소유: %s · 지역: %s" % [
-		_get_city_owner_label(city_marker, city_data),
-		_get_city_region_label(city_marker, city_data),
-	]
+	description_label.text = "세력: %s" % _get_city_owner_label(city_marker, city_data)
 	city_id_label.visible = false
 	city_id_label.text = ""
-	region_owner_label.text = "세력: %s · 국가: %s" % [
-		_get_city_owner_label(city_marker, city_data),
-		_get_city_nation_label(city_marker, city_data),
-	]
+	region_owner_label.text = ""
 	city_type_label.text = "유형: %s" % _format_city_type(city_marker.city_id)
-	neighbor_label.text = _format_city_core_info(city_data)
-	route_type_label.text = _format_city_resource_info(city_data)
-	status_text_label.text = _format_pending_invasion_city_status(city_marker.city_id)
-	loyalty_label.text = "성 충성도 %d · 표시 전용" % loyalty
+	neighbor_label.text = ""
+	route_type_label.text = ""
+	status_text_label.text = ""
+	loyalty_label.text = "성 충성도 %d" % loyalty
 	loyalty_bar.value = loyalty
 	_update_governor_card(governor_id, governor_data, policy_id, policy_data)
-	governor_label.text = "태수: %s" % _get_hero_display_name(governor_data, "태수 없음")
+	governor_label.text = ""
 	selected_hero_chip_label.text = "주둔 장수"
 	garrison_label.text = _format_stationed_hero_list(stationed_hero_ids)
 	military_info_label.text = _format_city_defense_info(city_data)
@@ -173,19 +169,20 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 
 func _show_empty() -> void:
 	_current_city_id = ""
-	eyebrow_label.text = "SELECTED CITY"
+	_apply_selected_city_summary_slim_visibility()
+	eyebrow_label.text = ""
 	city_name_label.text = "선택 도시 없음"
-	description_label.text = "월드맵에서 도시를 선택하십시오."
+	description_label.text = "세력: 정보 없음"
 	city_id_label.visible = false
 	city_id_label.text = ""
-	region_owner_label.text = "소유: 정보 없음 · 지역: 정보 없음"
+	region_owner_label.text = ""
 	city_type_label.text = "유형: 정보 없음"
-	neighbor_label.text = "인구: 정보 없음 · 금전: 정보 없음 · 식량: 정보 없음"
-	route_type_label.text = "자원: 정보 없음"
-	status_text_label.text = "선택 도시 없음"
+	neighbor_label.text = ""
+	route_type_label.text = ""
+	status_text_label.text = ""
 	loyalty_label.text = "성 충성도 정보 없음"
 	loyalty_bar.value = 0
-	governor_label.text = "태수 없음"
+	governor_label.text = ""
 	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_governor_portrait_texture_rect, governor_portrait_label, {})
 	governor_name_label.text = "태수 없음"
 	governor_stats_label.text = "능력: -"
@@ -199,6 +196,17 @@ func _show_empty() -> void:
 	_attack_action_enabled = false
 	_refresh_attack_action_state()
 	show()
+
+
+func _apply_selected_city_summary_slim_visibility() -> void:
+	eyebrow_label.visible = false
+	description_label.visible = true
+	city_id_label.visible = false
+	region_owner_label.visible = false
+	neighbor_label.visible = false
+	route_type_label.visible = false
+	status_text_label.visible = false
+	governor_label.visible = false
 
 
 func _setup_governor_policy_option() -> void:
@@ -521,6 +529,7 @@ func _format_pending_invasion_city_status(city_id: String) -> String:
 
 func _refresh_pending_invasion_status_line(city_id: String) -> void:
 	status_text_label.text = _format_pending_invasion_city_status(city_id)
+	status_text_label.visible = false
 
 
 func _has_player_neighbor(city_marker: WorldMapCityMarker) -> bool:
@@ -540,7 +549,8 @@ func _on_governor_policy_selected(index: int) -> void:
 	var city_data := _get_city_hud_entry(_current_city_id)
 	var governor_data := _get_hero_entry(str(city_data.get("governor_id", "")))
 	governor_policy_description_label.text = str(policy_data.get("description", "태수 정책 설명 준비 중"))
-	governor_label.text = "태수: %s" % _get_hero_display_name(governor_data, "태수 없음")
+	governor_label.text = ""
+	governor_label.visible = false
 	print("[WorldMap] Governor policy placeholder selected: %s for %s. No city stat or turn effect applied." % [policy_id, _current_city_id])
 	hint_label.text = "정책: %s · %s" % [
 		str(policy_data.get("name", policy_id)),

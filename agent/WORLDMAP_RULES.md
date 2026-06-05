@@ -1,5 +1,14 @@
 # WORLDMAP RULES
 
+## v0.70-18 Selected City Panel Anchor and Summary Slim Rule
+- `CityInfoPanel` must remain a direct `WorldMapUI` CanvasLayer child so it is independent from `WorldMapCamera` pan/zoom and battle-entry camera handoff motion.
+- The selected-city panel startup position is right-side fixed at the shared `WORLD_UI_TOP_MARGIN = 10.0` and a 10px right margin for the current viewport baseline.
+- Existing selected-city panel drag behavior must remain available through the visible city name handle after startup.
+- The selected-city panel top summary should stay slim: city name, `세력: ...`, `유형: ...`, and the city loyalty card.
+- Do not reintroduce the visible `SELECTED CITY` eyebrow, owner/region/nation duplicate rows, city resource list, city status sentence, or governor summary label unless a later UX task explicitly asks for them.
+- Governor card/dropdown, garrison list, military/domestic summary, policy hint, and selected-city action buttons remain in the selected-city panel contract.
+- This polish must not change left panel behavior, city detail/diplomacy panels, city data, city click, battle entry, camera handoff, safe-zone camera, domestic/trade/relation formulas, governor internals, resource data, save/load, or battle scenes.
+
 ## v0.70-16 Left Panel Chancellor Card Rule
 - The current left WorldMap status panel anchor is top-left `(10, 10)` with size/minimum size `320 x 570`.
 - Keep `WORLD_UI_TOP_MARGIN = 10.0` and `WORLD_UI_LEFT_MARGIN = 10.0` unless a later panel-baseline task changes both deliberately.

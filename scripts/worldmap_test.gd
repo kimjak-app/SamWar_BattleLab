@@ -17,6 +17,7 @@ const WORLD_UI_TOP_MARGIN := 10.0
 const WORLD_UI_LEFT_MARGIN := 10.0
 const LEFT_WORLD_STATUS_PANEL_TOP_LEFT := Vector2(WORLD_UI_LEFT_MARGIN, WORLD_UI_TOP_MARGIN)
 const LEFT_WORLD_STATUS_PANEL_SIZE := Vector2(320.0, 570.0)
+const SELECTED_CITY_INFO_PANEL_SIZE := Vector2(308.0, 542.0)
 const PLAYER_FACTION_ID := "player"
 const UNIFIED_PANEL_TAB_CITY_DETAIL := "city-detail"
 const UNIFIED_PANEL_TAB_DIPLOMACY_SPY := "diplomacy-spy"
@@ -743,7 +744,7 @@ func _lock_worldmap_fixed_panel_top_margin() -> void:
 	_lock_left_world_status_panel_anchor()
 	_lock_screen_panel_top_margin(diplomacy_spy_panel)
 	_lock_screen_panel_top_margin(city_detail_panel)
-	_lock_screen_panel_top_margin(city_info_panel_control)
+	_lock_selected_city_info_panel_anchor()
 
 
 func _lock_screen_panel_top_margin(panel: Control) -> void:
@@ -755,6 +756,23 @@ func _lock_screen_panel_top_margin(panel: Control) -> void:
 	panel.position = Vector2(panel.position.x, WORLD_UI_TOP_MARGIN)
 	if current_size != Vector2.ZERO:
 		panel.size = current_size
+
+
+func _lock_selected_city_info_panel_anchor() -> void:
+	if city_info_panel_control == null:
+		return
+
+	var viewport_size := get_viewport_rect().size
+	var panel_size := city_info_panel_control.size
+	if panel_size == Vector2.ZERO:
+		panel_size = SELECTED_CITY_INFO_PANEL_SIZE
+	city_info_panel_control.set_anchors_preset(Control.PRESET_TOP_LEFT, true)
+	city_info_panel_control.position = Vector2(
+		maxf(WORLD_UI_LEFT_MARGIN, viewport_size.x - WORLD_UI_LEFT_MARGIN - panel_size.x),
+		WORLD_UI_TOP_MARGIN
+	)
+	city_info_panel_control.size = panel_size
+	city_info_panel_control.custom_minimum_size = panel_size
 
 
 func _register_hud_panel_drag(panel: Control, handles: Array) -> void:

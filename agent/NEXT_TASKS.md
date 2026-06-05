@@ -1,5 +1,23 @@
 # NEXT TASKS
 
+## Next: v0.70-19 WorldMap Selected City Panel Troop & Governor Polish
+- `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish` is the current selected-city panel baseline.
+- v0.70-18 summary:
+  1. `CityInfoPanel` remains under `WorldMapUI` CanvasLayer and starts at the shared `WORLD_UI_TOP_MARGIN = 10.0`.
+  2. `_lock_selected_city_info_panel_anchor()` places the panel against the right side with the same 10px visual side margin as the left panel at startup.
+  3. Existing selected-city panel drag behavior is preserved through the city name drag handle.
+  4. The `SELECTED CITY` eyebrow is hidden.
+  5. Top selected-city summary now shows city name plus only `세력: ...` and `유형: ...` before the loyalty card.
+  6. `표시 전용` was removed from the selected-city loyalty label.
+  7. Owner/region/nation duplication, population/gold/food row, resource list, city status sentence, and governor summary label are hidden.
+- Preserved scope: no left panel changes, city detail/diplomacy redesign, city data mutation, city click/battle entry, camera handoff, safe-zone camera, domestic/trade/relation formulas, governor logic, resource data, save/load, battle scripts, project settings, `.uid`, `.ogv`, or asset changes.
+- Manual F6 QA should confirm right-side startup placement, drag movement, city switching refresh, hidden duplicate rows, retained governor dropdown/card, retained garrison/military/domestic/policy/action controls, and unchanged left/detail panels.
+- Next candidate work:
+  1. `v0.70-19 WorldMap Selected City Panel Troop & Governor Polish`
+  2. `v0.70-20 WorldMap City Detail Panel Right Side Polish`
+  3. `v0.70-21 WorldMap Battle Entry Camera Zoom Handoff`
+  4. `v0.70-22 WorldMap Selected City Safe-Zone Camera Prep`
+
 ## Next: Resolve WorldMap_Test.tscn Before Selected City Panel Work
 - `v0.70-17b Restore Theora Test UID Files` restores the two Theora test Godot `.uid` files deleted by `v0.70-17a`.
 - Restore summary:

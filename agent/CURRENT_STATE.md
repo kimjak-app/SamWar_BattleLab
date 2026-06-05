@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish
+- Baseline: `v0.70-17b Restore Theora Test UID Files` after the clean `WorldMap_Test.tscn` serialization restore.
+- Current HEAD analysis summary: `9b8b186` restored the two Theora test `.uid` files and changed only agent docs plus those `.uid` files. Pre-work `git status --short` was clean.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Selected-city panel initial anchor: `CityInfoPanel` remains a direct `WorldMapUI` CanvasLayer child and now starts at the shared top baseline with a 10px right-side visual margin for the current viewport. `_lock_selected_city_info_panel_anchor()` reapplies that right-side initial placement at runtime.
+- Drag behavior: existing HUD drag registration is preserved on the city name handle, so the selected-city panel can still be moved after startup.
+- Summary slim: the `SELECTED CITY` eyebrow is hidden; the top visible summary is now city name, `세력: ...`, `유형: ...`, and the city loyalty card.
+- Loyalty copy: selected-city loyalty text no longer includes `표시 전용`.
+- Hidden selected-city summary rows: owner/region/nation duplication, population/gold/food row, city resource list, city status description, and governor summary label are hidden. Governor card/dropdown, garrison list, military/domestic summary, policy hint, and action buttons remain.
+- Preserved scope: no left panel, city detail/diplomacy redesign, city data, city click, battle entry, camera handoff, domestic/trade/relation formulas, governor internals, resource data, save/load, battle scripts, `.uid`/`.ogv` assets, or `project.godot` changes.
+- Next candidate work:
+  1. `v0.70-19 WorldMap Selected City Panel Troop & Governor Polish`
+  2. `v0.70-20 WorldMap City Detail Panel Right Side Polish`
+  3. `v0.70-21 WorldMap Battle Entry Camera Zoom Handoff`
+  4. `v0.70-22 WorldMap Selected City Safe-Zone Camera Prep`
+
 ## v0.70-17b Restore Theora Test UID Files
 - Baseline: `v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work` at HEAD `110f0e8`.
 - Current HEAD analysis summary: `v0.70-17a` deleted the two Theora test Godot `.uid` files after identifying them as cleanup artifacts, while `WorldMap_Test.tscn` remained modified and uncommitted.

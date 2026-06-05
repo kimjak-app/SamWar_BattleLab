@@ -1,5 +1,26 @@
 # HANDOFF TO CODEX
 
+## v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish Handoff
+- Baseline: `v0.70-17b Restore Theora Test UID Files` (`9b8b186`) after `WorldMap_Test.tscn` residual serialization diff was restored and the repo was clean.
+- Required git analysis was performed before editing:
+  - `git status --short`: clean.
+  - Recent log confirmed `9b8b186 v0.70-17b`, `110f0e8 v0.70-17a`, `91713d8`, and `4535a3f v0.70-16`.
+  - HEAD changed files were five agent docs plus the two restored Theora `.uid` files.
+- Runtime/scene files touched: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and `scripts/worldmap_city_info_panel.gd`.
+- Selected-city panel structure:
+  - `CityInfoPanel` is a direct `WorldMapUI` CanvasLayer child, so it remains independent from `WorldMapCamera` pan/zoom.
+  - Drag registration remains in `_setup_independent_hud_panel_drag()` and still registers the selected-city panel through `CityNameLabel`; the hidden eyebrow is no longer a visible drag handle.
+- Implementation:
+  - Added `SELECTED_CITY_INFO_PANEL_SIZE = Vector2(308.0, 542.0)`.
+  - Replaced the generic top-margin lock for `CityInfoPanel` with `_lock_selected_city_info_panel_anchor()`, which anchors the panel at the shared top margin and right-side margin on startup.
+  - Scene initial offsets now place `CityInfoPanel` at right margin `10` for the current viewport baseline.
+  - Hid the `SELECTED CITY` eyebrow.
+  - Reduced visible top summary to city name, `세력: ...`, `유형: ...`, and the loyalty card.
+  - Removed `표시 전용` from selected-city loyalty copy.
+  - Hid owner/region/nation duplication, population/gold/food, resource list, city status sentence, and governor summary label while preserving the governor card/dropdown and lower panel controls.
+- Preserved scope: no left panel, city detail/diplomacy redesign, city data, city click, battle entry, camera handoff, safe-zone camera, domestic/trade/relation formulas, governor internals, resource data, save/load, battle scripts, project settings, `.uid`/`.ogv` assets, or new assets changed.
+- Manual F6 QA remains recommended for right-side placement, drag behavior, repeated city selection refresh, hidden duplicate rows, and retained governor/action controls.
+
 ## v0.70-17b Restore Theora Test UID Files Handoff
 - Baseline: `v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work` (`110f0e8` before this restore).
 - Required git analysis was performed before restore:

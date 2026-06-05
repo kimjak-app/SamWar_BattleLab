@@ -2,6 +2,26 @@
 
 ## 2026-06-05
 
+### v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish
+- Started from clean `9b8b186 v0.70-17b Restore Theora Test UID Files`.
+- Required git analysis:
+  - `git status --short`: clean.
+  - Recent log: `9b8b186`, `110f0e8`, `91713d8`, `4535a3f`, `5dec9b2`, `502f1eb`, `ab91b34`, `e53a9fb`, `8991b9b`, `0c91744`.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: HEAD restored the two Theora test `.uid` files and updated five agent docs.
+- Inspected required docs, `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, and `scripts/worldmap_city_info_panel.gd`.
+- Findings:
+  - `CityInfoPanel` is under `WorldMapUI` CanvasLayer and already camera-independent.
+  - Existing drag registration includes `CityInfoPanel` via `EyebrowLabel` and `CityNameLabel`.
+  - Selected-city display text is owned by `scripts/worldmap_city_info_panel.gd`.
+- Implemented minimal selected-city polish:
+  - Anchored `CityInfoPanel` startup placement to the right side with the shared top margin and 10px right-side margin.
+  - Preserved drag movement through the visible city name handle.
+  - Hid `SELECTED CITY`, owner/region/nation duplication, population/gold/food, resource list, city status sentence, and governor summary label.
+  - Kept city name, `세력`, `유형`, loyalty label/bar, governor card/dropdown, garrison, military/domestic summary, policy hint, and action buttons.
+  - Removed `표시 전용` from selected-city loyalty copy.
+- Preserved left panel, city detail/diplomacy panels, city data, city click, battle entry, camera handoff, safe-zone camera, formulas, governor internals, resource data, save/load, battle scripts, `project.godot`, `.uid`/`.ogv` files, and assets.
+- Manual F6 QA remains recommended for visual right-side placement, drag movement, city switching, and retained controls.
+
 ### v0.70-17b Restore Theora Test UID Files
 - Started from `110f0e8 v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work` with `WorldMap_Test.tscn` tracked modified.
 - Required git analysis:

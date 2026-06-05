@@ -1782,10 +1782,11 @@ text = "도시 선택 시 상세 정보가 갱신됩니다."
 autowrap_mode = 2
 
 [node name="CityInfoPanel" type="PanelContainer" parent="WorldMapUI" unique_id=1812841544]
-offset_left = 824.0
+offset_left = 834.0
 offset_top = 10.0
-offset_right = 1132.0
+offset_right = 1142.0
 offset_bottom = 552.0
+custom_minimum_size = Vector2(308, 542)
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 script = ExtResource("13_city_info_panel")
 
@@ -1801,10 +1802,11 @@ layout_mode = 2
 theme_override_constants/separation = 4
 
 [node name="EyebrowLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=2014566409]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
 theme_override_font_sizes/font_size = 12
-text = "SELECTED CITY"
+text = ""
 
 [node name="CityNameLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=728617895]
 layout_mode = 2
@@ -1816,7 +1818,7 @@ text = "선택 도시 없음"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
 theme_override_font_sizes/font_size = 12
-text = "월드맵에서 도시를 선택하십시오."
+text = "세력: 정보 없음"
 autowrap_mode = 2
 
 [node name="CityIdLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=225743654]
@@ -1826,10 +1828,11 @@ theme_override_colors/font_color = Color(0.78, 0.82, 0.9, 1)
 theme_override_font_sizes/font_size = 12
 
 [node name="RegionOwnerLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=1412077826]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
 theme_override_font_sizes/font_size = 12
-text = "소유: 정보 없음 · 지역: 정보 없음"
+text = ""
 
 [node name="CityTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=116586532]
 layout_mode = 2
@@ -1867,31 +1870,35 @@ value = 75.0
 show_percentage = false
 
 [node name="NeighborLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=1194031792]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = "인구: 정보 없음 · 금전: 정보 없음 · 식량: 정보 없음"
+text = ""
 autowrap_mode = 2
 
 [node name="RouteTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=496479179]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = "자원: 정보 없음"
+text = ""
 autowrap_mode = 2
 
 [node name="StatusTextLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=340883158]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
 theme_override_font_sizes/font_size = 12
-text = "월드맵 기능은 Godot 이식 중입니다."
+text = ""
 autowrap_mode = 2
 
 [node name="GovernorLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=639692605]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = "태수 없음"
+text = ""
 
 [node name="GovernorCard" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=2090655760]
 layout_mode = 2

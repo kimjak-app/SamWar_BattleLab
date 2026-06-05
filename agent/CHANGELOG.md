@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish
+- Built on `v0.70-17b Restore Theora Test UID Files` (`9b8b186`) after the residual `WorldMap_Test.tscn` scene serialization diff was restored and the repo was clean.
+- Added a selected-city panel startup anchor helper in `scripts/worldmap_test.gd` so `CityInfoPanel` starts at the shared top baseline and right-side 10px margin while remaining a `WorldMapUI` CanvasLayer child.
+- Preserved existing selected-city panel drag movement through the city name handle.
+- Updated `WorldMap_Test.tscn` initial `CityInfoPanel` offsets to the same right-side baseline and kept its existing size.
+- Hid the `SELECTED CITY` eyebrow.
+- Slimmed selected-city summary display to city name, `세력: ...`, `유형: ...`, and the loyalty card.
+- Removed `표시 전용` from the selected-city loyalty label.
+- Hid owner/region/nation duplication, population/gold/food row, resource list, city status sentence, and governor summary label.
+- Kept governor card/dropdown, garrison list, military/domestic summary, policy hint, and attack/hero move/domestic/recruit controls.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change left panel content, city detail/diplomacy panels, city data, city click/battle entry, camera handoff, safe-zone camera, domestic/trade/relation formulas, governor internals, resource data, save/load, battle scripts, project settings, `.uid`/`.ogv` files, or assets.
+
 ## v0.70-17b Restore Theora Test UID Files
 - Built on `v0.70-17a Repo Sanity Cleanup Before Selected City Panel Work` (`110f0e8`).
 - Restored `assets/video_test/theora_safe/test_safe_q7_1280x.ogv.uid` and `assets/video_test/theora_safe/test_safe_q8_1920x.ogv.uid` from `HEAD~1`.
