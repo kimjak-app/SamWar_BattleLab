@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-21 WorldMap Recruitment Loyalty-Based Connect
+- Built on `v0.70-20a WorldMap Selected City Panel Layout Order Polish`.
+- Changed recruitment amount limits from publicSupport-based to city loyalty-based: `<40` = 0, `40-59` = 100, `60-79` = 200, `80-89` = 300, `90+` = 500.
+- Kept recruitment cost unchanged: gold = amount, food = floor(amount / 2), with food paid from national `resource_stock` in rice -> barley -> seafood order.
+- Kept conscription as the automatic loyalty + `barracks` + `conscription_system` axis. `barracks` is still required, and `conscription_system` keeps the existing 1.10 effect.
+- Connected the right Selected City Panel `병사 충원` section with concise conscription/recruitment status lines and a `모병 100` button.
+- Added `recruitment_requested(city_id, amount)` from `WorldMapCityInfoPanel` and handled it in `worldmap_test.gd` through `_can_recruit_troops()` and `_recruit_troops()`.
+- `last_recruitment_result` now records `loyalty` and `loyalty_limit`; publicSupport remains recorded for compatibility and future risk/fatigue systems, but it is not the recruitment limit basis.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Excluded population decrease, recruitment fatigue, loyalty/publicSupport loss after recruitment, revolt-risk changes, tech-tree UI, troop-type recruitment, recruitment amount selector UI, battle/BattleContext changes, ownership changes, hero movement changes, policy formula changes, large save/load rewrite, `project.godot`, and assets.
+
 ## v0.70-20a WorldMap Selected City Panel Layout Order Polish
 - Built on `v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish` (`0e5cd21717d1364a591a0abfaf42e732eb17550a`).
 - Reordered the selected-city panel to city summary -> city state summary -> governor card -> garrison card -> hero transfer -> military summary -> recruit.
@@ -9,7 +20,7 @@
 - Wrapped `주둔 무장` hero portrait/name/stat rows in a card-style container.
 - Moved `무장 이동` directly below the garrison card and preserved the existing inline hero-transfer UI.
 - Hid the selected-city `내정` button; Domestic Panel work remains deferred.
-- Moved `병력 / 방어 / 치안 기준` below garrison/transfer and placed `병사 모집` below that military summary.
+- Moved `병력 / 방어 / 치안 기준` below garrison/transfer and placed the recruit area below that military summary. v0.70-21 supersedes it with connected `병사 충원`.
 - Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
 - Did not change governor assignment logic, governor policy save/load, hero transfer data movement, battle scripts, BattleContext, formulas, recruitment processing, `project.godot`, `.uid` / `.ogv` files, or assets.
 
@@ -670,12 +681,12 @@
 ## v0.69-4 Recruitment Conscription Foundation MVP
 - Added loyalty-based conscription helpers to `scripts/worldmap_test.gd`: `_get_conscription_capacity_by_loyalty`, `_get_city_conscription_available`, and `_apply_city_conscription_for_world_turn`.
 - Automatic conscription now runs in the domestic turn after publicSupport drift, existing city loyalty drift, and seasonal loyalty from publicSupport, adding `min(available, 100)` troops to player-owned cities below capacity.
-- Added publicSupport-based recruitment helpers: `_get_recruitment_limit_by_public_support`, `_calculate_recruitment_cost`, `_can_recruit_troops`, and `_recruit_troops`.
+- Added initial paid recruitment helpers for amount limits, cost, validation, and execution. v0.70-21 later corrected the amount-limit axis to city loyalty.
 - Added minimal recruitment resource helpers: `_can_pay_recruitment_cost` and `_apply_recruitment_cost`.
 - Recruitment cost is `gold = amount` and `food = amount / 2`; MVP food payment deducts from national `resource_stock` in order `rice -> barley -> seafood`.
 - Added `_player_state["last_conscription_result"]` and `_player_state["last_recruitment_result"]`.
 - Added minimal City Detail internal/supply display for conscription capacity, available amount, automatic conscription estimate, recruitment limit, and sample cost.
-- Kept publicSupport and loyalty as separate axes: conscription uses loyalty; recruitment uses publicSupport.
+- Kept publicSupport and loyalty as separate axes. v0.70-21 later clarified that recruitment amount limits use loyalty, while publicSupport remains future risk/fatigue data.
 - Did not implement population decrease, recruitment fatigue, publicSupport/loyalty loss from recruitment, recruitment UI, revolt, tech trees, trade deepening, diplomacy/espionage, battle scene changes, save/load core rewrites, or large UI refactors.
 
 ## v0.69-3A Strategic Logic Checkpoint Documentation

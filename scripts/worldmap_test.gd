@@ -979,6 +979,9 @@ func _connect_city_info_panel_actions() -> void:
 	var hero_transfer_callback := Callable(self, "_on_city_info_hero_transfer_confirmed")
 	if city_info_panel.has_signal("hero_transfer_confirmed") and not city_info_panel.is_connected("hero_transfer_confirmed", hero_transfer_callback):
 		city_info_panel.connect("hero_transfer_confirmed", hero_transfer_callback)
+	var recruitment_callback := Callable(self, "_on_city_info_recruitment_requested")
+	if city_info_panel.has_signal("recruitment_requested") and not city_info_panel.is_connected("recruitment_requested", recruitment_callback):
+		city_info_panel.connect("recruitment_requested", recruitment_callback)
 
 
 func _on_city_info_attack_requested(city_id: String) -> void:
@@ -1017,6 +1020,54 @@ func _on_city_info_hero_transfer_confirmed(source_city_id: String, hero_id: Stri
 		city_info_panel.call("show_hero_transfer_result", "무장이 이동했습니다.")
 	_refresh_left_world_status_panel()
 	_refresh_unified_panel_content()
+
+
+func _on_city_info_recruitment_requested(city_id: String, amount: int) -> void:
+	if city_id.is_empty():
+		_show_city_info_recruitment_result("도시를 선택하십시오.")
+		return
+	var validation := _can_recruit_troops(city_id, amount)
+	if not bool(validation.get("ok", false)):
+		_refresh_city_hud_data_bindings()
+		if _city_markers_by_id.has(city_id):
+			city_info_panel.show_city(_city_markers_by_id.get(city_id) as WorldMapCityMarker)
+		_show_city_info_recruitment_result(_format_recruitment_failure_hint(str(validation.get("reason", ""))))
+		return
+	var before_troops := _get_city_troops_for_battle_context(city_id)
+	if not _recruit_troops(city_id, amount):
+		var failed_result: Dictionary = _player_state.get("last_recruitment_result", {})
+		_show_city_info_recruitment_result(_format_recruitment_failure_hint(str(failed_result.get("reason", ""))))
+		return
+	var after_troops := _get_city_troops_for_battle_context(city_id)
+	var city_name := _format_city_name_by_id(city_id, city_id)
+	var message := "%s 모병 +%d · 병력 %d → %d" % [city_name, amount, before_troops, after_troops]
+	if _city_markers_by_id.has(city_id):
+		city_info_panel.show_city(_city_markers_by_id.get(city_id) as WorldMapCityMarker)
+	_show_city_info_recruitment_result(message)
+	_refresh_left_world_status_panel()
+	_refresh_unified_panel_content()
+	_set_save_management_status(message)
+
+
+func _show_city_info_recruitment_result(message: String) -> void:
+	if city_info_panel != null and city_info_panel.has_method("show_recruitment_result"):
+		city_info_panel.call("show_recruitment_result", message)
+
+
+func _format_recruitment_failure_hint(reason: String) -> String:
+	match reason:
+		"loyalty", "loyalty_limit":
+			return "충성도 부족 · 모병 불가"
+		"resources":
+			return "자원 부족 · 금전/식량 확인"
+		"not_peacetime":
+			return "전투/침공 처리 중에는 모병 불가"
+		"ownership":
+			return "아군 도시에서만 모병 가능"
+		"amount":
+			return "모병 단위 오류"
+		_:
+			return "모병 불가"
 
 
 func _transfer_stationed_hero_between_player_cities(source_city_id: String, hero_id: String, target_city_id: String) -> Dictionary:
@@ -1499,30 +1550,12 @@ func _format_city_seasonal_loyalty_display(city_id: String) -> String:
 
 
 func _format_city_recruitment_conscription_display(city_id: String) -> String:
-	var conscription_capacity := _get_conscription_capacity_by_loyalty(city_id)
-	var conscription_available := _get_city_conscription_available(city_id)
-	var conscription_expected := mini(conscription_available, 100)
-	var recruitment_limit := _get_recruitment_limit_by_public_support(city_id)
-	var sample_amount := 100 if recruitment_limit >= 100 else 0
-	var sample_cost := _calculate_recruitment_cost(sample_amount)
-	var cost_text := "모병 불가" if sample_amount <= 0 else "100명: 금전 %d + 식량 %d" % [
-		int(sample_cost.get("gold", 0)),
-		int(sample_cost.get("food", 0)),
-	]
-	var last_conscription: Dictionary = _player_state.get("last_conscription_result", {})
-	var city_results: Variant = last_conscription.get("city_results", {})
-	var last_added := 0
-	if city_results is Dictionary and (city_results as Dictionary).has(city_id):
-		var city_result: Variant = (city_results as Dictionary).get(city_id, {})
-		if city_result is Dictionary:
-			last_added = int((city_result as Dictionary).get("added", 0))
-	return "■ 징병/모병 MVP\n징병 한계: %d · 가능 %d · 턴당 예상 +%d\n최근 자동 징병: +%d\n모병 1회 한계: %d · 비용 %s\n식량 차감: 쌀 → 보리 → 수산물" % [
-		conscription_capacity,
-		conscription_available,
-		conscription_expected,
-		last_added,
-		recruitment_limit,
-		cost_text,
+	var summary := _get_city_recruitment_summary(city_id)
+	if summary.is_empty():
+		return "■ 병사 충원\n징병: 정보 없음\n모병: 정보 없음"
+	return "■ 병사 충원\n%s\n%s" % [
+		str(summary.get("conscription_line", "징병: 정보 없음")),
+		str(summary.get("recruitment_line", "모병: 정보 없음")),
 	]
 
 
@@ -4292,15 +4325,87 @@ func _apply_city_conscription_for_world_turn() -> Dictionary:
 	return result
 
 
-func _get_recruitment_limit_by_public_support(city_id: String) -> int:
-	var public_support := _get_city_public_support(city_id)
-	if public_support >= 90:
+func _get_city_recruitment_summary(city_id: String) -> Dictionary:
+	if city_id.is_empty() or _get_city_hud_entry(city_id).is_empty():
+		return {}
+	var loyalty := _get_city_loyalty_value(_get_city_hud_entry(city_id))
+	var recruitment_limit := _get_recruitment_limit_by_loyalty(city_id)
+	var sample_amount := 100
+	var sample_cost := _calculate_recruitment_cost(sample_amount)
+	var recruitment_check := _can_recruit_troops(city_id, sample_amount)
+	var conscription_line := _format_city_conscription_ui_line(city_id)
+	var recruitment_line := ""
+	if recruitment_limit >= sample_amount:
+		recruitment_line = "모병: 충성도 %d · 최대 %d명 / 즉시 +100 · 금전%d 식량%d" % [
+			loyalty,
+			recruitment_limit,
+			int(sample_cost.get("gold", 0)),
+			int(sample_cost.get("food", 0)),
+		]
+	else:
+		recruitment_line = "모병: 충성도 %d · 모병 불가" % loyalty
+	var reason := str(recruitment_check.get("reason", ""))
+	return {
+		"city_id": city_id,
+		"title": "병사 충원",
+		"conscription_line": conscription_line,
+		"recruitment_line": recruitment_line,
+		"button_text": "모병 100" if bool(recruitment_check.get("ok", false)) else "모병 불가",
+		"button_enabled": bool(recruitment_check.get("ok", false)),
+		"button_hint": _format_recruitment_failure_hint(reason) if not bool(recruitment_check.get("ok", false)) else "모병 100 · 금전100 식량50",
+		"amount": sample_amount,
+		"cost": sample_cost,
+		"loyalty": loyalty,
+		"loyalty_limit": recruitment_limit,
+		"publicSupport": _get_city_public_support(city_id),
+		"reason": reason,
+	}
+
+
+func _get_recruitment_summaries_for_ui() -> Dictionary:
+	var summaries := {}
+	for city_id_variant in _get_city_hud_data_for_ui().keys():
+		var city_id := str(city_id_variant)
+		var summary := _get_city_recruitment_summary(city_id)
+		if not summary.is_empty():
+			summaries[city_id] = summary
+	return summaries
+
+
+func _format_city_conscription_ui_line(city_id: String) -> String:
+	if not _is_city_tech_completed_for_display(city_id, "barracks"):
+		return "징병: 병영 필요"
+	var available := _get_city_conscription_available(city_id)
+	if available <= 0:
+		return "징병: 충원 한계 도달"
+	var base_add := mini(available, 100)
+	var expected := mini(available, int(floor(float(base_add) * _get_conscription_turn_add_multiplier())))
+	if _is_national_tech_completed("conscription_system"):
+		return "징병: 제도 적용 · 다음 턴 +%d" % expected
+	return "징병: 다음 턴 +%d" % expected
+
+
+func _is_city_tech_completed_for_display(city_id: String, tech_id: String) -> bool:
+	var city_data := _get_city_hud_entry(city_id)
+	var city_tech: Variant = city_data.get("city_tech", {})
+	if not city_tech is Dictionary:
+		return false
+	var completed: Variant = (city_tech as Dictionary).get("completed", {})
+	if not completed is Dictionary:
+		return false
+	var completed_value: Variant = (completed as Dictionary).get(tech_id, false)
+	return true if completed_value is Dictionary else bool(completed_value)
+
+
+func _get_recruitment_limit_by_loyalty(city_id: String) -> int:
+	var loyalty := _get_city_loyalty_value(_get_city_hud_entry(city_id))
+	if loyalty >= 90:
 		return 500
-	if public_support >= 80:
+	if loyalty >= 80:
 		return 300
-	if public_support >= 60:
+	if loyalty >= 60:
 		return 200
-	if public_support >= 40:
+	if loyalty >= 40:
 		return 100
 	return 0
 
@@ -4390,17 +4495,22 @@ func _can_recruit_troops(city_id: String, amount: int) -> Dictionary:
 	if not _is_peacetime_for_troop_move():
 		return {"ok": false, "reason": "not_peacetime"}
 	var public_support := _get_city_public_support(city_id)
-	var limit := _get_recruitment_limit_by_public_support(city_id)
-	if public_support < 40 or amount > limit:
-		return {"ok": false, "reason": "public_support", "limit": limit, "publicSupport": public_support}
+	var loyalty := _get_city_loyalty_value(_get_city_hud_entry(city_id))
+	var limit := _get_recruitment_limit_by_loyalty(city_id)
+	if loyalty < 40:
+		return {"ok": false, "reason": "loyalty", "limit": limit, "loyalty_limit": limit, "publicSupport": public_support, "loyalty": loyalty}
+	if amount > limit:
+		return {"ok": false, "reason": "loyalty_limit", "limit": limit, "loyalty_limit": limit, "publicSupport": public_support, "loyalty": loyalty}
 	var cost := _calculate_recruitment_cost(amount)
 	if not _can_pay_recruitment_cost(cost):
-		return {"ok": false, "reason": "resources", "cost": cost, "limit": limit, "publicSupport": public_support}
+		return {"ok": false, "reason": "resources", "cost": cost, "limit": limit, "loyalty_limit": limit, "publicSupport": public_support, "loyalty": loyalty}
 	return {
 		"ok": true,
 		"cost": cost,
 		"limit": limit,
+		"loyalty_limit": limit,
 		"publicSupport": public_support,
+		"loyalty": loyalty,
 	}
 
 
@@ -4413,6 +4523,10 @@ func _recruit_troops(city_id: String, amount: int) -> bool:
 			"amount": amount,
 			"turn": maxi(1, int(_player_state.get("turn_number", 1))),
 			"reason": str(validation.get("reason", "")),
+			"publicSupport": validation.get("publicSupport", _get_city_public_support(city_id)),
+			"loyalty": validation.get("loyalty", _get_city_loyalty_value(_get_city_hud_entry(city_id))),
+			"loyalty_limit": validation.get("loyalty_limit", validation.get("limit", _get_recruitment_limit_by_loyalty(city_id))),
+			"cost": validation.get("cost", _calculate_recruitment_cost(amount)),
 		}
 		return false
 	var before_support := _get_city_public_support(city_id)
@@ -4430,6 +4544,7 @@ func _recruit_troops(city_id: String, amount: int) -> bool:
 		"paid_cost": paid_cost,
 		"publicSupport": before_support,
 		"loyalty": before_loyalty,
+		"loyalty_limit": int(validation.get("loyalty_limit", validation.get("limit", _get_recruitment_limit_by_loyalty(city_id)))),
 		"before_troops": before_troops,
 		"after_troops": after_troops,
 		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
@@ -9183,6 +9298,8 @@ func _refresh_city_hud_data_bindings() -> void:
 	if city_info_panel == null:
 		return
 	city_info_panel.set_hud_data(_get_hero_data_for_ui(), _get_city_hud_data_for_ui(), GOVERNOR_POLICY_DATA, _city_policy_state)
+	if city_info_panel.has_method("set_recruitment_summaries"):
+		city_info_panel.call("set_recruitment_summaries", _get_recruitment_summaries_for_ui())
 
 
 func _serialize_worldmap_city_runtime_state() -> Dictionary:

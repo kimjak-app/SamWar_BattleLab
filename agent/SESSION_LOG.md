@@ -2,6 +2,19 @@
 
 ## 2026-06-05
 
+### v0.70-21 WorldMap Recruitment Loyalty-Based Connect
+- Started from `v0.70-20a WorldMap Selected City Panel Layout Order Polish`.
+- Required reading completed: workflow/current/next/handoff/WorldMap rules, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, and `WorldMap_Test.tscn`.
+- Implemented:
+  - Replaced the old recruitment limit axis with loyalty-based thresholds.
+  - Preserved ownership, amount, peacetime, and national resource affordability validation.
+  - Kept cost at gold = amount and food = floor(amount / 2), paid from rice -> barley -> seafood.
+  - Preserved automatic conscription behavior with loyalty capacity, `barracks` requirement, and `conscription_system` 1.10 effect.
+  - Added compact `병사 충원` summary lines to the right Selected City Panel.
+  - Connected `모병 100` through `recruitment_requested(city_id, 100)` to actual resource payment and city troop increase.
+  - Recorded `loyalty` and `loyalty_limit` in `last_recruitment_result`; publicSupport remains compatibility/future-risk data, not the limit basis.
+- Preserved battle scenes, BattleContext, city ownership, hero movement, governor/chancellor policy calculations, save/load structure beyond existing city troop/resource coverage, `project.godot`, and assets.
+
 ### v0.70-20a WorldMap Selected City Panel Layout Order Polish
 - Started from `0e5cd21 v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish`.
 - Required git analysis:
@@ -14,7 +27,7 @@
   - Wrapped the `주둔 무장` portrait/name/stat rows in a card-style `GarrisonCard`.
   - Moved `무장 이동` under the garrison card while keeping the v0.70-20 transfer UI and data path.
   - Hid the selected-city `내정` button/path.
-  - Placed `병력 / 방어 / 치안 기준` below garrison/transfer and `병사 모집` below that summary.
+  - Placed `병력 / 방어 / 치안 기준` below garrison/transfer and the recruit area below that summary; v0.70-21 supersedes it with connected `병사 충원`.
 - Preserved governor assignment logic, governor policy save/load, hero transfer data movement, battle/BattleContext, domestic/chancellor/governor formulas, recruit processing, `project.godot`, `.uid` / `.ogv`, and assets.
 
 ### v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish
@@ -1056,7 +1069,7 @@
 - Added loyalty-based conscription capacity and available helpers.
 - Added automatic domestic-turn conscription as slow free troop growth: player-owned cities add `min(available, 100)` troops when below loyalty-based capacity.
 - Placed automatic conscription after publicSupport drift, existing P0-2 city loyalty drift, and seasonal loyalty from publicSupport so it uses current post-seasonal loyalty.
-- Added publicSupport-based recruitment limit, cost, validation, and execution helpers.
+- Added initial recruitment limit, cost, validation, and execution helpers; v0.70-21 later corrected the amount-limit axis to city loyalty.
 - Recruitment is immediate paid troop growth and is helper/API only in this MVP. No explicit recruitment button/panel was added.
 - Recruitment cost uses `gold = amount` and `food = amount / 2`; MVP food payment deducts national `resource_stock` in order `rice -> barley -> seafood`.
 - Added `last_conscription_result` and `last_recruitment_result` recording.

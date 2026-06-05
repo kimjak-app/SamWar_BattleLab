@@ -1,5 +1,27 @@
 # HANDOFF TO CODEX
 
+## v0.70-21 WorldMap Recruitment Loyalty-Based Connect Handoff
+- Baseline: `v0.70-20a WorldMap Selected City Panel Layout Order Polish`.
+- Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.
+- Scene file touched only to rename the initial `RecruitButtonPlaceholder` text away from the old recruit placeholder wording.
+- Recruitment rule:
+  - 모병 기준을 publicSupport에서 city loyalty 기반으로 바로잡았다.
+  - Loyalty thresholds: `<40` = 0, `40-59` = 100, `60-79` = 200, `80-89` = 300, `90+` = 500.
+  - `_can_recruit_troops(city_id, amount)` uses the loyalty-based limit, while preserving ownership, amount, peacetime, and resource checks.
+  - `last_recruitment_result` records `publicSupport` for compatibility, but also records `loyalty` and `loyalty_limit`; publicSupport is not the amount-limit axis.
+- Conscription rule:
+  - 징병은 loyalty + `barracks` + `conscription_system` automatic reinforcement axis.
+  - `barracks` remains required for automatic city conscription.
+  - `conscription_system` keeps the existing 1.10 turn-add effect.
+- Selected City Panel:
+  - The right panel now shows `병사 충원`.
+  - It displays one concise conscription line and one concise recruitment line without exposing formulas or multipliers.
+  - The button emits `recruitment_requested(city_id, 100)` and worldmap handles validation/payment/troop increase/refresh.
+- publicSupport direction:
+  - publicSupport is retained for future fatigue, dissatisfaction, and revolt-risk work.
+  - This patch does not apply recruitment fatigue, publicSupport loss, loyalty loss, population loss, or revolt-risk changes.
+- Manual F6 QA should confirm Hanseong selection, conscription text, `모병 100` click, troop +100, national gold -100, food -50 from rice/barley/seafood order, result hint, city switching refresh, peacetime blocking, and existing attack/governor/transfer behavior.
+
 ## v0.70-20a WorldMap Selected City Panel Layout Order Polish Handoff
 - Baseline: `v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish` (`0e5cd21717d1364a591a0abfaf42e732eb17550a`).
 - Runtime file touched: `scripts/worldmap_city_info_panel.gd`.
@@ -14,7 +36,7 @@
   7. `주둔 무장` card.
   8. `무장 이동` button and inline transfer UI.
   9. `병력 / 방어 / 치안 기준`.
-  10. `병사 모집`.
+  10. Recruitment area; v0.70-21 supersedes this with `병사 충원`.
 - Governor card:
   - Keeps existing `GovernorAssignOption` and `GovernorPolicyOption` connections.
   - Shows effect/policy inside the governor card as `효과: ...` and `정책: ...`.
@@ -25,7 +47,7 @@
 - Action layout:
   - `무장 이동` moved directly below the garrison card and keeps the v0.70-20 inline transfer behavior.
   - Selected-city `내정` button is hidden for now; City Detail / Domestic work remains deferred.
-  - `병사 모집` is placed below the military summary; no recruitment processing was implemented.
+  - A recruit placeholder was placed below the military summary; v0.70-21 supersedes it with connected `병사 충원`.
 - Explicitly preserved: governor assignment logic, governor policy save/load, hero transfer data movement, battle scripts, BattleContext, domestic/chancellor/governor formulas, recruit logic, `project.godot`, `.uid` / `.ogv`, and assets.
 - Manual F6 QA should confirm the visual order, garrison card boundary, hidden domestic button, no duplicate governor policy hint, and retained governor dropdown / policy dropdown / transfer UI behavior.
 - Next candidate work:
@@ -1109,7 +1131,7 @@
 - Conscription is loyalty-based. Use `_get_conscription_capacity_by_loyalty(city_id)` and `_get_city_conscription_available(city_id)` for capacity/available calculations.
 - Automatic conscription is slow and free: `_apply_city_conscription_for_world_turn()` runs after publicSupport drift, existing city loyalty drift, and seasonal loyalty from publicSupport in the domestic turn, then adds `min(available, 100)` troops.
 - Conscription does not reduce population and does not directly change publicSupport or loyalty.
-- Recruitment is publicSupport-based. Use `_get_recruitment_limit_by_public_support(city_id)`, `_calculate_recruitment_cost(amount)`, `_can_recruit_troops(city_id, amount)`, and `_recruit_troops(city_id, amount)`.
+- Recruitment amount limits are superseded by v0.70-21 and now use city loyalty. Use `_get_recruitment_limit_by_loyalty(city_id)`, `_calculate_recruitment_cost(amount)`, `_can_recruit_troops(city_id, amount)`, and `_recruit_troops(city_id, amount)`.
 - Recruitment is immediate and paid, but currently helper/API only. Do not assume a final UI exists.
 - Recruitment cost is `gold = amount` and `food = amount / 2`; MVP food payment uses national `resource_stock` in order `rice -> barley -> seafood`.
 - Recruitment does not reduce population, does not directly change publicSupport or loyalty, and does not implement fatigue/publicSupport decline yet.

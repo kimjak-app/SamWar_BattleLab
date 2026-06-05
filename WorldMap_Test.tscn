@@ -2033,7 +2033,7 @@ theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_world_hud_tab")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_world_hud_tab_active")
 theme_override_styles/hover = SubResource("StyleBoxFlat_world_hud_tab_active")
-text = "병사 모집"
+text = "모병 불가"
 
 [node name="InstructionLabel" type="Label" parent="WorldMapUI" unique_id=192681468]
 anchors_preset = 2

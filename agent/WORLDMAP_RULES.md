@@ -1,5 +1,17 @@
 # WORLDMAP RULES
 
+## v0.70-21 Recruitment Loyalty-Based Rule
+- 모병 amount limit is based on selected city loyalty, not publicSupport.
+- Loyalty thresholds are fixed for this patch: below 40 -> 0, 40-59 -> 100, 60-79 -> 200, 80-89 -> 300, and 90+ -> 500.
+- `_can_recruit_troops(city_id, amount)` must keep ownership, amount, peacetime, and national resource affordability checks, then enforce the loyalty-based limit.
+- Recruitment cost remains gold = amount and food = floor(amount / 2). Food is paid from national `resource_stock` in rice -> barley -> seafood order.
+- `_recruit_troops()` must continue to increase city runtime troops, deduct resources, record `last_recruitment_result`, and refresh city HUD bindings. The result should include `loyalty` and `loyalty_limit`; publicSupport may remain compatibility/future-risk data but must not drive the amount limit.
+- 징병 is the automatic loyalty + `barracks` + `conscription_system` axis. `barracks` remains required for automatic turn conscription, and `conscription_system` keeps the existing 1.10 effect.
+- 모병 is the immediate loyalty + resources + peacetime axis. It is not tech-locked in this patch.
+- The right Selected City Panel should show only decision-grade summaries in `병사 충원`: one conscription status line, one recruitment summary line, and `모병 100` or disabled `모병 불가`.
+- Do not expose detailed formulas, multipliers, or internal calculation steps in the selected-city UI.
+- publicSupport remains reserved for future recruitment fatigue, dissatisfaction, and revolt-risk work. This patch must not implement population loss, recruitment fatigue, post-recruitment publicSupport/loyalty loss, or revolt-risk changes.
+
 ## v0.70-20a Selected City Panel Layout Order Rule
 - The selected-city panel should present information in this order: city name, faction, type, city loyalty, `민심 / 치안 / 상업 / 농업`, governor card, garrison card, hero transfer button/panel, `병력 / 방어 / 치안 기준`, and recruit button.
 - The city state summary (`민심 / 치안 / 상업 / 농업`) belongs directly under the loyalty card and should remain a compact decision summary, not a debug/formula display.
@@ -7,7 +19,7 @@
 - The `주둔 무장` display should remain card-bounded and show compact portrait/name/stat rows using the existing portrait helper path.
 - `무장 이동` belongs near the garrison section and must keep the existing v0.70-20 inline transfer contract.
 - The selected-city `내정` button is hidden until City Detail / Domestic Panel work defines its real UX.
-- `병사 모집` may remain as a button below the military summary, but actual recruitment processing must not be added without a dedicated task.
+- v0.70-21 supersedes the old recruit placeholder: the area below the military summary is now `병사 충원` with compact conscription status and connected `모병 100`.
 - Do not change governor assignment logic, governor policy persistence, hero transfer data movement, battle entry, BattleContext, domestic/chancellor/governor formulas, `project.godot`, `.uid` / `.ogv`, or assets as part of this layout rule.
 
 ## v0.70-20 Selected City Governor, Garrison, and Hero Transfer Rule

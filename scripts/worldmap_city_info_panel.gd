@@ -7,6 +7,7 @@ const PLAYER_FACTION_ID := "player"
 signal attack_requested(city_id: String)
 signal governor_assignment_requested(city_id: String, governor_id: String)
 signal hero_transfer_confirmed(source_city_id: String, hero_id: String, target_city_id: String)
+signal recruitment_requested(city_id: String, amount: int)
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -81,6 +82,7 @@ const CITY_TYPE_LABELS := {
 var _city_markers_by_id: Dictionary = {}
 var _hero_data: Dictionary = {}
 var _city_hud_data: Dictionary = {}
+var _recruitment_summaries: Dictionary = {}
 var _governor_policy_data: Dictionary = {}
 var _city_policy_state: Dictionary = {}
 var _pending_invasion_event: Dictionary = {}
@@ -94,6 +96,10 @@ var _hero_transfer_target_option: OptionButton = null
 var _hero_transfer_confirm_button: Button = null
 var _hero_transfer_cancel_button: Button = null
 var _hero_transfer_status_label: Label = null
+var _recruitment_section: VBoxContainer = null
+var _recruitment_title_label: Label = null
+var _conscription_summary_label: Label = null
+var _recruitment_summary_label: Label = null
 var _hero_transfer_open := false
 var _attack_action_enabled := false
 var _attack_action_hint := "공격 준비는 다음 단계에서 BattleContext와 연결됩니다."
@@ -105,6 +111,7 @@ func _ready() -> void:
 	_ensure_governor_portrait_texture_rect()
 	_ensure_garrison_list_container()
 	_ensure_hero_transfer_panel()
+	_ensure_recruitment_section()
 	_apply_selected_city_layout_order()
 	attack_button_placeholder.pressed.connect(_on_attack_placeholder_pressed)
 	hero_move_button_placeholder.pressed.connect(_on_hero_move_placeholder_pressed)
@@ -129,6 +136,12 @@ func set_hud_data(hero_data: Dictionary, city_hud_data: Dictionary, governor_pol
 	_setup_governor_policy_option()
 	if not _current_city_id.is_empty() and _city_markers_by_id.has(_current_city_id):
 		show_city(_city_markers_by_id.get(_current_city_id) as WorldMapCityMarker)
+
+
+func set_recruitment_summaries(recruitment_summaries: Dictionary) -> void:
+	_recruitment_summaries = recruitment_summaries.duplicate(true)
+	if not _current_city_id.is_empty():
+		_refresh_recruitment_section()
 
 
 func set_pending_invasion_event(event: Dictionary) -> void:
@@ -183,6 +196,8 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 	military_info_label.text = _format_city_defense_info(city_data)
 	military_state_label.text = _format_city_domestic_info(city_data)
 	hint_label.text = ""
+	hint_label.visible = false
+	_refresh_recruitment_section()
 	_refresh_attack_action_state()
 	_apply_selected_city_layout_order()
 	show()
@@ -221,6 +236,8 @@ func _show_empty() -> void:
 	military_info_label.text = "병력: 정보 없음 · 방어: 정보 없음"
 	military_state_label.text = "민심/치안: 정보 없음 · 상업: 정보 없음 · 농업: 정보 없음"
 	hint_label.text = ""
+	hint_label.visible = false
+	_refresh_recruitment_section()
 	_attack_action_enabled = false
 	_refresh_attack_action_state()
 	_apply_selected_city_layout_order()
@@ -480,7 +497,8 @@ func _apply_selected_city_layout_order() -> void:
 	_move_child_after(content, hero_move_button_placeholder, _garrison_card)
 	_move_child_after(content, _hero_transfer_panel, hero_move_button_placeholder)
 	_move_child_after(content, military_info_label, _hero_transfer_panel if _hero_transfer_panel != null else hero_move_button_placeholder)
-	_move_child_after(content, recruit_button_placeholder, military_info_label)
+	_move_child_after(content, _recruitment_section, military_info_label)
+	_move_child_after(content, recruit_button_placeholder, _recruitment_section if _recruitment_section != null else military_info_label)
 	if button_row != null:
 		_move_child_after(content, button_row, recruit_button_placeholder)
 		button_row.visible = attack_button_placeholder.visible
@@ -489,6 +507,49 @@ func _apply_selected_city_layout_order() -> void:
 	domestic_button_placeholder.disabled = true
 	domestic_button_placeholder.visible = false
 	hint_label.visible = false
+
+
+func _ensure_recruitment_section() -> void:
+	if _recruitment_section != null:
+		return
+	var content := get_node_or_null("MarginContainer/Content") as VBoxContainer
+	if content == null:
+		return
+	_recruitment_section = VBoxContainer.new()
+	_recruitment_section.name = "RecruitmentSection"
+	_recruitment_section.add_theme_constant_override("separation", 2)
+	_recruitment_title_label = Label.new()
+	_recruitment_title_label.name = "RecruitmentTitleLabel"
+	_recruitment_title_label.text = "병사 충원"
+	_recruitment_title_label.add_theme_font_size_override("font_size", 12)
+	_recruitment_title_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.58, 1.0))
+	_conscription_summary_label = Label.new()
+	_conscription_summary_label.name = "ConscriptionSummaryLabel"
+	_conscription_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_conscription_summary_label.add_theme_font_size_override("font_size", 11)
+	_recruitment_summary_label = Label.new()
+	_recruitment_summary_label.name = "RecruitmentSummaryLabel"
+	_recruitment_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_recruitment_summary_label.add_theme_font_size_override("font_size", 11)
+	_recruitment_section.add_child(_recruitment_title_label)
+	_recruitment_section.add_child(_conscription_summary_label)
+	_recruitment_section.add_child(_recruitment_summary_label)
+	content.add_child(_recruitment_section)
+
+
+func _refresh_recruitment_section() -> void:
+	_ensure_recruitment_section()
+	if _recruitment_section == null:
+		return
+	var summary: Dictionary = _recruitment_summaries.get(_current_city_id, {}) if _recruitment_summaries.get(_current_city_id, {}) is Dictionary else {}
+	_recruitment_section.visible = true
+	_recruitment_title_label.text = str(summary.get("title", "병사 충원"))
+	_conscription_summary_label.text = str(summary.get("conscription_line", "징병: 정보 없음"))
+	_recruitment_summary_label.text = str(summary.get("recruitment_line", "모병: 정보 없음"))
+	recruit_button_placeholder.text = str(summary.get("button_text", "모병 불가"))
+	recruit_button_placeholder.disabled = not bool(summary.get("button_enabled", false))
+	recruit_button_placeholder.visible = true
+	recruit_button_placeholder.tooltip_text = str(summary.get("button_hint", "도시를 선택하십시오."))
 
 
 func _get_direct_child_under(parent: Node, node: Node) -> Node:
@@ -916,6 +977,13 @@ func show_hero_transfer_result(message: String) -> void:
 		_hero_transfer_panel.visible = false
 	if not message.is_empty():
 		hint_label.text = message
+		hint_label.visible = true
+
+
+func show_recruitment_result(message: String) -> void:
+	if not message.is_empty():
+		hint_label.text = message
+		hint_label.visible = true
 
 
 func _format_governor_policy_description(policy_id: String, policy_data: Dictionary) -> String:
@@ -965,5 +1033,8 @@ func _on_domestic_placeholder_pressed() -> void:
 
 
 func _on_recruit_placeholder_pressed() -> void:
-	print("[WorldMap] Recruit placeholder selected. Soldier recruitment is deferred.")
-	hint_label.text = "병사 모집은 실제 자원/병력 처리와 연결되지 않았습니다."
+	if _current_city_id.is_empty():
+		hint_label.text = "도시를 선택하십시오."
+		hint_label.visible = true
+		return
+	recruitment_requested.emit(_current_city_id, 100)

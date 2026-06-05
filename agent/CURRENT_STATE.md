@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.70-21 WorldMap Recruitment Loyalty-Based Connect
+- Baseline: `v0.70-20a WorldMap Selected City Panel Layout Order Polish`.
+- Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- 모병 기준을 publicSupport에서 city loyalty 기반으로 바로잡았다. Loyalty thresholds are now: below 40 = 0, 40-59 = 100, 60-79 = 200, 80-89 = 300, and 90+ = 500.
+- 징병은 loyalty + `barracks` + `conscription_system` automatic reinforcement axis로 유지한다. `barracks`가 없으면 자동 징병은 0이고, `conscription_system` 완료 시 기존 1.10 turn-add effect를 유지한다.
+- 모병은 loyalty + national resources + peacetime immediate reinforcement axis로 연결했다. `publicSupport` is not used as the recruitment amount limit in this patch and remains available for future fatigue, dissatisfaction, or revolt-risk systems.
+- Selected City Panel now shows a compact `병사 충원` section: conscription status, recruitment max/cost summary, and a `모병 100` button when the city can recruit.
+- `WorldMapCityInfoPanel` emits `recruitment_requested(city_id, 100)`, and `worldmap_test.gd` validates, pays gold/food, increases city troops, records `last_recruitment_result.loyalty` / `loyalty_limit`, refreshes panels, and reports a short result hint.
+- Explicitly excluded: population decrease, recruitment fatigue, post-recruitment publicSupport/loyalty loss, revolt-risk changes, tech-tree UI, troop-type recruitment, 100/200/max selector UI, battle scene or BattleContext changes, ownership/hero movement changes, policy formula changes, large save/load rewrite, `project.godot`, and assets.
+
 ## v0.70-20a WorldMap Selected City Panel Layout Order Polish
 - Baseline: `v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish` at `0e5cd21717d1364a591a0abfaf42e732eb17550a`.
 - Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
@@ -10,7 +20,7 @@
 - Wrapped the selected-city `주둔 무장` rows in a `GarrisonCard` panel container so the portrait/name/stat list has a clear card boundary matching the governor-card tone.
 - Moved `무장 이동` directly below the garrison card while preserving the v0.70-20 inline transfer UI and data movement logic.
 - Hid the selected-city `내정` button/path for now; Domestic Panel work remains deferred to city-detail/domestic follow-up.
-- Moved the military summary (`병력 / 방어 / 치안 기준`) below garrison/transfer, and placed `병사 모집` below that summary without implementing actual recruitment processing.
+- Moved the military summary (`병력 / 방어 / 치안 기준`) below garrison/transfer, and placed the recruitment area below that summary. v0.70-21 supersedes this with the connected `병사 충원` section.
 - Preserved scope: no governor assignment logic changes, no governor policy save/load changes, no hero transfer data logic changes, no battle/BattleContext changes, no domestic/chancellor/governor formula changes, no recruit implementation, and no `project.godot` changes.
 - `WorldMap_Test.tscn` contains the selected-city panel scene serialization metadata change for `GovernorAssignOption` unique id; no broader scene layout redesign was made.
 - Next candidate work:
@@ -1014,8 +1024,8 @@
 - Conscription is loyalty-based: `_get_conscription_capacity_by_loyalty(city_id)` calculates the city conscription capacity from current city `loyalty` / `cityLoyalty`, and `_get_city_conscription_available(city_id)` subtracts current stationed troops from that capacity.
 - Automatic conscription is a slow free growth MVP: `_apply_city_conscription_for_world_turn()` runs for player-owned cities in the domestic turn after publicSupport drift, existing city loyalty drift, and seasonal loyalty from publicSupport, then adds `min(available, 100)` troops through `_set_city_runtime_troops`.
 - Conscription directly changes only city troops. It does not reduce population and does not directly change `publicSupport` or `loyalty`.
-- Recruitment is publicSupport-based: `_get_recruitment_limit_by_public_support(city_id)` sets one-time recruitment limits from current city `publicSupport`.
-- Recruitment is an immediate paid growth MVP: `_recruit_troops(city_id, amount)` validates ownership, 100-troop amount units, publicSupport limit, peacetime state, and resource affordability, then increases city troops and pays resources.
+- Recruitment originally shipped as an immediate paid growth MVP; v0.70-21 supersedes the old amount-limit axis with city loyalty.
+- `_recruit_troops(city_id, amount)` validates ownership, 100-troop amount units, loyalty limit, peacetime state, and resource affordability, then increases city troops and pays resources.
 - Recruitment cost is `gold = amount` and `food = amount / 2`, matching the 100 troops -> gold 100 + food 50 rule.
 - MVP food pool payment is national `resource_stock` deduction in this order: `rice -> barley -> seafood`. No new food resource model or resource_stock structure was introduced.
 - Recruitment directly changes only troops and national resources. It does not reduce population, does not directly change `publicSupport`, does not directly change `loyalty`, and does not implement recruitment fatigue/publicSupport decline.
@@ -1590,7 +1600,7 @@ Latest worldmap marker attachment hotfix: `v0.68b-2-hotfix6 WorldMap City Marker
 - Chancellor policy options now follow the web constants: `균형형`, `농업 중심`, `상업 중심`, `무역 중심`, and `군사 중심`.
 - Governor policy options now follow the web constants: `재상 정책 수행`, `농업 중심`, `상업 중심`, and `군사 중심`.
 - City HUD seed data now prioritizes web `data/cities.js`, `data/heroes.js`, and `data/battle_rosters.js` for governor IDs, city loyalty/resource summaries, military summaries, and stationed hero rosters.
-- Selected City copy now follows the web `selected_city_ui.js` structure more closely, including `주둔 무장`, `군대 상태`, `공격`, `무장 이동`, and `병사 모집` placeholder wording.
+- Selected City copy now follows the web `selected_city_ui.js` structure more closely, including `주둔 무장`, `군대 상태`, `공격`, and `무장 이동`; v0.70-21 replaces the old recruit placeholder with `병사 충원`.
 - `v0.68b-11` hides the retired top `SamWar Web` banner and the `도시 HUD 위치 이동 · Godot MVP fixed` dragbar at runtime.
 - Godot intentionally improves on the web grouped HUD drag UX: `LeftWorldStatusPanel`, `DiplomacySpyPanel`, `CityDetailPanel`, and `CityInfoPanel` can be dragged independently from title/header labels only.
 - HUD panel drag is runtime-only, screen-space, clamped to keep a visible portion on-screen, and does not write user config, localStorage, save files, or project settings.

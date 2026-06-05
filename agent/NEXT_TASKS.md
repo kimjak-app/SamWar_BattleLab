@@ -1,5 +1,19 @@
 # NEXT TASKS
 
+## Current: v0.70-21 WorldMap Recruitment Loyalty-Based Connect
+- `v0.70-21` connects the Selected City Panel recruitment area to actual WorldMap recruitment while keeping internal calculation detail out of the UI.
+- Completed direction:
+  1. 모병 기준은 publicSupport가 아니라 city loyalty이다.
+  2. 징병은 loyalty + `barracks` + `conscription_system` automatic turn reinforcement axis이다.
+  3. 모병은 loyalty + resources + peacetime immediate reinforcement axis이다.
+  4. publicSupport is not used as the recruitment amount limit in this patch and remains reserved for future recruitment fatigue, dissatisfaction, and revolt-risk work.
+  5. The right Selected City Panel now uses `병사 충원`, shows compact conscription/recruitment summary lines, and connects `모병 100`.
+- Next candidate work:
+  1. Manual F6 QA for `병사 충원` click flow and panel refresh.
+  2. `v0.70-22 WorldMap City Detail Panel Right Side Polish`
+  3. `v0.70-23 WorldMap Battle Entry Camera Zoom Handoff`
+  4. `v0.70-24 Governor Assignment Exclusivity & Hero State Rules`
+
 ## Next: v0.70-21 WorldMap City Detail Panel Right Side Polish
 - `v0.70-20a WorldMap Selected City Panel Layout Order Polish` is the current selected-city panel layout baseline.
 - v0.70-20a summary:
@@ -9,8 +23,8 @@
   4. `주둔 무장` rows are wrapped in a card-style container with portrait/name/stat rows.
   5. `무장 이동` sits directly below the garrison card and keeps the existing inline transfer UI.
   6. The selected-city `내정` button is hidden; domestic work is deferred.
-  7. `병력 / 방어 / 치안 기준` sits below garrison/transfer, and `병사 모집` sits below that military summary.
-- Preserved scope: no governor assignment logic, governor policy save/load, hero transfer data movement, battle/BattleContext, formulas, recruit processing, `project.godot`, `.uid`, `.ogv`, or asset changes.
+  7. `병력 / 방어 / 치안 기준` sits below garrison/transfer; v0.70-21 supersedes the recruit placeholder with a connected `병사 충원` section.
+- Preserved scope in v0.70-20a: no governor assignment logic, governor policy save/load, hero transfer data movement, battle/BattleContext, formulas, `project.godot`, `.uid`, `.ogv`, or asset changes.
 - Next candidate work:
   1. `v0.70-21 WorldMap City Detail Panel Right Side Polish`
   2. `v0.70-22 WorldMap Battle Entry Camera Zoom Handoff`
@@ -683,7 +697,7 @@
 ## Current v0.69-4 Recruitment/Conscription Status
 - `v0.69-4 Recruitment/Conscription Foundation MVP` is complete in code/docs.
 - Conscription is loyalty-based and represents slow free troop growth. It runs automatically during the domestic turn and adds up to `100` troops per owned city if the city is below its loyalty-based conscription capacity.
-- Recruitment is publicSupport-based and represents immediate paid troop growth. It is implemented as helper/API logic only; no explicit recruitment button or panel exists yet.
+- Recruitment represents immediate paid troop growth. v0.70-21 supersedes the old amount-limit axis with city loyalty and connects the right-panel `모병 100` button.
 - Recruitment cost is `gold = amount` and `food = amount / 2`. MVP food deduction uses the national food pool in order: `rice -> barley -> seafood`.
 - Neither conscription nor recruitment reduces population in this MVP.
 - Recruitment does not directly reduce publicSupport or loyalty; recruitment fatigue/publicSupport decline remains deferred.
