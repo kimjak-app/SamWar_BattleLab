@@ -1,5 +1,32 @@
 # CURRENT STATE
 
+## v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish
+- Baseline: `v0.70-19a Agent Docs Handoff & ChatCoach Role Lock` at `5b1d131d4ea8eaa2e2746e479a90c77837741304`.
+- Modified files: `scripts/worldmap_city_info_panel.gd`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Selected-city governor section:
+  - The previously hidden `GovernorLabel` now serves as the visible `태수` section title above the governor card.
+  - Existing `GovernorAssignOption` and `GovernorPolicyOption` paths are preserved.
+  - Governor portrait/name/stats, assignment dropdown, policy dropdown, and policy effect description remain in the governor card.
+- Garrison section:
+  - The selected-city garrison title is now `주둔 무장`.
+  - Replaced the plain `GarrisonLabel` list with a dynamic `GarrisonList` containing compact hero rows with portrait/placeholder, name, and short stat summary.
+  - Hero state badges remain derived from existing hero runtime display helpers.
+  - Portrait binding reuses `WorldMapHeroPortraitHelper`; no new image assets were added.
+- Hero transfer MVP:
+  - Added an inline `HeroTransferPanel` opened from the existing `무장 이동` button.
+  - The UI provides `이동할 무장`, `이동 대상`, `이동 확정`, and `취소` controls.
+  - Transfer targets are restricted to adjacent player-owned cities.
+  - Confirming transfer removes the hero from source `stationed_hero_ids`, adds the hero to target `stationed_hero_ids`, updates hero runtime city, refreshes the selected-city panel, and displays `무장이 이동했습니다.`
+  - If the moved hero was source governor, source `governor_id` is cleared.
+  - Empty states show `이동 가능한 아군 성이 없습니다.` or `이동 가능한 주둔 무장이 없습니다.`
+- Persistence: existing save/load already serializes `stationed_hero_ids` / `hero_ids` and hero runtime city state, so the transfer state is covered without save schema expansion.
+- Excluded scope remains: no global governor exclusivity, no wounded/captured/dead governor release rules, no hero-state rule redesign, no domestic/trade/relation formula changes, no battle/BattleContext changes, and no `project.godot` changes.
+- Web reference checked: `SamWar_web/js/core/app_state.js` (`openHeroTransfer`, `selectHeroTransferHero`, `selectHeroTransferTargetCity`, `confirmHeroTransfer`), `SamWar_web/js/core/world_rules.js` (`transferHeroToCity`), `SamWar_web/js/ui/world_map_ui.js`, `SamWar_web/js/ui/hero_transfer_ui.js`, and `SamWar_web/js/ui/selected_city_ui.js`.
+- Next candidate work:
+  1. `v0.70-21 WorldMap City Detail Panel Right Side Polish`
+  2. `v0.70-22 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-23 Governor Assignment Exclusivity & Hero State Rules`
+
 ## v0.70-19a Agent Docs Handoff & ChatCoach Role Lock
 - Latest stable baseline: `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
 - Current documentation update is docs-only. No code, scenes, assets, `project.godot`, battle files, `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, or `scripts/worldmap_city_info_panel.gd` should be changed by this handoff task.

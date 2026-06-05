@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish
+- Built on `v0.70-19a Agent Docs Handoff & ChatCoach Role Lock` (`5b1d131d4ea8eaa2e2746e479a90c77837741304`).
+- Added a visible `태수` title above the selected-city governor card while preserving `GovernorAssignOption` and `GovernorPolicyOption`.
+- Replaced the plain selected-city garrison text display with dynamic `주둔 무장` rows showing portrait/placeholder, hero name, and short stat summary.
+- Reused `WorldMapHeroPortraitHelper` for garrison portraits; no new image assets were added.
+- Connected the existing `무장 이동` button to an inline hero transfer MVP with hero dropdown, adjacent player-city target dropdown, confirm, cancel, and empty-state messages.
+- Transfer confirmation moves a hero from source `stationed_hero_ids` / `hero_ids` to target `stationed_hero_ids` / `hero_ids`, updates hero runtime city, refreshes UI, and clears source `governor_id` when the moved hero was governor.
+- Existing save/load already persists city rosters and hero runtime city state, so no save schema expansion was required.
+- Web reference checked: `openHeroTransfer`, `selectHeroTransferHero`, `selectHeroTransferTargetCity`, `confirmHeroTransfer`, `transferHeroToCity`, and related world-map transfer UI bindings.
+- Modified files: `scripts/worldmap_city_info_panel.gd`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change `WorldMap_Test.tscn`, `project.godot`, battle scripts, BattleContext, combat/result accounting, domestic/trade/relation formulas, governor/chancellor policy formulas, `.uid` / `.ogv` files, or assets.
+
 ## v0.70-19a Agent Docs Handoff & ChatCoach Role Lock
 - Built on `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
 - Documentation-only handoff update; no code, scene, asset, script, `project.godot`, battle, or WorldMap runtime files changed.

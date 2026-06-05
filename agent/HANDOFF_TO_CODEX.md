@@ -1,5 +1,37 @@
 # HANDOFF TO CODEX
 
+## v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish Handoff
+- Baseline: `v0.70-19a Agent Docs Handoff & ChatCoach Role Lock` (`5b1d131d4ea8eaa2e2746e479a90c77837741304`).
+- Runtime files touched: `scripts/worldmap_city_info_panel.gd` and `scripts/worldmap_test.gd`.
+- Scene file was not edited; selected-city UI additions are created from the panel script and reuse existing scene nodes where possible.
+- Governor section:
+  - `GovernorLabel` is now the visible `태수` title above the existing governor card.
+  - `GovernorAssignOption` and `GovernorPolicyOption` remain the existing assignment/policy controls.
+- Garrison section:
+  - `SelectedHeroChipLabel` now reads `주둔 무장`.
+  - The old plain `GarrisonLabel` is hidden and replaced at runtime by `GarrisonList`.
+  - Each garrison row shows a portrait/placeholder, hero name with existing state badge, and short stats.
+  - Portraits reuse `WorldMapHeroPortraitHelper`; no new assets were added.
+- Hero transfer:
+  - `HeroMoveButtonPlaceholder` now opens/closes an inline `HeroTransferPanel`.
+  - Panel fields: `이동할 무장`, `이동 대상`, `이동 확정`, and `취소`.
+  - Empty states: `이동 가능한 아군 성이 없습니다.` and `이동 가능한 주둔 무장이 없습니다.`
+  - Panel emits `hero_transfer_confirmed(source_city_id, hero_id, target_city_id)`.
+  - `worldmap_test.gd` handles the signal, validates adjacent player-owned target cities, moves `stationed_hero_ids` / `hero_ids`, updates hero runtime city, clears source `governor_id` when the moved hero was governor, refreshes selected-city UI, and reports `무장이 이동했습니다.`
+- Web reference files checked:
+  - `C:\dev\SamWar_web\js\core\app_state.js`: `openHeroTransfer`, `selectHeroTransferHero`, `selectHeroTransferTargetCity`, `confirmHeroTransfer`.
+  - `C:\dev\SamWar_web\js\core\world_rules.js`: `transferHeroToCity`.
+  - `C:\dev\SamWar_web\js\ui\world_map_ui.js`: transfer data-attribute event binding.
+  - `C:\dev\SamWar_web\js\ui\hero_transfer_ui.js`: transfer modal layout.
+  - `C:\dev\SamWar_web\js\ui\selected_city_ui.js`: selected-city transfer button placement.
+- Existing persistence already serializes city `stationed_hero_ids` / `hero_ids` and hero runtime city state, so no save schema expansion was required.
+- Explicitly excluded: global governor exclusivity, wounded/captured/dead release rules, hero-state redesign, domestic/trade/relation formulas, battle scripts, BattleContext, `project.godot`, assets, and `.uid` / `.ogv` changes.
+- Manual F6 QA should confirm visible `태수` title, garrison portrait rows, transfer empty states, transfer success between adjacent player cities, governor clearing when moved, panel drag, city switching, attack button, and battle entry.
+- Next candidate work:
+  1. `v0.70-21 WorldMap City Detail Panel Right Side Polish`
+  2. `v0.70-22 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-23 Governor Assignment Exclusivity & Hero State Rules`
+
 ## v0.70-19a Agent Docs Handoff & ChatCoach Role Lock Handoff
 - Stable baseline for the next session: `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
 - This handoff is documentation-only. It must not imply code, scene, asset, `project.godot`, battle, `WorldMap_Test.tscn`, or script changes.

@@ -6,6 +6,7 @@ const PLAYER_FACTION_ID := "player"
 
 signal attack_requested(city_id: String)
 signal governor_assignment_requested(city_id: String, governor_id: String)
+signal hero_transfer_confirmed(source_city_id: String, hero_id: String, target_city_id: String)
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -85,6 +86,14 @@ var _city_policy_state: Dictionary = {}
 var _pending_invasion_event: Dictionary = {}
 var _current_city_id := ""
 var _governor_portrait_texture_rect: TextureRect = null
+var _garrison_list_container: VBoxContainer = null
+var _hero_transfer_panel: PanelContainer = null
+var _hero_transfer_hero_option: OptionButton = null
+var _hero_transfer_target_option: OptionButton = null
+var _hero_transfer_confirm_button: Button = null
+var _hero_transfer_cancel_button: Button = null
+var _hero_transfer_status_label: Label = null
+var _hero_transfer_open := false
 var _attack_action_enabled := false
 var _attack_action_hint := "공격 준비는 다음 단계에서 BattleContext와 연결됩니다."
 
@@ -93,6 +102,8 @@ func _ready() -> void:
 	city_id_label.visible = false
 	_apply_selected_city_summary_slim_visibility()
 	_ensure_governor_portrait_texture_rect()
+	_ensure_garrison_list_container()
+	_ensure_hero_transfer_panel()
 	attack_button_placeholder.pressed.connect(_on_attack_placeholder_pressed)
 	hero_move_button_placeholder.pressed.connect(_on_hero_move_placeholder_pressed)
 	domestic_button_placeholder.pressed.connect(_on_domestic_placeholder_pressed)
@@ -159,9 +170,14 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 	loyalty_bar.value = loyalty
 	_setup_governor_assign_option(city_data, governor_id)
 	_update_governor_card(governor_id, governor_data, policy_id, policy_data)
-	governor_label.text = ""
-	selected_hero_chip_label.text = "주둔 장수"
-	garrison_label.text = _format_stationed_hero_list(stationed_hero_ids)
+	governor_label.text = "태수"
+	governor_label.visible = true
+	selected_hero_chip_label.text = "주둔 무장"
+	selected_hero_chip_label.visible = true
+	garrison_label.text = ""
+	garrison_label.visible = false
+	_refresh_garrison_list(stationed_hero_ids)
+	_refresh_hero_transfer_panel(city_data)
 	military_info_label.text = _format_city_defense_info(city_data)
 	military_state_label.text = _format_city_domestic_info(city_data)
 	hint_label.text = "정책: %s · %s" % [
@@ -188,14 +204,20 @@ func _show_empty() -> void:
 	loyalty_label.text = "성 충성도 정보 없음"
 	loyalty_bar.value = 0
 	governor_label.text = ""
+	governor_label.visible = false
 	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_governor_portrait_texture_rect, governor_portrait_label, {})
 	governor_name_label.text = "태수 없음"
 	governor_stats_label.text = "능력: -"
 	_setup_governor_assign_option({}, "")
 	_setup_governor_policy_option()
 	governor_policy_description_label.text = "도시 선택 시 태수 정책 설명이 표시됩니다."
-	selected_hero_chip_label.text = "주둔 장수"
-	garrison_label.text = "주둔 장수 없음"
+	selected_hero_chip_label.text = "주둔 무장"
+	selected_hero_chip_label.visible = true
+	garrison_label.text = ""
+	garrison_label.visible = false
+	_refresh_garrison_list([])
+	_hero_transfer_open = false
+	_refresh_hero_transfer_panel({})
 	military_info_label.text = "병력: 정보 없음 · 방어: 정보 없음"
 	military_state_label.text = "민심/치안: 정보 없음 · 상업: 정보 없음 · 농업: 정보 없음"
 	hint_label.text = "정보 없음"
@@ -212,7 +234,6 @@ func _apply_selected_city_summary_slim_visibility() -> void:
 	neighbor_label.visible = false
 	route_type_label.visible = false
 	status_text_label.visible = false
-	governor_label.visible = false
 
 
 func _setup_governor_policy_option() -> void:
@@ -439,6 +460,79 @@ func _update_governor_card(governor_id: String, governor_data: Dictionary, polic
 	governor_policy_option.disabled = governor_id.is_empty()
 
 
+func _ensure_garrison_list_container() -> void:
+	if _garrison_list_container != null:
+		return
+	var content := get_node_or_null("MarginContainer/Content") as VBoxContainer
+	if content == null:
+		return
+	_garrison_list_container = VBoxContainer.new()
+	_garrison_list_container.name = "GarrisonList"
+	_garrison_list_container.add_theme_constant_override("separation", 4)
+	var insert_index := garrison_label.get_index() + 1 if garrison_label != null else content.get_child_count()
+	content.add_child(_garrison_list_container)
+	content.move_child(_garrison_list_container, insert_index)
+
+
+func _ensure_hero_transfer_panel() -> void:
+	if _hero_transfer_panel != null:
+		return
+	var content := get_node_or_null("MarginContainer/Content") as VBoxContainer
+	if content == null:
+		return
+	_hero_transfer_panel = PanelContainer.new()
+	_hero_transfer_panel.name = "HeroTransferPanel"
+	_hero_transfer_panel.visible = false
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 6)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_right", 6)
+	margin.add_theme_constant_override("margin_bottom", 6)
+	var box := VBoxContainer.new()
+	box.name = "Content"
+	box.add_theme_constant_override("separation", 4)
+	_hero_transfer_status_label = Label.new()
+	_hero_transfer_status_label.name = "HeroTransferStatusLabel"
+	_hero_transfer_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_hero_transfer_hero_option = OptionButton.new()
+	_hero_transfer_hero_option.name = "HeroTransferHeroOption"
+	_hero_transfer_target_option = OptionButton.new()
+	_hero_transfer_target_option.name = "HeroTransferTargetOption"
+	var action_row := HBoxContainer.new()
+	action_row.name = "HeroTransferActionRow"
+	action_row.add_theme_constant_override("separation", 6)
+	_hero_transfer_confirm_button = Button.new()
+	_hero_transfer_confirm_button.name = "HeroTransferConfirmButton"
+	_hero_transfer_confirm_button.text = "이동 확정"
+	_hero_transfer_cancel_button = Button.new()
+	_hero_transfer_cancel_button.name = "HeroTransferCancelButton"
+	_hero_transfer_cancel_button.text = "취소"
+	action_row.add_child(_hero_transfer_confirm_button)
+	action_row.add_child(_hero_transfer_cancel_button)
+	box.add_child(_hero_transfer_status_label)
+	box.add_child(_make_transfer_field_label("이동할 무장"))
+	box.add_child(_hero_transfer_hero_option)
+	box.add_child(_make_transfer_field_label("이동 대상"))
+	box.add_child(_hero_transfer_target_option)
+	box.add_child(action_row)
+	margin.add_child(box)
+	_hero_transfer_panel.add_child(margin)
+	var insert_index := hero_move_button_placeholder.get_parent().get_index() + 1 if hero_move_button_placeholder != null and hero_move_button_placeholder.get_parent() != null else content.get_child_count()
+	content.add_child(_hero_transfer_panel)
+	content.move_child(_hero_transfer_panel, insert_index)
+	_hero_transfer_hero_option.item_selected.connect(_on_hero_transfer_option_selected)
+	_hero_transfer_target_option.item_selected.connect(_on_hero_transfer_option_selected)
+	_hero_transfer_confirm_button.pressed.connect(_on_hero_transfer_confirm_pressed)
+	_hero_transfer_cancel_button.pressed.connect(_on_hero_transfer_cancel_pressed)
+
+
+func _make_transfer_field_label(text_value: String) -> Label:
+	var label := Label.new()
+	label.text = text_value
+	label.add_theme_font_size_override("font_size", 11)
+	return label
+
+
 func _ensure_governor_portrait_texture_rect() -> void:
 	if _governor_portrait_texture_rect != null:
 		return
@@ -453,6 +547,71 @@ func _ensure_governor_portrait_texture_rect() -> void:
 	_governor_portrait_texture_rect.visible = false
 	portrait_box.add_child(_governor_portrait_texture_rect)
 	_governor_portrait_texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+
+func _refresh_garrison_list(hero_ids: Array) -> void:
+	_ensure_garrison_list_container()
+	if _garrison_list_container == null:
+		return
+	_clear_children(_garrison_list_container)
+	if hero_ids.is_empty():
+		var empty_label := Label.new()
+		empty_label.text = "이동 가능한 주둔 무장이 없습니다."
+		empty_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_garrison_list_container.add_child(empty_label)
+		return
+	for hero_id in hero_ids:
+		var hero_data := _get_hero_entry(str(hero_id))
+		_garrison_list_container.add_child(_make_garrison_hero_row(str(hero_id), hero_data))
+
+
+func _make_garrison_hero_row(hero_id: String, hero_data: Dictionary) -> Control:
+	var card := PanelContainer.new()
+	card.name = "GarrisonHero_%s" % hero_id
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 4)
+	margin.add_theme_constant_override("margin_top", 3)
+	margin.add_theme_constant_override("margin_right", 4)
+	margin.add_theme_constant_override("margin_bottom", 3)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	var portrait_box := PanelContainer.new()
+	portrait_box.custom_minimum_size = Vector2(34, 38)
+	portrait_box.clip_contents = true
+	var portrait_label := Label.new()
+	portrait_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	portrait_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var portrait_texture := TextureRect.new()
+	portrait_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	portrait_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	portrait_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait_box.add_child(portrait_texture)
+	portrait_texture.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	portrait_box.add_child(portrait_label)
+	portrait_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	HeroPortraitHelper.apply_hero_portrait_or_placeholder(portrait_texture, portrait_label, hero_data)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var name_label := Label.new()
+	name_label.text = _get_hero_display_name(hero_data, "알 수 없는 장수")
+	name_label.add_theme_font_size_override("font_size", 12)
+	var stats_label := Label.new()
+	stats_label.text = _format_hero_stats(hero_data)
+	stats_label.add_theme_font_size_override("font_size", 10)
+	stats_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(name_label)
+	copy.add_child(stats_label)
+	row.add_child(portrait_box)
+	row.add_child(copy)
+	margin.add_child(row)
+	card.add_child(margin)
+	return card
+
+
+func _clear_children(parent: Node) -> void:
+	for child in parent.get_children():
+		parent.remove_child(child)
+		child.queue_free()
 
 
 func _format_stationed_hero_chips(hero_ids: Array) -> String:
@@ -586,6 +745,110 @@ func _on_governor_assignment_selected(index: int) -> void:
 	governor_assignment_requested.emit(_current_city_id, governor_id)
 
 
+func _refresh_hero_transfer_panel(city_data: Dictionary) -> void:
+	_ensure_hero_transfer_panel()
+	if _hero_transfer_panel == null:
+		return
+	hero_move_button_placeholder.text = "무장 이동"
+	var hero_ids := _get_city_stationed_hero_ids(city_data)
+	var target_city_ids := _get_adjacent_player_city_ids(_current_city_id)
+	_hero_transfer_panel.visible = _hero_transfer_open and not _current_city_id.is_empty()
+	_populate_transfer_option(_hero_transfer_hero_option, hero_ids, "이동 가능한 주둔 무장이 없습니다.", true)
+	_populate_transfer_option(_hero_transfer_target_option, target_city_ids, "이동 가능한 아군 성이 없습니다.", false)
+	var message := ""
+	if hero_ids.is_empty():
+		message = "이동 가능한 주둔 무장이 없습니다."
+	elif target_city_ids.is_empty():
+		message = "이동 가능한 아군 성이 없습니다."
+	else:
+		message = "이동할 무장과 이동 대상을 선택하십시오."
+	_hero_transfer_status_label.text = message
+	_refresh_hero_transfer_confirm_state()
+
+
+func _populate_transfer_option(option_button: OptionButton, ids: Array, empty_text: String, is_hero: bool) -> void:
+	if option_button == null:
+		return
+	option_button.clear()
+	if ids.is_empty():
+		option_button.add_item(empty_text)
+		option_button.set_item_metadata(0, "")
+		option_button.disabled = true
+		return
+	option_button.disabled = false
+	for id_value in ids:
+		var id_string := str(id_value)
+		var label := _get_hero_display_name(_get_hero_entry(id_string), id_string) if is_hero else _get_city_display_name(id_string, id_string)
+		option_button.add_item(label)
+		option_button.set_item_metadata(option_button.item_count - 1, id_string)
+
+
+func _get_adjacent_player_city_ids(source_city_id: String) -> Array[String]:
+	var result: Array[String] = []
+	var source_marker := _city_markers_by_id.get(source_city_id) as WorldMapCityMarker
+	if source_marker == null:
+		return result
+	for neighbor_id in source_marker.neighbors:
+		var neighbor_id_string := str(neighbor_id)
+		if neighbor_id_string == source_city_id or result.has(neighbor_id_string):
+			continue
+		var neighbor_data := _get_city_hud_entry(neighbor_id_string)
+		var neighbor_marker := _city_markers_by_id.get(neighbor_id_string) as WorldMapCityMarker
+		var owner_id := str(neighbor_data.get("owner", neighbor_data.get("owner_faction_id", "")))
+		if owner_id.is_empty() and neighbor_marker != null:
+			owner_id = neighbor_marker.owner_faction_id
+		if owner_id == PLAYER_FACTION_ID:
+			result.append(neighbor_id_string)
+	return result
+
+
+func _refresh_hero_transfer_confirm_state() -> void:
+	if _hero_transfer_confirm_button == null:
+		return
+	var hero_id := _get_selected_option_metadata(_hero_transfer_hero_option)
+	var target_city_id := _get_selected_option_metadata(_hero_transfer_target_option)
+	_hero_transfer_confirm_button.disabled = hero_id.is_empty() or target_city_id.is_empty()
+
+
+func _get_selected_option_metadata(option_button: OptionButton) -> String:
+	if option_button == null or option_button.item_count <= 0:
+		return ""
+	if option_button.selected < 0 or option_button.selected >= option_button.item_count:
+		return ""
+	return str(option_button.get_item_metadata(option_button.selected))
+
+
+func _on_hero_transfer_option_selected(_index: int) -> void:
+	_refresh_hero_transfer_confirm_state()
+
+
+func _on_hero_transfer_confirm_pressed() -> void:
+	if _current_city_id.is_empty():
+		return
+	var hero_id := _get_selected_option_metadata(_hero_transfer_hero_option)
+	var target_city_id := _get_selected_option_metadata(_hero_transfer_target_option)
+	if hero_id.is_empty():
+		_hero_transfer_status_label.text = "이동 가능한 주둔 무장이 없습니다."
+		return
+	if target_city_id.is_empty():
+		_hero_transfer_status_label.text = "이동 가능한 아군 성이 없습니다."
+		return
+	hero_transfer_confirmed.emit(_current_city_id, hero_id, target_city_id)
+
+
+func _on_hero_transfer_cancel_pressed() -> void:
+	_hero_transfer_open = false
+	_refresh_hero_transfer_panel(_get_city_hud_entry(_current_city_id))
+
+
+func show_hero_transfer_result(message: String) -> void:
+	_hero_transfer_open = false
+	if _hero_transfer_panel != null:
+		_hero_transfer_panel.visible = false
+	if not message.is_empty():
+		hint_label.text = message
+
+
 func _format_governor_policy_description(policy_data: Dictionary) -> String:
 	var description := str(policy_data.get("description", "태수 정책 설명 준비 중")).strip_edges()
 	return description if not description.is_empty() else "정책: 보정 없음"
@@ -602,8 +865,11 @@ func _on_attack_placeholder_pressed() -> void:
 
 
 func _on_hero_move_placeholder_pressed() -> void:
-	print("[WorldMap] Hero move placeholder selected. Hero transfer is deferred.")
-	hint_label.text = "무장 이동은 다음 단계에서 Hero/Army 배치와 연결됩니다."
+	if _current_city_id.is_empty():
+		hint_label.text = "도시를 선택하십시오."
+		return
+	_hero_transfer_open = not _hero_transfer_open
+	_refresh_hero_transfer_panel(_get_city_hud_entry(_current_city_id))
 
 
 func _refresh_attack_action_state() -> void:

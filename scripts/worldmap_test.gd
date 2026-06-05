@@ -976,6 +976,9 @@ func _connect_city_info_panel_actions() -> void:
 	var governor_assignment_callback := Callable(self, "_on_city_info_governor_assignment_requested")
 	if city_info_panel.has_signal("governor_assignment_requested") and not city_info_panel.is_connected("governor_assignment_requested", governor_assignment_callback):
 		city_info_panel.connect("governor_assignment_requested", governor_assignment_callback)
+	var hero_transfer_callback := Callable(self, "_on_city_info_hero_transfer_confirmed")
+	if city_info_panel.has_signal("hero_transfer_confirmed") and not city_info_panel.is_connected("hero_transfer_confirmed", hero_transfer_callback):
+		city_info_panel.connect("hero_transfer_confirmed", hero_transfer_callback)
 
 
 func _on_city_info_attack_requested(city_id: String) -> void:
@@ -999,6 +1002,63 @@ func _on_city_info_governor_assignment_requested(city_id: String, governor_id: S
 	if _city_markers_by_id.has(city_id):
 		city_info_panel.show_city(_city_markers_by_id.get(city_id) as WorldMapCityMarker)
 	_refresh_unified_panel_content()
+
+
+func _on_city_info_hero_transfer_confirmed(source_city_id: String, hero_id: String, target_city_id: String) -> void:
+	var result := _transfer_stationed_hero_between_player_cities(source_city_id, hero_id, target_city_id)
+	if not bool(result.get("ok", false)):
+		if city_info_panel.has_method("show_hero_transfer_result"):
+			city_info_panel.call("show_hero_transfer_result", str(result.get("message", "무장 이동 실패")))
+		return
+	_refresh_city_hud_data_bindings()
+	if _city_markers_by_id.has(source_city_id):
+		city_info_panel.show_city(_city_markers_by_id.get(source_city_id) as WorldMapCityMarker)
+	if city_info_panel.has_method("show_hero_transfer_result"):
+		city_info_panel.call("show_hero_transfer_result", "무장이 이동했습니다.")
+	_refresh_left_world_status_panel()
+	_refresh_unified_panel_content()
+
+
+func _transfer_stationed_hero_between_player_cities(source_city_id: String, hero_id: String, target_city_id: String) -> Dictionary:
+	if source_city_id.is_empty() or hero_id.is_empty() or target_city_id.is_empty():
+		return {"ok": false, "message": "무장 이동 정보가 부족합니다."}
+	if source_city_id == target_city_id:
+		return {"ok": false, "message": "같은 도시로는 이동할 수 없습니다."}
+	if not _is_city_owned_by_player_mvp(source_city_id) or not _is_city_owned_by_player_mvp(target_city_id):
+		return {"ok": false, "message": "아군 성 사이에서만 이동할 수 있습니다."}
+	if not _is_adjacent_city_pair(source_city_id, target_city_id):
+		return {"ok": false, "message": "인접한 아군 성으로만 이동할 수 있습니다."}
+	var source_state := _get_mutable_city_runtime_state(source_city_id)
+	var target_state := _get_mutable_city_runtime_state(target_city_id)
+	if source_state.is_empty() or target_state.is_empty():
+		return {"ok": false, "message": "도시 정보를 확인할 수 없습니다."}
+	var source_hero_ids := _normalize_hero_id_array(source_state.get("stationed_hero_ids", source_state.get("hero_ids", [])))
+	if not source_hero_ids.has(hero_id):
+		return {"ok": false, "message": "이동 가능한 주둔 무장이 없습니다."}
+	var target_hero_ids := _normalize_hero_id_array(target_state.get("stationed_hero_ids", target_state.get("hero_ids", [])))
+	source_hero_ids.erase(hero_id)
+	if not target_hero_ids.has(hero_id):
+		target_hero_ids.append(hero_id)
+	source_state["stationed_hero_ids"] = source_hero_ids
+	source_state["hero_ids"] = source_hero_ids.duplicate()
+	if str(source_state.get("governor_id", "")) == hero_id:
+		source_state["governor_id"] = ""
+	target_state["stationed_hero_ids"] = target_hero_ids
+	target_state["hero_ids"] = target_hero_ids.duplicate()
+	_city_runtime_states[source_city_id] = source_state
+	_city_runtime_states[target_city_id] = target_state
+	_set_hero_runtime_city(hero_id, target_city_id)
+	return {"ok": true, "message": "무장이 이동했습니다."}
+
+
+func _is_adjacent_city_pair(source_city_id: String, target_city_id: String) -> bool:
+	var source_marker := _city_markers_by_id.get(source_city_id) as WorldMapCityMarker
+	if source_marker == null:
+		return false
+	for neighbor_id in source_marker.neighbors:
+		if str(neighbor_id) == target_city_id:
+			return true
+	return false
 
 
 func _connect_world_hud_placeholders() -> void:

@@ -2,6 +2,25 @@
 
 ## 2026-06-05
 
+### v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish
+- Started from clean `5b1d131 v0.70-19a Agent Docs Handoff & ChatCoach Role Lock`.
+- Required git analysis:
+  - `git status --short`: clean.
+  - Recent log confirmed `5b1d131`, `4c671b0`, `fd2eb4e`, `7f937fe`, `9b8b186`, `110f0e8`, `91713d8`, `4535a3f`, `5dec9b2`, `502f1eb`, `ab91b34`, and `e53a9fb`.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: v0.70-19a changed agent docs only.
+- Read required agent docs and inspected `scripts/worldmap_city_info_panel.gd`, `scripts/worldmap_test.gd`, `WorldMap_Test.tscn`, `scripts/worldmap_hero_portrait_helper.gd`, and `scripts/worldmap_city_marker.gd`.
+- Web reference checked:
+  - `SamWar_web/js/core/app_state.js` transfer functions.
+  - `SamWar_web/js/core/world_rules.js` `transferHeroToCity`.
+  - `SamWar_web/js/ui/world_map_ui.js`, `hero_transfer_ui.js`, and `selected_city_ui.js` transfer UI/event binding.
+- Implemented:
+  - Visible `태수` section title above the governor card.
+  - Dynamic `주둔 무장` rows with portrait/placeholder, name, and stat summary.
+  - Inline hero-transfer UI opened by `무장 이동`.
+  - Adjacent-player-city-only transfer validation and runtime roster movement in `worldmap_test.gd`.
+  - Source `governor_id` clearing when the moved hero was governor.
+- Preserved existing governor assignment/policy dropdowns, policy formulas, save/load schema, city click, right-panel drag, battle entry, BattleContext, combat/result accounting, `.uid` / `.ogv`, and assets.
+
 ### v0.70-19a Agent Docs Handoff & ChatCoach Role Lock
 - Started from clean `4c671b0 v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect`.
 - Required git analysis:

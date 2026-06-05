@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Next: v0.70-21 WorldMap City Detail Panel Right Side Polish
+- `v0.70-20 WorldMap Selected City Governor Garrison & Hero Transfer Polish` is the current selected-city governor/garrison/hero-transfer baseline.
+- v0.70-20 summary:
+  1. Selected-city governor card now has a visible `태수` section title.
+  2. Existing `GovernorAssignOption` and `GovernorPolicyOption` connections remain intact.
+  3. `주둔 무장` now renders compact dynamic hero rows with portrait/placeholder, name, and short stat summary instead of only a plain text list.
+  4. Existing hero state badges remain in display names.
+  5. The existing `무장 이동` button opens an inline transfer MVP with hero and target-city dropdowns plus confirm/cancel.
+  6. Transfer targets are adjacent player-owned cities only.
+  7. Confirming transfer moves the hero from source `stationed_hero_ids` to target `stationed_hero_ids`, updates hero runtime city, refreshes UI, and clears source `governor_id` if the moved hero was governor.
+  8. Existing save/load coverage for city rosters and hero runtime city state remains sufficient.
+- Preserved scope: no global governor exclusivity, no hero-state release rules for wounded/captured/dead, no domestic/trade/relation formula changes, no battle scripts, no BattleContext, no `project.godot`, and no new assets.
+- Next candidate work:
+  1. `v0.70-21 WorldMap City Detail Panel Right Side Polish`
+  2. `v0.70-22 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-23 Governor Assignment Exclusivity & Hero State Rules`
+
 ## Handoff: v0.70-19a Agent Docs Handoff & ChatCoach Role Lock
 - Current stable baseline: `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
 - Continue WorldMap fixed-panel polish from the completed left-panel and selected-city-panel work.

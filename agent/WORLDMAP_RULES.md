@@ -1,5 +1,16 @@
 # WORLDMAP RULES
 
+## v0.70-20 Selected City Governor, Garrison, and Hero Transfer Rule
+- The selected-city governor card should show a visible `태수` section title above portrait/name/stats, `GovernorAssignOption`, `GovernorPolicyOption`, and policy effect copy.
+- `GovernorAssignOption` and `GovernorPolicyOption` remain the stable governor assignment/policy controls and must not be repurposed for hero transfer.
+- The selected-city garrison section title is `주둔 무장`; garrison display should use compact portrait/name/stat rows and reuse `WorldMapHeroPortraitHelper`.
+- Hero state badges such as `[부상]`, `[포로]`, and `[사망]` remain display helpers and should not trigger new release/exclusion rules in this polish.
+- `무장 이동` MVP may move heroes only from the selected source city to adjacent player-owned cities.
+- Transfer confirmation updates source and target `stationed_hero_ids` / `hero_ids`, updates the moved hero runtime city, and refreshes selected-city UI.
+- If the moved hero was the source governor, source `governor_id` is cleared. Do not auto-assign the moved hero as target governor.
+- Existing save/load coverage for city rosters and hero runtime city state is the persistence contract for this MVP.
+- Do not implement global governor exclusivity, wounded/captured/dead governor release, hero-state redesign, domestic/trade/relation formula changes, battle entry changes, BattleContext changes, or asset changes as part of this rule.
+
 ## v0.70-19a Domestic UI Philosophy and Handoff Rule
 - Current stable baseline is `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
 - 삼국워 내정 시스템은 내부적으로 복잡하게 돌아가야 하지만, WorldMap UI should expose only the key information needed for player decisions.
