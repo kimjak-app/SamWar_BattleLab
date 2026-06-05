@@ -1234,12 +1234,11 @@ text = "Camera: (0, 0)  Zoom: 0.70"
 horizontal_alignment = 2
 
 [node name="LeftWorldStatusPanel" type="PanelContainer" parent="WorldMapUI" unique_id=49871230]
-anchors_preset = 0
+custom_minimum_size = Vector2(320, 570)
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 330.0
 offset_bottom = 580.0
-custom_minimum_size = Vector2(320, 570)
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 
 [node name="MarginContainer" type="MarginContainer" parent="WorldMapUI/LeftWorldStatusPanel" unique_id=1171476385]
@@ -1403,7 +1402,6 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 10
-text = ""
 autowrap_mode = 2
 
 [node name="ChancellorAssignmentOption" type="OptionButton" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/ChancellorCard/MarginContainer/Content" unique_id=1578362620]
@@ -1418,7 +1416,8 @@ theme_override_font_sizes/font_size = 11
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.76, 0.84, 1)
 theme_override_font_sizes/font_size = 10
-text = "효과: 없음\n정책: 보정 없음"
+text = "효과: 없음
+정책: 보정 없음"
 autowrap_mode = 2
 
 [node name="ResourceLabel" type="Label" parent="WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content" unique_id=2023389523]
@@ -1782,11 +1781,11 @@ text = "도시 선택 시 상세 정보가 갱신됩니다."
 autowrap_mode = 2
 
 [node name="CityInfoPanel" type="PanelContainer" parent="WorldMapUI" unique_id=1812841544]
+custom_minimum_size = Vector2(308, 542)
 offset_left = 834.0
 offset_top = 10.0
 offset_right = 1142.0
 offset_bottom = 552.0
-custom_minimum_size = Vector2(308, 542)
 theme_override_styles/panel = SubResource("StyleBoxFlat_city_info_panel")
 script = ExtResource("13_city_info_panel")
 
@@ -1806,7 +1805,6 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 
 [node name="CityNameLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=728617895]
 layout_mode = 2
@@ -1832,7 +1830,6 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 
 [node name="CityTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=116586532]
 layout_mode = 2
@@ -1874,7 +1871,6 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 autowrap_mode = 2
 
 [node name="RouteTypeLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=496479179]
@@ -1882,7 +1878,6 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 autowrap_mode = 2
 
 [node name="StatusTextLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=340883158]
@@ -1890,7 +1885,6 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 autowrap_mode = 2
 
 [node name="GovernorLabel" type="Label" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=639692605]
@@ -1898,7 +1892,6 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 
 [node name="GovernorCard" type="PanelContainer" parent="WorldMapUI/CityInfoPanel/MarginContainer/Content" unique_id=2090655760]
 layout_mode = 2
