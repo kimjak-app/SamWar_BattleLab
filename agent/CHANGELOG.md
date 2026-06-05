@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-19a Agent Docs Handoff & ChatCoach Role Lock
+- Built on `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
+- Documentation-only handoff update; no code, scene, asset, script, `project.godot`, battle, or WorldMap runtime files changed.
+- Recorded the current stable state after battle cinematic guards, movement-facing polish, left-panel polish, selected-city panel slim polish, and selected-city governor assignment/policy connection.
+- Recorded the domestic-system philosophy: rich internal simulation, minimal decision-grade UI summaries, no full formula/multiplier exposure, and separate national chancellor policy versus city governor policy roles.
+- Locked ChatCoach/Codex responsibilities: ChatCoach checks GitHub/git-accessible code/docs and defines evidence-based scope; Codex executes, modifies, verifies, and creates local commits.
+- Recorded known safety cautions: keep Theora `.uid` / `.ogv` files, avoid `git clean`, never push, confirm `WorldMap_Test.tscn` serialization diffs, and avoid feature work from dirty state.
+- Updated next candidate work to `v0.70-20`, `v0.70-21`, `v0.70-22`, and `v0.70-23`.
+- Modified files: `agent/WORKFLOW_MANAGER.md`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+
 ## v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect
 - Built on requested `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish` (`7f937fe`); actual pre-edit HEAD was clean `fd2eb4e 월드맵작업`, which changed only `WorldMap_Test.tscn`.
 - Added `GovernorAssignOption` to the selected-city `GovernorCard`.

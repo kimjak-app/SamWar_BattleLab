@@ -1,5 +1,16 @@
 # WORLDMAP RULES
 
+## v0.70-19a Domestic UI Philosophy and Handoff Rule
+- Current stable baseline is `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
+- 삼국워 내정 시스템은 내부적으로 복잡하게 돌아가야 하지만, WorldMap UI should expose only the key information needed for player decisions.
+- Do not expose every formula, multiplier, or intermediate number in left/right panels. Keep detailed calculations internal unless a task explicitly asks for audit/debug display.
+- Chancellor policy and governor policy are separate contracts:
+  1. Chancellor policy is national operating direction, national income/upkeep, and country-level operation modifiers.
+  2. Governor policy is selected-city operating direction, city yield, recruitment, and loyalty-flow modifiers.
+- UI copy should prefer policy name plus short effect summary. Avoid returning to developer copy such as `재상 정책 수행`, `Godot에서는 표시 전용`, `placeholder`, or no-effect debug messages.
+- Do not delete `.uid` / `.ogv` files, do not use `git clean`, and confirm any `WorldMap_Test.tscn` serialization diff before starting feature work.
+- Next WorldMap panel work should begin with `v0.70-20 WorldMap Selected City Panel Troop Stats Polish`, then city-detail polish, battle-entry camera handoff, and governor exclusivity/hero-state rules.
+
 ## v0.70-19 Selected City Governor Assignment and Policy Connect Rule
 - `CityInfoPanel` may expose a governor assignment dropdown, but candidates are limited to the selected city's current `stationed_hero_ids` plus `미임명`.
 - Governor assignment changes only the selected city's mutable runtime `governor_id`. It must not move heroes, mutate `stationed_hero_ids`, or enforce global duplicate-governor rules until a dedicated task defines those rules.

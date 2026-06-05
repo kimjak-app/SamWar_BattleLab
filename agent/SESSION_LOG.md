@@ -2,6 +2,22 @@
 
 ## 2026-06-05
 
+### v0.70-19a Agent Docs Handoff & ChatCoach Role Lock
+- Started from clean `4c671b0 v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect`.
+- Required git analysis:
+  - `git status --short`: clean.
+  - Recent log confirmed v0.70-19 on top of v0.70-18, v0.70-17b, v0.70-16, v0.70-15, v0.70-14a, v0.70-14, and v0.70-13d.
+  - `git show --stat HEAD` / `git show --name-only HEAD`: v0.70-19 changed `WorldMap_Test.tscn`, selected-city scripts, and agent docs for governor assignment/policy connection.
+- Read the required workflow, Godot, current-state, next-task, handoff, changelog, session-log, WorldMap rules, and hero-data-contract docs.
+- Updated agent docs only with:
+  - Stable baseline `v0.70-19` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
+  - Recent work summary for battle cinematic guards, movement facing, left panel polish, selected-city slim polish, and governor assignment/policy connection.
+  - Domestic-system philosophy: rich internal systems with compact decision summaries in UI.
+  - ChatCoach role lock: code/docs evidence first, then scoped Codex execution instruction.
+  - Safety cautions around `.uid` / `.ogv`, `git clean`, `git push`, dirty worktrees, and scene serialization diffs.
+  - Next candidates: `v0.70-20`, `v0.70-21`, `v0.70-22`, and `v0.70-23`.
+- No code, scene, asset, `project.godot`, battle, `WorldMap_Test.tscn`, or script files were changed.
+
 ### v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect
 - Started from clean actual HEAD `fd2eb4e 월드맵작업`; requested baseline `7f937fe v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish` was one local commit behind.
 - Required git analysis:

@@ -1,5 +1,19 @@
 # NEXT TASKS
 
+## Handoff: v0.70-19a Agent Docs Handoff & ChatCoach Role Lock
+- Current stable baseline: `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
+- Continue WorldMap fixed-panel polish from the completed left-panel and selected-city-panel work.
+- Do not delete `.uid` / `.ogv` files, do not use `git clean`, do not push, and do not begin feature work from a dirty worktree.
+- Domestic UI direction: keep internal city/national calculations rich, but show only decision-grade summaries in the panels. Do not expose every multiplier or formula.
+- Chancellor policy and governor policy are separate:
+  1. Chancellor policy controls national operating direction, total income/upkeep, and nation-level modifiers.
+  2. Governor policy controls selected-city operation, city yield, recruitment, and loyalty-flow modifiers.
+- Next candidate work:
+  1. `v0.70-20 WorldMap Selected City Panel Troop Stats Polish` - improve readability for garrison heroes, troop, defense, security, public support, commerce, and agriculture rows.
+  2. `v0.70-21 WorldMap City Detail Panel Right Side Polish` - organize city detail/resource/trade/diplomacy/spy panels.
+  3. `v0.70-22 WorldMap Battle Entry Camera Zoom Handoff` - add/continue WorldMap camera zoom handoff before battle entry.
+  4. `v0.70-23 Governor Assignment Exclusivity & Hero State Rules` - define duplicate-governor limits and wounded/captured/dead release rules after separate design.
+
 ## Next: v0.70-20 WorldMap Selected City Panel Troop Stats Polish
 - `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` is the current selected-city governor connection baseline.
 - v0.70-19 summary:

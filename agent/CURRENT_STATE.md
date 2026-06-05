@@ -1,5 +1,39 @@
 # CURRENT STATE
 
+## v0.70-19a Agent Docs Handoff & ChatCoach Role Lock
+- Latest stable baseline: `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
+- Current documentation update is docs-only. No code, scenes, assets, `project.godot`, battle files, `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, or `scripts/worldmap_city_info_panel.gd` should be changed by this handoff task.
+- Recent completed work:
+  1. `v0.70-13b Battle Cinematic Lifecycle Guard Audit`: stabilized battle intro/result-video lifecycle guards, UI restore, skip cleanup, and camera restore paths.
+  2. `v0.70-13d Battle Movement Facing Direction Polish`: applies movement-segment left/right facing so unit and hero visuals no longer appear to back-walk when a path turns horizontally.
+  3. `v0.70-14` / `v0.70-14a` / `v0.70-15` / `v0.70-16`: locked the left panel as fixed UI, slimmed World Turn and tax display, removed chancellor-card duplicate copy, enlarged the chancellor portrait, and preserved warehouse/turn-end/save-management structure.
+  4. `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish`: fixed the selected-city panel to the right at startup, preserved drag movement, removed the `SELECTED CITY` eyebrow, slimmed city summary, and hid resource/status/governor summary duplication.
+  5. `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect`: added `GovernorAssignOption`, uses selected-city `stationed_hero_ids` plus `미임명`, updates runtime `governor_id`, keeps `GovernorPolicyOption`, saves/loads `governor_id`, `governor_policy_id`, and `_city_policy_state`, and removes visible developer/placeholder policy copy.
+- Domestic-system philosophy:
+  - 삼국워 내정 시스템은 내부적으로 복잡하게 돌아가야 한다.
+  - UI는 최소한의 핵심 정보만 보여준다.
+  - 플레이어에게 모든 수치/계산식을 노출하지 않는다.
+  - 정보창은 결정에 필요한 요약만 보여주고, 실제 계산은 내부에서 안정적으로 처리한다.
+  - 재상 정책은 국가 전체 운영 방향과 전체 수입, 유지비, 국가 운영 보정을 담당한다.
+  - 태수 정책은 선택 도시 개별 운영 방향과 도시별 산출, 징병, 충성도 흐름 보정을 담당한다.
+  - 화면에는 정책명과 효과 요약 정도만 보여주고, 세부 multiplier는 내부 계산으로 유지한다.
+- Current cautions:
+  - `.uid` / `.ogv` 파일은 삭제하지 않는다. Theora test `.uid` files are retained for Godot resource stability.
+  - `git clean` and `git push` remain forbidden; local commits only.
+  - If `WorldMap_Test.tscn` scene serialization changes appear, confirm whether they are intentional before starting feature work.
+  - Do not start new feature work from a dirty worktree.
+  - Keep battle scene, WorldMap scene, scripts, assets, project settings, and agent-doc scopes separate.
+- New chat summary:
+  - Start from `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
+  - Current goal is to continue WorldMap left/right panel detail polish.
+  - Completed UI work includes left-panel World Turn/tax/chancellor/warehouse polish and right-panel city summary/governor assignment/governor policy connection.
+  - Recommended first follow-up is `v0.70-20 WorldMap Selected City Panel Troop Stats Polish`.
+- Next candidate work:
+  1. `v0.70-20 WorldMap Selected City Panel Troop Stats Polish`
+  2. `v0.70-21 WorldMap City Detail Panel Right Side Polish`
+  3. `v0.70-22 WorldMap Battle Entry Camera Zoom Handoff`
+  4. `v0.70-23 Governor Assignment Exclusivity & Hero State Rules`
+
 ## v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect
 - Baseline requested: `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish` (`7f937fe`); actual pre-edit HEAD was `fd2eb4e 월드맵작업`, a clean local commit that changed only `WorldMap_Test.tscn`.
 - Current HEAD analysis summary: pre-work `git status --short` was clean. Recent log showed `fd2eb4e` on top of `7f937fe`; HEAD changed only `WorldMap_Test.tscn`.

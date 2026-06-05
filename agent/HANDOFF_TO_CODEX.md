@@ -1,5 +1,50 @@
 # HANDOFF TO CODEX
 
+## v0.70-19a Agent Docs Handoff & ChatCoach Role Lock Handoff
+- Stable baseline for the next session: `v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
+- This handoff is documentation-only. It must not imply code, scene, asset, `project.godot`, battle, `WorldMap_Test.tscn`, or script changes.
+- Recent completed work to carry forward:
+  1. `v0.70-13b Battle Cinematic Lifecycle Guard Audit`: battle intro/result-video lifecycle cleanup, UI restore, skip guard, and camera restore stability.
+  2. `v0.70-13d Battle Movement Facing Direction Polish`: movement segment facing updates for unit/hero visuals.
+  3. `v0.70-14` / `14a` / `15` / `16`: left WorldMap panel fixed anchor, World Turn slim header, tax slim UI, chancellor duplicate-copy cleanup, larger chancellor portrait, warehouse/turn/save structure preserved.
+  4. `v0.70-18`: selected-city panel right-side startup anchor, drag retained, `SELECTED CITY` hidden, basic city summary slimmed, resource/status/governor summary duplication hidden.
+  5. `v0.70-19`: `GovernorAssignOption` added; candidates are selected-city `stationed_hero_ids` plus `미임명`; assignment updates runtime `governor_id`; `GovernorPolicyOption` remains connected; `governor_id`, `governor_policy_id`, and `city_policy_state` persist through save/load; visible developer/placeholder policy copy removed.
+- Domestic-system philosophy:
+  - 삼국워 내정 시스템은 내부적으로 복잡하게 돌아가야 한다.
+  - UI는 최소한의 핵심 정보만 보여준다.
+  - 플레이어에게 모든 수치/계산식을 노출하지 않는다.
+  - Information panels should show decision summaries; actual calculations stay internal and stable.
+  - Chancellor policy is national operating direction, income/upkeep, and nation-level adjustment.
+  - Governor policy is selected-city operating direction, city yield, recruitment, and loyalty-flow adjustment.
+  - Show policy name plus effect summary; keep detailed multipliers internal.
+- ChatCoach role lock:
+  - 채코치는 단순 지시문 생성기가 아니다.
+  - 채코치는 먼저 GitHub/깃에서 접근 가능한 실제 코드와 문서를 직접 확인한다.
+  - 내부 구현과 연결되는 작업은 감으로 지시하지 않는다.
+  - ChatCoach should directly check related files, functions, variables, and save structures; judge implementation connectivity; separate safe and risky scope; then write Codex execution instructions.
+  - Codex는 실행/수정/검증/로컬 커밋 담당이다.
+  - ChatCoach owns design judgment, code-evidence review, and scope definition.
+  - Before handing off "Codex should analyze", ChatCoach should inspect GitHub-accessible code/docs where possible.
+  - Local-only commits, dirty state, or files absent from GitHub are judged from Codex/user reports.
+  - The user should minimize direct PowerShell/Git/Godot operation and continue by pasting Codex reports.
+- Known cautions:
+  - Do not delete `.uid` / `.ogv`; Theora test `.uid` files are kept for Godot resource stability.
+  - Do not use `git clean`; do not push; local commits only.
+  - If `WorldMap_Test.tscn` serialization diffs appear, verify intent before proceeding.
+  - Do not start feature work from a dirty worktree.
+  - Keep battle scene, WorldMap scene, scripts/assets/project settings, and agent-doc scopes separate.
+- New chat start summary:
+  - Start from `v0.70-19` at `4c671b0e7599ade817d1274768f04b879a757ca4`.
+  - Current goal: continue WorldMap left/right panel detail polish.
+  - Completed: left-panel World Turn/tax/chancellor/warehouse polish; right-panel city summary/governor assignment/governor policy connection.
+  - Recommended first task: `v0.70-20 WorldMap Selected City Panel Troop Stats Polish`.
+  - Principle: ChatCoach checks code/docs first for connected implementation work; Codex executes, verifies, and commits.
+- Next candidate work:
+  1. `v0.70-20 WorldMap Selected City Panel Troop Stats Polish`
+  2. `v0.70-21 WorldMap City Detail Panel Right Side Polish`
+  3. `v0.70-22 WorldMap Battle Entry Camera Zoom Handoff`
+  4. `v0.70-23 Governor Assignment Exclusivity & Hero State Rules`
+
 ## v0.70-19 WorldMap Selected City Governor Assignment & Policy Connect Handoff
 - Baseline requested: `v0.70-18 WorldMap Selected City Panel Anchor & Summary Slim Polish` (`7f937fe`). Actual pre-edit HEAD was `fd2eb4e 월드맵작업`, a clean local commit modifying only `WorldMap_Test.tscn`; it was preserved.
 - Required git analysis was performed before editing:
