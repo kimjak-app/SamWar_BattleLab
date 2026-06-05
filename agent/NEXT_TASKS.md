@@ -1,6 +1,22 @@
 # NEXT TASKS
 
-## Current: v0.70-21 WorldMap Recruitment Loyalty-Based Connect
+## Current: v0.70-22 WorldMap Implemented Help Modal MVP
+- `v0.70-22` adds small help buttons and one reusable modal for implemented WorldMap systems only.
+- Completed direction:
+  1. 국가충성도 help focuses on tax burden, political chancellor mitigation, and stable domestic operation.
+  2. 성 충성도 help focuses on tax, security, supply, political governor/chancellor support, and publicSupport stability.
+  3. 민심 help focuses on tax, food, commerce, and supply.
+  4. 치안 help focuses on stationed troops, supply, minimum garrison, and invasion/battle readiness.
+  5. 주둔무장 help focuses on current usage: governor candidates, battle deployment, city defense, and governor command-limit contribution.
+  6. Help copy must not present unimplemented hero personal loyalty increase actions or expose formulas/multipliers.
+- Next candidate work:
+  1. Manual F6 QA for all five help buttons and close behavior.
+  2. Manual F6 QA for retained attack/governor/transfer/recruitment flows.
+  3. `v0.70-23 WorldMap City Detail Panel Right Side Polish`
+  4. `v0.70-24 WorldMap Battle Entry Camera Zoom Handoff`
+  5. `v0.70-25 Governor Assignment Exclusivity & Hero State Rules`
+
+## Previous: v0.70-21 WorldMap Recruitment Loyalty-Based Connect
 - `v0.70-21` connects the Selected City Panel recruitment area to actual WorldMap recruitment while keeping internal calculation detail out of the UI.
 - Completed direction:
   1. 모병 기준은 publicSupport가 아니라 city loyalty이다.
@@ -8,11 +24,6 @@
   3. 모병은 loyalty + resources + peacetime immediate reinforcement axis이다.
   4. publicSupport is not used as the recruitment amount limit in this patch and remains reserved for future recruitment fatigue, dissatisfaction, and revolt-risk work.
   5. The right Selected City Panel now uses `병사 충원`, shows compact conscription/recruitment summary lines, and connects `모병 100`.
-- Next candidate work:
-  1. Manual F6 QA for `병사 충원` click flow and panel refresh.
-  2. `v0.70-22 WorldMap City Detail Panel Right Side Polish`
-  3. `v0.70-23 WorldMap Battle Entry Camera Zoom Handoff`
-  4. `v0.70-24 Governor Assignment Exclusivity & Hero State Rules`
 
 ## Next: v0.70-21 WorldMap City Detail Panel Right Side Polish
 - `v0.70-20a WorldMap Selected City Panel Layout Order Polish` is the current selected-city panel layout baseline.

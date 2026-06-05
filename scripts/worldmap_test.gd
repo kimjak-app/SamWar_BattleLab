@@ -561,6 +561,11 @@ var _save_management_title_label: Label
 var _save_management_status_label: Label
 var _save_management_status := ""
 var _player_attack_deployment_panel: Node = null
+var _worldmap_help_modal: PanelContainer = null
+var _worldmap_help_title_label: Label = null
+var _worldmap_help_body_label: Label = null
+var _worldmap_help_close_button: Button = null
+var _left_national_loyalty_help_button: Button = null
 var _enemy_turn_mvp_timer: Timer
 var _enemy_turn_mvp_pending := false
 var _domestic_turn_apply_pending := false
@@ -645,6 +650,7 @@ func _ready() -> void:
 	_setup_left_world_controls()
 	_ensure_chancellor_portrait_texture_rect()
 	_setup_left_world_status_panel_layout()
+	_ensure_worldmap_help_modal()
 	_ensure_player_attack_deployment_panel()
 	_consume_worldmap_battle_result_if_any()
 	_refresh_left_world_status_panel()
@@ -669,6 +675,11 @@ func _input(event: InputEvent) -> void:
 	if _worldmap_battle_entry_handoff_in_progress:
 		if _is_worldmap_battle_entry_handoff_skip_event(event):
 			_skip_worldmap_battle_entry_camera_handoff()
+		get_viewport().set_input_as_handled()
+		return
+
+	if _worldmap_help_modal != null and _worldmap_help_modal.visible and event.is_action_pressed("ui_cancel"):
+		_hide_worldmap_help_modal()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -982,6 +993,9 @@ func _connect_city_info_panel_actions() -> void:
 	var recruitment_callback := Callable(self, "_on_city_info_recruitment_requested")
 	if city_info_panel.has_signal("recruitment_requested") and not city_info_panel.is_connected("recruitment_requested", recruitment_callback):
 		city_info_panel.connect("recruitment_requested", recruitment_callback)
+	var help_callback := Callable(self, "_show_worldmap_help_modal")
+	if city_info_panel.has_signal("help_requested") and not city_info_panel.is_connected("help_requested", help_callback):
+		city_info_panel.connect("help_requested", help_callback)
 
 
 func _on_city_info_attack_requested(city_id: String) -> void:
@@ -1792,6 +1806,7 @@ func _setup_left_world_status_panel_layout() -> void:
 	_setup_pending_invasion_choice_ui()
 	_setup_post_battle_result_ui()
 	_setup_save_management_ui()
+	_ensure_left_world_status_help_buttons()
 	for label in [
 		power_label,
 		tax_label,
@@ -1811,6 +1826,25 @@ func _setup_left_world_status_panel_layout() -> void:
 	supply_label.add_theme_font_size_override("font_size", 10)
 	military_logistics_label.add_theme_font_size_override("font_size", 10)
 	external_trade_label.add_theme_font_size_override("font_size", 10)
+
+
+func _ensure_left_world_status_help_buttons() -> void:
+	if _left_national_loyalty_help_button != null:
+		return
+	if power_label == null or power_label.get_parent() == null:
+		return
+	_left_national_loyalty_help_button = Button.new()
+	_left_national_loyalty_help_button.name = "NationalLoyaltyHelpButton"
+	_left_national_loyalty_help_button.text = "?"
+	_left_national_loyalty_help_button.custom_minimum_size = Vector2(24.0, 18.0)
+	_left_national_loyalty_help_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_left_national_loyalty_help_button.focus_mode = Control.FOCUS_NONE
+	_left_national_loyalty_help_button.tooltip_text = "국가충성도 도움말"
+	_left_national_loyalty_help_button.add_theme_font_size_override("font_size", 10)
+	power_label.get_parent().add_child(_left_national_loyalty_help_button)
+	if power_label.get_parent() is VBoxContainer:
+		(power_label.get_parent() as VBoxContainer).move_child(_left_national_loyalty_help_button, mini(power_label.get_index() + 1, power_label.get_parent().get_child_count() - 1))
+	_left_national_loyalty_help_button.pressed.connect(_show_worldmap_help_modal.bind("national_loyalty"))
 
 
 func _setup_left_world_header_slim_ui() -> void:
@@ -2003,6 +2037,121 @@ func _ensure_player_attack_deployment_panel() -> void:
 	var cancel_callback := Callable(self, "_on_player_attack_deployment_cancelled")
 	if _player_attack_deployment_panel.has_signal("deployment_cancelled") and not _player_attack_deployment_panel.is_connected("deployment_cancelled", cancel_callback):
 		_player_attack_deployment_panel.connect("deployment_cancelled", cancel_callback)
+
+
+func _ensure_worldmap_help_modal() -> void:
+	if _worldmap_help_modal != null:
+		return
+	var worldmap_ui := get_node_or_null("WorldMapUI") as CanvasLayer
+	if worldmap_ui == null:
+		return
+	_worldmap_help_modal = PanelContainer.new()
+	_worldmap_help_modal.name = "WorldMapHelpModal"
+	_worldmap_help_modal.visible = false
+	_worldmap_help_modal.z_index = 120
+	_worldmap_help_modal.anchor_left = 0.5
+	_worldmap_help_modal.anchor_right = 0.5
+	_worldmap_help_modal.anchor_top = 0.0
+	_worldmap_help_modal.anchor_bottom = 0.0
+	_worldmap_help_modal.offset_left = -190.0
+	_worldmap_help_modal.offset_right = 190.0
+	_worldmap_help_modal.offset_top = 72.0
+	_worldmap_help_modal.offset_bottom = 292.0
+	_worldmap_help_modal.custom_minimum_size = Vector2(380.0, 220.0)
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.055, 0.065, 0.075, 0.97)
+	panel_style.border_color = Color(0.82, 0.72, 0.48, 0.86)
+	panel_style.set_border_width_all(1)
+	panel_style.set_corner_radius_all(4)
+	panel_style.content_margin_left = 12.0
+	panel_style.content_margin_top = 10.0
+	panel_style.content_margin_right = 12.0
+	panel_style.content_margin_bottom = 10.0
+	_worldmap_help_modal.add_theme_stylebox_override("panel", panel_style)
+	worldmap_ui.add_child(_worldmap_help_modal)
+
+	var content := VBoxContainer.new()
+	content.name = "Content"
+	content.add_theme_constant_override("separation", 8)
+	_worldmap_help_modal.add_child(content)
+
+	_worldmap_help_title_label = Label.new()
+	_worldmap_help_title_label.name = "TitleLabel"
+	_worldmap_help_title_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.58, 1.0))
+	_worldmap_help_title_label.add_theme_font_size_override("font_size", 15)
+	content.add_child(_worldmap_help_title_label)
+
+	_worldmap_help_body_label = Label.new()
+	_worldmap_help_body_label.name = "BodyLabel"
+	_worldmap_help_body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_worldmap_help_body_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_worldmap_help_body_label.add_theme_color_override("font_color", Color(0.93, 0.92, 0.84, 1.0))
+	_worldmap_help_body_label.add_theme_font_size_override("font_size", 12)
+	content.add_child(_worldmap_help_body_label)
+
+	var action_row := HBoxContainer.new()
+	action_row.name = "ActionRow"
+	action_row.alignment = BoxContainer.ALIGNMENT_END
+	content.add_child(action_row)
+
+	_worldmap_help_close_button = Button.new()
+	_worldmap_help_close_button.name = "CloseButton"
+	_worldmap_help_close_button.text = "닫기"
+	_worldmap_help_close_button.custom_minimum_size = Vector2(70.0, 24.0)
+	_worldmap_help_close_button.focus_mode = Control.FOCUS_NONE
+	_worldmap_help_close_button.add_theme_font_size_override("font_size", 11)
+	action_row.add_child(_worldmap_help_close_button)
+	_worldmap_help_close_button.pressed.connect(_hide_worldmap_help_modal)
+
+
+func _show_worldmap_help_modal(topic_id: String) -> void:
+	_ensure_worldmap_help_modal()
+	if _worldmap_help_modal == null:
+		return
+	var content := _get_worldmap_help_content(topic_id)
+	_worldmap_help_title_label.text = str(content.get("title", "도움말"))
+	_worldmap_help_body_label.text = str(content.get("body", "도움말 정보가 없습니다."))
+	_worldmap_help_modal.visible = true
+	_worldmap_help_modal.move_to_front()
+
+
+func _hide_worldmap_help_modal() -> void:
+	if _worldmap_help_modal != null:
+		_worldmap_help_modal.visible = false
+
+
+func _get_worldmap_help_content(topic_id: String) -> Dictionary:
+	match topic_id:
+		"national_loyalty":
+			return {
+				"title": "국가충성도",
+				"body": "국가 전체의 안정도를 보여줍니다.\n\n관리 방법:\n· 세금 부담을 낮게 유지하기\n· 정치형 재상으로 충성도 손실 줄이기\n· 안정적인 내정 운영 유지",
+			}
+		"city_loyalty":
+			return {
+				"title": "성 충성도",
+				"body": "선택 도시의 충성도입니다.\n\n관리 방법:\n· 세금 부담 낮추기\n· 치안 안정시키기\n· 보급 상태 유지하기\n· 정치형 태수 또는 재상 활용하기\n· 민심 안정 유지하기",
+			}
+		"public_support":
+			return {
+				"title": "민심",
+				"body": "도시 백성들의 여론과 생활 안정도입니다.\n\n관리 방법:\n· 세금 부담 낮추기\n· 식량 사정 안정시키기\n· 상업 기반 키우기\n· 보급 상태 유지하기",
+			}
+		"security":
+			return {
+				"title": "치안",
+				"body": "도시의 질서와 안정 상태입니다.\n\n관리 방법:\n· 충분한 주둔 병력 유지하기\n· 보급 경로 유지하기\n· 병력 이동 시 최소 주둔군 지키기\n· 침공/전투 상황에 대비하기",
+			}
+		"garrison":
+			return {
+				"title": "주둔무장",
+				"body": "현재 구현된 활용:\n· 태수 임명 후보\n· 도시 방어와 전투 출전\n· 태수 임명 시 지휘 한계 증가\n· 장수 상태에 따라 전투 참여 제한",
+			}
+		_:
+			return {
+				"title": "도움말",
+				"body": "도움말 정보가 없습니다.",
+			}
 
 
 func _setup_save_management_ui() -> void:

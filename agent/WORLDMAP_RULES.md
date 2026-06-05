@@ -1,5 +1,18 @@
 # WORLDMAP RULES
 
+## v0.70-22 Implemented Help Modal Rule
+- WorldMap help UI must describe only currently implemented behavior.
+- Help buttons may be small `?` controls near important values, but must not move or rename existing stable Label/Button/OptionButton paths.
+- The reusable help modal belongs under `WorldMapUI` so camera pan/zoom does not affect it.
+- Help content must not expose formulas, multipliers, or internal calculation steps.
+- 국가충성도 help is limited to tax burden, political chancellor loss management, and stable domestic operation.
+- 성 충성도 help is limited to tax, security, supply, political governor/chancellor support, and publicSupport stability.
+- 민심 help is limited to tax, food, commerce, and supply.
+- 치안 help is limited to stationed troops, supply, minimum garrison, and invasion/battle readiness.
+- 주둔무장 help is limited to implemented usage: governor candidates, battle deployment, city defense, and governor command-limit contribution.
+- Do not describe hero personal loyalty increase actions unless a real player-facing implementation exists and has been verified in code.
+- Help work must not change domestic formulas, tax formulas, governor/chancellor formulas, battle scenes, BattleContext, save/load schema, `project.godot`, or assets.
+
 ## v0.70-21 Recruitment Loyalty-Based Rule
 - 모병 amount limit is based on selected city loyalty, not publicSupport.
 - Loyalty thresholds are fixed for this patch: below 40 -> 0, 40-59 -> 100, 60-79 -> 200, 80-89 -> 300, and 90+ -> 500.

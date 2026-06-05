@@ -8,6 +8,7 @@ signal attack_requested(city_id: String)
 signal governor_assignment_requested(city_id: String, governor_id: String)
 signal hero_transfer_confirmed(source_city_id: String, hero_id: String, target_city_id: String)
 signal recruitment_requested(city_id: String, amount: int)
+signal help_requested(topic_id: String)
 
 const REGION_LABELS := {
 	"region.china_mainland": "중국대륙",
@@ -100,6 +101,9 @@ var _recruitment_section: VBoxContainer = null
 var _recruitment_title_label: Label = null
 var _conscription_summary_label: Label = null
 var _recruitment_summary_label: Label = null
+var _city_loyalty_help_button: Button = null
+var _domestic_help_row: HBoxContainer = null
+var _garrison_help_button: Button = null
 var _hero_transfer_open := false
 var _attack_action_enabled := false
 var _attack_action_hint := "공격 준비는 다음 단계에서 BattleContext와 연결됩니다."
@@ -112,6 +116,7 @@ func _ready() -> void:
 	_ensure_garrison_list_container()
 	_ensure_hero_transfer_panel()
 	_ensure_recruitment_section()
+	_ensure_help_buttons()
 	_apply_selected_city_layout_order()
 	attack_button_placeholder.pressed.connect(_on_attack_placeholder_pressed)
 	hero_move_button_placeholder.pressed.connect(_on_hero_move_placeholder_pressed)
@@ -491,7 +496,8 @@ func _apply_selected_city_layout_order() -> void:
 	var governor_card := _get_direct_child_under(content, governor_assign_option) as Control
 	var button_row := attack_button_placeholder.get_parent() as Control if attack_button_placeholder != null else null
 	_move_child_after(content, military_state_label, loyalty_card)
-	_move_child_after(content, governor_label, military_state_label)
+	_move_child_after(content, _domestic_help_row, military_state_label)
+	_move_child_after(content, governor_label, _domestic_help_row if _domestic_help_row != null else military_state_label)
 	_move_child_after(content, governor_card, governor_label)
 	_move_child_after(content, _garrison_card, governor_card)
 	_move_child_after(content, hero_move_button_placeholder, _garrison_card)
@@ -507,6 +513,49 @@ func _apply_selected_city_layout_order() -> void:
 	domestic_button_placeholder.disabled = true
 	domestic_button_placeholder.visible = false
 	hint_label.visible = false
+
+
+func _ensure_help_buttons() -> void:
+	if _city_loyalty_help_button == null and loyalty_label != null and loyalty_label.get_parent() != null:
+		_city_loyalty_help_button = _make_help_button("city_loyalty")
+		loyalty_label.get_parent().add_child(_city_loyalty_help_button)
+		if loyalty_label.get_parent() is VBoxContainer:
+			(loyalty_label.get_parent() as VBoxContainer).move_child(_city_loyalty_help_button, mini(loyalty_label.get_index() + 1, loyalty_label.get_parent().get_child_count() - 1))
+
+	if _domestic_help_row == null:
+		var content := get_node_or_null("MarginContainer/Content") as VBoxContainer
+		if content != null:
+			_domestic_help_row = HBoxContainer.new()
+			_domestic_help_row.name = "DomesticHelpRow"
+			_domestic_help_row.add_theme_constant_override("separation", 4)
+			_domestic_help_row.add_child(_make_help_button("public_support", "민심 ?"))
+			_domestic_help_row.add_child(_make_help_button("security", "치안 ?"))
+			content.add_child(_domestic_help_row)
+
+	if _garrison_help_button == null and _garrison_card != null:
+		var card_content := _garrison_card.get_node_or_null("MarginContainer/Content") as VBoxContainer
+		if card_content != null:
+			_garrison_help_button = _make_help_button("garrison", "주둔무장 ?")
+			card_content.add_child(_garrison_help_button)
+			if selected_hero_chip_label != null and selected_hero_chip_label.get_parent() == card_content:
+				card_content.move_child(_garrison_help_button, mini(selected_hero_chip_label.get_index() + 1, card_content.get_child_count() - 1))
+
+
+func _make_help_button(topic_id: String, label_text: String = "?") -> Button:
+	var button := Button.new()
+	button.name = "HelpButton_%s" % topic_id
+	button.text = label_text
+	button.custom_minimum_size = Vector2(24.0, 18.0)
+	button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	button.focus_mode = Control.FOCUS_NONE
+	button.tooltip_text = "도움말"
+	button.add_theme_font_size_override("font_size", 10)
+	button.pressed.connect(_on_help_button_pressed.bind(topic_id))
+	return button
+
+
+func _on_help_button_pressed(topic_id: String) -> void:
+	help_requested.emit(topic_id)
 
 
 func _ensure_recruitment_section() -> void:

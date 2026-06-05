@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-22 WorldMap Implemented Help Modal MVP Handoff
+- Baseline: `v0.70-21 WorldMap Recruitment Loyalty-Based Connect` (`5d730bb`).
+- Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.
+- Scene file was not edited; help buttons/modal are runtime UI additions.
+- `WorldMapCityInfoPanel` now emits `help_requested(topic_id)` for right-panel topics and keeps existing attack, governor assignment, hero transfer, and recruitment signals.
+- `worldmap_test.gd` owns the common `WorldMapHelpModal` under `WorldMapUI`, connects help requests, updates title/body by topic, and closes via the modal button or Esc.
+- Help topics:
+  - 국가충성도: tax burden, political chancellor mitigation, stable domestic operation.
+  - 성 충성도: tax, security, supply, political governor/chancellor support, publicSupport stability.
+  - 민심: tax, food, commerce, supply.
+  - 치안: stationed troops, supply, minimum garrison, invasion/battle readiness.
+  - 주둔무장: governor candidates, battle deployment, city defense, governor command-limit contribution.
+- Help copy is based on current code paths only and does not expose formulas or multipliers.
+- No player-facing hero personal loyalty increase action was confirmed, so no such method is described.
+- Manual F6 QA should click all five help buttons, close the modal, switch cities, drag panels, and verify attack/governor/policy/transfer/recruitment/save/load buttons still behave as before.
+
 ## v0.70-21 WorldMap Recruitment Loyalty-Based Connect Handoff
 - Baseline: `v0.70-20a WorldMap Selected City Panel Layout Order Polish`.
 - Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.

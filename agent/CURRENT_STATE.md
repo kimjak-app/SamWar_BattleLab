@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-22 WorldMap Implemented Help Modal MVP
+- Baseline: `v0.70-21 WorldMap Recruitment Loyalty-Based Connect` at `5d730bb`.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Added a reusable `WorldMapHelpModal` under `WorldMapUI` so help remains screen-fixed and is not affected by camera pan/zoom.
+- Added compact help buttons for five major values: 국가충성도, 성 충성도, 민심, 치안, and 주둔무장.
+- Help copy is limited to currently implemented systems and avoids formulas, multipliers, or unimplemented actions.
+- 국가충성도 guidance is tax burden, political chancellor loss management, and stable domestic operation.
+- 성 충성도 guidance is tax, security, supply, political governor/chancellor support, and publicSupport stability.
+- 민심 guidance is tax, food, commerce, and supply.
+- 치안 guidance is stationed troops, supply, minimum garrison, and invasion/battle readiness.
+- 주둔무장 guidance is current implementation only: governor candidates, battle deployment, city defense, and governor command-limit contribution.
+- No hero personal loyalty increase method was documented because no player-facing implementation was confirmed.
+- Preserved existing attack, governor assignment, governor policy, hero transfer, recruitment, save/load, panel drag, battle scene, BattleContext, `project.godot`, and asset scopes.
+
 ## v0.70-21 WorldMap Recruitment Loyalty-Based Connect
 - Baseline: `v0.70-20a WorldMap Selected City Panel Layout Order Polish`.
 - Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

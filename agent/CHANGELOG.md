@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-22 WorldMap Implemented Help Modal MVP
+- Built on `v0.70-21 WorldMap Recruitment Loyalty-Based Connect` (`5d730bb`).
+- Added five WorldMap help topics for 국가충성도, 성 충성도, 민심, 치안, and 주둔무장.
+- Added small runtime help buttons near the left national loyalty gauge and right selected-city loyalty/domestic/garrison sections.
+- Added one reusable `WorldMapHelpModal` under `WorldMapUI` with title, compact body copy, close button, and Esc close support.
+- Help copy is based on currently implemented systems only and avoids formulas, multipliers, and unimplemented player actions.
+- Documented 국가충성도 as tax/political chancellor/domestic stability management, 성 충성도 as tax/security/supply/political governor or chancellor/publicSupport stability, 민심 as tax/food/commerce/supply, 치안 as stationed troops/supply/minimum garrison, and 주둔무장 as governor candidates/battle deployment/city defense/command-limit usage.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change scenes, domestic formulas, tax formulas, governor/chancellor formulas, battle scripts, BattleContext, save/load schema, `project.godot`, or assets.
+
 ## v0.70-21 WorldMap Recruitment Loyalty-Based Connect
 - Built on `v0.70-20a WorldMap Selected City Panel Layout Order Polish`.
 - Changed recruitment amount limits from publicSupport-based to city loyalty-based: `<40` = 0, `40-59` = 100, `60-79` = 200, `80-89` = 300, `90+` = 500.

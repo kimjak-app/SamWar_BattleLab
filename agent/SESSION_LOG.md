@@ -2,6 +2,23 @@
 
 ## 2026-06-05
 
+### v0.70-22 WorldMap Implemented Help Modal MVP
+- Started from clean `5d730bb v0.70-21 WorldMap Recruitment Loyalty-Based Connect`.
+- Required reading completed: workflow/current/next/handoff/WorldMap rules, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, and `WorldMap_Test.tscn`.
+- Implementation evidence checked in the current code:
+  - National loyalty is managed through tax pressure and active chancellor national effects.
+  - City loyalty display/drift paths include tax, security, economy, military burden, supply, supply security, control, publicSupport seasonal effects, and governor/chancellor effects.
+  - publicSupport display/drift paths include tax, food, commerce, and supply.
+  - Security/garrison movement paths use stationed troops, supply path checks, and minimum garrison checks.
+  - Governor command rank/limit helpers give governor assignment a command-limit role.
+  - No player-facing hero personal loyalty increase action was confirmed.
+- Implemented:
+  - Added small help buttons for 국가충성도, 성 충성도, 민심, 치안, and 주둔무장.
+  - Added `help_requested(topic_id)` from `WorldMapCityInfoPanel`.
+  - Added a reusable `WorldMapHelpModal` under `WorldMapUI` with topic title/body and close controls.
+  - Kept help copy compact and limited to implemented systems, without formulas or multipliers.
+- Preserved existing attack, governor assignment, governor policy, hero transfer, recruitment, panel drag, save/load, battle scene, BattleContext, `project.godot`, and assets.
+
 ### v0.70-21 WorldMap Recruitment Loyalty-Based Connect
 - Started from `v0.70-20a WorldMap Selected City Panel Layout Order Polish`.
 - Required reading completed: workflow/current/next/handoff/WorldMap rules, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, and `WorldMap_Test.tscn`.
