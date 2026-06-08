@@ -1,5 +1,28 @@
 # NEXT TASKS
 
+## Current: v0.70-25 Internal Trade Tab Ownership Filter Polish
+- `v0.70-25` narrows the City Detail `무역 > 자국무역` tab to player-owned city resource/supply flow only.
+- Completed direction:
+  1. Internal trade route candidates are filtered to player-owned neighboring cities.
+  2. Hanseong-only ownership now shows an empty state instead of listing foreign neighbors.
+  3. Public support, loyalty drift, seasonal loyalty, revolt risk, troop movement, and recruitment/conscription information were removed from the internal trade tab.
+  4. Supply role/status display is localized to Korean UI text.
+  5. `재상 위임 / 수동 조정` remains a future trade-leadership slot only; no real behavior is connected.
+- Preserved scope:
+  1. `도시 상세 > 자원`, city storage cards, `무역 > 타국무역`, `외교·첩보`, and Selected City Panel are unchanged.
+  2. Troop movement, recruitment, revolt risk, public support/loyalty, supply, trade, battle/BattleContext, and save/load calculations are unchanged.
+  3. `project.godot`, assets, `.uid`, and `.ogv` files were not changed.
+- Manual F6 QA required:
+  1. Hanseong `무역 > 자국무역` should not list Pyeongyang/Gyeongju as internal trade.
+  2. Empty state should show connected player city absence and owned city count.
+  3. No internal values such as `hub`, `supplied`, `isolated`, or troop/recruitment/revolt/public-support blocks should appear on the tab.
+  4. Resource tab cards, external trade, diplomacy/spy, drag/collapse, Selected City Panel, help, recruitment, governor, and attack paths should remain normal.
+- Next candidate work:
+  1. `v0.70-26 External Trade Tab Structure Polish`
+  2. `v0.70-27 Selected City Stability + Military Card Polish`
+  3. `v0.70-28 Diplomacy Spy Tab Structure Polish`
+  4. `v0.70-29 City Tech Tree UI Entry`
+
 ## Current: v0.70-24a City Storage Gold Source Fix + Resource Card Polish
 - `v0.70-24a` is a focused display and fallback fix for the City Detail `자원` tab.
 - Completed direction:

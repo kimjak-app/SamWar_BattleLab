@@ -2,6 +2,19 @@
 
 ## 2026-06-08
 
+### v0.70-25 Internal Trade Tab Ownership Filter Polish
+- Started from `43aa5a6 v0.70-24a City Storage Gold Source Fix + Resource Card Polish`.
+- Required docs and WorldMap internal-trade/supply/ownership helpers were checked.
+- Implemented:
+  - Replaced the internal trade tab's neighbor listing with a player-owned-neighbor filter.
+  - Added Hanseong-only empty state copy for no connected player-owned city.
+  - Removed public support, loyalty drift, seasonal loyalty, revolt risk, troop movement, and recruitment/conscription blocks from the internal trade tab.
+  - Hid the troop-move button path on the internal trade tab.
+  - Localized supply role/status display to Korean UI labels.
+  - Kept trade leadership as future copy only: `재상 위임 / 수동 조정`.
+- Preserved resource tab/storage cards, external trade, diplomacy/spy, Selected City Panel, troop movement logic, recruitment logic, revolt/public support/loyalty formulas, supply/trade formulas, battle/BattleContext, save/load schema, `project.godot`, assets, `.uid`, and `.ogv` files.
+- Manual F6 QA remains required for Hanseong internal trade empty state, hidden foreign neighbors, hidden internal-management/troop/recruitment blocks, localized supply text, and unchanged resource/external-trade/diplomacy/Selected City/battle-adjacent flows.
+
 ### v0.70-24a City Storage Gold Source Fix + Resource Card Polish
 - Started from the v0.70-24 City Storage Resource Tab MVP baseline.
 - Required checks completed for current status/history and the City Detail resource/storage/save-load code paths.

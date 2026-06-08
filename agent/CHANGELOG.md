@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-25 Internal Trade Tab Ownership Filter Polish
+- Built on `v0.70-24a City Storage Gold Source Fix + Resource Card Polish`.
+- Updated City Detail `무역 > 자국무역` so internal trade candidates are player-owned neighboring cities only.
+- Hanseong-only ownership now shows an empty state instead of listing foreign neighboring cities as internal trade routes.
+- Added empty-state copy with owned-city count and connected-player-city absence.
+- Removed public support, loyalty drift, seasonal loyalty, revolt risk, manual troop movement, troop movement button text, recruitment, and conscription from the internal trade tab display.
+- Localized supply role/status display from internal English ids to Korean UI labels.
+- Hid supply adjustment loyalty/security details from the internal trade tab while preserving the internal calculation helpers.
+- Kept `재상 위임 / 수동 조정` as a future trade-leadership information slot only; no real trade adjustment behavior was implemented.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change resource tab/storage cards, external trade, diplomacy/spy, Selected City Panel, troop movement logic, recruitment logic, revolt/public support/loyalty formulas, supply/trade formulas, battle/BattleContext, save/load schema, `project.godot`, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-24a City Storage Gold Source Fix + Resource Card Polish
 - Built on `v0.70-24 City Storage Resource Tab MVP`.
 - Removed the upper resource-tab economy display of `city_data.gold`.

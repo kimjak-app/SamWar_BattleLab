@@ -1,5 +1,22 @@
 # HANDOFF TO CODEX
 
+## v0.70-25 Internal Trade Tab Ownership Filter Polish Handoff
+- Baseline: `v0.70-24a City Storage Gold Source Fix + Resource Card Polish`.
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- `무역 > 자국무역` now filters internal trade candidates to neighboring cities owned by the player.
+- If the selected city is not player-owned or has no connected player-owned neighboring city, the tab shows an empty state with owned-city count and `연결 아군 성: 없음`.
+- Hanseong-only ownership no longer displays foreign neighboring cities as internal trade routes.
+- Removed from internal trade tab display: public support, loyalty drift, seasonal loyalty, revolt risk, manual troop movement, troop movement button text, recruitment, and conscription.
+- Supply role/status is shown in Korean UI labels while internal values remain unchanged.
+- Supply adjustment details such as loyalty/security deltas remain internal and are not shown in this tab.
+- `재상 위임 / 수동 조정` is only a future trade-leadership slot; no automatic or manual trade adjustment behavior was implemented.
+- Explicitly unchanged: resource tab/storage cards, external trade, diplomacy/spy, Selected City Panel, troop movement logic, recruitment logic, revolt/public support/loyalty formulas, supply/trade formulas, battle/BattleContext, save/load schema, `project.godot`, and assets.
+- Next candidates:
+  1. `v0.70-26 External Trade Tab Structure Polish`
+  2. `v0.70-27 Selected City Stability + Military Card Polish`
+  3. `v0.70-28 Diplomacy Spy Tab Structure Polish`
+  4. `v0.70-29 City Tech Tree UI Entry`
+
 ## v0.70-24a City Storage Gold Source Fix + Resource Card Polish Handoff
 - Baseline: `v0.70-24 City Storage Resource Tab MVP`.
 - Runtime file touched: `scripts/worldmap_test.gd`.

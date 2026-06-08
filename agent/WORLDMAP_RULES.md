@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-25 Internal Trade Tab Rule
+- City Detail `무역 > 자국무역` shows resource/supply flow between player-owned cities only.
+- Foreign cities must not appear as internal trade targets.
+- Internal trade route candidates must satisfy:
+  1. The selected city is player-owned.
+  2. The target city is player-owned.
+  3. The target city is a neighbor/connected candidate of the selected city.
+- If the player owns only one city or the selected city has no connected player-owned neighbor, show an empty state.
+- The internal trade tab must not expose public support, loyalty drift, seasonal loyalty, revolt risk, troop movement, recruitment, or conscription information.
+- Troop movement and recruitment controls/text do not belong in the internal trade tab.
+- Supply role/status must be shown in Korean UI labels, not raw ids such as `hub`, `supplied`, `isolated`, or `unsupplied`.
+- Supply adjustment details such as loyalty/security deltas should remain internal and should not be displayed in this tab.
+- `재상 위임 / 수동 조정` is a future trade-leadership slot only until a dedicated task connects behavior.
+- This rule does not authorize changes to resource tab/storage cards, external trade, diplomacy/spy, Selected City Panel, troop movement logic, recruitment logic, revolt/public support/loyalty formulas, supply/trade formulas, battle/BattleContext, save/load schema, `project.godot`, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-24a City Storage Gold Source and Resource Card Rule
 - City Detail `자원` tab must not display `city_data.gold` as city-held money.
 - Real city-held gold is displayed only from `storage.gold` in the `성 창고` section.

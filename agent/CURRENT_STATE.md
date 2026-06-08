@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.70-25 Internal Trade Tab Ownership Filter Polish
+- Baseline: `v0.70-24a City Storage Gold Source Fix + Resource Card Polish`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail `무역 > 자국무역` now shows only player-owned neighboring cities as internal trade targets.
+- Foreign neighboring cities such as Pyeongyang or Gyeongju are no longer presented as internal trade routes while Hanseong is the only player-owned city.
+- When the selected city has no connected player-owned neighbor, the tab shows an empty state with owned-city count and `연결 아군 성: 없음`.
+- Removed public support, loyalty drift, seasonal loyalty, revolt risk, manual troop movement, troop movement button text, and recruitment/conscription information from the internal trade tab display.
+- Supply role/status UI is localized: `hub` -> `중심 거점`, `rear` -> `후방`, `frontline` -> `전방`, `supplied` -> `보급 연결`, `isolated` -> `고립`, `unsupplied` -> `보급 미연결`.
+- Supply adjustment loyalty/security details remain internal and are not displayed on the internal trade tab.
+- Trade leadership is represented only as a future information slot for `재상 위임 / 수동 조정`; no actual chancellor auto-trade or manual trade adjustment behavior was implemented.
+- Resource tab, city storage cards, external trade tab, diplomacy/spy tab, Selected City Panel, battle/BattleContext, save/load schema, formulas, `project.godot`, and assets were not changed.
+- Next candidate work:
+  1. `v0.70-26 External Trade Tab Structure Polish`
+  2. `v0.70-27 Selected City Stability + Military Card Polish`
+  3. `v0.70-28 Diplomacy Spy Tab Structure Polish`
+  4. `v0.70-29 City Tech Tree UI Entry`
+
 ## v0.70-24a City Storage Gold Source Fix + Resource Card Polish
 - Baseline: `v0.70-24 City Storage Resource Tab MVP`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

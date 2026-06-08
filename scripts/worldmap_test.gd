@@ -1353,31 +1353,16 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 		CITY_DETAIL_TAB_INTERNAL_TRADE:
 			_set_city_detail_body_labels_visible(true)
 			_apply_city_detail_default_text_tone()
+			var connected_player_city_ids := _get_internal_trade_connected_player_city_ids(city_marker)
 			var supply_state := _get_display_supply_state_for_city(city_marker.city_id)
-			var troop_move_preview := _get_troop_move_preview_for_city(city_marker.city_id)
 			city_detail_type_label.text = "무역"
 			city_detail_region_owner_label.text = "자국무역"
-			city_detail_resource_label.text = "내부 교역로: %s\n%s" % [
-				_format_internal_route_summary(city_marker),
-				_format_city_supply_state_display(supply_state),
-			]
-			city_detail_security_label.text = _format_city_supply_adjustment_display(supply_state)
-			city_detail_military_label.text = "군사 보급 판단: %s" % str(city_data.get("military", "군사 보급 정보 없음"))
-			city_detail_commerce_label.text = "%s\n%s" % [
-				_format_city_public_support_display(city_marker.city_id),
-				"%s\n%s" % [
-					_format_city_loyalty_drift_display(city_marker.city_id),
-					"%s\n%s" % [
-						_format_city_seasonal_loyalty_display(city_marker.city_id),
-						_format_city_revolt_risk_display(city_marker.city_id),
-					],
-				],
-			]
-			city_detail_rating_label.text = "%s\n%s" % [
-				_format_troop_move_preview_display(troop_move_preview),
-				_format_city_recruitment_conscription_display(city_marker.city_id),
-			]
-			city_detail_domestic_button_placeholder.text = _format_troop_move_button_text(troop_move_preview)
+			city_detail_resource_label.text = _format_internal_trade_route_display(city_marker, connected_player_city_ids)
+			city_detail_security_label.text = _format_city_supply_state_display(supply_state)
+			city_detail_military_label.text = _format_internal_trade_lead_display(connected_player_city_ids)
+			city_detail_commerce_label.text = _format_internal_trade_policy_display(connected_player_city_ids)
+			city_detail_rating_label.text = ""
+			city_detail_domestic_button_placeholder.visible = false
 			city_detail_status_label.text = ""
 			city_detail_hint_label.text = "자국무역과 보급 흐름을 확인합니다."
 		CITY_DETAIL_TAB_EXTERNAL_TRADE:
@@ -1669,13 +1654,66 @@ func _format_internal_route_summary(city_marker: WorldMapCityMarker) -> String:
 		return "비활성"
 
 	var linked_names: Array[String] = []
-	for neighbor_id in city_marker.neighbors.slice(0, 2):
-		var neighbor_marker := _city_markers_by_id.get(neighbor_id) as WorldMapCityMarker
-		var linked_name := str(neighbor_id)
-		if neighbor_marker != null:
-			linked_name = neighbor_marker.display_name
-		linked_names.append(linked_name)
+	for neighbor_id in _get_internal_trade_connected_player_city_ids(city_marker):
+		linked_names.append(_format_city_name_by_id(str(neighbor_id), str(neighbor_id)))
+	if linked_names.is_empty():
+		return "연결 아군 성 없음"
 	return " / ".join(linked_names)
+
+
+func _get_internal_trade_connected_player_city_ids(city_marker: WorldMapCityMarker) -> Array[String]:
+	var connected_city_ids: Array[String] = []
+	if city_marker == null:
+		return connected_city_ids
+	if not _is_city_owned_by_player_mvp(city_marker.city_id):
+		return connected_city_ids
+	for neighbor_id_variant in city_marker.neighbors:
+		var neighbor_id := str(neighbor_id_variant)
+		if neighbor_id.is_empty():
+			continue
+		if _is_city_owned_by_player_mvp(neighbor_id) and not connected_city_ids.has(neighbor_id):
+			connected_city_ids.append(neighbor_id)
+	return connected_city_ids
+
+
+func _format_internal_trade_route_display(city_marker: WorldMapCityMarker, connected_player_city_ids: Array[String]) -> String:
+	var owned_city_count := _get_owned_city_count_for_internal_trade_display()
+	if city_marker == null or not _is_city_owned_by_player_mvp(city_marker.city_id) or connected_player_city_ids.is_empty():
+		return "현재 연결 가능한 아군 성이 없습니다.\n자국무역은 두 개 이상의 성을 보유한 뒤 사용할 수 있습니다.\n\n보유 성: %d개\n연결 아군 성: 없음" % owned_city_count
+	return "연결 아군 성\n%s" % _format_internal_trade_city_name_list(connected_player_city_ids)
+
+
+func _format_internal_trade_lead_display(connected_player_city_ids: Array[String]) -> String:
+	if connected_player_city_ids.is_empty():
+		return "무역 주도\n연결 가능한 아군 성이 없어 조정할 수 없습니다."
+	return "무역 주도\n재상 위임 / 수동 조정"
+
+
+func _format_internal_trade_policy_display(connected_player_city_ids: Array[String]) -> String:
+	if connected_player_city_ids.is_empty():
+		return "현재 방침\n연결 가능한 아군 성이 생기면 무역 주도를 선택할 수 있습니다."
+	return "현재 방침\n재상 위임과 수동 조정은 다음 단계에서 연결됩니다."
+
+
+func _format_internal_trade_city_name_list(city_ids: Array[String]) -> String:
+	var city_names: Array[String] = []
+	for city_id in city_ids:
+		city_names.append(_format_city_name_by_id(city_id, city_id))
+	if city_names.is_empty():
+		return "없음"
+	return " / ".join(city_names)
+
+
+func _get_owned_city_count_for_internal_trade_display() -> int:
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return 0
+	var count := 0
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		if _is_city_owned_by_player_mvp(city_id):
+			count += 1
+	return count
 
 
 func _format_external_trade_target(city_marker: WorldMapCityMarker) -> String:
@@ -1698,17 +1736,41 @@ func _get_display_supply_state_for_city(city_id: String) -> Dictionary:
 
 func _format_city_supply_state_display(supply_state: Dictionary) -> String:
 	if supply_state.is_empty():
-		return "■ 보급 상태\n최근 보급 결과 없음"
-	var state_label := "unsupplied"
+		return "보급 상태\n역할: 일반\n상태: 확인 필요\n수입 배수: x1.00"
+	var state_id := "unsupplied"
 	if bool(supply_state.get("isolated", false)):
-		state_label = "isolated"
+		state_id = "isolated"
 	elif bool(supply_state.get("supplied", false)):
-		state_label = "supplied"
-	return "■ 보급 상태\n역할: %s\n상태: %s\n수입 배수: x%.2f" % [
-		str(supply_state.get("role", "rear")),
-		state_label,
+		state_id = "supplied"
+	return "보급 상태\n역할: %s\n상태: %s\n수입 배수: x%.2f" % [
+		_format_supply_role_label(str(supply_state.get("role", ""))),
+		_format_supply_status_label(state_id),
 		float(supply_state.get("income_multiplier", 1.0)),
 	]
+
+
+func _format_supply_role_label(role_id: String) -> String:
+	match role_id:
+		"hub":
+			return "중심 거점"
+		"rear":
+			return "후방"
+		"frontline":
+			return "전방"
+		_:
+			return "일반"
+
+
+func _format_supply_status_label(status_id: String) -> String:
+	match status_id:
+		"supplied":
+			return "보급 연결"
+		"isolated":
+			return "고립"
+		"unsupplied":
+			return "보급 미연결"
+		_:
+			return "확인 필요"
 
 
 func _format_city_supply_adjustment_display(supply_state: Dictionary) -> String:
