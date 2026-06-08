@@ -549,6 +549,8 @@ var selected_city_marker: WorldMapCityMarker = null
 var _city_markers_by_id: Dictionary = {}
 var _unified_primary_tab := UNIFIED_PANEL_TAB_CITY_DETAIL
 var _selected_diplomacy_spy_tab := DIPLOMACY_SPY_TAB_DIPLOMACY
+var _city_resource_potential_card: PanelContainer = null
+var _city_storage_card: PanelContainer = null
 var _warehouse_card: PanelContainer
 var _warehouse_resource_row_labels: Dictionary = {}
 var _pending_invasion_choice_card: PanelContainer
@@ -661,6 +663,7 @@ func _ready() -> void:
 	_refresh_left_world_status_panel()
 	_connect_world_hud_placeholders()
 	_setup_unified_city_detail_diplomacy_panel()
+	_ensure_city_detail_resource_cards()
 	_setup_independent_hud_panel_drag()
 	_lock_worldmap_fixed_panel_top_margin()
 	_reset_city_detail_panel()
@@ -1311,6 +1314,7 @@ func _reset_city_detail_panel() -> void:
 		return
 
 	_refresh_city_detail_tab_styles()
+	_set_city_detail_resource_cards_enabled(false)
 	city_detail_name_label.text = "도시를 선택하세요"
 	_set_city_detail_body_labels_visible(true)
 	city_detail_type_label.text = ""
@@ -1396,7 +1400,8 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 
 func _apply_city_detail_resource_tab_content(city_id: String, city_data: Dictionary) -> void:
 	_set_city_detail_body_labels_visible(true)
-	city_detail_type_label.text = "식량 자원"
+	_set_city_detail_resource_cards_enabled(true)
+	city_detail_type_label.text = "자원 잠재력\n식량 자원"
 	city_detail_type_label.add_theme_color_override("font_color", Color(0.96, 0.74, 0.34, 1.0))
 	city_detail_region_owner_label.text = _extract_resource_group(str(city_data.get("resources", "")), ["쌀", "보리", "수산물"])
 	city_detail_region_owner_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
@@ -1408,10 +1413,9 @@ func _apply_city_detail_resource_tab_content(city_id: String, city_data: Diction
 	city_detail_military_label.add_theme_color_override("font_color", Color(0.78, 0.56, 0.88, 1.0))
 	city_detail_commerce_label.text = _extract_resource_group(str(city_data.get("resources", "")), ["비단", "소금"])
 	city_detail_commerce_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
-	city_detail_rating_label.text = "경제\n인구 %s / 상업력 %s\n금전 %d" % [
+	city_detail_rating_label.text = "경제 잠재력\n인구 %s / 상업력 %s" % [
 		_format_star_rating(_get_city_numeric_rating(city_data, "population_rating", 0)),
 		_format_star_rating(_get_city_numeric_rating(city_data, "commerce_rating", 0)),
-		maxi(0, int(city_data.get("gold", 0))),
 	]
 	city_detail_rating_label.add_theme_color_override("font_color", Color(0.95, 0.92, 0.82, 1.0))
 	city_detail_status_label.visible = true
@@ -1419,6 +1423,90 @@ func _apply_city_detail_resource_tab_content(city_id: String, city_data: Diction
 	city_detail_status_label.add_theme_color_override("font_color", Color(0.86, 0.92, 0.88, 1.0))
 	city_detail_hint_label.text = "자원 잠재력은 생산 기반, 성 창고는 현재 보유량을 나타냅니다."
 	city_detail_domestic_button_placeholder.visible = false
+
+
+func _ensure_city_detail_resource_cards() -> void:
+	if _city_resource_potential_card != null and _city_storage_card != null:
+		return
+	if city_detail_content_container == null:
+		return
+
+	_city_resource_potential_card = PanelContainer.new()
+	_city_resource_potential_card.name = "ResourcePotentialCard"
+	_city_resource_potential_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var potential_box := VBoxContainer.new()
+	potential_box.name = "ResourcePotentialCardContent"
+	potential_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	potential_box.add_theme_constant_override("separation", 3)
+	_city_resource_potential_card.add_child(potential_box)
+	var potential_insert_index := city_detail_type_label.get_index()
+	city_detail_content_container.add_child(_city_resource_potential_card)
+	city_detail_content_container.move_child(_city_resource_potential_card, potential_insert_index)
+	for label in [
+		city_detail_type_label,
+		city_detail_region_owner_label,
+		city_detail_resource_label,
+		city_detail_security_label,
+		city_detail_military_label,
+		city_detail_commerce_label,
+		city_detail_rating_label,
+	]:
+		_move_city_detail_label_to_container(label, potential_box)
+
+	_city_storage_card = PanelContainer.new()
+	_city_storage_card.name = "CityStorageCard"
+	_city_storage_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var storage_box := VBoxContainer.new()
+	storage_box.name = "CityStorageCardContent"
+	storage_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	storage_box.add_theme_constant_override("separation", 3)
+	_city_storage_card.add_child(storage_box)
+	var storage_insert_index := city_detail_status_label.get_index()
+	city_detail_content_container.add_child(_city_storage_card)
+	city_detail_content_container.move_child(_city_storage_card, storage_insert_index)
+	_move_city_detail_label_to_container(city_detail_status_label, storage_box)
+	_set_city_detail_resource_cards_enabled(false)
+
+
+func _move_city_detail_label_to_container(label: Label, target_container: Container) -> void:
+	if label == null or target_container == null:
+		return
+	var current_parent := label.get_parent()
+	if current_parent == target_container:
+		return
+	if current_parent != null:
+		current_parent.remove_child(label)
+	target_container.add_child(label)
+
+
+func _set_city_detail_resource_cards_enabled(is_enabled: bool) -> void:
+	if _city_resource_potential_card == null or _city_storage_card == null:
+		return
+	_city_resource_potential_card.add_theme_stylebox_override("panel", _make_city_detail_resource_card_style(is_enabled))
+	_city_storage_card.add_theme_stylebox_override("panel", _make_city_detail_resource_card_style(is_enabled))
+
+
+func _make_city_detail_resource_card_style(is_enabled: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	if is_enabled:
+		style.bg_color = Color(0.08, 0.075, 0.055, 0.74)
+		style.border_color = Color(0.70, 0.54, 0.26, 0.88)
+		style.set_border_width_all(1)
+		style.set_corner_radius_all(5)
+		style.content_margin_left = 8.0
+		style.content_margin_top = 7.0
+		style.content_margin_right = 8.0
+		style.content_margin_bottom = 7.0
+	else:
+		style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+		style.border_color = Color(0.0, 0.0, 0.0, 0.0)
+		style.set_border_width_all(0)
+		style.set_corner_radius_all(0)
+		style.content_margin_left = 0.0
+		style.content_margin_top = 0.0
+		style.content_margin_right = 0.0
+		style.content_margin_bottom = 0.0
+	return style
 
 
 func _set_city_detail_body_labels_visible(should_show: bool) -> void:
@@ -1435,11 +1523,16 @@ func _set_city_detail_body_labels_visible(should_show: bool) -> void:
 	]:
 		if label != null:
 			label.visible = should_show
+	if _city_resource_potential_card != null:
+		_city_resource_potential_card.visible = should_show
+	if _city_storage_card != null:
+		_city_storage_card.visible = should_show
 	if city_detail_domestic_button_placeholder != null:
 		city_detail_domestic_button_placeholder.visible = should_show
 
 
 func _apply_city_detail_default_text_tone() -> void:
+	_set_city_detail_resource_cards_enabled(false)
 	for label in [
 		city_detail_type_label,
 		city_detail_region_owner_label,
@@ -10092,12 +10185,12 @@ func _get_city_storage(city_id: String, city_data: Dictionary = {}) -> Dictionar
 	var source_data: Dictionary = city_data
 	if source_data.is_empty() and not city_id.is_empty():
 		source_data = _get_city_hud_entry(city_id)
-	var raw_storage: Variant = source_data.get("storage", {})
-	var storage := _normalize_city_storage(raw_storage)
-	if storage.is_empty():
-		storage = _build_default_city_storage(city_id, source_data)
+	var storage := {}
+	if source_data.has("storage") and source_data.get("storage") is Dictionary:
+		storage = _normalize_city_storage(source_data.get("storage"))
 	else:
-		storage = _ensure_city_storage_keys(storage)
+		storage = _build_default_city_storage(city_id, source_data)
+	storage = _ensure_city_storage_keys(storage)
 	if not city_id.is_empty():
 		var runtime_state := _get_mutable_city_runtime_state(city_id)
 		if not runtime_state.is_empty():
@@ -10144,21 +10237,21 @@ func _format_city_storage_summary(storage: Dictionary) -> String:
 	var special_total := _get_city_storage_group_total(storage, CITY_STORAGE_SPECIAL_RESOURCE_IDS)
 	var lines: Array[String] = ["성 창고"]
 	lines.append("금전 %d" % _get_city_storage_amount(storage, "gold"))
-	lines.append("식량 %d %s  %s" % [
+	lines.append("식량 %d %s" % [
 		food_total,
 		_get_city_storage_status_label(food_total),
-		_format_city_storage_group_details(storage, CITY_STORAGE_FOOD_RESOURCE_IDS),
 	])
-	lines.append("전략 %d %s  %s" % [
+	lines.append(_format_city_storage_group_details(storage, CITY_STORAGE_FOOD_RESOURCE_IDS))
+	lines.append("전략 %d %s" % [
 		strategy_total,
 		_get_city_storage_status_label(strategy_total),
-		_format_city_storage_group_details(storage, CITY_STORAGE_STRATEGY_RESOURCE_IDS),
 	])
-	lines.append("특산 %d %s  %s" % [
+	lines.append(_format_city_storage_group_details(storage, CITY_STORAGE_STRATEGY_RESOURCE_IDS))
+	lines.append("특산 %d %s" % [
 		special_total,
 		_get_city_storage_status_label(special_total),
-		_format_city_storage_group_details(storage, CITY_STORAGE_SPECIAL_RESOURCE_IDS),
 	])
+	lines.append(_format_city_storage_group_details(storage, CITY_STORAGE_SPECIAL_RESOURCE_IDS))
 	return "\n".join(lines)
 
 

@@ -1,5 +1,17 @@
 # WORLDMAP RULES
 
+## v0.70-24a City Storage Gold Source and Resource Card Rule
+- City Detail `자원` tab must not display `city_data.gold` as city-held money.
+- Real city-held gold is displayed only from `storage.gold` in the `성 창고` section.
+- The upper economy block is `경제 잠재력` and should show population and commerce potential only.
+- Storage fallback must distinguish missing storage from explicit saved storage:
+  1. Missing `storage` key or non-Dictionary value uses `_build_default_city_storage()`.
+  2. Explicit Dictionary storage is normalized and preserved, including all-zero values.
+  3. Hanseong missing storage defaults from current national `resource_stock`.
+- `성 창고` group display should keep summary and details on separate lines: group total/status first, resource breakdown next.
+- `자원 잠재력` and `성 창고` should remain visually separated as cards, while preserving existing City Detail label references, tab buttons, collapse button, and drag handles.
+- This rule does not authorize national warehouse changes, national `resource_stock` formula changes, trade, turn production, supply consumption, upkeep, recruitment, battle loot, BattleContext, resource_seed/domestic_seed changes, `project.godot`, assets, `.uid`, or `.ogv` changes.
+
 ## v0.70-24 City Storage Resource Tab Rule
 - City Detail `자원` tab has two distinct concepts:
   1. Existing star rows are `자원 잠재력` / production potential.

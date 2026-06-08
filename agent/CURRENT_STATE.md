@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.70-24a City Storage Gold Source Fix + Resource Card Polish
+- Baseline: `v0.70-24 City Storage Resource Tab MVP`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail `자원` tab no longer displays `city_data.gold` in the economy block.
+- The economy block is now `경제 잠재력` and shows only population and commerce potential.
+- Real city-held gold is displayed only through `storage.gold` in the `성 창고` section.
+- Fixed the storage fallback bug where a missing `storage` key could normalize into an all-zero dictionary before Hanseong defaults were built.
+- `_get_city_storage()` now distinguishes missing/non-Dictionary storage from explicitly saved storage, so saved zero values remain intentional while missing storage falls back safely.
+- Hanseong default storage now correctly follows the national warehouse/resource stock values: gold 500, rice 300, barley 250, seafood 80, wood 100, iron 50, horses 30, silk 30, salt 50.
+- Resource potential and city storage are separated into runtime `PanelContainer` card wrappers without changing scene node names or button/tab/drag behavior.
+- Storage summary line wrapping now separates group summary and detail lines, e.g. `식량 630 안정` followed by `쌀 300 / 보리 250 / 수산물 80`.
+- National warehouse, trade, turn production, battle, BattleContext, resource/domestic seeds, numeric formulas, `project.godot`, and assets were not changed.
+- Next candidate work:
+  1. `v0.70-25 WorldMap Trade Tab Structure Polish`
+  2. `v0.70-26 WorldMap Diplomacy Spy Tab Structure Polish`
+  3. `v0.70-27 City Tech Tree UI Entry`
+
 ## v0.70-24 City Storage Resource Tab MVP
 - Baseline: `v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep` at `207a76e`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-24a City Storage Gold Source Fix + Resource Card Polish
+- Built on `v0.70-24 City Storage Resource Tab MVP`.
+- Removed the upper resource-tab economy display of `city_data.gold`.
+- Renamed the upper economy block to `경제 잠재력` and limited it to population and commerce potential.
+- Unified real city-held gold display under `성 창고`, sourced from `storage.gold`.
+- Fixed the missing-storage fallback bug by checking whether the `storage` key exists before normalization.
+- Preserved explicitly saved Dictionary storage, including all-zero storage, while using default storage for missing or non-Dictionary storage.
+- Hanseong missing storage now correctly falls back to the current national warehouse/resource stock: gold 500, rice 300, barley 250, seafood 80, wood 100, iron 50, horses 30, silk 30, salt 50.
+- Split `자원 잠재력` and `성 창고` into bordered runtime card wrappers and changed storage group formatting to summary/detail line pairs.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change national warehouse UI, national `resource_stock` calculations, trade, turn production, supply consumption, upkeep, recruitment, battle loot, BattleContext, resource seeds, domestic seeds, formulas, `project.godot`, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-24 City Storage Resource Tab MVP
 - Built on `v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep` (`207a76e`).
 - Added city runtime `storage` helpers in `scripts/worldmap_test.gd`.

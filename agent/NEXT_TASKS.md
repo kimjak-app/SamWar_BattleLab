@@ -1,5 +1,28 @@
 # NEXT TASKS
 
+## Current: v0.70-24a City Storage Gold Source Fix + Resource Card Polish
+- `v0.70-24a` is a focused display and fallback fix for the City Detail `자원` tab.
+- Completed direction:
+  1. Removed `금전` from the upper economy block so `city_data.gold` is not presented as city-held money.
+  2. Renamed the upper economy block to `경제 잠재력` and limited it to `인구 / 상업력`.
+  3. Unified real city gold display under `성 창고 > 금전`, sourced from `storage.gold`.
+  4. Fixed missing-storage fallback so Hanseong defaults to the national warehouse/resource stock, while explicitly saved zero storage remains preserved.
+  5. Split `자원 잠재력` and `성 창고` into bordered runtime cards and improved storage line wrapping.
+- Preserved scope:
+  1. National warehouse UI and national `resource_stock` logic are unchanged.
+  2. Trade, turn production, supply consumption, upkeep, recruitment, battle loot, BattleContext, resource/domestic seeds, and formulas are unchanged.
+  3. `project.godot`, assets, `.uid`, and `.ogv` files were not changed.
+- Manual F6 QA required:
+  1. Hanseong City Detail `도시 상세 > 자원` should show no upper `금전 650`.
+  2. `경제 잠재력` should show only population and commerce.
+  3. `성 창고` should show `금전 500`, `식량 630 안정`, `전략 180 주의`, and `특산 80 부족`.
+  4. Resource potential and city storage should read as separate bordered cards.
+  5. Save/load, expanded/collapsed drag, collapse/expand, trade/diplomacy tabs, Selected City Panel drag, help, recruitment, governor, and attack paths should remain normal.
+- Next candidate work:
+  1. `v0.70-25 WorldMap Trade Tab Structure Polish`
+  2. `v0.70-26 WorldMap Diplomacy Spy Tab Structure Polish`
+  3. `v0.70-27 City Tech Tree UI Entry`
+
 ## Current: v0.70-24 City Storage Resource Tab MVP
 - `v0.70-24` adds a display MVP for city-held storage under the City Detail `자원` tab.
 - Completed direction:

@@ -1,5 +1,23 @@
 # HANDOFF TO CODEX
 
+## v0.70-24a City Storage Gold Source Fix + Resource Card Polish Handoff
+- Baseline: `v0.70-24 City Storage Resource Tab MVP`.
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- The City Detail resource tab now treats `storage.gold` as the only displayed source for real city-held gold.
+- The upper economy block no longer reads `city_data.gold`; it is labeled `경제 잠재력` and shows only population and commerce potential.
+- The storage fallback bug was fixed:
+  - Missing `storage` key or non-Dictionary storage uses `_build_default_city_storage()`.
+  - Explicit Dictionary storage, including all-zero saved storage, is normalized and preserved.
+  - Hanseong missing storage falls back to current national `resource_stock`.
+- Hanseong default storage expected display: `금전 500`, food total 630, strategy total 180, specialty total 80.
+- `성 창고` formatting now separates summary lines from detail lines for food, strategy, and specialty groups.
+- `자원 잠재력` and `성 창고` are visually split with runtime `PanelContainer` card wrappers. The scene file does not need a structural rewrite for this helper.
+- Existing tab buttons, collapse button, drag handles, save/load city runtime storage persistence, national warehouse, trade, turn production, battle, BattleContext, formulas, `project.godot`, and assets are unchanged.
+- Next candidates:
+  1. `v0.70-25 WorldMap Trade Tab Structure Polish`
+  2. `v0.70-26 WorldMap Diplomacy Spy Tab Structure Polish`
+  3. `v0.70-27 City Tech Tree UI Entry`
+
 ## v0.70-24 City Storage Resource Tab MVP Handoff
 - Baseline: `v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep` (`207a76e`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

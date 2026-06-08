@@ -2,6 +2,22 @@
 
 ## 2026-06-08
 
+### v0.70-24a City Storage Gold Source Fix + Resource Card Polish
+- Started from the v0.70-24 City Storage Resource Tab MVP baseline.
+- Required checks completed for current status/history and the City Detail resource/storage/save-load code paths.
+- Implemented:
+  - Removed upper economy `금전` display from the City Detail `자원` tab.
+  - Renamed the upper economy block to `경제 잠재력` and kept only population and commerce potential.
+  - Kept actual city-held gold in `성 창고`, sourced from `storage.gold`.
+  - Fixed `_get_city_storage()` fallback so missing storage builds defaults before normalization.
+  - Preserved explicit saved storage dictionaries, including all-zero storage.
+  - Improved `성 창고` line breaks so group totals and details are shown on separate lines.
+  - Added runtime `PanelContainer` wrappers to visually split `자원 잠재력` and `성 창고` without scene restructuring.
+- Preserved national warehouse UI, national `resource_stock`, trade, turn production, supply consumption, upkeep, recruitment, battle loot, BattleContext, resource/domestic seeds, formulas, `project.godot`, assets, `.uid`, and `.ogv` files.
+- Manual F6 QA remains required for Hanseong card display, `storage.gold` gold display, save/load persistence, drag/collapse/tab/help/recruitment/governor/attack regressions, and clean Godot Output.
+
+## 2026-06-08
+
 ### v0.70-24 City Storage Resource Tab MVP
 - Started from `207a76e v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep`.
 - Pre-work `git status --short` showed a pre-existing modified `WorldMap_Test.tscn`; it was not edited or staged for this task.
