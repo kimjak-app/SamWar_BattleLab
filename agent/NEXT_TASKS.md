@@ -1,5 +1,29 @@
 # NEXT TASKS
 
+## Current: v0.70-24 City Storage Resource Tab MVP
+- `v0.70-24` adds a display MVP for city-held storage under the City Detail `자원` tab.
+- Completed direction:
+  1. Kept the existing food/strategy/specialty star rows as `자원 잠재력`.
+  2. Added a separate `성 창고` summary below economy for current city-held amounts.
+  3. Added city runtime `storage` data with ids `gold`, `rice`, `barley`, `seafood`, `wood`, `iron`, `horses`, `silk`, and `salt`.
+  4. Hanseong storage defaults to the current national warehouse/resource stock values; other cities default to zero storage unless explicit loaded/runtime storage exists.
+  5. Save/load includes `storage` in city runtime payloads, with safe defaults for older saves.
+- Preserved scope:
+  1. National warehouse UI and national `resource_stock` calculations are unchanged.
+  2. Trade movement, turn production, supply consumption, upkeep, recruitment, battle loot, BattleContext, and numeric formulas are unchanged.
+  3. `WorldMap_Test.tscn`, `project.godot`, and assets were not intentionally changed by this task.
+- Manual F6 QA required:
+  1. Hanseong click -> City Detail `도시 상세 > 자원` shows existing star potential plus `성 창고`.
+  2. Hanseong storage should show gold 500, food 630, strategy 180, specialty 80.
+  3. Save/load should preserve storage or safely restore defaults when older data lacks it.
+  4. Expanded/collapsed City Detail drag, collapse/expand click, tab switching, Selected City Panel drag, help, attack, governor, and recruitment paths remain normal.
+  5. Godot Output should not repeat ternary compatibility or `visible` shadowing reload warnings.
+- Next candidate work:
+  1. `v0.70-24a City Storage Save Load QA / Polish`
+  2. `v0.70-25 WorldMap Trade Tab Structure Polish`
+  3. `v0.70-26 WorldMap Diplomacy Spy Tab Structure Polish`
+  4. `v0.70-27 City Tech Tree UI Entry`
+
 ## Current: v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep
 - `v0.70-23-hotfix2` is a reload-warning-only sweep on top of `v0.70-23-hotfix1`.
 - Completed direction:

@@ -1,5 +1,21 @@
 # SESSION LOG
 
+## 2026-06-08
+
+### v0.70-24 City Storage Resource Tab MVP
+- Started from `207a76e v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep`.
+- Pre-work `git status --short` showed a pre-existing modified `WorldMap_Test.tscn`; it was not edited or staged for this task.
+- Required docs and code paths reviewed: WorldMap workflow/state/next/handoff/rules docs, resource tab rendering, national warehouse/resource stock helpers, city runtime state helpers, and WorldMap save/load.
+- Implemented:
+  - Added `storage` normalization/default/display helpers in `scripts/worldmap_test.gd`.
+  - Kept existing resource star rows as city resource potential.
+  - Added `성 창고` below the economy block in City Detail `자원` tab.
+  - Initialized Hanseong city storage from current national `resource_stock`: gold 500, rice 300, barley 250, seafood 80, wood 100, iron 50, horses 30, silk 30, salt 50.
+  - Defaulted other missing city storage to zero values unless explicit runtime/loaded storage exists.
+  - Added city runtime save/load coverage for `storage` with older-save defaults.
+- Preserved national warehouse UI, national `resource_stock`, turn production, trade movement, supply consumption, upkeep, recruitment, battle loot, BattleContext, formulas, `WorldMap_Test.tscn`, `project.godot`, and assets.
+- Manual F6 QA remains required for Hanseong storage display, save/load persistence, expanded/collapsed drag, collapse/expand, tab switching, help, Selected City Panel, attack/governor/recruitment buttons, and Godot Output warning cleanliness.
+
 ## 2026-06-05
 
 ### v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep

@@ -1,5 +1,31 @@
 # HANDOFF TO CODEX
 
+## v0.70-24 City Storage Resource Tab MVP Handoff
+- Baseline: `v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep` (`207a76e`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- City Detail resource tab now keeps existing star rows as resource potential and adds `성 창고` below the economy block for current city-held storage.
+- Storage structure:
+  - `storage.gold`
+  - `storage.rice`
+  - `storage.barley`
+  - `storage.seafood`
+  - `storage.wood`
+  - `storage.iron`
+  - `storage.horses`
+  - `storage.silk`
+  - `storage.salt`
+- Hanseong default storage is copied from the current national `resource_stock`: gold 500, rice 300, barley 250, seafood 80, wood 100, iron 50, horses 30, silk 30, salt 50.
+- Other cities default to zero storage unless explicit runtime/loaded `storage` exists. This is intentional MVP behavior to avoid inventing balance.
+- Save/load now serializes and applies `storage` inside `worldmap_city_state`; older saves without `storage` get safe default storage on load.
+- The UI summary groups storage as food (`rice`, `barley`, `seafood`), strategy (`wood`, `iron`, `horses`), and specialty (`silk`, `salt`) with simple 300/100 thresholds for `안정` / `주의` / `부족`.
+- Explicitly unchanged: national warehouse UI, national `resource_stock`, turn production, trade movement, supply consumption, recruitment, upkeep, battle loot, BattleContext, formulas, `WorldMap_Test.tscn`, `project.godot`, and assets.
+- Manual F6 QA should confirm Hanseong resource tab storage display, save/load persistence, expanded/collapsed drag, collapse/expand, tab switching, help, Selected City Panel, attack/governor/recruitment buttons, and clean Godot Output.
+- Next candidates:
+  1. `v0.70-24a City Storage Save Load QA / Polish`
+  2. `v0.70-25 WorldMap Trade Tab Structure Polish`
+  3. `v0.70-26 WorldMap Diplomacy Spy Tab Structure Polish`
+  4. `v0.70-27 City Tech Tree UI Entry`
+
 ## v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep Handoff
 - Baseline: `v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix` (`b8ca197`).
 - Runtime files touched: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `scripts/player_attack_deployment_panel.gd`, `scripts/battle_web_import_test.gd`, and `scripts/worldmap_city_marker.gd`.

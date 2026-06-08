@@ -327,6 +327,9 @@ const RESOURCE_LABELS := {
 }
 
 const RESOURCE_DISPLAY_ORDER := ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt", "gold"]
+const CITY_STORAGE_FOOD_RESOURCE_IDS := ["rice", "barley", "seafood"]
+const CITY_STORAGE_STRATEGY_RESOURCE_IDS := ["wood", "iron", "horses"]
+const CITY_STORAGE_SPECIAL_RESOURCE_IDS := ["silk", "salt"]
 const WAREHOUSE_CAPACITY := {
 	"rice": 1000,
 	"barley": 1000,
@@ -1388,10 +1391,10 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_status_label.text = ""
 			city_detail_hint_label.text = "세력 간 무역 흐름을 확인합니다."
 		_:
-			_apply_city_detail_resource_tab_content(city_data)
+			_apply_city_detail_resource_tab_content(city_marker.city_id, city_data)
 
 
-func _apply_city_detail_resource_tab_content(city_data: Dictionary) -> void:
+func _apply_city_detail_resource_tab_content(city_id: String, city_data: Dictionary) -> void:
 	_set_city_detail_body_labels_visible(true)
 	city_detail_type_label.text = "식량 자원"
 	city_detail_type_label.add_theme_color_override("font_color", Color(0.96, 0.74, 0.34, 1.0))
@@ -1411,9 +1414,10 @@ func _apply_city_detail_resource_tab_content(city_data: Dictionary) -> void:
 		maxi(0, int(city_data.get("gold", 0))),
 	]
 	city_detail_rating_label.add_theme_color_override("font_color", Color(0.95, 0.92, 0.82, 1.0))
-	city_detail_status_label.text = ""
-	city_detail_status_label.visible = false
-	city_detail_hint_label.text = "자원과 경제 잠재력은 테크 개발과 도시 운영의 기준이 됩니다."
+	city_detail_status_label.visible = true
+	city_detail_status_label.text = _format_city_storage_summary(_get_city_storage(city_id, city_data))
+	city_detail_status_label.add_theme_color_override("font_color", Color(0.86, 0.92, 0.88, 1.0))
+	city_detail_hint_label.text = "자원 잠재력은 생산 기반, 성 창고는 현재 보유량을 나타냅니다."
 	city_detail_domestic_button_placeholder.visible = false
 
 
@@ -9620,6 +9624,10 @@ func _get_mutable_city_runtime_state(city_id: String) -> Dictionary:
 	if source_city_state.is_empty():
 		return {}
 	var mutable_city_state := source_city_state.duplicate(true)
+	if not mutable_city_state.has("storage") or not (mutable_city_state["storage"] is Dictionary):
+		mutable_city_state["storage"] = _build_default_city_storage(city_id, mutable_city_state)
+	else:
+		mutable_city_state["storage"] = _normalize_city_storage(mutable_city_state.get("storage"))
 	_city_runtime_states[city_id] = mutable_city_state
 	return mutable_city_state
 
@@ -9675,6 +9683,8 @@ func _serialize_worldmap_city_runtime_state() -> Dictionary:
 		}
 		if source.has("resource_stock") and source.get("resource_stock") is Dictionary:
 			city_payload["resource_stock"] = (source.get("resource_stock") as Dictionary).duplicate(true)
+		if source.has("storage") and source.get("storage") is Dictionary:
+			city_payload["storage"] = _normalize_city_storage(source.get("storage"))
 		if source.has("city_tech") and source.get("city_tech") is Dictionary:
 			city_payload["city_tech"] = (source.get("city_tech") as Dictionary).duplicate(true)
 		var wounded_queue := _get_city_wounded_queue_mvp(source)
@@ -9784,6 +9794,10 @@ func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
 				var resource_key := str(resource_id)
 				resource_stock[resource_key] = maxi(0, int((source.get("resource_stock") as Dictionary).get(resource_key, 0)))
 			city_state["resource_stock"] = resource_stock
+		if source.has("storage") and source.get("storage") is Dictionary:
+			city_state["storage"] = _normalize_city_storage(source.get("storage"))
+		else:
+			city_state["storage"] = _build_default_city_storage(city_id, city_state)
 		if source.has("city_tech") and source.get("city_tech") is Dictionary:
 			var city_tech: Dictionary = (source.get("city_tech") as Dictionary).duplicate(true)
 			if not city_tech.has("completed") or not (city_tech["completed"] is Dictionary):
@@ -10072,6 +10086,110 @@ func _format_player_resource_summary() -> String:
 func _get_player_resource_amount(resource_id: String) -> int:
 	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
 	return int(resource_stock.get(resource_id, 0))
+
+
+func _get_city_storage(city_id: String, city_data: Dictionary = {}) -> Dictionary:
+	var source_data: Dictionary = city_data
+	if source_data.is_empty() and not city_id.is_empty():
+		source_data = _get_city_hud_entry(city_id)
+	var raw_storage: Variant = source_data.get("storage", {})
+	var storage := _normalize_city_storage(raw_storage)
+	if storage.is_empty():
+		storage = _build_default_city_storage(city_id, source_data)
+	else:
+		storage = _ensure_city_storage_keys(storage)
+	if not city_id.is_empty():
+		var runtime_state := _get_mutable_city_runtime_state(city_id)
+		if not runtime_state.is_empty():
+			runtime_state["storage"] = storage.duplicate(true)
+			_city_runtime_states[city_id] = runtime_state
+	return storage
+
+
+func _normalize_city_storage(raw_storage: Variant) -> Dictionary:
+	var storage := {}
+	if not raw_storage is Dictionary:
+		return storage
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		var resource_key := str(resource_id)
+		storage[resource_key] = maxi(0, int((raw_storage as Dictionary).get(resource_key, 0)))
+	return storage
+
+
+func _ensure_city_storage_keys(storage: Dictionary) -> Dictionary:
+	var normalized := {}
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		var resource_key := str(resource_id)
+		normalized[resource_key] = maxi(0, int(storage.get(resource_key, 0)))
+	return normalized
+
+
+func _build_default_city_storage(city_id: String, _city_data: Dictionary) -> Dictionary:
+	var storage := {}
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		var resource_key := str(resource_id)
+		storage[resource_key] = 0
+	if city_id == "hanseong":
+		var raw_resource_stock: Variant = _player_state.get("resource_stock", {})
+		if raw_resource_stock is Dictionary:
+			for resource_id in RESOURCE_DISPLAY_ORDER:
+				var resource_key := str(resource_id)
+				storage[resource_key] = maxi(0, int((raw_resource_stock as Dictionary).get(resource_key, 0)))
+	return storage
+
+
+func _format_city_storage_summary(storage: Dictionary) -> String:
+	var food_total := _get_city_storage_group_total(storage, CITY_STORAGE_FOOD_RESOURCE_IDS)
+	var strategy_total := _get_city_storage_group_total(storage, CITY_STORAGE_STRATEGY_RESOURCE_IDS)
+	var special_total := _get_city_storage_group_total(storage, CITY_STORAGE_SPECIAL_RESOURCE_IDS)
+	var lines: Array[String] = ["성 창고"]
+	lines.append("금전 %d" % _get_city_storage_amount(storage, "gold"))
+	lines.append("식량 %d %s  %s" % [
+		food_total,
+		_get_city_storage_status_label(food_total),
+		_format_city_storage_group_details(storage, CITY_STORAGE_FOOD_RESOURCE_IDS),
+	])
+	lines.append("전략 %d %s  %s" % [
+		strategy_total,
+		_get_city_storage_status_label(strategy_total),
+		_format_city_storage_group_details(storage, CITY_STORAGE_STRATEGY_RESOURCE_IDS),
+	])
+	lines.append("특산 %d %s  %s" % [
+		special_total,
+		_get_city_storage_status_label(special_total),
+		_format_city_storage_group_details(storage, CITY_STORAGE_SPECIAL_RESOURCE_IDS),
+	])
+	return "\n".join(lines)
+
+
+func _get_city_storage_group_total(storage: Dictionary, resource_ids: Array) -> int:
+	var total := 0
+	for resource_id in resource_ids:
+		total += _get_city_storage_amount(storage, str(resource_id))
+	return total
+
+
+func _format_city_storage_group_details(storage: Dictionary, resource_ids: Array) -> String:
+	var parts: Array[String] = []
+	for resource_id in resource_ids:
+		var resource_key := str(resource_id)
+		parts.append("%s %d" % [
+			str(RESOURCE_LABELS.get(resource_key, resource_key)),
+			_get_city_storage_amount(storage, resource_key),
+		])
+	return " / ".join(parts)
+
+
+func _get_city_storage_amount(storage: Dictionary, resource_id: String) -> int:
+	return maxi(0, int(storage.get(resource_id, 0)))
+
+
+func _get_city_storage_status_label(total: int) -> String:
+	if total >= 300:
+		return "안정"
+	if total >= 100:
+		return "주의"
+	return "부족"
 
 
 func _refresh_warehouse_card() -> void:
@@ -10577,7 +10695,7 @@ func _on_city_detail_tab_pressed(tab_id: String) -> void:
 	else:
 		_reset_city_detail_panel()
 	if tab_id == CITY_DETAIL_TAB_RESOURCES:
-		city_detail_hint_label.text = "자원과 경제 잠재력은 테크 개발과 도시 운영의 기준이 됩니다."
+		city_detail_hint_label.text = "자원 잠재력은 생산 기반, 성 창고는 현재 보유량을 나타냅니다."
 	else:
 		city_detail_hint_label.text = "%s 흐름을 확인합니다." % _get_city_detail_tab_label(tab_id)
 	_queue_unified_city_panel_resize()

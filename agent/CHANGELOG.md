@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-24 City Storage Resource Tab MVP
+- Built on `v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep` (`207a76e`).
+- Added city runtime `storage` helpers in `scripts/worldmap_test.gd`.
+- City storage uses the MVP structure `gold`, `rice`, `barley`, `seafood`, `wood`, `iron`, `horses`, `silk`, and `salt`.
+- Hanseong default storage is initialized from the current national `resource_stock`: gold 500, rice 300, barley 250, seafood 80, wood 100, iron 50, horses 30, silk 30, salt 50.
+- Other cities default to zero storage unless a runtime/loaded city payload provides explicit `storage`.
+- City Detail `자원` tab now preserves the existing resource-potential star rows and adds a `성 창고` section below economy.
+- `성 창고` displays gold, food total/detail, strategy total/detail, and specialty total/detail with simple `안정` / `주의` / `부족` status text.
+- Save/load now includes `storage` in serialized city runtime payloads and restores safe defaults for older saves without the key.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change national warehouse UI, national `resource_stock`, turn production, trade movement, supply consumption, upkeep, recruitment, battle loot, BattleContext, formulas, `WorldMap_Test.tscn`, `project.godot`, or assets.
+
 ## v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep
 - Built on `v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix` (`b8ca197`).
 - Performed a full repo `.gd` ternary sweep with `rg " if .* else " --glob "*.gd"`.

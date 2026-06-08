@@ -1,5 +1,22 @@
 # WORLDMAP RULES
 
+## v0.70-24 City Storage Resource Tab Rule
+- City Detail `자원` tab has two distinct concepts:
+  1. Existing star rows are `자원 잠재력` / production potential.
+  2. New `storage` data is `성 창고` / current city-held amount.
+- Do not conflate city `storage` with national `resource_stock`, city `resource_seed`, or city `domestic_seed`.
+- City `storage` keys are `gold`, `rice`, `barley`, `seafood`, `wood`, `iron`, `horses`, `silk`, and `salt`.
+- Hanseong default storage follows the current national warehouse/resource stock values at initialization.
+- Other city storage should use explicit runtime/loaded values when present; otherwise, use safe zero/default values until a dedicated balancing pass defines real city inventories.
+- `성 창고` display may group:
+  1. Food: `rice`, `barley`, `seafood`.
+  2. Strategy: `wood`, `iron`, `horses`.
+  3. Specialty: `silk`, `salt`.
+- MVP storage state labels are simple display labels: 300+ `안정`, 100-299 `주의`, below 100 `부족`.
+- Save/load should preserve city runtime `storage` when present and must tolerate older saves without `storage`.
+- This rule does not authorize national warehouse changes, turn production, trade movement, supply consumption, upkeep, recruitment cost changes, battle loot, BattleContext changes, formula changes, `project.godot`, scenes, or assets.
+- Continue the hotfix2 ternary rule: do not add type-risk GDScript ternaries for `Dictionary`, `Array`, `Control`, `Label`, `Button`, `Callable`, `String`, `int`, or `null` branches.
+
 ## v0.70-23-hotfix2 GDScript Ternary Sweep Rule
 - For WorldMap hotfix work, search all repo `.gd` files with `rg " if .* else " --glob "*.gd"` before assuming only `Dictionary` ternaries are relevant.
 - Convert ternaries to explicit `if/else` when branch values are different node/control subclasses, may be `null`, are `Variant`-derived, or require Godot to infer across object/container types.
