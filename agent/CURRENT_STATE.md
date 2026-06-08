@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix
+- Baseline: `v0.70-23 WorldMap City Detail Resource Tab Slim Polish` at `94b404b`.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- CityDetailPanel drag handle registration now includes the visible `city_detail_header_row`, so the unified City Detail panel can be dragged while expanded and while collapsed.
+- `CollapseButtonPlaceholder`, primary tab buttons, secondary tab buttons, and resource/trade tab buttons were not registered directly as drag handles, preserving button click behavior.
+- Collapsed click-to-expand flow through `_collapsed_unified_panel_click_candidate` was preserved; dragging still takes priority after the existing threshold.
+- Fixed the GDScript reload shadowing warning by renaming the `_set_city_detail_body_labels_visible()` parameter from `visible` to `should_show`.
+- Replaced type-unclear `Dictionary` ternaries in recently touched WorldMap scripts with explicit `Variant` extraction and `if` type checks to avoid ternary type compatibility reload errors.
+- City Detail resource tab content, trade/diplomacy/spy structure, help copy, recruitment, formulas, battle scenes, BattleContext, save/load, `project.godot`, and assets were not changed.
+- Manual F6 QA remains required for expanded drag, collapsed drag, click-to-expand, collapse button, tab clicks, resource tab display, Selected City Panel drag, help `?`, attack/governor/recruit buttons, and Godot Output warning cleanliness.
+
 ## v0.70-23 WorldMap City Detail Resource Tab Slim Polish
 - Baseline: `v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix` at `789c2de`.
 - Modified files: `WorldMap_Test.tscn`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

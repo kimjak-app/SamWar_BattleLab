@@ -2,6 +2,22 @@
 
 ## 2026-06-05
 
+### v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix
+- Started from clean `94b404b v0.70-23 WorldMap City Detail Resource Tab Slim Polish`.
+- Required baseline checks completed: `git status --short`, `git log --oneline -10`, and current `HEAD`.
+- Reproduced investigation path:
+  - Project, WorldMap, and Battle headless loads did not print the reported reload messages in this environment before patching.
+  - Static search found `_set_city_detail_body_labels_visible(visible: bool)` as the `visible` parameter shadowing source.
+  - CityDetailPanel expanded drag root cause was hidden registered handles: expanded mode hides the eyebrow and heading label, while collapsed mode shows the heading label.
+- Implemented:
+  - Registered `city_detail_header_row` as an additional CityDetailPanel drag handle.
+  - Kept collapse button and all primary/secondary tab buttons out of the direct drag handle list.
+  - Preserved collapsed drag-vs-click behavior and `_move_hud_panel_to_screen_position()` clamp logic.
+  - Renamed the `visible` parameter to `should_show`.
+  - Replaced type-unclear `Dictionary` ternaries in the recently touched WorldMap scripts with explicit `Variant` extraction and `if` checks.
+- Preserved City Detail resource content, trade/diplomacy/spy structure, help copy, recruitment, formulas, battle scenes, BattleContext, save/load, `project.godot`, and assets.
+- Manual F6 QA remains required for expanded/collapsed drag, click-to-expand, tab/collapse clicks, resource tab display, right Selected City Panel drag, help buttons, attack/governor/recruit buttons, and Godot Output warning cleanliness.
+
 ### v0.70-23 WorldMap City Detail Resource Tab Slim Polish
 - Started from clean `789c2de v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix`.
 - Required reading completed: workflow/current/next/handoff/WorldMap rules, `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, and `WorldMap_Test.tscn`.

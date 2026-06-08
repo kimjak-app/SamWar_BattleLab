@@ -1,5 +1,16 @@
 # WORLDMAP RULES
 
+## v0.70-23-hotfix1 City Detail Drag and Reload Warning Rule
+- CityDetailPanel must remain draggable in both expanded and collapsed states.
+- Expanded drag should use a visible top non-button area such as `city_detail_header_row`; collapsed drag may continue through the collapsed heading label.
+- Do not register `CollapseButtonPlaceholder`, primary tab buttons, diplomacy/trade/resource tab buttons, or resource/trade secondary buttons directly as drag handles.
+- Button clicks must continue to win on the buttons themselves; panel drag should start from non-button top-row space or visible label/header regions.
+- Collapsed click-to-expand must preserve the existing `_collapsed_unified_panel_click_candidate` flow: drag after threshold moves the panel, click-only expands it.
+- `_move_hud_panel_to_screen_position()` clamp behavior remains the WorldMap HUD drag boundary contract.
+- GDScript functions in WorldMap UI scripts must not use local parameters named `visible`; use names such as `should_show` or `is_visible` instead.
+- Type-unclear GDScript ternaries that can mix `Dictionary`, `Array`, `Control`, `Button`, `Label`, `Callable`, `String`, `int`, or `null` should be written as explicit `if/else` with `Variant` type checks.
+- This hotfix rule must not change City Detail resource content, trade/diplomacy/spy structure, help copy, recruitment, governor/chancellor formulas, city data values, battle scenes, BattleContext, save/load schema, `project.godot`, or assets.
+
 ## v0.70-23 City Detail Resource Tab Slim Rule
 - City Detail resource tab is a deep-view panel for city resource and economy potential, not a duplicate of the Selected City Panel.
 - Resource tab should show city name, `식량 자원`, `전략 자원`, `특산 자원`, and `경제` only at this stage.

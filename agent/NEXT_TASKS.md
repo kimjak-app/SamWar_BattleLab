@@ -1,5 +1,23 @@
 # NEXT TASKS
 
+## Current: v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix
+- `v0.70-23-hotfix1` is a bugfix-only patch on top of `v0.70-23`.
+- Completed direction:
+  1. CityDetailPanel drag works from the visible top header row when expanded and from the collapsed heading path when collapsed.
+  2. Drag handles do not directly include `CollapseButtonPlaceholder`, primary tab buttons, diplomacy/trade/resource tab buttons, or resource/trade secondary buttons.
+  3. Collapsed click-only expand behavior is preserved through the existing `_collapsed_unified_panel_click_candidate` flow.
+  4. The `visible` function parameter shadowing warning was removed by renaming the parameter to `should_show`.
+  5. Type-unclear `Dictionary` ternaries in the recently touched WorldMap scripts were rewritten as explicit `Variant` + `if` checks.
+- Manual F6 QA required:
+  1. Expanded City Detail Panel top-area drag.
+  2. Collapsed City Detail Panel drag and click-only expand.
+  3. Collapse button, city/detail diplomacy/trade tabs, resource tab display, right Selected City Panel drag, help `?`, attack/governor/recruit buttons.
+  4. Godot Output should not repeat the `visible` shadowing or ternary compatibility reload messages.
+- Next candidate work remains:
+  1. `v0.70-24 WorldMap City Tech Tree UI MVP`
+  2. `v0.70-25 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-26 Governor Assignment Exclusivity & Hero State Rules`
+
 ## Current: v0.70-23 WorldMap City Detail Resource Tab Slim Polish
 - `v0.70-23` 정리 방향:
   1. City Detail 자원 탭은 도시 이름, 자원 잠재력, 경제 잠재력 중심으로 유지한다.

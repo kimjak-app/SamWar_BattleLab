@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix Handoff
+- Baseline: `v0.70-23 WorldMap City Detail Resource Tab Slim Polish` (`94b404b`).
+- Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.
+- CityDetailPanel drag root cause: the registered handles were `city_detail_eyebrow_label` and `city_detail_heading_label`; both are hidden in the expanded unified panel, leaving only the collapsed heading path usable.
+- Fix: `_setup_independent_hud_panel_drag()` now registers `city_detail_header_row` as an additional handle, so the visible expanded top row can start panel drag.
+- Buttons were not registered directly as handles: `CollapseButtonPlaceholder`, `도시 상세`, `외교·첩보`, `무역`, `자원`, `자국무역`, and `타국무역` keep their button click paths.
+- The existing collapsed click-to-expand flow remains in `_input()` / `_on_hud_drag_handle_gui_input()` with `_collapsed_unified_panel_click_candidate` and the existing drag threshold.
+- Reload warning cleanup:
+  - `_set_city_detail_body_labels_visible(visible: bool)` is now `_set_city_detail_body_labels_visible(should_show: bool)`.
+  - Type-unclear `Dictionary` ternaries in the recently touched WorldMap scripts were rewritten as explicit `Variant` extraction plus `if raw is Dictionary` checks.
+- Explicitly unchanged: City Detail resource tab content, trade/diplomacy/spy structure, help copy, recruitment, governor/attack flows, formulas, battle scenes, BattleContext, save/load schema, `project.godot`, and assets.
+- Manual F6 QA should confirm expanded drag, collapsed drag, collapsed click-only expand, collapse button, primary/secondary tabs, resource tab display, Selected City Panel drag, help buttons, attack/governor/recruit buttons, and clean Godot Output for the two reload messages.
+
 ## v0.70-23 WorldMap City Detail Resource Tab Slim Polish Handoff
 - Baseline: `v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix` (`789c2de`).
 - Runtime/scene files touched: `scripts/worldmap_test.gd` and `WorldMap_Test.tscn`.

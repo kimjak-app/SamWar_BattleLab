@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix
+- Built on `v0.70-23 WorldMap City Detail Resource Tab Slim Polish` (`94b404b`).
+- Added `city_detail_header_row` to CityDetailPanel drag handle registration so the expanded panel can be dragged from the visible top row.
+- Preserved collapsed panel drag and click-only expand behavior through the existing `_collapsed_unified_panel_click_candidate` threshold flow.
+- Did not register `CollapseButtonPlaceholder`, primary tab buttons, diplomacy/trade/resource tab buttons, or resource/trade secondary tab buttons directly as drag handles.
+- Renamed the `_set_city_detail_body_labels_visible()` parameter from `visible` to `should_show` to remove the CanvasItem `visible` shadowing reload warning.
+- Replaced type-unclear `Dictionary` ternaries in recently touched WorldMap scripts with explicit `Variant` extraction and `if` type checks.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change City Detail resource content, trade/diplomacy/spy structure, help copy, recruitment, formulas, battle scenes, BattleContext, save/load, `project.godot`, or assets.
+
 ## v0.70-23 WorldMap City Detail Resource Tab Slim Polish
 - Built on `v0.70-22-hotfix1 GDScript Ternary Type Compatibility Fix` (`789c2de`).
 - Slimmed the City Detail resource tab to city name, resource potential, and economy potential.

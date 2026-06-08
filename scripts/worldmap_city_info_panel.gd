@@ -494,7 +494,9 @@ func _apply_selected_city_layout_order() -> void:
 		return
 	var loyalty_card := _get_direct_child_under(content, loyalty_label) as Control
 	var governor_card := _get_direct_child_under(content, governor_assign_option) as Control
-	var button_row := attack_button_placeholder.get_parent() as Control if attack_button_placeholder != null else null
+	var button_row: Control = null
+	if attack_button_placeholder != null:
+		button_row = attack_button_placeholder.get_parent() as Control
 	_move_child_after(content, military_state_label, loyalty_card)
 	_move_child_after(content, _domestic_help_row, military_state_label)
 	var governor_label_anchor: Control = military_state_label
@@ -593,7 +595,10 @@ func _refresh_recruitment_section() -> void:
 	_ensure_recruitment_section()
 	if _recruitment_section == null:
 		return
-	var summary: Dictionary = _recruitment_summaries.get(_current_city_id, {}) if _recruitment_summaries.get(_current_city_id, {}) is Dictionary else {}
+	var summary: Dictionary = {}
+	var raw_summary: Variant = _recruitment_summaries.get(_current_city_id, {})
+	if raw_summary is Dictionary:
+		summary = raw_summary as Dictionary
 	_recruitment_section.visible = true
 	_recruitment_title_label.text = str(summary.get("title", "병사 충원"))
 	_conscription_summary_label.text = str(summary.get("conscription_line", "징병: 정보 없음"))

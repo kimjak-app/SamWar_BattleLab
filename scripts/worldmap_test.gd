@@ -749,7 +749,7 @@ func _hide_retired_top_worldmap_hud() -> void:
 
 
 func _setup_independent_hud_panel_drag() -> void:
-	_register_hud_panel_drag(city_detail_panel, [city_detail_eyebrow_label, city_detail_heading_label])
+	_register_hud_panel_drag(city_detail_panel, [city_detail_header_row, city_detail_eyebrow_label, city_detail_heading_label])
 	_register_hud_panel_drag(city_info_panel_control, [city_info_eyebrow_label, city_info_city_name_label])
 
 
@@ -1408,7 +1408,7 @@ func _apply_city_detail_resource_tab_content(city_data: Dictionary) -> void:
 	city_detail_domestic_button_placeholder.visible = false
 
 
-func _set_city_detail_body_labels_visible(visible: bool) -> void:
+func _set_city_detail_body_labels_visible(should_show: bool) -> void:
 	for label in [
 		city_detail_type_label,
 		city_detail_region_owner_label,
@@ -1421,9 +1421,9 @@ func _set_city_detail_body_labels_visible(visible: bool) -> void:
 		city_detail_hint_label,
 	]:
 		if label != null:
-			label.visible = visible
+			label.visible = should_show
 	if city_detail_domestic_button_placeholder != null:
-		city_detail_domestic_button_placeholder.visible = visible
+		city_detail_domestic_button_placeholder.visible = should_show
 
 
 func _apply_city_detail_default_text_tone() -> void:
@@ -4907,7 +4907,9 @@ func _is_national_tech_in_progress(tech_id: String) -> bool:
 func _get_national_tech_definition(tech_id: String) -> Dictionary:
 	var definitions := _get_national_tech_definitions()
 	var definition: Variant = definitions.get(tech_id, {})
-	return (definition as Dictionary).duplicate(true) if definition is Dictionary else {}
+	if definition is Dictionary:
+		return (definition as Dictionary).duplicate(true)
+	return {}
 
 
 func _get_tech_duration_turns(tier: String) -> int:
@@ -5070,7 +5072,11 @@ func _get_average_city_commerce_for_national_tech() -> float:
 
 func _can_pay_national_tech_cost(tech_id: String) -> Dictionary:
 	var definition := _get_national_tech_definition(tech_id)
-	var cost: Dictionary = definition.get("cost", {}) if not definition.is_empty() else {}
+	var cost: Dictionary = {}
+	if not definition.is_empty():
+		var raw_cost: Variant = definition.get("cost", {})
+		if raw_cost is Dictionary:
+			cost = raw_cost as Dictionary
 	var payment_check := _can_pay_generic_resource_cost(cost)
 	return {
 		"ok": not definition.is_empty() and bool(payment_check.get("ok", false)),
@@ -5194,7 +5200,10 @@ func _ensure_city_tech_state(city_id: String) -> Dictionary:
 	var city_state := _get_mutable_city_runtime_state(city_id)
 	if city_state.is_empty():
 		return {}
-	var city_tech: Dictionary = city_state.get("city_tech", {}) if city_state.get("city_tech", {}) is Dictionary else {}
+	var city_tech: Dictionary = {}
+	var raw_city_tech: Variant = city_state.get("city_tech", {})
+	if raw_city_tech is Dictionary:
+		city_tech = raw_city_tech as Dictionary
 	if not city_tech.has("completed") or not (city_tech["completed"] is Dictionary):
 		city_tech["completed"] = {}
 	if not city_tech.has("in_progress") or not (city_tech["in_progress"] is Dictionary):
@@ -5208,7 +5217,10 @@ func _ensure_city_tech_state(city_id: String) -> Dictionary:
 
 func _get_completed_city_tech_ids(city_id: String) -> Array:
 	var city_tech := _ensure_city_tech_state(city_id)
-	var completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
+	var completed: Dictionary = {}
+	var raw_completed: Variant = city_tech.get("completed", {})
+	if raw_completed is Dictionary:
+		completed = raw_completed as Dictionary
 	var result: Array[String] = []
 	for tech_id_variant in completed.keys():
 		var tech_id := str(tech_id_variant)
@@ -5223,21 +5235,29 @@ func _get_completed_city_tech_effect_ids(city_id: String) -> Array:
 
 func _is_city_tech_completed(city_id: String, tech_id: String) -> bool:
 	var city_tech := _ensure_city_tech_state(city_id)
-	var completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
+	var completed: Dictionary = {}
+	var raw_completed: Variant = city_tech.get("completed", {})
+	if raw_completed is Dictionary:
+		completed = raw_completed as Dictionary
 	var completed_value: Variant = completed.get(tech_id, false)
 	return true if completed_value is Dictionary else bool(completed_value)
 
 
 func _is_city_tech_in_progress(city_id: String, tech_id: String) -> bool:
 	var city_tech := _ensure_city_tech_state(city_id)
-	var in_progress: Dictionary = city_tech.get("in_progress", {}) if city_tech.get("in_progress", {}) is Dictionary else {}
+	var in_progress: Dictionary = {}
+	var raw_in_progress: Variant = city_tech.get("in_progress", {})
+	if raw_in_progress is Dictionary:
+		in_progress = raw_in_progress as Dictionary
 	return bool(in_progress.get(tech_id, false))
 
 
 func _get_city_tech_definition(tech_id: String) -> Dictionary:
 	var definitions := _get_city_tech_definitions()
 	var definition: Variant = definitions.get(tech_id, {})
-	return (definition as Dictionary).duplicate(true) if definition is Dictionary else {}
+	if definition is Dictionary:
+		return (definition as Dictionary).duplicate(true)
+	return {}
 
 
 func _get_city_governor_aptitude_type(city_id: String) -> String:
@@ -5337,10 +5357,16 @@ func _get_city_tech_agriculture_value(city_id: String) -> int:
 	var city_data := _get_city_hud_entry(city_id)
 	if city_data.has("agriculture"):
 		return maxi(0, int(city_data.get("agriculture", 0)))
-	var domestic_seed: Dictionary = city_data.get("domestic_seed", {}) if city_data.get("domestic_seed", {}) is Dictionary else {}
+	var domestic_seed: Dictionary = {}
+	var raw_domestic_seed: Variant = city_data.get("domestic_seed", {})
+	if raw_domestic_seed is Dictionary:
+		domestic_seed = raw_domestic_seed as Dictionary
 	if domestic_seed.has("agriculture"):
 		return maxi(0, int(domestic_seed.get("agriculture", 0)))
-	var resource_seed: Dictionary = city_data.get("resource_seed", {}) if city_data.get("resource_seed", {}) is Dictionary else {}
+	var resource_seed: Dictionary = {}
+	var raw_resource_seed: Variant = city_data.get("resource_seed", {})
+	if raw_resource_seed is Dictionary:
+		resource_seed = raw_resource_seed as Dictionary
 	return maxi(0, int(resource_seed.get("rice", 0)) + int(resource_seed.get("barley", 0))) * 10
 
 
@@ -5348,7 +5374,10 @@ func _get_city_tech_commerce_value(city_id: String) -> int:
 	var city_data := _get_city_hud_entry(city_id)
 	if city_data.has("commerce"):
 		return maxi(0, int(city_data.get("commerce", 0)))
-	var domestic_seed: Dictionary = city_data.get("domestic_seed", {}) if city_data.get("domestic_seed", {}) is Dictionary else {}
+	var domestic_seed: Dictionary = {}
+	var raw_domestic_seed: Variant = city_data.get("domestic_seed", {})
+	if raw_domestic_seed is Dictionary:
+		domestic_seed = raw_domestic_seed as Dictionary
 	if domestic_seed.has("commerce"):
 		return maxi(0, int(domestic_seed.get("commerce", 0)))
 	return maxi(0, int(city_data.get("commerce_rating", 0))) * 20
@@ -5358,7 +5387,10 @@ func _get_city_tech_fishery_value(city_id: String) -> int:
 	var city_data := _get_city_hud_entry(city_id)
 	if city_data.has("fishery"):
 		return maxi(0, int(city_data.get("fishery", 0)))
-	var resource_seed: Dictionary = city_data.get("resource_seed", {}) if city_data.get("resource_seed", {}) is Dictionary else {}
+	var resource_seed: Dictionary = {}
+	var raw_resource_seed: Variant = city_data.get("resource_seed", {})
+	if raw_resource_seed is Dictionary:
+		resource_seed = raw_resource_seed as Dictionary
 	return maxi(0, int(resource_seed.get("seafood", 0))) * 20
 
 
@@ -5370,7 +5402,11 @@ func _is_city_coastal_for_city_tech(city_id: String) -> bool:
 
 func _can_pay_city_tech_cost(city_id: String, tech_id: String) -> Dictionary:
 	var definition := _get_city_tech_definition(tech_id)
-	var cost: Dictionary = definition.get("cost", {}) if not definition.is_empty() and not _get_city_hud_entry(city_id).is_empty() else {}
+	var cost: Dictionary = {}
+	if not definition.is_empty() and not _get_city_hud_entry(city_id).is_empty():
+		var raw_cost: Variant = definition.get("cost", {})
+		if raw_cost is Dictionary:
+			cost = raw_cost as Dictionary
 	var payment_check := _can_pay_generic_resource_cost(cost)
 	return {
 		"ok": not definition.is_empty() and not _get_city_hud_entry(city_id).is_empty() and bool(payment_check.get("ok", false)),
@@ -5423,7 +5459,10 @@ func _start_city_tech(city_id: String, tech_id: String) -> bool:
 	var duration := _get_tech_definition_duration(definition)
 	var city_state := _get_mutable_city_runtime_state(city_id)
 	var city_tech: Dictionary = city_state.get("city_tech", {})
-	var in_progress: Dictionary = city_tech.get("in_progress", {}) if city_tech.get("in_progress", {}) is Dictionary else {}
+	var in_progress: Dictionary = {}
+	var raw_in_progress: Variant = city_tech.get("in_progress", {})
+	if raw_in_progress is Dictionary:
+		in_progress = raw_in_progress as Dictionary
 	in_progress[tech_id] = {
 		"city_id": city_id,
 		"tech_id": tech_id,
@@ -5504,8 +5543,14 @@ func _advance_city_tech_progress_for_world_turn() -> Dictionary:
 		if not source.has("city_tech") or not source.get("city_tech") is Dictionary:
 			continue
 		var city_tech: Dictionary = source.get("city_tech", {})
-		var in_progress: Dictionary = city_tech.get("in_progress", {}) if city_tech.get("in_progress", {}) is Dictionary else {}
-		var completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
+		var in_progress: Dictionary = {}
+		var raw_in_progress: Variant = city_tech.get("in_progress", {})
+		if raw_in_progress is Dictionary:
+			in_progress = raw_in_progress as Dictionary
+		var completed: Dictionary = {}
+		var raw_completed: Variant = city_tech.get("completed", {})
+		if raw_completed is Dictionary:
+			completed = raw_completed as Dictionary
 		for tech_id_variant in in_progress.keys().duplicate():
 			var tech_id := str(tech_id_variant)
 			var entry_variant: Variant = in_progress.get(tech_id_variant, {})
@@ -5694,7 +5739,10 @@ func _validate_tech_data_consistency() -> Dictionary:
 
 
 func _validate_tech_definition_cost_keys(scope: String, tech_id: String, definition: Dictionary, allowed_cost_keys: Array, invalid_cost_keys: Array) -> void:
-	var cost: Dictionary = definition.get("cost", {}) if definition.get("cost", {}) is Dictionary else {}
+	var cost: Dictionary = {}
+	var raw_cost: Variant = definition.get("cost", {})
+	if raw_cost is Dictionary:
+		cost = raw_cost as Dictionary
 	for cost_key_variant in cost.keys():
 		var cost_key := str(cost_key_variant)
 		if not allowed_cost_keys.has(cost_key):
@@ -5708,7 +5756,10 @@ func _validate_tech_definition_image_fields(scope: String, tech_id: String, defi
 
 
 func _collect_tech_placeholder_conditions(scope: String, tech_id: String, definition: Dictionary, placeholder_condition_keys: Array, placeholder_conditions: Array) -> void:
-	var conditions: Dictionary = definition.get("conditions", {}) if definition.get("conditions", {}) is Dictionary else {}
+	var conditions: Dictionary = {}
+	var raw_conditions: Variant = definition.get("conditions", {})
+	if raw_conditions is Dictionary:
+		conditions = raw_conditions as Dictionary
 	for condition_key_variant in conditions.keys():
 		var condition_key := str(condition_key_variant)
 		if placeholder_condition_keys.has(condition_key):
@@ -7537,7 +7588,10 @@ func _get_city_security_score_for_spy(target_city_id: String) -> int:
 		return clampi(int(city_data.get("security", 0)), 0, 100)
 	if city_data.has("public_order"):
 		return clampi(int(city_data.get("public_order", 0)), 0, 100)
-	var domestic_seed: Dictionary = city_data.get("domestic_seed", {}) if city_data.get("domestic_seed", {}) is Dictionary else {}
+	var domestic_seed: Dictionary = {}
+	var raw_domestic_seed: Variant = city_data.get("domestic_seed", {})
+	if raw_domestic_seed is Dictionary:
+		domestic_seed = raw_domestic_seed as Dictionary
 	if domestic_seed.has("publicOrder"):
 		return clampi(int(domestic_seed.get("publicOrder", 0)), 0, 100)
 	var required := maxi(1, _get_city_security_required_troops(city_data))
@@ -7664,7 +7718,10 @@ func _build_spy_info_payload(target_city_id: String, fields: Array, estimated: b
 				else:
 					payload["resources"] = "not_available"
 			"publicSupport":
-				var domestic_seed: Dictionary = city_data.get("domestic_seed", {}) if city_data.get("domestic_seed", {}) is Dictionary else {}
+				var domestic_seed: Dictionary = {}
+				var raw_domestic_seed: Variant = city_data.get("domestic_seed", {})
+				if raw_domestic_seed is Dictionary:
+					domestic_seed = raw_domestic_seed as Dictionary
 				if city_data.has("publicSupport"):
 					payload["publicSupport"] = _get_city_public_support(target_city_id)
 				elif domestic_seed.has("publicSupport"):
@@ -7679,9 +7736,18 @@ func _build_spy_info_payload(target_city_id: String, fields: Array, estimated: b
 			"tech":
 				var tech_payload := {"city_completed": "not_available", "national_completed": "not_available"}
 				if _city_runtime_states.has(target_city_id):
-					var runtime_state: Dictionary = _city_runtime_states.get(target_city_id, {}) if _city_runtime_states.get(target_city_id, {}) is Dictionary else {}
-					var city_tech: Dictionary = runtime_state.get("city_tech", {}) if runtime_state.get("city_tech", {}) is Dictionary else {}
-					var completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
+					var runtime_state: Dictionary = {}
+					var raw_runtime_state: Variant = _city_runtime_states.get(target_city_id, {})
+					if raw_runtime_state is Dictionary:
+						runtime_state = raw_runtime_state as Dictionary
+					var city_tech: Dictionary = {}
+					var raw_city_tech: Variant = runtime_state.get("city_tech", {})
+					if raw_city_tech is Dictionary:
+						city_tech = raw_city_tech as Dictionary
+					var completed: Dictionary = {}
+					var raw_completed: Variant = city_tech.get("completed", {})
+					if raw_completed is Dictionary:
+						completed = raw_completed as Dictionary
 					if not completed.is_empty():
 						tech_payload["city_completed"] = completed.keys()
 					else:
@@ -8145,7 +8211,10 @@ func _instigate_revolt(target_city_id: String, forced_roll: int = -1, forced_det
 		if not target_faction.is_empty():
 			_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction, relation_penalty, "spy_revolt_instigation_detected")
 	elif effect_applied:
-		var instigations: Dictionary = _player_state.get("revolt_instigation", {}) if _player_state.get("revolt_instigation", {}) is Dictionary else {}
+		var instigations: Dictionary = {}
+		var raw_instigations: Variant = _player_state.get("revolt_instigation", {})
+		if raw_instigations is Dictionary:
+			instigations = raw_instigations as Dictionary
 		instigations[target_city_id] = {
 			"turns_remaining": SPY_REVOLT_INSTIGATION_DURATION_TURNS,
 			"probability_boost": int(roll_result.get("probability_boost", 0)),
@@ -8175,7 +8244,10 @@ func _instigate_revolt(target_city_id: String, forced_roll: int = -1, forced_det
 
 
 func _advance_revolt_instigation_for_world_turn() -> Dictionary:
-	var instigations: Dictionary = _player_state.get("revolt_instigation", {}) if _player_state.get("revolt_instigation", {}) is Dictionary else {}
+	var instigations: Dictionary = {}
+	var raw_instigations: Variant = _player_state.get("revolt_instigation", {})
+	if raw_instigations is Dictionary:
+		instigations = raw_instigations as Dictionary
 	var changed: Array = []
 	var expired: Array = []
 	for city_id_variant in instigations.keys():
