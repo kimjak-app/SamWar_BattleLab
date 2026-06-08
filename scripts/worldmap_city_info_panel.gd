@@ -157,7 +157,12 @@ func set_pending_invasion_event(event: Dictionary) -> void:
 
 func set_attack_action_state(enabled: bool, hint_text: String = "") -> void:
 	_attack_action_enabled = enabled
-	_attack_action_hint = hint_text if not hint_text.is_empty() else ("공격 가능" if enabled else "공격할 수 없는 도시입니다.")
+	if not hint_text.is_empty():
+		_attack_action_hint = hint_text
+	elif enabled:
+		_attack_action_hint = "공격 가능"
+	else:
+		_attack_action_hint = "공격할 수 없는 도시입니다."
 	_refresh_attack_action_state()
 
 
@@ -507,9 +512,15 @@ func _apply_selected_city_layout_order() -> void:
 	_move_child_after(content, _garrison_card, governor_card)
 	_move_child_after(content, hero_move_button_placeholder, _garrison_card)
 	_move_child_after(content, _hero_transfer_panel, hero_move_button_placeholder)
-	_move_child_after(content, military_info_label, _hero_transfer_panel if _hero_transfer_panel != null else hero_move_button_placeholder)
+	var military_anchor: Control = hero_move_button_placeholder
+	if _hero_transfer_panel != null:
+		military_anchor = _hero_transfer_panel
+	_move_child_after(content, military_info_label, military_anchor)
 	_move_child_after(content, _recruitment_section, military_info_label)
-	_move_child_after(content, recruit_button_placeholder, _recruitment_section if _recruitment_section != null else military_info_label)
+	var recruit_anchor: Control = military_info_label
+	if _recruitment_section != null:
+		recruit_anchor = _recruitment_section
+	_move_child_after(content, recruit_button_placeholder, recruit_anchor)
 	if button_row != null:
 		_move_child_after(content, button_row, recruit_button_placeholder)
 		button_row.visible = attack_button_placeholder.visible
@@ -655,7 +666,9 @@ func _ensure_garrison_list_container() -> void:
 	card_content.add_child(_garrison_list_container)
 	card_margin.add_child(card_content)
 	_garrison_card.add_child(card_margin)
-	var insert_index := selected_hero_chip_label.get_index() if selected_hero_chip_label != null and selected_hero_chip_label.get_parent() == content else content.get_child_count()
+	var insert_index := content.get_child_count()
+	if selected_hero_chip_label != null and selected_hero_chip_label.get_parent() == content:
+		insert_index = selected_hero_chip_label.get_index()
 	content.add_child(_garrison_card)
 	content.move_child(_garrison_card, insert_index)
 
@@ -703,7 +716,9 @@ func _ensure_hero_transfer_panel() -> void:
 	box.add_child(action_row)
 	margin.add_child(box)
 	_hero_transfer_panel.add_child(margin)
-	var insert_index := hero_move_button_placeholder.get_parent().get_index() + 1 if hero_move_button_placeholder != null and hero_move_button_placeholder.get_parent() != null else content.get_child_count()
+	var insert_index := content.get_child_count()
+	if hero_move_button_placeholder != null and hero_move_button_placeholder.get_parent() != null:
+		insert_index = hero_move_button_placeholder.get_parent().get_index() + 1
 	content.add_child(_hero_transfer_panel)
 	content.move_child(_hero_transfer_panel, insert_index)
 	_hero_transfer_hero_option.item_selected.connect(_on_hero_transfer_option_selected)
@@ -965,7 +980,9 @@ func _populate_transfer_option(option_button: OptionButton, ids: Array, empty_te
 	option_button.disabled = false
 	for id_value in ids:
 		var id_string := str(id_value)
-		var label := _get_hero_display_name(_get_hero_entry(id_string), id_string) if is_hero else _get_city_display_name(id_string, id_string)
+		var label := _get_city_display_name(id_string, id_string)
+		if is_hero:
+			label = _get_hero_display_name(_get_hero_entry(id_string), id_string)
 		option_button.add_item(label)
 		option_button.set_item_metadata(option_button.item_count - 1, id_string)
 

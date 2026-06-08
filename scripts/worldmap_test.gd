@@ -1205,17 +1205,26 @@ func _refresh_unified_panel_chrome() -> void:
 		city_detail_heading_label.visible = false
 	if _unified_city_detail_primary_button != null:
 		_unified_city_detail_primary_button.visible = true
-		_unified_city_detail_primary_button.modulate = Color(1.0, 0.9, 0.68, 1.0) if _unified_primary_tab == UNIFIED_PANEL_TAB_CITY_DETAIL else Color(0.82, 0.86, 0.92, 1.0)
+		var city_detail_tab_color := Color(0.82, 0.86, 0.92, 1.0)
+		if _unified_primary_tab == UNIFIED_PANEL_TAB_CITY_DETAIL:
+			city_detail_tab_color = Color(1.0, 0.9, 0.68, 1.0)
+		_unified_city_detail_primary_button.modulate = city_detail_tab_color
 	else:
 		_warn_missing_unified_panel_chrome("CityDetailPrimaryButton")
 	if _unified_diplomacy_spy_primary_button != null:
 		_unified_diplomacy_spy_primary_button.visible = true
-		_unified_diplomacy_spy_primary_button.modulate = Color(1.0, 0.9, 0.68, 1.0) if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY else Color(0.82, 0.86, 0.92, 1.0)
+		var diplomacy_spy_tab_color := Color(0.82, 0.86, 0.92, 1.0)
+		if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
+			diplomacy_spy_tab_color = Color(1.0, 0.9, 0.68, 1.0)
+		_unified_diplomacy_spy_primary_button.modulate = diplomacy_spy_tab_color
 	else:
 		_warn_missing_unified_panel_chrome("DiplomacySpyPrimaryButton")
 	if _unified_trade_primary_button != null:
 		_unified_trade_primary_button.visible = true
-		_unified_trade_primary_button.modulate = Color(1.0, 0.9, 0.68, 1.0) if _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE else Color(0.82, 0.86, 0.92, 1.0)
+		var trade_tab_color := Color(0.82, 0.86, 0.92, 1.0)
+		if _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE:
+			trade_tab_color = Color(1.0, 0.9, 0.68, 1.0)
+		_unified_trade_primary_button.modulate = trade_tab_color
 	else:
 		_warn_missing_unified_panel_chrome("TradePrimaryButton")
 	if city_detail_secondary_tab_row != null:
@@ -1536,7 +1545,10 @@ func _set_city_detail_tab_active(button: Button, is_active: bool) -> void:
 	if button == null:
 		_warn_missing_unified_panel_chrome("CityDetailTabButton")
 		return
-	button.modulate = Color(1.0, 0.9, 0.68, 1.0) if is_active else Color(0.82, 0.86, 0.92, 1.0)
+	var tab_color := Color(0.82, 0.86, 0.92, 1.0)
+	if is_active:
+		tab_color = Color(1.0, 0.9, 0.68, 1.0)
+	button.modulate = tab_color
 
 
 func _extract_resource_group(resource_summary: String, resource_names: Array[String]) -> String:
@@ -1550,7 +1562,9 @@ func _extract_resource_group(resource_summary: String, resource_names: Array[Str
 				matches.append(chunk)
 				break
 
-	return " / ".join(matches) if not matches.is_empty() else "미확인"
+	if not matches.is_empty():
+		return " / ".join(matches)
+	return "미확인"
 
 
 func _format_internal_route_summary(city_marker: WorldMapCityMarker) -> String:
@@ -1560,7 +1574,10 @@ func _format_internal_route_summary(city_marker: WorldMapCityMarker) -> String:
 	var linked_names: Array[String] = []
 	for neighbor_id in city_marker.neighbors.slice(0, 2):
 		var neighbor_marker := _city_markers_by_id.get(neighbor_id) as WorldMapCityMarker
-		linked_names.append(neighbor_marker.display_name if neighbor_marker != null else str(neighbor_id))
+		var linked_name := str(neighbor_id)
+		if neighbor_marker != null:
+			linked_name = neighbor_marker.display_name
+		linked_names.append(linked_name)
 	return " / ".join(linked_names)
 
 
@@ -1585,7 +1602,11 @@ func _get_display_supply_state_for_city(city_id: String) -> Dictionary:
 func _format_city_supply_state_display(supply_state: Dictionary) -> String:
 	if supply_state.is_empty():
 		return "■ 보급 상태\n최근 보급 결과 없음"
-	var state_label := "isolated" if bool(supply_state.get("isolated", false)) else ("supplied" if bool(supply_state.get("supplied", false)) else "unsupplied")
+	var state_label := "unsupplied"
+	if bool(supply_state.get("isolated", false)):
+		state_label = "isolated"
+	elif bool(supply_state.get("supplied", false)):
+		state_label = "supplied"
 	return "■ 보급 상태\n역할: %s\n상태: %s\n수입 배수: x%.2f" % [
 		str(supply_state.get("role", "rear")),
 		state_label,
@@ -10521,12 +10542,16 @@ func _on_unified_primary_tab_pressed(tab_id: String) -> void:
 
 func _on_unified_secondary_tab_pressed(tab_index: int) -> void:
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
-		_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_SPY if tab_index == 1 else DIPLOMACY_SPY_TAB_DIPLOMACY
+		_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_DIPLOMACY
+		if tab_index == 1:
+			_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_SPY
 		print("[WorldMap] Unified diplomacy/spy tab selected: %s. Display only." % _selected_diplomacy_spy_tab)
 		_show_unified_diplomacy_spy_content()
 		return
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE:
-		_selected_city_detail_tab = CITY_DETAIL_TAB_EXTERNAL_TRADE if tab_index == 2 else CITY_DETAIL_TAB_INTERNAL_TRADE
+		_selected_city_detail_tab = CITY_DETAIL_TAB_INTERNAL_TRADE
+		if tab_index == 2:
+			_selected_city_detail_tab = CITY_DETAIL_TAB_EXTERNAL_TRADE
 		print("[WorldMap] Unified trade tab selected: %s. Display only." % _selected_city_detail_tab)
 		if selected_city_marker != null:
 			_show_city_detail(selected_city_marker)

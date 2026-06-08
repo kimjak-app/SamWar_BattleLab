@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.70-23-hotfix2 GDScript Ternary Sweep Rule
+- For WorldMap hotfix work, search all repo `.gd` files with `rg " if .* else " --glob "*.gd"` before assuming only `Dictionary` ternaries are relevant.
+- Convert ternaries to explicit `if/else` when branch values are different node/control subclasses, may be `null`, are `Variant`-derived, or require Godot to infer across object/container types.
+- Same-type scalar ternaries such as String/String, int/int, float/float, bool/bool, and Color/Color may remain only when headless reload is clean and no concrete warning line points to them.
+- Do not use a reload-warning sweep to change UI content, help copy, city detail/trade/diplomacy/spy structure, calculations, save/load, BattleContext, `project.godot`, scenes, or assets.
+- If headless project/scene load is clean but the open Godot editor still reports an older ternary compatibility warning, restart the editor before deleting cache or changing repo-external files.
+
 ## v0.70-23-hotfix1 City Detail Drag and Reload Warning Rule
 - CityDetailPanel must remain draggable in both expanded and collapsed states.
 - Expanded drag should use a visible top non-button area such as `city_detail_header_row`; collapsed drag may continue through the collapsed heading label.

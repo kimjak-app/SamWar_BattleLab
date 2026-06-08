@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep
+- Built on `v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix` (`b8ca197`).
+- Performed a full repo `.gd` ternary sweep with `rg " if .* else " --glob "*.gd"`.
+- Converted type-risk ternaries to explicit `if/else` in `scripts/worldmap_city_info_panel.gd`, `scripts/player_attack_deployment_panel.gd`, `scripts/battle_web_import_test.gd`, `scripts/worldmap_city_marker.gd`, and recent City Detail chrome paths in `scripts/worldmap_test.gd`.
+- Rechecked the `visible` parameter shadowing search; no matching function parameters remain.
+- Remaining ternaries are only in `scripts/worldmap_test.gd` and are same-type scalar/value selections.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `scripts/player_attack_deployment_panel.gd`, `scripts/battle_web_import_test.gd`, `scripts/worldmap_city_marker.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change UI design, help copy, City Detail/trade/diplomacy/spy content, calculations, save/load, BattleContext, `project.godot`, or assets.
+
 ## v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix
 - Built on `v0.70-23 WorldMap City Detail Resource Tab Slim Polish` (`94b404b`).
 - Added `city_detail_header_row` to CityDetailPanel drag handle registration so the expanded panel can be dragged from the visible top row.

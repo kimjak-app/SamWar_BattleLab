@@ -135,8 +135,12 @@ func _populate() -> void:
 	_hero_controls.clear()
 
 	var is_defense := _is_defense_deployment()
-	_title_label.text = "방어 준비" if is_defense else "출정 준비"
-	_confirm_button.text = "방어 확정" if is_defense else "출정"
+	if is_defense:
+		_title_label.text = "방어 준비"
+		_confirm_button.text = "방어 확정"
+	else:
+		_title_label.text = "출정 준비"
+		_confirm_button.text = "출정"
 	if is_defense:
 		_city_label.text = "%s의 침공을 %s에서 방어" % [
 			str(_payload.get("target_city_name", "침공 도시")),
@@ -197,7 +201,10 @@ func _add_hero_row(hero: Dictionary, default_selected: bool) -> void:
 	var state_label := Label.new()
 	state_label.custom_minimum_size.x = 74.0
 	state_label.text = _format_state_badge_for_row(str(hero.get("state_badge", "")))
-	state_label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.38, 1.0) if state_label.text != "정상" else Color(0.72, 0.88, 0.72, 1.0))
+	var state_color := Color(0.72, 0.88, 0.72, 1.0)
+	if state_label.text != "정상":
+		state_color = Color(1.0, 0.78, 0.38, 1.0)
+	state_label.add_theme_color_override("font_color", state_color)
 	row.add_child(state_label)
 
 	var stat_label := Label.new()
@@ -229,7 +236,9 @@ func _add_hero_row(hero: Dictionary, default_selected: bool) -> void:
 	spin.step = 10.0
 	spin.prefix = "병력 "
 	spin.custom_minimum_size.x = 118.0
-	spin.value = 1.0 if default_selected and max_for_hero > 0 else 0.0
+	spin.value = 0.0
+	if default_selected and max_for_hero > 0:
+		spin.value = 1.0
 	spin.editable = default_selected and max_for_hero > 0
 	spin.value_changed.connect(_on_troop_value_changed.bind(hero_id))
 	row.add_child(spin)
@@ -247,7 +256,9 @@ func _on_selection_changed(selected: bool, hero_id: String) -> void:
 	if spin != null:
 		spin.editable = selected and int(spin.max_value) > 0
 		if selected and int(spin.value) <= 0:
-			spin.value = 1.0 if int(spin.max_value) > 0 else 0.0
+			spin.value = 0.0
+			if int(spin.max_value) > 0:
+				spin.value = 1.0
 		elif not selected:
 			spin.value = 0.0
 	_refresh_state()
@@ -267,9 +278,15 @@ func _refresh_state() -> void:
 	var cost := _calculate_supply_cost(total_troops)
 	var warnings: Array[String] = []
 	if selected_count <= 0:
-		warnings.append("방어할 장수를 1명 이상 선택해야 합니다." if _is_defense_deployment() else "출정할 장수를 1명 이상 선택해야 합니다.")
+		if _is_defense_deployment():
+			warnings.append("방어할 장수를 1명 이상 선택해야 합니다.")
+		else:
+			warnings.append("출정할 장수를 1명 이상 선택해야 합니다.")
 	if total_troops <= 0:
-		warnings.append("방어 병력을 배정하십시오." if _is_defense_deployment() else "출정 병력을 배정하십시오.")
+		if _is_defense_deployment():
+			warnings.append("방어 병력을 배정하십시오.")
+		else:
+			warnings.append("출정 병력을 배정하십시오.")
 	if total_troops > max_deployable:
 		warnings.append("도시에 최소 1명의 병력은 남겨야 합니다.")
 	if total_troops > source_troops:
@@ -288,11 +305,10 @@ func _refresh_state() -> void:
 		var missing_supply := _get_missing_supply_reasons(cost)
 		for reason in missing_supply:
 			warnings.append(reason)
-	_allocation_summary_label.text = "%s: %d\n잔여 주둔 병력: %d" % [
-		"방어 배정 병력" if _is_defense_deployment() else "총 출정 병력",
-		total_troops,
-		remaining_troops,
-	]
+	var allocation_label := "총 출정 병력"
+	if _is_defense_deployment():
+		allocation_label = "방어 배정 병력"
+	_allocation_summary_label.text = "%s: %d\n잔여 주둔 병력: %d" % [allocation_label, total_troops, remaining_troops]
 	if _is_defense_deployment():
 		_supply_label.text = "방어 배정은 보급 비용을 추가로 소모하지 않습니다."
 	else:
@@ -303,8 +319,11 @@ func _refresh_state() -> void:
 		]
 	_warning_label.text = " · ".join(warnings)
 	if warnings.is_empty():
+		var action_label := "출정"
+		if _is_defense_deployment():
+			action_label = "방어"
 		_button_hint_label.text = "%s 가능: %s 병력 %d명" % [
-			"방어" if _is_defense_deployment() else "출정",
+			action_label,
 			str(_payload.get("target_city_name", "대상 도시")),
 			total_troops,
 		]
@@ -316,7 +335,9 @@ func _refresh_state() -> void:
 
 
 func _format_supply_line(label: String, need: int, available: int) -> String:
-	var status := "충분" if available >= need else "부족"
+	var status := "부족"
+	if available >= need:
+		status = "충분"
 	return "%s %d / 보유 %d  %s" % [label, need, available, status]
 
 

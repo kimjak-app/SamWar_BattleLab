@@ -2,6 +2,20 @@
 
 ## 2026-06-05
 
+### v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep
+- Started from clean `b8ca197 v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix`.
+- Required baseline checks completed: `git status --short`, `git log --oneline -10`, current `HEAD`, and Godot headless project load.
+- Godot headless did not provide a concrete file/line for the user's remaining editor reload warning, so a full repo ternary inventory was gathered with `rg " if .* else " --glob "*.gd"`.
+- Implemented:
+  - Rewrote selected-city panel layout/control/index ternaries in `scripts/worldmap_city_info_panel.gd`.
+  - Rewrote deployment panel text, color, spin value, warning, summary, and supply status ternaries in `scripts/player_attack_deployment_panel.gd`.
+  - Rewrote battle WorldMap context/result/cutin/debug/formation ternaries in `scripts/battle_web_import_test.gd`.
+  - Rewrote city marker selected scale/color ternaries in `scripts/worldmap_city_marker.gd`.
+  - Rewrote recent City Detail chrome/tab/resource/supply ternaries in `scripts/worldmap_test.gd`.
+- Remaining `rg " if .* else " --glob "*.gd"` hits are in `scripts/worldmap_test.gd` only and are same-type scalar/value choices.
+- Preserved City Detail content, trade/diplomacy/spy content, help copy, recruitment, formulas, save/load, BattleContext, `project.godot`, scenes, and assets.
+- Headless project, WorldMap scene, and Battle scene loads were clean for the reported ternary reload message in this environment.
+
 ### v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix
 - Started from clean `94b404b v0.70-23 WorldMap City Detail Resource Tab Slim Polish`.
 - Required baseline checks completed: `git status --short`, `git log --oneline -10`, and current `HEAD`.

@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep
+- Baseline: `v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix` at `b8ca197`.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `scripts/player_attack_deployment_panel.gd`, `scripts/battle_web_import_test.gd`, `scripts/worldmap_city_marker.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Performed a repo-wide `rg " if .* else " --glob "*.gd"` sweep instead of searching only `Dictionary` ternaries.
+- Converted type-risk and recent-feature ternaries to explicit `if/else`, especially Control subtype selection in `worldmap_city_info_panel.gd`, deployment-panel UI value selections, battle WorldMap-context/result/cutin debug selections, city marker Color/scale selections, and recent City Detail chrome/tab selections in `worldmap_test.gd`.
+- Remaining ternaries are only in `scripts/worldmap_test.gd` and are same-type scalar/value selections such as String/String, int/int, float/float, bool/bool, or dictionary values whose branch values share the same scalar type.
+- Verified the prior `visible` parameter shadowing search is still clean.
+- No UI redesign, help copy rewrite, City Detail/trade/diplomacy/spy content change, formula change, save/load change, BattleContext change, `project.godot` change, or asset change was made.
+- If the Godot editor still prints the old ternary reload message after this commit while headless stays clean, restart the editor to clear stale script reload/cache state; do not delete repo-external cache files as part of this hotfix.
+
 ## v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix
 - Baseline: `v0.70-23 WorldMap City Detail Resource Tab Slim Polish` at `94b404b`.
 - Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

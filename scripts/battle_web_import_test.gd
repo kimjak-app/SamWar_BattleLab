@@ -1483,7 +1483,10 @@ func _apply_worldmap_battle_context_handoff(context: Dictionary) -> void:
 		defender_city_name,
 		defender_city_id,
 	])
-	var battle_label := "공격전" if _is_worldmap_player_attack_context(context) else "방어전"
+	var is_player_attack_context := _is_worldmap_player_attack_context(context)
+	var battle_label := "방어전"
+	if is_player_attack_context:
+		battle_label = "공격전"
 	_append_battle_log("월드맵 %s 데이터 수신" % battle_label)
 	_append_battle_log("%s %s · %s → %s" % [mode, battle_label, attacker_city_name, defender_city_name])
 	_setup_worldmap_context_battle_roster(context)
@@ -1497,10 +1500,16 @@ func _setup_worldmap_context_battle_roster(context: Dictionary) -> void:
 		return
 	has_applied_worldmap_context_roster = true
 	_register_worldmap_context_hero_contracts(context)
-	var ally_context_side := "attacker" if _is_worldmap_player_attack_context(context) else "defender"
-	var enemy_context_side := "defender" if _is_worldmap_player_attack_context(context) else "attacker"
-	var ally_dispatch_type := "player_attack_context" if _is_worldmap_player_attack_context(context) else "defense_context"
-	var enemy_dispatch_type := "attack_target_context" if _is_worldmap_player_attack_context(context) else "invasion_context"
+	var is_player_attack_context := _is_worldmap_player_attack_context(context)
+	var ally_context_side := "defender"
+	var enemy_context_side := "attacker"
+	var ally_dispatch_type := "defense_context"
+	var enemy_dispatch_type := "invasion_context"
+	if is_player_attack_context:
+		ally_context_side = "attacker"
+		enemy_context_side = "defender"
+		ally_dispatch_type = "player_attack_context"
+		enemy_dispatch_type = "attack_target_context"
 	var ally_result := _apply_worldmap_context_side_roster(
 		context,
 		ally_context_side,
@@ -1521,7 +1530,10 @@ func _setup_worldmap_context_battle_roster(context: Dictionary) -> void:
 	_rebuild_battle_unit_state_list_refs()
 	_update_all_unit_visuals_from_state()
 	_refresh_formation_slot_guides()
-	_append_battle_log("월드맵 %s 편성 적용" % ("공격전" if _is_worldmap_player_attack_context(context) else "방어전"))
+	var battle_label := "방어전"
+	if _is_worldmap_player_attack_context(context):
+		battle_label = "공격전"
+	_append_battle_log("월드맵 %s 편성 적용" % battle_label)
 	_append_battle_log("아군 %d명 · 적군 %d명" % [
 		int(ally_result.get("resolved_count", 0)),
 		int(enemy_result.get("resolved_count", 0)),
@@ -1784,7 +1796,9 @@ func _resolve_worldmap_context_skill_name(hero_data: Dictionary, sample_skill_en
 func _get_existing_resource_path(path: String) -> String:
 	if path.is_empty():
 		return ""
-	return path if ResourceLoader.exists(path) else ""
+	if ResourceLoader.exists(path):
+		return path
+	return ""
 
 
 func _resolve_hero_portrait_path(hero_data: Dictionary) -> String:
@@ -2547,7 +2561,9 @@ func _refresh_worldmap_result_return_button() -> void:
 	worldmap_return_button.visible = can_return
 	worldmap_return_button.disabled = not can_return
 	if can_return:
-		var result_label := "승리" if _get_battle_result_state() == "victory" else "패배"
+		var result_label := "패배"
+		if _get_battle_result_state() == "victory":
+			result_label = "승리"
 		worldmap_return_button.text = "월드맵으로 돌아가기 · %s" % result_label
 
 
@@ -2586,14 +2602,22 @@ func _return_to_worldmap_with_result() -> void:
 func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dictionary:
 	if worldmap_battle_context.is_empty():
 		return {}
-	var result := "victory" if battle_result_state == "victory" else "defeat"
+	var result := "defeat"
+	if battle_result_state == "victory":
+		result = "victory"
 	var is_player_attack := _is_worldmap_player_attack_context(worldmap_battle_context)
-	var winner := "attacker" if is_player_attack and result == "victory" else "defender"
-	if not is_player_attack:
-		winner = "defender" if result == "victory" else "attacker"
-	var result_type := "attack_result" if is_player_attack else "defense_result"
-	var attacker_battle_side := "ally" if is_player_attack else "enemy"
-	var defender_battle_side := "enemy" if is_player_attack else "ally"
+	var winner := "defender"
+	if is_player_attack and result == "victory":
+		winner = "attacker"
+	elif not is_player_attack and result != "victory":
+		winner = "attacker"
+	var result_type := "defense_result"
+	var attacker_battle_side := "enemy"
+	var defender_battle_side := "ally"
+	if is_player_attack:
+		result_type = "attack_result"
+		attacker_battle_side = "ally"
+		defender_battle_side = "enemy"
 	var payload := {
 		"source": str(worldmap_battle_context.get("source", "enemy_invasion")),
 		"type": result_type,
@@ -2646,7 +2670,10 @@ func _sum_alive_deployed_troops_for_side(side: String) -> int:
 func _calculate_unit_surviving_allocated_troops(unit_state: BattleUnitState) -> int:
 	if unit_state == null:
 		return 0
-	var initial_troops := maxi(0, int(unit_state.initial_allocated_troops if unit_state.initial_allocated_troops > 0 else unit_state.allocated_troops))
+	var raw_initial_troops := unit_state.allocated_troops
+	if unit_state.initial_allocated_troops > 0:
+		raw_initial_troops = unit_state.initial_allocated_troops
+	var initial_troops := maxi(0, int(raw_initial_troops))
 	if initial_troops <= 0:
 		return 0
 	if unit_state.current_hp <= 0:
@@ -2672,9 +2699,13 @@ func _calculate_player_attack_troop_outcome_from_units(side: String, allocation_
 		var unit_survivors := _calculate_unit_surviving_allocated_troops(unit_state)
 		survivor_allocations[hero_id] = unit_survivors
 		raw_survivors += unit_survivors
-	var survivors := mini(allocated, raw_survivors) if did_side_win else 0
+	var survivors := 0
+	if did_side_win:
+		survivors = mini(allocated, raw_survivors)
 	var losses := maxi(0, allocated - survivors)
-	var wounded := int(floor(float(losses) * 0.30)) if did_side_win else int(floor(float(allocated) * 0.50))
+	var wounded := int(floor(float(allocated) * 0.50))
+	if did_side_win:
+		wounded = int(floor(float(losses) * 0.30))
 	wounded = clampi(wounded, 0, allocated)
 	var dead := maxi(0, allocated - survivors - wounded)
 	return {
@@ -4115,8 +4146,12 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 		specialty_skill_cutin_tween = null
 
 	var hero_base_position := specialty_skill_cutin_hero.position
-	var text_base_position := specialty_skill_cutin_text.position if specialty_skill_cutin_text != null else Vector2.ZERO
-	var slash_base_position := specialty_skill_cutin_slash.position if specialty_skill_cutin_slash != null else Vector2.ZERO
+	var text_base_position := Vector2.ZERO
+	if specialty_skill_cutin_text != null:
+		text_base_position = specialty_skill_cutin_text.position
+	var slash_base_position := Vector2.ZERO
+	if specialty_skill_cutin_slash != null:
+		slash_base_position = specialty_skill_cutin_slash.position
 	var is_mirrored_layout := bool(cutin_config.get("layout_mirror", false))
 	var hero_enter_offset := SPECIALTY_SKILL_CUTIN_HERO_ENTER_OFFSET
 	var hero_settle_overshoot := Vector2(28.0, 0.0)
@@ -4378,6 +4413,13 @@ func _log_specialty_skill_cutin_video_player_state(stage: String) -> void:
 		print("[SPECIALTY_CUTIN_VIDEO_STATE] stage=%s video_node=null" % stage)
 		return
 	var parent_control := specialty_skill_cutin_video.get_parent() as Control
+	var parent_name := "null"
+	var parent_visible := "null"
+	var parent_modulate := "null"
+	if parent_control != null:
+		parent_name = str(parent_control.name)
+		parent_visible = str(parent_control.visible)
+		parent_modulate = str(parent_control.modulate)
 	print("[SPECIALTY_CUTIN_VIDEO_STATE] stage=%s stream_set=%s stream_class=%s is_playing=%s visible=%s modulate=%s self_modulate=%s position=%s global_position=%s size=%s z_index=%d parent=%s parent_visible=%s parent_modulate=%s index=%d debug_force_top=%s" % [
 		stage,
 		str(specialty_skill_cutin_video.stream != null),
@@ -4390,9 +4432,9 @@ func _log_specialty_skill_cutin_video_player_state(stage: String) -> void:
 		str(specialty_skill_cutin_video.global_position),
 		str(specialty_skill_cutin_video.size),
 		specialty_skill_cutin_video.z_index,
-		str(parent_control.name) if parent_control != null else "null",
-		str(parent_control.visible) if parent_control != null else "null",
-		str(parent_control.modulate) if parent_control != null else "null",
+		parent_name,
+		parent_visible,
+		parent_modulate,
 		specialty_skill_cutin_video.get_index(),
 		str(CUTIN_VIDEO_DEBUG_FORCE_TOP),
 	])
@@ -6036,7 +6078,9 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 	var unique_skill_ready_icon := nodes.get("unique_skill_ready_icon", null) as TextureRect
 	var unit_state := _get_formation_guide_unit_state_for_capacity_slot_id(slot_id)
 	var slot_metadata := _get_capacity_slot_metadata(slot_id)
-	var panel_side := "ally" if slot_id.begins_with("ally_") else "enemy"
+	var panel_side := "enemy"
+	if slot_id.begins_with("ally_"):
+		panel_side = "ally"
 	var is_worldmap_context_slot := str(slot_metadata.get("worldmap_context_side", "")) != ""
 	var slot_is_active := bool(slot_metadata.get("is_active", false))
 	var slot_is_context_empty := bool(slot_metadata.get("worldmap_context_empty", false))
@@ -6137,8 +6181,11 @@ func _refresh_formation_slot_guide_for_entry(slot_id: String) -> void:
 	if troop_type_label != null:
 		troop_type_label.text = _get_troop_type_label_for_visual_key(visual_key, _get_formation_guide_unit_type(slot_id, unit_state, hero_entry))
 	_set_formation_slot_unique_skill_ready_icon(unique_skill_ready_icon, _is_unique_skill_ready_for_formation_guide(unit_state))
-	var panel_source := "worldmap_context" if is_worldmap_context_slot else "sample_battle"
-	var panel_reason := "context_slot" if is_worldmap_context_slot else "sample_fallback"
+	var panel_source := "sample_battle"
+	var panel_reason := "sample_fallback"
+	if is_worldmap_context_slot:
+		panel_source = "worldmap_context"
+		panel_reason = "context_slot"
 	_log_roster_panel_slot_state(
 		slot_id,
 		"shown:%s:%s:%s" % [panel_source, hero_id, str(slot_is_active)],
@@ -7610,7 +7657,9 @@ func _apply_hero_identity_to_unit(unit_state: BattleUnitState) -> void:
 	var initial_allocated_troops := maxi(0, int(hero_entry.get("initial_allocated_troops", allocated_troops)))
 	if allocated_troops > 0 or initial_allocated_troops > 0:
 		unit_state.allocated_troops = allocated_troops
-		unit_state.initial_allocated_troops = initial_allocated_troops if initial_allocated_troops > 0 else allocated_troops
+		unit_state.initial_allocated_troops = allocated_troops
+		if initial_allocated_troops > 0:
+			unit_state.initial_allocated_troops = initial_allocated_troops
 		unit_state.current_troops = allocated_troops
 		unit_state.max_troops = maxi(allocated_troops, int(hero_entry.get("max_troops", allocated_troops)))
 	var battlefield_portrait_texture := _resolve_hero_portrait_texture(hero_entry)
@@ -8881,7 +8930,10 @@ func _layout_specialty_skill_cutin(viewport_size: Vector2, hero_id: String = SPE
 		specialty_skill_cutin_text.pivot_offset = specialty_skill_cutin_text.size * 0.5
 	if specialty_skill_cutin_skill_title != null:
 		specialty_skill_cutin_skill_title.position = Vector2.ZERO
-		specialty_skill_cutin_skill_title.size = specialty_skill_cutin_text.size if specialty_skill_cutin_text != null else Vector2(cutin_rect.size.x * 0.44, cutin_rect.size.y * 0.32)
+		var skill_title_size := Vector2(cutin_rect.size.x * 0.44, cutin_rect.size.y * 0.32)
+		if specialty_skill_cutin_text != null:
+			skill_title_size = specialty_skill_cutin_text.size
+		specialty_skill_cutin_skill_title.size = skill_title_size
 		specialty_skill_cutin_skill_title.pivot_offset = specialty_skill_cutin_skill_title.size * 0.5
 	return cutin_rect
 

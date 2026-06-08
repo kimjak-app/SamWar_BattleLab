@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep Handoff
+- Baseline: `v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix` (`b8ca197`).
+- Runtime files touched: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `scripts/player_attack_deployment_panel.gd`, `scripts/battle_web_import_test.gd`, and `scripts/worldmap_city_marker.gd`.
+- The sweep used `rg " if .* else " --glob "*.gd"` across the repo, not a `Dictionary`-only search.
+- Converted:
+  - `worldmap_city_info_panel.gd`: attack hint text and selected-city layout anchor/index/label ternaries.
+  - `player_attack_deployment_panel.gd`: defense/attack text, Color, SpinBox, warning, summary, action label, and supply status ternaries.
+  - `battle_web_import_test.gd`: WorldMap battle context labels/sides, result payload labels/sides, troop survivor/wounded calculations, cutin Vector2 selections, debug parent strings, roster panel source/reason, and allocation fallback.
+  - `worldmap_city_marker.gd`: selected scale and selected text color.
+  - `worldmap_test.gd`: recent unified City Detail chrome/tab Color selections, resource-group return, neighbor display-name fallback, supply-state label, and unified secondary-tab selection.
+- Remaining `rg " if .* else " --glob "*.gd"` hits are all in `scripts/worldmap_test.gd`; they are same-type scalar/value choices and were left to avoid unnecessary large behavioral churn.
+- Headless project, WorldMap scene, and Battle scene loads were clean for the reported ternary reload message in this environment.
+- If the Godot editor continues to display the old ternary warning after this patch while headless remains clean, restart the editor before assuming a new code issue; this handoff does not authorize deleting repo-external editor cache files.
+
 ## v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix Handoff
 - Baseline: `v0.70-23 WorldMap City Detail Resource Tab Slim Polish` (`94b404b`).
 - Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.

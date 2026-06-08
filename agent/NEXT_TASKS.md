@@ -1,5 +1,23 @@
 # NEXT TASKS
 
+## Current: v0.70-23-hotfix2 Full GDScript Ternary Compatibility Sweep
+- `v0.70-23-hotfix2` is a reload-warning-only sweep on top of `v0.70-23-hotfix1`.
+- Completed direction:
+  1. Full repo `.gd` ternary inventory was gathered with `rg " if .* else " --glob "*.gd"`.
+  2. Type-risk ternaries were converted to explicit `if/else`.
+  3. Recent City Detail/help/deployment/battle-context/cutin/city-marker ternaries were prioritized.
+  4. `visible` parameter shadowing was rechecked and remains absent.
+  5. No gameplay/UI content/formula/save/BattleContext/project/assets changes were made.
+- Remaining ternaries are in `scripts/worldmap_test.gd` only and are same-type scalar/value selections. Keep them acceptable unless Godot output reports a concrete line in a future run.
+- Manual F6 QA required:
+  1. Godot Output should not repeat `Values of the ternary operator are not mutually compatible`.
+  2. City Detail expanded/collapsed drag, collapse/expand, primary and secondary tabs, help `?`, Selected City Panel, attack/governor/recruit buttons.
+  3. If the editor still shows the old reload warning after headless is clean, restart the editor before further debugging.
+- Next candidate work remains:
+  1. `v0.70-24 WorldMap City Tech Tree UI MVP`
+  2. `v0.70-25 WorldMap Battle Entry Camera Zoom Handoff`
+  3. `v0.70-26 Governor Assignment Exclusivity & Hero State Rules`
+
 ## Current: v0.70-23-hotfix1 City Detail Drag + GDScript Reload Warning Fix
 - `v0.70-23-hotfix1` is a bugfix-only patch on top of `v0.70-23`.
 - Completed direction:

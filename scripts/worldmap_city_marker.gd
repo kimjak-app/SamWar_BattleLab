@@ -145,11 +145,17 @@ func set_selected(is_selected: bool) -> void:
 
 	if castle_icon != null:
 		if CASTLE_ICON_VISUALS_ENABLED:
-			castle_icon.scale = _get_castle_icon_scale() * (1.08 if is_selected else 1.0)
+			var selected_scale := 1.0
+			if is_selected:
+				selected_scale = 1.08
+			castle_icon.scale = _get_castle_icon_scale() * selected_scale
 		else:
 			castle_icon.visible = false
 
 	if name_text is WorldMapCityNameLabel:
 		var selected_color := Color(1.0, 0.92, 0.55, 1.0)
 		var normal_color := Color(1.0, 1.0, 1.0, 1.0)
-		name_text.set("text_color", selected_color if is_selected else normal_color)
+		var text_color := normal_color
+		if is_selected:
+			text_color = selected_color
+		name_text.set("text_color", text_color)
