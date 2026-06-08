@@ -1653,7 +1653,6 @@ theme_override_constants/separation = 4
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.74, 0.46, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 
 [node name="HeaderRow" type="HBoxContainer" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=2074840963]
 layout_mode = 2
@@ -1719,13 +1718,11 @@ text = "도시를 선택하세요"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 
 [node name="RegionOwnerLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=669226914]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 
 [node name="ResourceLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=1458831389]
 layout_mode = 2
@@ -1737,32 +1734,27 @@ text = "도시를 선택하면 자원과 경제 잠재력이 표시됩니다."
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 
 [node name="MilitaryLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=147683032]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 
 [node name="CommerceLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=1040807694]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 
 [node name="RatingLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=1356720099]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.86, 0.92, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 autowrap_mode = 2
 
 [node name="StatusLabel" type="Label" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=1920285223]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.94, 0.86, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 autowrap_mode = 2
 
 [node name="DomesticButtonPlaceholder" type="Button" parent="WorldMapUI/CityDetailPanel/MarginContainer/Content" unique_id=1028788655]
