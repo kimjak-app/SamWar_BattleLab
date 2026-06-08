@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-27 Selected City Stability + Military Card Polish
+- Baseline: `v0.70-26 External Trade Tab Structure Polish` at `5021d47`.
+- Modified files: `scripts/worldmap_city_info_panel.gd`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Selected City Panel now treats city loyalty as part of a `성 안정도` card and appends a simple stability label to `성 충성도`.
+- Revolt risk is displayed in the Selected City Panel stability area as `반란 위험 낮음/주의/위험`, sourced from the existing revolt-risk calculation path.
+- Military summary, recruitment/conscription copy, and the existing `모병 100` button are grouped into a runtime `군사` card.
+- Governor assignment, governor policy, garrison card, hero movement panel, attack button, help buttons, Selected City Panel drag, and City Detail panel tabs remain in their existing flows.
+- Revolt-risk formulas, recruitment/conscription formulas, public-support/loyalty formulas, troop movement, battle/BattleContext, save/load schema, `project.godot`, and assets were not changed.
+- Next candidate work:
+  1. `v0.70-28 Diplomacy Spy Tab Structure Polish`
+  2. `v0.70-29 City Tech Tree UI Entry`
+  3. `v0.70-30 Trade Control MVP`
+  4. `v0.70-31 Selected City Hero Movement Polish`
+
 ## v0.70-26 External Trade Tab Structure Polish
 - Baseline: `v0.70-25 Internal Trade Tab Ownership Filter Polish`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

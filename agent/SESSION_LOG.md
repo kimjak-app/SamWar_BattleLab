@@ -2,6 +2,18 @@
 
 ## 2026-06-08
 
+### v0.70-27 Selected City Stability + Military Card Polish
+- Started from `5021d47 v0.70-26 External Trade Tab Structure Polish`.
+- Required docs and Selected City Panel/revolt-risk/recruitment code paths were checked.
+- Implemented:
+  - Added a `성 안정도` title to the existing loyalty card.
+  - Added a loyalty stability label beside `성 충성도`.
+  - Added Selected City Panel revolt-risk summaries using the existing WorldMap revolt-risk calculation path.
+  - Localized the Selected City Panel revolt-risk display to `낮음`, `주의`, and `위험`.
+  - Added a runtime `군사` card and moved the existing military summary, recruitment section, and `모병 100` button into it.
+- Preserved governor assignment/policy dropdowns, garrison card, hero movement panel, attack button, help buttons, Selected City Panel drag, City Detail resource/internal-trade/external-trade/diplomacy tabs, recruitment signal flow, formulas, battle/BattleContext, save/load schema, `project.godot`, assets, `.uid`, and `.ogv` files.
+- Manual F6 QA remains required for Hanseong stability/military cards, Korean revolt-risk text, `모병 100`, governor/policy dropdowns, garrison, hero movement, attack/help/drag, and unchanged City Detail tab behavior.
+
 ### v0.70-26 External Trade Tab Structure Polish
 - Started from `e36569c v0.70-25 Internal Trade Tab Ownership Filter Polish`.
 - Required docs and WorldMap external-trade/relation/ownership helpers were checked.

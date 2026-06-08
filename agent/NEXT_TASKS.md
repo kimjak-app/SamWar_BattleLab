@@ -1,5 +1,27 @@
 # NEXT TASKS
 
+## Current: v0.70-27 Selected City Stability + Military Card Polish
+- `v0.70-27` organizes the right Selected City Panel stability and military information into decision-focused cards.
+- Completed direction:
+  1. The existing loyalty card now acts as a `성 안정도` card.
+  2. `성 충성도` includes an MVP stability label: `안정`, `주의`, or `위험`.
+  3. Revolt risk is displayed in the stability area as `낮음`, `주의`, or `위험`, using existing revolt-risk results.
+  4. `병력`, `방어`, `치안 기준`, `병사 충원`, `징병`, `모병`, and the existing `모병 100` button are grouped in a `군사` card.
+  5. No raw revolt-risk ids such as `stable`, `warning`, or `danger` are exposed in this panel.
+- Preserved scope:
+  1. Governor assignment/policy, garrison card, hero movement, attack, help, Selected City Panel drag, and City Detail tabs are unchanged.
+  2. Recruitment/conscription, revolt risk, public support/loyalty, troop movement, supply/trade, battle/BattleContext, and save/load calculations are unchanged.
+  3. `project.godot`, assets, `.uid`, and `.ogv` files were not changed.
+- Manual F6 QA required:
+  1. Hanseong Selected City Panel should show `성 안정도`, loyalty stability, and Korean revolt-risk text.
+  2. The `군사` card should contain troop/defense/security baseline plus recruitment/conscription and `모병 100`.
+  3. Governor dropdowns, policy dropdown, garrison, hero movement, attack, help, drag, and City Detail resource/internal-trade/external-trade/diplomacy tabs should remain normal.
+- Next candidate work:
+  1. `v0.70-28 Diplomacy Spy Tab Structure Polish`
+  2. `v0.70-29 City Tech Tree UI Entry`
+  3. `v0.70-30 Trade Control MVP`
+  4. `v0.70-31 Selected City Hero Movement Polish`
+
 ## Current: v0.70-26 External Trade Tab Structure Polish
 - `v0.70-26` narrows the City Detail `무역 > 타국무역` tab to foreign-neighbor trade candidate and relation information only.
 - Completed direction:

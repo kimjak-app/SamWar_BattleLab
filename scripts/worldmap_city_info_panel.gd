@@ -61,6 +61,7 @@ const CITY_TYPE_LABELS := {
 @onready var neighbor_label: Label = $MarginContainer/Content/NeighborLabel
 @onready var route_type_label: Label = $MarginContainer/Content/RouteTypeLabel
 @onready var status_text_label: Label = $MarginContainer/Content/StatusTextLabel
+@onready var loyalty_card: PanelContainer = $MarginContainer/Content/LoyaltyCard
 @onready var loyalty_label: Label = $MarginContainer/Content/LoyaltyCard/MarginContainer/Content/LoyaltyLabel
 @onready var loyalty_bar: ProgressBar = $MarginContainer/Content/LoyaltyCard/MarginContainer/Content/LoyaltyBar
 @onready var governor_label: Label = $MarginContainer/Content/GovernorLabel
@@ -84,6 +85,7 @@ var _city_markers_by_id: Dictionary = {}
 var _hero_data: Dictionary = {}
 var _city_hud_data: Dictionary = {}
 var _recruitment_summaries: Dictionary = {}
+var _revolt_risk_summaries: Dictionary = {}
 var _governor_policy_data: Dictionary = {}
 var _city_policy_state: Dictionary = {}
 var _pending_invasion_event: Dictionary = {}
@@ -101,6 +103,11 @@ var _recruitment_section: VBoxContainer = null
 var _recruitment_title_label: Label = null
 var _conscription_summary_label: Label = null
 var _recruitment_summary_label: Label = null
+var _stability_title_label: Label = null
+var _revolt_risk_label: Label = null
+var _military_card: PanelContainer = null
+var _military_card_content: VBoxContainer = null
+var _military_title_label: Label = null
 var _city_loyalty_help_button: Button = null
 var _domestic_help_row: HBoxContainer = null
 var _garrison_help_button: Button = null
@@ -113,9 +120,11 @@ func _ready() -> void:
 	city_id_label.visible = false
 	_apply_selected_city_summary_slim_visibility()
 	_ensure_governor_portrait_texture_rect()
+	_ensure_stability_card()
 	_ensure_garrison_list_container()
 	_ensure_hero_transfer_panel()
 	_ensure_recruitment_section()
+	_ensure_military_card()
 	_ensure_help_buttons()
 	_apply_selected_city_layout_order()
 	attack_button_placeholder.pressed.connect(_on_attack_placeholder_pressed)
@@ -147,6 +156,12 @@ func set_recruitment_summaries(recruitment_summaries: Dictionary) -> void:
 	_recruitment_summaries = recruitment_summaries.duplicate(true)
 	if not _current_city_id.is_empty():
 		_refresh_recruitment_section()
+
+
+func set_revolt_risk_summaries(revolt_risk_summaries: Dictionary) -> void:
+	_revolt_risk_summaries = revolt_risk_summaries.duplicate(true)
+	if not _current_city_id.is_empty():
+		_refresh_stability_card()
 
 
 func set_pending_invasion_event(event: Dictionary) -> void:
@@ -191,8 +206,9 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 	neighbor_label.text = ""
 	route_type_label.text = ""
 	status_text_label.text = ""
-	loyalty_label.text = "성 충성도 %d" % loyalty
+	loyalty_label.text = "성 충성도 %d %s" % [loyalty, _format_city_loyalty_stability_label(loyalty)]
 	loyalty_bar.value = loyalty
+	_refresh_stability_card()
 	_setup_governor_assign_option(city_data, governor_id)
 	_update_governor_card(governor_id, governor_data, policy_id, policy_data)
 	governor_label.text = "태수"
@@ -228,6 +244,7 @@ func _show_empty() -> void:
 	status_text_label.text = ""
 	loyalty_label.text = "성 충성도 정보 없음"
 	loyalty_bar.value = 0
+	_refresh_stability_card()
 	governor_label.text = ""
 	governor_label.visible = false
 	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_governor_portrait_texture_rect, governor_portrait_label, {})
@@ -405,7 +422,7 @@ func _format_city_resource_info(city_data: Dictionary) -> String:
 
 
 func _format_city_defense_info(city_data: Dictionary) -> String:
-	return "병력: %s · 방어: %s · 치안 기준: %s" % [
+	return "병력 %s\n방어 %s\n치안 기준 %s" % [
 		_format_number_field(city_data, "troops"),
 		_format_number_field(city_data, "defense"),
 		_format_military_summary_value(city_data, "securityRequiredTroops"),
@@ -419,6 +436,26 @@ func _format_city_domestic_info(city_data: Dictionary) -> String:
 		_format_number_field(city_data, "commerce"),
 		_format_number_field(city_data, "agriculture"),
 	]
+
+
+func _format_city_loyalty_stability_label(loyalty: int) -> String:
+	if loyalty >= 70:
+		return "안정"
+	if loyalty >= 50:
+		return "주의"
+	return "위험"
+
+
+func _format_revolt_risk_label_for_ui(risk_id: String) -> String:
+	match risk_id:
+		"stable":
+			return "낮음"
+		"warning":
+			return "주의"
+		"danger":
+			return "위험"
+		_:
+			return "확인 필요"
 
 
 func _format_number_field(data: Dictionary, key: String, fallback: String = "정보 없음") -> String:
@@ -515,14 +552,10 @@ func _apply_selected_city_layout_order() -> void:
 	var military_anchor: Control = hero_move_button_placeholder
 	if _hero_transfer_panel != null:
 		military_anchor = _hero_transfer_panel
-	_move_child_after(content, military_info_label, military_anchor)
-	_move_child_after(content, _recruitment_section, military_info_label)
-	var recruit_anchor: Control = military_info_label
-	if _recruitment_section != null:
-		recruit_anchor = _recruitment_section
-	_move_child_after(content, recruit_button_placeholder, recruit_anchor)
+	_ensure_military_card()
+	_move_child_after(content, _military_card, military_anchor)
 	if button_row != null:
-		_move_child_after(content, button_row, recruit_button_placeholder)
+		_move_child_after(content, button_row, _military_card)
 		button_row.visible = attack_button_placeholder.visible
 	domestic_button_placeholder.text = ""
 	domestic_button_placeholder.tooltip_text = ""
@@ -572,6 +605,118 @@ func _make_help_button(topic_id: String, label_text: String = "?") -> Button:
 
 func _on_help_button_pressed(topic_id: String) -> void:
 	help_requested.emit(topic_id)
+
+
+func _ensure_stability_card() -> void:
+	if loyalty_card == null or loyalty_label == null:
+		return
+	loyalty_card.add_theme_stylebox_override("panel", _make_selected_city_card_style())
+	var content := loyalty_label.get_parent() as VBoxContainer
+	if content == null:
+		return
+	if _stability_title_label == null:
+		_stability_title_label = Label.new()
+		_stability_title_label.name = "StabilityTitleLabel"
+		_stability_title_label.text = "성 안정도"
+		_stability_title_label.add_theme_font_size_override("font_size", 12)
+		_stability_title_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.58, 1.0))
+		content.add_child(_stability_title_label)
+		content.move_child(_stability_title_label, 0)
+	if _revolt_risk_label == null:
+		_revolt_risk_label = Label.new()
+		_revolt_risk_label.name = "RevoltRiskLabel"
+		_revolt_risk_label.text = "반란 위험 확인 필요"
+		_revolt_risk_label.add_theme_font_size_override("font_size", 11)
+		_revolt_risk_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		content.add_child(_revolt_risk_label)
+
+
+func _refresh_stability_card() -> void:
+	_ensure_stability_card()
+	if _revolt_risk_label == null:
+		return
+	if _current_city_id.is_empty():
+		_revolt_risk_label.text = "반란 위험 확인 필요"
+		return
+	var risk_label := "확인 필요"
+	var raw_summary: Variant = _revolt_risk_summaries.get(_current_city_id, {})
+	if raw_summary is Dictionary:
+		var summary := raw_summary as Dictionary
+		var summary_label := str(summary.get("risk_label", "")).strip_edges()
+		if not summary_label.is_empty():
+			risk_label = summary_label
+		else:
+			risk_label = _format_revolt_risk_label_for_ui(str(summary.get("risk", "")))
+	_revolt_risk_label.text = "반란 위험 %s" % risk_label
+
+
+func _ensure_military_card() -> void:
+	_ensure_recruitment_section()
+	if _military_card != null:
+		_move_selected_city_military_nodes_into_card()
+		return
+	var content := get_node_or_null("MarginContainer/Content") as VBoxContainer
+	if content == null:
+		return
+	_military_card = PanelContainer.new()
+	_military_card.name = "MilitaryCard"
+	_military_card.add_theme_stylebox_override("panel", _make_selected_city_card_style())
+	var margin := MarginContainer.new()
+	margin.name = "MarginContainer"
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 7)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 7)
+	_military_card_content = VBoxContainer.new()
+	_military_card_content.name = "Content"
+	_military_card_content.add_theme_constant_override("separation", 4)
+	_military_title_label = Label.new()
+	_military_title_label.name = "MilitaryTitleLabel"
+	_military_title_label.text = "군사"
+	_military_title_label.add_theme_font_size_override("font_size", 12)
+	_military_title_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.58, 1.0))
+	_military_card_content.add_child(_military_title_label)
+	margin.add_child(_military_card_content)
+	_military_card.add_child(margin)
+	content.add_child(_military_card)
+	_move_selected_city_military_nodes_into_card()
+
+
+func _move_selected_city_military_nodes_into_card() -> void:
+	if _military_card_content == null:
+		return
+	_move_control_to_container(military_info_label, _military_card_content)
+	_move_control_to_container(_recruitment_section, _military_card_content)
+	_move_control_to_container(recruit_button_placeholder, _military_card_content)
+	if military_info_label != null:
+		_military_card_content.move_child(military_info_label, mini(_military_title_label.get_index() + 1, _military_card_content.get_child_count() - 1))
+	if _recruitment_section != null:
+		_military_card_content.move_child(_recruitment_section, mini(military_info_label.get_index() + 1, _military_card_content.get_child_count() - 1))
+	if recruit_button_placeholder != null:
+		var recruit_button_index := 0
+		if _recruitment_section != null:
+			recruit_button_index = _recruitment_section.get_index() + 1
+		_military_card_content.move_child(recruit_button_placeholder, mini(recruit_button_index, _military_card_content.get_child_count() - 1))
+
+
+func _move_control_to_container(control: Control, container: Container) -> void:
+	if control == null or container == null:
+		return
+	if control.get_parent() == container:
+		return
+	var old_parent := control.get_parent()
+	if old_parent != null:
+		old_parent.remove_child(control)
+	container.add_child(control)
+
+
+func _make_selected_city_card_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.075, 0.06, 0.78)
+	style.border_color = Color(0.78, 0.57, 0.25, 0.82)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(5)
+	return style
 
 
 func _ensure_recruitment_section() -> void:

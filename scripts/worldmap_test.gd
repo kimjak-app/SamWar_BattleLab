@@ -4955,6 +4955,32 @@ func _get_recruitment_summaries_for_ui() -> Dictionary:
 	return summaries
 
 
+func _get_revolt_risk_summaries_for_ui() -> Dictionary:
+	var summaries := {}
+	for city_id_variant in _get_city_hud_data_for_ui().keys():
+		var city_id := str(city_id_variant)
+		var risk_result := _get_last_or_current_city_revolt_risk(city_id)
+		var risk_id := str(risk_result.get("risk", REVOLT_RISK_STABLE))
+		summaries[city_id] = {
+			"city_id": city_id,
+			"risk": risk_id,
+			"risk_label": _format_selected_city_revolt_risk_label(risk_id),
+		}
+	return summaries
+
+
+func _format_selected_city_revolt_risk_label(risk: String) -> String:
+	match risk:
+		REVOLT_RISK_DANGER:
+			return "위험"
+		REVOLT_RISK_WARNING:
+			return "주의"
+		REVOLT_RISK_STABLE:
+			return "낮음"
+		_:
+			return "확인 필요"
+
+
 func _format_city_conscription_ui_line(city_id: String) -> String:
 	if not _is_city_tech_completed_for_display(city_id, "barracks"):
 		return "징병: 병영 필요"
@@ -9959,6 +9985,8 @@ func _refresh_city_hud_data_bindings() -> void:
 	city_info_panel.set_hud_data(_get_hero_data_for_ui(), _get_city_hud_data_for_ui(), GOVERNOR_POLICY_DATA, _city_policy_state)
 	if city_info_panel.has_method("set_recruitment_summaries"):
 		city_info_panel.call("set_recruitment_summaries", _get_recruitment_summaries_for_ui())
+	if city_info_panel.has_method("set_revolt_risk_summaries"):
+		city_info_panel.call("set_revolt_risk_summaries", _get_revolt_risk_summaries_for_ui())
 
 
 func _serialize_worldmap_city_runtime_state() -> Dictionary:

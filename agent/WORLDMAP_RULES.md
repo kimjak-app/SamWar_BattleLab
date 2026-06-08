@@ -1,5 +1,18 @@
 # WORLDMAP RULES
 
+## v0.70-27 Selected City Stability and Military Card Rule
+- The right Selected City Panel owns city stability and revolt-risk judgment display.
+- City Detail internal/external trade tabs must not reintroduce revolt-risk or troop/recruitment decision blocks.
+- The Selected City Panel stability area should show:
+  1. `성 안정도`
+  2. `성 충성도` with a Korean stability label.
+  3. `반란 위험` with Korean UI labels such as `낮음`, `주의`, or `위험`.
+- Raw revolt-risk ids such as `stable`, `warning`, and `danger` must not be exposed in the Selected City Panel UI.
+- The Selected City Panel military area should group `병력`, `방어`, `치안 기준`, `병사 충원`, `징병`, `모병`, and the existing recruitment button together.
+- Moving selected-city military/recruitment nodes into a card must preserve existing node references, signals, and button behavior.
+- Governor assignment/policy, garrison, hero movement, attack, help, and panel drag flows must remain stable during selected-city layout polish.
+- This rule does not authorize changes to revolt-risk formulas, recruitment/conscription formulas, public-support/loyalty formulas, troop movement, supply/trade formulas, battle/BattleContext, save/load schema, `project.godot`, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-26 External Trade Tab Rule
 - City Detail `무역 > 타국무역` shows trade candidates, relation status, availability, and efficiency between player-owned cities and external-faction cities only.
 - Player-owned cities must not appear as external trade targets.
