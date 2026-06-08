@@ -1,5 +1,28 @@
 # NEXT TASKS
 
+## Current: v0.70-28 Diplomacy Spy Tab Structure Polish
+- `v0.70-28` narrows the City Detail `외교·첩보` tab to player decision summaries.
+- Completed direction:
+  1. `외교` shows selected city ownership, PLAYER relation status, relation score, trade availability, and diplomacy action candidates.
+  2. `첩보` shows target city, information level, known information scope, spy action candidates, and selected-city-related recent spy result.
+  3. Relation status and trade availability are shown in Korean UI labels.
+  4. City Detail diplomacy/spy no longer shows web-version/display-only/placeholder/Godot-facing copy.
+  5. Diplomacy and spy execution buttons remain unconnected; this task presents candidate actions only.
+- Preserved scope:
+  1. Resource tab/cards, internal trade, external trade, Selected City Panel stability/military cards, governor/garrison/hero movement/attack/help flows are unchanged.
+  2. Recruitment, troop movement, revolt risk, public support/loyalty, supply, trade, battle/BattleContext, and save/load calculations are unchanged.
+  3. `project.godot`, assets, `.uid`, and `.ogv` files were not changed.
+- Manual F6 QA required:
+  1. Hanseong `외교` should show self-city relation judgment and no diplomacy target wording that implies execution.
+  2. Hanseong `첩보` should show self-city spy judgment and direct the player to city information.
+  3. Foreign cities should show relation status/score/trade availability and spy candidate actions in Korean UI terms.
+  4. No public-support, loyalty, revolt-risk, troop/recruitment, storage/resource, trade-detail, raw internal status, or developer copy should appear in the tab.
+- Next candidate work:
+  1. `v0.70-29 City Tech Tree UI Entry`
+  2. `v0.70-30 Trade Control MVP`
+  3. `v0.70-31 Diplomacy Action MVP`
+  4. `v0.70-32 Spy Action MVP`
+
 ## Current: v0.70-27 Selected City Stability + Military Card Polish
 - `v0.70-27` organizes the right Selected City Panel stability and military information into decision-focused cards.
 - Completed direction:

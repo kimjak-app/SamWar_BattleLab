@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-28 Diplomacy Spy Tab Structure Polish
+- Built on `v0.70-27 Selected City Stability + Military Card Polish` (`6136aa2`).
+- Reworked City Detail `외교·첩보 > 외교` around selected city owner, PLAYER relation status, relation score, trade availability, and diplomacy action candidates.
+- Reworked City Detail `외교·첩보 > 첩보` around target city information level, known information scope, spy action candidates, and selected-city-related recent spy result.
+- Localized relation status display and kept raw internal relation ids out of the visible diplomacy UI.
+- Removed visible web-version/display-only/placeholder/Godot-facing copy from the City Detail diplomacy/spy render path.
+- Removed public support details, city loyalty details, revolt-risk details, troop movement, recruitment, city storage, resource potential, trade details, supply adjustments, and military-card information from the diplomacy/spy tab display.
+- Kept actual diplomacy and spy execution behavior as follow-up work; no new action execution, roll, resource spending, turn consumption, or relation mutation was connected.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change resource tab/cards, trade tabs, Selected City Panel, recruitment, troop movement, revolt/public support/loyalty formulas, supply/trade formulas, battle/BattleContext, save/load schema, `project.godot`, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-27 Selected City Stability + Military Card Polish
 - Built on `v0.70-26 External Trade Tab Structure Polish` (`5021d47`).
 - Reworked the right Selected City Panel loyalty area into a `성 안정도` card.

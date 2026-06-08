@@ -1,5 +1,20 @@
 # SESSION LOG
 
+## 2026-06-09
+
+### v0.70-28 Diplomacy Spy Tab Structure Polish
+- Started from `6136aa2 v0.70-27 Selected City Stability + Military Card Polish`.
+- Required docs and City Detail diplomacy/spy relation/spy helper paths were checked.
+- Implemented:
+  - Replaced the City Detail diplomacy/spy tab's web-version/display-only copy with player-facing decision summaries.
+  - Rebuilt `외교` display around selected city, owner faction, PLAYER relation status, relation score, trade status, and diplomacy action candidates.
+  - Rebuilt `첩보` display around target city, information level, known information scope, spy action candidates, and selected-city-related recent spy result.
+  - Kept spy candidate status to side-effect-free `_can_...` checks and did not execute spy actions.
+  - Hid the diplomacy/spy action placeholder button in this tab.
+- Removed public support details, city loyalty details, revolt-risk details, troop movement, recruitment, city storage, resource potential, trade details, supply adjustments, military-card information, and raw internal relation ids from the City Detail diplomacy/spy tab display.
+- Preserved resource tab/cards, internal/external trade, Selected City Panel stability/military cards, governor/garrison/hero movement/attack/help flows, recruitment, troop movement, formulas, battle/BattleContext, save/load schema, `project.godot`, assets, `.uid`, and `.ogv` files.
+- Manual F6 QA remains required for Hanseong self-city diplomacy/spy states, foreign-city relation/spy candidate states, absence of developer copy, unchanged trade/resource/Selected City flows, and drag/collapse behavior.
+
 ## 2026-06-08
 
 ### v0.70-27 Selected City Stability + Military Card Polish

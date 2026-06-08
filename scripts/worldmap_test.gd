@@ -1552,40 +1552,30 @@ func _show_unified_diplomacy_spy_content() -> void:
 	_refresh_unified_panel_chrome()
 	_set_city_detail_body_labels_visible(true)
 	_apply_city_detail_default_text_tone()
-	city_detail_name_label.text = "외교·첩보"
-	var selected_city_name := "미선택"
-	var selected_city_label := "미선택"
-	var owner_label := "미상 세력"
-	var relation_label := "관계 미확인"
-	var relation_description := "세력 정보를 확인 중입니다."
+	var selected_city_id := ""
 	if selected_city_marker != null:
-		selected_city_name = selected_city_marker.display_name
-		owner_label = _format_faction_label(selected_city_marker.owner_faction_id)
-		selected_city_label = "%s · %s" % [
-			selected_city_marker.display_name,
-			owner_label,
-		]
-		relation_label = _get_selected_city_relation_label(selected_city_marker)
-		relation_description = _get_selected_city_relation_description(selected_city_marker)
-	city_detail_type_label.text = "모드: %s" % _get_diplomacy_spy_tab_label(_selected_diplomacy_spy_tab)
-	city_detail_region_owner_label.text = "기준: PLAYER · 선택 도시: %s" % selected_city_label
+		selected_city_id = selected_city_marker.city_id
+	city_detail_name_label.text = _get_diplomacy_spy_tab_label(_selected_diplomacy_spy_tab)
+	city_detail_type_label.text = _format_diplomacy_spy_target_city_display(selected_city_marker)
 	if _selected_diplomacy_spy_tab == DIPLOMACY_SPY_TAB_SPY:
-		city_detail_resource_label.text = "첩보 가시성: 정보 등급 기초 정보 · 대상 도시 %s" % selected_city_name
-		city_detail_security_label.text = "자원 정보: 제한 공개 · 병력 정보: 제한 공개"
-		city_detail_military_label.text = "첩보 행동: 정탐 / 유언비어 / 내통 시도"
-		city_detail_commerce_label.text = "성주 / 재상 정보는 준비 중입니다."
-		city_detail_rating_label.text = "첩보 계산과 성공/실패 판정은 후속 버전에서 연결합니다."
-		city_detail_domestic_button_placeholder.text = "정탐"
-		city_detail_hint_label.text = "웹버전 Diplomacy / Spy의 첩보 구조를 표시만 합니다. 확률 계산과 턴 소비는 없습니다."
+		city_detail_region_owner_label.text = _format_spy_visibility_summary_for_ui(selected_city_marker)
+		city_detail_resource_label.text = _format_spy_known_info_summary_for_ui(selected_city_marker)
+		city_detail_security_label.text = _format_spy_action_candidates_for_ui(selected_city_marker)
+		city_detail_military_label.text = _format_recent_spy_result_for_ui(selected_city_id)
+		city_detail_commerce_label.text = "현재 방침\n첩보 실행은 후속 작업에서 연결됩니다."
+		city_detail_rating_label.text = ""
+		city_detail_hint_label.text = "대상 도시의 정보 수준과 첩보 행동 후보를 확인합니다."
 	else:
-		city_detail_resource_label.text = "외교 현황: 선택 도시 %s · 소유 세력 %s" % [selected_city_name, owner_label]
-		city_detail_security_label.text = "관계 상태: %s · %s" % [relation_label, relation_description]
-		city_detail_military_label.text = "외교 행동: 사절 교환 / 교섭 요청 / 교역 압박"
-		city_detail_commerce_label.text = "행동 상태: 사절 교환 준비 중 · 교섭 요청 준비 중 · 교역 압박 준비 중"
-		city_detail_rating_label.text = "외교 행동은 준비 중입니다."
-		city_detail_domestic_button_placeholder.text = "사절 교환"
-		city_detail_hint_label.text = "웹버전 Diplomacy / Spy의 외교 구조를 표시만 합니다. 관계 변경과 교역 조정은 실행하지 않습니다."
-	city_detail_status_label.text = "상태: %s 표시 전용" % _get_diplomacy_spy_tab_label(_selected_diplomacy_spy_tab)
+		city_detail_region_owner_label.text = _format_diplomacy_owner_display(selected_city_marker)
+		city_detail_resource_label.text = _format_diplomacy_relation_summary_for_ui(selected_city_marker)
+		city_detail_security_label.text = _format_diplomacy_trade_status_for_ui(selected_city_marker)
+		city_detail_military_label.text = _format_diplomacy_action_candidates_for_ui(selected_city_marker)
+		city_detail_commerce_label.text = _format_diplomacy_policy_display_for_ui(selected_city_marker)
+		city_detail_rating_label.text = ""
+		city_detail_hint_label.text = "선택 도시 소유 세력과 PLAYER의 관계를 확인합니다."
+	city_detail_domestic_button_placeholder.text = ""
+	city_detail_domestic_button_placeholder.visible = false
+	city_detail_status_label.text = ""
 	_queue_unified_city_panel_resize()
 
 
@@ -1603,6 +1593,189 @@ func _get_selected_city_relation_description(city_marker: WorldMapCityMarker) ->
 	if city_marker.owner_faction_id == PLAYER_FACTION_ID:
 		return "동일 세력 소유 도시입니다."
 	return "교역 가능"
+
+
+func _format_diplomacy_spy_target_city_display(city_marker: WorldMapCityMarker) -> String:
+	if city_marker == null:
+		return "선택 도시\n미선택"
+	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
+	var owner_label := _format_faction_label(owner_id)
+	if owner_id.is_empty():
+		owner_label = "세력 미확인"
+	return "선택 도시\n%s · %s" % [city_marker.display_name, owner_label]
+
+
+func _format_diplomacy_owner_display(city_marker: WorldMapCityMarker) -> String:
+	if city_marker == null:
+		return "소유 세력\n세력 미확인"
+	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
+	if owner_id.is_empty():
+		return "소유 세력\n세력 미확인"
+	return "소유 세력\n%s" % _format_faction_label(owner_id)
+
+
+func _format_diplomacy_relation_summary_for_ui(city_marker: WorldMapCityMarker) -> String:
+	if city_marker == null:
+		return "관계 상태\n관계 미확인"
+	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
+	if owner_id.is_empty():
+		return "관계 상태\n관계 미확인"
+	if owner_id == PLAYER_FACTION_ID:
+		return "관계 상태\n자국 도시"
+	var status := _get_faction_relation_status(PLAYER_FACTION_ID, owner_id)
+	var score := _get_faction_relation_score(PLAYER_FACTION_ID, owner_id)
+	return "관계 상태\n%s · 관계 점수 %d" % [
+		_format_diplomacy_relation_status_for_ui(status),
+		score,
+	]
+
+
+func _format_diplomacy_relation_status_for_ui(status: String) -> String:
+	match status:
+		"allied":
+			return "동맹"
+		"neutral":
+			return "중립"
+		"hostile":
+			return "적대"
+		"suspended":
+			return "교역 중단"
+		_:
+			return "관계 미확인"
+
+
+func _format_diplomacy_trade_status_for_ui(city_marker: WorldMapCityMarker) -> String:
+	if city_marker == null:
+		return "교역 상태\n관계 미확인"
+	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
+	if owner_id.is_empty():
+		return "교역 상태\n관계 미확인"
+	if owner_id == PLAYER_FACTION_ID:
+		return "교역 상태\n자국 관리 대상"
+	var trade_status := "교역 제한"
+	if _can_trade_between_factions(PLAYER_FACTION_ID, owner_id):
+		trade_status = "교역 가능"
+	return "교역 상태\n%s" % trade_status
+
+
+func _format_diplomacy_action_candidates_for_ui(city_marker: WorldMapCityMarker) -> String:
+	if city_marker == null:
+		return "외교 행동\n도시를 선택하면 외교 후보가 표시됩니다."
+	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
+	if owner_id.is_empty():
+		return "외교 행동\n소유 세력 확인이 필요합니다."
+	if owner_id == PLAYER_FACTION_ID:
+		return "외교 행동\n자국 도시는 외교 대상이 아닙니다."
+	var status := _get_faction_relation_status(PLAYER_FACTION_ID, owner_id)
+	if status == FACTION_RELATION_STATUS["HOSTILE"] or status == FACTION_RELATION_STATUS["SUSPENDED"]:
+		return "외교 행동\n관계 회복 / 사절 파견 / 교역 재개 협의"
+	return "외교 행동\n사절 교환 / 동맹 제안 / 군사 지원 요청 / 교역 협정"
+
+
+func _format_diplomacy_policy_display_for_ui(city_marker: WorldMapCityMarker) -> String:
+	if city_marker == null:
+		return "외교 판단\n도시를 선택하면 외교 판단이 표시됩니다."
+	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
+	if owner_id == PLAYER_FACTION_ID:
+		return "외교 판단\n자국 도시는 외교 대상이 아닙니다."
+	return "현재 방침\n외교 행동 실행은 후속 작업에서 연결됩니다."
+
+
+func _format_spy_visibility_summary_for_ui(city_marker: WorldMapCityMarker) -> String:
+	if city_marker == null:
+		return "정보 수준\n정보 미확인"
+	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
+	if owner_id.is_empty():
+		return "정보 수준\n정보 미확인"
+	if owner_id == PLAYER_FACTION_ID:
+		return "정보 수준\n자국 도시"
+	return "정보 수준\n기초 정보 확인"
+
+
+func _format_spy_known_info_summary_for_ui(city_marker: WorldMapCityMarker) -> String:
+	if city_marker == null:
+		return "확인 정보\n도시를 선택하면 확인 정보가 표시됩니다."
+	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
+	if owner_id == PLAYER_FACTION_ID:
+		return "확인 정보\n자국 도시는 도시 정보창에서 상세 정보를 확인할 수 있습니다."
+	if owner_id.is_empty():
+		return "확인 정보\n소유 세력 확인이 필요합니다."
+	return "확인 정보\n소유 세력 / 도시 유형 / 병력 개략 / 자원 개략"
+
+
+func _format_spy_action_candidates_for_ui(city_marker: WorldMapCityMarker) -> String:
+	if city_marker == null:
+		return "첩보 행동\n도시를 선택하면 첩보 후보가 표시됩니다."
+	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
+	if owner_id == PLAYER_FACTION_ID:
+		return "첩보 판단\n자국 도시는 첩보 대상이 아닙니다."
+	if owner_id.is_empty():
+		return "첩보 행동\n대상 세력 확인이 필요합니다."
+	var lines: Array[String] = ["첩보 행동"]
+	lines.append("정탐: %s" % _format_spy_check_status_for_ui(_can_gather_spy_info(city_marker.city_id)))
+	lines.append("민심 교란: %s" % _format_spy_check_status_for_ui(_can_disrupt_city_public_support(city_marker.city_id)))
+	lines.append("성 충성도 교란: %s" % _format_spy_check_status_for_ui(_can_disrupt_city_loyalty(city_marker.city_id)))
+	lines.append("반란 조장: %s" % _format_spy_check_status_for_ui(_can_instigate_revolt(city_marker.city_id)))
+	lines.append("이간질: 조건 확인 필요")
+	return "\n".join(lines)
+
+
+func _format_spy_check_status_for_ui(check: Dictionary) -> String:
+	if bool(check.get("ok", false)):
+		return "가능"
+	var reason := str(check.get("reason", "unknown"))
+	match reason:
+		"own_city":
+			return "자국 도시"
+		"no_chancellor":
+			return "재상 필요"
+		"no_political_aptitude":
+			return "정치형 재상 필요"
+		"cooldown":
+			return "대기 중"
+		"resources":
+			return "자원 필요"
+		"iron_wall":
+			return "경계 높음"
+		"prerequisite_public_support", "prerequisite_loyalty":
+			return "조건 확인 필요"
+		"invalid_target":
+			return "대상 확인 필요"
+		_:
+			return "조건 확인 필요"
+
+
+func _format_recent_spy_result_for_ui(city_id: String) -> String:
+	var recent_text := _format_recent_spy_result_from_key_for_ui("last_spy_result", city_id, "정탐")
+	if recent_text.is_empty():
+		recent_text = _format_recent_spy_result_from_key_for_ui("last_spy_public_support_disrupt_result", city_id, "민심 교란")
+	if recent_text.is_empty():
+		recent_text = _format_recent_spy_result_from_key_for_ui("last_spy_loyalty_disrupt_result", city_id, "성 충성도 교란")
+	if recent_text.is_empty():
+		recent_text = _format_recent_spy_result_from_key_for_ui("last_spy_revolt_instigation_result", city_id, "반란 조장")
+	if recent_text.is_empty():
+		recent_text = "최근 첩보 기록 없음"
+	return "최근 첩보\n%s" % recent_text
+
+
+func _format_recent_spy_result_from_key_for_ui(result_key: String, city_id: String, action_label: String) -> String:
+	if city_id.is_empty():
+		return ""
+	var raw_result: Variant = _player_state.get(result_key, {})
+	if not raw_result is Dictionary:
+		return ""
+	var result := raw_result as Dictionary
+	if str(result.get("target_city_id", "")) != city_id:
+		return ""
+	if result.has("success_valid") and not bool(result.get("success_valid", true)):
+		return ""
+	var outcome := "실패"
+	if bool(result.get("success", false)) or bool(result.get("effect_applied", false)):
+		outcome = "성공"
+	var detected_text := "발각 없음"
+	if bool(result.get("detected", false)):
+		detected_text = "발각 있음"
+	return "%s %s · %s" % [action_label, outcome, detected_text]
 
 
 func _get_diplomacy_spy_tab_label(tab_id: String) -> String:

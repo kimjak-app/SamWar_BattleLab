@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-28 Diplomacy Spy Tab Structure Polish Handoff
+- Baseline: `v0.70-27 Selected City Stability + Military Card Polish` (`6136aa2`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- City Detail `외교·첩보 > 외교` now displays selected city ownership, PLAYER relation status, relation score, trade availability, and diplomacy action candidates.
+- City Detail `외교·첩보 > 첩보` now displays target city information level, known information scope, spy action candidates, and recent spy result only when it relates to the selected city.
+- Raw relation ids are translated to Korean UI labels; same-faction/player-owned cities are shown as `자국 도시`.
+- Spy action candidate status uses side-effect-free check helpers such as `_can_gather_spy_info()` and `_can_disrupt_city_public_support()`; it does not roll, spend resources, change turns, or execute spy actions.
+- Removed visible developer copy from this City Detail render path: web-version, display-only, placeholder-style, and Godot-facing wording.
+- The diplomacy/spy tab does not display public support details, city loyalty details, revolt-risk details, troop movement, recruitment, city storage, resource potential, trade details, supply adjustments, or military-card content.
+- Explicitly unchanged: resource tab/storage cards, internal/external trade, Selected City Panel stability/military cards, governor/garrison/hero movement/attack/help flows, recruitment, troop movement, formulas, battle/BattleContext, save/load schema, `project.godot`, and assets.
+- Next candidates:
+  1. `v0.70-29 City Tech Tree UI Entry`
+  2. `v0.70-30 Trade Control MVP`
+  3. `v0.70-31 Diplomacy Action MVP`
+  4. `v0.70-32 Spy Action MVP`
+
 ## v0.70-27 Selected City Stability + Military Card Polish Handoff
 - Baseline: `v0.70-26 External Trade Tab Structure Polish` (`5021d47`).
 - Runtime files touched: `scripts/worldmap_city_info_panel.gd` and `scripts/worldmap_test.gd`.

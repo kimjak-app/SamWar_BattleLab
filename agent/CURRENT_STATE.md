@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.70-28 Diplomacy Spy Tab Structure Polish
+- Baseline: `v0.70-27 Selected City Stability + Military Card Polish` at `6136aa2`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail `외교·첩보 > 외교` now focuses on selected city owner, PLAYER relation status, relation score, trade availability, and diplomacy action candidates.
+- City Detail `외교·첩보 > 첩보` now focuses on target city, information level, known information scope, spy action candidates, and selected-city-related recent spy result summary.
+- Removed visible developer/display-only copy from the City Detail diplomacy/spy render path, including web-version, display-only, placeholder-style, and Godot-facing wording.
+- Public support details, city loyalty details, revolt-risk details, troop movement, recruitment/conscription, city storage, resource potential, trade details, supply adjustment, and military-card information are not displayed in the diplomacy/spy tab.
+- Actual diplomacy and spy execution behavior remains deferred; this patch only presents safe UI summaries and candidate actions.
+- Resource tab, internal/external trade tabs, Selected City Panel stability/military cards, battle/BattleContext, save/load schema, formulas, `project.godot`, and assets were not changed.
+- Next candidate work:
+  1. `v0.70-29 City Tech Tree UI Entry`
+  2. `v0.70-30 Trade Control MVP`
+  3. `v0.70-31 Diplomacy Action MVP`
+  4. `v0.70-32 Spy Action MVP`
+
 ## v0.70-27 Selected City Stability + Military Card Polish
 - Baseline: `v0.70-26 External Trade Tab Structure Polish` at `5021d47`.
 - Modified files: `scripts/worldmap_city_info_panel.gd`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

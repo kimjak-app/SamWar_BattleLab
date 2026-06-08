@@ -1,5 +1,15 @@
 # WORLDMAP RULES
 
+## v0.70-28 Diplomacy and Spy Tab Rule
+- City Detail `외교·첩보 > 외교` shows only selected city owner, PLAYER relation status, relation score, trade availability, and diplomacy action candidates.
+- City Detail `외교·첩보 > 첩보` shows only target city information level, known information scope, spy action candidates, and selected-city-related recent spy result.
+- Public support details, city loyalty details, revolt-risk details, troop movement, recruitment, conscription, city storage, resource potential, trade details, supply adjustments, and military-card information do not belong in the diplomacy/spy tab.
+- Revolt risk belongs in the Selected City Panel stability area, not in the diplomacy/spy tab.
+- Raw internal relation or spy status ids must be converted to Korean UI labels before display.
+- Visible UI copy must not use web-version, display-only, placeholder, Godot-facing, debug, or no-effect wording.
+- Diplomacy and spy execution behavior is follow-up work; this rule does not authorize action execution, random rolls, turn consumption, resource spending, relation mutation, or save/load schema changes.
+- This rule does not authorize changes to resource tab/storage cards, internal trade, external trade, Selected City Panel, recruitment, troop movement, revolt/public support/loyalty formulas, supply/trade formulas, battle/BattleContext, `project.godot`, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-27 Selected City Stability and Military Card Rule
 - The right Selected City Panel owns city stability and revolt-risk judgment display.
 - City Detail internal/external trade tabs must not reintroduce revolt-risk or troop/recruitment decision blocks.
