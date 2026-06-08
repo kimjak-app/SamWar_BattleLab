@@ -1,5 +1,22 @@
 # WORLDMAP RULES
 
+## v0.70-26 External Trade Tab Rule
+- City Detail `무역 > 타국무역` shows trade candidates, relation status, availability, and efficiency between player-owned cities and external-faction cities only.
+- Player-owned cities must not appear as external trade targets.
+- External trade route candidates must satisfy:
+  1. The selected city is player-owned.
+  2. The target city is not player-owned.
+  3. The target city is a neighbor/connected candidate of the selected city.
+  4. The target city has a non-empty owner/faction.
+  5. The target city is not the same faction as the selected city.
+- If the selected city has no adjacent foreign trade candidate, show an empty state instead of forcing recent trade-result details.
+- The external trade tab must not expose public support, city loyalty, loyalty drift, seasonal loyalty, revolt risk, troop movement, recruitment, conscription, military supply judgment, or supply-adjustment details.
+- Relation status must be shown in Korean UI labels, not raw ids such as `allied`, `neutral`, `hostile`, or `suspended`.
+- Trade availability should be shown as `교역 가능` or `교역 제한`.
+- Trade efficiency may use existing relation/trade constants for display, but this rule does not authorize formula changes.
+- `재상 위임 / 수동 조정` is a future trade-leadership slot only until a dedicated task connects behavior.
+- This rule does not authorize changes to resource tab/storage cards, internal trade, diplomacy/spy, Selected City Panel, troop movement logic, recruitment logic, revolt/public support/loyalty formulas, supply/trade formulas, battle/BattleContext, save/load schema, `project.godot`, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-25 Internal Trade Tab Rule
 - City Detail `무역 > 자국무역` shows resource/supply flow between player-owned cities only.
 - Foreign cities must not appear as internal trade targets.

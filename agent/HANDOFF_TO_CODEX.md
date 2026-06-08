@@ -1,5 +1,22 @@
 # HANDOFF TO CODEX
 
+## v0.70-26 External Trade Tab Structure Polish Handoff
+- Baseline: `v0.70-25 Internal Trade Tab Ownership Filter Polish`.
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- `무역 > 타국무역` now filters external trade candidates to neighboring cities that are not player-owned and have a valid owner/faction.
+- Player-owned neighboring cities are excluded from the external trade candidate list, so captured cities move out of `타국무역` and remain available to `자국무역`.
+- The tab now displays external trade candidates, localized relation status, trade availability, relation-based trade efficiency, and a future trade-leadership slot.
+- Empty state is shown when there are no adjacent foreign trade candidates; recent trade-result details are not forced into that state.
+- Relation status is shown in Korean UI labels while internal ids remain unchanged.
+- Removed from external trade tab display: public support, city loyalty, loyalty drift, seasonal loyalty, revolt risk, troop movement, recruitment/conscription, military supply judgment, and supply-adjustment details.
+- `재상 위임 / 수동 조정` is only a future trade-leadership slot; no automatic or manual trade adjustment behavior was implemented.
+- Explicitly unchanged: resource tab/storage cards, internal trade, diplomacy/spy, Selected City Panel, troop movement logic, recruitment logic, revolt/public support/loyalty formulas, supply/trade formulas, battle/BattleContext, save/load schema, `project.godot`, and assets.
+- Next candidates:
+  1. `v0.70-27 Selected City Stability + Military Card Polish`
+  2. `v0.70-28 Diplomacy Spy Tab Structure Polish`
+  3. `v0.70-29 City Tech Tree UI Entry`
+  4. `v0.70-30 Trade Control MVP`
+
 ## v0.70-25 Internal Trade Tab Ownership Filter Polish Handoff
 - Baseline: `v0.70-24a City Storage Gold Source Fix + Resource Card Polish`.
 - Runtime file touched: `scripts/worldmap_test.gd`.

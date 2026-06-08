@@ -2,6 +2,21 @@
 
 ## 2026-06-08
 
+### v0.70-26 External Trade Tab Structure Polish
+- Started from `e36569c v0.70-25 Internal Trade Tab Ownership Filter Polish`.
+- Required docs and WorldMap external-trade/relation/ownership helpers were checked.
+- Implemented:
+  - Replaced the external trade tab's broad recent-result display with a foreign-neighbor candidate filter.
+  - Added empty-state copy for no adjacent foreign trade candidates.
+  - Added localized relation status display for external trade UI.
+  - Added trade availability and relation-based efficiency summaries using existing relation/trade helpers and constants.
+  - Kept recent trade records to a short selected-city-related route count only.
+  - Hid the trade adjustment button path on the external trade tab.
+  - Kept trade leadership as future copy only: `재상 위임 / 수동 조정`.
+- Removed public support, city loyalty, loyalty drift, seasonal loyalty, revolt risk, troop movement, recruitment/conscription, military supply judgment, and supply-adjustment details from the external trade tab display.
+- Preserved resource tab/storage cards, internal trade, diplomacy/spy, Selected City Panel, troop movement logic, recruitment logic, revolt/public support/loyalty formulas, supply/trade formulas, battle/BattleContext, save/load schema, `project.godot`, assets, `.uid`, and `.ogv` files.
+- Manual F6 QA remains required for Hanseong external trade candidates, localized relation/availability/efficiency display, hidden internal-management/troop/recruitment blocks, raw relation id absence, and unchanged internal-trade/resource/diplomacy/Selected City/battle-adjacent flows.
+
 ### v0.70-25 Internal Trade Tab Ownership Filter Polish
 - Started from `43aa5a6 v0.70-24a City Storage Gold Source Fix + Resource Card Polish`.
 - Required docs and WorldMap internal-trade/supply/ownership helpers were checked.

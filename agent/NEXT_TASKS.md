@@ -1,5 +1,30 @@
 # NEXT TASKS
 
+## Current: v0.70-26 External Trade Tab Structure Polish
+- `v0.70-26` narrows the City Detail `무역 > 타국무역` tab to foreign-neighbor trade candidate and relation information only.
+- Completed direction:
+  1. External trade candidates are filtered to non-player-owned neighboring cities with a valid owner/faction.
+  2. Player-owned cities are not shown as external trade candidates.
+  3. The tab now focuses on candidate city/faction, relation status, trade availability, relation-based efficiency, and future trade leadership.
+  4. Relation status display is localized to Korean UI text.
+  5. Public support, loyalty, revolt, troop movement, recruitment, military supply judgment, and supply-adjustment details were removed from the external trade tab display.
+  6. `재상 위임 / 수동 조정` remains a future trade-leadership slot only; no real behavior is connected.
+- Preserved scope:
+  1. `도시 상세 > 자원`, city storage cards, `무역 > 자국무역`, `외교·첩보`, and Selected City Panel are unchanged.
+  2. Troop movement, recruitment, revolt risk, public support/loyalty, supply, trade, battle/BattleContext, and save/load calculations are unchanged.
+  3. `project.godot`, assets, `.uid`, and `.ogv` files were not changed.
+- Manual F6 QA required:
+  1. Hanseong `무역 > 타국무역` should list Pyeongyang/Gyeongju when they are non-player-owned neighbors.
+  2. Candidate rows should show foreign city name and faction.
+  3. Relation status, trade availability, and efficiency such as `x1.00` should appear in Korean UI terms.
+  4. No public-support, loyalty, revolt, troop movement, recruitment, supply detail, or raw relation status ids should appear on the tab.
+  5. Internal trade empty state, resource tab cards, diplomacy/spy, drag/collapse, Selected City Panel, help, recruitment, governor, and attack paths should remain normal.
+- Next candidate work:
+  1. `v0.70-27 Selected City Stability + Military Card Polish`
+  2. `v0.70-28 Diplomacy Spy Tab Structure Polish`
+  3. `v0.70-29 City Tech Tree UI Entry`
+  4. `v0.70-30 Trade Control MVP`
+
 ## Current: v0.70-25 Internal Trade Tab Ownership Filter Polish
 - `v0.70-25` narrows the City Detail `무역 > 자국무역` tab to player-owned city resource/supply flow only.
 - Completed direction:

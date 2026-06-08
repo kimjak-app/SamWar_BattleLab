@@ -1368,17 +1368,17 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 		CITY_DETAIL_TAB_EXTERNAL_TRADE:
 			_set_city_detail_body_labels_visible(true)
 			_apply_city_detail_default_text_tone()
-			var last_trade_result: Dictionary = _player_state.get("last_inter_faction_trade_result", {})
+			var external_trade_candidate_city_ids := _get_external_trade_candidate_city_ids(city_marker.city_id)
 			city_detail_type_label.text = "무역"
 			city_detail_region_owner_label.text = "타국무역"
-			city_detail_resource_label.text = "대외 무역 / 세력 관계: %s" % _format_external_trade_target(city_marker)
-			city_detail_security_label.text = _format_trade_result_summary(last_trade_result)
-			city_detail_military_label.text = _format_trade_resource_totals_display(_get_trade_display_totals(last_trade_result))
-			city_detail_commerce_label.text = _format_city_trade_route_display(city_marker.city_id, last_trade_result)
-			city_detail_rating_label.text = "최근 세력간 무역 결과를 표시합니다."
-			city_detail_domestic_button_placeholder.text = "무역 조정"
+			city_detail_resource_label.text = _format_external_trade_candidate_summary(city_marker.city_id, external_trade_candidate_city_ids)
+			city_detail_security_label.text = _format_external_trade_relation_summary(city_marker.city_id, external_trade_candidate_city_ids)
+			city_detail_military_label.text = _format_external_trade_lead_display(external_trade_candidate_city_ids)
+			city_detail_commerce_label.text = _format_external_trade_policy_display(external_trade_candidate_city_ids)
+			city_detail_rating_label.text = _format_external_trade_recent_summary(city_marker.city_id, external_trade_candidate_city_ids)
+			city_detail_domestic_button_placeholder.visible = false
 			city_detail_status_label.text = ""
-			city_detail_hint_label.text = "세력 간 무역 흐름을 확인합니다."
+			city_detail_hint_label.text = "외부 세력 도시와의 교역 후보와 관계를 확인합니다."
 		_:
 			_apply_city_detail_resource_tab_content(city_marker.city_id, city_data)
 
@@ -1717,11 +1717,157 @@ func _get_owned_city_count_for_internal_trade_display() -> int:
 
 
 func _format_external_trade_target(city_marker: WorldMapCityMarker) -> String:
-	for neighbor_id in city_marker.neighbors:
-		var neighbor_marker := _city_markers_by_id.get(neighbor_id) as WorldMapCityMarker
-		if neighbor_marker != null and neighbor_marker.owner_faction_id != city_marker.owner_faction_id:
-			return "%s · %s" % [neighbor_marker.display_name, _format_faction_label(neighbor_marker.owner_faction_id)]
-	return "인접 대외 교역 없음"
+	if city_marker == null:
+		return "인접 대외 교역 없음"
+	var candidate_city_ids := _get_external_trade_candidate_city_ids(city_marker.city_id)
+	if candidate_city_ids.is_empty():
+		return "인접 대외 교역 없음"
+	var first_candidate_id := candidate_city_ids[0]
+	return _format_external_trade_candidate_line(first_candidate_id)
+
+
+func _get_external_trade_candidate_city_ids(source_city_id: String) -> Array[String]:
+	var candidate_city_ids: Array[String] = []
+	if source_city_id.is_empty():
+		return candidate_city_ids
+	if not _is_city_owned_by_player_mvp(source_city_id):
+		return candidate_city_ids
+	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
+	if source_faction_id.is_empty():
+		return candidate_city_ids
+	for neighbor_id_variant in _get_city_neighbors_mvp(source_city_id):
+		var neighbor_id := str(neighbor_id_variant)
+		if neighbor_id.is_empty():
+			continue
+		if _is_city_owned_by_player_mvp(neighbor_id):
+			continue
+		var neighbor_faction_id := _get_city_owner_faction_id_for_trade_display(neighbor_id)
+		if neighbor_faction_id.is_empty():
+			continue
+		if neighbor_faction_id == source_faction_id:
+			continue
+		if not candidate_city_ids.has(neighbor_id):
+			candidate_city_ids.append(neighbor_id)
+	return candidate_city_ids
+
+
+func _get_city_owner_faction_id_for_trade_display(city_id: String) -> String:
+	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+	if city_marker != null and not city_marker.owner_faction_id.is_empty():
+		return city_marker.owner_faction_id
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.is_empty():
+		return ""
+	return _get_city_owner_faction_id(city_data)
+
+
+func _format_external_trade_candidate_summary(_source_city_id: String, candidate_city_ids: Array[String]) -> String:
+	if candidate_city_ids.is_empty():
+		return "현재 인접한 외국 교역 후보가 없습니다.\n타국무역은 외부 세력 도시와 연결된 성에서 확인할 수 있습니다.\n\n인접 외국 성: 없음\n교역 가능 세력: 없음"
+	var lines: Array[String] = ["교역 후보"]
+	for candidate_city_id in candidate_city_ids:
+		lines.append(_format_external_trade_candidate_line(candidate_city_id))
+	return "\n".join(lines)
+
+
+func _format_external_trade_candidate_line(city_id: String) -> String:
+	var city_name := _format_city_name_by_id(city_id, city_id)
+	var faction_id := _get_city_owner_faction_id_for_trade_display(city_id)
+	return "%s · %s" % [city_name, _format_faction_label(faction_id)]
+
+
+func _format_external_trade_relation_summary(source_city_id: String, candidate_city_ids: Array[String]) -> String:
+	if candidate_city_ids.is_empty():
+		return ""
+	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
+	var lines: Array[String] = ["관계 상태"]
+	if candidate_city_ids.size() == 1:
+		var target_faction_id := _get_city_owner_faction_id_for_trade_display(candidate_city_ids[0])
+		lines.append("%s · %s" % [
+			_format_faction_relation_status_for_ui(_get_faction_relation_status(source_faction_id, target_faction_id)),
+			_format_trade_availability_for_ui(source_faction_id, target_faction_id),
+		])
+		lines.append("교역 효율 x%.2f" % _get_trade_relation_multiplier_for_ui(source_faction_id, target_faction_id))
+		return "\n".join(lines)
+	for candidate_city_id in candidate_city_ids:
+		var candidate_faction_id := _get_city_owner_faction_id_for_trade_display(candidate_city_id)
+		lines.append("%s: %s · %s · 효율 x%.2f" % [
+			_format_faction_label(candidate_faction_id),
+			_format_faction_relation_status_for_ui(_get_faction_relation_status(source_faction_id, candidate_faction_id)),
+			_format_trade_availability_for_ui(source_faction_id, candidate_faction_id),
+			_get_trade_relation_multiplier_for_ui(source_faction_id, candidate_faction_id),
+		])
+	return "\n".join(lines)
+
+
+func _format_faction_relation_status_for_ui(status: String) -> String:
+	match status:
+		"allied":
+			return "동맹"
+		"neutral":
+			return "중립"
+		"hostile":
+			return "적대"
+		"suspended":
+			return "교역 중단"
+		_:
+			return "관계 미확인"
+
+
+func _format_trade_availability_for_ui(source_faction_id: String, target_faction_id: String) -> String:
+	if _can_trade_between_factions(source_faction_id, target_faction_id):
+		return "교역 가능"
+	return "교역 제한"
+
+
+func _get_trade_relation_multiplier_for_ui(source_faction_id: String, target_faction_id: String) -> float:
+	if source_faction_id.is_empty() or target_faction_id.is_empty() or source_faction_id == target_faction_id:
+		return 0.0
+	var relation_status := _get_faction_relation_status(source_faction_id, target_faction_id)
+	var raw_multiplier: Variant = RELATION_TRADE_MULTIPLIER.get(relation_status, 1.0)
+	return float(raw_multiplier) + _get_trade_agreement_bonus_multiplier(source_faction_id, target_faction_id)
+
+
+func _format_external_trade_lead_display(candidate_city_ids: Array[String]) -> String:
+	if candidate_city_ids.is_empty():
+		return "무역 주도\n교역 후보가 없어 조정할 수 없습니다."
+	return "무역 주도\n재상 위임 / 수동 조정"
+
+
+func _format_external_trade_policy_display(candidate_city_ids: Array[String]) -> String:
+	if candidate_city_ids.is_empty():
+		return ""
+	return "현재 방침\n재상 위임과 수동 조정은 다음 단계에서 연결됩니다."
+
+
+func _format_external_trade_recent_summary(source_city_id: String, candidate_city_ids: Array[String]) -> String:
+	if candidate_city_ids.is_empty():
+		return ""
+	var last_trade_result: Variant = _player_state.get("last_inter_faction_trade_result", {})
+	if not last_trade_result is Dictionary:
+		return "최근 교역 기록\n선택 성 관련 기록 없음"
+	var related_route_count := _count_recent_external_trade_routes_for_city(source_city_id, candidate_city_ids, last_trade_result as Dictionary)
+	if related_route_count <= 0:
+		return "최근 교역 기록\n선택 성 관련 기록 없음"
+	return "최근 교역 기록\n선택 성 관련 루트 %d개" % related_route_count
+
+
+func _count_recent_external_trade_routes_for_city(source_city_id: String, candidate_city_ids: Array[String], result: Dictionary) -> int:
+	var routes: Variant = result.get("routes", [])
+	if not routes is Array:
+		return 0
+	var count := 0
+	for route_variant in routes:
+		if not route_variant is Dictionary:
+			continue
+		var route := route_variant as Dictionary
+		var city_a_id := str(route.get("city_a_id", ""))
+		var city_b_id := str(route.get("city_b_id", ""))
+		if city_a_id == source_city_id and candidate_city_ids.has(city_b_id):
+			count += 1
+		elif city_b_id == source_city_id and candidate_city_ids.has(city_a_id):
+			count += 1
+	return count
 
 
 func _get_display_supply_state_for_city(city_id: String) -> Dictionary:
