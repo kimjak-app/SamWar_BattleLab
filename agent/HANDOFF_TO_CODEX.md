@@ -1,5 +1,22 @@
 # HANDOFF TO CODEX
 
+## v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix Handoff
+- Baseline: `v0.70-28 Diplomacy Spy Tab Structure Polish` (`fbc6a6e`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Root cause: `_refresh_unified_panel_chrome()` renamed the reused resource/internal tab buttons to `외교` and `첩보` in diplomacy/spy mode, but did not force their `visible` state back to `true`.
+- Fix: diplomacy/spy primary mode now explicitly sets:
+  - `city_detail_resource_tab_button_placeholder.visible = true` for `외교`.
+  - `city_detail_internal_trade_tab_button_placeholder.visible = true` for `첩보`.
+  - `city_detail_external_trade_tab_button_placeholder.visible = false`.
+- Existing `_on_unified_secondary_tab_pressed()` routing remains valid: tab index 0 selects `DIPLOMACY_SPY_TAB_DIPLOMACY`, and tab index 1 selects `DIPLOMACY_SPY_TAB_SPY`.
+- Diplomacy/spy action copy now explicitly points execution to Diplomacy Action MVP / Spy Action MVP.
+- Explicitly unchanged: diplomacy/spy execution, relation mutation, spy rolls, resource spending, turn consumption, resource/trade tabs, Selected City Panel, formulas, battle/BattleContext, save/load schema, `project.godot`, and assets.
+- Next candidates:
+  1. `v0.70-29 City Tech Tree UI Entry`
+  2. `v0.70-30 Trade Control MVP`
+  3. `v0.70-31 Diplomacy Action MVP`
+  4. `v0.70-32 Spy Action MVP`
+
 ## v0.70-28 Diplomacy Spy Tab Structure Polish Handoff
 - Baseline: `v0.70-27 Selected City Stability + Military Card Polish` (`6136aa2`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

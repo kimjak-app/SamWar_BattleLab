@@ -1,5 +1,13 @@
 # WORLDMAP RULES
 
+## v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Rule
+- In City Detail `외교·첩보` primary mode, the reused subtab buttons for `외교` and `첩보` must both be explicitly visible.
+- `city_detail_resource_tab_button_placeholder` is reused as `외교` and must set `visible = true` in diplomacy/spy mode.
+- `city_detail_internal_trade_tab_button_placeholder` is reused as `첩보` and must set `visible = true` in diplomacy/spy mode.
+- `city_detail_external_trade_tab_button_placeholder` remains hidden in diplomacy/spy mode.
+- Secondary-tab routing in diplomacy/spy mode is index based: index 0 selects diplomacy content, index 1 selects spy content.
+- This hotfix rule does not authorize diplomacy/spy execution, relation mutation, spy rolls, resource spending, turn consumption, resource/trade tab changes, Selected City Panel changes, BattleContext changes, save/load schema changes, `project.godot`, assets, `.uid`, or `.ogv` changes.
+
 ## v0.70-28 Diplomacy and Spy Tab Rule
 - City Detail `외교·첩보 > 외교` shows only selected city owner, PLAYER relation status, relation score, trade availability, and diplomacy action candidates.
 - City Detail `외교·첩보 > 첩보` shows only target city information level, known information scope, spy action candidates, and selected-city-related recent spy result.

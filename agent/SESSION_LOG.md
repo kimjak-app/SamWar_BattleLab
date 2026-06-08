@@ -2,6 +2,18 @@
 
 ## 2026-06-09
 
+### v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix
+- Started from `fbc6a6e v0.70-28 Diplomacy Spy Tab Structure Polish`.
+- Checked `_refresh_unified_panel_chrome()` and `_on_unified_secondary_tab_pressed()` for the reused City Detail subtab buttons.
+- Implemented:
+  - Explicitly set the reused `외교` subtab button visible in `외교·첩보` primary mode.
+  - Explicitly set the reused `첩보` subtab button visible in `외교·첩보` primary mode.
+  - Kept the third reused tab button hidden in diplomacy/spy mode.
+  - Kept existing click routing: index 0 -> diplomacy, index 1 -> spy.
+  - Clarified action copy to point execution to Diplomacy Action MVP / Spy Action MVP.
+- Preserved diplomacy/spy execution, relation mutation, spy rolls, resource spending, turn consumption, resource/trade tabs, Selected City Panel, formulas, battle/BattleContext, save/load schema, `project.godot`, assets, `.uid`, and `.ogv` files.
+- Manual F6 QA remains required for Hanseong/Pyeongyang/Gyeongju diplomacy/spy subtab visibility and switching, plus resource/trade tab restoration.
+
 ### v0.70-28 Diplomacy Spy Tab Structure Polish
 - Started from `6136aa2 v0.70-27 Selected City Stability + Military Card Polish`.
 - Required docs and City Detail diplomacy/spy relation/spy helper paths were checked.

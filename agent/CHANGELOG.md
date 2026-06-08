@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix
+- Built on `v0.70-28 Diplomacy Spy Tab Structure Polish` (`fbc6a6e`).
+- Fixed a City Detail `외교·첩보` subtab visibility regression.
+- In diplomacy/spy primary mode, the reused `외교` and `첩보` buttons now explicitly set `visible = true`.
+- The unused third subtab button remains hidden in diplomacy/spy mode.
+- Confirmed the existing secondary-tab routing still maps `외교` to diplomacy content and `첩보` to spy content.
+- Clarified visible action copy so diplomacy execution is deferred to Diplomacy Action MVP and spy execution is deferred to Spy Action MVP.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change actual diplomacy/spy execution, relation scores, spy success/failure rolls, resource spending, turn spending, resource tab, trade tabs, Selected City Panel, BattleContext, save/load schema, `project.godot`, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-28 Diplomacy Spy Tab Structure Polish
 - Built on `v0.70-27 Selected City Stability + Military Card Polish` (`6136aa2`).
 - Reworked City Detail `외교·첩보 > 외교` around selected city owner, PLAYER relation status, relation score, trade availability, and diplomacy action candidates.

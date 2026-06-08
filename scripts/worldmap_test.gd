@@ -1241,11 +1241,13 @@ func _refresh_unified_panel_chrome() -> void:
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
 		if city_detail_resource_tab_button_placeholder != null:
 			city_detail_resource_tab_button_placeholder.text = "외교"
+			city_detail_resource_tab_button_placeholder.visible = true
 			_set_city_detail_tab_active(city_detail_resource_tab_button_placeholder, _selected_diplomacy_spy_tab == DIPLOMACY_SPY_TAB_DIPLOMACY)
 		else:
 			_warn_missing_unified_panel_chrome("ResourceTabButtonPlaceholder")
 		if city_detail_internal_trade_tab_button_placeholder != null:
 			city_detail_internal_trade_tab_button_placeholder.text = "첩보"
+			city_detail_internal_trade_tab_button_placeholder.visible = true
 			_set_city_detail_tab_active(city_detail_internal_trade_tab_button_placeholder, _selected_diplomacy_spy_tab == DIPLOMACY_SPY_TAB_SPY)
 		else:
 			_warn_missing_unified_panel_chrome("InternalTradeTabButtonPlaceholder")
@@ -1562,7 +1564,7 @@ func _show_unified_diplomacy_spy_content() -> void:
 		city_detail_resource_label.text = _format_spy_known_info_summary_for_ui(selected_city_marker)
 		city_detail_security_label.text = _format_spy_action_candidates_for_ui(selected_city_marker)
 		city_detail_military_label.text = _format_recent_spy_result_for_ui(selected_city_id)
-		city_detail_commerce_label.text = "현재 방침\n첩보 실행은 후속 작업에서 연결됩니다."
+		city_detail_commerce_label.text = "현재 방침\n실행 기능은 Spy Action MVP에서 연결됩니다."
 		city_detail_rating_label.text = ""
 		city_detail_hint_label.text = "대상 도시의 정보 수준과 첩보 행동 후보를 확인합니다."
 	else:
@@ -1678,7 +1680,7 @@ func _format_diplomacy_policy_display_for_ui(city_marker: WorldMapCityMarker) ->
 	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
 	if owner_id == PLAYER_FACTION_ID:
 		return "외교 판단\n자국 도시는 외교 대상이 아닙니다."
-	return "현재 방침\n외교 행동 실행은 후속 작업에서 연결됩니다."
+	return "현재 방침\n실행 기능은 외교 Action MVP에서 연결됩니다."
 
 
 func _format_spy_visibility_summary_for_ui(city_marker: WorldMapCityMarker) -> String:
@@ -11156,7 +11158,7 @@ func _on_unified_primary_tab_pressed(tab_id: String) -> void:
 		_selected_city_detail_tab = CITY_DETAIL_TAB_RESOURCES
 	elif _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE and not [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(_selected_city_detail_tab):
 		_selected_city_detail_tab = CITY_DETAIL_TAB_INTERNAL_TRADE
-	print("[WorldMap] Unified city panel primary tab selected: %s. Display only." % tab_id)
+	print("[WorldMap] Unified city panel primary tab selected: %s." % tab_id)
 	_refresh_unified_panel_content()
 
 
@@ -11165,7 +11167,7 @@ func _on_unified_secondary_tab_pressed(tab_index: int) -> void:
 		_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_DIPLOMACY
 		if tab_index == 1:
 			_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_SPY
-		print("[WorldMap] Unified diplomacy/spy tab selected: %s. Display only." % _selected_diplomacy_spy_tab)
+		print("[WorldMap] Unified diplomacy/spy tab selected: %s." % _selected_diplomacy_spy_tab)
 		_show_unified_diplomacy_spy_content()
 		return
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE:

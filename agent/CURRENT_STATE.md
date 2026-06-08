@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix
+- Baseline: `v0.70-28 Diplomacy Spy Tab Structure Polish` at `fbc6a6e`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Fixed City Detail `외교·첩보` subtab visibility by explicitly showing both reused subtab buttons: `외교` and `첩보`.
+- `city_detail_resource_tab_button_placeholder` is visible as `외교`, and `city_detail_internal_trade_tab_button_placeholder` is visible as `첩보` while the diplomacy/spy primary tab is active.
+- `city_detail_external_trade_tab_button_placeholder` remains hidden in diplomacy/spy mode.
+- Existing secondary-tab click routing was confirmed: index 0 selects diplomacy content and index 1 selects spy content.
+- Clarified diplomacy/spy execution copy so action execution remains deferred to Diplomacy Action MVP / Spy Action MVP.
+- Actual diplomacy/spy execution, relations, spy rolls, resources, turns, resource/trade tabs, Selected City Panel, BattleContext, save/load schema, `project.godot`, and assets were not changed.
+- Next candidate work:
+  1. `v0.70-29 City Tech Tree UI Entry`
+  2. `v0.70-30 Trade Control MVP`
+  3. `v0.70-31 Diplomacy Action MVP`
+  4. `v0.70-32 Spy Action MVP`
+
 ## v0.70-28 Diplomacy Spy Tab Structure Polish
 - Baseline: `v0.70-27 Selected City Stability + Military Card Polish` at `6136aa2`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

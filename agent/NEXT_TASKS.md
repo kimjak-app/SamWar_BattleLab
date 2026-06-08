@@ -1,5 +1,27 @@
 # NEXT TASKS
 
+## Current: v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix
+- `v0.70-28-hotfix1` fixes the City Detail `외교·첩보` subtab visibility regression.
+- Completed direction:
+  1. `외교·첩보` primary mode now explicitly sets the reused `외교` subtab button visible.
+  2. `외교·첩보` primary mode now explicitly sets the reused `첩보` subtab button visible.
+  3. The third reused tab button remains hidden in diplomacy/spy mode.
+  4. Existing click routing remains: `외교` selects diplomacy content, `첩보` selects spy content.
+  5. Execution copy now points to Diplomacy Action MVP / Spy Action MVP without implying that execution is connected now.
+- Preserved scope:
+  1. Diplomacy/spy execution, relation mutation, spy rolls, resource spending, and turn consumption are unchanged.
+  2. Resource tab/cards, internal/external trade, Selected City Panel, formulas, battle/BattleContext, and save/load are unchanged.
+  3. `project.godot`, assets, `.uid`, and `.ogv` files were not changed.
+- Manual F6 QA required:
+  1. In City Detail `외교·첩보`, both `외교` and `첩보` subtabs should remain visible after switching from resource/trade modes.
+  2. Hanseong and foreign cities should switch correctly between diplomacy and spy content.
+  3. Resource and trade subtabs should still restore their own visibility behavior.
+- Next candidate work:
+  1. `v0.70-29 City Tech Tree UI Entry`
+  2. `v0.70-30 Trade Control MVP`
+  3. `v0.70-31 Diplomacy Action MVP`
+  4. `v0.70-32 Spy Action MVP`
+
 ## Current: v0.70-28 Diplomacy Spy Tab Structure Polish
 - `v0.70-28` narrows the City Detail `외교·첩보` tab to player decision summaries.
 - Completed direction:
