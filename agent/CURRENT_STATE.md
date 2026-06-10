@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.70-30 Manual Trade Order Panel MVP
+- Baseline: `v0.70-29 WorldMap Trade Control Mode UI MVP` at `d55c76e3c5f8b6270a76812d32e7fe1fcc3b6102`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail `무역 > 타국무역` now opens a runtime `ManualTradeOrderPanel` when `수동 조정` is selected and at least one external trade candidate exists.
+- The manual trade panel supports external candidate selection, per-resource `안함 / 수입 / 수출` action selection, and integer quantity input for `쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, and `소금`.
+- MVP preview-only prices are stored as local constants and produce expected gold/resource deltas; relation efficiency is displayed but not applied to preview calculations.
+- `명령 저장` stores the last valid manual external trade order in runtime `_manual_trade_orders`; it does not mutate `resource_stock`, city `storage`, relation, turn, save/load schema, or actual trade results.
+- City Detail `타국무역` shows a saved manual-order summary when a runtime order exists, or a no-saved-order guide when none exists.
+- `자국무역` manual mode remains a follow-up placeholder for `Internal Trade Manual Transfer MVP`; chancellor automatic trade remains deferred to `Chancellor Auto Trade Logic Connect`.
+- `v0.70-29` trade-control button state and `v0.70-28-hotfix1` diplomacy/spy subtab visibility behavior are preserved.
+- Resource tab, diplomacy/spy tab content, Selected City Panel, formulas, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv` files were not changed.
+- Next candidate work:
+  1. `v0.70-31 Internal Trade Manual Transfer MVP`
+  2. `v0.70-32 Trade Execution Connect MVP`
+  3. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  4. `v0.70-34 Diplomacy Action MVP`
+
 ## v0.70-29 WorldMap Trade Control Mode UI MVP
 - Baseline: `v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix` at `48fa66938563524cff7ec919904b8e25d90d909c`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

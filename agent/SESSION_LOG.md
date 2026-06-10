@@ -2,6 +2,25 @@
 
 ## 2026-06-10
 
+### v0.70-30 Manual Trade Order Panel MVP
+- Started from `d55c76e v0.70-29 WorldMap Trade Control Mode UI MVP`.
+- Required docs and the v0.70-29 Trade Control connection points were checked.
+- Implemented:
+  - Added a runtime `ManualTradeOrderPanel` under `WorldMapUI`.
+  - Opened the panel from external-trade `수동 조정` when candidates exist.
+  - Added candidate selection, relation/trade availability display, resource action dropdowns, quantity SpinBoxes, preview text, save, and cancel.
+  - Added preview-only prices and expected gold/resource delta calculation.
+  - Stored the last valid external manual trade order in runtime `_manual_trade_orders`.
+  - Added external trade tab copy for saved/no-saved manual order state.
+  - Kept internal-trade manual mode as a follow-up placeholder.
+- Preserved actual trade execution, `resource_stock`, city `storage`, relation, turn, formulas, save/load schema, Resource tab, diplomacy/spy tab visibility hotfix, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv` files.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for panel opening, dropdown/SpinBox interaction, preview updates, save/cancel, saved summary display, no actual resource/gold/relation/turn mutation, and tab-switch visibility.
+
 ### v0.70-29 WorldMap Trade Control Mode UI MVP
 - Started from `48fa669 v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix`.
 - Required docs and WorldMap trade render paths were checked, including internal/external trade candidate helpers and unified panel chrome/content refresh.

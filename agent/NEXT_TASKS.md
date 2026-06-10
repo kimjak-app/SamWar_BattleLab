@@ -1,5 +1,36 @@
 # NEXT TASKS
 
+## Current: v0.70-30 Manual Trade Order Panel MVP
+- `v0.70-30` connects the external-trade `수동 조정` mode to a manual order-entry MVP.
+- Baseline: `v0.70-29 WorldMap Trade Control Mode UI MVP` (`d55c76e3c5f8b6270a76812d32e7fe1fcc3b6102`).
+- Completed direction:
+  1. City Detail `무역 > 타국무역` opens a runtime `ManualTradeOrderPanel` from the `수동 조정` button when external candidates exist.
+  2. The panel lets the player choose a trade candidate and set each resource to `안함`, `수입`, or `수출`.
+  3. Quantities are integer SpinBox inputs capped to the MVP range `0..999`.
+  4. Preview displays expected gold and resource +/- results using preview-only fixed prices.
+  5. `명령 저장` records the last external manual order in runtime state and refreshes the external trade tab summary.
+  6. `취소` and Esc close the panel without saving.
+- Preserved scope:
+  1. Actual gold/resource movement, city storage, relation score, turn flow, trade execution, price formulas, and save/load persistence are unchanged.
+  2. Internal trade manual transfer remains deferred to `Internal Trade Manual Transfer MVP`.
+  3. Chancellor automatic trade remains deferred to `Chancellor Auto Trade Logic Connect`.
+  4. Resource tab, diplomacy/spy tabs including the `v0.70-28-hotfix1` visibility fix, Selected City Panel, formulas, BattleContext, `project.godot`, scenes, and assets are unchanged.
+- Persistence note:
+  1. Saved manual external trade orders are runtime-only for this MVP.
+  2. Save/load persistence should be reviewed in the follow-up Trade Execution/Control persistence stage.
+- Manual F6 QA required:
+  1. Hanseong `무역 > 타국무역` should show foreign candidates and open the panel when `수동 조정` is clicked.
+  2. Candidate dropdown, action dropdowns, quantity SpinBoxes, preview deltas, `명령 저장`, and `취소` should behave normally.
+  3. Saving a valid order should close the panel and show the saved summary in the external trade tab.
+  4. Saving an all-zero/no-action order should keep the panel open with a warning.
+  5. Gold, resources, relation, and turn should not change.
+  6. Resource/internal-trade/diplomacy-spy tab switching should keep the new panel hidden when out of scope.
+- Next candidate work:
+  1. `v0.70-31 Internal Trade Manual Transfer MVP`
+  2. `v0.70-32 Trade Execution Connect MVP`
+  3. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  4. `v0.70-34 Diplomacy Action MVP`
+
 ## Current: v0.70-29 WorldMap Trade Control Mode UI MVP
 - `v0.70-29` connects the former trade-leadership text slot to a real UI state selector.
 - Baseline: `v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix` (`48fa66938563524cff7ec919904b8e25d90d909c`).

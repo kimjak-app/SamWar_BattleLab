@@ -329,6 +329,20 @@ const RESOURCE_LABELS := {
 }
 
 const RESOURCE_DISPLAY_ORDER := ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt", "gold"]
+const MANUAL_TRADE_RESOURCE_ORDER := ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt"]
+const MANUAL_TRADE_ACTION_NONE := "none"
+const MANUAL_TRADE_ACTION_IMPORT := "import"
+const MANUAL_TRADE_ACTION_EXPORT := "export"
+const MANUAL_TRADE_PREVIEW_PRICES := {
+	"rice": 3,
+	"barley": 2,
+	"seafood": 4,
+	"wood": 5,
+	"iron": 8,
+	"horses": 12,
+	"silk": 10,
+	"salt": 6,
+}
 const CITY_STORAGE_FOOD_RESOURCE_IDS := ["rice", "barley", "seafood"]
 const CITY_STORAGE_STRATEGY_RESOURCE_IDS := ["wood", "iron", "horses"]
 const CITY_STORAGE_SPECIAL_RESOURCE_IDS := ["silk", "salt"]
@@ -563,6 +577,16 @@ var _trade_control_modes := {
 	CITY_DETAIL_TAB_INTERNAL_TRADE: TRADE_CONTROL_MODE_CHANCELLOR,
 	CITY_DETAIL_TAB_EXTERNAL_TRADE: TRADE_CONTROL_MODE_CHANCELLOR,
 }
+var _manual_trade_order_panel: PanelContainer = null
+var _manual_trade_source_label: Label = null
+var _manual_trade_target_option: OptionButton = null
+var _manual_trade_relation_label: Label = null
+var _manual_trade_preview_label: Label = null
+var _manual_trade_status_label: Label = null
+var _manual_trade_action_options: Dictionary = {}
+var _manual_trade_amount_spinboxes: Dictionary = {}
+var _manual_trade_orders: Dictionary = {}
+var _manual_trade_current_source_city_id := ""
 var _warehouse_card: PanelContainer
 var _warehouse_resource_row_labels: Dictionary = {}
 var _pending_invasion_choice_card: PanelContainer
@@ -677,6 +701,7 @@ func _ready() -> void:
 	_setup_unified_city_detail_diplomacy_panel()
 	_ensure_city_detail_resource_cards()
 	_ensure_trade_control_card()
+	_ensure_manual_trade_order_panel()
 	_setup_independent_hud_panel_drag()
 	_lock_worldmap_fixed_panel_top_margin()
 	_reset_city_detail_panel()
@@ -701,6 +726,11 @@ func _input(event: InputEvent) -> void:
 
 	if _worldmap_help_modal != null and _worldmap_help_modal.visible and event.is_action_pressed("ui_cancel"):
 		_hide_worldmap_help_modal()
+		get_viewport().set_input_as_handled()
+		return
+
+	if _manual_trade_order_panel != null and _manual_trade_order_panel.visible and event.is_action_pressed("ui_cancel"):
+		_close_manual_trade_order_panel()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -985,6 +1015,8 @@ func _connect_city_markers() -> void:
 func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 	if selected_city_marker != null and selected_city_marker != city_marker:
 		selected_city_marker.set_selected(false)
+	if selected_city_marker != city_marker:
+		_close_manual_trade_order_panel()
 
 	selected_city_id = city_marker.city_id
 	selected_city_marker = city_marker
@@ -1394,7 +1426,7 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_security_label.text = _format_external_trade_relation_summary(city_marker.city_id, external_trade_candidate_city_ids)
 			city_detail_military_label.text = _format_external_trade_lead_display(external_trade_candidate_city_ids)
 			city_detail_commerce_label.text = _format_external_trade_policy_display(external_trade_candidate_city_ids)
-			city_detail_rating_label.text = _format_external_trade_recent_summary(city_marker.city_id, external_trade_candidate_city_ids)
+			city_detail_rating_label.text = _format_external_trade_manual_order_summary(city_marker.city_id, external_trade_candidate_city_ids)
 			city_detail_domestic_button_placeholder.visible = false
 			city_detail_status_label.text = ""
 			city_detail_hint_label.text = "외부 세력 도시와의 교역 후보와 관계를 확인합니다."
@@ -1679,8 +1711,359 @@ func _get_trade_control_hint(tab_id: String, mode: String, has_manual_targets: b
 			return "연결 가능한 아군 성이 생기면 수동 조정을 사용할 수 있습니다."
 		return "인접 외국 교역 후보가 생기면 수동 조정을 사용할 수 있습니다."
 	if mode == TRADE_CONTROL_MODE_MANUAL:
+		if tab_id == CITY_DETAIL_TAB_INTERNAL_TRADE:
+			return "자국무역 수동 이송은 Internal Trade Manual Transfer MVP에서 연결됩니다."
 		return "수동 세부 조정은 Manual Trade Order Panel MVP에서 연결됩니다."
 	return "재상이 연결 성/관계/창고 상태를 기준으로 무역을 운영할 예정입니다."
+
+
+func _ensure_manual_trade_order_panel() -> void:
+	if _manual_trade_order_panel != null:
+		return
+	var worldmap_ui := get_node_or_null("WorldMapUI") as CanvasLayer
+	if worldmap_ui == null:
+		return
+
+	_manual_trade_order_panel = PanelContainer.new()
+	_manual_trade_order_panel.name = "ManualTradeOrderPanel"
+	_manual_trade_order_panel.visible = false
+	_manual_trade_order_panel.z_index = 130
+	_manual_trade_order_panel.anchor_left = 0.5
+	_manual_trade_order_panel.anchor_right = 0.5
+	_manual_trade_order_panel.anchor_top = 0.5
+	_manual_trade_order_panel.anchor_bottom = 0.5
+	_manual_trade_order_panel.offset_left = -300.0
+	_manual_trade_order_panel.offset_right = 300.0
+	_manual_trade_order_panel.offset_top = -260.0
+	_manual_trade_order_panel.offset_bottom = 260.0
+	_manual_trade_order_panel.custom_minimum_size = Vector2(600.0, 520.0)
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.045, 0.05, 0.065, 0.96)
+	panel_style.border_color = Color(0.78, 0.58, 0.28, 0.95)
+	panel_style.set_border_width_all(1)
+	panel_style.set_corner_radius_all(6)
+	panel_style.content_margin_left = 12.0
+	panel_style.content_margin_top = 10.0
+	panel_style.content_margin_right = 12.0
+	panel_style.content_margin_bottom = 10.0
+	_manual_trade_order_panel.add_theme_stylebox_override("panel", panel_style)
+	worldmap_ui.add_child(_manual_trade_order_panel)
+
+	var content := VBoxContainer.new()
+	content.name = "ManualTradeOrderPanelContent"
+	content.add_theme_constant_override("separation", 6)
+	_manual_trade_order_panel.add_child(content)
+
+	var title_label := Label.new()
+	title_label.name = "ManualTradeOrderTitleLabel"
+	title_label.text = "타국무역 수동 조정"
+	title_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.68, 1.0))
+	content.add_child(title_label)
+
+	_manual_trade_source_label = Label.new()
+	_manual_trade_source_label.name = "ManualTradeSourceLabel"
+	_manual_trade_source_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
+	content.add_child(_manual_trade_source_label)
+
+	var target_row := HBoxContainer.new()
+	target_row.name = "ManualTradeTargetRow"
+	target_row.add_theme_constant_override("separation", 8)
+	content.add_child(target_row)
+	var target_label := Label.new()
+	target_label.text = "교역 상대:"
+	target_label.custom_minimum_size = Vector2(74.0, 0.0)
+	target_row.add_child(target_label)
+	_manual_trade_target_option = OptionButton.new()
+	_manual_trade_target_option.name = "ManualTradeTargetOption"
+	_manual_trade_target_option.custom_minimum_size = Vector2(180.0, 28.0)
+	_manual_trade_target_option.item_selected.connect(_on_manual_trade_target_selected)
+	target_row.add_child(_manual_trade_target_option)
+
+	_manual_trade_relation_label = Label.new()
+	_manual_trade_relation_label.name = "ManualTradeRelationLabel"
+	_manual_trade_relation_label.add_theme_color_override("font_color", Color(0.72, 0.78, 0.84, 1.0))
+	content.add_child(_manual_trade_relation_label)
+
+	var header_row := GridContainer.new()
+	header_row.name = "ManualTradeResourceHeader"
+	header_row.columns = 3
+	content.add_child(header_row)
+	for header_text in ["자원", "행동", "수량"]:
+		var header := Label.new()
+		header.text = header_text
+		header.custom_minimum_size = Vector2(150.0, 0.0)
+		header.add_theme_color_override("font_color", Color(0.96, 0.74, 0.34, 1.0))
+		header_row.add_child(header)
+
+	var row_grid := GridContainer.new()
+	row_grid.name = "ManualTradeResourceRows"
+	row_grid.columns = 3
+	content.add_child(row_grid)
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		var resource_label := Label.new()
+		resource_label.text = str(RESOURCE_LABELS.get(resource_id, resource_id))
+		resource_label.custom_minimum_size = Vector2(150.0, 26.0)
+		row_grid.add_child(resource_label)
+
+		var action_option := OptionButton.new()
+		action_option.name = "ManualTradeAction_%s" % resource_id
+		action_option.custom_minimum_size = Vector2(120.0, 26.0)
+		action_option.add_item("안함")
+		action_option.set_item_metadata(0, MANUAL_TRADE_ACTION_NONE)
+		action_option.add_item("수입")
+		action_option.set_item_metadata(1, MANUAL_TRADE_ACTION_IMPORT)
+		action_option.add_item("수출")
+		action_option.set_item_metadata(2, MANUAL_TRADE_ACTION_EXPORT)
+		action_option.item_selected.connect(_on_manual_trade_order_input_changed.bind(resource_id))
+		_manual_trade_action_options[resource_id] = action_option
+		row_grid.add_child(action_option)
+
+		var amount_spinbox := SpinBox.new()
+		amount_spinbox.name = "ManualTradeAmount_%s" % resource_id
+		amount_spinbox.min_value = 0.0
+		amount_spinbox.max_value = 999.0
+		amount_spinbox.step = 1.0
+		amount_spinbox.value = 0.0
+		amount_spinbox.custom_minimum_size = Vector2(90.0, 26.0)
+		amount_spinbox.value_changed.connect(_on_manual_trade_amount_changed.bind(resource_id))
+		_manual_trade_amount_spinboxes[resource_id] = amount_spinbox
+		row_grid.add_child(amount_spinbox)
+
+	var preview_title := Label.new()
+	preview_title.text = "예상 결과"
+	preview_title.add_theme_color_override("font_color", Color(1.0, 0.9, 0.68, 1.0))
+	content.add_child(preview_title)
+
+	_manual_trade_preview_label = Label.new()
+	_manual_trade_preview_label.name = "ManualTradePreviewLabel"
+	_manual_trade_preview_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_manual_trade_preview_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
+	content.add_child(_manual_trade_preview_label)
+
+	_manual_trade_status_label = Label.new()
+	_manual_trade_status_label.name = "ManualTradeStatusLabel"
+	_manual_trade_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_manual_trade_status_label.add_theme_color_override("font_color", Color(0.72, 0.78, 0.84, 1.0))
+	content.add_child(_manual_trade_status_label)
+
+	var button_row := HBoxContainer.new()
+	button_row.name = "ManualTradeButtonRow"
+	button_row.add_theme_constant_override("separation", 8)
+	content.add_child(button_row)
+
+	var confirm_button := Button.new()
+	confirm_button.name = "ManualTradeConfirmButton"
+	confirm_button.text = "명령 저장"
+	confirm_button.pressed.connect(_on_manual_trade_order_confirm_pressed)
+	button_row.add_child(confirm_button)
+
+	var cancel_button := Button.new()
+	cancel_button.name = "ManualTradeCancelButton"
+	cancel_button.text = "취소"
+	cancel_button.pressed.connect(_on_manual_trade_order_cancel_pressed)
+	button_row.add_child(cancel_button)
+
+
+func _open_manual_trade_order_panel() -> void:
+	_ensure_manual_trade_order_panel()
+	if _manual_trade_order_panel == null:
+		return
+	if selected_city_marker == null:
+		return
+	var source_city_id := selected_city_marker.city_id
+	if not _is_city_owned_by_player_mvp(source_city_id):
+		return
+	var candidate_city_ids := _get_external_trade_candidate_city_ids(source_city_id)
+	if candidate_city_ids.is_empty():
+		if _trade_control_hint_label != null:
+			_trade_control_hint_label.text = "인접 외국 교역 후보가 생기면 수동 조정을 사용할 수 있습니다."
+		return
+	_manual_trade_current_source_city_id = source_city_id
+	_populate_manual_trade_order_panel(source_city_id, candidate_city_ids)
+	_manual_trade_order_panel.visible = true
+	_manual_trade_order_panel.move_to_front()
+
+
+func _close_manual_trade_order_panel() -> void:
+	if _manual_trade_order_panel != null:
+		_manual_trade_order_panel.visible = false
+
+
+func _populate_manual_trade_order_panel(source_city_id: String, candidate_city_ids: Array[String]) -> void:
+	if _manual_trade_source_label != null:
+		_manual_trade_source_label.text = "출발 성: %s" % _format_city_name_by_id(source_city_id, source_city_id)
+	if _manual_trade_target_option != null:
+		_manual_trade_target_option.clear()
+		for candidate_city_id in candidate_city_ids:
+			var index := _manual_trade_target_option.item_count
+			_manual_trade_target_option.add_item(_format_city_name_by_id(candidate_city_id, candidate_city_id))
+			_manual_trade_target_option.set_item_metadata(index, candidate_city_id)
+	var saved_order: Dictionary = _manual_trade_orders.get(source_city_id, {})
+	var saved_target_id := str(saved_order.get("target_city_id", ""))
+	if _manual_trade_target_option != null and not saved_target_id.is_empty():
+		_select_option_by_metadata(_manual_trade_target_option, saved_target_id)
+	_reset_manual_trade_order_inputs()
+	if not saved_order.is_empty():
+		_apply_saved_manual_trade_order_to_inputs(saved_order)
+	if _manual_trade_status_label != null:
+		_manual_trade_status_label.text = "명령 저장은 runtime placeholder입니다. 실제 실행은 Trade Execution Connect에서 처리됩니다."
+	_refresh_manual_trade_order_relation()
+	_refresh_manual_trade_order_preview()
+
+
+func _reset_manual_trade_order_inputs() -> void:
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		var action_option := _manual_trade_action_options.get(resource_id) as OptionButton
+		if action_option != null:
+			action_option.select(0)
+		var amount_spinbox := _manual_trade_amount_spinboxes.get(resource_id) as SpinBox
+		if amount_spinbox != null:
+			amount_spinbox.value = 0.0
+
+
+func _apply_saved_manual_trade_order_to_inputs(saved_order: Dictionary) -> void:
+	var orders: Variant = saved_order.get("orders", {})
+	if not orders is Dictionary:
+		return
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		if not (orders as Dictionary).has(resource_id):
+			continue
+		var order_variant: Variant = (orders as Dictionary).get(resource_id, {})
+		if not order_variant is Dictionary:
+			continue
+		var order := order_variant as Dictionary
+		var action := str(order.get("action", MANUAL_TRADE_ACTION_NONE))
+		var amount := maxi(0, int(order.get("amount", 0)))
+		var action_option := _manual_trade_action_options.get(resource_id) as OptionButton
+		if action_option != null:
+			_select_option_by_metadata(action_option, action)
+		var amount_spinbox := _manual_trade_amount_spinboxes.get(resource_id) as SpinBox
+		if amount_spinbox != null:
+			amount_spinbox.value = float(amount)
+
+
+func _on_manual_trade_target_selected(_index: int) -> void:
+	_refresh_manual_trade_order_relation()
+	_refresh_manual_trade_order_preview()
+
+
+func _on_manual_trade_order_input_changed(_index: int, _resource_id: String) -> void:
+	_refresh_manual_trade_order_preview()
+
+
+func _on_manual_trade_amount_changed(_value: float, _resource_id: String) -> void:
+	_refresh_manual_trade_order_preview()
+
+
+func _refresh_manual_trade_order_relation() -> void:
+	if _manual_trade_relation_label == null:
+		return
+	var source_city_id := _manual_trade_current_source_city_id
+	var target_city_id := _get_selected_manual_trade_target_city_id()
+	if source_city_id.is_empty() or target_city_id.is_empty():
+		_manual_trade_relation_label.text = "관계: 교역 상대를 선택하십시오."
+		return
+	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
+	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
+	_manual_trade_relation_label.text = "관계: %s / %s / 효율 x%.2f" % [
+		_format_faction_relation_status_for_ui(_get_faction_relation_status(source_faction_id, target_faction_id)),
+		_format_trade_availability_for_ui(source_faction_id, target_faction_id),
+		_get_trade_relation_multiplier_for_ui(source_faction_id, target_faction_id),
+	]
+
+
+func _refresh_manual_trade_order_preview() -> void:
+	if _manual_trade_preview_label == null:
+		return
+	_manual_trade_preview_label.text = _format_manual_trade_preview_summary(_build_manual_trade_order_preview())
+
+
+func _build_manual_trade_order_preview() -> Dictionary:
+	var preview := {"gold": 0}
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		preview[resource_id] = 0
+		var action := _get_manual_trade_action(resource_id)
+		var amount := _get_manual_trade_amount(resource_id)
+		if action == MANUAL_TRADE_ACTION_IMPORT:
+			preview[resource_id] = int(preview.get(resource_id, 0)) + amount
+			preview["gold"] = int(preview.get("gold", 0)) - (amount * int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0)))
+		elif action == MANUAL_TRADE_ACTION_EXPORT:
+			preview[resource_id] = int(preview.get(resource_id, 0)) - amount
+			preview["gold"] = int(preview.get("gold", 0)) + (amount * int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0)))
+	return preview
+
+
+func _format_manual_trade_preview_summary(preview: Dictionary) -> String:
+	var parts: Array[String] = ["금전 %s" % _format_signed_int(int(preview.get("gold", 0)))]
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		parts.append("%s %s" % [
+			str(RESOURCE_LABELS.get(resource_id, resource_id)),
+			_format_signed_int(int(preview.get(resource_id, 0))),
+		])
+	return " / ".join(parts)
+
+
+func _get_manual_trade_action(resource_id: String) -> String:
+	var action_option := _manual_trade_action_options.get(resource_id) as OptionButton
+	if action_option == null:
+		return MANUAL_TRADE_ACTION_NONE
+	var selected_index := action_option.selected
+	if selected_index < 0:
+		return MANUAL_TRADE_ACTION_NONE
+	return str(action_option.get_item_metadata(selected_index))
+
+
+func _get_manual_trade_amount(resource_id: String) -> int:
+	var amount_spinbox := _manual_trade_amount_spinboxes.get(resource_id) as SpinBox
+	if amount_spinbox == null:
+		return 0
+	return clampi(int(amount_spinbox.value), 0, 999)
+
+
+func _get_selected_manual_trade_target_city_id() -> String:
+	if _manual_trade_target_option == null:
+		return ""
+	var selected_index := _manual_trade_target_option.selected
+	if selected_index < 0:
+		return ""
+	return str(_manual_trade_target_option.get_item_metadata(selected_index))
+
+
+func _on_manual_trade_order_confirm_pressed() -> void:
+	var source_city_id := _manual_trade_current_source_city_id
+	var target_city_id := _get_selected_manual_trade_target_city_id()
+	if source_city_id.is_empty() or target_city_id.is_empty():
+		if _manual_trade_status_label != null:
+			_manual_trade_status_label.text = "교역 상대를 선택하십시오."
+		return
+	var orders := {}
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		var action := _get_manual_trade_action(resource_id)
+		var amount := _get_manual_trade_amount(resource_id)
+		if action == MANUAL_TRADE_ACTION_NONE or amount <= 0:
+			continue
+		orders[resource_id] = {"action": action, "amount": amount}
+	if orders.is_empty():
+		if _manual_trade_status_label != null:
+			_manual_trade_status_label.text = "수입/수출 자원과 수량을 하나 이상 입력하십시오."
+		return
+	var preview := _build_manual_trade_order_preview()
+	var payload := {
+		"source_city_id": source_city_id,
+		"target_city_id": target_city_id,
+		"trade_type": "external",
+		"mode": TRADE_CONTROL_MODE_MANUAL,
+		"orders": orders,
+		"preview": preview,
+	}
+	_manual_trade_orders[source_city_id] = payload
+	print("[WorldMap] Manual external trade order stored: %s" % str(payload))
+	_close_manual_trade_order_panel()
+	_refresh_unified_panel_content()
+
+
+func _on_manual_trade_order_cancel_pressed() -> void:
+	_close_manual_trade_order_panel()
 
 
 func _format_star_rating(value: int, max_value: int = 5) -> String:
@@ -2157,6 +2540,41 @@ func _format_external_trade_policy_display(candidate_city_ids: Array[String]) ->
 	if candidate_city_ids.is_empty():
 		return ""
 	return "현재 방침\n무역 주도 방식은 아래 버튼에서 선택합니다."
+
+
+func _format_external_trade_manual_order_summary(source_city_id: String, candidate_city_ids: Array[String]) -> String:
+	if candidate_city_ids.is_empty():
+		return ""
+	var order: Dictionary = _manual_trade_orders.get(source_city_id, {})
+	if order.is_empty():
+		return "수동 무역 명령\n저장된 명령 없음\n수동 조정에서 자원별 수입/수출 계획을 입력할 수 있습니다."
+	var target_city_id := str(order.get("target_city_id", ""))
+	var preview: Variant = order.get("preview", {})
+	var preview_text := "예상 없음"
+	if preview is Dictionary:
+		preview_text = _format_manual_trade_nonzero_preview_summary(preview as Dictionary)
+	return "수동 무역 명령\n상대: %s\n예상: %s\n실제 실행은 Trade Execution Connect에서 처리됩니다." % [
+		_format_city_name_by_id(target_city_id, target_city_id),
+		preview_text,
+	]
+
+
+func _format_manual_trade_nonzero_preview_summary(preview: Dictionary) -> String:
+	var parts: Array[String] = []
+	var gold_delta := int(preview.get("gold", 0))
+	if gold_delta != 0:
+		parts.append("금전 %s" % _format_signed_int(gold_delta))
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		var delta := int(preview.get(resource_id, 0))
+		if delta == 0:
+			continue
+		parts.append("%s %s" % [
+			str(RESOURCE_LABELS.get(resource_id, resource_id)),
+			_format_signed_int(delta),
+		])
+	if parts.is_empty():
+		return "금전 0"
+	return " / ".join(parts)
 
 
 func _format_external_trade_recent_summary(source_city_id: String, candidate_city_ids: Array[String]) -> String:
@@ -11297,6 +11715,8 @@ func _on_spy_mode_placeholder_pressed() -> void:
 func _on_unified_primary_tab_pressed(tab_id: String) -> void:
 	if not [UNIFIED_PANEL_TAB_CITY_DETAIL, UNIFIED_PANEL_TAB_DIPLOMACY_SPY, UNIFIED_PANEL_TAB_TRADE].has(tab_id):
 		tab_id = UNIFIED_PANEL_TAB_CITY_DETAIL
+	if tab_id != UNIFIED_PANEL_TAB_TRADE:
+		_close_manual_trade_order_panel()
 	_unified_primary_tab = tab_id
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_CITY_DETAIL:
 		_selected_city_detail_tab = CITY_DETAIL_TAB_RESOURCES
@@ -11308,6 +11728,7 @@ func _on_unified_primary_tab_pressed(tab_id: String) -> void:
 
 func _on_unified_secondary_tab_pressed(tab_index: int) -> void:
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
+		_close_manual_trade_order_panel()
 		_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_DIPLOMACY
 		if tab_index == 1:
 			_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_SPY
@@ -11318,6 +11739,8 @@ func _on_unified_secondary_tab_pressed(tab_index: int) -> void:
 		_selected_city_detail_tab = CITY_DETAIL_TAB_INTERNAL_TRADE
 		if tab_index == 2:
 			_selected_city_detail_tab = CITY_DETAIL_TAB_EXTERNAL_TRADE
+		if _selected_city_detail_tab != CITY_DETAIL_TAB_EXTERNAL_TRADE:
+			_close_manual_trade_order_panel()
 		print("[WorldMap] Unified trade tab selected: %s. Display only." % _selected_city_detail_tab)
 		if selected_city_marker != null:
 			_show_city_detail(selected_city_marker)
@@ -11342,12 +11765,18 @@ func _on_trade_control_mode_button_pressed(mode: String) -> void:
 		_show_city_detail(selected_city_marker)
 	else:
 		_reset_city_detail_panel()
+	if mode == TRADE_CONTROL_MODE_MANUAL and _selected_city_detail_tab == CITY_DETAIL_TAB_EXTERNAL_TRADE:
+		_open_manual_trade_order_panel()
+	else:
+		_close_manual_trade_order_panel()
 	_queue_unified_city_panel_resize()
 
 
 func _on_city_detail_tab_pressed(tab_id: String) -> void:
 	if not [CITY_DETAIL_TAB_RESOURCES, CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(tab_id):
 		tab_id = CITY_DETAIL_TAB_RESOURCES
+	if tab_id != CITY_DETAIL_TAB_EXTERNAL_TRADE:
+		_close_manual_trade_order_panel()
 	if [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(tab_id):
 		_unified_primary_tab = UNIFIED_PANEL_TAB_TRADE
 	else:

@@ -1,5 +1,30 @@
 # HANDOFF TO CODEX
 
+## v0.70-30 Manual Trade Order Panel MVP Handoff
+- Baseline: `v0.70-29 WorldMap Trade Control Mode UI MVP` (`d55c76e3c5f8b6270a76812d32e7fe1fcc3b6102`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- City Detail `무역 > 타국무역` now creates a runtime `ManualTradeOrderPanel` under `WorldMapUI`.
+- The external trade `수동 조정` button opens the panel only when the selected city is player-owned and has at least one external trade candidate.
+- The panel provides:
+  - source city display,
+  - external candidate `OptionButton`,
+  - relation/trade-availability/efficiency display,
+  - per-resource action `OptionButton` for `안함 / 수입 / 수출`,
+  - per-resource integer amount `SpinBox`,
+  - preview text,
+  - `명령 저장` and `취소`.
+- Manual trade resources are `rice`, `barley`, `seafood`, `wood`, `iron`, `horses`, `silk`, and `salt`, displayed as `쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, and `소금`.
+- Preview-only prices live in `MANUAL_TRADE_PREVIEW_PRICES`; they are not final balance formulas and do not execute transactions.
+- `수입` previews resource increase and gold decrease; `수출` previews resource decrease and gold increase. Relation efficiency is displayed only and is not applied to the MVP preview.
+- Confirmed orders are stored in runtime `_manual_trade_orders[source_city_id]` with `source_city_id`, `target_city_id`, `trade_type`, `mode`, `orders`, and `preview`.
+- External trade tab displays a saved manual-order summary when present; otherwise it shows that no manual order is saved.
+- Explicitly unchanged: actual `resource_stock` mutation, city `storage` mutation, relation mutation, turn consumption, trade execution, save/load schema, internal trade manual transfer, chancellor auto trade, Resource tab, diplomacy/spy content and visibility hotfix, Selected City Panel, formulas, BattleContext, `project.godot`, scenes, and assets.
+- Next candidates:
+  1. `v0.70-31 Internal Trade Manual Transfer MVP`
+  2. `v0.70-32 Trade Execution Connect MVP`
+  3. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  4. `v0.70-34 Diplomacy Action MVP`
+
 ## v0.70-29 WorldMap Trade Control Mode UI MVP Handoff
 - Baseline: `v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix` (`48fa66938563524cff7ec919904b8e25d90d909c`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

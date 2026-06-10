@@ -1,5 +1,28 @@
 # WORLDMAP RULES
 
+## v0.70-30 Manual Trade Order Panel Rule
+- City Detail `무역 > 타국무역` may open a manual external trade order panel only from external-trade `수동 조정`.
+- The source city must be selected, player-owned, and have at least one valid external trade candidate.
+- The panel must stay under `WorldMapUI` / CanvasLayer so it is not affected by worldmap camera pan or zoom.
+- The manual external order UI should expose:
+  1. source city,
+  2. external candidate selector,
+  3. relation/trade availability/efficiency display,
+  4. per-resource `안함 / 수입 / 수출`,
+  5. per-resource integer amount input,
+  6. expected gold/resource delta preview,
+  7. save and cancel controls.
+- MVP manual trade resources are `rice`, `barley`, `seafood`, `wood`, `iron`, `horses`, `silk`, and `salt`.
+- MVP prices are preview-only constants and must not be treated as final trade formulas.
+- `수입` means the preview resource amount increases and preview gold decreases; `수출` means the preview resource amount decreases and preview gold increases.
+- Relation efficiency may be displayed in this MVP, but must not mutate formulas or actual values.
+- `명령 저장` stores a runtime placeholder order only. It must not change `resource_stock`, city `storage`, relation, turn, route state, or save/load data.
+- Empty/all-zero orders should not be saved as valid orders.
+- `자국무역` manual transfer remains deferred to `Internal Trade Manual Transfer MVP`.
+- Chancellor automatic trade remains deferred to `Chancellor Auto Trade Logic Connect`.
+- Save/load persistence for manual trade orders remains deferred to a later Trade Execution/Control persistence step.
+- This rule does not authorize changes to Resource tab, diplomacy/spy tab behavior including `v0.70-28-hotfix1` subtab visibility, Selected City Panel, formulas, BattleContext, `project.godot`, scenes, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-29 Trade Control Mode UI Rule
 - City Detail `무역 > 자국무역` and `무역 > 타국무역` own a visible trade-control UI card.
 - The trade-control UI must expose two mode choices: `재상에게 일임` and `수동 조정`.

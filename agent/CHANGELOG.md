@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.70-30 Manual Trade Order Panel MVP
+- Built on `v0.70-29 WorldMap Trade Control Mode UI MVP` (`d55c76e3c5f8b6270a76812d32e7fe1fcc3b6102`).
+- Added a runtime `ManualTradeOrderPanel` for City Detail `무역 > 타국무역` manual control.
+- Connected external-trade `수동 조정` to open the panel when the selected city has foreign trade candidates.
+- Added external candidate selection and relation/trade-availability/efficiency display.
+- Added per-resource `안함 / 수입 / 수출` action selection and quantity input for rice, barley, seafood, wood, iron, horses, silk, and salt.
+- Added preview-only fixed prices and expected gold/resource delta display.
+- Added runtime manual-order storage and an external trade tab summary for saved manual commands.
+- Kept `명령 저장` as a placeholder save only; no actual trade execution, gold/resource movement, city storage mutation, relation mutation, or turn consumption is performed.
+- Kept internal trade manual transfer deferred to `Internal Trade Manual Transfer MVP`, chancellor auto trade deferred to `Chancellor Auto Trade Logic Connect`, and save/load persistence deferred to a later Trade Execution/Control persistence stage.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change Resource tab, diplomacy/spy tabs and the `v0.70-28-hotfix1` visibility rule, Selected City Panel, formulas, BattleContext, save/load schema, `project.godot`, scenes, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-29 WorldMap Trade Control Mode UI MVP
 - Built on `v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix` (`48fa66938563524cff7ec919904b8e25d90d909c`).
 - Added a runtime trade-control card to City Detail `무역 > 자국무역` and `무역 > 타국무역`.
