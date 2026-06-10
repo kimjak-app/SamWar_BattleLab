@@ -2,6 +2,21 @@
 
 ## 2026-06-10
 
+### v0.70-34 Trade Persistence Polish
+- Started from `5cd3425 v0.70-32 Trade Execution Connect MVP`.
+- Required docs, save/load helpers, trade control state, pending manual external orders, recent external execution results, recent internal transfer results, and city storage persistence paths were checked.
+- `v0.70-33 Chancellor Auto Trade Logic Connect` was skipped by instruction and remains a follow-up.
+- Implemented:
+  - Added trade persistence normalize/sync/restore helpers in `scripts/worldmap_test.gd`.
+  - Synced `_trade_control_modes` into `_player_state["trade_control_modes"]` before save and restored it after load/reset/default initialization.
+  - Synced `_manual_trade_orders` into `_player_state["manual_trade_orders"]` before save and restored it after load.
+  - Normalized pending external manual orders and recalculated previews from `MANUAL_TRADE_PREVIEW_PRICES`.
+  - Pruned invalid pending manual orders with `[TRADE_SAVE_LOAD]` warnings.
+  - Normalized recent external manual execution and recent internal manual transfer result payloads as display-only data.
+  - Kept city storage persistence on the existing `worldmap_city_state` path.
+- Preserved chancellor auto trade, relation efficiency pricing, price variation, target city storage mutation, foreign faction stock, relation, turn, formulas, Selected City Panel, diplomacy/spy visibility hotfix, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv` files.
+- Manual F6 QA remains required for trade-control mode save/load, pending external order save/load, restored order execution, recent external execution display persistence, recent internal transfer display/storage persistence, and old-save fallback.
+
 ### v0.70-32 Trade Execution Connect MVP
 - Started from `856f411 v0.70-31 Internal Trade Manual Transfer MVP`.
 - Required docs, v0.70-30 saved external manual order structure, v0.70-31 city storage helpers, external candidate filtering, relation trade availability helpers, and manual preview price helpers were checked.

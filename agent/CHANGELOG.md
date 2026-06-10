@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.70-34 Trade Persistence Polish
+- Built on `v0.70-32 Trade Execution Connect MVP` (`5cd34251fbbf221607e8d6c149325623ddf9fe89`).
+- Skipped `v0.70-33 Chancellor Auto Trade Logic Connect` by instruction; chancellor auto trade remains a follow-up.
+- Added save/load persistence for internal/external trade control modes through `_player_state["trade_control_modes"]`.
+- Added save/load persistence for pending external manual trade orders through `_player_state["manual_trade_orders"]`.
+- Added load normalization for pending external manual orders, including allowed resources/actions, nonnegative amounts, source/target city checks, and preview recalculation.
+- Added invalid pending manual order pruning with `[TRADE_SAVE_LOAD]` warnings.
+- Persisted recent external manual execution result and recent internal manual transfer result as display-only player-state payloads without replaying effects on load.
+- Confirmed/kept city `storage` persistence on the existing `worldmap_city_state` save/load path.
+- Preserved old-save fallback: missing trade keys default to chancellor modes, no pending manual orders, and empty recent result payloads.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not save transient UI node/panel state and did not change chancellor auto trade, relation efficiency, price variation, target city storage, foreign faction stock, relation, turn, Selected City Panel, diplomacy/spy tabs, BattleContext, `project.godot`, scenes, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-32 Trade Execution Connect MVP
 - Built on `v0.70-31 Internal Trade Manual Transfer MVP` (`856f411a633ac2f7b12ccb3cfd66412e593c6ad8`).
 - Added a runtime `ManualTradeExecutionButton` for City Detail `무역 > 타국무역` when a saved external manual trade order exists.

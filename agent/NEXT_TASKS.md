@@ -1,5 +1,33 @@
 # NEXT TASKS
 
+## Current: v0.70-34 Trade Persistence Polish
+- `v0.70-34` persists the trade UI/control state introduced across `v0.70-29` through `v0.70-32`.
+- Baseline: `v0.70-32 Trade Execution Connect MVP` (`5cd34251fbbf221607e8d6c149325623ddf9fe89`).
+- `v0.70-33 Chancellor Auto Trade Logic Connect` was skipped by instruction and remains a next candidate.
+- Completed direction:
+  1. Trade control modes for internal/external trade are saved as `_player_state["trade_control_modes"]` and restored into `_trade_control_modes`.
+  2. Pending external manual trade orders are saved as `_player_state["manual_trade_orders"]` and restored into `_manual_trade_orders`.
+  3. Pending orders are normalized on load: source/target ids, allowed resources, `import/export` actions, nonnegative amounts, and recalculated preview deltas.
+  4. Recent external manual execution result and recent internal manual transfer result are persisted as display-only payloads without replaying effects.
+  5. Existing city runtime `storage` save/load remains the persistence path for internal transfers and external manual execution storage deltas.
+  6. Old saves without new trade keys fall back to chancellor modes, no pending manual orders, and empty recent result payloads.
+- Preserved scope:
+  1. UI node/panel transient state, open panels, current SpinBox inputs, and OptionButton selections are not saved.
+  2. Chancellor auto trade, relation efficiency pricing, price variation, target city storage mutation, foreign faction stock, relation, turn, formulas, BattleContext, Selected City Panel, and diplomacy/spy tabs are unchanged.
+  3. `project.godot`, scenes, assets, `.uid`, and `.ogv` files are unchanged.
+- Manual F6 QA required:
+  1. Save/load after choosing different internal/external trade control modes and confirm button selection persists.
+  2. Save/load a pending external manual order and confirm the saved summary plus `수동 무역 실행` return.
+  3. Execute a restored pending order and confirm selected city storage changes once, not during load.
+  4. Save/load after external execution and confirm recent execution display persists without re-execution.
+  5. Save/load after internal transfer and confirm source/target city storage and recent transfer display persist.
+  6. Load older saves and confirm missing trade keys fall back safely.
+- Next candidate work:
+  1. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  2. `v0.70-35 Trade Balance / Relation Efficiency Polish`
+  3. `v0.70-36 Diplomacy Action MVP`
+  4. `v0.70-37 Spy Action MVP`
+
 ## Current: v0.70-32 Trade Execution Connect MVP
 - `v0.70-32` connects saved external manual trade orders to selected-city storage execution.
 - Baseline: `v0.70-31 Internal Trade Manual Transfer MVP` (`856f411a633ac2f7b12ccb3cfd66412e593c6ad8`).

@@ -692,6 +692,7 @@ var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
 func _ready() -> void:
 	_default_player_state = _player_state.duplicate(true)
 	_ensure_worldmap_runtime_state_defaults()
+	_restore_trade_persistence_from_player_state()
 	_hide_retired_top_worldmap_hud()
 	_refresh_world_rect_from_scene_tiles()
 	_connect_city_markers()
@@ -2250,6 +2251,136 @@ func _build_external_manual_trade_execution_preview(order: Dictionary) -> Dictio
 			applied[resource_id] = int(applied.get(resource_id, 0)) - amount
 			applied["gold"] = int(applied.get("gold", 0)) + (amount * price)
 	return applied
+
+
+func _get_default_trade_control_modes() -> Dictionary:
+	return {
+		CITY_DETAIL_TAB_INTERNAL_TRADE: TRADE_CONTROL_MODE_CHANCELLOR,
+		CITY_DETAIL_TAB_EXTERNAL_TRADE: TRADE_CONTROL_MODE_CHANCELLOR,
+	}
+
+
+func _normalize_trade_control_modes(raw_modes: Variant) -> Dictionary:
+	var modes := _get_default_trade_control_modes()
+	if not raw_modes is Dictionary:
+		return modes
+	var raw_dictionary := raw_modes as Dictionary
+	for tab_id in [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE]:
+		var mode := str(raw_dictionary.get(tab_id, modes.get(tab_id, TRADE_CONTROL_MODE_CHANCELLOR)))
+		if not [TRADE_CONTROL_MODE_CHANCELLOR, TRADE_CONTROL_MODE_MANUAL].has(mode):
+			mode = TRADE_CONTROL_MODE_CHANCELLOR
+		modes[tab_id] = mode
+	return modes
+
+
+func _normalize_manual_trade_orders(raw_orders: Variant) -> Dictionary:
+	var normalized := {}
+	if not raw_orders is Dictionary:
+		return normalized
+	for source_city_id_variant in (raw_orders as Dictionary).keys():
+		var source_city_id := str(source_city_id_variant)
+		var raw_order: Variant = (raw_orders as Dictionary).get(source_city_id_variant, {})
+		var order := _normalize_manual_trade_order_payload(raw_order, source_city_id)
+		if order.is_empty():
+			print("[TRADE_SAVE_LOAD] dropped invalid manual trade order for source=%s" % source_city_id)
+			continue
+		normalized[str(order.get("source_city_id", source_city_id))] = order
+	return normalized
+
+
+func _normalize_manual_trade_order_payload(raw_order: Variant, source_city_id: String = "") -> Dictionary:
+	if not raw_order is Dictionary:
+		return {}
+	var raw_dictionary := raw_order as Dictionary
+	var resolved_source_city_id := str(raw_dictionary.get("source_city_id", source_city_id))
+	var target_city_id := str(raw_dictionary.get("target_city_id", ""))
+	if resolved_source_city_id.is_empty() or target_city_id.is_empty():
+		return {}
+	if not _has_worldmap_city_for_trade_persistence(resolved_source_city_id) or not _has_worldmap_city_for_trade_persistence(target_city_id):
+		return {}
+	if not _is_city_owned_by_player_mvp(resolved_source_city_id):
+		return {}
+	var candidate_city_ids := _get_external_trade_candidate_city_ids(resolved_source_city_id)
+	if not candidate_city_ids.is_empty() and not candidate_city_ids.has(target_city_id):
+		return {}
+	var orders := _normalize_manual_trade_order_items(raw_dictionary.get("orders", {}))
+	if orders.is_empty():
+		return {}
+	var preview := _build_external_manual_trade_execution_preview({"orders": orders})
+	return {
+		"source_city_id": resolved_source_city_id,
+		"target_city_id": target_city_id,
+		"trade_type": "external",
+		"mode": TRADE_CONTROL_MODE_MANUAL,
+		"orders": orders,
+		"preview": preview,
+	}
+
+
+func _normalize_manual_trade_order_items(raw_items: Variant) -> Dictionary:
+	var normalized := {}
+	if not raw_items is Dictionary:
+		return normalized
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		var raw_item: Variant = (raw_items as Dictionary).get(resource_id, {})
+		if not raw_item is Dictionary:
+			continue
+		var action := str((raw_item as Dictionary).get("action", MANUAL_TRADE_ACTION_NONE))
+		var amount := maxi(0, int((raw_item as Dictionary).get("amount", 0)))
+		if action == MANUAL_TRADE_ACTION_NONE or amount <= 0:
+			continue
+		if not [MANUAL_TRADE_ACTION_IMPORT, MANUAL_TRADE_ACTION_EXPORT].has(action):
+			continue
+		normalized[resource_id] = {"action": action, "amount": amount}
+	return normalized
+
+
+func _normalize_trade_result_payload(raw_result: Variant) -> Dictionary:
+	if not raw_result is Dictionary:
+		return {}
+	var normalized := (raw_result as Dictionary).duplicate(true)
+	for key in ["applied", "preview", "amounts"]:
+		if normalized.has(key):
+			if normalized.get(key) is Dictionary:
+				normalized[key] = _normalize_trade_delta_payload(normalized.get(key))
+			else:
+				normalized.erase(key)
+	return normalized
+
+
+func _normalize_trade_delta_payload(raw_delta: Variant) -> Dictionary:
+	var normalized := {}
+	if not raw_delta is Dictionary:
+		return normalized
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		var resource_key := str(resource_id)
+		if (raw_delta as Dictionary).has(resource_key):
+			normalized[resource_key] = int((raw_delta as Dictionary).get(resource_key, 0))
+	return normalized
+
+
+func _has_worldmap_city_for_trade_persistence(city_id: String) -> bool:
+	if city_id.is_empty():
+		return false
+	return CITY_HUD_DATA.has(city_id) or not _get_city_hud_entry(city_id).is_empty()
+
+
+func _sync_trade_persistence_to_player_state() -> void:
+	_trade_control_modes = _normalize_trade_control_modes(_trade_control_modes)
+	_manual_trade_orders = _normalize_manual_trade_orders(_manual_trade_orders)
+	_player_state["trade_control_modes"] = _trade_control_modes.duplicate(true)
+	_player_state["manual_trade_orders"] = _manual_trade_orders.duplicate(true)
+	_player_state["last_external_manual_trade_execution_result"] = _normalize_trade_result_payload(_player_state.get("last_external_manual_trade_execution_result", {}))
+	_player_state["last_internal_trade_transfer_result"] = _normalize_trade_result_payload(_player_state.get("last_internal_trade_transfer_result", {}))
+
+
+func _restore_trade_persistence_from_player_state() -> void:
+	_trade_control_modes = _normalize_trade_control_modes(_player_state.get("trade_control_modes", {}))
+	_manual_trade_orders = _normalize_manual_trade_orders(_player_state.get("manual_trade_orders", {}))
+	_player_state["trade_control_modes"] = _trade_control_modes.duplicate(true)
+	_player_state["manual_trade_orders"] = _manual_trade_orders.duplicate(true)
+	_player_state["last_external_manual_trade_execution_result"] = _normalize_trade_result_payload(_player_state.get("last_external_manual_trade_execution_result", {}))
+	_player_state["last_internal_trade_transfer_result"] = _normalize_trade_result_payload(_player_state.get("last_internal_trade_transfer_result", {}))
 
 
 func _ensure_internal_trade_transfer_panel() -> void:
@@ -4155,6 +4286,10 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_recruitment_result"] = {}
 	if not _player_state.has("last_revolt_warning_result") or not (_player_state["last_revolt_warning_result"] is Dictionary):
 		_player_state["last_revolt_warning_result"] = {}
+	_player_state["trade_control_modes"] = _normalize_trade_control_modes(_player_state.get("trade_control_modes", {}))
+	_player_state["manual_trade_orders"] = _normalize_manual_trade_orders(_player_state.get("manual_trade_orders", {}))
+	_player_state["last_external_manual_trade_execution_result"] = _normalize_trade_result_payload(_player_state.get("last_external_manual_trade_execution_result", {}))
+	_player_state["last_internal_trade_transfer_result"] = _normalize_trade_result_payload(_player_state.get("last_internal_trade_transfer_result", {}))
 	_ensure_national_tech_state()
 
 
@@ -11153,6 +11288,7 @@ func _get_default_player_state() -> Dictionary:
 
 func _serialize_worldmap_state() -> Dictionary:
 	_ensure_worldmap_runtime_state_defaults()
+	_sync_trade_persistence_to_player_state()
 	var saved_player_state := _player_state.duplicate(true)
 	saved_player_state["pending_invasion_event"] = {}
 	saved_player_state["pending_battle_context"] = {}
@@ -11189,6 +11325,7 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 	_apply_worldmap_city_runtime_state(data.get("worldmap_city_state", {}))
 	_apply_worldmap_city_policy_state(data.get("city_policy_state", {}))
 	_apply_worldmap_hero_runtime_state(data.get("worldmap_hero_state", {}))
+	_restore_trade_persistence_from_player_state()
 	_sync_worldmap_hero_locations_from_city_runtime_states()
 	_refresh_city_marker_owner_states_from_runtime()
 	_refresh_city_hud_data_bindings()
@@ -11242,6 +11379,7 @@ func _reset_worldmap_state() -> void:
 	_cancel_enemy_turn_timer_if_needed()
 	_player_state = _get_default_player_state()
 	_ensure_worldmap_runtime_state_defaults()
+	_restore_trade_persistence_from_player_state()
 	_city_runtime_states.clear()
 	_hero_runtime_states.clear()
 	_city_policy_state.clear()

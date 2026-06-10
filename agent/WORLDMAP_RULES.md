@@ -1,5 +1,18 @@
 # WORLDMAP RULES
 
+## v0.70-34 Trade Persistence Rule
+- Trade persistence for `v0.70-29` through `v0.70-32` belongs in the existing worldmap save/load path.
+- Trade control modes must be saved as data, not UI state, and must restore internal and external trade modes separately.
+- Missing or invalid trade control modes must fall back to `chancellor`.
+- Pending external manual trade orders may be saved and restored only as confirmed order payloads.
+- Pending external manual order load must normalize source/target ids, allowed resource ids, `import/export` action ids, nonnegative integer amounts, and recalculated preview deltas.
+- Invalid or corrupt pending external manual orders should be pruned and logged; load must not crash on malformed payloads.
+- Recent external manual execution result and recent internal manual transfer result are display-only payloads. Loading them must not replay trade execution, internal transfer, relation changes, turn changes, or any storage mutation.
+- City storage persistence remains the existing city runtime `storage` save/load path. Missing storage in old saves must continue to use the existing default/fallback behavior.
+- UI node state, open panel state, SpinBox in-progress values, OptionButton current selections, and other transient UI state must not be saved.
+- `v0.70-33 Chancellor Auto Trade Logic Connect` remains a follow-up and is not authorized by this persistence rule.
+- This rule does not authorize relation efficiency pricing, price variation, target city storage mutation for external trade, foreign faction stock, turn cost, random trade rolls, Selected City Panel changes, diplomacy/spy behavior changes, BattleContext changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+
 ## v0.70-32 External Manual Trade Execution Rule
 - City Detail `무역 > 타국무역` may execute a saved manual external trade order only through the external-trade execution UI.
 - The source city must be the selected player-owned city and must match the saved order source.

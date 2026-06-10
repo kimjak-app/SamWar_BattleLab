@@ -1,5 +1,29 @@
 # HANDOFF TO CODEX
 
+## v0.70-34 Trade Persistence Polish Handoff
+- Baseline: `v0.70-32 Trade Execution Connect MVP` (`5cd34251fbbf221607e8d6c149325623ddf9fe89`).
+- `v0.70-33 Chancellor Auto Trade Logic Connect` was intentionally skipped and remains a follow-up.
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Added trade persistence normalize/sync/restore helpers around the existing `_player_state` save path.
+- `_sync_trade_persistence_to_player_state()` runs before `_serialize_worldmap_state()` duplicates `_player_state`.
+- `_restore_trade_persistence_from_player_state()` runs after initialization, reset, and worldmap load restore.
+- Persisted keys:
+  - `_player_state["trade_control_modes"]`
+  - `_player_state["manual_trade_orders"]`
+  - `_player_state["last_external_manual_trade_execution_result"]`
+  - `_player_state["last_internal_trade_transfer_result"]`
+- Trade control modes are normalized to the two known tabs: `internal-trade` and `external-trade`, each falling back to `chancellor` on missing or invalid values.
+- Pending external manual orders are normalized by source/target city id, player-owned source, allowed resources, `import/export` action, nonnegative amount, and recalculated preview.
+- Invalid pending orders are pruned and logged with `[TRADE_SAVE_LOAD] dropped invalid manual trade order...`.
+- Recent external execution and internal transfer results are display-only payloads. Load never replays trade execution or internal transfer effects.
+- City `storage` persistence continues through the existing `worldmap_city_state` path and `_normalize_city_storage()`; no large save schema rewrite was introduced.
+- Explicitly unchanged: UI node/panel transient state persistence, chancellor automatic trade, relation efficiency pricing, price variation, target city storage mutation, foreign faction stock, relation mutation, turn cost, Selected City Panel, diplomacy/spy content and visibility hotfix, BattleContext, `project.godot`, scenes, and assets.
+- Next candidates:
+  1. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  2. `v0.70-35 Trade Balance / Relation Efficiency Polish`
+  3. `v0.70-36 Diplomacy Action MVP`
+  4. `v0.70-37 Spy Action MVP`
+
 ## v0.70-32 Trade Execution Connect MVP Handoff
 - Baseline: `v0.70-31 Internal Trade Manual Transfer MVP` (`856f411a633ac2f7b12ccb3cfd66412e593c6ad8`).
 - Runtime file touched: `scripts/worldmap_test.gd`.
