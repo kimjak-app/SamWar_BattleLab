@@ -1,5 +1,33 @@
 # NEXT TASKS
 
+## Current: v0.70-29 WorldMap Trade Control Mode UI MVP
+- `v0.70-29` connects the former trade-leadership text slot to a real UI state selector.
+- Baseline: `v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix` (`48fa66938563524cff7ec919904b8e25d90d909c`).
+- Completed direction:
+  1. City Detail `무역 > 자국무역` shows a `TradeControlCard` with `재상에게 일임` and `수동 조정`.
+  2. City Detail `무역 > 타국무역` shows the same control card.
+  3. Internal and external trade modes are separate runtime state slots and both default to `chancellor`.
+  4. Selected buttons use the existing gold accent tone and refresh immediately after click.
+  5. `수동 조정` is disabled when there is no connected player-owned city for internal trade or no adjacent foreign trade candidate for external trade.
+  6. Manual mode and chancellor mode only show guidance copy; no trade execution is connected.
+- Preserved scope:
+  1. Actual resource movement, gold purchase/sale, resource exchange, trade formulas, relation formulas, turn handling, and chancellor auto-trade are unchanged.
+  2. Resource tab, diplomacy/spy tabs including the `v0.70-28-hotfix1` visibility fix, Selected City Panel, BattleContext, and save/load schema are unchanged.
+  3. `project.godot`, scenes, assets, `.uid`, and `.ogv` files were not changed.
+- Persistence note:
+  1. Trade-control mode is runtime-only for this MVP.
+  2. Save/load persistence should be reviewed in the follow-up Trade Control Connect stage.
+- Manual F6 QA required:
+  1. Hanseong `무역 > 자국무역` should show `재상 일임` selected and `수동 조정` disabled when no connected player-owned city exists.
+  2. Hanseong `무역 > 타국무역` should allow both buttons when foreign candidates exist, and should switch status/hint without mutating resources, gold, relation, or turn.
+  3. If no external candidate exists, `수동 조정` should be disabled.
+  4. Resource tab, diplomacy/spy tab, tab visibility restoration, drag/collapse, and Selected City Panel should remain normal.
+- Next candidate work:
+  1. `v0.70-30 Manual Trade Order Panel MVP`
+  2. `v0.70-31 Internal Trade Manual Transfer MVP`
+  3. `v0.70-32 Chancellor Auto Trade Logic Connect`
+  4. `v0.70-33 Diplomacy Action MVP`
+
 ## Current: v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix
 - `v0.70-28-hotfix1` fixes the City Detail `외교·첩보` subtab visibility regression.
 - Completed direction:

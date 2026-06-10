@@ -1,5 +1,23 @@
 # HANDOFF TO CODEX
 
+## v0.70-29 WorldMap Trade Control Mode UI MVP Handoff
+- Baseline: `v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix` (`48fa66938563524cff7ec919904b8e25d90d909c`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- City Detail `무역 > 자국무역` and `무역 > 타국무역` now create and update a runtime `TradeControlCard`.
+- Added runtime nodes: `TradeControlCard`, `TradeControlTitleLabel`, `TradeControlStatusLabel`, `TradeControlButtonRow`, `TradeAutoButton`, `TradeManualButton`, and `TradeControlHintLabel`.
+- Added trade-control modes: `chancellor` and `manual`.
+- Internal and external trade modes are separate runtime slots in `_trade_control_modes`, both defaulting to `chancellor`.
+- `수동 조정` is disabled when there are no valid targets: no connected player-owned city for internal trade, or no adjacent foreign trade candidate for external trade.
+- Selecting `재상에게 일임` or `수동 조정` refreshes the current City Detail trade tab immediately and does not execute trade.
+- Existing text-format helpers no longer duplicate the old `재상 위임 / 수동 조정` line; the button card owns trade-leadership display.
+- Persistence remains deferred: save/load handling for trade-control mode should be considered in a later Trade Control Connect task.
+- Explicitly unchanged: actual internal/external trade execution, resource movement, gold purchase/sale, resource exchange, chancellor auto-trade logic, trade/relation formulas, turn handling, resource tab, diplomacy/spy tabs and the hotfix visibility rule, Selected City Panel, BattleContext, save/load schema, `project.godot`, scenes, and assets.
+- Next candidates:
+  1. `v0.70-30 Manual Trade Order Panel MVP`
+  2. `v0.70-31 Internal Trade Manual Transfer MVP`
+  3. `v0.70-32 Chancellor Auto Trade Logic Connect`
+  4. `v0.70-33 Diplomacy Action MVP`
+
 ## v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix Handoff
 - Baseline: `v0.70-28 Diplomacy Spy Tab Structure Polish` (`fbc6a6e`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

@@ -25,6 +25,8 @@ const UNIFIED_PANEL_TAB_TRADE := "trade"
 const CITY_DETAIL_TAB_RESOURCES := "resources"
 const CITY_DETAIL_TAB_INTERNAL_TRADE := "internal-trade"
 const CITY_DETAIL_TAB_EXTERNAL_TRADE := "external-trade"
+const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
+const TRADE_CONTROL_MODE_MANUAL := "manual"
 const DIPLOMACY_SPY_TAB_DIPLOMACY := "diplomacy"
 const DIPLOMACY_SPY_TAB_SPY := "spy"
 const REVOLT_RISK_STABLE := "stable"
@@ -551,6 +553,16 @@ var _unified_primary_tab := UNIFIED_PANEL_TAB_CITY_DETAIL
 var _selected_diplomacy_spy_tab := DIPLOMACY_SPY_TAB_DIPLOMACY
 var _city_resource_potential_card: PanelContainer = null
 var _city_storage_card: PanelContainer = null
+var _trade_control_card: PanelContainer = null
+var _trade_control_title_label: Label = null
+var _trade_control_status_label: Label = null
+var _trade_auto_button: Button = null
+var _trade_manual_button: Button = null
+var _trade_control_hint_label: Label = null
+var _trade_control_modes := {
+	CITY_DETAIL_TAB_INTERNAL_TRADE: TRADE_CONTROL_MODE_CHANCELLOR,
+	CITY_DETAIL_TAB_EXTERNAL_TRADE: TRADE_CONTROL_MODE_CHANCELLOR,
+}
 var _warehouse_card: PanelContainer
 var _warehouse_resource_row_labels: Dictionary = {}
 var _pending_invasion_choice_card: PanelContainer
@@ -664,6 +676,7 @@ func _ready() -> void:
 	_connect_world_hud_placeholders()
 	_setup_unified_city_detail_diplomacy_panel()
 	_ensure_city_detail_resource_cards()
+	_ensure_trade_control_card()
 	_setup_independent_hud_panel_drag()
 	_lock_worldmap_fixed_panel_top_margin()
 	_reset_city_detail_panel()
@@ -1317,6 +1330,7 @@ func _reset_city_detail_panel() -> void:
 
 	_refresh_city_detail_tab_styles()
 	_set_city_detail_resource_cards_enabled(false)
+	_set_trade_control_card_visible(false)
 	city_detail_name_label.text = "도시를 선택하세요"
 	_set_city_detail_body_labels_visible(true)
 	city_detail_type_label.text = ""
@@ -1357,6 +1371,7 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			_apply_city_detail_default_text_tone()
 			var connected_player_city_ids := _get_internal_trade_connected_player_city_ids(city_marker)
 			var supply_state := _get_display_supply_state_for_city(city_marker.city_id)
+			var has_manual_targets := not connected_player_city_ids.is_empty()
 			city_detail_type_label.text = "무역"
 			city_detail_region_owner_label.text = "자국무역"
 			city_detail_resource_label.text = _format_internal_trade_route_display(city_marker, connected_player_city_ids)
@@ -1367,10 +1382,12 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_domestic_button_placeholder.visible = false
 			city_detail_status_label.text = ""
 			city_detail_hint_label.text = "자국무역과 보급 흐름을 확인합니다."
+			_refresh_trade_control_ui(CITY_DETAIL_TAB_INTERNAL_TRADE, has_manual_targets)
 		CITY_DETAIL_TAB_EXTERNAL_TRADE:
 			_set_city_detail_body_labels_visible(true)
 			_apply_city_detail_default_text_tone()
 			var external_trade_candidate_city_ids := _get_external_trade_candidate_city_ids(city_marker.city_id)
+			var has_external_manual_targets := not external_trade_candidate_city_ids.is_empty()
 			city_detail_type_label.text = "무역"
 			city_detail_region_owner_label.text = "타국무역"
 			city_detail_resource_label.text = _format_external_trade_candidate_summary(city_marker.city_id, external_trade_candidate_city_ids)
@@ -1381,7 +1398,9 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_domestic_button_placeholder.visible = false
 			city_detail_status_label.text = ""
 			city_detail_hint_label.text = "외부 세력 도시와의 교역 후보와 관계를 확인합니다."
+			_refresh_trade_control_ui(CITY_DETAIL_TAB_EXTERNAL_TRADE, has_external_manual_targets)
 		_:
+			_set_trade_control_card_visible(false)
 			_apply_city_detail_resource_tab_content(city_marker.city_id, city_data)
 
 
@@ -1455,6 +1474,68 @@ func _ensure_city_detail_resource_cards() -> void:
 	_set_city_detail_resource_cards_enabled(false)
 
 
+func _ensure_trade_control_card() -> void:
+	if _trade_control_card != null:
+		return
+	if city_detail_content_container == null:
+		return
+
+	_trade_control_card = PanelContainer.new()
+	_trade_control_card.name = "TradeControlCard"
+	_trade_control_card.mouse_filter = Control.MOUSE_FILTER_PASS
+	_trade_control_card.add_theme_stylebox_override("panel", _make_city_detail_resource_card_style(true))
+
+	var trade_box := VBoxContainer.new()
+	trade_box.name = "TradeControlCardContent"
+	trade_box.mouse_filter = Control.MOUSE_FILTER_PASS
+	trade_box.add_theme_constant_override("separation", 5)
+	_trade_control_card.add_child(trade_box)
+
+	_trade_control_title_label = Label.new()
+	_trade_control_title_label.name = "TradeControlTitleLabel"
+	_trade_control_title_label.text = "무역 주도"
+	_trade_control_title_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.68, 1.0))
+	trade_box.add_child(_trade_control_title_label)
+
+	_trade_control_status_label = Label.new()
+	_trade_control_status_label.name = "TradeControlStatusLabel"
+	_trade_control_status_label.add_theme_color_override("font_color", Color(0.92, 0.90, 0.82, 1.0))
+	trade_box.add_child(_trade_control_status_label)
+
+	var button_row := HBoxContainer.new()
+	button_row.name = "TradeControlButtonRow"
+	button_row.mouse_filter = Control.MOUSE_FILTER_PASS
+	button_row.add_theme_constant_override("separation", 6)
+	trade_box.add_child(button_row)
+
+	_trade_auto_button = Button.new()
+	_trade_auto_button.name = "TradeAutoButton"
+	_trade_auto_button.text = "재상에게 일임"
+	_trade_auto_button.focus_mode = Control.FOCUS_NONE
+	_trade_auto_button.pressed.connect(_on_trade_control_mode_button_pressed.bind(TRADE_CONTROL_MODE_CHANCELLOR))
+	button_row.add_child(_trade_auto_button)
+
+	_trade_manual_button = Button.new()
+	_trade_manual_button.name = "TradeManualButton"
+	_trade_manual_button.text = "수동 조정"
+	_trade_manual_button.focus_mode = Control.FOCUS_NONE
+	_trade_manual_button.pressed.connect(_on_trade_control_mode_button_pressed.bind(TRADE_CONTROL_MODE_MANUAL))
+	button_row.add_child(_trade_manual_button)
+
+	_trade_control_hint_label = Label.new()
+	_trade_control_hint_label.name = "TradeControlHintLabel"
+	_trade_control_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_trade_control_hint_label.add_theme_color_override("font_color", Color(0.72, 0.78, 0.84, 1.0))
+	trade_box.add_child(_trade_control_hint_label)
+
+	var insert_index := city_detail_content_container.get_child_count()
+	if _city_storage_card != null and _city_storage_card.get_parent() == city_detail_content_container:
+		insert_index = _city_storage_card.get_index()
+	city_detail_content_container.add_child(_trade_control_card)
+	city_detail_content_container.move_child(_trade_control_card, insert_index)
+	_set_trade_control_card_visible(false)
+
+
 func _move_city_detail_label_to_container(label: Label, target_container: Container) -> void:
 	if label == null or target_container == null:
 		return
@@ -1514,12 +1595,15 @@ func _set_city_detail_body_labels_visible(should_show: bool) -> void:
 		_city_resource_potential_card.visible = should_show
 	if _city_storage_card != null:
 		_city_storage_card.visible = should_show
+	if _trade_control_card != null and not _is_trade_control_tab_active():
+		_trade_control_card.visible = false
 	if city_detail_domestic_button_placeholder != null:
 		city_detail_domestic_button_placeholder.visible = should_show
 
 
 func _apply_city_detail_default_text_tone() -> void:
 	_set_city_detail_resource_cards_enabled(false)
+	_set_trade_control_card_visible(false)
 	for label in [
 		city_detail_type_label,
 		city_detail_region_owner_label,
@@ -1537,6 +1621,66 @@ func _apply_city_detail_default_text_tone() -> void:
 		city_detail_hint_label.add_theme_color_override("font_color", Color(0.7, 0.76, 0.84, 1.0))
 	if city_detail_domestic_button_placeholder != null:
 		city_detail_domestic_button_placeholder.visible = true
+
+
+func _set_trade_control_card_visible(should_show: bool) -> void:
+	if _trade_control_card != null:
+		_trade_control_card.visible = should_show
+
+
+func _is_trade_control_tab_active() -> bool:
+	return _unified_primary_tab == UNIFIED_PANEL_TAB_TRADE and [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(_selected_city_detail_tab) and selected_city_marker != null
+
+
+func _refresh_trade_control_ui(tab_id: String, has_manual_targets: bool) -> void:
+	_ensure_trade_control_card()
+	if _trade_control_card == null:
+		return
+	if _unified_primary_tab != UNIFIED_PANEL_TAB_TRADE or not [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(tab_id) or selected_city_marker == null:
+		_set_trade_control_card_visible(false)
+		return
+	var mode := str(_trade_control_modes.get(tab_id, TRADE_CONTROL_MODE_CHANCELLOR))
+	if mode == TRADE_CONTROL_MODE_MANUAL and not has_manual_targets:
+		mode = TRADE_CONTROL_MODE_CHANCELLOR
+		_trade_control_modes[tab_id] = mode
+	_set_trade_control_card_visible(true)
+	if _trade_control_status_label != null:
+		_trade_control_status_label.text = "현재: %s" % _get_trade_control_mode_label(mode)
+	if _trade_auto_button != null:
+		_trade_auto_button.disabled = false
+		_apply_trade_control_button_state(_trade_auto_button, mode == TRADE_CONTROL_MODE_CHANCELLOR)
+	if _trade_manual_button != null:
+		_trade_manual_button.disabled = not has_manual_targets
+		_apply_trade_control_button_state(_trade_manual_button, mode == TRADE_CONTROL_MODE_MANUAL and has_manual_targets)
+	if _trade_control_hint_label != null:
+		_trade_control_hint_label.text = _get_trade_control_hint(tab_id, mode, has_manual_targets)
+
+
+func _apply_trade_control_button_state(button: Button, is_active: bool) -> void:
+	if button == null:
+		return
+	if button.disabled:
+		button.modulate = Color(0.48, 0.48, 0.48, 0.72)
+	elif is_active:
+		button.modulate = Color(1.0, 0.9, 0.68, 1.0)
+	else:
+		button.modulate = Color(0.82, 0.86, 0.92, 1.0)
+
+
+func _get_trade_control_mode_label(mode: String) -> String:
+	if mode == TRADE_CONTROL_MODE_MANUAL:
+		return "수동 조정"
+	return "재상 일임"
+
+
+func _get_trade_control_hint(tab_id: String, mode: String, has_manual_targets: bool) -> String:
+	if not has_manual_targets:
+		if tab_id == CITY_DETAIL_TAB_INTERNAL_TRADE:
+			return "연결 가능한 아군 성이 생기면 수동 조정을 사용할 수 있습니다."
+		return "인접 외국 교역 후보가 생기면 수동 조정을 사용할 수 있습니다."
+	if mode == TRADE_CONTROL_MODE_MANUAL:
+		return "수동 세부 조정은 Manual Trade Order Panel MVP에서 연결됩니다."
+	return "재상이 연결 성/관계/창고 상태를 기준으로 무역을 운영할 예정입니다."
 
 
 func _format_star_rating(value: int, max_value: int = 5) -> String:
@@ -1858,16 +2002,16 @@ func _format_internal_trade_route_display(city_marker: WorldMapCityMarker, conne
 	return "연결 아군 성\n%s" % _format_internal_trade_city_name_list(connected_player_city_ids)
 
 
-func _format_internal_trade_lead_display(connected_player_city_ids: Array[String]) -> String:
-	if connected_player_city_ids.is_empty():
-		return "무역 주도\n연결 가능한 아군 성이 없어 조정할 수 없습니다."
-	return "무역 주도\n재상 위임 / 수동 조정"
+func _format_internal_trade_lead_display(_connected_player_city_ids: Array[String]) -> String:
+	if _connected_player_city_ids.is_empty():
+		return ""
+	return ""
 
 
 func _format_internal_trade_policy_display(connected_player_city_ids: Array[String]) -> String:
 	if connected_player_city_ids.is_empty():
-		return "현재 방침\n연결 가능한 아군 성이 생기면 무역 주도를 선택할 수 있습니다."
-	return "현재 방침\n재상 위임과 수동 조정은 다음 단계에서 연결됩니다."
+		return "현재 방침\n아군 성 연결 후 무역 주도를 선택할 수 있습니다."
+	return "현재 방침\n무역 주도 방식은 아래 버튼에서 선택합니다."
 
 
 func _format_internal_trade_city_name_list(city_ids: Array[String]) -> String:
@@ -2003,16 +2147,16 @@ func _get_trade_relation_multiplier_for_ui(source_faction_id: String, target_fac
 	return float(raw_multiplier) + _get_trade_agreement_bonus_multiplier(source_faction_id, target_faction_id)
 
 
-func _format_external_trade_lead_display(candidate_city_ids: Array[String]) -> String:
-	if candidate_city_ids.is_empty():
-		return "무역 주도\n교역 후보가 없어 조정할 수 없습니다."
-	return "무역 주도\n재상 위임 / 수동 조정"
+func _format_external_trade_lead_display(_candidate_city_ids: Array[String]) -> String:
+	if _candidate_city_ids.is_empty():
+		return ""
+	return ""
 
 
 func _format_external_trade_policy_display(candidate_city_ids: Array[String]) -> String:
 	if candidate_city_ids.is_empty():
 		return ""
-	return "현재 방침\n재상 위임과 수동 조정은 다음 단계에서 연결됩니다."
+	return "현재 방침\n무역 주도 방식은 아래 버튼에서 선택합니다."
 
 
 func _format_external_trade_recent_summary(source_city_id: String, candidate_city_ids: Array[String]) -> String:
@@ -11183,6 +11327,22 @@ func _on_unified_secondary_tab_pressed(tab_index: int) -> void:
 		return
 
 	_on_city_detail_tab_pressed(CITY_DETAIL_TAB_RESOURCES)
+
+
+func _on_trade_control_mode_button_pressed(mode: String) -> void:
+	if not [TRADE_CONTROL_MODE_CHANCELLOR, TRADE_CONTROL_MODE_MANUAL].has(mode):
+		mode = TRADE_CONTROL_MODE_CHANCELLOR
+	if _unified_primary_tab != UNIFIED_PANEL_TAB_TRADE:
+		return
+	if not [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(_selected_city_detail_tab):
+		return
+	_trade_control_modes[_selected_city_detail_tab] = mode
+	print("[WorldMap] Trade control mode selected: %s = %s. Display only; no trade/resource effect applied." % [_selected_city_detail_tab, mode])
+	if selected_city_marker != null:
+		_show_city_detail(selected_city_marker)
+	else:
+		_reset_city_detail_panel()
+	_queue_unified_city_panel_resize()
 
 
 func _on_city_detail_tab_pressed(tab_id: String) -> void:

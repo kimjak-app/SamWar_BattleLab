@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-29 WorldMap Trade Control Mode UI MVP
+- Built on `v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix` (`48fa66938563524cff7ec919904b8e25d90d909c`).
+- Added a runtime trade-control card to City Detail `무역 > 자국무역` and `무역 > 타국무역`.
+- Added `재상에게 일임` and `수동 조정` buttons with current selection display.
+- Kept internal trade mode and external trade mode as separate runtime state slots, both defaulting to `chancellor`.
+- Disabled `수동 조정` when no connected player-owned city exists for internal trade or no adjacent foreign trade candidate exists for external trade.
+- Added placeholder guidance for manual trade order and future chancellor auto-trade behavior without executing either path.
+- Removed the old duplicated `재상 위임 / 수동 조정` text from the legacy trade lead label path.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change actual trade execution, resource movement, gold purchase/sale, resource exchange, chancellor auto-trade logic, trade/relation formulas, turn handling, resource tab, diplomacy/spy tabs, Selected City Panel, BattleContext, save/load schema, `project.godot`, scenes, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Fix
 - Built on `v0.70-28 Diplomacy Spy Tab Structure Polish` (`fbc6a6e`).
 - Fixed a City Detail `외교·첩보` subtab visibility regression.

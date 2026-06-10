@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-29 Trade Control Mode UI Rule
+- City Detail `무역 > 자국무역` and `무역 > 타국무역` own a visible trade-control UI card.
+- The trade-control UI must expose two mode choices: `재상에게 일임` and `수동 조정`.
+- Internal trade mode and external trade mode are separate state slots and should not overwrite each other.
+- The default mode for both trade tabs is `chancellor`.
+- For this MVP, trade-control mode may remain runtime-only; save/load persistence belongs to a later Trade Control Connect task.
+- `수동 조정` must be disabled when there is no valid target:
+  1. Internal trade requires at least one connected player-owned neighboring city.
+  2. External trade requires at least one adjacent foreign trade candidate.
+- Selecting a trade-control mode may refresh the City Detail trade UI, but must not execute trade or mutate resources, gold, relations, turns, city storage, or save data.
+- Manual trade details remain deferred to `Manual Trade Order Panel MVP`.
+- Chancellor automatic trade remains deferred to `Chancellor Auto Trade Logic Connect`.
+- Resource tab, diplomacy/spy tab behavior including `v0.70-28-hotfix1` subtab visibility, Selected City Panel, formulas, BattleContext, save/load schema, `project.godot`, scenes, assets, `.uid`, and `.ogv` files must remain unchanged unless a dedicated task authorizes them.
+
 ## v0.70-28-hotfix1 Diplomacy Spy Subtab Visibility Rule
 - In City Detail `외교·첩보` primary mode, the reused subtab buttons for `외교` and `첩보` must both be explicitly visible.
 - `city_detail_resource_tab_button_placeholder` is reused as `외교` and must set `visible = true` in diplomacy/spy mode.
