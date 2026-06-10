@@ -329,6 +329,7 @@ const RESOURCE_LABELS := {
 }
 
 const RESOURCE_DISPLAY_ORDER := ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt", "gold"]
+const INTERNAL_TRADE_TRANSFER_RESOURCE_ORDER := ["gold", "rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt"]
 const MANUAL_TRADE_RESOURCE_ORDER := ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt"]
 const MANUAL_TRADE_ACTION_NONE := "none"
 const MANUAL_TRADE_ACTION_IMPORT := "import"
@@ -587,6 +588,13 @@ var _manual_trade_action_options: Dictionary = {}
 var _manual_trade_amount_spinboxes: Dictionary = {}
 var _manual_trade_orders: Dictionary = {}
 var _manual_trade_current_source_city_id := ""
+var _internal_trade_transfer_panel: PanelContainer = null
+var _internal_trade_source_label: Label = null
+var _internal_trade_target_option: OptionButton = null
+var _internal_trade_preview_label: Label = null
+var _internal_trade_status_label: Label = null
+var _internal_trade_amount_spinboxes: Dictionary = {}
+var _internal_trade_current_source_city_id := ""
 var _warehouse_card: PanelContainer
 var _warehouse_resource_row_labels: Dictionary = {}
 var _pending_invasion_choice_card: PanelContainer
@@ -702,6 +710,7 @@ func _ready() -> void:
 	_ensure_city_detail_resource_cards()
 	_ensure_trade_control_card()
 	_ensure_manual_trade_order_panel()
+	_ensure_internal_trade_transfer_panel()
 	_setup_independent_hud_panel_drag()
 	_lock_worldmap_fixed_panel_top_margin()
 	_reset_city_detail_panel()
@@ -731,6 +740,11 @@ func _input(event: InputEvent) -> void:
 
 	if _manual_trade_order_panel != null and _manual_trade_order_panel.visible and event.is_action_pressed("ui_cancel"):
 		_close_manual_trade_order_panel()
+		get_viewport().set_input_as_handled()
+		return
+
+	if _internal_trade_transfer_panel != null and _internal_trade_transfer_panel.visible and event.is_action_pressed("ui_cancel"):
+		_close_internal_trade_transfer_panel()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -1017,6 +1031,7 @@ func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 		selected_city_marker.set_selected(false)
 	if selected_city_marker != city_marker:
 		_close_manual_trade_order_panel()
+		_close_internal_trade_transfer_panel()
 
 	selected_city_id = city_marker.city_id
 	selected_city_marker = city_marker
@@ -1356,6 +1371,8 @@ func _refresh_unified_panel_content() -> void:
 
 
 func _reset_city_detail_panel() -> void:
+	_close_manual_trade_order_panel()
+	_close_internal_trade_transfer_panel()
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
 		_show_unified_diplomacy_spy_content()
 		return
@@ -1410,7 +1427,7 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_security_label.text = _format_city_supply_state_display(supply_state)
 			city_detail_military_label.text = _format_internal_trade_lead_display(connected_player_city_ids)
 			city_detail_commerce_label.text = _format_internal_trade_policy_display(connected_player_city_ids)
-			city_detail_rating_label.text = ""
+			city_detail_rating_label.text = _format_internal_trade_transfer_result_summary(city_marker.city_id, connected_player_city_ids)
 			city_detail_domestic_button_placeholder.visible = false
 			city_detail_status_label.text = ""
 			city_detail_hint_label.text = "자국무역과 보급 흐름을 확인합니다."
@@ -1712,7 +1729,7 @@ func _get_trade_control_hint(tab_id: String, mode: String, has_manual_targets: b
 		return "인접 외국 교역 후보가 생기면 수동 조정을 사용할 수 있습니다."
 	if mode == TRADE_CONTROL_MODE_MANUAL:
 		if tab_id == CITY_DETAIL_TAB_INTERNAL_TRADE:
-			return "자국무역 수동 이송은 Internal Trade Manual Transfer MVP에서 연결됩니다."
+			return "연결된 아군 성으로 금전과 자원을 수동 이송할 수 있습니다."
 		return "수동 세부 조정은 Manual Trade Order Panel MVP에서 연결됩니다."
 	return "재상이 연결 성/관계/창고 상태를 기준으로 무역을 운영할 예정입니다."
 
@@ -2066,6 +2083,348 @@ func _on_manual_trade_order_cancel_pressed() -> void:
 	_close_manual_trade_order_panel()
 
 
+func _ensure_internal_trade_transfer_panel() -> void:
+	if _internal_trade_transfer_panel != null:
+		return
+	var worldmap_ui := get_node_or_null("WorldMapUI") as CanvasLayer
+	if worldmap_ui == null:
+		return
+
+	_internal_trade_transfer_panel = PanelContainer.new()
+	_internal_trade_transfer_panel.name = "InternalTradeTransferPanel"
+	_internal_trade_transfer_panel.visible = false
+	_internal_trade_transfer_panel.z_index = 131
+	_internal_trade_transfer_panel.anchor_left = 0.5
+	_internal_trade_transfer_panel.anchor_right = 0.5
+	_internal_trade_transfer_panel.anchor_top = 0.5
+	_internal_trade_transfer_panel.anchor_bottom = 0.5
+	_internal_trade_transfer_panel.offset_left = -300.0
+	_internal_trade_transfer_panel.offset_right = 300.0
+	_internal_trade_transfer_panel.offset_top = -265.0
+	_internal_trade_transfer_panel.offset_bottom = 265.0
+	_internal_trade_transfer_panel.custom_minimum_size = Vector2(600.0, 530.0)
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.045, 0.05, 0.065, 0.96)
+	panel_style.border_color = Color(0.78, 0.58, 0.28, 0.95)
+	panel_style.set_border_width_all(1)
+	panel_style.set_corner_radius_all(6)
+	panel_style.content_margin_left = 12.0
+	panel_style.content_margin_top = 10.0
+	panel_style.content_margin_right = 12.0
+	panel_style.content_margin_bottom = 10.0
+	_internal_trade_transfer_panel.add_theme_stylebox_override("panel", panel_style)
+	worldmap_ui.add_child(_internal_trade_transfer_panel)
+
+	var content := VBoxContainer.new()
+	content.name = "InternalTradeTransferPanelContent"
+	content.add_theme_constant_override("separation", 6)
+	_internal_trade_transfer_panel.add_child(content)
+
+	var title_label := Label.new()
+	title_label.name = "InternalTradeTransferTitleLabel"
+	title_label.text = "자국무역 수동 이송"
+	title_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.68, 1.0))
+	content.add_child(title_label)
+
+	_internal_trade_source_label = Label.new()
+	_internal_trade_source_label.name = "InternalTradeSourceLabel"
+	_internal_trade_source_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
+	content.add_child(_internal_trade_source_label)
+
+	var target_row := HBoxContainer.new()
+	target_row.name = "InternalTradeTargetRow"
+	target_row.add_theme_constant_override("separation", 8)
+	content.add_child(target_row)
+	var target_label := Label.new()
+	target_label.text = "도착 성:"
+	target_label.custom_minimum_size = Vector2(74.0, 0.0)
+	target_row.add_child(target_label)
+	_internal_trade_target_option = OptionButton.new()
+	_internal_trade_target_option.name = "InternalTradeTargetOption"
+	_internal_trade_target_option.custom_minimum_size = Vector2(180.0, 28.0)
+	_internal_trade_target_option.item_selected.connect(_on_internal_trade_transfer_target_selected)
+	target_row.add_child(_internal_trade_target_option)
+
+	var header_row := GridContainer.new()
+	header_row.name = "InternalTradeResourceHeader"
+	header_row.columns = 3
+	content.add_child(header_row)
+	for header_text in ["자원", "보유량", "이송량"]:
+		var header := Label.new()
+		header.text = header_text
+		header.custom_minimum_size = Vector2(150.0, 0.0)
+		header.add_theme_color_override("font_color", Color(0.96, 0.74, 0.34, 1.0))
+		header_row.add_child(header)
+
+	var row_grid := GridContainer.new()
+	row_grid.name = "InternalTradeResourceRows"
+	row_grid.columns = 3
+	content.add_child(row_grid)
+	for resource_id in INTERNAL_TRADE_TRANSFER_RESOURCE_ORDER:
+		var resource_label := Label.new()
+		resource_label.text = str(RESOURCE_LABELS.get(resource_id, resource_id))
+		resource_label.custom_minimum_size = Vector2(150.0, 26.0)
+		row_grid.add_child(resource_label)
+
+		var owned_label := Label.new()
+		owned_label.name = "InternalTradeOwned_%s" % resource_id
+		owned_label.custom_minimum_size = Vector2(120.0, 26.0)
+		owned_label.add_theme_color_override("font_color", Color(0.72, 0.78, 0.84, 1.0))
+		row_grid.add_child(owned_label)
+
+		var amount_spinbox := SpinBox.new()
+		amount_spinbox.name = "InternalTradeAmount_%s" % resource_id
+		amount_spinbox.min_value = 0.0
+		amount_spinbox.max_value = 0.0
+		amount_spinbox.step = 1.0
+		amount_spinbox.value = 0.0
+		amount_spinbox.custom_minimum_size = Vector2(90.0, 26.0)
+		amount_spinbox.value_changed.connect(_on_internal_trade_transfer_amount_changed.bind(resource_id))
+		_internal_trade_amount_spinboxes[resource_id] = amount_spinbox
+		row_grid.add_child(amount_spinbox)
+
+	var preview_title := Label.new()
+	preview_title.text = "예상 결과"
+	preview_title.add_theme_color_override("font_color", Color(1.0, 0.9, 0.68, 1.0))
+	content.add_child(preview_title)
+
+	_internal_trade_preview_label = Label.new()
+	_internal_trade_preview_label.name = "InternalTradePreviewLabel"
+	_internal_trade_preview_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_internal_trade_preview_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.86, 1.0))
+	content.add_child(_internal_trade_preview_label)
+
+	_internal_trade_status_label = Label.new()
+	_internal_trade_status_label.name = "InternalTradeStatusLabel"
+	_internal_trade_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_internal_trade_status_label.add_theme_color_override("font_color", Color(0.72, 0.78, 0.84, 1.0))
+	content.add_child(_internal_trade_status_label)
+
+	var button_row := HBoxContainer.new()
+	button_row.name = "InternalTradeButtonRow"
+	button_row.add_theme_constant_override("separation", 8)
+	content.add_child(button_row)
+
+	var confirm_button := Button.new()
+	confirm_button.name = "InternalTradeConfirmButton"
+	confirm_button.text = "이송 적용"
+	confirm_button.pressed.connect(_on_internal_trade_transfer_confirm_pressed)
+	button_row.add_child(confirm_button)
+
+	var cancel_button := Button.new()
+	cancel_button.name = "InternalTradeCancelButton"
+	cancel_button.text = "취소"
+	cancel_button.pressed.connect(_on_internal_trade_transfer_cancel_pressed)
+	button_row.add_child(cancel_button)
+
+
+func _open_internal_trade_transfer_panel(source_city_id: String = "") -> void:
+	_ensure_internal_trade_transfer_panel()
+	if _internal_trade_transfer_panel == null:
+		return
+	if source_city_id.is_empty() and selected_city_marker != null:
+		source_city_id = selected_city_marker.city_id
+	if source_city_id.is_empty() or not _is_city_owned_by_player_mvp(source_city_id):
+		return
+	var source_marker := _city_markers_by_id.get(source_city_id) as WorldMapCityMarker
+	var candidate_city_ids := _get_internal_trade_connected_player_city_ids(source_marker)
+	if candidate_city_ids.is_empty():
+		if _trade_control_hint_label != null:
+			_trade_control_hint_label.text = "연결 가능한 아군 성이 없어 수동 이송할 수 없습니다."
+		return
+	_internal_trade_current_source_city_id = source_city_id
+	_populate_internal_trade_transfer_panel(source_city_id, candidate_city_ids)
+	_internal_trade_transfer_panel.visible = true
+	_internal_trade_transfer_panel.move_to_front()
+
+
+func _close_internal_trade_transfer_panel() -> void:
+	if _internal_trade_transfer_panel != null:
+		_internal_trade_transfer_panel.visible = false
+
+
+func _populate_internal_trade_transfer_panel(source_city_id: String, candidate_city_ids: Array[String]) -> void:
+	if _internal_trade_source_label != null:
+		_internal_trade_source_label.text = "출발 성: %s" % _format_city_name_by_id(source_city_id, source_city_id)
+	if _internal_trade_target_option != null:
+		_internal_trade_target_option.clear()
+		for candidate_city_id in candidate_city_ids:
+			var index := _internal_trade_target_option.item_count
+			_internal_trade_target_option.add_item(_format_city_name_by_id(candidate_city_id, candidate_city_id))
+			_internal_trade_target_option.set_item_metadata(index, candidate_city_id)
+	var source_storage := _get_city_storage(source_city_id, _get_city_hud_entry(source_city_id))
+	for resource_id in INTERNAL_TRADE_TRANSFER_RESOURCE_ORDER:
+		var amount_spinbox := _internal_trade_amount_spinboxes.get(resource_id) as SpinBox
+		if amount_spinbox == null:
+			continue
+		var owned_amount := _get_city_storage_amount(source_storage, resource_id)
+		amount_spinbox.max_value = float(owned_amount)
+		amount_spinbox.value = 0.0
+		var owned_label := amount_spinbox.get_parent().get_node_or_null("InternalTradeOwned_%s" % resource_id) as Label
+		if owned_label != null:
+			owned_label.text = "보유 %d" % owned_amount
+	if _internal_trade_status_label != null:
+		_internal_trade_status_label.text = "연결된 아군 성으로만 이송할 수 있습니다."
+	_refresh_internal_trade_transfer_preview()
+
+
+func _on_internal_trade_transfer_target_selected(_index: int) -> void:
+	_refresh_internal_trade_transfer_preview()
+
+
+func _on_internal_trade_transfer_amount_changed(_value: float, _resource_id: String) -> void:
+	_refresh_internal_trade_transfer_preview()
+
+
+func _refresh_internal_trade_transfer_preview() -> void:
+	if _internal_trade_preview_label == null:
+		return
+	var source_city_id := _internal_trade_current_source_city_id
+	var target_city_id := _get_selected_internal_trade_target_city_id()
+	var amounts := _build_internal_trade_transfer_amounts()
+	if amounts.is_empty() or source_city_id.is_empty() or target_city_id.is_empty():
+		_internal_trade_preview_label.text = "이송할 자원이 없습니다."
+		return
+	_internal_trade_preview_label.text = "%s: %s\n%s: %s" % [
+		_format_city_name_by_id(source_city_id, source_city_id),
+		_format_internal_trade_signed_transfer_amounts(amounts, -1),
+		_format_city_name_by_id(target_city_id, target_city_id),
+		_format_internal_trade_signed_transfer_amounts(amounts, 1),
+	]
+
+
+func _build_internal_trade_transfer_amounts() -> Dictionary:
+	var amounts := {}
+	for resource_id in INTERNAL_TRADE_TRANSFER_RESOURCE_ORDER:
+		var amount_spinbox := _internal_trade_amount_spinboxes.get(resource_id) as SpinBox
+		if amount_spinbox == null:
+			continue
+		var amount := maxi(0, int(amount_spinbox.value))
+		if amount <= 0:
+			continue
+		amounts[resource_id] = amount
+	return amounts
+
+
+func _get_selected_internal_trade_target_city_id() -> String:
+	if _internal_trade_target_option == null:
+		return ""
+	var selected_index := _internal_trade_target_option.selected
+	if selected_index < 0:
+		return ""
+	return str(_internal_trade_target_option.get_item_metadata(selected_index))
+
+
+func _on_internal_trade_transfer_confirm_pressed() -> void:
+	var source_city_id := _internal_trade_current_source_city_id
+	var target_city_id := _get_selected_internal_trade_target_city_id()
+	var amounts := _build_internal_trade_transfer_amounts()
+	var validation := _validate_internal_trade_transfer(source_city_id, target_city_id, amounts)
+	if not bool(validation.get("ok", false)):
+		if _internal_trade_status_label != null:
+			_internal_trade_status_label.text = str(validation.get("reason", "이송할 수 없습니다."))
+		return
+	var payload := _apply_internal_trade_transfer(source_city_id, target_city_id, amounts)
+	print("[WorldMap] Internal trade transfer applied: %s" % str(payload))
+	_close_internal_trade_transfer_panel()
+	_refresh_city_hud_data_bindings()
+	_refresh_left_world_status_panel()
+	_refresh_unified_panel_content()
+	_queue_unified_city_panel_resize()
+
+
+func _on_internal_trade_transfer_cancel_pressed() -> void:
+	_close_internal_trade_transfer_panel()
+
+
+func _validate_internal_trade_transfer(source_city_id: String, target_city_id: String, amounts: Dictionary) -> Dictionary:
+	if source_city_id.is_empty():
+		return {"ok": false, "reason": "출발 성을 확인할 수 없습니다."}
+	if target_city_id.is_empty():
+		return {"ok": false, "reason": "도착 성을 선택하십시오."}
+	if source_city_id == target_city_id:
+		return {"ok": false, "reason": "출발 성과 도착 성은 달라야 합니다."}
+	if not _is_city_owned_by_player_mvp(source_city_id) or not _is_city_owned_by_player_mvp(target_city_id):
+		return {"ok": false, "reason": "자국 성끼리만 이송할 수 있습니다."}
+	var source_marker := _city_markers_by_id.get(source_city_id) as WorldMapCityMarker
+	if not _get_internal_trade_connected_player_city_ids(source_marker).has(target_city_id):
+		return {"ok": false, "reason": "연결된 아군 성으로만 이송할 수 있습니다."}
+	if amounts.is_empty():
+		return {"ok": false, "reason": "이송할 자원을 1개 이상 입력하십시오."}
+	var source_storage := _get_city_storage(source_city_id, _get_city_hud_entry(source_city_id))
+	for resource_id_variant in amounts.keys():
+		var resource_id := str(resource_id_variant)
+		if not INTERNAL_TRADE_TRANSFER_RESOURCE_ORDER.has(resource_id):
+			return {"ok": false, "reason": "허용되지 않은 자원입니다."}
+		var amount := int(amounts.get(resource_id, 0))
+		if amount < 0:
+			return {"ok": false, "reason": "이송 수량은 0 이상이어야 합니다."}
+		if amount > _get_city_storage_amount(source_storage, resource_id):
+			return {"ok": false, "reason": "보유량을 초과할 수 없습니다."}
+	return {"ok": true}
+
+
+func _apply_internal_trade_transfer(source_city_id: String, target_city_id: String, amounts: Dictionary) -> Dictionary:
+	var source_storage := _get_city_storage(source_city_id, _get_city_hud_entry(source_city_id))
+	var target_storage := _get_city_storage(target_city_id, _get_city_hud_entry(target_city_id))
+	for resource_id_variant in amounts.keys():
+		var resource_id := str(resource_id_variant)
+		var amount := maxi(0, int(amounts.get(resource_id, 0)))
+		if amount <= 0:
+			continue
+		source_storage[resource_id] = maxi(0, int(source_storage.get(resource_id, 0)) - amount)
+		target_storage[resource_id] = maxi(0, int(target_storage.get(resource_id, 0)) + amount)
+	_set_city_storage(source_city_id, source_storage)
+	_set_city_storage(target_city_id, target_storage)
+	var payload := {
+		"source_city_id": source_city_id,
+		"target_city_id": target_city_id,
+		"trade_type": "internal",
+		"mode": "manual_transfer",
+		"amounts": amounts.duplicate(true),
+		"message": "수동 이송 완료",
+	}
+	_player_state["last_internal_trade_transfer_result"] = payload.duplicate(true)
+	return payload
+
+
+func _set_city_storage(city_id: String, storage: Dictionary) -> void:
+	if city_id.is_empty():
+		return
+	var mutable_city_state := _get_mutable_city_runtime_state(city_id)
+	if mutable_city_state.is_empty():
+		return
+	mutable_city_state["storage"] = _ensure_city_storage_keys(storage)
+	_city_runtime_states[city_id] = mutable_city_state
+
+
+func _format_internal_trade_signed_transfer_amounts(amounts: Dictionary, sign: int) -> String:
+	var parts: Array[String] = []
+	for resource_id in INTERNAL_TRADE_TRANSFER_RESOURCE_ORDER:
+		var amount := int(amounts.get(resource_id, 0))
+		if amount <= 0:
+			continue
+		parts.append("%s %s" % [
+			str(RESOURCE_LABELS.get(resource_id, resource_id)),
+			_format_signed_int(amount * sign),
+		])
+	if parts.is_empty():
+		return "변화 없음"
+	return " / ".join(parts)
+
+
+func _format_internal_trade_transfer_amounts(amounts: Dictionary) -> String:
+	var parts: Array[String] = []
+	for resource_id in INTERNAL_TRADE_TRANSFER_RESOURCE_ORDER:
+		var amount := int(amounts.get(resource_id, 0))
+		if amount <= 0:
+			continue
+		parts.append("%s %d" % [str(RESOURCE_LABELS.get(resource_id, resource_id)), amount])
+	if parts.is_empty():
+		return "없음"
+	return " / ".join(parts)
+
+
 func _format_star_rating(value: int, max_value: int = 5) -> String:
 	var safe_max := maxi(1, max_value)
 	var filled := clampi(value, 0, safe_max)
@@ -2395,6 +2754,29 @@ func _format_internal_trade_policy_display(connected_player_city_ids: Array[Stri
 	if connected_player_city_ids.is_empty():
 		return "현재 방침\n아군 성 연결 후 무역 주도를 선택할 수 있습니다."
 	return "현재 방침\n무역 주도 방식은 아래 버튼에서 선택합니다."
+
+
+func _format_internal_trade_transfer_result_summary(source_city_id: String, connected_player_city_ids: Array[String]) -> String:
+	if connected_player_city_ids.is_empty():
+		return ""
+	var result_variant: Variant = _player_state.get("last_internal_trade_transfer_result", {})
+	if not result_variant is Dictionary:
+		return ""
+	var result := result_variant as Dictionary
+	if result.is_empty():
+		return ""
+	if str(result.get("source_city_id", "")) != source_city_id:
+		return ""
+	var target_city_id := str(result.get("target_city_id", ""))
+	var amounts_variant: Variant = result.get("amounts", {})
+	var amounts := {}
+	if amounts_variant is Dictionary:
+		amounts = (amounts_variant as Dictionary).duplicate(true)
+	return "최근 수동 이송\n%s → %s\n%s" % [
+		_format_city_name_by_id(source_city_id, source_city_id),
+		_format_city_name_by_id(target_city_id, target_city_id),
+		_format_internal_trade_transfer_amounts(amounts),
+	]
 
 
 func _format_internal_trade_city_name_list(city_ids: Array[String]) -> String:
@@ -11717,6 +12099,7 @@ func _on_unified_primary_tab_pressed(tab_id: String) -> void:
 		tab_id = UNIFIED_PANEL_TAB_CITY_DETAIL
 	if tab_id != UNIFIED_PANEL_TAB_TRADE:
 		_close_manual_trade_order_panel()
+		_close_internal_trade_transfer_panel()
 	_unified_primary_tab = tab_id
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_CITY_DETAIL:
 		_selected_city_detail_tab = CITY_DETAIL_TAB_RESOURCES
@@ -11729,6 +12112,7 @@ func _on_unified_primary_tab_pressed(tab_id: String) -> void:
 func _on_unified_secondary_tab_pressed(tab_index: int) -> void:
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
 		_close_manual_trade_order_panel()
+		_close_internal_trade_transfer_panel()
 		_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_DIPLOMACY
 		if tab_index == 1:
 			_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_SPY
@@ -11741,6 +12125,8 @@ func _on_unified_secondary_tab_pressed(tab_index: int) -> void:
 			_selected_city_detail_tab = CITY_DETAIL_TAB_EXTERNAL_TRADE
 		if _selected_city_detail_tab != CITY_DETAIL_TAB_EXTERNAL_TRADE:
 			_close_manual_trade_order_panel()
+		if _selected_city_detail_tab != CITY_DETAIL_TAB_INTERNAL_TRADE:
+			_close_internal_trade_transfer_panel()
 		print("[WorldMap] Unified trade tab selected: %s. Display only." % _selected_city_detail_tab)
 		if selected_city_marker != null:
 			_show_city_detail(selected_city_marker)
@@ -11765,10 +12151,15 @@ func _on_trade_control_mode_button_pressed(mode: String) -> void:
 		_show_city_detail(selected_city_marker)
 	else:
 		_reset_city_detail_panel()
-	if mode == TRADE_CONTROL_MODE_MANUAL and _selected_city_detail_tab == CITY_DETAIL_TAB_EXTERNAL_TRADE:
+	if mode == TRADE_CONTROL_MODE_MANUAL and _selected_city_detail_tab == CITY_DETAIL_TAB_INTERNAL_TRADE and selected_city_marker != null:
+		_close_manual_trade_order_panel()
+		_open_internal_trade_transfer_panel(selected_city_marker.city_id)
+	elif mode == TRADE_CONTROL_MODE_MANUAL and _selected_city_detail_tab == CITY_DETAIL_TAB_EXTERNAL_TRADE:
+		_close_internal_trade_transfer_panel()
 		_open_manual_trade_order_panel()
 	else:
 		_close_manual_trade_order_panel()
+		_close_internal_trade_transfer_panel()
 	_queue_unified_city_panel_resize()
 
 
@@ -11777,6 +12168,8 @@ func _on_city_detail_tab_pressed(tab_id: String) -> void:
 		tab_id = CITY_DETAIL_TAB_RESOURCES
 	if tab_id != CITY_DETAIL_TAB_EXTERNAL_TRADE:
 		_close_manual_trade_order_panel()
+	if tab_id != CITY_DETAIL_TAB_INTERNAL_TRADE:
+		_close_internal_trade_transfer_panel()
 	if [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(tab_id):
 		_unified_primary_tab = UNIFIED_PANEL_TAB_TRADE
 	else:

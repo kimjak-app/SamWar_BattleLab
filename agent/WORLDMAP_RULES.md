@@ -1,5 +1,28 @@
 # WORLDMAP RULES
 
+## v0.70-31 Internal Trade Manual Transfer Rule
+- City Detail `무역 > 자국무역` may open a manual internal transfer panel only from internal-trade `수동 조정`.
+- The source city must be the currently selected player-owned city.
+- The target city must be a connected player-owned city returned by `_get_internal_trade_connected_player_city_ids()`.
+- Foreign cities must never appear as internal transfer targets.
+- The internal transfer UI should expose:
+  1. source city,
+  2. connected player-owned target selector,
+  3. per-resource source-owned amount display,
+  4. per-resource transfer amount input,
+  5. source/target expected transfer preview,
+  6. apply and cancel controls.
+- Internal manual transfer resources are `gold`, `rice`, `barley`, `seafood`, `wood`, `iron`, `horses`, `silk`, and `salt`.
+- Each amount input must be capped by the source city `storage` amount.
+- Applying a valid transfer may mutate city `storage` for the source and target cities only.
+- Applying a transfer must not mutate national `resource_stock`, relation scores, turn state, troop movement, external trade orders, or BattleContext.
+- Empty/all-zero transfer requests must be blocked.
+- Source/target ownership, source != target, connected target membership, allowed resource ids, nonnegative amounts, and source storage availability must be validated before mutation.
+- Recent internal transfer summaries may be stored in runtime player state for display.
+- City storage persistence follows the existing city storage save/load path; this rule does not authorize a large save/load schema rewrite.
+- External trade execution and chancellor automatic trade remain deferred.
+- This rule does not authorize changes to external manual trade order behavior, Resource tab structure beyond refreshed storage display, diplomacy/spy tab behavior including `v0.70-28-hotfix1` subtab visibility, Selected City Panel, formulas, BattleContext, `project.godot`, scenes, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-30 Manual Trade Order Panel Rule
 - City Detail `무역 > 타국무역` may open a manual external trade order panel only from external-trade `수동 조정`.
 - The source city must be selected, player-owned, and have at least one valid external trade candidate.

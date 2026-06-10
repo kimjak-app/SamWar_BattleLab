@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.70-31 Internal Trade Manual Transfer MVP
+- Built on `v0.70-30 Manual Trade Order Panel MVP` (`df761af4a658f98177b6a498efe5515fd2a1c634`).
+- Added a runtime `InternalTradeTransferPanel` for City Detail `무역 > 자국무역` manual transfer.
+- Connected internal-trade `수동 조정` to open the panel when the selected city has connected player-owned trade targets.
+- Added connected player-owned target selection.
+- Added amount inputs for `금전`, `쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, and `소금`.
+- Capped each amount input by the source city's current city `storage`.
+- Added source/target expected transfer preview and validation for empty, invalid, disconnected, foreign, same-city, and over-amount cases.
+- `이송 적용` now actually moves amounts between source and target city storage and records the most recent internal manual transfer summary.
+- Kept storage persistence on the existing city storage save/load path and did not add a large save/load schema change.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change national `resource_stock`, relation scores, turns, external trade execution, `v0.70-30` external Manual Trade Order Panel behavior, Selected City Panel, diplomacy/spy tabs, formulas, BattleContext, `project.godot`, scenes, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-30 Manual Trade Order Panel MVP
 - Built on `v0.70-29 WorldMap Trade Control Mode UI MVP` (`d55c76e3c5f8b6270a76812d32e7fe1fcc3b6102`).
 - Added a runtime `ManualTradeOrderPanel` for City Detail `무역 > 타국무역` manual control.

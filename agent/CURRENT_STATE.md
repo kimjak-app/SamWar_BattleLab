@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.70-31 Internal Trade Manual Transfer MVP
+- Baseline: `v0.70-30 Manual Trade Order Panel MVP` at `df761af4a658f98177b6a498efe5515fd2a1c634`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail `무역 > 자국무역` now opens a runtime `InternalTradeTransferPanel` when `수동 조정` is selected and at least one connected player-owned city exists.
+- The panel uses the selected city as the source, lets the player choose a connected player-owned target city, and accepts transfer amounts for `금전`, `쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, and `소금`.
+- Each transfer SpinBox is capped by the selected source city's current city `storage` amount.
+- `이송 적용` validates ownership, adjacency, nonzero amounts, allowed resource ids, and source storage availability, then moves amounts from source city storage to target city storage.
+- The last internal manual transfer result is recorded in runtime `_player_state["last_internal_trade_transfer_result"]` and shown in the `자국무역` tab.
+- City storage persistence continues through the existing city runtime storage save/load path; no new large save/load schema was added.
+- National `resource_stock`, relation scores, turn flow, external trade execution, formulas, Selected City Panel, diplomacy/spy tabs, BattleContext, `project.godot`, scenes, and assets were not changed.
+- `v0.70-30` external Manual Trade Order Panel and `v0.70-28-hotfix1` diplomacy/spy subtab visibility behavior are preserved.
+- Next candidate work:
+  1. `v0.70-32 Trade Execution Connect MVP`
+  2. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  3. `v0.70-34 Trade Persistence Polish`
+  4. `v0.70-35 Diplomacy Action MVP`
+
 ## v0.70-30 Manual Trade Order Panel MVP
 - Baseline: `v0.70-29 WorldMap Trade Control Mode UI MVP` at `d55c76e3c5f8b6270a76812d32e7fe1fcc3b6102`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

@@ -2,6 +2,24 @@
 
 ## 2026-06-10
 
+### v0.70-31 Internal Trade Manual Transfer MVP
+- Started from `df761af v0.70-30 Manual Trade Order Panel MVP`.
+- Required docs, v0.70-29 trade-control paths, v0.70-30 manual external panel paths, internal-trade candidate filtering, and city storage helpers were checked.
+- Implemented:
+  - Added a runtime `InternalTradeTransferPanel` under `WorldMapUI`.
+  - Opened the panel from internal-trade `수동 조정` when connected player-owned targets exist.
+  - Added target dropdown, source-owned amount display, transfer SpinBoxes, preview, apply, and cancel.
+  - Added validation for ownership, adjacency, source/target identity, nonzero amounts, allowed resource ids, and source storage availability.
+  - Added actual city storage movement from source city to target city.
+  - Recorded `_player_state["last_internal_trade_transfer_result"]` and displayed recent transfer summary in the internal trade tab.
+- Preserved national `resource_stock`, relation, turn, formulas, troop movement, external manual trade order panel, Selected City Panel, diplomacy/spy visibility hotfix, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv` files.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for a connected-player-city scenario, source/target storage deltas, amount caps, invalid input blocking, resource tab refresh, external panel regression, and diplomacy/spy visibility.
+
 ### v0.70-30 Manual Trade Order Panel MVP
 - Started from `d55c76e v0.70-29 WorldMap Trade Control Mode UI MVP`.
 - Required docs and the v0.70-29 Trade Control connection points were checked.

@@ -1,5 +1,35 @@
 # NEXT TASKS
 
+## Current: v0.70-31 Internal Trade Manual Transfer MVP
+- `v0.70-31` connects internal-trade `수동 조정` to a real city-storage transfer MVP.
+- Baseline: `v0.70-30 Manual Trade Order Panel MVP` (`df761af4a658f98177b6a498efe5515fd2a1c634`).
+- Completed direction:
+  1. City Detail `무역 > 자국무역` opens a runtime `InternalTradeTransferPanel` from `수동 조정` when connected player-owned cities exist.
+  2. The selected city is the source; the target dropdown is limited to connected player-owned cities.
+  3. Transfer inputs cover `금전`, `쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, and `소금`.
+  4. Each input max follows the source city's current `storage`.
+  5. `이송 적용` moves city storage from source to target after validation.
+  6. The internal trade tab shows the most recent manual transfer summary.
+- Preserved scope:
+  1. National `resource_stock`, relation, turn, formulas, troop movement, BattleContext, Selected City Panel, and diplomacy/spy tabs are unchanged.
+  2. External manual trade order panel from `v0.70-30` is unchanged.
+  3. Chancellor automatic trade remains deferred to `Chancellor Auto Trade Logic Connect`.
+  4. `project.godot`, scenes, assets, `.uid`, and `.ogv` files are unchanged.
+- Persistence note:
+  1. City storage movement uses the existing city runtime storage save/load path.
+  2. No new large save/load schema was added for internal transfer result history.
+- Manual F6 QA required:
+  1. If Hanseong has no connected player-owned city, `수동 조정` should remain disabled or panel open should be blocked.
+  2. With a connected player-owned target, the panel should open, show target dropdown, cap amounts by source storage, and preview source - / target +.
+  3. Applying a valid transfer should update source/target city storage and refresh `자국무역` plus `자원` tab display.
+  4. All-zero, invalid target, foreign target, disconnected target, and over-amount cases should be blocked.
+  5. National resources, relations, turn, external manual panel, and diplomacy/spy visibility should remain stable.
+- Next candidate work:
+  1. `v0.70-32 Trade Execution Connect MVP`
+  2. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  3. `v0.70-34 Trade Persistence Polish`
+  4. `v0.70-35 Diplomacy Action MVP`
+
 ## Current: v0.70-30 Manual Trade Order Panel MVP
 - `v0.70-30` connects the external-trade `수동 조정` mode to a manual order-entry MVP.
 - Baseline: `v0.70-29 WorldMap Trade Control Mode UI MVP` (`d55c76e3c5f8b6270a76812d32e7fe1fcc3b6102`).

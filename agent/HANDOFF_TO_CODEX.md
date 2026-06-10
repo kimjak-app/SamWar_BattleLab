@@ -1,5 +1,29 @@
 # HANDOFF TO CODEX
 
+## v0.70-31 Internal Trade Manual Transfer MVP Handoff
+- Baseline: `v0.70-30 Manual Trade Order Panel MVP` (`df761af4a658f98177b6a498efe5515fd2a1c634`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- City Detail `무역 > 자국무역` now creates a runtime `InternalTradeTransferPanel` under `WorldMapUI`.
+- Internal-trade `수동 조정` opens the panel only when the selected source city is player-owned and has at least one connected player-owned city.
+- Target candidates come from `_get_internal_trade_connected_player_city_ids()` and remain player-owned only.
+- The panel provides:
+  - source city display,
+  - connected player-owned target `OptionButton`,
+  - per-resource amount `SpinBox`,
+  - source/target preview,
+  - `이송 적용` and `취소`.
+- Transfer resources are `gold`, `rice`, `barley`, `seafood`, `wood`, `iron`, `horses`, `silk`, and `salt`, displayed as `금전`, `쌀`, `보리`, `수산물`, `목재`, `철`, `말`, `비단`, and `소금`.
+- Each SpinBox max is the source city's current city `storage` amount.
+- Confirm path validates source/target ownership, source != target, connected player-owned target, nonzero amounts, allowed resource ids, and source storage availability.
+- Successful transfer subtracts from source city storage and adds to target city storage through existing city runtime storage state, records `_player_state["last_internal_trade_transfer_result"]`, and refreshes City Detail/left HUD bindings.
+- Existing city storage save/load remains the persistence path. No new large schema was added.
+- Explicitly unchanged: national `resource_stock`, external trade purchase/sale execution, external manual order panel behavior, relation mutation, turn consumption, formulas, troop movement, Selected City Panel, diplomacy/spy content and visibility hotfix, BattleContext, `project.godot`, scenes, and assets.
+- Next candidates:
+  1. `v0.70-32 Trade Execution Connect MVP`
+  2. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  3. `v0.70-34 Trade Persistence Polish`
+  4. `v0.70-35 Diplomacy Action MVP`
+
 ## v0.70-30 Manual Trade Order Panel MVP Handoff
 - Baseline: `v0.70-29 WorldMap Trade Control Mode UI MVP` (`d55c76e3c5f8b6270a76812d32e7fe1fcc3b6102`).
 - Runtime file touched: `scripts/worldmap_test.gd`.
