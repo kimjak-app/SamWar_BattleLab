@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.70-34-hotfix1 GDScript Warning Cleanup Rule
+- Warning-cleanup hotfixes may rename local variables or parameters that shadow class members or built-in functions.
+- The class members `resource_label`, `selected_city_id`, and `loyalty_card` are legitimate existing state and should not be removed for this warning cleanup.
+- Local variables inside WorldMap or Selected City Panel functions must not reuse those class-member names.
+- Function parameters must not use `sign` where Godot reports a built-in-name collision.
+- This hotfix rule does not authorize behavior changes, UI layout changes, formula changes, trade persistence changes, manual trade changes, internal transfer changes, external execution changes, save/load structure changes, BattleContext changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+
 ## v0.70-34 Trade Persistence Rule
 - Trade persistence for `v0.70-29` through `v0.70-32` belongs in the existing worldmap save/load path.
 - Trade control modes must be saved as data, not UI state, and must restore internal and external trade modes separately.

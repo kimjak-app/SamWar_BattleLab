@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup
+- Baseline: `v0.70-34 Trade Persistence Polish` at `c7897b2b4572222991fcaefdc4da88323b3aafd8`.
+- Removed the local `resource_label` shadowing warning in `scripts/worldmap_test.gd` by renaming manual/external trade row labels to scoped names.
+- Removed the local `selected_city_id` shadowing warning in `scripts/worldmap_test.gd` by renaming the diplomacy/spy local to `current_selected_city_id`.
+- Removed the built-in-name collision warning by renaming the internal transfer formatter parameter from `sign` to `transfer_multiplier`.
+- Removed the local `loyalty_card` shadowing warning in `scripts/worldmap_city_info_panel.gd` by renaming the layout-order local to `selected_loyalty_anchor`.
+- Functionality, UI layout, formulas, save/load structure, trade persistence, manual trade, internal transfer, external execution, BattleContext, `project.godot`, scenes, and assets were not changed.
+- Next candidate work:
+  1. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  2. `v0.70-35 Trade Balance / Relation Efficiency Polish`
+  3. `v0.70-36 Diplomacy Action MVP`
+  4. `v0.70-37 Spy Action MVP`
+
 ## v0.70-34 Trade Persistence Polish
 - Baseline: `v0.70-32 Trade Execution Connect MVP` at `5cd34251fbbf221607e8d6c149325623ddf9fe89`.
 - `v0.70-33 Chancellor Auto Trade Logic Connect` was intentionally skipped for this task and remains a follow-up.

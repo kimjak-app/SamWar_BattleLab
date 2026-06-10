@@ -2,6 +2,17 @@
 
 ## 2026-06-10
 
+### v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup
+- Started from `c7897b2 v0.70-34 Trade Persistence Polish`.
+- Required docs and the reported Godot reload warning names were checked.
+- Implemented:
+  - Renamed WorldMap local `resource_label` variables in manual/external trade row construction.
+  - Renamed WorldMap diplomacy/spy local `selected_city_id`.
+  - Renamed the internal transfer signed amount formatter parameter from `sign`.
+  - Renamed Selected City Panel layout-order local `loyalty_card`.
+- Preserved functionality, UI layout, formulas, save/load structure, trade persistence, manual trade, internal transfer, external execution, diplomacy/spy behavior, Selected City Panel behavior, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv` files.
+- Manual F6 QA remains required for visible Godot Output warning confirmation and trade/diplomacy/save-load tab regression checks.
+
 ### v0.70-34 Trade Persistence Polish
 - Started from `5cd3425 v0.70-32 Trade Execution Connect MVP`.
 - Required docs, save/load helpers, trade control state, pending manual external orders, recent external execution results, recent internal transfer results, and city storage persistence paths were checked.

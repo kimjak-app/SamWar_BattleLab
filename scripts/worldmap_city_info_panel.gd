@@ -534,12 +534,12 @@ func _apply_selected_city_layout_order() -> void:
 	var content := get_node_or_null("MarginContainer/Content") as VBoxContainer
 	if content == null:
 		return
-	var loyalty_card := _get_direct_child_under(content, loyalty_label) as Control
+	var selected_loyalty_anchor := _get_direct_child_under(content, loyalty_label) as Control
 	var governor_card := _get_direct_child_under(content, governor_assign_option) as Control
 	var button_row: Control = null
 	if attack_button_placeholder != null:
 		button_row = attack_button_placeholder.get_parent() as Control
-	_move_child_after(content, military_state_label, loyalty_card)
+	_move_child_after(content, military_state_label, selected_loyalty_anchor)
 	_move_child_after(content, _domestic_help_row, military_state_label)
 	var governor_label_anchor: Control = military_state_label
 	if _domestic_help_row != null:

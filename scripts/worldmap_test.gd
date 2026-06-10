@@ -1861,10 +1861,10 @@ func _ensure_manual_trade_order_panel() -> void:
 	row_grid.columns = 3
 	content.add_child(row_grid)
 	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
-		var resource_label := Label.new()
-		resource_label.text = str(RESOURCE_LABELS.get(resource_id, resource_id))
-		resource_label.custom_minimum_size = Vector2(150.0, 26.0)
-		row_grid.add_child(resource_label)
+		var manual_trade_resource_name_label := Label.new()
+		manual_trade_resource_name_label.text = str(RESOURCE_LABELS.get(resource_id, resource_id))
+		manual_trade_resource_name_label.custom_minimum_size = Vector2(150.0, 26.0)
+		row_grid.add_child(manual_trade_resource_name_label)
 
 		var action_option := OptionButton.new()
 		action_option.name = "ManualTradeAction_%s" % resource_id
@@ -2461,10 +2461,10 @@ func _ensure_internal_trade_transfer_panel() -> void:
 	row_grid.columns = 3
 	content.add_child(row_grid)
 	for resource_id in INTERNAL_TRADE_TRANSFER_RESOURCE_ORDER:
-		var resource_label := Label.new()
-		resource_label.text = str(RESOURCE_LABELS.get(resource_id, resource_id))
-		resource_label.custom_minimum_size = Vector2(150.0, 26.0)
-		row_grid.add_child(resource_label)
+		var internal_trade_resource_name_label := Label.new()
+		internal_trade_resource_name_label.text = str(RESOURCE_LABELS.get(resource_id, resource_id))
+		internal_trade_resource_name_label.custom_minimum_size = Vector2(150.0, 26.0)
+		row_grid.add_child(internal_trade_resource_name_label)
 
 		var owned_label := Label.new()
 		owned_label.name = "InternalTradeOwned_%s" % resource_id
@@ -2698,7 +2698,7 @@ func _set_city_storage(city_id: String, storage: Dictionary) -> void:
 	_city_runtime_states[city_id] = mutable_city_state
 
 
-func _format_internal_trade_signed_transfer_amounts(amounts: Dictionary, sign: int) -> String:
+func _format_internal_trade_signed_transfer_amounts(amounts: Dictionary, transfer_multiplier: int) -> String:
 	var parts: Array[String] = []
 	for resource_id in INTERNAL_TRADE_TRANSFER_RESOURCE_ORDER:
 		var amount := int(amounts.get(resource_id, 0))
@@ -2706,7 +2706,7 @@ func _format_internal_trade_signed_transfer_amounts(amounts: Dictionary, sign: i
 			continue
 		parts.append("%s %s" % [
 			str(RESOURCE_LABELS.get(resource_id, resource_id)),
-			_format_signed_int(amount * sign),
+			_format_signed_int(amount * transfer_multiplier),
 		])
 	if parts.is_empty():
 		return "변화 없음"
@@ -2740,16 +2740,16 @@ func _show_unified_diplomacy_spy_content() -> void:
 	_refresh_unified_panel_chrome()
 	_set_city_detail_body_labels_visible(true)
 	_apply_city_detail_default_text_tone()
-	var selected_city_id := ""
+	var current_selected_city_id := ""
 	if selected_city_marker != null:
-		selected_city_id = selected_city_marker.city_id
+		current_selected_city_id = selected_city_marker.city_id
 	city_detail_name_label.text = _get_diplomacy_spy_tab_label(_selected_diplomacy_spy_tab)
 	city_detail_type_label.text = _format_diplomacy_spy_target_city_display(selected_city_marker)
 	if _selected_diplomacy_spy_tab == DIPLOMACY_SPY_TAB_SPY:
 		city_detail_region_owner_label.text = _format_spy_visibility_summary_for_ui(selected_city_marker)
 		city_detail_resource_label.text = _format_spy_known_info_summary_for_ui(selected_city_marker)
 		city_detail_security_label.text = _format_spy_action_candidates_for_ui(selected_city_marker)
-		city_detail_military_label.text = _format_recent_spy_result_for_ui(selected_city_id)
+		city_detail_military_label.text = _format_recent_spy_result_for_ui(current_selected_city_id)
 		city_detail_commerce_label.text = "현재 방침\n실행 기능은 Spy Action MVP에서 연결됩니다."
 		city_detail_rating_label.text = ""
 		city_detail_hint_label.text = "대상 도시의 정보 수준과 첩보 행동 후보를 확인합니다."
