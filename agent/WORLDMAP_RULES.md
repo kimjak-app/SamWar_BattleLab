@@ -1,5 +1,24 @@
 # WORLDMAP RULES
 
+## v0.70-32 External Manual Trade Execution Rule
+- City Detail `무역 > 타국무역` may execute a saved manual external trade order only through the external-trade execution UI.
+- The source city must be the selected player-owned city and must match the saved order source.
+- The target city must still be returned by `_get_external_trade_candidate_city_ids(source_city_id)`.
+- Source and target factions must be non-empty, different, and pass `_can_trade_between_factions()`.
+- Execution must reuse the `v0.70-30` order payload and `MANUAL_TRADE_PREVIEW_PRICES` so preview and execution deltas match.
+- Relation efficiency may be displayed but must not affect execution pricing until a dedicated Trade Balance / Diplomacy Connect task authorizes it.
+- Import orders apply to source city `storage` only:
+  1. `storage.gold -= price * amount`
+  2. `storage[resource] += amount`
+- Export orders apply to source city `storage` only:
+  1. `storage[resource] -= amount`
+  2. `storage.gold += price * amount`
+- Validation must finish before mutation and must block missing/invalid order, non-player source, invalid/expired target, blocked relation, invalid resource id, invalid action, negative amount, empty actionable order, gold shortage, and export resource shortage.
+- Validation failure must not partially apply storage changes.
+- Successful execution may record a runtime recent execution result and must clear the pending external manual order for that source city.
+- Failed execution may record a failure message for display and must keep the pending order.
+- This rule does not authorize target city storage changes, foreign faction stock changes, national `resource_stock` changes, relation score changes, turn changes, random success rolls, price variation, chancellor automatic trade, save/load schema rewrites, Selected City Panel changes, diplomacy/spy behavior changes, BattleContext changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+
 ## v0.70-31 Internal Trade Manual Transfer Rule
 - City Detail `무역 > 자국무역` may open a manual internal transfer panel only from internal-trade `수동 조정`.
 - The source city must be the currently selected player-owned city.

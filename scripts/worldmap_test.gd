@@ -588,6 +588,7 @@ var _manual_trade_action_options: Dictionary = {}
 var _manual_trade_amount_spinboxes: Dictionary = {}
 var _manual_trade_orders: Dictionary = {}
 var _manual_trade_current_source_city_id := ""
+var _manual_trade_execution_button: Button = null
 var _internal_trade_transfer_panel: PanelContainer = null
 var _internal_trade_source_label: Label = null
 var _internal_trade_target_option: OptionButton = null
@@ -709,6 +710,7 @@ func _ready() -> void:
 	_setup_unified_city_detail_diplomacy_panel()
 	_ensure_city_detail_resource_cards()
 	_ensure_trade_control_card()
+	_ensure_manual_trade_execution_button()
 	_ensure_manual_trade_order_panel()
 	_ensure_internal_trade_transfer_panel()
 	_setup_independent_hud_panel_drag()
@@ -1373,6 +1375,7 @@ func _refresh_unified_panel_content() -> void:
 func _reset_city_detail_panel() -> void:
 	_close_manual_trade_order_panel()
 	_close_internal_trade_transfer_panel()
+	_set_manual_trade_execution_button_visible(false)
 	if _unified_primary_tab == UNIFIED_PANEL_TAB_DIPLOMACY_SPY:
 		_show_unified_diplomacy_spy_content()
 		return
@@ -1429,6 +1432,7 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_commerce_label.text = _format_internal_trade_policy_display(connected_player_city_ids)
 			city_detail_rating_label.text = _format_internal_trade_transfer_result_summary(city_marker.city_id, connected_player_city_ids)
 			city_detail_domestic_button_placeholder.visible = false
+			_set_manual_trade_execution_button_visible(false)
 			city_detail_status_label.text = ""
 			city_detail_hint_label.text = "자국무역과 보급 흐름을 확인합니다."
 			_refresh_trade_control_ui(CITY_DETAIL_TAB_INTERNAL_TRADE, has_manual_targets)
@@ -1445,10 +1449,12 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_commerce_label.text = _format_external_trade_policy_display(external_trade_candidate_city_ids)
 			city_detail_rating_label.text = _format_external_trade_manual_order_summary(city_marker.city_id, external_trade_candidate_city_ids)
 			city_detail_domestic_button_placeholder.visible = false
+			_refresh_manual_trade_execution_button(city_marker.city_id, external_trade_candidate_city_ids)
 			city_detail_status_label.text = ""
 			city_detail_hint_label.text = "외부 세력 도시와의 교역 후보와 관계를 확인합니다."
 			_refresh_trade_control_ui(CITY_DETAIL_TAB_EXTERNAL_TRADE, has_external_manual_targets)
 		_:
+			_set_manual_trade_execution_button_visible(false)
 			_set_trade_control_card_visible(false)
 			_apply_city_detail_resource_tab_content(city_marker.city_id, city_data)
 
@@ -1675,6 +1681,43 @@ func _apply_city_detail_default_text_tone() -> void:
 func _set_trade_control_card_visible(should_show: bool) -> void:
 	if _trade_control_card != null:
 		_trade_control_card.visible = should_show
+
+
+func _ensure_manual_trade_execution_button() -> void:
+	if _manual_trade_execution_button != null:
+		return
+	if city_detail_content_container == null:
+		return
+	_manual_trade_execution_button = Button.new()
+	_manual_trade_execution_button.name = "ManualTradeExecutionButton"
+	_manual_trade_execution_button.text = "수동 무역 실행"
+	_manual_trade_execution_button.visible = false
+	_manual_trade_execution_button.custom_minimum_size = Vector2(180.0, 30.0)
+	_manual_trade_execution_button.pressed.connect(_on_manual_trade_execution_button_pressed)
+	city_detail_content_container.add_child(_manual_trade_execution_button)
+	if city_detail_rating_label != null and city_detail_rating_label.get_parent() == city_detail_content_container:
+		city_detail_content_container.move_child(_manual_trade_execution_button, city_detail_rating_label.get_index() + 1)
+
+
+func _set_manual_trade_execution_button_visible(should_show: bool) -> void:
+	if _manual_trade_execution_button != null:
+		_manual_trade_execution_button.visible = should_show
+
+
+func _refresh_manual_trade_execution_button(source_city_id: String, candidate_city_ids: Array[String]) -> void:
+	_ensure_manual_trade_execution_button()
+	if _manual_trade_execution_button == null:
+		return
+	var order: Dictionary = _manual_trade_orders.get(source_city_id, {})
+	var should_show := (
+		_unified_primary_tab == UNIFIED_PANEL_TAB_TRADE
+		and _selected_city_detail_tab == CITY_DETAIL_TAB_EXTERNAL_TRADE
+		and selected_city_marker != null
+		and not candidate_city_ids.is_empty()
+		and not order.is_empty()
+	)
+	_manual_trade_execution_button.visible = should_show
+	_manual_trade_execution_button.disabled = not should_show
 
 
 func _is_trade_control_tab_active() -> bool:
@@ -1923,7 +1966,7 @@ func _populate_manual_trade_order_panel(source_city_id: String, candidate_city_i
 	if not saved_order.is_empty():
 		_apply_saved_manual_trade_order_to_inputs(saved_order)
 	if _manual_trade_status_label != null:
-		_manual_trade_status_label.text = "명령 저장은 runtime placeholder입니다. 실제 실행은 Trade Execution Connect에서 처리됩니다."
+		_manual_trade_status_label.text = "명령 저장 후 타국무역 탭의 수동 무역 실행으로 선택 성 창고에 반영합니다."
 	_refresh_manual_trade_order_relation()
 	_refresh_manual_trade_order_preview()
 
@@ -2081,6 +2124,132 @@ func _on_manual_trade_order_confirm_pressed() -> void:
 
 func _on_manual_trade_order_cancel_pressed() -> void:
 	_close_manual_trade_order_panel()
+
+
+func _on_manual_trade_execution_button_pressed() -> void:
+	if selected_city_marker == null:
+		return
+	var source_city_id := selected_city_marker.city_id
+	var order: Dictionary = _manual_trade_orders.get(source_city_id, {})
+	var result := _execute_external_manual_trade_order(order)
+	_player_state["last_external_manual_trade_execution_result"] = result.duplicate(true)
+	if bool(result.get("ok", false)):
+		_manual_trade_orders.erase(source_city_id)
+		print("[WorldMap] External manual trade executed: %s" % str(result))
+	else:
+		print("[WorldMap] External manual trade execution failed: %s" % str(result))
+	_refresh_city_hud_data_bindings()
+	_refresh_left_world_status_panel()
+	_refresh_unified_panel_content()
+	_queue_unified_city_panel_resize()
+
+
+func _execute_external_manual_trade_order(order: Dictionary) -> Dictionary:
+	var validation := _validate_external_manual_trade_execution(order)
+	if not bool(validation.get("ok", false)):
+		if not order.is_empty():
+			validation["source_city_id"] = str(order.get("source_city_id", ""))
+			validation["target_city_id"] = str(order.get("target_city_id", ""))
+		return validation
+	var source_city_id := str(order.get("source_city_id", ""))
+	var target_city_id := str(order.get("target_city_id", ""))
+	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
+	var applied := _build_external_manual_trade_execution_preview(order)
+	var source_storage := _get_city_storage(source_city_id, _get_city_hud_entry(source_city_id))
+	for resource_id in ["gold"] + MANUAL_TRADE_RESOURCE_ORDER:
+		var delta := int(applied.get(resource_id, 0))
+		if delta == 0:
+			continue
+		source_storage[resource_id] = maxi(0, int(source_storage.get(resource_id, 0)) + delta)
+	_set_city_storage(source_city_id, source_storage)
+	return {
+		"ok": true,
+		"source_city_id": source_city_id,
+		"target_city_id": target_city_id,
+		"target_faction_id": target_faction_id,
+		"applied": applied,
+		"message": "수동 무역 실행 완료",
+	}
+
+
+func _validate_external_manual_trade_execution(order: Dictionary) -> Dictionary:
+	if order.is_empty():
+		return {"ok": false, "reason": "missing_order", "message": "실행할 수동 무역 명령이 없습니다."}
+	var source_city_id := str(order.get("source_city_id", ""))
+	var target_city_id := str(order.get("target_city_id", ""))
+	if source_city_id.is_empty():
+		return {"ok": false, "reason": "source", "message": "출발 성을 확인할 수 없습니다."}
+	if not _is_city_owned_by_player_mvp(source_city_id):
+		return {"ok": false, "reason": "source_owner", "message": "플레이어 소유 성에서만 실행할 수 있습니다."}
+	if target_city_id.is_empty():
+		return {"ok": false, "reason": "target", "message": "교역 대상을 확인할 수 없습니다."}
+	if not _get_external_trade_candidate_city_ids(source_city_id).has(target_city_id):
+		return {"ok": false, "reason": "target_invalid", "message": "교역 대상이 더 이상 유효하지 않습니다."}
+	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
+	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
+	if source_faction_id.is_empty() or target_faction_id.is_empty() or source_faction_id == target_faction_id:
+		return {"ok": false, "reason": "faction", "message": "교역 대상 세력을 확인할 수 없습니다."}
+	if not _can_trade_between_factions(source_faction_id, target_faction_id):
+		return {"ok": false, "reason": "relation", "message": "현재 관계에서는 교역할 수 없습니다."}
+	var orders_variant: Variant = order.get("orders", {})
+	if not orders_variant is Dictionary:
+		return {"ok": false, "reason": "orders", "message": "실행할 수동 무역 명령이 없습니다."}
+	var orders := orders_variant as Dictionary
+	var source_storage := _get_city_storage(source_city_id, _get_city_hud_entry(source_city_id))
+	var total_import_gold_cost := 0
+	var has_actionable_item := false
+	for resource_id_variant in orders.keys():
+		var resource_id := str(resource_id_variant)
+		if not MANUAL_TRADE_RESOURCE_ORDER.has(resource_id):
+			return {"ok": false, "reason": "resource", "message": "허용되지 않은 자원입니다."}
+		var order_item_variant: Variant = orders.get(resource_id, {})
+		if not order_item_variant is Dictionary:
+			return {"ok": false, "reason": "order_item", "message": "수동 무역 명령 형식이 올바르지 않습니다."}
+		var order_item := order_item_variant as Dictionary
+		var action := str(order_item.get("action", MANUAL_TRADE_ACTION_NONE))
+		var amount := int(order_item.get("amount", 0))
+		if amount < 0:
+			return {"ok": false, "reason": "amount", "message": "수량은 0 이상이어야 합니다."}
+		if action == MANUAL_TRADE_ACTION_NONE or amount <= 0:
+			continue
+		if not [MANUAL_TRADE_ACTION_IMPORT, MANUAL_TRADE_ACTION_EXPORT].has(action):
+			return {"ok": false, "reason": "action", "message": "수동 무역 행동이 올바르지 않습니다."}
+		has_actionable_item = true
+		var price := int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0))
+		if action == MANUAL_TRADE_ACTION_IMPORT:
+			total_import_gold_cost += amount * price
+		elif action == MANUAL_TRADE_ACTION_EXPORT and amount > _get_city_storage_amount(source_storage, resource_id):
+			return {"ok": false, "reason": "resource_shortage", "message": "수출할 자원이 부족합니다."}
+	if not has_actionable_item:
+		return {"ok": false, "reason": "empty", "message": "실행 가능한 자원 항목이 없습니다."}
+	if total_import_gold_cost > _get_city_storage_amount(source_storage, "gold"):
+		return {"ok": false, "reason": "gold", "message": "금전이 부족합니다."}
+	return {"ok": true}
+
+
+func _build_external_manual_trade_execution_preview(order: Dictionary) -> Dictionary:
+	var applied := {"gold": 0}
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		applied[resource_id] = 0
+	var orders_variant: Variant = order.get("orders", {})
+	if not orders_variant is Dictionary:
+		return applied
+	var orders := orders_variant as Dictionary
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		var order_item_variant: Variant = orders.get(resource_id, {})
+		if not order_item_variant is Dictionary:
+			continue
+		var order_item := order_item_variant as Dictionary
+		var action := str(order_item.get("action", MANUAL_TRADE_ACTION_NONE))
+		var amount := maxi(0, int(order_item.get("amount", 0)))
+		var price := int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0))
+		if action == MANUAL_TRADE_ACTION_IMPORT and amount > 0:
+			applied[resource_id] = int(applied.get(resource_id, 0)) + amount
+			applied["gold"] = int(applied.get("gold", 0)) - (amount * price)
+		elif action == MANUAL_TRADE_ACTION_EXPORT and amount > 0:
+			applied[resource_id] = int(applied.get(resource_id, 0)) - amount
+			applied["gold"] = int(applied.get("gold", 0)) + (amount * price)
+	return applied
 
 
 func _ensure_internal_trade_transfer_panel() -> void:
@@ -2928,16 +3097,46 @@ func _format_external_trade_manual_order_summary(source_city_id: String, candida
 	if candidate_city_ids.is_empty():
 		return ""
 	var order: Dictionary = _manual_trade_orders.get(source_city_id, {})
+	var recent_execution_text := _format_external_manual_trade_execution_result_summary(source_city_id)
 	if order.is_empty():
+		if not recent_execution_text.is_empty():
+			return recent_execution_text
 		return "수동 무역 명령\n저장된 명령 없음\n수동 조정에서 자원별 수입/수출 계획을 입력할 수 있습니다."
 	var target_city_id := str(order.get("target_city_id", ""))
 	var preview: Variant = order.get("preview", {})
 	var preview_text := "예상 없음"
 	if preview is Dictionary:
 		preview_text = _format_manual_trade_nonzero_preview_summary(preview as Dictionary)
-	return "수동 무역 명령\n상대: %s\n예상: %s\n실제 실행은 Trade Execution Connect에서 처리됩니다." % [
+	var lines := [
+		"수동 무역 명령",
+		"상대: %s" % _format_city_name_by_id(target_city_id, target_city_id),
+		"예상: %s" % preview_text,
+		"실제 실행 대기 중입니다.",
+	]
+	if not recent_execution_text.is_empty():
+		lines.append("")
+		lines.append(recent_execution_text)
+	return "\n".join(lines)
+
+
+func _format_external_manual_trade_execution_result_summary(source_city_id: String) -> String:
+	var result_variant: Variant = _player_state.get("last_external_manual_trade_execution_result", {})
+	if not result_variant is Dictionary:
+		return ""
+	var result := result_variant as Dictionary
+	if result.is_empty() or str(result.get("source_city_id", "")) != source_city_id:
+		return ""
+	if not bool(result.get("ok", false)):
+		return "수동 무역 실행 실패\n%s" % str(result.get("message", "실행할 수 없습니다."))
+	var target_city_id := str(result.get("target_city_id", ""))
+	var applied_variant: Variant = result.get("applied", {})
+	var applied := {}
+	if applied_variant is Dictionary:
+		applied = (applied_variant as Dictionary).duplicate(true)
+	return "최근 수동 무역 실행\n%s ↔ %s\n%s\n선택 성 창고에 반영되었습니다." % [
+		_format_city_name_by_id(source_city_id, source_city_id),
 		_format_city_name_by_id(target_city_id, target_city_id),
-		preview_text,
+		_format_manual_trade_nonzero_preview_summary(applied),
 	]
 
 

@@ -1,5 +1,28 @@
 # HANDOFF TO CODEX
 
+## v0.70-32 Trade Execution Connect MVP Handoff
+- Baseline: `v0.70-31 Internal Trade Manual Transfer MVP` (`856f411a633ac2f7b12ccb3cfd66412e593c6ad8`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- City Detail `무역 > 타국무역` now creates a runtime `ManualTradeExecutionButton` under the City Detail content.
+- The execution button is visible only when:
+  1. the unified panel is on `무역 > 타국무역`,
+  2. a selected player-owned source city exists,
+  3. at least one external candidate is still valid,
+  4. `_manual_trade_orders[source_city_id]` exists.
+- Execution reuses the saved order payload from `v0.70-30`: `source_city_id`, `target_city_id`, `trade_type`, `mode`, `orders`, and `preview`.
+- Execution prices reuse `MANUAL_TRADE_PREVIEW_PRICES`; relation efficiency is still display-only and is not multiplied into actual execution.
+- Import execution mutates selected source city storage only: `gold -= price * amount`, `resource += amount`.
+- Export execution mutates selected source city storage only: `resource -= amount`, `gold += price * amount`.
+- `_validate_external_manual_trade_execution()` runs before mutation and blocks missing/invalid order, non-player source, invalid/expired target, same/empty faction, blocked trade relation, invalid resources/actions, negative amounts, empty actionable order, gold shortage, and export resource shortage.
+- `_execute_external_manual_trade_order()` applies all deltas only after validation, records `_player_state["last_external_manual_trade_execution_result"]`, clears the pending order on success, and keeps the pending order on failure.
+- The external trade tab now displays saved-order execution pending copy, recent successful execution copy, or failure copy.
+- Explicitly unchanged: target city storage, foreign faction stock, national `resource_stock`, relation scores, turn flow, internal transfer logic, chancellor automatic trade, formulas, Selected City Panel, diplomacy/spy content and visibility hotfix, BattleContext, `project.godot`, scenes, and assets.
+- Next candidates:
+  1. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  2. `v0.70-34 Trade Persistence Polish`
+  3. `v0.70-35 Trade Balance / Relation Efficiency Polish`
+  4. `v0.70-36 Diplomacy Action MVP`
+
 ## v0.70-31 Internal Trade Manual Transfer MVP Handoff
 - Baseline: `v0.70-30 Manual Trade Order Panel MVP` (`df761af4a658f98177b6a498efe5515fd2a1c634`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

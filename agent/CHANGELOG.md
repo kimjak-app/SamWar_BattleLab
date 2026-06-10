@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.70-32 Trade Execution Connect MVP
+- Built on `v0.70-31 Internal Trade Manual Transfer MVP` (`856f411a633ac2f7b12ccb3cfd66412e593c6ad8`).
+- Added a runtime `ManualTradeExecutionButton` for City Detail `무역 > 타국무역` when a saved external manual trade order exists.
+- Connected saved `v0.70-30` external manual orders to actual selected-city `storage` mutation.
+- Import execution now subtracts city `storage.gold` and adds the imported resource to the selected source city.
+- Export execution now subtracts the exported resource from selected city storage and adds city `storage.gold`.
+- Reused `MANUAL_TRADE_PREVIEW_PRICES` so saved preview and execution result use the same fixed MVP prices.
+- Added validation-first execution with no partial apply for invalid target, blocked relation, missing gold, missing export resource, invalid resource/action, negative amount, and empty actionable orders.
+- Added recent external manual execution result display and failure message display in the `타국무역` tab.
+- Successful execution clears the pending manual order; failed execution keeps it.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change target city storage, foreign faction stock, national `resource_stock`, relation scores, turn flow, chancellor auto trade, internal manual transfer logic, Selected City Panel, diplomacy/spy tabs, formulas, BattleContext, `project.godot`, scenes, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-31 Internal Trade Manual Transfer MVP
 - Built on `v0.70-30 Manual Trade Order Panel MVP` (`df761af4a658f98177b6a498efe5515fd2a1c634`).
 - Added a runtime `InternalTradeTransferPanel` for City Detail `무역 > 자국무역` manual transfer.

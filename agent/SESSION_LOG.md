@@ -2,6 +2,25 @@
 
 ## 2026-06-10
 
+### v0.70-32 Trade Execution Connect MVP
+- Started from `856f411 v0.70-31 Internal Trade Manual Transfer MVP`.
+- Required docs, v0.70-30 saved external manual order structure, v0.70-31 city storage helpers, external candidate filtering, relation trade availability helpers, and manual preview price helpers were checked.
+- Implemented:
+  - Added a runtime `ManualTradeExecutionButton` under City Detail content for `무역 > 타국무역`.
+  - Displayed the button only when a saved external manual order exists and external trade candidates are still valid.
+  - Added validation-first external manual execution with no partial apply.
+  - Applied imports to selected source city storage as `gold` decrease plus resource increase.
+  - Applied exports to selected source city storage as resource decrease plus `gold` increase.
+  - Reused `MANUAL_TRADE_PREVIEW_PRICES` so preview and execution deltas match.
+  - Recorded `_player_state["last_external_manual_trade_execution_result"]`, displayed success/failure results in the external trade tab, and cleared the pending order only on success.
+- Preserved target city storage, foreign faction stock, national `resource_stock`, relation, turn, formulas, internal manual transfer, Selected City Panel, diplomacy/spy visibility hotfix, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv` files.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for save order -> execute, import/export city storage deltas, resource tab refresh, shortage validation, pending-order clearing, internal transfer regression, and diplomacy/spy visibility.
+
 ### v0.70-31 Internal Trade Manual Transfer MVP
 - Started from `df761af v0.70-30 Manual Trade Order Panel MVP`.
 - Required docs, v0.70-29 trade-control paths, v0.70-30 manual external panel paths, internal-trade candidate filtering, and city storage helpers were checked.

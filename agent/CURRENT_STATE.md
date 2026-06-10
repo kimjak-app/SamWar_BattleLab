@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.70-32 Trade Execution Connect MVP
+- Baseline: `v0.70-31 Internal Trade Manual Transfer MVP` at `856f411a633ac2f7b12ccb3cfd66412e593c6ad8`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail `무역 > 타국무역` now shows a runtime `ManualTradeExecutionButton` when the selected player-owned source city has a saved external manual trade order and a valid external trade candidate.
+- The execution flow reuses the `v0.70-30` saved manual order structure and `MANUAL_TRADE_PREVIEW_PRICES`, so preview and execution deltas match.
+- `수입` applies to selected city `storage` as `gold` decrease plus the imported resource increase.
+- `수출` applies to selected city `storage` as exported resource decrease plus `gold` increase.
+- Execution is validation-first and no partial apply is performed. Gold shortage, export resource shortage, invalid target, blocked relation, invalid action/resource, and empty actionable orders are rejected before storage mutation.
+- Successful execution records `_player_state["last_external_manual_trade_execution_result"]`, clears the pending `_manual_trade_orders[source_city_id]`, refreshes City Detail/left HUD bindings, and shows the recent external manual trade result in the `타국무역` tab.
+- Failed execution records the failure message for display and keeps the pending order.
+- Target city storage, foreign faction stock, national `resource_stock`, relation scores, turn flow, chancellor auto trade, formulas, Selected City Panel, diplomacy/spy tabs, BattleContext, `project.godot`, scenes, and assets were not changed.
+- Relation efficiency and price variation remain display/future-balance concerns; this MVP does not apply relation multipliers to execution prices.
+- Next candidate work:
+  1. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  2. `v0.70-34 Trade Persistence Polish`
+  3. `v0.70-35 Trade Balance / Relation Efficiency Polish`
+  4. `v0.70-36 Diplomacy Action MVP`
+
 ## v0.70-31 Internal Trade Manual Transfer MVP
 - Baseline: `v0.70-30 Manual Trade Order Panel MVP` at `df761af4a658f98177b6a498efe5515fd2a1c634`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

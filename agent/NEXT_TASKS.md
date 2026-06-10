@@ -1,5 +1,36 @@
 # NEXT TASKS
 
+## Current: v0.70-32 Trade Execution Connect MVP
+- `v0.70-32` connects saved external manual trade orders to selected-city storage execution.
+- Baseline: `v0.70-31 Internal Trade Manual Transfer MVP` (`856f411a633ac2f7b12ccb3cfd66412e593c6ad8`).
+- Completed direction:
+  1. City Detail `무역 > 타국무역` shows `수동 무역 실행` only when a saved external manual order exists for the selected source city and external candidates are still valid.
+  2. Execution reuses the `v0.70-30` saved order structure and preview-only fixed prices.
+  3. Import orders subtract city `storage.gold` and add the selected resource to the source city storage.
+  4. Export orders subtract the selected resource from source city storage and add city `storage.gold`.
+  5. Validation runs before any storage mutation and blocks invalid target, blocked relation, missing gold, missing export resource, invalid resource/action, negative amount, and empty actionable orders.
+  6. Successful execution clears the pending manual order and shows the recent execution result in the external trade tab.
+- Preserved scope:
+  1. Target city storage, foreign faction stock, national `resource_stock`, relation, turn, formulas, BattleContext, Selected City Panel, and diplomacy/spy tabs are unchanged.
+  2. Internal manual transfer from `v0.70-31` is unchanged.
+  3. Chancellor automatic trade remains deferred to `Chancellor Auto Trade Logic Connect`.
+  4. `project.godot`, scenes, assets, `.uid`, and `.ogv` files are unchanged.
+- Persistence note:
+  1. External manual execution result and pending orders remain runtime state.
+  2. Save/load persistence should be reviewed in `Trade Persistence Polish`.
+- Manual F6 QA required:
+  1. Save an external manual order from `무역 > 타국무역 > 수동 조정`, then confirm `수동 무역 실행` appears.
+  2. Import should decrease selected city `storage.gold` and increase the imported resource.
+  3. Export should decrease the exported resource and increase selected city `storage.gold`.
+  4. Resource tab should show refreshed city storage after execution.
+  5. Gold shortage, export shortage, invalid/expired target, and blocked relation should fail without partial apply and keep the pending order.
+  6. National resources, relation, turn, internal transfer, and diplomacy/spy visibility should remain stable.
+- Next candidate work:
+  1. `v0.70-33 Chancellor Auto Trade Logic Connect`
+  2. `v0.70-34 Trade Persistence Polish`
+  3. `v0.70-35 Trade Balance / Relation Efficiency Polish`
+  4. `v0.70-36 Diplomacy Action MVP`
+
 ## Current: v0.70-31 Internal Trade Manual Transfer MVP
 - `v0.70-31` connects internal-trade `수동 조정` to a real city-storage transfer MVP.
 - Baseline: `v0.70-30 Manual Trade Order Panel MVP` (`df761af4a658f98177b6a498efe5515fd2a1c634`).
