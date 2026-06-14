@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.70-46 Enemy Faction Turn Behavior QA & Balance Polish
+- Built on `v0.70-45 Enemy Faction Turn Behavior MVP` (`964d8db3d61a2154e268ba1f905691f9ac493262`).
+- Performed QA/balance polish for enemy turn replay guard, save/load replay safety, reinforcement balance, city owner safety, pending invasion continuity, and compact result display.
+- Adjusted enemy reinforcement to `base +60`, `frontline +40`, `valid faction chancellor +20`, `max +120`.
+- Balance reason: reduce long-run troop accumulation from the v0.70-45 `max +150` rule while preserving the visible enemy-turn movement.
+- Added conservative owner validation so a city is skipped if marker owner and HUD/runtime owner both exist but disagree.
+- Kept `_player_state["last_enemy_faction_turn_processed_turn"]` as the replay guard and preserved `_player_state["last_enemy_faction_turn_result"]` as display/history state only.
+- Polished enemy turn summary/hint output to use `외 N건` for omitted actions.
+- Preserved existing enemy invasion flow without changing `ENEMY_INVASION_CHANCE`, pending event payload, or BattleContext handoff.
+- Verification passed: `git diff --check`, required enemy-turn/search verification, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change market price formulas, manual/chancellor trade pricing, alliance behavior, wedge behavior, Fog of War rules, spy/diplomacy formulas, player chancellor scope, `_player_state["faction_chancellors"]` structure, left/right panel scope, BattleContext, scenes, assets, `.uid`, or `.ogv`.
+
 ## v0.70-45 Enemy Faction Turn Behavior MVP
 - Built on `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish` (`cc977ad461a971819ba5be2a4d2a6d414aabe7a8`).
 - Added conservative enemy faction turn behavior to the existing enemy phase in `scripts/worldmap_test.gd`.

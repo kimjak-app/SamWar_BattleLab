@@ -1,5 +1,32 @@
 # SESSION LOG
 
+## 2026-06-15
+
+### v0.70-46 Enemy Faction Turn Behavior QA & Balance Polish
+- Started from `964d8db v0.70-45 Enemy Faction Turn Behavior MVP`.
+- Confirmed clean worktree, `main`, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.
+- Required docs and enemy turn replay, reinforcement, pending invasion, market/alliance/wedge/city-intel/faction-chancellor, and warning-cleanup search paths were checked.
+- QA audit:
+  - `_player_state["last_enemy_faction_turn_processed_turn"]` remains the same-turn enemy reinforcement guard.
+  - Save/load can restore `_player_state["last_enemy_faction_turn_result"]` as display/history state without replaying reinforcement.
+  - Same-turn re-entry skips the enemy invasion roll when the enemy faction turn for that `turn_number` is already processed.
+  - Pending invasion event generation still uses the existing `ENEMY_INVASION_CHANCE` and existing pending event/BattleContext flow.
+  - Enemy behavior remains limited to enemy-owned city troop reinforcement and summary logging.
+- Implemented:
+  - Adjusted reinforcement from `base +80 / max +150` to `base +60 / max +120`; frontline `+40` and valid enemy chancellor seed `+20` remain.
+  - Added marker/HUD owner mismatch guard for enemy turn city selection and reinforcement application.
+  - Polished enemy turn summary/hint to compact omitted actions as `외 N건`.
+- Preserved v0.70-39 market formulas, v0.70-40 alliance, v0.70-41 wedge, v0.70-42 Fog of War, spy/diplomacy formulas, player chancellor candidate scope, `_player_state["faction_chancellors"]` structure, left/right panel scope, BattleContext, scenes, assets, `.uid`, and `.ogv`.
+- Verification:
+  - `git diff --check`
+  - required enemy-turn/search verification
+  - warning-cleanup regression search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - Battle scene emitted existing debug logs only.
+- Manual F6 QA remains required for enemy phase progression, compact enemy result log, once-per-turn reinforcement, `+120` clamp, frontline priority, no direct player city/resource mutation, replay guards, pending invasion continuity/no duplication, Fog of War, wedge, alliance, market pricing, Hanseong chancellor candidate scope, foreign-city left panel scope, and warning cleanliness.
+
 ## 2026-06-14
 
 ### v0.70-45 Enemy Faction Turn Behavior MVP

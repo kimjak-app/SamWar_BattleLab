@@ -42,10 +42,10 @@ const TURN_PHASE_PLAYER := "player"
 const TURN_PHASE_ENEMY := "enemy"
 const ENEMY_TURN_MVP_DELAY := 0.75
 const ENEMY_INVASION_CHANCE := 0.45
-const ENEMY_FACTION_TURN_REINFORCE_BASE := 80
+const ENEMY_FACTION_TURN_REINFORCE_BASE := 60
 const ENEMY_FACTION_TURN_REINFORCE_FRONTLINE_BONUS := 40
 const ENEMY_FACTION_TURN_REINFORCE_CHANCELLOR_BONUS := 20
-const ENEMY_FACTION_TURN_REINFORCE_MAX := 150
+const ENEMY_FACTION_TURN_REINFORCE_MAX := 120
 const WORLD_CALENDAR_START_YEAR := 154
 const WORLD_CALENDAR_SEASON_TURNS := 10
 const WORLD_CALENDAR_YEAR_TURNS := 40
@@ -5815,8 +5815,8 @@ func _get_worldmap_city_ids_for_enemy_turn_mvp() -> Array[String]:
 func _get_enemy_faction_ids_for_turn_mvp() -> Array[String]:
 	var faction_seen := {}
 	for city_id in _get_worldmap_city_ids_for_enemy_turn_mvp():
-		var faction_id := _get_city_owner_faction_id_for_trade_display(city_id)
-		if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+		var faction_id := _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id)
+		if faction_id.is_empty():
 			continue
 		if _get_enemy_owned_city_ids_for_faction(faction_id).is_empty():
 			continue
@@ -5840,9 +5840,7 @@ func _get_enemy_owned_city_ids_for_faction(faction_id: String) -> Array[String]:
 	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
 		return city_ids
 	for city_id in _get_worldmap_city_ids_for_enemy_turn_mvp():
-		if _is_city_owned_by_player_mvp(city_id):
-			continue
-		if _get_city_owner_faction_id_for_trade_display(city_id) != faction_id:
+		if _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id) != faction_id:
 			continue
 		if not city_ids.has(city_id):
 			city_ids.append(city_id)
@@ -5850,10 +5848,34 @@ func _get_enemy_owned_city_ids_for_faction(faction_id: String) -> Array[String]:
 	return city_ids
 
 
+func _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id: String) -> String:
+	if city_id.is_empty():
+		return ""
+	var marker_owner_id := ""
+	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+	if city_marker != null:
+		marker_owner_id = city_marker.owner_faction_id
+	var hud_owner_id := ""
+	var city_data := _get_city_hud_entry(city_id)
+	if not city_data.is_empty():
+		hud_owner_id = _get_city_owner_faction_id(city_data)
+	if not marker_owner_id.is_empty() and not hud_owner_id.is_empty() and marker_owner_id != hud_owner_id:
+		print("[ENEMY_FACTION_TURN_SKIP] city=%s reason=owner_mismatch marker=%s hud=%s" % [
+			city_id,
+			marker_owner_id,
+			hud_owner_id,
+		])
+		return ""
+	var owner_id := marker_owner_id if not marker_owner_id.is_empty() else hud_owner_id
+	if owner_id.is_empty() or owner_id == PLAYER_FACTION_ID:
+		return ""
+	return owner_id
+
+
 func _is_enemy_frontline_city_for_faction(city_id: String, faction_id: String) -> bool:
 	if city_id.is_empty() or faction_id.is_empty():
 		return false
-	if _get_city_owner_faction_id_for_trade_display(city_id) != faction_id:
+	if _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id) != faction_id:
 		return false
 	for neighbor_id in _get_city_neighbors_mvp(city_id):
 		if _is_city_owned_by_player_mvp(str(neighbor_id)):
@@ -5909,9 +5931,7 @@ func _apply_enemy_city_reinforcement_mvp(faction_id: String, city_id: String) ->
 		return {}
 	if not _has_city_for_battle_context(city_id):
 		return {}
-	if _is_city_owned_by_player_mvp(city_id):
-		return {}
-	if _get_city_owner_faction_id_for_trade_display(city_id) != faction_id:
+	if _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id) != faction_id:
 		return {}
 	var before_troops := _get_city_troops_for_battle_context(city_id)
 	var is_frontline := _is_enemy_frontline_city_for_faction(city_id, faction_id)
@@ -5985,6 +6005,8 @@ func _build_enemy_faction_turn_summary(result: Dictionary) -> String:
 			])
 			if action_parts.size() >= 3:
 				break
+	if action_count > action_parts.size() and not action_parts.is_empty():
+		action_parts.append("외 %d건" % (action_count - action_parts.size()))
 	var invasion_summary := "침공 조짐 없음"
 	var invasion_event: Variant = result.get("pending_invasion_event", {})
 	if bool(result.get("pending_invasion_created", false)) and invasion_event is Dictionary:
@@ -6023,6 +6045,9 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 				int(action.get("delta", 0)),
 			])
 			shown += 1
+		var omitted_count := (actions as Array).size() - shown
+		if omitted_count > 0:
+			lines.append("외 %d건" % omitted_count)
 	else:
 		lines.append("행동 없음")
 	var invasion_event: Variant = result.get("pending_invasion_event", {})

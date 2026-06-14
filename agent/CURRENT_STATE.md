@@ -1,5 +1,38 @@
 # CURRENT STATE
 
+## v0.70-46 Enemy Faction Turn Behavior QA & Balance Polish
+- Baseline: `v0.70-45 Enemy Faction Turn Behavior MVP` at `964d8db3d61a2154e268ba1f905691f9ac493262`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- QA / Balance Polish 범위: enemy turn replay guard, save/load same-turn replay guard, reinforcement clamp, frontline/chancellor bonus gating, city owner safety, pending invasion continuity, and compact result summary readability.
+- Runtime 수정 요약:
+  - Reinforcement 수치를 `base +60`, `frontline +40`, `valid enemy chancellor +20`, `max +120`으로 낮췄다.
+  - 이유: faction당 1회 행동은 유지하되 여러 non-player faction이 매 턴 누적될 때 방어 병력이 너무 빠르게 커지지 않도록 v0.70-45의 `+150` 상한보다 보수적으로 조정.
+  - Enemy turn target city owner guard를 보강해 city marker owner와 HUD/runtime owner가 모두 존재하면서 서로 다르면 해당 city를 skip한다.
+  - Enemy turn result summary/hint는 표시 action을 제한하고 남은 항목을 `외 N건`으로 축약한다.
+- Replay guard 확인: `_player_state["last_enemy_faction_turn_processed_turn"]`가 같은 `turn_number`에서 reinforcement와 same-turn enemy invasion roll 재실행을 막는다. `_player_state["last_enemy_faction_turn_result"]`는 display/history 복구 전용이다.
+- Pending invasion continuity 확인: `ENEMY_INVASION_CHANCE`, pending invasion event payload, and BattleContext handoff 구조는 변경하지 않았다. 기존 pending invasion event가 있으면 기존 guard가 중복 생성을 막는다.
+- 유지된 범위: player-owned city/resource 직접 mutation 없음, enemy diplomacy/spy/economy simulation 없음, v0.70-39 market, v0.70-40 alliance, v0.70-41 wedge, v0.70-42 Fog of War, player chancellor candidate scope, `_player_state["faction_chancellors"]`, left/right panel scope, BattleContext, scenes, assets, `.uid`, and `.ogv` preserved.
+- Verification: `git diff --check`, required enemy-turn/search verification, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed. Battle scene emitted existing debug logs only.
+- Manual F6 QA remains required:
+  1. 턴 종료 시 enemy phase가 정상 진행되는지 확인.
+  2. enemy faction turn result log가 compact하게 표시되는지 확인.
+  3. enemy-owned city 병력이 한 턴에 한 번만 증가하는지 확인.
+  4. reinforcement delta가 문서화된 clamp 안에 있는지 확인.
+  5. frontline city가 우선 보강되는지 확인.
+  6. player-owned city 병력/자원은 enemy turn에서 직접 변하지 않는지 확인.
+  7. 같은 턴 enemy action이 중복 적용되지 않는지 확인.
+  8. save/load 후 같은 턴 enemy action이 replay되지 않는지 확인.
+  9. pending invasion event가 기존 흐름대로 유지되는지 확인.
+  10. pending invasion event가 이미 있을 때 중복 생성되지 않는지 확인.
+  11. Fog of War, 이간질, 동맹, 시장가/무역 가격이 유지되는지 확인.
+  12. 한성 재상 후보 scope가 유지되는지 확인.
+  13. 외국 도시 선택 시 left panel PLAYER national state가 유지되는지 확인.
+  14. Godot Output warning이 새로 생기지 않는지 확인.
+- Next candidate work:
+  1. `v0.70-47 WorldMap Strategic UX Final Polish`
+  2. `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+  3. `v0.70-49 Enemy Invasion/Defense Balance Polish`
+
 ## v0.70-45 Enemy Faction Turn Behavior MVP
 - Baseline: `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish` at `cc977ad461a971819ba5be2a4d2a6d414aabe7a8`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

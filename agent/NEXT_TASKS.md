@@ -1,5 +1,37 @@
 # NEXT TASKS
 
+## Current: v0.70-46 Enemy Faction Turn Behavior QA & Balance Polish
+- Baseline: `v0.70-45 Enemy Faction Turn Behavior MVP` (`964d8db3d61a2154e268ba1f905691f9ac493262`).
+- Completed direction:
+  1. Audited v0.70-45 enemy turn replay guard, save/load replay safety, city selection, reinforcement balance, pending invasion continuity, and UI/log readability.
+  2. Adjusted enemy reinforcement from `base +80 / max +150` to `base +60 / max +120`, keeping frontline `+40` and valid enemy chancellor `+20`.
+  3. Added conservative city owner safety: marker/HUD owner mismatch skips enemy reinforcement target selection.
+  4. Polished enemy turn summary/hint to cap visible action lines and show `외 N건` for omitted actions.
+  5. Updated agent docs with QA/balance results and manual F6 checklist.
+- Replay guard result:
+  1. `_player_state["last_enemy_faction_turn_processed_turn"]` remains the same-turn guard for reinforcement.
+  2. Same-turn enemy invasion roll is also skipped when the enemy faction turn for that `turn_number` is already processed.
+  3. `_player_state["last_enemy_faction_turn_result"]` remains display/history only.
+- Pending invasion continuity:
+  1. `ENEMY_INVASION_CHANCE` was not changed.
+  2. Pending invasion event payload and BattleContext handoff were not changed.
+- Verification:
+  1. `git diff --check`, required enemy-turn/search verification, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+  2. Battle scene emitted existing debug logs only.
+- Preserved scope:
+  1. No player city/resource direct mutation, enemy diplomacy AI, enemy spy AI, enemy economy simulation, target city storage mutation, or foreign faction stock simulation was added.
+  2. v0.70-39 market, v0.70-40 alliance, v0.70-41 wedge, v0.70-42 Fog of War, player chancellor candidate scope, `faction_chancellors`, left/right panel scope, BattleContext, scenes, assets, `.uid`, and `.ogv` remain preserved.
+- Manual F6 QA required:
+  1. Confirm enemy phase runs after player turn end and shows compact enemy faction turn result log.
+  2. Confirm enemy-owned city troops increase once per turn and stay within the `+120` clamp.
+  3. Confirm frontline priority, no direct player city/resource mutation, same-turn replay guard, and save/load replay guard.
+  4. Confirm pending invasion continuity/no duplication.
+  5. Confirm Fog of War, wedge, alliance, market pricing, Hanseong chancellor candidate scope, foreign-city left panel scope, and Godot Output warning cleanliness.
+- Next candidate work:
+  1. `v0.70-47 WorldMap Strategic UX Final Polish`
+  2. `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+  3. `v0.70-49 Enemy Invasion/Defense Balance Polish`
+
 ## Current: v0.70-45 Enemy Faction Turn Behavior MVP
 - Baseline: `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish` (`cc977ad461a971819ba5be2a4d2a6d414aabe7a8`).
 - Completed direction:

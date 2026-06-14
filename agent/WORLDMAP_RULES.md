@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-46 Enemy Faction Turn QA / Balance Lock Rule
+- Baseline was `v0.70-45 Enemy Faction Turn Behavior MVP` (`964d8db3d61a2154e268ba1f905691f9ac493262`).
+- This rule is a QA/balance lock over v0.70-45 enemy faction turn behavior, not authorization for full enemy AI.
+- Enemy reinforcement is limited to enemy-owned city troops only: base `+60`, frontline `+40`, valid enemy faction chancellor seed `+20`, max `+120`.
+- The lower `+120` max replaces the v0.70-45 `+150` max to slow multi-faction turn-by-turn troop accumulation while preserving visible enemy action.
+- `_player_state["last_enemy_faction_turn_processed_turn"]` remains the authoritative same-turn replay guard. Save/load may restore it and must not replay enemy reinforcement or rerun the same-turn enemy invasion roll for an already processed turn.
+- `_player_state["last_enemy_faction_turn_result"]` remains display/history state only.
+- Enemy city ownership must be conservative. If marker owner and HUD/runtime owner both exist but disagree, enemy turn selection and reinforcement must skip that city.
+- Enemy turn summary/hint should remain compact; when several actions exist, show a short set and summarize omitted entries with `외 N건`.
+- `ENEMY_INVASION_CHANCE`, pending invasion event payload shape, and BattleContext handoff must not change in this rule.
+- Verification for this pass included `git diff --check`, required enemy-turn/search verification, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load.
+- This rule does not authorize player city/resource direct mutation, enemy diplomacy AI, enemy spy AI, enemy economy simulation, target city storage mutation, foreign stock simulation, market formula changes, alliance/wedge changes, Fog of War weakening, player chancellor candidate scope changes, left/right panel scope changes, BattleContext changes, scene/asset changes, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-45 Enemy Faction Turn Behavior MVP Rule
 - Baseline was `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish` (`cc977ad461a971819ba5be2a4d2a6d414aabe7a8`).
 - Enemy phase may run conservative non-player faction behavior, but this rule authorizes only one reinforcement/log action per faction per `turn_number`.

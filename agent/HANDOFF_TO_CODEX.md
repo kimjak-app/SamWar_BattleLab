@@ -1,5 +1,24 @@
 # HANDOFF TO CODEX
 
+## v0.70-46 Enemy Faction Turn Behavior QA & Balance Polish Handoff
+- Baseline: `v0.70-45 Enemy Faction Turn Behavior MVP` (`964d8db3d61a2154e268ba1f905691f9ac493262`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is QA/balance polish over v0.70-45 enemy faction turn behavior, not a full enemy AI expansion.
+- Reinforcement numbers are now `+60` base, `+40` frontline, `+20` valid enemy faction chancellor seed, max `+120`.
+- Balance reason: keep the visible enemy-turn movement from v0.70-45 while reducing per-turn accumulation pressure when several non-player factions reinforce every world turn.
+- Replay guard remains `_player_state["last_enemy_faction_turn_processed_turn"]`. Same-turn re-entry now skips both reinforcement and same-turn enemy invasion roll for an already processed `turn_number`.
+- `_player_state["last_enemy_faction_turn_result"]` remains display/history state only and is safe to restore from save/load without replaying effects.
+- City ownership guard now skips enemy turn target selection if both city marker owner and HUD/runtime owner exist but disagree.
+- Summary/hint output remains compact and may show `외 N건` when action lines are omitted.
+- Pending invasion continuity preserved: `ENEMY_INVASION_CHANCE`, pending event shape, and BattleContext handoff were not changed.
+- Verification passed: `git diff --check`, required enemy-turn/search verification, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load. Battle scene emitted existing debug logs only.
+- Explicitly unchanged: market formulas, manual/chancellor trade pricing, alliance proposal/duration/cooldown, wedge/alienation, enemy intel Fog of War display rules, spy success/detection formulas, diplomacy costs/effects, player chancellor candidate scope, `_player_state["faction_chancellors"]` structure, left/right panel scope, BattleContext, scenes, assets, `.uid`, and `.ogv`.
+- Manual F6 QA still required for enemy phase progression, compact result log, once-per-turn reinforcement, `+120` clamp, frontline priority, no player direct mutation, replay guards, pending invasion continuity/no duplication, Fog of War, wedge, alliance, market pricing, Hanseong chancellor scope, foreign-city left panel scope, and warning cleanliness.
+- Next candidates:
+  1. `v0.70-47 WorldMap Strategic UX Final Polish`
+  2. `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+  3. `v0.70-49 Enemy Invasion/Defense Balance Polish`
+
 ## v0.70-45 Enemy Faction Turn Behavior MVP Handoff
 - Baseline: `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish` (`cc977ad461a971819ba5be2a4d2a6d414aabe7a8`).
 - Runtime file touched: `scripts/worldmap_test.gd`.
