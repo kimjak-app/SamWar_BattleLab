@@ -1,5 +1,30 @@
 # HANDOFF TO CODEX
 
+## v0.70-35 Trade Balance / Relation Efficiency Polish Handoff
+- Baseline: `v0.70-33 Chancellor Auto Trade Logic Connect` (`1cf079873163784da6620b5b3ecdf6cffdaa6e18`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Added relation-aware external trade helpers:
+  - `_get_trade_efficiency_for_cities(source_city_id, target_city_id)`
+  - `_calculate_trade_import_cost(resource_id, amount, efficiency)`
+  - `_calculate_trade_export_gain(resource_id, amount, efficiency)`
+  - `_calculate_external_trade_delta(order)`
+- Efficiency comes from the existing faction relation/trade agreement display multiplier and is clamped before pricing.
+- Import cost formula: `ceil(base_price * amount / efficiency)`.
+- Export gain formula: `floor(base_price * amount * efficiency)`.
+- Manual external preview now includes source/target city ids and uses `_calculate_external_trade_delta()`.
+- Manual external execution validation uses relation-aware import cost for gold checks and the same delta helper for applied results.
+- Manual order saving records recalculated preview and efficiency metadata; hostile/suspended relations are blocked before saving/execution.
+- Pending manual order normalization recalculates preview from current source/target relation efficiency on load/refresh.
+- Chancellor external auto trade now uses relation-aware import/export pricing and sorts valid external candidates by higher efficiency first.
+- Result summaries can display `효율 xN.NN 적용`.
+- Explicitly unchanged: external target city storage, foreign faction stock, national `resource_stock`, relation score mutation, turn cost, random rolls, market price fluctuation, diplomacy actions, spy actions, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidates:
+  1. `v0.70-36 Diplomacy Action MVP`
+  2. `v0.70-37 Spy Action MVP`
+  3. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  4. `v0.70-39 Trade Market / Price Variation MVP`
+
 ## v0.70-33 Chancellor Auto Trade Logic Connect Handoff
 - Baseline: `v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup` (`83cbf79c45bd66959cf0c0478c161ce275de6c47`).
 - Numbering note: this was the skipped `v0.70-33` candidate, implemented after `v0.70-34` and `v0.70-34-hotfix1`.

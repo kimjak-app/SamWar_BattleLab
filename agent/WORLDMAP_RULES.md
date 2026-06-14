@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-35 Trade Balance / Relation Efficiency Rule
+- External trade pricing may now apply relation efficiency for manual external trade and chancellor external auto trade.
+- Baseline was `v0.70-33 Chancellor Auto Trade Logic Connect` (`1cf079873163784da6620b5b3ecdf6cffdaa6e18`).
+- Efficiency must come from the existing relation/trade agreement multiplier path and be clamped before price calculation.
+- Import formula: `ceil(base_price * amount / efficiency)`.
+- Export formula: `floor(base_price * amount * efficiency)`.
+- Higher efficiency is better for the player: imports cost less and exports gain more.
+- Efficiency `<= 0.0` means no trade; hostile/suspended relations remain blocked by `_can_trade_between_factions()`.
+- Manual external trade preview and execution must use the same delta helper so preview and result match.
+- Pending manual external orders must recalculate preview on load/refresh from current relation efficiency; saved preview values are display metadata, not authority.
+- Chancellor external auto trade may use relation-aware pricing and may prefer higher-efficiency valid candidates, but must keep the existing policy/aptitude/cap structure.
+- External trade may mutate source city `storage` only.
+- This rule does not authorize target city storage mutation, foreign faction stock, national `resource_stock` mutation, relation score mutation, turn cost, random success/failure rolls, market price fluctuation, diplomacy actions, spy actions, Selected City Panel changes, BattleContext changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-33 Chancellor Auto Trade Rule
 - This rule was implemented after `v0.70-34` and `v0.70-34-hotfix1` to fill the skipped `v0.70-33 Chancellor Auto Trade Logic Connect` candidate.
 - Baseline was `v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup` (`83cbf79c45bd66959cf0c0478c161ce275de6c47`).

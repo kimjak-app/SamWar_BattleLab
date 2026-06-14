@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-35 Trade Balance / Relation Efficiency Polish
+- Built on `v0.70-33 Chancellor Auto Trade Logic Connect` (`1cf079873163784da6620b5b3ecdf6cffdaa6e18`).
+- Added relation-aware external trade pricing helpers for import cost, export gain, route efficiency, and shared delta calculation.
+- Applied relation efficiency to manual external trade preview.
+- Applied relation efficiency to manual external trade execution using the same helper as preview.
+- Applied relation efficiency to chancellor external auto trade import/export and sorted valid candidates by higher efficiency.
+- Recalculated pending manual order preview on normalize/load/refresh from current relation efficiency.
+- Added UI copy for `효율 xN.NN` and applied pricing in external trade relation/preview/result summaries.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change target city storage, foreign faction stock, national `resource_stock`, relation scores, turn cost, random rolls, market price fluctuation, diplomacy/spy actions, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, or `.ogv` files.
+- Preserved manual internal transfer, chancellor internal redistribution, trade persistence, and the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-33 Chancellor Auto Trade Logic Connect
 - Built on `v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup` (`83cbf79c45bd66959cf0c0478c161ce275de6c47`).
 - Filled the skipped `v0.70-33` follow-up after `v0.70-34` and `v0.70-34-hotfix1`.

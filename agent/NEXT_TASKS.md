@@ -1,5 +1,30 @@
 # NEXT TASKS
 
+## Current: v0.70-35 Trade Balance / Relation Efficiency Polish
+- Baseline: `v0.70-33 Chancellor Auto Trade Logic Connect` (`1cf079873163784da6620b5b3ecdf6cffdaa6e18`).
+- Completed direction:
+  1. Manual external trade preview applies relation efficiency to import/export gold deltas.
+  2. Manual external trade execution reuses the same relation-aware delta helper as preview.
+  3. Chancellor external auto trade import/export applies the same price formulas and selects higher-efficiency valid candidates first.
+  4. Pending manual external order preview is recalculated on load/refresh from current relation efficiency.
+  5. UI copy shows relation efficiency and applied pricing in external trade relation/preview/result summaries.
+- Preserved scope:
+  1. No target city storage mutation, foreign faction stock, national `resource_stock`, relation score mutation, turn cost, random roll, market price fluctuation, diplomacy action, or spy action was added.
+  2. Manual internal transfer, chancellor internal redistribution, existing trade persistence, and warning-cleanup naming are preserved.
+  3. `project.godot`, scenes, assets, `.uid`, and `.ogv` files are unchanged.
+- Manual F6 QA required:
+  1. Confirm manual external preview changes with neutral/allied efficiency and saved order execution matches preview.
+  2. Confirm gold shortage validation uses relation-aware import cost.
+  3. Confirm export gain uses relation-aware efficiency.
+  4. Confirm chancellor external auto trade displays/applies efficiency and source city storage only.
+  5. Confirm save/load recalculates pending preview from current relation without replaying effects.
+  6. Confirm internal transfer, chancellor internal redistribution, diplomacy/spy visibility, and Godot Output warnings remain stable.
+- Next candidate work:
+  1. `v0.70-36 Diplomacy Action MVP`
+  2. `v0.70-37 Spy Action MVP`
+  3. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  4. `v0.70-39 Trade Market / Price Variation MVP`
+
 ## Current: v0.70-33 Chancellor Auto Trade Logic Connect
 - `v0.70-33` fills the previously skipped chancellor auto trade follow-up after `v0.70-34-hotfix1`.
 - Baseline: `v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup` (`83cbf79c45bd66959cf0c0478c161ce275de6c47`).

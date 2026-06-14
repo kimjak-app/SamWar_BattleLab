@@ -2,6 +2,26 @@
 
 ## 2026-06-14
 
+### v0.70-35 Trade Balance / Relation Efficiency Polish
+- Started from `1cf0798 v0.70-33 Chancellor Auto Trade Logic Connect`.
+- Confirmed clean worktree and expected HEAD before editing.
+- Required docs and current manual trade, relation multiplier, chancellor auto trade, persistence, and warning-cleanup search paths were checked.
+- Implemented:
+  - Added shared relation-aware external trade pricing helpers.
+  - Connected manual external preview to relation efficiency.
+  - Connected manual external execution and validation to the same relation-aware delta helper.
+  - Connected chancellor external auto trade import/export to relation-aware cost/gain and higher-efficiency candidate preference.
+  - Recalculated pending manual order preview on normalize/load from current relation efficiency.
+  - Added concise efficiency/applied-pricing text to external trade UI summaries.
+- Preserved target city storage for external trade, foreign faction stock, national `resource_stock`, relation score mutation, turn cost, random rolls, market price fluctuation, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserved manual internal transfer, chancellor internal redistribution, trade persistence, and `v0.70-34-hotfix1` warning cleanup.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for manual preview/execution parity, neutral/allied efficiency pricing, gold shortage validation, chancellor external auto trade display, save/load pending preview recalculation, internal trade regressions, and Godot Output warning cleanliness.
+
 ### v0.70-33 Chancellor Auto Trade Logic Connect
 - Started from `83cbf79 v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup`.
 - Confirmed clean worktree and expected HEAD before editing.

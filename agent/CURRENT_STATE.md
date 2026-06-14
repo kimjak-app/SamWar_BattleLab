@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.70-35 Trade Balance / Relation Efficiency Polish
+- Baseline: `v0.70-33 Chancellor Auto Trade Logic Connect` at `1cf079873163784da6620b5b3ecdf6cffdaa6e18`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Manual external trade preview now applies relation efficiency to expected gold deltas and displays the applied efficiency.
+- Manual external trade execution uses the same relation-aware delta helper as preview, so saved preview and execution result stay aligned.
+- Chancellor external auto trade import/export now applies the same relation efficiency price formulas and prefers higher-efficiency valid external candidates.
+- Price formulas: import cost is `ceil(base_price * amount / efficiency)` and export gain is `floor(base_price * amount * efficiency)`, with efficiency clamped to a conservative range.
+- Pending manual order normalization recalculates preview from current source/target relation efficiency on load/refresh instead of trusting saved preview values.
+- Hostile/suspended relations remain blocked through `_can_trade_between_factions()` and efficiency `0.0`.
+- Target city storage, foreign faction stock, national `resource_stock`, relation score mutation, turn cost, random rolls, price market fluctuation, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv` files were not changed.
+- Manual internal transfer, chancellor internal redistribution, trade persistence, and `v0.70-34-hotfix1` warning cleanup remain intact.
+- Next candidate work:
+  1. `v0.70-36 Diplomacy Action MVP`
+  2. `v0.70-37 Spy Action MVP`
+  3. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  4. `v0.70-39 Trade Market / Price Variation MVP`
+
 ## v0.70-33 Chancellor Auto Trade Logic Connect
 - Baseline: `v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup` at `83cbf79c45bd66959cf0c0478c161ce275de6c47`.
 - Numbering note: `v0.70-34` and `v0.70-34-hotfix1` landed first; this fills the skipped `v0.70-33` follow-up after that latest baseline.

@@ -344,6 +344,8 @@ const MANUAL_TRADE_PREVIEW_PRICES := {
 	"silk": 10,
 	"salt": 6,
 }
+const TRADE_EFFICIENCY_MIN := 0.25
+const TRADE_EFFICIENCY_MAX := 2.0
 const CITY_STORAGE_FOOD_RESOURCE_IDS := ["rice", "barley", "seafood"]
 const CITY_STORAGE_STRATEGY_RESOURCE_IDS := ["wood", "iron", "horses"]
 const CITY_STORAGE_SPECIAL_RESOURCE_IDS := ["silk", "salt"]
@@ -2048,11 +2050,22 @@ func _refresh_manual_trade_order_relation() -> void:
 		return
 	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
 	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
-	_manual_trade_relation_label.text = "관계: %s / %s / 효율 x%.2f" % [
+	_manual_trade_relation_label.text = "관계: %s / %s / 효율 x%.2f / 적용가 반영" % [
 		_format_faction_relation_status_for_ui(_get_faction_relation_status(source_faction_id, target_faction_id)),
 		_format_trade_availability_for_ui(source_faction_id, target_faction_id),
 		_get_trade_relation_multiplier_for_ui(source_faction_id, target_faction_id),
 	]
+
+
+func _build_manual_trade_order_items_from_panel() -> Dictionary:
+	var orders := {}
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		var action := _get_manual_trade_action(resource_id)
+		var amount := _get_manual_trade_amount(resource_id)
+		if action == MANUAL_TRADE_ACTION_NONE or amount <= 0:
+			continue
+		orders[resource_id] = {"action": action, "amount": amount}
+	return orders
 
 
 func _refresh_manual_trade_order_preview() -> void:
@@ -2062,18 +2075,11 @@ func _refresh_manual_trade_order_preview() -> void:
 
 
 func _build_manual_trade_order_preview() -> Dictionary:
-	var preview := {"gold": 0}
-	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
-		preview[resource_id] = 0
-		var action := _get_manual_trade_action(resource_id)
-		var amount := _get_manual_trade_amount(resource_id)
-		if action == MANUAL_TRADE_ACTION_IMPORT:
-			preview[resource_id] = int(preview.get(resource_id, 0)) + amount
-			preview["gold"] = int(preview.get("gold", 0)) - (amount * int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0)))
-		elif action == MANUAL_TRADE_ACTION_EXPORT:
-			preview[resource_id] = int(preview.get(resource_id, 0)) - amount
-			preview["gold"] = int(preview.get("gold", 0)) + (amount * int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0)))
-	return preview
+	return _calculate_external_trade_delta({
+		"source_city_id": _manual_trade_current_source_city_id,
+		"target_city_id": _get_selected_manual_trade_target_city_id(),
+		"orders": _build_manual_trade_order_items_from_panel(),
+	})
 
 
 func _format_manual_trade_preview_summary(preview: Dictionary) -> String:
@@ -2083,7 +2089,10 @@ func _format_manual_trade_preview_summary(preview: Dictionary) -> String:
 			str(RESOURCE_LABELS.get(resource_id, resource_id)),
 			_format_signed_int(int(preview.get(resource_id, 0))),
 		])
-	return " / ".join(parts)
+	var summary := " / ".join(parts)
+	if preview.has("efficiency") and float(preview.get("efficiency", 0.0)) > 0.0:
+		return "효율 x%.2f 적용 · %s" % [float(preview.get("efficiency", 0.0)), summary]
+	return summary
 
 
 func _get_manual_trade_action(resource_id: String) -> String:
@@ -2119,18 +2128,27 @@ func _on_manual_trade_order_confirm_pressed() -> void:
 		if _manual_trade_status_label != null:
 			_manual_trade_status_label.text = "교역 상대를 선택하십시오."
 		return
-	var orders := {}
-	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
-		var action := _get_manual_trade_action(resource_id)
-		var amount := _get_manual_trade_amount(resource_id)
-		if action == MANUAL_TRADE_ACTION_NONE or amount <= 0:
-			continue
-		orders[resource_id] = {"action": action, "amount": amount}
+	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
+	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
+	if not _can_trade_between_factions(source_faction_id, target_faction_id):
+		if _manual_trade_status_label != null:
+			_manual_trade_status_label.text = "현재 관계에서는 교역할 수 없습니다."
+		return
+	var efficiency := _get_trade_efficiency_for_cities(source_city_id, target_city_id)
+	if efficiency <= 0.0:
+		if _manual_trade_status_label != null:
+			_manual_trade_status_label.text = "교역 효율을 확인할 수 없습니다."
+		return
+	var orders := _build_manual_trade_order_items_from_panel()
 	if orders.is_empty():
 		if _manual_trade_status_label != null:
 			_manual_trade_status_label.text = "수입/수출 자원과 수량을 하나 이상 입력하십시오."
 		return
-	var preview := _build_manual_trade_order_preview()
+	var preview := _calculate_external_trade_delta({
+		"source_city_id": source_city_id,
+		"target_city_id": target_city_id,
+		"orders": orders,
+	})
 	var payload := {
 		"source_city_id": source_city_id,
 		"target_city_id": target_city_id,
@@ -2138,6 +2156,7 @@ func _on_manual_trade_order_confirm_pressed() -> void:
 		"mode": TRADE_CONTROL_MODE_MANUAL,
 		"orders": orders,
 		"preview": preview,
+		"efficiency": efficiency,
 	}
 	_manual_trade_orders[source_city_id] = payload
 	print("[WorldMap] Manual external trade order stored: %s" % str(payload))
@@ -2178,6 +2197,7 @@ func _execute_external_manual_trade_order(order: Dictionary) -> Dictionary:
 	var target_city_id := str(order.get("target_city_id", ""))
 	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
 	var applied := _build_external_manual_trade_execution_preview(order)
+	var efficiency := float(applied.get("efficiency", _get_trade_efficiency_for_cities(source_city_id, target_city_id)))
 	var source_storage := _get_city_storage(source_city_id, _get_city_hud_entry(source_city_id))
 	for resource_id in ["gold"] + MANUAL_TRADE_RESOURCE_ORDER:
 		var delta := int(applied.get(resource_id, 0))
@@ -2191,6 +2211,7 @@ func _execute_external_manual_trade_order(order: Dictionary) -> Dictionary:
 		"target_city_id": target_city_id,
 		"target_faction_id": target_faction_id,
 		"applied": applied,
+		"efficiency": efficiency,
 		"message": "수동 무역 실행 완료",
 	}
 
@@ -2214,6 +2235,9 @@ func _validate_external_manual_trade_execution(order: Dictionary) -> Dictionary:
 		return {"ok": false, "reason": "faction", "message": "교역 대상 세력을 확인할 수 없습니다."}
 	if not _can_trade_between_factions(source_faction_id, target_faction_id):
 		return {"ok": false, "reason": "relation", "message": "현재 관계에서는 교역할 수 없습니다."}
+	var efficiency := _get_trade_efficiency_for_cities(source_city_id, target_city_id)
+	if efficiency <= 0.0:
+		return {"ok": false, "reason": "efficiency", "message": "교역 효율을 확인할 수 없습니다."}
 	var orders_variant: Variant = order.get("orders", {})
 	if not orders_variant is Dictionary:
 		return {"ok": false, "reason": "orders", "message": "실행할 수동 무역 명령이 없습니다."}
@@ -2238,9 +2262,8 @@ func _validate_external_manual_trade_execution(order: Dictionary) -> Dictionary:
 		if not [MANUAL_TRADE_ACTION_IMPORT, MANUAL_TRADE_ACTION_EXPORT].has(action):
 			return {"ok": false, "reason": "action", "message": "수동 무역 행동이 올바르지 않습니다."}
 		has_actionable_item = true
-		var price := int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0))
 		if action == MANUAL_TRADE_ACTION_IMPORT:
-			total_import_gold_cost += amount * price
+			total_import_gold_cost += _calculate_trade_import_cost(resource_id, amount, efficiency)
 		elif action == MANUAL_TRADE_ACTION_EXPORT and amount > _get_city_storage_amount(source_storage, resource_id):
 			return {"ok": false, "reason": "resource_shortage", "message": "수출할 자원이 부족합니다."}
 	if not has_actionable_item:
@@ -2251,12 +2274,55 @@ func _validate_external_manual_trade_execution(order: Dictionary) -> Dictionary:
 
 
 func _build_external_manual_trade_execution_preview(order: Dictionary) -> Dictionary:
-	var applied := {"gold": 0}
+	return _calculate_external_trade_delta(order)
+
+
+func _build_empty_external_trade_delta() -> Dictionary:
+	var delta := {"gold": 0}
 	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
-		applied[resource_id] = 0
+		delta[resource_id] = 0
+	return delta
+
+
+func _get_trade_efficiency_for_cities(source_city_id: String, target_city_id: String) -> float:
+	if source_city_id.is_empty() or target_city_id.is_empty():
+		return 0.0
+	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
+	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
+	if not _can_trade_between_factions(source_faction_id, target_faction_id):
+		return 0.0
+	return clampf(_get_trade_relation_multiplier_for_ui(source_faction_id, target_faction_id), TRADE_EFFICIENCY_MIN, TRADE_EFFICIENCY_MAX)
+
+
+func _calculate_trade_import_cost(resource_id: String, amount: int, efficiency: float) -> int:
+	var safe_amount := maxi(0, amount)
+	if safe_amount <= 0 or efficiency <= 0.0:
+		return 0
+	var base_price := maxi(0, int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0)))
+	var safe_efficiency := clampf(efficiency, TRADE_EFFICIENCY_MIN, TRADE_EFFICIENCY_MAX)
+	return maxi(0, ceili(float(base_price * safe_amount) / safe_efficiency))
+
+
+func _calculate_trade_export_gain(resource_id: String, amount: int, efficiency: float) -> int:
+	var safe_amount := maxi(0, amount)
+	if safe_amount <= 0 or efficiency <= 0.0:
+		return 0
+	var base_price := maxi(0, int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0)))
+	var safe_efficiency := clampf(efficiency, TRADE_EFFICIENCY_MIN, TRADE_EFFICIENCY_MAX)
+	return maxi(0, floori(float(base_price * safe_amount) * safe_efficiency))
+
+
+func _calculate_external_trade_delta(order: Dictionary) -> Dictionary:
+	var delta := _build_empty_external_trade_delta()
+	var source_city_id := str(order.get("source_city_id", ""))
+	var target_city_id := str(order.get("target_city_id", ""))
+	var efficiency := _get_trade_efficiency_for_cities(source_city_id, target_city_id)
+	delta["efficiency"] = efficiency
 	var orders_variant: Variant = order.get("orders", {})
 	if not orders_variant is Dictionary:
-		return applied
+		return delta
+	if efficiency <= 0.0:
+		return delta
 	var orders := orders_variant as Dictionary
 	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
 		var order_item_variant: Variant = orders.get(resource_id, {})
@@ -2265,14 +2331,13 @@ func _build_external_manual_trade_execution_preview(order: Dictionary) -> Dictio
 		var order_item := order_item_variant as Dictionary
 		var action := str(order_item.get("action", MANUAL_TRADE_ACTION_NONE))
 		var amount := maxi(0, int(order_item.get("amount", 0)))
-		var price := int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0))
 		if action == MANUAL_TRADE_ACTION_IMPORT and amount > 0:
-			applied[resource_id] = int(applied.get(resource_id, 0)) + amount
-			applied["gold"] = int(applied.get("gold", 0)) - (amount * price)
+			delta[resource_id] = int(delta.get(resource_id, 0)) + amount
+			delta["gold"] = int(delta.get("gold", 0)) - _calculate_trade_import_cost(resource_id, amount, efficiency)
 		elif action == MANUAL_TRADE_ACTION_EXPORT and amount > 0:
-			applied[resource_id] = int(applied.get(resource_id, 0)) - amount
-			applied["gold"] = int(applied.get("gold", 0)) + (amount * price)
-	return applied
+			delta[resource_id] = int(delta.get(resource_id, 0)) - amount
+			delta["gold"] = int(delta.get("gold", 0)) + _calculate_trade_export_gain(resource_id, amount, efficiency)
+	return delta
 
 
 func _apply_chancellor_auto_trade_for_world_turn(turn_number: int) -> Dictionary:
@@ -2508,12 +2573,15 @@ func _apply_chancellor_external_auto_trade(owned_city_ids: Array[String], policy
 		if candidate_city_ids.is_empty():
 			continue
 		var target_city_id := candidate_city_ids[0]
+		var efficiency := _get_trade_efficiency_for_cities(source_city_id, target_city_id)
+		if efficiency <= 0.0:
+			continue
 		var source_storage := _get_city_storage(source_city_id, _get_city_hud_entry(source_city_id))
 		var gold_amount := _get_city_storage_amount(source_storage, "gold")
 		var applied_delta := _build_empty_chancellor_external_delta()
 		if gold_amount < _get_chancellor_auto_trade_target_min("gold") or ["commerce", "trade"].has(_normalize_chancellor_policy_id(policy_id)):
-			_apply_chancellor_external_export(source_storage, applied_delta, priority, policy_id, chancellor_data)
-		_apply_chancellor_external_import(source_storage, applied_delta, priority, policy_id, chancellor_data)
+			_apply_chancellor_external_export(source_storage, applied_delta, priority, policy_id, chancellor_data, efficiency)
+		_apply_chancellor_external_import(source_storage, applied_delta, priority, policy_id, chancellor_data, efficiency)
 		if _is_chancellor_external_delta_empty(applied_delta):
 			continue
 		_set_city_storage(source_city_id, source_storage)
@@ -2522,6 +2590,7 @@ func _apply_chancellor_external_auto_trade(owned_city_ids: Array[String], policy
 			"target_city_id": target_city_id,
 			"target_faction_id": _get_city_owner_faction_id_for_trade_display(target_city_id),
 			"applied": applied_delta,
+			"efficiency": efficiency,
 		})
 	result["applied"] = applied
 	return result
@@ -2534,6 +2603,9 @@ func _get_chancellor_external_tradeable_candidate_city_ids(source_city_id: Strin
 		var target_faction_id := _get_city_owner_faction_id_for_trade_display(candidate_city_id)
 		if _can_trade_between_factions(source_faction_id, target_faction_id):
 			result.append(candidate_city_id)
+	result.sort_custom(func(a: String, b: String) -> bool:
+		return _get_trade_efficiency_for_cities(source_city_id, a) > _get_trade_efficiency_for_cities(source_city_id, b)
+	)
 	return result
 
 
@@ -2551,7 +2623,9 @@ func _is_chancellor_external_delta_empty(delta: Dictionary) -> bool:
 	return true
 
 
-func _apply_chancellor_external_export(source_storage: Dictionary, applied_delta: Dictionary, priority: Array[String], policy_id: String, chancellor_data: Dictionary) -> void:
+func _apply_chancellor_external_export(source_storage: Dictionary, applied_delta: Dictionary, priority: Array[String], policy_id: String, chancellor_data: Dictionary, efficiency: float) -> void:
+	if efficiency <= 0.0:
+		return
 	for resource_id in priority:
 		var target_min := _get_chancellor_auto_trade_target_min(resource_id)
 		var surplus := _get_city_storage_amount(source_storage, resource_id) - target_min - _get_chancellor_auto_trade_surplus_buffer(resource_id)
@@ -2559,31 +2633,35 @@ func _apply_chancellor_external_export(source_storage: Dictionary, applied_delta
 			continue
 		var cap := _get_chancellor_auto_trade_resource_cap(policy_id, "external", resource_id, chancellor_data)
 		var amount := mini(surplus, cap)
-		var price := int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0))
-		if amount <= 0 or price <= 0:
+		if amount <= 0:
+			continue
+		var gold_gain := mini(_calculate_trade_export_gain(resource_id, amount, efficiency), CHANCELLOR_AUTO_TRADE_GOLD_CAP)
+		if gold_gain <= 0:
 			continue
 		source_storage[resource_id] = _get_city_storage_amount(source_storage, resource_id) - amount
-		source_storage["gold"] = _get_city_storage_amount(source_storage, "gold") + mini(amount * price, CHANCELLOR_AUTO_TRADE_GOLD_CAP)
+		source_storage["gold"] = _get_city_storage_amount(source_storage, "gold") + gold_gain
 		applied_delta[resource_id] = int(applied_delta.get(resource_id, 0)) - amount
-		applied_delta["gold"] = int(applied_delta.get("gold", 0)) + mini(amount * price, CHANCELLOR_AUTO_TRADE_GOLD_CAP)
+		applied_delta["gold"] = int(applied_delta.get("gold", 0)) + gold_gain
 		return
 
 
-func _apply_chancellor_external_import(source_storage: Dictionary, applied_delta: Dictionary, priority: Array[String], policy_id: String, chancellor_data: Dictionary) -> void:
+func _apply_chancellor_external_import(source_storage: Dictionary, applied_delta: Dictionary, priority: Array[String], policy_id: String, chancellor_data: Dictionary, efficiency: float) -> void:
+	if efficiency <= 0.0:
+		return
 	for resource_id in priority:
 		var target_min := _get_chancellor_auto_trade_target_min(resource_id)
 		var deficit := target_min - _get_city_storage_amount(source_storage, resource_id)
 		if deficit <= 0:
 			continue
-		var price := int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0))
-		if price <= 0:
-			continue
 		var cap := _get_chancellor_auto_trade_resource_cap(policy_id, "external", resource_id, chancellor_data)
-		var max_affordable := floori(float(_get_city_storage_amount(source_storage, "gold")) / float(price))
-		var amount := mini(deficit, mini(cap, max_affordable))
+		var amount := mini(deficit, cap)
+		while amount > 0 and _calculate_trade_import_cost(resource_id, amount, efficiency) > _get_city_storage_amount(source_storage, "gold"):
+			amount -= 1
 		if amount <= 0:
 			continue
-		var gold_cost := amount * price
+		var gold_cost := _calculate_trade_import_cost(resource_id, amount, efficiency)
+		if gold_cost <= 0:
+			continue
 		source_storage["gold"] = _get_city_storage_amount(source_storage, "gold") - gold_cost
 		source_storage[resource_id] = _get_city_storage_amount(source_storage, resource_id) + amount
 		applied_delta["gold"] = int(applied_delta.get("gold", 0)) - gold_cost
@@ -2644,7 +2722,11 @@ func _normalize_manual_trade_order_payload(raw_order: Variant, source_city_id: S
 	var orders := _normalize_manual_trade_order_items(raw_dictionary.get("orders", {}))
 	if orders.is_empty():
 		return {}
-	var preview := _build_external_manual_trade_execution_preview({"orders": orders})
+	var preview := _build_external_manual_trade_execution_preview({
+		"source_city_id": resolved_source_city_id,
+		"target_city_id": target_city_id,
+		"orders": orders,
+	})
 	return {
 		"source_city_id": resolved_source_city_id,
 		"target_city_id": target_city_id,
@@ -2652,6 +2734,7 @@ func _normalize_manual_trade_order_payload(raw_order: Variant, source_city_id: S
 		"mode": TRADE_CONTROL_MODE_MANUAL,
 		"orders": orders,
 		"preview": preview,
+		"efficiency": float(preview.get("efficiency", 0.0)),
 	}
 
 
@@ -2726,6 +2809,8 @@ func _normalize_chancellor_auto_trade_section_payload(raw_section: Variant, is_i
 				item["amounts"] = _normalize_trade_delta_payload(item.get("amounts", {}))
 			else:
 				item["applied"] = _normalize_trade_delta_payload(item.get("applied", {}))
+				if item.has("efficiency"):
+					item["efficiency"] = clampf(float(item.get("efficiency", 0.0)), 0.0, TRADE_EFFICIENCY_MAX)
 			applied.append(item)
 	section["applied"] = applied
 	if raw_dictionary.has("total_moved"):
@@ -3588,6 +3673,7 @@ func _format_external_trade_relation_summary(source_city_id: String, candidate_c
 			_format_trade_availability_for_ui(source_faction_id, target_faction_id),
 		])
 		lines.append("교역 효율 x%.2f" % _get_trade_relation_multiplier_for_ui(source_faction_id, target_faction_id))
+		lines.append("적용 가격: 관계 효율 반영")
 		return "\n".join(lines)
 	for candidate_city_id in candidate_city_ids:
 		var candidate_faction_id := _get_city_owner_faction_id_for_trade_display(candidate_city_id)
@@ -3597,6 +3683,7 @@ func _format_external_trade_relation_summary(source_city_id: String, candidate_c
 			_format_trade_availability_for_ui(source_faction_id, candidate_faction_id),
 			_get_trade_relation_multiplier_for_ui(source_faction_id, candidate_faction_id),
 		])
+	lines.append("적용 가격: 관계 효율 반영")
 	return "\n".join(lines)
 
 
@@ -3697,6 +3784,8 @@ func _format_chancellor_external_auto_trade_result_summary(source_city_id: Strin
 		var applied_delta_variant: Variant = item.get("applied", {})
 		if applied_delta_variant is Dictionary:
 			applied = (applied_delta_variant as Dictionary).duplicate(true)
+		if item.has("efficiency"):
+			applied["efficiency"] = float(item.get("efficiency", 0.0))
 		return "최근 재상 대외무역\n%s ↔ %s\n%s" % [
 			_format_city_name_by_id(source_city_id, source_city_id),
 			_format_city_name_by_id(target_city_id, target_city_id),
@@ -3719,6 +3808,8 @@ func _format_external_manual_trade_execution_result_summary(source_city_id: Stri
 	var applied := {}
 	if applied_variant is Dictionary:
 		applied = (applied_variant as Dictionary).duplicate(true)
+	if result.has("efficiency"):
+		applied["efficiency"] = float(result.get("efficiency", 0.0))
 	return "최근 수동 무역 실행\n%s ↔ %s\n%s\n선택 성 창고에 반영되었습니다." % [
 		_format_city_name_by_id(source_city_id, source_city_id),
 		_format_city_name_by_id(target_city_id, target_city_id),
@@ -3741,7 +3832,10 @@ func _format_manual_trade_nonzero_preview_summary(preview: Dictionary) -> String
 		])
 	if parts.is_empty():
 		return "금전 0"
-	return " / ".join(parts)
+	var summary := " / ".join(parts)
+	if preview.has("efficiency") and float(preview.get("efficiency", 0.0)) > 0.0:
+		return "효율 x%.2f 적용 · %s" % [float(preview.get("efficiency", 0.0)), summary]
+	return summary
 
 
 func _format_external_trade_recent_summary(source_city_id: String, candidate_city_ids: Array[String]) -> String:
