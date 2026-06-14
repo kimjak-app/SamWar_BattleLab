@@ -2,6 +2,27 @@
 
 ## 2026-06-14
 
+### v0.70-45 Enemy Faction Turn Behavior MVP
+- Started from `cc977ad v0.70-44 WorldMap Domestic Turn Flow QA Polish`.
+- Confirmed clean worktree, `main`, expected HEAD, and fetched `origin/main` before editing.
+- Required docs and enemy phase, pending invasion, city ownership, city troop, faction chancellor, save/load, left-status, and warning-cleanup search paths were checked.
+- Implemented:
+  - Added `_player_state["last_enemy_faction_turn_result"]` and `_player_state["last_enemy_faction_turn_processed_turn"]`.
+  - Added enemy faction selection for non-player factions with owned cities.
+  - Added per-faction one-action city selection: player-adjacent frontline first, then lowest-troop owned city.
+  - Added conservative enemy city reinforcement using existing city troop getter/setter only.
+  - Added enemy chancellor seed bonus from existing `_player_state["faction_chancellors"]`.
+  - Connected existing enemy invasion event roll result into the enemy turn result payload.
+  - Added compact enemy turn result hint to the left world status without changing PLAYER/nation scope.
+  - Renamed an existing chancellor internal auto-trade source local to keep the warning-cleanup `selected_city_id` search pattern clear.
+- Reinforcement rule:
+  - Base `+80`, frontline `+40`, valid enemy chancellor seed `+20`, max `+150`.
+- Save/load safety:
+  - Result and processed-turn guard persist through `_player_state`.
+  - Load restores display/history only and does not replay reinforcement or rerun the same-turn enemy invasion roll.
+- Preserved v0.70-39 market formulas, v0.70-40 alliance, v0.70-41 wedge, v0.70-42 Fog of War, spy/diplomacy formulas, player chancellor candidate scope, `faction_chancellors` structure, left/right panel scope, BattleContext, scenes, assets, `.uid`, and `.ogv`.
+- Manual F6 QA remains required for enemy phase progression, enemy result log, enemy troop reinforcement, no direct player city/resource mutation, same-turn replay guard, pending invasion continuity/no duplication, save/load replay guard, Fog of War, wedge, alliance, market pricing, Hanseong chancellor candidate scope, foreign-city left panel scope, and warning cleanliness.
+
 ### v0.70-44 WorldMap Domestic/Turn Flow QA & Polish
 - Started from `aa7ba35 v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass`.
 - Confirmed clean worktree, `main`, expected HEAD, and fetched `origin/main` before editing.

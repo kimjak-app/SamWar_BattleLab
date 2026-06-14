@@ -1,5 +1,32 @@
 # NEXT TASKS
 
+## Current: v0.70-45 Enemy Faction Turn Behavior MVP
+- Baseline: `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish` (`cc977ad461a971819ba5be2a4d2a6d414aabe7a8`).
+- Completed direction:
+  1. Added conservative enemy faction turn behavior to the existing enemy phase path in `scripts/worldmap_test.gd`.
+  2. Added `_player_state["last_enemy_faction_turn_result"]` and `_player_state["last_enemy_faction_turn_processed_turn"]` for result display and same-turn replay prevention.
+  3. Limited enemy behavior to one city reinforcement action per non-player faction with owned cities.
+  4. Connected the existing pending invasion event roll into the enemy turn result payload without changing `ENEMY_INVASION_CHANCE` or BattleContext handoff.
+  5. Updated the left world status hint to show compact enemy turn summaries while preserving PLAYER/nation scope.
+- Enemy reinforcement rule:
+  1. Base `+80` troops.
+  2. Frontline city adjacent to player-owned city `+40`.
+  3. Valid enemy faction chancellor seed `+20`.
+  4. Per-action delta clamped to max `+150`.
+- Preserved scope:
+  1. No player city/resource direct mutation, enemy diplomacy AI, enemy spy AI, enemy domestic economy simulation, target city storage mutation, or foreign faction stock simulation was added.
+  2. v0.70-39 market pricing, v0.70-40 alliance, v0.70-41 wedge, v0.70-42 Fog of War, player chancellor candidate scope, `faction_chancellors`, left/right panel scope, BattleContext, scenes, assets, `.uid`, and `.ogv` remain preserved.
+- Manual F6 QA required:
+  1. Confirm enemy phase runs after player turn end and shows enemy faction turn result log.
+  2. Confirm enemy-owned city troops increase conservatively and player-owned city troops/resources do not directly change.
+  3. Confirm same-turn enemy action replay is blocked, including after save/load.
+  4. Confirm pending invasion event flow and no-duplicate pending invasion behavior remain intact.
+  5. Confirm Fog of War, wedge, alliance, market pricing, Hanseong chancellor candidate scope, foreign-city left panel scope, and Godot Output warning cleanliness.
+- Next candidate work:
+  1. `v0.70-46 WorldMap Strategic UX Final Polish`
+  2. `v0.70-47 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+  3. `v0.70-48 Enemy Invasion/Defense Balance Polish`
+
 ## Current: v0.70-44 WorldMap Domestic/Turn Flow QA & Polish
 - Baseline: `v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass` (`aa7ba353a7eaec2bf38868b2110922d179ba1995`).
 - Completed direction:

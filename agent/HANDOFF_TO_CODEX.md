@@ -1,5 +1,26 @@
 # HANDOFF TO CODEX
 
+## v0.70-45 Enemy Faction Turn Behavior MVP Handoff
+- Baseline: `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish` (`cc977ad461a971819ba5be2a4d2a6d414aabe7a8`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Enemy phase now calls `_process_enemy_faction_turn_mvp()` before the existing `_roll_enemy_invasion_event_mvp()` path.
+- New state keys:
+  1. `_player_state["last_enemy_faction_turn_result"]`: display/history payload for the latest enemy faction turn.
+  2. `_player_state["last_enemy_faction_turn_processed_turn"]`: authoritative same-turn guard for enemy faction actions.
+- Enemy faction selection excludes PLAYER, empty/unknown factions, and factions without owned cities.
+- Each enemy faction can perform at most one action. City selection prefers a faction-owned city adjacent to a player-owned city, otherwise the faction-owned city with the lowest troops.
+- Reinforcement is intentionally conservative: `+80` base, `+40` frontline, `+20` valid enemy faction chancellor seed bonus, max `+150`.
+- `_player_state["faction_chancellors"]` structure is unchanged and is used only for the small reinforcement bonus plus result metadata.
+- Existing pending invasion behavior is preserved: `ENEMY_INVASION_CHANCE`, pending event payload, and BattleContext handoff were not changed. The enemy turn result only records whether the existing roll created a pending invasion event.
+- Save/load persists the result payload and processed-turn guard through `_player_state`; load restores display/history only and does not replay reinforcement or rerun the same-turn enemy invasion roll.
+- Left World Status remains player/nation scoped. Enemy turn text is limited to action summaries and invasion hint, not hidden enemy resources or national panel data.
+- Explicitly unchanged: market formulas, manual/chancellor trade pricing, alliance proposal/duration/cooldown, wedge/alienation, enemy intel Fog of War display rules, spy success/detection formulas, diplomacy costs/effects, player chancellor candidate scope, left/right panel scope, BattleContext, scenes, assets, `.uid`, and `.ogv`.
+- Manual F6 QA still required for enemy phase progression, enemy result log, conservative enemy troop increase, no player direct mutation, same-turn replay guard, pending invasion continuity/no duplication, save/load replay guard, Fog of War, wedge, alliance, market pricing, Hanseong chancellor scope, foreign-city left panel scope, and warning cleanliness.
+- Next candidates:
+  1. `v0.70-46 WorldMap Strategic UX Final Polish`
+  2. `v0.70-47 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+  3. `v0.70-48 Enemy Invasion/Defense Balance Polish`
+
 ## v0.70-44 WorldMap Domestic/Turn Flow QA & Polish Handoff
 - Baseline: `v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass` (`aa7ba353a7eaec2bf38868b2110922d179ba1995`).
 - Runtime files touched: none.

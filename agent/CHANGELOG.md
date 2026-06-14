@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.70-45 Enemy Faction Turn Behavior MVP
+- Built on `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish` (`cc977ad461a971819ba5be2a4d2a6d414aabe7a8`).
+- Added conservative enemy faction turn behavior to the existing enemy phase in `scripts/worldmap_test.gd`.
+- Added `_player_state["last_enemy_faction_turn_result"]` for compact enemy turn result display/history and `_player_state["last_enemy_faction_turn_processed_turn"]` as the same-turn replay guard.
+- Enemy factions now select at most one owned city per turn, preferring frontline cities adjacent to player-owned cities, then the lowest-troop owned city.
+- Enemy action scope is limited to city reinforcement: base `+80`, frontline `+40`, valid faction chancellor seed `+20`, clamped to `+150`.
+- Existing enemy invasion event generation remains on the prior path. The new result payload records whether `_player_state["pending_invasion_event"]` was created, without changing `ENEMY_INVASION_CHANCE` or BattleContext handoff.
+- Left World Status can show compact enemy turn summary lines while preserving PLAYER/nation scope and Fog of War boundaries.
+- Save/load restores the enemy turn result and processed-turn guard as display/state only; it does not replay enemy reinforcement or rerun the same-turn enemy invasion roll.
+- Renamed an existing chancellor internal auto-trade source local to keep the warning-cleanup `selected_city_id` search pattern clear.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change market price formulas, manual/chancellor trade pricing, alliance behavior, wedge behavior, Fog of War rules, spy/diplomacy formulas, player chancellor scope, left/right panel scope, BattleContext, scenes, assets, `.uid`, or `.ogv`.
+
 ## v0.70-44 WorldMap Domestic/Turn Flow QA & Polish
 - Built on `v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass` (`aa7ba353a7eaec2bf38868b2110922d179ba1995`).
 - Performed a code-level QA audit for player turn end, domestic processing, trade market state, chancellor auto trade, diplomacy cooldowns, trade agreement/alliance duration, spy cooldowns, revolt instigation duration, save/load replay safety, city intel display-only restore, pending invasion event flow, and chancellor/left-panel scope.

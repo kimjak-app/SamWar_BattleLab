@@ -1,5 +1,40 @@
 # CURRENT STATE
 
+## v0.70-45 Enemy Faction Turn Behavior MVP
+- Baseline: `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish` at `cc977ad461a971819ba5be2a4d2a6d414aabe7a8`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Enemy phase now runs a conservative enemy faction turn MVP before the existing invasion roll.
+- New result state: `_player_state["last_enemy_faction_turn_result"]` stores display/history payload and `_player_state["last_enemy_faction_turn_processed_turn"]` blocks same-turn replay, including after save/load.
+- Each non-player faction with owned cities may take at most one action per `turn_number`.
+- Enemy action scope is limited to enemy-owned city reinforcement: base `+80`, frontline `+40`, enemy faction chancellor seed `+20`, clamped to max `+150`.
+- Enemy city selection prioritizes enemy cities adjacent to player-owned cities, then the faction-owned city with the lowest troops.
+- `_player_state["faction_chancellors"]` remains the existing seed structure; if a valid non-player faction chancellor exists, the result payload records `chancellor_id` and `chancellor_bonus`.
+- Existing enemy invasion roll and pending invasion event flow are preserved. If the existing roll creates `_player_state["pending_invasion_event"]`, the enemy turn result records `pending_invasion_created = true` and keeps the BattleContext handoff structure unchanged.
+- Left World Status remains PLAYER/nation scope. The status hint may show compact enemy turn result lines, but it does not switch to an enemy national panel or expose hidden resources/chancellor detail.
+- Save/load restores the enemy result payload and processed-turn guard as state/display only; loading does not replay reinforcement or rerun the same-turn enemy invasion roll.
+- Warning-cleanup follow-up: renamed an existing chancellor internal auto-trade source local to avoid the `selected_city_id` shadowing search pattern.
+- Preserved v0.70-39 market formulas, v0.70-40 alliance behavior, v0.70-41 wedge behavior, v0.70-42 Fog of War rules, spy/diplomacy formulas, player chancellor candidate scope, left/right panel scope, BattleContext, scenes, assets, `.uid`, and `.ogv`.
+- Manual F6 QA remains required:
+  1. 턴 종료 시 enemy phase가 정상 진행되는지 확인.
+  2. enemy faction turn result log가 표시되는지 확인.
+  3. enemy-owned city 병력이 보수적으로 증가하는지 확인.
+  4. player-owned city 병력/자원은 enemy turn에서 직접 변하지 않는지 확인.
+  5. 같은 턴 enemy action이 중복 적용되지 않는지 확인.
+  6. pending invasion event가 기존 흐름대로 유지되는지 확인.
+  7. pending invasion event가 이미 있을 때 중복 생성되지 않는지 확인.
+  8. save/load 후 같은 턴 enemy action이 replay되지 않는지 확인.
+  9. v0.70-42 enemy intel Fog of War가 유지되는지 확인.
+  10. v0.70-41 이간질이 유지되는지 확인.
+  11. v0.70-40 동맹이 유지되는지 확인.
+  12. v0.70-39 시장가/무역 가격 계산이 유지되는지 확인.
+  13. 한성 재상 후보 scope가 유지되는지 확인.
+  14. 외국 도시 선택 시 left panel PLAYER national state가 유지되는지 확인.
+  15. Godot Output warning이 새로 생기지 않는지 확인.
+- Next candidate work:
+  1. `v0.70-46 WorldMap Strategic UX Final Polish`
+  2. `v0.70-47 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+  3. `v0.70-48 Enemy Invasion/Defense Balance Polish`
+
 ## v0.70-44 WorldMap Domestic/Turn Flow QA & Polish
 - Baseline: `v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass` at `aa7ba353a7eaec2bf38868b2110922d179ba1995`.
 - Modified files: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

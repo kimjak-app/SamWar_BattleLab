@@ -42,6 +42,10 @@ const TURN_PHASE_PLAYER := "player"
 const TURN_PHASE_ENEMY := "enemy"
 const ENEMY_TURN_MVP_DELAY := 0.75
 const ENEMY_INVASION_CHANCE := 0.45
+const ENEMY_FACTION_TURN_REINFORCE_BASE := 80
+const ENEMY_FACTION_TURN_REINFORCE_FRONTLINE_BONUS := 40
+const ENEMY_FACTION_TURN_REINFORCE_CHANCELLOR_BONUS := 20
+const ENEMY_FACTION_TURN_REINFORCE_MAX := 150
 const WORLD_CALENDAR_START_YEAR := 154
 const WORLD_CALENDAR_SEASON_TURNS := 10
 const WORLD_CALENDAR_YEAR_TURNS := 40
@@ -709,6 +713,8 @@ var _player_state := {
 	"pending_invasion_event": {},
 	"pending_battle_context": {},
 	"enemy_invasion_roll_turn": 0,
+	"last_enemy_faction_turn_result": {},
+	"last_enemy_faction_turn_processed_turn": 0,
 	"domestic_apply_pending": false,
 	"last_domestic_apply_turn": 0,
 	"national_loyalty": 75,
@@ -2612,15 +2618,15 @@ func _get_chancellor_internal_auto_trade_target_demands(owned_city_ids: Array[St
 
 
 func _select_chancellor_internal_auto_trade_source(candidate_city_ids: Array[String], resource_id: String, target_min: int, buffer: int) -> String:
-	var selected_city_id_for_source := ""
+	var selected_source_city_id := ""
 	var selected_surplus := 0
 	for candidate_city_id in candidate_city_ids:
 		var storage := _get_city_storage(candidate_city_id, _get_city_hud_entry(candidate_city_id))
 		var surplus := _get_city_storage_amount(storage, resource_id) - target_min - buffer
 		if surplus > selected_surplus:
 			selected_surplus = surplus
-			selected_city_id_for_source = candidate_city_id
-	return selected_city_id_for_source
+			selected_source_city_id = candidate_city_id
+	return selected_source_city_id
 
 
 func _apply_chancellor_external_auto_trade(owned_city_ids: Array[String], policy_id: String, chancellor_data: Dictionary) -> Dictionary:
@@ -5428,8 +5434,11 @@ func _refresh_left_world_status_panel() -> void:
 	var pending_invasion_event := _get_pending_invasion_event_mvp()
 	city_info_panel.set_pending_invasion_event(pending_invasion_event)
 	_refresh_city_info_attack_action_state(selected_city_id)
-	world_status_hint_label.text = _format_invasion_status_text(pending_invasion_event)
-	world_status_hint_label.visible = not pending_invasion_event.is_empty()
+	var world_status_hint := _format_invasion_status_text(pending_invasion_event)
+	if world_status_hint.is_empty():
+		world_status_hint = _format_enemy_faction_turn_result_hint(_player_state.get("last_enemy_faction_turn_result", {}))
+	world_status_hint_label.text = world_status_hint
+	world_status_hint_label.visible = not world_status_hint.is_empty()
 	_refresh_pending_invasion_choice_ui(pending_invasion_event)
 	wild_army_edit_button_placeholder.text = "아군 턴 종료"
 	wild_army_edit_button_placeholder.disabled = _enemy_turn_mvp_pending or not pending_invasion_event.is_empty()
@@ -5472,6 +5481,12 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["pending_battle_context"] = {}
 	if not _player_state.has("enemy_invasion_roll_turn"):
 		_player_state["enemy_invasion_roll_turn"] = 0
+	_player_state["enemy_invasion_roll_turn"] = maxi(0, int(_player_state.get("enemy_invasion_roll_turn", 0)))
+	if not _player_state.has("last_enemy_faction_turn_result") or not (_player_state["last_enemy_faction_turn_result"] is Dictionary):
+		_player_state["last_enemy_faction_turn_result"] = {}
+	if not _player_state.has("last_enemy_faction_turn_processed_turn"):
+		_player_state["last_enemy_faction_turn_processed_turn"] = 0
+	_player_state["last_enemy_faction_turn_processed_turn"] = maxi(0, int(_player_state.get("last_enemy_faction_turn_processed_turn", 0)))
 	if not _player_state.has("faction_relations") or not (_player_state["faction_relations"] is Dictionary):
 		_player_state["faction_relations"] = {}
 	if not _player_state.has("last_inter_faction_trade_result") or not (_player_state["last_inter_faction_trade_result"] is Dictionary):
@@ -5657,13 +5672,20 @@ func _run_enemy_turn_mvp() -> void:
 	if _enemy_turn_mvp_pending:
 		_set_save_management_status("적군 턴 진행 중...")
 		return
-	# v0.68b-12b-9: event generation only. Future patches will add choice UI and battle handoff.
-	print("[WorldMap] Enemy turn MVP hook reached. Enemy invasion event generation only; AI and battle transition are deferred.")
+	print("[WorldMap] Enemy turn MVP hook reached. Enemy faction reinforcement and invasion event roll are running.")
 	_enemy_turn_mvp_pending = true
 	_set_save_management_status("적군 턴 진행 중...")
-	var invasion_event := _roll_enemy_invasion_event_mvp()
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var enemy_turn_already_processed := int(_player_state.get("last_enemy_faction_turn_processed_turn", 0)) == turn_number
+	var enemy_turn_result := _process_enemy_faction_turn_mvp()
+	var invasion_event := {}
+	if not enemy_turn_already_processed:
+		invasion_event = _roll_enemy_invasion_event_mvp()
+		_attach_enemy_invasion_event_to_enemy_turn_result(invasion_event)
 	if not invasion_event.is_empty():
 		_set_save_management_status(_format_invasion_status_text(invasion_event))
+	elif enemy_turn_result is Dictionary and not (enemy_turn_result as Dictionary).is_empty():
+		_set_save_management_status(str((enemy_turn_result as Dictionary).get("summary", "적세력 턴 처리 완료")))
 	_refresh_left_world_status_panel()
 	_get_enemy_turn_mvp_timer().start(ENEMY_TURN_MVP_DELAY)
 
@@ -5726,6 +5748,292 @@ func _roll_enemy_invasion_event_mvp(roll_value: float = -1.0, candidate_index: i
 		str(selected_pair.get("attacker_city_id", "")),
 		str(selected_pair.get("defender_city_id", ""))
 	)
+
+
+func _process_enemy_faction_turn_mvp() -> Dictionary:
+	_ensure_worldmap_runtime_state_defaults()
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var previous_result: Variant = _player_state.get("last_enemy_faction_turn_result", {})
+	if int(_player_state.get("last_enemy_faction_turn_processed_turn", 0)) == turn_number:
+		if previous_result is Dictionary:
+			return (previous_result as Dictionary).duplicate(true)
+		return {}
+	var result := {
+		"turn": turn_number,
+		"phase": TURN_PHASE_ENEMY,
+		"processed_factions": [],
+		"actions": [],
+		"pending_invasion_created": false,
+		"pending_invasion_already_active": _has_pending_invasion_event_mvp(),
+		"pending_battle_already_active": not _get_pending_battle_context_mvp().is_empty(),
+		"summary": "",
+	}
+	if bool(result.get("pending_invasion_already_active", false)) or bool(result.get("pending_battle_already_active", false)):
+		result["summary"] = _build_enemy_faction_turn_summary(result)
+		_player_state["last_enemy_faction_turn_result"] = result.duplicate(true)
+		_player_state["last_enemy_faction_turn_processed_turn"] = turn_number
+		return result
+	var processed_factions: Array[String] = []
+	var actions: Array[Dictionary] = []
+	for faction_id in _get_enemy_faction_ids_for_turn_mvp():
+		var action_result := _apply_enemy_city_reinforcement_mvp(faction_id, _pick_enemy_city_for_turn_action(faction_id))
+		processed_factions.append(faction_id)
+		if not action_result.is_empty():
+			actions.append(action_result)
+	result["processed_factions"] = processed_factions
+	result["actions"] = actions
+	result["summary"] = _build_enemy_faction_turn_summary(result)
+	_player_state["last_enemy_faction_turn_result"] = result.duplicate(true)
+	_player_state["last_enemy_faction_turn_processed_turn"] = turn_number
+	print("[ENEMY_FACTION_TURN] turn=%d factions=%s actions=%d summary=%s" % [
+		turn_number,
+		str(processed_factions),
+		actions.size(),
+		str(result.get("summary", ""))
+	])
+	return result
+
+
+func _get_worldmap_city_ids_for_enemy_turn_mvp() -> Array[String]:
+	var seen := {}
+	for city_id_variant in CITY_HUD_DATA.keys():
+		var city_id := str(city_id_variant)
+		if not city_id.is_empty():
+			seen[city_id] = true
+	for city_id_variant in _city_markers_by_id.keys():
+		var city_id := str(city_id_variant)
+		if not city_id.is_empty():
+			seen[city_id] = true
+	var sorted_ids: Array = seen.keys()
+	sorted_ids.sort()
+	var result: Array[String] = []
+	for city_id_variant in sorted_ids:
+		result.append(str(city_id_variant))
+	return result
+
+
+func _get_enemy_faction_ids_for_turn_mvp() -> Array[String]:
+	var faction_seen := {}
+	for city_id in _get_worldmap_city_ids_for_enemy_turn_mvp():
+		var faction_id := _get_city_owner_faction_id_for_trade_display(city_id)
+		if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+			continue
+		if _get_enemy_owned_city_ids_for_faction(faction_id).is_empty():
+			continue
+		faction_seen[faction_id] = true
+	var sorted_ids: Array = faction_seen.keys()
+	sorted_ids.sort()
+	var result: Array[String] = []
+	for faction_id_variant in sorted_ids:
+		var faction_id := str(faction_id_variant)
+		if FACTION_LABELS.has(faction_id):
+			result.append(faction_id)
+	for faction_id_variant in sorted_ids:
+		var faction_id := str(faction_id_variant)
+		if not FACTION_LABELS.has(faction_id):
+			result.append(faction_id)
+	return result
+
+
+func _get_enemy_owned_city_ids_for_faction(faction_id: String) -> Array[String]:
+	var city_ids: Array[String] = []
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+		return city_ids
+	for city_id in _get_worldmap_city_ids_for_enemy_turn_mvp():
+		if _is_city_owned_by_player_mvp(city_id):
+			continue
+		if _get_city_owner_faction_id_for_trade_display(city_id) != faction_id:
+			continue
+		if not city_ids.has(city_id):
+			city_ids.append(city_id)
+	city_ids.sort()
+	return city_ids
+
+
+func _is_enemy_frontline_city_for_faction(city_id: String, faction_id: String) -> bool:
+	if city_id.is_empty() or faction_id.is_empty():
+		return false
+	if _get_city_owner_faction_id_for_trade_display(city_id) != faction_id:
+		return false
+	for neighbor_id in _get_city_neighbors_mvp(city_id):
+		if _is_city_owned_by_player_mvp(str(neighbor_id)):
+			return true
+	return false
+
+
+func _find_enemy_frontline_city_for_faction(faction_id: String) -> String:
+	var selected_enemy_city_id := ""
+	var selected_troops := INF
+	for city_id in _get_enemy_owned_city_ids_for_faction(faction_id):
+		if not _is_enemy_frontline_city_for_faction(city_id, faction_id):
+			continue
+		var troops := float(_get_city_troops_for_battle_context(city_id))
+		if selected_enemy_city_id.is_empty() or troops < selected_troops:
+			selected_enemy_city_id = city_id
+			selected_troops = troops
+	return selected_enemy_city_id
+
+
+func _pick_enemy_city_for_turn_action(faction_id: String) -> String:
+	var frontline_city_id := _find_enemy_frontline_city_for_faction(faction_id)
+	if not frontline_city_id.is_empty():
+		return frontline_city_id
+	var owned_city_ids := _get_enemy_owned_city_ids_for_faction(faction_id)
+	if owned_city_ids.is_empty():
+		return ""
+	var selected_enemy_city_id := str(owned_city_ids[0])
+	var selected_troops := _get_city_troops_for_battle_context(selected_enemy_city_id)
+	for city_id in owned_city_ids:
+		var troops := _get_city_troops_for_battle_context(city_id)
+		if troops < selected_troops:
+			selected_enemy_city_id = city_id
+			selected_troops = troops
+	return selected_enemy_city_id
+
+
+func _get_enemy_faction_chancellor_id(faction_id: String) -> String:
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+		return ""
+	_ensure_faction_chancellors_seeded()
+	var chancellors: Variant = _player_state.get("faction_chancellors", {})
+	if not chancellors is Dictionary:
+		return ""
+	var hero_id := str((chancellors as Dictionary).get(faction_id, ""))
+	if _is_valid_faction_chancellor_candidate(faction_id, hero_id):
+		return hero_id
+	return ""
+
+
+func _apply_enemy_city_reinforcement_mvp(faction_id: String, city_id: String) -> Dictionary:
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or city_id.is_empty():
+		return {}
+	if not _has_city_for_battle_context(city_id):
+		return {}
+	if _is_city_owned_by_player_mvp(city_id):
+		return {}
+	if _get_city_owner_faction_id_for_trade_display(city_id) != faction_id:
+		return {}
+	var before_troops := _get_city_troops_for_battle_context(city_id)
+	var is_frontline := _is_enemy_frontline_city_for_faction(city_id, faction_id)
+	var chancellor_id := _get_enemy_faction_chancellor_id(faction_id)
+	var chancellor_bonus := ENEMY_FACTION_TURN_REINFORCE_CHANCELLOR_BONUS if not chancellor_id.is_empty() else 0
+	var delta := ENEMY_FACTION_TURN_REINFORCE_BASE
+	if is_frontline:
+		delta += ENEMY_FACTION_TURN_REINFORCE_FRONTLINE_BONUS
+	delta += chancellor_bonus
+	delta = clampi(delta, 0, ENEMY_FACTION_TURN_REINFORCE_MAX)
+	var after_troops := _clamp_invasion_troops(before_troops + delta)
+	_set_city_runtime_troops(city_id, after_troops)
+	var after_actual := _get_city_troops_for_battle_context(city_id)
+	return {
+		"faction_id": faction_id,
+		"faction_label": _format_faction_label(faction_id),
+		"action_id": "reinforce_city",
+		"city_id": city_id,
+		"city_name": _format_city_name_by_id(city_id, city_id),
+		"before_troops": before_troops,
+		"after_troops": after_actual,
+		"delta": after_actual - before_troops,
+		"reason": "frontline_defense" if is_frontline else "garrison_recovery",
+		"chancellor_id": chancellor_id,
+		"chancellor_bonus": chancellor_bonus,
+	}
+
+
+func _attach_enemy_invasion_event_to_enemy_turn_result(invasion_event: Dictionary) -> void:
+	_ensure_worldmap_runtime_state_defaults()
+	var result: Variant = _player_state.get("last_enemy_faction_turn_result", {})
+	var enemy_turn_result := {} if not (result is Dictionary) else (result as Dictionary).duplicate(true)
+	if enemy_turn_result.is_empty():
+		enemy_turn_result = {
+			"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+			"phase": TURN_PHASE_ENEMY,
+			"processed_factions": [],
+			"actions": [],
+		}
+	enemy_turn_result["pending_invasion_created"] = not invasion_event.is_empty()
+	if not invasion_event.is_empty():
+		enemy_turn_result["pending_invasion_event"] = invasion_event.duplicate(true)
+		enemy_turn_result["pending_invasion_already_active"] = false
+	else:
+		enemy_turn_result["pending_invasion_event"] = {}
+		enemy_turn_result["pending_invasion_already_active"] = _has_pending_invasion_event_mvp()
+	enemy_turn_result["summary"] = _build_enemy_faction_turn_summary(enemy_turn_result)
+	_player_state["last_enemy_faction_turn_result"] = enemy_turn_result.duplicate(true)
+
+
+func _build_enemy_faction_turn_summary(result: Dictionary) -> String:
+	if bool(result.get("pending_battle_already_active", false)):
+		return "적세력 행동 보류 · 진행 중인 전투 처리 대기"
+	if bool(result.get("pending_invasion_already_active", false)) and not bool(result.get("pending_invasion_created", false)):
+		return "적세력 행동 보류 · 진행 중인 침공 이벤트 유지"
+	var actions: Variant = result.get("actions", [])
+	var action_count := 0
+	var action_parts: Array[String] = []
+	if actions is Array:
+		action_count = (actions as Array).size()
+		for action_variant in actions:
+			if not action_variant is Dictionary:
+				continue
+			var action := action_variant as Dictionary
+			var delta := int(action.get("delta", 0))
+			if delta <= 0:
+				continue
+			action_parts.append("%s 병력 +%d" % [
+				str(action.get("city_name", action.get("city_id", ""))),
+				delta,
+			])
+			if action_parts.size() >= 3:
+				break
+	var invasion_summary := "침공 조짐 없음"
+	var invasion_event: Variant = result.get("pending_invasion_event", {})
+	if bool(result.get("pending_invasion_created", false)) and invasion_event is Dictionary:
+		invasion_summary = "침공 조짐 %s → %s" % [
+			_format_city_name_by_id(str((invasion_event as Dictionary).get("attacker_city_id", "")), "적 도시"),
+			_format_city_name_by_id(str((invasion_event as Dictionary).get("defender_city_id", "")), "아군 도시"),
+		]
+	if action_count <= 0:
+		return "적세력 행동 없음 · %s" % invasion_summary
+	if action_parts.is_empty():
+		return "적세력 %d개 행동 · %s" % [action_count, invasion_summary]
+	return "적세력 %d개 행동 · %s · %s" % [action_count, " / ".join(action_parts), invasion_summary]
+
+
+func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
+	if not raw_result is Dictionary:
+		return ""
+	var result := raw_result as Dictionary
+	if result.is_empty():
+		return ""
+	var lines: Array[String] = ["적세력 턴 결과"]
+	var actions: Variant = result.get("actions", [])
+	if actions is Array and not (actions as Array).is_empty():
+		var shown := 0
+		for action_variant in actions:
+			if shown >= 4:
+				break
+			if not action_variant is Dictionary:
+				continue
+			var action := action_variant as Dictionary
+			if str(action.get("action_id", "")) != "reinforce_city":
+				continue
+			lines.append("%s: %s 병력 +%d" % [
+				str(action.get("faction_label", _format_faction_label(str(action.get("faction_id", ""))))),
+				str(action.get("city_name", action.get("city_id", ""))),
+				int(action.get("delta", 0)),
+			])
+			shown += 1
+	else:
+		lines.append("행동 없음")
+	var invasion_event: Variant = result.get("pending_invasion_event", {})
+	if bool(result.get("pending_invasion_created", false)) and invasion_event is Dictionary:
+		lines.append("침공 조짐: %s → %s" % [
+			_format_city_name_by_id(str((invasion_event as Dictionary).get("attacker_city_id", "")), "적 도시"),
+			_format_city_name_by_id(str((invasion_event as Dictionary).get("defender_city_id", "")), "아군 도시"),
+		])
+	else:
+		lines.append("침공 조짐: 없음")
+	return "\n".join(lines)
 
 
 func _get_enemy_invasion_pairs_mvp() -> Array[Dictionary]:

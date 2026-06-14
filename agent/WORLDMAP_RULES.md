@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-45 Enemy Faction Turn Behavior MVP Rule
+- Baseline was `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish` (`cc977ad461a971819ba5be2a4d2a6d414aabe7a8`).
+- Enemy phase may run conservative non-player faction behavior, but this rule authorizes only one reinforcement/log action per faction per `turn_number`.
+- `_player_state["last_enemy_faction_turn_processed_turn"]` is the authoritative same-turn replay guard. Save/load may restore it and must not replay enemy reinforcement or rerun the same-turn enemy invasion roll for an already processed turn.
+- `_player_state["last_enemy_faction_turn_result"]` is display/history state. It may include processed factions, action payloads, chancellor bonus metadata, pending invasion flags, and a compact summary.
+- Enemy faction selection must exclude PLAYER, empty factions, unknown/no-city factions, and player-owned cities.
+- Enemy city selection should prefer a faction-owned city adjacent to a player-owned city, then the faction-owned city with the lowest troops.
+- Enemy reinforcement is limited to enemy-owned city troops only: base `+80`, frontline `+40`, valid enemy faction chancellor seed `+20`, max `+150`.
+- `_player_state["faction_chancellors"]` remains the existing seed structure. This rule only allows reading it for the small reinforcement bonus and result metadata; it does not authorize enemy chancellor UI or enemy domestic policy simulation.
+- Enemy turn MVP must not directly reduce player city troops/resources, capture player cities without battle, mutate player resources/chancellor/market/diplomacy/spy/city intel, mutate target city storage, or simulate foreign stock.
+- Existing enemy invasion event generation remains authoritative. Do not change `ENEMY_INVASION_CHANCE`, pending invasion payload shape, or BattleContext handoff; enemy result state may only record whether the existing roll created a pending event.
+- Left World Status remains PLAYER/nation scope. Enemy turn summaries may be shown as compact logs, but hidden enemy resources, raw city details, or enemy national panel state must not be exposed.
+- This rule does not authorize market formula changes, manual/chancellor trade pricing changes, alliance/wedge behavior changes, spy/diplomacy formula changes, Fog of War weakening, player chancellor candidate scope changes, left/right panel scope changes, BattleContext changes, scene/asset changes, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-44 Domestic / Turn Flow QA Lock Rule
 - This pass is a regression guard over player turn end, domestic apply, world turn progression, save/load replay safety, market same-turn state, diplomacy/alliance duration, spy/revolt duration, city intel display-only restore, pending invasion event flow, and chancellor/left-panel scope.
 - Baseline was `v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass` (`aa7ba353a7eaec2bf38868b2110922d179ba1995`).
