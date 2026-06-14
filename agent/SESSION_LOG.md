@@ -2,6 +2,26 @@
 
 ## 2026-06-14
 
+### v0.70-36 Diplomacy Action MVP
+- Started from `f0d0301 v0.70-35 Trade Balance / Relation Efficiency Polish`.
+- Confirmed clean worktree and expected HEAD before editing.
+- Required docs and current diplomacy relation, action candidate display, cooldown, trade agreement, resource spending, trade efficiency, persistence, and warning-cleanup search paths were checked.
+- Implemented:
+  - Added a runtime `DiplomacyActionCard` with `사절 파견`, `조공`, `교역 협정`, and `관계 회복` buttons for selected foreign cities.
+  - Added validation and execution helpers for diplomacy actions.
+  - Applied national `resource_stock.gold` costs and relation score deltas after validation.
+  - Added target-faction diplomacy action cooldowns.
+  - Added 6-turn trade agreement state that reuses the existing trade agreement multiplier path for trade efficiency.
+  - Recorded `_player_state["last_diplomacy_action_result"]` for success/failure display.
+  - Added save/load fallback mirror keys for diplomacy action cooldowns and trade agreements.
+  - Extended world-turn diplomacy cooldown advancement to decrement action cooldowns and trade agreement duration.
+- Preserved alliance proposal execution, military support request execution, war/peace logic, AI response/rolls, spy action execution, target city storage, foreign faction stock, external trade pricing, chancellor auto trade structure, manual trade panels, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserved manual/internal trade, relation efficiency pricing, trade persistence, and `v0.70-34-hotfix1` warning cleanup.
+- Verification:
+  - project headless load passed before documentation update
+  - final verification commands are expected before commit
+- Manual F6 QA remains required for foreign-city action card visibility, action cost/relation/cooldown behavior, trade agreement efficiency bonus, save/load persistence, spy tab display-only behavior, and Godot Output warning cleanliness.
+
 ### v0.70-35 Trade Balance / Relation Efficiency Polish
 - Started from `1cf0798 v0.70-33 Chancellor Auto Trade Logic Connect`.
 - Confirmed clean worktree and expected HEAD before editing.

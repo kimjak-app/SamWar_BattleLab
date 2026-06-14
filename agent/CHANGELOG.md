@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-36 Diplomacy Action MVP
+- Built on `v0.70-35 Trade Balance / Relation Efficiency Polish` (`f0d03010829b72a64479712fd97833a509e7bad6`).
+- Added a runtime diplomacy action card to City Detail `외교·첩보 > 외교` for selected foreign cities.
+- Connected `사절 파견`, `조공`, `교역 협정`, and `관계 회복` buttons to validation-first execution.
+- Added national `resource_stock.gold` costs, relation score deltas, target-faction diplomacy action cooldowns, and recent diplomacy result payloads.
+- Added 6-turn trade agreement state through the existing relation entry and reflected it in the existing trade efficiency multiplier path.
+- Added save/load fallback for `_player_state["last_diplomacy_action_result"]`, `_player_state["diplomacy_action_cooldowns"]`, and `_player_state["trade_agreements"]`.
+- Extended world-turn diplomacy cooldown advancement to decrement diplomacy action cooldowns and trade agreement duration.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change alliance proposal execution, military support request execution, spy actions, AI response/rolls, target city storage, foreign faction stock, external trade pricing, chancellor auto trade structure, manual trade panels, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, or `.ogv`.
+- Preserved manual/internal trade, v0.70-35 relation efficiency pricing, trade persistence, and the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-35 Trade Balance / Relation Efficiency Polish
 - Built on `v0.70-33 Chancellor Auto Trade Logic Connect` (`1cf079873163784da6620b5b3ecdf6cffdaa6e18`).
 - Added relation-aware external trade pricing helpers for import cost, export gain, route efficiency, and shared delta calculation.

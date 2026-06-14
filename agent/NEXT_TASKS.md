@@ -1,5 +1,29 @@
 # NEXT TASKS
 
+## Current: v0.70-36 Diplomacy Action MVP
+- Baseline: `v0.70-35 Trade Balance / Relation Efficiency Polish` (`f0d03010829b72a64479712fd97833a509e7bad6`).
+- Completed direction:
+  1. City Detail `외교·첩보 > 외교` displays a runtime action card for selected foreign cities.
+  2. `사절 파견`, `조공`, `교역 협정`, and `관계 회복` validate and execute from buttons.
+  3. Successful actions spend national `resource_stock.gold`, adjust relation score, store `_player_state["last_diplomacy_action_result"]`, and apply target-faction action cooldown.
+  4. `교역 협정` stores a 6-turn active agreement and reuses the existing trade agreement multiplier path so trade efficiency gets the bonus.
+  5. Cooldowns and agreement turns advance during world-turn diplomacy cooldown processing and are mirrored for save/load fallback.
+- Preserved scope:
+  1. No alliance proposal execution, military support request execution, war/peace treaty logic, AI response/rolls, spy action execution, or turn-cost action system was added.
+  2. No target city storage, foreign faction stock, external trade pricing, chancellor auto trade structure, manual trade panel, Selected City Panel, BattleContext, `project.godot`, scene, asset, `.uid`, or `.ogv` changes were made.
+  3. Manual/internal trade, relation efficiency pricing, trade persistence, and warning-cleanup naming are preserved.
+- Manual F6 QA required:
+  1. Select a foreign city and confirm the diplomacy action card/buttons appear only on `외교·첩보 > 외교`.
+  2. Confirm envoy/tribute/trade agreement/restore costs, relation deltas, cooldown blocking, and recent result display.
+  3. Confirm trade agreement improves trade efficiency while active and decrements across turns.
+  4. Confirm save/load preserves cooldown/agreement/recent result without replaying effects.
+  5. Confirm spy tab remains display-only, trade/manual/chancellor flows remain stable, and Godot Output warnings stay clean.
+- Next candidate work:
+  1. `v0.70-37 Spy Action MVP`
+  2. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  3. `v0.70-39 Trade Market / Price Variation MVP`
+  4. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+
 ## Current: v0.70-35 Trade Balance / Relation Efficiency Polish
 - Baseline: `v0.70-33 Chancellor Auto Trade Logic Connect` (`1cf079873163784da6620b5b3ecdf6cffdaa6e18`).
 - Completed direction:

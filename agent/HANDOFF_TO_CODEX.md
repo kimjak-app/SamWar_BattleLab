@@ -1,5 +1,28 @@
 # HANDOFF TO CODEX
 
+## v0.70-36 Diplomacy Action MVP Handoff
+- Baseline: `v0.70-35 Trade Balance / Relation Efficiency Polish` (`f0d03010829b72a64479712fd97833a509e7bad6`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- City Detail `외교·첩보 > 외교` now creates and refreshes a runtime `DiplomacyActionCard` for selected foreign cities.
+- Action buttons are connected for:
+  - `envoy` / `사절 파견`: gold 30, relation +5, cooldown 1.
+  - `tribute` / `조공`: gold 100, relation +12, cooldown 2.
+  - `trade_agreement` / `교역 협정`: gold 80, relation +4, 6-turn agreement, cooldown 2.
+  - `restore_relations` / `관계 회복`: gold 120, relation +18, cooldown 3, hostile/suspended only.
+- Validation blocks empty/player targets, active cooldown, insufficient gold, trade agreement under score 45, trade agreement in hostile/suspended status, and restore outside hostile/suspended status.
+- Successful action payloads are stored in `_player_state["last_diplomacy_action_result"]`; failures store display-only failure results without spending resources, changing relation, setting cooldown, or adding agreements.
+- Diplomacy action cooldowns are stored on the relation entry as `diplomacy_action_cooldown` and mirrored to `_player_state["diplomacy_action_cooldowns"]`.
+- Trade agreements reuse the existing relation entry fields `trade_agreement_active`, `trade_agreement_turns_remaining`, and `trade_agreement_bonus`, with mirror state in `_player_state["trade_agreements"]`.
+- `_advance_diplomacy_cooldowns_for_world_turn()` now decrements legacy tribute cooldowns, diplomacy action cooldowns, and active trade agreement duration, then resyncs mirror state.
+- Save/load fallback normalizes the new player-state keys and does not replay action effects.
+- Explicitly unchanged: alliance proposal execution, military support request execution, war declarations, AI response/rolls, spy action execution, target city storage, foreign faction stock, external trade pricing, chancellor auto trade structure, manual trade panels, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidates:
+  1. `v0.70-37 Spy Action MVP`
+  2. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  3. `v0.70-39 Trade Market / Price Variation MVP`
+  4. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+
 ## v0.70-35 Trade Balance / Relation Efficiency Polish Handoff
 - Baseline: `v0.70-33 Chancellor Auto Trade Logic Connect` (`1cf079873163784da6620b5b3ecdf6cffdaa6e18`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

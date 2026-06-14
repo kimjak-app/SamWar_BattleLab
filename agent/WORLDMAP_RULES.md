@@ -1,5 +1,25 @@
 # WORLDMAP RULES
 
+## v0.70-36 Diplomacy Action Rule
+- Diplomacy actions may execute only from City Detail `외교·첩보 > 외교` against a selected foreign city/faction.
+- Baseline was `v0.70-35 Trade Balance / Relation Efficiency Polish` (`f0d03010829b72a64479712fd97833a509e7bad6`).
+- MVP executable action ids are:
+  1. `envoy`: gold 30, relation +5, diplomacy action cooldown 1.
+  2. `tribute`: gold 100, relation +12, diplomacy action cooldown 2.
+  3. `trade_agreement`: gold 80, relation +4, trade agreement 6 turns, diplomacy action cooldown 2.
+  4. `restore_relations`: gold 120, relation +18, diplomacy action cooldown 3.
+- Validation must complete before any cost, relation, cooldown, or agreement mutation.
+- Validation must block empty targets, player-owned targets, active target-faction diplomacy action cooldown, insufficient national gold, trade agreement under relation score 45, trade agreement in hostile/suspended status, and restore relations outside hostile/suspended status.
+- Costs are paid from national `_player_state["resource_stock"].gold`.
+- Relation score changes must clamp to the existing `0..100` range and use the existing relation entry path.
+- Diplomacy action cooldown belongs to the target faction relation entry and may be mirrored into `_player_state["diplomacy_action_cooldowns"]` for save/load fallback.
+- Trade agreements must reuse existing relation entry fields and the existing trade agreement multiplier path; do not add a second independent trade efficiency formula.
+- Trade agreement mirror state may live in `_player_state["trade_agreements"]`, but load must not replay action effects.
+- `_player_state["last_diplomacy_action_result"]` is display/result history only.
+- World-turn diplomacy cooldown advancement may decrement diplomacy action cooldowns and trade agreement turns.
+- This rule does not authorize alliance proposal execution, military support request execution, war declaration, treaty breaking, AI response/rolls, spy action execution, target city storage mutation, foreign faction stock mutation, external trade pricing changes, chancellor auto trade restructuring, manual trade panel changes, Selected City Panel changes, BattleContext changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-35 Trade Balance / Relation Efficiency Rule
 - External trade pricing may now apply relation efficiency for manual external trade and chancellor external auto trade.
 - Baseline was `v0.70-33 Chancellor Auto Trade Logic Connect` (`1cf079873163784da6620b5b3ecdf6cffdaa6e18`).

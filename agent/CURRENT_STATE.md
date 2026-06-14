@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.70-36 Diplomacy Action MVP
+- Baseline: `v0.70-35 Trade Balance / Relation Efficiency Polish` at `f0d03010829b72a64479712fd97833a509e7bad6`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail `외교·첩보 > 외교` now shows a runtime diplomacy action card for selected foreign cities.
+- Executable MVP actions are connected: `사절 파견`, `조공`, `교역 협정`, and `관계 회복`.
+- Successful actions spend national `resource_stock.gold`, adjust player-target faction relation score, record `_player_state["last_diplomacy_action_result"]`, and apply a target-faction diplomacy action cooldown.
+- `교역 협정` records a 6-turn agreement through the existing faction relation entry and mirror `_player_state["trade_agreements"]`; the existing trade efficiency multiplier path picks up the agreement bonus.
+- Diplomacy action cooldowns and trade agreement duration decrease during world-turn diplomacy cooldown advancement and are mirrored into `_player_state["diplomacy_action_cooldowns"]` / `_player_state["trade_agreements"]` for save/load fallback.
+- Save/load restores last result, cooldowns, and active agreements as state only; loading does not replay costs, relation changes, or action effects.
+- `동맹 제안`, `군사 지원 요청`, spy action execution, AI response/rolls, target city storage, foreign faction stock, trade pricing changes, turn cost, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, and `.ogv` files were not changed.
+- Manual/internal trade, chancellor auto trade, v0.70-35 relation efficiency pricing, trade persistence, and `v0.70-34-hotfix1` warning cleanup remain intact.
+- Next candidate work:
+  1. `v0.70-37 Spy Action MVP`
+  2. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  3. `v0.70-39 Trade Market / Price Variation MVP`
+  4. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+
 ## v0.70-35 Trade Balance / Relation Efficiency Polish
 - Baseline: `v0.70-33 Chancellor Auto Trade Logic Connect` at `1cf079873163784da6620b5b3ecdf6cffdaa6e18`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
