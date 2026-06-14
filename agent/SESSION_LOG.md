@@ -2,6 +2,26 @@
 
 ## 2026-06-14
 
+### v0.70-43 WorldMap Diplomacy/Spy/Intel Final QA Pass
+- Started from `7e0d27b v0.70-42 Enemy Intel UI Polish / Fog of War`.
+- Confirmed clean worktree, `main`, expected HEAD, and fetched `origin/main` before editing.
+- Required docs and market, alliance, wedge, city intel, chancellor candidate, faction chancellor, and warning-cleanup search paths were checked.
+- QA audit:
+  - v0.70-39 market pricing still uses `MANUAL_TRADE_PREVIEW_PRICES` as base authority and `_get_trade_market_price()` through shared import/export helpers.
+  - v0.70-40 alliance proposal remains validation-first, stores `alliance_turns_remaining`, mirrors display state, and keeps trade agreement state separate.
+  - v0.70-41 wedge remains selected-foreign-city scoped, excludes PLAYER from target-counterpart pairs, spends resources only on rolled attempts, and applies detection penalty only to PLAYER-target relations.
+  - v0.70-42 city intel remains display-only, failed `정탐` does not record city intel, and UI reveals only payload-backed fields.
+  - Chancellor candidate scope and `_player_state["faction_chancellors"]` seed state remain intact.
+- Code change 없음: no runtime script edits were required.
+- Documentation updated for QA pass results, preserved scope, verification, next candidates, and manual F6 QA.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - required market, alliance, wedge, city intel, faction chancellor, and warning-cleanup searches
+- Manual F6 QA remains required for player-city full display, enemy no-intel lock, field-by-field intel reveal, failed spy behavior, save/load display restore, market price parity, alliance accepted/rejected/expiry, wedge success/detection/alliance-break, left panel national scope, chancellor candidate scope, and Godot Output warning cleanliness.
+
 ### v0.70-42 Enemy Intel UI Polish / Fog of War
 - Started from `aae97d1 v0.70-41 Spy Action Polish / Alienation MVP`.
 - Confirmed clean worktree, `main`, expected HEAD, and fetched `origin/main` before editing.

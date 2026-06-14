@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-43 WorldMap Diplomacy/Spy/Intel Final QA Pass
+- Built on `v0.70-42 Enemy Intel UI Polish / Fog of War` (`7e0d27b887c7cd5989efc2a18038665c7e99854b`).
+- Performed a code-level QA audit for the v0.70-39 through v0.70-42 worldmap diplomacy/spy/intel stack.
+- Audited trade market pricing, alliance proposal/duration, wedge/alienation, enemy city intel Fog of War, chancellor candidate scope, faction chancellor seed state, and left/right panel scope.
+- Code change 없음: no runtime script edits were required.
+- Updated agent documentation with QA results, preserved scope, verification status, and manual F6 QA checklist.
+- Modified files: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change trade formulas, alliance behavior, spy formulas/effects, wedge behavior, city intel behavior, chancellor candidate logic, `faction_chancellors`, left/right panel scope, BattleContext, Selected City Panel behavior, `project.godot`, scenes, assets, `.uid`, or `.ogv`.
+- Preserved the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-42 Enemy Intel UI Polish / Fog of War
 - Built on `v0.70-41 Spy Action Polish / Alienation MVP` (`aae97d12676cea97c065a67f6366a9593e9e26ef`).
 - Polished enemy selected-city Fog of War UI copy for information level, revealed fields, and locked fields.

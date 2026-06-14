@@ -1,5 +1,27 @@
 # NEXT TASKS
 
+## Current: v0.70-43 WorldMap Diplomacy/Spy/Intel Final QA Pass
+- Baseline: `v0.70-42 Enemy Intel UI Polish / Fog of War` (`7e0d27b887c7cd5989efc2a18038665c7e99854b`).
+- Completed direction:
+  1. Performed QA audit across v0.70-39 market pricing, v0.70-40 alliance proposal, v0.70-41 wedge/alienation, and v0.70-42 enemy intel Fog of War.
+  2. Confirmed the audited runtime code paths already preserve validation-first execution, display-only save/load state, and scoped panel ownership.
+  3. Code change 없음: no runtime script edits were required.
+  4. Updated agent docs with QA results, verification expectations, and next candidates.
+- Preserved scope:
+  1. No trade formula, alliance behavior, spy formula/effect, city intel behavior, chancellor candidate, faction chancellor, left/right panel scope, BattleContext, scene, asset, `.uid`, or `.ogv` changes were made.
+  2. Warning-cleanup naming remains preserved.
+- Manual F6 QA required:
+  1. Confirm player-city full display and enemy no-intel lock.
+  2. Confirm successful/failed `정탐` affects only city-intel display as expected.
+  3. Confirm market preview/execution/chancellor auto pricing parity.
+  4. Confirm alliance accepted/rejected/expiry and wedge success/detection/alliance-break behavior.
+  5. Confirm foreign-city selection preserves left PLAYER national state and Hanseong chancellor candidate scope.
+  6. Confirm Godot Output warning cleanliness.
+- Next candidate work:
+  1. `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish`
+  2. `v0.70-45 Enemy Faction Turn Behavior MVP`
+  3. `v0.70-46 WorldMap Strategic UX Final Polish`
+
 ## Current: v0.70-42 Enemy Intel UI Polish / Fog of War
 - Baseline: `v0.70-41 Spy Action Polish / Alienation MVP` (`aae97d12676cea97c065a67f6366a9593e9e26ef`).
 - Completed direction:

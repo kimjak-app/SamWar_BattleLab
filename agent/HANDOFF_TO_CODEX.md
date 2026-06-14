@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-43 WorldMap Diplomacy/Spy/Intel Final QA Pass Handoff
+- Baseline: `v0.70-42 Enemy Intel UI Polish / Fog of War` (`7e0d27b887c7cd5989efc2a18038665c7e99854b`).
+- Runtime files touched: none.
+- Code change 없음: QA audit and docs update only.
+- Audited market pricing, alliance proposal/duration, wedge/alienation, city intel Fog of War, chancellor candidate scope, faction chancellor seed state, and left/right panel scope.
+- Market audit confirmed external trade pricing still uses turn-scoped market prices through `_get_trade_market_price()` and shared import/export helpers.
+- Alliance audit confirmed `alliance_proposal` validation-first behavior, relation-entry `alliance_turns_remaining`, mirror state, expiry-to-neutral, and trade-agreement separation.
+- Wedge audit confirmed selected-foreign-city scope, non-player counterpart selection, validation failure no-op behavior, rolled attempt cost/cooldown, target-counterpart relation mutation, and PLAYER-target detection penalty.
+- Intel audit confirmed `_player_state["city_intel"]` remains display-only, failed `정탐` does not open intel, and right panel / spy tab use payload-backed revealed/locked field display.
+- Chancellor audit confirmed candidate heroes remain sourced from the player candidate city roster, `_player_state["faction_chancellors"]` remains seed state, and selected foreign cities do not clear national chancellor assignment.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidates:
+  1. `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish`
+  2. `v0.70-45 Enemy Faction Turn Behavior MVP`
+  3. `v0.70-46 WorldMap Strategic UX Final Polish`
+
 ## v0.70-42 Enemy Intel UI Polish / Fog of War Handoff
 - Baseline: `v0.70-41 Spy Action Polish / Alienation MVP` (`aae97d12676cea97c065a67f6366a9593e9e26ef`).
 - Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.

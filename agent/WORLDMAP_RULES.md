@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-43 Diplomacy/Spy/Intel QA Lock Rule
+- This pass is a regression guard over `v0.70-39 Trade Market / Price Variation MVP`, `v0.70-40 Diplomacy Action Polish / Alliance MVP`, `v0.70-41 Spy Action Polish / Alienation MVP`, and `v0.70-42 Enemy Intel UI Polish / Fog of War`.
+- Baseline was `v0.70-42 Enemy Intel UI Polish / Fog of War` (`7e0d27b887c7cd5989efc2a18038665c7e99854b`).
+- This rule does not authorize new diplomacy actions, spy actions, trade systems, market formulas, enemy AI behavior, map fog overlays, battle features, or large UI restructuring.
+- Market pricing must continue to use `MANUAL_TRADE_PREVIEW_PRICES` as base authority and `_get_trade_market_price()` through the shared import/export helpers so manual preview, manual execution, and chancellor external auto trade stay aligned.
+- Alliance proposal must remain validation-first. Alliance duration belongs to relation entry `alliance_turns_remaining`; trade agreement duration remains separate and must not be overwritten by alliance expiry.
+- Wedge / `이간질` must remain selected-foreign-city scoped. PLAYER must never be the target-counterpart faction; validation failures must not spend resources, apply cooldown, mutate relations, or break alliances.
+- Rolled wedge attempts may apply cost/cooldown by existing rule; success may mutate only target-counterpart relation, and detection penalty applies only to the PLAYER-target relation.
+- Enemy city intel remains display-only Fog of War state. Failed spy results must not open intel, payload-missing fields must stay locked, and load must never replay spy costs, relation changes, detection penalties, city effects, wedge effects, or alliance breaks.
+- Left World Status remains player/nation scope. Foreign city selection must not clear `_player_state["chancellor_id"]`, and player chancellor candidates must remain scoped to the player candidate city roster.
+- `_player_state["faction_chancellors"]` remains seed/display state for non-player factions and must not leak into the player chancellor dropdown.
+- Future QA fixes in this area should be minimal guards, display copy fixes, malformed-state normalization, result payload completion, or warning cleanup only.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-42 Enemy Intel Fog of War UI Rule
 - Enemy/foreign selected-city display may polish Fog of War copy, but must remain selected-city scope.
 - Baseline was `v0.70-41 Spy Action Polish / Alienation MVP` (`aae97d12676cea97c065a67f6366a9593e9e26ef`).

@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.70-43 WorldMap Diplomacy/Spy/Intel Final QA Pass
+- Baseline: `v0.70-42 Enemy Intel UI Polish / Fog of War` at `7e0d27b887c7cd5989efc2a18038665c7e99854b`.
+- Modified files: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Code change 없음: this pass was a QA audit and documentation lock only.
+- Audited v0.70-39 through v0.70-42 flows: trade market price state, alliance proposal/duration, spy wedge/alienation, enemy city intel Fog of War display, chancellor candidate scope, and left/right panel scope.
+- Confirmed market pricing still uses `MANUAL_TRADE_PREVIEW_PRICES` as base authority and external trade import/export helpers route through `_get_trade_market_price()`.
+- Confirmed alliance proposal remains validation-first, uses `alliance_turns_remaining` on relation entries, mirrors display state, and preserves trade agreement duration separately.
+- Confirmed `SPY_ACTION_WEDGE` remains selected-foreign-city scoped, excludes PLAYER from target-counterpart pairs, charges only rolled attempts, and stores display/history in `_player_state["last_spy_wedge_result"]`.
+- Confirmed `_player_state["city_intel"]` remains display-only, failed `정탐` does not record intel, and payload-missing intel fields remain locked in UI.
+- Confirmed player chancellor candidates remain limited to the player candidate city roster, `_player_state["faction_chancellors"]` remains normalized/seeded, and foreign city selection does not clear national chancellor state.
+- Warning-cleanup audit found no new local `resource_label`, local `selected_city_id`, local `loyalty_card`, or `sign` parameter regression.
+- Manual F6 QA remains required for player-city full display, enemy no-intel lock, field-by-field intel reveal, failed spy behavior, save/load display-only restore, market preview/execution parity, alliance accepted/rejected/expiry, wedge success/detection/alliance-break, left panel national scope, chancellor candidate scope, and Godot Output warning cleanliness.
+- Next candidate work:
+  1. `v0.70-44 WorldMap Domestic/Turn Flow QA & Polish`
+  2. `v0.70-45 Enemy Faction Turn Behavior MVP`
+  3. `v0.70-46 WorldMap Strategic UX Final Polish`
+
 ## v0.70-42 Enemy Intel UI Polish / Fog of War
 - Baseline: `v0.70-41 Spy Action Polish / Alienation MVP` at `aae97d12676cea97c065a67f6366a9593e9e26ef`.
 - Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
