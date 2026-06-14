@@ -727,6 +727,8 @@ var _player_state := {
 	"trade_agreements": {},
 	"last_inter_faction_trade_result": {},
 	"last_trade_market_result": {},
+	"trade_market_prices": {},
+	"trade_market_turn": 0,
 	"last_chancellor_auto_trade_result": {},
 	"last_chancellor_auto_trade_turn": 0,
 	"last_alliance_proposal_result": {},
@@ -2091,10 +2093,12 @@ func _refresh_manual_trade_order_relation() -> void:
 		return
 	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
 	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
-	_manual_trade_relation_label.text = "관계: %s / %s / 효율 x%.2f / 적용가 반영" % [
+	var market_summary := _format_trade_market_prices_for_external_trade_ui()
+	_manual_trade_relation_label.text = "관계: %s / %s / 효율 x%.2f / 시장가 반영%s" % [
 		_format_faction_relation_status_for_ui(_get_faction_relation_status(source_faction_id, target_faction_id)),
 		_format_trade_availability_for_ui(source_faction_id, target_faction_id),
 		_get_trade_relation_multiplier_for_ui(source_faction_id, target_faction_id),
+		"\n%s" % market_summary if not market_summary.is_empty() else "",
 	]
 
 
@@ -2131,8 +2135,11 @@ func _format_manual_trade_preview_summary(preview: Dictionary) -> String:
 			_format_signed_int(int(preview.get(resource_id, 0))),
 		])
 	var summary := " / ".join(parts)
+	var market_text := _format_trade_market_prices_for_external_trade_ui()
 	if preview.has("efficiency") and float(preview.get("efficiency", 0.0)) > 0.0:
-		return "효율 x%.2f 적용 · %s" % [float(preview.get("efficiency", 0.0)), summary]
+		return "효율 x%.2f 적용 · %s%s" % [float(preview.get("efficiency", 0.0)), summary, "\n%s" % market_text if not market_text.is_empty() else ""]
+	if not market_text.is_empty():
+		return "%s\n%s" % [summary, market_text]
 	return summary
 
 
@@ -2253,6 +2260,8 @@ func _execute_external_manual_trade_order(order: Dictionary) -> Dictionary:
 		"target_faction_id": target_faction_id,
 		"applied": applied,
 		"efficiency": efficiency,
+		"market_turn": int(applied.get("market_turn", _player_state.get("trade_market_turn", 0))),
+		"market_prices": _get_trade_market_price_snapshot_for_order(order),
 		"message": "수동 무역 실행 완료",
 	}
 
@@ -2339,7 +2348,7 @@ func _calculate_trade_import_cost(resource_id: String, amount: int, efficiency: 
 	var safe_amount := maxi(0, amount)
 	if safe_amount <= 0 or efficiency <= 0.0:
 		return 0
-	var base_price := maxi(0, int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0)))
+	var base_price := _get_trade_market_price(resource_id)
 	var safe_efficiency := clampf(efficiency, TRADE_EFFICIENCY_MIN, TRADE_EFFICIENCY_MAX)
 	return maxi(0, ceili(float(base_price * safe_amount) / safe_efficiency))
 
@@ -2348,7 +2357,7 @@ func _calculate_trade_export_gain(resource_id: String, amount: int, efficiency: 
 	var safe_amount := maxi(0, amount)
 	if safe_amount <= 0 or efficiency <= 0.0:
 		return 0
-	var base_price := maxi(0, int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0)))
+	var base_price := _get_trade_market_price(resource_id)
 	var safe_efficiency := clampf(efficiency, TRADE_EFFICIENCY_MIN, TRADE_EFFICIENCY_MAX)
 	return maxi(0, floori(float(base_price * safe_amount) * safe_efficiency))
 
@@ -2359,6 +2368,7 @@ func _calculate_external_trade_delta(order: Dictionary) -> Dictionary:
 	var target_city_id := str(order.get("target_city_id", ""))
 	var efficiency := _get_trade_efficiency_for_cities(source_city_id, target_city_id)
 	delta["efficiency"] = efficiency
+	delta["market_turn"] = maxi(0, int(_player_state.get("trade_market_turn", 0)))
 	var orders_variant: Variant = order.get("orders", {})
 	if not orders_variant is Dictionary:
 		return delta
@@ -2632,6 +2642,8 @@ func _apply_chancellor_external_auto_trade(owned_city_ids: Array[String], policy
 			"target_faction_id": _get_city_owner_faction_id_for_trade_display(target_city_id),
 			"applied": applied_delta,
 			"efficiency": efficiency,
+			"market_turn": maxi(0, int(_player_state.get("trade_market_turn", 0))),
+			"market_prices": _get_trade_market_price_snapshot_for_delta(applied_delta),
 		})
 	result["applied"] = applied
 	return result
@@ -2922,6 +2934,7 @@ func _record_city_intel_from_spy_result(spy_result: Dictionary) -> void:
 
 
 func _sync_trade_persistence_to_player_state() -> void:
+	_ensure_trade_market_for_current_turn()
 	_trade_control_modes = _normalize_trade_control_modes(_trade_control_modes)
 	_manual_trade_orders = _normalize_manual_trade_orders(_manual_trade_orders)
 	_player_state["trade_control_modes"] = _trade_control_modes.duplicate(true)
@@ -2936,6 +2949,9 @@ func _sync_trade_persistence_to_player_state() -> void:
 
 func _restore_trade_persistence_from_player_state() -> void:
 	_trade_control_modes = _normalize_trade_control_modes(_player_state.get("trade_control_modes", {}))
+	_player_state["last_trade_market_result"] = _normalize_trade_market_result(_player_state.get("last_trade_market_result", {}))
+	_sync_trade_market_mirror_from_result(_player_state["last_trade_market_result"])
+	_ensure_trade_market_for_current_turn()
 	_manual_trade_orders = _normalize_manual_trade_orders(_player_state.get("manual_trade_orders", {}))
 	_player_state["trade_control_modes"] = _trade_control_modes.duplicate(true)
 	_player_state["manual_trade_orders"] = _manual_trade_orders.duplicate(true)
@@ -5232,6 +5248,11 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_inter_faction_trade_result"] = {}
 	if not _player_state.has("last_trade_market_result") or not (_player_state["last_trade_market_result"] is Dictionary):
 		_player_state["last_trade_market_result"] = {}
+	if not _player_state.has("trade_market_prices") or not (_player_state["trade_market_prices"] is Dictionary):
+		_player_state["trade_market_prices"] = {}
+	if not _player_state.has("trade_market_turn"):
+		_player_state["trade_market_turn"] = 0
+	_player_state["trade_market_turn"] = maxi(0, int(_player_state.get("trade_market_turn", 0)))
 	if not _player_state.has("last_diplomacy_relation_result") or not (_player_state["last_diplomacy_relation_result"] is Dictionary):
 		_player_state["last_diplomacy_relation_result"] = {}
 	if not _player_state.has("last_diplomacy_normalize_result") or not (_player_state["last_diplomacy_normalize_result"] is Dictionary):
@@ -5285,6 +5306,9 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_recruitment_result"] = {}
 	if not _player_state.has("last_revolt_warning_result") or not (_player_state["last_revolt_warning_result"] is Dictionary):
 		_player_state["last_revolt_warning_result"] = {}
+	_player_state["last_trade_market_result"] = _normalize_trade_market_result(_player_state.get("last_trade_market_result", {}))
+	_sync_trade_market_mirror_from_result(_player_state["last_trade_market_result"])
+	_ensure_trade_market_for_current_turn()
 	_player_state["trade_control_modes"] = _normalize_trade_control_modes(_player_state.get("trade_control_modes", {}))
 	_player_state["manual_trade_orders"] = _normalize_manual_trade_orders(_player_state.get("manual_trade_orders", {}))
 	_player_state["last_external_manual_trade_execution_result"] = _normalize_trade_result_payload(_player_state.get("last_external_manual_trade_execution_result", {}))
@@ -9822,16 +9846,7 @@ func _get_supply_city_state(supply_states: Dictionary, city_id: String) -> Dicti
 
 
 func _get_trade_market_base_prices() -> Dictionary:
-	return {
-		"rice": 60,
-		"barley": 50,
-		"seafood": 70,
-		"salt": 95,
-		"silk": 125,
-		"iron": 80,
-		"wood": 45,
-		"horse": 150,
-	}
+	return MANUAL_TRADE_PREVIEW_PRICES.duplicate(true)
 
 
 func _get_trade_resource_display_name(resource_id: String) -> String:
@@ -9850,7 +9865,7 @@ func _get_trade_resource_display_name(resource_id: String) -> String:
 			return "철"
 		"wood":
 			return "목재"
-		"horse":
+		"horses":
 			return "말"
 		_:
 			return resource_id
@@ -9878,7 +9893,7 @@ func _get_trade_season_multiplier(resource_id: String, turn_number: int) -> floa
 
 func _get_trade_situation_multiplier(resource_id: String, context: Dictionary = {}) -> float:
 	var multiplier := 1.0
-	if bool(context.get("war_state", false)) and (resource_id == "iron" or resource_id == "horse"):
+	if bool(context.get("war_state", false)) and (resource_id == "iron" or resource_id == "horses"):
 		multiplier *= 1.30
 	if bool(context.get("abundant_harvest", false)) and (resource_id == "rice" or resource_id == "barley"):
 		multiplier *= 0.80
@@ -9913,13 +9928,15 @@ func _calculate_trade_market_prices(turn_number: int, context: Dictionary = {}) 
 		var base_price := int(base_prices.get(resource_id, 0))
 		var season_multiplier := _get_trade_season_multiplier(resource_id, safe_turn)
 		var situation_multiplier := _get_trade_situation_multiplier(resource_id, context)
-		var total_multiplier := season_multiplier * situation_multiplier
+		var total_multiplier := clampf(season_multiplier * situation_multiplier, 0.80, 1.20)
 		prices[resource_id] = {
 			"name": _get_trade_resource_display_name(resource_id),
+			"base": base_price,
 			"base_price": base_price,
 			"season_multiplier": season_multiplier,
 			"situation_multiplier": situation_multiplier,
-			"price": maxi(0, int(round(float(base_price) * total_multiplier))),
+			"multiplier": total_multiplier,
+			"price": maxi(1, int(round(float(base_price) * total_multiplier))),
 			"trend": _get_trade_market_trend(total_multiplier),
 		}
 	return {
@@ -9947,11 +9964,135 @@ func _get_trade_market_context_from_state(supply_state_result: Dictionary = {}) 
 
 
 func _update_trade_market_for_world_turn(supply_state_result: Dictionary = {}) -> Dictionary:
-	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
 	var context := _get_trade_market_context_from_state(supply_state_result)
-	var result := _calculate_trade_market_prices(turn_number, context)
+	return _ensure_trade_market_for_current_turn(context)
+
+
+func _normalize_trade_market_result(raw_result: Variant) -> Dictionary:
+	if not raw_result is Dictionary:
+		return {}
+	var raw_dictionary := raw_result as Dictionary
+	var turn_number := maxi(0, int(raw_dictionary.get("turn", raw_dictionary.get("trade_market_turn", 0))))
+	var raw_prices: Variant = raw_dictionary.get("prices", raw_dictionary.get("trade_market_prices", {}))
+	var normalized_prices := {}
+	if raw_prices is Dictionary:
+		for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+			var entry_variant: Variant = (raw_prices as Dictionary).get(resource_id, {})
+			var base_price := maxi(1, int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 1)))
+			var price := base_price
+			var multiplier := 1.0
+			var trend := "flat"
+			if entry_variant is Dictionary:
+				var entry := entry_variant as Dictionary
+				price = maxi(1, int(entry.get("price", base_price)))
+				multiplier = clampf(float(entry.get("multiplier", float(price) / float(base_price))), 0.80, 1.20)
+				price = maxi(1, int(round(float(base_price) * multiplier)))
+				trend = _get_trade_market_trend(multiplier)
+			normalized_prices[resource_id] = {
+				"name": _get_trade_resource_display_name(resource_id),
+				"base": base_price,
+				"base_price": base_price,
+				"multiplier": multiplier,
+				"price": price,
+				"trend": trend,
+			}
+	if normalized_prices.is_empty():
+		return {}
+	var context_payload := {}
+	var context_variant: Variant = raw_dictionary.get("context", {})
+	if context_variant is Dictionary:
+		context_payload = (context_variant as Dictionary).duplicate(true)
+	return {
+		"turn": turn_number,
+		"season": str(raw_dictionary.get("season", "")),
+		"season_label": str(raw_dictionary.get("season_label", "")),
+		"context": context_payload,
+		"prices": normalized_prices,
+	}
+
+
+func _sync_trade_market_mirror_from_result(result: Dictionary) -> void:
+	if result.is_empty():
+		_player_state["trade_market_prices"] = {}
+		_player_state["trade_market_turn"] = 0
+		return
+	var prices: Variant = result.get("prices", {})
+	if prices is Dictionary:
+		_player_state["trade_market_prices"] = (prices as Dictionary).duplicate(true)
+	else:
+		_player_state["trade_market_prices"] = {}
+	_player_state["trade_market_turn"] = maxi(0, int(result.get("turn", 0)))
+
+
+func _ensure_trade_market_for_current_turn(context: Dictionary = {}) -> Dictionary:
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var current_result := _normalize_trade_market_result(_player_state.get("last_trade_market_result", {}))
+	if not current_result.is_empty() and int(current_result.get("turn", 0)) == turn_number:
+		_player_state["last_trade_market_result"] = current_result
+		_sync_trade_market_mirror_from_result(current_result)
+		return current_result
+	var market_context := context if not context.is_empty() else _get_trade_market_context_from_state()
+	var result := _normalize_trade_market_result(_calculate_trade_market_prices(turn_number, market_context))
 	_player_state["last_trade_market_result"] = result
+	_sync_trade_market_mirror_from_result(result)
 	return result
+
+
+func _get_trade_market_price(resource_id: String) -> int:
+	var result := _ensure_trade_market_for_current_turn()
+	var prices: Variant = result.get("prices", {})
+	var base_price := maxi(1, int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 1)))
+	if prices is Dictionary:
+		var entry_variant: Variant = (prices as Dictionary).get(resource_id, {})
+		if entry_variant is Dictionary:
+			return maxi(1, int((entry_variant as Dictionary).get("price", base_price)))
+	return base_price
+
+
+func _get_trade_market_price_snapshot_for_delta(delta: Dictionary) -> Dictionary:
+	var snapshot := {}
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		if int(delta.get(resource_id, 0)) != 0:
+			snapshot[resource_id] = _get_trade_market_price(resource_id)
+	return snapshot
+
+
+func _get_trade_market_price_snapshot_for_order(order: Dictionary) -> Dictionary:
+	var snapshot := {}
+	var orders_variant: Variant = order.get("orders", {})
+	if not orders_variant is Dictionary:
+		return snapshot
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		var item_variant: Variant = (orders_variant as Dictionary).get(resource_id, {})
+		if not item_variant is Dictionary:
+			continue
+		if int((item_variant as Dictionary).get("amount", 0)) > 0 and str((item_variant as Dictionary).get("action", MANUAL_TRADE_ACTION_NONE)) != MANUAL_TRADE_ACTION_NONE:
+			snapshot[resource_id] = _get_trade_market_price(resource_id)
+	return snapshot
+
+
+func _format_trade_market_prices_for_external_trade_ui() -> String:
+	var result := _ensure_trade_market_for_current_turn()
+	var prices: Variant = result.get("prices", {})
+	if not prices is Dictionary:
+		return ""
+	var parts: Array[String] = []
+	for resource_id in ["rice", "barley", "seafood", "salt", "silk"]:
+		var entry_variant: Variant = (prices as Dictionary).get(resource_id, {})
+		if not entry_variant is Dictionary:
+			continue
+		var entry := entry_variant as Dictionary
+		var multiplier := float(entry.get("multiplier", 1.0))
+		var percent_delta := int(round((multiplier - 1.0) * 100.0))
+		var percent_text := ""
+		if percent_delta != 0:
+			percent_text = " (%s%%)" % _format_signed_int(percent_delta)
+		parts.append("%s %d%s" % [
+			str(entry.get("name", _get_trade_resource_display_name(resource_id))),
+			int(entry.get("price", _get_trade_market_price(resource_id))),
+			percent_text,
+		])
+	return "" if parts.is_empty() else "시장가: %s" % " / ".join(parts)
 
 
 func _create_empty_inter_faction_trade_totals() -> Dictionary:

@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.70-39 Trade Market / Price Variation MVP
+- Baseline: `v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed` at `71c61f331a7185a1ebbb2d042b53d791dcb556a8`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- External trade now uses turn-scoped market prices derived from `MANUAL_TRADE_PREVIEW_PRICES`, with conservative `0.80..1.20` multipliers and minimum price `1`.
+- Market state is recorded in `_player_state["last_trade_market_result"]` and mirrored to `_player_state["trade_market_prices"]` / `_player_state["trade_market_turn"]`.
+- Manual external trade preview, manual execution validation/result, and chancellor external auto trade all use `_get_trade_market_price()` through the shared import/export helpers.
+- Price formulas are now `ceil(market_price * amount / efficiency)` for imports and `floor(market_price * amount * efficiency)` for exports; relation efficiency behavior is otherwise unchanged.
+- Pending manual order preview is recalculated from current market state and relation efficiency during normalize/load/refresh.
+- External trade UI relation/preview copy shows a compact current market price summary with percentage deltas.
+- Save/load restores same-turn market state as display/calculation state; when the turn changes or state is missing, the market is generated once for the current turn.
+- Preserved left national panel scope lock, player chancellor candidate scope, `_player_state["faction_chancellors"]`, enemy city intel visibility filter, spy/diplomacy formulas, target city storage rules, foreign faction stock, relation score behavior, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- The `v0.70-34-hotfix1` shadowing warning cleanup remains intact.
+- Manual F6 QA remains required for market display, preview/execution price match, relation efficiency over market price, chancellor auto external pricing, save/load same-turn market persistence, once-per-turn refresh, chancellor candidate scope, left panel scope, enemy intel lock, and warning cleanliness.
+- Next candidate work:
+  1. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  2. `v0.70-41 Spy Action Polish / Alienation MVP`
+  3. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed
 - Baseline: `v0.70-38 Enemy City Intel Visibility Filter` at `6b61e1f045c461eeff5a53f5a4b77aae6cbada53`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

@@ -1,5 +1,25 @@
 # HANDOFF TO CODEX
 
+## v0.70-39 Trade Market / Price Variation MVP Handoff
+- Baseline: `v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed` (`71c61f331a7185a1ebbb2d042b53d791dcb556a8`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- `MANUAL_TRADE_PREVIEW_PRICES` remains the base price authority.
+- `_calculate_trade_market_prices()` now produces external-trade-compatible resource keys, including `horses`, and clamps the market multiplier to `0.80..1.20`.
+- Market state is normalized through `_normalize_trade_market_result()` and mirrored to `_player_state["trade_market_prices"]` / `_player_state["trade_market_turn"]`.
+- `_ensure_trade_market_for_current_turn()` keeps same-turn market state stable across preview/execution/save/load and generates a new state only when the current turn lacks one.
+- `_calculate_trade_import_cost()` and `_calculate_trade_export_gain()` now use `_get_trade_market_price(resource_id)`.
+- Pricing formulas:
+  - Import: `ceil(market_price * amount / efficiency)`.
+  - Export: `floor(market_price * amount * efficiency)`.
+- Manual external trade preview/execution and chancellor external auto trade share those helpers, so relation efficiency remains layered over the same market price.
+- External trade UI relation/preview text includes a compact market price summary such as `시장가: 쌀 3 (+10%) / ...`.
+- Explicitly unchanged: left national panel scope, player chancellor candidate scope, `_player_state["faction_chancellors"]`, enemy city intel visibility filter, spy formulas/effects, diplomacy actions, target city storage rules, foreign faction stock, relation score mutation, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidates:
+  1. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  2. `v0.70-41 Spy Action Polish / Alienation MVP`
+  3. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed Handoff
 - Baseline: `v0.70-38 Enemy City Intel Visibility Filter` (`6b61e1f045c461eeff5a53f5a4b77aae6cbada53`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

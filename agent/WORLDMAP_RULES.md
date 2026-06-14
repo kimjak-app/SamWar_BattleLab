@@ -1,5 +1,18 @@
 # WORLDMAP RULES
 
+## v0.70-39 Trade Market / Price Variation Rule
+- External trade pricing may use turn-scoped market prices derived from `MANUAL_TRADE_PREVIEW_PRICES`.
+- Baseline was `v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed` (`71c61f331a7185a1ebbb2d042b53d791dcb556a8`).
+- Market multipliers must remain conservative, clamped to `0.80..1.20`, with minimum price `1`.
+- Same-turn market state must remain stable for manual preview, manual execution, chancellor external auto trade, and save/load.
+- Market state may be stored in `_player_state["last_trade_market_result"]` and mirrored to `_player_state["trade_market_prices"]` / `_player_state["trade_market_turn"]`.
+- Import formula is `ceil(market_price * amount / efficiency)`.
+- Export formula is `floor(market_price * amount * efficiency)`.
+- Relation efficiency and trade availability gates must continue to use the existing relation/trade agreement path.
+- Pending manual external orders must recalculate preview from current market price and relation efficiency on load/refresh.
+- This rule does not authorize target city storage mutation changes, foreign faction stock, relation score mutation, random trade rolls, diplomacy/spy behavior changes, chancellor candidate scope changes, enemy city intel filter changes, BattleContext changes, Selected City Panel changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-38-hotfix1 Chancellor Candidate Scope Rule
 - Player chancellor assignment remains player/nation scope, but player chancellor candidates must come from the player chancellor candidate city roster, not all player-side heroes.
 - Baseline was `v0.70-38 Enemy City Intel Visibility Filter` (`6b61e1f045c461eeff5a53f5a4b77aae6cbada53`).

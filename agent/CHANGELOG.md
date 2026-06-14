@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-39 Trade Market / Price Variation MVP
+- Built on `v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed` (`71c61f331a7185a1ebbb2d042b53d791dcb556a8`).
+- Connected turn-scoped market prices to external trade pricing.
+- Kept `MANUAL_TRADE_PREVIEW_PRICES` as base price authority and clamped market multipliers to `0.80..1.20`.
+- Added `_player_state["trade_market_prices"]` and `_player_state["trade_market_turn"]` mirrors for save/load and same-turn stability.
+- Updated manual external trade preview/execution and chancellor external auto trade to use market price plus existing relation efficiency.
+- Updated formulas to `ceil(market_price * amount / efficiency)` for imports and `floor(market_price * amount * efficiency)` for exports.
+- Added compact external trade UI copy for current market price and percentage movement.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change chancellor candidate scope, `faction_chancellors`, enemy city intel visibility filtering, spy/diplomacy formulas, target city storage rules, foreign stock, relation score mutation, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, or `.ogv`.
+- Preserved the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed
 - Built on `v0.70-38 Enemy City Intel Visibility Filter` (`6b61e1f045c461eeff5a53f5a4b77aae6cbada53`).
 - Limited player chancellor candidates to the valid capital/Hanseong/player candidate city stationed hero roster.

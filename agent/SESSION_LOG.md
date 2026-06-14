@@ -2,6 +2,30 @@
 
 ## 2026-06-14
 
+### v0.70-39 Trade Market / Price Variation MVP
+- Started from `71c61f3 v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed`.
+- Confirmed clean worktree, `main`, expected HEAD, and fetched `origin/main` before editing.
+- Required docs and trade market, manual external trade, chancellor external auto trade, hotfix1 chancellor scope, city intel, and warning-cleanup search paths were checked.
+- Implemented:
+  - Changed trade market base prices to use `MANUAL_TRADE_PREVIEW_PRICES`.
+  - Normalized market result payloads and mirrored same-turn state to `_player_state["trade_market_prices"]` / `_player_state["trade_market_turn"]`.
+  - Added `_ensure_trade_market_for_current_turn()` to keep save/load and preview/execution on the same turn-scoped market state.
+  - Connected `_calculate_trade_import_cost()` and `_calculate_trade_export_gain()` to `_get_trade_market_price()`.
+  - Added market turn/price metadata to manual execution and chancellor external auto trade result payloads.
+  - Added compact market price/delta copy to external manual trade relation and preview UI.
+- Pricing:
+  - Import cost: `ceil(market_price * amount / efficiency)`.
+  - Export gain: `floor(market_price * amount * efficiency)`.
+- Preserved left national panel scope lock, player chancellor candidate scope, `faction_chancellors`, enemy city intel visibility filter, spy/diplomacy formulas, target city storage rules, foreign stock, relation score behavior, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserved `v0.70-34-hotfix1` warning cleanup.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - required trade market, hotfix scope, city intel, and warning-cleanup searches
+- Manual F6 QA remains required for market display, manual preview/execution parity, relation efficiency over market price, chancellor external auto trade pricing, save/load same-turn market persistence, once-per-turn refresh, chancellor candidate scope, left panel scope, enemy intel lock, and Godot Output warning cleanliness.
+
 ### v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed
 - Started from `6b61e1f v0.70-38 Enemy City Intel Visibility Filter`.
 - Confirmed clean worktree and expected HEAD before editing.

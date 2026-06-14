@@ -1,5 +1,30 @@
 # NEXT TASKS
 
+## Current: v0.70-39 Trade Market / Price Variation MVP
+- Baseline: `v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed` (`71c61f331a7185a1ebbb2d042b53d791dcb556a8`).
+- Completed direction:
+  1. Market prices now use `MANUAL_TRADE_PREVIEW_PRICES` as base authority and clamp multipliers to `0.80..1.20`.
+  2. `_player_state["last_trade_market_result"]`, `_player_state["trade_market_prices"]`, and `_player_state["trade_market_turn"]` preserve same-turn market state.
+  3. Manual external preview/execution and chancellor external auto trade share `_calculate_trade_import_cost()` / `_calculate_trade_export_gain()` with market prices.
+  4. Import formula is `ceil(market_price * amount / efficiency)`; export formula is `floor(market_price * amount * efficiency)`.
+  5. External trade UI shows compact market price and percentage delta copy.
+- Preserved scope:
+  1. Relation efficiency formula and trade availability gates remain unchanged.
+  2. Left panel scope lock, chancellor candidate scope, `faction_chancellors`, and enemy city intel visibility filter remain unchanged.
+  3. No spy/diplomacy formula, target city storage, foreign stock, relation score, BattleContext, Selected City Panel, scene, asset, `.uid`, or `.ogv` changes were made.
+  4. Warning-cleanup naming remains preserved.
+- Manual F6 QA required:
+  1. Confirm external trade UI market price/delta display.
+  2. Confirm manual import/export preview matches execution.
+  3. Confirm relation efficiency applies on top of market price.
+  4. Confirm chancellor external auto trade uses the same market price.
+  5. Confirm save/load preserves same-turn market state and turn progression refreshes it once.
+  6. Confirm chancellor candidate scope, left panel scope, enemy intel lock, and warning cleanliness.
+- Next candidate work:
+  1. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  2. `v0.70-41 Spy Action Polish / Alienation MVP`
+  3. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## Current: v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed
 - Baseline: `v0.70-38 Enemy City Intel Visibility Filter` (`6b61e1f045c461eeff5a53f5a4b77aae6cbada53`).
 - Completed direction:
