@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.70-40 Diplomacy Action Polish / Alliance MVP
+- Baseline: `v0.70-39 Trade Market / Price Variation MVP` at `84bbf9c5e12e3afff523d3e389043a7126dce732`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail `외교·첩보 > 외교` now includes executable `동맹 제안` using action id `alliance_proposal`.
+- Alliance validation blocks empty/player targets, hostile/suspended relations, active alliances, active diplomacy cooldowns, and insufficient national resources.
+- Alliance proposal cost is `gold 200` and `silk 50`; validation failures do not spend resources, while rejected proposals spend the package and apply cooldown as an attempted diplomatic offer.
+- Acceptance uses the existing `_calculate_alliance_acceptance_chance()` result against `ALLIANCE_ACCEPTANCE_THRESHOLD`; accepted proposals set relation status to `allied` for 8 turns.
+- Alliance state lives on the faction relation entry as `alliance_turns_remaining` plus display metadata, and is mirrored to `_player_state["alliances"]` for save/load fallback.
+- `_player_state["last_alliance_proposal_result"]` and `_player_state["last_diplomacy_action_result"]` record accepted/rejected alliance payloads for UI display.
+- World-turn diplomacy advancement decrements active alliance duration and safely returns expired alliances to `neutral` without touching trade agreement duration.
+- Existing envoy, tribute, trade agreement, and restore-relations actions remain on their prior paths.
+- Preserved v0.70-39 market price formulas/state, player chancellor candidate scope, `_player_state["faction_chancellors"]`, left national panel scope lock, right selected-city scope, enemy city intel visibility filter, spy formulas/effects, trade formulas, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- The `v0.70-34-hotfix1` shadowing warning cleanup remains intact.
+- Manual F6 QA remains required for alliance button/status display, accepted/rejected/cost-shortage outcomes, cooldown decrement, alliance expiry to neutral, save/load alliance duration, existing diplomacy actions, market trade pricing, chancellor candidate scope, left panel scope, enemy intel lock, and warning cleanliness.
+- Next candidate work:
+  1. `v0.70-41 Spy Action Polish / Alienation MVP`
+  2. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## v0.70-39 Trade Market / Price Variation MVP
 - Baseline: `v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed` at `71c61f331a7185a1ebbb2d042b53d791dcb556a8`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

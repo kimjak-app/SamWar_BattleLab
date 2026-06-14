@@ -1,5 +1,21 @@
 # WORLDMAP RULES
 
+## v0.70-40 Diplomacy Alliance Rule
+- Diplomacy action card may execute `alliance_proposal` / `동맹 제안` against selected foreign factions.
+- Baseline was `v0.70-39 Trade Market / Price Variation MVP` (`84bbf9c5e12e3afff523d3e389043a7126dce732`).
+- Validation must complete before any proposal cost, relation mutation, cooldown, or alliance state mutation.
+- Validation must block empty/player targets, hostile or suspended relations, already active alliances, active target-faction diplomacy action cooldown, and insufficient proposal resources.
+- Proposal cost is `gold 200` and `silk 50`; validation failures must not spend resources.
+- Rejected proposals may spend the proposal package and apply diplomacy cooldown, but must not change relation status or relation score.
+- Accepted proposals set the player-target relation entry to `allied` and store `alliance_turns_remaining = 8`.
+- Alliance acceptance must use the existing alliance acceptance score/threshold path; do not add complex AI response or random diplomacy rolls in this rule.
+- Active alliance duration belongs to the relation entry and may be mirrored into `_player_state["alliances"]` for save/load fallback.
+- Loading a save may restore active alliance duration but must never replay proposal costs, acceptance, or relation mutations.
+- World-turn diplomacy advancement may decrement alliance duration and must return expired alliances to `neutral` without changing trade agreement duration.
+- Existing envoy, tribute, trade agreement, and restore-relations behavior must remain intact.
+- This rule does not authorize market price formula changes, external trade pricing changes, spy formula/effect changes, `이간질`, military support request execution, enemy diplomacy/spy execution, chancellor candidate scope changes, `faction_chancellors` changes, enemy city intel filter changes, BattleContext changes, Selected City Panel changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-39 Trade Market / Price Variation Rule
 - External trade pricing may use turn-scoped market prices derived from `MANUAL_TRADE_PREVIEW_PRICES`.
 - Baseline was `v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed` (`71c61f331a7185a1ebbb2d042b53d791dcb556a8`).

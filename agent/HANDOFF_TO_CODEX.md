@@ -1,5 +1,23 @@
 # HANDOFF TO CODEX
 
+## v0.70-40 Diplomacy Action Polish / Alliance MVP Handoff
+- Baseline: `v0.70-39 Trade Market / Price Variation MVP` (`84bbf9c5e12e3afff523d3e389043a7126dce732`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Added diplomacy action id `alliance_proposal` with label `동맹 제안`.
+- The action uses proposal cost `gold 200` / `silk 50`, cooldown `4`, and alliance duration `8` turns.
+- Validation blocks player/empty targets, hostile or suspended relations, already active alliances, active target diplomacy cooldown, and missing resources.
+- Acceptance uses the existing `_calculate_alliance_acceptance_chance()` score and `ALLIANCE_ACCEPTANCE_THRESHOLD`.
+- Accepted proposals set the relation entry to `status = allied`, store `alliance_turns_remaining`, and record proposal metadata.
+- Rejected proposals keep relation status unchanged, spend the proposal package, apply cooldown, and store `reason = rejected`.
+- Active alliances are mirrored from relation entries into `_player_state["alliances"]`; load normalization can restore that mirror without replaying costs/effects.
+- `_advance_diplomacy_cooldowns_for_world_turn()` decrements alliance turns and returns expired alliances to `neutral`, without changing trade agreement state.
+- Recent alliance outcomes are written to both `_player_state["last_alliance_proposal_result"]` and `_player_state["last_diplomacy_action_result"]` for UI display.
+- Explicitly unchanged: v0.70-39 market price formulas/state, manual/chancellor external trade price helpers, existing four diplomacy actions, spy formulas/effects, player chancellor candidate scope, `_player_state["faction_chancellors"]`, left national panel scope lock, enemy city intel visibility filter, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidates:
+  1. `v0.70-41 Spy Action Polish / Alienation MVP`
+  2. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## v0.70-39 Trade Market / Price Variation MVP Handoff
 - Baseline: `v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed` (`71c61f331a7185a1ebbb2d042b53d791dcb556a8`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

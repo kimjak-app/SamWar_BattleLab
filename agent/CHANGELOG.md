@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-40 Diplomacy Action Polish / Alliance MVP
+- Built on `v0.70-39 Trade Market / Price Variation MVP` (`84bbf9c5e12e3afff523d3e389043a7126dce732`).
+- Added executable `동맹 제안` to the diplomacy action card with action id `alliance_proposal`.
+- Reused existing alliance acceptance scoring and threshold helpers.
+- Added validation for target faction, hostile/suspended relations, active alliances, diplomacy cooldown, and proposal resource costs.
+- Added accepted/rejected alliance result payloads in `_player_state["last_alliance_proposal_result"]` and `_player_state["last_diplomacy_action_result"]`.
+- Stored accepted alliance duration on faction relation entries and mirrored active alliances into `_player_state["alliances"]` for save/load fallback.
+- Extended diplomacy turn advancement to decrement alliance duration and expire alliances back to neutral.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change v0.70-39 market price formulas/state, external trade pricing, existing diplomacy actions, spy formulas/effects, chancellor candidate scope, `faction_chancellors`, enemy city intel visibility filtering, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, or `.ogv`.
+- Preserved the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-39 Trade Market / Price Variation MVP
 - Built on `v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed` (`71c61f331a7185a1ebbb2d042b53d791dcb556a8`).
 - Connected turn-scoped market prices to external trade pricing.

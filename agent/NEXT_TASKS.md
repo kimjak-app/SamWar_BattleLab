@@ -1,5 +1,29 @@
 # NEXT TASKS
 
+## Current: v0.70-40 Diplomacy Action Polish / Alliance MVP
+- Baseline: `v0.70-39 Trade Market / Price Variation MVP` (`84bbf9c5e12e3afff523d3e389043a7126dce732`).
+- Completed direction:
+  1. Added executable diplomacy action id `alliance_proposal` / `동맹 제안` to the existing diplomacy action card.
+  2. Reused the existing alliance acceptance helper and threshold for validation/result metadata.
+  3. Accepted proposals set the player-target relation entry to `allied` with `alliance_turns_remaining = 8`.
+  4. Rejected proposals spend the proposal package and apply diplomacy cooldown; validation failures do not spend resources or mutate relations.
+  5. `_player_state["last_alliance_proposal_result"]`, `_player_state["last_diplomacy_action_result"]`, and `_player_state["alliances"]` preserve result and save/load fallback state.
+  6. World-turn diplomacy advancement decrements alliance duration and normalizes expired alliances back to `neutral`.
+- Preserved scope:
+  1. Existing envoy, tribute, trade agreement, and restore-relations paths remain unchanged in behavior.
+  2. v0.70-39 market price formulas/state, trade availability, chancellor external trade pricing, spy formulas/effects, player chancellor candidate scope, `faction_chancellors`, left panel scope lock, and enemy intel filtering remain unchanged.
+  3. No target city storage, foreign stock, BattleContext, Selected City Panel, scene, asset, `.uid`, or `.ogv` changes were made.
+  4. Warning-cleanup naming remains preserved.
+- Manual F6 QA required:
+  1. Confirm foreign-city diplomacy tab shows `동맹 제안` status/cost/acceptance info.
+  2. Confirm accepted proposals set `allied` and remaining turns, rejected proposals preserve status, and resource-shortage failures do not spend resources.
+  3. Confirm diplomacy cooldown and alliance duration decrement on world turns, and expiry returns to neutral.
+  4. Confirm save/load preserves active alliance duration and recent result display without replaying costs/effects.
+  5. Confirm existing diplomacy actions, market trade pricing, chancellor candidate scope, left panel scope, enemy intel lock, and warning cleanliness.
+- Next candidate work:
+  1. `v0.70-41 Spy Action Polish / Alienation MVP`
+  2. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## Current: v0.70-39 Trade Market / Price Variation MVP
 - Baseline: `v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed` (`71c61f331a7185a1ebbb2d042b53d791dcb556a8`).
 - Completed direction:

@@ -2,6 +2,28 @@
 
 ## 2026-06-14
 
+### v0.70-40 Diplomacy Action Polish / Alliance MVP
+- Started from `84bbf9c v0.70-39 Trade Market / Price Variation MVP`.
+- Confirmed clean worktree, `main`, expected HEAD, and fetched `origin/main` before editing.
+- Required docs and alliance/diplomacy action, market, city intel, faction chancellor, and warning-cleanup search paths were checked.
+- Implemented:
+  - Added diplomacy action id `alliance_proposal` and a `동맹 제안` runtime button to the diplomacy action card.
+  - Added alliance validation for invalid/player targets, hostile/suspended relations, existing active alliances, diplomacy cooldown, and proposal resource costs.
+  - Reused `_calculate_alliance_acceptance_chance()` and `ALLIANCE_ACCEPTANCE_THRESHOLD` for accepted/rejected result payloads.
+  - Connected accepted proposals to relation `allied` state with 8-turn `alliance_turns_remaining`.
+  - Mirrored active alliance relation entries to `_player_state["alliances"]` for save/load fallback.
+  - Stored alliance results in `_player_state["last_alliance_proposal_result"]` and `_player_state["last_diplomacy_action_result"]`.
+  - Extended diplomacy cooldown advancement to decrement alliance duration and expire alliances to neutral.
+- Preserved v0.70-39 market price formulas/state, existing diplomacy actions, spy formulas/effects, player chancellor candidate scope, `faction_chancellors`, enemy city intel visibility filter, left panel scope, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserved `v0.70-34-hotfix1` warning cleanup.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - required alliance, market, city intel, faction chancellor, and warning-cleanup searches
+- Manual F6 QA remains required for alliance button/status display, accepted/rejected/cost-shortage outcomes, cooldown and duration ticks, expiry to neutral, save/load duration/result persistence, existing diplomacy actions, market pricing, chancellor candidate scope, left panel scope, enemy intel lock, and Godot Output warning cleanliness.
+
 ### v0.70-39 Trade Market / Price Variation MVP
 - Started from `71c61f3 v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed`.
 - Confirmed clean worktree, `main`, expected HEAD, and fetched `origin/main` before editing.
