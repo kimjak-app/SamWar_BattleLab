@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-33 Chancellor Auto Trade Logic Connect
+- Built on `v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup` (`83cbf79c45bd66959cf0c0478c161ce275de6c47`).
+- Filled the skipped `v0.70-33` follow-up after `v0.70-34` and `v0.70-34-hotfix1`.
+- Connected `재상에게 일임` internal/external trade modes to player domestic-turn auto trade.
+- Added internal chancellor auto trade that redistributes connected player-owned city storage from surplus sources to shortage targets.
+- Added external chancellor auto trade that imports shortage resources or exports surplus resources by mutating source city storage only.
+- Added policy/aptitude resource priority and cap handling for balanced, agriculture, commerce, trade, military, and diplomatic/economic/administrative aptitude.
+- Added same-turn double apply guard and display-only result persistence via `_player_state["last_chancellor_auto_trade_result"]` / `_player_state["last_chancellor_auto_trade_turn"]`.
+- Added recent chancellor auto trade summaries to internal/external trade tabs while preserving manual pending/execution summaries.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change external target city storage, foreign faction stock, national `resource_stock`, relation score, turn cost, random rolls, manual trade panels, internal transfer panel, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup
 - Built on `v0.70-34 Trade Persistence Polish` (`c7897b2b4572222991fcaefdc4da88323b3aafd8`).
 - Renamed local `resource_label` variables in `scripts/worldmap_test.gd` trade panel row builders to avoid class-member shadowing.

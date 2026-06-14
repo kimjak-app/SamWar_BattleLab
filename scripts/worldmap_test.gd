@@ -347,6 +347,26 @@ const MANUAL_TRADE_PREVIEW_PRICES := {
 const CITY_STORAGE_FOOD_RESOURCE_IDS := ["rice", "barley", "seafood"]
 const CITY_STORAGE_STRATEGY_RESOURCE_IDS := ["wood", "iron", "horses"]
 const CITY_STORAGE_SPECIAL_RESOURCE_IDS := ["silk", "salt"]
+const CHANCELLOR_AUTO_TRADE_STORAGE_TARGETS := {
+	"gold": 100,
+	"rice": 120,
+	"barley": 100,
+	"seafood": 50,
+	"wood": 40,
+	"iron": 30,
+	"horses": 20,
+	"silk": 20,
+	"salt": 40,
+}
+const CHANCELLOR_AUTO_TRADE_INTERNAL_TOTAL_CAP := 200
+const CHANCELLOR_AUTO_TRADE_INTERNAL_BASE_CAP := 20
+const CHANCELLOR_AUTO_TRADE_INTERNAL_APTITUDE_CAP := 30
+const CHANCELLOR_AUTO_TRADE_EXTERNAL_BASE_CAP := 20
+const CHANCELLOR_AUTO_TRADE_EXTERNAL_APTITUDE_CAP := 30
+const CHANCELLOR_AUTO_TRADE_EXTERNAL_TRADE_POLICY_CAP := 35
+const CHANCELLOR_AUTO_TRADE_GOLD_CAP := 100
+const CHANCELLOR_AUTO_TRADE_DEFAULT_BUFFER := 20
+const CHANCELLOR_AUTO_TRADE_GOLD_BUFFER := 50
 const WAREHOUSE_CAPACITY := {
 	"rice": 1000,
 	"barley": 1000,
@@ -673,6 +693,8 @@ var _player_state := {
 	"faction_relations": {},
 	"last_inter_faction_trade_result": {},
 	"last_trade_market_result": {},
+	"last_chancellor_auto_trade_result": {},
+	"last_chancellor_auto_trade_turn": 0,
 	"last_alliance_proposal_result": {},
 	"last_military_support_result": {},
 	"last_trade_agreement_result": {},
@@ -2253,6 +2275,322 @@ func _build_external_manual_trade_execution_preview(order: Dictionary) -> Dictio
 	return applied
 
 
+func _apply_chancellor_auto_trade_for_world_turn(turn_number: int) -> Dictionary:
+	var safe_turn := maxi(1, turn_number)
+	if int(_player_state.get("last_chancellor_auto_trade_turn", 0)) == safe_turn:
+		var previous_result: Variant = _player_state.get("last_chancellor_auto_trade_result", {})
+		if previous_result is Dictionary and not (previous_result as Dictionary).is_empty():
+			return (previous_result as Dictionary).duplicate(true)
+		return {"ok": false, "reason": "already_applied", "turn": safe_turn, "message": "이번 턴 재상 자동무역은 이미 처리되었습니다."}
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty():
+		var no_chancellor_result := {
+			"turn": safe_turn,
+			"ok": false,
+			"reason": "no_chancellor",
+			"message": "재상이 없어 자동무역을 실행하지 않았습니다.",
+		}
+		_record_chancellor_auto_trade_result(no_chancellor_result)
+		return no_chancellor_result
+	var chancellor_data := _get_hero_entry(chancellor_id)
+	if chancellor_data.is_empty() or str(chancellor_data.get("side", "")) != PLAYER_FACTION_ID:
+		var invalid_chancellor_result := {
+			"turn": safe_turn,
+			"ok": false,
+			"reason": "invalid_chancellor",
+			"chancellor_id": chancellor_id,
+			"message": "재상 정보를 확인할 수 없어 자동무역을 실행하지 않았습니다.",
+		}
+		_record_chancellor_auto_trade_result(invalid_chancellor_result)
+		return invalid_chancellor_result
+	var owned_city_ids := _get_player_owned_city_ids_for_chancellor_auto_trade()
+	if owned_city_ids.is_empty():
+		var no_city_result := {
+			"turn": safe_turn,
+			"ok": false,
+			"reason": "no_player_city",
+			"chancellor_id": chancellor_id,
+			"message": "플레이어 소유 성이 없어 자동무역을 실행하지 않았습니다.",
+		}
+		_record_chancellor_auto_trade_result(no_city_result)
+		return no_city_result
+	var policy_id := _normalize_chancellor_policy_id(str(_player_state.get("chancellor_policy_id", "balanced")))
+	var internal_enabled := str(_trade_control_modes.get(CITY_DETAIL_TAB_INTERNAL_TRADE, TRADE_CONTROL_MODE_CHANCELLOR)) == TRADE_CONTROL_MODE_CHANCELLOR
+	var external_enabled := str(_trade_control_modes.get(CITY_DETAIL_TAB_EXTERNAL_TRADE, TRADE_CONTROL_MODE_CHANCELLOR)) == TRADE_CONTROL_MODE_CHANCELLOR
+	if not internal_enabled and not external_enabled:
+		var disabled_result := {
+			"turn": safe_turn,
+			"ok": false,
+			"reason": "disabled",
+			"chancellor_id": chancellor_id,
+			"policy_id": policy_id,
+			"message": "재상 일임 무역 모드가 없어 자동무역을 실행하지 않았습니다.",
+		}
+		_record_chancellor_auto_trade_result(disabled_result)
+		return disabled_result
+	var internal_result := {"enabled": internal_enabled, "applied": []}
+	var external_result := {"enabled": external_enabled, "applied": []}
+	if internal_enabled:
+		internal_result = _apply_chancellor_internal_auto_trade(owned_city_ids, policy_id, chancellor_data)
+	if external_enabled:
+		external_result = _apply_chancellor_external_auto_trade(owned_city_ids, policy_id, chancellor_data)
+	var applied_count := int((internal_result.get("applied", []) as Array).size()) + int((external_result.get("applied", []) as Array).size())
+	var result := {
+		"turn": safe_turn,
+		"ok": applied_count > 0,
+		"chancellor_id": chancellor_id,
+		"policy_id": policy_id,
+		"internal": internal_result,
+		"external": external_result,
+		"message": "재상 자동무역 적용" if applied_count > 0 else "이번 턴 적용된 자동무역 없음",
+	}
+	if applied_count <= 0:
+		result["reason"] = "no_actionable_trade"
+	_record_chancellor_auto_trade_result(result)
+	return result
+
+
+func _record_chancellor_auto_trade_result(result: Dictionary) -> void:
+	var safe_turn := maxi(1, int(result.get("turn", _player_state.get("turn_number", 1))))
+	result["turn"] = safe_turn
+	_player_state["last_chancellor_auto_trade_result"] = result.duplicate(true)
+	_player_state["last_chancellor_auto_trade_turn"] = safe_turn
+
+
+func _get_player_owned_city_ids_for_chancellor_auto_trade() -> Array[String]:
+	var result: Array[String] = []
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return result
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		if city_id.is_empty() or result.has(city_id):
+			continue
+		if _is_city_owned_by_player_mvp(city_id):
+			result.append(city_id)
+	return result
+
+
+func _get_chancellor_auto_trade_resource_priority(policy_id: String, trade_type: String) -> Array[String]:
+	var priority: Array[String] = []
+	match _normalize_chancellor_policy_id(policy_id):
+		"agriculture":
+			priority = ["rice", "barley", "seafood", "salt", "gold", "wood", "iron", "horses", "silk"]
+		"commerce":
+			priority = ["gold", "silk", "salt", "seafood", "wood", "rice", "barley", "iron", "horses"]
+		"trade":
+			priority = ["seafood", "salt", "silk", "gold", "rice", "barley", "wood", "iron", "horses"]
+		"military":
+			priority = ["iron", "horses", "wood", "rice", "barley", "gold", "salt", "seafood", "silk"]
+		_:
+			priority = ["gold", "rice", "barley", "seafood", "wood", "iron", "horses", "salt", "silk"]
+	if trade_type == "external":
+		var external_priority: Array[String] = []
+		for resource_id in priority:
+			if resource_id != "gold":
+				external_priority.append(resource_id)
+		return external_priority
+	return priority
+
+
+func _get_chancellor_auto_trade_resource_cap(policy_id: String, trade_type: String, resource_id: String, chancellor_data: Dictionary) -> int:
+	var cap := CHANCELLOR_AUTO_TRADE_INTERNAL_BASE_CAP if trade_type == "internal" else CHANCELLOR_AUTO_TRADE_EXTERNAL_BASE_CAP
+	if _has_chancellor_auto_trade_cap_aptitude(chancellor_data):
+		cap = CHANCELLOR_AUTO_TRADE_INTERNAL_APTITUDE_CAP if trade_type == "internal" else CHANCELLOR_AUTO_TRADE_EXTERNAL_APTITUDE_CAP
+	if trade_type == "external" and _normalize_chancellor_policy_id(policy_id) == "trade":
+		cap = CHANCELLOR_AUTO_TRADE_EXTERNAL_TRADE_POLICY_CAP
+	if resource_id == "gold":
+		cap = mini(cap, CHANCELLOR_AUTO_TRADE_GOLD_CAP)
+	return cap
+
+
+func _has_chancellor_auto_trade_cap_aptitude(chancellor_data: Dictionary) -> bool:
+	var types := [
+		str(chancellor_data.get("chancellor_primary_type", "")),
+		str(chancellor_data.get("chancellor_secondary_type", "")),
+	]
+	for type_id in types:
+		if ["diplomatic", "economic", "administrative"].has(type_id):
+			return true
+	return false
+
+
+func _get_chancellor_auto_trade_target_min(resource_id: String) -> int:
+	return maxi(0, int(CHANCELLOR_AUTO_TRADE_STORAGE_TARGETS.get(resource_id, 0)))
+
+
+func _get_chancellor_auto_trade_surplus_buffer(resource_id: String) -> int:
+	return CHANCELLOR_AUTO_TRADE_GOLD_BUFFER if resource_id == "gold" else CHANCELLOR_AUTO_TRADE_DEFAULT_BUFFER
+
+
+func _apply_chancellor_internal_auto_trade(owned_city_ids: Array[String], policy_id: String, chancellor_data: Dictionary) -> Dictionary:
+	var result := {"enabled": true, "applied": []}
+	var applied: Array = []
+	var total_moved := 0
+	var priority := _get_chancellor_auto_trade_resource_priority(policy_id, "internal")
+	for resource_id in priority:
+		if total_moved >= CHANCELLOR_AUTO_TRADE_INTERNAL_TOTAL_CAP:
+			break
+		var target_min := _get_chancellor_auto_trade_target_min(resource_id)
+		var buffer := _get_chancellor_auto_trade_surplus_buffer(resource_id)
+		var target_demands := _get_chancellor_internal_auto_trade_target_demands(owned_city_ids, resource_id, target_min)
+		for demand in target_demands:
+			if total_moved >= CHANCELLOR_AUTO_TRADE_INTERNAL_TOTAL_CAP:
+				break
+			var target_city_id := str(demand.get("city_id", ""))
+			var target_marker := _city_markers_by_id.get(target_city_id) as WorldMapCityMarker
+			if target_marker == null:
+				continue
+			var connected_city_ids := _get_internal_trade_connected_player_city_ids(target_marker)
+			if connected_city_ids.is_empty():
+				continue
+			var target_storage := _get_city_storage(target_city_id, _get_city_hud_entry(target_city_id))
+			var deficit := target_min - _get_city_storage_amount(target_storage, resource_id)
+			if deficit <= 0:
+				continue
+			var source_city_id := _select_chancellor_internal_auto_trade_source(connected_city_ids, resource_id, target_min, buffer)
+			if source_city_id.is_empty():
+				continue
+			var source_storage := _get_city_storage(source_city_id, _get_city_hud_entry(source_city_id))
+			var surplus := _get_city_storage_amount(source_storage, resource_id) - target_min - buffer
+			var cap := _get_chancellor_auto_trade_resource_cap(policy_id, "internal", resource_id, chancellor_data)
+			var remaining_turn_cap := CHANCELLOR_AUTO_TRADE_INTERNAL_TOTAL_CAP - total_moved
+			var move_amount := mini(deficit, mini(surplus, mini(cap, remaining_turn_cap)))
+			if move_amount <= 0:
+				continue
+			source_storage[resource_id] = _get_city_storage_amount(source_storage, resource_id) - move_amount
+			target_storage[resource_id] = _get_city_storage_amount(target_storage, resource_id) + move_amount
+			_set_city_storage(source_city_id, source_storage)
+			_set_city_storage(target_city_id, target_storage)
+			applied.append({
+				"source_city_id": source_city_id,
+				"target_city_id": target_city_id,
+				"amounts": {resource_id: move_amount},
+			})
+			total_moved += move_amount
+	result["applied"] = applied
+	result["total_moved"] = total_moved
+	return result
+
+
+func _get_chancellor_internal_auto_trade_target_demands(owned_city_ids: Array[String], resource_id: String, target_min: int) -> Array:
+	var demands: Array = []
+	for city_id in owned_city_ids:
+		var storage := _get_city_storage(city_id, _get_city_hud_entry(city_id))
+		var deficit := target_min - _get_city_storage_amount(storage, resource_id)
+		if deficit <= 0:
+			continue
+		demands.append({"city_id": city_id, "deficit": deficit})
+	demands.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.get("deficit", 0)) > int(b.get("deficit", 0))
+	)
+	return demands
+
+
+func _select_chancellor_internal_auto_trade_source(candidate_city_ids: Array[String], resource_id: String, target_min: int, buffer: int) -> String:
+	var selected_city_id_for_source := ""
+	var selected_surplus := 0
+	for candidate_city_id in candidate_city_ids:
+		var storage := _get_city_storage(candidate_city_id, _get_city_hud_entry(candidate_city_id))
+		var surplus := _get_city_storage_amount(storage, resource_id) - target_min - buffer
+		if surplus > selected_surplus:
+			selected_surplus = surplus
+			selected_city_id_for_source = candidate_city_id
+	return selected_city_id_for_source
+
+
+func _apply_chancellor_external_auto_trade(owned_city_ids: Array[String], policy_id: String, chancellor_data: Dictionary) -> Dictionary:
+	var result := {"enabled": true, "applied": []}
+	var applied: Array = []
+	var priority := _get_chancellor_auto_trade_resource_priority(policy_id, "external")
+	for source_city_id in owned_city_ids:
+		var candidate_city_ids := _get_chancellor_external_tradeable_candidate_city_ids(source_city_id)
+		if candidate_city_ids.is_empty():
+			continue
+		var target_city_id := candidate_city_ids[0]
+		var source_storage := _get_city_storage(source_city_id, _get_city_hud_entry(source_city_id))
+		var gold_amount := _get_city_storage_amount(source_storage, "gold")
+		var applied_delta := _build_empty_chancellor_external_delta()
+		if gold_amount < _get_chancellor_auto_trade_target_min("gold") or ["commerce", "trade"].has(_normalize_chancellor_policy_id(policy_id)):
+			_apply_chancellor_external_export(source_storage, applied_delta, priority, policy_id, chancellor_data)
+		_apply_chancellor_external_import(source_storage, applied_delta, priority, policy_id, chancellor_data)
+		if _is_chancellor_external_delta_empty(applied_delta):
+			continue
+		_set_city_storage(source_city_id, source_storage)
+		applied.append({
+			"source_city_id": source_city_id,
+			"target_city_id": target_city_id,
+			"target_faction_id": _get_city_owner_faction_id_for_trade_display(target_city_id),
+			"applied": applied_delta,
+		})
+	result["applied"] = applied
+	return result
+
+
+func _get_chancellor_external_tradeable_candidate_city_ids(source_city_id: String) -> Array[String]:
+	var result: Array[String] = []
+	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
+	for candidate_city_id in _get_external_trade_candidate_city_ids(source_city_id):
+		var target_faction_id := _get_city_owner_faction_id_for_trade_display(candidate_city_id)
+		if _can_trade_between_factions(source_faction_id, target_faction_id):
+			result.append(candidate_city_id)
+	return result
+
+
+func _build_empty_chancellor_external_delta() -> Dictionary:
+	var delta := {"gold": 0}
+	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
+		delta[resource_id] = 0
+	return delta
+
+
+func _is_chancellor_external_delta_empty(delta: Dictionary) -> bool:
+	for resource_id in ["gold"] + MANUAL_TRADE_RESOURCE_ORDER:
+		if int(delta.get(resource_id, 0)) != 0:
+			return false
+	return true
+
+
+func _apply_chancellor_external_export(source_storage: Dictionary, applied_delta: Dictionary, priority: Array[String], policy_id: String, chancellor_data: Dictionary) -> void:
+	for resource_id in priority:
+		var target_min := _get_chancellor_auto_trade_target_min(resource_id)
+		var surplus := _get_city_storage_amount(source_storage, resource_id) - target_min - _get_chancellor_auto_trade_surplus_buffer(resource_id)
+		if surplus <= 0:
+			continue
+		var cap := _get_chancellor_auto_trade_resource_cap(policy_id, "external", resource_id, chancellor_data)
+		var amount := mini(surplus, cap)
+		var price := int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0))
+		if amount <= 0 or price <= 0:
+			continue
+		source_storage[resource_id] = _get_city_storage_amount(source_storage, resource_id) - amount
+		source_storage["gold"] = _get_city_storage_amount(source_storage, "gold") + mini(amount * price, CHANCELLOR_AUTO_TRADE_GOLD_CAP)
+		applied_delta[resource_id] = int(applied_delta.get(resource_id, 0)) - amount
+		applied_delta["gold"] = int(applied_delta.get("gold", 0)) + mini(amount * price, CHANCELLOR_AUTO_TRADE_GOLD_CAP)
+		return
+
+
+func _apply_chancellor_external_import(source_storage: Dictionary, applied_delta: Dictionary, priority: Array[String], policy_id: String, chancellor_data: Dictionary) -> void:
+	for resource_id in priority:
+		var target_min := _get_chancellor_auto_trade_target_min(resource_id)
+		var deficit := target_min - _get_city_storage_amount(source_storage, resource_id)
+		if deficit <= 0:
+			continue
+		var price := int(MANUAL_TRADE_PREVIEW_PRICES.get(resource_id, 0))
+		if price <= 0:
+			continue
+		var cap := _get_chancellor_auto_trade_resource_cap(policy_id, "external", resource_id, chancellor_data)
+		var max_affordable := floori(float(_get_city_storage_amount(source_storage, "gold")) / float(price))
+		var amount := mini(deficit, mini(cap, max_affordable))
+		if amount <= 0:
+			continue
+		var gold_cost := amount * price
+		source_storage["gold"] = _get_city_storage_amount(source_storage, "gold") - gold_cost
+		source_storage[resource_id] = _get_city_storage_amount(source_storage, resource_id) + amount
+		applied_delta["gold"] = int(applied_delta.get("gold", 0)) - gold_cost
+		applied_delta[resource_id] = int(applied_delta.get(resource_id, 0)) + amount
+		return
+
+
 func _get_default_trade_control_modes() -> Dictionary:
 	return {
 		CITY_DETAIL_TAB_INTERNAL_TRADE: TRADE_CONTROL_MODE_CHANCELLOR,
@@ -2359,6 +2697,42 @@ func _normalize_trade_delta_payload(raw_delta: Variant) -> Dictionary:
 	return normalized
 
 
+func _normalize_chancellor_auto_trade_result_payload(raw_result: Variant) -> Dictionary:
+	if not raw_result is Dictionary:
+		return {}
+	var normalized := (raw_result as Dictionary).duplicate(true)
+	normalized["turn"] = maxi(0, int(normalized.get("turn", 0)))
+	if normalized.has("internal") and normalized.get("internal") is Dictionary:
+		normalized["internal"] = _normalize_chancellor_auto_trade_section_payload(normalized.get("internal"), true)
+	if normalized.has("external") and normalized.get("external") is Dictionary:
+		normalized["external"] = _normalize_chancellor_auto_trade_section_payload(normalized.get("external"), false)
+	return normalized
+
+
+func _normalize_chancellor_auto_trade_section_payload(raw_section: Variant, is_internal_section: bool) -> Dictionary:
+	var section := {"enabled": false, "applied": []}
+	if not raw_section is Dictionary:
+		return section
+	var raw_dictionary := raw_section as Dictionary
+	section["enabled"] = bool(raw_dictionary.get("enabled", false))
+	var raw_applied: Variant = raw_dictionary.get("applied", [])
+	var applied: Array = []
+	if raw_applied is Array:
+		for item_variant in raw_applied:
+			if not item_variant is Dictionary:
+				continue
+			var item := (item_variant as Dictionary).duplicate(true)
+			if is_internal_section:
+				item["amounts"] = _normalize_trade_delta_payload(item.get("amounts", {}))
+			else:
+				item["applied"] = _normalize_trade_delta_payload(item.get("applied", {}))
+			applied.append(item)
+	section["applied"] = applied
+	if raw_dictionary.has("total_moved"):
+		section["total_moved"] = maxi(0, int(raw_dictionary.get("total_moved", 0)))
+	return section
+
+
 func _has_worldmap_city_for_trade_persistence(city_id: String) -> bool:
 	if city_id.is_empty():
 		return false
@@ -2372,6 +2746,8 @@ func _sync_trade_persistence_to_player_state() -> void:
 	_player_state["manual_trade_orders"] = _manual_trade_orders.duplicate(true)
 	_player_state["last_external_manual_trade_execution_result"] = _normalize_trade_result_payload(_player_state.get("last_external_manual_trade_execution_result", {}))
 	_player_state["last_internal_trade_transfer_result"] = _normalize_trade_result_payload(_player_state.get("last_internal_trade_transfer_result", {}))
+	_player_state["last_chancellor_auto_trade_result"] = _normalize_chancellor_auto_trade_result_payload(_player_state.get("last_chancellor_auto_trade_result", {}))
+	_player_state["last_chancellor_auto_trade_turn"] = maxi(0, int(_player_state.get("last_chancellor_auto_trade_turn", 0)))
 
 
 func _restore_trade_persistence_from_player_state() -> void:
@@ -2381,6 +2757,8 @@ func _restore_trade_persistence_from_player_state() -> void:
 	_player_state["manual_trade_orders"] = _manual_trade_orders.duplicate(true)
 	_player_state["last_external_manual_trade_execution_result"] = _normalize_trade_result_payload(_player_state.get("last_external_manual_trade_execution_result", {}))
 	_player_state["last_internal_trade_transfer_result"] = _normalize_trade_result_payload(_player_state.get("last_internal_trade_transfer_result", {}))
+	_player_state["last_chancellor_auto_trade_result"] = _normalize_chancellor_auto_trade_result_payload(_player_state.get("last_chancellor_auto_trade_result", {}))
+	_player_state["last_chancellor_auto_trade_turn"] = maxi(0, int(_player_state.get("last_chancellor_auto_trade_turn", 0)))
 
 
 func _ensure_internal_trade_transfer_panel() -> void:
@@ -3057,16 +3435,19 @@ func _format_internal_trade_policy_display(connected_player_city_ids: Array[Stri
 
 
 func _format_internal_trade_transfer_result_summary(source_city_id: String, connected_player_city_ids: Array[String]) -> String:
+	var chancellor_auto_trade_text := _format_chancellor_internal_auto_trade_result_summary(source_city_id)
+	if str(_trade_control_modes.get(CITY_DETAIL_TAB_INTERNAL_TRADE, TRADE_CONTROL_MODE_CHANCELLOR)) == TRADE_CONTROL_MODE_CHANCELLOR and not chancellor_auto_trade_text.is_empty():
+		return chancellor_auto_trade_text
 	if connected_player_city_ids.is_empty():
-		return ""
+		return chancellor_auto_trade_text
 	var result_variant: Variant = _player_state.get("last_internal_trade_transfer_result", {})
 	if not result_variant is Dictionary:
-		return ""
+		return chancellor_auto_trade_text
 	var result := result_variant as Dictionary
 	if result.is_empty():
-		return ""
+		return chancellor_auto_trade_text
 	if str(result.get("source_city_id", "")) != source_city_id:
-		return ""
+		return chancellor_auto_trade_text
 	var target_city_id := str(result.get("target_city_id", ""))
 	var amounts_variant: Variant = result.get("amounts", {})
 	var amounts := {}
@@ -3077,6 +3458,41 @@ func _format_internal_trade_transfer_result_summary(source_city_id: String, conn
 		_format_city_name_by_id(target_city_id, target_city_id),
 		_format_internal_trade_transfer_amounts(amounts),
 	]
+
+
+func _format_chancellor_internal_auto_trade_result_summary(city_id: String) -> String:
+	var result_variant: Variant = _player_state.get("last_chancellor_auto_trade_result", {})
+	if not result_variant is Dictionary:
+		return ""
+	var result := result_variant as Dictionary
+	if result.is_empty():
+		return ""
+	if not bool(result.get("ok", false)):
+		return "최근 재상 자동무역\n%s" % str(result.get("message", "이번 턴 적용된 자동무역 없음"))
+	var internal_variant: Variant = result.get("internal", {})
+	if not internal_variant is Dictionary:
+		return ""
+	var applied_variant: Variant = (internal_variant as Dictionary).get("applied", [])
+	if not applied_variant is Array:
+		return ""
+	for item_variant in applied_variant:
+		if not item_variant is Dictionary:
+			continue
+		var item := item_variant as Dictionary
+		var source_city_id := str(item.get("source_city_id", ""))
+		var target_city_id := str(item.get("target_city_id", ""))
+		if source_city_id != city_id and target_city_id != city_id:
+			continue
+		var amounts := {}
+		var amounts_variant: Variant = item.get("amounts", {})
+		if amounts_variant is Dictionary:
+			amounts = (amounts_variant as Dictionary).duplicate(true)
+		return "최근 재상 자동무역\n%s → %s\n%s" % [
+			_format_city_name_by_id(source_city_id, source_city_id),
+			_format_city_name_by_id(target_city_id, target_city_id),
+			_format_internal_trade_transfer_amounts(amounts),
+		]
+	return "최근 재상 자동무역\n이번 턴 적용된 자동무역 없음"
 
 
 func _format_internal_trade_city_name_list(city_ids: Array[String]) -> String:
@@ -3225,13 +3641,18 @@ func _format_external_trade_policy_display(candidate_city_ids: Array[String]) ->
 
 
 func _format_external_trade_manual_order_summary(source_city_id: String, candidate_city_ids: Array[String]) -> String:
+	var chancellor_auto_trade_text := _format_chancellor_external_auto_trade_result_summary(source_city_id)
 	if candidate_city_ids.is_empty():
-		return ""
+		return chancellor_auto_trade_text
 	var order: Dictionary = _manual_trade_orders.get(source_city_id, {})
 	var recent_execution_text := _format_external_manual_trade_execution_result_summary(source_city_id)
+	if str(_trade_control_modes.get(CITY_DETAIL_TAB_EXTERNAL_TRADE, TRADE_CONTROL_MODE_CHANCELLOR)) == TRADE_CONTROL_MODE_CHANCELLOR and order.is_empty() and not chancellor_auto_trade_text.is_empty():
+		return chancellor_auto_trade_text
 	if order.is_empty():
 		if not recent_execution_text.is_empty():
 			return recent_execution_text
+		if not chancellor_auto_trade_text.is_empty():
+			return chancellor_auto_trade_text
 		return "수동 무역 명령\n저장된 명령 없음\n수동 조정에서 자원별 수입/수출 계획을 입력할 수 있습니다."
 	var target_city_id := str(order.get("target_city_id", ""))
 	var preview: Variant = order.get("preview", {})
@@ -3248,6 +3669,40 @@ func _format_external_trade_manual_order_summary(source_city_id: String, candida
 		lines.append("")
 		lines.append(recent_execution_text)
 	return "\n".join(lines)
+
+
+func _format_chancellor_external_auto_trade_result_summary(source_city_id: String) -> String:
+	var result_variant: Variant = _player_state.get("last_chancellor_auto_trade_result", {})
+	if not result_variant is Dictionary:
+		return ""
+	var result := result_variant as Dictionary
+	if result.is_empty():
+		return ""
+	if not bool(result.get("ok", false)):
+		return "최근 재상 대외무역\n%s" % str(result.get("message", "이번 턴 적용된 자동무역 없음"))
+	var external_variant: Variant = result.get("external", {})
+	if not external_variant is Dictionary:
+		return ""
+	var applied_variant: Variant = (external_variant as Dictionary).get("applied", [])
+	if not applied_variant is Array:
+		return ""
+	for item_variant in applied_variant:
+		if not item_variant is Dictionary:
+			continue
+		var item := item_variant as Dictionary
+		if str(item.get("source_city_id", "")) != source_city_id:
+			continue
+		var target_city_id := str(item.get("target_city_id", ""))
+		var applied := {}
+		var applied_delta_variant: Variant = item.get("applied", {})
+		if applied_delta_variant is Dictionary:
+			applied = (applied_delta_variant as Dictionary).duplicate(true)
+		return "최근 재상 대외무역\n%s ↔ %s\n%s" % [
+			_format_city_name_by_id(source_city_id, source_city_id),
+			_format_city_name_by_id(target_city_id, target_city_id),
+			_format_manual_trade_nonzero_preview_summary(applied),
+		]
+	return "최근 재상 대외무역\n이번 턴 적용된 자동무역 없음"
 
 
 func _format_external_manual_trade_execution_result_summary(source_city_id: String) -> String:
@@ -4290,6 +4745,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 	_player_state["manual_trade_orders"] = _normalize_manual_trade_orders(_player_state.get("manual_trade_orders", {}))
 	_player_state["last_external_manual_trade_execution_result"] = _normalize_trade_result_payload(_player_state.get("last_external_manual_trade_execution_result", {}))
 	_player_state["last_internal_trade_transfer_result"] = _normalize_trade_result_payload(_player_state.get("last_internal_trade_transfer_result", {}))
+	_player_state["last_chancellor_auto_trade_result"] = _normalize_chancellor_auto_trade_result_payload(_player_state.get("last_chancellor_auto_trade_result", {}))
+	_player_state["last_chancellor_auto_trade_turn"] = maxi(0, int(_player_state.get("last_chancellor_auto_trade_turn", 0)))
 	_ensure_national_tech_state()
 
 
@@ -8554,6 +9011,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var city_tech_progress_result := _advance_city_tech_progress_for_world_turn()
 	var tech_effect_result := _apply_completed_tech_effects_for_world_turn()
 	var trade_market_result := _update_trade_market_for_world_turn(supply_states)
+	var chancellor_auto_trade_result := _apply_chancellor_auto_trade_for_world_turn(turn_number)
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
 	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result)
@@ -8583,6 +9041,7 @@ func _apply_domestic_turn_mvp() -> String:
 		"city_tech_progress_result": city_tech_progress_result,
 		"tech_effect_result": tech_effect_result,
 		"trade_market_result": trade_market_result,
+		"chancellor_auto_trade_result": chancellor_auto_trade_result,
 	}
 	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result)
 

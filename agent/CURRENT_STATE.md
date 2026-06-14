@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.70-33 Chancellor Auto Trade Logic Connect
+- Baseline: `v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup` at `83cbf79c45bd66959cf0c0478c161ce275de6c47`.
+- Numbering note: `v0.70-34` and `v0.70-34-hotfix1` landed first; this fills the skipped `v0.70-33` follow-up after that latest baseline.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail `무역 > 자국무역` / `무역 > 타국무역` chancellor mode now connects to player domestic-turn processing through `_apply_chancellor_auto_trade_for_world_turn()`.
+- Same-turn double apply is guarded by `_player_state["last_chancellor_auto_trade_turn"]`; load restores display data only and does not replay auto trade.
+- Internal chancellor auto trade redistributes connected player-owned city `storage` only, using storage target minima, surplus buffers, per-resource caps, and a conservative total move cap.
+- External chancellor auto trade uses valid external trade candidates and `_can_trade_between_factions()`; it imports shortage resources or exports surplus resources on the selected source city storage only.
+- Chancellor policy and aptitude influence resource priority and caps: agriculture favors food, commerce favors gold/surplus exports, trade favors seafood/salt/silk and higher external cap, military favors iron/horses/wood, and diplomatic/economic/administrative aptitude raises caps modestly.
+- Results are recorded in `_player_state["last_chancellor_auto_trade_result"]` and shown in the internal/external trade tabs without overriding pending manual external orders.
+- Target city storage for external trade, foreign faction stock, national `resource_stock`, relation score, turn cost, random success rolls, manual trade UI, internal transfer UI, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv` files were not changed.
+- The `v0.70-34-hotfix1` shadowing warning cleanup remains intact.
+- Next candidate work:
+  1. `v0.70-35 Trade Balance / Relation Efficiency Polish`
+  2. `v0.70-36 Diplomacy Action MVP`
+  3. `v0.70-37 Spy Action MVP`
+  4. `v0.70-38 Chancellor Auto Trade QA / Polish`
+
 ## v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup
 - Baseline: `v0.70-34 Trade Persistence Polish` at `c7897b2b4572222991fcaefdc4da88323b3aafd8`.
 - Removed the local `resource_label` shadowing warning in `scripts/worldmap_test.gd` by renaming manual/external trade row labels to scoped names.

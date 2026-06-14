@@ -1,5 +1,41 @@
 # WORLDMAP RULES
 
+## v0.70-33 Chancellor Auto Trade Rule
+- This rule was implemented after `v0.70-34` and `v0.70-34-hotfix1` to fill the skipped `v0.70-33 Chancellor Auto Trade Logic Connect` candidate.
+- Baseline was `v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup` (`83cbf79c45bd66959cf0c0478c161ce275de6c47`).
+- Chancellor auto trade may run only during player domestic-turn processing and only once per turn.
+- The same-turn guard is `_player_state["last_chancellor_auto_trade_turn"]`; the display/result payload is `_player_state["last_chancellor_auto_trade_result"]`.
+- Preconditions:
+  1. At least one player-owned city exists.
+  2. A valid player-side chancellor hero is assigned.
+  3. At least one trade tab mode is `chancellor`.
+- No chancellor, invalid chancellor, no player city, disabled modes, and no actionable trade must be no-op result payloads, not crashes.
+- Internal chancellor auto trade:
+  1. Runs only when internal trade mode is `chancellor`.
+  2. Uses connected player-owned city pairs from `_get_internal_trade_connected_player_city_ids()`.
+  3. May mutate source and target player-owned city `storage` only.
+  4. Must preserve total player city storage amount for moved resources.
+  5. Must keep source above target minimum plus surplus buffer.
+  6. Must use conservative resource and turn caps.
+- External chancellor auto trade:
+  1. Runs only when external trade mode is `chancellor`.
+  2. Uses `_get_external_trade_candidate_city_ids()` and `_can_trade_between_factions()`.
+  3. May mutate source city `storage` only.
+  4. May import shortage resources if source city gold can pay using `MANUAL_TRADE_PREVIEW_PRICES`.
+  5. May export surplus resources without dropping the resource below target minimum.
+  6. Must not mutate target city storage, foreign faction stock, relation score, national `resource_stock`, or turn state.
+- Chancellor policy priority:
+  1. `balanced`: stable small replenishment across food, strategy, specialty, and gold.
+  2. `agriculture`: rice, barley, seafood, salt first.
+  3. `commerce`: gold and surplus silk/salt/seafood exports first.
+  4. `trade`: seafood, salt, silk focus and higher external cap.
+  5. `military`: iron, horses, wood, then food baseline.
+- Chancellor `diplomatic`, `economic`, or `administrative` aptitude may modestly increase caps; caps must remain conservative.
+- Loading a save may restore the last result display and turn guard but must never replay automatic trade effects.
+- Manual external order/execution and internal manual transfer remain valid separate paths. Pending manual external orders should keep display priority.
+- This rule does not authorize target city storage mutation for external trade, foreign faction stock, relation efficiency pricing, price variation, random success/failure rolls, diplomacy actions, spy actions, troop movement, turn cost, Selected City Panel changes, BattleContext changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-34-hotfix1 GDScript Warning Cleanup Rule
 - Warning-cleanup hotfixes may rename local variables or parameters that shadow class members or built-in functions.
 - The class members `resource_label`, `selected_city_id`, and `loyalty_card` are legitimate existing state and should not be removed for this warning cleanup.

@@ -1,5 +1,29 @@
 # SESSION LOG
 
+## 2026-06-14
+
+### v0.70-33 Chancellor Auto Trade Logic Connect
+- Started from `83cbf79 v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup`.
+- Confirmed clean worktree and expected HEAD before editing.
+- Required docs and existing chancellor policy, trade control mode, manual trade, city storage, internal/external candidate, domestic turn, and inter-faction trade income paths were checked.
+- Numbering note: `v0.70-34` and `v0.70-34-hotfix1` landed first; this session fills the skipped `v0.70-33` candidate afterward.
+- Implemented:
+  - Added chancellor auto trade storage targets, buffers, internal/external caps, and policy/aptitude priority helpers.
+  - Connected player domestic-turn processing to `_apply_chancellor_auto_trade_for_world_turn()`.
+  - Added same-turn guard with `_player_state["last_chancellor_auto_trade_turn"]`.
+  - Added internal chancellor auto trade for connected player-owned city storage redistribution.
+  - Added external chancellor auto trade for source-city import/export against valid external candidates.
+  - Recorded `_player_state["last_chancellor_auto_trade_result"]` and normalized it through the existing player-state persistence path.
+  - Added recent chancellor auto trade summaries to internal/external trade tabs while preserving manual displays.
+- Preserved target city storage for external trade, foreign faction stock, national `resource_stock`, relation, turn cost, random rolls, manual trade panels, internal transfer panel, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserved `v0.70-34-hotfix1` warning cleanup; no shadowing warning names were reintroduced.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for chancellor assignment, policy priority feel, internal redistribution, external source-city import/export, same-turn guard, no-chancellor no-op, manual mode regressions, save/load display-only behavior, and Godot Output warning cleanliness.
+
 ## 2026-06-10
 
 ### v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup

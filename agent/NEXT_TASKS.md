@@ -1,5 +1,30 @@
 # NEXT TASKS
 
+## Current: v0.70-33 Chancellor Auto Trade Logic Connect
+- `v0.70-33` fills the previously skipped chancellor auto trade follow-up after `v0.70-34-hotfix1`.
+- Baseline: `v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup` (`83cbf79c45bd66959cf0c0478c161ce275de6c47`).
+- Completed direction:
+  1. Internal/external trade control mode `재상에게 일임` is now connected to player domestic-turn auto trade.
+  2. Internal auto trade redistributes connected player-owned city `storage` without changing total player city storage.
+  3. External auto trade imports shortage resources or exports surplus resources on source city `storage` only.
+  4. Chancellor policy and aptitude affect priority and conservative caps.
+  5. `_player_state["last_chancellor_auto_trade_result"]` and `_player_state["last_chancellor_auto_trade_turn"]` are recorded through existing player-state persistence.
+  6. Trade tabs show recent chancellor auto trade summaries while preserving manual pending/execution display.
+- Preserved scope:
+  1. No target city storage mutation for external trade, foreign faction stock, national `resource_stock`, relation score, random roll, turn cost, diplomacy action, spy action, or troop movement was added.
+  2. Manual external order/execution, internal manual transfer, trade persistence, and `v0.70-34-hotfix1` warning cleanup are preserved.
+  3. `project.godot`, scenes, assets, `.uid`, and `.ogv` files are unchanged.
+- Manual F6 QA required:
+  1. Assign a chancellor, set policy to `무역 중심` or `상업 중심`, and confirm domestic turn applies chancellor auto trade once.
+  2. Confirm connected player-owned cities redistribute storage only in `자국무역` chancellor mode.
+  3. Confirm external candidates import/export source city storage only in `타국무역` chancellor mode.
+  4. Confirm no-chancellor no-op display, same-turn guard, manual modes, manual external execution, internal transfer, save/load display-only restoration, and clean Godot Output warnings.
+- Next candidate work:
+  1. `v0.70-35 Trade Balance / Relation Efficiency Polish`
+  2. `v0.70-36 Diplomacy Action MVP`
+  3. `v0.70-37 Spy Action MVP`
+  4. `v0.70-38 Chancellor Auto Trade QA / Polish`
+
 ## Current: v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup
 - `v0.70-34-hotfix1` removes Godot reload warnings introduced by local names shadowing class members or built-ins.
 - Baseline: `v0.70-34 Trade Persistence Polish` (`c7897b2b4572222991fcaefdc4da88323b3aafd8`).

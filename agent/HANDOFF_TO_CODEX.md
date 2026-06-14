@@ -1,5 +1,42 @@
 # HANDOFF TO CODEX
 
+## v0.70-33 Chancellor Auto Trade Logic Connect Handoff
+- Baseline: `v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup` (`83cbf79c45bd66959cf0c0478c161ce275de6c47`).
+- Numbering note: this was the skipped `v0.70-33` candidate, implemented after `v0.70-34` and `v0.70-34-hotfix1`.
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Added chancellor auto trade constants for storage targets, surplus buffers, internal/external caps, and turn-level internal movement cap.
+- `_apply_domestic_turn_mvp()` now calls `_apply_chancellor_auto_trade_for_world_turn(turn_number)` after existing domestic/trade market processing and before result recording.
+- Preconditions: player city exists, chancellor id is assigned, hero data is valid/player-side, and at least one of internal/external trade modes is `chancellor`.
+- Same-turn guard uses `_player_state["last_chancellor_auto_trade_turn"]`; no-op and applied results are stored in `_player_state["last_chancellor_auto_trade_result"]`.
+- Internal auto trade:
+  - Runs only when `CITY_DETAIL_TAB_INTERNAL_TRADE` mode is `chancellor`.
+  - Uses `_get_internal_trade_connected_player_city_ids()`.
+  - Moves only connected player-owned city storage from surplus source to deficit target.
+  - Sorts target demand by largest deficit and keeps source above target minimum plus buffer.
+- External auto trade:
+  - Runs only when `CITY_DETAIL_TAB_EXTERNAL_TRADE` mode is `chancellor`.
+  - Uses `_get_external_trade_candidate_city_ids()` plus `_can_trade_between_factions()`.
+  - Mutates source city storage only, reusing `MANUAL_TRADE_PREVIEW_PRICES`.
+  - Does not mutate target city storage or foreign faction stock.
+- Policy/aptitude hooks:
+  - `balanced`, `agriculture`, `commerce`, `trade`, and `military` each use different resource priorities.
+  - `diplomatic`, `economic`, or `administrative` chancellor aptitude modestly raises caps.
+  - `trade` policy raises external cap.
+- UI display:
+  - Internal/external trade tabs read the last auto result.
+  - Chancellor mode favors auto result display.
+  - Pending external manual orders and manual execution summaries are preserved.
+- Persistence:
+  - Existing trade persistence sync/restore normalizes `last_chancellor_auto_trade_result` and `last_chancellor_auto_trade_turn`.
+  - Load restores display-only payloads and does not replay storage effects.
+- Explicitly unchanged: target city storage for external trade, foreign faction stock, national `resource_stock`, relation mutation, turn cost, random success/failure roll, manual trade panel, internal transfer panel, Selected City Panel, diplomacy/spy action behavior, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Keep the `v0.70-34-hotfix1` warning cleanup names intact: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidates:
+  1. `v0.70-35 Trade Balance / Relation Efficiency Polish`
+  2. `v0.70-36 Diplomacy Action MVP`
+  3. `v0.70-37 Spy Action MVP`
+  4. `v0.70-38 Chancellor Auto Trade QA / Polish`
+
 ## v0.70-34-hotfix1 GDScript Shadowing Warning Cleanup Handoff
 - Baseline: `v0.70-34 Trade Persistence Polish` (`c7897b2b4572222991fcaefdc4da88323b3aafd8`).
 - Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.
