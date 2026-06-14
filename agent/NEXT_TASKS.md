@@ -1,5 +1,29 @@
 # NEXT TASKS
 
+## Current: v0.70-41 Spy Action Polish / Alienation MVP
+- Baseline: `v0.70-40 Diplomacy Action Polish / Alliance MVP` (`0f516a7473cadd371afa04f9b1352c3e9823d85a`).
+- Completed direction:
+  1. Added executable spy action id `wedge` / `이간질` to the existing spy action card.
+  2. Reused common spy validation/execution/result paths and preserved the existing four spy actions.
+  3. Added automatic counterpart faction selection for target non-player factions, excluding PLAYER and self-pairs.
+  4. Charged `SPY_WEDGE_COST` on rolled attempts, applied `SPY_WEDGE_COOLDOWN_TURNS`, and stored `_player_state["last_spy_wedge_result"]`.
+  5. Successful wedge attempts lower target-counterpart relation score and can break active alliances that fall below `ALLIANCE_ACCEPTANCE_THRESHOLD`.
+  6. Detection applies `SPY_DETECTED_RELATION_PENALTY_WEDGE` only to PLAYER-target faction relations and can happen alongside success.
+- Preserved scope:
+  1. Existing `정탐`, `민심 교란`, `성 충성도 교란`, and `반란 조장` formulas/effects remain unchanged.
+  2. v0.70-40 alliance proposal, v0.70-39 market pricing, city intel visibility, player chancellor candidate scope, `faction_chancellors`, left panel scope lock, and right selected-city scope remain unchanged.
+  3. No target city storage, foreign stock, BattleContext, Selected City Panel, scene, asset, `.uid`, or `.ogv` changes were made.
+  4. Warning-cleanup naming remains preserved.
+- Manual F6 QA required:
+  1. Confirm foreign-city spy tab shows `이간질` status, cost, target pair, success chance, and detection chance.
+  2. Confirm counterpart faction is a non-player third faction and validation blocks no-counterpart, already-hostile, cooldown, missing chancellor, missing aptitude, and insufficient resources.
+  3. Confirm success lowers target-counterpart relation score and can clear allied status when below threshold.
+  4. Confirm detection applies PLAYER-target relation penalty even when success also applies.
+  5. Confirm save/load restores recent wedge result, spy cooldown, and faction relation state without replaying effects.
+  6. Confirm existing spy actions, alliance proposal, market pricing, enemy intel lock, chancellor candidate scope, left panel scope, and warning cleanliness.
+- Next candidate work:
+  1. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## Current: v0.70-40 Diplomacy Action Polish / Alliance MVP
 - Baseline: `v0.70-39 Trade Market / Price Variation MVP` (`84bbf9c5e12e3afff523d3e389043a7126dce732`).
 - Completed direction:

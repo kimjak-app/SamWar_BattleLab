@@ -1,5 +1,21 @@
 # WORLDMAP RULES
 
+## v0.70-41 Spy Alienation Rule
+- Spy action card may execute `wedge` / `이간질` against a selected foreign city.
+- Baseline was `v0.70-40 Diplomacy Action Polish / Alliance MVP` (`0f516a7473cadd371afa04f9b1352c3e9823d85a`).
+- Validation must complete before any resource cost, relation mutation, cooldown, alliance break, detection penalty, or result mutation.
+- Validation must block empty/player-owned targets, missing national chancellor, missing political aptitude, active spy cooldown, iron-wall targets, missing counterpart faction, already-hostile target-counterpart relations, and insufficient wedge resources.
+- Counterpart faction must be a non-player third faction and must never be PLAYER or the target faction.
+- Counterpart selection should prefer target-counterpart allied relations, then relation score 60+, then active alliance/trade-agreement metadata, then the highest remaining relation score.
+- Wedge cost is `SPY_WEDGE_COST` (`gold 600`, `silk 150`); validation failures must not spend resources.
+- Rolled wedge attempts spend the operation cost and apply `SPY_WEDGE_COOLDOWN_TURNS`, regardless of success or failure.
+- Success lowers the target-counterpart relation score by a conservative political aptitude delta and must use the existing faction relation score path.
+- If a successful wedge drops an allied target-counterpart relation below `ALLIANCE_ACCEPTANCE_THRESHOLD`, allied status may be cleared and `alliance_turns_remaining` set to 0.
+- Detection applies `SPY_DETECTED_RELATION_PENALTY_WEDGE` only to the PLAYER-target faction relation; detection and success may both apply.
+- `_player_state["last_spy_wedge_result"]` is display/history data. Loading a save may restore it but must never replay costs, relation changes, detection penalties, or alliance breaks.
+- This rule does not authorize changes to existing spy formulas/effects for `gather_info`, `public_support_disrupt`, `loyalty_disrupt`, or `revolt_instigate`; diplomacy alliance proposal behavior; market price formulas; enemy city intel visibility; player chancellor candidate scope; `faction_chancellors`; left national panel scope; right selected-city scope; BattleContext; Selected City Panel; `project.godot`; scenes; assets; `.uid`; or `.ogv`.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-40 Diplomacy Alliance Rule
 - Diplomacy action card may execute `alliance_proposal` / `동맹 제안` against selected foreign factions.
 - Baseline was `v0.70-39 Trade Market / Price Variation MVP` (`84bbf9c5e12e3afff523d3e389043a7126dce732`).

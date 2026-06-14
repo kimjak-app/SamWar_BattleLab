@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.70-41 Spy Action Polish / Alienation MVP
+- Baseline: `v0.70-40 Diplomacy Action Polish / Alliance MVP` at `0f516a7473cadd371afa04f9b1352c3e9823d85a`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail `외교·첩보 > 첩보` now includes executable `이간질` using action id `wedge`.
+- Wedge validation reuses the existing spy target/chancellor/political aptitude/cooldown/iron-wall gates and adds automatic non-player counterpart selection.
+- Counterpart selection excludes PLAYER and the target faction, then prioritizes allied target-counterpart relations, score 60+ relations, active alliance/trade-agreement metadata, and finally the highest remaining relation score.
+- Wedge cost is `gold 600` and `silk 150`; validation failures do not spend resources, while rolled attempts spend the operation cost and apply spy cooldown.
+- Success lowers the target-counterpart relation score by a conservative political-aptitude-scaled delta; if an allied pair drops below `ALLIANCE_ACCEPTANCE_THRESHOLD`, the alliance duration is cleared and the relation returns to neutral.
+- Detection uses the existing player-target relation penalty path with `SPY_DETECTED_RELATION_PENALTY_WEDGE`; success and detection can occur together.
+- Results are stored in `_player_state["last_spy_wedge_result"]` and shown in recent spy summaries; save/load restores display/state only and never replays costs, relation changes, detection penalties, or alliance break effects.
+- Preserved existing `정탐`, `민심 교란`, `성 충성도 교란`, and `반란 조장` behavior; v0.70-40 alliance proposal flow; v0.70-39 market pricing; enemy intel visibility; player chancellor candidate scope; `_player_state["faction_chancellors"]`; left panel scope; right selected-city scope; BattleContext; Selected City Panel; `project.godot`; scenes; assets; `.uid`; and `.ogv`.
+- The `v0.70-34-hotfix1` shadowing warning cleanup remains intact.
+- Manual F6 QA remains required for wedge button/status, non-player counterpart selection, insufficient-cost failure, success relation decrease, alliance break threshold, detection penalty, spy cooldown, save/load display/state, existing spy/diplomacy/trade regressions, enemy intel lock, chancellor candidate scope, left panel scope, and warning cleanliness.
+- Next candidate work:
+  1. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## v0.70-40 Diplomacy Action Polish / Alliance MVP
 - Baseline: `v0.70-39 Trade Market / Price Variation MVP` at `84bbf9c5e12e3afff523d3e389043a7126dce732`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

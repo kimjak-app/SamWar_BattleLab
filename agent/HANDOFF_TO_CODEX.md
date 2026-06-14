@@ -1,5 +1,22 @@
 # HANDOFF TO CODEX
 
+## v0.70-41 Spy Action Polish / Alienation MVP Handoff
+- Baseline: `v0.70-40 Diplomacy Action Polish / Alliance MVP` (`0f516a7473cadd371afa04f9b1352c3e9823d85a`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Added spy action id `wedge` with label `이간질`.
+- The existing spy runtime card now includes an `이간질` button for selected foreign cities.
+- Validation reuses foreign-target, national chancellor, political aptitude, spy cooldown, and iron-wall gates, then adds counterpart-faction selection and resource-cost checks.
+- Counterpart selection excludes PLAYER and self-pairs, prioritizing allied relations, score 60+ relations, active alliance/trade-agreement metadata, then highest relation score.
+- Wedge attempts use `SPY_WEDGE_COST` (`gold 600`, `silk 150`) and `SPY_WEDGE_COOLDOWN_TURNS`; validation failures do not spend resources or mutate state.
+- Success lowers the target-counterpart relation score by a conservative political aptitude delta and may clear allied status if the resulting score falls below `ALLIANCE_ACCEPTANCE_THRESHOLD`.
+- Detection applies `SPY_DETECTED_RELATION_PENALTY_WEDGE` to PLAYER-target faction relations through the existing relation helper; success and detection can both apply.
+- Recent wedge results are stored in `_player_state["last_spy_wedge_result"]` and displayed in spy recent-result and turn-summary copy.
+- Save/load uses existing `_player_state` persistence; loading restores display/cooldown/relation state only and must not replay cost, relation, detection, or alliance-break effects.
+- Explicitly unchanged: existing four spy action formulas/effects, v0.70-40 alliance proposal flow, v0.70-39 market price formulas/state, enemy city intel visibility filter, player chancellor candidate scope, `_player_state["faction_chancellors"]`, left national panel scope lock, right selected-city scope, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidate:
+  1. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## v0.70-40 Diplomacy Action Polish / Alliance MVP Handoff
 - Baseline: `v0.70-39 Trade Market / Price Variation MVP` (`84bbf9c5e12e3afff523d3e389043a7126dce732`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

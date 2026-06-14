@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.70-41 Spy Action Polish / Alienation MVP
+- Built on `v0.70-40 Diplomacy Action Polish / Alliance MVP` (`0f516a7473cadd371afa04f9b1352c3e9823d85a`).
+- Added executable `이간질` to the spy action card with action id `wedge`.
+- Added automatic non-player counterpart faction selection for the selected target faction.
+- Reused existing spy validation and result patterns while adding cost, cooldown, success, detection, and alliance-break metadata for wedge results.
+- Connected `SPY_WEDGE_COST`, `SPY_WEDGE_COOLDOWN_TURNS`, and `SPY_DETECTED_RELATION_PENALTY_WEDGE`.
+- Successful wedge attempts lower target-counterpart relation score and can break allied status when the score falls below `ALLIANCE_ACCEPTANCE_THRESHOLD`.
+- Detection applies the wedge relation penalty to PLAYER-target faction relations and can occur together with a successful wedge.
+- Stored results in `_player_state["last_spy_wedge_result"]` for UI/display persistence.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change existing spy action formulas/effects, v0.70-40 alliance proposal flow, v0.70-39 market pricing, city intel visibility filtering, chancellor candidate scope, `faction_chancellors`, left/right panel scope, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, or `.ogv`.
+- Preserved the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-40 Diplomacy Action Polish / Alliance MVP
 - Built on `v0.70-39 Trade Market / Price Variation MVP` (`84bbf9c5e12e3afff523d3e389043a7126dce732`).
 - Added executable `동맹 제안` to the diplomacy action card with action id `alliance_proposal`.

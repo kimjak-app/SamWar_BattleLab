@@ -110,6 +110,7 @@ const SPY_ACTION_GATHER_INFO := "gather_info"
 const SPY_ACTION_PUBLIC_SUPPORT_DISRUPT := "public_support_disrupt"
 const SPY_ACTION_LOYALTY_DISRUPT := "loyalty_disrupt"
 const SPY_ACTION_REVOLT_INSTIGATE := "revolt_instigate"
+const SPY_ACTION_WEDGE := "wedge"
 const SPY_COOLDOWN_TURNS := 1
 const SPY_PUBLIC_SUPPORT_DISRUPT_COST := {"gold": 300}
 const SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS := 2
@@ -642,6 +643,7 @@ var _spy_gather_info_button: Button = null
 var _spy_public_support_button: Button = null
 var _spy_loyalty_button: Button = null
 var _spy_revolt_button: Button = null
+var _spy_wedge_button: Button = null
 var _spy_action_hint_label: Label = null
 var _internal_trade_transfer_panel: PanelContainer = null
 var _internal_trade_source_label: Label = null
@@ -741,6 +743,7 @@ var _player_state := {
 	"last_trade_agreement_result": {},
 	"revolt_instigation": {},
 	"city_intel": {},
+	"last_spy_wedge_result": {},
 	"last_supply_state_result": {},
 	"last_public_support_result": {},
 	"last_seasonal_loyalty_result": {},
@@ -3717,7 +3720,14 @@ func _format_spy_action_candidates_for_ui(city_marker: WorldMapCityMarker) -> St
 	lines.append("민심 교란: %s" % _format_spy_check_status_for_ui(_can_disrupt_city_public_support(city_marker.city_id)))
 	lines.append("성 충성도 교란: %s" % _format_spy_check_status_for_ui(_can_disrupt_city_loyalty(city_marker.city_id)))
 	lines.append("반란 조장: %s" % _format_spy_check_status_for_ui(_can_instigate_revolt(city_marker.city_id)))
-	lines.append("이간질: 후속 연결 예정")
+	var wedge_check := _validate_spy_action(SPY_ACTION_WEDGE, city_marker.city_id)
+	lines.append("이간질: %s" % _format_spy_check_status_for_ui(wedge_check))
+	if bool(wedge_check.get("ok", false)):
+		lines.append("대상 관계: %s ↔ %s / %d" % [
+			_format_faction_label(str(wedge_check.get("target_faction_id", ""))),
+			_format_faction_label(str(wedge_check.get("counterpart_faction_id", ""))),
+			int(wedge_check.get("relation_score", 0)),
+		])
 	return "\n".join(lines)
 
 
@@ -3736,6 +3746,10 @@ func _format_spy_check_status_for_ui(check: Dictionary) -> String:
 			return "대기 중"
 		"resources":
 			return "자원 필요"
+		"no_counterpart":
+			return "상대 세력 없음"
+		"already_hostile":
+			return "이미 최악"
 		"iron_wall":
 			return "경계 높음"
 		"prerequisite_public_support", "prerequisite_loyalty":
@@ -3754,6 +3768,8 @@ func _format_recent_spy_result_for_ui(city_id: String) -> String:
 		recent_text = _format_recent_spy_result_from_key_for_ui("last_spy_loyalty_disrupt_result", city_id, "성 충성도 교란")
 	if recent_text.is_empty():
 		recent_text = _format_recent_spy_result_from_key_for_ui("last_spy_revolt_instigation_result", city_id, "반란 조장")
+	if recent_text.is_empty():
+		recent_text = _format_recent_spy_result_from_key_for_ui("last_spy_wedge_result", city_id, "이간질")
 	if recent_text.is_empty():
 		recent_text = "최근 첩보 기록 없음"
 	return "최근 첩보\n%s" % recent_text
@@ -3803,6 +3819,16 @@ func _format_recent_spy_result_from_key_for_ui(result_key: String, city_id: Stri
 		"last_spy_revolt_instigation_result":
 			if bool(result.get("effect_applied", false)):
 				detail_parts.append("반란 위험 +%d" % int(result.get("probability_boost", 0)))
+		"last_spy_wedge_result":
+			if bool(result.get("effect_applied", false)):
+				detail_parts.append("%s-%s 관계 %d → %d" % [
+					_format_faction_label(str(result.get("target_faction_id", result.get("target_faction_a", "")))),
+					_format_faction_label(str(result.get("counterpart_faction_id", result.get("target_faction_b", "")))),
+					int(result.get("before_score", 0)),
+					int(result.get("after_score", 0)),
+				])
+			if bool(result.get("alliance_broken", false)):
+				detail_parts.append("동맹 균열")
 	if bool(result.get("detected", false)):
 		detail_parts.append("관계 %d" % int(result.get("relation_penalty", 0)))
 	if detail_parts.is_empty():
@@ -3821,7 +3847,14 @@ func _format_spy_action_policy_display_for_ui(city_marker: WorldMapCityMarker) -
 	var cooldown_turns := maxi(0, int(_player_state.get("spy_cooldown", 0)))
 	if cooldown_turns > 0:
 		return "첩보 대기 중\n%d턴 후 다시 실행 가능" % cooldown_turns
-	return "첩보 실행\n이간질은 후속 연결 예정"
+	var wedge_check := _validate_spy_action(SPY_ACTION_WEDGE, city_marker.city_id)
+	if bool(wedge_check.get("ok", false)):
+		return "첩보 실행\n이간질 대상 %s ↔ %s / 성공률 %d%%" % [
+			_format_faction_label(str(wedge_check.get("target_faction_id", ""))),
+			_format_faction_label(str(wedge_check.get("counterpart_faction_id", ""))),
+			int(wedge_check.get("success_chance", 0)),
+		]
+	return "첩보 실행\n이간질: %s" % str(wedge_check.get("message", "조건 확인 필요"))
 
 
 func _ensure_spy_action_card() -> void:
@@ -3851,6 +3884,7 @@ func _ensure_spy_action_card() -> void:
 	_spy_public_support_button = _make_spy_action_button("SpyPublicSupportButton", "민심 교란", SPY_ACTION_PUBLIC_SUPPORT_DISRUPT)
 	_spy_loyalty_button = _make_spy_action_button("SpyLoyaltyButton", "충성도 교란", SPY_ACTION_LOYALTY_DISRUPT)
 	_spy_revolt_button = _make_spy_action_button("SpyRevoltButton", "반란 조장", SPY_ACTION_REVOLT_INSTIGATE)
+	_spy_wedge_button = _make_spy_action_button("SpyWedgeButton", "이간질", SPY_ACTION_WEDGE)
 	_spy_action_hint_label = Label.new()
 	_spy_action_hint_label.name = "SpyActionHintLabel"
 	_spy_action_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -3890,11 +3924,13 @@ func _refresh_spy_action_card(city_marker: WorldMapCityMarker) -> void:
 		SPY_ACTION_PUBLIC_SUPPORT_DISRUPT: _validate_spy_action(SPY_ACTION_PUBLIC_SUPPORT_DISRUPT, target_city_id),
 		SPY_ACTION_LOYALTY_DISRUPT: _validate_spy_action(SPY_ACTION_LOYALTY_DISRUPT, target_city_id),
 		SPY_ACTION_REVOLT_INSTIGATE: _validate_spy_action(SPY_ACTION_REVOLT_INSTIGATE, target_city_id),
+		SPY_ACTION_WEDGE: _validate_spy_action(SPY_ACTION_WEDGE, target_city_id),
 	}
 	_refresh_spy_action_button(_spy_gather_info_button, validation_map[SPY_ACTION_GATHER_INFO])
 	_refresh_spy_action_button(_spy_public_support_button, validation_map[SPY_ACTION_PUBLIC_SUPPORT_DISRUPT])
 	_refresh_spy_action_button(_spy_loyalty_button, validation_map[SPY_ACTION_LOYALTY_DISRUPT])
 	_refresh_spy_action_button(_spy_revolt_button, validation_map[SPY_ACTION_REVOLT_INSTIGATE])
+	_refresh_spy_action_button(_spy_wedge_button, validation_map[SPY_ACTION_WEDGE])
 	_spy_action_hint_label.text = _format_spy_action_hint(validation_map)
 
 
@@ -3905,22 +3941,37 @@ func _refresh_spy_action_button(button: Button, validation: Dictionary) -> void:
 	if button.disabled:
 		button.tooltip_text = str(validation.get("message", "실행 조건을 충족하지 못했습니다."))
 	else:
-		button.tooltip_text = "성공 %d%% · 발각 %d%% · 쿨다운 %d턴" % [
+		var tooltip := "성공 %d%% · 발각 %d%% · 쿨다운 %d턴" % [
 			int(validation.get("success_chance", 0)),
 			int(validation.get("detection_chance", 0)),
 			int(validation.get("cooldown", 0)),
 		]
+		if str(validation.get("action_id", "")) == SPY_ACTION_WEDGE:
+			tooltip += " · %s ↔ %s · 비용 %s" % [
+				_format_faction_label(str(validation.get("target_faction_id", ""))),
+				_format_faction_label(str(validation.get("counterpart_faction_id", ""))),
+				_format_resource_costs(validation.get("cost", {}), ["gold", "silk"]),
+			]
+		button.tooltip_text = tooltip
 
 
 func _format_spy_action_hint(validation_map: Dictionary) -> String:
 	var enabled_parts: Array[String] = []
 	var blocked_parts: Array[String] = []
-	for action_id in [SPY_ACTION_GATHER_INFO, SPY_ACTION_PUBLIC_SUPPORT_DISRUPT, SPY_ACTION_LOYALTY_DISRUPT, SPY_ACTION_REVOLT_INSTIGATE]:
+	for action_id in [SPY_ACTION_GATHER_INFO, SPY_ACTION_PUBLIC_SUPPORT_DISRUPT, SPY_ACTION_LOYALTY_DISRUPT, SPY_ACTION_REVOLT_INSTIGATE, SPY_ACTION_WEDGE]:
 		var validation: Dictionary = validation_map.get(action_id, {})
 		var definition := _get_spy_action_definition(action_id)
 		var label_text := str(definition.get("label", action_id))
 		if bool(validation.get("ok", false)):
-			enabled_parts.append("%s 성공 %d%%" % [label_text, int(validation.get("success_chance", 0))])
+			if action_id == SPY_ACTION_WEDGE:
+				enabled_parts.append("%s %s-%s 성공 %d%%" % [
+					label_text,
+					_format_faction_label(str(validation.get("target_faction_id", ""))),
+					_format_faction_label(str(validation.get("counterpart_faction_id", ""))),
+					int(validation.get("success_chance", 0)),
+				])
+			else:
+				enabled_parts.append("%s 성공 %d%%" % [label_text, int(validation.get("success_chance", 0))])
 		else:
 			blocked_parts.append("%s: %s" % [label_text, str(validation.get("message", "불가"))])
 	if not enabled_parts.is_empty():
@@ -11062,6 +11113,8 @@ func _get_spy_action_definition(action_id: String) -> Dictionary:
 			return {"action_id": action_id, "label": "성 충성도 교란", "result_key": "last_spy_loyalty_disrupt_result", "cooldown": _get_spy_action_cooldown_turns(SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS), "message_success": "성 충성도 교란에 성공했습니다.", "message_failure": "성 충성도 교란에 실패했습니다."}
 		SPY_ACTION_REVOLT_INSTIGATE:
 			return {"action_id": action_id, "label": "반란 조장", "result_key": "last_spy_revolt_instigation_result", "cooldown": _get_spy_action_cooldown_turns(SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS), "message_success": "반란 조장에 성공했습니다.", "message_failure": "반란 조장에 실패했습니다."}
+		SPY_ACTION_WEDGE:
+			return {"action_id": action_id, "label": "이간질", "result_key": "last_spy_wedge_result", "cooldown": _get_spy_action_cooldown_turns(SPY_WEDGE_COOLDOWN_TURNS), "message_success": "이간질에 성공했습니다.", "message_failure": "이간질에 실패했습니다.", "cost": SPY_WEDGE_COST.duplicate(true)}
 		_:
 			return {}
 
@@ -11088,6 +11141,12 @@ func _format_spy_validation_message(check: Dictionary) -> String:
 			return "민심 50 이하 대상에서만 가능합니다."
 		"prerequisite_loyalty":
 			return "충성도 40 이하 대상에서만 가능합니다."
+		"no_counterpart":
+			return "이간질할 상대 세력을 찾을 수 없습니다."
+		"already_hostile":
+			return "이미 사이가 최악입니다."
+		"resources":
+			return "금전/비단이 부족합니다."
 		_:
 			return "실행 조건을 충족하지 못했습니다."
 
@@ -11109,6 +11168,8 @@ func _validate_spy_action(action_id: String, target_city_id: String = "") -> Dic
 			check = _can_disrupt_city_loyalty(resolved_city_id)
 		SPY_ACTION_REVOLT_INSTIGATE:
 			check = _can_instigate_revolt(resolved_city_id)
+		SPY_ACTION_WEDGE:
+			check = _can_wedge_faction_relation(resolved_city_id)
 		_:
 			check = {"ok": false, "reason": "invalid_action"}
 	var city_data := _get_city_hud_entry(resolved_city_id)
@@ -11151,13 +11212,14 @@ func _store_failed_spy_action_result(action_id: String, validation: Dictionary) 
 		"target_city_id": target_city_id,
 		"target_faction": target_faction_id,
 		"target_faction_id": target_faction_id,
+		"counterpart_faction_id": str(validation.get("counterpart_faction_id", "")),
 		"success": false,
 		"detected": false,
 		"effect_applied": false,
 		"success_valid": false,
 		"reason": str(validation.get("reason", "unknown")),
 		"relation_penalty": 0,
-		"cost": {},
+		"cost": validation.get("cost", {}),
 		"cooldown": 0,
 		"message": str(validation.get("message", _format_spy_validation_message(validation))),
 	}
@@ -11178,6 +11240,8 @@ func _apply_spy_action(action_id: String, target_city_id: String = "") -> Dictio
 			return _disrupt_city_loyalty(str(validation.get("target_city_id", "")))
 		SPY_ACTION_REVOLT_INSTIGATE:
 			return _instigate_revolt(str(validation.get("target_city_id", "")))
+		SPY_ACTION_WEDGE:
+			return _apply_spy_wedge_action(validation)
 	return _store_failed_spy_action_result(action_id, {"reason": "invalid_action", "message": "알 수 없는 첩보 행동입니다.", "target_city_id": target_city_id})
 
 
@@ -11955,15 +12019,15 @@ func _advance_revolt_instigation_for_world_turn() -> Dictionary:
 func _get_spy_wedge_relation_delta(political_aptitude: int) -> int:
 	match clampi(political_aptitude, 0, 5):
 		5:
-			return 30
-		4:
 			return 20
-		3:
+		4:
 			return 15
+		3:
+			return 12
 		2:
-			return 10
+			return 12
 		1:
-			return 5
+			return 12
 		_:
 			return 0
 
@@ -11972,8 +12036,118 @@ func _get_spy_wedge_cost(_target_faction_a: String, _target_faction_b: String) -
 	return SPY_WEDGE_COST.duplicate(true)
 
 
-func _calculate_spy_wedge_detection_chance() -> int:
-	return clampi(20 - (10 if _is_current_chancellor_political_type() else 0), 0, 95)
+func _calculate_spy_wedge_detection_chance(target_city_id: String = "") -> int:
+	return clampi(_calculate_spy_detection_chance(target_city_id) + 10, 0, 95)
+
+
+func _get_spy_wedge_candidate_faction_ids(target_faction_id: String) -> Array[String]:
+	var result: Array[String] = []
+	for faction_id_variant in _get_known_faction_ids_for_diplomacy():
+		var faction_id := str(faction_id_variant)
+		if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or faction_id == target_faction_id:
+			continue
+		result.append(faction_id)
+	return result
+
+
+func _get_spy_wedge_counterpart_faction_id(target_faction_id: String) -> String:
+	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+		return ""
+	var best_faction_id := ""
+	var best_priority := -1
+	var best_score := -1
+	for candidate_faction_id in _get_spy_wedge_candidate_faction_ids(target_faction_id):
+		var relation := _ensure_faction_relation_entry(target_faction_id, candidate_faction_id)
+		var status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
+		var score := clampi(int(relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+		var priority := 0
+		if status == FACTION_RELATION_STATUS["ALLIED"]:
+			priority = 4
+		elif score >= 60:
+			priority = 3
+		elif int(relation.get("alliance_turns_remaining", 0)) > 0 or bool(relation.get("trade_agreement_active", false)) or int(relation.get("trade_agreement_turns_remaining", 0)) > 0:
+			priority = 2
+		else:
+			priority = 1
+		if priority > best_priority or (priority == best_priority and score > best_score):
+			best_priority = priority
+			best_score = score
+			best_faction_id = candidate_faction_id
+	return best_faction_id
+
+
+func _get_spy_wedge_success_chance(target_city_id: String, counterpart_faction_id: String) -> int:
+	var political_aptitude := _get_current_chancellor_political_aptitude()
+	var city_security := _get_city_security_score_for_spy(target_city_id)
+	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
+	var status := _get_faction_relation_status(target_faction_id, counterpart_faction_id)
+	var chance := 35 + political_aptitude * 8 - int(floor(float(city_security) / 10.0))
+	if status == FACTION_RELATION_STATUS["ALLIED"]:
+		chance += 5
+	return clampi(chance, 15, 80)
+
+
+func _can_wedge_faction_relation(target_city_id: String) -> Dictionary:
+	var city_data := _get_city_hud_entry(target_city_id)
+	if target_city_id.is_empty() or city_data.is_empty():
+		return {"ok": false, "reason": "invalid_target"}
+	if _is_city_owned_by_player_mvp(target_city_id):
+		return {"ok": false, "reason": "own_city"}
+	var target_faction_id := _get_city_owner_faction_id(city_data)
+	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+		return {"ok": false, "reason": "invalid_target"}
+	var chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if chancellor_id.is_empty() or _get_hero_entry(chancellor_id).is_empty():
+		return {"ok": false, "reason": "no_chancellor"}
+	var political_aptitude := _get_current_chancellor_political_aptitude()
+	if political_aptitude <= 0:
+		return {"ok": false, "reason": "no_political_aptitude"}
+	var spy_cooldown := maxi(0, int(_player_state.get("spy_cooldown", 0)))
+	if spy_cooldown > 0:
+		return {"ok": false, "reason": "cooldown", "cooldown": spy_cooldown}
+	var security := _get_city_security_score_for_spy(target_city_id)
+	var loyalty := _get_city_loyalty_value(city_data)
+	if security >= 100 and loyalty >= 100:
+		return {"ok": false, "reason": "iron_wall", "security": security, "loyalty": loyalty}
+	var counterpart_faction_id := _get_spy_wedge_counterpart_faction_id(target_faction_id)
+	if counterpart_faction_id.is_empty():
+		return {"ok": false, "reason": "no_counterpart", "target_faction_id": target_faction_id}
+	var relation := _ensure_faction_relation_entry(target_faction_id, counterpart_faction_id)
+	var relation_status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
+	var relation_score := clampi(int(relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+	if relation_status == FACTION_RELATION_STATUS["HOSTILE"] or relation_score <= 20:
+		return {
+			"ok": false,
+			"reason": "already_hostile",
+			"target_faction_id": target_faction_id,
+			"counterpart_faction_id": counterpart_faction_id,
+			"relation_score": relation_score,
+			"relation_status": relation_status,
+		}
+	var cost := _get_spy_wedge_cost(target_faction_id, counterpart_faction_id)
+	var payment_check := _can_pay_generic_resource_cost(cost)
+	if not bool(payment_check.get("ok", false)):
+		return {
+			"ok": false,
+			"reason": "resources",
+			"target_faction_id": target_faction_id,
+			"counterpart_faction_id": counterpart_faction_id,
+			"cost": cost,
+			"missing": payment_check.get("missing", {}),
+		}
+	return {
+		"ok": true,
+		"political_aptitude": political_aptitude,
+		"target_city_id": target_city_id,
+		"target_faction_id": target_faction_id,
+		"counterpart_faction_id": counterpart_faction_id,
+		"relation_score": relation_score,
+		"relation_status": relation_status,
+		"relation_delta": -_get_spy_wedge_relation_delta(political_aptitude),
+		"cost": cost,
+		"success_chance": _get_spy_wedge_success_chance(target_city_id, counterpart_faction_id),
+		"detection_chance": _calculate_spy_wedge_detection_chance(target_city_id),
+	}
 
 
 func _can_drive_wedge(target_faction_a: String, target_faction_b: String) -> Dictionary:
@@ -12033,7 +12207,7 @@ func _roll_spy_wedge_result(target_faction_a: String, target_faction_b: String, 
 		"detection_roll": detection_roll,
 		"detection_chance": detection_chance,
 		"detected": detected,
-		"effect_applied": success and not detected,
+		"effect_applied": success,
 	}
 
 
@@ -12066,8 +12240,7 @@ func _drive_wedge(target_faction_a: String, target_faction_b: String, forced_rol
 	if bool(roll_result.get("detected", false)):
 		player_relation_penalty = SPY_DETECTED_RELATION_PENALTY_WEDGE
 		_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction_a, player_relation_penalty, "spy_wedge_detected")
-		_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction_b, player_relation_penalty, "spy_wedge_detected")
-	elif effect_applied:
+	if effect_applied:
 		_adjust_faction_relation_score(target_faction_a, target_faction_b, -int(roll_result.get("relation_delta", 0)), "spy_wedge")
 	var result := {
 		"turn": turn_number,
@@ -12081,10 +12254,115 @@ func _drive_wedge(target_faction_a: String, target_faction_b: String, forced_rol
 		"detection_chance": int(roll_result.get("detection_chance", 0)),
 		"detected": bool(roll_result.get("detected", false)),
 		"relation_delta": int(roll_result.get("relation_delta", 0)),
-		"effect_applied": effect_applied and not bool(roll_result.get("detected", false)),
+		"effect_applied": effect_applied,
 		"player_relation_penalty": player_relation_penalty,
 		"cost": cost,
 		"cooldown": cooldown,
+	}
+	_player_state["last_spy_wedge_result"] = result
+	return result
+
+
+func _roll_spy_wedge_city_result(validation: Dictionary, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	if not bool(validation.get("ok", false)):
+		return {"ok": false, "reason": str(validation.get("reason", "unknown")), "success": false, "detected": false}
+	var roll := forced_roll if forced_roll >= 0 else (randi() % 100) + 1
+	var detection_roll := forced_detection_roll if forced_detection_roll >= 0 else (randi() % 100) + 1
+	roll = clampi(roll, 1, 100)
+	detection_roll = clampi(detection_roll, 1, 100)
+	var success_chance := int(validation.get("success_chance", 0))
+	var detection_chance := int(validation.get("detection_chance", 0))
+	var success := roll <= success_chance
+	var detected := detection_roll <= detection_chance
+	return {
+		"ok": true,
+		"roll": roll,
+		"success_chance": success_chance,
+		"success": success,
+		"detection_roll": detection_roll,
+		"detection_chance": detection_chance,
+		"detected": detected,
+		"effect_applied": success,
+	}
+
+
+func _break_spy_wedge_alliance_if_needed(target_faction_id: String, counterpart_faction_id: String, after_score: int) -> bool:
+	var relation_key := _make_faction_relation_key(target_faction_id, counterpart_faction_id)
+	var relations: Dictionary = _player_state.get("faction_relations", {})
+	var relation: Dictionary = relations.get(relation_key, _ensure_faction_relation_entry(target_faction_id, counterpart_faction_id))
+	var status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
+	var active_turns := maxi(0, int(relation.get("alliance_turns_remaining", 0)))
+	if status != FACTION_RELATION_STATUS["ALLIED"] and active_turns <= 0:
+		return false
+	if after_score >= ALLIANCE_ACCEPTANCE_THRESHOLD:
+		return false
+	relation["status"] = FACTION_RELATION_STATUS["NEUTRAL"]
+	relation["alliance_turns_remaining"] = 0
+	relation.erase("alliance_created_turn")
+	relation.erase("alliance_resource_package")
+	relation.erase("alliance_acceptance_score")
+	relations[relation_key] = relation
+	_player_state["faction_relations"] = relations
+	_sync_diplomacy_action_mirror_state_from_relations()
+	return true
+
+
+func _apply_spy_wedge_action(validation: Dictionary, forced_roll: int = -1, forced_detection_roll: int = -1) -> Dictionary:
+	var target_city_id := str(validation.get("target_city_id", ""))
+	var target_faction_id := str(validation.get("target_faction_id", ""))
+	var counterpart_faction_id := str(validation.get("counterpart_faction_id", ""))
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var cost: Dictionary = validation.get("cost", _get_spy_wedge_cost(target_faction_id, counterpart_faction_id))
+	var payment_result := _apply_generic_resource_cost(cost)
+	var cooldown := _get_spy_action_cooldown_turns(SPY_WEDGE_COOLDOWN_TURNS)
+	_player_state["spy_cooldown"] = cooldown
+	var roll_result := _roll_spy_wedge_city_result(validation, forced_roll, forced_detection_roll)
+	var before_score := _get_faction_relation_score(target_faction_id, counterpart_faction_id)
+	var after_score := before_score
+	var relation_delta := int(validation.get("relation_delta", 0))
+	var alliance_broken := false
+	if bool(roll_result.get("effect_applied", false)):
+		var wedge_relation_result := _adjust_faction_relation_score(target_faction_id, counterpart_faction_id, relation_delta, "spy_wedge")
+		before_score = int(wedge_relation_result.get("before_score", before_score))
+		after_score = int(wedge_relation_result.get("after_score", after_score))
+		alliance_broken = _break_spy_wedge_alliance_if_needed(target_faction_id, counterpart_faction_id, after_score)
+	var relation_penalty := 0
+	var player_before_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction_id)
+	var player_after_score := player_before_score
+	if bool(roll_result.get("detected", false)):
+		relation_penalty = SPY_DETECTED_RELATION_PENALTY_WEDGE
+		var detected_relation_result := _apply_spy_detection_relation_penalty(target_faction_id, relation_penalty, "spy_wedge_detected")
+		player_before_score = int(detected_relation_result.get("before_score", player_before_score))
+		player_after_score = int(detected_relation_result.get("after_score", player_after_score))
+	var result := {
+		"turn": turn_number,
+		"action_id": SPY_ACTION_WEDGE,
+		"action_label": "이간질",
+		"target_city_id": target_city_id,
+		"target_faction": target_faction_id,
+		"target_faction_id": target_faction_id,
+		"target_faction_a": target_faction_id,
+		"counterpart_faction_id": counterpart_faction_id,
+		"target_faction_b": counterpart_faction_id,
+		"political_aptitude": int(validation.get("political_aptitude", 0)),
+		"roll": int(roll_result.get("roll", -1)),
+		"success_chance": int(roll_result.get("success_chance", 0)),
+		"success": bool(roll_result.get("success", false)),
+		"detection_roll": int(roll_result.get("detection_roll", -1)),
+		"detection_chance": int(roll_result.get("detection_chance", 0)),
+		"detected": bool(roll_result.get("detected", false)),
+		"relation_delta": relation_delta if bool(roll_result.get("effect_applied", false)) else 0,
+		"effect_applied": bool(roll_result.get("effect_applied", false)),
+		"before_score": before_score,
+		"after_score": after_score,
+		"alliance_broken": alliance_broken,
+		"relation_penalty": relation_penalty,
+		"player_before_score": player_before_score,
+		"player_after_score": player_after_score,
+		"cost": cost,
+		"payment": payment_result,
+		"cooldown": cooldown,
+		"message": "이간질에 성공했습니다." if bool(roll_result.get("effect_applied", false)) else "이간질에 실패했습니다.",
 	}
 	_player_state["last_spy_wedge_result"] = result
 	return result
@@ -12945,9 +13223,9 @@ func _format_last_spy_summary(turn_number: int) -> String:
 			continue
 		if bool(action_result.get("detected", false)):
 			if result_key == "last_spy_wedge_result":
-				return "첩보 이간질 발각: 관계 %d / %d" % [
-					int(action_result.get("player_relation_penalty", 0)),
-					int(action_result.get("player_relation_penalty", 0)),
+				return "첩보 이간질 발각: %s 관계 %d" % [
+					str(FACTION_LABELS.get(str(action_result.get("target_faction_id", action_result.get("target_faction_a", ""))), str(action_result.get("target_faction_id", action_result.get("target_faction_a", ""))))),
+					int(action_result.get("relation_penalty", action_result.get("player_relation_penalty", 0))),
 				]
 			return "첩보 발각: %s 관계 %d" % [
 				str(FACTION_LABELS.get(str(action_result.get("target_faction", "")), str(action_result.get("target_faction", "")))),
@@ -12969,7 +13247,7 @@ func _format_last_spy_summary(turn_number: int) -> String:
 					return "첩보 이간질 성공: %s-%s 관계 -%d" % [
 						str(FACTION_LABELS.get(str(action_result.get("target_faction_a", "")), str(action_result.get("target_faction_a", "")))),
 						str(FACTION_LABELS.get(str(action_result.get("target_faction_b", "")), str(action_result.get("target_faction_b", "")))),
-						int(action_result.get("relation_delta", 0)),
+						absi(int(action_result.get("relation_delta", 0))),
 					]
 		if action_result.has("success") and action_result.has("roll"):
 			return "첩보 실패"
