@@ -1,5 +1,26 @@
 # NEXT TASKS
 
+## Current: v0.70-44 WorldMap Domestic/Turn Flow QA & Polish
+- Baseline: `v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass` (`aa7ba353a7eaec2bf38868b2110922d179ba1995`).
+- Completed direction:
+  1. Performed QA audit over player turn end, enemy phase placeholder, domestic apply, market state, chancellor auto trade, diplomacy/alliance duration, spy/revolt duration, save/load replay safety, pending invasion, city intel, and chancellor/left-panel scope.
+  2. Confirmed the audited runtime code paths already preserve same-turn guards, display-only payload restore, and scoped state ownership.
+  3. Code change 없음 / domestic-turn flow QA + docs update.
+  4. Updated agent docs with QA results, verification expectations, and next candidates.
+- Preserved scope:
+  1. No domestic formulas, market formulas, chancellor auto trade formulas, diplomacy/alliance behavior, spy/wedge formulas, city intel behavior, chancellor candidate logic, `faction_chancellors`, left/right panel scope, BattleContext, scene, asset, `.uid`, or `.ogv` changes were made.
+  2. Warning-cleanup naming remains preserved.
+- Manual F6 QA required:
+  1. Confirm turn end updates turn_number / calendar / phase labels correctly.
+  2. Confirm domestic results, market price, and chancellor auto trade do not apply twice in the same turn or after save/load.
+  3. Confirm diplomacy cooldown, trade agreement, alliance duration, spy cooldown, and revolt instigation tick once per world turn.
+  4. Confirm city_intel display restores without replaying spy effects.
+  5. Confirm pending invasion event flow, foreign-city left panel scope, Hanseong chancellor candidate scope, and Godot Output warning cleanliness.
+- Next candidate work:
+  1. `v0.70-45 Enemy Faction Turn Behavior MVP`
+  2. `v0.70-46 WorldMap Strategic UX Final Polish`
+  3. `v0.70-47 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+
 ## Current: v0.70-43 WorldMap Diplomacy/Spy/Intel Final QA Pass
 - Baseline: `v0.70-42 Enemy Intel UI Polish / Fog of War` (`7e0d27b887c7cd5989efc2a18038665c7e99854b`).
 - Completed direction:

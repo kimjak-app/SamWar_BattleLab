@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-44 Domestic / Turn Flow QA Lock Rule
+- This pass is a regression guard over player turn end, domestic apply, world turn progression, save/load replay safety, market same-turn state, diplomacy/alliance duration, spy/revolt duration, city intel display-only restore, pending invasion event flow, and chancellor/left-panel scope.
+- Baseline was `v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass` (`aa7ba353a7eaec2bf38868b2110922d179ba1995`).
+- This rule does not authorize enemy faction behavior, new domestic systems, new diplomacy/spy actions, market formula changes, alliance/wedge formula changes, BattleContext changes, scene/asset changes, `.uid`, or `.ogv` changes.
+- Player turn end must continue to set enemy phase and `domestic_apply_pending`, then apply domestic once at enemy-turn finish before advancing `turn_number` and returning to player phase.
+- `_player_state["last_domestic_apply_turn"]` is the authoritative same-turn domestic replay guard. Loading saved result payloads must not reapply resource, city storage, loyalty, cooldown, market, trade, spy, or tech effects.
+- Trade market state must remain turn-scoped through `_player_state["last_trade_market_result"]`, `trade_market_prices`, and `trade_market_turn`; same-turn save/load must keep prices stable and only a new turn or missing state may generate a new market.
+- Chancellor automatic trade must keep `_player_state["last_chancellor_auto_trade_turn"]` as its same-turn replay guard. Loading `last_chancellor_auto_trade_result` must restore display/history only and must not reapply resource or storage deltas.
+- Diplomacy action cooldowns, trade agreement duration, and alliance duration may tick only through world-turn domestic advancement. Trade agreement state and alliance state must remain separate; alliance expiry may return relation status to neutral but must not clear active trade agreement metadata.
+- Spy cooldown and `revolt_instigation` duration may tick only through world-turn domestic advancement. `last_spy_wedge_result` and other last spy result payloads are display/history state and must not replay relation, city, cost, detection, or alliance-break effects on load.
+- `_player_state["city_intel"]` remains display-only Fog of War state. Failed spy results must not open intel, and load may restore display only without replaying spy effects.
+- Pending invasion event and pending battle context remain transient runtime state for this lock. Save/load may clear them to prevent resolved or half-prepared invasions from replaying.
+- Left World Status remains player/nation scope, foreign city selection must not clear player chancellor state, player chancellor candidates must remain scoped to the player candidate city roster, and `_player_state["faction_chancellors"]` remains intact.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-43 Diplomacy/Spy/Intel QA Lock Rule
 - This pass is a regression guard over `v0.70-39 Trade Market / Price Variation MVP`, `v0.70-40 Diplomacy Action Polish / Alliance MVP`, `v0.70-41 Spy Action Polish / Alienation MVP`, and `v0.70-42 Enemy Intel UI Polish / Fog of War`.
 - Baseline was `v0.70-42 Enemy Intel UI Polish / Fog of War` (`7e0d27b887c7cd5989efc2a18038665c7e99854b`).

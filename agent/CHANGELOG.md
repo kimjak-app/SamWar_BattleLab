@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-44 WorldMap Domestic/Turn Flow QA & Polish
+- Built on `v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass` (`aa7ba353a7eaec2bf38868b2110922d179ba1995`).
+- Performed a code-level QA audit for player turn end, domestic processing, trade market state, chancellor auto trade, diplomacy cooldowns, trade agreement/alliance duration, spy cooldowns, revolt instigation duration, save/load replay safety, city intel display-only restore, pending invasion event flow, and chancellor/left-panel scope.
+- Code change 없음 / domestic-turn flow QA + docs update.
+- Confirmed `_player_state["last_domestic_apply_turn"]`, `_player_state["last_chancellor_auto_trade_turn"]`, turn-scoped trade market state, and save/load normalization already prevent same-turn replay of domestic, market, cooldown, alliance, spy, wedge, and city-intel effects.
+- Updated agent documentation with QA results, preserved scope, verification status, next candidates, and the required manual F6 QA checklist.
+- Modified files: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change domestic formulas, market price formulas, chancellor auto trade formulas, diplomacy/alliance behavior, spy/wedge formulas, city intel behavior, chancellor candidate logic, `faction_chancellors`, left/right panel scope, BattleContext, Selected City Panel behavior, `project.godot`, scenes, assets, `.uid`, or `.ogv`.
+- Preserved the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-43 WorldMap Diplomacy/Spy/Intel Final QA Pass
 - Built on `v0.70-42 Enemy Intel UI Polish / Fog of War` (`7e0d27b887c7cd5989efc2a18038665c7e99854b`).
 - Performed a code-level QA audit for the v0.70-39 through v0.70-42 worldmap diplomacy/spy/intel stack.

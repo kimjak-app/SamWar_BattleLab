@@ -1,5 +1,24 @@
 # HANDOFF TO CODEX
 
+## v0.70-44 WorldMap Domestic/Turn Flow QA & Polish Handoff
+- Baseline: `v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass` (`aa7ba353a7eaec2bf38868b2110922d179ba1995`).
+- Runtime files touched: none.
+- Code change 없음 / domestic-turn flow QA + docs update.
+- Audited player turn end, enemy phase placeholder/delay, turn_number/calendar/phase labels, pending invasion event flow, domestic apply guard, trade market state, chancellor auto trade guard, diplomacy cooldowns, trade agreement duration, alliance duration, spy cooldown, revolt instigation duration, city intel display-only state, left national panel scope, and player chancellor candidate scope.
+- Domestic apply audit confirmed `_player_state["domestic_apply_pending"]` is cleared after enemy-turn finish and `_player_state["last_domestic_apply_turn"]` blocks same-turn reapplication.
+- Save/load audit confirmed pending enemy/invasion runtime state is cleared, player phase is restored, `domestic_apply_pending` is cleared, and result/history payloads are restored as state/display only.
+- Market audit confirmed `_ensure_trade_market_for_current_turn()` keeps same-turn prices stable and only generates a new market for a new `turn_number` or missing state.
+- Chancellor auto trade audit confirmed `_player_state["last_chancellor_auto_trade_turn"]` blocks same-turn automatic trade replay and saved result payloads do not reapply storage/resource deltas.
+- Diplomacy/alliance audit confirmed cooldowns, trade agreements, and alliances decrement in `_advance_diplomacy_cooldowns_for_world_turn()` and keep trade agreement and alliance duration fields separate.
+- Spy audit confirmed spy cooldown and `revolt_instigation` tick once per world turn, while `last_spy_wedge_result` is display/history only.
+- City intel audit confirmed `_player_state["city_intel"]` is normalized for display restore only and failed spy results do not open intel.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Manual F6 QA still required for turn label progression, same-turn domestic/market/auto-trade replay guards, cooldown/duration ticks, save/load display-only restore, pending invasion continuity, left panel player scope, Hanseong chancellor candidate scope, and Godot Output warning cleanliness.
+- Next candidates:
+  1. `v0.70-45 Enemy Faction Turn Behavior MVP`
+  2. `v0.70-46 WorldMap Strategic UX Final Polish`
+  3. `v0.70-47 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+
 ## v0.70-43 WorldMap Diplomacy/Spy/Intel Final QA Pass Handoff
 - Baseline: `v0.70-42 Enemy Intel UI Polish / Fog of War` (`7e0d27b887c7cd5989efc2a18038665c7e99854b`).
 - Runtime files touched: none.

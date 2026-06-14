@@ -2,6 +2,30 @@
 
 ## 2026-06-14
 
+### v0.70-44 WorldMap Domestic/Turn Flow QA & Polish
+- Started from `aa7ba35 v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass`.
+- Confirmed clean worktree, `main`, expected HEAD, and fetched `origin/main` before editing.
+- Required docs and turn/domestic/market/diplomacy/spy/city-intel/pending-invasion/save-load/warning-cleanup search paths were checked.
+- QA audit:
+  - Player turn end enters enemy phase, sets `domestic_apply_pending`, runs the enemy placeholder, applies domestic once at enemy-turn finish, advances `turn_number`, then returns to player phase.
+  - `_player_state["last_domestic_apply_turn"]` prevents same-turn domestic replay and protects player resource stock / city storage from double apply.
+  - Save/load restores player phase, clears pending enemy/invasion runtime state, clears `domestic_apply_pending`, and does not replay already stored domestic result payloads.
+  - Trade market state remains current-turn scoped through `last_trade_market_result`, `trade_market_prices`, and `trade_market_turn`; pending manual preview recalculates from current market and relation efficiency.
+  - `_player_state["last_chancellor_auto_trade_turn"]` prevents same-turn chancellor auto trade replay.
+  - Diplomacy action cooldowns, trade agreement duration, and alliance duration decrement in the world-turn cooldown helper; alliance expiry returns to neutral without overwriting trade agreement state.
+  - Spy cooldown and `revolt_instigation` duration tick once per world turn; `last_spy_wedge_result` remains display/history state and load does not replay wedge effects.
+  - `_player_state["city_intel"]` remains display-only; failed `정탐` does not record intel and enemy no-intel display remains locked.
+  - Left panel player/nation scope, player chancellor candidate city roster scope, and `_player_state["faction_chancellors"]` remain intact.
+- Code change 없음 / domestic-turn flow QA + docs update.
+- Documentation updated for QA pass results, preserved scope, verification, next candidates, and manual F6 QA.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - required domestic, market, alliance, spy, city intel, faction chancellor, pending invasion, and warning-cleanup searches
+- Manual F6 QA remains required for turn labels, same-turn domestic guard, save/load replay guard, market refresh, chancellor auto trade guard, diplomacy/alliance ticks, spy/revolt ticks, city_intel display restore, pending invasion continuity, left panel player scope, Hanseong chancellor candidate scope, and Godot Output warning cleanliness.
+
 ### v0.70-43 WorldMap Diplomacy/Spy/Intel Final QA Pass
 - Started from `7e0d27b v0.70-42 Enemy Intel UI Polish / Fog of War`.
 - Confirmed clean worktree, `main`, expected HEAD, and fetched `origin/main` before editing.

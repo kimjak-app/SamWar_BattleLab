@@ -1,5 +1,37 @@
 # CURRENT STATE
 
+## v0.70-44 WorldMap Domestic/Turn Flow QA & Polish
+- Baseline: `v0.70-43 WorldMap Diplomacy Spy Intel Final QA Pass` at `aa7ba353a7eaec2bf38868b2110922d179ba1995`.
+- Modified files: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Code change 없음 / domestic-turn flow QA + docs update.
+- QA Pass 범위: player turn end, enemy phase placeholder, world turn progression, domestic apply guard, trade market same-turn state, chancellor auto trade turn guard, diplomacy cooldown, trade agreement duration, alliance duration, spy cooldown, revolt instigation duration, city intel display-only restore, pending invasion event flow, left national panel scope, and chancellor candidate scope.
+- Confirmed `_apply_domestic_turn_mvp()` is called only from the enemy-turn finish path while `_player_state["last_domestic_apply_turn"]` blocks same-turn replay.
+- Confirmed save/load clears pending enemy/invasion runtime state, restores player phase, clears `domestic_apply_pending`, and does not replay domestic, market, cooldown, alliance, spy, wedge, or city-intel effects.
+- Confirmed trade market state remains turn-scoped through `_ensure_trade_market_for_current_turn()` and `_player_state["last_trade_market_result"]` / `trade_market_turn`.
+- Confirmed `_player_state["last_chancellor_auto_trade_turn"]` blocks same-turn chancellor auto trade replay, including after save/load.
+- Confirmed diplomacy action cooldown, trade agreement turns, and alliance turns decrement only through world-turn domestic advancement, with alliance expiry returning to neutral without overwriting trade agreement state.
+- Confirmed spy cooldown and `revolt_instigation` duration decrement only through world-turn domestic advancement, while `last_spy_wedge_result` remains display/history state.
+- Confirmed `_player_state["city_intel"]` remains display-only; failed spy results do not record intel and load restores display state without replaying spy effects.
+- Confirmed left panel remains player/nation scope and player chancellor candidates remain scoped to the player candidate city roster; `_player_state["faction_chancellors"]` remains intact.
+- Warning-cleanup audit found no new local `resource_label`, local `selected_city_id`, local `loyalty_card`, or `sign` parameter regression.
+- Manual F6 QA remains required:
+  1. 턴 종료 후 turn_number / calendar / phase 표시가 정상인지 확인.
+  2. 같은 턴 내정 결과가 중복 적용되지 않는지 확인.
+  3. save/load 후 이미 처리된 domestic result가 replay되지 않는지 확인.
+  4. market price가 같은 턴에 유지되고 다음 턴에만 갱신되는지 확인.
+  5. chancellor auto trade가 같은 턴 중복 적용되지 않는지 확인.
+  6. diplomacy cooldown / trade agreement / alliance duration이 턴마다 정상 감소하는지 확인.
+  7. spy cooldown / revolt instigation duration이 턴마다 정상 감소하는지 확인.
+  8. city_intel은 표시만 복구되고 spy effect는 replay되지 않는지 확인.
+  9. pending invasion event가 기존 흐름대로 유지되는지 확인.
+  10. foreign city 선택 시 left panel PLAYER national state가 유지되는지 확인.
+  11. 한성 재상 후보 scope가 유지되는지 확인.
+  12. Godot Output warning cleanliness 확인.
+- Next candidate work:
+  1. `v0.70-45 Enemy Faction Turn Behavior MVP`
+  2. `v0.70-46 WorldMap Strategic UX Final Polish`
+  3. `v0.70-47 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+
 ## v0.70-43 WorldMap Diplomacy/Spy/Intel Final QA Pass
 - Baseline: `v0.70-42 Enemy Intel UI Polish / Fog of War` at `7e0d27b887c7cd5989efc2a18038665c7e99854b`.
 - Modified files: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
