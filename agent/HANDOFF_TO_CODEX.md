@@ -1,5 +1,23 @@
 # HANDOFF TO CODEX
 
+## v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed Handoff
+- Baseline: `v0.70-38 Enemy City Intel Visibility Filter` (`6b61e1f045c461eeff5a53f5a4b77aae6cbada53`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- `_get_player_chancellor_candidate_city_id()` resolves the national candidate source city from valid `capital_city_id`, then `hanseong`, then first valid player-owned city.
+- `_get_player_chancellor_candidate_hero_ids()` now reads only that city `stationed_hero_ids` / `hero_ids` and validates player-side, alive/uncaptured, aptitude-bearing heroes.
+- This prevents Pyeongyang/foreign stationed player-side heroes such as `cheok_jun_gyeong` from appearing as Hanseong chancellor candidates.
+- `_sync_chancellor_assignment_for_selected_city()` remains national-safe from `v0.70-37-hotfix1`; valid current player chancellors are not cleared by selected-city stationing mismatch.
+- `_populate_chancellor_assignment_dropdown()` can keep a valid current chancellor visible as `(현재 임명)` if the current assignment is outside the current candidate city, without making foreign-stationed heroes regular candidates.
+- `_player_state["faction_chancellors"]` is added as non-player faction chancellor seed state and normalized during defaults, restore, and save sync.
+- Enemy faction chancellors are selected from faction-owned city stationed heroes by chancellor aptitude score, with politics/intelligence/command fallback if needed.
+- Explicitly unchanged: enemy domestic execution, enemy diplomacy/spy execution, enemy chancellor UI expansion, player chancellor auto-dismissal, spy formulas/effects, diplomacy actions, trade pricing/efficiency, chancellor auto trade, `v0.70-38` enemy city intel visibility filter, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidates:
+  1. `v0.70-39 Trade Market / Price Variation MVP`
+  2. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  3. `v0.70-41 Spy Action Polish / Alienation MVP`
+  4. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## v0.70-38 Enemy City Intel Visibility Filter Handoff
 - Baseline: `v0.70-37-hotfix1 Left National Panel Scope Lock` (`f5b74da8c1d24ae6db4390562eb16a69018d1625`).
 - Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.

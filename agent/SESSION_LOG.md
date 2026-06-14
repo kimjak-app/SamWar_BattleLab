@@ -2,6 +2,29 @@
 
 ## 2026-06-14
 
+### v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed
+- Started from `6b61e1f v0.70-38 Enemy City Intel Visibility Filter`.
+- Confirmed clean worktree and expected HEAD before editing.
+- Required docs and chancellor candidate, city roster, hero ownership, faction relation, city intel, and warning-cleanup search paths were checked.
+- Root cause:
+  - `v0.70-37-hotfix1` moved left-panel chancellor UI to national scope, but `_get_player_chancellor_candidate_hero_ids()` still used all player-side `HERO_DATA`.
+  - Player-side heroes stationed outside Hanseong, including Pyeongyang-stationed `cheok_jun_gyeong`, could therefore appear as Hanseong chancellor candidates.
+- Implemented:
+  - Added a player chancellor candidate city resolver: valid `capital_city_id`, then `hanseong`, then first valid player-owned city.
+  - Limited player chancellor candidates to that city stationed roster plus existing aptitude/dead/captured validation.
+  - Kept valid current chancellor display without auto-dismissal when the current assignment is outside the candidate city.
+  - Added `_player_state["faction_chancellors"]` for non-player faction chancellor seed state.
+  - Seeded enemy faction chancellors from faction-owned city stationed heroes by aptitude score, with stats fallback, and normalized the state during defaults/restore/save.
+- Preserved left national panel scope lock, `v0.70-38` enemy city intel visibility filter, spy formulas/effects, diplomacy actions, trade pricing/efficiency, chancellor auto trade, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserved `v0.70-34-hotfix1` warning cleanup.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - required chancellor, city intel, and warning-cleanup searches
+- Manual F6 QA remains required for Hanseong dropdown candidate scope, current chancellor retention on foreign-city selection, spy action validation, enemy intel filter preservation, save/load seed state, and Godot Output warning cleanliness.
+
 ### v0.70-38 Enemy City Intel Visibility Filter
 - Started from `f5b74da v0.70-37-hotfix1 Left National Panel Scope Lock`.
 - Confirmed clean worktree and expected HEAD before editing.

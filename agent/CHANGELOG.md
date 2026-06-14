@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed
+- Built on `v0.70-38 Enemy City Intel Visibility Filter` (`6b61e1f045c461eeff5a53f5a4b77aae6cbada53`).
+- Limited player chancellor candidates to the valid capital/Hanseong/player candidate city stationed hero roster.
+- Kept Pyeongyang/foreign stationed player-side heroes out of the Hanseong chancellor candidate dropdown.
+- Preserved current valid player chancellor assignment as national state without auto-dismissal when the hero is outside the candidate city.
+- Added `_player_state["faction_chancellors"]` as non-player faction chancellor seed state.
+- Seeded enemy faction chancellors from faction-owned city stationed heroes using chancellor aptitude and politics/intelligence/command fallback.
+- Added save/load fallback normalization and reseeding for `faction_chancellors`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change enemy domestic execution, enemy diplomacy/spy execution, enemy chancellor UI expansion, spy formulas/effects, diplomacy actions, trade pricing/efficiency, chancellor auto trade, enemy city intel visibility filtering, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, or `.ogv`.
+- Preserved the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-38 Enemy City Intel Visibility Filter
 - Built on `v0.70-37-hotfix1 Left National Panel Scope Lock` (`f5b74da8c1d24ae6db4390562eb16a69018d1625`).
 - Added an enemy-city intel visibility filter to the right selected City Info panel.

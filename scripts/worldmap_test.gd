@@ -710,6 +710,7 @@ var _player_state := {
 	"public_order": 68,
 	"chancellor_id": "",
 	"chancellor_policy_id": "balanced",
+	"faction_chancellors": {},
 	"resources": "쌀 300 / 보리 250 / 수산물 80 / 목재 100 / 철 50 / 말 30 / 비단 30 / 소금 50 / 금전 500",
 	"resource_stock": {"rice": 300, "barley": 250, "seafood": 80, "wood": 100, "iron": 50, "horses": 30, "silk": 30, "salt": 50, "gold": 500},
 	"warehouse": "국가 창고: 쌀 300/1000 정상 · 보리 250/1000 정상 · 수산물 80/500 낮음 · 목재 100/800 낮음 · 철 50/500 낮음 · 말 30/300 낮음 · 비단 30/300 낮음 · 소금 50/400 낮음 · 금전 500/9999 정상",
@@ -2930,6 +2931,7 @@ func _sync_trade_persistence_to_player_state() -> void:
 	_player_state["last_chancellor_auto_trade_result"] = _normalize_chancellor_auto_trade_result_payload(_player_state.get("last_chancellor_auto_trade_result", {}))
 	_player_state["last_chancellor_auto_trade_turn"] = maxi(0, int(_player_state.get("last_chancellor_auto_trade_turn", 0)))
 	_player_state["city_intel"] = _normalize_city_intel_registry(_player_state.get("city_intel", {}))
+	_ensure_faction_chancellors_seeded()
 
 
 func _restore_trade_persistence_from_player_state() -> void:
@@ -2942,6 +2944,7 @@ func _restore_trade_persistence_from_player_state() -> void:
 	_player_state["last_chancellor_auto_trade_result"] = _normalize_chancellor_auto_trade_result_payload(_player_state.get("last_chancellor_auto_trade_result", {}))
 	_player_state["last_chancellor_auto_trade_turn"] = maxi(0, int(_player_state.get("last_chancellor_auto_trade_turn", 0)))
 	_player_state["city_intel"] = _normalize_city_intel_registry(_player_state.get("city_intel", {}))
+	_ensure_faction_chancellors_seeded()
 
 
 func _ensure_internal_trade_transfer_panel() -> void:
@@ -5211,6 +5214,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["chancellor_policy_id"] = "balanced"
 	if not _player_state.has("chancellor_id"):
 		_player_state["chancellor_id"] = ""
+	if not _player_state.has("faction_chancellors") or not (_player_state["faction_chancellors"] is Dictionary):
+		_player_state["faction_chancellors"] = {}
 	if not _player_state.has("domestic_apply_pending"):
 		_player_state["domestic_apply_pending"] = false
 	if not _player_state.has("last_domestic_apply_turn"):
@@ -5287,6 +5292,7 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 	_player_state["last_chancellor_auto_trade_result"] = _normalize_chancellor_auto_trade_result_payload(_player_state.get("last_chancellor_auto_trade_result", {}))
 	_player_state["last_chancellor_auto_trade_turn"] = maxi(0, int(_player_state.get("last_chancellor_auto_trade_turn", 0)))
 	_player_state["city_intel"] = _normalize_city_intel_registry(_player_state.get("city_intel", {}))
+	_ensure_faction_chancellors_seeded()
 	_normalize_diplomacy_action_state_from_player_state()
 	_ensure_national_tech_state()
 
@@ -13775,26 +13781,169 @@ func _get_stationed_hero_ids_for_city(city_data: Dictionary) -> Array:
 	return []
 
 
+func _get_player_chancellor_candidate_city_id() -> String:
+	var capital_city_id := str(_player_state.get("capital_city_id", ""))
+	if not capital_city_id.is_empty() and _is_city_owned_by_player_mvp(capital_city_id):
+		return capital_city_id
+	if _is_city_owned_by_player_mvp("hanseong"):
+		return "hanseong"
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if owned_city_ids is Array:
+		for city_id_variant in owned_city_ids:
+			var city_id := str(city_id_variant)
+			if _is_city_owned_by_player_mvp(city_id):
+				return city_id
+	return ""
+
+
+func _is_valid_player_chancellor_candidate(hero_id: String, hero_data: Dictionary) -> bool:
+	if hero_id.is_empty() or hero_data.is_empty():
+		return false
+	if str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+		return false
+	var status := str(hero_data.get("status", HERO_RUNTIME_STATUS_NORMAL))
+	if bool(hero_data.get("dead", false)) or status == HERO_RUNTIME_STATUS_DEAD:
+		return false
+	if bool(hero_data.get("captured", false)) or status == HERO_RUNTIME_STATUS_CAPTURED:
+		return false
+	var primary_aptitude := int(hero_data.get("chancellor_primary_aptitude", 0))
+	var secondary_aptitude := int(hero_data.get("chancellor_secondary_aptitude", 0))
+	return primary_aptitude > 0 or secondary_aptitude > 0
+
+
 func _get_player_chancellor_candidate_hero_ids() -> Array[String]:
 	var result: Array[String] = []
-	for hero_id_variant in HERO_DATA.keys():
+	var candidate_city_id := _get_player_chancellor_candidate_city_id()
+	if candidate_city_id.is_empty():
+		return result
+	var city_data := _get_city_hud_entry(candidate_city_id)
+	if city_data.is_empty():
+		return result
+	for hero_id_variant in _get_stationed_hero_ids_for_city(city_data):
 		var hero_id := str(hero_id_variant)
 		var hero_data := _get_hero_entry(hero_id)
-		if hero_data.is_empty():
-			continue
-		if str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
-			continue
-		var status := str(hero_data.get("status", HERO_RUNTIME_STATUS_NORMAL))
-		if bool(hero_data.get("dead", false)) or status == HERO_RUNTIME_STATUS_DEAD:
-			continue
-		if bool(hero_data.get("captured", false)) or status == HERO_RUNTIME_STATUS_CAPTURED:
-			continue
-		var primary_aptitude := int(hero_data.get("chancellor_primary_aptitude", 0))
-		var secondary_aptitude := int(hero_data.get("chancellor_secondary_aptitude", 0))
-		if primary_aptitude <= 0 and secondary_aptitude <= 0:
+		if not _is_valid_player_chancellor_candidate(hero_id, hero_data):
 			continue
 		result.append(hero_id)
 	return result
+
+
+func _normalize_faction_chancellors(raw_value: Variant) -> Dictionary:
+	var normalized := {}
+	if raw_value is Dictionary:
+		for faction_id_variant in (raw_value as Dictionary).keys():
+			var faction_id := str(faction_id_variant)
+			if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+				continue
+			var hero_id := str((raw_value as Dictionary).get(faction_id_variant, ""))
+			if _is_valid_faction_chancellor_candidate(faction_id, hero_id):
+				normalized[faction_id] = hero_id
+	for faction_id in _get_known_non_player_faction_ids():
+		var faction_id_string := str(faction_id)
+		if normalized.has(faction_id_string):
+			continue
+		var best_hero_id := _find_best_chancellor_candidate_for_faction(faction_id_string)
+		if not best_hero_id.is_empty():
+			normalized[faction_id_string] = best_hero_id
+	return normalized
+
+
+func _ensure_faction_chancellors_seeded() -> void:
+	_player_state["faction_chancellors"] = _normalize_faction_chancellors(_player_state.get("faction_chancellors", {}))
+
+
+func _get_known_non_player_faction_ids() -> Array[String]:
+	var known := {}
+	for city_id_variant in CITY_HUD_DATA.keys():
+		var city_id := str(city_id_variant)
+		var city_data := _get_city_hud_entry(city_id)
+		var faction_id := _get_city_owner_faction_id(city_data)
+		if not faction_id.is_empty() and faction_id != PLAYER_FACTION_ID:
+			known[faction_id] = true
+	for hero_id_variant in HERO_DATA.keys():
+		var hero_data := _get_hero_entry(str(hero_id_variant))
+		var faction_id := _get_hero_faction_id_for_chancellor_seed(hero_data)
+		if not faction_id.is_empty() and faction_id != PLAYER_FACTION_ID:
+			known[faction_id] = true
+	var sorted_ids: Array = known.keys()
+	sorted_ids.sort()
+	var result: Array[String] = []
+	for faction_id_variant in sorted_ids:
+		result.append(str(faction_id_variant))
+	return result
+
+
+func _get_faction_city_ids_for_chancellor_seed(faction_id: String) -> Array[String]:
+	var city_ids: Array[String] = []
+	if faction_id.is_empty():
+		return city_ids
+	for city_id_variant in CITY_HUD_DATA.keys():
+		var city_id := str(city_id_variant)
+		var city_data := _get_city_hud_entry(city_id)
+		if city_data.is_empty() or _get_city_owner_faction_id(city_data) != faction_id:
+			continue
+		if not city_ids.has(city_id):
+			city_ids.append(city_id)
+	city_ids.sort()
+	return city_ids
+
+
+func _get_hero_faction_id_for_chancellor_seed(hero_data: Dictionary) -> String:
+	return str(hero_data.get("side", hero_data.get("nation", hero_data.get("faction_id", hero_data.get("force_id", "")))))
+
+
+func _is_valid_faction_chancellor_candidate(faction_id: String, hero_id: String) -> bool:
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or hero_id.is_empty():
+		return false
+	var hero_data := _get_hero_entry(hero_id)
+	if hero_data.is_empty():
+		return false
+	var hero_faction_id := _get_hero_faction_id_for_chancellor_seed(hero_data)
+	if hero_faction_id != faction_id and str(hero_data.get("nation", "")) != faction_id and str(hero_data.get("faction_id", "")) != faction_id and str(hero_data.get("force_id", "")) != faction_id:
+		return false
+	var status := str(hero_data.get("status", HERO_RUNTIME_STATUS_NORMAL))
+	if bool(hero_data.get("dead", false)) or status == HERO_RUNTIME_STATUS_DEAD:
+		return false
+	if bool(hero_data.get("captured", false)) or status == HERO_RUNTIME_STATUS_CAPTURED:
+		return false
+	return _score_faction_chancellor_candidate(hero_id, hero_data) > 0
+
+
+func _find_best_chancellor_candidate_for_faction(faction_id: String) -> String:
+	var best_hero_id := ""
+	var best_score := -1
+	for city_id in _get_faction_city_ids_for_chancellor_seed(faction_id):
+		var city_data := _get_city_hud_entry(city_id)
+		for hero_id_variant in _get_stationed_hero_ids_for_city(city_data):
+			var hero_id := str(hero_id_variant)
+			var hero_data := _get_hero_entry(hero_id)
+			if not _is_valid_faction_chancellor_candidate(faction_id, hero_id):
+				continue
+			var score := _score_faction_chancellor_candidate(hero_id, hero_data)
+			if score > best_score:
+				best_score = score
+				best_hero_id = hero_id
+	if not best_hero_id.is_empty():
+		return best_hero_id
+	for hero_id_variant in HERO_DATA.keys():
+		var hero_id := str(hero_id_variant)
+		var hero_data := _get_hero_entry(hero_id)
+		if not _is_valid_faction_chancellor_candidate(faction_id, hero_id):
+			continue
+		var score := _score_faction_chancellor_candidate(hero_id, hero_data)
+		if score > best_score:
+			best_score = score
+			best_hero_id = hero_id
+	return best_hero_id
+
+
+func _score_faction_chancellor_candidate(_hero_id: String, hero_data: Dictionary) -> int:
+	var primary_aptitude := maxi(0, int(hero_data.get("chancellor_primary_aptitude", 0)))
+	var secondary_aptitude := maxi(0, int(hero_data.get("chancellor_secondary_aptitude", 0)))
+	var aptitude_score := (primary_aptitude * 10) + (secondary_aptitude * 5)
+	if aptitude_score > 0:
+		return aptitude_score
+	return maxi(maxi(int(hero_data.get("politics", 0)), int(hero_data.get("intelligence", 0))), maxi(int(hero_data.get("command", 0)), int(hero_data.get("leadership", hero_data.get("war", 0)))))
 
 
 func _sync_chancellor_assignment_for_selected_city(_city_data: Dictionary) -> void:
@@ -13813,12 +13962,16 @@ func _populate_chancellor_assignment_dropdown(_city_data: Dictionary = {}) -> vo
 	chancellor_assignment_option.set_item_metadata(0, "")
 	var candidate_hero_ids := _get_player_chancellor_candidate_hero_ids()
 	var current_chancellor_id := str(_player_state.get("chancellor_id", ""))
+	var current_chancellor_is_display_only := false
 	if not current_chancellor_id.is_empty() and not candidate_hero_ids.has(current_chancellor_id):
 		var current_chancellor_data := _get_hero_entry(current_chancellor_id)
-		if not current_chancellor_data.is_empty() and str(current_chancellor_data.get("side", "")) == PLAYER_FACTION_ID:
+		if _is_valid_player_chancellor_candidate(current_chancellor_id, current_chancellor_data):
 			candidate_hero_ids.insert(0, current_chancellor_id)
+			current_chancellor_is_display_only = true
 	for hero_id in candidate_hero_ids:
 		var hero_name := _format_hero_name_by_id(str(hero_id), "알 수 없는 장수")
+		if current_chancellor_is_display_only and str(hero_id) == current_chancellor_id:
+			hero_name = "%s (현재 임명)" % hero_name
 		chancellor_assignment_option.add_item(hero_name)
 		chancellor_assignment_option.set_item_metadata(chancellor_assignment_option.item_count - 1, str(hero_id))
 

@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed
+- Baseline: `v0.70-38 Enemy City Intel Visibility Filter` at `6b61e1f045c461eeff5a53f5a4b77aae6cbada53`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Player chancellor candidates are now limited to the player chancellor candidate city: `_player_state["capital_city_id"]` if valid, otherwise `hanseong`, otherwise the first valid player-owned city.
+- Candidate heroes come from that city `stationed_hero_ids` / `hero_ids` only, then pass player-side, alive/uncaptured, chancellor-aptitude validation.
+- Pyeongyang/foreign-city stationed heroes such as `cheok_jun_gyeong` no longer appear as Hanseong chancellor candidates unless they are actually stationed in the candidate city.
+- Current valid player chancellor state is still preserved and not auto-dismissed if the hero is outside the candidate city; the dropdown can show it as display-only `(현재 임명)`.
+- Added enemy faction chancellor seed state at `_player_state["faction_chancellors"]`, normalized and seeded from each non-player faction's owned-city stationed heroes using chancellor aptitude first and politics/intelligence/command fallback.
+- `_player_state["faction_chancellors"]` uses the existing player-state save/load path with fallback reseeding for missing, player-faction, invalid, dead, or captured entries.
+- Left national panel scope lock remains intact, and the right selected-city scope plus `v0.70-38` enemy city intel visibility filter remain intact.
+- Enemy domestic execution, enemy diplomacy/spy actions, enemy chancellor UI expansion, player chancellor auto-dismissal, diplomacy/trade/spy formulas, BattleContext, Selected City Panel, `project.godot`, scenes, assets, `.uid`, and `.ogv` files were not changed.
+- The `v0.70-34-hotfix1` shadowing warning cleanup remains intact.
+- Next candidate work:
+  1. `v0.70-39 Trade Market / Price Variation MVP`
+  2. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  3. `v0.70-41 Spy Action Polish / Alienation MVP`
+  4. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## v0.70-38 Enemy City Intel Visibility Filter
 - Baseline: `v0.70-37-hotfix1 Left National Panel Scope Lock` at `f5b74da8c1d24ae6db4390562eb16a69018d1625`.
 - Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

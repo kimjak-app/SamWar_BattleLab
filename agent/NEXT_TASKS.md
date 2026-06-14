@@ -1,5 +1,30 @@
 # NEXT TASKS
 
+## Current: v0.70-38-hotfix1 Chancellor Candidate Scope & Enemy Chancellor Seed
+- Baseline: `v0.70-38 Enemy City Intel Visibility Filter` (`6b61e1f045c461eeff5a53f5a4b77aae6cbada53`).
+- Completed direction:
+  1. Player chancellor candidate city resolves to valid `capital_city_id`, then `hanseong`, then first valid player-owned city.
+  2. Player chancellor candidates are limited to that city `stationed_hero_ids` / `hero_ids`, so Pyeongyang/foreign stationed heroes do not appear as Hanseong candidates.
+  3. Current valid player chancellor assignment remains national state and is not auto-dismissed when outside the candidate city.
+  4. `_player_state["faction_chancellors"]` is seeded for non-player factions from faction-owned city stationed heroes.
+  5. Faction chancellor seed state is normalized during default/restore/save paths and persists through existing player-state save/load.
+- Preserved scope:
+  1. Left national panel scope lock remains unchanged.
+  2. Enemy city intel visibility filter from `v0.70-38` remains unchanged.
+  3. No enemy domestic execution, enemy diplomacy/spy execution, spy formula/effect, diplomacy action, trade price/efficiency, chancellor auto trade, BattleContext, `project.godot`, scene, asset, `.uid`, or `.ogv` changes were made.
+  4. Warning-cleanup naming remains preserved.
+- Manual F6 QA required:
+  1. Confirm Hanseong chancellor dropdown excludes `cheok_jun_gyeong` while showing Hanseong stationed valid candidates.
+  2. Confirm assigning Jeong Do-jeon persists after selecting foreign cities.
+  3. Confirm spy actions still recognize the assigned national chancellor.
+  4. Confirm pre-intel enemy city details remain hidden from the `v0.70-38` filter.
+  5. Confirm save/load keeps player chancellor and faction chancellor seed state.
+- Next candidate work:
+  1. `v0.70-39 Trade Market / Price Variation MVP`
+  2. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  3. `v0.70-41 Spy Action Polish / Alienation MVP`
+  4. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## Current: v0.70-38 Enemy City Intel Visibility Filter
 - Baseline: `v0.70-37-hotfix1 Left National Panel Scope Lock` (`f5b74da8c1d24ae6db4390562eb16a69018d1625`).
 - Completed direction:

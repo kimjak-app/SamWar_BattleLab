@@ -1,5 +1,18 @@
 # WORLDMAP RULES
 
+## v0.70-38-hotfix1 Chancellor Candidate Scope Rule
+- Player chancellor assignment remains player/nation scope, but player chancellor candidates must come from the player chancellor candidate city roster, not all player-side heroes.
+- Baseline was `v0.70-38 Enemy City Intel Visibility Filter` (`6b61e1f045c461eeff5a53f5a4b77aae6cbada53`).
+- Candidate city priority is valid `_player_state["capital_city_id"]`, then `hanseong`, then first valid player-owned city.
+- Candidate heroes must be in the candidate city's `stationed_hero_ids` / `hero_ids` and must pass player-side, alive/uncaptured, chancellor aptitude validation.
+- Pyeongyang/foreign stationed heroes must not appear as Hanseong chancellor candidates unless they are actually stationed in the player candidate city.
+- A current valid player chancellor may remain assigned and visible as display-only even if outside the candidate city; this rule does not authorize automatic chancellor dismissal.
+- Non-player faction chancellor seed state may live in `_player_state["faction_chancellors"]` and should be normalized/reseeded on load for missing, invalid, player-faction, dead, or captured entries.
+- Enemy faction chancellors are seed state only; this rule does not authorize enemy domestic execution, enemy diplomacy/spy actions, or enemy chancellor UI expansion.
+- This rule must not weaken the left national panel scope lock or the enemy city intel visibility filter.
+- This rule does not authorize spy formula/effect changes, diplomacy action changes, trade price/efficiency changes, chancellor auto trade changes, BattleContext changes, Selected City Panel changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-38 Enemy City Intel Visibility Rule
 - Right-side selected City Info remains selected-city scope, but foreign/enemy city details must be gated by spy intel.
 - Baseline was `v0.70-37-hotfix1 Left National Panel Scope Lock` (`f5b74da8c1d24ae6db4390562eb16a69018d1625`).
