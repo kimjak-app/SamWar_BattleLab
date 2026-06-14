@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-38 Enemy City Intel Visibility Rule
+- Right-side selected City Info remains selected-city scope, but foreign/enemy city details must be gated by spy intel.
+- Baseline was `v0.70-37-hotfix1 Left National Panel Scope Lock` (`f5b74da8c1d24ae6db4390562eb16a69018d1625`).
+- Player-owned cities must keep the existing full city information display.
+- Foreign/enemy cities without intel may show only basic identity such as city name, owner faction, city type, and locked detail text.
+- Foreign/enemy cities without intel must not reveal city loyalty, public support/security, governor, full garrison, troop/defense detail, recruitment, resources/storage, or tech details.
+- Successful `정탐` may record `_player_state["city_intel"][target_city_id]` with `turn`, `fields`, `estimated`, and `payload` for display.
+- Supported intel fields are `troops_estimated`, `troops`, `resources`, `publicSupport`, `loyalty`, `governor`, and `tech`.
+- Loading a save may restore `_player_state["city_intel"]` for display, but must never replay spy effects or mutate city state from intel payloads.
+- Spy-tab known-info summaries should use the same city intel registry and should not reveal hidden enemy-city detail before intel exists.
+- Left World Status panel remains player/nation scope; this rule must not weaken the `v0.70-37-hotfix1` left panel scope lock.
+- This rule does not authorize spy formula changes, spy effect amount changes, diplomacy action changes, trade price/efficiency changes, chancellor auto trade changes, BattleContext changes, player-owned city display changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-37-hotfix1 Left National Panel Scope Lock Rule
 - Left World Status panel is player/nation scope and must not derive national state from the currently selected city.
 - Baseline was `v0.70-37 Spy Action MVP` (`3c0a03be6163230f029eadf464a7b4afee12e775`).

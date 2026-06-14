@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.70-38 Enemy City Intel Visibility Filter
+- Baseline: `v0.70-37-hotfix1 Left National Panel Scope Lock` at `f5b74da8c1d24ae6db4390562eb16a69018d1625`.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Right-side selected City Info now applies an enemy-city intel visibility filter: player-owned cities keep the existing full display, while foreign/enemy cities are gated by known spy intel.
+- Enemy cities without intel show only basic selected-city identity, owner/type, and locked copy such as `정탐 필요` / `추가 정탐 필요` for loyalty, public support, governor, garrison, military, domestic, resources, and tech details.
+- Successful `정탐` records display-only city intel into `_player_state["city_intel"]` with `turn`, `fields`, `estimated`, and `payload`.
+- Enemy city display can reveal `troops_estimated`, `troops`, `resources`, `publicSupport`, `loyalty`, `governor`, and `tech` details according to the stored fields.
+- City Detail `외교·첩보 > 첩보` known-info summaries now read the same city intel registry instead of exposing hidden enemy-city details by default.
+- Save/load fallback normalizes `_player_state["city_intel"]`; loading restores intel display state only and does not replay spy effects.
+- Left national panel scope lock from `v0.70-37-hotfix1` remains intact; selecting a foreign city must not change player national/chancellor display.
+- Spy formulas/effect amounts, diplomacy actions, trade pricing/efficiency, chancellor auto trade, BattleContext, Selected City Panel player-city behavior, `project.godot`, scenes, assets, `.uid`, and `.ogv` files were not changed.
+- The `v0.70-34-hotfix1` shadowing warning cleanup remains intact.
+- Next candidate work:
+  1. `v0.70-39 Trade Market / Price Variation MVP`
+  2. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  3. `v0.70-41 Spy Action Polish / Alienation MVP`
+  4. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## v0.70-37-hotfix1 Left National Panel Scope Lock
 - Baseline: `v0.70-37 Spy Action MVP` at `3c0a03be6163230f029eadf464a7b4afee12e775`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

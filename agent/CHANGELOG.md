@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.70-38 Enemy City Intel Visibility Filter
+- Built on `v0.70-37-hotfix1 Left National Panel Scope Lock` (`f5b74da8c1d24ae6db4390562eb16a69018d1625`).
+- Added an enemy-city intel visibility filter to the right selected City Info panel.
+- Kept player-owned city display on the existing full-information path.
+- Changed foreign/enemy city display so pre-intel details are locked behind `정탐 필요` / `추가 정탐 필요` copy.
+- Added `_player_state["city_intel"]` as a display-only registry populated by successful `정탐` results.
+- Connected successful spy info payloads to city intel fields for troops, resources, public support, loyalty, governor, and tech visibility.
+- Updated spy-tab visibility/known-info summaries to use stored city intel instead of revealing hidden enemy details.
+- Added save/load fallback normalization for `city_intel` without replaying spy effects.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change spy success/detection formulas, spy effect amounts, diplomacy actions, trade pricing/efficiency, chancellor auto trade, left national panel scope lock, BattleContext, `project.godot`, scenes, assets, `.uid`, or `.ogv`.
+- Preserved the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-37-hotfix1 Left National Panel Scope Lock
 - Built on `v0.70-37 Spy Action MVP` (`3c0a03be6163230f029eadf464a7b4afee12e775`).
 - Fixed left World Status panel scope leakage where selecting a foreign city could clear the national chancellor assignment.

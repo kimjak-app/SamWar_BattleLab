@@ -2,6 +2,27 @@
 
 ## 2026-06-14
 
+### v0.70-38 Enemy City Intel Visibility Filter
+- Started from `f5b74da v0.70-37-hotfix1 Left National Panel Scope Lock`.
+- Confirmed clean worktree and expected HEAD before editing.
+- Required docs and city info panel, spy visibility, city intel, selected city info, left-panel scope, and warning-cleanup search paths were checked.
+- Implemented:
+  - Added enemy-city intel context setters and a foreign-city display branch to `WorldMapCityInfoPanel`.
+  - Locked enemy city details behind `정탐 필요` / `추가 정탐 필요` unless city intel fields are known.
+  - Preserved the existing full display path for player-owned cities.
+  - Added `_player_state["city_intel"]` normalization and save/load fallback.
+  - Recorded successful `정탐` payloads into the city intel registry.
+  - Refreshed the selected city info panel after spy actions and updated spy-tab known-info summaries to read city intel.
+- Preserved spy formulas/effect amounts, diplomacy actions, trade pricing/efficiency, chancellor auto trade, left national panel scope lock, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserved `v0.70-34-hotfix1` warning cleanup.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - required city intel, spy payload, left panel, and warning-cleanup searches
+- Manual F6 QA remains required for player-city full display, enemy-city locked display before intel, successful/failed `정탐` visibility behavior, save/load city intel, left panel national scope, and Godot Output warning cleanliness.
+
 ### v0.70-37-hotfix1 Left National Panel Scope Lock
 - Started from `3c0a03b v0.70-37 Spy Action MVP`.
 - Confirmed clean worktree and expected HEAD before editing.

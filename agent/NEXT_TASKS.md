@@ -1,5 +1,29 @@
 # NEXT TASKS
 
+## Current: v0.70-38 Enemy City Intel Visibility Filter
+- Baseline: `v0.70-37-hotfix1 Left National Panel Scope Lock` (`f5b74da8c1d24ae6db4390562eb16a69018d1625`).
+- Completed direction:
+  1. Right-side selected City Info keeps player-owned cities on the existing full-information path.
+  2. Foreign/enemy cities now use an intel visibility branch that hides loyalty, public support/security, governor, garrison, troop/defense, recruitment, resources, and tech details until spy intel is known.
+  3. Successful `정탐` stores `_player_state["city_intel"][target_city_id]` with normalized fields and payload.
+  4. Enemy City Info and spy-tab known-info summaries both read the city intel registry.
+  5. Save/load fallback normalizes city intel as display-only state and never replays spy effects.
+- Preserved scope:
+  1. Left national panel scope lock remains unchanged.
+  2. No spy formula/effect, diplomacy action, trade price/efficiency, chancellor auto trade, BattleContext, `project.godot`, scene, asset, `.uid`, or `.ogv` changes were made.
+  3. Warning-cleanup naming remains preserved.
+- Manual F6 QA required:
+  1. Confirm player-owned cities still show the existing full city information.
+  2. Confirm foreign cities before `정탐` show only basic identity and locked `정탐 필요` details.
+  3. Run `정탐` and confirm successful intel opens only the fields returned by the spy result.
+  4. Confirm failed `정탐` does not open hidden information.
+  5. Confirm save/load keeps city intel display without replaying spy effects, and the left panel still shows player national/chancellor state while foreign cities are selected.
+- Next candidate work:
+  1. `v0.70-39 Trade Market / Price Variation MVP`
+  2. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  3. `v0.70-41 Spy Action Polish / Alienation MVP`
+  4. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## Current: v0.70-37-hotfix1 Left National Panel Scope Lock
 - Baseline: `v0.70-37 Spy Action MVP` (`3c0a03be6163230f029eadf464a7b4afee12e775`).
 - Completed direction:

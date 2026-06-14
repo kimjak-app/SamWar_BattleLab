@@ -732,6 +732,7 @@ var _player_state := {
 	"last_military_support_result": {},
 	"last_trade_agreement_result": {},
 	"revolt_instigation": {},
+	"city_intel": {},
 	"last_supply_state_result": {},
 	"last_public_support_result": {},
 	"last_seasonal_loyalty_result": {},
@@ -2863,6 +2864,62 @@ func _has_worldmap_city_for_trade_persistence(city_id: String) -> bool:
 	return CITY_HUD_DATA.has(city_id) or not _get_city_hud_entry(city_id).is_empty()
 
 
+func _normalize_city_intel_registry(raw_intel: Variant) -> Dictionary:
+	var result := {}
+	if not raw_intel is Dictionary:
+		return result
+	var allowed_fields := ["troops_estimated", "troops", "resources", "publicSupport", "loyalty", "governor", "tech"]
+	for city_id_variant in (raw_intel as Dictionary).keys():
+		var city_id := str(city_id_variant)
+		if not _has_worldmap_city_for_trade_persistence(city_id):
+			continue
+		var raw_entry: Variant = (raw_intel as Dictionary).get(city_id, {})
+		if not raw_entry is Dictionary:
+			continue
+		var entry := raw_entry as Dictionary
+		var fields: Array = []
+		var raw_fields: Variant = entry.get("fields", [])
+		if raw_fields is Array:
+			for field_variant in raw_fields:
+				var field := str(field_variant)
+				if allowed_fields.has(field) and not fields.has(field):
+					fields.append(field)
+		var payload: Dictionary = {}
+		var raw_payload: Variant = entry.get("payload", entry.get("info", {}))
+		if raw_payload is Dictionary:
+			payload = (raw_payload as Dictionary).duplicate(true)
+		result[city_id] = {
+			"turn": maxi(0, int(entry.get("turn", 0))),
+			"fields": fields,
+			"estimated": bool(entry.get("estimated", fields.has("troops_estimated"))),
+			"payload": payload,
+		}
+	return result
+
+
+func _record_city_intel_from_spy_result(spy_result: Dictionary) -> void:
+	if not bool(spy_result.get("success", false)):
+		return
+	var target_city_id := str(spy_result.get("target_city_id", ""))
+	if not _has_worldmap_city_for_trade_persistence(target_city_id):
+		return
+	var raw_payload: Variant = spy_result.get("payload", spy_result.get("info", {}))
+	if not raw_payload is Dictionary or (raw_payload as Dictionary).is_empty():
+		return
+	var intel_registry := _normalize_city_intel_registry(_player_state.get("city_intel", {}))
+	var fields: Array = []
+	var raw_fields: Variant = spy_result.get("fields", [])
+	if raw_fields is Array:
+		fields = (raw_fields as Array).duplicate()
+	intel_registry[target_city_id] = {
+		"turn": maxi(1, int(spy_result.get("turn", _player_state.get("turn_number", 1)))),
+		"fields": fields,
+		"estimated": bool(spy_result.get("estimated", false)),
+		"payload": (raw_payload as Dictionary).duplicate(true),
+	}
+	_player_state["city_intel"] = _normalize_city_intel_registry(intel_registry)
+
+
 func _sync_trade_persistence_to_player_state() -> void:
 	_trade_control_modes = _normalize_trade_control_modes(_trade_control_modes)
 	_manual_trade_orders = _normalize_manual_trade_orders(_manual_trade_orders)
@@ -2872,6 +2929,7 @@ func _sync_trade_persistence_to_player_state() -> void:
 	_player_state["last_internal_trade_transfer_result"] = _normalize_trade_result_payload(_player_state.get("last_internal_trade_transfer_result", {}))
 	_player_state["last_chancellor_auto_trade_result"] = _normalize_chancellor_auto_trade_result_payload(_player_state.get("last_chancellor_auto_trade_result", {}))
 	_player_state["last_chancellor_auto_trade_turn"] = maxi(0, int(_player_state.get("last_chancellor_auto_trade_turn", 0)))
+	_player_state["city_intel"] = _normalize_city_intel_registry(_player_state.get("city_intel", {}))
 
 
 func _restore_trade_persistence_from_player_state() -> void:
@@ -2883,6 +2941,7 @@ func _restore_trade_persistence_from_player_state() -> void:
 	_player_state["last_internal_trade_transfer_result"] = _normalize_trade_result_payload(_player_state.get("last_internal_trade_transfer_result", {}))
 	_player_state["last_chancellor_auto_trade_result"] = _normalize_chancellor_auto_trade_result_payload(_player_state.get("last_chancellor_auto_trade_result", {}))
 	_player_state["last_chancellor_auto_trade_turn"] = maxi(0, int(_player_state.get("last_chancellor_auto_trade_turn", 0)))
+	_player_state["city_intel"] = _normalize_city_intel_registry(_player_state.get("city_intel", {}))
 
 
 func _ensure_internal_trade_transfer_panel() -> void:
@@ -3529,7 +3588,19 @@ func _format_spy_visibility_summary_for_ui(city_marker: WorldMapCityMarker) -> S
 		return "정보 수준\n정보 미확인"
 	if owner_id == PLAYER_FACTION_ID:
 		return "정보 수준\n자국 도시"
-	return "정보 수준\n기초 정보 확인"
+	var intel_entry := _get_city_intel_entry_for_ui(city_marker.city_id)
+	if intel_entry.is_empty():
+		return "정보 수준\n미확인"
+	var fields: Array = intel_entry.get("fields", [])
+	if fields.has("troops_estimated"):
+		return "정보 수준\n기초 정탐"
+	if fields.has("governor") or fields.has("tech"):
+		return "정보 수준\n상세 정탐"
+	if fields.has("publicSupport") or fields.has("loyalty"):
+		return "정보 수준\n내정 정탐"
+	if fields.has("resources"):
+		return "정보 수준\n군사/자원 정탐"
+	return "정보 수준\n군사 정탐"
 
 
 func _format_spy_known_info_summary_for_ui(city_marker: WorldMapCityMarker) -> String:
@@ -3540,7 +3611,35 @@ func _format_spy_known_info_summary_for_ui(city_marker: WorldMapCityMarker) -> S
 		return "확인 정보\n자국 도시는 도시 정보창에서 상세 정보를 확인할 수 있습니다."
 	if owner_id.is_empty():
 		return "확인 정보\n소유 세력 확인이 필요합니다."
-	return "확인 정보\n소유 세력 / 도시 유형 / 병력 개략 / 자원 개략"
+	var intel_entry := _get_city_intel_entry_for_ui(city_marker.city_id)
+	if intel_entry.is_empty():
+		return "확인 정보\n소유 세력 / 도시 유형\n상세 정보는 정탐 필요"
+	var fields: Array = intel_entry.get("fields", [])
+	var payload: Dictionary = intel_entry.get("payload", {})
+	var parts: Array[String] = ["소유 세력", "도시 유형"]
+	if payload.has("troops"):
+		parts.append("병력 %d" % int(payload.get("troops", 0)))
+	elif payload.has("troops_estimated"):
+		parts.append("병력 약 %d" % int(payload.get("troops_estimated", 0)))
+	if fields.has("resources"):
+		parts.append("자원 개략")
+	if payload.has("publicSupport"):
+		parts.append("민심 %s" % str(payload.get("publicSupport", "")))
+	if payload.has("loyalty"):
+		parts.append("충성도 %s" % str(payload.get("loyalty", "")))
+	if fields.has("governor"):
+		parts.append("태수 확인")
+	if fields.has("tech"):
+		parts.append("기술 확인")
+	return "확인 정보\n%s" % " / ".join(parts)
+
+
+func _get_city_intel_entry_for_ui(city_id: String) -> Dictionary:
+	var registry := _normalize_city_intel_registry(_player_state.get("city_intel", {}))
+	var raw_entry: Variant = registry.get(city_id, {})
+	if raw_entry is Dictionary:
+		return raw_entry as Dictionary
+	return {}
 
 
 func _format_spy_action_candidates_for_ui(city_marker: WorldMapCityMarker) -> String:
@@ -5150,6 +5249,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_trade_agreement_result"] = {}
 	if not _player_state.has("revolt_instigation") or not (_player_state["revolt_instigation"] is Dictionary):
 		_player_state["revolt_instigation"] = {}
+	if not _player_state.has("city_intel") or not (_player_state["city_intel"] is Dictionary):
+		_player_state["city_intel"] = {}
 	if not _player_state.has("spy_cooldown"):
 		_player_state["spy_cooldown"] = 0
 	_player_state["spy_cooldown"] = maxi(0, int(_player_state.get("spy_cooldown", 0)))
@@ -5185,6 +5286,7 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 	_player_state["last_internal_trade_transfer_result"] = _normalize_trade_result_payload(_player_state.get("last_internal_trade_transfer_result", {}))
 	_player_state["last_chancellor_auto_trade_result"] = _normalize_chancellor_auto_trade_result_payload(_player_state.get("last_chancellor_auto_trade_result", {}))
 	_player_state["last_chancellor_auto_trade_turn"] = maxi(0, int(_player_state.get("last_chancellor_auto_trade_turn", 0)))
+	_player_state["city_intel"] = _normalize_city_intel_registry(_player_state.get("city_intel", {}))
 	_normalize_diplomacy_action_state_from_player_state()
 	_ensure_national_tech_state()
 
@@ -10754,6 +10856,9 @@ func _apply_spy_action(action_id: String, target_city_id: String = "") -> Dictio
 
 func _on_spy_action_pressed(action_id: String) -> void:
 	_apply_spy_action(action_id)
+	_refresh_city_hud_data_bindings()
+	if selected_city_marker != null:
+		city_info_panel.show_city(selected_city_marker)
 	_show_unified_diplomacy_spy_content()
 
 
@@ -11004,6 +11109,7 @@ func _gather_spy_info(target_city_id: String, forced_roll: int = -1, forced_dete
 	if not bool(roll_result.get("ok", false)):
 		result["reason"] = str(roll_result.get("reason", "unknown"))
 	_player_state["last_spy_result"] = result
+	_record_city_intel_from_spy_result(result)
 	return result
 
 
@@ -12896,6 +13002,10 @@ func _get_hero_data_for_ui() -> Dictionary:
 func _refresh_city_hud_data_bindings() -> void:
 	if city_info_panel == null:
 		return
+	if city_info_panel.has_method("set_player_faction_id"):
+		city_info_panel.call("set_player_faction_id", PLAYER_FACTION_ID)
+	if city_info_panel.has_method("set_enemy_city_intel"):
+		city_info_panel.call("set_enemy_city_intel", _normalize_city_intel_registry(_player_state.get("city_intel", {})))
 	city_info_panel.set_hud_data(_get_hero_data_for_ui(), _get_city_hud_data_for_ui(), GOVERNOR_POLICY_DATA, _city_policy_state)
 	if city_info_panel.has_method("set_recruitment_summaries"):
 		city_info_panel.call("set_recruitment_summaries", _get_recruitment_summaries_for_ui())

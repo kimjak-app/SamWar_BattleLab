@@ -1,5 +1,23 @@
 # HANDOFF TO CODEX
 
+## v0.70-38 Enemy City Intel Visibility Filter Handoff
+- Baseline: `v0.70-37-hotfix1 Left National Panel Scope Lock` (`f5b74da8c1d24ae6db4390562eb16a69018d1625`).
+- Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.
+- `WorldMapCityInfoPanel` now receives `set_player_faction_id()` and `set_enemy_city_intel()` context from `worldmap_test.gd`.
+- `show_city()` preserves the original full display for player-owned cities and branches foreign/enemy cities into `_show_enemy_city_with_intel_filter()`.
+- Enemy city no-intel display intentionally locks detailed fields with `정탐 필요` / `추가 정탐 필요`; attack availability still follows the existing attack-state path.
+- Enemy intel fields currently supported by the panel are `troops_estimated`, `troops`, `resources`, `publicSupport`, `loyalty`, `governor`, and `tech`.
+- Successful `gather_info` / `정탐` records `_player_state["city_intel"][target_city_id]` through `_record_city_intel_from_spy_result()`.
+- `_normalize_city_intel_registry()` prunes malformed/unknown city ids and keeps intel display-only for save/load.
+- Spy-tab visibility and known-info summaries now read `_player_state["city_intel"]` so hidden city details are not exposed before intel exists.
+- Explicitly unchanged: spy success/detection formulas, spy effect amounts, diplomacy actions, trade pricing/efficiency, chancellor auto trade, left national panel scope lock, BattleContext, player-owned city display behavior, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidates:
+  1. `v0.70-39 Trade Market / Price Variation MVP`
+  2. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  3. `v0.70-41 Spy Action Polish / Alienation MVP`
+  4. `v0.70-42 Enemy Intel UI Polish / Fog of War`
+
 ## v0.70-37-hotfix1 Left National Panel Scope Lock Handoff
 - Baseline: `v0.70-37 Spy Action MVP` (`3c0a03be6163230f029eadf464a7b4afee12e775`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

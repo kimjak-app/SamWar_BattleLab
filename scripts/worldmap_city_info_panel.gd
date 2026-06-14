@@ -89,6 +89,8 @@ var _revolt_risk_summaries: Dictionary = {}
 var _governor_policy_data: Dictionary = {}
 var _city_policy_state: Dictionary = {}
 var _pending_invasion_event: Dictionary = {}
+var _enemy_city_intel: Dictionary = {}
+var _player_faction_id := PLAYER_FACTION_ID
 var _current_city_id := ""
 var _governor_portrait_texture_rect: TextureRect = null
 var _garrison_card: PanelContainer = null
@@ -142,6 +144,16 @@ func set_city_markers(city_markers_by_id: Dictionary) -> void:
 	_city_markers_by_id = city_markers_by_id
 
 
+func set_player_faction_id(faction_id: String) -> void:
+	_player_faction_id = faction_id if not faction_id.is_empty() else PLAYER_FACTION_ID
+
+
+func set_enemy_city_intel(enemy_city_intel: Dictionary) -> void:
+	_enemy_city_intel = enemy_city_intel.duplicate(true)
+	if not _current_city_id.is_empty() and _city_markers_by_id.has(_current_city_id):
+		show_city(_city_markers_by_id.get(_current_city_id) as WorldMapCityMarker)
+
+
 func set_hud_data(hero_data: Dictionary, city_hud_data: Dictionary, governor_policy_data: Dictionary, city_policy_state: Dictionary) -> void:
 	_hero_data = hero_data
 	_city_hud_data = city_hud_data
@@ -188,6 +200,9 @@ func show_city(city_marker: WorldMapCityMarker) -> void:
 
 	_current_city_id = city_marker.city_id
 	var city_data := _get_city_hud_entry(city_marker.city_id)
+	if _is_foreign_city_for_info_panel(city_marker, city_data):
+		_show_enemy_city_with_intel_filter(city_marker, city_data)
+		return
 	var loyalty := int(city_data.get("loyalty", 75))
 	var governor_id := str(city_data.get("governor_id", ""))
 	var governor_data := _get_hero_entry(governor_id)
@@ -373,10 +388,19 @@ func _get_city_display_name(city_id: String, fallback: String = "알 수 없는 
 
 
 func _get_city_owner_label(city_marker: WorldMapCityMarker, city_data: Dictionary) -> String:
-	var owner_id := str(city_data.get("owner", ""))
+	return _format_faction_label(_get_city_owner_id(city_marker, city_data))
+
+
+func _get_city_owner_id(city_marker: WorldMapCityMarker, city_data: Dictionary) -> String:
+	var owner_id := str(city_data.get("owner", city_data.get("owner_faction_id", city_data.get("nation", ""))))
 	if owner_id.is_empty() and city_marker != null:
 		owner_id = city_marker.owner_faction_id
-	return _format_faction_label(owner_id)
+	return owner_id
+
+
+func _is_foreign_city_for_info_panel(city_marker: WorldMapCityMarker, city_data: Dictionary) -> bool:
+	var owner_id := _get_city_owner_id(city_marker, city_data)
+	return not owner_id.is_empty() and owner_id != _player_faction_id
 
 
 func _get_city_nation_label(city_marker: WorldMapCityMarker, city_data: Dictionary) -> String:
@@ -502,6 +526,182 @@ func _get_resource_label(resource_id: String) -> String:
 			return "소금"
 		_:
 			return resource_id
+
+
+func _show_enemy_city_with_intel_filter(city_marker: WorldMapCityMarker, city_data: Dictionary) -> void:
+	var city_intel := _get_enemy_city_intel(city_marker.city_id)
+	var fields := _get_enemy_city_intel_fields(city_intel)
+	var payload := _get_enemy_city_intel_payload(city_intel)
+	_apply_selected_city_summary_slim_visibility()
+	eyebrow_label.text = ""
+	city_name_label.text = _get_city_display_name(city_marker.city_id, city_marker.display_name)
+	description_label.text = "세력: %s" % _get_city_owner_label(city_marker, city_data)
+	city_id_label.visible = false
+	city_id_label.text = ""
+	region_owner_label.text = ""
+	city_type_label.text = "유형: %s" % _format_city_type(city_marker.city_id)
+	neighbor_label.text = ""
+	route_type_label.text = ""
+	status_text_label.text = ""
+	loyalty_label.text = _format_enemy_loyalty_line(fields, payload)
+	loyalty_bar.value = int(payload.get("loyalty", 0)) if fields.has("loyalty") and payload.has("loyalty") else 0
+	_ensure_stability_card()
+	if _revolt_risk_label != null:
+		_revolt_risk_label.text = _format_enemy_public_support_line(fields, payload)
+	_setup_governor_assign_option({}, "")
+	_update_enemy_governor_card(fields, payload)
+	selected_hero_chip_label.text = "주둔 무장"
+	selected_hero_chip_label.visible = true
+	garrison_label.text = ""
+	garrison_label.visible = false
+	_set_garrison_locked("주둔 무장: 정탐 필요")
+	_hero_transfer_open = false
+	_refresh_hero_transfer_panel({})
+	if _hero_transfer_panel != null:
+		_hero_transfer_panel.visible = false
+	hero_move_button_placeholder.visible = false
+	military_info_label.text = _format_enemy_military_info_with_intel(fields, payload)
+	military_state_label.text = _format_enemy_domestic_info_with_intel(fields, payload)
+	_refresh_recruitment_section()
+	if _recruitment_section != null:
+		_recruitment_section.visible = false
+	recruit_button_placeholder.visible = false
+	recruit_button_placeholder.disabled = true
+	_refresh_attack_action_state()
+	_apply_selected_city_layout_order()
+	hint_label.text = _format_enemy_intel_hint(city_intel, fields, payload)
+	hint_label.visible = true
+	show()
+
+
+func _get_enemy_city_intel(city_id: String) -> Dictionary:
+	var raw_intel: Variant = _enemy_city_intel.get(city_id, {})
+	if raw_intel is Dictionary:
+		return (raw_intel as Dictionary).duplicate(true)
+	return {}
+
+
+func _get_enemy_city_intel_fields(city_intel: Dictionary) -> Array[String]:
+	var fields: Array[String] = []
+	var raw_fields: Variant = city_intel.get("fields", [])
+	if raw_fields is Array:
+		for field_variant in raw_fields:
+			var field := str(field_variant)
+			if field.is_empty() or fields.has(field):
+				continue
+			fields.append(field)
+	return fields
+
+
+func _get_enemy_city_intel_payload(city_intel: Dictionary) -> Dictionary:
+	var raw_payload: Variant = city_intel.get("payload", city_intel.get("info", {}))
+	if raw_payload is Dictionary:
+		return (raw_payload as Dictionary).duplicate(true)
+	return {}
+
+
+func _format_enemy_loyalty_line(fields: Array[String], payload: Dictionary) -> String:
+	if fields.has("loyalty") and payload.has("loyalty"):
+		var loyalty_value := int(payload.get("loyalty", 0))
+		return "성 충성도 %d %s" % [loyalty_value, _format_city_loyalty_stability_label(loyalty_value)]
+	return "성 충성도: 정탐 필요"
+
+
+func _format_enemy_public_support_line(fields: Array[String], payload: Dictionary) -> String:
+	if fields.has("publicSupport") and payload.has("publicSupport"):
+		return "민심 %s · 치안 추가 정탐 필요" % str(payload.get("publicSupport", "확인 필요"))
+	if fields.has("loyalty"):
+		return "민심/치안: 추가 정탐 필요"
+	return "민심/치안: 정탐 필요"
+
+
+func _update_enemy_governor_card(fields: Array[String], payload: Dictionary) -> void:
+	governor_label.text = "태수"
+	governor_label.visible = true
+	governor_assign_option.disabled = true
+	governor_policy_option.disabled = true
+	if fields.has("governor") and payload.has("governor") and str(payload.get("governor", "")) != "not_available":
+		var governor_id := str(payload.get("governor", ""))
+		var governor_data := _get_hero_entry(governor_id)
+		HeroPortraitHelper.apply_hero_portrait_or_placeholder(_governor_portrait_texture_rect, governor_portrait_label, governor_data)
+		governor_name_label.text = _get_hero_display_name(governor_data, governor_id)
+		governor_stats_label.text = _format_hero_stats(governor_data)
+		governor_policy_description_label.text = "정탐으로 태수 정보가 확인되었습니다."
+		return
+	HeroPortraitHelper.apply_hero_portrait_or_placeholder(_governor_portrait_texture_rect, governor_portrait_label, {})
+	governor_name_label.text = "정탐 필요"
+	governor_stats_label.text = "능력: 추가 정탐 필요"
+	governor_policy_description_label.text = "태수와 정책 정보는 정탐 후 확인할 수 있습니다."
+
+
+func _set_garrison_locked(message: String) -> void:
+	_ensure_garrison_list_container()
+	if _garrison_list_container == null:
+		return
+	_clear_children(_garrison_list_container)
+	var locked_label := Label.new()
+	locked_label.text = message
+	locked_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_garrison_list_container.add_child(locked_label)
+
+
+func _format_enemy_military_info_with_intel(fields: Array[String], payload: Dictionary) -> String:
+	if fields.has("troops") and payload.has("troops"):
+		return "병력 %d\n방어 추가 정탐 필요\n치안 기준 추가 정탐 필요" % int(payload.get("troops", 0))
+	if fields.has("troops_estimated") and payload.has("troops_estimated"):
+		return "병력 약 %d\n방어 추가 정탐 필요\n치안 기준 추가 정탐 필요" % int(payload.get("troops_estimated", 0))
+	return "병력: 정탐 필요\n방어: 정탐 필요\n치안 기준: 정탐 필요"
+
+
+func _format_enemy_domestic_info_with_intel(fields: Array[String], payload: Dictionary) -> String:
+	var parts: Array[String] = []
+	if fields.has("publicSupport") and payload.has("publicSupport"):
+		parts.append("민심 %s" % str(payload.get("publicSupport", "확인 필요")))
+	else:
+		parts.append("민심 정탐 필요")
+	if fields.has("loyalty") and payload.has("loyalty"):
+		parts.append("충성도 %s" % str(payload.get("loyalty", "확인 필요")))
+	else:
+		parts.append("충성도 정탐 필요")
+	if fields.has("resources") and payload.has("resources"):
+		parts.append("자원 개략 %s" % _format_enemy_resource_payload(payload.get("resources")))
+	else:
+		parts.append("자원 정탐 필요")
+	if fields.has("tech") and payload.has("tech"):
+		parts.append("기술 확인됨")
+	else:
+		parts.append("기술 추가 정탐 필요")
+	return " / ".join(parts)
+
+
+func _format_enemy_resource_payload(raw_resources: Variant) -> String:
+	if raw_resources is Dictionary:
+		var resource_parts: Array[String] = []
+		for resource_id in ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt"]:
+			if (raw_resources as Dictionary).has(resource_id):
+				resource_parts.append("%s %d" % [_get_resource_label(resource_id), int((raw_resources as Dictionary).get(resource_id, 0))])
+		if not resource_parts.is_empty():
+			return "·".join(resource_parts)
+	return "확인됨"
+
+
+func _format_enemy_intel_hint(city_intel: Dictionary, fields: Array[String], payload: Dictionary) -> String:
+	if city_intel.is_empty() or fields.is_empty():
+		return "정보 수준: 미확인\n상세 정보: 정탐 필요"
+	var label := "상세 정탐"
+	if fields.has("troops_estimated"):
+		label = "기초 정탐"
+	elif fields.has("troops") and not fields.has("resources"):
+		label = "군사 정탐"
+	elif fields.has("resources") and not fields.has("publicSupport"):
+		label = "군사/자원 정탐"
+	var turn_text := ""
+	if int(city_intel.get("turn", 0)) > 0:
+		turn_text = " · %d턴" % int(city_intel.get("turn", 0))
+	var payload_city_name := str(payload.get("city_name", ""))
+	if payload_city_name.is_empty():
+		return "정보 수준: %s%s\n미확인 항목은 추가 정탐 필요" % [label, turn_text]
+	return "정보 수준: %s%s\n%s 정탐 정보" % [label, turn_text, payload_city_name]
 
 
 func _get_hero_entry(hero_id: String) -> Dictionary:
