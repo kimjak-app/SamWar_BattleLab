@@ -2,6 +2,29 @@
 
 ## 2026-06-14
 
+### v0.70-37-hotfix1 Left National Panel Scope Lock
+- Started from `3c0a03b v0.70-37 Spy Action MVP`.
+- Confirmed clean worktree and expected HEAD before editing.
+- Required docs and left-panel, chancellor assignment, selected-city, spy validation, and warning-cleanup search paths were checked.
+- Root cause:
+  - `_refresh_left_world_status_panel()` passed selected-city data into chancellor sync/dropdown refresh.
+  - `_sync_chancellor_assignment_for_selected_city()` cleared global `_player_state["chancellor_id"]` if the assigned chancellor was not stationed in the selected city.
+  - Foreign city selection therefore made the left national panel show `미임명` and caused spy validation to report missing chancellor.
+- Implemented:
+  - Locked left panel chancellor refresh to player/nation scope.
+  - Made chancellor sync clear only missing/non-player invalid chancellor ids, not selected-city stationing mismatches.
+  - Changed the dropdown to player-side national chancellor candidates and kept the current valid player chancellor visible.
+  - Kept the right City Detail, diplomacy/spy target, and trade target paths selected-city scoped.
+- Preserved spy formulas/effects, diplomacy actions, trade pricing/efficiency, chancellor auto trade, save/load schema, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserved `v0.70-34-hotfix1` warning cleanup.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - required chancellor scope and warning-cleanup searches
+- Manual F6 QA remains required for chancellor display after foreign city selection, spy button enablement, save/load chancellor retention, and Godot Output warning cleanliness.
+
 ### v0.70-37 Spy Action MVP
 - Started from `b0f40e4 v0.70-36 Diplomacy Action MVP`.
 - Confirmed clean worktree and expected HEAD before editing.

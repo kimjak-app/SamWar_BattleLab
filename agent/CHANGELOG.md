@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-37-hotfix1 Left National Panel Scope Lock
+- Built on `v0.70-37 Spy Action MVP` (`3c0a03be6163230f029eadf464a7b4afee12e775`).
+- Fixed left World Status panel scope leakage where selecting a foreign city could clear the national chancellor assignment.
+- Stopped left-panel refresh from using selected-city stationed heroes to validate national `_player_state["chancellor_id"]`.
+- Made chancellor sync national-safe: valid player-side chancellors are retained across foreign city selection, while missing/non-player invalid ids can still be cleared.
+- Changed the chancellor assignment dropdown to use player-side national candidates and preserve the current valid player chancellor display.
+- Kept the right City Detail, diplomacy/spy, and trade panels selected-city scoped.
+- Restored spy action validation behavior for assigned national chancellors after selecting foreign cities, without changing spy formulas or effects.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change spy success/detection rates, diplomacy actions, trade pricing/efficiency, chancellor auto trade, save/load schema, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, or `.ogv`.
+- Preserved the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-37 Spy Action MVP
 - Built on `v0.70-36 Diplomacy Action MVP` (`b0f40e4ca4f9acac568a23b73652afc145a1eb66`).
 - Added a runtime `SpyActionCard` to City Detail `외교·첩보 > 첩보` for selected foreign cities.

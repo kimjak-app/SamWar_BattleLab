@@ -5028,8 +5028,6 @@ func _setup_warehouse_card_ui() -> void:
 
 func _refresh_left_world_status_panel() -> void:
 	_ensure_worldmap_runtime_state_defaults()
-	var selected_state_city_id := str(_player_state.get("selected_city_id", selected_city_id))
-	var selected_city_data := _get_city_hud_entry(selected_state_city_id)
 	left_world_status_eyebrow_label.visible = false
 	turn_label.visible = false
 	calendar_label.text = str(_player_state.get("year_label", "154년 봄 1턴"))
@@ -5048,8 +5046,8 @@ func _refresh_left_world_status_panel() -> void:
 	security_bar.value = public_order
 	security_bar.visible = false
 
-	_sync_chancellor_assignment_for_selected_city(selected_city_data)
-	_populate_chancellor_assignment_dropdown(selected_city_data)
+	_sync_chancellor_assignment_for_selected_city({})
+	_populate_chancellor_assignment_dropdown()
 	var chancellor_id := str(_player_state.get("chancellor_id", ""))
 	var chancellor_data := _get_hero_entry(chancellor_id)
 	var chancellor_name := _format_hero_name_by_id(chancellor_id, "미임명")
@@ -13667,20 +13665,49 @@ func _get_stationed_hero_ids_for_city(city_data: Dictionary) -> Array:
 	return []
 
 
-func _sync_chancellor_assignment_for_selected_city(city_data: Dictionary) -> void:
-	var chancellor_id := str(_player_state.get("chancellor_id", ""))
-	if chancellor_id.is_empty():
+func _get_player_chancellor_candidate_hero_ids() -> Array[String]:
+	var result: Array[String] = []
+	for hero_id_variant in HERO_DATA.keys():
+		var hero_id := str(hero_id_variant)
+		var hero_data := _get_hero_entry(hero_id)
+		if hero_data.is_empty():
+			continue
+		if str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+			continue
+		var status := str(hero_data.get("status", HERO_RUNTIME_STATUS_NORMAL))
+		if bool(hero_data.get("dead", false)) or status == HERO_RUNTIME_STATUS_DEAD:
+			continue
+		if bool(hero_data.get("captured", false)) or status == HERO_RUNTIME_STATUS_CAPTURED:
+			continue
+		var primary_aptitude := int(hero_data.get("chancellor_primary_aptitude", 0))
+		var secondary_aptitude := int(hero_data.get("chancellor_secondary_aptitude", 0))
+		if primary_aptitude <= 0 and secondary_aptitude <= 0:
+			continue
+		result.append(hero_id)
+	return result
+
+
+func _sync_chancellor_assignment_for_selected_city(_city_data: Dictionary) -> void:
+	# LeftWorldStatusPanel is player/nation scope. Selecting a foreign city must not clear national chancellor assignment.
+	var current_chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if current_chancellor_id.is_empty():
 		return
-	var stationed_hero_ids := _get_stationed_hero_ids_for_city(city_data)
-	if not stationed_hero_ids.has(chancellor_id):
+	var chancellor_data := _get_hero_entry(current_chancellor_id)
+	if chancellor_data.is_empty() or str(chancellor_data.get("side", "")) != PLAYER_FACTION_ID:
 		_player_state["chancellor_id"] = ""
 
 
-func _populate_chancellor_assignment_dropdown(city_data: Dictionary) -> void:
+func _populate_chancellor_assignment_dropdown(_city_data: Dictionary = {}) -> void:
 	chancellor_assignment_option.clear()
 	chancellor_assignment_option.add_item("미임명")
 	chancellor_assignment_option.set_item_metadata(0, "")
-	for hero_id in _get_stationed_hero_ids_for_city(city_data):
+	var candidate_hero_ids := _get_player_chancellor_candidate_hero_ids()
+	var current_chancellor_id := str(_player_state.get("chancellor_id", ""))
+	if not current_chancellor_id.is_empty() and not candidate_hero_ids.has(current_chancellor_id):
+		var current_chancellor_data := _get_hero_entry(current_chancellor_id)
+		if not current_chancellor_data.is_empty() and str(current_chancellor_data.get("side", "")) == PLAYER_FACTION_ID:
+			candidate_hero_ids.insert(0, current_chancellor_id)
+	for hero_id in candidate_hero_ids:
 		var hero_name := _format_hero_name_by_id(str(hero_id), "알 수 없는 장수")
 		chancellor_assignment_option.add_item(hero_name)
 		chancellor_assignment_option.set_item_metadata(chancellor_assignment_option.item_count - 1, str(hero_id))

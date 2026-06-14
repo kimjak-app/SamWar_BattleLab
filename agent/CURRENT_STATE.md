@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.70-37-hotfix1 Left National Panel Scope Lock
+- Baseline: `v0.70-37 Spy Action MVP` at `3c0a03be6163230f029eadf464a7b4afee12e775`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Left World Status panel is locked to player/nation scope for national loyalty, tax, resource stock, chancellor assignment, chancellor policy, save controls, and ally turn ending.
+- Right City Detail, diplomacy/spy target display, and trade target display remain selected-city scope.
+- Selecting a foreign city no longer clears `_player_state["chancellor_id"]` because of selected-city stationed hero mismatch.
+- Chancellor assignment dropdown now uses player-side national chancellor candidates and keeps the current valid player chancellor visible even when a foreign city is selected.
+- Spy action validation continues to read the national chancellor state, so foreign-city spy actions no longer fall back to `no_chancellor` when a valid player chancellor is assigned.
+- Spy formulas, success/detection rates, diplomacy actions, trade pricing/efficiency, chancellor auto trade, save/load schema, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv` files were not changed.
+- The `v0.70-34-hotfix1` shadowing warning cleanup remains intact.
+- Next candidate work:
+  1. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  2. `v0.70-39 Trade Market / Price Variation MVP`
+  3. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  4. `v0.70-41 Spy Action Polish / Alienation MVP`
+
 ## v0.70-37 Spy Action MVP
 - Baseline: `v0.70-36 Diplomacy Action MVP` at `b0f40e4ca4f9acac568a23b73652afc145a1eb66`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

@@ -1,5 +1,27 @@
 # NEXT TASKS
 
+## Current: v0.70-37-hotfix1 Left National Panel Scope Lock
+- Baseline: `v0.70-37 Spy Action MVP` (`3c0a03be6163230f029eadf464a7b4afee12e775`).
+- Completed direction:
+  1. Left World Status panel refresh no longer derives chancellor state from the selected city.
+  2. `_sync_chancellor_assignment_for_selected_city()` is national-safe and only clears missing/non-player invalid chancellor ids.
+  3. Chancellor assignment dropdown uses player-side national candidates instead of the currently selected city's stationed heroes.
+  4. Right-side City Detail, diplomacy/spy, and trade panels continue to use selected-city scope.
+  5. Spy action validation can keep recognizing the assigned player chancellor after a foreign city is selected.
+- Preserved scope:
+  1. No spy action formula, success/detection rate, action effect, diplomacy action, trade price/efficiency, chancellor auto trade, save/load schema, Selected City Panel, BattleContext, `project.godot`, scene, asset, `.uid`, or `.ogv` changes were made.
+  2. Warning-cleanup naming remains preserved.
+- Manual F6 QA required:
+  1. Assign Jeong Do-jeon as chancellor from a player city, then select foreign cities and confirm the left panel still shows player national state and the assigned chancellor.
+  2. Confirm the right panel still shows the selected foreign city.
+  3. Confirm spy buttons no longer show `재상 필요` solely because a foreign city is selected.
+  4. Confirm save/load preserves the chancellor assignment and Godot Output warnings remain clean.
+- Next candidate work:
+  1. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  2. `v0.70-39 Trade Market / Price Variation MVP`
+  3. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  4. `v0.70-41 Spy Action Polish / Alienation MVP`
+
 ## Current: v0.70-37 Spy Action MVP
 - Baseline: `v0.70-36 Diplomacy Action MVP` (`b0f40e4ca4f9acac568a23b73652afc145a1eb66`).
 - Completed direction:

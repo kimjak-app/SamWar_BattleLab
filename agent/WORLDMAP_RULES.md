@@ -1,5 +1,17 @@
 # WORLDMAP RULES
 
+## v0.70-37-hotfix1 Left National Panel Scope Lock Rule
+- Left World Status panel is player/nation scope and must not derive national state from the currently selected city.
+- Baseline was `v0.70-37 Spy Action MVP` (`3c0a03be6163230f029eadf464a7b4afee12e775`).
+- Left-panel national state includes national loyalty, tax, national warehouse/resource stock, chancellor assignment, chancellor policy, save controls, and ally turn ending.
+- Right City Detail, diplomacy/spy target display, and trade target display remain selected-city scope.
+- Selecting a foreign city must never clear `_player_state["chancellor_id"]` because the national chancellor is not stationed in that selected city.
+- `_sync_chancellor_assignment_for_selected_city()` may clear only missing or invalid non-player chancellor ids, not selected-city stationing mismatches.
+- Chancellor assignment UI should use player-side national candidates or preserve the current valid player chancellor display when selected-city candidates are unavailable.
+- Spy validation must read national chancellor state; `no_chancellor` should mean no assigned national chancellor, not foreign-city selection.
+- This rule does not authorize spy formula changes, spy effect changes, diplomacy action changes, trade price/efficiency changes, chancellor auto trade changes, save/load schema changes, Selected City Panel changes, BattleContext changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-37 Spy Action Rule
 - Spy actions may execute only from City Detail `외교·첩보 > 첩보` against a selected foreign city.
 - Baseline was `v0.70-36 Diplomacy Action MVP` (`b0f40e4ca4f9acac568a23b73652afc145a1eb66`).

@@ -1,5 +1,23 @@
 # HANDOFF TO CODEX
 
+## v0.70-37-hotfix1 Left National Panel Scope Lock Handoff
+- Baseline: `v0.70-37 Spy Action MVP` (`3c0a03be6163230f029eadf464a7b4afee12e775`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- The bug was caused by left-panel chancellor refresh using selected-city data: selecting a foreign city made `_sync_chancellor_assignment_for_selected_city()` clear `_player_state["chancellor_id"]` when the assigned national chancellor was not stationed in that foreign city.
+- `_refresh_left_world_status_panel()` no longer passes selected-city data into national chancellor sync/dropdown refresh.
+- `_sync_chancellor_assignment_for_selected_city()` is now national-safe: it keeps a valid player-side chancellor assignment and only clears missing/non-player invalid ids.
+- `_populate_chancellor_assignment_dropdown()` now lists player-side national chancellor candidates instead of the selected city's stationed heroes, and it preserves display of the current valid player chancellor.
+- Left panel scope: player/nation state only for loyalty, tax, national warehouse, chancellor, policy, save controls, and ally turn ending.
+- Right panel scope remains selected-city based for city detail, diplomacy/spy targets, and trade targets.
+- Spy action validation is unchanged but now sees the retained national chancellor after selecting a foreign city.
+- Explicitly unchanged: spy success/detection formulas, spy effects, diplomacy actions, trade pricing/efficiency, chancellor auto trade, save/load schema, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidates:
+  1. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  2. `v0.70-39 Trade Market / Price Variation MVP`
+  3. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  4. `v0.70-41 Spy Action Polish / Alienation MVP`
+
 ## v0.70-37 Spy Action MVP Handoff
 - Baseline: `v0.70-36 Diplomacy Action MVP` (`b0f40e4ca4f9acac568a23b73652afc145a1eb66`).
 - Runtime file touched: `scripts/worldmap_test.gd`.
