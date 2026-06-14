@@ -1,5 +1,29 @@
 # NEXT TASKS
 
+## Current: v0.70-37 Spy Action MVP
+- Baseline: `v0.70-36 Diplomacy Action MVP` (`b0f40e4ca4f9acac568a23b73652afc145a1eb66`).
+- Completed direction:
+  1. City Detail `외교·첩보 > 첩보` displays a runtime `SpyActionCard` for selected foreign cities.
+  2. `정탐`, `민심 교란`, `성 충성도 교란`, and `반란 조장` validate and execute from buttons.
+  3. Existing spy can/roll/apply helpers are reused and their result payloads now include action ids, target faction ids, success/failure, detection, cooldown, and message metadata.
+  4. Detected spy actions apply relation penalties through the existing relation score helper and record before/after scores.
+  5. Spy cooldown and recent spy result display are connected to the tab UI; successful revolt instigation continues to use existing `revolt_instigation` state.
+- Preserved scope:
+  1. No `이간질`, faction-to-faction alienation, spy unit/network system, diplomacy action change, trade price change, chancellor auto trade change, target city storage mutation, foreign faction stock, Selected City Panel, BattleContext, `project.godot`, scene, asset, `.uid`, or `.ogv` changes were made.
+  2. This MVP does not add separate spy gold/resource costs.
+  3. Diplomacy actions, manual/internal trade, relation efficiency pricing, trade persistence, and warning-cleanup naming are preserved.
+- Manual F6 QA required:
+  1. Select a foreign city and confirm the spy action card/buttons appear only on `외교·첩보 > 첩보`.
+  2. Confirm self-owned cities hide/disable spy actions.
+  3. Confirm `정탐`, `민심 교란`, `성 충성도 교란`, and `반란 조장` show success/failure/detection results and apply cooldown.
+  4. Confirm public support/loyalty/revolt instigation effects apply only on successful undetected results, and detected results apply relation penalty.
+  5. Confirm save/load preserves recent spy result/cooldown display without replaying effects.
+- Next candidate work:
+  1. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  2. `v0.70-39 Trade Market / Price Variation MVP`
+  3. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  4. `v0.70-41 Spy Action Polish / Alienation MVP`
+
 ## Current: v0.70-36 Diplomacy Action MVP
 - Baseline: `v0.70-35 Trade Balance / Relation Efficiency Polish` (`f0d03010829b72a64479712fd97833a509e7bad6`).
 - Completed direction:

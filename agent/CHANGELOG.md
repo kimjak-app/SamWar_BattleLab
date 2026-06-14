@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-37 Spy Action MVP
+- Built on `v0.70-36 Diplomacy Action MVP` (`b0f40e4ca4f9acac568a23b73652afc145a1eb66`).
+- Added a runtime `SpyActionCard` to City Detail `외교·첩보 > 첩보` for selected foreign cities.
+- Connected `정탐`, `민심 교란`, `성 충성도 교란`, and `반란 조장` buttons to validation-first execution.
+- Reused existing spy can/roll/apply helpers and added action ids, target faction ids, success/failure, detection, cooldown, message, and relation penalty metadata to result payloads.
+- Applied conservative relation score penalties on detection through the existing faction relation helper.
+- Kept spy execution cost-free for this MVP while preserving the existing political chancellor and cooldown gates.
+- Improved recent spy result display for info, public support disruption, loyalty disruption, revolt instigation, and detected results.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change `이간질`, faction alienation, spy unit/network systems, diplomacy actions, trade pricing/efficiency, manual trade, chancellor auto trade, target city storage, foreign faction stock, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, or `.ogv`.
+- Preserved v0.70-36 diplomacy actions, v0.70-35 relation efficiency pricing, trade persistence, and the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-36 Diplomacy Action MVP
 - Built on `v0.70-35 Trade Balance / Relation Efficiency Polish` (`f0d03010829b72a64479712fd97833a509e7bad6`).
 - Added a runtime diplomacy action card to City Detail `외교·첩보 > 외교` for selected foreign cities.

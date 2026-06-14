@@ -1,5 +1,27 @@
 # HANDOFF TO CODEX
 
+## v0.70-37 Spy Action MVP Handoff
+- Baseline: `v0.70-36 Diplomacy Action MVP` (`b0f40e4ca4f9acac568a23b73652afc145a1eb66`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- City Detail `외교·첩보 > 첩보` now creates and refreshes a runtime `SpyActionCard` for selected foreign cities.
+- Action buttons are connected for:
+  - `gather_info` / `정탐`: reveals info through the existing spy info roll/payload path, cooldown 1.
+  - `public_support_disrupt` / `민심 교란`: lowers target city public support on successful undetected execution, cooldown 2.
+  - `loyalty_disrupt` / `성 충성도 교란`: lowers target city loyalty on successful undetected execution, cooldown 2.
+  - `revolt_instigate` / `반란 조장`: records existing `revolt_instigation` boost on successful undetected execution, cooldown 2.
+- Validation blocks empty/player targets, missing chancellor, missing political aptitude, active spy cooldown, iron-wall targets, and revolt prerequisites.
+- This MVP intentionally does not charge separate spy gold/resource costs; existing cost constants remain for future polish but the connected MVP actions store empty cost payloads.
+- Detection applies conservative relation penalties through `_adjust_faction_relation_score()` and records `relation_penalty`, `before_score`, and `after_score`.
+- Successful/failure payloads are stored in the existing `_player_state` keys: `last_spy_result`, `last_spy_public_support_disrupt_result`, `last_spy_loyalty_disrupt_result`, and `last_spy_revolt_instigation_result`.
+- `_player_state["spy_cooldown"]` and `_player_state["revolt_instigation"]` continue to use the existing save/load path; load is display/state restoration only and does not replay effects.
+- Explicitly unchanged: `이간질`, faction-to-faction alienation, spy units/networks, diplomacy action behavior, trade pricing/efficiency, manual trade, chancellor auto trade, target city storage, foreign faction stock, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidates:
+  1. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  2. `v0.70-39 Trade Market / Price Variation MVP`
+  3. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  4. `v0.70-41 Spy Action Polish / Alienation MVP`
+
 ## v0.70-36 Diplomacy Action MVP Handoff
 - Baseline: `v0.70-35 Trade Balance / Relation Efficiency Polish` (`f0d03010829b72a64479712fd97833a509e7bad6`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

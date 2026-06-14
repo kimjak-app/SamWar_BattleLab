@@ -1,5 +1,23 @@
 # WORLDMAP RULES
 
+## v0.70-37 Spy Action Rule
+- Spy actions may execute only from City Detail `외교·첩보 > 첩보` against a selected foreign city.
+- Baseline was `v0.70-36 Diplomacy Action MVP` (`b0f40e4ca4f9acac568a23b73652afc145a1eb66`).
+- MVP executable action ids are:
+  1. `gather_info`: run existing spy info roll/payload logic and apply spy cooldown.
+  2. `public_support_disrupt`: lower target city public support only on successful undetected execution.
+  3. `loyalty_disrupt`: lower target city loyalty only on successful undetected execution.
+  4. `revolt_instigate`: record existing `revolt_instigation` boost only on successful undetected execution.
+- Validation must complete before any target city effect, relation penalty, cooldown, or result mutation.
+- Validation must block empty targets, player-owned targets, missing chancellor, missing political aptitude, active spy cooldown, iron-wall targets, and action-specific revolt prerequisites.
+- This MVP does not authorize separate spy gold/resource costs.
+- Detection may apply a conservative relation score penalty through the existing faction relation helper and must record before/after score metadata.
+- Spy cooldown remains `_player_state["spy_cooldown"]` and may advance during existing domestic-turn cooldown processing.
+- Result payloads are display/history data in the existing `_player_state` keys: `last_spy_result`, `last_spy_public_support_disrupt_result`, `last_spy_loyalty_disrupt_result`, and `last_spy_revolt_instigation_result`.
+- Loading a save may restore recent results, cooldown, and revolt instigation state but must never replay spy effects.
+- This rule does not authorize `이간질`, faction-to-faction relation manipulation, spy units, spy networks, diplomacy action behavior changes, trade pricing changes, chancellor auto trade changes, target city storage mutation, foreign faction stock mutation, Selected City Panel changes, BattleContext changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-36 Diplomacy Action Rule
 - Diplomacy actions may execute only from City Detail `외교·첩보 > 외교` against a selected foreign city/faction.
 - Baseline was `v0.70-35 Trade Balance / Relation Efficiency Polish` (`f0d03010829b72a64479712fd97833a509e7bad6`).

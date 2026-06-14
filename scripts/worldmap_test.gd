@@ -103,23 +103,28 @@ const DIPLOMACY_ACTION_TRIBUTE := "tribute"
 const DIPLOMACY_ACTION_TRADE_AGREEMENT := "trade_agreement"
 const DIPLOMACY_ACTION_RESTORE_RELATIONS := "restore_relations"
 const DIPLOMACY_ACTION_TRADE_AGREEMENT_TURNS := 6
-const SPY_COOLDOWN_TURNS := 6
+const SPY_ACTION_GATHER_INFO := "gather_info"
+const SPY_ACTION_PUBLIC_SUPPORT_DISRUPT := "public_support_disrupt"
+const SPY_ACTION_LOYALTY_DISRUPT := "loyalty_disrupt"
+const SPY_ACTION_REVOLT_INSTIGATE := "revolt_instigate"
+const SPY_COOLDOWN_TURNS := 1
 const SPY_PUBLIC_SUPPORT_DISRUPT_COST := {"gold": 300}
-const SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS := 8
-const SPY_DETECTED_RELATION_PENALTY_PUBLIC_SUPPORT := -30
+const SPY_PUBLIC_SUPPORT_DISRUPT_COOLDOWN_TURNS := 2
+const SPY_DETECTED_RELATION_PENALTY_GATHER_INFO := -6
+const SPY_DETECTED_RELATION_PENALTY_PUBLIC_SUPPORT := -10
 const SPY_LOYALTY_DISRUPT_COST := {
 	"gold": 500,
 	"silk": 50,
 }
-const SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS := 10
-const SPY_DETECTED_RELATION_PENALTY_LOYALTY := -40
+const SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS := 2
+const SPY_DETECTED_RELATION_PENALTY_LOYALTY := -10
 const SPY_REVOLT_INSTIGATION_COST := {
 	"gold": 800,
 	"silk": 100,
 }
-const SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS := 15
+const SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS := 2
 const SPY_REVOLT_INSTIGATION_DURATION_TURNS := 3
-const SPY_DETECTED_RELATION_PENALTY_REVOLT := -60
+const SPY_DETECTED_RELATION_PENALTY_REVOLT := -10
 const SPY_WEDGE_COST := {
 	"gold": 600,
 	"silk": 150,
@@ -625,6 +630,15 @@ var _diplomacy_tribute_button: Button = null
 var _diplomacy_trade_agreement_button: Button = null
 var _diplomacy_restore_button: Button = null
 var _diplomacy_action_hint_label: Label = null
+var _spy_action_card: PanelContainer = null
+var _spy_action_title_label: Label = null
+var _spy_action_status_label: Label = null
+var _spy_action_button_row: HBoxContainer = null
+var _spy_gather_info_button: Button = null
+var _spy_public_support_button: Button = null
+var _spy_loyalty_button: Button = null
+var _spy_revolt_button: Button = null
+var _spy_action_hint_label: Label = null
 var _internal_trade_transfer_panel: PanelContainer = null
 var _internal_trade_source_label: Label = null
 var _internal_trade_target_option: OptionButton = null
@@ -1427,6 +1441,8 @@ func _reset_city_detail_panel() -> void:
 	_set_trade_control_card_visible(false)
 	if _diplomacy_action_card != null:
 		_diplomacy_action_card.visible = false
+	if _spy_action_card != null:
+		_spy_action_card.visible = false
 	city_detail_name_label.text = "도시를 선택하세요"
 	_set_city_detail_body_labels_visible(true)
 	city_detail_type_label.text = ""
@@ -1452,6 +1468,8 @@ func _show_city_detail(city_marker: WorldMapCityMarker) -> void:
 
 	if _diplomacy_action_card != null:
 		_diplomacy_action_card.visible = false
+	if _spy_action_card != null:
+		_spy_action_card.visible = false
 	city_detail_name_label.text = city_marker.display_name
 	var city_data := _get_city_hud_entry(city_marker.city_id)
 	var policy_id := _get_city_policy_id(city_marker.city_id, city_data)
@@ -3231,14 +3249,16 @@ func _show_unified_diplomacy_spy_content() -> void:
 	city_detail_type_label.text = _format_diplomacy_spy_target_city_display(selected_city_marker)
 	if _selected_diplomacy_spy_tab == DIPLOMACY_SPY_TAB_SPY:
 		_refresh_diplomacy_action_card(null)
+		_refresh_spy_action_card(selected_city_marker)
 		city_detail_region_owner_label.text = _format_spy_visibility_summary_for_ui(selected_city_marker)
 		city_detail_resource_label.text = _format_spy_known_info_summary_for_ui(selected_city_marker)
 		city_detail_security_label.text = _format_spy_action_candidates_for_ui(selected_city_marker)
 		city_detail_military_label.text = _format_recent_spy_result_for_ui(current_selected_city_id)
-		city_detail_commerce_label.text = "현재 방침\n실행 기능은 Spy Action MVP에서 연결됩니다."
+		city_detail_commerce_label.text = _format_spy_action_policy_display_for_ui(selected_city_marker)
 		city_detail_rating_label.text = ""
-		city_detail_hint_label.text = "대상 도시의 정보 수준과 첩보 행동 후보를 확인합니다."
+		city_detail_hint_label.text = "대상 도시의 정보 수준과 첩보 행동을 확인합니다."
 	else:
+		_refresh_spy_action_card(null)
 		city_detail_region_owner_label.text = _format_diplomacy_owner_display(selected_city_marker)
 		city_detail_resource_label.text = _format_diplomacy_relation_summary_for_ui(selected_city_marker)
 		city_detail_security_label.text = _format_diplomacy_trade_status_for_ui(selected_city_marker)
@@ -3536,7 +3556,7 @@ func _format_spy_action_candidates_for_ui(city_marker: WorldMapCityMarker) -> St
 	lines.append("민심 교란: %s" % _format_spy_check_status_for_ui(_can_disrupt_city_public_support(city_marker.city_id)))
 	lines.append("성 충성도 교란: %s" % _format_spy_check_status_for_ui(_can_disrupt_city_loyalty(city_marker.city_id)))
 	lines.append("반란 조장: %s" % _format_spy_check_status_for_ui(_can_instigate_revolt(city_marker.city_id)))
-	lines.append("이간질: 조건 확인 필요")
+	lines.append("이간질: 후속 연결 예정")
 	return "\n".join(lines)
 
 
@@ -3587,15 +3607,166 @@ func _format_recent_spy_result_from_key_for_ui(result_key: String, city_id: Stri
 	var result := raw_result as Dictionary
 	if str(result.get("target_city_id", "")) != city_id:
 		return ""
-	if result.has("success_valid") and not bool(result.get("success_valid", true)):
+	if result.has("success_valid") and not bool(result.get("success_valid", true)) and not result.has("message"):
 		return ""
 	var outcome := "실패"
-	if bool(result.get("success", false)) or bool(result.get("effect_applied", false)):
+	if result_key == "last_spy_result" and bool(result.get("success", false)):
+		outcome = "성공"
+	elif result_key != "last_spy_result" and bool(result.get("effect_applied", false)):
 		outcome = "성공"
 	var detected_text := "발각 없음"
 	if bool(result.get("detected", false)):
 		detected_text = "발각 있음"
-	return "%s %s · %s" % [action_label, outcome, detected_text]
+	if not bool(result.get("success", false)) and not bool(result.get("effect_applied", false)) and not bool(result.get("detected", false)) and result.has("message"):
+		return "%s 실패 · %s" % [action_label, str(result.get("message", "실패"))]
+	var detail_parts: Array[String] = []
+	match result_key:
+		"last_spy_result":
+			var payload_variant: Variant = result.get("payload", result.get("info", {}))
+			if payload_variant is Dictionary:
+				var payload := payload_variant as Dictionary
+				if payload.has("troops"):
+					detail_parts.append("병력 %d" % int(payload.get("troops", 0)))
+				elif payload.has("troops_estimated"):
+					detail_parts.append("병력 약 %d" % int(payload.get("troops_estimated", 0)))
+				if payload.has("loyalty"):
+					detail_parts.append("충성도 %s" % str(payload.get("loyalty", "")))
+				if payload.has("publicSupport"):
+					detail_parts.append("민심 %s" % str(payload.get("publicSupport", "")))
+		"last_spy_public_support_disrupt_result":
+			if bool(result.get("effect_applied", false)):
+				detail_parts.append("민심 -%d" % int(result.get("effect_amount", 0)))
+		"last_spy_loyalty_disrupt_result":
+			if bool(result.get("effect_applied", false)):
+				detail_parts.append("충성도 -%d" % int(result.get("effect_amount", 0)))
+		"last_spy_revolt_instigation_result":
+			if bool(result.get("effect_applied", false)):
+				detail_parts.append("반란 위험 +%d" % int(result.get("probability_boost", 0)))
+	if bool(result.get("detected", false)):
+		detail_parts.append("관계 %d" % int(result.get("relation_penalty", 0)))
+	if detail_parts.is_empty():
+		return "%s %s · %s" % [action_label, outcome, detected_text]
+	return "%s %s · %s\n%s" % [action_label, outcome, detected_text, " / ".join(detail_parts)]
+
+
+func _format_spy_action_policy_display_for_ui(city_marker: WorldMapCityMarker) -> String:
+	if city_marker == null:
+		return "첩보 대기\n도시를 선택하면 실행 상태가 표시됩니다."
+	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
+	if owner_id.is_empty():
+		return "첩보 대기\n대상 세력 확인이 필요합니다."
+	if owner_id == PLAYER_FACTION_ID:
+		return "첩보 대기\n자국 도시는 첩보 대상이 아닙니다."
+	var cooldown_turns := maxi(0, int(_player_state.get("spy_cooldown", 0)))
+	if cooldown_turns > 0:
+		return "첩보 대기 중\n%d턴 후 다시 실행 가능" % cooldown_turns
+	return "첩보 실행\n이간질은 후속 연결 예정"
+
+
+func _ensure_spy_action_card() -> void:
+	if _spy_action_card != null:
+		return
+	_spy_action_card = PanelContainer.new()
+	_spy_action_card.name = "SpyActionCard"
+	_spy_action_card.visible = false
+	city_detail_content_container.add_child(_spy_action_card)
+	var content := VBoxContainer.new()
+	content.name = "SpyActionContent"
+	content.add_theme_constant_override("separation", 6)
+	_spy_action_card.add_child(content)
+	_spy_action_title_label = Label.new()
+	_spy_action_title_label.name = "SpyActionTitleLabel"
+	_spy_action_title_label.text = "첩보 실행"
+	content.add_child(_spy_action_title_label)
+	_spy_action_status_label = Label.new()
+	_spy_action_status_label.name = "SpyActionStatusLabel"
+	_spy_action_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(_spy_action_status_label)
+	_spy_action_button_row = HBoxContainer.new()
+	_spy_action_button_row.name = "SpyActionButtonRow"
+	_spy_action_button_row.add_theme_constant_override("separation", 4)
+	content.add_child(_spy_action_button_row)
+	_spy_gather_info_button = _make_spy_action_button("SpyGatherInfoButton", "정탐", SPY_ACTION_GATHER_INFO)
+	_spy_public_support_button = _make_spy_action_button("SpyPublicSupportButton", "민심 교란", SPY_ACTION_PUBLIC_SUPPORT_DISRUPT)
+	_spy_loyalty_button = _make_spy_action_button("SpyLoyaltyButton", "충성도 교란", SPY_ACTION_LOYALTY_DISRUPT)
+	_spy_revolt_button = _make_spy_action_button("SpyRevoltButton", "반란 조장", SPY_ACTION_REVOLT_INSTIGATE)
+	_spy_action_hint_label = Label.new()
+	_spy_action_hint_label.name = "SpyActionHintLabel"
+	_spy_action_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(_spy_action_hint_label)
+
+
+func _make_spy_action_button(node_name: String, label_text: String, action_id: String) -> Button:
+	var button := Button.new()
+	button.name = node_name
+	button.text = label_text
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.pressed.connect(_on_spy_action_pressed.bind(action_id))
+	_spy_action_button_row.add_child(button)
+	return button
+
+
+func _refresh_spy_action_card(city_marker: WorldMapCityMarker) -> void:
+	_ensure_spy_action_card()
+	if city_marker == null:
+		_spy_action_card.visible = false
+		return
+	var target_city_id := city_marker.city_id
+	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
+	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+		_spy_action_card.visible = false
+		return
+	_spy_action_card.visible = true
+	var cooldown_turns := maxi(0, int(_player_state.get("spy_cooldown", 0)))
+	_spy_action_title_label.text = "첩보 실행 · %s" % _format_city_name_by_id(target_city_id, target_city_id)
+	var status_parts := [
+		"대상 %s" % _format_faction_label(target_faction_id),
+		"쿨다운 %d턴" % cooldown_turns if cooldown_turns > 0 else "행동 가능",
+	]
+	_spy_action_status_label.text = " / ".join(status_parts)
+	var validation_map := {
+		SPY_ACTION_GATHER_INFO: _validate_spy_action(SPY_ACTION_GATHER_INFO, target_city_id),
+		SPY_ACTION_PUBLIC_SUPPORT_DISRUPT: _validate_spy_action(SPY_ACTION_PUBLIC_SUPPORT_DISRUPT, target_city_id),
+		SPY_ACTION_LOYALTY_DISRUPT: _validate_spy_action(SPY_ACTION_LOYALTY_DISRUPT, target_city_id),
+		SPY_ACTION_REVOLT_INSTIGATE: _validate_spy_action(SPY_ACTION_REVOLT_INSTIGATE, target_city_id),
+	}
+	_refresh_spy_action_button(_spy_gather_info_button, validation_map[SPY_ACTION_GATHER_INFO])
+	_refresh_spy_action_button(_spy_public_support_button, validation_map[SPY_ACTION_PUBLIC_SUPPORT_DISRUPT])
+	_refresh_spy_action_button(_spy_loyalty_button, validation_map[SPY_ACTION_LOYALTY_DISRUPT])
+	_refresh_spy_action_button(_spy_revolt_button, validation_map[SPY_ACTION_REVOLT_INSTIGATE])
+	_spy_action_hint_label.text = _format_spy_action_hint(validation_map)
+
+
+func _refresh_spy_action_button(button: Button, validation: Dictionary) -> void:
+	if button == null:
+		return
+	button.disabled = not bool(validation.get("ok", false))
+	if button.disabled:
+		button.tooltip_text = str(validation.get("message", "실행 조건을 충족하지 못했습니다."))
+	else:
+		button.tooltip_text = "성공 %d%% · 발각 %d%% · 쿨다운 %d턴" % [
+			int(validation.get("success_chance", 0)),
+			int(validation.get("detection_chance", 0)),
+			int(validation.get("cooldown", 0)),
+		]
+
+
+func _format_spy_action_hint(validation_map: Dictionary) -> String:
+	var enabled_parts: Array[String] = []
+	var blocked_parts: Array[String] = []
+	for action_id in [SPY_ACTION_GATHER_INFO, SPY_ACTION_PUBLIC_SUPPORT_DISRUPT, SPY_ACTION_LOYALTY_DISRUPT, SPY_ACTION_REVOLT_INSTIGATE]:
+		var validation: Dictionary = validation_map.get(action_id, {})
+		var definition := _get_spy_action_definition(action_id)
+		var label_text := str(definition.get("label", action_id))
+		if bool(validation.get("ok", false)):
+			enabled_parts.append("%s 성공 %d%%" % [label_text, int(validation.get("success_chance", 0))])
+		else:
+			blocked_parts.append("%s: %s" % [label_text, str(validation.get("message", "불가"))])
+	if not enabled_parts.is_empty():
+		return "가능: %s" % " / ".join(enabled_parts)
+	if not blocked_parts.is_empty():
+		return blocked_parts[0]
+	return "첩보 행동 조건을 확인합니다."
 
 
 func _get_diplomacy_spy_tab_label(tab_id: String) -> String:
@@ -10439,6 +10610,155 @@ func _is_current_chancellor_political_type() -> bool:
 	return str(hero_data.get("chancellor_primary_type", "")) == "political"
 
 
+func _get_selected_spy_target() -> Dictionary:
+	var target_city_id := ""
+	if selected_city_marker != null:
+		target_city_id = selected_city_marker.city_id
+	elif not selected_city_id.is_empty():
+		target_city_id = selected_city_id
+	var city_data := _get_city_hud_entry(target_city_id)
+	var target_faction_id := _get_city_owner_faction_id(city_data) if not city_data.is_empty() else ""
+	return {
+		"target_city_id": target_city_id,
+		"target_faction_id": target_faction_id,
+		"city_data": city_data,
+	}
+
+
+func _get_spy_action_definition(action_id: String) -> Dictionary:
+	match action_id:
+		SPY_ACTION_GATHER_INFO:
+			return {"action_id": action_id, "label": "정탐", "result_key": "last_spy_result", "cooldown": _get_spy_cooldown_turns(), "message_success": "정탐에 성공했습니다.", "message_failure": "정탐에 실패했습니다."}
+		SPY_ACTION_PUBLIC_SUPPORT_DISRUPT:
+			return {"action_id": action_id, "label": "민심 교란", "result_key": "last_spy_public_support_disrupt_result", "cooldown": _get_spy_public_support_disrupt_cooldown_turns(), "message_success": "민심 교란에 성공했습니다.", "message_failure": "민심 교란에 실패했습니다."}
+		SPY_ACTION_LOYALTY_DISRUPT:
+			return {"action_id": action_id, "label": "성 충성도 교란", "result_key": "last_spy_loyalty_disrupt_result", "cooldown": _get_spy_action_cooldown_turns(SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS), "message_success": "성 충성도 교란에 성공했습니다.", "message_failure": "성 충성도 교란에 실패했습니다."}
+		SPY_ACTION_REVOLT_INSTIGATE:
+			return {"action_id": action_id, "label": "반란 조장", "result_key": "last_spy_revolt_instigation_result", "cooldown": _get_spy_action_cooldown_turns(SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS), "message_success": "반란 조장에 성공했습니다.", "message_failure": "반란 조장에 실패했습니다."}
+		_:
+			return {}
+
+
+func _format_spy_validation_message(check: Dictionary) -> String:
+	if bool(check.get("ok", false)):
+		return "실행 가능"
+	match str(check.get("reason", "unknown")):
+		"invalid_action":
+			return "알 수 없는 첩보 행동입니다."
+		"invalid_target":
+			return "대상 도시 확인이 필요합니다."
+		"own_city":
+			return "자국 도시는 첩보 대상이 아닙니다."
+		"no_chancellor":
+			return "재상이 필요합니다."
+		"no_political_aptitude":
+			return "정치형 재상이 필요합니다."
+		"cooldown":
+			return "첩보 대기 중입니다."
+		"iron_wall":
+			return "대상 도시 경계가 너무 높습니다."
+		"prerequisite_public_support":
+			return "민심 50 이하 대상에서만 가능합니다."
+		"prerequisite_loyalty":
+			return "충성도 40 이하 대상에서만 가능합니다."
+		_:
+			return "실행 조건을 충족하지 못했습니다."
+
+
+func _validate_spy_action(action_id: String, target_city_id: String = "") -> Dictionary:
+	var definition := _get_spy_action_definition(action_id)
+	if definition.is_empty():
+		return {"ok": false, "reason": "invalid_action", "message": _format_spy_validation_message({"reason": "invalid_action"})}
+	var resolved_city_id := target_city_id
+	if resolved_city_id.is_empty():
+		resolved_city_id = str(_get_selected_spy_target().get("target_city_id", ""))
+	var check := {}
+	match action_id:
+		SPY_ACTION_GATHER_INFO:
+			check = _can_gather_spy_info(resolved_city_id)
+		SPY_ACTION_PUBLIC_SUPPORT_DISRUPT:
+			check = _can_disrupt_city_public_support(resolved_city_id)
+		SPY_ACTION_LOYALTY_DISRUPT:
+			check = _can_disrupt_city_loyalty(resolved_city_id)
+		SPY_ACTION_REVOLT_INSTIGATE:
+			check = _can_instigate_revolt(resolved_city_id)
+		_:
+			check = {"ok": false, "reason": "invalid_action"}
+	var city_data := _get_city_hud_entry(resolved_city_id)
+	var target_faction_id := _get_city_owner_faction_id(city_data) if not city_data.is_empty() else ""
+	var result := check.duplicate(true)
+	result["action_id"] = action_id
+	result["action_label"] = str(definition.get("label", action_id))
+	result["target_city_id"] = resolved_city_id
+	result["target_faction_id"] = target_faction_id
+	result["cooldown"] = int(definition.get("cooldown", 0))
+	result["message"] = _format_spy_validation_message(result)
+	return result
+
+
+func _get_spy_result_key_for_action(action_id: String) -> String:
+	var definition := _get_spy_action_definition(action_id)
+	return str(definition.get("result_key", "last_spy_result"))
+
+
+func _apply_spy_detection_relation_penalty(target_faction_id: String, relation_penalty: int, reason: String) -> Dictionary:
+	if target_faction_id.is_empty() or relation_penalty == 0:
+		return {"before_score": DIPLOMACY_DEFAULT_SCORE, "after_score": DIPLOMACY_DEFAULT_SCORE, "relation_penalty": 0}
+	var relation_result := _adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction_id, relation_penalty, reason)
+	return {
+		"before_score": int(relation_result.get("before_score", relation_result.get("after_score", DIPLOMACY_DEFAULT_SCORE))),
+		"after_score": int(relation_result.get("after_score", DIPLOMACY_DEFAULT_SCORE)),
+		"relation_penalty": relation_penalty,
+	}
+
+
+func _store_failed_spy_action_result(action_id: String, validation: Dictionary) -> Dictionary:
+	var definition := _get_spy_action_definition(action_id)
+	var target_city_id := str(validation.get("target_city_id", ""))
+	var city_data := _get_city_hud_entry(target_city_id)
+	var target_faction_id := str(validation.get("target_faction_id", _get_city_owner_faction_id(city_data) if not city_data.is_empty() else ""))
+	var result := {
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"action_id": action_id,
+		"action_label": str(definition.get("label", action_id)),
+		"target_city_id": target_city_id,
+		"target_faction": target_faction_id,
+		"target_faction_id": target_faction_id,
+		"success": false,
+		"detected": false,
+		"effect_applied": false,
+		"success_valid": false,
+		"reason": str(validation.get("reason", "unknown")),
+		"relation_penalty": 0,
+		"cost": {},
+		"cooldown": 0,
+		"message": str(validation.get("message", _format_spy_validation_message(validation))),
+	}
+	_player_state[_get_spy_result_key_for_action(action_id)] = result
+	return result
+
+
+func _apply_spy_action(action_id: String, target_city_id: String = "") -> Dictionary:
+	var validation := _validate_spy_action(action_id, target_city_id)
+	if not bool(validation.get("ok", false)):
+		return _store_failed_spy_action_result(action_id, validation)
+	match action_id:
+		SPY_ACTION_GATHER_INFO:
+			return _gather_spy_info(str(validation.get("target_city_id", "")))
+		SPY_ACTION_PUBLIC_SUPPORT_DISRUPT:
+			return _disrupt_city_public_support(str(validation.get("target_city_id", "")))
+		SPY_ACTION_LOYALTY_DISRUPT:
+			return _disrupt_city_loyalty(str(validation.get("target_city_id", "")))
+		SPY_ACTION_REVOLT_INSTIGATE:
+			return _instigate_revolt(str(validation.get("target_city_id", "")))
+	return _store_failed_spy_action_result(action_id, {"reason": "invalid_action", "message": "알 수 없는 첩보 행동입니다.", "target_city_id": target_city_id})
+
+
+func _on_spy_action_pressed(action_id: String) -> void:
+	_apply_spy_action(action_id)
+	_show_unified_diplomacy_spy_content()
+
+
 func _get_spy_info_success_chance() -> int:
 	match _get_current_chancellor_political_aptitude():
 		5:
@@ -10642,14 +10962,28 @@ func _gather_spy_info(target_city_id: String, forced_roll: int = -1, forced_dete
 	var roll_result := _roll_spy_info_result(target_city_id, forced_roll, forced_detection_roll)
 	var cooldown := 0
 	var payload := {}
+	var city_data := _get_city_hud_entry(target_city_id)
+	var target_faction_id := _get_city_owner_faction_id(city_data) if not city_data.is_empty() else ""
+	var relation_penalty := 0
+	var relation_change := {"before_score": DIPLOMACY_DEFAULT_SCORE, "after_score": DIPLOMACY_DEFAULT_SCORE}
+	if not target_faction_id.is_empty():
+		var current_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction_id)
+		relation_change = {"before_score": current_score, "after_score": current_score}
 	if bool(roll_result.get("ok", false)):
 		cooldown = _get_spy_cooldown_turns()
 		_player_state["spy_cooldown"] = cooldown
 		if bool(roll_result.get("success", false)):
 			payload = _build_spy_info_payload(target_city_id, roll_result.get("fields", []), bool(roll_result.get("estimated", false)))
+		if bool(roll_result.get("detected", false)):
+			relation_penalty = SPY_DETECTED_RELATION_PENALTY_GATHER_INFO
+			relation_change = _apply_spy_detection_relation_penalty(target_faction_id, relation_penalty, "spy_gather_info_detected")
 	var result := {
 		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+		"action_id": SPY_ACTION_GATHER_INFO,
+		"action_label": "정탐",
 		"target_city_id": target_city_id,
+		"target_faction": target_faction_id,
+		"target_faction_id": target_faction_id,
 		"success": bool(roll_result.get("success", false)),
 		"detected": bool(roll_result.get("detected", false)),
 		"roll": int(roll_result.get("roll", -1)),
@@ -10659,8 +10993,15 @@ func _gather_spy_info(target_city_id: String, forced_roll: int = -1, forced_dete
 		"political_aptitude": int(roll_result.get("political_aptitude", 0)),
 		"fields": roll_result.get("fields", []),
 		"payload": payload,
+		"info": payload,
+		"effect_applied": bool(roll_result.get("success", false)),
+		"relation_penalty": relation_penalty,
+		"before_score": int(relation_change.get("before_score", 0)),
+		"after_score": int(relation_change.get("after_score", 0)),
+		"cost": {},
 		"cooldown": cooldown,
 		"success_valid": bool(roll_result.get("ok", false)),
+		"message": "정탐에 성공했습니다." if bool(roll_result.get("success", false)) else "정탐에 실패했습니다.",
 	}
 	if not bool(roll_result.get("ok", false)):
 		result["reason"] = str(roll_result.get("reason", "unknown"))
@@ -10707,15 +11048,11 @@ func _can_disrupt_city_public_support(target_city_id: String) -> Dictionary:
 	var loyalty := _get_city_loyalty_value(city_data)
 	if security >= 100 and loyalty >= 100:
 		return {"ok": false, "reason": "iron_wall", "security": security, "loyalty": loyalty}
-	var cost := _get_spy_public_support_disrupt_cost(target_city_id)
-	var payment_check := _can_pay_generic_resource_cost(cost)
-	if not bool(payment_check.get("ok", false)):
-		return {"ok": false, "reason": "resources", "cost": cost, "missing": payment_check.get("missing", {})}
 	return {
 		"ok": true,
 		"political_aptitude": political_aptitude,
 		"effect_amount": _get_spy_public_support_disrupt_amount(political_aptitude),
-		"cost": cost,
+		"cost": {},
 		"success_chance": _get_spy_info_success_chance(),
 		"detection_chance": _calculate_spy_detection_chance(target_city_id),
 	}
@@ -10772,8 +11109,11 @@ func _disrupt_city_public_support(target_city_id: String, forced_roll: int = -1,
 	if not bool(check.get("ok", false)):
 		var failed_result := {
 			"turn": turn_number,
+			"action_id": SPY_ACTION_PUBLIC_SUPPORT_DISRUPT,
+			"action_label": "민심 교란",
 			"target_city_id": target_city_id,
 			"target_faction": target_faction,
+			"target_faction_id": target_faction,
 			"success": false,
 			"detected": false,
 			"effect_applied": false,
@@ -10781,30 +11121,37 @@ func _disrupt_city_public_support(target_city_id: String, forced_roll: int = -1,
 			"publicSupport_before": before_support,
 			"publicSupport_after": before_support,
 			"relation_penalty": 0,
-			"cost": check.get("cost", _get_spy_public_support_disrupt_cost(target_city_id)),
+			"cost": {},
 			"cooldown": 0,
+			"message": _format_spy_validation_message(check),
 		}
 		_player_state["last_spy_public_support_disrupt_result"] = failed_result
 		return failed_result
 	var roll_result := _roll_spy_public_support_disrupt_result(target_city_id, forced_roll, forced_detection_roll)
 	var cost: Dictionary = check.get("cost", {})
-	_apply_generic_resource_cost(cost)
 	var cooldown := _get_spy_public_support_disrupt_cooldown_turns()
 	_player_state["spy_cooldown"] = cooldown
 	var relation_penalty := 0
+	var relation_change := {"before_score": DIPLOMACY_DEFAULT_SCORE, "after_score": DIPLOMACY_DEFAULT_SCORE}
+	if not target_faction.is_empty():
+		var current_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction)
+		relation_change = {"before_score": current_score, "after_score": current_score}
 	var after_support := before_support
 	var effect_applied := bool(roll_result.get("effect_applied", false))
 	if bool(roll_result.get("detected", false)):
 		relation_penalty = SPY_DETECTED_RELATION_PENALTY_PUBLIC_SUPPORT
 		if not target_faction.is_empty():
-			_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction, relation_penalty, "spy_public_support_disrupt_detected")
+			relation_change = _apply_spy_detection_relation_penalty(target_faction, relation_penalty, "spy_public_support_disrupt_detected")
 	elif effect_applied:
 		after_support = clampi(before_support - int(roll_result.get("effect_amount", 0)), 0, 100)
 		_set_city_public_support(target_city_id, after_support)
 	var result := {
 		"turn": turn_number,
+		"action_id": SPY_ACTION_PUBLIC_SUPPORT_DISRUPT,
+		"action_label": "민심 교란",
 		"target_city_id": target_city_id,
 		"target_faction": target_faction,
+		"target_faction_id": target_faction,
 		"political_aptitude": int(roll_result.get("political_aptitude", 0)),
 		"roll": int(roll_result.get("roll", -1)),
 		"success_chance": int(roll_result.get("success_chance", 0)),
@@ -10817,8 +11164,11 @@ func _disrupt_city_public_support(target_city_id: String, forced_roll: int = -1,
 		"publicSupport_before": before_support,
 		"publicSupport_after": after_support,
 		"relation_penalty": relation_penalty,
+		"before_score": int(relation_change.get("before_score", 0)),
+		"after_score": int(relation_change.get("after_score", 0)),
 		"cost": cost,
 		"cooldown": cooldown,
+		"message": "민심 교란에 성공했습니다." if effect_applied and not bool(roll_result.get("detected", false)) else "민심 교란에 실패했습니다.",
 	}
 	_player_state["last_spy_public_support_disrupt_result"] = result
 	return result
@@ -10863,15 +11213,11 @@ func _can_disrupt_city_loyalty(target_city_id: String) -> Dictionary:
 	var loyalty := _get_city_loyalty_value(city_data)
 	if security >= 100 and loyalty >= 100:
 		return {"ok": false, "reason": "iron_wall", "security": security, "loyalty": loyalty}
-	var cost := _get_spy_loyalty_disrupt_cost(target_city_id)
-	var payment_check := _can_pay_generic_resource_cost(cost)
-	if not bool(payment_check.get("ok", false)):
-		return {"ok": false, "reason": "resources", "cost": cost, "missing": payment_check.get("missing", {})}
 	return {
 		"ok": true,
 		"political_aptitude": political_aptitude,
 		"effect_amount": _get_spy_loyalty_disrupt_amount(political_aptitude),
-		"cost": cost,
+		"cost": {},
 		"success_chance": _get_spy_info_success_chance(),
 		"detection_chance": _calculate_spy_detection_chance(target_city_id),
 	}
@@ -10914,8 +11260,11 @@ func _disrupt_city_loyalty(target_city_id: String, forced_roll: int = -1, forced
 	if not bool(check.get("ok", false)):
 		var failed_result := {
 			"turn": turn_number,
+			"action_id": SPY_ACTION_LOYALTY_DISRUPT,
+			"action_label": "성 충성도 교란",
 			"target_city_id": target_city_id,
 			"target_faction": target_faction,
+			"target_faction_id": target_faction,
 			"success": false,
 			"detected": false,
 			"effect_applied": false,
@@ -10923,30 +11272,37 @@ func _disrupt_city_loyalty(target_city_id: String, forced_roll: int = -1, forced
 			"loyalty_before": before_loyalty,
 			"loyalty_after": before_loyalty,
 			"relation_penalty": 0,
-			"cost": check.get("cost", _get_spy_loyalty_disrupt_cost(target_city_id)),
+			"cost": {},
 			"cooldown": 0,
+			"message": _format_spy_validation_message(check),
 		}
 		_player_state["last_spy_loyalty_disrupt_result"] = failed_result
 		return failed_result
 	var roll_result := _roll_spy_loyalty_disrupt_result(target_city_id, forced_roll, forced_detection_roll)
 	var cost: Dictionary = check.get("cost", {})
-	_apply_generic_resource_cost(cost)
 	var cooldown := _get_spy_action_cooldown_turns(SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS)
 	_player_state["spy_cooldown"] = cooldown
 	var relation_penalty := 0
+	var relation_change := {"before_score": DIPLOMACY_DEFAULT_SCORE, "after_score": DIPLOMACY_DEFAULT_SCORE}
+	if not target_faction.is_empty():
+		var current_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction)
+		relation_change = {"before_score": current_score, "after_score": current_score}
 	var after_loyalty := before_loyalty
 	var effect_applied := bool(roll_result.get("effect_applied", false))
 	if bool(roll_result.get("detected", false)):
 		relation_penalty = SPY_DETECTED_RELATION_PENALTY_LOYALTY
 		if not target_faction.is_empty():
-			_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction, relation_penalty, "spy_loyalty_disrupt_detected")
+			relation_change = _apply_spy_detection_relation_penalty(target_faction, relation_penalty, "spy_loyalty_disrupt_detected")
 	elif effect_applied:
 		after_loyalty = clampi(before_loyalty - int(roll_result.get("effect_amount", 0)), 0, 100)
 		_set_city_loyalty_value(target_city_id, after_loyalty)
 	var result := {
 		"turn": turn_number,
+		"action_id": SPY_ACTION_LOYALTY_DISRUPT,
+		"action_label": "성 충성도 교란",
 		"target_city_id": target_city_id,
 		"target_faction": target_faction,
+		"target_faction_id": target_faction,
 		"political_aptitude": int(roll_result.get("political_aptitude", 0)),
 		"roll": int(roll_result.get("roll", -1)),
 		"success_chance": int(roll_result.get("success_chance", 0)),
@@ -10959,8 +11315,11 @@ func _disrupt_city_loyalty(target_city_id: String, forced_roll: int = -1, forced
 		"loyalty_before": before_loyalty,
 		"loyalty_after": after_loyalty,
 		"relation_penalty": relation_penalty,
+		"before_score": int(relation_change.get("before_score", 0)),
+		"after_score": int(relation_change.get("after_score", 0)),
 		"cost": cost,
 		"cooldown": cooldown,
+		"message": "성 충성도 교란에 성공했습니다." if effect_applied and not bool(roll_result.get("detected", false)) else "성 충성도 교란에 실패했습니다.",
 	}
 	_player_state["last_spy_loyalty_disrupt_result"] = result
 	return result
@@ -11010,15 +11369,11 @@ func _can_instigate_revolt(target_city_id: String) -> Dictionary:
 		return {"ok": false, "reason": "prerequisite_public_support", "publicSupport": public_support}
 	if loyalty > 40:
 		return {"ok": false, "reason": "prerequisite_loyalty", "loyalty": loyalty}
-	var cost := _get_spy_revolt_instigation_cost(target_city_id)
-	var payment_check := _can_pay_generic_resource_cost(cost)
-	if not bool(payment_check.get("ok", false)):
-		return {"ok": false, "reason": "resources", "cost": cost, "missing": payment_check.get("missing", {})}
 	return {
 		"ok": true,
 		"political_aptitude": political_aptitude,
 		"probability_boost": _get_spy_revolt_instigation_boost(political_aptitude),
-		"cost": cost,
+		"cost": {},
 		"success_chance": _get_spy_info_success_chance(),
 		"detection_chance": _calculate_spy_detection_chance(target_city_id),
 		"publicSupport": public_support,
@@ -11062,29 +11417,36 @@ func _instigate_revolt(target_city_id: String, forced_roll: int = -1, forced_det
 	if not bool(check.get("ok", false)):
 		var failed_result := {
 			"turn": turn_number,
+			"action_id": SPY_ACTION_REVOLT_INSTIGATE,
+			"action_label": "반란 조장",
 			"target_city_id": target_city_id,
 			"target_faction": target_faction,
+			"target_faction_id": target_faction,
 			"success": false,
 			"detected": false,
 			"effect_applied": false,
 			"reason": str(check.get("reason", "unknown")),
 			"relation_penalty": 0,
-			"cost": check.get("cost", _get_spy_revolt_instigation_cost(target_city_id)),
+			"cost": {},
 			"cooldown": 0,
+			"message": _format_spy_validation_message(check),
 		}
 		_player_state["last_spy_revolt_instigation_result"] = failed_result
 		return failed_result
 	var roll_result := _roll_spy_revolt_instigation_result(target_city_id, forced_roll, forced_detection_roll)
 	var cost: Dictionary = check.get("cost", {})
-	_apply_generic_resource_cost(cost)
 	var cooldown := _get_spy_action_cooldown_turns(SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS)
 	_player_state["spy_cooldown"] = cooldown
 	var relation_penalty := 0
+	var relation_change := {"before_score": DIPLOMACY_DEFAULT_SCORE, "after_score": DIPLOMACY_DEFAULT_SCORE}
+	if not target_faction.is_empty():
+		var current_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction)
+		relation_change = {"before_score": current_score, "after_score": current_score}
 	var effect_applied := bool(roll_result.get("effect_applied", false))
 	if bool(roll_result.get("detected", false)):
 		relation_penalty = SPY_DETECTED_RELATION_PENALTY_REVOLT
 		if not target_faction.is_empty():
-			_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction, relation_penalty, "spy_revolt_instigation_detected")
+			relation_change = _apply_spy_detection_relation_penalty(target_faction, relation_penalty, "spy_revolt_instigation_detected")
 	elif effect_applied:
 		var instigations: Dictionary = {}
 		var raw_instigations: Variant = _player_state.get("revolt_instigation", {})
@@ -11099,8 +11461,11 @@ func _instigate_revolt(target_city_id: String, forced_roll: int = -1, forced_det
 		_player_state["revolt_instigation"] = instigations
 	var result := {
 		"turn": turn_number,
+		"action_id": SPY_ACTION_REVOLT_INSTIGATE,
+		"action_label": "반란 조장",
 		"target_city_id": target_city_id,
 		"target_faction": target_faction,
+		"target_faction_id": target_faction,
 		"political_aptitude": int(roll_result.get("political_aptitude", 0)),
 		"roll": int(roll_result.get("roll", -1)),
 		"success_chance": int(roll_result.get("success_chance", 0)),
@@ -11111,8 +11476,11 @@ func _instigate_revolt(target_city_id: String, forced_roll: int = -1, forced_det
 		"probability_boost": int(roll_result.get("probability_boost", 0)),
 		"effect_applied": effect_applied and not bool(roll_result.get("detected", false)),
 		"relation_penalty": relation_penalty,
+		"before_score": int(relation_change.get("before_score", 0)),
+		"after_score": int(relation_change.get("after_score", 0)),
 		"cost": cost,
 		"cooldown": cooldown,
+		"message": "반란 조장에 성공했습니다." if effect_applied and not bool(roll_result.get("detected", false)) else "반란 조장에 실패했습니다.",
 	}
 	_player_state["last_spy_revolt_instigation_result"] = result
 	return result

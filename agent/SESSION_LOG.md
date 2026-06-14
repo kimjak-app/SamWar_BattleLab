@@ -2,6 +2,25 @@
 
 ## 2026-06-14
 
+### v0.70-37 Spy Action MVP
+- Started from `b0f40e4 v0.70-36 Diplomacy Action MVP`.
+- Confirmed clean worktree and expected HEAD before editing.
+- Required docs and current spy candidate display, can/roll/apply helper, cooldown, detection, relation penalty, resource cost, save/load, and warning-cleanup search paths were checked.
+- Implemented:
+  - Added a runtime `SpyActionCard` with `정탐`, `민심 교란`, `성 충성도 교란`, and `반란 조장` buttons for selected foreign cities.
+  - Added common spy action definition, validation, execution, failure recording, and button refresh helpers.
+  - Reused existing spy roll/apply helpers for info gathering, public support disruption, loyalty disruption, and revolt instigation.
+  - Removed separate connected-action resource costs for this MVP and kept validation focused on target, chancellor/political aptitude, cooldown, iron-wall, and revolt prerequisites.
+  - Added conservative detection relation penalties and before/after relation score metadata.
+  - Improved recent spy result display and cooldown/status copy in the spy tab.
+- Preserved `이간질`, advanced alienation, spy units/networks, diplomacy action behavior, trade price/efficiency behavior, manual trade, chancellor auto trade, target city storage, foreign faction stock, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserved v0.70-36 diplomacy actions, v0.70-35 relation efficiency pricing, trade persistence, and `v0.70-34-hotfix1` warning cleanup.
+- Verification:
+  - `git diff --check` passed after code edit
+  - project headless load passed after code edit
+  - final verification covered project headless load, `WorldMap_Test.tscn`, `Battle_Fullscreen_Test.tscn`, required search checks, and clean diff whitespace before commit
+- Manual F6 QA remains required for spy card visibility, foreign/self target behavior, success/failure/detection results, relation penalties, cooldown blocking, save/load display-only restoration, diplomacy/trade regressions, and Godot Output warning cleanliness.
+
 ### v0.70-36 Diplomacy Action MVP
 - Started from `f0d0301 v0.70-35 Trade Balance / Relation Efficiency Polish`.
 - Confirmed clean worktree and expected HEAD before editing.

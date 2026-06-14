@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.70-37 Spy Action MVP
+- Baseline: `v0.70-36 Diplomacy Action MVP` at `b0f40e4ca4f9acac568a23b73652afc145a1eb66`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- City Detail `외교·첩보 > 첩보` now shows a runtime `SpyActionCard` for selected foreign cities.
+- Executable MVP actions are connected: `정탐`, `민심 교란`, `성 충성도 교란`, and `반란 조장`; `이간질` remains a follow-up.
+- The action path reuses the existing spy can/roll/apply helpers, records success/failure/detection payloads, applies spy cooldown, and improves recent spy result display.
+- Detected spy actions apply a conservative relation penalty through the existing faction relation score path and record before/after score metadata.
+- This MVP does not add separate spy gold/resource costs; validation still requires valid foreign target, assigned political chancellor conditions, and no active spy cooldown.
+- `revolt_instigation` remains the existing state path for successful revolt instigation boosts; world-turn ticking continues to decrement it.
+- Save/load uses existing `_player_state` persistence for last spy results, `spy_cooldown`, and `revolt_instigation`; loading restores display/state only and never replays spy effects.
+- Diplomacy action, trade pricing/efficiency, manual trade, chancellor auto trade, target city storage, foreign faction stock, Selected City Panel, BattleContext, `project.godot`, scenes, assets, `.uid`, and `.ogv` files were not changed.
+- Manual/internal trade, v0.70-35 relation efficiency pricing, v0.70-36 diplomacy actions, trade persistence, and `v0.70-34-hotfix1` warning cleanup remain intact.
+- Next candidate work:
+  1. `v0.70-38 Chancellor Auto Trade QA / Polish`
+  2. `v0.70-39 Trade Market / Price Variation MVP`
+  3. `v0.70-40 Diplomacy Action Polish / Alliance MVP`
+  4. `v0.70-41 Spy Action Polish / Alienation MVP`
+
 ## v0.70-36 Diplomacy Action MVP
 - Baseline: `v0.70-35 Trade Balance / Relation Efficiency Polish` at `f0d03010829b72a64479712fd97833a509e7bad6`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
