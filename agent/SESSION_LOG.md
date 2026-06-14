@@ -2,6 +2,26 @@
 
 ## 2026-06-14
 
+### v0.70-42 Enemy Intel UI Polish / Fog of War
+- Started from `aae97d1 v0.70-41 Spy Action Polish / Alienation MVP`.
+- Confirmed clean worktree, `main`, expected HEAD, and fetched `origin/main` before editing.
+- Required docs and enemy intel, city intel, wedge, alliance, market, faction chancellor, and warning-cleanup search paths were checked.
+- Implemented:
+  - Added payload-backed enemy intel reveal helpers to the right selected City Info panel.
+  - Added explicit enemy intel levels: `미확인`, `기초 정탐`, `군사 정탐`, `군사/자원 정탐`, `내정 정탐`, and `상세 정탐`.
+  - Added revealed/locked field summaries for 병력 추정, 병력, 자원, 민심, 충성도, 태수, and 기술.
+  - Updated enemy city loyalty, public support, governor, garrison, military, domestic, resource, and tech copy to distinguish `정탐 필요` from `추가 정탐 필요`.
+  - Updated spy-tab visibility and known-info summaries to match the right selected city panel's intel level/revealed/locked wording.
+- Preserved player-owned city full display, existing spy formulas/effects, v0.70-41 wedge, v0.70-40 alliance proposal, v0.70-39 market pricing, chancellor candidate scope, `faction_chancellors`, left national panel scope, right selected-city scope, BattleContext, Selected City Panel behavior, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserved `v0.70-34-hotfix1` warning cleanup.
+- Verification:
+  - `git diff --check`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - required enemy intel, city intel, wedge, alliance, market, faction chancellor, and warning-cleanup searches
+- Manual F6 QA remains required for player-city full display, no-intel enemy locking, partial/full intel display, spy-tab/right-panel wording parity, failed spy not opening intel, save/load city intel display, wedge/alliance/market regressions, chancellor candidate scope, left panel scope, and Godot Output warning cleanliness.
+
 ### v0.70-41 Spy Action Polish / Alienation MVP
 - Started from `0f516a7 v0.70-40 Diplomacy Action Polish / Alliance MVP`.
 - Confirmed clean worktree, `main`, expected HEAD, and fetched `origin/main` before editing.

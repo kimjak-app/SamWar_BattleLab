@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-42 Enemy Intel Fog of War UI Rule
+- Enemy/foreign selected-city display may polish Fog of War copy, but must remain selected-city scope.
+- Baseline was `v0.70-41 Spy Action Polish / Alienation MVP` (`aae97d12676cea97c065a67f6366a9593e9e26ef`).
+- Player-owned cities must keep the existing full city information display path.
+- Enemy cities without intel may show city name, owner faction, and city type, plus locked detail copy.
+- Enemy intel display levels are `none` / `미확인`, `basic` / `기초 정탐`, `military` / `군사 정탐`, `resource` / `군사/자원 정탐`, `domestic` / `내정 정탐`, and `full` / `상세 정탐`.
+- Revealed labels should map `troops_estimated` to `병력 추정`, `troops` to `병력`, `resources` to `자원`, `publicSupport` to `민심`, `loyalty` to `충성도`, `governor` to `태수`, and `tech` to `기술`.
+- A field is revealed only when the city-intel field and matching payload data are both present; unknown fields or payload-missing fields must remain locked.
+- Locked details should clearly use `정탐 필요` when no intel exists and `추가 정탐 필요` when partial intel exists.
+- Spy-tab known-info summaries should use the same information level, revealed field, and locked field vocabulary as the right selected City Info panel.
+- `_player_state["city_intel"]` is display-only state. Loading a save may restore Fog of War display but must never replay spy effects, costs, relation changes, detection penalties, wedge effects, or alliance breaks.
+- This rule does not authorize spy formula/effect changes, `이간질` behavior changes, alliance proposal changes, market price formula changes, external trade pricing changes, chancellor candidate scope changes, `faction_chancellors` changes, left panel scope changes, BattleContext changes, player-owned city display changes, `project.godot`, scenes, assets, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-41 Spy Alienation Rule
 - Spy action card may execute `wedge` / `이간질` against a selected foreign city.
 - Baseline was `v0.70-40 Diplomacy Action Polish / Alliance MVP` (`0f516a7473cadd371afa04f9b1352c3e9823d85a`).

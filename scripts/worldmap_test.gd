@@ -3645,6 +3645,131 @@ func _format_last_diplomacy_action_result_for_ui(target_faction_id: String = "")
 	return "최근 외교\n%s → %s\n%s / %s" % [action_label, target_label, relation_line, cost_text]
 
 
+func _has_enemy_intel_payload_for_ui(fields: Array[String], payload: Dictionary, field: String) -> bool:
+	match field:
+		"troops_estimated":
+			return fields.has("troops_estimated") and payload.has("troops_estimated") and not (fields.has("troops") and payload.has("troops"))
+		"troops":
+			return fields.has("troops") and payload.has("troops")
+		"resources":
+			return fields.has("resources") and payload.has("resources")
+		"publicSupport":
+			return fields.has("publicSupport") and payload.has("publicSupport")
+		"loyalty":
+			return fields.has("loyalty") and payload.has("loyalty")
+		"governor":
+			return fields.has("governor") and payload.has("governor") and str(payload.get("governor", "")) != "not_available"
+		"tech":
+			return fields.has("tech") and payload.has("tech")
+		_:
+			return false
+
+
+func _get_enemy_intel_revealed_field_ids_for_ui(fields: Array[String], payload: Dictionary) -> Array[String]:
+	var revealed: Array[String] = []
+	if _has_enemy_intel_payload_for_ui(fields, payload, "troops"):
+		revealed.append("troops")
+	elif _has_enemy_intel_payload_for_ui(fields, payload, "troops_estimated"):
+		revealed.append("troops_estimated")
+	for field in ["resources", "publicSupport", "loyalty", "governor", "tech"]:
+		if _has_enemy_intel_payload_for_ui(fields, payload, field):
+			revealed.append(field)
+	return revealed
+
+
+func _get_enemy_intel_level_id_for_ui(fields: Array[String]) -> String:
+	if fields.is_empty():
+		return "none"
+	if fields.has("governor") and fields.has("tech"):
+		return "full"
+	if fields.has("publicSupport") or fields.has("loyalty") or fields.has("governor") or fields.has("tech"):
+		return "domestic"
+	if fields.has("resources"):
+		return "resource"
+	if fields.has("troops"):
+		return "military"
+	if fields.has("troops_estimated"):
+		return "basic"
+	return "none"
+
+
+func _format_enemy_intel_level_label_for_ui(level_id: String) -> String:
+	match level_id:
+		"basic":
+			return "기초 정탐"
+		"military":
+			return "군사 정탐"
+		"resource":
+			return "군사/자원 정탐"
+		"domestic":
+			return "내정 정탐"
+		"full":
+			return "상세 정탐"
+		_:
+			return "미확인"
+
+
+func _get_enemy_intel_field_label_for_ui(field: String) -> String:
+	match field:
+		"troops_estimated":
+			return "병력 추정"
+		"troops":
+			return "병력"
+		"resources":
+			return "자원"
+		"publicSupport":
+			return "민심"
+		"loyalty":
+			return "충성도"
+		"governor":
+			return "태수"
+		"tech":
+			return "기술"
+		_:
+			return field
+
+
+func _get_enemy_intel_revealed_field_labels_for_ui(fields: Array[String]) -> Array[String]:
+	var labels: Array[String] = []
+	for field in fields:
+		var label := _get_enemy_intel_field_label_for_ui(field)
+		if not labels.has(label):
+			labels.append(label)
+	return labels
+
+
+func _get_enemy_intel_locked_field_labels_for_ui(fields: Array[String]) -> Array[String]:
+	var labels: Array[String] = []
+	var troop_revealed := fields.has("troops") or fields.has("troops_estimated")
+	for field in ["troops", "resources", "publicSupport", "loyalty", "governor", "tech"]:
+		if field == "troops" and troop_revealed:
+			continue
+		if field != "troops" and fields.has(field):
+			continue
+		var label := _get_enemy_intel_field_label_for_ui(field)
+		if not labels.has(label):
+			labels.append(label)
+	return labels
+
+
+func _get_city_intel_fields_for_ui(intel_entry: Dictionary) -> Array[String]:
+	var fields: Array[String] = []
+	var raw_fields: Variant = intel_entry.get("fields", [])
+	if raw_fields is Array:
+		for field_variant in raw_fields:
+			var field := str(field_variant)
+			if not field.is_empty() and not fields.has(field):
+				fields.append(field)
+	return fields
+
+
+func _get_city_intel_payload_for_ui(intel_entry: Dictionary) -> Dictionary:
+	var raw_payload: Variant = intel_entry.get("payload", intel_entry.get("info", {}))
+	if raw_payload is Dictionary:
+		return (raw_payload as Dictionary).duplicate(true)
+	return {}
+
+
 func _format_spy_visibility_summary_for_ui(city_marker: WorldMapCityMarker) -> String:
 	if city_marker == null:
 		return "정보 수준\n정보 미확인"
@@ -3655,17 +3780,18 @@ func _format_spy_visibility_summary_for_ui(city_marker: WorldMapCityMarker) -> S
 		return "정보 수준\n자국 도시"
 	var intel_entry := _get_city_intel_entry_for_ui(city_marker.city_id)
 	if intel_entry.is_empty():
-		return "정보 수준\n미확인"
-	var fields: Array = intel_entry.get("fields", [])
-	if fields.has("troops_estimated"):
-		return "정보 수준\n기초 정탐"
-	if fields.has("governor") or fields.has("tech"):
-		return "정보 수준\n상세 정탐"
-	if fields.has("publicSupport") or fields.has("loyalty"):
-		return "정보 수준\n내정 정탐"
-	if fields.has("resources"):
-		return "정보 수준\n군사/자원 정탐"
-	return "정보 수준\n군사 정탐"
+		return "정보 수준\n미확인\n공개: 도시명 / 세력 / 유형\n잠김: 병력 / 자원 / 민심 / 충성도 / 태수 / 기술"
+	var fields := _get_city_intel_fields_for_ui(intel_entry)
+	var payload := _get_city_intel_payload_for_ui(intel_entry)
+	var revealed_fields := _get_enemy_intel_revealed_field_ids_for_ui(fields, payload)
+	var level_label := _format_enemy_intel_level_label_for_ui(_get_enemy_intel_level_id_for_ui(revealed_fields))
+	var revealed_labels := _get_enemy_intel_revealed_field_labels_for_ui(revealed_fields)
+	var locked_labels := _get_enemy_intel_locked_field_labels_for_ui(revealed_fields)
+	var revealed_text := "도시명 / 세력 / 유형"
+	if not revealed_labels.is_empty():
+		revealed_text = "%s / %s" % [revealed_text, " / ".join(revealed_labels)]
+	var locked_text := "없음" if locked_labels.is_empty() else " / ".join(locked_labels)
+	return "정보 수준\n%s\n공개: %s\n잠김: %s" % [level_label, revealed_text, locked_text]
 
 
 func _format_spy_known_info_summary_for_ui(city_marker: WorldMapCityMarker) -> String:
@@ -3678,25 +3804,35 @@ func _format_spy_known_info_summary_for_ui(city_marker: WorldMapCityMarker) -> S
 		return "확인 정보\n소유 세력 확인이 필요합니다."
 	var intel_entry := _get_city_intel_entry_for_ui(city_marker.city_id)
 	if intel_entry.is_empty():
-		return "확인 정보\n소유 세력 / 도시 유형\n상세 정보는 정탐 필요"
-	var fields: Array = intel_entry.get("fields", [])
-	var payload: Dictionary = intel_entry.get("payload", {})
-	var parts: Array[String] = ["소유 세력", "도시 유형"]
-	if payload.has("troops"):
-		parts.append("병력 %d" % int(payload.get("troops", 0)))
-	elif payload.has("troops_estimated"):
-		parts.append("병력 약 %d" % int(payload.get("troops_estimated", 0)))
-	if fields.has("resources"):
-		parts.append("자원 개략")
-	if payload.has("publicSupport"):
-		parts.append("민심 %s" % str(payload.get("publicSupport", "")))
-	if payload.has("loyalty"):
-		parts.append("충성도 %s" % str(payload.get("loyalty", "")))
-	if fields.has("governor"):
-		parts.append("태수 확인")
-	if fields.has("tech"):
-		parts.append("기술 확인")
-	return "확인 정보\n%s" % " / ".join(parts)
+		return "확인 정보\n정보 수준: 미확인\n공개 정보: 도시명 / 세력 / 유형\n잠김 정보: 병력 / 자원 / 민심 / 충성도 / 태수 / 기술"
+	var fields := _get_city_intel_fields_for_ui(intel_entry)
+	var payload := _get_city_intel_payload_for_ui(intel_entry)
+	var revealed_fields := _get_enemy_intel_revealed_field_ids_for_ui(fields, payload)
+	var level_label := _format_enemy_intel_level_label_for_ui(_get_enemy_intel_level_id_for_ui(revealed_fields))
+	var revealed_labels := _get_enemy_intel_revealed_field_labels_for_ui(revealed_fields)
+	var locked_labels := _get_enemy_intel_locked_field_labels_for_ui(revealed_fields)
+	var value_parts: Array[String] = []
+	if _has_enemy_intel_payload_for_ui(fields, payload, "troops"):
+		value_parts.append("병력 %d" % int(payload.get("troops", 0)))
+	elif _has_enemy_intel_payload_for_ui(fields, payload, "troops_estimated"):
+		value_parts.append("병력 약 %d" % int(payload.get("troops_estimated", 0)))
+	if _has_enemy_intel_payload_for_ui(fields, payload, "resources"):
+		value_parts.append("자원 개략")
+	if _has_enemy_intel_payload_for_ui(fields, payload, "publicSupport"):
+		value_parts.append("민심 %s" % str(payload.get("publicSupport", "")))
+	if _has_enemy_intel_payload_for_ui(fields, payload, "loyalty"):
+		value_parts.append("충성도 %s" % str(payload.get("loyalty", "")))
+	if _has_enemy_intel_payload_for_ui(fields, payload, "governor"):
+		value_parts.append("태수 확인")
+	if _has_enemy_intel_payload_for_ui(fields, payload, "tech"):
+		value_parts.append("기술 확인")
+	var revealed_text := "도시명 / 세력 / 유형"
+	if not revealed_labels.is_empty():
+		revealed_text = "%s / %s" % [revealed_text, " / ".join(revealed_labels)]
+	var locked_text := "없음" if locked_labels.is_empty() else " / ".join(locked_labels)
+	var value_text := "확인값: %s\n" % " / ".join(value_parts) if not value_parts.is_empty() else ""
+	var next_text := "\n추가 정탐으로 더 자세한 정보 확인 가능" if not locked_labels.is_empty() else ""
+	return "확인 정보\n정보 수준: %s\n공개 정보: %s\n잠김 정보: %s\n%s%s" % [level_label, revealed_text, locked_text, value_text, next_text]
 
 
 func _get_city_intel_entry_for_ui(city_id: String) -> Dictionary:

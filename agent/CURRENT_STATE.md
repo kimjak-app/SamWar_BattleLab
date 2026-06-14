@@ -1,5 +1,21 @@
 # CURRENT STATE
 
+## v0.70-42 Enemy Intel UI Polish / Fog of War
+- Baseline: `v0.70-41 Spy Action Polish / Alienation MVP` at `aae97d12676cea97c065a67f6366a9593e9e26ef`.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Enemy/foreign selected-city display now presents explicit Fog of War copy for `정보 수준`, `공개 정보`, and `잠김 정보`.
+- Enemy intel levels are `미확인`, `기초 정탐`, `군사 정탐`, `군사/자원 정탐`, `내정 정탐`, and `상세 정탐`, derived from revealed city-intel fields.
+- Revealed field labels are normalized as `병력 추정`, `병력`, `자원`, `민심`, `충성도`, `태수`, and `기술`; malformed fields or fields without matching payload stay locked.
+- Right selected City Info keeps player-owned cities on the existing full display path, while enemy cities show only city name, owner, and type before intel.
+- Enemy city loyalty, public support, governor, garrison, military, domestic, resources, and tech copy now clearly says `정탐 필요` or `추가 정탐 필요` according to whether partial intel exists.
+- City Detail `외교·첩보 > 첩보` known-info summaries now use the same intel level/revealed/locked wording as the right selected city panel.
+- `_player_state["city_intel"]` remains display-only save/load state; loading restores UI state but never replays spy effects, costs, relation changes, or detection.
+- Preserved existing spy formulas/effects including `이간질`, v0.70-40 alliance proposal flow, v0.70-39 market pricing, player chancellor candidate scope, `_player_state["faction_chancellors"]`, left national panel scope, right selected-city scope, BattleContext, player-owned city display behavior, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- The `v0.70-34-hotfix1` shadowing warning cleanup remains intact.
+- Manual F6 QA remains required for player-city full display, no-intel enemy locking, partial/full intel field reveal, spy-tab/right-panel wording parity, failed spy not opening intel, save/load display restoration, wedge/alliance/market regressions, chancellor candidate scope, left panel scope, and warning cleanliness.
+- Next candidate work:
+  1. `v0.70-43 WorldMap Domestic/Intel Final QA Pass`
+
 ## v0.70-41 Spy Action Polish / Alienation MVP
 - Baseline: `v0.70-40 Diplomacy Action Polish / Alliance MVP` at `0f516a7473cadd371afa04f9b1352c3e9823d85a`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

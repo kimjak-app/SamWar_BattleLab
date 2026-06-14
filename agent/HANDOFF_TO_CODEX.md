@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-42 Enemy Intel UI Polish / Fog of War Handoff
+- Baseline: `v0.70-41 Spy Action Polish / Alienation MVP` (`aae97d12676cea97c065a67f6366a9593e9e26ef`).
+- Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.
+- Enemy selected-city display now formats a clear Fog of War summary: `정보 수준`, `공개 정보`, and `잠김 정보`.
+- Intel level labels are `미확인`, `기초 정탐`, `군사 정탐`, `군사/자원 정탐`, `내정 정탐`, and `상세 정탐`.
+- Revealed/locked field labels cover `troops_estimated`, `troops`, `resources`, `publicSupport`, `loyalty`, `governor`, and `tech`.
+- Display helpers only treat a field as revealed when the stored city-intel field has matching payload data; otherwise that field remains locked.
+- Player-owned city display continues to use the original full-information path.
+- Enemy city garrison and advanced detail remain locked until future dedicated intel fields exist; current polish is copy/visibility only.
+- Spy-tab known-info summaries now use the same level/revealed/locked wording as the right selected city panel.
+- `_player_state["city_intel"]` remains display-only save/load state. Loading must never replay spy cost, effect, relation, detection, wedge, or alliance-break logic.
+- Explicitly unchanged: spy success/detection formulas, existing spy action effects, `wedge` logic, alliance proposal/duration/cooldown, trade market pricing, manual/chancellor trade pricing, player chancellor candidate scope, `_player_state["faction_chancellors"]`, left national panel scope, right selected-city scope, BattleContext, Selected City Panel behavior, `project.godot`, scenes, assets, `.uid`, and `.ogv`.
+- Preserve the `v0.70-34-hotfix1` warning cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` reintroduction.
+- Next candidate:
+  1. `v0.70-43 WorldMap Domestic/Intel Final QA Pass`
+
 ## v0.70-41 Spy Action Polish / Alienation MVP Handoff
 - Baseline: `v0.70-40 Diplomacy Action Polish / Alliance MVP` (`0f516a7473cadd371afa04f9b1352c3e9823d85a`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

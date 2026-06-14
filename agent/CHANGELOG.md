@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-42 Enemy Intel UI Polish / Fog of War
+- Built on `v0.70-41 Spy Action Polish / Alienation MVP` (`aae97d12676cea97c065a67f6366a9593e9e26ef`).
+- Polished enemy selected-city Fog of War UI copy for information level, revealed fields, and locked fields.
+- Added display levels for no/basic/military/resource/domestic/full intel states.
+- Added revealed/locked summaries for troops estimate, troops, resources, public support, loyalty, governor, and tech fields.
+- Updated right selected City Info enemy branch so payload-backed intel reveals values while malformed or payload-missing fields stay locked.
+- Updated spy-tab known-info summary to match the right panel's intel level and revealed/locked wording.
+- Kept `_player_state["city_intel"]` as display-only save/load state with no spy effect replay.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change spy formulas/effects, wedge logic, alliance proposal flow, market pricing, trade pricing, chancellor candidate scope, `faction_chancellors`, left/right panel scope, BattleContext, Selected City Panel behavior, `project.godot`, scenes, assets, `.uid`, or `.ogv`.
+- Preserved the `v0.70-34-hotfix1` warning cleanup.
+
 ## v0.70-41 Spy Action Polish / Alienation MVP
 - Built on `v0.70-40 Diplomacy Action Polish / Alliance MVP` (`0f516a7473cadd371afa04f9b1352c3e9823d85a`).
 - Added executable `이간질` to the spy action card with action id `wedge`.

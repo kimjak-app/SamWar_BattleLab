@@ -1,5 +1,28 @@
 # NEXT TASKS
 
+## Current: v0.70-42 Enemy Intel UI Polish / Fog of War
+- Baseline: `v0.70-41 Spy Action Polish / Alienation MVP` (`aae97d12676cea97c065a67f6366a9593e9e26ef`).
+- Completed direction:
+  1. Added explicit enemy intel level copy for right selected City Info and spy-tab known-info summaries.
+  2. Defined display levels: `미확인`, `기초 정탐`, `군사 정탐`, `군사/자원 정탐`, `내정 정탐`, and `상세 정탐`.
+  3. Added revealed/locked field summaries for 병력 추정, 병력, 자원, 민심, 충성도, 태수, and 기술.
+  4. Treated city-intel fields without matching payload as locked, preventing malformed display state from revealing raw enemy data.
+  5. Kept player-owned city display on the existing full-information path.
+- Preserved scope:
+  1. Existing spy formulas/effects, including v0.70-41 `이간질`, remain unchanged.
+  2. v0.70-40 alliance proposal, v0.70-39 market pricing, player chancellor candidate scope, `faction_chancellors`, left panel scope lock, and right selected-city scope remain unchanged.
+  3. No target city storage, foreign stock, BattleContext, Selected City Panel behavior, scene, asset, `.uid`, or `.ogv` changes were made.
+  4. Warning-cleanup naming remains preserved.
+- Manual F6 QA required:
+  1. Confirm player-owned cities still show full city info.
+  2. Confirm enemy cities with no intel show only city identity plus locked 상세 정보.
+  3. Confirm successful `정탐` opens only payload-backed fields and failed `정탐` opens nothing.
+  4. Confirm spy-tab known-info summary matches the right selected city panel level/revealed/locked wording.
+  5. Confirm save/load restores city intel display only without replaying spy effects.
+  6. Confirm wedge, alliance, market pricing, chancellor candidate scope, left panel scope, and warning cleanliness.
+- Next candidate work:
+  1. `v0.70-43 WorldMap Domestic/Intel Final QA Pass`
+
 ## Current: v0.70-41 Spy Action Polish / Alienation MVP
 - Baseline: `v0.70-40 Diplomacy Action Polish / Alliance MVP` (`0f516a7473cadd371afa04f9b1352c3e9823d85a`).
 - Completed direction:
