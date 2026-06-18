@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-52 Enemy Faction Personality Seed MVP Lock Rule
+- Baseline was `v0.70-51 Enemy Turn QA Pass Manual F6 Feedback Polish` (`682c1002bab46474d72c5ff2ca2d3c4ced977222`).
+- This rule authorizes conservative faction personality seeds only. It is not authorization for full enemy AI, planning, economy simulation, or multi-action strategic behavior.
+- Faction personality is weight/seed based and must remain bounded. Unknown non-player factions must fall back to `default_balanced`, and PLAYER must not receive enemy personality behavior.
+- Personality may influence only reinforcement target scoring, strategic follow-up type selection, eligible invasion pair scoring, and compact display metadata.
+- Reinforcement amount constants, frontline/chancellor bonus formulas, faction turn replay guard, and one reinforcement action per faction must remain stable.
+- Strategic follow-up remains capped at at most one action per world turn, must skip during pending invasion or pending battle context, and must remain replay-safe through `_player_state["last_enemy_faction_turn_processed_turn"]`, `_player_state["last_enemy_faction_turn_result"]`, `_player_state["last_enemy_strategic_action_result"]`, and `strategic_actions`.
+- Enemy spy pressure remains display/history only and must not mutate player city stats, resources, troops, publicSupport, loyalty, `city_intel`, spy cooldowns, detection penalties, or relation state.
+- Enemy diplomacy relation drift, if applied, remains limited to non-player faction pairs and small score-only changes. It must not directly change PLAYER relations, relation status, alliance state, trade agreement state, cooldowns, resources, chancellor state, or national stock.
+- Invasion personality influence may sort already eligible pairs only. `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext handoff, and v0.70-49 eligibility guards must not change.
+- Existing regression locks remain active: left PLAYER scope, right selected-city scope, Fog of War, `city_intel` display-only restore, market formula, alliance behavior, wedge behavior, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scene/asset/`.uid`/`.ogv` stability.
+- Enemy spy actual damage, enemy diplomacy alliance/trade simulation, enemy economy simulation, Battle scene behavior expansion, and repo-wide refactors remain forbidden.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-51 Enemy Turn QA Pass Lock Rule
 - Baseline was `v0.70-50 Enemy Faction Diplomacy Spy Behavior Follow-up` (`7fa73bfe31efd76bebefc595768fc55a8d98e3b5`).
 - This rule is an enemy turn chain QA pass, not a new feature pass and not authorization for full enemy AI.

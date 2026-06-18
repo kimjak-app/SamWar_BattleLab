@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-52 Enemy Faction Personality Seed MVP
+- Built on `v0.70-51 Enemy Turn QA Pass Manual F6 Feedback Polish` (`682c1002bab46474d72c5ff2ca2d3c4ced977222`).
+- Added conservative `ENEMY_FACTION_PERSONALITY_SEEDS` profiles for non-player factions with bounded weights and compact labels.
+- Applied personality weights to enemy reinforcement target scoring so military/frontline or defensive profiles slightly influence which already-owned city is reinforced.
+- Applied personality weights to strategic follow-up selection so diplomacy and spy-pressure candidates can be biased without exceeding one action per world turn.
+- Applied personality weights to eligible invasion pair scoring after v0.70-49 owner, adjacency, missing-city, and weak-attacker guards pass.
+- Added personality display metadata to reinforcement and strategic action summaries without exposing hidden enemy resources, chancellor details, city intel, or national state.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change full enemy AI scope, reinforcement amount formulas, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload, BattleContext, replay guards, enemy spy damage, enemy alliance/trade simulation, market formulas, alliance, wedge, player actions, `city_intel`, `faction_chancellors`, scenes, assets, `.uid`, or `.ogv`.
+
 ## v0.70-51 Enemy Turn QA Pass & Manual F6 Feedback Polish
 - Built on `v0.70-50 Enemy Faction Diplomacy Spy Behavior Follow-up` (`7fa73bfe31efd76bebefc595768fc55a8d98e3b5`).
 - Performed a QA pass over the enemy turn chain: reinforcement, strategic action, invasion roll, pending invasion, defense deployment, BattleContext handoff, battle result apply, and save/load replay guards.

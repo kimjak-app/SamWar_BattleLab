@@ -248,6 +248,117 @@ const FACTION_LABELS := {
 	"mongol_faction": "MONGOL",
 }
 
+const ENEMY_FACTION_PERSONALITY_SEEDS := {
+	"default": {
+		"profile": "default_balanced",
+		"label": "균형",
+		"reinforce_weight": 1.0,
+		"frontline_weight": 1.0,
+		"invasion_weight": 1.0,
+		"diplomacy_weight": 1.0,
+		"spy_weight": 1.0,
+	},
+	"goguryeo": {
+		"profile": "military_frontline",
+		"label": "군사",
+		"reinforce_weight": 1.05,
+		"frontline_weight": 1.15,
+		"invasion_weight": 1.1,
+		"diplomacy_weight": 0.9,
+		"spy_weight": 0.95,
+	},
+	"wei": {
+		"profile": "military_frontline",
+		"label": "군사",
+		"reinforce_weight": 1.05,
+		"frontline_weight": 1.1,
+		"invasion_weight": 1.08,
+		"diplomacy_weight": 0.95,
+		"spy_weight": 0.95,
+	},
+	"mongol_faction": {
+		"profile": "aggressive_expansion",
+		"label": "공격",
+		"reinforce_weight": 1.0,
+		"frontline_weight": 1.12,
+		"invasion_weight": 1.15,
+		"diplomacy_weight": 0.85,
+		"spy_weight": 0.95,
+	},
+	"oda": {
+		"profile": "aggressive_expansion",
+		"label": "공격",
+		"reinforce_weight": 1.0,
+		"frontline_weight": 1.08,
+		"invasion_weight": 1.12,
+		"diplomacy_weight": 0.9,
+		"spy_weight": 1.0,
+	},
+	"toyotomi": {
+		"profile": "aggressive_expansion",
+		"label": "공격",
+		"reinforce_weight": 1.0,
+		"frontline_weight": 1.06,
+		"invasion_weight": 1.1,
+		"diplomacy_weight": 0.95,
+		"spy_weight": 1.0,
+	},
+	"silla": {
+		"profile": "diplomatic_balanced",
+		"label": "외교",
+		"reinforce_weight": 0.95,
+		"frontline_weight": 0.95,
+		"invasion_weight": 0.9,
+		"diplomacy_weight": 1.15,
+		"spy_weight": 1.0,
+	},
+	"shu": {
+		"profile": "diplomatic_balanced",
+		"label": "외교",
+		"reinforce_weight": 0.95,
+		"frontline_weight": 0.95,
+		"invasion_weight": 0.9,
+		"diplomacy_weight": 1.12,
+		"spy_weight": 1.0,
+	},
+	"tokugawa": {
+		"profile": "diplomatic_balanced",
+		"label": "외교",
+		"reinforce_weight": 1.0,
+		"frontline_weight": 0.95,
+		"invasion_weight": 0.9,
+		"diplomacy_weight": 1.12,
+		"spy_weight": 1.0,
+	},
+	"baekje_faction": {
+		"profile": "trade_defensive",
+		"label": "방어",
+		"reinforce_weight": 1.12,
+		"frontline_weight": 0.9,
+		"invasion_weight": 0.9,
+		"diplomacy_weight": 1.05,
+		"spy_weight": 1.0,
+	},
+	"wu": {
+		"profile": "trade_defensive",
+		"label": "방어",
+		"reinforce_weight": 1.1,
+		"frontline_weight": 0.9,
+		"invasion_weight": 0.9,
+		"diplomacy_weight": 1.05,
+		"spy_weight": 1.02,
+	},
+	"kyushu_faction": {
+		"profile": "trade_defensive",
+		"label": "방어",
+		"reinforce_weight": 1.08,
+		"frontline_weight": 0.9,
+		"invasion_weight": 0.88,
+		"diplomacy_weight": 1.0,
+		"spy_weight": 1.05,
+	},
+}
+
 const CITY_TYPE_LABELS := {
 	"hanseong": "상업 수도",
 	"pyeongyang": "북방 요새",
@@ -5873,6 +5984,45 @@ func _get_enemy_owned_city_ids_for_faction(faction_id: String) -> Array[String]:
 	return city_ids
 
 
+func _get_enemy_faction_personality_seed(faction_id: String) -> Dictionary:
+	var raw_default_seed: Variant = ENEMY_FACTION_PERSONALITY_SEEDS.get("default", {})
+	var default_seed: Dictionary = {}
+	if raw_default_seed is Dictionary:
+		default_seed = (raw_default_seed as Dictionary).duplicate(true)
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+		return default_seed.duplicate(true)
+	var raw_seed: Variant = ENEMY_FACTION_PERSONALITY_SEEDS.get(faction_id, default_seed)
+	if raw_seed is Dictionary:
+		var seed := default_seed.duplicate(true)
+		for key in (raw_seed as Dictionary).keys():
+			seed[key] = (raw_seed as Dictionary)[key]
+		return seed
+	return default_seed.duplicate(true)
+
+
+func _get_enemy_faction_personality_profile_id(faction_id: String) -> String:
+	return str(_get_enemy_faction_personality_seed(faction_id).get("profile", "default_balanced"))
+
+
+func _get_enemy_faction_personality_label(faction_id: String) -> String:
+	return str(_get_enemy_faction_personality_seed(faction_id).get("label", "균형"))
+
+
+func _get_enemy_faction_behavior_weight(faction_id: String, key: String, default_value: float = 1.0) -> float:
+	var seed := _get_enemy_faction_personality_seed(faction_id)
+	var weight := float(seed.get(key, default_value))
+	return clampf(weight, 0.75, 1.25)
+
+
+func _get_enemy_faction_personality_metadata(faction_id: String) -> Dictionary:
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+		return {}
+	return {
+		"personality_profile": _get_enemy_faction_personality_profile_id(faction_id),
+		"personality_label": _get_enemy_faction_personality_label(faction_id),
+	}
+
+
 func _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id: String) -> String:
 	if city_id.is_empty():
 		return ""
@@ -5922,20 +6072,32 @@ func _find_enemy_frontline_city_for_faction(faction_id: String) -> String:
 
 
 func _pick_enemy_city_for_turn_action(faction_id: String) -> String:
-	var frontline_city_id := _find_enemy_frontline_city_for_faction(faction_id)
-	if not frontline_city_id.is_empty():
-		return frontline_city_id
 	var owned_city_ids := _get_enemy_owned_city_ids_for_faction(faction_id)
 	if owned_city_ids.is_empty():
 		return ""
 	var selected_enemy_city_id := str(owned_city_ids[0])
-	var selected_troops := _get_city_troops_for_battle_context(selected_enemy_city_id)
+	var selected_score := _score_enemy_reinforcement_city_for_personality(faction_id, selected_enemy_city_id)
 	for city_id in owned_city_ids:
-		var troops := _get_city_troops_for_battle_context(city_id)
-		if troops < selected_troops:
+		var score := _score_enemy_reinforcement_city_for_personality(faction_id, city_id)
+		if score > selected_score:
 			selected_enemy_city_id = city_id
-			selected_troops = troops
+			selected_score = score
 	return selected_enemy_city_id
+
+
+func _score_enemy_reinforcement_city_for_personality(faction_id: String, city_id: String) -> int:
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or city_id.is_empty():
+		return -1
+	if _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id) != faction_id:
+		return -1
+	var troops := _get_city_troops_for_battle_context(city_id)
+	var low_troop_score := clampi(3000 - troops, 0, 3000)
+	var reinforce_weight := _get_enemy_faction_behavior_weight(faction_id, "reinforce_weight", 1.0)
+	var frontline_weight := _get_enemy_faction_behavior_weight(faction_id, "frontline_weight", 1.0)
+	var score := int(round(float(low_troop_score) * reinforce_weight))
+	if _is_enemy_frontline_city_for_faction(city_id, faction_id):
+		score += int(round(450.0 * frontline_weight))
+	return score
 
 
 func _get_enemy_faction_chancellor_id(faction_id: String) -> String:
@@ -5973,6 +6135,8 @@ func _apply_enemy_city_reinforcement_mvp(faction_id: String, city_id: String) ->
 	return {
 		"faction_id": faction_id,
 		"faction_label": _format_faction_label(faction_id),
+		"personality_profile": _get_enemy_faction_personality_profile_id(faction_id),
+		"personality_label": _get_enemy_faction_personality_label(faction_id),
 		"action_id": "reinforce_city",
 		"city_id": city_id,
 		"city_name": _format_city_name_by_id(city_id, city_id),
@@ -5995,10 +6159,15 @@ func _process_enemy_strategic_follow_up_action_mvp(processed_factions: Array[Str
 	var spy_candidates := _get_enemy_spy_pressure_follow_up_candidates_mvp(faction_ids)
 	if diplomacy_candidates.is_empty() and spy_candidates.is_empty():
 		return {}
-	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
-	if not spy_candidates.is_empty() and (diplomacy_candidates.is_empty() or turn_number % (ENEMY_STRATEGIC_SPY_PRESSURE_WEIGHT + 1) == 0):
-		return _build_enemy_spy_pressure_follow_up_result_mvp(spy_candidates[turn_number % spy_candidates.size()])
-	return _apply_enemy_diplomacy_follow_up_mvp(diplomacy_candidates[turn_number % diplomacy_candidates.size()])
+	if diplomacy_candidates.is_empty():
+		return _build_enemy_spy_pressure_follow_up_result_mvp(spy_candidates[0])
+	if spy_candidates.is_empty():
+		return _apply_enemy_diplomacy_follow_up_mvp(diplomacy_candidates[0])
+	var best_diplomacy := diplomacy_candidates[0]
+	var best_spy := spy_candidates[0]
+	if int(best_spy.get("selection_score", 0)) > int(best_diplomacy.get("selection_score", 0)):
+		return _build_enemy_spy_pressure_follow_up_result_mvp(best_spy)
+	return _apply_enemy_diplomacy_follow_up_mvp(best_diplomacy)
 
 
 func _get_enemy_diplomacy_follow_up_candidates_mvp(faction_ids: Array[String]) -> Array[Dictionary]:
@@ -6024,12 +6193,27 @@ func _get_enemy_diplomacy_follow_up_candidates_mvp(faction_ids: Array[String]) -
 				"faction_b": faction_b,
 				"score": clampi(int(relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX),
 				"status": status,
+				"selection_score": _score_enemy_diplomacy_follow_up_candidate_mvp(faction_a, faction_b, relation),
 			})
 	candidates.sort_custom(Callable(self, "_sort_enemy_diplomacy_follow_up_candidates_mvp"))
 	return candidates
 
 
+func _score_enemy_diplomacy_follow_up_candidate_mvp(faction_a: String, faction_b: String, relation: Dictionary) -> int:
+	var relation_score: int = clampi(int(relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+	var score_gap: int = abs(relation_score - DIPLOMACY_DEFAULT_SCORE)
+	var diplomacy_weight: float = (
+		_get_enemy_faction_behavior_weight(faction_a, "diplomacy_weight", 1.0) +
+		_get_enemy_faction_behavior_weight(faction_b, "diplomacy_weight", 1.0)
+	) * 0.5
+	return int(round(100.0 * diplomacy_weight)) + score_gap * 2
+
+
 func _sort_enemy_diplomacy_follow_up_candidates_mvp(left: Dictionary, right: Dictionary) -> bool:
+	var left_selection_score := int(left.get("selection_score", 0))
+	var right_selection_score := int(right.get("selection_score", 0))
+	if left_selection_score != right_selection_score:
+		return left_selection_score > right_selection_score
 	var left_score_gap: int = abs(int(left.get("score", DIPLOMACY_DEFAULT_SCORE)) - DIPLOMACY_DEFAULT_SCORE)
 	var right_score_gap: int = abs(int(right.get("score", DIPLOMACY_DEFAULT_SCORE)) - DIPLOMACY_DEFAULT_SCORE)
 	if left_score_gap == right_score_gap:
@@ -6057,6 +6241,8 @@ func _apply_enemy_diplomacy_follow_up_mvp(candidate: Dictionary) -> Dictionary:
 	return {
 		"action_id": "enemy_diplomacy_follow_up",
 		"kind": mood,
+		"personality_profile": _get_enemy_faction_personality_profile_id(faction_a),
+		"personality_label": _get_enemy_faction_personality_label(faction_a),
 		"faction_a": faction_a,
 		"faction_b": faction_b,
 		"faction_a_label": _format_faction_label(faction_a),
@@ -6093,12 +6279,24 @@ func _get_enemy_spy_pressure_follow_up_candidates_mvp(faction_ids: Array[String]
 				"attacker_city_id": attacker_city_id,
 				"target_city_id": target_city_id,
 				"attacker_troops": _get_city_troops_for_enemy_invasion_mvp(attacker_city_id),
+				"selection_score": _score_enemy_spy_pressure_follow_up_candidate_mvp(attacker_faction_id, attacker_city_id, target_city_id),
 			})
 	candidates.sort_custom(Callable(self, "_sort_enemy_spy_pressure_follow_up_candidates_mvp"))
 	return candidates
 
 
+func _score_enemy_spy_pressure_follow_up_candidate_mvp(faction_id: String, attacker_city_id: String, target_city_id: String) -> int:
+	var spy_weight := _get_enemy_faction_behavior_weight(faction_id, "spy_weight", 1.0)
+	var attacker_troops := mini(_get_city_troops_for_enemy_invasion_mvp(attacker_city_id), 2000)
+	var frontline_bonus := 10 if _is_player_frontline_city_for_enemy_invasion_mvp(target_city_id) else 0
+	return int(round(90.0 * spy_weight)) + floori(float(attacker_troops) / 100.0) + frontline_bonus
+
+
 func _sort_enemy_spy_pressure_follow_up_candidates_mvp(left: Dictionary, right: Dictionary) -> bool:
+	var left_selection_score := int(left.get("selection_score", 0))
+	var right_selection_score := int(right.get("selection_score", 0))
+	if left_selection_score != right_selection_score:
+		return left_selection_score > right_selection_score
 	var left_troops := int(left.get("attacker_troops", 0))
 	var right_troops := int(right.get("attacker_troops", 0))
 	if left_troops == right_troops:
@@ -6117,6 +6315,8 @@ func _build_enemy_spy_pressure_follow_up_result_mvp(candidate: Dictionary) -> Di
 	return {
 		"action_id": "enemy_spy_pressure",
 		"kind": "recon",
+		"personality_profile": _get_enemy_faction_personality_profile_id(faction_id),
+		"personality_label": _get_enemy_faction_personality_label(faction_id),
 		"faction_id": faction_id,
 		"faction_label": _format_faction_label(faction_id),
 		"attacker_city_id": attacker_city_id,
@@ -6132,13 +6332,21 @@ func _format_enemy_strategic_action_summary(action: Dictionary) -> String:
 	match str(action.get("action_id", "")):
 		"enemy_diplomacy_follow_up":
 			var label := "접촉" if str(action.get("kind", "")) == "contact" else "긴장"
-			return "적 외교: %s-%s %s" % [
+			var profile_label := str(action.get("personality_label", ""))
+			var profile_text := "(%s)" % profile_label if not profile_label.is_empty() else ""
+			return "적 외교%s: %s-%s %s" % [
+				profile_text,
 				str(action.get("faction_a_label", _format_faction_label(str(action.get("faction_a", ""))))),
 				str(action.get("faction_b_label", _format_faction_label(str(action.get("faction_b", ""))))),
 				label,
 			]
 		"enemy_spy_pressure":
-			return "적 첩보: %s 주변 정찰" % str(action.get("target_city_name", action.get("target_city_id", "아군 도시")))
+			var spy_profile_label := str(action.get("personality_label", ""))
+			var spy_profile_text := "(%s)" % spy_profile_label if not spy_profile_label.is_empty() else ""
+			return "적 첩보%s: %s 주변 정찰" % [
+				spy_profile_text,
+				str(action.get("target_city_name", action.get("target_city_id", "아군 도시"))),
+			]
 		_:
 			return "전략 움직임"
 
@@ -6154,6 +6362,8 @@ func _normalize_enemy_strategic_action_for_display(raw_action: Variant) -> Dicti
 			if faction_a.is_empty() or faction_b.is_empty() or faction_a == PLAYER_FACTION_ID or faction_b == PLAYER_FACTION_ID or faction_a == faction_b:
 				return {}
 			action["kind"] = "tension" if str(action.get("kind", "")) == "tension" else "contact"
+			action["personality_profile"] = str(action.get("personality_profile", _get_enemy_faction_personality_profile_id(faction_a)))
+			action["personality_label"] = str(action.get("personality_label", _get_enemy_faction_personality_label(faction_a)))
 			action["faction_a_label"] = str(action.get("faction_a_label", _format_faction_label(faction_a)))
 			action["faction_b_label"] = str(action.get("faction_b_label", _format_faction_label(faction_b)))
 			action["before_score"] = clampi(int(action.get("before_score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
@@ -6167,6 +6377,8 @@ func _normalize_enemy_strategic_action_for_display(raw_action: Variant) -> Dicti
 			if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or attacker_city_id.is_empty() or target_city_id.is_empty():
 				return {}
 			action["kind"] = "recon"
+			action["personality_profile"] = str(action.get("personality_profile", _get_enemy_faction_personality_profile_id(faction_id)))
+			action["personality_label"] = str(action.get("personality_label", _get_enemy_faction_personality_label(faction_id)))
 			action["effect"] = "display_only"
 			action["faction_label"] = str(action.get("faction_label", _format_faction_label(faction_id)))
 			action["attacker_city_name"] = str(action.get("attacker_city_name", _format_city_name_by_id(attacker_city_id, attacker_city_id)))
@@ -6246,7 +6458,10 @@ func _build_enemy_faction_turn_summary(result: Dictionary) -> String:
 			var delta := int(action.get("delta", 0))
 			if delta <= 0:
 				continue
-			action_parts.append("%s 병력 +%d" % [
+			var profile_label := str(action.get("personality_label", ""))
+			var profile_prefix := "%s " % profile_label if not profile_label.is_empty() else ""
+			action_parts.append("%s%s 병력 +%d" % [
+				profile_prefix,
 				str(action.get("city_name", action.get("city_id", ""))),
 				delta,
 			])
@@ -6303,8 +6518,11 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 			var action := action_variant as Dictionary
 			if str(action.get("action_id", "")) != "reinforce_city":
 				continue
+			var faction_label := str(action.get("faction_label", _format_faction_label(str(action.get("faction_id", "")))))
+			var profile_label := str(action.get("personality_label", ""))
+			var faction_profile_label := "%s(%s)" % [faction_label, profile_label] if not profile_label.is_empty() else faction_label
 			lines.append("%s · %s 병력 +%d" % [
-				str(action.get("faction_label", _format_faction_label(str(action.get("faction_id", ""))))),
+				faction_profile_label,
 				str(action.get("city_name", action.get("city_id", ""))),
 				int(action.get("delta", 0)),
 			])
@@ -6421,7 +6639,9 @@ func _score_enemy_invasion_pair_mvp(attacker_city_id: String, defender_city_id: 
 	var score := mini(attacker_troops, 2000)
 	score += clampi(troop_edge, -1000, 1000)
 	score += 200 if _is_player_frontline_city_for_enemy_invasion_mvp(defender_city_id) else 0
-	return score
+	var attacker_faction_id := _get_safe_enemy_owner_faction_id_for_turn_mvp(attacker_city_id)
+	var invasion_weight := _get_enemy_faction_behavior_weight(attacker_faction_id, "invasion_weight", 1.0)
+	return int(round(float(score) * invasion_weight))
 
 
 func _sort_enemy_invasion_pairs_mvp(left: Dictionary, right: Dictionary) -> bool:

@@ -1,5 +1,24 @@
 # HANDOFF TO CODEX
 
+## v0.70-52 Enemy Faction Personality Seed MVP Handoff
+- Baseline: `v0.70-51 Enemy Turn QA Pass Manual F6 Feedback Polish` (`682c1002bab46474d72c5ff2ca2d3c4ced977222`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass adds conservative faction personality seeds. It is not full enemy AI.
+- `ENEMY_FACTION_PERSONALITY_SEEDS` defines bounded non-player profiles with compact labels and weights. Unknown factions fall back to `default_balanced`; PLAYER is excluded.
+- Personality influence is limited to:
+  - reinforcement target scoring among already safe enemy-owned cities,
+  - diplomacy vs spy-pressure strategic action candidate scoring,
+  - eligible invasion pair scoring after v0.70-49 guards pass,
+  - compact display metadata in enemy turn summary/hint.
+- Reinforcement amount constants and chancellor/frontline bonus formulas are unchanged.
+- Strategic follow-up remains capped to at most one action per world turn and still skips while pending invasion or pending battle context exists.
+- Enemy spy pressure remains display/history only and does not mutate player city stats, resources, troops, publicSupport, loyalty, or `city_intel`.
+- Enemy diplomacy remains non-player-pair-only score drift and does not directly change PLAYER relations, alliance state, trade agreements, cooldowns, resources, chancellor state, or national stock.
+- Invasion chance and readiness are unchanged: `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload shape, and BattleContext handoff remain stable.
+- Explicitly unchanged: `_player_state["last_enemy_faction_turn_processed_turn"]`, `_player_state["last_enemy_faction_turn_result"]`, `_player_state["last_enemy_strategic_action_result"]`, `strategic_actions` max-one semantics, defense deployment, battle result apply, player attack path, left PLAYER panel scope, right selected-city scope, Fog of War, `city_intel`, market, alliance, wedge, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scenes, assets, `.uid`, and `.ogv`.
+- Verification passed: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load. Battle scene emitted existing debug output only.
+- Manual F6 QA still required for the v0.70-52 checklist.
+
 ## v0.70-51 Enemy Turn QA Pass Handoff
 - Baseline: `v0.70-50 Enemy Faction Diplomacy Spy Behavior Follow-up` (`7fa73bfe31efd76bebefc595768fc55a8d98e3b5`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

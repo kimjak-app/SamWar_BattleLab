@@ -1,5 +1,23 @@
 # NEXT TASKS
 
+## Current: v0.70-52 Enemy Faction Personality Seed MVP
+- Baseline: `v0.70-51 Enemy Turn QA Pass Manual F6 Feedback Polish` (`682c1002bab46474d72c5ff2ca2d3c4ced977222`).
+- Completed direction:
+  1. Added conservative non-player faction personality seeds with compact labels and bounded weights.
+  2. Applied personality only to reinforcement target scoring, strategic action type selection, and invasion pair scoring.
+  3. Kept reinforcement amount formulas, strategic max-one clamp, pending invasion/pending battle skip, invasion eligibility guards, and replay guards intact.
+  4. Added display metadata so enemy turn summary/hint can show short personality labels without exposing hidden enemy state.
+- Preserved scope:
+  1. No full enemy AI, enemy economy simulation, enemy spy damage, enemy alliance/trade simulation, market formula change, alliance/wedge/player spy/player diplomacy change, `city_intel` mutation, BattleContext shape change, scene, asset, `.uid`, or `.ogv` change was made.
+  2. Left PLAYER scope, right selected-city scope, Fog of War, player chancellor scope, and `_player_state["faction_chancellors"]` remain locked.
+- Verification:
+  1. `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+  2. Battle scene emitted existing debug output only.
+- Manual F6 QA required:
+  1. Run the v0.70-52 checklist for reinforcement continuity, compact personality label display, weighted frontline/invasion/diplomacy/spy feel, one strategic action per turn, no direct player stat/resource/city_intel mutation, no PLAYER relation mutation, pending invasion skip, v0.70-49/v0.70-51 guard continuity, save/load replay safety, panel scope/Fog of War/player action preservation, and warning cleanliness.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-52.
+
 ## Current: v0.70-51 Enemy Turn QA Pass & Manual F6 Feedback Polish
 - Baseline: `v0.70-50 Enemy Faction Diplomacy Spy Behavior Follow-up` (`7fa73bfe31efd76bebefc595768fc55a8d98e3b5`).
 - Completed direction:

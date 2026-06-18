@@ -2,6 +2,29 @@
 
 ## 2026-06-18
 
+### v0.70-52 Enemy Faction Personality Seed MVP
+- Started from `682c100 v0.70-51 Enemy Turn QA Pass Manual F6 Feedback Polish`.
+- Confirmed clean worktree, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- Implemented:
+  - Added bounded non-player enemy faction personality seeds with `default_balanced` fallback.
+  - Added profile helpers for profile id, compact label, and behavior weights.
+  - Reworked enemy reinforcement target choice into a small score helper that biases already-owned candidates by low troops and frontline preference.
+  - Added personality-influenced candidate scores for enemy diplomacy follow-up and display-only spy pressure, while keeping one strategic action per world turn.
+  - Added a small personality multiplier to already eligible invasion pair scoring without changing invasion chance or eligibility.
+  - Added compact personality labels to enemy reinforcement and strategic action display metadata.
+  - Added `v0.70-52 Enemy Faction Personality Seed MVP Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-51 enemy turn chain locks, v0.70-49 invasion guards, v0.70-50 strategic action guard, reinforcement amount formulas, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext, defense deployment, battle result apply, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, and `.ogv`.
+- Verification:
+  - `git diff --check`
+  - required guard keyword search
+  - warning-cleanup regression search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - Battle scene emitted existing debug output only.
+- Manual F6 QA remains required for the v0.70-52 checklist.
+
 ### v0.70-51 Enemy Turn QA Pass & Manual F6 Feedback Polish
 - Started from `7fa73bf v0.70-50 Enemy Faction Diplomacy Spy Behavior Follow-up`.
 - Confirmed clean worktree, expected local HEAD, fetched `origin/main`, and confirmed baseline before editing.
