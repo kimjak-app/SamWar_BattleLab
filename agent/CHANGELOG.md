@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-53 Enemy Personality QA & Balance Tuning Pass
+- Built on `v0.70-52 Enemy Faction Personality Seed MVP` (`4ee00833ac7ea4f953ec6e006362ff51b361551f`).
+- Audited personality seed coverage, default fallback, bounded weights, compact labels, reinforcement target scoring, strategic action type selection, eligible invasion pair scoring, summary/hint display, and replay/save-load guard boundaries.
+- Added explicit `chu` default-balanced seed coverage.
+- Changed `kyushu_faction` to a compact `계략` / `schemer_pressure` profile with a modest spy-pressure lean.
+- Tuned spy-pressure selection scoring down slightly so diplomacy-biased profiles remain visible and strategic action type selection is less dominated by troop/frontline spy bonuses.
+- Guarded invasion personality weighting so it applies only to positive eligible-pair scores, avoiding inverted behavior where sub-1.0 weights improve negative invasion scores.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change full enemy AI scope, reinforcement amount formulas, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload, BattleContext, replay guards, enemy spy damage, enemy alliance/trade simulation, market formulas, alliance, wedge, player actions, `city_intel`, `faction_chancellors`, scenes, assets, `.uid`, or `.ogv`.
+
 ## v0.70-52 Enemy Faction Personality Seed MVP
 - Built on `v0.70-51 Enemy Turn QA Pass Manual F6 Feedback Polish` (`682c1002bab46474d72c5ff2ca2d3c4ced977222`).
 - Added conservative `ENEMY_FACTION_PERSONALITY_SEEDS` profiles for non-player factions with bounded weights and compact labels.

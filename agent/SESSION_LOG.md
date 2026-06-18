@@ -2,6 +2,33 @@
 
 ## 2026-06-18
 
+### v0.70-53 Enemy Personality QA & Balance Tuning Pass
+- Started from `4ee0083 v0.70-52 Enemy Faction Personality Seed MVP`.
+- Confirmed clean worktree, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- QA audit:
+  - Confirmed personality helpers exclude PLAYER and fall back through `default_balanced`.
+  - Confirmed current personality weights stay inside the bounded `0.75..1.25` helper clamp.
+  - Confirmed reinforcement amount constants remain `+60` base, `+40` frontline, `+20` chancellor, max `+120`.
+  - Confirmed strategic actions remain clamped to one display/action result and still skip pending invasion or pending battle context.
+  - Confirmed invasion chance, minimum attacker troops, eligibility guards, pending payload, and BattleContext handoff remain unchanged.
+- Implemented:
+  - Added explicit `chu` balanced personality seed.
+  - Changed `kyushu_faction` to `계략` / `schemer_pressure` with a modest spy-pressure lean.
+  - Reduced spy-pressure strategic scoring base/troop/frontline bonus so diplomacy profiles are not overwhelmed by default spy candidates.
+  - Guarded invasion pair personality weighting to affect only positive eligible-pair scores.
+  - Added `v0.70-53 Enemy Personality QA & Balance Tuning Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-51 enemy turn chain locks, v0.70-49 invasion guards, v0.70-50 strategic action guard, reinforcement amount formulas, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext, defense deployment, battle result apply, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, and `.ogv`.
+- Verification:
+  - `git diff --check`
+  - required guard keyword search
+  - warning-cleanup regression search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - Battle scene emitted existing debug output only.
+- Manual F6 QA remains required for the v0.70-53 checklist.
+
 ### v0.70-52 Enemy Faction Personality Seed MVP
 - Started from `682c100 v0.70-51 Enemy Turn QA Pass Manual F6 Feedback Polish`.
 - Confirmed clean worktree, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.

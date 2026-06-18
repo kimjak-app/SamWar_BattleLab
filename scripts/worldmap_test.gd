@@ -276,6 +276,15 @@ const ENEMY_FACTION_PERSONALITY_SEEDS := {
 		"diplomacy_weight": 0.95,
 		"spy_weight": 0.95,
 	},
+	"chu": {
+		"profile": "default_balanced",
+		"label": "균형",
+		"reinforce_weight": 1.0,
+		"frontline_weight": 1.0,
+		"invasion_weight": 1.0,
+		"diplomacy_weight": 1.0,
+		"spy_weight": 1.0,
+	},
 	"mongol_faction": {
 		"profile": "aggressive_expansion",
 		"label": "공격",
@@ -349,13 +358,13 @@ const ENEMY_FACTION_PERSONALITY_SEEDS := {
 		"spy_weight": 1.02,
 	},
 	"kyushu_faction": {
-		"profile": "trade_defensive",
-		"label": "방어",
-		"reinforce_weight": 1.08,
+		"profile": "schemer_pressure",
+		"label": "계략",
+		"reinforce_weight": 1.04,
 		"frontline_weight": 0.9,
 		"invasion_weight": 0.88,
-		"diplomacy_weight": 1.0,
-		"spy_weight": 1.05,
+		"diplomacy_weight": 0.98,
+		"spy_weight": 1.12,
 	},
 }
 
@@ -6288,8 +6297,8 @@ func _get_enemy_spy_pressure_follow_up_candidates_mvp(faction_ids: Array[String]
 func _score_enemy_spy_pressure_follow_up_candidate_mvp(faction_id: String, attacker_city_id: String, target_city_id: String) -> int:
 	var spy_weight := _get_enemy_faction_behavior_weight(faction_id, "spy_weight", 1.0)
 	var attacker_troops := mini(_get_city_troops_for_enemy_invasion_mvp(attacker_city_id), 2000)
-	var frontline_bonus := 10 if _is_player_frontline_city_for_enemy_invasion_mvp(target_city_id) else 0
-	return int(round(90.0 * spy_weight)) + floori(float(attacker_troops) / 100.0) + frontline_bonus
+	var frontline_bonus := 6 if _is_player_frontline_city_for_enemy_invasion_mvp(target_city_id) else 0
+	return int(round(82.0 * spy_weight)) + floori(float(attacker_troops) / 150.0) + frontline_bonus
 
 
 func _sort_enemy_spy_pressure_follow_up_candidates_mvp(left: Dictionary, right: Dictionary) -> bool:
@@ -6641,6 +6650,8 @@ func _score_enemy_invasion_pair_mvp(attacker_city_id: String, defender_city_id: 
 	score += 200 if _is_player_frontline_city_for_enemy_invasion_mvp(defender_city_id) else 0
 	var attacker_faction_id := _get_safe_enemy_owner_faction_id_for_turn_mvp(attacker_city_id)
 	var invasion_weight := _get_enemy_faction_behavior_weight(attacker_faction_id, "invasion_weight", 1.0)
+	if score <= 0:
+		return score
 	return int(round(float(score) * invasion_weight))
 
 

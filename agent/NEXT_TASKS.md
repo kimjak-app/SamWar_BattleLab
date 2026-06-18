@@ -1,5 +1,23 @@
 # NEXT TASKS
 
+## Current: v0.70-53 Enemy Personality QA & Balance Tuning Pass
+- Baseline: `v0.70-52 Enemy Faction Personality Seed MVP` (`4ee00833ac7ea4f953ec6e006362ff51b361551f`).
+- Completed direction:
+  1. Audited v0.70-52 personality seed coverage, fallback behavior, bounded weights, summary labels, reinforcement target scoring, strategic action selection, invasion pair scoring, and replay/save-load guard boundaries.
+  2. Added an explicit balanced `chu` seed and changed `kyushu_faction` to a compact `계략` profile for a visible spy-pressure leaning personality.
+  3. Tuned spy-pressure selection scoring down slightly so diplomatic profiles remain visible instead of being consistently beaten by troop/frontline spy bonuses.
+  4. Guarded invasion personality weighting so sub-1.0 profiles cannot accidentally improve negative eligible-pair scores.
+- Preserved scope:
+  1. No full enemy AI, enemy economy simulation, enemy spy damage, enemy alliance/trade simulation, market formula change, alliance/wedge/player spy/player diplomacy change, `city_intel` mutation, BattleContext shape change, scene, asset, `.uid`, or `.ogv` change was made.
+  2. Left PLAYER scope, right selected-city scope, Fog of War, player chancellor scope, and `_player_state["faction_chancellors"]` remain locked.
+- Verification:
+  1. `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+  2. Battle scene emitted existing debug output only.
+- Manual F6 QA required:
+  1. Run the v0.70-53 checklist for personality label length, frontline/invasion/diplomacy/spy preference feel, one strategic action per turn, no direct player stat/resource/city_intel mutation, no PLAYER relation mutation, pending invasion skip, v0.70-49/v0.70-51 guard continuity, save/load replay safety, panel scope/Fog of War/player action preservation, and warning cleanliness.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-53.
+
 ## Current: v0.70-52 Enemy Faction Personality Seed MVP
 - Baseline: `v0.70-51 Enemy Turn QA Pass Manual F6 Feedback Polish` (`682c1002bab46474d72c5ff2ca2d3c4ced977222`).
 - Completed direction:

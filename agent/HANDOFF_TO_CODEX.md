@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-53 Enemy Personality QA & Balance Tuning Pass Handoff
+- Baseline: `v0.70-52 Enemy Faction Personality Seed MVP` (`4ee00833ac7ea4f953ec6e006362ff51b361551f`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is a QA/tuning pass for v0.70-52 personality seeds. It is not full enemy AI.
+- Personality remains bounded and limited to reinforcement target scoring, strategic action type selection, eligible invasion pair scoring, and compact display metadata.
+- Seed coverage now includes an explicit `chu` default-balanced entry in addition to the v0.70-52 requested non-player factions.
+- `kyushu_faction` now uses a compact `계략` / `schemer_pressure` profile to make the spy-pressure lane visible without adding real spy damage or new systems.
+- Spy-pressure candidate scoring was reduced slightly so default spy candidates do not overpower diplomacy candidates through troop/frontline bonuses.
+- Invasion personality weighting now only multiplies positive eligible-pair scores, preventing sub-1.0 defensive/diplomatic weights from making negative invasion pair scores less bad.
+- Explicitly unchanged: `_player_state["last_enemy_faction_turn_processed_turn"]`, `_player_state["last_enemy_faction_turn_result"]`, `_player_state["last_enemy_strategic_action_result"]`, `strategic_actions` max-one semantics, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext handoff, reinforcement amount constants, defense deployment, battle result apply, player attack path, left PLAYER panel scope, right selected-city scope, Fog of War, `city_intel`, market, alliance, wedge, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scenes, assets, `.uid`, and `.ogv`.
+- Verification passed: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load. Battle scene emitted existing debug output only.
+- Manual F6 QA still required for the v0.70-53 checklist.
+
 ## v0.70-52 Enemy Faction Personality Seed MVP Handoff
 - Baseline: `v0.70-51 Enemy Turn QA Pass Manual F6 Feedback Polish` (`682c1002bab46474d72c5ff2ca2d3c4ced977222`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

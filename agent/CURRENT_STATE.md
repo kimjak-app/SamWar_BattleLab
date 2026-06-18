@@ -1,5 +1,34 @@
 # CURRENT STATE
 
+## v0.70-53 Enemy Personality QA & Balance Tuning Pass
+- Baseline: `v0.70-52 Enemy Faction Personality Seed MVP` at `4ee00833ac7ea4f953ec6e006362ff51b361551f`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- QA / tuning scope:
+  - Audited `ENEMY_FACTION_PERSONALITY_SEEDS`, fallback helpers, reinforcement target scoring, strategic action selection, invasion pair scoring, summary/hint display, and replay/save-load guard boundaries.
+  - Added explicit `chu` default-balanced seed so every current `FACTION_LABELS` non-player id has a direct profile or a documented fallback.
+  - Converted `kyushu_faction` from generic defensive to compact `계략` / `schemer_pressure` so the personality set has a visible spy-pressure leaning profile without adding new spy systems.
+  - Tuned spy-pressure strategic selection down slightly so default spy candidates do not drown out diplomatic profiles just from troop/frontline bonuses.
+  - Added an invasion scoring guard so personality multipliers only affect positive eligible-pair scores; negative/poor invasion pairs no longer get accidentally improved by sub-1.0 defensive/diplomatic weights.
+- Preserved scope: no full enemy AI, no enemy spy damage, no enemy alliance/trade simulation, no enemy economy simulation, no `ENEMY_INVASION_CHANCE` or `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS` change, no pending invasion payload or BattleContext shape change, no replay guard change, no market/alliance/wedge/player action change, no `city_intel` mutation, no scene/asset/`.uid`/`.ogv` changes.
+- Verification: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed. Battle scene emitted existing debug output only.
+- Manual F6 QA remains required:
+  1. 턴 종료 후 enemy reinforcement가 기존처럼 정상 적용되는지 확인.
+  2. personality label이 summary/log에 너무 길지 않은지 확인.
+  3. 군사/공격 성향의 frontline/invasion 선호가 너무 과하지 않은지 확인.
+  4. 외교 성향의 diplomacy follow-up 선호가 너무 과하지 않은지 확인.
+  5. 첩보 성향의 spy pressure 선호가 너무 과하지 않은지 확인.
+  6. 방어/무역 성향이 침공을 완전히 안 하게 되지 않는지 확인.
+  7. strategic action은 여전히 한 턴 최대 1건인지 확인.
+  8. enemy spy pressure가 player stat/resource/city_intel을 직접 변경하지 않는지 확인.
+  9. enemy diplomacy가 PLAYER relation을 직접 변경하지 않는지 확인.
+  10. pending invasion 중 strategic action이 skip되는지 확인.
+  11. v0.70-49 invasion guard와 v0.70-51 replay guard가 유지되는지 확인.
+  12. save/load 후 personality-based action이 replay되지 않는지 확인.
+  13. left PLAYER scope, right selected-city scope, Fog of War, market, alliance, wedge, player spy/diplomacy가 유지되는지 확인.
+  14. Godot Output에 새 warning/error가 없는지 확인.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-53.
+
 ## v0.70-52 Enemy Faction Personality Seed MVP
 - Baseline: `v0.70-51 Enemy Turn QA Pass Manual F6 Feedback Polish` at `682c1002bab46474d72c5ff2ca2d3c4ced977222`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

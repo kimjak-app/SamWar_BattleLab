@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-53 Enemy Personality QA & Balance Tuning Lock Rule
+- Baseline was `v0.70-52 Enemy Faction Personality Seed MVP` (`4ee00833ac7ea4f953ec6e006362ff51b361551f`).
+- This rule is a QA/tuning pass for v0.70-52 personality seeds. It is not a new enemy AI pass and not authorization for planning, economy simulation, or multi-action strategic behavior.
+- Personality weights may be adjusted only within the bounded `0.75..1.25` range and only for conservative feel tuning.
+- Personality remains limited to reinforcement target scoring, strategic action type selection, eligible invasion pair scoring, and compact display metadata.
+- Personality labels must stay compact and must not reveal hidden enemy resources, chancellor detail, city intel, or national state.
+- Strategic follow-up remains capped at at most one action per world turn, must skip during pending invasion or pending battle context, and must remain replay-safe through `_player_state["last_enemy_faction_turn_processed_turn"]`, `_player_state["last_enemy_faction_turn_result"]`, `_player_state["last_enemy_strategic_action_result"]`, and `strategic_actions`.
+- Enemy spy pressure remains display/history only and must not mutate player city stats, resources, troops, publicSupport, loyalty, `city_intel`, spy cooldowns, detection penalties, or relation state.
+- Enemy diplomacy relation drift remains limited to non-player faction pairs and small score-only changes. It must not directly change PLAYER relations, relation status, alliance state, trade agreement state, cooldowns, resources, chancellor state, or national stock.
+- Invasion personality influence may sort already eligible pairs only. `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext handoff, and v0.70-49 eligibility guards must not change.
+- Enemy spy actual damage, enemy diplomacy alliance/trade simulation, enemy economy simulation, Battle scene behavior expansion, and repo-wide refactors remain forbidden.
+- Existing regression locks remain active: left PLAYER scope, right selected-city scope, Fog of War, `city_intel` display-only restore, market formula, alliance behavior, wedge behavior, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scene/asset/`.uid`/`.ogv` stability.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-52 Enemy Faction Personality Seed MVP Lock Rule
 - Baseline was `v0.70-51 Enemy Turn QA Pass Manual F6 Feedback Polish` (`682c1002bab46474d72c5ff2ca2d3c4ced977222`).
 - This rule authorizes conservative faction personality seeds only. It is not authorization for full enemy AI, planning, economy simulation, or multi-action strategic behavior.
