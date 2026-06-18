@@ -5495,6 +5495,12 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["last_enemy_faction_turn_result"] = {}
 	if not _player_state.has("last_enemy_strategic_action_result") or not (_player_state["last_enemy_strategic_action_result"] is Dictionary):
 		_player_state["last_enemy_strategic_action_result"] = {}
+	_player_state["last_enemy_faction_turn_result"] = _normalize_enemy_faction_turn_result_display(_player_state.get("last_enemy_faction_turn_result", {}))
+	var normalized_enemy_strategic_actions := _normalize_enemy_strategic_actions_for_display((_player_state["last_enemy_faction_turn_result"] as Dictionary).get("strategic_actions", []))
+	if normalized_enemy_strategic_actions.is_empty():
+		_player_state["last_enemy_strategic_action_result"] = {}
+	else:
+		_player_state["last_enemy_strategic_action_result"] = normalized_enemy_strategic_actions[0].duplicate(true)
 	if not _player_state.has("last_enemy_faction_turn_processed_turn"):
 		_player_state["last_enemy_faction_turn_processed_turn"] = 0
 	_player_state["last_enemy_faction_turn_processed_turn"] = maxi(0, int(_player_state.get("last_enemy_faction_turn_processed_turn", 0)))
@@ -5766,9 +5772,9 @@ func _process_enemy_faction_turn_mvp() -> Dictionary:
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
 	var previous_result: Variant = _player_state.get("last_enemy_faction_turn_result", {})
 	if int(_player_state.get("last_enemy_faction_turn_processed_turn", 0)) == turn_number:
-		if previous_result is Dictionary:
-			return (previous_result as Dictionary).duplicate(true)
-		return {}
+		var normalized_previous_result := _normalize_enemy_faction_turn_result_display(previous_result)
+		_player_state["last_enemy_faction_turn_result"] = normalized_previous_result.duplicate(true)
+		return normalized_previous_result
 	var result := {
 		"turn": turn_number,
 		"phase": TURN_PHASE_ENEMY,
@@ -6137,10 +6143,73 @@ func _format_enemy_strategic_action_summary(action: Dictionary) -> String:
 			return "전략 움직임"
 
 
+func _normalize_enemy_strategic_action_for_display(raw_action: Variant) -> Dictionary:
+	if not raw_action is Dictionary:
+		return {}
+	var action := (raw_action as Dictionary).duplicate(true)
+	match str(action.get("action_id", "")):
+		"enemy_diplomacy_follow_up":
+			var faction_a := str(action.get("faction_a", ""))
+			var faction_b := str(action.get("faction_b", ""))
+			if faction_a.is_empty() or faction_b.is_empty() or faction_a == PLAYER_FACTION_ID or faction_b == PLAYER_FACTION_ID or faction_a == faction_b:
+				return {}
+			action["kind"] = "tension" if str(action.get("kind", "")) == "tension" else "contact"
+			action["faction_a_label"] = str(action.get("faction_a_label", _format_faction_label(faction_a)))
+			action["faction_b_label"] = str(action.get("faction_b_label", _format_faction_label(faction_b)))
+			action["before_score"] = clampi(int(action.get("before_score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+			action["after_score"] = clampi(int(action.get("after_score", action["before_score"])), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+			action["delta"] = int(action.get("delta", int(action["after_score"]) - int(action["before_score"])))
+			action["status"] = _normalize_faction_relation_status(str(action.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
+		"enemy_spy_pressure":
+			var faction_id := str(action.get("faction_id", ""))
+			var attacker_city_id := str(action.get("attacker_city_id", ""))
+			var target_city_id := str(action.get("target_city_id", ""))
+			if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or attacker_city_id.is_empty() or target_city_id.is_empty():
+				return {}
+			action["kind"] = "recon"
+			action["effect"] = "display_only"
+			action["faction_label"] = str(action.get("faction_label", _format_faction_label(faction_id)))
+			action["attacker_city_name"] = str(action.get("attacker_city_name", _format_city_name_by_id(attacker_city_id, attacker_city_id)))
+			action["target_city_name"] = str(action.get("target_city_name", _format_city_name_by_id(target_city_id, target_city_id)))
+		_:
+			return {}
+	action["turn"] = maxi(0, int(action.get("turn", _player_state.get("turn_number", 0))))
+	return action
+
+
+func _normalize_enemy_strategic_actions_for_display(raw_actions: Variant) -> Array[Dictionary]:
+	var normalized: Array[Dictionary] = []
+	if not raw_actions is Array:
+		return normalized
+	for action_variant in raw_actions:
+		var action := _normalize_enemy_strategic_action_for_display(action_variant)
+		if action.is_empty():
+			continue
+		normalized.append(action)
+		break
+	return normalized
+
+
+func _normalize_enemy_faction_turn_result_display(raw_result: Variant) -> Dictionary:
+	if not raw_result is Dictionary:
+		return {}
+	var result := (raw_result as Dictionary).duplicate(true)
+	if not result.has("actions") or not (result["actions"] is Array):
+		result["actions"] = []
+	result["strategic_actions"] = _normalize_enemy_strategic_actions_for_display(result.get("strategic_actions", []))
+	if not result.has("processed_factions") or not (result["processed_factions"] is Array):
+		result["processed_factions"] = []
+	if not result.has("pending_invasion_event") or not (result["pending_invasion_event"] is Dictionary):
+		result["pending_invasion_event"] = {}
+	result["turn"] = maxi(0, int(result.get("turn", _player_state.get("turn_number", 0))))
+	result["summary"] = _build_enemy_faction_turn_summary(result)
+	return result
+
+
 func _attach_enemy_invasion_event_to_enemy_turn_result(invasion_event: Dictionary) -> void:
 	_ensure_worldmap_runtime_state_defaults()
 	var result: Variant = _player_state.get("last_enemy_faction_turn_result", {})
-	var enemy_turn_result := {} if not (result is Dictionary) else (result as Dictionary).duplicate(true)
+	var enemy_turn_result := _normalize_enemy_faction_turn_result_display(result)
 	if enemy_turn_result.is_empty():
 		enemy_turn_result = {
 			"turn": maxi(1, int(_player_state.get("turn_number", 1))),
@@ -6149,8 +6218,6 @@ func _attach_enemy_invasion_event_to_enemy_turn_result(invasion_event: Dictionar
 			"actions": [],
 			"strategic_actions": [],
 		}
-	if not enemy_turn_result.has("strategic_actions") or not (enemy_turn_result["strategic_actions"] is Array):
-		enemy_turn_result["strategic_actions"] = []
 	enemy_turn_result["pending_invasion_created"] = not invasion_event.is_empty()
 	if not invasion_event.is_empty():
 		enemy_turn_result["pending_invasion_event"] = invasion_event.duplicate(true)

@@ -1,5 +1,24 @@
 # NEXT TASKS
 
+## Current: v0.70-51 Enemy Turn QA Pass & Manual F6 Feedback Polish
+- Baseline: `v0.70-50 Enemy Faction Diplomacy Spy Behavior Follow-up` (`7fa73bfe31efd76bebefc595768fc55a8d98e3b5`).
+- Completed direction:
+  1. Audited the full enemy turn chain from reinforcement through strategic action, invasion roll, pending invasion, defense deployment, BattleContext handoff, battle result apply, and save/load replay guard.
+  2. Kept v0.70-45/v0.70-46 reinforcement replay semantics under `_player_state["last_enemy_faction_turn_processed_turn"]`.
+  3. Kept v0.70-49 invasion guards, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `ENEMY_INVASION_CHANCE`, `enemy_invasion_roll_turn`, and pending invasion payload shape.
+  4. Kept v0.70-50 strategic follow-up max-one-action and pending invasion/pending battle skip semantics.
+  5. Added display/history normalization so loaded or malformed `strategic_actions` cannot become multi-action or mutate outside the allowed diplomacy/spy display lanes.
+- Preserved scope:
+  1. No full enemy AI, enemy spy damage, enemy alliance/trade simulation, market formula change, alliance/wedge/player spy/player diplomacy change, `city_intel` mutation, BattleContext shape change, scene, asset, `.uid`, or `.ogv` change was made.
+  2. Left PLAYER scope, right selected-city scope, Fog of War, player chancellor scope, and `_player_state["faction_chancellors"]` remain locked.
+- Verification:
+  1. `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+  2. Battle scene emitted existing debug output only.
+- Manual F6 QA required:
+  1. Run the v0.70-51 checklist for reinforcement display, strategic max-one display, pending invasion skip/no-duplicate behavior, defense deployment source/target semantics, command/deployable clamp, BattleContext handoff, result safety, save/load replay safety, scope/Fog of War/player action preservation, and warning cleanliness.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-51.
+
 ## Current: v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up
 - Baseline: `v0.70-49 Enemy Invasion Defense Balance Polish` (`1d00fb4402033a88c0c7aeb87f94b48cb3120800`).
 - Completed direction:

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-51 Enemy Turn QA Pass & Manual F6 Feedback Polish
+- Built on `v0.70-50 Enemy Faction Diplomacy Spy Behavior Follow-up` (`7fa73bfe31efd76bebefc595768fc55a8d98e3b5`).
+- Performed a QA pass over the enemy turn chain: reinforcement, strategic action, invasion roll, pending invasion, defense deployment, BattleContext handoff, battle result apply, and save/load replay guards.
+- Added display/history normalization for enemy faction turn results so malformed or loaded `strategic_actions` payloads are clamped to at most one supported action.
+- Normalized enemy diplomacy follow-up display payloads to non-player pairs only and enemy spy pressure payloads to `display_only`.
+- Same-turn enemy replay guard, pending invasion skip, pending battle skip, invasion roll guard, pending invasion payload shape, BattleContext keys, and result apply flow were preserved.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, reinforcement balance, enemy spy damage, enemy alliance/trade simulation, market formulas, alliance, wedge, player spy/diplomacy actions, `city_intel`, `faction_chancellors`, scenes, assets, `.uid`, or `.ogv`.
+
 ## v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up
 - Built on `v0.70-49 Enemy Invasion Defense Balance Polish` (`1d00fb4402033a88c0c7aeb87f94b48cb3120800`).
 - Added a conservative enemy strategic follow-up lane to enemy faction turn results as `strategic_actions`, separate from reinforcement `actions`.

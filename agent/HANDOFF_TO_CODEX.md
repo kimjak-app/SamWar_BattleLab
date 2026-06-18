@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-51 Enemy Turn QA Pass Handoff
+- Baseline: `v0.70-50 Enemy Faction Diplomacy Spy Behavior Follow-up` (`7fa73bfe31efd76bebefc595768fc55a8d98e3b5`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is an enemy turn chain QA pass, not a new feature pass and not full enemy AI.
+- QA scope covered reinforcement, strategic action, invasion roll, pending invasion, defense deployment, BattleContext handoff, battle result apply, and save/load replay guard.
+- `_player_state["last_enemy_faction_turn_processed_turn"]` remains the same-turn guard. Same-turn re-entry returns normalized display/history payload only.
+- `_player_state["last_enemy_faction_turn_result"]` is now normalized for display/history on runtime defaults and same-turn restore.
+- `strategic_actions` is clamped to at most one valid supported action. Unknown or malformed strategic payloads are discarded.
+- `_player_state["last_enemy_strategic_action_result"]` is derived from the normalized `strategic_actions` array and remains display/history only.
+- Enemy diplomacy display normalization rejects PLAYER-involved pairs. Enemy spy pressure normalization forces `effect = "display_only"`.
+- Explicitly unchanged: reinforcement balance, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext key/shape, defense source/target semantics, command/deployable clamp, invasion result ownership handling, player attack result path, left PLAYER panel scope, right selected-city scope, Fog of War, `city_intel`, market, alliance, wedge, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scenes, assets, `.uid`, and `.ogv`.
+- Verification passed: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load. Battle scene emitted existing debug output only.
+- Manual F6 QA still required for the v0.70-51 checklist.
+
 ## v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up Handoff
 - Baseline: `v0.70-49 Enemy Invasion Defense Balance Polish` (`1d00fb4402033a88c0c7aeb87f94b48cb3120800`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

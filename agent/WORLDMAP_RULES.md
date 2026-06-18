@@ -1,5 +1,18 @@
 # WORLDMAP RULES
 
+## v0.70-51 Enemy Turn QA Pass Lock Rule
+- Baseline was `v0.70-50 Enemy Faction Diplomacy Spy Behavior Follow-up` (`7fa73bfe31efd76bebefc595768fc55a8d98e3b5`).
+- This rule is an enemy turn chain QA pass, not a new feature pass and not authorization for full enemy AI.
+- The locked chain is reinforcement -> strategic action -> invasion roll -> pending invasion -> defense deployment -> BattleContext handoff -> battle result apply -> save/load replay guard.
+- v0.70-49 invasion guard and v0.70-50 strategic action guard must remain active.
+- `_player_state["last_enemy_faction_turn_processed_turn"]`, `_player_state["last_enemy_faction_turn_result"]`, `_player_state["last_enemy_strategic_action_result"]`, `strategic_actions`, `enemy_invasion_roll_turn`, pending invasion payload shape, and BattleContext handoff must remain replay-safe.
+- `strategic_actions` may be normalized for display/history safety and clamped to at most one supported action.
+- Enemy spy pressure remains display/history only and must not mutate player city stats, resources, troops, publicSupport, loyalty, or `city_intel`.
+- Enemy diplomacy follow-up remains non-player-pair-only score drift and must not directly create enemy alliances, trade agreements, or PLAYER relation changes.
+- Enemy full AI, real enemy spy damage, enemy alliance/trade agreement simulation, enemy economy simulation, and Battle scene behavior expansion remain forbidden.
+- Existing regression locks remain active: left PLAYER scope, right selected-city scope, Fog of War, market formula, alliance behavior, wedge behavior, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scene/asset/`.uid`/`.ogv` stability.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up Lock Rule
 - Baseline was `v0.70-49 Enemy Invasion Defense Balance Polish` (`1d00fb4402033a88c0c7aeb87f94b48cb3120800`).
 - This rule authorizes only a conservative enemy faction diplomacy/spy follow-up. It is not full enemy AI and must not become multi-action strategic simulation.

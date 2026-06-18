@@ -1,5 +1,38 @@
 # CURRENT STATE
 
+## v0.70-51 Enemy Turn QA Pass & Manual F6 Feedback Polish
+- Baseline: `v0.70-50 Enemy Faction Diplomacy Spy Behavior Follow-up` at `7fa73bfe31efd76bebefc595768fc55a8d98e3b5`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- QA pass scope:
+  - Audited the accumulated enemy turn chain from reinforcement through strategic follow-up, invasion roll, pending invasion, defense deployment, BattleContext handoff, battle result apply, and save/load replay guard.
+  - Confirmed `_player_state["last_enemy_faction_turn_processed_turn"]` remains the same-turn guard for reinforcement and strategic follow-up.
+  - Confirmed `enemy_invasion_roll_turn` and the existing pending invasion check remain the invasion roll guards.
+  - Confirmed v0.70-49 invasion eligibility, weak attacker guard, owner consistency checks, defense source/target semantics, command/deployable clamp, and unknown-result safety are still intact.
+- Runtime polish:
+  - Added display/history normalization for `_player_state["last_enemy_faction_turn_result"]`.
+  - `strategic_actions` is normalized to an Array with at most one supported action.
+  - `last_enemy_strategic_action_result` is derived from the normalized result and is cleared when no valid strategic action exists.
+  - Malformed enemy diplomacy display payloads involving PLAYER are discarded; malformed spy pressure payloads are forced to `effect = "display_only"`.
+- Preserved scope: no new enemy AI, no real enemy spy damage, no enemy alliance/trade agreement simulation, no `ENEMY_INVASION_CHANCE` change, no pending invasion payload or BattleContext shape change, no market/alliance/wedge/player action change, no `city_intel` mutation, no scene/asset/`.uid`/`.ogv` changes.
+- Verification: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed. Battle scene emitted existing debug output only.
+- Manual F6 QA remains required:
+  1. 턴 종료 후 enemy reinforcement가 정상 표시되는지 확인.
+  2. strategic action이 한 턴 최대 1건만 표시되는지 확인.
+  3. enemy diplomacy follow-up이 PLAYER relation을 직접 변경하지 않는지 확인.
+  4. enemy spy pressure가 player city stat/resource/city_intel을 직접 변경하지 않는지 확인.
+  5. pending invasion 중 enemy strategic follow-up이 실행되지 않는지 확인.
+  6. pending invasion이 중복 생성되지 않는지 확인.
+  7. v0.70-49 weak attacker invasion guard가 유지되는지 확인.
+  8. defense deployment UI에서 defender/attacker 의미가 뒤바뀌지 않는지 확인.
+  9. defense troop allocation이 command limit와 deployable clamp를 지키는지 확인.
+  10. BattleContext handoff가 정상인지 확인.
+  11. defender win / attacker win / retreat / unknown result가 각각 안전하게 처리되는지 확인.
+  12. save/load 후 enemy turn / strategic action / invasion roll / battle result가 replay되지 않는지 확인.
+  13. left PLAYER scope, right selected-city scope, Fog of War, market, alliance, wedge, player spy/diplomacy가 유지되는지 확인.
+  14. Godot Output에 새 warning/error가 없는지 확인.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-51.
+
 ## v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up
 - Baseline: `v0.70-49 Enemy Invasion Defense Balance Polish` at `1d00fb4402033a88c0c7aeb87f94b48cb3120800`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

@@ -2,6 +2,29 @@
 
 ## 2026-06-18
 
+### v0.70-51 Enemy Turn QA Pass & Manual F6 Feedback Polish
+- Started from `7fa73bf v0.70-50 Enemy Faction Diplomacy Spy Behavior Follow-up`.
+- Confirmed clean worktree, expected local HEAD, fetched `origin/main`, and confirmed baseline before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- Audited enemy reinforcement replay guard, strategic action max-one behavior, pending invasion/pending battle skips, invasion roll guard, defense deployment source/target semantics, command/deployable clamp, BattleContext handoff, invasion/player-attack result separation, and save/load replay safety.
+- Implemented:
+  - Added enemy faction turn result display normalization for loaded or malformed payloads.
+  - Clamped `strategic_actions` to at most one valid supported action.
+  - Rejected malformed enemy diplomacy display entries involving PLAYER.
+  - Forced enemy spy pressure display entries to `effect = "display_only"`.
+  - Synced `last_enemy_strategic_action_result` from normalized `strategic_actions`.
+  - Added `v0.70-51 Enemy Turn QA Pass Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-49 invasion guards, v0.70-50 strategic action guard, reinforcement balance, `ENEMY_INVASION_CHANCE`, pending invasion payload, BattleContext, defense deployment, battle result apply, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, and `.ogv`.
+- Verification:
+  - `git diff --check`
+  - required guard keyword search
+  - warning-cleanup regression search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - Battle scene emitted existing debug output only.
+- Manual F6 QA remains required for the v0.70-51 checklist.
+
 ### v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up
 - Started from `1d00fb4 v0.70-49 Enemy Invasion Defense Balance Polish`.
 - Confirmed clean worktree, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.
