@@ -46,6 +46,8 @@ const ENEMY_FACTION_TURN_REINFORCE_BASE := 60
 const ENEMY_FACTION_TURN_REINFORCE_FRONTLINE_BONUS := 40
 const ENEMY_FACTION_TURN_REINFORCE_CHANCELLOR_BONUS := 20
 const ENEMY_FACTION_TURN_REINFORCE_MAX := 120
+const ENEMY_STRATEGIC_DIPLOMACY_DRIFT := 3
+const ENEMY_STRATEGIC_SPY_PRESSURE_WEIGHT := 2
 const WORLD_CALENDAR_START_YEAR := 154
 const WORLD_CALENDAR_SEASON_TURNS := 10
 const WORLD_CALENDAR_YEAR_TURNS := 40
@@ -715,6 +717,7 @@ var _player_state := {
 	"pending_battle_context": {},
 	"enemy_invasion_roll_turn": 0,
 	"last_enemy_faction_turn_result": {},
+	"last_enemy_strategic_action_result": {},
 	"last_enemy_faction_turn_processed_turn": 0,
 	"domestic_apply_pending": false,
 	"last_domestic_apply_turn": 0,
@@ -5490,6 +5493,8 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 	_player_state["enemy_invasion_roll_turn"] = maxi(0, int(_player_state.get("enemy_invasion_roll_turn", 0)))
 	if not _player_state.has("last_enemy_faction_turn_result") or not (_player_state["last_enemy_faction_turn_result"] is Dictionary):
 		_player_state["last_enemy_faction_turn_result"] = {}
+	if not _player_state.has("last_enemy_strategic_action_result") or not (_player_state["last_enemy_strategic_action_result"] is Dictionary):
+		_player_state["last_enemy_strategic_action_result"] = {}
 	if not _player_state.has("last_enemy_faction_turn_processed_turn"):
 		_player_state["last_enemy_faction_turn_processed_turn"] = 0
 	_player_state["last_enemy_faction_turn_processed_turn"] = maxi(0, int(_player_state.get("last_enemy_faction_turn_processed_turn", 0)))
@@ -5769,6 +5774,7 @@ func _process_enemy_faction_turn_mvp() -> Dictionary:
 		"phase": TURN_PHASE_ENEMY,
 		"processed_factions": [],
 		"actions": [],
+		"strategic_actions": [],
 		"pending_invasion_created": false,
 		"pending_invasion_already_active": _has_pending_invasion_event_mvp(),
 		"pending_battle_already_active": not _get_pending_battle_context_mvp().is_empty(),
@@ -5788,6 +5794,13 @@ func _process_enemy_faction_turn_mvp() -> Dictionary:
 			actions.append(action_result)
 	result["processed_factions"] = processed_factions
 	result["actions"] = actions
+	var strategic_action := _process_enemy_strategic_follow_up_action_mvp(processed_factions)
+	if not strategic_action.is_empty():
+		result["strategic_actions"] = [strategic_action]
+		_player_state["last_enemy_strategic_action_result"] = strategic_action.duplicate(true)
+	else:
+		result["strategic_actions"] = []
+		_player_state["last_enemy_strategic_action_result"] = {}
 	result["summary"] = _build_enemy_faction_turn_summary(result)
 	_player_state["last_enemy_faction_turn_result"] = result.duplicate(true)
 	_player_state["last_enemy_faction_turn_processed_turn"] = turn_number
@@ -5966,6 +5979,164 @@ func _apply_enemy_city_reinforcement_mvp(faction_id: String, city_id: String) ->
 	}
 
 
+func _process_enemy_strategic_follow_up_action_mvp(processed_factions: Array[String]) -> Dictionary:
+	if _has_pending_invasion_event_mvp() or not _get_pending_battle_context_mvp().is_empty():
+		return {}
+	var faction_ids := processed_factions.duplicate()
+	if faction_ids.is_empty():
+		faction_ids = _get_enemy_faction_ids_for_turn_mvp()
+	var diplomacy_candidates := _get_enemy_diplomacy_follow_up_candidates_mvp(faction_ids)
+	var spy_candidates := _get_enemy_spy_pressure_follow_up_candidates_mvp(faction_ids)
+	if diplomacy_candidates.is_empty() and spy_candidates.is_empty():
+		return {}
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	if not spy_candidates.is_empty() and (diplomacy_candidates.is_empty() or turn_number % (ENEMY_STRATEGIC_SPY_PRESSURE_WEIGHT + 1) == 0):
+		return _build_enemy_spy_pressure_follow_up_result_mvp(spy_candidates[turn_number % spy_candidates.size()])
+	return _apply_enemy_diplomacy_follow_up_mvp(diplomacy_candidates[turn_number % diplomacy_candidates.size()])
+
+
+func _get_enemy_diplomacy_follow_up_candidates_mvp(faction_ids: Array[String]) -> Array[Dictionary]:
+	var unique_factions: Array[String] = []
+	for faction_id_variant in faction_ids:
+		var faction_id := str(faction_id_variant)
+		if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+			continue
+		if _get_enemy_owned_city_ids_for_faction(faction_id).is_empty():
+			continue
+		if not unique_factions.has(faction_id):
+			unique_factions.append(faction_id)
+	unique_factions.sort()
+	var candidates: Array[Dictionary] = []
+	for i in range(unique_factions.size()):
+		for j in range(i + 1, unique_factions.size()):
+			var faction_a := str(unique_factions[i])
+			var faction_b := str(unique_factions[j])
+			var relation := _ensure_faction_relation_entry(faction_a, faction_b)
+			var status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
+			candidates.append({
+				"faction_a": faction_a,
+				"faction_b": faction_b,
+				"score": clampi(int(relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX),
+				"status": status,
+			})
+	candidates.sort_custom(Callable(self, "_sort_enemy_diplomacy_follow_up_candidates_mvp"))
+	return candidates
+
+
+func _sort_enemy_diplomacy_follow_up_candidates_mvp(left: Dictionary, right: Dictionary) -> bool:
+	var left_score_gap: int = abs(int(left.get("score", DIPLOMACY_DEFAULT_SCORE)) - DIPLOMACY_DEFAULT_SCORE)
+	var right_score_gap: int = abs(int(right.get("score", DIPLOMACY_DEFAULT_SCORE)) - DIPLOMACY_DEFAULT_SCORE)
+	if left_score_gap == right_score_gap:
+		var left_key := "%s:%s" % [str(left.get("faction_a", "")), str(left.get("faction_b", ""))]
+		var right_key := "%s:%s" % [str(right.get("faction_a", "")), str(right.get("faction_b", ""))]
+		return left_key < right_key
+	return left_score_gap > right_score_gap
+
+
+func _apply_enemy_diplomacy_follow_up_mvp(candidate: Dictionary) -> Dictionary:
+	var faction_a := str(candidate.get("faction_a", ""))
+	var faction_b := str(candidate.get("faction_b", ""))
+	if faction_a.is_empty() or faction_b.is_empty() or faction_a == PLAYER_FACTION_ID or faction_b == PLAYER_FACTION_ID or faction_a == faction_b:
+		return {}
+	var before_score := _get_faction_relation_score(faction_a, faction_b)
+	var drift := ENEMY_STRATEGIC_DIPLOMACY_DRIFT
+	var mood := "contact"
+	if before_score <= 40:
+		drift = -ENEMY_STRATEGIC_DIPLOMACY_DRIFT
+		mood = "tension"
+	elif before_score < 60 and maxi(1, int(_player_state.get("turn_number", 1))) % 2 == 0:
+		drift = -ENEMY_STRATEGIC_DIPLOMACY_DRIFT
+		mood = "tension"
+	var relation_result := _adjust_faction_relation_score(faction_a, faction_b, drift, "enemy_strategic_diplomacy")
+	return {
+		"action_id": "enemy_diplomacy_follow_up",
+		"kind": mood,
+		"faction_a": faction_a,
+		"faction_b": faction_b,
+		"faction_a_label": _format_faction_label(faction_a),
+		"faction_b_label": _format_faction_label(faction_b),
+		"before_score": before_score,
+		"after_score": int(relation_result.get("after_score", before_score)),
+		"delta": int(relation_result.get("delta", 0)),
+		"status": str(relation_result.get("status", FACTION_RELATION_STATUS["NEUTRAL"])),
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+	}
+
+
+func _get_enemy_spy_pressure_follow_up_candidates_mvp(faction_ids: Array[String]) -> Array[Dictionary]:
+	var allowed_factions := {}
+	for faction_id_variant in faction_ids:
+		var faction_id := str(faction_id_variant)
+		if not faction_id.is_empty() and faction_id != PLAYER_FACTION_ID:
+			allowed_factions[faction_id] = true
+	var candidates: Array[Dictionary] = []
+	for attacker_city_id in _get_worldmap_city_ids_for_enemy_turn_mvp():
+		var attacker_faction_id := _get_safe_enemy_owner_faction_id_for_turn_mvp(attacker_city_id)
+		if attacker_faction_id.is_empty() or not allowed_factions.has(attacker_faction_id):
+			continue
+		if not _has_city_for_battle_context(attacker_city_id) or not _is_city_owner_consistent_for_enemy_invasion_mvp(attacker_city_id):
+			continue
+		for defender_city_id_variant in _get_city_neighbors_mvp(attacker_city_id):
+			var target_city_id := str(defender_city_id_variant)
+			if not _has_city_for_battle_context(target_city_id):
+				continue
+			if not _is_city_owner_consistent_for_enemy_invasion_mvp(target_city_id) or not _is_city_owned_by_player_mvp(target_city_id):
+				continue
+			candidates.append({
+				"faction_id": attacker_faction_id,
+				"attacker_city_id": attacker_city_id,
+				"target_city_id": target_city_id,
+				"attacker_troops": _get_city_troops_for_enemy_invasion_mvp(attacker_city_id),
+			})
+	candidates.sort_custom(Callable(self, "_sort_enemy_spy_pressure_follow_up_candidates_mvp"))
+	return candidates
+
+
+func _sort_enemy_spy_pressure_follow_up_candidates_mvp(left: Dictionary, right: Dictionary) -> bool:
+	var left_troops := int(left.get("attacker_troops", 0))
+	var right_troops := int(right.get("attacker_troops", 0))
+	if left_troops == right_troops:
+		var left_key := "%s:%s" % [str(left.get("attacker_city_id", "")), str(left.get("target_city_id", ""))]
+		var right_key := "%s:%s" % [str(right.get("attacker_city_id", "")), str(right.get("target_city_id", ""))]
+		return left_key < right_key
+	return left_troops > right_troops
+
+
+func _build_enemy_spy_pressure_follow_up_result_mvp(candidate: Dictionary) -> Dictionary:
+	var faction_id := str(candidate.get("faction_id", ""))
+	var attacker_city_id := str(candidate.get("attacker_city_id", ""))
+	var target_city_id := str(candidate.get("target_city_id", ""))
+	if faction_id.is_empty() or attacker_city_id.is_empty() or target_city_id.is_empty():
+		return {}
+	return {
+		"action_id": "enemy_spy_pressure",
+		"kind": "recon",
+		"faction_id": faction_id,
+		"faction_label": _format_faction_label(faction_id),
+		"attacker_city_id": attacker_city_id,
+		"attacker_city_name": _format_city_name_by_id(attacker_city_id, attacker_city_id),
+		"target_city_id": target_city_id,
+		"target_city_name": _format_city_name_by_id(target_city_id, target_city_id),
+		"effect": "display_only",
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+	}
+
+
+func _format_enemy_strategic_action_summary(action: Dictionary) -> String:
+	match str(action.get("action_id", "")):
+		"enemy_diplomacy_follow_up":
+			var label := "접촉" if str(action.get("kind", "")) == "contact" else "긴장"
+			return "적 외교: %s-%s %s" % [
+				str(action.get("faction_a_label", _format_faction_label(str(action.get("faction_a", ""))))),
+				str(action.get("faction_b_label", _format_faction_label(str(action.get("faction_b", ""))))),
+				label,
+			]
+		"enemy_spy_pressure":
+			return "적 첩보: %s 주변 정찰" % str(action.get("target_city_name", action.get("target_city_id", "아군 도시")))
+		_:
+			return "전략 움직임"
+
+
 func _attach_enemy_invasion_event_to_enemy_turn_result(invasion_event: Dictionary) -> void:
 	_ensure_worldmap_runtime_state_defaults()
 	var result: Variant = _player_state.get("last_enemy_faction_turn_result", {})
@@ -5976,7 +6147,10 @@ func _attach_enemy_invasion_event_to_enemy_turn_result(invasion_event: Dictionar
 			"phase": TURN_PHASE_ENEMY,
 			"processed_factions": [],
 			"actions": [],
+			"strategic_actions": [],
 		}
+	if not enemy_turn_result.has("strategic_actions") or not (enemy_turn_result["strategic_actions"] is Array):
+		enemy_turn_result["strategic_actions"] = []
 	enemy_turn_result["pending_invasion_created"] = not invasion_event.is_empty()
 	if not invasion_event.is_empty():
 		enemy_turn_result["pending_invasion_event"] = invasion_event.duplicate(true)
@@ -6013,6 +6187,19 @@ func _build_enemy_faction_turn_summary(result: Dictionary) -> String:
 				break
 	if action_count > action_parts.size() and not action_parts.is_empty():
 		action_parts.append("외 %d건" % (action_count - action_parts.size()))
+	var strategic_actions: Variant = result.get("strategic_actions", [])
+	var strategic_count := 0
+	var strategic_parts: Array[String] = []
+	if strategic_actions is Array:
+		strategic_count = (strategic_actions as Array).size()
+		for strategic_variant in strategic_actions:
+			if not strategic_variant is Dictionary:
+				continue
+			strategic_parts.append(_format_enemy_strategic_action_summary(strategic_variant as Dictionary))
+			if strategic_parts.size() >= 1:
+				break
+	if strategic_count > strategic_parts.size() and not strategic_parts.is_empty():
+		strategic_parts.append("외 %d건" % (strategic_count - strategic_parts.size()))
 	var invasion_summary := "침공 대기 없음"
 	var invasion_event: Variant = result.get("pending_invasion_event", {})
 	if bool(result.get("pending_invasion_created", false)) and invasion_event is Dictionary:
@@ -6020,11 +6207,14 @@ func _build_enemy_faction_turn_summary(result: Dictionary) -> String:
 			_format_city_name_by_id(str((invasion_event as Dictionary).get("attacker_city_id", "")), "적 도시"),
 			_format_city_name_by_id(str((invasion_event as Dictionary).get("defender_city_id", "")), "아군 도시"),
 		]
-	if action_count <= 0:
+	var total_action_count := action_count + strategic_count
+	var combined_parts := action_parts.duplicate()
+	combined_parts.append_array(strategic_parts)
+	if total_action_count <= 0:
 		return "이번 턴 적 행동 없음 · %s" % invasion_summary
-	if action_parts.is_empty():
-		return "이번 턴 적 행동 %d건 · %s" % [action_count, invasion_summary]
-	return "이번 턴 적 행동 %d건 · %s · %s" % [action_count, " / ".join(action_parts), invasion_summary]
+	if combined_parts.is_empty():
+		return "이번 턴 적 행동 %d건 · %s" % [total_action_count, invasion_summary]
+	return "이번 턴 적 행동 %d건 · %s · %s" % [total_action_count, " / ".join(combined_parts), invasion_summary]
 
 
 func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
@@ -6035,6 +6225,7 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 		return ""
 	var lines: Array[String] = ["이번 턴 적 행동"]
 	var actions: Variant = result.get("actions", [])
+	var strategic_actions: Variant = result.get("strategic_actions", [])
 	if actions is Array and not (actions as Array).is_empty():
 		var shown := 0
 		for action_variant in actions:
@@ -6054,8 +6245,20 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 		var omitted_count := (actions as Array).size() - shown
 		if omitted_count > 0:
 			lines.append("외 %d건" % omitted_count)
-	else:
+	elif not (strategic_actions is Array) or (strategic_actions as Array).is_empty():
 		lines.append("행동 없음")
+	if strategic_actions is Array and not (strategic_actions as Array).is_empty():
+		var strategic_shown := 0
+		for strategic_variant in strategic_actions:
+			if strategic_shown >= 2:
+				break
+			if not strategic_variant is Dictionary:
+				continue
+			lines.append(_format_enemy_strategic_action_summary(strategic_variant as Dictionary))
+			strategic_shown += 1
+		var strategic_omitted := (strategic_actions as Array).size() - strategic_shown
+		if strategic_omitted > 0:
+			lines.append("전략 움직임 외 %d건" % strategic_omitted)
 	var invasion_event: Variant = result.get("pending_invasion_event", {})
 	if bool(result.get("pending_invasion_created", false)) and invasion_event is Dictionary:
 		lines.append("침공 대기: %s → %s" % [

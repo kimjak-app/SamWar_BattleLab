@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up Lock Rule
+- Baseline was `v0.70-49 Enemy Invasion Defense Balance Polish` (`1d00fb4402033a88c0c7aeb87f94b48cb3120800`).
+- This rule authorizes only a conservative enemy faction diplomacy/spy follow-up. It is not full enemy AI and must not become multi-action strategic simulation.
+- Enemy diplomacy/spy follow-up is capped at one strategic action per world turn and must run under the existing enemy faction turn replay guard.
+- `_player_state["last_enemy_faction_turn_processed_turn"]`, `_player_state["last_enemy_faction_turn_result"]`, save/load display/history semantics, pending invasion, and BattleContext handoff must remain stable.
+- Enemy turn result may include `strategic_actions`, but reinforcement `actions` must keep its existing meaning.
+- Enemy spy pressure is display/history only. It must not directly mutate player city publicSupport, loyalty, troops, resources, `city_intel`, spy cooldowns, detection penalties, or relation state.
+- Enemy diplomacy relation drift, if applied, must be limited to non-player faction pairs and small score-only changes. It must not directly change PLAYER relations, relation status, alliance state, trade agreement state, cooldowns, resources, chancellor state, or national stock.
+- Strategic follow-up must be skipped while pending invasion or pending battle context exists.
+- Existing v0.70-49 locks remain active: invasion candidate guard, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `ENEMY_INVASION_CHANCE`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext, player attack/defense deployment, and invasion result apply must not regress.
+- Existing v0.70-47 and diplomacy/spy locks remain active: left panel PLAYER scope, right panel selected-city scope, enemy Fog of War, `city_intel` display-only restore, market formula, alliance behavior, wedge behavior, player chancellor candidate scope, and `_player_state["faction_chancellors"]` must not change.
+- This rule does not authorize scene/asset/`.uid`/`.ogv` changes or repo-wide refactors.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-49 Enemy Invasion/Defense Balance Polish Lock Rule
 - Baseline was `v0.70-47 WorldMap Strategic UX Final Polish` (`669da7976600db60b8a6283b1c9fb3f4d9078f70`). `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up` remains deferred.
 - This rule authorizes invasion/defense balance guards and QA polish only. It is not authorization for full enemy AI, enemy diplomacy behavior, enemy spy behavior, or enemy economy simulation.

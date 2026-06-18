@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up
+- Built on `v0.70-49 Enemy Invasion Defense Balance Polish` (`1d00fb4402033a88c0c7aeb87f94b48cb3120800`).
+- Added a conservative enemy strategic follow-up lane to enemy faction turn results as `strategic_actions`, separate from reinforcement `actions`.
+- Added `_player_state["last_enemy_strategic_action_result"]` as display/history state only.
+- Kept `_player_state["last_enemy_faction_turn_processed_turn"]` as the same-turn replay guard; same-turn returns restore display/history and do not rerun strategic actions.
+- Strategic follow-up is skipped while pending invasion or pending battle context exists and is capped at one action per world turn.
+- Added non-player-only enemy diplomacy follow-up using existing faction relation score helpers with a conservative `±3` drift and no direct status/alliance/trade/cooldown mutation.
+- Added display-only enemy spy pressure against player-owned cities adjacent to safe enemy-owned cities. It does not mutate player city stats/resources, `city_intel`, spy cooldowns, detection penalties, or relation state.
+- Integrated one compact strategic line into enemy turn summary/hint copy while preserving v0.70-47 compact wording.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change v0.70-49 invasion guards, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext, player attack/defense deployment, battle result apply, Fog of War, `city_intel`, market formulas, alliance, wedge, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, or `.ogv`.
+
 ## v0.70-49 Enemy Invasion/Defense Balance Polish
 - Built on `v0.70-47 WorldMap Strategic UX Final Polish` (`669da7976600db60b8a6283b1c9fb3f4d9078f70`). `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up` remains deferred.
 - Added conservative enemy invasion candidate eligibility guards for missing city data, marker/HUD owner mismatch, wrong owner scope, non-adjacent city pairs, and weak attacker cities.

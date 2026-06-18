@@ -2,6 +2,31 @@
 
 ## 2026-06-18
 
+### v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up
+- Started from `1d00fb4 v0.70-49 Enemy Invasion Defense Balance Polish`.
+- Confirmed clean worktree, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- Audited enemy faction turn replay/result flow, faction relation helpers, spy/city-intel locks, pending invasion guards, and summary/hint output.
+- Implemented:
+  - Added `strategic_actions` to enemy faction turn result while preserving reinforcement `actions`.
+  - Added display/history `_player_state["last_enemy_strategic_action_result"]`.
+  - Added at-most-one strategic follow-up per world turn under the existing enemy faction replay guard.
+  - Skipped strategic follow-up when pending invasion or pending battle context exists.
+  - Added non-player-only diplomacy drift using existing relation score helper with conservative `±3` delta and no status/alliance/trade mutation.
+  - Added display-only enemy spy pressure against player-owned cities adjacent to safe enemy-owned cities.
+  - Integrated compact `적 외교` / `적 첩보` lines into enemy turn summary/hint output.
+  - Added `v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-49 invasion guards, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload, BattleContext, player attack/defense deployment, battle result apply, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, and `.ogv`.
+- Verification:
+  - `git diff --check`
+  - required guard keyword search
+  - warning-cleanup regression search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - Battle scene emitted existing debug output only.
+- Manual F6 QA remains required for the v0.70-50 checklist: reinforcement display, one strategic action per turn, non-player diplomacy drift safety, display-only spy pressure, compact summary, pending invasion continuity, save/load replay safety, panel scope/Fog of War, existing player actions, and warning cleanliness.
+
 ### v0.70-49 Enemy Invasion/Defense Balance Polish
 - Started from `669da79 v0.70-47 WorldMap Strategic UX Final Polish`.
 - Confirmed clean worktree, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.

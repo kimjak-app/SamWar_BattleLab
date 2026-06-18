@@ -1,5 +1,41 @@
 # CURRENT STATE
 
+## v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up
+- Baseline: `v0.70-49 Enemy Invasion Defense Balance Polish` at `1d00fb4402033a88c0c7aeb87f94b48cb3120800`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Runtime follow-up scope:
+  - Enemy faction turn result now carries a separate `strategic_actions` array while preserving the existing reinforcement-focused `actions` array.
+  - Existing `_player_state["last_enemy_faction_turn_processed_turn"]` remains the replay guard. Same-turn re-entry returns display/history only and does not rerun strategic actions.
+  - Strategic follow-up is skipped when `pending_invasion_event` or `pending_battle_context` is active.
+  - One world turn may record at most one strategic follow-up action.
+  - `_player_state["last_enemy_strategic_action_result"]` is display/history state only.
+- Enemy diplomacy follow-up:
+  - Only non-player faction pairs with owned cities are eligible.
+  - Relation drift uses the existing relation score helper and applies a conservative `±3` score delta.
+  - PLAYER relations, alliance status, trade agreement state, relation status, cooldowns, resources, and national stock are not directly changed.
+- Enemy spy pressure follow-up:
+  - Eligible targets are player-owned cities adjacent to safe enemy-owned cities.
+  - The result is display/history only and does not mutate player city troops/resources/publicSupport/loyalty, `city_intel`, spy cooldowns, detection penalties, or relation state.
+- Enemy turn summary/hint remains compact and may show one strategic line such as `적 외교` or `적 첩보` alongside reinforcement and pending invasion status.
+- Preserved scope: v0.70-49 invasion candidate guard, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `ENEMY_INVASION_CHANCE`, `enemy_invasion_roll_turn`, pending invasion payload, BattleContext handoff, player attack/defense deployment, battle result apply, left/right panel scope, enemy Fog of War, `city_intel`, market, alliance, wedge, player chancellor scope, `_player_state["faction_chancellors"]`, scenes, assets, `.uid`, and `.ogv` remain unchanged.
+- Verification: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed. Battle scene emitted existing debug output only.
+- Manual F6 QA remains required:
+  1. 턴 종료 후 enemy faction reinforcement가 기존처럼 정상 표시되는지 확인.
+  2. enemy strategic action이 한 턴에 최대 1건만 표시되는지 확인.
+  3. enemy diplomacy follow-up이 PLAYER 관계를 직접 건드리지 않는지 확인.
+  4. enemy diplomacy가 non-player relation helper를 깨지 않는지 확인.
+  5. enemy spy pressure가 player city stat/resource를 직접 깎지 않는지 확인.
+  6. enemy spy pressure가 `city_intel`을 변경하지 않는지 확인.
+  7. enemy turn summary가 너무 길어지지 않고 compact하게 보이는지 확인.
+  8. pending invasion 생성/중복 방지/v0.70-49 invasion guard가 유지되는지 확인.
+  9. save/load 후 enemy strategic action이 replay되지 않는지 확인.
+  10. left panel이 PLAYER national/court scope를 유지하는지 확인.
+  11. right panel이 selected-city scope와 Fog of War를 유지하는지 확인.
+  12. market, alliance, wedge, spy, diplomacy 기존 player action이 유지되는지 확인.
+  13. Godot Output에 새 warning/error가 없는지 확인.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-50.
+
 ## v0.70-49 Enemy Invasion/Defense Balance Polish
 - Baseline: `v0.70-47 WorldMap Strategic UX Final Polish` at `669da7976600db60b8a6283b1c9fb3f4d9078f70`. `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up` remains deferred.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

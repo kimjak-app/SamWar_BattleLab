@@ -1,5 +1,26 @@
 # NEXT TASKS
 
+## Current: v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up
+- Baseline: `v0.70-49 Enemy Invasion Defense Balance Polish` (`1d00fb4402033a88c0c7aeb87f94b48cb3120800`).
+- Completed direction:
+  1. Added a conservative enemy strategic follow-up result lane as `strategic_actions`, separate from reinforcement `actions`.
+  2. Kept `_player_state["last_enemy_faction_turn_processed_turn"]` as the only enemy turn replay guard.
+  3. Added display/history `_player_state["last_enemy_strategic_action_result"]`.
+  4. Limited strategic follow-up to at most one action per world turn and skipped it while pending invasion or pending battle context exists.
+  5. Added non-player-only diplomacy drift using existing relation score helpers with `±3` score delta and no status/alliance/trade agreement mutation.
+  6. Added display-only enemy spy pressure against player-owned frontline cities adjacent to safe enemy-owned cities.
+  7. Integrated strategic follow-up copy into compact enemy turn summary/hint output.
+- Preserved scope:
+  1. No full enemy AI, enemy economy simulation, player city stat/resource mutation, `city_intel` mutation, spy cooldown/detection system, alliance/trade agreement mutation, wedge change, market formula change, BattleContext change, pending invasion payload change, scene, asset, `.uid`, or `.ogv` change was made.
+  2. v0.70-49 invasion guards and v0.70-47 left/right panel scope locks remain active.
+- Verification:
+  1. `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+  2. Battle scene emitted existing debug output only.
+- Manual F6 QA required:
+  1. Run the v0.70-50 checklist for reinforcement display, one strategic action per turn, non-player-only diplomacy drift, display-only spy pressure, compact summary, pending invasion guard continuity, save/load replay safety, panel scope/Fog of War, player action preservation, and warning cleanliness.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-50.
+
 ## Current: v0.70-49 Enemy Invasion/Defense Balance Polish
 - Baseline: `v0.70-47 WorldMap Strategic UX Final Polish` (`669da7976600db60b8a6283b1c9fb3f4d9078f70`). `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up` is deferred.
 - Completed direction:

@@ -1,5 +1,27 @@
 # HANDOFF TO CODEX
 
+## v0.70-50 Enemy Faction Diplomacy/Spy Behavior Follow-up Handoff
+- Baseline: `v0.70-49 Enemy Invasion Defense Balance Polish` (`1d00fb4402033a88c0c7aeb87f94b48cb3120800`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is a conservative enemy faction diplomacy/spy follow-up, not full enemy AI.
+- Enemy faction turn result now has `strategic_actions` for at most one follow-up action per world turn. The existing `actions` array remains reinforcement-focused.
+- Replay semantics are unchanged: `_player_state["last_enemy_faction_turn_processed_turn"]` remains the same-turn guard and `_player_state["last_enemy_faction_turn_result"]` remains display/history state. Save/load may restore result payloads but must not replay strategic effects.
+- `_player_state["last_enemy_strategic_action_result"]` is display/history state only.
+- Strategic follow-up is skipped when `_player_state["pending_invasion_event"]` or `_player_state["pending_battle_context"]` exists.
+- Enemy diplomacy follow-up:
+  - Eligible pairs are non-player factions only.
+  - Uses existing faction relation score helpers.
+  - Applies only a conservative score drift of `±3`.
+  - Does not directly change PLAYER relations, relation status, alliance turns, trade agreements, cooldowns, resources, chancellor state, or national stock.
+- Enemy spy pressure follow-up:
+  - Eligible targets are player-owned cities adjacent to safe enemy-owned cities.
+  - Result is display/history only.
+  - It must not mutate player city publicSupport, loyalty, troops, resources, `city_intel`, spy cooldowns, detection penalties, or relation state.
+- Enemy turn summary/hint may include one compact strategic line (`적 외교` or `적 첩보`) while preserving v0.70-47 compact `이번 턴 적 행동` / `침공 대기` / `외 N건` style.
+- Explicitly unchanged: v0.70-49 invasion eligibility guards, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `ENEMY_INVASION_CHANCE`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext key/shape, player attack/defense deployment, battle result apply, left PLAYER panel scope, right selected-city scope, enemy Fog of War, `city_intel`, market prices, alliance behavior, wedge behavior, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scenes, assets, `.uid`, and `.ogv`.
+- Verification passed: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load. Battle scene emitted existing debug output only.
+- Manual F6 QA still required for the v0.70-50 checklist.
+
 ## v0.70-49 Enemy Invasion/Defense Balance Polish Handoff
 - Baseline: `v0.70-47 WorldMap Strategic UX Final Polish` (`669da7976600db60b8a6283b1c9fb3f4d9078f70`). `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up` was intentionally deferred.
 - Runtime file touched: `scripts/worldmap_test.gd`.
