@@ -1,5 +1,34 @@
 # CURRENT STATE
 
+## v0.70-47 WorldMap Strategic UX Final Polish
+- Baseline: `v0.70-46 Enemy Faction Turn Behavior QA Balance Polish` at `97046321ae51f7ea0fd6a726e7b6dc42f4742ab8`.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Runtime polish scope:
+  - Left World Status now presents turn number, calendar, and phase together while preserving PLAYER national/court scope.
+  - Selected City panel copy was tightened for player city defense/domestic lines, enemy Fog of War hints, locked/revealed info, pending invasion city status, and attack/deployment hints.
+  - Unified City Detail tabs now use shorter strategic copy for resources, city storage, internal trade, external trade, manual trade, diplomacy actions, spy visibility, and spy action status.
+  - Enemy turn result and pending invasion copy now uses compact `이번 턴 적 행동` / `침공 대기` wording while retaining `외 N건` summaries.
+- Preserved scope: no formula, chance, cost, cooldown, validation, `city_intel`, diplomacy, spy, market, chancellor auto trade, enemy turn replay guard, pending invasion payload, BattleContext, scene, asset, `.uid`, or `.ogv` changes were made.
+- Left/right scope remains locked: left panel stays PLAYER national/court scope; right panel stays selected-city scope; enemy/foreign cities do not reveal hidden troops/resources/domestic/governor/tech without payload-backed intel.
+- Verification: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed. The battle scene emitted existing debug logs only.
+- Manual F6 QA remains required:
+  1. foreign city 선택 시 left panel이 PLAYER national/court scope를 유지하는지 확인.
+  2. right panel이 selected city 정보만 표시하는지 확인.
+  3. player-owned city는 full city info가 정상 표시되는지 확인.
+  4. enemy city no-intel 상태에서 병력/자원/민심/충성도/태수/기술이 잠기는지 확인.
+  5. partial intel 상태에서 payload-backed field만 공개되는지 확인.
+  6. 외교 탭에서 relation/status/action tooltip이 정상인지 확인.
+  7. 첩보 탭에서 정탐/교란/반란/이간질 버튼 상태와 tooltip이 정상인지 확인.
+  8. 시장가/자국무역/타국무역 문구와 기존 가격 계산이 유지되는지 확인.
+  9. 턴 종료 후 enemy phase summary가 compact하게 표시되는지 확인.
+  10. enemy reinforcement가 같은 턴에 중복 적용되지 않는지 확인.
+  11. save/load 후 enemy action/domestic/market/spy/diplomacy effect가 replay되지 않는지 확인.
+  12. pending invasion event가 중복 생성되지 않고 BattleContext handoff가 유지되는지 확인.
+  13. Godot Output에 새 warning/error가 생기지 않는지 확인.
+- Next candidate work:
+  1. `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+  2. `v0.70-49 Enemy Invasion/Defense Balance Polish`
+
 ## v0.70-46 Enemy Faction Turn Behavior QA & Balance Polish
 - Baseline: `v0.70-45 Enemy Faction Turn Behavior MVP` at `964d8db3d61a2154e268ba1f905691f9ac493262`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

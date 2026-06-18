@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-47 WorldMap Strategic UX Final Polish Handoff
+- Baseline: `v0.70-46 Enemy Faction Turn Behavior QA Balance Polish` (`97046321ae51f7ea0fd6a726e7b6dc42f4742ab8`).
+- Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.
+- This pass is final strategic UX copy polish, not a new system.
+- Left World Status remains PLAYER/nation/court scope. Foreign city selection must not switch the left panel into a foreign national panel or clear player chancellor state.
+- Right Selected City remains selected-city scope. Player-owned cities keep the full-information path; enemy/foreign cities keep Fog of War and reveal only payload-backed `city_intel` fields.
+- Unified City Detail copy was tightened for resources, city storage, internal trade, external trade, manual trade orders, diplomacy action status/tooltips, spy visibility, known intel, and spy action status/tooltips.
+- Enemy turn and pending invasion summaries use compact wording (`이번 턴 적 행동`, `침공 대기`, `외 N건`) without changing replay guards, reinforcement behavior, invasion chance, pending event shape, or BattleContext handoff.
+- Explicitly unchanged: `_player_state["last_enemy_faction_turn_processed_turn"]`, `_player_state["last_enemy_faction_turn_result"]` semantics, `ENEMY_INVASION_CHANCE`, `pending_invasion_event` shape, `WORLDMAP_BATTLE_CONTEXT_META_KEY`, `city_intel`, `SPY_ACTION_WEDGE`, `DIPLOMACY_ACTION_ALLIANCE_PROPOSAL`, `MANUAL_TRADE_PREVIEW_PRICES`, `_get_trade_market_price()`, `_player_state["faction_chancellors"]`, formulas, costs, chances, cooldowns, validation gates, scenes, assets, `.uid`, and `.ogv`.
+- Preserve warning-cleanup names: no local `resource_label`, no local `selected_city_id`, no `sign` parameter, and no local `loyalty_card` shadowing.
+- Verification is recorded in the completion report for this session.
+- Next candidates:
+  1. `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+  2. `v0.70-49 Enemy Invasion/Defense Balance Polish`
+
 ## v0.70-46 Enemy Faction Turn Behavior QA & Balance Polish Handoff
 - Baseline: `v0.70-45 Enemy Faction Turn Behavior MVP` (`964d8db3d61a2154e268ba1f905691f9ac493262`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

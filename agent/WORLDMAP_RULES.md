@@ -1,5 +1,15 @@
 # WORLDMAP RULES
 
+## v0.70-47 WorldMap Strategic UX Final Polish Lock Rule
+- Baseline was `v0.70-46 Enemy Faction Turn Behavior QA Balance Polish` (`97046321ae51f7ea0fd6a726e7b6dc42f4742ab8`).
+- This rule authorizes copy, hint, tooltip, and compact summary polish only for the existing WorldMap strategic UX.
+- Left World Status must remain PLAYER national/court scope. It may polish turn, calendar, phase, player resources, chancellor, domestic, market, and compact enemy phase hint copy, but must not switch to foreign/enemy national state or expose hidden enemy resources/chancellor details.
+- Right Selected City must remain selected-city scope. Player-owned cities keep the existing full-info path; enemy/foreign cities keep Fog of War and may only reveal payload-backed `city_intel` fields.
+- Unified City Detail, Diplomacy, Spy, and Trade tabs may polish labels, summaries, hints, and tooltips. They must not change formulas, chances, costs, cooldowns, validation gates, execution paths, or save/load replay behavior.
+- Enemy turn result and pending invasion copy may be compacted, including `외 N건` summaries, but `_player_state["last_enemy_faction_turn_processed_turn"]`, `_player_state["last_enemy_faction_turn_result"]` display/history semantics, `ENEMY_INVASION_CHANCE`, pending invasion event payload shape, and BattleContext handoff must not change.
+- This rule does not authorize enemy AI expansion, enemy diplomacy/spy/economy simulation, market formula changes, alliance/wedge changes, Fog of War weakening, player chancellor candidate scope changes, `_player_state["faction_chancellors"]` structure changes, BattleContext changes, scene/asset changes, `.uid`, or `.ogv` changes.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-46 Enemy Faction Turn QA / Balance Lock Rule
 - Baseline was `v0.70-45 Enemy Faction Turn Behavior MVP` (`964d8db3d61a2154e268ba1f905691f9ac493262`).
 - This rule is a QA/balance lock over v0.70-45 enemy faction turn behavior, not authorization for full enemy AI.

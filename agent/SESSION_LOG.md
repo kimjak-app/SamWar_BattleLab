@@ -1,5 +1,28 @@
 # SESSION LOG
 
+## 2026-06-18
+
+### v0.70-47 WorldMap Strategic UX Final Polish
+- Started from `9704632 v0.70-46 Enemy Faction Turn Behavior QA Balance Polish`.
+- Confirmed clean worktree, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- Implemented:
+  - Left World Status turn/calendar/phase copy was consolidated into a compact PLAYER-scope header line.
+  - Right Selected City copy was tightened for player defense/domestic lines, enemy locked/revealed intel hints, pending invasion selected-city status, and Fog of War wording.
+  - Unified City Detail resource, city storage, internal trade, external trade, manual trade, diplomacy, and spy hints/tooltips were polished.
+  - Enemy turn summary and pending invasion hints now use compact `이번 턴 적 행동`, `침공 대기`, and `외 N건` wording.
+  - Added `v0.70-47 WorldMap Strategic UX Final Polish Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved formulas, costs, chances, cooldowns, validation gates, market prices, chancellor auto trade, alliance, wedge, spy/diplomacy effects, city-intel display-only behavior, enemy replay guard, pending invasion payload, BattleContext, scenes, assets, `.uid`, and `.ogv`.
+- Verification:
+  - `git diff --check`
+  - required guard keyword search
+  - warning-cleanup regression search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - Battle scene emitted existing debug logs only.
+- Manual F6 QA remains required for the v0.70-47 checklist: left PLAYER scope, right selected-city scope, player full info, no/partial intel locking, diplomacy/spy tooltips, market/trade copy with price parity, compact enemy phase summary, replay guards, pending invasion/BattleContext continuity, and warning cleanliness.
+
 ## 2026-06-15
 
 ### v0.70-46 Enemy Faction Turn Behavior QA & Balance Polish

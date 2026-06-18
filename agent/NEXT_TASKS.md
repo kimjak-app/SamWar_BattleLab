@@ -1,5 +1,25 @@
 # NEXT TASKS
 
+## Current: v0.70-47 WorldMap Strategic UX Final Polish
+- Baseline: `v0.70-46 Enemy Faction Turn Behavior QA Balance Polish` (`97046321ae51f7ea0fd6a726e7b6dc42f4742ab8`).
+- Completed direction:
+  1. Polished left World Status turn/calendar/phase copy while preserving PLAYER national/court scope.
+  2. Polished right Selected City player/enemy copy, including player full-info readability and enemy Fog of War revealed/locked wording.
+  3. Polished resource, internal trade, external trade, diplomacy, spy, manual trade, and tooltip/hint copy in the unified panel.
+  4. Polished enemy turn and pending invasion summary wording to compact `이번 턴 적 행동`, `침공 대기`, and `외 N건` style output.
+  5. Added a WorldMap UX polish lock rule documenting the allowed copy-only scope and forbidden behavior changes.
+- Preserved scope:
+  1. No formulas, costs, chances, cooldowns, validation gates, market prices, chancellor auto trade, alliance, wedge, spy, diplomacy, city intel save/load behavior, enemy replay guard, pending invasion payload, BattleContext, scene, asset, `.uid`, or `.ogv` changes.
+  2. Left panel remains PLAYER national/court scope and right panel remains selected-city scope.
+- Verification:
+  1. `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+  2. Battle scene emitted existing debug logs only.
+- Manual F6 QA required:
+  1. Run the v0.70-47 checklist for foreign-city left panel scope, selected-city right panel scope, player-city full info, no/partial intel locking, diplomacy/spy tooltips, trade copy/price parity, compact enemy summary, replay guards, pending invasion/BattleContext continuity, and warning cleanliness.
+- Next candidate work:
+  1. `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+  2. `v0.70-49 Enemy Invasion/Defense Balance Polish`
+
 ## Current: v0.70-46 Enemy Faction Turn Behavior QA & Balance Polish
 - Baseline: `v0.70-45 Enemy Faction Turn Behavior MVP` (`964d8db3d61a2154e268ba1f905691f9ac493262`).
 - Completed direction:

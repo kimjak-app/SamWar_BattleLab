@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-47 WorldMap Strategic UX Final Polish
+- Built on `v0.70-46 Enemy Faction Turn Behavior QA Balance Polish` (`97046321ae51f7ea0fd6a726e7b6dc42f4742ab8`).
+- Polished WorldMap strategic UX copy across the left status panel, right selected-city panel, unified city detail tabs, diplomacy/spy cards, trade hints, enemy turn summary, and pending invasion hints.
+- Left World Status now displays turn number, calendar, and phase in one compact line while preserving PLAYER national/court scope.
+- Right Selected City copy is clearer for player city defense/domestic info, enemy Fog of War revealed/locked fields, and pending invasion selected-city status.
+- City Detail resource/internal trade/external trade text now better distinguishes resource potential, city storage, supply links, manual transfer, trade candidates, relation efficiency, and manual trade execution state.
+- Diplomacy and spy action cards now use clearer `행동 가능` / `행동 불가` tooltips and hints without changing validation behavior.
+- Enemy turn and pending invasion output now uses compact `이번 턴 적 행동`, `침공 대기`, and `외 N건` wording.
+- Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change formulas, chances, costs, cooldowns, validation gates, market prices, chancellor auto trade, alliance, wedge, spy/diplomacy effects, city-intel display-only save/load, enemy replay guard, pending invasion payload, BattleContext, scenes, assets, `.uid`, or `.ogv`.
+
 ## v0.70-46 Enemy Faction Turn Behavior QA & Balance Polish
 - Built on `v0.70-45 Enemy Faction Turn Behavior MVP` (`964d8db3d61a2154e268ba1f905691f9ac493262`).
 - Performed QA/balance polish for enemy turn replay guard, save/load replay safety, reinforcement balance, city owner safety, pending invasion continuity, and compact result display.

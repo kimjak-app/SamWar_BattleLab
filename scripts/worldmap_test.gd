@@ -1516,7 +1516,7 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_domestic_button_placeholder.visible = false
 			_set_manual_trade_execution_button_visible(false)
 			city_detail_status_label.text = ""
-			city_detail_hint_label.text = "자국무역과 보급 흐름을 확인합니다."
+			city_detail_hint_label.text = "자국 성 간 보급과 수동 이송 상태를 확인합니다."
 			_refresh_trade_control_ui(CITY_DETAIL_TAB_INTERNAL_TRADE, has_manual_targets)
 		CITY_DETAIL_TAB_EXTERNAL_TRADE:
 			_set_city_detail_body_labels_visible(true)
@@ -1533,7 +1533,7 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_domestic_button_placeholder.visible = false
 			_refresh_manual_trade_execution_button(city_marker.city_id, external_trade_candidate_city_ids)
 			city_detail_status_label.text = ""
-			city_detail_hint_label.text = "외부 세력 도시와의 교역 후보와 관계를 확인합니다."
+			city_detail_hint_label.text = "인접 외국 성, 관계 효율, 수동 무역 상태를 확인합니다."
 			_refresh_trade_control_ui(CITY_DETAIL_TAB_EXTERNAL_TRADE, has_external_manual_targets)
 		_:
 			_set_manual_trade_execution_button_visible(false)
@@ -1564,7 +1564,7 @@ func _apply_city_detail_resource_tab_content(city_id: String, city_data: Diction
 	city_detail_status_label.visible = true
 	city_detail_status_label.text = _format_city_storage_summary(_get_city_storage(city_id, city_data))
 	city_detail_status_label.add_theme_color_override("font_color", Color(0.86, 0.92, 0.88, 1.0))
-	city_detail_hint_label.text = "자원 잠재력은 생산 기반, 성 창고는 현재 보유량을 나타냅니다."
+	city_detail_hint_label.text = "자원 잠재력은 생산 기반, 성 창고는 현재 보유량입니다."
 	city_detail_domestic_button_placeholder.visible = false
 
 
@@ -1850,13 +1850,13 @@ func _get_trade_control_mode_label(mode: String) -> String:
 func _get_trade_control_hint(tab_id: String, mode: String, has_manual_targets: bool) -> String:
 	if not has_manual_targets:
 		if tab_id == CITY_DETAIL_TAB_INTERNAL_TRADE:
-			return "연결 가능한 아군 성이 생기면 수동 조정을 사용할 수 있습니다."
-		return "인접 외국 교역 후보가 생기면 수동 조정을 사용할 수 있습니다."
+			return "수동 이송 잠김 · 연결 아군 성 필요"
+		return "수동 무역 잠김 · 인접 외국 성 필요"
 	if mode == TRADE_CONTROL_MODE_MANUAL:
 		if tab_id == CITY_DETAIL_TAB_INTERNAL_TRADE:
-			return "연결된 아군 성으로 금전과 자원을 수동 이송할 수 있습니다."
-		return "수동 세부 조정은 Manual Trade Order Panel MVP에서 연결됩니다."
-	return "재상이 연결 성/관계/창고 상태를 기준으로 무역을 운영할 예정입니다."
+			return "수동 이송 · 연결 아군 성으로 창고 자원을 옮깁니다."
+		return "수동 무역 · 수입/수출 계획을 저장한 뒤 실행합니다."
+	return "재상 일임 · 연결 성, 관계, 창고 상태를 기준으로 자동 조정합니다."
 
 
 func _ensure_manual_trade_order_panel() -> void:
@@ -3348,7 +3348,7 @@ func _show_unified_diplomacy_spy_content() -> void:
 		city_detail_military_label.text = _format_recent_spy_result_for_ui(current_selected_city_id)
 		city_detail_commerce_label.text = _format_spy_action_policy_display_for_ui(selected_city_marker)
 		city_detail_rating_label.text = ""
-		city_detail_hint_label.text = "대상 도시의 정보 수준과 첩보 행동을 확인합니다."
+		city_detail_hint_label.text = "선택 도시의 정보 수준, 공개 정보, 첩보 행동을 확인합니다."
 	else:
 		_refresh_spy_action_card(null)
 		city_detail_region_owner_label.text = _format_diplomacy_owner_display(selected_city_marker)
@@ -3357,7 +3357,7 @@ func _show_unified_diplomacy_spy_content() -> void:
 		city_detail_military_label.text = _format_diplomacy_action_candidates_for_ui(selected_city_marker)
 		city_detail_commerce_label.text = _format_diplomacy_policy_display_for_ui(selected_city_marker)
 		city_detail_rating_label.text = ""
-		city_detail_hint_label.text = "선택 도시 소유 세력과 PLAYER의 관계를 확인합니다."
+		city_detail_hint_label.text = "선택 도시 소유 세력과 PLAYER의 관계, 교역, 행동 후보를 확인합니다."
 		_refresh_diplomacy_action_card(selected_city_marker)
 	city_detail_domestic_button_placeholder.text = ""
 	city_detail_domestic_button_placeholder.visible = false
@@ -3560,9 +3560,9 @@ func _refresh_diplomacy_action_button(button: Button, validation: Dictionary) ->
 	button.disabled = not bool(validation.get("ok", false))
 	var cost: Dictionary = validation.get("cost", {})
 	if button.disabled:
-		button.tooltip_text = str(validation.get("message", "실행 조건을 충족하지 못했습니다."))
+		button.tooltip_text = "행동 불가 · %s" % str(validation.get("message", "조건 미충족"))
 	elif str(validation.get("action_id", "")) == DIPLOMACY_ACTION_ALLIANCE_PROPOSAL:
-		button.tooltip_text = "비용 %s · 수락 점수 %d/%d · 동맹 %d턴 · 쿨다운 %d턴" % [
+		button.tooltip_text = "동맹 제안 · 비용 %s · 수락 %d/%d · 지속 %d턴 · 쿨다운 %d턴" % [
 			_format_resource_costs(cost, ["gold", "silk"]),
 			int(validation.get("acceptance_score", 0)),
 			int(validation.get("required_score", ALLIANCE_ACCEPTANCE_THRESHOLD)),
@@ -3570,7 +3570,7 @@ func _refresh_diplomacy_action_button(button: Button, validation: Dictionary) ->
 			int(validation.get("cooldown", 0)),
 		]
 	else:
-		button.tooltip_text = "비용 %s · 관계 %+d · 쿨다운 %d턴" % [
+		button.tooltip_text = "행동 가능 · 비용 %s · 관계 %+d · 쿨다운 %d턴" % [
 			_format_resource_costs(cost, ["gold"]),
 			int(validation.get("relation_delta", 0)),
 			int(validation.get("cooldown", 0)),
@@ -3587,20 +3587,20 @@ func _format_diplomacy_action_hint(validation_map: Dictionary) -> String:
 		if bool(validation.get("ok", false)):
 			var cost: Dictionary = validation.get("cost", {})
 			if action_id == DIPLOMACY_ACTION_ALLIANCE_PROPOSAL:
-				enabled_parts.append("%s %s · 수락 %d/%d" % [
+				enabled_parts.append("%s: 비용 %s · 수락 %d/%d" % [
 					label_text,
 					_format_resource_costs(cost, ["gold", "silk"]),
 					int(validation.get("acceptance_score", 0)),
 					int(validation.get("required_score", ALLIANCE_ACCEPTANCE_THRESHOLD)),
 				])
 			else:
-				enabled_parts.append("%s %s" % [label_text, _format_resource_costs(cost, ["gold"])])
+				enabled_parts.append("%s: 비용 %s" % [label_text, _format_resource_costs(cost, ["gold"])])
 		else:
 			blocked_parts.append("%s: %s" % [label_text, str(validation.get("message", "불가"))])
 	if not enabled_parts.is_empty():
-		return "가능: %s" % " / ".join(enabled_parts)
+		return "행동 가능\n%s" % "\n".join(enabled_parts)
 	if not blocked_parts.is_empty():
-		return blocked_parts[0]
+		return "행동 불가\n%s" % blocked_parts[0]
 	return "외교 행동 조건을 확인합니다."
 
 
@@ -3786,7 +3786,7 @@ func _format_spy_visibility_summary_for_ui(city_marker: WorldMapCityMarker) -> S
 		return "정보 수준\n자국 도시"
 	var intel_entry := _get_city_intel_entry_for_ui(city_marker.city_id)
 	if intel_entry.is_empty():
-		return "정보 수준\n미확인\n공개: 도시명 / 세력 / 유형\n잠김: 병력 / 자원 / 민심 / 충성도 / 태수 / 기술"
+		return "정보 수준\n미확인\n공개: 도시명 / 세력 / 유형\n잠김: 병력 / 자원 / 민심 / 충성도 / 태수 / 기술\n다음: 정탐 필요"
 	var fields := _get_city_intel_fields_for_ui(intel_entry)
 	var payload := _get_city_intel_payload_for_ui(intel_entry)
 	var revealed_fields := _get_enemy_intel_revealed_field_ids_for_ui(fields, payload)
@@ -3797,7 +3797,8 @@ func _format_spy_visibility_summary_for_ui(city_marker: WorldMapCityMarker) -> S
 	if not revealed_labels.is_empty():
 		revealed_text = "%s / %s" % [revealed_text, " / ".join(revealed_labels)]
 	var locked_text := "없음" if locked_labels.is_empty() else " / ".join(locked_labels)
-	return "정보 수준\n%s\n공개: %s\n잠김: %s" % [level_label, revealed_text, locked_text]
+	var next_text := "추가 정탐 필요" if not locked_labels.is_empty() else "잠김 정보 없음"
+	return "정보 수준\n%s\n공개: %s\n잠김: %s\n다음: %s" % [level_label, revealed_text, locked_text, next_text]
 
 
 func _format_spy_known_info_summary_for_ui(city_marker: WorldMapCityMarker) -> String:
@@ -3810,7 +3811,7 @@ func _format_spy_known_info_summary_for_ui(city_marker: WorldMapCityMarker) -> S
 		return "확인 정보\n소유 세력 확인이 필요합니다."
 	var intel_entry := _get_city_intel_entry_for_ui(city_marker.city_id)
 	if intel_entry.is_empty():
-		return "확인 정보\n정보 수준: 미확인\n공개 정보: 도시명 / 세력 / 유형\n잠김 정보: 병력 / 자원 / 민심 / 충성도 / 태수 / 기술"
+		return "확인 정보\n공개: 도시명 / 세력 / 유형\n잠김: 병력 / 자원 / 민심 / 충성도 / 태수 / 기술\n다음: 정탐 필요"
 	var fields := _get_city_intel_fields_for_ui(intel_entry)
 	var payload := _get_city_intel_payload_for_ui(intel_entry)
 	var revealed_fields := _get_enemy_intel_revealed_field_ids_for_ui(fields, payload)
@@ -3837,8 +3838,8 @@ func _format_spy_known_info_summary_for_ui(city_marker: WorldMapCityMarker) -> S
 		revealed_text = "%s / %s" % [revealed_text, " / ".join(revealed_labels)]
 	var locked_text := "없음" if locked_labels.is_empty() else " / ".join(locked_labels)
 	var value_text := "확인값: %s\n" % " / ".join(value_parts) if not value_parts.is_empty() else ""
-	var next_text := "\n추가 정탐으로 더 자세한 정보 확인 가능" if not locked_labels.is_empty() else ""
-	return "확인 정보\n정보 수준: %s\n공개 정보: %s\n잠김 정보: %s\n%s%s" % [level_label, revealed_text, locked_text, value_text, next_text]
+	var next_text := "\n다음: 추가 정탐 필요" if not locked_labels.is_empty() else "\n다음: 잠김 정보 없음"
+	return "확인 정보\n수준: %s\n공개: %s\n잠김: %s\n%s%s" % [level_label, revealed_text, locked_text, value_text, next_text]
 
 
 func _get_city_intel_entry_for_ui(city_id: String) -> Dictionary:
@@ -3875,7 +3876,7 @@ func _format_spy_action_candidates_for_ui(city_marker: WorldMapCityMarker) -> St
 
 func _format_spy_check_status_for_ui(check: Dictionary) -> String:
 	if bool(check.get("ok", false)):
-		return "가능"
+		return "행동 가능"
 	var reason := str(check.get("reason", "unknown"))
 	match reason:
 		"own_city":
@@ -3885,15 +3886,15 @@ func _format_spy_check_status_for_ui(check: Dictionary) -> String:
 		"no_political_aptitude":
 			return "정치형 재상 필요"
 		"cooldown":
-			return "대기 중"
+			return "쿨다운"
 		"resources":
-			return "자원 필요"
+			return "자원 부족"
 		"no_counterpart":
 			return "상대 세력 없음"
 		"already_hostile":
 			return "이미 최악"
 		"iron_wall":
-			return "경계 높음"
+			return "방첩 경계"
 		"prerequisite_public_support", "prerequisite_loyalty":
 			return "조건 확인 필요"
 		"invalid_target":
@@ -4081,9 +4082,9 @@ func _refresh_spy_action_button(button: Button, validation: Dictionary) -> void:
 		return
 	button.disabled = not bool(validation.get("ok", false))
 	if button.disabled:
-		button.tooltip_text = str(validation.get("message", "실행 조건을 충족하지 못했습니다."))
+		button.tooltip_text = "행동 불가 · %s" % str(validation.get("message", "조건 미충족"))
 	else:
-		var tooltip := "성공 %d%% · 발각 %d%% · 쿨다운 %d턴" % [
+		var tooltip := "행동 가능 · 성공 %d%% · 발각 %d%% · 쿨다운 %d턴" % [
 			int(validation.get("success_chance", 0)),
 			int(validation.get("detection_chance", 0)),
 			int(validation.get("cooldown", 0)),
@@ -4117,9 +4118,9 @@ func _format_spy_action_hint(validation_map: Dictionary) -> String:
 		else:
 			blocked_parts.append("%s: %s" % [label_text, str(validation.get("message", "불가"))])
 	if not enabled_parts.is_empty():
-		return "가능: %s" % " / ".join(enabled_parts)
+		return "행동 가능\n%s" % "\n".join(enabled_parts)
 	if not blocked_parts.is_empty():
-		return blocked_parts[0]
+		return "행동 불가\n%s" % blocked_parts[0]
 	return "첩보 행동 조건을 확인합니다."
 
 
@@ -4197,8 +4198,8 @@ func _get_internal_trade_connected_player_city_ids(city_marker: WorldMapCityMark
 func _format_internal_trade_route_display(city_marker: WorldMapCityMarker, connected_player_city_ids: Array[String]) -> String:
 	var owned_city_count := _get_owned_city_count_for_internal_trade_display()
 	if city_marker == null or not _is_city_owned_by_player_mvp(city_marker.city_id) or connected_player_city_ids.is_empty():
-		return "현재 연결 가능한 아군 성이 없습니다.\n자국무역은 두 개 이상의 성을 보유한 뒤 사용할 수 있습니다.\n\n보유 성: %d개\n연결 아군 성: 없음" % owned_city_count
-	return "연결 아군 성\n%s" % _format_internal_trade_city_name_list(connected_player_city_ids)
+		return "연결 아군 성 없음\n보유 성: %d개\n수동 이송은 인접 아군 성이 필요합니다." % owned_city_count
+	return "연결 아군 성\n%s\n수동 이송 가능" % _format_internal_trade_city_name_list(connected_player_city_ids)
 
 
 func _format_internal_trade_lead_display(_connected_player_city_ids: Array[String]) -> String:
@@ -4342,7 +4343,7 @@ func _get_city_owner_faction_id_for_trade_display(city_id: String) -> String:
 
 func _format_external_trade_candidate_summary(_source_city_id: String, candidate_city_ids: Array[String]) -> String:
 	if candidate_city_ids.is_empty():
-		return "현재 인접한 외국 교역 후보가 없습니다.\n타국무역은 외부 세력 도시와 연결된 성에서 확인할 수 있습니다.\n\n인접 외국 성: 없음\n교역 가능 세력: 없음"
+		return "교역 후보 없음\n인접 외국 성이 있는 자국 성에서 타국무역을 확인할 수 있습니다."
 	var lines: Array[String] = ["교역 후보"]
 	for candidate_city_id in candidate_city_ids:
 		lines.append(_format_external_trade_candidate_line(candidate_city_id))
@@ -4367,7 +4368,7 @@ func _format_external_trade_relation_summary(source_city_id: String, candidate_c
 			_format_trade_availability_for_ui(source_faction_id, target_faction_id),
 		])
 		lines.append("교역 효율 x%.2f" % _get_trade_relation_multiplier_for_ui(source_faction_id, target_faction_id))
-		lines.append("적용 가격: 관계 효율 반영")
+		lines.append("가격: 시장가 x 관계 효율")
 		return "\n".join(lines)
 	for candidate_city_id in candidate_city_ids:
 		var candidate_faction_id := _get_city_owner_faction_id_for_trade_display(candidate_city_id)
@@ -4377,7 +4378,7 @@ func _format_external_trade_relation_summary(source_city_id: String, candidate_c
 			_format_trade_availability_for_ui(source_faction_id, candidate_faction_id),
 			_get_trade_relation_multiplier_for_ui(source_faction_id, candidate_faction_id),
 		])
-	lines.append("적용 가격: 관계 효율 반영")
+	lines.append("가격: 시장가 x 관계 효율")
 	return "\n".join(lines)
 
 
@@ -4434,7 +4435,7 @@ func _format_external_trade_manual_order_summary(source_city_id: String, candida
 			return recent_execution_text
 		if not chancellor_auto_trade_text.is_empty():
 			return chancellor_auto_trade_text
-		return "수동 무역 명령\n저장된 명령 없음\n수동 조정에서 자원별 수입/수출 계획을 입력할 수 있습니다."
+		return "수동 무역 명령\n저장된 명령 없음\n수동 조정에서 수입/수출 계획을 입력합니다."
 	var target_city_id := str(order.get("target_city_id", ""))
 	var preview: Variant = order.get("preview", {})
 	var preview_text := "예상 없음"
@@ -4444,7 +4445,7 @@ func _format_external_trade_manual_order_summary(source_city_id: String, candida
 		"수동 무역 명령",
 		"상대: %s" % _format_city_name_by_id(target_city_id, target_city_id),
 		"예상: %s" % preview_text,
-		"실제 실행 대기 중입니다.",
+		"상태: 실행 대기",
 	]
 	if not recent_execution_text.is_empty():
 		lines.append("")
@@ -5053,7 +5054,7 @@ func _setup_pending_invasion_choice_ui() -> void:
 
 	_pending_invasion_title_label = Label.new()
 	_pending_invasion_title_label.name = "PendingInvasionTitleLabel"
-	_pending_invasion_title_label.text = "적군 침공 발생"
+	_pending_invasion_title_label.text = "침공 대기"
 	_pending_invasion_title_label.add_theme_color_override("font_color", Color(1.0, 0.90, 0.70, 1.0))
 	_pending_invasion_title_label.add_theme_font_size_override("font_size", 14)
 	content.add_child(_pending_invasion_title_label)
@@ -5067,7 +5068,7 @@ func _setup_pending_invasion_choice_ui() -> void:
 
 	_pending_invasion_instruction_label = Label.new()
 	_pending_invasion_instruction_label.name = "PendingInvasionInstructionLabel"
-	_pending_invasion_instruction_label.text = "방어전을 준비하십시오."
+	_pending_invasion_instruction_label.text = "방어 배치를 선택하십시오."
 	_pending_invasion_instruction_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_pending_invasion_instruction_label.add_theme_color_override("font_color", Color(1.0, 0.76, 0.62, 1.0))
 	_pending_invasion_instruction_label.add_theme_font_size_override("font_size", 11)
@@ -5384,7 +5385,11 @@ func _refresh_left_world_status_panel() -> void:
 	_ensure_worldmap_runtime_state_defaults()
 	left_world_status_eyebrow_label.visible = false
 	turn_label.visible = false
-	calendar_label.text = str(_player_state.get("year_label", "154년 봄 1턴"))
+	calendar_label.text = "%s · %s · %s" % [
+		str(_player_state.get("turn_label", "제 1턴")),
+		str(_player_state.get("year_label", "154년 봄 1턴")),
+		str(_player_state.get("current_phase_label", "아군 턴")),
+	]
 	nation_label.visible = false
 	var national_loyalty := int(_player_state.get("national_loyalty", 0))
 	var tax_level := _normalize_tax_level(_player_state.get("tax_level", 0))
@@ -5685,7 +5690,7 @@ func _run_enemy_turn_mvp() -> void:
 	if not invasion_event.is_empty():
 		_set_save_management_status(_format_invasion_status_text(invasion_event))
 	elif enemy_turn_result is Dictionary and not (enemy_turn_result as Dictionary).is_empty():
-		_set_save_management_status(str((enemy_turn_result as Dictionary).get("summary", "적세력 턴 처리 완료")))
+		_set_save_management_status(str((enemy_turn_result as Dictionary).get("summary", "이번 턴 적 행동 처리 완료")))
 	_refresh_left_world_status_panel()
 	_get_enemy_turn_mvp_timer().start(ENEMY_TURN_MVP_DELAY)
 
@@ -5984,9 +5989,9 @@ func _attach_enemy_invasion_event_to_enemy_turn_result(invasion_event: Dictionar
 
 func _build_enemy_faction_turn_summary(result: Dictionary) -> String:
 	if bool(result.get("pending_battle_already_active", false)):
-		return "적세력 행동 보류 · 진행 중인 전투 처리 대기"
+		return "이번 턴 적 행동 보류 · 전투 처리 대기"
 	if bool(result.get("pending_invasion_already_active", false)) and not bool(result.get("pending_invasion_created", false)):
-		return "적세력 행동 보류 · 진행 중인 침공 이벤트 유지"
+		return "이번 턴 적 행동 보류 · 침공 이벤트 처리 대기"
 	var actions: Variant = result.get("actions", [])
 	var action_count := 0
 	var action_parts: Array[String] = []
@@ -6007,18 +6012,18 @@ func _build_enemy_faction_turn_summary(result: Dictionary) -> String:
 				break
 	if action_count > action_parts.size() and not action_parts.is_empty():
 		action_parts.append("외 %d건" % (action_count - action_parts.size()))
-	var invasion_summary := "침공 조짐 없음"
+	var invasion_summary := "침공 대기 없음"
 	var invasion_event: Variant = result.get("pending_invasion_event", {})
 	if bool(result.get("pending_invasion_created", false)) and invasion_event is Dictionary:
-		invasion_summary = "침공 조짐 %s → %s" % [
+		invasion_summary = "침공 대기: %s → %s" % [
 			_format_city_name_by_id(str((invasion_event as Dictionary).get("attacker_city_id", "")), "적 도시"),
 			_format_city_name_by_id(str((invasion_event as Dictionary).get("defender_city_id", "")), "아군 도시"),
 		]
 	if action_count <= 0:
-		return "적세력 행동 없음 · %s" % invasion_summary
+		return "이번 턴 적 행동 없음 · %s" % invasion_summary
 	if action_parts.is_empty():
-		return "적세력 %d개 행동 · %s" % [action_count, invasion_summary]
-	return "적세력 %d개 행동 · %s · %s" % [action_count, " / ".join(action_parts), invasion_summary]
+		return "이번 턴 적 행동 %d건 · %s" % [action_count, invasion_summary]
+	return "이번 턴 적 행동 %d건 · %s · %s" % [action_count, " / ".join(action_parts), invasion_summary]
 
 
 func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
@@ -6027,7 +6032,7 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 	var result := raw_result as Dictionary
 	if result.is_empty():
 		return ""
-	var lines: Array[String] = ["적세력 턴 결과"]
+	var lines: Array[String] = ["이번 턴 적 행동"]
 	var actions: Variant = result.get("actions", [])
 	if actions is Array and not (actions as Array).is_empty():
 		var shown := 0
@@ -6039,7 +6044,7 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 			var action := action_variant as Dictionary
 			if str(action.get("action_id", "")) != "reinforce_city":
 				continue
-			lines.append("%s: %s 병력 +%d" % [
+			lines.append("%s · %s 병력 +%d" % [
 				str(action.get("faction_label", _format_faction_label(str(action.get("faction_id", ""))))),
 				str(action.get("city_name", action.get("city_id", ""))),
 				int(action.get("delta", 0)),
@@ -6052,12 +6057,12 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 		lines.append("행동 없음")
 	var invasion_event: Variant = result.get("pending_invasion_event", {})
 	if bool(result.get("pending_invasion_created", false)) and invasion_event is Dictionary:
-		lines.append("침공 조짐: %s → %s" % [
+		lines.append("침공 대기: %s → %s" % [
 			_format_city_name_by_id(str((invasion_event as Dictionary).get("attacker_city_id", "")), "적 도시"),
 			_format_city_name_by_id(str((invasion_event as Dictionary).get("defender_city_id", "")), "아군 도시"),
 		])
 	else:
-		lines.append("침공 조짐: 없음")
+		lines.append("침공 대기: 없음")
 	return "\n".join(lines)
 
 
@@ -6531,7 +6536,7 @@ func _refresh_pending_invasion_choice_ui(event: Dictionary = {}) -> void:
 		return
 	_pending_invasion_choice_card.visible = true
 	if _pending_invasion_title_label != null:
-		_pending_invasion_title_label.text = "적군 침공 발생"
+		_pending_invasion_title_label.text = "침공 대기"
 	if _pending_invasion_detail_label != null:
 		_pending_invasion_detail_label.text = _format_pending_invasion_detail(event)
 	if _pending_invasion_instruction_label != null:
@@ -9951,16 +9956,16 @@ func _clear_pending_battle_context_mvp() -> void:
 func _format_pending_battle_context_status_for_event(event: Dictionary) -> String:
 	var battle_context := _get_pending_battle_context_mvp()
 	if event.is_empty() or battle_context.is_empty():
-		return "방어전을 준비하십시오."
+		return "방어 배치를 선택하십시오."
 	if str(battle_context.get("source", "")) != "enemy_invasion":
-		return "방어전을 준비하십시오."
+		return "방어 배치를 선택하십시오."
 	if str(battle_context.get("attacker_city_id", "")) != str(event.get("attacker_city_id", "")):
-		return "방어전을 준비하십시오."
+		return "방어 배치를 선택하십시오."
 	if str(battle_context.get("defender_city_id", "")) != str(event.get("defender_city_id", "")):
-		return "방어전을 준비하십시오."
+		return "방어 배치를 선택하십시오."
 	if str(battle_context.get("mode", "")) == "auto":
-		return "자동 방어 전투 데이터 준비 완료 · 자동 해결은 아직 미구현"
-	return "수동 방어 전투 데이터 준비 완료 · 다음 단계에서 전투 화면으로 이동"
+		return "자동 방어 준비 완료 · 자동 해결은 아직 미구현"
+	return "수동 방어 준비 완료 · 전투 화면 이동 대기"
 
 
 func _clear_pending_invasion_event_mvp() -> void:
@@ -9974,7 +9979,7 @@ func _format_pending_invasion_detail(event: Dictionary) -> String:
 		return ""
 	var attacker_city_name := _format_city_name_by_id(str(event.get("attacker_city_id", "")), "알 수 없는 적 도시")
 	var defender_city_name := _format_city_name_by_id(str(event.get("defender_city_id", "")), "알 수 없는 아군 도시")
-	return "침공 도시: %s\n방어 도시: %s\n%s → %s" % [
+	return "적 출발: %s\n방어 목표: %s\n진로: %s → %s" % [
 		attacker_city_name,
 		defender_city_name,
 		attacker_city_name,
@@ -9987,7 +9992,7 @@ func _format_invasion_status_text(event: Dictionary) -> String:
 		return ""
 	var attacker_city_name := _format_city_name_by_id(str(event.get("attacker_city_id", "")), "알 수 없는 적 도시")
 	var defender_city_name := _format_city_name_by_id(str(event.get("defender_city_id", "")), "알 수 없는 아군 도시")
-	return "적군 침공 발생: %s → %s · 방어전 준비 필요" % [attacker_city_name, defender_city_name]
+	return "침공 대기: %s → %s · 방어 배치 필요" % [attacker_city_name, defender_city_name]
 
 
 func _advance_world_turn_mvp() -> void:
@@ -15336,7 +15341,7 @@ func _on_city_detail_tab_pressed(tab_id: String) -> void:
 	else:
 		_reset_city_detail_panel()
 	if tab_id == CITY_DETAIL_TAB_RESOURCES:
-		city_detail_hint_label.text = "자원 잠재력은 생산 기반, 성 창고는 현재 보유량을 나타냅니다."
+		city_detail_hint_label.text = "자원 잠재력은 생산 기반, 성 창고는 현재 보유량입니다."
 	else:
 		city_detail_hint_label.text = "%s 흐름을 확인합니다." % _get_city_detail_tab_label(tab_id)
 	_queue_unified_city_panel_resize()
