@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-49 Enemy Invasion/Defense Balance Polish
+- Built on `v0.70-47 WorldMap Strategic UX Final Polish` (`669da7976600db60b8a6283b1c9fb3f4d9078f70`). `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up` remains deferred.
+- Added conservative enemy invasion candidate eligibility guards for missing city data, marker/HUD owner mismatch, wrong owner scope, non-adjacent city pairs, and weak attacker cities.
+- Added `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS = 160` as an invasion-start threshold, separate from result safety constants `INVASION_MIN_CITY_TROOPS`, `INVASION_MIN_OCCUPATION_TROOPS`, and `INVASION_MAX_REASONABLE_CITY_TROOPS`.
+- Kept `ENEMY_INVASION_CHANCE = 0.45`; invasion frequency polish is handled through eligibility filtering rather than changing the global chance.
+- Added small scoring/sorting for eligible invasion pairs so stronger attacker cities and plausible adjacent player targets are preferred without adding full enemy AI.
+- Reused the same eligibility checks when creating pending invasion events and when validating pending invasion BattleContext readiness.
+- Hardened enemy invasion result application so missing attacker/source city data is treated as unknown and does not mutate city ownership.
+- Confirmed defense deployment keeps `source = defender city`, `target = attacker city`, command limit validation, selected defender hero validation, and deployable troop clamp.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change pending invasion payload shape, BattleContext key/shape, replay guards, Battle scene logic, player attack system shape, enemy diplomacy/spy/economy, market formulas, alliance, wedge, Fog of War, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, or `.ogv`.
+
 ## v0.70-47 WorldMap Strategic UX Final Polish
 - Built on `v0.70-46 Enemy Faction Turn Behavior QA Balance Polish` (`97046321ae51f7ea0fd6a726e7b6dc42f4742ab8`).
 - Polished WorldMap strategic UX copy across the left status panel, right selected-city panel, unified city detail tabs, diplomacy/spy cards, trade hints, enemy turn summary, and pending invasion hints.

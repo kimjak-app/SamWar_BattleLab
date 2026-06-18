@@ -1,5 +1,34 @@
 # CURRENT STATE
 
+## v0.70-49 Enemy Invasion/Defense Balance Polish
+- Baseline: `v0.70-47 WorldMap Strategic UX Final Polish` at `669da7976600db60b8a6283b1c9fb3f4d9078f70`. `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up` remains deferred.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Runtime polish scope:
+  - Enemy invasion candidate generation now excludes missing city data, marker/HUD owner mismatch, non-enemy attackers, non-player defenders, non-adjacent pairs, and attacker cities below `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS = 160`.
+  - Candidate selection keeps `ENEMY_INVASION_CHANCE = 0.45` and the existing roll guard, but sorts eligible pairs by a conservative score that favors stronger attacker cities and lower-risk adjacent player targets.
+  - Pending invasion event creation reuses the same eligibility guard while preserving the existing event payload keys: `type`, `attacker_city_id`, `defender_city_id`, `source`, and `turn_number`.
+  - Pending invasion BattleContext validation now checks owner consistency, adjacency, and attacker troop readiness before defense deployment can proceed.
+  - Enemy invasion battle result application now treats missing attacker/source city data as an unknown result and avoids ownership mutation while still clearing pending runtime state.
+- Defense deployment audit result: existing defense source/target semantics remain `source = defender city` and `target = attacker city`; selected defender heroes are validated against available, non-captured/non-dead candidates, command limits, and deployable troop clamp that leaves the player city above the minimum garrison.
+- Preserved scope: no enemy diplomacy/spy/economy AI, no `ENEMY_INVASION_CHANCE` change, no pending event payload shape change, no BattleContext key/shape change, no replay guard removal, no market/alliance/wedge/Fog of War/chancellor changes, and no scene/asset/`.uid`/`.ogv` changes.
+- Verification: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed. The scene loads emitted existing debug output only.
+- Manual F6 QA remains required:
+  1. 턴 종료 후 enemy phase에서 pending invasion이 정상 확률/조건으로 생성되는지 확인.
+  2. pending invasion이 이미 있을 때 새 침공이 중복 생성되지 않는지 확인.
+  3. 약한 enemy city가 무리하게 침공 후보가 되지 않는지 확인.
+  4. 침공 대상이 player-owned adjacent city로만 잡히는지 확인.
+  5. 방어 준비 UI에서 defender city / attacker city가 뒤바뀌지 않는지 확인.
+  6. 방어 장수 선택과 병력 배정이 command limit / deployable troop clamp를 지키는지 확인.
+  7. 방어 확정 후 BattleContext가 정상 handoff되는지 확인.
+  8. defender win 결과에서 소유권 유지 / 병력 손실 / pending clear가 정상인지 확인.
+  9. attacker win 결과에서 소유권 변경 / 점령 병력 / pending clear가 정상인지 확인.
+  10. retreat/unknown 결과에서 소유권이 잘못 바뀌지 않는지 확인.
+  11. save/load 후 같은 턴 침공 roll 또는 battle result가 replay되지 않는지 확인.
+  12. left PLAYER scope / right selected city scope / Fog of War / market / alliance / wedge가 유지되는지 확인.
+  13. Godot Output에 새 warning/error가 생기지 않는지 확인.
+- Next candidate work:
+  1. `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+
 ## v0.70-47 WorldMap Strategic UX Final Polish
 - Baseline: `v0.70-46 Enemy Faction Turn Behavior QA Balance Polish` at `97046321ae51f7ea0fd6a726e7b6dc42f4742ab8`.
 - Modified files: `scripts/worldmap_test.gd`, `scripts/worldmap_city_info_panel.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

@@ -1,5 +1,23 @@
 # HANDOFF TO CODEX
 
+## v0.70-49 Enemy Invasion/Defense Balance Polish Handoff
+- Baseline: `v0.70-47 WorldMap Strategic UX Final Polish` (`669da7976600db60b8a6283b1c9fb3f4d9078f70`). `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up` was intentionally deferred.
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is invasion/defense balance guard and QA polish, not a full enemy AI or enemy diplomacy/spy/economy system.
+- Enemy invasion roll chance remains `ENEMY_INVASION_CHANCE = 0.45`; same-turn roll guard `enemy_invasion_roll_turn` and enemy faction replay guard remain intact.
+- New invasion-start threshold: `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS = 160`. This is separate from `INVASION_MIN_CITY_TROOPS`, `INVASION_MIN_OCCUPATION_TROOPS`, and `INVASION_MAX_REASONABLE_CITY_TROOPS`, which still govern result/occupation/clamp behavior.
+- Candidate generation now routes through `_is_enemy_invasion_pair_eligible_mvp()` and `_score_enemy_invasion_pair_mvp()`.
+  - Eligibility excludes missing city data, marker/HUD owner mismatch, non-enemy attackers, non-player defenders, non-adjacent pairs, and attacker cities below the invasion-start threshold.
+  - Scoring only sorts already eligible pairs; it does not simulate strategy, diplomacy, economy, or multi-turn planning.
+- Pending invasion event payload shape is unchanged: `type`, `attacker_city_id`, `defender_city_id`, `source`, and `turn_number` are still the event keys.
+- Defense deployment remains `source_city_id = defender city` and `target_city_id = attacker city`. Existing selected defender hero validation, captured/dead exclusion through availability helpers, command limit, and deployable troop clamp remain authoritative.
+- Enemy invasion result application now treats missing attacker/source city data as unknown and avoids ownership mutation; pending invasion/runtime battle state is still cleared through the existing cleanup path.
+- Explicitly unchanged: BattleContext key/shape, Battle scene combat logic, player attack system shape, hero death/capture system scope, left PLAYER panel scope, right selected-city scope, Fog of War, `city_intel`, market pricing, alliance proposal, wedge, `_player_state["faction_chancellors"]`, scenes, assets, `.uid`, and `.ogv`.
+- Verification passed: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load. Scene loads emitted existing debug output only.
+- Manual F6 QA still required for the v0.70-49 checklist: invasion eligibility/frequency, no duplicate pending event, weak attacker exclusion, adjacent player targets, defense source/target UI, command/deployable clamp, BattleContext handoff, defender/attacker win handling, retreat/unknown safety, save/load replay guards, v0.70-47 scope locks, and warning cleanliness.
+- Next candidate:
+  1. `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+
 ## v0.70-47 WorldMap Strategic UX Final Polish Handoff
 - Baseline: `v0.70-46 Enemy Faction Turn Behavior QA Balance Polish` (`97046321ae51f7ea0fd6a726e7b6dc42f4742ab8`).
 - Runtime files touched: `scripts/worldmap_test.gd` and `scripts/worldmap_city_info_panel.gd`.

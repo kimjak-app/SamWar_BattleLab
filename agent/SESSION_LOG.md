@@ -2,6 +2,29 @@
 
 ## 2026-06-18
 
+### v0.70-49 Enemy Invasion/Defense Balance Polish
+- Started from `669da79 v0.70-47 WorldMap Strategic UX Final Polish`.
+- Confirmed clean worktree, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- Audited enemy invasion candidate generation, pending event creation, defense deployment validation, BattleContext build/handoff, and invasion result application.
+- Implemented:
+  - Added `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS = 160` to keep weak enemy cities out of invasion-start candidates without changing result/occupation troop constants.
+  - Added invasion pair eligibility checks for missing city data, marker/HUD owner mismatch, wrong owner scope, non-adjacent pairs, and attacker troop readiness.
+  - Added simple eligible-pair scoring/sorting to prefer stronger attacker cities and plausible adjacent player targets while keeping the existing roll chance.
+  - Reused eligibility checks for pending invasion event creation and pending invasion BattleContext validation.
+  - Added a safe unknown-result path when an enemy invasion battle result lacks attacker/source city data.
+  - Added `v0.70-49 Enemy Invasion/Defense Balance Polish Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved `ENEMY_INVASION_CHANCE = 0.45`, `enemy_invasion_roll_turn`, enemy faction replay guard, pending event payload keys, BattleContext key/shape, Battle scene logic, player attack system scope, left/right panel scope, Fog of War, market/alliance/wedge behavior, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, and `.ogv`.
+- Verification:
+  - `git diff --check`
+  - required guard keyword search
+  - warning-cleanup regression search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - Scene loads emitted existing debug output only.
+- Manual F6 QA remains required for the v0.70-49 checklist: invasion eligibility/frequency, duplicate pending guard, weak city exclusion, adjacent player targets, defense source/target UI, command/deployable clamp, BattleContext handoff, defender/attacker win handling, retreat/unknown safety, save/load replay guards, v0.70-47 scope locks, and warning cleanliness.
+
 ### v0.70-47 WorldMap Strategic UX Final Polish
 - Started from `9704632 v0.70-46 Enemy Faction Turn Behavior QA Balance Polish`.
 - Confirmed clean worktree, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.

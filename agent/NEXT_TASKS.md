@@ -1,5 +1,25 @@
 # NEXT TASKS
 
+## Current: v0.70-49 Enemy Invasion/Defense Balance Polish
+- Baseline: `v0.70-47 WorldMap Strategic UX Final Polish` (`669da7976600db60b8a6283b1c9fb3f4d9078f70`). `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up` is deferred.
+- Completed direction:
+  1. Audited enemy invasion candidate generation, pending event creation, defense deployment validation, BattleContext handoff, and invasion result application.
+  2. Added conservative invasion eligibility guards for owner mismatch, missing city data, non-adjacent pairs, wrong owner scope, and weak attacker cities.
+  3. Added `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS = 160` as an invasion-start threshold separate from result/occupation troop constants.
+  4. Kept `ENEMY_INVASION_CHANCE = 0.45`; frequency polish is handled through eligibility guards rather than changing the global roll.
+  5. Added small scoring/sorting for eligible candidate pairs so stronger attacker cities and more plausible frontline targets are prioritized without adding a full enemy AI.
+  6. Hardened pending invasion validation and unknown-result handling when attacker/source city data is missing.
+- Preserved scope:
+  1. Pending invasion event payload keys, BattleContext handoff, `enemy_invasion_roll_turn`, enemy faction turn replay guard, left/right panel scope, Fog of War, market, alliance, wedge, and `faction_chancellors` remain unchanged.
+  2. No enemy diplomacy/spy/economy simulation, Battle scene logic expansion, player attack system refactor, hero death/capture system expansion, scene, asset, `.uid`, or `.ogv` change was made.
+- Verification:
+  1. `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+  2. Scene loads emitted existing debug output only.
+- Manual F6 QA required:
+  1. Run the v0.70-49 checklist for invasion generation conditions, no duplicate pending events, weak-city exclusion, adjacent player target selection, defense source/target semantics, command/deployable clamp, BattleContext handoff, defender/attacker win application, retreat/unknown safety, save/load replay guards, v0.70-47 scope locks, and warning cleanliness.
+- Next candidate work:
+  1. `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up`
+
 ## Current: v0.70-47 WorldMap Strategic UX Final Polish
 - Baseline: `v0.70-46 Enemy Faction Turn Behavior QA Balance Polish` (`97046321ae51f7ea0fd6a726e7b6dc42f4742ab8`).
 - Completed direction:

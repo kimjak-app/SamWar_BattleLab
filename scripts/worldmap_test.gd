@@ -192,6 +192,7 @@ const INVASION_RESULT_DEFAULT_OCCUPATION_TROOPS := 100
 const INVASION_MIN_CITY_TROOPS := 30
 const INVASION_MIN_OCCUPATION_TROOPS := 80
 const INVASION_MAX_REASONABLE_CITY_TROOPS := 99999
+const ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS := 160
 const INVASION_DEFENDER_WIN_DEFENDER_LOSS_RATE := 0.15
 const INVASION_DEFENDER_WIN_ATTACKER_LOSS_RATE := 0.70
 const INVASION_ATTACKER_WIN_DEFENDER_LOSS_RATE := 0.75
@@ -6070,15 +6071,15 @@ func _get_enemy_invasion_pairs_mvp() -> Array[Dictionary]:
 	var pairs: Array[Dictionary] = []
 	for attacker_city_id_variant in _city_markers_by_id.keys():
 		var attacker_city_id := str(attacker_city_id_variant)
-		if not _is_city_owned_by_enemy_mvp(attacker_city_id):
-			continue
 		for defender_city_id_variant in _get_city_neighbors_mvp(attacker_city_id):
 			var defender_city_id := str(defender_city_id_variant)
-			if _is_city_owned_by_player_mvp(defender_city_id):
+			if _is_enemy_invasion_pair_eligible_mvp(attacker_city_id, defender_city_id):
 				pairs.append({
 					"attacker_city_id": attacker_city_id,
 					"defender_city_id": defender_city_id,
+					"score": _score_enemy_invasion_pair_mvp(attacker_city_id, defender_city_id),
 				})
+	pairs.sort_custom(Callable(self, "_sort_enemy_invasion_pairs_mvp"))
 	return pairs
 
 
@@ -6097,6 +6098,85 @@ func _is_city_owned_by_enemy_mvp(city_id: String) -> bool:
 	var city_data := _get_city_hud_entry(city_id)
 	var owner_id := str(city_data.get("owner", city_data.get("nation", "")))
 	return not owner_id.is_empty() and owner_id != PLAYER_FACTION_ID
+
+
+func _is_city_owner_consistent_for_enemy_invasion_mvp(city_id: String) -> bool:
+	if city_id.is_empty():
+		return false
+	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+	var marker_owner_id := ""
+	if city_marker != null:
+		marker_owner_id = city_marker.owner_faction_id
+	var city_data := _get_city_hud_entry(city_id)
+	var hud_owner_id := ""
+	if not city_data.is_empty():
+		hud_owner_id = _get_city_owner_faction_id(city_data)
+	if marker_owner_id.is_empty() or hud_owner_id.is_empty():
+		return not marker_owner_id.is_empty() or not hud_owner_id.is_empty()
+	if marker_owner_id != hud_owner_id:
+		print("[ENEMY_INVASION_SKIP] city=%s reason=owner_mismatch marker=%s hud=%s" % [
+			city_id,
+			marker_owner_id,
+			hud_owner_id,
+		])
+		return false
+	return true
+
+
+func _is_enemy_invasion_pair_eligible_mvp(attacker_city_id: String, defender_city_id: String) -> bool:
+	if attacker_city_id.is_empty() or defender_city_id.is_empty() or attacker_city_id == defender_city_id:
+		return false
+	if not _has_city_for_battle_context(attacker_city_id) or not _has_city_for_battle_context(defender_city_id):
+		return false
+	if not _is_city_owner_consistent_for_enemy_invasion_mvp(attacker_city_id) or not _is_city_owner_consistent_for_enemy_invasion_mvp(defender_city_id):
+		return false
+	if not _is_city_owned_by_enemy_mvp(attacker_city_id) or not _is_city_owned_by_player_mvp(defender_city_id):
+		return false
+	if not _get_city_neighbors_mvp(attacker_city_id).has(defender_city_id):
+		return false
+	if _get_city_troops_for_enemy_invasion_mvp(attacker_city_id) < ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS:
+		return false
+	var event := {
+		"type": "defense",
+		"attacker_city_id": attacker_city_id,
+		"defender_city_id": defender_city_id,
+	}
+	return bool(_validate_pending_invasion_event_for_battle_context(event).get("ok", false))
+
+
+func _score_enemy_invasion_pair_mvp(attacker_city_id: String, defender_city_id: String) -> int:
+	var attacker_troops := _get_city_troops_for_enemy_invasion_mvp(attacker_city_id)
+	var defender_troops := _get_city_troops_for_battle_context(defender_city_id)
+	var troop_edge := attacker_troops - defender_troops
+	var score := mini(attacker_troops, 2000)
+	score += clampi(troop_edge, -1000, 1000)
+	score += 200 if _is_player_frontline_city_for_enemy_invasion_mvp(defender_city_id) else 0
+	return score
+
+
+func _sort_enemy_invasion_pairs_mvp(left: Dictionary, right: Dictionary) -> bool:
+	var left_score := int(left.get("score", 0))
+	var right_score := int(right.get("score", 0))
+	if left_score == right_score:
+		var left_key := "%s:%s" % [str(left.get("attacker_city_id", "")), str(left.get("defender_city_id", ""))]
+		var right_key := "%s:%s" % [str(right.get("attacker_city_id", "")), str(right.get("defender_city_id", ""))]
+		return left_key < right_key
+	return left_score > right_score
+
+
+func _get_city_troops_for_enemy_invasion_mvp(city_id: String) -> int:
+	if city_id.is_empty() or not _has_city_for_battle_context(city_id):
+		return 0
+	return _clamp_invasion_troops(_get_city_troops_for_battle_context(city_id))
+
+
+func _is_player_frontline_city_for_enemy_invasion_mvp(city_id: String) -> bool:
+	if not _is_city_owned_by_player_mvp(city_id):
+		return false
+	for neighbor_id in _get_city_neighbors_mvp(city_id):
+		if _is_city_owned_by_enemy_mvp(str(neighbor_id)):
+			return true
+	return false
 
 
 func _get_city_neighbors_mvp(city_id: String) -> Array[String]:
@@ -6498,6 +6578,9 @@ func _on_player_attack_deployment_cancelled() -> void:
 
 func _create_pending_invasion_event_mvp(attacker_city_id: String, defender_city_id: String) -> Dictionary:
 	if attacker_city_id.is_empty() or defender_city_id.is_empty():
+		return {}
+	if not _is_enemy_invasion_pair_eligible_mvp(attacker_city_id, defender_city_id):
+		print("[WorldMap] Enemy invasion MVP event skipped: ineligible pair %s -> %s" % [attacker_city_id, defender_city_id])
 		return {}
 	_clear_post_battle_result_summary()
 	_clear_pending_battle_context_mvp()
@@ -7000,6 +7083,12 @@ func _apply_invasion_battle_result(result_payload: Dictionary) -> void:
 	elif defender_city_id.is_empty() or not _has_city_for_battle_context(defender_city_id):
 		result_summary = _build_invasion_result_summary(INVASION_RESULT_UNKNOWN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, "", "", {}, "전투 결과 확인 필요", [
 			"방어 도시 정보를 찾을 수 없어 소유권 변화는 적용하지 않았습니다.",
+		])
+		status_message = _format_invasion_result_status_from_summary(result_summary)
+	elif attacker_city_id.is_empty() or not _has_city_for_battle_context(attacker_city_id):
+		var current_owner := _get_city_owner_id_for_battle_context(defender_city_id)
+		result_summary = _build_invasion_result_summary(INVASION_RESULT_UNKNOWN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, current_owner, current_owner, {}, "전투 결과 확인 필요", [
+			"침공 도시 정보를 찾을 수 없어 소유권 변화는 적용하지 않았습니다.",
 		])
 		status_message = _format_invasion_result_status_from_summary(result_summary)
 	else:
@@ -9412,10 +9501,18 @@ func _validate_pending_invasion_event_for_battle_context(event: Dictionary) -> D
 		return {"ok": false, "message": "침공 도시 정보를 찾을 수 없습니다."}
 	if not _has_city_for_battle_context(defender_city_id):
 		return {"ok": false, "message": "방어 도시 정보를 찾을 수 없습니다."}
+	if not _is_city_owner_consistent_for_enemy_invasion_mvp(attacker_city_id):
+		return {"ok": false, "message": "침공 도시 소유권 정보가 일치하지 않습니다."}
+	if not _is_city_owner_consistent_for_enemy_invasion_mvp(defender_city_id):
+		return {"ok": false, "message": "방어 도시 소유권 정보가 일치하지 않습니다."}
 	if not _is_city_owned_by_enemy_mvp(attacker_city_id):
 		return {"ok": false, "message": "침공 도시가 적 소유가 아닙니다."}
 	if not _is_city_owned_by_player_mvp(defender_city_id):
 		return {"ok": false, "message": "방어 도시가 아군 소유가 아닙니다."}
+	if not _get_city_neighbors_mvp(attacker_city_id).has(defender_city_id):
+		return {"ok": false, "message": "침공 도시와 방어 도시가 인접하지 않습니다."}
+	if _get_city_troops_for_enemy_invasion_mvp(attacker_city_id) < ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS:
+		return {"ok": false, "message": "침공 도시 병력이 부족합니다."}
 	return {"ok": true, "message": ""}
 
 

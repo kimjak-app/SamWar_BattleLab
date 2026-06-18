@@ -1,5 +1,17 @@
 # WORLDMAP RULES
 
+## v0.70-49 Enemy Invasion/Defense Balance Polish Lock Rule
+- Baseline was `v0.70-47 WorldMap Strategic UX Final Polish` (`669da7976600db60b8a6283b1c9fb3f4d9078f70`). `v0.70-48 Enemy Faction Diplomacy/Spy Behavior Follow-up` remains deferred.
+- This rule authorizes invasion/defense balance guards and QA polish only. It is not authorization for full enemy AI, enemy diplomacy behavior, enemy spy behavior, or enemy economy simulation.
+- `ENEMY_INVASION_CHANCE`, `enemy_invasion_roll_turn`, same-turn replay guards, pending invasion payload shape, BattleContext key/shape, and Battle handoff semantics must remain stable.
+- Candidate eligibility may be strengthened for missing city data, owner mismatch, wrong owner scope, non-adjacent pairs, attacker troop readiness, and BattleContext readiness.
+- Candidate scoring may sort already eligible invasion pairs for more plausible selection, but it must remain a small display/selection helper and must not become multi-turn strategy simulation.
+- Defense deployment must keep `source = defender city` and `target = attacker city`, preserve selected defender hero validation, captured/dead exclusion through existing availability checks, command limits, and deployable troop clamp.
+- Invasion result application may add safety guards for defender win, attacker win, retreat, unknown, missing city data, troop safety, pending cleanup, and summary clarity. It must not expand Battle scene combat logic, player attack system scope, hero death/capture systems, or placeholder wounded/captured mechanics.
+- Existing v0.70-47 locks remain active: left panel is PLAYER national/court scope, right panel is selected-city scope, enemy Fog of War and `city_intel` reveal rules remain payload-backed, and market/alliance/wedge/chancellor formulas and scopes must not change.
+- This rule does not authorize scene/asset/`.uid`/`.ogv` changes or repo-wide refactors.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-47 WorldMap Strategic UX Final Polish Lock Rule
 - Baseline was `v0.70-46 Enemy Faction Turn Behavior QA Balance Polish` (`97046321ae51f7ea0fd6a726e7b6dc42f4742ab8`).
 - This rule authorizes copy, hint, tooltip, and compact summary polish only for the existing WorldMap strategic UX.
