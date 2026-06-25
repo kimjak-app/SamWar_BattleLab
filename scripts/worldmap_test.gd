@@ -6218,6 +6218,12 @@ func _get_enemy_faction_goal_metadata(faction_id: String) -> Dictionary:
 	}
 
 
+func _get_enemy_goal_label_display_part(goal_id: String, goal_label: String) -> String:
+	if goal_id.is_empty() or goal_id == "hold_position" or goal_label.is_empty():
+		return ""
+	return "목표: %s" % goal_label
+
+
 func _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id: String) -> String:
 	if city_id.is_empty():
 		return ""
@@ -6561,12 +6567,12 @@ func _format_enemy_strategic_action_summary(action: Dictionary) -> String:
 		"enemy_diplomacy_follow_up":
 			var label := "접촉" if str(action.get("kind", "")) == "contact" else "긴장"
 			var profile_label := str(action.get("personality_label", ""))
-			var goal_label := str(action.get("goal_label", ""))
+			var goal_text := _get_enemy_goal_label_display_part(str(action.get("goal_id", "")), str(action.get("goal_label", "")))
 			var label_parts: Array[String] = []
 			if not profile_label.is_empty():
 				label_parts.append(profile_label)
-			if not goal_label.is_empty():
-				label_parts.append("목표:%s" % goal_label)
+			if not goal_text.is_empty():
+				label_parts.append(goal_text)
 			var profile_text := "(%s)" % " · ".join(label_parts) if not label_parts.is_empty() else ""
 			return "적 외교%s: %s-%s %s" % [
 				profile_text,
@@ -6576,12 +6582,12 @@ func _format_enemy_strategic_action_summary(action: Dictionary) -> String:
 			]
 		"enemy_spy_pressure":
 			var spy_profile_label := str(action.get("personality_label", ""))
-			var spy_goal_label := str(action.get("goal_label", ""))
+			var spy_goal_text := _get_enemy_goal_label_display_part(str(action.get("goal_id", "")), str(action.get("goal_label", "")))
 			var spy_label_parts: Array[String] = []
 			if not spy_profile_label.is_empty():
 				spy_label_parts.append(spy_profile_label)
-			if not spy_goal_label.is_empty():
-				spy_label_parts.append("목표:%s" % spy_goal_label)
+			if not spy_goal_text.is_empty():
+				spy_label_parts.append(spy_goal_text)
 			var spy_profile_text := "(%s)" % " · ".join(spy_label_parts) if not spy_label_parts.is_empty() else ""
 			return "적 첩보%s: %s 주변 정찰" % [
 				spy_profile_text,
@@ -6705,12 +6711,9 @@ func _build_enemy_faction_turn_summary(result: Dictionary) -> String:
 			if delta <= 0:
 				continue
 			var profile_label := str(action.get("personality_label", ""))
-			var goal_label := str(action.get("goal_label", ""))
 			var label_parts: Array[String] = []
 			if not profile_label.is_empty():
 				label_parts.append(profile_label)
-			if not goal_label.is_empty():
-				label_parts.append("목표:%s" % goal_label)
 			var profile_prefix := "%s " % " · ".join(label_parts) if not label_parts.is_empty() else ""
 			action_parts.append("%s%s 병력 +%d" % [
 				profile_prefix,
@@ -6772,12 +6775,12 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 				continue
 			var faction_label := str(action.get("faction_label", _format_faction_label(str(action.get("faction_id", "")))))
 			var profile_label := str(action.get("personality_label", ""))
-			var goal_label := str(action.get("goal_label", ""))
+			var goal_text := _get_enemy_goal_label_display_part(str(action.get("goal_id", "")), str(action.get("goal_label", "")))
 			var label_parts: Array[String] = []
 			if not profile_label.is_empty():
 				label_parts.append(profile_label)
-			if not goal_label.is_empty():
-				label_parts.append("목표:%s" % goal_label)
+			if not goal_text.is_empty():
+				label_parts.append(goal_text)
 			var faction_profile_label := "%s(%s)" % [faction_label, " · ".join(label_parts)] if not label_parts.is_empty() else faction_label
 			lines.append("%s · %s 병력 +%d" % [
 				faction_profile_label,

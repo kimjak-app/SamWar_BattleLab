@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-55 Enemy Goal QA & Strategy Hint Polish
+- Built on local `v0.70-54 Enemy Strategic Goal Seed MVP` (`617883d0fc71db1cdf9668e5c1148a98a5a04766`).
+- Audited v0.70-54 strategic goal seeds for faction id coverage, existing target city ids, compact labels, pressure metadata, default fallback, PLAYER exclusion, malformed fallback, missing target filtering, and `1.00..1.15` weight clamp behavior.
+- Confirmed the existing goal scoring bonuses remain conservative and limited to reinforcement target selection, strategic action type/target scoring, and eligible invasion pair scoring.
+- Added a compact goal-label display helper so default/empty goals stay hidden and visible hints use `목표: ...` consistently.
+- Polished enemy turn summary/hint output so reinforcement summaries do not repeat goal labels for every faction line while detailed strategic action/hint text can still show compact goal metadata.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change full enemy AI scope, scoring weights, reinforcement amount formulas, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload, BattleContext, replay guards, enemy spy actual damage, enemy alliance/trade simulation, enemy economy simulation, market formulas, alliance, wedge, player actions, `city_intel`, `faction_chancellors`, scenes, assets, `.uid`, or `.ogv`.
+
 ## v0.70-54 Enemy Strategic Goal Seed MVP
 - Built on `v0.70-53 Enemy Personality QA Balance Tuning Pass` (`1952388b5ac31a1fede63e9febc87f5bc9a559e9`).
 - Added conservative `ENEMY_FACTION_STRATEGIC_GOAL_SEEDS` for current non-player factions with default fallback, compact goal label, target city ids, region hints, pressure type, and bounded `1.00..1.15` weight.

@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-55 Enemy Goal QA & Strategy Hint Polish
+- Baseline: local `v0.70-54 Enemy Strategic Goal Seed MVP` (`617883d0fc71db1cdf9668e5c1148a98a5a04766`).
+- Completed direction:
+  1. Audited v0.70-54 strategic goal seed coverage, fallback helpers, bounded weights, existing target city ids, pressure metadata, summary/hint display, replay guard boundaries, and preserved-system guards.
+  2. Confirmed goal scoring remains a small seed-based nudge only for reinforcement target choice, diplomacy/spy strategic action type/target choice, and already eligible invasion pair scoring.
+  3. Polished goal hint display so default/empty goals are hidden, visible goal labels use compact `목표: ...`, and reinforcement summaries do not repeat goal labels across multiple faction action lines.
+- Preserved scope:
+  1. No full enemy AI, pathfinding, multi-turn war planning, enemy economy simulation, enemy spy actual damage, enemy alliance/trade simulation, player relation mutation, player city stat/resource mutation, `city_intel` mutation, market/alliance/wedge/player action change, BattleContext change, scene, asset, `.uid`, or `.ogv` change was made.
+  2. v0.70-51 enemy turn chain, v0.70-52 personality seed guard, v0.70-53 personality tuning guard, v0.70-54 strategic goal seed MVP lock, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, replay guards, left PLAYER scope, and right selected-city scope remain locked.
+- Verification:
+  1. `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+  2. Battle scene emitted existing debug output only.
+- Manual F6 QA required:
+  1. Run the v0.70-55 checklist for reinforcement continuity, compact/non-repetitive goal labels, non-fixed goal-biased scoring feel, target/frontline/invasion/diplomacy/defensive/spy preference feel, one strategic action per turn, no direct player stat/resource/city_intel mutation, no PLAYER relation mutation, pending invasion skip, v0.70-49/v0.70-51 guard continuity, save/load replay safety, panel scope/Fog of War/player action preservation, and warning cleanliness.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-55.
+
 ## Current: v0.70-54 Enemy Strategic Goal Seed MVP
 - Baseline: `v0.70-53 Enemy Personality QA Balance Tuning Pass` (`1952388b5ac31a1fede63e9febc87f5bc9a559e9`).
 - Completed direction:

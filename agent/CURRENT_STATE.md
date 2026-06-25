@@ -1,5 +1,35 @@
 # CURRENT STATE
 
+## v0.70-55 Enemy Goal QA & Strategy Hint Polish
+- Baseline: local `v0.70-54 Enemy Strategic Goal Seed MVP` at `617883d0fc71db1cdf9668e5c1148a98a5a04766`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- QA / polish scope:
+  - Audited `ENEMY_FACTION_STRATEGIC_GOAL_SEEDS`, default fallback, helper guards, target city existence filtering, weight clamp, compact labels, pressure metadata, and current faction id coverage.
+  - Confirmed current non-player goal seeds cover `goguryeo`, `silla`, `baekje_faction`, `wei`, `shu`, `wu`, `chu`, `oda`, `toyotomi`, `kyushu_faction`, `tokugawa`, and `mongol_faction`.
+  - Confirmed target city ids map to existing city metadata and missing target ids remain ignored by helper guards.
+  - Kept scoring values unchanged because v0.70-54 bonuses remain conservative and bounded compared with existing low-troop/frontline/personality scoring.
+  - Polished goal display so default/empty goals do not show as noise, strategic action/hint copy uses compact `목표: ...`, and reinforcement summary avoids repeated goal labels across multiple faction lines.
+- Preserved scope: no new enemy AI, no reinforcement amount change, no `ENEMY_INVASION_CHANCE` or `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS` change, no pending invasion payload or BattleContext change, no replay guard change, no enemy spy actual damage, no enemy diplomacy alliance/trade simulation, no enemy economy simulation, no market/alliance/wedge/player action change, no `city_intel` mutation, no scene/asset/`.uid`/`.ogv` changes.
+- Verification: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed. Battle scene emitted existing debug output only.
+- Manual F6 QA remains required:
+  1. 턴 종료 후 enemy reinforcement가 기존처럼 정상 적용되는지 확인.
+  2. strategic goal label이 summary/log에서 너무 길지 않은지 확인.
+  3. 목표 label이 반복적으로 과하게 노출되지 않는지 확인.
+  4. goal-biased scoring이 너무 고정적이지 않은지 확인.
+  5. 고구려/몽골/오다 등 군사·공격 목표 faction이 target/frontline/invasion을 조금 더 선호하는지 확인.
+  6. 신라/촉/도쿠가와 등 외교·방어 목표 faction이 diplomacy/defensive behavior를 조금 더 선호하는지 확인.
+  7. 규슈 등 첩보 목표 faction이 spy pressure를 조금 더 선호하는지 확인.
+  8. strategic action은 여전히 한 턴 최대 1건인지 확인.
+  9. enemy spy pressure가 player stat/resource/city_intel을 직접 변경하지 않는지 확인.
+  10. enemy diplomacy가 PLAYER relation을 직접 변경하지 않는지 확인.
+  11. pending invasion 중 strategic action이 skip되는지 확인.
+  12. v0.70-49 invasion guard와 v0.70-51 replay guard가 유지되는지 확인.
+  13. save/load 후 goal-based action/scoring이 replay되지 않는지 확인.
+  14. left PLAYER scope, right selected-city scope, Fog of War, market, alliance, wedge, player spy/diplomacy가 유지되는지 확인.
+  15. Godot Output에 새 warning/error가 없는지 확인.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-55.
+
 ## v0.70-54 Enemy Strategic Goal Seed MVP
 - Baseline: `v0.70-53 Enemy Personality QA Balance Tuning Pass` at `1952388b5ac31a1fede63e9febc87f5bc9a559e9`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

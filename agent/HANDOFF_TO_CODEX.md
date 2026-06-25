@@ -1,5 +1,22 @@
 # HANDOFF TO CODEX
 
+## v0.70-55 Enemy Goal QA & Strategy Hint Polish Handoff
+- Baseline: local `v0.70-54 Enemy Strategic Goal Seed MVP` (`617883d0fc71db1cdf9668e5c1148a98a5a04766`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is QA and strategy hint polish over v0.70-54. It is not a new enemy AI pass, not a planner, and not authorization for pathfinding, economy simulation, spy damage, or alliance/trade simulation.
+- Strategic goal remains target/pressure/weight seed metadata with conservative scoring bonuses only. PLAYER and unknown/malformed factions must still fall back safely.
+- QA confirmed the current non-player goal seed coverage matches the active faction ids and current target city ids exist in the worldmap metadata.
+- Runtime polish:
+  - Default/empty goals no longer produce visible goal hint noise.
+  - Strategic action and detailed enemy hint copy use compact `목표: ...` display text.
+  - Reinforcement one-line summary avoids repeated goal labels across multiple faction action lines.
+- Goal influence remains limited to reinforcement target scoring, strategic action type/target scoring, and already eligible invasion pair scoring.
+- Enemy spy pressure remains display/history only and does not mutate player city stats, resources, troops, publicSupport, loyalty, or `city_intel`.
+- Enemy diplomacy remains non-player-pair-only score drift and does not directly change PLAYER relations, alliance state, trade agreements, cooldowns, resources, chancellor state, or national stock.
+- Explicitly unchanged: `_player_state["last_enemy_faction_turn_processed_turn"]`, `_player_state["last_enemy_faction_turn_result"]`, `_player_state["last_enemy_strategic_action_result"]`, `strategic_actions` max-one semantics, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext handoff, reinforcement amount constants, defense deployment, battle result apply, player attack path, left PLAYER panel scope, right selected-city scope, Fog of War, `city_intel`, market, alliance, wedge, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scenes, assets, `.uid`, and `.ogv`.
+- Verification passed: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load. Battle scene emitted existing debug output only.
+- Manual F6 QA still required for the v0.70-55 checklist.
+
 ## v0.70-54 Enemy Strategic Goal Seed MVP Handoff
 - Baseline: `v0.70-53 Enemy Personality QA Balance Tuning Pass` (`1952388b5ac31a1fede63e9febc87f5bc9a559e9`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

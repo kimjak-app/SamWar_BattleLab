@@ -2,6 +2,32 @@
 
 ## 2026-06-25
 
+### v0.70-55 Enemy Goal QA & Strategy Hint Polish
+- Started from local `617883d v0.70-54 Enemy Strategic Goal Seed MVP`.
+- Confirmed `main` was expectedly ahead of `origin/main` by one v0.70-54 commit, fetched `origin/main`, and verified the requested local HEAD before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- QA audit:
+  - Confirmed strategic goal seed coverage for current non-player faction ids.
+  - Confirmed target city ids are existing worldmap city ids and helper guards ignore missing targets.
+  - Confirmed goal weights remain within the `1.00..1.15` helper clamp.
+  - Confirmed v0.70-54 scoring remains a conservative nudge and does not overpower low-troop/frontline/personality scoring.
+  - Confirmed strategic action, invasion, replay, hidden-data, and player-action guard boundaries remained unchanged.
+- Implemented:
+  - Added a goal-label display helper that hides default/empty goals and formats visible metadata as `목표: ...`.
+  - Applied the helper to enemy strategic action summary and detailed faction-turn hint output.
+  - Removed repeated goal label fragments from reinforcement one-line summaries to keep multi-faction summaries compact.
+  - Added `v0.70-55 Enemy Goal QA & Strategy Hint Polish Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-51 enemy turn chain locks, v0.70-52 personality seed scope, v0.70-53 personality tuning guard, v0.70-54 strategic goal seed MVP lock, reinforcement amount formulas, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext, defense deployment, battle result apply, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, and `.ogv`.
+- Verification:
+  - `git diff --check`
+  - required guard keyword search
+  - warning-cleanup regression search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - Battle scene emitted existing debug output only.
+- Manual F6 QA remains required for the v0.70-55 checklist.
+
 ### v0.70-54 Enemy Strategic Goal Seed MVP
 - Started from `1952388 v0.70-53 Enemy Personality QA Balance Tuning Pass`.
 - Confirmed clean worktree, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.
