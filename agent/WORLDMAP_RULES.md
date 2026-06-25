@@ -1,5 +1,21 @@
 # WORLDMAP RULES
 
+## v0.70-54 Enemy Strategic Goal Seed MVP Lock Rule
+- Baseline was `v0.70-53 Enemy Personality QA Balance Tuning Pass` (`1952388b5ac31a1fede63e9febc87f5bc9a559e9`).
+- This rule authorizes conservative enemy faction strategic goal seeds only. It is not full enemy AI, not a long-term war planner, not pathfinding, not enemy economy simulation, and not multi-action strategic behavior.
+- Strategic goal data is seed/metadata based: goal id, compact label, target city ids, target region hints, pressure, and bounded weight.
+- Strategic goal weights must stay inside `1.00..1.15`; malformed or unknown seeds must fall back to the default goal, and PLAYER must not receive enemy strategic goal behavior.
+- Missing target city ids must be ignored. Goal labels must remain compact and must not reveal hidden enemy resources, chancellor detail, city intel, or national state.
+- Goal seed influence is limited to small scoring bonuses for reinforcement target selection, strategic action type/target selection, and eligible invasion pair scoring.
+- Reinforcement amount constants, one reinforcement action per faction, owner mismatch guards, and player city reinforcement ban remain stable.
+- Strategic follow-up remains capped at at most one action per world turn, must skip during pending invasion or pending battle context, and must remain replay-safe through `_player_state["last_enemy_faction_turn_processed_turn"]`, `_player_state["last_enemy_faction_turn_result"]`, `_player_state["last_enemy_strategic_action_result"]`, and `strategic_actions`.
+- Enemy spy pressure remains display/history only and must not mutate player city stats, resources, troops, publicSupport, loyalty, `city_intel`, spy cooldowns, detection penalties, or relation state.
+- Enemy diplomacy relation drift remains limited to non-player faction pairs and small score-only changes. It must not directly change PLAYER relations, relation status, alliance state, trade agreement state, cooldowns, resources, chancellor state, or national stock.
+- Invasion goal influence may sort already eligible pairs only. `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext handoff, and v0.70-49 eligibility guards must not change.
+- Existing regression locks remain active: v0.70-51 enemy turn chain, v0.70-52 personality seed scope, v0.70-53 personality tuning, left PLAYER scope, right selected-city scope, Fog of War, `city_intel` display-only restore, market formula, alliance behavior, wedge behavior, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scene/asset/`.uid`/`.ogv` stability.
+- Enemy spy actual damage, enemy diplomacy alliance/trade simulation, enemy economy simulation, Battle scene behavior expansion, and repo-wide refactors remain forbidden.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-53 Enemy Personality QA & Balance Tuning Lock Rule
 - Baseline was `v0.70-52 Enemy Faction Personality Seed MVP` (`4ee00833ac7ea4f953ec6e006362ff51b361551f`).
 - This rule is a QA/tuning pass for v0.70-52 personality seeds. It is not a new enemy AI pass and not authorization for planning, economy simulation, or multi-action strategic behavior.

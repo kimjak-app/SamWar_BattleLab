@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-54 Enemy Strategic Goal Seed MVP
+- Built on `v0.70-53 Enemy Personality QA Balance Tuning Pass` (`1952388b5ac31a1fede63e9febc87f5bc9a559e9`).
+- Added conservative `ENEMY_FACTION_STRATEGIC_GOAL_SEEDS` for current non-player factions with default fallback, compact goal label, target city ids, region hints, pressure type, and bounded `1.00..1.15` weight.
+- Added goal helper guards for fallback, PLAYER exclusion, malformed seed fallback, target city existence filtering, pressure lookup, and weight clamp.
+- Applied small goal bonuses to enemy reinforcement target scoring, strategic diplomacy/spy pressure selection scoring, and already eligible invasion pair scoring.
+- Added compact `goal_id`, `goal_label`, and `goal_pressure` display metadata to reinforcement and strategic action payloads so summary/hint can show `목표:` without exposing hidden enemy state.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change full enemy AI scope, reinforcement amount formulas, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload, BattleContext, replay guards, enemy spy actual damage, enemy alliance/trade simulation, enemy economy simulation, market formulas, alliance, wedge, player actions, `city_intel`, `faction_chancellors`, scenes, assets, `.uid`, or `.ogv`.
+
 ## v0.70-53 Enemy Personality QA & Balance Tuning Pass
 - Built on `v0.70-52 Enemy Faction Personality Seed MVP` (`4ee00833ac7ea4f953ec6e006362ff51b361551f`).
 - Audited personality seed coverage, default fallback, bounded weights, compact labels, reinforcement target scoring, strategic action type selection, eligible invasion pair scoring, summary/hint display, and replay/save-load guard boundaries.

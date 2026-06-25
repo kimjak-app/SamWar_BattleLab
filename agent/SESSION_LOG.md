@@ -1,5 +1,28 @@
 # SESSION LOG
 
+## 2026-06-25
+
+### v0.70-54 Enemy Strategic Goal Seed MVP
+- Started from `1952388 v0.70-53 Enemy Personality QA Balance Tuning Pass`.
+- Confirmed clean worktree, expected HEAD, fetched `origin/main`, and confirmed local/origin HEAD match before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- Implemented:
+  - Added `ENEMY_FACTION_STRATEGIC_GOAL_SEEDS` with default fallback, compact labels, pressure metadata, target city ids, region hints, and bounded weights.
+  - Added goal helpers for fallback, PLAYER exclusion, malformed seed fallback, target city existence filtering, pressure lookup, and weight clamp.
+  - Added small goal bonuses to reinforcement target scoring, diplomacy/spy strategic follow-up selection, and already eligible invasion pair scoring.
+  - Added compact goal display metadata to reinforcement and strategic action payloads plus summary/hint copy.
+  - Added `v0.70-54 Enemy Strategic Goal Seed MVP Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-51 enemy turn chain locks, v0.70-52 personality seed scope, v0.70-53 personality tuning guard, reinforcement amount formulas, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext, defense deployment, battle result apply, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, and `.ogv`.
+- Verification:
+  - `git diff --check`
+  - required guard keyword search
+  - warning-cleanup regression search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - Battle scene emitted existing debug output only.
+- Manual F6 QA remains required for the v0.70-54 checklist.
+
 ## 2026-06-18
 
 ### v0.70-53 Enemy Personality QA & Balance Tuning Pass

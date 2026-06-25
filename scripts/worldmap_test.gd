@@ -368,6 +368,113 @@ const ENEMY_FACTION_PERSONALITY_SEEDS := {
 	},
 }
 
+const ENEMY_FACTION_STRATEGIC_GOAL_SEEDS := {
+	"default": {
+		"goal_id": "hold_position",
+		"label": "전선 유지",
+		"target_city_ids": [],
+		"target_region_ids": [],
+		"pressure": "balanced",
+		"weight": 1.0,
+	},
+	"goguryeo": {
+		"goal_id": "pressure_hanseong",
+		"label": "한성 압박",
+		"target_city_ids": ["hanseong", "pyeongyang"],
+		"target_region_ids": ["region.korean_peninsula"],
+		"pressure": "military",
+		"weight": 1.1,
+	},
+	"baekje_faction": {
+		"goal_id": "restore_southwest",
+		"label": "서남 방어",
+		"target_city_ids": ["sabi", "hanseong"],
+		"target_region_ids": ["region.korean_peninsula"],
+		"pressure": "defensive",
+		"weight": 1.06,
+	},
+	"silla": {
+		"goal_id": "peninsula_balance",
+		"label": "반도 균형",
+		"target_city_ids": ["gyeongju", "sabi", "hanseong"],
+		"target_region_ids": ["region.korean_peninsula"],
+		"pressure": "diplomacy",
+		"weight": 1.05,
+	},
+	"wei": {
+		"goal_id": "central_plains_control",
+		"label": "중원 장악",
+		"target_city_ids": ["luoyang", "yecheng"],
+		"target_region_ids": ["region.china_mainland"],
+		"pressure": "military",
+		"weight": 1.08,
+	},
+	"shu": {
+		"goal_id": "western_resilience",
+		"label": "서방 방어",
+		"target_city_ids": ["chengdu"],
+		"target_region_ids": ["region.china_mainland"],
+		"pressure": "defensive",
+		"weight": 1.05,
+	},
+	"wu": {
+		"goal_id": "river_trade_hold",
+		"label": "강남 방어",
+		"target_city_ids": ["jianye"],
+		"target_region_ids": ["region.china_mainland"],
+		"pressure": "trade_defensive",
+		"weight": 1.05,
+	},
+	"chu": {
+		"goal_id": "southern_balance",
+		"label": "남방 균형",
+		"target_city_ids": ["luoyang", "jianye"],
+		"target_region_ids": ["region.china_mainland"],
+		"pressure": "balanced",
+		"weight": 1.02,
+	},
+	"oda": {
+		"goal_id": "kyoto_expansion",
+		"label": "교토 압박",
+		"target_city_ids": ["kyoto", "osaka"],
+		"target_region_ids": ["region.japanese_archipelago"],
+		"pressure": "aggressive",
+		"weight": 1.1,
+	},
+	"toyotomi": {
+		"goal_id": "osaka_expansion",
+		"label": "오사카 확장",
+		"target_city_ids": ["osaka", "kyoto"],
+		"target_region_ids": ["region.japanese_archipelago"],
+		"pressure": "aggressive",
+		"weight": 1.08,
+	},
+	"kyushu_faction": {
+		"goal_id": "western_isles_scheme",
+		"label": "서국 교란",
+		"target_city_ids": ["kyushu", "osaka"],
+		"target_region_ids": ["region.japanese_archipelago"],
+		"pressure": "spy",
+		"weight": 1.07,
+	},
+	"tokugawa": {
+		"goal_id": "eastern_consolidation",
+		"label": "동방 안정",
+		"target_city_ids": ["edo", "kyoto"],
+		"target_region_ids": ["region.japanese_archipelago"],
+		"pressure": "defensive",
+		"weight": 1.05,
+	},
+	"mongol_faction": {
+		"goal_id": "northern_breakthrough",
+		"label": "북방 돌파",
+		"target_city_ids": ["karakorum", "pyeongyang"],
+		"target_region_ids": ["region.northern_steppe", "region.korean_peninsula"],
+		"pressure": "invasion",
+		"weight": 1.12,
+	},
+}
+
 const CITY_TYPE_LABELS := {
 	"hanseong": "상업 수도",
 	"pyeongyang": "북방 요새",
@@ -6032,6 +6139,85 @@ func _get_enemy_faction_personality_metadata(faction_id: String) -> Dictionary:
 	}
 
 
+func _get_enemy_faction_strategic_goal_seed(faction_id: String) -> Dictionary:
+	var raw_default_seed: Variant = ENEMY_FACTION_STRATEGIC_GOAL_SEEDS.get("default", {})
+	var default_seed: Dictionary = {}
+	if raw_default_seed is Dictionary:
+		default_seed = (raw_default_seed as Dictionary).duplicate(true)
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+		return default_seed.duplicate(true)
+	var raw_seed: Variant = ENEMY_FACTION_STRATEGIC_GOAL_SEEDS.get(faction_id, default_seed)
+	if raw_seed is Dictionary:
+		var seed := default_seed.duplicate(true)
+		for key in (raw_seed as Dictionary).keys():
+			seed[key] = (raw_seed as Dictionary)[key]
+		return seed
+	return default_seed.duplicate(true)
+
+
+func _get_enemy_faction_goal_id(faction_id: String) -> String:
+	return str(_get_enemy_faction_strategic_goal_seed(faction_id).get("goal_id", "hold_position"))
+
+
+func _get_enemy_faction_goal_label(faction_id: String) -> String:
+	return str(_get_enemy_faction_strategic_goal_seed(faction_id).get("label", "전선 유지"))
+
+
+func _get_enemy_faction_goal_pressure(faction_id: String) -> String:
+	return str(_get_enemy_faction_strategic_goal_seed(faction_id).get("pressure", "balanced"))
+
+
+func _get_enemy_faction_goal_weight(faction_id: String) -> float:
+	var seed := _get_enemy_faction_strategic_goal_seed(faction_id)
+	return clampf(float(seed.get("weight", 1.0)), 1.0, 1.15)
+
+
+func _get_enemy_goal_target_city_ids(faction_id: String) -> Array[String]:
+	var result: Array[String] = []
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+		return result
+	var seed := _get_enemy_faction_strategic_goal_seed(faction_id)
+	var raw_city_ids: Variant = seed.get("target_city_ids", [])
+	if not raw_city_ids is Array:
+		return result
+	for city_id_variant in raw_city_ids:
+		var city_id := str(city_id_variant)
+		if city_id.is_empty():
+			continue
+		if not _has_city_for_battle_context(city_id) and not CITY_HUD_DATA.has(city_id):
+			continue
+		if not result.has(city_id):
+			result.append(city_id)
+	return result
+
+
+func _is_city_preferred_by_enemy_goal(faction_id: String, city_id: String) -> bool:
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or city_id.is_empty():
+		return false
+	return _get_enemy_goal_target_city_ids(faction_id).has(city_id)
+
+
+func _is_city_adjacent_to_enemy_goal_target(faction_id: String, city_id: String) -> bool:
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or city_id.is_empty():
+		return false
+	for target_city_id in _get_enemy_goal_target_city_ids(faction_id):
+		if target_city_id == city_id:
+			continue
+		if _get_city_neighbors_mvp(city_id).has(target_city_id) or _get_city_neighbors_mvp(target_city_id).has(city_id):
+			return true
+	return false
+
+
+func _get_enemy_faction_goal_metadata(faction_id: String) -> Dictionary:
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+		return {}
+	return {
+		"goal_id": _get_enemy_faction_goal_id(faction_id),
+		"goal_label": _get_enemy_faction_goal_label(faction_id),
+		"goal_pressure": _get_enemy_faction_goal_pressure(faction_id),
+	}
+
+
 func _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id: String) -> String:
 	if city_id.is_empty():
 		return ""
@@ -6103,9 +6289,19 @@ func _score_enemy_reinforcement_city_for_personality(faction_id: String, city_id
 	var low_troop_score := clampi(3000 - troops, 0, 3000)
 	var reinforce_weight := _get_enemy_faction_behavior_weight(faction_id, "reinforce_weight", 1.0)
 	var frontline_weight := _get_enemy_faction_behavior_weight(faction_id, "frontline_weight", 1.0)
+	var goal_weight := _get_enemy_faction_goal_weight(faction_id)
+	var goal_pressure := _get_enemy_faction_goal_pressure(faction_id)
 	var score := int(round(float(low_troop_score) * reinforce_weight))
 	if _is_enemy_frontline_city_for_faction(city_id, faction_id):
 		score += int(round(450.0 * frontline_weight))
+		if goal_pressure == "military" or goal_pressure == "invasion" or goal_pressure == "aggressive":
+			score += int(round(80.0 * goal_weight))
+	if _is_city_preferred_by_enemy_goal(faction_id, city_id):
+		score += int(round(120.0 * goal_weight))
+	elif _is_city_adjacent_to_enemy_goal_target(faction_id, city_id):
+		score += int(round(55.0 * goal_weight))
+	if goal_pressure == "defensive" or goal_pressure == "trade_defensive":
+		score += int(round(float(clampi(1800 - troops, 0, 1800)) * 0.03 * goal_weight))
 	return score
 
 
@@ -6146,6 +6342,9 @@ func _apply_enemy_city_reinforcement_mvp(faction_id: String, city_id: String) ->
 		"faction_label": _format_faction_label(faction_id),
 		"personality_profile": _get_enemy_faction_personality_profile_id(faction_id),
 		"personality_label": _get_enemy_faction_personality_label(faction_id),
+		"goal_id": _get_enemy_faction_goal_id(faction_id),
+		"goal_label": _get_enemy_faction_goal_label(faction_id),
+		"goal_pressure": _get_enemy_faction_goal_pressure(faction_id),
 		"action_id": "reinforce_city",
 		"city_id": city_id,
 		"city_name": _format_city_name_by_id(city_id, city_id),
@@ -6215,7 +6414,12 @@ func _score_enemy_diplomacy_follow_up_candidate_mvp(faction_a: String, faction_b
 		_get_enemy_faction_behavior_weight(faction_a, "diplomacy_weight", 1.0) +
 		_get_enemy_faction_behavior_weight(faction_b, "diplomacy_weight", 1.0)
 	) * 0.5
-	return int(round(100.0 * diplomacy_weight)) + score_gap * 2
+	var goal_bonus := 0
+	for faction_id in [faction_a, faction_b]:
+		var goal_pressure := _get_enemy_faction_goal_pressure(str(faction_id))
+		if goal_pressure == "diplomacy" or goal_pressure == "defensive" or goal_pressure == "trade_defensive":
+			goal_bonus += int(round(8.0 * _get_enemy_faction_goal_weight(str(faction_id))))
+	return int(round(100.0 * diplomacy_weight)) + score_gap * 2 + goal_bonus
 
 
 func _sort_enemy_diplomacy_follow_up_candidates_mvp(left: Dictionary, right: Dictionary) -> bool:
@@ -6252,6 +6456,9 @@ func _apply_enemy_diplomacy_follow_up_mvp(candidate: Dictionary) -> Dictionary:
 		"kind": mood,
 		"personality_profile": _get_enemy_faction_personality_profile_id(faction_a),
 		"personality_label": _get_enemy_faction_personality_label(faction_a),
+		"goal_id": _get_enemy_faction_goal_id(faction_a),
+		"goal_label": _get_enemy_faction_goal_label(faction_a),
+		"goal_pressure": _get_enemy_faction_goal_pressure(faction_a),
 		"faction_a": faction_a,
 		"faction_b": faction_b,
 		"faction_a_label": _format_faction_label(faction_a),
@@ -6298,7 +6505,16 @@ func _score_enemy_spy_pressure_follow_up_candidate_mvp(faction_id: String, attac
 	var spy_weight := _get_enemy_faction_behavior_weight(faction_id, "spy_weight", 1.0)
 	var attacker_troops := mini(_get_city_troops_for_enemy_invasion_mvp(attacker_city_id), 2000)
 	var frontline_bonus := 6 if _is_player_frontline_city_for_enemy_invasion_mvp(target_city_id) else 0
-	return int(round(82.0 * spy_weight)) + floori(float(attacker_troops) / 150.0) + frontline_bonus
+	var goal_weight := _get_enemy_faction_goal_weight(faction_id)
+	var goal_pressure := _get_enemy_faction_goal_pressure(faction_id)
+	var goal_bonus := 0
+	if goal_pressure == "spy":
+		goal_bonus += int(round(10.0 * goal_weight))
+	if _is_city_preferred_by_enemy_goal(faction_id, target_city_id):
+		goal_bonus += int(round(8.0 * goal_weight))
+	elif _is_city_adjacent_to_enemy_goal_target(faction_id, target_city_id):
+		goal_bonus += int(round(4.0 * goal_weight))
+	return int(round(82.0 * spy_weight)) + floori(float(attacker_troops) / 150.0) + frontline_bonus + goal_bonus
 
 
 func _sort_enemy_spy_pressure_follow_up_candidates_mvp(left: Dictionary, right: Dictionary) -> bool:
@@ -6326,6 +6542,9 @@ func _build_enemy_spy_pressure_follow_up_result_mvp(candidate: Dictionary) -> Di
 		"kind": "recon",
 		"personality_profile": _get_enemy_faction_personality_profile_id(faction_id),
 		"personality_label": _get_enemy_faction_personality_label(faction_id),
+		"goal_id": _get_enemy_faction_goal_id(faction_id),
+		"goal_label": _get_enemy_faction_goal_label(faction_id),
+		"goal_pressure": _get_enemy_faction_goal_pressure(faction_id),
 		"faction_id": faction_id,
 		"faction_label": _format_faction_label(faction_id),
 		"attacker_city_id": attacker_city_id,
@@ -6342,7 +6561,13 @@ func _format_enemy_strategic_action_summary(action: Dictionary) -> String:
 		"enemy_diplomacy_follow_up":
 			var label := "접촉" if str(action.get("kind", "")) == "contact" else "긴장"
 			var profile_label := str(action.get("personality_label", ""))
-			var profile_text := "(%s)" % profile_label if not profile_label.is_empty() else ""
+			var goal_label := str(action.get("goal_label", ""))
+			var label_parts: Array[String] = []
+			if not profile_label.is_empty():
+				label_parts.append(profile_label)
+			if not goal_label.is_empty():
+				label_parts.append("목표:%s" % goal_label)
+			var profile_text := "(%s)" % " · ".join(label_parts) if not label_parts.is_empty() else ""
 			return "적 외교%s: %s-%s %s" % [
 				profile_text,
 				str(action.get("faction_a_label", _format_faction_label(str(action.get("faction_a", ""))))),
@@ -6351,7 +6576,13 @@ func _format_enemy_strategic_action_summary(action: Dictionary) -> String:
 			]
 		"enemy_spy_pressure":
 			var spy_profile_label := str(action.get("personality_label", ""))
-			var spy_profile_text := "(%s)" % spy_profile_label if not spy_profile_label.is_empty() else ""
+			var spy_goal_label := str(action.get("goal_label", ""))
+			var spy_label_parts: Array[String] = []
+			if not spy_profile_label.is_empty():
+				spy_label_parts.append(spy_profile_label)
+			if not spy_goal_label.is_empty():
+				spy_label_parts.append("목표:%s" % spy_goal_label)
+			var spy_profile_text := "(%s)" % " · ".join(spy_label_parts) if not spy_label_parts.is_empty() else ""
 			return "적 첩보%s: %s 주변 정찰" % [
 				spy_profile_text,
 				str(action.get("target_city_name", action.get("target_city_id", "아군 도시"))),
@@ -6373,6 +6604,9 @@ func _normalize_enemy_strategic_action_for_display(raw_action: Variant) -> Dicti
 			action["kind"] = "tension" if str(action.get("kind", "")) == "tension" else "contact"
 			action["personality_profile"] = str(action.get("personality_profile", _get_enemy_faction_personality_profile_id(faction_a)))
 			action["personality_label"] = str(action.get("personality_label", _get_enemy_faction_personality_label(faction_a)))
+			action["goal_id"] = str(action.get("goal_id", _get_enemy_faction_goal_id(faction_a)))
+			action["goal_label"] = str(action.get("goal_label", _get_enemy_faction_goal_label(faction_a)))
+			action["goal_pressure"] = str(action.get("goal_pressure", _get_enemy_faction_goal_pressure(faction_a)))
 			action["faction_a_label"] = str(action.get("faction_a_label", _format_faction_label(faction_a)))
 			action["faction_b_label"] = str(action.get("faction_b_label", _format_faction_label(faction_b)))
 			action["before_score"] = clampi(int(action.get("before_score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
@@ -6388,6 +6622,9 @@ func _normalize_enemy_strategic_action_for_display(raw_action: Variant) -> Dicti
 			action["kind"] = "recon"
 			action["personality_profile"] = str(action.get("personality_profile", _get_enemy_faction_personality_profile_id(faction_id)))
 			action["personality_label"] = str(action.get("personality_label", _get_enemy_faction_personality_label(faction_id)))
+			action["goal_id"] = str(action.get("goal_id", _get_enemy_faction_goal_id(faction_id)))
+			action["goal_label"] = str(action.get("goal_label", _get_enemy_faction_goal_label(faction_id)))
+			action["goal_pressure"] = str(action.get("goal_pressure", _get_enemy_faction_goal_pressure(faction_id)))
 			action["effect"] = "display_only"
 			action["faction_label"] = str(action.get("faction_label", _format_faction_label(faction_id)))
 			action["attacker_city_name"] = str(action.get("attacker_city_name", _format_city_name_by_id(attacker_city_id, attacker_city_id)))
@@ -6468,7 +6705,13 @@ func _build_enemy_faction_turn_summary(result: Dictionary) -> String:
 			if delta <= 0:
 				continue
 			var profile_label := str(action.get("personality_label", ""))
-			var profile_prefix := "%s " % profile_label if not profile_label.is_empty() else ""
+			var goal_label := str(action.get("goal_label", ""))
+			var label_parts: Array[String] = []
+			if not profile_label.is_empty():
+				label_parts.append(profile_label)
+			if not goal_label.is_empty():
+				label_parts.append("목표:%s" % goal_label)
+			var profile_prefix := "%s " % " · ".join(label_parts) if not label_parts.is_empty() else ""
 			action_parts.append("%s%s 병력 +%d" % [
 				profile_prefix,
 				str(action.get("city_name", action.get("city_id", ""))),
@@ -6529,7 +6772,13 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 				continue
 			var faction_label := str(action.get("faction_label", _format_faction_label(str(action.get("faction_id", "")))))
 			var profile_label := str(action.get("personality_label", ""))
-			var faction_profile_label := "%s(%s)" % [faction_label, profile_label] if not profile_label.is_empty() else faction_label
+			var goal_label := str(action.get("goal_label", ""))
+			var label_parts: Array[String] = []
+			if not profile_label.is_empty():
+				label_parts.append(profile_label)
+			if not goal_label.is_empty():
+				label_parts.append("목표:%s" % goal_label)
+			var faction_profile_label := "%s(%s)" % [faction_label, " · ".join(label_parts)] if not label_parts.is_empty() else faction_label
 			lines.append("%s · %s 병력 +%d" % [
 				faction_profile_label,
 				str(action.get("city_name", action.get("city_id", ""))),
@@ -6649,10 +6898,19 @@ func _score_enemy_invasion_pair_mvp(attacker_city_id: String, defender_city_id: 
 	score += clampi(troop_edge, -1000, 1000)
 	score += 200 if _is_player_frontline_city_for_enemy_invasion_mvp(defender_city_id) else 0
 	var attacker_faction_id := _get_safe_enemy_owner_faction_id_for_turn_mvp(attacker_city_id)
+	var goal_weight := _get_enemy_faction_goal_weight(attacker_faction_id)
+	var goal_pressure := _get_enemy_faction_goal_pressure(attacker_faction_id)
+	if _is_city_preferred_by_enemy_goal(attacker_faction_id, defender_city_id):
+		score += int(round(140.0 * goal_weight))
+	elif _is_city_adjacent_to_enemy_goal_target(attacker_faction_id, defender_city_id):
+		score += int(round(65.0 * goal_weight))
+	if goal_pressure == "invasion" or goal_pressure == "aggressive" or goal_pressure == "military":
+		score += int(round(70.0 * goal_weight))
 	var invasion_weight := _get_enemy_faction_behavior_weight(attacker_faction_id, "invasion_weight", 1.0)
 	if score <= 0:
 		return score
-	return int(round(float(score) * invasion_weight))
+	var pressure_multiplier := 1.0 + ((goal_weight - 1.0) * 0.5) if goal_pressure == "invasion" or goal_pressure == "aggressive" or goal_pressure == "military" else 1.0
+	return int(round(float(score) * invasion_weight * pressure_multiplier))
 
 
 func _sort_enemy_invasion_pairs_mvp(left: Dictionary, right: Dictionary) -> bool:

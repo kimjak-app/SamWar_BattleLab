@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-54 Enemy Strategic Goal Seed MVP
+- Baseline: `v0.70-53 Enemy Personality QA Balance Tuning Pass` (`1952388b5ac31a1fede63e9febc87f5bc9a559e9`).
+- Completed direction:
+  1. Added conservative enemy faction strategic goal seeds with default fallback, compact goal labels, pressure metadata, region hints, existing-city target guards, and `1.00..1.15` weight clamp.
+  2. Applied goal seed only as small scoring nudges to reinforcement target choice, diplomacy/spy strategic follow-up selection, and already eligible invasion pair scoring.
+  3. Added compact `목표:` display metadata to enemy turn summary/hint without exposing hidden enemy resources, chancellors, raw city intel, or national state.
+- Preserved scope:
+  1. No full enemy AI, multi-turn war planner, pathfinding expedition route, enemy economy simulation, enemy spy actual damage, enemy alliance/trade simulation, player relation mutation, player city stat/resource mutation, `city_intel` mutation, market/alliance/wedge/player action change, BattleContext change, scene, asset, `.uid`, or `.ogv` change was made.
+  2. v0.70-51 enemy turn chain, v0.70-52 personality seed guard, v0.70-53 personality tuning guard, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, replay guards, left PLAYER scope, and right selected-city scope remain locked.
+- Verification:
+  1. `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+  2. Battle scene emitted existing debug output only.
+- Manual F6 QA required:
+  1. Run the v0.70-54 checklist for reinforcement continuity, compact goal label display, goal-biased target/frontline/invasion/diplomacy/defensive/spy feel, one strategic action per turn, no direct player stat/resource/city_intel mutation, no PLAYER relation mutation, pending invasion skip, v0.70-49/v0.70-51 guard continuity, save/load replay safety, panel scope/Fog of War/player action preservation, and warning cleanliness.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-54.
+
 ## Current: v0.70-53 Enemy Personality QA & Balance Tuning Pass
 - Baseline: `v0.70-52 Enemy Faction Personality Seed MVP` (`4ee00833ac7ea4f953ec6e006362ff51b361551f`).
 - Completed direction:

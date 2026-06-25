@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-54 Enemy Strategic Goal Seed MVP Handoff
+- Baseline: `v0.70-53 Enemy Personality QA Balance Tuning Pass` (`1952388b5ac31a1fede63e9febc87f5bc9a559e9`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass adds conservative faction strategic goal seeds. It is not full enemy AI, not a war planner, and not authorization for pathfinding, economy, spy damage, or alliance/trade simulation.
+- `ENEMY_FACTION_STRATEGIC_GOAL_SEEDS` defines goal id, compact label, existing target city ids, region hints, pressure, and bounded weight. Unknown factions and PLAYER fall back to default/empty behavior; PLAYER does not receive goal scoring.
+- Goal influence is limited to:
+  - small reinforcement target scoring bonuses for preferred/adjacent target cities and pressure-aligned low-troop/frontline cases,
+  - small diplomacy or spy-pressure strategic follow-up scoring bonuses,
+  - small eligible invasion pair scoring bonuses after v0.70-49 guards pass,
+  - compact `목표:` display metadata in enemy turn summary/hint.
+- Enemy spy pressure remains display/history only and does not mutate player city stats, resources, troops, publicSupport, loyalty, or `city_intel`.
+- Enemy diplomacy remains non-player-pair-only score drift and does not directly change PLAYER relations, alliance state, trade agreements, cooldowns, resources, chancellor state, or national stock.
+- Explicitly unchanged: `_player_state["last_enemy_faction_turn_processed_turn"]`, `_player_state["last_enemy_faction_turn_result"]`, `_player_state["last_enemy_strategic_action_result"]`, `strategic_actions` max-one semantics, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext handoff, reinforcement amount constants, defense deployment, battle result apply, player attack path, left PLAYER panel scope, right selected-city scope, Fog of War, `city_intel`, market, alliance, wedge, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scenes, assets, `.uid`, and `.ogv`.
+- Verification passed: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load. Battle scene emitted existing debug output only.
+- Manual F6 QA still required for the v0.70-54 checklist.
+
 ## v0.70-53 Enemy Personality QA & Balance Tuning Pass Handoff
 - Baseline: `v0.70-52 Enemy Faction Personality Seed MVP` (`4ee00833ac7ea4f953ec6e006362ff51b361551f`).
 - Runtime file touched: `scripts/worldmap_test.gd`.
