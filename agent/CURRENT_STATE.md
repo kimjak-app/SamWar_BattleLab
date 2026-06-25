@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner
+- Baseline: `v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix` at `602a199ebc19fd36d51a824b1a6941d4ce60197c`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Runtime scope:
+  - Added one-turn enemy pressure plan display/history state through `_player_state["last_enemy_pressure_plan_result"]` and `last_enemy_faction_turn_result.pressure_plan`.
+  - Pressure plan candidates are built from non-player faction ownership, frontline/adjacency, personality profile, strategic goal pressure, and existing target city guards.
+  - Pressure plan payloads normalize to `effect = display_scoring_only`; PLAYER and malformed source/faction payloads are discarded.
+  - Pressure plan is skipped during pending invasion, pending BattleContext, same-turn replay, invalid turn, or no-candidate cases.
+  - Existing reinforcement, diplomacy/spy strategic action, and invasion pair scoring receive only small optional pressure-plan tie-breaker bonuses.
+  - Summary/hint display can show compact `전략: ...` metadata without exposing hidden enemy resources, chancellors, raw city intel, or national state.
+- Preserved scope: no full enemy AI planner, no pathfinding, no multi-turn war plan, no enemy economy simulation, no enemy spy actual damage, no enemy diplomacy alliance/trade simulation, no PLAYER relation mutation, no reinforcement constant change, no `ENEMY_INVASION_CHANCE` or `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS` change, no pending invasion payload or BattleContext shape change, no market/alliance/wedge/player action change, no `city_intel` mutation, no scene/asset/`.uid`/`.ogv` changes.
+- Verification: `git diff --check`, guard keyword search, warning-cleanup regression searches, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- Manual F6 QA remains required for pressure plan max-one display, pending invasion/BattleContext skip, replay safety, compact display, unchanged reinforcement/strategic/invasion guards, panel scope/Fog/market/alliance/wedge/player-action preservation, and no `seed`/`target_label` warning regression.
+
 ## v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix
 - Baseline: `v0.70-56 Enemy Turn Manual F6 QA Fix Pass` at `e06c1744087167957eebc1e070bb6567646b6972`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, and `agent/SESSION_LOG.md`.

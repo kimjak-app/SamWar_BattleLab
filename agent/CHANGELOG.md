@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner
+- Built on `v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix` (`602a199ebc19fd36d51a824b1a6941d4ce60197c`).
+- Added a conservative max-one enemy pressure plan result for each world turn.
+- Stored pressure plan display/history through `_player_state["last_enemy_pressure_plan_result"]` and `last_enemy_faction_turn_result.pressure_plan`.
+- Added pressure plan candidate generation from non-player faction-owned source cities, strategic goal target/pressure data, personality profile, and frontline/adjacency context.
+- Normalized pressure plan payloads to `effect = display_scoring_only`; malformed plans and PLAYER faction plans are discarded.
+- Skipped new pressure plan creation during pending invasion, pending BattleContext, same-turn replay, invalid turn, or no-candidate cases.
+- Added small pressure-plan scoring hints to reinforcement target scoring, diplomacy/spy strategic action scoring, and already eligible invasion pair scoring.
+- Added compact `전략:` pressure-plan summary/hint display without exposing hidden enemy resources, chancellors, raw city intel, or national state.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext, battle result handling, market, alliance, wedge, player actions, `city_intel`, scenes, assets, `.uid`, or `.ogv` files.
+
 ## v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix
 - Built on `v0.70-56 Enemy Turn Manual F6 QA Fix Pass` (`e06c1744087167957eebc1e070bb6567646b6972`).
 - Removed GDScript reload warnings without gameplay changes.

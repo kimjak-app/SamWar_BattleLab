@@ -1,5 +1,22 @@
 # HANDOFF TO CODEX
 
+## v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner Handoff
+- Baseline: `v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix` (`602a199ebc19fd36d51a824b1a6941d4ce60197c`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is Enemy Strategic AI Phase 1 pressure plan MVP only. It is not full enemy AI, not a multi-turn planner, and not authorization for pathfinding, economy simulation, spy damage, or alliance/trade simulation.
+- Pressure plan state:
+  - `_player_state["last_enemy_pressure_plan_result"]` mirrors the current display/history plan.
+  - `last_enemy_faction_turn_result.pressure_plan` stores at most one normalized plan.
+  - Valid plans use `type = enemy_pressure_plan` and `effect = display_scoring_only`.
+- Pressure plan creation skips during pending invasion, pending BattleContext, same-turn replay, invalid turn, and no-candidate cases.
+- Pressure plan candidates use non-player faction-owned source cities, goal target/frontline adjacency, normalized goal/personality pressure type, and conservative scoring.
+- Pressure plan influence is limited to small optional scoring tie-breakers for reinforcement target choice, diplomacy/spy strategic action selection, and already eligible invasion pair scoring.
+- Summary/hint may show compact `전략: ...` text; default/empty/malformed plans are hidden or discarded and hidden enemy resources, chancellors, raw city intel, or national state are not exposed.
+- Explicitly unchanged: reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, strategic action max-one clamp, pending invasion payload shape, BattleContext shape, battle result apply, market, alliance, wedge, player spy/diplomacy actions, `city_intel`, Fog of War, left PLAYER scope, right selected-city scope, scenes, assets, `.uid`, and `.ogv`.
+- Keep v0.70-56-hotfix1 warning cleanup intact: do not reintroduce exact local `seed` variables or `target_label` block shadowing.
+- Verification passed: `git diff --check`, guard keyword search, warning-cleanup regression searches, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Manual F6 QA still required for the v0.70-57 checklist.
+
 ## v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix Handoff
 - Baseline: `v0.70-56 Enemy Turn Manual F6 QA Fix Pass` (`e06c1744087167957eebc1e070bb6567646b6972`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

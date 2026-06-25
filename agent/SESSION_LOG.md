@@ -2,6 +2,26 @@
 
 ## 2026-06-25
 
+### v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner
+- Started from `602a199 v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix`.
+- Confirmed clean worktree, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- Implemented:
+  - Added `_player_state["last_enemy_pressure_plan_result"]` and `last_enemy_faction_turn_result.pressure_plan` display/history state.
+  - Added pressure plan skip guard, candidate builder, candidate scoring, picker, display normalizer, scoring helper, and compact summary/hint display.
+  - Connected pressure plan picking before enemy reinforcement/strategic action/invasion scoring in the enemy turn processing path.
+  - Added small pressure-plan scoring bonuses to reinforcement, diplomacy/spy strategic action choice, and eligible invasion pair choice.
+  - Added `v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-56 pending BattleContext guards, v0.70-56-hotfix1 warning cleanup, reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, strategic action max-one clamp, pending invasion payload, BattleContext shape, battle result apply, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, and `.ogv`.
+- Verification:
+  - `git diff --check`
+  - guard keyword search
+  - warning-cleanup regression searches for `seed`, `target_label`, `resource_label`, `selected_city_id`, `loyalty_card`, and `func .*sign`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for the v0.70-57 checklist.
+
 ### v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix
 - Started from `e06c174 v0.70-56 Enemy Turn Manual F6 QA Fix Pass`.
 - Confirmed clean worktree, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.

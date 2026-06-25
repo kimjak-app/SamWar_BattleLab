@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner
+- Baseline: `v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix` (`602a199ebc19fd36d51a824b1a6941d4ce60197c`).
+- Completed direction:
+  1. Added a conservative max-one enemy pressure plan result for each world turn.
+  2. Kept pressure plan as display/history plus scoring hint only with `effect = display_scoring_only`.
+  3. Built candidates from non-player faction ownership, frontline/adjacency, strategic goal pressure/target, and personality weights.
+  4. Added small optional pressure-plan tie-breakers to reinforcement target scoring, diplomacy/spy strategic action scoring, and already eligible invasion pair scoring.
+  5. Added compact `전략:` summary/hint display and save/load normalization.
+- Preserved scope:
+  1. No full enemy AI planner, pathfinding, multi-turn war plan, enemy economy simulation, enemy spy actual damage, enemy alliance/trade simulation, PLAYER relation mutation, player city stat/resource/city_intel mutation, market/alliance/wedge/player action change, BattleContext shape change, pending invasion payload change, scene, asset, `.uid`, or `.ogv` change was made.
+  2. v0.70-56 pending BattleContext guards and v0.70-56-hotfix1 `seed` / `target_label` warning cleanup remain locked.
+- Verification:
+  1. `git diff --check`, guard keyword search, warning-cleanup regression searches, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- Manual F6 QA required:
+  1. Run the v0.70-57 checklist for max-one pressure plan display, pending invasion/BattleContext skip, display-only/no mutation behavior, compact summary, existing reinforcement/strategic/invasion/replay guards, save/load replay safety, panel scope/Fog/market/alliance/wedge/player action preservation, and warning cleanliness.
+
 ## Current: v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix
 - Baseline: `v0.70-56 Enemy Turn Manual F6 QA Fix Pass` (`e06c1744087167957eebc1e070bb6567646b6972`).
 - Completed direction:
