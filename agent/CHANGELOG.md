@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-60 Enemy Pressure Balance Pass
+- Built on `v0.70-59 Enemy Strategy Hint UX Polish` (`749179080e67a4d61dfa143761e4f5ed0e527404`).
+- Audited pressure plan scoring across reinforcement target choice, strategic diplomacy, strategic spy pressure, and eligible invasion pair scoring.
+- Reduced pressure plan city and pressure-type bonuses and added purpose caps so pressure remains a tie-breaker instead of dominating existing low-troop, frontline, personality, goal, and invasion guard scoring.
+- Added invalid source/target city guards for pressure plan scoring bonus use.
+- Prevented pressure plan invasion bonuses from reviving zero/negative base invasion pair scores.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change pressure plan generation, pressure plan direct effects, reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext, battle result handling, market, alliance, wedge, player actions, `city_intel`, Fog of War, scenes, assets, `.uid`, `.ogv`, or `assets/ui/tech_icons` PNG files.
+
 ## v0.70-59 Enemy Strategy Hint UX Polish
 - Built on `v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock` (`ac3939e034c459457ea2f1dead8f4538d5b20d1a`).
 - Polished enemy turn strategy hint UX without adding enemy AI behavior.

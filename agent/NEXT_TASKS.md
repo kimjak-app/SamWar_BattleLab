@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-60 Enemy Pressure Balance Pass
+- Baseline: `v0.70-59 Enemy Strategy Hint UX Polish` (`749179080e67a4d61dfa143761e4f5ed0e527404`).
+- Completed direction:
+  1. Audited pressure plan scoring integration for reinforcement, strategic diplomacy, strategic spy, and eligible invasion pair sorting.
+  2. Kept pressure plan as display/history plus scoring hint only; this is not a new enemy AI pass.
+  3. Lowered pressure plan bonus values and added purpose caps so pressure remains a tie-breaker behind low-troop, frontline, personality, goal, and invasion eligibility guards.
+  4. Added invalid source/target city guards for scoring bonus use.
+  5. Prevented pressure plan invasion bonuses from reviving zero/negative base invasion pair scores.
+- Preserved scope:
+  1. No War Posture, Strategy Memory, Invasion Intent Preview, Player Counter-Strategy, Enemy Strategic AI Phase 2, enemy spy actual damage, enemy diplomacy alliance/trade simulation, enemy economy simulation, pressure plan direct effect, reinforcement amount change, invasion chance change, pending invasion payload change, BattleContext shape change, scene, asset, `.uid`, `.ogv`, or tech icon PNG change was made.
+  2. v0.70-59 compact hint UX, v0.70-58 replay/scoring lock, v0.70-56 pending BattleContext guards, v0.70-56-hotfix1 warning cleanup, Fog/city_intel, left PLAYER scope, and right selected-city scope remain locked.
+- Verification:
+  1. `git diff --check`, tech icon no-touch check, guard keyword search, warning-cleanup regression searches, internal id exposure risk search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- Manual F6 QA required:
+  1. Run the v0.70-60 checklist for pressure plan repetition/bias, reinforcement priority, spy/diplomacy pressure frequency, invasion candidate pressure, unchanged weak-attacker/non-adjacent/wrong-owner guards, compact hint UX, no raw ID/effect/score/bonus exposure, save/load no replay/no duplicate, panel scope/Fog/city_intel/market/alliance/wedge/player action preservation, tech icon no-touch, and warning cleanliness.
+
 ## Current: v0.70-59 Enemy Strategy Hint UX Polish
 - Baseline: `v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock` (`ac3939e034c459457ea2f1dead8f4538d5b20d1a`).
 - Completed direction:

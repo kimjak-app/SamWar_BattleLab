@@ -6522,28 +6522,42 @@ func _get_enemy_pressure_plan_score_bonus_mvp(faction_id: String, city_id: Strin
 	var pressure_type := _normalize_enemy_pressure_type_mvp(str(plan.get("pressure_type", "")), faction_id)
 	var plan_target_city_id := str(plan.get("target_city_id", ""))
 	var source_city_id := str(plan.get("source_city_id", ""))
+	if source_city_id.is_empty() or plan_target_city_id.is_empty():
+		return 0.0
+	if not _has_city_for_battle_context(source_city_id) or not _has_city_for_battle_context(plan_target_city_id):
+		return 0.0
+	if not city_id.is_empty() and not _has_city_for_battle_context(city_id):
+		return 0.0
 	var bonus := 0.0
 	if not city_id.is_empty():
 		if city_id == plan_target_city_id:
-			bonus += 32.0
+			bonus += 20.0
 		elif city_id == source_city_id:
-			bonus += 18.0
-		elif not plan_target_city_id.is_empty() and (_get_city_neighbors_mvp(city_id).has(plan_target_city_id) or _get_city_neighbors_mvp(plan_target_city_id).has(city_id)):
 			bonus += 10.0
+		elif not plan_target_city_id.is_empty() and (_get_city_neighbors_mvp(city_id).has(plan_target_city_id) or _get_city_neighbors_mvp(plan_target_city_id).has(city_id)):
+			bonus += 6.0
 	match purpose:
 		"reinforcement":
 			if pressure_type == "defensive":
-				bonus += 12.0
+				bonus += 8.0
 		"strategic_diplomacy":
 			if pressure_type == "diplomacy":
-				bonus += 10.0
+				bonus += 6.0
 		"strategic_spy":
 			if pressure_type == "spy":
-				bonus += 10.0
+				bonus += 6.0
 		"invasion":
 			if pressure_type == "invasion" or pressure_type == "military":
-				bonus += 16.0
-	return bonus
+				bonus += 10.0
+	var max_bonus := 20.0
+	match purpose:
+		"reinforcement":
+			max_bonus = 24.0
+		"strategic_diplomacy", "strategic_spy":
+			max_bonus = 18.0
+		"invasion":
+			max_bonus = 24.0
+	return clampf(bonus, 0.0, max_bonus)
 
 
 func _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id: String) -> String:
@@ -7214,6 +7228,8 @@ func _score_enemy_invasion_pair_mvp(attacker_city_id: String, defender_city_id: 
 		score += int(round(65.0 * goal_weight))
 	if goal_pressure == "invasion" or goal_pressure == "aggressive" or goal_pressure == "military":
 		score += int(round(70.0 * goal_weight))
+	if score <= 0:
+		return score
 	score += int(round(
 		_get_enemy_pressure_plan_score_bonus_mvp(attacker_faction_id, defender_city_id, "invasion") +
 		_get_enemy_pressure_plan_score_bonus_mvp(attacker_faction_id, attacker_city_id, "invasion") * 0.5

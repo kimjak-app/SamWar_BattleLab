@@ -2,6 +2,31 @@
 
 ## 2026-06-25
 
+### v0.70-60 Enemy Pressure Balance Pass
+- Started from `7491790 v0.70-59 Enemy Strategy Hint UX Polish`.
+- Confirmed local `main` was clean, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- QA audit:
+  - Checked pressure plan bonus use in reinforcement target scoring, strategic diplomacy scoring, strategic spy pressure scoring, and invasion pair scoring.
+  - Confirmed v0.70-59 hint UX and v0.70-58 save/load/replay locks remain the active display and scoring safety boundaries.
+- Implemented:
+  - Lowered pressure plan target/source/adjacency and pressure-type bonus values.
+  - Added purpose caps for reinforcement, strategic diplomacy, strategic spy, and invasion pressure bonuses.
+  - Added invalid city guards so malformed saved plan source/target ids do not contribute scoring bonuses.
+  - Moved invasion base-score guard before pressure bonus application so pressure does not revive zero/negative base pair scores.
+  - Added `v0.70-60 Enemy Pressure Balance Pass Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-59 strategy hint UX, v0.70-58 pressure plan replay/scoring lock, v0.70-56 pending BattleContext guards, v0.70-56-hotfix1 warning cleanup, reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext shape, battle result apply, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, `.ogv`, and `assets/ui/tech_icons` PNG files.
+- Verification:
+  - `git diff --check`
+  - tech icon no-touch check
+  - guard keyword search
+  - warning-cleanup regression searches for `seed`, `target_label`, `resource_label`, `selected_city_id`, `loyalty_card`, and `func .*sign`
+  - internal id exposure risk search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for the v0.70-60 checklist.
+
 ### v0.70-59 Enemy Strategy Hint UX Polish
 - Started from `ac3939e v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock`.
 - Confirmed local `main` was clean and ahead of `origin/main` by the expected v0.70-58 commit, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.

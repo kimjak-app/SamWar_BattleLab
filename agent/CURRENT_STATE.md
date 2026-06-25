@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-60 Enemy Pressure Balance Pass
+- Baseline: `v0.70-59 Enemy Strategy Hint UX Polish` at `749179080e67a4d61dfa143761e4f5ed0e527404`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Balance / fix scope:
+  - Audited pressure plan bonus use in reinforcement target scoring, strategic diplomacy scoring, strategic spy scoring, and eligible invasion pair scoring.
+  - Reduced pressure plan city and pressure-type bonuses so they remain tie-breakers instead of overpowering existing low-troop, frontline, personality, goal, and invasion guards.
+  - Added scoring guardrails so invalid saved pressure plan source/target city ids cannot provide scoring bonuses.
+  - Kept invasion base score from being revived by pressure plan bonuses when the already-eligible pair's score is zero or negative.
+- Preserved scope: no new enemy AI pass, no War Posture, no Strategy Memory, no Invasion Intent Preview, no Player Counter-Strategy, no enemy spy actual damage, no enemy diplomacy alliance/trade simulation, no enemy economy simulation, no pressure plan direct effect, no reinforcement constants change, no `ENEMY_INVASION_CHANCE` or `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS` change, no pending invasion payload or BattleContext shape change, no market/alliance/wedge/player action change, no `city_intel`/Fog of War change, no left PLAYER scope or right selected-city scope change, no scene/asset/`.uid`/`.ogv` changes, and no `assets/ui/tech_icons` PNG changes.
+- Verification: `git diff --check`, tech icon no-touch check, guard keyword search, warning-cleanup regression searches, internal id exposure risk search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- Manual F6 QA remains required for pressure plan repetition/bias feel, reinforcement low-troop/frontline priority, spy/diplomacy pressure frequency, invasion candidate bias, unchanged invasion guards, compact hint UX, save/load replay safety, Fog/city_intel/panel-scope preservation, tech icon no-touch, and Godot warning cleanliness.
+
 ## v0.70-59 Enemy Strategy Hint UX Polish
 - Baseline: `v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock` at `ac3939e034c459457ea2f1dead8f4538d5b20d1a`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

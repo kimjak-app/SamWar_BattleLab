@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-60 Enemy Pressure Balance Pass Handoff
+- Baseline: `v0.70-59 Enemy Strategy Hint UX Polish` (`749179080e67a4d61dfa143761e4f5ed0e527404`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is pressure plan balance polish only. It is not a new enemy AI pass, not War Posture, not Strategy Memory, not Invasion Intent Preview, not Player Counter-Strategy, and not authorization for pathfinding, economy simulation, spy damage, or alliance/trade simulation.
+- Pressure plan remains display/history plus scoring hint only. It still forces `effect = display_scoring_only` and does not apply direct effects.
+- Balance rules:
+  - Pressure plan bonuses must stay tie-breaker sized and must not overpower low-troop recovery, frontline priority, personality/goal scoring, invasion eligibility, or existing strategic action max-one behavior.
+  - Scoring bonus use must ignore malformed, stale-turn, PLAYER, invalid source city, and invalid target city pressure plan payloads.
+  - Pressure plan invasion bonus must not make a zero or negative base pair score viable.
+- Hint display remains locked from v0.70-59: compact `적 전략: 세력 · 목표`, no repeated `전략:` / `목표:` noise, no raw IDs, no internal effect strings, and no score/bonus values in UI text.
+- Explicitly unchanged: reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, strategic action max-one clamp, pending invasion payload shape, BattleContext shape, battle result apply, market, alliance, wedge, player spy/diplomacy actions, `city_intel`, Fog of War, left PLAYER scope, right selected-city scope, scenes, assets, `.uid`, `.ogv`, and `assets/ui/tech_icons` PNG files.
+- Save/load must not duplicate hint lines or replay pressure plan effects/scoring. v0.70-58 turn-number mismatch scoring lock remains active.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+- Verification passed: `git diff --check`, tech icon no-touch check, guard keyword search, warning-cleanup regression searches, internal id exposure risk search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Manual F6 QA still required for the v0.70-60 checklist.
+
 ## v0.70-59 Enemy Strategy Hint UX Polish Handoff
 - Baseline: `v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock` (`ac3939e034c459457ea2f1dead8f4538d5b20d1a`).
 - Runtime file touched: `scripts/worldmap_test.gd`.
