@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-59 Enemy Strategy Hint UX Polish
+- Baseline: `v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock` at `ac3939e034c459457ea2f1dead8f4538d5b20d1a`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- UX / fix scope:
+  - Polished enemy turn pressure plan, reinforcement count, strategic action, and pending invasion hint formatting.
+  - Added compact formatter helpers for safe pressure plan labels, pending invasion source/target copy, strategic action copy, line clamp, and duplicate line prevention.
+  - Changed strategic action display to abstract `적 전략 행동: 외교 압박` / `적 전략 행동: 첩보 압박` so it does not imply real PLAYER relation changes or spy damage.
+  - Changed enemy turn summaries/hints to count-based reinforcement/strategy lines instead of exposing per-city enemy troop deltas or internal goal/personality detail.
+  - Kept pressure plan hints hidden for malformed/default/empty/raw-id/stale-turn payloads and preserved `적 전략: 세력 · 목표` or short `전략: 목표` display.
+- Preserved scope: no new enemy AI pass, no War Posture, no Strategy Memory, no Invasion Intent Preview, no Player Counter-Strategy, no enemy spy actual damage, no enemy diplomacy alliance/trade simulation, no enemy economy simulation, no pressure plan scoring change, no reinforcement constants change, no `ENEMY_INVASION_CHANCE` or `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS` change, no pending invasion payload or BattleContext shape change, no market/alliance/wedge/player action change, no `city_intel`/Fog of War change, no left PLAYER scope or right selected-city scope change, no scene/asset/`.uid`/`.ogv` changes, and no `assets/ui/tech_icons` PNG changes.
+- Verification: `git diff --check`, tech icon no-touch check, guard keyword search, warning-cleanup regression searches, internal id exposure risk search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- Manual F6 QA remains required for compact `적 전략: 세력 · 목표` display, no repeated `전략:` / `목표:` noise, pending invasion source → target meaning, abstract strategic action copy, no raw id/effect/score/bonus exposure, save/load hint no-duplicate/no-replay behavior, Fog/city_intel/panel-scope preservation, tech icon no-touch, and Godot warning cleanliness.
+
 ## v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock
 - Baseline: `내정테크아이콘` at `70a1e93cc8996f2109a2354c8a206ffe4479ec74`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

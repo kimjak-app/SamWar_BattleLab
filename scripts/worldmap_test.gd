@@ -6286,6 +6286,50 @@ func _get_enemy_pressure_plan_compact_label_mvp(plan: Dictionary) -> String:
 	return goal_label
 
 
+func _is_enemy_hint_label_safe_mvp(label: String, raw_id: String = "") -> bool:
+	var safe_label := label.strip_edges()
+	var raw_label_id := raw_id.strip_edges()
+	if safe_label.is_empty() or safe_label.length() > 18:
+		return false
+	if not raw_label_id.is_empty() and safe_label == raw_label_id:
+		return false
+	if safe_label.find("_") >= 0 or safe_label.begins_with("pressure_"):
+		return false
+	return true
+
+
+func _clamp_enemy_hint_line_mvp(line: String, max_length: int = 46) -> String:
+	var safe_line := line.strip_edges()
+	var safe_max := maxi(12, max_length)
+	if safe_line.length() <= safe_max:
+		return safe_line
+	return "%s..." % safe_line.substr(0, safe_max - 3).strip_edges()
+
+
+func _append_unique_enemy_hint_line_mvp(lines: Array[String], line: String, max_length: int = 46) -> void:
+	var safe_line := _clamp_enemy_hint_line_mvp(line, max_length)
+	if safe_line.is_empty() or lines.has(safe_line):
+		return
+	lines.append(safe_line)
+
+
+func _format_enemy_pressure_plan_hint_mvp(plan: Dictionary, result_turn: int = 0, short_label: bool = false) -> String:
+	var normalized_plan := _normalize_enemy_pressure_plan_result_mvp(plan)
+	if normalized_plan.is_empty():
+		return ""
+	if result_turn > 0 and int(normalized_plan.get("turn_number", 0)) != result_turn:
+		return ""
+	var faction_id := str(normalized_plan.get("faction_id", ""))
+	var faction_label := str(normalized_plan.get("faction_label", _format_faction_label(faction_id)))
+	var goal_id := str(normalized_plan.get("goal_id", ""))
+	var goal_label := _get_enemy_pressure_plan_compact_label_mvp(normalized_plan)
+	if not _is_enemy_hint_label_safe_mvp(goal_label, goal_id):
+		return ""
+	if short_label or not _is_enemy_hint_label_safe_mvp(faction_label, faction_id):
+		return "전략: %s" % goal_label
+	return "적 전략: %s · %s" % [faction_label, goal_label]
+
+
 func _should_skip_enemy_pressure_plan_mvp() -> bool:
 	if _has_pending_invasion_event_mvp() or not _get_pending_battle_context_mvp().is_empty():
 		return true
@@ -6850,36 +6894,15 @@ func _build_enemy_spy_pressure_follow_up_result_mvp(candidate: Dictionary) -> Di
 
 
 func _format_enemy_strategic_action_summary(action: Dictionary) -> String:
+	return _format_enemy_strategic_action_hint_mvp(action)
+
+
+func _format_enemy_strategic_action_hint_mvp(action: Dictionary) -> String:
 	match str(action.get("action_id", "")):
 		"enemy_diplomacy_follow_up":
-			var label := "접촉" if str(action.get("kind", "")) == "contact" else "긴장"
-			var profile_label := str(action.get("personality_label", ""))
-			var goal_text := _get_enemy_goal_label_display_part(str(action.get("goal_id", "")), str(action.get("goal_label", "")))
-			var label_parts: Array[String] = []
-			if not profile_label.is_empty():
-				label_parts.append(profile_label)
-			if not goal_text.is_empty():
-				label_parts.append(goal_text)
-			var profile_text := "(%s)" % " · ".join(label_parts) if not label_parts.is_empty() else ""
-			return "적 외교%s: %s-%s %s" % [
-				profile_text,
-				str(action.get("faction_a_label", _format_faction_label(str(action.get("faction_a", ""))))),
-				str(action.get("faction_b_label", _format_faction_label(str(action.get("faction_b", ""))))),
-				label,
-			]
+			return "적 전략 행동: 외교 압박"
 		"enemy_spy_pressure":
-			var spy_profile_label := str(action.get("personality_label", ""))
-			var spy_goal_text := _get_enemy_goal_label_display_part(str(action.get("goal_id", "")), str(action.get("goal_label", "")))
-			var spy_label_parts: Array[String] = []
-			if not spy_profile_label.is_empty():
-				spy_label_parts.append(spy_profile_label)
-			if not spy_goal_text.is_empty():
-				spy_label_parts.append(spy_goal_text)
-			var spy_profile_text := "(%s)" % " · ".join(spy_label_parts) if not spy_label_parts.is_empty() else ""
-			return "적 첩보%s: %s 주변 정찰" % [
-				spy_profile_text,
-				str(action.get("target_city_name", action.get("target_city_id", "아군 도시"))),
-			]
+			return "적 전략 행동: 첩보 압박"
 		_:
 			return "전략 움직임"
 
@@ -6982,71 +7005,65 @@ func _attach_enemy_invasion_event_to_enemy_turn_result(invasion_event: Dictionar
 	_player_state["last_enemy_faction_turn_result"] = enemy_turn_result.duplicate(true)
 
 
+func _format_enemy_pending_invasion_hint_mvp(raw_event: Variant, prefix: String = "침공 대기") -> String:
+	if not raw_event is Dictionary:
+		return ""
+	var event := raw_event as Dictionary
+	if event.is_empty():
+		return ""
+	var attacker_city_id := str(event.get("attacker_city_id", ""))
+	var defender_city_id := str(event.get("defender_city_id", ""))
+	if attacker_city_id.is_empty() or defender_city_id.is_empty():
+		return ""
+	var attacker_label := _format_city_name_by_id(attacker_city_id, "적 도시")
+	var defender_label := _format_city_name_by_id(defender_city_id, "아군 도시")
+	return "%s: %s → %s" % [prefix, attacker_label, defender_label]
+
+
 func _build_enemy_faction_turn_summary(result: Dictionary) -> String:
 	if bool(result.get("pending_battle_already_active", false)):
 		return "이번 턴 적 행동 보류 · 전투 처리 대기"
 	if bool(result.get("pending_invasion_already_active", false)) and not bool(result.get("pending_invasion_created", false)):
 		return "이번 턴 적 행동 보류 · 침공 이벤트 처리 대기"
 	var pressure_plan := _normalize_enemy_pressure_plan_result_mvp(result.get("pressure_plan", {}))
-	var pressure_plan_part := _get_enemy_pressure_plan_display_label_mvp(pressure_plan)
+	var result_turn := maxi(0, int(result.get("turn", 0)))
+	var pressure_plan_part := _format_enemy_pressure_plan_hint_mvp(pressure_plan, result_turn, false)
 	var actions: Variant = result.get("actions", [])
-	var action_count := 0
-	var action_parts: Array[String] = []
+	var reinforce_count := 0
 	if actions is Array:
-		action_count = (actions as Array).size()
 		for action_variant in actions:
 			if not action_variant is Dictionary:
 				continue
 			var action := action_variant as Dictionary
-			var delta := int(action.get("delta", 0))
-			if delta <= 0:
+			if str(action.get("action_id", "")) != "reinforce_city" or int(action.get("delta", 0)) <= 0:
 				continue
-			var profile_label := str(action.get("personality_label", ""))
-			var label_parts: Array[String] = []
-			if not profile_label.is_empty():
-				label_parts.append(profile_label)
-			var profile_prefix := "%s " % " · ".join(label_parts) if not label_parts.is_empty() else ""
-			action_parts.append("%s%s 병력 +%d" % [
-				profile_prefix,
-				str(action.get("city_name", action.get("city_id", ""))),
-				delta,
-			])
-			if action_parts.size() >= 3:
-				break
-	if action_count > action_parts.size() and not action_parts.is_empty():
-		action_parts.append("외 %d건" % (action_count - action_parts.size()))
+			reinforce_count += 1
 	var strategic_actions: Variant = result.get("strategic_actions", [])
 	var strategic_count := 0
-	var strategic_parts: Array[String] = []
 	if strategic_actions is Array:
 		strategic_count = (strategic_actions as Array).size()
-		for strategic_variant in strategic_actions:
-			if not strategic_variant is Dictionary:
-				continue
-			strategic_parts.append(_format_enemy_strategic_action_summary(strategic_variant as Dictionary))
-			if strategic_parts.size() >= 1:
-				break
-	if strategic_count > strategic_parts.size() and not strategic_parts.is_empty():
-		strategic_parts.append("외 %d건" % (strategic_count - strategic_parts.size()))
 	var invasion_summary := "침공 대기 없음"
 	var invasion_event: Variant = result.get("pending_invasion_event", {})
 	if bool(result.get("pending_invasion_created", false)) and invasion_event is Dictionary:
-		invasion_summary = "침공 대기: %s → %s" % [
-			_format_city_name_by_id(str((invasion_event as Dictionary).get("attacker_city_id", "")), "적 도시"),
-			_format_city_name_by_id(str((invasion_event as Dictionary).get("defender_city_id", "")), "아군 도시"),
-		]
-	var total_action_count := action_count + strategic_count
-	var combined_parts := action_parts.duplicate()
+		var pending_hint := _format_enemy_pending_invasion_hint_mvp(invasion_event)
+		if not pending_hint.is_empty():
+			invasion_summary = pending_hint
+	var total_action_count := reinforce_count + strategic_count
+	var count_parts: Array[String] = []
+	if reinforce_count > 0:
+		count_parts.append("보강 %d건" % reinforce_count)
+	if strategic_count > 0:
+		count_parts.append("전략 %d건" % strategic_count)
+	var combined_parts: Array[String] = []
 	if not pressure_plan_part.is_empty():
-		combined_parts.push_front(pressure_plan_part)
-	combined_parts.append_array(strategic_parts)
+		combined_parts.append(pressure_plan_part)
+	if not count_parts.is_empty():
+		combined_parts.append("이번 턴 적 행동: %s" % ", ".join(count_parts))
+	combined_parts.append(invasion_summary)
 	if total_action_count <= 0:
-		if not pressure_plan_part.is_empty():
-			return "이번 턴 적 전략 · %s · %s" % [pressure_plan_part, invasion_summary]
-		return "이번 턴 적 행동 없음 · %s" % invasion_summary
-	if combined_parts.is_empty():
-		return "이번 턴 적 행동 %d건 · %s" % [total_action_count, invasion_summary]
-	return "이번 턴 적 행동 %d건 · %s · %s" % [total_action_count, " / ".join(combined_parts), invasion_summary]
+		if pressure_plan_part.is_empty():
+			combined_parts.push_front("이번 턴 적 행동 없음")
+	return _clamp_enemy_hint_line_mvp(" · ".join(combined_parts), 72)
 
 
 func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
@@ -7059,62 +7076,48 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 	var actions: Variant = result.get("actions", [])
 	var strategic_actions: Variant = result.get("strategic_actions", [])
 	var pressure_plan := _normalize_enemy_pressure_plan_result_mvp(result.get("pressure_plan", {}))
-	var pressure_plan_text := _get_enemy_pressure_plan_display_label_mvp(pressure_plan)
+	var result_turn := maxi(0, int(result.get("turn", 0)))
+	var pressure_plan_text := _format_enemy_pressure_plan_hint_mvp(pressure_plan, result_turn, false)
 	if not pressure_plan_text.is_empty():
-		lines.append("적 전략: %s · %s" % [
-			str(pressure_plan.get("faction_label", _format_faction_label(str(pressure_plan.get("faction_id", ""))))),
-			_get_enemy_pressure_plan_compact_label_mvp(pressure_plan),
-		])
+		_append_unique_enemy_hint_line_mvp(lines, pressure_plan_text)
+	var reinforce_count := 0
 	if actions is Array and not (actions as Array).is_empty():
-		var shown := 0
 		for action_variant in actions:
-			if shown >= 4:
-				break
 			if not action_variant is Dictionary:
 				continue
 			var action := action_variant as Dictionary
 			if str(action.get("action_id", "")) != "reinforce_city":
 				continue
-			var faction_label := str(action.get("faction_label", _format_faction_label(str(action.get("faction_id", "")))))
-			var profile_label := str(action.get("personality_label", ""))
-			var goal_text := _get_enemy_goal_label_display_part(str(action.get("goal_id", "")), str(action.get("goal_label", "")))
-			var label_parts: Array[String] = []
-			if not profile_label.is_empty():
-				label_parts.append(profile_label)
-			if not goal_text.is_empty():
-				label_parts.append(goal_text)
-			var faction_profile_label := "%s(%s)" % [faction_label, " · ".join(label_parts)] if not label_parts.is_empty() else faction_label
-			lines.append("%s · %s 병력 +%d" % [
-				faction_profile_label,
-				str(action.get("city_name", action.get("city_id", ""))),
-				int(action.get("delta", 0)),
-			])
-			shown += 1
-		var omitted_count := (actions as Array).size() - shown
-		if omitted_count > 0:
-			lines.append("외 %d건" % omitted_count)
-	elif pressure_plan_text.is_empty() and (not (strategic_actions is Array) or (strategic_actions as Array).is_empty()):
-		lines.append("행동 없음")
+			if int(action.get("delta", 0)) <= 0:
+				continue
+			reinforce_count += 1
+	var strategic_count := 0
+	var strategic_hint_line := ""
 	if strategic_actions is Array and not (strategic_actions as Array).is_empty():
-		var strategic_shown := 0
 		for strategic_variant in strategic_actions:
-			if strategic_shown >= 2:
-				break
 			if not strategic_variant is Dictionary:
 				continue
-			lines.append(_format_enemy_strategic_action_summary(strategic_variant as Dictionary))
-			strategic_shown += 1
-		var strategic_omitted := (strategic_actions as Array).size() - strategic_shown
-		if strategic_omitted > 0:
-			lines.append("전략 움직임 외 %d건" % strategic_omitted)
+			var strategic_line := _format_enemy_strategic_action_hint_mvp(strategic_variant as Dictionary)
+			if not strategic_line.is_empty():
+				strategic_hint_line = strategic_line
+				strategic_count += 1
+			break
+	var count_parts: Array[String] = []
+	if reinforce_count > 0:
+		count_parts.append("보강 %d건" % reinforce_count)
+	if strategic_count > 0:
+		count_parts.append("전략 %d건" % strategic_count)
+	if not count_parts.is_empty():
+		_append_unique_enemy_hint_line_mvp(lines, "이번 턴 적 행동: %s" % ", ".join(count_parts))
+	elif pressure_plan_text.is_empty():
+		_append_unique_enemy_hint_line_mvp(lines, "행동 없음")
+	if not strategic_hint_line.is_empty():
+		_append_unique_enemy_hint_line_mvp(lines, strategic_hint_line)
 	var invasion_event: Variant = result.get("pending_invasion_event", {})
 	if bool(result.get("pending_invasion_created", false)) and invasion_event is Dictionary:
-		lines.append("침공 대기: %s → %s" % [
-			_format_city_name_by_id(str((invasion_event as Dictionary).get("attacker_city_id", "")), "적 도시"),
-			_format_city_name_by_id(str((invasion_event as Dictionary).get("defender_city_id", "")), "아군 도시"),
-		])
+		_append_unique_enemy_hint_line_mvp(lines, _format_enemy_pending_invasion_hint_mvp(invasion_event))
 	else:
-		lines.append("침공 대기: 없음")
+		_append_unique_enemy_hint_line_mvp(lines, "침공 대기: 없음")
 	return "\n".join(lines)
 
 

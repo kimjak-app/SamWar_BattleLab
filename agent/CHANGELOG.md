@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-59 Enemy Strategy Hint UX Polish
+- Built on `v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock` (`ac3939e034c459457ea2f1dead8f4538d5b20d1a`).
+- Polished enemy turn strategy hint UX without adding enemy AI behavior.
+- Added safe compact formatter helpers for pressure plan hints, pending invasion hints, strategic action hints, duplicate hint-line prevention, and line clamping.
+- Kept pressure plan display compact as `적 전략: 세력 · 목표` or `전략: 목표`, while hiding malformed/default/empty/raw-id/stale-turn payloads.
+- Changed strategic action hint copy to abstract `적 전략 행동: 외교 압박` / `적 전략 행동: 첩보 압박`.
+- Changed enemy turn hint/summary to compact action counts instead of per-city enemy troop deltas or internal goal/personality detail.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change pressure plan scoring, reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext, battle result handling, market, alliance, wedge, player actions, `city_intel`, Fog of War, scenes, assets, `.uid`, `.ogv`, or `assets/ui/tech_icons` PNG files.
+
 ## v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock
 - Built on `내정테크아이콘` (`70a1e93cc8996f2109a2354c8a206ffe4479ec74`).
 - Audited v0.70-57 pressure plan replay guard, pending invasion guard, pending BattleContext guard, save/load display normalization, compact summary/hint display, and scoring helper safety.

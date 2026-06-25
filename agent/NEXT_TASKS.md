@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-59 Enemy Strategy Hint UX Polish
+- Baseline: `v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock` (`ac3939e034c459457ea2f1dead8f4538d5b20d1a`).
+- Completed direction:
+  1. Polished enemy strategy hint UX only; this is not a new enemy AI pass.
+  2. Added safe compact formatter helpers for pressure plan, pending invasion, strategic action, line clamp, and duplicate line prevention.
+  3. Kept pressure plan display as `적 전략: 세력 · 목표` or `전략: 목표`, while hiding malformed/default/empty/raw-id/stale-turn payloads.
+  4. Changed enemy turn hints to compact action counts and abstract strategic action copy instead of per-city enemy troop deltas, raw IDs, scores, bonuses, or internal effect strings.
+  5. Kept pending invasion hint as source → target without changing pending invasion payload or BattleContext.
+- Preserved scope:
+  1. No War Posture, Strategy Memory, Invasion Intent Preview, Player Counter-Strategy, Enemy Strategic AI Phase 2, enemy spy actual damage, enemy diplomacy alliance/trade simulation, enemy economy simulation, pressure plan scoring change, reinforcement amount change, invasion chance change, pending invasion payload change, BattleContext shape change, scene, asset, `.uid`, `.ogv`, or tech icon PNG change was made.
+  2. v0.70-58 replay/scoring lock, v0.70-56 pending BattleContext guards, v0.70-56-hotfix1 warning cleanup, Fog/city_intel, left PLAYER scope, and right selected-city scope remain locked.
+- Verification:
+  1. `git diff --check`, tech icon no-touch check, guard keyword search, warning-cleanup regression searches, internal id exposure risk search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- Manual F6 QA required:
+  1. Run the v0.70-59 checklist for compact enemy strategy display, no repeated labels, pending invasion source/target clarity, abstract strategic action copy, no raw ID/effect/score/bonus exposure, save/load no duplicate hint/no replay, panel scope/Fog/city_intel/market/alliance/wedge/player action preservation, tech icon no-touch, and warning cleanliness.
+
 ## Current: v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock
 - Baseline: `내정테크아이콘` (`70a1e93cc8996f2109a2354c8a206ffe4479ec74`).
 - Completed direction:

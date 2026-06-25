@@ -2,6 +2,31 @@
 
 ## 2026-06-25
 
+### v0.70-59 Enemy Strategy Hint UX Polish
+- Started from `ac3939e v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock`.
+- Confirmed local `main` was clean and ahead of `origin/main` by the expected v0.70-58 commit, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- QA audit:
+  - Checked pressure plan, strategic action, pending invasion, enemy turn summary, save/load display, Fog/city_intel, and panel-scope display boundaries.
+  - Confirmed this pass stays display-only and does not touch scoring, generation, pending invasion payload, or BattleContext.
+- Implemented:
+  - Added safe label filtering, line clamp, and unique-line append helpers for enemy hints.
+  - Added compact pressure plan and pending invasion hint formatters.
+  - Changed enemy strategic action copy to abstract `외교 압박` / `첩보 압박` wording.
+  - Changed summary/hint output from detailed enemy troop delta lines to compact action counts.
+  - Added `v0.70-59 Enemy Strategy Hint UX Polish Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-58 pressure plan replay/scoring lock, v0.70-56 pending BattleContext guards, v0.70-56-hotfix1 warning cleanup, reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext shape, battle result apply, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, `.ogv`, and `assets/ui/tech_icons` PNG files.
+- Verification:
+  - `git diff --check`
+  - tech icon no-touch check
+  - guard keyword search
+  - warning-cleanup regression searches for `seed`, `target_label`, `resource_label`, `selected_city_id`, `loyalty_card`, and `func .*sign`
+  - internal id exposure risk search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for the v0.70-59 checklist.
+
 ### v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock
 - Started from `70a1e93 내정테크아이콘`.
 - Confirmed clean worktree, fetched `origin/main`, and verified local HEAD and `origin/main` matched the requested baseline before editing.
