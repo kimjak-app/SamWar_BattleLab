@@ -1,5 +1,22 @@
 # WORLDMAP RULES
 
+## v0.70-56 Enemy Turn Manual F6 QA Fix Pass Lock Rule
+- Baseline is `v0.70-55 Enemy Goal QA Strategy Hint Polish` (`e96bbd4a028ea8c743f5665e6fec5a6ee9f86fe0`).
+- This rule is an enemy turn manual F6 QA/fix pass. It is not a new feature pass and does not authorize `Enemy Strategic AI Phase 1`.
+- This pass jointly checks reinforcement, strategic action, personality, goal seed scoring, invasion roll, pending invasion, defense deployment, BattleContext handoff, battle result apply, and save/load replay guard.
+- Reinforcement remains enemy-owned-city-only, one action per faction, with v0.70-46 constants unchanged: base `+60`, frontline `+40`, chancellor `+20`, max `+120`.
+- Strategic action remains max one per world turn, skips during pending invasion or pending battle context, and remains display/history safe.
+- Enemy diplomacy remains non-player-pair-only score drift and must not directly change PLAYER relations, alliance state, trade agreements, cooldowns, resources, chancellor state, or national stock.
+- Enemy spy pressure remains display/history only and must not mutate player city stats, resources, troops, publicSupport, loyalty, `city_intel`, spy cooldowns, detection penalties, or relation state.
+- Invasion roll remains guarded by `enemy_invasion_roll_turn`, pending invasion, and pending battle context. `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, candidate eligibility, and pending invasion payload shape must not change.
+- Defense deployment must keep source = defender city and target = attacker city. Command limit, deployable troop clamp, captured/dead exclusion, and selected defender validation remain authoritative.
+- BattleContext handoff shape and Battle scene consumption contract must not change.
+- Battle result apply must keep defender win, attacker win, retreat, unknown, missing city data, pending cleanup, and player attack/enemy invasion separation safe.
+- Enemy full AI, enemy spy actual damage, enemy diplomacy alliance/trade simulation, enemy economy simulation, pathfinding, multi-turn war planning, Battle scene behavior expansion, and repo-wide refactors remain forbidden.
+- Existing regression locks remain active: v0.70-51 enemy turn chain, v0.70-52 personality seed scope, v0.70-53 personality tuning, v0.70-54 strategic goal seed MVP, v0.70-55 goal hint polish, replay guard, pending invasion, BattleContext, Fog of War, `city_intel`, market formula, alliance behavior, wedge behavior, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scene/asset/`.uid`/`.ogv` stability.
+- Later candidate `Enemy Strategic AI Phase 1` remains explicitly deferred and must not be implemented under v0.70-56.
+- Keep `v0.70-34-hotfix1` warning cleanup intact: do not reintroduce local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-55 Enemy Goal QA & Strategy Hint Polish Lock Rule
 - Baseline is local `v0.70-54 Enemy Strategic Goal Seed MVP` (`617883d0fc71db1cdf9668e5c1148a98a5a04766`).
 - This rule is a QA/hint polish pass for v0.70-54 strategic goal seeds. It is not a new enemy AI pass, not full enemy AI, not a long-term war planner, not pathfinding, and not enemy economy, diplomacy, or spy system expansion.

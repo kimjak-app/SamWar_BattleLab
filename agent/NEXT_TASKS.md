@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-56 Enemy Turn Manual F6 QA Fix Pass
+- Baseline: `v0.70-55 Enemy Goal QA Strategy Hint Polish` (`e96bbd4a028ea8c743f5665e6fec5a6ee9f86fe0`).
+- Completed direction:
+  1. Audited enemy turn replay guard, reinforcement guard, strategic action guard, invasion/pending guard, defense deployment, BattleContext handoff, battle result apply, save/load normalization, summary/hint display, and left/right/Fog/market/alliance/wedge/player action regression boundaries.
+  2. Confirmed v0.70-46 reinforcement constants, v0.70-49 invasion chance/min attacker guard, v0.70-51 replay guard, v0.70-52~55 personality/goal scoring/display constraints, pending invasion payload, and BattleContext shape remain locked.
+  3. Added a small pending-battle-context guard to block player turn end and enemy invasion roll while a battle context is already active.
+- Preserved scope:
+  1. No Enemy Strategic AI Phase 1, full enemy AI planner, pathfinding, multi-turn war plan, enemy economy simulation, enemy spy actual damage, enemy alliance/trade simulation, PLAYER relation mutation, player city stat/resource mutation, market/alliance/wedge/player action change, BattleContext shape change, pending invasion payload change, scene, asset, `.uid`, or `.ogv` change was made.
+- Verification:
+  1. `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+  2. Battle scene emitted existing debug output only.
+- Manual F6 QA required:
+  1. Run the v0.70-56 checklist for enemy reinforcement, max-one strategic action, compact labels, non-fixed goal scoring, no PLAYER relation mutation, display-only enemy spy pressure, pending invasion/battle skip and no duplicate invasion, defense deployment semantics, troop/command clamp, BattleContext handoff, result safety, save/load replay safety, panel scope/Fog of War, market/alliance/wedge/player actions, and warning cleanliness.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-56.
+  2. `Enemy Strategic AI Phase 1` remains a later candidate only; do not implement it under v0.70-56.
+
 ## Current: v0.70-55 Enemy Goal QA & Strategy Hint Polish
 - Baseline: local `v0.70-54 Enemy Strategic Goal Seed MVP` (`617883d0fc71db1cdf9668e5c1148a98a5a04766`).
 - Completed direction:

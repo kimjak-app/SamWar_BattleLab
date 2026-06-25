@@ -5903,6 +5903,9 @@ func _on_ally_turn_end_pressed() -> void:
 	if _has_pending_invasion_event_mvp():
 		_set_save_management_status("진행 중인 침공 이벤트를 먼저 처리하십시오.")
 		return
+	if not _get_pending_battle_context_mvp().is_empty():
+		_set_save_management_status("진행 중인 전투 데이터를 먼저 처리하십시오.")
+		return
 	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
 		_set_save_management_status("이미 적군 턴입니다.")
 		return
@@ -5971,7 +5974,7 @@ func _finish_enemy_turn_mvp() -> void:
 
 func _roll_enemy_invasion_event_mvp(roll_value: float = -1.0, candidate_index: int = -1) -> Dictionary:
 	_ensure_worldmap_runtime_state_defaults()
-	if _has_pending_invasion_event_mvp():
+	if _has_pending_invasion_event_mvp() or not _get_pending_battle_context_mvp().is_empty():
 		return {}
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
 	if int(_player_state.get("enemy_invasion_roll_turn", 0)) == turn_number:

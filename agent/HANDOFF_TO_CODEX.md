@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-56 Enemy Turn Manual F6 QA Fix Pass Handoff
+- Baseline: `v0.70-55 Enemy Goal QA Strategy Hint Polish` (`e96bbd4a028ea8c743f5665e6fec5a6ee9f86fe0`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is an enemy turn manual F6 QA/fix pass. It is not a new feature pass and does not implement `Enemy Strategic AI Phase 1`.
+- QA scope covered reinforcement, strategic action, personality/goal scoring/display, invasion roll, pending invasion, defense deployment, BattleContext handoff, battle result apply, save/load replay guard, and compact summary/hint display.
+- Small runtime fix:
+  - `_on_ally_turn_end_pressed()` now blocks turn end if `_player_state["pending_battle_context"]` is active.
+  - `_roll_enemy_invasion_event_mvp()` now skips if pending battle context exists, matching the existing pending invasion skip.
+- Explicitly unchanged: reinforcement amount constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext shape, defense source/target semantics, command/deployable clamp, player attack path, battle result ownership rules, left PLAYER panel scope, right selected-city scope, Fog of War, `city_intel`, market, alliance, wedge, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scenes, assets, `.uid`, and `.ogv`.
+- Enemy spy pressure remains display/history only and must not mutate player city stats, resources, troops, publicSupport, loyalty, or `city_intel`.
+- Enemy diplomacy remains non-player-pair-only score drift and must not directly change PLAYER relations, alliance state, trade agreements, cooldowns, resources, chancellor state, or national stock.
+- Enemy full AI, enemy spy actual damage, enemy diplomacy alliance/trade simulation, enemy economy simulation, pathfinding, and multi-turn war planning remain forbidden.
+- Verification passed: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load. Battle scene emitted existing debug output only.
+- Manual F6 QA still required for the v0.70-56 checklist.
+
 ## v0.70-55 Enemy Goal QA & Strategy Hint Polish Handoff
 - Baseline: local `v0.70-54 Enemy Strategic Goal Seed MVP` (`617883d0fc71db1cdf9668e5c1148a98a5a04766`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

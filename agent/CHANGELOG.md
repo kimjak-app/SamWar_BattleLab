@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-56 Enemy Turn Manual F6 QA Fix Pass
+- Built on `v0.70-55 Enemy Goal QA Strategy Hint Polish` (`e96bbd4a028ea8c743f5665e6fec5a6ee9f86fe0`).
+- Audited the enemy turn chain across reinforcement, personality/goal scoring, strategic action, invasion roll, pending invasion, defense deployment, BattleContext handoff, battle result apply, save/load replay guard, and compact summary/hint display.
+- Added a small pending battle context guard so turn end and enemy invasion roll cannot proceed while `_player_state["pending_battle_context"]` is already active.
+- Confirmed strategic action remains max one per world turn and still skips during pending invasion or pending battle context.
+- Confirmed reinforcement constants, invasion chance, invasion minimum attacker troops, pending invasion payload shape, BattleContext shape, result apply ownership safety, market/alliance/wedge/player action paths, and `city_intel` behavior remain unchanged.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement Enemy Strategic AI Phase 1, full enemy AI planner, pathfinding, multi-turn war plan, enemy economy simulation, enemy spy actual damage, enemy diplomacy alliance/trade simulation, PLAYER relation mutation, BattleContext changes, pending invasion payload changes, scene changes, asset changes, `.uid`, or `.ogv` changes.
+
 ## v0.70-55 Enemy Goal QA & Strategy Hint Polish
 - Built on local `v0.70-54 Enemy Strategic Goal Seed MVP` (`617883d0fc71db1cdf9668e5c1148a98a5a04766`).
 - Audited v0.70-54 strategic goal seeds for faction id coverage, existing target city ids, compact labels, pressure metadata, default fallback, PLAYER exclusion, malformed fallback, missing target filtering, and `1.00..1.15` weight clamp behavior.

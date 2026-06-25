@@ -1,5 +1,38 @@
 # CURRENT STATE
 
+## v0.70-56 Enemy Turn Manual F6 QA Fix Pass
+- Baseline: `v0.70-55 Enemy Goal QA Strategy Hint Polish` at `e96bbd4a028ea8c743f5665e6fec5a6ee9f86fe0`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- QA / fix scope:
+  - Audited the accumulated enemy turn chain from reinforcement through personality/goal scoring, strategic action, invasion roll, pending invasion, defense deployment, BattleContext handoff, battle result apply, save/load replay guard, and compact summary/hint display.
+  - Confirmed reinforcement constants remain `+60` base, `+40` frontline, `+20` chancellor, max `+120`.
+  - Confirmed `ENEMY_INVASION_CHANCE = 0.45` and `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS = 160` remain unchanged.
+  - Confirmed strategic action remains max one per world turn, non-player diplomacy only, display-only enemy spy pressure, and compact goal/personality display.
+  - Confirmed pending invasion payload and BattleContext shape remain unchanged.
+  - Added a small pending-battle guard so player turn end and enemy invasion roll do not proceed while `_player_state["pending_battle_context"]` is already active.
+- Preserved scope: no new enemy AI, no enemy strategic planner, no enemy economy simulation, no enemy spy actual damage, no enemy diplomacy alliance/trade simulation, no market/alliance/wedge/player action change, no `city_intel` mutation, no BattleContext or pending invasion payload shape change, no scene/asset/`.uid`/`.ogv` changes.
+- Verification: `git diff --check`, required guard keyword search, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed. Battle scene emitted existing debug output only.
+- Manual F6 QA remains required:
+  1. 턴 종료 후 enemy reinforcement 정상 적용.
+  2. strategic action 한 턴 최대 1건 유지.
+  3. personality/goal label이 너무 길거나 반복되지 않음.
+  4. goal-biased scoring이 너무 고정적이지 않음.
+  5. enemy diplomacy가 PLAYER relation 직접 변경하지 않음.
+  6. enemy spy pressure가 player stat/resource/city_intel 직접 변경하지 않음.
+  7. pending invasion 중 strategic action skip.
+  8. pending invasion 중복 생성 없음.
+  9. defense deployment defender/attacker 의미 유지.
+  10. troop allocation clamp / command limit 유지.
+  11. BattleContext handoff 정상.
+  12. defender win / attacker win / retreat / unknown result 안전 처리.
+  13. save/load 후 enemy turn / strategic action / invasion roll / battle result replay 없음.
+  14. left PLAYER scope, right selected-city scope, Fog of War 유지.
+  15. market, alliance, wedge, player spy/diplomacy 유지.
+  16. Godot Output 새 warning/error 없음.
+- Next candidate work:
+  1. Manual F6 QA for v0.70-56.
+  2. Later candidate: `Enemy Strategic AI Phase 1` after QA, not part of v0.70-56.
+
 ## v0.70-55 Enemy Goal QA & Strategy Hint Polish
 - Baseline: local `v0.70-54 Enemy Strategic Goal Seed MVP` at `617883d0fc71db1cdf9668e5c1148a98a5a04766`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

@@ -2,6 +2,32 @@
 
 ## 2026-06-25
 
+### v0.70-56 Enemy Turn Manual F6 QA Fix Pass
+- Started from `e96bbd4 v0.70-55 Enemy Goal QA Strategy Hint Polish`.
+- Confirmed clean worktree, fetched `origin/main`, and verified local HEAD and `origin/main` both matched the requested baseline before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- QA audit:
+  - Checked enemy turn replay guard through `_run_enemy_turn_mvp()` and `_process_enemy_faction_turn_mvp()`.
+  - Checked reinforcement owner guards, one reinforcement per faction, and v0.70-46 constants.
+  - Checked strategic action max-one behavior, non-player diplomacy, display-only spy pressure, and compact personality/goal labels.
+  - Checked invasion roll guard, candidate eligibility, weak attacker guard, pending invasion duplicate guard, and personality/goal invasion scoring.
+  - Checked defense deployment source/target semantics, deployable/command clamp, BattleContext handoff, and result apply safety paths.
+  - Checked save/load clears pending invasion/context while preserving display/history normalization.
+- Implemented:
+  - Blocked player turn end while a pending battle context exists.
+  - Blocked enemy invasion roll while a pending battle context exists.
+  - Added `v0.70-56 Enemy Turn Manual F6 QA Fix Pass Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-51 enemy turn chain locks, v0.70-52 personality seed scope, v0.70-53 personality tuning guard, v0.70-54 strategic goal seed MVP lock, v0.70-55 goal hint polish, reinforcement amount formulas, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext shape, defense deployment, battle result apply, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, and `.ogv`.
+- Verification:
+  - `git diff --check`
+  - required guard keyword search
+  - warning-cleanup regression search
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+  - Battle scene emitted existing debug output only.
+- Manual F6 QA remains required for the v0.70-56 checklist.
+
 ### v0.70-55 Enemy Goal QA & Strategy Hint Polish
 - Started from local `617883d v0.70-54 Enemy Strategic Goal Seed MVP`.
 - Confirmed `main` was expectedly ahead of `origin/main` by one v0.70-54 commit, fetched `origin/main`, and verified the requested local HEAD before editing.
