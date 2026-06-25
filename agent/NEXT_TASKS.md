@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock
+- Baseline: `내정테크아이콘` (`70a1e93cc8996f2109a2354c8a206ffe4479ec74`).
+- Completed direction:
+  1. Audited pressure plan replay, pending invasion, pending BattleContext, save/load display normalization, summary/hint compactness, and scoring safety.
+  2. Kept pressure plan as display/history plus scoring hint only with forced `effect = display_scoring_only`.
+  3. Added a turn-match scoring guard so loaded or malformed pressure plans cannot become current-turn scoring hints.
+  4. Kept pressure plan generation max-one per world turn and skipped under pending invasion, pending BattleContext, and replay guard.
+  5. Polished detailed hint copy to `적 전략: 세력 · 목표` while preserving compact summary style.
+- Preserved scope:
+  1. No new enemy AI pass, Enemy Strategic AI Phase 2, direct pressure effect, enemy spy actual damage, enemy alliance/trade simulation, enemy economy simulation, PLAYER relation mutation, city stat/resource/city_intel mutation, BattleContext shape change, pending invasion payload change, scene, asset, `.uid`, `.ogv`, or tech icon PNG change was made.
+  2. Reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, strategic action max-one, v0.70-56 pending BattleContext guard, and v0.70-56-hotfix1 `seed` / `target_label` warning cleanup remain locked.
+- Verification:
+  1. `git diff --check`, tech icon no-touch check, guard keyword search, warning-cleanup regression searches, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- Manual F6 QA required:
+  1. Run the v0.70-58 checklist for max-one pressure plan display, pending invasion/BattleContext skip, save/load no effect replay, compact/non-repetitive summary, default/empty plan hiding, no direct player mutation, reinforcement/strategic/invasion guard continuity, BattleContext handoff, panel scope/Fog/market/alliance/wedge/player action preservation, and warning cleanliness.
+
 ## Current: v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner
 - Baseline: `v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix` (`602a199ebc19fd36d51a824b1a6941d4ce60197c`).
 - Completed direction:

@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock
+- Baseline: `내정테크아이콘` at `70a1e93cc8996f2109a2354c8a206ffe4479ec74`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- QA / fix scope:
+  - Audited the v0.70-57 pressure plan chain across replay guard, pending invasion, pending BattleContext, save/load display normalization, compact summary/hint display, and scoring helper use.
+  - Kept pressure plan as display/history plus scoring hint only with `effect = display_scoring_only`; it still does not apply direct effects.
+  - Locked pressure plan scoring so saved or malformed payloads with missing/mismatched `turn_number` cannot be reused as current-turn scoring hints.
+  - Kept pressure plan generation at max one per world turn and skipped during pending invasion, pending BattleContext, and same-turn replay guard.
+  - Polished the detailed hint line to `적 전략: 세력 · 목표` form to avoid repeated `전략:` label noise.
+- Preserved scope: no new enemy AI pass, no Enemy Strategic AI Phase 2, no pressure plan direct effect, no enemy spy actual damage, no enemy diplomacy alliance/trade simulation, no enemy economy simulation, no player stat/resource/city_intel/PLAYER relation mutation, no reinforcement constants change, no `ENEMY_INVASION_CHANCE` or `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS` change, no pending invasion payload or BattleContext shape change, no market/alliance/wedge/player action change, no scene/asset/`.uid`/`.ogv` changes, and no `assets/ui/tech_icons` PNG changes.
+- Verification: `git diff --check`, tech icon no-touch check, guard keyword search, warning-cleanup regression searches, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- Manual F6 QA remains required for pressure plan max-one display, pending invasion/BattleContext skip, save/load no effect replay, compact summary/hint, default/empty plan hiding, unchanged reinforcement/strategic/invasion guards, BattleContext handoff, replay guards, left/right panel scope, Fog/market/alliance/wedge/player-action preservation, and no new Godot warning/error.
+
 ## v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner
 - Baseline: `v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix` at `602a199ebc19fd36d51a824b1a6941d4ce60197c`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

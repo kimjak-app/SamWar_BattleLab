@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock Rule
+- Baseline is `내정테크아이콘` (`70a1e93cc8996f2109a2354c8a206ffe4479ec74`).
+- This rule is a pressure plan QA/fix pass over v0.70-57. It is not a new enemy AI pass, not Enemy Strategic AI Phase 2, not full enemy AI, not a long-term war planner, not pathfinding, not enemy economy simulation, and not multi-action strategic behavior.
+- Pressure plan remains display/history plus scoring hint only. It must not directly mutate player city stats, resources, troops, publicSupport, loyalty, `city_intel`, PLAYER relations, alliance state, trade agreements, cooldowns, chancellor state, national stock, city ownership, pending invasion payload, or BattleContext.
+- Pressure plan is capped at one world-turn result. The canonical payload uses `type = enemy_pressure_plan` and `effect = display_scoring_only`.
+- New pressure plan creation must skip during pending invasion, pending BattleContext, enemy turn replay guard, invalid turn state, or no-candidate cases.
+- Save/load must restore pressure plan data as display/history only. Missing or mismatched `turn_number` pressure plans must not be used as current-turn scoring hints, and pressure plan effect replay remains forbidden.
+- Summary/hint output may show compact `전략: ...` or `적 전략: 세력 · 목표` text. Default, empty, malformed, PLAYER, or stale scoring plans must not display hidden enemy resources, chancellors, raw city intel, national state, or planning internals.
+- Reinforcement constants remain unchanged: base `+60`, frontline `+40`, chancellor `+20`, max `+120`.
+- `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, pending invasion payload shape, BattleContext handoff shape, defense deployment semantics, and battle result apply rules must not change.
+- Enemy spy actual damage, enemy diplomacy alliance/trade simulation, enemy economy simulation, pathfinding, multi-turn war planning, Battle scene behavior expansion, and repo-wide refactors remain forbidden.
+- Existing regression locks remain active: v0.70-51 enemy turn chain, v0.70-52 personality seed scope, v0.70-53 personality tuning, v0.70-54 strategic goal seed MVP, v0.70-55 goal hint polish, v0.70-56 pending BattleContext guards, v0.70-56-hotfix1 warning cleanup, replay guard, pending invasion, BattleContext, Fog of War, `city_intel`, market formula, alliance behavior, wedge behavior, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scene/asset/`.uid`/`.ogv` stability.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+- `assets/ui/tech_icons` PNG files were not modified in this pass and must remain out of scope for pressure plan QA work.
+
 ## v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner Lock Rule
 - Baseline is `v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix` (`602a199ebc19fd36d51a824b1a6941d4ce60197c`).
 - This rule authorizes Phase 1 pressure plan MVP only. It is not full enemy AI, not a long-term war planner, not pathfinding, not enemy economy simulation, and not multi-action strategic behavior.

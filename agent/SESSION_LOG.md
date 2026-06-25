@@ -2,6 +2,30 @@
 
 ## 2026-06-25
 
+### v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock
+- Started from `70a1e93 내정테크아이콘`.
+- Confirmed clean worktree, fetched `origin/main`, and verified local HEAD and `origin/main` matched the requested baseline before editing.
+- Required workflow and worldmap docs were read before touching runtime files.
+- QA audit:
+  - Checked pressure plan generation guard, same-turn replay guard, pending invasion guard, pending BattleContext guard, save/load display normalization, summary/hint compactness, and scoring helper use.
+  - Confirmed pressure plan remains max one per world turn and `effect = display_scoring_only`.
+  - Confirmed pending invasion and pending BattleContext guards are still in the pressure plan, strategic action, invasion roll, and turn-end paths.
+- Implemented:
+  - Prevented missing `turn_number` pressure plan payloads from normalizing to the current turn.
+  - Added a current-turn match guard before pressure plan scoring hints are used.
+  - Changed the detailed pressure plan hint line to `적 전략: 세력 · 목표` to avoid repeated label noise.
+  - Added `v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved Enemy Strategic AI Phase 2 ban, enemy spy actual damage ban, enemy diplomacy alliance/trade simulation ban, enemy economy simulation ban, reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext shape, battle result apply, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, player chancellor scope, `faction_chancellors`, scenes, assets, `.uid`, `.ogv`, and `assets/ui/tech_icons` PNG files.
+- Verification:
+  - `git diff --check`
+  - tech icon no-touch check
+  - guard keyword search
+  - warning-cleanup regression searches for `seed`, `target_label`, `resource_label`, `selected_city_id`, `loyalty_card`, and `func .*sign`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for the v0.70-58 checklist.
+
 ### v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner
 - Started from `602a199 v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix`.
 - Confirmed clean worktree, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.

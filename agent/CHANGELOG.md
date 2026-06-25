@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock
+- Built on `내정테크아이콘` (`70a1e93cc8996f2109a2354c8a206ffe4479ec74`).
+- Audited v0.70-57 pressure plan replay guard, pending invasion guard, pending BattleContext guard, save/load display normalization, compact summary/hint display, and scoring helper safety.
+- Kept pressure plan as display/history plus scoring hint only with forced `effect = display_scoring_only`.
+- Hardened pressure plan normalization so missing `turn_number` does not become the current turn, and scoring ignores normalized plans whose turn does not match the current world turn.
+- Polished detailed pressure plan hint copy to `적 전략: 세력 · 목표`, reducing repeated `전략:` label noise.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, pending invasion payload, BattleContext, battle result handling, market, alliance, wedge, player actions, `city_intel`, scenes, assets, `.uid`, `.ogv`, or `assets/ui/tech_icons` PNG files.
+
 ## v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner
 - Built on `v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix` (`602a199ebc19fd36d51a824b1a6941d4ce60197c`).
 - Added a conservative max-one enemy pressure plan result for each world turn.

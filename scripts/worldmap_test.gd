@@ -6272,6 +6272,20 @@ func _get_enemy_pressure_plan_display_label_mvp(plan: Dictionary) -> String:
 	return "전략: %s" % goal_label
 
 
+func _get_enemy_pressure_plan_compact_label_mvp(plan: Dictionary) -> String:
+	if plan.is_empty():
+		return ""
+	if str(plan.get("type", "")) != "enemy_pressure_plan":
+		return ""
+	if str(plan.get("effect", "")) != "display_scoring_only":
+		return ""
+	var goal_id := str(plan.get("goal_id", ""))
+	var goal_label := str(plan.get("goal_label", ""))
+	if goal_id.is_empty() or goal_id == "hold_position" or goal_label.is_empty():
+		return ""
+	return goal_label
+
+
 func _should_skip_enemy_pressure_plan_mvp() -> bool:
 	if _has_pending_invasion_event_mvp() or not _get_pending_battle_context_mvp().is_empty():
 		return true
@@ -6425,7 +6439,7 @@ func _normalize_enemy_pressure_plan_result_mvp(raw_result: Variant) -> Dictionar
 		return {}
 	if _get_safe_enemy_owner_faction_id_for_turn_mvp(source_city_id) != faction_id:
 		return {}
-	result["turn_number"] = maxi(0, int(result.get("turn_number", _player_state.get("turn_number", 0))))
+	result["turn_number"] = maxi(0, int(result.get("turn_number", 0)))
 	result["faction_id"] = faction_id
 	result["faction_label"] = str(result.get("faction_label", _format_faction_label(faction_id)))
 	result["personality_profile"] = str(result.get("personality_profile", _get_enemy_faction_personality_profile_id(faction_id)))
@@ -6441,7 +6455,13 @@ func _normalize_enemy_pressure_plan_result_mvp(raw_result: Variant) -> Dictionar
 
 
 func _get_enemy_pressure_plan_for_scoring_mvp() -> Dictionary:
-	return _normalize_enemy_pressure_plan_result_mvp(_player_state.get("last_enemy_pressure_plan_result", {}))
+	var plan := _normalize_enemy_pressure_plan_result_mvp(_player_state.get("last_enemy_pressure_plan_result", {}))
+	if plan.is_empty():
+		return {}
+	var current_turn := maxi(1, int(_player_state.get("turn_number", 1)))
+	if int(plan.get("turn_number", 0)) != current_turn:
+		return {}
+	return plan
 
 
 func _is_enemy_pressure_plan_target_city_mvp(faction_id: String, city_id: String) -> bool:
@@ -7041,9 +7061,9 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 	var pressure_plan := _normalize_enemy_pressure_plan_result_mvp(result.get("pressure_plan", {}))
 	var pressure_plan_text := _get_enemy_pressure_plan_display_label_mvp(pressure_plan)
 	if not pressure_plan_text.is_empty():
-		lines.append("%s · %s" % [
+		lines.append("적 전략: %s · %s" % [
 			str(pressure_plan.get("faction_label", _format_faction_label(str(pressure_plan.get("faction_id", ""))))),
-			pressure_plan_text,
+			_get_enemy_pressure_plan_compact_label_mvp(pressure_plan),
 		])
 	if actions is Array and not (actions as Array).is_empty():
 		var shown := 0

@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-58 Enemy Pressure Plan QA Replay Pending SaveLoad Lock Handoff
+- Baseline: `내정테크아이콘` (`70a1e93cc8996f2109a2354c8a206ffe4479ec74`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is a pressure plan QA/fix pass over v0.70-57. It is not a new enemy AI pass, not Enemy Strategic AI Phase 2, not a full planner, and not authorization for pathfinding, economy simulation, spy damage, or alliance/trade simulation.
+- Pressure plan remains display/history plus scoring hint only. Valid plans use `type = enemy_pressure_plan` and forced `effect = display_scoring_only`; direct effects remain forbidden.
+- New pressure plan creation remains max one per world turn and skips during pending invasion, pending BattleContext, enemy turn replay guard, invalid turn, and no-candidate cases.
+- Save/load and malformed payload safety:
+  - Missing `turn_number` no longer normalizes to the current turn.
+  - Pressure plan scoring only uses a normalized plan when its `turn_number` exactly matches the current world turn.
+  - Saved pressure plan state remains display/history only and must not replay effects.
+- Summary/hint display remains compact. Detailed hint copy now uses `적 전략: 세력 · 목표` instead of repeating the `전략:` label.
+- Explicitly unchanged: reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, `enemy_invasion_roll_turn`, strategic action max-one clamp, pending invasion payload shape, BattleContext shape, battle result apply, market, alliance, wedge, player spy/diplomacy actions, `city_intel`, Fog of War, left PLAYER scope, right selected-city scope, scenes, assets, `.uid`, `.ogv`, and `assets/ui/tech_icons` PNG files.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+- Verification passed: `git diff --check`, tech icon no-touch check, guard keyword search, warning-cleanup regression searches, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Manual F6 QA still required for the v0.70-58 checklist.
+
 ## v0.70-57 Enemy Strategic AI Phase 1 Target Pressure Planner Handoff
 - Baseline: `v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix` (`602a199ebc19fd36d51a824b1a6941d4ce60197c`).
 - Runtime file touched: `scripts/worldmap_test.gd`.
