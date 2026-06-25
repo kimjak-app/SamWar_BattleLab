@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP Handoff
+- Baseline: `테크트리 준비` (`78ab5e479511855f1f445c64eb57186bc93eb3b3`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is Domestic Tech Tree Foundation only. It is not tech tree UI, not a research button, not research turn progression, not actual income/resource/troop/battle/diplomacy/spy effect application, and not domestic balance implementation.
+- City techs are intended for the future right selected-city detail panel. National techs are intended for the future left PLAYER national/court panel. Do not expose enemy city tech detail outside Fog of War and `city_intel` policy.
+- Foundation data includes tech definition, category, branch, rarity, prerequisite, national unlock/enhance relation, special lock metadata, governor aptitude, chancellor-directed national progress mode, cost, duration hints, disabled `effect_stub`, icon path, and fallback label data.
+- Domestic tech state keys are normalized only for crash safety: `city_domestic_tech_completed`, `city_domestic_tech_unlocked`, `national_domestic_tech_completed`, and `national_domestic_tech_unlocked`. Unknown tech ids and malformed payloads are discarded by helpers.
+- `effect_stub.enabled` must remain false until an explicitly authorized effect implementation pass. Save/load normalization must not replay effects.
+- Icon mapping rules: use only existing semantic matches; missing icons get empty `icon_path`, `icon_missing = true`, and `icon_fallback_label = "?"`. Do not modify, rename, or delete `assets/ui/tech_icons` PNG or `.import` files.
+- Known icon mismatch: `agri_granary_zone` maps to existing `tech_agri_granary_zon.png`; `mil_heavy_infantry` remains missing because the existing heavy cavalry icon is different; `tech_naval_grand_shipyard.png` remains unused because no confirmed 대형조선소 tech is added in this MVP.
+- Explicitly unchanged: income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, market, alliance, wedge, player spy/diplomacy actions, `city_intel`, Fog of War, left PLAYER scope, right selected-city scope, scenes, assets, icon PNGs, and `.import` files.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+- Manual F6 QA remains required for the v0.70-61 checklist.
+
 ## v0.70-60 Enemy Pressure Balance Pass Handoff
 - Baseline: `v0.70-59 Enemy Strategy Hint UX Polish` (`749179080e67a4d61dfa143761e4f5ed0e527404`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

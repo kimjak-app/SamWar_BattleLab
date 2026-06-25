@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP
+- Built on `테크트리 준비` (`78ab5e479511855f1f445c64eb57186bc93eb3b3`).
+- Added Domestic Tech Tree Foundation MVP data from the confirmed city/national tech design scope without implementing UI, research buttons, research turn progression, or actual tech effects.
+- Added domestic tech category, city/national definition, scope/category/branch query, definition lookup, prerequisite, national requirement, availability, icon, and fallback helper functions.
+- Added `_player_state` normalization for city/national domestic tech completed/unlocked state so missing or malformed save data falls back safely.
+- Mapped existing semantic icon files and kept missing icons as `?` fallback data.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan locks, pending invasion, BattleContext, market, alliance, wedge, player actions, `city_intel`, Fog of War, scenes, `assets/ui/tech_icons` PNG files, or `.import` files.
+
 ## v0.70-60 Enemy Pressure Balance Pass
 - Built on `v0.70-59 Enemy Strategy Hint UX Polish` (`749179080e67a4d61dfa143761e4f5ed0e527404`).
 - Audited pressure plan scoring across reinforcement target choice, strategic diplomacy, strategic spy pressure, and eligible invasion pair scoring.

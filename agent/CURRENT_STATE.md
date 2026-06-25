@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP
+- Baseline: `테크트리 준비` at `78ab5e479511855f1f445c64eb57186bc93eb3b3`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Foundation scope:
+  - Added confirmed-design domestic tech definition helpers for city and national tech trees, category/branch grouping, rarity, prerequisites, national unlock/enhance relation, special lock metadata, governor aptitude metadata, cost/duration hints, disabled `effect_stub`, icon paths, and `?` fallback data.
+  - Added save/load-safe `_player_state` normalization for `city_domestic_tech_completed`, `city_domestic_tech_unlocked`, `national_domestic_tech_completed`, and `national_domestic_tech_unlocked`.
+  - Added future UI getters for scope/category/branch lists, individual definition lookup, available city/national tech ids, and icon fallback state.
+- Preserved scope: no tech tree UI, no research button, no research turn progression, no actual domestic tech effects, no income/resource/troop/battle/diplomacy/spy formula changes, no Enemy Strategic AI Phase 2, no War Posture, no pending invasion payload or BattleContext shape change, no scene/asset change, no `assets/ui/tech_icons` PNG change, and no `.import` file change.
+- Icon notes: `agri_granary_zone` uses existing typo asset `tech_agri_granary_zon.png`; missing icons use empty `icon_path` plus `icon_missing = true`; `mil_heavy_infantry` intentionally does not reuse the different `tech_mil_heavy_cavalry.png`; `tech_naval_grand_shipyard.png` remains unused because no confirmed tech entry is created for 대형조선소 in this MVP.
+- Manual F6 QA remains required for worldmap load, save/load malformed domestic tech state safety, helper list results, icon fallback data, unchanged gameplay formulas, enemy pressure/pending/BattleContext locks, left PLAYER scope, right selected-city scope, Fog/city_intel, market/alliance/wedge/player actions, no tech icon/import changes, and Godot warning cleanliness.
+
 ## v0.70-60 Enemy Pressure Balance Pass
 - Baseline: `v0.70-59 Enemy Strategy Hint UX Polish` at `749179080e67a4d61dfa143761e4f5ed0e527404`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

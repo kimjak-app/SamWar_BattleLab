@@ -1,5 +1,17 @@
 # WORLDMAP RULES
 
+## v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP Lock Rule
+- Baseline is `테크트리 준비` (`78ab5e479511855f1f445c64eb57186bc93eb3b3`).
+- This rule is Domestic Tech Tree Foundation only. It is not tech tree UI, not a research button, not research turn progression, not actual effect application, not domestic balance implementation, not Enemy Strategic AI Phase 2, and not War Posture.
+- City techs are for the future right selected-city detail panel. National techs are for the future left PLAYER national/court panel. The left panel must remain PLAYER national/court scope only and the right panel must remain selected-city scope only.
+- Foundation scope is limited to tech definition, category, branch, rarity, prerequisite, national unlock/enhance relation, special lock metadata, governor aptitude, chancellor-directed national progress field, icon path, fallback label, cost, duration hint, disabled `effect_stub`, and state normalization.
+- `effect_stub.enabled` must remain false. Domestic tech definitions must not directly mutate income, resources, troops, battle stats, diplomacy, spy behavior, publicSupport, loyalty, `city_intel`, faction relations, market, alliance, wedge, pending invasion payload, or BattleContext.
+- Save/load domestic tech normalization is crash-safety only. Missing or malformed `city_domestic_tech_completed`, `city_domestic_tech_unlocked`, `national_domestic_tech_completed`, and `national_domestic_tech_unlocked` data must normalize safely, unknown tech ids must be ignored, and effect replay remains forbidden.
+- Icon mapping must use only existing semantic matches. Missing icons use empty `icon_path`, `icon_missing = true`, and `icon_fallback_label = "?"`. `assets/ui/tech_icons` PNG files and `.import` files were not modified in this pass and must not be modified, renamed, or deleted by foundation work.
+- Known icon mismatch handling: `agri_granary_zone` may map to existing typo asset `tech_agri_granary_zon.png`; `mil_heavy_infantry` must not reuse the distinct heavy cavalry icon; unused icon-only assets such as `tech_naval_grand_shipyard.png` must not cause unconfirmed tech ids to be added.
+- Existing locks remain active: v0.70-60 pressure balance, v0.70-59 strategy hint UX, v0.70-58 pressure replay/scoring lock, pending invasion guard, pending BattleContext guard, reinforcement constants, `ENEMY_INVASION_CHANCE`, `ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS`, BattleContext handoff shape, battle result apply, Fog of War, `city_intel`, market formula, alliance behavior, wedge behavior, player spy/diplomacy actions, player chancellor candidate scope, `_player_state["faction_chancellors"]`, scene/asset/`.uid`/`.ogv` stability.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-60 Enemy Pressure Balance Pass Lock Rule
 - Baseline is `v0.70-59 Enemy Strategy Hint UX Polish` (`749179080e67a4d61dfa143761e4f5ed0e527404`).
 - This rule is a pressure plan balance pass only. It is not a new enemy AI pass, not War Posture, not Strategy Memory, not Invasion Intent Preview, not Player Counter-Strategy, not Enemy Strategic AI Phase 2, not pathfinding, not enemy economy simulation, and not multi-action strategic behavior.

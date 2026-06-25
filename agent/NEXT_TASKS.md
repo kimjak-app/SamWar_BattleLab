@@ -1,5 +1,18 @@
 # NEXT TASKS
 
+## Current: v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP
+- Baseline: `테크트리 준비` (`78ab5e479511855f1f445c64eb57186bc93eb3b3`).
+- Completed direction:
+  1. Added confirmed-design city and national domestic tech foundation data without implementing UI, research buttons, research turn progression, or actual effects.
+  2. Added category/branch/scope helpers, definition lookup helpers, prerequisite and national requirement checks, availability getters, icon path/fallback getters, and save/load-safe domestic tech state normalization.
+  3. Kept `effect_stub.enabled = false` for domestic tech definitions and did not connect new definitions to income, resource, troop, battle, diplomacy, or spy calculations.
+  4. Mapped only existing semantically matching icon PNGs; missing icons use `?` fallback data.
+- Preserved scope:
+  1. No tech tree UI, research button, research progress, actual effect application, icon PNG modification, `.import` modification, scene change, BattleContext change, pending invasion payload change, Enemy Strategic AI Phase 2, or War Posture was made.
+  2. v0.70-60 pressure balance, v0.70-59 hint UX, v0.70-58 replay lock, Fog/city_intel, left PLAYER scope, right selected-city scope, market/alliance/wedge/player actions, and warning-cleanup locks remain active.
+- Manual F6 QA required:
+  1. Run the v0.70-61 checklist for worldmap load, save/load missing/malformed domestic tech state safety, helper return coverage, icon fallback handling, unchanged gameplay formulas, enemy pressure/pending/BattleContext lock continuity, panel scope/Fog/city_intel/market/alliance/wedge/player action preservation, no icon/import changes, and Godot warning cleanliness.
+
 ## Current: v0.70-60 Enemy Pressure Balance Pass
 - Baseline: `v0.70-59 Enemy Strategy Hint UX Polish` (`749179080e67a4d61dfa143761e4f5ed0e527404`).
 - Completed direction:

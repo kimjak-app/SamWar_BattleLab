@@ -2,6 +2,19 @@
 
 ## 2026-06-25
 
+### v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP
+- Started from `78ab5e4 테크트리 준비`.
+- Confirmed local `main` was clean, fetched `origin/main`, and verified local HEAD and origin/main matched the requested baseline before editing.
+- Required workflow/worldmap docs and similar confirmed tech design docs were read before touching runtime files.
+- Implemented:
+  - Added confirmed-design domestic city and national tech definition foundation helpers.
+  - Added category/branch/scope lookup, definition lookup, prerequisite/national requirement, availability, icon path, icon missing, and fallback-label helpers.
+  - Added save/load-safe normalization for `city_domestic_tech_completed`, `city_domestic_tech_unlocked`, `national_domestic_tech_completed`, and `national_domestic_tech_unlocked`.
+  - Kept all new domestic `effect_stub` entries disabled and disconnected from actual gameplay formulas.
+  - Added `v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-60 pressure balance, v0.70-59 strategy hint UX, v0.70-58 replay lock, pending invasion/BattleContext locks, left/right panel scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, scenes, icon PNG files, and `.import` files.
+- Manual F6 QA remains required for the v0.70-61 checklist.
+
 ### v0.70-60 Enemy Pressure Balance Pass
 - Started from `7491790 v0.70-59 Enemy Strategy Hint UX Polish`.
 - Confirmed local `main` was clean, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.
