@@ -1,5 +1,18 @@
 # NEXT TASKS
 
+## Current: v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix
+- Baseline: `v0.70-56 Enemy Turn Manual F6 QA Fix Pass` (`e06c1744087167957eebc1e070bb6567646b6972`).
+- Completed direction:
+  1. Cleaned up GDScript reload warnings without changing gameplay behavior.
+  2. Renamed local `seed` temporaries to domain-specific names so they no longer collide with Godot's built-in `seed()` function.
+  3. Renamed the diplomacy result formatter target label local to remove `target_label` block shadowing.
+- Preserved scope:
+  1. No enemy turn, personality, strategic goal, invasion, BattleContext, battle result, market, alliance, wedge, player action, balance value, scene, asset, `.uid`, or `.ogv` change was made.
+- Verification:
+  1. `git diff --check`, warning keyword searches, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- Manual F6 QA required:
+  1. Confirm Godot Output no longer reports `target_label` shadowing or `seed` built-in name collision during reload/play.
+
 ## Current: v0.70-56 Enemy Turn Manual F6 QA Fix Pass
 - Baseline: `v0.70-55 Enemy Goal QA Strategy Hint Polish` (`e96bbd4a028ea8c743f5665e6fec5a6ee9f86fe0`).
 - Completed direction:

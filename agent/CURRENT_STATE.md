@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix
+- Baseline: `v0.70-56 Enemy Turn Manual F6 QA Fix Pass` at `e06c1744087167957eebc1e070bb6567646b6972`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, and `agent/SESSION_LOG.md`.
+- Hotfix scope:
+  - Removed the GDScript reload warning caused by local `seed` variable names colliding with the built-in `seed()` function.
+  - Removed the `target_label` block shadowing warning in the diplomacy result formatter.
+  - Kept the changes to variable renames and equivalent references only.
+- Preserved scope: no gameplay logic change, no balance value change, no enemy turn/personality/goal/invasion/BattleContext/battle result change, no market/alliance/wedge/player action change, no `city_intel` or Fog of War change, and no scene/asset/`.uid`/`.ogv` changes.
+- Verification: `git diff --check`, warning keyword searches for `seed` and `target_label`, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load passed.
+- Manual F6 QA remains required to confirm the two reload warnings stay absent in the editor Output during play.
+
 ## v0.70-56 Enemy Turn Manual F6 QA Fix Pass
 - Baseline: `v0.70-55 Enemy Goal QA Strategy Hint Polish` at `e96bbd4a028ea8c743f5665e6fec5a6ee9f86fe0`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

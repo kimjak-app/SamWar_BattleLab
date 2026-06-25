@@ -3842,25 +3842,24 @@ func _format_last_diplomacy_action_result_for_ui(target_faction_id: String = "")
 	var result := result_variant as Dictionary
 	if not target_faction_id.is_empty() and str(result.get("target_faction_id", "")) != target_faction_id:
 		return "최근 외교\n선택 세력 관련 기록 없음"
+	var diplomacy_target_label := _format_faction_label(str(result.get("target_faction_id", "")))
 	var action_id := str(result.get("action_id", ""))
 	if action_id == DIPLOMACY_ACTION_ALLIANCE_PROPOSAL:
-		var target_label := _format_faction_label(str(result.get("target_faction_id", "")))
 		if bool(result.get("accepted", false)):
 			return "최근 외교\n동맹 체결 성공 → %s\n%d턴 / 수락 점수 %d / 기준 %d" % [
-				target_label,
+				diplomacy_target_label,
 				int(result.get("alliance_turns_remaining", result.get("duration_turns", 0))),
 				int(result.get("acceptance_score", result.get("acceptance_chance", 0))),
 				int(result.get("required_score", result.get("acceptance_threshold", ALLIANCE_ACCEPTANCE_THRESHOLD))),
 			]
 		if str(result.get("reason", "")) == "rejected":
 			return "최근 외교\n동맹 제안 거절 → %s\n수락 점수 %d / 기준 %d" % [
-				target_label,
+				diplomacy_target_label,
 				int(result.get("acceptance_score", result.get("acceptance_chance", 0))),
 				int(result.get("required_score", result.get("acceptance_threshold", ALLIANCE_ACCEPTANCE_THRESHOLD))),
 			]
 	if not bool(result.get("success", false)):
 		return "최근 외교\n실패: %s" % str(result.get("message", "실행 실패"))
-	var target_label := _format_faction_label(str(result.get("target_faction_id", "")))
 	var action_label := str(result.get("action_label", result.get("action_id", "외교")))
 	var relation_line := "관계 %d → %d" % [int(result.get("before_score", 0)), int(result.get("after_score", 0))]
 	var result_cost: Dictionary = result.get("cost", {})
@@ -3870,7 +3869,7 @@ func _format_last_diplomacy_action_result_for_ui(target_faction_id: String = "")
 		var agreement: Dictionary = result.get("agreement", {})
 		return "최근 외교\n%s → %s\n효율 보정 %d턴 / %s" % [
 			action_label,
-			target_label,
+			diplomacy_target_label,
 			int(agreement.get("turns_remaining", 0)),
 			relation_line,
 		]
@@ -3879,7 +3878,7 @@ func _format_last_diplomacy_action_result_for_ui(target_faction_id: String = "")
 		if cost_variant is Dictionary:
 			gold_cost = int((cost_variant as Dictionary).get("gold", 0))
 		cost_text = "%s -%d" % [str(RESOURCE_LABELS.get("gold", "금전")), gold_cost]
-	return "최근 외교\n%s → %s\n%s / %s" % [action_label, target_label, relation_line, cost_text]
+	return "최근 외교\n%s → %s\n%s / %s" % [action_label, diplomacy_target_label, relation_line, cost_text]
 
 
 func _has_enemy_intel_payload_for_ui(fields: Array[String], payload: Dictionary, field: String) -> bool:
@@ -6112,10 +6111,10 @@ func _get_enemy_faction_personality_seed(faction_id: String) -> Dictionary:
 		return default_seed.duplicate(true)
 	var raw_seed: Variant = ENEMY_FACTION_PERSONALITY_SEEDS.get(faction_id, default_seed)
 	if raw_seed is Dictionary:
-		var seed := default_seed.duplicate(true)
+		var personality_seed := default_seed.duplicate(true)
 		for key in (raw_seed as Dictionary).keys():
-			seed[key] = (raw_seed as Dictionary)[key]
-		return seed
+			personality_seed[key] = (raw_seed as Dictionary)[key]
+		return personality_seed
 	return default_seed.duplicate(true)
 
 
@@ -6128,8 +6127,8 @@ func _get_enemy_faction_personality_label(faction_id: String) -> String:
 
 
 func _get_enemy_faction_behavior_weight(faction_id: String, key: String, default_value: float = 1.0) -> float:
-	var seed := _get_enemy_faction_personality_seed(faction_id)
-	var weight := float(seed.get(key, default_value))
+	var personality_seed := _get_enemy_faction_personality_seed(faction_id)
+	var weight := float(personality_seed.get(key, default_value))
 	return clampf(weight, 0.75, 1.25)
 
 
@@ -6151,10 +6150,10 @@ func _get_enemy_faction_strategic_goal_seed(faction_id: String) -> Dictionary:
 		return default_seed.duplicate(true)
 	var raw_seed: Variant = ENEMY_FACTION_STRATEGIC_GOAL_SEEDS.get(faction_id, default_seed)
 	if raw_seed is Dictionary:
-		var seed := default_seed.duplicate(true)
+		var goal_seed := default_seed.duplicate(true)
 		for key in (raw_seed as Dictionary).keys():
-			seed[key] = (raw_seed as Dictionary)[key]
-		return seed
+			goal_seed[key] = (raw_seed as Dictionary)[key]
+		return goal_seed
 	return default_seed.duplicate(true)
 
 
@@ -6171,16 +6170,16 @@ func _get_enemy_faction_goal_pressure(faction_id: String) -> String:
 
 
 func _get_enemy_faction_goal_weight(faction_id: String) -> float:
-	var seed := _get_enemy_faction_strategic_goal_seed(faction_id)
-	return clampf(float(seed.get("weight", 1.0)), 1.0, 1.15)
+	var goal_seed := _get_enemy_faction_strategic_goal_seed(faction_id)
+	return clampf(float(goal_seed.get("weight", 1.0)), 1.0, 1.15)
 
 
 func _get_enemy_goal_target_city_ids(faction_id: String) -> Array[String]:
 	var result: Array[String] = []
 	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
 		return result
-	var seed := _get_enemy_faction_strategic_goal_seed(faction_id)
-	var raw_city_ids: Variant = seed.get("target_city_ids", [])
+	var goal_seed := _get_enemy_faction_strategic_goal_seed(faction_id)
+	var raw_city_ids: Variant = goal_seed.get("target_city_ids", [])
 	if not raw_city_ids is Array:
 		return result
 	for city_id_variant in raw_city_ids:

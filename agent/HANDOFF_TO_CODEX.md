@@ -1,5 +1,15 @@
 # HANDOFF TO CODEX
 
+## v0.70-56-hotfix1 GDScript Reload Shadowing Warning Fix Handoff
+- Baseline: `v0.70-56 Enemy Turn Manual F6 QA Fix Pass` (`e06c1744087167957eebc1e070bb6567646b6972`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This hotfix is a gameplay-free GDScript reload warning cleanup only.
+- Removed the `seed` built-in function name collision warning by renaming local personality/goal seed temporaries to `personality_seed` and `goal_seed`.
+- Removed the `target_label` block shadowing warning in `_format_last_diplomacy_action_result_for_ui()` by using one `diplomacy_target_label` local.
+- Explicitly unchanged: enemy turn flow, personality seed values, strategic goal seed values, reinforcement balance, invasion chance/min attacker guard, pending invasion payload, BattleContext shape, battle result apply, market, alliance, wedge, player spy/diplomacy actions, `city_intel`, Fog of War, left PLAYER scope, right selected-city scope, scenes, assets, `.uid`, and `.ogv`.
+- Verification passed: `git diff --check`, warning keyword searches for `seed` and `target_label`, warning-cleanup regression search, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Manual F6 QA still required to confirm the editor Output no longer prints the two reload warnings.
+
 ## v0.70-56 Enemy Turn Manual F6 QA Fix Pass Handoff
 - Baseline: `v0.70-55 Enemy Goal QA Strategy Hint Polish` (`e96bbd4a028ea8c743f5665e6fec5a6ee9f86fe0`).
 - Runtime file touched: `scripts/worldmap_test.gd`.
