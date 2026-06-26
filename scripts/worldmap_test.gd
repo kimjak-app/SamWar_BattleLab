@@ -47,11 +47,13 @@ const DOMESTIC_TECH_VIEW_SPECIAL_LOCKED := "special_locked"
 const DOMESTIC_TECH_TREE_OVERLAY_MARGIN := 22.0
 const DOMESTIC_TECH_TREE_NODE_WIDTH := 214.0
 const DOMESTIC_TECH_TREE_ICON_SIZE := 42.0
-const DOMESTIC_TECH_GRAPH_NODE_SIZE := Vector2(214.0, 150.0)
-const DOMESTIC_TECH_GRAPH_TIER_SPACING := 258.0
-const DOMESTIC_TECH_GRAPH_BRANCH_SPACING := 188.0
-const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 162.0
-const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(14.0, 34.0)
+const DOMESTIC_TECH_GRAPH_NODE_WIDTH := 146.0
+const DOMESTIC_TECH_GRAPH_NODE_HEIGHT := 86.0
+const DOMESTIC_TECH_GRAPH_NODE_SIZE := Vector2(DOMESTIC_TECH_GRAPH_NODE_WIDTH, DOMESTIC_TECH_GRAPH_NODE_HEIGHT)
+const DOMESTIC_TECH_GRAPH_TIER_SPACING := 190.0
+const DOMESTIC_TECH_GRAPH_BRANCH_SPACING := 126.0
+const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 94.0
+const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(94.0, 38.0)
 const DOMESTIC_TECH_GRAPH_LINE_WIDTH := 3.0
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
@@ -939,6 +941,9 @@ var _domestic_tech_tree_button_mvp: Button = null
 var _tech_tree_overlay_mvp: PanelContainer = null
 var _tech_tree_content_root_mvp: VBoxContainer = null
 var _tech_tree_hidden_ui_state_mvp: Dictionary = {}
+var _selected_domestic_tech_id_mvp := ""
+var _selected_domestic_tech_city_id_mvp := ""
+var _domestic_tech_detail_inspector_label_mvp: Label = null
 var _enemy_turn_mvp_timer: Timer
 var _enemy_turn_mvp_pending := false
 var _domestic_turn_apply_pending := false
@@ -9858,6 +9863,8 @@ func _open_domestic_tech_tree_overlay_mvp() -> void:
 func _close_domestic_tech_tree_overlay_mvp() -> void:
 	if _tech_tree_overlay_mvp != null:
 		_tech_tree_overlay_mvp.visible = false
+	_selected_domestic_tech_id_mvp = ""
+	_selected_domestic_tech_city_id_mvp = ""
 	_restore_worldmap_panels_after_tech_tree_mvp()
 
 
@@ -9946,6 +9953,7 @@ func _refresh_domestic_tech_tree_overlay_mvp() -> void:
 	if _tech_tree_content_root_mvp == null:
 		return
 	_clear_domestic_tech_tree_children_mvp(_tech_tree_content_root_mvp)
+	_domestic_tech_detail_inspector_label_mvp = null
 
 	var header_row := HBoxContainer.new()
 	header_row.name = "DomesticTechTreeHeaderRow"
@@ -9984,6 +9992,8 @@ func _refresh_domestic_tech_tree_overlay_mvp() -> void:
 
 	_build_national_tech_tree_panel_mvp(split)
 	_build_city_tech_tree_panel_mvp(split, selected_city_id)
+	_build_domestic_tech_detail_inspector_mvp(_tech_tree_content_root_mvp)
+	_refresh_domestic_tech_detail_inspector_mvp()
 
 
 func _build_national_tech_tree_panel_mvp(parent: Container) -> void:
@@ -10034,6 +10044,99 @@ func _build_city_tech_tree_panel_mvp(parent: Container, city_id: String) -> void
 
 	for category_id in [DOMESTIC_TECH_CATEGORY_AGRI, DOMESTIC_TECH_CATEGORY_FISH, DOMESTIC_TECH_CATEGORY_COMMERCE, DOMESTIC_TECH_CATEGORY_MILITARY]:
 		_build_domestic_tech_category_group_mvp(list, category_id, city_id, DOMESTIC_TECH_SCOPE_CITY)
+
+
+func _build_domestic_tech_detail_inspector_mvp(parent: Container) -> void:
+	var panel := _make_domestic_tech_section_panel_mvp("DomesticTechDetailInspectorMVP")
+	panel.custom_minimum_size = Vector2(0.0, 132.0)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	parent.add_child(panel)
+
+	var content := _make_domestic_tech_section_content_mvp(panel)
+	content.add_child(_make_domestic_tech_label_mvp("선택 테크 상세 정보", 15, Color(1.0, 0.86, 0.54, 1.0)))
+	_domestic_tech_detail_inspector_label_mvp = _make_domestic_tech_label_mvp("테크를 선택하면 상세 정보가 표시됩니다.", 11, Color(0.82, 0.84, 0.78, 1.0))
+	_domestic_tech_detail_inspector_label_mvp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(_domestic_tech_detail_inspector_label_mvp)
+
+
+func _refresh_domestic_tech_detail_inspector_mvp() -> void:
+	if _domestic_tech_detail_inspector_label_mvp == null:
+		return
+	if _selected_domestic_tech_id_mvp.is_empty():
+		_domestic_tech_detail_inspector_label_mvp.text = "테크를 선택하면 상세 정보가 표시됩니다."
+		return
+	var definition := _get_domestic_tech_definition_mvp(_selected_domestic_tech_id_mvp)
+	if definition.is_empty():
+		_selected_domestic_tech_id_mvp = ""
+		_selected_domestic_tech_city_id_mvp = ""
+		_domestic_tech_detail_inspector_label_mvp.text = "테크를 선택하면 상세 정보가 표시됩니다."
+		return
+	var scope := str(definition.get("tree_scope", ""))
+	if scope == DOMESTIC_TECH_SCOPE_CITY:
+		var current_city_for_detail := selected_city_marker.city_id if selected_city_marker != null else ""
+		if _selected_domestic_tech_city_id_mvp.is_empty() or _selected_domestic_tech_city_id_mvp != current_city_for_detail or not _is_city_owned_by_player_mvp(_selected_domestic_tech_city_id_mvp):
+			_selected_domestic_tech_id_mvp = ""
+			_selected_domestic_tech_city_id_mvp = ""
+			_domestic_tech_detail_inspector_label_mvp.text = "테크를 선택하면 상세 정보가 표시됩니다."
+			return
+	var view_state := _get_domestic_tech_view_state_mvp(_selected_domestic_tech_id_mvp, _selected_domestic_tech_city_id_mvp)
+	_domestic_tech_detail_inspector_label_mvp.text = _format_domestic_tech_detail_text_mvp(definition, view_state, _selected_domestic_tech_city_id_mvp)
+
+
+func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dictionary, city_id: String = "") -> String:
+	var tech_id := str(tech_def.get("id", ""))
+	var scope := str(tech_def.get("tree_scope", ""))
+	var scope_label := "국가 테크" if scope == DOMESTIC_TECH_SCOPE_NATIONAL else "도시 테크"
+	var category_id := str(tech_def.get("category", ""))
+	var category_data: Dictionary = _get_domestic_tech_categories_mvp().get(category_id, {})
+	var category_label := str(category_data.get("name", category_id))
+	var branch_label := _format_domestic_tech_branch_label_mvp(str(tech_def.get("branch", "")))
+	var rarity_label := _format_domestic_tech_rarity_mvp(int(tech_def.get("rarity", 0)))
+	var title := "%s %s" % [str(tech_def.get("name", tech_id)), rarity_label]
+	var effect_stub: Dictionary = tech_def.get("effect_stub", {})
+	var lines: Array[String] = []
+	lines.append("%s\n%s / %s / %s / Tier %d" % [title.strip_edges(), scope_label, category_label, branch_label, int(tech_def.get("tier", 0))])
+	lines.append("효과: %s" % str(effect_stub.get("description", "")))
+	lines.append("비용: %s" % _get_domestic_tech_cost_summary_mvp(tech_def))
+	lines.append("건설 시간: %s" % _format_domestic_tech_duration_hint_mvp(tech_def))
+	lines.append("상태: %s" % str(view_state.get("label", "잠김")))
+	var requirements := _get_domestic_tech_requirement_summary_mvp(tech_def, view_state, city_id)
+	if not requirements.is_empty():
+		lines.append("필요 조건:\n- %s" % "\n- ".join(requirements))
+	if bool(tech_def.get("icon_missing", false)):
+		lines.append("아이콘: 준비중 (?)")
+	return "\n\n".join(lines)
+
+
+func _get_domestic_tech_cost_summary_mvp(tech_def: Dictionary) -> String:
+	return _format_domestic_tech_cost_mvp(tech_def.get("cost", {}))
+
+
+func _get_domestic_tech_requirement_summary_mvp(tech_def: Dictionary, view_state: Dictionary, _city_id: String = "") -> Array[String]:
+	var result: Array[String] = []
+	for required_id_variant in tech_def.get("prerequisites", []):
+		result.append("선행: %s" % _get_domestic_tech_display_name_mvp(str(required_id_variant)))
+	for required_national_id_variant in tech_def.get("required_national_techs", []):
+		result.append("국가 테크: %s" % _get_domestic_tech_display_name_mvp(str(required_national_id_variant)))
+	for special_reason in _format_domestic_tech_special_requirements_mvp(tech_def):
+		result.append(str(special_reason))
+	for lock_reason in view_state.get("lock_reasons", []):
+		var reason_text := str(lock_reason)
+		if not result.has(reason_text):
+			result.append(reason_text)
+	if result.is_empty():
+		result.append("추가 조건 없음")
+	return result
+
+
+func _format_domestic_tech_duration_hint_mvp(tech_def: Dictionary) -> String:
+	var duration_hint: Variant = tech_def.get("duration_turns_hint", {})
+	if duration_hint is Dictionary:
+		var min_turns := int((duration_hint as Dictionary).get("min", 0))
+		var max_turns := int((duration_hint as Dictionary).get("max", 0))
+		if min_turns > 0 and max_turns > 0:
+			return "%d~%d턴" % [min_turns, max_turns]
+	return str(tech_def.get("duration_class", "표시 전용"))
 
 
 func _build_domestic_tech_category_group_mvp(parent: Container, category_id: String, city_id: String, scope: String) -> void:
@@ -10122,8 +10225,8 @@ func _add_domestic_tech_graph_branch_labels_mvp(parent: Control, positions: Dict
 		var branch_id := str(branch_id_variant)
 		var label := _make_domestic_tech_label_mvp(_format_domestic_tech_branch_label_mvp(branch_id), 11, Color(0.78, 0.68, 0.42, 1.0))
 		label.name = "DomesticTechGraphBranchLabel_%s" % branch_id
-		label.position = Vector2(DOMESTIC_TECH_GRAPH_MARGIN.x, maxf(0.0, float(branch_label_y.get(branch_id_variant, 0.0)) - 24.0))
-		label.custom_minimum_size = Vector2(180.0, 18.0)
+		label.position = Vector2(8.0, maxf(0.0, float(branch_label_y.get(branch_id_variant, 0.0)) + 20.0))
+		label.custom_minimum_size = Vector2(82.0, 34.0)
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		parent.add_child(label)
 
@@ -10178,11 +10281,11 @@ func _add_domestic_tech_graph_vline_mvp(parent: Control, x: float, y1: float, y2
 func _build_domestic_tech_graph_node_mvp(parent: Control, tech_def: Dictionary, positions: Dictionary, city_id: String) -> Control:
 	var tech_id := str(tech_def.get("id", ""))
 	var rect: Rect2 = positions.get(tech_id, Rect2(Vector2.ZERO, DOMESTIC_TECH_GRAPH_NODE_SIZE))
-	var node_panel := _build_domestic_tech_node_mvp(parent, tech_def, city_id)
+	var node_panel := _build_domestic_tech_compact_node_mvp(parent, tech_def, rect.position, city_id)
 	node_panel.position = rect.position
 	node_panel.custom_minimum_size = rect.size
 	node_panel.size = rect.size
-	node_panel.mouse_filter = Control.MOUSE_FILTER_PASS
+	node_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	return node_panel
 
 
@@ -10196,6 +10299,85 @@ func _get_domestic_tech_graph_line_color_mvp(state_id: String) -> Color:
 			return Color(0.34, 0.30, 0.25, 0.68)
 		_:
 			return Color(0.22, 0.22, 0.22, 0.62)
+
+
+func _build_domestic_tech_compact_node_mvp(parent: Control, tech_def: Dictionary, position: Vector2, city_id: String) -> PanelContainer:
+	var tech_id := str(tech_def.get("id", ""))
+	var view_state := _get_domestic_tech_view_state_mvp(tech_id, city_id)
+	var state_id := str(view_state.get("state", DOMESTIC_TECH_VIEW_LOCKED))
+	var is_selected := _is_selected_domestic_tech_for_inspector_mvp(tech_id, city_id)
+
+	var node_panel := PanelContainer.new()
+	node_panel.name = "DomesticTechCompactNode_%s" % tech_id
+	node_panel.position = position
+	node_panel.custom_minimum_size = DOMESTIC_TECH_GRAPH_NODE_SIZE
+	node_panel.size = DOMESTIC_TECH_GRAPH_NODE_SIZE
+	node_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	node_panel.add_theme_stylebox_override("panel", _make_domestic_tech_compact_node_style_mvp(state_id, is_selected))
+	node_panel.gui_input.connect(_on_domestic_tech_compact_node_gui_input_mvp.bind(tech_id, city_id))
+	parent.add_child(node_panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 6)
+	margin.add_theme_constant_override("margin_top", 5)
+	margin.add_theme_constant_override("margin_right", 6)
+	margin.add_theme_constant_override("margin_bottom", 5)
+	node_panel.add_child(margin)
+
+	var body := VBoxContainer.new()
+	body.add_theme_constant_override("separation", 3)
+	margin.add_child(body)
+
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 5)
+	body.add_child(header)
+	_add_domestic_tech_icon_mvp(header, tech_id)
+
+	var title_text := "%s %s" % [str(tech_def.get("name", tech_id)), _format_domestic_tech_rarity_mvp(int(tech_def.get("rarity", 0)))]
+	var title_label := _make_domestic_tech_label_mvp(title_text.strip_edges(), 11, _get_domestic_tech_state_text_color_mvp(state_id))
+	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_label.max_lines_visible = 2
+	header.add_child(title_label)
+
+	var status_label := _make_domestic_tech_label_mvp(_format_domestic_tech_compact_status_mvp(view_state), 10, _get_domestic_tech_state_text_color_mvp(state_id))
+	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	body.add_child(status_label)
+	return node_panel
+
+
+func _on_domestic_tech_compact_node_gui_input_mvp(event: InputEvent, tech_id: String, city_id: String) -> void:
+	if not event is InputEventMouseButton:
+		return
+	var mouse_button_event := event as InputEventMouseButton
+	if mouse_button_event.button_index != MOUSE_BUTTON_LEFT or not mouse_button_event.pressed:
+		return
+	_set_selected_domestic_tech_for_inspector_mvp(tech_id, city_id)
+	get_viewport().set_input_as_handled()
+
+
+func _set_selected_domestic_tech_for_inspector_mvp(tech_id: String, city_id: String = "") -> void:
+	_selected_domestic_tech_id_mvp = tech_id
+	_selected_domestic_tech_city_id_mvp = city_id
+	_refresh_domestic_tech_tree_overlay_mvp()
+
+
+func _is_selected_domestic_tech_for_inspector_mvp(tech_id: String, city_id: String = "") -> bool:
+	if _selected_domestic_tech_id_mvp != tech_id:
+		return false
+	return _selected_domestic_tech_city_id_mvp == city_id
+
+
+func _format_domestic_tech_compact_status_mvp(view_state: Dictionary) -> String:
+	var state_id := str(view_state.get("state", DOMESTIC_TECH_VIEW_LOCKED))
+	match state_id:
+		DOMESTIC_TECH_VIEW_COMPLETED:
+			return "[완료]"
+		DOMESTIC_TECH_VIEW_AVAILABLE:
+			return "가능"
+		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
+			return "[특수]"
+		_:
+			return "[잠김]"
 
 
 func _build_domestic_tech_node_mvp(parent: Control, tech_def: Dictionary, city_id: String) -> PanelContainer:
@@ -10585,6 +10767,14 @@ func _make_domestic_tech_node_style_mvp(state_id: String) -> StyleBoxFlat:
 			style.border_color = Color(0.28, 0.28, 0.28, 0.86)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(5)
+	return style
+
+
+func _make_domestic_tech_compact_node_style_mvp(state_id: String, is_selected: bool) -> StyleBoxFlat:
+	var style := _make_domestic_tech_node_style_mvp(state_id)
+	if is_selected:
+		style.border_color = Color(1.0, 0.84, 0.38, 1.0)
+		style.set_border_width_all(2)
 	return style
 
 

@@ -1,5 +1,24 @@
 # WORLDMAP RULES
 
+## v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish Lock Rule
+- Baseline is `v0.70-63 Domestic Tech Tree Branch Graph UI MVP` (`ad1d8125a18e673fb6fb7853f817a37689d14e40`).
+- v0.70-63-hotfix1 is Domestic Tech Tree graph UI compact node/detail inspector hotfix only.
+- The purpose is to replace large full-info graph cards with compact nodes so card overlap is reduced and prerequisite connection lines remain readable.
+- Compact nodes may show only icon or `?`, tech name, rarity `★`, and completed/available/locked/special_locked state.
+- Cost, effect text, duration hint, prerequisites, national requirements, special lock conditions, and lock reasons belong in the detail inspector, not inside graph nodes.
+- Node clicks are display-only detail selection. They are not research start, research queueing, research progress, research completion, purchase, investment, or actual effect application.
+- Domestic tech prerequisite relation lines remain visual-only and must not mutate tech state or gameplay values.
+- The left side is the PLAYER national tech tree. It must remain PLAYER national/court scope and must not display enemy national tech or court state.
+- The right side is the currently selected city tech tree. It must remain selected-city scope, and enemy or insufficient-intel city tech detail must follow Fog of War / `city_intel` policy.
+- Completed / available / locked / special_locked states remain display-only view states and must not change completion, progress, resources, income, troops, battle values, diplomacy, spy, market, `city_intel`, pending invasion, or BattleContext.
+- Missing tech icons remain valid UI data and must display `?` fallback from `_get_domestic_tech_icon_fallback_label_mvp()`.
+- Locked techs and locked paths use gray/weak styling plus `[잠김]` text. Special lock conditions may be shown as text only.
+- v0.70-62-hotfix1 modal/top-layer behavior remains locked: high z-index, `move_to_front()`, `MOUSE_FILTER_STOP`, open-time floating panel hide, close-time visible-state restore, background input consume, and ESC/닫기 close.
+- This pass does not authorize research start, research turn progression, research completion, actual effect application, AI research, Enemy Strategic AI Phase 2, War Posture, BattleContext shape changes, or pending invasion payload changes.
+- Income/resource/troop/battle/diplomacy/spy formulas remain unchanged. Enemy pressure plan, pending invasion, and BattleContext existing locks remain active.
+- `assets/ui/tech_icons` PNG files and `.import` files were not modified in this pass and must not be modified, renamed, or deleted by graph UI polish work.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-63 Domestic Tech Tree Branch Graph UI MVP Lock Rule
 - Baseline is `v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix` (`9c2e8304e4e874771c7750293fa31b27e558052e`).
 - v0.70-63 is Domestic Tech Tree read-only branch graph UI MVP only.

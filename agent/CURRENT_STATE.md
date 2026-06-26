@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish
+- Baseline: `v0.70-63 Domestic Tech Tree Branch Graph UI MVP` at `ad1d8125a18e673fb6fb7853f817a37689d14e40`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- UI scope:
+  - Domestic Tech Tree graph nodes are now compact nodes sized for branch/tier graph readability.
+  - Compact nodes show only icon or `?`, tech name, rarity `★`, and completed/available/locked/special_locked status.
+  - Cost, effect, duration hint, prerequisites, national requirements, special lock text, and lock reasons moved to the shared bottom detail inspector.
+  - Clicking a node selects it for display-only detail inspection and highlights the selected node; it does not start research or mutate progress.
+  - Prerequisite `ColorRect` connection lines, left PLAYER national graph, right selected-player-city graph, and enemy/insufficient-intel hiding remain intact.
+- Preserved scope: no research start, no research turn progression, no research completion, no actual effect application, no AI research, no Enemy Strategic AI Phase 2, no War Posture, no BattleContext or pending invasion payload change, no income/resource/troop/battle/diplomacy/spy formula change, no scene/asset change, no `assets/ui/tech_icons` PNG change, and no `.import` file change.
+- v0.70-62-hotfix1 modal/top-layer behavior remains active: high z-index, `move_to_front()`, `MOUSE_FILTER_STOP`, open-time floating panel hide, close-time visible-state restore, background input consume, ESC/닫기 close.
+- Manual F6 QA remains required for compact node readability, detail inspector click behavior, selected-node highlight, prerequisite line visibility, top-layer modal behavior, no-city/enemy-intel handling, read-only no-mutation behavior, prior enemy pressure/pending/BattleContext locks, no icon/import changes, and warning cleanliness.
+
 ## v0.70-63 Domestic Tech Tree Branch Graph UI MVP
 - Baseline: `v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix` at `9c2e8304e4e874771c7750293fa31b27e558052e`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

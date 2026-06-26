@@ -1,5 +1,20 @@
 # NEXT TASKS
 
+## Current: v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish
+- Baseline: `v0.70-63 Domestic Tech Tree Branch Graph UI MVP` (`ad1d8125a18e673fb6fb7853f817a37689d14e40`).
+- Completed direction:
+  1. Converted large graph cards into compact read-only tech nodes.
+  2. Kept node content to icon or `?`, name, `★`, and short state only.
+  3. Moved cost/effect/duration/conditions/lock reasons into a shared bottom detail inspector.
+  4. Added display-only node click selection and selected-node highlight.
+  5. Preserved prerequisite connection lines and v0.70-62-hotfix1 modal/top-layer behavior.
+- Preserved scope:
+  1. No research start, research progress, research completion, effect application, Enemy Strategic AI Phase 2, War Posture, BattleContext shape change, or pending invasion payload change was made.
+  2. Left PLAYER national tree, right selected-player-city tree, Fog of War / `city_intel` enemy city hiding, icon `?` fallback, and v0.70-61 state normalization remain unchanged.
+  3. Income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, `assets/ui/tech_icons` PNG files, and `.import` files remain untouched.
+- Manual F6 QA required:
+  1. Run the v0.70-63-hotfix1 checklist for compact node readability, detail inspector content, selected highlight, prerequisite lines, reduced overlap, top-layer modal/restore, no-city/enemy-intel handling, no gameplay mutation, lock continuity, no icon/import changes, and clean Godot Output.
+
 ## Current: v0.70-63 Domestic Tech Tree Branch Graph UI MVP
 - Baseline: `v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix` (`9c2e8304e4e874771c7750293fa31b27e558052e`).
 - Completed direction:

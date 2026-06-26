@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish
+- Built on `v0.70-63 Domestic Tech Tree Branch Graph UI MVP` (`ad1d8125a18e673fb6fb7853f817a37689d14e40`).
+- Converted the Domestic Tech Tree branch graph from large full-info cards to compact read-only nodes.
+- Compact nodes now show only icon or `?`, tech name, rarity `★`, and short completed/available/locked/special_locked state.
+- Added a shared bottom detail inspector for selected tech details: name, scope, category/branch/tier, effect, cost, duration hint, state, prerequisites, national requirements, special requirements, and lock reasons.
+- Added display-only node click selection and selected-node highlight. This is not research start and does not mutate tech progress or gameplay state.
+- Preserved prerequisite `ColorRect` graph connection lines, left PLAYER national tree, right selected-player-city tree, enemy/insufficient-intel city hiding, icon fallback, locked weak styling, and v0.70-62-hotfix1 modal/top-layer behavior.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement research start/progress/completion, actual effects, AI research, Enemy Strategic AI Phase 2, War Posture, BattleContext changes, pending invasion payload changes, income/resource/troop/battle/diplomacy/spy formula changes, scene changes, `assets/ui/tech_icons` PNG changes, or `.import` changes.
+
 ## v0.70-63 Domestic Tech Tree Branch Graph UI MVP
 - Built on `v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix` (`9c2e8304e4e874771c7750293fa31b27e558052e`).
 - Replaced the fullscreen read-only domestic tech category card grid with a branch/tier graph canvas.
