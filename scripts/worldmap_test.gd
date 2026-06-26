@@ -932,6 +932,7 @@ var _left_national_loyalty_help_button: Button = null
 var _domestic_tech_tree_button_mvp: Button = null
 var _tech_tree_overlay_mvp: PanelContainer = null
 var _tech_tree_content_root_mvp: VBoxContainer = null
+var _tech_tree_hidden_ui_state_mvp: Dictionary = {}
 var _enemy_turn_mvp_timer: Timer
 var _enemy_turn_mvp_pending := false
 var _domestic_turn_apply_pending := false
@@ -1079,7 +1080,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	if _tech_tree_overlay_mvp != null and _tech_tree_overlay_mvp.visible and event.is_action_pressed("ui_cancel"):
+	if _is_domestic_tech_tree_overlay_open_mvp() and event.is_action_pressed("ui_cancel"):
 		_close_domestic_tech_tree_overlay_mvp()
 		get_viewport().set_input_as_handled()
 		return
@@ -1128,6 +1129,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _worldmap_battle_entry_handoff_in_progress:
 		if _is_worldmap_battle_entry_handoff_skip_event(event):
 			_skip_worldmap_battle_entry_camera_handoff()
+		get_viewport().set_input_as_handled()
+		return
+
+	if _is_domestic_tech_tree_overlay_open_mvp():
+		if event.is_action_pressed("ui_cancel"):
+			_close_domestic_tech_tree_overlay_mvp()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -9833,14 +9840,64 @@ func _open_domestic_tech_tree_overlay_mvp() -> void:
 	_ensure_domestic_tech_tree_overlay_mvp()
 	if _tech_tree_overlay_mvp == null:
 		return
-	_tech_tree_overlay_mvp.visible = true
+	_hide_worldmap_panels_for_tech_tree_mvp()
 	_refresh_domestic_tech_tree_overlay_mvp()
+	_tech_tree_overlay_mvp.visible = true
+	_tech_tree_overlay_mvp.mouse_filter = Control.MOUSE_FILTER_STOP
+	_tech_tree_overlay_mvp.z_as_relative = false
+	_tech_tree_overlay_mvp.z_index = 4096
+	_tech_tree_overlay_mvp.move_to_front()
 
 
 func _close_domestic_tech_tree_overlay_mvp() -> void:
-	if _tech_tree_overlay_mvp == null:
+	if _tech_tree_overlay_mvp != null:
+		_tech_tree_overlay_mvp.visible = false
+	_restore_worldmap_panels_after_tech_tree_mvp()
+
+
+func _is_domestic_tech_tree_overlay_open_mvp() -> bool:
+	return _tech_tree_overlay_mvp != null and _tech_tree_overlay_mvp.visible
+
+
+func _hide_worldmap_panels_for_tech_tree_mvp() -> void:
+	if not _tech_tree_hidden_ui_state_mvp.is_empty():
 		return
-	_tech_tree_overlay_mvp.visible = false
+	_register_tech_tree_hidden_panel_mvp(world_title_panel, "world_title_panel")
+	_register_tech_tree_hidden_panel_mvp(right_hud_dragbar, "right_hud_dragbar")
+	_register_tech_tree_hidden_panel_mvp(left_world_status_panel, "left_world_status_panel")
+	_register_tech_tree_hidden_panel_mvp(city_info_panel_control, "city_info_panel")
+	_register_tech_tree_hidden_panel_mvp(city_detail_panel, "city_detail_panel")
+	_register_tech_tree_hidden_panel_mvp(diplomacy_spy_panel, "diplomacy_spy_panel")
+	_register_tech_tree_hidden_panel_mvp(_manual_trade_order_panel, "manual_trade_order_panel")
+	_register_tech_tree_hidden_panel_mvp(_internal_trade_transfer_panel, "internal_trade_transfer_panel")
+	_register_tech_tree_hidden_panel_mvp(_worldmap_help_modal, "worldmap_help_modal")
+	_register_tech_tree_hidden_panel_mvp(_player_attack_deployment_panel as CanvasItem, "player_attack_deployment_panel")
+
+
+func _restore_worldmap_panels_after_tech_tree_mvp() -> void:
+	for key in _tech_tree_hidden_ui_state_mvp.keys():
+		var entry: Dictionary = _tech_tree_hidden_ui_state_mvp.get(key, {})
+		var node_variant: Variant = entry.get("node", null)
+		if not is_instance_valid(node_variant):
+			continue
+		var canvas_item := node_variant as CanvasItem
+		if canvas_item == null:
+			continue
+		canvas_item.visible = bool(entry.get("visible", false))
+	_tech_tree_hidden_ui_state_mvp.clear()
+
+
+func _register_tech_tree_hidden_panel_mvp(panel: CanvasItem, key: String) -> void:
+	if panel == null or not is_instance_valid(panel):
+		return
+	if panel == _tech_tree_overlay_mvp:
+		return
+	_tech_tree_hidden_ui_state_mvp[key] = {
+		"node": panel,
+		"visible": panel.visible,
+	}
+	if panel.visible:
+		panel.visible = false
 
 
 func _ensure_domestic_tech_tree_overlay_mvp() -> void:
@@ -9854,6 +9911,8 @@ func _ensure_domestic_tech_tree_overlay_mvp() -> void:
 	_tech_tree_overlay_mvp.name = "tech_tree_overlay_mvp"
 	_tech_tree_overlay_mvp.visible = false
 	_tech_tree_overlay_mvp.mouse_filter = Control.MOUSE_FILTER_STOP
+	_tech_tree_overlay_mvp.z_as_relative = false
+	_tech_tree_overlay_mvp.z_index = 4096
 	_tech_tree_overlay_mvp.add_theme_stylebox_override("panel", _make_domestic_tech_overlay_style_mvp())
 	_tech_tree_overlay_mvp.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_tech_tree_overlay_mvp.offset_left = DOMESTIC_TECH_TREE_OVERLAY_MARGIN
@@ -9861,6 +9920,7 @@ func _ensure_domestic_tech_tree_overlay_mvp() -> void:
 	_tech_tree_overlay_mvp.offset_right = -DOMESTIC_TECH_TREE_OVERLAY_MARGIN
 	_tech_tree_overlay_mvp.offset_bottom = -DOMESTIC_TECH_TREE_OVERLAY_MARGIN
 	world_ui.add_child(_tech_tree_overlay_mvp)
+	_tech_tree_overlay_mvp.move_to_front()
 
 	var outer_margin := MarginContainer.new()
 	outer_margin.name = "DomesticTechTreeOverlayMargin"
@@ -10333,7 +10393,7 @@ func _clear_domestic_tech_tree_children_mvp(node: Node) -> void:
 
 func _make_domestic_tech_overlay_style_mvp() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.025, 0.025, 0.025, 0.96)
+	style.bg_color = Color(0.025, 0.025, 0.025, 0.985)
 	style.border_color = Color(0.72, 0.54, 0.25, 0.95)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(6)

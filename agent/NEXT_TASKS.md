@@ -1,5 +1,18 @@
 # NEXT TASKS
 
+## Current: v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix
+- Baseline: `v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP` (`3f2cff7ff32370ad947a74f66929f99c75854db9`).
+- Completed direction:
+  1. Promoted `tech_tree_overlay_mvp` to a top-layer modal with high z-index, `move_to_front()`, and mouse input stop behavior.
+  2. Added open-time hiding for overlapping worldmap floating/detail panels and close-time restoration from the exact previous `visible` state.
+  3. Consumed unhandled background input while the tech tree overlay is open, while preserving `닫기` and ESC close behavior.
+- Preserved scope:
+  1. No graph connection UI, research start, research progress, research completion, effect application, Enemy Strategic AI Phase 2, War Posture, BattleContext shape change, or pending invasion payload change was made.
+  2. v0.70-62 left PLAYER national tree, right selected-city tree, Fog of War / `city_intel` enemy city hiding, icon `?` fallback, locked/special_locked read-only state display, and v0.70-61 state normalization remain unchanged.
+  3. Income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, `assets/ui/tech_icons` PNG files, and `.import` files remain untouched.
+- Manual F6 QA required:
+  1. Run the v0.70-62-hotfix1 modal checklist for top-layer display, no existing panel overlap, blocked background input, close/ESC, restore correctness, reopen correctness, selected-city refresh on reopen, enemy/insufficient-intel city hiding, no gameplay mutation, lock continuity, no icon/import changes, and clean Godot Output.
+
 ## Current: v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP
 - Baseline: `v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP` (`208e32662b42bc14cb192af291153c7849c3674b`).
 - Completed direction:

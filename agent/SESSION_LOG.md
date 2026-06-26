@@ -2,6 +2,30 @@
 
 ## 2026-06-26
 
+### v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix
+- Started from `3f2cff7 v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP`.
+- Confirmed local `main` was clean and ahead of `origin/main` by the expected v0.70-62 commit, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.
+- Required workflow/worldmap docs were read before touching runtime files.
+- Implemented:
+  - Promoted `tech_tree_overlay_mvp` to high z-index top-layer modal behavior and call `move_to_front()` on open.
+  - Added `_tech_tree_hidden_ui_state_mvp` plus hide/restore helpers for overlapping worldmap floating/detail panels.
+  - Restores only the panels' pre-open `visible` states when the overlay closes.
+  - Consumes unhandled background input while the tech tree overlay is open and keeps ESC / `닫기` close behavior.
+  - Added `v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-62 read-only tech tree content, left PLAYER national tree, right selected-city tree, Fog of War / `city_intel` enemy city hiding, icon `?` fallback, locked/special lock display, v0.70-61 state normalization, enemy pressure plan locks, pending invasion/BattleContext locks, scenes, icon PNG files, and `.import` files.
+- Verification:
+  - `git diff --check`
+  - tech icon PNG no-touch check
+  - `.import` no-touch check
+  - modal hotfix keyword search
+  - domestic tech UI lock search
+  - guard keyword search
+  - warning-cleanup regression searches
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load, with existing debug output only
+- Manual F6 QA remains required for the v0.70-62-hotfix1 checklist.
+
 ### v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP
 - Started from `208e326 v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP`.
 - Confirmed local `main` was clean, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.

@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix Lock Rule
+- Baseline is `v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP` (`3f2cff7ff32370ad947a74f66929f99c75854db9`).
+- v0.70-62-hotfix1 is a Domestic Tech Tree fullscreen overlay modal/top-layer hotfix only.
+- The tech tree overlay must open above existing worldmap UI. Existing city detail, city info, diplomacy, trade, spy, help, deployment, or similar floating/detail panels must not overlap above it.
+- The overlay must block background map/UI input while it is open. ESC and the `닫기` button may close the overlay and should not leak through to other worldmap interactions.
+- Opening the overlay may hide overlapping floating/detail panels only after saving their current `visible` state. Closing the overlay must restore from that saved state and must not blindly show panels that were hidden before open.
+- This pass does not authorize graph connection UI, research start, research turn progression, research completion, actual effect application, Enemy Strategic AI Phase 2, War Posture, BattleContext shape changes, or pending invasion payload changes.
+- The v0.70-62 tech tree content remains locked: left side is PLAYER national tech tree only, right side is selected-city tech tree only, and enemy or insufficient-intel city tech detail follows Fog of War / `city_intel` policy.
+- Completed / available / locked / special_locked states remain display-only view states. Missing icons continue to display `?` fallback. Locked techs continue to use gray/disabled styling plus `[잠김]`; special lock conditions are text-only.
+- City/national domestic tech state normalization remains the v0.70-61 behavior for `city_domestic_tech_completed`, `city_domestic_tech_unlocked`, `national_domestic_tech_completed`, and `national_domestic_tech_unlocked`.
+- Income/resource/troop/battle/diplomacy/spy formulas remain unchanged. Enemy pressure plan, pending invasion, and BattleContext existing locks remain active.
+- `assets/ui/tech_icons` PNG files and `.import` files were not modified in this pass and must not be modified, renamed, or deleted by modal hotfix work.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP Lock Rule
 - Baseline is `v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP` (`208e32662b42bc14cb192af291153c7849c3674b`).
 - v0.70-62 is Domestic Tech Tree read-only fullscreen UI MVP only. It is not research start, not research turn progression, not research completion, not actual effect application, not tech purchase/investment, not AI research, not Enemy Strategic AI Phase 2, and not War Posture.

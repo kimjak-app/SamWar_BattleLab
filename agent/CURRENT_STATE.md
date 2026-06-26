@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix
+- Baseline: `v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP` at `3f2cff7ff32370ad947a74f66929f99c75854db9`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Hotfix scope:
+  - The fullscreen `tech_tree_overlay_mvp` now opens as a top-layer modal under `WorldMapUI`, with high z-index, `move_to_front()`, and full overlay mouse stop behavior.
+  - Opening the tech tree stores and hides the previous visible state for overlapping worldmap floating/detail panels, including city detail/info, diplomacy/spy, trade transfer/order, help, and deployment UI.
+  - Closing the tech tree restores only the previously recorded visible states and does not force hidden panels to show.
+  - Unhandled background input is consumed while the tech tree overlay is open; ESC and the `닫기` button still close the overlay.
+- Preserved scope: v0.70-62 read-only tech tree content remains unchanged; left side is PLAYER national tech, right side is selected-city tech, enemy/insufficient-intel city tech detail remains hidden by Fog of War / `city_intel`, and no graph connection UI, research start/progress/completion, actual effects, income/resource/troop/battle/diplomacy/spy formula changes, enemy pressure plan changes, pending invasion changes, BattleContext changes, icon PNG changes, or `.import` changes were made.
+- Manual F6 QA remains required for the v0.70-62-hotfix1 checklist: top-layer overlay, no city/detail/diplomacy/trade/spy panel overlap, blocked background input, close/ESC behavior, safe visible-state restore, reopen after close, selected-city refresh on reopen, enemy city detail hiding, no gameplay mutation, prior pressure/pending/BattleContext locks, no icon/import changes, and Godot Output warning cleanliness.
+
 ## v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP
 - Baseline: `v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP` at `208e32662b42bc14cb192af291153c7849c3674b`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

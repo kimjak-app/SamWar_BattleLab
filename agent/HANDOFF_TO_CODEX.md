@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix Handoff
+- Baseline: `v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP` (`3f2cff7ff32370ad947a74f66929f99c75854db9`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is a modal/top-layer hotfix for the existing read-only Domestic Tech Tree UI. It is not graph connection UI, not a research start button, not research turn progression, not research completion, and not actual effect application.
+- `tech_tree_overlay_mvp` remains under `WorldMapUI`, but must open as the top-layer modal with high z-index, `move_to_front()`, and `Control.MOUSE_FILTER_STOP`.
+- When opening the tech tree, overlapping worldmap floating/detail panels are hidden after recording their current `visible` states. When closing, only those recorded states are restored; do not blindly show all panels.
+- Background map/UI input must not pass through while the overlay is open. ESC and `닫기` close the overlay only.
+- Left panel remains PLAYER national tech tree only. Right panel remains selected-city tech tree only. Non-player or insufficient-intel selected-city tech detail remains hidden by Fog of War / `city_intel` policy.
+- The v0.70-62 read-only node content remains unchanged: icon or `?` fallback, locked gray / `[잠김]`, completed/available/locked/special_locked display-only state, and text-only special lock conditions.
+- Explicitly unchanged: income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, market, alliance, wedge, player spy/diplomacy actions, `city_intel`, Fog of War, scenes, assets, icon PNGs, and `.import` files.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+- Manual F6 QA remains required for the v0.70-62-hotfix1 checklist.
+
 ## v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP Handoff
 - Baseline: `v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP` (`208e32662b42bc14cb192af291153c7849c3674b`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

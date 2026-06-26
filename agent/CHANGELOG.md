@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix
+- Built on `v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP` (`3f2cff7ff32370ad947a74f66929f99c75854db9`).
+- Promoted the fullscreen `tech_tree_overlay_mvp` to a top-layer modal with high z-index, `move_to_front()`, and mouse input stop behavior.
+- Added open-time hide and close-time visible-state restore for overlapping worldmap floating/detail panels such as city info/detail, diplomacy/spy, trade order/transfer, help modal, and deployment UI.
+- Added unhandled-input consumption while the tech tree overlay is open so background map/UI interactions do not pass through.
+- Kept ESC and `닫기` close behavior.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement graph connection UI, research start/progress/completion, actual effects, Enemy Strategic AI Phase 2, War Posture, BattleContext changes, pending invasion payload changes, income/resource/troop/battle/diplomacy/spy formula changes, scene changes, `assets/ui/tech_icons` PNG changes, or `.import` changes.
+
 ## v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP
 - Built on `v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP` (`208e32662b42bc14cb192af291153c7849c3674b`).
 - Added a 월드맵 `테크트리` button and fullscreen read-only `tech_tree_overlay_mvp`.
