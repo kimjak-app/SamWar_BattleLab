@@ -1,5 +1,19 @@
 # NEXT TASKS
 
+## Current: v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP
+- Baseline: `v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP` (`208e32662b42bc14cb192af291153c7849c3674b`).
+- Completed direction:
+  1. Added a fullscreen read-only domestic tech tree overlay opened from the 월드맵 `테크트리` button and closed by `닫기` or ESC.
+  2. Left side shows PLAYER national tech definitions only; right side shows the currently selected player city tech definitions.
+  3. Enemy or insufficient-intel city tech detail remains hidden behind Fog of War / `city_intel` policy copy.
+  4. Tech nodes show icon or `?` fallback, name, `★`, tier/branch, cost, effect description, completed/available/locked/special_locked state, and compact lock reasons.
+- Preserved scope:
+  1. No research start, research progress, research completion, effect application, tech purchase/investment, AI research, Enemy Strategic AI Phase 2, War Posture, BattleContext shape change, or pending invasion payload change was made.
+  2. v0.70-61 city/national domestic tech state normalization remains the source of truth; UI view states are display-only and do not mutate resources, troops, income, battle, diplomacy, spy, market, `city_intel`, or enemy pressure state.
+  3. `assets/ui/tech_icons` PNG files and `.import` files were not modified.
+- Manual F6 QA required:
+  1. Run the v0.70-62 visual/read-only checklist for overlay button/open/close/ESC, left PLAYER scope, right selected-city scope, no-city and enemy-intel handling, icon/fallback display, locked/special lock visual treatment, no gameplay mutation, existing pressure/pending/BattleContext locks, no icon/import changes, and clean Godot Output.
+
 ## Current: v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP
 - Baseline: `테크트리 준비` (`78ab5e479511855f1f445c64eb57186bc93eb3b3`).
 - Completed direction:

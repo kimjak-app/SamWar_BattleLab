@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP Lock Rule
+- Baseline is `v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP` (`208e32662b42bc14cb192af291153c7849c3674b`).
+- v0.70-62 is Domestic Tech Tree read-only fullscreen UI MVP only. It is not research start, not research turn progression, not research completion, not actual effect application, not tech purchase/investment, not AI research, not Enemy Strategic AI Phase 2, and not War Posture.
+- The 월드맵 `테크트리` button may open `tech_tree_overlay_mvp`; the overlay may close through `닫기` or ESC.
+- Left side is the PLAYER national tech tree. It must remain PLAYER national/court scope and must not display enemy national tech or court state.
+- Right side is the currently selected city tech tree. It must remain selected-city scope.
+- Enemy or insufficient-intel city tech detail must follow Fog of War / `city_intel` policy and stay hidden behind safe copy until future explicit authorization.
+- Completed / available / locked / special_locked states are display-only view states and must not change completion, progress, resources, income, troops, battle values, diplomacy, spy, market, `city_intel`, pending invasion, or BattleContext.
+- Missing tech icons are valid UI data and must display `?` fallback from `_get_domestic_tech_icon_fallback_label_mvp()`. Missing icons must not remove tech nodes.
+- Locked techs use gray/disabled styling plus `[잠김]` text. Special lock conditions may be shown as text only and must not execute checks that mutate state.
+- City/national domestic tech state normalization remains the v0.70-61 behavior for `city_domestic_tech_completed`, `city_domestic_tech_unlocked`, `national_domestic_tech_completed`, and `national_domestic_tech_unlocked`.
+- Income/resource/troop/battle/diplomacy/spy formulas remain unchanged. Enemy pressure plan, pending invasion, and BattleContext existing locks remain active.
+- `assets/ui/tech_icons` PNG files and `.import` files were not modified in this pass and must not be modified, renamed, or deleted by read-only tech tree UI work.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP Lock Rule
 - Baseline is `테크트리 준비` (`78ab5e479511855f1f445c64eb57186bc93eb3b3`).
 - This rule is Domestic Tech Tree Foundation only. It is not tech tree UI, not a research button, not research turn progression, not actual effect application, not domestic balance implementation, not Enemy Strategic AI Phase 2, and not War Posture.

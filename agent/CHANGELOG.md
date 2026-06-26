@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP
+- Built on `v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP` (`208e32662b42bc14cb192af291153c7849c3674b`).
+- Added a 월드맵 `테크트리` button and fullscreen read-only `tech_tree_overlay_mvp`.
+- Added left PLAYER national tech tree rendering and right selected-player-city tech tree rendering from the v0.70-61 domestic tech definitions.
+- Added icon loading with `?` fallback, compact cost/effect text, rarity `★`, completed/available/locked/special_locked state display, gray locked styling, `[잠김]` text, and special lock condition summaries.
+- Hid enemy or insufficient-intel selected-city tech details behind Fog of War / `city_intel` policy copy.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement research start/progress/completion, actual effects, tech purchase/investment, AI research, Enemy Strategic AI Phase 2, War Posture, BattleContext changes, pending invasion payload changes, income/resource/troop/battle/diplomacy/spy formula changes, scene changes, `assets/ui/tech_icons` PNG changes, or `.import` changes.
+
 ## v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP
 - Built on `테크트리 준비` (`78ab5e479511855f1f445c64eb57186bc93eb3b3`).
 - Added Domestic Tech Tree Foundation MVP data from the confirmed city/national tech design scope without implementing UI, research buttons, research turn progression, or actual tech effects.

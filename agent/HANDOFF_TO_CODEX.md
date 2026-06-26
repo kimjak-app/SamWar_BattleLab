@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP Handoff
+- Baseline: `v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP` (`208e32662b42bc14cb192af291153c7849c3674b`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass adds a read-only fullscreen Domestic Tech Tree UI MVP. It is not a research start button, not research turn progression, not research completion, not actual income/resource/troop/battle/diplomacy/spy effect application, and not domestic balance implementation.
+- Entry is the 월드맵 `테크트리` button. The overlay is `tech_tree_overlay_mvp` under `WorldMapUI` and closes through `닫기` or ESC.
+- Left panel is PLAYER national tech tree only, using `left_player_national_panel` / national domestic definitions from v0.70-61. Do not display enemy national/court tech state here.
+- Right panel is selected-city tech tree only, using `right_city_detail_panel` / city domestic definitions from v0.70-61. No selected city shows guidance. Non-player or insufficient-intel city tech detail stays hidden behind Fog of War / `city_intel` policy copy.
+- Tech nodes display icon path when loadable, otherwise `?` fallback through `_get_domestic_tech_icon_fallback_label_mvp()`. Missing icons are valid data and must not remove nodes.
+- Completed / available / locked / special_locked are UI view states only. Locked nodes use gray styling plus `[잠김]`; special lock conditions are displayed as text only.
+- `city_domestic_tech_completed`, `city_domestic_tech_unlocked`, `national_domestic_tech_completed`, and `national_domestic_tech_unlocked` normalization remains v0.70-61 behavior. UI helpers must not write completion/progress/effect state.
+- Explicitly unchanged: income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, market, alliance, wedge, player spy/diplomacy actions, `city_intel`, Fog of War, left PLAYER scope, right selected-city scope, scenes, assets, icon PNGs, and `.import` files.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+- Manual F6 QA remains required for the v0.70-62 checklist.
+
 ## v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP Handoff
 - Baseline: `테크트리 준비` (`78ab5e479511855f1f445c64eb57186bc93eb3b3`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

@@ -40,6 +40,13 @@ const DOMESTIC_TECH_CATEGORY_NATION_ADMIN := "nation_admin"
 const DOMESTIC_TECH_CATEGORY_NATION_ECONOMY := "nation_economy"
 const DOMESTIC_TECH_CATEGORY_NATION_MILITARY := "nation_military"
 const DOMESTIC_TECH_CATEGORY_NATION_DIPLOMACY := "nation_diplomacy"
+const DOMESTIC_TECH_VIEW_COMPLETED := "completed"
+const DOMESTIC_TECH_VIEW_AVAILABLE := "available"
+const DOMESTIC_TECH_VIEW_LOCKED := "locked"
+const DOMESTIC_TECH_VIEW_SPECIAL_LOCKED := "special_locked"
+const DOMESTIC_TECH_TREE_OVERLAY_MARGIN := 22.0
+const DOMESTIC_TECH_TREE_NODE_WIDTH := 214.0
+const DOMESTIC_TECH_TREE_ICON_SIZE := 42.0
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
 const DIPLOMACY_SPY_TAB_DIPLOMACY := "diplomacy"
@@ -922,6 +929,9 @@ var _worldmap_help_title_label: Label = null
 var _worldmap_help_body_label: Label = null
 var _worldmap_help_close_button: Button = null
 var _left_national_loyalty_help_button: Button = null
+var _domestic_tech_tree_button_mvp: Button = null
+var _tech_tree_overlay_mvp: PanelContainer = null
+var _tech_tree_content_root_mvp: VBoxContainer = null
 var _enemy_turn_mvp_timer: Timer
 var _enemy_turn_mvp_pending := false
 var _domestic_turn_apply_pending := false
@@ -1028,6 +1038,10 @@ func _ready() -> void:
 	_ensure_chancellor_portrait_texture_rect()
 	_setup_left_world_status_panel_layout()
 	_ensure_worldmap_help_modal()
+	_ensure_domestic_tech_tree_button_mvp()
+	_ensure_domestic_tech_tree_overlay_mvp()
+	_refresh_domestic_tech_tree_overlay_mvp()
+	_close_domestic_tech_tree_overlay_mvp()
 	_ensure_player_attack_deployment_panel()
 	_consume_worldmap_battle_result_if_any()
 	_refresh_left_world_status_panel()
@@ -1062,6 +1076,11 @@ func _input(event: InputEvent) -> void:
 
 	if _worldmap_help_modal != null and _worldmap_help_modal.visible and event.is_action_pressed("ui_cancel"):
 		_hide_worldmap_help_modal()
+		get_viewport().set_input_as_handled()
+		return
+
+	if _tech_tree_overlay_mvp != null and _tech_tree_overlay_mvp.visible and event.is_action_pressed("ui_cancel"):
+		_close_domestic_tech_tree_overlay_mvp()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -1371,6 +1390,8 @@ func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 	_refresh_city_info_attack_action_state(city_marker.city_id)
 	_refresh_left_world_status_panel()
 	_refresh_unified_panel_content()
+	if _tech_tree_overlay_mvp != null and _tech_tree_overlay_mvp.visible:
+		_refresh_domestic_tech_tree_overlay_mvp()
 
 
 func _connect_city_info_panel_actions() -> void:
@@ -1533,6 +1554,30 @@ func _connect_world_hud_placeholders() -> void:
 	city_detail_external_trade_tab_button_placeholder.pressed.connect(_on_unified_secondary_tab_pressed.bind(2))
 	city_detail_collapse_button_placeholder.pressed.connect(_on_city_detail_collapse_placeholder_pressed)
 	city_detail_domestic_button_placeholder.pressed.connect(_on_city_detail_domestic_placeholder_pressed)
+
+
+func _ensure_domestic_tech_tree_button_mvp() -> void:
+	if _domestic_tech_tree_button_mvp != null:
+		return
+	var world_ui := get_node_or_null("WorldMapUI") as CanvasLayer
+	if world_ui == null:
+		return
+	_domestic_tech_tree_button_mvp = Button.new()
+	_domestic_tech_tree_button_mvp.name = "DomesticTechTreeButtonMVP"
+	_domestic_tech_tree_button_mvp.text = "테크트리"
+	_domestic_tech_tree_button_mvp.custom_minimum_size = Vector2(96.0, 30.0)
+	_domestic_tech_tree_button_mvp.focus_mode = Control.FOCUS_NONE
+	_domestic_tech_tree_button_mvp.anchor_left = 0.5
+	_domestic_tech_tree_button_mvp.anchor_right = 0.5
+	_domestic_tech_tree_button_mvp.anchor_top = 0.0
+	_domestic_tech_tree_button_mvp.anchor_bottom = 0.0
+	_domestic_tech_tree_button_mvp.offset_left = -48.0
+	_domestic_tech_tree_button_mvp.offset_right = 48.0
+	_domestic_tech_tree_button_mvp.offset_top = 58.0
+	_domestic_tech_tree_button_mvp.offset_bottom = 88.0
+	_domestic_tech_tree_button_mvp.add_theme_font_size_override("font_size", 13)
+	_domestic_tech_tree_button_mvp.pressed.connect(_open_domestic_tech_tree_overlay_mvp)
+	world_ui.add_child(_domestic_tech_tree_button_mvp)
 
 
 func _setup_unified_city_detail_diplomacy_panel() -> void:
@@ -9784,6 +9829,573 @@ func _get_domestic_tech_icon_fallback_label_mvp(tech_id: String) -> String:
 	return str(_get_domestic_tech_definition_mvp(tech_id).get("icon_fallback_label", DOMESTIC_TECH_ICON_FALLBACK_LABEL))
 
 
+func _open_domestic_tech_tree_overlay_mvp() -> void:
+	_ensure_domestic_tech_tree_overlay_mvp()
+	if _tech_tree_overlay_mvp == null:
+		return
+	_tech_tree_overlay_mvp.visible = true
+	_refresh_domestic_tech_tree_overlay_mvp()
+
+
+func _close_domestic_tech_tree_overlay_mvp() -> void:
+	if _tech_tree_overlay_mvp == null:
+		return
+	_tech_tree_overlay_mvp.visible = false
+
+
+func _ensure_domestic_tech_tree_overlay_mvp() -> void:
+	if _tech_tree_overlay_mvp != null:
+		return
+	var world_ui := get_node_or_null("WorldMapUI") as CanvasLayer
+	if world_ui == null:
+		return
+
+	_tech_tree_overlay_mvp = PanelContainer.new()
+	_tech_tree_overlay_mvp.name = "tech_tree_overlay_mvp"
+	_tech_tree_overlay_mvp.visible = false
+	_tech_tree_overlay_mvp.mouse_filter = Control.MOUSE_FILTER_STOP
+	_tech_tree_overlay_mvp.add_theme_stylebox_override("panel", _make_domestic_tech_overlay_style_mvp())
+	_tech_tree_overlay_mvp.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_tech_tree_overlay_mvp.offset_left = DOMESTIC_TECH_TREE_OVERLAY_MARGIN
+	_tech_tree_overlay_mvp.offset_top = DOMESTIC_TECH_TREE_OVERLAY_MARGIN
+	_tech_tree_overlay_mvp.offset_right = -DOMESTIC_TECH_TREE_OVERLAY_MARGIN
+	_tech_tree_overlay_mvp.offset_bottom = -DOMESTIC_TECH_TREE_OVERLAY_MARGIN
+	world_ui.add_child(_tech_tree_overlay_mvp)
+
+	var outer_margin := MarginContainer.new()
+	outer_margin.name = "DomesticTechTreeOverlayMargin"
+	outer_margin.add_theme_constant_override("margin_left", 14)
+	outer_margin.add_theme_constant_override("margin_top", 12)
+	outer_margin.add_theme_constant_override("margin_right", 14)
+	outer_margin.add_theme_constant_override("margin_bottom", 12)
+	_tech_tree_overlay_mvp.add_child(outer_margin)
+
+	_tech_tree_content_root_mvp = VBoxContainer.new()
+	_tech_tree_content_root_mvp.name = "DomesticTechTreeOverlayContent"
+	_tech_tree_content_root_mvp.add_theme_constant_override("separation", 8)
+	outer_margin.add_child(_tech_tree_content_root_mvp)
+
+
+func _refresh_domestic_tech_tree_overlay_mvp() -> void:
+	if _tech_tree_content_root_mvp == null:
+		return
+	_clear_domestic_tech_tree_children_mvp(_tech_tree_content_root_mvp)
+
+	var header_row := HBoxContainer.new()
+	header_row.name = "DomesticTechTreeHeaderRow"
+	header_row.add_theme_constant_override("separation", 8)
+	_tech_tree_content_root_mvp.add_child(header_row)
+
+	var title_box := VBoxContainer.new()
+	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_box.add_theme_constant_override("separation", 2)
+	header_row.add_child(title_box)
+
+	var title_label := _make_domestic_tech_label_mvp("삼국WAR 테크트리", 24, Color(1.0, 0.84, 0.42, 1.0))
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_box.add_child(title_label)
+
+	var selected_city_name := "도시 미선택"
+	if selected_city_marker != null:
+		selected_city_name = selected_city_marker.display_name
+	var sub_label := _make_domestic_tech_label_mvp("국가 테크: PLAYER 조정 기준 · 도시 테크: 현재 선택 도시(%s) 기준 · 건설 시간/★/잠금 조건은 표시 전용" % selected_city_name, 12, Color(0.82, 0.84, 0.78, 1.0))
+	sub_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_box.add_child(sub_label)
+
+	var close_button := Button.new()
+	close_button.name = "DomesticTechTreeCloseButton"
+	close_button.text = "닫기"
+	close_button.custom_minimum_size = Vector2(72.0, 30.0)
+	close_button.focus_mode = Control.FOCUS_NONE
+	close_button.pressed.connect(_close_domestic_tech_tree_overlay_mvp)
+	header_row.add_child(close_button)
+
+	var split := HBoxContainer.new()
+	split.name = "DomesticTechTreeSplit"
+	split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	split.add_theme_constant_override("separation", 10)
+	_tech_tree_content_root_mvp.add_child(split)
+
+	_build_national_tech_tree_panel_mvp(split)
+	_build_city_tech_tree_panel_mvp(split, selected_city_id)
+
+
+func _build_national_tech_tree_panel_mvp(parent: Container) -> void:
+	var panel := _make_domestic_tech_section_panel_mvp("NationalTechTreePanelMVP")
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	parent.add_child(panel)
+
+	var content := _make_domestic_tech_section_content_mvp(panel)
+	content.add_child(_make_domestic_tech_label_mvp("좌측: 국가 테크트리", 17, Color(1.0, 0.86, 0.54, 1.0)))
+	content.add_child(_make_domestic_tech_label_mvp("PLAYER 국가 기준 · 적국 국가 정보 미표시", 11, Color(0.70, 0.76, 0.80, 1.0)))
+
+	var scroll := _make_domestic_tech_scroll_mvp()
+	content.add_child(scroll)
+	var list := VBoxContainer.new()
+	list.name = "NationalTechList"
+	list.add_theme_constant_override("separation", 8)
+	scroll.add_child(list)
+
+	for category_id in [DOMESTIC_TECH_CATEGORY_NATION_ADMIN, DOMESTIC_TECH_CATEGORY_NATION_ECONOMY, DOMESTIC_TECH_CATEGORY_NATION_MILITARY, DOMESTIC_TECH_CATEGORY_NATION_DIPLOMACY]:
+		_build_domestic_tech_category_group_mvp(list, category_id, "", DOMESTIC_TECH_SCOPE_NATIONAL)
+
+
+func _build_city_tech_tree_panel_mvp(parent: Container, city_id: String) -> void:
+	var panel := _make_domestic_tech_section_panel_mvp("CityTechTreePanelMVP")
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	parent.add_child(panel)
+
+	var content := _make_domestic_tech_section_content_mvp(panel)
+	content.add_child(_make_domestic_tech_label_mvp("우측: 도시 테크트리", 17, Color(1.0, 0.86, 0.54, 1.0)))
+
+	if city_id.is_empty() or selected_city_marker == null:
+		content.add_child(_make_domestic_tech_label_mvp("도시를 선택하면 도시 테크트리가 표시됩니다.", 13, Color(0.82, 0.84, 0.78, 1.0)))
+		return
+
+	content.add_child(_make_domestic_tech_label_mvp("현재 선택 도시: %s" % _format_city_name_by_id(city_id, city_id), 11, Color(0.70, 0.76, 0.80, 1.0)))
+	if not _is_city_owned_by_player_mvp(city_id):
+		content.add_child(_make_domestic_tech_label_mvp("선택 도시의 내정 테크 정보가 부족합니다.\n첩보 또는 도시 정보 확보 후 확인할 수 있습니다.", 13, Color(0.72, 0.74, 0.76, 1.0)))
+		return
+
+	var scroll := _make_domestic_tech_scroll_mvp()
+	content.add_child(scroll)
+	var list := VBoxContainer.new()
+	list.name = "CityTechList"
+	list.add_theme_constant_override("separation", 8)
+	scroll.add_child(list)
+
+	for category_id in [DOMESTIC_TECH_CATEGORY_AGRI, DOMESTIC_TECH_CATEGORY_FISH, DOMESTIC_TECH_CATEGORY_COMMERCE, DOMESTIC_TECH_CATEGORY_MILITARY]:
+		_build_domestic_tech_category_group_mvp(list, category_id, city_id, DOMESTIC_TECH_SCOPE_CITY)
+
+
+func _build_domestic_tech_category_group_mvp(parent: Container, category_id: String, city_id: String, scope: String) -> void:
+	var definitions := _get_sorted_domestic_tech_definitions_for_category_mvp(category_id, scope)
+	if definitions.is_empty():
+		return
+	var category_data: Dictionary = _get_domestic_tech_categories_mvp().get(category_id, {})
+	var category_label := str(category_data.get("name", category_id))
+	parent.add_child(_make_domestic_tech_label_mvp(category_label, 15, Color(0.95, 0.78, 0.40, 1.0)))
+
+	var grid := GridContainer.new()
+	grid.name = "DomesticTechGrid_%s" % category_id
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 8)
+	parent.add_child(grid)
+
+	for definition in definitions:
+		_build_domestic_tech_node_mvp(grid, definition, city_id)
+
+
+func _build_domestic_tech_node_mvp(parent: Container, tech_def: Dictionary, city_id: String) -> void:
+	var tech_id := str(tech_def.get("id", ""))
+	var view_state := _get_domestic_tech_view_state_mvp(tech_id, city_id)
+	var state_id := str(view_state.get("state", DOMESTIC_TECH_VIEW_LOCKED))
+
+	var node_panel := PanelContainer.new()
+	node_panel.name = "DomesticTechNode_%s" % tech_id
+	node_panel.custom_minimum_size = Vector2(DOMESTIC_TECH_TREE_NODE_WIDTH, 0.0)
+	node_panel.add_theme_stylebox_override("panel", _make_domestic_tech_node_style_mvp(state_id))
+	parent.add_child(node_panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 7)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 7)
+	node_panel.add_child(margin)
+
+	var body := VBoxContainer.new()
+	body.add_theme_constant_override("separation", 4)
+	margin.add_child(body)
+
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 7)
+	body.add_child(header)
+	_add_domestic_tech_icon_mvp(header, tech_id)
+
+	var title_box := VBoxContainer.new()
+	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(title_box)
+	var title_text := "%s %s" % [str(tech_def.get("name", tech_id)), _format_domestic_tech_rarity_mvp(int(tech_def.get("rarity", 0)))]
+	title_box.add_child(_make_domestic_tech_label_mvp(title_text.strip_edges(), 13, _get_domestic_tech_state_text_color_mvp(state_id)))
+	title_box.add_child(_make_domestic_tech_label_mvp("Tier %d · %s" % [int(tech_def.get("tier", 0)), _format_domestic_tech_branch_label_mvp(str(tech_def.get("branch", "")))], 10, Color(0.72, 0.75, 0.72, 1.0)))
+
+	body.add_child(_make_domestic_tech_label_mvp(_format_domestic_tech_cost_mvp(tech_def.get("cost", {})), 10, Color(0.86, 0.82, 0.72, 1.0)))
+	var effect_stub: Dictionary = tech_def.get("effect_stub", {})
+	body.add_child(_make_domestic_tech_label_mvp(str(effect_stub.get("description", "")), 10, _get_domestic_tech_state_body_color_mvp(state_id)))
+
+	var status_line := str(view_state.get("label", "잠김"))
+	if bool(view_state.get("is_locked", false)):
+		status_line = "[잠김] %s" % status_line
+	body.add_child(_make_domestic_tech_label_mvp(status_line, 11, _get_domestic_tech_state_text_color_mvp(state_id)))
+
+	var lock_reasons: Array = view_state.get("lock_reasons", [])
+	if not lock_reasons.is_empty():
+		var reason_label := _make_domestic_tech_label_mvp("조건: %s" % " / ".join(lock_reasons.slice(0, 3)), 9, Color(0.68, 0.70, 0.70, 1.0))
+		body.add_child(reason_label)
+
+
+func _get_domestic_tech_view_state_mvp(tech_id: String, city_id: String = "") -> Dictionary:
+	_normalize_domestic_tech_state_mvp()
+	var definition := _get_domestic_tech_definition_mvp(tech_id)
+	if definition.is_empty():
+		return {"state": DOMESTIC_TECH_VIEW_LOCKED, "label": "잠김", "lock_reasons": ["정의 없음"], "is_locked": true, "is_special_locked": false}
+
+	var scope := str(definition.get("tree_scope", ""))
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL and _is_national_domestic_tech_completed_mvp(tech_id):
+		return {"state": DOMESTIC_TECH_VIEW_COMPLETED, "label": "완료", "lock_reasons": [], "is_locked": false, "is_special_locked": false}
+	if scope == DOMESTIC_TECH_SCOPE_CITY and _is_city_domestic_tech_completed_mvp(city_id, tech_id):
+		return {"state": DOMESTIC_TECH_VIEW_COMPLETED, "label": "완료", "lock_reasons": [], "is_locked": false, "is_special_locked": false}
+
+	var lock_reasons: Array[String] = []
+	if scope == DOMESTIC_TECH_SCOPE_CITY and (city_id.is_empty() or _get_city_hud_entry(city_id).is_empty()):
+		lock_reasons.append("도시 선택 필요")
+
+	for required_id_variant in definition.get("prerequisites", []):
+		var required_id := str(required_id_variant)
+		if scope == DOMESTIC_TECH_SCOPE_CITY:
+			if not _is_city_domestic_tech_completed_mvp(city_id, required_id):
+				lock_reasons.append("선행: %s" % _get_domestic_tech_display_name_mvp(required_id))
+		elif not _is_national_domestic_tech_completed_mvp(required_id):
+			lock_reasons.append("선행: %s" % _get_domestic_tech_display_name_mvp(required_id))
+
+	for required_national_id_variant in definition.get("required_national_techs", []):
+		var required_national_id := str(required_national_id_variant)
+		if not _is_national_domestic_tech_completed_mvp(required_national_id):
+			lock_reasons.append("국가: %s" % _get_domestic_tech_display_name_mvp(required_national_id))
+
+	if scope == DOMESTIC_TECH_SCOPE_CITY and not _are_domestic_tech_city_requirements_met_mvp(city_id, tech_id):
+		lock_reasons.append("도시 조건")
+
+	if not lock_reasons.is_empty():
+		return {"state": DOMESTIC_TECH_VIEW_LOCKED, "label": "잠김", "lock_reasons": lock_reasons, "is_locked": true, "is_special_locked": false}
+
+	var special_reasons := _format_domestic_tech_special_requirements_mvp(definition)
+	if not special_reasons.is_empty():
+		return {"state": DOMESTIC_TECH_VIEW_SPECIAL_LOCKED, "label": "특수 잠금", "lock_reasons": special_reasons, "is_locked": true, "is_special_locked": true}
+
+	return {"state": DOMESTIC_TECH_VIEW_AVAILABLE, "label": "가능", "lock_reasons": [], "is_locked": false, "is_special_locked": false}
+
+
+func _get_sorted_domestic_tech_definitions_for_category_mvp(category_id: String, scope: String) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var source := _get_domestic_city_tech_definitions_mvp()
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		source = _get_domestic_national_tech_definitions_mvp()
+	for tech_id_variant in source.keys():
+		var definition: Dictionary = source.get(tech_id_variant, {})
+		if str(definition.get("category", "")) == category_id and str(definition.get("tree_scope", "")) == scope:
+			result.append(definition.duplicate(true))
+	result.sort_custom(Callable(self, "_sort_domestic_tech_definition_mvp"))
+	return result
+
+
+func _sort_domestic_tech_definition_mvp(left_definition: Dictionary, right_definition: Dictionary) -> bool:
+	var left_branch := str(left_definition.get("branch", ""))
+	var right_branch := str(right_definition.get("branch", ""))
+	if left_branch != right_branch:
+		return left_branch < right_branch
+	var left_tier := int(left_definition.get("tier", 0))
+	var right_tier := int(right_definition.get("tier", 0))
+	if left_tier != right_tier:
+		return left_tier < right_tier
+	return str(left_definition.get("id", "")) < str(right_definition.get("id", ""))
+
+
+func _add_domestic_tech_icon_mvp(parent: Container, tech_id: String) -> void:
+	var icon_box := PanelContainer.new()
+	icon_box.custom_minimum_size = Vector2(DOMESTIC_TECH_TREE_ICON_SIZE, DOMESTIC_TECH_TREE_ICON_SIZE)
+	icon_box.add_theme_stylebox_override("panel", _make_domestic_tech_icon_box_style_mvp())
+	parent.add_child(icon_box)
+
+	var icon_path := _get_domestic_tech_icon_path_mvp(tech_id)
+	var texture: Texture2D = null
+	if not _is_domestic_tech_icon_missing_mvp(tech_id) and not icon_path.is_empty() and ResourceLoader.exists(icon_path):
+		var loaded_resource := load(icon_path)
+		if loaded_resource is Texture2D:
+			texture = loaded_resource as Texture2D
+
+	if texture != null:
+		var texture_rect := TextureRect.new()
+		texture_rect.texture = texture
+		texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon_box.add_child(texture_rect)
+		texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	else:
+		var fallback_label := _make_domestic_tech_label_mvp(_get_domestic_tech_icon_fallback_label_mvp(tech_id), 18, Color(0.86, 0.84, 0.76, 1.0))
+		fallback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		fallback_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		icon_box.add_child(fallback_label)
+		fallback_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+
+func _format_domestic_tech_rarity_mvp(rarity: int) -> String:
+	var count := clampi(rarity, 0, 2)
+	var stars := ""
+	for _index in range(count):
+		stars += "★"
+	return stars
+
+
+func _format_domestic_tech_cost_mvp(raw_cost: Variant) -> String:
+	if not raw_cost is Dictionary:
+		return "비용 없음"
+	var parts: Array[String] = []
+	var order := ["wood", "iron", "gold", "food", "rice", "barley", "seafood", "horses", "silk", "salt"]
+	for resource_id in order:
+		if (raw_cost as Dictionary).has(resource_id):
+			var amount := int((raw_cost as Dictionary).get(resource_id, 0))
+			if amount > 0:
+				parts.append("%s%d" % [_format_domestic_tech_resource_label_mvp(resource_id), amount])
+	for resource_id_variant in (raw_cost as Dictionary).keys():
+		var resource_id := str(resource_id_variant)
+		if order.has(resource_id):
+			continue
+		var amount := int((raw_cost as Dictionary).get(resource_id_variant, 0))
+		if amount > 0:
+			parts.append("%s%d" % [_format_domestic_tech_resource_label_mvp(resource_id), amount])
+	if parts.is_empty():
+		return "비용 없음"
+	return " ".join(parts)
+
+
+func _format_domestic_tech_resource_label_mvp(resource_id: String) -> String:
+	match resource_id:
+		"wood":
+			return "목재"
+		"iron":
+			return "철"
+		"gold":
+			return "금전"
+		"food":
+			return "식량"
+		"rice":
+			return "쌀"
+		"barley":
+			return "보리"
+		"seafood":
+			return "수산물"
+		"horses":
+			return "말"
+		"silk":
+			return "비단"
+		"salt":
+			return "소금"
+		_:
+			return resource_id
+
+
+func _format_domestic_tech_branch_label_mvp(branch_id: String) -> String:
+	var labels := {
+		"harvest": "기본 수확",
+		"livestock": "목축",
+		"coastal": "연안",
+		"salt": "염업",
+		"market": "시장",
+		"sea_trade": "해상무역",
+		"silk_road": "실크로드",
+		"infantry": "보병",
+		"archery": "궁병",
+		"cavalry": "기병",
+		"naval": "수군",
+		"defense": "방어",
+		"siege": "공성",
+		"administration": "행정",
+		"bureaucracy": "관료",
+		"tax": "세제",
+		"currency": "화폐",
+		"military": "군사",
+		"logistics": "병참",
+		"weapon": "무기",
+		"diplomacy": "외교",
+		"intelligence": "첩보",
+		"tribute": "조공",
+	}
+	return str(labels.get(branch_id, branch_id))
+
+
+func _format_domestic_tech_special_requirements_mvp(definition: Dictionary) -> Array[String]:
+	var result: Array[String] = []
+	var raw_requirements: Variant = definition.get("special_requirements", {})
+	if not raw_requirements is Dictionary:
+		return result
+	var requirements := raw_requirements as Dictionary
+	for requirement_key_variant in requirements.keys():
+		var requirement_key := str(requirement_key_variant)
+		var requirement_value: Variant = requirements.get(requirement_key_variant)
+		if requirement_key == "city_requirements":
+			continue
+		match requirement_key:
+			"hero_required":
+				result.append("영웅: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			"required_hero":
+				result.append("영웅: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			"chancellor_aptitudes":
+				result.append("재상: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			"average_loyalty":
+				result.append("충성도 %s 필요" % str(requirement_value))
+			"owned_city_count":
+				result.append("보유 도시 %s 필요" % str(requirement_value))
+			"required_city_techs":
+				result.append("도시 테크: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			"required_city_tech_any":
+				result.append("도시 테크 중 하나: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			"required_national_techs":
+				result.append("국가 테크: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			"resource_requirements":
+				result.append("자원 조건: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			"resource_surplus":
+				result.append("잉여 자원: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			_:
+				result.append("%s: %s" % [requirement_key, _format_domestic_tech_requirement_value_mvp(requirement_value)])
+	return result
+
+
+func _format_domestic_tech_requirement_value_mvp(value: Variant) -> String:
+	if value is Array:
+		var parts: Array[String] = []
+		for item in value:
+			var item_id := str(item)
+			if _is_domestic_city_tech_mvp(item_id) or _is_domestic_national_tech_mvp(item_id):
+				parts.append(_get_domestic_tech_display_name_mvp(item_id))
+			else:
+				parts.append(_format_domestic_tech_resource_label_mvp(item_id))
+		return ", ".join(parts)
+	if value is Dictionary:
+		var parts: Array[String] = []
+		for key_variant in (value as Dictionary).keys():
+			var key := str(key_variant)
+			var display_key := key
+			if _is_domestic_city_tech_mvp(key) or _is_domestic_national_tech_mvp(key):
+				display_key = _get_domestic_tech_display_name_mvp(key)
+			else:
+				display_key = _format_domestic_tech_resource_label_mvp(key)
+			parts.append("%s=%s" % [display_key, str((value as Dictionary).get(key_variant))])
+		return ", ".join(parts)
+	return str(value)
+
+
+func _get_domestic_tech_display_name_mvp(tech_id: String) -> String:
+	var definition := _get_domestic_tech_definition_mvp(tech_id)
+	if definition.is_empty():
+		return tech_id
+	return str(definition.get("name", tech_id))
+
+
+func _make_domestic_tech_label_mvp(text: String, font_size: int, font_color: Color) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", font_color)
+	return label
+
+
+func _make_domestic_tech_section_panel_mvp(panel_name: String) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.name = panel_name
+	panel.mouse_filter = Control.MOUSE_FILTER_PASS
+	panel.add_theme_stylebox_override("panel", _make_domestic_tech_section_style_mvp())
+	return panel
+
+
+func _make_domestic_tech_section_content_mvp(panel: PanelContainer) -> VBoxContainer:
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	panel.add_child(margin)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 6)
+	margin.add_child(content)
+	return content
+
+
+func _make_domestic_tech_scroll_mvp() -> ScrollContainer:
+	var scroll := ScrollContainer.new()
+	scroll.name = "DomesticTechScroll"
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	return scroll
+
+
+func _clear_domestic_tech_tree_children_mvp(node: Node) -> void:
+	for child in node.get_children():
+		child.queue_free()
+
+
+func _make_domestic_tech_overlay_style_mvp() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.025, 0.025, 0.025, 0.96)
+	style.border_color = Color(0.72, 0.54, 0.25, 0.95)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	return style
+
+
+func _make_domestic_tech_section_style_mvp() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.052, 0.045, 0.92)
+	style.border_color = Color(0.52, 0.40, 0.22, 0.90)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(5)
+	return style
+
+
+func _make_domestic_tech_icon_box_style_mvp() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.05, 0.05, 0.05, 0.82)
+	style.border_color = Color(0.54, 0.45, 0.26, 0.85)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(4)
+	return style
+
+
+func _make_domestic_tech_node_style_mvp(state_id: String) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	match state_id:
+		DOMESTIC_TECH_VIEW_COMPLETED:
+			style.bg_color = Color(0.10, 0.15, 0.09, 0.92)
+			style.border_color = Color(0.66, 0.82, 0.40, 0.95)
+		DOMESTIC_TECH_VIEW_AVAILABLE:
+			style.bg_color = Color(0.10, 0.085, 0.045, 0.90)
+			style.border_color = Color(0.78, 0.58, 0.24, 0.92)
+		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
+			style.bg_color = Color(0.07, 0.065, 0.065, 0.86)
+			style.border_color = Color(0.50, 0.36, 0.20, 0.82)
+		_:
+			style.bg_color = Color(0.055, 0.055, 0.055, 0.82)
+			style.border_color = Color(0.28, 0.28, 0.28, 0.86)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(5)
+	return style
+
+
+func _get_domestic_tech_state_text_color_mvp(state_id: String) -> Color:
+	match state_id:
+		DOMESTIC_TECH_VIEW_COMPLETED:
+			return Color(0.80, 1.0, 0.58, 1.0)
+		DOMESTIC_TECH_VIEW_AVAILABLE:
+			return Color(1.0, 0.88, 0.58, 1.0)
+		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
+			return Color(0.72, 0.64, 0.54, 1.0)
+		_:
+			return Color(0.56, 0.58, 0.58, 1.0)
+
+
+func _get_domestic_tech_state_body_color_mvp(state_id: String) -> Color:
+	if state_id == DOMESTIC_TECH_VIEW_LOCKED or state_id == DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
+		return Color(0.58, 0.60, 0.60, 1.0)
+	return Color(0.86, 0.88, 0.82, 1.0)
+
+
 func _normalize_domestic_tech_state_mvp() -> void:
 	_player_state["city_domestic_tech_completed"] = _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_completed", {}))
 	_player_state["city_domestic_tech_unlocked"] = _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_unlocked", {}))
@@ -10955,6 +11567,8 @@ func _select_city_after_invasion_result(city_id: String) -> void:
 	selected_city_marker = city_marker
 	selected_city_marker.set_selected(true)
 	city_info_panel.show_city(city_marker)
+	if _tech_tree_overlay_mvp != null and _tech_tree_overlay_mvp.visible:
+		_refresh_domestic_tech_tree_overlay_mvp()
 
 
 func _validate_pending_invasion_event_for_battle_context(event: Dictionary) -> Dictionary:

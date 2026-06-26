@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP
+- Baseline: `v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP` at `208e32662b42bc14cb192af291153c7849c3674b`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- UI scope:
+  - Added a 월드맵 `테크트리` button and fullscreen `tech_tree_overlay_mvp` under `WorldMapUI`.
+  - Left panel displays PLAYER national domestic tech definitions from v0.70-61.
+  - Right panel displays selected-player-city domestic tech definitions; no city shows guidance, and non-player/unknown city detail is hidden behind Fog of War / `city_intel` policy copy.
+  - Tech nodes display icon or `?` fallback, name, rarity `★`, tier/branch, cost, effect description, state label, and lock reason summary.
+  - Completed / available / locked / special_locked are display-only view states and do not mutate domestic tech completion, resources, troops, diplomacy, spy, market, pending invasion, or BattleContext.
+- Preserved scope: no research start button, no research turn progression, no research completion, no actual effect application, no AI research, no Enemy Strategic AI Phase 2, no War Posture, no BattleContext or pending invasion payload change, no income/resource/troop/battle/diplomacy/spy formula change, no scene/asset change, no `assets/ui/tech_icons` PNG change, and no `.import` file change.
+- Manual F6 QA remains required for the v0.70-62 checklist: button visibility, overlay open/close/ESC, left PLAYER national tree, right selected-city tree, no-city guidance, enemy/insufficient-intel hiding, icon/fallback display, locked/special lock visuals, read-only no-mutation behavior, prior enemy pressure/pending/BattleContext locks, Fog/city_intel/market/alliance/wedge/player-action preservation, no icon/import changes, and warning cleanliness.
+
 ## v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP
 - Baseline: `테크트리 준비` at `78ab5e479511855f1f445c64eb57186bc93eb3b3`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

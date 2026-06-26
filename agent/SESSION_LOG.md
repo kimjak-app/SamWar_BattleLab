@@ -1,5 +1,32 @@
 # SESSION LOG
 
+## 2026-06-26
+
+### v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP
+- Started from `208e326 v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP`.
+- Confirmed local `main` was clean, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.
+- Required workflow/worldmap docs were read before touching runtime files.
+- Implemented:
+  - Added a 월드맵 `테크트리` button.
+  - Added fullscreen read-only `tech_tree_overlay_mvp` under `WorldMapUI`, with `닫기` and ESC close behavior.
+  - Added left PLAYER national tech tree rendering and right selected-player-city tech tree rendering.
+  - Added no-city guidance and enemy/insufficient-intel city detail hiding under Fog of War / `city_intel` policy.
+  - Added tech node icon loading with `?` fallback, `★` rarity, cost/effect text, completed/available/locked/special_locked state display, gray locked styling, `[잠김]`, and compact lock reason text.
+  - Added `v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved v0.70-61 domestic tech state normalization, v0.70-60 pressure balance, v0.70-59 strategy hint UX, v0.70-58 replay lock, pending invasion/BattleContext locks, left PLAYER scope, right selected-city scope, Fog of War, `city_intel`, market/alliance/wedge behavior, player spy/diplomacy actions, scenes, icon PNG files, and `.import` files.
+- Verification:
+  - `git diff --check`
+  - tech icon no-touch check
+  - `.import` no-touch check
+  - domestic tech UI keyword search
+  - domestic tech foundation search
+  - guard keyword search
+  - warning-cleanup regression searches for `seed`, `target_label`, `resource_label`, `selected_city_id`, `loyalty_card`, and `func .*sign`
+  - project headless load
+  - `WorldMap_Test.tscn` headless load, including hidden overlay construction
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for the v0.70-62 checklist.
+
 ## 2026-06-25
 
 ### v0.70-61 Domestic Tech Tree Confirmed Design Foundation MVP
