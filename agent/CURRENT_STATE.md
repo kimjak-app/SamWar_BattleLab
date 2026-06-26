@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish
+- Baseline: `v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish` at `6b22491fcec45836271f14f5b837f64b09ca2f06`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- UI scope:
+  - National and city Domestic Tech Tree category sections now use a shared global spacing rule for title/description/first row, branch row separation, and next-category separation.
+  - Compact graph nodes are fixed to a single smaller size and use tighter internal margins so lower empty space is reduced.
+  - Compact graph icons render larger through UI sizing only; icon PNG and `.import` assets remain untouched.
+  - Branch key display now uses Korean label mapping for national/city graph labels, including `inspection`, `population`, `monopoly`, and `archer`.
+- Preserved scope: no research start, no research turn progression, no research completion, no actual effect application, no AI research, no Enemy Strategic AI Phase 2, no War Posture, no BattleContext or pending invasion payload change, no income/resource/troop/battle/diplomacy/spy formula change, no scene/asset change, no `assets/ui/tech_icons` PNG change, and no `.import` file change.
+- v0.70-62-hotfix1 modal/top-layer behavior remains active: high z-index, `move_to_front()`, `MOUSE_FILTER_STOP`, open-time floating panel hide, close-time visible-state restore, background input consume, ESC/닫기 close.
+- Manual F6 QA remains required for all national/city category spacing, branch label Korean display, node size consistency, icon readability, reduced compact-node empty space, detail inspector, overlay top-layer behavior, enemy/insufficient-intel hiding, no gameplay mutation, and warning cleanliness.
+
 ## v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish
 - Baseline: `v0.70-63 Domestic Tech Tree Branch Graph UI MVP` at `ad1d8125a18e673fb6fb7853f817a37689d14e40`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

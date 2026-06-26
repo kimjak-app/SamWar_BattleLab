@@ -1,5 +1,20 @@
 # NEXT TASKS
 
+## Current: v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish
+- Baseline: `v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish` (`6b22491fcec45836271f14f5b837f64b09ca2f06`).
+- Completed direction:
+  1. Applied one shared national/city category section spacing rule instead of per-category hardcoding.
+  2. Increased title/description to first-row spacing, branch row vertical separation, and next-category separation.
+  3. Kept all graph nodes on one fixed compact size while reducing internal bottom empty space.
+  4. Increased compact graph icon display size in UI only, with `?` fallback kept inside the icon box.
+  5. Added missing Korean branch label mapping for raw keys such as `inspection`, `population`, `monopoly`, and city `archer`.
+- Preserved scope:
+  1. No research start, research progress, research completion, effect application, Enemy Strategic AI Phase 2, War Posture, BattleContext shape change, or pending invasion payload change was made.
+  2. Left PLAYER national tree, right selected-player-city tree, Fog of War / `city_intel` enemy city hiding, icon `?` fallback, detail inspector, and v0.70-62-hotfix1 overlay behavior remain unchanged.
+  3. Income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, `assets/ui/tech_icons` PNG files, and `.import` files remain untouched.
+- Manual F6 QA required:
+  1. Run the v0.70-63-hotfix2 checklist for national/city category separation, node size consistency, icon readability, compact empty-space reduction, branch label Korean display, detail inspector, overlay top-layer behavior, no gameplay mutation, and clean Godot Output.
+
 ## Current: v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish
 - Baseline: `v0.70-63 Domestic Tech Tree Branch Graph UI MVP` (`ad1d8125a18e673fb6fb7853f817a37689d14e40`).
 - Completed direction:

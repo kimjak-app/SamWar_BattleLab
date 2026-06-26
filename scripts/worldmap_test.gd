@@ -47,13 +47,16 @@ const DOMESTIC_TECH_VIEW_SPECIAL_LOCKED := "special_locked"
 const DOMESTIC_TECH_TREE_OVERLAY_MARGIN := 22.0
 const DOMESTIC_TECH_TREE_NODE_WIDTH := 214.0
 const DOMESTIC_TECH_TREE_ICON_SIZE := 42.0
-const DOMESTIC_TECH_GRAPH_NODE_WIDTH := 146.0
-const DOMESTIC_TECH_GRAPH_NODE_HEIGHT := 86.0
+const DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE := 50.0
+const DOMESTIC_TECH_GRAPH_CATEGORY_TOP_MARGIN := 14
+const DOMESTIC_TECH_GRAPH_CATEGORY_BOTTOM_MARGIN := 34
+const DOMESTIC_TECH_GRAPH_NODE_WIDTH := 154.0
+const DOMESTIC_TECH_GRAPH_NODE_HEIGHT := 74.0
 const DOMESTIC_TECH_GRAPH_NODE_SIZE := Vector2(DOMESTIC_TECH_GRAPH_NODE_WIDTH, DOMESTIC_TECH_GRAPH_NODE_HEIGHT)
-const DOMESTIC_TECH_GRAPH_TIER_SPACING := 190.0
-const DOMESTIC_TECH_GRAPH_BRANCH_SPACING := 126.0
-const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 94.0
-const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(94.0, 38.0)
+const DOMESTIC_TECH_GRAPH_TIER_SPACING := 198.0
+const DOMESTIC_TECH_GRAPH_BRANCH_SPACING := 132.0
+const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 88.0
+const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(100.0, 58.0)
 const DOMESTIC_TECH_GRAPH_LINE_WIDTH := 3.0
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
@@ -10010,7 +10013,7 @@ func _build_national_tech_tree_panel_mvp(parent: Container) -> void:
 	content.add_child(scroll)
 	var list := VBoxContainer.new()
 	list.name = "NationalTechList"
-	list.add_theme_constant_override("separation", 8)
+	list.add_theme_constant_override("separation", 0)
 	scroll.add_child(list)
 
 	for category_id in [DOMESTIC_TECH_CATEGORY_NATION_ADMIN, DOMESTIC_TECH_CATEGORY_NATION_ECONOMY, DOMESTIC_TECH_CATEGORY_NATION_MILITARY, DOMESTIC_TECH_CATEGORY_NATION_DIPLOMACY]:
@@ -10039,7 +10042,7 @@ func _build_city_tech_tree_panel_mvp(parent: Container, city_id: String) -> void
 	content.add_child(scroll)
 	var list := VBoxContainer.new()
 	list.name = "CityTechList"
-	list.add_theme_constant_override("separation", 8)
+	list.add_theme_constant_override("separation", 0)
 	scroll.add_child(list)
 
 	for category_id in [DOMESTIC_TECH_CATEGORY_AGRI, DOMESTIC_TECH_CATEGORY_FISH, DOMESTIC_TECH_CATEGORY_COMMERCE, DOMESTIC_TECH_CATEGORY_MILITARY]:
@@ -10145,9 +10148,21 @@ func _build_domestic_tech_category_group_mvp(parent: Container, category_id: Str
 		return
 	var category_data: Dictionary = _get_domestic_tech_categories_mvp().get(category_id, {})
 	var category_label := str(category_data.get("name", category_id))
-	parent.add_child(_make_domestic_tech_label_mvp(category_label, 15, Color(0.95, 0.78, 0.40, 1.0)))
-	parent.add_child(_make_domestic_tech_label_mvp("branch graph · 선행 테크 연결선 표시", 10, Color(0.62, 0.66, 0.66, 1.0)))
-	_build_domestic_tech_graph_canvas_mvp(parent, definitions, city_id, scope)
+	var section_margin := MarginContainer.new()
+	section_margin.name = "DomesticTechCategorySection_%s" % category_id
+	section_margin.add_theme_constant_override("margin_top", DOMESTIC_TECH_GRAPH_CATEGORY_TOP_MARGIN)
+	section_margin.add_theme_constant_override("margin_bottom", DOMESTIC_TECH_GRAPH_CATEGORY_BOTTOM_MARGIN)
+	parent.add_child(section_margin)
+
+	var section := VBoxContainer.new()
+	section.add_theme_constant_override("separation", 7)
+	section_margin.add_child(section)
+
+	var title_label := _make_domestic_tech_label_mvp(category_label, 15, Color(0.95, 0.78, 0.40, 1.0))
+	title_label.custom_minimum_size = Vector2(0.0, 22.0)
+	section.add_child(title_label)
+	section.add_child(_make_domestic_tech_label_mvp("branch graph · 선행 테크 연결선 표시", 10, Color(0.62, 0.66, 0.66, 1.0)))
+	_build_domestic_tech_graph_canvas_mvp(section, definitions, city_id, scope)
 
 
 func _build_domestic_tech_graph_canvas_mvp(parent: Container, tech_defs: Array[Dictionary], city_id: String, scope: String) -> void:
@@ -10318,29 +10333,34 @@ func _build_domestic_tech_compact_node_mvp(parent: Control, tech_def: Dictionary
 	parent.add_child(node_panel)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 6)
-	margin.add_theme_constant_override("margin_top", 5)
-	margin.add_theme_constant_override("margin_right", 6)
-	margin.add_theme_constant_override("margin_bottom", 5)
+	margin.add_theme_constant_override("margin_left", 5)
+	margin.add_theme_constant_override("margin_top", 4)
+	margin.add_theme_constant_override("margin_right", 5)
+	margin.add_theme_constant_override("margin_bottom", 3)
 	node_panel.add_child(margin)
 
 	var body := VBoxContainer.new()
-	body.add_theme_constant_override("separation", 3)
+	body.add_theme_constant_override("separation", 1)
 	margin.add_child(body)
 
 	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 5)
+	header.add_theme_constant_override("separation", 6)
+	header.custom_minimum_size = Vector2(0.0, DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE)
 	body.add_child(header)
-	_add_domestic_tech_icon_mvp(header, tech_id)
+	_add_domestic_tech_icon_mvp(header, tech_id, DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE, 22)
 
 	var title_text := "%s %s" % [str(tech_def.get("name", tech_id)), _format_domestic_tech_rarity_mvp(int(tech_def.get("rarity", 0)))]
-	var title_label := _make_domestic_tech_label_mvp(title_text.strip_edges(), 11, _get_domestic_tech_state_text_color_mvp(state_id))
+	var title_label := _make_domestic_tech_label_mvp(title_text.strip_edges(), 10, _get_domestic_tech_state_text_color_mvp(state_id))
 	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_label.max_lines_visible = 2
+	title_label.clip_text = true
+	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(title_label)
 
 	var status_label := _make_domestic_tech_label_mvp(_format_domestic_tech_compact_status_mvp(view_state), 10, _get_domestic_tech_state_text_color_mvp(state_id))
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status_label.clip_text = true
+	status_label.custom_minimum_size = Vector2(0.0, 12.0)
 	body.add_child(status_label)
 	return node_panel
 
@@ -10497,9 +10517,9 @@ func _sort_domestic_tech_definition_mvp(left_definition: Dictionary, right_defin
 	return str(left_definition.get("id", "")) < str(right_definition.get("id", ""))
 
 
-func _add_domestic_tech_icon_mvp(parent: Container, tech_id: String) -> void:
+func _add_domestic_tech_icon_mvp(parent: Container, tech_id: String, icon_size: float = DOMESTIC_TECH_TREE_ICON_SIZE, fallback_font_size: int = 18) -> void:
 	var icon_box := PanelContainer.new()
-	icon_box.custom_minimum_size = Vector2(DOMESTIC_TECH_TREE_ICON_SIZE, DOMESTIC_TECH_TREE_ICON_SIZE)
+	icon_box.custom_minimum_size = Vector2(icon_size, icon_size)
 	icon_box.add_theme_stylebox_override("panel", _make_domestic_tech_icon_box_style_mvp())
 	parent.add_child(icon_box)
 
@@ -10519,7 +10539,7 @@ func _add_domestic_tech_icon_mvp(parent: Container, tech_id: String) -> void:
 		icon_box.add_child(texture_rect)
 		texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	else:
-		var fallback_label := _make_domestic_tech_label_mvp(_get_domestic_tech_icon_fallback_label_mvp(tech_id), 18, Color(0.86, 0.84, 0.76, 1.0))
+		var fallback_label := _make_domestic_tech_label_mvp(_get_domestic_tech_icon_fallback_label_mvp(tech_id), fallback_font_size, Color(0.86, 0.84, 0.76, 1.0))
 		fallback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		fallback_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		icon_box.add_child(fallback_label)
@@ -10592,6 +10612,7 @@ func _format_domestic_tech_branch_label_mvp(branch_id: String) -> String:
 		"sea_trade": "해상무역",
 		"silk_road": "실크로드",
 		"infantry": "보병",
+		"archer": "궁병",
 		"archery": "궁병",
 		"cavalry": "기병",
 		"naval": "수군",
@@ -10599,8 +10620,11 @@ func _format_domestic_tech_branch_label_mvp(branch_id: String) -> String:
 		"siege": "공성",
 		"administration": "행정",
 		"bureaucracy": "관료",
+		"inspection": "감찰",
+		"population": "인구",
 		"tax": "세제",
 		"currency": "화폐",
+		"monopoly": "전매",
 		"military": "군사",
 		"logistics": "병참",
 		"weapon": "무기",

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish
+- Built on `v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish` (`6b22491fcec45836271f14f5b837f64b09ca2f06`).
+- Applied global national/city category section spacing for the fullscreen read-only Domestic Tech Tree graph.
+- Increased category title/description to first branch row spacing, branch row vertical rhythm, and next-category separation without per-category hardcoding.
+- Rebalanced compact graph nodes to one fixed smaller card size with tighter internal margins and less lower empty space.
+- Increased compact graph icon display size through UI sizing only and kept `?` fallback inside the same icon area.
+- Added display-only Korean branch label mappings for raw branch keys including `inspection`, `population`, `monopoly`, and `archer`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement research start/progress/completion, actual effects, AI research, Enemy Strategic AI Phase 2, War Posture, BattleContext changes, pending invasion payload changes, income/resource/troop/battle/diplomacy/spy formula changes, scene changes, `assets/ui/tech_icons` PNG changes, or `.import` changes.
+
 ## v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish
 - Built on `v0.70-63 Domestic Tech Tree Branch Graph UI MVP` (`ad1d8125a18e673fb6fb7853f817a37689d14e40`).
 - Converted the Domestic Tech Tree branch graph from large full-info cards to compact read-only nodes.

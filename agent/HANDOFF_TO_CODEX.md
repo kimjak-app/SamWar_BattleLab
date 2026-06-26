@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish Handoff
+- Baseline: `v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish` (`6b22491fcec45836271f14f5b837f64b09ca2f06`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is a global graph readability and compact-node presentation hotfix. It is not a research start button, not research turn progression, not research completion, and not actual effect application.
+- National and city category sections share one graph spacing rule. Do not add category-specific spacing exceptions for `국가 경제`, `농업`, `어업`, or similar visual cases.
+- Compact graph nodes remain fixed-size display-only nodes. Nodes show only icon or `?`, tech name, rarity `★`, and short completed/available/locked/special_locked state.
+- Cost, effect copy, duration hint, prerequisite requirements, national tech requirements, special lock conditions, and lock reasons remain in the bottom detail inspector only.
+- Branch labels must be UI-localized through `_format_domestic_tech_branch_label_mvp()` only. Data keys, tech ids, prerequisite ids, save keys, and definitions must not be renamed for display polish.
+- Icon readability is improved by UI display sizing only. Do not modify, rename, move, or delete `assets/ui/tech_icons` PNG or `.import` files.
+- Node clicks remain display-only selection for the detail inspector and selected-node highlight. They must not mutate completion, progress, resources, troops, diplomacy, spy, market, pending invasion, or BattleContext.
+- The overlay/modal behavior from v0.70-62-hotfix1 remains locked: high z-index, `move_to_front()`, `Control.MOUSE_FILTER_STOP`, open-time floating panel hide, close-time visible-state restore, background input consume, and ESC/닫기 close.
+- Left panel remains PLAYER national tech tree only. Right panel remains selected-city tech tree only. Non-player or insufficient-intel selected-city tech detail remains hidden by Fog of War / `city_intel` policy.
+- Explicitly unchanged: income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, market, alliance, wedge, player spy/diplomacy actions, `city_intel`, Fog of War, scenes, assets, icon PNGs, and `.import` files.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+- Manual F6 QA remains required for category spacing across all national/city categories, node size consistency, icon readability, detail inspector behavior, overlay top-layer behavior, no gameplay mutation, and warning cleanliness.
+
 ## v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish Handoff
 - Baseline: `v0.70-63 Domestic Tech Tree Branch Graph UI MVP` (`ad1d8125a18e673fb6fb7853f817a37689d14e40`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

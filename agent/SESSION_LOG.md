@@ -2,6 +2,33 @@
 
 ## 2026-06-26
 
+### v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish
+- Started from `6b22491 v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish`.
+- Confirmed local `main` was clean and local HEAD/origin main matched the requested baseline before editing.
+- Required workflow/worldmap docs were read before touching runtime files.
+- Implemented:
+  - Added shared category section margins for the national and city Domestic Tech Tree graph lists.
+  - Increased graph top margin, branch row spacing, same-branch stack spacing, and next-category separation as global layout constants.
+  - Rebalanced compact graph nodes to one fixed smaller size with tighter internal padding and reduced lower empty space.
+  - Increased compact graph icon display size through UI helper parameters while preserving the existing icon assets and `?` fallback.
+  - Added missing display-only Korean branch label mappings for `inspection`, `population`, `monopoly`, and `archer`.
+  - Added `v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved left PLAYER national tree, right selected-city tree, enemy/insufficient-intel city detail hiding, detail inspector, city/national domestic tech state normalization, enemy pressure plan locks, pending invasion/BattleContext locks, income/resource/troop/battle/diplomacy/spy formulas, scenes, icon PNG files, and `.import` files.
+- Verification:
+  - `git diff --check`
+  - domestic tech graph constant / spacing keyword search
+  - compact node / icon / label helper keyword search
+  - branch label localization keyword search
+  - modal/top-layer guard search
+  - enemy-intel hiding guard search
+  - warning-cleanup regression searches
+  - tech icon PNG no-touch check
+  - `.import` no-touch check
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for the v0.70-63-hotfix2 checklist.
+
 ### v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish
 - Started from `ad1d812 v0.70-63 Domestic Tech Tree Branch Graph UI MVP`.
 - Confirmed local `main` was clean and ahead of `origin/main` by the expected unpublished v0.70-62 through v0.70-63 commits, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.
