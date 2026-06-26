@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix
+- Built on `v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish` (`32f92d2559f1dbbcafa84ffe4bad62cb4c2379e4`).
+- Restored compact graph node text visibility so each node shows icon or `?`, tech name, rarity `★` when present, and short state.
+- Kept cost, effect, duration, prerequisite, national requirement, special condition, and lock reason details out of the node and in the detail inspector.
+- Improved whole-card click responsiveness by keeping the compact node root as the input target and making child icon/text/layout controls ignore mouse input.
+- Improved city graph overlap handling by reserving extra branch row height for same-tier stacks in the global graph layout helper.
+- Removed developer-facing tech overlay copy and changed the title to `EASTWAR 테크트리`.
+- Retuned compact graph icon display size through fixed integer UI sizing only.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement research start/progress/completion, actual effects, AI research, Enemy Strategic AI Phase 2, War Posture, BattleContext changes, pending invasion payload changes, income/resource/troop/battle/diplomacy/spy formula changes, scene changes, `assets/ui/tech_icons` PNG changes, or `.import` changes.
+
 ## v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish
 - Built on `v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish` (`6b22491fcec45836271f14f5b837f64b09ca2f06`).
 - Applied global national/city category section spacing for the fullscreen read-only Domestic Tech Tree graph.

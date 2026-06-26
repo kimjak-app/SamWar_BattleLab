@@ -47,16 +47,16 @@ const DOMESTIC_TECH_VIEW_SPECIAL_LOCKED := "special_locked"
 const DOMESTIC_TECH_TREE_OVERLAY_MARGIN := 22.0
 const DOMESTIC_TECH_TREE_NODE_WIDTH := 214.0
 const DOMESTIC_TECH_TREE_ICON_SIZE := 42.0
-const DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE := 50.0
+const DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE := 56.0
 const DOMESTIC_TECH_GRAPH_CATEGORY_TOP_MARGIN := 14
 const DOMESTIC_TECH_GRAPH_CATEGORY_BOTTOM_MARGIN := 34
-const DOMESTIC_TECH_GRAPH_NODE_WIDTH := 154.0
-const DOMESTIC_TECH_GRAPH_NODE_HEIGHT := 74.0
+const DOMESTIC_TECH_GRAPH_NODE_WIDTH := 180.0
+const DOMESTIC_TECH_GRAPH_NODE_HEIGHT := 88.0
 const DOMESTIC_TECH_GRAPH_NODE_SIZE := Vector2(DOMESTIC_TECH_GRAPH_NODE_WIDTH, DOMESTIC_TECH_GRAPH_NODE_HEIGHT)
-const DOMESTIC_TECH_GRAPH_TIER_SPACING := 198.0
+const DOMESTIC_TECH_GRAPH_TIER_SPACING := 226.0
 const DOMESTIC_TECH_GRAPH_BRANCH_SPACING := 132.0
-const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 88.0
-const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(100.0, 58.0)
+const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 104.0
+const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(104.0, 48.0)
 const DOMESTIC_TECH_GRAPH_LINE_WIDTH := 3.0
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
@@ -9968,16 +9968,9 @@ func _refresh_domestic_tech_tree_overlay_mvp() -> void:
 	title_box.add_theme_constant_override("separation", 2)
 	header_row.add_child(title_box)
 
-	var title_label := _make_domestic_tech_label_mvp("삼국WAR 테크트리", 24, Color(1.0, 0.84, 0.42, 1.0))
+	var title_label := _make_domestic_tech_label_mvp("EASTWAR 테크트리", 24, Color(1.0, 0.84, 0.42, 1.0))
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_box.add_child(title_label)
-
-	var selected_city_name := "도시 미선택"
-	if selected_city_marker != null:
-		selected_city_name = selected_city_marker.display_name
-	var sub_label := _make_domestic_tech_label_mvp("국가 테크: PLAYER 조정 기준 · 도시 테크: 현재 선택 도시(%s) 기준 · 건설 시간/★/잠금 조건은 표시 전용" % selected_city_name, 12, Color(0.82, 0.84, 0.78, 1.0))
-	sub_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_box.add_child(sub_label)
 
 	var close_button := Button.new()
 	close_button.name = "DomesticTechTreeCloseButton"
@@ -10006,8 +9999,7 @@ func _build_national_tech_tree_panel_mvp(parent: Container) -> void:
 	parent.add_child(panel)
 
 	var content := _make_domestic_tech_section_content_mvp(panel)
-	content.add_child(_make_domestic_tech_label_mvp("좌측: 국가 테크트리", 17, Color(1.0, 0.86, 0.54, 1.0)))
-	content.add_child(_make_domestic_tech_label_mvp("PLAYER 국가 기준 · 적국 국가 정보 미표시", 11, Color(0.70, 0.76, 0.80, 1.0)))
+	content.add_child(_make_domestic_tech_label_mvp("국가 테크트리", 17, Color(1.0, 0.86, 0.54, 1.0)))
 
 	var scroll := _make_domestic_tech_scroll_mvp()
 	content.add_child(scroll)
@@ -10027,13 +10019,13 @@ func _build_city_tech_tree_panel_mvp(parent: Container, city_id: String) -> void
 	parent.add_child(panel)
 
 	var content := _make_domestic_tech_section_content_mvp(panel)
-	content.add_child(_make_domestic_tech_label_mvp("우측: 도시 테크트리", 17, Color(1.0, 0.86, 0.54, 1.0)))
+	content.add_child(_make_domestic_tech_label_mvp("도시 테크트리", 17, Color(1.0, 0.86, 0.54, 1.0)))
 
 	if city_id.is_empty() or selected_city_marker == null:
 		content.add_child(_make_domestic_tech_label_mvp("도시를 선택하면 도시 테크트리가 표시됩니다.", 13, Color(0.82, 0.84, 0.78, 1.0)))
 		return
 
-	content.add_child(_make_domestic_tech_label_mvp("현재 선택 도시: %s" % _format_city_name_by_id(city_id, city_id), 11, Color(0.70, 0.76, 0.80, 1.0)))
+	content.add_child(_make_domestic_tech_label_mvp("선택 도시: %s" % _format_city_name_by_id(city_id, city_id), 11, Color(0.70, 0.76, 0.80, 1.0)))
 	if not _is_city_owned_by_player_mvp(city_id):
 		content.add_child(_make_domestic_tech_label_mvp("선택 도시의 내정 테크 정보가 부족합니다.\n첩보 또는 도시 정보 확보 후 확인할 수 있습니다.", 13, Color(0.72, 0.74, 0.76, 1.0)))
 		return
@@ -10161,7 +10153,6 @@ func _build_domestic_tech_category_group_mvp(parent: Container, category_id: Str
 	var title_label := _make_domestic_tech_label_mvp(category_label, 15, Color(0.95, 0.78, 0.40, 1.0))
 	title_label.custom_minimum_size = Vector2(0.0, 22.0)
 	section.add_child(title_label)
-	section.add_child(_make_domestic_tech_label_mvp("branch graph · 선행 테크 연결선 표시", 10, Color(0.62, 0.66, 0.66, 1.0)))
 	_build_domestic_tech_graph_canvas_mvp(section, definitions, city_id, scope)
 
 
@@ -10199,6 +10190,7 @@ func _get_domestic_tech_graph_positions_mvp(tech_defs: Array[Dictionary]) -> Dic
 	var positions: Dictionary = {}
 	var branch_order: Array[String] = []
 	var branch_tier_counts: Dictionary = {}
+	var branch_max_stack_counts: Dictionary = {}
 	for definition in tech_defs:
 		var branch_id := str(definition.get("branch", ""))
 		if not branch_order.has(branch_id):
@@ -10206,11 +10198,23 @@ func _get_domestic_tech_graph_positions_mvp(tech_defs: Array[Dictionary]) -> Dic
 		var tier := maxi(1, int(definition.get("tier", 1)))
 		var key := "%s:%d" % [branch_id, tier]
 		branch_tier_counts[key] = int(branch_tier_counts.get(key, 0)) + 1
-		var local_index := int(branch_tier_counts.get(key, 0)) - 1
-		var branch_index := branch_order.find(branch_id)
+		branch_max_stack_counts[branch_id] = maxi(int(branch_max_stack_counts.get(branch_id, 0)), int(branch_tier_counts.get(key, 0)))
+	var branch_y_offsets: Dictionary = {}
+	var current_y := DOMESTIC_TECH_GRAPH_MARGIN.y
+	for ordered_branch_id in branch_order:
+		branch_y_offsets[ordered_branch_id] = current_y
+		var max_stack_count := maxi(1, int(branch_max_stack_counts.get(ordered_branch_id, 1)))
+		current_y += DOMESTIC_TECH_GRAPH_BRANCH_SPACING + float(max_stack_count - 1) * DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING
+	branch_tier_counts.clear()
+	for definition in tech_defs:
+		var positioned_branch_id := str(definition.get("branch", ""))
+		var positioned_tier := maxi(1, int(definition.get("tier", 1)))
+		var positioned_key := "%s:%d" % [positioned_branch_id, positioned_tier]
+		branch_tier_counts[positioned_key] = int(branch_tier_counts.get(positioned_key, 0)) + 1
+		var local_index := int(branch_tier_counts.get(positioned_key, 0)) - 1
 		var position := Vector2(
-			DOMESTIC_TECH_GRAPH_MARGIN.x + float(tier - 1) * DOMESTIC_TECH_GRAPH_TIER_SPACING,
-			DOMESTIC_TECH_GRAPH_MARGIN.y + float(branch_index) * DOMESTIC_TECH_GRAPH_BRANCH_SPACING + float(local_index) * DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING
+			DOMESTIC_TECH_GRAPH_MARGIN.x + float(positioned_tier - 1) * DOMESTIC_TECH_GRAPH_TIER_SPACING,
+			float(branch_y_offsets.get(positioned_branch_id, DOMESTIC_TECH_GRAPH_MARGIN.y)) + float(local_index) * DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING
 		)
 		positions[str(definition.get("id", ""))] = Rect2(position, DOMESTIC_TECH_GRAPH_NODE_SIZE)
 	return positions
@@ -10240,7 +10244,7 @@ func _add_domestic_tech_graph_branch_labels_mvp(parent: Control, positions: Dict
 		var branch_id := str(branch_id_variant)
 		var label := _make_domestic_tech_label_mvp(_format_domestic_tech_branch_label_mvp(branch_id), 11, Color(0.78, 0.68, 0.42, 1.0))
 		label.name = "DomesticTechGraphBranchLabel_%s" % branch_id
-		label.position = Vector2(8.0, maxf(0.0, float(branch_label_y.get(branch_id_variant, 0.0)) + 20.0))
+		label.position = Vector2(8.0, maxf(0.0, float(branch_label_y.get(branch_id_variant, 0.0)) + 26.0))
 		label.custom_minimum_size = Vector2(82.0, 34.0)
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		parent.add_child(label)
@@ -10333,35 +10337,48 @@ func _build_domestic_tech_compact_node_mvp(parent: Control, tech_def: Dictionary
 	parent.add_child(node_panel)
 
 	var margin := MarginContainer.new()
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_theme_constant_override("margin_left", 5)
-	margin.add_theme_constant_override("margin_top", 4)
+	margin.add_theme_constant_override("margin_top", 6)
 	margin.add_theme_constant_override("margin_right", 5)
-	margin.add_theme_constant_override("margin_bottom", 3)
+	margin.add_theme_constant_override("margin_bottom", 6)
 	node_panel.add_child(margin)
 
 	var body := VBoxContainer.new()
-	body.add_theme_constant_override("separation", 1)
+	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.add_theme_constant_override("separation", 0)
 	margin.add_child(body)
 
 	var header := HBoxContainer.new()
+	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_theme_constant_override("separation", 6)
-	header.custom_minimum_size = Vector2(0.0, DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE)
 	body.add_child(header)
 	_add_domestic_tech_icon_mvp(header, tech_id, DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE, 22)
 
+	var text_box := VBoxContainer.new()
+	text_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	text_box.add_theme_constant_override("separation", 1)
+	header.add_child(text_box)
+
 	var title_text := "%s %s" % [str(tech_def.get("name", tech_id)), _format_domestic_tech_rarity_mvp(int(tech_def.get("rarity", 0)))]
-	var title_label := _make_domestic_tech_label_mvp(title_text.strip_edges(), 10, _get_domestic_tech_state_text_color_mvp(state_id))
+	var title_label := _make_domestic_tech_label_mvp(title_text.strip_edges(), 12, _get_domestic_tech_state_text_color_mvp(state_id))
+	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_label.max_lines_visible = 2
+	title_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	title_label.max_lines_visible = 1
 	title_label.clip_text = true
 	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	header.add_child(title_label)
+	text_box.add_child(title_label)
 
-	var status_label := _make_domestic_tech_label_mvp(_format_domestic_tech_compact_status_mvp(view_state), 10, _get_domestic_tech_state_text_color_mvp(state_id))
-	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var status_label := _make_domestic_tech_label_mvp(_format_domestic_tech_compact_status_mvp(view_state), 11, _get_domestic_tech_state_text_color_mvp(state_id))
+	status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	status_label.clip_text = true
-	status_label.custom_minimum_size = Vector2(0.0, 12.0)
-	body.add_child(status_label)
+	status_label.custom_minimum_size = Vector2(0.0, 20.0)
+	text_box.add_child(status_label)
 	return node_panel
 
 
@@ -10519,7 +10536,10 @@ func _sort_domestic_tech_definition_mvp(left_definition: Dictionary, right_defin
 
 func _add_domestic_tech_icon_mvp(parent: Container, tech_id: String, icon_size: float = DOMESTIC_TECH_TREE_ICON_SIZE, fallback_font_size: int = 18) -> void:
 	var icon_box := PanelContainer.new()
-	icon_box.custom_minimum_size = Vector2(icon_size, icon_size)
+	var fixed_icon_size := float(roundi(icon_size))
+	icon_box.custom_minimum_size = Vector2(fixed_icon_size, fixed_icon_size)
+	icon_box.size = Vector2(fixed_icon_size, fixed_icon_size)
+	icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_box.add_theme_stylebox_override("panel", _make_domestic_tech_icon_box_style_mvp())
 	parent.add_child(icon_box)
 
@@ -10533,6 +10553,7 @@ func _add_domestic_tech_icon_mvp(parent: Container, tech_id: String, icon_size: 
 	if texture != null:
 		var texture_rect := TextureRect.new()
 		texture_rect.texture = texture
+		texture_rect.custom_minimum_size = Vector2(fixed_icon_size, fixed_icon_size)
 		texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -10540,6 +10561,7 @@ func _add_domestic_tech_icon_mvp(parent: Container, tech_id: String, icon_size: 
 		texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	else:
 		var fallback_label := _make_domestic_tech_label_mvp(_get_domestic_tech_icon_fallback_label_mvp(tech_id), fallback_font_size, Color(0.86, 0.84, 0.76, 1.0))
+		fallback_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		fallback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		fallback_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		icon_box.add_child(fallback_label)

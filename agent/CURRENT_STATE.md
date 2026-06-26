@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix
+- Baseline: `v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish` at `32f92d2559f1dbbcafa84ffe4bad62cb4c2379e4`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- UI scope:
+  - Compact graph nodes restore always-visible tech name, rarity `★`, and short completed/available/locked/special_locked state beside the icon or `?`.
+  - Node internals now ignore mouse input so the root compact node card remains the whole-card display-only click target for selected highlight and detail inspector refresh.
+  - City graph overlap is reduced by branch layout calculation that reserves extra vertical space for same-branch/same-tier stacks before placing the next branch row.
+  - Removed developer-facing copy from the tech overlay and changed the title to `EASTWAR 테크트리`.
+  - Icon display is retuned to fixed integer UI sizing only; icon PNG and `.import` assets remain untouched.
+- Preserved scope: no research start, no research turn progression, no research completion, no actual effect application, no AI research, no Enemy Strategic AI Phase 2, no War Posture, no BattleContext or pending invasion payload change, no income/resource/troop/battle/diplomacy/spy formula change, no scene/asset change, no `assets/ui/tech_icons` PNG change, and no `.import` file change.
+- v0.70-62-hotfix1 modal/top-layer behavior remains active: high z-index, `move_to_front()`, `MOUSE_FILTER_STOP`, open-time floating panel hide, close-time visible-state restore, background input consume, ESC/닫기 close.
+- Manual F6 QA remains required for node title/status visibility, whole-card click responsiveness, detail inspector response, city military graph overlap, icon readability, copy cleanup, overlay top-layer behavior, no gameplay mutation, and warning cleanliness.
+
 ## v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish
 - Baseline: `v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish` at `6b22491fcec45836271f14f5b837f64b09ca2f06`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

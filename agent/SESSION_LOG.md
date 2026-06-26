@@ -1,5 +1,40 @@
 # SESSION LOG
 
+## 2026-06-27
+
+### v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix
+- Started from `32f92d2 v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish`.
+- Confirmed local `main` was clean and local HEAD matched the requested baseline before editing.
+- Required workflow/worldmap docs were read before touching runtime files.
+- Implemented:
+  - Restored compact node tech name/status visibility with an icon-left, text-right layout.
+  - Kept compact node content limited to icon or `?`, tech name, rarity `★`, and short state.
+  - Made compact node child icon/text/layout controls ignore mouse input so the root card remains the click target.
+  - Preserved display-only node selection with selected highlight and detail inspector refresh.
+  - Changed graph row placement to reserve extra vertical space for same-branch/same-tier stacks before the next branch row.
+  - Removed developer-facing overlay copy and changed the title to `EASTWAR 테크트리`.
+  - Retuned compact graph icon display size through fixed integer UI sizing only.
+  - Added `v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved left PLAYER national tree, right selected-city tree, enemy/insufficient-intel city detail hiding, detail inspector, prerequisite lines, city/national domestic tech state normalization, enemy pressure plan locks, pending invasion/BattleContext locks, income/resource/troop/battle/diplomacy/spy formulas, scenes, icon PNG files, and `.import` files.
+- Verification:
+  - `git diff --check`
+  - node title/status label keyword search
+  - detail inspector update/click handler keyword search
+  - mouse_filter / gui_input search
+  - graph line layer mouse ignore search
+  - graph spacing / stack spacing / category height calculation search
+  - removed copy search
+  - branch label localization regression search
+  - modal/top-layer guard search
+  - enemy-intel hiding guard search
+  - warning-cleanup regression searches
+  - tech icon PNG no-touch check
+  - `.import` no-touch check
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for the v0.70-63-hotfix3 checklist.
+
 ## 2026-06-26
 
 ### v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish

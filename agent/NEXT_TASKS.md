@@ -1,5 +1,20 @@
 # NEXT TASKS
 
+## Current: v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix
+- Baseline: `v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish` (`32f92d2559f1dbbcafa84ffe4bad62cb4c2379e4`).
+- Completed direction:
+  1. Restored compact node name/status visibility while keeping node content limited to icon or `?`, name, rarity `★`, and short state.
+  2. Kept node click display-only, with the root compact card as the whole-card click target and child controls set to ignore mouse input.
+  3. Improved branch row layout so same-tier stacks reserve enough vertical room before the next branch row.
+  4. Removed `좌측:`, `우측:`, `PLAYER 국가 기준`, and `branch graph` developer copy.
+  5. Changed the overlay title to `EASTWAR 테크트리` and retuned icon display sizing without asset/import changes.
+- Preserved scope:
+  1. No research start, research progress, research completion, effect application, Enemy Strategic AI Phase 2, War Posture, BattleContext shape change, or pending invasion payload change was made.
+  2. Left PLAYER national tree, right selected-player-city tree, Fog of War / `city_intel` enemy city hiding, `?` fallback, detail inspector, selected highlight, prerequisite lines, and v0.70-62-hotfix1 overlay behavior remain unchanged.
+  3. Income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, `assets/ui/tech_icons` PNG files, and `.import` files remain untouched.
+- Manual F6 QA required:
+  1. Run the v0.70-63-hotfix3 checklist for node title/status visibility, whole-card click, detail inspector response, city military graph overlap, icon readability, copy cleanup, overlay top-layer behavior, no gameplay mutation, and clean Godot Output.
+
 ## Current: v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish
 - Baseline: `v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish` (`6b22491fcec45836271f14f5b837f64b09ca2f06`).
 - Completed direction:

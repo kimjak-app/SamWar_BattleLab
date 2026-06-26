@@ -1,5 +1,25 @@
 # WORLDMAP RULES
 
+## v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix Lock Rule
+- Baseline is `v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish` (`32f92d2559f1dbbcafa84ffe4bad62cb4c2379e4`).
+- v0.70-63-hotfix3 is Domestic Tech Tree fullscreen read-only graph node text, click responsiveness, city graph overlap, copy cleanup, title, and icon display polish only.
+- Compact graph nodes must show icon or `?`, tech name, rarity `★` when present, and short completed/available/locked/special_locked state.
+- Compact graph nodes must not show cost, effect detail, duration hint, prerequisite detail, national requirement detail, special condition detail, or long lock reasons. Those remain detail-inspector-only.
+- The compact node root card must remain the display-only click target. Child icon/text/layout controls should not intercept clicks, and node click must not start research or mutate gameplay.
+- Selected node highlight and detail inspector refresh must remain tied to display-only selection.
+- Branch row layout must be computed from global graph rules, including extra space for same-branch/same-tier stacks. Do not add per-category, per-branch, or per-tech y-offset exceptions.
+- Overlay copy should remain concise: `EASTWAR 테크트리`, `국가 테크트리`, `도시 테크트리`, selected-city copy, and safe no-city/enemy/insufficient-intel guidance.
+- Icon readability may be improved only by fixed UI display sizing. `assets/ui/tech_icons` PNG files and `.import` files must not be modified, renamed, moved, deleted, regenerated, or reimported.
+- Domestic tech prerequisite relation lines remain visual-only and must not mutate tech state or gameplay values.
+- The left side is the PLAYER national tech tree. It must remain PLAYER national/court scope and must not display enemy national tech or court state.
+- The right side is the currently selected city tech tree. It must remain selected-city scope, and enemy or insufficient-intel city tech detail must follow Fog of War / `city_intel` policy.
+- Completed / available / locked / special_locked states remain display-only view states and must not change completion, progress, resources, income, troops, battle values, diplomacy, spy, market, `city_intel`, pending invasion, or BattleContext.
+- Missing tech icons remain valid UI data and must display `?` fallback from `_get_domestic_tech_icon_fallback_label_mvp()`.
+- v0.70-62-hotfix1 modal/top-layer behavior remains locked: high z-index, `move_to_front()`, `MOUSE_FILTER_STOP`, open-time floating panel hide, close-time visible-state restore, background input consume, and ESC/닫기 close.
+- This pass does not authorize research start, research turn progression, research completion, actual effect application, AI research, Enemy Strategic AI Phase 2, War Posture, BattleContext shape changes, or pending invasion payload changes.
+- Income/resource/troop/battle/diplomacy/spy formulas remain unchanged. Enemy pressure plan, pending invasion, and BattleContext existing locks remain active.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish Lock Rule
 - Baseline is `v0.70-63-hotfix1 Compact Tech Node & Detail Inspector Polish` (`6b22491fcec45836271f14f5b837f64b09ca2f06`).
 - v0.70-63-hotfix2 is Domestic Tech Tree fullscreen read-only graph spacing, compact node size, icon visibility, and branch label localization polish only.
