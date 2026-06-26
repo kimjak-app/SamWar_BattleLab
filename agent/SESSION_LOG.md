@@ -2,6 +2,37 @@
 
 ## 2026-06-27
 
+### v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish
+- Started from `dfc48ed v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix`.
+- Confirmed local `main` was clean and local HEAD matched the requested baseline before editing.
+- Required workflow/worldmap docs were read before touching runtime files.
+- Root cause: compact node click called `_refresh_domestic_tech_tree_overlay_mvp()`, rebuilding the full overlay, both tree panels, category graphs, lines, nodes, and icon controls before the detail inspector visibly settled.
+- Implemented:
+  - Split graph rebuild from node click selection.
+  - Node click now stores selected ids, refreshes the detail inspector immediately, and updates only previous/current selected node card styles.
+  - Compact node roots are registered by city/tech selection key at graph build time.
+  - Increased compact icon UI slot to fixed integer `64px` and tuned `TextureRect` sizing/filter settings.
+  - Adjusted compact node size and global graph spacing to preserve text and avoid overlap.
+- Preserved read-only tech tree behavior, left PLAYER national scope, right selected-city scope, enemy/insufficient-intel hiding, prerequisite lines, overlay top-layer behavior, gameplay formulas, scenes, icon PNG files, `.import` files, and no-new-thumbnail-asset policy.
+- Verification:
+  - `git diff --check`
+  - click handler / detail inspector update keyword search
+  - graph rebuild call path search
+  - selected node style update keyword search
+  - mouse_filter / gui_input search
+  - icon size / TextureRect / stretch mode keyword search
+  - graph spacing / stack spacing / category height search
+  - removed copy search
+  - modal/top-layer guard search
+  - enemy-intel hiding guard search
+  - warning cleanup regression search
+  - tech icon PNG no-touch check
+  - `.import` no-touch check
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for the v0.70-63-hotfix4 checklist.
+
 ### v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix
 - Started from `32f92d2 v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish`.
 - Confirmed local `main` was clean and local HEAD matched the requested baseline before editing.

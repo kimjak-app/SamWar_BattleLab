@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish Handoff
+- Baseline: `v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix` (`dfc48edbcd3d69eb77d1d041ca5731f95b0b5785`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass fixes node click latency and icon readability for the fullscreen read-only Domestic Tech Tree graph. It is not a research start button, not research turn progression, not research completion, and not actual effect application.
+- Node click selection must stay lightweight: update selected tech id/city id, refresh the detail inspector immediately, and update only previous/current compact node card styles.
+- Node click must not call the full overlay/tree graph rebuild path, recreate category graphs, recreate lines/nodes, or reload all icon textures.
+- Compact node roots are tracked by selection key for highlight updates. Child icon/text/layout controls should continue to ignore mouse input so the root card remains the whole-card click target.
+- Compact icons use fixed integer `64px` UI display sizing and `TextureRect` sizing/filter settings only. Do not create thumbnail icons or modify/reimport `assets/ui/tech_icons` PNG or `.import` files.
+- Node title/status and rarity `★` must remain visible after icon sizing changes. Graph spacing must remain global, with no per-category/per-branch/per-tech offset exceptions.
+- Left panel remains PLAYER national tech tree only. Right panel remains selected-city tech tree only. Non-player or insufficient-intel selected-city tech detail remains hidden by Fog of War / `city_intel` policy.
+- Explicitly unchanged: income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, market, alliance, wedge, player spy/diplomacy actions, `city_intel`, Fog of War, scenes, assets, icon PNGs, `.import` files, and new thumbnail assets.
+- Manual F6 QA remains required for immediate inspector update, fast repeated node click response, selected highlight response, icon readability, node title/status visibility, city graph overlap, overlay top-layer behavior, no gameplay mutation, and warning cleanliness.
+
 ## v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix Handoff
 - Baseline: `v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish` (`32f92d2559f1dbbcafa84ffe4bad62cb4c2379e4`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

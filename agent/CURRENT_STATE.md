@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish
+- Baseline: `v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix` at `dfc48edbcd3d69eb77d1d041ca5731f95b0b5785`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- UI scope:
+  - Node click selection no longer rebuilds the entire tech tree overlay. It updates selected ids, refreshes the detail inspector immediately, and restyles only the previous/current compact node cards.
+  - Compact node roots are registered by selection key at graph build time; child controls still ignore mouse input and root cards remain the click targets.
+  - Compact graph icon display is retuned to fixed integer `64px` UI slots with matching `TextureRect` sizing; no new thumbnail assets were created.
+  - Compact node size/graph spacing were adjusted globally to preserve title/status visibility and avoid overlap after the icon increase.
+- Preserved scope: no research start, no research turn progression, no research completion, no actual effect application, no AI research, no Enemy Strategic AI Phase 2, no War Posture, no BattleContext or pending invasion payload change, no income/resource/troop/battle/diplomacy/spy formula change, no scene/asset change, no `assets/ui/tech_icons` PNG change, no new thumbnail asset, and no `.import` file change.
+- Manual F6 QA remains required for immediate inspector update on click, fast repeated node click response, selected highlight response, icon readability, node title/status visibility, city graph overlap, overlay top-layer behavior, no gameplay mutation, and warning cleanliness.
+
 ## v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix
 - Baseline: `v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish` at `32f92d2559f1dbbcafa84ffe4bad62cb4c2379e4`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

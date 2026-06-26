@@ -1,5 +1,19 @@
 # NEXT TASKS
 
+## Current: v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish
+- Baseline: `v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix` (`dfc48edbcd3d69eb77d1d041ca5731f95b0b5785`).
+- Completed direction:
+  1. Removed the full overlay/graph rebuild from node click selection.
+  2. Split graph rebuild from lightweight selection update: overlay open/rebuild paths still rebuild, while node click updates selected ids, detail inspector text, and previous/current node styles only.
+  3. Registered compact node root controls by selection key so selected highlight can be updated without recreating nodes, lines, or icons.
+  4. Increased compact graph icon UI display size to fixed integer `64px` and tuned `TextureRect` sizing/filter flags without asset/import changes.
+  5. Adjusted compact node size and global graph spacing to preserve title/status visibility and avoid node overlap.
+- Preserved scope:
+  1. No research start, research progress, research completion, effect application, Enemy Strategic AI Phase 2, War Posture, BattleContext shape change, or pending invasion payload change was made.
+  2. No `assets/ui/tech_icons` PNG, `.import`, or new thumbnail asset was created or modified.
+- Manual F6 QA required:
+  1. Run the v0.70-63-hotfix4 checklist for immediate inspector response, fast repeated node clicks, selected highlight response, icon readability, title/status visibility, city graph overlap, overlay top-layer behavior, no gameplay mutation, and clean Godot Output.
+
 ## Current: v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix
 - Baseline: `v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish` (`32f92d2559f1dbbcafa84ffe4bad62cb4c2379e4`).
 - Completed direction:

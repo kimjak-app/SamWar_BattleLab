@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish
+- Built on `v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix` (`dfc48edbcd3d69eb77d1d041ca5731f95b0b5785`).
+- Removed the full tech tree overlay rebuild from compact node click selection.
+- Added lightweight selected-node style updates using compact node root references keyed by selected city/tech.
+- Kept detail inspector refresh immediate on click without recreating graphs, lines, nodes, or icon controls.
+- Increased compact graph icon UI display to fixed integer `64px` and tuned `TextureRect` sizing/filter settings.
+- Adjusted compact node size and graph spacing globally to keep title/status visible and avoid overlap after the icon increase.
+- Did not implement research start/progress/completion, actual effects, AI research, formulas, BattleContext changes, pending invasion changes, scene changes, icon PNG changes, `.import` changes, or new thumbnail assets.
+
 ## v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix
 - Built on `v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish` (`32f92d2559f1dbbcafa84ffe4bad62cb4c2379e4`).
 - Restored compact graph node text visibility so each node shows icon or `?`, tech name, rarity `★` when present, and short state.

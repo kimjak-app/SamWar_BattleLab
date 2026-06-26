@@ -47,16 +47,16 @@ const DOMESTIC_TECH_VIEW_SPECIAL_LOCKED := "special_locked"
 const DOMESTIC_TECH_TREE_OVERLAY_MARGIN := 22.0
 const DOMESTIC_TECH_TREE_NODE_WIDTH := 214.0
 const DOMESTIC_TECH_TREE_ICON_SIZE := 42.0
-const DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE := 56.0
+const DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE := 64.0
 const DOMESTIC_TECH_GRAPH_CATEGORY_TOP_MARGIN := 14
 const DOMESTIC_TECH_GRAPH_CATEGORY_BOTTOM_MARGIN := 34
-const DOMESTIC_TECH_GRAPH_NODE_WIDTH := 180.0
-const DOMESTIC_TECH_GRAPH_NODE_HEIGHT := 88.0
+const DOMESTIC_TECH_GRAPH_NODE_WIDTH := 192.0
+const DOMESTIC_TECH_GRAPH_NODE_HEIGHT := 84.0
 const DOMESTIC_TECH_GRAPH_NODE_SIZE := Vector2(DOMESTIC_TECH_GRAPH_NODE_WIDTH, DOMESTIC_TECH_GRAPH_NODE_HEIGHT)
-const DOMESTIC_TECH_GRAPH_TIER_SPACING := 226.0
-const DOMESTIC_TECH_GRAPH_BRANCH_SPACING := 132.0
-const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 104.0
-const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(104.0, 48.0)
+const DOMESTIC_TECH_GRAPH_TIER_SPACING := 238.0
+const DOMESTIC_TECH_GRAPH_BRANCH_SPACING := 138.0
+const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 106.0
+const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(110.0, 48.0)
 const DOMESTIC_TECH_GRAPH_LINE_WIDTH := 3.0
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
@@ -946,6 +946,7 @@ var _tech_tree_content_root_mvp: VBoxContainer = null
 var _tech_tree_hidden_ui_state_mvp: Dictionary = {}
 var _selected_domestic_tech_id_mvp := ""
 var _selected_domestic_tech_city_id_mvp := ""
+var _domestic_tech_compact_node_refs_mvp: Dictionary = {}
 var _domestic_tech_detail_inspector_label_mvp: Label = null
 var _enemy_turn_mvp_timer: Timer
 var _enemy_turn_mvp_pending := false
@@ -9957,6 +9958,7 @@ func _refresh_domestic_tech_tree_overlay_mvp() -> void:
 		return
 	_clear_domestic_tech_tree_children_mvp(_tech_tree_content_root_mvp)
 	_domestic_tech_detail_inspector_label_mvp = null
+	_domestic_tech_compact_node_refs_mvp.clear()
 
 	var header_row := HBoxContainer.new()
 	header_row.name = "DomesticTechTreeHeaderRow"
@@ -10332,16 +10334,20 @@ func _build_domestic_tech_compact_node_mvp(parent: Control, tech_def: Dictionary
 	node_panel.custom_minimum_size = DOMESTIC_TECH_GRAPH_NODE_SIZE
 	node_panel.size = DOMESTIC_TECH_GRAPH_NODE_SIZE
 	node_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	node_panel.set_meta("domestic_tech_id", tech_id)
+	node_panel.set_meta("domestic_tech_city_id", city_id)
+	node_panel.set_meta("domestic_tech_state", state_id)
 	node_panel.add_theme_stylebox_override("panel", _make_domestic_tech_compact_node_style_mvp(state_id, is_selected))
 	node_panel.gui_input.connect(_on_domestic_tech_compact_node_gui_input_mvp.bind(tech_id, city_id))
 	parent.add_child(node_panel)
+	_domestic_tech_compact_node_refs_mvp[_get_domestic_tech_selection_key_mvp(tech_id, city_id)] = node_panel
 
 	var margin := MarginContainer.new()
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_theme_constant_override("margin_left", 5)
-	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_top", 5)
 	margin.add_theme_constant_override("margin_right", 5)
-	margin.add_theme_constant_override("margin_bottom", 6)
+	margin.add_theme_constant_override("margin_bottom", 5)
 	node_panel.add_child(margin)
 
 	var body := VBoxContainer.new()
@@ -10353,7 +10359,7 @@ func _build_domestic_tech_compact_node_mvp(parent: Control, tech_def: Dictionary
 	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_theme_constant_override("separation", 6)
 	body.add_child(header)
-	_add_domestic_tech_icon_mvp(header, tech_id, DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE, 22)
+	_add_domestic_tech_icon_mvp(header, tech_id, DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE, 24)
 
 	var text_box := VBoxContainer.new()
 	text_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -10393,15 +10399,43 @@ func _on_domestic_tech_compact_node_gui_input_mvp(event: InputEvent, tech_id: St
 
 
 func _set_selected_domestic_tech_for_inspector_mvp(tech_id: String, city_id: String = "") -> void:
+	var previous_selection_key := _get_current_domestic_tech_selection_key_mvp()
 	_selected_domestic_tech_id_mvp = tech_id
 	_selected_domestic_tech_city_id_mvp = city_id
-	_refresh_domestic_tech_tree_overlay_mvp()
+	_refresh_domestic_tech_detail_inspector_mvp()
+	_update_domestic_tech_selected_node_styles_mvp(previous_selection_key, _get_current_domestic_tech_selection_key_mvp())
 
 
 func _is_selected_domestic_tech_for_inspector_mvp(tech_id: String, city_id: String = "") -> bool:
 	if _selected_domestic_tech_id_mvp != tech_id:
 		return false
 	return _selected_domestic_tech_city_id_mvp == city_id
+
+
+func _get_domestic_tech_selection_key_mvp(tech_id: String, city_id: String = "") -> String:
+	return "%s|%s" % [city_id, tech_id]
+
+
+func _get_current_domestic_tech_selection_key_mvp() -> String:
+	if _selected_domestic_tech_id_mvp.is_empty():
+		return ""
+	return _get_domestic_tech_selection_key_mvp(_selected_domestic_tech_id_mvp, _selected_domestic_tech_city_id_mvp)
+
+
+func _update_domestic_tech_selected_node_styles_mvp(previous_selection_key: String, current_selection_key: String) -> void:
+	_apply_domestic_tech_compact_node_selection_style_mvp(previous_selection_key, false)
+	_apply_domestic_tech_compact_node_selection_style_mvp(current_selection_key, true)
+
+
+func _apply_domestic_tech_compact_node_selection_style_mvp(selection_key: String, is_selected: bool) -> void:
+	if selection_key.is_empty() or not _domestic_tech_compact_node_refs_mvp.has(selection_key):
+		return
+	var node_panel := _domestic_tech_compact_node_refs_mvp.get(selection_key) as PanelContainer
+	if node_panel == null or not is_instance_valid(node_panel):
+		_domestic_tech_compact_node_refs_mvp.erase(selection_key)
+		return
+	var state_id := str(node_panel.get_meta("domestic_tech_state", DOMESTIC_TECH_VIEW_LOCKED))
+	node_panel.add_theme_stylebox_override("panel", _make_domestic_tech_compact_node_style_mvp(state_id, is_selected))
 
 
 func _format_domestic_tech_compact_status_mvp(view_state: Dictionary) -> String:
@@ -10540,6 +10574,8 @@ func _add_domestic_tech_icon_mvp(parent: Container, tech_id: String, icon_size: 
 	icon_box.custom_minimum_size = Vector2(fixed_icon_size, fixed_icon_size)
 	icon_box.size = Vector2(fixed_icon_size, fixed_icon_size)
 	icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon_box.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	icon_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	icon_box.add_theme_stylebox_override("panel", _make_domestic_tech_icon_box_style_mvp())
 	parent.add_child(icon_box)
 
@@ -10554,9 +10590,13 @@ func _add_domestic_tech_icon_mvp(parent: Container, tech_id: String, icon_size: 
 		var texture_rect := TextureRect.new()
 		texture_rect.texture = texture
 		texture_rect.custom_minimum_size = Vector2(fixed_icon_size, fixed_icon_size)
+		texture_rect.size = Vector2(fixed_icon_size, fixed_icon_size)
+		texture_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		texture_rect.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		texture_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		icon_box.add_child(texture_rect)
 		texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	else:

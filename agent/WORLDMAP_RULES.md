@@ -1,5 +1,22 @@
 # WORLDMAP RULES
 
+## v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish Lock Rule
+- Baseline is `v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix` (`dfc48edbcd3d69eb77d1d041ca5731f95b0b5785`).
+- v0.70-63-hotfix4 is Domestic Tech Tree fullscreen read-only graph click latency and icon readability polish only.
+- Node click selection must be lightweight: selected ids, previous/current selected node style update, and immediate detail inspector refresh only.
+- Node click must not rebuild the full overlay, recreate national/city graphs, recreate category containers, recreate prerequisite lines, recreate all nodes, or reload all icon textures.
+- Compact node roots may be tracked by selection key for selected-highlight updates. This tracking is UI-only and must not mutate tech completion, progress, resources, income, troops, battle values, diplomacy, spy, market, `city_intel`, pending invasion, or BattleContext.
+- Compact graph icons may use fixed integer `64px` UI display sizing and `TextureRect` settings only. Do not modify, rename, move, delete, regenerate, reimport, or add `assets/ui/tech_icons` PNG or `.import` files.
+- Compact graph nodes must continue to show icon or `?`, tech name, rarity `★` when present, and short completed/available/locked/special_locked state.
+- Compact graph nodes must not show cost, effect detail, duration hint, prerequisite detail, national requirement detail, special condition detail, or long lock reasons. Those remain detail-inspector-only.
+- Branch/node spacing changes must remain global graph rules. Do not add per-category, per-branch, or per-tech y-offset exceptions.
+- Overlay copy remains concise and must keep `EASTWAR 테크트리` while not reintroducing `삼국WAR`, `좌측:`, `우측:`, `PLAYER 국가 기준`, or `branch graph`.
+- The left side is the PLAYER national tech tree. The right side is the currently selected city tech tree. Enemy or insufficient-intel city tech detail must follow Fog of War / `city_intel` policy.
+- v0.70-62-hotfix1 modal/top-layer behavior remains locked: high z-index, `move_to_front()`, `MOUSE_FILTER_STOP`, open-time floating panel hide, close-time visible-state restore, background input consume, and ESC/닫기 close.
+- This pass does not authorize research start, research turn progression, research completion, actual effect application, AI research, Enemy Strategic AI Phase 2, War Posture, BattleContext shape changes, or pending invasion payload changes.
+- Income/resource/troop/battle/diplomacy/spy formulas remain unchanged. Enemy pressure plan, pending invasion, and BattleContext existing locks remain active.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix Lock Rule
 - Baseline is `v0.70-63-hotfix2 Domestic Tech Tree Global Graph Spacing & Node Size Polish` (`32f92d2559f1dbbcafa84ffe4bad62cb4c2379e4`).
 - v0.70-63-hotfix3 is Domestic Tech Tree fullscreen read-only graph node text, click responsiveness, city graph overlap, copy cleanup, title, and icon display polish only.
