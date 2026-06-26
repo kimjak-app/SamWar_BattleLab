@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-63 Domestic Tech Tree Branch Graph UI MVP
+- Built on `v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix` (`9c2e8304e4e874771c7750293fa31b27e558052e`).
+- Replaced the fullscreen read-only domestic tech category card grid with a branch/tier graph canvas.
+- Added branch row and tier column node layout, with same branch/tier nodes stacked vertically.
+- Added prerequisite connection lines using runtime `ColorRect` line segments behind nodes.
+- Added display-only graph line coloring for completed, available, locked, and special_locked paths.
+- Preserved left PLAYER national tech scope, right selected-player-city tech scope, no-city guidance, enemy/insufficient-intel city hiding, icon loading with `?` fallback, locked `[잠김]` styling, and special lock text.
+- Preserved v0.70-62-hotfix1 modal/top-layer behavior.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement research start/progress/completion, actual effects, AI research, Enemy Strategic AI Phase 2, War Posture, BattleContext changes, pending invasion payload changes, income/resource/troop/battle/diplomacy/spy formula changes, scene changes, `assets/ui/tech_icons` PNG changes, or `.import` changes.
+
 ## v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix
 - Built on `v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP` (`3f2cff7ff32370ad947a74f66929f99c75854db9`).
 - Promoted the fullscreen `tech_tree_overlay_mvp` to a top-layer modal with high z-index, `move_to_front()`, and mouse input stop behavior.

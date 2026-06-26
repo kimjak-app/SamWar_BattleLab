@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-63 Domestic Tech Tree Branch Graph UI MVP Handoff
+- Baseline: `v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix` (`9c2e8304e4e874771c7750293fa31b27e558052e`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass upgrades the existing read-only Domestic Tech Tree overlay from card-grid display to branch/tier graph display. It is not a research start button, not research turn progression, not research completion, and not actual effect application.
+- The overlay/modal behavior from v0.70-62-hotfix1 remains locked: high z-index, `move_to_front()`, `Control.MOUSE_FILTER_STOP`, open-time floating panel hide, close-time visible-state restore, background input consume, and ESC/닫기 close.
+- Left panel remains PLAYER national tech tree only. Right panel remains selected-city tech tree only. Non-player or insufficient-intel selected-city tech detail remains hidden by Fog of War / `city_intel` policy.
+- Category sections now create a graph canvas. Nodes are positioned by branch row and tier column; same branch/tier nodes stack vertically.
+- Prerequisite relations inside the same category graph draw `ColorRect` line segments behind nodes. Missing prerequisite definitions are skipped safely.
+- Line colors are display-only: completed paths bright gold, available paths muted gold, locked/special_locked paths weak gray/brown. They must not mutate tech completion, progress, resources, troops, diplomacy, spy, market, pending invasion, or BattleContext.
+- Node content remains the v0.70-62 content: icon or `?` fallback, name, rarity, tier/branch, cost, effect copy, state label, `[잠김]`, and compact lock reasons.
+- Explicitly unchanged: income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, market, alliance, wedge, player spy/diplomacy actions, `city_intel`, Fog of War, scenes, assets, icon PNGs, and `.import` files.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+- Manual F6 QA remains required for the v0.70-63 checklist.
+
 ## v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix Handoff
 - Baseline: `v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP` (`3f2cff7ff32370ad947a74f66929f99c75854db9`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

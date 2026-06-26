@@ -1,5 +1,19 @@
 # NEXT TASKS
 
+## Current: v0.70-63 Domestic Tech Tree Branch Graph UI MVP
+- Baseline: `v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix` (`9c2e8304e4e874771c7750293fa31b27e558052e`).
+- Completed direction:
+  1. Replaced the tech tree category card grid with a read-only branch/tier graph canvas.
+  2. Added prerequisite line segments between graph nodes using `ColorRect`, with line color based on the child completed/available/locked/special_locked view state.
+  3. Preserved existing tech node content, icon `?` fallback, lock reason copy, no-city guidance, and enemy/insufficient-intel city hiding.
+  4. Preserved v0.70-62-hotfix1 modal/top-layer behavior.
+- Preserved scope:
+  1. No research start, research progress, research completion, effect application, Enemy Strategic AI Phase 2, War Posture, BattleContext shape change, or pending invasion payload change was made.
+  2. v0.70-62 left PLAYER national tree, right selected-city tree, Fog of War / `city_intel` enemy city hiding, and v0.70-61 state normalization remain unchanged.
+  3. Income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, `assets/ui/tech_icons` PNG files, and `.import` files remain untouched.
+- Manual F6 QA required:
+  1. Run the v0.70-63 graph checklist for top-layer modal, left/right branch graph display, prerequisite lines, branch splits, scroll/card overlap, state/path colors, icon/fallback display, no-city/enemy-intel handling, close/restore behavior, no gameplay mutation, lock continuity, no icon/import changes, and clean Godot Output.
+
 ## Current: v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix
 - Baseline: `v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP` (`3f2cff7ff32370ad947a74f66929f99c75854db9`).
 - Completed direction:

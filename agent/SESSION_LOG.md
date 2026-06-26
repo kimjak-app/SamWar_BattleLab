@@ -2,6 +2,33 @@
 
 ## 2026-06-26
 
+### v0.70-63 Domestic Tech Tree Branch Graph UI MVP
+- Started from `9c2e830 v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix`.
+- Confirmed local `main` was clean and ahead of `origin/main` by the expected v0.70-62 and v0.70-62-hotfix1 commits, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.
+- Required workflow/worldmap docs were read before touching runtime files.
+- Implemented:
+  - Added domestic tech graph layout constants.
+  - Replaced category grid rendering with `DomesticTechGraphCanvas` sections.
+  - Positioned graph nodes by branch row and tier column, stacking same branch/tier nodes vertically.
+  - Added `ColorRect` prerequisite line segments behind nodes, with state-based line colors.
+  - Reused the existing read-only node card, icon fallback, state, cost/effect, and lock reason rendering.
+  - Preserved v0.70-62-hotfix1 modal/top-layer behavior.
+  - Added `v0.70-63 Domestic Tech Tree Branch Graph UI MVP Lock Rule` to `WORLDMAP_RULES.md`.
+- Preserved left PLAYER national tree, right selected-city tree, enemy/insufficient-intel city detail hiding, city/national domestic tech state normalization, enemy pressure plan locks, pending invasion/BattleContext locks, income/resource/troop/battle/diplomacy/spy formulas, scenes, icon PNG files, and `.import` files.
+- Verification:
+  - `git diff --check`
+  - graph UI keyword search
+  - modal lock search
+  - domestic tech UI lock search
+  - tech icon PNG no-touch check
+  - `.import` no-touch check
+  - guard keyword search
+  - warning-cleanup regression searches
+  - project headless load
+  - `WorldMap_Test.tscn` headless load
+  - `Battle_Fullscreen_Test.tscn` headless load
+- Manual F6 QA remains required for the v0.70-63 checklist.
+
 ### v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix
 - Started from `3f2cff7 v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP`.
 - Confirmed local `main` was clean and ahead of `origin/main` by the expected v0.70-62 commit, fetched `origin/main`, and verified local HEAD matched the requested baseline before editing.

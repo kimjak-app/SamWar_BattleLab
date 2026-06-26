@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-63 Domestic Tech Tree Branch Graph UI MVP
+- Baseline: `v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix` at `9c2e8304e4e874771c7750293fa31b27e558052e`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- UI scope:
+  - The v0.70-62 fullscreen read-only tech tree overlay now renders each category as a branch/tier graph instead of a simple card grid.
+  - Graph nodes are placed by branch rows and tier columns; same branch/tier collisions stack vertically.
+  - Prerequisite links draw read-only `ColorRect` line segments behind nodes, using child view state coloring.
+  - Node content is preserved: icon or `?` fallback, name, rarity `★`, tier/branch, cost, effect description, completed/available/locked/special_locked state, `[잠김]`, and compact lock reasons.
+  - Left panel remains PLAYER national tech graph; right panel remains selected-player-city tech graph, with no-city and non-player/insufficient-intel copy unchanged.
+- Preserved scope: no research start, no research turn progression, no research completion, no actual effect application, no AI research, no Enemy Strategic AI Phase 2, no War Posture, no BattleContext or pending invasion payload change, no income/resource/troop/battle/diplomacy/spy formula change, no scene/asset change, no `assets/ui/tech_icons` PNG change, and no `.import` file change.
+- v0.70-62-hotfix1 modal/top-layer behavior remains active: high z-index, `move_to_front()`, `MOUSE_FILTER_STOP`, open-time floating panel hide, close-time visible-state restore, background input consume, ESC/닫기 close.
+- Manual F6 QA remains required for the v0.70-63 checklist: top-layer overlay, no panel overlap, left/right graph visibility, prerequisite lines, branch splits, scroll/card overlap, icon/fallback display, state/path colors, no-city and enemy-intel hiding, ESC/닫기/restore, read-only no-mutation behavior, prior enemy pressure/pending/BattleContext locks, no icon/import changes, and warning cleanliness.
+
 ## v0.70-62-hotfix1 Fullscreen Tech Tree Modal Fix
 - Baseline: `v0.70-62 Domestic Tech Tree Fullscreen Read-Only UI MVP` at `3f2cff7ff32370ad947a74f66929f99c75854db9`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

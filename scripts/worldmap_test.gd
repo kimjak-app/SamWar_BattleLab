@@ -47,6 +47,12 @@ const DOMESTIC_TECH_VIEW_SPECIAL_LOCKED := "special_locked"
 const DOMESTIC_TECH_TREE_OVERLAY_MARGIN := 22.0
 const DOMESTIC_TECH_TREE_NODE_WIDTH := 214.0
 const DOMESTIC_TECH_TREE_ICON_SIZE := 42.0
+const DOMESTIC_TECH_GRAPH_NODE_SIZE := Vector2(214.0, 150.0)
+const DOMESTIC_TECH_GRAPH_TIER_SPACING := 258.0
+const DOMESTIC_TECH_GRAPH_BRANCH_SPACING := 188.0
+const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 162.0
+const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(14.0, 34.0)
+const DOMESTIC_TECH_GRAPH_LINE_WIDTH := 3.0
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
 const DIPLOMACY_SPY_TAB_DIPLOMACY := "diplomacy"
@@ -10037,19 +10043,162 @@ func _build_domestic_tech_category_group_mvp(parent: Container, category_id: Str
 	var category_data: Dictionary = _get_domestic_tech_categories_mvp().get(category_id, {})
 	var category_label := str(category_data.get("name", category_id))
 	parent.add_child(_make_domestic_tech_label_mvp(category_label, 15, Color(0.95, 0.78, 0.40, 1.0)))
-
-	var grid := GridContainer.new()
-	grid.name = "DomesticTechGrid_%s" % category_id
-	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 8)
-	grid.add_theme_constant_override("v_separation", 8)
-	parent.add_child(grid)
-
-	for definition in definitions:
-		_build_domestic_tech_node_mvp(grid, definition, city_id)
+	parent.add_child(_make_domestic_tech_label_mvp("branch graph · 선행 테크 연결선 표시", 10, Color(0.62, 0.66, 0.66, 1.0)))
+	_build_domestic_tech_graph_canvas_mvp(parent, definitions, city_id, scope)
 
 
-func _build_domestic_tech_node_mvp(parent: Container, tech_def: Dictionary, city_id: String) -> void:
+func _build_domestic_tech_graph_canvas_mvp(parent: Container, tech_defs: Array[Dictionary], city_id: String, scope: String) -> void:
+	if tech_defs.is_empty():
+		return
+	var graph_canvas := Control.new()
+	graph_canvas.name = "DomesticTechGraphCanvas_%s" % str(tech_defs[0].get("category", "unknown"))
+	graph_canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var positions := _get_domestic_tech_graph_positions_mvp(tech_defs)
+	var graph_size := _get_domestic_tech_graph_canvas_size_mvp(positions)
+	graph_canvas.custom_minimum_size = graph_size
+	graph_canvas.size = graph_size
+	parent.add_child(graph_canvas)
+
+	var line_layer := Control.new()
+	line_layer.name = "DomesticTechGraphLineLayer"
+	line_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	graph_canvas.add_child(line_layer)
+
+	var node_layer := Control.new()
+	node_layer.name = "DomesticTechGraphNodeLayer"
+	node_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	node_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	graph_canvas.add_child(node_layer)
+
+	_add_domestic_tech_graph_branch_labels_mvp(node_layer, positions, tech_defs)
+	_add_domestic_tech_graph_lines_mvp(line_layer, positions, tech_defs, city_id, scope)
+	for definition in tech_defs:
+		_build_domestic_tech_graph_node_mvp(node_layer, definition, positions, city_id)
+
+
+func _get_domestic_tech_graph_positions_mvp(tech_defs: Array[Dictionary]) -> Dictionary:
+	var positions: Dictionary = {}
+	var branch_order: Array[String] = []
+	var branch_tier_counts: Dictionary = {}
+	for definition in tech_defs:
+		var branch_id := str(definition.get("branch", ""))
+		if not branch_order.has(branch_id):
+			branch_order.append(branch_id)
+		var tier := maxi(1, int(definition.get("tier", 1)))
+		var key := "%s:%d" % [branch_id, tier]
+		branch_tier_counts[key] = int(branch_tier_counts.get(key, 0)) + 1
+		var local_index := int(branch_tier_counts.get(key, 0)) - 1
+		var branch_index := branch_order.find(branch_id)
+		var position := Vector2(
+			DOMESTIC_TECH_GRAPH_MARGIN.x + float(tier - 1) * DOMESTIC_TECH_GRAPH_TIER_SPACING,
+			DOMESTIC_TECH_GRAPH_MARGIN.y + float(branch_index) * DOMESTIC_TECH_GRAPH_BRANCH_SPACING + float(local_index) * DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING
+		)
+		positions[str(definition.get("id", ""))] = Rect2(position, DOMESTIC_TECH_GRAPH_NODE_SIZE)
+	return positions
+
+
+func _get_domestic_tech_graph_canvas_size_mvp(positions: Dictionary) -> Vector2:
+	var max_x := 420.0
+	var max_y := 220.0
+	for rect_variant in positions.values():
+		var rect: Rect2 = rect_variant
+		max_x = maxf(max_x, rect.position.x + rect.size.x + DOMESTIC_TECH_GRAPH_MARGIN.x)
+		max_y = maxf(max_y, rect.position.y + rect.size.y + 18.0)
+	return Vector2(max_x, max_y)
+
+
+func _add_domestic_tech_graph_branch_labels_mvp(parent: Control, positions: Dictionary, tech_defs: Array[Dictionary]) -> void:
+	var branch_label_y: Dictionary = {}
+	for definition in tech_defs:
+		var tech_id := str(definition.get("id", ""))
+		if not positions.has(tech_id):
+			continue
+		var branch_id := str(definition.get("branch", ""))
+		var rect: Rect2 = positions.get(tech_id)
+		if not branch_label_y.has(branch_id) or rect.position.y < float(branch_label_y.get(branch_id, 0.0)):
+			branch_label_y[branch_id] = rect.position.y
+	for branch_id_variant in branch_label_y.keys():
+		var branch_id := str(branch_id_variant)
+		var label := _make_domestic_tech_label_mvp(_format_domestic_tech_branch_label_mvp(branch_id), 11, Color(0.78, 0.68, 0.42, 1.0))
+		label.name = "DomesticTechGraphBranchLabel_%s" % branch_id
+		label.position = Vector2(DOMESTIC_TECH_GRAPH_MARGIN.x, maxf(0.0, float(branch_label_y.get(branch_id_variant, 0.0)) - 24.0))
+		label.custom_minimum_size = Vector2(180.0, 18.0)
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		parent.add_child(label)
+
+
+func _add_domestic_tech_graph_lines_mvp(line_parent: Control, positions: Dictionary, tech_defs: Array[Dictionary], city_id: String, _scope: String) -> void:
+	for definition in tech_defs:
+		var child_id := str(definition.get("id", ""))
+		if not positions.has(child_id):
+			continue
+		for required_id_variant in definition.get("prerequisites", []):
+			var parent_id := str(required_id_variant)
+			if not positions.has(parent_id):
+				continue
+			var child_state := _get_domestic_tech_view_state_mvp(child_id, city_id)
+			var line_state := str(child_state.get("state", DOMESTIC_TECH_VIEW_LOCKED))
+			var parent_rect: Rect2 = positions.get(parent_id)
+			var child_rect: Rect2 = positions.get(child_id)
+			_add_domestic_tech_graph_line_mvp(line_parent, parent_rect, child_rect, line_state)
+
+
+func _add_domestic_tech_graph_line_mvp(line_parent: Control, from_rect: Rect2, to_rect: Rect2, state_id: String) -> void:
+	var from_pos := Vector2(from_rect.position.x + from_rect.size.x, from_rect.position.y + from_rect.size.y * 0.5)
+	var to_pos := Vector2(to_rect.position.x, to_rect.position.y + to_rect.size.y * 0.5)
+	var mid_x := from_pos.x + maxf(16.0, (to_pos.x - from_pos.x) * 0.5)
+	var color := _get_domestic_tech_graph_line_color_mvp(state_id)
+	_add_domestic_tech_graph_hline_mvp(line_parent, from_pos.x, mid_x, from_pos.y, color)
+	if absf(from_pos.y - to_pos.y) > 1.0:
+		_add_domestic_tech_graph_vline_mvp(line_parent, mid_x, from_pos.y, to_pos.y, color)
+	_add_domestic_tech_graph_hline_mvp(line_parent, mid_x, to_pos.x, to_pos.y, color)
+
+
+func _add_domestic_tech_graph_hline_mvp(parent: Control, x1: float, x2: float, y: float, color: Color) -> void:
+	var line := ColorRect.new()
+	line.name = "DomesticTechGraphHLine"
+	line.color = color
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.position = Vector2(minf(x1, x2), y - DOMESTIC_TECH_GRAPH_LINE_WIDTH * 0.5)
+	line.size = Vector2(maxf(1.0, absf(x2 - x1)), DOMESTIC_TECH_GRAPH_LINE_WIDTH)
+	parent.add_child(line)
+
+
+func _add_domestic_tech_graph_vline_mvp(parent: Control, x: float, y1: float, y2: float, color: Color) -> void:
+	var line := ColorRect.new()
+	line.name = "DomesticTechGraphVLine"
+	line.color = color
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.position = Vector2(x - DOMESTIC_TECH_GRAPH_LINE_WIDTH * 0.5, minf(y1, y2))
+	line.size = Vector2(DOMESTIC_TECH_GRAPH_LINE_WIDTH, maxf(1.0, absf(y2 - y1)))
+	parent.add_child(line)
+
+
+func _build_domestic_tech_graph_node_mvp(parent: Control, tech_def: Dictionary, positions: Dictionary, city_id: String) -> Control:
+	var tech_id := str(tech_def.get("id", ""))
+	var rect: Rect2 = positions.get(tech_id, Rect2(Vector2.ZERO, DOMESTIC_TECH_GRAPH_NODE_SIZE))
+	var node_panel := _build_domestic_tech_node_mvp(parent, tech_def, city_id)
+	node_panel.position = rect.position
+	node_panel.custom_minimum_size = rect.size
+	node_panel.size = rect.size
+	node_panel.mouse_filter = Control.MOUSE_FILTER_PASS
+	return node_panel
+
+
+func _get_domestic_tech_graph_line_color_mvp(state_id: String) -> Color:
+	match state_id:
+		DOMESTIC_TECH_VIEW_COMPLETED:
+			return Color(0.92, 0.78, 0.36, 0.92)
+		DOMESTIC_TECH_VIEW_AVAILABLE:
+			return Color(0.68, 0.54, 0.28, 0.78)
+		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
+			return Color(0.34, 0.30, 0.25, 0.68)
+		_:
+			return Color(0.22, 0.22, 0.22, 0.62)
+
+
+func _build_domestic_tech_node_mvp(parent: Control, tech_def: Dictionary, city_id: String) -> PanelContainer:
 	var tech_id := str(tech_def.get("id", ""))
 	var view_state := _get_domestic_tech_view_state_mvp(tech_id, city_id)
 	var state_id := str(view_state.get("state", DOMESTIC_TECH_VIEW_LOCKED))
@@ -10096,6 +10245,7 @@ func _build_domestic_tech_node_mvp(parent: Container, tech_def: Dictionary, city
 	if not lock_reasons.is_empty():
 		var reason_label := _make_domestic_tech_label_mvp("조건: %s" % " / ".join(lock_reasons.slice(0, 3)), 9, Color(0.68, 0.70, 0.70, 1.0))
 		body.add_child(reason_label)
+	return node_panel
 
 
 func _get_domestic_tech_view_state_mvp(tech_id: String, city_id: String = "") -> Dictionary:
@@ -10382,7 +10532,7 @@ func _make_domestic_tech_scroll_mvp() -> ScrollContainer:
 	scroll.name = "DomesticTechScroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	return scroll
 
 
