@@ -32,6 +32,8 @@ const DOMESTIC_TECH_UI_SURFACE_NATIONAL := "left_player_national_panel"
 const DOMESTIC_TECH_PROGRESS_CITY := "governor_auto_or_manual"
 const DOMESTIC_TECH_PROGRESS_NATIONAL := "chancellor_directed"
 const DOMESTIC_TECH_ICON_FALLBACK_LABEL := "?"
+const DOMESTIC_TECH_RESEARCH_KEY := "research"
+const DOMESTIC_TECH_RESEARCH_ACTIVE_KEY := "active"
 const DOMESTIC_TECH_UI64_ICON_ROOT := "res://assets/ui/tech_icons_ui64/"
 const DOMESTIC_TECH_UI64_ICON_FILENAME_MAP := {
 	"agri_tool_upgrade": "tech_agri_tool_upgrade.png",
@@ -132,6 +134,7 @@ const DOMESTIC_TECH_VIEW_COMPLETED := "completed"
 const DOMESTIC_TECH_VIEW_AVAILABLE := "available"
 const DOMESTIC_TECH_VIEW_LOCKED := "locked"
 const DOMESTIC_TECH_VIEW_SPECIAL_LOCKED := "special_locked"
+const DOMESTIC_TECH_VIEW_RESEARCHING := "researching"
 const DOMESTIC_TECH_TREE_OVERLAY_MARGIN := 22.0
 const DOMESTIC_TECH_TREE_NODE_WIDTH := 214.0
 const DOMESTIC_TECH_TREE_ICON_SIZE := 42.0
@@ -1125,6 +1128,7 @@ var _player_state := {
 	"city_domestic_tech_unlocked": {},
 	"national_domestic_tech_completed": {},
 	"national_domestic_tech_unlocked": {},
+	"national_tech_research": {"active": {}},
 }
 var _city_policy_state: Dictionary = {}
 var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
@@ -5888,6 +5892,7 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["domestic_apply_pending"] = false
 	if not _player_state.has("last_domestic_apply_turn"):
 		_player_state["last_domestic_apply_turn"] = 0
+	_normalize_domestic_tech_state_mvp()
 	if not _player_state.has("pending_invasion_event") or not (_player_state["pending_invasion_event"] is Dictionary):
 		_player_state["pending_invasion_event"] = {}
 	if not _player_state.has("pending_battle_context") or not (_player_state["pending_battle_context"] is Dictionary):
@@ -10174,7 +10179,7 @@ func _build_domestic_tech_detail_inspector_mvp(parent: Container) -> void:
 	_domestic_tech_research_action_button_mvp.disabled = true
 	_domestic_tech_research_action_button_mvp.focus_mode = Control.FOCUS_NONE
 	_domestic_tech_research_action_button_mvp.custom_minimum_size = Vector2(104.0, 30.0)
-	_domestic_tech_research_action_button_mvp.tooltip_text = "다음 버전에서 연구 시작 기능이 활성화됩니다."
+	_domestic_tech_research_action_button_mvp.tooltip_text = "조건을 충족한 테크만 연구를 시작할 수 있습니다."
 	action_row.add_child(_domestic_tech_research_action_button_mvp)
 
 	_domestic_tech_research_action_hint_label_mvp = _make_domestic_tech_label_mvp("연구 시작 기능은 다음 단계에서 활성화됩니다.", 11, Color(0.72, 0.74, 0.70, 1.0))
@@ -10266,18 +10271,50 @@ func _get_domestic_tech_requirement_summary_mvp(tech_def: Dictionary, view_state
 
 func _update_domestic_tech_research_action_slot_mvp(view_state: Dictionary) -> void:
 	if _domestic_tech_research_action_button_mvp != null:
-		_domestic_tech_research_action_button_mvp.disabled = true
-		_domestic_tech_research_action_button_mvp.text = "연구 시작"
-		_domestic_tech_research_action_button_mvp.tooltip_text = "다음 버전에서 연구 시작 기능이 활성화됩니다."
+		var validation := _can_start_domestic_tech_research_mvp(_selected_domestic_tech_id_mvp, _selected_domestic_tech_city_id_mvp) if not _selected_domestic_tech_id_mvp.is_empty() else {"ok": false, "message": "테크를 선택하면 연구 준비 상태가 표시됩니다."}
+		_domestic_tech_research_action_button_mvp.disabled = not bool(validation.get("ok", false))
+		_domestic_tech_research_action_button_mvp.text = _format_domestic_tech_research_action_button_text_mvp(view_state, validation)
+		_domestic_tech_research_action_button_mvp.tooltip_text = str(validation.get("message", _format_domestic_tech_research_action_hint_mvp(view_state)))
+		var pressed_callable := Callable(self, "_on_domestic_tech_research_action_pressed_mvp")
+		if bool(validation.get("ok", false)):
+			if not _domestic_tech_research_action_button_mvp.pressed.is_connected(pressed_callable):
+				_domestic_tech_research_action_button_mvp.pressed.connect(pressed_callable)
+		elif _domestic_tech_research_action_button_mvp.pressed.is_connected(pressed_callable):
+			_domestic_tech_research_action_button_mvp.pressed.disconnect(pressed_callable)
 	if _domestic_tech_research_action_hint_label_mvp == null:
 		return
 	_domestic_tech_research_action_hint_label_mvp.text = _format_domestic_tech_research_action_hint_mvp(view_state)
+
+
+func _on_domestic_tech_research_action_pressed_mvp() -> void:
+	_start_domestic_tech_research_mvp(_selected_domestic_tech_id_mvp, _selected_domestic_tech_city_id_mvp)
+
+
+func _format_domestic_tech_research_action_button_text_mvp(view_state: Dictionary, validation: Dictionary) -> String:
+	var state_id := str(view_state.get("state", ""))
+	if bool(validation.get("ok", false)):
+		return "연구 시작"
+	match state_id:
+		DOMESTIC_TECH_VIEW_RESEARCHING:
+			return "연구 진행 중"
+		DOMESTIC_TECH_VIEW_COMPLETED:
+			return "완료된 테크"
+		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
+			return "특수 조건 필요"
+		DOMESTIC_TECH_VIEW_LOCKED:
+			return "조건 부족"
+		_:
+			if str(validation.get("reason", "")) in ["national_active", "city_active", "already_researching"]:
+				return "연구 진행 중"
+			return "연구 시작"
 
 
 func _format_domestic_tech_readiness_state_label_mvp(state_id: String) -> String:
 	match state_id:
 		DOMESTIC_TECH_VIEW_COMPLETED:
 			return "완료"
+		DOMESTIC_TECH_VIEW_RESEARCHING:
+			return "진행 중"
 		DOMESTIC_TECH_VIEW_AVAILABLE:
 			return "가능"
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
@@ -10291,8 +10328,18 @@ func _format_domestic_tech_research_readiness_text_mvp(view_state: Dictionary) -
 	match state_id:
 		DOMESTIC_TECH_VIEW_COMPLETED:
 			return "연구 상태: 완료됨\n이미 완료된 테크입니다."
+		DOMESTIC_TECH_VIEW_RESEARCHING:
+			var active_research: Dictionary = view_state.get("active_research", {})
+			return "연구 상태: 진행 중\n남은 기간: %d턴 / 총 %d턴" % [
+				maxi(1, int(active_research.get("remaining_turns", active_research.get("duration_turns", 1)))),
+				maxi(1, int(active_research.get("duration_turns", active_research.get("remaining_turns", 1)))),
+			]
 		DOMESTIC_TECH_VIEW_AVAILABLE:
-			return "연구 상태: 준비 가능\n조건을 충족했습니다. 연구 시작 기능은 다음 단계에서 활성화됩니다."
+			var validation := _can_start_domestic_tech_research_mvp(_selected_domestic_tech_id_mvp, _selected_domestic_tech_city_id_mvp) if not _selected_domestic_tech_id_mvp.is_empty() else {"ok": false}
+			if not bool(validation.get("ok", false)) and str(validation.get("reason", "")) in ["national_active", "city_active"]:
+				var active: Dictionary = validation.get("active_research", {})
+				return "연구 상태: 다른 연구 진행 중\n현재 진행: %s" % _format_domestic_tech_active_research_summary_mvp(active)
+			return "연구 상태: 준비 가능\n조건을 충족했습니다."
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
 			return "연구 상태: 특수 조건 필요\n해당 테크는 특정 국가 테크, 도시 조건, 영웅 조건 또는 자원 조건이 필요합니다."
 		_:
@@ -10300,7 +10347,8 @@ func _format_domestic_tech_research_readiness_text_mvp(view_state: Dictionary) -
 
 
 func _format_domestic_tech_research_action_slot_text_mvp(view_state: Dictionary) -> String:
-	return "연구 시작: 준비중\n%s" % _format_domestic_tech_research_action_hint_mvp(view_state)
+	var validation := _can_start_domestic_tech_research_mvp(_selected_domestic_tech_id_mvp, _selected_domestic_tech_city_id_mvp) if not _selected_domestic_tech_id_mvp.is_empty() else {"ok": false}
+	return "%s\n%s" % [_format_domestic_tech_research_action_button_text_mvp(view_state, validation), _format_domestic_tech_research_action_hint_mvp(view_state)]
 
 
 func _format_domestic_tech_research_action_hint_mvp(view_state: Dictionary) -> String:
@@ -10308,8 +10356,14 @@ func _format_domestic_tech_research_action_hint_mvp(view_state: Dictionary) -> S
 	match state_id:
 		DOMESTIC_TECH_VIEW_COMPLETED:
 			return "완료된 테크라 연구를 시작할 수 없습니다."
+		DOMESTIC_TECH_VIEW_RESEARCHING:
+			var active_research: Dictionary = view_state.get("active_research", {})
+			return "연구 진행 중: %s" % _format_domestic_tech_active_research_summary_mvp(active_research)
 		DOMESTIC_TECH_VIEW_AVAILABLE:
-			return "다음 버전에서 연구 시작 기능이 활성화됩니다."
+			var validation := _can_start_domestic_tech_research_mvp(_selected_domestic_tech_id_mvp, _selected_domestic_tech_city_id_mvp) if not _selected_domestic_tech_id_mvp.is_empty() else {"ok": false}
+			if bool(validation.get("ok", false)):
+				return "조건을 충족했습니다. 연구 시작 시 active 상태만 저장됩니다."
+			return str(validation.get("message", "연구 시작 조건을 확인하십시오."))
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
 			return "특수 조건 충족 후 다음 단계에서 연구할 수 있습니다."
 		DOMESTIC_TECH_VIEW_LOCKED:
@@ -10596,6 +10650,8 @@ func _get_domestic_tech_graph_line_color_mvp(state_id: String) -> Color:
 	match state_id:
 		DOMESTIC_TECH_VIEW_COMPLETED:
 			return Color(0.92, 0.78, 0.36, 0.92)
+		DOMESTIC_TECH_VIEW_RESEARCHING:
+			return Color(0.42, 0.68, 1.0, 0.84)
 		DOMESTIC_TECH_VIEW_AVAILABLE:
 			return Color(0.68, 0.54, 0.28, 0.78)
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
@@ -10725,6 +10781,8 @@ func _format_domestic_tech_compact_status_mvp(view_state: Dictionary) -> String:
 	match state_id:
 		DOMESTIC_TECH_VIEW_COMPLETED:
 			return "[완료]"
+		DOMESTIC_TECH_VIEW_RESEARCHING:
+			return "진행 중"
 		DOMESTIC_TECH_VIEW_AVAILABLE:
 			return "가능"
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
@@ -10794,6 +10852,9 @@ func _get_domestic_tech_view_state_mvp(tech_id: String, city_id: String = "") ->
 		return {"state": DOMESTIC_TECH_VIEW_COMPLETED, "label": "완료", "lock_reasons": [], "is_locked": false, "is_special_locked": false}
 	if scope == DOMESTIC_TECH_SCOPE_CITY and _is_city_domestic_tech_completed_mvp(city_id, tech_id):
 		return {"state": DOMESTIC_TECH_VIEW_COMPLETED, "label": "완료", "lock_reasons": [], "is_locked": false, "is_special_locked": false}
+	var active_research := _get_national_domestic_tech_active_research_mvp() if scope == DOMESTIC_TECH_SCOPE_NATIONAL else _get_city_domestic_tech_active_research_mvp(city_id)
+	if str(active_research.get("tech_id", "")) == tech_id:
+		return {"state": DOMESTIC_TECH_VIEW_RESEARCHING, "label": "진행 중", "lock_reasons": [], "is_locked": true, "is_special_locked": false, "active_research": active_research}
 
 	var lock_reasons: Array[String] = []
 	if scope == DOMESTIC_TECH_SCOPE_CITY and (city_id.is_empty() or _get_city_hud_entry(city_id).is_empty()):
@@ -11235,6 +11296,9 @@ func _make_domestic_tech_node_style_mvp(state_id: String) -> StyleBoxFlat:
 		DOMESTIC_TECH_VIEW_COMPLETED:
 			style.bg_color = Color(0.10, 0.15, 0.09, 0.92)
 			style.border_color = Color(0.66, 0.82, 0.40, 0.95)
+		DOMESTIC_TECH_VIEW_RESEARCHING:
+			style.bg_color = Color(0.10, 0.12, 0.16, 0.94)
+			style.border_color = Color(0.42, 0.68, 1.0, 0.96)
 		DOMESTIC_TECH_VIEW_AVAILABLE:
 			style.bg_color = Color(0.10, 0.085, 0.045, 0.90)
 			style.border_color = Color(0.78, 0.58, 0.24, 0.92)
@@ -11261,6 +11325,8 @@ func _get_domestic_tech_state_text_color_mvp(state_id: String) -> Color:
 	match state_id:
 		DOMESTIC_TECH_VIEW_COMPLETED:
 			return Color(0.80, 1.0, 0.58, 1.0)
+		DOMESTIC_TECH_VIEW_RESEARCHING:
+			return Color(0.62, 0.82, 1.0, 1.0)
 		DOMESTIC_TECH_VIEW_AVAILABLE:
 			return Color(1.0, 0.88, 0.58, 1.0)
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
@@ -11280,6 +11346,7 @@ func _normalize_domestic_tech_state_mvp() -> void:
 	_player_state["city_domestic_tech_unlocked"] = _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_unlocked", {}))
 	_player_state["national_domestic_tech_completed"] = _normalize_national_domestic_tech_state_map_mvp(_player_state.get("national_domestic_tech_completed", {}))
 	_player_state["national_domestic_tech_unlocked"] = _normalize_national_domestic_tech_state_map_mvp(_player_state.get("national_domestic_tech_unlocked", {}))
+	_player_state["national_tech_research"] = _normalize_domestic_tech_research_container_mvp(_player_state.get("national_tech_research", {}), DOMESTIC_TECH_SCOPE_NATIONAL, "")
 
 
 func _normalize_city_domestic_tech_state_map_mvp(raw_state: Variant) -> Dictionary:
@@ -11311,6 +11378,165 @@ func _normalize_national_domestic_tech_state_map_mvp(raw_state: Variant) -> Dict
 		if national_definitions.has(tech_id) and bool((raw_state as Dictionary).get(tech_id_variant, false)):
 			normalized[tech_id] = true
 	return normalized
+
+
+func _normalize_domestic_tech_research_container_mvp(raw_state: Variant, scope: String, city_id: String = "") -> Dictionary:
+	var normalized := {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: {}}
+	if not raw_state is Dictionary:
+		return normalized
+	var active: Variant = (raw_state as Dictionary).get(DOMESTIC_TECH_RESEARCH_ACTIVE_KEY, {})
+	if not active is Dictionary:
+		return normalized
+	var active_tech_id := str((active as Dictionary).get("tech_id", ""))
+	if active_tech_id.is_empty():
+		return normalized
+	var definition := _get_domestic_tech_definition_mvp(active_tech_id)
+	if definition.is_empty() or str(definition.get("tree_scope", "")) != scope:
+		return normalized
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL and _is_national_domestic_tech_completed_mvp(active_tech_id):
+		return normalized
+	if scope == DOMESTIC_TECH_SCOPE_CITY and _is_city_domestic_tech_completed_mvp(city_id, active_tech_id):
+		return normalized
+	var duration_turns := maxi(1, int((active as Dictionary).get("duration_turns", _get_domestic_tech_research_duration_turns_mvp(definition))))
+	var remaining_turns := clampi(int((active as Dictionary).get("remaining_turns", duration_turns)), 1, duration_turns)
+	normalized[DOMESTIC_TECH_RESEARCH_ACTIVE_KEY] = {
+		"tech_id": active_tech_id,
+		"started_turn": maxi(1, int((active as Dictionary).get("started_turn", _get_current_world_turn_number_mvp()))),
+		"remaining_turns": remaining_turns,
+		"duration_turns": duration_turns,
+	}
+	return normalized
+
+
+func _get_current_world_turn_number_mvp() -> int:
+	return maxi(1, int(_player_state.get("turn_number", 1)))
+
+
+func _get_domestic_tech_research_duration_turns_mvp(tech_def: Dictionary) -> int:
+	var duration_hint: Variant = tech_def.get("duration_turns_hint", {})
+	if duration_hint is Dictionary:
+		var min_turns := int((duration_hint as Dictionary).get("min", 0))
+		if min_turns > 0:
+			return min_turns
+	match str(tech_def.get("duration_class", "")):
+		"legendary":
+			return 25
+		"advanced":
+			return 15
+		"mid":
+			return 8
+		_:
+			return 3
+
+
+func _get_national_domestic_tech_active_research_mvp() -> Dictionary:
+	_normalize_domestic_tech_state_mvp()
+	var research_state: Dictionary = _player_state.get("national_tech_research", {})
+	var active: Variant = research_state.get(DOMESTIC_TECH_RESEARCH_ACTIVE_KEY, {})
+	if active is Dictionary:
+		return (active as Dictionary).duplicate(true)
+	return {}
+
+
+func _get_city_domestic_tech_active_research_mvp(city_id: String) -> Dictionary:
+	var city_data := _get_city_hud_entry(city_id)
+	if city_data.is_empty():
+		return {}
+	var city_tech: Variant = city_data.get("city_tech", {})
+	if not city_tech is Dictionary:
+		return {}
+	var research_state := _normalize_domestic_tech_research_container_mvp((city_tech as Dictionary).get(DOMESTIC_TECH_RESEARCH_KEY, {}), DOMESTIC_TECH_SCOPE_CITY, city_id)
+	var active: Variant = research_state.get(DOMESTIC_TECH_RESEARCH_ACTIVE_KEY, {})
+	if active is Dictionary:
+		return (active as Dictionary).duplicate(true)
+	return {}
+
+
+func _is_domestic_tech_researching_mvp(tech_id: String, city_id: String = "") -> bool:
+	var definition := _get_domestic_tech_definition_mvp(tech_id)
+	if definition.is_empty():
+		return false
+	var active := _get_national_domestic_tech_active_research_mvp() if str(definition.get("tree_scope", "")) == DOMESTIC_TECH_SCOPE_NATIONAL else _get_city_domestic_tech_active_research_mvp(city_id)
+	return str(active.get("tech_id", "")) == tech_id
+
+
+func _format_domestic_tech_active_research_summary_mvp(active_research: Dictionary) -> String:
+	if active_research.is_empty():
+		return "진행 중인 연구 없음"
+	var active_tech_id := str(active_research.get("tech_id", ""))
+	return "%s (남은 %d턴)" % [
+		_get_domestic_tech_display_name_mvp(active_tech_id),
+		maxi(1, int(active_research.get("remaining_turns", active_research.get("duration_turns", 1)))),
+	]
+
+
+func _can_start_domestic_tech_research_mvp(tech_id: String, city_id: String = "") -> Dictionary:
+	_normalize_domestic_tech_state_mvp()
+	if tech_id.is_empty():
+		return {"ok": false, "reason": "no_selection", "message": "선택한 테크가 없습니다."}
+	var definition := _get_domestic_tech_definition_mvp(tech_id)
+	if definition.is_empty():
+		return {"ok": false, "reason": "missing_definition", "message": "테크 정의를 찾을 수 없습니다."}
+	var scope := str(definition.get("tree_scope", ""))
+	if scope == DOMESTIC_TECH_SCOPE_CITY:
+		if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+			return {"ok": false, "reason": "city_scope", "message": "플레이어 도시에서만 도시 테크 연구를 시작할 수 있습니다."}
+	var view_state := _get_domestic_tech_view_state_mvp(tech_id, city_id)
+	var state_id := str(view_state.get("state", DOMESTIC_TECH_VIEW_LOCKED))
+	if state_id == DOMESTIC_TECH_VIEW_RESEARCHING:
+		return {"ok": false, "reason": "already_researching", "message": "이미 진행 중인 연구입니다.", "active_research": view_state.get("active_research", {})}
+	if state_id != DOMESTIC_TECH_VIEW_AVAILABLE:
+		return {"ok": false, "reason": state_id, "message": _format_domestic_tech_research_action_hint_mvp(view_state)}
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		var national_active := _get_national_domestic_tech_active_research_mvp()
+		if not national_active.is_empty():
+			return {"ok": false, "reason": "national_active", "message": "국가 연구가 이미 진행 중입니다.", "active_research": national_active}
+	elif scope == DOMESTIC_TECH_SCOPE_CITY:
+		var city_active := _get_city_domestic_tech_active_research_mvp(city_id)
+		if not city_active.is_empty():
+			return {"ok": false, "reason": "city_active", "message": "이 도시에서 이미 연구가 진행 중입니다.", "active_research": city_active}
+	else:
+		return {"ok": false, "reason": "invalid_scope", "message": "테크 범위를 확인할 수 없습니다."}
+	return {"ok": true, "reason": "ready", "message": "연구를 시작할 수 있습니다.", "view_state": view_state}
+
+
+func _start_domestic_tech_research_mvp(tech_id: String, city_id: String = "") -> bool:
+	var validation := _can_start_domestic_tech_research_mvp(tech_id, city_id)
+	if not bool(validation.get("ok", false)):
+		_set_save_management_status(str(validation.get("message", "연구 시작 조건을 확인하십시오.")))
+		_refresh_domestic_tech_detail_inspector_mvp()
+		return false
+	var definition := _get_domestic_tech_definition_mvp(tech_id)
+	var duration_turns := _get_domestic_tech_research_duration_turns_mvp(definition)
+	var active_research := {
+		"tech_id": tech_id,
+		"started_turn": _get_current_world_turn_number_mvp(),
+		"remaining_turns": duration_turns,
+		"duration_turns": duration_turns,
+	}
+	var scope := str(definition.get("tree_scope", ""))
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		_player_state["national_tech_research"] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: active_research}
+	elif scope == DOMESTIC_TECH_SCOPE_CITY:
+		var city_data := _get_city_hud_entry(city_id).duplicate(true)
+		if city_data.is_empty():
+			_set_save_management_status("도시 연구 데이터를 찾을 수 없습니다.")
+			return false
+		var city_tech: Dictionary = city_data.get("city_tech", {}) if city_data.get("city_tech", {}) is Dictionary else {}
+		if not city_tech.has("completed") or not (city_tech["completed"] is Dictionary):
+			city_tech["completed"] = {}
+		if not city_tech.has("in_progress") or not (city_tech["in_progress"] is Dictionary):
+			city_tech["in_progress"] = {}
+		if not city_tech.has("available_cache") or not (city_tech["available_cache"] is Dictionary):
+			city_tech["available_cache"] = {}
+		city_tech[DOMESTIC_TECH_RESEARCH_KEY] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: active_research}
+		city_data["city_tech"] = city_tech
+		_city_runtime_states[city_id] = city_data
+	else:
+		return false
+	_set_save_management_status("연구 시작: %s · 남은 %d턴" % [_get_domestic_tech_display_name_mvp(tech_id), duration_turns])
+	_refresh_domestic_tech_tree_overlay_mvp()
+	return true
 
 
 func _ensure_national_tech_state() -> void:
@@ -17295,6 +17521,7 @@ func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
 				city_tech["in_progress"] = {}
 			if not city_tech.has("available_cache") or not (city_tech["available_cache"] is Dictionary):
 				city_tech["available_cache"] = {}
+			city_tech[DOMESTIC_TECH_RESEARCH_KEY] = _normalize_domestic_tech_research_container_mvp(city_tech.get(DOMESTIC_TECH_RESEARCH_KEY, {}), DOMESTIC_TECH_SCOPE_CITY, city_id)
 			city_state["city_tech"] = city_tech
 		var wounded_queue := _get_city_wounded_queue_mvp(source)
 		if not wounded_queue.is_empty():

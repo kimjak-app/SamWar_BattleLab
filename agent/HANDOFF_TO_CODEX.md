@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-65 Domestic Tech Research Start MVP Handoff
+- Baseline: `v0.70-64 Domestic Tech Research Readiness Layer` (`d442f1ee1d414a7cdb11e57d93ba46f625815b37`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass implements research start MVP only: pressing an enabled research button stores active research state and refreshes UI. It is not research turn progression, not research completion, and not actual effect application.
+- National research state is `_player_state["national_tech_research"]["active"]`, limited to one active national domestic tech.
+- City research state is `city_data["city_tech"]["research"]["active"]`, limited to one active city domestic tech per player city.
+- Active research stores `tech_id`, `started_turn`, `remaining_turns`, and `duration_turns`. The MVP does not decrease `remaining_turns`.
+- `DOMESTIC_TECH_VIEW_RESEARCHING` is a display state only. It must not count as completed for prerequisites, unlocks, effects, or completion checks.
+- The research action button may connect `pressed` only when `_can_start_domestic_tech_research_mvp()` returns `ok = true`; blocked/completed/researching states keep the button disabled.
+- Explicitly unchanged: resource payment, resource mutation, completed tech mutation, effect application, AI research, turn processing, income/resource/troop/battle/diplomacy/spy/market formulas, enemy pressure plan, pending invasion, BattleContext, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Hotfix4 node click latency remains locked: node click must not rebuild the full graph. Research button press may refresh the overlay because state changed.
+- Hotfix5 UI64 binding remains locked: UI64 mapped icon first, existing `icon_path` fallback second, `?` fallback last; `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Enemy/insufficient-intel safety remains locked: left panel is PLAYER national tech only, and right city tech detail/research start only applies to selected PLAYER cities.
+- Next candidate: `v0.70-66 Domestic Tech Research Progress & Completion MVP`; actual effect application should remain deferred.
+- Manual F6 QA remains required for national/city research start, duplicate research blocking, researching display, no resource/completed mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-64 Domestic Tech Research Readiness Layer Handoff
 - Baseline: `v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish` (`53908b8a8e752ace989049e637dc9d7ef75d98db`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

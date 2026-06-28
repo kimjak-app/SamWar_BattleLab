@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-65 Domestic Tech Research Start MVP Lock Rule
+- Baseline is `v0.70-64 Domestic Tech Research Readiness Layer` (`d442f1ee1d414a7cdb11e57d93ba46f625815b37`).
+- v0.70-65 is Domestic Tech Research Start MVP only.
+- The research button may start research only by storing active research state and refreshing UI. It must not pay resources, decrement turns, complete research, mutate completed tech state, apply actual effects, or trigger AI research.
+- National domestic research is limited to one active entry in `_player_state["national_tech_research"]["active"]`.
+- City domestic research is limited to one active entry per PLAYER city in `city_data["city_tech"]["research"]["active"]`.
+- Active research stores `tech_id`, `started_turn`, `remaining_turns`, and `duration_turns`; `remaining_turns` must not decrease in this version.
+- `DOMESTIC_TECH_VIEW_RESEARCHING` is not completed. Prerequisites, national requirements, unlocks, and effect gates must continue to recognize completed tech only.
+- The research button must stay disabled for completed, locked, special_locked, already researching, non-player city, insufficient-intel city, no-selection, and same-scope active-research-blocked states.
+- Hotfix4 node click behavior remains locked: node click must not rebuild the full graph. A research button press may refresh the overlay because it changes active research state.
+- Hotfix5 UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Left side remains PLAYER national tech only. Right side remains selected PLAYER city tech only. Enemy or insufficient-intel city tech detail and research start must stay blocked under Fog of War / `city_intel` policy.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by research start MVP work.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-64 Domestic Tech Research Readiness Layer Lock Rule
 - Baseline is `v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish` (`53908b8a8e752ace989049e637dc9d7ef75d98db`).
 - v0.70-64 is a Domestic Tech Tree research-readiness UI layer only.

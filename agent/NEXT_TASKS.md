@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-65 Domestic Tech Research Start MVP
+- Baseline: `v0.70-64 Domestic Tech Research Readiness Layer` (`d442f1ee1d414a7cdb11e57d93ba46f625815b37`).
+- Completed direction:
+  1. Added national active research state with one active national domestic tech allowed.
+  2. Added per-city active research state with one active city domestic tech allowed per player city.
+  3. Enabled the detail-inspector research button only for available techs that are not blocked by an existing active research.
+  4. Added `researching` view state for nodes and inspector, including remaining/total turn display.
+  5. Kept research start as state storage plus UI refresh only.
+- Preserved scope:
+  1. No resource cost payment, turn progression, completion processing, completed-tech mutation, actual effect application, AI research, or gameplay formula change was made.
+  2. UI64 icon priority, hotfix4 click latency behavior, overlay lifecycle, left PLAYER national scope, right selected PLAYER city scope, and enemy/insufficient-intel hiding remain locked.
+- Next candidate:
+  1. `v0.70-66 Domestic Tech Research Progress & Completion MVP`.
+  2. Actual tech effects should remain a later step after progress/completion MVP.
+- Manual F6 QA required:
+  1. Check national research start, player-city research start, duplicate research blocking, researching node/inspector display, resource/completed state invariance, enemy-city safety, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-64 Domestic Tech Research Readiness Layer
 - Baseline: `v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish` (`53908b8a8e752ace989049e637dc9d7ef75d98db`).
 - Completed direction:

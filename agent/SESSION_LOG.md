@@ -2,6 +2,20 @@
 
 ## 2026-06-28
 
+### v0.70-65 Domestic Tech Research Start MVP
+- Started from local `d442f1e v0.70-64 Domestic Tech Research Readiness Layer`.
+- Fetched `origin/main`; local HEAD was ahead of `origin/main`, with existing untracked Godot-generated UI64 `.import` files intentionally left untouched.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - National active research state in `_player_state["national_tech_research"]["active"]`.
+  - Per-city active research state in `city_data["city_tech"]["research"]["active"]`.
+  - Research start button enablement for available techs only, with same-scope active research blocking.
+  - `researching` node/inspector state with remaining/total turn display.
+  - Immediate UI refresh after research start without using the lightweight node-click path.
+- Preserved no resource payment, no turn progression, no research completion, no completed-tech mutation, no actual effect application, no AI research, no gameplay formula changes, UI64 priority, hotfix4 click latency behavior, overlay lifecycle, enemy/insufficient-intel hiding, assets, icon PNG files, UI64 PNG files, and `.import` files.
+- Verification passed: `git diff --check`, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Manual F6 QA remains required for national/city research start, duplicate research blocking, researching display, resource/completed invariance, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-64 Domestic Tech Research Readiness Layer
 - Started from local `53908b8 v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish`.
 - Fetched `origin/main`; local HEAD was 2 commits ahead of `origin/main` and the working tree had untracked Godot-generated UI64 `.import` files that were intentionally left untouched.

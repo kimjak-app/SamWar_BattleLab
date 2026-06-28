@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-65 Domestic Tech Research Start MVP
+- Built on `v0.70-64 Domestic Tech Research Readiness Layer` (`d442f1ee1d414a7cdb11e57d93ba46f625815b37`).
+- Added national active research state under `_player_state["national_tech_research"]["active"]`, limited to one active national domestic tech.
+- Added per-city active research state under `city_data["city_tech"]["research"]["active"]`, limited to one active city domestic tech per player city.
+- Enabled the research action button only when the selected tech is available, player-scoped, and not blocked by existing active research.
+- Added `researching` view state, node status/style, inspector copy, and remaining/total duration display.
+- Stored `tech_id`, `started_turn`, `remaining_turns`, and `duration_turns` on research start.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement resource payment, turn countdown, research completion, completed-tech mutation, actual effects, AI research, formula changes, BattleContext changes, pending invasion changes, scenes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-64 Domestic Tech Research Readiness Layer
 - Built on `v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish` (`53908b8a8e752ace989049e637dc9d7ef75d98db`).
 - Reworked the Domestic Tech Tree detail inspector into a research-readiness display for selected techs.

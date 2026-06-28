@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-65 Domestic Tech Research Start MVP
+- Baseline: `v0.70-64 Domestic Tech Research Readiness Layer` at `d442f1ee1d414a7cdb11e57d93ba46f625815b37`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Research start MVP scope:
+  - Added display/state-only active research storage for one national domestic tech in `_player_state["national_tech_research"]["active"]`.
+  - Added per-city active research storage under `city_data["city_tech"]["research"]["active"]`, with one active city research per player city.
+  - Enabled the detail-inspector research action button only for available techs with no active research in the same national/city scope.
+  - Added `researching` view state, node status/style, detail inspector copy, and remaining/total turn display from stored active research data.
+  - Research start stores `tech_id`, `started_turn`, `remaining_turns`, and `duration_turns`, then refreshes the overlay UI immediately.
+- Preserved scope: no resource payment, no research turn countdown, no research completion, no city/national completed-tech mutation, no actual tech effect application, no AI research, and no economy/resource/troop/battle/diplomacy/spy/market formula change.
+- Existing locks remain: EASTWAR title, national/city split, left PLAYER national tree, right selected PLAYER city tree, enemy/insufficient-intel hiding, UI64 icon priority, `?` fallback, hotfix4 lightweight node-click detail refresh, selected highlight, and overlay close/ESC/panel restore lifecycle.
+- Next candidate: `v0.70-66 Domestic Tech Research Progress & Completion MVP`; actual effect application remains deferred beyond that step.
+- Manual F6 QA remains required for national/city research start, duplicate research blocking, researching display, resource/completed state invariance, enemy city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-64 Domestic Tech Research Readiness Layer
 - Baseline: `v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish` at `53908b8a8e752ace989049e637dc9d7ef75d98db`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
