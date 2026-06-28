@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish Handoff
+- Baseline: `v0.70-67 Domestic Tech Actual Effects Phase 1` (`4a4632b36f132fdae58f3fb98300a3128ba4bedf`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This hotfix is Phase 1 QA/display polish only. It is still not numeric effect application.
+- Required national condition logic still uses `_player_state["national_domestic_tech_completed"]` only; active/researching national tech remains incomplete for city unlock requirements.
+- City prerequisite logic still uses `_player_state["city_domestic_tech_completed"][city_id]` only; active/researching city tech and other-city completions are not prerequisite credit.
+- Inspector condition and relation display now distinguishes completed, researching, and incomplete states with compact tech-name lines.
+- `effect_stub` display now says effect status/readiness and explicitly defers numeric effects to later versions.
+- `_get_domestic_tech_effect_phase1_summary_mvp()` now reports required-national checks, city prerequisite checks, `researching_treated_as_completed = false`, `enemy_effects_applied = 0`, and `numeric_effects_applied = 0`.
+- Explicitly unchanged: resource payment, resource/income/troop/battle/diplomacy/spy/market formulas, AI research, enemy research/effect, enemy city tech exposure, BattleContext, pending invasion, scenes, tech definitions, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- UI64 priority, node-click latency guard, overlay lifecycle, active/completed normalize, research start/progress/completion, and enemy/insufficient-intel safety remain locked.
+- Next candidate: `v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set`.
+- Manual F6 QA remains required for national-to-city unlock, researching-not-unlocked, same-city city prerequisite only, relation display, effect display, no gameplay-number mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-67 Domestic Tech Actual Effects Phase 1 Handoff
 - Baseline: `v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish` (`c2f8d7d217c1b17cd9b9eefd67358cb5a6c1fd3a`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish Lock Rule
+- Baseline is `v0.70-67 Domestic Tech Actual Effects Phase 1` (`4a4632b36f132fdae58f3fb98300a3128ba4bedf`).
+- v0.70-67-hotfix1 authorizes QA/display polish only for Domestic Tech Tree Phase 1.
+- Completed national tech remains the only valid source for city tech `required_national_techs`; active/researching national tech must display as still requiring completion.
+- Completed city tech remains the only valid same-city prerequisite source; active/researching city tech and other-city completions must not satisfy prerequisites.
+- Inspector relation/effect display may distinguish completed, researching, and incomplete states, but must avoid wording that implies numeric effects are already applied.
+- `effect_stub` remains display-only and may only describe readiness/unlock state plus later-version numeric deferral.
+- Phase 1 QA helpers may summarize check counts and must keep `numeric_effects_applied = 0`, `researching_treated_as_completed = false`, and `enemy_effects_applied = 0`.
+- This hotfix does not authorize resource payment, numeric tech effects, income/resource/troop/battle/diplomacy/spy/market formula changes, AI research, enemy research, enemy effects, enemy completed-tech mutation, enemy active research, BattleContext changes, pending invasion changes, tech definition changes, or enemy city tech exposure.
+- UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Left side remains PLAYER national tech only. Right side remains selected PLAYER city tech only. Enemy or insufficient-intel city tech detail and research start/progress/completion must stay blocked under Fog of War / `city_intel` policy.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by this hotfix.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-67 Domestic Tech Actual Effects Phase 1 Lock Rule
 - Baseline is `v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish` (`c2f8d7d217c1b17cd9b9eefd67358cb5a6c1fd3a`).
 - v0.70-67 authorizes only unlock/condition/display effects for Domestic Tech Tree Phase 1.

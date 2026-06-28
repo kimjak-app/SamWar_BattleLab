@@ -2,6 +2,18 @@
 
 ## 2026-06-28
 
+### v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish
+- Started from local `4a4632b v0.70-67 Domestic Tech Actual Effects Phase 1`; local HEAD was one commit ahead of `origin/main` and the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - Required-national condition display now distinguishes completed, researching, and incomplete states.
+  - Same-city city prerequisite display now distinguishes completed, researching, and incomplete states.
+  - Relation copy now uses compact connected-city / required-national / enhanced-by status lines.
+  - `effect_stub` copy now says effect readiness and later-version numeric deferral.
+  - Phase 1 summary helper now includes QA counts and no-effect safety flags.
+- Preserved no numeric Domestic Tech effects, no resource payment, no resource/income/troop/battle/diplomacy/spy/market mutation, no AI research, no enemy research/effect, UI64 priority, click latency behavior, overlay lifecycle, enemy/insufficient-intel hiding, BattleContext, pending invasion, assets, icon PNG files, UI64 PNG files, and `.import` files.
+- Manual F6 QA remains required for national-to-city unlock, researching-not-unlocked, same-city city prerequisite only, relation display, effect display, no gameplay-number mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-67 Domestic Tech Actual Effects Phase 1
 - Started from local `c2f8d7d v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish`; `origin/main` matched local HEAD and the working tree was clean.
 - Required workflow/worldmap docs were read before runtime changes.

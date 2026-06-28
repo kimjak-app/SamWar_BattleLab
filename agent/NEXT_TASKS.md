@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish
+- Baseline: `v0.70-67 Domestic Tech Actual Effects Phase 1` (`4a4632b36f132fdae58f3fb98300a3128ba4bedf`).
+- Completed direction:
+  1. Stabilized required-national condition display around completed/researching/incomplete states while keeping completed-only logic.
+  2. Stabilized city prerequisite display around same-city completed/researching/incomplete states.
+  3. Clarified that researching is never completed/effect/condition credit.
+  4. Polished relation and `effect_stub` display copy to avoid actual numeric-effect wording.
+  5. Extended the Phase 1 summary helper with check counts and safety flags.
+- Preserved scope:
+  1. `numeric_effects_applied = 0` remains locked.
+  2. No resource/troop/battle/diplomacy/spy/market mutation, AI research, enemy research/effect, BattleContext/pending invasion change, asset/import change, or tech definition change was made.
+  3. UI64 icon priority, click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, and research start/progress/completion remain locked.
+- Next candidate:
+  1. `v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set`.
+- Manual F6 QA required:
+  1. Check national-to-city unlock, researching-not-unlocked, same-city city prerequisite only, relation display, effect display, no resource/troop/battle/diplomacy/spy/market mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-67 Domestic Tech Actual Effects Phase 1
 - Baseline: `v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish` (`c2f8d7d217c1b17cd9b9eefd67358cb5a6c1fd3a`).
 - Completed direction:

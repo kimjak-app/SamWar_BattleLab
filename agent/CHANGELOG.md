@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish
+- Built on `v0.70-67 Domestic Tech Actual Effects Phase 1` (`4a4632b36f132fdae58f3fb98300a3128ba4bedf`).
+- Stabilized required-national condition display around completed, researching, and incomplete states while preserving completed-only logic.
+- Stabilized same-city city prerequisite display so researching city tech and other-city completions are not presented as fulfilled prerequisites.
+- Polished unlock/enhance relation copy to use compact tech-name status lines and avoid actual numeric-effect wording.
+- Polished `effect_stub` display copy into effect status/readiness, unlock status, and later-version numeric-effect deferral.
+- Extended the internal no-spam Phase 1 summary helper with required-national checks, city prerequisite checks, `researching_treated_as_completed = false`, and `enemy_effects_applied = 0`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement resource payment, numeric Domestic Tech effects, resource/income/troop/battle/diplomacy/spy/market formula changes, AI research, enemy research/effect, BattleContext changes, pending invasion changes, scenes, assets, tech definition changes, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-67 Domestic Tech Actual Effects Phase 1
 - Built on `v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish` (`c2f8d7d217c1b17cd9b9eefd67358cb5a6c1fd3a`).
 - Added explicit completed-only required national tech helper coverage for city tech unlock checks.
