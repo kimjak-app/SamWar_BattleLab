@@ -1037,6 +1037,8 @@ var _selected_domestic_tech_city_id_mvp := ""
 var _domestic_tech_compact_node_refs_mvp: Dictionary = {}
 var _domestic_tech_icon_texture_cache_mvp: Dictionary = {}
 var _domestic_tech_detail_inspector_label_mvp: Label = null
+var _domestic_tech_research_action_button_mvp: Button = null
+var _domestic_tech_research_action_hint_label_mvp: Label = null
 var _enemy_turn_mvp_timer: Timer
 var _enemy_turn_mvp_pending := false
 var _domestic_turn_apply_pending := false
@@ -10062,6 +10064,8 @@ func _refresh_domestic_tech_tree_overlay_mvp() -> void:
 		return
 	_clear_domestic_tech_tree_children_mvp(_tech_tree_content_root_mvp)
 	_domestic_tech_detail_inspector_label_mvp = null
+	_domestic_tech_research_action_button_mvp = null
+	_domestic_tech_research_action_hint_label_mvp = null
 	_domestic_tech_compact_node_refs_mvp.clear()
 
 	var header_row := HBoxContainer.new()
@@ -10159,18 +10163,40 @@ func _build_domestic_tech_detail_inspector_mvp(parent: Container) -> void:
 	_domestic_tech_detail_inspector_label_mvp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_child(_domestic_tech_detail_inspector_label_mvp)
 
+	var action_row := HBoxContainer.new()
+	action_row.name = "DomesticTechResearchActionSlotMVP"
+	action_row.add_theme_constant_override("separation", 8)
+	content.add_child(action_row)
+
+	_domestic_tech_research_action_button_mvp = Button.new()
+	_domestic_tech_research_action_button_mvp.name = "DomesticTechResearchActionButtonMVP"
+	_domestic_tech_research_action_button_mvp.text = "연구 시작"
+	_domestic_tech_research_action_button_mvp.disabled = true
+	_domestic_tech_research_action_button_mvp.focus_mode = Control.FOCUS_NONE
+	_domestic_tech_research_action_button_mvp.custom_minimum_size = Vector2(104.0, 30.0)
+	_domestic_tech_research_action_button_mvp.tooltip_text = "다음 버전에서 연구 시작 기능이 활성화됩니다."
+	action_row.add_child(_domestic_tech_research_action_button_mvp)
+
+	_domestic_tech_research_action_hint_label_mvp = _make_domestic_tech_label_mvp("연구 시작 기능은 다음 단계에서 활성화됩니다.", 11, Color(0.72, 0.74, 0.70, 1.0))
+	_domestic_tech_research_action_hint_label_mvp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_domestic_tech_research_action_hint_label_mvp.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	action_row.add_child(_domestic_tech_research_action_hint_label_mvp)
+	_update_domestic_tech_research_action_slot_mvp({})
+
 
 func _refresh_domestic_tech_detail_inspector_mvp() -> void:
 	if _domestic_tech_detail_inspector_label_mvp == null:
 		return
 	if _selected_domestic_tech_id_mvp.is_empty():
 		_domestic_tech_detail_inspector_label_mvp.text = "테크를 선택하면 상세 정보가 표시됩니다."
+		_update_domestic_tech_research_action_slot_mvp({})
 		return
 	var definition := _get_domestic_tech_definition_mvp(_selected_domestic_tech_id_mvp)
 	if definition.is_empty():
 		_selected_domestic_tech_id_mvp = ""
 		_selected_domestic_tech_city_id_mvp = ""
 		_domestic_tech_detail_inspector_label_mvp.text = "테크를 선택하면 상세 정보가 표시됩니다."
+		_update_domestic_tech_research_action_slot_mvp({})
 		return
 	var scope := str(definition.get("tree_scope", ""))
 	if scope == DOMESTIC_TECH_SCOPE_CITY:
@@ -10179,9 +10205,11 @@ func _refresh_domestic_tech_detail_inspector_mvp() -> void:
 			_selected_domestic_tech_id_mvp = ""
 			_selected_domestic_tech_city_id_mvp = ""
 			_domestic_tech_detail_inspector_label_mvp.text = "테크를 선택하면 상세 정보가 표시됩니다."
+			_update_domestic_tech_research_action_slot_mvp({})
 			return
 	var view_state := _get_domestic_tech_view_state_mvp(_selected_domestic_tech_id_mvp, _selected_domestic_tech_city_id_mvp)
 	_domestic_tech_detail_inspector_label_mvp.text = _format_domestic_tech_detail_text_mvp(definition, view_state, _selected_domestic_tech_city_id_mvp)
+	_update_domestic_tech_research_action_slot_mvp(view_state)
 
 
 func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dictionary, city_id: String = "") -> String:
@@ -10196,14 +10224,20 @@ func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dic
 	var title := "%s %s" % [str(tech_def.get("name", tech_id)), rarity_label]
 	var effect_stub: Dictionary = tech_def.get("effect_stub", {})
 	var lines: Array[String] = []
-	lines.append("%s\n%s / %s / %s / Tier %d" % [title.strip_edges(), scope_label, category_label, branch_label, int(tech_def.get("tier", 0))])
+	lines.append("테크: %s" % title.strip_edges())
+	lines.append("분류: %s / %s / %s / Tier %d" % [scope_label, category_label, branch_label, int(tech_def.get("tier", 0))])
+	lines.append("현재 상태: %s" % _format_domestic_tech_readiness_state_label_mvp(str(view_state.get("state", DOMESTIC_TECH_VIEW_LOCKED))))
 	lines.append("효과: %s" % str(effect_stub.get("description", "")))
 	lines.append("비용: %s" % _get_domestic_tech_cost_summary_mvp(tech_def))
-	lines.append("건설 시간: %s" % _format_domestic_tech_duration_hint_mvp(tech_def))
-	lines.append("상태: %s" % str(view_state.get("label", "잠김")))
-	var requirements := _get_domestic_tech_requirement_summary_mvp(tech_def, view_state, city_id)
-	if not requirements.is_empty():
-		lines.append("필요 조건:\n- %s" % "\n- ".join(requirements))
+	lines.append("건설/연구 시간: %s" % _format_domestic_tech_duration_hint_mvp(tech_def))
+	var conditions := _get_domestic_tech_readiness_condition_lines_mvp(tech_def, view_state, city_id)
+	if not conditions.is_empty():
+		lines.append("조건 충족 여부:\n- %s" % "\n- ".join(conditions))
+	var relations := _get_domestic_tech_relation_lines_mvp(tech_def)
+	if not relations.is_empty():
+		lines.append("국가/도시 연결 관계:\n- %s" % "\n- ".join(relations))
+	lines.append(_format_domestic_tech_research_readiness_text_mvp(view_state))
+	lines.append(_format_domestic_tech_research_action_slot_text_mvp(view_state))
 	if bool(tech_def.get("icon_missing", false)):
 		lines.append("아이콘: 준비중 (?)")
 	return "\n\n".join(lines)
@@ -10227,6 +10261,150 @@ func _get_domestic_tech_requirement_summary_mvp(tech_def: Dictionary, view_state
 			result.append(reason_text)
 	if result.is_empty():
 		result.append("추가 조건 없음")
+	return result
+
+
+func _update_domestic_tech_research_action_slot_mvp(view_state: Dictionary) -> void:
+	if _domestic_tech_research_action_button_mvp != null:
+		_domestic_tech_research_action_button_mvp.disabled = true
+		_domestic_tech_research_action_button_mvp.text = "연구 시작"
+		_domestic_tech_research_action_button_mvp.tooltip_text = "다음 버전에서 연구 시작 기능이 활성화됩니다."
+	if _domestic_tech_research_action_hint_label_mvp == null:
+		return
+	_domestic_tech_research_action_hint_label_mvp.text = _format_domestic_tech_research_action_hint_mvp(view_state)
+
+
+func _format_domestic_tech_readiness_state_label_mvp(state_id: String) -> String:
+	match state_id:
+		DOMESTIC_TECH_VIEW_COMPLETED:
+			return "완료"
+		DOMESTIC_TECH_VIEW_AVAILABLE:
+			return "가능"
+		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
+			return "특수잠금"
+		_:
+			return "잠김"
+
+
+func _format_domestic_tech_research_readiness_text_mvp(view_state: Dictionary) -> String:
+	var state_id := str(view_state.get("state", DOMESTIC_TECH_VIEW_LOCKED))
+	match state_id:
+		DOMESTIC_TECH_VIEW_COMPLETED:
+			return "연구 상태: 완료됨\n이미 완료된 테크입니다."
+		DOMESTIC_TECH_VIEW_AVAILABLE:
+			return "연구 상태: 준비 가능\n조건을 충족했습니다. 연구 시작 기능은 다음 단계에서 활성화됩니다."
+		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
+			return "연구 상태: 특수 조건 필요\n해당 테크는 특정 국가 테크, 도시 조건, 영웅 조건 또는 자원 조건이 필요합니다."
+		_:
+			return "연구 상태: 조건 부족\n아래 조건을 먼저 충족해야 합니다."
+
+
+func _format_domestic_tech_research_action_slot_text_mvp(view_state: Dictionary) -> String:
+	return "연구 시작: 준비중\n%s" % _format_domestic_tech_research_action_hint_mvp(view_state)
+
+
+func _format_domestic_tech_research_action_hint_mvp(view_state: Dictionary) -> String:
+	var state_id := str(view_state.get("state", ""))
+	match state_id:
+		DOMESTIC_TECH_VIEW_COMPLETED:
+			return "완료된 테크라 연구를 시작할 수 없습니다."
+		DOMESTIC_TECH_VIEW_AVAILABLE:
+			return "다음 버전에서 연구 시작 기능이 활성화됩니다."
+		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
+			return "특수 조건 충족 후 다음 단계에서 연구할 수 있습니다."
+		DOMESTIC_TECH_VIEW_LOCKED:
+			return "부족 조건을 먼저 충족해야 합니다."
+		_:
+			return "테크를 선택하면 연구 준비 상태가 표시됩니다."
+
+
+func _get_domestic_tech_readiness_condition_lines_mvp(tech_def: Dictionary, view_state: Dictionary, city_id: String = "") -> Array[String]:
+	var result: Array[String] = []
+	var scope := str(tech_def.get("tree_scope", ""))
+	for required_id_variant in tech_def.get("prerequisites", []):
+		var required_id := str(required_id_variant)
+		var is_met := _is_city_domestic_tech_completed_mvp(city_id, required_id) if scope == DOMESTIC_TECH_SCOPE_CITY else _is_national_domestic_tech_completed_mvp(required_id)
+		result.append("선행 조건: %s - %s" % [_get_domestic_tech_display_name_mvp(required_id), _format_domestic_tech_condition_met_label_mvp(is_met)])
+	for required_national_id_variant in tech_def.get("required_national_techs", []):
+		var required_national_id := str(required_national_id_variant)
+		result.append("국가 테크 필요 조건: %s - %s" % [_get_domestic_tech_display_name_mvp(required_national_id), _format_domestic_tech_condition_met_label_mvp(_is_national_domestic_tech_completed_mvp(required_national_id))])
+	for aptitude_line in _format_domestic_tech_governor_aptitudes_mvp(tech_def):
+		result.append("태수 적성: %s - 확인 필요" % aptitude_line)
+	for city_requirement_line in _format_domestic_tech_city_requirement_lines_mvp(tech_def, city_id):
+		result.append(city_requirement_line)
+	for special_line in _format_domestic_tech_special_requirements_mvp(tech_def):
+		result.append("특수 조건: %s - 확인 필요" % special_line)
+	for lock_reason in view_state.get("lock_reasons", []):
+		var reason_text := str(lock_reason)
+		var readable_reason := _format_domestic_tech_lock_reason_mvp(reason_text)
+		var duplicate_found := false
+		for existing_line in result:
+			if existing_line.find(readable_reason) >= 0:
+				duplicate_found = true
+				break
+		if not duplicate_found:
+			result.append("부족 조건: %s - 미충족" % readable_reason)
+	if result.is_empty():
+		result.append("추가 조건 없음 - 충족")
+	return result
+
+
+func _format_domestic_tech_condition_met_label_mvp(is_met: bool) -> String:
+	return "충족" if is_met else "미충족"
+
+
+func _format_domestic_tech_lock_reason_mvp(reason_text: String) -> String:
+	if reason_text.begins_with("선행: "):
+		return "선행 조건 " + reason_text.substr("선행: ".length())
+	if reason_text.begins_with("국가: "):
+		return "국가 테크 " + reason_text.substr("국가: ".length())
+	if reason_text == "도시 조건":
+		return "도시 조건"
+	return reason_text
+
+
+func _get_domestic_tech_relation_lines_mvp(tech_def: Dictionary) -> Array[String]:
+	var result: Array[String] = []
+	var unlocks := _format_domestic_tech_relation_targets_mvp(tech_def.get("unlocks_city_techs", []), "해금")
+	if not unlocks.is_empty():
+		result.append("연결 도시 테크: %s" % ", ".join(unlocks))
+	var enhances := _format_domestic_tech_relation_targets_mvp(tech_def.get("enhances_city_techs", []), "강화")
+	if not enhances.is_empty():
+		result.append("강화 대상: %s" % ", ".join(enhances))
+	var required_national := _format_domestic_tech_relation_targets_mvp(tech_def.get("required_national_techs", []), "필요")
+	if not required_national.is_empty():
+		result.append("필요 국가 테크: %s" % ", ".join(required_national))
+	var enhanced_by := _format_domestic_tech_relation_targets_mvp(tech_def.get("enhanced_by_national_techs", []), "강화")
+	if not enhanced_by.is_empty():
+		result.append("강화 제공 국가 테크: %s" % ", ".join(enhanced_by))
+	return result
+
+
+func _format_domestic_tech_relation_targets_mvp(raw_targets: Variant, suffix: String) -> Array[String]:
+	var result: Array[String] = []
+	if not raw_targets is Array:
+		return result
+	for target_id_variant in raw_targets:
+		var target_id := str(target_id_variant)
+		result.append("%s %s" % [_get_domestic_tech_display_name_mvp(target_id), suffix])
+	return result
+
+
+func _format_domestic_tech_city_requirement_lines_mvp(tech_def: Dictionary, city_id: String = "") -> Array[String]:
+	var result: Array[String] = []
+	var raw_requirements: Variant = tech_def.get("special_requirements", {})
+	if not raw_requirements is Dictionary:
+		return result
+	var city_requirements: Variant = (raw_requirements as Dictionary).get("city_requirements", {})
+	if not city_requirements is Dictionary:
+		return result
+	for requirement_key_variant in (city_requirements as Dictionary).keys():
+		var requirement_key := str(requirement_key_variant)
+		var requirement_value: Variant = (city_requirements as Dictionary).get(requirement_key_variant)
+		var is_met := true
+		if requirement_key == "coastal":
+			is_met = _is_city_coastal_for_city_tech(city_id) == bool(requirement_value)
+		result.append("도시 조건: %s - %s" % [_format_domestic_tech_requirement_key_label_mvp(requirement_key), _format_domestic_tech_condition_met_label_mvp(is_met)])
 	return result
 
 
@@ -10814,19 +10992,25 @@ func _format_domestic_tech_special_requirements_mvp(definition: Dictionary) -> A
 	for requirement_key_variant in requirements.keys():
 		var requirement_key := str(requirement_key_variant)
 		var requirement_value: Variant = requirements.get(requirement_key_variant)
-		if requirement_key == "city_requirements":
-			continue
 		match requirement_key:
+			"city_requirements":
+				continue
 			"hero_required":
 				result.append("영웅: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
 			"required_hero":
 				result.append("영웅: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			"required_hero_flags":
+				result.append("영웅 조건: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
 			"chancellor_aptitudes":
 				result.append("재상: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
 			"average_loyalty":
 				result.append("충성도 %s 필요" % str(requirement_value))
+			"average_public_support":
+				result.append("평균 민심 %s 필요" % str(requirement_value))
 			"owned_city_count":
 				result.append("보유 도시 %s 필요" % str(requirement_value))
+			"governor_assigned_city_count":
+				result.append("태수 임명 도시 %s 필요" % str(requirement_value))
 			"required_city_techs":
 				result.append("도시 테크: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
 			"required_city_tech_any":
@@ -10837,8 +11021,24 @@ func _format_domestic_tech_special_requirements_mvp(definition: Dictionary) -> A
 				result.append("자원 조건: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
 			"resource_surplus":
 				result.append("잉여 자원: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			"resource_monopoly_candidates":
+				result.append("전매 후보 자원: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			"connected_supply_city_count":
+				result.append("연결 보급 도시 %s 필요" % str(requirement_value))
+			"average_commerce":
+				result.append("평균 상업 %s 필요" % str(requirement_value))
+			"national_loyalty":
+				result.append("전국 충성도 %s 필요" % str(requirement_value))
+			"allied_faction_count":
+				result.append("동맹 세력 %s 필요" % str(requirement_value))
+			"neutral_faction_count":
+				result.append("중립 세력 %s 필요" % str(requirement_value))
+			"unlocks_flags":
+				result.append("해금 조건: %s" % _format_domestic_tech_requirement_value_mvp(requirement_value))
+			"min_loyalty":
+				result.append("도시 충성도 %s 필요" % str(requirement_value))
 			_:
-				result.append("%s: %s" % [requirement_key, _format_domestic_tech_requirement_value_mvp(requirement_value)])
+				result.append("%s: %s" % [_format_domestic_tech_requirement_key_label_mvp(requirement_key), _format_domestic_tech_requirement_value_mvp(requirement_value)])
 	return result
 
 
@@ -10850,7 +11050,7 @@ func _format_domestic_tech_requirement_value_mvp(value: Variant) -> String:
 			if _is_domestic_city_tech_mvp(item_id) or _is_domestic_national_tech_mvp(item_id):
 				parts.append(_get_domestic_tech_display_name_mvp(item_id))
 			else:
-				parts.append(_format_domestic_tech_resource_label_mvp(item_id))
+				parts.append(_format_domestic_tech_requirement_atom_mvp(item_id))
 		return ", ".join(parts)
 	if value is Dictionary:
 		var parts: Array[String] = []
@@ -10860,10 +11060,95 @@ func _format_domestic_tech_requirement_value_mvp(value: Variant) -> String:
 			if _is_domestic_city_tech_mvp(key) or _is_domestic_national_tech_mvp(key):
 				display_key = _get_domestic_tech_display_name_mvp(key)
 			else:
-				display_key = _format_domestic_tech_resource_label_mvp(key)
-			parts.append("%s=%s" % [display_key, str((value as Dictionary).get(key_variant))])
+				display_key = _format_domestic_tech_requirement_key_label_mvp(key)
+			parts.append("%s=%s" % [display_key, _format_domestic_tech_requirement_atom_mvp(str((value as Dictionary).get(key_variant)))])
 		return ", ".join(parts)
-	return str(value)
+	return _format_domestic_tech_requirement_atom_mvp(str(value))
+
+
+func _format_domestic_tech_governor_aptitudes_mvp(definition: Dictionary) -> Array[String]:
+	var result: Array[String] = []
+	for aptitude_variant in definition.get("governor_aptitudes", []):
+		result.append(_format_domestic_tech_aptitude_label_mvp(str(aptitude_variant)))
+	return result
+
+
+func _format_domestic_tech_requirement_atom_mvp(value_text: String) -> String:
+	if value_text == "true":
+		return "필요"
+	if value_text == "false":
+		return "불필요"
+	if _is_domestic_city_tech_mvp(value_text) or _is_domestic_national_tech_mvp(value_text):
+		return _get_domestic_tech_display_name_mvp(value_text)
+	match value_text:
+		"has_hero_yi_sunsin":
+			return "이순신 필요"
+		"enemy_city_operation":
+			return "적 도시 공작"
+		"administrative", "economic", "militaryAdmin", "maritime", "diplomatic", "political":
+			return _format_domestic_tech_aptitude_label_mvp(value_text)
+		_:
+			return _format_domestic_tech_resource_label_mvp(value_text)
+
+
+func _format_domestic_tech_requirement_key_label_mvp(requirement_key: String) -> String:
+	match requirement_key:
+		"coastal":
+			return "연안 도시"
+		"owned_city_count":
+			return "보유 도시 수"
+		"governor_assigned_city_count":
+			return "태수 임명 도시 수"
+		"average_public_support":
+			return "평균 민심"
+		"average_loyalty":
+			return "평균 충성도"
+		"average_commerce":
+			return "평균 상업"
+		"resource_surplus":
+			return "자원 잉여"
+		"resource_requirements":
+			return "자원 필요 조건"
+		"chancellor_aptitudes":
+			return "재상 적성"
+		"governor_aptitudes":
+			return "태수 적성"
+		"required_hero_flags":
+			return "영웅 조건"
+		"connected_supply_city_count":
+			return "연결 보급 도시 수"
+		"national_loyalty":
+			return "전국 충성도"
+		"min_loyalty":
+			return "도시 충성도"
+		"allied_faction_count":
+			return "동맹 세력 수"
+		"neutral_faction_count":
+			return "중립 세력 수"
+		"resource_monopoly_candidates":
+			return "전매 후보 자원"
+		"unlocks_flags":
+			return "해금 조건"
+		_:
+			return _format_domestic_tech_resource_label_mvp(requirement_key)
+
+
+func _format_domestic_tech_aptitude_label_mvp(aptitude_id: String) -> String:
+	match aptitude_id:
+		"administrative":
+			return "행정"
+		"economic":
+			return "경제"
+		"militaryAdmin":
+			return "군정"
+		"maritime":
+			return "해양"
+		"diplomatic":
+			return "외교"
+		"political":
+			return "정치"
+		_:
+			return aptitude_id
 
 
 func _get_domestic_tech_display_name_mvp(tech_id: String) -> String:

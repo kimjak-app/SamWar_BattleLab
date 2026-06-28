@@ -2,6 +2,20 @@
 
 ## 2026-06-28
 
+### v0.70-64 Domestic Tech Research Readiness Layer
+- Started from local `53908b8 v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish`.
+- Fetched `origin/main`; local HEAD was 2 commits ahead of `origin/main` and the working tree had untracked Godot-generated UI64 `.import` files that were intentionally left untouched.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - Detail inspector research-readiness format for selected Domestic Tech Tree nodes.
+  - Readiness copy for completed, available, locked, and special-locked states.
+  - Disabled display-only research action slot with `연구 시작`; no `pressed` signal is connected.
+  - Human-readable condition formatting for prerequisites, national requirements, city conditions, special requirements, governor/chancellor aptitudes, resources, and hero flags.
+  - Display-only relation lines for national/city unlocks, enhancements, required national techs, and enhanced-by national techs.
+- Preserved read-only tech tree behavior, UI64 priority, hotfix4 click latency fix, selected highlight, overlay lifecycle, left PLAYER national scope, right selected PLAYER city scope, enemy/insufficient-intel hiding, gameplay formulas, scenes, assets, icon PNG files, UI64 PNG files, and `.import` files.
+- Verification passed: `git diff --check`, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Manual F6 QA remains required for available/locked/special-locked/completed readiness states, disabled action slot, no resource/completed mutation, relation display, icon visibility, click latency, overlay lifecycle, enemy-city safety, and warning cleanliness.
+
 ### v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish
 - Started from local `77eb052 v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding`.
 - Fetched `origin/main`; local HEAD was 1 commit ahead of `origin/main` and tracked files were clean. Untracked Godot-generated UI64 `.import` files were present and intentionally left untouched.

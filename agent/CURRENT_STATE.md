@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-64 Domestic Tech Research Readiness Layer
+- Baseline: `v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish` at `53908b8a8e752ace989049e637dc9d7ef75d98db`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- UI readiness scope:
+  - Detail inspector now presents selected domestic techs in a research-readiness format: name, scope/category/branch/tier, rarity, current state, effect, cost, build/research time hint, condition status, and relation display.
+  - Added research readiness copy for completed, available, locked, and special-locked states.
+  - Added a visible research action slot with a disabled `연구 시작` button and display-only hint. No `pressed` signal is connected.
+  - Improved display formatting for prerequisites, required national techs, special requirements, city conditions, governor/chancellor aptitudes, resources, hero flags, and tech id to Korean tech names.
+  - Added national/city relation display for unlocks, enhancements, required national techs, and enhanced-by national techs.
+- Preserved scope: no research start, queue, progress, completion, resource cost payment, completed-tech mutation, actual tech effects, AI research, gameplay formula change, BattleContext/pending invasion change, scene change, asset change, UI64 PNG change, or `.import` change.
+- Existing locks remain: EASTWAR title, national/city split, left PLAYER national tree, right selected PLAYER city tree, enemy/insufficient-intel hiding, UI64 icon priority, `?` fallback, hotfix4 immediate detail-inspector click path, selected highlight, and overlay close/ESC/panel restore lifecycle.
+- Next candidate: `v0.70-65 Domestic Tech Research Start MVP`, with actual effect application still deferred beyond that step.
+- Manual F6 QA remains required for available/locked/special-locked/completed inspector states, disabled action slot, no resource/completed mutation, relation display, icon visibility, click latency, overlay lifecycle, enemy-city safety, and warning cleanliness.
+
 ## v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish
 - Baseline: `v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding` at `77eb052f844251141d9181caf1f7fee55e586c57`.
 - Modified files: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

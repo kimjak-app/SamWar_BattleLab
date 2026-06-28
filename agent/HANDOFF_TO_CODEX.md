@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-64 Domestic Tech Research Readiness Layer Handoff
+- Baseline: `v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish` (`53908b8a8e752ace989049e637dc9d7ef75d98db`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass prepares the Domestic Tech Tree detail inspector for the future research system. It is not research start, not research queueing, not research progress, not research completion, and not actual effect application.
+- Detail inspector now shows selected tech name, scope/category/branch/tier, rarity, current state, effect, cost, build/research time hint, condition status, readiness copy, and display-only national/city relation lines.
+- Research readiness copy maps node state to inspector state: completed -> `완료됨`, available -> `준비 가능`, locked -> `조건 부족`, and special_locked -> `특수 조건 필요`.
+- The research action slot is visible but disabled. `DomesticTechResearchActionButtonMVP` must stay `disabled = true` and must not connect `pressed` to research, queue, resource payment, completion, or effect code.
+- Condition/relationship formatting is display-only. Do not rename data ids, save keys, prerequisite ids, category ids, branch ids, costs, durations, or effect stubs for copy polish.
+- Hotfix4 node click latency remains locked: compact node click updates selected ids, refreshes the inspector immediately, consumes input, and restyles previous/current compact nodes without rebuilding graphs.
+- Hotfix5 UI64 binding remains locked: UI64 mapped icon first, existing `icon_path` fallback second, `?` fallback last; `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Enemy/insufficient-intel safety remains locked: left panel is PLAYER national tech only, and right city tech detail only renders for selected PLAYER cities.
+- Explicitly unchanged: research state mutation, resource mutation, city/national completed tech mutation, actual effects, AI research, income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, market, alliance, wedge, `city_intel`, Fog of War, scenes, assets, icon PNGs, UI64 PNGs, `.import` files, and thumbnail generation.
+- Next candidate: `v0.70-65 Domestic Tech Research Start MVP`; actual effect application should remain deferred.
+- Manual F6 QA remains required for available/locked/special-locked/completed readiness display, disabled action slot, no mutation, relation display, icon visibility, click latency, overlay lifecycle, enemy-city safety, and warning cleanliness.
+
 ## v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish Handoff
 - Baseline: `v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding` (`77eb052f844251141d9181caf1f7fee55e586c57`).
 - Runtime file audited: `scripts/worldmap_test.gd`.

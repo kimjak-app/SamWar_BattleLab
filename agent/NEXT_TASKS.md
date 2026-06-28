@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-64 Domestic Tech Research Readiness Layer
+- Baseline: `v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish` (`53908b8a8e752ace989049e637dc9d7ef75d98db`).
+- Completed direction:
+  1. Reworked the Domestic Tech Tree detail inspector into a research-readiness display for selected techs.
+  2. Added state-specific readiness copy for completed, available, locked, and special-locked techs.
+  3. Added a visible disabled research action slot; `연구 시작` remains display-only and has no pressed signal.
+  4. Improved condition formatting for prerequisites, national tech requirements, special requirements, city requirements, aptitudes, resources, and hero flags.
+  5. Added display-only national/city tech relation lines for unlock/enhance/required/enhanced-by links.
+- Preserved scope:
+  1. No research start, queue, turn progression, completion, resource mutation, completed-tech mutation, actual effect application, or gameplay formula change was made.
+  2. UI64 icon priority, hotfix4 click latency behavior, overlay lifecycle, left PLAYER national scope, right selected PLAYER city scope, and enemy/insufficient-intel hiding remain locked.
+- Next candidate:
+  1. `v0.70-65 Domestic Tech Research Start MVP`.
+  2. Actual tech effect application should remain a later step after research start MVP.
+- Manual F6 QA required:
+  1. Check available/locked/special-locked/completed inspector readiness states, disabled research slot, no resource/completed mutation, relation display, icon visibility, click latency, overlay lifecycle, enemy-city safety, and clean Godot Output.
+
 ## Current: v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish
 - Baseline: `v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding` (`77eb052f844251141d9181caf1f7fee55e586c57`).
 - Completed direction:

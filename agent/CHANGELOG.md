@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-64 Domestic Tech Research Readiness Layer
+- Built on `v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish` (`53908b8a8e752ace989049e637dc9d7ef75d98db`).
+- Reworked the Domestic Tech Tree detail inspector into a research-readiness display for selected techs.
+- Added state-specific readiness copy for completed, available, locked, and special-locked techs.
+- Added a visible disabled `연구 시작` action slot with no pressed signal and no research execution path.
+- Improved display-only condition formatting for prerequisites, required national techs, city requirements, special requirements, governor/chancellor aptitudes, resource conditions, and hero flags.
+- Added display-only national/city relation lines for unlocks, enhancements, required national techs, and enhanced-by national techs.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement research start/progress/completion, queues, resource payment, completed-tech mutation, actual effects, AI research, formula changes, BattleContext changes, pending invasion changes, scenes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish
 - Built on `v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding` (`77eb052f844251141d9181caf1f7fee55e586c57`).
 - Audited the tech tree button creation, `pressed` signal binding, overlay open path, close button path, and ESC close path.
