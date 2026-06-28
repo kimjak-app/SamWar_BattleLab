@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish Handoff
+- Baseline: `v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding` (`77eb052f844251141d9181caf1f7fee55e586c57`).
+- Runtime file audited: `scripts/worldmap_test.gd`.
+- No runtime code change was required in this pass. This pass documents final Domestic Tech Tree UI QA and overlay lifecycle confirmation.
+- Button lifecycle remains: `_ensure_domestic_tech_tree_button_mvp()` creates one `DomesticTechTreeButtonMVP`, sets text to `테크트리`, and connects `pressed` to `_open_domestic_tech_tree_overlay_mvp()`.
+- Overlay lifecycle remains: `_ensure_domestic_tech_tree_overlay_mvp()` creates one top-layer `tech_tree_overlay_mvp`, `_refresh_domestic_tech_tree_overlay_mvp()` clears content children before rebuild, and repeated opens reuse the overlay.
+- Close lifecycle remains: `닫기` calls `_close_domestic_tech_tree_overlay_mvp()`, ESC is handled in `_unhandled_input()`, saved panels restore through `_restore_worldmap_panels_after_tech_tree_mvp()`, and hidden state is cleared after restore.
+- Hotfix4 node click latency remains locked: node click must only update selected ids, refresh the detail inspector, consume input, and restyle previous/current compact node cards.
+- Hotfix5 UI64 binding remains locked: UI64 mapped icon first, existing `icon_path` fallback second, `?` fallback last; `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Enemy/insufficient-intel safety remains locked: left panel is PLAYER national tech only, and right city detail only renders for selected PLAYER cities.
+- Explicitly unchanged: research start/progress/completion, actual effects, AI research, income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, market, alliance, wedge, `city_intel`, Fog of War, scenes, assets, icon PNGs, `.import` files, and thumbnail generation.
+- Manual F6 QA remains required for repeated button open, close/ESC/reopen, panel restore, UI64 icon visibility, detail inspector latency, enemy-city safety, scroll/layout, overlay top-layer behavior, no gameplay mutation, and warning cleanliness.
+
 ## v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding Handoff
 - Baseline: `v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish` plus the `assets/ui/tech_icons_ui64/` asset commit (`95752d17602514b334aa00d8f43f37dea4cff66d`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

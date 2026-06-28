@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish Lock Rule
+- Baseline is `v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding` (`77eb052f844251141d9181caf1f7fee55e586c57`).
+- v0.70-63-hotfix6 is final Domestic Tech Tree UI QA and overlay lifecycle confirmation only.
+- The tech tree button must remain a single `DomesticTechTreeButtonMVP` under `WorldMapUI`, with `pressed` connected to `_open_domestic_tech_tree_overlay_mvp()`.
+- The overlay must remain a single reused `tech_tree_overlay_mvp`; refresh paths must clear existing content before rebuilding so repeated opens do not accumulate duplicate children.
+- Overlay open must keep high z-index, `move_to_front()`, `MOUSE_FILTER_STOP`, hidden overlapping panels, and background input consumption.
+- Overlay close must work through both `닫기` and ESC, hide the overlay, clear selected tech ids, restore only previously visible panels, and clear hidden-state storage after restore.
+- Hotfix4 node click behavior remains locked: node click is display-only, must not rebuild the full graph, must refresh the detail inspector immediately, and must update only previous/current compact node styles.
+- Hotfix5 UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Left side remains PLAYER national tech only. Right side remains selected PLAYER city tech only. Enemy or insufficient-intel city tech detail must stay hidden behind safe copy under Fog of War / `city_intel` policy.
+- This pass does not authorize research start, research queueing, research progress, research completion, actual effect application, AI research, Enemy Strategic AI Phase 2, War Posture, BattleContext shape changes, pending invasion payload changes, or gameplay formula changes.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by lifecycle QA work.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding Lock Rule
 - Baseline is `v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish` plus the `assets/ui/tech_icons_ui64/` asset commit (`95752d17602514b334aa00d8f43f37dea4cff66d`).
 - v0.70-63-hotfix5 is Domestic Tech Tree fullscreen read-only graph UI64 icon binding only.

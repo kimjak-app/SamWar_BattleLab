@@ -1,5 +1,19 @@
 # NEXT TASKS
 
+## Current: v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish
+- Baseline: `v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding` (`77eb052f844251141d9181caf1f7fee55e586c57`).
+- Completed direction:
+  1. Audited the tech tree button creation and `pressed` signal path into `_open_domestic_tech_tree_overlay_mvp()`.
+  2. Audited overlay open/reuse/refresh lifecycle, including child cleanup before rebuild and top-layer `move_to_front()` behavior.
+  3. Audited close/ESC lifecycle, hidden panel visible-state restore, background input consumption, and `_tech_tree_hidden_ui_state_mvp.clear()` timing.
+  4. Audited hotfix4 detail inspector latency split and confirmed node click still avoids full graph rebuild.
+  5. Re-ran UI64 icon coverage: 85 total domestic definitions, 85 UI64 mapped, 0 missing mapped files, 0 `etc/` mappings, and 0 expected remaining `?` fallback.
+- Preserved scope:
+  1. No runtime code change was required.
+  2. No research start, research progress, research completion, effect application, Enemy Strategic AI Phase 2, War Posture, BattleContext shape change, pending invasion payload change, gameplay formula change, scene change, asset change, or `.import` change was made.
+- Manual F6 QA required:
+  1. Run the final checklist for button open, close/ESC/reopen, panel restore, UI64 visibility, detail inspector latency, enemy-city safety, scroll/layout, overlay top-layer behavior, no gameplay mutation, and clean Godot Output.
+
 ## Current: v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding
 - Baseline: `v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish` plus the `assets/ui/tech_icons_ui64/` asset commit (`95752d17602514b334aa00d8f43f37dea4cff66d`).
 - Completed direction:

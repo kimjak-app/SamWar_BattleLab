@@ -2,6 +2,22 @@
 
 ## 2026-06-28
 
+### v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish
+- Started from local `77eb052 v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding`.
+- Fetched `origin/main`; local HEAD was 1 commit ahead of `origin/main` and tracked files were clean. Untracked Godot-generated UI64 `.import` files were present and intentionally left untouched.
+- Required workflow/worldmap docs were read before auditing runtime files.
+- Audited and confirmed:
+  - `DomesticTechTreeButtonMVP` is created once, labeled `테크트리`, and connected to `_open_domestic_tech_tree_overlay_mvp()`.
+  - Overlay open calls ensure/hide/refresh/visible/top-layer steps and keeps `MOUSE_FILTER_STOP`, absolute high z-index, and `move_to_front()`.
+  - Overlay content rebuild clears previous children and compact node references before rebuilding title, split panels, graph content, and detail inspector.
+  - `닫기` and ESC close paths hide the overlay, reset selected tech ids, restore hidden panel visibility, and clear hidden-state storage.
+  - Node click remains display-only and lightweight: set selected id/city, refresh detail inspector, consume input, and update previous/current selected node styles only.
+  - Enemy/insufficient-intel safety remains: left side is PLAYER national tech only, right side city tech detail returns safe copy unless selected city is PLAYER-owned.
+  - UI64 coverage remains complete: 85 total domestic tech definitions, 85 UI64 mapped, 0 missing mapped files, 0 `etc/` mappings, 0 expected existing-icon fallback, and 0 expected remaining `?` fallback.
+- No runtime code change was required. Docs were updated for final QA/handoff/lock state only.
+- Preserved read-only tech tree behavior, UI64 priority, hotfix4 click latency fix, modal/top-layer behavior, gameplay formulas, scenes, assets, icon PNG files, and `.import` files.
+- Manual F6 QA remains required for repeated open/close/reopen, visible-state restore feel, scroll/layout, enemy-city safety, top-layer input blocking, and warning cleanliness.
+
 ### v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding
 - Started from `95752d1 수정`, where local `main` matched `origin/main` and `assets/ui/tech_icons_ui64/` was present.
 - Required workflow/worldmap docs were read before touching runtime files.

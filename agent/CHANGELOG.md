@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish
+- Built on `v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding` (`77eb052f844251141d9181caf1f7fee55e586c57`).
+- Audited the tech tree button creation, `pressed` signal binding, overlay open path, close button path, and ESC close path.
+- Confirmed overlay reuse and child cleanup prevent duplicate overlay creation and repeated child accumulation.
+- Confirmed hidden panel save/restore, modal top-layer, mouse/input consumption, and background input guard remain in place.
+- Confirmed hotfix4 detail inspector latency fix remains: node click does not call full overlay/graph rebuild.
+- Confirmed hotfix5 UI64 icon coverage remains complete for all current domestic definitions, with `etc/` unmapped and old typo filenames unused.
+- Modified files: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not change runtime code, research behavior, actual effects, AI, formulas, BattleContext, pending invasion, scenes, assets, existing icon PNGs, UI64 PNGs, `.import` files, or thumbnail generation.
+
 ## v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding
 - Built on `v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish` plus the `assets/ui/tech_icons_ui64/` asset commit (`95752d17602514b334aa00d8f43f37dea4cff66d`).
 - Added `DOMESTIC_TECH_UI64_ICON_ROOT` and an explicit tech_id to UI64 filename map for all current domestic city/national tech definitions.

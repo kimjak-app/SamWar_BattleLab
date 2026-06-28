@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-63-hotfix6 Domestic Tech Tree Final UI QA & Overlay Lifecycle Polish
+- Baseline: `v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding` at `77eb052f844251141d9181caf1f7fee55e586c57`.
+- Modified files: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- QA / lifecycle scope:
+  - Confirmed the 월드맵 `테크트리` button is created once under `WorldMapUI`, connects `pressed` to `_open_domestic_tech_tree_overlay_mvp()`, and reuses the existing overlay instance.
+  - Confirmed overlay refresh clears previous children before rebuild, preserving the no-duplicate-overlay/no-child-accumulation lifecycle.
+  - Confirmed `닫기` and `ui_cancel`/ESC close path hides the overlay, clears selected tech ids, restores saved panel visibility, and clears `_tech_tree_hidden_ui_state_mvp`.
+  - Confirmed modal/top-layer guards remain: high z-index, `move_to_front()`, `MOUSE_FILTER_STOP`, hidden overlapping panels, and background input consumption.
+  - Confirmed hotfix4 click latency split remains: node click updates selected ids, refreshes detail inspector, and restyles previous/current compact nodes without full graph rebuild.
+  - Confirmed hotfix5 UI64 binding remains complete for all 85 current domestic tech definitions, with 0 expected remaining `?` fallbacks and `etc/` unmapped.
+- Preserved scope: no runtime code change, no research start/progress/completion, no actual effect application, no AI research, no BattleContext or pending invasion payload change, no gameplay formula change, no scene change, no asset change, no UI64 PNG change, and no `.import` file change.
+- Manual F6 QA remains required for repeated open/close/reopen feel, panel restore in real interaction, scroll/layout feel, enemy city safety, overlay top-layer behavior, and Godot Output warning cleanliness.
+
 ## v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding
 - Baseline: `v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish` plus the `assets/ui/tech_icons_ui64/` asset commit at `95752d17602514b334aa00d8f43f37dea4cff66d`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
