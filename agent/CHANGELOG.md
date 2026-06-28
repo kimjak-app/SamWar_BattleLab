@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish
+- Built on `v0.70-66 Domestic Tech Research Progress & Completion MVP` (`1f9bb843ced5730483867ac546f4b208df0347b2`).
+- Strengthened active research normalize for national and PLAYER city Domestic Tech Tree research.
+- Normalized national and city completed state from missing/null/list-shaped data into Dictionary-shaped completed state where possible.
+- Clamped research turn decrement to `remaining_turns = max(0, remaining_turns - 1)`.
+- Added guards so already-completed active research clears without duplicate completion notifications.
+- Synced per-city `city_tech.completed` mirror from `_player_state["city_domestic_tech_completed"]` while keeping city completed state separated.
+- Preserved completed-only prerequisite recognition; active/researching techs are not treated as completed.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement actual Domestic Tech effects, resource payment, AI research, enemy research, formula changes, BattleContext changes, pending invasion changes, scenes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-66 Domestic Tech Research Progress & Completion MVP
 - Built on `v0.70-65 Domestic Tech Research Start MVP` (`c27e46034684a0385f76bf3816f22a71c76eda2a` locally at task start, matching `origin/main`).
 - Added PLAYER Domestic Tech Tree research progression during the existing world domestic turn apply flow.

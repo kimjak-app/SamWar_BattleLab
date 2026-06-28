@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish Handoff
+- Baseline: `v0.70-66 Domestic Tech Research Progress & Completion MVP` (`1f9bb843ced5730483867ac546f4b208df0347b2`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is a QA/polish hotfix for Domestic Tech research state only. It is not actual tech effect application.
+- Active research normalize now treats missing, empty, malformed, already-completed, and 0/negative `remaining_turns` active state safely.
+- Completed state normalize accepts missing/null and list-shaped legacy data where possible, producing Dictionary-shaped national and per-city completed state.
+- Turn advancement clamps `remaining_turns` to 0 and completion clears active state.
+- Duplicate completion guards prevent repeated player-facing messages if an already completed tech remains in active state.
+- City completed source of truth remains `_player_state["city_domestic_tech_completed"]`; city runtime `city_tech.completed` is a mirror synced per city.
+- Completed techs count for prerequisites and `required_national_techs`; active/researching techs still do not count as completed.
+- Explicitly unchanged: resource payment, actual effects, effect stubs, AI research, enemy research, income/resource/troop/battle/diplomacy/spy/market formulas, enemy pressure plan, pending invasion, BattleContext, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- UI64 priority, node-click latency guard, overlay lifecycle, and enemy/insufficient-intel safety remain locked.
+- Next candidate: `v0.70-67 Domestic Tech Actual Effects Phase 1`, starting with the safest display/unlock effect slice.
+- Manual F6 QA remains required for national/city progress, completion display, duplicate notification absence, city-specific completed separation, save/load, follow-up tech availability, no resource/effect mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-66 Domestic Tech Research Progress & Completion MVP Handoff
 - Baseline: `v0.70-65 Domestic Tech Research Start MVP` (`c27e46034684a0385f76bf3816f22a71c76eda2a` locally at task start, matching `origin/main`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

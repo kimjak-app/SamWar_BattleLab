@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish
+- Baseline: `v0.70-66 Domestic Tech Research Progress & Completion MVP` at `1f9bb843ced5730483867ac546f4b208df0347b2`; local HEAD was ahead of `origin/main` and tracked files were clean at task start.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Research QA/polish scope:
+  - Strengthened active research normalize for national and PLAYER city Domestic Tech Tree research.
+  - Missing/null/list completed state is normalized into Dictionary-shaped completed state for national and city checks.
+  - `remaining_turns` is clamped to 0 during turn advancement; 0 or negative active research completes/clears safely during normalize.
+  - Duplicate completion notifications are guarded when an already completed tech remains in active state.
+  - City completed state remains separated per city, with `_player_state["city_domestic_tech_completed"]` as source of truth and city `city_tech.completed` mirror sync.
+  - Completed techs continue to satisfy prerequisites and `required_national_techs`; active/researching techs do not.
+- Preserved scope: no actual tech effect application, no resource payment, no resource/income/troop/battle/diplomacy/spy/market formula change, no AI research, no enemy research, no BattleContext change, and no pending invasion change.
+- Existing locks remain: UI64 icon priority, hotfix4 node-click latency behavior, overlay lifecycle, left PLAYER national tree, right selected PLAYER city tree, and enemy/insufficient-intel hiding.
+- Next candidates: `v0.70-67 Domestic Tech Actual Effects Phase 1` starting from safest display/unlock effects, or a QA-only follow-up if F6 finds regressions.
+- Manual F6 QA remains required for national/city progress and completion, duplicate-notification absence, follow-up tech availability, save/load, resource/effect invariance, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-66 Domestic Tech Research Progress & Completion MVP
 - Baseline: `v0.70-65 Domestic Tech Research Start MVP`; local HEAD at task start was `c27e46034684a0385f76bf3816f22a71c76eda2a` and matched `origin/main`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

@@ -2,6 +2,20 @@
 
 ## 2026-06-28
 
+### v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish
+- Started from local `1f9bb84 v0.70-66 Domestic Tech Research Progress & Completion MVP`; tracked files were clean and local HEAD was ahead of `origin/main`.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - Safer national and city active research normalize.
+  - Completed state normalize for missing/null/list-shaped national and city completed data.
+  - `remaining_turns` clamp to 0 during turn advancement.
+  - Safe completion/clear handling for 0 or negative active research state.
+  - Duplicate completion notification guard for already completed active entries.
+  - Per-city completed mirror sync from `_player_state["city_domestic_tech_completed"]`.
+  - Completed-only prerequisite behavior remains intact; researching/active state is not prerequisite credit.
+- Preserved no Domestic Tech actual effects, no resource payment, no AI research, no enemy research, no gameplay formula changes, UI64 priority, click latency behavior, overlay lifecycle, enemy/insufficient-intel hiding, BattleContext, pending invasion, assets, icon PNG files, UI64 PNG files, and `.import` files.
+- Manual F6 QA remains required for national/city progress, completion, duplicate notification absence, city-specific completed separation, save/load, follow-up tech availability, no resource/effect mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-66 Domestic Tech Research Progress & Completion MVP
 - Started from local `c27e460 테크트리완성`; `origin/main` matched local HEAD and the working tree was clean.
 - Required workflow/worldmap docs were read before runtime changes.

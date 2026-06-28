@@ -9855,7 +9855,7 @@ func _is_domestic_national_tech_mvp(tech_id: String) -> bool:
 func _is_city_domestic_tech_completed_mvp(city_id: String, tech_id: String) -> bool:
 	if city_id.is_empty() or not _is_domestic_city_tech_mvp(tech_id):
 		return false
-	var completed_by_city: Dictionary = _player_state.get("city_domestic_tech_completed", {})
+	var completed_by_city: Dictionary = _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_completed", {}))
 	var city_completed: Variant = completed_by_city.get(city_id, {})
 	if city_completed is Dictionary:
 		return bool((city_completed as Dictionary).get(tech_id, false))
@@ -9865,7 +9865,7 @@ func _is_city_domestic_tech_completed_mvp(city_id: String, tech_id: String) -> b
 func _is_national_domestic_tech_completed_mvp(tech_id: String) -> bool:
 	if not _is_domestic_national_tech_mvp(tech_id):
 		return false
-	var completed: Dictionary = _player_state.get("national_domestic_tech_completed", {})
+	var completed: Dictionary = _normalize_national_domestic_tech_state_map_mvp(_player_state.get("national_domestic_tech_completed", {}))
 	return bool(completed.get(tech_id, false))
 
 
@@ -11346,18 +11346,41 @@ func _normalize_domestic_tech_state_mvp() -> void:
 	_player_state["city_domestic_tech_unlocked"] = _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_unlocked", {}))
 	_player_state["national_domestic_tech_completed"] = _normalize_national_domestic_tech_state_map_mvp(_player_state.get("national_domestic_tech_completed", {}))
 	_player_state["national_domestic_tech_unlocked"] = _normalize_national_domestic_tech_state_map_mvp(_player_state.get("national_domestic_tech_unlocked", {}))
-	_player_state["national_tech_research"] = _normalize_domestic_tech_research_container_mvp(_player_state.get("national_tech_research", {}), DOMESTIC_TECH_SCOPE_NATIONAL, "")
+	_normalize_national_domestic_tech_research_state_mvp()
+	_normalize_city_domestic_tech_research_state_mvp()
 
 
 func _normalize_city_domestic_tech_state_map_mvp(raw_state: Variant) -> Dictionary:
 	var normalized := {}
+	var city_definitions := _get_domestic_city_tech_definitions_mvp()
+	if raw_state is Array:
+		var default_city_id := str(_player_state.get("selected_city_id", ""))
+		if default_city_id.is_empty():
+			return normalized
+		var city_completed_from_array := {}
+		for tech_id_variant in raw_state:
+			var tech_id := str(tech_id_variant)
+			if city_definitions.has(tech_id):
+				city_completed_from_array[tech_id] = true
+		if not city_completed_from_array.is_empty():
+			normalized[default_city_id] = city_completed_from_array
+		return normalized
 	if not raw_state is Dictionary:
 		return normalized
-	var city_definitions := _get_domestic_city_tech_definitions_mvp()
 	for city_id_variant in (raw_state as Dictionary).keys():
 		var city_id := str(city_id_variant)
 		var city_value: Variant = (raw_state as Dictionary).get(city_id_variant, {})
-		if city_id.is_empty() or not city_value is Dictionary:
+		if city_id.is_empty():
+			continue
+		if city_value is Array:
+			var city_completed_from_list := {}
+			for tech_id_variant in city_value:
+				var tech_id := str(tech_id_variant)
+				if city_definitions.has(tech_id):
+					city_completed_from_list[tech_id] = true
+			normalized[city_id] = city_completed_from_list
+			continue
+		if not city_value is Dictionary:
 			continue
 		var city_completed := {}
 		for tech_id_variant in (city_value as Dictionary).keys():
@@ -11370,14 +11393,38 @@ func _normalize_city_domestic_tech_state_map_mvp(raw_state: Variant) -> Dictiona
 
 func _normalize_national_domestic_tech_state_map_mvp(raw_state: Variant) -> Dictionary:
 	var normalized := {}
+	var national_definitions := _get_domestic_national_tech_definitions_mvp()
+	if raw_state is Array:
+		for tech_id_variant in raw_state:
+			var tech_id := str(tech_id_variant)
+			if national_definitions.has(tech_id):
+				normalized[tech_id] = true
+		return normalized
 	if not raw_state is Dictionary:
 		return normalized
-	var national_definitions := _get_domestic_national_tech_definitions_mvp()
 	for tech_id_variant in (raw_state as Dictionary).keys():
 		var tech_id := str(tech_id_variant)
 		if national_definitions.has(tech_id) and bool((raw_state as Dictionary).get(tech_id_variant, false)):
 			normalized[tech_id] = true
 	return normalized
+
+
+func _normalize_national_domestic_tech_research_state_mvp() -> void:
+	_player_state["national_tech_research"] = _normalize_domestic_tech_research_container_mvp(_player_state.get("national_tech_research", {}), DOMESTIC_TECH_SCOPE_NATIONAL, "")
+
+
+func _normalize_city_domestic_tech_research_state_mvp() -> void:
+	for city_id_variant in _city_runtime_states.keys():
+		var city_id := str(city_id_variant)
+		var city_state_variant: Variant = _city_runtime_states.get(city_id, {})
+		if city_id.is_empty() or not city_state_variant is Dictionary:
+			continue
+		var city_data := (city_state_variant as Dictionary).duplicate(true)
+		var city_tech: Dictionary = city_data.get("city_tech", {}) if city_data.get("city_tech", {}) is Dictionary else {}
+		city_tech[DOMESTIC_TECH_RESEARCH_KEY] = _normalize_domestic_tech_research_container_mvp(city_tech.get(DOMESTIC_TECH_RESEARCH_KEY, {}), DOMESTIC_TECH_SCOPE_CITY, city_id)
+		city_data["city_tech"] = city_tech
+		_city_runtime_states[city_id] = city_data
+		_sync_city_domestic_tech_completed_mirror_mvp(city_id)
 
 
 func _normalize_domestic_tech_research_container_mvp(raw_state: Variant, scope: String, city_id: String = "") -> Dictionary:
@@ -11397,8 +11444,11 @@ func _normalize_domestic_tech_research_container_mvp(raw_state: Variant, scope: 
 		return normalized
 	if scope == DOMESTIC_TECH_SCOPE_CITY and _is_city_domestic_tech_completed_mvp(city_id, active_tech_id):
 		return normalized
-	var duration_turns := maxi(1, int((active as Dictionary).get("duration_turns", _get_domestic_tech_research_duration_turns_mvp(definition))))
-	var remaining_turns := clampi(int((active as Dictionary).get("remaining_turns", duration_turns)), 1, duration_turns)
+	var duration_turns := _normalize_domestic_tech_research_turn_value_mvp((active as Dictionary).get("duration_turns", _get_domestic_tech_research_duration_turns_mvp(definition)), _get_domestic_tech_research_duration_turns_mvp(definition), 1)
+	var remaining_turns := _normalize_domestic_tech_research_turn_value_mvp((active as Dictionary).get("remaining_turns", duration_turns), duration_turns, 0)
+	if remaining_turns <= 0:
+		_mark_domestic_tech_completed_from_normalize_mvp(scope, city_id, active_tech_id)
+		return normalized
 	normalized[DOMESTIC_TECH_RESEARCH_ACTIVE_KEY] = {
 		"tech_id": active_tech_id,
 		"started_turn": maxi(1, int((active as Dictionary).get("started_turn", _get_current_world_turn_number_mvp()))),
@@ -11406,6 +11456,55 @@ func _normalize_domestic_tech_research_container_mvp(raw_state: Variant, scope: 
 		"duration_turns": duration_turns,
 	}
 	return normalized
+
+
+func _normalize_domestic_tech_research_turn_value_mvp(raw_value: Variant, fallback_value: int, minimum_value: int) -> int:
+	var value := fallback_value
+	match typeof(raw_value):
+		TYPE_INT, TYPE_FLOAT:
+			value = int(raw_value)
+		TYPE_STRING:
+			var value_text := str(raw_value).strip_edges()
+			if value_text.is_valid_int():
+				value = int(value_text)
+	return clampi(value, minimum_value, maxi(minimum_value, fallback_value))
+
+
+func _mark_domestic_tech_completed_from_normalize_mvp(scope: String, city_id: String, tech_id: String) -> void:
+	if tech_id.is_empty():
+		return
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL and _is_domestic_national_tech_mvp(tech_id):
+		var completed: Dictionary = _player_state.get("national_domestic_tech_completed", {}) if _player_state.get("national_domestic_tech_completed", {}) is Dictionary else {}
+		completed[tech_id] = true
+		_player_state["national_domestic_tech_completed"] = completed
+	elif scope == DOMESTIC_TECH_SCOPE_CITY and not city_id.is_empty() and _is_domestic_city_tech_mvp(tech_id):
+		var completed_by_city: Dictionary = _player_state.get("city_domestic_tech_completed", {}) if _player_state.get("city_domestic_tech_completed", {}) is Dictionary else {}
+		var city_completed: Dictionary = completed_by_city.get(city_id, {}) if completed_by_city.get(city_id, {}) is Dictionary else {}
+		city_completed[tech_id] = true
+		completed_by_city[city_id] = city_completed
+		_player_state["city_domestic_tech_completed"] = completed_by_city
+
+
+func _sync_city_domestic_tech_completed_mirror_mvp(city_id: String) -> void:
+	if city_id.is_empty() or not _city_runtime_states.has(city_id):
+		return
+	var city_data_variant: Variant = _city_runtime_states.get(city_id, {})
+	if not city_data_variant is Dictionary:
+		return
+	var city_data := (city_data_variant as Dictionary).duplicate(true)
+	var city_tech: Dictionary = city_data.get("city_tech", {}) if city_data.get("city_tech", {}) is Dictionary else {}
+	var mirrored_completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
+	var domestic_completed_by_city: Dictionary = _player_state.get("city_domestic_tech_completed", {}) if _player_state.get("city_domestic_tech_completed", {}) is Dictionary else {}
+	var domestic_completed: Dictionary = domestic_completed_by_city.get(city_id, {}) if domestic_completed_by_city.get(city_id, {}) is Dictionary else {}
+	for tech_id_variant in _get_domestic_city_tech_definitions_mvp().keys():
+		var tech_id := str(tech_id_variant)
+		if bool(domestic_completed.get(tech_id, false)):
+			mirrored_completed[tech_id] = true
+		elif mirrored_completed.has(tech_id):
+			mirrored_completed.erase(tech_id)
+	city_tech["completed"] = mirrored_completed
+	city_data["city_tech"] = city_tech
+	_city_runtime_states[city_id] = city_data
 
 
 func _get_current_world_turn_number_mvp() -> int:
@@ -11575,7 +11674,7 @@ func _advance_national_tech_research_for_world_turn_mvp() -> Array[Dictionary]:
 		_player_state["national_tech_research"] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: {}}
 		return result
 	var before_remaining := maxi(0, int(active.get("remaining_turns", active.get("duration_turns", 1))))
-	var after_remaining := before_remaining - 1
+	var after_remaining := maxi(0, before_remaining - 1)
 	if after_remaining <= 0:
 		result.append(_complete_national_tech_research_mvp(active))
 		return result
@@ -11614,7 +11713,7 @@ func _advance_city_tech_research_for_world_turn_mvp() -> Array[Dictionary]:
 			_city_runtime_states[city_id] = city_data
 			continue
 		var before_remaining := maxi(0, int(active.get("remaining_turns", active.get("duration_turns", 1))))
-		var after_remaining := before_remaining - 1
+		var after_remaining := maxi(0, before_remaining - 1)
 		if after_remaining <= 0:
 			result.append(_complete_city_tech_research_mvp(city_id, active))
 			continue
@@ -11637,6 +11736,17 @@ func _complete_national_tech_research_mvp(active: Dictionary) -> Dictionary:
 	var tech_id := str(active.get("tech_id", ""))
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
 	var completed: Dictionary = _player_state.get("national_domestic_tech_completed", {}) if _player_state.get("national_domestic_tech_completed", {}) is Dictionary else {}
+	if bool(completed.get(tech_id, false)):
+		_player_state["national_tech_research"] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: {}}
+		return {
+			"type": DOMESTIC_TECH_SCOPE_NATIONAL,
+			"tech_id": tech_id,
+			"before_remaining": maxi(0, int(active.get("remaining_turns", active.get("duration_turns", 1)))),
+			"after_remaining": 0,
+			"completed": false,
+			"already_completed": true,
+			"completed_turn": turn_number,
+		}
 	if _is_domestic_national_tech_mvp(tech_id):
 		completed[tech_id] = true
 	_player_state["national_domestic_tech_completed"] = completed
@@ -11657,6 +11767,23 @@ func _complete_city_tech_research_mvp(city_id: String, active: Dictionary) -> Di
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
 	var completed_by_city: Dictionary = _player_state.get("city_domestic_tech_completed", {}) if _player_state.get("city_domestic_tech_completed", {}) is Dictionary else {}
 	var city_completed: Dictionary = completed_by_city.get(city_id, {}) if completed_by_city.get(city_id, {}) is Dictionary else {}
+	if bool(city_completed.get(tech_id, false)):
+		var existing_city_data := _get_mutable_city_runtime_state(city_id)
+		if not existing_city_data.is_empty():
+			var existing_city_tech: Dictionary = existing_city_data.get("city_tech", {}) if existing_city_data.get("city_tech", {}) is Dictionary else {}
+			existing_city_tech[DOMESTIC_TECH_RESEARCH_KEY] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: {}}
+			existing_city_data["city_tech"] = existing_city_tech
+			_city_runtime_states[city_id] = existing_city_data
+		return {
+			"type": DOMESTIC_TECH_SCOPE_CITY,
+			"city_id": city_id,
+			"tech_id": tech_id,
+			"before_remaining": maxi(0, int(active.get("remaining_turns", active.get("duration_turns", 1)))),
+			"after_remaining": 0,
+			"completed": false,
+			"already_completed": true,
+			"completed_turn": turn_number,
+		}
 	if _is_domestic_city_tech_mvp(tech_id):
 		city_completed[tech_id] = true
 	completed_by_city[city_id] = city_completed
@@ -17721,6 +17848,7 @@ func _apply_worldmap_city_runtime_state(raw_state: Variant) -> void:
 		city_state["stationed_hero_ids"] = stationed_hero_ids
 		city_state["hero_ids"] = stationed_hero_ids.duplicate()
 		_city_runtime_states[city_id] = city_state
+		_sync_city_domestic_tech_completed_mirror_mvp(city_id)
 		for hero_id in stationed_hero_ids:
 			_set_hero_runtime_city(hero_id, city_id)
 		print("[LOAD_CITY_STATE] city=%s owner=%s troops=%d heroes=%s" % [

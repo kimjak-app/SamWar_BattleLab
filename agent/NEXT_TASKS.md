@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish
+- Baseline: `v0.70-66 Domestic Tech Research Progress & Completion MVP` (`1f9bb843ced5730483867ac546f4b208df0347b2`).
+- Completed direction:
+  1. Added safer active/completed normalize for Domestic Tech research state.
+  2. Clamped research turn advancement to 0 and handled 0/negative active state without leaving stale active research.
+  3. Added duplicate completion guards so already-completed active entries clear without another player-facing completion message.
+  4. Kept city completed state separated by city and synced the city runtime mirror from player-state completed data.
+  5. Confirmed completed-only prerequisite recognition remains intact; researching/active techs are not prerequisite credit.
+- Preserved scope:
+  1. No actual effects, resource payment, AI research, enemy research, BattleContext/pending invasion change, or gameplay formula change was made.
+  2. UI64 icon priority, click latency behavior, overlay lifecycle, PLAYER-only national/city scope, and enemy/insufficient-intel hiding remain locked.
+- Next candidate:
+  1. `v0.70-67 Domestic Tech Actual Effects Phase 1`.
+  2. Start effects from safest display/unlock-only behavior, not resource/combat/economy formula changes.
+- Manual F6 QA required:
+  1. Check national/city progress and completion, duplicate notification absence, city-specific completed separation, follow-up tech availability, save/load, no resource/effect mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-66 Domestic Tech Research Progress & Completion MVP
 - Baseline: `v0.70-65 Domestic Tech Research Start MVP` (`c27e46034684a0385f76bf3816f22a71c76eda2a` locally at task start, matching `origin/main`).
 - Completed direction:

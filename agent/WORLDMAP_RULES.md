@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish Lock Rule
+- Baseline is `v0.70-66 Domestic Tech Research Progress & Completion MVP` (`1f9bb843ced5730483867ac546f4b208df0347b2`).
+- v0.70-66-hotfix1 is Domestic Tech Research QA and completion polish only.
+- Active research normalize may clear missing, empty, malformed, already-completed, or 0/negative active research state safely.
+- Completed state normalize may convert missing/null/list-shaped national and city completed data into Dictionary-shaped completed data without destructive migration.
+- Research turn advancement must clamp `remaining_turns` to 0, complete once, clear active state, and avoid duplicate completion notifications.
+- City completed source of truth remains `_player_state["city_domestic_tech_completed"]`, separated by city. City runtime `city_tech.completed` is only a mirror for the same city.
+- Completed techs count for prerequisites and `required_national_techs`; active/researching techs do not count as completed.
+- This pass does not authorize actual tech effects, effect stub execution, unlock effect application, resource cost payment, AI research, enemy research, enemy completed-tech mutation, enemy active research, BattleContext changes, pending invasion changes, or gameplay formula changes.
+- Income/resource/troop/battle/diplomacy/spy/market formulas remain unchanged. Enemy pressure plan, pending invasion, and BattleContext existing locks remain active.
+- UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Left side remains PLAYER national tech only. Right side remains selected PLAYER city tech only. Enemy or insufficient-intel city tech detail and research start/progress/completion must stay blocked under Fog of War / `city_intel` policy.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by this hotfix.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-66 Domestic Tech Research Progress & Completion MVP Lock Rule
 - Baseline is `v0.70-65 Domestic Tech Research Start MVP` (`c27e46034684a0385f76bf3816f22a71c76eda2a` locally at task start, matching `origin/main`).
 - v0.70-66 is Domestic Tech Research Progress & Completion MVP only.
