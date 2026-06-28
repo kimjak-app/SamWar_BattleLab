@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set Lock Rule
+- Baseline is `v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish` (`8a9067339802bd28fecbdae810ab9ff8f7f69f91`).
+- v0.70-68 authorizes only PLAYER city economy Safe Set numeric effects from completed city Domestic Tech.
+- Economy bonus calculation must use completed city techs for the same city only. Researching/incomplete techs and other-city completions must not apply effects.
+- Allowed categories are `agri`, `fish`, and `commerce` only. Military, defense, naval, siege, national policy, diplomacy, spy, market, and combat effects remain unauthorized.
+- Bonus should be computed from completed tech state each time and must not be stored as separate save/load state.
+- Enemy cities must receive no economy effect and no economy bonus detail display.
+- Food/gold bonuses may connect to the existing player domestic income flow; supply bonus values may be summarized for QA/display only unless a later version adds an explicit supply resource hook.
+- QA helpers may report numeric economy counts, but combat/diplomacy/spy/enemy effect counters must remain 0 and helpers must not spam logs or mutate gameplay.
+- UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Left side remains PLAYER national tech only. Right side remains selected PLAYER city tech only. Enemy or insufficient-intel city tech detail and research start/progress/completion must stay blocked under Fog of War / `city_intel` policy.
+- This phase does not authorize resource payment, combat/troop/battle/diplomacy/spy/market formula changes, AI research, enemy research, enemy effects, enemy completed-tech mutation, enemy active research, BattleContext changes, pending invasion changes, tech definition changes, or enemy city tech exposure.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by this phase.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish Lock Rule
 - Baseline is `v0.70-67 Domestic Tech Actual Effects Phase 1` (`4a4632b36f132fdae58f3fb98300a3128ba4bedf`).
 - v0.70-67-hotfix1 authorizes QA/display polish only for Domestic Tech Tree Phase 1.

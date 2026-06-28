@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set
+- Built on `v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish` (`8a9067339802bd28fecbdae810ab9ff8f7f69f91`).
+- Added a PLAYER-city-only Domestic Tech economy bonus helper based on completed city techs; no derived bonus state is saved.
+- Added agri/fish/commerce Safe Set mapping for small food, gold, and display-level supply bonuses.
+- Hooked completed city tech food/gold bonuses into the existing player domestic income path with per-city ownership and completed-state guards.
+- Added selected city economy bonus/source display to city detail and Domestic Tech inspector.
+- Extended internal QA summary helpers with numeric economy effect counts and combat/diplomacy/spy/enemy effect counters fixed at 0.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement combat/troop/battle/diplomacy/spy/market effects, national policy numeric effects, resource payment, AI research, enemy research/effect, BattleContext changes, pending invasion changes, scenes, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish
 - Built on `v0.70-67 Domestic Tech Actual Effects Phase 1` (`4a4632b36f132fdae58f3fb98300a3128ba4bedf`).
 - Stabilized required-national condition display around completed, researching, and incomplete states while preserving completed-only logic.

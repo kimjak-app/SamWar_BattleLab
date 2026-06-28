@@ -149,6 +149,23 @@ const DOMESTIC_TECH_GRAPH_BRANCH_SPACING := 138.0
 const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 106.0
 const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(110.0, 48.0)
 const DOMESTIC_TECH_GRAPH_LINE_WIDTH := 3.0
+const DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP := {
+	"agri_tool_upgrade": {"food_percent": 0.05},
+	"agri_irrigation": {"food_percent": 0.08},
+	"agri_reservoir": {"food_percent": 0.10},
+	"agri_double_cropping": {"food_percent": 0.12},
+	"agri_granary_zone": {"food_flat": 20},
+	"fish_village": {"food_flat": 10},
+	"fish_coastal_fishing": {"food_percent": 0.04},
+	"fish_fleet": {"food_percent": 0.06},
+	"fish_deep_sea_fishing": {"food_percent": 0.08},
+	"fish_dried_supply_base": {"supply_flat": 10},
+	"commerce_street_market": {"gold_flat": 10},
+	"commerce_permanent_market": {"gold_percent": 0.05},
+	"commerce_merchant_guild": {"gold_percent": 0.08},
+	"commerce_mint": {"gold_flat": 20},
+	"commerce_grand_market": {"gold_percent": 0.12},
+}
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
 const DIPLOMACY_SPY_TAB_DIPLOMACY := "diplomacy"
@@ -1973,6 +1990,9 @@ func _apply_city_detail_resource_tab_content(city_id: String, city_data: Diction
 		_format_star_rating(_get_city_numeric_rating(city_data, "population_rating", 0)),
 		_format_star_rating(_get_city_numeric_rating(city_data, "commerce_rating", 0)),
 	]
+	var economy_bonus_lines := _format_domestic_tech_city_economy_bonus_lines_mvp(city_id)
+	if not economy_bonus_lines.is_empty():
+		city_detail_rating_label.text += "\n%s" % "\n".join(economy_bonus_lines)
 	city_detail_rating_label.add_theme_color_override("font_color", Color(0.95, 0.92, 0.82, 1.0))
 	city_detail_status_label.visible = true
 	city_detail_status_label.text = _format_city_storage_summary(_get_city_storage(city_id, city_data))
@@ -9869,6 +9889,89 @@ func _is_national_domestic_tech_completed_mvp(tech_id: String) -> bool:
 	return bool(completed.get(tech_id, false))
 
 
+func _get_empty_domestic_tech_city_economy_bonus_mvp() -> Dictionary:
+	return {
+		"food_flat": 0,
+		"food_percent": 0.0,
+		"gold_flat": 0,
+		"gold_percent": 0.0,
+		"supply_flat": 0,
+		"supply_percent": 0.0,
+		"source_techs": [],
+	}
+
+
+func _get_domestic_tech_city_economy_bonus_mvp(city_id: String) -> Dictionary:
+	var bonus := _get_empty_domestic_tech_city_economy_bonus_mvp()
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return bonus
+	for tech_id_variant in DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.keys():
+		var tech_id := str(tech_id_variant)
+		if not _is_city_domestic_tech_completed_mvp(city_id, tech_id):
+			continue
+		var mapping: Dictionary = DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.get(tech_id, {})
+		bonus["food_flat"] = int(bonus.get("food_flat", 0)) + int(mapping.get("food_flat", 0))
+		bonus["food_percent"] = float(bonus.get("food_percent", 0.0)) + float(mapping.get("food_percent", 0.0))
+		bonus["gold_flat"] = int(bonus.get("gold_flat", 0)) + int(mapping.get("gold_flat", 0))
+		bonus["gold_percent"] = float(bonus.get("gold_percent", 0.0)) + float(mapping.get("gold_percent", 0.0))
+		bonus["supply_flat"] = int(bonus.get("supply_flat", 0)) + int(mapping.get("supply_flat", 0))
+		bonus["supply_percent"] = float(bonus.get("supply_percent", 0.0)) + float(mapping.get("supply_percent", 0.0))
+		(bonus["source_techs"] as Array).append(tech_id)
+	return bonus
+
+
+func _has_domestic_tech_city_economy_bonus_mvp(city_id: String) -> bool:
+	var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
+	return int(bonus.get("food_flat", 0)) != 0 \
+		or not is_equal_approx(float(bonus.get("food_percent", 0.0)), 0.0) \
+		or int(bonus.get("gold_flat", 0)) != 0 \
+		or not is_equal_approx(float(bonus.get("gold_percent", 0.0)), 0.0) \
+		or int(bonus.get("supply_flat", 0)) != 0 \
+		or not is_equal_approx(float(bonus.get("supply_percent", 0.0)), 0.0)
+
+
+func _format_domestic_tech_percent_bonus_mvp(value: float) -> String:
+	return "%s%%" % _format_signed_int(int(round(value * 100.0)))
+
+
+func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include_sources: bool = true) -> Array[String]:
+	var result: Array[String] = []
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return result
+	var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
+	if not _has_domestic_tech_city_economy_bonus_mvp(city_id):
+		return result
+	var resource_parts: Array[String] = []
+	var food_percent := float(bonus.get("food_percent", 0.0))
+	var gold_percent := float(bonus.get("gold_percent", 0.0))
+	var supply_percent := float(bonus.get("supply_percent", 0.0))
+	if not is_equal_approx(food_percent, 0.0):
+		resource_parts.append("식량 %s" % _format_domestic_tech_percent_bonus_mvp(food_percent))
+	if int(bonus.get("food_flat", 0)) != 0:
+		resource_parts.append("식량 %s" % _format_signed_int(int(bonus.get("food_flat", 0))))
+	if not is_equal_approx(gold_percent, 0.0):
+		resource_parts.append("금전 %s" % _format_domestic_tech_percent_bonus_mvp(gold_percent))
+	if int(bonus.get("gold_flat", 0)) != 0:
+		resource_parts.append("금전 %s" % _format_signed_int(int(bonus.get("gold_flat", 0))))
+	if not is_equal_approx(supply_percent, 0.0):
+		resource_parts.append("보급 %s" % _format_domestic_tech_percent_bonus_mvp(supply_percent))
+	if int(bonus.get("supply_flat", 0)) != 0:
+		resource_parts.append("보급 %s" % _format_signed_int(int(bonus.get("supply_flat", 0))))
+	if not resource_parts.is_empty():
+		result.append("테크 경제 보너스: %s" % ", ".join(resource_parts))
+	if include_sources:
+		var source_techs: Array = bonus.get("source_techs", []) if bonus.get("source_techs", []) is Array else []
+		if not source_techs.is_empty():
+			var source_names: Array[String] = []
+			for index in range(mini(source_techs.size(), 4)):
+				source_names.append(_get_domestic_tech_display_name_mvp(str(source_techs[index])))
+			var suffix := ""
+			if source_techs.size() > source_names.size():
+				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
+			result.append("적용 테크: %s%s" % [", ".join(source_names), suffix])
+	return result
+
+
 func _are_domestic_tech_prerequisites_met_mvp(city_id: String, tech_id: String) -> bool:
 	var definition := _get_domestic_tech_definition_mvp(tech_id)
 	if definition.is_empty():
@@ -10241,6 +10344,12 @@ func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dic
 	var effect_display := _get_domestic_tech_effect_phase1_display_mvp(tech_def, scope, city_id)
 	if not effect_display.is_empty():
 		lines.append("적용 상태:\n- %s" % "\n- ".join(effect_display))
+	var economy_bonus_city_id := city_id
+	if economy_bonus_city_id.is_empty() and selected_city_marker != null:
+		economy_bonus_city_id = selected_city_marker.city_id
+	var economy_bonus_display := _format_domestic_tech_city_economy_bonus_lines_mvp(economy_bonus_city_id)
+	if not economy_bonus_display.is_empty():
+		lines.append("선택 도시 적용 경제 보너스:\n- %s" % "\n- ".join(economy_bonus_display))
 	lines.append("비용: %s" % _get_domestic_tech_cost_summary_mvp(tech_def))
 	lines.append("건설/연구 시간: %s" % _format_domestic_tech_duration_hint_mvp(tech_def))
 	var conditions := _get_domestic_tech_readiness_condition_lines_mvp(tech_def, view_state, city_id)
@@ -10515,7 +10624,13 @@ func _get_domestic_tech_effect_phase1_display_mvp(tech_def: Dictionary, scope: S
 		result.append("해금 상태: 조건 충족 시 관련 테크 연구 가능")
 	elif scope == DOMESTIC_TECH_SCOPE_CITY and (not required_national_techs.is_empty() or not enhanced_by_national_techs.is_empty()):
 		result.append("국가 테크 조건은 완료 상태만 인정")
-	result.append("수치 효과는 후속 버전에서 적용됩니다")
+	var has_economy_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.has(tech_id)
+	if has_economy_safe_effect and is_completed:
+		result.append("경제 효과: 선택 도시 수입에 적용 중")
+	elif has_economy_safe_effect:
+		result.append("경제 효과: 완료 후 선택 도시 수입에 적용")
+	else:
+		result.append("전투/외교/첩보/시장 효과는 후속 버전에서 적용됩니다")
 	return result
 
 
@@ -10530,6 +10645,7 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 	var unlock_ready_count := 0
 	var required_national_checks := 0
 	var city_prerequisite_checks := 0
+	var numeric_economy_effects_applied := 0
 	for national_tech_id_variant in national_completed.keys():
 		var national_tech_id := str(national_tech_id_variant)
 		var national_def := _get_domestic_tech_definition_mvp(national_tech_id)
@@ -10548,14 +10664,40 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 		if str(tech_def.get("tree_scope", "")) == DOMESTIC_TECH_SCOPE_CITY:
 			var prerequisites: Array = tech_def.get("prerequisites", []) if tech_def.get("prerequisites", []) is Array else []
 			city_prerequisite_checks += prerequisites.size()
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if owned_city_ids is Array:
+		for city_id_variant in owned_city_ids:
+			var city_id := str(city_id_variant)
+			if not _is_city_owned_by_player_mvp(city_id):
+				continue
+			var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
+			var source_techs: Array = bonus.get("source_techs", []) if bonus.get("source_techs", []) is Array else []
+			numeric_economy_effects_applied += source_techs.size()
 	return {
 		"national_completed_count": national_completed.size(),
 		"city_completed_count": city_completed_count,
 		"unlock_ready_count": unlock_ready_count,
-		"numeric_effects_applied": 0,
+		"numeric_effects_applied": numeric_economy_effects_applied,
+		"numeric_economy_effects_applied": numeric_economy_effects_applied,
+		"economy_effects_enabled": true,
 		"required_national_checks": required_national_checks,
 		"city_prerequisite_checks": city_prerequisite_checks,
 		"researching_treated_as_completed": false,
+		"combat_effects_applied": 0,
+		"diplomacy_effects_applied": 0,
+		"spy_effects_applied": 0,
+		"enemy_effects_applied": 0,
+	}
+
+
+func _get_domestic_tech_numeric_effect_phase1_summary_mvp() -> Dictionary:
+	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
+	return {
+		"economy_effects_enabled": true,
+		"numeric_economy_effects_applied": int(summary.get("numeric_economy_effects_applied", 0)),
+		"combat_effects_applied": 0,
+		"diplomacy_effects_applied": 0,
+		"spy_effects_applied": 0,
 		"enemy_effects_applied": 0,
 	}
 
@@ -13920,6 +14062,7 @@ func _calculate_player_domestic_income_delta(turn_number: int, tax_level: int, p
 		_apply_supply_income_effect(city_effects, city_supply_state)
 		city_effects = _apply_tech_income_multipliers_to_effects(str(city_id), city_effects)
 		var city_income := _calculate_city_domestic_income(city_data, calendar, tax_level, city_effects)
+		city_income = _apply_domestic_tech_city_economy_bonus_to_income_mvp(str(city_id), city_income)
 		for resource_id in totals.keys():
 			totals[resource_id] = int(totals.get(resource_id, 0)) + int(city_income.get(resource_id, 0))
 	var policy_totals := _apply_chancellor_policy_to_income_totals(totals, policy_id)
@@ -13943,6 +14086,28 @@ func _calculate_city_gold_tax_income(city_data: Dictionary, tax_level: int) -> i
 	var commerce_tax_points := _get_city_numeric_rating(city_data, "commerce_rating", 0) * COMMERCE_TAX_POINT_PER_RATING
 	var taxable_value := (population_tax_points + commerce_tax_points) * TAX_POINT_TO_GOLD
 	return maxi(0, int(round(float(taxable_value) * _get_tax_gold_multiplier(tax_level))))
+
+
+func _apply_domestic_tech_city_economy_bonus_to_income_mvp(city_id: String, income: Dictionary) -> Dictionary:
+	var result := income.duplicate(true)
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return result
+	var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
+	var food_percent := float(bonus.get("food_percent", 0.0))
+	var food_flat := int(bonus.get("food_flat", 0))
+	for food_resource_id in CITY_STORAGE_FOOD_RESOURCE_IDS:
+		result[food_resource_id] = maxi(0, int(round(float(result.get(food_resource_id, 0)) * (1.0 + food_percent))))
+	if food_flat != 0:
+		var target_food_id := "rice"
+		for food_resource_id in CITY_STORAGE_FOOD_RESOURCE_IDS:
+			if int(result.get(food_resource_id, 0)) > 0:
+				target_food_id = food_resource_id
+				break
+		result[target_food_id] = maxi(0, int(result.get(target_food_id, 0)) + food_flat)
+	var gold_percent := float(bonus.get("gold_percent", 0.0))
+	var gold_flat := int(bonus.get("gold_flat", 0))
+	result["gold"] = maxi(0, int(round(float(result.get("gold", 0)) * (1.0 + gold_percent))) + gold_flat)
+	return result
 
 
 func _get_rating(source: Dictionary, key: String) -> int:

@@ -2,6 +2,18 @@
 
 ## 2026-06-28
 
+### v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set
+- Started from local `8a90673 v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish`; `origin/main` matched local HEAD and the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - PLAYER-city-only economy bonus helper from completed city Domestic Tech.
+  - Agri/fish/commerce Safe Set values for food, gold, and display-level supply bonuses.
+  - Existing player domestic income hook for city food/gold bonuses without storing derived bonus state.
+  - Selected PLAYER city economy bonus/source display in city detail and Domestic Tech inspector.
+  - Numeric effect QA helper output with economy count and combat/diplomacy/spy/enemy counters at 0.
+- Preserved no combat/troop/battle/diplomacy/spy/market effect, no national policy numeric effect, no resource payment, no AI research, no enemy research/effect, UI64 priority, click latency behavior, overlay lifecycle, enemy/insufficient-intel hiding, BattleContext, pending invasion, tech definitions, assets, icon PNG files, UI64 PNG files, and `.import` files.
+- Manual F6 QA remains required for city economy bonus, turn income change, same-city only, enemy no-effect, UI bonus display, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish
 - Started from local `4a4632b v0.70-67 Domestic Tech Actual Effects Phase 1`; local HEAD was one commit ahead of `origin/main` and the working tree was clean.
 - Required workflow/worldmap docs were read before runtime changes.

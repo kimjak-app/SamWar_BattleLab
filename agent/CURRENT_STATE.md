@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set
+- Baseline: `v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish` at `8a9067339802bd28fecbdae810ab9ff8f7f69f91`; local HEAD matched `origin/main` and tracked files were clean at task start.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Economy Safe Set scope:
+  - Added PLAYER-city-only Domestic Tech economy bonus calculation from completed city techs; no bonus state is saved.
+  - Applied only agri/fish/commerce Safe Set values to city food resource and gold income during the existing player domestic income flow.
+  - Researching or incomplete city techs provide no numeric effect, and other-city completed techs do not transfer.
+  - Enemy cities receive no economy tech effect and no economy bonus detail display.
+  - City detail and Domestic Tech inspector now display the selected city economy bonus and source tech names.
+  - QA summary now reports numeric economy effect count plus combat/diplomacy/spy/enemy effect counters at 0.
+- Preserved scope: no combat/troop/battle/diplomacy/spy/market effect, no national policy numeric effect, no resource payment, no AI research, no enemy research/effect, no BattleContext change, no pending invasion change, no tech definition change, and no asset/import change.
+- Existing locks remain: UI64 icon priority, node-click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, active/completed normalize, and research start/progress/completion.
+- Next candidates: `v0.70-68-hotfix1 Economy Effect QA Polish` or `v0.70-69 Domestic Tech Military/Defense Effects Safe Set`.
+- Manual F6 QA remains required for city economy bonus, turn income change, same-city only, enemy no-effect, UI bonus display, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish
 - Baseline: `v0.70-67 Domestic Tech Actual Effects Phase 1` at `4a4632b36f132fdae58f3fb98300a3128ba4bedf`; local HEAD was one commit ahead of `origin/main` and tracked files were clean at task start.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
