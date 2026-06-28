@@ -11539,6 +11539,170 @@ func _start_domestic_tech_research_mvp(tech_id: String, city_id: String = "") ->
 	return true
 
 
+func _advance_domestic_tech_research_for_world_turn_mvp() -> Dictionary:
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var national_events := _advance_national_tech_research_for_world_turn_mvp()
+	var city_events := _advance_city_tech_research_for_world_turn_mvp()
+	var result := {
+		"turn": turn_number,
+		"national": national_events,
+		"city": city_events,
+		"advanced": [],
+		"completed": [],
+	}
+	for event in national_events:
+		(result["advanced"] as Array).append(event)
+		if bool(event.get("completed", false)):
+			(result["completed"] as Array).append(event)
+	for event in city_events:
+		(result["advanced"] as Array).append(event)
+		if bool(event.get("completed", false)):
+			(result["completed"] as Array).append(event)
+	_player_state["last_domestic_tech_progress_result"] = result.duplicate(true)
+	if not (result["completed"] as Array).is_empty() and _is_domestic_tech_tree_overlay_open_mvp():
+		_refresh_domestic_tech_tree_overlay_mvp()
+	return result
+
+
+func _advance_national_tech_research_for_world_turn_mvp() -> Array[Dictionary]:
+	_normalize_domestic_tech_state_mvp()
+	var result: Array[Dictionary] = []
+	var active := _get_national_domestic_tech_active_research_mvp()
+	if active.is_empty():
+		return result
+	var tech_id := str(active.get("tech_id", ""))
+	if tech_id.is_empty() or not _is_domestic_national_tech_mvp(tech_id):
+		_player_state["national_tech_research"] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: {}}
+		return result
+	var before_remaining := maxi(0, int(active.get("remaining_turns", active.get("duration_turns", 1))))
+	var after_remaining := before_remaining - 1
+	if after_remaining <= 0:
+		result.append(_complete_national_tech_research_mvp(active))
+		return result
+	active["remaining_turns"] = after_remaining
+	_player_state["national_tech_research"] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: active}
+	result.append({
+		"type": DOMESTIC_TECH_SCOPE_NATIONAL,
+		"tech_id": tech_id,
+		"before_remaining": before_remaining,
+		"after_remaining": after_remaining,
+		"completed": false,
+	})
+	return result
+
+
+func _advance_city_tech_research_for_world_turn_mvp() -> Array[Dictionary]:
+	_normalize_domestic_tech_state_mvp()
+	var result: Array[Dictionary] = []
+	for city_id in _get_player_city_ids_for_domestic_tech_research_mvp():
+		var city_data := _get_city_hud_entry(city_id)
+		if city_data.is_empty():
+			continue
+		var city_tech: Dictionary = city_data.get("city_tech", {}) if city_data.get("city_tech", {}) is Dictionary else {}
+		var research_state := _normalize_domestic_tech_research_container_mvp(city_tech.get(DOMESTIC_TECH_RESEARCH_KEY, {}), DOMESTIC_TECH_SCOPE_CITY, city_id)
+		var active: Dictionary = research_state.get(DOMESTIC_TECH_RESEARCH_ACTIVE_KEY, {}) if research_state.get(DOMESTIC_TECH_RESEARCH_ACTIVE_KEY, {}) is Dictionary else {}
+		if active.is_empty():
+			continue
+		city_data = _get_mutable_city_runtime_state(city_id)
+		if city_data.is_empty():
+			continue
+		city_tech = city_data.get("city_tech", {}) if city_data.get("city_tech", {}) is Dictionary else {}
+		var tech_id := str(active.get("tech_id", ""))
+		if tech_id.is_empty() or not _is_domestic_city_tech_mvp(tech_id):
+			city_tech[DOMESTIC_TECH_RESEARCH_KEY] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: {}}
+			city_data["city_tech"] = city_tech
+			_city_runtime_states[city_id] = city_data
+			continue
+		var before_remaining := maxi(0, int(active.get("remaining_turns", active.get("duration_turns", 1))))
+		var after_remaining := before_remaining - 1
+		if after_remaining <= 0:
+			result.append(_complete_city_tech_research_mvp(city_id, active))
+			continue
+		active["remaining_turns"] = after_remaining
+		city_tech[DOMESTIC_TECH_RESEARCH_KEY] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: active}
+		city_data["city_tech"] = city_tech
+		_city_runtime_states[city_id] = city_data
+		result.append({
+			"type": DOMESTIC_TECH_SCOPE_CITY,
+			"city_id": city_id,
+			"tech_id": tech_id,
+			"before_remaining": before_remaining,
+			"after_remaining": after_remaining,
+			"completed": false,
+		})
+	return result
+
+
+func _complete_national_tech_research_mvp(active: Dictionary) -> Dictionary:
+	var tech_id := str(active.get("tech_id", ""))
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var completed: Dictionary = _player_state.get("national_domestic_tech_completed", {}) if _player_state.get("national_domestic_tech_completed", {}) is Dictionary else {}
+	if _is_domestic_national_tech_mvp(tech_id):
+		completed[tech_id] = true
+	_player_state["national_domestic_tech_completed"] = completed
+	_player_state["national_tech_research"] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: {}}
+	return {
+		"type": DOMESTIC_TECH_SCOPE_NATIONAL,
+		"tech_id": tech_id,
+		"before_remaining": maxi(0, int(active.get("remaining_turns", active.get("duration_turns", 1)))),
+		"after_remaining": 0,
+		"completed": true,
+		"completed_turn": turn_number,
+		"message": "연구 완료: %s" % _get_domestic_tech_display_name_mvp(tech_id),
+	}
+
+
+func _complete_city_tech_research_mvp(city_id: String, active: Dictionary) -> Dictionary:
+	var tech_id := str(active.get("tech_id", ""))
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var completed_by_city: Dictionary = _player_state.get("city_domestic_tech_completed", {}) if _player_state.get("city_domestic_tech_completed", {}) is Dictionary else {}
+	var city_completed: Dictionary = completed_by_city.get(city_id, {}) if completed_by_city.get(city_id, {}) is Dictionary else {}
+	if _is_domestic_city_tech_mvp(tech_id):
+		city_completed[tech_id] = true
+	completed_by_city[city_id] = city_completed
+	_player_state["city_domestic_tech_completed"] = completed_by_city
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	if not city_data.is_empty():
+		var city_tech: Dictionary = city_data.get("city_tech", {}) if city_data.get("city_tech", {}) is Dictionary else {}
+		var legacy_completed: Dictionary = city_tech.get("completed", {}) if city_tech.get("completed", {}) is Dictionary else {}
+		if _is_domestic_city_tech_mvp(tech_id):
+			legacy_completed[tech_id] = true
+		city_tech["completed"] = legacy_completed
+		city_tech[DOMESTIC_TECH_RESEARCH_KEY] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: {}}
+		city_data["city_tech"] = city_tech
+		_city_runtime_states[city_id] = city_data
+	return {
+		"type": DOMESTIC_TECH_SCOPE_CITY,
+		"city_id": city_id,
+		"tech_id": tech_id,
+		"before_remaining": maxi(0, int(active.get("remaining_turns", active.get("duration_turns", 1)))),
+		"after_remaining": 0,
+		"completed": true,
+		"completed_turn": turn_number,
+		"message": "%s 연구 완료: %s" % [_format_city_name_by_id(city_id, city_id), _get_domestic_tech_display_name_mvp(tech_id)],
+	}
+
+
+func _get_player_city_ids_for_domestic_tech_research_mvp() -> Array[String]:
+	var city_ids: Array[String] = []
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if owned_city_ids is Array:
+		for city_id_variant in owned_city_ids:
+			var city_id := str(city_id_variant)
+			if not city_id.is_empty() and not city_ids.has(city_id):
+				city_ids.append(city_id)
+	for city_id_variant in _city_runtime_states.keys():
+		var city_id := str(city_id_variant)
+		if not city_id.is_empty() and not city_ids.has(city_id):
+			city_ids.append(city_id)
+	var result: Array[String] = []
+	for city_id in city_ids:
+		if _is_city_owned_by_player_mvp(city_id):
+			result.append(city_id)
+	result.sort()
+	return result
+
+
 func _ensure_national_tech_state() -> void:
 	if not _player_state.has("national_tech") or not (_player_state["national_tech"] is Dictionary):
 		_player_state["national_tech"] = {}
@@ -13433,12 +13597,13 @@ func _apply_domestic_turn_mvp() -> String:
 	var revolt_warning_result := _apply_revolt_warning_check_for_world_turn()
 	var national_tech_progress_result := _advance_national_tech_progress_for_world_turn()
 	var city_tech_progress_result := _advance_city_tech_progress_for_world_turn()
+	var domestic_tech_progress_result := _advance_domestic_tech_research_for_world_turn_mvp()
 	var tech_effect_result := _apply_completed_tech_effects_for_world_turn()
 	var trade_market_result := _update_trade_market_for_world_turn(supply_states)
 	var chancellor_auto_trade_result := _apply_chancellor_auto_trade_for_world_turn(turn_number)
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, domestic_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
 		"version": "v0.69-4",
@@ -13463,11 +13628,12 @@ func _apply_domestic_turn_mvp() -> String:
 		"revolt_warning_result": revolt_warning_result,
 		"national_tech_progress_result": national_tech_progress_result,
 		"city_tech_progress_result": city_tech_progress_result,
+		"domestic_tech_progress_result": domestic_tech_progress_result,
 		"tech_effect_result": tech_effect_result,
 		"trade_market_result": trade_market_result,
 		"chancellor_auto_trade_result": chancellor_auto_trade_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, domestic_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -16819,7 +16985,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}, tech_effect_result: Dictionary = {}, trade_market_result: Dictionary = {}, diplomacy_normalize_result: Dictionary = {}, diplomacy_cooldown_result: Dictionary = {}, spy_cooldown_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}, domestic_tech_progress_result: Dictionary = {}, tech_effect_result: Dictionary = {}, trade_market_result: Dictionary = {}, diplomacy_normalize_result: Dictionary = {}, diplomacy_cooldown_result: Dictionary = {}, spy_cooldown_result: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -16850,6 +17016,10 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		var city_summary := _format_city_tech_progress_summary(city_tech_progress_result)
 		if not city_summary.is_empty():
 			parts.append(city_summary)
+	if not domestic_tech_progress_result.is_empty():
+		var domestic_tech_summary := _format_domestic_tech_progress_summary_mvp(domestic_tech_progress_result)
+		if not domestic_tech_summary.is_empty():
+			parts.append(domestic_tech_summary)
 	if not tech_effect_result.is_empty():
 		var effect_summary := _format_tech_effect_summary(tech_effect_result)
 		if not effect_summary.is_empty():
@@ -17112,6 +17282,26 @@ func _format_city_tech_progress_summary(result: Dictionary) -> String:
 		var definition := _get_city_tech_definition(tech_id)
 		parts.append("%s / %s" % [_format_city_name_by_id(city_id, city_id), str(definition.get("name", tech_id))])
 	return "" if parts.is_empty() else "도시 테크 완료: %s" % " / ".join(parts)
+
+
+func _format_domestic_tech_progress_summary_mvp(result: Dictionary) -> String:
+	var completed: Variant = result.get("completed", [])
+	if not completed is Array or (completed as Array).is_empty():
+		return ""
+	var parts: Array[String] = []
+	for entry_variant in completed:
+		if not entry_variant is Dictionary:
+			continue
+		var entry := entry_variant as Dictionary
+		var message := str(entry.get("message", ""))
+		if message.is_empty():
+			var tech_id := str(entry.get("tech_id", ""))
+			if str(entry.get("type", "")) == DOMESTIC_TECH_SCOPE_CITY:
+				message = "%s 연구 완료: %s" % [_format_city_name_by_id(str(entry.get("city_id", "")), str(entry.get("city_id", ""))), _get_domestic_tech_display_name_mvp(tech_id)]
+			else:
+				message = "연구 완료: %s" % _get_domestic_tech_display_name_mvp(tech_id)
+		parts.append(message)
+	return "" if parts.is_empty() else "내정 연구 완료: %s" % " / ".join(parts)
 
 
 func _format_tech_effect_summary(result: Dictionary) -> String:

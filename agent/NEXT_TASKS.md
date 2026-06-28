@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-66 Domestic Tech Research Progress & Completion MVP
+- Baseline: `v0.70-65 Domestic Tech Research Start MVP` (`c27e46034684a0385f76bf3816f22a71c76eda2a` locally at task start, matching `origin/main`).
+- Completed direction:
+  1. Added world domestic-turn progression for PLAYER Domestic Tech Tree active research.
+  2. National active research decrements `remaining_turns`; at 0 or below it writes `_player_state["national_domestic_tech_completed"][tech_id] = true` and clears the active national slot.
+  3. PLAYER city active research decrements per city; at 0 or below it writes only that city's completed state and clears only that city's active slot.
+  4. Completed national/city techs are recognized by existing prerequisite and `required_national_techs` checks; researching is still not treated as completed.
+  5. Completion messages are included in the domestic turn summary, and an open tech overlay refreshes after completion.
+- Preserved scope:
+  1. No Domestic Tech actual effects, resource payment, AI research, enemy research, BattleContext/pending invasion change, or gameplay formula change was made.
+  2. UI64 icon priority, hotfix4 click latency behavior, overlay lifecycle, left PLAYER national scope, right selected PLAYER city scope, and enemy/insufficient-intel hiding remain locked.
+- Next candidate:
+  1. `v0.70-67 Domestic Tech Actual Effects Phase 1`.
+  2. Alternative: `v0.70-66-hotfix1 Research Progress QA Polish` if F6 finds UI/message polish issues.
+- Manual F6 QA required:
+  1. Check national research progress/completion, city research progress/completion, follow-up tech availability, active-slot clearing, no resource/effect mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-65 Domestic Tech Research Start MVP
 - Baseline: `v0.70-64 Domestic Tech Research Readiness Layer` (`d442f1ee1d414a7cdb11e57d93ba46f625815b37`).
 - Completed direction:

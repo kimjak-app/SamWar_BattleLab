@@ -1,5 +1,27 @@
 # HANDOFF TO CODEX
 
+## v0.70-66 Domestic Tech Research Progress & Completion MVP Handoff
+- Baseline: `v0.70-65 Domestic Tech Research Start MVP` (`c27e46034684a0385f76bf3816f22a71c76eda2a` locally at task start, matching `origin/main`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass implements Domestic Tech Tree research progress and completion state only. It is not actual tech effect application.
+- World domestic turn apply now calls `_advance_domestic_tech_research_for_world_turn_mvp()`.
+- National research:
+  - Active state remains `_player_state["national_tech_research"]["active"]`.
+  - Each completed player turn decrements `remaining_turns`.
+  - Completion writes `_player_state["national_domestic_tech_completed"][tech_id] = true` and clears the active national slot.
+- City research:
+  - Active state remains `city_data["city_tech"]["research"]["active"]`.
+  - Only PLAYER-owned city active research advances.
+  - Completion writes the matching city entry in `_player_state["city_domestic_tech_completed"]`, mirrors that tech id into that city's `city_tech.completed`, and clears only that city's active slot.
+- Existing prerequisite helpers continue to use completed state only. `DOMESTIC_TECH_VIEW_RESEARCHING` and active research are not prerequisite credit.
+- Completion is surfaced through domestic turn summary messages; an open tech overlay refreshes after completion, while node-click still avoids full graph rebuild.
+- Explicitly unchanged: resource payment, resource mutation from Domestic Tech Tree research, actual effects, effect stubs, AI research, enemy research, income/resource/troop/battle/diplomacy/spy/market formulas, enemy pressure plan, pending invasion, BattleContext, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Hotfix4 node click latency remains locked; completion refresh is allowed only because turn state changed.
+- Hotfix5 UI64 binding remains locked: UI64 mapped icon first, existing `icon_path` fallback second, `?` fallback last; `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Enemy/insufficient-intel safety remains locked: left panel is PLAYER national tech only, and right city tech detail/research only applies to selected PLAYER cities.
+- Next candidate: `v0.70-67 Domestic Tech Actual Effects Phase 1`, or `v0.70-66-hotfix1 Research Progress QA Polish`.
+- Manual F6 QA remains required for national/city progress, completion display, active clear, follow-up tech availability, no resource/effect mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-65 Domestic Tech Research Start MVP Handoff
 - Baseline: `v0.70-64 Domestic Tech Research Readiness Layer` (`d442f1ee1d414a7cdb11e57d93ba46f625815b37`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

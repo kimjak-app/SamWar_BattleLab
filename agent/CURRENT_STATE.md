@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.70-66 Domestic Tech Research Progress & Completion MVP
+- Baseline: `v0.70-65 Domestic Tech Research Start MVP`; local HEAD at task start was `c27e46034684a0385f76bf3816f22a71c76eda2a` and matched `origin/main`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Research progress/completion MVP scope:
+  - Added PLAYER-only Domestic Tech Tree active research turn progression during the existing world domestic turn apply flow.
+  - National active research in `_player_state["national_tech_research"]["active"]` now decrements `remaining_turns` by 1 per completed player turn.
+  - PLAYER city active research in `city_data["city_tech"]["research"]["active"]` now decrements independently per city.
+  - Completed national research is recorded in `_player_state["national_domestic_tech_completed"]`, active national research is cleared, and completed tech is recognized by prerequisite checks.
+  - Completed city research is recorded per city in `_player_state["city_domestic_tech_completed"]` and mirrored to that city's `city_tech.completed`, active city research is cleared, and only that city receives prerequisite credit.
+  - Domestic turn summary records national/city research completion messages.
+- Preserved scope: no actual tech effect application for Domestic Tech Tree definitions, no resource cost payment, no resource/income/troop/battle/diplomacy/spy/market formula change, no AI research, no enemy research, no BattleContext change, and no pending invasion change.
+- Existing locks remain: EASTWAR title, national/city split, left PLAYER national tree, right selected PLAYER city tree, enemy/insufficient-intel hiding, UI64 icon priority, `?` fallback, hotfix4 lightweight node-click detail refresh, selected highlight, and overlay close/ESC/panel restore lifecycle.
+- Next candidates: `v0.70-67 Domestic Tech Actual Effects Phase 1` or `v0.70-66-hotfix1 Research Progress QA Polish`.
+- Manual F6 QA remains required for national/city research progress and completion, follow-up tech availability, no resource/effect mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-65 Domestic Tech Research Start MVP
 - Baseline: `v0.70-64 Domestic Tech Research Readiness Layer` at `d442f1ee1d414a7cdb11e57d93ba46f625815b37`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

@@ -2,6 +2,19 @@
 
 ## 2026-06-28
 
+### v0.70-66 Domestic Tech Research Progress & Completion MVP
+- Started from local `c27e460 테크트리완성`; `origin/main` matched local HEAD and the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - `_advance_domestic_tech_research_for_world_turn_mvp()` in the existing domestic turn apply flow.
+  - National active research `remaining_turns` decrement, completion write to `_player_state["national_domestic_tech_completed"]`, and active clear.
+  - PLAYER city active research `remaining_turns` decrement, per-city completion write to `_player_state["city_domestic_tech_completed"]`, city `city_tech.completed` mirror, and per-city active clear.
+  - Domestic research completion messages in the turn summary and overlay refresh after completion when the tech tree is open.
+  - Completed-only prerequisite recognition remains intact; researching/active techs are not prerequisite credit.
+- Preserved no Domestic Tech actual effects, no resource payment, no AI research, no enemy research, no gameplay formula changes, UI64 priority, hotfix4 click latency behavior, overlay lifecycle, enemy/insufficient-intel hiding, BattleContext, pending invasion, assets, icon PNG files, UI64 PNG files, and `.import` files.
+- Verification passed: `git diff --check`, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Manual F6 QA remains required for national/city research progress, completion display, follow-up tech availability, active clear, no resource/effect mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-65 Domestic Tech Research Start MVP
 - Started from local `d442f1e v0.70-64 Domestic Tech Research Readiness Layer`.
 - Fetched `origin/main`; local HEAD was ahead of `origin/main`, with existing untracked Godot-generated UI64 `.import` files intentionally left untouched.
