@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-67 Domestic Tech Actual Effects Phase 1 Lock Rule
+- Baseline is `v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish` (`c2f8d7d217c1b17cd9b9eefd67358cb5a6c1fd3a`).
+- v0.70-67 authorizes only unlock/condition/display effects for Domestic Tech Tree Phase 1.
+- Completed national tech may satisfy city tech `required_national_techs`. `_player_state["national_domestic_tech_completed"]` remains the source of truth.
+- Active/researching national tech must not satisfy city tech required-national conditions.
+- Completed city tech may satisfy follow-up city prerequisites only in the same city through `_player_state["city_domestic_tech_completed"][city_id]`.
+- Inspector relation display may show completed-based unlock/enhance states such as applied, unlocked, condition met, or research needed.
+- `effect_stub` may be displayed as effect description/application readiness only. It must not connect to formulas or gameplay mutation.
+- Internal QA helpers may summarize Phase 1 coverage, but must not spam UI/logs or mutate gameplay.
+- This phase does not authorize resource payment, numeric tech effects, income/resource/troop/battle/diplomacy/spy/market formula changes, AI research, enemy research, enemy effects, enemy completed-tech mutation, enemy active research, BattleContext changes, pending invasion changes, or enemy city tech exposure.
+- UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Left side remains PLAYER national tech only. Right side remains selected PLAYER city tech only. Enemy or insufficient-intel city tech detail and research start/progress/completion must stay blocked under Fog of War / `city_intel` policy.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by this phase.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish Lock Rule
 - Baseline is `v0.70-66 Domestic Tech Research Progress & Completion MVP` (`1f9bb843ced5730483867ac546f4b208df0347b2`).
 - v0.70-66-hotfix1 is Domestic Tech Research QA and completion polish only.

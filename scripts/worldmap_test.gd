@@ -9887,7 +9887,12 @@ func _are_domestic_tech_national_requirements_met_mvp(tech_id: String) -> bool:
 	var definition := _get_domestic_tech_definition_mvp(tech_id)
 	if definition.is_empty():
 		return false
-	for required_id_variant in definition.get("required_national_techs", []):
+	var required_ids: Array = definition.get("required_national_techs", []) if definition.get("required_national_techs", []) is Array else []
+	return _are_required_national_techs_completed_mvp(required_ids)
+
+
+func _are_required_national_techs_completed_mvp(required_ids: Array) -> bool:
+	for required_id_variant in required_ids:
 		if not _is_national_domestic_tech_completed_mvp(str(required_id_variant)):
 			return false
 	return true
@@ -10232,13 +10237,16 @@ func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dic
 	lines.append("테크: %s" % title.strip_edges())
 	lines.append("분류: %s / %s / %s / Tier %d" % [scope_label, category_label, branch_label, int(tech_def.get("tier", 0))])
 	lines.append("현재 상태: %s" % _format_domestic_tech_readiness_state_label_mvp(str(view_state.get("state", DOMESTIC_TECH_VIEW_LOCKED))))
-	lines.append("효과: %s" % str(effect_stub.get("description", "")))
+	lines.append("효과 설명: %s" % str(effect_stub.get("description", "")))
+	var effect_display := _get_domestic_tech_effect_phase1_display_mvp(tech_def, scope, city_id)
+	if not effect_display.is_empty():
+		lines.append("적용 상태:\n- %s" % "\n- ".join(effect_display))
 	lines.append("비용: %s" % _get_domestic_tech_cost_summary_mvp(tech_def))
 	lines.append("건설/연구 시간: %s" % _format_domestic_tech_duration_hint_mvp(tech_def))
 	var conditions := _get_domestic_tech_readiness_condition_lines_mvp(tech_def, view_state, city_id)
 	if not conditions.is_empty():
 		lines.append("조건 충족 여부:\n- %s" % "\n- ".join(conditions))
-	var relations := _get_domestic_tech_relation_lines_mvp(tech_def)
+	var relations := _get_domestic_tech_relation_lines_mvp(tech_def, city_id)
 	if not relations.is_empty():
 		lines.append("국가/도시 연결 관계:\n- %s" % "\n- ".join(relations))
 	lines.append(_format_domestic_tech_research_readiness_text_mvp(view_state))
@@ -10417,31 +10425,95 @@ func _format_domestic_tech_lock_reason_mvp(reason_text: String) -> String:
 	return reason_text
 
 
-func _get_domestic_tech_relation_lines_mvp(tech_def: Dictionary) -> Array[String]:
+func _get_domestic_tech_relation_lines_mvp(tech_def: Dictionary, city_id: String = "") -> Array[String]:
 	var result: Array[String] = []
-	var unlocks := _format_domestic_tech_relation_targets_mvp(tech_def.get("unlocks_city_techs", []), "해금")
-	if not unlocks.is_empty():
-		result.append("연결 도시 테크: %s" % ", ".join(unlocks))
-	var enhances := _format_domestic_tech_relation_targets_mvp(tech_def.get("enhances_city_techs", []), "강화")
-	if not enhances.is_empty():
-		result.append("강화 대상: %s" % ", ".join(enhances))
-	var required_national := _format_domestic_tech_relation_targets_mvp(tech_def.get("required_national_techs", []), "필요")
-	if not required_national.is_empty():
-		result.append("필요 국가 테크: %s" % ", ".join(required_national))
-	var enhanced_by := _format_domestic_tech_relation_targets_mvp(tech_def.get("enhanced_by_national_techs", []), "강화")
-	if not enhanced_by.is_empty():
-		result.append("강화 제공 국가 테크: %s" % ", ".join(enhanced_by))
+	var scope := str(tech_def.get("tree_scope", ""))
+	var relation_status := _get_domestic_tech_unlock_relation_status_mvp(tech_def, scope, city_id)
+	if not relation_status.is_empty():
+		result.append_array(relation_status)
 	return result
 
 
-func _format_domestic_tech_relation_targets_mvp(raw_targets: Variant, suffix: String) -> Array[String]:
+func _get_domestic_tech_unlock_relation_status_mvp(tech_def: Dictionary, scope: String, city_id: String = "") -> Array[String]:
 	var result: Array[String] = []
-	if not raw_targets is Array:
-		return result
-	for target_id_variant in raw_targets:
-		var target_id := str(target_id_variant)
-		result.append("%s %s" % [_get_domestic_tech_display_name_mvp(target_id), suffix])
+	var tech_id := str(tech_def.get("id", ""))
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		var national_completed := _is_national_domestic_tech_completed_mvp(tech_id)
+		for target_id_variant in tech_def.get("unlocks_city_techs", []):
+			var unlock_target_id := str(target_id_variant)
+			var unlock_status := "연구 필요"
+			if national_completed:
+				unlock_status = "해금됨"
+				if not city_id.is_empty() and _is_city_owned_by_player_mvp(city_id) and _is_domestic_city_tech_mvp(unlock_target_id):
+					var target_state := _get_domestic_tech_view_state_mvp(unlock_target_id, city_id)
+					unlock_status = "해금 가능" if str(target_state.get("state", DOMESTIC_TECH_VIEW_LOCKED)) == DOMESTIC_TECH_VIEW_AVAILABLE else "조건 충족"
+			result.append("해금 효과: %s - %s" % [_get_domestic_tech_display_name_mvp(unlock_target_id), unlock_status])
+		for target_id_variant in tech_def.get("enhances_city_techs", []):
+			var enhance_target_id := str(target_id_variant)
+			var enhance_status := "강화 연구 필요"
+			if national_completed:
+				enhance_status = "강화 조건 충족"
+			result.append("강화 효과: %s - %s" % [_get_domestic_tech_display_name_mvp(enhance_target_id), enhance_status])
+	elif scope == DOMESTIC_TECH_SCOPE_CITY:
+		for required_national_id_variant in tech_def.get("required_national_techs", []):
+			var required_national_id := str(required_national_id_variant)
+			var required_status := "조건 충족" if _is_national_domestic_tech_completed_mvp(required_national_id) else "연구 필요"
+			result.append("필요 국가 테크: %s - %s" % [_get_domestic_tech_display_name_mvp(required_national_id), required_status])
+		for enhanced_by_id_variant in tech_def.get("enhanced_by_national_techs", []):
+			var enhanced_by_id := str(enhanced_by_id_variant)
+			var enhanced_status := "강화 조건 충족" if _is_national_domestic_tech_completed_mvp(enhanced_by_id) else "강화 연구 필요"
+			result.append("강화 제공 국가 테크: %s - %s" % [_get_domestic_tech_display_name_mvp(enhanced_by_id), enhanced_status])
 	return result
+
+
+func _get_domestic_tech_effect_phase1_display_mvp(tech_def: Dictionary, scope: String, city_id: String = "") -> Array[String]:
+	var result: Array[String] = []
+	var tech_id := str(tech_def.get("id", ""))
+	var is_completed := false
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		is_completed = _is_national_domestic_tech_completed_mvp(tech_id)
+	elif scope == DOMESTIC_TECH_SCOPE_CITY:
+		is_completed = _is_city_domestic_tech_completed_mvp(city_id, tech_id)
+	if is_completed:
+		result.append("연구 완료됨: 효과 적용 준비 완료")
+	else:
+		result.append("미완료: 연구 후 적용 준비")
+	var unlocks: Array = tech_def.get("unlocks_city_techs", []) if tech_def.get("unlocks_city_techs", []) is Array else []
+	var enhances: Array = tech_def.get("enhances_city_techs", []) if tech_def.get("enhances_city_techs", []) is Array else []
+	var required_national_techs: Array = tech_def.get("required_national_techs", []) if tech_def.get("required_national_techs", []) is Array else []
+	var enhanced_by_national_techs: Array = tech_def.get("enhanced_by_national_techs", []) if tech_def.get("enhanced_by_national_techs", []) is Array else []
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL and (not unlocks.is_empty() or not enhances.is_empty()):
+		result.append("해금/강화 조건 표시만 완료 상태 기준으로 반영")
+	elif scope == DOMESTIC_TECH_SCOPE_CITY and (not required_national_techs.is_empty() or not enhanced_by_national_techs.is_empty()):
+		result.append("국가 테크 조건은 완료 상태만 인정")
+	result.append("실제 수치 반영은 후속 버전에서 적용")
+	return result
+
+
+func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
+	_normalize_domestic_tech_state_mvp()
+	var national_completed: Dictionary = _normalize_national_domestic_tech_state_map_mvp(_player_state.get("national_domestic_tech_completed", {}))
+	var city_completed_by_city: Dictionary = _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_completed", {}))
+	var city_completed_count := 0
+	for city_completed_variant in city_completed_by_city.values():
+		if city_completed_variant is Dictionary:
+			city_completed_count += (city_completed_variant as Dictionary).size()
+	var unlock_ready_count := 0
+	for national_tech_id_variant in national_completed.keys():
+		var national_tech_id := str(national_tech_id_variant)
+		var national_def := _get_domestic_tech_definition_mvp(national_tech_id)
+		if national_def.is_empty():
+			continue
+		var unlocks: Array = national_def.get("unlocks_city_techs", []) if national_def.get("unlocks_city_techs", []) is Array else []
+		var enhances: Array = national_def.get("enhances_city_techs", []) if national_def.get("enhances_city_techs", []) is Array else []
+		unlock_ready_count += unlocks.size()
+		unlock_ready_count += enhances.size()
+	return {
+		"national_completed_count": national_completed.size(),
+		"city_completed_count": city_completed_count,
+		"unlock_ready_count": unlock_ready_count,
+		"numeric_effects_applied": 0,
+	}
 
 
 func _format_domestic_tech_city_requirement_lines_mvp(tech_def: Dictionary, city_id: String = "") -> Array[String]:

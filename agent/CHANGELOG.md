@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-67 Domestic Tech Actual Effects Phase 1
+- Built on `v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish` (`c2f8d7d217c1b17cd9b9eefd67358cb5a6c1fd3a`).
+- Added explicit completed-only required national tech helper coverage for city tech unlock checks.
+- Preserved same-city completed city tech prerequisite behavior for follow-up city tech availability.
+- Improved Domestic Tech inspector relation display so unlock/enhance links show completed-state statuses instead of generic relation suffixes.
+- Reworked `effect_stub` inspector copy into effect description plus Phase 1 application-readiness status.
+- Added an internal no-spam Phase 1 summary helper that reports completed counts, unlock-ready count, and `numeric_effects_applied = 0`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement resource payment, numeric Domestic Tech effects, resource/income/troop/battle/diplomacy/spy/market formula changes, AI research, enemy research/effect, BattleContext changes, pending invasion changes, scenes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish
 - Built on `v0.70-66 Domestic Tech Research Progress & Completion MVP` (`1f9bb843ced5730483867ac546f4b208df0347b2`).
 - Strengthened active research normalize for national and PLAYER city Domestic Tech Tree research.

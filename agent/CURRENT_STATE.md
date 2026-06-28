@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.70-67 Domestic Tech Actual Effects Phase 1
+- Baseline: `v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish` at `c2f8d7d217c1b17cd9b9eefd67358cb5a6c1fd3a`; local HEAD matched `origin/main` and tracked files were clean at task start.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Phase 1 actual effect scope:
+  - Completed national tech remains the only source for city `required_national_techs` condition satisfaction.
+  - Completed city tech remains scoped to the same city for city prerequisites; other cities do not receive prerequisite credit.
+  - Added an explicit required-national completion helper to keep active/researching national techs from unlocking city techs.
+  - Inspector relation lines now show completed-based unlock/enhance states such as 해금됨, 해금 가능, 조건 충족, and 연구 필요.
+  - `effect_stub` stays display-only and now shows effect description plus 적용 준비/후속 버전 수치 반영 안내.
+  - Added an internal Phase 1 effect summary helper with `numeric_effects_applied = 0`.
+- Preserved scope: no resource/income/troop/battle/diplomacy/spy/market formula change, no actual numeric effect, no resource payment, no AI research, no enemy research/effect, no BattleContext change, and no pending invasion change.
+- Existing locks remain: UI64 icon priority, hotfix4 node-click latency behavior, overlay lifecycle, left PLAYER national tree, right selected PLAYER city tree, enemy/insufficient-intel hiding, active/completed normalize, and research start/progress/completion.
+- Next candidates: `v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish` or `v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set`.
+- Manual F6 QA remains required for national-to-city unlock, same-city prerequisite only, relation display, effect display, resource/troop/battle/diplomacy/spy/market invariance, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish
 - Baseline: `v0.70-66 Domestic Tech Research Progress & Completion MVP` at `1f9bb843ced5730483867ac546f4b208df0347b2`; local HEAD was ahead of `origin/main` and tracked files were clean at task start.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

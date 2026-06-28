@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-67 Domestic Tech Actual Effects Phase 1 Handoff
+- Baseline: `v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish` (`c2f8d7d217c1b17cd9b9eefd67358cb5a6c1fd3a`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is the first Domestic Tech actual-effects slice, limited to unlock/condition/display behavior only.
+- Required national tech checks now route through an explicit completed-only helper. `_player_state["national_domestic_tech_completed"]` is the source of truth; active/researching national tech is not unlock credit.
+- City prerequisites still use `_player_state["city_domestic_tech_completed"]` by city id, so completed city tech only unlocks follow-up tech in the same city.
+- Inspector relation display now reports unlock/enhance status from completed state: research needed for incomplete national tech, and 해금됨/해금 가능/조건 충족/강화 조건 충족 for completed national relations.
+- City tech inspector lines show required national and enhanced-by national tech completion status without exposing enemy-city detail.
+- `effect_stub` remains display-only. Completed techs show application readiness; incomplete techs show research-needed readiness; all numeric effect application is deferred.
+- Added `_get_domestic_tech_effect_phase1_summary_mvp()` for internal QA only; it reports `numeric_effects_applied = 0` and performs no gameplay mutation.
+- Explicitly unchanged: resource payment, resource/income/troop/battle/diplomacy/spy/market formulas, AI research, enemy research/effect, enemy city tech exposure, BattleContext, pending invasion, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- UI64 priority, node-click latency guard, overlay lifecycle, active/completed normalize, research start/progress/completion, and enemy/insufficient-intel safety remain locked.
+- Next candidate: `v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish` or `v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set`.
+- Manual F6 QA remains required for national-to-city unlock, same-city city prerequisite only, relation display, effect display, no resource/troop/battle/diplomacy/spy/market mutation, enemy-city safety, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-66-hotfix1 Domestic Tech Research QA & Completion Polish Handoff
 - Baseline: `v0.70-66 Domestic Tech Research Progress & Completion MVP` (`1f9bb843ced5730483867ac546f4b208df0347b2`).
 - Runtime file touched: `scripts/worldmap_test.gd`.
