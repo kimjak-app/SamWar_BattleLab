@@ -1,5 +1,19 @@
 # NEXT TASKS
 
+## Current: v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding
+- Baseline: `v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish` plus the `assets/ui/tech_icons_ui64/` asset commit (`95752d17602514b334aa00d8f43f37dea4cff66d`).
+- Completed direction:
+  1. Added a UI64 icon root and explicit tech_id to UI64 filename map for all current domestic city/national tech definitions.
+  2. Domestic Tech Tree node icon resolution now prefers UI64 files, falls back to existing definition `icon_path`, then keeps the existing `?` fallback.
+  3. Added resolved-path texture caching so the same icon path is not loaded repeatedly during graph construction.
+  4. Confirmed `assets/ui/tech_icons_ui64/etc/` is not mapped and remains archival.
+  5. Confirmed mapped files exist for all current 85 domestic tech definitions, including the prior problem cases.
+- Preserved scope:
+  1. No research start, research progress, research completion, effect application, Enemy Strategic AI Phase 2, War Posture, BattleContext shape change, or pending invasion payload change was made.
+  2. No asset files, existing `assets/ui/tech_icons` PNG files, or `.import` files were modified.
+- Manual F6 QA required:
+  1. Run the v0.70-63-hotfix5 checklist for UI64 icon visibility, replacement of old `?` nodes, icon clarity, detail inspector latency, selected highlight, graph overlap, overlay top-layer behavior, no gameplay mutation, and clean Godot Output.
+
 ## Current: v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish
 - Baseline: `v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix` (`dfc48edbcd3d69eb77d1d041ca5731f95b0b5785`).
 - Completed direction:

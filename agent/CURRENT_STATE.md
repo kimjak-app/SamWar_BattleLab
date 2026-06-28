@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding
+- Baseline: `v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish` plus the `assets/ui/tech_icons_ui64/` asset commit at `95752d17602514b334aa00d8f43f37dea4cff66d`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- UI scope:
+  - Domestic Tech Tree graph nodes now resolve icons through `assets/ui/tech_icons_ui64/` first, then the existing definition `icon_path`, then the existing `?` fallback.
+  - Added explicit tech_id to UI64 filename mapping for all current domestic city/national tech definitions; mapped files all exist in the UI64 root.
+  - Existing typo/missing definition icon paths are masked by UI64 priority, including `agri_granary_zone`, `naval_panokseon`, `nation_national_monopoly`, and `nation_tribute_system`.
+  - Icon textures are cached by resolved path so graph rebuilds reuse loaded textures and hotfix4 node-click latency behavior remains intact.
+  - `assets/ui/tech_icons_ui64/etc/` remains archival and is not mapped.
+- Preserved scope: no research start, no research turn progression, no research completion, no actual effect application, no AI research, no Enemy Strategic AI Phase 2, no War Posture, no BattleContext or pending invasion payload change, no income/resource/troop/battle/diplomacy/spy formula change, no scene change, no asset modification, no existing `assets/ui/tech_icons` PNG change, and no `.import` file change.
+- Manual F6 QA remains required for UI64 icon visibility, old `?` replacement, icon clarity, immediate detail inspector response, selected highlight, city graph overlap, overlay top-layer behavior, no gameplay mutation, and warning cleanliness.
+
 ## v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish
 - Baseline: `v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix` at `dfc48edbcd3d69eb77d1d041ca5731f95b0b5785`.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

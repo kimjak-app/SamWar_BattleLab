@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding Handoff
+- Baseline: `v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish` plus the `assets/ui/tech_icons_ui64/` asset commit (`95752d17602514b334aa00d8f43f37dea4cff66d`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass binds the fullscreen read-only Domestic Tech Tree graph to the UI-only `64x64` tech icon set. It is not a research start button, not research turn progression, not research completion, and not actual effect application.
+- Icon resolution order is locked as UI64 mapped file first, existing definition `icon_path` second, and the existing `?` fallback last.
+- The UI64 map covers all current domestic city and national tech definitions. Prior `?` cases such as pasture/ranch/warhorse, fishing/salt, merchant/trade/silk road, archer/cavalry/naval/defense branches, and national administration/economy/military/diplomacy branches should now display icons when the mapped UI64 file exists.
+- Existing definition ids, prerequisite ids, categories, branches, tiers, costs, durations, effect stubs, save keys, completion/unlock state, and gameplay formulas must not be renamed or changed for icon binding.
+- `assets/ui/tech_icons_ui64/etc/` is archival and must not be auto-bound unless a future explicit tech definition task authorizes it.
+- Texture loading should remain path-cached. Node click selection must stay lightweight from hotfix4: update selected ids, refresh the detail inspector immediately, and update only previous/current compact node styles without rebuilding graphs or reloading all textures.
+- Left panel remains PLAYER national tech tree only. Right panel remains selected-city tech tree only. Non-player or insufficient-intel selected-city tech detail remains hidden by Fog of War / `city_intel` policy.
+- Explicitly unchanged: income/resource/troop/battle/diplomacy/spy formulas, enemy pressure plan, pending invasion, BattleContext, market, alliance, wedge, player spy/diplomacy actions, `city_intel`, Fog of War, scenes, assets, icon PNGs, `.import` files, and thumbnail generation.
+- Manual F6 QA remains required for UI64 icon visibility, old `?` replacement, icon clarity, detail inspector latency, selected highlight, graph overlap, overlay top-layer behavior, no gameplay mutation, and warning cleanliness.
+
 ## v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish Handoff
 - Baseline: `v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix` (`dfc48edbcd3d69eb77d1d041ca5731f95b0b5785`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

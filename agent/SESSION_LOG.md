@@ -1,5 +1,20 @@
 # SESSION LOG
 
+## 2026-06-28
+
+### v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding
+- Started from `95752d1 수정`, where local `main` matched `origin/main` and `assets/ui/tech_icons_ui64/` was present.
+- Required workflow/worldmap docs were read before touching runtime files.
+- Implemented:
+  - Added UI64 icon root and explicit UI64 filename map for all current domestic city/national tech definitions.
+  - Added resolved icon path helper with UI64 -> existing `icon_path` -> `?` fallback order.
+  - Updated Domestic Tech Tree icon rendering to use the resolved path even when definition `icon_path` is empty.
+  - Added path-based texture caching for Domestic Tech Tree icon textures.
+  - Left `assets/ui/tech_icons_ui64/etc/` unmapped.
+- Preserved read-only tech tree behavior, left PLAYER national scope, right selected-city scope, enemy/insufficient-intel hiding, prerequisite lines, overlay top-layer behavior, hotfix4 lightweight node click selection, gameplay formulas, scenes, assets, existing icon PNG files, and `.import` files.
+- Coverage result: 85 total domestic tech definitions, 85 UI64 mapped, 0 missing mapped files, 0 `etc/` mappings, 0 expected existing-icon fallback, and 0 expected remaining `?` fallback for current definitions.
+- Manual F6 QA remains required for the v0.70-63-hotfix5 checklist.
+
 ## 2026-06-27
 
 ### v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish

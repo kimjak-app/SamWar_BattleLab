@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding Lock Rule
+- Baseline is `v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish` plus the `assets/ui/tech_icons_ui64/` asset commit (`95752d17602514b334aa00d8f43f37dea4cff66d`).
+- v0.70-63-hotfix5 is Domestic Tech Tree fullscreen read-only graph UI64 icon binding only.
+- Domestic Tech Tree icon resolution order is UI64 mapped file first, existing definition `icon_path` second, and the existing `?` fallback last.
+- UI64 icon binding is display-only. It must not change tech ids, prerequisite ids, categories, branches, tiers, costs, durations, special requirements, effect stubs, completion/unlock state, save keys, or gameplay formulas.
+- `assets/ui/tech_icons_ui64/etc/` is archival and must not be auto-bound to current tech nodes.
+- Existing `assets/ui/tech_icons` PNG files, existing UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by icon binding work.
+- Texture loading should stay path-cached so graph construction does not repeatedly load the same icon path, and node click selection must keep hotfix4 lightweight behavior without full graph rebuild or mass texture reload.
+- Compact graph nodes must continue to show icon or `?`, tech name, rarity `★` when present, and short completed/available/locked/special_locked state.
+- The left side is the PLAYER national tech tree. The right side is the currently selected city tech tree. Enemy or insufficient-intel city tech detail must follow Fog of War / `city_intel` policy.
+- v0.70-62-hotfix1 modal/top-layer behavior remains locked: high z-index, `move_to_front()`, `MOUSE_FILTER_STOP`, open-time floating panel hide, close-time visible-state restore, background input consume, and ESC/닫기 close.
+- This pass does not authorize research start, research turn progression, research completion, actual effect application, AI research, Enemy Strategic AI Phase 2, War Posture, BattleContext shape changes, or pending invasion payload changes.
+- Income/resource/troop/battle/diplomacy/spy formulas remain unchanged. Enemy pressure plan, pending invasion, and BattleContext existing locks remain active.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish Lock Rule
 - Baseline is `v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix` (`dfc48edbcd3d69eb77d1d041ca5731f95b0b5785`).
 - v0.70-63-hotfix4 is Domestic Tech Tree fullscreen read-only graph click latency and icon readability polish only.

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-63-hotfix5 Domestic Tech Tree UI64 Icon Binding
+- Built on `v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish` plus the `assets/ui/tech_icons_ui64/` asset commit (`95752d17602514b334aa00d8f43f37dea4cff66d`).
+- Added `DOMESTIC_TECH_UI64_ICON_ROOT` and an explicit tech_id to UI64 filename map for all current domestic city/national tech definitions.
+- Added resolved icon path selection that checks UI64 first, existing definition `icon_path` second, and the existing `?` fallback last.
+- Added path-based texture caching for Domestic Tech Tree icons.
+- Covered prior missing/typo icon cases with UI64 files, including `agri_granary_zone`, `naval_panokseon`, `nation_national_monopoly`, and `nation_tribute_system`.
+- Confirmed `assets/ui/tech_icons_ui64/etc/` is not mapped.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement research start/progress/completion, actual effects, AI research, formulas, BattleContext changes, pending invasion changes, scene changes, asset changes, existing `assets/ui/tech_icons` PNG changes, `.import` changes, or thumbnail generation.
+
 ## v0.70-63-hotfix4 Domestic Tech Tree Click Latency & Icon Readability Polish
 - Built on `v0.70-63-hotfix3 Domestic Tech Tree Node Text Restore & Click Responsiveness Fix` (`dfc48edbcd3d69eb77d1d041ca5731f95b0b5785`).
 - Removed the full tech tree overlay rebuild from compact node click selection.

@@ -32,6 +32,94 @@ const DOMESTIC_TECH_UI_SURFACE_NATIONAL := "left_player_national_panel"
 const DOMESTIC_TECH_PROGRESS_CITY := "governor_auto_or_manual"
 const DOMESTIC_TECH_PROGRESS_NATIONAL := "chancellor_directed"
 const DOMESTIC_TECH_ICON_FALLBACK_LABEL := "?"
+const DOMESTIC_TECH_UI64_ICON_ROOT := "res://assets/ui/tech_icons_ui64/"
+const DOMESTIC_TECH_UI64_ICON_FILENAME_MAP := {
+	"agri_tool_upgrade": "tech_agri_tool_upgrade.png",
+	"agri_irrigation": "tech_agri_irrigation.png",
+	"agri_double_cropping": "tech_agri_double_cropping.png",
+	"agri_granary_zone": "tech_agri_granary_zone.png",
+	"agri_reservoir": "tech_agri_reservoir.png",
+	"agri_pasture": "tech_agri_pasture.png",
+	"agri_ranch": "tech_agri_ranch.png",
+	"agri_warhorse_breeding": "tech_agri_warhorse_breeding.png",
+	"fish_village": "tech_fish_village.png",
+	"fish_coastal_fishing": "tech_fish_coastal_fishing.png",
+	"fish_fleet": "tech_fish_fleet.png",
+	"fish_deep_sea_fishing": "tech_fish_deep_sea_fishing.png",
+	"fish_dried_supply_base": "tech_fish_dried_supply_base.png",
+	"fish_salt_field": "tech_fish_salt_field.png",
+	"fish_salt_warehouse": "tech_fish_salt_warehouse.png",
+	"commerce_street_market": "tech_commerce_street_market.png",
+	"commerce_permanent_market": "tech_commerce_permanent_market.png",
+	"commerce_grand_market": "tech_commerce_grand_market.png",
+	"commerce_merchant_guild": "tech_commerce_merchant_guild.png",
+	"commerce_mint": "tech_commerce_mint.png",
+	"commerce_port": "tech_naval_port.png",
+	"commerce_shipyard": "tech_naval_shipyard.png",
+	"commerce_trade_port": "tech_commerce_trade_port.png",
+	"commerce_silk_road": "tech_commerce_silk_road.png",
+	"mil_barracks": "tech_mil_barracks.png",
+	"mil_infantry_training": "tech_mil_infantry_training.png",
+	"mil_elite_infantry": "tech_mil_elite_infantry.png",
+	"mil_heavy_infantry": "tech_mil_heavy_infantry.png",
+	"mil_archer_training": "tech_mil_archer_training.png",
+	"mil_elite_archer": "tech_mil_elite_archer.png",
+	"mil_singijeon": "tech_mil_singijeon.png",
+	"mil_cavalry_training": "tech_mil_cavalry_training.png",
+	"mil_light_cavalry": "tech_mil_light_cavalry.png",
+	"mil_heavy_cavalry": "tech_mil_heavy_cavalry.png",
+	"mil_iron_cavalry": "tech_mil_iron_cavalry.png",
+	"mil_cavalry_charge_tactics": "tech_mil_cavalry_charge_tactics.png",
+	"naval_training": "tech_naval_training.png",
+	"naval_warship_building": "tech_naval_warship_building.png",
+	"naval_panokseon": "tech_naval_panokseon.png",
+	"naval_turtle_ship": "tech_naval_turtle_ship.png",
+	"naval_crane_wing_formation": "tech_naval_crane_wing_formation.png",
+	"naval_fire_ship": "tech_naval_fire_ship.png",
+	"naval_cannon_mount": "tech_naval_cannon_mount.png",
+	"mil_wall_upgrade": "tech_mil_wall_upgrade.png",
+	"mil_moat": "tech_mil_moat.png",
+	"mil_double_moat": "tech_mil_double_moat.png",
+	"mil_watchtower": "tech_mil_watchtower.png",
+	"mil_beacon": "tech_mil_beacon.png",
+	"mil_beacon_network": "tech_mil_beacon_network.png",
+	"mil_iron_gate": "tech_mil_iron_gate.png",
+	"mil_iron_fortress": "tech_mil_iron_fortress.png",
+	"mil_siege_unit": "tech_mil_siege_unit.png",
+	"mil_siege_engine": "tech_mil_siege_engine.png",
+	"nation_foundation": "tech_nation_foundation.png",
+	"nation_law_reform": "tech_nation_law_reform.png",
+	"nation_bureaucracy": "tech_nation_bureaucracy.png",
+	"nation_local_administration": "tech_nation_local_administration.png",
+	"nation_centralization": "tech_nation_centralization.png",
+	"nation_inspection_system": "tech_nation_inspection_system.png",
+	"nation_anti_corruption": "tech_nation_anti_corruption.png",
+	"nation_household_registry": "tech_nation_household_registry.png",
+	"nation_population_census": "tech_nation_population_census.png",
+	"nation_population_policy": "tech_nation_population_policy.png",
+	"nation_tax_reform": "tech_nation_tax_reform.png",
+	"nation_equal_tax": "tech_nation_equal_tax.png",
+	"nation_currency_unification": "tech_nation_currency_unification.png",
+	"nation_national_economy": "tech_nation_national_economy.png",
+	"nation_monopoly_system": "tech_nation_monopoly_system.png",
+	"nation_national_monopoly": "tech_nation_national_monopoly.png",
+	"nation_conscription": "tech_nation_conscription.png",
+	"nation_military_training_order": "tech_nation_military_training_order.png",
+	"nation_military_reform": "tech_nation_military_reform.png",
+	"nation_standing_army": "tech_nation_standing_army.png",
+	"nation_logistics_system": "tech_nation_logistics_system.png",
+	"nation_expedition_system": "tech_nation_expedition_system.png",
+	"nation_weapon_standardization": "tech_nation_weapon_standardization.png",
+	"nation_weapon_factory": "tech_nation_weapon_factory.png",
+	"nation_envoy": "tech_nation_envoy.png",
+	"nation_diplomacy_system": "tech_nation_diplomacy_system.png",
+	"nation_alliance_system": "tech_nation_alliance_system.png",
+	"nation_world_diplomacy": "tech_nation_world_diplomacy.png",
+	"nation_intelligence_system": "tech_nation_intelligence_system.png",
+	"nation_intelligence_org": "tech_nation_intelligence_org.png",
+	"nation_tribute_system": "tech_nation_tribute_system.png",
+	"nation_tribute_network": "tech_nation_tribute_network.png",
+}
 const DOMESTIC_TECH_CATEGORY_AGRI := "agri"
 const DOMESTIC_TECH_CATEGORY_FISH := "fish"
 const DOMESTIC_TECH_CATEGORY_COMMERCE := "commerce"
@@ -947,6 +1035,7 @@ var _tech_tree_hidden_ui_state_mvp: Dictionary = {}
 var _selected_domestic_tech_id_mvp := ""
 var _selected_domestic_tech_city_id_mvp := ""
 var _domestic_tech_compact_node_refs_mvp: Dictionary = {}
+var _domestic_tech_icon_texture_cache_mvp: Dictionary = {}
 var _domestic_tech_detail_inspector_label_mvp: Label = null
 var _enemy_turn_mvp_timer: Timer
 var _enemy_turn_mvp_pending := false
@@ -9843,6 +9932,21 @@ func _get_domestic_tech_icon_path_mvp(tech_id: String) -> String:
 	return str(_get_domestic_tech_definition_mvp(tech_id).get("icon_path", ""))
 
 
+func _get_domestic_tech_ui64_icon_filename_mvp(tech_id: String) -> String:
+	return str(DOMESTIC_TECH_UI64_ICON_FILENAME_MAP.get(tech_id, ""))
+
+
+func _get_domestic_tech_resolved_icon_path_mvp(tech_id: String, definition_icon_path: String = "") -> String:
+	var ui64_filename := _get_domestic_tech_ui64_icon_filename_mvp(tech_id)
+	if not ui64_filename.is_empty():
+		var ui64_path := DOMESTIC_TECH_UI64_ICON_ROOT + ui64_filename
+		if ResourceLoader.exists(ui64_path):
+			return ui64_path
+	if not definition_icon_path.is_empty() and ResourceLoader.exists(definition_icon_path):
+		return definition_icon_path
+	return ""
+
+
 func _is_domestic_tech_icon_missing_mvp(tech_id: String) -> bool:
 	return bool(_get_domestic_tech_definition_mvp(tech_id).get("icon_missing", true))
 
@@ -10579,12 +10683,16 @@ func _add_domestic_tech_icon_mvp(parent: Container, tech_id: String, icon_size: 
 	icon_box.add_theme_stylebox_override("panel", _make_domestic_tech_icon_box_style_mvp())
 	parent.add_child(icon_box)
 
-	var icon_path := _get_domestic_tech_icon_path_mvp(tech_id)
+	var icon_path := _get_domestic_tech_resolved_icon_path_mvp(tech_id, _get_domestic_tech_icon_path_mvp(tech_id))
 	var texture: Texture2D = null
-	if not _is_domestic_tech_icon_missing_mvp(tech_id) and not icon_path.is_empty() and ResourceLoader.exists(icon_path):
-		var loaded_resource := load(icon_path)
-		if loaded_resource is Texture2D:
-			texture = loaded_resource as Texture2D
+	if not icon_path.is_empty():
+		if _domestic_tech_icon_texture_cache_mvp.has(icon_path):
+			texture = _domestic_tech_icon_texture_cache_mvp.get(icon_path) as Texture2D
+		else:
+			var loaded_resource := load(icon_path)
+			if loaded_resource is Texture2D:
+				texture = loaded_resource as Texture2D
+				_domestic_tech_icon_texture_cache_mvp[icon_path] = texture
 
 	if texture != null:
 		var texture_rect := TextureRect.new()
