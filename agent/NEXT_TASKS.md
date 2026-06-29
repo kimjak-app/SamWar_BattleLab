@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish
+- Baseline: `v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set` (`1fc67e044fa02c56f8a00a7f680b3b734a88eae1`).
+- Completed direction:
+  1. Strengthened economy bonus helper with completed-only, same-city-only, PLAYER-city-only, city-scope, and agri/fish/commerce guards.
+  2. De-duplicated source tech ids for helper output, city detail/inspector display, turn summary, and QA summary counts.
+  3. Kept bonus state derived from completed tech only; no computed economy bonus is persisted to save data.
+  4. Added a helper-based domestic turn economy bonus summary so turn result text aligns with city detail and Domestic Tech inspector display.
+  5. Extended QA summary with agri/fish/commerce counts, market effect counter fixed at 0, and same-city/researching/no-persist flags.
+- Preserved scope:
+  1. No new economy effect category, national policy numeric effect, military/defense/naval/siege effect, combat/troop/battle/diplomacy/spy/market mutation, AI research, enemy research/effect, BattleContext/pending invasion change, asset/import change, or tech definition change was made.
+  2. UI64 icon priority, click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, and research start/progress/completion remain locked.
+- Next candidate:
+  1. `v0.70-69 Domestic Tech Military/Defense Effects Safe Set`.
+- Manual F6 QA required:
+  1. Check city economy bonus, turn income change, same-city only, enemy no-effect, no duplicate accumulation, UI bonus display, research flow, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set
 - Baseline: `v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish` (`8a9067339802bd28fecbdae810ab9ff8f7f69f91`).
 - Completed direction:

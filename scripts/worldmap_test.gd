@@ -130,6 +130,11 @@ const DOMESTIC_TECH_CATEGORY_NATION_ADMIN := "nation_admin"
 const DOMESTIC_TECH_CATEGORY_NATION_ECONOMY := "nation_economy"
 const DOMESTIC_TECH_CATEGORY_NATION_MILITARY := "nation_military"
 const DOMESTIC_TECH_CATEGORY_NATION_DIPLOMACY := "nation_diplomacy"
+const DOMESTIC_TECH_ECONOMY_SAFE_CATEGORIES_MVP := [
+	DOMESTIC_TECH_CATEGORY_AGRI,
+	DOMESTIC_TECH_CATEGORY_FISH,
+	DOMESTIC_TECH_CATEGORY_COMMERCE,
+]
 const DOMESTIC_TECH_VIEW_COMPLETED := "completed"
 const DOMESTIC_TECH_VIEW_AVAILABLE := "available"
 const DOMESTIC_TECH_VIEW_LOCKED := "locked"
@@ -9905,8 +9910,16 @@ func _get_domestic_tech_city_economy_bonus_mvp(city_id: String) -> Dictionary:
 	var bonus := _get_empty_domestic_tech_city_economy_bonus_mvp()
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
 		return bonus
+	var source_seen := {}
 	for tech_id_variant in DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.keys():
 		var tech_id := str(tech_id_variant)
+		if source_seen.has(tech_id):
+			continue
+		var definition := _get_domestic_tech_definition_mvp(tech_id)
+		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_CITY:
+			continue
+		if not DOMESTIC_TECH_ECONOMY_SAFE_CATEGORIES_MVP.has(str(definition.get("category", ""))):
+			continue
 		if not _is_city_domestic_tech_completed_mvp(city_id, tech_id):
 			continue
 		var mapping: Dictionary = DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.get(tech_id, {})
@@ -9917,6 +9930,7 @@ func _get_domestic_tech_city_economy_bonus_mvp(city_id: String) -> Dictionary:
 		bonus["supply_flat"] = int(bonus.get("supply_flat", 0)) + int(mapping.get("supply_flat", 0))
 		bonus["supply_percent"] = float(bonus.get("supply_percent", 0.0)) + float(mapping.get("supply_percent", 0.0))
 		(bonus["source_techs"] as Array).append(tech_id)
+		source_seen[tech_id] = true
 	return bonus
 
 
@@ -9932,6 +9946,20 @@ func _has_domestic_tech_city_economy_bonus_mvp(city_id: String) -> bool:
 
 func _format_domestic_tech_percent_bonus_mvp(value: float) -> String:
 	return "%s%%" % _format_signed_int(int(round(value * 100.0)))
+
+
+func _get_unique_domestic_tech_source_ids_mvp(source_techs: Variant) -> Array[String]:
+	var result: Array[String] = []
+	if not source_techs is Array:
+		return result
+	var seen := {}
+	for tech_id_variant in source_techs:
+		var tech_id := str(tech_id_variant)
+		if tech_id.is_empty() or seen.has(tech_id):
+			continue
+		seen[tech_id] = true
+		result.append(tech_id)
+	return result
 
 
 func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include_sources: bool = true) -> Array[String]:
@@ -9960,7 +9988,7 @@ func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include
 	if not resource_parts.is_empty():
 		result.append("테크 경제 보너스: %s" % ", ".join(resource_parts))
 	if include_sources:
-		var source_techs: Array = bonus.get("source_techs", []) if bonus.get("source_techs", []) is Array else []
+		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 		if not source_techs.is_empty():
 			var source_names: Array[String] = []
 			for index in range(mini(source_techs.size(), 4)):
@@ -9970,6 +9998,80 @@ func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include
 				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
 			result.append("적용 테크: %s%s" % [", ".join(source_names), suffix])
 	return result
+
+
+func _get_domestic_tech_economy_turn_summary_mvp() -> Dictionary:
+	var result := {
+		"enabled": true,
+		"city_count": 0,
+		"source_count": 0,
+		"cities": [],
+	}
+	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return result
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+			continue
+		var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
+		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
+		if source_techs.is_empty():
+			continue
+		var city_entry := {
+			"city_id": city_id,
+			"food_flat": int(bonus.get("food_flat", 0)),
+			"food_percent": float(bonus.get("food_percent", 0.0)),
+			"gold_flat": int(bonus.get("gold_flat", 0)),
+			"gold_percent": float(bonus.get("gold_percent", 0.0)),
+			"supply_flat": int(bonus.get("supply_flat", 0)),
+			"supply_percent": float(bonus.get("supply_percent", 0.0)),
+			"source_techs": source_techs,
+		}
+		(result["cities"] as Array).append(city_entry)
+		result["city_count"] = int(result.get("city_count", 0)) + 1
+		result["source_count"] = int(result.get("source_count", 0)) + source_techs.size()
+	return result
+
+
+func _format_domestic_tech_economy_turn_summary_mvp(summary: Dictionary) -> String:
+	var cities: Variant = summary.get("cities", [])
+	if not cities is Array or (cities as Array).is_empty():
+		return ""
+	var parts: Array[String] = []
+	for index in range(mini((cities as Array).size(), 3)):
+		var city_entry_variant: Variant = (cities as Array)[index]
+		if not city_entry_variant is Dictionary:
+			continue
+		var city_entry := city_entry_variant as Dictionary
+		var city_id := str(city_entry.get("city_id", ""))
+		var source_techs := _get_unique_domestic_tech_source_ids_mvp(city_entry.get("source_techs", []))
+		var source_names: Array[String] = []
+		for source_index in range(mini(source_techs.size(), 2)):
+			source_names.append(_get_domestic_tech_display_name_mvp(source_techs[source_index]))
+		var source_suffix := ""
+		if source_techs.size() > source_names.size():
+			source_suffix = " 외 %d개" % (source_techs.size() - source_names.size())
+		var resource_parts: Array[String] = []
+		var food_percent := float(city_entry.get("food_percent", 0.0))
+		var gold_percent := float(city_entry.get("gold_percent", 0.0))
+		if not is_equal_approx(food_percent, 0.0):
+			resource_parts.append("식량 %s" % _format_domestic_tech_percent_bonus_mvp(food_percent))
+		if int(city_entry.get("food_flat", 0)) != 0:
+			resource_parts.append("식량 %s" % _format_signed_int(int(city_entry.get("food_flat", 0))))
+		if not is_equal_approx(gold_percent, 0.0):
+			resource_parts.append("금전 %s" % _format_domestic_tech_percent_bonus_mvp(gold_percent))
+		if int(city_entry.get("gold_flat", 0)) != 0:
+			resource_parts.append("금전 %s" % _format_signed_int(int(city_entry.get("gold_flat", 0))))
+		if int(city_entry.get("supply_flat", 0)) != 0:
+			resource_parts.append("보급 %s" % _format_signed_int(int(city_entry.get("supply_flat", 0))))
+		var source_text := ", ".join(source_names) + source_suffix
+		parts.append("%s %s (%s)" % [_format_city_name_by_id(city_id, city_id), ", ".join(resource_parts), source_text])
+	var city_suffix := ""
+	var city_count := int(summary.get("city_count", (cities as Array).size()))
+	if city_count > parts.size():
+		city_suffix = " 외 %d개 도시" % (city_count - parts.size())
+	return "" if parts.is_empty() else "내정 테크 경제 보너스: %s%s" % [" / ".join(parts), city_suffix]
 
 
 func _are_domestic_tech_prerequisites_met_mvp(city_id: String, tech_id: String) -> bool:
@@ -10646,6 +10748,9 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 	var required_national_checks := 0
 	var city_prerequisite_checks := 0
 	var numeric_economy_effects_applied := 0
+	var agri_effect_count := 0
+	var fish_effect_count := 0
+	var commerce_effect_count := 0
 	for national_tech_id_variant in national_completed.keys():
 		var national_tech_id := str(national_tech_id_variant)
 		var national_def := _get_domestic_tech_definition_mvp(national_tech_id)
@@ -10671,8 +10776,17 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 			if not _is_city_owned_by_player_mvp(city_id):
 				continue
 			var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
-			var source_techs: Array = bonus.get("source_techs", []) if bonus.get("source_techs", []) is Array else []
+			var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 			numeric_economy_effects_applied += source_techs.size()
+			for source_tech_id in source_techs:
+				var source_def := _get_domestic_tech_definition_mvp(source_tech_id)
+				match str(source_def.get("category", "")):
+					DOMESTIC_TECH_CATEGORY_AGRI:
+						agri_effect_count += 1
+					DOMESTIC_TECH_CATEGORY_FISH:
+						fish_effect_count += 1
+					DOMESTIC_TECH_CATEGORY_COMMERCE:
+						commerce_effect_count += 1
 	return {
 		"national_completed_count": national_completed.size(),
 		"city_completed_count": city_completed_count,
@@ -10680,12 +10794,19 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 		"numeric_effects_applied": numeric_economy_effects_applied,
 		"numeric_economy_effects_applied": numeric_economy_effects_applied,
 		"economy_effects_enabled": true,
+		"agri_effect_count": agri_effect_count,
+		"fish_effect_count": fish_effect_count,
+		"commerce_effect_count": commerce_effect_count,
+		"same_city_only": true,
+		"researching_has_effect": false,
+		"bonus_state_persisted": false,
 		"required_national_checks": required_national_checks,
 		"city_prerequisite_checks": city_prerequisite_checks,
 		"researching_treated_as_completed": false,
 		"combat_effects_applied": 0,
 		"diplomacy_effects_applied": 0,
 		"spy_effects_applied": 0,
+		"market_effects_applied": 0,
 		"enemy_effects_applied": 0,
 	}
 
@@ -10695,9 +10816,16 @@ func _get_domestic_tech_numeric_effect_phase1_summary_mvp() -> Dictionary:
 	return {
 		"economy_effects_enabled": true,
 		"numeric_economy_effects_applied": int(summary.get("numeric_economy_effects_applied", 0)),
+		"agri_effect_count": int(summary.get("agri_effect_count", 0)),
+		"fish_effect_count": int(summary.get("fish_effect_count", 0)),
+		"commerce_effect_count": int(summary.get("commerce_effect_count", 0)),
+		"same_city_only": true,
+		"researching_has_effect": false,
+		"bonus_state_persisted": false,
 		"combat_effects_applied": 0,
 		"diplomacy_effects_applied": 0,
 		"spy_effects_applied": 0,
+		"market_effects_applied": 0,
 		"enemy_effects_applied": 0,
 	}
 
@@ -13965,6 +14093,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var revolt_instigation_tick_result := _advance_revolt_instigation_for_world_turn()
 	var supply_states := _calculate_all_city_supply_states()
 	var income_delta := _calculate_player_domestic_income_delta(turn_number, tax_level, policy_id, national_effects, supply_states)
+	var domestic_tech_economy_summary := _get_domestic_tech_economy_turn_summary_mvp()
 	var upkeep_delta := _calculate_player_hero_upkeep_delta(policy_id, national_effects, supply_states)
 	var combined_delta := _combine_resource_deltas(income_delta, upkeep_delta)
 	var applied_delta := _apply_resource_delta(combined_delta)
@@ -13988,7 +14117,7 @@ func _apply_domestic_turn_mvp() -> String:
 	var chancellor_auto_trade_result := _apply_chancellor_auto_trade_for_world_turn(turn_number)
 	_player_state["last_domestic_apply_turn"] = turn_number
 	_player_state["resources"] = _format_player_resource_summary()
-	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, domestic_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result)
+	_player_state["income"] = _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, domestic_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result, domestic_tech_economy_summary)
 	_player_state["tax_effect"] = _format_tax_effect_text(tax_level)
 	_player_state["last_domestic_apply_result"] = {
 		"version": "v0.69-4",
@@ -14018,7 +14147,7 @@ func _apply_domestic_turn_mvp() -> String:
 		"trade_market_result": trade_market_result,
 		"chancellor_auto_trade_result": chancellor_auto_trade_result,
 	}
-	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, domestic_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result)
+	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, domestic_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result, domestic_tech_economy_summary)
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -14088,6 +14217,11 @@ func _calculate_city_gold_tax_income(city_data: Dictionary, tax_level: int) -> i
 	return maxi(0, int(round(float(taxable_value) * _get_tax_gold_multiplier(tax_level))))
 
 
+func _apply_domestic_tech_economy_numeric_bonus_value_mvp(base_value: Variant, percent_bonus: float, flat_bonus: int = 0) -> int:
+	var scaled_value := int(round(float(base_value) * (1.0 + percent_bonus)))
+	return maxi(0, scaled_value + flat_bonus)
+
+
 func _apply_domestic_tech_city_economy_bonus_to_income_mvp(city_id: String, income: Dictionary) -> Dictionary:
 	var result := income.duplicate(true)
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
@@ -14096,17 +14230,17 @@ func _apply_domestic_tech_city_economy_bonus_to_income_mvp(city_id: String, inco
 	var food_percent := float(bonus.get("food_percent", 0.0))
 	var food_flat := int(bonus.get("food_flat", 0))
 	for food_resource_id in CITY_STORAGE_FOOD_RESOURCE_IDS:
-		result[food_resource_id] = maxi(0, int(round(float(result.get(food_resource_id, 0)) * (1.0 + food_percent))))
+		result[food_resource_id] = _apply_domestic_tech_economy_numeric_bonus_value_mvp(result.get(food_resource_id, 0), food_percent)
 	if food_flat != 0:
 		var target_food_id := "rice"
 		for food_resource_id in CITY_STORAGE_FOOD_RESOURCE_IDS:
 			if int(result.get(food_resource_id, 0)) > 0:
 				target_food_id = food_resource_id
 				break
-		result[target_food_id] = maxi(0, int(result.get(target_food_id, 0)) + food_flat)
+		result[target_food_id] = _apply_domestic_tech_economy_numeric_bonus_value_mvp(result.get(target_food_id, 0), 0.0, food_flat)
 	var gold_percent := float(bonus.get("gold_percent", 0.0))
 	var gold_flat := int(bonus.get("gold_flat", 0))
-	result["gold"] = maxi(0, int(round(float(result.get("gold", 0)) * (1.0 + gold_percent))) + gold_flat)
+	result["gold"] = _apply_domestic_tech_economy_numeric_bonus_value_mvp(result.get("gold", 0), gold_percent, gold_flat)
 	return result
 
 
@@ -17393,7 +17527,7 @@ func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
 	return mini(-1, int(ceil(float(base_delta) * loss_multiplier)))
 
 
-func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}, domestic_tech_progress_result: Dictionary = {}, tech_effect_result: Dictionary = {}, trade_market_result: Dictionary = {}, diplomacy_normalize_result: Dictionary = {}, diplomacy_cooldown_result: Dictionary = {}, spy_cooldown_result: Dictionary = {}) -> String:
+func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: int, inter_faction_trade_result: Dictionary = {}, supply_state_result: Dictionary = {}, city_loyalty_drift_result: Dictionary = {}, public_support_result: Dictionary = {}, seasonal_loyalty_result: Dictionary = {}, conscription_result: Dictionary = {}, revolt_warning_result: Dictionary = {}, national_tech_progress_result: Dictionary = {}, city_tech_progress_result: Dictionary = {}, domestic_tech_progress_result: Dictionary = {}, tech_effect_result: Dictionary = {}, trade_market_result: Dictionary = {}, diplomacy_normalize_result: Dictionary = {}, diplomacy_cooldown_result: Dictionary = {}, spy_cooldown_result: Dictionary = {}, domestic_tech_economy_summary: Dictionary = {}) -> String:
 	var parts: Array[String] = []
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var delta := int(resource_delta.get(resource_id, 0))
@@ -17428,6 +17562,10 @@ func _format_domestic_apply_summary(resource_delta: Dictionary, loyalty_delta: i
 		var domestic_tech_summary := _format_domestic_tech_progress_summary_mvp(domestic_tech_progress_result)
 		if not domestic_tech_summary.is_empty():
 			parts.append(domestic_tech_summary)
+	if not domestic_tech_economy_summary.is_empty():
+		var domestic_tech_economy_text := _format_domestic_tech_economy_turn_summary_mvp(domestic_tech_economy_summary)
+		if not domestic_tech_economy_text.is_empty():
+			parts.append(domestic_tech_economy_text)
 	if not tech_effect_result.is_empty():
 		var effect_summary := _format_tech_effect_summary(tech_effect_result)
 		if not effect_summary.is_empty():

@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish Handoff
+- Baseline: `v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set` (`1fc67e044fa02c56f8a00a7f680b3b734a88eae1`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This hotfix is QA/stability polish for the first Domestic Tech economy numeric slice.
+- `_get_domestic_tech_city_economy_bonus_mvp(city_id)` remains side-effect free and computes only from completed city techs for the same PLAYER city.
+- The helper now explicitly verifies city-scope definitions and agri/fish/commerce categories before applying Safe Set values.
+- Researching, incomplete, false, missing, malformed, other-city, national, and enemy tech state still provide no economy bonus.
+- Source tech ids are de-duplicated before UI display, domestic turn summary display, and QA summary counting.
+- Food/gold numeric application uses a shared non-negative clamp helper; supply values remain display/QA-only for this phase.
+- Domestic turn result text now includes a compact economy bonus line based on the same helper used by city detail and the Domestic Tech inspector; no structured computed bonus state is stored.
+- QA summary reports numeric economy count, agri/fish/commerce counts, `market_effects_applied = 0`, and same-city/researching/no-persist safety flags.
+- Explicitly unchanged: resource payment, combat/troop/battle/diplomacy/spy/market effects, national policy numeric effects, AI research, enemy research/effect, enemy city tech exposure, BattleContext, pending invasion, scenes, tech definitions, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- UI64 priority, node-click latency guard, overlay lifecycle, active/completed normalize, research start/progress/completion, and enemy/insufficient-intel safety remain locked.
+- Next candidate: `v0.70-69 Domestic Tech Military/Defense Effects Safe Set`.
+- Manual F6 QA remains required for city economy bonus, turn income change, same-city only, enemy no-effect, no duplicate accumulation, UI bonus display, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set Handoff
 - Baseline: `v0.70-67-hotfix1 Domestic Tech Effect Phase 1 QA Polish` (`8a9067339802bd28fecbdae810ab9ff8f7f69f91`).
 - Runtime file touched: `scripts/worldmap_test.gd`.
