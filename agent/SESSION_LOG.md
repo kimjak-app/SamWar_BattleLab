@@ -2,6 +2,18 @@
 
 ## 2026-06-29
 
+### v0.70-69 Domestic Tech Military/Defense Effects Safe Set
+- Started from local `5eeda38 v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish`; `origin/main` matched local HEAD and the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - PLAYER-city-only military/defense helper from completed city Domestic Tech.
+  - Safe Set mapping for barracks recruitment capacity display, infantry/archer/cavalry training display, and wall/moat/watchtower/beacon/iron defense display.
+  - Same-city-only source tech handling with duplicate source prevention.
+  - City detail and Domestic Tech inspector display for selected PLAYER city military/defense bonuses and source techs.
+  - QA summary helper for `city_defense_effects_applied`, `training_display_effects_applied`, `battle_effects_applied = 0`, and `enemy_effects_applied = 0`.
+- Preserved no battle formula change, no troop stat mutation, no troop count auto increase, no BattleContext change, no pending invasion change, no enemy city effect/display, no naval/siege numeric effect, no diplomacy/spy/market/trade effect, no national policy numeric effect, no AI research, no tech definition change, no asset/icon/UI64/import change, and economy Safe Set behavior.
+- Manual F6 QA remains required for city military/defense bonus, same-city only, enemy no-effect, no battle mutation, no troop count mutation, UI bonus display, research flow, economy Safe Set, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish
 - Started from local `1fc67e0 v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set`; `origin/main` matched local HEAD and the working tree was clean.
 - Required workflow/worldmap docs were read before runtime changes.

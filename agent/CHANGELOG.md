@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-69 Domestic Tech Military/Defense Effects Safe Set
+- Built on `v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish` (`5eeda382054c52885420f60e934a2de6cd59fc22`).
+- Added a PLAYER-city-only Domestic Tech military/defense bonus helper based on completed city techs; no derived bonus state is saved.
+- Added Safe Set values for recruitment capacity display, infantry/archer/cavalry training display, and city defense display.
+- Added selected PLAYER city military/defense bonus/source display to city detail and Domestic Tech inspector.
+- Added a display-only city defense value helper for minimum city-detail connection without touching battle formulas.
+- Extended internal QA summary helpers with city defense and training display counts while keeping `battle_effects_applied = 0` and `enemy_effects_applied = 0`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement battle modifiers, troop stat changes, troop count changes, automatic recruitment, BattleContext changes, pending invasion changes, diplomacy/spy/market/trade effects, national policy numeric effects, AI research, enemy research/effect, naval numeric effects, siege numeric effects, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish
 - Built on `v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set` (`1fc67e044fa02c56f8a00a7f680b3b734a88eae1`).
 - Strengthened the Domestic Tech economy helper with explicit city-scope, agri/fish/commerce, PLAYER city, completed-only, and same-city guards.

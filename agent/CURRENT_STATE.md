@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-69 Domestic Tech Military/Defense Effects Safe Set
+- Baseline: `v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish` at `5eeda382054c52885420f60e934a2de6cd59fc22`; local HEAD matched `origin/main` and tracked files were clean at task start.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Military/Defense Safe Set scope:
+  - Added PLAYER-city-only Domestic Tech military/defense bonus calculation from completed city techs; no bonus state is saved.
+  - Added display-safe training/recruitment values for barracks, infantry, archer, and cavalry training techs.
+  - Added display-safe city defense values for wall, moat, watchtower, beacon, iron gate, and fortress techs.
+  - City detail and Domestic Tech inspector now display selected PLAYER city military/defense bonus lines and source tech names.
+  - QA summary now reports `city_defense_effects_applied`, `training_display_effects_applied`, and `battle_effects_applied = 0`.
+- Preserved scope: no battle formula change, no troop stat mutation, no troop count auto increase, no BattleContext change, no pending invasion change, no enemy city effect/display, no naval/siege numeric effect, no diplomacy/spy/market/trade effect, no tech definition change, and no asset/import change.
+- Existing locks remain: economy Safe Set, UI64 icon priority, node-click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, active/completed normalize, and research start/progress/completion.
+- Next candidates: `v0.70-69-hotfix1 Military/Defense Effect QA Polish` or `v0.70-70 Domestic Tech National Policy Effects Safe Set`.
+- Manual F6 QA remains required for city military/defense bonus, same-city only, enemy no-effect, no battle mutation, no troop count mutation, UI bonus display, research flow, economy Safe Set, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish
 - Baseline: `v0.70-68 Domestic Tech Numeric Effects Phase 1 - Economy Safe Set` at `1fc67e044fa02c56f8a00a7f680b3b734a88eae1`; local HEAD matched `origin/main` and tracked files were clean at task start.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

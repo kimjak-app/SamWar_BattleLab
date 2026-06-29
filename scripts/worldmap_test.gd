@@ -171,6 +171,25 @@ const DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP := {
 	"commerce_mint": {"gold_flat": 20},
 	"commerce_grand_market": {"gold_percent": 0.12},
 }
+const DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_BRANCHES_MVP := ["infantry", "archer", "cavalry", "defense"]
+const DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP := {
+	"mil_barracks": {"recruit_capacity_flat": 100},
+	"mil_infantry_training": {"infantry_training_percent": 0.05},
+	"mil_heavy_infantry": {"infantry_training_percent": 0.08},
+	"mil_archer_training": {"archer_training_percent": 0.05},
+	"mil_elite_archer": {"archer_training_percent": 0.08},
+	"mil_cavalry_training": {"cavalry_training_percent": 0.05},
+	"mil_light_cavalry": {"cavalry_training_percent": 0.06},
+	"mil_heavy_cavalry": {"cavalry_training_percent": 0.08},
+	"mil_wall_upgrade": {"defense_flat": 50},
+	"mil_moat": {"defense_percent": 0.05},
+	"mil_double_moat": {"defense_percent": 0.08},
+	"mil_watchtower": {"defense_flat": 30},
+	"mil_beacon": {"defense_flat": 20},
+	"mil_beacon_network": {"defense_percent": 0.05},
+	"mil_iron_gate": {"defense_flat": 80},
+	"mil_iron_fortress": {"defense_percent": 0.10},
+}
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
 const DIPLOMACY_SPY_TAB_DIPLOMACY := "diplomacy"
@@ -1998,6 +2017,9 @@ func _apply_city_detail_resource_tab_content(city_id: String, city_data: Diction
 	var economy_bonus_lines := _format_domestic_tech_city_economy_bonus_lines_mvp(city_id)
 	if not economy_bonus_lines.is_empty():
 		city_detail_rating_label.text += "\n%s" % "\n".join(economy_bonus_lines)
+	var military_defense_bonus_lines := _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id, city_data)
+	if not military_defense_bonus_lines.is_empty():
+		city_detail_rating_label.text += "\n%s" % "\n".join(military_defense_bonus_lines)
 	city_detail_rating_label.add_theme_color_override("font_color", Color(0.95, 0.92, 0.82, 1.0))
 	city_detail_status_label.visible = true
 	city_detail_status_label.text = _format_city_storage_summary(_get_city_storage(city_id, city_data))
@@ -9934,6 +9956,50 @@ func _get_domestic_tech_city_economy_bonus_mvp(city_id: String) -> Dictionary:
 	return bonus
 
 
+func _get_empty_domestic_tech_city_military_defense_bonus_mvp() -> Dictionary:
+	return {
+		"defense_flat": 0,
+		"defense_percent": 0.0,
+		"recruit_capacity_flat": 0,
+		"training_percent": 0.0,
+		"infantry_training_percent": 0.0,
+		"archer_training_percent": 0.0,
+		"cavalry_training_percent": 0.0,
+		"source_techs": [],
+	}
+
+
+func _get_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> Dictionary:
+	var bonus := _get_empty_domestic_tech_city_military_defense_bonus_mvp()
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return bonus
+	var source_seen := {}
+	for tech_id_variant in DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.keys():
+		var tech_id := str(tech_id_variant)
+		if source_seen.has(tech_id):
+			continue
+		var definition := _get_domestic_tech_definition_mvp(tech_id)
+		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_CITY:
+			continue
+		if str(definition.get("category", "")) != DOMESTIC_TECH_CATEGORY_MILITARY:
+			continue
+		if not DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_BRANCHES_MVP.has(str(definition.get("branch", ""))):
+			continue
+		if not _is_city_domestic_tech_completed_mvp(city_id, tech_id):
+			continue
+		var mapping: Dictionary = DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.get(tech_id, {})
+		bonus["defense_flat"] = int(bonus.get("defense_flat", 0)) + int(mapping.get("defense_flat", 0))
+		bonus["defense_percent"] = float(bonus.get("defense_percent", 0.0)) + float(mapping.get("defense_percent", 0.0))
+		bonus["recruit_capacity_flat"] = int(bonus.get("recruit_capacity_flat", 0)) + int(mapping.get("recruit_capacity_flat", 0))
+		bonus["training_percent"] = float(bonus.get("training_percent", 0.0)) + float(mapping.get("training_percent", 0.0))
+		bonus["infantry_training_percent"] = float(bonus.get("infantry_training_percent", 0.0)) + float(mapping.get("infantry_training_percent", 0.0))
+		bonus["archer_training_percent"] = float(bonus.get("archer_training_percent", 0.0)) + float(mapping.get("archer_training_percent", 0.0))
+		bonus["cavalry_training_percent"] = float(bonus.get("cavalry_training_percent", 0.0)) + float(mapping.get("cavalry_training_percent", 0.0))
+		(bonus["source_techs"] as Array).append(tech_id)
+		source_seen[tech_id] = true
+	return bonus
+
+
 func _has_domestic_tech_city_economy_bonus_mvp(city_id: String) -> bool:
 	var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
 	return int(bonus.get("food_flat", 0)) != 0 \
@@ -9942,6 +10008,17 @@ func _has_domestic_tech_city_economy_bonus_mvp(city_id: String) -> bool:
 		or not is_equal_approx(float(bonus.get("gold_percent", 0.0)), 0.0) \
 		or int(bonus.get("supply_flat", 0)) != 0 \
 		or not is_equal_approx(float(bonus.get("supply_percent", 0.0)), 0.0)
+
+
+func _has_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> bool:
+	var bonus := _get_domestic_tech_city_military_defense_bonus_mvp(city_id)
+	return int(bonus.get("defense_flat", 0)) != 0 \
+		or not is_equal_approx(float(bonus.get("defense_percent", 0.0)), 0.0) \
+		or int(bonus.get("recruit_capacity_flat", 0)) != 0 \
+		or not is_equal_approx(float(bonus.get("training_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("infantry_training_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("archer_training_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("cavalry_training_percent", 0.0)), 0.0)
 
 
 func _format_domestic_tech_percent_bonus_mvp(value: float) -> String:
@@ -9987,6 +10064,58 @@ func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include
 		resource_parts.append("보급 %s" % _format_signed_int(int(bonus.get("supply_flat", 0))))
 	if not resource_parts.is_empty():
 		result.append("테크 경제 보너스: %s" % ", ".join(resource_parts))
+	if include_sources:
+		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
+		if not source_techs.is_empty():
+			var source_names: Array[String] = []
+			for index in range(mini(source_techs.size(), 4)):
+				source_names.append(_get_domestic_tech_display_name_mvp(str(source_techs[index])))
+			var suffix := ""
+			if source_techs.size() > source_names.size():
+				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
+			result.append("적용 테크: %s%s" % [", ".join(source_names), suffix])
+	return result
+
+
+func _get_domestic_tech_city_defense_display_value_mvp(city_id: String, city_data: Dictionary) -> int:
+	var base_defense := maxi(0, int(city_data.get("defense", 0)))
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return base_defense
+	var bonus := _get_domestic_tech_city_military_defense_bonus_mvp(city_id)
+	var defense_after_flat := base_defense + int(bonus.get("defense_flat", 0))
+	return maxi(0, int(round(float(defense_after_flat) * (1.0 + float(bonus.get("defense_percent", 0.0))))))
+
+
+func _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id: String, city_data: Dictionary = {}, include_sources: bool = true) -> Array[String]:
+	var result: Array[String] = []
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return result
+	var bonus := _get_domestic_tech_city_military_defense_bonus_mvp(city_id)
+	if not _has_domestic_tech_city_military_defense_bonus_mvp(city_id):
+		return result
+	var resource_parts: Array[String] = []
+	var defense_percent := float(bonus.get("defense_percent", 0.0))
+	if int(bonus.get("defense_flat", 0)) != 0:
+		resource_parts.append("도시 방어 %s" % _format_signed_int(int(bonus.get("defense_flat", 0))))
+	if not is_equal_approx(defense_percent, 0.0):
+		resource_parts.append("도시 방어 %s" % _format_domestic_tech_percent_bonus_mvp(defense_percent))
+	if int(bonus.get("recruit_capacity_flat", 0)) != 0:
+		resource_parts.append("모집 수용 %s" % _format_signed_int(int(bonus.get("recruit_capacity_flat", 0))))
+	if not is_equal_approx(float(bonus.get("training_percent", 0.0)), 0.0):
+		resource_parts.append("훈련 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("training_percent", 0.0))))
+	if not is_equal_approx(float(bonus.get("infantry_training_percent", 0.0)), 0.0):
+		resource_parts.append("보병 훈련 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("infantry_training_percent", 0.0))))
+	if not is_equal_approx(float(bonus.get("archer_training_percent", 0.0)), 0.0):
+		resource_parts.append("궁병 훈련 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("archer_training_percent", 0.0))))
+	if not is_equal_approx(float(bonus.get("cavalry_training_percent", 0.0)), 0.0):
+		resource_parts.append("기병 훈련 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("cavalry_training_percent", 0.0))))
+	if not city_data.is_empty() and (int(bonus.get("defense_flat", 0)) != 0 or not is_equal_approx(defense_percent, 0.0)):
+		resource_parts.append("방어 표시 %d→%d" % [
+			maxi(0, int(city_data.get("defense", 0))),
+			_get_domestic_tech_city_defense_display_value_mvp(city_id, city_data),
+		])
+	if not resource_parts.is_empty():
+		result.append("테크 군사 보너스: %s" % ", ".join(resource_parts.slice(0, 5)))
 	if include_sources:
 		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 		if not source_techs.is_empty():
@@ -10452,6 +10581,12 @@ func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dic
 	var economy_bonus_display := _format_domestic_tech_city_economy_bonus_lines_mvp(economy_bonus_city_id)
 	if not economy_bonus_display.is_empty():
 		lines.append("선택 도시 적용 경제 보너스:\n- %s" % "\n- ".join(economy_bonus_display))
+	var military_defense_bonus_city_id := city_id
+	if military_defense_bonus_city_id.is_empty() and selected_city_marker != null:
+		military_defense_bonus_city_id = selected_city_marker.city_id
+	var military_defense_bonus_display := _format_domestic_tech_city_military_defense_bonus_lines_mvp(military_defense_bonus_city_id, _get_city_hud_entry(military_defense_bonus_city_id))
+	if not military_defense_bonus_display.is_empty():
+		lines.append("선택 도시 적용 군사/방어 보너스:\n- %s" % "\n- ".join(military_defense_bonus_display))
 	lines.append("비용: %s" % _get_domestic_tech_cost_summary_mvp(tech_def))
 	lines.append("건설/연구 시간: %s" % _format_domestic_tech_duration_hint_mvp(tech_def))
 	var conditions := _get_domestic_tech_readiness_condition_lines_mvp(tech_def, view_state, city_id)
@@ -10727,12 +10862,18 @@ func _get_domestic_tech_effect_phase1_display_mvp(tech_def: Dictionary, scope: S
 	elif scope == DOMESTIC_TECH_SCOPE_CITY and (not required_national_techs.is_empty() or not enhanced_by_national_techs.is_empty()):
 		result.append("국가 테크 조건은 완료 상태만 인정")
 	var has_economy_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.has(tech_id)
+	var has_military_defense_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.has(tech_id)
 	if has_economy_safe_effect and is_completed:
 		result.append("경제 효과: 선택 도시 수입에 적용 중")
 	elif has_economy_safe_effect:
 		result.append("경제 효과: 완료 후 선택 도시 수입에 적용")
-	else:
-		result.append("전투/외교/첩보/시장 효과는 후속 버전에서 적용됩니다")
+	if has_military_defense_safe_effect and is_completed:
+		result.append("군사/방어 효과: 선택 도시 표시 보너스에 적용 중")
+	elif has_military_defense_safe_effect:
+		result.append("군사/방어 효과: 완료 후 선택 도시 표시 보너스에 적용")
+	if has_economy_safe_effect or has_military_defense_safe_effect:
+		return result
+	result.append("전투/외교/첩보/시장 효과는 후속 버전에서 적용됩니다")
 	return result
 
 
@@ -10751,6 +10892,8 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 	var agri_effect_count := 0
 	var fish_effect_count := 0
 	var commerce_effect_count := 0
+	var city_defense_effects_applied := 0
+	var training_display_effects_applied := 0
 	for national_tech_id_variant in national_completed.keys():
 		var national_tech_id := str(national_tech_id_variant)
 		var national_def := _get_domestic_tech_definition_mvp(national_tech_id)
@@ -10787,6 +10930,18 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 						fish_effect_count += 1
 					DOMESTIC_TECH_CATEGORY_COMMERCE:
 						commerce_effect_count += 1
+			var military_defense_bonus := _get_domestic_tech_city_military_defense_bonus_mvp(city_id)
+			var military_defense_sources := _get_unique_domestic_tech_source_ids_mvp(military_defense_bonus.get("source_techs", []))
+			for military_source_tech_id in military_defense_sources:
+				var mapping: Dictionary = DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.get(military_source_tech_id, {})
+				if int(mapping.get("defense_flat", 0)) != 0 or not is_equal_approx(float(mapping.get("defense_percent", 0.0)), 0.0):
+					city_defense_effects_applied += 1
+				if int(mapping.get("recruit_capacity_flat", 0)) != 0 \
+					or not is_equal_approx(float(mapping.get("training_percent", 0.0)), 0.0) \
+					or not is_equal_approx(float(mapping.get("infantry_training_percent", 0.0)), 0.0) \
+					or not is_equal_approx(float(mapping.get("archer_training_percent", 0.0)), 0.0) \
+					or not is_equal_approx(float(mapping.get("cavalry_training_percent", 0.0)), 0.0):
+					training_display_effects_applied += 1
 	return {
 		"national_completed_count": national_completed.size(),
 		"city_completed_count": city_completed_count,
@@ -10794,9 +10949,12 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 		"numeric_effects_applied": numeric_economy_effects_applied,
 		"numeric_economy_effects_applied": numeric_economy_effects_applied,
 		"economy_effects_enabled": true,
+		"military_defense_effects_enabled": true,
 		"agri_effect_count": agri_effect_count,
 		"fish_effect_count": fish_effect_count,
 		"commerce_effect_count": commerce_effect_count,
+		"city_defense_effects_applied": city_defense_effects_applied,
+		"training_display_effects_applied": training_display_effects_applied,
 		"same_city_only": true,
 		"researching_has_effect": false,
 		"bonus_state_persisted": false,
@@ -10804,6 +10962,7 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 		"city_prerequisite_checks": city_prerequisite_checks,
 		"researching_treated_as_completed": false,
 		"combat_effects_applied": 0,
+		"battle_effects_applied": 0,
 		"diplomacy_effects_applied": 0,
 		"spy_effects_applied": 0,
 		"market_effects_applied": 0,
@@ -10827,6 +10986,20 @@ func _get_domestic_tech_numeric_effect_phase1_summary_mvp() -> Dictionary:
 		"spy_effects_applied": 0,
 		"market_effects_applied": 0,
 		"enemy_effects_applied": 0,
+	}
+
+
+func _get_domestic_tech_military_defense_effect_summary_mvp() -> Dictionary:
+	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
+	return {
+		"military_defense_effects_enabled": true,
+		"city_defense_effects_applied": int(summary.get("city_defense_effects_applied", 0)),
+		"training_display_effects_applied": int(summary.get("training_display_effects_applied", 0)),
+		"battle_effects_applied": 0,
+		"enemy_effects_applied": 0,
+		"same_city_only": true,
+		"researching_has_effect": false,
+		"bonus_state_persisted": false,
 	}
 
 
