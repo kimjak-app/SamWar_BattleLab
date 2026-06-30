@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-70-hotfix1 National Policy Effect QA Polish
+- Baseline: `v0.70-70 Domestic Tech National Policy Effects Safe Set` at `51d8cbb41a5b14ee712bdccdaf291b8b1a6eeb32`; local HEAD was ahead of `origin/main` because local Domestic Tech commits were not on remote, and tracked files were clean at task start.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- National Policy QA polish:
+  - Strengthened `_get_domestic_tech_national_policy_bonus_mvp()` to read one normalized completed national tech map per helper call and apply only completed `true` Safe Set ids.
+  - Kept PLAYER completed national tech only, researching/incomplete no-effect, enemy no-effect, and no persisted computed policy bonus state.
+  - Removed duplicate helper recomputation from national policy display formatting so left national panel and Domestic Tech inspector share the same computed helper result.
+  - Kept `tax_gold_percent` connected once through the PLAYER city gold income path and clamped the national tax percent to non-negative before the existing final gold `0+` clamp.
+  - QA summary now reports `national_completed_only`, `researching_has_policy_effect = false`, `tax_gold_applied_once = true`, and `source_techs_unique = true` alongside zero battle/troop/diplomacy/spy/market/enemy counters.
+- Preserved scope: no new policy effect scope, no enemy national effect, no AI research, no battle/diplomacy/spy/market formula change, no troop stat/count mutation, no BattleContext change, no pending invasion change, no tech definition change, and no asset/import change.
+- Existing locks remain: economy Safe Set, military/defense Safe Set, UI64 icon priority, node-click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, active/completed normalize, and research start/progress/completion.
+- Next candidate: `v0.70-71 Domestic Tech Naval/Siege Display Safe Set`.
+- Manual F6 QA remains required for national policy bonus, tax gold effect once, PLAYER only, enemy no-effect, no battle/diplomacy/spy/market mutation, no troop stat/count mutation, economy Safe Set, military/defense Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-70 Domestic Tech National Policy Effects Safe Set
 - Baseline: `v0.70-69-hotfix1 Military/Defense Effect QA Polish` at `12cf490dea2703976a2b5550d58b3727fafe6798`; local HEAD was ahead of `origin/main` because the hotfix1 commit was not on remote, and tracked files were clean at task start.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

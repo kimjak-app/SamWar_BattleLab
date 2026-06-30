@@ -10028,6 +10028,7 @@ func _get_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> Dict
 
 func _get_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
 	var bonus := _get_empty_domestic_tech_national_policy_bonus_mvp()
+	var completed: Dictionary = _normalize_national_domestic_tech_state_map_mvp(_player_state.get("national_domestic_tech_completed", {}))
 	var source_seen := {}
 	for tech_id_variant in DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.keys():
 		var tech_id := str(tech_id_variant)
@@ -10036,7 +10037,7 @@ func _get_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
 		var definition := _get_domestic_tech_definition_mvp(tech_id)
 		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_NATIONAL:
 			continue
-		if not _is_national_domestic_tech_completed_mvp(tech_id):
+		if not bool(completed.get(tech_id, false)):
 			continue
 		var mapping: Dictionary = DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.get(tech_id, {})
 		bonus["tax_gold_percent"] = float(bonus.get("tax_gold_percent", 0.0)) + float(mapping.get("tax_gold_percent", 0.0))
@@ -10049,6 +10050,16 @@ func _get_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
 		(bonus["source_techs"] as Array).append(tech_id)
 		source_seen[tech_id] = true
 	return bonus
+
+
+func _has_domestic_tech_national_policy_bonus_data_mvp(bonus: Dictionary) -> bool:
+	return not is_equal_approx(float(bonus.get("tax_gold_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("admin_efficiency_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("recruit_capacity_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("logistics_supply_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("population_growth_percent", 0.0)), 0.0) \
+		or int(bonus.get("storage_flat", 0)) != 0 \
+		or int(bonus.get("law_order_flat", 0)) != 0
 
 
 func _has_domestic_tech_city_economy_bonus_mvp(city_id: String) -> bool:
@@ -10074,13 +10085,7 @@ func _has_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> bool
 
 func _has_domestic_tech_national_policy_bonus_mvp() -> bool:
 	var bonus := _get_domestic_tech_national_policy_bonus_mvp()
-	return not is_equal_approx(float(bonus.get("tax_gold_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("admin_efficiency_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("recruit_capacity_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("logistics_supply_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("population_growth_percent", 0.0)), 0.0) \
-		or int(bonus.get("storage_flat", 0)) != 0 \
-		or int(bonus.get("law_order_flat", 0)) != 0
+	return _has_domestic_tech_national_policy_bonus_data_mvp(bonus)
 
 
 func _format_domestic_tech_percent_bonus_mvp(value: float) -> String:
@@ -10142,7 +10147,7 @@ func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include
 func _format_domestic_tech_national_policy_bonus_lines_mvp(include_sources: bool = true) -> Array[String]:
 	var result: Array[String] = []
 	var bonus := _get_domestic_tech_national_policy_bonus_mvp()
-	if not _has_domestic_tech_national_policy_bonus_mvp():
+	if not _has_domestic_tech_national_policy_bonus_data_mvp(bonus):
 		return result
 	var policy_parts: Array[String] = []
 	var tax_gold_percent := float(bonus.get("tax_gold_percent", 0.0))
@@ -11080,6 +11085,10 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 					or not is_equal_approx(float(mapping.get("archer_training_percent", 0.0)), 0.0) \
 					or not is_equal_approx(float(mapping.get("cavalry_training_percent", 0.0)), 0.0):
 					training_display_effects_applied += 1
+	var national_policy_source_count := 0
+	var national_policy_source_raw: Variant = national_policy_bonus.get("source_techs", [])
+	if national_policy_source_raw is Array:
+		national_policy_source_count = (national_policy_source_raw as Array).size()
 	return {
 		"national_completed_count": national_completed.size(),
 		"city_completed_count": city_completed_count,
@@ -11104,10 +11113,14 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 		"storage_display_effects_applied": storage_display_effects_applied,
 		"same_city_only": true,
 		"completed_city_tech_only": true,
+		"national_completed_only": true,
 		"player_national_completed_only": true,
 		"player_city_only": true,
 		"researching_has_effect": false,
+		"researching_has_policy_effect": false,
 		"bonus_state_persisted": false,
+		"tax_gold_applied_once": true,
+		"source_techs_unique": national_policy_sources.size() == national_policy_source_count,
 		"required_national_checks": required_national_checks,
 		"city_prerequisite_checks": city_prerequisite_checks,
 		"researching_treated_as_completed": false,
@@ -11126,9 +11139,13 @@ func _get_domestic_tech_national_policy_effect_summary_mvp() -> Dictionary:
 	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
 	return {
 		"national_policy_effects_enabled": true,
+		"national_completed_only": true,
 		"player_national_completed_only": true,
 		"researching_has_effect": false,
+		"researching_has_policy_effect": false,
 		"bonus_state_persisted": false,
+		"tax_gold_applied_once": true,
+		"source_techs_unique": bool(summary.get("source_techs_unique", true)),
 		"tax_gold_effects_applied": int(summary.get("tax_gold_effects_applied", 0)),
 		"admin_display_effects_applied": int(summary.get("admin_display_effects_applied", 0)),
 		"recruit_display_effects_applied": int(summary.get("recruit_display_effects_applied", 0)),
@@ -14593,7 +14610,8 @@ func _apply_domestic_tech_city_economy_bonus_to_income_mvp(city_id: String, inco
 		result[target_food_id] = _apply_domestic_tech_economy_numeric_bonus_value_mvp(result.get(target_food_id, 0), 0.0, food_flat)
 	var gold_percent := float(bonus.get("gold_percent", 0.0))
 	var national_policy_bonus := _get_domestic_tech_national_policy_bonus_mvp()
-	gold_percent += float(national_policy_bonus.get("tax_gold_percent", 0.0))
+	var national_tax_gold_percent := maxf(0.0, float(national_policy_bonus.get("tax_gold_percent", 0.0)))
+	gold_percent += national_tax_gold_percent
 	var gold_flat := int(bonus.get("gold_flat", 0))
 	result["gold"] = _apply_domestic_tech_economy_numeric_bonus_value_mvp(result.get("gold", 0), gold_percent, gold_flat)
 	return result

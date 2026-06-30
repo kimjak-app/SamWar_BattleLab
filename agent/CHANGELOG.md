@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.70-70-hotfix1 National Policy Effect QA Polish
+- Built on `v0.70-70 Domestic Tech National Policy Effects Safe Set` (`51d8cbb41a5b14ee712bdccdaf291b8b1a6eeb32`).
+- Strengthened national policy bonus derivation to use one normalized completed national tech map per helper call and apply only completed `true` Safe Set ids.
+- Kept researching/incomplete national techs, malformed completed state, enemy state, and non-player state from producing policy effects.
+- Removed duplicate display-time policy helper recomputation so left national panel and Domestic Tech inspector stay aligned with the same helper result.
+- Kept source national tech display unique and compacted.
+- Kept `tax_gold_percent` connected once to PLAYER city gold income, clamped national tax percent to non-negative, and preserved the existing final gold `0+` clamp.
+- Extended QA summary helpers with `national_completed_only`, `researching_has_policy_effect = false`, `tax_gold_applied_once = true`, and `source_techs_unique` while preserving zero battle, troop stat/count, diplomacy, spy, market, and enemy counters.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement new national policy scope, enemy national effects, AI research, diplomacy/spy/market formula changes, battle formula changes, troop stat changes, troop count changes, BattleContext changes, pending invasion changes, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-70 Domestic Tech National Policy Effects Safe Set
 - Built on `v0.70-69-hotfix1 Military/Defense Effect QA Polish` (`12cf490dea2703976a2b5550d58b3727fafe6798`).
 - Added a PLAYER completed national tech policy helper that is side-effect free, ignores researching/incomplete tech, de-duplicates source techs, and never saves computed bonus state.

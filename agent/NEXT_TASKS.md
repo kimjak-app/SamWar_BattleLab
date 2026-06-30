@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-70-hotfix1 National Policy Effect QA Polish
+- Baseline: `v0.70-70 Domestic Tech National Policy Effects Safe Set` (`51d8cbb41a5b14ee712bdccdaf291b8b1a6eeb32`).
+- Completed direction:
+  1. Strengthened national policy bonus calculation around one normalized completed national tech map and completed `true` Safe Set ids only.
+  2. Kept researching/incomplete national techs from applying effects and kept computed policy bonus state non-persistent.
+  3. Preserved PLAYER-only tax gold connection and enemy no-effect behavior.
+  4. Stabilized left national panel and Domestic Tech inspector display by using the same computed helper result without duplicate display-time recomputation.
+  5. Extended QA summary with `researching_has_policy_effect = false`, `tax_gold_applied_once = true`, and `source_techs_unique = true`.
+- Preserved scope:
+  1. No new national policy effect scope, enemy national effect, AI research, battle/diplomacy/spy/market formula, troop stat/count, BattleContext, pending invasion, tech definition, asset, icon, UI64, or `.import` change was made.
+  2. Economy Safe Set, military/defense Safe Set, UI64 priority, click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, and research start/progress/completion remain locked.
+- Next candidate:
+  1. `v0.70-71 Domestic Tech Naval/Siege Display Safe Set`.
+- Manual F6 QA required:
+  1. Check national policy bonus, tax gold effect once, PLAYER only, enemy no-effect, no battle/diplomacy/spy/market mutation, no troop stat/count mutation, economy Safe Set, military/defense Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-70 Domestic Tech National Policy Effects Safe Set
 - Baseline: `v0.70-69-hotfix1 Military/Defense Effect QA Polish` (`12cf490dea2703976a2b5550d58b3727fafe6798`).
 - Completed direction:

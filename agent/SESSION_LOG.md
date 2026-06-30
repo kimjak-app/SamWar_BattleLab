@@ -2,6 +2,18 @@
 
 ## 2026-06-30
 
+### v0.70-70-hotfix1 National Policy Effect QA Polish
+- Started from local `51d8cbb v0.70-70 Domestic Tech National Policy Effects Safe Set`; `origin/main` was still `ed7bb43`, so local was ahead and the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - Completed-only national policy helper polish using one normalized completed national tech map and completed `true` Safe Set ids.
+  - Researching/incomplete no-effect and no-persist behavior retained for policy bonus calculation.
+  - Display consistency polish so left national panel and Domestic Tech inspector use the same computed policy helper result.
+  - Tax gold duplicate-prevention flags and non-negative national tax percent clamp before the existing final gold clamp.
+  - QA summary additions for `national_completed_only`, `researching_has_policy_effect = false`, `tax_gold_applied_once = true`, and `source_techs_unique`.
+- Preserved no new national policy scope, no enemy national effects, no AI research, no diplomacy/spy/market formula changes, no battle formula change, no troop stat/count mutation, no BattleContext change, no pending invasion change, no tech definition change, no asset/icon/UI64/import change, and existing economy and military/defense Safe Set behavior.
+- Manual F6 QA remains required for national policy bonus, tax gold effect once, PLAYER only, enemy no-effect, no battle/diplomacy/spy/market mutation, no troop stat/count mutation, economy Safe Set, military/defense Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-70 Domestic Tech National Policy Effects Safe Set
 - Started from local `12cf490 v0.70-69-hotfix1 Military/Defense Effect QA Polish`; `origin/main` was still `ed7bb43`, so local was ahead by the prior hotfix commit and the working tree was clean.
 - Required workflow/worldmap docs were read before runtime changes.
