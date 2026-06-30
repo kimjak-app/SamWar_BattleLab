@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-69-hotfix1 Military/Defense Effect QA Polish
+- Built on `v0.70-69 Domestic Tech Military/Defense Effects Safe Set` (`ed7bb437b6408e227639a71b317a57868caf405a`).
+- Reconfirmed military/defense bonus derivation as PLAYER-city-only, same-city-only, completed-city-tech-only, and non-persistent.
+- Stabilized city defense display clamp/order as percent then flat bonus with final `0+` clamp.
+- Kept city detail and Domestic Tech inspector military/defense display aligned with helper output and hidden for enemy/non-player cities.
+- Extended QA summary helpers with `completed_city_tech_only`, `player_city_only`, `troop_stat_effects_applied = 0`, and `troop_count_effects_applied = 0` while preserving `battle_effects_applied = 0` and `enemy_effects_applied = 0`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement battle modifiers, troop stat changes, troop count changes, automatic recruitment, BattleContext changes, pending invasion changes, diplomacy/spy/market/trade effects, national policy numeric effects, AI research, enemy research/effect, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-69 Domestic Tech Military/Defense Effects Safe Set
 - Built on `v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish` (`5eeda382054c52885420f60e934a2de6cd59fc22`).
 - Added a PLAYER-city-only Domestic Tech military/defense bonus helper based on completed city techs; no derived bonus state is saved.

@@ -10082,8 +10082,10 @@ func _get_domestic_tech_city_defense_display_value_mvp(city_id: String, city_dat
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
 		return base_defense
 	var bonus := _get_domestic_tech_city_military_defense_bonus_mvp(city_id)
-	var defense_after_flat := base_defense + int(bonus.get("defense_flat", 0))
-	return maxi(0, int(round(float(defense_after_flat) * (1.0 + float(bonus.get("defense_percent", 0.0))))))
+	var defense_percent := maxf(0.0, float(bonus.get("defense_percent", 0.0)))
+	var defense_flat := maxi(0, int(bonus.get("defense_flat", 0)))
+	var percent_value := int(round(float(base_defense) * (1.0 + defense_percent)))
+	return maxi(0, percent_value + defense_flat)
 
 
 func _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id: String, city_data: Dictionary = {}, include_sources: bool = true) -> Array[String]:
@@ -10956,6 +10958,8 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 		"city_defense_effects_applied": city_defense_effects_applied,
 		"training_display_effects_applied": training_display_effects_applied,
 		"same_city_only": true,
+		"completed_city_tech_only": true,
+		"player_city_only": true,
 		"researching_has_effect": false,
 		"bonus_state_persisted": false,
 		"required_national_checks": required_national_checks,
@@ -10963,6 +10967,8 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 		"researching_treated_as_completed": false,
 		"combat_effects_applied": 0,
 		"battle_effects_applied": 0,
+		"troop_stat_effects_applied": 0,
+		"troop_count_effects_applied": 0,
 		"diplomacy_effects_applied": 0,
 		"spy_effects_applied": 0,
 		"market_effects_applied": 0,
@@ -10996,8 +11002,12 @@ func _get_domestic_tech_military_defense_effect_summary_mvp() -> Dictionary:
 		"city_defense_effects_applied": int(summary.get("city_defense_effects_applied", 0)),
 		"training_display_effects_applied": int(summary.get("training_display_effects_applied", 0)),
 		"battle_effects_applied": 0,
+		"troop_stat_effects_applied": 0,
+		"troop_count_effects_applied": 0,
 		"enemy_effects_applied": 0,
 		"same_city_only": true,
+		"completed_city_tech_only": true,
+		"player_city_only": true,
 		"researching_has_effect": false,
 		"bonus_state_persisted": false,
 	}

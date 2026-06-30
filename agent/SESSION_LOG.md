@@ -1,5 +1,17 @@
 # SESSION LOG
 
+## 2026-06-30
+
+### v0.70-69-hotfix1 Military/Defense Effect QA Polish
+- Started from local `ed7bb43 v0.70-69 Domestic Tech Military/Defense Effects Safe Set`; `origin/main` matched local HEAD and the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - Defense display clamp/order polish: percent then flat, final value clamped to `0+`.
+  - QA summary additions for completed/player/same-city guard flags.
+  - QA summary zero counters for `battle_effects_applied`, `troop_stat_effects_applied`, and `troop_count_effects_applied`.
+- Preserved no battle formula change, no troop stat mutation, no troop count auto increase, no BattleContext change, no pending invasion change, no enemy city effect/display, no diplomacy/spy/market/trade effect, no national policy numeric effect, no AI research, no tech definition change, no asset/icon/UI64/import change, and economy Safe Set behavior.
+- Manual F6 QA remains required for city military/defense bonus, same-city only, enemy no-effect, no battle mutation, no troop stat/count mutation, UI bonus display, economy Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## 2026-06-29
 
 ### v0.70-69 Domestic Tech Military/Defense Effects Safe Set

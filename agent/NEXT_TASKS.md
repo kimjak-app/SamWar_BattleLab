@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-69-hotfix1 Military/Defense Effect QA Polish
+- Baseline: `v0.70-69 Domestic Tech Military/Defense Effects Safe Set` (`ed7bb437b6408e227639a71b317a57868caf405a`).
+- Completed direction:
+  1. Reconfirmed `_get_domestic_tech_city_military_defense_bonus_mvp(city_id)` as PLAYER-city-only, same-city-only, completed-city-tech-only, and side-effect free.
+  2. Kept military/defense source techs unique and derived on demand; no computed bonus state is persisted.
+  3. Stabilized city defense display clamp/order as percent then flat, with final display value clamped to `0+`.
+  4. Kept city detail and Domestic Tech inspector display aligned with the same helper result and hidden for enemy/non-player cities.
+  5. Extended QA summary flags with completed/player/same-city guards plus `battle_effects_applied = 0`, `troop_stat_effects_applied = 0`, and `troop_count_effects_applied = 0`.
+- Preserved scope:
+  1. No battle formula, troop stat, troop count, BattleContext, pending invasion, diplomacy, spy, market, trade, AI, enemy effect/research, tech definition, asset, icon, UI64, or `.import` change was made.
+  2. Economy Safe Set, UI64 priority, click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, and research start/progress/completion remain locked.
+- Next candidate:
+  1. `v0.70-70 Domestic Tech National Policy Effects Safe Set`.
+- Manual F6 QA required:
+  1. Check city military/defense bonus, same-city only, enemy no-effect, no battle mutation, no troop stat/count mutation, UI bonus display, economy Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-69 Domestic Tech Military/Defense Effects Safe Set
 - Baseline: `v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish` (`5eeda382054c52885420f60e934a2de6cd59fc22`).
 - Completed direction:

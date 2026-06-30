@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-69-hotfix1 Military/Defense Effect QA Polish Handoff
+- Baseline: `v0.70-69 Domestic Tech Military/Defense Effects Safe Set` (`ed7bb437b6408e227639a71b317a57868caf405a`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This hotfix is QA/stability polish for PLAYER city completed Domestic Tech military/defense display-safe effects.
+- `_get_domestic_tech_city_military_defense_bonus_mvp(city_id)` remains side-effect free, same-city only, PLAYER-city only, and derived from completed city tech state without saving computed bonus state.
+- City defense display now applies percent then flat bonus and clamps the final value to `0+`.
+- City detail and Domestic Tech inspector continue to use the same helper output and do not expose military/defense bonus detail for enemy or non-player cities.
+- `_get_domestic_tech_military_defense_effect_summary_mvp()` reports completed/player/same-city guard flags plus `battle_effects_applied = 0`, `troop_stat_effects_applied = 0`, `troop_count_effects_applied = 0`, and `enemy_effects_applied = 0`.
+- Explicitly unchanged: battle damage, troop attack/defense stats, troop count, automatic recruitment, BattleContext, pending invasion, diplomacy, spy, market, trade, national policy numeric effects, AI research, enemy research/effect, enemy city tech exposure, tech definitions, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Economy Safe Set, UI64 priority, node-click latency guard, overlay lifecycle, active/completed normalize, research start/progress/completion, and enemy/insufficient-intel safety remain locked.
+- Next candidate: `v0.70-70 Domestic Tech National Policy Effects Safe Set`.
+- Manual F6 QA remains required for city military/defense bonus, same-city only, enemy no-effect, no battle mutation, no troop stat/count mutation, UI bonus display, economy Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-69 Domestic Tech Military/Defense Effects Safe Set Handoff
 - Baseline: `v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish` (`5eeda382054c52885420f60e934a2de6cd59fc22`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

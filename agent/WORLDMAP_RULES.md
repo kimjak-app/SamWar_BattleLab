@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-69-hotfix1 Military/Defense Effect QA Polish Lock Rule
+- Baseline is `v0.70-69 Domestic Tech Military/Defense Effects Safe Set` (`ed7bb437b6408e227639a71b317a57868caf405a`).
+- v0.70-69-hotfix1 authorizes QA/stability polish only for PLAYER city completed Domestic Tech military/defense display-safe effects.
+- Military/defense bonus calculation must remain side-effect free and must use completed city techs for the same PLAYER city only.
+- Bonus must be computed from completed tech state each time and must not be stored as separate save/load state.
+- Source tech ids must remain unique in helper output, city detail display, Domestic Tech inspector display, and QA summary counts.
+- Defense display values must clamp to `0+` and keep percent before flat application for stable UI display.
+- Training and recruit capacity values remain display/preparation values only and must not mutate troop stats, troop counts, or recruitment output.
+- Enemy, neutral, unknown, non-player, insufficient-intel, researching, incomplete, false, missing, malformed, other-city, and national tech state must not apply or display military/defense effects.
+- QA helpers may report display counts and guard flags, but `battle_effects_applied`, `troop_stat_effects_applied`, `troop_count_effects_applied`, diplomacy, spy, market, trade, and enemy effect counters must remain 0 and helpers must not spam logs or mutate gameplay.
+- Economy Safe Set, UI64 behavior, node-click latency, overlay lifecycle, research start/progress/completion, and enemy/insufficient-intel hiding remain locked.
+- This hotfix does not authorize actual battle tech effects, troop stat mutation, troop count auto increase, diplomacy/spy/market/trade formula changes, national policy numeric effects, AI research, enemy research/effect, enemy completed-tech mutation, enemy active research, BattleContext changes, pending invasion changes, tech definition changes, or enemy city tech exposure.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by this hotfix.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-69 Domestic Tech Military/Defense Effects Safe Set Lock Rule
 - Baseline is `v0.70-68-hotfix1 Domestic Tech Economy Effect QA Polish` (`5eeda382054c52885420f60e934a2de6cd59fc22`).
 - v0.70-69 authorizes only PLAYER city completed Domestic Tech military/defense display-safe effects.
