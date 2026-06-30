@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-71 Domestic Tech Naval/Siege Display Safe Set
+- Baseline: `v0.70-70-hotfix1 National Policy Effect QA Polish` at `4bde6a04f54eafff883ea0a9044c4539b0936d17`; local HEAD matched `origin/main` and tracked files were clean at task start.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Naval/Siege Display Safe Set:
+  - Added PLAYER-city-only `_get_domestic_tech_city_naval_siege_bonus_mvp(city_id)` derived from completed city techs for the same city; no computed naval/siege bonus state is saved.
+  - Added display Safe Set mapping for current city tech ids: `commerce_shipyard`, naval training/warship/panokseon/turtle/crane/fire/cannon techs, and `mil_siege_unit` / `mil_siege_engine`.
+  - Added city detail and Domestic Tech inspector display lines for selected PLAYER city naval/siege preparation bonuses and unique source tech names.
+  - Added effect-status copy for naval/siege Safe Set techs without implying actual battle formula connection.
+  - QA summary now reports `naval_siege_effects_enabled`, `naval_display_effects_applied`, `siege_display_effects_applied`, `ship_count_effects_applied = 0`, and `siege_weapon_count_effects_applied = 0`.
+- Preserved scope: no actual naval/siege battle modifier, no battle formula change, no troop stat/count mutation, no ship/siege weapon count mutation, no BattleContext change, no pending invasion change, no diplomacy/spy/market/trade effect, no enemy city effect/display, no AI research, no tech definition change, and no asset/import change.
+- Existing locks remain: economy Safe Set, military/defense Safe Set, national policy Safe Set, UI64 icon priority, node-click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, active/completed normalize, and research start/progress/completion.
+- Next candidates: `v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish` or `v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set`.
+- Manual F6 QA remains required for city naval/siege bonus, same-city only, enemy no-effect, no battle mutation, no ship/siege count mutation, UI bonus display, economy Safe Set, military/defense Safe Set, national policy Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-70-hotfix1 National Policy Effect QA Polish
 - Baseline: `v0.70-70 Domestic Tech National Policy Effects Safe Set` at `51d8cbb41a5b14ee712bdccdaf291b8b1a6eeb32`; local HEAD was ahead of `origin/main` because local Domestic Tech commits were not on remote, and tracked files were clean at task start.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
