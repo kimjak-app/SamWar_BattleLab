@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-70 Domestic Tech National Policy Effects Safe Set Handoff
+- Baseline: `v0.70-69-hotfix1 Military/Defense Effect QA Polish` (`12cf490dea2703976a2b5550d58b3727fafe6798`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is the first Safe Set for PLAYER completed national Domestic Tech policy effects.
+- `_get_domestic_tech_national_policy_bonus_mvp()` is side-effect free, uses completed national tech only, ignores researching/incomplete tech, keeps source tech ids unique, and does not save computed bonus state.
+- Safe Set ids are limited to law reform, bureaucracy, centralization, tax reform, conscription, logistics system, population policy, foundation storage, and national monopoly.
+- `tax_gold_percent` is connected once to PLAYER city gold income through the existing Domestic Tech economy path and remains clamped to `0+`.
+- Admin, recruit, logistics, population, law/order, and storage policy values are display/preparation/QA effects only.
+- Left national panel and Domestic Tech inspector display current national policy bonus lines and source national tech names without exposing enemy tech effects.
+- `_get_domestic_tech_national_policy_effect_summary_mvp()` reports policy counters plus battle, troop stat/count, diplomacy, spy, market, and enemy effect counters fixed at 0.
+- Explicitly unchanged: enemy national effects, AI research, diplomacy success, spy success, market/trade formulas, battle formulas, troop stats, troop counts, BattleContext, pending invasion, tech definitions, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Economy Safe Set, military/defense Safe Set, UI64 priority, node-click latency guard, overlay lifecycle, active/completed normalize, research start/progress/completion, and enemy/insufficient-intel safety remain locked.
+- Next candidates: `v0.70-70-hotfix1 National Policy Effect QA Polish` or `v0.70-71 Domestic Tech Diplomacy/Spy Display Safe Set`.
+- Manual F6 QA remains required for national policy bonus, PLAYER only, tax gold effect, enemy no-effect, no battle/diplomacy/spy/market mutation, economy Safe Set, military/defense Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-69-hotfix1 Military/Defense Effect QA Polish Handoff
 - Baseline: `v0.70-69 Domestic Tech Military/Defense Effects Safe Set` (`ed7bb437b6408e227639a71b317a57868caf405a`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

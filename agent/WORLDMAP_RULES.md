@@ -1,5 +1,21 @@
 # WORLDMAP RULES
 
+## v0.70-70 Domestic Tech National Policy Effects Safe Set Lock Rule
+- Baseline is `v0.70-69-hotfix1 Military/Defense Effect QA Polish` (`12cf490dea2703976a2b5550d58b3727fafe6798`).
+- v0.70-70 authorizes only PLAYER completed national Domestic Tech policy Safe Set effects.
+- National policy bonus calculation must remain side-effect free and must use completed national tech state only.
+- Researching, incomplete, false, missing, malformed, enemy, AI, and non-player national tech state must not apply or display national policy effects.
+- Bonus must be computed from completed tech state each time and must not be stored as separate save/load state.
+- `tax_gold_percent` may affect PLAYER city gold income once through the existing Domestic Tech economy path and must keep final gold clamped to `0+`.
+- Admin, recruit, logistics, population, law/order, and storage values are display/preparation/QA effects only unless a future task explicitly expands scope.
+- QA helpers may report policy counters, but `battle_effects_applied`, `troop_stat_effects_applied`, `troop_count_effects_applied`, `diplomacy_effects_applied`, `spy_effects_applied`, `market_effects_applied`, and `enemy_effects_applied` must remain 0 and helpers must not spam logs or mutate gameplay.
+- Economy Safe Set and military/defense Safe Set remain locked and must not regress.
+- UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Left side remains PLAYER national tech only. Right side remains selected PLAYER city tech only. Enemy or insufficient-intel city tech detail and research start/progress/completion must stay blocked under Fog of War / `city_intel` policy.
+- This phase does not authorize enemy national effects, diplomacy success modifiers, spy success modifiers, market/trade modifiers, actual battle tech effects, troop stat mutation, troop count auto increase, AI research, enemy research/effect, enemy completed-tech mutation, enemy active research, BattleContext changes, pending invasion changes, or tech definition changes.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by this phase.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-69-hotfix1 Military/Defense Effect QA Polish Lock Rule
 - Baseline is `v0.70-69 Domestic Tech Military/Defense Effects Safe Set` (`ed7bb437b6408e227639a71b317a57868caf405a`).
 - v0.70-69-hotfix1 authorizes QA/stability polish only for PLAYER city completed Domestic Tech military/defense display-safe effects.

@@ -190,6 +190,17 @@ const DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP := {
 	"mil_iron_gate": {"defense_flat": 80},
 	"mil_iron_fortress": {"defense_percent": 0.10},
 }
+const DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP := {
+	"nation_law_reform": {"law_order_flat": 5},
+	"nation_bureaucracy": {"admin_efficiency_percent": 0.03},
+	"nation_centralization": {"admin_efficiency_percent": 0.05},
+	"nation_tax_reform": {"tax_gold_percent": 0.05},
+	"nation_conscription": {"recruit_capacity_percent": 0.05},
+	"nation_logistics_system": {"logistics_supply_percent": 0.05},
+	"nation_population_policy": {"population_growth_percent": 0.03},
+	"nation_foundation": {"storage_flat": 100},
+	"nation_national_monopoly": {"tax_gold_percent": 0.03},
+}
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
 const DIPLOMACY_SPY_TAB_DIPLOMACY := "diplomacy"
@@ -5406,8 +5417,9 @@ func _setup_left_world_status_panel_layout() -> void:
 		world_status_hint_label,
 	]:
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	resource_label.visible = false
-	resource_label.text = ""
+	var national_policy_bonus_display := _format_domestic_tech_national_policy_bonus_lines_mvp()
+	resource_label.visible = not national_policy_bonus_display.is_empty()
+	resource_label.text = "\n".join(national_policy_bonus_display)
 	resource_label.add_theme_font_size_override("font_size", 10)
 	supply_label.add_theme_font_size_override("font_size", 10)
 	military_logistics_label.add_theme_font_size_override("font_size", 10)
@@ -5885,8 +5897,9 @@ func _refresh_left_world_status_panel() -> void:
 	]
 	_select_option_by_metadata(chancellor_assignment_option, chancellor_id)
 	_select_option_by_metadata(chancellor_policy_option, policy_id)
-	resource_label.visible = false
-	resource_label.text = ""
+	var national_policy_bonus_display := _format_domestic_tech_national_policy_bonus_lines_mvp()
+	resource_label.visible = not national_policy_bonus_display.is_empty()
+	resource_label.text = "\n".join(national_policy_bonus_display)
 	supply_label.visible = false
 	supply_label.text = ""
 	_refresh_warehouse_card()
@@ -9969,6 +9982,19 @@ func _get_empty_domestic_tech_city_military_defense_bonus_mvp() -> Dictionary:
 	}
 
 
+func _get_empty_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
+	return {
+		"tax_gold_percent": 0.0,
+		"admin_efficiency_percent": 0.0,
+		"recruit_capacity_percent": 0.0,
+		"logistics_supply_percent": 0.0,
+		"population_growth_percent": 0.0,
+		"storage_flat": 0,
+		"law_order_flat": 0,
+		"source_techs": [],
+	}
+
+
 func _get_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> Dictionary:
 	var bonus := _get_empty_domestic_tech_city_military_defense_bonus_mvp()
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
@@ -10000,6 +10026,31 @@ func _get_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> Dict
 	return bonus
 
 
+func _get_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
+	var bonus := _get_empty_domestic_tech_national_policy_bonus_mvp()
+	var source_seen := {}
+	for tech_id_variant in DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.keys():
+		var tech_id := str(tech_id_variant)
+		if source_seen.has(tech_id):
+			continue
+		var definition := _get_domestic_tech_definition_mvp(tech_id)
+		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_NATIONAL:
+			continue
+		if not _is_national_domestic_tech_completed_mvp(tech_id):
+			continue
+		var mapping: Dictionary = DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.get(tech_id, {})
+		bonus["tax_gold_percent"] = float(bonus.get("tax_gold_percent", 0.0)) + float(mapping.get("tax_gold_percent", 0.0))
+		bonus["admin_efficiency_percent"] = float(bonus.get("admin_efficiency_percent", 0.0)) + float(mapping.get("admin_efficiency_percent", 0.0))
+		bonus["recruit_capacity_percent"] = float(bonus.get("recruit_capacity_percent", 0.0)) + float(mapping.get("recruit_capacity_percent", 0.0))
+		bonus["logistics_supply_percent"] = float(bonus.get("logistics_supply_percent", 0.0)) + float(mapping.get("logistics_supply_percent", 0.0))
+		bonus["population_growth_percent"] = float(bonus.get("population_growth_percent", 0.0)) + float(mapping.get("population_growth_percent", 0.0))
+		bonus["storage_flat"] = int(bonus.get("storage_flat", 0)) + int(mapping.get("storage_flat", 0))
+		bonus["law_order_flat"] = int(bonus.get("law_order_flat", 0)) + int(mapping.get("law_order_flat", 0))
+		(bonus["source_techs"] as Array).append(tech_id)
+		source_seen[tech_id] = true
+	return bonus
+
+
 func _has_domestic_tech_city_economy_bonus_mvp(city_id: String) -> bool:
 	var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
 	return int(bonus.get("food_flat", 0)) != 0 \
@@ -10019,6 +10070,17 @@ func _has_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> bool
 		or not is_equal_approx(float(bonus.get("infantry_training_percent", 0.0)), 0.0) \
 		or not is_equal_approx(float(bonus.get("archer_training_percent", 0.0)), 0.0) \
 		or not is_equal_approx(float(bonus.get("cavalry_training_percent", 0.0)), 0.0)
+
+
+func _has_domestic_tech_national_policy_bonus_mvp() -> bool:
+	var bonus := _get_domestic_tech_national_policy_bonus_mvp()
+	return not is_equal_approx(float(bonus.get("tax_gold_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("admin_efficiency_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("recruit_capacity_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("logistics_supply_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("population_growth_percent", 0.0)), 0.0) \
+		or int(bonus.get("storage_flat", 0)) != 0 \
+		or int(bonus.get("law_order_flat", 0)) != 0
 
 
 func _format_domestic_tech_percent_bonus_mvp(value: float) -> String:
@@ -10074,6 +10136,46 @@ func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include
 			if source_techs.size() > source_names.size():
 				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
 			result.append("적용 테크: %s%s" % [", ".join(source_names), suffix])
+	return result
+
+
+func _format_domestic_tech_national_policy_bonus_lines_mvp(include_sources: bool = true) -> Array[String]:
+	var result: Array[String] = []
+	var bonus := _get_domestic_tech_national_policy_bonus_mvp()
+	if not _has_domestic_tech_national_policy_bonus_mvp():
+		return result
+	var policy_parts: Array[String] = []
+	var tax_gold_percent := float(bonus.get("tax_gold_percent", 0.0))
+	var admin_efficiency_percent := float(bonus.get("admin_efficiency_percent", 0.0))
+	var recruit_capacity_percent := float(bonus.get("recruit_capacity_percent", 0.0))
+	var logistics_supply_percent := float(bonus.get("logistics_supply_percent", 0.0))
+	var population_growth_percent := float(bonus.get("population_growth_percent", 0.0))
+	if not is_equal_approx(tax_gold_percent, 0.0):
+		policy_parts.append("세금 수입 %s" % _format_domestic_tech_percent_bonus_mvp(tax_gold_percent))
+	if not is_equal_approx(admin_efficiency_percent, 0.0):
+		policy_parts.append("행정 효율 %s" % _format_domestic_tech_percent_bonus_mvp(admin_efficiency_percent))
+	if not is_equal_approx(recruit_capacity_percent, 0.0):
+		policy_parts.append("징병 수용 %s" % _format_domestic_tech_percent_bonus_mvp(recruit_capacity_percent))
+	if not is_equal_approx(logistics_supply_percent, 0.0):
+		policy_parts.append("병참 보급 %s" % _format_domestic_tech_percent_bonus_mvp(logistics_supply_percent))
+	if not is_equal_approx(population_growth_percent, 0.0):
+		policy_parts.append("인구 성장 %s" % _format_domestic_tech_percent_bonus_mvp(population_growth_percent))
+	if int(bonus.get("storage_flat", 0)) != 0:
+		policy_parts.append("창고/비축 %s" % _format_signed_int(int(bonus.get("storage_flat", 0))))
+	if int(bonus.get("law_order_flat", 0)) != 0:
+		policy_parts.append("법질서 %s" % _format_signed_int(int(bonus.get("law_order_flat", 0))))
+	if not policy_parts.is_empty():
+		result.append("국가 정책 보너스: %s" % ", ".join(policy_parts.slice(0, 5)))
+	if include_sources:
+		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
+		if not source_techs.is_empty():
+			var source_names: Array[String] = []
+			for index in range(mini(source_techs.size(), 4)):
+				source_names.append(_get_domestic_tech_display_name_mvp(str(source_techs[index])))
+			var suffix := ""
+			if source_techs.size() > source_names.size():
+				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
+			result.append("적용 국가 테크: %s%s" % [", ".join(source_names), suffix])
 	return result
 
 
@@ -10589,6 +10691,10 @@ func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dic
 	var military_defense_bonus_display := _format_domestic_tech_city_military_defense_bonus_lines_mvp(military_defense_bonus_city_id, _get_city_hud_entry(military_defense_bonus_city_id))
 	if not military_defense_bonus_display.is_empty():
 		lines.append("선택 도시 적용 군사/방어 보너스:\n- %s" % "\n- ".join(military_defense_bonus_display))
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		var national_policy_bonus_display := _format_domestic_tech_national_policy_bonus_lines_mvp()
+		if not national_policy_bonus_display.is_empty():
+			lines.append("적용 중인 국가 정책 보너스:\n- %s" % "\n- ".join(national_policy_bonus_display))
 	lines.append("비용: %s" % _get_domestic_tech_cost_summary_mvp(tech_def))
 	lines.append("건설/연구 시간: %s" % _format_domestic_tech_duration_hint_mvp(tech_def))
 	var conditions := _get_domestic_tech_readiness_condition_lines_mvp(tech_def, view_state, city_id)
@@ -10865,6 +10971,7 @@ func _get_domestic_tech_effect_phase1_display_mvp(tech_def: Dictionary, scope: S
 		result.append("국가 테크 조건은 완료 상태만 인정")
 	var has_economy_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.has(tech_id)
 	var has_military_defense_safe_effect := scope == DOMESTIC_TECH_SCOPE_CITY and DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.has(tech_id)
+	var has_national_policy_safe_effect := scope == DOMESTIC_TECH_SCOPE_NATIONAL and DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.has(tech_id)
 	if has_economy_safe_effect and is_completed:
 		result.append("경제 효과: 선택 도시 수입에 적용 중")
 	elif has_economy_safe_effect:
@@ -10873,7 +10980,11 @@ func _get_domestic_tech_effect_phase1_display_mvp(tech_def: Dictionary, scope: S
 		result.append("군사/방어 효과: 선택 도시 표시 보너스에 적용 중")
 	elif has_military_defense_safe_effect:
 		result.append("군사/방어 효과: 완료 후 선택 도시 표시 보너스에 적용")
-	if has_economy_safe_effect or has_military_defense_safe_effect:
+	if has_national_policy_safe_effect and is_completed:
+		result.append("국가 정책 효과: PLAYER 국가 보너스에 적용 중")
+	elif has_national_policy_safe_effect:
+		result.append("국가 정책 효과: 완료 후 PLAYER 국가 보너스에 적용")
+	if has_economy_safe_effect or has_military_defense_safe_effect or has_national_policy_safe_effect:
 		return result
 	result.append("전투/외교/첩보/시장 효과는 후속 버전에서 적용됩니다")
 	return result
@@ -10896,6 +11007,31 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 	var commerce_effect_count := 0
 	var city_defense_effects_applied := 0
 	var training_display_effects_applied := 0
+	var national_policy_bonus := _get_domestic_tech_national_policy_bonus_mvp()
+	var national_policy_sources := _get_unique_domestic_tech_source_ids_mvp(national_policy_bonus.get("source_techs", []))
+	var tax_gold_effects_applied := 0
+	var admin_display_effects_applied := 0
+	var recruit_display_effects_applied := 0
+	var logistics_display_effects_applied := 0
+	var population_display_effects_applied := 0
+	var law_order_display_effects_applied := 0
+	var storage_display_effects_applied := 0
+	for national_policy_tech_id in national_policy_sources:
+		var mapping: Dictionary = DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.get(national_policy_tech_id, {})
+		if not is_equal_approx(float(mapping.get("tax_gold_percent", 0.0)), 0.0):
+			tax_gold_effects_applied += 1
+		if not is_equal_approx(float(mapping.get("admin_efficiency_percent", 0.0)), 0.0):
+			admin_display_effects_applied += 1
+		if not is_equal_approx(float(mapping.get("recruit_capacity_percent", 0.0)), 0.0):
+			recruit_display_effects_applied += 1
+		if not is_equal_approx(float(mapping.get("logistics_supply_percent", 0.0)), 0.0):
+			logistics_display_effects_applied += 1
+		if not is_equal_approx(float(mapping.get("population_growth_percent", 0.0)), 0.0):
+			population_display_effects_applied += 1
+		if int(mapping.get("law_order_flat", 0)) != 0:
+			law_order_display_effects_applied += 1
+		if int(mapping.get("storage_flat", 0)) != 0:
+			storage_display_effects_applied += 1
 	for national_tech_id_variant in national_completed.keys():
 		var national_tech_id := str(national_tech_id_variant)
 		var national_def := _get_domestic_tech_definition_mvp(national_tech_id)
@@ -10952,13 +11088,23 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 		"numeric_economy_effects_applied": numeric_economy_effects_applied,
 		"economy_effects_enabled": true,
 		"military_defense_effects_enabled": true,
+		"national_policy_effects_enabled": true,
 		"agri_effect_count": agri_effect_count,
 		"fish_effect_count": fish_effect_count,
 		"commerce_effect_count": commerce_effect_count,
 		"city_defense_effects_applied": city_defense_effects_applied,
 		"training_display_effects_applied": training_display_effects_applied,
+		"national_policy_effects_applied": national_policy_sources.size(),
+		"tax_gold_effects_applied": tax_gold_effects_applied,
+		"admin_display_effects_applied": admin_display_effects_applied,
+		"recruit_display_effects_applied": recruit_display_effects_applied,
+		"logistics_display_effects_applied": logistics_display_effects_applied,
+		"population_display_effects_applied": population_display_effects_applied,
+		"law_order_display_effects_applied": law_order_display_effects_applied,
+		"storage_display_effects_applied": storage_display_effects_applied,
 		"same_city_only": true,
 		"completed_city_tech_only": true,
+		"player_national_completed_only": true,
 		"player_city_only": true,
 		"researching_has_effect": false,
 		"bonus_state_persisted": false,
@@ -10966,6 +11112,30 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 		"city_prerequisite_checks": city_prerequisite_checks,
 		"researching_treated_as_completed": false,
 		"combat_effects_applied": 0,
+		"battle_effects_applied": 0,
+		"troop_stat_effects_applied": 0,
+		"troop_count_effects_applied": 0,
+		"diplomacy_effects_applied": 0,
+		"spy_effects_applied": 0,
+		"market_effects_applied": 0,
+		"enemy_effects_applied": 0,
+}
+
+
+func _get_domestic_tech_national_policy_effect_summary_mvp() -> Dictionary:
+	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
+	return {
+		"national_policy_effects_enabled": true,
+		"player_national_completed_only": true,
+		"researching_has_effect": false,
+		"bonus_state_persisted": false,
+		"tax_gold_effects_applied": int(summary.get("tax_gold_effects_applied", 0)),
+		"admin_display_effects_applied": int(summary.get("admin_display_effects_applied", 0)),
+		"recruit_display_effects_applied": int(summary.get("recruit_display_effects_applied", 0)),
+		"logistics_display_effects_applied": int(summary.get("logistics_display_effects_applied", 0)),
+		"population_display_effects_applied": int(summary.get("population_display_effects_applied", 0)),
+		"law_order_display_effects_applied": int(summary.get("law_order_display_effects_applied", 0)),
+		"storage_display_effects_applied": int(summary.get("storage_display_effects_applied", 0)),
 		"battle_effects_applied": 0,
 		"troop_stat_effects_applied": 0,
 		"troop_count_effects_applied": 0,
@@ -14422,6 +14592,8 @@ func _apply_domestic_tech_city_economy_bonus_to_income_mvp(city_id: String, inco
 				break
 		result[target_food_id] = _apply_domestic_tech_economy_numeric_bonus_value_mvp(result.get(target_food_id, 0), 0.0, food_flat)
 	var gold_percent := float(bonus.get("gold_percent", 0.0))
+	var national_policy_bonus := _get_domestic_tech_national_policy_bonus_mvp()
+	gold_percent += float(national_policy_bonus.get("tax_gold_percent", 0.0))
 	var gold_flat := int(bonus.get("gold_flat", 0))
 	result["gold"] = _apply_domestic_tech_economy_numeric_bonus_value_mvp(result.get("gold", 0), gold_percent, gold_flat)
 	return result

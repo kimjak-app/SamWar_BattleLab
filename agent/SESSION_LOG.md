@@ -2,6 +2,19 @@
 
 ## 2026-06-30
 
+### v0.70-70 Domestic Tech National Policy Effects Safe Set
+- Started from local `12cf490 v0.70-69-hotfix1 Military/Defense Effect QA Polish`; `origin/main` was still `ed7bb43`, so local was ahead by the prior hotfix commit and the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - PLAYER completed national tech policy helper with unique sources and no persisted computed bonus state.
+  - Safe Set mapping for law, bureaucracy, centralization, tax, conscription, logistics, population, foundation storage, and national monopoly.
+  - Minimal `tax_gold_percent` hook into existing PLAYER city gold income calculation with non-negative clamp.
+  - Display/preparation-only policy values for admin, recruit, logistics, population, law/order, and storage.
+  - Left national panel and Domestic Tech inspector display for active national policy bonuses and source national techs.
+  - QA summary helper for national policy counters with battle, troop stat/count, diplomacy, spy, market, and enemy effects fixed at 0.
+- Preserved no enemy national effects, no AI research, no diplomacy/spy/market formula changes, no battle formula change, no troop stat/count mutation, no BattleContext change, no pending invasion change, no tech definition change, no asset/icon/UI64/import change, and existing economy and military/defense Safe Set behavior.
+- Manual F6 QA remains required for national policy bonus, PLAYER only, tax gold effect, enemy no-effect, no battle/diplomacy/spy/market mutation, economy Safe Set, military/defense Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-69-hotfix1 Military/Defense Effect QA Polish
 - Started from local `ed7bb43 v0.70-69 Domestic Tech Military/Defense Effects Safe Set`; `origin/main` matched local HEAD and the working tree was clean.
 - Required workflow/worldmap docs were read before runtime changes.

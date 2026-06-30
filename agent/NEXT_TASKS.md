@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-70 Domestic Tech National Policy Effects Safe Set
+- Baseline: `v0.70-69-hotfix1 Military/Defense Effect QA Polish` (`12cf490dea2703976a2b5550d58b3727fafe6798`).
+- Completed direction:
+  1. Added `_get_domestic_tech_national_policy_bonus_mvp()` for PLAYER completed national tech only, with missing/null/malformed completed state handled by existing normalize helpers.
+  2. Added Safe Set mapping for law, bureaucracy, centralization, tax reform, conscription, logistics, population policy, foundation storage, and national monopoly without changing tech definitions.
+  3. Connected `tax_gold_percent` once through the existing PLAYER city gold income path; computed national policy bonus is not saved.
+  4. Kept admin, recruit, logistics, population, law/order, and storage as display/preparation effects.
+  5. Added left national panel and Domestic Tech inspector display plus QA summary counters for national policy effects.
+- Preserved scope:
+  1. No enemy national effect, AI research, diplomacy/spy/market formula, battle formula, troop stat/count, BattleContext, pending invasion, tech definition, asset, icon, UI64, or `.import` change was made.
+  2. Economy Safe Set, military/defense Safe Set, UI64 priority, click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, and research start/progress/completion remain locked.
+- Next candidates:
+  1. `v0.70-70-hotfix1 National Policy Effect QA Polish`.
+  2. `v0.70-71 Domestic Tech Diplomacy/Spy Display Safe Set`.
+- Manual F6 QA required:
+  1. Check national policy bonus, PLAYER only, tax gold effect, enemy no-effect, no battle/diplomacy/spy/market mutation, economy Safe Set, military/defense Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-69-hotfix1 Military/Defense Effect QA Polish
 - Baseline: `v0.70-69 Domestic Tech Military/Defense Effects Safe Set` (`ed7bb437b6408e227639a71b317a57868caf405a`).
 - Completed direction:
