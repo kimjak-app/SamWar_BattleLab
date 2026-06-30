@@ -10059,6 +10059,8 @@ func _get_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> Dictionar
 	var bonus := _get_empty_domestic_tech_city_naval_siege_bonus_mvp()
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
 		return bonus
+	var completed_by_city: Dictionary = _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_completed", {}))
+	var city_completed: Dictionary = completed_by_city.get(city_id, {}) if completed_by_city.get(city_id, {}) is Dictionary else {}
 	var source_seen := {}
 	for tech_id_variant in DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.keys():
 		var tech_id := str(tech_id_variant)
@@ -10069,7 +10071,7 @@ func _get_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> Dictionar
 			continue
 		if not DOMESTIC_TECH_NAVAL_SIEGE_SAFE_BRANCHES_MVP.has(str(definition.get("branch", ""))):
 			continue
-		if not _is_city_domestic_tech_completed_mvp(city_id, tech_id):
+		if not bool(city_completed.get(tech_id, false)):
 			continue
 		var mapping: Dictionary = DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.get(tech_id, {})
 		bonus["shipyard_capacity_flat"] = int(bonus.get("shipyard_capacity_flat", 0)) + int(mapping.get("shipyard_capacity_flat", 0))
@@ -10081,6 +10083,7 @@ func _get_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> Dictionar
 		bonus["siege_engineering_percent"] = float(bonus.get("siege_engineering_percent", 0.0)) + float(mapping.get("siege_engineering_percent", 0.0))
 		(bonus["source_techs"] as Array).append(tech_id)
 		source_seen[tech_id] = true
+	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 	return bonus
 
 
@@ -10143,6 +10146,10 @@ func _has_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> bool
 
 func _has_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> bool:
 	var bonus := _get_domestic_tech_city_naval_siege_bonus_mvp(city_id)
+	return _has_domestic_tech_city_naval_siege_bonus_data_mvp(bonus)
+
+
+func _has_domestic_tech_city_naval_siege_bonus_data_mvp(bonus: Dictionary) -> bool:
 	return int(bonus.get("shipyard_capacity_flat", 0)) != 0 \
 		or not is_equal_approx(float(bonus.get("naval_training_percent", 0.0)), 0.0) \
 		or not is_equal_approx(float(bonus.get("naval_supply_percent", 0.0)), 0.0) \
@@ -10312,7 +10319,7 @@ func _format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id: String, inc
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
 		return result
 	var bonus := _get_domestic_tech_city_naval_siege_bonus_mvp(city_id)
-	if not _has_domestic_tech_city_naval_siege_bonus_mvp(city_id):
+	if not _has_domestic_tech_city_naval_siege_bonus_data_mvp(bonus):
 		return result
 	var naval_parts: Array[String] = []
 	if int(bonus.get("shipyard_capacity_flat", 0)) != 0:
@@ -10343,7 +10350,7 @@ func _format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id: String, inc
 			var suffix := ""
 			if source_techs.size() > source_names.size():
 				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
-			result.append("적용 테크: %s%s" % [", ".join(source_names), suffix])
+			result.append("적용 해군/공성 테크: %s%s" % [", ".join(source_names), suffix])
 	return result
 
 
@@ -11134,6 +11141,7 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 	var training_display_effects_applied := 0
 	var naval_display_effects_applied := 0
 	var siege_display_effects_applied := 0
+	var naval_siege_sources_unique := true
 	var national_policy_bonus := _get_domestic_tech_national_policy_bonus_mvp()
 	var national_policy_sources := _get_unique_domestic_tech_source_ids_mvp(national_policy_bonus.get("source_techs", []))
 	var tax_gold_effects_applied := 0
@@ -11209,6 +11217,9 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 					training_display_effects_applied += 1
 			var naval_siege_bonus := _get_domestic_tech_city_naval_siege_bonus_mvp(city_id)
 			var naval_siege_sources := _get_unique_domestic_tech_source_ids_mvp(naval_siege_bonus.get("source_techs", []))
+			var naval_siege_source_raw: Variant = naval_siege_bonus.get("source_techs", [])
+			if naval_siege_source_raw is Array and (naval_siege_source_raw as Array).size() != naval_siege_sources.size():
+				naval_siege_sources_unique = false
 			for naval_siege_source_tech_id in naval_siege_sources:
 				var mapping: Dictionary = DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.get(naval_siege_source_tech_id, {})
 				if int(mapping.get("shipyard_capacity_flat", 0)) != 0 \
@@ -11256,10 +11267,13 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 		"player_national_completed_only": true,
 		"player_city_only": true,
 		"researching_has_effect": false,
+		"researching_has_naval_siege_effect": false,
 		"researching_has_policy_effect": false,
+		"display_safe_only": true,
 		"bonus_state_persisted": false,
 		"tax_gold_applied_once": true,
-		"source_techs_unique": national_policy_sources.size() == national_policy_source_count,
+		"source_techs_unique": national_policy_sources.size() == national_policy_source_count and naval_siege_sources_unique,
+		"naval_siege_source_techs_unique": naval_siege_sources_unique,
 		"required_national_checks": required_national_checks,
 		"city_prerequisite_checks": city_prerequisite_checks,
 		"researching_treated_as_completed": false,
@@ -11350,7 +11364,10 @@ func _get_domestic_tech_naval_siege_effect_summary_mvp() -> Dictionary:
 		"same_city_only": true,
 		"player_city_only": true,
 		"researching_has_effect": false,
+		"researching_has_naval_siege_effect": false,
+		"display_safe_only": true,
 		"bonus_state_persisted": false,
+		"source_techs_unique": bool(summary.get("naval_siege_source_techs_unique", true)),
 		"naval_display_effects_applied": int(summary.get("naval_display_effects_applied", 0)),
 		"siege_display_effects_applied": int(summary.get("siege_display_effects_applied", 0)),
 		"ship_count_effects_applied": 0,

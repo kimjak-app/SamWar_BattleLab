@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish
+- Built on `v0.70-71 Domestic Tech Naval/Siege Display Safe Set` (`2f3ddf3652f2527fd9c47d8f2bafaec6cd9e6771`).
+- Strengthened the naval/siege display helper to use one normalized same-city completed tech map and completed `true` Safe Set ids only.
+- Kept researching/incomplete/false/missing/malformed/other-city/enemy/non-player state from producing naval/siege display effects.
+- Kept computed naval/siege bonus non-persistent and source tech ids unique in helper output, UI display, and QA summary checks.
+- Polished naval/siege source display copy so city detail and Domestic Tech inspector sections remain distinguishable from economy/military source lines.
+- Extended QA summary helpers with `researching_has_naval_siege_effect = false`, `display_safe_only = true`, and `source_techs_unique` while preserving `ship_count_effects_applied = 0`, `siege_weapon_count_effects_applied = 0`, `battle_effects_applied = 0`, and `enemy_effects_applied = 0`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement actual naval/siege battle modifiers, ship count changes, siege weapon count changes, troop stat/count changes, BattleContext changes, pending invasion changes, diplomacy/spy/market/trade effects, national policy expansion, AI research, enemy research/effect, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-71 Domestic Tech Naval/Siege Display Safe Set
 - Built on `v0.70-70-hotfix1 National Policy Effect QA Polish` (`4bde6a04f54eafff883ea0a9044c4539b0936d17`).
 - Added a PLAYER-city-only naval/siege display bonus helper based on completed city techs; no derived bonus state is saved.

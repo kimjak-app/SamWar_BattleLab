@@ -1,5 +1,20 @@
 # NEXT TASKS
 
+## Current: v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish
+- Baseline: `v0.70-71 Domestic Tech Naval/Siege Display Safe Set` (`2f3ddf3652f2527fd9c47d8f2bafaec6cd9e6771`).
+- Completed direction:
+  1. Strengthened naval/siege display helper around normalized PLAYER city completed-tech state and completed `true` Safe Set ids only.
+  2. Kept same-city-only behavior, enemy/no-display guard, and non-persistent computed naval/siege bonus state.
+  3. Kept naval/siege values display/preparation-only and added QA summary flags for researching no-effect, source uniqueness, and display-safe-only.
+  4. Kept city detail and Domestic Tech inspector display aligned with the same helper output.
+- Preserved scope:
+  1. No actual naval/siege battle modifier, battle formula, troop stat/count, ship count, siege weapon count, BattleContext, pending invasion, diplomacy, spy, market, trade, AI, enemy effect/research, tech definition, asset, icon, UI64, or `.import` change was made.
+  2. Economy Safe Set, military/defense Safe Set, national policy Safe Set, UI64 priority, click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, and research start/progress/completion remain locked.
+- Next candidate:
+  1. `v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set`.
+- Manual F6 QA required:
+  1. Check city naval/siege bonus, same-city only, enemy no-effect, no battle mutation, no ship/siege count mutation, UI bonus display, economy Safe Set, military/defense Safe Set, national policy Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-71 Domestic Tech Naval/Siege Display Safe Set
 - Baseline: `v0.70-70-hotfix1 National Policy Effect QA Polish` (`4bde6a04f54eafff883ea0a9044c4539b0936d17`).
 - Completed direction:

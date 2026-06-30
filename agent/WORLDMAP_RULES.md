@@ -1,5 +1,21 @@
 # WORLDMAP RULES
 
+## v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish Lock Rule
+- Baseline is `v0.70-71 Domestic Tech Naval/Siege Display Safe Set` (`2f3ddf3652f2527fd9c47d8f2bafaec6cd9e6771`).
+- v0.70-71-hotfix1 authorizes QA/stability polish only for PLAYER city completed Domestic Tech naval/siege display-safe preparation effects.
+- Naval/siege bonus calculation must remain side-effect free and must use normalized completed city tech state for the same PLAYER city only.
+- Researching, incomplete, false, missing, malformed, other-city, national, enemy, AI, unknown, and non-player city tech state must not apply or display naval/siege effects.
+- Bonus must be computed from completed tech state each time and must not be stored as separate save/load state.
+- Source tech ids must remain unique in helper output, city detail display, Domestic Tech inspector display, and QA summary checks.
+- Naval/siege values remain display/preparation/QA effects only. They must not mutate ship count, siege weapon count, troop stats, troop count, battle damage, BattleContext, pending invasion, or actual battle result.
+- QA helpers may report naval/siege display counts and guard flags, but `ship_count_effects_applied`, `siege_weapon_count_effects_applied`, `battle_effects_applied`, and `enemy_effects_applied` must remain 0 and helpers must not spam logs or mutate gameplay.
+- Economy Safe Set, military/defense Safe Set, and national policy Safe Set remain locked and must not regress.
+- UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Left side remains PLAYER national tech only. Right side remains selected PLAYER city tech only. Enemy or insufficient-intel city tech detail and research start/progress/completion must stay blocked under Fog of War / `city_intel` policy.
+- This hotfix does not authorize actual naval/siege battle modifiers, diplomacy success modifiers, spy success modifiers, market/trade modifiers, troop stat mutation, troop count auto increase, ship count auto increase, siege weapon count auto increase, AI research, enemy research/effect, enemy completed-tech mutation, enemy active research, BattleContext changes, pending invasion changes, national policy expansion, or tech definition changes.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by this hotfix.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-71 Domestic Tech Naval/Siege Display Safe Set Lock Rule
 - Baseline is `v0.70-70-hotfix1 National Policy Effect QA Polish` (`4bde6a04f54eafff883ea0a9044c4539b0936d17`).
 - v0.70-71 authorizes only PLAYER city completed Domestic Tech naval/siege display-safe preparation effects.

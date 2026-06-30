@@ -2,6 +2,18 @@
 
 ## 2026-06-30
 
+### v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish
+- Started from local and `origin/main` `2f3ddf3 v0.70-71 Domestic Tech Naval/Siege Display Safe Set`; the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - Completed-only naval/siege helper polish using one normalized same-city completed tech map and completed `true` Safe Set ids.
+  - Same-city-only, PLAYER-city-only, enemy/no-display, and no-persist behavior retained for naval/siege display calculation.
+  - Source-tech uniqueness guard in helper output and QA summary.
+  - City detail and Domestic Tech inspector display consistency polish for naval/siege source labels.
+  - QA summary additions for `researching_has_naval_siege_effect = false`, `display_safe_only = true`, and `source_techs_unique`.
+- Preserved no actual naval/siege battle modifier, no battle formula change, no troop stat/count mutation, no ship/siege weapon count mutation, no BattleContext change, no pending invasion change, no enemy city effect/display, no diplomacy/spy/market/trade effect, no national policy expansion, no AI research, no tech definition change, no asset/icon/UI64/import change, and economy/military-defense/national-policy Safe Set behavior.
+- Manual F6 QA remains required for city naval/siege bonus, same-city only, enemy no-effect, no battle mutation, no ship/siege count mutation, UI bonus display, economy Safe Set, military/defense Safe Set, national policy Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-71 Domestic Tech Naval/Siege Display Safe Set
 - Started from local and `origin/main` `4bde6a0 v0.70-70-hotfix1 National Policy Effect QA Polish`; the working tree was clean.
 - Required workflow/worldmap docs were read before runtime changes.
