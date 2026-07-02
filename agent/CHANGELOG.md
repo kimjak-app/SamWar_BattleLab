@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish
+- Built on `v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set` (`23b90f4cf0f27bd7d9123a9504f96f05ebd7a2b3`).
+- Reconfirmed PLAYER completed national tech only diplomacy/spy display helper behavior with unique source techs, no researching/incomplete effects, and no persisted computed bonus state.
+- Added explicit empty Safe Set guards to the city spy/intel helper and city spy/intel display formatter so the current empty city mapping produces no local effects and no false city-detail section.
+- Extended QA summary helpers with city spy/intel source uniqueness, empty mapping status, and empty mapping no-display flags.
+- Kept left national panel, Domestic Tech inspector, and selected PLAYER city detail aligned with helper output and preparation/readiness wording.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement diplomacy success modifiers, spy success modifiers, relation mutation, city_intel visibility changes, spy detection/action result changes, enemy intel reveal, AI diplomacy/spy behavior, enemy tech effects, BattleContext changes, pending invasion changes, market/trade formula changes, battle/troop/naval/siege formula changes, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set
 - Built on `v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish` (`4a0e2983781bd82e2053a6d6d2903c4d14e2d066`).
 - Added a PLAYER completed national tech diplomacy/spy display helper that is side-effect free, ignores researching/incomplete tech, de-duplicates source techs, and never saves computed bonus state.

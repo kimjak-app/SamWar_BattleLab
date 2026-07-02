@@ -10184,6 +10184,8 @@ func _get_domestic_tech_city_spy_intel_bonus_mvp(city_id: String) -> Dictionary:
 	var bonus := _get_empty_domestic_tech_city_spy_intel_bonus_mvp()
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
 		return bonus
+	if DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty():
+		return bonus
 	var completed_by_city: Dictionary = _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_completed", {}))
 	var city_completed: Dictionary = completed_by_city.get(city_id, {}) if completed_by_city.get(city_id, {}) is Dictionary else {}
 	var source_seen := {}
@@ -10514,6 +10516,8 @@ func _format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id: String, inc
 func _format_domestic_tech_city_spy_intel_bonus_lines_mvp(city_id: String, include_sources: bool = true) -> Array[String]:
 	var result: Array[String] = []
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return result
+	if DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty():
 		return result
 	var bonus := _get_domestic_tech_city_spy_intel_bonus_mvp(city_id)
 	if not _has_domestic_tech_city_spy_intel_bonus_data_mvp(bonus):
@@ -11350,6 +11354,7 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 	var diplomacy_display_effects_applied := 0
 	var spy_display_effects_applied := 0
 	var city_spy_intel_display_effects_applied := 0
+	var city_spy_intel_sources_unique := true
 	var diplomacy_spy_bonus := _get_domestic_tech_diplomacy_spy_bonus_mvp()
 	var diplomacy_spy_sources := _get_unique_domestic_tech_source_ids_mvp(diplomacy_spy_bonus.get("source_techs", []))
 	var diplomacy_spy_source_raw: Variant = diplomacy_spy_bonus.get("source_techs", [])
@@ -11458,6 +11463,9 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 					siege_display_effects_applied += 1
 			var city_spy_intel_bonus := _get_domestic_tech_city_spy_intel_bonus_mvp(city_id)
 			var city_spy_intel_sources := _get_unique_domestic_tech_source_ids_mvp(city_spy_intel_bonus.get("source_techs", []))
+			var city_spy_intel_source_raw: Variant = city_spy_intel_bonus.get("source_techs", [])
+			if city_spy_intel_source_raw is Array and (city_spy_intel_source_raw as Array).size() != city_spy_intel_sources.size():
+				city_spy_intel_sources_unique = false
 			for city_spy_intel_source_tech_id in city_spy_intel_sources:
 				var city_spy_intel_mapping: Dictionary = DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.get(city_spy_intel_source_tech_id, {})
 				if int(city_spy_intel_mapping.get("local_spy_network_flat", 0)) != 0 \
@@ -11509,9 +11517,12 @@ func _get_domestic_tech_effect_phase1_summary_mvp() -> Dictionary:
 		"display_safe_only": true,
 		"bonus_state_persisted": false,
 		"tax_gold_applied_once": true,
-		"source_techs_unique": national_policy_sources.size() == national_policy_source_count and naval_siege_sources_unique and diplomacy_spy_sources_unique,
+		"source_techs_unique": national_policy_sources.size() == national_policy_source_count and naval_siege_sources_unique and diplomacy_spy_sources_unique and city_spy_intel_sources_unique,
 		"naval_siege_source_techs_unique": naval_siege_sources_unique,
 		"diplomacy_spy_source_techs_unique": diplomacy_spy_sources_unique,
+		"city_spy_intel_source_techs_unique": city_spy_intel_sources_unique,
+		"city_spy_intel_safe_mapping_empty": DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty(),
+		"empty_city_spy_intel_mapping_no_display": DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty() and city_spy_intel_display_effects_applied == 0,
 		"required_national_checks": required_national_checks,
 		"city_prerequisite_checks": city_prerequisite_checks,
 		"researching_treated_as_completed": false,
@@ -11623,6 +11634,9 @@ func _get_domestic_tech_naval_siege_effect_summary_mvp() -> Dictionary:
 
 func _get_domestic_tech_diplomacy_spy_effect_summary_mvp() -> Dictionary:
 	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
+	var city_spy_intel_display_count := int(summary.get("city_spy_intel_display_effects_applied", 0))
+	if DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty():
+		city_spy_intel_display_count = 0
 	return {
 		"diplomacy_spy_effects_enabled": true,
 		"player_national_completed_only": true,
@@ -11631,7 +11645,7 @@ func _get_domestic_tech_diplomacy_spy_effect_summary_mvp() -> Dictionary:
 		"display_safe_only": true,
 		"diplomacy_display_effects_applied": int(summary.get("diplomacy_display_effects_applied", 0)),
 		"spy_display_effects_applied": int(summary.get("spy_display_effects_applied", 0)),
-		"city_spy_intel_display_effects_applied": int(summary.get("city_spy_intel_display_effects_applied", 0)),
+		"city_spy_intel_display_effects_applied": city_spy_intel_display_count,
 		"diplomacy_success_effects_applied": 0,
 		"spy_success_effects_applied": 0,
 		"relation_effects_applied": 0,
@@ -11639,7 +11653,10 @@ func _get_domestic_tech_diplomacy_spy_effect_summary_mvp() -> Dictionary:
 		"enemy_effects_applied": 0,
 		"researching_has_diplomacy_spy_effect": false,
 		"bonus_state_persisted": false,
-		"source_techs_unique": bool(summary.get("diplomacy_spy_source_techs_unique", true)),
+		"source_techs_unique": bool(summary.get("diplomacy_spy_source_techs_unique", true)) and bool(summary.get("city_spy_intel_source_techs_unique", true)),
+		"city_spy_intel_source_techs_unique": bool(summary.get("city_spy_intel_source_techs_unique", true)),
+		"city_spy_intel_safe_mapping_empty": DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty(),
+		"empty_city_spy_intel_mapping_no_display": DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty() and city_spy_intel_display_count == 0,
 	}
 
 

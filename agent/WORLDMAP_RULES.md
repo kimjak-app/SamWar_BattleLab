@@ -1,5 +1,23 @@
 # WORLDMAP RULES
 
+## v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish Lock Rule
+- Baseline is `v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set` (`23b90f4cf0f27bd7d9123a9504f96f05ebd7a2b3`).
+- v0.70-72-hotfix1 authorizes QA/stability polish only for PLAYER completed Domestic Tech diplomacy/spy display-safe preparation effects.
+- National diplomacy/spy bonus calculation must remain side-effect free and must use PLAYER completed national tech state only.
+- City spy/intel bonus calculation must remain side-effect free, same-city only, PLAYER-city only, completed-city-tech only, and must return no local effect when the city spy/intel Safe Set mapping is empty.
+- Empty city spy/intel mapping must not produce false/zero city-detail display sections.
+- Researching, incomplete, false, missing, malformed, enemy, AI, non-player, unknown, and other-city state must not apply or display diplomacy/spy effects.
+- Bonus must be computed from completed tech state each time and must not be stored as separate save/load state.
+- Source tech ids must remain unique in helper output, left national panel display, Domestic Tech inspector display, city detail display if any, and QA summary checks.
+- Diplomacy/spy values remain display/preparation/QA effects only. They must not mutate diplomacy success, spy success, relation scores, tribute results, spy action results, spy detection, city_intel visibility, enemy intel reveal, AI diplomacy/spy behavior, BattleContext, pending invasion, market/trade formulas, battle/troop/naval/siege formulas, or actual game results.
+- QA helpers may report diplomacy/spy display counts and guard flags, but `diplomacy_success_effects_applied`, `spy_success_effects_applied`, `relation_effects_applied`, `city_intel_effects_applied`, and `enemy_effects_applied` must remain 0 and helpers must not spam logs or mutate gameplay.
+- Economy Safe Set, military/defense Safe Set, national policy Safe Set, and naval/siege Display Safe Set remain locked and must not regress.
+- UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Left side remains PLAYER national tech only. Right side remains selected PLAYER city tech only. Enemy or insufficient-intel city tech detail and research start/progress/completion must stay blocked under Fog of War / `city_intel` policy.
+- This hotfix does not authorize diplomacy success modifiers, spy success modifiers, relation modifiers, city_intel unlocks, enemy intel reveal, spy detection modifiers, AI research, enemy research/effect, enemy completed-tech mutation, enemy active research, BattleContext changes, pending invasion changes, market/trade modifiers, tech definition changes, or asset/import changes.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by this hotfix.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set Lock Rule
 - Baseline is `v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish` (`4a0e2983781bd82e2053a6d6d2903c4d14e2d066`).
 - v0.70-72 authorizes only PLAYER completed Domestic Tech diplomacy/spy display-safe preparation effects.

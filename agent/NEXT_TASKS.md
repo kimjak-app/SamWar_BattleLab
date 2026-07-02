@@ -1,5 +1,20 @@
 # NEXT TASKS
 
+## Current: v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish
+- Baseline: `v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set` (`23b90f4cf0f27bd7d9123a9504f96f05ebd7a2b3`).
+- Completed direction:
+  1. Reconfirmed diplomacy/spy display helper behavior as PLAYER completed national tech only, researching/incomplete no-effect, source-unique, side-effect free, and non-persistent.
+  2. Strengthened city spy/intel helper and display formatting with an explicit empty Safe Set guard so the current empty mapping has no false city-detail display.
+  3. Extended QA summary flags for city spy/intel source uniqueness, empty mapping status, and empty mapping no-display behavior.
+  4. Preserved left national panel, Domestic Tech inspector, and selected PLAYER city detail alignment with helper output and preparation/readiness wording.
+- Preserved scope:
+  1. No actual diplomacy success formula, spy success formula, relation score mutation, city_intel visibility change, spy detection/action result change, AI diplomacy/spy behavior, enemy tech effect, BattleContext, pending invasion, market/trade formula, tech definition, asset, icon, UI64, or `.import` change was made.
+  2. Economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Display Safe Set, UI64 priority, click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, and research start/progress/completion remain locked.
+- Next candidate:
+  1. `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass`.
+- Manual F6 QA required:
+  1. Check diplomacy/spy display bonus, PLAYER only, city spy/intel no false display, enemy no-effect, no diplomacy/spy success mutation, no relation/city_intel mutation, UI bonus display, economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set
 - Baseline: `v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish` (`4a0e2983781bd82e2053a6d6d2903c4d14e2d066`).
 - Completed direction:

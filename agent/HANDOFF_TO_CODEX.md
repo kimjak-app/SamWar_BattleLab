@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish Handoff
+- Baseline: `v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set` (`23b90f4cf0f27bd7d9123a9504f96f05ebd7a2b3`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This hotfix is QA/stability polish for PLAYER completed Domestic Tech diplomacy/spy display-safe preparation effects.
+- `_get_domestic_tech_diplomacy_spy_bonus_mvp()` remains PLAYER completed national tech only, side-effect free, source-unique, and non-persistent.
+- `_get_domestic_tech_city_spy_intel_bonus_mvp(city_id)` now has an explicit empty Safe Set guard. With the current empty city spy/intel mapping, it returns no local effect and city detail does not show a false/zero local spy section.
+- Left national panel, Domestic Tech inspector, and selected PLAYER city detail continue to use helper-derived preparation/readiness copy without success-rate, relation, or city_intel wording.
+- `_get_domestic_tech_diplomacy_spy_effect_summary_mvp()` reports display counters plus city spy/intel empty mapping/no-display flags and keeps `diplomacy_success_effects_applied = 0`, `spy_success_effects_applied = 0`, `relation_effects_applied = 0`, `city_intel_effects_applied = 0`, and `enemy_effects_applied = 0`.
+- Explicitly unchanged: diplomacy success formulas, spy success formulas, relation mutation, city_intel visibility, enemy intel reveal policy, spy action results, spy detection formulas, AI diplomacy/spy behavior, enemy research/effect, BattleContext, pending invasion, market/trade formulas, battle/troop/naval/siege formulas, tech definitions, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Display Safe Set, UI64 priority, node-click latency guard, overlay lifecycle, active/completed normalize, research start/progress/completion, and enemy/insufficient-intel safety remain locked.
+- Next candidate: `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass`.
+- Manual F6 QA remains required for diplomacy/spy display bonus, PLAYER only, city spy/intel no false display, enemy no-effect, no diplomacy/spy success mutation, no relation/city_intel mutation, UI bonus display, economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set Handoff
 - Baseline: `v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish` (`4a0e2983781bd82e2053a6d6d2903c4d14e2d066`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

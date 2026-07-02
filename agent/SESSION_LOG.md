@@ -2,6 +2,17 @@
 
 ## 2026-07-02
 
+### v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish
+- Started from local and `origin/main` `23b90f4 v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set`; the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - Reconfirmed PLAYER completed national tech diplomacy/spy display helper behavior with source uniqueness and no persisted computed bonus state.
+  - Added explicit empty Safe Set guards to the city spy/intel helper and city display formatter so the current empty city mapping cannot produce false/zero local spy display.
+  - Extended QA summary with city spy/intel source uniqueness, empty mapping status, and empty mapping no-display flags.
+  - Preserved helper-driven display consistency for left national panel, Domestic Tech inspector, and selected PLAYER city detail.
+- Preserved no actual diplomacy success formula change, no spy success formula change, no relation score mutation, no city_intel visibility change, no spy detection/action result change, no enemy intel reveal, no AI diplomacy/spy behavior, no enemy tech effect, no BattleContext/pending invasion change, no market/trade formula change, no battle/troop/naval/siege formula change, no tech definition change, no asset/icon/UI64/import change, and economy/military-defense/national-policy/naval-siege Safe Set behavior.
+- Manual F6 QA remains required for diplomacy/spy display bonus, PLAYER only, city spy/intel no false display, enemy no-effect, no diplomacy/spy success mutation, no relation/city_intel mutation, UI bonus display, economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set
 - Started from local and `origin/main` `4a0e298 v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish`; the working tree was clean.
 - Required workflow/worldmap docs were read before runtime changes.
