@@ -1,5 +1,21 @@
 # WORLDMAP RULES
 
+## v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass Lock Rule
+- Baseline is `v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish` (`38eb5fc9e9bf39a99358e7551ff8c566eaf98f04`).
+- v0.70-73 authorizes integration QA, guard consolidation, UI display polish, and QA summary polish only for the existing Domestic Tech Safe Set stack.
+- Existing Safe Sets are Economy, Military/Defense, National Policy, Naval/Siege Display, and Diplomacy/Spy Display. This pass does not authorize broad new effect scope.
+- All effect helpers must remain side-effect free for gameplay, derive bonuses from completed tech state each time, keep computed bonus state out of save/load data, and keep source tech ids unique.
+- Economy, military/defense, naval/siege, and city spy/intel city effects must remain PLAYER-city, same-city, completed-city-tech only. National policy and diplomacy/spy national effects must remain PLAYER completed national tech only.
+- Researching, incomplete, false, missing, malformed, enemy, AI, non-player, unknown, insufficient-intel, and other-city state must not apply or display Domestic Tech effects.
+- UI display must stay compact: hide zero values, hide empty mappings, compact source techs with `외 N개`, and avoid copy that implies actual battle power, diplomacy success, spy success, relation, city_intel, or market/trade changes.
+- Full integration QA helpers may report Safe Set display/numeric counts and guard flags, but `battle_effects_applied`, `troop_stat_effects_applied`, `troop_count_effects_applied`, `ship_count_effects_applied`, `siege_weapon_count_effects_applied`, `diplomacy_success_effects_applied`, `spy_success_effects_applied`, `relation_effects_applied`, `city_intel_effects_applied`, `market_effects_applied`, and `enemy_effects_applied` must remain 0.
+- Economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Display Safe Set, and diplomacy/spy Display Safe Set remain locked and must not regress.
+- UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Left side remains PLAYER national tech only. Right side remains selected PLAYER city tech only. Enemy or insufficient-intel city tech detail and research start/progress/completion must stay blocked under Fog of War / `city_intel` policy.
+- This pass does not authorize battle modifiers, diplomacy success modifiers, spy success modifiers, relation modifiers, city_intel unlocks, enemy intel reveal, spy detection modifiers, market/trade modifiers, troop/ship/siege count mutation, AI research, enemy research/effect, enemy completed-tech mutation, enemy active research, BattleContext changes, pending invasion changes, tech definition changes, or asset/import changes.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by this pass.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish Lock Rule
 - Baseline is `v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set` (`23b90f4cf0f27bd7d9123a9504f96f05ebd7a2b3`).
 - v0.70-72-hotfix1 authorizes QA/stability polish only for PLAYER completed Domestic Tech diplomacy/spy display-safe preparation effects.

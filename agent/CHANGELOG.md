@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass
+- Built on `v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish` (`38eb5fc9e9bf39a99358e7551ff8c566eaf98f04`).
+- Added `_get_domestic_tech_full_effect_integration_summary_mvp()` as a one-stop QA dictionary for the first Domestic Tech Safe Set stack.
+- Consolidated completed-only, researching no-effect, PLAYER-only, same-city-only, non-persistence, source uniqueness, tax-once, empty city spy/intel no-display, and forbidden mutation zero counters.
+- Normalized economy, military/defense, and national policy `source_techs` before helper return to keep output consistent with naval/siege and diplomacy/spy helpers.
+- Polished effect display section titles and kept zero values, empty mappings, and empty source sections hidden.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement battle modifiers, diplomacy success modifiers, spy success modifiers, relation mutation, city_intel visibility changes, spy detection/action result changes, market/trade modifiers, enemy intel reveal, AI diplomacy/spy behavior, enemy tech effects, troop/ship/siege count mutation, BattleContext changes, pending invasion changes, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish
 - Built on `v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set` (`23b90f4cf0f27bd7d9123a9504f96f05ebd7a2b3`).
 - Reconfirmed PLAYER completed national tech only diplomacy/spy display helper behavior with unique source techs, no researching/incomplete effects, and no persisted computed bonus state.

@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass
+- Baseline: `v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish` (`38eb5fc9e9bf39a99358e7551ff8c566eaf98f04`).
+- Completed direction:
+  1. Consolidated first-pass Domestic Tech Safe Set QA across Economy, Military/Defense, National Policy, Naval/Siege, and Diplomacy/Spy.
+  2. Added a full integration summary helper for completed-only, researching no-effect, PLAYER only, same-city only, non-persistence, source uniqueness, and zero forbidden-effect counters.
+  3. Reinforced source-tech uniqueness at helper return for economy, military/defense, and national policy.
+  4. Polished UI effect section titles and kept zero values, empty mapping, and empty source sections hidden.
+- Preserved scope:
+  1. No battle, diplomacy success, spy success, relation, city_intel, market, AI, enemy effect, troop count, ship count, siege weapon count, BattleContext, pending invasion, tech definition, asset, icon, UI64, or `.import` change was made.
+  2. Economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Display Safe Set, diplomacy/spy Display Safe Set, UI64 priority, click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, and research start/progress/completion remain locked.
+- Next candidates:
+  1. `v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish`.
+  2. `v0.70-74 Domestic Tech Cost & Research Balance Planning`.
+- Manual F6 QA required:
+  1. Check full effect display, turn income consistency, same-city only, enemy no-effect, no battle/diplomacy/spy/city_intel mutation, no troop/ship/siege count mutation, research flow, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish
 - Baseline: `v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set` (`23b90f4cf0f27bd7d9123a9504f96f05ebd7a2b3`).
 - Completed direction:

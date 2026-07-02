@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass Handoff
+- Baseline: `v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish` (`38eb5fc9e9bf39a99358e7551ff8c566eaf98f04`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass is integration QA/polish for the first Domestic Tech Safe Set stack: Economy, Military/Defense, National Policy, Naval/Siege, and Diplomacy/Spy.
+- `_get_domestic_tech_full_effect_integration_summary_mvp()` reports combined Safe Set enablement, completed-only/researching no-effect, PLAYER-only, same-city-only, bonus non-persistence, source uniqueness, tax-once, empty city spy/intel no-display, and all forbidden mutation counters fixed at 0.
+- Economy, military/defense, and national policy helpers now unique-normalize `source_techs` before returning, matching the later naval/siege and diplomacy/spy helpers.
+- UI effect labels were compacted to consistent section names: `테크 경제`, `테크 군사/방어`, `테크 국가정책`, `테크 해군/공성`, and `테크 외교/첩보`. Empty/zero sections and empty city spy/intel mapping display remain hidden.
+- Explicitly unchanged: actual battle modifiers, diplomacy success formulas, spy success formulas, relation mutation, city_intel visibility, enemy intel reveal policy, spy action results, spy detection formulas, market/trade formulas, AI diplomacy/spy behavior, enemy research/effect, troop/ship/siege count mutation, BattleContext, pending invasion, tech definitions, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- UI64 priority, node-click latency guard, overlay lifecycle, active/completed normalize, research start/progress/completion, and enemy/insufficient-intel safety remain locked.
+- Next candidates: `v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish` or `v0.70-74 Domestic Tech Cost & Research Balance Planning`.
+- Manual F6 QA remains required for full effect display, turn income consistency, same-city only, enemy no-effect, no battle/diplomacy/spy/city_intel mutation, no troop/ship/siege count mutation, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish Handoff
 - Baseline: `v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set` (`23b90f4cf0f27bd7d9123a9504f96f05ebd7a2b3`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

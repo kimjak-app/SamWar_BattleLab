@@ -10000,6 +10000,7 @@ func _get_domestic_tech_city_economy_bonus_mvp(city_id: String) -> Dictionary:
 		bonus["supply_percent"] = float(bonus.get("supply_percent", 0.0)) + float(mapping.get("supply_percent", 0.0))
 		(bonus["source_techs"] as Array).append(tech_id)
 		source_seen[tech_id] = true
+	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 	return bonus
 
 
@@ -10092,6 +10093,7 @@ func _get_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> Dict
 		bonus["cavalry_training_percent"] = float(bonus.get("cavalry_training_percent", 0.0)) + float(mapping.get("cavalry_training_percent", 0.0))
 		(bonus["source_techs"] as Array).append(tech_id)
 		source_seen[tech_id] = true
+	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 	return bonus
 
 
@@ -10150,6 +10152,7 @@ func _get_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
 		bonus["law_order_flat"] = int(bonus.get("law_order_flat", 0)) + int(mapping.get("law_order_flat", 0))
 		(bonus["source_techs"] as Array).append(tech_id)
 		source_seen[tech_id] = true
+	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 	return bonus
 
 
@@ -10327,7 +10330,7 @@ func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include
 	if int(bonus.get("supply_flat", 0)) != 0:
 		resource_parts.append("보급 %s" % _format_signed_int(int(bonus.get("supply_flat", 0))))
 	if not resource_parts.is_empty():
-		result.append("테크 경제 보너스: %s" % ", ".join(resource_parts))
+		result.append("테크 경제: %s" % ", ".join(resource_parts.slice(0, 5)))
 	if include_sources:
 		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 		if not source_techs.is_empty():
@@ -10337,7 +10340,7 @@ func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include
 			var suffix := ""
 			if source_techs.size() > source_names.size():
 				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
-			result.append("적용 테크: %s%s" % [", ".join(source_names), suffix])
+			result.append("적용 경제 테크: %s%s" % [", ".join(source_names), suffix])
 	return result
 
 
@@ -10367,7 +10370,7 @@ func _format_domestic_tech_national_policy_bonus_lines_mvp(include_sources: bool
 	if int(bonus.get("law_order_flat", 0)) != 0:
 		policy_parts.append("법질서 %s" % _format_signed_int(int(bonus.get("law_order_flat", 0))))
 	if not policy_parts.is_empty():
-		result.append("국가 정책 보너스: %s" % ", ".join(policy_parts.slice(0, 5)))
+		result.append("테크 국가정책: %s" % ", ".join(policy_parts.slice(0, 5)))
 	if include_sources:
 		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 		if not source_techs.is_empty():
@@ -10377,7 +10380,7 @@ func _format_domestic_tech_national_policy_bonus_lines_mvp(include_sources: bool
 			var suffix := ""
 			if source_techs.size() > source_names.size():
 				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
-			result.append("적용 국가 테크: %s%s" % [", ".join(source_names), suffix])
+			result.append("적용 국가정책 테크: %s%s" % [", ".join(source_names), suffix])
 	return result
 
 
@@ -10395,8 +10398,6 @@ func _format_domestic_tech_diplomacy_spy_bonus_lines_mvp(include_sources: bool =
 		diplomacy_parts.append("조공 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("tribute_readiness_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("world_diplomacy_display_percent", 0.0)), 0.0):
 		diplomacy_parts.append("천하 외교 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("world_diplomacy_display_percent", 0.0))))
-	if not diplomacy_parts.is_empty():
-		result.append("테크 외교 준비: %s" % ", ".join(diplomacy_parts.slice(0, 5)))
 	var spy_parts: Array[String] = []
 	if int(bonus.get("spy_network_flat", 0)) != 0:
 		spy_parts.append("정보망 %s" % _format_signed_int(int(bonus.get("spy_network_flat", 0))))
@@ -10404,8 +10405,11 @@ func _format_domestic_tech_diplomacy_spy_bonus_lines_mvp(include_sources: bool =
 		spy_parts.append("첩보 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("spy_preparation_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("counter_intel_display_percent", 0.0)), 0.0):
 		spy_parts.append("방첩 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("counter_intel_display_percent", 0.0))))
-	if not spy_parts.is_empty():
-		result.append("테크 첩보 준비: %s" % ", ".join(spy_parts.slice(0, 5)))
+	var display_parts: Array[String] = []
+	display_parts.append_array(diplomacy_parts)
+	display_parts.append_array(spy_parts)
+	if not display_parts.is_empty():
+		result.append("테크 외교/첩보: %s" % ", ".join(display_parts.slice(0, 5)))
 	if include_sources:
 		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 		if not source_techs.is_empty():
@@ -10459,7 +10463,7 @@ func _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id: String
 			_get_domestic_tech_city_defense_display_value_mvp(city_id, city_data),
 		])
 	if not resource_parts.is_empty():
-		result.append("테크 군사 보너스: %s" % ", ".join(resource_parts.slice(0, 5)))
+		result.append("테크 군사/방어: %s" % ", ".join(resource_parts.slice(0, 5)))
 	if include_sources:
 		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 		if not source_techs.is_empty():
@@ -10469,7 +10473,7 @@ func _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id: String
 			var suffix := ""
 			if source_techs.size() > source_names.size():
 				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
-			result.append("적용 테크: %s%s" % [", ".join(source_names), suffix])
+			result.append("적용 군사/방어 테크: %s%s" % [", ".join(source_names), suffix])
 	return result
 
 
@@ -10489,8 +10493,6 @@ func _format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id: String, inc
 		naval_parts.append("해상 보급 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("naval_supply_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("ship_maintenance_percent", 0.0)), 0.0):
 		naval_parts.append("함선 정비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("ship_maintenance_percent", 0.0))))
-	if not naval_parts.is_empty():
-		result.append("테크 해군 보너스: %s" % ", ".join(naval_parts.slice(0, 5)))
 	var siege_parts: Array[String] = []
 	if int(bonus.get("siege_preparation_flat", 0)) != 0:
 		siege_parts.append("공성 준비 %s" % _format_signed_int(int(bonus.get("siege_preparation_flat", 0))))
@@ -10498,8 +10500,11 @@ func _format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id: String, inc
 		siege_parts.append("공성 훈련 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("siege_training_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("siege_engineering_percent", 0.0)), 0.0):
 		siege_parts.append("공성 공학 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("siege_engineering_percent", 0.0))))
-	if not siege_parts.is_empty():
-		result.append("테크 공성 보너스: %s" % ", ".join(siege_parts.slice(0, 5)))
+	var naval_siege_parts: Array[String] = []
+	naval_siege_parts.append_array(naval_parts)
+	naval_siege_parts.append_array(siege_parts)
+	if not naval_siege_parts.is_empty():
+		result.append("테크 해군/공성: %s" % ", ".join(naval_siege_parts.slice(0, 5)))
 	if include_sources:
 		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 		if not source_techs.is_empty():
@@ -11657,6 +11662,51 @@ func _get_domestic_tech_diplomacy_spy_effect_summary_mvp() -> Dictionary:
 		"city_spy_intel_source_techs_unique": bool(summary.get("city_spy_intel_source_techs_unique", true)),
 		"city_spy_intel_safe_mapping_empty": DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty(),
 		"empty_city_spy_intel_mapping_no_display": DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP.is_empty() and city_spy_intel_display_count == 0,
+	}
+
+
+func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
+	var summary := _get_domestic_tech_effect_phase1_summary_mvp()
+	return {
+		"economy_effects_enabled": bool(summary.get("economy_effects_enabled", true)),
+		"military_defense_effects_enabled": bool(summary.get("military_defense_effects_enabled", true)),
+		"national_policy_effects_enabled": bool(summary.get("national_policy_effects_enabled", true)),
+		"naval_siege_effects_enabled": bool(summary.get("naval_siege_effects_enabled", true)),
+		"diplomacy_spy_effects_enabled": bool(summary.get("diplomacy_spy_effects_enabled", true)),
+		"completed_only": bool(summary.get("completed_city_tech_only", true)) and bool(summary.get("national_completed_only", true)),
+		"completed_city_tech_only": bool(summary.get("completed_city_tech_only", true)),
+		"completed_national_tech_only": bool(summary.get("national_completed_only", true)),
+		"researching_has_effect": false,
+		"researching_treated_as_completed": false,
+		"player_only": bool(summary.get("player_city_only", true)) and bool(summary.get("player_national_completed_only", true)),
+		"player_city_completed_only": bool(summary.get("player_city_completed_only", true)),
+		"player_national_completed_only": bool(summary.get("player_national_completed_only", true)),
+		"same_city_only": bool(summary.get("same_city_only", true)),
+		"display_safe_only": bool(summary.get("display_safe_only", true)),
+		"bonus_state_persisted": false,
+		"source_techs_unique": bool(summary.get("source_techs_unique", true)),
+		"tax_gold_applied_once": bool(summary.get("tax_gold_applied_once", true)),
+		"empty_city_spy_intel_mapping_no_display": bool(summary.get("empty_city_spy_intel_mapping_no_display", true)),
+		"numeric_economy_effects_applied": int(summary.get("numeric_economy_effects_applied", 0)),
+		"city_defense_effects_applied": int(summary.get("city_defense_effects_applied", 0)),
+		"training_display_effects_applied": int(summary.get("training_display_effects_applied", 0)),
+		"national_policy_effects_applied": int(summary.get("national_policy_effects_applied", 0)),
+		"naval_display_effects_applied": int(summary.get("naval_display_effects_applied", 0)),
+		"siege_display_effects_applied": int(summary.get("siege_display_effects_applied", 0)),
+		"diplomacy_display_effects_applied": int(summary.get("diplomacy_display_effects_applied", 0)),
+		"spy_display_effects_applied": int(summary.get("spy_display_effects_applied", 0)),
+		"city_spy_intel_display_effects_applied": int(summary.get("city_spy_intel_display_effects_applied", 0)),
+		"battle_effects_applied": 0,
+		"troop_stat_effects_applied": 0,
+		"troop_count_effects_applied": 0,
+		"ship_count_effects_applied": 0,
+		"siege_weapon_count_effects_applied": 0,
+		"diplomacy_success_effects_applied": 0,
+		"spy_success_effects_applied": 0,
+		"relation_effects_applied": 0,
+		"city_intel_effects_applied": 0,
+		"market_effects_applied": 0,
+		"enemy_effects_applied": 0,
 	}
 
 
