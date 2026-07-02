@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set
+- Baseline: `v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish` (`4a0e2983781bd82e2053a6d6d2903c4d14e2d066`).
+- Completed direction:
+  1. Added PLAYER completed national tech diplomacy/spy display helper with unique source techs and no persisted computed bonus state.
+  2. Added existing-id Safe Set mapping for envoy/diplomacy/tribute/world diplomacy/intelligence/inspection plus centralization/bureaucracy display preparation values.
+  3. Added a completed-only same-city city spy/intel helper with empty current mapping because no city spy/intel tech definitions exist yet.
+  4. Added left national panel and Domestic Tech inspector display for diplomacy/spy readiness without success-rate wording.
+  5. Extended QA summary with diplomacy/spy display counters and zero actual-success/relation/city_intel/enemy counters.
+- Preserved scope:
+  1. No actual diplomacy success formula, spy success formula, relation score mutation, city_intel visibility change, spy action result change, AI diplomacy/spy behavior, enemy tech effect, BattleContext, pending invasion, market/trade formula, tech definition, asset, icon, UI64, or `.import` change was made.
+  2. Economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Display Safe Set, UI64 priority, click latency behavior, overlay lifecycle, PLAYER-only national/city scope, enemy/insufficient-intel hiding, and research start/progress/completion remain locked.
+- Next candidates:
+  1. `v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish`.
+  2. `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass`.
+- Manual F6 QA required:
+  1. Check diplomacy/spy display bonus, PLAYER only, same-city city helper guard, enemy no-effect, no diplomacy/spy success mutation, no relation/city_intel mutation, UI bonus display, economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish
 - Baseline: `v0.70-71 Domestic Tech Naval/Siege Display Safe Set` (`2f3ddf3652f2527fd9c47d8f2bafaec6cd9e6771`).
 - Completed direction:

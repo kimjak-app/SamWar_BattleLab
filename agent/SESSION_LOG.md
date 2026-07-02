@@ -1,5 +1,19 @@
 # SESSION LOG
 
+## 2026-07-02
+
+### v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set
+- Started from local and `origin/main` `4a0e298 v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish`; the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - PLAYER completed national tech `_get_domestic_tech_diplomacy_spy_bonus_mvp()` with unique source techs and no persisted computed bonus state.
+  - Existing-id Safe Set mapping for diplomacy/tribute/world diplomacy/intelligence/inspection readiness plus centralization/bureaucracy display preparation values.
+  - PLAYER-city, same-city, completed-only `_get_domestic_tech_city_spy_intel_bonus_mvp(city_id)` with empty current mapping because no city spy/intel tech definitions exist yet.
+  - Left national panel and Domestic Tech inspector display for diplomacy/spy readiness lines and source tech names.
+  - QA summary helper for diplomacy/spy display counters with actual success, relation, city_intel, and enemy counters fixed at 0.
+- Preserved no actual diplomacy success formula change, no spy success formula change, no relation score mutation, no city_intel visibility change, no enemy intel reveal, no spy action result change, no AI diplomacy/spy behavior, no enemy tech effect, no BattleContext/pending invasion change, no market/trade formula change, no battle/troop/naval/siege formula change, no tech definition change, no asset/icon/UI64/import change, and economy/military-defense/national-policy/naval-siege Safe Set behavior.
+- Manual F6 QA remains required for diplomacy/spy display bonus, PLAYER only, same-city city helper guard, enemy no-effect, no diplomacy/spy success mutation, no relation/city_intel mutation, UI bonus display, economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Safe Set, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## 2026-06-30
 
 ### v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish

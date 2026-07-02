@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-72 Domestic Tech Diplomacy/Spy Display Safe Set
+- Built on `v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish` (`4a0e2983781bd82e2053a6d6d2903c4d14e2d066`).
+- Added a PLAYER completed national tech diplomacy/spy display helper that is side-effect free, ignores researching/incomplete tech, de-duplicates source techs, and never saves computed bonus state.
+- Added Safe Set values for existing envoy, diplomacy system, tribute system/network, world diplomacy, centralization, bureaucracy, intelligence system/org, and inspection system ids.
+- Added a PLAYER-city same-city city spy/intel helper with an empty current mapping because no city spy/intel tech definitions exist yet.
+- Added left national panel and Domestic Tech inspector display for diplomacy/spy readiness and source tech names without actual success-rate wording.
+- Extended QA summary helpers with diplomacy/spy display counters and `diplomacy_success_effects_applied = 0`, `spy_success_effects_applied = 0`, `relation_effects_applied = 0`, `city_intel_effects_applied = 0`, and `enemy_effects_applied = 0`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement diplomacy success modifiers, spy success modifiers, relation mutation, city_intel visibility changes, enemy intel reveal, spy action result changes, AI diplomacy/spy behavior, enemy tech effects, BattleContext changes, pending invasion changes, market/trade formula changes, battle/troop/naval/siege formula changes, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-71-hotfix1 Naval/Siege Display Effect QA Polish
 - Built on `v0.70-71 Domestic Tech Naval/Siege Display Safe Set` (`2f3ddf3652f2527fd9c47d8f2bafaec6cd9e6771`).
 - Strengthened the naval/siege display helper to use one normalized same-city completed tech map and completed `true` Safe Set ids only.
