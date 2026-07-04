@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish Handoff
+- Baseline: `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass` (`6c74bc5c9ddfdebb1aef7ebf63b60ec78fa94a9f`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This hotfix is final manual QA support polish for first-pass Domestic Tech effect display. It does not add new effects or connect display-safe values to battle, diplomacy, spy, market, city_intel, AI, troop, ship, or siege formulas.
+- Source display now goes through `_format_domestic_tech_source_display_mvp()`, which de-duplicates source tech ids, hides empty source lists, defaults to 3 visible names, and appends `외 N개` for overflow.
+- UI display copy uses compact section names and safer preparation/base/readiness wording for military/defense, national policy display values, naval/siege, and diplomacy/spy. Tax gold remains the only national policy value connected to PLAYER gold income, once.
+- Economy turn summary now skips zero-value city entries so displayed Domestic Tech income changes stay aligned with helper-derived numeric effects.
+- Research completion calls a focused display refresh for the left national panel, selected PLAYER city detail, and Domestic Tech inspector. Existing overlay lifecycle and node-click latency guard remain locked.
+- `_get_domestic_tech_full_effect_integration_summary_mvp()` includes `empty_mapping_false_display = false` while preserving completed-only, researching no-effect, PLAYER only, same-city only, non-persistence, source uniqueness, and forbidden mutation zero counters.
+- Explicitly unchanged: actual battle modifiers, diplomacy success formulas, spy success formulas, relation mutation, city_intel visibility, enemy intel reveal policy, spy action results, spy detection formulas, market/trade formulas, AI diplomacy/spy behavior, enemy research/effect, troop/ship/siege count mutation, BattleContext, pending invasion, tech definitions, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Next candidates: `v0.70-74 Domestic Tech Cost & Research Balance Planning` or `v0.70-74 Domestic Tech Manual QA Scenario Pack`.
+- Manual F6 QA remains required for UI length/source truncation, zero-value no-display, research completion refresh, turn income consistency, same-city only, enemy no-effect/no-display, no battle/diplomacy/spy/city_intel mutation, no troop/ship/siege count mutation, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass Handoff
 - Baseline: `v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish` (`38eb5fc9e9bf39a99358e7551ff8c566eaf98f04`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish
+- Built on `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass` (`6c74bc5c9ddfdebb1aef7ebf63b60ec78fa94a9f`).
+- Added a shared compact source-tech display helper with unique source names, empty-source hiding, and `외 N개` overflow.
+- Hid zero-value economy turn summary entries and kept empty city spy/intel mapping from producing false city-detail sections.
+- Reworded display-safe military/defense, national policy, naval/siege, and diplomacy/spy UI copy to preparation/base/readiness language.
+- Added focused research-completion display refresh for left national panel, selected PLAYER city detail, and Domestic Tech inspector.
+- Extended `_get_domestic_tech_full_effect_integration_summary_mvp()` with `empty_mapping_false_display = false`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement battle modifiers, diplomacy success modifiers, spy success modifiers, relation mutation, city_intel visibility changes, spy detection/action result changes, market/trade modifiers, enemy intel reveal, AI diplomacy/spy behavior, enemy tech effects, troop/ship/siege count mutation, BattleContext changes, pending invasion changes, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass
 - Built on `v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish` (`38eb5fc9e9bf39a99358e7551ff8c566eaf98f04`).
 - Added `_get_domestic_tech_full_effect_integration_summary_mvp()` as a one-stop QA dictionary for the first Domestic Tech Safe Set stack.

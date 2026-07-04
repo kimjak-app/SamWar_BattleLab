@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish
+- Baseline: `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass` at `6c74bc5c9ddfdebb1aef7ebf63b60ec78fa94a9f`; local HEAD matched `origin/main` and tracked files were clean at task start.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Domestic Tech final manual QA polish:
+  - Added a shared source-tech display helper so UI source lines use unique tech names, hide empty source lists, and default to compact `적용 테크: ... 외 N개` output.
+  - Tightened zero-value and empty-mapping no-display behavior for economy turn summary and full integration QA flags.
+  - Reworded display-safe military/defense, national policy, naval/siege, and diplomacy/spy lines toward preparation/base/readiness copy instead of actual combat, success, relation, city_intel, troop, ship, or siege count wording.
+  - Added completion-result display refresh for left national panel, selected PLAYER city detail, and Domestic Tech inspector after Domestic Tech research completes.
+  - `_get_domestic_tech_full_effect_integration_summary_mvp()` now includes `empty_mapping_false_display = false`.
+- Preserved scope: no battle/diplomacy/spy/market/city_intel/AI formula mutation, no troop/ship/siege count mutation, no BattleContext/pending invasion change, no enemy effect/display, no tech definition change, and no asset/import change.
+- Existing locks remain: Economy Safe Set, Military/Defense Safe Set, National Policy Safe Set, Naval/Siege Display Safe Set, Diplomacy/Spy Display Safe Set, completed-only, researching no-effect, PLAYER only, same-city only, UI64 priority, node-click latency behavior, overlay lifecycle, enemy/unknown/insufficient-intel no-display, and research start/progress/completion.
+- Next candidates: `v0.70-74 Domestic Tech Cost & Research Balance Planning` or `v0.70-74 Domestic Tech Manual QA Scenario Pack`.
+- Manual F6 QA remains required for UI length/source truncation, zero-value no-display, research completion refresh, turn income consistency, same-city only, enemy no-effect/no-display, no battle/diplomacy/spy/city_intel mutation, no troop/ship/siege count mutation, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass
 - Baseline: `v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish` at `38eb5fc9e9bf39a99358e7551ff8c566eaf98f04`; local HEAD was ahead of `origin/main` because the hotfix commit was local, and tracked files were clean at task start.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

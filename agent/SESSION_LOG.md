@@ -1,5 +1,19 @@
 # SESSION LOG
 
+## 2026-07-04
+
+### v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish
+- Started from local and `origin/main` `6c74bc5 v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass`; the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - Compact, unique Domestic Tech source display through `_format_domestic_tech_source_display_mvp()`.
+  - Zero-value no-display guard for economy turn summary and retained empty city spy/intel mapping no-display.
+  - Safer display-safe copy for military/defense, national policy, naval/siege, and diplomacy/spy sections.
+  - Research-completion display refresh for left national panel, selected PLAYER city detail, and Domestic Tech inspector.
+  - Full integration summary flag `empty_mapping_false_display = false`.
+- Preserved no battle formula change, no diplomacy/spy success formula change, no relation score mutation, no city_intel visibility change, no spy detection/action result change, no market/trade modifier, no enemy intel reveal, no AI diplomacy/spy behavior, no enemy tech effect, no troop/ship/siege count mutation, no BattleContext/pending invasion change, no tech definition change, no asset/icon/UI64/import change, and all current Safe Set locks.
+- Manual F6 QA remains required for UI length/source truncation, zero-value no-display, research completion refresh, turn income consistency, same-city only, enemy no-effect/no-display, no battle/diplomacy/spy/city_intel mutation, no troop/ship/siege count mutation, research flow, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## 2026-07-02
 
 ### v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass

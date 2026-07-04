@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish Lock Rule
+- Baseline is `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass` (`6c74bc5c9ddfdebb1aef7ebf63b60ec78fa94a9f`).
+- v0.70-73-hotfix1 authorizes final manual QA support polish only for existing Domestic Tech first-pass effect display, source display, zero/empty hiding, completion refresh, economy display consistency, and QA summary flags.
+- Source tech display must remain compact, unique, and hidden when empty. Default UI source display should show up to 3 names and `외 N개` for overflow.
+- Zero-value sections, empty mappings, and empty city spy/intel mapping must not produce false visible UI sections. Debug/QA summary zero counters may remain.
+- Display-safe values must use preparation/base/readiness wording and must not imply battle power, diplomacy success, spy success, relation improvement, city_intel reveal, troop increase, ship increase, or siege weapon increase.
+- Research completion may refresh the Domestic Tech inspector, selected PLAYER city detail, and left PLAYER national panel. Node click must not trigger a full graph rebuild, and overlay lifecycle/ESC/close behavior remains locked.
+- Turn income display must stay helper-derived. `tax_gold_percent` remains applied once to PLAYER gold income only; city economy and national tax bonuses must not be saved as computed bonus state.
+- Enemy, unknown, insufficient-intel, non-player, AI, and other-city states must not apply or display Domestic Tech effects. Left side remains PLAYER national tech only; right side remains selected PLAYER city tech only.
+- Full integration QA helpers must keep `empty_mapping_false_display = false`, completed-only, researching no-effect, PLAYER only, same-city only, bonus non-persistence, source uniqueness, and all forbidden mutation counters fixed at 0.
+- This hotfix does not authorize battle modifiers, diplomacy success modifiers, spy success modifiers, relation modifiers, city_intel unlocks, enemy intel reveal, spy detection modifiers, market/trade modifiers, troop/ship/siege count mutation, AI research, enemy research/effect, enemy completed-tech mutation, enemy active research, BattleContext changes, pending invasion changes, tech definition changes, or asset/import changes.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by this hotfix.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass Lock Rule
 - Baseline is `v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish` (`38eb5fc9e9bf39a99358e7551ff8c566eaf98f04`).
 - v0.70-73 authorizes integration QA, guard consolidation, UI display polish, and QA summary polish only for the existing Domestic Tech Safe Set stack.

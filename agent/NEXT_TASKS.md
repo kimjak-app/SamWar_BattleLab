@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish
+- Baseline: `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass` (`6c74bc5c9ddfdebb1aef7ebf63b60ec78fa94a9f`).
+- Completed direction:
+  1. Unified Domestic Tech source display through a compact helper with unique names and `외 N개` truncation.
+  2. Hid zero-value economy turn summary entries and retained empty city spy/intel mapping no-display behavior.
+  3. Reworded display-safe military/defense, national policy, naval/siege, and diplomacy/spy copy to preparation/base/readiness language.
+  4. Refreshed left national panel, selected PLAYER city detail, and Domestic Tech inspector after research completion without changing node-click graph behavior.
+  5. Added `empty_mapping_false_display = false` to the full integration summary helper.
+- Preserved scope:
+  1. No battle, diplomacy success, spy success, relation, city_intel, market, AI, enemy effect, troop count, ship count, siege weapon count, BattleContext, pending invasion, tech definition, asset, icon, UI64, or `.import` change was made.
+  2. Economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Display Safe Set, diplomacy/spy Display Safe Set, completed-only, researching no-effect, PLAYER-only, same-city-only, enemy/unknown no-display, click latency, overlay lifecycle, and research start/progress/completion remain locked.
+- Next candidates:
+  1. `v0.70-74 Domestic Tech Cost & Research Balance Planning`.
+  2. `v0.70-74 Domestic Tech Manual QA Scenario Pack`.
+- Manual F6 QA required:
+  1. Check UI length/source truncation, zero-value no-display, research completion refresh, turn income consistency, same-city only, enemy no-effect/no-display, no battle/diplomacy/spy/city_intel mutation, no troop/ship/siege count mutation, research flow, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass
 - Baseline: `v0.70-72-hotfix1 Diplomacy/Spy Display Effect QA Polish` (`38eb5fc9e9bf39a99358e7551ff8c566eaf98f04`).
 - Completed direction:

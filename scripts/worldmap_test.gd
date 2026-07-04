@@ -10306,6 +10306,20 @@ func _get_unique_domestic_tech_source_ids_mvp(source_techs: Variant) -> Array[St
 	return result
 
 
+func _format_domestic_tech_source_display_mvp(source_techs: Variant, max_visible: int = 3) -> String:
+	var unique_source_techs := _get_unique_domestic_tech_source_ids_mvp(source_techs)
+	if unique_source_techs.is_empty():
+		return ""
+	var source_names: Array[String] = []
+	var visible_count := clampi(max_visible, 1, 5)
+	for index in range(mini(unique_source_techs.size(), visible_count)):
+		source_names.append(_get_domestic_tech_display_name_mvp(str(unique_source_techs[index])))
+	var suffix := ""
+	if unique_source_techs.size() > source_names.size():
+		suffix = " 외 %d개" % (unique_source_techs.size() - source_names.size())
+	return "적용 테크: %s%s" % [", ".join(source_names), suffix]
+
+
 func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include_sources: bool = true) -> Array[String]:
 	var result: Array[String] = []
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
@@ -10332,15 +10346,9 @@ func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include
 	if not resource_parts.is_empty():
 		result.append("테크 경제: %s" % ", ".join(resource_parts.slice(0, 5)))
 	if include_sources:
-		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-		if not source_techs.is_empty():
-			var source_names: Array[String] = []
-			for index in range(mini(source_techs.size(), 4)):
-				source_names.append(_get_domestic_tech_display_name_mvp(str(source_techs[index])))
-			var suffix := ""
-			if source_techs.size() > source_names.size():
-				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
-			result.append("적용 경제 테크: %s%s" % [", ".join(source_names), suffix])
+		var source_display := _format_domestic_tech_source_display_mvp(bonus.get("source_techs", []))
+		if not source_display.is_empty():
+			result.append(source_display)
 	return result
 
 
@@ -10358,29 +10366,23 @@ func _format_domestic_tech_national_policy_bonus_lines_mvp(include_sources: bool
 	if not is_equal_approx(tax_gold_percent, 0.0):
 		policy_parts.append("세금 수입 %s" % _format_domestic_tech_percent_bonus_mvp(tax_gold_percent))
 	if not is_equal_approx(admin_efficiency_percent, 0.0):
-		policy_parts.append("행정 효율 %s" % _format_domestic_tech_percent_bonus_mvp(admin_efficiency_percent))
+		policy_parts.append("행정 준비 %s" % _format_domestic_tech_percent_bonus_mvp(admin_efficiency_percent))
 	if not is_equal_approx(recruit_capacity_percent, 0.0):
-		policy_parts.append("징병 수용 %s" % _format_domestic_tech_percent_bonus_mvp(recruit_capacity_percent))
+		policy_parts.append("징병 기반 %s" % _format_domestic_tech_percent_bonus_mvp(recruit_capacity_percent))
 	if not is_equal_approx(logistics_supply_percent, 0.0):
-		policy_parts.append("병참 보급 %s" % _format_domestic_tech_percent_bonus_mvp(logistics_supply_percent))
+		policy_parts.append("병참 준비 %s" % _format_domestic_tech_percent_bonus_mvp(logistics_supply_percent))
 	if not is_equal_approx(population_growth_percent, 0.0):
-		policy_parts.append("인구 성장 %s" % _format_domestic_tech_percent_bonus_mvp(population_growth_percent))
+		policy_parts.append("인구 기반 %s" % _format_domestic_tech_percent_bonus_mvp(population_growth_percent))
 	if int(bonus.get("storage_flat", 0)) != 0:
-		policy_parts.append("창고/비축 %s" % _format_signed_int(int(bonus.get("storage_flat", 0))))
+		policy_parts.append("비축 기반 %s" % _format_signed_int(int(bonus.get("storage_flat", 0))))
 	if int(bonus.get("law_order_flat", 0)) != 0:
-		policy_parts.append("법질서 %s" % _format_signed_int(int(bonus.get("law_order_flat", 0))))
+		policy_parts.append("질서 기반 %s" % _format_signed_int(int(bonus.get("law_order_flat", 0))))
 	if not policy_parts.is_empty():
 		result.append("테크 국가정책: %s" % ", ".join(policy_parts.slice(0, 5)))
 	if include_sources:
-		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-		if not source_techs.is_empty():
-			var source_names: Array[String] = []
-			for index in range(mini(source_techs.size(), 4)):
-				source_names.append(_get_domestic_tech_display_name_mvp(str(source_techs[index])))
-			var suffix := ""
-			if source_techs.size() > source_names.size():
-				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
-			result.append("적용 국가정책 테크: %s%s" % [", ".join(source_names), suffix])
+		var source_display := _format_domestic_tech_source_display_mvp(bonus.get("source_techs", []))
+		if not source_display.is_empty():
+			result.append(source_display)
 	return result
 
 
@@ -10391,13 +10393,13 @@ func _format_domestic_tech_diplomacy_spy_bonus_lines_mvp(include_sources: bool =
 		return result
 	var diplomacy_parts: Array[String] = []
 	if int(bonus.get("diplomacy_influence_flat", 0)) != 0:
-		diplomacy_parts.append("외교 영향력 %s" % _format_signed_int(int(bonus.get("diplomacy_influence_flat", 0))))
+		diplomacy_parts.append("외교 기반 %s" % _format_signed_int(int(bonus.get("diplomacy_influence_flat", 0))))
 	if not is_equal_approx(float(bonus.get("diplomacy_preparation_percent", 0.0)), 0.0):
 		diplomacy_parts.append("외교 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("diplomacy_preparation_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("tribute_readiness_percent", 0.0)), 0.0):
 		diplomacy_parts.append("조공 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("tribute_readiness_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("world_diplomacy_display_percent", 0.0)), 0.0):
-		diplomacy_parts.append("천하 외교 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("world_diplomacy_display_percent", 0.0))))
+		diplomacy_parts.append("대외 기반 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("world_diplomacy_display_percent", 0.0))))
 	var spy_parts: Array[String] = []
 	if int(bonus.get("spy_network_flat", 0)) != 0:
 		spy_parts.append("정보망 %s" % _format_signed_int(int(bonus.get("spy_network_flat", 0))))
@@ -10411,15 +10413,9 @@ func _format_domestic_tech_diplomacy_spy_bonus_lines_mvp(include_sources: bool =
 	if not display_parts.is_empty():
 		result.append("테크 외교/첩보: %s" % ", ".join(display_parts.slice(0, 5)))
 	if include_sources:
-		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-		if not source_techs.is_empty():
-			var source_names: Array[String] = []
-			for index in range(mini(source_techs.size(), 4)):
-				source_names.append(_get_domestic_tech_display_name_mvp(str(source_techs[index])))
-			var suffix := ""
-			if source_techs.size() > source_names.size():
-				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
-			result.append("적용 외교/첩보 테크: %s%s" % [", ".join(source_names), suffix])
+		var source_display := _format_domestic_tech_source_display_mvp(bonus.get("source_techs", []))
+		if not source_display.is_empty():
+			result.append(source_display)
 	return result
 
 
@@ -10444,19 +10440,19 @@ func _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id: String
 	var resource_parts: Array[String] = []
 	var defense_percent := float(bonus.get("defense_percent", 0.0))
 	if int(bonus.get("defense_flat", 0)) != 0:
-		resource_parts.append("도시 방어 %s" % _format_signed_int(int(bonus.get("defense_flat", 0))))
+		resource_parts.append("방어 준비 %s" % _format_signed_int(int(bonus.get("defense_flat", 0))))
 	if not is_equal_approx(defense_percent, 0.0):
-		resource_parts.append("도시 방어 %s" % _format_domestic_tech_percent_bonus_mvp(defense_percent))
+		resource_parts.append("방어 준비 %s" % _format_domestic_tech_percent_bonus_mvp(defense_percent))
 	if int(bonus.get("recruit_capacity_flat", 0)) != 0:
-		resource_parts.append("모집 수용 %s" % _format_signed_int(int(bonus.get("recruit_capacity_flat", 0))))
+		resource_parts.append("모집 기반 %s" % _format_signed_int(int(bonus.get("recruit_capacity_flat", 0))))
 	if not is_equal_approx(float(bonus.get("training_percent", 0.0)), 0.0):
-		resource_parts.append("훈련 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("training_percent", 0.0))))
+		resource_parts.append("훈련 기반 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("training_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("infantry_training_percent", 0.0)), 0.0):
-		resource_parts.append("보병 훈련 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("infantry_training_percent", 0.0))))
+		resource_parts.append("보병 기반 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("infantry_training_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("archer_training_percent", 0.0)), 0.0):
-		resource_parts.append("궁병 훈련 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("archer_training_percent", 0.0))))
+		resource_parts.append("궁병 기반 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("archer_training_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("cavalry_training_percent", 0.0)), 0.0):
-		resource_parts.append("기병 훈련 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("cavalry_training_percent", 0.0))))
+		resource_parts.append("기병 기반 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("cavalry_training_percent", 0.0))))
 	if not city_data.is_empty() and (int(bonus.get("defense_flat", 0)) != 0 or not is_equal_approx(defense_percent, 0.0)):
 		resource_parts.append("방어 표시 %d→%d" % [
 			maxi(0, int(city_data.get("defense", 0))),
@@ -10465,15 +10461,9 @@ func _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id: String
 	if not resource_parts.is_empty():
 		result.append("테크 군사/방어: %s" % ", ".join(resource_parts.slice(0, 5)))
 	if include_sources:
-		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-		if not source_techs.is_empty():
-			var source_names: Array[String] = []
-			for index in range(mini(source_techs.size(), 4)):
-				source_names.append(_get_domestic_tech_display_name_mvp(str(source_techs[index])))
-			var suffix := ""
-			if source_techs.size() > source_names.size():
-				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
-			result.append("적용 군사/방어 테크: %s%s" % [", ".join(source_names), suffix])
+		var source_display := _format_domestic_tech_source_display_mvp(bonus.get("source_techs", []))
+		if not source_display.is_empty():
+			result.append(source_display)
 	return result
 
 
@@ -10486,13 +10476,13 @@ func _format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id: String, inc
 		return result
 	var naval_parts: Array[String] = []
 	if int(bonus.get("shipyard_capacity_flat", 0)) != 0:
-		naval_parts.append("조선 수용 %s" % _format_signed_int(int(bonus.get("shipyard_capacity_flat", 0))))
+		naval_parts.append("조선 준비 %s" % _format_signed_int(int(bonus.get("shipyard_capacity_flat", 0))))
 	if not is_equal_approx(float(bonus.get("naval_training_percent", 0.0)), 0.0):
-		naval_parts.append("수군 훈련 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("naval_training_percent", 0.0))))
+		naval_parts.append("수군 기반 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("naval_training_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("naval_supply_percent", 0.0)), 0.0):
-		naval_parts.append("해상 보급 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("naval_supply_percent", 0.0))))
+		naval_parts.append("해상 보급 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("naval_supply_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("ship_maintenance_percent", 0.0)), 0.0):
-		naval_parts.append("함선 정비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("ship_maintenance_percent", 0.0))))
+		naval_parts.append("함선 정비 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("ship_maintenance_percent", 0.0))))
 	var siege_parts: Array[String] = []
 	if int(bonus.get("siege_preparation_flat", 0)) != 0:
 		siege_parts.append("공성 준비 %s" % _format_signed_int(int(bonus.get("siege_preparation_flat", 0))))
@@ -10506,15 +10496,9 @@ func _format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id: String, inc
 	if not naval_siege_parts.is_empty():
 		result.append("테크 해군/공성: %s" % ", ".join(naval_siege_parts.slice(0, 5)))
 	if include_sources:
-		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-		if not source_techs.is_empty():
-			var source_names: Array[String] = []
-			for index in range(mini(source_techs.size(), 4)):
-				source_names.append(_get_domestic_tech_display_name_mvp(str(source_techs[index])))
-			var suffix := ""
-			if source_techs.size() > source_names.size():
-				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
-			result.append("적용 해군/공성 테크: %s%s" % [", ".join(source_names), suffix])
+		var source_display := _format_domestic_tech_source_display_mvp(bonus.get("source_techs", []))
+		if not source_display.is_empty():
+			result.append(source_display)
 	return result
 
 
@@ -10537,15 +10521,9 @@ func _format_domestic_tech_city_spy_intel_bonus_lines_mvp(city_id: String, inclu
 	if not spy_parts.is_empty():
 		result.append("도시 첩보 준비: %s" % ", ".join(spy_parts.slice(0, 5)))
 	if include_sources:
-		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
-		if not source_techs.is_empty():
-			var source_names: Array[String] = []
-			for index in range(mini(source_techs.size(), 4)):
-				source_names.append(_get_domestic_tech_display_name_mvp(str(source_techs[index])))
-			var suffix := ""
-			if source_techs.size() > source_names.size():
-				suffix = " 외 %d개" % (source_techs.size() - source_names.size())
-			result.append("적용 도시 첩보 테크: %s%s" % [", ".join(source_names), suffix])
+		var source_display := _format_domestic_tech_source_display_mvp(bonus.get("source_techs", []))
+		if not source_display.is_empty():
+			result.append(source_display)
 	return result
 
 
@@ -10564,6 +10542,8 @@ func _get_domestic_tech_economy_turn_summary_mvp() -> Dictionary:
 		if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
 			continue
 		var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
+		if not _has_domestic_tech_city_economy_bonus_mvp(city_id):
+			continue
 		var source_techs := _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 		if source_techs.is_empty():
 			continue
@@ -10594,13 +10574,6 @@ func _format_domestic_tech_economy_turn_summary_mvp(summary: Dictionary) -> Stri
 			continue
 		var city_entry := city_entry_variant as Dictionary
 		var city_id := str(city_entry.get("city_id", ""))
-		var source_techs := _get_unique_domestic_tech_source_ids_mvp(city_entry.get("source_techs", []))
-		var source_names: Array[String] = []
-		for source_index in range(mini(source_techs.size(), 2)):
-			source_names.append(_get_domestic_tech_display_name_mvp(source_techs[source_index]))
-		var source_suffix := ""
-		if source_techs.size() > source_names.size():
-			source_suffix = " 외 %d개" % (source_techs.size() - source_names.size())
 		var resource_parts: Array[String] = []
 		var food_percent := float(city_entry.get("food_percent", 0.0))
 		var gold_percent := float(city_entry.get("gold_percent", 0.0))
@@ -10614,7 +10587,9 @@ func _format_domestic_tech_economy_turn_summary_mvp(summary: Dictionary) -> Stri
 			resource_parts.append("금전 %s" % _format_signed_int(int(city_entry.get("gold_flat", 0))))
 		if int(city_entry.get("supply_flat", 0)) != 0:
 			resource_parts.append("보급 %s" % _format_signed_int(int(city_entry.get("supply_flat", 0))))
-		var source_text := ", ".join(source_names) + source_suffix
+		if resource_parts.is_empty():
+			continue
+		var source_text := _format_domestic_tech_source_display_mvp(city_entry.get("source_techs", []), 2)
 		parts.append("%s %s (%s)" % [_format_city_name_by_id(city_id, city_id), ", ".join(resource_parts), source_text])
 	var city_suffix := ""
 	var city_count := int(summary.get("city_count", (cities as Array).size()))
@@ -11686,6 +11661,7 @@ func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
 		"bonus_state_persisted": false,
 		"source_techs_unique": bool(summary.get("source_techs_unique", true)),
 		"tax_gold_applied_once": bool(summary.get("tax_gold_applied_once", true)),
+		"empty_mapping_false_display": false,
 		"empty_city_spy_intel_mapping_no_display": bool(summary.get("empty_city_spy_intel_mapping_no_display", true)),
 		"numeric_economy_effects_applied": int(summary.get("numeric_economy_effects_applied", 0)),
 		"city_defense_effects_applied": int(summary.get("city_defense_effects_applied", 0)),
@@ -12926,7 +12902,21 @@ func _advance_domestic_tech_research_for_world_turn_mvp() -> Dictionary:
 	_player_state["last_domestic_tech_progress_result"] = result.duplicate(true)
 	if not (result["completed"] as Array).is_empty() and _is_domestic_tech_tree_overlay_open_mvp():
 		_refresh_domestic_tech_tree_overlay_mvp()
+	_refresh_domestic_tech_effect_display_surfaces_mvp(result)
 	return result
+
+
+func _refresh_domestic_tech_effect_display_surfaces_mvp(progress_result: Dictionary) -> void:
+	var completed_events: Variant = progress_result.get("completed", [])
+	if not completed_events is Array or (completed_events as Array).is_empty():
+		if _is_domestic_tech_tree_overlay_open_mvp():
+			_refresh_domestic_tech_detail_inspector_mvp()
+		return
+	_refresh_left_world_status_panel()
+	if selected_city_marker != null and _is_city_owned_by_player_mvp(selected_city_marker.city_id):
+		_refresh_unified_panel_content()
+	if _is_domestic_tech_tree_overlay_open_mvp():
+		_refresh_domestic_tech_detail_inspector_mvp()
 
 
 func _advance_national_tech_research_for_world_turn_mvp() -> Array[Dictionary]:
