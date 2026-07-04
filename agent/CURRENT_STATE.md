@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-74 Domestic Tech Cost & Research Balance Planning
+- Baseline: `v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish` at `fd4e6599433904c706a2d6c46f6439f94b0bab90`; local HEAD was ahead of `origin/main` by that local hotfix commit and tracked files were clean at task start.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Domestic Tech cost/research balance planning:
+  - Switched Domestic Tech duration hints and new research duration fallback to tier-based planning: Tier 1 = 2 turns, Tier 2 = 3, Tier 3 = 4, Tier 4 = 5, Tier 5 = 6.
+  - Preserved existing active research compatibility by not shrinking already stored `duration_turns`; `remaining_turns` still clamps within the stored duration.
+  - Added `_get_domestic_tech_research_cost_plan_mvp()` as display-only planned cost data for national/city techs, with `cost_charged`, `cost_charged_on_start`, `cost_charged_per_turn`, and `cost_blocks_research_start` all false.
+  - Updated Domestic Tech inspector copy to show `연구 소요` and `예상 비용 ... (표시 전용)` without adding resource payment or cost gating.
+  - Added `_get_domestic_tech_research_balance_summary_mvp()` for QA confirmation of tier duration rules, display-only cost planning, unchanged active/completion flow, and enemy research disabled.
+- Preserved scope: no actual research cost application, no cost-based research blocking, no paid-cost state, no battle/diplomacy/spy/market/city_intel/AI formula mutation, no enemy research/effect, no troop/ship/siege count mutation, no BattleContext/pending invasion change, no tech id/name/category/branch/prerequisite change, and no asset/import change.
+- Existing locks remain: Economy Safe Set, Military/Defense Safe Set, National Policy Safe Set, Naval/Siege Display Safe Set, Diplomacy/Spy Display Safe Set, Full Effect Integration Summary, completed-only, researching no-effect, PLAYER only, same-city only, UI64 priority, node-click latency behavior, overlay lifecycle, enemy/unknown/insufficient-intel no-display, and research start/progress/completion.
+- Next candidates: `v0.70-74-hotfix1 Cost & Research Balance QA Polish` or `v0.70-75 Research Cost Display Safe Set`.
+- Manual F6 QA remains required for duration display, remaining turns, expected cost display, no resource deduction, no cost gating, research flow, Safe Set preservation, enemy no research/effect, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish
 - Baseline: `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass` at `6c74bc5c9ddfdebb1aef7ebf63b60ec78fa94a9f`; local HEAD matched `origin/main` and tracked files were clean at task start.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

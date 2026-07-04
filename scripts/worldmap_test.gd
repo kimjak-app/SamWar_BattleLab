@@ -9874,18 +9874,12 @@ func _get_domestic_tech_duration_class_mvp(tier: int, rarity: int) -> String:
 
 
 func _get_domestic_tech_duration_turns_hint_mvp(tier: int, rarity: int) -> Dictionary:
-	var duration_class := _get_domestic_tech_duration_class_mvp(tier, rarity)
-	match duration_class:
-		"basic":
-			return {"min": 3, "max": 5}
-		"mid":
-			return {"min": 8, "max": 10}
-		"advanced":
-			return {"min": 15, "max": 20}
-		"legendary":
-			return {"min": 25, "max": 30}
-		_:
-			return {"min": 3, "max": 5}
+	var duration_turns := _get_domestic_tech_tier_duration_turns_mvp(tier)
+	return {"min": duration_turns, "max": duration_turns, "rule": "tier_based", "rarity": rarity}
+
+
+func _get_domestic_tech_tier_duration_turns_mvp(tier: int) -> int:
+	return clampi(tier + 1, 2, 6)
 
 
 func _get_domestic_tech_definitions_mvp() -> Dictionary:
@@ -11001,8 +10995,8 @@ func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dic
 		var diplomacy_spy_bonus_display := _format_domestic_tech_diplomacy_spy_bonus_lines_mvp()
 		if not diplomacy_spy_bonus_display.is_empty():
 			lines.append("적용 중인 외교/첩보 준비:\n- %s" % "\n- ".join(diplomacy_spy_bonus_display))
-	lines.append("비용: %s" % _get_domestic_tech_cost_summary_mvp(tech_def))
-	lines.append("건설/연구 시간: %s" % _format_domestic_tech_duration_hint_mvp(tech_def))
+	lines.append("연구 소요: %s" % _format_domestic_tech_duration_hint_mvp(tech_def))
+	lines.append(_format_domestic_tech_research_cost_plan_mvp(tech_def, scope))
 	var conditions := _get_domestic_tech_readiness_condition_lines_mvp(tech_def, view_state, city_id)
 	if not conditions.is_empty():
 		lines.append("조건 충족 여부:\n- %s" % "\n- ".join(conditions))
@@ -11018,6 +11012,75 @@ func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dic
 
 func _get_domestic_tech_cost_summary_mvp(tech_def: Dictionary) -> String:
 	return _format_domestic_tech_cost_mvp(tech_def.get("cost", {}))
+
+
+func _get_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: String = "") -> Dictionary:
+	var resolved_scope := scope
+	if resolved_scope.is_empty():
+		resolved_scope = str(tech_def.get("tree_scope", ""))
+	var tier := clampi(int(tech_def.get("tier", 1)), 1, 5)
+	var planned_gold_cost := 0
+	var planned_food_cost := 0
+	if resolved_scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		match tier:
+			1:
+				planned_gold_cost = 50
+			2:
+				planned_gold_cost = 100
+			3:
+				planned_gold_cost = 180
+			4:
+				planned_gold_cost = 300
+			_:
+				planned_gold_cost = 450
+	elif resolved_scope == DOMESTIC_TECH_SCOPE_CITY:
+		match tier:
+			1:
+				planned_gold_cost = 30
+				planned_food_cost = 20
+			2:
+				planned_gold_cost = 70
+				planned_food_cost = 40
+			3:
+				planned_gold_cost = 130
+				planned_food_cost = 80
+			4:
+				planned_gold_cost = 220
+				planned_food_cost = 140
+			_:
+				planned_gold_cost = 350
+				planned_food_cost = 220
+	return {
+		"planned_gold_cost": planned_gold_cost,
+		"planned_food_cost": planned_food_cost,
+		"planned_labor_cost": 0,
+		"planned_policy_cost": 0,
+		"display_only": true,
+		"cost_charged": false,
+		"cost_charged_on_start": false,
+		"cost_charged_per_turn": false,
+		"cost_blocks_research_start": false,
+	}
+
+
+func _format_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: String = "") -> String:
+	var plan := _get_domestic_tech_research_cost_plan_mvp(tech_def, scope)
+	var parts: Array[String] = []
+	var planned_gold_cost := int(plan.get("planned_gold_cost", 0))
+	var planned_food_cost := int(plan.get("planned_food_cost", 0))
+	var planned_labor_cost := int(plan.get("planned_labor_cost", 0))
+	var planned_policy_cost := int(plan.get("planned_policy_cost", 0))
+	if planned_gold_cost > 0:
+		parts.append("금 %d" % planned_gold_cost)
+	if planned_food_cost > 0:
+		parts.append("식량 %d" % planned_food_cost)
+	if planned_labor_cost > 0:
+		parts.append("노동 %d" % planned_labor_cost)
+	if planned_policy_cost > 0:
+		parts.append("정책 %d" % planned_policy_cost)
+	if parts.is_empty():
+		return "예상 비용: 없음 (표시 전용)"
+	return "예상 비용: %s (표시 전용)" % " / ".join(parts)
 
 
 func _get_domestic_tech_requirement_summary_mvp(tech_def: Dictionary, view_state: Dictionary, _city_id: String = "") -> Array[String]:
@@ -11686,6 +11749,41 @@ func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
 	}
 
 
+func _get_domestic_tech_research_balance_summary_mvp() -> Dictionary:
+	return {
+		"research_balance_planning_enabled": true,
+		"cost_display_only": true,
+		"cost_charged_on_start": false,
+		"cost_charged_per_turn": false,
+		"cost_blocks_research_start": false,
+		"duration_fallback_enabled": true,
+		"national_duration_tier_rule": "tier_based",
+		"city_duration_tier_rule": "tier_based",
+		"active_research_flow_changed": false,
+		"completion_flow_changed": false,
+		"enemy_research_enabled": false,
+		"tier_1_duration": _get_domestic_tech_tier_duration_turns_mvp(1),
+		"tier_2_duration": _get_domestic_tech_tier_duration_turns_mvp(2),
+		"tier_3_duration": _get_domestic_tech_tier_duration_turns_mvp(3),
+		"tier_4_duration": _get_domestic_tech_tier_duration_turns_mvp(4),
+		"tier_5_duration": _get_domestic_tech_tier_duration_turns_mvp(5),
+		"national_tier_counts": _get_domestic_tech_tier_count_summary_mvp(DOMESTIC_TECH_SCOPE_NATIONAL),
+		"city_tier_counts": _get_domestic_tech_tier_count_summary_mvp(DOMESTIC_TECH_SCOPE_CITY),
+	}
+
+
+func _get_domestic_tech_tier_count_summary_mvp(scope: String) -> Dictionary:
+	var definitions := _get_domestic_national_tech_definitions_mvp() if scope == DOMESTIC_TECH_SCOPE_NATIONAL else _get_domestic_city_tech_definitions_mvp()
+	var counts := {}
+	for tech_def_variant in definitions.values():
+		if not tech_def_variant is Dictionary:
+			continue
+		var tier := clampi(int((tech_def_variant as Dictionary).get("tier", 1)), 1, 5)
+		var key := "tier_%d" % tier
+		counts[key] = int(counts.get(key, 0)) + 1
+	return counts
+
+
 func _format_domestic_tech_city_requirement_lines_mvp(tech_def: Dictionary, city_id: String = "") -> Array[String]:
 	var result: Array[String] = []
 	var raw_requirements: Variant = tech_def.get("special_requirements", {})
@@ -11710,6 +11808,8 @@ func _format_domestic_tech_duration_hint_mvp(tech_def: Dictionary) -> String:
 		var min_turns := int((duration_hint as Dictionary).get("min", 0))
 		var max_turns := int((duration_hint as Dictionary).get("max", 0))
 		if min_turns > 0 and max_turns > 0:
+			if min_turns == max_turns:
+				return "%d턴" % min_turns
 			return "%d~%d턴" % [min_turns, max_turns]
 	return str(tech_def.get("duration_class", "표시 전용"))
 
@@ -12686,7 +12786,7 @@ func _normalize_domestic_tech_research_container_mvp(raw_state: Variant, scope: 
 		return normalized
 	if scope == DOMESTIC_TECH_SCOPE_CITY and _is_city_domestic_tech_completed_mvp(city_id, active_tech_id):
 		return normalized
-	var duration_turns := _normalize_domestic_tech_research_turn_value_mvp((active as Dictionary).get("duration_turns", _get_domestic_tech_research_duration_turns_mvp(definition)), _get_domestic_tech_research_duration_turns_mvp(definition), 1)
+	var duration_turns := _normalize_domestic_tech_research_duration_value_mvp((active as Dictionary).get("duration_turns", _get_domestic_tech_research_duration_turns_mvp(definition)), _get_domestic_tech_research_duration_turns_mvp(definition))
 	var remaining_turns := _normalize_domestic_tech_research_turn_value_mvp((active as Dictionary).get("remaining_turns", duration_turns), duration_turns, 0)
 	if remaining_turns <= 0:
 		_mark_domestic_tech_completed_from_normalize_mvp(scope, city_id, active_tech_id)
@@ -12710,6 +12810,18 @@ func _normalize_domestic_tech_research_turn_value_mvp(raw_value: Variant, fallba
 			if value_text.is_valid_int():
 				value = int(value_text)
 	return clampi(value, minimum_value, maxi(minimum_value, fallback_value))
+
+
+func _normalize_domestic_tech_research_duration_value_mvp(raw_value: Variant, fallback_value: int) -> int:
+	var value := fallback_value
+	match typeof(raw_value):
+		TYPE_INT, TYPE_FLOAT:
+			value = int(raw_value)
+		TYPE_STRING:
+			var value_text := str(raw_value).strip_edges()
+			if value_text.is_valid_int():
+				value = int(value_text)
+	return maxi(1, value)
 
 
 func _mark_domestic_tech_completed_from_normalize_mvp(scope: String, city_id: String, tech_id: String) -> void:
@@ -12759,15 +12871,7 @@ func _get_domestic_tech_research_duration_turns_mvp(tech_def: Dictionary) -> int
 		var min_turns := int((duration_hint as Dictionary).get("min", 0))
 		if min_turns > 0:
 			return min_turns
-	match str(tech_def.get("duration_class", "")):
-		"legendary":
-			return 25
-		"advanced":
-			return 15
-		"mid":
-			return 8
-		_:
-			return 3
+	return _get_domestic_tech_tier_duration_turns_mvp(int(tech_def.get("tier", 1)))
 
 
 func _get_national_domestic_tech_active_research_mvp() -> Dictionary:

@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-74 Domestic Tech Cost & Research Balance Planning Lock Rule
+- Baseline is `v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish` (`fd4e6599433904c706a2d6c46f6439f94b0bab90`).
+- v0.70-74 authorizes planning/display preparation only for Domestic Tech research duration, tier balance, and future expected cost display.
+- Domestic Tech duration fallback must remain tier-based unless a future task explicitly changes it: Tier 1 = 2 turns, Tier 2 = 3, Tier 3 = 4, Tier 4 = 5, Tier 5 = 6.
+- Existing active research data must remain compatible. Stored `duration_turns` should not be forcibly reduced by the new fallback, while `remaining_turns` stays bounded within the stored duration.
+- Research cost planning is display-only. Helpers may report planned/expected costs, but `display_only` must remain true and `cost_charged`, `cost_charged_on_start`, `cost_charged_per_turn`, and `cost_blocks_research_start` must remain false.
+- UI cost wording must use `예상 비용` or equivalent planning/display wording and must not present cost as an active requirement or gating condition.
+- Research start/progress/completion flow remains locked: existing eligibility conditions, one national active research, one city active research per PLAYER city, active/completed normalization, `duration_turns`/`remaining_turns` storage, completion mirror, duplicate completion guard, completion message, and refresh behavior must remain intact.
+- Existing Safe Sets remain locked: Economy, Military/Defense, National Policy, Naval/Siege Display, Diplomacy/Spy Display, Full Effect Integration Summary, completed-only, researching no-effect, PLAYER only, same-city only, and bonus non-persistence.
+- This phase does not authorize actual resource payment, cost reservation, refund/cancel flow, cost-based research blocking, paid-cost state, battle modifiers, diplomacy success modifiers, spy success modifiers, relation mutation, city_intel unlocks, market/trade modifiers, AI research, enemy research/effect, troop/ship/siege count mutation, BattleContext changes, pending invasion changes, tech id/name/category/branch/prerequisite changes, or asset/import changes.
+- UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. `assets/ui/tech_icons_ui64/etc/` remains archival and unmapped.
+- Left side remains PLAYER national tech only. Right side remains selected PLAYER city tech only. Enemy, unknown, or insufficient-intel city tech detail and research start/progress/completion must stay blocked under Fog of War / `city_intel` policy.
+- Existing `assets/ui/tech_icons` PNG files, UI64 PNG files, and all `.import` files must not be modified, moved, deleted, regenerated, or reimported by this phase.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish Lock Rule
 - Baseline is `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass` (`6c74bc5c9ddfdebb1aef7ebf63b60ec78fa94a9f`).
 - v0.70-73-hotfix1 authorizes final manual QA support polish only for existing Domestic Tech first-pass effect display, source display, zero/empty hiding, completion refresh, economy display consistency, and QA summary flags.

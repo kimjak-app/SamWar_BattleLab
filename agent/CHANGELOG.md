@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-74 Domestic Tech Cost & Research Balance Planning
+- Built on `v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish` (`fd4e6599433904c706a2d6c46f6439f94b0bab90`).
+- Added tier-based Domestic Tech duration planning for new research: Tier 1 = 2 turns, Tier 2 = 3, Tier 3 = 4, Tier 4 = 5, Tier 5 = 6.
+- Preserved existing active research compatibility by keeping stored `duration_turns` values when they are above the new fallback and clamping `remaining_turns` within that stored duration.
+- Added display-only research cost planning helper with planned national/city costs and all cost application/blocking flags set false.
+- Updated Domestic Tech inspector display to show `연구 소요` plus `예상 비용 ... (표시 전용)` instead of presenting cost as an active requirement.
+- Added `_get_domestic_tech_research_balance_summary_mvp()` for no-spam QA confirmation of duration rules, display-only cost planning, unchanged research flow, and enemy research disabled.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement actual research cost application, cost-based research blocking, paid-cost state, battle modifiers, diplomacy success modifiers, spy success modifiers, relation mutation, city_intel visibility changes, market/trade modifiers, AI behavior, enemy research/effects, troop/ship/siege count mutation, BattleContext changes, pending invasion changes, tech id/name/category/branch/prerequisite changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish
 - Built on `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass` (`6c74bc5c9ddfdebb1aef7ebf63b60ec78fa94a9f`).
 - Added a shared compact source-tech display helper with unique source names, empty-source hiding, and `외 N개` overflow.

@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-74 Domestic Tech Cost & Research Balance Planning
+- Baseline: `v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish` (`fd4e6599433904c706a2d6c46f6439f94b0bab90`).
+- Completed direction:
+  1. Reviewed Domestic Tech duration flow from definitions through duration hints, research start, active research storage, normalization, and completion.
+  2. Replaced class-based duration hints for new Domestic Tech research with tier-based planning: Tier 1 = 2 turns through Tier 5 = 6 turns.
+  3. Preserved existing active research data by allowing stored `duration_turns` values to remain above the new fallback while keeping `remaining_turns` bounded.
+  4. Added display-only expected cost planning helper and inspector text using `예상 비용 ... (표시 전용)`.
+  5. Added a research balance summary helper with `cost_charged_on_start = false`, `cost_charged_per_turn = false`, `cost_blocks_research_start = false`, unchanged research flow flags, and enemy research disabled.
+- Preserved scope:
+  1. No actual research cost application, cost-based research blocking, paid-cost state, battle/diplomacy/spy/market/city_intel/AI mutation, enemy research/effect, troop/ship/siege count mutation, BattleContext/pending invasion, tech id/name/category/branch/prerequisite, asset, icon, UI64, or `.import` change was made.
+  2. Economy Safe Set, military/defense Safe Set, national policy Safe Set, naval/siege Display Safe Set, diplomacy/spy Display Safe Set, Full Effect Integration Summary, completed-only, researching no-effect, PLAYER-only, same-city-only, enemy/unknown no-display, click latency, overlay lifecycle, and research start/progress/completion remain locked.
+- Next candidates:
+  1. `v0.70-74-hotfix1 Cost & Research Balance QA Polish`.
+  2. `v0.70-75 Research Cost Display Safe Set`.
+- Manual F6 QA required:
+  1. Check duration display, remaining turns, expected cost display, no resource deduction, no cost gating, research flow, Safe Set preservation, enemy no research/effect, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish
 - Baseline: `v0.70-73 Domestic Tech Full Effect Integration QA & Balance Pass` (`6c74bc5c9ddfdebb1aef7ebf63b60ec78fa94a9f`).
 - Completed direction:
