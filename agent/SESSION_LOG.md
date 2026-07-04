@@ -2,6 +2,18 @@
 
 ## 2026-07-04
 
+### v0.70-74-hotfix1 Cost & Research Balance QA Polish
+- Started from local `7793082 v0.70-74 Domestic Tech Cost & Research Balance Planning`; `origin/main` was `6c74bc5`, so local was ahead by Domestic Tech commits and the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - State-specific Domestic Tech inspector display for completed, researching, available, and locked/blocked research states.
+  - Compact `예상 비용 ... · 표시 전용` wording for available techs only.
+  - Cost plan and balance summary flags confirming no start, per-turn, completion, blocking, or paid-state cost behavior.
+  - Active research duration normalization guard so existing positive remaining turns are not shortened by missing/malformed duration data.
+  - Explicit positive `duration_turns` support before duration hint and tier fallback.
+- Preserved no actual research cost application, no cost-based research blocking, no paid-cost state, no reservation/refund/cancel flow, no battle/diplomacy/spy/market/city_intel/AI mutation, no enemy research/effect, no troop/ship/siege count mutation, no BattleContext/pending invasion change, no tech id/name/category/branch/prerequisite change, no asset/icon/UI64/import change, and all current Safe Set locks.
+- Manual F6 QA remains required for duration display, remaining turns, expected cost display-only wording, no resource deduction, no cost gating, active research compatibility, research flow, Safe Set preservation, enemy no research/effect, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-74 Domestic Tech Cost & Research Balance Planning
 - Started from local `fd4e659 v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish`; `origin/main` was `6c74bc5`, so local was ahead by the hotfix commit and the working tree was clean.
 - Required workflow/worldmap docs were read before runtime changes.

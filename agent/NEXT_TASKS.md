@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-74-hotfix1 Cost & Research Balance QA Polish
+- Baseline: `v0.70-74 Domestic Tech Cost & Research Balance Planning` (`7793082118f6924349e534cc68b9376018421e1f`).
+- Completed direction:
+  1. Polished expected cost wording so Domestic Tech inspector uses compact display-only copy only where useful.
+  2. Split research display by state: completed, researching, available, and locked/blocked.
+  3. Added cost safety summary flags for completion-time cost application and paid-cost persistence.
+  4. Strengthened active research duration compatibility so existing positive `remaining_turns` is not shortened by missing/malformed duration data plus the new tier fallback.
+  5. Preserved explicit positive `duration_turns` support before duration hint and tier fallback.
+- Preserved scope:
+  1. No actual cost application, cost-based gating, paid-cost state, reservation/refund/cancel system, battle/diplomacy/spy/market/city_intel/AI mutation, enemy research/effect, troop/ship/siege count mutation, BattleContext/pending invasion, tech id/name/category/branch/prerequisite, asset, icon, UI64, or `.import` change was made.
+  2. Research start/progress/completion, one national active, one city active per PLAYER city, duplicate completion guard, all Domestic Tech Safe Sets, Full Effect Integration Summary, completed-only, researching no-effect, PLAYER-only, same-city-only, enemy/unknown no-display, click latency, and overlay lifecycle remain locked.
+- Next candidates:
+  1. `v0.70-75 Research Cost Display Safe Set`.
+  2. `v0.70-75 Domestic Tech Manual QA Scenario Pack`.
+- Manual F6 QA required:
+  1. Check duration display, remaining turns, expected cost display-only wording, no resource deduction, no cost gating, active research compatibility, research flow, Safe Set preservation, enemy no research/effect, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-74 Domestic Tech Cost & Research Balance Planning
 - Baseline: `v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish` (`fd4e6599433904c706a2d6c46f6439f94b0bab90`).
 - Completed direction:

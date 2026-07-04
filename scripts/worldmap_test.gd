@@ -10995,8 +10995,8 @@ func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dic
 		var diplomacy_spy_bonus_display := _format_domestic_tech_diplomacy_spy_bonus_lines_mvp()
 		if not diplomacy_spy_bonus_display.is_empty():
 			lines.append("적용 중인 외교/첩보 준비:\n- %s" % "\n- ".join(diplomacy_spy_bonus_display))
-	lines.append("연구 소요: %s" % _format_domestic_tech_duration_hint_mvp(tech_def))
-	lines.append(_format_domestic_tech_research_cost_plan_mvp(tech_def, scope))
+	for plan_line in _format_domestic_tech_research_plan_lines_mvp(tech_def, view_state, scope):
+		lines.append(plan_line)
 	var conditions := _get_domestic_tech_readiness_condition_lines_mvp(tech_def, view_state, city_id)
 	if not conditions.is_empty():
 		lines.append("조건 충족 여부:\n- %s" % "\n- ".join(conditions))
@@ -11059,8 +11059,27 @@ func _get_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: Stri
 		"cost_charged": false,
 		"cost_charged_on_start": false,
 		"cost_charged_per_turn": false,
+		"cost_charged_on_completion": false,
 		"cost_blocks_research_start": false,
+		"paid_cost_state_persisted": false,
 	}
+
+
+func _format_domestic_tech_research_plan_lines_mvp(tech_def: Dictionary, view_state: Dictionary, scope: String = "") -> Array[String]:
+	var state_id := str(view_state.get("state", DOMESTIC_TECH_VIEW_LOCKED))
+	var duration_text := _format_domestic_tech_duration_hint_mvp(tech_def)
+	match state_id:
+		DOMESTIC_TECH_VIEW_COMPLETED:
+			return ["연구 상태: 완료됨"]
+		DOMESTIC_TECH_VIEW_RESEARCHING:
+			var active_research: Dictionary = view_state.get("active_research", {}) if view_state.get("active_research", {}) is Dictionary else {}
+			var remaining_turns := maxi(1, int(active_research.get("remaining_turns", active_research.get("duration_turns", 1))))
+			var duration_turns := maxi(remaining_turns, int(active_research.get("duration_turns", remaining_turns)))
+			return ["연구 진행: 남은 %d턴 / 전체 %d턴" % [remaining_turns, duration_turns]]
+		DOMESTIC_TECH_VIEW_AVAILABLE:
+			return ["연구 소요 %s / %s" % [duration_text, _format_domestic_tech_research_cost_plan_mvp(tech_def, scope)]]
+		_:
+			return ["연구 소요: %s" % duration_text]
 
 
 func _format_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: String = "") -> String:
@@ -11079,8 +11098,8 @@ func _format_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: S
 	if planned_policy_cost > 0:
 		parts.append("정책 %d" % planned_policy_cost)
 	if parts.is_empty():
-		return "예상 비용: 없음 (표시 전용)"
-	return "예상 비용: %s (표시 전용)" % " / ".join(parts)
+		return "예상 비용 없음 · 표시 전용"
+	return "예상 비용 %s · 표시 전용" % " / ".join(parts)
 
 
 func _get_domestic_tech_requirement_summary_mvp(tech_def: Dictionary, view_state: Dictionary, _city_id: String = "") -> Array[String]:
@@ -11753,12 +11772,17 @@ func _get_domestic_tech_research_balance_summary_mvp() -> Dictionary:
 	return {
 		"research_balance_planning_enabled": true,
 		"cost_display_only": true,
+		"cost_charged": false,
 		"cost_charged_on_start": false,
 		"cost_charged_per_turn": false,
+		"cost_charged_on_completion": false,
 		"cost_blocks_research_start": false,
+		"paid_cost_state_persisted": false,
 		"duration_fallback_enabled": true,
+		"duration_fallback_applies_to_new_research": true,
 		"national_duration_tier_rule": "tier_based",
 		"city_duration_tier_rule": "tier_based",
+		"active_research_duration_force_rewritten": false,
 		"active_research_flow_changed": false,
 		"completion_flow_changed": false,
 		"enemy_research_enabled": false,
@@ -12786,7 +12810,11 @@ func _normalize_domestic_tech_research_container_mvp(raw_state: Variant, scope: 
 		return normalized
 	if scope == DOMESTIC_TECH_SCOPE_CITY and _is_city_domestic_tech_completed_mvp(city_id, active_tech_id):
 		return normalized
-	var duration_turns := _normalize_domestic_tech_research_duration_value_mvp((active as Dictionary).get("duration_turns", _get_domestic_tech_research_duration_turns_mvp(definition)), _get_domestic_tech_research_duration_turns_mvp(definition))
+	var duration_turns := _normalize_domestic_tech_research_duration_value_mvp(
+		(active as Dictionary).get("duration_turns", _get_domestic_tech_research_duration_turns_mvp(definition)),
+		_get_domestic_tech_research_duration_turns_mvp(definition),
+		(active as Dictionary).get("remaining_turns", 0)
+	)
 	var remaining_turns := _normalize_domestic_tech_research_turn_value_mvp((active as Dictionary).get("remaining_turns", duration_turns), duration_turns, 0)
 	if remaining_turns <= 0:
 		_mark_domestic_tech_completed_from_normalize_mvp(scope, city_id, active_tech_id)
@@ -12812,16 +12840,33 @@ func _normalize_domestic_tech_research_turn_value_mvp(raw_value: Variant, fallba
 	return clampi(value, minimum_value, maxi(minimum_value, fallback_value))
 
 
-func _normalize_domestic_tech_research_duration_value_mvp(raw_value: Variant, fallback_value: int) -> int:
+func _normalize_domestic_tech_research_duration_value_mvp(raw_value: Variant, fallback_value: int, raw_remaining_value: Variant = 0) -> int:
 	var value := fallback_value
+	var has_value := false
 	match typeof(raw_value):
 		TYPE_INT, TYPE_FLOAT:
 			value = int(raw_value)
+			has_value = true
 		TYPE_STRING:
 			var value_text := str(raw_value).strip_edges()
 			if value_text.is_valid_int():
 				value = int(value_text)
-	return maxi(1, value)
+				has_value = true
+	if has_value and value > 0:
+		return value
+	var remaining_value := _parse_positive_domestic_tech_research_turn_value_mvp(raw_remaining_value)
+	return maxi(maxi(1, fallback_value), remaining_value)
+
+
+func _parse_positive_domestic_tech_research_turn_value_mvp(raw_value: Variant) -> int:
+	match typeof(raw_value):
+		TYPE_INT, TYPE_FLOAT:
+			return maxi(0, int(raw_value))
+		TYPE_STRING:
+			var value_text := str(raw_value).strip_edges()
+			if value_text.is_valid_int():
+				return maxi(0, int(value_text))
+	return 0
 
 
 func _mark_domestic_tech_completed_from_normalize_mvp(scope: String, city_id: String, tech_id: String) -> void:
@@ -12866,6 +12911,10 @@ func _get_current_world_turn_number_mvp() -> int:
 
 
 func _get_domestic_tech_research_duration_turns_mvp(tech_def: Dictionary) -> int:
+	if tech_def.has("duration_turns"):
+		var explicit_duration := _parse_positive_domestic_tech_research_turn_value_mvp(tech_def.get("duration_turns", 0))
+		if explicit_duration > 0:
+			return explicit_duration
 	var duration_hint: Variant = tech_def.get("duration_turns_hint", {})
 	if duration_hint is Dictionary:
 		var min_turns := int((duration_hint as Dictionary).get("min", 0))

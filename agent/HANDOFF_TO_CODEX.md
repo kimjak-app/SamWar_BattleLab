@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.70-74-hotfix1 Cost & Research Balance QA Polish Handoff
+- Baseline: `v0.70-74 Domestic Tech Cost & Research Balance Planning` (`7793082118f6924349e534cc68b9376018421e1f`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This hotfix tightens QA safety around Domestic Tech duration and expected-cost display. It still does not implement resource payment, cost reservation, refund/cancel flow, paid-cost state, or cost-based research blocking.
+- Domestic Tech inspector display is now state-specific: completed shows completion status without expected cost, researching shows remaining/total turns first, available shows `연구 소요 ... / 예상 비용 ... · 표시 전용`, and locked/blocked states show duration without cost-gating copy.
+- `_get_domestic_tech_research_cost_plan_mvp()` keeps costs display-only and now also reports completion-time and paid-state persistence flags as false.
+- `_get_domestic_tech_research_balance_summary_mvp()` now reports `cost_charged`, `cost_charged_on_completion`, `paid_cost_state_persisted`, `duration_fallback_applies_to_new_research`, and `active_research_duration_force_rewritten = false`.
+- Active research normalization now preserves an existing positive `remaining_turns` when stored `duration_turns` is missing or malformed, instead of shrinking it to the new tier fallback. Positive explicit `duration_turns` in a tech definition is honored before duration hint and tier fallback.
+- Explicitly unchanged: research start conditions, active slot limits, remaining-turn progress, completion mirror, duplicate completion guard, Safe Set effects, actual battle modifiers, diplomacy success formulas, spy success formulas, relation mutation, city_intel visibility, market/trade formulas, AI behavior, enemy research/effect, troop/ship/siege count mutation, BattleContext, pending invasion, tech ids/names/categories/branches/prerequisites, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Next candidates: `v0.70-75 Research Cost Display Safe Set` or `v0.70-75 Domestic Tech Manual QA Scenario Pack`.
+- Manual F6 QA remains required for duration display, remaining turns, expected cost display-only wording, no resource deduction, no cost gating, active research compatibility, research flow, Safe Set preservation, enemy no research/effect, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-74 Domestic Tech Cost & Research Balance Planning Handoff
 - Baseline: `v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish` (`fd4e6599433904c706a2d6c46f6439f94b0bab90`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

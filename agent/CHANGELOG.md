@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-74-hotfix1 Cost & Research Balance QA Polish
+- Built on `v0.70-74 Domestic Tech Cost & Research Balance Planning` (`7793082118f6924349e534cc68b9376018421e1f`).
+- Polished Domestic Tech inspector research display by state: completed hides expected cost, researching prioritizes remaining/total turns, available shows compact display-only expected cost, and locked/blocked states avoid cost-gating copy.
+- Added cost safety flags for completion-time cost application and paid-state persistence to the cost plan and research balance summary helpers.
+- Strengthened active research duration compatibility so missing/malformed stored duration cannot shorten an existing positive `remaining_turns` under the new tier fallback.
+- Honored explicit positive `duration_turns` on a tech definition before using duration hint and tier fallback.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement actual research cost application, cost-based research blocking, paid-cost state, reservation/refund/cancel flow, battle modifiers, diplomacy success modifiers, spy success modifiers, relation mutation, city_intel visibility changes, market/trade modifiers, AI behavior, enemy research/effects, troop/ship/siege count mutation, BattleContext changes, pending invasion changes, tech id/name/category/branch/prerequisite changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-74 Domestic Tech Cost & Research Balance Planning
 - Built on `v0.70-73-hotfix1 Domestic Tech Final Manual QA Polish` (`fd4e6599433904c706a2d6c46f6439f94b0bab90`).
 - Added tier-based Domestic Tech duration planning for new research: Tier 1 = 2 turns, Tier 2 = 3, Tier 3 = 4, Tier 4 = 5, Tier 5 = 6.
