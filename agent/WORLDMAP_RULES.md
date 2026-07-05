@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-75-hotfix1 Cost Display QA Polish Lock Rule
+- Baseline is `v0.70-75 Research Cost Display Safe Set` (`8b29e26f0aa304fcd2ad39ae805e2d719fd81b0a`).
+- v0.70-75-hotfix1 authorizes final Domestic Tech expected-cost display QA polish only: formatter guard cleanup, state-specific display confirmation, cost display summary flags, and research balance summary consistency.
+- Research cost remains display-only. UI copy may show `예상 비용` / `표시 전용`, but must not present cost as a requirement, payment, shortage, consumed value, disabled reason, reservation, refund, affordability check, or paid state.
+- Cost display formatter must hide zero, negative, missing, and malformed resource values and display non-zero values in gold / food / labor / policy order using `금`, `군량`, `노역`, and `정책`.
+- National and city cost display standards remain separated by scope and tier. This hotfix does not authorize cost value rebalance or tech definition changes.
+- Completed techs should not over-display expected cost. Researching techs must prioritize remaining/total turn display. Available techs may show duration plus expected cost. Locked/blocked techs must not imply cost shortage.
+- Cost helpers and QA summaries must keep `display_only` or `cost_display_only` true and keep `cost_charged`, `cost_charged_on_start`, `cost_charged_per_turn`, `cost_charged_on_completion`, `cost_blocks_research_start`, `paid_cost_state_persisted`, and `cost_affordability_checked` false.
+- Research start/progress/completion flow remains locked: existing eligibility conditions, one national active research, one city active research per PLAYER city, active/completed normalization, completion mirror, duplicate completion guard, completion message, and refresh behavior must remain intact.
+- Existing Safe Sets remain locked: Economy, Military/Defense, National Policy, Naval/Siege Display, Diplomacy/Spy Display, Full Effect Integration Summary, completed-only, researching no-effect, PLAYER only, same-city only, and bonus non-persistence.
+- This hotfix does not authorize actual resource payment, cost reservation, refund/cancel flow, cost-based research blocking, paid-cost state, affordability checks, battle modifiers, diplomacy success modifiers, spy success modifiers, relation mutation, city_intel unlocks, market/trade modifiers, AI research, enemy research/effect, troop/ship/siege count mutation, BattleContext changes, pending invasion changes, tech id/name/category/branch/prerequisite changes, or asset/import changes.
+- UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. Existing icon assets and all `.import` files must not be modified.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-75 Research Cost Display Safe Set Lock Rule
 - Baseline is `v0.70-74-hotfix1 Cost & Research Balance QA Polish` (`1c96397956f164ef9bc41a3c7c0d5bcff0caf6e5`).
 - v0.70-75 authorizes Domestic Tech expected-cost display cleanup only: formatter, national/city display separation, state-specific inspector copy, and QA summary flags.

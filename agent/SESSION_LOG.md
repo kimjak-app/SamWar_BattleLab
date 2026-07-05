@@ -2,6 +2,18 @@
 
 ## 2026-07-05
 
+### v0.70-75-hotfix1 Cost Display QA Polish
+- Started from local `8b29e26 v0.70-75 Research Cost Display Safe Set`; `origin/main` was `6c74bc5`, so local was ahead by Domestic Tech commits and the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - Expected-cost formatter guard for negative or malformed planned cost values.
+  - Preserved compact display-only cost copy and `금` / `군량` / `노역` / `정책` ordering.
+  - Reconfirmed state-specific cost display rules without adding cost-shortage or payment wording.
+  - Cost display QA summary flags for state-specific display and explicit no-charge behavior.
+  - Research balance summary consistency with no charge, no gating, no paid state, no affordability check, unchanged research flow, and enemy research disabled.
+- Preserved no actual research cost application, no cost-based research blocking, no affordability check, no paid-cost state, no reservation/refund/cancel flow, no battle/diplomacy/spy/market/city_intel/AI mutation, no enemy research/effect, no troop/ship/siege count mutation, no BattleContext/pending invasion change, no tech id/name/category/branch/prerequisite change, no asset/icon/UI64/import change, and all current Safe Set locks.
+- Manual F6 QA remains required for national/city cost display, expected-cost display-only wording, state-specific display, no resource deduction, no cost gating, no affordability check, research flow, Safe Set preservation, enemy no research/effect, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ### v0.70-75 Research Cost Display Safe Set
 - Started from local `1c96397 v0.70-74-hotfix1 Cost & Research Balance QA Polish`; `origin/main` was `6c74bc5`, so local was ahead by Domestic Tech commits and the working tree was clean.
 - Required workflow/worldmap docs were read before runtime changes.

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-75-hotfix1 Cost Display QA Polish
+- Built on `v0.70-75 Research Cost Display Safe Set` (`8b29e26f0aa304fcd2ad39ae805e2d719fd81b0a`).
+- Hardened `_format_domestic_tech_research_cost_display_mvp()` so negative or malformed planned resource values are clamped out of visible cost display.
+- Preserved compact display-only wording as `예상 비용 ... · 표시 전용` and kept resource order/labels as `금`, `군량`, `노역`, and `정책`.
+- Kept state-specific Domestic Tech inspector display unchanged in behavior: completed hides cost, researching prioritizes turns, available shows duration plus expected cost, and locked/blocked states avoid cost-shortage copy.
+- Added `state_specific_cost_display = true` and explicit `cost_charged = false` to `_get_domestic_tech_research_cost_display_summary_mvp()`.
+- Kept research balance summary aligned with display-only, no charge, no gating, no paid state, no affordability check, unchanged active/completion flow, and enemy research disabled.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement actual research cost application, cost-based research blocking, affordability checks, paid-cost state, reservation/refund/cancel flow, battle modifiers, diplomacy success modifiers, spy success modifiers, relation mutation, city_intel visibility changes, market/trade modifiers, AI behavior, enemy research/effects, troop/ship/siege count mutation, BattleContext changes, pending invasion changes, tech id/name/category/branch/prerequisite changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-75 Research Cost Display Safe Set
 - Built on `v0.70-74-hotfix1 Cost & Research Balance QA Polish` (`1c96397956f164ef9bc41a3c7c0d5bcff0caf6e5`).
 - Added `_format_domestic_tech_research_cost_display_mvp()` to unify Domestic Tech expected-cost display formatting.

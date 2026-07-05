@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.70-75-hotfix1 Cost Display QA Polish Handoff
+- Baseline: `v0.70-75 Research Cost Display Safe Set` (`8b29e26f0aa304fcd2ad39ae805e2d719fd81b0a`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This hotfix is final QA polish for Domestic Tech expected-cost display only. It does not implement resource payment, cost reservation, refund/cancel flow, paid-cost state, affordability checks, or cost-based research blocking.
+- `_format_domestic_tech_research_cost_display_mvp()` now clamps planned display values to zero-or-positive before formatting, so zero, negative, missing, or malformed display values do not show misleading resource rows.
+- Expected-cost copy remains compact and display-only: `예상 비용 ... · 표시 전용`, ordered as `금`, `군량`, `노역`, and `정책`.
+- `_get_domestic_tech_research_cost_display_summary_mvp()` now reports `state_specific_cost_display = true` and explicit `cost_charged = false` alongside no start/per-turn/completion charge, no blocking, no paid-state persistence, no affordability check, and no enemy research cost.
+- `_get_domestic_tech_research_balance_summary_mvp()` remains aligned with no-cost/no-gating flags and unchanged active/completion flow.
+- Explicitly unchanged: research start conditions, active slot limits, remaining-turn progress, completion mirror, duplicate completion guard, Safe Set effects, actual battle modifiers, diplomacy success formulas, spy success formulas, relation mutation, city_intel visibility, market/trade formulas, AI behavior, enemy research/effect, troop/ship/siege count mutation, BattleContext, pending invasion, tech ids/names/categories/branches/prerequisites, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Next candidates: `v0.70-76 Domestic Tech Manual QA Scenario Pack` or `v0.70-76 Research Cost Actual Charge Design Draft`.
+- Manual F6 QA remains required for national/city cost display, expected-cost display-only wording, state-specific display, no resource deduction, no cost gating, no affordability check, research flow, Safe Set preservation, enemy no research/effect, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-75 Research Cost Display Safe Set Handoff
 - Baseline: `v0.70-74-hotfix1 Cost & Research Balance QA Polish` (`1c96397956f164ef9bc41a3c7c0d5bcff0caf6e5`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

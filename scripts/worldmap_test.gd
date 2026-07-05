@@ -11089,10 +11089,10 @@ func _format_domestic_tech_research_plan_lines_mvp(tech_def: Dictionary, view_st
 
 func _format_domestic_tech_research_cost_display_mvp(cost_plan: Dictionary) -> String:
 	var parts: Array[String] = []
-	var planned_gold_cost := int(cost_plan.get("planned_gold_cost", 0))
-	var planned_food_cost := int(cost_plan.get("planned_food_cost", 0))
-	var planned_labor_cost := int(cost_plan.get("planned_labor_cost", 0))
-	var planned_policy_cost := int(cost_plan.get("planned_policy_cost", 0))
+	var planned_gold_cost := maxi(0, int(cost_plan.get("planned_gold_cost", 0)))
+	var planned_food_cost := maxi(0, int(cost_plan.get("planned_food_cost", 0)))
+	var planned_labor_cost := maxi(0, int(cost_plan.get("planned_labor_cost", 0)))
+	var planned_policy_cost := maxi(0, int(cost_plan.get("planned_policy_cost", 0)))
 	if planned_gold_cost > 0:
 		parts.append("금 %d" % planned_gold_cost)
 	if planned_food_cost > 0:
@@ -11812,7 +11812,9 @@ func _get_domestic_tech_research_cost_display_summary_mvp() -> Dictionary:
 		"city_cost_display_enabled": true,
 		"cost_display_only": true,
 		"cost_formatter_enabled": true,
+		"state_specific_cost_display": true,
 		"zero_cost_hidden_or_marked_display_only": true,
+		"cost_charged": false,
 		"cost_charged_on_start": false,
 		"cost_charged_per_turn": false,
 		"cost_charged_on_completion": false,

@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-75-hotfix1 Cost Display QA Polish
+- Baseline: `v0.70-75 Research Cost Display Safe Set` (`8b29e26f0aa304fcd2ad39ae805e2d719fd81b0a`).
+- Completed direction:
+  1. Polished expected-cost formatter guards so malformed or negative planned values do not create visible resource cost rows.
+  2. Kept national/city cost display standards and compact `예상 비용 ... · 표시 전용` wording intact.
+  3. Confirmed state-specific display remains completed/researching/available/locked without cost-shortage copy.
+  4. Strengthened cost display summary flags with state-specific display and explicit no-charge reporting.
+  5. Preserved research balance summary consistency for no charge, no gating, no paid state, no affordability check, and no enemy research.
+- Preserved scope:
+  1. No actual cost application, cost-based gating, affordability check, paid-cost state, reservation/refund/cancel system, battle/diplomacy/spy/market/city_intel/AI mutation, enemy research/effect, troop/ship/siege count mutation, BattleContext/pending invasion, tech id/name/category/branch/prerequisite, asset, icon, UI64, or `.import` change was made.
+  2. Research start/progress/completion, one national active, one city active per PLAYER city, duplicate completion guard, all Domestic Tech Safe Sets, Full Effect Integration Summary, completed-only, researching no-effect, PLAYER-only, same-city-only, enemy/unknown no-display, click latency, and overlay lifecycle remain locked.
+- Next candidates:
+  1. `v0.70-76 Domestic Tech Manual QA Scenario Pack`.
+  2. `v0.70-76 Research Cost Actual Charge Design Draft`.
+- Manual F6 QA required:
+  1. Check national/city cost display, expected-cost display-only wording, state-specific display, no resource deduction, no cost gating, no affordability check, research flow, Safe Set preservation, enemy no research/effect, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-75 Research Cost Display Safe Set
 - Baseline: `v0.70-74-hotfix1 Cost & Research Balance QA Polish` (`1c96397956f164ef9bc41a3c7c0d5bcff0caf6e5`).
 - Completed direction:
