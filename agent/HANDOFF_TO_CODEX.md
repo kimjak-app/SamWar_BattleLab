@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.70-75 Research Cost Display Safe Set Handoff
+- Baseline: `v0.70-74-hotfix1 Cost & Research Balance QA Polish` (`1c96397956f164ef9bc41a3c7c0d5bcff0caf6e5`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass standardizes Domestic Tech expected-cost display only. It does not implement resource payment, cost reservation, refund/cancel flow, paid-cost state, affordability checks, or cost-based research blocking.
+- `_format_domestic_tech_research_cost_display_mvp()` is the shared formatter for planned research costs. It hides zero-value resources, displays in gold / food / labor / policy order, and uses `예상 비용 ... · 표시 전용` copy.
+- `_get_domestic_tech_research_cost_plan_mvp()` keeps scope-separated standards: national tech uses gold-only tier costs and city tech uses gold/food tier costs. Its safety flags keep display-only, no charge, no blocking, no paid-state persistence, and no affordability check.
+- Domestic Tech inspector display is state-specific: completed shows `상태: 완료됨`, researching shows remaining/total turns first, available shows status, duration, and expected cost, and locked states show condition/duration without cost-shortage wording.
+- `_get_domestic_tech_research_cost_display_summary_mvp()` was added for QA and `_get_domestic_tech_research_balance_summary_mvp()` remains aligned with no-cost/no-gating flags.
+- Explicitly unchanged: research start conditions, active slot limits, remaining-turn progress, completion mirror, duplicate completion guard, Safe Set effects, actual battle modifiers, diplomacy success formulas, spy success formulas, relation mutation, city_intel visibility, market/trade formulas, AI behavior, enemy research/effect, troop/ship/siege count mutation, BattleContext, pending invasion, tech ids/names/categories/branches/prerequisites, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Next candidates: `v0.70-75-hotfix1 Cost Display QA Polish` or `v0.70-76 Domestic Tech Manual QA Scenario Pack`.
+- Manual F6 QA remains required for national/city cost display, expected-cost display-only wording, state-specific display, no resource deduction, no cost gating, research flow, Safe Set preservation, enemy no research/effect, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## v0.70-74-hotfix1 Cost & Research Balance QA Polish Handoff
 - Baseline: `v0.70-74 Domestic Tech Cost & Research Balance Planning` (`7793082118f6924349e534cc68b9376018421e1f`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

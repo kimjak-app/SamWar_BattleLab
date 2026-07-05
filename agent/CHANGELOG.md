@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-75 Research Cost Display Safe Set
+- Built on `v0.70-74-hotfix1 Cost & Research Balance QA Polish` (`1c96397956f164ef9bc41a3c7c0d5bcff0caf6e5`).
+- Added `_format_domestic_tech_research_cost_display_mvp()` to unify Domestic Tech expected-cost display formatting.
+- Kept national and city expected-cost display separated by scope and tier, with national gold-only values and city gold/food values.
+- Standardized display order and labels for gold/food/labor/policy as `금` / `군량` / `노역` / `정책`; zero values are hidden and zero-cost output remains marked display-only.
+- Tightened Domestic Tech inspector research lines by state: completed hides cost, researching prioritizes remaining/total turns, available shows duration plus expected cost, and locked/blocked states avoid cost-shortage copy.
+- Added `_get_domestic_tech_research_cost_display_summary_mvp()` and aligned research balance summary flags for display-only, no charge, no start blocking, no paid state, and no affordability check.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement actual research cost application, cost-based research blocking, paid-cost state, reservation/refund/cancel flow, battle modifiers, diplomacy success modifiers, spy success modifiers, relation mutation, city_intel visibility changes, market/trade modifiers, AI behavior, enemy research/effects, troop/ship/siege count mutation, BattleContext changes, pending invasion changes, tech id/name/category/branch/prerequisite changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-74-hotfix1 Cost & Research Balance QA Polish
 - Built on `v0.70-74 Domestic Tech Cost & Research Balance Planning` (`7793082118f6924349e534cc68b9376018421e1f`).
 - Polished Domestic Tech inspector research display by state: completed hides expected cost, researching prioritizes remaining/total turns, available shows compact display-only expected cost, and locked/blocked states avoid cost-gating copy.

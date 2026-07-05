@@ -1,5 +1,19 @@
 # SESSION LOG
 
+## 2026-07-05
+
+### v0.70-75 Research Cost Display Safe Set
+- Started from local `1c96397 v0.70-74-hotfix1 Cost & Research Balance QA Polish`; `origin/main` was `6c74bc5`, so local was ahead by Domestic Tech commits and the working tree was clean.
+- Required workflow/worldmap docs were read before runtime changes.
+- Implemented:
+  - Common Domestic Tech research cost display formatter for planned gold/food/labor/policy output.
+  - National/city scope-separated expected-cost display standards by tier.
+  - Unified display labels/order: `금`, `군량`, `노역`, and `정책`, with zero values hidden and display-only copy retained.
+  - State-specific Domestic Tech inspector lines for completed, researching, available, and locked/blocked states.
+  - Research cost display QA summary helper plus balance summary alignment for no charge, no blocking, no paid state, and no affordability check.
+- Preserved no actual research cost application, no cost-based research blocking, no paid-cost state, no reservation/refund/cancel flow, no battle/diplomacy/spy/market/city_intel/AI mutation, no enemy research/effect, no troop/ship/siege count mutation, no BattleContext/pending invasion change, no tech id/name/category/branch/prerequisite change, no asset/icon/UI64/import change, and all current Safe Set locks.
+- Manual F6 QA remains required for national/city cost display, expected-cost display-only wording, state-specific display, no resource deduction, no cost gating, research flow, Safe Set preservation, enemy no research/effect, icon visibility, click latency, overlay lifecycle, and warning cleanliness.
+
 ## 2026-07-04
 
 ### v0.70-74-hotfix1 Cost & Research Balance QA Polish

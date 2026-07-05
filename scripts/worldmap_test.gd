@@ -11062,6 +11062,7 @@ func _get_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: Stri
 		"cost_charged_on_completion": false,
 		"cost_blocks_research_start": false,
 		"paid_cost_state_persisted": false,
+		"cost_affordability_checked": false,
 	}
 
 
@@ -11070,36 +11071,43 @@ func _format_domestic_tech_research_plan_lines_mvp(tech_def: Dictionary, view_st
 	var duration_text := _format_domestic_tech_duration_hint_mvp(tech_def)
 	match state_id:
 		DOMESTIC_TECH_VIEW_COMPLETED:
-			return ["연구 상태: 완료됨"]
+			return ["상태: 완료됨"]
 		DOMESTIC_TECH_VIEW_RESEARCHING:
 			var active_research: Dictionary = view_state.get("active_research", {}) if view_state.get("active_research", {}) is Dictionary else {}
 			var remaining_turns := maxi(1, int(active_research.get("remaining_turns", active_research.get("duration_turns", 1))))
 			var duration_turns := maxi(remaining_turns, int(active_research.get("duration_turns", remaining_turns)))
-			return ["연구 진행: 남은 %d턴 / 전체 %d턴" % [remaining_turns, duration_turns]]
+			return ["상태: 연구 중", "남은 턴: %d / 총 %d턴" % [remaining_turns, duration_turns]]
 		DOMESTIC_TECH_VIEW_AVAILABLE:
-			return ["연구 소요 %s / %s" % [duration_text, _format_domestic_tech_research_cost_plan_mvp(tech_def, scope)]]
+			return [
+				"상태: 연구 가능",
+				"연구 소요: %s" % duration_text,
+				_format_domestic_tech_research_cost_plan_mvp(tech_def, scope),
+			]
 		_:
-			return ["연구 소요: %s" % duration_text]
+			return ["상태: 조건 부족", "연구 소요: %s" % duration_text]
 
 
-func _format_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: String = "") -> String:
-	var plan := _get_domestic_tech_research_cost_plan_mvp(tech_def, scope)
+func _format_domestic_tech_research_cost_display_mvp(cost_plan: Dictionary) -> String:
 	var parts: Array[String] = []
-	var planned_gold_cost := int(plan.get("planned_gold_cost", 0))
-	var planned_food_cost := int(plan.get("planned_food_cost", 0))
-	var planned_labor_cost := int(plan.get("planned_labor_cost", 0))
-	var planned_policy_cost := int(plan.get("planned_policy_cost", 0))
+	var planned_gold_cost := int(cost_plan.get("planned_gold_cost", 0))
+	var planned_food_cost := int(cost_plan.get("planned_food_cost", 0))
+	var planned_labor_cost := int(cost_plan.get("planned_labor_cost", 0))
+	var planned_policy_cost := int(cost_plan.get("planned_policy_cost", 0))
 	if planned_gold_cost > 0:
 		parts.append("금 %d" % planned_gold_cost)
 	if planned_food_cost > 0:
-		parts.append("식량 %d" % planned_food_cost)
+		parts.append("군량 %d" % planned_food_cost)
 	if planned_labor_cost > 0:
-		parts.append("노동 %d" % planned_labor_cost)
+		parts.append("노역 %d" % planned_labor_cost)
 	if planned_policy_cost > 0:
 		parts.append("정책 %d" % planned_policy_cost)
 	if parts.is_empty():
 		return "예상 비용 없음 · 표시 전용"
 	return "예상 비용 %s · 표시 전용" % " / ".join(parts)
+
+
+func _format_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: String = "") -> String:
+	return _format_domestic_tech_research_cost_display_mvp(_get_domestic_tech_research_cost_plan_mvp(tech_def, scope))
 
 
 func _get_domestic_tech_requirement_summary_mvp(tech_def: Dictionary, view_state: Dictionary, _city_id: String = "") -> Array[String]:
@@ -11778,6 +11786,7 @@ func _get_domestic_tech_research_balance_summary_mvp() -> Dictionary:
 		"cost_charged_on_completion": false,
 		"cost_blocks_research_start": false,
 		"paid_cost_state_persisted": false,
+		"cost_affordability_checked": false,
 		"duration_fallback_enabled": true,
 		"duration_fallback_applies_to_new_research": true,
 		"national_duration_tier_rule": "tier_based",
@@ -11793,6 +11802,26 @@ func _get_domestic_tech_research_balance_summary_mvp() -> Dictionary:
 		"tier_5_duration": _get_domestic_tech_tier_duration_turns_mvp(5),
 		"national_tier_counts": _get_domestic_tech_tier_count_summary_mvp(DOMESTIC_TECH_SCOPE_NATIONAL),
 		"city_tier_counts": _get_domestic_tech_tier_count_summary_mvp(DOMESTIC_TECH_SCOPE_CITY),
+	}
+
+
+func _get_domestic_tech_research_cost_display_summary_mvp() -> Dictionary:
+	return {
+		"research_cost_display_enabled": true,
+		"national_cost_display_enabled": true,
+		"city_cost_display_enabled": true,
+		"cost_display_only": true,
+		"cost_formatter_enabled": true,
+		"zero_cost_hidden_or_marked_display_only": true,
+		"cost_charged_on_start": false,
+		"cost_charged_per_turn": false,
+		"cost_charged_on_completion": false,
+		"cost_blocks_research_start": false,
+		"paid_cost_state_persisted": false,
+		"cost_affordability_checked": false,
+		"enemy_research_cost_enabled": false,
+		"active_research_flow_changed": false,
+		"completion_flow_changed": false,
 	}
 
 

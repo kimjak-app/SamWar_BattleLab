@@ -1,5 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.70-75 Research Cost Display Safe Set
+- Baseline: `v0.70-74-hotfix1 Cost & Research Balance QA Polish` (`1c96397956f164ef9bc41a3c7c0d5bcff0caf6e5`).
+- Completed direction:
+  1. Added a common Domestic Tech research cost display formatter for gold/food/labor/policy output.
+  2. Kept national and city expected-cost standards separated by scope and tier.
+  3. Standardized expected-cost wording as display-only, with zero values hidden and no payment/shortage copy.
+  4. Locked inspector state display: completed, researching, available, and locked/blocked states each show only the appropriate research/cost lines.
+  5. Added a research cost display summary helper and aligned balance summary no-charge/no-gating/no-paid-state flags.
+- Preserved scope:
+  1. No actual cost application, cost-based gating, paid-cost state, reservation/refund/cancel system, battle/diplomacy/spy/market/city_intel/AI mutation, enemy research/effect, troop/ship/siege count mutation, BattleContext/pending invasion, tech id/name/category/branch/prerequisite, asset, icon, UI64, or `.import` change was made.
+  2. Research start/progress/completion, one national active, one city active per PLAYER city, duplicate completion guard, all Domestic Tech Safe Sets, Full Effect Integration Summary, completed-only, researching no-effect, PLAYER-only, same-city-only, enemy/unknown no-display, click latency, and overlay lifecycle remain locked.
+- Next candidates:
+  1. `v0.70-75-hotfix1 Cost Display QA Polish`.
+  2. `v0.70-76 Domestic Tech Manual QA Scenario Pack`.
+- Manual F6 QA required:
+  1. Check national/city cost display, expected-cost display-only wording, state-specific display, no resource deduction, no cost gating, research flow, Safe Set preservation, enemy no research/effect, icon visibility, click latency, overlay lifecycle, and clean Godot Output.
+
 ## Current: v0.70-74-hotfix1 Cost & Research Balance QA Polish
 - Baseline: `v0.70-74 Domestic Tech Cost & Research Balance Planning` (`7793082118f6924349e534cc68b9376018421e1f`).
 - Completed direction:
