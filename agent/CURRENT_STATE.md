@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.70-76 Domestic Tech Manual QA Scenario Pack
+- Baseline: `v0.70-75-hotfix1 Cost Display QA Polish` at `8a50087de9d1b4f720cb91d32255960e5a6df585`; local HEAD matched `origin/main` and tracked files were clean at task start.
+- Added `agent/DOMESTIC_TECH_MANUAL_QA.md` as the followable F6 manual QA scenario pack for Domestic Tech research and display safety.
+- Documented national research start/progress/completion, city research start/progress/completion, completion refresh, same-city only, enemy/unknown/insufficient-intel no-display, expected cost display-only, no cost charge, no cost gating, Safe Set effect checks, UI64 icon visibility, node click latency, overlay close/ESC/reopen, warning cleanliness, and a manual QA result template.
+- Added `_get_domestic_tech_manual_qa_scenario_pack_mvp()` as a side-effect-free QA helper that exposes scenario flags, UI checks, Safe Set check names, and forbidden mutation counters fixed at 0.
+- Preserved scope: no actual research cost application, no cost-based research blocking, no affordability check, no paid-cost state, no reservation/refund/cancel flow, no extra research slot, no enemy research/effect, no battle/diplomacy/spy/market/city_intel/AI formula connection, no troop/ship/siege count mutation, no BattleContext/pending invasion change, no tech definition change, and no asset/import change.
+- Existing locks remain: research start/progress/completion, one national active research, one city active research per PLAYER city, active/completed normalize, duplicate completion guard, completed prerequisite recognition, researching no-effect, Economy Safe Set, Military/Defense Safe Set, National Policy Safe Set, Naval/Siege Display Safe Set, Diplomacy/Spy Display Safe Set, Full Effect Integration Summary, UI64 priority, node-click latency behavior, overlay lifecycle, PLAYER-only left panel, selected PLAYER city-only right panel, enemy/unknown no-display, cost display-only, no cost charge, and no cost gating.
+- Next candidates: `v0.70-76-hotfix1 Manual QA Scenario Pack Polish` or `v0.70-77 Domestic Tech Actual Manual QA Pass`.
+- Manual F6 QA remains required by following `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+
 ## v0.70-75-hotfix1 Cost Display QA Polish
 - Baseline: `v0.70-75 Research Cost Display Safe Set` at `8b29e26f0aa304fcd2ad39ae805e2d719fd81b0a`; local HEAD was ahead of `origin/main` and tracked files were clean at task start.
 - Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.

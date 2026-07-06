@@ -11827,6 +11827,46 @@ func _get_domestic_tech_research_cost_display_summary_mvp() -> Dictionary:
 	}
 
 
+func _get_domestic_tech_manual_qa_scenario_pack_mvp() -> Dictionary:
+	return {
+		"manual_qa_scenario_pack_enabled": true,
+		"version": "v0.70-76",
+		"national_research_flow": true,
+		"city_research_flow": true,
+		"completion_refresh": true,
+		"same_city_only": true,
+		"enemy_no_display": true,
+		"expected_cost_display_only": true,
+		"no_cost_charge": true,
+		"no_cost_gating": true,
+		"safe_sets_to_check": [
+			"economy",
+			"military_defense",
+			"national_policy",
+			"naval_siege",
+			"diplomacy_spy",
+		],
+		"ui_checks": [
+			"ui64_icon_visibility",
+			"node_click_latency",
+			"overlay_close_reopen",
+			"esc_close",
+			"panel_restore",
+		],
+		"forbidden_mutations": {
+			"battle": 0,
+			"diplomacy_success": 0,
+			"spy_success": 0,
+			"market": 0,
+			"city_intel": 0,
+			"enemy_effect": 0,
+			"troop_count": 0,
+			"ship_count": 0,
+			"siege_weapon_count": 0,
+		},
+	}
+
+
 func _get_domestic_tech_tier_count_summary_mvp(scope: String) -> Dictionary:
 	var definitions := _get_domestic_national_tech_definitions_mvp() if scope == DOMESTIC_TECH_SCOPE_NATIONAL else _get_domestic_city_tech_definitions_mvp()
 	var counts := {}

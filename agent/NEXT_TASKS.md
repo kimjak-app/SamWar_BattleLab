@@ -1,5 +1,20 @@
 # NEXT TASKS
 
+## Current: v0.70-76 Domestic Tech Manual QA Scenario Pack
+- Baseline: `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
+- Completed direction:
+  1. Added `agent/DOMESTIC_TECH_MANUAL_QA.md` as the Domestic Tech F6 manual QA scenario pack.
+  2. Documented national and city research start/progress/completion flows, completion refresh, same-city only, enemy/unknown/insufficient-intel no-display, Safe Set effect checks, display-only expected cost checks, no cost charge/gating checks, UI64/click/overlay checks, warning cleanliness, and a QA result template.
+  3. Added `_get_domestic_tech_manual_qa_scenario_pack_mvp()` as a side-effect-free QA helper for scenario flags and forbidden mutation counters.
+- Preserved scope:
+  1. No gameplay mutation, research cost deduction, cost gating, affordability check, paid-cost state, extra research slot, enemy research/effect, battle/diplomacy/spy/market/city_intel/AI formula connection, troop/ship/siege count mutation, BattleContext/pending invasion, tech definition, asset, icon, UI64, or `.import` change was made.
+  2. Research start/progress/completion, Safe Sets, Full Effect Integration Summary, cost display-only, no cost charge, no cost gating, same-city only, enemy/unknown no-display, click latency, and overlay lifecycle remain locked.
+- Next candidates:
+  1. `v0.70-76-hotfix1 Manual QA Scenario Pack Polish`.
+  2. `v0.70-77 Domestic Tech Actual Manual QA Pass`.
+- Manual F6 QA required:
+  1. Execute `agent/DOMESTIC_TECH_MANUAL_QA.md` and record results with the included template.
+
 ## Current: v0.70-75-hotfix1 Cost Display QA Polish
 - Baseline: `v0.70-75 Research Cost Display Safe Set` (`8b29e26f0aa304fcd2ad39ae805e2d719fd81b0a`).
 - Completed direction:

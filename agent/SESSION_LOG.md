@@ -1,5 +1,19 @@
 # SESSION LOG
 
+## 2026-07-07
+
+### v0.70-76 Domestic Tech Manual QA Scenario Pack
+- Started from local and `origin/main` `8a50087 v0.70-75-hotfix1 Cost Display QA Polish`; the working tree was clean.
+- Required workflow/worldmap docs were read before edits.
+- Implemented:
+  - Domestic Tech manual QA scenario pack at `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+  - National and city research start/progress/completion scenarios.
+  - Completion refresh, same-city only, enemy/unknown/insufficient-intel no-display, Safe Set, cost display-only, no charge/no gating, UI64/click/overlay, and warning cleanliness scenarios.
+  - Manual QA result template.
+  - Side-effect-free `_get_domestic_tech_manual_qa_scenario_pack_mvp()` QA helper with forbidden mutation counters fixed at 0.
+- Preserved no gameplay mutation, no actual research cost application, no cost-based research blocking, no affordability check, no paid-cost state, no reservation/refund/cancel flow, no extra research slots, no enemy research/effect, no battle/diplomacy/spy/market/city_intel/AI mutation, no troop/ship/siege count mutation, no BattleContext/pending invasion change, no tech definition change, no asset/icon/UI64/import change, and all current Safe Set locks.
+- Manual F6 QA remains required by executing `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+
 ## 2026-07-05
 
 ### v0.70-75-hotfix1 Cost Display QA Polish

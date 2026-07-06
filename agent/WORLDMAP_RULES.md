@@ -1,5 +1,20 @@
 # WORLDMAP RULES
 
+## v0.70-76 Domestic Tech Manual QA Scenario Pack Lock Rule
+- Baseline is `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
+- v0.70-76 authorizes manual QA scenario documentation and side-effect-free QA helper flags only.
+- The canonical manual QA scenario pack is `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- The scenario pack must cover national research start/progress/completion, city research start/progress/completion, completion refresh, same-city only, enemy/unknown/insufficient-intel no-display, Economy / Military-Defense / National Policy / Naval-Siege / Diplomacy-Spy Safe Sets, expected cost display-only, no cost charge, no cost gating, UI64 icon visibility, node click latency, overlay close/ESC/reopen, panel restore, warning cleanliness, and a QA result template.
+- `_get_domestic_tech_manual_qa_scenario_pack_mvp()` may exist only as a side-effect-free scenario flag helper. It must not print, save, mutate research state, mutate resources, trigger turn progress, start research, complete research, reveal intel, change UI lifecycle, or run automated gameplay.
+- Research cost remains display-only. UI copy may show `예상 비용` / `표시 전용`, but must not present cost as a requirement, payment, shortage, consumed value, disabled reason, reservation, refund, affordability check, or paid state.
+- Cost helpers and QA summaries must keep `cost_display_only = true` and keep `cost_charged`, `cost_charged_on_start`, `cost_charged_per_turn`, `cost_charged_on_completion`, `cost_blocks_research_start`, `paid_cost_state_persisted`, and `cost_affordability_checked` false.
+- Research start/progress/completion flow remains locked: existing eligibility conditions, one national active research, one city active research per PLAYER city, active/completed normalization, completion mirror, duplicate completion guard, completion message, and refresh behavior must remain intact.
+- Existing Safe Sets remain locked: Economy, Military/Defense, National Policy, Naval/Siege Display, Diplomacy/Spy Display, Full Effect Integration Summary, completed-only, researching no-effect, PLAYER only, same-city only, and bonus non-persistence.
+- Left side remains PLAYER national/court/tech information only. Right side remains selected PLAYER city information only. Enemy, unknown, or insufficient-intel city tech detail and research start/progress/completion must stay blocked under Fog of War / `city_intel` policy.
+- This pass does not authorize actual resource payment, cost reservation, refund/cancel flow, cost-based research blocking, paid-cost state, affordability checks, extra research slots, battle modifiers, diplomacy success modifiers, spy success modifiers, relation mutation, city_intel unlocks, market/trade modifiers, AI research, enemy research/effect, troop/ship/siege count mutation, BattleContext changes, pending invasion changes, tech id/name/category/branch/prerequisite changes, or asset/import changes.
+- UI64 behavior remains locked: UI64 mapped icon first, existing definition `icon_path` second, and `?` fallback last. Existing icon assets and all `.import` files must not be modified.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-75-hotfix1 Cost Display QA Polish Lock Rule
 - Baseline is `v0.70-75 Research Cost Display Safe Set` (`8b29e26f0aa304fcd2ad39ae805e2d719fd81b0a`).
 - v0.70-75-hotfix1 authorizes final Domestic Tech expected-cost display QA polish only: formatter guard cleanup, state-specific display confirmation, cost display summary flags, and research balance summary consistency.

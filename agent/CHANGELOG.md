@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.70-76 Domestic Tech Manual QA Scenario Pack
+- Built on `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
+- Added `agent/DOMESTIC_TECH_MANUAL_QA.md` with followable F6 scenarios for national research start/progress/completion, city research start/progress/completion, completion refresh, same-city only, enemy/unknown/insufficient-intel no-display, Safe Set effects, cost display-only, no charge, no gating, UI64 icons, node click latency, overlay lifecycle, warning cleanliness, and result recording.
+- Added `_get_domestic_tech_manual_qa_scenario_pack_mvp()` as a side-effect-free QA helper with scenario flags, Safe Set/UI check lists, and forbidden mutation counters fixed at 0.
+- Updated agent docs to point the next worker at the manual QA pack and the next candidates.
+- Modified files: `scripts/worldmap_test.gd`, `agent/DOMESTIC_TECH_MANUAL_QA.md`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement research cost deduction, cost-based gating, affordability checks, paid-cost state, reservation/refund/cancel flow, extra research slots, enemy research/effects, battle/diplomacy/spy/market/city_intel/AI formula changes, troop/ship/siege count mutation, BattleContext changes, pending invasion changes, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-75-hotfix1 Cost Display QA Polish
 - Built on `v0.70-75 Research Cost Display Safe Set` (`8b29e26f0aa304fcd2ad39ae805e2d719fd81b0a`).
 - Hardened `_format_domestic_tech_research_cost_display_mvp()` so negative or malformed planned resource values are clamped out of visible cost display.

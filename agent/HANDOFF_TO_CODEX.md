@@ -1,5 +1,16 @@
 # HANDOFF TO CODEX
 
+## v0.70-76 Domestic Tech Manual QA Scenario Pack Handoff
+- Baseline: `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
+- Manual QA scenario document: `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Runtime helper touched: `scripts/worldmap_test.gd`.
+- This pass organizes manual F6 QA only. It does not add gameplay features or connect Domestic Tech to actual battle, diplomacy, spy, market, city_intel, AI, troop, ship, or siege formulas.
+- The manual QA pack covers national research start/progress/completion, city research start/progress/completion, completion refresh, same-city only, enemy/unknown/insufficient-intel no-display, Economy / Military-Defense / National Policy / Naval-Siege / Diplomacy-Spy Safe Sets, expected cost display-only, no cost charge, no cost gating, UI64 icon visibility, node click latency, overlay close/ESC/reopen, panel restore, warning cleanliness, and a QA result template.
+- `_get_domestic_tech_manual_qa_scenario_pack_mvp()` is side-effect free and returns only scenario flags, Safe Set names, UI check names, and forbidden mutation counters fixed at 0. It is not an automated test runner and must not print, save, or mutate gameplay state.
+- Explicitly unchanged: research start conditions, active slot limits, remaining-turn progress, completion mirror, duplicate completion guard, Safe Set effects, cost display formatter and summary helpers, no charge/no gating/no paid-state flags, UI64 fallback order, node-click latency behavior, overlay lifecycle, enemy research/effect absence, BattleContext, pending invasion, tech ids/names/categories/branches/prerequisites, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Next candidates: `v0.70-76-hotfix1 Manual QA Scenario Pack Polish` or `v0.70-77 Domestic Tech Actual Manual QA Pass`.
+- Manual F6 QA remains required by following `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+
 ## v0.70-75-hotfix1 Cost Display QA Polish Handoff
 - Baseline: `v0.70-75 Research Cost Display Safe Set` (`8b29e26f0aa304fcd2ad39ae805e2d719fd81b0a`).
 - Runtime file touched: `scripts/worldmap_test.gd`.
