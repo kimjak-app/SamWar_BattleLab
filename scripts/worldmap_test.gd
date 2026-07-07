@@ -155,76 +155,76 @@ const DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING := 106.0
 const DOMESTIC_TECH_GRAPH_MARGIN := Vector2(110.0, 48.0)
 const DOMESTIC_TECH_GRAPH_LINE_WIDTH := 3.0
 const DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP := {
-	"agri_tool_upgrade": {"food_percent": 0.05},
-	"agri_irrigation": {"food_percent": 0.08},
+	"agri_tool_upgrade": {"food_percent": 0.04},
+	"agri_irrigation": {"food_percent": 0.07},
 	"agri_reservoir": {"food_percent": 0.10},
-	"agri_double_cropping": {"food_percent": 0.12},
-	"agri_granary_zone": {"food_flat": 20},
-	"fish_village": {"food_flat": 10},
-	"fish_coastal_fishing": {"food_percent": 0.04},
-	"fish_fleet": {"food_percent": 0.06},
-	"fish_deep_sea_fishing": {"food_percent": 0.08},
-	"fish_dried_supply_base": {"supply_flat": 10},
-	"commerce_street_market": {"gold_flat": 10},
-	"commerce_permanent_market": {"gold_percent": 0.05},
+	"agri_double_cropping": {"food_percent": 0.14},
+	"agri_granary_zone": {"food_flat": 60},
+	"fish_village": {"food_flat": 18},
+	"fish_coastal_fishing": {"food_percent": 0.05},
+	"fish_fleet": {"food_percent": 0.08},
+	"fish_deep_sea_fishing": {"food_percent": 0.12},
+	"fish_dried_supply_base": {"supply_flat": 40},
+	"commerce_street_market": {"gold_flat": 15},
+	"commerce_permanent_market": {"gold_percent": 0.06},
 	"commerce_merchant_guild": {"gold_percent": 0.08},
-	"commerce_mint": {"gold_flat": 20},
-	"commerce_grand_market": {"gold_percent": 0.12},
+	"commerce_mint": {"gold_flat": 80},
+	"commerce_grand_market": {"gold_percent": 0.11},
 }
 const DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_BRANCHES_MVP := ["infantry", "archer", "cavalry", "defense"]
 const DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP := {
-	"mil_barracks": {"recruit_capacity_flat": 100},
-	"mil_infantry_training": {"infantry_training_percent": 0.05},
-	"mil_heavy_infantry": {"infantry_training_percent": 0.08},
-	"mil_archer_training": {"archer_training_percent": 0.05},
-	"mil_elite_archer": {"archer_training_percent": 0.08},
-	"mil_cavalry_training": {"cavalry_training_percent": 0.05},
+	"mil_barracks": {"recruit_capacity_flat": 80},
+	"mil_infantry_training": {"infantry_training_percent": 0.04},
+	"mil_heavy_infantry": {"infantry_training_percent": 0.10},
+	"mil_archer_training": {"archer_training_percent": 0.04},
+	"mil_elite_archer": {"archer_training_percent": 0.07},
+	"mil_cavalry_training": {"cavalry_training_percent": 0.04},
 	"mil_light_cavalry": {"cavalry_training_percent": 0.06},
 	"mil_heavy_cavalry": {"cavalry_training_percent": 0.08},
-	"mil_wall_upgrade": {"defense_flat": 50},
+	"mil_wall_upgrade": {"defense_flat": 35},
 	"mil_moat": {"defense_percent": 0.05},
 	"mil_double_moat": {"defense_percent": 0.08},
 	"mil_watchtower": {"defense_flat": 30},
 	"mil_beacon": {"defense_flat": 20},
-	"mil_beacon_network": {"defense_percent": 0.05},
-	"mil_iron_gate": {"defense_flat": 80},
-	"mil_iron_fortress": {"defense_percent": 0.10},
+	"mil_beacon_network": {"defense_percent": 0.06},
+	"mil_iron_gate": {"defense_flat": 70},
+	"mil_iron_fortress": {"defense_percent": 0.14},
 }
 const DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP := {
 	"nation_law_reform": {"law_order_flat": 5},
-	"nation_bureaucracy": {"admin_efficiency_percent": 0.03},
-	"nation_centralization": {"admin_efficiency_percent": 0.05},
-	"nation_tax_reform": {"tax_gold_percent": 0.05},
-	"nation_conscription": {"recruit_capacity_percent": 0.05},
-	"nation_logistics_system": {"logistics_supply_percent": 0.05},
-	"nation_population_policy": {"population_growth_percent": 0.03},
-	"nation_foundation": {"storage_flat": 100},
-	"nation_national_monopoly": {"tax_gold_percent": 0.03},
+	"nation_bureaucracy": {"admin_efficiency_percent": 0.06},
+	"nation_centralization": {"admin_efficiency_percent": 0.12},
+	"nation_tax_reform": {"tax_gold_percent": 0.04},
+	"nation_conscription": {"recruit_capacity_percent": 0.04},
+	"nation_logistics_system": {"logistics_supply_percent": 0.06},
+	"nation_population_policy": {"population_growth_percent": 0.10},
+	"nation_foundation": {"storage_flat": 120},
+	"nation_national_monopoly": {"tax_gold_percent": 0.08},
 }
 const DOMESTIC_TECH_NAVAL_SIEGE_SAFE_BRANCHES_MVP := ["sea_trade", "naval", "siege"]
 const DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP := {
 	"commerce_shipyard": {"shipyard_capacity_flat": 1},
-	"naval_training": {"naval_training_percent": 0.05},
-	"naval_warship_building": {"shipyard_capacity_flat": 1, "ship_maintenance_percent": 0.03},
-	"naval_panokseon": {"naval_training_percent": 0.05},
-	"naval_turtle_ship": {"naval_training_percent": 0.08},
-	"naval_crane_wing_formation": {"naval_training_percent": 0.05},
-	"naval_fire_ship": {"naval_supply_percent": 0.05},
-	"naval_cannon_mount": {"ship_maintenance_percent": 0.05},
-	"mil_siege_unit": {"siege_preparation_flat": 10, "siege_training_percent": 0.05},
+	"naval_training": {"naval_training_percent": 0.04},
+	"naval_warship_building": {"shipyard_capacity_flat": 1, "ship_maintenance_percent": 0.04},
+	"naval_panokseon": {"naval_training_percent": 0.08},
+	"naval_turtle_ship": {"naval_training_percent": 0.14},
+	"naval_crane_wing_formation": {"naval_training_percent": 0.12},
+	"naval_fire_ship": {"naval_supply_percent": 0.08},
+	"naval_cannon_mount": {"ship_maintenance_percent": 0.08},
+	"mil_siege_unit": {"siege_preparation_flat": 15, "siege_training_percent": 0.04},
 	"mil_siege_engine": {"siege_engineering_percent": 0.08},
 }
 const DOMESTIC_TECH_DIPLOMACY_SPY_SAFE_SET_MVP := {
-	"nation_envoy": {"diplomacy_influence_flat": 5},
+	"nation_envoy": {"diplomacy_influence_flat": 8},
 	"nation_diplomacy_system": {"diplomacy_preparation_percent": 0.05},
 	"nation_tribute_system": {"tribute_readiness_percent": 0.05},
-	"nation_tribute_network": {"tribute_readiness_percent": 0.05},
-	"nation_world_diplomacy": {"world_diplomacy_display_percent": 0.08},
+	"nation_tribute_network": {"tribute_readiness_percent": 0.08},
+	"nation_world_diplomacy": {"world_diplomacy_display_percent": 0.12},
 	"nation_centralization": {"diplomacy_preparation_percent": 0.02},
 	"nation_bureaucracy": {"diplomacy_preparation_percent": 0.02, "spy_preparation_percent": 0.02},
-	"nation_intelligence_system": {"spy_network_flat": 5},
-	"nation_intelligence_org": {"spy_preparation_percent": 0.05},
-	"nation_inspection_system": {"counter_intel_display_percent": 0.03},
+	"nation_intelligence_system": {"spy_network_flat": 8},
+	"nation_intelligence_org": {"spy_preparation_percent": 0.08},
+	"nation_inspection_system": {"counter_intel_display_percent": 0.05},
 }
 const DOMESTIC_TECH_CITY_SPY_INTEL_SAFE_SET_MVP := {}
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
@@ -9864,7 +9864,7 @@ func _make_domestic_tech_definition_mvp(id: String, tech_name: String, tree_scop
 		"progress_mode": progress_mode,
 		"cost": cost.duplicate(true),
 		"duration_class": _get_domestic_tech_duration_class_mvp(tier, rarity),
-		"duration_turns_hint": _get_domestic_tech_duration_turns_hint_mvp(tier, rarity),
+		"duration_turns_hint": {"min": _get_domestic_tech_scope_duration_turns_mvp(tree_scope, tier, rarity), "max": _get_domestic_tech_scope_duration_turns_mvp(tree_scope, tier, rarity), "rule": "scope_tier_balance_v0_70_86", "rarity": rarity},
 		"effect_stub": {"enabled": false, "type": effect_type, "value": effect_value, "description": effect_description},
 		"unlocks_city_techs": unlocks_city_techs.duplicate(true),
 		"enhances_city_techs": enhances_city_techs.duplicate(true),
@@ -9887,7 +9887,49 @@ func _get_domestic_tech_duration_turns_hint_mvp(tier: int, rarity: int) -> Dicti
 
 
 func _get_domestic_tech_tier_duration_turns_mvp(tier: int) -> int:
-	return clampi(tier + 1, 2, 6)
+	match clampi(tier, 1, 5):
+		1:
+			return 2
+		2:
+			return 3
+		3:
+			return 5
+		4:
+			return 7
+		_:
+			return 8
+
+
+func _get_domestic_tech_scope_duration_turns_mvp(scope: String, tier: int, rarity: int = 0) -> int:
+	var safe_tier := clampi(tier, 1, 5)
+	var duration_turns := 2
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		match safe_tier:
+			1:
+				duration_turns = 3
+			2:
+				duration_turns = 4
+			3:
+				duration_turns = 6
+			4:
+				duration_turns = 8
+			_:
+				duration_turns = 9
+	else:
+		match safe_tier:
+			1:
+				duration_turns = 2
+			2:
+				duration_turns = 3
+			3:
+				duration_turns = 5
+			4:
+				duration_turns = 6
+			_:
+				duration_turns = 8
+	if rarity >= 2:
+		duration_turns += 1
+	return duration_turns
 
 
 func _get_domestic_tech_definitions_mvp() -> Dictionary:
@@ -11022,6 +11064,40 @@ func _get_domestic_tech_cost_summary_mvp(tech_def: Dictionary) -> String:
 	return _format_domestic_tech_cost_mvp(tech_def.get("cost", {}))
 
 
+func _get_domestic_tech_research_cost_balance_adjustment_mvp(tech_def: Dictionary, base_gold_cost: int, base_food_cost: int) -> Dictionary:
+	var category_id := str(tech_def.get("category", ""))
+	var branch_id := str(tech_def.get("branch", ""))
+	var tier := clampi(int(tech_def.get("tier", 1)), 1, 5)
+	var gold_delta := 0
+	var food_delta := 0
+	if category_id in [DOMESTIC_TECH_CATEGORY_AGRI, DOMESTIC_TECH_CATEGORY_FISH]:
+		if tier <= 2:
+			gold_delta -= 20
+			food_delta -= 5
+		elif tier >= 4:
+			gold_delta -= 40
+			food_delta -= 10
+	elif category_id == DOMESTIC_TECH_CATEGORY_COMMERCE:
+		if branch_id == "sea_trade":
+			gold_delta += 20
+			food_delta += 5
+		elif tier <= 2:
+			gold_delta -= 10
+	elif category_id == DOMESTIC_TECH_CATEGORY_MILITARY:
+		gold_delta += 30
+		food_delta += 10
+		if branch_id in ["naval", "siege", "defense"]:
+			gold_delta += 30
+			food_delta += 10
+		if tier >= 4:
+			gold_delta += 80
+			food_delta += 20
+	return {
+		"gold": maxi(0, base_gold_cost + gold_delta),
+		"food": maxi(0, base_food_cost + food_delta),
+	}
+
+
 func _get_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: String = "") -> Dictionary:
 	var resolved_scope := scope
 	if resolved_scope.is_empty():
@@ -11032,32 +11108,35 @@ func _get_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: Stri
 	if resolved_scope == DOMESTIC_TECH_SCOPE_NATIONAL:
 		match tier:
 			1:
-				planned_gold_cost = 50
+				planned_gold_cost = 140
 			2:
-				planned_gold_cost = 100
+				planned_gold_cost = 320
 			3:
-				planned_gold_cost = 180
+				planned_gold_cost = 560
 			4:
-				planned_gold_cost = 300
+				planned_gold_cost = 900
 			_:
-				planned_gold_cost = 450
+				planned_gold_cost = 1200
 	elif resolved_scope == DOMESTIC_TECH_SCOPE_CITY:
 		match tier:
 			1:
-				planned_gold_cost = 30
+				planned_gold_cost = 90
 				planned_food_cost = 20
 			2:
-				planned_gold_cost = 70
-				planned_food_cost = 40
+				planned_gold_cost = 230
+				planned_food_cost = 45
 			3:
-				planned_gold_cost = 130
-				planned_food_cost = 80
+				planned_gold_cost = 430
+				planned_food_cost = 90
 			4:
-				planned_gold_cost = 220
-				planned_food_cost = 140
+				planned_gold_cost = 760
+				planned_food_cost = 150
 			_:
-				planned_gold_cost = 350
-				planned_food_cost = 220
+				planned_gold_cost = 980
+				planned_food_cost = 210
+		var adjusted_cost := _get_domestic_tech_research_cost_balance_adjustment_mvp(tech_def, planned_gold_cost, planned_food_cost)
+		planned_gold_cost = int(adjusted_cost.get("gold", planned_gold_cost))
+		planned_food_cost = int(adjusted_cost.get("food", planned_food_cost))
 	return {
 		"planned_gold_cost": planned_gold_cost,
 		"planned_food_cost": planned_food_cost,
@@ -11323,6 +11402,10 @@ func _get_domestic_tech_research_actual_charge_summary_mvp() -> Dictionary:
 		"researching_cost_hidden_or_deprioritized": true,
 		"completed_cost_hidden_or_deprioritized": true,
 		"locked_prerequisite_first": true,
+		"balance_integration_pass": true,
+		"cost_balance_updated": true,
+		"duration_balance_updated": true,
+		"safe_set_effect_balance_updated": true,
 	}
 
 
@@ -12006,6 +12089,10 @@ func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
 
 func _get_domestic_tech_research_balance_summary_mvp() -> Dictionary:
 	return {
+		"balance_integration_pass": true,
+		"cost_balance_updated": true,
+		"duration_balance_updated": true,
+		"safe_set_effect_balance_updated": true,
 		"research_balance_planning_enabled": true,
 		"cost_display_only": false,
 		"cost_charged": true,
@@ -12023,11 +12110,27 @@ func _get_domestic_tech_research_balance_summary_mvp() -> Dictionary:
 		"active_research_flow_changed": false,
 		"completion_flow_changed": false,
 		"enemy_research_enabled": false,
+		"battle_formula_connected": false,
+		"diplomacy_formula_connected": false,
+		"spy_formula_connected": false,
+		"market_formula_connected": false,
+		"city_intel_formula_connected": false,
+		"national_cost_gold_bands": {"tier_1": 140, "tier_2": 320, "tier_3": 560, "tier_4": 900, "tier_5": 1200},
+		"city_cost_base_gold_bands": {"tier_1": 90, "tier_2": 230, "tier_3": 430, "tier_4": 760, "tier_5": 980},
+		"city_cost_base_food_bands": {"tier_1": 20, "tier_2": 45, "tier_3": 90, "tier_4": 150, "tier_5": 210},
 		"tier_1_duration": _get_domestic_tech_tier_duration_turns_mvp(1),
 		"tier_2_duration": _get_domestic_tech_tier_duration_turns_mvp(2),
 		"tier_3_duration": _get_domestic_tech_tier_duration_turns_mvp(3),
 		"tier_4_duration": _get_domestic_tech_tier_duration_turns_mvp(4),
 		"tier_5_duration": _get_domestic_tech_tier_duration_turns_mvp(5),
+		"national_tier_1_duration": _get_domestic_tech_scope_duration_turns_mvp(DOMESTIC_TECH_SCOPE_NATIONAL, 1),
+		"national_tier_2_duration": _get_domestic_tech_scope_duration_turns_mvp(DOMESTIC_TECH_SCOPE_NATIONAL, 2),
+		"national_tier_3_duration": _get_domestic_tech_scope_duration_turns_mvp(DOMESTIC_TECH_SCOPE_NATIONAL, 3),
+		"national_tier_4_duration": _get_domestic_tech_scope_duration_turns_mvp(DOMESTIC_TECH_SCOPE_NATIONAL, 4),
+		"city_tier_1_duration": _get_domestic_tech_scope_duration_turns_mvp(DOMESTIC_TECH_SCOPE_CITY, 1),
+		"city_tier_2_duration": _get_domestic_tech_scope_duration_turns_mvp(DOMESTIC_TECH_SCOPE_CITY, 2),
+		"city_tier_3_duration": _get_domestic_tech_scope_duration_turns_mvp(DOMESTIC_TECH_SCOPE_CITY, 3),
+		"city_tier_4_duration": _get_domestic_tech_scope_duration_turns_mvp(DOMESTIC_TECH_SCOPE_CITY, 4),
 		"national_tier_counts": _get_domestic_tech_tier_count_summary_mvp(DOMESTIC_TECH_SCOPE_NATIONAL),
 		"city_tier_counts": _get_domestic_tech_tier_count_summary_mvp(DOMESTIC_TECH_SCOPE_CITY),
 	}

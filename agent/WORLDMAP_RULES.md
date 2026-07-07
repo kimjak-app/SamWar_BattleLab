@@ -1,5 +1,14 @@
 # WORLDMAP RULES
 
+## v0.70-86 Domestic Tech Balance Integration Pass Lock Rule
+- v0.70-86 authorizes Domestic Tech cost plan values, new-research duration values, Safe Set effect values, side-effect-free balance summary flags, and QA/agent documentation updates only.
+- Cost balance remains inside the existing actual charge MVP: start-time validation and one-time deduction only, no paid state, no cancel/refund, no per-turn/completion/retroactive charge.
+- City food group deduction order remains `rice -> barley -> seafood`; selected PLAYER city scope remains locked.
+- Duration changes apply to new research calculations and must not rewrite existing active research payloads.
+- Safe Set effects remain limited to existing economy, defense/training display, national policy, naval/siege display, and diplomacy/spy display summaries.
+- Do not connect battle, diplomacy success, spy success, market/trade, city_intel, or enemy AI formulas; do not mutate troop, ship, or siege counts; do not add enemy research/effect.
+- BattleContext, pending invasion schema, active research payload schema, save/load schema, tech id/name/category/branch/prerequisite structure, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files remain no-touch.
+
 ## v0.70-85 Research Cost Affordability F6 UI QA Record Lock Rule
 - v0.70-85 authorizes QA documentation and F6 result template updates for the v0.70-84 actual-charge affordability UI polish only.
 - `agent/DOMESTIC_TECH_MANUAL_QA.md` must remain the checklist source for available/affordable wording, insufficient-resource wording, researching/completed/locked state priority, national/city consistency, enemy/unknown no cost UI, and Godot Output checks.

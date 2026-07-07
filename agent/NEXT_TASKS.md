@@ -1,5 +1,19 @@
 # NEXT TASKS
 
+## Current: v0.70-86 Domestic Tech Balance Integration Pass
+- Baseline: `v0.70-85 Research Cost Affordability F6 UI QA Record` (`d550ed33b914b66fde45dcda09505fcdd5f75e92`).
+- Completed direction:
+  1. Rebalanced Domestic Tech research cost bands for national and city scopes.
+  2. Rebalanced new-research duration hints by scope and tier.
+  3. Tuned Safe Set effect values for economy, military/defense, national policy, naval/siege display, and diplomacy/spy display.
+  4. Added balance integration summary flags and a manual F6 QA section.
+- Preserved scope:
+  1. No actual charge logic change, deduction order change, active payload schema change, paid cost state, cancel/refund, per-turn charge, completion charge, battle/diplomacy/spy/market/city_intel formula connection, enemy research/effect, BattleContext change, pending invasion schema change, scene change, or asset/import change.
+- Next candidates:
+  1. `v0.70-87 Domestic Tech Balance F6 Result Record`.
+  2. `v0.70-87 Balance Edge Case QA Polish`.
+  3. `v0.70-87 Labor Policy Resource State Design`.
+
 ## Current: v0.70-85 Research Cost Affordability F6 UI QA Record
 - Baseline: `v0.70-84 Research Cost Affordability UI Polish` (`0af15b94c0a18cb781aa563856552c343977fa0e`).
 - Completed direction:

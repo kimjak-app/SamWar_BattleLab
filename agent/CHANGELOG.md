@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.70-86 Domestic Tech Balance Integration Pass
+- Rebalanced Domestic Tech research cost planning in `scripts/worldmap_test.gd`: national tech now uses heavier gold-centered tier bands, and city tech uses selected-city gold + food bands with economy discounts and military/naval/siege/defense premiums.
+- Rebalanced new-research duration by scope and tier: city tech is faster early, while national tech is a slightly longer national project.
+- Tuned Safe Set effect values for economy, military/defense, national policy, naval/siege display, and diplomacy/spy display.
+- Added balance integration summary flags and a v0.70-86 F6 manual QA section.
+- Preserved actual charge logic, deduction order, active payload schema, paid cost state absence, cancel/refund absence, per-turn/completion charge absence, forbidden formula connections, enemy research/effect absence, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ## v0.70-85 Research Cost Affordability F6 UI QA Record
 - Added the v0.70-85 Research Cost Affordability F6 UI QA Record section to `agent/DOMESTIC_TECH_MANUAL_QA.md`.
 - Documented F6 checks for available/affordable wording, display-only removal, available button text, insufficient wording/button/start blocking/no partial deduction, researching/completed/locked state priority, national/city UI consistency, enemy/unknown no cost UI, and Godot Output cleanliness.

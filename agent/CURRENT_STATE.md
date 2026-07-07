@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.70-86 Domestic Tech Balance Integration Pass
+- Baseline: `v0.70-85 Research Cost Affordability F6 UI QA Record` at `d550ed33b914b66fde45dcda09505fcdd5f75e92`; tracked files were clean at task start.
+- Ran the first integrated Domestic Tech balance pass in `scripts/worldmap_test.gd`.
+- Cost balance: national research now uses heavier gold-centered tier bands; city research uses selected-city gold + food group bands with small economy discounts and military/naval/siege/defense premiums.
+- Duration balance: new research uses scope/tier duration hints, with city tech faster early and national tech slightly longer across tiers.
+- Safe Set effect balance: economy, military/defense, national policy, naval/siege display, and diplomacy/spy display values were tuned for clearer early feedback and heavier late specialization without formula/count integration.
+- Added balance integration flags to research/actual-charge summaries and added a v0.70-86 F6 QA section to `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Preserved actual charge structure, food deduction order `rice -> barley -> seafood`, active research payload schema, paid cost state absence, cancel/refund absence, no per-turn/completion/retroactive charge, no battle/diplomacy/spy/market/city_intel/AI formula connection, enemy research/effect absence, BattleContext, pending invasion schema, scenes, and assets/imports.
+- Next candidates: `v0.70-87 Domestic Tech Balance F6 Result Record`, `v0.70-87 Balance Edge Case QA Polish`, or `v0.70-87 Labor Policy Resource State Design`.
+
 ## v0.70-85 Research Cost Affordability F6 UI QA Record
 - Baseline: `v0.70-84 Research Cost Affordability UI Polish` at `0af15b94c0a18cb781aa563856552c343977fa0e`; tracked files were clean at task start.
 - Added the F6 UI QA record section for research cost affordability wording to `agent/DOMESTIC_TECH_MANUAL_QA.md`.

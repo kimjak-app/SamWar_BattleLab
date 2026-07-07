@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-86 Domestic Tech Balance Integration Pass Handoff
+- Latest baseline: `v0.70-86 Domestic Tech Balance Integration Pass` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-85 Research Cost Affordability F6 UI QA Record` (`d550ed33b914b66fde45dcda09505fcdd5f75e92`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Agent docs updated: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`, and `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Cost balance: national tech is gold-centered and heavier by tier; city tech uses selected-city gold + food group with economy discounts and military/naval/siege/defense premiums.
+- Duration balance: new research duration now uses scope/tier bands, with city tech faster early and national tech longer.
+- Safe Set effect balance: economy, military/defense, national policy, naval/siege display, and diplomacy/spy display values were tuned without connecting forbidden formulas or mutating troop/ship/siege counts.
+- Summary helpers expose balance integration, cost/duration/effect updated, and no-formula-connection flags.
+- Explicitly unchanged: actual charge logic, deduction order `rice -> barley -> seafood`, active research payload schema, paid cost state, cancel/refund, per-turn charge, completion charge, retroactive charge, enemy research/effect, BattleContext, pending invasion schema, tech ids/names/categories/branches/prerequisites, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Recommended next options:
+  1. `v0.70-87 Domestic Tech Balance F6 Result Record`.
+  2. `v0.70-87 Balance Edge Case QA Polish`.
+  3. `v0.70-87 Labor Policy Resource State Design`.
+
 ## v0.70-85 Research Cost Affordability F6 UI QA Record Handoff
 - Latest baseline: `v0.70-85 Research Cost Affordability F6 UI QA Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-84 Research Cost Affordability UI Polish` (`0af15b94c0a18cb781aa563856552c343977fa0e`).

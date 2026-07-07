@@ -1,5 +1,60 @@
 # Domestic Tech Actual Charge Manual QA
 
+## v0.70-86 Domestic Tech Balance Integration Pass F6 QA
+
+Version: `v0.70-86 Domestic Tech Balance Integration Pass`
+Baseline: `v0.70-85 Research Cost Affordability F6 UI QA Record` (`d550ed33b914b66fde45dcda09505fcdd5f75e92`)
+
+### 1. QA Purpose
+- Confirm the first integrated Domestic Tech balance pass feels correct in F6.
+- Confirm research cost, duration, and Safe Set effect tuning preserve actual charge and UI wording.
+- Confirm no battle/diplomacy/spy/market/city_intel/AI formula connection was added.
+
+### 2. Cost / Duration Feel
+Check:
+- Tier 1 city tech remains affordable enough to start one or two early researches.
+- Tier 2 and Tier 3 techs create a clear resource choice.
+- Tier 4+ techs feel like mid/late goals.
+- National tech generally feels longer and more expensive than same-tier city tech.
+- City tech feels focused on selected city growth, defense, or supply.
+
+### 3. Safe Set Effect Feel
+Check:
+- Agriculture, fishery, and commerce techs give early city growth feedback.
+- Military, defense, naval, and siege display bonuses do not feel overpowering too early.
+- National policy bonuses feel like gradual national improvement.
+- Diplomacy/Spy/Naval/Siege display values remain display-safe and do not mutate formulas or counts.
+
+### 4. Preservation Checks
+Check:
+- Actual charge still occurs once on research start only.
+- Food group deduction order remains `rice -> barley -> seafood`.
+- Active research payload schema remains unchanged.
+- UI wording still shows `필요 비용: ... · 시작 시 차감` and `부족: ...`.
+- Research start/progress/completion still works.
+- Godot Output has no new warning/error.
+
+### 5. PASS / NEEDS FIX Record Template
+- QA Date:
+- Tester:
+- Version: v0.70-86 Domestic Tech Balance Integration Pass
+- Commit:
+- Tier 1 cost feels light:
+- Tier 2-3 choice pressure:
+- Tier 4+ long-term goal:
+- National duration/cost feel:
+- City growth feel:
+- Economy safe effects:
+- Military/Defense safe effects:
+- Naval/Siege display effects:
+- Diplomacy/Spy display effects:
+- Actual charge preserved:
+- UI wording preserved:
+- No forbidden formula connection:
+- Godot Output clean:
+- Result: PASS / NEEDS FIX
+- Notes:
+
 ## v0.70-85 Research Cost Affordability F6 UI QA Record
 
 Version: `v0.70-85 Research Cost Affordability F6 UI QA Record`

@@ -2,6 +2,15 @@
 
 ## 2026-07-07
 
+### v0.70-86 Domestic Tech Balance Integration Pass
+- Started from clean local HEAD `d550ed33b914b66fde45dcda09505fcdd5f75e92`.
+- Read required workflow, Godot, current state, next task, handoff, Domestic Tech research cost design, Domestic Tech manual QA, and worldmap rule docs before edits.
+- Updated Domestic Tech research cost plan values for national and city scopes while preserving actual charge validation/application flow.
+- Updated new-research duration hints to scope/tier-based bands; existing active research payload schema and active research data remain unchanged.
+- Tuned Safe Set effect values for economy, military/defense, national policy, naval/siege display, and diplomacy/spy display.
+- Added balance integration flags to summary helpers and added a v0.70-86 F6 QA section to `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Preserved no battle/diplomacy/spy/market/city_intel/AI formula connection, no enemy research/effect, no troop/ship/siege count mutation, no paid state, no cancel/refund, no per-turn/completion/retroactive charge, no BattleContext/pending invasion schema change, and no scene/asset/import change.
+
 ### v0.70-85 Research Cost Affordability F6 UI QA Record
 - Started from clean local HEAD `0af15b94c0a18cb781aa563856552c343977fa0e`.
 - Read required workflow, Godot, current state, next task, handoff, Domestic Tech manual QA, Domestic Tech research cost design, and worldmap rule docs before edits.
