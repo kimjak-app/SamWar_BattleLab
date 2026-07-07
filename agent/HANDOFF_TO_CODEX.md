@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-81 Domestic Tech Research Cost Actual Charge MVP Handoff
+- Latest baseline: `v0.70-81 Domestic Tech Research Cost Actual Charge MVP` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft` (`16749e55bf848ac10adb49cb395fad8d2478d39b`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Actual charge MVP is implemented: validation runs before active research creation, implemented costs are deducted once at research start, and research active payload remains unchanged.
+- National scope: PLAYER national resource scope charges `gold`; national food group is supported only when `rice`, `barley`, and `seafood` exist stably in national `resource_stock`.
+- City scope: selected PLAYER city storage only; charges `gold` and food group using `rice -> barley -> seafood`. Other cities are not touched.
+- Labor/policy actual charge is skipped/unsupported until persistent state keys are decided. The QA summary helper reports this.
+- UI now uses `필요 비용 ... · 시작 시 차감` for available research and shortage copy `부족: 금 N / 군량 N`. Researching/completed/condition-shortage states still take priority over cost copy.
+- Explicitly unchanged: active research payload schema, paid cost state, retroactive charge, per-turn charge, completion charge, cancel/refund, enemy research/effect, BattleContext, pending invasion schema, tech ids/names/categories/branches/prerequisites, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Recommended next options:
+  1. `v0.70-82 Domestic Tech Actual Charge Manual QA`.
+  2. `v0.70-82 Research Cost Affordability UI Polish`.
+  3. `v0.70-82 Labor Policy Resource State Design`.
+
 ## v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft Handoff
 - Latest baseline: `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-79 Domestic Tech Actual F6 QA Result Record` (`4a939a49b33aedb6c0e309dba47cdcdd2f42d02e`).

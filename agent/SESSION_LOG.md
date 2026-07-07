@@ -2,6 +2,15 @@
 
 ## 2026-07-07
 
+### v0.70-81 Domestic Tech Research Cost Actual Charge MVP
+- Started from clean baseline `16749e55bf848ac10adb49cb395fad8d2478d39b`; `origin/main` matched.
+- Read required agent docs and implemented the v0.70-80 design as an MVP actual charge flow in `scripts/worldmap_test.gd`.
+- Added helpers for actual charge plan, affordability validation, atomic application after validation, shortage text, and QA summary.
+- Wired validation into the Domestic Tech start gate and applied deduction before active research creation, while keeping active research payload fields unchanged.
+- Updated available-state cost copy to `필요 비용 ... · 시작 시 차감` and shortage copy to `부족: 금 N / 군량 N`.
+- Verified Godot headless project load and `WorldMap_Test.tscn` headless load.
+- Preserved BattleContext, pending invasion schema, tech definitions, assets/imports, enemy research/effect absence, no paid state, no retroactive charge, no per-turn/completion charge, and no cancel/refund.
+
 ### v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft
 - Started from local `4a939a4 v0.70-79 Domestic Tech Actual F6 QA Result Record`; `origin/main` remained `39c27de`, so local was ahead by the recent Domestic Tech commits and the working tree was clean.
 - Required workflow, Godot, current state, next task, handoff, worldmap rules, and Domestic Tech manual QA docs were read before edits.

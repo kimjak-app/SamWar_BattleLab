@@ -1,5 +1,25 @@
 # NEXT TASKS
 
+## Current: v0.70-81 Domestic Tech Research Cost Actual Charge MVP
+- Baseline: `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft` (`16749e55bf848ac10adb49cb395fad8d2478d39b`).
+- Completed direction:
+  1. Implemented one-time start-cost actual charge for Domestic Tech research.
+  2. Added affordability validation before active research creation and blocked insufficient implemented resources with `부족: 금 N / 군량 N`.
+  3. Charged PLAYER national `gold` for national tech and selected PLAYER city storage `gold` plus food group for city tech.
+  4. Used existing food group keys `rice`, `barley`, and `seafood` with deduction order `rice -> barley -> seafood`.
+  5. Kept labor/policy skipped/unsupported for actual charge and exposed that in QA summary.
+  6. Updated actual charge design/helper flags from design draft to implemented MVP.
+- Preserved scope:
+  1. No active research payload schema change, paid cost state, retroactive charge, per-turn charge, completion charge, cancel/refund, enemy research/effect, BattleContext change, pending invasion schema change, tech definition change, asset/icon/UI64/import change, or large refactor.
+  2. Existing research progress/completion, one national active, one city active per PLAYER city, same-city only, Safe Sets, Grace Turns, UI64 priority, click latency, and overlay lifecycle remain locked.
+- Next candidates:
+  1. `v0.70-82 Domestic Tech Actual Charge Manual QA`.
+  2. `v0.70-82 Research Cost Affordability UI Polish`.
+  3. `v0.70-82 Labor Policy Resource State Design`.
+- Implementation note:
+  1. Do not add labor/policy actual charge until persistent state keys are approved.
+  2. Do not add cancel/refund or paid-cost state without a separate design task.
+
 ## Current: v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft
 - Baseline: `v0.70-79 Domestic Tech Actual F6 QA Result Record` (`4a939a49b33aedb6c0e309dba47cdcdd2f42d02e`).
 - Completed direction:

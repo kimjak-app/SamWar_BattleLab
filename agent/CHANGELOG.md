@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-81 Domestic Tech Research Cost Actual Charge MVP
+- Implemented Domestic Tech actual research cost charging at research start in `scripts/worldmap_test.gd`.
+- Added actual charge plan, validation, application, shortage formatting, and QA summary helpers.
+- National tech now charges implemented PLAYER national `gold`; city tech charges selected PLAYER city storage `gold` and food group.
+- Food group uses `rice`, `barley`, and `seafood` with deduction order `rice -> barley -> seafood`; insufficient implemented resources block research start with no deduction and no active research creation.
+- Updated UI wording from display-only expected cost to `필요 비용 ... · 시작 시 차감`, with shortage copy `부족: 금 N / 군량 N`.
+- Updated `_get_domestic_tech_research_actual_charge_design_mvp()` to reflect implemented MVP state.
+- Preserved no active payload schema change, no paid cost state, no retroactive charge, no per-turn charge, no completion charge, no cancel/refund, no enemy research/effect, no BattleContext or pending invasion schema change, no tech definition change, and no asset/import change.
+
 ## v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft
 - Built on `v0.70-79 Domestic Tech Actual F6 QA Result Record` (`4a939a49b33aedb6c0e309dba47cdcdd2f42d02e`).
 - Added `agent/DOMESTIC_TECH_RESEARCH_COST_DESIGN.md` as the design draft for future Domestic Tech actual research cost charging.

@@ -1,5 +1,15 @@
 # WORLDMAP RULES
 
+## v0.70-81 Domestic Tech Research Cost Actual Charge MVP Lock Rule
+- v0.70-81 supersedes the v0.70-80 display-only cost lock only for Domestic Tech research start cost payment.
+- Actual charge timing is start-time only: validate implemented resources, deduct once, then create active research. Do not add per-turn charge, completion charge, cancel/refund, retroactive charge, or paid cost state.
+- Active research payload schema remains locked to the existing active fields. Do not add `paid`, `paid_cost`, `charged_cost`, `cost_state`, or equivalent fields to Domestic Tech active research.
+- National tech may charge PLAYER national `gold`; national food group may only be charged when national `resource_stock` stably exposes `rice`, `barley`, and `seafood`. Do not charge city storage for national tech.
+- City tech charges selected PLAYER city storage only. Food group keys are `rice`, `barley`, and `seafood`, deducted in `rice -> barley -> seafood` order. Do not touch other cities.
+- Labor and policy actual charge remain unsupported/skipped until persistent state keys are explicitly designed.
+- Enemy/unknown/insufficient-intel city remains no research, no cost charge, and no effect.
+- BattleContext and pending invasion schema remain no-touch. Assets, icon PNGs, UI64 PNGs, and `.import` files remain no-touch.
+
 ## v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft Lock Rule
 - Baseline is `v0.70-79 Domestic Tech Actual F6 QA Result Record` (`4a939a49b33aedb6c0e309dba47cdcdd2f42d02e`).
 - v0.70-80 authorizes design documentation, agent doc updates, and side-effect-free design helper flags only.

@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-81 Domestic Tech Research Cost Actual Charge MVP
+- Baseline: `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft` at `16749e55bf848ac10adb49cb395fad8d2478d39b`; local `main` and `origin/main` matched and tracked files were clean at task start.
+- Implemented Domestic Tech actual research cost charge MVP in `scripts/worldmap_test.gd`.
+- Research start now validates implemented costs before active research creation, blocks start on insufficient implemented resources, applies no partial deduction, then creates the unchanged active research payload only after successful deduction.
+- Charge timing is locked to one-time upfront charge on research start. There is no per-turn charge, no completion charge, no cancel/refund, no retroactive charge for existing active research, and no paid cost state.
+- National tech charges PLAYER national `gold`; national food group is only eligible if the national resource scope has stable `rice`, `barley`, and `seafood` keys. City tech charges selected PLAYER city storage only.
+- City food group uses existing keys `rice`, `barley`, and `seafood` with deduction order `rice -> barley -> seafood`; insufficient food group total blocks start without deduction.
+- Labor and policy remain skipped/unsupported for actual charge because persistent state keys are not fixed; QA summary reports this explicitly.
+- UI wording changed from display-only expected cost to `필요 비용 ... · 시작 시 차감` for available research and shortage copy as `부족: 금 N / 군량 N`, while researching/completed/locked states keep their prior priority.
+- Added/updated QA helpers for actual charge summary and design-state flags: actual charge implemented true, active payload schema changed false, paid cost state false, BattleContext false, pending invasion schema false.
+- Preserved v0.70-79 F6 QA PASS state, Grace Turns, research start/progress/completion, one national active, one city active per PLAYER city, completed prerequisite recognition, researching no-effect, duplicate completion guard, same-city only, Safe Sets, enemy no research/effect, PLAYER-only panels, selected PLAYER city-only panels, enemy/unknown no-display, UI64 priority, click latency, overlay lifecycle, tech definitions, BattleContext, pending invasion schema, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Next candidates: `v0.70-82 Domestic Tech Actual Charge Manual QA`, `v0.70-82 Research Cost Affordability UI Polish`, or `v0.70-82 Labor Policy Resource State Design`.
+
 ## v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft
 - Baseline: `v0.70-79 Domestic Tech Actual F6 QA Result Record` at `4a939a49b33aedb6c0e309dba47cdcdd2f42d02e`; local `main` was ahead of `origin/main` and tracked files were clean at task start.
 - Added `agent/DOMESTIC_TECH_RESEARCH_COST_DESIGN.md` as the design draft for future Domestic Tech actual research cost charging.

@@ -11063,14 +11063,14 @@ func _get_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: Stri
 		"planned_food_cost": planned_food_cost,
 		"planned_labor_cost": 0,
 		"planned_policy_cost": 0,
-		"display_only": true,
-		"cost_charged": false,
-		"cost_charged_on_start": false,
+		"display_only": false,
+		"cost_charged": true,
+		"cost_charged_on_start": true,
 		"cost_charged_per_turn": false,
 		"cost_charged_on_completion": false,
-		"cost_blocks_research_start": false,
+		"cost_blocks_research_start": true,
 		"paid_cost_state_persisted": false,
-		"cost_affordability_checked": false,
+		"cost_affordability_checked": true,
 	}
 
 
@@ -11110,12 +11110,206 @@ func _format_domestic_tech_research_cost_display_mvp(cost_plan: Dictionary) -> S
 	if planned_policy_cost > 0:
 		parts.append("정책 %d" % planned_policy_cost)
 	if parts.is_empty():
-		return "예상 비용 없음 · 표시 전용"
-	return "예상 비용 %s · 표시 전용" % " / ".join(parts)
+		return "필요 비용 없음"
+	return "필요 비용 %s · 시작 시 차감" % " / ".join(parts)
 
 
 func _format_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: String = "") -> String:
 	return _format_domestic_tech_research_cost_display_mvp(_get_domestic_tech_research_cost_plan_mvp(tech_def, scope))
+
+
+func _build_domestic_tech_actual_charge_plan_mvp(tech_id: String, scope: String, city_id: String = "") -> Dictionary:
+	var definition := _get_domestic_tech_definition_mvp(tech_id)
+	var cost_plan := _get_domestic_tech_research_cost_plan_mvp(definition, scope) if not definition.is_empty() else {}
+	var planned_gold_cost := maxi(0, int(cost_plan.get("planned_gold_cost", 0)))
+	var planned_food_cost := maxi(0, int(cost_plan.get("planned_food_cost", 0)))
+	var planned_labor_cost := maxi(0, int(cost_plan.get("planned_labor_cost", 0)))
+	var planned_policy_cost := maxi(0, int(cost_plan.get("planned_policy_cost", 0)))
+	var implemented_costs := {}
+	var skipped_costs := {}
+	if planned_gold_cost > 0:
+		implemented_costs["gold"] = planned_gold_cost
+	if planned_food_cost > 0:
+		if scope == DOMESTIC_TECH_SCOPE_CITY:
+			implemented_costs["food_group"] = planned_food_cost
+		elif scope == DOMESTIC_TECH_SCOPE_NATIONAL and _has_domestic_tech_national_food_group_scope_mvp():
+			implemented_costs["food_group"] = planned_food_cost
+		else:
+			skipped_costs["food_group"] = {
+				"amount": planned_food_cost,
+				"reason": "unsupported_or_unavailable_scope",
+			}
+	if planned_labor_cost > 0:
+		skipped_costs["labor"] = {
+			"amount": planned_labor_cost,
+			"reason": "unsupported_persistent_state_key",
+		}
+	if planned_policy_cost > 0:
+		skipped_costs["policy"] = {
+			"amount": planned_policy_cost,
+			"reason": "unsupported_persistent_state_key",
+		}
+	return {
+		"tech_id": tech_id,
+		"scope": scope,
+		"city_id": city_id,
+		"cost_plan": cost_plan,
+		"implemented_costs": implemented_costs,
+		"skipped_costs": skipped_costs,
+		"food_group_keys": ["rice", "barley", "seafood"],
+		"food_group_deduction_order": ["rice", "barley", "seafood"],
+		"charge_timing": "on_research_start_once",
+	}
+
+
+func _has_domestic_tech_national_food_group_scope_mvp() -> bool:
+	var raw_stock: Variant = _player_state.get("resource_stock", {})
+	if not raw_stock is Dictionary:
+		return false
+	for food_resource_id in ["rice", "barley", "seafood"]:
+		if not (raw_stock as Dictionary).has(food_resource_id):
+			return false
+	return true
+
+
+func _validate_domestic_tech_actual_charge_mvp(charge_plan: Dictionary) -> Dictionary:
+	var scope := str(charge_plan.get("scope", ""))
+	var city_id := str(charge_plan.get("city_id", ""))
+	var implemented_costs: Dictionary = charge_plan.get("implemented_costs", {}) if charge_plan.get("implemented_costs", {}) is Dictionary else {}
+	var missing := {}
+	var available := {}
+	if implemented_costs.has("gold"):
+		var required_gold := maxi(0, int(implemented_costs.get("gold", 0)))
+		var available_gold := 0
+		if scope == DOMESTIC_TECH_SCOPE_CITY:
+			var city_storage_for_gold := _get_city_storage(city_id, _get_city_hud_entry(city_id))
+			available_gold = _get_city_storage_amount(city_storage_for_gold, "gold")
+		else:
+			var resource_stock_for_gold: Dictionary = _player_state.get("resource_stock", {}) if _player_state.get("resource_stock", {}) is Dictionary else {}
+			available_gold = maxi(0, int(resource_stock_for_gold.get("gold", 0)))
+		available["gold"] = available_gold
+		if available_gold < required_gold:
+			missing["gold"] = required_gold - available_gold
+	if implemented_costs.has("food_group"):
+		var required_food := maxi(0, int(implemented_costs.get("food_group", 0)))
+		var available_food := 0
+		if scope == DOMESTIC_TECH_SCOPE_CITY:
+			var city_storage_for_food := _get_city_storage(city_id, _get_city_hud_entry(city_id))
+			available_food = _get_city_storage_group_total(city_storage_for_food, ["rice", "barley", "seafood"])
+		elif scope == DOMESTIC_TECH_SCOPE_NATIONAL and _has_domestic_tech_national_food_group_scope_mvp():
+			var resource_stock_for_food: Dictionary = _player_state.get("resource_stock", {}) if _player_state.get("resource_stock", {}) is Dictionary else {}
+			for food_resource_id in ["rice", "barley", "seafood"]:
+				available_food += maxi(0, int(resource_stock_for_food.get(food_resource_id, 0)))
+		available["food_group"] = available_food
+		if available_food < required_food:
+			missing["food_group"] = required_food - available_food
+	return {
+		"ok": missing.is_empty(),
+		"missing": missing,
+		"available": available,
+		"charge_plan": charge_plan.duplicate(true),
+		"message": "" if missing.is_empty() else _format_domestic_tech_actual_charge_shortage_mvp({"missing": missing}),
+	}
+
+
+func _apply_domestic_tech_actual_charge_mvp(charge_plan: Dictionary) -> Dictionary:
+	var validation := _validate_domestic_tech_actual_charge_mvp(charge_plan)
+	if not bool(validation.get("ok", false)):
+		return {
+			"ok": false,
+			"reason": "insufficient_resources",
+			"validation": validation,
+		}
+	var scope := str(charge_plan.get("scope", ""))
+	var city_id := str(charge_plan.get("city_id", ""))
+	var implemented_costs: Dictionary = charge_plan.get("implemented_costs", {}) if charge_plan.get("implemented_costs", {}) is Dictionary else {}
+	var paid := {}
+	if scope == DOMESTIC_TECH_SCOPE_CITY:
+		var city_storage := _get_city_storage(city_id, _get_city_hud_entry(city_id))
+		var before_storage := city_storage.duplicate(true)
+		if implemented_costs.has("gold"):
+			var city_gold_cost := maxi(0, int(implemented_costs.get("gold", 0)))
+			city_storage["gold"] = _get_city_storage_amount(city_storage, "gold") - city_gold_cost
+			paid["gold"] = city_gold_cost
+		if implemented_costs.has("food_group"):
+			var city_remaining_food := maxi(0, int(implemented_costs.get("food_group", 0)))
+			var city_paid_food := {}
+			for city_food_resource_id in ["rice", "barley", "seafood"]:
+				var city_before_food := _get_city_storage_amount(city_storage, city_food_resource_id)
+				var city_pay_food := mini(city_before_food, city_remaining_food)
+				city_storage[city_food_resource_id] = city_before_food - city_pay_food
+				city_remaining_food -= city_pay_food
+				city_paid_food[city_food_resource_id] = city_pay_food
+			paid["food_group"] = city_paid_food
+		_set_city_storage(city_id, city_storage)
+		return {
+			"ok": true,
+			"scope": scope,
+			"city_id": city_id,
+			"before": before_storage,
+			"after": city_storage.duplicate(true),
+			"paid": paid,
+		}
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		var resource_stock: Dictionary = _player_state.get("resource_stock", {}).duplicate(true) if _player_state.get("resource_stock", {}) is Dictionary else {}
+		var before_stock := resource_stock.duplicate(true)
+		if implemented_costs.has("gold"):
+			var national_gold_cost := maxi(0, int(implemented_costs.get("gold", 0)))
+			resource_stock["gold"] = maxi(0, int(resource_stock.get("gold", 0))) - national_gold_cost
+			paid["gold"] = national_gold_cost
+		if implemented_costs.has("food_group"):
+			var national_remaining_food := maxi(0, int(implemented_costs.get("food_group", 0)))
+			var national_paid_food := {}
+			for national_food_resource_id in ["rice", "barley", "seafood"]:
+				var national_before_food := maxi(0, int(resource_stock.get(national_food_resource_id, 0)))
+				var national_pay_food := mini(national_before_food, national_remaining_food)
+				resource_stock[national_food_resource_id] = national_before_food - national_pay_food
+				national_remaining_food -= national_pay_food
+				national_paid_food[national_food_resource_id] = national_pay_food
+			paid["food_group"] = national_paid_food
+		_player_state["resource_stock"] = resource_stock
+		return {
+			"ok": true,
+			"scope": scope,
+			"before": before_stock,
+			"after": resource_stock.duplicate(true),
+			"paid": paid,
+		}
+	return {
+		"ok": false,
+		"reason": "invalid_scope",
+	}
+
+
+func _format_domestic_tech_actual_charge_shortage_mvp(validation: Dictionary) -> String:
+	var missing: Dictionary = validation.get("missing", {}) if validation.get("missing", {}) is Dictionary else {}
+	var parts: Array[String] = []
+	if missing.has("gold"):
+		parts.append("금 %d" % maxi(0, int(missing.get("gold", 0))))
+	if missing.has("food_group"):
+		parts.append("군량 %d" % maxi(0, int(missing.get("food_group", 0))))
+	if parts.is_empty():
+		return ""
+	return "부족: %s" % " / ".join(parts)
+
+
+func _get_domestic_tech_research_actual_charge_summary_mvp() -> Dictionary:
+	return {
+		"actual_charge_implemented": true,
+		"charge_timing": "on_research_start_once",
+		"implemented_resource_keys": ["gold", "food_group"],
+		"food_group_keys": ["rice", "barley", "seafood"],
+		"food_group_deduction_order": ["rice", "barley", "seafood"],
+		"labor_policy_actual_charge": "skipped_unsupported",
+		"paid_cost_state": false,
+		"active_payload_schema_changed": false,
+		"retroactive_charge": false,
+		"cancel_refund_implemented": false,
+		"partial_deduction_allowed": false,
+		"enemy_research_cost_scope": "none",
+		"battle_context_changed": false,
+		"pending_invasion_schema_changed": false,
+	}
 
 
 func _get_domestic_tech_requirement_summary_mvp(tech_def: Dictionary, view_state: Dictionary, _city_id: String = "") -> Array[String]:
@@ -11170,6 +11364,8 @@ func _format_domestic_tech_research_action_button_text_mvp(view_state: Dictionar
 		DOMESTIC_TECH_VIEW_LOCKED:
 			return "조건 부족"
 		_:
+			if str(validation.get("reason", "")) == "insufficient_cost":
+				return "자원 부족"
 			if str(validation.get("reason", "")) in ["national_active", "city_active", "already_researching"]:
 				return "연구 진행 중"
 			return "연구 시작"
@@ -11228,7 +11424,7 @@ func _format_domestic_tech_research_action_hint_mvp(view_state: Dictionary) -> S
 		DOMESTIC_TECH_VIEW_AVAILABLE:
 			var validation := _can_start_domestic_tech_research_mvp(_selected_domestic_tech_id_mvp, _selected_domestic_tech_city_id_mvp) if not _selected_domestic_tech_id_mvp.is_empty() else {"ok": false}
 			if bool(validation.get("ok", false)):
-				return "조건을 충족했습니다. 연구 시작 시 active 상태만 저장됩니다."
+				return "조건을 충족했습니다. 연구 시작 시 비용을 차감합니다."
 			return str(validation.get("message", "연구 시작 조건을 확인하십시오."))
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
 			return "특수 조건 충족 후 다음 단계에서 연구할 수 있습니다."
@@ -11787,14 +11983,14 @@ func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
 func _get_domestic_tech_research_balance_summary_mvp() -> Dictionary:
 	return {
 		"research_balance_planning_enabled": true,
-		"cost_display_only": true,
-		"cost_charged": false,
-		"cost_charged_on_start": false,
+		"cost_display_only": false,
+		"cost_charged": true,
+		"cost_charged_on_start": true,
 		"cost_charged_per_turn": false,
 		"cost_charged_on_completion": false,
-		"cost_blocks_research_start": false,
+		"cost_blocks_research_start": true,
 		"paid_cost_state_persisted": false,
-		"cost_affordability_checked": false,
+		"cost_affordability_checked": true,
 		"duration_fallback_enabled": true,
 		"duration_fallback_applies_to_new_research": true,
 		"national_duration_tier_rule": "tier_based",
@@ -11818,17 +12014,17 @@ func _get_domestic_tech_research_cost_display_summary_mvp() -> Dictionary:
 		"research_cost_display_enabled": true,
 		"national_cost_display_enabled": true,
 		"city_cost_display_enabled": true,
-		"cost_display_only": true,
+		"cost_display_only": false,
 		"cost_formatter_enabled": true,
 		"state_specific_cost_display": true,
-		"zero_cost_hidden_or_marked_display_only": true,
-		"cost_charged": false,
-		"cost_charged_on_start": false,
+		"zero_cost_hidden": true,
+		"cost_charged": true,
+		"cost_charged_on_start": true,
 		"cost_charged_per_turn": false,
 		"cost_charged_on_completion": false,
-		"cost_blocks_research_start": false,
+		"cost_blocks_research_start": true,
 		"paid_cost_state_persisted": false,
-		"cost_affordability_checked": false,
+		"cost_affordability_checked": true,
 		"enemy_research_cost_enabled": false,
 		"active_research_flow_changed": false,
 		"completion_flow_changed": false,
@@ -11894,23 +12090,35 @@ func _get_domestic_tech_actual_manual_qa_pass_mvp() -> Dictionary:
 
 func _get_domestic_tech_research_actual_charge_design_mvp() -> Dictionary:
 	return {
-		"version": "v0.70-80",
-		"design_draft_only": true,
-		"actual_charge_implemented": false,
+		"version": "v0.70-81",
+		"design_draft_only": false,
+		"actual_charge_implemented": true,
 		"recommended_charge_timing": "on_research_start_once",
+		"start_time_charge": true,
 		"per_turn_charge": false,
 		"charge_on_completion": false,
+		"completion_charge": false,
 		"retroactive_charge_existing_active": false,
 		"cancel_refund_in_scope": false,
+		"cancel_refund_implemented": false,
 		"paid_cost_state_required": false,
-		"affordability_check_planned": true,
-		"insufficient_cost_blocks_start_planned": true,
+		"paid_cost_state": false,
+		"active_payload_schema_changed": false,
+		"affordability_check_planned": false,
+		"affordability_check_implemented": true,
+		"insufficient_cost_blocks_start_planned": false,
+		"insufficient_cost_blocks_start_implemented": true,
+		"implemented_resource_keys": ["gold", "food_group"],
+		"skipped_resource_keys": ["labor", "policy"],
+		"food_group_keys": ["rice", "barley", "seafood"],
+		"food_group_deduction_order": ["rice", "barley", "seafood"],
+		"food_group_policy": "city_required_when_city_cost_has_food; national_required_only_when national scope has stable rice/barley/seafood keys",
 		"national_cost_scope": "player_national_resources",
-		"city_cost_scope": "selected_player_city_or_existing_resource_scope_to_be_confirmed",
+		"city_cost_scope": "selected_player_city_storage",
 		"enemy_cost_scope": "none",
 		"battle_context_changed": false,
 		"pending_invasion_schema_changed": false,
-		"gameplay_mutation": false,
+		"gameplay_mutation": true,
 		"print_spam": false,
 		"save_data_changed": false,
 	}
@@ -13142,7 +13350,25 @@ func _can_start_domestic_tech_research_mvp(tech_id: String, city_id: String = ""
 			return {"ok": false, "reason": "city_active", "message": "이 도시에서 이미 연구가 진행 중입니다.", "active_research": city_active}
 	else:
 		return {"ok": false, "reason": "invalid_scope", "message": "테크 범위를 확인할 수 없습니다."}
-	return {"ok": true, "reason": "ready", "message": "연구를 시작할 수 있습니다.", "view_state": view_state}
+	var charge_plan := _build_domestic_tech_actual_charge_plan_mvp(tech_id, scope, city_id)
+	var charge_validation := _validate_domestic_tech_actual_charge_mvp(charge_plan)
+	if not bool(charge_validation.get("ok", false)):
+		return {
+			"ok": false,
+			"reason": "insufficient_cost",
+			"message": _format_domestic_tech_actual_charge_shortage_mvp(charge_validation),
+			"view_state": view_state,
+			"charge_plan": charge_plan,
+			"charge_validation": charge_validation,
+		}
+	return {
+		"ok": true,
+		"reason": "ready",
+		"message": "연구를 시작할 수 있습니다.",
+		"view_state": view_state,
+		"charge_plan": charge_plan,
+		"charge_validation": charge_validation,
+	}
 
 
 func _start_domestic_tech_research_mvp(tech_id: String, city_id: String = "") -> bool:
@@ -13153,20 +13379,35 @@ func _start_domestic_tech_research_mvp(tech_id: String, city_id: String = "") ->
 		return false
 	var definition := _get_domestic_tech_definition_mvp(tech_id)
 	var duration_turns := _get_domestic_tech_research_duration_turns_mvp(definition)
+	var scope := str(definition.get("tree_scope", ""))
+	var city_data_for_research := {}
+	if scope == DOMESTIC_TECH_SCOPE_CITY:
+		city_data_for_research = _get_city_hud_entry(city_id).duplicate(true)
+		if city_data_for_research.is_empty():
+			_set_save_management_status("도시 연구 데이터를 찾을 수 없습니다.")
+			return false
+	var charge_plan: Dictionary = validation.get("charge_plan", {}) if validation.get("charge_plan", {}) is Dictionary else _build_domestic_tech_actual_charge_plan_mvp(tech_id, scope, city_id)
+	var charge_validation := _validate_domestic_tech_actual_charge_mvp(charge_plan)
+	if not bool(charge_validation.get("ok", false)):
+		_set_save_management_status(_format_domestic_tech_actual_charge_shortage_mvp(charge_validation))
+		_refresh_domestic_tech_detail_inspector_mvp()
+		return false
+	var charge_result := _apply_domestic_tech_actual_charge_mvp(charge_plan)
+	if not bool(charge_result.get("ok", false)):
+		_set_save_management_status(str(charge_result.get("reason", "연구 비용 차감에 실패했습니다.")))
+		_refresh_domestic_tech_detail_inspector_mvp()
+		return false
 	var active_research := {
 		"tech_id": tech_id,
 		"started_turn": _get_current_world_turn_number_mvp(),
 		"remaining_turns": duration_turns,
 		"duration_turns": duration_turns,
 	}
-	var scope := str(definition.get("tree_scope", ""))
 	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
 		_player_state["national_tech_research"] = {DOMESTIC_TECH_RESEARCH_ACTIVE_KEY: active_research}
 	elif scope == DOMESTIC_TECH_SCOPE_CITY:
-		var city_data := _get_city_hud_entry(city_id).duplicate(true)
-		if city_data.is_empty():
-			_set_save_management_status("도시 연구 데이터를 찾을 수 없습니다.")
-			return false
+		var city_data := city_data_for_research.duplicate(true)
+		city_data["storage"] = _get_city_storage(city_id, _get_city_hud_entry(city_id))
 		var city_tech: Dictionary = city_data.get("city_tech", {}) if city_data.get("city_tech", {}) is Dictionary else {}
 		if not city_tech.has("completed") or not (city_tech["completed"] is Dictionary):
 			city_tech["completed"] = {}
