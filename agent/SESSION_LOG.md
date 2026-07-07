@@ -2,6 +2,13 @@
 
 ## 2026-07-07
 
+### v0.70-82 Domestic Tech Actual Charge Manual QA
+- Started from clean local HEAD `b5c8bee932caaa538202ff28a226da5cb45c71c3`.
+- Read required workflow, Godot, current state, next task, handoff, Domestic Tech manual QA, and research cost design docs before edits.
+- Added the actual charge manual QA checklist to `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- The checklist covers National Tech gold charge/blocking/no-extra-charge, City Tech selected-city storage charge/blocking/food order, existing active compatibility, active payload schema, preservation checks, Godot Output checks, and PASS / NEEDS FIX recording.
+- Added only side-effect-free QA summary aliases to `scripts/worldmap_test.gd`; no gameplay, UI, scene, save/load, BattleContext, pending invasion, active payload, paid state, cancel/refund, enemy research/effect, tech definition, or asset/import behavior was changed.
+
 ### v0.70-81 Domestic Tech Research Cost Actual Charge MVP
 - Started from clean baseline `16749e55bf848ac10adb49cb395fad8d2478d39b`; `origin/main` matched.
 - Read required agent docs and implemented the v0.70-80 design as an MVP actual charge flow in `scripts/worldmap_test.gd`.

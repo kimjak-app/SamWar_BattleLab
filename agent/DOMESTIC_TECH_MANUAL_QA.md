@@ -1,3 +1,188 @@
+# Domestic Tech Actual Charge Manual QA
+
+Version: `v0.70-82 Domestic Tech Actual Charge Manual QA`
+Baseline: `v0.70-81 Domestic Tech Research Cost Actual Charge MVP` (`b5c8bee932caaa538202ff28a226da5cb45c71c3`)
+
+## 1. QA Purpose
+- Confirm Domestic Tech research cost is deducted exactly once when research starts.
+- Confirm insufficient resources block research start and do not deduct any resource.
+- Confirm no extra charge occurs on turn progress or completion.
+- Confirm active research payload schema remains unchanged.
+- Confirm the existing v0.70-79 F6 PASS flow and v0.70-81 actual charge implementation remain preserved.
+
+## 2. National Tech QA
+### Sufficient Gold Start
+1. Run `WorldMap_Test.tscn` with F6.
+2. Record PLAYER national gold before starting a national tech.
+3. Open Domestic Tech Tree and select an available national tech.
+4. Confirm copy shows `필요 비용 ... · 시작 시 차감`.
+5. Start research.
+6. Confirm PLAYER national gold decreases immediately by the planned gold cost.
+7. Confirm one active national research is created.
+8. Advance one turn and confirm gold does not decrease again from the same research.
+
+Expected:
+- Gold is charged once on start.
+- Active national research exists.
+- No city storage is changed by national tech start.
+
+### Insufficient Gold
+1. Prepare or find a state where PLAYER national gold is below the national tech cost.
+2. Attempt to start an available national tech.
+3. Confirm start is blocked.
+4. Confirm no active national research is created.
+5. Confirm gold is unchanged.
+6. Confirm shortage copy appears, such as `부족: 금 N`.
+
+Expected:
+- No deduction.
+- No active research creation.
+- Clear shortage message.
+
+### Progress / Completion
+1. With a paid active national research, advance turns.
+2. Confirm `remaining_turns` decreases.
+3. Confirm no additional gold is charged on progress turns.
+4. Reach completion.
+5. Confirm completion is normal and no extra gold is charged on completion.
+
+Expected:
+- Progress and completion behavior remains normal.
+- Charge timing remains start-only.
+
+## 3. City Tech QA
+### Sufficient Gold/Food Start
+1. Select a PLAYER city.
+2. Record selected city storage values for `gold`, `rice`, `barley`, and `seafood`.
+3. Open Domestic Tech Tree and select an available city tech.
+4. Start research.
+5. Confirm selected city storage `gold` decreases by the planned gold cost.
+6. If the city tech has planned food cost, confirm food is deducted in `rice -> barley -> seafood` order.
+7. Confirm active city research is created only for the selected city.
+
+Expected:
+- Selected PLAYER city storage is charged once.
+- Other PLAYER city storage remains unchanged.
+- One active city research exists for the selected city only.
+
+### Insufficient Gold
+1. Prepare or find a selected PLAYER city with gold below the city tech cost.
+2. Attempt to start an available city tech.
+3. Confirm start is blocked.
+4. Confirm no selected city storage deduction.
+5. Confirm no active city research is created.
+
+Expected:
+- No deduction.
+- No active research.
+- Shortage copy includes gold.
+
+### Insufficient Food Group
+1. Prepare or find a selected PLAYER city where `rice + barley + seafood` is below the planned food cost.
+2. Attempt to start an available city tech with food cost.
+3. Confirm start is blocked.
+4. Confirm `rice`, `barley`, and `seafood` are unchanged.
+5. Confirm no active city research is created.
+
+Expected:
+- No partial food deduction.
+- No active research.
+- Shortage copy includes `군량`.
+
+### Food Deduction Order
+1. Use a selected PLAYER city with enough total food but not enough `rice` alone.
+2. Start city tech research with food cost.
+3. Confirm `rice` is reduced first.
+4. Confirm any remaining cost is taken from `barley`.
+5. Confirm any remaining cost after barley is taken from `seafood`.
+
+Expected:
+- Deduction order is exactly `rice -> barley -> seafood`.
+
+### Scope Preservation
+- Confirm other PLAYER city storage is unchanged.
+- Confirm enemy, unknown, or insufficient-intel city still has no research start, no cost charge, and no effect.
+
+## 4. Existing Active Research Compatibility QA
+Confirm:
+- Existing active research from before v0.70-81 is not retroactively charged.
+- Active research payload does not receive paid/cost/charge fields.
+- Active payload keys remain:
+  - `tech_id`
+  - `started_turn`
+  - `remaining_turns`
+  - `duration_turns`
+
+Expected:
+- No `paid`, `paid_cost`, `charged_cost`, `cost_state`, or equivalent active research field.
+
+## 5. No Extra Charge QA
+Confirm:
+- No extra charge after the start turn.
+- No extra charge on completion.
+- No research cancel UI, refund UI, cancel behavior, or refund behavior exists.
+
+Expected:
+- Start-time charge only.
+- No per-turn charge.
+- No completion charge.
+- No cancel/refund system.
+
+## 6. Preservation QA
+Confirm unchanged:
+1. Grace Turns.
+2. Research start/progress/completion.
+3. One national active research.
+4. One city active research per PLAYER city.
+5. Completed prerequisite recognition.
+6. Researching no-effect.
+7. Duplicate completion guard.
+8. Same-city only.
+9. Safe Sets:
+   - Economy.
+   - Military/Defense.
+   - National Policy.
+   - Naval/Siege Display.
+   - Diplomacy/Spy Display.
+   - Full Effect Integration Summary.
+10. PLAYER-only left panel.
+11. Selected PLAYER city-only right panel.
+12. Enemy/unknown/insufficient-intel no-display.
+13. UI64 icon priority.
+14. Node click latency behavior.
+15. Overlay lifecycle.
+
+## 7. Godot Output QA
+Confirm:
+- F6 launch has no new GDScript warning/error.
+- Domestic Tech overlay open/close has no new warning/error.
+- Research start, resource shortage, progress, and completion have no error.
+
+## 8. PASS / NEEDS FIX Record Template
+```text
+QA Date:
+Tester:
+Version:
+Commit:
+National sufficient gold:
+National insufficient gold:
+National no per-turn charge:
+National no completion charge:
+City sufficient gold/food:
+City insufficient gold:
+City insufficient food:
+City food deduction order:
+Other city unchanged:
+Existing active no retroactive charge:
+Active payload schema unchanged:
+Enemy/unknown no research/effect:
+Godot Output clean:
+Result: PASS / NEEDS FIX
+Notes:
+```
+
+---
+
 # Domestic Tech Actual Manual QA Pass
 
 Version: `v0.70-78 Domestic Tech Actual Manual QA Pass`

@@ -1,5 +1,11 @@
 # WORLDMAP RULES
 
+## v0.70-82 Domestic Tech Actual Charge Manual QA Lock Rule
+- v0.70-82 is QA documentation and side-effect-free QA summary metadata only.
+- Do not change Domestic Tech actual charge gameplay logic, research start flow, resource deduction logic, UI layout, scenes, save/load schema, active research payload schema, paid cost state, cancel/refund, enemy research/effect, BattleContext, pending invasion schema, tech definitions, or assets/imports under this QA pass.
+- `agent/DOMESTIC_TECH_MANUAL_QA.md` is the F6 checklist source for actual charge verification: national sufficient/insufficient gold, no per-turn charge, no completion charge, city sufficient gold/food, city insufficient gold/food, food order `rice -> barley -> seafood`, other city unchanged, existing active no retroactive charge, active payload schema unchanged, enemy/unknown no research/effect, and Godot Output cleanliness.
+- Any code change in this pass must remain side-effect-free Dictionary/report metadata only.
+
 ## v0.70-81 Domestic Tech Research Cost Actual Charge MVP Lock Rule
 - v0.70-81 supersedes the v0.70-80 display-only cost lock only for Domestic Tech research start cost payment.
 - Actual charge timing is start-time only: validate implemented resources, deduct once, then create active research. Do not add per-turn charge, completion charge, cancel/refund, retroactive charge, or paid cost state.

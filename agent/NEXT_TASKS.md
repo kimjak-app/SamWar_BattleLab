@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-82 Domestic Tech Actual Charge Manual QA
+- Baseline: `v0.70-81 Domestic Tech Research Cost Actual Charge MVP` (`b5c8bee932caaa538202ff28a226da5cb45c71c3`).
+- Completed direction:
+  1. Added a v0.70-82 Actual Charge QA section to the top of `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+  2. Covered National Tech sufficient/insufficient gold, progress no extra charge, completion no extra charge, and city storage no-touch from national tech.
+  3. Covered City Tech selected-city storage charge, insufficient gold, insufficient food group, no partial deduction, food order `rice -> barley -> seafood`, other-city unchanged, and enemy/unknown no research/effect.
+  4. Added explicit existing-active compatibility and active payload schema checks.
+  5. Added a PASS / NEEDS FIX record template for F6 results.
+  6. Added side-effect-free QA alias flags to the existing actual charge summary helper.
+- Preserved scope:
+  1. No gameplay logic change, research start flow change, resource deduction logic change, UI layout change, scene change, save/load schema change, active payload change, paid cost state, cancel/refund, enemy research/effect, BattleContext change, pending invasion schema change, tech definition change, asset/import change, or large refactor.
+- Next candidates:
+  1. `v0.70-83 Domestic Tech Actual Charge F6 Result Record`.
+  2. `v0.70-83 Research Cost Affordability UI Polish`.
+  3. `v0.70-83 Labor Policy Resource State Design`.
+
 ## Current: v0.70-81 Domestic Tech Research Cost Actual Charge MVP
 - Baseline: `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft` (`16749e55bf848ac10adb49cb395fad8d2478d39b`).
 - Completed direction:

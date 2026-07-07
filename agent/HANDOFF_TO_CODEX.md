@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.70-82 Domestic Tech Actual Charge Manual QA Handoff
+- Latest baseline: `v0.70-82 Domestic Tech Actual Charge Manual QA` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-81 Domestic Tech Research Cost Actual Charge MVP` (`b5c8bee932caaa538202ff28a226da5cb45c71c3`).
+- Manual QA document updated: `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Runtime file touched only for side-effect-free QA summary aliases: `scripts/worldmap_test.gd`.
+- This pass is QA documentation and QA helper metadata only. It does not alter actual charge gameplay, research start flow, resource deduction logic, UI layout, scenes, save/load schema, active payload schema, paid cost state, cancel/refund, enemy research/effect, BattleContext, pending invasion schema, tech definitions, or assets/imports.
+- F6 QA should now record National Tech sufficient/insufficient gold, no per-turn charge, no completion charge, City Tech sufficient gold/food, insufficient gold, insufficient food, food deduction order, other-city unchanged, existing active no retroactive charge, active payload schema unchanged, enemy/unknown no research/effect, and Godot Output cleanliness.
+- Recommended next options:
+  1. `v0.70-83 Domestic Tech Actual Charge F6 Result Record`.
+  2. `v0.70-83 Research Cost Affordability UI Polish`.
+  3. `v0.70-83 Labor Policy Resource State Design`.
+
 ## v0.70-81 Domestic Tech Research Cost Actual Charge MVP Handoff
 - Latest baseline: `v0.70-81 Domestic Tech Research Cost Actual Charge MVP` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft` (`16749e55bf848ac10adb49cb395fad8d2478d39b`).

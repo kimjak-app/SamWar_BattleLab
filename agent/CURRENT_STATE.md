@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.70-82 Domestic Tech Actual Charge Manual QA
+- Baseline: `v0.70-81 Domestic Tech Research Cost Actual Charge MVP` at `b5c8bee932caaa538202ff28a226da5cb45c71c3`; tracked files were clean at task start.
+- Prepared the F6 manual QA checklist for the Domestic Tech actual charge MVP in `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- The QA guide now covers QA purpose, National Tech sufficient/insufficient gold, no per-turn charge, no completion charge, City Tech sufficient gold/food, insufficient gold, insufficient food, food deduction order `rice -> barley -> seafood`, other-city unchanged checks, existing active compatibility, no extra charge, preservation QA, Godot Output QA, and PASS / NEEDS FIX recording.
+- Added only side-effect-free actual charge summary aliases in `scripts/worldmap_test.gd` for QA readability: start-time charge, no per-turn/completion charge, city food group order, national/city gold charge, city food group charge, labor/policy skipped, partial deduction false.
+- No gameplay logic, research start flow, resource deduction logic, UI layout, scene, save/load schema, active research payload, paid cost state, cancel/refund, enemy research/effect, BattleContext, pending invasion schema, tech definitions, or assets/imports were changed.
+- Next candidates: `v0.70-83 Domestic Tech Actual Charge F6 Result Record`, `v0.70-83 Research Cost Affordability UI Polish`, or `v0.70-83 Labor Policy Resource State Design`.
+
 ## v0.70-81 Domestic Tech Research Cost Actual Charge MVP
 - Baseline: `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft` at `16749e55bf848ac10adb49cb395fad8d2478d39b`; local `main` and `origin/main` matched and tracked files were clean at task start.
 - Implemented Domestic Tech actual research cost charge MVP in `scripts/worldmap_test.gd`.

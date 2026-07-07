@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.70-82 Domestic Tech Actual Charge Manual QA
+- Added the v0.70-82 Domestic Tech actual charge F6 manual QA checklist to the top of `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Covered actual charge QA for National Tech, City Tech, existing active compatibility, no extra charge, preservation areas, Godot Output, and PASS / NEEDS FIX result recording.
+- Added side-effect-free QA alias flags to `_get_domestic_tech_research_actual_charge_summary_mvp()` for start-time charge, no per-turn/completion charge, city food group order, national/city gold charge, city food group charge, labor/policy skipped, and partial deduction false.
+- Preserved gameplay logic, research start flow, resource deduction logic, UI layout, scenes, save/load schema, active payload schema, paid cost state absence, cancel/refund absence, enemy research/effect absence, BattleContext, pending invasion schema, tech definitions, and assets/imports.
+
 ## v0.70-81 Domestic Tech Research Cost Actual Charge MVP
 - Implemented Domestic Tech actual research cost charging at research start in `scripts/worldmap_test.gd`.
 - Added actual charge plan, validation, application, shortage formatting, and QA summary helpers.
