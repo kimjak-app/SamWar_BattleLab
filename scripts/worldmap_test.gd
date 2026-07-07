@@ -243,6 +243,7 @@ const WORLDMAP_SAVE_PATH := "user://worldmap_left_panel_state.json"
 const TURN_PHASE_PLAYER := "player"
 const TURN_PHASE_ENEMY := "enemy"
 const ENEMY_TURN_MVP_DELAY := 0.75
+const MANUAL_QA_NO_INVASION_GRACE_TURNS := 10
 const ENEMY_INVASION_CHANCE := 0.45
 const ENEMY_FACTION_TURN_REINFORCE_BASE := 60
 const ENEMY_FACTION_TURN_REINFORCE_FRONTLINE_BONUS := 40
@@ -6257,6 +6258,9 @@ func _roll_enemy_invasion_event_mvp(roll_value: float = -1.0, candidate_index: i
 	if _has_pending_invasion_event_mvp() or not _get_pending_battle_context_mvp().is_empty():
 		return {}
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	if _is_manual_qa_invasion_grace_turn_active_mvp():
+		_player_state["enemy_invasion_roll_turn"] = turn_number
+		return {}
 	if int(_player_state.get("enemy_invasion_roll_turn", 0)) == turn_number:
 		return {}
 	_player_state["enemy_invasion_roll_turn"] = turn_number
@@ -6723,6 +6727,8 @@ func _sort_enemy_pressure_plan_candidates_mvp(left: Dictionary, right: Dictionar
 func _pick_enemy_pressure_plan_mvp() -> Dictionary:
 	if _should_skip_enemy_pressure_plan_mvp():
 		return {}
+	if _is_manual_qa_invasion_grace_turn_active_mvp():
+		return {}
 	var candidates := _build_enemy_pressure_plan_candidates_mvp()
 	if candidates.is_empty():
 		return {}
@@ -6979,6 +6985,8 @@ func _apply_enemy_city_reinforcement_mvp(faction_id: String, city_id: String) ->
 
 func _process_enemy_strategic_follow_up_action_mvp(processed_factions: Array[String]) -> Dictionary:
 	if _has_pending_invasion_event_mvp() or not _get_pending_battle_context_mvp().is_empty():
+		return {}
+	if _is_manual_qa_invasion_grace_turn_active_mvp():
 		return {}
 	var faction_ids := processed_factions.duplicate()
 	if faction_ids.is_empty():
@@ -11864,6 +11872,29 @@ func _get_domestic_tech_manual_qa_scenario_pack_mvp() -> Dictionary:
 			"ship_count": 0,
 			"siege_weapon_count": 0,
 		},
+	}
+
+
+func _is_manual_qa_invasion_grace_turn_active_mvp() -> bool:
+	var current_turn := _get_current_world_turn_number_mvp()
+	return current_turn <= MANUAL_QA_NO_INVASION_GRACE_TURNS
+
+
+func _get_manual_qa_grace_summary_mvp() -> Dictionary:
+	return {
+		"manual_qa_invasion_grace_enabled": true,
+		"manual_qa_invasion_grace_turns": MANUAL_QA_NO_INVASION_GRACE_TURNS,
+		"current_turn": _get_current_world_turn_number_mvp(),
+		"invasion_grace_active": _is_manual_qa_invasion_grace_turn_active_mvp(),
+		"invasion_creation_blocked_during_grace": true,
+		"enemy_pressure_plan_blocked_during_grace": true,
+		"turn_progress_blocked": false,
+		"domestic_research_progress_blocked": false,
+		"income_blocked": false,
+		"ui_refresh_blocked": false,
+		"battle_context_changed": false,
+		"pending_invasion_schema_changed": false,
+		"enemy_ai_disabled_globally": false,
 	}
 
 

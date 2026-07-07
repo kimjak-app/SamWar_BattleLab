@@ -8,6 +8,12 @@ Baseline: `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d322
 - Do not implement actual research cost deduction, affordability checks, paid cost state, refund/reservation/cancel flow, extra research slots, enemy research, enemy effects, battle/diplomacy/spy/market/city_intel/AI formulas, troop/ship/siege count mutation, tech definition changes, assets, or `.import` changes.
 - Research cost remains display-only: `cost_display_only = true`, `cost_charged = false`, `cost_charged_on_start = false`, `cost_charged_per_turn = false`, `cost_charged_on_completion = false`, `cost_blocks_research_start = false`, `paid_cost_state_persisted = false`, and `cost_affordability_checked = false`.
 
+## Manual QA Grace Turns
+- `v0.70-76 Domestic Tech Manual QA Grace Turns` adds a QA-only early-turn guard for F6 Domestic Tech QA.
+- Turns 1 through 10 block new enemy pending invasion creation, enemy pressure plan creation, and enemy strategic follow-up pressure creation.
+- Turn 11 and later should return to the existing invasion/pressure logic.
+- The grace must not block turn progress, Domestic Tech research progress/completion, income, UI refresh, existing pending invasion handling, BattleContext structure, or pending invasion schema.
+
 ## 1. National Research Flow
 ### National Research Start
 1. Run F6 and open Domestic Tech Tree.

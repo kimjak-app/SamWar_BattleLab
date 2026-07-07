@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-76 Domestic Tech Manual QA Grace Turns
+- Baseline: local `v0.70-76 Domestic Tech Manual QA Scenario Pack` (`f259e56e9298bbfc067bd6647c3407144a03c6d2`), built on `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
+- Completed direction:
+  1. Added a QA-only 10-turn no-invasion grace constant for F6 Domestic Tech manual QA.
+  2. Added a side-effect-free grace active helper and QA summary helper.
+  3. Blocked new pending invasion creation, enemy pressure plan creation, and enemy strategic follow-up pressure creation during turns 1-10 only.
+  4. Kept turn progress, Domestic Tech research progress/completion, income, and UI refresh active during grace.
+- Preserved scope:
+  1. No BattleContext structure change, pending invasion schema change, enemy AI global disable, Domestic Tech research/effect/cost change, cost charge/gating, Safe Set regression, tech definition change, asset/icon/UI64/import change, or large refactor was made.
+  2. Turn 11 and later should resume the existing invasion/pressure creation logic.
+- Next candidates:
+  1. `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish`.
+  2. `v0.70-77 Domestic Tech Manual QA Scenario Pack`.
+- Manual F6 QA required:
+  1. Check turn 1-10 no new invasion/pending invasion/pressure creation, turn 11 logic return, research progress/completion during grace, income during grace, UI64/click/overlay, and clean Godot Output.
+
 ## Current: v0.70-76 Domestic Tech Manual QA Scenario Pack
 - Baseline: `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
 - Completed direction:

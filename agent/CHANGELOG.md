@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.70-76 Domestic Tech Manual QA Grace Turns
+- Built on local `v0.70-76 Domestic Tech Manual QA Scenario Pack` (`f259e56e9298bbfc067bd6647c3407144a03c6d2`) and the requested `v0.70-75-hotfix1 Cost Display QA Polish` baseline (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
+- Added `MANUAL_QA_NO_INVASION_GRACE_TURNS = 10` for Domestic Tech F6 manual QA.
+- Added `_is_manual_qa_invasion_grace_turn_active_mvp()` and `_get_manual_qa_grace_summary_mvp()` as side-effect-free QA helpers.
+- Blocked new enemy pending invasion creation, enemy pressure plan creation, and enemy strategic follow-up pressure creation during turns 1-10; turn 11 and later return to the existing logic.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`, and `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Did not change BattleContext structure, pending invasion schema, turn progress, Domestic Tech research/effect/cost logic, cost display-only/no charge/no gating flags, Safe Sets, enemy tech/research/effects, enemy AI globally, tech definitions, assets, icon PNGs, UI64 PNGs, or `.import` files.
+
 ## v0.70-76 Domestic Tech Manual QA Scenario Pack
 - Built on `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
 - Added `agent/DOMESTIC_TECH_MANUAL_QA.md` with followable F6 scenarios for national research start/progress/completion, city research start/progress/completion, completion refresh, same-city only, enemy/unknown/insufficient-intel no-display, Safe Set effects, cost display-only, no charge, no gating, UI64 icons, node click latency, overlay lifecycle, warning cleanliness, and result recording.

@@ -1,5 +1,16 @@
 # HANDOFF TO CODEX
 
+## v0.70-76 Domestic Tech Manual QA Grace Turns Handoff
+- Baseline: local `v0.70-76 Domestic Tech Manual QA Scenario Pack` (`f259e56e9298bbfc067bd6647c3407144a03c6d2`), built on `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This pass adds a QA-only early-turn grace for Domestic Tech F6 manual QA. It is not a release balance system.
+- `MANUAL_QA_NO_INVASION_GRACE_TURNS = 10`; turns 1 through 10 block new enemy pending invasion creation, enemy pressure plan creation, and enemy strategic follow-up pressure creation. Turn 11 and later use the existing logic again.
+- `_is_manual_qa_invasion_grace_turn_active_mvp()` is side-effect free. `_get_manual_qa_grace_summary_mvp()` reports grace flags without printing or mutating gameplay.
+- Explicitly unchanged: turn progress, Domestic Tech research start/progress/completion, completion refresh, income, cost display-only, no cost charge/gating, Safe Set effects, UI64 fallback, node-click latency behavior, overlay lifecycle, existing pending invasion data handling, BattleContext structure, pending invasion schema, enemy reinforcement processing, tech ids/names/categories/branches/prerequisites, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- No enemy AI global disable was added.
+- Next candidates: `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` or `v0.70-77 Domestic Tech Manual QA Scenario Pack`.
+- Manual F6 QA remains required for turn 1-10 no new invasion/pressure, turn 11 invasion logic return, Domestic Tech research progress, income, UI64/click/overlay, and warning cleanliness.
+
 ## v0.70-76 Domestic Tech Manual QA Scenario Pack Handoff
 - Baseline: `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
 - Manual QA scenario document: `agent/DOMESTIC_TECH_MANUAL_QA.md`.

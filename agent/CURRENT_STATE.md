@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.70-76 Domestic Tech Manual QA Grace Turns
+- Baseline: local `v0.70-76 Domestic Tech Manual QA Scenario Pack` at `f259e56e9298bbfc067bd6647c3407144a03c6d2`, built on `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`); local HEAD was ahead of `origin/main` by the scenario pack commit and tracked files were clean at task start.
+- Added `MANUAL_QA_NO_INVASION_GRACE_TURNS = 10` as a QA-only early-turn invasion/pressure grace constant for F6 Domestic Tech manual QA.
+- Added `_is_manual_qa_invasion_grace_turn_active_mvp()` and `_get_manual_qa_grace_summary_mvp()` for side-effect-free QA confirmation.
+- Applied the grace guard only to new enemy pending invasion creation, enemy pressure plan creation, and enemy strategic follow-up pressure creation. Turns 1 through 10 block those new events; turn 11 and later allow the existing logic to resume.
+- Preserved turn progress, Domestic Tech research progress/completion, income, UI refresh, existing pending invasion handling, BattleContext structure, pending invasion schema, enemy reinforcement processing, cost display-only, no cost charge/gating, and all Domestic Tech Safe Sets.
+- No enemy AI global disable, no BattleContext mutation, no pending invasion schema mutation, no Domestic Tech research/effect/cost logic change, no tech definition change, and no asset/import change.
+- Next candidates: `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` or `v0.70-77 Domestic Tech Manual QA Scenario Pack`.
+- Manual F6 QA remains required for turn 1-10 no invasion/pressure creation, turn 11 invasion logic return, research progress during grace, income during grace, UI64/click/overlay, and warning cleanliness.
+
 ## v0.70-76 Domestic Tech Manual QA Scenario Pack
 - Baseline: `v0.70-75-hotfix1 Cost Display QA Polish` at `8a50087de9d1b4f720cb91d32255960e5a6df585`; local HEAD matched `origin/main` and tracked files were clean at task start.
 - Added `agent/DOMESTIC_TECH_MANUAL_QA.md` as the followable F6 manual QA scenario pack for Domestic Tech research and display safety.
