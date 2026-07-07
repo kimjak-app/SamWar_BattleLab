@@ -1,5 +1,24 @@
 # NEXT TASKS
 
+## Current: v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft
+- Baseline: `v0.70-79 Domestic Tech Actual F6 QA Result Record` (`4a939a49b33aedb6c0e309dba47cdcdd2f42d02e`).
+- Completed direction:
+  1. Added `agent/DOMESTIC_TECH_RESEARCH_COST_DESIGN.md` to fix actual charge design before implementation.
+  2. Recorded one-time upfront charge on research start as the recommended v0.70-81 timing.
+  3. Recorded planned affordability behavior: check on start, block only new research if implemented resources are insufficient, and report missing resources.
+  4. Recorded national/city cost scope, existing active research compatibility, cancel/refund out-of-scope, UI wording policy, save data policy, and failure handling.
+  5. Added side-effect-free `_get_domestic_tech_research_actual_charge_design_mvp()` with `actual_charge_implemented = false`.
+- Preserved scope:
+  1. No actual cost deduction, actual start gating, actual affordability check, paid cost state, cancel/refund, active research schema change, research slot change, enemy research/effect, BattleContext/pending invasion schema change, tech definition change, asset/import change, or gameplay mutation was made.
+  2. v0.70-79 F6 QA PASS state, Grace Turns, research start/progress/completion, cost display-only, Safe Sets, enemy no-effect, UI64 priority, click latency, and overlay lifecycle remain locked.
+- Next candidates:
+  1. `v0.70-81 Domestic Tech Research Cost Actual Charge MVP`.
+  2. `v0.70-81 Research Cost Affordability UI Polish`.
+  3. `v0.70-80 Domestic Tech Balance Tuning Draft`.
+- Implementation recommendation:
+  1. Start actual charge MVP with confirmed state keys only, likely `gold` plus an explicitly defined food-group policy for `군량`.
+  2. Keep labor/policy display-only until corresponding persistent state keys are decided.
+
 ## Current: v0.70-79 Domestic Tech Actual F6 QA Result Record
 - Baseline: `v0.70-78 Domestic Tech Actual Manual QA Pass` (`702d6054f3ebab8f9754fa9283663c6ffb0de4cf`).
 - Completed direction:

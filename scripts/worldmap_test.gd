@@ -11892,6 +11892,30 @@ func _get_domestic_tech_actual_manual_qa_pass_mvp() -> Dictionary:
 	}
 
 
+func _get_domestic_tech_research_actual_charge_design_mvp() -> Dictionary:
+	return {
+		"version": "v0.70-80",
+		"design_draft_only": true,
+		"actual_charge_implemented": false,
+		"recommended_charge_timing": "on_research_start_once",
+		"per_turn_charge": false,
+		"charge_on_completion": false,
+		"retroactive_charge_existing_active": false,
+		"cancel_refund_in_scope": false,
+		"paid_cost_state_required": false,
+		"affordability_check_planned": true,
+		"insufficient_cost_blocks_start_planned": true,
+		"national_cost_scope": "player_national_resources",
+		"city_cost_scope": "selected_player_city_or_existing_resource_scope_to_be_confirmed",
+		"enemy_cost_scope": "none",
+		"battle_context_changed": false,
+		"pending_invasion_schema_changed": false,
+		"gameplay_mutation": false,
+		"print_spam": false,
+		"save_data_changed": false,
+	}
+
+
 func _is_manual_qa_invasion_grace_turn_active_mvp() -> bool:
 	var current_turn := _get_current_world_turn_number_mvp()
 	return current_turn <= MANUAL_QA_NO_INVASION_GRACE_TURNS

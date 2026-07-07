@@ -1,5 +1,16 @@
 # WORLDMAP RULES
 
+## v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft Lock Rule
+- Baseline is `v0.70-79 Domestic Tech Actual F6 QA Result Record` (`4a939a49b33aedb6c0e309dba47cdcdd2f42d02e`).
+- v0.70-80 authorizes design documentation, agent doc updates, and side-effect-free design helper flags only.
+- This pass is design draft only: actual charge implemented must remain false, gameplay mutation must remain false, and no actual cost deduction, actual start gating, actual affordability check, paid cost state, cancel/refund, active research payload schema change, or resource mutation is authorized.
+- Current gameplay wording remains `예상 비용 ... · 표시 전용` until a later implementation task explicitly changes it.
+- Future recommended timing is one-time upfront charge on research start. Per-turn charge, completion charge, ongoing upkeep, cancel, and refund are out-of-scope for the first Actual Charge MVP.
+- Existing active research must not be retroactively charged, must not receive forced paid-cost fields, and must not have `remaining_turns` or `duration_turns` rewritten by actual charge design.
+- National/city resource scope remains design-only. Before implementation, display labels must be mapped to real state keys; `군량` is not itself a confirmed state key.
+- Grace Turns, v0.70-79 F6 QA PASS state, research start/progress/completion, Safe Sets, enemy no research/effect, BattleContext no-touch, pending invasion schema no-touch, tech definitions no-touch, UI64 asset/import no-touch, and warning cleanup locks remain active.
+- `_get_domestic_tech_research_actual_charge_design_mvp()` may exist only as a side-effect-free design summary helper. It must not print, save, mutate resources, mutate research state, advance turns, start or complete research, reveal intel, change UI lifecycle, run automated gameplay, or alter enemy AI.
+
 ## v0.70-79 Domestic Tech Actual F6 QA Result Record Lock Rule
 - Baseline is `v0.70-78 Domestic Tech Actual Manual QA Pass` (`702d6054f3ebab8f9754fa9283663c6ffb0de4cf`).
 - v0.70-79 authorizes Actual F6 QA result recording and agent document updates only.

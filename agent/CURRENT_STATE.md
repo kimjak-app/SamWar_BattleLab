@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft
+- Baseline: `v0.70-79 Domestic Tech Actual F6 QA Result Record` at `4a939a49b33aedb6c0e309dba47cdcdd2f42d02e`; local `main` was ahead of `origin/main` and tracked files were clean at task start.
+- Added `agent/DOMESTIC_TECH_RESEARCH_COST_DESIGN.md` as the design draft for future Domestic Tech actual research cost charging.
+- This version is design draft only: actual charge implemented = false, no gameplay mutation, no actual cost deduction, no actual start gating, no actual affordability check, no paid cost state, no cancel/refund system, and no active research payload schema change.
+- Recommended timing is fixed as one-time upfront charge on research start. Per-turn charge, charge on completion, ongoing upkeep, completion failure settlement, cancel, and refund are out-of-scope.
+- Affordability design is recorded for v0.70-81: check resources at research start, block new research if implemented resources are insufficient, show missing resources, and leave existing active research unaffected.
+- Resource scope design is recorded: national tech should use PLAYER national resources; city tech should use selected PLAYER city resources or an explicitly chosen existing resource scope; enemy cost scope remains none.
+- Current implementation evidence is recorded: cost plan uses planned gold/food/labor/policy values, while current resource state uses `gold` plus food-like `rice`/`barley`/`seafood`; display labels must not be confused with state keys.
+- Added `_get_domestic_tech_research_actual_charge_design_mvp()` as a side-effect-free design helper with `design_draft_only = true`, `actual_charge_implemented = false`, and `gameplay_mutation = false`.
+- Preserved v0.70-79 F6 QA PASS state, Grace Turns, research start/progress/completion, cost display-only wording, Safe Sets, enemy no research/effect, BattleContext/pending invasion schema no-touch, tech definitions, assets, UI64 icons, and `.import` files.
+- Next candidates: `v0.70-81 Domestic Tech Research Cost Actual Charge MVP` or `v0.70-81 Research Cost Affordability UI Polish`; `v0.70-80 Domestic Tech Balance Tuning Draft` remains a separate candidate.
+
 ## v0.70-79 Domestic Tech Actual F6 QA Result Record
 - Baseline: `v0.70-78 Domestic Tech Actual Manual QA Pass` at `702d6054f3ebab8f9754fa9283663c6ffb0de4cf`; local `main` was ahead of `origin/main` by the v0.70-78 commit and tracked files were clean at task start.
 - Commit: this `v0.70-79 Domestic Tech Actual F6 QA Result Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.

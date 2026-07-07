@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft Handoff
+- Latest baseline: `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-79 Domestic Tech Actual F6 QA Result Record` (`4a939a49b33aedb6c0e309dba47cdcdd2f42d02e`).
+- Design document: `agent/DOMESTIC_TECH_RESEARCH_COST_DESIGN.md`.
+- Runtime helper touched: `scripts/worldmap_test.gd`.
+- This pass is design draft only. It does not implement actual research cost deduction, start gating, affordability checking, paid cost state, cancel/refund, active research schema changes, or resource mutation.
+- Recommended actual charge model for a future v0.70-81 MVP: charge once at research start; no per-turn charge; no charge on completion; no ongoing upkeep; no cancel/refund in MVP.
+- Planned affordability model: check resources when starting new research, block only the new start if implemented resources are insufficient, report missing resources, and leave existing active research untouched.
+- Existing active research compatibility: no retroactive charge, no forced paid-cost field, and no `remaining_turns` / `duration_turns` mutation.
+- Resource scope: national tech should charge PLAYER national resources; city tech should charge selected PLAYER city resources or another explicitly chosen existing scope; enemy scope is none. Current state-key mapping must be confirmed before implementation because `군량` is display wording while resource state uses food-like keys such as `rice`, `barley`, and `seafood`.
+- Locks to preserve: v0.70-79 F6 QA PASS state, Grace Turns, research start/progress/completion, cost display-only wording until implementation, Safe Sets, enemy no research/effect, BattleContext/pending invasion schema no-touch, tech definitions no-touch, UI64 asset/import no-touch.
+- Recommended next options:
+  1. `v0.70-81 Domestic Tech Research Cost Actual Charge MVP`.
+  2. `v0.70-81 Research Cost Affordability UI Polish`.
+  3. `v0.70-80 Domestic Tech Balance Tuning Draft`.
+
 ## v0.70-79 Domestic Tech Actual F6 QA Result Record Handoff
 - Latest baseline: `v0.70-79 Domestic Tech Actual F6 QA Result Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-78 Domestic Tech Actual Manual QA Pass` (`702d6054f3ebab8f9754fa9283663c6ffb0de4cf`).

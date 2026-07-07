@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft
+- Built on `v0.70-79 Domestic Tech Actual F6 QA Result Record` (`4a939a49b33aedb6c0e309dba47cdcdd2f42d02e`).
+- Added `agent/DOMESTIC_TECH_RESEARCH_COST_DESIGN.md` as the design draft for future Domestic Tech actual research cost charging.
+- Fixed the recommended actual charge timing as one-time upfront charge on research start.
+- Recorded out-of-scope timing and systems: per-turn charge, charge on completion, ongoing upkeep, cancel/refund, paid cost state, and retroactive charge for existing active research.
+- Recorded planned affordability behavior for future implementation: check resource availability at research start, block only new starts if implemented resources are insufficient, report missing resources, and leave existing active research untouched.
+- Recorded national/city resource scope design and the need to map display labels to real state keys before implementation, especially `군량` versus `rice`/`barley`/`seafood`.
+- Added `_get_domestic_tech_research_actual_charge_design_mvp()` as a side-effect-free design helper with `design_draft_only = true`, `actual_charge_implemented = false`, and `gameplay_mutation = false`.
+- Updated agent docs with v0.70-80 locks and v0.70-81 implementation candidates.
+- Modified files: `agent/DOMESTIC_TECH_RESEARCH_COST_DESIGN.md`, `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement actual cost deduction, actual cost gating, actual affordability check, paid cost state, cancel/refund, active research payload schema changes, research slot changes, enemy research/effects, BattleContext changes, pending invasion schema changes, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-79 Domestic Tech Actual F6 QA Result Record
 - Built on `v0.70-78 Domestic Tech Actual Manual QA Pass` (`702d6054f3ebab8f9754fa9283663c6ffb0de4cf`).
 - Recorded the actual F6 QA result for Domestic Tech 1st-pass applied-state verification as `PASS`.

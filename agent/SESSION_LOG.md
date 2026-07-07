@@ -2,6 +2,18 @@
 
 ## 2026-07-07
 
+### v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft
+- Started from local `4a939a4 v0.70-79 Domestic Tech Actual F6 QA Result Record`; `origin/main` remained `39c27de`, so local was ahead by the recent Domestic Tech commits and the working tree was clean.
+- Required workflow, Godot, current state, next task, handoff, worldmap rules, and Domestic Tech manual QA docs were read before edits.
+- Implemented:
+  - New design document `agent/DOMESTIC_TECH_RESEARCH_COST_DESIGN.md`.
+  - Actual charge timing design: one-time upfront charge on research start.
+  - Affordability design: planned start-time check, planned insufficient-resource start blocking, missing-resource message, and no effect on existing active research.
+  - Start button UX design, national/city cost scope, existing active research compatibility, cancel/refund out-of-scope, UI wording policy, save data policy, failure handling, and v0.70-81 candidates.
+  - Side-effect-free `_get_domestic_tech_research_actual_charge_design_mvp()` helper with `actual_charge_implemented = false`, `design_draft_only = true`, and `gameplay_mutation = false`.
+- Preserved no actual cost deduction, no actual affordability check, no actual start gating, no paid cost state, no cancel/refund, no active research schema change, no enemy research/effect, no BattleContext/pending invasion schema change, no tech definition change, no asset/import change, and existing F6 QA PASS locks.
+- Next candidates: `v0.70-81 Domestic Tech Research Cost Actual Charge MVP`, `v0.70-81 Research Cost Affordability UI Polish`, or `v0.70-80 Domestic Tech Balance Tuning Draft`.
+
 ### v0.70-79 Domestic Tech Actual F6 QA Result Record
 - Started from local `702d605 v0.70-78 Domestic Tech Actual Manual QA Pass`; `origin/main` remained `39c27de v0.70-76-hotfix1 Manual QA Grace Turns QA Polish`, so local was ahead by the v0.70-78 commit and the working tree was clean.
 - v0.70-78 이후 사용자가 실제 F6 QA를 수행했다.
