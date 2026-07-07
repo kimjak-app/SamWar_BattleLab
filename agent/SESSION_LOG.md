@@ -2,6 +2,14 @@
 
 ## 2026-07-07
 
+### v0.70-85 Research Cost Affordability F6 UI QA Record
+- Started from clean local HEAD `0af15b94c0a18cb781aa563856552c343977fa0e`.
+- Read required workflow, Godot, current state, next task, handoff, Domestic Tech manual QA, Domestic Tech research cost design, and worldmap rule docs before edits.
+- Added the v0.70-85 F6 UI QA record section to `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- The QA record covers available affordable wording, display-only removal, available affordable button, insufficient wording/button/start blocking/no partial deduction, researching/completed/locked state priority, national/city consistency, enemy/unknown no cost UI, and Godot Output cleanliness.
+- Added the PASS / NEEDS FIX template for Kimjak's F6 UI QA result.
+- No runtime code was changed; gameplay logic, UI behavior, actual charge logic, deduction amount/order, active payload schema, paid cost state absence, cancel/refund absence, BattleContext, pending invasion schema, scenes, and assets/imports remain unchanged.
+
 ### v0.70-84 Research Cost Affordability UI Polish
 - Started from clean local HEAD `5452b8272169fd1691b7ea20152e55b3b99091ef`.
 - Read required workflow, Godot, current state, next task, handoff, Domestic Tech research cost design, Domestic Tech manual QA, and worldmap rule docs before edits.

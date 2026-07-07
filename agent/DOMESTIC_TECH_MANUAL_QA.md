@@ -1,5 +1,82 @@
 # Domestic Tech Actual Charge Manual QA
 
+## v0.70-85 Research Cost Affordability F6 UI QA Record
+
+Version: `v0.70-85 Research Cost Affordability F6 UI QA Record`
+Baseline: `v0.70-84 Research Cost Affordability UI Polish` (`0af15b94c0a18cb781aa563856552c343977fa0e`)
+
+### 1. QA Purpose
+- Confirm the actual charge UI wording from v0.70-84 appears as intended in F6.
+- Confirm cost wording priority for available, insufficient, researching, completed, and locked/prerequisite states.
+- Confirm actual charge gameplay logic remains preserved after the UI polish.
+
+### 2. Available + Affordable
+Check:
+- `필요 비용: ... · 시작 시 차감` appears for available affordable research.
+- `표시 전용` does not remain in the available actual charge cost display.
+- The action button says `연구 시작`.
+- Starting research still deducts actual resources exactly as in v0.70-81.
+
+### 3. Available + Insufficient Resources
+Check:
+- The action button says `자원 부족`.
+- Shortage copy appears as `부족: 금 N`, `부족: 군량 N`, or `부족: 금 N / 군량 N`.
+- Guidance appears in the `자원이 부족해 연구를 시작할 수 없습니다.` family.
+- Research start is blocked.
+- No partial deduction occurs.
+
+### 4. Researching State
+Check:
+- `연구 중` or remaining-turn/progress state takes priority over cost wording.
+- Cost wording does not cover or replace the researching state.
+- No extra per-turn charge occurs.
+
+### 5. Completed State
+Check:
+- `완료` state takes priority over cost wording.
+- Cost wording is hidden or not confusing in completed state.
+- No extra completion charge occurs.
+
+### 6. Locked / Prerequisite State
+Check:
+- Locked/prerequisite status takes priority over resource shortage wording.
+- The action button says `조건 부족`.
+- Prerequisite shortage does not misleadingly surface resource shortage first.
+
+### 7. National / City Common Checks
+Check:
+- National tech UI and city tech UI follow the same wording policy.
+- City tech still uses selected PLAYER city scope only.
+- Enemy, unknown, or insufficient-intel cities do not expose research cost UI.
+
+### 8. Godot Output
+Check:
+- No new warning/error appears during F6 launch.
+- No warning/error appears while opening or closing the Domestic Tech overlay.
+- No warning/error appears while moving through insufficient, start, researching, and completed states.
+
+### 9. PASS / NEEDS FIX Record Template
+- QA Date:
+- Tester:
+- Version: v0.70-85 Research Cost Affordability F6 UI QA Record
+- Commit:
+- Available affordable wording:
+- Display-only wording removed:
+- Available affordable button:
+- Insufficient wording:
+- Insufficient button:
+- Insufficient start blocked:
+- No partial deduction:
+- Researching state priority:
+- Completed state priority:
+- Locked/prerequisite state priority:
+- National UI consistency:
+- City UI consistency:
+- Enemy/unknown no cost UI:
+- Godot Output clean:
+- Result: PASS / NEEDS FIX
+- Notes:
+
 Version: `v0.70-82 Domestic Tech Actual Charge Manual QA`
 Baseline: `v0.70-81 Domestic Tech Research Cost Actual Charge MVP` (`b5c8bee932caaa538202ff28a226da5cb45c71c3`)
 

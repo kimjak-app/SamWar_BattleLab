@@ -1,5 +1,18 @@
 # NEXT TASKS
 
+## Current: v0.70-85 Research Cost Affordability F6 UI QA Record
+- Baseline: `v0.70-84 Research Cost Affordability UI Polish` (`0af15b94c0a18cb781aa563856552c343977fa0e`).
+- Completed direction:
+  1. Added the v0.70-85 F6 UI QA record section to the top of `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+  2. Documented available/affordable, available/insufficient, researching, completed, locked/prerequisite, national/city, enemy/unknown, and Godot Output checks.
+  3. Added a PASS / NEEDS FIX record template for the v0.70-84 UI polish.
+- Preserved scope:
+  1. No gameplay logic change, UI behavior change, actual charge logic change, deduction amount/order change, active payload schema change, paid cost state, cancel/refund, BattleContext change, pending invasion schema change, asset/import change, or scene change.
+- Next candidates:
+  1. `v0.70-86 Research Cost Affordability F6 UI Result Record`.
+  2. `v0.70-86 Labor Policy Resource State Design`.
+  3. `v0.70-86 Domestic Tech Actual Charge Edge Case QA Polish`.
+
 ## Current: v0.70-84 Research Cost Affordability UI Polish
 - Baseline: `v0.70-83 Domestic Tech Actual Charge F6 Result Record` (`5452b8272169fd1691b7ea20152e55b3b99091ef`).
 - Completed direction:

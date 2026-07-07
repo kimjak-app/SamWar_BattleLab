@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-85 Research Cost Affordability F6 UI QA Record Handoff
+- Latest baseline: `v0.70-85 Research Cost Affordability F6 UI QA Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-84 Research Cost Affordability UI Polish` (`0af15b94c0a18cb781aa563856552c343977fa0e`).
+- Manual QA document updated: `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Agent docs updated: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- This pass documents the F6 QA record path for the v0.70-84 actual-charge affordability UI polish.
+- QA coverage includes available affordable wording, display-only wording removal, available affordable button text, insufficient wording/button/start blocking/no partial deduction, researching/completed/locked state priority, national/city consistency, enemy/unknown no cost UI, and Godot Output cleanliness.
+- No runtime code was changed. Explicitly unchanged: gameplay logic, UI behavior, actual charge logic, deduction amount/order, active research payload schema, paid cost state, cancel/refund, per-turn charge, completion charge, retroactive charge, enemy research/effect, BattleContext, pending invasion schema, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Recommended next options:
+  1. `v0.70-86 Research Cost Affordability F6 UI Result Record`.
+  2. `v0.70-86 Labor Policy Resource State Design`.
+  3. `v0.70-86 Domestic Tech Actual Charge Edge Case QA Polish`.
+
 ## v0.70-84 Research Cost Affordability UI Polish Handoff
 - Latest baseline: `v0.70-84 Research Cost Affordability UI Polish` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-83 Domestic Tech Actual Charge F6 Result Record` (`5452b8272169fd1691b7ea20152e55b3b99091ef`).

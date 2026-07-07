@@ -1,5 +1,10 @@
 # WORLDMAP RULES
 
+## v0.70-85 Research Cost Affordability F6 UI QA Record Lock Rule
+- v0.70-85 authorizes QA documentation and F6 result template updates for the v0.70-84 actual-charge affordability UI polish only.
+- `agent/DOMESTIC_TECH_MANUAL_QA.md` must remain the checklist source for available/affordable wording, insufficient-resource wording, researching/completed/locked state priority, national/city consistency, enemy/unknown no cost UI, and Godot Output checks.
+- Do not change gameplay logic, UI behavior, actual charge logic, deduction amount/order, affordability validation logic, research start flow, active research payload schema, paid cost state, cancel/refund, per-turn charge, completion charge, retroactive charge, enemy research/effect, BattleContext, pending invasion schema, tech definitions, scenes, assets, icon PNGs, UI64 PNGs, or `.import` files under this QA record pass.
+
 ## v0.70-84 Research Cost Affordability UI Polish Lock Rule
 - v0.70-84 authorizes Domestic Tech actual-charge UI wording polish and side-effect-free QA summary metadata only.
 - Available/affordable research cost copy should use actual-charge wording such as `필요 비용: ... · 시작 시 차감`, not display-only wording.

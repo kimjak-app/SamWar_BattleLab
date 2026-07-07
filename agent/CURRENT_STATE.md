@@ -1,5 +1,12 @@
 # CURRENT STATE
 
+## v0.70-85 Research Cost Affordability F6 UI QA Record
+- Baseline: `v0.70-84 Research Cost Affordability UI Polish` at `0af15b94c0a18cb781aa563856552c343977fa0e`; tracked files were clean at task start.
+- Added the F6 UI QA record section for research cost affordability wording to `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- The checklist covers available/affordable wording, display-only removal, available button text, insufficient wording/button/start blocking/no partial deduction, researching/completed/locked state priority, national/city consistency, enemy/unknown no cost UI, and Godot Output cleanliness.
+- This is a QA documentation pass only. No gameplay code, UI behavior, actual charge logic, deduction amount/order, active payload schema, paid cost state, cancel/refund, BattleContext, pending invasion schema, assets/imports, or scene layout was changed.
+- Next candidates: `v0.70-86 Research Cost Affordability F6 UI Result Record`, `v0.70-86 Labor Policy Resource State Design`, or `v0.70-86 Domestic Tech Actual Charge Edge Case QA Polish`.
+
 ## v0.70-84 Research Cost Affordability UI Polish
 - Baseline: `v0.70-83 Domestic Tech Actual Charge F6 Result Record` at `5452b8272169fd1691b7ea20152e55b3b99091ef`; tracked files were clean at task start.
 - Polished Domestic Tech research affordability UI wording for the actual charge state in `scripts/worldmap_test.gd`.

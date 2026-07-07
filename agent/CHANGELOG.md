@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.70-85 Research Cost Affordability F6 UI QA Record
+- Added the v0.70-85 Research Cost Affordability F6 UI QA Record section to `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Documented F6 checks for available/affordable wording, display-only removal, available button text, insufficient wording/button/start blocking/no partial deduction, researching/completed/locked state priority, national/city UI consistency, enemy/unknown no cost UI, and Godot Output cleanliness.
+- Added a PASS / NEEDS FIX record template for the v0.70-84 affordability UI polish.
+- Preserved gameplay logic, UI behavior, actual charge logic, deduction amount/order, active payload schema, paid cost state absence, cancel/refund absence, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ## v0.70-84 Research Cost Affordability UI Polish
 - Updated Domestic Tech actual-charge UI wording in `scripts/worldmap_test.gd`: available/affordable cost copy now uses `필요 비용: ... · 시작 시 차감`.
 - Added clearer insufficient-resource UI feedback with `자원이 부족해 연구를 시작할 수 없습니다.` and existing `부족: 금 N / 군량 N` details.
