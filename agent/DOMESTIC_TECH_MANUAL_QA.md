@@ -1,7 +1,7 @@
 # Domestic Tech Manual QA Scenario Pack
 
-Version: `v0.70-76 Domestic Tech Manual QA Scenario Pack`
-Baseline: `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`)
+Version: `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish`
+Baseline: `v0.70-76 Domestic Tech Manual QA Grace Turns` (`ab8ed193016e31046dd1d722ccc911a9ddc7a000`)
 
 ## Scope Lock
 - This pack is manual QA documentation and a QA helper target only.
@@ -9,10 +9,31 @@ Baseline: `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d322
 - Research cost remains display-only: `cost_display_only = true`, `cost_charged = false`, `cost_charged_on_start = false`, `cost_charged_per_turn = false`, `cost_charged_on_completion = false`, `cost_blocks_research_start = false`, `paid_cost_state_persisted = false`, and `cost_affordability_checked = false`.
 
 ## Manual QA Grace Turns
-- `v0.70-76 Domestic Tech Manual QA Grace Turns` adds a QA-only early-turn guard for F6 Domestic Tech QA.
-- Turns 1 through 10 block new enemy pending invasion creation, enemy pressure plan creation, and enemy strategic follow-up pressure creation.
+- `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` confirms the QA-only early-turn guard for F6 Domestic Tech QA.
+- Turn counting is treated as 1-based for manual QA: turns 1 through 10 block new enemy pending invasion creation, enemy pressure plan creation, and enemy strategic pressure follow-up creation.
 - Turn 11 and later should return to the existing invasion/pressure logic.
-- The grace must not block turn progress, Domestic Tech research progress/completion, income, UI refresh, existing pending invasion handling, BattleContext structure, or pending invasion schema.
+- The grace blocks new creation/scheduling only. It is not an existing pending invasion cleanup path and must not delete, clear, or rewrite an already existing pending invasion.
+- The grace must not block turn progress, Domestic Tech research progress/completion, income, UI refresh, existing pending invasion handling, BattleContext structure, pending invasion schema, or enemy AI outside the scoped creation guards.
+
+### Grace Turns QA Procedure
+1. Run F6 and start a fresh WorldMap test.
+2. Open Domestic Tech Tree.
+3. Start one national or city Domestic Tech research.
+4. Advance turns 1 through 10.
+5. Confirm no new pending invasion is created.
+6. Confirm no enemy pressure plan is created.
+7. Confirm no strategic pressure follow-up is created.
+8. Confirm research `remaining_turns` decreases during the grace.
+9. Confirm research completion, completion message, and UI refresh still occur when the research duration ends.
+10. Confirm income still processes during the grace.
+11. On turn 11 or later, confirm the existing invasion/pressure logic can resume.
+
+Expected:
+- New pending invasion, enemy pressure, and strategic pressure follow-up creation are blocked only during turns 1-10.
+- Existing pending invasion data is not deleted by the grace.
+- Turn progress, Domestic Tech research progress, income, and UI refresh continue normally.
+- BattleContext structure and pending invasion schema are untouched.
+- Enemy AI is not globally disabled.
 
 ## 1. National Research Flow
 ### National Research Start

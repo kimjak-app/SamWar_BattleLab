@@ -1,5 +1,16 @@
 # WORLDMAP RULES
 
+## v0.70-76-hotfix1 Manual QA Grace Turns QA Polish Lock Rule
+- Baseline is `v0.70-76 Domestic Tech Manual QA Grace Turns` (`ab8ed193016e31046dd1d722ccc911a9ddc7a000`).
+- v0.70-76-hotfix1 authorizes QA polish only for the existing Domestic Tech manual QA invasion grace boundary, summary flags, and manual QA documentation.
+- The grace uses a 1-based turn counter: turns 1 through 10 block only new enemy pending invasion creation, enemy pressure plan creation, and enemy strategic pressure follow-up creation. Turn 11 and later must allow the existing logic to resume.
+- The grace is not an existing pending invasion cleanup path. Do not delete, clear, rewrite, or migrate existing pending invasion data for this feature.
+- The grace must not block world turn progress, Domestic Tech research progress/completion, income, UI refresh, save/load normalization, or existing pending invasion resolution.
+- `_is_manual_qa_invasion_grace_turn_active_mvp()` and `_get_manual_qa_grace_summary_mvp()` must remain side-effect free and must not print, save, mutate gameplay, run automated gameplay, or disable enemy AI globally.
+- This hotfix does not authorize BattleContext changes, pending invasion schema changes, pending invasion mass cleanup, enemy AI global disable, enemy research/effects, Domestic Tech research/effect/cost changes, cost charge/gating, battle/diplomacy/spy/market/city_intel formula changes, troop/ship/siege count mutation, tech definition changes, asset changes, or `.import` changes.
+- Domestic Tech locks remain: research start/progress/completion, cost display-only, no cost charge, no cost gating, Economy / Military-Defense / National Policy / Naval-Siege / Diplomacy-Spy Safe Sets, completed-only, researching no-effect, PLAYER only, same-city only, enemy no tech effect, UI64 priority, node-click latency behavior, and overlay lifecycle.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-76 Domestic Tech Manual QA Grace Turns Lock Rule
 - Baseline is local `v0.70-76 Domestic Tech Manual QA Scenario Pack` (`f259e56e9298bbfc067bd6647c3407144a03c6d2`), built on `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
 - v0.70-76 Grace Turns authorizes only a QA-purpose early-turn no-invasion grace for Domestic Tech F6 manual QA.

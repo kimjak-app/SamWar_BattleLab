@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-76-hotfix1 Manual QA Grace Turns QA Polish
+- Built on `v0.70-76 Domestic Tech Manual QA Grace Turns` (`ab8ed193016e31046dd1d722ccc911a9ddc7a000`).
+- Clarified the manual QA grace boundary as 1-based turns 1-10 blocked and turn 11+ restored to existing invasion/pressure creation logic.
+- Reconfirmed guard scope for new pending invasion creation, enemy pressure plan creation, and strategic pressure follow-up creation without changing turn progress, Domestic Tech research progress, income, or UI refresh.
+- Expanded `_get_manual_qa_grace_summary_mvp()` with boundary, pending invasion creation, enemy pressure, strategic follow-up, existing pending invasion deletion, income, UI refresh, BattleContext, pending invasion schema, and enemy AI global-disable QA flags.
+- Updated agent docs and the Domestic Tech manual QA document to state that existing pending invasions are not deleted or rewritten by the grace.
+- Modified files: `scripts/worldmap_test.gd`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`, and `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Did not change BattleContext structure, pending invasion schema, existing pending invasion cleanup behavior, enemy AI globally, Domestic Tech research/effect/cost logic, cost display-only/no charge/no gating flags, Safe Sets, enemy tech/research/effects, tech definitions, assets, icon PNGs, UI64 PNGs, or `.import` files.
+
 ## v0.70-76 Domestic Tech Manual QA Grace Turns
 - Built on local `v0.70-76 Domestic Tech Manual QA Scenario Pack` (`f259e56e9298bbfc067bd6647c3407144a03c6d2`) and the requested `v0.70-75-hotfix1 Cost Display QA Polish` baseline (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
 - Added `MANUAL_QA_NO_INVASION_GRACE_TURNS = 10` for Domestic Tech F6 manual QA.

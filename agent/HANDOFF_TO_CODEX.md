@@ -1,5 +1,16 @@
 # HANDOFF TO CODEX
 
+## v0.70-76-hotfix1 Manual QA Grace Turns QA Polish Handoff
+- Baseline: `v0.70-76 Domestic Tech Manual QA Grace Turns` (`ab8ed193016e31046dd1d722ccc911a9ddc7a000`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- This hotfix is QA polish for the existing Domestic Tech manual QA grace. It is not a release balance system and does not expand enemy AI behavior.
+- The grace boundary is documented as 1-based: turns 1 through 10 block new pending invasion creation, enemy pressure plan creation, and strategic pressure follow-up creation. Turn 11 and later use the existing logic again.
+- `_get_manual_qa_grace_summary_mvp()` now reports boundary and implementation flags for pending invasion creation, enemy pressure, strategic follow-up, existing pending invasion deletion, turn progress, Domestic Tech research progress, income, UI refresh, BattleContext, pending invasion schema, and enemy AI global-disable state.
+- Existing pending invasions are not deleted, cleared, or schema-rewritten by this grace. The guard only prevents new early-turn creation/scheduling in the scoped paths.
+- Explicitly unchanged: turn progress, Domestic Tech research start/progress/completion, completion refresh, income, cost display-only, no cost charge/gating, Safe Set effects, UI64 fallback, node-click latency behavior, overlay lifecycle, BattleContext structure, pending invasion schema, enemy AI global state, tech ids/names/categories/branches/prerequisites, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Next candidates: `v0.70-77 Domestic Tech Manual QA Scenario Pack` or `v0.70-77 Domestic Tech Actual Manual QA Pass`.
+- Manual F6 QA remains required for turn 1-10 no new invasion/pressure/follow-up creation, turn 11 invasion logic return, Domestic Tech research progress, income, UI64/click/overlay, and warning cleanliness.
+
 ## v0.70-76 Domestic Tech Manual QA Grace Turns Handoff
 - Baseline: local `v0.70-76 Domestic Tech Manual QA Scenario Pack` (`f259e56e9298bbfc067bd6647c3407144a03c6d2`), built on `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

@@ -2,6 +2,16 @@
 
 ## 2026-07-07
 
+### v0.70-76-hotfix1 Manual QA Grace Turns QA Polish
+- Started from local and `origin/main` `ab8ed19 v0.70-76 Domestic Tech Manual QA Grace Turns`; the working tree was clean.
+- Required workflow/worldmap/manual QA docs were read before runtime changes.
+- Implemented:
+  - QA summary boundary flags for 1-based turns 1-10 and turn 11+ logic return.
+  - QA summary flags for pending invasion creation, enemy pressure, strategic pressure follow-up, existing pending invasion deletion, income, UI refresh, BattleContext, pending invasion schema, and enemy AI global-disable state.
+  - Manual QA and agent doc polish for grace boundary, no existing pending invasion cleanup, turn progress, research progress, income, UI refresh, BattleContext no-touch, pending invasion schema no-touch, and enemy AI not globally disabled.
+- Preserved guard scope around new pending invasion creation, enemy pressure plan creation, and strategic pressure follow-up creation only. No turn progress, research progress, income, UI refresh, cost display, Safe Set, BattleContext, pending invasion schema, enemy AI global state, asset, icon, UI64, or `.import` mutation was added.
+- Manual F6 QA remains required for turn 1-10 no new invasion/pressure/follow-up creation, turn 11 logic return, research progress during grace, income during grace, UI64/click/overlay, and warning cleanliness.
+
 ### v0.70-76 Domestic Tech Manual QA Grace Turns
 - Started from local `f259e56 v0.70-76 Domestic Tech Manual QA Scenario Pack`; `origin/main` remained `8a50087 v0.70-75-hotfix1 Cost Display QA Polish`, so local was ahead by the scenario pack commit and the working tree was clean.
 - Required workflow/worldmap docs were read before code changes.

@@ -1,5 +1,14 @@
 # CURRENT STATE
 
+## v0.70-76-hotfix1 Manual QA Grace Turns QA Polish
+- Baseline: `v0.70-76 Domestic Tech Manual QA Grace Turns` at `ab8ed193016e31046dd1d722ccc911a9ddc7a000`; local `main` and `origin/main` matched and tracked files were clean at task start.
+- Clarified the Domestic Tech manual QA grace boundary as a 1-based turn counter: turns 1 through 10 block new pending invasion creation, enemy pressure plan creation, and enemy strategic pressure follow-up creation; turn 11 and later return to the existing invasion/pressure logic.
+- Strengthened `_get_manual_qa_grace_summary_mvp()` so QA can confirm pending invasion creation, enemy pressure, strategic pressure follow-up, existing pending invasion deletion, turn progress, research progress, income, UI refresh, BattleContext, pending invasion schema, and enemy AI global-disable flags.
+- Documented that the grace is not an existing pending invasion cleanup path and does not delete or rewrite pending invasion data.
+- Preserved turn progress, Domestic Tech research start/progress/completion, income, UI refresh, cost display-only, no cost charge/gating, all Domestic Tech Safe Sets, BattleContext no-touch, pending invasion schema no-touch, enemy AI not globally disabled, and asset/import no-touch.
+- Next candidates: `v0.70-77 Domestic Tech Manual QA Scenario Pack` or `v0.70-77 Domestic Tech Actual Manual QA Pass`.
+- Manual F6 QA remains required for turn 1-10 no new invasion/pressure creation, turn 11 invasion logic return, research progress during grace, income during grace, UI64/click/overlay, and warning cleanliness.
+
 ## v0.70-76 Domestic Tech Manual QA Grace Turns
 - Baseline: local `v0.70-76 Domestic Tech Manual QA Scenario Pack` at `f259e56e9298bbfc067bd6647c3407144a03c6d2`, built on `v0.70-75-hotfix1 Cost Display QA Polish` (`8a50087de9d1b4f720cb91d32255960e5a6df585`); local HEAD was ahead of `origin/main` by the scenario pack commit and tracked files were clean at task start.
 - Added `MANUAL_QA_NO_INVASION_GRACE_TURNS = 10` as a QA-only early-turn invasion/pressure grace constant for F6 Domestic Tech manual QA.
