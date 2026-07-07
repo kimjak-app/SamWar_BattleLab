@@ -1,5 +1,23 @@
 # NEXT TASKS
 
+## Current: v0.70-79 Domestic Tech Actual F6 QA Result Record
+- Baseline: `v0.70-78 Domestic Tech Actual Manual QA Pass` (`702d6054f3ebab8f9754fa9283663c6ffb0de4cf`).
+- Completed direction:
+  1. Recorded the actual F6 QA result for Domestic Tech 1차 as PASS in `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+  2. Recorded user confirmation: "실제로 해봤어 잘됨".
+  3. Locked the PASS scope as first F6 QA pass, not final numeric balance completion.
+  4. Preserved no gameplay code changes and no asset/import changes.
+- Current locks:
+  1. Grace Turns remain QA-purpose early test support.
+  2. Cost remains display-only; no actual cost deduction, cost gating, affordability check, or paid cost state exists.
+  3. Research start/progress/completion, Safe Sets, enemy no research/effect, BattleContext no-touch, pending invasion schema no-touch, UI64 priority, click latency, and overlay lifecycle remain locked.
+- Recommended next candidates:
+  1. `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft`.
+  2. `v0.70-80 Domestic Tech Balance Tuning Draft`.
+  3. `v0.70-80 Domestic Tech Actual Cost Implementation MVP`.
+- Recommendation:
+  1. Prefer `Research Cost Actual Charge Design Draft` before implementation. Moving directly from display-only cost to actual charge touches research UX, resource shortage handling, start-button state, refund/cancel policy, save/load implications, and wording.
+
 ## Current: v0.70-78 Domestic Tech Actual Manual QA Pass
 - Baseline: `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` (`39c27de2e1fa074e522facaf5a147759a298ffb6`).
 - Completed direction:

@@ -1,5 +1,19 @@
 # CURRENT STATE
 
+## v0.70-79 Domestic Tech Actual F6 QA Result Record
+- Baseline: `v0.70-78 Domestic Tech Actual Manual QA Pass` at `702d6054f3ebab8f9754fa9283663c6ffb0de4cf`; local `main` was ahead of `origin/main` by the v0.70-78 commit and tracked files were clean at task start.
+- Commit: this `v0.70-79 Domestic Tech Actual F6 QA Result Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Domestic Tech 1차는 F6 Actual Manual QA에서 PASS 확인됨.
+- User confirmation recorded: "실제로 해봤어 잘됨".
+- Current applied-state summary: 연구 시작/진행/완료, Safe Set 효과 표시/일부 경제 적용, 비용 display-only, UI64/overlay 흐름이 검수 가능한 상태다.
+- The PASS scope is the first F6 QA pass for Domestic Tech flow and UI behavior. It is not final balance completion and does not claim precise numeric balance sign-off.
+- Grace Turns remain active for QA: turns 1-10 preserve a no-new-invasion/pressure test window, turn 11+ can return to existing invasion logic, and existing pending invasions are not deleted or schema-rewritten.
+- Cost remains display-only: no actual gold/food/labor/policy deduction, no cost gating, no affordability check, and no paid cost state.
+- Existing Domestic Tech research start/progress/completion, active slot limits, completed prerequisite recognition, researching no-effect, active/completed normalize, duplicate completion guard, and same-city only remain locked.
+- Existing Economy, Military/Defense, National Policy, Naval/Siege Display, Diplomacy/Spy Display, and Full Effect Integration Summary Safe Sets remain locked.
+- Enemy research/effect remains absent. BattleContext, pending invasion schema, battle/diplomacy/spy/market/city_intel/AI formulas, troop/ship/siege counts, tech definitions, assets, UI64 icons, and `.import` files were not changed.
+- Next candidates: `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft`, `v0.70-80 Domestic Tech Balance Tuning Draft`, or `v0.70-80 Domestic Tech Actual Cost Implementation MVP`. Actual cost implementation should preferably follow a design draft first.
+
 ## v0.70-78 Domestic Tech Actual Manual QA Pass
 - Baseline: `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` at `39c27de2e1fa074e522facaf5a147759a298ffb6`; local `main` and `origin/main` matched and tracked files were clean at task start.
 - Fixed `agent/DOMESTIC_TECH_MANUAL_QA.md` as the Actual Manual QA Pass document for F6 Domestic Tech 1st-pass applied-state verification, including purpose, baseline, pre-F6 checks, turn 1-10 invasion grace, national research flow, city research flow, Safe Set effects, display-only expected cost, enemy/unknown no-display, UI64/click/overlay, Godot Output warnings, and PASS / NEEDS FIX result template.

@@ -3,6 +3,39 @@
 Version: `v0.70-78 Domestic Tech Actual Manual QA Pass`
 Baseline: `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` (`39c27de2e1fa074e522facaf5a147759a298ffb6`)
 
+# Domestic Tech Actual F6 QA Result
+
+Version: v0.70-79
+Base Commit: 702d6054f3ebab8f9754fa9283663c6ffb0de4cf
+Result: PASS
+Tester: 김작
+Date: 2026-07-07
+
+## Summary
+
+F6에서 Domestic Tech 실제 수동 QA를 수행했다.
+초반 침입 유예가 적용되어 최소 테스트 턴 확보가 가능했고,
+Domestic Tech 연구 흐름과 UI 흐름이 정상 동작함을 확인했다.
+
+이번 기록은 Domestic Tech 1차 F6 QA PASS 결과 기록이다. 최종 밸런스 완료 기록이 아니며, 실제 비용 차감과 비용 gating은 아직 별도 설계 전 상태다.
+
+## Confirmed
+
+- 1~10턴 침입 유예로 테스트 가능
+- Domestic Tech Tree 진입 가능
+- 국가/도시 연구 흐름 확인 가능
+- 연구 진행/완료 흐름 정상
+- 예상 비용 display-only 유지
+- 비용 차감 없음
+- 비용 gating 없음
+- UI64 icon / click / overlay 흐름 정상
+- enemy tech effect / enemy research 없음
+- 신규 blocking issue 없음
+
+## Final Verdict
+
+PASS
+
 ## 1. QA Purpose
 이번 QA는 실제 기능 추가가 아니라 Domestic Tech 1차 실적용 상태를 F6에서 수동 검수하기 위한 Actual Manual QA Pass다.
 

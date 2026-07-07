@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-79 Domestic Tech Actual F6 QA Result Record Lock Rule
+- Baseline is `v0.70-78 Domestic Tech Actual Manual QA Pass` (`702d6054f3ebab8f9754fa9283663c6ffb0de4cf`).
+- v0.70-79 authorizes Actual F6 QA result recording and agent document updates only.
+- Domestic Tech 1차 F6 QA is recorded as PASS. This is a first actual F6 QA pass, not final numeric balance completion.
+- User confirmation recorded for this lock: "실제로 해봤어 잘됨".
+- Grace Turns remain QA-purpose support only: turns 1 through 10 block only new invasion/pending invasion creation, enemy pressure plan creation, and strategic pressure follow-up creation; turn 11 and later must allow existing logic to resume. Existing pending invasions must not be deleted or schema-rewritten.
+- Cost remains display-only. Do not implement actual research cost deduction, cost gating, affordability checks, paid cost state, reservation, refund, or cancel flow under this record pass.
+- Research flow remains locked: start/progress/completion, one national active research, one city active research per PLAYER city, active/completed normalization, completed prerequisite recognition, researching no-effect, duplicate completion guard, completion refresh, and same-city only.
+- Safe Set effects remain locked: Economy, Military/Defense, National Policy, Naval/Siege Display, Diplomacy/Spy Display, Full Effect Integration Summary, completed-only, PLAYER only, same-city only, and no forbidden formula or count mutation.
+- Scope remains locked: left panel PLAYER national/court/tech only; right panel selected PLAYER city only; enemy, unknown, and insufficient-intel city tech detail no-display; no enemy research/effect.
+- BattleContext and pending invasion schema are no-touch.
+- UI64 asset/import lock remains: do not modify, move, delete, regenerate, or reimport `assets/ui/tech_icons/**/*.png`, `assets/ui/tech_icons/**/*.png.import`, `assets/ui/tech_icons_ui64/`, or any `.import` file; do not auto-map `assets/ui/tech_icons_ui64/etc/`.
+- This pass does not authorize gameplay code changes, research logic changes, cost logic changes, effect logic changes, invasion logic changes, tech definition changes, scenes, assets, icon PNGs, UI64 PNGs, or `.import` changes.
+
 ## v0.70-78 Domestic Tech Actual Manual QA Pass Lock Rule
 - Baseline is `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` (`39c27de2e1fa074e522facaf5a147759a298ffb6`).
 - v0.70-78 authorizes Actual Manual QA Pass documentation, QA result template polish, agent document updates, and side-effect-free QA/debug helper flags only.

@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-79 Domestic Tech Actual F6 QA Result Record Handoff
+- Latest baseline: `v0.70-79 Domestic Tech Actual F6 QA Result Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-78 Domestic Tech Actual Manual QA Pass` (`702d6054f3ebab8f9754fa9283663c6ffb0de4cf`).
+- Domestic Tech Actual F6 QA is recorded as PASS.
+- User confirmation recorded: "실제로 해봤어 잘됨".
+- Confirmed PASS scope: early invasion grace made testing possible, Domestic Tech Tree entry worked, national/city research flow could be checked, research progress/completion flow was normal, expected cost remained display-only, no cost deduction/gating was observed, UI64/click/overlay flow was normal, enemy tech effect/research was absent, and no new blocking issue was reported.
+- Do not overstate this as final balance completion. This is Domestic Tech 1차 F6 QA PASS.
+- Existing locks to keep before the next task: Grace Turns are QA-purpose only; cost is still display-only; no actual cost deduction; no cost gating; no affordability check; no paid cost state; no enemy research/effect; no BattleContext or pending invasion schema change; existing Safe Sets remain; UI64 assets/imports remain no-touch.
+- Recommended next options:
+  1. `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft`.
+  2. `v0.70-80 Domestic Tech Balance Tuning Draft`.
+  3. `v0.70-80 Domestic Tech Actual Cost Implementation MVP`.
+- Recommendation: do the actual cost charge design draft before implementation, because resource shortage handling, start-button state, refund/cancel policy, save/load implications, and UI wording need a scoped decision first.
+
 ## v0.70-78 Domestic Tech Actual Manual QA Pass Handoff
 - Baseline: `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` (`39c27de2e1fa074e522facaf5a147759a298ffb6`).
 - Manual QA document: `agent/DOMESTIC_TECH_MANUAL_QA.md`.

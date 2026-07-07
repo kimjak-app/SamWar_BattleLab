@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.70-79 Domestic Tech Actual F6 QA Result Record
+- Built on `v0.70-78 Domestic Tech Actual Manual QA Pass` (`702d6054f3ebab8f9754fa9283663c6ffb0de4cf`).
+- Recorded the actual F6 QA result for Domestic Tech 1st-pass applied-state verification as `PASS`.
+- Added the official result block to `agent/DOMESTIC_TECH_MANUAL_QA.md` with tester `김작`, date `2026-07-07`, result `PASS`, and base commit `702d6054f3ebab8f9754fa9283663c6ffb0de4cf`.
+- Recorded user confirmation: "실제로 해봤어 잘됨".
+- Confirmed at record scope that the early Grace Turns made testing possible, Domestic Tech Tree entry worked, national/city research flow could be checked, research progress/completion flow was normal, expected cost stayed display-only, no cost deduction/gating was observed, UI64/click/overlay flow was normal, and no new blocking issue was reported.
+- Locked the PASS scope as Domestic Tech 1차 F6 QA PASS, not final balance completion.
+- No gameplay mutation was made. No cost charge/gating, enemy research/effect, BattleContext change, pending invasion schema mutation, tech definition change, asset/icon/UI64/import change, battle/diplomacy/spy/market/city_intel/AI formula connection, or troop/ship/siege count mutation was added.
+- Modified files: `agent/DOMESTIC_TECH_MANUAL_QA.md`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+
 ## v0.70-78 Domestic Tech Actual Manual QA Pass
 - Built on `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` (`39c27de2e1fa074e522facaf5a147759a298ffb6`).
 - Fixed `agent/DOMESTIC_TECH_MANUAL_QA.md` as the canonical Actual Manual QA Pass document for F6 Domestic Tech 1st-pass applied-state verification.

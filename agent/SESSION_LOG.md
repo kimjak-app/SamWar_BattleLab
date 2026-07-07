@@ -2,6 +2,20 @@
 
 ## 2026-07-07
 
+### v0.70-79 Domestic Tech Actual F6 QA Result Record
+- Started from local `702d605 v0.70-78 Domestic Tech Actual Manual QA Pass`; `origin/main` remained `39c27de v0.70-76-hotfix1 Manual QA Grace Turns QA Polish`, so local was ahead by the v0.70-78 commit and the working tree was clean.
+- v0.70-78 이후 사용자가 실제 F6 QA를 수행했다.
+- User confirmation: "실제로 해봤어 잘됨".
+- Result: PASS.
+- Recorded that the early invasion grace made testing possible, Domestic Tech research flow and completion flow were checkable, and the UI flow had no reported issue.
+- Blocking issue: none reported.
+- Preserved no gameplay mutation, no actual research cost charge, no cost gating, no enemy research/effect, no BattleContext/pending invasion schema mutation, no tech definition change, no asset/import change, and existing Safe Set locks.
+- Next candidates:
+  - `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft`.
+  - `v0.70-80 Domestic Tech Balance Tuning Draft`.
+  - `v0.70-80 Domestic Tech Actual Cost Implementation MVP`.
+- Actual cost deduction should be handled after a separate design draft because resource shortage handling, start button state, refund/cancel policy, and UX copy need explicit scope.
+
 ### v0.70-78 Domestic Tech Actual Manual QA Pass
 - Started from local and `origin/main` `39c27de v0.70-76-hotfix1 Manual QA Grace Turns QA Polish`; the working tree was clean.
 - Required workflow, Godot, worldmap, handoff, state, next-task, and Domestic Tech manual QA docs were read before edits.
