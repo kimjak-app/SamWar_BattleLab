@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-78 Domestic Tech Actual Manual QA Pass
+- Built on `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` (`39c27de2e1fa074e522facaf5a147759a298ffb6`).
+- Fixed `agent/DOMESTIC_TECH_MANUAL_QA.md` as the canonical Actual Manual QA Pass document for F6 Domestic Tech 1st-pass applied-state verification.
+- Added explicit QA coverage for F6 pre-checks, turn 1-10 invasion grace, national research start/progress/completion, city research start/progress/completion, Safe Set effects, expected cost display-only, enemy/unknown no-display, UI64/click/overlay lifecycle, Godot Output warning cleanliness, and PASS / NEEDS FIX result recording.
+- Added `_get_domestic_tech_actual_manual_qa_pass_mvp()` as a side-effect-free QA/debug helper with required QA flags and `gameplay_mutation = false`.
+- Updated agent docs for the new version, preserved locks, and next candidates: `v0.70-78-hotfix1 Actual Manual QA Doc Polish` or `v0.70-79 Domestic Tech Actual F6 QA Fix Pass`.
+- Modified files: `scripts/worldmap_test.gd`, `agent/DOMESTIC_TECH_MANUAL_QA.md`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Did not implement actual cost deduction, cost-based research blocking, affordability checks, paid-cost state, extra research slots, enemy research/effects, battle/diplomacy/spy/market/city_intel/AI formula changes, troop/ship/siege count mutation, BattleContext changes, pending invasion schema changes, tech definition changes, assets, icon PNG changes, UI64 PNG changes, or `.import` changes.
+
 ## v0.70-76-hotfix1 Manual QA Grace Turns QA Polish
 - Built on `v0.70-76 Domestic Tech Manual QA Grace Turns` (`ab8ed193016e31046dd1d722ccc911a9ddc7a000`).
 - Clarified the manual QA grace boundary as 1-based turns 1-10 blocked and turn 11+ restored to existing invasion/pressure creation logic.

@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-78 Domestic Tech Actual Manual QA Pass
+- Baseline: `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` at `39c27de2e1fa074e522facaf5a147759a298ffb6`; local `main` and `origin/main` matched and tracked files were clean at task start.
+- Fixed `agent/DOMESTIC_TECH_MANUAL_QA.md` as the Actual Manual QA Pass document for F6 Domestic Tech 1st-pass applied-state verification, including purpose, baseline, pre-F6 checks, turn 1-10 invasion grace, national research flow, city research flow, Safe Set effects, display-only expected cost, enemy/unknown no-display, UI64/click/overlay, Godot Output warnings, and PASS / NEEDS FIX result template.
+- Added `_get_domestic_tech_actual_manual_qa_pass_mvp()` as a side-effect-free QA/debug helper. It only reports required QA areas and `gameplay_mutation = false`; it does not print, save, mutate gameplay, or run tests.
+- Preserved Grace Turns: turns 1-10 block new invasion/pending invasion/enemy pressure/strategic follow-up creation only; turn 11+ can return to existing logic; no existing pending invasion deletion, BattleContext change, pending invasion schema change, or enemy AI global disable.
+- Preserved Domestic Tech research start/progress/completion, one national active research, one city active research per PLAYER city, active/completed normalize, completed prerequisite recognition, researching no-effect, completion refresh, duplicate completion guard, and same-city only.
+- Preserved cost display-only: no gold/food/labor/policy deduction, no start/per-turn/completion charge, no cost gating, no affordability check, and no paid state.
+- Preserved Economy, Military/Defense, National Policy, Naval/Siege Display, Diplomacy/Spy Display, and Full Effect Integration Summary Safe Sets; no battle/diplomacy/spy/market/city_intel/AI formula connection and no troop/ship/siege count mutation.
+- Preserved PLAYER-only scope: left panel PLAYER national/court/tech only, right panel selected PLAYER city only, enemy/unknown/insufficient-intel city tech details hidden, enemy research/effect absent.
+- No asset/icon/UI64/import changes were made.
+- Next candidates: `v0.70-78-hotfix1 Actual Manual QA Doc Polish` or `v0.70-79 Domestic Tech Actual F6 QA Fix Pass`.
+- Manual F6 QA remains required using `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+
 ## v0.70-76-hotfix1 Manual QA Grace Turns QA Polish
 - Baseline: `v0.70-76 Domestic Tech Manual QA Grace Turns` at `ab8ed193016e31046dd1d722ccc911a9ddc7a000`; local `main` and `origin/main` matched and tracked files were clean at task start.
 - Clarified the Domestic Tech manual QA grace boundary as a 1-based turn counter: turns 1 through 10 block new pending invasion creation, enemy pressure plan creation, and enemy strategic pressure follow-up creation; turn 11 and later return to the existing invasion/pressure logic.

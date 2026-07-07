@@ -1,5 +1,16 @@
 # HANDOFF TO CODEX
 
+## v0.70-78 Domestic Tech Actual Manual QA Pass Handoff
+- Baseline: `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` (`39c27de2e1fa074e522facaf5a147759a298ffb6`).
+- Manual QA document: `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Runtime helper touched: `scripts/worldmap_test.gd`.
+- This pass prepares and records the Actual Manual QA Pass for Domestic Tech. It is not a gameplay feature pass and does not implement actual research payment, cost gating, enemy research, battle effects, diplomacy/spy effects, market effects, city_intel unlocks, or AI behavior.
+- `agent/DOMESTIC_TECH_MANUAL_QA.md` now starts with the canonical `v0.70-78` Actual Manual QA Pass sections: QA purpose, baseline/version/commit, F6 pre-checks, turn 1-10 invasion grace, national research flow, city research flow, Safe Set effects, expected cost display-only, enemy/unknown no-display, UI64/click/overlay, Godot Output warning QA, and PASS / NEEDS FIX result template.
+- `_get_domestic_tech_actual_manual_qa_pass_mvp()` is side-effect free. It returns only QA requirement flags plus `gameplay_mutation = false`, `print_spam = false`, and `save_data_changed = false`.
+- Explicitly unchanged: Grace Turns behavior, research start/progress/completion, active slot limits, completed prerequisite recognition, researching no-effect, duplicate completion guard, cost display-only, no cost charge/gating, Economy / Military-Defense / National Policy / Naval-Siege / Diplomacy-Spy Safe Sets, Full Effect Integration Summary, PLAYER-only panels, enemy/unknown no-display, UI64 fallback order, node-click latency behavior, overlay lifecycle, BattleContext, pending invasion schema, tech ids/names/categories/branches/prerequisites, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Next candidates: `v0.70-78-hotfix1 Actual Manual QA Doc Polish` or `v0.70-79 Domestic Tech Actual F6 QA Fix Pass`.
+- Manual F6 QA remains required by filling the Actual QA result template.
+
 ## v0.70-76-hotfix1 Manual QA Grace Turns QA Polish Handoff
 - Baseline: `v0.70-76 Domestic Tech Manual QA Grace Turns` (`ab8ed193016e31046dd1d722ccc911a9ddc7a000`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

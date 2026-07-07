@@ -1,5 +1,19 @@
 # WORLDMAP RULES
 
+## v0.70-78 Domestic Tech Actual Manual QA Pass Lock Rule
+- Baseline is `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` (`39c27de2e1fa074e522facaf5a147759a298ffb6`).
+- v0.70-78 authorizes Actual Manual QA Pass documentation, QA result template polish, agent document updates, and side-effect-free QA/debug helper flags only.
+- This version is for preparing and recording F6 manual QA of the first applied Domestic Tech state. It is not a gameplay implementation pass.
+- `agent/DOMESTIC_TECH_MANUAL_QA.md` must remain the canonical Actual QA guide for grace turns, national research flow, city research flow, Safe Set effects, cost display-only, enemy/unknown no-display, UI64/click/overlay, and warning cleanliness.
+- `_get_domestic_tech_actual_manual_qa_pass_mvp()` may exist only as a side-effect-free QA helper. It must not print, save, mutate resources, mutate research state, advance turns, start or complete research, reveal intel, change UI lifecycle, run automated gameplay, or alter enemy AI.
+- Grace lock remains: turns 1 through 10 block only new invasion/pending invasion creation, enemy pressure plan creation, and strategic pressure follow-up creation; turn 11 and later must allow existing logic to resume. Existing pending invasions must not be deleted or schema-rewritten.
+- Research lock remains: start/progress/completion, one national active research, one city active research per PLAYER city, active/completed normalization, completed prerequisite recognition, researching no-effect, duplicate completion guard, completion refresh, and same-city only.
+- Cost display lock remains: expected/planned cost is display-only, no gold/food/labor/policy deduction, no start/per-turn/completion charge, no cost gating, no affordability check, and no paid state.
+- Safe Set lock remains: Economy, Military/Defense, National Policy, Naval/Siege Display, Diplomacy/Spy Display, Full Effect Integration Summary, completed-only, PLAYER only, same-city only, and no forbidden formula or count mutation.
+- Scope lock remains: left panel PLAYER national/court/tech only; right panel selected PLAYER city only; enemy, unknown, and insufficient-intel city tech detail no-display; no enemy research/effect.
+- This pass does not authorize actual resource payment, cost reservation, refund/cancel flow, cost-based research blocking, extra research slots, battle modifiers, diplomacy success modifiers, spy success modifiers, relation mutation, city_intel unlocks, market/trade modifiers, AI research, enemy research/effect, troop/ship/siege count mutation, BattleContext changes, pending invasion schema changes, tech id/name/category/branch/prerequisite changes, asset changes, icon PNG changes, UI64 PNG changes, or `.import` changes.
+- Keep warning cleanup intact: do not reintroduce exact local `seed` variables, `target_label` block shadowing, local `resource_label`, local `selected_city_id`, `sign` parameter, or local `loyalty_card` shadowing.
+
 ## v0.70-76-hotfix1 Manual QA Grace Turns QA Polish Lock Rule
 - Baseline is `v0.70-76 Domestic Tech Manual QA Grace Turns` (`ab8ed193016e31046dd1d722ccc911a9ddc7a000`).
 - v0.70-76-hotfix1 authorizes QA polish only for the existing Domestic Tech manual QA invasion grace boundary, summary flags, and manual QA documentation.

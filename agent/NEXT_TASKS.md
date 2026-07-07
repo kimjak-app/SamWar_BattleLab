@@ -1,5 +1,20 @@
 # NEXT TASKS
 
+## Current: v0.70-78 Domestic Tech Actual Manual QA Pass
+- Baseline: `v0.70-76-hotfix1 Manual QA Grace Turns QA Polish` (`39c27de2e1fa074e522facaf5a147759a298ffb6`).
+- Completed direction:
+  1. Fixed `agent/DOMESTIC_TECH_MANUAL_QA.md` as the Actual Manual QA Pass guide for F6 Domestic Tech 1st-pass applied-state verification.
+  2. Added explicit QA sections for pre-F6 checks, turn 1-10 invasion grace, national research start/progress/completion, city research start/progress/completion, Safe Set effects, expected cost display-only, enemy/unknown no-display, UI64/click/overlay, Godot Output warnings, and PASS / NEEDS FIX result recording.
+  3. Added `_get_domestic_tech_actual_manual_qa_pass_mvp()` as a side-effect-free QA/debug helper with `gameplay_mutation = false`.
+- Preserved scope:
+  1. No actual cost deduction, cost gating, affordability check, paid cost state, extra research slot, enemy research/effect, battle/diplomacy/spy/market/city_intel/AI formula connection, BattleContext change, pending invasion schema change, tech definition change, asset/icon/UI64/import change, or large UI rearrangement was made.
+  2. Existing Grace Turns, research start/progress/completion, cost display-only, Safe Sets, same-city only, enemy/unknown no-display, UI64 priority, click latency behavior, overlay lifecycle, and warning cleanup locks remain active.
+- Next candidates:
+  1. `v0.70-78-hotfix1 Actual Manual QA Doc Polish`.
+  2. `v0.70-79 Domestic Tech Actual F6 QA Fix Pass`.
+- Manual F6 QA required:
+  1. Execute the Actual QA template in `agent/DOMESTIC_TECH_MANUAL_QA.md`, including grace turns, national/city research flow, Safe Set effects, cost display-only, enemy no-display, UI64/click/overlay, and warning cleanliness.
+
 ## Current: v0.70-76-hotfix1 Manual QA Grace Turns QA Polish
 - Baseline: `v0.70-76 Domestic Tech Manual QA Grace Turns` (`ab8ed193016e31046dd1d722ccc911a9ddc7a000`).
 - Completed direction:

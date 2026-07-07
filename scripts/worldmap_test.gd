@@ -11875,6 +11875,23 @@ func _get_domestic_tech_manual_qa_scenario_pack_mvp() -> Dictionary:
 	}
 
 
+func _get_domestic_tech_actual_manual_qa_pass_mvp() -> Dictionary:
+	return {
+		"actual_manual_qa_pass_enabled": true,
+		"version": "v0.70-78",
+		"grace_turns_required": true,
+		"national_research_flow_required": true,
+		"city_research_flow_required": true,
+		"safe_set_effects_required": true,
+		"cost_display_only_required": true,
+		"enemy_no_display_required": true,
+		"ui_overlay_required": true,
+		"gameplay_mutation": false,
+		"print_spam": false,
+		"save_data_changed": false,
+	}
+
+
 func _is_manual_qa_invasion_grace_turn_active_mvp() -> bool:
 	var current_turn := _get_current_world_turn_number_mvp()
 	return current_turn <= MANUAL_QA_NO_INVASION_GRACE_TURNS
