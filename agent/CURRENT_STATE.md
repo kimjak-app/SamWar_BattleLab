@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.70-84 Research Cost Affordability UI Polish
+- Baseline: `v0.70-83 Domestic Tech Actual Charge F6 Result Record` at `5452b8272169fd1691b7ea20152e55b3b99091ef`; tracked files were clean at task start.
+- Polished Domestic Tech research affordability UI wording for the actual charge state in `scripts/worldmap_test.gd`.
+- Available and affordable research now displays `필요 비용: ... · 시작 시 차감` instead of any display-only style wording.
+- Available but insufficient resources now surface `자원이 부족해 연구를 시작할 수 없습니다.` with `부족: 금 N / 군량 N` shortage details, and the action button uses `자원 부족`.
+- Researching, completed, and locked/prerequisite states keep status priority over cost wording; action button labels are shortened to `연구 중`, `완료`, or `조건 부족`.
+- Added side-effect-free UI wording QA flags to `_get_domestic_tech_research_actual_charge_summary_mvp()`.
+- No actual charge logic, deduction amount/order, research start flow, active payload schema, paid cost state, cancel/refund, per-turn charge, completion charge, BattleContext, pending invasion schema, assets/imports, tech definitions, or scene layout was changed.
+- Next candidates: `v0.70-85 Research Cost Affordability F6 UI QA Record`, `v0.70-85 Labor Policy Resource State Design`, or `v0.70-85 Domestic Tech Actual Charge Edge Case QA Polish`.
+
 ## v0.70-83 Domestic Tech Actual Charge F6 Result Record
 - Baseline: `v0.70-82 Domestic Tech Actual Charge Manual QA` at `34baf66a48caf8725556ee618c681e3b58f60355`; tracked files were clean at task start.
 - Recorded Kimjak's v0.70-82 Domestic Tech actual charge manual QA result as PASS.

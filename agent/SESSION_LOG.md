@@ -2,6 +2,15 @@
 
 ## 2026-07-07
 
+### v0.70-84 Research Cost Affordability UI Polish
+- Started from clean local HEAD `5452b8272169fd1691b7ea20152e55b3b99091ef`.
+- Read required workflow, Godot, current state, next task, handoff, Domestic Tech research cost design, Domestic Tech manual QA, and worldmap rule docs before edits.
+- Updated actual-charge UI wording so available/affordable research shows `필요 비용: ... · 시작 시 차감`.
+- Updated available/insufficient feedback so the UI reports `자원이 부족해 연구를 시작할 수 없습니다.` with `부족: 금 N / 군량 N` details and a `자원 부족` button label.
+- Kept researching/completed/locked state priority over cost wording and shortened their button labels to `연구 중`, `완료`, and `조건 부족`.
+- Added only side-effect-free UI wording flags to the actual charge summary helper.
+- Preserved actual charge logic, deduction amount/order, affordability validation logic, active payload schema, paid cost state absence, cancel/refund absence, per-turn/completion charge absence, BattleContext, pending invasion schema, enemy research/effect absence, tech definitions, scenes, and assets/imports.
+
 ### v0.70-83 Domestic Tech Actual Charge F6 Result Record
 - Started from clean local HEAD `34baf66a48caf8725556ee618c681e3b58f60355`.
 - User reported `pass` for the v0.70-82 Domestic Tech actual charge manual QA checklist.

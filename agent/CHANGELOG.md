@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.70-84 Research Cost Affordability UI Polish
+- Updated Domestic Tech actual-charge UI wording in `scripts/worldmap_test.gd`: available/affordable cost copy now uses `필요 비용: ... · 시작 시 차감`.
+- Added clearer insufficient-resource UI feedback with `자원이 부족해 연구를 시작할 수 없습니다.` and existing `부족: 금 N / 군량 N` details.
+- Shortened action button labels for non-start states to `자원 부족`, `연구 중`, `완료`, and `조건 부족`.
+- Added side-effect-free actual charge summary flags for UI wording and state-priority QA.
+- Preserved actual charge logic, deduction amount/order, affordability validation logic, research start flow, active payload schema, paid cost state absence, cancel/refund absence, per-turn/completion charge absence, BattleContext, pending invasion schema, tech definitions, scenes, and assets/imports.
+
 ## v0.70-83 Domestic Tech Actual Charge F6 Result Record
 - Recorded Kimjak's v0.70-82 Domestic Tech actual charge manual QA result as PASS in `agent/DOMESTIC_TECH_MANUAL_QA.md`.
 - PASS coverage: National sufficient/insufficient gold, National no per-turn charge, National no completion charge, City sufficient gold/food, City insufficient gold, City insufficient food, City food deduction order, Other city unchanged, Existing active no retroactive charge, Active payload schema unchanged, Enemy/unknown no research/effect, and Godot Output clean.

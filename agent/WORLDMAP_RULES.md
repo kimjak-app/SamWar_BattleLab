@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.70-84 Research Cost Affordability UI Polish Lock Rule
+- v0.70-84 authorizes Domestic Tech actual-charge UI wording polish and side-effect-free QA summary metadata only.
+- Available/affordable research cost copy should use actual-charge wording such as `필요 비용: ... · 시작 시 차감`, not display-only wording.
+- Available/insufficient research should surface `자원 부족` / `자원이 부족해 연구를 시작할 수 없습니다.` with existing `부족: 금 N / 군량 N` details.
+- Researching, completed, locked, and prerequisite-shortage states must keep state priority over cost copy.
+- Do not change actual charge logic, deduction amount/order, affordability validation logic, research start flow, active research payload schema, paid cost state, cancel/refund, per-turn charge, completion charge, retroactive charge, enemy research/effect, BattleContext, pending invasion schema, tech definitions, scenes, assets, icon PNGs, UI64 PNGs, or `.import` files under this UI polish pass.
+
 ## v0.70-83 Domestic Tech Actual Charge F6 Result Record Lock Rule
 - v0.70-83 records Kimjak's v0.70-82 actual charge manual QA result as PASS.
 - This pass is documentation/result recording only. Do not infer any authorization to change gameplay logic, research start flow, resource deduction logic, UI layout, scenes, save/load schema, active research payload schema, paid cost state, cancel/refund, enemy research/effect, BattleContext, pending invasion schema, tech definitions, or assets/imports.

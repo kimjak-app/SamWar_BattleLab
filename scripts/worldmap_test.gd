@@ -11111,7 +11111,7 @@ func _format_domestic_tech_research_cost_display_mvp(cost_plan: Dictionary) -> S
 		parts.append("정책 %d" % planned_policy_cost)
 	if parts.is_empty():
 		return "필요 비용 없음"
-	return "필요 비용 %s · 시작 시 차감" % " / ".join(parts)
+	return "필요 비용: %s · 시작 시 차감" % " / ".join(parts)
 
 
 func _format_domestic_tech_research_cost_plan_mvp(tech_def: Dictionary, scope: String = "") -> String:
@@ -11317,6 +11317,12 @@ func _get_domestic_tech_research_actual_charge_summary_mvp() -> Dictionary:
 		"enemy_research_cost_scope": "none",
 		"battle_context_changed": false,
 		"pending_invasion_schema_changed": false,
+		"available_cost_wording_actual_charge": true,
+		"display_only_wording_removed_after_actual_charge": true,
+		"shortage_wording_enabled": true,
+		"researching_cost_hidden_or_deprioritized": true,
+		"completed_cost_hidden_or_deprioritized": true,
+		"locked_prerequisite_first": true,
 	}
 
 
@@ -11364,18 +11370,18 @@ func _format_domestic_tech_research_action_button_text_mvp(view_state: Dictionar
 		return "연구 시작"
 	match state_id:
 		DOMESTIC_TECH_VIEW_RESEARCHING:
-			return "연구 진행 중"
+			return "연구 중"
 		DOMESTIC_TECH_VIEW_COMPLETED:
-			return "완료된 테크"
+			return "완료"
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
-			return "특수 조건 필요"
+			return "조건 부족"
 		DOMESTIC_TECH_VIEW_LOCKED:
 			return "조건 부족"
 		_:
 			if str(validation.get("reason", "")) == "insufficient_cost":
 				return "자원 부족"
 			if str(validation.get("reason", "")) in ["national_active", "city_active", "already_researching"]:
-				return "연구 진행 중"
+				return "연구 중"
 			return "연구 시작"
 
 
@@ -11409,6 +11415,11 @@ func _format_domestic_tech_research_readiness_text_mvp(view_state: Dictionary) -
 			if not bool(validation.get("ok", false)) and str(validation.get("reason", "")) in ["national_active", "city_active"]:
 				var active: Dictionary = validation.get("active_research", {})
 				return "연구 상태: 다른 연구 진행 중\n현재 진행: %s" % _format_domestic_tech_active_research_summary_mvp(active)
+			if not bool(validation.get("ok", false)) and str(validation.get("reason", "")) == "insufficient_cost":
+				var shortage_text := str(validation.get("message", ""))
+				if shortage_text.is_empty():
+					return "연구 상태: 자원 부족\n자원이 부족해 연구를 시작할 수 없습니다."
+				return "연구 상태: 자원 부족\n자원이 부족해 연구를 시작할 수 없습니다. %s" % shortage_text
 			return "연구 상태: 준비 가능\n조건을 충족했습니다."
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
 			return "연구 상태: 특수 조건 필요\n해당 테크는 특정 국가 테크, 도시 조건, 영웅 조건 또는 자원 조건이 필요합니다."
@@ -11433,6 +11444,11 @@ func _format_domestic_tech_research_action_hint_mvp(view_state: Dictionary) -> S
 			var validation := _can_start_domestic_tech_research_mvp(_selected_domestic_tech_id_mvp, _selected_domestic_tech_city_id_mvp) if not _selected_domestic_tech_id_mvp.is_empty() else {"ok": false}
 			if bool(validation.get("ok", false)):
 				return "조건을 충족했습니다. 연구 시작 시 비용을 차감합니다."
+			if str(validation.get("reason", "")) == "insufficient_cost":
+				var shortage_text := str(validation.get("message", ""))
+				if shortage_text.is_empty():
+					return "자원이 부족해 연구를 시작할 수 없습니다."
+				return "자원이 부족해 연구를 시작할 수 없습니다. %s" % shortage_text
 			return str(validation.get("message", "연구 시작 조건을 확인하십시오."))
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
 			return "특수 조건 충족 후 다음 단계에서 연구할 수 있습니다."

@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-84 Research Cost Affordability UI Polish Handoff
+- Latest baseline: `v0.70-84 Research Cost Affordability UI Polish` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-83 Domestic Tech Actual Charge F6 Result Record` (`5452b8272169fd1691b7ea20152e55b3b99091ef`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Agent docs updated: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Domestic Tech available/affordable cost copy is now `필요 비용: ... · 시작 시 차감`; display-only wording is not used for the actual charge available cost path.
+- Domestic Tech insufficient-resource UI now reports `자원이 부족해 연구를 시작할 수 없습니다.` with the existing `부족: 금 N / 군량 N` shortage details, and the button reads `자원 부족`.
+- Researching/completed/locked states keep status priority and use compact button labels: `연구 중`, `완료`, and `조건 부족`.
+- `_get_domestic_tech_research_actual_charge_summary_mvp()` includes side-effect-free UI QA flags for actual-charge wording, shortage wording, status priority, and prerequisite-first behavior.
+- Explicitly unchanged: actual charge logic, deduction amount/order, affordability validation logic, active research creation logic, active payload schema, paid cost state, cancel/refund, per-turn charge, completion charge, retroactive charge, enemy research/effect, BattleContext, pending invasion schema, tech definitions, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Recommended next options:
+  1. `v0.70-85 Research Cost Affordability F6 UI QA Record`.
+  2. `v0.70-85 Labor Policy Resource State Design`.
+  3. `v0.70-85 Domestic Tech Actual Charge Edge Case QA Polish`.
+
 ## v0.70-83 Domestic Tech Actual Charge F6 Result Record Handoff
 - Latest baseline: `v0.70-83 Domestic Tech Actual Charge F6 Result Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-82 Domestic Tech Actual Charge Manual QA` (`34baf66a48caf8725556ee618c681e3b58f60355`).
