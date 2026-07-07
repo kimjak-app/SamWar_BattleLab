@@ -1,5 +1,10 @@
 # WORLDMAP RULES
 
+## v0.70-83 Domestic Tech Actual Charge F6 Result Record Lock Rule
+- v0.70-83 records Kimjak's v0.70-82 actual charge manual QA result as PASS.
+- This pass is documentation/result recording only. Do not infer any authorization to change gameplay logic, research start flow, resource deduction logic, UI layout, scenes, save/load schema, active research payload schema, paid cost state, cancel/refund, enemy research/effect, BattleContext, pending invasion schema, tech definitions, or assets/imports.
+- The recorded PASS covers national and city actual charge, no extra charge, active payload compatibility, enemy/unknown no research/effect, and Godot Output cleanliness.
+
 ## v0.70-82 Domestic Tech Actual Charge Manual QA Lock Rule
 - v0.70-82 is QA documentation and side-effect-free QA summary metadata only.
 - Do not change Domestic Tech actual charge gameplay logic, research start flow, resource deduction logic, UI layout, scenes, save/load schema, active research payload schema, paid cost state, cancel/refund, enemy research/effect, BattleContext, pending invasion schema, tech definitions, or assets/imports under this QA pass.

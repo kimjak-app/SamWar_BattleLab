@@ -2,6 +2,13 @@
 
 ## 2026-07-07
 
+### v0.70-83 Domestic Tech Actual Charge F6 Result Record
+- Started from clean local HEAD `34baf66a48caf8725556ee618c681e3b58f60355`.
+- User reported `pass` for the v0.70-82 Domestic Tech actual charge manual QA checklist.
+- Recorded the result as PASS in `agent/DOMESTIC_TECH_MANUAL_QA.md` with tester 김작, date 2026-07-07, version `v0.70-82 Domestic Tech Actual Charge Manual QA`, and commit `34baf66a48caf8725556ee618c681e3b58f60355`.
+- Recorded all checklist entries as PASS: National sufficient/insufficient gold, no per-turn charge, no completion charge, City sufficient gold/food, insufficient gold, insufficient food, food order, other city unchanged, existing active no retroactive charge, active payload schema unchanged, enemy/unknown no research/effect, and Godot Output clean.
+- No code, scene, asset/import, gameplay, save/load schema, BattleContext, pending invasion schema, active payload, paid state, cancel/refund, enemy research/effect, or tech definition behavior was changed.
+
 ### v0.70-82 Domestic Tech Actual Charge Manual QA
 - Started from clean local HEAD `b5c8bee932caaa538202ff28a226da5cb45c71c3`.
 - Read required workflow, Godot, current state, next task, handoff, Domestic Tech manual QA, and research cost design docs before edits.

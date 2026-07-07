@@ -3,6 +3,33 @@
 Version: `v0.70-82 Domestic Tech Actual Charge Manual QA`
 Baseline: `v0.70-81 Domestic Tech Research Cost Actual Charge MVP` (`b5c8bee932caaa538202ff28a226da5cb45c71c3`)
 
+# Domestic Tech Actual Charge F6 QA Result
+
+QA Date: 2026-07-07
+Tester: 김작
+Version: v0.70-82 Domestic Tech Actual Charge Manual QA
+Commit: 34baf66a48caf8725556ee618c681e3b58f60355
+
+## Confirmed
+- National sufficient gold: PASS
+- National insufficient gold: PASS
+- National no per-turn charge: PASS
+- National no completion charge: PASS
+- City sufficient gold/food: PASS
+- City insufficient gold: PASS
+- City insufficient food: PASS
+- City food deduction order: PASS
+- Other city unchanged: PASS
+- Existing active no retroactive charge: PASS
+- Active payload schema unchanged: PASS
+- Enemy/unknown no research/effect: PASS
+- Godot Output clean: PASS
+
+## Final Verdict
+PASS
+
+Notes: User reported `pass` for the v0.70-82 actual charge manual QA checklist.
+
 ## 1. QA Purpose
 - Confirm Domestic Tech research cost is deducted exactly once when research starts.
 - Confirm insufficient resources block research start and do not deduct any resource.

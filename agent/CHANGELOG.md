@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.70-83 Domestic Tech Actual Charge F6 Result Record
+- Recorded Kimjak's v0.70-82 Domestic Tech actual charge manual QA result as PASS in `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- PASS coverage: National sufficient/insufficient gold, National no per-turn charge, National no completion charge, City sufficient gold/food, City insufficient gold, City insufficient food, City food deduction order, Other city unchanged, Existing active no retroactive charge, Active payload schema unchanged, Enemy/unknown no research/effect, and Godot Output clean.
+- Preserved gameplay logic, research start flow, resource deduction logic, UI layout, scenes, save/load schema, active payload schema, paid cost state absence, cancel/refund absence, enemy research/effect absence, BattleContext, pending invasion schema, tech definitions, and assets/imports.
+
 ## v0.70-82 Domestic Tech Actual Charge Manual QA
 - Added the v0.70-82 Domestic Tech actual charge F6 manual QA checklist to the top of `agent/DOMESTIC_TECH_MANUAL_QA.md`.
 - Covered actual charge QA for National Tech, City Tech, existing active compatibility, no extra charge, preservation areas, Godot Output, and PASS / NEEDS FIX result recording.

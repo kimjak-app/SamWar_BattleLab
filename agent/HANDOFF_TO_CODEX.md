@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.70-83 Domestic Tech Actual Charge F6 Result Record Handoff
+- Latest baseline: `v0.70-83 Domestic Tech Actual Charge F6 Result Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-82 Domestic Tech Actual Charge Manual QA` (`34baf66a48caf8725556ee618c681e3b58f60355`).
+- Manual QA result recorded in `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Result: PASS, reported by Kimjak on 2026-07-07.
+- PASS coverage includes National sufficient/insufficient gold, no per-turn charge, no completion charge, City sufficient gold/food, insufficient gold, insufficient food, food deduction order, other city unchanged, existing active no retroactive charge, active payload schema unchanged, enemy/unknown no research/effect, and Godot Output clean.
+- This pass is documentation/result recording only. It does not change gameplay logic, research start flow, resource deduction logic, UI layout, scenes, save/load schema, active payload schema, paid cost state, cancel/refund, enemy research/effect, BattleContext, pending invasion schema, tech definitions, or assets/imports.
+- Recommended next options:
+  1. `v0.70-84 Research Cost Affordability UI Polish`.
+  2. `v0.70-84 Labor Policy Resource State Design`.
+  3. `v0.70-84 Domestic Tech Actual Charge Edge Case QA Polish`.
+
 ## v0.70-82 Domestic Tech Actual Charge Manual QA Handoff
 - Latest baseline: `v0.70-82 Domestic Tech Actual Charge Manual QA` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-81 Domestic Tech Research Cost Actual Charge MVP` (`b5c8bee932caaa538202ff28a226da5cb45c71c3`).
