@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.70-89 Labor Policy Resource State Design
+- Added `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+- Locked the v0.70-89 decision that Domestic Tech `labor` and `policy` remain display-only planned costs in the MVP.
+- Recorded the future preferred resource ownership and naming: city-only `labor_pool` for labor and national-only `policy_points` for policy.
+- Documented deferred implementation requirements for persistent keys, save/load migration, turn production/recovery, UI policy, old-save compatibility, actual charge validation extension, shortage messaging, and F6 manual QA.
+- Updated WorldMap and Domestic Tech cost-design docs to preserve the actual charge scope as `gold + food group`, with city food group order `rice -> barley -> seafood`.
+- Preserved runtime code, gameplay logic, UI behavior, save/load schema, active research payload schema, cost/duration/effect balance values, actual charge logic, gold/food deduction, paid cost state absence, cancel/refund absence, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ## v0.70-88 Domestic Tech Balance F6 Result Record
 - Added the v0.70-88 Domestic Tech Balance F6 Result Record section to the top of `agent/DOMESTIC_TECH_MANUAL_QA.md`.
 - Recorded the v0.70-86 balance integration result state as PASS-ready by document/code/headless verification, with Manual F6 follow-up required for actual click/tactile balance confirmation.

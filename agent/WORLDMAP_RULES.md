@@ -1,5 +1,12 @@
 # WORLDMAP RULES
 
+## v0.70-89 Labor Policy Resource State Design Lock Rule
+- v0.70-89 authorizes labor/policy resource-state design documentation, agent document updates, and headless/grep/diff verification only.
+- `labor` and `policy` remain display-only planned costs in the current Domestic Tech MVP. They are not actual charge targets.
+- Future preferred direction is city-only `labor_pool` and national-only `policy_points`, but no persistent state key is added under this task.
+- Actual charge remains scoped to `gold + food group`; city food group deduction order remains `rice -> barley -> seafood`; national tech keeps the confirmed gold-charge-centered model.
+- Do not change `scripts/worldmap_test.gd`, actual charge gameplay logic, gold deduction, food group deduction, affordability validation, active research creation, active research payload schema, save/load schema, paid cost state, cancel/refund, per-turn charge, completion charge, cost/duration/effect balance values, UI behavior, BattleContext, pending invasion schema, battle/diplomacy/spy/market/city_intel formulas, enemy research/effect, scenes, assets, icon PNGs, UI64 PNGs, or `.import` files under this design pass.
+
 ## v0.70-88 Domestic Tech Balance F6 Result Record Lock Rule
 - v0.70-88 authorizes QA result documentation, PASS-ready result recording, agent document updates, and headless/grep/diff verification only.
 - `agent/DOMESTIC_TECH_MANUAL_QA.md` is the result-record source for the v0.70-86 balance integration and v0.70-87 QA checklist.

@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.70-89 Labor Policy Resource State Design Handoff
+- Latest baseline: `v0.70-89 Labor Policy Resource State Design` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-88 Domestic Tech Balance F6 Result Record` (`c782e3a14b0bc2e6c2d1046e7a8a118b4e5adf1d`).
+- New design document: `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+- Agent docs updated: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`, and `agent/DOMESTIC_TECH_RESEARCH_COST_DESIGN.md`.
+- Runtime code was not changed. `scripts/worldmap_test.gd` remains untouched under this pass.
+- Decision: `labor` / `policy` stay display-only planned costs in the MVP and are not actual charge resources.
+- Future preferred resource ownership: labor is city-only under `labor_pool`; policy is national-only under `policy_points`.
+- Do not implement labor/policy actual charge until a separate task defines persistent keys, save/load migration, turn recovery/production, UI location/copy, old-save compatibility, and F6 manual QA.
+- Explicitly unchanged: actual charge logic, gold deduction, food group deduction, food group order `rice -> barley -> seafood`, active research payload schema, save/load schema, paid cost state, cancel/refund, per-turn charge, completion charge, cost/duration/effect balance values, UI behavior, BattleContext, pending invasion schema, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Recommended next options:
+  1. `v0.70-90 Labor Policy Cost UI Label Polish`.
+  2. `v0.70-90 City Research Category Identity Polish`.
+  3. `v0.70-90 Domestic Tech Edge Case Polish`.
+  4. `v0.70-90 Labor Policy Save Schema Draft`.
+
 ## v0.70-88 Domestic Tech Balance F6 Result Record Handoff
 - Latest baseline: `v0.70-88 Domestic Tech Balance F6 Result Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-87 Domestic Tech Balance F6 QA Record` (`47325a032de9397551bf20b1c5fa813fcfffd47b`).

@@ -2,6 +2,14 @@
 
 ## 2026-07-08
 
+### v0.70-89 Labor Policy Resource State Design
+- Started from clean local HEAD `c782e3a14b0bc2e6c2d1046e7a8a118b4e5adf1d`.
+- Read required workflow, Godot, current state, next task, handoff, Domestic Tech research cost design, Domestic Tech manual QA, and worldmap rule docs before edits.
+- Added `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+- Decided that `labor` / `policy` remain display-only planned costs in the MVP and are not actual charge resources in v0.70-89.
+- Recorded the future preferred direction as city-only `labor_pool` and national-only `policy_points`, deferred until save/load schema, recovery/production loop, UI policy, old-save compatibility, and F6 manual QA are separately designed.
+- Preserved actual charge logic, gold/food deduction, food order, active payload schema, save/load schema, paid state absence, cancel/refund absence, per-turn/completion charge absence, cost/duration/effect balance values, UI behavior, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ### v0.70-88 Domestic Tech Balance F6 Result Record
 - Started from clean local HEAD `47325a032de9397551bf20b1c5fa813fcfffd47b`.
 - Read required workflow, Godot, current state, next task, handoff, Domestic Tech manual QA, Domestic Tech research cost design, and worldmap rule docs before edits.

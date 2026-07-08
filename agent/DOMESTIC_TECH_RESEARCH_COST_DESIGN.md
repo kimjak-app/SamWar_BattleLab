@@ -1,5 +1,14 @@
 # Domestic Tech Research Cost Actual Charge Design Draft
 
+## v0.70-89 Labor / Policy Resource State Addendum
+- Dedicated design doc: `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+- MVP decision: `labor` and `policy` remain display-only planned costs and are not actual charge targets.
+- Current actual charge remains `gold + food group`.
+- City food group deduction order remains `rice -> barley -> seafood`.
+- Future recommended keys are city `labor_pool` and national `policy_points`, but no persistent key is added in v0.70-89.
+- Labor/policy actual charge must not be implemented before save/load schema, turn production/recovery, UI policy, old-save compatibility, shortage messaging, and F6 manual QA are separately designed.
+- v0.70-89 does not change gameplay logic, UI behavior, save/load schema, active research payload schema, actual charge logic, or cost/duration/effect balance values.
+
 Version: `v0.70-80 Domestic Tech Research Cost Actual Charge Design Draft`
 Baseline: `v0.70-79 Domestic Tech Actual F6 QA Result Record` (`4a939a49b33aedb6c0e309dba47cdcdd2f42d02e`)
 

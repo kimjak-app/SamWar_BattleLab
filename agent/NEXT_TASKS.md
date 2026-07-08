@@ -1,5 +1,20 @@
 # NEXT TASKS
 
+## Current: v0.70-89 Labor Policy Resource State Design
+- Baseline: `v0.70-88 Domestic Tech Balance F6 Result Record` (`c782e3a14b0bc2e6c2d1046e7a8a118b4e5adf1d`).
+- Completed direction:
+  1. Added `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+  2. Locked MVP `labor` / `policy` status as display-only planned costs, not actual charge resources.
+  3. Recorded the future preferred split: city-only `labor_pool` and national-only `policy_points`.
+  4. Kept actual charge scoped to `gold + food group`, with city food order `rice -> barley -> seafood`.
+- Preserved scope:
+  1. No runtime code change, gameplay logic change, UI behavior change, save/load schema change, active research payload change, cost/duration/effect balance change, actual charge logic change, deduction order change, paid cost state, cancel/refund, BattleContext change, pending invasion schema change, scene change, or asset/import change.
+- Next candidates:
+  1. `v0.70-90 Labor Policy Cost UI Label Polish`.
+  2. `v0.70-90 City Research Category Identity Polish`.
+  3. `v0.70-90 Domestic Tech Edge Case Polish`.
+  4. `v0.70-90 Labor Policy Save Schema Draft`.
+
 ## Current: v0.70-88 Domestic Tech Balance F6 Result Record
 - Baseline: `v0.70-87 Domestic Tech Balance F6 QA Record` (`47325a032de9397551bf20b1c5fa813fcfffd47b`).
 - Completed direction:
