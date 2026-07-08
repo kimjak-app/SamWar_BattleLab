@@ -175,12 +175,16 @@ const DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_BRANCHES_MVP := ["infantry", "archer",
 const DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP := {
 	"mil_barracks": {"recruit_capacity_flat": 80},
 	"mil_infantry_training": {"infantry_training_percent": 0.04},
+	"mil_elite_infantry": {"infantry_training_percent": 0.07},
 	"mil_heavy_infantry": {"infantry_training_percent": 0.10},
 	"mil_archer_training": {"archer_training_percent": 0.04},
 	"mil_elite_archer": {"archer_training_percent": 0.07},
+	"mil_singijeon": {"archer_training_percent": 0.08},
 	"mil_cavalry_training": {"cavalry_training_percent": 0.04},
 	"mil_light_cavalry": {"cavalry_training_percent": 0.06},
 	"mil_heavy_cavalry": {"cavalry_training_percent": 0.08},
+	"mil_iron_cavalry": {"cavalry_training_percent": 0.10},
+	"mil_cavalry_charge_tactics": {"cavalry_charge_percent": 0.08},
 	"mil_wall_upgrade": {"defense_flat": 35},
 	"mil_moat": {"defense_percent": 0.05},
 	"mil_double_moat": {"defense_percent": 0.08},
@@ -189,6 +193,15 @@ const DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP := {
 	"mil_beacon_network": {"defense_percent": 0.06},
 	"mil_iron_gate": {"defense_flat": 70},
 	"mil_iron_fortress": {"defense_percent": 0.14},
+}
+const DOMESTIC_TECH_NATIONAL_BATTLE_SAFE_SET_MVP := {
+	"nation_military_training_order": {"global_attack_percent": 0.03, "global_defense_percent": 0.03},
+	"nation_military_reform": {"global_attack_percent": 0.04, "global_defense_percent": 0.04},
+	"nation_standing_army": {"global_attack_percent": 0.03, "global_defense_percent": 0.03},
+	"nation_logistics_system": {"logistics_percent": 0.05, "global_defense_percent": 0.02},
+	"nation_expedition_system": {"logistics_percent": 0.05, "global_attack_percent": 0.02},
+	"nation_weapon_standardization": {"global_attack_percent": 0.03},
+	"nation_weapon_factory": {"global_attack_percent": 0.03},
 }
 const DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP := {
 	"nation_law_reform": {"law_order_flat": 5},
@@ -4410,6 +4423,73 @@ func _get_enemy_city_economy_baseline_mvp(city: Dictionary) -> Dictionary:
 	result["defense_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(defense_score)
 	result["revealed_fields"] = revealed_fields
 	return result
+
+
+func _get_enemy_city_defense_baseline_mvp(city: Dictionary) -> Dictionary:
+	var result := {
+		"city_id": str(city.get("id", "")),
+		"owner_scope": "enemy",
+		"enemy_baseline": true,
+		"enemy_research_effect": false,
+		"player_completed_tech_lookup": false,
+		"masked": true,
+		"defense_grade_label": "정보 부족",
+		"garrison_grade_label": "정보 부족",
+		"battle_grade_label": "정보 부족",
+		"source": "city_grade_faction_baseline",
+	}
+	var city_id := str(result.get("city_id", ""))
+	if city_id.is_empty() or not _is_city_owned_by_enemy_mvp(city_id):
+		result["reason"] = "not_enemy_city"
+		return result
+	var intel_entry := _get_city_intel_entry_for_ui(city_id)
+	if intel_entry.is_empty():
+		result["reason"] = "insufficient_intel"
+		return result
+	var fields := _get_city_intel_fields_for_ui(intel_entry)
+	var payload := _get_city_intel_payload_for_ui(intel_entry)
+	var revealed_fields := _get_enemy_intel_revealed_field_ids_for_ui(fields, payload)
+	if not revealed_fields.has("troops") and not revealed_fields.has("troops_estimated") and not revealed_fields.has("resources"):
+		result["reason"] = "insufficient_intel"
+		return result
+	result["masked"] = false
+	var defense_score := _get_city_numeric_rating(city, "defense", 3)
+	var troops_value := int(city.get("troops", 0))
+	if _has_enemy_intel_payload_for_ui(fields, payload, "troops") or _has_enemy_intel_payload_for_ui(fields, payload, "troops_estimated"):
+		troops_value = int(payload.get("troops", payload.get("troops_estimated", troops_value)))
+	var garrison_score := clampi(int(floor(float(maxi(0, troops_value)) / 250.0)), 0, 5)
+	var battle_score := defense_score + garrison_score
+	result["defense_grade_score"] = defense_score
+	result["garrison_grade_score"] = garrison_score
+	result["battle_grade_score"] = battle_score
+	result["defense_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(defense_score)
+	result["garrison_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(garrison_score)
+	result["battle_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(battle_score)
+	result["revealed_fields"] = revealed_fields
+	return result
+
+
+func _get_enemy_battle_baseline_modifier_mvp(city: Dictionary, role: String = "defender") -> Dictionary:
+	var modifier := _get_empty_domestic_battle_modifier_mvp()
+	modifier["owner_scope"] = "enemy"
+	modifier["role"] = role
+	modifier["enemy_baseline"] = true
+	modifier["enemy_research_effect"] = false
+	modifier["player_completed_tech_lookup"] = false
+	modifier["masked"] = true
+	var baseline := _get_enemy_city_defense_baseline_mvp(city)
+	if bool(baseline.get("masked", true)):
+		modifier["reason"] = baseline.get("reason", "insufficient_intel")
+		return modifier
+	modifier["masked"] = false
+	var defense_score := int(baseline.get("defense_grade_score", 0))
+	var battle_score := int(baseline.get("battle_grade_score", 0))
+	if role == "attacker":
+		modifier["global_attack_pct"] = minf(0.08, float(battle_score) * 0.01)
+	else:
+		modifier["global_defense_pct"] = minf(0.08, float(defense_score) * 0.01)
+	modifier["source"] = "enemy_city_grade_baseline"
+	return modifier
 
 
 func _format_spy_action_candidates_for_ui(city_marker: WorldMapCityMarker) -> String:
@@ -10171,6 +10251,39 @@ func _get_empty_domestic_tech_city_military_defense_bonus_mvp() -> Dictionary:
 		"infantry_training_percent": 0.0,
 		"archer_training_percent": 0.0,
 		"cavalry_training_percent": 0.0,
+		"cavalry_charge_percent": 0.0,
+		"source_techs": [],
+	}
+
+
+func _get_empty_domestic_defense_modifier_mvp() -> Dictionary:
+	return {
+		"city_defense_flat": 0,
+		"city_defense_pct": 0.0,
+		"wall_defense_pct": 0.0,
+		"moat_defense_pct": 0.0,
+		"tower_defense_pct": 0.0,
+		"gate_defense_pct": 0.0,
+		"garrison_defense_pct": 0.0,
+		"siege_resistance_pct": 0.0,
+		"source_techs": [],
+	}
+
+
+func _get_empty_domestic_battle_modifier_mvp() -> Dictionary:
+	return {
+		"global_attack_pct": 0.0,
+		"global_defense_pct": 0.0,
+		"infantry_attack_pct": 0.0,
+		"infantry_defense_pct": 0.0,
+		"archer_attack_pct": 0.0,
+		"archer_defense_pct": 0.0,
+		"cavalry_attack_pct": 0.0,
+		"cavalry_charge_pct": 0.0,
+		"gunpowder_attack_pct": 0.0,
+		"crossbow_attack_pct": 0.0,
+		"logistics_pct": 0.0,
+		"siege_attack_pct": 0.0,
 		"source_techs": [],
 	}
 
@@ -10239,7 +10352,7 @@ func _get_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> Dict
 			continue
 		if not DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_BRANCHES_MVP.has(str(definition.get("branch", ""))):
 			continue
-		if not _is_city_domestic_tech_completed_mvp(city_id, tech_id):
+		if not _has_completed_city_domestic_tech_mvp(city_id, tech_id):
 			continue
 		var mapping: Dictionary = DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.get(tech_id, {})
 		bonus["defense_flat"] = int(bonus.get("defense_flat", 0)) + int(mapping.get("defense_flat", 0))
@@ -10249,10 +10362,151 @@ func _get_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> Dict
 		bonus["infantry_training_percent"] = float(bonus.get("infantry_training_percent", 0.0)) + float(mapping.get("infantry_training_percent", 0.0))
 		bonus["archer_training_percent"] = float(bonus.get("archer_training_percent", 0.0)) + float(mapping.get("archer_training_percent", 0.0))
 		bonus["cavalry_training_percent"] = float(bonus.get("cavalry_training_percent", 0.0)) + float(mapping.get("cavalry_training_percent", 0.0))
+		bonus["cavalry_charge_percent"] = float(bonus.get("cavalry_charge_percent", 0.0)) + float(mapping.get("cavalry_charge_percent", 0.0))
 		(bonus["source_techs"] as Array).append(tech_id)
 		source_seen[tech_id] = true
 	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 	return bonus
+
+
+func _get_player_city_defense_modifier_mvp(city_id: String) -> Dictionary:
+	var modifier := _get_empty_domestic_defense_modifier_mvp()
+	modifier["city_id"] = city_id
+	modifier["scope"] = DOMESTIC_TECH_SCOPE_CITY
+	modifier["player_only"] = true
+	modifier["same_city_only"] = true
+	modifier["enemy_research_effect"] = false
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return modifier
+	var source_seen := {}
+	for tech_id_variant in DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.keys():
+		var tech_id := str(tech_id_variant)
+		if source_seen.has(tech_id):
+			continue
+		var definition := _get_domestic_tech_definition_mvp(tech_id)
+		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_CITY:
+			continue
+		if str(definition.get("category", "")) != DOMESTIC_TECH_CATEGORY_MILITARY:
+			continue
+		if str(definition.get("branch", "")) != "defense":
+			continue
+		if not _has_completed_city_domestic_tech_mvp(city_id, tech_id):
+			continue
+		var mapping: Dictionary = DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.get(tech_id, {})
+		var defense_flat := int(mapping.get("defense_flat", 0))
+		var defense_percent := float(mapping.get("defense_percent", 0.0))
+		modifier["city_defense_flat"] = int(modifier.get("city_defense_flat", 0)) + defense_flat
+		modifier["city_defense_pct"] = float(modifier.get("city_defense_pct", 0.0)) + defense_percent
+		match tech_id:
+			"mil_wall_upgrade", "mil_iron_fortress":
+				modifier["wall_defense_pct"] = float(modifier.get("wall_defense_pct", 0.0)) + defense_percent
+				modifier["siege_resistance_pct"] = float(modifier.get("siege_resistance_pct", 0.0)) + defense_percent
+			"mil_moat", "mil_double_moat":
+				modifier["moat_defense_pct"] = float(modifier.get("moat_defense_pct", 0.0)) + defense_percent
+				modifier["siege_resistance_pct"] = float(modifier.get("siege_resistance_pct", 0.0)) + defense_percent
+			"mil_watchtower", "mil_beacon", "mil_beacon_network":
+				modifier["tower_defense_pct"] = float(modifier.get("tower_defense_pct", 0.0)) + defense_percent
+				modifier["garrison_defense_pct"] = float(modifier.get("garrison_defense_pct", 0.0)) + defense_percent
+			"mil_iron_gate":
+				modifier["gate_defense_pct"] = float(modifier.get("gate_defense_pct", 0.0)) + defense_percent
+			_:
+				pass
+		if defense_flat > 0 and (tech_id == "mil_watchtower" or tech_id == "mil_beacon"):
+			modifier["tower_defense_pct"] = float(modifier.get("tower_defense_pct", 0.0)) + 0.03
+			modifier["garrison_defense_pct"] = float(modifier.get("garrison_defense_pct", 0.0)) + 0.03
+		if defense_flat > 0 and tech_id == "mil_iron_gate":
+			modifier["gate_defense_pct"] = float(modifier.get("gate_defense_pct", 0.0)) + 0.08
+		(modifier["source_techs"] as Array).append(tech_id)
+		source_seen[tech_id] = true
+	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(modifier.get("source_techs", []))
+	return modifier
+
+
+func _merge_domestic_battle_source_techs_mvp(first: Variant, second: Variant) -> Array[String]:
+	var source_techs: Array = []
+	if first is Array:
+		source_techs.append_array(first as Array)
+	if second is Array:
+		source_techs.append_array(second as Array)
+	return _get_unique_domestic_tech_source_ids_mvp(source_techs)
+
+
+func _add_domestic_battle_modifier_values_mvp(base: Dictionary, addition: Dictionary) -> Dictionary:
+	for key in [
+		"global_attack_pct",
+		"global_defense_pct",
+		"infantry_attack_pct",
+		"infantry_defense_pct",
+		"archer_attack_pct",
+		"archer_defense_pct",
+		"cavalry_attack_pct",
+		"cavalry_charge_pct",
+		"gunpowder_attack_pct",
+		"crossbow_attack_pct",
+		"logistics_pct",
+		"siege_attack_pct",
+	]:
+		base[key] = float(base.get(key, 0.0)) + float(addition.get(key, 0.0))
+	base["source_techs"] = _merge_domestic_battle_source_techs_mvp(base.get("source_techs", []), addition.get("source_techs", []))
+	return base
+
+
+func _get_player_national_battle_modifier_mvp() -> Dictionary:
+	var modifier := _get_empty_domestic_battle_modifier_mvp()
+	modifier["scope"] = DOMESTIC_TECH_SCOPE_NATIONAL
+	modifier["player_only"] = true
+	modifier["enemy_research_effect"] = false
+	for tech_id_variant in DOMESTIC_TECH_NATIONAL_BATTLE_SAFE_SET_MVP.keys():
+		var tech_id := str(tech_id_variant)
+		if not _has_completed_national_domestic_tech_mvp(tech_id):
+			continue
+		var mapping: Dictionary = DOMESTIC_TECH_NATIONAL_BATTLE_SAFE_SET_MVP.get(tech_id, {})
+		modifier["global_attack_pct"] = float(modifier.get("global_attack_pct", 0.0)) + float(mapping.get("global_attack_percent", 0.0))
+		modifier["global_defense_pct"] = float(modifier.get("global_defense_pct", 0.0)) + float(mapping.get("global_defense_percent", 0.0))
+		modifier["logistics_pct"] = float(modifier.get("logistics_pct", 0.0)) + float(mapping.get("logistics_percent", 0.0))
+		modifier["siege_attack_pct"] = float(modifier.get("siege_attack_pct", 0.0)) + float(mapping.get("siege_attack_percent", 0.0))
+		(modifier["source_techs"] as Array).append(tech_id)
+	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(modifier.get("source_techs", []))
+	return modifier
+
+
+func _get_player_city_battle_modifier_mvp(city_id: String) -> Dictionary:
+	var modifier := _get_empty_domestic_battle_modifier_mvp()
+	modifier["scope"] = DOMESTIC_TECH_SCOPE_CITY
+	modifier["city_id"] = city_id
+	modifier["player_only"] = true
+	modifier["same_city_only"] = true
+	modifier["enemy_research_effect"] = false
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return modifier
+	var bonus := _get_domestic_tech_city_military_defense_bonus_mvp(city_id)
+	var defense_modifier := _get_player_city_defense_modifier_mvp(city_id)
+	var infantry_percent := float(bonus.get("infantry_training_percent", 0.0))
+	var archer_percent := float(bonus.get("archer_training_percent", 0.0))
+	var cavalry_percent := float(bonus.get("cavalry_training_percent", 0.0))
+	modifier["global_defense_pct"] = float(defense_modifier.get("garrison_defense_pct", 0.0))
+	modifier["infantry_attack_pct"] = infantry_percent
+	modifier["infantry_defense_pct"] = infantry_percent
+	modifier["archer_attack_pct"] = archer_percent
+	modifier["archer_defense_pct"] = float(defense_modifier.get("tower_defense_pct", 0.0))
+	modifier["cavalry_attack_pct"] = cavalry_percent
+	modifier["cavalry_charge_pct"] = minf(float(bonus.get("cavalry_charge_percent", 0.0)), 0.08)
+	modifier["source_techs"] = _merge_domestic_battle_source_techs_mvp(bonus.get("source_techs", []), defense_modifier.get("source_techs", []))
+	return modifier
+
+
+func _get_player_battle_tech_modifier_mvp(scope: String, city_id: String = "") -> Dictionary:
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		return _get_player_national_battle_modifier_mvp()
+	if scope == DOMESTIC_TECH_SCOPE_CITY:
+		return _get_player_city_battle_modifier_mvp(city_id)
+	var combined := _get_player_national_battle_modifier_mvp()
+	combined["scope"] = "combined"
+	if not city_id.is_empty():
+		combined = _add_domestic_battle_modifier_values_mvp(combined, _get_player_city_battle_modifier_mvp(city_id))
+		combined["city_id"] = city_id
+		combined["same_city_only"] = true
+	return combined
 
 
 func _get_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> Dictionary:
@@ -10471,7 +10725,34 @@ func _has_domestic_tech_city_military_defense_bonus_mvp(city_id: String) -> bool
 		or not is_equal_approx(float(bonus.get("training_percent", 0.0)), 0.0) \
 		or not is_equal_approx(float(bonus.get("infantry_training_percent", 0.0)), 0.0) \
 		or not is_equal_approx(float(bonus.get("archer_training_percent", 0.0)), 0.0) \
-		or not is_equal_approx(float(bonus.get("cavalry_training_percent", 0.0)), 0.0)
+		or not is_equal_approx(float(bonus.get("cavalry_training_percent", 0.0)), 0.0) \
+		or not is_equal_approx(float(bonus.get("cavalry_charge_percent", 0.0)), 0.0)
+
+
+func _has_domestic_defense_modifier_data_mvp(modifier: Dictionary) -> bool:
+	return int(modifier.get("city_defense_flat", 0)) != 0 \
+		or not is_equal_approx(float(modifier.get("city_defense_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("wall_defense_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("moat_defense_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("tower_defense_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("gate_defense_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("garrison_defense_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("siege_resistance_pct", 0.0)), 0.0)
+
+
+func _has_domestic_battle_modifier_data_mvp(modifier: Dictionary) -> bool:
+	return not is_equal_approx(float(modifier.get("global_attack_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("global_defense_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("infantry_attack_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("infantry_defense_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("archer_attack_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("archer_defense_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("cavalry_attack_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("cavalry_charge_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("gunpowder_attack_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("crossbow_attack_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("logistics_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("siege_attack_pct", 0.0)), 0.0)
 
 
 func _has_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> bool:
@@ -10706,19 +10987,71 @@ func _get_domestic_tech_city_defense_display_value_mvp(city_id: String, city_dat
 	var base_defense := maxi(0, int(city_data.get("defense", 0)))
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
 		return base_defense
-	var bonus := _get_domestic_tech_city_military_defense_bonus_mvp(city_id)
-	var defense_percent := maxf(0.0, float(bonus.get("defense_percent", 0.0)))
-	var defense_flat := maxi(0, int(bonus.get("defense_flat", 0)))
+	var modifier := _get_player_city_defense_modifier_mvp(city_id)
+	var defense_percent := maxf(0.0, float(modifier.get("city_defense_pct", 0.0)))
+	var defense_flat := maxi(0, int(modifier.get("city_defense_flat", 0)))
 	var percent_value := int(round(float(base_defense) * (1.0 + defense_percent)))
 	return maxi(0, percent_value + defense_flat)
 
 
+func _format_city_defense_battle_modifier_summary_mvp(city_id: String, city_data: Dictionary = {}) -> String:
+	if city_id.is_empty():
+		return ""
+	if _is_city_owned_by_enemy_mvp(city_id):
+		var baseline := _get_enemy_city_defense_baseline_mvp(city_data)
+		if bool(baseline.get("masked", true)):
+			return "상대 도시 기본 방어 체급\n정보 부족: 정탐 후 확인"
+		return "상대 도시 기본 방어 체급\n방어 %s / 주둔 %s / 전투 %s" % [
+			str(baseline.get("defense_grade_label", "보통")),
+			str(baseline.get("garrison_grade_label", "보통")),
+			str(baseline.get("battle_grade_label", "보통")),
+		]
+	if not _is_city_owned_by_player_mvp(city_id):
+		return ""
+	var defense_modifier := _get_player_city_defense_modifier_mvp(city_id)
+	var battle_modifier := _get_player_battle_tech_modifier_mvp("combined", city_id)
+	if not _has_domestic_defense_modifier_data_mvp(defense_modifier) and not _has_domestic_battle_modifier_data_mvp(battle_modifier):
+		return ""
+	var parts: Array[String] = []
+	if int(defense_modifier.get("city_defense_flat", 0)) != 0:
+		parts.append("도시 방어 %s" % _format_signed_int(int(defense_modifier.get("city_defense_flat", 0))))
+	if not is_equal_approx(float(defense_modifier.get("city_defense_pct", 0.0)), 0.0):
+		parts.append("도시 방어 %s" % _format_domestic_tech_percent_bonus_mvp(float(defense_modifier.get("city_defense_pct", 0.0))))
+	if not is_equal_approx(float(defense_modifier.get("siege_resistance_pct", 0.0)), 0.0):
+		parts.append("공성 저항 %s" % _format_domestic_tech_percent_bonus_mvp(float(defense_modifier.get("siege_resistance_pct", 0.0))))
+	if not is_equal_approx(float(battle_modifier.get("global_attack_pct", 0.0)), 0.0):
+		parts.append("전군 공격 %s" % _format_domestic_tech_percent_bonus_mvp(float(battle_modifier.get("global_attack_pct", 0.0))))
+	if not is_equal_approx(float(battle_modifier.get("global_defense_pct", 0.0)), 0.0):
+		parts.append("전군 방어 %s" % _format_domestic_tech_percent_bonus_mvp(float(battle_modifier.get("global_defense_pct", 0.0))))
+	if not is_equal_approx(float(battle_modifier.get("infantry_attack_pct", 0.0)), 0.0):
+		parts.append("보병 공격 %s" % _format_domestic_tech_percent_bonus_mvp(float(battle_modifier.get("infantry_attack_pct", 0.0))))
+	if not is_equal_approx(float(battle_modifier.get("archer_attack_pct", 0.0)), 0.0):
+		parts.append("궁병 공격 %s" % _format_domestic_tech_percent_bonus_mvp(float(battle_modifier.get("archer_attack_pct", 0.0))))
+	if not is_equal_approx(float(battle_modifier.get("cavalry_attack_pct", 0.0)), 0.0):
+		parts.append("기병 공격 %s" % _format_domestic_tech_percent_bonus_mvp(float(battle_modifier.get("cavalry_attack_pct", 0.0))))
+	if not is_equal_approx(float(battle_modifier.get("cavalry_charge_pct", 0.0)), 0.0):
+		parts.append("기병 돌격 %s" % _format_domestic_tech_percent_bonus_mvp(float(battle_modifier.get("cavalry_charge_pct", 0.0))))
+	if parts.is_empty():
+		return ""
+	var source_display := _format_domestic_tech_source_display_mvp(battle_modifier.get("source_techs", []), 2)
+	var suffix := "" if source_display.is_empty() else "\n%s" % source_display
+	return "내정 연구 방어/전투 보정\n%s%s" % [", ".join(parts.slice(0, 6)), suffix]
+
+
 func _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id: String, city_data: Dictionary = {}, include_sources: bool = true) -> Array[String]:
 	var result: Array[String] = []
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+	if city_id.is_empty():
+		return result
+	if _is_city_owned_by_enemy_mvp(city_id):
+		var enemy_summary := _format_city_defense_battle_modifier_summary_mvp(city_id, city_data)
+		if not enemy_summary.is_empty():
+			result.append(enemy_summary)
+		return result
+	if not _is_city_owned_by_player_mvp(city_id):
 		return result
 	var bonus := _get_domestic_tech_city_military_defense_bonus_mvp(city_id)
-	if not _has_domestic_tech_city_military_defense_bonus_mvp(city_id):
+	var modifier_summary := _format_city_defense_battle_modifier_summary_mvp(city_id, city_data)
+	if not _has_domestic_tech_city_military_defense_bonus_mvp(city_id) and modifier_summary.is_empty():
 		return result
 	var resource_parts: Array[String] = []
 	var defense_percent := float(bonus.get("defense_percent", 0.0))
@@ -10736,6 +11069,8 @@ func _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id: String
 		resource_parts.append("궁병 기반 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("archer_training_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("cavalry_training_percent", 0.0)), 0.0):
 		resource_parts.append("기병 기반 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("cavalry_training_percent", 0.0))))
+	if not is_equal_approx(float(bonus.get("cavalry_charge_percent", 0.0)), 0.0):
+		resource_parts.append("기병 돌격 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("cavalry_charge_percent", 0.0))))
 	if not city_data.is_empty() and (int(bonus.get("defense_flat", 0)) != 0 or not is_equal_approx(defense_percent, 0.0)):
 		resource_parts.append("방어 표시 %d→%d" % [
 			maxi(0, int(city_data.get("defense", 0))),
@@ -10743,6 +11078,8 @@ func _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id: String
 		])
 	if not resource_parts.is_empty():
 		result.append("테크 군사/방어: %s" % ", ".join(resource_parts.slice(0, 5)))
+	if not modifier_summary.is_empty():
+		result.append(modifier_summary)
 	if include_sources:
 		var source_display := _format_domestic_tech_source_display_mvp(bonus.get("source_techs", []))
 		if not source_display.is_empty():
@@ -12335,10 +12672,14 @@ func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
 
 func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Dictionary:
 	return {
-		"version": "v0.70-93 Economy / City Effect Integration",
+		"version": "v0.70-94 Defense / Battle Effect Integration",
 		"map_only": false,
 		"economy_city_effect_integrated": true,
+		"defense_battle_effect_integrated": true,
 		"enemy_city_baseline_helper_added": true,
+		"enemy_defense_battle_baseline_helper_added": true,
+		"battle_roster_stat_modifier_connected": true,
+		"battle_formula_changed": false,
 		"gameplay_formula_changed": false,
 		"actual_charge_logic_changed": false,
 		"save_load_schema_changed": false,
@@ -12374,11 +12715,17 @@ func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Diction
 				"_format_domestic_apply_summary",
 			],
 			"defense_battle": [
+				"_get_player_city_defense_modifier_mvp",
+				"_get_player_battle_tech_modifier_mvp",
+				"_get_enemy_city_defense_baseline_mvp",
+				"_get_enemy_battle_baseline_modifier_mvp",
 				"_get_domestic_tech_city_defense_display_value_mvp",
+				"_format_city_defense_battle_modifier_summary_mvp",
 				"_format_domestic_tech_city_military_defense_bonus_lines_mvp",
 				"_build_battle_context_from_pending_invasion",
 				"_build_player_attack_battle_context",
 				"_get_hero_battle_data_for_battle_context",
+				"_apply_domestic_battle_tech_modifier_to_hero_data_mvp",
 				"_apply_troop_allocation_to_roster",
 			],
 			"diplomacy_spy": [
@@ -15665,6 +16012,41 @@ func _get_city_battle_heroes_for_battle_context(city_id: String) -> Array[Dictio
 	return battle_heroes
 
 
+func _apply_domestic_battle_tech_modifier_to_hero_data_mvp(battle_data: Dictionary, city_id: String) -> Dictionary:
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return battle_data
+	var modifier := _get_player_battle_tech_modifier_mvp("combined", city_id)
+	if not _has_domestic_battle_modifier_data_mvp(modifier):
+		return battle_data
+	var unit_type := str(battle_data.get("unit_type", "infantry")).to_lower()
+	var attack_pct := float(modifier.get("global_attack_pct", 0.0))
+	var defense_pct := float(modifier.get("global_defense_pct", 0.0))
+	match unit_type:
+		"infantry", "melee":
+			attack_pct += float(modifier.get("infantry_attack_pct", 0.0))
+			defense_pct += float(modifier.get("infantry_defense_pct", 0.0))
+		"archer", "ranged":
+			attack_pct += float(modifier.get("archer_attack_pct", 0.0))
+			defense_pct += float(modifier.get("archer_defense_pct", 0.0))
+		"cavalry":
+			attack_pct += float(modifier.get("cavalry_attack_pct", 0.0)) + float(modifier.get("cavalry_charge_pct", 0.0))
+		"gunpowder":
+			attack_pct += float(modifier.get("gunpowder_attack_pct", 0.0))
+		"crossbow":
+			attack_pct += float(modifier.get("crossbow_attack_pct", 0.0))
+		"siege":
+			attack_pct += float(modifier.get("siege_attack_pct", 0.0))
+		_:
+			pass
+	attack_pct = clampf(attack_pct, 0.0, 0.25)
+	defense_pct = clampf(defense_pct, 0.0, 0.25)
+	if not is_equal_approx(attack_pct, 0.0):
+		battle_data["attack"] = maxi(1, int(round(float(int(battle_data.get("attack", 1))) * (1.0 + attack_pct))))
+	if not is_equal_approx(defense_pct, 0.0):
+		battle_data["defense"] = maxi(1, int(round(float(int(battle_data.get("defense", 1))) * (1.0 + defense_pct))))
+	return battle_data
+
+
 func _get_hero_battle_data_for_battle_context(hero_id: String, fallback_city_id: String) -> Dictionary:
 	var hero_data := _get_hero_entry(hero_id)
 	if hero_data.is_empty():
@@ -15708,6 +16090,7 @@ func _get_hero_battle_data_for_battle_context(hero_id: String, fallback_city_id:
 	battle_data["skill_range"] = maxi(0, int(battle_data.get("skill_range", role_contract.get("skill_range", 3))))
 	battle_data["skill_cooldown"] = maxi(0, int(battle_data.get("skill_cooldown", 0)))
 	battle_data["skill_toast_icon"] = str(battle_data.get("skill_toast_icon", HERO_BATTLE_TOAST_ICON_FALLBACK))
+	battle_data = _apply_domestic_battle_tech_modifier_to_hero_data_mvp(battle_data, current_city_id)
 	return battle_data
 
 

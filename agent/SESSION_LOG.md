@@ -2,6 +2,17 @@
 
 ## 2026-07-08
 
+### v0.70-94 Defense / Battle Effect Integration
+- Started from clean local HEAD `b8c417609e5424e15c22281c205d1ad2ec18d529`.
+- Confirmed expected baseline message: `v0.70-93 Economy / City Effect Integration`.
+- Read required workflow, Godot, current state, next task, handoff, worldmap rules, integration map, research cost design, and manual QA docs before edits.
+- Grepped `scripts/worldmap_test.gd` for Domestic Tech military/defense safe set, completed lookup wrappers, city detail summary, enemy intel baseline, BattleContext construction, and hero roster stat preparation paths.
+- Added PLAYER defense modifier helpers and PLAYER battle modifier helpers based on completed national and same-city city Domestic Tech lookup.
+- Connected city detail defense/battle summary and city defense display to the modifier helpers.
+- Connected PLAYER battle tech modifiers to existing hero roster attack/defense preparation without changing BattleContext schema, pending invasion schema, or troop counts.
+- Added side-effect-free ENEMY defense/battle baseline helpers with masked insufficient-intel behavior and no enemy research/effect storage.
+- Preserved save/load schema, active payload schema, actual charge logic, food order, BattleContext schema, pending invasion schema, diplomacy/spy formulas, naval/siege production absence, enemy research absence, scenes, assets, and imports.
+
 ### v0.70-93 Economy / City Effect Integration
 - Started from clean local HEAD `dc3d4dc96093c7649bf1d5a640b15251efcfce7d`.
 - Confirmed expected baseline message: `v0.70-92 Domestic Tech Gameplay Effect Integration Map`.

@@ -1,5 +1,30 @@
 # NEXT TASKS
 
+## Current: v0.70-94 Defense / Battle Effect Integration
+- Baseline: `v0.70-93 Economy / City Effect Integration` (`b8c417609e5424e15c22281c205d1ad2ec18d529`).
+- Completed direction:
+  1. Added PLAYER city defense modifier and PLAYER battle modifier helpers using completed Domestic Tech lookup.
+  2. Kept city defense tech same-city only.
+  3. Connected city defense display and selected city summary to the modifier helper contract.
+  4. Connected PLAYER battle tech to existing hero roster attack/defense preparation without changing BattleContext schema or troop counts.
+  5. Added ENEMY defense/battle baseline helpers that return masked or revealed baseline only; they are not enemy research.
+- Seven-step Domestic Tech completion route:
+  1. `v0.70-92 Domestic Tech Gameplay Effect Integration Map`
+  2. `v0.70-93 Economy / City Effect Integration`
+  3. `v0.70-94 Defense / Battle Effect Integration`
+  4. `v0.70-95 Diplomacy / Spy Effect Integration`
+  5. `v0.70-96 Naval / Siege Unlock Integration`
+  6. `v0.70-97 Full Gameplay F6 QA`
+  7. `v0.70-98 Domestic Tech Complete Lock`
+- Route lock:
+  1. Do not work outside this Domestic Tech route.
+  2. Do not implement labor/policy actual systems in this route.
+  3. Do not design new resources.
+  4. Do not do standalone UI polish or standalone QA record repetition.
+  5. Every follow-up must connect completed tech to actual gameplay effect state, calculation, or unlock.
+- Next task:
+  1. `v0.70-95 Diplomacy / Spy Effect Integration`.
+
 ## Current: v0.70-93 Economy / City Effect Integration
 - Baseline: `v0.70-92 Domestic Tech Gameplay Effect Integration Map` (`dc3d4dc96093c7649bf1d5a640b15251efcfce7d`).
 - Completed direction:

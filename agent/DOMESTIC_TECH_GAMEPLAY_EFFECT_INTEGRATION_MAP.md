@@ -1,5 +1,68 @@
 # Domestic Tech Gameplay Effect Integration Map
 
+## v0.70-94 Defense / Battle Effect Integration
+
+This pass connects Defense / Battle Domestic Tech effects to actual PLAYER defense modifier helpers, selected city defense summary, and the existing battle roster stat preparation path. It also adds ENEMY defense/battle baseline helpers that are not a research system.
+
+### Implemented Hooks
+
+- Completed PLAYER city defense tech lookup now has modifier contract helpers:
+  - `_has_completed_city_domestic_tech_mvp(city_id, tech_id)`
+  - `_get_player_city_defense_modifier_mvp(city_id)`
+  - `_get_player_city_battle_modifier_mvp(city_id)`
+- Completed PLAYER national military lookup now has battle modifier helpers:
+  - `_has_completed_national_domestic_tech_mvp(tech_id)`
+  - `_get_player_national_battle_modifier_mvp()`
+  - `_get_player_battle_tech_modifier_mvp(scope, city_id)`
+- City defense display and summary now read the same modifier contract through:
+  - `_get_domestic_tech_city_defense_display_value_mvp(city_id, city_data)`
+  - `_format_city_defense_battle_modifier_summary_mvp(city_id, city_data)`
+  - `_format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id, city_data)`
+- Battle setup now applies PLAYER completed battle tech at the existing roster stat preparation point:
+  - `_get_hero_battle_data_for_battle_context(hero_id, fallback_city_id)`
+  - `_apply_domestic_battle_tech_modifier_to_hero_data_mvp(battle_data, city_id)`
+- ENEMY city defense/battle baseline is provided by:
+  - `_get_enemy_city_defense_baseline_mvp(city)`
+  - `_get_enemy_battle_baseline_modifier_mvp(city, role)`
+
+### PLAYER Effect Contract
+
+- PLAYER national battle effects read `_player_state["national_domestic_tech_completed"]` through completed national lookup.
+- PLAYER city defense/battle effects read `_player_state["city_domestic_tech_completed"][city_id]` through completed city lookup.
+- City effects are same-city only.
+- BattleContext schema is not extended. The hook adjusts existing hero roster `attack` / `defense` values before the context is returned.
+- Troop, ship, and siege counts are not mutated.
+- Battle result formula is not rewritten; only the existing input stats receive small completed-tech modifiers.
+
+### ENEMY Baseline Contract
+
+- ENEMY does not have active research.
+- ENEMY does not have completed tech storage.
+- ENEMY does not pay research cost.
+- ENEMY receives no PLAYER completed-tech effect.
+- `_get_enemy_city_defense_baseline_mvp(city)` returns only a side-effect-free baseline from city grade and revealed intel.
+- `_get_enemy_battle_baseline_modifier_mvp(city, role)` returns baseline modifier metadata only; it is not enemy research.
+- Unknown or insufficient-intel cities remain masked.
+
+### Preservation
+
+- Save/load schema changed: false.
+- Active payload schema changed: false.
+- Actual charge logic changed: false.
+- Food group order changed: false, still `rice -> barley -> seafood`.
+- BattleContext schema changed: false.
+- Pending invasion schema changed: false.
+- Diplomacy/spy formulas changed: false.
+- Naval/siege production implemented: false.
+- Enemy research implemented: false.
+- Enemy completed tech storage added: false.
+- Troop/ship/siege count mutation added: false.
+- Assets/imports/scenes changed: false.
+
+### Next Version
+
+`v0.70-95 Diplomacy / Spy Effect Integration` must connect completed PLAYER diplomacy/spy research to existing diplomacy relation/success and spy success/intel-safe modifier hooks without adding enemy research, changing save schema, or rewriting formulas.
+
 ## v0.70-93 Economy / City Effect Integration
 
 This pass connects Economy / City Domestic Tech effects to actual PLAYER economy modifier helpers, existing turn income calculation, city detail summary, and national warehouse summary. It also adds an ENEMY city baseline helper that is not a research system.

@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.70-94 Defense / Battle Effect Integration Handoff
+- Latest baseline before this task: `v0.70-93 Economy / City Effect Integration` (`b8c417609e5424e15c22281c205d1ad2ec18d529`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Agent docs updated: `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`, and `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- PLAYER Defense / Battle integration now uses `_get_player_city_defense_modifier_mvp`, `_get_player_battle_tech_modifier_mvp`, `_get_player_national_battle_modifier_mvp`, and `_get_player_city_battle_modifier_mvp`.
+- City defense effects remain same-city only and PLAYER-only.
+- PLAYER battle tech effects are applied to existing hero roster `attack` / `defense` values through `_apply_domestic_battle_tech_modifier_to_hero_data_mvp`; no BattleContext keys or pending invasion payload keys were added.
+- ENEMY baseline helpers `_get_enemy_city_defense_baseline_mvp` and `_get_enemy_battle_baseline_modifier_mvp` are side-effect-free and masked unless current intel reveals enough baseline fields.
+- ENEMY still has no active research, completed tech storage, research cost, tech UI progression, or PLAYER completed-tech effect.
+- Next session must run `v0.70-95 Diplomacy / Spy Effect Integration`.
+- Explicitly unchanged: save/load schema, active research payload schema, actual charge logic, gold/food deduction, food group order `rice -> barley -> seafood`, BattleContext schema, pending invasion schema, diplomacy formula, spy formula, naval/siege production, troop/ship/siege counts, scenes, assets, and imports.
+
 ## v0.70-93 Economy / City Effect Integration Handoff
 - Latest baseline before this task: `v0.70-92 Domestic Tech Gameplay Effect Integration Map` (`dc3d4dc96093c7649bf1d5a640b15251efcfce7d`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

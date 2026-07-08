@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-94 Defense / Battle Effect Integration
+- Baseline: `v0.70-93 Economy / City Effect Integration` at `b8c417609e5424e15c22281c205d1ad2ec18d529`; tracked files were clean at task start.
+- Connected PLAYER Defense / Battle Domestic Tech completed effects through completed tech lookup wrappers and modifier helpers in `scripts/worldmap_test.gd`.
+- City defense effects remain same-city only through `_has_completed_city_domestic_tech_mvp` and `_get_player_city_defense_modifier_mvp`.
+- National military effects are exposed through `_has_completed_national_domestic_tech_mvp` and `_get_player_battle_tech_modifier_mvp`.
+- BattleContext schema remains unchanged; PLAYER battle modifiers are applied only to existing hero roster `attack` / `defense` values prepared by `_get_hero_battle_data_for_battle_context`.
+- City detail summary now shows modifier-backed Domestic Tech defense/battle summaries after completion.
+- Added `_get_enemy_city_defense_baseline_mvp` and `_get_enemy_battle_baseline_modifier_mvp` as ENEMY baseline helpers; they are not enemy research and do not add enemy completed tech storage.
+- Unknown or insufficient-intel enemy defense/battle baseline remains masked.
+- No save/load schema, active payload schema, actual charge logic, food deduction order, BattleContext schema, pending invasion schema, diplomacy/spy formula, naval/siege production, enemy research, scene, asset, or import behavior was changed.
+- Next task: `v0.70-95 Diplomacy / Spy Effect Integration`.
+
 ## v0.70-93 Economy / City Effect Integration
 - Baseline: `v0.70-92 Domestic Tech Gameplay Effect Integration Map` at `dc3d4dc96093c7649bf1d5a640b15251efcfce7d`; tracked files were clean at task start.
 - Connected PLAYER Economy / City Domestic Tech completed effects through completed tech lookup wrappers and economy modifier helpers in `scripts/worldmap_test.gd`.

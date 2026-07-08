@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.70-94 Defense / Battle Effect Integration
+- Added completed Domestic Tech defense/battle modifier helpers for PLAYER national and same-city PLAYER city effects in `scripts/worldmap_test.gd`.
+- Connected selected city defense display and summary to the defense modifier helper contract.
+- Connected PLAYER battle modifiers to existing hero roster attack/defense preparation without changing BattleContext schema, pending invasion schema, or troop counts.
+- Added ENEMY city defense/battle baseline helpers that are side-effect-free, masked by insufficient intel, and explicitly not enemy research.
+- Updated the Domestic Tech integration map and agent handoff docs for the next `v0.70-95 Diplomacy / Spy Effect Integration` task.
+- Preserved save/load schema, active payload schema, actual charge logic, food deduction order, BattleContext schema, pending invasion schema, diplomacy/spy formulas, naval/siege production absence, enemy research absence, scenes, assets, and imports.
+
 ## v0.70-93 Economy / City Effect Integration
 - Added completed Domestic Tech lookup wrapper helpers for PLAYER national and same-city PLAYER city effects in `scripts/worldmap_test.gd`.
 - Added economy modifier helpers for PLAYER city and national Domestic Tech effects.

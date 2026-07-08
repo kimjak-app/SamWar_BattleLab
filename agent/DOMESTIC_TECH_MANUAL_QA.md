@@ -1,5 +1,45 @@
 # Domestic Tech Actual Charge Manual QA
 
+## v0.70-94 Defense / Battle Effect Integration F6 QA
+
+### Purpose
+- Confirm completed PLAYER Defense / Battle Domestic Tech effects change modifier-backed city defense and PLAYER battle stat preparation.
+- Confirm city defense tech remains same-city only.
+- Confirm ENEMY baseline is not enemy research and remains masked when intel is insufficient.
+
+### Checks
+- Complete a defense city tech, then confirm the selected PLAYER city detail shows the defense/battle modifier summary.
+- Confirm that completed city defense tech applies only to the same PLAYER city.
+- Select another PLAYER city without that completed city tech and confirm the city defense effect does not leak.
+- Complete a national military tech, then confirm PLAYER battle modifier summary changes and battle setup still opens.
+- Confirm PLAYER battle roster attack/defense preparation changes only through existing stat fields, not troop count mutation.
+- Select an ENEMY city with no intel and confirm defense/battle baseline details are masked.
+- Select an ENEMY city after enough intel and confirm only baseline grade appears, not research effects.
+- Confirm enemy active research, enemy completed tech, and enemy tech progression remain absent.
+- Confirm v0.70-93 economy/city modifier summary and income path still work.
+- Confirm cost charge UI and research start/progress/completion flow are unchanged.
+- Confirm Godot Output has no new warning/error.
+
+### PASS / NEEDS FIX Record
+```text
+Version: v0.70-94 Defense / Battle Effect Integration
+Commit:
+PLAYER city defense modifier appears after completion:
+Same-city only:
+Other PLAYER city unaffected:
+National battle modifier appears after completion:
+Battle setup stable:
+Troop counts unchanged:
+Enemy no-intel baseline masked:
+Enemy baseline is not research:
+Enemy research absent:
+v0.70-93 economy/city effect preserved:
+Actual charge preserved:
+Godot Output clean:
+Result: PASS / NEEDS FIX
+Notes:
+```
+
 ## v0.70-93 Economy / City Effect Integration F6 QA
 
 ### Purpose
