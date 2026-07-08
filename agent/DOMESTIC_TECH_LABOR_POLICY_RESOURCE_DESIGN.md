@@ -1,5 +1,459 @@
 # Domestic Tech Labor / Policy Resource Design
 
+## v0.70-91 Labor Policy Save Schema Draft
+
+### 1. v0.70-91 Conclusion
+- `labor_pool` is drafted as a future city-state accumulated resource.
+- `policy_points` is drafted as a future PLAYER national/player-state accumulated resource.
+- Both resources are `accumulated resource with cap`.
+- v0.70-91 does not add real persistent keys.
+- v0.70-91 does not change save/load schema.
+- v0.70-91 does not implement migration code.
+- v0.70-91 does not implement labor/policy generation, actual charge, or UI behavior.
+- v0.70-91 is a Draft lock for later implementation.
+- Current actual charge target remains `gold + food group`.
+- City tech food group deduction order remains `rice -> barley -> seafood`.
+
+### 2. City Labor Save Schema Draft
+
+#### 2.1 Future Key
+Recommended key:
+
+```text
+labor_pool
+```
+
+Owner:
+
+```text
+city state
+```
+
+Type:
+
+```text
+int
+```
+
+Range:
+
+```text
+0 <= labor_pool <= labor_cap
+```
+
+#### 2.2 Future Storage Location Candidates
+Code-read note for v0.70-91:
+- WorldMap save currently serializes `player_state` and `worldmap_city_state`.
+- City runtime serialization currently preserves selected city fields such as `resource_stock`, `storage`, and `city_tech`.
+- City load currently normalizes `resource_stock`, `storage`, and `city_tech` from `worldmap_city_state`.
+
+Candidate locations:
+
+```text
+city["labor_pool"]
+city["resource_stock"]["labor_pool"]
+city["domestic_resource_state"]["labor_pool"]
+```
+
+Judgment criteria:
+- Must not conflict with existing city gold/rice/barley/seafood storage.
+- Must not accidentally join manual trade/storage behavior unless explicitly intended.
+- Must be stable under save/load and easy for the city panel to read.
+- Must keep labor meaning clear: local work capacity, not warehouse goods.
+
+Draft recommendation:
+- Do not blindly put labor into the same bucket as `rice`, `barley`, `seafood`, or trade goods.
+- A city root key or a dedicated future city domestic-resource bucket is safer than treating labor as physical storage.
+- Final storage must be confirmed in the implementation task after reviewing the exact save/load touchpoints again.
+
+#### 2.3 Initial Value Draft
+Preferred initial value:
+
+```text
+labor_pool_initial = min(labor_cap, floor(labor_cap * 0.5))
+```
+
+Simple MVP fallback:
+
+```text
+labor_pool_initial = 20
+```
+
+City-size candidates:
+
+```text
+small city: 15~25
+medium city: 30~50
+large city: 60~90
+capital/major city: 80~120
+```
+
+Principles:
+- Old saves should not start at zero unless the design intentionally wants a slow first turn.
+- Starting near 30~50% of cap is preferred.
+- First F6 testing should allow at least one Tier 1 city research in a reasonable city.
+
+#### 2.4 Cap Draft
+Simple future MVP candidate:
+
+```text
+labor_cap = 50 + city_tier * 40
+```
+
+Fallback when city tier is unavailable:
+
+```text
+labor_cap = 80
+```
+
+City-size candidates:
+
+```text
+small city: 50
+medium city: 100
+large city: 160
+capital/major city: 220
+```
+
+Cap principles:
+- Prevent infinite accumulation.
+- Let large cities and capitals feel better at major projects.
+- Facilities, roads, offices, barracks, shipyards, and Domestic Tech may later increase cap.
+
+#### 2.5 Migration Draft
+If an old save has no `labor_pool`:
+
+```text
+labor_pool = labor_pool_initial
+```
+
+If an old save has no valid cap value:
+
+```text
+labor_cap = default_labor_cap
+```
+
+Migration principles:
+- Old saves must not break.
+- Missing key means default initialization, not error.
+- Migration must be idempotent.
+- Values must be clamped after migration.
+- v0.70-91 does not implement migration.
+
+#### 2.6 Save/Load Validation Draft
+Future implementation checks:
+
+```text
+if labor_pool missing:
+    initialize
+if labor_pool < 0:
+    clamp to 0
+if labor_pool > labor_cap:
+    clamp to labor_cap
+if labor_cap missing or invalid:
+    use default cap
+```
+
+### 3. National Policy Save Schema Draft
+
+#### 3.1 Future Key
+Recommended key:
+
+```text
+policy_points
+```
+
+Owner:
+
+```text
+PLAYER national state
+```
+
+Type:
+
+```text
+int
+```
+
+Range:
+
+```text
+0 <= policy_points <= policy_cap
+```
+
+#### 3.2 Future Storage Location Candidates
+Code-read note for v0.70-91:
+- WorldMap save stores `_player_state` under `player_state`.
+- Load starts from `_get_default_player_state()` and overlays saved `player_state` keys.
+- National resources currently read from `_player_state["resource_stock"]` in several UI/helper paths.
+
+Candidate locations:
+
+```text
+player_nation["policy_points"]
+national_state["policy_points"]
+player_state["policy_points"]
+court_state["policy_points"]
+player_state["resource_stock"]["policy_points"]
+player_state["domestic_resource_state"]["policy_points"]
+```
+
+Judgment criteria:
+- Must match the national/player-state owner.
+- Must not make policy look like a warehouse/trade good unless that is intentionally designed.
+- Must be stable under save/load and easy for the left national panel to read.
+- Must not require enemy policy state in the first PLAYER-only implementation.
+
+Draft recommendation:
+- Store policy in PLAYER national/player state first, either as a root-level key or in a dedicated domestic/court resource bucket.
+- Avoid `resource_stock` unless the implementation deliberately wants policy to share resource formatting and storage helper paths.
+- Enemy policy state is not part of the first implementation, but naming should remain general enough for later AI nation expansion.
+
+#### 3.3 Initial Value Draft
+Preferred initial value:
+
+```text
+policy_points_initial = min(policy_cap, floor(policy_cap * 0.4))
+```
+
+Simple MVP fallback:
+
+```text
+policy_points_initial = 20
+```
+
+State candidates:
+
+```text
+weak state: 15~25
+normal state: 30~50
+centralized state: 60~90
+advanced bureaucracy: 80~120
+```
+
+Principles:
+- First F6 testing should allow one Tier 1 national research when the rest of the costs are affordable.
+- Policy should be a slower strategic bottleneck than gold.
+- Too much initial policy makes national research feel like unlimited clicking.
+
+#### 3.4 Cap Draft
+Simple future MVP candidate:
+
+```text
+policy_cap = 100 + completed_policy_tech_count * 20
+```
+
+Fallback when related values are unavailable:
+
+```text
+policy_cap = 100
+```
+
+State candidates:
+
+```text
+weak state: 60
+normal state: 100
+centralized state: 160
+advanced bureaucracy: 240
+```
+
+Cap principles:
+- Centralization, bureaucracy, and law reform techs may later increase cap.
+- A stronger court should be able to prepare larger reforms.
+- Cap should not be so low that mid/late national research feels blocked without planning value.
+
+#### 3.5 Migration Draft
+If an old save has no `policy_points`:
+
+```text
+policy_points = policy_points_initial
+```
+
+If an old save has no valid cap value:
+
+```text
+policy_cap = default_policy_cap
+```
+
+Migration principles:
+- Old saves must not break.
+- Missing key means default initialization, not error.
+- Support PLAYER national state first.
+- Enemy policy state is deferred to later AI/nation expansion.
+- Values must be clamped after migration.
+- v0.70-91 does not implement migration.
+
+#### 3.6 Save/Load Validation Draft
+Future implementation checks:
+
+```text
+if policy_points missing:
+    initialize
+if policy_points < 0:
+    clamp to 0
+if policy_points > policy_cap:
+    clamp to policy_cap
+if policy_cap missing or invalid:
+    use default cap
+```
+
+### 4. Schema Version / Migration Policy Draft
+Code-read note for v0.70-91:
+- `_serialize_worldmap_state()` writes a `version` string and stores `player_state`, `worldmap_city_state`, `worldmap_hero_state`, and `city_policy_state`.
+- `_apply_worldmap_state()` overlays saved `player_state` onto `_get_default_player_state()` and then applies city/hero/city-policy runtime state.
+- City save/load has explicit handling for selected known fields; new city root fields are not automatically serialized unless the serializer is extended in a future implementation.
+- No labor/policy migration was added in v0.70-91.
+
+Draft principles:
+- Save schema changes must happen in a separate implementation version.
+- Prefer `v0.70-92 Labor Policy Save Schema MVP` as a separate task instead of bundling schema changes into generation.
+- Old saves missing keys must receive defaults.
+- Default initialization must live in one clear place: load/migration or state initialization, not both.
+- Migration must be idempotent and clamp values.
+- Implementation must update serialization/load points deliberately if city root or dedicated city buckets are selected.
+
+### 5. Generation State Storage Decision
+
+#### Option A. Store Current Value Only
+Stored:
+
+```text
+labor_pool
+policy_points
+```
+
+Not stored:
+
+```text
+last_labor_gain
+last_policy_gain
+```
+
+Pros:
+- Simple save schema.
+- Smaller compatibility surface.
+- Turn gain can be recalculated when needed.
+
+#### Option B. Store Current Value and Last Gain
+Stored:
+
+```text
+labor_pool
+last_labor_gain
+policy_points
+last_policy_gain
+```
+
+Pros:
+- Easier tooltip support for previous-turn gain.
+
+Cons:
+- Larger schema.
+- More QA surface.
+
+v0.70-91 recommendation:
+- MVP stores current value only: `labor_pool` and `policy_points`.
+- Last gain should be calculated by helper/UI later, or introduced in a dedicated tooltip task.
+- Cap may be calculated rather than stored.
+- If cap calculation proves unstable, cap can remain a separate stored-key candidate in the save schema implementation task.
+
+### 6. Actual Charge Connection Policy
+v0.70-91 does not connect labor/policy to actual charge.
+
+Future city research cost structure:
+
+```text
+gold + food group + labor_pool
+```
+
+Future national research cost structure:
+
+```text
+gold + policy_points
+```
+
+Future hybrid military/logistics national research structure:
+
+```text
+gold + food group + policy_points
+```
+
+Timing rules:
+- Deduct once at research start.
+- No per-turn charge.
+- No completion charge.
+- No cancel/refund.
+- No retroactive charge.
+- No paid state.
+- No active research payload schema change.
+
+Shortage rules:
+- Validate before active research creation.
+- If resources are insufficient, do not deduct anything.
+- If resources are insufficient, do not create active research.
+- Future shortage copy may use:
+
+```text
+부족: 금 N / 군량 N / 노역 N / 정책 N
+```
+
+### 7. UI Display and Save Schema Relationship
+v0.70-91 does not change UI behavior.
+
+Future UI direction:
+- City detail/right panel may show city `labor_pool`.
+- Left national panel may show national `policy_points`.
+- Research cost UI should include labor/policy only after they become actual charge resources.
+- Before actual charge implementation, any labor/policy display must be clearly marked as planned/reference cost, not `시작 시 차감`.
+
+### 8. Summary Helper Policy
+No summary helper was changed in v0.70-91.
+
+If a later documentation-alignment pass needs side-effect-free flags, allowed values are:
+- `labor_policy_save_schema_draft = true`
+- `labor_future_key = "labor_pool"`
+- `policy_future_key = "policy_points"`
+- `labor_future_owner = "city_state"`
+- `policy_future_owner = "player_national_state"`
+- `labor_schema_implemented = false`
+- `policy_schema_implemented = false`
+- `save_load_schema_changed = false`
+- `migration_implemented = false`
+- `generation_implemented = false`
+- `actual_charge_scope_changed = false`
+- `ui_behavior_changed = false`
+
+### 9. Strict Preservation Locks
+Do not change under v0.70-91:
+- actual charge gameplay logic.
+- gold deduction.
+- food group deduction.
+- food group order `rice -> barley -> seafood`.
+- affordability validation logic.
+- active research creation logic.
+- active research payload schema.
+- save/load schema.
+- migration code.
+- real persistent key addition.
+- paid cost state.
+- cancel/refund.
+- per-turn charge.
+- completion charge.
+- retroactive charge.
+- cost/duration/effect balance values.
+- UI behavior.
+- BattleContext.
+- pending invasion schema.
+- battle formula.
+- diplomacy formula.
+- spy formula.
+- market/trade formula.
+- city_intel formula.
+- enemy research/effect.
+- assets/icons/UI64/import files.
+- scene files.
+
 ## v0.70-90 Labor Policy Resource Loop Design
 
 ### 1. v0.70-90 Conclusion

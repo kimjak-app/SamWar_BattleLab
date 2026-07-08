@@ -1,5 +1,23 @@
 # HANDOFF TO CODEX
 
+## v0.70-91 Labor Policy Save Schema Draft Handoff
+- Latest baseline: `v0.70-91 Labor Policy Save Schema Draft` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-90 Labor Policy Resource Loop Design` (`74da0c726a01bca2c225a6f99d72dc9c920541aa`).
+- Design document updated: `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+- Agent docs updated: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`, and `agent/DOMESTIC_TECH_RESEARCH_COST_DESIGN.md`.
+- Runtime code was not changed. `scripts/worldmap_test.gd` remains untouched under this pass.
+- Labor draft: future city-state accumulated resource with cap, recommended key `labor_pool`, current-value storage first.
+- Policy draft: future PLAYER national/player-state accumulated resource with cap, recommended key `policy_points`, current-value storage first.
+- Storage note: current WorldMap save uses `player_state` and `worldmap_city_state`; city serialization currently preserves selected fields only, so future city labor storage must be added deliberately in an implementation task.
+- v0.70-91 documents initial value, cap, migration/defaulting, validation, and UI/actual-charge boundaries only.
+- Do not implement labor/policy persistent keys, save/load migration, generation, actual charge, UI behavior, or active payload changes until later dedicated tasks.
+- Explicitly unchanged: actual charge logic, gold deduction, food group deduction, food group order `rice -> barley -> seafood`, active research payload schema, save/load schema, migration code, paid cost state, cancel/refund, per-turn charge, completion charge, cost/duration/effect balance values, UI behavior, BattleContext, pending invasion schema, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Recommended next options:
+  1. `v0.70-92 Labor Policy Generation Formula Draft`.
+  2. `v0.70-92 Labor Policy Save Schema MVP`.
+  3. `v0.70-92 City Research Category Identity Polish`.
+  4. `v0.70-92 Domestic Tech Edge Case Polish`.
+
 ## v0.70-90 Labor Policy Resource Loop Design Handoff
 - Latest baseline: `v0.70-90 Labor Policy Resource Loop Design` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-89 Labor Policy Resource State Design` (`487e8f520195f09840efe7047f3a173c39dca600`).

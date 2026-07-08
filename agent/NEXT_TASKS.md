@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-91 Labor Policy Save Schema Draft
+- Baseline: `v0.70-90 Labor Policy Resource Loop Design` (`74da0c726a01bca2c225a6f99d72dc9c920541aa`).
+- Completed direction:
+  1. Added the v0.70-91 save schema draft section to `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+  2. Drafted `labor_pool` as a future city-state accumulated resource with cap.
+  3. Drafted `policy_points` as a future PLAYER national/player-state accumulated resource with cap.
+  4. Recorded storage candidates, initial values, caps, old-save migration/defaulting, validation, schema-version policy, and actual-charge connection boundaries.
+  5. Kept current actual charge scoped to `gold + food group`, with city food order `rice -> barley -> seafood`.
+- Preserved scope:
+  1. No runtime code change, gameplay logic change, UI behavior change, save/load schema change, migration implementation, persistent key addition, generation implementation, active research payload change, cost/duration/effect balance change, actual charge logic change, deduction order change, paid cost state, cancel/refund, BattleContext change, pending invasion schema change, scene change, or asset/import change.
+- Next candidates:
+  1. `v0.70-92 Labor Policy Generation Formula Draft`.
+  2. `v0.70-92 Labor Policy Save Schema MVP`.
+  3. `v0.70-92 City Research Category Identity Polish`.
+  4. `v0.70-92 Domestic Tech Edge Case Polish`.
+
 ## Current: v0.70-90 Labor Policy Resource Loop Design
 - Baseline: `v0.70-89 Labor Policy Resource State Design` (`487e8f520195f09840efe7047f3a173c39dca600`).
 - Completed direction:

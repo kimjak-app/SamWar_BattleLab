@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-91 Labor Policy Save Schema Draft
+- Baseline: `v0.70-90 Labor Policy Resource Loop Design` at `74da0c726a01bca2c225a6f99d72dc9c920541aa`; tracked files were clean at task start.
+- Extended `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md` with the v0.70-91 save schema draft for labor/policy.
+- Labor save schema draft: future city-state accumulated resource, recommended key `labor_pool`, type `int`, range `0 <= labor_pool <= labor_cap`.
+- Policy save schema draft: future PLAYER national/player-state accumulated resource, recommended key `policy_points`, type `int`, range `0 <= policy_points <= policy_cap`.
+- Initial value/cap draft: labor starts around 30~50% cap or fallback 20; policy starts around 40% cap or fallback 20; caps remain computed candidates unless a later implementation decides to persist them.
+- Migration draft: missing keys are default-initialized, values are clamped, migration is idempotent, and old saves must not break.
+- Code-read storage note: current save data uses `player_state` plus `worldmap_city_state`; city runtime serialization currently handles selected fields such as `resource_stock`, `storage`, and `city_tech`, so future labor storage must be deliberately added if implemented.
+- v0.70-91 is documentation only: no real `labor_pool` / `policy_points` key, no save/load schema change, no migration code, no generation, no actual charge, and no UI behavior change.
+- Current actual charge remains `gold + food group`; city food group order remains `rice -> barley -> seafood`.
+- No runtime code, gameplay logic, UI behavior, save/load schema, migration code, active research payload, cost/duration/effect balance values, actual charge logic, deduction order, paid cost state, cancel/refund, BattleContext, pending invasion schema, scene, asset, or import behavior was changed.
+- Next candidates: `v0.70-92 Labor Policy Generation Formula Draft`, `v0.70-92 Labor Policy Save Schema MVP`, `v0.70-92 City Research Category Identity Polish`, or `v0.70-92 Domestic Tech Edge Case Polish`.
+
 ## v0.70-90 Labor Policy Resource Loop Design
 - Baseline: `v0.70-89 Labor Policy Resource State Design` at `487e8f520195f09840efe7047f3a173c39dca600`; tracked files were clean at task start.
 - Extended `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md` with the v0.70-90 loop design for labor/policy.

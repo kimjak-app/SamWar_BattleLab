@@ -2,6 +2,15 @@
 
 ## 2026-07-08
 
+### v0.70-91 Labor Policy Save Schema Draft
+- Started from clean local HEAD `74da0c726a01bca2c225a6f99d72dc9c920541aa`.
+- Read required workflow, Godot, current state, next task, handoff, labor/policy resource design, Domestic Tech research cost design, Domestic Tech manual QA, and worldmap rule docs before edits.
+- Read the WorldMap save/load and city runtime serialization paths to identify `player_state`, `worldmap_city_state`, `resource_stock`, `storage`, and `city_tech` boundaries.
+- Added the v0.70-91 save schema draft section to `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+- Drafted `labor_pool` as future city-state current-value storage with cap, default initialization, clamp validation, and old-save migration rules.
+- Drafted `policy_points` as future PLAYER national/player-state current-value storage with cap, default initialization, clamp validation, and old-save migration rules.
+- Preserved actual charge logic, gold/food deduction, food order, active payload schema, save/load schema, migration code absence, persistent key absence, paid state absence, cancel/refund absence, per-turn/completion charge absence, cost/duration/effect balance values, UI behavior, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ### v0.70-90 Labor Policy Resource Loop Design
 - Started from clean local HEAD `487e8f520195f09840efe7047f3a173c39dca600`.
 - Read required workflow, Godot, current state, next task, handoff, labor/policy resource design, Domestic Tech research cost design, Domestic Tech manual QA, and worldmap rule docs before edits.

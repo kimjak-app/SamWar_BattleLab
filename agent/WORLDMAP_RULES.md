@@ -1,5 +1,13 @@
 # WORLDMAP RULES
 
+## v0.70-91 Labor Policy Save Schema Draft Lock Rule
+- v0.70-91 authorizes labor/policy save schema draft documentation, agent document updates, and headless/grep/diff verification only.
+- `labor_pool` is a future city-state accumulated resource with cap; no key is added under this task.
+- `policy_points` is a future PLAYER national/player-state accumulated resource with cap; no key is added under this task.
+- v0.70-91 must not implement labor/policy persistent keys, save/load migration, generation, actual charge, UI behavior, active payload fields, or schema changes.
+- Actual charge remains scoped to `gold + food group`; city food group deduction order remains `rice -> barley -> seafood`.
+- Do not change `scripts/worldmap_test.gd`, actual charge gameplay logic, gold deduction, food group deduction, affordability validation, active research creation, active research payload schema, save/load schema, migration code, paid cost state, cancel/refund, per-turn charge, completion charge, cost/duration/effect balance values, UI behavior, BattleContext, pending invasion schema, battle/diplomacy/spy/market/city_intel formulas, enemy research/effect, scenes, assets, icon PNGs, UI64 PNGs, or `.import` files under this design pass.
+
 ## v0.70-90 Labor Policy Resource Loop Design Lock Rule
 - v0.70-90 authorizes labor/policy loop design documentation, agent document updates, and headless/grep/diff verification only.
 - Labor is designed as city-only accumulated resource with cap; future key `labor_pool`; no key is added under this task.

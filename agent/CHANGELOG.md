@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.70-91 Labor Policy Save Schema Draft
+- Extended `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md` with the v0.70-91 save schema draft.
+- Drafted future city labor storage as `labor_pool`, an accumulated city-state resource with cap and current-value-first persistence.
+- Drafted future national policy storage as `policy_points`, an accumulated PLAYER national/player-state resource with cap and current-value-first persistence.
+- Recorded storage candidates against current `player_state` / `worldmap_city_state` save structure, including the risk of mixing labor/policy into physical `resource_stock` buckets.
+- Documented initial value, cap, old-save migration/defaulting, clamp validation, schema-version policy, UI relationship, and future actual-charge connection rules.
+- Preserved runtime code, gameplay logic, UI behavior, save/load schema, migration code, active research payload schema, cost/duration/effect balance values, actual charge logic, gold/food deduction, paid cost state absence, cancel/refund absence, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ## v0.70-90 Labor Policy Resource Loop Design
 - Extended `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md` with the v0.70-90 labor/policy loop design.
 - Defined labor as city-only accumulated resource with cap, future key `labor_pool`, generated from city capacity factors such as population/order/development/facilities/tech and reduced by unrest/war damage.

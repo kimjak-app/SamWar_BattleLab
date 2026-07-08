@@ -1,5 +1,16 @@
 # Domestic Tech Research Cost Actual Charge Design Draft
 
+## v0.70-91 Labor / Policy Save Schema Draft Addendum
+- Dedicated save schema draft is recorded in `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+- Labor future key remains `labor_pool`, drafted as a city-state accumulated resource with cap.
+- Policy future key remains `policy_points`, drafted as a PLAYER national/player-state accumulated resource with cap.
+- MVP persistence recommendation stores current value first; `last_labor_gain` and `last_policy_gain` are deferred.
+- Cap may be computed in the first implementation; storing cap remains a fallback if calculation stability requires it.
+- Missing old-save keys should default-initialize and clamp during a later migration/load implementation.
+- v0.70-91 does not add persistent keys, migration code, generation logic, actual charge logic, save/load schema changes, UI behavior, or active research payload fields.
+- Current actual charge remains `gold + food group`.
+- City food group deduction order remains `rice -> barley -> seafood`.
+
 ## v0.70-90 Labor / Policy Resource Loop Addendum
 - Dedicated loop design is recorded in `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
 - Labor future type: city-only accumulated resource with cap, recommended key `labor_pool`.
