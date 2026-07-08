@@ -1,5 +1,17 @@
 # HANDOFF TO CODEX
 
+## v0.70-93 Economy / City Effect Integration Handoff
+- Latest baseline before this task: `v0.70-92 Domestic Tech Gameplay Effect Integration Map` (`dc3d4dc96093c7649bf1d5a640b15251efcfce7d`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Agent docs updated: `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`, and `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- PLAYER Economy / City effect integration now uses completed tech wrapper helpers and modifier helpers: `_has_completed_national_domestic_tech_mvp`, `_has_completed_city_domestic_tech_mvp`, `_get_player_city_domestic_economy_modifier_mvp`, `_get_national_domestic_economy_modifier_mvp`, and `_get_city_economy_tech_modifier_summary_mvp`.
+- Existing actual turn income path `_apply_domestic_tech_city_economy_bonus_to_income_mvp` reads the modifier helpers and preserves the existing food/gold calculation shape.
+- City detail resource tab and national warehouse summary display modifier-backed Domestic Tech economy summaries.
+- ENEMY baseline helper `_get_enemy_city_economy_baseline_mvp` is side-effect-free and masked unless current intel reveals enough baseline fields.
+- ENEMY still has no active research, completed tech storage, research cost, tech UI progression, or PLAYER completed-tech effect.
+- Next session must run `v0.70-94 Defense / Battle Effect Integration`.
+- Explicitly unchanged: save/load schema, active research payload schema, actual charge logic, gold/food deduction, food group order `rice -> barley -> seafood`, BattleContext schema, pending invasion schema, battle formula, diplomacy formula, spy formula, naval/siege production, troop/ship/siege counts, scenes, assets, and imports.
+
 ## v0.70-92 Domestic Tech Gameplay Effect Integration Map Handoff
 - Latest baseline before this task: `v0.70-91 Labor Policy Save Schema Draft` (`c4a7eed98faf2a4502ecec6738d121a45d1b2910`).
 - New map document: `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md`.

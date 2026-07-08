@@ -2,6 +2,17 @@
 
 ## 2026-07-08
 
+### v0.70-93 Economy / City Effect Integration
+- Started from clean local HEAD `dc3d4dc96093c7649bf1d5a640b15251efcfce7d`.
+- Confirmed expected baseline message: `v0.70-92 Domestic Tech Gameplay Effect Integration Map`.
+- Read required workflow, Godot, current state, next task, handoff, worldmap rules, integration map, research cost design, and manual QA docs before edits.
+- Grepped `scripts/worldmap_test.gd` for Domestic Tech economy safe set, completed storage, national policy safe set, city detail resource tab, national warehouse summary, turn income calculation, enemy ownership, and city intel visibility paths.
+- Added completed lookup wrappers and economy modifier helpers for PLAYER national and same-city PLAYER city effects.
+- Routed `_apply_domestic_tech_city_economy_bonus_to_income_mvp` through the new modifier helpers without changing the existing food/gold math.
+- Added city detail and national warehouse summary lines that read the same modifier helpers used by the calculation path.
+- Added side-effect-free ENEMY economy baseline helper with masked insufficient-intel behavior and no enemy research/effect storage.
+- Preserved save/load schema, active payload schema, actual charge logic, food order, BattleContext schema, pending invasion schema, battle/diplomacy/spy formulas, naval/siege production absence, enemy research absence, scenes, assets, and imports.
+
 ### v0.70-92 Domestic Tech Gameplay Effect Integration Map
 - Started from clean local HEAD `c4a7eed98faf2a4502ecec6738d121a45d1b2910`.
 - Confirmed expected baseline message: `v0.70-91 Labor Policy Save Schema Draft`.

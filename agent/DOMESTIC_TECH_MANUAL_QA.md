@@ -1,5 +1,42 @@
 # Domestic Tech Actual Charge Manual QA
 
+## v0.70-93 Economy / City Effect Integration F6 QA
+
+### Purpose
+- Confirm completed PLAYER Economy / City Domestic Tech effects change the modifier-backed city/national economy summary.
+- Confirm the existing turn income path remains stable after routing through modifier helpers.
+- Confirm ENEMY baseline is not enemy research and remains masked when intel is insufficient.
+
+### Checks
+- Complete an economy city tech, then confirm the selected PLAYER city resource tab shows the economy modifier summary.
+- Confirm that completed city tech applies only to the same PLAYER city.
+- Select another PLAYER city without that completed city tech and confirm the city tech effect does not leak.
+- Complete a national economy/admin tech, then confirm national warehouse summary shows the national economy modifier.
+- Advance turn and confirm income/resource processing still runs without duplicate Domestic Tech application.
+- Select an ENEMY city with no intel and confirm baseline details are masked.
+- Select an ENEMY city after enough intel and confirm only baseline grade appears, not research effects.
+- Confirm enemy active research, enemy completed tech, and enemy tech progression remain absent.
+- Confirm cost charge UI and research start/progress/completion flow are unchanged.
+- Confirm Godot Output has no new warning/error.
+
+### PASS / NEEDS FIX Record
+```text
+Version: v0.70-93 Economy / City Effect Integration
+Commit:
+PLAYER city modifier appears after completion:
+Same-city only:
+Other PLAYER city unaffected:
+National modifier appears after completion:
+Turn income stable:
+Enemy no-intel baseline masked:
+Enemy baseline is not research:
+Enemy research absent:
+Actual charge preserved:
+Godot Output clean:
+Result: PASS / NEEDS FIX
+Notes:
+```
+
 ## v0.70-88 Domestic Tech Balance F6 Result Record
 
 ### 1. 기준

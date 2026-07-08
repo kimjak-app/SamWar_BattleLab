@@ -2067,6 +2067,9 @@ func _apply_city_detail_resource_tab_content(city_id: String, city_data: Diction
 	city_detail_rating_label.add_theme_color_override("font_color", Color(0.95, 0.92, 0.82, 1.0))
 	city_detail_status_label.visible = true
 	city_detail_status_label.text = _format_city_storage_summary(_get_city_storage(city_id, city_data))
+	var economy_modifier_summary := _format_city_economy_tech_modifier_summary_mvp(city_id)
+	if not economy_modifier_summary.is_empty():
+		city_detail_status_label.text += "\n%s" % economy_modifier_summary
 	city_detail_status_label.add_theme_color_override("font_color", Color(0.86, 0.92, 0.88, 1.0))
 	city_detail_hint_label.text = "자원 잠재력은 생산 기반, 성 창고는 현재 보유량입니다."
 	city_detail_domestic_button_placeholder.visible = false
@@ -4351,6 +4354,62 @@ func _get_city_intel_entry_for_ui(city_id: String) -> Dictionary:
 	if raw_entry is Dictionary:
 		return raw_entry as Dictionary
 	return {}
+
+
+func _format_enemy_city_baseline_grade_label_mvp(score: int) -> String:
+	if score >= 8:
+		return "높음"
+	if score >= 5:
+		return "보통"
+	return "낮음"
+
+
+func _get_enemy_city_economy_baseline_mvp(city: Dictionary) -> Dictionary:
+	var result := {
+		"city_id": str(city.get("id", "")),
+		"owner_scope": "enemy",
+		"enemy_baseline": true,
+		"enemy_research_effect": false,
+		"player_completed_tech_lookup": false,
+		"masked": true,
+		"economy_grade_label": "정보 부족",
+		"supply_grade_label": "정보 부족",
+		"defense_grade_label": "정보 부족",
+		"source": "city_grade_faction_baseline",
+	}
+	var city_id := str(result.get("city_id", ""))
+	if city_id.is_empty() or not _is_city_owned_by_enemy_mvp(city_id):
+		result["reason"] = "not_enemy_city"
+		return result
+	var intel_entry := _get_city_intel_entry_for_ui(city_id)
+	if intel_entry.is_empty():
+		result["reason"] = "insufficient_intel"
+		return result
+	var fields := _get_city_intel_fields_for_ui(intel_entry)
+	var payload := _get_city_intel_payload_for_ui(intel_entry)
+	var revealed_fields := _get_enemy_intel_revealed_field_ids_for_ui(fields, payload)
+	if not revealed_fields.has("resources") and not revealed_fields.has("troops") and not revealed_fields.has("troops_estimated"):
+		result["reason"] = "insufficient_intel"
+		return result
+	result["masked"] = false
+	var resource_seed: Dictionary = {}
+	var raw_resource_seed: Variant = city.get("resource_seed", {})
+	if raw_resource_seed is Dictionary:
+		resource_seed = raw_resource_seed as Dictionary
+	var food_score := int(resource_seed.get("rice", 0)) + int(resource_seed.get("barley", 0)) + int(resource_seed.get("seafood", 0))
+	var economy_score := _get_city_numeric_rating(city, "population_rating", 3) + _get_city_numeric_rating(city, "commerce_rating", 3)
+	var defense_score := _get_city_numeric_rating(city, "defense", 3)
+	if _has_enemy_intel_payload_for_ui(fields, payload, "troops") or _has_enemy_intel_payload_for_ui(fields, payload, "troops_estimated"):
+		var troops_value := int(payload.get("troops", payload.get("troops_estimated", city.get("troops", 0))))
+		defense_score += clampi(int(floor(float(maxi(0, troops_value)) / 250.0)), 0, 3)
+	result["economy_grade_score"] = economy_score
+	result["supply_grade_score"] = food_score
+	result["defense_grade_score"] = defense_score
+	result["economy_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(economy_score)
+	result["supply_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(food_score)
+	result["defense_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(defense_score)
+	result["revealed_fields"] = revealed_fields
+	return result
 
 
 func _format_spy_action_candidates_for_ui(city_marker: WorldMapCityMarker) -> String:
@@ -10007,6 +10066,14 @@ func _is_national_domestic_tech_completed_mvp(tech_id: String) -> bool:
 	return bool(completed.get(tech_id, false))
 
 
+func _has_completed_national_domestic_tech_mvp(tech_id: String) -> bool:
+	return _is_national_domestic_tech_completed_mvp(tech_id)
+
+
+func _has_completed_city_domestic_tech_mvp(city_id: String, tech_id: String) -> bool:
+	return _is_city_domestic_tech_completed_mvp(city_id, tech_id)
+
+
 func _get_empty_domestic_tech_city_economy_bonus_mvp() -> Dictionary:
 	return {
 		"food_flat": 0,
@@ -10015,6 +10082,26 @@ func _get_empty_domestic_tech_city_economy_bonus_mvp() -> Dictionary:
 		"gold_percent": 0.0,
 		"supply_flat": 0,
 		"supply_percent": 0.0,
+		"source_techs": [],
+	}
+
+
+func _get_empty_domestic_economy_modifier_mvp() -> Dictionary:
+	return {
+		"gold_income_pct": 0.0,
+		"food_income_pct": 0.0,
+		"rice_bonus_pct": 0.0,
+		"barley_bonus_pct": 0.0,
+		"seafood_bonus_pct": 0.0,
+		"commerce_pct": 0.0,
+		"tax_pct": 0.0,
+		"storage_cap_pct": 0.0,
+		"admin_pct": 0.0,
+		"population_growth_pct": 0.0,
+		"food_flat": 0,
+		"gold_flat": 0,
+		"supply_flat": 0,
+		"storage_flat": 0,
 		"source_techs": [],
 	}
 
@@ -10033,7 +10120,7 @@ func _get_domestic_tech_city_economy_bonus_mvp(city_id: String) -> Dictionary:
 			continue
 		if not DOMESTIC_TECH_ECONOMY_SAFE_CATEGORIES_MVP.has(str(definition.get("category", ""))):
 			continue
-		if not _is_city_domestic_tech_completed_mvp(city_id, tech_id):
+		if not _has_completed_city_domestic_tech_mvp(city_id, tech_id):
 			continue
 		var mapping: Dictionary = DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.get(tech_id, {})
 		bonus["food_flat"] = int(bonus.get("food_flat", 0)) + int(mapping.get("food_flat", 0))
@@ -10046,6 +10133,33 @@ func _get_domestic_tech_city_economy_bonus_mvp(city_id: String) -> Dictionary:
 		source_seen[tech_id] = true
 	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 	return bonus
+
+
+func _get_player_city_domestic_economy_modifier_mvp(city_id: String) -> Dictionary:
+	var modifier := _get_empty_domestic_economy_modifier_mvp()
+	modifier["scope"] = DOMESTIC_TECH_SCOPE_CITY
+	modifier["city_id"] = city_id
+	modifier["player_only"] = true
+	modifier["same_city_only"] = true
+	modifier["income_generation_connected"] = true
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return modifier
+	var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
+	var food_percent := float(bonus.get("food_percent", 0.0))
+	var gold_percent := float(bonus.get("gold_percent", 0.0))
+	var supply_percent := float(bonus.get("supply_percent", 0.0))
+	modifier["food_income_pct"] = food_percent
+	modifier["rice_bonus_pct"] = food_percent
+	modifier["barley_bonus_pct"] = food_percent
+	modifier["seafood_bonus_pct"] = food_percent
+	modifier["gold_income_pct"] = gold_percent
+	modifier["commerce_pct"] = gold_percent
+	modifier["storage_cap_pct"] = supply_percent
+	modifier["food_flat"] = int(bonus.get("food_flat", 0))
+	modifier["gold_flat"] = int(bonus.get("gold_flat", 0))
+	modifier["supply_flat"] = int(bonus.get("supply_flat", 0))
+	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
+	return modifier
 
 
 func _get_empty_domestic_tech_city_military_defense_bonus_mvp() -> Dictionary:
@@ -10175,7 +10289,6 @@ func _get_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> Dictionar
 
 func _get_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
 	var bonus := _get_empty_domestic_tech_national_policy_bonus_mvp()
-	var completed: Dictionary = _normalize_national_domestic_tech_state_map_mvp(_player_state.get("national_domestic_tech_completed", {}))
 	var source_seen := {}
 	for tech_id_variant in DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.keys():
 		var tech_id := str(tech_id_variant)
@@ -10184,7 +10297,7 @@ func _get_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
 		var definition := _get_domestic_tech_definition_mvp(tech_id)
 		if str(definition.get("tree_scope", "")) != DOMESTIC_TECH_SCOPE_NATIONAL:
 			continue
-		if not bool(completed.get(tech_id, false)):
+		if not _has_completed_national_domestic_tech_mvp(tech_id):
 			continue
 		var mapping: Dictionary = DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.get(tech_id, {})
 		bonus["tax_gold_percent"] = float(bonus.get("tax_gold_percent", 0.0)) + float(mapping.get("tax_gold_percent", 0.0))
@@ -10198,6 +10311,65 @@ func _get_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
 		source_seen[tech_id] = true
 	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 	return bonus
+
+
+func _get_national_domestic_economy_modifier_mvp() -> Dictionary:
+	var modifier := _get_empty_domestic_economy_modifier_mvp()
+	modifier["scope"] = DOMESTIC_TECH_SCOPE_NATIONAL
+	modifier["player_only"] = true
+	modifier["income_generation_connected"] = true
+	var bonus := _get_domestic_tech_national_policy_bonus_mvp()
+	var tax_percent := float(bonus.get("tax_gold_percent", 0.0))
+	modifier["gold_income_pct"] = tax_percent
+	modifier["tax_pct"] = tax_percent
+	modifier["admin_pct"] = float(bonus.get("admin_efficiency_percent", 0.0))
+	modifier["population_growth_pct"] = float(bonus.get("population_growth_percent", 0.0))
+	modifier["storage_flat"] = int(bonus.get("storage_flat", 0))
+	modifier["supply_flat"] = int(bonus.get("logistics_supply_percent", 0.0) * 100.0)
+	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
+	return modifier
+
+
+func _merge_domestic_economy_source_techs_mvp(first: Variant, second: Variant) -> Array[String]:
+	var source_techs: Array = []
+	if first is Array:
+		source_techs.append_array(first as Array)
+	if second is Array:
+		source_techs.append_array(second as Array)
+	return _get_unique_domestic_tech_source_ids_mvp(source_techs)
+
+
+func _get_city_economy_tech_modifier_summary_mvp(city_id: String) -> Dictionary:
+	var result := _get_empty_domestic_economy_modifier_mvp()
+	result["city_id"] = city_id
+	result["owner_scope"] = "unknown"
+	result["same_city_only"] = true
+	result["player_completed_tech_lookup"] = false
+	result["enemy_research_effect"] = false
+	if city_id.is_empty():
+		result["masked"] = true
+		result["reason"] = "empty_city"
+		return result
+	var city_data := _get_city_hud_entry(city_id)
+	if _is_city_owned_by_player_mvp(city_id):
+		var city_modifier := _get_player_city_domestic_economy_modifier_mvp(city_id)
+		var national_modifier := _get_national_domestic_economy_modifier_mvp()
+		result = city_modifier.duplicate(true)
+		result["owner_scope"] = PLAYER_FACTION_ID
+		result["player_completed_tech_lookup"] = true
+		result["national_gold_income_pct"] = float(national_modifier.get("gold_income_pct", 0.0))
+		result["gold_income_pct"] = float(city_modifier.get("gold_income_pct", 0.0)) + float(national_modifier.get("gold_income_pct", 0.0))
+		result["tax_pct"] = float(national_modifier.get("tax_pct", 0.0))
+		result["admin_pct"] = float(national_modifier.get("admin_pct", 0.0))
+		result["population_growth_pct"] = float(national_modifier.get("population_growth_pct", 0.0))
+		result["storage_flat"] = int(national_modifier.get("storage_flat", 0))
+		result["source_techs"] = _merge_domestic_economy_source_techs_mvp(city_modifier.get("source_techs", []), national_modifier.get("source_techs", []))
+		return result
+	if _is_city_owned_by_enemy_mvp(city_id):
+		return _get_enemy_city_economy_baseline_mvp(city_data)
+	result["masked"] = true
+	result["reason"] = "non_player_unknown"
+	return result
 
 
 func _get_domestic_tech_diplomacy_spy_bonus_mvp() -> Dictionary:
@@ -10368,32 +10540,99 @@ func _format_domestic_tech_city_economy_bonus_lines_mvp(city_id: String, include
 	var result: Array[String] = []
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
 		return result
-	var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
-	if not _has_domestic_tech_city_economy_bonus_mvp(city_id):
+	var modifier := _get_player_city_domestic_economy_modifier_mvp(city_id)
+	if not _has_domestic_tech_city_economy_modifier_data_mvp(modifier):
 		return result
 	var resource_parts: Array[String] = []
-	var food_percent := float(bonus.get("food_percent", 0.0))
-	var gold_percent := float(bonus.get("gold_percent", 0.0))
-	var supply_percent := float(bonus.get("supply_percent", 0.0))
+	var food_percent := float(modifier.get("food_income_pct", 0.0))
+	var gold_percent := float(modifier.get("gold_income_pct", 0.0))
+	var supply_percent := float(modifier.get("storage_cap_pct", 0.0))
 	if not is_equal_approx(food_percent, 0.0):
 		resource_parts.append("식량 %s" % _format_domestic_tech_percent_bonus_mvp(food_percent))
-	if int(bonus.get("food_flat", 0)) != 0:
-		resource_parts.append("식량 %s" % _format_signed_int(int(bonus.get("food_flat", 0))))
+	if int(modifier.get("food_flat", 0)) != 0:
+		resource_parts.append("식량 %s" % _format_signed_int(int(modifier.get("food_flat", 0))))
 	if not is_equal_approx(gold_percent, 0.0):
 		resource_parts.append("금전 %s" % _format_domestic_tech_percent_bonus_mvp(gold_percent))
-	if int(bonus.get("gold_flat", 0)) != 0:
-		resource_parts.append("금전 %s" % _format_signed_int(int(bonus.get("gold_flat", 0))))
+	if int(modifier.get("gold_flat", 0)) != 0:
+		resource_parts.append("금전 %s" % _format_signed_int(int(modifier.get("gold_flat", 0))))
 	if not is_equal_approx(supply_percent, 0.0):
 		resource_parts.append("보급 %s" % _format_domestic_tech_percent_bonus_mvp(supply_percent))
-	if int(bonus.get("supply_flat", 0)) != 0:
-		resource_parts.append("보급 %s" % _format_signed_int(int(bonus.get("supply_flat", 0))))
+	if int(modifier.get("supply_flat", 0)) != 0:
+		resource_parts.append("보급 %s" % _format_signed_int(int(modifier.get("supply_flat", 0))))
 	if not resource_parts.is_empty():
 		result.append("테크 경제: %s" % ", ".join(resource_parts.slice(0, 5)))
 	if include_sources:
-		var source_display := _format_domestic_tech_source_display_mvp(bonus.get("source_techs", []))
+		var source_display := _format_domestic_tech_source_display_mvp(modifier.get("source_techs", []))
 		if not source_display.is_empty():
 			result.append(source_display)
 	return result
+
+
+func _has_domestic_tech_city_economy_modifier_data_mvp(modifier: Dictionary) -> bool:
+	return int(modifier.get("food_flat", 0)) != 0 \
+		or not is_equal_approx(float(modifier.get("food_income_pct", 0.0)), 0.0) \
+		or int(modifier.get("gold_flat", 0)) != 0 \
+		or not is_equal_approx(float(modifier.get("gold_income_pct", 0.0)), 0.0) \
+		or int(modifier.get("supply_flat", 0)) != 0 \
+		or int(modifier.get("storage_flat", 0)) != 0 \
+		or not is_equal_approx(float(modifier.get("storage_cap_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("tax_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("admin_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("population_growth_pct", 0.0)), 0.0)
+
+
+func _format_city_economy_tech_modifier_summary_mvp(city_id: String) -> String:
+	var summary := _get_city_economy_tech_modifier_summary_mvp(city_id)
+	if bool(summary.get("enemy_baseline", false)):
+		if bool(summary.get("masked", false)):
+			return "상대 도시 기본 체급\n정보 부족: 정탐 후 확인"
+		return "상대 도시 기본 체급\n경제 %s / 보급 %s / 방어 준비도 %s" % [
+			str(summary.get("economy_grade_label", "보통")),
+			str(summary.get("supply_grade_label", "보통")),
+			str(summary.get("defense_grade_label", "보통")),
+		]
+	if not _is_city_owned_by_player_mvp(city_id) or not _has_domestic_tech_city_economy_modifier_data_mvp(summary):
+		return ""
+	var parts: Array[String] = []
+	if not is_equal_approx(float(summary.get("gold_income_pct", 0.0)), 0.0):
+		parts.append("금 수입 %s" % _format_domestic_tech_percent_bonus_mvp(float(summary.get("gold_income_pct", 0.0))))
+	if int(summary.get("gold_flat", 0)) != 0:
+		parts.append("금 수입 %s" % _format_signed_int(int(summary.get("gold_flat", 0))))
+	if not is_equal_approx(float(summary.get("food_income_pct", 0.0)), 0.0):
+		parts.append("군량 생산 %s" % _format_domestic_tech_percent_bonus_mvp(float(summary.get("food_income_pct", 0.0))))
+	if int(summary.get("food_flat", 0)) != 0:
+		parts.append("군량 생산 %s" % _format_signed_int(int(summary.get("food_flat", 0))))
+	if int(summary.get("supply_flat", 0)) != 0:
+		parts.append("보급 %s" % _format_signed_int(int(summary.get("supply_flat", 0))))
+	if int(summary.get("storage_flat", 0)) != 0:
+		parts.append("국가 비축 %s" % _format_signed_int(int(summary.get("storage_flat", 0))))
+	if not is_equal_approx(float(summary.get("admin_pct", 0.0)), 0.0):
+		parts.append("행정 %s" % _format_domestic_tech_percent_bonus_mvp(float(summary.get("admin_pct", 0.0))))
+	if not is_equal_approx(float(summary.get("population_growth_pct", 0.0)), 0.0):
+		parts.append("인구 기반 %s" % _format_domestic_tech_percent_bonus_mvp(float(summary.get("population_growth_pct", 0.0))))
+	if parts.is_empty():
+		return ""
+	var source_display := _format_domestic_tech_source_display_mvp(summary.get("source_techs", []), 2)
+	var suffix := "" if source_display.is_empty() else "\n%s" % source_display
+	return "내정 연구 경제 보정\n%s%s" % [", ".join(parts.slice(0, 5)), suffix]
+
+
+func _format_national_domestic_economy_modifier_summary_mvp() -> String:
+	var modifier := _get_national_domestic_economy_modifier_mvp()
+	if not _has_domestic_tech_city_economy_modifier_data_mvp(modifier):
+		return ""
+	var parts: Array[String] = []
+	if not is_equal_approx(float(modifier.get("tax_pct", 0.0)), 0.0):
+		parts.append("세금 %s" % _format_domestic_tech_percent_bonus_mvp(float(modifier.get("tax_pct", 0.0))))
+	if not is_equal_approx(float(modifier.get("admin_pct", 0.0)), 0.0):
+		parts.append("행정 %s" % _format_domestic_tech_percent_bonus_mvp(float(modifier.get("admin_pct", 0.0))))
+	if not is_equal_approx(float(modifier.get("population_growth_pct", 0.0)), 0.0):
+		parts.append("인구 기반 %s" % _format_domestic_tech_percent_bonus_mvp(float(modifier.get("population_growth_pct", 0.0))))
+	if int(modifier.get("storage_flat", 0)) != 0:
+		parts.append("비축 기반 %s" % _format_signed_int(int(modifier.get("storage_flat", 0))))
+	if parts.is_empty():
+		return ""
+	return "내정 연구 국가경제 보정: %s" % ", ".join(parts.slice(0, 5))
 
 
 func _format_domestic_tech_national_policy_bonus_lines_mvp(include_sources: bool = true) -> Array[String]:
@@ -12096,8 +12335,10 @@ func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
 
 func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Dictionary:
 	return {
-		"version": "v0.70-92 Domestic Tech Gameplay Effect Integration Map",
-		"map_only": true,
+		"version": "v0.70-93 Economy / City Effect Integration",
+		"map_only": false,
+		"economy_city_effect_integrated": true,
+		"enemy_city_baseline_helper_added": true,
 		"gameplay_formula_changed": false,
 		"actual_charge_logic_changed": false,
 		"save_load_schema_changed": false,
@@ -12107,8 +12348,10 @@ func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Diction
 		"naval_siege_production_implemented": false,
 		"enemy_research_effect_added": false,
 		"completed_lookup_contract": {
-			"national_helper": "_is_national_domestic_tech_completed_mvp",
-			"city_helper": "_is_city_domestic_tech_completed_mvp",
+			"national_helper": "_has_completed_national_domestic_tech_mvp",
+			"city_helper": "_has_completed_city_domestic_tech_mvp",
+			"existing_national_helper": "_is_national_domestic_tech_completed_mvp",
+			"existing_city_helper": "_is_city_domestic_tech_completed_mvp",
 			"normalizers": ["_normalize_national_domestic_tech_state_map_mvp", "_normalize_city_domestic_tech_state_map_mvp"],
 			"national_storage": "_player_state[\"national_domestic_tech_completed\"]",
 			"city_storage": "_player_state[\"city_domestic_tech_completed\"][city_id]",
@@ -12121,6 +12364,10 @@ func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Diction
 				"_calculate_player_domestic_income_delta",
 				"_calculate_city_domestic_income",
 				"_apply_domestic_tech_city_economy_bonus_to_income_mvp",
+				"_get_player_city_domestic_economy_modifier_mvp",
+				"_get_national_domestic_economy_modifier_mvp",
+				"_get_city_economy_tech_modifier_summary_mvp",
+				"_get_enemy_city_economy_baseline_mvp",
 				"_apply_resource_delta",
 				"_format_city_storage_summary",
 				"_format_warehouse_summary",
@@ -15855,9 +16102,9 @@ func _apply_domestic_tech_city_economy_bonus_to_income_mvp(city_id: String, inco
 	var result := income.duplicate(true)
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
 		return result
-	var bonus := _get_domestic_tech_city_economy_bonus_mvp(city_id)
-	var food_percent := float(bonus.get("food_percent", 0.0))
-	var food_flat := int(bonus.get("food_flat", 0))
+	var city_modifier := _get_player_city_domestic_economy_modifier_mvp(city_id)
+	var food_percent := float(city_modifier.get("food_income_pct", 0.0))
+	var food_flat := int(city_modifier.get("food_flat", 0))
 	for food_resource_id in CITY_STORAGE_FOOD_RESOURCE_IDS:
 		result[food_resource_id] = _apply_domestic_tech_economy_numeric_bonus_value_mvp(result.get(food_resource_id, 0), food_percent)
 	if food_flat != 0:
@@ -15867,11 +16114,11 @@ func _apply_domestic_tech_city_economy_bonus_to_income_mvp(city_id: String, inco
 				target_food_id = food_resource_id
 				break
 		result[target_food_id] = _apply_domestic_tech_economy_numeric_bonus_value_mvp(result.get(target_food_id, 0), 0.0, food_flat)
-	var gold_percent := float(bonus.get("gold_percent", 0.0))
-	var national_policy_bonus := _get_domestic_tech_national_policy_bonus_mvp()
-	var national_tax_gold_percent := maxf(0.0, float(national_policy_bonus.get("tax_gold_percent", 0.0)))
+	var gold_percent := float(city_modifier.get("gold_income_pct", 0.0))
+	var national_modifier := _get_national_domestic_economy_modifier_mvp()
+	var national_tax_gold_percent := maxf(0.0, float(national_modifier.get("tax_pct", 0.0)))
 	gold_percent += national_tax_gold_percent
-	var gold_flat := int(bonus.get("gold_flat", 0))
+	var gold_flat := int(city_modifier.get("gold_flat", 0))
 	result["gold"] = _apply_domestic_tech_economy_numeric_bonus_value_mvp(result.get("gold", 0), gold_percent, gold_flat)
 	return result
 
@@ -20314,6 +20561,9 @@ func _format_warehouse_summary(_policy_id: String) -> String:
 			capacity,
 			_get_resource_status_label(resource_id_string, value, capacity),
 		])
+	var national_modifier_summary := _format_national_domestic_economy_modifier_summary_mvp()
+	if not national_modifier_summary.is_empty():
+		lines.append(national_modifier_summary)
 	return "\n".join(lines)
 
 

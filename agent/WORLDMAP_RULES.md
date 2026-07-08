@@ -1,5 +1,23 @@
 # WORLDMAP RULES
 
+## v0.70-93 Economy / City Effect Integration Lock Rule
+- v0.70-93 authorizes Economy / City Domestic Tech gameplay effect integration only.
+- PLAYER completed national and same-city PLAYER city Domestic Tech may feed economy modifier helpers and existing turn income / summary hooks.
+- City effects must remain same-city only.
+- National effects must remain PLAYER-only.
+- ENEMY baseline is allowed only as city grade / faction baseline / difficulty-style summary logic; it is not enemy research.
+- Do not add enemy active research, enemy completed tech storage, enemy research cost, enemy tech UI progression, or enemy completed-tech effects.
+- Unknown or insufficient-intel enemy baseline must remain masked.
+- The Domestic Tech route remains locked to:
+  1. `v0.70-92 Domestic Tech Gameplay Effect Integration Map`
+  2. `v0.70-93 Economy / City Effect Integration`
+  3. `v0.70-94 Defense / Battle Effect Integration`
+  4. `v0.70-95 Diplomacy / Spy Effect Integration`
+  5. `v0.70-96 Naval / Siege Unlock Integration`
+  6. `v0.70-97 Full Gameplay F6 QA`
+  7. `v0.70-98 Domestic Tech Complete Lock`
+- Do not change save/load schema, active research payload schema, actual charge logic, gold deduction, food group deduction, food group order `rice -> barley -> seafood`, paid cost state, cancel/refund, per-turn charge, completion charge, BattleContext schema, pending invasion schema, battle/diplomacy/spy formulas, naval/siege production, troop/ship/siege counts, scenes, assets, icon PNGs, UI64 PNGs, or `.import` files under v0.70-93.
+
 ## v0.70-92 Domestic Tech Gameplay Effect Integration Route Lock
 - v0.70-92 authorizes a code-backed Domestic Tech gameplay effect integration map, agent document updates, and side-effect-free summary/helper metadata only.
 - Domestic Tech now completes only through this seven-step route:

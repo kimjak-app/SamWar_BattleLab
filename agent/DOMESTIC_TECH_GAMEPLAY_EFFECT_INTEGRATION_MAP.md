@@ -1,5 +1,64 @@
 # Domestic Tech Gameplay Effect Integration Map
 
+## v0.70-93 Economy / City Effect Integration
+
+This pass connects Economy / City Domestic Tech effects to actual PLAYER economy modifier helpers, existing turn income calculation, city detail summary, and national warehouse summary. It also adds an ENEMY city baseline helper that is not a research system.
+
+### Implemented Hooks
+
+- Completed PLAYER city economy tech lookup now has wrapper contract helpers:
+  - `_has_completed_city_domestic_tech_mvp(city_id, tech_id)`
+  - `_get_player_city_domestic_economy_modifier_mvp(city_id)`
+- Completed PLAYER national economy/admin lookup now has wrapper contract helpers:
+  - `_has_completed_national_domestic_tech_mvp(tech_id)`
+  - `_get_national_domestic_economy_modifier_mvp()`
+- Same-city city effects remain connected to actual turn income through:
+  - `_calculate_player_domestic_income_delta`
+  - `_apply_domestic_tech_city_economy_bonus_to_income_mvp`
+- City detail resource tab summary now reads the same modifier contract through:
+  - `_get_city_economy_tech_modifier_summary_mvp(city_id)`
+  - `_format_city_economy_tech_modifier_summary_mvp(city_id)`
+- National warehouse summary now reads national economy modifier through:
+  - `_format_national_domestic_economy_modifier_summary_mvp()`
+  - `_format_warehouse_summary(policy_id)`
+- ENEMY city baseline is provided by:
+  - `_get_enemy_city_economy_baseline_mvp(city)`
+
+### PLAYER Effect Contract
+
+- PLAYER national effects read `_player_state["national_domestic_tech_completed"]` through completed national lookup.
+- PLAYER city effects read `_player_state["city_domestic_tech_completed"][city_id]` through completed city lookup.
+- City effects are same-city only.
+- National tax/economy effects apply only to PLAYER economy summary and PLAYER-owned city income calculation.
+- The actual income hook remains the existing turn income path; no separate duplicate resource generation pass was added.
+
+### ENEMY Baseline Contract
+
+- ENEMY does not have active research.
+- ENEMY does not have completed tech storage.
+- ENEMY does not pay research cost.
+- ENEMY receives no PLAYER completed-tech effect.
+- `_get_enemy_city_economy_baseline_mvp(city)` returns only a side-effect-free baseline from city grade and revealed intel.
+- Unknown or insufficient-intel cities remain masked.
+
+### Preservation
+
+- Save/load schema changed: false.
+- Active payload schema changed: false.
+- Actual charge logic changed: false.
+- Food group order changed: false, still `rice -> barley -> seafood`.
+- BattleContext schema changed: false.
+- Pending invasion schema changed: false.
+- Battle/diplomacy/spy formulas changed: false.
+- Naval/siege production implemented: false.
+- Enemy research implemented: false.
+- Enemy completed tech storage added: false.
+- Assets/imports/scenes changed: false.
+
+### Next Version
+
+`v0.70-94 Defense / Battle Effect Integration` must connect completed PLAYER defense/battle research to city defense and battle-safe modifier hooks without changing pending invasion schema, BattleContext schema, troop counts, or battle result formulas.
+
 ## v0.70-92 Domestic Tech Gameplay Effect Integration Map
 
 현재 Domestic Tech는 연구 시작/진행/완료/비용 차감은 가능하다.

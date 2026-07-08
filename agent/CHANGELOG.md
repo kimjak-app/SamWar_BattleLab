@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-93 Economy / City Effect Integration
+- Added completed Domestic Tech lookup wrapper helpers for PLAYER national and same-city PLAYER city effects in `scripts/worldmap_test.gd`.
+- Added economy modifier helpers for PLAYER city and national Domestic Tech effects.
+- Routed the existing turn income Domestic Tech bonus calculation through the new modifier helper contract while preserving the existing food/gold calculation shape.
+- Added modifier-backed economy summary lines to the city detail resource tab and national warehouse summary.
+- Added an ENEMY city economy baseline helper that is side-effect-free, masked by insufficient intel, and explicitly not enemy research.
+- Updated the Domestic Tech integration map and agent handoff docs for the next `v0.70-94 Defense / Battle Effect Integration` task.
+- Preserved save/load schema, active payload schema, actual charge logic, food deduction order, BattleContext schema, pending invasion schema, battle/diplomacy/spy formulas, naval/siege production absence, enemy research absence, scenes, assets, and imports.
+
 ## v0.70-92 Domestic Tech Gameplay Effect Integration Map
 - Added `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md` with code-backed hook maps for Economy/City, Defense/Battle, Diplomacy/Spy, and Naval/Siege Domestic Tech effect integration.
 - Recorded current Domestic Tech state: research start/progress/completion and actual start-cost charge are implemented, but completed effects still need direct gameplay effect connections for final completion.

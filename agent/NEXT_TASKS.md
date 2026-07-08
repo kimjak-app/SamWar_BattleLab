@@ -1,5 +1,30 @@
 # NEXT TASKS
 
+## Current: v0.70-93 Economy / City Effect Integration
+- Baseline: `v0.70-92 Domestic Tech Gameplay Effect Integration Map` (`dc3d4dc96093c7649bf1d5a640b15251efcfce7d`).
+- Completed direction:
+  1. Added completed tech lookup wrapper helpers for PLAYER national and same-city PLAYER city Domestic Tech.
+  2. Added PLAYER city and national economy modifier helpers.
+  3. Connected existing turn income calculation to the modifier helper contract without changing the underlying food/gold math.
+  4. Added city detail and national warehouse summary lines that read the actual modifier helpers.
+  5. Added ENEMY city economy baseline helper that returns masked or revealed baseline only; it is not enemy research.
+- Seven-step Domestic Tech completion route:
+  1. `v0.70-92 Domestic Tech Gameplay Effect Integration Map`
+  2. `v0.70-93 Economy / City Effect Integration`
+  3. `v0.70-94 Defense / Battle Effect Integration`
+  4. `v0.70-95 Diplomacy / Spy Effect Integration`
+  5. `v0.70-96 Naval / Siege Unlock Integration`
+  6. `v0.70-97 Full Gameplay F6 QA`
+  7. `v0.70-98 Domestic Tech Complete Lock`
+- Route lock:
+  1. Do not work outside this Domestic Tech route.
+  2. Do not implement labor/policy actual systems in this route.
+  3. Do not design new resources.
+  4. Do not do standalone UI polish or standalone QA record repetition.
+  5. Every follow-up must connect completed tech to actual gameplay effect state, calculation, or unlock.
+- Next task:
+  1. `v0.70-94 Defense / Battle Effect Integration`.
+
 ## Current: v0.70-92 Domestic Tech Gameplay Effect Integration Map
 - Baseline: `v0.70-91 Labor Policy Save Schema Draft` (`c4a7eed98faf2a4502ecec6738d121a45d1b2910`).
 - Completed direction:

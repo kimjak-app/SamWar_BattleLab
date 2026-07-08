@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-93 Economy / City Effect Integration
+- Baseline: `v0.70-92 Domestic Tech Gameplay Effect Integration Map` at `dc3d4dc96093c7649bf1d5a640b15251efcfce7d`; tracked files were clean at task start.
+- Connected PLAYER Economy / City Domestic Tech completed effects through completed tech lookup wrappers and economy modifier helpers in `scripts/worldmap_test.gd`.
+- City economy effects remain same-city only through `_has_completed_city_domestic_tech_mvp` and `_get_player_city_domestic_economy_modifier_mvp`.
+- National economy/admin effects are exposed through `_has_completed_national_domestic_tech_mvp` and `_get_national_domestic_economy_modifier_mvp`.
+- Existing actual turn income hook `_apply_domestic_tech_city_economy_bonus_to_income_mvp` now reads the modifier helper contract while preserving the prior food/gold math.
+- City detail resource tab and national warehouse summary now show modifier-backed Domestic Tech economy summaries after completion.
+- Added `_get_enemy_city_economy_baseline_mvp` as a side-effect-free ENEMY city baseline helper; it is not enemy research and does not add enemy completed tech storage.
+- Unknown or insufficient-intel enemy baseline remains masked.
+- No save/load schema, active payload schema, actual charge logic, food deduction order, BattleContext, pending invasion schema, battle/diplomacy/spy formula, naval/siege production, enemy research, scene, asset, or import behavior was changed.
+- Next task: `v0.70-94 Defense / Battle Effect Integration`.
+
 ## v0.70-92 Domestic Tech Gameplay Effect Integration Map
 - Baseline: `v0.70-91 Labor Policy Save Schema Draft` at `c4a7eed98faf2a4502ecec6738d121a45d1b2910`; tracked files were clean at task start.
 - Added `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md` as the code-backed map for connecting completed Domestic Tech effects into actual gameplay state, calculations, and unlocks.
