@@ -1,5 +1,15 @@
 # Domestic Tech Research Cost Actual Charge Design Draft
 
+## v0.70-90 Labor / Policy Resource Loop Addendum
+- Dedicated loop design is recorded in `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+- Labor future type: city-only accumulated resource with cap, recommended key `labor_pool`.
+- Policy future type: national-only accumulated resource with cap, recommended key `policy_points`.
+- Labor/policy must be generated and accumulated as strategic resources before they become actual charge targets.
+- v0.70-90 does not add persistent keys, generation logic, actual charge logic, save/load schema, UI behavior, or active research payload fields.
+- Current actual charge remains `gold + food group`.
+- City food group deduction order remains `rice -> barley -> seafood`.
+- Future order should be save schema draft, generation MVP, UI display MVP, actual charge MVP, then F6 QA record.
+
 ## v0.70-89 Labor / Policy Resource State Addendum
 - Dedicated design doc: `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
 - MVP decision: `labor` and `policy` remain display-only planned costs and are not actual charge targets.

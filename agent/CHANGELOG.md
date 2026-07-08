@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.70-90 Labor Policy Resource Loop Design
+- Extended `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md` with the v0.70-90 labor/policy loop design.
+- Defined labor as city-only accumulated resource with cap, future key `labor_pool`, generated from city capacity factors such as population/order/development/facilities/tech and reduced by unrest/war damage.
+- Defined policy as national-only accumulated resource with cap, future key `policy_points`, generated from administration/politics/bureaucracy/stability/tech and reduced by corruption/unrest/overextension.
+- Recorded usage boundaries: labor for city research/construction/repair/defense projects; policy for national research, law/tax/bureaucracy/diplomacy/spy/decree systems.
+- Recorded UI direction, shortage meaning, save/load follow-up requirements, and the follow-up roadmap from save schema draft through F6 QA record.
+- Preserved runtime code, gameplay logic, UI behavior, save/load schema, active research payload schema, cost/duration/effect balance values, actual charge logic, gold/food deduction, paid cost state absence, cancel/refund absence, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ## v0.70-89 Labor Policy Resource State Design
 - Added `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
 - Locked the v0.70-89 decision that Domestic Tech `labor` and `policy` remain display-only planned costs in the MVP.

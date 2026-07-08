@@ -1,5 +1,13 @@
 # WORLDMAP RULES
 
+## v0.70-90 Labor Policy Resource Loop Design Lock Rule
+- v0.70-90 authorizes labor/policy loop design documentation, agent document updates, and headless/grep/diff verification only.
+- Labor is designed as city-only accumulated resource with cap; future key `labor_pool`; no key is added under this task.
+- Policy is designed as national-only accumulated resource with cap; future key `policy_points`; no key is added under this task.
+- v0.70-90 must not implement labor/policy generation, actual charge, save/load migration, UI behavior, active payload fields, or persistent state keys.
+- Actual charge remains scoped to `gold + food group`; city food group deduction order remains `rice -> barley -> seafood`.
+- Do not change `scripts/worldmap_test.gd`, actual charge gameplay logic, gold deduction, food group deduction, affordability validation, active research creation, active research payload schema, save/load schema, paid cost state, cancel/refund, per-turn charge, completion charge, cost/duration/effect balance values, UI behavior, BattleContext, pending invasion schema, battle/diplomacy/spy/market/city_intel formulas, enemy research/effect, scenes, assets, icon PNGs, UI64 PNGs, or `.import` files under this design pass.
+
 ## v0.70-89 Labor Policy Resource State Design Lock Rule
 - v0.70-89 authorizes labor/policy resource-state design documentation, agent document updates, and headless/grep/diff verification only.
 - `labor` and `policy` remain display-only planned costs in the current Domestic Tech MVP. They are not actual charge targets.

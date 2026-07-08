@@ -1,5 +1,22 @@
 # HANDOFF TO CODEX
 
+## v0.70-90 Labor Policy Resource Loop Design Handoff
+- Latest baseline: `v0.70-90 Labor Policy Resource Loop Design` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-89 Labor Policy Resource State Design` (`487e8f520195f09840efe7047f3a173c39dca600`).
+- Design document updated: `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+- Agent docs updated: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`, and `agent/DOMESTIC_TECH_RESEARCH_COST_DESIGN.md`.
+- Runtime code was not changed. `scripts/worldmap_test.gd` remains untouched under this pass.
+- Labor is designed as a city-only accumulated resource with cap; future key `labor_pool`.
+- Policy is designed as a national-only accumulated resource with cap; future key `policy_points`.
+- v0.70-90 documents generation formulas, cap formulas, usage boundaries, shortage meanings, UI direction, save/load follow-up requirements, and implementation roadmap only.
+- Do not implement labor/policy generation, actual charge, persistent keys, save/load migration, UI behavior, or active payload changes until later dedicated tasks.
+- Explicitly unchanged: actual charge logic, gold deduction, food group deduction, food group order `rice -> barley -> seafood`, active research payload schema, save/load schema, paid cost state, cancel/refund, per-turn charge, completion charge, cost/duration/effect balance values, UI behavior, BattleContext, pending invasion schema, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Recommended next options:
+  1. `v0.70-91 Labor Policy Save Schema Draft`.
+  2. `v0.70-91 City Research Category Identity Polish`.
+  3. `v0.70-91 Domestic Tech Edge Case Polish`.
+  4. `v0.70-91 Labor Policy Generation Formula Draft`.
+
 ## v0.70-89 Labor Policy Resource State Design Handoff
 - Latest baseline: `v0.70-89 Labor Policy Resource State Design` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-88 Domestic Tech Balance F6 Result Record` (`c782e3a14b0bc2e6c2d1046e7a8a118b4e5adf1d`).

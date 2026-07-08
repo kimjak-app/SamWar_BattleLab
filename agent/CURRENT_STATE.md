@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-90 Labor Policy Resource Loop Design
+- Baseline: `v0.70-89 Labor Policy Resource State Design` at `487e8f520195f09840efe7047f3a173c39dca600`; tracked files were clean at task start.
+- Extended `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md` with the v0.70-90 loop design for labor/policy.
+- Labor loop decision: city-only accumulated resource with cap, future key `labor_pool`, generated per selected PLAYER city from city capacity factors.
+- Policy loop decision: national-only accumulated resource with cap, future key `policy_points`, generated per PLAYER nation from administrative and political factors.
+- Both resources remain design-only in v0.70-90: no persistent key, no save/load schema change, no generation implementation, no actual charge implementation, and no UI behavior change.
+- Current actual charge remains `gold + food group`; city food group order remains `rice -> barley -> seafood`.
+- Future roadmap: save schema draft, generation MVP, UI display MVP, actual charge MVP, then F6 QA record.
+- No runtime code, gameplay logic, UI behavior, save/load schema, active research payload, cost/duration/effect balance values, actual charge logic, deduction order, paid cost state, cancel/refund, BattleContext, pending invasion schema, scene, asset, or import behavior was changed.
+- Next candidates: `v0.70-91 Labor Policy Save Schema Draft`, `v0.70-91 City Research Category Identity Polish`, `v0.70-91 Domestic Tech Edge Case Polish`, or `v0.70-91 Labor Policy Generation Formula Draft`.
+
 ## v0.70-89 Labor Policy Resource State Design
 - Baseline: `v0.70-88 Domestic Tech Balance F6 Result Record` at `c782e3a14b0bc2e6c2d1046e7a8a118b4e5adf1d`; tracked files were clean at task start.
 - Added `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md` to lock the Domestic Tech `labor` / `policy` resource-state decision before implementation.

@@ -2,6 +2,15 @@
 
 ## 2026-07-08
 
+### v0.70-90 Labor Policy Resource Loop Design
+- Started from clean local HEAD `487e8f520195f09840efe7047f3a173c39dca600`.
+- Read required workflow, Godot, current state, next task, handoff, labor/policy resource design, Domestic Tech research cost design, Domestic Tech manual QA, and worldmap rule docs before edits.
+- Added the v0.70-90 loop design section to `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md`.
+- Decided that labor should be a city-only accumulated resource with cap using future key `labor_pool`.
+- Decided that policy should be a national-only accumulated resource with cap using future key `policy_points`.
+- Documented generation formulas, cap formulas, usage boundaries, shortage meaning, UI direction, save/load follow-up requirements, and roadmap.
+- Preserved actual charge logic, gold/food deduction, food order, active payload schema, save/load schema, paid state absence, cancel/refund absence, per-turn/completion charge absence, cost/duration/effect balance values, UI behavior, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ### v0.70-89 Labor Policy Resource State Design
 - Started from clean local HEAD `c782e3a14b0bc2e6c2d1046e7a8a118b4e5adf1d`.
 - Read required workflow, Godot, current state, next task, handoff, Domestic Tech research cost design, Domestic Tech manual QA, and worldmap rule docs before edits.
