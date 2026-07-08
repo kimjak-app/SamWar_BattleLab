@@ -1,5 +1,16 @@
 # HANDOFF TO CODEX
 
+## v0.70-99 Domestic Tech Completion Presentation Handoff
+- Current baseline after this task: `v0.70-99 Domestic Tech Completion Presentation`; commit hash is recorded in the completion report.
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Agent docs updated minimally: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, and `agent/HANDOFF_TO_CODEX.md`.
+- Research completion presentation is runtime-only: completed PLAYER national/city Domestic Tech events enqueue items, play the matching `.ogv` first through `VideoStreamPlayer`/`VideoStreamTheora`, then show a completion card after finish/fallback.
+- National video path: `res://assets/ui/research/videos/research_completion_national_theora_q8_1920x1080.ogv`.
+- City video path: `res://assets/ui/research/videos/research_completion_city_theora_q8_1920x1080.ogv`.
+- mp4 direct playback remains unused; source mp4 files are not used at runtime.
+- Domestic Tech Complete Lock remains closed; no gameplay formulas, save/load schema, active payload schema, completed tech schema, actual charge logic, enemy research, enemy completed tech, production storage, BattleContext schema, or pending invasion schema changed.
+- Next work can be Domestic Tech presentation QA or v0.71 planning/start.
+
 ## v0.70-98-hotfix1 GDScript Reload Warning Cleanup Handoff
 - Current baseline after this task: `v0.70-98-hotfix1 GDScript Reload Warning Cleanup`; commit hash is recorded in the completion report.
 - Runtime file touched: `scripts/worldmap_test.gd` for warning cleanup only.

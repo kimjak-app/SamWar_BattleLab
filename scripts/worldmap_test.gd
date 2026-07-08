@@ -34,6 +34,9 @@ const DOMESTIC_TECH_PROGRESS_NATIONAL := "chancellor_directed"
 const DOMESTIC_TECH_ICON_FALLBACK_LABEL := "?"
 const DOMESTIC_TECH_RESEARCH_KEY := "research"
 const DOMESTIC_TECH_RESEARCH_ACTIVE_KEY := "active"
+const DOMESTIC_TECH_COMPLETION_NATIONAL_VIDEO_PATH := "res://assets/ui/research/videos/research_completion_national_theora_q8_1920x1080.ogv"
+const DOMESTIC_TECH_COMPLETION_CITY_VIDEO_PATH := "res://assets/ui/research/videos/research_completion_city_theora_q8_1920x1080.ogv"
+const DOMESTIC_TECH_COMPLETION_VIDEO_FALLBACK_DURATION_SEC := 6.75
 const DOMESTIC_TECH_UI64_ICON_ROOT := "res://assets/ui/tech_icons_ui64/"
 const DOMESTIC_TECH_UI64_ICON_FILENAME_MAP := {
 	"agri_tool_upgrade": "tech_agri_tool_upgrade.png",
@@ -1228,6 +1231,21 @@ var _player_state := {
 }
 var _city_policy_state: Dictionary = {}
 var _selected_city_detail_tab := CITY_DETAIL_TAB_RESOURCES
+var _domestic_tech_completion_presentation_queue: Array[Dictionary] = []
+var _domestic_tech_completion_presentation_active := false
+var _domestic_tech_completion_video_completion_handled := false
+var _domestic_tech_completion_current_item: Dictionary = {}
+var _domestic_tech_completion_layer: CanvasLayer = null
+var _domestic_tech_completion_root: Control = null
+var _domestic_tech_completion_backdrop: ColorRect = null
+var _domestic_tech_completion_video_player: VideoStreamPlayer = null
+var _domestic_tech_completion_card: PanelContainer = null
+var _domestic_tech_completion_icon: TextureRect = null
+var _domestic_tech_completion_scope_label: Label = null
+var _domestic_tech_completion_title_label: Label = null
+var _domestic_tech_completion_message_label: Label = null
+var _domestic_tech_completion_effect_label: RichTextLabel = null
+var _domestic_tech_completion_confirm_button: Button = null
 
 
 func _ready() -> void:
@@ -1247,6 +1265,7 @@ func _ready() -> void:
 	_ensure_worldmap_help_modal()
 	_ensure_domestic_tech_tree_button_mvp()
 	_ensure_domestic_tech_tree_overlay_mvp()
+	_ensure_domestic_tech_completion_presentation_overlay()
 	_refresh_domestic_tech_tree_overlay_mvp()
 	_close_domestic_tech_tree_overlay_mvp()
 	_ensure_player_attack_deployment_panel()
@@ -1285,6 +1304,12 @@ func _input(event: InputEvent) -> void:
 		_hide_worldmap_help_modal()
 		get_viewport().set_input_as_handled()
 		return
+
+	if _is_domestic_tech_completion_card_visible():
+		if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel") or _is_domestic_tech_completion_space_confirm_event(event):
+			_on_domestic_tech_completion_confirm_pressed()
+			get_viewport().set_input_as_handled()
+			return
 
 	if _is_domestic_tech_tree_overlay_open_mvp() and event.is_action_pressed("ui_cancel"):
 		_close_domestic_tech_tree_overlay_mvp()
@@ -14555,6 +14580,379 @@ func _get_domestic_tech_display_name_mvp(tech_id: String) -> String:
 	return str(definition.get("name", tech_id))
 
 
+func _ensure_domestic_tech_completion_presentation_overlay() -> void:
+	if _domestic_tech_completion_layer != null:
+		return
+	_domestic_tech_completion_layer = CanvasLayer.new()
+	_domestic_tech_completion_layer.name = "DomesticTechCompletionLayer"
+	_domestic_tech_completion_layer.layer = 80
+	add_child(_domestic_tech_completion_layer)
+
+	_domestic_tech_completion_root = Control.new()
+	_domestic_tech_completion_root.name = "DomesticTechCompletionRoot"
+	_domestic_tech_completion_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_domestic_tech_completion_root.mouse_filter = Control.MOUSE_FILTER_STOP
+	_domestic_tech_completion_root.visible = false
+	_domestic_tech_completion_layer.add_child(_domestic_tech_completion_root)
+
+	_domestic_tech_completion_backdrop = ColorRect.new()
+	_domestic_tech_completion_backdrop.name = "DimBackdrop"
+	_domestic_tech_completion_backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_domestic_tech_completion_backdrop.color = Color(0.0, 0.0, 0.0, 0.72)
+	_domestic_tech_completion_backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
+	_domestic_tech_completion_root.add_child(_domestic_tech_completion_backdrop)
+
+	_domestic_tech_completion_video_player = VideoStreamPlayer.new()
+	_domestic_tech_completion_video_player.name = "VideoStreamPlayer_DomesticTechCompletion"
+	_domestic_tech_completion_video_player.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_domestic_tech_completion_video_player.expand = true
+	_domestic_tech_completion_video_player.visible = false
+	_domestic_tech_completion_video_player.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_domestic_tech_completion_video_player.finished.connect(_on_domestic_tech_completion_video_finished)
+	_domestic_tech_completion_root.add_child(_domestic_tech_completion_video_player)
+
+	_domestic_tech_completion_card = PanelContainer.new()
+	_domestic_tech_completion_card.name = "CompletionCard"
+	_domestic_tech_completion_card.visible = false
+	_domestic_tech_completion_card.mouse_filter = Control.MOUSE_FILTER_STOP
+	_domestic_tech_completion_card.add_theme_stylebox_override("panel", _make_domestic_tech_completion_card_style_mvp())
+	_domestic_tech_completion_root.add_child(_domestic_tech_completion_card)
+
+	var card_margin := MarginContainer.new()
+	card_margin.add_theme_constant_override("margin_left", 22)
+	card_margin.add_theme_constant_override("margin_top", 20)
+	card_margin.add_theme_constant_override("margin_right", 22)
+	card_margin.add_theme_constant_override("margin_bottom", 18)
+	_domestic_tech_completion_card.add_child(card_margin)
+
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 10)
+	card_margin.add_child(content)
+
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 14)
+	content.add_child(header)
+
+	_domestic_tech_completion_icon = TextureRect.new()
+	_domestic_tech_completion_icon.custom_minimum_size = Vector2(64.0, 64.0)
+	_domestic_tech_completion_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_domestic_tech_completion_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	header.add_child(_domestic_tech_completion_icon)
+
+	var header_text := VBoxContainer.new()
+	header_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_text.add_theme_constant_override("separation", 4)
+	header.add_child(header_text)
+
+	_domestic_tech_completion_scope_label = _make_domestic_tech_label_mvp("", 15, Color(0.95, 0.80, 0.48, 1.0))
+	header_text.add_child(_domestic_tech_completion_scope_label)
+
+	_domestic_tech_completion_title_label = _make_domestic_tech_label_mvp("", 22, Color(1.0, 0.96, 0.84, 1.0))
+	header_text.add_child(_domestic_tech_completion_title_label)
+
+	_domestic_tech_completion_message_label = _make_domestic_tech_label_mvp("", 15, Color(0.92, 0.93, 0.90, 1.0))
+	content.add_child(_domestic_tech_completion_message_label)
+
+	_domestic_tech_completion_effect_label = RichTextLabel.new()
+	_domestic_tech_completion_effect_label.name = "EffectSummary"
+	_domestic_tech_completion_effect_label.custom_minimum_size = Vector2(420.0, 92.0)
+	_domestic_tech_completion_effect_label.fit_content = true
+	_domestic_tech_completion_effect_label.bbcode_enabled = false
+	_domestic_tech_completion_effect_label.scroll_active = false
+	_domestic_tech_completion_effect_label.add_theme_font_size_override("normal_font_size", 14)
+	_domestic_tech_completion_effect_label.add_theme_color_override("default_color", Color(0.86, 0.88, 0.82, 1.0))
+	content.add_child(_domestic_tech_completion_effect_label)
+
+	_domestic_tech_completion_confirm_button = Button.new()
+	_domestic_tech_completion_confirm_button.name = "ConfirmButton"
+	_domestic_tech_completion_confirm_button.text = "확인"
+	_domestic_tech_completion_confirm_button.custom_minimum_size = Vector2(128.0, 38.0)
+	_domestic_tech_completion_confirm_button.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_domestic_tech_completion_confirm_button.pressed.connect(_on_domestic_tech_completion_confirm_pressed)
+	content.add_child(_domestic_tech_completion_confirm_button)
+	_layout_domestic_tech_completion_presentation_overlay()
+
+
+func _make_domestic_tech_completion_card_style_mvp() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.052, 0.045, 0.96)
+	style.border_color = Color(0.76, 0.57, 0.28, 0.95)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	return style
+
+
+func _layout_domestic_tech_completion_presentation_overlay() -> void:
+	if _domestic_tech_completion_card == null:
+		return
+	var viewport_size := get_viewport_rect().size
+	var card_size := Vector2(minf(560.0, maxf(360.0, viewport_size.x - 48.0)), 300.0)
+	_domestic_tech_completion_card.size = card_size
+	_domestic_tech_completion_card.position = (viewport_size - card_size) * 0.5
+
+
+func _enqueue_domestic_tech_completion_presentations_mvp(completed_events: Variant) -> void:
+	if not completed_events is Array:
+		return
+	for event_variant in completed_events:
+		if not event_variant is Dictionary:
+			continue
+		var item := _make_domestic_tech_completion_presentation_item_mvp(event_variant as Dictionary)
+		if item.is_empty():
+			continue
+		_domestic_tech_completion_presentation_queue.append(item)
+	if not _domestic_tech_completion_presentation_queue.is_empty():
+		call_deferred("_play_next_domestic_tech_completion_presentation")
+
+
+func _make_domestic_tech_completion_presentation_item_mvp(event: Dictionary) -> Dictionary:
+	if not bool(event.get("completed", false)):
+		return {}
+	var scope := str(event.get("type", ""))
+	if scope != DOMESTIC_TECH_SCOPE_NATIONAL and scope != DOMESTIC_TECH_SCOPE_CITY:
+		return {}
+	var tech_id := str(event.get("tech_id", ""))
+	var definition := _get_domestic_tech_definition_mvp(tech_id)
+	if tech_id.is_empty() or definition.is_empty():
+		return {}
+	if scope == DOMESTIC_TECH_SCOPE_CITY:
+		var city_id_for_check := str(event.get("city_id", ""))
+		if not _is_city_owned_by_player_mvp(city_id_for_check):
+			return {}
+	var category_id := str(definition.get("category", ""))
+	var category_data: Dictionary = _get_domestic_tech_categories_mvp().get(category_id, {})
+	var category_name := str(category_data.get("name", category_id))
+	var tech_name := str(definition.get("name", tech_id))
+	var city_id := str(event.get("city_id", ""))
+	var city_name := _format_city_name_by_id(city_id, city_id) if scope == DOMESTIC_TECH_SCOPE_CITY else ""
+	var message := "%s 연구가 끝났습니다." % tech_name
+	if scope == DOMESTIC_TECH_SCOPE_CITY:
+		message = "%s의 %s 연구가 끝났습니다." % [city_name, tech_name]
+	var effect_summary := _get_domestic_tech_completion_effect_summary_mvp(definition)
+	return {
+		"scope": scope,
+		"city_id": city_id,
+		"city_name": city_name,
+		"tech_id": tech_id,
+		"tech_name": tech_name,
+		"category_name": category_name,
+		"icon_path": _get_domestic_tech_resolved_icon_path_mvp(tech_id, str(definition.get("icon_path", ""))),
+		"message": message,
+		"effect_summary": effect_summary,
+		"video_path": _get_domestic_tech_completion_video_path_mvp(scope),
+	}
+
+
+func _get_domestic_tech_completion_effect_summary_mvp(definition: Dictionary) -> String:
+	var effect_summary := str(definition.get("effect_summary", "")).strip_edges()
+	if effect_summary.is_empty():
+		return "연구 효과가 적용되었습니다."
+	return effect_summary
+
+
+func _get_domestic_tech_completion_video_path_mvp(scope: String) -> String:
+	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		return DOMESTIC_TECH_COMPLETION_NATIONAL_VIDEO_PATH
+	if scope == DOMESTIC_TECH_SCOPE_CITY:
+		return DOMESTIC_TECH_COMPLETION_CITY_VIDEO_PATH
+	return ""
+
+
+func _play_next_domestic_tech_completion_presentation() -> void:
+	if _domestic_tech_completion_presentation_active:
+		return
+	if _domestic_tech_completion_presentation_queue.is_empty():
+		_hide_domestic_tech_completion_presentation_overlay()
+		return
+	_ensure_domestic_tech_completion_presentation_overlay()
+	_layout_domestic_tech_completion_presentation_overlay()
+	_domestic_tech_completion_current_item = _domestic_tech_completion_presentation_queue.pop_front()
+	_domestic_tech_completion_presentation_active = true
+	_domestic_tech_completion_video_completion_handled = false
+	if not _play_domestic_tech_completion_video_mvp(_domestic_tech_completion_current_item):
+		_show_domestic_tech_completion_card_mvp(_domestic_tech_completion_current_item)
+
+
+func _play_domestic_tech_completion_video_mvp(item: Dictionary) -> bool:
+	if _domestic_tech_completion_video_player == null:
+		return false
+	var video_path := str(item.get("video_path", ""))
+	if not _assign_domestic_tech_completion_video_stream_mvp(video_path):
+		return false
+	if _domestic_tech_completion_root != null:
+		_domestic_tech_completion_root.visible = true
+	if _domestic_tech_completion_backdrop != null:
+		_domestic_tech_completion_backdrop.visible = true
+	if _domestic_tech_completion_card != null:
+		_domestic_tech_completion_card.visible = false
+	_domestic_tech_completion_video_player.visible = true
+	_domestic_tech_completion_video_player.play()
+	get_tree().create_timer(DOMESTIC_TECH_COMPLETION_VIDEO_FALLBACK_DURATION_SEC).timeout.connect(
+		_on_domestic_tech_completion_video_fallback_timeout.bind(str(item.get("tech_id", "")))
+	)
+	print("[DOMESTIC_TECH_COMPLETION_VIDEO] play scope=%s tech_id=%s path=%s" % [
+		str(item.get("scope", "")),
+		str(item.get("tech_id", "")),
+		video_path,
+	])
+	return true
+
+
+func _assign_domestic_tech_completion_video_stream_mvp(path: String) -> bool:
+	if _domestic_tech_completion_video_player == null or path.is_empty():
+		return false
+	_domestic_tech_completion_video_player.stop()
+	_domestic_tech_completion_video_player.stream = null
+	var file_exists := FileAccess.file_exists(path)
+	var loader_exists := ResourceLoader.exists(path)
+	var loaded_resource: Resource = null
+	if loader_exists:
+		loaded_resource = ResourceLoader.load(path)
+	var video_stream := loaded_resource as VideoStream
+	print("[DOMESTIC_TECH_COMPLETION_VIDEO_LOAD] path=%s file_exists=%s resource_loader_exists=%s load_null=%s class=%s is_video_stream=%s" % [
+		path,
+		str(file_exists),
+		str(loader_exists),
+		str(loaded_resource == null),
+		_get_domestic_tech_completion_debug_object_class_name_mvp(loaded_resource),
+		str(video_stream != null),
+	])
+	if video_stream == null and path.get_extension().to_lower() == "ogv":
+		video_stream = _create_domestic_tech_completion_theora_stream_direct_mvp(path)
+	if video_stream == null:
+		print("[DOMESTIC_TECH_COMPLETION_VIDEO] load_failed path=%s fallback=card" % path)
+		return false
+	_domestic_tech_completion_video_player.stream = video_stream
+	return _domestic_tech_completion_video_player.stream != null
+
+
+func _create_domestic_tech_completion_theora_stream_direct_mvp(path: String) -> VideoStream:
+	if path.is_empty() or not FileAccess.file_exists(path):
+		return null
+	var direct_stream := VideoStreamTheora.new()
+	if direct_stream == null or not _domestic_tech_completion_object_has_property_mvp(direct_stream, "file"):
+		return null
+	direct_stream.set("file", path)
+	if str(direct_stream.get("file")).is_empty():
+		return null
+	return direct_stream as VideoStream
+
+
+func _on_domestic_tech_completion_video_finished() -> void:
+	_complete_domestic_tech_completion_video_mvp("finished_signal")
+
+
+func _on_domestic_tech_completion_video_fallback_timeout(tech_id: String) -> void:
+	if str(_domestic_tech_completion_current_item.get("tech_id", "")) != tech_id:
+		return
+	_complete_domestic_tech_completion_video_mvp("fallback_timer")
+
+
+func _complete_domestic_tech_completion_video_mvp(source: String) -> void:
+	if _domestic_tech_completion_video_completion_handled:
+		return
+	_domestic_tech_completion_video_completion_handled = true
+	if _domestic_tech_completion_video_player != null:
+		_domestic_tech_completion_video_player.stop()
+		_domestic_tech_completion_video_player.visible = false
+		_domestic_tech_completion_video_player.stream = null
+	_show_domestic_tech_completion_card_mvp(_domestic_tech_completion_current_item)
+	print("[DOMESTIC_TECH_COMPLETION_VIDEO] complete source=%s tech_id=%s" % [
+		source,
+		str(_domestic_tech_completion_current_item.get("tech_id", "")),
+	])
+
+
+func _show_domestic_tech_completion_card_mvp(item: Dictionary) -> void:
+	if item.is_empty():
+		_finish_domestic_tech_completion_presentation_item_mvp()
+		return
+	_ensure_domestic_tech_completion_presentation_overlay()
+	_layout_domestic_tech_completion_presentation_overlay()
+	if _domestic_tech_completion_root != null:
+		_domestic_tech_completion_root.visible = true
+	if _domestic_tech_completion_backdrop != null:
+		_domestic_tech_completion_backdrop.visible = true
+	if _domestic_tech_completion_video_player != null:
+		_domestic_tech_completion_video_player.visible = false
+	if _domestic_tech_completion_icon != null:
+		var icon_path := str(item.get("icon_path", ""))
+		var icon_texture := load(icon_path) as Texture2D if not icon_path.is_empty() else null
+		_domestic_tech_completion_icon.texture = icon_texture
+		_domestic_tech_completion_icon.visible = icon_texture != null
+	if _domestic_tech_completion_scope_label != null:
+		var scope_label := str(item.get("category_name", ""))
+		if str(item.get("scope", "")) == DOMESTIC_TECH_SCOPE_CITY:
+			scope_label = "%s / %s" % [str(item.get("city_name", "")), scope_label]
+		_domestic_tech_completion_scope_label.text = scope_label
+	if _domestic_tech_completion_title_label != null:
+		_domestic_tech_completion_title_label.text = str(item.get("tech_name", ""))
+	if _domestic_tech_completion_message_label != null:
+		_domestic_tech_completion_message_label.text = str(item.get("message", ""))
+	if _domestic_tech_completion_effect_label != null:
+		_domestic_tech_completion_effect_label.text = "효과\n- %s" % str(item.get("effect_summary", "연구 효과가 적용되었습니다."))
+	if _domestic_tech_completion_card != null:
+		_domestic_tech_completion_card.visible = true
+	if _domestic_tech_completion_confirm_button != null:
+		_domestic_tech_completion_confirm_button.call_deferred("grab_focus")
+
+
+func _on_domestic_tech_completion_confirm_pressed() -> void:
+	if not _is_domestic_tech_completion_card_visible():
+		return
+	_finish_domestic_tech_completion_presentation_item_mvp()
+
+
+func _finish_domestic_tech_completion_presentation_item_mvp() -> void:
+	if _domestic_tech_completion_card != null:
+		_domestic_tech_completion_card.visible = false
+	_domestic_tech_completion_current_item = {}
+	_domestic_tech_completion_presentation_active = false
+	if _domestic_tech_completion_presentation_queue.is_empty():
+		_hide_domestic_tech_completion_presentation_overlay()
+	else:
+		call_deferred("_play_next_domestic_tech_completion_presentation")
+
+
+func _hide_domestic_tech_completion_presentation_overlay() -> void:
+	_domestic_tech_completion_video_completion_handled = false
+	if _domestic_tech_completion_video_player != null:
+		_domestic_tech_completion_video_player.stop()
+		_domestic_tech_completion_video_player.visible = false
+		_domestic_tech_completion_video_player.stream = null
+	if _domestic_tech_completion_card != null:
+		_domestic_tech_completion_card.visible = false
+	if _domestic_tech_completion_root != null:
+		_domestic_tech_completion_root.visible = false
+
+
+func _is_domestic_tech_completion_card_visible() -> bool:
+	return _domestic_tech_completion_card != null and _domestic_tech_completion_card.visible
+
+
+func _is_domestic_tech_completion_space_confirm_event(event: InputEvent) -> bool:
+	if not event is InputEventKey:
+		return false
+	var key_event := event as InputEventKey
+	return key_event.pressed and not key_event.echo and key_event.keycode == KEY_SPACE
+
+
+func _domestic_tech_completion_object_has_property_mvp(value: Object, property_name: String) -> bool:
+	if value == null:
+		return false
+	for property_info in value.get_property_list():
+		var property_data := property_info as Dictionary
+		if String(property_data.get("name", "")) == property_name:
+			return true
+	return false
+
+
+func _get_domestic_tech_completion_debug_object_class_name_mvp(value: Object) -> String:
+	if value == null:
+		return "null"
+	return value.get_class()
+
+
 func _make_domestic_tech_label_mvp(text: String, font_size: int, font_color: Color) -> Label:
 	var label := Label.new()
 	label.text = text
@@ -15056,6 +15454,7 @@ func _advance_domestic_tech_research_for_world_turn_mvp() -> Dictionary:
 		if bool(event.get("completed", false)):
 			(result["completed"] as Array).append(event)
 	_player_state["last_domestic_tech_progress_result"] = result.duplicate(true)
+	_enqueue_domestic_tech_completion_presentations_mvp(result.get("completed", []))
 	if not (result["completed"] as Array).is_empty() and _is_domestic_tech_tree_overlay_open_mvp():
 		_refresh_domestic_tech_tree_overlay_mvp()
 	_refresh_domestic_tech_effect_display_surfaces_mvp(result)

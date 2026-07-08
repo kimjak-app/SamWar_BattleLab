@@ -1,5 +1,17 @@
 # NEXT TASKS
 
+## Current: v0.70-99 Domestic Tech Completion Presentation
+- Baseline: `v0.70-99용 영상 업로드` (`2724357b3e3015a049b1da0708133617c94dc8a6`).
+- Completed direction:
+  1. Added PLAYER Domestic Tech completion presentation queue.
+  2. National/city research completion plays the matching `VideoStreamTheora` `.ogv` before the completion card.
+  3. Completion card appears after video finish or fallback timer and shows existing tech icon/name/category/message/effect summary.
+  4. mp4 direct playback is not used.
+  5. Domestic Tech Complete Lock remains closed; no gameplay formula, schema, active payload, completed tech storage, actual charge, enemy research, or production system change was made.
+- Possible next work:
+  1. Domestic Tech presentation QA.
+  2. v0.71 planning/start.
+
 ## Current: v0.70-98-hotfix1 GDScript Reload Warning Cleanup
 - Baseline: `v0.70-98 Domestic Tech Complete Lock` (`6f88833d9d53c239d8a848b2b5cbb5b1c85d079b`).
 - Completed direction:

@@ -1,5 +1,14 @@
 # CURRENT STATE
 
+## v0.70-99 Domestic Tech Completion Presentation
+- Baseline: `2724357b3e3015a049b1da0708133617c94dc8a6` (`v0.70-99용 영상 업로드`); tracked files were clean at task start.
+- Added runtime Domestic Tech completion presentation in `scripts/worldmap_test.gd`: PLAYER national/city completion events enqueue presentation items, play the matching `.ogv` first, then show the completion card.
+- National video path: `res://assets/ui/research/videos/research_completion_national_theora_q8_1920x1080.ogv`.
+- City video path: `res://assets/ui/research/videos/research_completion_city_theora_q8_1920x1080.ogv`.
+- Uses `VideoStreamPlayer` + `VideoStreamTheora` `.ogv` load/direct fallback; mp4 direct playback remains prohibited and unused.
+- Completion card shows the existing tech icon, category/scope, tech name/message, and existing `effect_summary`; missing video falls back to the card.
+- Presentation queue is runtime-only and not saved; save/load schema, active payload schema, completed tech schema, actual charge logic, and Domestic Tech Complete Lock remain unchanged.
+
 ## v0.70-98-hotfix1 GDScript Reload Warning Cleanup
 - Baseline: `v0.70-98 Domestic Tech Complete Lock` at `6f88833d9d53c239d8a848b2b5cbb5b1c85d079b`; tracked files were clean at task start.
 - Removed Godot GDScript reload warning causes only: Domestic Tech graph `position` shadowing and a float value passed into int-only `maxi()`.
