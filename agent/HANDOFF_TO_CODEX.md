@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-95 Diplomacy / Spy Effect Integration Handoff
+- Latest baseline before this task: `v0.70-94 Defense / Battle Effect Integration` (`2aeaf5df008c789bd385fd7598a5f68de842fac2`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Agent docs updated: `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`, and `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- PLAYER diplomacy integration now uses `_get_player_diplomacy_tech_modifier_mvp`, `_get_modified_diplomacy_relation_delta_mvp`, and `_get_modified_diplomacy_success_chance_mvp`.
+- Actual diplomacy hooks now affect `_validate_diplomacy_action`, `_calculate_alliance_acceptance_chance`, `_calculate_military_support_acceptance_chance`, and `_calculate_tribute_relation_gain`.
+- PLAYER spy integration now uses `_get_player_spy_tech_modifier_mvp`, `_get_modified_spy_success_chance_mvp`, `_get_modified_spy_detection_chance_mvp`, and `_get_modified_spy_visibility_level_mvp`.
+- Actual spy hooks now affect `_can_gather_spy_info`, `_can_disrupt_city_public_support`, `_can_disrupt_city_loyalty`, `_can_instigate_revolt`, `_get_spy_wedge_success_chance`, and `_calculate_spy_wedge_detection_chance`.
+- ENEMY baseline/resistance helpers `_get_enemy_diplomacy_baseline_mvp`, `_get_enemy_spy_resistance_baseline_mvp`, and `_get_enemy_city_intel_resistance_baseline_mvp` are side-effect-free and are not enemy research.
+- Current city-scope spy/admin safe set is empty, so same-city-only city spy effect remains effectively zeroed instead of introducing new city tech schema or leakage.
+- Next session must run `v0.70-96 Naval / Siege Unlock Integration`.
+- Explicitly unchanged: save/load schema, active research payload schema, actual charge logic, gold/food deduction, food group order `rice -> barley -> seafood`, BattleContext schema, pending invasion schema, battle formula after v0.70-94, naval/siege production, troop/ship/siege counts, scenes, assets, and imports.
+
 ## v0.70-94 Defense / Battle Effect Integration Handoff
 - Latest baseline before this task: `v0.70-93 Economy / City Effect Integration` (`b8c417609e5424e15c22281c205d1ad2ec18d529`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

@@ -1,5 +1,30 @@
 # NEXT TASKS
 
+## Current: v0.70-95 Diplomacy / Spy Effect Integration
+- Baseline: `v0.70-94 Defense / Battle Effect Integration` (`2aeaf5df008c789bd385fd7598a5f68de842fac2`).
+- Completed direction:
+  1. Added PLAYER diplomacy modifier helpers and PLAYER spy modifier helpers using completed Domestic Tech lookup.
+  2. Kept city-scope spy/admin effects schema-free; current city safe set remains empty, so no cross-city leakage path was added.
+  3. Connected diplomacy preview/apply, alliance acceptance, military support acceptance, and tribute relation gain to the modifier helper contract.
+  4. Connected spy success/detection/intel visibility preview and roll inputs to the modifier helper contract.
+  5. Added ENEMY diplomacy/spy baseline helpers that return baseline/resistance only; they are not enemy research.
+- Seven-step Domestic Tech completion route:
+  1. `v0.70-92 Domestic Tech Gameplay Effect Integration Map`
+  2. `v0.70-93 Economy / City Effect Integration`
+  3. `v0.70-94 Defense / Battle Effect Integration`
+  4. `v0.70-95 Diplomacy / Spy Effect Integration`
+  5. `v0.70-96 Naval / Siege Unlock Integration`
+  6. `v0.70-97 Full Gameplay F6 QA`
+  7. `v0.70-98 Domestic Tech Complete Lock`
+- Route lock:
+  1. Do not work outside this Domestic Tech route.
+  2. Do not implement labor/policy actual systems in this route.
+  3. Do not design new resources.
+  4. Do not do standalone UI polish or standalone QA record repetition.
+  5. Every follow-up must connect completed tech to actual gameplay effect state, calculation, or unlock.
+- Next task:
+  1. `v0.70-96 Naval / Siege Unlock Integration`.
+
 ## Current: v0.70-94 Defense / Battle Effect Integration
 - Baseline: `v0.70-93 Economy / City Effect Integration` (`b8c417609e5424e15c22281c205d1ad2ec18d529`).
 - Completed direction:

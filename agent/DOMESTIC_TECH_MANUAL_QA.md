@@ -1,5 +1,45 @@
 # Domestic Tech Actual Charge Manual QA
 
+## v0.70-95 Diplomacy / Spy Effect Integration F6 QA
+
+### Purpose
+- Confirm completed PLAYER Diplomacy / Spy Domestic Tech effects change modifier-backed diplomacy/spy preview and actual calculation hooks.
+- Confirm ENEMY baseline/resistance is not enemy research and remains masked when intel is insufficient.
+
+### Checks
+- Complete a diplomacy national tech, then confirm diplomacy summary or action preview shows the diplomacy modifier.
+- Confirm diplomacy relation delta preview changes after completing diplomacy tech.
+- Confirm alliance proposal or tribute relation gain reflects the completed diplomacy modifier.
+- Complete a spy national tech, then confirm spy summary or action preview shows the spy modifier.
+- Confirm spy success chance / detection chance or intel visibility changes after completing spy tech.
+- Confirm city-scope spy/admin effect does not leak across cities; current city-scope safe set may remain zero-effect.
+- Select an ENEMY city with no intel and confirm spy/diplomacy baseline details are masked where applicable.
+- Select an ENEMY city after enough intel and confirm only baseline/resistance grade appears, not research effects.
+- Confirm enemy active research, enemy completed tech, and enemy tech progression remain absent.
+- Confirm v0.70-93 economy/city effect and v0.70-94 defense/battle effect remain visible and stable.
+- Confirm cost charge UI and research start/progress/completion flow are unchanged.
+- Confirm Godot Output has no new warning/error.
+
+### PASS / NEEDS FIX Record
+```text
+Version: v0.70-95 Diplomacy / Spy Effect Integration
+Commit:
+PLAYER diplomacy modifier appears after completion:
+Diplomacy relation/success hook reflected:
+PLAYER spy modifier appears after completion:
+Spy success/detection/intel hook reflected:
+City-scope effect leakage absent:
+Enemy no-intel baseline masked:
+Enemy baseline is not research:
+Enemy research absent:
+v0.70-93 economy/city effect preserved:
+v0.70-94 defense/battle effect preserved:
+Actual charge preserved:
+Godot Output clean:
+Result: PASS / NEEDS FIX
+Notes:
+```
+
 ## v0.70-94 Defense / Battle Effect Integration F6 QA
 
 ### Purpose

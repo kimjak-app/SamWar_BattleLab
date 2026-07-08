@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.70-95 Diplomacy / Spy Effect Integration
+- Added completed Domestic Tech diplomacy/spy modifier helpers for PLAYER national effects in `scripts/worldmap_test.gd`.
+- Connected diplomacy preview/apply, alliance acceptance, military support acceptance, and tribute relation gain to modifier-backed completed-tech lookup without changing relation schema.
+- Connected spy success, detection, wedge success, and intel visibility preview/roll inputs to modifier-backed completed-tech lookup without changing spy payload schema.
+- Added ENEMY diplomacy/spy baseline helpers that are side-effect-free, masked by insufficient intel where needed, and explicitly not enemy research.
+- Updated the Domestic Tech integration map and agent handoff docs for the next `v0.70-96 Naval / Siege Unlock Integration` task.
+- Preserved save/load schema, active payload schema, actual charge logic, food deduction order, BattleContext schema, pending invasion schema, battle formula after v0.70-94, naval/siege production absence, enemy research absence, scenes, assets, and imports.
+
 ## v0.70-94 Defense / Battle Effect Integration
 - Added completed Domestic Tech defense/battle modifier helpers for PLAYER national and same-city PLAYER city effects in `scripts/worldmap_test.gd`.
 - Connected selected city defense display and summary to the defense modifier helper contract.

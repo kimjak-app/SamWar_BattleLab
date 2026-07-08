@@ -3986,7 +3986,11 @@ func _format_diplomacy_policy_display_for_ui(city_marker: WorldMapCityMarker) ->
 		return "외교 판단\n소유 세력 확인이 필요합니다."
 	if owner_id == PLAYER_FACTION_ID:
 		return "외교 판단\n자국 도시는 외교 대상이 아닙니다."
-	return _format_last_diplomacy_action_result_for_ui(owner_id)
+	var recent_summary := _format_last_diplomacy_action_result_for_ui(owner_id)
+	var modifier_summary := _format_player_diplomacy_tech_modifier_summary_mvp(owner_id)
+	if modifier_summary.is_empty():
+		return recent_summary
+	return "%s\n%s" % [recent_summary, modifier_summary]
 
 
 func _ensure_diplomacy_action_card() -> void:
@@ -4317,7 +4321,11 @@ func _format_spy_visibility_summary_for_ui(city_marker: WorldMapCityMarker) -> S
 		revealed_text = "%s / %s" % [revealed_text, " / ".join(revealed_labels)]
 	var locked_text := "없음" if locked_labels.is_empty() else " / ".join(locked_labels)
 	var next_text := "추가 정탐 필요" if not locked_labels.is_empty() else "잠김 정보 없음"
-	return "정보 수준\n%s\n공개: %s\n잠김: %s\n다음: %s" % [level_label, revealed_text, locked_text, next_text]
+	var base_text := "정보 수준\n%s\n공개: %s\n잠김: %s\n다음: %s" % [level_label, revealed_text, locked_text, next_text]
+	var modifier_summary := _format_player_spy_tech_modifier_summary_mvp(city_marker.city_id)
+	if modifier_summary.is_empty():
+		return base_text
+	return "%s\n%s" % [base_text, modifier_summary]
 
 
 func _format_spy_known_info_summary_for_ui(city_marker: WorldMapCityMarker) -> String:
@@ -4492,6 +4500,128 @@ func _get_enemy_battle_baseline_modifier_mvp(city: Dictionary, role: String = "d
 	return modifier
 
 
+func _get_enemy_owned_city_count_mvp(faction_id: String) -> int:
+	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+		return 0
+	var count := 0
+	for city_id_variant in CITY_HUD_DATA.keys():
+		var city_id := str(city_id_variant)
+		var city_data := _get_city_hud_entry(city_id)
+		if city_data.is_empty():
+			continue
+		if _get_city_owner_faction_id(city_data) == faction_id:
+			count += 1
+	return count
+
+
+func _get_enemy_diplomacy_baseline_mvp(target_force_id: String = "") -> Dictionary:
+	var result := {
+		"target_force_id": target_force_id,
+		"owner_scope": "enemy",
+		"enemy_baseline": true,
+		"enemy_research_effect": false,
+		"player_completed_tech_lookup": false,
+		"masked": true,
+		"diplomacy_resistance_pct": 0.0,
+		"alliance_resistance_pct": 0.0,
+		"tribute_resistance_pct": 0.0,
+		"relation_resistance_pct": 0.0,
+		"baseline_grade_label": "정보 부족",
+		"source": "faction_city_grade_baseline",
+	}
+	if target_force_id.is_empty() or target_force_id == PLAYER_FACTION_ID:
+		result["reason"] = "invalid_target"
+		return result
+	result["masked"] = false
+	var owned_city_count := _get_enemy_owned_city_count_mvp(target_force_id)
+	var resistance_pct := 0.03
+	if owned_city_count >= 4:
+		resistance_pct += 0.03
+	elif owned_city_count >= 2:
+		resistance_pct += 0.01
+	var relation_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_force_id)
+	if relation_score >= 70:
+		resistance_pct += 0.02
+	elif relation_score <= 30:
+		resistance_pct = maxf(0.0, resistance_pct - 0.01)
+	var trade_turns := _get_active_trade_agreement_turns(target_force_id)
+	var alliance_turns := _get_active_alliance_turns(target_force_id)
+	var alliance_resistance := resistance_pct + (0.03 if alliance_turns > 0 else 0.0)
+	var tribute_resistance := resistance_pct + (0.02 if trade_turns > 0 else 0.0)
+	result["diplomacy_resistance_pct"] = minf(0.10, resistance_pct)
+	result["alliance_resistance_pct"] = minf(0.12, alliance_resistance)
+	result["tribute_resistance_pct"] = minf(0.10, tribute_resistance)
+	result["relation_resistance_pct"] = minf(0.08, resistance_pct)
+	var grade_score := owned_city_count + (1 if alliance_turns > 0 else 0) + (1 if trade_turns > 0 else 0)
+	result["baseline_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(grade_score)
+	return result
+
+
+func _get_enemy_spy_resistance_baseline_mvp(city: Dictionary) -> Dictionary:
+	var result := {
+		"city_id": str(city.get("id", "")),
+		"owner_scope": "enemy",
+		"enemy_baseline": true,
+		"enemy_research_effect": false,
+		"player_completed_tech_lookup": false,
+		"masked": true,
+		"spy_resistance_pct": 0.0,
+		"detection_bonus_pct": 0.0,
+		"counter_spy_pct": 0.0,
+		"baseline_grade_label": "정보 부족",
+		"source": "city_security_loyalty_baseline",
+	}
+	var city_id := str(result.get("city_id", ""))
+	if city_id.is_empty() or not _is_city_owned_by_enemy_mvp(city_id):
+		result["reason"] = "not_enemy_city"
+		return result
+	var intel_entry := _get_city_intel_entry_for_ui(city_id)
+	if intel_entry.is_empty():
+		result["reason"] = "insufficient_intel"
+		return result
+	var fields := _get_city_intel_fields_for_ui(intel_entry)
+	var payload := _get_city_intel_payload_for_ui(intel_entry)
+	var revealed_fields := _get_enemy_intel_revealed_field_ids_for_ui(fields, payload)
+	if not revealed_fields.has("troops") and not revealed_fields.has("troops_estimated") and not revealed_fields.has("loyalty"):
+		result["reason"] = "insufficient_intel"
+		return result
+	result["masked"] = false
+	var security_score := _get_city_security_score_for_spy(city_id)
+	var loyalty_score := _get_city_loyalty_value(city)
+	var baseline_score := 2
+	if security_score >= 90:
+		baseline_score += 3
+	elif security_score >= 70:
+		baseline_score += 2
+	elif security_score >= 50:
+		baseline_score += 1
+	if loyalty_score >= 90:
+		baseline_score += 2
+	elif loyalty_score >= 70:
+		baseline_score += 1
+	result["spy_resistance_pct"] = minf(0.12, float(baseline_score) * 0.01)
+	result["detection_bonus_pct"] = minf(0.10, float(baseline_score) * 0.01)
+	result["counter_spy_pct"] = minf(0.08, maxi(0.0, float(baseline_score - 1)) * 0.01)
+	result["baseline_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(baseline_score)
+	result["revealed_fields"] = revealed_fields
+	return result
+
+
+func _get_enemy_city_intel_resistance_baseline_mvp(city: Dictionary) -> Dictionary:
+	var result := _get_enemy_spy_resistance_baseline_mvp(city)
+	result["intel_visibility_resistance_pct"] = 0.0
+	if bool(result.get("masked", true)):
+		return result
+	var security_score := _get_city_security_score_for_spy(str(result.get("city_id", "")))
+	if security_score >= 90:
+		result["intel_visibility_resistance_pct"] = 0.08
+	elif security_score >= 70:
+		result["intel_visibility_resistance_pct"] = 0.05
+	else:
+		result["intel_visibility_resistance_pct"] = 0.02
+	return result
+
+
 func _format_spy_action_candidates_for_ui(city_marker: WorldMapCityMarker) -> String:
 	if city_marker == null:
 		return "첩보 행동\n도시를 선택하면 첩보 후보가 표시됩니다."
@@ -4631,15 +4761,26 @@ func _format_spy_action_policy_display_for_ui(city_marker: WorldMapCityMarker) -
 		return "첩보 대기\n자국 도시는 첩보 대상이 아닙니다."
 	var cooldown_turns := maxi(0, int(_player_state.get("spy_cooldown", 0)))
 	if cooldown_turns > 0:
-		return "첩보 대기 중\n%d턴 후 다시 실행 가능" % cooldown_turns
+		var cooldown_text := "첩보 대기 중\n%d턴 후 다시 실행 가능" % cooldown_turns
+		var cooldown_modifier_summary := _format_player_spy_tech_modifier_summary_mvp(city_marker.city_id)
+		if cooldown_modifier_summary.is_empty():
+			return cooldown_text
+		return "%s\n%s" % [cooldown_text, cooldown_modifier_summary]
 	var wedge_check := _validate_spy_action(SPY_ACTION_WEDGE, city_marker.city_id)
+	var modifier_summary := _format_player_spy_tech_modifier_summary_mvp(city_marker.city_id)
 	if bool(wedge_check.get("ok", false)):
-		return "첩보 실행\n이간질 대상 %s ↔ %s / 성공률 %d%%" % [
+		var ready_text := "첩보 실행\n이간질 대상 %s ↔ %s / 성공률 %d%%" % [
 			_format_faction_label(str(wedge_check.get("target_faction_id", ""))),
 			_format_faction_label(str(wedge_check.get("counterpart_faction_id", ""))),
 			int(wedge_check.get("success_chance", 0)),
 		]
-	return "첩보 실행\n이간질: %s" % str(wedge_check.get("message", "조건 확인 필요"))
+		if modifier_summary.is_empty():
+			return ready_text
+		return "%s\n%s" % [ready_text, modifier_summary]
+	var blocked_text := "첩보 실행\n이간질: %s" % str(wedge_check.get("message", "조건 확인 필요"))
+	if modifier_summary.is_empty():
+		return blocked_text
+	return "%s\n%s" % [blocked_text, modifier_summary]
 
 
 func _ensure_spy_action_card() -> void:
@@ -10681,6 +10822,221 @@ func _get_domestic_tech_city_spy_intel_bonus_mvp(city_id: String) -> Dictionary:
 	return bonus
 
 
+func _get_empty_domestic_diplomacy_modifier_mvp() -> Dictionary:
+	return {
+		"diplomacy_success_pct": 0.0,
+		"relation_gain_pct": 0.0,
+		"relation_loss_reduction_pct": 0.0,
+		"alliance_success_pct": 0.0,
+		"tribute_success_pct": 0.0,
+		"envoy_effect_pct": 0.0,
+		"corruption_reduction_pct": 0.0,
+		"admin_diplomacy_pct": 0.0,
+		"source_techs": [],
+	}
+
+
+func _get_empty_domestic_spy_modifier_mvp() -> Dictionary:
+	return {
+		"spy_success_pct": 0.0,
+		"spy_detection_reduction_pct": 0.0,
+		"intel_visibility_pct": 0.0,
+		"loyalty_disrupt_bonus_pct": 0.0,
+		"revolt_instigation_bonus_pct": 0.0,
+		"discord_bonus_pct": 0.0,
+		"counter_spy_pct": 0.0,
+		"corruption_detection_pct": 0.0,
+		"source_techs": [],
+	}
+
+
+func _append_domestic_modifier_source_if_completed_mvp(modifier: Dictionary, tech_id: String) -> void:
+	if _has_completed_national_domestic_tech_mvp(tech_id):
+		(modifier["source_techs"] as Array).append(tech_id)
+
+
+func _get_player_diplomacy_tech_modifier_mvp() -> Dictionary:
+	var modifier := _get_empty_domestic_diplomacy_modifier_mvp()
+	var bonus := _get_domestic_tech_diplomacy_spy_bonus_mvp()
+	modifier["diplomacy_success_pct"] = float(modifier.get("diplomacy_success_pct", 0.0)) + float(bonus.get("diplomacy_preparation_percent", 0.0))
+	modifier["tribute_success_pct"] = float(modifier.get("tribute_success_pct", 0.0)) + float(bonus.get("tribute_readiness_percent", 0.0))
+	modifier["envoy_effect_pct"] = float(modifier.get("envoy_effect_pct", 0.0)) + minf(0.08, float(int(bonus.get("diplomacy_influence_flat", 0))) * 0.005)
+	modifier["relation_gain_pct"] = float(modifier.get("relation_gain_pct", 0.0)) + minf(0.06, float(int(bonus.get("diplomacy_influence_flat", 0))) * 0.004)
+	modifier["alliance_success_pct"] = float(modifier.get("alliance_success_pct", 0.0)) + minf(0.10, float(bonus.get("world_diplomacy_display_percent", 0.0)))
+	modifier["diplomacy_success_pct"] = float(modifier.get("diplomacy_success_pct", 0.0)) + minf(0.04, float(bonus.get("world_diplomacy_display_percent", 0.0)) * 0.5)
+	modifier["admin_diplomacy_pct"] = float(modifier.get("admin_diplomacy_pct", 0.0)) + minf(0.05, float(bonus.get("diplomacy_preparation_percent", 0.0)))
+	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
+	if _has_completed_national_domestic_tech_mvp("nation_alliance_system"):
+		modifier["alliance_success_pct"] = float(modifier.get("alliance_success_pct", 0.0)) + 0.08
+		_append_domestic_modifier_source_if_completed_mvp(modifier, "nation_alliance_system")
+	if _has_completed_national_domestic_tech_mvp("nation_law_reform"):
+		modifier["relation_loss_reduction_pct"] = float(modifier.get("relation_loss_reduction_pct", 0.0)) + 0.03
+		_append_domestic_modifier_source_if_completed_mvp(modifier, "nation_law_reform")
+	if _has_completed_national_domestic_tech_mvp("nation_bureaucracy"):
+		modifier["admin_diplomacy_pct"] = float(modifier.get("admin_diplomacy_pct", 0.0)) + 0.03
+		_append_domestic_modifier_source_if_completed_mvp(modifier, "nation_bureaucracy")
+	if _has_completed_national_domestic_tech_mvp("nation_centralization"):
+		modifier["admin_diplomacy_pct"] = float(modifier.get("admin_diplomacy_pct", 0.0)) + 0.05
+		modifier["diplomacy_success_pct"] = float(modifier.get("diplomacy_success_pct", 0.0)) + 0.02
+		_append_domestic_modifier_source_if_completed_mvp(modifier, "nation_centralization")
+	if _has_completed_national_domestic_tech_mvp("nation_anti_corruption"):
+		modifier["corruption_reduction_pct"] = float(modifier.get("corruption_reduction_pct", 0.0)) + 0.05
+		modifier["relation_loss_reduction_pct"] = float(modifier.get("relation_loss_reduction_pct", 0.0)) + 0.03
+		_append_domestic_modifier_source_if_completed_mvp(modifier, "nation_anti_corruption")
+	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(modifier.get("source_techs", []))
+	return modifier
+
+
+func _get_player_spy_tech_modifier_mvp(city_id: String = "") -> Dictionary:
+	var modifier := _get_empty_domestic_spy_modifier_mvp()
+	var bonus := _get_domestic_tech_diplomacy_spy_bonus_mvp()
+	var city_bonus := _get_domestic_tech_city_spy_intel_bonus_mvp(city_id)
+	modifier["spy_success_pct"] = float(modifier.get("spy_success_pct", 0.0)) + float(bonus.get("spy_preparation_percent", 0.0))
+	modifier["intel_visibility_pct"] = float(modifier.get("intel_visibility_pct", 0.0)) + minf(0.08, float(int(bonus.get("spy_network_flat", 0))) * 0.00625)
+	modifier["spy_success_pct"] = float(modifier.get("spy_success_pct", 0.0)) + minf(0.04, float(int(bonus.get("spy_network_flat", 0))) * 0.00375)
+	modifier["spy_detection_reduction_pct"] = float(modifier.get("spy_detection_reduction_pct", 0.0)) + float(bonus.get("counter_intel_display_percent", 0.0))
+	modifier["counter_spy_pct"] = float(modifier.get("counter_spy_pct", 0.0)) + float(bonus.get("counter_intel_display_percent", 0.0))
+	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
+	if _has_domestic_tech_city_spy_intel_bonus_data_mvp(city_bonus):
+		modifier["spy_success_pct"] = float(modifier.get("spy_success_pct", 0.0)) + float(city_bonus.get("local_intel_readiness_percent", 0.0))
+		modifier["spy_detection_reduction_pct"] = float(modifier.get("spy_detection_reduction_pct", 0.0)) + float(city_bonus.get("local_counter_intel_display_percent", 0.0))
+		modifier["intel_visibility_pct"] = float(modifier.get("intel_visibility_pct", 0.0)) + minf(0.05, float(int(city_bonus.get("local_spy_network_flat", 0))) * 0.005)
+		modifier["source_techs"] = _merge_domestic_battle_source_techs_mvp(modifier.get("source_techs", []), city_bonus.get("source_techs", []))
+	if _has_completed_national_domestic_tech_mvp("nation_bureaucracy"):
+		modifier["spy_detection_reduction_pct"] = float(modifier.get("spy_detection_reduction_pct", 0.0)) + 0.03
+		_append_domestic_modifier_source_if_completed_mvp(modifier, "nation_bureaucracy")
+	if _has_completed_national_domestic_tech_mvp("nation_local_administration"):
+		modifier["intel_visibility_pct"] = float(modifier.get("intel_visibility_pct", 0.0)) + 0.03
+		_append_domestic_modifier_source_if_completed_mvp(modifier, "nation_local_administration")
+	if _has_completed_national_domestic_tech_mvp("nation_centralization"):
+		modifier["counter_spy_pct"] = float(modifier.get("counter_spy_pct", 0.0)) + 0.03
+		_append_domestic_modifier_source_if_completed_mvp(modifier, "nation_centralization")
+	if _has_completed_national_domestic_tech_mvp("nation_anti_corruption"):
+		modifier["counter_spy_pct"] = float(modifier.get("counter_spy_pct", 0.0)) + 0.03
+		modifier["corruption_detection_pct"] = float(modifier.get("corruption_detection_pct", 0.0)) + 0.05
+		_append_domestic_modifier_source_if_completed_mvp(modifier, "nation_anti_corruption")
+	if _has_completed_national_domestic_tech_mvp("nation_intelligence_org"):
+		modifier["loyalty_disrupt_bonus_pct"] = float(modifier.get("loyalty_disrupt_bonus_pct", 0.0)) + 0.05
+		modifier["revolt_instigation_bonus_pct"] = float(modifier.get("revolt_instigation_bonus_pct", 0.0)) + 0.05
+		modifier["discord_bonus_pct"] = float(modifier.get("discord_bonus_pct", 0.0)) + 0.05
+		_append_domestic_modifier_source_if_completed_mvp(modifier, "nation_intelligence_org")
+	modifier["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(modifier.get("source_techs", []))
+	return modifier
+
+
+func _has_domestic_diplomacy_modifier_data_mvp(modifier: Dictionary) -> bool:
+	return not is_equal_approx(float(modifier.get("diplomacy_success_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("relation_gain_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("relation_loss_reduction_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("alliance_success_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("tribute_success_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("envoy_effect_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("corruption_reduction_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("admin_diplomacy_pct", 0.0)), 0.0)
+
+
+func _has_domestic_spy_modifier_data_mvp(modifier: Dictionary) -> bool:
+	return not is_equal_approx(float(modifier.get("spy_success_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("spy_detection_reduction_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("intel_visibility_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("loyalty_disrupt_bonus_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("revolt_instigation_bonus_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("discord_bonus_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("counter_spy_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(modifier.get("corruption_detection_pct", 0.0)), 0.0)
+
+
+func _get_modified_diplomacy_relation_delta_mvp(base_delta: int, action_id: String, target_faction_id: String = "") -> int:
+	if base_delta == 0:
+		return 0
+	var modifier := _get_player_diplomacy_tech_modifier_mvp()
+	var multiplier := 1.0 + float(modifier.get("relation_gain_pct", 0.0))
+	if action_id == DIPLOMACY_ACTION_ENVOY:
+		multiplier += float(modifier.get("envoy_effect_pct", 0.0))
+	elif action_id == DIPLOMACY_ACTION_TRIBUTE:
+		multiplier += float(modifier.get("tribute_success_pct", 0.0))
+	var enemy_baseline := _get_enemy_diplomacy_baseline_mvp(target_faction_id)
+	if not bool(enemy_baseline.get("masked", true)):
+		multiplier -= float(enemy_baseline.get("relation_resistance_pct", 0.0))
+	var modified_delta := int(round(float(base_delta) * maxf(0.5, multiplier)))
+	if modified_delta == 0:
+		return base_delta
+	return modified_delta
+
+
+func _get_modified_diplomacy_success_chance_mvp(base_chance: int, action_id: String, target_faction_id: String = "") -> int:
+	var modifier := _get_player_diplomacy_tech_modifier_mvp()
+	var bonus_pct := float(modifier.get("diplomacy_success_pct", 0.0))
+	if action_id == DIPLOMACY_ACTION_ALLIANCE_PROPOSAL:
+		bonus_pct += float(modifier.get("alliance_success_pct", 0.0))
+	elif action_id == DIPLOMACY_ACTION_TRIBUTE:
+		bonus_pct += float(modifier.get("tribute_success_pct", 0.0))
+	var enemy_baseline := _get_enemy_diplomacy_baseline_mvp(target_faction_id)
+	if not bool(enemy_baseline.get("masked", true)):
+		if action_id == DIPLOMACY_ACTION_ALLIANCE_PROPOSAL:
+			bonus_pct -= float(enemy_baseline.get("alliance_resistance_pct", 0.0))
+		elif action_id == DIPLOMACY_ACTION_TRIBUTE:
+			bonus_pct -= float(enemy_baseline.get("tribute_resistance_pct", 0.0))
+		else:
+			bonus_pct -= float(enemy_baseline.get("diplomacy_resistance_pct", 0.0))
+	return clampi(base_chance + int(round(bonus_pct * 100.0)), 0, 95)
+
+
+func _get_modified_spy_success_chance_mvp(target_city_id: String, base_chance: int, action_id: String = SPY_ACTION_GATHER_INFO) -> int:
+	var modifier := _get_player_spy_tech_modifier_mvp(target_city_id)
+	var bonus_pct := float(modifier.get("spy_success_pct", 0.0))
+	match action_id:
+		SPY_ACTION_LOYALTY_DISRUPT:
+			bonus_pct += float(modifier.get("loyalty_disrupt_bonus_pct", 0.0))
+		SPY_ACTION_REVOLT_INSTIGATE:
+			bonus_pct += float(modifier.get("revolt_instigation_bonus_pct", 0.0))
+		SPY_ACTION_WEDGE:
+			bonus_pct += float(modifier.get("discord_bonus_pct", 0.0))
+		_:
+			pass
+	var city_data := _get_city_hud_entry(target_city_id)
+	var enemy_baseline := _get_enemy_spy_resistance_baseline_mvp(city_data)
+	if not bool(enemy_baseline.get("masked", true)):
+		bonus_pct -= float(enemy_baseline.get("spy_resistance_pct", 0.0))
+	return clampi(base_chance + int(round(bonus_pct * 100.0)), 0, 95)
+
+
+func _get_modified_spy_detection_chance_mvp(target_city_id: String, base_detection: int) -> int:
+	var modifier := _get_player_spy_tech_modifier_mvp(target_city_id)
+	var reduction_pct := float(modifier.get("spy_detection_reduction_pct", 0.0))
+	var city_data := _get_city_hud_entry(target_city_id)
+	var enemy_baseline := _get_enemy_spy_resistance_baseline_mvp(city_data)
+	if not bool(enemy_baseline.get("masked", true)):
+		reduction_pct -= float(enemy_baseline.get("detection_bonus_pct", 0.0))
+	return clampi(base_detection - int(round(reduction_pct * 100.0)), 0, 95)
+
+
+func _get_modified_spy_visibility_level_mvp(target_city_id: String, political_aptitude: int) -> Dictionary:
+	var visibility := _get_spy_info_visibility_level(political_aptitude)
+	var fields: Array[String] = []
+	for field_variant in visibility.get("fields", []):
+		fields.append(str(field_variant))
+	var modifier := _get_player_spy_tech_modifier_mvp(target_city_id)
+	var visibility_bonus := float(modifier.get("intel_visibility_pct", 0.0))
+	var city_data := _get_city_hud_entry(target_city_id)
+	var enemy_baseline := _get_enemy_city_intel_resistance_baseline_mvp(city_data)
+	if not bool(enemy_baseline.get("masked", true)):
+		visibility_bonus -= float(enemy_baseline.get("intel_visibility_resistance_pct", 0.0))
+	if visibility_bonus >= 0.05:
+		if not fields.has("resources") and (fields.has("troops") or fields.has("troops_estimated")):
+			fields.append("resources")
+		elif not fields.has("publicSupport") and fields.has("resources"):
+			fields.append("publicSupport")
+		elif not fields.has("loyalty") and fields.has("publicSupport"):
+			fields.append("loyalty")
+		elif not fields.has("governor") and fields.has("loyalty"):
+			fields.append("governor")
+	return {
+		"fields": fields,
+		"estimated": bool(visibility.get("estimated", false)),
+	}
+
+
 func _has_domestic_tech_national_policy_bonus_data_mvp(bonus: Dictionary) -> bool:
 	return not is_equal_approx(float(bonus.get("tax_gold_percent", 0.0)), 0.0) \
 		or not is_equal_approx(float(bonus.get("admin_efficiency_percent", 0.0)), 0.0) \
@@ -10981,6 +11337,54 @@ func _format_domestic_tech_diplomacy_spy_bonus_lines_mvp(include_sources: bool =
 		if not source_display.is_empty():
 			result.append(source_display)
 	return result
+
+
+func _format_player_diplomacy_tech_modifier_summary_mvp(target_faction_id: String = "") -> String:
+	var modifier := _get_player_diplomacy_tech_modifier_mvp()
+	if not _has_domestic_diplomacy_modifier_data_mvp(modifier):
+		return ""
+	var parts: Array[String] = []
+	if not is_equal_approx(float(modifier.get("diplomacy_success_pct", 0.0)), 0.0):
+		parts.append("외교 성공 %s" % _format_domestic_tech_percent_bonus_mvp(float(modifier.get("diplomacy_success_pct", 0.0))))
+	if not is_equal_approx(float(modifier.get("relation_gain_pct", 0.0)), 0.0):
+		parts.append("관계 개선 %s" % _format_domestic_tech_percent_bonus_mvp(float(modifier.get("relation_gain_pct", 0.0))))
+	if not is_equal_approx(float(modifier.get("alliance_success_pct", 0.0)), 0.0):
+		parts.append("동맹 수락 %s" % _format_domestic_tech_percent_bonus_mvp(float(modifier.get("alliance_success_pct", 0.0))))
+	if not is_equal_approx(float(modifier.get("tribute_success_pct", 0.0)), 0.0):
+		parts.append("조공 외교 %s" % _format_domestic_tech_percent_bonus_mvp(float(modifier.get("tribute_success_pct", 0.0))))
+	if not is_equal_approx(float(modifier.get("envoy_effect_pct", 0.0)), 0.0):
+		parts.append("사신 영향 %s" % _format_domestic_tech_percent_bonus_mvp(float(modifier.get("envoy_effect_pct", 0.0))))
+	if parts.is_empty():
+		return ""
+	var baseline_suffix := ""
+	var baseline := _get_enemy_diplomacy_baseline_mvp(target_faction_id)
+	if not target_faction_id.is_empty() and not bool(baseline.get("masked", true)):
+		baseline_suffix = "\n상대 외교 기본 저항: %s" % str(baseline.get("baseline_grade_label", "보통"))
+	return "내정 연구 외교 보정\n%s%s" % [", ".join(parts.slice(0, 5)), baseline_suffix]
+
+
+func _format_player_spy_tech_modifier_summary_mvp(target_city_id: String = "") -> String:
+	var modifier := _get_player_spy_tech_modifier_mvp(target_city_id)
+	if not _has_domestic_spy_modifier_data_mvp(modifier):
+		return ""
+	var parts: Array[String] = []
+	if not is_equal_approx(float(modifier.get("spy_success_pct", 0.0)), 0.0):
+		parts.append("첩보 성공 %s" % _format_domestic_tech_percent_bonus_mvp(float(modifier.get("spy_success_pct", 0.0))))
+	if not is_equal_approx(float(modifier.get("spy_detection_reduction_pct", 0.0)), 0.0):
+		parts.append("발각 위험 %s" % _format_domestic_tech_percent_bonus_mvp(-float(modifier.get("spy_detection_reduction_pct", 0.0))))
+	if not is_equal_approx(float(modifier.get("intel_visibility_pct", 0.0)), 0.0):
+		parts.append("정보 가시성 %s" % _format_domestic_tech_percent_bonus_mvp(float(modifier.get("intel_visibility_pct", 0.0))))
+	if not is_equal_approx(float(modifier.get("counter_spy_pct", 0.0)), 0.0):
+		parts.append("방첩 대비 %s" % _format_domestic_tech_percent_bonus_mvp(float(modifier.get("counter_spy_pct", 0.0))))
+	if parts.is_empty():
+		return ""
+	var baseline_suffix := ""
+	if not target_city_id.is_empty():
+		var city_data := _get_city_hud_entry(target_city_id)
+		var baseline := _get_enemy_spy_resistance_baseline_mvp(city_data)
+		if not bool(baseline.get("masked", true)):
+			baseline_suffix = "\n상대 첩보 방어 체급: %s" % str(baseline.get("baseline_grade_label", "보통"))
+	return "내정 연구 첩보 보정\n%s%s" % [", ".join(parts.slice(0, 5)), baseline_suffix]
 
 
 func _get_domestic_tech_city_defense_display_value_mvp(city_id: String, city_data: Dictionary) -> int:
@@ -17282,7 +17686,7 @@ func _validate_diplomacy_action(action_id: String, target_city_id: String = "") 
 		"target_city_id": resolved_city_id,
 		"target_faction_id": target_faction_id,
 		"cost": cost,
-		"relation_delta": int(definition.get("relation_delta", 0)),
+		"relation_delta": _get_modified_diplomacy_relation_delta_mvp(int(definition.get("relation_delta", 0)), action_id, target_faction_id),
 		"cooldown": maxi(0, int(definition.get("cooldown", 0))),
 		"before_score": score,
 		"before_status": status,
@@ -17446,7 +17850,8 @@ func _calculate_alliance_acceptance_chance(target_faction_id: String, resource_p
 	var package := _normalize_diplomacy_resource_package(resource_package)
 	var package_bonus := int(floor(float(package.get("gold", 0)) / 20.0)) + int(floor(float(package.get("silk", 0)) / 10.0))
 	var duration_penalty := maxi(0, duration_turns - TRADE_AGREEMENT_TURNS)
-	return clampi(score + package_bonus - duration_penalty, 0, 95)
+	var base_chance := score + package_bonus - duration_penalty
+	return _get_modified_diplomacy_success_chance_mvp(base_chance, DIPLOMACY_ACTION_ALLIANCE_PROPOSAL, target_faction_id)
 
 
 func _propose_alliance(target_faction_id: String, resource_package: Dictionary, duration_turns: int) -> bool:
@@ -17516,7 +17921,7 @@ func _calculate_military_support_acceptance_chance(target_faction_id: String) ->
 	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
 	var score := clampi(int(relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
 	var rejection_count := maxi(0, int(relation.get("military_support_rejection_count", 0)))
-	return clampi(score - rejection_count * 10, 0, 95)
+	return _get_modified_diplomacy_success_chance_mvp(score - rejection_count * 10, "military_support", target_faction_id)
 
 
 func _request_military_support(target_faction_id: String) -> bool:
@@ -17668,8 +18073,9 @@ func _can_send_tribute(target_faction: String) -> Dictionary:
 	}
 
 
-func _calculate_tribute_relation_gain(_target_faction: String) -> int:
-	return clampi(20, TRIBUTE_RELATION_GAIN_MIN, TRIBUTE_RELATION_GAIN_MAX)
+func _calculate_tribute_relation_gain(target_faction: String) -> int:
+	var base_gain := clampi(20, TRIBUTE_RELATION_GAIN_MIN, TRIBUTE_RELATION_GAIN_MAX)
+	return clampi(_get_modified_diplomacy_relation_delta_mvp(base_gain, DIPLOMACY_ACTION_TRIBUTE, target_faction), TRIBUTE_RELATION_GAIN_MIN, TRIBUTE_RELATION_GAIN_MAX)
 
 
 func _send_tribute(target_faction: String) -> bool:
@@ -18071,12 +18477,14 @@ func _can_gather_spy_info(target_city_id: String) -> Dictionary:
 	var loyalty := _get_city_loyalty_value(city_data)
 	if security >= 100 and loyalty >= 100:
 		return {"ok": false, "reason": "iron_wall", "security": security, "loyalty": loyalty}
-	var visibility := _get_spy_info_visibility_level(political_aptitude)
+	var visibility := _get_modified_spy_visibility_level_mvp(target_city_id, political_aptitude)
+	var base_success_chance := _get_spy_info_success_chance()
+	var base_detection_chance := _calculate_spy_detection_chance(target_city_id)
 	return {
 		"ok": true,
 		"political_aptitude": political_aptitude,
-		"success_chance": _get_spy_info_success_chance(),
-		"detection_chance": _calculate_spy_detection_chance(target_city_id),
+		"success_chance": _get_modified_spy_success_chance_mvp(target_city_id, base_success_chance, SPY_ACTION_GATHER_INFO),
+		"detection_chance": _get_modified_spy_detection_chance_mvp(target_city_id, base_detection_chance),
 		"fields": visibility.get("fields", []),
 		"estimated": bool(visibility.get("estimated", false)),
 	}
@@ -18275,8 +18683,8 @@ func _can_disrupt_city_public_support(target_city_id: String) -> Dictionary:
 		"political_aptitude": political_aptitude,
 		"effect_amount": _get_spy_public_support_disrupt_amount(political_aptitude),
 		"cost": {},
-		"success_chance": _get_spy_info_success_chance(),
-		"detection_chance": _calculate_spy_detection_chance(target_city_id),
+		"success_chance": _get_modified_spy_success_chance_mvp(target_city_id, _get_spy_info_success_chance(), SPY_ACTION_PUBLIC_SUPPORT_DISRUPT),
+		"detection_chance": _get_modified_spy_detection_chance_mvp(target_city_id, _calculate_spy_detection_chance(target_city_id)),
 	}
 
 
@@ -18440,8 +18848,8 @@ func _can_disrupt_city_loyalty(target_city_id: String) -> Dictionary:
 		"political_aptitude": political_aptitude,
 		"effect_amount": _get_spy_loyalty_disrupt_amount(political_aptitude),
 		"cost": {},
-		"success_chance": _get_spy_info_success_chance(),
-		"detection_chance": _calculate_spy_detection_chance(target_city_id),
+		"success_chance": _get_modified_spy_success_chance_mvp(target_city_id, _get_spy_info_success_chance(), SPY_ACTION_LOYALTY_DISRUPT),
+		"detection_chance": _get_modified_spy_detection_chance_mvp(target_city_id, _calculate_spy_detection_chance(target_city_id)),
 	}
 
 
@@ -18596,8 +19004,8 @@ func _can_instigate_revolt(target_city_id: String) -> Dictionary:
 		"political_aptitude": political_aptitude,
 		"probability_boost": _get_spy_revolt_instigation_boost(political_aptitude),
 		"cost": {},
-		"success_chance": _get_spy_info_success_chance(),
-		"detection_chance": _calculate_spy_detection_chance(target_city_id),
+		"success_chance": _get_modified_spy_success_chance_mvp(target_city_id, _get_spy_info_success_chance(), SPY_ACTION_REVOLT_INSTIGATE),
+		"detection_chance": _get_modified_spy_detection_chance_mvp(target_city_id, _calculate_spy_detection_chance(target_city_id)),
 		"publicSupport": public_support,
 		"loyalty": loyalty,
 	}
@@ -18764,7 +19172,7 @@ func _get_spy_wedge_cost(_target_faction_a: String, _target_faction_b: String) -
 
 
 func _calculate_spy_wedge_detection_chance(target_city_id: String = "") -> int:
-	return clampi(_calculate_spy_detection_chance(target_city_id) + 10, 0, 95)
+	return clampi(_get_modified_spy_detection_chance_mvp(target_city_id, _calculate_spy_detection_chance(target_city_id)) + 10, 0, 95)
 
 
 func _get_spy_wedge_candidate_faction_ids(target_faction_id: String) -> Array[String]:
@@ -18811,7 +19219,7 @@ func _get_spy_wedge_success_chance(target_city_id: String, counterpart_faction_i
 	var chance := 35 + political_aptitude * 8 - int(floor(float(city_security) / 10.0))
 	if status == FACTION_RELATION_STATUS["ALLIED"]:
 		chance += 5
-	return clampi(chance, 15, 80)
+	return clampi(_get_modified_spy_success_chance_mvp(target_city_id, chance, SPY_ACTION_WEDGE), 15, 80)
 
 
 func _can_wedge_faction_relation(target_city_id: String) -> Dictionary:
@@ -18903,8 +19311,8 @@ func _can_drive_wedge(target_faction_a: String, target_faction_b: String) -> Dic
 		"political_aptitude": political_aptitude,
 		"relation_delta": _get_spy_wedge_relation_delta(political_aptitude),
 		"cost": cost,
-		"success_chance": _get_spy_info_success_chance(),
-		"detection_chance": _calculate_spy_wedge_detection_chance(),
+		"success_chance": _get_modified_spy_success_chance_mvp("", _get_spy_info_success_chance(), SPY_ACTION_WEDGE),
+		"detection_chance": clampi(_get_modified_spy_detection_chance_mvp("", _calculate_spy_wedge_detection_chance()), 0, 95),
 		"status": status,
 	}
 

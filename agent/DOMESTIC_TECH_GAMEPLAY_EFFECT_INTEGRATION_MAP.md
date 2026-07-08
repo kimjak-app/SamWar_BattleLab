@@ -1,5 +1,82 @@
 # Domestic Tech Gameplay Effect Integration Map
 
+## v0.70-95 Diplomacy / Spy Effect Integration
+
+This pass connects Diplomacy / Spy Domestic Tech effects to actual PLAYER diplomacy relation/success modifiers, spy success/detection/intel visibility modifiers, and the existing action preview paths. It also adds ENEMY diplomacy/spy baseline helpers that are not a research system.
+
+### Implemented Hooks
+
+- Completed PLAYER national diplomacy lookup now has modifier contract helpers:
+  - `_has_completed_national_domestic_tech_mvp(tech_id)`
+  - `_get_player_diplomacy_tech_modifier_mvp()`
+  - `_get_modified_diplomacy_relation_delta_mvp(base_delta, action_id, target_faction_id)`
+  - `_get_modified_diplomacy_success_chance_mvp(base_chance, action_id, target_faction_id)`
+- Actual diplomacy hooks now run through:
+  - `_validate_diplomacy_action(action_id, target_city_id)`
+  - `_calculate_alliance_acceptance_chance(target_faction_id, resource_package, duration_turns)`
+  - `_calculate_military_support_acceptance_chance(target_faction_id)`
+  - `_calculate_tribute_relation_gain(target_faction)`
+- Completed PLAYER spy lookup now has modifier contract helpers:
+  - `_get_player_spy_tech_modifier_mvp(city_id)`
+  - `_get_modified_spy_success_chance_mvp(target_city_id, base_chance, action_id)`
+  - `_get_modified_spy_detection_chance_mvp(target_city_id, base_detection)`
+  - `_get_modified_spy_visibility_level_mvp(target_city_id, political_aptitude)`
+- Actual spy hooks now run through:
+  - `_can_gather_spy_info(target_city_id)`
+  - `_can_disrupt_city_public_support(target_city_id)`
+  - `_can_disrupt_city_loyalty(target_city_id)`
+  - `_can_instigate_revolt(target_city_id)`
+  - `_get_spy_wedge_success_chance(target_city_id, counterpart_faction_id)`
+  - `_calculate_spy_wedge_detection_chance(target_city_id)`
+- Existing UI/preview text now reads the same modifier contract through:
+  - `_format_diplomacy_policy_display_for_ui(city_marker)`
+  - `_format_spy_visibility_summary_for_ui(city_marker)`
+  - `_format_spy_action_policy_display_for_ui(city_marker)`
+  - `_format_player_diplomacy_tech_modifier_summary_mvp(target_faction_id)`
+  - `_format_player_spy_tech_modifier_summary_mvp(target_city_id)`
+- ENEMY diplomacy/spy baseline is provided by:
+  - `_get_enemy_diplomacy_baseline_mvp(target_force_id)`
+  - `_get_enemy_spy_resistance_baseline_mvp(city)`
+  - `_get_enemy_city_intel_resistance_baseline_mvp(city)`
+
+### PLAYER Effect Contract
+
+- PLAYER diplomacy effects read `_player_state["national_domestic_tech_completed"]` through completed national lookup.
+- PLAYER spy effects also read completed national lookup.
+- Current city-scope spy/admin safe set remains empty, so same-city-only city spy effect is preserved as zero-effect; no new city tech storage or city schema key was introduced.
+- Relation schema is not extended.
+- Spy action/result payload schema is not extended.
+- Existing previews and actual calculation inputs read the same modifier helpers to avoid double-application drift.
+
+### ENEMY Baseline Contract
+
+- ENEMY does not have active research.
+- ENEMY does not have completed tech storage.
+- ENEMY does not pay research cost.
+- ENEMY receives no PLAYER completed-tech effect.
+- `_get_enemy_diplomacy_baseline_mvp(target_force_id)` returns side-effect-free faction baseline resistance only.
+- `_get_enemy_spy_resistance_baseline_mvp(city)` and `_get_enemy_city_intel_resistance_baseline_mvp(city)` return only baseline/resistance metadata.
+- Unknown or insufficient-intel city baseline remains masked.
+
+### Preservation
+
+- Save/load schema changed: false.
+- Active payload schema changed: false.
+- Actual charge logic changed: false.
+- Food group order changed: false, still `rice -> barley -> seafood`.
+- BattleContext schema changed: false.
+- Pending invasion schema changed: false.
+- Battle formula changed after v0.70-94: false.
+- Naval/siege production implemented: false.
+- Enemy research implemented: false.
+- Enemy completed tech storage added: false.
+- Troop/ship/siege count mutation added: false.
+- Assets/imports/scenes changed: false.
+
+### Next Version
+
+`v0.70-96 Naval / Siege Unlock Integration` must connect completed PLAYER naval/siege research to production/action/formation eligibility hooks without auto-generating ships or siege units, without adding enemy research, and without changing save schema.
+
 ## v0.70-94 Defense / Battle Effect Integration
 
 This pass connects Defense / Battle Domestic Tech effects to actual PLAYER defense modifier helpers, selected city defense summary, and the existing battle roster stat preparation path. It also adds ENEMY defense/battle baseline helpers that are not a research system.

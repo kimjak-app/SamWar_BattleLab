@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.70-95 Diplomacy / Spy Effect Integration
+- Baseline: `v0.70-94 Defense / Battle Effect Integration` at `2aeaf5df008c789bd385fd7598a5f68de842fac2`; tracked files were clean at task start.
+- Connected PLAYER Diplomacy / Spy Domestic Tech completed effects through completed tech lookup wrappers and modifier helpers in `scripts/worldmap_test.gd`.
+- PLAYER diplomacy effects now flow through `_get_player_diplomacy_tech_modifier_mvp`, `_get_modified_diplomacy_relation_delta_mvp`, and `_get_modified_diplomacy_success_chance_mvp`.
+- Actual diplomacy hooks now modify `_validate_diplomacy_action` relation preview/apply data, `_calculate_alliance_acceptance_chance`, `_calculate_military_support_acceptance_chance`, and `_calculate_tribute_relation_gain` without changing relation schema.
+- PLAYER spy effects now flow through `_get_player_spy_tech_modifier_mvp`, `_get_modified_spy_success_chance_mvp`, `_get_modified_spy_detection_chance_mvp`, and `_get_modified_spy_visibility_level_mvp`.
+- Actual spy hooks now modify `_can_gather_spy_info`, `_can_disrupt_city_public_support`, `_can_disrupt_city_loyalty`, `_can_instigate_revolt`, `_get_spy_wedge_success_chance`, and `_calculate_spy_wedge_detection_chance` without changing spy payload schema.
+- Added `_get_enemy_diplomacy_baseline_mvp`, `_get_enemy_spy_resistance_baseline_mvp`, and `_get_enemy_city_intel_resistance_baseline_mvp` as ENEMY baseline/resistance helpers; they are not enemy research and remain masked when intel is insufficient.
+- Current city-scope spy/admin safe set is still empty, so same-city-only city spy effect remains preserved by zero-effect lookup rather than new city tech storage or city effect leakage.
+- No save/load schema, active payload schema, actual charge logic, food deduction order, BattleContext schema, pending invasion schema, battle formula after v0.70-94, naval/siege production, enemy research, scene, asset, or import behavior was changed.
+- Next task: `v0.70-96 Naval / Siege Unlock Integration`.
+
 ## v0.70-94 Defense / Battle Effect Integration
 - Baseline: `v0.70-93 Economy / City Effect Integration` at `b8c417609e5424e15c22281c205d1ad2ec18d529`; tracked files were clean at task start.
 - Connected PLAYER Defense / Battle Domestic Tech completed effects through completed tech lookup wrappers and modifier helpers in `scripts/worldmap_test.gd`.

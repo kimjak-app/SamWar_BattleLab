@@ -2,6 +2,17 @@
 
 ## 2026-07-08
 
+### v0.70-95 Diplomacy / Spy Effect Integration
+- Started from clean local HEAD `2aeaf5df008c789bd385fd7598a5f68de842fac2`.
+- Confirmed expected baseline message: `v0.70-94 Defense / Battle Effect Integration`.
+- Read required workflow, Godot, current state, next task, handoff, worldmap rules, integration map, research cost design, and manual QA docs before edits.
+- Grepped `scripts/worldmap_test.gd` for Domestic Tech diplomacy/spy safe set, completed lookup wrappers, diplomacy validation/application, alliance/tribute success logic, spy success/detection/visibility functions, and enemy intel baseline paths.
+- Added PLAYER diplomacy modifier helpers and PLAYER spy modifier helpers based on completed national Domestic Tech lookup.
+- Connected diplomacy relation preview/apply, alliance acceptance, military support acceptance, and tribute relation gain to the new modifier helpers without changing relation schema.
+- Connected spy validation/preview/roll inputs to modifier helpers for success chance, detection chance, and intel visibility without changing spy action or result payload schema.
+- Added side-effect-free ENEMY diplomacy/spy baseline helpers with masked insufficient-intel behavior and no enemy research/effect storage.
+- Preserved save/load schema, active payload schema, actual charge logic, food order, BattleContext schema, pending invasion schema, battle formula after v0.70-94, naval/siege production absence, enemy research absence, scenes, assets, and imports.
+
 ### v0.70-94 Defense / Battle Effect Integration
 - Started from clean local HEAD `b8c417609e5424e15c22281c205d1ad2ec18d529`.
 - Confirmed expected baseline message: `v0.70-93 Economy / City Effect Integration`.
