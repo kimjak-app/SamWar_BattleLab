@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current: v0.70-99-hotfix1 Research Completion Video Size Match
+- Completed direction:
+  1. Matched Domestic Tech completion video size/position to the battle result video panel policy.
+  2. Kept national/city `.ogv` video-first playback, fallback-to-card, and completion queue behavior intact.
+  3. Kept mp4 direct playback unused and avoided schema/gameplay formula changes.
+- Next task:
+  1. `v0.71-00 Refactor Plan & Function Map` if no additional presentation bug is found.
+  2. `v0.70-99-hotfix2` only if another presentation bug is found.
+
 ## Current: v0.70-99 Domestic Tech Completion Presentation
 - Baseline: `v0.70-99용 영상 업로드` (`2724357b3e3015a049b1da0708133617c94dc8a6`).
 - Completed direction:

@@ -1,5 +1,11 @@
 # CURRENT STATE
 
+## v0.70-99-hotfix1 Research Completion Video Size Match
+- Baseline: `15dcbab2ae02510ee2dc91057457e4584dbf1e00` (`테크트리 마무리 관련`); tracked files were clean at task start.
+- Updated `scripts/worldmap_test.gd` so Domestic Tech completion `.ogv` playback uses the battle result video panel policy: centered 16:9 panel, width ratio `0.88`, max height ratio `0.60`, and `expand = true`.
+- Research completion videos no longer use a full-rect player; the dim backdrop and video-first/card-after-video completion queue flow are preserved.
+- No mp4 direct playback, schema, active payload, completed tech, actual charge, gameplay formula, enemy research, or production-system behavior changed.
+
 ## v0.70-99 Domestic Tech Completion Presentation
 - Baseline: `2724357b3e3015a049b1da0708133617c94dc8a6` (`v0.70-99용 영상 업로드`); tracked files were clean at task start.
 - Added runtime Domestic Tech completion presentation in `scripts/worldmap_test.gd`: PLAYER national/city completion events enqueue presentation items, play the matching `.ogv` first, then show the completion card.

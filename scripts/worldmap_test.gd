@@ -37,6 +37,9 @@ const DOMESTIC_TECH_RESEARCH_ACTIVE_KEY := "active"
 const DOMESTIC_TECH_COMPLETION_NATIONAL_VIDEO_PATH := "res://assets/ui/research/videos/research_completion_national_theora_q8_1920x1080.ogv"
 const DOMESTIC_TECH_COMPLETION_CITY_VIDEO_PATH := "res://assets/ui/research/videos/research_completion_city_theora_q8_1920x1080.ogv"
 const DOMESTIC_TECH_COMPLETION_VIDEO_FALLBACK_DURATION_SEC := 6.75
+const DOMESTIC_TECH_COMPLETION_VIDEO_PANEL_WIDTH_RATIO := 0.88
+const DOMESTIC_TECH_COMPLETION_VIDEO_PANEL_HEIGHT_RATIO := 9.0 / 16.0
+const DOMESTIC_TECH_COMPLETION_VIDEO_PANEL_MAX_HEIGHT_RATIO := 0.60
 const DOMESTIC_TECH_UI64_ICON_ROOT := "res://assets/ui/tech_icons_ui64/"
 const DOMESTIC_TECH_UI64_ICON_FILENAME_MAP := {
 	"agri_tool_upgrade": "tech_agri_tool_upgrade.png",
@@ -14604,7 +14607,7 @@ func _ensure_domestic_tech_completion_presentation_overlay() -> void:
 
 	_domestic_tech_completion_video_player = VideoStreamPlayer.new()
 	_domestic_tech_completion_video_player.name = "VideoStreamPlayer_DomesticTechCompletion"
-	_domestic_tech_completion_video_player.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_domestic_tech_completion_video_player.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_domestic_tech_completion_video_player.expand = true
 	_domestic_tech_completion_video_player.visible = false
 	_domestic_tech_completion_video_player.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -14686,9 +14689,28 @@ func _layout_domestic_tech_completion_presentation_overlay() -> void:
 	if _domestic_tech_completion_card == null:
 		return
 	var viewport_size := get_viewport_rect().size
+	if _domestic_tech_completion_video_player != null:
+		var video_panel_rect := _get_domestic_tech_completion_video_panel_rect_mvp(viewport_size)
+		_domestic_tech_completion_video_player.position = video_panel_rect.position
+		_domestic_tech_completion_video_player.size = video_panel_rect.size
+		_domestic_tech_completion_video_player.custom_minimum_size = video_panel_rect.size
 	var card_size := Vector2(minf(560.0, maxf(360.0, viewport_size.x - 48.0)), 300.0)
 	_domestic_tech_completion_card.size = card_size
 	_domestic_tech_completion_card.position = (viewport_size - card_size) * 0.5
+
+
+func _get_domestic_tech_completion_video_panel_rect_mvp(viewport_size: Vector2) -> Rect2:
+	var viewport_margin := 24.0
+	var max_width = max(0.0, viewport_size.x - viewport_margin * 2.0)
+	var max_height = max(0.0, viewport_size.y * DOMESTIC_TECH_COMPLETION_VIDEO_PANEL_MAX_HEIGHT_RATIO)
+	var panel_width = min(viewport_size.x * DOMESTIC_TECH_COMPLETION_VIDEO_PANEL_WIDTH_RATIO, max_width)
+	var panel_height = panel_width * DOMESTIC_TECH_COMPLETION_VIDEO_PANEL_HEIGHT_RATIO
+	if panel_height > max_height:
+		panel_height = max_height
+		panel_width = panel_height / DOMESTIC_TECH_COMPLETION_VIDEO_PANEL_HEIGHT_RATIO
+	var panel_size := Vector2(panel_width, panel_height)
+	var panel_position := (viewport_size - panel_size) * 0.5
+	return Rect2(panel_position, panel_size)
 
 
 func _enqueue_domestic_tech_completion_presentations_mvp(completed_events: Variant) -> void:

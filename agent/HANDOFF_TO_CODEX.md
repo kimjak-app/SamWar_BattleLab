@@ -1,5 +1,13 @@
 # HANDOFF TO CODEX
 
+## v0.70-99-hotfix1 Research Completion Video Size Match Handoff
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Agent docs updated minimally: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, and `agent/HANDOFF_TO_CODEX.md`.
+- Domestic Tech completion video layout now matches the battle result video policy: centered 16:9 panel, width ratio `0.88`, max height ratio `0.60`, `expand = true`, and no full-rect video player.
+- Dim backdrop, national/city `.ogv` paths, fallback timer, completion queue, and video-first/card-after-video order are preserved.
+- mp4 direct playback remains unused; no save/load schema, active payload schema, completed tech schema, actual charge logic, BattleContext schema, pending invasion schema, gameplay formula, enemy research, or naval/siege production system changed.
+- Next work: `v0.71-00 Refactor Plan & Function Map`, unless another presentation bug requires `v0.70-99-hotfix2`.
+
 ## v0.70-99 Domestic Tech Completion Presentation Handoff
 - Current baseline after this task: `v0.70-99 Domestic Tech Completion Presentation`; commit hash is recorded in the completion report.
 - Runtime file touched: `scripts/worldmap_test.gd`.
