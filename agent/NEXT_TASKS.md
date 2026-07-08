@@ -1,5 +1,16 @@
 # NEXT TASKS
 
+## Current: v0.70-98-hotfix1 GDScript Reload Warning Cleanup
+- Baseline: `v0.70-98 Domestic Tech Complete Lock` (`6f88833d9d53c239d8a848b2b5cbb5b1c85d079b`).
+- Completed direction:
+  1. Clean up Godot GDScript reload warnings only.
+  2. Keep Domestic Tech Complete Lock closed.
+  3. Do not add Domestic Tech features, enemy research, production storage, schema changes, or gameplay formula changes.
+- Possible next system tasks:
+  1. `Invasion / Battle UX follow-up`.
+  2. `Enemy AI / strategic action baseline`.
+  3. `Full playtest route`.
+
 ## Current: v0.70-98 Domestic Tech Complete Lock
 - Baseline: `v0.70-97 Full Gameplay F6 QA` (`152e91f989c8088988ff6aa3d2a339e239608393`).
 - Completed direction:

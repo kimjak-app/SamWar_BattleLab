@@ -1,5 +1,11 @@
 # CURRENT STATE
 
+## v0.70-98-hotfix1 GDScript Reload Warning Cleanup
+- Baseline: `v0.70-98 Domestic Tech Complete Lock` at `6f88833d9d53c239d8a848b2b5cbb5b1c85d079b`; tracked files were clean at task start.
+- Removed Godot GDScript reload warning causes only: Domestic Tech graph `position` shadowing and a float value passed into int-only `maxi()`.
+- Domestic Tech Complete Lock remains closed; no gameplay formula, schema, research flow, enemy research, production system, scene, asset, or import behavior was changed.
+- Next work remains outside the Domestic Tech first-pass route unless limited bugfix, balance, or UI display polish is explicitly scoped.
+
 ## v0.70-98 Domestic Tech Complete Lock
 - Baseline: `v0.70-97 Full Gameplay F6 QA` at `152e91f989c8088988ff6aa3d2a339e239608393`; tracked files were clean at task start.
 - Domestic Tech first-pass implementation is complete and locked.

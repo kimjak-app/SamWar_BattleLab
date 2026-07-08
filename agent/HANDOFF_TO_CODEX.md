@@ -1,5 +1,13 @@
 # HANDOFF TO CODEX
 
+## v0.70-98-hotfix1 GDScript Reload Warning Cleanup Handoff
+- Current baseline after this task: `v0.70-98-hotfix1 GDScript Reload Warning Cleanup`; commit hash is recorded in the completion report.
+- Runtime file touched: `scripts/worldmap_test.gd` for warning cleanup only.
+- Agent docs updated minimally: `agent/CURRENT_STATE.md`, `agent/HANDOFF_TO_CODEX.md`, and `agent/NEXT_TASKS.md`.
+- Fixed GDScript reload warning causes: local `position` shadowing in Domestic Tech graph code and float-to-int narrowing from `maxi()` on a percent calculation.
+- Domestic Tech Complete Lock remains closed; no gameplay formulas, save/load schema, active payload schema, BattleContext schema, pending invasion schema, enemy research, production storage, scenes, assets, or imports were changed.
+- Next work should remain on a non-Domestic-Tech system track unless a narrow bugfix, balance, or UI display-polish task is explicitly scoped.
+
 ## v0.70-98 Domestic Tech Complete Lock Handoff
 - Current baseline after this task: `v0.70-98 Domestic Tech Complete Lock`; commit hash is recorded in the completion report.
 - Runtime file touched: `scripts/worldmap_test.gd` for side-effect-free complete-lock summary flags only.

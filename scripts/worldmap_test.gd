@@ -4678,7 +4678,7 @@ func _get_enemy_spy_resistance_baseline_mvp(city: Dictionary) -> Dictionary:
 		baseline_score += 1
 	result["spy_resistance_pct"] = minf(0.12, float(baseline_score) * 0.01)
 	result["detection_bonus_pct"] = minf(0.10, float(baseline_score) * 0.01)
-	result["counter_spy_pct"] = minf(0.08, maxi(0.0, float(baseline_score - 1)) * 0.01)
+	result["counter_spy_pct"] = minf(0.08, maxf(0.0, float(baseline_score - 1)) * 0.01)
 	result["baseline_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(baseline_score)
 	result["revealed_fields"] = revealed_fields
 	return result
@@ -13886,11 +13886,11 @@ func _get_domestic_tech_graph_positions_mvp(tech_defs: Array[Dictionary]) -> Dic
 		var positioned_key := "%s:%d" % [positioned_branch_id, positioned_tier]
 		branch_tier_counts[positioned_key] = int(branch_tier_counts.get(positioned_key, 0)) + 1
 		var local_index := int(branch_tier_counts.get(positioned_key, 0)) - 1
-		var position := Vector2(
+		var graph_position := Vector2(
 			DOMESTIC_TECH_GRAPH_MARGIN.x + float(positioned_tier - 1) * DOMESTIC_TECH_GRAPH_TIER_SPACING,
 			float(branch_y_offsets.get(positioned_branch_id, DOMESTIC_TECH_GRAPH_MARGIN.y)) + float(local_index) * DOMESTIC_TECH_GRAPH_BRANCH_STACK_SPACING
 		)
-		positions[str(definition.get("id", ""))] = Rect2(position, DOMESTIC_TECH_GRAPH_NODE_SIZE)
+		positions[str(definition.get("id", ""))] = Rect2(graph_position, DOMESTIC_TECH_GRAPH_NODE_SIZE)
 	return positions
 
 
@@ -13996,7 +13996,7 @@ func _get_domestic_tech_graph_line_color_mvp(state_id: String) -> Color:
 			return Color(0.22, 0.22, 0.22, 0.62)
 
 
-func _build_domestic_tech_compact_node_mvp(parent: Control, tech_def: Dictionary, position: Vector2, city_id: String) -> PanelContainer:
+func _build_domestic_tech_compact_node_mvp(parent: Control, tech_def: Dictionary, graph_position: Vector2, city_id: String) -> PanelContainer:
 	var tech_id := str(tech_def.get("id", ""))
 	var view_state := _get_domestic_tech_view_state_mvp(tech_id, city_id)
 	var state_id := str(view_state.get("state", DOMESTIC_TECH_VIEW_LOCKED))
@@ -14004,7 +14004,7 @@ func _build_domestic_tech_compact_node_mvp(parent: Control, tech_def: Dictionary
 
 	var node_panel := PanelContainer.new()
 	node_panel.name = "DomesticTechCompactNode_%s" % tech_id
-	node_panel.position = position
+	node_panel.position = graph_position
 	node_panel.custom_minimum_size = DOMESTIC_TECH_GRAPH_NODE_SIZE
 	node_panel.size = DOMESTIC_TECH_GRAPH_NODE_SIZE
 	node_panel.mouse_filter = Control.MOUSE_FILTER_STOP
