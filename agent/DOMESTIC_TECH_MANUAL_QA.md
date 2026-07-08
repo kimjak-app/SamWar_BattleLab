@@ -1,5 +1,116 @@
 # Domestic Tech Actual Charge Manual QA
 
+## v0.70-88 Domestic Tech Balance F6 Result Record
+
+### 1. 기준
+
+* Base QA checklist:
+  * `v0.70-87 Domestic Tech Balance F6 QA Record`
+* Balance implementation:
+  * `v0.70-86 Domestic Tech Balance Integration Pass`
+* Current result record:
+  * `v0.70-88 Domestic Tech Balance F6 Result Record`
+
+### 2. 결과 요약
+
+* Tier 1 cost feel:
+  * PASS-ready
+  * 초반 연구 1~2개를 찍는 흐름을 검수할 수 있는 상태.
+* Tier 2 cost feel:
+  * PASS-ready
+  * Tier 2부터 비용 부담과 선택감이 생기는지 확인 항목 준비 완료.
+* Tier 3+ cost feel:
+  * PASS-ready
+  * 중후반 목표감과 선택 부담 검수 항목 준비 완료.
+* National cost/duration feel:
+  * PASS-ready
+  * 국가 연구가 도시 연구보다 장기 체질 개선으로 느껴지는지 확인 항목 준비 완료.
+* City cost/duration feel:
+  * PASS-ready
+  * 도시 연구가 특정 도시 성장/방어/보급 강화로 느껴지는지 확인 항목 준비 완료.
+* Economy effect feel:
+  * PASS-ready
+  * 농업/수산/상업 초반 성장축 체감 확인 항목 준비 완료.
+* Military/Defense effect feel:
+  * PASS-ready
+  * 방어 준비감은 있으나 초반 압도 방지 확인 항목 준비 완료.
+* National Policy effect feel:
+  * PASS-ready
+  * 장기 체질 개선형 보너스 확인 항목 준비 완료.
+* Naval/Siege display feel:
+  * PASS-ready
+  * display/summary 중심 유지 확인 항목 준비 완료.
+* Diplomacy/Spy display feel:
+  * PASS-ready
+  * display/summary 중심 유지 및 formula 미연결 확인 항목 준비 완료.
+* Progression early game feel:
+  * PASS-ready
+  * 초반 “찍는 맛” 확인 항목 준비 완료.
+* Progression mid game choice:
+  * PASS-ready
+  * 중반 “경제 먼저냐 군사 먼저냐” 선택감 확인 항목 준비 완료.
+* Actual charge UI preserved:
+  * PASS by document/code verification
+  * `필요 비용`, `시작 시 차감`, `부족:` 문구 정책 보존.
+* Actual charge logic preserved:
+  * PASS by code preservation verification
+  * v0.70-81 actual charge 모델 유지.
+* Active payload schema unchanged:
+  * PASS by grep/diff verification
+* No formula connection:
+  * PASS by grep/diff verification
+* Enemy research/effect absent:
+  * PASS by grep/diff verification
+* Godot Output clean:
+  * PASS by headless load verification
+* Result:
+  * PASS-ready / Manual F6 follow-up required
+* Notes:
+  * Codex 환경에서는 실제 F6 클릭 기반 체감 QA를 수행하지 않는다.
+  * 실제 체감 PASS는 사용자가 F6에서 Tier 1~3 비용, national/city 기간, safe set 표시, progression feel을 직접 확인한 뒤 최종 PASS로 확정한다.
+
+### 3. Manual follow-up
+
+사용자가 F6에서 직접 확인해야 할 항목:
+
+* Tier 1 연구가 너무 비싸거나 느리지 않은지
+* Tier 2~3부터 선택 부담이 생기는지
+* national tech가 장기 과제로 느껴지는지
+* city tech가 특정 도시 성장으로 느껴지는지
+* Economy 계열이 초반 성장축으로 느껴지는지
+* Military/Defense 계열이 초반부터 압도적이지 않은지
+* Naval/Siege/Diplomacy/Spy 계열이 display/summary 중심으로 유지되는지
+* actual charge UI 문구가 유지되는지
+* 연구 시작/진행/완료 흐름이 정상인지
+* Godot Output warning/error가 없는지
+
+### 4. PASS / NEEDS FIX 최종 수기 기록 칸
+
+* QA Date:
+* Tester:
+* Version: v0.70-88 Domestic Tech Balance F6 Result Record
+* Commit:
+* Tier 1 cost feel:
+* Tier 2 cost feel:
+* Tier 3+ cost feel:
+* National cost/duration feel:
+* City cost/duration feel:
+* Economy effect feel:
+* Military/Defense effect feel:
+* National Policy effect feel:
+* Naval/Siege display feel:
+* Diplomacy/Spy display feel:
+* Progression early game feel:
+* Progression mid game choice:
+* Actual charge UI preserved:
+* Actual charge logic preserved:
+* Active payload schema unchanged:
+* No formula connection:
+* Enemy research/effect absent:
+* Godot Output clean:
+* Final Result: PASS / NEEDS FIX
+* Notes:
+
 ## v0.70-87 Domestic Tech Balance F6 QA Record
 
 ### 1. QA 목적

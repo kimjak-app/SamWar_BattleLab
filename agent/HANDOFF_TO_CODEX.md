@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-88 Domestic Tech Balance F6 Result Record Handoff
+- Latest baseline: `v0.70-88 Domestic Tech Balance F6 Result Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-87 Domestic Tech Balance F6 QA Record` (`47325a032de9397551bf20b1c5fa813fcfffd47b`).
+- Manual QA document updated: `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Agent docs updated: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Runtime code was not changed. `scripts/worldmap_test.gd` was read/grepped only for existing summary flags and preservation evidence.
+- This pass records the Domestic Tech balance F6 result state as PASS-ready by document/code/headless verification, not as a completed human F6 tactile PASS.
+- Manual F6 follow-up remains required for Tier 1-3 cost feel, national/city duration feel, Safe Set display feel, progression feel, actual charge UI wording, research start/progress/completion, and Godot Output warning cleanliness.
+- Explicitly unchanged: gameplay logic, UI behavior, cost/duration/effect balance values, actual charge logic, food deduction order `rice -> barley -> seafood`, active research payload schema, paid cost state, cancel/refund, per-turn charge, completion charge, retroactive charge, enemy research/effect, BattleContext, pending invasion schema, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Recommended next options:
+  1. `v0.70-89 Labor Policy Resource State Design`.
+  2. `v0.70-89 Domestic Tech Edge Case Polish`.
+  3. `v0.70-89 City Research Category Identity Polish`.
+  4. `v0.70-89 Domestic Tech Balance Tuning Follow-up`.
+
 ## v0.70-87 Domestic Tech Balance F6 QA Record Handoff
 - Latest baseline: `v0.70-87 Domestic Tech Balance F6 QA Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-86 Domestic Tech Balance Integration Pass` (`aa1236f4af3951f47008e79c8d56916e79d032f6`).

@@ -2,6 +2,14 @@
 
 ## 2026-07-08
 
+### v0.70-88 Domestic Tech Balance F6 Result Record
+- Started from clean local HEAD `47325a032de9397551bf20b1c5fa813fcfffd47b`.
+- Read required workflow, Godot, current state, next task, handoff, Domestic Tech manual QA, Domestic Tech research cost design, and worldmap rule docs before edits.
+- Added the v0.70-88 Domestic Tech balance F6 result record section to `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Recorded the result as PASS-ready by document/code/headless verification and explicitly marked Manual F6 follow-up required for actual click/tactile balance feel.
+- Verified existing summary flags by grep only; `scripts/worldmap_test.gd` was not modified.
+- Preserved gameplay logic, UI behavior, cost/duration/effect balance values, actual charge logic, food deduction order, active payload schema, paid state absence, cancel/refund absence, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ### v0.70-87 Domestic Tech Balance F6 QA Record
 - Started from clean local HEAD `aa1236f4af3951f47008e79c8d56916e79d032f6`.
 - Read required workflow, Godot, current state, next task, handoff, Domestic Tech manual QA, Domestic Tech research cost design, and worldmap rule docs before edits.

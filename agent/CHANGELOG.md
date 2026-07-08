@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.70-88 Domestic Tech Balance F6 Result Record
+- Added the v0.70-88 Domestic Tech Balance F6 Result Record section to the top of `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Recorded the v0.70-86 balance integration result state as PASS-ready by document/code/headless verification, with Manual F6 follow-up required for actual click/tactile balance confirmation.
+- Documented current result lines for Tier 1-3 cost feel, national/city cost-duration feel, Safe Set effect feel, progression feel, actual charge preservation, active payload compatibility, no formula connection, enemy research/effect absence, and Godot Output cleanliness.
+- Updated agent docs and WorldMap lock guidance for the result-record scope.
+- Preserved `scripts/worldmap_test.gd`, gameplay logic, UI behavior, cost/duration/effect balance values, actual charge logic, deduction amount/order, active payload schema, paid cost state absence, cancel/refund absence, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ## v0.70-87 Domestic Tech Balance F6 QA Record
 - Added the v0.70-87 Domestic Tech Balance F6 QA Record section to the top of `agent/DOMESTIC_TECH_MANUAL_QA.md`.
 - Documented F6 checks for cost balance, duration balance, Safe Set effect feel, progression feel, preservation locks, Godot Output cleanliness, and PASS / NEEDS FIX recording.

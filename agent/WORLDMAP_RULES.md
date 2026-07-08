@@ -1,5 +1,11 @@
 # WORLDMAP RULES
 
+## v0.70-88 Domestic Tech Balance F6 Result Record Lock Rule
+- v0.70-88 authorizes QA result documentation, PASS-ready result recording, agent document updates, and headless/grep/diff verification only.
+- `agent/DOMESTIC_TECH_MANUAL_QA.md` is the result-record source for the v0.70-86 balance integration and v0.70-87 QA checklist.
+- The result may be recorded as PASS-ready by Codex document/code/headless verification, but final tactile balance PASS still requires Kimjak's manual F6 follow-up for cost feel, duration feel, Safe Set display feel, progression feel, actual charge UI wording, research flow, and Godot Output cleanliness.
+- Do not change `scripts/worldmap_test.gd`, gameplay logic, UI behavior, cost/duration/effect balance values, actual charge logic, deduction amount/order, active research payload schema, paid cost state, cancel/refund, per-turn charge, completion charge, retroactive charge, enemy research/effect, BattleContext, pending invasion schema, scenes, assets, icon PNGs, UI64 PNGs, or `.import` files under this result-record pass.
+
 ## v0.70-87 Domestic Tech Balance F6 QA Record Lock Rule
 - v0.70-87 authorizes QA documentation, F6 balance record template updates, agent document updates, and side-effect-free QA summary Dictionary flags only.
 - `agent/DOMESTIC_TECH_MANUAL_QA.md` is the checklist source for cost balance, duration balance, Safe Set effect feel, progression feel, preservation QA, Godot Output QA, and PASS / NEEDS FIX recording for the v0.70-86 balance integration.

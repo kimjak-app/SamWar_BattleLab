@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.70-88 Domestic Tech Balance F6 Result Record
+- Baseline: `v0.70-87 Domestic Tech Balance F6 QA Record` (`47325a032de9397551bf20b1c5fa813fcfffd47b`).
+- Completed direction:
+  1. Added the v0.70-88 Domestic Tech balance F6 result record section to the top of `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+  2. Recorded the current state as PASS-ready by document/code/headless verification, with Manual F6 follow-up required for real click/tactile balance confirmation.
+  3. Preserved the v0.70-86 balance integration and v0.70-87 checklist without changing runtime code.
+- Preserved scope:
+  1. No `scripts/worldmap_test.gd` change, gameplay logic change, UI behavior change, cost/duration/effect balance value change, actual charge logic change, deduction amount/order change, active payload schema change, paid cost state, cancel/refund, BattleContext change, pending invasion schema change, scene change, or asset/import change.
+- Manual follow-up:
+  1. Confirm Tier 1-3 cost feel, national/city duration feel, Safe Set display feel, progression feel, actual charge UI wording, research start/progress/completion, and Godot Output in F6.
+- Next candidates:
+  1. `v0.70-89 Labor Policy Resource State Design`.
+  2. `v0.70-89 Domestic Tech Edge Case Polish`.
+  3. `v0.70-89 City Research Category Identity Polish`.
+  4. `v0.70-89 Domestic Tech Balance Tuning Follow-up`.
+
 ## Current: v0.70-87 Domestic Tech Balance F6 QA Record
 - Baseline: `v0.70-86 Domestic Tech Balance Integration Pass` (`aa1236f4af3951f47008e79c8d56916e79d032f6`).
 - Completed direction:

@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.70-88 Domestic Tech Balance F6 Result Record
+- Baseline: `v0.70-87 Domestic Tech Balance F6 QA Record` at `47325a032de9397551bf20b1c5fa813fcfffd47b`; tracked files were clean at task start.
+- Recorded the Domestic Tech balance F6 result state in `agent/DOMESTIC_TECH_MANUAL_QA.md` as PASS-ready with Manual F6 follow-up required.
+- Codex verified documentation/code consistency, summary flags, preserved actual charge wording/logic policy, active payload schema preservation flags, no formula-connection flags, enemy research/effect absence flags, and Godot headless load cleanliness.
+- Codex did not perform live F6 click/tactile balance QA in this environment. Final human PASS still requires Kimjak to check Tier 1-3 cost feel, national/city duration feel, Safe Set display feel, progression feel, actual charge UI wording, research start/progress/completion, and Godot Output in F6.
+- No runtime code, gameplay logic, UI behavior, cost/duration/effect balance values, actual charge logic, food deduction order, active research payload, paid cost state, cancel/refund, BattleContext, pending invasion schema, scene, asset, or import behavior was changed.
+- Next candidates: `v0.70-89 Labor Policy Resource State Design`, `v0.70-89 Domestic Tech Edge Case Polish`, `v0.70-89 City Research Category Identity Polish`, or `v0.70-89 Domestic Tech Balance Tuning Follow-up`.
+
 ## v0.70-87 Domestic Tech Balance F6 QA Record
 - Baseline: `v0.70-86 Domestic Tech Balance Integration Pass` at `aa1236f4af3951f47008e79c8d56916e79d032f6`; tracked files were clean at task start.
 - Prepared the F6 QA record checklist for the v0.70-86 Domestic Tech balance integration result in `agent/DOMESTIC_TECH_MANUAL_QA.md`.
