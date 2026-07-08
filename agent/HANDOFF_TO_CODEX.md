@@ -1,5 +1,14 @@
 # HANDOFF TO CODEX
 
+## v0.70-99-hotfix2 Research Completion Effect Summary Fix Handoff
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Agent docs updated minimally: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, and `agent/HANDOFF_TO_CODEX.md`.
+- Domestic Tech completion card effect text now comes from the completed `tech_id`, scope, city id, existing safe-set modifier values, unlock conditions, and `effect_stub.description`.
+- The generic `연구 효과가 적용되었습니다.` fallback is removed from the completion presentation path; fallback text is category/scope specific.
+- Completion queue, national/city `.ogv` video-first flow, card-after-video flow, fallback timer, hotfix1 video size match, and mp4 direct playback prohibition are preserved.
+- No save/load schema, active payload schema, completed tech schema, actual charge logic, BattleContext schema, pending invasion schema, gameplay formula, enemy research, or naval/siege production system changed.
+- Next work: `v0.71-00 Refactor Plan & Function Map`, unless another presentation bug requires `v0.70-99-hotfix3`.
+
 ## v0.70-99-hotfix1 Research Completion Video Size Match Handoff
 - Runtime file touched: `scripts/worldmap_test.gd`.
 - Agent docs updated minimally: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, and `agent/HANDOFF_TO_CODEX.md`.

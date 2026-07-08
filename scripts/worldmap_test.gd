@@ -14750,7 +14750,7 @@ func _make_domestic_tech_completion_presentation_item_mvp(event: Dictionary) -> 
 	var message := "%s 연구가 끝났습니다." % tech_name
 	if scope == DOMESTIC_TECH_SCOPE_CITY:
 		message = "%s의 %s 연구가 끝났습니다." % [city_name, tech_name]
-	var effect_summary := _get_domestic_tech_completion_effect_summary_mvp(definition)
+	var effect_summary := _get_domestic_tech_completion_effect_summary_mvp(tech_id, scope, city_id)
 	return {
 		"scope": scope,
 		"city_id": city_id,
@@ -14765,11 +14765,173 @@ func _make_domestic_tech_completion_presentation_item_mvp(event: Dictionary) -> 
 	}
 
 
-func _get_domestic_tech_completion_effect_summary_mvp(definition: Dictionary) -> String:
-	var effect_summary := str(definition.get("effect_summary", "")).strip_edges()
-	if effect_summary.is_empty():
-		return "연구 효과가 적용되었습니다."
-	return effect_summary
+func _get_domestic_tech_completion_effect_summary_mvp(tech_id: String, scope: String, city_id: String = "") -> String:
+	var definition := _get_domestic_tech_definition_mvp(tech_id)
+	if tech_id.is_empty() or definition.is_empty():
+		return "내정 연구 효과 표시 정보를 확인할 수 없습니다.\n적용 범위 확인이 필요합니다."
+	var city_name := _format_city_name_by_id(city_id, city_id) if scope == DOMESTIC_TECH_SCOPE_CITY else ""
+	var lines := _get_domestic_tech_completion_direct_effect_lines_mvp(tech_id, definition, scope, city_name)
+	if lines.is_empty():
+		var effect_stub: Dictionary = definition.get("effect_stub", {})
+		var effect_description := str(effect_stub.get("description", "")).strip_edges()
+		if not effect_description.is_empty():
+			lines.append(effect_description)
+	if lines.is_empty():
+		lines.append_array(_get_domestic_tech_completion_category_fallback_lines_mvp(definition, scope, city_name))
+	if scope == DOMESTIC_TECH_SCOPE_CITY and not lines.has("해당 도시에서만 적용됩니다."):
+		lines.append("해당 도시에서만 적용됩니다.")
+	elif scope == DOMESTIC_TECH_SCOPE_NATIONAL and not lines.has("PLAYER 국가 전체에 적용됩니다."):
+		lines.append("PLAYER 국가 전체에 적용됩니다.")
+	return "\n- ".join(lines.slice(0, 4))
+
+
+func _get_domestic_tech_completion_direct_effect_lines_mvp(tech_id: String, definition: Dictionary, scope: String, city_name: String) -> Array[String]:
+	var lines: Array[String] = []
+	var category_id := str(definition.get("category", ""))
+	var branch_id := str(definition.get("branch", ""))
+	var city_prefix := "%s " % city_name if not city_name.is_empty() else ""
+	if scope == DOMESTIC_TECH_SCOPE_CITY:
+		if DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.has(tech_id):
+			var economy_mapping: Dictionary = DOMESTIC_TECH_ECONOMY_SAFE_SET_MVP.get(tech_id, {})
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s군량 생산" % city_prefix, float(economy_mapping.get("food_percent", 0.0)), int(economy_mapping.get("food_flat", 0)))
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s금전 수입" % city_prefix, float(economy_mapping.get("gold_percent", 0.0)), int(economy_mapping.get("gold_flat", 0)))
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s보급/저장 기반" % city_prefix, float(economy_mapping.get("supply_percent", 0.0)), int(economy_mapping.get("supply_flat", 0)))
+		if DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.has(tech_id):
+			var military_mapping: Dictionary = DOMESTIC_TECH_MILITARY_DEFENSE_SAFE_SET_MVP.get(tech_id, {})
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s도시 방어" % city_prefix, float(military_mapping.get("defense_percent", 0.0)), int(military_mapping.get("defense_flat", 0)))
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s모집 기반" % city_prefix, 0.0, int(military_mapping.get("recruit_capacity_flat", 0)))
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s보병 전투 기반" % city_prefix, float(military_mapping.get("infantry_training_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s궁병 전투 기반" % city_prefix, float(military_mapping.get("archer_training_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s기병 전투 기반" % city_prefix, float(military_mapping.get("cavalry_training_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s기병 돌격" % city_prefix, float(military_mapping.get("cavalry_charge_percent", 0.0)), 0)
+		if DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.has(tech_id):
+			var naval_siege_mapping: Dictionary = DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.get(tech_id, {})
+			_append_domestic_tech_completion_city_unlock_lines_mvp(lines, tech_id)
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s조선 준비" % city_prefix, 0.0, int(naval_siege_mapping.get("shipyard_capacity_flat", 0)))
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s수군 전투 기반" % city_prefix, float(naval_siege_mapping.get("naval_training_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s해상 보급" % city_prefix, float(naval_siege_mapping.get("naval_supply_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s함선 정비" % city_prefix, float(naval_siege_mapping.get("ship_maintenance_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s공성 준비" % city_prefix, 0.0, int(naval_siege_mapping.get("siege_preparation_flat", 0)))
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s공성 훈련" % city_prefix, float(naval_siege_mapping.get("siege_training_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "%s공성 공학" % city_prefix, float(naval_siege_mapping.get("siege_engineering_percent", 0.0)), 0)
+	elif scope == DOMESTIC_TECH_SCOPE_NATIONAL:
+		if DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.has(tech_id):
+			var policy_mapping: Dictionary = DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP.get(tech_id, {})
+			_append_domestic_tech_completion_value_line_mvp(lines, "국가 세금 수입", float(policy_mapping.get("tax_gold_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "국가 행정 효율", float(policy_mapping.get("admin_efficiency_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "국가 징병 기반", float(policy_mapping.get("recruit_capacity_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "국가 병참 준비", float(policy_mapping.get("logistics_supply_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "국가 인구 기반", float(policy_mapping.get("population_growth_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "국가 비축 기반", 0.0, int(policy_mapping.get("storage_flat", 0)))
+			_append_domestic_tech_completion_value_line_mvp(lines, "국가 질서 기반", 0.0, int(policy_mapping.get("law_order_flat", 0)))
+		if DOMESTIC_TECH_NATIONAL_BATTLE_SAFE_SET_MVP.has(tech_id):
+			var battle_mapping: Dictionary = DOMESTIC_TECH_NATIONAL_BATTLE_SAFE_SET_MVP.get(tech_id, {})
+			_append_domestic_tech_completion_value_line_mvp(lines, "PLAYER 전군 공격", float(battle_mapping.get("global_attack_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "PLAYER 전군 방어", float(battle_mapping.get("global_defense_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "PLAYER 병참", float(battle_mapping.get("logistics_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "PLAYER 공성 공격", float(battle_mapping.get("siege_attack_percent", 0.0)), 0)
+		if DOMESTIC_TECH_DIPLOMACY_SPY_SAFE_SET_MVP.has(tech_id):
+			var diplomacy_spy_mapping: Dictionary = DOMESTIC_TECH_DIPLOMACY_SPY_SAFE_SET_MVP.get(tech_id, {})
+			_append_domestic_tech_completion_value_line_mvp(lines, "외교 기반", 0.0, int(diplomacy_spy_mapping.get("diplomacy_influence_flat", 0)))
+			_append_domestic_tech_completion_value_line_mvp(lines, "외교 성공 준비", float(diplomacy_spy_mapping.get("diplomacy_preparation_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "조공 외교 준비", float(diplomacy_spy_mapping.get("tribute_readiness_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "대외 외교 기반", float(diplomacy_spy_mapping.get("world_diplomacy_display_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "첩보망", 0.0, int(diplomacy_spy_mapping.get("spy_network_flat", 0)))
+			_append_domestic_tech_completion_value_line_mvp(lines, "첩보 성공 준비", float(diplomacy_spy_mapping.get("spy_preparation_percent", 0.0)), 0)
+			_append_domestic_tech_completion_value_line_mvp(lines, "발각 위험", -float(diplomacy_spy_mapping.get("counter_intel_display_percent", 0.0)), 0)
+		_append_domestic_tech_completion_national_unlock_lines_mvp(lines, tech_id, category_id, branch_id)
+	return _get_unique_domestic_tech_completion_lines_mvp(lines)
+
+
+func _append_domestic_tech_completion_value_line_mvp(lines: Array[String], label: String, percent_value: float, flat_value: int) -> void:
+	if not is_equal_approx(percent_value, 0.0):
+		lines.append("%s %s" % [label, _format_domestic_tech_percent_bonus_mvp(percent_value)])
+	if flat_value != 0:
+		lines.append("%s %s" % [label, _format_signed_int(flat_value)])
+
+
+func _append_domestic_tech_completion_city_unlock_lines_mvp(lines: Array[String], tech_id: String) -> void:
+	match tech_id:
+		"commerce_port":
+			lines.append("항구/무역선 사용 가능")
+		"commerce_shipyard":
+			lines.append("조선소/소형 함선 사용 가능")
+		"commerce_trade_port":
+			lines.append("해상 무역 루트 조건 활성화")
+		"naval_warship_building":
+			lines.append("전투선 생산 가능")
+		"naval_panokseon":
+			lines.append("판옥선 생산 가능")
+		"naval_turtle_ship":
+			lines.append("거북선 생산 가능")
+		"naval_crane_wing_formation":
+			lines.append("수군 진형 보정 활성화")
+		"naval_fire_ship":
+			lines.append("화공선 사용 가능")
+		"naval_cannon_mount":
+			lines.append("화포/원거리 해상 공격 조건 활성화")
+		"mil_siege_unit":
+			lines.append("공성부대 편성 가능")
+		"mil_siege_engine":
+			lines.append("공성병기 사용 가능")
+
+
+func _append_domestic_tech_completion_national_unlock_lines_mvp(lines: Array[String], tech_id: String, category_id: String, branch_id: String) -> void:
+	match tech_id:
+		"nation_logistics_system":
+			lines.append("원정 병참 조건에 반영됩니다.")
+		"nation_expedition_system":
+			lines.append("장거리 원정 조건에 반영됩니다.")
+		"nation_military_reform":
+			lines.append("고급 군사/해군 해금 조건에 반영됩니다.")
+		"nation_weapon_factory":
+			lines.append("화포/공성 관련 해금 조건에 반영됩니다.")
+		_:
+			if category_id == DOMESTIC_TECH_CATEGORY_NATION_DIPLOMACY and branch_id == "intelligence":
+				lines.append("정보 확인/첩보 계산에 반영됩니다.")
+
+
+func _get_domestic_tech_completion_category_fallback_lines_mvp(definition: Dictionary, scope: String, city_name: String) -> Array[String]:
+	var category_id := str(definition.get("category", ""))
+	var branch_id := str(definition.get("branch", ""))
+	var city_prefix := "%s의 " % city_name if not city_name.is_empty() else ""
+	if scope == DOMESTIC_TECH_SCOPE_CITY:
+		match category_id:
+			DOMESTIC_TECH_CATEGORY_AGRI:
+				return ["%s농업/군량 생산 보정이 활성화되었습니다." % city_prefix]
+			DOMESTIC_TECH_CATEGORY_FISH:
+				return ["%s수산/항구 보정이 활성화되었습니다." % city_prefix]
+			DOMESTIC_TECH_CATEGORY_COMMERCE:
+				return ["%s상업/금 수입 보정이 활성화되었습니다." % city_prefix]
+			DOMESTIC_TECH_CATEGORY_MILITARY:
+				if branch_id == "defense":
+					return ["%s도시 방어 보정이 활성화되었습니다." % city_prefix, "해당 도시 방어 계산에 반영됩니다."]
+				if branch_id == "naval" or branch_id == "siege":
+					return ["%s해군/공성 관련 해금 조건이 활성화되었습니다." % city_prefix, "생산/편성/공격 가능 조건에 반영됩니다."]
+				return ["%s군사/전투 보정이 활성화되었습니다." % city_prefix]
+		return ["%s도시 내정 보정이 활성화되었습니다." % city_prefix]
+	match category_id:
+		DOMESTIC_TECH_CATEGORY_NATION_ADMIN:
+			return ["국가 행정/운영 보정이 활성화되었습니다."]
+		DOMESTIC_TECH_CATEGORY_NATION_ECONOMY:
+			return ["국가 경제/세금 보정이 활성화되었습니다."]
+		DOMESTIC_TECH_CATEGORY_NATION_MILITARY:
+			return ["국가 군사/전투 보정이 활성화되었습니다.", "PLAYER 전투 계산에 반영됩니다."]
+		DOMESTIC_TECH_CATEGORY_NATION_DIPLOMACY:
+			return ["외교/첩보 보정이 활성화되었습니다.", "성공률/발각률/정보 확인 계산에 반영됩니다."]
+	return ["국가 내정 보정이 활성화되었습니다."]
+
+
+func _get_unique_domestic_tech_completion_lines_mvp(lines: Array[String]) -> Array[String]:
+	var result: Array[String] = []
+	var seen := {}
+	for line in lines:
+		var clean_line := str(line).strip_edges()
+		if clean_line.is_empty() or seen.has(clean_line):
+			continue
+		seen[clean_line] = true
+		result.append(clean_line)
+	return result
 
 
 func _get_domestic_tech_completion_video_path_mvp(scope: String) -> String:
@@ -14912,7 +15074,7 @@ func _show_domestic_tech_completion_card_mvp(item: Dictionary) -> void:
 	if _domestic_tech_completion_message_label != null:
 		_domestic_tech_completion_message_label.text = str(item.get("message", ""))
 	if _domestic_tech_completion_effect_label != null:
-		_domestic_tech_completion_effect_label.text = "효과\n- %s" % str(item.get("effect_summary", "연구 효과가 적용되었습니다."))
+		_domestic_tech_completion_effect_label.text = "효과\n- %s" % str(item.get("effect_summary", "내정 연구 효과 범위가 표시됩니다."))
 	if _domestic_tech_completion_card != null:
 		_domestic_tech_completion_card.visible = true
 	if _domestic_tech_completion_confirm_button != null:

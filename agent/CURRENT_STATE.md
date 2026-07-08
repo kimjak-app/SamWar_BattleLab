@@ -1,5 +1,11 @@
 # CURRENT STATE
 
+## v0.70-99-hotfix2 Research Completion Effect Summary Fix
+- Baseline: `a96bfb34b564fa1329cfec78d1ba2e077736537b` (`v0.70-99-hotfix1 Research Completion Video Size Match`); tracked files were clean at task start.
+- Updated `scripts/worldmap_test.gd` so Domestic Tech completion cards build concrete effect bullet text from `tech_id`, scope, city id, existing effect safe-set mappings, unlock rules, and `effect_stub.description`.
+- Removed the generic `연구 효과가 적용되었습니다.` fallback from the completion presentation path; final fallback is category/scope specific and still states the affected domain and scope.
+- Video-first/card-after-video queue flow and hotfix1 video size match are preserved; no schema, actual charge, completed tech, gameplay formula, enemy research, production system, scene, asset, or import behavior changed.
+
 ## v0.70-99-hotfix1 Research Completion Video Size Match
 - Baseline: `15dcbab2ae02510ee2dc91057457e4584dbf1e00` (`테크트리 마무리 관련`); tracked files were clean at task start.
 - Updated `scripts/worldmap_test.gd` so Domestic Tech completion `.ogv` playback uses the battle result video panel policy: centered 16:9 panel, width ratio `0.88`, max height ratio `0.60`, and `expand = true`.

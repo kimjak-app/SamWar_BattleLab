@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current: v0.70-99-hotfix2 Research Completion Effect Summary Fix
+- Completed direction:
+  1. Fixed Domestic Tech completion cards to show concrete city/national effect bullets instead of generic fallback text.
+  2. Reused existing effect safe-set values, unlock conditions, and effect descriptions for presentation-only text.
+  3. Preserved completion queue, video-first/card-after-video order, hotfix1 video size match, and mp4 prohibition.
+- Next task:
+  1. `v0.71-00 Refactor Plan & Function Map` if no additional presentation bug is found.
+  2. `v0.70-99-hotfix3` only if another presentation bug is found.
+
 ## Current: v0.70-99-hotfix1 Research Completion Video Size Match
 - Completed direction:
   1. Matched Domestic Tech completion video size/position to the battle result video panel policy.
