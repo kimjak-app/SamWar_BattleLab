@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.70-98 Domestic Tech Complete Lock
+- Baseline: `v0.70-97 Full Gameplay F6 QA` at `152e91f989c8088988ff6aa3d2a339e239608393`; tracked files were clean at task start.
+- Domestic Tech first-pass implementation is complete and locked.
+- v0.70-93 through v0.70-96 completed the main gameplay effect connections: Economy / City, Defense / Battle, Diplomacy / Spy, and Naval / Siege unlocks.
+- v0.70-97 Full Gameplay F6 QA found no blocker.
+- PLAYER remains the only side using the Domestic Tech research system; enemy uses baseline/resistance/capability helpers only.
+- City tech effects remain same-city only; national tech effects read only PLAYER national completed tech.
+- Future Domestic Tech work is limited to bugfix, balance, or UI display polish unless a separate second-pass system is explicitly scoped.
+- New resources, AI research, enemy research, ship/siege production storage, and save schema expansion are not part of this locked first-pass route.
+- Next work should move to a non-Domestic-Tech system track.
+
 ## v0.70-97 Full Gameplay F6 QA
 - Baseline: `v0.70-96 Naval / Siege Unlock Integration` at `4a3b51e07a0f4c108c8b57c103362f15dab36796`; tracked files were clean at task start.
 - Verified the combined Domestic Tech gameplay effect route for v0.70-93 Economy / City, v0.70-94 Defense / Battle, v0.70-95 Diplomacy / Spy, and v0.70-96 Naval / Siege.

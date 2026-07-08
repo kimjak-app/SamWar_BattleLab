@@ -2,6 +2,15 @@
 
 ## 2026-07-08
 
+### v0.70-98 Domestic Tech Complete Lock
+- Started from clean local HEAD `152e91f989c8088988ff6aa3d2a339e239608393`.
+- Confirmed expected baseline message: `v0.70-97 Full Gameplay F6 QA`.
+- Read required workflow, Godot, current state, next task, handoff, worldmap rules, integration map, research cost design, and manual QA docs before edits.
+- Added side-effect-free complete-lock summary flags to `scripts/worldmap_test.gd`.
+- Recorded Domestic Tech first-pass completion, route closure, future-change limits, and non-Domestic-Tech next-system separation in agent docs.
+- Verified preservation with `git diff --check`, grep checks, and Godot headless project/worldmap/battle scene loads.
+- Commit hash is recorded in the completion report for `v0.70-98 Domestic Tech Complete Lock`.
+
 ### v0.70-97 Full Gameplay F6 QA
 - Started from clean local HEAD `4a3b51e07a0f4c108c8b57c103362f15dab36796`.
 - Confirmed expected baseline message: `v0.70-96 Naval / Siege Unlock Integration`.

@@ -1,5 +1,26 @@
 # NEXT TASKS
 
+## Current: v0.70-98 Domestic Tech Complete Lock
+- Baseline: `v0.70-97 Full Gameplay F6 QA` (`152e91f989c8088988ff6aa3d2a339e239608393`).
+- Completed direction:
+  1. Domestic Tech first-pass route is complete and locked.
+  2. Research cost actual charge, progress/completion, Economy / City, Defense / Battle, Diplomacy / Spy, Naval / Siege unlock, enemy baseline separation, and full F6 QA PASS-ready status are recorded.
+  3. Domestic Tech must no longer expand through the v0.70-92 through v0.70-98 route.
+  4. Future Domestic Tech work is limited to bugfix, balance, UI display polish, or a separately scoped second-pass system.
+  5. Labor/policy, enemy research, and ship/siege persistent production are not immediate next tasks.
+- Domestic Tech first-pass completed route:
+  1. `v0.70-92 Domestic Tech Gameplay Effect Integration Map`
+  2. `v0.70-93 Economy / City Effect Integration`
+  3. `v0.70-94 Defense / Battle Effect Integration`
+  4. `v0.70-95 Diplomacy / Spy Effect Integration`
+  5. `v0.70-96 Naval / Siege Unlock Integration`
+  6. `v0.70-97 Full Gameplay F6 QA`
+  7. `v0.70-98 Domestic Tech Complete Lock`
+- Possible next system tasks:
+  1. `Invasion / Battle UX follow-up`.
+  2. `Enemy AI / strategic action baseline`.
+  3. `Full playtest route`.
+
 ## Current: v0.70-97 Full Gameplay F6 QA
 - Baseline: `v0.70-96 Naval / Siege Unlock Integration` (`4a3b51e07a0f4c108c8b57c103362f15dab36796`).
 - Completed direction:

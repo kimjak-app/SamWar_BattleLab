@@ -1,5 +1,24 @@
 # WORLDMAP RULES
 
+## v0.70-98 Domestic Tech Complete Lock
+- Domestic Tech first-pass implementation is complete and locked at v0.70-98.
+- PLAYER is the only side that uses the Domestic Tech research system.
+- Enemy does not use the research system; enemy uses baseline/resistance/capability helpers only.
+- City tech effects are same-city only.
+- National tech effects read PLAYER national completed tech only.
+- Actual charge occurs once at research start only.
+- Food deduction order remains `rice -> barley -> seafood`.
+- Tech effects apply through completed-lookup based modifiers/unlocks.
+- After the Domestic Tech first-pass completion, do not keep attaching new features to this route.
+- Large extensions must be separated into a distinct system and distinct version scope.
+- Explicitly forbidden under the locked first-pass route:
+  - Labor/policy immediate implementation.
+  - Enemy research or enemy completed tech storage.
+  - Ship/siege persistent production storage.
+  - AI research progression.
+  - Save schema expansion under the Domestic Tech first-pass route.
+  - Battle/diplomacy/spy formula expansion under the Complete Lock.
+
 ## v0.70-97 Full Gameplay F6 QA Lock Rule
 - v0.70-97 verifies the Domestic Tech gameplay effect route from v0.70-93 through v0.70-96; it does not authorize new gameplay systems.
 - Research Flow, Economy / City, Defense / Battle, Diplomacy / Spy, Naval / Siege, Enemy Baseline / No Enemy Research, Preservation, and Godot Output QA gates must remain PASS-ready before `v0.70-98 Domestic Tech Complete Lock`.

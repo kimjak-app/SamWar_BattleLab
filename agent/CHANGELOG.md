@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.70-98 Domestic Tech Complete Lock
+- Declared the Domestic Tech first-pass route complete and locked.
+- Summarized the v0.70-93 Economy / City, v0.70-94 Defense / Battle, v0.70-95 Diplomacy / Spy, v0.70-96 Naval / Siege, and v0.70-97 Full Gameplay F6 QA results.
+- Added side-effect-free complete-lock summary flags to `scripts/worldmap_test.gd`.
+- Documented that future Domestic Tech work is limited to bugfix, balance, UI display polish, or separately scoped second-pass systems.
+- Separated future work from Domestic Tech into non-Domestic-Tech system tracks.
+- Preserved save/load schema, active payload schema, actual charge logic, food deduction order, BattleContext schema, pending invasion schema, battle/diplomacy/spy formulas, naval/siege production absence, ship/siege count/storage absence, enemy research absence, scenes, assets, and imports.
+
 ## v0.70-97 Full Gameplay F6 QA
 - Verified the full Domestic Tech gameplay effect route across v0.70-93 Economy / City, v0.70-94 Defense / Battle, v0.70-95 Diplomacy / Spy, and v0.70-96 Naval / Siege integrations.
 - Added side-effect-free QA summary flags to `scripts/worldmap_test.gd`; no gameplay formula, schema, count, storage, scene, asset, or import behavior was changed.

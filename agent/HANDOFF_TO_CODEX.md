@@ -1,5 +1,16 @@
 # HANDOFF TO CODEX
 
+## v0.70-98 Domestic Tech Complete Lock Handoff
+- Current baseline after this task: `v0.70-98 Domestic Tech Complete Lock`; commit hash is recorded in the completion report.
+- Runtime file touched: `scripts/worldmap_test.gd` for side-effect-free complete-lock summary flags only.
+- Domestic Tech state: first-pass implementation is complete.
+- v0.70-93 through v0.70-96 gameplay connections are complete.
+- v0.70-97 Full Gameplay F6 QA completed with no blocker.
+- v0.70-98 locks the route and prevents further first-pass expansion.
+- Next work should move to a non-Domestic-Tech system track.
+- If Domestic Tech changes are needed later, restrict them to bugfix, balance, or UI display polish unless a separate second-pass system is explicitly scoped.
+- Do not immediately continue into labor/policy implementation, enemy research, ship/siege persistent production, AI research, or save schema expansion under this completed route.
+
 ## v0.70-97 Full Gameplay F6 QA Handoff
 - Latest baseline before this task: `v0.70-96 Naval / Siege Unlock Integration` (`4a3b51e07a0f4c108c8b57c103362f15dab36796`).
 - Runtime file touched: `scripts/worldmap_test.gd` for side-effect-free QA summary flags only.

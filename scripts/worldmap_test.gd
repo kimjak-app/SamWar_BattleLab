@@ -13440,8 +13440,14 @@ func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
 
 func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Dictionary:
 	return {
-		"version": "v0.70-97 Full Gameplay F6 QA",
+		"version": "v0.70-98 Domestic Tech Complete Lock",
 		"map_only": false,
+		"domestic_tech_complete_lock_version": "v0.70-98",
+		"domestic_tech_complete_lock_status": "complete",
+		"domestic_tech_first_pass_complete": true,
+		"domestic_tech_gameplay_effect_integrated": true,
+		"domestic_tech_route_closed": true,
+		"future_domestic_tech_scope": "bugfix_balance_ui_or_separate_second_pass_only",
 		"economy_city_effect_integrated": true,
 		"defense_battle_effect_integrated": true,
 		"diplomacy_spy_effect_integrated": true,
@@ -13459,6 +13465,8 @@ func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Diction
 		"enemy_city_baseline_helper_added": true,
 		"enemy_defense_battle_baseline_helper_added": true,
 		"enemy_naval_siege_baseline_helper_added": true,
+		"domestic_tech_enemy_research_enabled": false,
+		"domestic_tech_enemy_completed_storage_enabled": false,
 		"battle_roster_stat_modifier_connected": true,
 		"naval_action_eligibility_connected": true,
 		"siege_action_eligibility_connected": true,

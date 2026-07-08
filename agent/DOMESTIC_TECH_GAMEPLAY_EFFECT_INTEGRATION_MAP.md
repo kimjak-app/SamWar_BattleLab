@@ -1,5 +1,63 @@
 # Domestic Tech Gameplay Effect Integration Map
 
+## v0.70-98 Domestic Tech Complete Lock
+
+Domestic Tech first-pass gameplay integration is complete and locked at v0.70-98. This pass adds no new gameplay system; it records the completion boundary for the v0.70-92 through v0.70-98 route.
+
+### Completed Scope
+
+- Research cost actual charge.
+- Research progress/completion.
+- Economy / City effect integration.
+- Defense / Battle effect integration.
+- Diplomacy / Spy effect integration.
+- Naval / Siege unlock integration.
+- Enemy baseline separation.
+- Full F6 QA PASS-ready with no blocker in v0.70-97.
+
+### Actual Connection Results
+
+- Economy / City:
+  - PLAYER national/city completed tech modifiers are connected.
+  - City tech remains same-city only.
+  - Enemy city uses baseline only.
+- Defense / Battle:
+  - PLAYER defense/battle completed tech modifiers are connected.
+  - BattleContext schema remains unchanged.
+  - Battle data preparation hook is used.
+  - Enemy uses baseline only.
+- Diplomacy / Spy:
+  - PLAYER diplomacy/spy completed tech modifiers are connected.
+  - Relation, success, detection, and intel visibility hooks are connected.
+  - Enemy uses baseline/resistance only.
+- Naval / Siege:
+  - PLAYER naval/siege unlock helpers are connected.
+  - Attack/deployment eligibility hooks are connected.
+  - No automatic ship/siege generation exists.
+  - Enemy uses baseline only.
+
+### Completion Lock Rules
+
+Domestic Tech first-pass implementation is complete at v0.70-98.
+
+Future Domestic Tech changes are allowed only for:
+- Clear bug fixes found after v0.70-98.
+- Numeric balance adjustments.
+- UI display reinforcement.
+- A separately scoped second-pass large system.
+
+Forbidden after this lock:
+- Reopening the completed route for endless expansion.
+- Immediately attaching labor/policy implementation.
+- Immediately attaching enemy research.
+- Immediately attaching ship/siege production storage.
+- Immediately attaching AI research.
+- Urgently expanding save schema under the Domestic Tech name.
+
+### Next Direction
+
+Move out of Domestic Tech first-pass work. Any large expansion must be planned as a separate system/version rather than appended to this route.
+
 ## v0.70-97 Full Gameplay F6 QA
 
 This pass verifies the v0.70-93 through v0.70-96 Domestic Tech gameplay effect integrations as a combined F6 QA gate. No new gameplay system was added.

@@ -1,5 +1,14 @@
 # Domestic Tech Actual Charge Manual QA
 
+## v0.70-98 Complete Lock
+
+- Domestic Tech first-pass implementation is complete.
+- v0.70-97 Full Gameplay F6 QA found no blocker.
+- v0.70-98 locks the completed Domestic Tech route.
+- Future Domestic Tech QA should focus on regression, balance, and UI display polish.
+- Do not add new first-pass feature QA items under this completed route.
+- Labor/policy, enemy research, ship/siege production storage, AI research, and save schema expansion belong to separately scoped second-pass systems if they are ever approved.
+
 ## v0.70-97 Full Gameplay F6 QA Result
 
 Date: 2026-07-08
