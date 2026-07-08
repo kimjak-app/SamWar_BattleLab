@@ -1,5 +1,135 @@
 # Domestic Tech Actual Charge Manual QA
 
+## v0.70-87 Domestic Tech Balance F6 QA Record
+
+### 1. QA 목적
+
+* v0.70-86에서 통합 조정된 Domestic Tech 비용/기간/효과/진행감이 실제 F6에서 의도대로 느껴지는지 확인한다.
+* 초반 연구가 너무 무겁지 않은지 확인한다.
+* 중반부터 선택 부담이 생기는지 확인한다.
+* 국가 연구와 도시 연구의 역할 차이가 느껴지는지 확인한다.
+* actual charge / UI wording / 연구 시작·진행·완료 흐름이 유지되는지 확인한다.
+
+### 2. Cost Balance QA
+
+체크:
+
+* Tier 1 연구 비용이 초반에 1~2개 찍을 수 있을 정도인지
+* Tier 2 연구부터 자원 부담이 살짝 생기는지
+* Tier 3 이상 연구에서 선택 부담이 생기는지
+* National tech gold 비용이 너무 싸거나 과하지 않은지
+* City tech gold/food 비용이 selected city storage를 너무 빨리 고갈시키지 않는지
+* 군사/방어/해군/공성 계열이 농업/상업보다 약간 무겁게 느껴지는지
+* actual charge UI 문구가 유지되는지:
+  * `필요 비용`
+  * `시작 시 차감`
+  * `부족: 금 N / 군량 N`
+
+### 3. Duration Balance QA
+
+체크:
+
+* City Tier 1 연구가 빠르게 완료되어 성장 체감이 있는지
+* City Tier 2~3부터 기다림과 선택감이 생기는지
+* National tech가 city tech보다 약간 장기 과제로 느껴지는지
+* 연구 진행 중 remaining turns 표시가 정상인지
+* 완료 시 완료 상태가 정상 반영되는지
+* 기존 active research payload schema가 유지되는지
+
+### 4. Effect Balance QA
+
+체크:
+
+* Economy Safe Set:
+  * 농업/수산/상업 초반 연구가 도시 성장축으로 체감되는지
+  * flat/percent 효과가 과도하지 않은지
+* Military/Defense Safe Set:
+  * 방어/훈련 효과가 표시상 의미는 있으나 초반부터 압도적이지 않은지
+  * troop count mutation이 없는지
+* National Policy Safe Set:
+  * 세금/행정/병참/인구 계열 효과가 장기 체질 개선처럼 느껴지는지
+* Naval/Siege Display Safe Set:
+  * 해군/공성 효과가 display/summary 중심으로 유지되는지
+  * ship/siege count mutation이 없는지
+* Diplomacy/Spy Display Safe Set:
+  * 외교/첩보 효과가 display/summary 중심으로 유지되는지
+  * diplomacy/spy success formula에 연결되지 않았는지
+
+### 5. Progression Feel QA
+
+체크:
+
+* 초반에 “찍는 맛”이 있는지
+* 경제 테크를 먼저 찍으면 성장 안정감이 생기는지
+* 군사/방어 테크를 찍으면 방어 준비감이 생기는지
+* 국가 연구는 장기적 체질 개선처럼 느껴지는지
+* 도시 연구는 특정 도시를 키우는 느낌이 있는지
+* 중반부터 “경제 먼저냐, 군사 먼저냐” 선택이 생기는지
+* 후반 테크가 중후반 목표로 느껴지는지
+
+### 6. Preservation QA
+
+다음이 유지되는지 확인:
+
+* actual charge logic 유지
+* food group deduction order 유지:
+  * `rice -> barley -> seafood`
+* active research payload schema unchanged
+* paid cost state 없음
+* cancel/refund 없음
+* per-turn charge 없음
+* completion charge 없음
+* retroactive charge 없음
+* enemy research/effect 없음
+* BattleContext no-touch
+* pending invasion schema no-touch
+* battle formula connection 없음
+* diplomacy formula connection 없음
+* spy formula connection 없음
+* market/trade formula connection 없음
+* city_intel formula connection 없음
+* assets/import no-touch
+* scene layout no-touch
+
+### 7. Godot Output QA
+
+체크:
+
+* F6 실행 중 신규 warning/error 없음
+* Domestic Tech overlay open/close 중 warning/error 없음
+* 연구 시작/진행/완료 중 warning/error 없음
+* 부족 자원 상태에서 warning/error 없음
+
+### 8. PASS / NEEDS FIX 기록 템플릿
+
+* QA Date:
+* Tester:
+* Version: v0.70-87 Domestic Tech Balance F6 QA Record
+* Commit:
+* Tier 1 cost feel:
+* Tier 2 cost feel:
+* Tier 3+ cost feel:
+* National cost feel:
+* City cost feel:
+* City food cost feel:
+* Duration city early:
+* Duration national:
+* Economy effect feel:
+* Military/Defense effect feel:
+* National Policy effect feel:
+* Naval/Siege display feel:
+* Diplomacy/Spy display feel:
+* Progression early game feel:
+* Progression mid game choice:
+* Actual charge UI wording preserved:
+* Actual charge logic preserved:
+* Active payload schema unchanged:
+* No formula connection:
+* Enemy research/effect absent:
+* Godot Output clean:
+* Result: PASS / NEEDS FIX
+* Notes:
+
 ## v0.70-86 Domestic Tech Balance Integration Pass F6 QA
 
 Version: `v0.70-86 Domestic Tech Balance Integration Pass`

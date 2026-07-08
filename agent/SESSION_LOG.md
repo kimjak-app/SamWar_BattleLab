@@ -1,5 +1,15 @@
 # SESSION LOG
 
+## 2026-07-08
+
+### v0.70-87 Domestic Tech Balance F6 QA Record
+- Started from clean local HEAD `aa1236f4af3951f47008e79c8d56916e79d032f6`.
+- Read required workflow, Godot, current state, next task, handoff, Domestic Tech manual QA, Domestic Tech research cost design, and worldmap rule docs before edits.
+- Added the v0.70-87 Domestic Tech balance F6 QA record checklist to `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- The checklist covers cost feel, duration feel, Safe Set effect feel, progression feel, actual charge preservation, active payload compatibility, forbidden formula connections, enemy research/effect absence, and Godot Output cleanliness.
+- Added only side-effect-free Dictionary QA-ready flags to Domestic Tech summary helpers.
+- Preserved gameplay logic, UI behavior, cost/duration/effect balance values, actual charge deduction logic, food deduction order, active payload schema, paid state absence, cancel/refund absence, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ## 2026-07-07
 
 ### v0.70-86 Domestic Tech Balance Integration Pass

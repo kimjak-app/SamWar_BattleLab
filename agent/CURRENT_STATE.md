@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.70-87 Domestic Tech Balance F6 QA Record
+- Baseline: `v0.70-86 Domestic Tech Balance Integration Pass` at `aa1236f4af3951f47008e79c8d56916e79d032f6`; tracked files were clean at task start.
+- Prepared the F6 QA record checklist for the v0.70-86 Domestic Tech balance integration result in `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- The checklist locks manual review of cost feel, duration feel, Safe Set effect feel, progression feel, actual charge wording/logic, active payload compatibility, forbidden formula connections, enemy research/effect absence, and Godot Output cleanliness.
+- Added side-effect-free QA-ready flags to Domestic Tech summary helpers only; no gameplay path, UI behavior, balance values, actual charge deduction logic, food deduction order, active research payload, paid cost state, cancel/refund, BattleContext, pending invasion schema, scene, or asset/import behavior was changed.
+- v0.70-86 balance integration is now ready for direct F6 QA result recording.
+- Next candidates: `v0.70-88 Domestic Tech Balance F6 Result Record`, `v0.70-88 Labor Policy Resource State Design`, `v0.70-88 Domestic Tech Edge Case Polish`, or `v0.70-88 City Research Category Identity Polish`.
+
 ## v0.70-86 Domestic Tech Balance Integration Pass
 - Baseline: `v0.70-85 Research Cost Affordability F6 UI QA Record` at `d550ed33b914b66fde45dcda09505fcdd5f75e92`; tracked files were clean at task start.
 - Ran the first integrated Domestic Tech balance pass in `scripts/worldmap_test.gd`.

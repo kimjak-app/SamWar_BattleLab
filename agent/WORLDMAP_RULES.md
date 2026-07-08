@@ -1,5 +1,11 @@
 # WORLDMAP RULES
 
+## v0.70-87 Domestic Tech Balance F6 QA Record Lock Rule
+- v0.70-87 authorizes QA documentation, F6 balance record template updates, agent document updates, and side-effect-free QA summary Dictionary flags only.
+- `agent/DOMESTIC_TECH_MANUAL_QA.md` is the checklist source for cost balance, duration balance, Safe Set effect feel, progression feel, preservation QA, Godot Output QA, and PASS / NEEDS FIX recording for the v0.70-86 balance integration.
+- Do not change gameplay logic, UI behavior, cost/duration/effect balance values, actual charge logic, deduction amount/order, active research payload schema, paid cost state, cancel/refund, per-turn charge, completion charge, retroactive charge, enemy research/effect, BattleContext, pending invasion schema, scenes, assets, icon PNGs, UI64 PNGs, or `.import` files under this QA record pass.
+- Any runtime code touched under this pass must remain side-effect-free Dictionary/report metadata only and must not print, save, mutate resources, mutate research state, start/complete research, advance turns, reveal intel, change UI lifecycle, run gameplay, or alter enemy AI.
+
 ## v0.70-86 Domestic Tech Balance Integration Pass Lock Rule
 - v0.70-86 authorizes Domestic Tech cost plan values, new-research duration values, Safe Set effect values, side-effect-free balance summary flags, and QA/agent documentation updates only.
 - Cost balance remains inside the existing actual charge MVP: start-time validation and one-time deduction only, no paid state, no cancel/refund, no per-turn/completion/retroactive charge.

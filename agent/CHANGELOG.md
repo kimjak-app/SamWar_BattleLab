@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.70-87 Domestic Tech Balance F6 QA Record
+- Added the v0.70-87 Domestic Tech Balance F6 QA Record section to the top of `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Documented F6 checks for cost balance, duration balance, Safe Set effect feel, progression feel, preservation locks, Godot Output cleanliness, and PASS / NEEDS FIX recording.
+- Added side-effect-free QA-ready flags to Domestic Tech summary helpers in `scripts/worldmap_test.gd`.
+- Updated agent docs so the next worker can record the F6 balance QA result after Kimjak tests the v0.70-86 balance integration.
+- Preserved gameplay logic, UI behavior, cost/duration/effect balance values, actual charge logic, deduction amount/order, active payload schema, paid cost state absence, cancel/refund absence, BattleContext, pending invasion schema, scenes, and assets/imports.
+
 ## v0.70-86 Domestic Tech Balance Integration Pass
 - Rebalanced Domestic Tech research cost planning in `scripts/worldmap_test.gd`: national tech now uses heavier gold-centered tier bands, and city tech uses selected-city gold + food bands with economy discounts and military/naval/siege/defense premiums.
 - Rebalanced new-research duration by scope and tier: city tech is faster early, while national tech is a slightly longer national project.

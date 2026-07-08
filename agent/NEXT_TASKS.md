@@ -1,5 +1,24 @@
 # NEXT TASKS
 
+## Current: v0.70-87 Domestic Tech Balance F6 QA Record
+- Baseline: `v0.70-86 Domestic Tech Balance Integration Pass` (`aa1236f4af3951f47008e79c8d56916e79d032f6`).
+- Completed direction:
+  1. Added the v0.70-87 F6 balance QA record checklist to the top of `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+  2. Locked QA coverage for cost balance, duration balance, Safe Set effects, progression feel, actual charge preservation, forbidden formula connections, enemy research/effect absence, and Godot Output cleanliness.
+  3. Added side-effect-free QA-ready Dictionary flags to Domestic Tech summary helpers for F6 record readiness.
+- Preserved scope:
+  1. No gameplay logic change, UI behavior change, cost/duration/effect balance value change, actual charge logic change, deduction amount/order change, active payload schema change, paid cost state, cancel/refund, BattleContext change, pending invasion schema change, scene change, or asset/import change.
+- F6 QA candidates:
+  1. Confirm early Tier 1 cost feel and mid-game Tier 2-3 choice pressure.
+  2. Confirm city early duration feels fast and national duration feels longer.
+  3. Confirm Safe Set effects feel meaningful without formula/count mutation.
+  4. Confirm actual charge wording/logic and Godot Output cleanliness.
+- Next candidates:
+  1. `v0.70-88 Domestic Tech Balance F6 Result Record`.
+  2. `v0.70-88 Labor Policy Resource State Design`.
+  3. `v0.70-88 Domestic Tech Edge Case Polish`.
+  4. `v0.70-88 City Research Category Identity Polish`.
+
 ## Current: v0.70-86 Domestic Tech Balance Integration Pass
 - Baseline: `v0.70-85 Research Cost Affordability F6 UI QA Record` (`d550ed33b914b66fde45dcda09505fcdd5f75e92`).
 - Completed direction:

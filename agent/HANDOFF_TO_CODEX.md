@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.70-87 Domestic Tech Balance F6 QA Record Handoff
+- Latest baseline: `v0.70-87 Domestic Tech Balance F6 QA Record` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
+- Built on `v0.70-86 Domestic Tech Balance Integration Pass` (`aa1236f4af3951f47008e79c8d56916e79d032f6`).
+- Manual QA document updated: `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- Runtime file touched only for side-effect-free QA summary flags: `scripts/worldmap_test.gd`.
+- Agent docs updated: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- This pass prepares the F6 record template for the v0.70-86 Domestic Tech balance integration. It does not record a PASS result yet.
+- QA coverage includes cost balance, duration balance, economy/military-defense/national-policy/naval-siege/diplomacy-spy Safe Set feel, progression feel, actual charge wording and logic, active payload schema compatibility, forbidden formula connections, enemy research/effect absence, and Godot Output cleanliness.
+- Explicitly unchanged: gameplay logic, UI behavior, cost/duration/effect balance values, actual charge logic, food deduction order `rice -> barley -> seafood`, active research payload schema, paid cost state, cancel/refund, per-turn charge, completion charge, retroactive charge, enemy research/effect, BattleContext, pending invasion schema, scenes, assets, icon PNGs, UI64 PNGs, and `.import` files.
+- Recommended next options:
+  1. `v0.70-88 Domestic Tech Balance F6 Result Record`.
+  2. `v0.70-88 Labor Policy Resource State Design`.
+  3. `v0.70-88 Domestic Tech Edge Case Polish`.
+  4. `v0.70-88 City Research Category Identity Polish`.
+
 ## v0.70-86 Domestic Tech Balance Integration Pass Handoff
 - Latest baseline: `v0.70-86 Domestic Tech Balance Integration Pass` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-85 Research Cost Affordability F6 UI QA Record` (`d550ed33b914b66fde45dcda09505fcdd5f75e92`).
