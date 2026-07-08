@@ -1,5 +1,73 @@
 # Domestic Tech Gameplay Effect Integration Map
 
+## v0.70-96 Naval / Siege Unlock Integration
+
+This pass connects Naval / Siege Domestic Tech effects to actual PLAYER unlock helpers, city summary/preview, and existing player attack/deployment eligibility. It also adds ENEMY naval/siege baseline helpers that are not a research system.
+
+### Implemented Hooks
+
+- Completed PLAYER city naval lookup now has unlock contract helpers:
+  - `_get_player_naval_unlock_modifier_mvp(city_id)`
+  - `_is_player_ship_unlocked_by_domestic_tech_mvp(ship_id, city_id)`
+- Completed PLAYER city/national siege lookup now has unlock contract helpers:
+  - `_get_player_siege_unlock_modifier_mvp(city_id)`
+  - `_is_player_siege_unlocked_by_domestic_tech_mvp(siege_id, city_id)`
+- Actual action/eligibility hooks now run through:
+  - `_get_player_naval_siege_attack_unlock_block_reason_mvp(source_city_id, target_city_id)`
+  - `_get_player_attack_block_reason(target_city_id)`
+  - `_validate_player_attack_deployment(deployment)`
+  - `_build_player_attack_deployment_payload(source_city_id, target_city_id, mode)`
+  - `_build_defense_deployment_payload(event, mode)`
+- Existing UI/preview text now reads the same unlock contract through:
+  - `_format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id)`
+  - city detail rating summary
+  - Domestic Tech inspector selected-city naval/siege summary
+- ENEMY naval/siege baseline is provided by:
+  - `_get_enemy_naval_baseline_mvp(city)`
+  - `_get_enemy_siege_baseline_mvp(city)`
+
+### PLAYER Effect Contract
+
+- PLAYER city naval/siege unlocks read `_player_state["city_domestic_tech_completed"][city_id]` through completed city lookup.
+- City effects are same-city only.
+- National siege support reads PLAYER national completed tech only for existing national ids such as `nation_logistics_system`, `nation_expedition_system`, `nation_military_reform`, and `nation_weapon_factory`.
+- Naval unlock currently gates sea/coastal attack eligibility when the source city lacks completed warship unlock.
+- Siege unlock currently gates fortress/high-defense attack eligibility when the source city lacks completed siege unit unlock.
+- Deployment payloads carry read-only preview dictionaries for naval/siege unlock state; no pending invasion schema or BattleContext schema was extended.
+- No ship, siege weapon, or troop count is created by completed research.
+
+### ENEMY Baseline Contract
+
+- ENEMY does not have active research.
+- ENEMY does not have completed tech storage.
+- ENEMY does not pay research cost.
+- ENEMY receives no PLAYER completed-tech effect.
+- `_get_enemy_naval_baseline_mvp(city)` returns only side-effect-free coastal/resource/commerce baseline metadata.
+- `_get_enemy_siege_baseline_mvp(city)` returns only side-effect-free defense/garrison/fortress baseline metadata.
+- Unknown or insufficient-intel cities remain masked.
+
+### Preservation
+
+- Save/load schema changed: false.
+- Active payload schema changed: false.
+- Actual charge logic changed: false.
+- Food group order changed: false, still `rice -> barley -> seafood`.
+- BattleContext schema changed: false.
+- Pending invasion schema changed: false.
+- Battle formula changed after v0.70-94: false.
+- Diplomacy formula changed after v0.70-95: false.
+- Spy formula changed after v0.70-95: false.
+- Ship count mutation added: false.
+- Siege count mutation added: false.
+- Ship/siege persistent storage added: false.
+- Enemy research implemented: false.
+- Enemy completed tech storage added: false.
+- Assets/imports/scenes changed: false.
+
+### Next Version
+
+`v0.70-97 Full Gameplay F6 QA` must verify the full seven-step Domestic Tech gameplay effect route, including economy/city, defense/battle, diplomacy/spy, naval/siege unlocks, enemy baselines, actual charge preservation, and no forbidden schema/count mutations.
+
 ## v0.70-95 Diplomacy / Spy Effect Integration
 
 This pass connects Diplomacy / Spy Domestic Tech effects to actual PLAYER diplomacy relation/success modifiers, spy success/detection/intel visibility modifiers, and the existing action preview paths. It also adds ENEMY diplomacy/spy baseline helpers that are not a research system.

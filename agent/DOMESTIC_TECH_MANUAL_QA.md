@@ -1,5 +1,50 @@
 # Domestic Tech Actual Charge Manual QA
 
+## v0.70-96 Naval / Siege Unlock Integration F6 QA
+
+### Purpose
+- Confirm completed PLAYER Naval / Siege Domestic Tech effects change unlock summary and actual player attack/deployment eligibility.
+- Confirm ENEMY naval/siege baseline is not enemy research and remains masked when intel is insufficient.
+
+### Checks
+- Complete a naval city tech, then confirm selected PLAYER city detail or Domestic Tech inspector shows naval unlock text.
+- Confirm naval unlock applies only to the same PLAYER city.
+- Confirm a sea/coastal attack route is blocked before the source city has the required naval unlock and allowed after completion where the route exists.
+- Complete a siege city tech, then confirm selected PLAYER city detail or Domestic Tech inspector shows siege unlock text.
+- Confirm fortress/high-defense attack eligibility is blocked before the source city has siege unlock and allowed after completion where the target requires it.
+- Confirm deployment preview carries naval/siege unlock state but does not add ship/siege counts.
+- Select an ENEMY city with no intel and confirm naval/siege baseline details are masked.
+- Select an ENEMY city after enough intel and confirm only baseline grade appears, not research effects.
+- Confirm enemy active research, enemy completed tech, and enemy tech progression remain absent.
+- Confirm automatic ship/siege generation does not occur.
+- Confirm v0.70-93 economy/city, v0.70-94 defense/battle, and v0.70-95 diplomacy/spy integrations remain visible and stable.
+- Confirm cost charge UI and research start/progress/completion flow are unchanged.
+- Confirm Godot Output has no new warning/error.
+
+### PASS / NEEDS FIX Record
+```text
+Version: v0.70-96 Naval / Siege Unlock Integration
+Commit:
+PLAYER naval unlock appears after completion:
+Naval same-city only:
+Naval eligibility hook reflected:
+PLAYER siege unlock appears after completion:
+Siege same-city only:
+Siege eligibility hook reflected:
+Deployment preview stable:
+Ship/siege auto-generation absent:
+Enemy no-intel baseline masked:
+Enemy baseline is not research:
+Enemy research absent:
+v0.70-93 economy/city effect preserved:
+v0.70-94 defense/battle effect preserved:
+v0.70-95 diplomacy/spy effect preserved:
+Actual charge preserved:
+Godot Output clean:
+Result: PASS / NEEDS FIX
+Notes:
+```
+
 ## v0.70-95 Diplomacy / Spy Effect Integration F6 QA
 
 ### Purpose

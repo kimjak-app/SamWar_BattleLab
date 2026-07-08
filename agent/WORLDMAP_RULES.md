@@ -1,5 +1,24 @@
 # WORLDMAP RULES
 
+## v0.70-96 Naval / Siege Unlock Integration Lock Rule
+- v0.70-96 authorizes Naval / Siege Domestic Tech gameplay unlock integration only.
+- PLAYER completed same-city naval/siege Domestic Tech may feed naval/siege unlock helpers and existing player attack/deployment eligibility/preview hooks.
+- PLAYER completed national support tech may feed siege unlock summary/support only where existing national tech ids already exist.
+- Naval/siege unlocks are eligibility/unlock state, not automatic ship/siege unit creation.
+- Do not mutate ship counts, siege counts, troop counts, ship/siege persistent storage, save schema, active payload schema, BattleContext schema, or pending invasion schema.
+- ENEMY naval/siege baseline is allowed only as faction/scenario/city-grade/coastal/defense baseline summary logic; it is not enemy research.
+- Do not add enemy active research, enemy completed tech storage, enemy research cost, enemy tech UI progression, or enemy completed-tech effects.
+- Unknown or insufficient-intel enemy baseline must remain masked.
+- The Domestic Tech route remains locked to:
+  1. `v0.70-92 Domestic Tech Gameplay Effect Integration Map`
+  2. `v0.70-93 Economy / City Effect Integration`
+  3. `v0.70-94 Defense / Battle Effect Integration`
+  4. `v0.70-95 Diplomacy / Spy Effect Integration`
+  5. `v0.70-96 Naval / Siege Unlock Integration`
+  6. `v0.70-97 Full Gameplay F6 QA`
+  7. `v0.70-98 Domestic Tech Complete Lock`
+- Do not change save/load schema, active research payload schema, actual charge logic, gold deduction, food group deduction, food group order `rice -> barley -> seafood`, paid cost state, cancel/refund, per-turn charge, completion charge, battle/diplomacy/spy formulas, troop/ship/siege counts, scenes, assets, icon PNGs, UI64 PNGs, or `.import` files under v0.70-96.
+
 ## v0.70-95 Diplomacy / Spy Effect Integration Lock Rule
 - v0.70-95 authorizes Diplomacy / Spy Domestic Tech gameplay effect integration only.
 - PLAYER completed national diplomacy/spy Domestic Tech may feed diplomacy/spy modifier helpers and existing diplomacy relation / success / spy success / detection / intel visibility hooks.

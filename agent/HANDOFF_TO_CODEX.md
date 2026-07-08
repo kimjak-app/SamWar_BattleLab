@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.70-96 Naval / Siege Unlock Integration Handoff
+- Latest baseline before this task: `v0.70-95 Diplomacy / Spy Effect Integration` (`ca8281d9f8533885e282178f84c711009c5a9f5b`).
+- Runtime file touched: `scripts/worldmap_test.gd`.
+- Agent docs updated: `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, `agent/WORLDMAP_RULES.md`, and `agent/DOMESTIC_TECH_MANUAL_QA.md`.
+- PLAYER naval integration now uses `_get_player_naval_unlock_modifier_mvp` and `_is_player_ship_unlocked_by_domestic_tech_mvp`.
+- PLAYER siege integration now uses `_get_player_siege_unlock_modifier_mvp` and `_is_player_siege_unlocked_by_domestic_tech_mvp`.
+- Actual eligibility hooks now affect `_get_player_attack_block_reason`, `_validate_player_attack_deployment`, `_build_player_attack_deployment_payload`, and `_build_defense_deployment_payload`.
+- City detail and Domestic Tech inspector summaries now show modifier-backed naval/siege unlock state after completion.
+- ENEMY baseline helpers `_get_enemy_naval_baseline_mvp` and `_get_enemy_siege_baseline_mvp` are side-effect-free and are not enemy research.
+- Unknown/insufficient-intel enemy naval/siege baseline remains masked.
+- Next session must run `v0.70-97 Full Gameplay F6 QA`.
+- Explicitly unchanged: save/load schema, active research payload schema, actual charge logic, gold/food deduction, food group order `rice -> barley -> seafood`, BattleContext schema, pending invasion schema, battle/diplomacy/spy formulas after v0.70-94/95, troop/ship/siege counts, ship/siege persistent storage, scenes, assets, and imports.
+
 ## v0.70-95 Diplomacy / Spy Effect Integration Handoff
 - Latest baseline before this task: `v0.70-94 Defense / Battle Effect Integration` (`2aeaf5df008c789bd385fd7598a5f68de842fac2`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

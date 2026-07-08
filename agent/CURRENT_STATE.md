@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.70-96 Naval / Siege Unlock Integration
+- Baseline: `v0.70-95 Diplomacy / Spy Effect Integration` at `ca8281d9f8533885e282178f84c711009c5a9f5b`; tracked files were clean at task start.
+- Connected PLAYER Naval / Siege Domestic Tech completed effects through completed tech lookup wrappers and unlock helpers in `scripts/worldmap_test.gd`.
+- PLAYER naval unlocks now flow through `_get_player_naval_unlock_modifier_mvp`, `_is_player_ship_unlocked_by_domestic_tech_mvp`, city detail summary, Domestic Tech inspector summary, and player attack/deployment eligibility preview fields.
+- PLAYER siege unlocks now flow through `_get_player_siege_unlock_modifier_mvp`, `_is_player_siege_unlocked_by_domestic_tech_mvp`, city detail summary, Domestic Tech inspector summary, and player attack/deployment eligibility checks for fortress/high-defense targets.
+- City naval/siege tech remains same-city only through `_has_completed_city_domestic_tech_mvp`; national siege support reads only PLAYER national completed tech where existing national tech ids apply.
+- Added `_get_enemy_naval_baseline_mvp` and `_get_enemy_siege_baseline_mvp` as ENEMY baseline helpers; they are not enemy research and remain masked when intel is insufficient.
+- No automatic ship/siege creation, ship count mutation, siege count mutation, ship/siege persistent storage, save/load schema, active payload schema, BattleContext schema, pending invasion schema, battle/diplomacy/spy formula, scene, asset, or import behavior was changed.
+- Next task: `v0.70-97 Full Gameplay F6 QA`.
+
 ## v0.70-95 Diplomacy / Spy Effect Integration
 - Baseline: `v0.70-94 Defense / Battle Effect Integration` at `2aeaf5df008c789bd385fd7598a5f68de842fac2`; tracked files were clean at task start.
 - Connected PLAYER Diplomacy / Spy Domestic Tech completed effects through completed tech lookup wrappers and modifier helpers in `scripts/worldmap_test.gd`.

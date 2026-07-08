@@ -216,7 +216,11 @@ const DOMESTIC_TECH_NATIONAL_POLICY_SAFE_SET_MVP := {
 }
 const DOMESTIC_TECH_NAVAL_SIEGE_SAFE_BRANCHES_MVP := ["sea_trade", "naval", "siege"]
 const DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP := {
+	"commerce_port": {"naval_support_percent": 0.03},
 	"commerce_shipyard": {"shipyard_capacity_flat": 1},
+	"commerce_trade_port": {"naval_supply_percent": 0.05},
+	"fish_fleet": {"naval_supply_percent": 0.03},
+	"fish_dried_supply_base": {"naval_supply_percent": 0.05},
 	"naval_training": {"naval_training_percent": 0.04},
 	"naval_warship_building": {"shipyard_capacity_flat": 1, "ship_maintenance_percent": 0.04},
 	"naval_panokseon": {"naval_training_percent": 0.08},
@@ -4500,6 +4504,79 @@ func _get_enemy_battle_baseline_modifier_mvp(city: Dictionary, role: String = "d
 	return modifier
 
 
+func _get_enemy_naval_baseline_mvp(city: Dictionary) -> Dictionary:
+	var result := {
+		"city_id": str(city.get("id", "")),
+		"owner_scope": "enemy",
+		"enemy_baseline": true,
+		"enemy_research_effect": false,
+		"player_completed_tech_lookup": false,
+		"masked": true,
+		"naval_grade_label": "정보 부족",
+		"shipyard_basis_label": "불명",
+		"source": "city_coastal_faction_baseline",
+	}
+	var city_id := str(result.get("city_id", ""))
+	if city_id.is_empty() or not _is_city_owned_by_enemy_mvp(city_id):
+		result["reason"] = "not_enemy_city"
+		return result
+	var intel_entry := _get_city_intel_entry_for_ui(city_id)
+	if intel_entry.is_empty():
+		result["reason"] = "insufficient_intel"
+		return result
+	var fields := _get_city_intel_fields_for_ui(intel_entry)
+	var payload := _get_city_intel_payload_for_ui(intel_entry)
+	var revealed_fields := _get_enemy_intel_revealed_field_ids_for_ui(fields, payload)
+	if not revealed_fields.has("resources") and not revealed_fields.has("troops") and not revealed_fields.has("troops_estimated"):
+		result["reason"] = "insufficient_intel"
+		return result
+	result["masked"] = false
+	var naval_score := 1
+	if _is_city_coastal_for_city_tech(city_id):
+		naval_score += 3
+	var resource_seed: Dictionary = city.get("resource_seed", {}) if city.get("resource_seed", {}) is Dictionary else {}
+	naval_score += clampi(int(resource_seed.get("seafood", 0)), 0, 3)
+	var commerce_score := _get_city_numeric_rating(city, "commerce_rating", 3)
+	if commerce_score >= 4:
+		naval_score += 1
+	var city_type := str(city.get("type", "")).to_lower()
+	if city_type.find("port") >= 0 or city_type.find("coastal") >= 0:
+		result["shipyard_basis_label"] = "확인됨"
+	result["naval_grade_score"] = naval_score
+	result["naval_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(naval_score)
+	result["revealed_fields"] = revealed_fields
+	return result
+
+
+func _get_enemy_siege_baseline_mvp(city: Dictionary) -> Dictionary:
+	var result := {
+		"city_id": str(city.get("id", "")),
+		"owner_scope": "enemy",
+		"enemy_baseline": true,
+		"enemy_research_effect": false,
+		"player_completed_tech_lookup": false,
+		"masked": true,
+		"siege_grade_label": "정보 부족",
+		"source": "city_defense_garrison_baseline",
+	}
+	var city_id := str(result.get("city_id", ""))
+	if city_id.is_empty() or not _is_city_owned_by_enemy_mvp(city_id):
+		result["reason"] = "not_enemy_city"
+		return result
+	var defense_baseline := _get_enemy_city_defense_baseline_mvp(city)
+	if bool(defense_baseline.get("masked", true)):
+		result["reason"] = defense_baseline.get("reason", "insufficient_intel")
+		return result
+	result["masked"] = false
+	var siege_score := int(defense_baseline.get("battle_grade_score", 0))
+	if str(city.get("type", "")).to_lower().find("fortress") >= 0:
+		siege_score += 2
+	result["siege_grade_score"] = siege_score
+	result["siege_grade_label"] = _format_enemy_city_baseline_grade_label_mvp(siege_score)
+	result["revealed_fields"] = defense_baseline.get("revealed_fields", [])
+	return result
+
+
 func _get_enemy_owned_city_count_mvp(faction_id: String) -> int:
 	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
 		return 0
@@ -7844,6 +7921,46 @@ func _get_city_neighbors_mvp(city_id: String) -> Array[String]:
 	return neighbors
 
 
+func _get_city_route_type_between_mvp(from_city_id: String, to_city_id: String) -> String:
+	if from_city_id.is_empty() or to_city_id.is_empty():
+		return ""
+	var from_marker := _city_markers_by_id.get(from_city_id) as WorldMapCityMarker
+	if from_marker != null and from_marker.route_types.has(to_city_id):
+		return str(from_marker.route_types.get(to_city_id, ""))
+	var to_marker := _city_markers_by_id.get(to_city_id) as WorldMapCityMarker
+	if to_marker != null and to_marker.route_types.has(from_city_id):
+		return str(to_marker.route_types.get(from_city_id, ""))
+	if _is_city_coastal_for_city_tech(from_city_id) and _is_city_coastal_for_city_tech(to_city_id):
+		return "sea"
+	return "land"
+
+
+func _is_naval_attack_route_mvp(source_city_id: String, target_city_id: String) -> bool:
+	var route_type := _get_city_route_type_between_mvp(source_city_id, target_city_id).to_lower()
+	return route_type == "sea" or route_type == "naval" or route_type == "coastal"
+
+
+func _is_siege_attack_target_mvp(target_city_id: String) -> bool:
+	if target_city_id.is_empty():
+		return false
+	var city_data := _get_city_hud_entry(target_city_id)
+	if city_data.is_empty():
+		return false
+	if str(city_data.get("type", "")).to_lower().find("fortress") >= 0:
+		return true
+	return _get_city_numeric_rating(city_data, "defense", 0) >= 4
+
+
+func _get_player_naval_siege_attack_unlock_block_reason_mvp(source_city_id: String, target_city_id: String) -> String:
+	if source_city_id.is_empty() or target_city_id.is_empty():
+		return ""
+	if _is_naval_attack_route_mvp(source_city_id, target_city_id) and not _is_player_ship_unlocked_by_domestic_tech_mvp("warship", source_city_id):
+		return "해상/연안 공격에는 출발 도시의 전투선 건조 연구가 필요합니다."
+	if _is_siege_attack_target_mvp(target_city_id) and not _is_player_siege_unlocked_by_domestic_tech_mvp("siege_unit", source_city_id):
+		return "요새/고방어 도시 공격에는 출발 도시의 공성 부대 연구가 필요합니다."
+	return ""
+
+
 func _get_player_attack_block_reason(target_city_id: String) -> String:
 	if target_city_id.is_empty() or not _has_city_for_battle_context(target_city_id):
 		return "공격할 수 없는 도시입니다."
@@ -7856,6 +7973,9 @@ func _get_player_attack_block_reason(target_city_id: String) -> String:
 	var source_city_id := _find_player_attack_source_city(target_city_id)
 	if source_city_id.is_empty():
 		return "인접한 아군 도시가 없습니다."
+	var unlock_block_reason := _get_player_naval_siege_attack_unlock_block_reason_mvp(source_city_id, target_city_id)
+	if not unlock_block_reason.is_empty():
+		return unlock_block_reason
 	if _get_available_player_attack_main_hero_ids(source_city_id).is_empty():
 		return "출전 가능한 장수가 없습니다."
 	var source_troops := _get_city_troops_for_battle_context(source_city_id)
@@ -7986,6 +8106,8 @@ func _build_player_attack_deployment_payload(source_city_id: String, target_city
 	if heroes.is_empty() or max_deployable <= 0:
 		return {}
 	_ensure_city_supply_resource_defaults(source_city_id)
+	var naval_unlock := _get_player_naval_unlock_modifier_mvp(source_city_id)
+	var siege_unlock := _get_player_siege_unlock_modifier_mvp(source_city_id)
 	return {
 		"mode": "auto" if mode == "auto" else "manual",
 		"source_city_id": source_city_id,
@@ -7997,6 +8119,10 @@ func _build_player_attack_deployment_payload(source_city_id: String, target_city
 		"food_available": _get_city_supply_resource_amount(source_city_id, PLAYER_ATTACK_SUPPLY_FOOD_RESOURCE_ID),
 		"gold_available": _get_city_supply_resource_amount(source_city_id, PLAYER_ATTACK_SUPPLY_GOLD_RESOURCE_ID),
 		"salt_available": _get_city_supply_resource_amount(source_city_id, PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID),
+		"naval_route_required": _is_naval_attack_route_mvp(source_city_id, target_city_id),
+		"siege_required": _is_siege_attack_target_mvp(target_city_id),
+		"domestic_tech_naval_unlock": naval_unlock,
+		"domestic_tech_siege_unlock": siege_unlock,
 		"heroes": heroes,
 	}
 
@@ -8104,6 +8230,9 @@ func _validate_player_attack_deployment(deployment: Dictionary) -> Dictionary:
 		return {"ok": false, "message": block_reason}
 	if source_city_id != _find_player_attack_source_city(target_city_id):
 		return {"ok": false, "message": "출정 도시가 현재 공격 조건과 일치하지 않습니다."}
+	var unlock_block_reason := _get_player_naval_siege_attack_unlock_block_reason_mvp(source_city_id, target_city_id)
+	if not unlock_block_reason.is_empty():
+		return {"ok": false, "message": unlock_block_reason}
 	var selected_hero_ids := _normalize_hero_id_array(deployment.get("selected_hero_ids", []))
 	if selected_hero_ids.is_empty():
 		return {"ok": false, "message": "장수를 1명 이상 선택하십시오."}
@@ -8374,6 +8503,8 @@ func _build_defense_deployment_payload(event: Dictionary, mode: String) -> Dicti
 	var heroes := _get_deployable_player_heroes_for_city(defender_city_id)
 	if heroes.is_empty() or max_deployable <= 0:
 		return {}
+	var naval_unlock := _get_player_naval_unlock_modifier_mvp(defender_city_id)
+	var siege_unlock := _get_player_siege_unlock_modifier_mvp(defender_city_id)
 	return {
 		"deployment_type": "defense",
 		"mode": "auto" if mode == "auto" else "manual",
@@ -8386,6 +8517,10 @@ func _build_defense_deployment_payload(event: Dictionary, mode: String) -> Dicti
 		"food_available": 0,
 		"gold_available": 0,
 		"salt_available": 0,
+		"naval_route_required": _is_naval_attack_route_mvp(attacker_city_id, defender_city_id),
+		"siege_required": _is_siege_attack_target_mvp(defender_city_id),
+		"domestic_tech_naval_unlock": naval_unlock,
+		"domestic_tech_siege_unlock": siege_unlock,
 		"heroes": heroes,
 	}
 
@@ -10654,8 +10789,6 @@ func _get_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> Dictionar
 	var bonus := _get_empty_domestic_tech_city_naval_siege_bonus_mvp()
 	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
 		return bonus
-	var completed_by_city: Dictionary = _normalize_city_domestic_tech_state_map_mvp(_player_state.get("city_domestic_tech_completed", {}))
-	var city_completed: Dictionary = completed_by_city.get(city_id, {}) if completed_by_city.get(city_id, {}) is Dictionary else {}
 	var source_seen := {}
 	for tech_id_variant in DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.keys():
 		var tech_id := str(tech_id_variant)
@@ -10666,7 +10799,7 @@ func _get_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> Dictionar
 			continue
 		if not DOMESTIC_TECH_NAVAL_SIEGE_SAFE_BRANCHES_MVP.has(str(definition.get("branch", ""))):
 			continue
-		if not bool(city_completed.get(tech_id, false)):
+		if not _has_completed_city_domestic_tech_mvp(city_id, tech_id):
 			continue
 		var mapping: Dictionary = DOMESTIC_TECH_NAVAL_SIEGE_SAFE_SET_MVP.get(tech_id, {})
 		bonus["shipyard_capacity_flat"] = int(bonus.get("shipyard_capacity_flat", 0)) + int(mapping.get("shipyard_capacity_flat", 0))
@@ -10680,6 +10813,181 @@ func _get_domestic_tech_city_naval_siege_bonus_mvp(city_id: String) -> Dictionar
 		source_seen[tech_id] = true
 	bonus["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(bonus.get("source_techs", []))
 	return bonus
+
+
+func _get_player_naval_unlock_modifier_mvp(city_id: String = "") -> Dictionary:
+	var unlock := {
+		"scope": DOMESTIC_TECH_SCOPE_CITY,
+		"city_id": city_id,
+		"player_only": true,
+		"same_city_only": true,
+		"enemy_research_effect": false,
+		"port_enabled": false,
+		"shipyard_enabled": false,
+		"small_shipyard_enabled": false,
+		"large_shipyard_enabled": false,
+		"trade_ship_enabled": false,
+		"warship_enabled": false,
+		"panokseon_enabled": false,
+		"turtle_ship_enabled": false,
+		"fire_ship_enabled": false,
+		"naval_training_pct": 0.0,
+		"naval_formation_pct": 0.0,
+		"naval_support_pct": 0.0,
+		"source_techs": [],
+	}
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return unlock
+	var source_techs: Array[String] = []
+	if _has_completed_city_domestic_tech_mvp(city_id, "commerce_port"):
+		unlock["port_enabled"] = true
+		unlock["trade_ship_enabled"] = true
+		unlock["naval_support_pct"] = float(unlock.get("naval_support_pct", 0.0)) + 0.03
+		source_techs.append("commerce_port")
+	if _has_completed_city_domestic_tech_mvp(city_id, "commerce_shipyard"):
+		unlock["shipyard_enabled"] = true
+		unlock["small_shipyard_enabled"] = true
+		source_techs.append("commerce_shipyard")
+	if _has_completed_city_domestic_tech_mvp(city_id, "commerce_trade_port"):
+		unlock["trade_ship_enabled"] = true
+		unlock["naval_support_pct"] = float(unlock.get("naval_support_pct", 0.0)) + 0.05
+		source_techs.append("commerce_trade_port")
+	if _has_completed_city_domestic_tech_mvp(city_id, "fish_fleet"):
+		unlock["naval_support_pct"] = float(unlock.get("naval_support_pct", 0.0)) + 0.03
+		source_techs.append("fish_fleet")
+	if _has_completed_city_domestic_tech_mvp(city_id, "fish_dried_supply_base"):
+		unlock["naval_support_pct"] = float(unlock.get("naval_support_pct", 0.0)) + 0.05
+		source_techs.append("fish_dried_supply_base")
+	if _has_completed_city_domestic_tech_mvp(city_id, "naval_training"):
+		unlock["naval_training_pct"] = float(unlock.get("naval_training_pct", 0.0)) + 0.04
+		source_techs.append("naval_training")
+	if _has_completed_city_domestic_tech_mvp(city_id, "naval_warship_building"):
+		unlock["warship_enabled"] = true
+		unlock["shipyard_enabled"] = true
+		source_techs.append("naval_warship_building")
+	if _has_completed_city_domestic_tech_mvp(city_id, "naval_panokseon"):
+		unlock["panokseon_enabled"] = true
+		unlock["naval_training_pct"] = float(unlock.get("naval_training_pct", 0.0)) + 0.08
+		source_techs.append("naval_panokseon")
+	if _has_completed_city_domestic_tech_mvp(city_id, "naval_turtle_ship"):
+		unlock["turtle_ship_enabled"] = true
+		unlock["large_shipyard_enabled"] = true
+		unlock["naval_training_pct"] = float(unlock.get("naval_training_pct", 0.0)) + 0.14
+		source_techs.append("naval_turtle_ship")
+	if _has_completed_city_domestic_tech_mvp(city_id, "naval_crane_wing_formation"):
+		unlock["naval_formation_pct"] = float(unlock.get("naval_formation_pct", 0.0)) + 0.08
+		source_techs.append("naval_crane_wing_formation")
+	if _has_completed_city_domestic_tech_mvp(city_id, "naval_fire_ship"):
+		unlock["fire_ship_enabled"] = true
+		source_techs.append("naval_fire_ship")
+	if _has_completed_city_domestic_tech_mvp(city_id, "naval_cannon_mount"):
+		unlock["warship_enabled"] = true
+		unlock["naval_support_pct"] = float(unlock.get("naval_support_pct", 0.0)) + 0.04
+		source_techs.append("naval_cannon_mount")
+	unlock["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(source_techs)
+	return unlock
+
+
+func _get_player_siege_unlock_modifier_mvp(city_id: String = "") -> Dictionary:
+	var unlock := {
+		"scope": "combined",
+		"city_id": city_id,
+		"player_only": true,
+		"same_city_only": true,
+		"enemy_research_effect": false,
+		"siege_unit_enabled": false,
+		"siege_engine_enabled": false,
+		"artillery_enabled": false,
+		"siege_attack_pct": 0.0,
+		"logistics_pct": 0.0,
+		"expedition_pct": 0.0,
+		"source_techs": [],
+	}
+	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+		return unlock
+	var source_techs: Array[String] = []
+	if _has_completed_city_domestic_tech_mvp(city_id, "mil_siege_unit"):
+		unlock["siege_unit_enabled"] = true
+		unlock["siege_attack_pct"] = float(unlock.get("siege_attack_pct", 0.0)) + 0.04
+		source_techs.append("mil_siege_unit")
+	if _has_completed_city_domestic_tech_mvp(city_id, "mil_siege_engine"):
+		unlock["siege_engine_enabled"] = true
+		unlock["siege_attack_pct"] = float(unlock.get("siege_attack_pct", 0.0)) + 0.08
+		source_techs.append("mil_siege_engine")
+	if _has_completed_city_domestic_tech_mvp(city_id, "naval_cannon_mount"):
+		unlock["artillery_enabled"] = true
+		unlock["siege_attack_pct"] = float(unlock.get("siege_attack_pct", 0.0)) + 0.04
+		source_techs.append("naval_cannon_mount")
+	if _has_completed_national_domestic_tech_mvp("nation_logistics_system"):
+		unlock["logistics_pct"] = float(unlock.get("logistics_pct", 0.0)) + 0.05
+		source_techs.append("nation_logistics_system")
+	if _has_completed_national_domestic_tech_mvp("nation_expedition_system"):
+		unlock["expedition_pct"] = float(unlock.get("expedition_pct", 0.0)) + 0.05
+		source_techs.append("nation_expedition_system")
+	if _has_completed_national_domestic_tech_mvp("nation_military_reform"):
+		unlock["siege_attack_pct"] = float(unlock.get("siege_attack_pct", 0.0)) + 0.03
+		source_techs.append("nation_military_reform")
+	if _has_completed_national_domestic_tech_mvp("nation_weapon_factory"):
+		unlock["artillery_enabled"] = true
+		source_techs.append("nation_weapon_factory")
+	unlock["source_techs"] = _get_unique_domestic_tech_source_ids_mvp(source_techs)
+	return unlock
+
+
+func _has_player_naval_unlock_modifier_data_mvp(unlock: Dictionary) -> bool:
+	return bool(unlock.get("port_enabled", false)) \
+		or bool(unlock.get("shipyard_enabled", false)) \
+		or bool(unlock.get("small_shipyard_enabled", false)) \
+		or bool(unlock.get("large_shipyard_enabled", false)) \
+		or bool(unlock.get("trade_ship_enabled", false)) \
+		or bool(unlock.get("warship_enabled", false)) \
+		or bool(unlock.get("panokseon_enabled", false)) \
+		or bool(unlock.get("turtle_ship_enabled", false)) \
+		or bool(unlock.get("fire_ship_enabled", false)) \
+		or not is_equal_approx(float(unlock.get("naval_training_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(unlock.get("naval_formation_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(unlock.get("naval_support_pct", 0.0)), 0.0)
+
+
+func _has_player_siege_unlock_modifier_data_mvp(unlock: Dictionary) -> bool:
+	return bool(unlock.get("siege_unit_enabled", false)) \
+		or bool(unlock.get("siege_engine_enabled", false)) \
+		or bool(unlock.get("artillery_enabled", false)) \
+		or not is_equal_approx(float(unlock.get("siege_attack_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(unlock.get("logistics_pct", 0.0)), 0.0) \
+		or not is_equal_approx(float(unlock.get("expedition_pct", 0.0)), 0.0)
+
+
+func _is_player_ship_unlocked_by_domestic_tech_mvp(ship_id: String, city_id: String = "") -> bool:
+	var unlock := _get_player_naval_unlock_modifier_mvp(city_id)
+	match ship_id:
+		"trade_ship", "fishing_fleet":
+			return bool(unlock.get("trade_ship_enabled", false)) or bool(unlock.get("port_enabled", false))
+		"small_ship", "small_warship":
+			return bool(unlock.get("small_shipyard_enabled", false)) or bool(unlock.get("shipyard_enabled", false))
+		"warship":
+			return bool(unlock.get("warship_enabled", false))
+		"panokseon":
+			return bool(unlock.get("panokseon_enabled", false))
+		"turtle_ship":
+			return bool(unlock.get("turtle_ship_enabled", false))
+		"fire_ship":
+			return bool(unlock.get("fire_ship_enabled", false))
+		_:
+			return false
+
+
+func _is_player_siege_unlocked_by_domestic_tech_mvp(siege_id: String, city_id: String = "") -> bool:
+	var unlock := _get_player_siege_unlock_modifier_mvp(city_id)
+	match siege_id:
+		"siege_unit":
+			return bool(unlock.get("siege_unit_enabled", false))
+		"siege_engine":
+			return bool(unlock.get("siege_engine_enabled", false))
+		"artillery":
+			return bool(unlock.get("artillery_enabled", false))
+		_:
+			return false
 
 
 func _get_domestic_tech_national_policy_bonus_mvp() -> Dictionary:
@@ -11493,34 +11801,90 @@ func _format_domestic_tech_city_military_defense_bonus_lines_mvp(city_id: String
 
 func _format_domestic_tech_city_naval_siege_bonus_lines_mvp(city_id: String, include_sources: bool = true) -> Array[String]:
 	var result: Array[String] = []
-	if city_id.is_empty() or not _is_city_owned_by_player_mvp(city_id):
+	if city_id.is_empty():
+		return result
+	var city_data := _get_city_hud_entry(city_id)
+	if _is_city_owned_by_enemy_mvp(city_id):
+		var naval_baseline := _get_enemy_naval_baseline_mvp(city_data)
+		var siege_baseline := _get_enemy_siege_baseline_mvp(city_data)
+		if bool(naval_baseline.get("masked", true)) and bool(siege_baseline.get("masked", true)):
+			result.append("상대 해군/공성 기본 체급\n정보 부족: 정탐 후 확인")
+			return result
+		var enemy_parts: Array[String] = []
+		if not bool(naval_baseline.get("masked", true)):
+			enemy_parts.append("해군 %s" % str(naval_baseline.get("naval_grade_label", "보통")))
+			enemy_parts.append("항구/조선 기반 %s" % str(naval_baseline.get("shipyard_basis_label", "불명")))
+		if not bool(siege_baseline.get("masked", true)):
+			enemy_parts.append("공성 %s" % str(siege_baseline.get("siege_grade_label", "보통")))
+		if not enemy_parts.is_empty():
+			result.append("상대 해군/공성 기본 체급: %s" % ", ".join(enemy_parts.slice(0, 4)))
+		return result
+	if not _is_city_owned_by_player_mvp(city_id):
 		return result
 	var bonus := _get_domestic_tech_city_naval_siege_bonus_mvp(city_id)
-	if not _has_domestic_tech_city_naval_siege_bonus_data_mvp(bonus):
+	var naval_unlock := _get_player_naval_unlock_modifier_mvp(city_id)
+	var siege_unlock := _get_player_siege_unlock_modifier_mvp(city_id)
+	if not _has_domestic_tech_city_naval_siege_bonus_data_mvp(bonus) \
+			and not _has_player_naval_unlock_modifier_data_mvp(naval_unlock) \
+			and not _has_player_siege_unlock_modifier_data_mvp(siege_unlock):
 		return result
 	var naval_parts: Array[String] = []
+	if bool(naval_unlock.get("port_enabled", false)):
+		naval_parts.append("항구 사용 가능")
+	if bool(naval_unlock.get("shipyard_enabled", false)):
+		naval_parts.append("조선소 사용 가능")
+	if bool(naval_unlock.get("warship_enabled", false)):
+		naval_parts.append("전투선 생산 가능")
+	if bool(naval_unlock.get("panokseon_enabled", false)):
+		naval_parts.append("판옥선 생산 가능")
+	if bool(naval_unlock.get("turtle_ship_enabled", false)):
+		naval_parts.append("거북선 생산 가능")
+	if bool(naval_unlock.get("fire_ship_enabled", false)):
+		naval_parts.append("화공선 사용 가능")
 	if int(bonus.get("shipyard_capacity_flat", 0)) != 0:
 		naval_parts.append("조선 준비 %s" % _format_signed_int(int(bonus.get("shipyard_capacity_flat", 0))))
 	if not is_equal_approx(float(bonus.get("naval_training_percent", 0.0)), 0.0):
 		naval_parts.append("수군 기반 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("naval_training_percent", 0.0))))
+	if not is_equal_approx(float(naval_unlock.get("naval_formation_pct", 0.0)), 0.0):
+		naval_parts.append("수군 진형 %s" % _format_domestic_tech_percent_bonus_mvp(float(naval_unlock.get("naval_formation_pct", 0.0))))
 	if not is_equal_approx(float(bonus.get("naval_supply_percent", 0.0)), 0.0):
 		naval_parts.append("해상 보급 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("naval_supply_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("ship_maintenance_percent", 0.0)), 0.0):
 		naval_parts.append("함선 정비 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("ship_maintenance_percent", 0.0))))
 	var siege_parts: Array[String] = []
+	if bool(siege_unlock.get("siege_unit_enabled", false)):
+		siege_parts.append("공성부대 편성 가능")
+	if bool(siege_unlock.get("siege_engine_enabled", false)):
+		siege_parts.append("공성병기 사용 가능")
+	if bool(siege_unlock.get("artillery_enabled", false)):
+		siege_parts.append("화포 사용 가능")
 	if int(bonus.get("siege_preparation_flat", 0)) != 0:
 		siege_parts.append("공성 준비 %s" % _format_signed_int(int(bonus.get("siege_preparation_flat", 0))))
 	if not is_equal_approx(float(bonus.get("siege_training_percent", 0.0)), 0.0):
 		siege_parts.append("공성 훈련 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("siege_training_percent", 0.0))))
 	if not is_equal_approx(float(bonus.get("siege_engineering_percent", 0.0)), 0.0):
 		siege_parts.append("공성 공학 %s" % _format_domestic_tech_percent_bonus_mvp(float(bonus.get("siege_engineering_percent", 0.0))))
+	if not is_equal_approx(float(siege_unlock.get("logistics_pct", 0.0)), 0.0):
+		siege_parts.append("병참 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(siege_unlock.get("logistics_pct", 0.0))))
+	if not is_equal_approx(float(siege_unlock.get("expedition_pct", 0.0)), 0.0):
+		siege_parts.append("원정 준비 %s" % _format_domestic_tech_percent_bonus_mvp(float(siege_unlock.get("expedition_pct", 0.0))))
 	var naval_siege_parts: Array[String] = []
 	naval_siege_parts.append_array(naval_parts)
 	naval_siege_parts.append_array(siege_parts)
 	if not naval_siege_parts.is_empty():
 		result.append("테크 해군/공성: %s" % ", ".join(naval_siege_parts.slice(0, 5)))
 	if include_sources:
-		var source_display := _format_domestic_tech_source_display_mvp(bonus.get("source_techs", []))
+		var source_techs: Array = []
+		var bonus_sources: Variant = bonus.get("source_techs", [])
+		var naval_sources: Variant = naval_unlock.get("source_techs", [])
+		var siege_sources: Variant = siege_unlock.get("source_techs", [])
+		if bonus_sources is Array:
+			source_techs.append_array(bonus_sources as Array)
+		if naval_sources is Array:
+			source_techs.append_array(naval_sources as Array)
+		if siege_sources is Array:
+			source_techs.append_array(siege_sources as Array)
+		var source_display := _format_domestic_tech_source_display_mvp(source_techs)
 		if not source_display.is_empty():
 			result.append(source_display)
 	return result
@@ -12678,9 +13042,9 @@ func _get_domestic_tech_effect_phase1_display_mvp(tech_def: Dictionary, scope: S
 	elif has_military_defense_safe_effect:
 		result.append("군사/방어 효과: 완료 후 선택 도시 표시 보너스에 적용")
 	if has_naval_siege_safe_effect and is_completed:
-		result.append("해군/공성 효과: 선택 도시 준비 표시 보너스에 적용 중")
+		result.append("해군/공성 효과: 선택 도시 해금/출정 조건에 적용 중")
 	elif has_naval_siege_safe_effect:
-		result.append("해군/공성 효과: 완료 후 선택 도시 준비 표시 보너스에 적용")
+		result.append("해군/공성 효과: 완료 후 선택 도시 해금/출정 조건에 적용")
 	if has_national_policy_safe_effect and is_completed:
 		result.append("국가 정책 효과: PLAYER 국가 보너스에 적용 중")
 	elif has_national_policy_safe_effect:
@@ -13076,13 +13440,19 @@ func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
 
 func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Dictionary:
 	return {
-		"version": "v0.70-94 Defense / Battle Effect Integration",
+		"version": "v0.70-96 Naval / Siege Unlock Integration",
 		"map_only": false,
 		"economy_city_effect_integrated": true,
 		"defense_battle_effect_integrated": true,
+		"diplomacy_spy_effect_integrated": true,
+		"naval_siege_unlock_integrated": true,
 		"enemy_city_baseline_helper_added": true,
 		"enemy_defense_battle_baseline_helper_added": true,
+		"enemy_naval_siege_baseline_helper_added": true,
 		"battle_roster_stat_modifier_connected": true,
+		"naval_action_eligibility_connected": true,
+		"siege_action_eligibility_connected": true,
+		"naval_siege_deployment_preview_connected": true,
 		"battle_formula_changed": false,
 		"gameplay_formula_changed": false,
 		"actual_charge_logic_changed": false,
@@ -13091,6 +13461,9 @@ func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Diction
 		"battle_context_schema_changed": false,
 		"pending_invasion_schema_changed": false,
 		"naval_siege_production_implemented": false,
+		"ship_count_mutation_added": false,
+		"siege_count_mutation_added": false,
+		"ship_siege_persistent_storage_added": false,
 		"enemy_research_effect_added": false,
 		"completed_lookup_contract": {
 			"national_helper": "_has_completed_national_domestic_tech_mvp",
@@ -13145,9 +13518,17 @@ func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Diction
 				"_get_spy_wedge_success_chance",
 			],
 			"naval_siege_unlock": [
+				"_get_player_naval_unlock_modifier_mvp",
+				"_get_player_siege_unlock_modifier_mvp",
+				"_is_player_ship_unlocked_by_domestic_tech_mvp",
+				"_is_player_siege_unlocked_by_domestic_tech_mvp",
+				"_get_enemy_naval_baseline_mvp",
+				"_get_enemy_siege_baseline_mvp",
 				"_get_domestic_tech_city_naval_siege_bonus_mvp",
 				"_format_domestic_tech_city_naval_siege_bonus_lines_mvp",
 				"_get_domestic_tech_unlock_relation_status_mvp",
+				"_get_player_naval_siege_attack_unlock_block_reason_mvp",
+				"_get_player_attack_block_reason",
 				"_can_start_domestic_tech_research_mvp",
 				"_validate_player_attack_deployment",
 				"_build_player_attack_deployment_payload",

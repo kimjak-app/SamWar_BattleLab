@@ -2,6 +2,17 @@
 
 ## 2026-07-08
 
+### v0.70-96 Naval / Siege Unlock Integration
+- Started from clean local HEAD `ca8281d9f8533885e282178f84c711009c5a9f5b`.
+- Confirmed expected baseline message: `v0.70-95 Diplomacy / Spy Effect Integration`.
+- Read required workflow, Godot, current state, next task, handoff, worldmap rules, integration map, research cost design, and manual QA docs before edits.
+- Grepped `scripts/worldmap_test.gd` for Domestic Tech naval/siege safe set, completed lookup wrappers, city detail summary, player attack availability, deployment validation, route/coastal helpers, and enemy baseline paths.
+- Added PLAYER naval unlock helpers based on completed same-city Domestic Tech lookup.
+- Added PLAYER siege unlock helpers based on completed same-city city tech and existing completed PLAYER national support tech lookup.
+- Connected naval/siege unlocks to player attack block reason, deployment validation, deployment preview payload, city detail summary, and Domestic Tech inspector summary.
+- Added side-effect-free ENEMY naval/siege baseline helpers with masked insufficient-intel behavior and no enemy research/effect storage.
+- Preserved save/load schema, active payload schema, actual charge logic, food order, BattleContext schema, pending invasion schema, battle/diplomacy/spy formulas, ship/siege production/count/storage absence, enemy research absence, scenes, assets, and imports.
+
 ### v0.70-95 Diplomacy / Spy Effect Integration
 - Started from clean local HEAD `2aeaf5df008c789bd385fd7598a5f68de842fac2`.
 - Confirmed expected baseline message: `v0.70-94 Defense / Battle Effect Integration`.

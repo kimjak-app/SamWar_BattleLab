@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.70-96 Naval / Siege Unlock Integration
+- Added completed Domestic Tech naval unlock helpers for PLAYER same-city effects in `scripts/worldmap_test.gd`.
+- Added completed Domestic Tech siege unlock helpers for PLAYER same-city city effects plus existing PLAYER national logistics/expedition/reform support.
+- Connected player attack availability and deployment validation/preview to naval/siege unlock eligibility without adding ship/siege inventory or count mutation.
+- Added naval/siege unlock summary lines to existing city detail and Domestic Tech inspector display flows.
+- Added ENEMY naval/siege baseline helpers that are side-effect-free, masked by insufficient intel, and explicitly not enemy research.
+- Updated the Domestic Tech integration map and agent handoff docs for the next `v0.70-97 Full Gameplay F6 QA` task.
+- Preserved save/load schema, active payload schema, actual charge logic, food deduction order, BattleContext schema, pending invasion schema, battle/diplomacy/spy formulas, ship/siege count mutation absence, enemy research absence, scenes, assets, and imports.
+
 ## v0.70-95 Diplomacy / Spy Effect Integration
 - Added completed Domestic Tech diplomacy/spy modifier helpers for PLAYER national effects in `scripts/worldmap_test.gd`.
 - Connected diplomacy preview/apply, alliance acceptance, military support acceptance, and tribute relation gain to modifier-backed completed-tech lookup without changing relation schema.

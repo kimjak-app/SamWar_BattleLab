@@ -1,5 +1,30 @@
 # NEXT TASKS
 
+## Current: v0.70-96 Naval / Siege Unlock Integration
+- Baseline: `v0.70-95 Diplomacy / Spy Effect Integration` (`ca8281d9f8533885e282178f84c711009c5a9f5b`).
+- Completed direction:
+  1. Added PLAYER naval unlock helpers using completed Domestic Tech lookup.
+  2. Added PLAYER siege unlock helpers using completed Domestic Tech lookup.
+  3. Kept city naval/siege tech same-city only and PLAYER-only.
+  4. Connected naval/siege unlock state to city detail summary, Domestic Tech inspector summary, and player attack/deployment eligibility/preview fields.
+  5. Added ENEMY naval/siege baseline helpers that return baseline only; they are not enemy research.
+- Seven-step Domestic Tech completion route:
+  1. `v0.70-92 Domestic Tech Gameplay Effect Integration Map`
+  2. `v0.70-93 Economy / City Effect Integration`
+  3. `v0.70-94 Defense / Battle Effect Integration`
+  4. `v0.70-95 Diplomacy / Spy Effect Integration`
+  5. `v0.70-96 Naval / Siege Unlock Integration`
+  6. `v0.70-97 Full Gameplay F6 QA`
+  7. `v0.70-98 Domestic Tech Complete Lock`
+- Route lock:
+  1. Do not work outside this Domestic Tech route.
+  2. Do not implement labor/policy actual systems in this route.
+  3. Do not design new resources.
+  4. Do not do standalone UI polish or standalone QA record repetition.
+  5. The next task must verify completed effects end-to-end in F6.
+- Next task:
+  1. `v0.70-97 Full Gameplay F6 QA`.
+
 ## Current: v0.70-95 Diplomacy / Spy Effect Integration
 - Baseline: `v0.70-94 Defense / Battle Effect Integration` (`2aeaf5df008c789bd385fd7598a5f68de842fac2`).
 - Completed direction:
