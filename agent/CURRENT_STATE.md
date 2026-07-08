@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.70-97 Full Gameplay F6 QA
+- Baseline: `v0.70-96 Naval / Siege Unlock Integration` at `4a3b51e07a0f4c108c8b57c103362f15dab36796`; tracked files were clean at task start.
+- Verified the combined Domestic Tech gameplay effect route for v0.70-93 Economy / City, v0.70-94 Defense / Battle, v0.70-95 Diplomacy / Spy, and v0.70-96 Naval / Siege.
+- Research flow remains start-time actual charge only; active payload keys remain `tech_id`, `started_turn`, `remaining_turns`, and `duration_turns`.
+- PLAYER completed tech effects remain PLAYER-only, and city tech effects remain same-city only.
+- Enemy economy, defense/battle, diplomacy/spy, and naval/siege helpers remain read-only baseline/resistance helpers, not enemy research.
+- No blocker was found in grep, diff, or headless load QA.
+- No save/load schema, active payload schema, actual charge logic, food deduction order, BattleContext schema, pending invasion schema, battle/diplomacy/spy formula, naval/siege production system, troop/ship/siege count, ship/siege storage, scene, asset, or import behavior was changed.
+- Next task: `v0.70-98 Domestic Tech Complete Lock`.
+
 ## v0.70-96 Naval / Siege Unlock Integration
 - Baseline: `v0.70-95 Diplomacy / Spy Effect Integration` at `ca8281d9f8533885e282178f84c711009c5a9f5b`; tracked files were clean at task start.
 - Connected PLAYER Naval / Siege Domestic Tech completed effects through completed tech lookup wrappers and unlock helpers in `scripts/worldmap_test.gd`.

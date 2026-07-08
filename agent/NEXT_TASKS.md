@@ -1,5 +1,30 @@
 # NEXT TASKS
 
+## Current: v0.70-97 Full Gameplay F6 QA
+- Baseline: `v0.70-96 Naval / Siege Unlock Integration` (`4a3b51e07a0f4c108c8b57c103362f15dab36796`).
+- Completed direction:
+  1. Verified Research Flow, Economy / City, Defense / Battle, Diplomacy / Spy, Naval / Siege, Enemy Baseline / No Enemy Research, Preservation, and Godot Output QA gates.
+  2. Confirmed v0.70-93 through v0.70-96 integrations remain connected to their existing helpers and hooks.
+  3. Confirmed PLAYER completed tech does not leak to enemy baselines.
+  4. Confirmed city completed tech remains same-city only.
+  5. Confirmed no blocker requiring `v0.70-97-hotfix1` was found.
+- Seven-step Domestic Tech completion route:
+  1. `v0.70-92 Domestic Tech Gameplay Effect Integration Map`
+  2. `v0.70-93 Economy / City Effect Integration`
+  3. `v0.70-94 Defense / Battle Effect Integration`
+  4. `v0.70-95 Diplomacy / Spy Effect Integration`
+  5. `v0.70-96 Naval / Siege Unlock Integration`
+  6. `v0.70-97 Full Gameplay F6 QA`
+  7. `v0.70-98 Domestic Tech Complete Lock`
+- Route lock:
+  1. Do not work outside this Domestic Tech route.
+  2. Do not implement labor/policy actual systems in this route.
+  3. Do not design new resources.
+  4. Do not add new gameplay systems before the Complete Lock.
+  5. The next task must complete the lock, not add more effect integrations.
+- Next task:
+  1. `v0.70-98 Domestic Tech Complete Lock`.
+
 ## Current: v0.70-96 Naval / Siege Unlock Integration
 - Baseline: `v0.70-95 Diplomacy / Spy Effect Integration` (`ca8281d9f8533885e282178f84c711009c5a9f5b`).
 - Completed direction:

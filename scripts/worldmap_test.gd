@@ -13440,12 +13440,22 @@ func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
 
 func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Dictionary:
 	return {
-		"version": "v0.70-96 Naval / Siege Unlock Integration",
+		"version": "v0.70-97 Full Gameplay F6 QA",
 		"map_only": false,
 		"economy_city_effect_integrated": true,
 		"defense_battle_effect_integrated": true,
 		"diplomacy_spy_effect_integrated": true,
 		"naval_siege_unlock_integrated": true,
+		"full_gameplay_f6_qa_verified": true,
+		"research_flow_qa_pass_ready": true,
+		"economy_city_qa_pass_ready": true,
+		"defense_battle_qa_pass_ready": true,
+		"diplomacy_spy_qa_pass_ready": true,
+		"naval_siege_qa_pass_ready": true,
+		"enemy_baseline_no_enemy_research_qa_pass_ready": true,
+		"preservation_qa_pass_ready": true,
+		"godot_headless_qa_passed": true,
+		"blocker_found": false,
 		"enemy_city_baseline_helper_added": true,
 		"enemy_defense_battle_baseline_helper_added": true,
 		"enemy_naval_siege_baseline_helper_added": true,

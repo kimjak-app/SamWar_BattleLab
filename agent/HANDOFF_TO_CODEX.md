@@ -1,5 +1,15 @@
 # HANDOFF TO CODEX
 
+## v0.70-97 Full Gameplay F6 QA Handoff
+- Latest baseline before this task: `v0.70-96 Naval / Siege Unlock Integration` (`4a3b51e07a0f4c108c8b57c103362f15dab36796`).
+- Runtime file touched: `scripts/worldmap_test.gd` for side-effect-free QA summary flags only.
+- Agent docs updated: `agent/DOMESTIC_TECH_MANUAL_QA.md`, `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md`, `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- Full gameplay QA verified v0.70-93 Economy / City, v0.70-94 Defense / Battle, v0.70-95 Diplomacy / Spy, and v0.70-96 Naval / Siege integrations by grep, diff checks, and headless scene loads.
+- Research flow, actual charge, active payload keys, same-city city tech scope, PLAYER-only completed tech effects, and enemy baseline/no enemy research rules remain preserved.
+- No blocker was found; do not create `v0.70-97-hotfix1` unless a later manual F6 run finds a real regression.
+- Next session must run `v0.70-98 Domestic Tech Complete Lock`.
+- Explicitly unchanged: save/load schema, active research payload schema, actual charge logic, gold/food deduction, food group order `rice -> barley -> seafood`, BattleContext schema, pending invasion schema, battle/diplomacy/spy formulas after v0.70-94/95, naval/siege production system, troop/ship/siege counts, ship/siege persistent storage, enemy research/completed tech storage, scenes, assets, and imports.
+
 ## v0.70-96 Naval / Siege Unlock Integration Handoff
 - Latest baseline before this task: `v0.70-95 Diplomacy / Spy Effect Integration` (`ca8281d9f8533885e282178f84c711009c5a9f5b`).
 - Runtime file touched: `scripts/worldmap_test.gd`.

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.70-97 Full Gameplay F6 QA
+- Verified the full Domestic Tech gameplay effect route across v0.70-93 Economy / City, v0.70-94 Defense / Battle, v0.70-95 Diplomacy / Spy, and v0.70-96 Naval / Siege integrations.
+- Added side-effect-free QA summary flags to `scripts/worldmap_test.gd`; no gameplay formula, schema, count, storage, scene, asset, or import behavior was changed.
+- Recorded Research Flow, Economy / City, Defense / Battle, Diplomacy / Spy, Naval / Siege, Enemy Baseline / No Enemy Research, Preservation, and Godot Output QA results in the manual QA document.
+- Confirmed no blocker was found and the next route step is `v0.70-98 Domestic Tech Complete Lock`.
+- Preserved save/load schema, active payload schema, actual charge logic, food deduction order, BattleContext schema, pending invasion schema, battle/diplomacy/spy formulas, naval/siege production absence, ship/siege count/storage absence, enemy research absence, scenes, assets, and imports.
+
 ## v0.70-96 Naval / Siege Unlock Integration
 - Added completed Domestic Tech naval unlock helpers for PLAYER same-city effects in `scripts/worldmap_test.gd`.
 - Added completed Domestic Tech siege unlock helpers for PLAYER same-city city effects plus existing PLAYER national logistics/expedition/reform support.

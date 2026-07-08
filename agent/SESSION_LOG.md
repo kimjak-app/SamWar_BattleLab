@@ -2,6 +2,15 @@
 
 ## 2026-07-08
 
+### v0.70-97 Full Gameplay F6 QA
+- Started from clean local HEAD `4a3b51e07a0f4c108c8b57c103362f15dab36796`.
+- Confirmed expected baseline message: `v0.70-96 Naval / Siege Unlock Integration`.
+- Read required workflow, Godot, current state, next task, handoff, worldmap rules, integration map, research cost design, and manual QA docs before edits.
+- Grepped `scripts/worldmap_test.gd` for research flow, actual charge helpers, completed tech lookup, Economy / City, Defense / Battle, Diplomacy / Spy, Naval / Siege, enemy baseline, schema, active payload, BattleContext, pending invasion, ship/siege count, and persistent storage paths.
+- Ran diff, preservation grep, project headless load, `WorldMap_Test.tscn` headless load, and `Battle_Fullscreen_Test.tscn` headless load.
+- Added only side-effect-free QA summary flags and QA result documentation.
+- Found no blocker; next task is `v0.70-98 Domestic Tech Complete Lock`.
+
 ### v0.70-96 Naval / Siege Unlock Integration
 - Started from clean local HEAD `ca8281d9f8533885e282178f84c711009c5a9f5b`.
 - Confirmed expected baseline message: `v0.70-95 Diplomacy / Spy Effect Integration`.

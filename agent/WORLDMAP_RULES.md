@@ -1,5 +1,23 @@
 # WORLDMAP RULES
 
+## v0.70-97 Full Gameplay F6 QA Lock Rule
+- v0.70-97 verifies the Domestic Tech gameplay effect route from v0.70-93 through v0.70-96; it does not authorize new gameplay systems.
+- Research Flow, Economy / City, Defense / Battle, Diplomacy / Spy, Naval / Siege, Enemy Baseline / No Enemy Research, Preservation, and Godot Output QA gates must remain PASS-ready before `v0.70-98 Domestic Tech Complete Lock`.
+- PLAYER completed tech effects must remain PLAYER-only.
+- City completed tech effects must remain same-city only.
+- Enemy economy, defense/battle, diplomacy/spy, and naval/siege helpers are baseline/resistance helpers only; they are not enemy research and must not store active/completed tech or research cost.
+- Unknown or insufficient-intel enemy baseline must remain masked.
+- v0.70-98 may proceed only if no blocker is found in the v0.70-97 QA gate.
+- The Domestic Tech route remains locked to:
+  1. `v0.70-92 Domestic Tech Gameplay Effect Integration Map`
+  2. `v0.70-93 Economy / City Effect Integration`
+  3. `v0.70-94 Defense / Battle Effect Integration`
+  4. `v0.70-95 Diplomacy / Spy Effect Integration`
+  5. `v0.70-96 Naval / Siege Unlock Integration`
+  6. `v0.70-97 Full Gameplay F6 QA`
+  7. `v0.70-98 Domestic Tech Complete Lock`
+- Do not change save/load schema, active research payload schema, actual charge logic, gold deduction, food group deduction, food group order `rice -> barley -> seafood`, paid cost state, cancel/refund, per-turn charge, completion charge, BattleContext schema, pending invasion schema, battle/diplomacy/spy formulas, naval/siege production system, troop/ship/siege counts, ship/siege persistent storage, enemy research/completed tech storage, scenes, assets, icon PNGs, UI64 PNGs, or `.import` files under v0.70-97 except for explicitly scoped QA result documentation or side-effect-free QA summary metadata.
+
 ## v0.70-96 Naval / Siege Unlock Integration Lock Rule
 - v0.70-96 authorizes Naval / Siege Domestic Tech gameplay unlock integration only.
 - PLAYER completed same-city naval/siege Domestic Tech may feed naval/siege unlock helpers and existing player attack/deployment eligibility/preview hooks.

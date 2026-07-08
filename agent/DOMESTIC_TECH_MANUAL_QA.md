@@ -1,5 +1,66 @@
 # Domestic Tech Actual Charge Manual QA
 
+## v0.70-97 Full Gameplay F6 QA Result
+
+Date: 2026-07-08
+Baseline: `4a3b51e07a0f4c108c8b57c103362f15dab36796`
+Commit: local git commit for `v0.70-97 Full Gameplay F6 QA`
+
+### Research Flow
+- PASS/FAIL: PASS-ready by code grep and headless load.
+- Notes: National and city research still use the existing active payload keys `tech_id`, `started_turn`, `remaining_turns`, and `duration_turns`; start-time actual charge helpers remain intact; no per-turn, completion, retroactive, cancel, refund, or paid-cost state was added.
+
+### Economy / City
+- PASS/FAIL: PASS-ready by helper/hook grep.
+- Notes: PLAYER national and same-city city economy modifier helpers remain connected to summary and turn-income paths. Enemy economy remains baseline-only and not research-driven.
+
+### Defense / Battle
+- PASS/FAIL: PASS-ready by helper/hook grep and battle scene headless load.
+- Notes: PLAYER same-city defense and PLAYER national battle modifiers remain connected through existing roster stat preparation without changing BattleContext schema or troop counts. Enemy defense/battle remains baseline-only.
+
+### Diplomacy / Spy
+- PASS/FAIL: PASS-ready by helper/hook grep.
+- Notes: PLAYER national diplomacy/spy modifiers remain connected to relation/success/detection/intel-safe hooks. Enemy diplomacy/spy remains baseline/resistance-only, with no enemy research storage.
+
+### Naval / Siege
+- PASS/FAIL: PASS-ready by helper/hook grep.
+- Notes: PLAYER naval/siege unlock helpers remain completed-tech based, same-city where city-scoped, and connected to attack/deployment eligibility. No automatic ship/siege generation or persistent ship/siege storage exists.
+
+### Enemy Baseline / No Enemy Research
+- PASS/FAIL: PASS-ready by grep.
+- Notes: Enemy economy, defense/battle, diplomacy/spy, and naval/siege helpers return baseline/resistance metadata only. No enemy active research, completed tech storage, research cost, tech UI progression, or PLAYER completed-tech leakage was found.
+
+### Preservation
+- PASS/FAIL: PASS.
+- Notes: `git diff --check`, schema/count/storage grep, and scene/asset/import diff checks found no forbidden mutation. Food group order remains `rice -> barley -> seafood`.
+
+### Godot Output
+- PASS/FAIL: PASS by headless load.
+- Notes: Project load, `WorldMap_Test.tscn`, and `Battle_Fullscreen_Test.tscn` loaded headless without new warning/error output attributable to this QA pass.
+
+### Fixed During QA
+- 파일: `scripts/worldmap_test.gd`
+- 내용: Added side-effect-free v0.70-97 QA summary flags only; no gameplay formula, schema, count, storage, scene, asset, or import change.
+
+### PASS / FAIL 기록 템플릿
+```text
+Version: v0.70-97 Full Gameplay F6 QA
+Commit:
+Tester:
+Date:
+Research Flow:
+Economy / City:
+Defense / Battle:
+Diplomacy / Spy:
+Naval / Siege:
+Enemy Baseline / No Enemy Research:
+Preservation:
+Godot Output:
+Final Result: PASS / FAIL
+Blocking Issues:
+Notes:
+```
+
 ## v0.70-96 Naval / Siege Unlock Integration F6 QA
 
 ### Purpose

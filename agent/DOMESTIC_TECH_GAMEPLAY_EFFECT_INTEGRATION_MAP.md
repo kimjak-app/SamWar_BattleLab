@@ -1,5 +1,48 @@
 # Domestic Tech Gameplay Effect Integration Map
 
+## v0.70-97 Full Gameplay F6 QA
+
+This pass verifies the v0.70-93 through v0.70-96 Domestic Tech gameplay effect integrations as a combined F6 QA gate. No new gameplay system was added.
+
+### QA Summary
+
+- Research Flow: PASS-ready by code grep and headless load. Start-time actual charge, active research payload keys, progress, and completion flow remain intact.
+- Economy / City: PASS-ready. PLAYER completed national/city economy helpers remain connected to summary and income hooks; city effects remain same-city only.
+- Defense / Battle: PASS-ready. PLAYER defense/battle helpers remain connected to city summary and roster stat preparation without BattleContext or troop-count mutation.
+- Diplomacy / Spy: PASS-ready. PLAYER diplomacy/spy helpers remain connected to relation/success/detection/intel-safe hooks; enemy baseline remains resistance-only.
+- Naval / Siege: PASS-ready. PLAYER unlock helpers remain connected to attack/deployment eligibility and summary; no ship/siege count or storage was added.
+- Enemy Baseline / No Enemy Research: PASS-ready. Enemy helpers remain read-only baseline/resistance helpers and do not store active/completed research or cost state.
+- Preservation: PASS by `git diff --check`, schema/count/storage grep, and scene/asset/import diff checks.
+- Godot Output: PASS by headless project, worldmap scene, and battle scene load.
+
+### Blocker Status
+
+- Blocker: none found.
+- `v0.70-98 Domestic Tech Complete Lock` is allowed as the next route step.
+
+### Preservation
+
+- Save/load schema changed: false.
+- Active payload schema changed: false.
+- Actual charge logic changed: false.
+- Food group order changed: false, still `rice -> barley -> seafood`.
+- BattleContext schema changed: false.
+- Pending invasion schema changed: false.
+- Battle formula changed after v0.70-94: false.
+- Diplomacy formula changed after v0.70-95: false.
+- Spy formula changed after v0.70-95: false.
+- Naval/siege production system added: false.
+- Ship count mutation added: false.
+- Siege count mutation added: false.
+- Ship/siege persistent storage added: false.
+- Enemy research implemented: false.
+- Enemy completed tech storage added: false.
+- Assets/imports/scenes changed: false.
+
+### Next Version
+
+`v0.70-98 Domestic Tech Complete Lock` must lock the completed Domestic Tech gameplay effect route after confirming this QA gate remains blocker-free.
+
 ## v0.70-96 Naval / Siege Unlock Integration
 
 This pass connects Naval / Siege Domestic Tech effects to actual PLAYER unlock helpers, city summary/preview, and existing player attack/deployment eligibility. It also adds ENEMY naval/siege baseline helpers that are not a research system.
