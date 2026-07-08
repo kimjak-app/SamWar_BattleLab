@@ -1,5 +1,19 @@
 # HANDOFF TO CODEX
 
+## v0.70-92 Domestic Tech Gameplay Effect Integration Map Handoff
+- Latest baseline before this task: `v0.70-91 Labor Policy Save Schema Draft` (`c4a7eed98faf2a4502ecec6738d121a45d1b2910`).
+- New map document: `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md`.
+- Runtime helper touched: `scripts/worldmap_test.gd` with `_get_domestic_tech_gameplay_effect_integration_map_summary_mvp()` only.
+- Agent docs updated: `agent/CURRENT_STATE.md`, `agent/NEXT_TASKS.md`, `agent/HANDOFF_TO_CODEX.md`, `agent/CHANGELOG.md`, `agent/SESSION_LOG.md`, and `agent/WORLDMAP_RULES.md`.
+- v0.70-92 confirms that Domestic Tech research start/progress/completion and actual start-cost charge exist, but completed research effects still need direct gameplay connection to be considered complete.
+- Economy/City next hooks: `_calculate_player_domestic_income_delta`, `_calculate_city_domestic_income`, `_apply_domestic_tech_city_economy_bonus_to_income_mvp`, `_apply_resource_delta`, `_format_city_storage_summary`, `_format_warehouse_summary`, and `_format_domestic_apply_summary`.
+- Defense/Battle next hooks: `_get_domestic_tech_city_defense_display_value_mvp`, `_format_domestic_tech_city_military_defense_bonus_lines_mvp`, `_build_battle_context_from_pending_invasion`, `_build_player_attack_battle_context`, `_get_hero_battle_data_for_battle_context`, and `_apply_troop_allocation_to_roster`.
+- Diplomacy/Spy next hooks: `_validate_diplomacy_action`, `_apply_diplomacy_action`, `_calculate_alliance_acceptance_chance`, `_validate_spy_action`, `_get_spy_info_success_chance`, `_calculate_spy_detection_chance`, `_get_spy_info_visibility_level`, and spy result roll functions.
+- Naval/Siege next hooks: `_get_domestic_tech_city_naval_siege_bonus_mvp`, `_format_domestic_tech_city_naval_siege_bonus_lines_mvp`, `_get_domestic_tech_unlock_relation_status_mvp`, deployment payload/validation functions, and city action availability paths.
+- Completed tech lookup contract: national effects read `_player_state["national_domestic_tech_completed"]` through `_is_national_domestic_tech_completed_mvp`; city effects read `_player_state["city_domestic_tech_completed"][city_id]` through `_is_city_domestic_tech_completed_mvp`; city effects are same-city only and PLAYER-only.
+- The Domestic Tech route is locked to v0.70-92 through v0.70-98. Next session must run `v0.70-93 Economy / City Effect Integration`.
+- Explicitly unchanged: actual charge logic, gold deduction, food group deduction, food order `rice -> barley -> seafood`, active payload schema, save/load schema, paid cost state, cancel/refund, per-turn charge, completion charge, cost/duration/effect balance values, UI behavior, BattleContext schema, pending invasion schema, battle/diplomacy/spy/market/city_intel formulas, enemy research/effect, naval/siege production, scenes, assets, and imports.
+
 ## v0.70-91 Labor Policy Save Schema Draft Handoff
 - Latest baseline: `v0.70-91 Labor Policy Save Schema Draft` local commit; use `git log -1 --oneline` / Codex completion report for the exact hash.
 - Built on `v0.70-90 Labor Policy Resource Loop Design` (`74da0c726a01bca2c225a6f99d72dc9c920541aa`).

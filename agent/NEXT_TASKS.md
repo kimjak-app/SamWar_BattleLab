@@ -1,5 +1,32 @@
 # NEXT TASKS
 
+## Current: v0.70-92 Domestic Tech Gameplay Effect Integration Map
+- Baseline: `v0.70-91 Labor Policy Save Schema Draft` (`c4a7eed98faf2a4502ecec6738d121a45d1b2910`).
+- Completed direction:
+  1. Created `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md`.
+  2. Mapped Economy/City completed effects to actual income/resource/storage/summary hooks.
+  3. Mapped Defense/Battle completed effects to city defense, invasion preparation, BattleContext construction, and roster/stat hook points without changing formulas.
+  4. Mapped Diplomacy/Spy completed effects to validation, success/relation/detection, result roll, and intel visibility hook points.
+  5. Mapped Naval/Siege completed effects to production/action/formation eligibility unlock hook points, not automatic unit creation.
+  6. Recorded the completed tech lookup contract around `_is_national_domestic_tech_completed_mvp` and `_is_city_domestic_tech_completed_mvp`.
+  7. Added the side-effect-free `_get_domestic_tech_gameplay_effect_integration_map_summary_mvp()` helper.
+- Seven-step Domestic Tech completion route:
+  1. `v0.70-92 Domestic Tech Gameplay Effect Integration Map`
+  2. `v0.70-93 Economy / City Effect Integration`
+  3. `v0.70-94 Defense / Battle Effect Integration`
+  4. `v0.70-95 Diplomacy / Spy Effect Integration`
+  5. `v0.70-96 Naval / Siege Unlock Integration`
+  6. `v0.70-97 Full Gameplay F6 QA`
+  7. `v0.70-98 Domestic Tech Complete Lock`
+- Route lock:
+  1. Do not work outside this Domestic Tech route.
+  2. Do not implement labor/policy actual systems in this route.
+  3. Do not design new resources.
+  4. Do not do standalone UI polish or standalone QA record repetition.
+  5. Every follow-up must connect completed tech to actual gameplay effect state, calculation, or unlock.
+- Next task:
+  1. `v0.70-93 Economy / City Effect Integration`.
+
 ## Current: v0.70-91 Labor Policy Save Schema Draft
 - Baseline: `v0.70-90 Labor Policy Resource Loop Design` (`74da0c726a01bca2c225a6f99d72dc9c920541aa`).
 - Completed direction:

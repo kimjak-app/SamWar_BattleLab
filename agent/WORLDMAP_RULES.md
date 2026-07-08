@@ -1,5 +1,22 @@
 # WORLDMAP RULES
 
+## v0.70-92 Domestic Tech Gameplay Effect Integration Route Lock
+- v0.70-92 authorizes a code-backed Domestic Tech gameplay effect integration map, agent document updates, and side-effect-free summary/helper metadata only.
+- Domestic Tech now completes only through this seven-step route:
+  1. `v0.70-92 Domestic Tech Gameplay Effect Integration Map`
+  2. `v0.70-93 Economy / City Effect Integration`
+  3. `v0.70-94 Defense / Battle Effect Integration`
+  4. `v0.70-95 Diplomacy / Spy Effect Integration`
+  5. `v0.70-96 Naval / Siege Unlock Integration`
+  6. `v0.70-97 Full Gameplay F6 QA`
+  7. `v0.70-98 Domestic Tech Complete Lock`
+- This route is about completed research effects connecting to actual gameplay state, calculations, or unlocks.
+- Do not continue labor/policy implementation, new resource design, standalone UI polish, standalone QA record repetition, or candidate-only document expansion inside this route.
+- Completed PLAYER national lookup must use `_is_national_domestic_tech_completed_mvp`; completed PLAYER city lookup must use `_is_city_domestic_tech_completed_mvp`; city effects are same-city only.
+- Do not implement enemy research/effect.
+- Do not auto-create ships, siege weapons, troops, resources, or extra persistent state from completed tech.
+- Do not change actual charge logic, gold deduction, food group deduction, food group order `rice -> barley -> seafood`, affordability validation, active research creation, active payload schema, save/load schema, paid cost state, cancel/refund, per-turn charge, completion charge, cost/duration/effect balance values, UI behavior, BattleContext schema, pending invasion schema, battle/diplomacy/spy/market/city_intel formulas, scenes, assets, icon PNGs, UI64 PNGs, or `.import` files under v0.70-92.
+
 ## v0.70-91 Labor Policy Save Schema Draft Lock Rule
 - v0.70-91 authorizes labor/policy save schema draft documentation, agent document updates, and headless/grep/diff verification only.
 - `labor_pool` is a future city-state accumulated resource with cap; no key is added under this task.

@@ -12094,6 +12094,79 @@ func _get_domestic_tech_full_effect_integration_summary_mvp() -> Dictionary:
 	}
 
 
+func _get_domestic_tech_gameplay_effect_integration_map_summary_mvp() -> Dictionary:
+	return {
+		"version": "v0.70-92 Domestic Tech Gameplay Effect Integration Map",
+		"map_only": true,
+		"gameplay_formula_changed": false,
+		"actual_charge_logic_changed": false,
+		"save_load_schema_changed": false,
+		"active_payload_schema_changed": false,
+		"battle_context_schema_changed": false,
+		"pending_invasion_schema_changed": false,
+		"naval_siege_production_implemented": false,
+		"enemy_research_effect_added": false,
+		"completed_lookup_contract": {
+			"national_helper": "_is_national_domestic_tech_completed_mvp",
+			"city_helper": "_is_city_domestic_tech_completed_mvp",
+			"normalizers": ["_normalize_national_domestic_tech_state_map_mvp", "_normalize_city_domestic_tech_state_map_mvp"],
+			"national_storage": "_player_state[\"national_domestic_tech_completed\"]",
+			"city_storage": "_player_state[\"city_domestic_tech_completed\"][city_id]",
+			"same_city_only": true,
+			"player_only": true,
+			"enemy_unknown_no_effect": true,
+		},
+		"candidate_hooks": {
+			"economy_city": [
+				"_calculate_player_domestic_income_delta",
+				"_calculate_city_domestic_income",
+				"_apply_domestic_tech_city_economy_bonus_to_income_mvp",
+				"_apply_resource_delta",
+				"_format_city_storage_summary",
+				"_format_warehouse_summary",
+				"_format_domestic_apply_summary",
+			],
+			"defense_battle": [
+				"_get_domestic_tech_city_defense_display_value_mvp",
+				"_format_domestic_tech_city_military_defense_bonus_lines_mvp",
+				"_build_battle_context_from_pending_invasion",
+				"_build_player_attack_battle_context",
+				"_get_hero_battle_data_for_battle_context",
+				"_apply_troop_allocation_to_roster",
+			],
+			"diplomacy_spy": [
+				"_validate_diplomacy_action",
+				"_apply_diplomacy_action",
+				"_calculate_alliance_acceptance_chance",
+				"_calculate_military_support_acceptance_chance",
+				"_validate_spy_action",
+				"_get_spy_info_success_chance",
+				"_calculate_spy_detection_chance",
+				"_get_spy_info_visibility_level",
+				"_roll_spy_info_result",
+				"_get_spy_wedge_success_chance",
+			],
+			"naval_siege_unlock": [
+				"_get_domestic_tech_city_naval_siege_bonus_mvp",
+				"_format_domestic_tech_city_naval_siege_bonus_lines_mvp",
+				"_get_domestic_tech_unlock_relation_status_mvp",
+				"_can_start_domestic_tech_research_mvp",
+				"_validate_player_attack_deployment",
+				"_build_player_attack_deployment_payload",
+				"_build_defense_deployment_payload",
+			],
+		},
+		"next_route": [
+			"v0.70-93 Economy / City Effect Integration",
+			"v0.70-94 Defense / Battle Effect Integration",
+			"v0.70-95 Diplomacy / Spy Effect Integration",
+			"v0.70-96 Naval / Siege Unlock Integration",
+			"v0.70-97 Full Gameplay F6 QA",
+			"v0.70-98 Domestic Tech Complete Lock",
+		],
+	}
+
+
 func _get_domestic_tech_research_balance_summary_mvp() -> Dictionary:
 	return {
 		"balance_integration_pass": true,

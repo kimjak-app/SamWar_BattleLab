@@ -1,5 +1,18 @@
 # CURRENT STATE
 
+## v0.70-92 Domestic Tech Gameplay Effect Integration Map
+- Baseline: `v0.70-91 Labor Policy Save Schema Draft` at `c4a7eed98faf2a4502ecec6738d121a45d1b2910`; tracked files were clean at task start.
+- Added `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md` as the code-backed map for connecting completed Domestic Tech effects into actual gameplay state, calculations, and unlocks.
+- Confirmed current Domestic Tech can start/progress/complete research and deduct actual start cost, but the remaining completion criterion is completed research effects being connected to gameplay hooks.
+- Mapped economy/city hooks to city income/resource generation, city storage display, national warehouse summary, turn resource application, and existing Domestic Tech economy bonus helpers.
+- Mapped defense/battle hooks to city defense summary, invasion preparation, BattleContext construction, roster/stat preparation, and safe modifier boundaries.
+- Mapped diplomacy/spy hooks to action validation, relation mutation, alliance/support acceptance, spy success/detection rolls, and city intel visibility payloads.
+- Mapped naval/siege hooks to city action/deployment eligibility, unlock summaries, and display-safe naval/siege helper paths; ship/siege auto-generation remains forbidden.
+- Added a side-effect-free `_get_domestic_tech_gameplay_effect_integration_map_summary_mvp()` helper in `scripts/worldmap_test.gd`.
+- Locked the Domestic Tech route to: v0.70-92 map, v0.70-93 Economy/City, v0.70-94 Defense/Battle, v0.70-95 Diplomacy/Spy, v0.70-96 Naval/Siege, v0.70-97 Full Gameplay F6 QA, v0.70-98 Complete Lock.
+- No actual gameplay effect bulk implementation, resource generation formula change, battle formula change, diplomacy/spy formula change, save/load schema change, active payload schema change, BattleContext schema change, pending invasion schema change, UI behavior change, scene change, asset/import change, enemy research/effect, or naval/siege production implementation was made.
+- Next task: `v0.70-93 Economy / City Effect Integration`.
+
 ## v0.70-91 Labor Policy Save Schema Draft
 - Baseline: `v0.70-90 Labor Policy Resource Loop Design` at `74da0c726a01bca2c225a6f99d72dc9c920541aa`; tracked files were clean at task start.
 - Extended `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md` with the v0.70-91 save schema draft for labor/policy.

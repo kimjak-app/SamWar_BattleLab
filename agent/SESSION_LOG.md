@@ -2,6 +2,16 @@
 
 ## 2026-07-08
 
+### v0.70-92 Domestic Tech Gameplay Effect Integration Map
+- Started from clean local HEAD `c4a7eed98faf2a4502ecec6738d121a45d1b2910`.
+- Confirmed expected baseline message: `v0.70-91 Labor Policy Save Schema Draft`.
+- Read required workflow, Godot, current state, next task, handoff, worldmap rules, Domestic Tech research cost design, Domestic Tech manual QA, and labor/policy resource design docs before edits.
+- Grepped `scripts/worldmap_test.gd` for Domestic Tech definitions, completed storage, active research payloads, cost/duration/effect helpers, income/storage paths, BattleContext creation, diplomacy/spy calculations, city intel, and naval/siege unlock candidates.
+- Added `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md`.
+- Added side-effect-free `_get_domestic_tech_gameplay_effect_integration_map_summary_mvp()` to summarize candidate hooks and preservation flags.
+- Updated agent docs to lock the seven-step gameplay effect route and set next task to `v0.70-93 Economy / City Effect Integration`.
+- Preserved actual charge logic, gold/food deduction, food order, active payload schema, save/load schema, BattleContext schema, pending invasion schema, battle/diplomacy/spy/market/city_intel formulas, UI behavior, enemy research/effect absence, naval/siege production absence, scenes, assets, and imports.
+
 ### v0.70-91 Labor Policy Save Schema Draft
 - Started from clean local HEAD `74da0c726a01bca2c225a6f99d72dc9c920541aa`.
 - Read required workflow, Godot, current state, next task, handoff, labor/policy resource design, Domestic Tech research cost design, Domestic Tech manual QA, and worldmap rule docs before edits.

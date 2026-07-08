@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.70-92 Domestic Tech Gameplay Effect Integration Map
+- Added `agent/DOMESTIC_TECH_GAMEPLAY_EFFECT_INTEGRATION_MAP.md` with code-backed hook maps for Economy/City, Defense/Battle, Diplomacy/Spy, and Naval/Siege Domestic Tech effect integration.
+- Recorded current Domestic Tech state: research start/progress/completion and actual start-cost charge are implemented, but completed effects still need direct gameplay effect connections for final completion.
+- Documented completed tech lookup contract for PLAYER national completed tech and same-city PLAYER city completed tech.
+- Added integration priority table and locked the seven-step route from v0.70-92 through v0.70-98.
+- Added side-effect-free `_get_domestic_tech_gameplay_effect_integration_map_summary_mvp()` to expose candidate hooks and preservation flags.
+- Preserved actual charge logic, gold/food deduction, food order, active payload schema, save/load schema, UI behavior, BattleContext schema, pending invasion schema, formulas, enemy research/effect absence, naval/siege production absence, scenes, assets, and imports.
+
 ## v0.70-91 Labor Policy Save Schema Draft
 - Extended `agent/DOMESTIC_TECH_LABOR_POLICY_RESOURCE_DESIGN.md` with the v0.70-91 save schema draft.
 - Drafted future city labor storage as `labor_pool`, an accumulated city-state resource with cap and current-value-first persistence.
