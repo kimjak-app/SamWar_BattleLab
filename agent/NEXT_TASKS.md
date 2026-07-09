@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current: v0.71-06 Economy / City Helper Extraction
+- Completed direction:
+  1. Extracted the first small Economy / City pure helper batch into `scripts/worldmap/economy_city/economy_city_helpers.gd`.
+  2. Kept city state mutation, turn income mutation, storage/resource mutation, save/load, BattleContext, pending invasion, turn orchestration, selection state mutation, and scene-node-heavy UI logic in `scripts/worldmap_test.gd`.
+  3. Preserved existing scene paths, script paths, gameplay formulas, schemas, and v0.71 refactor safety boundaries.
+- Next task:
+  1. `v0.71-07 Defense / Battle Helper Extraction`.
+
 ## Current: v0.71-05 Domestic Tech Helper Extraction
 - Completed direction:
   1. Extracted the first small Domestic Tech pure helper batch into `scripts/worldmap/domestic_tech/domestic_tech_helpers.gd`.

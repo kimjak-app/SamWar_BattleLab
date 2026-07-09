@@ -77,3 +77,9 @@ No existing `.tscn` script reference was changed.
 - `scripts/worldmap/domestic_tech/` now contains `domestic_tech_helpers.gd`.
 - The first extracted helper batch is limited to pure duration, percent/source normalization, and icon path lookup helpers.
 - No existing runtime `.gd` file was moved, and no `.tscn` script reference was changed.
+
+## v0.71-06 Economy / City Helper Status
+
+- `scripts/worldmap/economy_city/` now contains `economy_city_helpers.gd`.
+- The first extracted helper batch is limited to pure resource/trade/supply/storage formatter and lookup helpers.
+- City state mutation, turn income mutation, storage/resource mutation, save/load, and scene-node-heavy UI remain outside the helper file.

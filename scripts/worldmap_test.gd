@@ -3,6 +3,7 @@ extends Node2D
 const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper.gd")
 const PlayerAttackDeploymentPanelScript := preload("res://scripts/player_attack_deployment_panel.gd")
 const DomesticTechHelperLib := preload("res://scripts/worldmap/domestic_tech/domestic_tech_helpers.gd")
+const EconomyCityHelpers := preload("res://scripts/worldmap/economy_city/economy_city_helpers.gd")
 
 const WORLD_MAP_CAMERA_SPEED := 900.0
 const WORLD_MAP_CAMERA_DRAG_SPEED := 1.0
@@ -5042,19 +5043,7 @@ func _set_city_detail_tab_active(button: Button, is_active: bool) -> void:
 
 
 func _extract_resource_group(resource_summary: String, resource_names: Array[String]) -> String:
-	if resource_summary.is_empty():
-		return "미확인"
-
-	var matches: Array[String] = []
-	for chunk in resource_summary.split(" / "):
-		for resource_name in resource_names:
-			if chunk.begins_with(resource_name):
-				matches.append(chunk)
-				break
-
-	if not matches.is_empty():
-		return " / ".join(matches)
-	return "미확인"
+	return EconomyCityHelpers.extract_resource_group(resource_summary, resource_names)
 
 
 func _format_internal_route_summary(city_marker: WorldMapCityMarker) -> String:
@@ -5092,15 +5081,11 @@ func _format_internal_trade_route_display(city_marker: WorldMapCityMarker, conne
 
 
 func _format_internal_trade_lead_display(_connected_player_city_ids: Array[String]) -> String:
-	if _connected_player_city_ids.is_empty():
-		return ""
-	return ""
+	return EconomyCityHelpers.format_internal_trade_lead_display(_connected_player_city_ids)
 
 
 func _format_internal_trade_policy_display(connected_player_city_ids: Array[String]) -> String:
-	if connected_player_city_ids.is_empty():
-		return "현재 방침\n아군 성 연결 후 무역 주도를 선택할 수 있습니다."
-	return "현재 방침\n무역 주도 방식은 아래 버튼에서 선택합니다."
+	return EconomyCityHelpers.format_internal_trade_policy_display(connected_player_city_ids)
 
 
 func _format_internal_trade_transfer_result_summary(source_city_id: String, connected_player_city_ids: Array[String]) -> String:
@@ -5300,15 +5285,11 @@ func _get_trade_relation_multiplier_for_ui(source_faction_id: String, target_fac
 
 
 func _format_external_trade_lead_display(_candidate_city_ids: Array[String]) -> String:
-	if _candidate_city_ids.is_empty():
-		return ""
-	return ""
+	return EconomyCityHelpers.format_external_trade_lead_display(_candidate_city_ids)
 
 
 func _format_external_trade_policy_display(candidate_city_ids: Array[String]) -> String:
-	if candidate_city_ids.is_empty():
-		return ""
-	return "현재 방침\n무역 주도 방식은 아래 버튼에서 선택합니다."
+	return EconomyCityHelpers.format_external_trade_policy_display(candidate_city_ids)
 
 
 func _format_external_trade_manual_order_summary(source_city_id: String, candidate_city_ids: Array[String]) -> String:
@@ -5478,27 +5459,11 @@ func _format_city_supply_state_display(supply_state: Dictionary) -> String:
 
 
 func _format_supply_role_label(role_id: String) -> String:
-	match role_id:
-		"hub":
-			return "중심 거점"
-		"rear":
-			return "후방"
-		"frontline":
-			return "전방"
-		_:
-			return "일반"
+	return EconomyCityHelpers.format_supply_role_label(role_id)
 
 
 func _format_supply_status_label(status_id: String) -> String:
-	match status_id:
-		"supplied":
-			return "보급 연결"
-		"isolated":
-			return "고립"
-		"unsupplied":
-			return "보급 미연결"
-		_:
-			return "확인 필요"
+	return EconomyCityHelpers.format_supply_status_label(status_id)
 
 
 func _format_city_supply_adjustment_display(supply_state: Dictionary) -> String:
@@ -5648,13 +5613,7 @@ func _string_array_from_variant_array(values: Array) -> Array[String]:
 
 
 func _get_trade_display_totals(result: Dictionary) -> Dictionary:
-	var applied_totals: Variant = result.get("applied_player_totals", {})
-	if applied_totals is Dictionary and not (applied_totals as Dictionary).is_empty():
-		return applied_totals
-	var player_totals: Variant = result.get("player_totals", {})
-	if player_totals is Dictionary:
-		return player_totals
-	return {}
+	return EconomyCityHelpers.get_trade_display_totals(result)
 
 
 func _format_trade_result_summary(result: Dictionary) -> String:
@@ -5667,11 +5626,7 @@ func _format_trade_result_summary(result: Dictionary) -> String:
 
 
 func _format_trade_resource_totals_display(totals: Dictionary) -> String:
-	var parts: Array[String] = []
-	for resource_id in ["gold", "rice", "barley", "seafood", "salt"]:
-		var delta := int(totals.get(resource_id, 0))
-		parts.append("%s %s" % [str(RESOURCE_LABELS.get(resource_id, resource_id)), _format_signed_int(delta)])
-	return " / ".join(parts)
+	return EconomyCityHelpers.format_trade_resource_totals_display(totals, RESOURCE_LABELS)
 
 
 func _format_city_trade_route_display(_city_id: String, result: Dictionary) -> String:
@@ -22225,15 +22180,11 @@ func _format_city_storage_group_details(storage: Dictionary, resource_ids: Array
 
 
 func _get_city_storage_amount(storage: Dictionary, resource_id: String) -> int:
-	return maxi(0, int(storage.get(resource_id, 0)))
+	return EconomyCityHelpers.get_city_storage_amount(storage, resource_id)
 
 
 func _get_city_storage_status_label(total: int) -> String:
-	if total >= 300:
-		return "안정"
-	if total >= 100:
-		return "주의"
-	return "부족"
+	return EconomyCityHelpers.get_city_storage_status_label(total)
 
 
 func _refresh_warehouse_card() -> void:
@@ -22292,16 +22243,7 @@ func _get_resource_status_color(status: String) -> Color:
 
 
 func _get_resource_status_label(_resource_id: String, value: int, max_value: int) -> String:
-	if max_value <= 0:
-		return "상한 없음"
-	var ratio := float(value) / float(max_value)
-	if ratio <= WAREHOUSE_LOW_RATIO:
-		return "부족"
-	if ratio <= WAREHOUSE_STABLE_RATIO:
-		return "안정"
-	if ratio <= 1.0:
-		return "충분"
-	return "과잉"
+	return EconomyCityHelpers.get_resource_status_label(value, max_value, WAREHOUSE_LOW_RATIO, WAREHOUSE_STABLE_RATIO)
 
 
 func _format_policy_preview_summary(policy_id: String) -> String:
@@ -22376,15 +22318,7 @@ func _apply_policy_cost_multiplier(amount: int, policy_id: String, multiplier_ke
 
 
 func _format_resource_costs(costs: Dictionary, resource_order: Array) -> String:
-	var parts: Array[String] = []
-	for resource_id in resource_order:
-		var resource_id_string := str(resource_id)
-		var amount := int(costs.get(resource_id_string, 0))
-		if amount > 0:
-			parts.append("%s -%d" % [str(RESOURCE_LABELS.get(resource_id_string, resource_id_string)), amount])
-	if parts.is_empty():
-		return "없음"
-	return " / ".join(parts)
+	return EconomyCityHelpers.format_resource_costs(costs, resource_order, RESOURCE_LABELS)
 
 
 func _get_owned_hero_ids() -> Array:

@@ -356,6 +356,51 @@ Excluded from first batch:
 - Completion queue / video / card presentation mutation remains in `scripts/worldmap_test.gd`.
 - Save/load, BattleContext, pending invasion, and turn orchestration remain untouched.
 
+## v0.71-06 Economy / City Helper Extraction Result
+
+- Extracted helper file:
+  - `scripts/worldmap/economy_city/economy_city_helpers.gd`
+- Extraction style:
+  - Static `RefCounted` helper functions.
+  - Existing `scripts/worldmap_test.gd` private function names were kept as wrappers to preserve call-site signatures and return shapes.
+
+### Extracted Functions
+
+| Function | Previous Location | New Location | Wrapper Kept? | Reason Safe |
+|---|---|---|---|---|
+| `_extract_resource_group` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.extract_resource_group` | Yes | Pure string/resource-name formatter. |
+| `_format_internal_trade_lead_display` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.format_internal_trade_lead_display` | Yes | Pure display text helper. |
+| `_format_internal_trade_policy_display` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.format_internal_trade_policy_display` | Yes | Pure display text helper. |
+| `_format_external_trade_lead_display` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.format_external_trade_lead_display` | Yes | Pure display text helper. |
+| `_format_external_trade_policy_display` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.format_external_trade_policy_display` | Yes | Pure display text helper. |
+| `_format_supply_role_label` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.format_supply_role_label` | Yes | Pure supply role label lookup. |
+| `_format_supply_status_label` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.format_supply_status_label` | Yes | Pure supply status label lookup. |
+| `_get_trade_display_totals` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.get_trade_display_totals` | Yes | Read-only dictionary selector; no mutation. |
+| `_format_trade_resource_totals_display` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.format_trade_resource_totals_display` | Yes | Pure resource total formatter; labels are passed as data. |
+| `_get_city_storage_amount` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.get_city_storage_amount` | Yes | Pure clamped dictionary read. |
+| `_get_city_storage_status_label` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.get_city_storage_status_label` | Yes | Pure storage threshold label lookup. |
+| `_get_resource_status_label` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.get_resource_status_label` | Yes | Pure warehouse status label lookup; thresholds are passed as data. |
+| `_format_resource_costs` | `scripts/worldmap_test.gd` | `EconomyCityHelpers.format_resource_costs` | Yes | Pure cost display formatter; labels are passed as data. |
+
+### Deferred Economy / City Functions
+
+| Function / Family | Reason Deferred | Stage |
+|---|---|---|
+| City state mutation and runtime roster mutation | Mutates `_city_runtime_states` / hero-city ownership state. | Stage D |
+| Turn income calculation and application | Gameplay formula/order sensitive. | Stage C/D |
+| Storage/resource mutation | Changes city or player resource stock. | Stage D |
+| Save/load and trade persistence normalizers | Schema and persisted payload sensitive. | Stage C/D |
+| Selection panel and city detail UI node updates | Scene-node-heavy UI behavior. | Stage C |
+| Trade execution and auto trade application | Resource mutation and turn orchestration. | Stage C/D |
+
+### Safety Notes
+
+- City state mutation remains in `scripts/worldmap_test.gd`.
+- Turn income mutation remains in `scripts/worldmap_test.gd`.
+- Storage/resource mutation remains in `scripts/worldmap_test.gd`.
+- Save/load, BattleContext, pending invasion, and turn orchestration remain untouched.
+- No rollback was needed for v0.71-06.
+
 ## Do Not Move Yet Lock List
 
 | Function | Reason | Related Schema/State | Earliest Possible Stage |

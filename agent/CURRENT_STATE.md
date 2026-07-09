@@ -1,5 +1,12 @@
 # CURRENT STATE
 
+## v0.71-06 Economy / City Helper Extraction
+- Baseline: `3e78c4ef98fff0f93a39c5b116f3bc4df8365f50` (`v0.71-05 Domestic Tech Helper Extraction`); tracked files were clean at task start.
+- Added `scripts/worldmap/economy_city/economy_city_helpers.gd` for the first extracted Economy / City pure helper batch.
+- Moved only low-risk Economy / City pure helper logic selected from the v0.71 function map; city state mutation, turn income mutation, storage/resource mutation, save/load, BattleContext, pending invasion, turn orchestration, selection state mutation, and scene-node-heavy UI functions remain in `scripts/worldmap_test.gd`.
+- Existing scene files, script paths, main scene, gameplay formulas, save/load schema, BattleContext schema, pending invasion schema, enemy research, AI research, ship/siege persistent storage, assets, and imports were not changed.
+- Next task: `v0.71-07 Defense / Battle Helper Extraction`.
+
 ## v0.71-05 Domestic Tech Helper Extraction
 - Baseline: `6be02f78d022c0f32a1b0d6367d7248ee52e2ace` (`v0.71-04 WorldMap God File Function Group Map`); tracked files were clean at task start.
 - Added `scripts/worldmap/domestic_tech/domestic_tech_helpers.gd` for the first extracted Domestic Tech pure helper batch.

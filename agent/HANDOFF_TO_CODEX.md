@@ -1,5 +1,14 @@
 # HANDOFF TO CODEX
 
+## v0.71-06 Economy / City Helper Extraction Handoff
+- Current baseline after this task: `v0.71-06 Economy / City Helper Extraction`; commit hash is recorded in the completion report.
+- Added `scripts/worldmap/economy_city/economy_city_helpers.gd`.
+- Extracted only the first small low-risk Economy / City pure helper batch from `scripts/worldmap_test.gd`.
+- High-risk Economy / City functions remain locked in `scripts/worldmap_test.gd`, including city state mutation, turn income mutation, storage/resource mutation, save/load-adjacent behavior, turn orchestration, selection state mutation, and scene-node-heavy UI.
+- No existing gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula changed.
+- No `.tscn` file, scene script reference, scene node layout, main scene, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next session should run `v0.71-07 Defense / Battle Helper Extraction`.
+
 ## v0.71-05 Domestic Tech Helper Extraction Handoff
 - Current baseline after this task: `v0.71-05 Domestic Tech Helper Extraction`; commit hash is recorded in the completion report.
 - Added `scripts/worldmap/domestic_tech/domestic_tech_helpers.gd`.
