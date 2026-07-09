@@ -71,3 +71,9 @@ No existing `.tscn` script reference was changed.
 - `WorldMap_Test.tscn` headless load must pass.
 - `Battle_Fullscreen_Test.tscn` headless load must pass.
 - README-only folder skeletons must not affect runtime behavior.
+
+## v0.71-05 Domestic Tech Helper Status
+
+- `scripts/worldmap/domestic_tech/` now contains `domestic_tech_helpers.gd`.
+- The first extracted helper batch is limited to pure duration, percent/source normalization, and icon path lookup helpers.
+- No existing runtime `.gd` file was moved, and no `.tscn` script reference was changed.

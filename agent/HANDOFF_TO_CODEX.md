@@ -1,5 +1,13 @@
 # HANDOFF TO CODEX
 
+## v0.71-05 Domestic Tech Helper Extraction Handoff
+- Current baseline after this task: `v0.71-05 Domestic Tech Helper Extraction`; commit hash is recorded in the completion report.
+- Added `scripts/worldmap/domestic_tech/domestic_tech_helpers.gd`.
+- Extracted only the first small low-risk Domestic Tech pure helper batch from `scripts/worldmap_test.gd`.
+- High-risk Domestic Tech functions remain locked in `scripts/worldmap_test.gd`, including active research mutation, actual charge, completion queue, video/card presentation mutation, save/load-adjacent behavior, turn orchestration, graph layout, and scene-node-heavy UI.
+- No `.tscn` file, scene script reference, scene node layout, main scene, gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next session should run `v0.71-06 Economy / City Helper Extraction`.
+
 ## v0.71-04 WorldMap God File Function Group Map Handoff
 - Current baseline after this task: `v0.71-04 WorldMap God File Function Group Map`; commit hash is recorded in the completion report.
 - Updated `agent/WORLDMAP_REFACTOR_FUNCTION_MAP.md` with destination folder mapping, extraction stages, first-batch candidates, and do-not-move-yet boundaries.

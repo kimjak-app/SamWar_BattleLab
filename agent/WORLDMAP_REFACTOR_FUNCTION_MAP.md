@@ -315,6 +315,47 @@ Excluded from first batch:
 - Domestic Tech graph/tree node builders and UI signal handlers.
 - Save/load, BattleContext, pending invasion, turn advance, and scene signal wiring.
 
+## v0.71-05 Domestic Tech Helper Extraction Result
+
+- Extracted helper file:
+  - `scripts/worldmap/domestic_tech/domestic_tech_helpers.gd`
+- Extraction style:
+  - Static `RefCounted` helper functions.
+  - Existing `scripts/worldmap_test.gd` private function names were kept as wrappers to avoid broad call-site churn.
+
+### Extracted Functions
+
+| Function | Previous Location | New Location | Wrapper Kept? | Reason Safe |
+|---|---|---|---|---|
+| `_get_domestic_tech_duration_class_mvp` | `scripts/worldmap_test.gd` | `DomesticTechHelperLib.get_duration_class_mvp` | Yes | Pure tier/rarity label mapping. |
+| `_get_domestic_tech_duration_turns_hint_mvp` | `scripts/worldmap_test.gd` | `DomesticTechHelperLib.get_duration_turns_hint_mvp` | Yes | Pure duration hint dictionary; no active research access. |
+| `_get_domestic_tech_tier_duration_turns_mvp` | `scripts/worldmap_test.gd` | `DomesticTechHelperLib.get_tier_duration_turns_mvp` | Yes | Pure tier-to-turn lookup. |
+| `_get_domestic_tech_scope_duration_turns_mvp` | `scripts/worldmap_test.gd` | `DomesticTechHelperLib.get_scope_duration_turns_mvp` | Yes | Pure scope/tier/rarity duration lookup; scope id is passed as data. |
+| `_format_domestic_tech_percent_bonus_mvp` | `scripts/worldmap_test.gd` | `DomesticTechHelperLib.format_percent_bonus_mvp` | Yes | Pure text formatter with local signed-int formatting. |
+| `_get_unique_domestic_tech_source_ids_mvp` | `scripts/worldmap_test.gd` | `DomesticTechHelperLib.get_unique_source_ids_mvp` | Yes | Pure array normalization and de-duplication. |
+| `_get_domestic_tech_ui64_icon_filename_mvp` | `scripts/worldmap_test.gd` | `DomesticTechHelperLib.get_ui64_icon_filename_mvp` | Yes | Pure filename lookup; filename map is passed as data. |
+| `_get_domestic_tech_resolved_icon_path_mvp` | `scripts/worldmap_test.gd` | `DomesticTechHelperLib.get_resolved_icon_path_mvp` | Yes | Read-only icon path resolution; asset/import files are untouched. |
+
+### Deferred Domestic Tech Functions
+
+| Function / Family | Reason Deferred | Stage |
+|---|---|---|
+| Research start/progress/complete lifecycle | Mutates active research and completed tech state. | Stage D |
+| Actual charge validation/application | Cost/payment behavior and food group deduction order are locked. | Stage D |
+| Completion queue, video, and card presentation | Runtime queue mutation and scene-node-heavy presentation flow. | Stage D |
+| Completed tech lookup wrappers | Read-only, but PLAYER-only and same-city contracts should move after the first helper smoke pass. | Stage B |
+| Definition/filter helpers | Read-only, but still close to definition construction and category maps. | Stage B |
+| Source display formatter | Calls display-name lookup; defer until definition helpers have a stable boundary. | Stage B |
+| Icon missing/fallback metadata helpers | Read definition payload; defer until definition lookup boundary is extracted. | Stage B |
+| Tech graph/tree node builders and UI signal handlers | Scene-node-heavy UI layout and signal behavior. | Stage C/D |
+
+### Safety Notes
+
+- Active research mutation remains in `scripts/worldmap_test.gd`.
+- Actual charge logic remains in `scripts/worldmap_test.gd`.
+- Completion queue / video / card presentation mutation remains in `scripts/worldmap_test.gd`.
+- Save/load, BattleContext, pending invasion, and turn orchestration remain untouched.
+
 ## Do Not Move Yet Lock List
 
 | Function | Reason | Related Schema/State | Earliest Possible Stage |

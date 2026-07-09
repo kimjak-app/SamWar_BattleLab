@@ -2,6 +2,7 @@ extends Node2D
 
 const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper.gd")
 const PlayerAttackDeploymentPanelScript := preload("res://scripts/player_attack_deployment_panel.gd")
+const DomesticTechHelperLib := preload("res://scripts/worldmap/domestic_tech/domestic_tech_helpers.gd")
 
 const WORLD_MAP_CAMERA_SPEED := 900.0
 const WORLD_MAP_CAMERA_DRAG_SPEED := 1.0
@@ -10315,64 +10316,19 @@ func _make_domestic_tech_definition_mvp(id: String, tech_name: String, tree_scop
 
 
 func _get_domestic_tech_duration_class_mvp(tier: int, rarity: int) -> String:
-	if rarity >= 2:
-		return "legendary"
-	if rarity >= 1 or tier >= 4:
-		return "advanced"
-	if tier >= 3:
-		return "mid"
-	return "basic"
+	return DomesticTechHelperLib.get_duration_class_mvp(tier, rarity)
 
 
 func _get_domestic_tech_duration_turns_hint_mvp(tier: int, rarity: int) -> Dictionary:
-	var duration_turns := _get_domestic_tech_tier_duration_turns_mvp(tier)
-	return {"min": duration_turns, "max": duration_turns, "rule": "tier_based", "rarity": rarity}
+	return DomesticTechHelperLib.get_duration_turns_hint_mvp(tier, rarity)
 
 
 func _get_domestic_tech_tier_duration_turns_mvp(tier: int) -> int:
-	match clampi(tier, 1, 5):
-		1:
-			return 2
-		2:
-			return 3
-		3:
-			return 5
-		4:
-			return 7
-		_:
-			return 8
+	return DomesticTechHelperLib.get_tier_duration_turns_mvp(tier)
 
 
 func _get_domestic_tech_scope_duration_turns_mvp(scope: String, tier: int, rarity: int = 0) -> int:
-	var safe_tier := clampi(tier, 1, 5)
-	var duration_turns := 2
-	if scope == DOMESTIC_TECH_SCOPE_NATIONAL:
-		match safe_tier:
-			1:
-				duration_turns = 3
-			2:
-				duration_turns = 4
-			3:
-				duration_turns = 6
-			4:
-				duration_turns = 8
-			_:
-				duration_turns = 9
-	else:
-		match safe_tier:
-			1:
-				duration_turns = 2
-			2:
-				duration_turns = 3
-			3:
-				duration_turns = 5
-			4:
-				duration_turns = 6
-			_:
-				duration_turns = 8
-	if rarity >= 2:
-		duration_turns += 1
-	return duration_turns
+	return DomesticTechHelperLib.get_scope_duration_turns_mvp(scope, tier, rarity, DOMESTIC_TECH_SCOPE_NATIONAL)
 
 
 func _get_domestic_tech_definitions_mvp() -> Dictionary:
@@ -11478,21 +11434,11 @@ func _has_domestic_tech_city_spy_intel_bonus_mvp(city_id: String) -> bool:
 
 
 func _format_domestic_tech_percent_bonus_mvp(value: float) -> String:
-	return "%s%%" % _format_signed_int(int(round(value * 100.0)))
+	return DomesticTechHelperLib.format_percent_bonus_mvp(value)
 
 
 func _get_unique_domestic_tech_source_ids_mvp(source_techs: Variant) -> Array[String]:
-	var result: Array[String] = []
-	if not source_techs is Array:
-		return result
-	var seen := {}
-	for tech_id_variant in source_techs:
-		var tech_id := str(tech_id_variant)
-		if tech_id.is_empty() or seen.has(tech_id):
-			continue
-		seen[tech_id] = true
-		result.append(tech_id)
-	return result
+	return DomesticTechHelperLib.get_unique_source_ids_mvp(source_techs)
 
 
 func _format_domestic_tech_source_display_mvp(source_techs: Variant, max_visible: int = 3) -> String:
@@ -12090,18 +12036,11 @@ func _get_domestic_tech_icon_path_mvp(tech_id: String) -> String:
 
 
 func _get_domestic_tech_ui64_icon_filename_mvp(tech_id: String) -> String:
-	return str(DOMESTIC_TECH_UI64_ICON_FILENAME_MAP.get(tech_id, ""))
+	return DomesticTechHelperLib.get_ui64_icon_filename_mvp(tech_id, DOMESTIC_TECH_UI64_ICON_FILENAME_MAP)
 
 
 func _get_domestic_tech_resolved_icon_path_mvp(tech_id: String, definition_icon_path: String = "") -> String:
-	var ui64_filename := _get_domestic_tech_ui64_icon_filename_mvp(tech_id)
-	if not ui64_filename.is_empty():
-		var ui64_path := DOMESTIC_TECH_UI64_ICON_ROOT + ui64_filename
-		if ResourceLoader.exists(ui64_path):
-			return ui64_path
-	if not definition_icon_path.is_empty() and ResourceLoader.exists(definition_icon_path):
-		return definition_icon_path
-	return ""
+	return DomesticTechHelperLib.get_resolved_icon_path_mvp(tech_id, definition_icon_path, DOMESTIC_TECH_UI64_ICON_ROOT, DOMESTIC_TECH_UI64_ICON_FILENAME_MAP)
 
 
 func _is_domestic_tech_icon_missing_mvp(tech_id: String) -> bool:
