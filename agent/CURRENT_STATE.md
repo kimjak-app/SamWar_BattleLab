@@ -1,5 +1,14 @@
 # CURRENT STATE
 
+## v0.71-04 WorldMap God File Function Group Map
+- Baseline: `515676465f99c306095e25b7a206d45f96832f03` (`v0.71-03 Scripts Folder Structure Split`); tracked files were clean at task start.
+- Refined `agent/WORLDMAP_REFACTOR_FUNCTION_MAP.md` by linking `scripts/worldmap_test.gd` function groups to the new `scripts/worldmap/` destination folders.
+- Added extraction stage labels for first-batch candidates, early helper candidates, later refactor candidates, and do-not-move-yet functions.
+- Identified the recommended `v0.71-05 Domestic Tech Helper Extraction` first batch while keeping active research mutation, actual charge, completion queue, save/load, BattleContext, pending invasion, turn orchestration, and scene-node-heavy functions locked in place.
+- Existing runtime scripts were not moved; `scripts/worldmap_test.gd` remains the active worldmap script.
+- No scene file, script path, scene node layout, gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next task: `v0.71-05 Domestic Tech Helper Extraction`.
+
 ## v0.71-03 Scripts Folder Structure Split
 - Baseline: `39dd2e666c059d553c95b33d33ec75140311ef12` (`v0.71-02 Test Name Cleanup`); tracked files were clean at task start.
 - Added `scripts/worldmap/` destination folder skeletons for Domestic Tech, Economy / City, Defense / Battle, Diplomacy / Spy, Naval / Siege, UI Formatter, Save / Load, Selection Panel, Debug / QA, Orchestration, Enemy Baseline, and Shared helpers.

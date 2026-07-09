@@ -10,6 +10,7 @@
 - v0.71-01 note: `project.godot` main scene was switched to the existing root scene `res://WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` is absent and no scene files were moved or renamed.
 - v0.71-02 note: Added `agent/SCENE_ENTRYPOINT_MAP.md`; no scene rename/move was performed, and root `res://WorldMap_Test.tscn` remains the v0.71 MVP entrypoint.
 - v0.71-03 note: Added `scripts/worldmap/` destination folder skeletons and `agent/SCRIPTS_FOLDER_STRUCTURE_MAP.md`; no existing runtime `.gd` file was moved.
+- v0.71-04 note: Re-extracted `scripts/worldmap_test.gd` function list at local HEAD `515676465f99c306095e25b7a206d45f96832f03`; function count remains `1109`. This pass links function groups to the `scripts/worldmap/` destination folders and does not move code.
 
 ## 2. Purpose
 - This document is a code-backed function/domain map before physically splitting `scripts/worldmap_test.gd`.
@@ -170,6 +171,176 @@ Additional recommended checks:
 - For any helper touching completed tech, verify national PLAYER-only and city same-city-only behavior.
 
 Manual F6 QA should be concentrated in `v0.71-12`, not repeated heavily after every small helper extraction unless a visible flow is touched.
+
+## v0.71-04 Destination Folder Mapping
+
+This pass connects the v0.71-00 function map to the v0.71-03 folder skeleton. It is documentation-only: no helper `.gd` file was created and no `worldmap_test.gd` function was moved.
+
+Fresh extraction commands:
+
+```powershell
+rg -n "^func |^static func " scripts/worldmap_test.gd
+rg -n "^signal |^const |^var |^@onready" scripts/worldmap_test.gd
+```
+
+Current totals remain unchanged:
+
+| Metric | Count |
+| ------ | ----: |
+| Total functions | 1109 |
+| Domestic Tech | 317 |
+| Economy / City | 167 |
+| Diplomacy / Spy | 151 |
+| UI Formatter / Summary | 125 |
+| Defense / Battle | 122 |
+| Mixed / Unsafe | 69 |
+| Selection Panel / World UI | 58 |
+| Scene / Runtime Orchestration | 39 |
+| Debug / QA / Dev Tools | 25 |
+| Save / Load | 20 |
+| Enemy Baseline / AI-lite | 12 |
+| Naval / Siege | 4 |
+
+No `worldmap_test.gd` section comments were added in v0.71-04. The file is already line-sensitive for the refactor map; adding broad comments would add line drift without improving extraction safety enough for this pass.
+
+## Extraction Stage Summary
+
+| Stage | Meaning | Count | First Target? |
+| ----- | ------- | ----: | ------------- |
+| Stage A | Side-effect-free formatter, summary, lookup, constants-like mapping, or safe-set helper. | 224 | Yes |
+| Stage B | Mostly pure helper with read-only state dependency or careful call-site replacement needs. | 356 | Sometimes |
+| Stage C | Later refactor candidate with UI node access, selection state, turn flow, action path, or moderate coupling. | 508 | No |
+| Stage D | Do Not Move Yet: schema, BattleContext, pending invasion, active/completed mutation, `_ready`, signal wiring, turn orchestration, presentation queue, or state-heavy mutation. | 21 | No |
+
+Stage counts are a v0.71-04 extraction-planning overlay on top of the existing risk map. They preserve the existing risk totals (`Low 224`, `Medium 635`, `High 229`, `Do Not Move Yet 21`) while making the next extraction order explicit.
+
+## Group -> Folder Map
+
+| Function Group | Future Folder | Safe First? | Notes |
+| -------------- | ------------- | ----------- | ----- |
+| Domestic Tech | `scripts/worldmap/domestic_tech/` | Yes, for Stage A/B lookup and display helpers only | Keep active research mutation, actual charge, completed-state mutation, and presentation queue locked. |
+| Economy / City | `scripts/worldmap/economy_city/` | No, except pure formatters later | Resource display and summary helpers are candidates; turn income/resource mutation remains later. |
+| Defense / Battle | `scripts/worldmap/defense_battle/` | No | Battle modifier summaries can move later; BattleContext creation and troop accounting stay locked. |
+| Diplomacy / Spy | `scripts/worldmap/diplomacy_spy/` | No | UI labels and summaries can move after formula guards; relation and spy payload mutation stay locked. |
+| Naval / Siege | `scripts/worldmap/naval_siege/` | No, except small unlock lookup helpers after Domestic Tech | Unlock summaries are candidates; no persistent ship/siege storage or production. |
+| UI Formatter / Summary | `scripts/worldmap/ui_formatter/` | Yes, after domain-first Domestic Tech helpers | Pure `_format_*`, bullet, tooltip, and summary builders are the safest shared targets. |
+| Save / Load | `scripts/worldmap/save_load/` | No | Schema-sensitive; do not move in early v0.71. |
+| Selection Panel / World UI | `scripts/worldmap/selection_panel/` | No | Selected-city display formatters can move later; selection mutation and panel callbacks remain risky. |
+| Debug / QA / Dev Tools | `scripts/worldmap/debug_qa/` | Sometimes | Side-effect-free QA summaries are candidates; debug mutation must be task-scoped. |
+| Scene / Runtime Orchestration | `scripts/worldmap/orchestration/` | No | `_ready`, turn advance, signal wiring, and scene flow are Stage D/C. |
+| Enemy Baseline / AI-lite | `scripts/worldmap/enemy_baseline/` | Later | Read-only baseline helpers are good candidates after Domestic Tech; no enemy research/storage. |
+| Mixed / Unsafe | Split by ownership, or keep in `worldmap_test.gd` until clarified | No | Needs call graph and state boundary before movement. |
+| Shared | `scripts/worldmap/shared/` | Sometimes | Only constants-like pure utility with clear ownership; avoid becoming a catch-all. |
+
+## Function Family -> Destination Detail
+
+| Function / Family | Current Lines | Group | Future Folder | Extraction Stage | Risk | Move Rule | Notes |
+| ----------------- | ------------: | ----- | ------------- | ---------------- | ---- | --------- | ----- |
+| Camera pure display helpers such as `_format_vector2` | 1602 | UI Formatter / Orchestration | `scripts/worldmap/ui_formatter/` or `shared/` | Stage A | Low | Pure helper candidate | Camera mutation stays in orchestration. |
+| HUD drag and panel anchor helpers | 1393-1491 | Selection Panel / World UI | `scripts/worldmap/selection_panel/` | Stage C | Medium/High | Later only | Direct `Control` mutation and drag state. |
+| City marker connect/select callbacks | 1606-1637 | Scene / Runtime Orchestration + Selection | `scripts/worldmap/orchestration/` | Stage D | High | Do not move yet | Signal wiring and selection refresh fan-out. |
+| Trade label/preview formatters | 2396-2931, 5015-5675 | Economy / City + UI Formatter | `scripts/worldmap/economy_city/` or `ui_formatter/` | Stage A/B | Low/Medium | Pure formatters first | Trade execution and persistence stay locked. |
+| Trade persistence normalizers | 3291-3516 | Save / Load + Economy / City | `scripts/worldmap/save_load/` | Stage C/D | Medium/High | Schema guard required | Payload shape and player-state mirror. |
+| Diplomacy/spy UI labels and summaries | 3920-5014 | Diplomacy / Spy + UI Formatter | `scripts/worldmap/diplomacy_spy/` or `ui_formatter/` | Stage A/B/C | Low/Medium/High | Formatters before action logic | Action cards mutate nodes; formulas stay in place. |
+| Enemy baseline read-only helpers | 4412-4729 | Enemy Baseline / AI-lite | `scripts/worldmap/enemy_baseline/` | Stage B | Low/Medium | Read-only only | Must remain baseline/resistance, not enemy research. |
+| Pending invasion UI and payload | 5913-8159 | Defense / Battle + Orchestration | `scripts/worldmap/defense_battle/` | Stage D | High | Do not move yet | Pending event shape and defense choice flow. |
+| Player attack/defense deployment helpers | 8160-9050 | Defense / Battle | `scripts/worldmap/defense_battle/` | Stage C/D | High | No early move | BattleContext and troop accounting sensitive. |
+| Domestic Tech definition and identity lookups | 10173-10457 | Domestic Tech | `scripts/worldmap/domestic_tech/` | Stage A/B | Low/Medium | First batch candidate | No mutation except read-only completed wrappers. |
+| Domestic Tech modifier and safe-set helpers | 10461-11274 | Domestic Tech by domain | `domestic_tech/`, then domain folders | Stage B | Low/Medium | Domain-staged extraction | Preserve PLAYER-only and same-city contracts. |
+| Domestic Tech formatter/summary helpers | 11480-14579, 14768-14937 | Domestic Tech + UI Formatter | `domestic_tech/` or `ui_formatter/` | Stage A/B | Low/Medium | Good after first batch | Completion queue itself remains locked. |
+| Domestic Tech graph/tree UI builders | 12115-14322 | Domestic Tech + Selection/UI | `scripts/worldmap/domestic_tech/` | Stage C | Medium/High | Later only | Direct node construction and selection styling. |
+| Domestic Tech actual charge and research lifecycle | 12572-12747, 15519-15760 | Domestic Tech | `scripts/worldmap/domestic_tech/` | Stage D | High | Do not move yet | Active payload and actual charge locked. |
+| Domestic Tech completion presentation queue/video/card | 14586-15124 | Domestic Tech + UI Formatter | `scripts/worldmap/domestic_tech/` | Stage D | High | Do not move yet | Recently fixed user-visible queue. |
+| BattleContext handoff and result processing | 16991-17610 | Defense / Battle | `scripts/worldmap/defense_battle/` | Stage D | High | Do not move yet | Battle scene contract-sensitive. |
+| Diplomacy/spy validation, rolls, mutation | 17611-20568 | Diplomacy / Spy | `scripts/worldmap/diplomacy_spy/` | Stage C/D | Medium/High | Formula guard required | Relation and spy payload schemas. |
+| Turn economy/city mutation | 20569-21181, 17727-18038 | Economy / City + Orchestration | `scripts/worldmap/economy_city/` | Stage C/D | High | Later only | Resource/city state mutation. |
+| Save/load runtime state | 21599-21987 | Save / Load | `scripts/worldmap/save_load/` | Stage D | High | Do not move yet | Save payload and old-save compatibility. |
+| City/hero/storage pure display helpers | 22001-22525 | Economy / City + UI Formatter | `economy_city/` or `ui_formatter/` | Stage A/B/C | Low/Medium/High | Separate getter/formatter from mutation | Storage mutation remains locked. |
+| Final selected city/chancellor callbacks | 22526-23096 | Selection Panel / World UI | `scripts/worldmap/selection_panel/` | Stage C | Medium/High | Later only | UI state and signal callbacks. |
+
+## Recommended v0.71-05 First Extraction Batch
+
+First batch should be small and Domestic-Tech-only. It should create a helper with pure identity/display/lookup functions, then replace call sites carefully while preserving current names or wrappers if needed.
+
+| Function | Current Lines | Future Folder | Reason Safe | Exclusion Notes |
+| -------- | ------------: | ------------- | ----------- | --------------- |
+| `_get_domestic_tech_categories_mvp` | 10173 | `scripts/worldmap/domestic_tech/` | Constants-like category map. | Does not mutate state. |
+| `_get_domestic_tech_duration_class_mvp` | 10317 | `scripts/worldmap/domestic_tech/` | Pure tier/rarity label helper. | No payload access. |
+| `_get_domestic_tech_duration_turns_hint_mvp` | 10327 | `scripts/worldmap/domestic_tech/` | Pure duration hint helper. | Keep duration values unchanged. |
+| `_get_domestic_tech_tier_duration_turns_mvp` | 10332 | `scripts/worldmap/domestic_tech/` | Pure tier duration lookup. | No active research mutation. |
+| `_get_domestic_tech_scope_duration_turns_mvp` | 10346 | `scripts/worldmap/domestic_tech/` | Pure scope duration lookup. | No active research mutation. |
+| `_get_domestic_tech_definition_mvp` | 10387 | `scripts/worldmap/domestic_tech/` | Read-only definition lookup. | Definition source should stay unchanged. |
+| `_get_domestic_techs_by_scope_mvp` | 10395 | `scripts/worldmap/domestic_tech/` | Read-only filter helper. | No state mutation. |
+| `_get_domestic_techs_by_category_mvp` | 10406 | `scripts/worldmap/domestic_tech/` | Read-only filter helper. | No state mutation. |
+| `_get_domestic_techs_by_branch_mvp` | 10417 | `scripts/worldmap/domestic_tech/` | Read-only filter helper. | No state mutation. |
+| `_is_domestic_city_tech_mvp` | 10428 | `scripts/worldmap/domestic_tech/` | Pure scope predicate. | No completed-state mutation. |
+| `_is_domestic_national_tech_mvp` | 10432 | `scripts/worldmap/domestic_tech/` | Pure scope predicate. | No completed-state mutation. |
+| `_is_city_domestic_tech_completed_mvp` | 10436 | `scripts/worldmap/domestic_tech/` | Read-only completed lookup wrapper. | Must preserve same-city PLAYER-only contract. |
+| `_is_national_domestic_tech_completed_mvp` | 10446 | `scripts/worldmap/domestic_tech/` | Read-only completed lookup wrapper. | Must preserve PLAYER-only contract. |
+| `_has_completed_national_domestic_tech_mvp` | 10453 | `scripts/worldmap/domestic_tech/` | Thin read-only alias. | Preserve return behavior. |
+| `_has_completed_city_domestic_tech_mvp` | 10457 | `scripts/worldmap/domestic_tech/` | Thin read-only alias. | Preserve same-city behavior. |
+| `_format_domestic_tech_percent_bonus_mvp` | 11480 | `scripts/worldmap/domestic_tech/` or `ui_formatter/` | Pure text formatter. | No node access. |
+| `_get_unique_domestic_tech_source_ids_mvp` | 11484 | `scripts/worldmap/domestic_tech/` | Pure array normalization/dedup helper. | No schema mutation. |
+| `_format_domestic_tech_source_display_mvp` | 11498 | `scripts/worldmap/domestic_tech/` or `ui_formatter/` | Pure source display formatter. | Calls display lookup only. |
+| `_get_domestic_tech_icon_path_mvp` | 12088 | `scripts/worldmap/domestic_tech/` | Pure icon path lookup. | Do not change asset paths. |
+| `_get_domestic_tech_ui64_icon_filename_mvp` | 12092 | `scripts/worldmap/domestic_tech/` | Pure filename lookup. | Do not touch assets/imports. |
+| `_get_domestic_tech_resolved_icon_path_mvp` | 12096 | `scripts/worldmap/domestic_tech/` | Pure path resolver. | Do not change fallback policy. |
+| `_is_domestic_tech_icon_missing_mvp` | 12107 | `scripts/worldmap/domestic_tech/` | Pure icon metadata check. | No filesystem writes. |
+| `_get_domestic_tech_icon_fallback_label_mvp` | 12111 | `scripts/worldmap/domestic_tech/` | Pure fallback label helper. | No UI node mutation. |
+
+Recommended batch count: `23`.
+
+Why this batch is safe:
+
+- It avoids research start/progress/complete mutation.
+- It avoids actual charge validation/application.
+- It avoids completion queue/video/card mutation.
+- It avoids save/load, BattleContext, pending invasion, turn orchestration, and scene-node-heavy graph builders.
+- The only state reads are completed-tech lookup wrappers, which are intentionally read-only and already part of the v0.70 completed-tech contract.
+
+Verification for v0.71-05:
+
+- `git diff --check`.
+- Godot project headless load.
+- `WorldMap_Test.tscn` headless load.
+- `Battle_Fullscreen_Test.tscn` headless load.
+- Grep for `national_domestic_tech_completed`, `city_domestic_tech_completed`, active research keys, and completion queue references to confirm no schema or queue movement happened.
+- Domestic Tech tree smoke: definitions, icons, completed status, and source display must still resolve through the original call surface.
+
+Excluded from first batch:
+
+- `_start_domestic_tech_research_mvp`, `_advance_domestic_tech_research_for_world_turn_mvp`, `_complete_national_tech_research_mvp`, `_complete_city_tech_research_mvp`.
+- `_build_domestic_tech_actual_charge_plan_mvp`, `_validate_domestic_tech_actual_charge_mvp`, `_apply_domestic_tech_actual_charge_mvp`.
+- `_enqueue_domestic_tech_completion_presentations_mvp`, `_play_next_domestic_tech_completion_presentation`, `_show_domestic_tech_completion_card_mvp`.
+- Domestic Tech graph/tree node builders and UI signal handlers.
+- Save/load, BattleContext, pending invasion, turn advance, and scene signal wiring.
+
+## Do Not Move Yet Lock List
+
+| Function | Reason | Related Schema/State | Earliest Possible Stage |
+| -------- | ------ | -------------------- | ----------------------- |
+| `_ready` | Scene boot order, initial setup, and cross-domain signal startup. | Scene tree and runtime startup state | Stage D |
+| `_connect_city_markers` | Signal wiring and selected-city fan-out. | City marker signals, selected city state | Stage D |
+| `_connect_world_hud_placeholders` | Signal wiring for HUD actions. | World HUD callbacks | Stage D |
+| `_setup_pending_invasion_choice_ui` | Builds pending invasion choice UI and owns button wiring. | Pending invasion UI state | Stage D |
+| `_build_battle_context_from_pending_invasion` | Creates BattleContext consumed by battle scene. | BattleContext schema, pending invasion payload | Stage D |
+| `_build_player_attack_battle_context` | Creates player attack BattleContext and supply/troop metadata. | BattleContext schema, player attack payload | Stage D |
+| `_serialize_worldmap_state` | Save payload root. | Save/load schema | Stage D |
+| `_apply_worldmap_state` | Runtime restore and old-save compatibility. | Save/load schema, city/player/hero state | Stage D |
+| `_save_worldmap_state` | Writes save payload. | Save file contract | Stage D |
+| `_load_worldmap_state` | Loads and applies save payload. | Save file contract | Stage D |
+| `_apply_domestic_tech_actual_charge_mvp` | Deducts start-time actual charge. | Actual charge logic, resources | Stage D |
+| `_start_domestic_tech_research_mvp` | Mutates active research payload. | Active research schema | Stage D |
+| `_advance_domestic_tech_research_for_world_turn_mvp` | Turn-based research orchestration. | Active research, completion events | Stage D |
+| `_complete_national_tech_research_mvp` | Mutates completed national tech state. | Completed tech state | Stage D |
+| `_complete_city_tech_research_mvp` | Mutates completed city tech state. | Completed tech state | Stage D |
+| `_enqueue_domestic_tech_completion_presentations_mvp` | Mutates completion presentation queue. | Runtime presentation queue | Stage D |
+| `_play_next_domestic_tech_completion_presentation` | Drives video/card sequence. | Runtime presentation queue/video state | Stage D |
+| `_show_domestic_tech_completion_card_mvp` | Direct UI node mutation in completion flow. | Completion card nodes | Stage D |
+| `_normalize_domestic_tech_state_mvp` | Normalizes active/completed tech state. | Active/completed tech schema | Stage D |
+| `_mark_domestic_tech_completed_from_normalize_mvp` | Mutates completed-tech mirror during normalization. | Completed tech state | Stage D |
+| `_apply_domestic_turn_mvp` | Cross-domain turn orchestration. | Economy, tech progress, diplomacy/spy cooldowns, summaries | Stage D |
+| `_apply_resource_delta` | Mutates player resources. | Player resource state | Stage D |
 
 ## 9. v0.71-01 Entry Criteria
 

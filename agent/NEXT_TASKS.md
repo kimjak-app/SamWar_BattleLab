@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current: v0.71-04 WorldMap God File Function Group Map
+- Completed direction:
+  1. Connected the `worldmap_test.gd` function map to the new `scripts/worldmap/` destination folder skeleton.
+  2. Marked extraction stages and do-not-move-yet boundaries before any helper move.
+  3. Selected the first safe Domestic Tech helper extraction batch for v0.71-05.
+  4. Preserved existing runtime scripts, scene paths, gameplay formulas, schemas, and v0.71 refactor safety boundaries.
+- Next task:
+  1. `v0.71-05 Domestic Tech Helper Extraction`.
+
 ## Current: v0.71-03 Scripts Folder Structure Split
 - Completed direction:
   1. Created the future `scripts/worldmap/` helper destination folder skeleton without moving existing runtime scripts.
