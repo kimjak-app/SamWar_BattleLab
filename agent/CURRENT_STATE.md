@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.71-02 Test Name Cleanup
+- Baseline: `e1c0848b1b4ab9b40016cc775a5bae1d253c3b8e` (`v0.71-01 MVP Main Scene Switch`); tracked files were clean at task start.
+- Added `agent/SCENE_ENTRYPOINT_MAP.md` to document current MVP/test scene roles and prevent path/name confusion during v0.71 refactor work.
+- Confirmed the current MVP run main scene is `res://WorldMap_Test.tscn`; the repo does not use `res://scenes/WorldMap_Test.tscn` as the MVP entrypoint.
+- Preserved existing scene filenames and deferred physical scene rename/move work to a separate future task.
+- No scene node layout, script refactor, gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next task: `v0.71-03 Scripts Folder Structure Split`.
+
 ## v0.71-01 MVP Main Scene Switch
 - Baseline: `4721de4906b4b32321868c22d5ecb0877e193e6d` (`v0.71-00 Refactor Plan & Function Map`); tracked files were clean at task start.
 - Updated `project.godot` so the MVP run main scene enters the world map through `res://WorldMap_Test.tscn` instead of the battle-only test scene.

@@ -1,5 +1,14 @@
 # HANDOFF TO CODEX
 
+## v0.71-02 Test Name Cleanup Handoff
+- Current baseline after this task: `v0.71-02 Test Name Cleanup`; commit hash is recorded in the completion report.
+- Added `agent/SCENE_ENTRYPOINT_MAP.md`.
+- Confirmed `project.godot` uses `run/main_scene="res://WorldMap_Test.tscn"` as the current MVP entrypoint.
+- Existing test scene filenames were preserved; physical scene rename/move work remains deferred.
+- `WorldMap_Test.tscn` is treated as the MVP worldmap entry scene during v0.71 despite the legacy `Test` suffix.
+- No scene node layout, script path, script refactor, gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next session should run `v0.71-03 Scripts Folder Structure Split`.
+
 ## v0.71-01 MVP Main Scene Switch Handoff
 - Current baseline after this task: `v0.71-01 MVP Main Scene Switch`; commit hash is recorded in the completion report.
 - Updated `project.godot` so `run/main_scene` points to `res://WorldMap_Test.tscn`.

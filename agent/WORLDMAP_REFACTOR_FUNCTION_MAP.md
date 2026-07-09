@@ -8,6 +8,7 @@
 - 분석 대상: `scripts/worldmap_test.gd`.
 - 보조 확인: `project.godot` main scene is `res://Battle_Singijeon_Test.tscn`; test scenes include `WorldMap_Test.tscn`, `Battle_Fullscreen_Test.tscn`, `Battle_WebImport_Test.tscn`, and `scenes/dev/video_theora_test.tscn`.
 - v0.71-01 note: `project.godot` main scene was switched to the existing root scene `res://WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` is absent and no scene files were moved or renamed.
+- v0.71-02 note: Added `agent/SCENE_ENTRYPOINT_MAP.md`; no scene rename/move was performed, and root `res://WorldMap_Test.tscn` remains the v0.71 MVP entrypoint.
 
 ## 2. Purpose
 - This document is a code-backed function/domain map before physically splitting `scripts/worldmap_test.gd`.

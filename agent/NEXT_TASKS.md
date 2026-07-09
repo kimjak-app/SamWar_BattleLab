@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current: v0.71-02 Test Name Cleanup
+- Completed direction:
+  1. Documented the current MVP scene entrypoint and test scene roles.
+  2. Confirmed `res://WorldMap_Test.tscn` is the active MVP main scene path.
+  3. Avoided physical scene renames, file moves, script refactors, schema changes, and gameplay changes.
+- Next task:
+  1. `v0.71-03 Scripts Folder Structure Split`.
+
 ## Current: v0.71-01 MVP Main Scene Switch
 - Completed direction:
   1. Changed the Godot run main scene from the battle-only test scene to the current world map MVP scene.
