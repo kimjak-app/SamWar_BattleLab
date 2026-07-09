@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.71-00 Refactor Plan & Function Map
+- Baseline: `621be2a8c9eef7cf6575b2636aa89fa2564e7319` (`v0.70-99-hotfix2 Research Completion Effect Summary Fix`); tracked files were clean at task start.
+- Added `agent/WORLDMAP_REFACTOR_FUNCTION_MAP.md` as the code-backed function/domain map for the v0.71 refactor route.
+- Mapped `scripts/worldmap_test.gd` functions into Domestic Tech, Economy / City, Defense / Battle, Diplomacy / Spy, Naval / Siege, UI Formatter / Summary, Save / Load, Selection Panel, Debug / QA, Scene / Runtime Orchestration, Enemy Baseline, and Mixed / Unsafe groups.
+- Defined safe extraction order and identified schema-sensitive / high-risk functions that must not be moved until protective boundaries are clear.
+- No gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, diplomacy/spy formula, battle formula, enemy research, AI research, ship/siege persistent storage, scene, asset, or UI layout behavior changed.
+- Next task: `v0.71-01 MVP Main Scene Switch`.
+
 ## v0.70-99-hotfix2 Research Completion Effect Summary Fix
 - Baseline: `a96bfb34b564fa1329cfec78d1ba2e077736537b` (`v0.70-99-hotfix1 Research Completion Video Size Match`); tracked files were clean at task start.
 - Updated `scripts/worldmap_test.gd` so Domestic Tech completion cards build concrete effect bullet text from `tech_id`, scope, city id, existing effect safe-set mappings, unlock rules, and `effect_stub.description`.

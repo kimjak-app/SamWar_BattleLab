@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current: v0.71-00 Refactor Plan & Function Map
+- Completed direction:
+  1. Created the WorldMap function/domain map before physically splitting `scripts/worldmap_test.gd`.
+  2. Identified low-risk helper/formatter extraction candidates and high-risk schema/runtime orchestration functions.
+  3. Preserved Domestic Tech Complete Lock and avoided gameplay/schema/scene changes.
+- Next task:
+  1. `v0.71-01 MVP Main Scene Switch`.
+
 ## Current: v0.70-99-hotfix2 Research Completion Effect Summary Fix
 - Completed direction:
   1. Fixed Domestic Tech completion cards to show concrete city/national effect bullets instead of generic fallback text.
