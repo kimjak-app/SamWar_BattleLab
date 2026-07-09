@@ -16,5 +16,6 @@ Not allowed yet:
 - Changing scene node paths or script paths.
 
 Current status:
-- Placeholder only.
-- No runtime script moved here in v0.71-03.
+- Contains `defense_battle_helpers.gd` as of v0.71-07.
+- First batch only includes pure formatter / lookup helpers.
+- No existing runtime script was moved here in v0.71-07.

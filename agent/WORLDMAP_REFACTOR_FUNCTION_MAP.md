@@ -401,6 +401,44 @@ Excluded from first batch:
 - Save/load, BattleContext, pending invasion, and turn orchestration remain untouched.
 - No rollback was needed for v0.71-06.
 
+## v0.71-07 Defense / Battle Helper Extraction Result
+
+- Extracted helper file:
+  - `scripts/worldmap/defense_battle/defense_battle_helpers.gd`
+- Extraction style:
+  - Static `RefCounted` helper functions.
+  - Existing `scripts/worldmap_test.gd` private function names were kept as wrappers to preserve call-site signatures and return shapes.
+
+### Extracted Functions
+
+| Function | Previous Location | New Location | Wrapper Kept? | Reason Safe |
+|---|---|---|---|---|
+| `_format_troop_move_button_text` | `scripts/worldmap_test.gd` | `DefenseBattleHelpers.format_troop_move_button_text` | Yes | Pure button label formatter from a preview dictionary. |
+| `_format_troop_move_reason` | `scripts/worldmap_test.gd` | `DefenseBattleHelpers.format_troop_move_reason` | Yes | Pure movement rejection reason formatter; no troop/state mutation. |
+| `_limit_invasion_result_lines` | `scripts/worldmap_test.gd` | `DefenseBattleHelpers.limit_invasion_result_lines` | Yes | Pure non-empty line limiter for result display. |
+| `_normalize_command_rank_mvp` | `scripts/worldmap_test.gd` | `DefenseBattleHelpers.normalize_command_rank_mvp` | Yes | Pure command rank normalization; rank limits/fallbacks are passed as data. |
+
+### Deferred Defense / Battle Functions
+
+| Function / Family | Reason Deferred | Stage |
+|---|---|---|
+| BattleContext generation | Builds the battle scene payload and schema-sensitive handoff. | Stage D |
+| Pending invasion payload generation and choice UI | Pending invasion schema and scene-node-heavy UI ownership. | Stage D |
+| Battle formula / stat calculation | Gameplay number and result sensitivity. | Stage D |
+| Deployment validation and payload mutation | Attack/defense eligibility and payload shape sensitivity. | Stage D |
+| Battle result application | Mutates city ownership, hero state, pending state, and result UI. | Stage D |
+| City defense and troop mutation | Changes runtime city/battle resources. | Stage D |
+| Save/load and turn orchestration | Schema and cross-domain turn flow sensitivity. | Stage D |
+
+### Safety Notes
+
+- BattleContext generation remains in `scripts/worldmap_test.gd`.
+- Pending invasion payload generation remains in `scripts/worldmap_test.gd`.
+- Battle formula / stat calculation remains in `scripts/worldmap_test.gd`.
+- Deployment validation and payload mutation remain in `scripts/worldmap_test.gd`.
+- Save/load and turn orchestration remain untouched.
+- No rollback was needed for v0.71-07.
+
 ## Do Not Move Yet Lock List
 
 | Function | Reason | Related Schema/State | Earliest Possible Stage |

@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current: v0.71-07 Defense / Battle Helper Extraction
+- Completed direction:
+  1. Extracted the first small Defense / Battle pure helper batch into `scripts/worldmap/defense_battle/defense_battle_helpers.gd`.
+  2. Kept BattleContext generation, pending invasion payloads, battle formula/stat calculation, deployment validation, deployment payload mutation, battle result mutation, save/load, turn orchestration, selection state mutation, and scene-node-heavy UI logic in `scripts/worldmap_test.gd`.
+  3. Preserved existing scene paths, script paths, gameplay formulas, schemas, and v0.71 refactor safety boundaries.
+- Next task:
+  1. `v0.71-08 Diplomacy / Spy Helper Extraction`.
+
 ## Current: v0.71-06 Economy / City Helper Extraction
 - Completed direction:
   1. Extracted the first small Economy / City pure helper batch into `scripts/worldmap/economy_city/economy_city_helpers.gd`.

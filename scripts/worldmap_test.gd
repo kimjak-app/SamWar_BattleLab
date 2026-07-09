@@ -4,6 +4,7 @@ const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper
 const PlayerAttackDeploymentPanelScript := preload("res://scripts/player_attack_deployment_panel.gd")
 const DomesticTechHelperLib := preload("res://scripts/worldmap/domestic_tech/domestic_tech_helpers.gd")
 const EconomyCityHelpers := preload("res://scripts/worldmap/economy_city/economy_city_helpers.gd")
+const DefenseBattleHelpers := preload("res://scripts/worldmap/defense_battle/defense_battle_helpers.gd")
 
 const WORLD_MAP_CAMERA_SPEED := 900.0
 const WORLD_MAP_CAMERA_DRAG_SPEED := 1.0
@@ -5729,29 +5730,11 @@ func _format_troop_move_preview_display(preview: Dictionary) -> String:
 
 
 func _format_troop_move_button_text(preview: Dictionary) -> String:
-	if bool(preview.get("ok", false)):
-		return "병력 %d 이동" % int(preview.get("amount", 0))
-	return "병력 이동 불가"
+	return DefenseBattleHelpers.format_troop_move_button_text(preview)
 
 
 func _format_troop_move_reason(result: Dictionary) -> String:
-	var reason := str(result.get("reason", ""))
-	match reason:
-		"amount":
-			return "이동 병력이 1 이상이어야 합니다."
-		"ownership":
-			return "출발/도착 도시가 모두 플레이어 소유여야 합니다."
-		"same_city":
-			return "같은 도시로는 이동할 수 없습니다."
-		"not_peacetime":
-			return "전투/침공 예약 중에는 이동할 수 없습니다."
-		"no_supply_path":
-			return "두 도시 사이에 아군 보급 경로가 없습니다."
-		"min_garrison":
-			return "출발 도시 최소 잔류 병력을 유지해야 합니다."
-		_:
-			var message := str(result.get("message", ""))
-			return message if not message.is_empty() else "이동 조건을 만족하지 않습니다."
+	return DefenseBattleHelpers.format_troop_move_reason(result)
 
 
 func _setup_left_world_controls() -> void:
@@ -6506,16 +6489,7 @@ func _refresh_post_battle_result_panel() -> void:
 
 
 func _limit_invasion_result_lines(lines: Array, limit: int) -> Array[String]:
-	var result: Array[String] = []
-	var safe_limit := maxi(1, limit)
-	for line_variant in lines:
-		if result.size() >= safe_limit:
-			break
-		var line := str(line_variant)
-		if line.is_empty():
-			continue
-		result.append(line)
-	return result
+	return DefenseBattleHelpers.limit_invasion_result_lines(lines, limit)
 
 
 func _on_ally_turn_end_pressed() -> void:
@@ -17407,12 +17381,7 @@ func _get_city_governor_id_for_battle_context(city_id: String) -> String:
 
 
 func _normalize_command_rank_mvp(raw_rank: Variant) -> String:
-	var rank := str(raw_rank).strip_edges()
-	if COMMAND_RANK_LIMITS.has(rank):
-		return rank
-	if rank == "captain":
-		return COMMAND_RANK_LIEUTENANT
-	return COMMAND_RANK_OFFICER
+	return DefenseBattleHelpers.normalize_command_rank_mvp(raw_rank, COMMAND_RANK_LIMITS, COMMAND_RANK_LIEUTENANT, COMMAND_RANK_OFFICER)
 
 
 func _get_hero_command_rank_for_city_mvp(hero_data: Dictionary, city_id: String) -> String:

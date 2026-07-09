@@ -83,3 +83,9 @@ No existing `.tscn` script reference was changed.
 - `scripts/worldmap/economy_city/` now contains `economy_city_helpers.gd`.
 - The first extracted helper batch is limited to pure resource/trade/supply/storage formatter and lookup helpers.
 - City state mutation, turn income mutation, storage/resource mutation, save/load, and scene-node-heavy UI remain outside the helper file.
+
+## v0.71-07 Defense / Battle Helper Status
+
+- `scripts/worldmap/defense_battle/` now contains `defense_battle_helpers.gd`.
+- The first extracted helper batch is limited to pure troop-move display, invasion-result display line limiting, and command-rank normalization helpers.
+- BattleContext generation, pending invasion payloads, battle formulas, deployment validation/payload mutation, battle result mutation, save/load, and scene-node-heavy UI remain outside the helper file.
