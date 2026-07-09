@@ -1,5 +1,14 @@
 # HANDOFF TO CODEX
 
+## v0.71-01 MVP Main Scene Switch Handoff
+- Current baseline after this task: `v0.71-01 MVP Main Scene Switch`; commit hash is recorded in the completion report.
+- Updated `project.godot` so `run/main_scene` points to `res://WorldMap_Test.tscn`.
+- `scenes/WorldMap_Test.tscn` is absent in this repo; no scene file was moved or renamed.
+- This task only changed the project entry point; it did not rename scenes, move files, alter node layouts, split scripts, or change gameplay behavior.
+- `Battle_Singijeon_Test.tscn` remains available as a test scene.
+- No save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, enemy research, AI research, ship/siege persistent storage, scene visual layout, asset, or import behavior changed.
+- Next session should run `v0.71-02 Test Name Cleanup`.
+
 ## v0.71-00 Refactor Plan & Function Map Handoff
 - Current baseline after this task: `v0.71-00 Refactor Plan & Function Map`; commit hash is recorded in the completion report.
 - Added `agent/WORLDMAP_REFACTOR_FUNCTION_MAP.md`.

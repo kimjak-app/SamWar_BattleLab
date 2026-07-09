@@ -7,6 +7,7 @@
 - 작업 시작 시 working tree 상태: tracked files clean.
 - 분석 대상: `scripts/worldmap_test.gd`.
 - 보조 확인: `project.godot` main scene is `res://Battle_Singijeon_Test.tscn`; test scenes include `WorldMap_Test.tscn`, `Battle_Fullscreen_Test.tscn`, `Battle_WebImport_Test.tscn`, and `scenes/dev/video_theora_test.tscn`.
+- v0.71-01 note: `project.godot` main scene was switched to the existing root scene `res://WorldMap_Test.tscn`; `scenes/WorldMap_Test.tscn` is absent and no scene files were moved or renamed.
 
 ## 2. Purpose
 - This document is a code-backed function/domain map before physically splitting `scripts/worldmap_test.gd`.

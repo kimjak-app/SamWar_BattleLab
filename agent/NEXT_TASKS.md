@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current: v0.71-01 MVP Main Scene Switch
+- Completed direction:
+  1. Changed the Godot run main scene from the battle-only test scene to the current world map MVP scene.
+  2. Preserved all scene filenames, script paths, gameplay formulas, schemas, and refactor boundaries.
+  3. Deferred test scene/file naming cleanup to the next step.
+- Next task:
+  1. `v0.71-02 Test Name Cleanup`.
+
 ## Current: v0.71-00 Refactor Plan & Function Map
 - Completed direction:
   1. Created the WorldMap function/domain map before physically splitting `scripts/worldmap_test.gd`.
