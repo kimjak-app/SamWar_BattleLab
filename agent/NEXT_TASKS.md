@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current: v0.71-03 Scripts Folder Structure Split
+- Completed direction:
+  1. Created the future `scripts/worldmap/` helper destination folder skeleton without moving existing runtime scripts.
+  2. Documented each destination folder's purpose, allowed future extraction types, and do-not-move-yet boundaries.
+  3. Preserved main scene, scene filenames, script paths, gameplay formulas, schemas, and v0.71 refactor safety boundaries.
+- Next task:
+  1. `v0.71-04 WorldMap God File Function Group Map`.
+
 ## Current: v0.71-02 Test Name Cleanup
 - Completed direction:
   1. Documented the current MVP scene entrypoint and test scene roles.

@@ -1,5 +1,13 @@
 # HANDOFF TO CODEX
 
+## v0.71-03 Scripts Folder Structure Split Handoff
+- Current baseline after this task: `v0.71-03 Scripts Folder Structure Split`; commit hash is recorded in the completion report.
+- Added `scripts/worldmap/` folder skeletons and per-folder README placeholders for future helper extraction.
+- Added `agent/SCRIPTS_FOLDER_STRUCTURE_MAP.md`.
+- No existing `.gd` file was moved; `scripts/worldmap_test.gd` remains in place and active.
+- No `.tscn` file, scene script reference, scene node layout, gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next session should run `v0.71-04 WorldMap God File Function Group Map`.
+
 ## v0.71-02 Test Name Cleanup Handoff
 - Current baseline after this task: `v0.71-02 Test Name Cleanup`; commit hash is recorded in the completion report.
 - Added `agent/SCENE_ENTRYPOINT_MAP.md`.

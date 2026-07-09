@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.71-03 Scripts Folder Structure Split
+- Baseline: `39dd2e666c059d553c95b33d33ec75140311ef12` (`v0.71-02 Test Name Cleanup`); tracked files were clean at task start.
+- Added `scripts/worldmap/` destination folder skeletons for Domestic Tech, Economy / City, Defense / Battle, Diplomacy / Spy, Naval / Siege, UI Formatter, Save / Load, Selection Panel, Debug / QA, Orchestration, Enemy Baseline, and Shared helpers.
+- Added `agent/SCRIPTS_FOLDER_STRUCTURE_MAP.md` to document future extraction destinations and boundaries.
+- Existing runtime scripts were not moved; `scripts/worldmap_test.gd` remains the active worldmap script.
+- No scene file, script path, scene node layout, gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next task: `v0.71-04 WorldMap God File Function Group Map`.
+
 ## v0.71-02 Test Name Cleanup
 - Baseline: `e1c0848b1b4ab9b40016cc775a5bae1d253c3b8e` (`v0.71-01 MVP Main Scene Switch`); tracked files were clean at task start.
 - Added `agent/SCENE_ENTRYPOINT_MAP.md` to document current MVP/test scene roles and prevent path/name confusion during v0.71 refactor work.
