@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.71-08 Diplomacy / Spy Helper Extraction
+- Baseline: `dd7c1e87a1ff7572e7ca97d31e7d752ac0f401d0` (`v0.71-07a Remaining Domain Refactor Boundary Plan`); tracked files were clean at task start.
+- Added `scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd` for the first extracted Diplomacy / Spy pure helper batch.
+- Moved only low-risk Diplomacy / Spy pure helper logic selected from the v0.71 function map; diplomacy/spy formula, relation mutation, spy result mutation, spy detection/relation penalty mutation, city loyalty/security/public support mutation, save/load, turn orchestration, selection state mutation, and scene-node-heavy UI functions remain in `scripts/worldmap_test.gd`.
+- Preserved the v0.71-07a opportunistic extraction ban: Debug / QA, Enemy Baseline, and Mixed / Unsafe were not touched.
+- Existing scene files, script paths, main scene, gameplay formulas, save/load schema, BattleContext schema, pending invasion schema, enemy research, AI research, ship/siege persistent storage, assets, imports, and `.gd.uid` files were not changed.
+- Next task: `v0.71-09 Naval / Siege Helper Extraction`.
+
 ## v0.71-07a Remaining Domain Refactor Boundary Plan
 - Baseline: `ecbf2bbad91daf5b94c748fadbf5a948b6d88193` (`리팩토리중`, Godot `.gd.uid` metadata-only commit after `v0.71-07 Defense / Battle Helper Extraction`); tracked files were clean at task start.
 - Documentation-only task: no runtime `.gd`, `scripts/worldmap_test.gd`, helper `.gd`, `.tscn`, `project.godot`, scene script reference, gameplay behavior, schema, formula, asset, or import behavior changed.

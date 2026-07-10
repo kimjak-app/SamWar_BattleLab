@@ -1,5 +1,15 @@
 # HANDOFF TO CODEX
 
+## v0.71-08 Diplomacy / Spy Helper Extraction Handoff
+- Current baseline after this task: `v0.71-08 Diplomacy / Spy Helper Extraction`; commit hash is recorded in the completion report.
+- Added `scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd`.
+- Extracted only the first small low-risk Diplomacy / Spy pure helper batch from `scripts/worldmap_test.gd`.
+- High-risk Diplomacy / Spy functions remain locked in `scripts/worldmap_test.gd`, including diplomacy/spy formula, relation mutation, spy result mutation, spy detection/relation penalty mutation, city loyalty/security/public support mutation, save/load-adjacent behavior, turn orchestration, selection state mutation, and scene-node-heavy UI.
+- Preserved the v0.71-07a opportunistic extraction ban: Debug / QA, Enemy Baseline, and Mixed / Unsafe were not touched.
+- No existing gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula changed.
+- No `.tscn` file, scene script reference, scene node layout, main scene, enemy research, AI research, ship/siege persistent storage, asset, import behavior, or `.gd.uid` file changed.
+- Next session should run `v0.71-09 Naval / Siege Helper Extraction`.
+
 ## v0.71-07a Remaining Domain Refactor Boundary Plan Handoff
 - Current baseline after this task: `v0.71-07a Remaining Domain Refactor Boundary Plan`; commit hash is recorded in the completion report.
 - Documentation-only task: no runtime `.gd`, `scripts/worldmap_test.gd`, helper `.gd`, `.tscn`, `project.godot`, scene script reference, gameplay behavior, schema, formula, asset, or import behavior changed.

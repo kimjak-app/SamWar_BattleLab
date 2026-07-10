@@ -489,6 +489,45 @@ Not allowed:
 
 v0.71 Refactor Complete Lock does not mean every `worldmap_test.gd` function was extracted. It means all approved low-risk extraction batches were completed or explicitly deferred, and high-risk schema/runtime orchestration functions remain locked in place by design.
 
+## v0.71-08 Diplomacy / Spy Helper Extraction Result
+
+- Extracted helper file:
+  - `scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd`
+- Extraction style:
+  - Static `RefCounted` helper functions.
+  - Existing `scripts/worldmap_test.gd` private function names were kept as wrappers to preserve call-site signatures and return shapes.
+
+### Extracted Functions
+
+| Function | Previous Location | New Location | Wrapper Kept? | Reason Safe |
+|---|---|---|---|---|
+| `_format_diplomacy_relation_status_for_ui` | `scripts/worldmap_test.gd` | `DiplomacySpyHelpers.format_diplomacy_relation_status_for_ui` | Yes | Pure relation status label formatter; no relation mutation or formula access. |
+| `_format_faction_relation_status_for_ui` | `scripts/worldmap_test.gd` | `DiplomacySpyHelpers.format_faction_relation_status_for_ui` | Yes | Pure relation status label formatter used by UI summaries. |
+| `_format_spy_check_status_for_ui` | `scripts/worldmap_test.gd` | `DiplomacySpyHelpers.format_spy_check_status_for_ui` | Yes | Pure spy validation reason label formatter; reads only the provided dictionary. |
+| `_format_spy_validation_message` | `scripts/worldmap_test.gd` | `DiplomacySpyHelpers.format_spy_validation_message` | Yes | Pure spy validation message formatter; no result mutation or payload access. |
+| `_get_diplomacy_spy_tab_label` | `scripts/worldmap_test.gd` | `DiplomacySpyHelpers.get_diplomacy_spy_tab_label` | Yes | Pure tab label helper; tab ids are passed as data. |
+
+### Deferred Diplomacy / Spy Functions
+
+| Function / Family | Reason Deferred | Stage |
+|---|---|---|
+| Diplomacy relation/action validation and mutation | Relation schema, cooldowns, cost checks, and result mutation are formula/state sensitive. | Stage C/D |
+| Diplomacy acceptance and relation change calculations | Gameplay formula guard required before any movement. | Stage C/D |
+| Spy validation, roll, success, and detection calculations | Spy formula and detection order must remain unchanged. | Stage C/D |
+| Spy result application and detection relation penalty | Mutates result payloads, relation state, and city/public-support/loyalty state. | Stage D |
+| Spy payload and intel payload builders | Spy payload shape and city intel visibility are schema-sensitive. | Stage C/D |
+| Scene-node-heavy diplomacy/spy action cards | Direct UI node ownership and button signal behavior remain in the orchestrator. | Stage C/D |
+
+### Safety Notes
+
+- Diplomacy/spy formula remains in `scripts/worldmap_test.gd`.
+- Relation mutation remains in `scripts/worldmap_test.gd`.
+- Spy result mutation remains in `scripts/worldmap_test.gd`.
+- Spy detection/relation penalty mutation remains in `scripts/worldmap_test.gd`.
+- City loyalty/security/public support mutation remains in `scripts/worldmap_test.gd`.
+- Save/load and turn orchestration remain untouched.
+- Debug / QA, Enemy Baseline, and Mixed / Unsafe remain untouched due to the v0.71-07a opportunistic extraction ban.
+
 ## Do Not Move Yet Lock List
 
 | Function | Reason | Related Schema/State | Earliest Possible Stage |

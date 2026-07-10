@@ -5,6 +5,7 @@ const PlayerAttackDeploymentPanelScript := preload("res://scripts/player_attack_
 const DomesticTechHelperLib := preload("res://scripts/worldmap/domestic_tech/domestic_tech_helpers.gd")
 const EconomyCityHelpers := preload("res://scripts/worldmap/economy_city/economy_city_helpers.gd")
 const DefenseBattleHelpers := preload("res://scripts/worldmap/defense_battle/defense_battle_helpers.gd")
+const DiplomacySpyHelpers := preload("res://scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd")
 
 const WORLD_MAP_CAMERA_SPEED := 900.0
 const WORLD_MAP_CAMERA_DRAG_SPEED := 1.0
@@ -3972,17 +3973,7 @@ func _format_diplomacy_relation_summary_for_ui(city_marker: WorldMapCityMarker) 
 
 
 func _format_diplomacy_relation_status_for_ui(status: String) -> String:
-	match status:
-		"allied":
-			return "동맹"
-		"neutral":
-			return "중립"
-		"hostile":
-			return "적대"
-		"suspended":
-			return "교역 중단"
-		_:
-			return "관계 미확인"
+	return DiplomacySpyHelpers.format_diplomacy_relation_status_for_ui(status)
 
 
 func _format_diplomacy_trade_status_for_ui(city_marker: WorldMapCityMarker) -> String:
@@ -4755,32 +4746,7 @@ func _format_spy_action_candidates_for_ui(city_marker: WorldMapCityMarker) -> St
 
 
 func _format_spy_check_status_for_ui(check: Dictionary) -> String:
-	if bool(check.get("ok", false)):
-		return "행동 가능"
-	var reason := str(check.get("reason", "unknown"))
-	match reason:
-		"own_city":
-			return "자국 도시"
-		"no_chancellor":
-			return "재상 필요"
-		"no_political_aptitude":
-			return "정치형 재상 필요"
-		"cooldown":
-			return "쿨다운"
-		"resources":
-			return "자원 부족"
-		"no_counterpart":
-			return "상대 세력 없음"
-		"already_hostile":
-			return "이미 최악"
-		"iron_wall":
-			return "방첩 경계"
-		"prerequisite_public_support", "prerequisite_loyalty":
-			return "조건 확인 필요"
-		"invalid_target":
-			return "대상 확인 필요"
-		_:
-			return "조건 확인 필요"
+	return DiplomacySpyHelpers.format_spy_check_status_for_ui(check)
 
 
 func _format_recent_spy_result_for_ui(city_id: String) -> String:
@@ -5016,9 +4982,7 @@ func _format_spy_action_hint(validation_map: Dictionary) -> String:
 
 
 func _get_diplomacy_spy_tab_label(tab_id: String) -> String:
-	if tab_id == DIPLOMACY_SPY_TAB_SPY:
-		return "첩보"
-	return "외교"
+	return DiplomacySpyHelpers.get_diplomacy_spy_tab_label(tab_id, DIPLOMACY_SPY_TAB_SPY)
 
 
 func _refresh_city_detail_tab_styles() -> void:
@@ -5258,17 +5222,7 @@ func _format_external_trade_relation_summary(source_city_id: String, candidate_c
 
 
 func _format_faction_relation_status_for_ui(status: String) -> String:
-	match status:
-		"allied":
-			return "동맹"
-		"neutral":
-			return "중립"
-		"hostile":
-			return "적대"
-		"suspended":
-			return "교역 중단"
-		_:
-			return "관계 미확인"
+	return DiplomacySpyHelpers.format_faction_relation_status_for_ui(status)
 
 
 func _format_trade_availability_for_ui(source_faction_id: String, target_faction_id: String) -> String:
@@ -19098,35 +19052,7 @@ func _get_spy_action_definition(action_id: String) -> Dictionary:
 
 
 func _format_spy_validation_message(check: Dictionary) -> String:
-	if bool(check.get("ok", false)):
-		return "실행 가능"
-	match str(check.get("reason", "unknown")):
-		"invalid_action":
-			return "알 수 없는 첩보 행동입니다."
-		"invalid_target":
-			return "대상 도시 확인이 필요합니다."
-		"own_city":
-			return "자국 도시는 첩보 대상이 아닙니다."
-		"no_chancellor":
-			return "재상이 필요합니다."
-		"no_political_aptitude":
-			return "정치형 재상이 필요합니다."
-		"cooldown":
-			return "첩보 대기 중입니다."
-		"iron_wall":
-			return "대상 도시 경계가 너무 높습니다."
-		"prerequisite_public_support":
-			return "민심 50 이하 대상에서만 가능합니다."
-		"prerequisite_loyalty":
-			return "충성도 40 이하 대상에서만 가능합니다."
-		"no_counterpart":
-			return "이간질할 상대 세력을 찾을 수 없습니다."
-		"already_hostile":
-			return "이미 사이가 최악입니다."
-		"resources":
-			return "금전/비단이 부족합니다."
-		_:
-			return "실행 조건을 충족하지 못했습니다."
+	return DiplomacySpyHelpers.format_spy_validation_message(check)
 
 
 func _validate_spy_action(action_id: String, target_city_id: String = "") -> Dictionary:
