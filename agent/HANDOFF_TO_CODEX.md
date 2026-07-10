@@ -1,5 +1,15 @@
 # HANDOFF TO CODEX
 
+## v0.71-09 Naval / Siege Helper Extraction Handoff
+- Current baseline after this task: `v0.71-09 Naval / Siege Helper Extraction`; commit hash is recorded in the completion report.
+- Reviewed Naval / Siege candidates and moved no helper functions because no safe pure extraction candidate was confirmed for this pass.
+- No helper `.gd` file was added, and `scripts/worldmap_test.gd` was not changed for Naval / Siege extraction.
+- High-risk Naval / Siege functions remain locked in `scripts/worldmap_test.gd`, including ship/siege persistent storage, save/load-adjacent behavior, BattleContext generation, pending invasion payloads, battle/naval/siege formulas, city defense mutation, siege result mutation, deployment payloads, turn orchestration, and scene-node-heavy UI.
+- Preserved the v0.71-07a opportunistic extraction ban: Debug / QA, Enemy Baseline, and Mixed / Unsafe were not touched.
+- No existing gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula changed.
+- No `.tscn` file, scene script reference, scene node layout, main scene, enemy research, AI research, ship/siege persistent storage, asset, import behavior, or `.gd.uid` file changed.
+- Next session should run `v0.71-10 UI Formatter / Summary Helper Extraction`.
+
 ## v0.71-08 Diplomacy / Spy Helper Extraction Handoff
 - Current baseline after this task: `v0.71-08 Diplomacy / Spy Helper Extraction`; commit hash is recorded in the completion report.
 - Added `scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd`.

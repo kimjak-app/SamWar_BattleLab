@@ -1,5 +1,14 @@
 # CURRENT STATE
 
+## v0.71-09 Naval / Siege Helper Extraction
+- Baseline: `6f763df35218ead2608e71ee4a9568daa09cdac6` (`v0.71-08 Diplomacy / Spy Helper Extraction`); tracked files were clean at task start.
+- No safe Naval / Siege pure helper candidate was moved in this pass.
+- No helper `.gd` file was added, and `scripts/worldmap_test.gd` was not changed for Naval / Siege extraction.
+- Ship/siege persistent storage, save/load, BattleContext, pending invasion, battle/naval/siege formulas, city defense mutation, siege result mutation, deployment payloads, turn orchestration, and scene-node-heavy UI functions remain in `scripts/worldmap_test.gd`.
+- Preserved the v0.71-07a opportunistic extraction ban: Debug / QA, Enemy Baseline, and Mixed / Unsafe were not touched.
+- Existing scene files, script paths, main scene, gameplay formulas, save/load schema, BattleContext schema, pending invasion schema, enemy research, AI research, ship/siege persistent storage, assets, imports, and `.gd.uid` files were not changed.
+- Next task: `v0.71-10 UI Formatter / Summary Helper Extraction`.
+
 ## v0.71-08 Diplomacy / Spy Helper Extraction
 - Baseline: `dd7c1e87a1ff7572e7ca97d31e7d752ac0f401d0` (`v0.71-07a Remaining Domain Refactor Boundary Plan`); tracked files were clean at task start.
 - Added `scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd` for the first extracted Diplomacy / Spy pure helper batch.

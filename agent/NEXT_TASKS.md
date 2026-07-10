@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current: v0.71-09 Naval / Siege Helper Extraction
+- Completed direction:
+  1. Reviewed Naval / Siege extraction candidates and moved only safe pure helpers if available.
+  2. Kept ship/siege persistent storage, save/load, BattleContext, pending invasion, battle/naval/siege formulas, city defense mutation, siege result mutation, deployment payloads, turn orchestration, and scene-node-heavy UI logic in `scripts/worldmap_test.gd`.
+  3. Preserved the v0.71-07a opportunistic extraction ban for Debug / QA, Enemy Baseline, and Mixed / Unsafe.
+  4. Preserved existing scene paths, script paths, gameplay formulas, schemas, and v0.71 refactor safety boundaries.
+- Next task:
+  1. `v0.71-10 UI Formatter / Summary Helper Extraction`.
+
 ## Current: v0.71-08 Diplomacy / Spy Helper Extraction
 - Completed direction:
   1. Extracted the first small Diplomacy / Spy pure helper batch into `scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd`.

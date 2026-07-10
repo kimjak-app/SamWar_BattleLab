@@ -95,3 +95,8 @@ No existing `.tscn` script reference was changed.
 - `scripts/worldmap/diplomacy_spy/` now contains `diplomacy_spy_helpers.gd`.
 - The first extracted helper batch is limited to pure diplomacy/spy relation, tab, validation, and status label helpers.
 - Diplomacy/spy formulas, relation mutation, spy result mutation, spy payloads, save/load, and scene-node-heavy UI remain outside the helper file.
+
+## v0.71-09 Naval / Siege Helper Status
+
+- No helper file was added in v0.71-09 because no safe Naval / Siege pure helper candidate was confirmed for this pass.
+- Ship/siege persistent storage, save/load, BattleContext, pending invasion payloads, battle/naval/siege formulas, city defense mutation, siege result mutation, deployment payloads, and scene-node-heavy UI remain outside helper extraction.

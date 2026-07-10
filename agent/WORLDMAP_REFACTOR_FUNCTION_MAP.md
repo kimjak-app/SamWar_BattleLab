@@ -528,6 +528,28 @@ v0.71 Refactor Complete Lock does not mean every `worldmap_test.gd` function was
 - Save/load and turn orchestration remain untouched.
 - Debug / QA, Enemy Baseline, and Mixed / Unsafe remain untouched due to the v0.71-07a opportunistic extraction ban.
 
+## v0.71-09 Naval / Siege Helper Extraction Result
+
+- Extracted helper file:
+  - None
+
+### Extraction Result
+
+No safe Naval / Siege helper extraction candidate was moved in v0.71-09.
+
+Reason:
+- Available Naval / Siege candidates were either absent, too close to BattleContext/pending invasion/city defense/save-load behavior, or not clearly pure enough for this extraction pass.
+
+### Safety Notes
+
+- Ship/siege persistent storage was not added or changed.
+- Save/load schema remains unchanged.
+- BattleContext generation remains in `scripts/worldmap_test.gd`.
+- Pending invasion payload generation remains in `scripts/worldmap_test.gd`.
+- Battle/naval/siege formulas remain in `scripts/worldmap_test.gd`.
+- City defense and siege result mutation remain in `scripts/worldmap_test.gd`.
+- Debug / QA, Enemy Baseline, and Mixed / Unsafe remain untouched due to the v0.71-07a opportunistic extraction ban.
+
 ## Do Not Move Yet Lock List
 
 | Function | Reason | Related Schema/State | Earliest Possible Stage |
