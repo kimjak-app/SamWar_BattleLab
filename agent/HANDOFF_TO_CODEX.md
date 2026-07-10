@@ -1,5 +1,15 @@
 # HANDOFF TO CODEX
 
+## v0.71-07a Remaining Domain Refactor Boundary Plan Handoff
+- Current baseline after this task: `v0.71-07a Remaining Domain Refactor Boundary Plan`; commit hash is recorded in the completion report.
+- Documentation-only task: no runtime `.gd`, `scripts/worldmap_test.gd`, helper `.gd`, `.tscn`, `project.godot`, scene script reference, gameplay behavior, schema, formula, asset, or import behavior changed.
+- Updated `agent/WORLDMAP_REFACTOR_FUNCTION_MAP.md` to clarify remaining non-dedicated domain handling for Selection Panel / World UI, Scene / Runtime Orchestration, Debug / QA / Dev Tools, Save / Load, Enemy Baseline / AI-lite, and Mixed / Unsafe.
+- v0.71-11 is now explicitly scoped as an orchestrator slim / grouping / documentation / lock-list confirmation pass, not a broad extraction phase.
+- Save / Load, scene lifecycle/orchestration, and Mixed / Unsafe functions may remain in `scripts/worldmap_test.gd` by design for v0.71 Complete Lock.
+- Opportunistic extraction is forbidden for Debug / QA, Enemy Baseline, and Mixed / Unsafe during v0.71-08 through v0.71-10.
+- No runtime `.gd` code, `.tscn` file, scene script reference, project setting, gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next session should run `v0.71-08 Diplomacy / Spy Helper Extraction`.
+
 ## v0.71-07 Defense / Battle Helper Extraction Handoff
 - Current baseline after this task: `v0.71-07 Defense / Battle Helper Extraction`; commit hash is recorded in the completion report.
 - Added `scripts/worldmap/defense_battle/defense_battle_helpers.gd`.

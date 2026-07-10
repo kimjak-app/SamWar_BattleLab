@@ -1,5 +1,14 @@
 # CURRENT STATE
 
+## v0.71-07a Remaining Domain Refactor Boundary Plan
+- Baseline: `ecbf2bbad91daf5b94c748fadbf5a948b6d88193` (`리팩토리중`, Godot `.gd.uid` metadata-only commit after `v0.71-07 Defense / Battle Helper Extraction`); tracked files were clean at task start.
+- Documentation-only task: no runtime `.gd`, `scripts/worldmap_test.gd`, helper `.gd`, `.tscn`, `project.godot`, scene script reference, gameplay behavior, schema, formula, asset, or import behavior changed.
+- Clarified the v0.71 handling plan for remaining non-dedicated domains: Selection Panel / World UI, Scene / Runtime Orchestration, Debug / QA / Dev Tools, Save / Load, Enemy Baseline / AI-lite, and Mixed / Unsafe.
+- Documented that Save / Load, scene lifecycle/orchestration, and Mixed / Unsafe functions are not required to be extracted for v0.71 Complete Lock and may remain in `scripts/worldmap_test.gd` by design.
+- Clarified that v0.71-11 WorldMap Orchestrator Slim Pass is not a broad extraction phase; it is limited to slim review, grouping, documentation, and final lock-list confirmation.
+- Added an opportunistic extraction ban for Debug / QA, Enemy Baseline, and Mixed / Unsafe during v0.71-08 through v0.71-10.
+- Next task: `v0.71-08 Diplomacy / Spy Helper Extraction`.
+
 ## v0.71-07 Defense / Battle Helper Extraction
 - Baseline: `a1c8381e663b2b51bb627dfa4e6ff4d3095d2bd2` (`v0.71-06 Economy / City Helper Extraction`); tracked files were clean at task start.
 - Added `scripts/worldmap/defense_battle/defense_battle_helpers.gd` for the first extracted Defense / Battle pure helper batch.

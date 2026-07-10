@@ -439,6 +439,56 @@ Excluded from first batch:
 - Save/load and turn orchestration remain untouched.
 - No rollback was needed for v0.71-07.
 
+## v0.71-07a Remaining Domain Refactor Boundary Plan
+
+### Why This Plan Exists
+
+`Selection Panel / World UI`, `Scene / Runtime Orchestration`, `Debug / QA / Dev Tools`, `Save / Load`, `Enemy Baseline / AI-lite`, and `Mixed / Unsafe` together represent a large remaining portion of `scripts/worldmap_test.gd`.
+
+These domains are not all intended to be extracted during v0.71. Some are intentionally locked because they own schema, scene lifecycle, runtime orchestration, or high-risk mixed state.
+
+### Remaining Domain Handling Table
+
+| Domain | Count | v0.71 Handling | Extraction Allowed? | Planned Stage | Lock Rule |
+|---|---:|---|---|---|---|
+| Selection Panel / World UI | 58 | Partial / formatter-only | Only pure formatter/summary helpers | v0.71-10 / v0.71-11 | Panel state mutation and node ownership stay in `worldmap_test.gd` by design. |
+| Scene / Runtime Orchestration | 39 | Orchestrator slim only | No functional extraction in v0.71 | v0.71-11 | Scene lifecycle, `_ready`, signal wiring, turn advance, and queue orchestration stay locked. |
+| Debug / QA / Dev Tools | 25 | Optional / future extraction | No extraction during v0.71-08 through v0.71-10 | v0.71-11 review or v0.72+ | Debug tools are not required for v0.71 extraction completion. |
+| Save / Load | 20 | Keep in `worldmap_test.gd` by design | No | v0.72+ dedicated schema-protected task | Save/load schema-sensitive functions are out of extraction scope for v0.71. |
+| Enemy Baseline / AI-lite | 12 | Optional read-only helper extraction later | No extraction during v0.71-08 through v0.71-10 | v0.71-11 review or v0.72+ | Enemy research remains out of scope; read-only helpers may stay in place. |
+| Mixed / Unsafe | 69 | Defer | No broad extraction | v0.72+ | Mixed/unsafe functions are not required to be extracted for v0.71 Complete Lock. |
+
+### Opportunistic Extraction Ban
+
+Opportunistic extraction is forbidden during v0.71-08 through v0.71-10. Debug / QA, Enemy Baseline, and Mixed / Unsafe helpers may only be reconsidered during v0.71-11 or a later dedicated task, and must not be moved as part of Diplomacy / Spy, Naval / Siege, or UI Formatter extraction.
+
+### v0.71-11 WorldMap Orchestrator Slim Scope
+
+Allowed:
+- Section/comment cleanup.
+- Wrapper/call grouping review.
+- Read-only helper call organization.
+- Remaining high-risk lock list finalization.
+- Documentation of why certain functions remain in `worldmap_test.gd`.
+- Debug / QA and Enemy Baseline review only, without opportunistic extraction.
+
+Not allowed:
+- Save/load extraction.
+- `_ready` extraction.
+- Signal wiring extraction.
+- Turn advance extraction.
+- BattleContext extraction.
+- Pending invasion extraction.
+- Completion queue extraction.
+- Selection panel node ownership extraction.
+- Mixed/Unsafe broad extraction.
+- Debug / QA opportunistic extraction.
+- Enemy Baseline opportunistic extraction.
+
+### v0.71-14 Complete Lock Meaning
+
+v0.71 Refactor Complete Lock does not mean every `worldmap_test.gd` function was extracted. It means all approved low-risk extraction batches were completed or explicitly deferred, and high-risk schema/runtime orchestration functions remain locked in place by design.
+
 ## Do Not Move Yet Lock List
 
 | Function | Reason | Related Schema/State | Earliest Possible Stage |

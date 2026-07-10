@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Current: v0.71-07a Remaining Domain Refactor Boundary Plan
+- Completed direction:
+  1. Clarified how the remaining non-dedicated function domains are handled during v0.71.
+  2. Defined which domains can be partially extracted, which stay locked, and which are deferred to v0.72+.
+  3. Clarified that v0.71-11 is an orchestrator slim / grouping / documentation / lock-list confirmation pass, not a broad high-risk extraction phase.
+  4. Added an opportunistic extraction ban for Debug / QA, Enemy Baseline, and Mixed / Unsafe during v0.71-08 through v0.71-10.
+  5. Preserved existing runtime code, scene paths, script paths, gameplay formulas, schemas, and v0.71 refactor safety boundaries.
+- Next task:
+  1. `v0.71-08 Diplomacy / Spy Helper Extraction`.
+
 ## Current: v0.71-07 Defense / Battle Helper Extraction
 - Completed direction:
   1. Extracted the first small Defense / Battle pure helper batch into `scripts/worldmap/defense_battle/defense_battle_helpers.gd`.
