@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current: v0.71-12 Full Regression F6 QA
+- Completed direction:
+  1. Ran full regression QA for the v0.71 helper extraction series.
+  2. Recorded project/headless scene load checks, helper reference checks, F6 startup readiness checks, gameplay domain smoke checks, and boundary checks.
+  3. Did not modify runtime code, scenes, schemas, formulas, or project settings.
+- Next task:
+  1. If QA PASS or PASS WITH MINOR NOTES: `v0.71-13 WorldMap Main Script Rename`.
+  2. If QA FAIL with blocker/major issue: create a separate hotfix task before rename.
+
 ## Current: v0.71-11 WorldMap Orchestrator Slim Pass
 - Completed direction:
   1. Consolidated helper extraction results from v0.71-05 through v0.71-10.

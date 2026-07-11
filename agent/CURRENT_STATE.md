@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.71-12 Full Regression F6 QA
+- Baseline: `86f4117b022c7138203e8f56fa9433c8551c350b` (`v0.71-11 WorldMap Orchestrator Slim Pass`); tracked files were clean at task start.
+- Ran full regression QA after v0.71 helper extraction and orchestrator boundary consolidation.
+- Verified project/headless scene loads, helper references, F6 WorldMap startup readiness, Domestic Tech, Economy / City, Defense / Battle, Diplomacy / Spy, UI Formatter / Summary, and boundary smoke checks.
+- QA details are recorded in `agent/V0_71_FULL_REGRESSION_F6_QA.md`.
+- No runtime `.gd`, `.tscn`, `project.godot`, `.gd.uid`, gameplay formula, save/load schema, BattleContext schema, pending invasion schema, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next task: `v0.71-13 WorldMap Main Script Rename` if QA result is PASS or PASS WITH MINOR NOTES; otherwise fix blocker/major issues first in a separate hotfix task.
+
 ## v0.71-11 WorldMap Orchestrator Slim Pass
 - Baseline: `4429cf74360ca56343a6782c307a176f58bc8da6` (`v0.71-10 UI Formatter / Summary Helper Extraction`); tracked files were clean at task start.
 - Reconfirmed v0.71-10 headless status before proceeding, including project, `WorldMap_Test.tscn`, and `Battle_Fullscreen_Test.tscn`.

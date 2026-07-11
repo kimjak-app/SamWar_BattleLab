@@ -1,5 +1,15 @@
 # HANDOFF TO CODEX
 
+## v0.71-12 Full Regression F6 QA Handoff
+- Current baseline after this task: `v0.71-12 Full Regression F6 QA`; commit hash is recorded in the completion report.
+- Full regression QA is recorded in `agent/V0_71_FULL_REGRESSION_F6_QA.md`.
+- QA result: PASS WITH MINOR NOTES; no blocker or major issue was found by Codex headless/static QA.
+- No runtime code or scene changes were made during QA.
+- No existing gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula changed.
+- No `.tscn` file, scene script reference, scene node layout, main scene, enemy research, AI research, ship/siege persistent storage, asset, import behavior, or `.gd.uid` file changed.
+- If QA result is PASS or PASS WITH MINOR NOTES, next session should run `v0.71-13 WorldMap Main Script Rename`.
+- If QA result is FAIL with blocker/major issue, next session should run a focused hotfix task before rename.
+
 ## v0.71-11 WorldMap Orchestrator Slim Pass Handoff
 - Current baseline after this task: `v0.71-11 WorldMap Orchestrator Slim Pass`; commit hash is recorded in the completion report.
 - v0.71-11 consolidated helper extraction results from v0.71-05 through v0.71-10.
