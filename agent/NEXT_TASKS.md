@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Current: v0.71-14 Refactor Complete Lock
+- Completed direction:
+  1. Locked the v0.71 refactor line after approved helper extraction and explicit high-risk deferrals.
+  2. Confirmed active worldmap script path as `scripts/worldmap/worldmap_main.gd`.
+  3. Kept MVP main scene as `res://WorldMap_Test.tscn`.
+  4. Deferred scene filename cleanup to v0.72.
+  5. Preserved gameplay behavior, schemas, formulas, scene layout, project main scene, and v0.71 refactor safety boundaries.
+- Next recommended task:
+  1. `v0.72-00 Scene Entrypoint Rename Plan`.
+
 ## Current: v0.71-13 WorldMap Main Script Rename
 - Completed direction:
   1. Renamed active worldmap script from `scripts/worldmap_test.gd` to `scripts/worldmap/worldmap_main.gd`.

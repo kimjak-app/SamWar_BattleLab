@@ -31,6 +31,63 @@
   - moved to `scripts/worldmap/worldmap_main.gd.uid`
 - This was a path/name cleanup only. No gameplay logic, schema, formula, save/load, BattleContext, pending invasion, completion queue, or scene layout behavior changed.
 
+## v0.71 Refactor Extraction Summary
+
+v0.71 Refactor Complete Lock does not mean every worldmap function was extracted. It means all approved low-risk extraction batches were completed or explicitly deferred, and high-risk schema/runtime orchestration functions remain locked in `scripts/worldmap/worldmap_main.gd` by design.
+
+| Step | Domain | Result | Helper File | Extracted Count | Wrapper Kept |
+|---|---|---|---|---:|---:|
+| v0.71-05 | Domestic Tech | Extracted | `scripts/worldmap/domestic_tech/domestic_tech_helpers.gd` | 8 | 8 |
+| v0.71-06 | Economy / City | Extracted | `scripts/worldmap/economy_city/economy_city_helpers.gd` | 13 | 13 |
+| v0.71-07 | Defense / Battle | Extracted | `scripts/worldmap/defense_battle/defense_battle_helpers.gd` | 4 | 4 |
+| v0.71-08 | Diplomacy / Spy | Extracted | `scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd` | 5 | 5 |
+| v0.71-09 | Naval / Siege | No-op / Deferred | None | 0 | 0 |
+| v0.71-10 | UI Formatter / Summary | Extracted | `scripts/worldmap/ui_formatter/ui_formatter_helpers.gd` | 12 | 12 |
+| v0.71-11 | Orchestrator Slim | Boundary consolidated | None | 0 | 0 |
+| v0.71-13 | Main Script Rename | Renamed | `scripts/worldmap/worldmap_main.gd` | N/A | N/A |
+
+## v0.71 Deferred / Locked Domains
+
+The following domains intentionally remain in `scripts/worldmap/worldmap_main.gd` for v0.71:
+
+### Schema / Persistence
+- Save/load serialization and restoration.
+- Active research payload schema.
+- Completed tech schema.
+- BattleContext schema.
+- Pending invasion schema.
+- Ship/siege persistent storage.
+
+### Runtime Orchestration
+- `_ready`.
+- Signal wiring.
+- Turn advance.
+- Completion queue / video / card presentation queue.
+- Scene lifecycle and scene tree ownership.
+
+### Gameplay Formula / Mutation
+- Battle formula/stat calculation.
+- Diplomacy/spy formula.
+- Relation mutation.
+- Spy result mutation.
+- City state mutation.
+- City resource/storage mutation.
+- City defense mutation.
+- Siege result mutation.
+- Deployment payload mutation.
+
+### UI / Scene Ownership
+- UI node mutation.
+- Selection state mutation.
+- Panel open/close/drag behavior.
+- Left/right panel scope behavior.
+- Graph layout and graph node creation.
+
+### Deferred Domains
+- Debug / QA / Dev Tools.
+- Enemy Baseline / AI-lite.
+- Mixed / Unsafe.
+
 ## 3. Non-Goals
 - No new feature.
 - No save/load schema change.
@@ -135,7 +192,7 @@ The table below maps all detected functions by domain using name prefix, nearby 
 | v0.71-10 UI Formatter / Summary Helper Extraction | Extract shared formatter module. | `_format_*`, `_get_*label`, summary builders. | Node creation, signal callbacks, selection mutation. | UI panel text smoke, scene load warnings. | Formatter output spot-checked. |
 | v0.71-11 WorldMap Orchestrator Slim Pass | Replace local helper bodies with calls and reduce top-level clutter. | Wiring to extracted helpers. | Moving `_ready`, save/load, BattleContext, pending invasion. | Full headless project/scene load. | No new warnings or broken calls. |
 | v0.71-12 Full Regression F6 QA | Manual/visual/gameplay regression lock. | QA docs only unless hotfix needed. | New features. | F6 worldmap, research complete video/card, attack/defense, diplomacy/spy, save/load spot checks. | No blocker found. |
-| v0.71-13 Refactor Complete Lock | Lock v0.71 refactor route. | Agent docs. | Feature expansion. | Final headless and manual QA record. | Route closed. |
+| v0.71-14 Refactor Complete Lock | Lock v0.71 refactor route. | Agent docs. | Feature expansion. | Final headless and manual QA record. | Route closed. |
 
 ## 7. Recommended First Extraction Targets
 
@@ -500,7 +557,7 @@ Not allowed:
 
 ### v0.71-14 Complete Lock Meaning
 
-v0.71 Refactor Complete Lock does not mean every `worldmap_test.gd` function was extracted. It means all approved low-risk extraction batches were completed or explicitly deferred, and high-risk schema/runtime orchestration functions remain locked in place by design.
+v0.71 Refactor Complete Lock does not mean every worldmap function was extracted. It means all approved low-risk extraction batches were completed or explicitly deferred, and high-risk schema/runtime orchestration functions remain locked in `scripts/worldmap/worldmap_main.gd` by design.
 
 ## v0.71-08 Diplomacy / Spy Helper Extraction Result
 

@@ -15,6 +15,7 @@ run/main_scene="res://WorldMap_Test.tscn"
 - Active script: `res://scripts/worldmap/worldmap_main.gd`.
 - Legacy script path `res://scripts/worldmap_test.gd` was retired in v0.71-13.
 - `WorldMap_Test.tscn` keeps a path-based script ExtResource for the active script path.
+- v0.71-14 locks this runtime entrypoint state. Scene filename cleanup is deferred to v0.72.
 
 ## Known Scene Roles
 
@@ -36,6 +37,6 @@ run/main_scene="res://WorldMap_Test.tscn"
 
 ## Next Cleanup Boundary
 
-- v0.71-03 should move to `Scripts Folder Structure Split`.
-- Scene rename is not part of v0.71-03.
-- If scene rename becomes necessary, split it into a separate task after v0.71 or after the script folder structure is stable.
+- Scene filename cleanup is deferred to v0.72.
+- `WorldMap_Test.tscn` remains the MVP main scene despite the legacy `Test` suffix.
+- Recommended next task: `v0.72-00 Scene Entrypoint Rename Plan`.

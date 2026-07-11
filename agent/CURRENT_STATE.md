@@ -1,5 +1,16 @@
 # CURRENT STATE
 
+## v0.71-14 Refactor Complete Lock
+- Baseline: `232683d4f4c24a5afaf74cd0839f0d01a8820fd9` (`v0.71-13 WorldMap Main Script Rename` plus metadata-only `.gd.uid` follow-up commit); tracked files were clean at task start.
+- Completed the v0.71 refactor lock after helper extraction, orchestrator boundary consolidation, full regression QA, and active worldmap script rename.
+- Active worldmap script is now `scripts/worldmap/worldmap_main.gd`.
+- MVP main scene remains `res://WorldMap_Test.tscn`.
+- Created/updated `agent/V0_71_REFACTOR_COMPLETE_LOCK.md`.
+- Confirmed that v0.71 Complete Lock does not mean every worldmap function was extracted; high-risk schema/runtime orchestration functions remain locked in `scripts/worldmap/worldmap_main.gd` by design.
+- Deferred scene filename cleanup, including `WorldMap_Test.tscn`, to v0.72.
+- No runtime gameplay logic, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, active research payload, completed tech schema, actual charge, completion queue, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next recommended task: `v0.72-00 Scene Entrypoint Rename Plan`.
+
 ## v0.71-13 WorldMap Main Script Rename
 - Baseline: `9c89cd27a0bd840ebf2848c7c26d5409ecc728c4` (`v0.71-12 Full Regression F6 QA`); tracked files were clean at task start.
 - Renamed the active worldmap script from `scripts/worldmap_test.gd` to `scripts/worldmap/worldmap_main.gd`.

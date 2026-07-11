@@ -108,3 +108,15 @@ The tracked script UID file was moved with the script to `scripts/worldmap/world
 - `scripts/worldmap/ui_formatter/` now contains `ui_formatter_helpers.gd`.
 - The first extracted helper batch is limited to pure text, label, hint, amount, star-rating, and dictionary label lookup helpers.
 - UI node mutation, selection state mutation, panel open/close/drag behavior, graph layout/node creation, save/load, BattleContext, pending invasion, turn orchestration, and completion queues remain outside the helper file.
+
+## v0.71-14 Refactor Complete Lock Status
+
+- `scripts/worldmap/worldmap_main.gd` is the active worldmap orchestrator.
+- `scripts/worldmap_test.gd` was retired in v0.71-13 and remains absent.
+- Domestic Tech helper file: `scripts/worldmap/domestic_tech/domestic_tech_helpers.gd`.
+- Economy / City helper file: `scripts/worldmap/economy_city/economy_city_helpers.gd`.
+- Defense / Battle helper file: `scripts/worldmap/defense_battle/defense_battle_helpers.gd`.
+- Diplomacy / Spy helper file: `scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd`.
+- UI Formatter / Summary helper file: `scripts/worldmap/ui_formatter/ui_formatter_helpers.gd`.
+- Naval / Siege helper file: none; v0.71-09 found no safe extraction candidate and intentionally recorded a no-op/deferred result.
+- High-risk schema/runtime orchestration, save/load, BattleContext, pending invasion, formulas, mutation, UI node ownership, Debug / QA, Enemy Baseline, and Mixed / Unsafe domains remain locked in `scripts/worldmap/worldmap_main.gd` by design.

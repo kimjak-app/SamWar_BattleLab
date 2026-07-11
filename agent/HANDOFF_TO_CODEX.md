@@ -1,5 +1,18 @@
 # HANDOFF TO CODEX
 
+## v0.71-14 Refactor Complete Lock Handoff
+- Current baseline after this task: `v0.71-14 Refactor Complete Lock`; commit hash is recorded in the completion report.
+- v0.71 refactor line is locked.
+- Active worldmap script path is `scripts/worldmap/worldmap_main.gd`.
+- MVP main scene remains `res://WorldMap_Test.tscn`.
+- `scripts/worldmap_test.gd` is retired.
+- Approved low-risk helper extraction batches were completed or explicitly deferred.
+- High-risk function families remain locked in `scripts/worldmap/worldmap_main.gd` by design, including save/load, BattleContext, pending invasion, active research payloads, completion queue, turn orchestration, scene lifecycle, signal wiring, selection state, panel node ownership, graph layout, gameplay formulas, Debug / QA, Enemy Baseline, and Mixed / Unsafe.
+- Scene filename cleanup, including `WorldMap_Test.tscn`, is deferred to v0.72.
+- No existing gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula changed.
+- No `.tscn` layout, scene node layout, project main scene, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next recommended session should run `v0.72-00 Scene Entrypoint Rename Plan`.
+
 ## v0.71-13 WorldMap Main Script Rename Handoff
 - Current baseline after this task: `v0.71-13 WorldMap Main Script Rename`; commit hash is recorded in the completion report.
 - Active worldmap script path is now `scripts/worldmap/worldmap_main.gd`.
