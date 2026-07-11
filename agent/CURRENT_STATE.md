@@ -1,5 +1,22 @@
 # CURRENT STATE
 
+## v0.72-00 Scene Entrypoint Rename Plan
+- Baseline: `a3b90beaa315da75489ebb84eff3edd71b79ea23` (`v0.71-14 Refactor Complete Lock`); tracked files were clean at task start.
+- Confirmed that only two hardcoded runtime scene path constants require update for the production scene rename:
+  - `scripts/worldmap/worldmap_main.gd`: `WORLDMAP_BATTLE_SCENE_PATH`
+  - `scripts/battle_web_import_test.gd`: `WORLDMAP_SCENE_PATH`
+- Confirmed `project.godot` has one main scene entrypoint.
+- Confirmed production rename targets:
+  - `res://WorldMap_Test.tscn` -> `res://WorldMap.tscn`
+  - `res://Battle_Fullscreen_Test.tscn` -> `res://Battle_Land.tscn`
+- Confirmed dev/test-only scenes remain unchanged:
+  - `res://Battle_Singijeon_Test.tscn`
+  - `res://Battle_WebImport_Test.tscn`
+  - `res://scenes/dev/video_theora_test.tscn`
+- Created `agent/V0_72_SCENE_ENTRYPOINT_RENAME_PLAN.md`.
+- No scene files, runtime code, `project.godot`, script paths, gameplay behavior, schemas, formulas, assets, imports, or `.gd.uid` files were changed.
+- Next task: `v0.72-01 WorldMap + Land Battle Scene Filename Rename`.
+
 ## v0.71-14 Refactor Complete Lock
 - Baseline: `232683d4f4c24a5afaf74cd0839f0d01a8820fd9` (`v0.71-13 WorldMap Main Script Rename` plus metadata-only `.gd.uid` follow-up commit); tracked files were clean at task start.
 - Completed the v0.71 refactor lock after helper extraction, orchestrator boundary consolidation, full regression QA, and active worldmap script rename.

@@ -1,5 +1,22 @@
 # HANDOFF TO CODEX
 
+## v0.72-00 Scene Entrypoint Rename Plan Handoff
+- Current baseline after this task: `v0.72-00 Scene Entrypoint Rename Plan`; commit hash is recorded in the completion report.
+- Scene rename plan is recorded in `agent/V0_72_SCENE_ENTRYPOINT_RENAME_PLAN.md`.
+- v0.72-01 should rename exactly two production runtime scenes:
+  - `res://WorldMap_Test.tscn` -> `res://WorldMap.tscn`
+  - `res://Battle_Fullscreen_Test.tscn` -> `res://Battle_Land.tscn`
+- v0.72-01 should update exactly these runtime/config path references:
+  - `project.godot` `run/main_scene`
+  - `scripts/worldmap/worldmap_main.gd` `WORLDMAP_BATTLE_SCENE_PATH`
+  - `scripts/battle_web_import_test.gd` `WORLDMAP_SCENE_PATH`
+- Dev/test-only scenes must remain unchanged:
+  - `res://Battle_Singijeon_Test.tscn`
+  - `res://Battle_WebImport_Test.tscn`
+  - `res://scenes/dev/video_theora_test.tscn`
+- No scene files, runtime code, `project.godot`, script paths, gameplay behavior, schemas, formulas, assets, imports, or `.gd.uid` files were changed in v0.72-00.
+- Next session should run `v0.72-01 WorldMap + Land Battle Scene Filename Rename`.
+
 ## v0.71-14 Refactor Complete Lock Handoff
 - Current baseline after this task: `v0.71-14 Refactor Complete Lock`; commit hash is recorded in the completion report.
 - v0.71 refactor line is locked.

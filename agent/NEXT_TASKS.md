@@ -1,5 +1,15 @@
 # NEXT TASKS
 
+## Current: v0.72-00 Scene Entrypoint Rename Plan
+- Completed direction:
+  1. Confirmed production scene rename targets: `WorldMap_Test.tscn` -> `WorldMap.tscn`, `Battle_Fullscreen_Test.tscn` -> `Battle_Land.tscn`.
+  2. Confirmed dev/test-only scenes remain unchanged.
+  3. Confirmed hardcoded scene path update scope: `project.godot`, `WORLDMAP_BATTLE_SCENE_PATH`, and `WORLDMAP_SCENE_PATH`.
+  4. Prepared v0.72-01 PASS/FAIL and rollback criteria.
+  5. Did not modify scene files, runtime code, `project.godot`, script paths, schemas, formulas, or gameplay behavior.
+- Next task:
+  1. `v0.72-01 WorldMap + Land Battle Scene Filename Rename`.
+
 ## Current: v0.71-14 Refactor Complete Lock
 - Completed direction:
   1. Locked the v0.71 refactor line after approved helper extraction and explicit high-risk deferrals.
