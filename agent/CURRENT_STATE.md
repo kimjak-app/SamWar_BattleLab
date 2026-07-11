@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.72-04 Battle Engine Function Map & Refactor Plan
+- Baseline: `62db80afecaa22b47be6a7fb05b4360fe4376c51` (`v0.72-03 Scene Entrypoint Rename Complete Lock`); tracked files were clean at task start.
+- Analyzed `scripts/battle_web_import_test.gd` as the active Battle_Land runtime script.
+- Created `agent/BATTLE_ENGINE_REFACTOR_FUNCTION_MAP.md` with full function inventory, domain clustering, Stage A/B/C/D risk classification, naval reuse candidates, deferred domains, and recommended first extraction batches.
+- Created `agent/BATTLE_WORLDMAP_HANDOFF_CONTRACT.md` documenting the current WorldMap <-> Battle handoff contract and locked contract-sensitive functions.
+- No runtime code, scene files, `project.godot`, gameplay behavior, schemas, formulas, scene paths, assets, imports, or `.gd.uid` files were changed.
+- Next task: choose the first safe battle helper review/extraction batch based on the function map; static analysis found no Stage A functions, so start with a narrow Stage B formatter/lookup review before any extraction.
+
 ## v0.72-03 Scene Entrypoint Rename Complete Lock
 - Baseline: `99172748f3a8a621d9be54aa2b3b1ada0c4aa5b4` (`v0.72-02 Scene Rename F6 Roundtrip QA`); tracked files were clean at task start. Actual task-start HEAD was `d3d04b8a3b4b9e1b48e80952a562931eaacd88a2`, on top of `9917274` and matching `origin/main`.
 - Locked the v0.72 scene entrypoint rename line after path/reference verification, headless validation, and human manual roundtrip confirmation.

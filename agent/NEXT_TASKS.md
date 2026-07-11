@@ -1,5 +1,16 @@
 # NEXT TASKS
 
+## Current: v0.72-04 Battle Engine Function Map & Refactor Plan
+- Completed direction:
+  1. Mapped `scripts/battle_web_import_test.gd` functions.
+  2. Classified battle functions into Stage A/B/C/D risk categories.
+  3. Documented battle domains and future naval reuse candidates.
+  4. Documented WorldMap <-> Battle handoff contract.
+  5. Did not modify runtime code, scene files, project settings, schemas, formulas, or gameplay behavior.
+- Next recommended task:
+  1. Start with the safest Stage B battle helper review from `agent/BATTLE_ENGINE_REFACTOR_FUNCTION_MAP.md`; the conservative static map found 0 Stage A functions.
+  2. Likely candidate: `v0.72-05 Battle UI Text / Formatter Stage B Review`, then extract only confirmed pure formatter/lookup helpers with wrappers kept.
+
 ## Current: v0.72-03 Scene Entrypoint Rename Complete Lock
 - Completed direction:
   1. Locked production scene entrypoint rename after headless validation and human manual roundtrip confirmation.

@@ -1,5 +1,16 @@
 # HANDOFF TO CODEX
 
+## v0.72-04 Battle Engine Function Map & Refactor Plan Handoff
+- Current baseline after this task: `v0.72-04 Battle Engine Function Map & Refactor Plan`; commit hash is recorded in the completion report.
+- Battle engine analysis is recorded in `agent/BATTLE_ENGINE_REFACTOR_FUNCTION_MAP.md`.
+- WorldMap <-> Battle handoff contract is recorded in `agent/BATTLE_WORLDMAP_HANDOFF_CONTRACT.md`.
+- Active battle scene remains `res://Battle_Land.tscn`.
+- Active battle runtime script remains `scripts/battle_web_import_test.gd`.
+- Conservative static classification found no Stage A functions; Stage B formatter/lookup candidates require narrow review before extraction.
+- No runtime code, scene files, project settings, schemas, formulas, scene paths, assets, imports, or `.gd.uid` files were changed.
+- Do not touch WorldMap Bridge / Handoff Contract, Battle Result, Defeat/Retreat, scene transition, Enemy AI execution, Unit Visual/Animation/Tween/Effect, HP bar, Selection/Interaction state, or damage/stat formula without a dedicated task.
+- Next session should choose the first safe Stage B review batch from the battle function map before any helper extraction.
+
 ## v0.72-03 Scene Entrypoint Rename Complete Lock Handoff
 - Current baseline after this task: `v0.72-03 Scene Entrypoint Rename Complete Lock`; commit hash is recorded in the completion report.
 - Scene entrypoint rename line is locked.
