@@ -1,7 +1,7 @@
 # Save Load
 
 Purpose:
-- v0.71 refactor destination for Save / Load helpers extracted from `scripts/worldmap_test.gd`.
+- v0.71 refactor destination for Save / Load helpers extracted from the active worldmap script.
 
 Allowed later:
 - Schema-sensitive helpers only after explicit protection exists.

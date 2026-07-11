@@ -1,5 +1,14 @@
 # HANDOFF TO CODEX
 
+## v0.71-13 WorldMap Main Script Rename Handoff
+- Current baseline after this task: `v0.71-13 WorldMap Main Script Rename`; commit hash is recorded in the completion report.
+- Active worldmap script path is now `scripts/worldmap/worldmap_main.gd`.
+- MVP main scene remains `res://WorldMap_Test.tscn`.
+- `scripts/worldmap_test.gd` is no longer the active runtime script path.
+- The tracked script UID file was moved to `scripts/worldmap/worldmap_main.gd.uid`; `WorldMap_Test.tscn` uses a path-based script ExtResource to avoid stale local UID cache resolving the retired path.
+- No gameplay code behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, active research payload, completed tech schema, actual charge, completion queue, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next session should run `v0.71-14 Refactor Complete Lock`.
+
 ## v0.71-12 Full Regression F6 QA Handoff
 - Current baseline after this task: `v0.71-12 Full Regression F6 QA`; commit hash is recorded in the completion report.
 - Full regression QA is recorded in `agent/V0_71_FULL_REGRESSION_F6_QA.md`.

@@ -1,7 +1,7 @@
 # Diplomacy Spy
 
 Purpose:
-- v0.71 refactor destination for Diplomacy / Spy helpers extracted from `scripts/worldmap_test.gd`.
+- v0.71 refactor destination for Diplomacy / Spy helpers extracted from the active worldmap script.
 
 Allowed later:
 - Diplomacy modifier helpers.

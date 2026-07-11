@@ -1,7 +1,7 @@
 # Domestic Tech
 
 Purpose:
-- v0.71 refactor destination for Domestic Tech helpers extracted from `scripts/worldmap_test.gd`.
+- v0.71 refactor destination for Domestic Tech helpers extracted from the active worldmap script.
 
 Allowed later:
 - Completed tech lookup helpers.

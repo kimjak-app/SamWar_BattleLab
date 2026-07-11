@@ -1,7 +1,7 @@
 # WorldMap Helper Destinations
 
 Purpose:
-- v0.71 refactor destination root for helpers extracted from `scripts/worldmap_test.gd`.
+- v0.71 refactor destination root for helpers extracted from the active worldmap script.
 
 Allowed later:
 - Domain-specific helper modules under the subfolders in this directory.
@@ -14,5 +14,5 @@ Not allowed yet:
 - Introducing Autoloads or broad `class_name` changes.
 
 Current status:
-- Placeholder only.
-- No runtime script moved here in v0.71-03.
+- Active worldmap orchestrator script: `scripts/worldmap/worldmap_main.gd`.
+- The legacy root script path was retired in v0.71-13.

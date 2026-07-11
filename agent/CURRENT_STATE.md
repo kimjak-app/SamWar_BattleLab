@@ -1,5 +1,14 @@
 # CURRENT STATE
 
+## v0.71-13 WorldMap Main Script Rename
+- Baseline: `9c89cd27a0bd840ebf2848c7c26d5409ecc728c4` (`v0.71-12 Full Regression F6 QA`); tracked files were clean at task start.
+- Renamed the active worldmap script from `scripts/worldmap_test.gd` to `scripts/worldmap/worldmap_main.gd`.
+- Updated runtime scene/script references to use `res://scripts/worldmap/worldmap_main.gd`.
+- Moved the tracked script UID file to `scripts/worldmap/worldmap_main.gd.uid`; `WorldMap_Test.tscn` uses a path-based script ExtResource to avoid stale local UID cache resolving the retired path.
+- Kept the MVP main scene as `res://WorldMap_Test.tscn`; scene filename rename is not part of v0.71-13.
+- No gameplay logic, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, active research payload, completed tech schema, actual charge, completion queue, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next task: `v0.71-14 Refactor Complete Lock`.
+
 ## v0.71-12 Full Regression F6 QA
 - Baseline: `86f4117b022c7138203e8f56fa9433c8551c350b` (`v0.71-11 WorldMap Orchestrator Slim Pass`); tracked files were clean at task start.
 - Ran full regression QA after v0.71 helper extraction and orchestrator boundary consolidation.

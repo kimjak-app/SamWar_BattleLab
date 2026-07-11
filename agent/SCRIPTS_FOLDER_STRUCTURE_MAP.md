@@ -33,7 +33,7 @@
 
 ## 4. Current Runtime Scripts Preserved
 
-Existing runtime `.gd` files remain in their original locations, including:
+Existing runtime `.gd` files remain in their original locations except for the v0.71-13 active worldmap script rename, including:
 
 - `scripts/battle_facing_arrow_tile_button.gd`
 - `scripts/battle_grid_controller.gd`
@@ -50,13 +50,15 @@ Existing runtime `.gd` files remain in their original locations, including:
 - `scripts/worldmap_hero_portrait_helper.gd`
 - `scripts/worldmap_route_flow_fx.gd`
 - `scripts/worldmap_route_path.gd`
-- `scripts/worldmap_test.gd`
+- `scripts/worldmap/worldmap_main.gd`
 
-`scripts/worldmap_test.gd` remains in place.
+`scripts/worldmap/worldmap_main.gd` is the active worldmap orchestrator script.
 
-No existing `.gd` file was moved.
+Legacy path `scripts/worldmap_test.gd` was retired in v0.71-13.
 
-No existing `.tscn` script reference was changed.
+`WorldMap_Test.tscn` now references `res://scripts/worldmap/worldmap_main.gd`; no scene layout was changed.
+
+The tracked script UID file was moved with the script to `scripts/worldmap/worldmap_main.gd.uid`.
 
 ## 5. Extraction Boundary
 

@@ -1,7 +1,7 @@
 # Debug QA
 
 Purpose:
-- v0.71 refactor destination for Debug / QA helpers extracted from `scripts/worldmap_test.gd`.
+- v0.71 refactor destination for Debug / QA helpers extracted from the active worldmap script.
 
 Allowed later:
 - QA summary helpers.

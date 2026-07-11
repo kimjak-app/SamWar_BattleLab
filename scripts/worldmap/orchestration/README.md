@@ -1,7 +1,7 @@
 # Orchestration
 
 Purpose:
-- v0.71 refactor destination for Scene / Runtime Orchestration helpers extracted from `scripts/worldmap_test.gd`.
+- v0.71 refactor destination for Scene / Runtime Orchestration helpers extracted from the active worldmap script.
 
 Allowed later:
 - Late-stage orchestration wrappers only after lower-risk helpers are extracted.

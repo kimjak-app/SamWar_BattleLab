@@ -1,7 +1,7 @@
 # Shared
 
 Purpose:
-- v0.71 refactor destination for shared pure helpers extracted from `scripts/worldmap_test.gd`.
+- v0.71 refactor destination for shared pure helpers extracted from the active worldmap script.
 
 Allowed later:
 - Constants-like lookup helpers.

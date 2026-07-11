@@ -1,7 +1,7 @@
 # Selection Panel
 
 Purpose:
-- v0.71 refactor destination for Selection Panel / World UI helpers extracted from `scripts/worldmap_test.gd`.
+- v0.71 refactor destination for Selection Panel / World UI helpers extracted from the active worldmap script.
 
 Allowed later:
 - Panel summary helpers.

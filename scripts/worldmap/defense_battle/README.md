@@ -1,7 +1,7 @@
 # Defense Battle
 
 Purpose:
-- v0.71 refactor destination for Defense / Battle helpers extracted from `scripts/worldmap_test.gd`.
+- v0.71 refactor destination for Defense / Battle helpers extracted from the active worldmap script.
 
 Allowed later:
 - Battle modifier helpers.

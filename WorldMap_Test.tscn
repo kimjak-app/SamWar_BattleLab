@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d05f0xjbn7wm1"]
 
-[ext_resource type="Script" uid="uid://bqb0xjpgxdwji" path="res://scripts/worldmap_test.gd" id="1_worldmap_test"]
+[ext_resource type="Script" path="res://scripts/worldmap/worldmap_main.gd" id="1_worldmap_test"]
 [ext_resource type="Texture2D" uid="uid://q7dd0tesr1gt" path="res://assets/worldmap/tiles/worldmap_tile_A1_top_left.png" id="2_tile_a1"]
 [ext_resource type="Texture2D" uid="uid://djdn5p3jwek6p" path="res://assets/worldmap/tiles/worldmap_tile_A2_top_right.png" id="3_tile_a2"]
 [ext_resource type="Texture2D" uid="uid://u2kgph1c7cuw" path="res://assets/worldmap/tiles/worldmap_tile_B1_bottom_left.png" id="4_tile_b1"]

@@ -1,7 +1,7 @@
 # Naval Siege
 
 Purpose:
-- v0.71 refactor destination for Naval / Siege helpers extracted from `scripts/worldmap_test.gd`.
+- v0.71 refactor destination for Naval / Siege helpers extracted from the active worldmap script.
 
 Allowed later:
 - Ship unlock helpers.

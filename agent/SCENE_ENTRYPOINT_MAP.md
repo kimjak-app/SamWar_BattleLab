@@ -12,12 +12,15 @@ run/main_scene="res://WorldMap_Test.tscn"
 - During the v0.71 refactor route, this root scene is the main worldmap baseline scene.
 - The filename still carries the legacy `Test` suffix, but the scene is treated as the MVP worldmap entrypoint until a dedicated rename task is approved later.
 - `res://scenes/WorldMap_Test.tscn` is not the active entrypoint and is absent from this repo.
+- Active script: `res://scripts/worldmap/worldmap_main.gd`.
+- Legacy script path `res://scripts/worldmap_test.gd` was retired in v0.71-13.
+- `WorldMap_Test.tscn` keeps a path-based script ExtResource for the active script path.
 
 ## Known Scene Roles
 
 | Scene Path | Current Role | Rename Now? | Notes |
 | ---------- | ------------ | ----------- | ----- |
-| `res://WorldMap_Test.tscn` | Current MVP worldmap entrypoint and v0.71 refactor baseline scene. | No | Root scene; uses `scripts/worldmap_test.gd`; legacy `Test` suffix is retained for now. |
+| `res://WorldMap_Test.tscn` | Current MVP worldmap entrypoint and v0.71 refactor baseline scene. | No | Root scene; uses `scripts/worldmap/worldmap_main.gd`; legacy scene `Test` suffix is retained for now. |
 | `res://Battle_Fullscreen_Test.tscn` | Current stable fullscreen battle scene and worldmap battle handoff target. | No | Referenced by `WORLDMAP_BATTLE_SCENE_PATH`; keep available for battle regression. |
 | `res://Battle_Singijeon_Test.tscn` | Legacy standalone Singijeon battle test scene. | No | Preserved as a test scene; no longer the run main scene. |
 | `res://Battle_WebImport_Test.tscn` | Web-import battle sample/test scene. | No | Preserved for battle import/sample validation. |

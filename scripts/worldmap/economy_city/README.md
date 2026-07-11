@@ -1,7 +1,7 @@
 # Economy City
 
 Purpose:
-- v0.71 refactor destination for Economy / City helpers extracted from `scripts/worldmap_test.gd`.
+- v0.71 refactor destination for Economy / City helpers extracted from the active worldmap script.
 
 Allowed later:
 - City economy modifier helpers.

@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current: v0.71-13 WorldMap Main Script Rename
+- Completed direction:
+  1. Renamed active worldmap script from `scripts/worldmap_test.gd` to `scripts/worldmap/worldmap_main.gd`.
+  2. Updated scene/script runtime references to the new script path.
+  3. Kept `res://WorldMap_Test.tscn` as the MVP main scene.
+  4. Preserved gameplay behavior, schemas, formulas, scene layout, project main scene, and v0.71 refactor safety boundaries.
+- Next task:
+  1. `v0.71-14 Refactor Complete Lock`.
+
 ## Current: v0.71-12 Full Regression F6 QA
 - Completed direction:
   1. Ran full regression QA for the v0.71 helper extraction series.

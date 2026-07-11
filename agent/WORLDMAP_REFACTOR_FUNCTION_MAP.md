@@ -11,12 +11,25 @@
 - v0.71-02 note: Added `agent/SCENE_ENTRYPOINT_MAP.md`; no scene rename/move was performed, and root `res://WorldMap_Test.tscn` remains the v0.71 MVP entrypoint.
 - v0.71-03 note: Added `scripts/worldmap/` destination folder skeletons and `agent/SCRIPTS_FOLDER_STRUCTURE_MAP.md`; no existing runtime `.gd` file was moved.
 - v0.71-04 note: Re-extracted `scripts/worldmap_test.gd` function list at local HEAD `515676465f99c306095e25b7a206d45f96832f03`; function count remains `1109`. This pass links function groups to the `scripts/worldmap/` destination folders and does not move code.
+- v0.71-13 note: Active worldmap script was renamed from `scripts/worldmap_test.gd` to `scripts/worldmap/worldmap_main.gd`; `res://WorldMap_Test.tscn` remains the MVP main scene.
 
 ## 2. Purpose
 - This document is a code-backed function/domain map before physically splitting `scripts/worldmap_test.gd`.
 - v0.71 refactoring is structural risk reduction, not a feature pass.
 - `worldmap_test.gd` must not be split in v0.71-00.
 - The map is intended to make `v0.71-01 MVP Main Scene Switch` and later helper extraction steps safer by identifying low-risk helpers and high-risk schema/runtime boundaries first.
+
+## v0.71-13 Active WorldMap Script Rename
+
+- Previous active script:
+  - `scripts/worldmap_test.gd`
+- New active script:
+  - `scripts/worldmap/worldmap_main.gd`
+- Main scene remains:
+  - `res://WorldMap_Test.tscn`
+- Script UID file:
+  - moved to `scripts/worldmap/worldmap_main.gd.uid`
+- This was a path/name cleanup only. No gameplay logic, schema, formula, save/load, BattleContext, pending invasion, completion queue, or scene layout behavior changed.
 
 ## 3. Non-Goals
 - No new feature.
