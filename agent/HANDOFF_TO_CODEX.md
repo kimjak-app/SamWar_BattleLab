@@ -1,5 +1,21 @@
 # HANDOFF TO CODEX
 
+## v0.72-01 WorldMap + Land Battle Scene Filename Rename Handoff
+- Current baseline after this task: `v0.72-01 WorldMap + Land Battle Scene Filename Rename`; commit hash is recorded in the completion report.
+- Production runtime scene paths are now:
+  - Main scene: `res://WorldMap.tscn`
+  - Land battle scene: `res://Battle_Land.tscn`
+- Active worldmap script remains `res://scripts/worldmap/worldmap_main.gd`.
+- Updated runtime path constants:
+  - `WORLDMAP_BATTLE_SCENE_PATH := "res://Battle_Land.tscn"`
+  - `WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"`
+- Dev/test-only scenes remain unchanged:
+  - `res://Battle_Singijeon_Test.tscn`
+  - `res://Battle_WebImport_Test.tscn`
+  - `res://scenes/dev/video_theora_test.tscn`
+- No scene node/layout, gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, active research payload, completed tech schema, actual charge, completion queue, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next session should run `v0.72-02 Scene Rename F6 Roundtrip QA`.
+
 ## v0.72-00 Scene Entrypoint Rename Plan Handoff
 - Current baseline after this task: `v0.72-00 Scene Entrypoint Rename Plan`; commit hash is recorded in the completion report.
 - Scene rename plan is recorded in `agent/V0_72_SCENE_ENTRYPOINT_RENAME_PLAN.md`.

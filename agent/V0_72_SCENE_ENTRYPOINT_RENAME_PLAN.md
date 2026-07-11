@@ -157,3 +157,12 @@ Rollback policy:
 - Recommended scope:
   - `WorldMap_Test.tscn` -> `WorldMap.tscn`
   - `Battle_Fullscreen_Test.tscn` -> `Battle_Land.tscn`
+
+## v0.72-01 Execution Result
+
+- Renamed `res://WorldMap_Test.tscn` to `res://WorldMap.tscn`.
+- Renamed `res://Battle_Fullscreen_Test.tscn` to `res://Battle_Land.tscn`.
+- Updated project main scene and runtime path constants.
+- Dev/test-only scenes remained unchanged.
+- Scene node/layout and gameplay behavior were not changed.
+- Follow-up QA task: `v0.72-02 Scene Rename F6 Roundtrip QA`.

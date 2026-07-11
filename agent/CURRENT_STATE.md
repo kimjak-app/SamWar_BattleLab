@@ -1,5 +1,20 @@
 # CURRENT STATE
 
+## v0.72-01 WorldMap + Land Battle Scene Filename Rename
+- Baseline: `c09bd404b5e5badd56c530d5a6b4a6d6e0043403` (`v0.72-00 Scene Entrypoint Rename Plan`); tracked files were clean at task start.
+- Renamed production runtime scenes:
+  - `res://WorldMap_Test.tscn` -> `res://WorldMap.tscn`
+  - `res://Battle_Fullscreen_Test.tscn` -> `res://Battle_Land.tscn`
+- Updated `project.godot` main scene to `res://WorldMap.tscn`.
+- Updated `scripts/worldmap/worldmap_main.gd` `WORLDMAP_BATTLE_SCENE_PATH` to `res://Battle_Land.tscn`.
+- Updated `scripts/battle_web_import_test.gd` `WORLDMAP_SCENE_PATH` to `res://WorldMap.tscn`.
+- Kept dev/test-only scenes unchanged:
+  - `res://Battle_Singijeon_Test.tscn`
+  - `res://Battle_WebImport_Test.tscn`
+  - `res://scenes/dev/video_theora_test.tscn`
+- No scene node/layout, gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula, active research payload, completed tech schema, actual charge, completion queue, enemy research, AI research, ship/siege persistent storage, asset, or import behavior changed.
+- Next task: `v0.72-02 Scene Rename F6 Roundtrip QA`.
+
 ## v0.72-00 Scene Entrypoint Rename Plan
 - Baseline: `a3b90beaa315da75489ebb84eff3edd71b79ea23` (`v0.71-14 Refactor Complete Lock`); tracked files were clean at task start.
 - Confirmed that only two hardcoded runtime scene path constants require update for the production scene rename:

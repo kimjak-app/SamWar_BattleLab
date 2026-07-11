@@ -1,5 +1,16 @@
 # NEXT TASKS
 
+## Current: v0.72-01 WorldMap + Land Battle Scene Filename Rename
+- Completed direction:
+  1. Renamed production runtime scenes:
+     - `WorldMap_Test.tscn` -> `WorldMap.tscn`
+     - `Battle_Fullscreen_Test.tscn` -> `Battle_Land.tscn`
+  2. Updated project main scene and runtime scene path constants.
+  3. Kept dev/test-only scenes unchanged.
+  4. Preserved scene node/layout, gameplay behavior, schemas, formulas, and v0.72 rename boundaries.
+- Next task:
+  1. `v0.72-02 Scene Rename F6 Roundtrip QA`.
+
 ## Current: v0.72-00 Scene Entrypoint Rename Plan
 - Completed direction:
   1. Confirmed production scene rename targets: `WorldMap_Test.tscn` -> `WorldMap.tscn`, `Battle_Fullscreen_Test.tscn` -> `Battle_Land.tscn`.

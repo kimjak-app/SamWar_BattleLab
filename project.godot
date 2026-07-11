@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="SamWar_BattleLab"
-run/main_scene="res://WorldMap_Test.tscn"
+run/main_scene="res://WorldMap.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 

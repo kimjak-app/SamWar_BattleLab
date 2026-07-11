@@ -1,5 +1,43 @@
 # Scene Entrypoint Map
 
+## v0.72-01 Current Runtime Entrypoints
+
+Production scene filename rename is complete. The active runtime entrypoints are now:
+
+| Scene | Current Path | Current Role | Reference Type |
+|---|---|---|---|
+| WorldMap | `res://WorldMap.tscn` | Project main scene and MVP worldmap runtime entrypoint. | Runtime production scene |
+| Land Battle | `res://Battle_Land.tscn` | Runtime land battle scene used by WorldMap battle handoff. | Runtime production scene |
+
+### Active Runtime Path References
+
+| Symbol / Reference | File | Current Value | Reference Type |
+|---|---|---|---|
+| `run/main_scene` | `project.godot` | `res://WorldMap.tscn` | Runtime production config |
+| `WORLDMAP_BATTLE_SCENE_PATH` | `scripts/worldmap/worldmap_main.gd` | `res://Battle_Land.tscn` | Runtime production constant |
+| `WORLDMAP_SCENE_PATH` | `scripts/battle_web_import_test.gd` | `res://WorldMap.tscn` | Runtime/dev return constant |
+
+### Active Script
+
+- Active worldmap script: `res://scripts/worldmap/worldmap_main.gd`.
+
+### Dev/Test-Only Scenes
+
+These scenes remain unchanged and should not be treated as production runtime rename targets:
+
+| Scene | Path | Rename in v0.72-01? | Notes |
+|---|---|---:|---|
+| Singijeon Battle Test | `res://Battle_Singijeon_Test.tscn` | NO | Dev battle experiment scene. |
+| Web Import Battle Test | `res://Battle_WebImport_Test.tscn` | NO | Dev/sample battle import scene. |
+| Video Theora Test | `res://scenes/dev/video_theora_test.tscn` | NO | Dev video playback test scene. |
+
+### Retired Production Paths
+
+- `res://WorldMap_Test.tscn`
+- `res://Battle_Fullscreen_Test.tscn`
+
+Historical and documentation-only references may still mention retired paths in old session records. Runtime/config references must use the current paths above.
+
 ## v0.72-00 Scene Entrypoint Rename Plan
 
 This document separates runtime production scenes from dev/test-only scenes before the v0.72 physical rename.
@@ -38,7 +76,7 @@ v0.72-01 should rename exactly:
 
 Do not rename dev/test-only scenes in v0.72-01.
 
-## Current MVP Entrypoint
+## Historical v0.71 MVP Entrypoint
 
 Source: `project.godot`
 
@@ -46,21 +84,21 @@ Source: `project.godot`
 run/main_scene="res://WorldMap_Test.tscn"
 ```
 
-- `res://WorldMap_Test.tscn` is the current MVP run entrypoint.
-- During the v0.71 refactor route, this root scene is the main worldmap baseline scene.
-- The filename still carries the legacy `Test` suffix, but the scene is treated as the MVP worldmap entrypoint until a dedicated rename task is approved later.
+- `res://WorldMap_Test.tscn` was the MVP run entrypoint during v0.71 and v0.72-00.
+- During the v0.71 refactor route, this root scene was the main worldmap baseline scene.
+- The filename carried the legacy `Test` suffix until the v0.72-01 production scene rename.
 - `res://scenes/WorldMap_Test.tscn` is not the active entrypoint and is absent from this repo.
 - Active script: `res://scripts/worldmap/worldmap_main.gd`.
 - Legacy script path `res://scripts/worldmap_test.gd` was retired in v0.71-13.
-- `WorldMap_Test.tscn` keeps a path-based script ExtResource for the active script path.
-- v0.71-14 locks this runtime entrypoint state. Scene filename cleanup is deferred to v0.72.
+- `WorldMap.tscn` keeps a path-based script ExtResource for the active script path after v0.72-01.
+- v0.71-14 locked the pre-rename runtime entrypoint state. Scene filename cleanup was completed for production runtime scenes in v0.72-01.
 
-## Known Scene Roles
+## Known Scene Roles Before v0.72-01
 
 | Scene Path | Current Role | Rename Now? | Notes |
 | ---------- | ------------ | ----------- | ----- |
-| `res://WorldMap_Test.tscn` | Current MVP worldmap entrypoint and v0.71 refactor baseline scene. | No | Root scene; uses `scripts/worldmap/worldmap_main.gd`; legacy scene `Test` suffix is retained for now. |
-| `res://Battle_Fullscreen_Test.tscn` | Current stable fullscreen battle scene and worldmap battle handoff target. | No | Referenced by `WORLDMAP_BATTLE_SCENE_PATH`; keep available for battle regression. |
+| `res://WorldMap_Test.tscn` | Pre-rename MVP worldmap entrypoint and v0.71 refactor baseline scene. | Completed in v0.72-01 | Renamed to `res://WorldMap.tscn`. |
+| `res://Battle_Fullscreen_Test.tscn` | Pre-rename stable fullscreen battle scene and worldmap battle handoff target. | Completed in v0.72-01 | Renamed to `res://Battle_Land.tscn`. |
 | `res://Battle_Singijeon_Test.tscn` | Legacy standalone Singijeon battle test scene. | No | Preserved as a test scene; no longer the run main scene. |
 | `res://Battle_WebImport_Test.tscn` | Web-import battle sample/test scene. | No | Preserved for battle import/sample validation. |
 | `res://scenes/dev/video_theora_test.tscn` | Dev video/Theora playback test scene. | No | Dev-only validation scene. |
@@ -75,6 +113,7 @@ run/main_scene="res://WorldMap_Test.tscn"
 
 ## Next Cleanup Boundary
 
-- Scene filename cleanup is deferred to v0.72.
-- `WorldMap_Test.tscn` remains the MVP main scene despite the legacy `Test` suffix.
-- Recommended next task: `v0.72-00 Scene Entrypoint Rename Plan`.
+- Production scene filename cleanup was executed in v0.72-01.
+- `WorldMap.tscn` is now the MVP main scene.
+- `Battle_Land.tscn` is now the runtime land battle scene.
+- Recommended next task: `v0.72-02 Scene Rename F6 Roundtrip QA`.

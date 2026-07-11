@@ -873,7 +873,7 @@ const HIT_SPARK_FX_TEXTURE_PATHS: Array[String] = [
 
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
-const WORLDMAP_SCENE_PATH := "res://WorldMap_Test.tscn"
+const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 
 var is_demo_animating := false
 var ally_has_moved := false
