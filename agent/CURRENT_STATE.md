@@ -1,5 +1,13 @@
 # CURRENT STATE
 
+## v0.71-10 UI Formatter / Summary Helper Extraction
+- Baseline: `1254c1bac85bf43e852d2f3acf8a07a752e27d75` (`v0.71-09 Naval / Siege Helper Extraction`); tracked files were clean at task start.
+- Added `scripts/worldmap/ui_formatter/ui_formatter_helpers.gd` for the first extracted UI Formatter / Summary pure helper batch.
+- Moved only low-risk UI Formatter / Summary pure helper logic selected from the v0.71 function map; UI node mutation, selection state mutation, panel open/close/drag behavior, left/right panel scope behavior, graph layout/node creation, save/load, BattleContext, pending invasion, turn orchestration, completion queue, and scene lifecycle functions remain in `scripts/worldmap_test.gd`.
+- Preserved the v0.71-07a opportunistic extraction ban: Debug / QA, Enemy Baseline, and Mixed / Unsafe were not touched.
+- Existing scene files, script paths, main scene, gameplay formulas, save/load schema, BattleContext schema, pending invasion schema, enemy research, AI research, ship/siege persistent storage, assets, imports, and `.gd.uid` files were not changed.
+- Next task: `v0.71-11 WorldMap Orchestrator Slim Pass`.
+
 ## v0.71-09 Naval / Siege Helper Extraction
 - Baseline: `6f763df35218ead2608e71ee4a9568daa09cdac6` (`v0.71-08 Diplomacy / Spy Helper Extraction`); tracked files were clean at task start.
 - No safe Naval / Siege pure helper candidate was moved in this pass.

@@ -100,3 +100,9 @@ No existing `.tscn` script reference was changed.
 
 - No helper file was added in v0.71-09 because no safe Naval / Siege pure helper candidate was confirmed for this pass.
 - Ship/siege persistent storage, save/load, BattleContext, pending invasion payloads, battle/naval/siege formulas, city defense mutation, siege result mutation, deployment payloads, and scene-node-heavy UI remain outside helper extraction.
+
+## v0.71-10 UI Formatter / Summary Helper Status
+
+- `scripts/worldmap/ui_formatter/` now contains `ui_formatter_helpers.gd`.
+- The first extracted helper batch is limited to pure text, label, hint, amount, star-rating, and dictionary label lookup helpers.
+- UI node mutation, selection state mutation, panel open/close/drag behavior, graph layout/node creation, save/load, BattleContext, pending invasion, turn orchestration, and completion queues remain outside the helper file.

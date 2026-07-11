@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current: v0.71-10 UI Formatter / Summary Helper Extraction
+- Completed direction:
+  1. Extracted the first small UI Formatter / Summary pure helper batch into `scripts/worldmap/ui_formatter/ui_formatter_helpers.gd`.
+  2. Kept UI node mutation, selection state mutation, panel open/close/drag behavior, left/right panel scope behavior, graph layout/node creation, save/load, BattleContext, pending invasion, turn orchestration, completion queue, and scene lifecycle logic in `scripts/worldmap_test.gd`.
+  3. Preserved the v0.71-07a opportunistic extraction ban for Debug / QA, Enemy Baseline, and Mixed / Unsafe.
+  4. Preserved existing scene paths, script paths, gameplay formulas, schemas, and v0.71 refactor safety boundaries.
+- Next task:
+  1. `v0.71-11 WorldMap Orchestrator Slim Pass`.
+
 ## Current: v0.71-09 Naval / Siege Helper Extraction
 - Completed direction:
   1. Reviewed Naval / Siege extraction candidates and moved only safe pure helpers if available.

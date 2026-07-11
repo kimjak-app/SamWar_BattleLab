@@ -550,6 +550,52 @@ Reason:
 - City defense and siege result mutation remain in `scripts/worldmap_test.gd`.
 - Debug / QA, Enemy Baseline, and Mixed / Unsafe remain untouched due to the v0.71-07a opportunistic extraction ban.
 
+## v0.71-10 UI Formatter / Summary Helper Extraction Result
+
+- Extracted helper file:
+  - `scripts/worldmap/ui_formatter/ui_formatter_helpers.gd`
+- Extraction style:
+  - Static `RefCounted` helper functions.
+  - Existing `scripts/worldmap_test.gd` private function names were kept as wrappers to preserve call-site signatures and return shapes.
+
+### Extracted Functions
+
+| Function | Previous Location | New Location | Wrapper Kept? | Reason Safe |
+|---|---|---|---|---|
+| `_format_vector2` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.format_vector2` | Yes | Pure coordinate text formatter. |
+| `_get_trade_control_mode_label` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.get_trade_control_mode_label` | Yes | Pure trade-control mode label mapper; mode ids are passed as data. |
+| `_get_trade_control_hint` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.get_trade_control_hint` | Yes | Pure hint text builder; tab/mode ids are passed as data. |
+| `_format_internal_trade_transfer_amounts` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.format_internal_trade_transfer_amounts` | Yes | Pure amount display builder; resource order and labels are passed as data. |
+| `_format_star_rating` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.format_star_rating` | Yes | Pure star text formatter. |
+| `_format_revolt_risk_label` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.format_revolt_risk_label` | Yes | Pure risk label mapper; risk ids are passed as data. |
+| `_format_selected_city_revolt_risk_label` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.format_selected_city_revolt_risk_label` | Yes | Pure selected-city risk label mapper; no selection state access. |
+| `_format_signed_int` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.format_signed_int` | Yes | Pure signed integer formatter. |
+| `_format_region_label` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.format_region_label` | Yes | Pure dictionary label lookup; labels are passed as data. |
+| `_format_faction_label` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.format_faction_label` | Yes | Pure dictionary label lookup; labels are passed as data. |
+| `_format_city_type` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.format_city_type` | Yes | Pure city-type dictionary label lookup; labels are passed as data. |
+| `_get_city_detail_tab_label` | `scripts/worldmap_test.gd` | `UIFormatterHelpers.get_city_detail_tab_label` | Yes | Pure city-detail tab label mapper; tab ids are passed as data. |
+
+### Deferred UI Formatter / Summary Functions
+
+| Function / Family | Reason Deferred | Stage |
+|---|---|---|
+| UI node construction and mutation helpers | Directly create or update Button, Label, Panel, Container, or other scene nodes. | Stage C/D |
+| Selection panel callbacks and selected-state helpers | Selection state and panel refresh fan-out remain state-sensitive. | Stage C/D |
+| Panel open/close/drag behavior | Screen-space drag/collapse lifecycle must remain in the orchestrator. | Stage D |
+| Domestic Tech graph layout and graph node creation | Graph line/node layout owns scene-node-heavy UI behavior. | Stage C/D |
+| Completion card/video queue helpers | Presentation queue order and video/card lifecycle are user-visible and recently locked. | Stage D |
+| Save/load, BattleContext, pending invasion, and turn summaries with mutation adjacency | Schema/runtime orchestration adjacency needs a later protected boundary. | Stage C/D |
+
+### Safety Notes
+
+- UI node mutation remains in `scripts/worldmap_test.gd`.
+- Selection state mutation remains in `scripts/worldmap_test.gd`.
+- Panel open/close/drag behavior remains in `scripts/worldmap_test.gd`.
+- Left/right panel scope behavior remains in `scripts/worldmap_test.gd`.
+- Graph layout and graph node creation remain in `scripts/worldmap_test.gd`.
+- Save/load, BattleContext, pending invasion, turn orchestration, and completion queues remain untouched.
+- Debug / QA, Enemy Baseline, and Mixed / Unsafe remain untouched due to the v0.71-07a opportunistic extraction ban.
+
 ## Do Not Move Yet Lock List
 
 | Function | Reason | Related Schema/State | Earliest Possible Stage |

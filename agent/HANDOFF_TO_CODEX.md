@@ -1,5 +1,15 @@
 # HANDOFF TO CODEX
 
+## v0.71-10 UI Formatter / Summary Helper Extraction Handoff
+- Current baseline after this task: `v0.71-10 UI Formatter / Summary Helper Extraction`; commit hash is recorded in the completion report.
+- Added `scripts/worldmap/ui_formatter/ui_formatter_helpers.gd`.
+- Extracted only the first small low-risk UI Formatter / Summary pure helper batch from `scripts/worldmap_test.gd`.
+- High-risk UI functions remain locked in `scripts/worldmap_test.gd`, including UI node mutation, selection state mutation, panel open/close/drag behavior, left/right panel scope behavior, graph layout/node creation, save/load-adjacent behavior, BattleContext, pending invasion, turn orchestration, completion queue, and scene lifecycle.
+- Preserved the v0.71-07a opportunistic extraction ban: Debug / QA, Enemy Baseline, and Mixed / Unsafe were not touched.
+- No existing gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula changed.
+- No `.tscn` file, scene script reference, scene node layout, main scene, enemy research, AI research, ship/siege persistent storage, asset, import behavior, or `.gd.uid` file changed.
+- Next session should run `v0.71-11 WorldMap Orchestrator Slim Pass`.
+
 ## v0.71-09 Naval / Siege Helper Extraction Handoff
 - Current baseline after this task: `v0.71-09 Naval / Siege Helper Extraction`; commit hash is recorded in the completion report.
 - Reviewed Naval / Siege candidates and moved no helper functions because no safe pure extraction candidate was confirmed for this pass.

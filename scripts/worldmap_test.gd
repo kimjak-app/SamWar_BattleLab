@@ -6,6 +6,7 @@ const DomesticTechHelperLib := preload("res://scripts/worldmap/domestic_tech/dom
 const EconomyCityHelpers := preload("res://scripts/worldmap/economy_city/economy_city_helpers.gd")
 const DefenseBattleHelpers := preload("res://scripts/worldmap/defense_battle/defense_battle_helpers.gd")
 const DiplomacySpyHelpers := preload("res://scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd")
+const UIFormatterHelpers := preload("res://scripts/worldmap/ui_formatter/ui_formatter_helpers.gd")
 
 const WORLD_MAP_CAMERA_SPEED := 900.0
 const WORLD_MAP_CAMERA_DRAG_SPEED := 1.0
@@ -1604,7 +1605,7 @@ func _update_camera_debug_label() -> void:
 
 
 func _format_vector2(value: Vector2) -> String:
-	return "(%.0f, %.0f)" % [value.x, value.y]
+	return UIFormatterHelpers.format_vector2(value)
 
 
 func _connect_city_markers() -> void:
@@ -2398,21 +2399,17 @@ func _apply_trade_control_button_state(button: Button, is_active: bool) -> void:
 
 
 func _get_trade_control_mode_label(mode: String) -> String:
-	if mode == TRADE_CONTROL_MODE_MANUAL:
-		return "수동 조정"
-	return "재상 일임"
+	return UIFormatterHelpers.get_trade_control_mode_label(mode, TRADE_CONTROL_MODE_MANUAL)
 
 
 func _get_trade_control_hint(tab_id: String, mode: String, has_manual_targets: bool) -> String:
-	if not has_manual_targets:
-		if tab_id == CITY_DETAIL_TAB_INTERNAL_TRADE:
-			return "수동 이송 잠김 · 연결 아군 성 필요"
-		return "수동 무역 잠김 · 인접 외국 성 필요"
-	if mode == TRADE_CONTROL_MODE_MANUAL:
-		if tab_id == CITY_DETAIL_TAB_INTERNAL_TRADE:
-			return "수동 이송 · 연결 아군 성으로 창고 자원을 옮깁니다."
-		return "수동 무역 · 수입/수출 계획을 저장한 뒤 실행합니다."
-	return "재상 일임 · 연결 성, 관계, 창고 상태를 기준으로 자동 조정합니다."
+	return UIFormatterHelpers.get_trade_control_hint(
+		tab_id,
+		mode,
+		has_manual_targets,
+		CITY_DETAIL_TAB_INTERNAL_TRADE,
+		TRADE_CONTROL_MODE_MANUAL
+	)
 
 
 func _ensure_manual_trade_order_panel() -> void:
@@ -3864,26 +3861,11 @@ func _format_internal_trade_signed_transfer_amounts(amounts: Dictionary, transfe
 
 
 func _format_internal_trade_transfer_amounts(amounts: Dictionary) -> String:
-	var parts: Array[String] = []
-	for resource_id in INTERNAL_TRADE_TRANSFER_RESOURCE_ORDER:
-		var amount := int(amounts.get(resource_id, 0))
-		if amount <= 0:
-			continue
-		parts.append("%s %d" % [str(RESOURCE_LABELS.get(resource_id, resource_id)), amount])
-	if parts.is_empty():
-		return "없음"
-	return " / ".join(parts)
+	return UIFormatterHelpers.format_internal_trade_transfer_amounts(amounts, INTERNAL_TRADE_TRANSFER_RESOURCE_ORDER, RESOURCE_LABELS)
 
 
 func _format_star_rating(value: int, max_value: int = 5) -> String:
-	var safe_max := maxi(1, max_value)
-	var filled := clampi(value, 0, safe_max)
-	if filled <= 0:
-		return "-"
-	var stars := ""
-	for _index in range(filled):
-		stars += "★"
-	return stars
+	return UIFormatterHelpers.format_star_rating(value, max_value)
 
 
 func _show_unified_diplomacy_spy_content() -> void:
@@ -5536,13 +5518,7 @@ func _get_last_or_current_city_revolt_risk(city_id: String) -> Dictionary:
 
 
 func _format_revolt_risk_label(risk: String) -> String:
-	match risk:
-		REVOLT_RISK_DANGER:
-			return "위험"
-		REVOLT_RISK_WARNING:
-			return "경고"
-		_:
-			return "안정"
+	return UIFormatterHelpers.format_revolt_risk_label(risk, REVOLT_RISK_DANGER, REVOLT_RISK_WARNING)
 
 
 func _get_city_loyalty_drift_entry(city_id: String, drift_result: Dictionary) -> Dictionary:
@@ -9809,15 +9785,7 @@ func _get_revolt_risk_summaries_for_ui() -> Dictionary:
 
 
 func _format_selected_city_revolt_risk_label(risk: String) -> String:
-	match risk:
-		REVOLT_RISK_DANGER:
-			return "위험"
-		REVOLT_RISK_WARNING:
-			return "주의"
-		REVOLT_RISK_STABLE:
-			return "낮음"
-		_:
-			return "확인 필요"
+	return UIFormatterHelpers.format_selected_city_revolt_risk_label(risk, REVOLT_RISK_DANGER, REVOLT_RISK_WARNING, REVOLT_RISK_STABLE)
 
 
 func _format_city_conscription_ui_line(city_id: String) -> String:
@@ -22276,9 +22244,7 @@ func _format_tax_preview(tax_level: int, national_loyalty: int, public_order: in
 
 
 func _format_signed_int(value: int) -> String:
-	if value > 0:
-		return "+%d" % value
-	return str(value)
+	return UIFormatterHelpers.format_signed_int(value)
 
 
 func _get_loyalty_status(value: int) -> String:
@@ -22643,15 +22609,15 @@ func _on_chancellor_policy_selected(index: int) -> void:
 
 
 func _format_region_label(region_id: String) -> String:
-	return str(REGION_LABELS.get(region_id, region_id))
+	return UIFormatterHelpers.format_region_label(region_id, REGION_LABELS)
 
 
 func _format_faction_label(owner_faction_id: String) -> String:
-	return str(FACTION_LABELS.get(owner_faction_id, owner_faction_id))
+	return UIFormatterHelpers.format_faction_label(owner_faction_id, FACTION_LABELS)
 
 
 func _format_city_type(city_id: String) -> String:
-	return str(CITY_TYPE_LABELS.get(city_id, "거점"))
+	return UIFormatterHelpers.format_city_type(city_id, CITY_TYPE_LABELS)
 
 
 func _get_city_detail_status(city_marker: WorldMapCityMarker) -> String:
@@ -22792,13 +22758,7 @@ func _on_city_detail_tab_pressed(tab_id: String) -> void:
 
 
 func _get_city_detail_tab_label(tab_id: String) -> String:
-	match tab_id:
-		CITY_DETAIL_TAB_INTERNAL_TRADE:
-			return "자국무역"
-		CITY_DETAIL_TAB_EXTERNAL_TRADE:
-			return "타국무역"
-		_:
-			return "자원"
+	return UIFormatterHelpers.get_city_detail_tab_label(tab_id, CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE)
 
 
 func _on_city_detail_collapse_placeholder_pressed() -> void:
