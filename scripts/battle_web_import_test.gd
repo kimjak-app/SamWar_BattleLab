@@ -14224,7 +14224,7 @@ func _is_node_in_subtree(node: Node, subtree_root: Node) -> bool:
 
 
 func _format_cell(cell: Vector2i) -> String:
-	return "(%d,%d)" % [cell.x, cell.y]
+	return BattleDebugFormatHelper.format_cell(cell)
 
 
 func _update_all_unit_visuals_from_state() -> void:
