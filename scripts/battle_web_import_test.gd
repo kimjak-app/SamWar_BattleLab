@@ -2,6 +2,7 @@ extends Node2D
 
 const BattleRangeOverlayTileScript := preload("res://scripts/battle_range_overlay_tile.gd")
 const BattleFacingArrowTileButtonScript := preload("res://scripts/battle_facing_arrow_tile_button.gd")
+const BattleUITextFormatHelper := preload("res://scripts/battle/helpers/battle_ui_text_format_helper.gd")
 const DEMO_DAMAGE := 12.0
 const ENEMY_DEMO_DAMAGE := 8.0
 const ALLY_DEMO_HP := 94.0
@@ -3516,13 +3517,7 @@ func _resolve_strategy(caster_state: BattleUnitState, target_state: BattleUnitSt
 
 
 func _get_strategy_status_display_name(status_id: String) -> String:
-	match status_id:
-		STATUS_CONFUSION:
-			return "혼란"
-		STATUS_SHAKE:
-			return "동요"
-		_:
-			return "상태"
+	return BattleUITextFormatHelper.format_strategy_status_display_name(status_id)
 
 
 func _is_unit_confused(unit_state: BattleUnitState) -> bool:
@@ -4378,9 +4373,7 @@ func _debug_object_has_property(value: Object, property_name: String) -> bool:
 
 
 func _get_debug_object_class_name(value: Object) -> String:
-	if value == null:
-		return "null"
-	return value.get_class()
+	return BattleUITextFormatHelper.get_debug_object_class_name(value)
 
 
 func _prepare_specialty_skill_cutin_video_node(cutin_rect: Rect2) -> void:
@@ -4809,9 +4802,7 @@ func _get_opposing_side(side: String) -> String:
 
 
 func _get_side_display_name(side: String) -> String:
-	if side == "enemy":
-		return "적군"
-	return "아군"
+	return BattleUITextFormatHelper.format_side_display_name(side)
 
 
 func _get_direction_from_positions(from_cell: Vector2i, to_cell: Vector2i) -> String:
