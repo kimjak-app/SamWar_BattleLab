@@ -1,5 +1,24 @@
 # HANDOFF TO CODEX
 
+## v0.72-03 Scene Entrypoint Rename Complete Lock Handoff
+- Current baseline after this task: `v0.72-03 Scene Entrypoint Rename Complete Lock`; commit hash is recorded in the completion report.
+- Scene entrypoint rename line is locked.
+- Production runtime entrypoints are:
+  - Main scene: `res://WorldMap.tscn`
+  - Land battle scene: `res://Battle_Land.tscn`
+  - Active worldmap script: `res://scripts/worldmap/worldmap_main.gd`
+- Retired production paths:
+  - `res://WorldMap_Test.tscn`
+  - `res://Battle_Fullscreen_Test.tscn`
+- Dev/test-only scenes remain unchanged:
+  - `res://Battle_Singijeon_Test.tscn`
+  - `res://Battle_WebImport_Test.tscn`
+  - `res://scenes/dev/video_theora_test.tscn`
+- Human manual QA confirmed project start, WorldMap -> Battle_Land transition, and Battle_Land -> WorldMap return.
+- No existing gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula changed.
+- No scene layout, project main scene, enemy research, AI research, ship/siege persistent storage, asset, import behavior, or `.gd.uid` behavior changed by this lock task.
+- Next session should choose the next post-rename development target.
+
 ## v0.72-02 Scene Rename F6 Roundtrip QA Handoff
 - Current baseline after this task: `v0.72-02 Scene Rename F6 Roundtrip QA`; commit hash is recorded in the completion report.
 - QA results are recorded in `agent/V0_72_SCENE_RENAME_F6_ROUNDTRIP_QA.md`.

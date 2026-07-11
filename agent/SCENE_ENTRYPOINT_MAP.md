@@ -38,6 +38,12 @@ These scenes remain unchanged and should not be treated as production runtime re
 
 Historical and documentation-only references may still mention retired paths in old session records. Runtime/config references must use the current paths above.
 
+### Human Roundtrip Confirmation
+
+- Result: PASS.
+- User confirmed project start with `res://WorldMap.tscn`, WorldMap -> `res://Battle_Land.tscn` transition, and `Battle_Land.tscn` -> `res://WorldMap.tscn` return after v0.72-02.
+- No missing old production path error was reported for `res://WorldMap_Test.tscn` or `res://Battle_Fullscreen_Test.tscn`.
+
 ## v0.72-00 Scene Entrypoint Rename Plan
 
 This document separates runtime production scenes from dev/test-only scenes before the v0.72 physical rename.

@@ -1,5 +1,21 @@
 # NEXT TASKS
 
+## Current: v0.72-03 Scene Entrypoint Rename Complete Lock
+- Completed direction:
+  1. Locked production scene entrypoint rename after headless validation and human manual roundtrip confirmation.
+  2. Confirmed active production runtime scenes:
+     - `res://WorldMap.tscn`
+     - `res://Battle_Land.tscn`
+  3. Confirmed active worldmap script:
+     - `res://scripts/worldmap/worldmap_main.gd`
+  4. Confirmed retired production paths:
+     - `res://WorldMap_Test.tscn`
+     - `res://Battle_Fullscreen_Test.tscn`
+  5. Preserved dev/test-only scenes unchanged.
+  6. Did not modify runtime code, scene files, `project.godot`, schemas, formulas, or gameplay behavior in the lock task.
+- Next recommended task:
+  1. Choose next post-rename development target.
+
 ## Current: v0.72-02 Scene Rename F6 Roundtrip QA
 - Completed direction:
   1. Verified post-rename scene path/reference state.

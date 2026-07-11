@@ -1,5 +1,23 @@
 # CURRENT STATE
 
+## v0.72-03 Scene Entrypoint Rename Complete Lock
+- Baseline: `99172748f3a8a621d9be54aa2b3b1ada0c4aa5b4` (`v0.72-02 Scene Rename F6 Roundtrip QA`); tracked files were clean at task start. Actual task-start HEAD was `d3d04b8a3b4b9e1b48e80952a562931eaacd88a2`, on top of `9917274` and matching `origin/main`.
+- Locked the v0.72 scene entrypoint rename line after path/reference verification, headless validation, and human manual roundtrip confirmation.
+- Production runtime entrypoints are now:
+  - Main scene: `res://WorldMap.tscn`
+  - Land battle scene: `res://Battle_Land.tscn`
+  - Active worldmap script: `res://scripts/worldmap/worldmap_main.gd`
+- Retired production paths:
+  - `res://WorldMap_Test.tscn`
+  - `res://Battle_Fullscreen_Test.tscn`
+- Preserved dev/test-only scenes:
+  - `res://Battle_Singijeon_Test.tscn`
+  - `res://Battle_WebImport_Test.tscn`
+  - `res://scenes/dev/video_theora_test.tscn`
+- Human manual QA confirmed project start, WorldMap -> Battle_Land transition, and Battle_Land -> WorldMap return.
+- No runtime `.gd`, `.tscn`, `project.godot`, scene layout, gameplay behavior, schemas, formulas, assets, imports, or `.gd.uid` files were changed by this lock task.
+- Next recommended task: choose the next post-rename development target from `agent/NEXT_TASKS.md`.
+
 ## v0.72-02 Scene Rename F6 Roundtrip QA
 - Baseline: `5bc176291ba52cc5bafdbb1a0fdd003c50d7c1bb` (`v0.72-01 WorldMap + Land Battle Scene Filename Rename`); tracked files were clean at task start.
 - Verified scene rename path/reference state after production scene rename:

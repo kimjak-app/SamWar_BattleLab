@@ -8,14 +8,14 @@
 - Active worldmap script: `res://scripts/worldmap/worldmap_main.gd`.
 
 ## Summary
-- Overall result: PASS WITH MANUAL QA REQUIRED.
+- Overall result: PASS.
 - Blockers: 0.
 - Major issues: 0.
-- Minor issues: 1.
-- Manual F6 performed: NO.
-- Proceed to complete lock: CONDITIONAL.
+- Minor issues: 0.
+- Manual F6 performed: YES, by user confirmation after v0.72-02.
+- Proceed to complete lock: YES.
 
-Codex static/path and headless validation passed, but the tactile F6 click-through roundtrip was not performed in this non-interactive session. Complete lock should either wait for human-confirmed F6 roundtrip QA or explicitly accept this manual-QA note.
+Codex static/path and headless validation passed in v0.72-02. After that, the user manually confirmed the runtime roundtrip, so the scene rename line can proceed to complete lock.
 
 ## Path / Reference Verification
 
@@ -57,6 +57,22 @@ New warning/error count: 0.
 - No old `Battle_Fullscreen_Test.tscn` path error: Covered by static runtime/config search; tactile F6 not performed.
 - Result: NOT PERFORMED.
 
+## Human Manual Roundtrip Confirmation
+
+After v0.72-02, the user manually confirmed the runtime roundtrip:
+
+- Project run starts correctly with `res://WorldMap.tscn`.
+- WorldMap screen runs normally.
+- WorldMap -> `res://Battle_Land.tscn` transition works.
+- `Battle_Land.tscn` runs normally.
+- Battle return -> `res://WorldMap.tscn` works.
+- No missing old production path error was reported for:
+  - `res://WorldMap_Test.tscn`
+  - `res://Battle_Fullscreen_Test.tscn`
+
+Result:
+- Manual roundtrip confirmation: PASS.
+
 Manual checklist for human confirmation:
 1. Run F6 and confirm `WorldMap.tscn` starts from the project main scene.
 2. Trigger a normal WorldMap battle entry.
@@ -67,7 +83,7 @@ Manual checklist for human confirmation:
 
 ## Findings
 
-No blocker, major, minor, or cosmetic finding was identified by Codex static/path/headless validation.
+No blocker, major, minor, or cosmetic finding remains open after human manual roundtrip confirmation.
 
 ### QA Finding: Manual F6 roundtrip not performed
 - Area: Manual QA coverage.
@@ -79,8 +95,8 @@ No blocker, major, minor, or cosmetic finding was identified by Codex static/pat
 - Suspected cause: Non-interactive execution environment.
 - Regression risk: Scene path regressions that require real UI actions could remain undetected by headless load alone.
 - Recommendation:
-  - Run human-confirmed `Manual F6 Roundtrip Confirmation` before complete lock, or explicitly accept complete lock with this manual-QA note.
+  - Resolved by user-confirmed manual runtime roundtrip after v0.72-02.
 
 ## Decision
-- Decision: PASS WITH MANUAL QA REQUIRED.
-- Recommendation: Do not treat tactile roundtrip as fully confirmed until human F6 validates WorldMap -> Battle_Land -> WorldMap. If human confirmation is available, proceed to `v0.72-03 Scene Entrypoint Rename Complete Lock`; otherwise run `Manual F6 Roundtrip Confirmation` first.
+- Decision: PASS.
+- Recommendation: Proceed to `v0.72-03 Scene Entrypoint Rename Complete Lock`.
