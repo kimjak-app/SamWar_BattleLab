@@ -54,7 +54,14 @@
 - Godot headless battle-scene load: `Battle_Land.tscn` exited `0`; the sample battle initialized and reported its normal identity, grid, roster, adapter, and toast diagnostics.
 - Automated tests: no dedicated automated test command was found in the project search; the available project-load and battle-scene headless checks were run instead.
 - Required diff review: passed after validation; only the helper, preserved wrapper, and this record changed.
-- Human gameplay QA: `MANUAL QA REQUIRED`.
+- Human gameplay QA: PASS.
+- Human QA confirmed:
+  - `WorldMap.tscn` startup 정상
+  - WorldMap -> `Battle_Land.tscn` 진입 정상
+  - 전투 화면 및 기본 동작 정상
+  - Battle -> `WorldMap.tscn` 복귀 정상
+  - parser/helper/old-path 관련 오류 없음
+  - 기존 cell debug formatting 이상 없음
 
 ## 7. Rollback
 
@@ -65,3 +72,17 @@ If a problem is found, revert only these files:
 - `agent/BATTLE_ENGINE_FIRST_SAFE_EXTRACTION.md` (remove this record)
 
 No scene, project, gameplay schema, payload, formula, or WorldMap handoff file is part of this extraction.
+
+## 8. Complete Lock
+
+- Human QA: PASS
+- Extraction helper: `scripts/battle/helpers/battle_debug_format_helper.gd`
+- Godot UID companion: `scripts/battle/helpers/battle_debug_format_helper.gd.uid`
+- Extracted function: `_format_cell(cell: Vector2i) -> String`
+- Existing wrapper and all three call sites preserved.
+- WorldMap handoff unchanged.
+- Battle result contract unchanged.
+- Scene transition unchanged.
+- Gameplay schema unchanged.
+- Formula unchanged.
+- v0.72-05 implementation commit: `db3ecc2e4233c17a5efb701026cc8621b92369c7`
