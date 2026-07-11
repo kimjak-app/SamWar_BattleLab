@@ -1,5 +1,59 @@
 # HANDOFF TO CODEX
 
+## v0.71-11 WorldMap Orchestrator Slim Pass Handoff
+- Current baseline after this task: `v0.71-11 WorldMap Orchestrator Slim Pass`; commit hash is recorded in the completion report.
+- v0.71-11 consolidated helper extraction results from v0.71-05 through v0.71-10.
+- No broad extraction was performed.
+- `scripts/worldmap_test.gd` remains the active orchestrator script by design.
+- High-risk function families remain locked in `scripts/worldmap_test.gd`, including save/load, BattleContext, pending invasion, active research payloads, completion queue, turn orchestration, scene lifecycle, signal wiring, selection state, panel node ownership, graph layout, gameplay formulas, Debug / QA, Enemy Baseline, and Mixed / Unsafe.
+- Prepared `v0.71-12 Full Regression F6 QA` preview checklist.
+- No existing gameplay behavior, save/load schema, BattleContext schema, pending invasion schema, battle formula, diplomacy/spy formula changed.
+- No `.tscn` file, scene script reference, scene node layout, main scene, enemy research, AI research, ship/siege persistent storage, asset, import behavior, or `.gd.uid` file changed.
+- Next session should run `v0.71-12 Full Regression F6 QA`.
+
+## v0.71-12 Full Regression F6 QA Preview
+
+Manual F6 QA should verify:
+
+### Project / Scene Load
+- Project opens without new parse/reload warnings.
+- Main scene is still `res://WorldMap_Test.tscn`.
+- Battle fullscreen scene still loads.
+
+### Domestic Tech
+- Research start / progress / complete still works.
+- Actual charge behavior remains unchanged.
+- Completion video/card still works.
+- Effect summary text still appears.
+
+### Economy / City
+- City detail resource/trade/storage text appears correctly.
+- Turn income/resource display still updates.
+- No city state mutation regression.
+
+### Defense / Battle
+- Troop move button/reason text appears correctly.
+- Invasion result lines still display correctly.
+- Battle entry/return still works.
+
+### Diplomacy / Spy
+- Diplomacy relation status labels still appear.
+- Spy validation messages still appear.
+- No relation/spying formula behavior changed.
+
+### UI Formatter / Summary
+- City type/region/faction labels still display.
+- Revolt risk labels still display.
+- Trade control hints still display.
+- No node/panel/selection behavior changed.
+
+### Boundary Checks
+- Save/load smoke check.
+- BattleContext/pending invasion smoke check.
+- Left panel remains PLAYER scope.
+- Right panel remains selected city scope.
+- No enemy research behavior introduced.
+
 ## v0.71-10 UI Formatter / Summary Helper Extraction Handoff
 - Current baseline after this task: `v0.71-10 UI Formatter / Summary Helper Extraction`; commit hash is recorded in the completion report.
 - Added `scripts/worldmap/ui_formatter/ui_formatter_helpers.gd`.

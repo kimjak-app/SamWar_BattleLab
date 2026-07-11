@@ -596,6 +596,96 @@ Reason:
 - Save/load, BattleContext, pending invasion, turn orchestration, and completion queues remain untouched.
 - Debug / QA, Enemy Baseline, and Mixed / Unsafe remain untouched due to the v0.71-07a opportunistic extraction ban.
 
+## v0.71-05 through v0.71-10 Extraction Summary
+
+| Step | Domain | Helper File | Extracted Count | Wrapper Kept | Runtime Risk Boundary |
+|---|---|---|---:|---:|---|
+| v0.71-05 | Domestic Tech | `scripts/worldmap/domestic_tech/domestic_tech_helpers.gd` | 8 | 8 | Active research, actual charge, completion queue stayed locked. |
+| v0.71-06 | Economy / City | `scripts/worldmap/economy_city/economy_city_helpers.gd` | 13 | 13 | City mutation, turn income, storage/resource mutation stayed locked. |
+| v0.71-07 | Defense / Battle | `scripts/worldmap/defense_battle/defense_battle_helpers.gd` | 4 | 4 | BattleContext, pending invasion, formulas, deployment stayed locked. |
+| v0.71-08 | Diplomacy / Spy | `scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd` | 5 | 5 | Diplomacy/spy formula, relation mutation, spy result mutation stayed locked. |
+| v0.71-09 | Naval / Siege | None | 0 | 0 | No safe extraction candidate; high-risk behavior stayed locked. |
+| v0.71-10 | UI Formatter / Summary | `scripts/worldmap/ui_formatter/ui_formatter_helpers.gd` | 12 | 12 | UI node mutation, selection state, panel/graph behavior stayed locked. |
+
+## v0.71-11 High-Risk Lock List Before Full Regression
+
+The following function families intentionally remain in `scripts/worldmap_test.gd` for v0.71:
+
+### Schema / Persistence
+
+- Save/load serialization and restoration.
+- Active research payload schema.
+- Completed tech schema.
+- BattleContext schema.
+- Pending invasion schema.
+- Ship/siege persistent storage.
+
+### Runtime Orchestration
+
+- `_ready`.
+- Signal wiring.
+- Turn advance.
+- Completion queue / video / card presentation queue.
+- Scene lifecycle and scene tree ownership.
+
+### Gameplay Formula / Mutation
+
+- Battle formula/stat calculation.
+- Diplomacy/spy formula.
+- Relation mutation.
+- Spy result mutation.
+- City state mutation.
+- City resource/storage mutation.
+- City defense mutation.
+- Siege result mutation.
+- Deployment payload mutation.
+
+### UI / Scene Ownership
+
+- UI node mutation.
+- Selection state mutation.
+- Panel open/close/drag behavior.
+- Left/right panel scope behavior.
+- Graph layout and graph node creation.
+
+### Deferred Domains
+
+- Debug / QA / Dev Tools.
+- Enemy Baseline / AI-lite.
+- Mixed / Unsafe.
+
+## v0.71-11 WorldMap Orchestrator Slim Pass Result
+
+### Result
+
+This pass did not perform broad extraction.
+
+The goal was to consolidate extraction results, confirm remaining high-risk boundaries, and prepare for full regression QA.
+
+### Helper Extraction State
+
+- Approved low-risk helper extraction batches through v0.71-10 are complete or explicitly no-op/deferred.
+- Naval / Siege remains no-op/deferred because no safe pure candidate was confirmed.
+- Debug / QA, Enemy Baseline, and Mixed / Unsafe remain untouched due to the v0.71-07a opportunistic extraction ban.
+
+### Orchestrator Boundary
+
+`worldmap_test.gd` remains the active orchestrator script.
+
+The following responsibilities intentionally remain in `worldmap_test.gd` for v0.71:
+- Scene lifecycle.
+- Signal wiring.
+- Turn orchestration.
+- Save/load.
+- BattleContext and pending invasion payload ownership.
+- Selection state and panel node ownership.
+- Completion presentation queue.
+- High-risk mixed state mutation.
+
+### Next Step
+
+Proceed to `v0.71-12 Full Regression F6 QA`.
+
 ## Do Not Move Yet Lock List
 
 | Function | Reason | Related Schema/State | Earliest Possible Stage |

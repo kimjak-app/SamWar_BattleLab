@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## v0.71-11 WorldMap Orchestrator Slim Pass
+- Baseline: `4429cf74360ca56343a6782c307a176f58bc8da6` (`v0.71-10 UI Formatter / Summary Helper Extraction`); tracked files were clean at task start.
+- Reconfirmed v0.71-10 headless status before proceeding, including project, `WorldMap_Test.tscn`, and `Battle_Fullscreen_Test.tscn`.
+- Consolidated v0.71-05 through v0.71-10 helper extraction results and confirmed `scripts/worldmap_test.gd` remains the active orchestrator script.
+- No broad extraction was performed in v0.71-11.
+- Finalized the v0.71 high-risk lock list for schema/persistence, runtime orchestration, gameplay formula/mutation, UI/scene ownership, Debug / QA, Enemy Baseline, and Mixed / Unsafe domains.
+- Prepared the v0.71-12 Full Regression F6 QA preview checklist.
+- Existing scene files, script paths, main scene, gameplay formulas, save/load schema, BattleContext schema, pending invasion schema, enemy research, AI research, ship/siege persistent storage, assets, imports, and `.gd.uid` files were not changed.
+- Next task: `v0.71-12 Full Regression F6 QA`.
+
 ## v0.71-10 UI Formatter / Summary Helper Extraction
 - Baseline: `1254c1bac85bf43e852d2f3acf8a07a752e27d75` (`v0.71-09 Naval / Siege Helper Extraction`); tracked files were clean at task start.
 - Added `scripts/worldmap/ui_formatter/ui_formatter_helpers.gd` for the first extracted UI Formatter / Summary pure helper batch.

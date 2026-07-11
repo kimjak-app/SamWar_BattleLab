@@ -1,5 +1,58 @@
 # NEXT TASKS
 
+## Current: v0.71-11 WorldMap Orchestrator Slim Pass
+- Completed direction:
+  1. Consolidated helper extraction results from v0.71-05 through v0.71-10.
+  2. Confirmed `scripts/worldmap_test.gd` remains the active orchestrator script.
+  3. Finalized high-risk lock-list boundaries for v0.71.
+  4. Clarified that v0.71-11 did not perform broad extraction.
+  5. Prepared the v0.71-12 Full Regression F6 QA preview.
+- Next task:
+  1. `v0.71-12 Full Regression F6 QA`.
+
+## v0.71-12 Full Regression F6 QA Preview
+
+Manual F6 QA should verify:
+
+### Project / Scene Load
+- Project opens without new parse/reload warnings.
+- Main scene is still `res://WorldMap_Test.tscn`.
+- Battle fullscreen scene still loads.
+
+### Domestic Tech
+- Research start / progress / complete still works.
+- Actual charge behavior remains unchanged.
+- Completion video/card still works.
+- Effect summary text still appears.
+
+### Economy / City
+- City detail resource/trade/storage text appears correctly.
+- Turn income/resource display still updates.
+- No city state mutation regression.
+
+### Defense / Battle
+- Troop move button/reason text appears correctly.
+- Invasion result lines still display correctly.
+- Battle entry/return still works.
+
+### Diplomacy / Spy
+- Diplomacy relation status labels still appear.
+- Spy validation messages still appear.
+- No relation/spying formula behavior changed.
+
+### UI Formatter / Summary
+- City type/region/faction labels still display.
+- Revolt risk labels still display.
+- Trade control hints still display.
+- No node/panel/selection behavior changed.
+
+### Boundary Checks
+- Save/load smoke check.
+- BattleContext/pending invasion smoke check.
+- Left panel remains PLAYER scope.
+- Right panel remains selected city scope.
+- No enemy research behavior introduced.
+
 ## Current: v0.71-10 UI Formatter / Summary Helper Extraction
 - Completed direction:
   1. Extracted the first small UI Formatter / Summary pure helper batch into `scripts/worldmap/ui_formatter/ui_formatter_helpers.gd`.
