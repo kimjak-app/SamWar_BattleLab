@@ -1,5 +1,17 @@
 # CURRENT STATE
 
+## v0.72-02 Scene Rename F6 Roundtrip QA
+- Baseline: `5bc176291ba52cc5bafdbb1a0fdd003c50d7c1bb` (`v0.72-01 WorldMap + Land Battle Scene Filename Rename`); tracked files were clean at task start.
+- Verified scene rename path/reference state after production scene rename:
+  - Main scene: `res://WorldMap.tscn`
+  - Land battle scene: `res://Battle_Land.tscn`
+  - Active worldmap script: `res://scripts/worldmap/worldmap_main.gd`
+- Ran headless validation for project, `WorldMap.tscn`, and `Battle_Land.tscn`.
+- Recorded F6 roundtrip QA status in `agent/V0_72_SCENE_RENAME_F6_ROUNDTRIP_QA.md`.
+- Manual F6 tactile roundtrip was not performed in this non-interactive session; overall result is PASS WITH MANUAL QA REQUIRED.
+- No runtime `.gd`, `.tscn`, `project.godot`, scene layout, gameplay behavior, schemas, formulas, assets, imports, or `.gd.uid` files were changed by this QA task.
+- Next task: `v0.72-03 Scene Entrypoint Rename Complete Lock` if manual F6 is confirmed or the manual-QA note is explicitly accepted; otherwise run `Manual F6 Roundtrip Confirmation`.
+
 ## v0.72-01 WorldMap + Land Battle Scene Filename Rename
 - Baseline: `c09bd404b5e5badd56c530d5a6b4a6d6e0043403` (`v0.72-00 Scene Entrypoint Rename Plan`); tracked files were clean at task start.
 - Renamed production runtime scenes:

@@ -1,5 +1,16 @@
 # NEXT TASKS
 
+## Current: v0.72-02 Scene Rename F6 Roundtrip QA
+- Completed direction:
+  1. Verified post-rename scene path/reference state.
+  2. Ran headless checks for project, `WorldMap.tscn`, and `Battle_Land.tscn`.
+  3. Recorded manual F6 roundtrip QA status as not performed in this non-interactive session.
+  4. Did not modify runtime code, scene files, `project.godot`, schemas, formulas, or gameplay behavior.
+- Next task:
+  1. If human F6 is confirmed or the manual-QA note is explicitly accepted: `v0.72-03 Scene Entrypoint Rename Complete Lock`.
+  2. If manual F6 remains required: run `Manual F6 Roundtrip Confirmation` before complete lock.
+  3. If QA FAIL appears during manual confirmation: run focused hotfix before complete lock.
+
 ## Current: v0.72-01 WorldMap + Land Battle Scene Filename Rename
 - Completed direction:
   1. Renamed production runtime scenes:

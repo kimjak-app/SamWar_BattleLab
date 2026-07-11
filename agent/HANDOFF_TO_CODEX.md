@@ -1,5 +1,20 @@
 # HANDOFF TO CODEX
 
+## v0.72-02 Scene Rename F6 Roundtrip QA Handoff
+- Current baseline after this task: `v0.72-02 Scene Rename F6 Roundtrip QA`; commit hash is recorded in the completion report.
+- QA results are recorded in `agent/V0_72_SCENE_RENAME_F6_ROUNDTRIP_QA.md`.
+- QA result: PASS WITH MANUAL QA REQUIRED.
+- Production scene paths remain:
+  - Main scene: `res://WorldMap.tscn`
+  - Land battle scene: `res://Battle_Land.tscn`
+- Active worldmap script remains `res://scripts/worldmap/worldmap_main.gd`.
+- Static/path and headless validation passed for project, `WorldMap.tscn`, and `Battle_Land.tscn`.
+- Manual F6 tactile roundtrip was not performed in this non-interactive session.
+- No runtime code, scene files, project settings, scene layout, gameplay behavior, schemas, formulas, assets, imports, or `.gd.uid` files were changed by this QA task.
+- If human F6 is confirmed or the manual-QA note is explicitly accepted, next session should run `v0.72-03 Scene Entrypoint Rename Complete Lock`.
+- If manual F6 remains required, next session should run human-confirmed `Manual F6 Roundtrip Confirmation`.
+- If QA failed during manual confirmation, next session should run a focused hotfix before complete lock.
+
 ## v0.72-01 WorldMap + Land Battle Scene Filename Rename Handoff
 - Current baseline after this task: `v0.72-01 WorldMap + Land Battle Scene Filename Rename`; commit hash is recorded in the completion report.
 - Production runtime scene paths are now:
