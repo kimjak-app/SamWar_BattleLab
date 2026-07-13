@@ -75,9 +75,15 @@
 
 ## 9. Manual QA Required
 
-- In `Battle_Land.tscn`, trigger the Yi Sun-sin specialty cutin and verify the portrait/title display positions and scale remain unchanged.
-- Confirm the normal fallback cutin configuration still appears when a hero-specific configuration is absent.
-- Run a normal unique skill action and confirm that targeting, effect application, cooldown, battle result, and Battle-to-WorldMap return remain unchanged.
+- Human gameplay QA: `NOT PERFORMED`.
+- This non-interactive session could run parse and headless scene-load checks, but could not operate the Godot editor to verify the listed gameplay/cutin interactions. No item below is inferred as passing.
+- Yi Sun-sin specialty cutin position: `NOT PERFORMED`.
+- Yi Sun-sin specialty cutin scale: `NOT PERFORMED`.
+- Missing hero-specific cutin config fallback: `NOT PERFORMED`.
+- Normal unique-skill target selection: `NOT PERFORMED`.
+- Normal unique-skill effect application: `NOT PERFORMED`.
+- Unique-skill cooldown processing: `NOT PERFORMED`.
+- Battle → WorldMap return: `NOT PERFORMED`.
 
 ## 10. Next Recommended Task
 

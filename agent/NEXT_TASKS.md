@@ -1,10 +1,19 @@
 # NEXT TASKS
 
+## Current: v0.72-08 Battle Formation / Facing Pure Helper Extraction
+- Completed direction:
+  1. Extracted only the node-free facing normalization, axis classification, and arrow-text lookup helpers with wrappers retained.
+  2. Kept movement, facing mutation, grid/occupancy/pathfinding, AI, formulas, visual application, and WorldMap handoff unchanged.
+- Next recommended task:
+  1. Select a separately reviewed pure helper boundary; no next task is fixed by this extraction.
+
 ## Current: v0.72-07 Battle Skill Metadata / Description Helper Extraction
 - Completed direction:
   1. Extracted only the pure specialty-skill cutin configuration Dictionary lookups into `BattleSkillMetadataHelper`.
   2. Kept existing battle-script wrapper names, arguments, return types, and call sites unchanged.
   3. Kept skill execution, formulas, state mutation, target/range selection, WorldMap handoff, results, retreat, and scene transitions untouched.
+
+- Human gameplay QA: `NOT PERFORMED`; parse and headless validation passed, but the interactive cutin/skill/return checks remain required.
 - Next recommended task:
   1. `v0.72-08 Battle Formation / Facing Pure Helper Review`.
 
@@ -12,6 +21,7 @@
 - Completed direction:
   1. Extracted confirmed pure UI text and formatter helpers with wrappers retained.
   2. Preserved battle behavior, scene files, formulas, and WorldMap handoff.
+  3. Human gameplay QA: `PASS`; Complete Lock completed and manual QA is not pending.
 - Next recommended task:
   1. Review the next isolated Stage B pure-helper domain.
 

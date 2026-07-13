@@ -76,7 +76,11 @@
 - Signature comparison: passed; all three wrappers kept the original signature and return type.
 - Output-expression comparison: passed by source review; the wrappers now delegate to helpers that preserve the exact prior outputs.
 - Forbidden diff check: passed; no diff was introduced in `scripts/worldmap/worldmap_main.gd`, `WorldMap.tscn`, `Battle_Land.tscn`, or `project.godot`.
-- Manual QA required: yes. Human gameplay QA has not been performed in this turn.
+- Human gameplay QA: `PASS`.
+- Godot editor에서 실제 전투 화면을 확인했다.
+- 전략 상태 표시명, 아군/적군 side display name이 정상 출력됐다.
+- debug object class name helper 적용 이후 신규 오류가 없었고, 기존 UI 텍스트 출력 및 전투 화면 기본 동작에 회귀가 없었다.
+- Battle → WorldMap 왕복에서 신규 문제가 없었다.
 
 ## 8. Rollback
 
@@ -86,3 +90,14 @@
 - Remove the `BattleUITextFormatHelper` preload constant from `scripts/battle_web_import_test.gd`.
 - Remove this document if the extraction is reverted.
 - No WorldMap handoff, battle result, scene transition, formula, or schema file is affected by this rollback.
+
+## 9. Next Recommended Task
+
+`v0.72-08 Battle Formation / Facing Pure Helper Review`
+
+## Complete Lock
+
+- `v0.72-06 Battle UI Text / Formatter Helper Extraction`은 parse/headless 검증과 Human gameplay QA를 모두 통과했다.
+- 추출된 세 wrapper와 helper 출력은 기존 동작을 유지한다.
+- WorldMap handoff, battle result, retreat, scene transition, 공식, runtime 상태 mutation에는 변경이 없다.
+- `v0.72-06`은 최종 완료 및 잠금 상태다. 별도 회귀 증거가 나오지 않는 한 다시 manual QA pending 상태로 취급하지 않는다.

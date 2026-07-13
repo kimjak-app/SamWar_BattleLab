@@ -4,6 +4,7 @@ const BattleRangeOverlayTileScript := preload("res://scripts/battle_range_overla
 const BattleFacingArrowTileButtonScript := preload("res://scripts/battle_facing_arrow_tile_button.gd")
 const BattleUITextFormatHelper := preload("res://scripts/battle/helpers/battle_ui_text_format_helper.gd")
 const BattleSkillMetadataHelper := preload("res://scripts/battle/helpers/battle_skill_metadata_helper.gd")
+const BattleFormationFacingHelper := preload("res://scripts/battle/helpers/battle_formation_facing_helper.gd")
 const DEMO_DAMAGE := 12.0
 const ENEMY_DEMO_DAMAGE := 8.0
 const ALLY_DEMO_HP := 94.0
@@ -14403,25 +14404,15 @@ func _restore_hp_troop_runtime_visibility_for_unit(unit_state: BattleUnitState) 
 
 
 func _normalize_facing(facing: String) -> String:
-	if facing == FACING_LEFT:
-		return FACING_LEFT
-	if facing == FACING_RIGHT:
-		return FACING_RIGHT
-	if facing == FACING_UP:
-		return FACING_UP
-	if facing == FACING_DOWN:
-		return FACING_DOWN
-	return FACING_RIGHT
+	return BattleFormationFacingHelper.normalize_facing(facing)
 
 
 func _is_vertical_facing(facing: String) -> bool:
-	var normalized_facing := _normalize_facing(facing)
-	return normalized_facing == FACING_UP or normalized_facing == FACING_DOWN
+	return BattleFormationFacingHelper.is_vertical_facing(facing)
 
 
 func _is_horizontal_facing(facing: String) -> bool:
-	var normalized_facing := _normalize_facing(facing)
-	return normalized_facing == FACING_LEFT or normalized_facing == FACING_RIGHT
+	return BattleFormationFacingHelper.is_horizontal_facing(facing)
 
 
 func _set_unit_facing(unit_state: BattleUnitState, facing: String) -> void:
@@ -14588,17 +14579,7 @@ func _get_unit_facing(unit_state: BattleUnitState) -> String:
 
 
 func _get_facing_arrow_text(facing: String) -> String:
-	match _normalize_facing(facing):
-		FACING_LEFT:
-			return "←"
-		FACING_RIGHT:
-			return "→"
-		FACING_UP:
-			return "↑"
-		FACING_DOWN:
-			return "↓"
-		_:
-			return "→"
+	return BattleFormationFacingHelper.get_facing_arrow_text(facing)
 
 
 func _update_facing_indicators() -> void:
