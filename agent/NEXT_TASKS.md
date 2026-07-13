@@ -1,5 +1,27 @@
 # NEXT TASKS
 
+## Current: v0.72-07 Battle Skill Metadata / Description Helper Extraction
+- Completed direction:
+  1. Extracted only the pure specialty-skill cutin configuration Dictionary lookups into `BattleSkillMetadataHelper`.
+  2. Kept existing battle-script wrapper names, arguments, return types, and call sites unchanged.
+  3. Kept skill execution, formulas, state mutation, target/range selection, WorldMap handoff, results, retreat, and scene transitions untouched.
+- Next recommended task:
+  1. `v0.72-08 Battle Formation / Facing Pure Helper Review`.
+
+## Current: v0.72-06 Battle UI Text / Formatter Helper Extraction
+- Completed direction:
+  1. Extracted confirmed pure UI text and formatter helpers with wrappers retained.
+  2. Preserved battle behavior, scene files, formulas, and WorldMap handoff.
+- Next recommended task:
+  1. Review the next isolated Stage B pure-helper domain.
+
+## Current: v0.72-05 Battle Engine First Safe Extraction Complete Lock
+- Completed direction:
+  1. Locked the first safe battle helper extraction after validation.
+  2. Preserved the battle runtime, scenes, formulas, and WorldMap handoff contract.
+- Next recommended task:
+  1. Continue only with a separately reviewed, pure helper boundary.
+
 ## Current: v0.72-04 Battle Engine Function Map & Refactor Plan
 - Completed direction:
   1. Mapped `scripts/battle_web_import_test.gd` functions.

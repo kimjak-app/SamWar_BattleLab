@@ -3,6 +3,7 @@ extends Node2D
 const BattleRangeOverlayTileScript := preload("res://scripts/battle_range_overlay_tile.gd")
 const BattleFacingArrowTileButtonScript := preload("res://scripts/battle_facing_arrow_tile_button.gd")
 const BattleUITextFormatHelper := preload("res://scripts/battle/helpers/battle_ui_text_format_helper.gd")
+const BattleSkillMetadataHelper := preload("res://scripts/battle/helpers/battle_skill_metadata_helper.gd")
 const DEMO_DAMAGE := 12.0
 const ENEMY_DEMO_DAMAGE := 8.0
 const ALLY_DEMO_HP := 94.0
@@ -4231,11 +4232,11 @@ func _get_specialty_skill_video_cutin_hero_id(caster_state: BattleUnitState, _sk
 
 
 func _get_specialty_skill_cutin_config(hero_id: String) -> Dictionary:
-	return SPECIALTY_SKILL_CUTIN_CONFIGS.get(hero_id, SPECIALTY_SKILL_CUTIN_CONFIGS.get(SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID, {}))
+	return BattleSkillMetadataHelper.get_specialty_skill_cutin_config(SPECIALTY_SKILL_CUTIN_CONFIGS, hero_id, SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID)
 
 
 func _get_specialty_skill_cutin_config_float(config: Dictionary, key: String, fallback: float) -> float:
-	return float(config.get(key, fallback))
+	return BattleSkillMetadataHelper.get_specialty_skill_cutin_config_float(config, key, fallback)
 
 
 func _assign_specialty_skill_cutin_video_stream_for_hero(hero_id: String) -> bool:
