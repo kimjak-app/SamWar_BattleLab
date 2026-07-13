@@ -82,10 +82,40 @@
 - Remove its preload and restore the four original wrapper bodies in `scripts/battle_web_import_test.gd`.
 - Revert this review record and `NEXT_TASKS.md` entry.
 
-## 11. Manual QA Required
+## 11. Manual QA
 
-- Required / Not Performed: ally/enemy token directions and flips, portrait/token positions, movement/attack/skill visual behavior, hit flash/damage popup, death and reinforcement visuals, and Battle → WorldMap return.
+- QA basis: Human gameplay QA performed in Godot editor.
+- QA baseline commit: `3c243ef38cfd95ab13e20bf292ac8f497db6a89e`.
+- Human gameplay QA: `PASS`.
+- Ally portrait position: `PASS`.
+- Enemy portrait position: `PASS`.
+- Left facing portrait offset: `PASS`.
+- Right facing portrait offset: `PASS`.
+- Up facing fallback position: `PASS`.
+- Down facing fallback position: `PASS`.
+- Portrait position after movement: `PASS`.
+- Portrait position before/after attack: `PASS`.
+- Portrait position before/after skill: `PASS`.
+- Enemy reinforcement portrait position: `PASS`.
+- Battle → WorldMap return: `PASS`.
+- 신규 extraction 회귀: 없음.
+- 향후 detail 개선은 가능하지만 이번 helper extraction의 blocker나 회귀가 아니며 별도 작업 범위다.
 
 ## 12. Next Recommended Task
 
-- Select the next separately reviewed pure-helper boundary.
+- Function map과 최근 review 문서를 재검토하여 남은 Stage B 순수 helper 경계를 선정한다. 안전한 경계가 없으면 `v0.72-14 Battle Stage B Remaining Pure Helper Audit`으로 진행한다.
+
+## Complete Lock
+
+- `v0.72-12 Battle Unit Visual Animation Pure Helper Extraction`은 parse/headless 검증과 Human gameplay QA를 통과했다.
+- portrait offset Dictionary lookup, facing fallback 및 `Vector2` 결과는 기존 동작을 유지한다.
+- 좌우 facing offset과 상하 fallback 위치가 정상 동작한다.
+- Node application, texture/resource, Tween/animation, portrait/token actual layout, runtime registry/state, grid/formation, formula/AI, WorldMap handoff, battle result 및 scene transition에는 변경이 없다.
+- `v0.72-12`는 최종 완료 및 잠금 상태다.
+
+## Known Technical Debt
+
+- `BattleUnitVisualHelper` 내부의 private facing normalization은 `BattleFormationFacingHelper.normalize_facing()`과 동일한 결과와 fallback을 별도로 보유한다.
+- 현재 Human gameplay QA에서 기능 회귀는 확인되지 않았다.
+- 향후 한쪽 구현만 변경될 경우 drift 위험이 있으므로 helper dependency consolidation 대상으로 남긴다.
+- 이번 Complete Lock은 기능 동작을 잠그는 것이며, 해당 구조적 중복 제거까지 완료했다는 의미는 아니다.

@@ -1,10 +1,22 @@
 # NEXT TASKS
 
+## Current: v0.72-13 Battle Unit Visual Manual QA Complete Lock
+- Completed direction:
+  1. v0.72-12 Human gameplay QA: `PASS`.
+  2. 아군/적군 portrait 위치, 좌우 facing offset, 상하 fallback 위치가 정상이다.
+  3. 이동/공격/스킬 및 적군 구원군 portrait, Battle → WorldMap 복귀가 정상이다.
+  4. 신규 extraction 회귀가 없고, runtime 코드·helper·scene·project settings를 변경하지 않았다.
+  5. v0.72-12 Complete Lock을 완료했다.
+- Next recommended task:
+  1. `v0.72-14 Battle Helper Dependency Dedup Review`.
+     - `BattleUnitVisualHelper`의 facing normalization과 `BattleFormationFacingHelper.normalize_facing()` 재사용 가능성, helper dependency 순환, normalized-facing 전달 방식, shared value helper 필요성, 그리고 fallback/signature/call site/`Vector2` 결과 보존을 검토한다.
+
 ## Current: v0.72-12 Battle Unit Visual / Animation Pure Helper Extraction
 - Completed direction:
   1. Extracted only four pure portrait-offset calculations with wrappers and callers retained.
   2. Kept Node application, texture/resource handling, Tween/animation, token/portrait placement, visual registries, and runtime state in the battle script.
   3. Preserved facing fallbacks, Dictionary lookup behavior, and `Vector2` results.
+  4. Human gameplay QA: `PASS`; Complete Lock completed and manual QA is not pending.
 - Next recommended task:
   1. Select the next separately reviewed pure-helper boundary.
 
