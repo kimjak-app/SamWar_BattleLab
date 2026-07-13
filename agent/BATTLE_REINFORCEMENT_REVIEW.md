@@ -87,10 +87,31 @@
 - Remove its preload and restore the two original wrapper bodies in `scripts/battle_web_import_test.gd`.
 - Revert this review record and the prepended `NEXT_TASKS.md` entry.
 
-## 11. Manual QA Required
+## 11. Manual QA
 
-- Required / Not Performed: ally/enemy reinforcement entry, arrival turn, slot ordering, reserve roster, spawn positions, grid non-overlap, post-reinforcement turn/AI, result handling, and Battle → WorldMap return.
+- QA basis: Human gameplay QA performed in the Godot editor.
+- QA baseline commit: `4eeeedb1417f1352a923916bb1dcdfcd7616abde`.
+- Human gameplay QA: `PASS`.
+- Ally reinforcement entry: `NOT APPLICABLE — 현재 전투 구조에서 아군 reinforcement 기능 미지원`.
+- Enemy reinforcement arrival: `PASS` — 적군 추가 구원군이 정상 도착했다.
+- Reinforcement arrival 이후 전투 진행: `PASS`.
+- Reinforcement 이후 turn 진행: `PASS`.
+- Reinforcement 이후 AI 진행: `PASS`.
+- Battle result: `PASS`.
+- Battle → WorldMap return: `PASS`.
+- 신규 extraction 회귀: 없음. 적군 구원군 도착과 이후 정상 전투 진행으로 slot mapping helper extraction의 기능 회귀가 없음을 확인했다.
+- 기타 전투 동작: 정상.
+- 향후 디테일 개선은 가능하지만 이번 helper extraction의 blocker나 회귀가 아니며 별도 작업 범위다.
 
 ## 12. Next Recommended Task
 
-`v0.72-11 Battle Unit Visual / Animation Pure Helper Review`
+`v0.72-12 Battle Unit Visual / Animation Pure Helper Review`
+
+## Complete Lock
+
+- `v0.72-10 Battle Reinforcement Pure Helper Extraction`은 parse/headless 검증과 Human gameplay QA를 통과했다.
+- legacy/capacity slot ID 양방향 mapping과 `""` fallback은 기존 동작을 유지한다.
+- 적군 구원군 도착과 이후 전투 흐름이 정상임을 확인했다.
+- 아군 reinforcement는 현재 게임 구조상 미지원이며 QA 대상에 적용되지 않는다.
+- spawn/despawn, roster, `BattleUnitState`, grid/occupancy, turn/wave, AI/formula, WorldMap handoff, battle result, scene transition 및 schema에는 변경이 없다.
+- `v0.72-10`은 최종 완료 및 잠금 상태다.

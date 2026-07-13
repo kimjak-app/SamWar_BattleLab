@@ -1,12 +1,23 @@
 # NEXT TASKS
 
+## Current: v0.72-11 Battle Reinforcement Manual QA Complete Lock
+- Completed direction:
+  1. v0.72-10 Human gameplay QA: `PASS`.
+  2. 적군 추가 구원군 도착과 이후 전투/turn/AI 진행, battle result, Battle → WorldMap 복귀가 정상이다.
+  3. 아군 reinforcement는 현재 전투 구조상 `NOT APPLICABLE — 현재 전투 구조에서 미지원`이다.
+  4. 신규 extraction 회귀가 없고, runtime 코드·helper·scene·project settings를 변경하지 않았다.
+  5. v0.72-10 Complete Lock을 완료했다.
+- Next recommended task:
+  1. `v0.72-12 Battle Unit Visual / Animation Pure Helper Review`.
+
 ## Current: v0.72-10 Battle Reinforcement Pure Helper Extraction
 - Completed direction:
   1. Reviewed all Reinforcement Stage B candidates and extracted only two pure legacy/capacity slot ID lookups.
   2. Retained spawn, roster/runtime state, grid, turn/wave, visual, AI, WorldMap, result, and schema boundaries in the main battle script.
   3. Preserved existing wrappers, call sites, fallbacks, mapping values, and runtime behavior.
+  4. Human gameplay QA: `PASS`; Complete Lock completed and manual QA is not pending.
 - Next recommended task:
-  1. `v0.72-11 Battle Unit Visual / Animation Pure Helper Review`.
+  1. `v0.72-12 Battle Unit Visual / Animation Pure Helper Review`.
 
 ## Current: v0.72-09 Battle Skill Metadata + Formation/Facing Manual QA & Complete Lock
 - Completed direction:
