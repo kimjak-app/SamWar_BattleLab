@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current: v0.73-01 Land Battle MVP Completion Plan + Full Content Gap Audit
+- Completed direction:
+  1. Defined the first complete Land Battle MVP from WorldMap entry through applied WorldMap return.
+  2. Audited battle entry, scene layout, command UX, cutins, cooperative attack, MVP roster, balance, AI, reinforcement, result, assets, and WorldMap handoff.
+  3. Classified gaps as P0/P1/P2/Post-MVP without changing runtime code, helpers, scenes, project settings, data, or assets.
+  4. Confirmed no cooperative attack implementation and no dedicated Battle_Land entry context screen; selected the highest confirmed P1 boundary from the audit.
+- Next recommended task:
+  1. `v0.73-02 Battle Entry Context Screen MVP`.
+
 ## Current: v0.72-17 Battle Stage B Audit Complete Lock
 - Completed direction:
   1. Consolidated and locked the v0.72-07 through v0.72-16 Stage B helper work history and final helper inventory.

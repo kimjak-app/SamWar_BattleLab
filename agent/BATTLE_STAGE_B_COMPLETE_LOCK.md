@@ -132,3 +132,7 @@ The following files remain protected from this documentation lock: `scripts/worl
 `v0.72-18 Battle Stage C Boundary Review`
 
 The next work is a review, not a pre-authorized extraction. It should inventory Stage C candidates, map Node/runtime controller and state-ownership boundaries, and select at most one small safe domain or conclude Review Only. Initial review candidates are visual controller, UI controller, movement/grid controller, skill execution orchestration, and reinforcement runtime controller boundaries.
+
+## Phase Transition
+
+Stage B refactoring is complete and locked. From v0.73 the active priority is the Land Battle MVP Completion Phase; see `agent/LAND_BATTLE_MVP_COMPLETION_PLAN.md` and `agent/LAND_BATTLE_MVP_GAP_AUDIT.md`.
