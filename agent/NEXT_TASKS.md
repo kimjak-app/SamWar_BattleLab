@@ -1,5 +1,14 @@
 # NEXT TASKS
 
+## Current: v0.72-16 Battle Stage B Remaining Pure Helper Audit — Review Only
+- Completed direction:
+  1. Audited all remaining Stage B categories after completed/locked domains were excluded.
+  2. Confirmed existing helper ownership and found no new duplicate responsibility or safe cohesive pure helper group.
+  3. Deferred locked UI/Formation value candidates; retained Node, resource, runtime state, grid, formula, AI, WorldMap, and transition boundaries.
+  4. Runtime behavior was not changed; manual QA is not required for Review Only.
+- Next recommended task:
+  1. `v0.72-17 Battle Stage B Audit Complete Lock`.
+
 ## Current: v0.72-15 Battle Helper Dependency Dedup Manual QA Complete Lock
 - Completed direction:
   1. v0.72-14 Human gameplay QA: `PASS`.
