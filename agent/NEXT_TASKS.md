@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current: v0.72-14 Battle Helper Dependency Dedup
+- Completed direction:
+  1. Removed the duplicate private facing normalization from `BattleUnitVisualHelper` and reused `BattleFormationFacingHelper.normalize_facing()` through a one-way helper dependency.
+  2. Preserved main wrappers, call sites, public helper signatures, invalid-facing fallback, Dictionary lookup, and `Vector2` portrait-offset results.
+  3. Confirmed no helper dependency cycle and no runtime visual behavior change.
+- Next recommended task:
+  1. `v0.72-15 Battle Helper Dependency Dedup Manual QA Complete Lock`.
+
 ## Current: v0.72-13 Battle Unit Visual Manual QA Complete Lock
 - Completed direction:
   1. v0.72-12 Human gameplay QA: `PASS`.
