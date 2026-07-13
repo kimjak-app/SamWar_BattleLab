@@ -1,13 +1,25 @@
 # NEXT TASKS
 
+## Current: v0.72-17 Battle Stage B Audit Complete Lock
+- Completed direction:
+  1. Consolidated and locked the v0.72-07 through v0.72-16 Stage B helper work history and final helper inventory.
+  2. Confirmed Human gameplay QA and Complete Lock status for extracted helper domains, and recorded v0.72-16 as normal Review Only with manual QA unnecessary.
+  3. Confirmed the one-way `BattleUnitVisualHelper -> BattleFormationFacingHelper` dependency and the resolved duplicate-facing-normalization technical debt.
+  4. Confirmed the remaining Stage B audit found no additional strong cohesive pure-helper group.
+  5. Declared Stage B pure-helper extraction and audit complete and locked.
+  6. Runtime code, helpers, scenes, and project settings were not changed.
+- Next recommended task:
+  1. `v0.72-18 Battle Stage C Boundary Review`.
+
 ## Current: v0.72-16 Battle Stage B Remaining Pure Helper Audit — Review Only
 - Completed direction:
   1. Audited all remaining Stage B categories after completed/locked domains were excluded.
   2. Confirmed existing helper ownership and found no new duplicate responsibility or safe cohesive pure helper group.
   3. Deferred locked UI/Formation value candidates; retained Node, resource, runtime state, grid, formula, AI, WorldMap, and transition boundaries.
-  4. Runtime behavior was not changed; manual QA is not required for Review Only.
+  4. Runtime behavior was not changed; Review Only completed normally, manual QA is unnecessary and not pending.
+  5. Stage B audit Complete Lock was completed in v0.72-17.
 - Next recommended task:
-  1. `v0.72-17 Battle Stage B Audit Complete Lock`.
+  1. `v0.72-18 Battle Stage C Boundary Review`.
 
 ## Current: v0.72-15 Battle Helper Dependency Dedup Manual QA Complete Lock
 - Completed direction:

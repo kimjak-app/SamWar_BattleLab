@@ -110,3 +110,9 @@ All other Stage B rows fall into the same audited categories: skill execution/ta
 ## 15. Next Recommended Task
 
 `v0.72-17 Battle Stage B Audit Complete Lock`
+
+## 16. Complete Lock Reference
+
+- v0.72-16 `Review Only` is a normal completed audit: no runtime/helper change was made, and manual QA is not required.
+- The final Stage B completion and lock record is `agent/BATTLE_STAGE_B_COMPLETE_LOCK.md`.
+- Remaining candidate classifications, deferred boundaries, and the existing-helper reuse findings in this audit are locked by that final record unless a documented reopen condition is met.
