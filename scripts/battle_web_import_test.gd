@@ -6,6 +6,7 @@ const BattleUITextFormatHelper := preload("res://scripts/battle/helpers/battle_u
 const BattleSkillMetadataHelper := preload("res://scripts/battle/helpers/battle_skill_metadata_helper.gd")
 const BattleFormationFacingHelper := preload("res://scripts/battle/helpers/battle_formation_facing_helper.gd")
 const BattleReinforcementHelper := preload("res://scripts/battle/helpers/battle_reinforcement_helper.gd")
+const BattleUnitVisualHelper := preload("res://scripts/battle/helpers/battle_unit_visual_helper.gd")
 const DEMO_DAMAGE := 12.0
 const ENEMY_DEMO_DAMAGE := 8.0
 const ALLY_DEMO_HP := 94.0
@@ -11005,24 +11006,15 @@ func _capture_portrait_template_offsets(template_root: Node2D, fallback_offset: 
 
 
 func _get_portrait_template_offset(layout_offsets_by_facing: Dictionary, fallback_offset: Vector2, facing: String) -> Vector2:
-	var normalized_facing := _normalize_facing(facing)
-	if layout_offsets_by_facing.has(normalized_facing):
-		return layout_offsets_by_facing[normalized_facing]
-	return _get_facing_aware_portrait_offset(fallback_offset, normalized_facing)
+	return BattleUnitVisualHelper.get_portrait_template_offset(layout_offsets_by_facing, fallback_offset, facing, FACING_LEFT, FACING_RIGHT, FACING_UP, FACING_DOWN)
 
 
 func _get_ally_portrait_offset_for_facing(layout_offsets_by_facing: Dictionary, fallback_offset: Vector2, facing: String) -> Vector2:
-	var normalized_facing := _normalize_facing(facing)
-	if normalized_facing == FACING_UP or normalized_facing == FACING_DOWN:
-		return fallback_offset
-	return _get_portrait_template_offset(layout_offsets_by_facing, fallback_offset, normalized_facing)
+	return BattleUnitVisualHelper.get_ally_portrait_offset_for_facing(layout_offsets_by_facing, fallback_offset, facing, FACING_LEFT, FACING_RIGHT, FACING_UP, FACING_DOWN)
 
 
 func _get_enemy_portrait_offset_for_facing(layout_offsets_by_facing: Dictionary, fallback_offset: Vector2, facing: String) -> Vector2:
-	var normalized_facing := _normalize_facing(facing)
-	if normalized_facing == FACING_UP or normalized_facing == FACING_DOWN:
-		return fallback_offset
-	return _get_portrait_template_offset(layout_offsets_by_facing, fallback_offset, normalized_facing)
+	return BattleUnitVisualHelper.get_enemy_portrait_offset_for_facing(layout_offsets_by_facing, fallback_offset, facing, FACING_LEFT, FACING_RIGHT, FACING_UP, FACING_DOWN)
 
 
 func _normalize_unit_type(unit_type: String) -> String:
@@ -14563,14 +14555,7 @@ func _get_default_token_texture_for_facing(facing: String, side: String) -> Text
 
 
 func _get_facing_aware_portrait_offset(base_offset: Vector2, facing: String) -> Vector2:
-	var result := base_offset
-	var normalized_facing := _normalize_facing(facing)
-	match normalized_facing:
-		FACING_LEFT:
-			result.x = -absf(base_offset.x)
-		FACING_RIGHT:
-			result.x = absf(base_offset.x)
-	return result
+	return BattleUnitVisualHelper.get_facing_aware_portrait_offset(base_offset, facing, FACING_LEFT, FACING_RIGHT, FACING_UP, FACING_DOWN)
 
 
 func _get_unit_facing(unit_state: BattleUnitState) -> String:

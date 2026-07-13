@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current: v0.72-12 Battle Unit Visual / Animation Pure Helper Extraction
+- Completed direction:
+  1. Extracted only four pure portrait-offset calculations with wrappers and callers retained.
+  2. Kept Node application, texture/resource handling, Tween/animation, token/portrait placement, visual registries, and runtime state in the battle script.
+  3. Preserved facing fallbacks, Dictionary lookup behavior, and `Vector2` results.
+- Next recommended task:
+  1. Select the next separately reviewed pure-helper boundary.
+
 ## Current: v0.72-11 Battle Reinforcement Manual QA Complete Lock
 - Completed direction:
   1. v0.72-10 Human gameplay QA: `PASS`.
