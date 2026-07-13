@@ -1,12 +1,23 @@
 # NEXT TASKS
 
+## Current: v0.72-15 Battle Helper Dependency Dedup Manual QA Complete Lock
+- Completed direction:
+  1. v0.72-14 Human gameplay QA: `PASS`.
+  2. 아군/적군 portrait 위치, 좌우 facing offset, 상하 fallback, 이동/공격/스킬 및 적군 구원군 portrait가 정상이다.
+  3. Battle → WorldMap 복귀가 정상이며 helper dependency dedup 신규 회귀가 없다.
+  4. 단방향 dependency만 존재하고 순환 dependency가 없다.
+  5. runtime 코드·helper·scene·project settings를 변경하지 않았고 v0.72-14 Complete Lock을 완료했다.
+- Next recommended task:
+  1. `v0.72-16 Battle Stage B Remaining Pure Helper Audit`.
+
 ## Current: v0.72-14 Battle Helper Dependency Dedup
 - Completed direction:
   1. Removed the duplicate private facing normalization from `BattleUnitVisualHelper` and reused `BattleFormationFacingHelper.normalize_facing()` through a one-way helper dependency.
   2. Preserved main wrappers, call sites, public helper signatures, invalid-facing fallback, Dictionary lookup, and `Vector2` portrait-offset results.
   3. Confirmed no helper dependency cycle and no runtime visual behavior change.
+  4. Human gameplay QA: `PASS`; Complete Lock completed and manual QA is not pending.
 - Next recommended task:
-  1. `v0.72-15 Battle Helper Dependency Dedup Manual QA Complete Lock`.
+  1. `v0.72-16 Battle Stage B Remaining Pure Helper Audit`.
 
 ## Current: v0.72-13 Battle Unit Visual Manual QA Complete Lock
 - Completed direction:

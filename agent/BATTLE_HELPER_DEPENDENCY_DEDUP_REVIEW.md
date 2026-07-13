@@ -83,10 +83,30 @@ battle_web_import_test.gd
 - Restore the private `_normalize_facing` body and its four call sites in that helper.
 - Revert this review record and NEXT_TASKS entry.
 
-## 12. Manual QA Requirement
+## 12. Manual QA
 
-- Required / Not Performed: ally/enemy portrait positions, left/right offsets, up/down fallback, movement/attack/skill portraits, enemy reinforcement portrait, and Battle → WorldMap return.
+- QA basis: Human gameplay QA performed in Godot editor.
+- QA baseline commit: `72110c5db9676e197faa1ba03536482fd6bffd6b`.
+- Human gameplay QA: `PASS`.
+- Ally/enemy portrait positions: `PASS`.
+- Left/right facing offsets: `PASS`.
+- Up/down fallback positions: `PASS`.
+- Movement/attack/skill portrait behavior: `PASS`.
+- Enemy reinforcement portrait: `PASS`.
+- Battle → WorldMap return: `PASS`.
+- Helper dependency dedup으로 인한 신규 회귀 없음.
 
 ## 13. Next Recommended Task
 
-`v0.72-15 Battle Helper Dependency Dedup Manual QA Complete Lock`
+`v0.72-16 Battle Stage B Remaining Pure Helper Audit`
+
+## Complete Lock
+
+- `v0.72-14 Battle Helper Dependency Dedup`은 parse/headless 검증과 Human gameplay QA를 통과했다.
+- `BattleUnitVisualHelper`는 `BattleFormationFacingHelper.normalize_facing()`을 단방향으로 재사용한다.
+- 역방향 참조와 순환 dependency가 없다.
+- duplicate private facing normalization은 제거되었다.
+- invalid facing → `right` fallback은 유지된다.
+- public helper signatures, main wrappers, call sites, Dictionary lookup, vertical fallback 및 `Vector2` portrait 결과는 기존 동작을 유지한다.
+- Node/resource/Tween/runtime state, WorldMap handoff, battle result 및 scene transition에는 변경이 없다.
+- `v0.72-14`는 최종 완료 및 잠금 상태다.

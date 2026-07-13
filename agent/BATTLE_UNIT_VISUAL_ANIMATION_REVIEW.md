@@ -116,6 +116,7 @@
 ## Known Technical Debt
 
 - `BattleUnitVisualHelper` 내부의 private facing normalization은 `BattleFormationFacingHelper.normalize_facing()`과 동일한 결과와 fallback을 별도로 보유한다.
-- 현재 Human gameplay QA에서 기능 회귀는 확인되지 않았다.
-- 향후 한쪽 구현만 변경될 경우 drift 위험이 있으므로 helper dependency consolidation 대상으로 남긴다.
-- 이번 Complete Lock은 기능 동작을 잠그는 것이며, 해당 구조적 중복 제거까지 완료했다는 의미는 아니다.
+- Status: `RESOLVED in v0.72-14`.
+- Resolution: `BattleUnitVisualHelper`의 private normalizer를 제거하고 `BattleFormationFacingHelper.normalize_facing()`을 단방향으로 재사용했다. 순환 참조는 없다.
+- Verification: parse/headless `PASS`, Human gameplay QA `PASS`.
+- 해당 technical debt는 더 이상 open 상태가 아니다.
