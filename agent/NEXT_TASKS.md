@@ -1,9 +1,19 @@
 # NEXT TASKS
 
+## Current: v0.72-09 Battle Skill Metadata + Formation/Facing Manual QA & Complete Lock
+- Completed direction:
+  1. v0.72-07 Human gameplay QA: `PASS`; Complete Lock completed.
+  2. v0.72-08 Human gameplay QA: `PASS`; Complete Lock completed.
+  3. Confirmed cutin/fallback/unique skill, facing/arrow/movement/attack/AI/formation, and Battle → WorldMap return behavior with no extraction-caused blocker or regression.
+  4. Runtime code, helper code, scenes, and project settings were not changed.
+- Next recommended task:
+  1. `v0.72-10 Battle Reinforcement Pure Helper Review`.
+
 ## Current: v0.72-08 Battle Formation / Facing Pure Helper Extraction
 - Completed direction:
   1. Extracted only the node-free facing normalization, axis classification, and arrow-text lookup helpers with wrappers retained.
   2. Kept movement, facing mutation, grid/occupancy/pathfinding, AI, formulas, visual application, and WorldMap handoff unchanged.
+  3. Human gameplay QA: `PASS`; Complete Lock completed and manual QA is not pending.
 - Next recommended task:
   1. Select a separately reviewed pure helper boundary; no next task is fixed by this extraction.
 
@@ -13,7 +23,7 @@
   2. Kept existing battle-script wrapper names, arguments, return types, and call sites unchanged.
   3. Kept skill execution, formulas, state mutation, target/range selection, WorldMap handoff, results, retreat, and scene transitions untouched.
 
-- Human gameplay QA: `NOT PERFORMED`; parse and headless validation passed, but the interactive cutin/skill/return checks remain required.
+- Human gameplay QA: `PASS`; Complete Lock completed and manual QA is not pending.
 - Next recommended task:
   1. `v0.72-08 Battle Formation / Facing Pure Helper Review`.
 

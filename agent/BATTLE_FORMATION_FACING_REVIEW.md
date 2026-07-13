@@ -90,6 +90,7 @@
 - Source/diff review: wrapper signatures and all existing caller locations are preserved; no caller was edited.
 - Output equivalence examples: invalid facing -> `right`, `up` -> vertical, `left` -> horizontal, `down` -> `↓`.
 - No facing mutation, unit/grid/occupancy/pathfinding, AI/target/formula, visual/overlay/animation, WorldMap handoff, result/retreat/scene transition, or protected-file diff was introduced.
+- v0.72-09 pre-lock automatic validation: baseline HEAD and clean worktree confirmed; Godot editor/project parse and `Battle_Land.tscn` headless load passed; `BattleFormationFacingHelper` preload/class registration confirmed; protected files remained unchanged.
 
 ## 9. Rollback
 
@@ -97,10 +98,47 @@
 - Remove its preload and restore the four wrapper bodies in `scripts/battle_web_import_test.gd`.
 - Revert this review record and the documentation status updates.
 
-## 10. Manual QA Required
+## 10. Manual QA
 
-- Required / Not Performed in this non-interactive session: verify ally/enemy facing after movement, attack-facing persistence, arrow display, left/right/up/down transitions, formation placement, enemy AI movement facing, skill-facing persistence, and Battle → WorldMap return.
+- QA basis: Human gameplay QA performed in the Godot editor against `dd3c292170aa9707ba158de6dae184422f4f84b3`.
+- Human gameplay QA: `PASS`.
+- Up arrow: `PASS`.
+- Down arrow: `PASS`.
+- Left arrow: `PASS`.
+- Right arrow: `PASS`.
+- Fallback facing: `PASS`.
+- Invalid/blank display: `PASS` (no blank or invalid arrow observed).
+- Move right: `PASS`.
+- Move left: `PASS`.
+- Move up: `PASS`.
+- Move down: `PASS`.
+- Arrow/visual consistency: `PASS`.
+- Facing persistence: `PASS`.
+- Pre-attack facing: `PASS`.
+- Post-attack facing: `PASS`.
+- Side/back attack behavior: `PASS`.
+- Damage/formula regression: `PASS` (no regression observed).
+- AI movement facing: `PASS`.
+- AI attack facing: `PASS`.
+- AI facing persistence: `PASS`.
+- AI turn errors: `PASS` (none observed).
+- Initial formation: `PASS`.
+- Slot placement: `PASS`.
+- Portrait/token layout: `PASS`.
+- UI layout regression: `PASS` (none observed).
+- Facing after skill: `PASS`.
+- Arrow after cutin: `PASS`.
+- Next action flow: `PASS`.
+- Battle → WorldMap return: `PASS`.
+- Minor future detail work was noted by QA, but it is not an extraction-caused regression or blocker and is intentionally outside this lock task.
 
 ## 11. Next Recommended Task
 
-- Select a separately reviewed pure helper boundary; this task does not prescribe a fixed successor.
+`v0.72-10 Battle Reinforcement Pure Helper Review`
+
+## Complete Lock
+
+- `v0.72-08 Battle Formation / Facing Pure Helper Extraction` passed parse/headless validation and Human gameplay QA.
+- Facing strings and fallback, up/down/left/right classification, and arrow output are preserved.
+- Movement/state/grid/occupancy/pathfinding, AI, formula, visual, WorldMap handoff, battle result, and scene transition logic remain unchanged.
+- `v0.72-08` is final and locked.

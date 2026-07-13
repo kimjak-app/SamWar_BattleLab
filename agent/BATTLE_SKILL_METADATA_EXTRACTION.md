@@ -65,6 +65,7 @@
 - Output equality: verified from the preserved nested `Dictionary.get` and `float(Dictionary.get(...))` expressions.
 - Diff review: no skill execution, damage/heal/probability/status/AP/MP/HP formula, WorldMap handoff, battle result/retreat/scene transition change.
 - Protected-file review: no changes in `scripts/worldmap/worldmap_main.gd`, `WorldMap.tscn`, `Battle_Land.tscn`, or `project.godot`.
+- v0.72-09 pre-lock automatic validation: baseline HEAD and clean worktree confirmed; Godot editor/project parse and `Battle_Land.tscn` headless load passed; `BattleSkillMetadataHelper` preload/class registration confirmed; protected files remained unchanged.
 
 ## 8. Rollback
 
@@ -73,18 +74,40 @@
 - Revert this review record and the prepended `NEXT_TASKS.md` entry.
 - No scene, schema, formula, WorldMap handoff, battle result, retreat, or transition file needs rollback.
 
-## 9. Manual QA Required
+## 9. Manual QA
 
-- Human gameplay QA: `NOT PERFORMED`.
-- This non-interactive session could run parse and headless scene-load checks, but could not operate the Godot editor to verify the listed gameplay/cutin interactions. No item below is inferred as passing.
-- Yi Sun-sin specialty cutin position: `NOT PERFORMED`.
-- Yi Sun-sin specialty cutin scale: `NOT PERFORMED`.
-- Missing hero-specific cutin config fallback: `NOT PERFORMED`.
-- Normal unique-skill target selection: `NOT PERFORMED`.
-- Normal unique-skill effect application: `NOT PERFORMED`.
-- Unique-skill cooldown processing: `NOT PERFORMED`.
-- Battle → WorldMap return: `NOT PERFORMED`.
+- QA basis: Human gameplay QA performed in the Godot editor against `dd3c292170aa9707ba158de6dae184422f4f84b3`.
+- Human gameplay QA: `PASS`.
+- Cutin trigger: `PASS`.
+- Cutin position: `PASS`.
+- Cutin scale: `PASS`.
+- Cutin image crop/aspect: `PASS`.
+- Cutin text position: `PASS`.
+- Return to battle flow: `PASS`.
+- Missing hero config fallback: `PASS`.
+- Fallback position/scale: `PASS`.
+- Dictionary lookup errors: `PASS` (none observed).
+- Float conversion/type errors: `PASS` (none observed).
+- Skill entry: `PASS`.
+- Target selection: `PASS`.
+- Effect application: `PASS`.
+- Resource consumption: `PASS` (unchanged from the established behavior).
+- Cooldown: `PASS`.
+- Turn continuation: `PASS`.
+- Battle completion: `PASS`.
+- Result processing: `PASS`.
+- WorldMap return: `PASS`.
+- Post-return UI/state: `PASS`.
+- New errors: `PASS` (none observed).
+- Minor future detail work was noted by QA, but it is not an extraction-caused regression or blocker and is intentionally outside this lock task.
 
 ## 10. Next Recommended Task
 
-`v0.72-08 Battle Formation / Facing Pure Helper Review`
+`v0.72-10 Battle Reinforcement Pure Helper Review`
+
+## Complete Lock
+
+- `v0.72-07 Battle Skill Metadata / Description Helper Extraction` passed parse/headless validation and Human gameplay QA.
+- The cutin config and float lookup helpers preserve existing output and fallback behavior.
+- Skill execution, targeting, effect application, cooldown, resource consumption, WorldMap handoff, battle result, and scene transition behavior remain unchanged.
+- `v0.72-07` is final and locked.
