@@ -6,6 +6,9 @@
   2. Audited battle entry, scene layout, command UX, cutins, cooperative attack, MVP roster, balance, AI, reinforcement, result, assets, and WorldMap handoff.
   3. Classified gaps as P0/P1/P2/Post-MVP without changing runtime code, helpers, scenes, project settings, data, or assets.
   4. Confirmed no cooperative attack implementation and no dedicated Battle_Land entry context screen; selected the highest confirmed P1 boundary from the audit.
+  5. Roster scope correction: `TEST_BATTLE_ROSTER`의 10명은 기능 QA·전투 테스트용 sample roster이며 MVP 전체 장수 명단이 아니다.
+  6. Production MVP roster는 한국·중국·일본 월드맵 전 지역에 실제 배치된 전체 장수이며, 전체 roster inventory와 readiness audit가 P1로 필요하다.
+  7. 전투 진입 화면은 실제 battle context에 포함된 참전 장수를 표시하며 sample roster를 하드코딩하지 않는다.
 - Next recommended task:
   1. `v0.73-02 Battle Entry Context Screen MVP`.
 

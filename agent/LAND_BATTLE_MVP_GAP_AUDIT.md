@@ -4,7 +4,7 @@
 
 - Repository: `kimjak-app/SamWar_BattleLab`
 - Branch: `main`
-- Baseline commit: `795412551bf463e3a636bda94beabb83e913dd5f`
+- Baseline commit: `f24a37f4fc8190f389263b476b0fc09a61fb1414`
 - Main battle scene: `Battle_Land.tscn`
 - Main battle script: `scripts/battle_web_import_test.gd`
 - WorldMap integration: `scripts/worldmap/worldmap_main.gd`
@@ -69,21 +69,29 @@ Existing paths cover direct move, attack selection/cancel, move rollback, unique
 
 No code, scene, or documentation implementation was found for cooperative/assist attack. Required before claiming MVP completion: rules for trigger, distance/adjacency/facing/type/relationship, participant cap, lead/support roles, damage/accuracy/critical/counterattack/action cost, skill interaction, reinforcement eligibility, AI policy, player feedback/failure reasons, and a minimal cutin/feedback sequence.
 
-## 9. MVP Hero Roster Audit
+## 9. Full Production Roster Audit Required
 
-**Status: Functional sample roster; P1 data validation.**
+**Status: Required P1 inventory and MVP readiness audit; do not infer the full roster from `TEST_BATTLE_ROSTER`.**
 
-The verified sample roster is ten heroes: allies Yi Sun-sin, Jeong Do-jeon, Kwon Yul, Gim Yusin, Eulji Mundeok; enemies Guan Yu, Zhang Fei, Xiahou Dun, Liu Bei, Zhuge Liang. `TEST_BATTLE_ROSTER`, `HERO_IDENTITY_REGISTRY`, and `UNIQUE_SKILL_REGISTRY` provide the direct evidence. Four visual unit keys exist: cavalry, infantry, archer, gunner (nation-specific asset keys). WorldMap context can replace roster data.
+Land Battle MVP hero scope includes every hero actually registered and deployed across the Korean, Chinese, and Japanese WorldMap regions. `TEST_BATTLE_ROSTER` is only a tactical sample roster for Battle_Land feature verification and existing unique-skill, cutin, and reinforcement QA; it must not define or limit the production MVP roster.
 
-Gaps: no single audited canonical balance sheet across HP/attack/defense/speed/move/range/action economy; cooperative targets are absent; video cutin coverage is asymmetric; and WorldMap-context hero data needs an explicit per-hero validation matrix before MVP lock.
+The authoritative inventory sources investigated for the follow-up are `scripts/worldmap/worldmap_main.gd` WorldMap hero registry/data and its city `stationed_hero_ids`/`hero_ids` assignments. This hotfix does not estimate or write a full hero list. The follow-up must construct the inventory from those actual WorldMap sources, including every Korea, China, and Japan regional deployment.
+
+Required inventory/readiness columns:
+
+| Country | Region | City | Hero ID | Hero name | Affiliation | Unit type | Stats | Normal skill | Unique skill | Static cutin | Video cutin | Cutin fallback | Cooperative relationship/candidate | AI availability | Battle-data completeness | Placeholder | MVP readiness |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Required | Required | Required | Required | Required | Required | Required | Required | Required | Required | Required | Required | Required | Required | Required | Required | Required | Required |
+
+Gaps: no single audited canonical balance sheet across HP/attack/defense/speed/move/range/action economy; cooperative targets are absent; video cutin coverage is asymmetric; and every WorldMap-context hero requires an explicit validation matrix before MVP lock. Cutin, skill, balance, and cooperative-attack audits must use the full WorldMap roster rather than the sample roster.
 
 ## 10. Hero / Unit / Skill Balance Audit
 
 **Status: Incomplete; P1 baseline / P2 tuning.**
 
-- Unique skill effects/powers/target modes exist in `UNIQUE_SKILL_REGISTRY`; all listed sample skills currently have `cooldown_turns: 0`.
+- Unique skill effects/powers/target modes exist in `UNIQUE_SKILL_REGISTRY` for the sample roster; the full WorldMap inventory must verify each production hero's actual battle skill contract.
 - Current observable types include cavalry, infantry, archer, and gunner visual keys, but this audit did not locate a single authoritative type-interaction/terrain/balance table.
-- P1: capture the actual baseline, action and cooldown rules, skill target/range, status duration, and AI valuation for all MVP heroes.
+- P1: capture the actual baseline, action and cooldown rules, skill target/range, status duration, and AI valuation for every deployed Korea/China/Japan WorldMap MVP hero.
 - P2: tune numbers only after a reproducible scenario matrix exists.
 
 ## 11. AI Audit
@@ -135,7 +143,7 @@ Existing result state is based on alive deployed-side counts; result video paths
 | P1 | No dedicated battle entry context screen. | Context is applied/logged only; implement readable brief and safe cancel. |
 | P1 | Result is video/toast-oriented rather than a complete report. | Build report from authoritative payload fields only. |
 | P1 | Cooperative attack absent. | Define and implement bounded core system; do not assume present. |
-| P1 | Roster/balance source is fragmented. | Create validation matrix before tuning. |
+| P1 | Full Korea/China/Japan WorldMap Hero Roster Inventory and MVP Readiness Audit is missing. | Build the inventory from authoritative WorldMap registry/data/city assignments, then create the validation matrix before tuning. |
 | P1 | Cutin coverage/fallback asymmetric. | Add asset/fallback matrix and playback QA. |
 | P2 | HUD/command presentation hierarchy and resolution behavior. | Final layout/data binding QA. |
 | Post-MVP | Ally reinforcement and persistent hero outcomes. | Keep explicit until approved contracts exist. |
@@ -145,7 +153,7 @@ Existing result state is based on alive deployed-side counts; result video paths
 | Classification | Items |
 |---|---|
 | P0 | No confirmed open blocker; maintain entry/turn/AI/result/return regression watch. |
-| P1 | Battle entry context screen; command/HUD clarity; result report; cooperative attack; roster/data validation; cutin fallback coverage; reinforcement rule presentation; WorldMap permutation QA. |
+| P1 | Battle entry context screen; command/HUD clarity; result report; cooperative attack; **Full Korea/China/Japan WorldMap Hero Roster Inventory and MVP Readiness Audit**; 전체 월드맵 장수 데이터·스킬·컷인·밸런스 readiness 검증; cutin fallback coverage; reinforcement rule presentation; WorldMap permutation QA. |
 | P2 | General combat feedback, audio/transition polish, balance tuning, AI improvement, UI polish. |
 | Post-MVP | Ally reinforcement, all bespoke videos, complex cooperative combinations, replay/history, advanced AI/camera, capture/wound/death/loot persistence. |
 
@@ -153,7 +161,7 @@ Existing result state is based on alive deployed-side counts; result video paths
 
 1. `v0.73-02 Battle Entry Context Screen MVP` — selected first because the entry contract already exists but the player cannot yet review its applied battle context inside the tactical flow.
 2. Battle HUD / command UX finalization.
-3. MVP roster and data validation baseline.
+3. `v0.73-06 Full WorldMap Hero Roster Inventory & MVP Readiness Audit` — inventory and validate every actually deployed Korea/China/Japan WorldMap hero; divide follow-up implementation by nation, region, and hero group based on the audit.
 4. Cutin fallback/playback completion.
 5. Cooperative Attack MVP.
 6. AI and reinforcement presentation/rule passes.

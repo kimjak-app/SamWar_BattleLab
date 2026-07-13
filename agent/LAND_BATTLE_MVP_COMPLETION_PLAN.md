@@ -77,22 +77,30 @@ Cooperative attack is a P1 design-and-implementation requirement, not an assumed
 
 The MVP design must explicitly define: trigger/adjacency/distance/facing/unit-type/relationship conditions, participant cap, lead/support ordering, support count, damage/accuracy/critical/counterattack interaction, action cost, skill interaction, reinforcement eligibility, AI use, UI eligibility and failure reasons, and cutin presentation. Complex combinations and replay-grade presentation are Post-MVP.
 
-## 9. MVP Hero Roster
+## 9. Production MVP Roster Scope
 
-The fixed sample roster in `TEST_BATTLE_ROSTER` is the verified tactical-MVP inventory. WorldMap context can supply different hero data, so non-sample values must be treated as context-driven rather than assumed from this table.
+Land Battle MVP hero scope includes every hero actually registered and deployed across the Korean, Chinese, and Japanese WorldMap regions. `TEST_BATTLE_ROSTER` is only a tactical sample roster and must not define or limit the production MVP roster.
 
-| Nation / side | Hero ID / name | Unit visual type | Base combat data | Move / range | Unique skill | Cutin asset status | Cooperative target | AI | Balance / placeholder | MVP |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Korea / ally main | `yi_sunsin` / 이순신 | `korea_cavalry` | Context/sample state; no canonical per-hero stat table located in this audit. | Context/sample state. | 학익진, cannon AoE, power 44. | Static image + specialty portrait/title/video. | Unimplemented. | Yes, shared AI path. | Needs explicit balance sheet. | Yes |
-| Korea / ally main | `jeong_dojeon` / 정도전 | `korea_gunner` | Context/sample state. | Context/sample state. | 개혁령, ally attack buff. | Static image + specialty assets. | Unimplemented. | Yes. | Needs explicit balance sheet. | Yes |
-| Korea / ally main | `kwon_yul` / 권율 | `korea_infantry` | Context/sample state. | Context/sample state. | 행주대첩, ally attack buff. | Static image + specialty assets. | Unimplemented. | Yes. | Needs explicit balance sheet. | Yes |
-| Korea / reinforcement | `gim_yusin` / 김유신 | `korea_archer` | Context/sample state. | Context/sample state. | 삼국통일 돌격, self defense/single target, power 50. | Static image + specialty assets. | Unimplemented. | Yes after deploy. | Reinforcement rules need finalization. | Yes |
-| Korea / reinforcement | `eulji_mundeok` / 을지문덕 | `korea_gunner` | Context/sample state. | Context/sample state. | 살수대첩 매복, single damage + adjacent shake, power 48. | Static image + specialty assets. | Unimplemented. | Yes after deploy. | Reinforcement rules need finalization. | Yes |
-| China / enemy main | `guan_yu` / 관우 | `china_cavalry` | Context/sample state. | Context/sample state. | 언월참, self defense/single target, power 54. | Static image; no verified specialty-video config. | Unimplemented. | Yes. | Needs explicit balance sheet. | Yes |
-| China / enemy main | `zhang_fei` / 장비 | `china_infantry` | Context/sample state. | Context/sample state. | 장판파열, single damage + adjacent shake, power 50. | Static image; no verified specialty-video config. | Unimplemented. | Yes. | Needs explicit balance sheet. | Yes |
-| China / enemy main | `xiahou_dun` / 하후돈 | `china_infantry` | Context/sample state. | Context/sample state. | 맹장돌파, self defense/single target, power 50. | Static image; no verified specialty-video config. | Unimplemented. | Yes. | Needs explicit balance sheet. | Yes |
-| China / reinforcement | `liu_bei` / 유비 | `china_archer` | Context/sample state. | Context/sample state. | 인덕의 깃발, ally attack buff. | Static image; no verified specialty-video config. | Unimplemented. | Yes after deploy. | Reinforcement rules need finalization. | Yes |
-| China / reinforcement | `zhuge_liang` / 제갈량 | `china_gunner` | Context/sample state. | Context/sample state. | 팔진도, ally attack buff. | Static image; no verified specialty-video config. | Unimplemented. | Yes after deploy. | Reinforcement rules need finalization. | Yes |
+- 한국 전 지역 배치 장수 전체
+- 중국 전 지역 배치 장수 전체
+- 일본 전 지역 배치 장수 전체
+- `scripts/worldmap/worldmap_main.gd`의 실제 WorldMap 장수 registry/data와 도시 `stationed_hero_ids`/`hero_ids` assignment를 authoritative source로 사용한다.
+- Production roster와 테스트용 sample roster를 명확히 분리한다. 전투 진입 화면은 실제 battle context에 포함된 참전 장수를 표시하며 sample roster를 하드코딩하지 않는다.
+
+### Sample Battle Roster
+
+`TEST_BATTLE_ROSTER`의 다음 10명은 Battle_Land 기능 검증용 sample roster이자 기존 고유 스킬·컷인·증원 QA 대표군이다. 전체 MVP 장수 명단이 아니며, 기능 QA와 전투 테스트에만 사용할 수 있다.
+
+- 이순신
+- 정도전
+- 권율
+- 김유신
+- 을지문덕
+- 관우
+- 장비
+- 하후돈
+- 유비
+- 제갈량
 
 ## 10. Unit / Skill / Hero Balance
 
@@ -126,7 +134,7 @@ Current handoff uses engine metadata, a battle result payload, and WorldMap appl
 ## 16. Priority Classification
 
 - **P0 — progress blocker:** crashes, entry/context loss, turn/AI lock, victory/defeat failure, result apply failure, return failure, or save corruption. No confirmed P0 is recorded by this documentation audit; all require ongoing regression testing.
-- **P1 — MVP required:** battle entry context screen, final information hierarchy/command feedback, result report, core cooperative attack rules/presentation, MVP roster data validation, cutin fallback coverage, and reinforcement rule presentation.
+- **P1 — MVP required:** battle entry context screen, final information hierarchy/command feedback, result report, core cooperative attack rules/presentation, **Full Korea/China/Japan WorldMap Hero Roster Inventory and MVP Readiness Audit**, 전체 월드맵 장수 데이터·스킬·컷인·밸런스 readiness 검증, cutin fallback coverage, and reinforcement rule presentation.
 - **P2 — completion quality:** general combat presentation, sound/transitions, richer damage/status feedback, balance tuning, AI improvement, and UI polish.
 - **Post-MVP:** ally reinforcement system, all heroes receiving bespoke video cutins, complex cooperative combinations, replay/history, advanced AI, detailed statistics, high-end camera work, persistent capture/wound/death/resource-loot features until their contracts exist.
 
@@ -138,8 +146,8 @@ Current handoff uses engine metadata, a battle result payload, and WorldMap appl
 | v0.73-02 | **Battle Entry Context Screen MVP**. | Shows verified context and has safe start/cancel; no duplicate context mutation. |
 | v0.73-03 | Battle main HUD information hierarchy and data-binding audit/fix. | Active side, objective, roster/status/resources and command feedback are readable. |
 | v0.73-04 | Command UX finalization. | Legal/illegal states, cancel/rollback, facing and skill targeting clear. |
-| v0.73-05 | MVP hero roster/data validation and balance baseline. | Every active MVP hero has verified combat/skill/presentation data. |
-| v0.73-06 | Cutin asset and playback completion. | Fallback, skip/timeout, HUD/camera restoration, and asset matrix pass. |
+| v0.73-05 | Cutin asset and playback completion. | Fallback, skip/timeout, HUD/camera restoration, and asset matrix pass. |
+| v0.73-06 | Full WorldMap Hero Roster Inventory & MVP Readiness Audit. | Audit every actually deployed Korea/China/Japan WorldMap hero from authoritative registry/data/city assignment sources; split follow-up implementation by nation, region, and hero group. |
 | v0.73-07 | Cooperative Attack MVP. | Explicit rules, UI, AI policy, and tests. |
 | v0.73-08 | AI MVP behavior pass. | No-action/blocked/reinforcement/endgame cases complete. |
 | v0.73-09 | Reinforcement presentation and rules. | Enemy rules visible; ally decision remains explicit. |
