@@ -5,6 +5,7 @@ const BattleFacingArrowTileButtonScript := preload("res://scripts/battle_facing_
 const BattleUITextFormatHelper := preload("res://scripts/battle/helpers/battle_ui_text_format_helper.gd")
 const BattleSkillMetadataHelper := preload("res://scripts/battle/helpers/battle_skill_metadata_helper.gd")
 const BattleFormationFacingHelper := preload("res://scripts/battle/helpers/battle_formation_facing_helper.gd")
+const BattleReinforcementHelper := preload("res://scripts/battle/helpers/battle_reinforcement_helper.gd")
 const DEMO_DAMAGE := 12.0
 const ENEMY_DEMO_DAMAGE := 8.0
 const ALLY_DEMO_HP := 94.0
@@ -7719,11 +7720,11 @@ func _get_capacity_slot_formation_index(slot_id: String) -> int:
 
 
 func _get_capacity_slot_id_for_legacy_slot_id(legacy_slot_id: String) -> String:
-	return String(LEGACY_SLOT_TO_CAPACITY_SLOT_ID.get(legacy_slot_id, ""))
+	return BattleReinforcementHelper.get_capacity_slot_id_for_legacy_slot_id(legacy_slot_id, LEGACY_SLOT_TO_CAPACITY_SLOT_ID)
 
 
 func _get_legacy_slot_id_for_capacity_slot_id(capacity_slot_id: String) -> String:
-	return String(CAPACITY_SLOT_TO_LEGACY_SLOT_ID.get(capacity_slot_id, ""))
+	return BattleReinforcementHelper.get_legacy_slot_id_for_capacity_slot_id(capacity_slot_id, CAPACITY_SLOT_TO_LEGACY_SLOT_ID)
 
 
 func _get_capacity_slot_metadata(slot_id: String) -> Dictionary:

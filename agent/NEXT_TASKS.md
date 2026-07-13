@@ -1,5 +1,13 @@
 # NEXT TASKS
 
+## Current: v0.72-10 Battle Reinforcement Pure Helper Extraction
+- Completed direction:
+  1. Reviewed all Reinforcement Stage B candidates and extracted only two pure legacy/capacity slot ID lookups.
+  2. Retained spawn, roster/runtime state, grid, turn/wave, visual, AI, WorldMap, result, and schema boundaries in the main battle script.
+  3. Preserved existing wrappers, call sites, fallbacks, mapping values, and runtime behavior.
+- Next recommended task:
+  1. `v0.72-11 Battle Unit Visual / Animation Pure Helper Review`.
+
 ## Current: v0.72-09 Battle Skill Metadata + Formation/Facing Manual QA & Complete Lock
 - Completed direction:
   1. v0.72-07 Human gameplay QA: `PASS`; Complete Lock completed.
