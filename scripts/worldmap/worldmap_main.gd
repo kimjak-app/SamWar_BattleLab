@@ -23,7 +23,6 @@ const WORLD_UI_LEFT_MARGIN := 10.0
 const LEFT_WORLD_STATUS_PANEL_TOP_LEFT := Vector2(WORLD_UI_LEFT_MARGIN, WORLD_UI_TOP_MARGIN)
 const LEFT_WORLD_STATUS_PANEL_SIZE := Vector2(320.0, 570.0)
 const SELECTED_CITY_INFO_PANEL_SIZE := Vector2(308.0, 542.0)
-const PLAYER_FACTION_ID := "player"
 const UNIFIED_PANEL_TAB_CITY_DETAIL := "city-detail"
 const UNIFIED_PANEL_TAB_DIPLOMACY_SPY := "diplomacy-spy"
 const UNIFIED_PANEL_TAB_TRADE := "trade"
@@ -1258,6 +1257,11 @@ var _domestic_tech_completion_confirm_button: Button = null
 
 func _ready() -> void:
 	_default_player_state = _player_state.duplicate(true)
+	var new_game_faction_id: String = str(_get_game_session().consume_new_game_faction_id())
+	if not new_game_faction_id.is_empty():
+		_initialize_korea_mvp_new_game(new_game_faction_id)
+	elif _get_game_session().consume_load_request():
+		_load_worldmap_state()
 	_ensure_worldmap_runtime_state_defaults()
 	_restore_trade_persistence_from_player_state()
 	_hide_retired_top_worldmap_hud()
@@ -1291,6 +1295,78 @@ func _ready() -> void:
 	_reset_city_detail_panel()
 	_configure_camera()
 	_update_camera_debug_label()
+	if not new_game_faction_id.is_empty():
+		_select_korea_mvp_start_city()
+
+
+func _get_current_player_faction_id() -> String:
+	var faction_id := str(_player_state.get("player_faction_id", ""))
+	if faction_id.is_empty():
+		faction_id = _get_game_session().player_faction_id
+	return faction_id if not faction_id.is_empty() else "player"
+
+
+func _get_game_session() -> Node:
+	return get_node_or_null("/root/GameSession")
+
+
+func _initialize_korea_mvp_new_game(faction_id: String) -> void:
+	if not _get_game_session().configure_korea_mvp(faction_id):
+		push_error("[KoreaMVP] Invalid start faction: %s" % faction_id)
+		return
+	_player_state = _get_default_player_state()
+	var start_data: Dictionary = _get_game_session().STARTS.get(faction_id, {})
+	var start_city_id := str(start_data.get("city_id", ""))
+	_player_state["active_scenario_id"] = _get_game_session().KOREA_MVP_SCENARIO_ID
+	_player_state["player_faction_id"] = faction_id
+	_player_state["ai_faction_ids"] = _get_game_session().ai_faction_ids.duplicate()
+	_player_state["ruler_current_city_id"] = start_city_id
+	_player_state["selected_city_id"] = start_city_id
+	_player_state["origin_city_id"] = start_city_id
+	_player_state["capital_city_id"] = start_city_id
+	_player_state["owned_city_ids"] = [start_city_id]
+	_player_state["turn_number"] = 1
+	_player_state["turn_phase"] = TURN_PHASE_PLAYER
+	_player_state["current_phase_label"] = _get_turn_phase_label(TURN_PHASE_PLAYER)
+	_city_runtime_states.clear()
+	_hero_runtime_states.clear()
+	for city_id_variant in _get_game_session().STARTS.values():
+		var city_id := str((city_id_variant as Dictionary).get("city_id", ""))
+		var city_state: Dictionary = (CITY_HUD_DATA.get(city_id, {}) as Dictionary).duplicate(true)
+		if city_state.is_empty():
+			push_error("[KoreaMVP] Missing city registry entry: %s" % city_id)
+			continue
+		var owner_faction_id := ""
+		for candidate_id_variant in _get_game_session().STARTS.keys():
+			var candidate_id := str(candidate_id_variant)
+			if str((_get_game_session().STARTS[candidate_id] as Dictionary).get("city_id", "")) == city_id:
+				owner_faction_id = candidate_id
+				break
+		city_state["owner"] = owner_faction_id
+		city_state["nation"] = owner_faction_id
+		city_state["owner_faction_id"] = owner_faction_id
+		city_state["faction"] = owner_faction_id
+		_city_runtime_states[city_id] = city_state
+		for hero_id_variant in _get_stationed_hero_ids_for_city(city_state):
+			var hero_id := str(hero_id_variant)
+			_hero_runtime_states[hero_id] = {
+				"current_city_id": city_id,
+				"city_id": city_id,
+				"location_city_id": city_id,
+				"side": owner_faction_id,
+				"nation": owner_faction_id,
+				"faction_id": owner_faction_id,
+			}
+	var player_city: Dictionary = _city_runtime_states.get(start_city_id, {})
+	_player_state["owned_hero_ids"] = _get_stationed_hero_ids_for_city(player_city)
+	_ensure_worldmap_runtime_state_defaults()
+
+
+func _select_korea_mvp_start_city() -> void:
+	var city_id := str(_player_state.get("selected_city_id", ""))
+	var marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
+	if marker != null:
+		_on_city_marker_selected(marker)
 
 
 func _process(delta: float) -> void:
@@ -2976,7 +3052,7 @@ func _apply_chancellor_auto_trade_for_world_turn(turn_number: int) -> Dictionary
 		_record_chancellor_auto_trade_result(no_chancellor_result)
 		return no_chancellor_result
 	var chancellor_data := _get_hero_entry(chancellor_id)
-	if chancellor_data.is_empty() or str(chancellor_data.get("side", "")) != PLAYER_FACTION_ID:
+	if chancellor_data.is_empty() or str(chancellor_data.get("side", "")) != _get_current_player_faction_id():
 		var invalid_chancellor_result := {
 			"turn": safe_turn,
 			"ok": false,
@@ -3906,7 +3982,7 @@ func _show_unified_diplomacy_spy_content() -> void:
 func _get_selected_city_relation_label(city_marker: WorldMapCityMarker) -> String:
 	if city_marker == null or city_marker.owner_faction_id.is_empty():
 		return "관계 미확인"
-	if city_marker.owner_faction_id == PLAYER_FACTION_ID:
+	if city_marker.owner_faction_id == _get_current_player_faction_id():
 		return "자국 도시"
 	return "중립 교역"
 
@@ -3914,7 +3990,7 @@ func _get_selected_city_relation_label(city_marker: WorldMapCityMarker) -> Strin
 func _get_selected_city_relation_description(city_marker: WorldMapCityMarker) -> String:
 	if city_marker == null or city_marker.owner_faction_id.is_empty():
 		return "세력 정보를 확인 중입니다."
-	if city_marker.owner_faction_id == PLAYER_FACTION_ID:
+	if city_marker.owner_faction_id == _get_current_player_faction_id():
 		return "동일 세력 소유 도시입니다."
 	return "교역 가능"
 
@@ -3944,10 +4020,10 @@ func _format_diplomacy_relation_summary_for_ui(city_marker: WorldMapCityMarker) 
 	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
 	if owner_id.is_empty():
 		return "관계 상태\n관계 미확인"
-	if owner_id == PLAYER_FACTION_ID:
+	if owner_id == _get_current_player_faction_id():
 		return "관계 상태\n자국 도시"
-	var status := _get_faction_relation_status(PLAYER_FACTION_ID, owner_id)
-	var score := _get_faction_relation_score(PLAYER_FACTION_ID, owner_id)
+	var status := _get_faction_relation_status(_get_current_player_faction_id(), owner_id)
+	var score := _get_faction_relation_score(_get_current_player_faction_id(), owner_id)
 	return "관계 상태\n%s · 관계 점수 %d" % [
 		_format_diplomacy_relation_status_for_ui(status),
 		score,
@@ -3964,10 +4040,10 @@ func _format_diplomacy_trade_status_for_ui(city_marker: WorldMapCityMarker) -> S
 	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
 	if owner_id.is_empty():
 		return "교역 상태\n관계 미확인"
-	if owner_id == PLAYER_FACTION_ID:
+	if owner_id == _get_current_player_faction_id():
 		return "교역 상태\n자국 관리 대상"
 	var trade_status := "교역 제한"
-	if _can_trade_between_factions(PLAYER_FACTION_ID, owner_id):
+	if _can_trade_between_factions(_get_current_player_faction_id(), owner_id):
 		trade_status = "교역 가능"
 	return "교역 상태\n%s" % trade_status
 
@@ -3978,9 +4054,9 @@ func _format_diplomacy_action_candidates_for_ui(city_marker: WorldMapCityMarker)
 	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
 	if owner_id.is_empty():
 		return "외교 행동\n소유 세력 확인이 필요합니다."
-	if owner_id == PLAYER_FACTION_ID:
+	if owner_id == _get_current_player_faction_id():
 		return "외교 행동\n자국 도시는 외교 대상이 아닙니다."
-	var status := _get_faction_relation_status(PLAYER_FACTION_ID, owner_id)
+	var status := _get_faction_relation_status(_get_current_player_faction_id(), owner_id)
 	if status == FACTION_RELATION_STATUS["HOSTILE"] or status == FACTION_RELATION_STATUS["SUSPENDED"]:
 		return "외교 행동\n관계 회복 / 사절 파견 / 조공"
 	return "외교 행동\n사절 파견 / 조공 / 교역 협정"
@@ -3992,7 +4068,7 @@ func _format_diplomacy_policy_display_for_ui(city_marker: WorldMapCityMarker) ->
 	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
 	if owner_id.is_empty():
 		return "외교 판단\n소유 세력 확인이 필요합니다."
-	if owner_id == PLAYER_FACTION_ID:
+	if owner_id == _get_current_player_faction_id():
 		return "외교 판단\n자국 도시는 외교 대상이 아닙니다."
 	var recent_summary := _format_last_diplomacy_action_result_for_ui(owner_id)
 	var modifier_summary := _format_player_diplomacy_tech_modifier_summary_mvp(owner_id)
@@ -4052,12 +4128,12 @@ func _refresh_diplomacy_action_card(city_marker: WorldMapCityMarker) -> void:
 		return
 	var target_city_id := city_marker.city_id
 	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		_diplomacy_action_card.visible = false
 		return
 	_diplomacy_action_card.visible = true
-	var status := _get_faction_relation_status(PLAYER_FACTION_ID, target_faction_id)
-	var score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction_id)
+	var status := _get_faction_relation_status(_get_current_player_faction_id(), target_faction_id)
+	var score := _get_faction_relation_score(_get_current_player_faction_id(), target_faction_id)
 	var cooldown_turns := _get_diplomacy_action_cooldown(target_faction_id)
 	var agreement_turns := _get_active_trade_agreement_turns(target_faction_id)
 	var alliance_turns := _get_active_alliance_turns(target_faction_id)
@@ -4313,7 +4389,7 @@ func _format_spy_visibility_summary_for_ui(city_marker: WorldMapCityMarker) -> S
 	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
 	if owner_id.is_empty():
 		return "정보 수준\n정보 미확인"
-	if owner_id == PLAYER_FACTION_ID:
+	if owner_id == _get_current_player_faction_id():
 		return "정보 수준\n자국 도시"
 	var intel_entry := _get_city_intel_entry_for_ui(city_marker.city_id)
 	if intel_entry.is_empty():
@@ -4340,7 +4416,7 @@ func _format_spy_known_info_summary_for_ui(city_marker: WorldMapCityMarker) -> S
 	if city_marker == null:
 		return "확인 정보\n도시를 선택하면 확인 정보가 표시됩니다."
 	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
-	if owner_id == PLAYER_FACTION_ID:
+	if owner_id == _get_current_player_faction_id():
 		return "확인 정보\n자국 도시는 도시 정보창에서 상세 정보를 확인할 수 있습니다."
 	if owner_id.is_empty():
 		return "확인 정보\n소유 세력 확인이 필요합니다."
@@ -4582,7 +4658,7 @@ func _get_enemy_siege_baseline_mvp(city: Dictionary) -> Dictionary:
 
 
 func _get_enemy_owned_city_count_mvp(faction_id: String) -> int:
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 		return 0
 	var count := 0
 	for city_id_variant in CITY_HUD_DATA.keys():
@@ -4610,7 +4686,7 @@ func _get_enemy_diplomacy_baseline_mvp(target_force_id: String = "") -> Dictiona
 		"baseline_grade_label": "정보 부족",
 		"source": "faction_city_grade_baseline",
 	}
-	if target_force_id.is_empty() or target_force_id == PLAYER_FACTION_ID:
+	if target_force_id.is_empty() or target_force_id == _get_current_player_faction_id():
 		result["reason"] = "invalid_target"
 		return result
 	result["masked"] = false
@@ -4620,7 +4696,7 @@ func _get_enemy_diplomacy_baseline_mvp(target_force_id: String = "") -> Dictiona
 		resistance_pct += 0.03
 	elif owned_city_count >= 2:
 		resistance_pct += 0.01
-	var relation_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_force_id)
+	var relation_score := _get_faction_relation_score(_get_current_player_faction_id(), target_force_id)
 	if relation_score >= 70:
 		resistance_pct += 0.02
 	elif relation_score <= 30:
@@ -4707,7 +4783,7 @@ func _format_spy_action_candidates_for_ui(city_marker: WorldMapCityMarker) -> St
 	if city_marker == null:
 		return "첩보 행동\n도시를 선택하면 첩보 후보가 표시됩니다."
 	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
-	if owner_id == PLAYER_FACTION_ID:
+	if owner_id == _get_current_player_faction_id():
 		return "첩보 판단\n자국 도시는 첩보 대상이 아닙니다."
 	if owner_id.is_empty():
 		return "첩보 행동\n대상 세력 확인이 필요합니다."
@@ -4813,7 +4889,7 @@ func _format_spy_action_policy_display_for_ui(city_marker: WorldMapCityMarker) -
 	var owner_id := _get_city_owner_faction_id_for_trade_display(city_marker.city_id)
 	if owner_id.is_empty():
 		return "첩보 대기\n대상 세력 확인이 필요합니다."
-	if owner_id == PLAYER_FACTION_ID:
+	if owner_id == _get_current_player_faction_id():
 		return "첩보 대기\n자국 도시는 첩보 대상이 아닙니다."
 	var cooldown_turns := maxi(0, int(_player_state.get("spy_cooldown", 0)))
 	if cooldown_turns > 0:
@@ -4890,7 +4966,7 @@ func _refresh_spy_action_card(city_marker: WorldMapCityMarker) -> void:
 		return
 	var target_city_id := city_marker.city_id
 	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		_spy_action_card.visible = false
 		return
 	_spy_action_card.visible = true
@@ -6142,14 +6218,16 @@ func _setup_warehouse_card_ui() -> void:
 
 func _refresh_left_world_status_panel() -> void:
 	_ensure_worldmap_runtime_state_defaults()
-	left_world_status_eyebrow_label.visible = false
+	left_world_status_eyebrow_label.visible = true
+	left_world_status_eyebrow_label.text = "플레이어 국가 · %s" % _format_faction_label(_get_current_player_faction_id())
 	turn_label.visible = false
 	calendar_label.text = "%s · %s · %s" % [
 		str(_player_state.get("turn_label", "제 1턴")),
 		str(_player_state.get("year_label", "154년 봄 1턴")),
 		str(_player_state.get("current_phase_label", "아군 턴")),
 	]
-	nation_label.visible = false
+	nation_label.visible = true
+	nation_label.text = "수도: %s" % _format_city_name_by_id(str(_player_state.get("capital_city_id", _player_state.get("origin_city_id", ""))), "미설정")
 	var national_loyalty := int(_player_state.get("national_loyalty", 0))
 	var tax_level := _normalize_tax_level(_player_state.get("tax_level", 0))
 	var public_order := int(_player_state.get("public_order", 0))
@@ -6627,7 +6705,7 @@ func _get_enemy_faction_ids_for_turn_mvp() -> Array[String]:
 
 func _get_enemy_owned_city_ids_for_faction(faction_id: String) -> Array[String]:
 	var city_ids: Array[String] = []
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 		return city_ids
 	for city_id in _get_worldmap_city_ids_for_enemy_turn_mvp():
 		if _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id) != faction_id:
@@ -6643,7 +6721,7 @@ func _get_enemy_faction_personality_seed(faction_id: String) -> Dictionary:
 	var default_seed: Dictionary = {}
 	if raw_default_seed is Dictionary:
 		default_seed = (raw_default_seed as Dictionary).duplicate(true)
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 		return default_seed.duplicate(true)
 	var raw_seed: Variant = ENEMY_FACTION_PERSONALITY_SEEDS.get(faction_id, default_seed)
 	if raw_seed is Dictionary:
@@ -6669,7 +6747,7 @@ func _get_enemy_faction_behavior_weight(faction_id: String, key: String, default
 
 
 func _get_enemy_faction_personality_metadata(faction_id: String) -> Dictionary:
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 		return {}
 	return {
 		"personality_profile": _get_enemy_faction_personality_profile_id(faction_id),
@@ -6682,7 +6760,7 @@ func _get_enemy_faction_strategic_goal_seed(faction_id: String) -> Dictionary:
 	var default_seed: Dictionary = {}
 	if raw_default_seed is Dictionary:
 		default_seed = (raw_default_seed as Dictionary).duplicate(true)
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 		return default_seed.duplicate(true)
 	var raw_seed: Variant = ENEMY_FACTION_STRATEGIC_GOAL_SEEDS.get(faction_id, default_seed)
 	if raw_seed is Dictionary:
@@ -6712,7 +6790,7 @@ func _get_enemy_faction_goal_weight(faction_id: String) -> float:
 
 func _get_enemy_goal_target_city_ids(faction_id: String) -> Array[String]:
 	var result: Array[String] = []
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 		return result
 	var goal_seed := _get_enemy_faction_strategic_goal_seed(faction_id)
 	var raw_city_ids: Variant = goal_seed.get("target_city_ids", [])
@@ -6730,13 +6808,13 @@ func _get_enemy_goal_target_city_ids(faction_id: String) -> Array[String]:
 
 
 func _is_city_preferred_by_enemy_goal(faction_id: String, city_id: String) -> bool:
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or city_id.is_empty():
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id() or city_id.is_empty():
 		return false
 	return _get_enemy_goal_target_city_ids(faction_id).has(city_id)
 
 
 func _is_city_adjacent_to_enemy_goal_target(faction_id: String, city_id: String) -> bool:
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or city_id.is_empty():
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id() or city_id.is_empty():
 		return false
 	for target_city_id in _get_enemy_goal_target_city_ids(faction_id):
 		if target_city_id == city_id:
@@ -6747,7 +6825,7 @@ func _is_city_adjacent_to_enemy_goal_target(faction_id: String, city_id: String)
 
 
 func _get_enemy_faction_goal_metadata(faction_id: String) -> Dictionary:
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 		return {}
 	return {
 		"goal_id": _get_enemy_faction_goal_id(faction_id),
@@ -6771,7 +6849,7 @@ func _normalize_enemy_pressure_type_mvp(raw_pressure_type: String, faction_id: S
 			return "military"
 		"trade_defensive":
 			return "defensive"
-	if not faction_id.is_empty() and faction_id != PLAYER_FACTION_ID:
+	if not faction_id.is_empty() and faction_id != _get_current_player_faction_id():
 		var profile_id := _get_enemy_faction_personality_profile_id(faction_id)
 		if profile_id.find("spy") >= 0 or profile_id.find("scheme") >= 0:
 			return "spy"
@@ -6878,7 +6956,7 @@ func _build_enemy_pressure_plan_candidates_mvp() -> Array[Dictionary]:
 
 
 func _build_enemy_pressure_plan_candidate_for_faction_mvp(faction_id: String) -> Dictionary:
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 		return {}
 	var owned_city_ids := _get_enemy_owned_city_ids_for_faction(faction_id)
 	if owned_city_ids.is_empty():
@@ -6935,7 +7013,7 @@ func _score_enemy_pressure_plan_candidate_mvp(candidate: Dictionary) -> float:
 	var faction_id := str(candidate.get("faction_id", ""))
 	var source_city_id := str(candidate.get("source_city_id", ""))
 	var plan_target_city_id := str(candidate.get("target_city_id", ""))
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or source_city_id.is_empty() or plan_target_city_id.is_empty():
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id() or source_city_id.is_empty() or plan_target_city_id.is_empty():
 		return -INF
 	if _get_safe_enemy_owner_faction_id_for_turn_mvp(source_city_id) != faction_id:
 		return -INF
@@ -7003,7 +7081,7 @@ func _normalize_enemy_pressure_plan_result_mvp(raw_result: Variant) -> Dictionar
 	if str(result.get("type", "")) != "enemy_pressure_plan":
 		return {}
 	var faction_id := str(result.get("faction_id", ""))
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 		return {}
 	var source_city_id := str(result.get("source_city_id", ""))
 	var plan_target_city_id := str(result.get("target_city_id", ""))
@@ -7107,7 +7185,7 @@ func _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id: String) -> String:
 		])
 		return ""
 	var owner_id := marker_owner_id if not marker_owner_id.is_empty() else hud_owner_id
-	if owner_id.is_empty() or owner_id == PLAYER_FACTION_ID:
+	if owner_id.is_empty() or owner_id == _get_current_player_faction_id():
 		return ""
 	return owner_id
 
@@ -7151,7 +7229,7 @@ func _pick_enemy_city_for_turn_action(faction_id: String) -> String:
 
 
 func _score_enemy_reinforcement_city_for_personality(faction_id: String, city_id: String) -> int:
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or city_id.is_empty():
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id() or city_id.is_empty():
 		return -1
 	if _get_safe_enemy_owner_faction_id_for_turn_mvp(city_id) != faction_id:
 		return -1
@@ -7177,7 +7255,7 @@ func _score_enemy_reinforcement_city_for_personality(faction_id: String, city_id
 
 
 func _get_enemy_faction_chancellor_id(faction_id: String) -> String:
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 		return ""
 	_ensure_faction_chancellors_seeded()
 	var chancellors: Variant = _player_state.get("faction_chancellors", {})
@@ -7190,7 +7268,7 @@ func _get_enemy_faction_chancellor_id(faction_id: String) -> String:
 
 
 func _apply_enemy_city_reinforcement_mvp(faction_id: String, city_id: String) -> Dictionary:
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or city_id.is_empty():
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id() or city_id.is_empty():
 		return {}
 	if not _has_city_for_battle_context(city_id):
 		return {}
@@ -7255,7 +7333,7 @@ func _get_enemy_diplomacy_follow_up_candidates_mvp(faction_ids: Array[String]) -
 	var unique_factions: Array[String] = []
 	for faction_id_variant in faction_ids:
 		var faction_id := str(faction_id_variant)
-		if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+		if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 			continue
 		if _get_enemy_owned_city_ids_for_faction(faction_id).is_empty():
 			continue
@@ -7316,7 +7394,7 @@ func _sort_enemy_diplomacy_follow_up_candidates_mvp(left: Dictionary, right: Dic
 func _apply_enemy_diplomacy_follow_up_mvp(candidate: Dictionary) -> Dictionary:
 	var faction_a := str(candidate.get("faction_a", ""))
 	var faction_b := str(candidate.get("faction_b", ""))
-	if faction_a.is_empty() or faction_b.is_empty() or faction_a == PLAYER_FACTION_ID or faction_b == PLAYER_FACTION_ID or faction_a == faction_b:
+	if faction_a.is_empty() or faction_b.is_empty() or faction_a == _get_current_player_faction_id() or faction_b == _get_current_player_faction_id() or faction_a == faction_b:
 		return {}
 	var before_score := _get_faction_relation_score(faction_a, faction_b)
 	var drift := ENEMY_STRATEGIC_DIPLOMACY_DRIFT
@@ -7352,7 +7430,7 @@ func _get_enemy_spy_pressure_follow_up_candidates_mvp(faction_ids: Array[String]
 	var allowed_factions := {}
 	for faction_id_variant in faction_ids:
 		var faction_id := str(faction_id_variant)
-		if not faction_id.is_empty() and faction_id != PLAYER_FACTION_ID:
+		if not faction_id.is_empty() and faction_id != _get_current_player_faction_id():
 			allowed_factions[faction_id] = true
 	var candidates: Array[Dictionary] = []
 	for attacker_city_id in _get_worldmap_city_ids_for_enemy_turn_mvp():
@@ -7459,7 +7537,7 @@ func _normalize_enemy_strategic_action_for_display(raw_action: Variant) -> Dicti
 		"enemy_diplomacy_follow_up":
 			var faction_a := str(action.get("faction_a", ""))
 			var faction_b := str(action.get("faction_b", ""))
-			if faction_a.is_empty() or faction_b.is_empty() or faction_a == PLAYER_FACTION_ID or faction_b == PLAYER_FACTION_ID or faction_a == faction_b:
+			if faction_a.is_empty() or faction_b.is_empty() or faction_a == _get_current_player_faction_id() or faction_b == _get_current_player_faction_id() or faction_a == faction_b:
 				return {}
 			action["kind"] = "tension" if str(action.get("kind", "")) == "tension" else "contact"
 			action["personality_profile"] = str(action.get("personality_profile", _get_enemy_faction_personality_profile_id(faction_a)))
@@ -7477,7 +7555,7 @@ func _normalize_enemy_strategic_action_for_display(raw_action: Variant) -> Dicti
 			var faction_id := str(action.get("faction_id", ""))
 			var attacker_city_id := str(action.get("attacker_city_id", ""))
 			var target_city_id := str(action.get("target_city_id", ""))
-			if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or attacker_city_id.is_empty() or target_city_id.is_empty():
+			if faction_id.is_empty() or faction_id == _get_current_player_faction_id() or attacker_city_id.is_empty() or target_city_id.is_empty():
 				return {}
 			action["kind"] = "recon"
 			action["personality_profile"] = str(action.get("personality_profile", _get_enemy_faction_personality_profile_id(faction_id)))
@@ -7684,18 +7762,18 @@ func _get_enemy_invasion_pairs_mvp() -> Array[Dictionary]:
 func _is_city_owned_by_player_mvp(city_id: String) -> bool:
 	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
 	if city_marker != null:
-		return city_marker.owner_faction_id == PLAYER_FACTION_ID
+		return city_marker.owner_faction_id == _get_current_player_faction_id()
 	var city_data := _get_city_hud_entry(city_id)
-	return str(city_data.get("owner", city_data.get("nation", ""))) == PLAYER_FACTION_ID
+	return str(city_data.get("owner", city_data.get("nation", ""))) == _get_current_player_faction_id()
 
 
 func _is_city_owned_by_enemy_mvp(city_id: String) -> bool:
 	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
 	if city_marker != null:
-		return not city_marker.owner_faction_id.is_empty() and city_marker.owner_faction_id != PLAYER_FACTION_ID
+		return not city_marker.owner_faction_id.is_empty() and city_marker.owner_faction_id != _get_current_player_faction_id()
 	var city_data := _get_city_hud_entry(city_id)
 	var owner_id := str(city_data.get("owner", city_data.get("nation", "")))
-	return not owner_id.is_empty() and owner_id != PLAYER_FACTION_ID
+	return not owner_id.is_empty() and owner_id != _get_current_player_faction_id()
 
 
 func _is_city_owner_consistent_for_enemy_invasion_mvp(city_id: String) -> bool:
@@ -9256,7 +9334,7 @@ func _apply_player_attack_win_result(defender_city_id: String, attacker_city_id:
 	var player_survivors := maxi(0, int(player_outcome.get("survivors", 0)))
 	var player_wounded := maxi(0, int(player_outcome.get("wounded", 0)))
 	var player_dead := maxi(0, int(player_outcome.get("dead", 0)))
-	_set_city_runtime_owner(defender_city_id, PLAYER_FACTION_ID)
+	_set_city_runtime_owner(defender_city_id, _get_current_player_faction_id())
 	_set_city_runtime_troops(defender_city_id, player_survivors)
 	_clear_city_wounded_queue_mvp(defender_city_id)
 	_add_wounded_to_city_mvp(defender_city_id, player_wounded, PLAYER_ATTACK_WOUNDED_QUEUE_TURNS)
@@ -9275,7 +9353,7 @@ func _apply_player_attack_win_result(defender_city_id: String, attacker_city_id:
 		defender_before_troops,
 		player_survivors
 	])
-	return _build_invasion_result_summary(INVASION_RESULT_ATTACKER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, PLAYER_FACTION_ID, casualty_result, "도시 점령", [
+	return _build_invasion_result_summary(INVASION_RESULT_ATTACKER_WIN, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, _get_current_player_faction_id(), casualty_result, "도시 점령", [
 		"%s 점령 성공!" % defender_city_name,
 		"%s의 출정군이 %s을 장악했습니다." % [attacker_city_name, defender_city_name],
 		"출정 %d / 생존 %d / 부상 %d / 전사 %d" % [
@@ -10893,7 +10971,7 @@ func _get_city_economy_tech_modifier_summary_mvp(city_id: String) -> Dictionary:
 		var city_modifier := _get_player_city_domestic_economy_modifier_mvp(city_id)
 		var national_modifier := _get_national_domestic_economy_modifier_mvp()
 		result = city_modifier.duplicate(true)
-		result["owner_scope"] = PLAYER_FACTION_ID
+		result["owner_scope"] = _get_current_player_faction_id()
 		result["player_completed_tech_lookup"] = true
 		result["national_gold_income_pct"] = float(national_modifier.get("gold_income_pct", 0.0))
 		result["gold_income_pct"] = float(city_modifier.get("gold_income_pct", 0.0)) + float(national_modifier.get("gold_income_pct", 0.0))
@@ -15691,7 +15769,7 @@ func _get_current_chancellor_aptitude_type() -> String:
 	if chancellor_id.is_empty():
 		return ""
 	var hero_data := _get_hero_entry(chancellor_id)
-	if hero_data.is_empty() or str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+	if hero_data.is_empty() or str(hero_data.get("side", "")) != _get_current_player_faction_id():
 		return ""
 	return str(hero_data.get("chancellor_primary_type", ""))
 
@@ -16732,7 +16810,7 @@ func _update_owned_city_ids_after_runtime_owner_change(city_id: String, owner_id
 			var owned_id := str(owned_city_id)
 			if owned_id != city_id and not owned_city_ids.has(owned_id):
 				owned_city_ids.append(owned_id)
-	if owner_id == PLAYER_FACTION_ID and not owned_city_ids.has(city_id):
+	if owner_id == _get_current_player_faction_id() and not owned_city_ids.has(city_id):
 		owned_city_ids.append(city_id)
 	_player_state["owned_city_ids"] = owned_city_ids
 
@@ -17711,7 +17789,7 @@ func _calculate_active_chancellor_national_effects() -> Dictionary:
 	if chancellor_id.is_empty():
 		return effect
 	var hero_data := _get_hero_entry(chancellor_id)
-	if hero_data.is_empty() or str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+	if hero_data.is_empty() or str(hero_data.get("side", "")) != _get_current_player_faction_id():
 		return effect
 	_apply_chancellor_type_effect(effect, str(hero_data.get("chancellor_primary_type", "")), float(hero_data.get("chancellor_primary_aptitude", 0)), CHANCELLOR_PRIMARY_RATE)
 	_apply_chancellor_type_effect(effect, str(hero_data.get("chancellor_secondary_type", "")), float(hero_data.get("chancellor_secondary_aptitude", 0)), CHANCELLOR_SECONDARY_RATE)
@@ -17734,13 +17812,13 @@ func _calculate_city_domestic_effects(city_data: Dictionary, chancellor_policy_i
 	var governor_id := str(city_data.get("governor_id", city_data.get("governorHeroId", "")))
 	var city_id := str(city_data.get("id", ""))
 	var governor_data := _get_hero_entry(governor_id)
-	if not governor_data.is_empty() and str(governor_data.get("side", "")) == PLAYER_FACTION_ID and str(governor_data.get("location_city_id", governor_data.get("city_id", ""))) == city_id:
+	if not governor_data.is_empty() and str(governor_data.get("side", "")) == _get_current_player_faction_id() and str(governor_data.get("location_city_id", governor_data.get("city_id", ""))) == city_id:
 		_apply_governor_type_effect(effect, str(governor_data.get("chancellor_primary_type", "")), float(governor_data.get("chancellor_primary_aptitude", 0)), GOVERNOR_PRIMARY_RATE)
 		_apply_governor_type_effect(effect, str(governor_data.get("chancellor_secondary_type", "")), float(governor_data.get("chancellor_secondary_aptitude", 0)), GOVERNOR_SECONDARY_RATE)
 	else:
 		var chancellor_id := str(_player_state.get("chancellor_id", ""))
 		var chancellor_data := _get_hero_entry(chancellor_id)
-		if not chancellor_data.is_empty() and str(chancellor_data.get("side", "")) == PLAYER_FACTION_ID:
+		if not chancellor_data.is_empty() and str(chancellor_data.get("side", "")) == _get_current_player_faction_id():
 			var primary_strength := maxf(0.0, float(chancellor_data.get("chancellor_primary_aptitude", 0))) * CHANCELLOR_PRIMARY_RATE
 			var secondary_strength := maxf(0.0, float(chancellor_data.get("chancellor_secondary_aptitude", 0))) * CHANCELLOR_SECONDARY_RATE
 			if str(chancellor_data.get("chancellor_primary_type", "")) == "political" and primary_strength > 0.0:
@@ -18219,9 +18297,9 @@ func _get_player_relation_target_faction_from_key(relation_key: String) -> Strin
 	var parts := relation_key.split("|", false)
 	if parts.size() != 2:
 		return ""
-	if str(parts[0]) == PLAYER_FACTION_ID:
+	if str(parts[0]) == _get_current_player_faction_id():
 		return str(parts[1])
-	if str(parts[1]) == PLAYER_FACTION_ID:
+	if str(parts[1]) == _get_current_player_faction_id():
 		return str(parts[0])
 	return ""
 
@@ -18233,14 +18311,14 @@ func _normalize_diplomacy_action_state_from_player_state() -> void:
 	if raw_cooldowns is Dictionary:
 		for target_faction_variant in (raw_cooldowns as Dictionary).keys():
 			var target_faction_id := str(target_faction_variant)
-			if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+			if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 				continue
 			var turns_remaining := maxi(0, int((raw_cooldowns as Dictionary).get(target_faction_variant, 0)))
 			if turns_remaining <= 0:
 				continue
-			var relation_entry := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+			var relation_entry := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 			relation_entry["diplomacy_action_cooldown"] = maxi(int(relation_entry.get("diplomacy_action_cooldown", 0)), turns_remaining)
-			var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction_id)
+			var relation_key := _make_faction_relation_key(_get_current_player_faction_id(), target_faction_id)
 			var relations: Dictionary = _player_state.get("faction_relations", {})
 			relations[relation_key] = relation_entry
 			_player_state["faction_relations"] = relations
@@ -18248,7 +18326,7 @@ func _normalize_diplomacy_action_state_from_player_state() -> void:
 	if raw_agreements is Dictionary:
 		for target_faction_variant in (raw_agreements as Dictionary).keys():
 			var target_faction_id := str(target_faction_variant)
-			if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+			if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 				continue
 			var raw_agreement: Variant = (raw_agreements as Dictionary).get(target_faction_variant, {})
 			var turns_remaining := 0
@@ -18262,13 +18340,13 @@ func _normalize_diplomacy_action_state_from_player_state() -> void:
 				turns_remaining = maxi(0, int(raw_agreement))
 			if turns_remaining <= 0:
 				continue
-			var relation_entry := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+			var relation_entry := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 			relation_entry["trade_agreement_active"] = true
 			relation_entry["trade_agreement_turns_remaining"] = maxi(int(relation_entry.get("trade_agreement_turns_remaining", 0)), turns_remaining)
 			relation_entry["trade_agreement_bonus"] = TRADE_AGREEMENT_MULTIPLIER_BONUS
 			relation_entry["trade_agreement_source"] = agreement_source
 			relation_entry["trade_agreement_created_turn"] = created_turn
-			var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction_id)
+			var relation_key := _make_faction_relation_key(_get_current_player_faction_id(), target_faction_id)
 			var relations: Dictionary = _player_state.get("faction_relations", {})
 			relations[relation_key] = relation_entry
 			_player_state["faction_relations"] = relations
@@ -18276,7 +18354,7 @@ func _normalize_diplomacy_action_state_from_player_state() -> void:
 	if raw_alliances is Dictionary:
 		for target_faction_variant in (raw_alliances as Dictionary).keys():
 			var target_faction_id := str(target_faction_variant)
-			if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+			if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 				continue
 			var raw_alliance: Variant = (raw_alliances as Dictionary).get(target_faction_variant, {})
 			var turns_remaining := 0
@@ -18294,13 +18372,13 @@ func _normalize_diplomacy_action_state_from_player_state() -> void:
 				turns_remaining = maxi(0, int(raw_alliance))
 			if turns_remaining <= 0:
 				continue
-			var relation_entry := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+			var relation_entry := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 			relation_entry["status"] = FACTION_RELATION_STATUS["ALLIED"]
 			relation_entry["alliance_turns_remaining"] = maxi(int(relation_entry.get("alliance_turns_remaining", 0)), turns_remaining)
 			relation_entry["alliance_created_turn"] = created_turn
 			relation_entry["alliance_resource_package"] = resource_package
 			relation_entry["alliance_acceptance_score"] = acceptance_score
-			var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction_id)
+			var relation_key := _make_faction_relation_key(_get_current_player_faction_id(), target_faction_id)
 			var relations: Dictionary = _player_state.get("faction_relations", {})
 			relations[relation_key] = relation_entry
 			_player_state["faction_relations"] = relations
@@ -18381,9 +18459,9 @@ func _get_diplomacy_action_definition(action_id: String) -> Dictionary:
 
 
 func _get_diplomacy_action_cooldown(target_faction_id: String) -> int:
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		return 0
-	var relation_entry := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var relation_entry := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 	var relation_cooldown := maxi(0, int(relation_entry.get("diplomacy_action_cooldown", 0)))
 	var cooldowns_variant: Variant = _player_state.get("diplomacy_action_cooldowns", {})
 	if cooldowns_variant is Dictionary:
@@ -18392,11 +18470,11 @@ func _get_diplomacy_action_cooldown(target_faction_id: String) -> int:
 
 
 func _set_diplomacy_action_cooldown(target_faction_id: String, turns: int) -> void:
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		return
-	var relation_entry := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var relation_entry := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 	relation_entry["diplomacy_action_cooldown"] = maxi(0, turns)
-	var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction_id)
+	var relation_key := _make_faction_relation_key(_get_current_player_faction_id(), target_faction_id)
 	var relations: Dictionary = _player_state.get("faction_relations", {})
 	relations[relation_key] = relation_entry
 	_player_state["faction_relations"] = relations
@@ -18419,9 +18497,9 @@ func _validate_diplomacy_action(action_id: String, target_city_id: String = "") 
 		target_faction_id = _get_city_owner_faction_id_for_trade_display(resolved_city_id)
 	if resolved_city_id.is_empty() or target_faction_id.is_empty():
 		return {"ok": false, "reason": "invalid_target", "message": "외교 대상을 확인할 수 없습니다.", "action_id": action_id, "target_city_id": resolved_city_id}
-	if target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id == _get_current_player_faction_id():
 		return {"ok": false, "reason": "player_faction", "message": "자국 도시는 외교 대상이 아닙니다.", "action_id": action_id, "target_city_id": resolved_city_id, "target_faction_id": target_faction_id}
-	var relation_entry := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var relation_entry := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 	var status := _normalize_faction_relation_status(str(relation_entry.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
 	var score := clampi(int(relation_entry.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
 	var action_cooldown := _get_diplomacy_action_cooldown(target_faction_id)
@@ -18502,11 +18580,11 @@ func _apply_diplomacy_action(action_id: String, target_city_id: String = "") -> 
 	var before_score := int(validation.get("before_score", DIPLOMACY_DEFAULT_SCORE))
 	var before_status := str(validation.get("before_status", FACTION_RELATION_STATUS["NEUTRAL"]))
 	var relation_delta := int(validation.get("relation_delta", 0))
-	var relation_result := _adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction_id, relation_delta, "diplomacy_action_%s" % action_id)
+	var relation_result := _adjust_faction_relation_score(_get_current_player_faction_id(), target_faction_id, relation_delta, "diplomacy_action_%s" % action_id)
 	var after_score := int(relation_result.get("after_score", before_score))
-	var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction_id)
+	var relation_key := _make_faction_relation_key(_get_current_player_faction_id(), target_faction_id)
 	var relations: Dictionary = _player_state.get("faction_relations", {})
-	var relation_entry: Dictionary = relations.get(relation_key, _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id))
+	var relation_entry: Dictionary = relations.get(relation_key, _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id))
 	relation_entry["diplomacy_action_cooldown"] = maxi(0, int(validation.get("cooldown", 0)))
 	var agreement_payload := {}
 	if action_id == DIPLOMACY_ACTION_TRADE_AGREEMENT:
@@ -18611,9 +18689,9 @@ func _normalize_diplomacy_resource_package(resource_package: Dictionary) -> Dict
 
 
 func _calculate_alliance_acceptance_chance(target_faction_id: String, resource_package: Dictionary, duration_turns: int) -> int:
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		return 0
-	var score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction_id)
+	var score := _get_faction_relation_score(_get_current_player_faction_id(), target_faction_id)
 	var package := _normalize_diplomacy_resource_package(resource_package)
 	var package_bonus := int(floor(float(package.get("gold", 0)) / 20.0)) + int(floor(float(package.get("silk", 0)) / 10.0))
 	var duration_penalty := maxi(0, duration_turns - TRADE_AGREEMENT_TURNS)
@@ -18624,10 +18702,10 @@ func _calculate_alliance_acceptance_chance(target_faction_id: String, resource_p
 func _propose_alliance(target_faction_id: String, resource_package: Dictionary, duration_turns: int) -> bool:
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
 	var package := _normalize_diplomacy_resource_package(resource_package)
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		_player_state["last_alliance_proposal_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "invalid_target", "resource_package": package, "message": "동맹 대상을 확인할 수 없습니다."}
 		return false
-	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var relation := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 	var status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
 	var before_score := clampi(int(relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
 	if status == FACTION_RELATION_STATUS["HOSTILE"] or status == FACTION_RELATION_STATUS["SUSPENDED"]:
@@ -18643,7 +18721,7 @@ func _propose_alliance(target_faction_id: String, resource_package: Dictionary, 
 	var payment_result := _apply_generic_resource_cost(package)
 	var acceptance_chance := _calculate_alliance_acceptance_chance(target_faction_id, package, duration_turns)
 	var accepted := acceptance_chance >= ALLIANCE_ACCEPTANCE_THRESHOLD
-	var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction_id)
+	var relation_key := _make_faction_relation_key(_get_current_player_faction_id(), target_faction_id)
 	var relations: Dictionary = _player_state.get("faction_relations", {})
 	var updated_relation: Dictionary = relations.get(relation_key, relation)
 	if accepted:
@@ -18683,9 +18761,9 @@ func _propose_alliance(target_faction_id: String, resource_package: Dictionary, 
 
 
 func _calculate_military_support_acceptance_chance(target_faction_id: String) -> int:
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		return 0
-	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var relation := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 	var score := clampi(int(relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
 	var rejection_count := maxi(0, int(relation.get("military_support_rejection_count", 0)))
 	return _get_modified_diplomacy_success_chance_mvp(score - rejection_count * 10, "military_support", target_faction_id)
@@ -18693,17 +18771,17 @@ func _calculate_military_support_acceptance_chance(target_faction_id: String) ->
 
 func _request_military_support(target_faction_id: String) -> bool:
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		_player_state["last_military_support_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "invalid_target"}
 		return false
-	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var relation := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 	var status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
 	if status != FACTION_RELATION_STATUS["ALLIED"]:
 		_player_state["last_military_support_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "not_allied", "status": status}
 		return false
 	var acceptance_chance := _calculate_military_support_acceptance_chance(target_faction_id)
 	var accepted := acceptance_chance >= MILITARY_SUPPORT_ACCEPTANCE_THRESHOLD
-	var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction_id)
+	var relation_key := _make_faction_relation_key(_get_current_player_faction_id(), target_faction_id)
 	var relations: Dictionary = _player_state.get("faction_relations", {})
 	var updated_relation: Dictionary = relations.get(relation_key, relation)
 	var before_score := clampi(int(updated_relation.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
@@ -18715,7 +18793,7 @@ func _request_military_support(target_faction_id: String) -> bool:
 	else:
 		rejection_count += 1
 		relation_penalty = MILITARY_SUPPORT_REPEATED_REJECT_PENALTY if rejection_count >= MILITARY_SUPPORT_REPEATED_REJECT_THRESHOLD else MILITARY_SUPPORT_REJECT_PENALTY
-		var relation_result := _adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction_id, relation_penalty, "military_support_rejected")
+		var relation_result := _adjust_faction_relation_score(_get_current_player_faction_id(), target_faction_id, relation_penalty, "military_support_rejected")
 		after_score = int(relation_result.get("after_score", before_score))
 		relations = _player_state.get("faction_relations", {})
 		updated_relation = relations.get(relation_key, updated_relation)
@@ -18746,10 +18824,10 @@ func _get_trade_agreement_cost(_target_faction_id: String) -> Dictionary:
 
 func _propose_trade_agreement(target_faction_id: String) -> bool:
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		_player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "reason": "invalid_target"}
 		return false
-	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var relation := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 	var status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
 	if status == FACTION_RELATION_STATUS["HOSTILE"] or status == FACTION_RELATION_STATUS["SUSPENDED"]:
 		_player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "reason": status, "status": status}
@@ -18764,7 +18842,7 @@ func _propose_trade_agreement(target_faction_id: String) -> bool:
 		_player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "reason": "resources", "score": score, "cost": cost, "missing": payment_check.get("missing", {}), "status": status}
 		return false
 	var payment_result := _apply_generic_resource_cost(cost)
-	var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction_id)
+	var relation_key := _make_faction_relation_key(_get_current_player_faction_id(), target_faction_id)
 	var relations: Dictionary = _player_state.get("faction_relations", {})
 	var updated_relation: Dictionary = relations.get(relation_key, relation)
 	updated_relation["trade_agreement_active"] = true
@@ -18796,18 +18874,18 @@ func _get_trade_agreement_bonus_multiplier(faction_a: String, faction_b: String)
 
 
 func _get_active_trade_agreement_turns(target_faction_id: String) -> int:
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		return 0
-	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var relation := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 	if not bool(relation.get("trade_agreement_active", false)):
 		return 0
 	return maxi(0, int(relation.get("trade_agreement_turns_remaining", 0)))
 
 
 func _get_active_alliance_turns(target_faction_id: String) -> int:
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		return 0
-	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction_id)
+	var relation := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction_id)
 	if _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"]))) != FACTION_RELATION_STATUS["ALLIED"]:
 		return 0
 	return maxi(0, int(relation.get("alliance_turns_remaining", 0)))
@@ -18818,9 +18896,9 @@ func _get_tribute_cost(_target_faction: String) -> Dictionary:
 
 
 func _can_send_tribute(target_faction: String) -> Dictionary:
-	if target_faction.is_empty() or target_faction == PLAYER_FACTION_ID:
+	if target_faction.is_empty() or target_faction == _get_current_player_faction_id():
 		return {"ok": false, "reason": "invalid_target"}
-	var relation := _ensure_faction_relation_entry(PLAYER_FACTION_ID, target_faction)
+	var relation := _ensure_faction_relation_entry(_get_current_player_faction_id(), target_faction)
 	var status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
 	if status == FACTION_RELATION_STATUS["HOSTILE"]:
 		return {"ok": false, "reason": "hostile", "relation": relation}
@@ -18861,8 +18939,8 @@ func _send_tribute(target_faction: String) -> bool:
 	var relation_before: Dictionary = check.get("relation", {})
 	var before_score := clampi(int(relation_before.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
 	var gain := _calculate_tribute_relation_gain(target_faction)
-	var relation_result := _adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction, gain, "tribute")
-	var relation_key := _make_faction_relation_key(PLAYER_FACTION_ID, target_faction)
+	var relation_result := _adjust_faction_relation_score(_get_current_player_faction_id(), target_faction, gain, "tribute")
+	var relation_key := _make_faction_relation_key(_get_current_player_faction_id(), target_faction)
 	var relations: Dictionary = _player_state.get("faction_relations", {})
 	var relation_entry: Dictionary = relations.get(relation_key, {})
 	relation_entry["tribute_cooldown"] = TRIBUTE_COOLDOWN_TURNS
@@ -18968,7 +19046,7 @@ func _get_current_chancellor_political_aptitude() -> int:
 	if chancellor_id.is_empty():
 		return 0
 	var hero_data := _get_hero_entry(chancellor_id)
-	if hero_data.is_empty() or str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+	if hero_data.is_empty() or str(hero_data.get("side", "")) != _get_current_player_faction_id():
 		return 0
 	var aptitude := 0
 	if str(hero_data.get("chancellor_primary_type", "")) == "political":
@@ -18983,7 +19061,7 @@ func _is_current_chancellor_political_type() -> bool:
 	if chancellor_id.is_empty():
 		return false
 	var hero_data := _get_hero_entry(chancellor_id)
-	if hero_data.is_empty() or str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+	if hero_data.is_empty() or str(hero_data.get("side", "")) != _get_current_player_faction_id():
 		return false
 	return str(hero_data.get("chancellor_primary_type", "")) == "political"
 
@@ -19064,7 +19142,7 @@ func _get_spy_result_key_for_action(action_id: String) -> String:
 func _apply_spy_detection_relation_penalty(target_faction_id: String, relation_penalty: int, reason: String) -> Dictionary:
 	if target_faction_id.is_empty() or relation_penalty == 0:
 		return {"before_score": DIPLOMACY_DEFAULT_SCORE, "after_score": DIPLOMACY_DEFAULT_SCORE, "relation_penalty": 0}
-	var relation_result := _adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction_id, relation_penalty, reason)
+	var relation_result := _adjust_faction_relation_score(_get_current_player_faction_id(), target_faction_id, relation_penalty, reason)
 	return {
 		"before_score": int(relation_result.get("before_score", relation_result.get("after_score", DIPLOMACY_DEFAULT_SCORE))),
 		"after_score": int(relation_result.get("after_score", DIPLOMACY_DEFAULT_SCORE)),
@@ -19335,7 +19413,7 @@ func _gather_spy_info(target_city_id: String, forced_roll: int = -1, forced_dete
 	var relation_penalty := 0
 	var relation_change := {"before_score": DIPLOMACY_DEFAULT_SCORE, "after_score": DIPLOMACY_DEFAULT_SCORE}
 	if not target_faction_id.is_empty():
-		var current_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction_id)
+		var current_score := _get_faction_relation_score(_get_current_player_faction_id(), target_faction_id)
 		relation_change = {"before_score": current_score, "after_score": current_score}
 	if bool(roll_result.get("ok", false)):
 		cooldown = _get_spy_cooldown_turns()
@@ -19503,7 +19581,7 @@ func _disrupt_city_public_support(target_city_id: String, forced_roll: int = -1,
 	var relation_penalty := 0
 	var relation_change := {"before_score": DIPLOMACY_DEFAULT_SCORE, "after_score": DIPLOMACY_DEFAULT_SCORE}
 	if not target_faction.is_empty():
-		var current_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction)
+		var current_score := _get_faction_relation_score(_get_current_player_faction_id(), target_faction)
 		relation_change = {"before_score": current_score, "after_score": current_score}
 	var after_support := before_support
 	var effect_applied := bool(roll_result.get("effect_applied", false))
@@ -19654,7 +19732,7 @@ func _disrupt_city_loyalty(target_city_id: String, forced_roll: int = -1, forced
 	var relation_penalty := 0
 	var relation_change := {"before_score": DIPLOMACY_DEFAULT_SCORE, "after_score": DIPLOMACY_DEFAULT_SCORE}
 	if not target_faction.is_empty():
-		var current_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction)
+		var current_score := _get_faction_relation_score(_get_current_player_faction_id(), target_faction)
 		relation_change = {"before_score": current_score, "after_score": current_score}
 	var after_loyalty := before_loyalty
 	var effect_applied := bool(roll_result.get("effect_applied", false))
@@ -19809,7 +19887,7 @@ func _instigate_revolt(target_city_id: String, forced_roll: int = -1, forced_det
 	var relation_penalty := 0
 	var relation_change := {"before_score": DIPLOMACY_DEFAULT_SCORE, "after_score": DIPLOMACY_DEFAULT_SCORE}
 	if not target_faction.is_empty():
-		var current_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction)
+		var current_score := _get_faction_relation_score(_get_current_player_faction_id(), target_faction)
 		relation_change = {"before_score": current_score, "after_score": current_score}
 	var effect_applied := bool(roll_result.get("effect_applied", false))
 	if bool(roll_result.get("detected", false)):
@@ -19918,14 +19996,14 @@ func _get_spy_wedge_candidate_faction_ids(target_faction_id: String) -> Array[St
 	var result: Array[String] = []
 	for faction_id_variant in _get_known_faction_ids_for_diplomacy():
 		var faction_id := str(faction_id_variant)
-		if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or faction_id == target_faction_id:
+		if faction_id.is_empty() or faction_id == _get_current_player_faction_id() or faction_id == target_faction_id:
 			continue
 		result.append(faction_id)
 	return result
 
 
 func _get_spy_wedge_counterpart_faction_id(target_faction_id: String) -> String:
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		return ""
 	var best_faction_id := ""
 	var best_priority := -1
@@ -19968,7 +20046,7 @@ func _can_wedge_faction_relation(target_city_id: String) -> Dictionary:
 	if _is_city_owned_by_player_mvp(target_city_id):
 		return {"ok": false, "reason": "own_city"}
 	var target_faction_id := _get_city_owner_faction_id(city_data)
-	if target_faction_id.is_empty() or target_faction_id == PLAYER_FACTION_ID:
+	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
 		return {"ok": false, "reason": "invalid_target"}
 	var chancellor_id := str(_player_state.get("chancellor_id", ""))
 	if chancellor_id.is_empty() or _get_hero_entry(chancellor_id).is_empty():
@@ -20027,7 +20105,7 @@ func _can_wedge_faction_relation(target_city_id: String) -> Dictionary:
 func _can_drive_wedge(target_faction_a: String, target_faction_b: String) -> Dictionary:
 	if target_faction_a.is_empty() or target_faction_b.is_empty() or target_faction_a == target_faction_b:
 		return {"ok": false, "reason": "invalid_target"}
-	if target_faction_a == PLAYER_FACTION_ID or target_faction_b == PLAYER_FACTION_ID:
+	if target_faction_a == _get_current_player_faction_id() or target_faction_b == _get_current_player_faction_id():
 		return {"ok": false, "reason": "self_target"}
 	var status := _get_faction_relation_status(target_faction_a, target_faction_b)
 	if status != FACTION_RELATION_STATUS["ALLIED"]:
@@ -20113,7 +20191,7 @@ func _drive_wedge(target_faction_a: String, target_faction_b: String, forced_rol
 	var player_relation_penalty := 0
 	if bool(roll_result.get("detected", false)):
 		player_relation_penalty = SPY_DETECTED_RELATION_PENALTY_WEDGE
-		_adjust_faction_relation_score(PLAYER_FACTION_ID, target_faction_a, player_relation_penalty, "spy_wedge_detected")
+		_adjust_faction_relation_score(_get_current_player_faction_id(), target_faction_a, player_relation_penalty, "spy_wedge_detected")
 	if effect_applied:
 		_adjust_faction_relation_score(target_faction_a, target_faction_b, -int(roll_result.get("relation_delta", 0)), "spy_wedge")
 	var result := {
@@ -20201,7 +20279,7 @@ func _apply_spy_wedge_action(validation: Dictionary, forced_roll: int = -1, forc
 		after_score = int(wedge_relation_result.get("after_score", after_score))
 		alliance_broken = _break_spy_wedge_alliance_if_needed(target_faction_id, counterpart_faction_id, after_score)
 	var relation_penalty := 0
-	var player_before_score := _get_faction_relation_score(PLAYER_FACTION_ID, target_faction_id)
+	var player_before_score := _get_faction_relation_score(_get_current_player_faction_id(), target_faction_id)
 	var player_after_score := player_before_score
 	if bool(roll_result.get("detected", false)):
 		relation_penalty = SPY_DETECTED_RELATION_PENALTY_WEDGE
@@ -20258,7 +20336,7 @@ func _advance_spy_cooldown_for_world_turn() -> Dictionary:
 
 func _get_known_faction_ids_for_diplomacy() -> Array:
 	var known := {}
-	known[PLAYER_FACTION_ID] = true
+	known[_get_current_player_faction_id()] = true
 	for city_id_variant in CITY_HUD_DATA.keys():
 		var city_data: Dictionary = CITY_HUD_DATA.get(city_id_variant, {})
 		var owner_id := _get_city_owner_faction_id(city_data)
@@ -20437,7 +20515,7 @@ func _get_player_supply_hub_id() -> String:
 	for city_id_variant in owned_city_ids:
 		var city_id := str(city_id_variant)
 		var city_data := _get_city_hud_entry(city_id)
-		if city_data.is_empty() or _get_city_owner_faction_id(city_data) != PLAYER_FACTION_ID:
+		if city_data.is_empty() or _get_city_owner_faction_id(city_data) != _get_current_player_faction_id():
 			continue
 		var population := maxi(0, int(city_data.get("population", 0)))
 		if population > selected_population:
@@ -20452,7 +20530,7 @@ func _is_city_supply_connected(city_id: String, hub_id: String) -> bool:
 	if city_id == hub_id:
 		return true
 	var city_data := _get_city_hud_entry(city_id)
-	if city_data.is_empty() or _get_city_owner_faction_id(city_data) != PLAYER_FACTION_ID:
+	if city_data.is_empty() or _get_city_owner_faction_id(city_data) != _get_current_player_faction_id():
 		return false
 	var visited := {}
 	var queue: Array[String] = [city_id]
@@ -20471,7 +20549,7 @@ func _is_city_supply_connected(city_id: String, hub_id: String) -> bool:
 			if visited.has(neighbor_id):
 				continue
 			var neighbor_data := _get_city_hud_entry(neighbor_id)
-			if neighbor_data.is_empty() or _get_city_owner_faction_id(neighbor_data) != PLAYER_FACTION_ID:
+			if neighbor_data.is_empty() or _get_city_owner_faction_id(neighbor_data) != _get_current_player_faction_id():
 				continue
 			queue.append(neighbor_id)
 	return false
@@ -20479,7 +20557,7 @@ func _is_city_supply_connected(city_id: String, hub_id: String) -> bool:
 
 func _calculate_city_supply_state(city_id: String, hub_id: String) -> Dictionary:
 	var city_data := _get_city_hud_entry(city_id)
-	if city_data.is_empty() or _get_city_owner_faction_id(city_data) != PLAYER_FACTION_ID:
+	if city_data.is_empty() or _get_city_owner_faction_id(city_data) != _get_current_player_faction_id():
 		return {}
 	var role := "rear"
 	var has_enemy_neighbor := false
@@ -20487,7 +20565,7 @@ func _calculate_city_supply_state(city_id: String, hub_id: String) -> Dictionary
 	if city_marker != null:
 		for neighbor_id_variant in city_marker.neighbors:
 			var neighbor_data := _get_city_hud_entry(str(neighbor_id_variant))
-			if not neighbor_data.is_empty() and _get_city_owner_faction_id(neighbor_data) != PLAYER_FACTION_ID:
+			if not neighbor_data.is_empty() and _get_city_owner_faction_id(neighbor_data) != _get_current_player_faction_id():
 				has_enemy_neighbor = true
 				break
 	if city_id == hub_id:
@@ -20883,7 +20961,7 @@ func _calculate_player_hero_upkeep_delta(policy_id: String, national_effects: Di
 	var active_count := 0
 	for hero_id in owned_hero_ids:
 		var hero_data := _get_hero_entry(str(hero_id))
-		if hero_data.is_empty() or str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+		if hero_data.is_empty() or str(hero_data.get("side", "")) != _get_current_player_faction_id():
 			continue
 		if hero_data.get("active", true) == false or hero_data.get("isDead", false) == true or hero_data.get("dead", false) == true:
 			continue
@@ -21372,8 +21450,9 @@ func _serialize_worldmap_state() -> Dictionary:
 		hero_state.size()
 	])
 	return {
-		"version": "v0.68b-12b-19",
-		"title": "WorldMap Battle Result Save Load Persistence MVP",
+		"version": "v0.74-01",
+		"title": "Korea MVP Four-Faction New Game",
+		"game_session": _get_game_session().serialize(),
 		"player_state": saved_player_state,
 		"worldmap_city_state": city_state,
 		"worldmap_hero_state": hero_state,
@@ -21389,6 +21468,15 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 	for key in restored_state.keys():
 		next_state[key] = restored_state[key]
 	_player_state = next_state
+	var session_data: Variant = data.get("game_session", {})
+	if session_data is Dictionary:
+		_get_game_session().apply_saved_session(session_data as Dictionary)
+	else:
+		# Legacy saves represented Hanseong with the old player registry ID.
+		_get_game_session().configure_korea_mvp(str(_player_state.get("player_faction_id", "player")))
+	_player_state["active_scenario_id"] = _get_game_session().active_scenario_id
+	_player_state["player_faction_id"] = _get_game_session().player_faction_id
+	_player_state["ai_faction_ids"] = _get_game_session().ai_faction_ids.duplicate()
 	_ensure_worldmap_runtime_state_defaults()
 	_city_runtime_states.clear()
 	_hero_runtime_states.clear()
@@ -21510,7 +21598,7 @@ func _refresh_city_hud_data_bindings() -> void:
 	if city_info_panel == null:
 		return
 	if city_info_panel.has_method("set_player_faction_id"):
-		city_info_panel.call("set_player_faction_id", PLAYER_FACTION_ID)
+		city_info_panel.call("set_player_faction_id", _get_current_player_faction_id())
 	if city_info_panel.has_method("set_enemy_city_intel"):
 		city_info_panel.call("set_enemy_city_intel", _normalize_city_intel_registry(_player_state.get("city_intel", {})))
 	city_info_panel.set_hud_data(_get_hero_data_for_ui(), _get_city_hud_data_for_ui(), GOVERNOR_POLICY_DATA, _city_policy_state)
@@ -21594,6 +21682,9 @@ func _serialize_worldmap_hero_runtime_state() -> Dictionary:
 			"captured": bool(source.get("captured", false)),
 			"dead": bool(source.get("dead", false)),
 			"wounded_turns_remaining": maxi(0, int(source.get("wounded_turns_remaining", 0))),
+			"side": str(source.get("side", source.get("nation", ""))),
+			"nation": str(source.get("nation", source.get("side", ""))),
+			"faction_id": str(source.get("faction_id", source.get("side", ""))),
 		}
 		print("[HERO_STATE_SAVE] hero=%s current_city=%s status=%s wounded=%s captured=%s dead=%s wounded_turns=%d" % [
 			hero_id,
@@ -21825,6 +21916,9 @@ func _normalize_hero_runtime_state(hero_id: String, raw_state: Dictionary = {}) 
 		"captured": is_captured,
 		"dead": is_dead,
 		"wounded_turns_remaining": wounded_turns,
+		"side": str(raw_state.get("side", seed_entry.get("side", ""))),
+		"nation": str(raw_state.get("nation", seed_entry.get("nation", ""))),
+		"faction_id": str(raw_state.get("faction_id", seed_entry.get("faction_id", ""))),
 	}
 
 
@@ -22282,7 +22376,7 @@ func _get_player_chancellor_candidate_city_id() -> String:
 func _is_valid_player_chancellor_candidate(hero_id: String, hero_data: Dictionary) -> bool:
 	if hero_id.is_empty() or hero_data.is_empty():
 		return false
-	if str(hero_data.get("side", "")) != PLAYER_FACTION_ID:
+	if str(hero_data.get("side", "")) != _get_current_player_faction_id():
 		return false
 	var status := str(hero_data.get("status", HERO_RUNTIME_STATUS_NORMAL))
 	if bool(hero_data.get("dead", false)) or status == HERO_RUNTIME_STATUS_DEAD:
@@ -22316,7 +22410,7 @@ func _normalize_faction_chancellors(raw_value: Variant) -> Dictionary:
 	if raw_value is Dictionary:
 		for faction_id_variant in (raw_value as Dictionary).keys():
 			var faction_id := str(faction_id_variant)
-			if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID:
+			if faction_id.is_empty() or faction_id == _get_current_player_faction_id():
 				continue
 			var hero_id := str((raw_value as Dictionary).get(faction_id_variant, ""))
 			if _is_valid_faction_chancellor_candidate(faction_id, hero_id):
@@ -22341,12 +22435,12 @@ func _get_known_non_player_faction_ids() -> Array[String]:
 		var city_id := str(city_id_variant)
 		var city_data := _get_city_hud_entry(city_id)
 		var faction_id := _get_city_owner_faction_id(city_data)
-		if not faction_id.is_empty() and faction_id != PLAYER_FACTION_ID:
+		if not faction_id.is_empty() and faction_id != _get_current_player_faction_id():
 			known[faction_id] = true
 	for hero_id_variant in HERO_DATA.keys():
 		var hero_data := _get_hero_entry(str(hero_id_variant))
 		var faction_id := _get_hero_faction_id_for_chancellor_seed(hero_data)
-		if not faction_id.is_empty() and faction_id != PLAYER_FACTION_ID:
+		if not faction_id.is_empty() and faction_id != _get_current_player_faction_id():
 			known[faction_id] = true
 	var sorted_ids: Array = known.keys()
 	sorted_ids.sort()
@@ -22376,7 +22470,7 @@ func _get_hero_faction_id_for_chancellor_seed(hero_data: Dictionary) -> String:
 
 
 func _is_valid_faction_chancellor_candidate(faction_id: String, hero_id: String) -> bool:
-	if faction_id.is_empty() or faction_id == PLAYER_FACTION_ID or hero_id.is_empty():
+	if faction_id.is_empty() or faction_id == _get_current_player_faction_id() or hero_id.is_empty():
 		return false
 	var hero_data := _get_hero_entry(hero_id)
 	if hero_data.is_empty():
@@ -22435,7 +22529,7 @@ func _sync_chancellor_assignment_for_selected_city(_city_data: Dictionary) -> vo
 	if current_chancellor_id.is_empty():
 		return
 	var chancellor_data := _get_hero_entry(current_chancellor_id)
-	if chancellor_data.is_empty() or str(chancellor_data.get("side", "")) != PLAYER_FACTION_ID:
+	if chancellor_data.is_empty() or str(chancellor_data.get("side", "")) != _get_current_player_faction_id():
 		_player_state["chancellor_id"] = ""
 
 
@@ -22621,7 +22715,7 @@ func _format_city_type(city_id: String) -> String:
 
 
 func _get_city_detail_status(city_marker: WorldMapCityMarker) -> String:
-	if city_marker.owner_faction_id == PLAYER_FACTION_ID:
+	if city_marker.owner_faction_id == _get_current_player_faction_id():
 		return "아군 도시"
 	if _has_player_neighbor(city_marker):
 		return "아군 인접 적 도시"
@@ -22633,7 +22727,7 @@ func _get_city_detail_status(city_marker: WorldMapCityMarker) -> String:
 func _has_player_neighbor(city_marker: WorldMapCityMarker) -> bool:
 	for neighbor_id in city_marker.neighbors:
 		var neighbor_marker := _city_markers_by_id.get(neighbor_id) as WorldMapCityMarker
-		if neighbor_marker != null and neighbor_marker.owner_faction_id == PLAYER_FACTION_ID:
+		if neighbor_marker != null and neighbor_marker.owner_faction_id == _get_current_player_faction_id():
 			return true
 	return false
 

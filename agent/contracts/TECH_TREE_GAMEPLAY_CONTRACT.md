@@ -23,6 +23,8 @@ National research remains attached to its nation. City research requires explici
 
 ## Korea MVP Activation
 
+T01 preserves national tech in `player_state` and city tech in serialized city runtime state. Session-selected faction and capital select the player scope; no Hanseong research state is copied when another faction is selected.
+
 The complete tech data remains preserved. Korea MVP selects a bounded active technology set only after a data/runtime audit. China, Japan, and naval technologies remain inactive-but-preserved unless a scenario explicitly activates them.
 
 ## Transaction Connection Table

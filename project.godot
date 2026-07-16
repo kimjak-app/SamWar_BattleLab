@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="SamWar_BattleLab"
-run/main_scene="res://WorldMap.tscn"
+run/main_scene="res://NewGameFactionSelect.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+GameSession="*res://scripts/game_session.gd"
 
 [display]
 

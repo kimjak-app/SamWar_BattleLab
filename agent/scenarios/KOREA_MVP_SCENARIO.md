@@ -2,14 +2,14 @@
 
 ## Proposed Identity And Scope
 
-- Scenario ID: `korea_mvp_four_cities` (`Proposed`)
+- Scenario ID: `korea_mvp_four_cities` (implemented)
 - Active region: Korea
 - Active cities: Hanseong, Pyongyang, Gyeongju, Sabi
 - China and Japan content: retained but inactive for this scenario
 
 ## Start
 
-The player freely selects one of the four starting factions. The selected faction becomes the player nation and the other three become AI nations. This is not yet implemented. Player role and nation ID must be saved separately; Hanseong has no permanent player-role exception.
+The player selects one of four registry-backed starts: `player`/한성, `goguryeo`/평양, `silla`/경주, or `baekje_faction`/사비. `GameSession` saves the role separately from the faction ID, and the other three are AI.
 
 Starting generals must use the actual WorldMap registry and city assignments as authoritative sources. Thirteen previously observed generals are useful reference only; omissions or duplicates remain possible until a code audit. Starting resources are `Needs Data Audit`. Starting research is `Needs Runtime Audit` and must be confirmed against the existing tech tree before values are set.
 

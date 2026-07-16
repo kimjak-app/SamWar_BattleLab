@@ -1,0 +1,87 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/new_game_faction_select.gd" id="1"]
+
+[node name="NewGameFactionSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.055, 0.075, 0.11, 1)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 570.0
+offset_top = 190.0
+offset_right = 1350.0
+offset_bottom = 890.0
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 42
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 42
+theme_override_constants/margin_bottom = 36
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "한반도 MVP — 시작 세력 선택"
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "수도와 시작 장수는 기존 WorldMap registry 데이터에서 초기화됩니다. 선택하지 않은 세력은 AI가 됩니다."
+autowrap_mode = 2
+horizontal_alignment = 1
+
+[node name="HanseongButton" type="Button" parent="Panel/Margin/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 72)
+text = "한성  |  한성 세력  |  시작 도시: 한성"
+
+[node name="PyongyangButton" type="Button" parent="Panel/Margin/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 72)
+text = "평양  |  고구려  |  시작 도시: 평양"
+
+[node name="GyeongjuButton" type="Button" parent="Panel/Margin/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 72)
+text = "경주  |  신라  |  시작 도시: 경주"
+
+[node name="SabiButton" type="Button" parent="Panel/Margin/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 72)
+text = "사비  |  백제  |  시작 도시: 사비"
+
+[node name="ContinueButton" type="Button" parent="Panel/Margin/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 56)
+text = "이어하기"
+
+[node name="StatusLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[connection signal="pressed" from="Panel/Margin/VBox/HanseongButton" to="." method="_on_hanseong_pressed"]
+[connection signal="pressed" from="Panel/Margin/VBox/PyongyangButton" to="." method="_on_pyongyang_pressed"]
+[connection signal="pressed" from="Panel/Margin/VBox/GyeongjuButton" to="." method="_on_gyeongju_pressed"]
+[connection signal="pressed" from="Panel/Margin/VBox/SabiButton" to="." method="_on_sabi_pressed"]
+[connection signal="pressed" from="Panel/Margin/VBox/ContinueButton" to="." method="_on_continue_pressed"]

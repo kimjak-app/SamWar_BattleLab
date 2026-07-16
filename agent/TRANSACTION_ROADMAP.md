@@ -2,6 +2,10 @@
 
 ## Active
 
+### T01 Korea MVP New Game Four-Faction Selection
+
+Status: Implementation Complete / Manual QA Pending. Four selections, role-separated session state, WorldMap initialization, and save schema are implemented. Do not promote T02 until F6 QA passes.
+
 ### T00 Documentation & MVP Architecture Foundation
 
 Status: complete with this documentation transaction. It establishes the Korea MVP direction, transaction rules, source-of-truth targets, scenario boundaries, document inventory, and archive policy. Runtime implementation is not part of T00.
@@ -10,8 +14,7 @@ Exit evidence: the default read order identifies current product direction, prot
 
 ## Next
 
-1. **T01 Korea MVP New Game Four-Faction Selection** — select Hanseong, Pyongyang, Gyeongju, or Sabi; create player/AI nation roles and enter the first WorldMap turn.
-2. **T02 Player Invasion & Occupation Completion** — validate invasion, resolve battle/delegation, apply occupation, and persist the result.
+1. **T02 Player Invasion & Occupation Completion** — validate invasion, resolve battle/delegation, apply occupation, and persist the result.
 3. **T03 Enemy Invasion & Player Defense Completion** — present and resolve player defense without breaking the existing Battle/WorldMap handoff.
 4. **T04 Turn Resolution Transaction** — resolve player/end-turn state, AI actions, research, UI, and persistence as one flow.
 5. **T05 Korea Unification Victory Transaction** — evaluate four-city victory and zero-city defeat, present outcome, and persist it.

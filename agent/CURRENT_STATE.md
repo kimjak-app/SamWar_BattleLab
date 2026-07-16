@@ -3,13 +3,13 @@
 ## Baseline
 
 - Branch: `main`
-- Baseline commit: `18b758f0dc873d1c7c186fd2337c0c0c365932c1`
-- Baseline label: `v0.73-01-hotfix1 Land Battle MVP Roster Scope Correction`
+- Baseline commit: `bdae6b458470160148e7fb42d2cd683bf40cf386`
+- Baseline label: `v0.74-01 T01 Korea MVP New Game Four-Faction Selection Transaction`
 - This state document is current-state only. Use Git history and archive candidates for completed version detail.
 
 ## Active Development Phase
 
-Korea Four-City MVP, using transaction-driven development. T00 documentation architecture is complete; T01 is the next runtime transaction.
+Korea Four-City MVP. T01 implementation is complete; visual F6 QA remains.
 
 The active context deliberately contains only current direction, protected boundaries, and the next executable transaction. Completed version-by-version evidence remains in Git history and retained archive candidates.
 
@@ -45,7 +45,7 @@ These are implementation assets, not a claim that every connected gameplay effec
 
 ## Confirmed Major Gaps
 
-- Four-faction new-game choice and player-nation session setup: `Not Yet Implemented`.
+- Four-faction new-game choice and player-nation session setup: implemented through `GameSession` and `NewGameFactionSelect.tscn`; Manual QA pending.
 - Korea MVP starting general/resource/technology values: `Needs Data Audit` / `Needs Runtime Audit`.
 - Player occupation, enemy defense, turn resolution, and Korea victory need transaction completion and integrated QA.
 - City-research behavior on occupation: `Needs Runtime Audit`.
@@ -61,7 +61,7 @@ T00 is a documentation transaction, not an implementation claim. The new documen
 
 ## Next Runtime Transaction
 
-`T01 Korea MVP New Game Four-Faction Selection` — canonical specification: `agent/transactions/T01_NEW_GAME_FACTION_SELECTION.md`.
+T01 is Implementation Complete / Manual QA Pending. Player-faction single source: `GameSession.player_faction_id`; WorldMap persists it in root `game_session`.
 
 T01 starts only after the implementation task explicitly authorizes runtime-file changes. This documentation transaction leaves runtime code, scenes, resources, and project settings untouched.
 

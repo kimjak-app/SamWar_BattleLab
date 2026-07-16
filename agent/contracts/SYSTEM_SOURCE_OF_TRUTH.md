@@ -7,7 +7,7 @@ This is a target responsibility contract for future transaction implementation. 
 | State | Recommended single source |
 | --- | --- |
 | Active scenario | ScenarioDefinition / GameSession |
-| Player nation | GameSession |
+| Player nation | `GameSession.player_faction_id` (implemented by T01; persisted under root `game_session`) |
 | Nation resources | NationState |
 | City owner | CityState |
 | City resources and troops | CityState |

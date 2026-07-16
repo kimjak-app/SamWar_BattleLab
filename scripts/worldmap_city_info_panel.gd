@@ -1358,10 +1358,10 @@ func _select_option_by_metadata(option_button: OptionButton, metadata_value: Str
 func _get_status_text(city_marker: WorldMapCityMarker) -> String:
 	if city_marker == null:
 		return "정보 없음"
-	if _has_player_neighbor(city_marker) and city_marker.owner_faction_id != PLAYER_FACTION_ID:
+	if _has_player_neighbor(city_marker) and city_marker.owner_faction_id != _player_faction_id:
 		return "공격을 누르면 출전 무장 선택 후 Phaser 전투 화면으로 진입합니다."
 
-	if city_marker.owner_faction_id == PLAYER_FACTION_ID:
+	if city_marker.owner_faction_id == _player_faction_id:
 		return "아군 거점입니다. 인접한 적 도시가 있으면 전투 방식 선택 뒤 공격을 시작할 수 있습니다."
 
 	if not city_marker.owner_faction_id.is_empty():
@@ -1388,7 +1388,7 @@ func _refresh_pending_invasion_status_line(city_id: String) -> void:
 func _has_player_neighbor(city_marker: WorldMapCityMarker) -> bool:
 	for neighbor_id in city_marker.neighbors:
 		var neighbor_marker := _city_markers_by_id.get(neighbor_id) as WorldMapCityMarker
-		if neighbor_marker != null and neighbor_marker.owner_faction_id == PLAYER_FACTION_ID:
+		if neighbor_marker != null and neighbor_marker.owner_faction_id == _player_faction_id:
 			return true
 	return false
 
@@ -1468,7 +1468,7 @@ func _get_adjacent_player_city_ids(source_city_id: String) -> Array[String]:
 		var owner_id := str(neighbor_data.get("owner", neighbor_data.get("owner_faction_id", "")))
 		if owner_id.is_empty() and neighbor_marker != null:
 			owner_id = neighbor_marker.owner_faction_id
-		if owner_id == PLAYER_FACTION_ID:
+		if owner_id == _player_faction_id:
 			result.append(neighbor_id_string)
 	return result
 

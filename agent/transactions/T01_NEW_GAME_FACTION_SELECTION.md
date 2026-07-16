@@ -1,6 +1,16 @@
 # T01 NEW GAME FACTION SELECTION
 
-Status: active runtime transaction specification. This documentation task does **not** implement runtime behavior.
+Status: Implementation Complete / Manual QA Pending (`v0.74-01`).
+
+## Implementation Record
+
+- Entry scene: `res://NewGameFactionSelect.tscn`; it provides four start choices and a disabled-without-save Continue action.
+- Single player-role source: autoload `res://scripts/game_session.gd` (`GameSession.player_faction_id`). Existing registry IDs are preserved: `player`/한성, `goguryeo`/평양, `silla`/경주, `baekje_faction`/사비.
+- WorldMap consumes the selected faction once, creates runtime overrides from the existing city/hero registries, assigns the other three Korea factions as AI, selects the matching capital city, and derives player checks from the session faction ID.
+- Save schema is backward compatible: root `game_session` stores scenario, player faction, start city, and AI IDs; old saves fall back to the legacy Hanseong (`player`) role.
+- National research remains in `player_state`; city research remains in each serialized city runtime state. The selected player nation/capital is now the scope used by the WorldMap UI and player checks.
+- Automated verification: no remaining `PLAYER_FACTION_ID` in `worldmap_main.gd`; project/editor parse, new entry scene, WorldMap, and Battle_Land headless loads pass.
+- Manual QA remains required for F6 selection clicks, visual layout, save/load interaction, and battle-preparation UI for each faction.
 
 ## Goal
 
