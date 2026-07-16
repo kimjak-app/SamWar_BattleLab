@@ -63,16 +63,22 @@
 
 ## New Session Reading Order
 1. `agent/WORKFLOW_MANAGER.md`
-2. `agent/CODEX_WORKFLOW_RULES.md`
-3. `agent/ARCHITECT_AGENT.md`
-4. `agent/IMPLEMENTATION_AGENT.md`
-5. `agent/QA_AGENT.md`
-6. `agent/RUNTIME_QA_AGENT.md`
-7. `agent/VISUAL_QA_AGENT.md`
-8. `agent/GODOT_RULES.md`
-9. `agent/CURRENT_STATE.md`
-10. `agent/NEXT_TASKS.md`
-11. `agent/HANDOFF_TO_CODEX.md`
+2. `agent/TRANSACTION_DEVELOPMENT_RULES.md`
+3. `agent/MVP_MASTER_PLAN.md`
+4. `agent/CURRENT_STATE.md`
+5. `agent/TRANSACTION_ROADMAP.md`
+6. The active `agent/transactions/TXX_*.md` specification
+
+## Conditional Reading
+- WorldMap work: `agent/WORLDMAP_RULES.md`
+- Battle integration: `agent/BATTLE_WORLDMAP_HANDOFF_CONTRACT.md`
+- Technology work: `agent/contracts/TECH_TREE_GAMEPLAY_CONTRACT.md`
+- State-structure changes: `agent/contracts/SYSTEM_SOURCE_OF_TRUTH.md`
+- Scenario work: `agent/scenarios/KOREA_MVP_SCENARIO.md`
+- Godot scene/resource work: `agent/GODOT_RULES.md`
+- Role agent documents: read only when that role is actually needed.
+
+`CODEX_WORKFLOW_RULES.md` remains a conditional execution-rules reference; `NEXT_TASKS.md` and `HANDOFF_TO_CODEX.md` are compatibility pointers, not default reads.
 
 ## Completion Report Format
 - Modified file list.
