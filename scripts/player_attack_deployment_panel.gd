@@ -4,11 +4,7 @@ extends PanelContainer
 signal deployment_confirmed(deployment: Dictionary)
 signal deployment_cancelled()
 
-const SUPPLY_FOOD_KEY := "rice"
-const SUPPLY_GOLD_KEY := "gold"
-const SUPPLY_SALT_KEY := "salt"
-const SUPPLY_GOLD_RATE := 0.2
-const SUPPLY_SALT_RATE := 0.1
+const SupplyCalculator := preload("res://scripts/t02/expedition_supply_calculator.gd")
 
 var _payload: Dictionary = {}
 var _hero_controls: Dictionary = {}
@@ -20,17 +16,22 @@ var _resource_label: Label
 var _allocation_summary_label: Label
 var _hero_list: VBoxContainer
 var _supply_label: Label
+var _food_type_option: OptionButton
+var _gold_spin: SpinBox
+var _food_spin: SpinBox
+var _salt_spin: SpinBox
 var _warning_label: Label
 var _button_hint_label: Label
 var _confirm_button: Button
 var _cancel_button: Button
+var _confirm_dialog: ConfirmationDialog
 
 
 func _ready() -> void:
 	visible = false
-	custom_minimum_size = Vector2(720.0, 560.0)
-	size = Vector2(720.0, 560.0)
-	position = Vector2(430.0, 120.0)
+	custom_minimum_size = Vector2(780.0, 700.0)
+	size = Vector2(780.0, 700.0)
+	position = Vector2(390.0, 80.0)
 	z_index = 320
 	_build_layout()
 
@@ -102,6 +103,20 @@ func _build_layout() -> void:
 	_supply_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(_supply_label)
 
+	var cargo_row := HBoxContainer.new()
+	cargo_row.add_theme_constant_override("separation", 6)
+	content.add_child(cargo_row)
+	_food_type_option = OptionButton.new()
+	for food_type in SupplyCalculator.FOOD_TYPES:
+		_food_type_option.add_item(_food_type_label(food_type))
+	_food_type_option.item_selected.connect(_on_food_type_changed)
+	cargo_row.add_child(_food_type_option)
+	_gold_spin = _make_cargo_spin("금 ")
+	_food_spin = _make_cargo_spin("식량 ")
+	_salt_spin = _make_cargo_spin("소금 ")
+	for spin in [_gold_spin, _food_spin, _salt_spin]:
+		cargo_row.add_child(spin)
+
 	_warning_label = Label.new()
 	_warning_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_warning_label.add_theme_color_override("font_color", Color(1.0, 0.72, 0.42, 1.0))
@@ -127,6 +142,11 @@ func _build_layout() -> void:
 	_cancel_button.custom_minimum_size = Vector2(96.0, 34.0)
 	_cancel_button.pressed.connect(_on_cancel_pressed)
 	button_row.add_child(_cancel_button)
+
+	_confirm_dialog = ConfirmationDialog.new()
+	_confirm_dialog.title = "출정 최종 확인"
+	_confirm_dialog.confirmed.connect(_emit_confirmed_deployment)
+	add_child(_confirm_dialog)
 
 
 func _populate() -> void:
@@ -166,11 +186,22 @@ func _populate() -> void:
 	if is_defense:
 		_resource_label.text = "방어전은 현재 보급 비용을 추가 차감하지 않습니다."
 	else:
-		_resource_label.text = "보유 보급: 식량 %d · 금 %d · 소금 %d" % [
-			int(_payload.get("food_available", 0)),
+		_resource_label.text = "보유 보급: 쌀 %d · 보리 %d · 수산물 %d · 금 %d · 소금 %d" % [
+			int(_payload.get("rice_available", 0)),
+			int(_payload.get("barley_available", 0)),
+			int(_payload.get("seafood_available", 0)),
 			int(_payload.get("gold_available", 0)),
 			int(_payload.get("salt_available", 0)),
 		]
+	_food_type_option.visible = not is_defense
+	_gold_spin.visible = not is_defense
+	_food_spin.visible = not is_defense
+	_salt_spin.visible = not is_defense
+	if not is_defense:
+		_food_type_option.select(0)
+		_gold_spin.max_value = float(maxi(0, int(_payload.get("gold_available", 0))))
+		_salt_spin.max_value = float(maxi(0, int(_payload.get("salt_available", 0))))
+		_update_food_spin_limit()
 
 	var heroes: Array = _payload.get("heroes", [])
 	for index in range(heroes.size()):
@@ -268,6 +299,44 @@ func _on_troop_value_changed(_value: float, _hero_id: String) -> void:
 	_refresh_state()
 
 
+func _make_cargo_spin(prefix_text: String) -> SpinBox:
+	var spin := SpinBox.new()
+	spin.min_value = 0.0
+	spin.max_value = 0.0
+	spin.step = 1.0
+	spin.prefix = prefix_text
+	spin.custom_minimum_size.x = 142.0
+	spin.value_changed.connect(_on_cargo_value_changed)
+	return spin
+
+
+func _on_food_type_changed(_index: int) -> void:
+	_update_food_spin_limit()
+	_refresh_state()
+
+
+func _on_cargo_value_changed(_value: float) -> void:
+	_refresh_state()
+
+
+func _update_food_spin_limit() -> void:
+	if _food_spin == null:
+		return
+	var food_type := _selected_food_type()
+	_food_spin.max_value = float(maxi(0, int(_payload.get("%s_available" % food_type, 0))))
+	_food_spin.value = minf(_food_spin.value, _food_spin.max_value)
+
+
+func _selected_food_type() -> String:
+	if _food_type_option == null or _food_type_option.selected < 0:
+		return "rice"
+	return str(SupplyCalculator.FOOD_TYPES[_food_type_option.selected])
+
+
+func _food_type_label(food_type: String) -> String:
+	return str({"rice": "쌀", "barley": "보리", "seafood": "수산물"}.get(food_type, food_type))
+
+
 func _refresh_state() -> void:
 	var deployment := _collect_deployment()
 	var selected_count := (deployment.get("selected_hero_ids", []) as Array).size()
@@ -275,7 +344,12 @@ func _refresh_state() -> void:
 	var source_troops := int(_payload.get("source_troops", 0))
 	var max_deployable := int(_payload.get("max_deployable_troops", 0))
 	var remaining_troops := source_troops - total_troops
-	var cost := _calculate_supply_cost(total_troops)
+	var food_type := _selected_food_type()
+	var loaded_gold := int(_gold_spin.value) if _gold_spin != null else 0
+	var loaded_food := int(_food_spin.value) if _food_spin != null else 0
+	var loaded_salt := int(_salt_spin.value) if _salt_spin != null else 0
+	var minimum_gold := SupplyCalculator.minimum_gold(total_troops)
+	var minimum_food := SupplyCalculator.minimum_food(total_troops)
 	var warnings: Array[String] = []
 	if selected_count <= 0:
 		if _is_defense_deployment():
@@ -302,22 +376,36 @@ func _refresh_state() -> void:
 		if int(spin.value) > command_limit:
 			warnings.append("%s 병력이 지휘한계를 초과했습니다." % _get_hero_display_name(hero_id))
 	if not _is_defense_deployment():
-		var missing_supply := _get_missing_supply_reasons(cost)
-		for reason in missing_supply:
-			warnings.append(reason)
+		if loaded_gold < minimum_gold:
+			warnings.append("최소 군자금 %d이 필요합니다." % minimum_gold)
+		if loaded_food < minimum_food:
+			warnings.append("최소 1턴 식량 %d이 필요합니다." % minimum_food)
+		var current_limits := SupplyCalculator.deployment_limits(max_deployable, loaded_gold, loaded_food, max_deployable)
+		if total_troops > int(current_limits.get("maximum", 0)):
+			warnings.append("현재 적재한 금·식량 기준 출전 가능 상한을 초과했습니다.")
 	var allocation_label := "총 출정 병력"
 	if _is_defense_deployment():
 		allocation_label = "방어 배정 병력"
 	_allocation_summary_label.text = "%s: %d\n잔여 주둔 병력: %d" % [allocation_label, total_troops, remaining_troops]
 	if _is_defense_deployment():
 		_supply_label.text = "방어 배정은 보급 비용을 추가로 소모하지 않습니다."
+		_warning_label.text = ""
 	else:
-		_supply_label.text = "보급 필요량\n%s\n%s\n%s" % [
-			_format_supply_line("식량", int(cost.get("food", 0)), int(_payload.get("food_available", 0))),
-			_format_supply_line("금", int(cost.get("gold", 0)), int(_payload.get("gold_available", 0))),
-			_format_supply_line("소금", int(cost.get("salt", 0)), int(_payload.get("salt_available", 0))),
+		var limits := SupplyCalculator.deployment_limits(max_deployable, loaded_gold, loaded_food, max_deployable)
+		var prediction := SupplyCalculator.predict_supply(total_troops, loaded_food, loaded_salt)
+		var duration := "%d턴" % int(prediction.get("sustained_turns", 0))
+		if bool(prediction.get("reaches_turn_limit", false)):
+			duration = "30턴 이상 (예상 식량 잔여 %d)" % int(prediction.get("food_remaining", 0))
+		_supply_label.text = "병력 상한: 주둔 %d / 금 %d / 1턴 식량 %d / 최종 %d\n최소 금 %d · 적재 금 %d · 출정 후 %d\n%s 적재 %d · 출정 후 %d · 현재 소비 %d/턴 · 예상 유지 %s\n소금 적재 %d · 출정 후 %d · 소비 %d/턴 (소진 후 식량 +10%%)\n현재 병력 수가 유지된다는 가정의 예상치입니다. 실제 전투 손실에 따라 소비량은 달라질 수 있습니다." % [
+			int(limits.get("garrison", 0)), int(limits.get("gold", 0)), int(limits.get("food", 0)), int(limits.get("maximum", 0)),
+			minimum_gold, loaded_gold, int(_payload.get("gold_available", 0)) - loaded_gold,
+			_food_type_label(food_type), loaded_food, int(_payload.get("%s_available" % food_type, 0)) - loaded_food,
+			SupplyCalculator.food_per_turn(total_troops, loaded_salt >= SupplyCalculator.salt_per_turn(total_troops)), duration,
+			loaded_salt, int(_payload.get("salt_available", 0)) - loaded_salt, SupplyCalculator.salt_per_turn(total_troops),
 		]
-	_warning_label.text = " · ".join(warnings)
+		_warning_label.text = "승리하면 남은 금·식량·소금은 점령 도시 창고로 이전됩니다.\n패배하거나 30턴 제한으로 철수하면 적재한 금·식량·소금은 모두 상실됩니다."
+	if not warnings.is_empty():
+		_warning_label.text += "\n출정 불가: %s" % " · ".join(warnings)
 	if warnings.is_empty():
 		var action_label := "출정"
 		if _is_defense_deployment():
@@ -385,7 +473,11 @@ func _collect_deployment() -> Dictionary:
 		selected_hero_ids.append(hero_id)
 		troop_allocation[hero_id] = troops
 		total_troops += troops
-	var supply_cost := _calculate_supply_cost(total_troops)
+	var food_type := _selected_food_type()
+	var carried_gold := int(_gold_spin.value) if _gold_spin != null else 0
+	var carried_food := int(_food_spin.value) if _food_spin != null else 0
+	var carried_salt := int(_salt_spin.value) if _salt_spin != null else 0
+	var supply_cost := {"food": carried_food, "gold": carried_gold, "salt": carried_salt, food_type: carried_food}
 	return {
 		"deployment_type": str(_payload.get("deployment_type", "attack")),
 		"source_city_id": str(_payload.get("source_city_id", "")),
@@ -396,24 +488,22 @@ func _collect_deployment() -> Dictionary:
 		"defender_troop_allocation": troop_allocation,
 		"total_assigned_troops": total_troops,
 		"supply_cost": supply_cost,
+		"attacker_carried_gold": carried_gold,
+		"attacker_food_type": food_type,
+		"attacker_food_amount": carried_food,
+		"attacker_salt_amount": carried_salt,
 		"supply_source_city_id": str(_payload.get("source_city_id", "")),
 	}
 
 
 func _calculate_supply_cost(total_troops: int) -> Dictionary:
-	var troop_total := maxi(0, total_troops)
-	return {
-		"food": troop_total,
-		"gold": int(ceil(float(troop_total) * SUPPLY_GOLD_RATE)),
-		"salt": int(ceil(float(troop_total) * SUPPLY_SALT_RATE)),
-		SUPPLY_FOOD_KEY: troop_total,
-	}
+	return {"food": SupplyCalculator.minimum_food(total_troops), "gold": SupplyCalculator.minimum_gold(total_troops), "salt": 0}
 
 
 func _can_pay_supply_cost(cost: Dictionary) -> bool:
-	return int(_payload.get("food_available", 0)) >= int(cost.get("food", 0)) \
+	return int(_payload.get("%s_available" % _selected_food_type(), 0)) >= int(cost.get("food", 0)) \
 		and int(_payload.get("gold_available", 0)) >= int(cost.get("gold", 0)) \
-		and int(_payload.get("salt_available", 0)) >= int(cost.get("salt", 0))
+		and int(cost.get("salt", 0)) >= 0
 
 
 func _is_defense_deployment() -> bool:
@@ -435,6 +525,20 @@ func _on_confirm_pressed() -> void:
 	_refresh_state()
 	if _confirm_button.disabled:
 		return
+	var deployment := _collect_deployment()
+	if _is_defense_deployment():
+		deployment_confirmed.emit(deployment)
+		return
+	_confirm_dialog.dialog_text = "패배 시 금 %d, %s %d, 소금 %d을 모두 잃습니다.\n출정하시겠습니까?" % [
+		int(deployment.get("attacker_carried_gold", 0)),
+		_food_type_label(str(deployment.get("attacker_food_type", "rice"))),
+		int(deployment.get("attacker_food_amount", 0)),
+		int(deployment.get("attacker_salt_amount", 0)),
+	]
+	_confirm_dialog.popup_centered()
+
+
+func _emit_confirmed_deployment() -> void:
 	deployment_confirmed.emit(_collect_deployment())
 
 

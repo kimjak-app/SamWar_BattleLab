@@ -879,6 +879,8 @@ const HIT_SPARK_FX_TEXTURE_PATHS: Array[String] = [
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
+const ExpeditionSupplyCalculator := preload("res://scripts/t02/expedition_supply_calculator.gd")
+const BattleSupplyRuntimeScript := preload("res://scripts/t02/battle_supply_runtime.gd")
 
 var is_demo_animating := false
 var ally_has_moved := false
@@ -888,6 +890,11 @@ var facing_indicators_should_be_visible := true
 var current_phase := PHASE_ALLY_TURN
 var battle_log_lines: Array[String] = []
 var worldmap_battle_context: Dictionary = {}
+var battle_supply_runtime: BattleSupplyRuntime = null
+var battle_supply_hud_label: Label = null
+var forced_battle_result_state := ""
+var battle_result_reason := "elimination"
+var battle_result_id := ""
 var has_applied_worldmap_context_roster := false
 var worldmap_context_roster_summary: Dictionary = {}
 var worldmap_context_hero_registry: Dictionary = {}
@@ -1495,7 +1502,74 @@ func _apply_worldmap_battle_context_handoff(context: Dictionary) -> void:
 	_append_battle_log("월드맵 %s 데이터 수신" % battle_label)
 	_append_battle_log("%s %s · %s → %s" % [mode, battle_label, attacker_city_name, defender_city_name])
 	_setup_worldmap_context_battle_roster(context)
+	_setup_battle_supply_runtime(context)
 	_refresh_worldmap_result_return_button()
+
+
+func _setup_battle_supply_runtime(context: Dictionary) -> void:
+	battle_supply_runtime = BattleSupplyRuntimeScript.new()
+	battle_supply_runtime.configure(context)
+	_ensure_battle_supply_hud()
+	_settle_battle_supply_turn(1)
+
+
+func _ensure_battle_supply_hud() -> void:
+	if battle_supply_hud_label != null:
+		return
+	battle_supply_hud_label = get_node_or_null("BattleUI/T02BattleSupplyHUD") as Label
+	if battle_supply_hud_label != null:
+		battle_supply_hud_label.visible = true
+
+
+func _settle_battle_supply_turn(turn_number: int) -> void:
+	if battle_supply_runtime == null:
+		return
+	var attacker_side := "ally" if _is_worldmap_player_attack_context(worldmap_battle_context) else "enemy"
+	var defender_side := "enemy" if attacker_side == "ally" else "ally"
+	var living := {
+		"attacker": _sum_alive_deployed_troops_for_side(attacker_side),
+		"defender": _sum_alive_deployed_troops_for_side(defender_side),
+	}
+	var result := battle_supply_runtime.settle_turn(turn_number, living, living)
+	if bool(result.get("applied", false)):
+		for context_side in ["attacker", "defender"]:
+			var battle_side := attacker_side if context_side == "attacker" else defender_side
+			var side_result: Dictionary = (result.get("sides", {}) as Dictionary).get(context_side, {})
+			var deserters := maxi(0, int(side_result.get("deserters", 0)))
+			if deserters > 0:
+				_apply_supply_desertion_to_side(battle_side, deserters)
+				_append_battle_log("군량이 고갈되어 병사 %d명이 이탈했습니다." % deserters)
+	_refresh_battle_supply_hud()
+
+
+func _apply_supply_desertion_to_side(side: String, deserters: int) -> void:
+	var remaining := maxi(0, deserters)
+	for unit_state in _get_alive_deployed_unit_states_for_side(side):
+		if remaining <= 0:
+			break
+		var loss := mini(remaining, maxi(0, int(unit_state.current_troops)))
+		unit_state.apply_damage(loss)
+		remaining -= loss
+	_cleanup_dead_units()
+	_update_all_unit_visuals_from_state()
+
+
+func _refresh_battle_supply_hud() -> void:
+	if battle_supply_hud_label == null or battle_supply_runtime == null:
+		return
+	var state := battle_supply_runtime.snapshot()
+	var attacker: Dictionary = state.get("attacker", {})
+	var defender: Dictionary = state.get("defender", {})
+	var attacker_living := maxi(0, int(worldmap_battle_context.get("attacker_initial_healthy_troops", worldmap_battle_context.get("attacker_troops", 0))))
+	var defender_living := maxi(0, int(worldmap_battle_context.get("defender_initial_healthy_troops", worldmap_battle_context.get("defender_troops", 0))))
+	battle_supply_hud_label.text = "전투 턴 %d / %d · 남은 턴 %d\n[아군 보급] 식량: %s %d · 소금: %d\n현재 소비: 식량 %d / 소금 %d · 예상 유지 %d턴\n[적군 보급] 식량: %s %d · 소금: %d\n현재 소비: 식량 %d / 소금 %d" % [
+		battle_round, ExpeditionSupplyCalculator.BATTLE_MAX_TURNS, maxi(0, ExpeditionSupplyCalculator.BATTLE_MAX_TURNS - battle_round),
+		str(attacker.get("food_type", "rice")), int(attacker.get("food", 0)), int(attacker.get("salt", 0)),
+		ExpeditionSupplyCalculator.food_per_turn(attacker_living, int(attacker.get("salt", 0)) >= ExpeditionSupplyCalculator.salt_per_turn(attacker_living)), ExpeditionSupplyCalculator.salt_per_turn(attacker_living),
+		int(ExpeditionSupplyCalculator.predict_supply(attacker_living, int(attacker.get("food", 0)), int(attacker.get("salt", 0))).get("sustained_turns", 0)),
+		str(defender.get("food_type", "rice")), int(defender.get("food", 0)), int(defender.get("salt", 0)),
+		ExpeditionSupplyCalculator.food_per_turn(defender_living, int(defender.get("salt", 0)) >= ExpeditionSupplyCalculator.salt_per_turn(defender_living)), ExpeditionSupplyCalculator.salt_per_turn(defender_living),
+	]
 
 
 func _setup_worldmap_context_battle_roster(context: Dictionary) -> void:
@@ -2624,6 +2698,11 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 		attacker_battle_side = "ally"
 		defender_battle_side = "enemy"
 	var payload := {
+		"transaction_id": str(worldmap_battle_context.get("transaction_id", "")),
+		"result_id": _get_or_create_battle_result_id(),
+		"winner_side": winner,
+		"result_reason": battle_result_reason,
+		"completed_turn": battle_round,
 		"source": str(worldmap_battle_context.get("source", "enemy_invasion")),
 		"type": result_type,
 		"mode": str(worldmap_battle_context.get("mode", "manual")),
@@ -2653,6 +2732,9 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 		"attacker_troop_deployed_from_city": bool(worldmap_battle_context.get("attacker_troop_deployed_from_city", false)),
 		"defender_troop_deployed_from_city": bool(worldmap_battle_context.get("defender_troop_deployed_from_city", false)),
 		"turn_number": int(worldmap_battle_context.get("turn_number", 0)),
+		"attacker_general_ids": worldmap_battle_context.get("attacker_general_ids", worldmap_battle_context.get("attacker_hero_ids", [])),
+		"defender_general_ids": worldmap_battle_context.get("defender_general_ids", worldmap_battle_context.get("defender_hero_ids", [])),
+		"worldmap_state_snapshot": worldmap_battle_context.get("worldmap_state_snapshot", {}),
 	}
 	if is_player_attack:
 		var player_did_win := result == "victory"
@@ -2662,7 +2744,46 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 		var player_defender_did_win := result == "victory"
 		payload["player_troop_outcome"] = _calculate_player_attack_troop_outcome_from_units(defender_battle_side, worldmap_battle_context.get("defender_troop_allocation", {}), player_defender_did_win, str(payload.get("defender_source_city_id", "")))
 		payload["enemy_troop_outcome"] = _calculate_player_attack_troop_outcome_from_units(attacker_battle_side, worldmap_battle_context.get("attacker_troop_allocation", {}), not player_defender_did_win, str(payload.get("attacker_source_city_id", "")))
+	var supply_state := battle_supply_runtime.snapshot() if battle_supply_runtime != null else {}
+	var attacker_supply: Dictionary = supply_state.get("attacker", {})
+	var defender_supply: Dictionary = supply_state.get("defender", {})
+	var attacker_outcome: Dictionary = payload.get("player_troop_outcome", {}) if is_player_attack else payload.get("enemy_troop_outcome", {})
+	var defender_outcome: Dictionary = payload.get("enemy_troop_outcome", {}) if is_player_attack else payload.get("player_troop_outcome", {})
+	payload["attacker_healthy_survivors"] = maxi(0, int(attacker_outcome.get("survivors", 0)))
+	payload["attacker_wounded"] = maxi(0, int(attacker_outcome.get("wounded", 0)))
+	payload["attacker_dead"] = maxi(0, int(attacker_outcome.get("dead", 0)))
+	payload["attacker_deserters"] = maxi(0, int(attacker_supply.get("deserters", 0)))
+	payload["attacker_remaining_gold"] = maxi(0, int(attacker_supply.get("gold", worldmap_battle_context.get("attacker_carried_gold", 0))))
+	payload["attacker_remaining_food_type"] = str(attacker_supply.get("food_type", worldmap_battle_context.get("attacker_food_type", "rice")))
+	payload["attacker_remaining_food"] = maxi(0, int(attacker_supply.get("food", 0)))
+	payload["attacker_remaining_salt"] = maxi(0, int(attacker_supply.get("salt", 0)))
+	payload["defender_healthy_survivors"] = maxi(0, int(defender_outcome.get("survivors", 0)))
+	payload["defender_wounded"] = maxi(0, int(defender_outcome.get("wounded", 0)))
+	payload["defender_dead"] = maxi(0, int(defender_outcome.get("dead", 0)))
+	payload["defender_deserters"] = maxi(0, int(defender_supply.get("deserters", 0)))
+	payload["defender_remaining_food_type"] = str(defender_supply.get("food_type", worldmap_battle_context.get("defender_food_type", "rice")))
+	payload["defender_remaining_food"] = maxi(0, int(defender_supply.get("food", 0)))
+	payload["defender_remaining_salt"] = maxi(0, int(defender_supply.get("salt", 0)))
+	payload["defender_initial_food"] = maxi(0, int(worldmap_battle_context.get("defender_food_amount", 0)))
+	payload["defender_initial_salt"] = maxi(0, int(worldmap_battle_context.get("defender_salt_amount", 0)))
+	payload["attacker_surviving_general_ids"] = _get_surviving_general_ids_for_side(attacker_battle_side)
+	payload["defender_surviving_general_ids"] = _get_surviving_general_ids_for_side(defender_battle_side)
 	return payload
+
+
+func _get_or_create_battle_result_id() -> String:
+	if battle_result_id.is_empty():
+		battle_result_id = "%s-result-%d" % [str(worldmap_battle_context.get("transaction_id", "battle")), Time.get_ticks_msec()]
+	return battle_result_id
+
+
+func _get_surviving_general_ids_for_side(side: String) -> Array[String]:
+	var result: Array[String] = []
+	for unit_state in _get_alive_deployed_unit_states_for_side(side):
+		var hero_id := _get_hero_id_for_unit_state(unit_state)
+		if not hero_id.is_empty() and not result.has(hero_id):
+			result.append(hero_id)
+	return result
 
 
 func _sum_alive_deployed_troops_for_side(side: String) -> int:
@@ -2688,7 +2809,7 @@ func _calculate_unit_surviving_allocated_troops(unit_state: BattleUnitState) -> 
 	return mini(initial_troops, int(floor(float(initial_troops) * survival_ratio)))
 
 
-func _calculate_player_attack_troop_outcome_from_units(side: String, allocation_source: Variant, did_side_win: bool, source_city_id: String) -> Dictionary:
+func _calculate_player_attack_troop_outcome_from_units(side: String, allocation_source: Variant, _did_side_win: bool, source_city_id: String) -> Dictionary:
 	var allocation := {}
 	if allocation_source is Dictionary:
 		allocation = (allocation_source as Dictionary).duplicate(true)
@@ -2704,15 +2825,14 @@ func _calculate_player_attack_troop_outcome_from_units(side: String, allocation_
 		var unit_survivors := _calculate_unit_surviving_allocated_troops(unit_state)
 		survivor_allocations[hero_id] = unit_survivors
 		raw_survivors += unit_survivors
-	var survivors := 0
-	if did_side_win:
-		survivors = mini(allocated, raw_survivors)
+	var survivors := mini(allocated, raw_survivors)
+	var context_side := "attacker" if ((_is_worldmap_player_attack_context(worldmap_battle_context) and side == "ally") or (not _is_worldmap_player_attack_context(worldmap_battle_context) and side == "enemy")) else "defender"
+	var supply_state := battle_supply_runtime.snapshot() if battle_supply_runtime != null else {}
+	var deserters := maxi(0, int((supply_state.get(context_side, {}) as Dictionary).get("deserters", 0)))
+	var split := ExpeditionSupplyCalculator.split_combat_losses(allocated, survivors, deserters)
 	var losses := maxi(0, allocated - survivors)
-	var wounded := int(floor(float(allocated) * 0.50))
-	if did_side_win:
-		wounded = int(floor(float(losses) * 0.30))
-	wounded = clampi(wounded, 0, allocated)
-	var dead := maxi(0, allocated - survivors - wounded)
+	var wounded := int(split.get("wounded", 0))
+	var dead := int(split.get("dead", 0))
 	return {
 		"source_city_id": source_city_id,
 		"allocated": allocated,
@@ -2720,6 +2840,7 @@ func _calculate_player_attack_troop_outcome_from_units(side: String, allocation_
 		"losses": losses,
 		"wounded": wounded,
 		"dead": dead,
+		"deserters": deserters,
 		"allocations": allocation,
 		"survivor_allocations": survivor_allocations,
 	}
@@ -9275,6 +9396,8 @@ func _play_next_battle_toast() -> void:
 
 
 func _get_battle_result_state() -> String:
+	if not forced_battle_result_state.is_empty():
+		return forced_battle_result_state
 	var ally_alive_count := _get_alive_deployed_unit_states_for_side("ally").size()
 	var enemy_alive_count := _get_alive_deployed_unit_states_for_side("enemy").size()
 	if enemy_alive_count <= 0 and ally_alive_count > 0:
@@ -10085,7 +10208,15 @@ func _start_new_round() -> void:
 	if _handle_battle_end_guard("start_new_round"):
 		print("[TURN_ADVANCE_BLOCKED] source=start_new_round reason=result_finalized")
 		return
+	if battle_round >= ExpeditionSupplyCalculator.BATTLE_MAX_TURNS:
+		battle_result_reason = "turn_limit"
+		forced_battle_result_state = "defeat" if _is_worldmap_player_attack_context(worldmap_battle_context) else "victory"
+		_append_battle_log("30턴 동안 성을 함락하지 못했습니다. 방어군이 전장을 지켜냈습니다.")
+		_try_show_battle_result_toast_if_needed()
+		_refresh_worldmap_result_return_button()
+		return
 	battle_round += 1
+	_settle_battle_supply_turn(battle_round)
 	_clear_pending_move_snapshot()
 	_hide_all_move_dust_sprites()
 	_reset_ally_action_locks_for_new_round()

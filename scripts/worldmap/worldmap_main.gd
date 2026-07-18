@@ -2,6 +2,8 @@ extends Node2D
 
 const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper.gd")
 const PlayerAttackDeploymentPanelScript := preload("res://scripts/player_attack_deployment_panel.gd")
+const ExpeditionSupplyCalculator := preload("res://scripts/t02/expedition_supply_calculator.gd")
+const WoundedRecovery := preload("res://scripts/t02/wounded_recovery.gd")
 const DomesticTechHelperLib := preload("res://scripts/worldmap/domestic_tech/domestic_tech_helpers.gd")
 const EconomyCityHelpers := preload("res://scripts/worldmap/economy_city/economy_city_helpers.gd")
 const DefenseBattleHelpers := preload("res://scripts/worldmap/defense_battle/defense_battle_helpers.gd")
@@ -863,12 +865,10 @@ const WAREHOUSE_STABLE_RATIO := 0.8
 const HERO_UPKEEP_RULES := {"rice": 8, "seafood": 3, "silk": 1}
 const SOLDIER_UPKEEP_RULES := {"troops_per_unit": 100, "rice": 6, "barley": 5, "seafood": 1}
 const SALT_PRESERVATION_RULES := {"food_ratio": 0.08, "seafood_ratio": 0.12}
-const PLAYER_ATTACK_SUPPLY_FOOD_RESOURCE_ID := "rice"
 const PLAYER_ATTACK_SUPPLY_GOLD_RESOURCE_ID := "gold"
 const PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID := "salt"
-const PLAYER_ATTACK_SUPPLY_GOLD_RATE := 0.2
-const PLAYER_ATTACK_SUPPLY_SALT_RATE := 0.1
 const PLAYER_ATTACK_WOUNDED_QUEUE_TURNS := 3
+const T02_INITIAL_SALT_PER_RESOURCE_RATING := 20
 
 const GOVERNOR_POLICY_DATA := {
 	"follow_chancellor": {
@@ -1125,6 +1125,9 @@ var _pending_invasion_instruction_label: Label
 var _manual_defense_button: Button
 var _auto_defense_button: Button
 var _post_battle_result_card: PanelContainer
+var _wounded_normal_treatment_button: Button
+var _wounded_fast_treatment_button: Button
+var _wounded_treatment_hint_label: Label
 var _post_battle_result_title_label: Label
 var _post_battle_result_detail_label: Label
 var _last_invasion_result_summary: Dictionary = {}
@@ -1183,6 +1186,8 @@ var _player_state := {
 	"current_phase_label": "아군 턴",
 	"pending_invasion_event": {},
 	"pending_battle_context": {},
+	"applied_battle_result_ids": [],
+	"korea_unification_victory": false,
 	"enemy_invasion_roll_turn": 0,
 	"last_enemy_faction_turn_result": {},
 	"last_enemy_pressure_plan_result": {},
@@ -5981,6 +5986,21 @@ func _setup_post_battle_result_ui() -> void:
 	_post_battle_result_detail_label.add_theme_color_override("font_color", Color(0.92, 0.94, 0.96, 1.0))
 	_post_battle_result_detail_label.add_theme_font_size_override("font_size", 11)
 	content.add_child(_post_battle_result_detail_label)
+	var treatment_row := HBoxContainer.new()
+	treatment_row.add_theme_constant_override("separation", 6)
+	content.add_child(treatment_row)
+	_wounded_normal_treatment_button = Button.new()
+	_wounded_normal_treatment_button.text = "일반 치료 (3개월)"
+	_wounded_normal_treatment_button.disabled = true
+	treatment_row.add_child(_wounded_normal_treatment_button)
+	_wounded_fast_treatment_button = Button.new()
+	_wounded_fast_treatment_button.text = "집중 치료"
+	_wounded_fast_treatment_button.pressed.connect(_on_fast_wounded_treatment_pressed)
+	treatment_row.add_child(_wounded_fast_treatment_button)
+	_wounded_treatment_hint_label = Label.new()
+	_wounded_treatment_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_wounded_treatment_hint_label.add_theme_font_size_override("font_size", 10)
+	content.add_child(_wounded_treatment_hint_label)
 	_post_battle_result_card.visible = false
 
 
@@ -8082,7 +8102,10 @@ func _build_player_attack_deployment_payload(source_city_id: String, target_city
 		"target_city_name": _format_city_name_by_id(target_city_id, "적 도시"),
 		"source_troops": source_troops,
 		"max_deployable_troops": max_deployable,
-		"food_available": _get_city_supply_resource_amount(source_city_id, PLAYER_ATTACK_SUPPLY_FOOD_RESOURCE_ID),
+		"food_available": _get_city_supply_resource_amount(source_city_id, "rice"),
+		"rice_available": _get_city_supply_resource_amount(source_city_id, "rice"),
+		"barley_available": _get_city_supply_resource_amount(source_city_id, "barley"),
+		"seafood_available": _get_city_supply_resource_amount(source_city_id, "seafood"),
 		"gold_available": _get_city_supply_resource_amount(source_city_id, PLAYER_ATTACK_SUPPLY_GOLD_RESOURCE_ID),
 		"salt_available": _get_city_supply_resource_amount(source_city_id, PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID),
 		"naval_route_required": _is_naval_attack_route_mvp(source_city_id, target_city_id),
@@ -8152,12 +8175,23 @@ func _confirm_player_attack_deployment(deployment: Dictionary) -> void:
 	battle_context["attacker_source_city_troops_before"] = source_troops_before
 	battle_context["attacker_source_city_troops_after"] = source_troops_after
 	battle_context["troop_deployed_from_city"] = true
+	battle_context["transaction_id"] = "%s-%d-%d" % [_get_current_player_faction_id(), Time.get_unix_time_from_system(), Time.get_ticks_msec()]
+	battle_context["scenario_id"] = str(_player_state.get("active_scenario_id", "korea_mvp"))
+	battle_context["player_faction_id"] = _get_current_player_faction_id()
+	battle_context["result_return_destination"] = "res://WorldMap.tscn"
 	_set_city_runtime_troops(source_city_id, source_troops_after)
 	battle_context = _apply_context_side_troop_pre_decrement_mvp(battle_context, "defender", "defender_troop_deployed_from_city")
 	_pay_player_attack_supply_cost(source_city_id, supply_cost)
+	_move_generals_for_pending_expedition(source_city_id, selected_hero_ids)
 	if _player_attack_deployment_panel != null:
 		if _player_attack_deployment_panel.has_method("close"):
 			_player_attack_deployment_panel.call("close")
+	_set_pending_battle_context_mvp(battle_context)
+	var state_snapshot := _serialize_worldmap_state()
+	var snapshot_player_state: Dictionary = state_snapshot.get("player_state", {}).duplicate(true)
+	snapshot_player_state["pending_battle_context"] = {"transaction_id": str(battle_context.get("transaction_id", ""))}
+	state_snapshot["player_state"] = snapshot_player_state
+	battle_context["worldmap_state_snapshot"] = state_snapshot
 	_set_pending_battle_context_mvp(battle_context)
 	var deploy_feedback := "%s에서 %s으로 출정합니다! 출정 병력 %d / 식량 %d, 금 %d, 소금 %d 소모" % [
 		str(battle_context.get("attacker_city_name", _format_city_name_by_id(source_city_id, "아군 도시"))),
@@ -8224,41 +8258,46 @@ func _validate_player_attack_deployment(deployment: Dictionary) -> Dictionary:
 	var max_deployable := maxi(0, _get_city_troops_for_battle_context(source_city_id) - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
 	if total_troops <= 0 or total_troops > max_deployable:
 		return {"ok": false, "message": "출정 병력은 1 이상, 도시 병력-1 이하이어야 합니다."}
-	var expected_cost := _calculate_player_attack_supply_cost(total_troops)
 	var supplied_cost: Dictionary = deployment.get("supply_cost", {})
-	if int(supplied_cost.get("food", -1)) != int(expected_cost.get("food", 0)) \
-			or int(supplied_cost.get("gold", -1)) != int(expected_cost.get("gold", 0)) \
-			or int(supplied_cost.get("salt", -1)) != int(expected_cost.get("salt", 0)):
-		return {"ok": false, "message": "보급 비용 preview가 현재 병력 배정과 일치하지 않습니다."}
-	if not _can_pay_player_attack_supply_cost(source_city_id, expected_cost):
-		return {"ok": false, "message": "식량/금/소금이 부족합니다."}
+	var food_type := str(deployment.get("attacker_food_type", "rice"))
+	var carried_food := maxi(0, int(deployment.get("attacker_food_amount", supplied_cost.get("food", 0))))
+	var carried_gold := maxi(0, int(deployment.get("attacker_carried_gold", supplied_cost.get("gold", 0))))
+	var carried_salt := maxi(0, int(deployment.get("attacker_salt_amount", supplied_cost.get("salt", 0))))
+	if not ExpeditionSupplyCalculator.FOOD_TYPES.has(food_type):
+		return {"ok": false, "message": "식량은 쌀·보리·수산물 중 하나만 선택하십시오."}
+	if carried_gold < ExpeditionSupplyCalculator.minimum_gold(total_troops):
+		return {"ok": false, "message": "선택 병력의 최소 군자금이 부족합니다."}
+	if carried_food < ExpeditionSupplyCalculator.minimum_food(total_troops):
+		return {"ok": false, "message": "최소 1턴분 식량이 필요합니다."}
+	var actual_cargo := {"food_type": food_type, "food": carried_food, "gold": carried_gold, "salt": carried_salt, food_type: carried_food}
+	if not _can_pay_player_attack_supply_cost(source_city_id, actual_cargo):
+		return {"ok": false, "message": "선택한 적재량이 도시 보유량을 초과합니다."}
 	return {
 		"ok": true,
 		"message": "출정 가능",
 		"total_troops": total_troops,
 		"selected_hero_ids": selected_hero_ids,
 		"attacker_troop_allocation": clamped_allocation,
-		"supply_cost": expected_cost,
+		"supply_cost": actual_cargo,
 	}
 
 
 func _calculate_player_attack_supply_cost(total_troops: int) -> Dictionary:
 	var troop_total := maxi(0, int(total_troops))
-	var gold_cost := int(ceil(float(troop_total) * PLAYER_ATTACK_SUPPLY_GOLD_RATE))
-	var salt_cost := int(ceil(float(troop_total) * PLAYER_ATTACK_SUPPLY_SALT_RATE))
 	return {
-		"food": troop_total,
-		"gold": gold_cost,
-		"salt": salt_cost,
-		PLAYER_ATTACK_SUPPLY_FOOD_RESOURCE_ID: troop_total,
+		"food": ExpeditionSupplyCalculator.minimum_food(troop_total),
+		"gold": ExpeditionSupplyCalculator.minimum_gold(troop_total),
+		"salt": 0,
 	}
 
 
-func _can_pay_player_attack_supply_cost(_source_city_id: String, supply_cost: Dictionary) -> bool:
-	_ensure_city_supply_resource_defaults(_source_city_id)
-	return _get_city_supply_resource_amount(_source_city_id, PLAYER_ATTACK_SUPPLY_FOOD_RESOURCE_ID) >= int(supply_cost.get("food", 0)) \
-		and _get_city_supply_resource_amount(_source_city_id, PLAYER_ATTACK_SUPPLY_GOLD_RESOURCE_ID) >= int(supply_cost.get("gold", 0)) \
-		and _get_city_supply_resource_amount(_source_city_id, PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID) >= int(supply_cost.get("salt", 0))
+func _can_pay_player_attack_supply_cost(source_city_id: String, supply_cost: Dictionary) -> bool:
+	_ensure_city_supply_resource_defaults(source_city_id)
+	var food_type := str(supply_cost.get("food_type", "rice"))
+	return ExpeditionSupplyCalculator.FOOD_TYPES.has(food_type) \
+		and _get_city_supply_resource_amount(source_city_id, food_type) >= int(supply_cost.get("food", 0)) \
+		and _get_city_supply_resource_amount(source_city_id, PLAYER_ATTACK_SUPPLY_GOLD_RESOURCE_ID) >= int(supply_cost.get("gold", 0)) \
+		and _get_city_supply_resource_amount(source_city_id, PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID) >= int(supply_cost.get("salt", 0))
 
 
 func _pay_player_attack_supply_cost(source_city_id: String, supply_cost: Dictionary) -> void:
@@ -8266,7 +8305,8 @@ func _pay_player_attack_supply_cost(source_city_id: String, supply_cost: Diction
 	var city_data := _get_mutable_city_runtime_state(source_city_id)
 	var resource_stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
 	var before_stock := resource_stock.duplicate(true)
-	resource_stock[PLAYER_ATTACK_SUPPLY_FOOD_RESOURCE_ID] = maxi(0, int(resource_stock.get(PLAYER_ATTACK_SUPPLY_FOOD_RESOURCE_ID, 0)) - maxi(0, int(supply_cost.get("food", 0))))
+	var food_type := str(supply_cost.get("food_type", "rice"))
+	resource_stock[food_type] = maxi(0, int(resource_stock.get(food_type, 0)) - maxi(0, int(supply_cost.get("food", 0))))
 	resource_stock[PLAYER_ATTACK_SUPPLY_GOLD_RESOURCE_ID] = maxi(0, int(resource_stock.get(PLAYER_ATTACK_SUPPLY_GOLD_RESOURCE_ID, 0)) - maxi(0, int(supply_cost.get("gold", 0))))
 	resource_stock[PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID] = maxi(0, int(resource_stock.get(PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID, 0)) - maxi(0, int(supply_cost.get("salt", 0))))
 	city_data["resource_stock"] = resource_stock
@@ -8274,6 +8314,38 @@ func _pay_player_attack_supply_cost(source_city_id: String, supply_cost: Diction
 	_refresh_city_hud_data_bindings()
 	_refresh_left_world_status_panel()
 	print("[PLAYER_ATTACK_SUPPLY_PAY] source_city=%s cost=%s before=%s after=%s" % [source_city_id, str(supply_cost), str(before_stock), str(resource_stock)])
+
+
+func _move_generals_for_pending_expedition(source_city_id: String, hero_ids: Array[String]) -> void:
+	var city_data := _get_mutable_city_runtime_state(source_city_id)
+	var stationed := _normalize_hero_id_array(city_data.get("stationed_hero_ids", city_data.get("hero_ids", [])))
+	for hero_id in hero_ids:
+		stationed.erase(hero_id)
+		var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+		hero_state["current_city_id"] = ""
+		hero_state["city_id"] = ""
+		hero_state["location_city_id"] = ""
+		hero_state["status"] = "deployed"
+		_hero_runtime_states[hero_id] = hero_state
+	city_data["stationed_hero_ids"] = stationed
+	city_data["hero_ids"] = stationed.duplicate()
+	_city_runtime_states[source_city_id] = city_data
+
+
+func _select_city_battle_supply(city_id: String) -> Dictionary:
+	_ensure_city_supply_resource_defaults(city_id)
+	var selected_type := "rice"
+	var selected_amount := -1
+	for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
+		var amount := _get_city_supply_resource_amount(city_id, food_type)
+		if amount > selected_amount:
+			selected_type = food_type
+			selected_amount = amount
+	return {
+		"food_type": selected_type,
+		"food_amount": maxi(0, selected_amount),
+		"salt_amount": _get_city_supply_resource_amount(city_id, "salt"),
+	}
 
 
 func _ensure_city_supply_resource_defaults(city_id: String) -> void:
@@ -8286,10 +8358,17 @@ func _ensure_city_supply_resource_defaults(city_id: String) -> void:
 	var raw_stock: Variant = city_data.get("resource_stock", {})
 	if raw_stock is Dictionary:
 		resource_stock = (raw_stock as Dictionary).duplicate(true)
+	var food_total := maxi(0, int(city_data.get("food", 0)))
+	var seed: Dictionary = city_data.get("resource_seed", {}) if city_data.get("resource_seed", {}) is Dictionary else {}
+	var food_weight := maxi(1, int(seed.get("rice", 0)) + int(seed.get("barley", 0)) + int(seed.get("seafood", 0)))
+	var rice_default := int(floor(float(food_total) * float(int(seed.get("rice", 0))) / float(food_weight)))
+	var barley_default := int(floor(float(food_total) * float(int(seed.get("barley", 0))) / float(food_weight)))
 	var defaults := {
-		PLAYER_ATTACK_SUPPLY_FOOD_RESOURCE_ID: 10000,
-		PLAYER_ATTACK_SUPPLY_GOLD_RESOURCE_ID: 3000,
-		PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID: 1000,
+		"rice": rice_default,
+		"barley": barley_default,
+		"seafood": maxi(0, food_total - rice_default - barley_default),
+		PLAYER_ATTACK_SUPPLY_GOLD_RESOURCE_ID: maxi(0, int(city_data.get("gold", 0))),
+		PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID: maxi(0, int(seed.get("salt", 0)) * T02_INITIAL_SALT_PER_RESOURCE_RATING),
 	}
 	var changed := false
 	for resource_id in defaults.keys():
@@ -8587,6 +8666,7 @@ func _handoff_battle_context_to_battle_scene(battle_context: Dictionary) -> void
 	if not ResourceLoader.exists(WORLDMAP_BATTLE_SCENE_PATH):
 		if Engine.has_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY):
 			Engine.remove_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY)
+		_rollback_player_attack_handoff(battle_context)
 		_set_save_management_status("전투 화면 이동 실패 · 전투 씬 없음")
 		_refresh_left_world_status_panel()
 		return
@@ -8606,8 +8686,31 @@ func _change_scene_to_battle_with_context(handoff_context: Dictionary) -> void:
 	if transition_result != OK:
 		if Engine.has_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY):
 			Engine.remove_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY)
+		_rollback_player_attack_handoff(handoff_context)
 		_set_save_management_status("전투 화면 이동 실패")
 		_refresh_left_world_status_panel()
+
+
+func _rollback_player_attack_handoff(context: Dictionary) -> void:
+	if str(context.get("source", "")) != PLAYER_ATTACK_CONTEXT_SOURCE:
+		return
+	var source_city_id := str(context.get("attacker_source_city_id", context.get("attacker_city_id", "")))
+	var defender_city_id := str(context.get("defender_source_city_id", context.get("defender_city_id", "")))
+	_set_city_runtime_troops(source_city_id, maxi(0, int(context.get("attacker_source_city_troops_before", _get_city_troops_for_battle_context(source_city_id)))))
+	if bool(context.get("defender_troop_deployed_from_city", false)):
+		_set_city_runtime_troops(defender_city_id, maxi(0, int(context.get("defender_source_city_troops_before", _get_city_troops_for_battle_context(defender_city_id)))))
+	var source_data := _get_mutable_city_runtime_state(source_city_id)
+	var stock: Dictionary = source_data.get("resource_stock", {}).duplicate(true)
+	var food_type := str(context.get("attacker_food_type", "rice"))
+	stock[food_type] = maxi(0, int(stock.get(food_type, 0))) + maxi(0, int(context.get("attacker_food_amount", 0)))
+	stock["gold"] = maxi(0, int(stock.get("gold", 0))) + maxi(0, int(context.get("attacker_carried_gold", 0)))
+	stock["salt"] = maxi(0, int(stock.get("salt", 0))) + maxi(0, int(context.get("attacker_salt_amount", 0)))
+	source_data["resource_stock"] = stock
+	_city_runtime_states[source_city_id] = source_data
+	for hero_id in _normalize_hero_id_array(context.get("attacker_general_ids", [])):
+		_move_hero_to_city_t02(hero_id, source_city_id)
+	_player_state["pending_battle_context"] = {}
+	_refresh_city_hud_data_bindings()
 
 
 func _get_worldmap_city_visual_position(city_id: String) -> Variant:
@@ -8755,6 +8858,16 @@ func _consume_worldmap_battle_result_if_any() -> void:
 
 
 func _apply_returned_battle_result_mvp(result: Dictionary) -> void:
+	var incoming_result_id := str(result.get("result_id", ""))
+	var current_applied: Variant = _player_state.get("applied_battle_result_ids", [])
+	if not incoming_result_id.is_empty() and current_applied is Array and (current_applied as Array).has(incoming_result_id):
+		_set_save_management_status("이미 적용된 전투 결과입니다.")
+		return
+	var snapshot: Variant = result.get("worldmap_state_snapshot", {})
+	if snapshot is Dictionary and not (snapshot as Dictionary).is_empty():
+		_apply_worldmap_state(snapshot as Dictionary)
+		if not str(result.get("transaction_id", "")).is_empty():
+			_player_state["pending_battle_context"] = {"transaction_id": str(result.get("transaction_id", ""))}
 	if _is_player_attack_battle_result(result):
 		_apply_player_attack_battle_result(result)
 		return
@@ -8768,6 +8881,9 @@ func _is_player_attack_battle_result(result_payload: Dictionary) -> bool:
 
 
 func _apply_player_attack_battle_result(result_payload: Dictionary) -> void:
+	if not str(result_payload.get("transaction_id", "")).is_empty():
+		_apply_t02_player_attack_result(result_payload)
+		return
 	var result_kind := _normalize_player_attack_battle_result_kind(result_payload)
 	var defender_city_id := _get_invasion_result_city_id(result_payload, ["defender_city_id", "target_city_id", "city_id"])
 	var attacker_city_id := _get_invasion_result_city_id(result_payload, ["attacker_city_id", "source_city_id", "origin_city_id"])
@@ -8818,6 +8934,205 @@ func _apply_player_attack_battle_result(result_payload: Dictionary) -> void:
 		defender_city_id,
 		status_message
 	])
+
+
+func _apply_t02_player_attack_result(result: Dictionary) -> void:
+	var transaction_id := str(result.get("transaction_id", ""))
+	var result_id := str(result.get("result_id", ""))
+	var pending: Dictionary = _player_state.get("pending_battle_context", {}) if _player_state.get("pending_battle_context", {}) is Dictionary else {}
+	var applied_ids: Array[String] = []
+	var raw_applied_ids: Variant = _player_state.get("applied_battle_result_ids", [])
+	if raw_applied_ids is Array:
+		for raw_id in raw_applied_ids:
+			var normalized_id := str(raw_id)
+			if not normalized_id.is_empty() and not applied_ids.has(normalized_id):
+				applied_ids.append(normalized_id)
+	if transaction_id.is_empty() or result_id.is_empty() or str(pending.get("transaction_id", "")) != transaction_id:
+		_set_save_management_status("전투 결과 거부 · 트랜잭션 ID 불일치")
+		return
+	if applied_ids.has(result_id):
+		_set_save_management_status("이미 적용된 전투 결과입니다.")
+		return
+	var source_city_id := str(result.get("attacker_source_city_id", result.get("attacker_city_id", "")))
+	var target_city_id := str(result.get("defender_city_id", ""))
+	if source_city_id.is_empty() or target_city_id.is_empty():
+		_set_save_management_status("전투 결과 거부 · 도시 ID 없음")
+		return
+	var winner := str(result.get("winner_side", result.get("winner", "defender")))
+	var attacker_won := winner == "attacker"
+	var healthy := maxi(0, int(result.get("attacker_healthy_survivors", 0)))
+	var wounded := maxi(0, int(result.get("attacker_wounded", 0)))
+	var surviving_generals := _normalize_hero_id_array(result.get("attacker_surviving_general_ids", []))
+	var destination_city_id := target_city_id if attacker_won else source_city_id
+	if attacker_won:
+		var defeated_owner := _get_city_owner_id_for_battle_context(target_city_id)
+		var defender_retreat_city_id := _retreat_defender_generals_after_occupation(target_city_id, defeated_owner, _normalize_hero_id_array(result.get("defender_general_ids", [])), _normalize_hero_id_array(result.get("defender_surviving_general_ids", [])))
+		if not defender_retreat_city_id.is_empty():
+			_set_city_runtime_troops(defender_retreat_city_id, _get_city_troops_for_battle_context(defender_retreat_city_id) + maxi(0, int(result.get("defender_healthy_survivors", 0))))
+			_add_wounded_to_city_mvp(defender_retreat_city_id, maxi(0, int(result.get("defender_wounded", 0))), ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
+		_set_city_runtime_owner(target_city_id, str(result.get("attacker_owner", _get_current_player_faction_id())))
+		_set_city_runtime_troops(target_city_id, healthy)
+	else:
+		_set_city_runtime_troops(source_city_id, _get_city_troops_for_battle_context(source_city_id) + healthy)
+		_set_city_runtime_troops(target_city_id, maxi(0, int(result.get("defender_healthy_survivors", _get_city_troops_for_battle_context(target_city_id)))))
+	_apply_t02_defender_supply_result(target_city_id, result)
+	if attacker_won:
+		_add_t02_attacker_cargo_to_city(target_city_id, result)
+	for hero_id in surviving_generals:
+		_move_hero_to_city_t02(hero_id, destination_city_id)
+		var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+		hero_state["status"] = HERO_RUNTIME_STATUS_NORMAL
+		hero_state["wounded"] = false
+		_hero_runtime_states[hero_id] = hero_state
+	if wounded > 0:
+		_add_wounded_to_city_mvp(destination_city_id, wounded, ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
+	_player_state["last_wounded_treatment"] = {
+		"city_id": destination_city_id,
+		"transaction_id": transaction_id,
+		"wounded_count": wounded,
+		"mode": "normal",
+	}
+	_player_state["pending_battle_context"] = {}
+	_player_state["pending_invasion_event"] = {}
+	applied_ids.append(result_id)
+	_player_state["applied_battle_result_ids"] = applied_ids
+	_player_state["korea_unification_victory"] = _get_player_owned_korea_mvp_city_count() >= 4
+	_sync_worldmap_hero_locations_from_city_runtime_states()
+	_refresh_city_marker_owner_states_from_runtime()
+	_refresh_city_hud_data_bindings()
+	_select_city_after_invasion_result(target_city_id)
+	_refresh_city_info_attack_action_state(target_city_id)
+	var outcome_label := "점령 성공" if attacker_won else ("30턴 제한 패배" if str(result.get("result_reason", "")) == "turn_limit" else "공격 패배")
+	_set_save_management_status("%s · 정상병 %d / 부상병 %d / 전사 %d / 이탈 %d" % [outcome_label, healthy, wounded, int(result.get("attacker_dead", 0)), int(result.get("attacker_deserters", 0))])
+	var result_lines: Array[String] = [
+		"정상병 %d · 부상병 %d · 전사 %d · 이탈 %d" % [healthy, wounded, int(result.get("attacker_dead", 0)), int(result.get("attacker_deserters", 0))],
+		"부상병은 기본 일반 치료(3개월)로 등록되었습니다.",
+	]
+	if bool(_player_state.get("korea_unification_victory", false)):
+		result_lines.append("한반도 네 도시를 모두 장악했습니다. T05 승리 화면 연결 대기 중입니다.")
+	_show_post_battle_result_summary({
+		"message_title": outcome_label,
+		"message_lines": result_lines,
+	})
+	_refresh_wounded_treatment_controls()
+	_refresh_left_world_status_panel()
+	_refresh_unified_panel_content()
+	_save_worldmap_state()
+
+
+func _retreat_defender_generals_after_occupation(target_city_id: String, defeated_owner: String, all_hero_ids: Array[String], surviving_hero_ids: Array[String]) -> String:
+	var retreat_city_id := ""
+	for neighbor_id in _get_city_neighbors_mvp(target_city_id):
+		if _get_city_owner_id_for_battle_context(str(neighbor_id)) == defeated_owner:
+			retreat_city_id = str(neighbor_id)
+			break
+	if retreat_city_id.is_empty():
+		for city_id_variant in CITY_HUD_DATA.keys():
+			var city_id := str(city_id_variant)
+			if city_id != target_city_id and _get_city_owner_id_for_battle_context(city_id) == defeated_owner:
+				retreat_city_id = city_id
+				break
+	for hero_id in all_hero_ids:
+		_remove_hero_from_other_city_runtime_rosters(hero_id, "")
+		if not surviving_hero_ids.has(hero_id):
+			var unavailable_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+			unavailable_state["current_city_id"] = ""
+			unavailable_state["city_id"] = ""
+			unavailable_state["location_city_id"] = ""
+			unavailable_state["status"] = "unstationed"
+			_hero_runtime_states[hero_id] = unavailable_state
+			continue
+		if not retreat_city_id.is_empty():
+			_move_hero_to_city_t02(hero_id, retreat_city_id)
+		else:
+			_remove_hero_from_other_city_runtime_rosters(hero_id, "")
+			var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+			hero_state["current_city_id"] = ""
+			hero_state["city_id"] = ""
+			hero_state["location_city_id"] = ""
+			hero_state["status"] = "unstationed"
+			_hero_runtime_states[hero_id] = hero_state
+	return retreat_city_id
+
+
+func _move_hero_to_city_t02(hero_id: String, city_id: String) -> void:
+	_remove_hero_from_other_city_runtime_rosters(hero_id, city_id)
+	_ensure_hero_in_city_runtime_roster(hero_id, city_id)
+	_set_hero_runtime_city(hero_id, city_id)
+
+
+func _refresh_wounded_treatment_controls() -> void:
+	if _wounded_fast_treatment_button == null or _wounded_treatment_hint_label == null:
+		return
+	var treatment: Dictionary = _player_state.get("last_wounded_treatment", {}) if _player_state.get("last_wounded_treatment", {}) is Dictionary else {}
+	var wounded := maxi(0, int(treatment.get("wounded_count", 0)))
+	var city_id := str(treatment.get("city_id", ""))
+	var required_salt := ExpeditionSupplyCalculator.fast_recovery_salt(wounded)
+	var available_salt := _get_city_supply_resource_amount(city_id, "salt") if not city_id.is_empty() else 0
+	var is_fast := str(treatment.get("mode", "normal")) == "fast"
+	_wounded_fast_treatment_button.text = "집중 치료 (소금 %d · 1개월)" % required_salt
+	_wounded_fast_treatment_button.disabled = wounded <= 0 or is_fast or available_salt < required_salt
+	_wounded_treatment_hint_label.text = "집중 치료 필요 소금 %d / 도시 보유 %d%s" % [required_salt, available_salt, " · 적용 완료" if is_fast else ""]
+
+
+func _on_fast_wounded_treatment_pressed() -> void:
+	var treatment: Dictionary = _player_state.get("last_wounded_treatment", {}) if _player_state.get("last_wounded_treatment", {}) is Dictionary else {}
+	var city_id := str(treatment.get("city_id", ""))
+	var transaction_id := str(treatment.get("transaction_id", ""))
+	var wounded := maxi(0, int(treatment.get("wounded_count", 0)))
+	var required_salt := ExpeditionSupplyCalculator.fast_recovery_salt(wounded)
+	if city_id.is_empty() or wounded <= 0 or _get_city_supply_resource_amount(city_id, "salt") < required_salt:
+		_refresh_wounded_treatment_controls()
+		return
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
+	stock["salt"] = maxi(0, int(stock.get("salt", 0)) - required_salt)
+	var queue := _get_city_wounded_queue_mvp(city_data)
+	for index in range(queue.size()):
+		var entry: Dictionary = queue[index]
+		if str(entry.get("source_transaction_id", "")) == transaction_id:
+			entry["recovery_mode"] = "fast"
+			entry["recovery_months_remaining"] = ExpeditionSupplyCalculator.FAST_WOUNDED_RECOVERY_MONTHS
+			entry["turnsLeft"] = ExpeditionSupplyCalculator.FAST_WOUNDED_RECOVERY_MONTHS
+			queue[index] = entry
+	city_data["resource_stock"] = stock
+	city_data["woundedQueue"] = queue
+	city_data["wounded_queue"] = queue.duplicate(true)
+	_city_runtime_states[city_id] = city_data
+	treatment["mode"] = "fast"
+	_player_state["last_wounded_treatment"] = treatment
+	_refresh_wounded_treatment_controls()
+	_refresh_city_hud_data_bindings()
+	_save_worldmap_state()
+
+
+func _apply_t02_defender_supply_result(city_id: String, result: Dictionary) -> void:
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
+	var food_type := str(result.get("defender_remaining_food_type", "rice"))
+	stock[food_type] = maxi(0, int(result.get("defender_remaining_food", stock.get(food_type, 0))))
+	stock["salt"] = maxi(0, int(result.get("defender_remaining_salt", stock.get("salt", 0))))
+	city_data["resource_stock"] = stock
+	_city_runtime_states[city_id] = city_data
+
+
+func _add_t02_attacker_cargo_to_city(city_id: String, result: Dictionary) -> void:
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
+	var food_type := str(result.get("attacker_remaining_food_type", "rice"))
+	stock[food_type] = maxi(0, int(stock.get(food_type, 0))) + maxi(0, int(result.get("attacker_remaining_food", 0)))
+	stock["salt"] = maxi(0, int(stock.get("salt", 0))) + maxi(0, int(result.get("attacker_remaining_salt", 0)))
+	stock["gold"] = maxi(0, int(stock.get("gold", 0))) + maxi(0, int(result.get("attacker_remaining_gold", 0)))
+	city_data["resource_stock"] = stock
+	_city_runtime_states[city_id] = city_data
+
+
+func _get_player_owned_korea_mvp_city_count() -> int:
+	var count := 0
+	for city_id in ["hanseong", "pyeongyang", "gyeongju", "sabi"]:
+		if _get_city_owner_id_for_battle_context(city_id) == _get_current_player_faction_id():
+			count += 1
+	return count
 
 
 func _apply_invasion_battle_result(result_payload: Dictionary) -> void:
@@ -9206,6 +9521,8 @@ func _is_hero_captured_for_battle(hero_id: String) -> bool:
 		return true
 	if bool(hero_state.get("captured", false)) or status == HERO_RUNTIME_STATUS_CAPTURED:
 		return true
+	if bool(hero_state.get("wounded", false)) or status == HERO_RUNTIME_STATUS_WOUNDED:
+		return true
 	return false
 
 
@@ -9216,6 +9533,8 @@ func _get_hero_battle_exclusion_reason(hero_id: String) -> String:
 		return "dead"
 	if bool(hero_state.get("captured", false)) or status == HERO_RUNTIME_STATUS_CAPTURED:
 		return "captured"
+	if bool(hero_state.get("wounded", false)) or status == HERO_RUNTIME_STATUS_WOUNDED:
+		return "wounded_recovery"
 	return ""
 
 
@@ -16933,6 +17252,8 @@ func _build_player_attack_battle_context(source_city_id: String, target_city_id:
 	for hero_id in attacker_main_hero_ids:
 		total_assigned_troops += maxi(0, int(attacker_troop_allocation.get(str(hero_id), 0)))
 	_log_invasion_reinforcement_rule_summary(attacker_city_id, defender_city_id, attacker_owner, defender_owner, attacker_roster, defender_roster)
+	var defender_supply := _select_city_battle_supply(defender_city_id)
+	var attacker_food_type := str(supply_cost.get("food_type", "rice"))
 	return {
 		"type": "attack",
 		"source": PLAYER_ATTACK_CONTEXT_SOURCE,
@@ -16944,15 +17265,36 @@ func _build_player_attack_battle_context(source_city_id: String, target_city_id:
 		"turn_number": maxi(1, int(_player_state.get("turn_number", 1))),
 		"attacker_owner": attacker_owner,
 		"defender_owner": defender_owner,
+		"attacker_faction_id": attacker_owner,
+		"defender_faction_id": defender_owner,
+		"source_city_id": attacker_city_id,
+		"target_city_id": defender_city_id,
 		"attacker_troops": total_assigned_troops if total_assigned_troops > 0 else _get_city_troops_for_battle_context(attacker_city_id),
 		"defender_troops": _get_city_troops_for_battle_context(defender_city_id),
+		"attacker_initial_healthy_troops": total_assigned_troops,
+		"defender_initial_healthy_troops": _get_city_troops_for_battle_context(defender_city_id),
 		"attacker_hero_ids": attacker_roster.get("hero_ids", []),
 		"defender_hero_ids": defender_roster.get("hero_ids", []),
 		"attacker_heroes": attacker_roster.get("heroes", []),
 		"defender_heroes": defender_roster.get("heroes", []),
 		"selected_attacker_hero_ids": attacker_main_hero_ids.duplicate(),
+		"attacker_general_ids": attacker_main_hero_ids.duplicate(),
+		"defender_general_ids": defender_roster.get("main_hero_ids", []).duplicate(),
 		"attacker_troop_allocation": attacker_troop_allocation.duplicate(true),
+		"attacker_troop_composition": attacker_troop_allocation.duplicate(true),
+		"defender_troop_composition": defender_troop_allocation.duplicate(true),
 		"supply_cost": supply_cost.duplicate(true),
+		"attacker_carried_gold": maxi(0, int(supply_cost.get("gold", 0))),
+		"attacker_food_type": attacker_food_type,
+		"attacker_food_amount": maxi(0, int(supply_cost.get("food", 0))),
+		"attacker_salt_amount": maxi(0, int(supply_cost.get("salt", 0))),
+		"defender_food_type": str(defender_supply.get("food_type", "rice")),
+		"defender_food_amount": maxi(0, int(defender_supply.get("food_amount", 0))),
+		"defender_salt_amount": maxi(0, int(defender_supply.get("salt_amount", 0))),
+		"battle_max_turns": ExpeditionSupplyCalculator.BATTLE_MAX_TURNS,
+		"current_battle_turn": 1,
+		"supply_balance_snapshot": {},
+		"tech_effect_snapshot": {},
 		"supply_source_city_id": attacker_city_id,
 		"defender_troop_allocation": defender_troop_allocation.duplicate(true),
 		"defender_total_allocated_troops": _sum_troop_allocation(defender_troop_allocation),
@@ -17238,6 +17580,12 @@ func _has_city_for_battle_context(city_id: String) -> bool:
 
 
 func _get_city_owner_id_for_battle_context(city_id: String) -> String:
+	if _city_runtime_states.has(city_id):
+		var runtime_city: Variant = _city_runtime_states.get(city_id, {})
+		if runtime_city is Dictionary:
+			var runtime_owner := str((runtime_city as Dictionary).get("owner", (runtime_city as Dictionary).get("nation", "")))
+			if not runtime_owner.is_empty():
+				return runtime_owner
 	var city_marker := _city_markers_by_id.get(city_id) as WorldMapCityMarker
 	if city_marker != null and not city_marker.owner_faction_id.is_empty():
 		return city_marker.owner_faction_id
@@ -17464,10 +17812,13 @@ func _format_invasion_status_text(event: Dictionary) -> String:
 
 
 func _advance_world_turn_mvp() -> void:
-	var next_turn := maxi(1, int(_player_state.get("turn_number", 1))) + 1
+	var current_turn := maxi(1, int(_player_state.get("turn_number", 1)))
+	var previous_month_serial := _get_world_month_serial(current_turn)
+	var next_turn := current_turn + 1
 	_player_state["turn_number"] = next_turn
-	_advance_wounded_hero_recovery_turns()
-	_apply_wounded_recovery_for_world_turn_mvp()
+	if _get_world_month_serial(next_turn) != previous_month_serial:
+		_advance_wounded_hero_recovery_turns()
+		_apply_wounded_recovery_for_world_turn_mvp()
 	_update_world_turn_labels()
 	_refresh_city_hud_data_bindings()
 
@@ -17481,18 +17832,22 @@ func _get_city_wounded_queue_mvp(city_data: Dictionary) -> Array[Dictionary]:
 		if not raw_entry is Dictionary:
 			continue
 		var entry := raw_entry as Dictionary
-		var troops := maxi(0, int(entry.get("troops", 0)))
-		var turns_left := maxi(0, int(entry.get("turnsLeft", entry.get("turns_left", 0))))
+		var troops := maxi(0, int(entry.get("wounded_count", entry.get("troops", 0))))
+		var turns_left := maxi(0, int(entry.get("recovery_months_remaining", entry.get("turnsLeft", entry.get("turns_left", 0)))))
 		if troops <= 0:
 			continue
 		result.append({
+			"wounded_count": troops,
+			"recovery_months_remaining": turns_left,
+			"recovery_mode": str(entry.get("recovery_mode", "normal")),
+			"source_transaction_id": str(entry.get("source_transaction_id", "legacy")),
 			"turnsLeft": turns_left,
 			"troops": troops,
 		})
 	return result
 
 
-func _add_wounded_to_city_mvp(city_id: String, wounded_troops: int, turns_left: int = PLAYER_ATTACK_WOUNDED_QUEUE_TURNS) -> void:
+func _add_wounded_to_city_mvp(city_id: String, wounded_troops: int, turns_left: int = PLAYER_ATTACK_WOUNDED_QUEUE_TURNS, recovery_mode: String = "normal", transaction_id: String = "legacy") -> void:
 	var troops := maxi(0, int(wounded_troops))
 	if city_id.is_empty() or troops <= 0:
 		return
@@ -17500,10 +17855,11 @@ func _add_wounded_to_city_mvp(city_id: String, wounded_troops: int, turns_left: 
 	if city_data.is_empty():
 		return
 	var queue := _get_city_wounded_queue_mvp(city_data)
-	queue.append({
-		"turnsLeft": maxi(1, int(turns_left)),
-		"troops": troops,
-	})
+	var entry := WoundedRecovery.make_entry(troops, recovery_mode, transaction_id)
+	entry["recovery_months_remaining"] = maxi(1, int(turns_left))
+	entry["turnsLeft"] = maxi(1, int(turns_left))
+	entry["troops"] = troops
+	queue.append(entry)
 	city_data["woundedQueue"] = queue
 	city_data["wounded_queue"] = queue.duplicate(true)
 	_city_runtime_states[city_id] = city_data
@@ -17530,20 +17886,9 @@ func _apply_wounded_recovery_for_world_turn_mvp() -> void:
 		var queue := _get_city_wounded_queue_mvp(city_data)
 		if queue.is_empty():
 			continue
-		var remaining_queue: Array[Dictionary] = []
-		var recovered_troops := 0
-		for entry in queue:
-			var troops := maxi(0, int(entry.get("troops", 0)))
-			var turns_left := maxi(0, int(entry.get("turnsLeft", 0))) - 1
-			if troops <= 0:
-				continue
-			if turns_left <= 0:
-				recovered_troops += troops
-			else:
-				remaining_queue.append({
-					"turnsLeft": turns_left,
-					"troops": troops,
-				})
+		var recovery := WoundedRecovery.advance_month(queue)
+		var remaining_queue: Array = recovery.get("queue", [])
+		var recovered_troops := maxi(0, int(recovery.get("recovered", 0)))
 		if recovered_troops > 0:
 			var before_troops := maxi(0, int(city_data.get("troops", 0)))
 			city_data["troops"] = before_troops + recovered_troops
@@ -17556,6 +17901,13 @@ func _apply_wounded_recovery_for_world_turn_mvp() -> void:
 		city_data["woundedQueue"] = remaining_queue
 		city_data["wounded_queue"] = remaining_queue.duplicate(true)
 		_city_runtime_states[city_id] = city_data
+
+
+func _get_world_month_serial(turn_number: int) -> int:
+	# The existing calendar has 40 turns per year; recovery advances only when
+	# the derived 12-month boundary changes, never once per world turn.
+	var zero_based := maxi(0, turn_number - 1)
+	return int(floor(float(zero_based) * 12.0 / float(WORLD_CALENDAR_YEAR_TURNS)))
 
 
 func _advance_wounded_hero_recovery_turns() -> void:
@@ -21450,8 +21802,8 @@ func _serialize_worldmap_state() -> Dictionary:
 		hero_state.size()
 	])
 	return {
-		"version": "v0.74-01",
-		"title": "Korea MVP Four-Faction New Game",
+		"version": "v0.74-02",
+		"title": "T02 Player Invasion Logistics and Occupation",
 		"game_session": _get_game_session().serialize(),
 		"player_state": saved_player_state,
 		"worldmap_city_state": city_state,

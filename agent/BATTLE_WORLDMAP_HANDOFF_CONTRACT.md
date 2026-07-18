@@ -12,7 +12,7 @@
 - Battle receives: `scripts/battle_web_import_test.gd` reads and removes the context meta during startup, duplicates the dictionary, applies rosters/hero contracts, and configures the battle UI for a worldmap-origin battle.
 - Battle runtime mutates: local battle actor/unit state, hero contract registries, roster summary, visuals, and result return UI while preserving the input context shape for result construction.
 - Battle -> WorldMap return: Battle builds a result dictionary, stores it in `Engine` meta under `samwar_worldmap_battle_result`, and changes scene to `res://WorldMap.tscn`.
-- WorldMap applies result: WorldMap consumes and removes `samwar_worldmap_battle_result`, then applies invasion/player-attack result handling to city troop state, pending invasion state, status text, and hero placeholder state.
+- WorldMap applies result: WorldMap consumes and removes `samwar_worldmap_battle_result`; T02 player-attack results restore the transaction snapshot, validate transaction/result IDs, atomically settle city/general/troop/resource/wounded state, refresh UI, and checkpoint. Legacy enemy-invasion results retain the pre-T02 handler for T03.
 
 ## Scene Paths
 - `WORLDMAP_BATTLE_SCENE_PATH`: `res://Battle_Land.tscn`
@@ -21,6 +21,14 @@
 - Battle -> WorldMap meta key: `samwar_worldmap_battle_result`
 
 ## Data Fields
+
+### T02 Required Player-Attack Extension
+
+BattleContext adds `transaction_id`, `scenario_id`, `player_faction_id`, attacker/defender faction and source/target city IDs, general IDs, initial healthy troops and compositions, attacker carried gold/food type/food/salt, defender selected city food type/amount/salt, `battle_max_turns=30`, current turn, supply/tech snapshots, return destination, and a transient strategic-state snapshot. Production contexts use registry-backed city generals only.
+
+BattleResult adds `transaction_id`, `result_id`, `winner_side`, `result_reason`, `completed_turn`, each side's healthy/wounded/dead/deserter counts, remaining supply, surviving general IDs, and the transient strategic snapshot. All numeric result fields are non-negative. `turn_limit` always means defender victory.
+
+`BattleSupplyRuntime` settles attacker and defender once per numbered round. UI and runtime both use `ExpeditionSupplyCalculator`. WorldMap rejects a mismatched pending transaction ID and ignores an already-applied result ID. Battle never mutates persistent WorldMap state directly.
 
 ### WorldMap -> Battle Context Fields
 | Field | Source Function | Battle Consumer | Required? | Notes |

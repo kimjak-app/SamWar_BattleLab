@@ -2,6 +2,10 @@
 
 ## Active
 
+### T02 Player Invasion Logistics, Battle Supply & Occupation
+
+Status: Implementation Complete / Manual QA Pending. Formation cargo, both-side Battle_Land supply, 30-turn limit, occupation/defeat settlement, wounded recovery, duplicate protection, four-faction handling, and save/reload automated smoke are implemented. Do not promote T03 until integrated manual QA passes.
+
 ### T01 Korea MVP New Game Four-Faction Selection
 
 Status: Implementation Complete / Manual QA Pending. Four selections, role-separated session state, WorldMap initialization, and save schema are implemented. Do not promote T02 until F6 QA passes.
@@ -14,7 +18,6 @@ Exit evidence: the default read order identifies current product direction, prot
 
 ## Next
 
-1. **T02 Player Invasion & Occupation Completion** — validate invasion, resolve battle/delegation, apply occupation, and persist the result.
 3. **T03 Enemy Invasion & Player Defense Completion** — present and resolve player defense without breaking the existing Battle/WorldMap handoff.
 4. **T04 Turn Resolution Transaction** — resolve player/end-turn state, AI actions, research, UI, and persistence as one flow.
 5. **T05 Korea Unification Victory Transaction** — evaluate four-city victory and zero-city defeat, present outcome, and persist it.

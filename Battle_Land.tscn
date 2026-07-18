@@ -2286,6 +2286,18 @@ label_settings = SubResource("1")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="T02BattleSupplyHUD" type="Label" parent="BattleUI"]
+visible = false
+offset_left = 18.0
+offset_top = 76.0
+offset_right = 378.0
+offset_bottom = 252.0
+theme_override_colors/font_color = Color(0.96, 0.94, 0.82, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.03, 0.04, 0.95)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 13
+text = "전투 턴 1 / 30\n[아군 보급]\n[적군 보급]"
+
 [node name="LeftPanel" type="Panel" parent="BattleUI" unique_id=2039077714]
 visible = false
 offset_left = 24.0

@@ -34,5 +34,9 @@ Each transaction records its connection in this form:
 | Transaction | Related technology | Before state | Unlock/condition | After state/effect | AI | UI | Save |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | TXX | ID or `Needs Data Audit` | state | condition | actual effect | same policy | display | persisted fields |
+| T02 | siege branch lookup | completed city/nation state | existing attack eligibility | existing naval/siege availability and displayed modifier only | same lookup | deployment/target surfaces | existing tech state |
+| T02 | logistics/expedition/dried-fish/granary/intelligence families | defined | not connected to T02 supply calculator | Defined but Not Connected | Needs Runtime Audit | definitions remain visible | definitions/state preserved |
 
 Do not state unverified effects or numeric values as implemented.
+
+T02 deliberately reserves `tech_effect_snapshot` and future calculator modifier inputs without applying unverified technology effects. `fish_dried_supply_base` declares `expedition_food_cost_percent`, but no audited runtime consumer existed, so T02 does not silently apply it. No technology may change the absolute 30-turn battle cap.

@@ -19,6 +19,10 @@ Starting generals must use the actual WorldMap registry and city assignments as 
 - Defeat: player controls zero cities.
 - Save data must identify the active scenario and player nation, alongside the responsible nation/city/general/research/transaction state.
 
+## Player Invasion And Occupation
+
+Any selected Korea faction uses the same adjacent-city invasion transaction. The attacker loads gold, exactly one of rice/barley/seafood, and optional salt from the source CityState. Battle_Land consumes both armies' food and salt once per round and ends no later than round 30; failure to capture by then is a defender `turn_limit` victory. Victory transfers surviving attacker generals, healthy troops, wounded recovery, and remaining cargo to the occupied city. Defeat returns surviving generals/healthy/wounded troops to the source and loses all expedition cargo. The four active-city victory flag is evaluated and saved after settlement.
+
 ## Expansion
 
 Additional regions activate by scenario definition and GameSession selection, not by deleting inactive data. China, Japan, and future naval content may add their own active cities, technologies, encounters, and victory rules while preserving this scenario contract.

@@ -3,13 +3,13 @@
 ## Baseline
 
 - Branch: `main`
-- Baseline commit: `bdae6b458470160148e7fb42d2cd683bf40cf386`
+- Baseline commit: `51e1e3e7ae40c08c1d7f18e15e1bdc406227d105`
 - Baseline label: `v0.74-01 T01 Korea MVP New Game Four-Faction Selection Transaction`
 - This state document is current-state only. Use Git history and archive candidates for completed version detail.
 
 ## Active Development Phase
 
-Korea Four-City MVP. T01 implementation is complete; visual F6 QA remains.
+Korea Four-City MVP. T01 and T02 implementations are complete; integrated manual UI/gameplay QA remains.
 
 The active context deliberately contains only current direction, protected boundaries, and the next executable transaction. Completed version-by-version evidence remains in Git history and retained archive candidates.
 
@@ -59,11 +59,9 @@ T00 established `MVP_MASTER_PLAN`, transaction rules, roadmap, scenario, source-
 
 T00 is a documentation transaction, not an implementation claim. The new documents distinguish `Proposed`, `Not Yet Implemented`, `Needs Data Audit`, and `Needs Runtime Audit` where current evidence is incomplete.
 
-## Next Runtime Transaction
+## Current Runtime Transaction
 
-T01 is Implementation Complete / Manual QA Pending. Player-faction single source: `GameSession.player_faction_id`; WorldMap persists it in root `game_session`.
-
-T01 starts only after the implementation task explicitly authorizes runtime-file changes. This documentation transaction leaves runtime code, scenes, resources, and project settings untouched.
+T02 is Implementation Complete / Manual QA Pending. Player invasion now carries transaction-scoped gold/one food type/salt through Battle_Land, consumes both sides' supply once per round, enforces the absolute 30-turn limit, settles occupation/defeat/wounded recovery, prevents duplicate result application, and checkpoints the result. T03 remains inactive until T02 manual QA passes.
 
 ## Protected Contracts
 
