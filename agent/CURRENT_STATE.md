@@ -3,8 +3,8 @@
 ## Baseline
 
 - Branch: `main`
-- Baseline commit: `51e1e3e7ae40c08c1d7f18e15e1bdc406227d105`
-- Baseline label: `v0.74-01 T01 Korea MVP New Game Four-Faction Selection Transaction`
+- Baseline commit: `a8b65d573dd4f5d064245beb114367189d5bb85a`
+- Current implementation: `v0.74-02-hotfix1 Battle Supply HUD Relocation & Readability` (this document's Git commit)
 - This state document is current-state only. Use Git history and archive candidates for completed version detail.
 
 ## Active Development Phase
@@ -61,7 +61,7 @@ T00 is a documentation transaction, not an implementation claim. The new documen
 
 ## Current Runtime Transaction
 
-T02 is Implementation Complete / Manual QA Pending. Player invasion now carries transaction-scoped gold/one food type/salt through Battle_Land, consumes both sides' supply once per round, enforces the absolute 30-turn limit, settles occupation/defeat/wounded recovery, prevents duplicate result application, and checkpoints the result. T03 remains inactive until T02 manual QA passes.
+T02 is Implementation Complete / Manual QA Pending. Player invasion now carries transaction-scoped gold/one food type/salt through Battle_Land, consumes both sides' supply once per round, enforces the absolute 30-turn limit, settles occupation/defeat/wounded recovery, prevents duplicate result application, and checkpoints the result. Hotfix 1 relocates the obscured supply HUD to the anchored bottom-right panel above battle commands; live resolution/layout QA remains. T03 remains inactive until T02 manual QA passes.
 
 ## Protected Contracts
 

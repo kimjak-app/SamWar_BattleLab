@@ -64,6 +64,18 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t02_supply"]
+bg_color = Color(0.025, 0.03, 0.04, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.74, 0.54, 0.36)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ally_click"]
 size = Vector2(101, 102.5)
 
@@ -2286,17 +2298,212 @@ label_settings = SubResource("1")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="T02BattleSupplyHUD" type="Label" parent="BattleUI"]
+[node name="T02BattleSupplyAnchor" type="Control" parent="BattleUI"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="T02BattleSupplyPanel" type="Panel" parent="BattleUI/T02BattleSupplyAnchor"]
 visible = false
-offset_left = 18.0
-offset_top = 76.0
-offset_right = 378.0
-offset_bottom = 252.0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -666.0
+offset_top = -540.0
+offset_right = -90.0
+offset_bottom = -148.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_t02_supply")
+
+[node name="Margin" type="MarginContainer" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+mouse_filter = 2
+
+[node name="Content" type="VBoxContainer" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 3
+mouse_filter = 2
+
+[node name="Header" type="HBoxContainer" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.96, 0.91, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.03, 0.04, 0.82)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 18
+text = "전장 보급"
+vertical_alignment = 1
+
+[node name="TurnLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Header"]
+custom_minimum_size = Vector2(210, 38)
+layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.94, 0.82, 1)
-theme_override_colors/font_outline_color = Color(0.02, 0.03, 0.04, 0.95)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 13
-text = "전투 턴 1 / 30\n[아군 보급]\n[적군 보급]"
+theme_override_colors/font_outline_color = Color(0.02, 0.03, 0.04, 0.88)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 14
+text = "전투 턴 1 / 30\n남은 턴 29"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="HeaderSeparator" type="HSeparator" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="AllyTitleLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.84, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "아군"
+
+[node name="AllyGrid" type="GridContainer" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 1
+columns = 2
+
+[node name="FoodName" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/AllyGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "식량"
+
+[node name="FoodValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/AllyGrid"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+text = "식량 정보 없음"
+horizontal_alignment = 2
+
+[node name="SaltName" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/AllyGrid"]
+layout_mode = 2
+text = "소금"
+
+[node name="SaltValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/AllyGrid"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="FoodConsumptionName" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/AllyGrid"]
+layout_mode = 2
+text = "식량 소비"
+
+[node name="FoodConsumptionValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/AllyGrid"]
+layout_mode = 2
+text = "계산 불가"
+horizontal_alignment = 2
+
+[node name="SaltConsumptionName" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/AllyGrid"]
+layout_mode = 2
+text = "소금 소비"
+
+[node name="SaltConsumptionValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/AllyGrid"]
+layout_mode = 2
+text = "계산 불가"
+horizontal_alignment = 2
+
+[node name="SustainName" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/AllyGrid"]
+layout_mode = 2
+text = "예상 유지"
+
+[node name="SustainValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/AllyGrid"]
+layout_mode = 2
+text = "계산 불가"
+horizontal_alignment = 2
+
+[node name="AllyWarningLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.42, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.03, 0.04, 0.88)
+theme_override_constants/outline_size = 2
+text = "소금 고갈 · 식량 소비 +10%"
+horizontal_alignment = 2
+
+[node name="SideSeparator" type="HSeparator" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="EnemyTitleLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.66, 0.62, 1)
+theme_override_font_sizes/font_size = 15
+text = "적군"
+
+[node name="EnemyGrid" type="GridContainer" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 1
+columns = 2
+
+[node name="FoodName" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/EnemyGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "식량"
+
+[node name="FoodValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/EnemyGrid"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+text = "식량 정보 없음"
+horizontal_alignment = 2
+
+[node name="SaltName" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/EnemyGrid"]
+layout_mode = 2
+text = "소금"
+
+[node name="SaltValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/EnemyGrid"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="FoodConsumptionName" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/EnemyGrid"]
+layout_mode = 2
+text = "식량 소비"
+
+[node name="FoodConsumptionValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/EnemyGrid"]
+layout_mode = 2
+text = "계산 불가"
+horizontal_alignment = 2
+
+[node name="SaltConsumptionName" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/EnemyGrid"]
+layout_mode = 2
+text = "소금 소비"
+
+[node name="SaltConsumptionValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/EnemyGrid"]
+layout_mode = 2
+text = "계산 불가"
+horizontal_alignment = 2
+
+[node name="SustainName" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/EnemyGrid"]
+layout_mode = 2
+text = "예상 유지"
+
+[node name="SustainValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/EnemyGrid"]
+layout_mode = 2
+text = "계산 불가"
+horizontal_alignment = 2
+
+[node name="EnemyWarningLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.42, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.03, 0.04, 0.88)
+theme_override_constants/outline_size = 2
+text = "소금 고갈 · 식량 소비 +10%"
+horizontal_alignment = 2
 
 [node name="LeftPanel" type="Panel" parent="BattleUI" unique_id=2039077714]
 visible = false

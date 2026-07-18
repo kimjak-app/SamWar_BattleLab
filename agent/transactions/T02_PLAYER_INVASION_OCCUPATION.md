@@ -1,6 +1,10 @@
 # T02 PLAYER INVASION LOGISTICS, BATTLE SUPPLY & OCCUPATION
 
-Status: Implementation Complete / Manual QA Pending (`v0.74-02`).
+Status: Implementation Complete / Manual QA Pending (`v0.74-02-hotfix1`).
+
+## Hotfix 1: Battle Supply HUD Readability
+
+Manual QA found that the original top-left multiline supply label was hidden behind the ally formation guide. Hotfix 1 removes that legacy label and moves the same `BattleSupplyRuntime` data into a scene-authored, dark translucent panel anchored above the bottom-right auto/end-turn/retreat command bar. The panel separates ally and enemy food, salt, per-turn consumption, sustain estimate, battle turn, and remaining turns; it also gives explicit salt-zero and food-zero warnings. Automated node-path, value-binding, quadrant, overlap, overflow, and warning smoke passes. Live BattleContext play and window-size visual QA remains required.
 
 ## Player Flow
 
@@ -41,12 +45,12 @@ Save version is `v0.74-02`. City owner, healthy troops, wounded queue, city carg
 ## Automated QA
 
 - `t02_smoke_test.gd`: formation limits, zero-salt legality/math, 30+ turn cargo, one-food choice contract, both-side supply, once-per-turn guard, desertion, reduced later consumption, normal/fast wounded recovery, handoff rollback, victory/defeat/turn-limit settlement, general non-duplication, duplicate result, save/reload, and four-faction formation/side/settlement.
-- `t02_battle_context_smoke.gd`: production context roster application, round-one supply consumption, scene-authored supply HUD, round-30 defender result, and expanded BattleResult supply/ID fields.
+- `t02_battle_context_smoke.gd`: production context roster application, round-one supply consumption, scene-authored right-bottom supply panel, legacy-label removal, value/warning binding, command/formation overlap and text-fit audit, round-30 defender result, and expanded BattleResult supply/ID fields. `T02_HUD_VISUAL_QA=1` holds the populated panel for local visual inspection.
 - Project/editor parse and NewGameFactionSelect, WorldMap, and Battle_Land scene loads are required before commit.
 
 ## Manual QA
 
-Required: F5 four-faction entry, formation-panel visual fit and live edits, final warning dialog, cancel immutability, actual manual battle round transitions/HUD/logs, victory and defeat return visuals, fast-treatment button state, month-boundary recovery, checkpoint Continue/load, and four-city victory notice/state. Headless verification does not establish visual or input PASS.
+Required: F5 four-faction entry, formation-panel visual fit and live edits, final warning dialog, cancel immutability, actual manual battle round transitions/HUD/logs, bottom-right supply-panel fit at default/maximized/windowed 16:9 sizes, live supply/turn/warning refresh, victory and defeat return visuals, fast-treatment button state, month-boundary recovery, checkpoint Continue/load, and four-city victory notice/state. Headless verification does not establish visual or input PASS.
 
 ## Completion Decision
 

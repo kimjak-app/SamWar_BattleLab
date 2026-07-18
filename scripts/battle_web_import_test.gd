@@ -891,7 +891,7 @@ var current_phase := PHASE_ALLY_TURN
 var battle_log_lines: Array[String] = []
 var worldmap_battle_context: Dictionary = {}
 var battle_supply_runtime: BattleSupplyRuntime = null
-var battle_supply_hud_label: Label = null
+var battle_supply_panel: Panel = null
 var forced_battle_result_state := ""
 var battle_result_reason := "elimination"
 var battle_result_id := ""
@@ -1514,11 +1514,11 @@ func _setup_battle_supply_runtime(context: Dictionary) -> void:
 
 
 func _ensure_battle_supply_hud() -> void:
-	if battle_supply_hud_label != null:
+	if battle_supply_panel != null:
 		return
-	battle_supply_hud_label = get_node_or_null("BattleUI/T02BattleSupplyHUD") as Label
-	if battle_supply_hud_label != null:
-		battle_supply_hud_label.visible = true
+	battle_supply_panel = get_node_or_null("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel") as Panel
+	if battle_supply_panel != null:
+		battle_supply_panel.visible = true
 
 
 func _settle_battle_supply_turn(turn_number: int) -> void:
@@ -1555,21 +1555,90 @@ func _apply_supply_desertion_to_side(side: String, deserters: int) -> void:
 
 
 func _refresh_battle_supply_hud() -> void:
-	if battle_supply_hud_label == null or battle_supply_runtime == null:
+	if battle_supply_panel == null or battle_supply_runtime == null:
 		return
 	var state := battle_supply_runtime.snapshot()
 	var attacker: Dictionary = state.get("attacker", {})
 	var defender: Dictionary = state.get("defender", {})
-	var attacker_living := maxi(0, int(worldmap_battle_context.get("attacker_initial_healthy_troops", worldmap_battle_context.get("attacker_troops", 0))))
-	var defender_living := maxi(0, int(worldmap_battle_context.get("defender_initial_healthy_troops", worldmap_battle_context.get("defender_troops", 0))))
-	battle_supply_hud_label.text = "전투 턴 %d / %d · 남은 턴 %d\n[아군 보급] 식량: %s %d · 소금: %d\n현재 소비: 식량 %d / 소금 %d · 예상 유지 %d턴\n[적군 보급] 식량: %s %d · 소금: %d\n현재 소비: 식량 %d / 소금 %d" % [
-		battle_round, ExpeditionSupplyCalculator.BATTLE_MAX_TURNS, maxi(0, ExpeditionSupplyCalculator.BATTLE_MAX_TURNS - battle_round),
-		str(attacker.get("food_type", "rice")), int(attacker.get("food", 0)), int(attacker.get("salt", 0)),
-		ExpeditionSupplyCalculator.food_per_turn(attacker_living, int(attacker.get("salt", 0)) >= ExpeditionSupplyCalculator.salt_per_turn(attacker_living)), ExpeditionSupplyCalculator.salt_per_turn(attacker_living),
-		int(ExpeditionSupplyCalculator.predict_supply(attacker_living, int(attacker.get("food", 0)), int(attacker.get("salt", 0))).get("sustained_turns", 0)),
-		str(defender.get("food_type", "rice")), int(defender.get("food", 0)), int(defender.get("salt", 0)),
-		ExpeditionSupplyCalculator.food_per_turn(defender_living, int(defender.get("salt", 0)) >= ExpeditionSupplyCalculator.salt_per_turn(defender_living)), ExpeditionSupplyCalculator.salt_per_turn(defender_living),
-	]
+	var player_is_attacker := _is_worldmap_player_attack_context(worldmap_battle_context)
+	var ally_state := attacker if player_is_attacker else defender
+	var enemy_state := defender if player_is_attacker else attacker
+	var ally_living := _sum_alive_deployed_troops_for_side("ally")
+	var enemy_living := _sum_alive_deployed_troops_for_side("enemy")
+	var turn_label := _battle_supply_label("Margin/Content/Header/TurnLabel")
+	if turn_label != null:
+		turn_label.text = "전투 턴 %d / %d\n남은 턴 %d" % [
+			battle_round,
+			ExpeditionSupplyCalculator.BATTLE_MAX_TURNS,
+			maxi(0, ExpeditionSupplyCalculator.BATTLE_MAX_TURNS - battle_round),
+		]
+	_refresh_battle_supply_side("Ally", ally_state, ally_living)
+	_refresh_battle_supply_side("Enemy", enemy_state, enemy_living)
+
+
+func _refresh_battle_supply_side(prefix: String, side_state: Dictionary, living_troops: int) -> void:
+	var grid_path := "Margin/Content/%sGrid" % prefix
+	var food_type := str(side_state.get("food_type", "")).strip_edges()
+	var food_name := _battle_supply_food_name(food_type)
+	var has_food_data := side_state.has("food") and not food_name.is_empty()
+	var food_amount := maxi(0, int(side_state.get("food", 0)))
+	var salt_amount := maxi(0, int(side_state.get("salt", 0)))
+	var salt_consumption := ExpeditionSupplyCalculator.salt_per_turn(living_troops)
+	var has_salt_for_turn := salt_amount >= salt_consumption
+	var food_consumption := ExpeditionSupplyCalculator.food_per_turn(living_troops, has_salt_for_turn)
+	_set_battle_supply_text("%s/FoodValue" % grid_path, "%s %d" % [food_name, food_amount] if has_food_data else "식량 정보 없음")
+	_set_battle_supply_text("%s/SaltValue" % grid_path, str(salt_amount))
+	_set_battle_supply_text("%s/FoodConsumptionValue" % grid_path, "%d / 턴" % food_consumption if has_food_data else "계산 불가")
+	_set_battle_supply_text("%s/SaltConsumptionValue" % grid_path, "%d / 턴" % salt_consumption)
+	var sustain_text := "계산 불가"
+	if has_food_data:
+		var prediction := ExpeditionSupplyCalculator.predict_supply(living_troops, food_amount, salt_amount)
+		var sustained_turns := maxi(0, int(prediction.get("sustained_turns", 0)))
+		if sustained_turns >= ExpeditionSupplyCalculator.BATTLE_MAX_TURNS:
+			sustain_text = "%d턴 이상" % ExpeditionSupplyCalculator.BATTLE_MAX_TURNS
+		elif sustained_turns == 1:
+			sustain_text = "1턴 · 결전 필요"
+		elif sustained_turns <= 3 and sustained_turns > 1:
+			sustain_text = "%d턴 · 위험" % sustained_turns
+		else:
+			sustain_text = "%d턴" % sustained_turns
+	_set_battle_supply_text("%s/SustainValue" % grid_path, sustain_text)
+	var warning_label := _battle_supply_label("Margin/Content/%sWarningLabel" % prefix)
+	if warning_label == null:
+		return
+	if has_food_data and food_amount <= 0:
+		warning_label.text = "식량 고갈 · 매 턴 병력 10% 이탈"
+		warning_label.visible = true
+	elif salt_amount <= 0:
+		warning_label.text = "소금 고갈 · 식량 소비 +10%"
+		warning_label.visible = true
+	else:
+		warning_label.text = ""
+		warning_label.visible = false
+
+
+func _battle_supply_food_name(food_type: String) -> String:
+	match food_type:
+		"rice":
+			return "쌀"
+		"barley":
+			return "보리"
+		"seafood":
+			return "수산물"
+		_:
+			return ""
+
+
+func _battle_supply_label(relative_path: String) -> Label:
+	if battle_supply_panel == null:
+		return null
+	return battle_supply_panel.get_node_or_null(relative_path) as Label
+
+
+func _set_battle_supply_text(relative_path: String, value: String) -> void:
+	var label := _battle_supply_label(relative_path)
+	if label != null:
+		label.text = value
 
 
 func _setup_worldmap_context_battle_roster(context: Dictionary) -> void:
