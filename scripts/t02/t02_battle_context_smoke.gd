@@ -3,10 +3,11 @@ extends SceneTree
 
 func _initialize() -> void:
 	var context := {
-		"type": "attack", "source": "player_attack", "mode": "manual",
+		"type": "attack", "source": "player_attack", "mode": "manual", "battle_mode": "invasion",
 		"transaction_id": "t02-battle-smoke", "scenario_id": "korea_mvp", "player_faction_id": "player",
 		"attacker_city_id": "hanseong", "defender_city_id": "pyeongyang",
 		"attacker_city_name": "한성", "defender_city_name": "평양",
+		"attacker_faction_display_name": "조선", "target_city_display_name": "평양",
 		"attacker_owner": "player", "defender_owner": "goguryeo",
 		"attacker_troops": 300, "defender_troops": 300,
 		"attacker_initial_healthy_troops": 300, "defender_initial_healthy_troops": 300,
@@ -40,16 +41,24 @@ func _initialize() -> void:
 	runtime.sides["defender"] = {"food_type": "barley", "food": 140, "salt": 18, "gold": 0, "deserters": 0}
 	battle.set("battle_round", 3)
 	battle.call("_refresh_battle_supply_hud")
-	_expect(_label_text(battle, "Margin/Content/Header/TurnLabel") == "전투 턴 3 / 30\n남은 턴 27", "turn and remaining-turn text")
-	_expect(_label_text(battle, "Margin/Content/AllyGrid/FoodValue") == "쌀 180", "ally food type and amount")
-	_expect(_label_text(battle, "Margin/Content/AllyGrid/SaltValue") == "32", "ally salt amount")
-	_expect(_label_text(battle, "Margin/Content/AllyGrid/FoodConsumptionValue") == "3 / 턴", "ally food consumption")
-	_expect(_label_text(battle, "Margin/Content/AllyGrid/SaltConsumptionValue") == "1 / 턴", "ally salt consumption")
-	_expect(_label_text(battle, "Margin/Content/AllyGrid/SustainValue") == "30턴 이상", "ally sustain text")
-	_expect(_label_text(battle, "Margin/Content/EnemyGrid/FoodValue") == "보리 140", "enemy food type and amount")
-	_expect(_label_text(battle, "Margin/Content/EnemyGrid/SaltValue") == "18", "enemy salt amount")
-	_expect(_label_text(battle, "Margin/Content/EnemyGrid/FoodConsumptionValue") == "3 / 턴", "enemy food consumption")
-	_expect(_label_text(battle, "Margin/Content/EnemyGrid/SaltConsumptionValue") == "1 / 턴", "enemy salt consumption")
+	_expect(_label_text(battle, "Margin/Content/Header/TurnLabel") == "3 / 30 · 잔여 27", "turn and remaining-turn text")
+	_expect(_label_text(battle, "Margin/Content/Columns/AllyColumn/FoodValue") == "쌀 180", "ally food type and amount")
+	_expect(_label_text(battle, "Margin/Content/Columns/AllyColumn/SaltValue") == "소금 32", "ally salt amount")
+	_expect(_label_text(battle, "Margin/Content/Columns/AllyColumn/ConsumptionValue") == "소비 3 / 1", "ally compact consumption")
+	_expect(_label_text(battle, "Margin/Content/Columns/AllyColumn/SustainValue") == "유지 30턴 이상", "ally sustain text")
+	_expect(_label_text(battle, "Margin/Content/Columns/EnemyColumn/FoodValue") == "보리 140", "enemy food type and amount")
+	_expect(_label_text(battle, "Margin/Content/Columns/EnemyColumn/SaltValue") == "소금 18", "enemy salt amount")
+	_expect(_label_text(battle, "Margin/Content/Columns/EnemyColumn/ConsumptionValue") == "소비 3 / 1", "enemy compact consumption")
+	_expect(_label_text(battle, "BattleUI/TopBar/TopBarLabel") == "조선군이 평양을 공격하고 있습니다.", "dynamic invasion title")
+	for title_case in [
+		{"faction": "조선", "city": "사비", "expected": "조선군이 사비를 공격하고 있습니다."},
+		{"faction": "조선", "city": "평양", "expected": "조선군이 평양을 공격하고 있습니다."},
+		{"faction": "고구려", "city": "한성", "expected": "고구려군이 한성을 공격하고 있습니다."},
+		{"faction": "신라", "city": "사비", "expected": "신라군이 사비를 공격하고 있습니다."},
+		{"faction": "백제", "city": "경주", "expected": "백제군이 경주를 공격하고 있습니다."},
+	]:
+		battle.call("_refresh_battle_title", {"battle_mode": "invasion", "attacker_faction_display_name": str(title_case.get("faction", "")), "target_city_display_name": str(title_case.get("city", ""))})
+		_expect(_label_text(battle, "BattleUI/TopBar/TopBarLabel") == str(title_case.get("expected", "")), "dynamic title: %s" % str(title_case.get("faction", "")))
 	if OS.has_environment("T02_HUD_VISUAL_QA"):
 		print("[T02_HUD_VISUAL_QA] sample panel held for inspection")
 		await create_timer(60.0).timeout
@@ -57,12 +66,12 @@ func _initialize() -> void:
 		return
 	runtime.sides["attacker"] = {"food_type": "rice", "food": 180, "salt": 0, "gold": 80, "deserters": 0}
 	battle.call("_refresh_battle_supply_hud")
-	_expect(_label_text(battle, "Margin/Content/AllyWarningLabel").contains("소금 고갈"), "salt-zero warning")
-	_expect(_label_text(battle, "Margin/Content/AllyGrid/FoodConsumptionValue") == "4 / 턴", "salt-zero food surcharge display")
+	_expect(_label_text(battle, "Margin/Content/Columns/AllyColumn/WarningLabel").contains("소금 고갈"), "salt-zero warning")
+	_expect(_label_text(battle, "Margin/Content/Columns/AllyColumn/ConsumptionValue") == "소비 4 / 1", "salt-zero food surcharge display")
 	runtime.sides["attacker"] = {"food_type": "rice", "food": 0, "salt": 0, "gold": 80, "deserters": 0}
 	runtime.sides["defender"] = {"food_type": "barley", "food": 0, "salt": 0, "gold": 0, "deserters": 0}
 	battle.call("_refresh_battle_supply_hud")
-	_expect(_label_text(battle, "Margin/Content/AllyWarningLabel").contains("10% 이탈"), "food-zero warning")
+	_expect(_label_text(battle, "Margin/Content/Columns/AllyColumn/WarningLabel").contains("식량 고갈"), "food-zero warning")
 	await process_frame
 	var supply_content := battle.get_node("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content") as Control
 	_expect(supply_panel.get_global_rect().encloses(supply_content.get_global_rect()), "all warning text fits inside supply panel")
@@ -87,5 +96,6 @@ func _expect(condition: bool, label: String) -> void:
 
 
 func _label_text(battle: Node, relative_path: String) -> String:
-	var label := battle.get_node_or_null("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/%s" % relative_path) as Label
+	var path := relative_path if relative_path.begins_with("BattleUI/") else "BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/%s" % relative_path
+	var label := battle.get_node_or_null(path) as Label
 	return label.text if label != null else ""

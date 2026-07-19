@@ -9,6 +9,14 @@ const STARTS := {
 	"baekje_faction": {"city_id": "sabi", "label": "사비", "faction_label": "백제"},
 }
 
+## Canonical Korean display names for player-facing battle context.
+const BATTLE_FACTION_DISPLAY_NAMES := {
+	"player": "조선",
+	"goguryeo": "고구려",
+	"silla": "신라",
+	"baekje_faction": "백제",
+}
+
 var active_scenario_id := ""
 var player_faction_id := ""
 var player_start_city_id := ""
@@ -66,3 +74,7 @@ func serialize() -> Dictionary:
 		"player_start_city_id": player_start_city_id,
 		"ai_faction_ids": ai_faction_ids.duplicate(),
 	}
+
+
+static func get_battle_faction_display_name(faction_id: String) -> String:
+	return str(BATTLE_FACTION_DISPLAY_NAMES.get(faction_id, faction_id))

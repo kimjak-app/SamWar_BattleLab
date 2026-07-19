@@ -1023,7 +1023,7 @@ offset_left = 18.0
 offset_top = 8.0
 offset_right = 674.0
 offset_bottom = 48.0
-text = "전투 테스트 | 한성 군이 낙양 공략을 시도하고 있습니다."
+text = "전투 준비 중"
 label_settings = SubResource("1")
 vertical_alignment = 1
 

@@ -50,6 +50,7 @@ func _run_settlement_smoke() -> void:
 	await process_frame
 	_run_four_faction_smoke(worldmap)
 	worldmap.call("_initialize_korea_mvp_new_game", "player")
+	await _run_defender_supply_persistence_smoke(worldmap, packed)
 	worldmap.call("_ensure_city_supply_resource_defaults", "hanseong")
 	worldmap.call("_ensure_city_supply_resource_defaults", "pyeongyang")
 	var rollback_before: Dictionary = (worldmap.call("_get_city_hud_entry", "hanseong") as Dictionary).get("resource_stock", {}).duplicate(true)
@@ -107,6 +108,37 @@ func _run_settlement_smoke() -> void:
 	var saved := worldmap.call("_serialize_worldmap_state") as Dictionary
 	_expect((saved.get("player_state", {}) as Dictionary).get("applied_battle_result_ids", []).has("result-defeat"), "save/load: applied result persisted")
 	_finish()
+
+
+func _run_defender_supply_persistence_smoke(worldmap: Node, packed: PackedScene) -> void:
+	var cities: Dictionary = worldmap.get("_city_runtime_states")
+	var sabi: Dictionary = cities.get("sabi", {}).duplicate(true)
+	sabi["resource_stock"] = {"rice": 90, "barley": 120, "seafood": 142, "salt": 56, "gold": 620}
+	cities["sabi"] = sabi
+	var selected_heroes: Array[String] = ["yi_sun_sin"]
+	var context: Dictionary = worldmap.call("_build_player_attack_battle_context", "hanseong", "sabi", "manual", selected_heroes, {"yi_sun_sin": 1}, {"food_type": "rice", "food": 2, "gold": 20, "salt": 0})
+	_expect(str(context.get("defender_food_type", "")) == "seafood", "defender supply: persistent city selects seafood")
+	_expect(int(context.get("defender_food_amount", -1)) == 142 and int(context.get("defender_salt_amount", -1)) == 56, "defender supply: context equals Sabi stock")
+	var runtime := BattleSupplyRuntime.new()
+	runtime.configure(context)
+	var initial: Dictionary = runtime.snapshot().get("defender", {})
+	_expect(str(initial.get("food_type", "")) == "seafood" and int(initial.get("food", -1)) == 142 and int(initial.get("salt", -1)) == 56, "defender supply: runtime equals context")
+	runtime.settle_turn(1, {"attacker": 100, "defender": 100}, {"attacker": 100, "defender": 100})
+	var remaining: Dictionary = runtime.snapshot().get("defender", {})
+	_expect(int(remaining.get("food", -1)) == 141 and int(remaining.get("salt", -1)) == 55, "defender supply: one-turn consumption")
+	worldmap.call("_apply_t02_defender_supply_result", "sabi", {"defender_remaining_food_type": "seafood", "defender_remaining_food": 141, "defender_remaining_salt": 55})
+	var settled: Dictionary = (worldmap.call("_get_city_hud_entry", "sabi") as Dictionary).get("resource_stock", {})
+	_expect(int(settled.get("seafood", -1)) == 141 and int(settled.get("salt", -1)) == 55, "defender supply: settlement updates persistent city")
+	var saved := worldmap.call("_serialize_worldmap_state") as Dictionary
+	var restored := packed.instantiate()
+	root.add_child(restored)
+	await process_frame
+	_expect(bool(restored.call("_apply_worldmap_state", saved)), "defender supply: save state accepted")
+	var restored_stock: Dictionary = (restored.call("_get_city_hud_entry", "sabi") as Dictionary).get("resource_stock", {})
+	_expect(int(restored_stock.get("seafood", -1)) == 141 and int(restored_stock.get("salt", -1)) == 55, "defender supply: save/load preserves consumed stock")
+	var repeat_context: Dictionary = restored.call("_build_player_attack_battle_context", "hanseong", "sabi", "manual", selected_heroes, {"yi_sun_sin": 1}, {"food_type": "rice", "food": 2, "gold": 20, "salt": 0})
+	_expect(int(repeat_context.get("defender_salt_amount", -1)) == 55, "defender supply: context does not reseed salt")
+	restored.queue_free()
 
 
 func _run_four_faction_smoke(worldmap: Node) -> void:

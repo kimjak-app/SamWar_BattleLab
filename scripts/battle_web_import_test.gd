@@ -1501,9 +1501,35 @@ func _apply_worldmap_battle_context_handoff(context: Dictionary) -> void:
 		battle_label = "공격전"
 	_append_battle_log("월드맵 %s 데이터 수신" % battle_label)
 	_append_battle_log("%s %s · %s → %s" % [mode, battle_label, attacker_city_name, defender_city_name])
+	_refresh_battle_title(context)
 	_setup_worldmap_context_battle_roster(context)
 	_setup_battle_supply_runtime(context)
 	_refresh_worldmap_result_return_button()
+
+
+func _refresh_battle_title(context: Dictionary) -> void:
+	var title_label := get_node_or_null("BattleUI/TopBar/TopBarLabel") as Label
+	if title_label == null:
+		return
+	if str(context.get("battle_mode", "")).to_lower() == "test":
+		title_label.text = "전투 테스트"
+		return
+	var attacker_name := str(context.get("attacker_faction_display_name", "")).strip_edges()
+	var target_name := str(context.get("target_city_display_name", context.get("defender_city_name", "알 수 없는 도시"))).strip_edges()
+	if attacker_name.is_empty():
+		attacker_name = "알 수 없는 세력"
+	if target_name.is_empty():
+		target_name = "알 수 없는 도시"
+	title_label.text = "%s군이 %s%s 공격하고 있습니다." % [attacker_name, target_name, _battle_object_particle(target_name)]
+
+
+func _battle_object_particle(value: String) -> String:
+	if value.is_empty():
+		return "을"
+	var codepoint := value.unicode_at(value.length() - 1)
+	if codepoint < 0xAC00 or codepoint > 0xD7A3:
+		return "을"
+	return "을" if (codepoint - 0xAC00) % 28 != 0 else "를"
 
 
 func _setup_battle_supply_runtime(context: Dictionary) -> void:
@@ -1567,7 +1593,7 @@ func _refresh_battle_supply_hud() -> void:
 	var enemy_living := _sum_alive_deployed_troops_for_side("enemy")
 	var turn_label := _battle_supply_label("Margin/Content/Header/TurnLabel")
 	if turn_label != null:
-		turn_label.text = "전투 턴 %d / %d\n남은 턴 %d" % [
+		turn_label.text = "%d / %d · 잔여 %d" % [
 			battle_round,
 			ExpeditionSupplyCalculator.BATTLE_MAX_TURNS,
 			maxi(0, ExpeditionSupplyCalculator.BATTLE_MAX_TURNS - battle_round),
@@ -1577,7 +1603,7 @@ func _refresh_battle_supply_hud() -> void:
 
 
 func _refresh_battle_supply_side(prefix: String, side_state: Dictionary, living_troops: int) -> void:
-	var grid_path := "Margin/Content/%sGrid" % prefix
+	var grid_path := "Margin/Content/Columns/%sColumn" % prefix
 	var food_type := str(side_state.get("food_type", "")).strip_edges()
 	var food_name := _battle_supply_food_name(food_type)
 	var has_food_data := side_state.has("food") and not food_name.is_empty()
@@ -1587,9 +1613,8 @@ func _refresh_battle_supply_side(prefix: String, side_state: Dictionary, living_
 	var has_salt_for_turn := salt_amount >= salt_consumption
 	var food_consumption := ExpeditionSupplyCalculator.food_per_turn(living_troops, has_salt_for_turn)
 	_set_battle_supply_text("%s/FoodValue" % grid_path, "%s %d" % [food_name, food_amount] if has_food_data else "식량 정보 없음")
-	_set_battle_supply_text("%s/SaltValue" % grid_path, str(salt_amount))
-	_set_battle_supply_text("%s/FoodConsumptionValue" % grid_path, "%d / 턴" % food_consumption if has_food_data else "계산 불가")
-	_set_battle_supply_text("%s/SaltConsumptionValue" % grid_path, "%d / 턴" % salt_consumption)
+	_set_battle_supply_text("%s/SaltValue" % grid_path, "소금 %d" % salt_amount)
+	_set_battle_supply_text("%s/ConsumptionValue" % grid_path, "소비 %d / %d" % [food_consumption, salt_consumption] if has_food_data else "소비 계산 불가")
 	var sustain_text := "계산 불가"
 	if has_food_data:
 		var prediction := ExpeditionSupplyCalculator.predict_supply(living_troops, food_amount, salt_amount)
@@ -1602,12 +1627,12 @@ func _refresh_battle_supply_side(prefix: String, side_state: Dictionary, living_
 			sustain_text = "%d턴 · 위험" % sustained_turns
 		else:
 			sustain_text = "%d턴" % sustained_turns
-	_set_battle_supply_text("%s/SustainValue" % grid_path, sustain_text)
-	var warning_label := _battle_supply_label("Margin/Content/%sWarningLabel" % prefix)
+	_set_battle_supply_text("%s/SustainValue" % grid_path, "유지 %s" % sustain_text)
+	var warning_label := _battle_supply_label("%s/WarningLabel" % grid_path)
 	if warning_label == null:
 		return
 	if has_food_data and food_amount <= 0:
-		warning_label.text = "식량 고갈 · 매 턴 병력 10% 이탈"
+		warning_label.text = "식량 고갈 · 병력 이탈"
 		warning_label.visible = true
 	elif salt_amount <= 0:
 		warning_label.text = "소금 고갈 · 식량 소비 +10%"

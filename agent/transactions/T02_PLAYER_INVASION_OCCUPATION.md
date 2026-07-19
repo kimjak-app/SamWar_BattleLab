@@ -1,6 +1,14 @@
 # T02 PLAYER INVASION LOGISTICS, BATTLE SUPPLY & OCCUPATION
 
-Status: Implementation Complete / Manual QA Pending (`v0.74-02-hotfix1`).
+Status: Implementation Complete / Manual QA Pending (`v0.74-02-hotfix2`).
+
+## Hotfix 2: Supply Integrity, Compact HUD, Dynamic Title
+
+The bottom-right supply panel is now a 560×262 compact two-column layout: turn/remaining-turn header, then ally and enemy columns with food type/amount, salt, combined food/salt consumption, sustain estimate, and one fixed-height warning row. It no longer stacks both sides vertically.
+
+Defender food is selected from the target CityState `resource_stock` (greatest rice/barley/seafood; stable order rice, barley, seafood) and defender salt is the same target-city persistent stock. `T02_INITIAL_SALT_PER_RESOURCE_RATING` is only a missing-key first-state seed inside `_ensure_city_supply_resource_defaults`; it is never recalculated for a populated city or BattleContext. Battle runtime is transient, and `BattleResult` remaining defender food/salt is atomically written back to target CityState before checkpoint/save. The deterministic Sabi 90/120/142/56 smoke verifies context, runtime, one-turn consumption, settlement, save/load, and no salt reseed.
+
+Production invasion context now carries `battle_mode=invasion`, faction/city display names, and the battle title is `{공격 국가명}군이 {목표 도시명}을 공격하고 있습니다.` The canonical Korean battle faction resolver is `GameSession`; test title text is limited to explicit `battle_mode=test`.
 
 ## Hotfix 1: Battle Supply HUD Readability
 
@@ -50,7 +58,7 @@ Save version is `v0.74-02`. City owner, healthy troops, wounded queue, city carg
 
 ## Manual QA
 
-Required: F5 four-faction entry, formation-panel visual fit and live edits, final warning dialog, cancel immutability, actual manual battle round transitions/HUD/logs, bottom-right supply-panel fit at default/maximized/windowed 16:9 sizes, live supply/turn/warning refresh, victory and defeat return visuals, fast-treatment button state, month-boundary recovery, checkpoint Continue/load, and four-city victory notice/state. Headless verification does not establish visual or input PASS.
+Required: F5 four-faction entry, formation-panel visual fit and live edits, final warning dialog, cancel immutability, actual manual battle round transitions/HUD/logs, compact two-column panel fit at default/maximized/windowed 16:9 sizes, live target-city-vs-HUD defender supply comparison and post-result/save reload comparison, dynamic title for each Korea faction, victory and defeat return visuals, fast-treatment button state, month-boundary recovery, checkpoint Continue/load, and four-city victory notice/state. Headless verification does not establish visual or input PASS.
 
 ## Completion Decision
 

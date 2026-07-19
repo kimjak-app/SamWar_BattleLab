@@ -24,3 +24,5 @@ This is a target responsibility contract for future transaction implementation. 
 | Applied battle result IDs | persisted WorldMap player/session transaction registry |
 
 T02 uses CityState `resource_stock` for expedition gold/food/salt and does not use nation `resource_stock` for cargo settlement. Confirmed cargo is owned by BattleContext/BattleSupplyRuntime until result settlement. Pending battle context is transient; applied result IDs and wounded recovery state persist. Transactions should read and update the responsible state once, then derive UI and battle payloads from it.
+
+For T02 defender supply, target CityState `resource_stock` is the sole food/salt source of truth. `BattleSupplyRuntime` is an in-battle temporary snapshot; WorldMap result settlement owns the single write of remaining defender supply back to the target city. `GameSession.get_battle_faction_display_name` owns Korean production battle-faction display names, while city display names are resolved by WorldMap into BattleContext.

@@ -4,7 +4,7 @@
 
 ### T02 Player Invasion Logistics, Battle Supply & Occupation
 
-Status: Implementation Complete / Manual QA Pending. Formation cargo, both-side Battle_Land supply, 30-turn limit, occupation/defeat settlement, wounded recovery, duplicate protection, four-faction handling, and save/reload automated smoke are implemented. Hotfix 1 moved the obscured supply HUD to the anchored bottom-right command area and passed automated value/overlap/fit smoke; live resolution visual QA remains. Do not promote T03 until integrated manual QA passes.
+Status: Implementation Complete / Manual QA Pending. Formation cargo, both-side Battle_Land supply, 30-turn limit, occupation/defeat settlement, wounded recovery, duplicate protection, four-faction handling, and save/reload automated smoke are implemented. Hotfix 2 makes the bottom-right HUD compact two-column, locks defender supply to target CityState persistence through result settlement/save-load smoke, and makes invasion titles data-driven. Do not promote T03 until integrated manual QA passes.
 
 ### T01 Korea MVP New Game Four-Faction Selection
 

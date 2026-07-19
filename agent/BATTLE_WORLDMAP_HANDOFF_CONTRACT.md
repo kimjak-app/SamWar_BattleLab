@@ -180,3 +180,10 @@ BattleResult adds `transaction_id`, `result_id`, `winner_side`, `result_reason`,
 - Defeat/retreat result shape.
 - Pending invasion ownership.
 - BattleContext ownership.
+
+## T02 Defender Supply Boundary (Hotfix 2)
+
+- WorldMap owns target CityState `resource_stock`. `_select_city_battle_supply(target_city_id)` snapshots the greatest persisted food type (rice, barley, seafood; stable order) and persisted salt into `defender_*` BattleContext fields.
+- `BattleSupplyRuntime` owns only the in-battle copy. Battle HUD reads that runtime copy; it never seeds or reads a virtual defender number.
+- BattleResult returns `defender_remaining_food_type`, `defender_remaining_food`, and `defender_remaining_salt`; `_apply_t02_defender_supply_result` writes them atomically to the target CityState during result settlement.
+- WorldMap serialization persists CityState `resource_stock`; BattleContext is transient. The initial salt seed is only applied to a missing stock key during city-runtime initialization.
