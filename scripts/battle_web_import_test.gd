@@ -2,11 +2,6 @@ extends Node2D
 
 const BattleRangeOverlayTileScript := preload("res://scripts/battle_range_overlay_tile.gd")
 const BattleFacingArrowTileButtonScript := preload("res://scripts/battle_facing_arrow_tile_button.gd")
-const BattleUITextFormatHelper := preload("res://scripts/battle/helpers/battle_ui_text_format_helper.gd")
-const BattleSkillMetadataHelper := preload("res://scripts/battle/helpers/battle_skill_metadata_helper.gd")
-const BattleFormationFacingHelper := preload("res://scripts/battle/helpers/battle_formation_facing_helper.gd")
-const BattleReinforcementHelper := preload("res://scripts/battle/helpers/battle_reinforcement_helper.gd")
-const BattleUnitVisualHelper := preload("res://scripts/battle/helpers/battle_unit_visual_helper.gd")
 const DEMO_DAMAGE := 12.0
 const ENEMY_DEMO_DAMAGE := 8.0
 const ALLY_DEMO_HP := 94.0
@@ -879,7 +874,6 @@ const HIT_SPARK_FX_TEXTURE_PATHS: Array[String] = [
 const WORLDMAP_BATTLE_CONTEXT_META_KEY := "samwar_worldmap_battle_context"
 const WORLDMAP_BATTLE_RESULT_META_KEY := "samwar_worldmap_battle_result"
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
-const ExpeditionSupplyCalculator := preload("res://scripts/t02/expedition_supply_calculator.gd")
 const BattleSupplyRuntimeScript := preload("res://scripts/t02/battle_supply_runtime.gd")
 
 var is_demo_animating := false
@@ -14780,7 +14774,7 @@ func _get_default_token_texture_for_facing(facing: String, side: String) -> Text
 
 
 func _get_facing_aware_portrait_offset(base_offset: Vector2, facing: String) -> Vector2:
-	return BattleUnitVisualHelper.get_facing_aware_portrait_offset(base_offset, facing, FACING_LEFT, FACING_RIGHT, FACING_UP, FACING_DOWN)
+	return BattleUnitVisualHelper.get_facing_aware_portrait_offset(base_offset, facing, FACING_LEFT, FACING_RIGHT)
 
 
 func _get_unit_facing(unit_state: BattleUnitState) -> String:

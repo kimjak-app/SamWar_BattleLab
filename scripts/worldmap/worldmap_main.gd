@@ -2,8 +2,7 @@ extends Node2D
 
 const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper.gd")
 const PlayerAttackDeploymentPanelScript := preload("res://scripts/player_attack_deployment_panel.gd")
-const ExpeditionSupplyCalculator := preload("res://scripts/t02/expedition_supply_calculator.gd")
-const WoundedRecovery := preload("res://scripts/t02/wounded_recovery.gd")
+const GameSessionScript := preload("res://scripts/game_session.gd")
 const DomesticTechHelperLib := preload("res://scripts/worldmap/domestic_tech/domestic_tech_helpers.gd")
 const EconomyCityHelpers := preload("res://scripts/worldmap/economy_city/economy_city_helpers.gd")
 const DefenseBattleHelpers := preload("res://scripts/worldmap/defense_battle/defense_battle_helpers.gd")
@@ -8359,16 +8358,16 @@ func _ensure_city_supply_resource_defaults(city_id: String) -> void:
 	if raw_stock is Dictionary:
 		resource_stock = (raw_stock as Dictionary).duplicate(true)
 	var food_total := maxi(0, int(city_data.get("food", 0)))
-	var seed: Dictionary = city_data.get("resource_seed", {}) if city_data.get("resource_seed", {}) is Dictionary else {}
-	var food_weight := maxi(1, int(seed.get("rice", 0)) + int(seed.get("barley", 0)) + int(seed.get("seafood", 0)))
-	var rice_default := int(floor(float(food_total) * float(int(seed.get("rice", 0))) / float(food_weight)))
-	var barley_default := int(floor(float(food_total) * float(int(seed.get("barley", 0))) / float(food_weight)))
+	var city_resource_seed: Dictionary = city_data.get("resource_seed", {}) if city_data.get("resource_seed", {}) is Dictionary else {}
+	var food_weight := maxi(1, int(city_resource_seed.get("rice", 0)) + int(city_resource_seed.get("barley", 0)) + int(city_resource_seed.get("seafood", 0)))
+	var rice_default := int(floor(float(food_total) * float(int(city_resource_seed.get("rice", 0))) / float(food_weight)))
+	var barley_default := int(floor(float(food_total) * float(int(city_resource_seed.get("barley", 0))) / float(food_weight)))
 	var defaults := {
 		"rice": rice_default,
 		"barley": barley_default,
 		"seafood": maxi(0, food_total - rice_default - barley_default),
 		PLAYER_ATTACK_SUPPLY_GOLD_RESOURCE_ID: maxi(0, int(city_data.get("gold", 0))),
-		PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID: maxi(0, int(seed.get("salt", 0)) * T02_INITIAL_SALT_PER_RESOURCE_RATING),
+		PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID: maxi(0, int(city_resource_seed.get("salt", 0)) * T02_INITIAL_SALT_PER_RESOURCE_RATING),
 	}
 	var changed := false
 	for resource_id in defaults.keys():
@@ -17268,8 +17267,8 @@ func _build_player_attack_battle_context(source_city_id: String, target_city_id:
 		"defender_owner": defender_owner,
 		"attacker_faction_id": attacker_owner,
 		"defender_faction_id": defender_owner,
-		"attacker_faction_display_name": GameSession.get_battle_faction_display_name(attacker_owner),
-		"defender_faction_display_name": GameSession.get_battle_faction_display_name(defender_owner),
+		"attacker_faction_display_name": GameSessionScript.get_battle_faction_display_name(attacker_owner),
+		"defender_faction_display_name": GameSessionScript.get_battle_faction_display_name(defender_owner),
 		"source_city_id": attacker_city_id,
 		"target_city_id": defender_city_id,
 		"source_city_display_name": _format_city_name_by_id(attacker_city_id, "알 수 없는 도시"),

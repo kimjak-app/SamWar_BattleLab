@@ -2,6 +2,10 @@
 
 Status: Implementation Complete / Manual QA Pending (`v0.74-02-hotfix2`).
 
+## Hotfix 3: GDScript Reload Warning Cleanup
+
+No gameplay, supply, settlement, BattleContext/Result, balance, or UI-layout behavior changed. Global-class/preload name collisions were removed in the Battle and T02 callers; the city-resource local `seed` was renamed without changing the persisted `resource_seed` key; the static battle faction resolver is called through its script type rather than the autoload instance; and unused portrait-facing parameters were removed from the private helper signature and its callers. Headless editor reload, scene loads, T02 battle/context/supply/settlement/save-load smoke, and helper call paths pass without these warnings. Editor F5 Output confirmation remains part of the integrated manual QA.
+
 ## Hotfix 2: Supply Integrity, Compact HUD, Dynamic Title
 
 The bottom-right supply panel is now a 560×262 compact two-column layout: turn/remaining-turn header, then ally and enemy columns with food type/amount, salt, combined food/salt consumption, sustain estimate, and one fixed-height warning row. It no longer stacks both sides vertically.
