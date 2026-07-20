@@ -67,7 +67,7 @@ horizontal_alignment = 1
 [node name="HanseongButton" type="Button" parent="Panel/Margin/VBox"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 72)
-text = "한성  |  한성 세력  |  시작 도시: 한성"
+text = "한성  |  조선  |  시작 도시: 한성"
 
 [node name="PyongyangButton" type="Button" parent="Panel/Margin/VBox"]
 layout_mode = 2

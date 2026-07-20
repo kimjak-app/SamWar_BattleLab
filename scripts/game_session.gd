@@ -3,7 +3,7 @@ extends Node
 ## Authoritative Korea MVP session role state.  Nation IDs remain registry IDs.
 const KOREA_MVP_SCENARIO_ID := "korea_mvp_four_cities"
 const STARTS := {
-	"player": {"city_id": "hanseong", "label": "한성", "faction_label": "한성 세력"},
+	"player": {"city_id": "hanseong", "label": "한성", "faction_label": "조선"},
 	"goguryeo": {"city_id": "pyeongyang", "label": "평양", "faction_label": "고구려"},
 	"silla": {"city_id": "gyeongju", "label": "경주", "faction_label": "신라"},
 	"baekje_faction": {"city_id": "sabi", "label": "사비", "faction_label": "백제"},
