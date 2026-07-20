@@ -3,8 +3,8 @@
 ## Baseline
 
 - Branch: `main`
-- Baseline commit: `a8b65d573dd4f5d064245beb114367189d5bb85a`
-- Current implementation: `v0.74-02-hotfix3 GDScript Reload Warning Cleanup` (this document's Git commit)
+- Baseline commit: `c05e96814a1f3b45853d955af8d2359760786602`
+- Current implementation: `v0.74-02-hotfix4 Victory Occupation Settlement, General Disposition & Faction Elimination` (local commit pending)
 - This state document is current-state only. Use Git history and archive candidates for completed version detail.
 
 ## Active Development Phase
@@ -42,6 +42,11 @@ Direct command and automatic delegation are complementary player choices. Automa
 - Existing China, Japan, and naval content remains preserved while the Korea scenario is active.
 
 These are implementation assets, not a claim that every connected gameplay effect has already been verified. Active T01–T05 work must audit and reuse them as needed.
+
+## Current T02 State
+
+- T02 is Implementation Complete / Manual QA Pending. Hotfix 4 settles victory occupants, deterministic defender alignment/adjacent retreat, empty-governor occupation, runtime owner-derived player registry/national aggregation, AI ownership-cache generation, defeated-faction persistence, and save/load state.
+- Next work is integrated T02 manual QA only; T03 is not active.
 
 ## Confirmed Major Gaps
 

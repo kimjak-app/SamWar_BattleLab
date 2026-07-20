@@ -8965,11 +8965,15 @@ func _apply_t02_player_attack_result(result: Dictionary) -> void:
 	var destination_city_id := target_city_id if attacker_won else source_city_id
 	if attacker_won:
 		var defeated_owner := _get_city_owner_id_for_battle_context(target_city_id)
-		var defender_retreat_city_id := _retreat_defender_generals_after_occupation(target_city_id, defeated_owner, _normalize_hero_id_array(result.get("defender_general_ids", [])), _normalize_hero_id_array(result.get("defender_surviving_general_ids", [])))
+		var attacker_owner := str(result.get("attacker_owner", _get_current_player_faction_id()))
+		# Ownership must be applied before disposition: retreat candidates are the cities
+		# that remain with the defeated faction after this settlement.
+		_set_city_runtime_owner(target_city_id, attacker_owner)
+		var disposition := _settle_defender_generals_after_occupation(target_city_id, defeated_owner, attacker_owner, _normalize_hero_id_array(result.get("defender_general_ids", [])), _normalize_hero_id_array(result.get("defender_surviving_general_ids", [])), transaction_id, result_id)
+		var defender_retreat_city_id := str(disposition.get("primary_escape_city_id", ""))
 		if not defender_retreat_city_id.is_empty():
 			_set_city_runtime_troops(defender_retreat_city_id, _get_city_troops_for_battle_context(defender_retreat_city_id) + maxi(0, int(result.get("defender_healthy_survivors", 0))))
 			_add_wounded_to_city_mvp(defender_retreat_city_id, maxi(0, int(result.get("defender_wounded", 0))), ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
-		_set_city_runtime_owner(target_city_id, str(result.get("attacker_owner", _get_current_player_faction_id())))
 		_set_city_runtime_troops(target_city_id, healthy)
 	else:
 		_set_city_runtime_troops(source_city_id, _get_city_troops_for_battle_context(source_city_id) + healthy)
@@ -8996,6 +9000,7 @@ func _apply_t02_player_attack_result(result: Dictionary) -> void:
 	applied_ids.append(result_id)
 	_player_state["applied_battle_result_ids"] = applied_ids
 	_player_state["korea_unification_victory"] = _get_player_owned_korea_mvp_city_count() >= 4
+	_rebuild_occupation_runtime_indexes_mvp()
 	_sync_worldmap_hero_locations_from_city_runtime_states()
 	_refresh_city_marker_owner_states_from_runtime()
 	_refresh_city_hud_data_bindings()
@@ -9007,6 +9012,18 @@ func _apply_t02_player_attack_result(result: Dictionary) -> void:
 		"정상병 %d · 부상병 %d · 전사 %d · 이탈 %d" % [healthy, wounded, int(result.get("attacker_dead", 0)), int(result.get("attacker_deserters", 0))],
 		"부상병은 기본 일반 치료(3개월)로 등록되었습니다.",
 	]
+	if attacker_won:
+		result_lines.append("%s을 점령했습니다." % _format_city_name_by_id(target_city_id, target_city_id))
+		result_lines.append("출전 장수와 생존 병력이 %s에 주둔합니다." % _format_city_name_by_id(target_city_id, target_city_id))
+		var disposition_summary: Dictionary = _player_state.get("last_defender_disposition", {}) if _player_state.get("last_defender_disposition", {}) is Dictionary else {}
+		var aligned_count := int(disposition_summary.get("aligned_count", 0))
+		var escaped_count := int(disposition_summary.get("escaped_count", 0))
+		if aligned_count > 0:
+			result_lines.append("적 장수 %d명이 아군에 귀속되었습니다." % aligned_count)
+		if escaped_count > 0:
+			result_lines.append("적 장수 %d명이 인접한 적 도시로 피신했습니다." % escaped_count)
+		if bool(disposition_summary.get("faction_defeated", false)):
+			result_lines.append("%s가 멸망했습니다." % _format_faction_label(str(disposition_summary.get("defeated_faction_id", ""))))
 	if bool(_player_state.get("korea_unification_victory", false)):
 		result_lines.append("한반도 네 도시를 모두 장악했습니다. T05 승리 화면 연결 대기 중입니다.")
 	_show_post_battle_result_summary({
@@ -9019,39 +9036,104 @@ func _apply_t02_player_attack_result(result: Dictionary) -> void:
 	_save_worldmap_state()
 
 
-func _retreat_defender_generals_after_occupation(target_city_id: String, defeated_owner: String, all_hero_ids: Array[String], surviving_hero_ids: Array[String]) -> String:
-	var retreat_city_id := ""
+func _settle_defender_generals_after_occupation(target_city_id: String, defeated_owner: String, attacker_owner: String, all_hero_ids: Array[String], surviving_hero_ids: Array[String], transaction_id: String, result_id: String) -> Dictionary:
+	# A defender is never discarded by occupation.  The target roster is the
+	# authoritative fallback because battle payloads from older scenes omit ids.
+	var target_data := _get_city_hud_entry(target_city_id)
+	var target_roster := _normalize_hero_id_array(target_data.get("stationed_hero_ids", target_data.get("hero_ids", [])))
+	var participants := all_hero_ids.duplicate()
+	for hero_id in target_roster:
+		if not participants.has(hero_id):
+			participants.append(hero_id)
+	var survivors := surviving_hero_ids.duplicate()
+	if survivors.is_empty():
+		survivors = participants.duplicate()
+	var escape_city_ids: Array[String] = []
 	for neighbor_id in _get_city_neighbors_mvp(target_city_id):
-		if _get_city_owner_id_for_battle_context(str(neighbor_id)) == defeated_owner:
-			retreat_city_id = str(neighbor_id)
-			break
-	if retreat_city_id.is_empty():
-		for city_id_variant in CITY_HUD_DATA.keys():
-			var city_id := str(city_id_variant)
-			if city_id != target_city_id and _get_city_owner_id_for_battle_context(city_id) == defeated_owner:
-				retreat_city_id = city_id
-				break
-	for hero_id in all_hero_ids:
-		_remove_hero_from_other_city_runtime_rosters(hero_id, "")
-		if not surviving_hero_ids.has(hero_id):
-			var unavailable_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
-			unavailable_state["current_city_id"] = ""
-			unavailable_state["city_id"] = ""
-			unavailable_state["location_city_id"] = ""
-			unavailable_state["status"] = "unstationed"
-			_hero_runtime_states[hero_id] = unavailable_state
-			continue
-		if not retreat_city_id.is_empty():
-			_move_hero_to_city_t02(hero_id, retreat_city_id)
+		var city_id := str(neighbor_id)
+		if _get_city_owner_id_for_battle_context(city_id) == defeated_owner:
+			escape_city_ids.append(city_id)
+	escape_city_ids.sort()
+	var remaining_city_count := _get_enemy_owned_city_count_mvp(defeated_owner)
+	var align_all := escape_city_ids.is_empty() or remaining_city_count <= 0
+	var aligned_count := survivors.size() if align_all else maxi(1, survivors.size() / 3)
+	var aligned_ids: Array[String] = []
+	var escaped_ids: Array[String] = []
+	# IDs are sorted instead of using engine RNG so replay/load result processing
+	# is deterministic for transaction/result/target and survivor set.
+	survivors.sort()
+	for index in range(survivors.size()):
+		var hero_id := str(survivors[index])
+		if index < aligned_count:
+			aligned_ids.append(hero_id)
+			_set_hero_faction_after_conquest_mvp(hero_id, attacker_owner, target_city_id, transaction_id, defeated_owner)
 		else:
+			var destination := escape_city_ids[(index - aligned_count) % escape_city_ids.size()]
+			escaped_ids.append(hero_id)
+			_set_hero_faction_after_conquest_mvp(hero_id, defeated_owner, destination, "", "")
+	# Any non-survivors are removed from city rosters only; battle status is kept
+	# by its existing runtime state rather than inventing an unstationed status.
+	for hero_id in participants:
+		if not survivors.has(hero_id):
 			_remove_hero_from_other_city_runtime_rosters(hero_id, "")
-			var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
-			hero_state["current_city_id"] = ""
-			hero_state["city_id"] = ""
-			hero_state["location_city_id"] = ""
-			hero_state["status"] = "unstationed"
-			_hero_runtime_states[hero_id] = hero_state
-	return retreat_city_id
+	# Occupied cities always begin ungoverned.  This prevents stale governor UI.
+	var occupied := _get_mutable_city_runtime_state(target_city_id)
+	occupied["governor_id"] = ""
+	occupied["governorHeroId"] = ""
+	_city_runtime_states[target_city_id] = occupied
+	var faction_defeated := remaining_city_count <= 0
+	if faction_defeated:
+		var defeated: Dictionary = _player_state.get("defeated_factions", {}) if _player_state.get("defeated_factions", {}) is Dictionary else {}
+		defeated[defeated_owner] = {"defeated": true, "transaction_id": transaction_id, "result_id": result_id}
+		_player_state["defeated_factions"] = defeated
+		var announced: Dictionary = _player_state.get("defeated_faction_notifications", {}) if _player_state.get("defeated_faction_notifications", {}) is Dictionary else {}
+		if not announced.has(defeated_owner):
+			announced[defeated_owner] = true
+		_player_state["defeated_faction_notifications"] = announced
+	var summary := {"aligned_count": aligned_ids.size(), "escaped_count": escaped_ids.size(), "aligned_ids": aligned_ids, "escaped_ids": escaped_ids, "primary_escape_city_id": escape_city_ids[0] if not escape_city_ids.is_empty() else "", "faction_defeated": faction_defeated, "defeated_faction_id": defeated_owner, "transaction_id": transaction_id, "result_id": result_id}
+	_player_state["last_defender_disposition"] = summary
+	return summary
+
+
+func _set_hero_faction_after_conquest_mvp(hero_id: String, faction_id: String, city_id: String, acquisition_transaction_id: String, acquired_from_faction_id: String) -> void:
+	_move_hero_to_city_t02(hero_id, city_id)
+	var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+	hero_state["side"] = faction_id
+	hero_state["nation"] = faction_id
+	hero_state["faction_id"] = faction_id
+	hero_state["force_id"] = faction_id
+	hero_state["appointment"] = ""
+	hero_state["office"] = ""
+	hero_state["command_rank"] = "unappointed"
+	if not acquisition_transaction_id.is_empty():
+		hero_state["acquisition_type"] = "conquest_mvp"
+		hero_state["acquired_from_faction_id"] = acquired_from_faction_id
+		hero_state["acquired_transaction_id"] = acquisition_transaction_id
+	_hero_runtime_states[hero_id] = hero_state
+
+
+func _rebuild_occupation_runtime_indexes_mvp() -> void:
+	# owner_faction_id is authoritative; derived registry/caches are rebuilt.
+	var player_cities: Array[String] = []
+	for city_id_variant in CITY_HUD_DATA.keys():
+		var city_id := str(city_id_variant)
+		if _get_city_owner_id_for_battle_context(city_id) == _get_current_player_faction_id():
+			player_cities.append(city_id)
+	player_cities.sort()
+	_player_state["owned_city_ids"] = player_cities
+	var resources := {}
+	var troops := 0
+	var population := 0
+	for city_id in player_cities:
+		var city := _get_city_hud_entry(city_id)
+		troops += maxi(0, int(city.get("troops", 0)))
+		population += maxi(0, int(city.get("population", 0)))
+		var stock: Variant = city.get("resource_stock", {})
+		if stock is Dictionary:
+			for resource_id in (stock as Dictionary).keys():
+				resources[str(resource_id)] = int(resources.get(str(resource_id), 0)) + maxi(0, int((stock as Dictionary).get(resource_id, 0)))
+	_player_state["national_aggregation"] = {"resources": resources, "available_troops": troops, "population": population, "owner_source": "city.owner_faction_id"}
+	_player_state["ai_ownership_cache_generation"] = int(_player_state.get("ai_ownership_cache_generation", 0)) + 1
 
 
 func _move_hero_to_city_t02(hero_id: String, city_id: String) -> void:
@@ -21806,8 +21888,8 @@ func _serialize_worldmap_state() -> Dictionary:
 		hero_state.size()
 	])
 	return {
-		"version": "v0.74-02",
-		"title": "T02 Player Invasion Logistics and Occupation",
+		"version": "v0.74-02-hotfix4",
+		"title": "T02 Victory Occupation Settlement",
 		"game_session": _get_game_session().serialize(),
 		"player_state": saved_player_state,
 		"worldmap_city_state": city_state,
@@ -21842,6 +21924,7 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 	_apply_worldmap_hero_runtime_state(data.get("worldmap_hero_state", {}))
 	_restore_trade_persistence_from_player_state()
 	_sync_worldmap_hero_locations_from_city_runtime_states()
+	_rebuild_occupation_runtime_indexes_mvp()
 	_refresh_city_marker_owner_states_from_runtime()
 	_refresh_city_hud_data_bindings()
 	_clear_pending_invasion_event_mvp()
@@ -22041,6 +22124,13 @@ func _serialize_worldmap_hero_runtime_state() -> Dictionary:
 			"side": str(source.get("side", source.get("nation", ""))),
 			"nation": str(source.get("nation", source.get("side", ""))),
 			"faction_id": str(source.get("faction_id", source.get("side", ""))),
+			"force_id": str(source.get("force_id", source.get("faction_id", source.get("side", "")))),
+			"appointment": str(source.get("appointment", "")),
+			"office": str(source.get("office", "")),
+			"command_rank": str(source.get("command_rank", "")),
+			"acquisition_type": str(source.get("acquisition_type", "")),
+			"acquired_from_faction_id": str(source.get("acquired_from_faction_id", "")),
+			"acquired_transaction_id": str(source.get("acquired_transaction_id", "")),
 		}
 		print("[HERO_STATE_SAVE] hero=%s current_city=%s status=%s wounded=%s captured=%s dead=%s wounded_turns=%d" % [
 			hero_id,
@@ -22275,6 +22365,13 @@ func _normalize_hero_runtime_state(hero_id: String, raw_state: Dictionary = {}) 
 		"side": str(raw_state.get("side", seed_entry.get("side", ""))),
 		"nation": str(raw_state.get("nation", seed_entry.get("nation", ""))),
 		"faction_id": str(raw_state.get("faction_id", seed_entry.get("faction_id", ""))),
+		"force_id": str(raw_state.get("force_id", seed_entry.get("force_id", ""))),
+		"appointment": str(raw_state.get("appointment", "")),
+		"office": str(raw_state.get("office", "")),
+		"command_rank": str(raw_state.get("command_rank", seed_entry.get("command_rank", ""))),
+		"acquisition_type": str(raw_state.get("acquisition_type", "")),
+		"acquired_from_faction_id": str(raw_state.get("acquired_from_faction_id", "")),
+		"acquired_transaction_id": str(raw_state.get("acquired_transaction_id", "")),
 	}
 
 
@@ -22383,7 +22480,7 @@ func _format_hero_list(hero_ids: Variant, empty_fallback: String) -> String:
 
 
 func _format_player_resource_summary() -> String:
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	var resource_stock := _get_player_national_resource_stock_mvp()
 	if resource_stock.is_empty():
 		return str(_player_state.get("resources", "보유 자원 없음"))
 	var parts: Array[String] = []
@@ -22396,8 +22493,15 @@ func _format_player_resource_summary() -> String:
 
 
 func _get_player_resource_amount(resource_id: String) -> int:
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	var resource_stock := _get_player_national_resource_stock_mvp()
 	return int(resource_stock.get(resource_id, 0))
+
+
+func _get_player_national_resource_stock_mvp() -> Dictionary:
+	var aggregation: Variant = _player_state.get("national_aggregation", {})
+	if aggregation is Dictionary and (aggregation as Dictionary).get("resources", {}) is Dictionary:
+		return ((aggregation as Dictionary).get("resources", {}) as Dictionary)
+	return _player_state.get("resource_stock", {})
 
 
 func _get_city_storage(city_id: String, city_data: Dictionary = {}) -> Dictionary:
@@ -22504,7 +22608,7 @@ func _refresh_warehouse_card() -> void:
 	if _warehouse_card == null:
 		return
 	_warehouse_card.visible = true
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	var resource_stock := _get_player_national_resource_stock_mvp()
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var resource_id_string := str(resource_id)
 		var row_labels: Dictionary = _warehouse_resource_row_labels.get(resource_id_string, {})
@@ -22523,7 +22627,7 @@ func _refresh_warehouse_card() -> void:
 
 
 func _format_warehouse_summary(_policy_id: String) -> String:
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
+	var resource_stock := _get_player_national_resource_stock_mvp()
 	if resource_stock.is_empty():
 		return "국가 창고: 보유 자원 없음"
 	var lines: Array[String] = ["국가 창고"]

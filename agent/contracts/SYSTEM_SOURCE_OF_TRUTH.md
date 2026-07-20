@@ -1,5 +1,15 @@
 # SYSTEM SOURCE OF TRUTH
 
+## T02 Occupation Settlement
+
+- City ownership: runtime `CityState.owner_faction_id` (with compatibility mirrors), never a fixed city list.
+- General faction/location: normalized runtime general state (`faction_id`/`side`, `current_city_id`).
+- Stationed roster: target CityState `stationed_hero_ids`; a general is in at most one roster.
+- Governor UI and runtime appointment: CityState `governor_id`; occupation starts empty until manual appointment.
+- National aggregation: active cities whose runtime owner equals `GameSession.player_faction_id`; city stock stays source data.
+- Faction elimination: persisted `player_state.defeated_factions`, derived from owner-matching active cities.
+- AI target ownership: live CityState owner; derived cache generation invalidates after settlement.
+
 ## Target Contract
 
 This is a target responsibility contract for future transaction implementation. Current code may not yet have these exact structures. It does not authorize an immediate broad refactor.

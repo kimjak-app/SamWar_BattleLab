@@ -1,5 +1,9 @@
 # Battle <-> WorldMap Handoff Contract
 
+## T02 Hotfix 4 Settlement Addendum
+
+After transaction/result validation, WorldMap atomically applies target ownership, attacker survivors/cargo/wounded, defender disposition, governor reset, owner-derived indexes, faction elimination, UI state, consumed result ID, pending-context clear, and save checkpoint. Attack survivors remain at the target. Defender survivors are retained: one third aligns only where an adjacent same-faction retreat city remains; otherwise all align. Replay is a no-op.
+
 ## Baseline
 - WorldMap script: `scripts/worldmap/worldmap_main.gd`
 - Battle script: `scripts/battle_web_import_test.gd`

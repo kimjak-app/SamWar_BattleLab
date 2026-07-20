@@ -1,5 +1,9 @@
 # KOREA MVP SCENARIO
 
+## Occupation and Unification State
+
+An occupied city immediately changes runtime owner and becomes a player-command city for the player faction. Attack survivors remain there, wounded remain in that city queue, and defender survivors are deterministically aligned or routed only to adjacent same-faction cities. A faction with zero owner-matching active cities is defeated; last-city survivors align with the victor. Korea unification remains the four-city player ownership condition.
+
 ## Proposed Identity And Scope
 
 - Scenario ID: `korea_mvp_four_cities` (implemented)

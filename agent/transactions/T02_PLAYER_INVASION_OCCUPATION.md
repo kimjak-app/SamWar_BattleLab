@@ -1,6 +1,12 @@
 # T02 PLAYER INVASION LOGISTICS, BATTLE SUPPLY & OCCUPATION
 
-Status: Implementation Complete / Manual QA Pending (`v0.74-02-hotfix2`).
+Status: Implementation Complete / Manual QA Pending (`v0.74-02-hotfix4`).
+
+## Hotfix 4: Victory Occupation Settlement, General Disposition & Faction Elimination
+
+Victory is now an atomic WorldMap settlement. Surviving attacking generals, healthy troops, wounded queue, and remaining expedition cargo are placed in the occupied city; defeat and turn-limit routes return them to the source. The occupied city is entered in the player registry from runtime `owner_faction_id`, starts with no governor, and is immediately usable by player-city commands.
+
+Defender survivors are never deleted. With adjacent same-faction cities remaining, sorted survivors deterministically place `max(1, floor(n / 3))` with the victor and distribute the rest across sorted adjacent cities. With no adjacent retreat, or when the last city falls, all survivors align with the victor in the occupied city. Aligned and escaped generals are unappointed; aligned runtime state persists `conquest_mvp` provenance for a later loyalty migration. City ownership changes rebuild the player registry/national aggregation snapshot and increment the AI ownership-cache generation. A defeated-faction registry and once-only notification consumption state are persisted with the checkpoint.
 
 ## Hotfix 3: GDScript Reload Warning Cleanup
 
