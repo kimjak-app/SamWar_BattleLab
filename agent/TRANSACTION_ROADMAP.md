@@ -2,13 +2,19 @@
 
 ## Active
 
+### T03 Enemy Invasion & Player Defense Completion
+
+Status: Audit and design active. Inspect the existing AI invasion event, player defense formation, both-side supply ownership, BattleContext side mapping, BattleResult settlement, 30-turn rule, persistence/duplicate protection, Korea four-faction scope, and safe T02 helper reuse before writing an implementation instruction.
+
+## Complete
+
 ### T02 Player Invasion Logistics, Battle Supply & Occupation
 
-Status: Implementation Complete / Final Manual QA Pending. Formation cargo, both-side Battle_Land supply, 30-turn limit, victory occupation settlement, deterministic defender alignment/adjacent retreat, wounded recovery, duplicate protection, ownership-derived city registry, defeated-faction state, city-stock national aggregation, scoped research payment, and save/reload automated smoke are implemented. Hotfix 6 removes the final audited reload warnings without behavior changes. T02 is a COMPLETE candidate only after clean Editor Output confirmation; do not promote T03 before that.
+Status: `COMPLETE` at `ff642424e28f98d6b390c457d6913d8b4c2f6c71`. Formation cargo, both-side Battle_Land supply, 30-turn limit, occupation settlement, deterministic defender alignment/adjacent retreat, wounded recovery, duplicate protection, ownership-derived city registry, defeated-faction state, city-stock national aggregation, scoped research payment, save/reload smoke, integrated F5 QA, and final Editor Output confirmation passed.
 
 ### T01 Korea MVP New Game Four-Faction Selection
 
-Status: Implementation Complete / Manual QA Pending. Four selections, role-separated session state, WorldMap initialization, and save schema are implemented. Do not promote T02 until F6 QA passes.
+Status: `COMPLETE`. Four selections, role-separated session state, WorldMap initialization, save schema, and integrated F5 QA passed on the current baseline.
 
 ### T00 Documentation & MVP Architecture Foundation
 
@@ -18,7 +24,6 @@ Exit evidence: the default read order identifies current product direction, prot
 
 ## Next
 
-3. **T03 Enemy Invasion & Player Defense Completion** — present and resolve player defense without breaking the existing Battle/WorldMap handoff.
 4. **T04 Turn Resolution Transaction** — resolve player/end-turn state, AI actions, research, UI, and persistence as one flow.
 5. **T05 Korea Unification Victory Transaction** — evaluate four-city victory and zero-city defeat, present outcome, and persist it.
 

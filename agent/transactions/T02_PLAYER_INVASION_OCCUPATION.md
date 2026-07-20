@@ -1,10 +1,12 @@
 # T02 PLAYER INVASION LOGISTICS, BATTLE SUPPLY & OCCUPATION
 
-Status: Implementation Complete / Manual QA Pending (`v0.74-02-hotfix4`).
+Status: `COMPLETE` (`v0.74-02-hotfix6`, commit `ff642424e28f98d6b390c457d6913d8b4c2f6c71`).
+
+Completion lock: integrated F5 manual QA and final Editor Output verification passed on 2026-07-20. The implementation, automated evidence, and manual acceptance checklist below are now the locked T02 baseline. Future enemy-invasion/player-defense work belongs to T03 and must reuse this transaction's supply, casualty, wounded, settlement, persistence, and duplicate-protection rules without silently changing them.
 
 ## Hotfix 6: Final GDScript Warning Cleanup
 
-No gameplay, resource, research, occupation, save, or layout behavior changed. The defender alignment count now spells its existing `floor(survivors / 3)` rule as `floor(float / 3.0)`, removing the integer-division reload warning without changing the 1/3 result. The private portrait-template helper retains its interface and behavior while marking its intentionally unused up/down parameters with underscores. Headless parse, NewGameFactionSelect, WorldMap, Battle_Land, T01, T02, and portrait/battle smoke pass. Editor Output final confirmation remains manual.
+No gameplay, resource, research, occupation, save, or layout behavior changed. The defender alignment count now spells its existing `floor(survivors / 3)` rule as `floor(float / 3.0)`, removing the integer-division reload warning without changing the 1/3 result. The private portrait-template helper retains its interface and behavior while marking its intentionally unused up/down parameters with underscores. Headless parse, NewGameFactionSelect, WorldMap, Battle_Land, T01, T02, and portrait/battle smoke pass. Editor Output final confirmation passed as part of the completion lock.
 
 ## Hotfix 5: Resource Source-of-Truth Unification & Production Victory Settlement Fix
 
@@ -20,7 +22,7 @@ Defender survivors are never deleted. With adjacent same-faction cities remainin
 
 ## Hotfix 3: GDScript Reload Warning Cleanup
 
-No gameplay, supply, settlement, BattleContext/Result, balance, or UI-layout behavior changed. Global-class/preload name collisions were removed in the Battle and T02 callers; the city-resource local `seed` was renamed without changing the persisted `resource_seed` key; the static battle faction resolver is called through its script type rather than the autoload instance; and unused portrait-facing parameters were removed from the private helper signature and its callers. Headless editor reload, scene loads, T02 battle/context/supply/settlement/save-load smoke, and helper call paths pass without these warnings. Editor F5 Output confirmation remains part of the integrated manual QA.
+No gameplay, supply, settlement, BattleContext/Result, balance, or UI-layout behavior changed. Global-class/preload name collisions were removed in the Battle and T02 callers; the city-resource local `seed` was renamed without changing the persisted `resource_seed` key; the static battle faction resolver is called through its script type rather than the autoload instance; and unused portrait-facing parameters were removed from the private helper signature and its callers. Headless editor reload, scene loads, T02 battle/context/supply/settlement/save-load smoke, and helper call paths pass without these warnings. Editor F5 Output confirmation passed as part of the integrated manual QA.
 
 ## Hotfix 2: Supply Integrity, Compact HUD, Dynamic Title
 
@@ -78,8 +80,8 @@ Save version is `v0.74-02`. City owner, healthy troops, wounded queue, city carg
 
 ## Manual QA
 
-Required: F5 four-faction entry, formation-panel visual fit and live edits, final warning dialog, cancel immutability, actual manual battle round transitions/HUD/logs, compact two-column panel fit at default/maximized/windowed 16:9 sizes, live target-city-vs-HUD defender supply comparison and post-result/save reload comparison, dynamic title for each Korea faction, victory and defeat return visuals, fast-treatment button state, month-boundary recovery, checkpoint Continue/load, and four-city victory notice/state. Headless verification does not establish visual or input PASS.
+PASS: F5 four-faction entry, formation-panel visual fit and live edits, final warning dialog, cancel immutability, actual manual battle round transitions/HUD/logs, compact two-column panel fit, live target-city-vs-HUD defender supply comparison and post-result/save reload comparison, dynamic battle title, victory and defeat return visuals, wounded-treatment flow, checkpoint Continue/load, and final Editor Output were manually verified on the completion baseline.
 
 ## Completion Decision
 
-Implementation Complete / Manual QA Pending. Do not promote T03 or mark T02 COMPLETE until the manual checklist passes.
+`COMPLETE`. T02 is locked at `ff642424e28f98d6b390c457d6913d8b4c2f6c71`; T03 may now enter audit and design. Any later change to a protected T02 rule requires an explicit compatibility decision in the active transaction.

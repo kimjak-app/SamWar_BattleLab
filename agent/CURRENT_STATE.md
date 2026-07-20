@@ -3,13 +3,13 @@
 ## Baseline
 
 - Branch: `main`
-- Baseline commit: `c05e96814a1f3b45853d955af8d2359760786602`
-- Current implementation: `v0.74-02-hotfix6 Final GDScript Warning Cleanup` (local commit pending)
+- Baseline commit: `ff642424e28f98d6b390c457d6913d8b4c2f6c71`
+- Current implementation: `v0.74-02-hotfix6 Final GDScript Warning Cleanup`
 - This state document is current-state only. Use Git history and archive candidates for completed version detail.
 
 ## Active Development Phase
 
-Korea Four-City MVP. T01 and T02 implementations are complete; integrated manual UI/gameplay QA remains.
+Korea Four-City MVP. T01 and T02 are complete. T03 enemy invasion and player defense is in structure-audit and design discussion; runtime implementation has not started.
 
 The active context deliberately contains only current direction, protected boundaries, and the next executable transaction. Completed version-by-version evidence remains in Git history and retained archive candidates.
 
@@ -43,20 +43,20 @@ Direct command and automatic delegation are complementary player choices. Automa
 
 These are implementation assets, not a claim that every connected gameplay effect has already been verified. Active T01–T05 work must audit and reuse them as needed.
 
-## Current T02 State
+## T02 Completion Lock
 
-- T02 is Implementation Complete / Manual QA Pending. Hotfix 4 settles victory occupants, deterministic defender alignment/adjacent retreat, empty-governor occupation, runtime owner-derived player registry/national aggregation, AI ownership-cache generation, defeated-faction persistence, and save/load state.
+- T02 is `COMPLETE` at `ff642424e28f98d6b390c457d6913d8b4c2f6c71`. Hotfix 4 settles victory occupants, deterministic defender alignment/adjacent retreat, empty-governor occupation, runtime owner-derived player registry/national aggregation, AI ownership-cache generation, defeated-faction persistence, and save/load state.
 - Hotfix 5 makes city `resource_stock` authoritative for national warehouse display, research payment, and expedition scope, seeds it before initial UI, and translates Battle_Land production hero aliases before settlement.
-- Hotfix 6 removes the final audited GDScript reload warnings without functional changes. Editor Output manual confirmation is pending.
-- Next work is integrated T02 manual QA only; T03 is not active.
+- Hotfix 6 removes the final audited GDScript reload warnings without functional changes. Integrated F5 QA and final Editor Output confirmation passed.
+- T03 audit and design is now active; T02 behavior is a protected reuse baseline.
 
 ## Confirmed Major Gaps
 
-- Four-faction new-game choice and player-nation session setup: implemented through `GameSession` and `NewGameFactionSelect.tscn`; Manual QA pending.
+- Four-faction new-game choice and player-nation session setup: complete through `GameSession` and `NewGameFactionSelect.tscn`.
 - Korea MVP starting general/resource/technology values: `Needs Data Audit` / `Needs Runtime Audit`.
-- Player occupation, enemy defense, turn resolution, and Korea victory need transaction completion and integrated QA.
+- Enemy invasion/player defense, turn resolution, and Korea victory need transaction completion and integrated QA.
 - City-research behavior on occupation: `Needs Runtime Audit`.
-- The authoritative starting roster count, city assignment, resources, and initial technology states require a runtime/data audit before T01 locks them.
+- The authoritative starting roster count, city assignment, resources, and initial technology states still require a separate balance/data lock before later content expansion.
 
 No confirmed runtime blocker currently prevents T01 planning. A missing design value is an audit requirement, not permission to fabricate it in code or documentation.
 
@@ -68,7 +68,7 @@ T00 is a documentation transaction, not an implementation claim. The new documen
 
 ## Current Runtime Transaction
 
-T02 is Implementation Complete / Manual QA Pending. Player invasion now carries transaction-scoped gold/one food type/salt through Battle_Land, consumes both sides' supply once per round, enforces the absolute 30-turn limit, settles occupation/defeat/wounded recovery, prevents duplicate result application, and checkpoints the result. Hotfix 3 removes the audited GDScript reload warnings without changing T02 behavior. T03 remains inactive until T02 manual QA passes.
+T03 Enemy Invasion & Player Defense Completion is in audit and design. No T03 runtime edits are authorized yet. The active audit must map the current AI invasion trigger, defense deployment, attacker and defender supply sources, side-aware BattleContext/Result flow, settlement, 30-turn termination, persistence/idempotency, Korea four-faction behavior, and T02 helper reuse boundaries.
 
 ## Protected Contracts
 

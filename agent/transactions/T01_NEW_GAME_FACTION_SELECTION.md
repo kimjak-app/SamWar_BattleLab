@@ -1,6 +1,6 @@
 # T01 NEW GAME FACTION SELECTION
 
-Status: Implementation Complete / Manual QA Pending (`v0.74-01`).
+Status: `COMPLETE` (confirmed on the `v0.74-02-hotfix6` baseline).
 
 ## Implementation Record
 
@@ -56,8 +56,8 @@ Likely entry points include `scripts/worldmap/worldmap_main.gd`, `WorldMap.tscn`
 
 ## Manual QA
 
-Run the above flow separately for all four factions. Confirm readable selection feedback, correct WorldMap ownership/role presentation, first-turn entry, save/load round trip, and no Battle/WorldMap regression.
+PASS: all four faction selections, WorldMap ownership/role presentation, first-turn entry, save/load round trip, and Battle/WorldMap entry were included in the integrated F5 completion QA.
 
 ## Completion Decision
 
-Complete only after acceptance tests and integrated QA pass in a runtime implementation task, with results recorded here. Until then: `Not Yet Implemented`.
+`COMPLETE`. The four-faction session/start contract is the locked baseline for T03 and later Korea MVP transactions.
