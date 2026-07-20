@@ -2,6 +2,10 @@
 
 Status: Implementation Complete / Manual QA Pending (`v0.74-02-hotfix4`).
 
+## Hotfix 6: Final GDScript Warning Cleanup
+
+No gameplay, resource, research, occupation, save, or layout behavior changed. The defender alignment count now spells its existing `floor(survivors / 3)` rule as `floor(float / 3.0)`, removing the integer-division reload warning without changing the 1/3 result. The private portrait-template helper retains its interface and behavior while marking its intentionally unused up/down parameters with underscores. Headless parse, NewGameFactionSelect, WorldMap, Battle_Land, T01, T02, and portrait/battle smoke pass. Editor Output final confirmation remains manual.
+
 ## Hotfix 5: Resource Source-of-Truth Unification & Production Victory Settlement Fix
 
 `CityState.resource_stock` is the only persisted resource inventory. National warehouse UI is a freshly rebuilt aggregate of runtime player-owned city stock, seeded before the first WorldMap render and rebuilt after new game, load, ownership/resource settlement, expedition payment, and research payment. It is not a separate spendable store.

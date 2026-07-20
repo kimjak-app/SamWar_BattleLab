@@ -1,7 +1,7 @@
 class_name BattleUnitVisualHelper
 extends RefCounted
 
-static func get_portrait_template_offset(layout_offsets_by_facing: Dictionary, fallback_offset: Vector2, facing: String, facing_left: String, facing_right: String, facing_up: String, facing_down: String) -> Vector2:
+static func get_portrait_template_offset(layout_offsets_by_facing: Dictionary, fallback_offset: Vector2, facing: String, facing_left: String, facing_right: String, _facing_up: String, _facing_down: String) -> Vector2:
 	var normalized_facing := BattleFormationFacingHelper.normalize_facing(facing)
 	if layout_offsets_by_facing.has(normalized_facing):
 		return layout_offsets_by_facing[normalized_facing]

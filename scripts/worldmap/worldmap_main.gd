@@ -9067,7 +9067,7 @@ func _settle_defender_generals_after_occupation(target_city_id: String, defeated
 	escape_city_ids.sort()
 	var remaining_city_count := _get_enemy_owned_city_count_mvp(defeated_owner)
 	var align_all := escape_city_ids.is_empty() or remaining_city_count <= 0
-	var aligned_count := survivors.size() if align_all else maxi(1, survivors.size() / 3)
+	var aligned_count := survivors.size() if align_all else maxi(1, int(floor(float(survivors.size()) / 3.0)))
 	var aligned_ids: Array[String] = []
 	var escaped_ids: Array[String] = []
 	# IDs are sorted instead of using engine RNG so replay/load result processing
