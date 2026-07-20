@@ -1,5 +1,9 @@
 # TECH TREE GAMEPLAY CONTRACT
 
+## Resource Payment Scope (T02 Hotfix 5)
+
+National research performs a one-time, atomic cost validation against the aggregate of currently player-owned city `resource_stock`, then deducts capital first and remaining cities in stable order. City research performs the same one-time atomic validation and deduction only against its own city stock. No research uses the legacy player-state resource dictionary as inventory; insufficient cost changes neither city stock nor research state.
+
 ## Scope
 
 This contract defines the target responsibility boundary for technology gameplay. It does not change existing values or runtime behavior. An unverified implementation is `Needs Runtime Audit`.

@@ -10,6 +10,19 @@
 - Faction elimination: persisted `player_state.defeated_factions`, derived from owner-matching active cities.
 - AI target ownership: live CityState owner; derived cache generation invalidates after settlement.
 
+## Hotfix 5 Resource and Research Scope
+
+| Domain | Authoritative source | Derived/UI source |
+| --- | --- | --- |
+| City resources | `CityState.resource_stock` | city panel |
+| National warehouse | no separate inventory | current player-owned city-stock aggregate |
+| National research | owned city stock | aggregate validation, capital-first atomic payment plan |
+| City research | selected city stock | selected-city validation/payment |
+| Expedition cargo | source city stock | deployment panel/BattleContext |
+| Turn production | city-stock mutation | rebuilt national aggregate |
+| General location | runtime city + roster invariant | city panel |
+| Wounded | city wounded queue | troop/treatment UI |
+
 ## Target Contract
 
 This is a target responsibility contract for future transaction implementation. Current code may not yet have these exact structures. It does not authorize an immediate broad refactor.

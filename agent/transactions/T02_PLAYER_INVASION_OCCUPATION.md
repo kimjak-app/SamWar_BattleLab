@@ -2,6 +2,12 @@
 
 Status: Implementation Complete / Manual QA Pending (`v0.74-02-hotfix4`).
 
+## Hotfix 5: Resource Source-of-Truth Unification & Production Victory Settlement Fix
+
+`CityState.resource_stock` is the only persisted resource inventory. National warehouse UI is a freshly rebuilt aggregate of runtime player-owned city stock, seeded before the first WorldMap render and rebuilt after new game, load, ownership/resource settlement, expedition payment, and research payment. It is not a separate spendable store.
+
+National technology validates an atomic capital-first, stable-city-order payment plan against all owned city stock, then commits only if fully funded. City technology validates and pays only the selected city stock. Expedition cargo continues to read and deduct only the source city stock. Battle_Land production aliases (`yi_sunsin`, `jeong_dojeon`, `gim_yusin`) are translated back to WorldMap IDs before victory settlement, preventing live BattleResult survivor IDs from being silently dropped and returned to the source roster.
+
 ## Hotfix 4: Victory Occupation Settlement, General Disposition & Faction Elimination
 
 Victory is now an atomic WorldMap settlement. Surviving attacking generals, healthy troops, wounded queue, and remaining expedition cargo are placed in the occupied city; defeat and turn-limit routes return them to the source. The occupied city is entered in the player registry from runtime `owner_faction_id`, starts with no governor, and is immediately usable by player-city commands.

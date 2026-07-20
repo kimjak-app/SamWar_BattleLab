@@ -4,7 +4,7 @@
 
 ### T02 Player Invasion Logistics, Battle Supply & Occupation
 
-Status: Implementation Complete / Manual QA Pending. Formation cargo, both-side Battle_Land supply, 30-turn limit, victory occupation settlement, deterministic defender alignment/adjacent retreat, wounded recovery, duplicate protection, ownership-derived city registry, defeated-faction state, and save/reload automated smoke are implemented. Hotfix 4 adds the final T02 settlement path. Do not promote T03 until integrated manual QA passes.
+Status: Implementation Complete / Manual QA Pending. Formation cargo, both-side Battle_Land supply, 30-turn limit, victory occupation settlement, deterministic defender alignment/adjacent retreat, wounded recovery, duplicate protection, ownership-derived city registry, defeated-faction state, city-stock national aggregation, scoped research payment, and save/reload automated smoke are implemented. Hotfix 5 fixes initial national warehouse seeding and production BattleResult hero-ID settlement. Do not promote T03 until integrated manual QA passes.
 
 ### T01 Korea MVP New Game Four-Faction Selection
 

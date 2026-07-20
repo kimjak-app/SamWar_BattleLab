@@ -867,6 +867,11 @@ const SALT_PRESERVATION_RULES := {"food_ratio": 0.08, "seafood_ratio": 0.12}
 const PLAYER_ATTACK_SUPPLY_GOLD_RESOURCE_ID := "gold"
 const PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID := "salt"
 const PLAYER_ATTACK_WOUNDED_QUEUE_TURNS := 3
+const BATTLE_RESULT_HERO_ID_COMPATIBILITY := {
+	"yi_sunsin": "yi_sun_sin",
+	"jeong_dojeon": "jeong_do_jeon",
+	"gim_yusin": "kim_yu_sin",
+}
 const T02_INITIAL_SALT_PER_RESOURCE_RATING := 20
 
 const GOVERNOR_POLICY_DATA := {
@@ -1364,6 +1369,11 @@ func _initialize_korea_mvp_new_game(faction_id: String) -> void:
 	var player_city: Dictionary = _city_runtime_states.get(start_city_id, {})
 	_player_state["owned_hero_ids"] = _get_stationed_hero_ids_for_city(player_city)
 	_ensure_worldmap_runtime_state_defaults()
+	# Seed persistent city stock before the first national-panel render.  The
+	# seeder only fills missing keys and never overwrites a saved/runtime value.
+	for city_id_variant in _city_runtime_states.keys():
+		_ensure_city_supply_resource_defaults(str(city_id_variant))
+	_rebuild_occupation_runtime_indexes_mvp()
 
 
 func _select_korea_mvp_start_city() -> void:
@@ -8310,6 +8320,7 @@ func _pay_player_attack_supply_cost(source_city_id: String, supply_cost: Diction
 	resource_stock[PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID] = maxi(0, int(resource_stock.get(PLAYER_ATTACK_SUPPLY_SALT_RESOURCE_ID, 0)) - maxi(0, int(supply_cost.get("salt", 0))))
 	city_data["resource_stock"] = resource_stock
 	_city_runtime_states[source_city_id] = city_data
+	_rebuild_occupation_runtime_indexes_mvp()
 	_refresh_city_hud_data_bindings()
 	_refresh_left_world_status_panel()
 	print("[PLAYER_ATTACK_SUPPLY_PAY] source_city=%s cost=%s before=%s after=%s" % [source_city_id, str(supply_cost), str(before_stock), str(resource_stock)])
@@ -8961,7 +8972,7 @@ func _apply_t02_player_attack_result(result: Dictionary) -> void:
 	var attacker_won := winner == "attacker"
 	var healthy := maxi(0, int(result.get("attacker_healthy_survivors", 0)))
 	var wounded := maxi(0, int(result.get("attacker_wounded", 0)))
-	var surviving_generals := _normalize_hero_id_array(result.get("attacker_surviving_general_ids", []))
+	var surviving_generals := _normalize_battle_result_hero_ids(result.get("attacker_surviving_general_ids", []))
 	var destination_city_id := target_city_id if attacker_won else source_city_id
 	if attacker_won:
 		var defeated_owner := _get_city_owner_id_for_battle_context(target_city_id)
@@ -8969,7 +8980,7 @@ func _apply_t02_player_attack_result(result: Dictionary) -> void:
 		# Ownership must be applied before disposition: retreat candidates are the cities
 		# that remain with the defeated faction after this settlement.
 		_set_city_runtime_owner(target_city_id, attacker_owner)
-		var disposition := _settle_defender_generals_after_occupation(target_city_id, defeated_owner, attacker_owner, _normalize_hero_id_array(result.get("defender_general_ids", [])), _normalize_hero_id_array(result.get("defender_surviving_general_ids", [])), transaction_id, result_id)
+		var disposition := _settle_defender_generals_after_occupation(target_city_id, defeated_owner, attacker_owner, _normalize_battle_result_hero_ids(result.get("defender_general_ids", [])), _normalize_battle_result_hero_ids(result.get("defender_surviving_general_ids", [])), transaction_id, result_id)
 		var defender_retreat_city_id := str(disposition.get("primary_escape_city_id", ""))
 		if not defender_retreat_city_id.is_empty():
 			_set_city_runtime_troops(defender_retreat_city_id, _get_city_troops_for_battle_context(defender_retreat_city_id) + maxi(0, int(result.get("defender_healthy_survivors", 0))))
@@ -9140,6 +9151,17 @@ func _move_hero_to_city_t02(hero_id: String, city_id: String) -> void:
 	_remove_hero_from_other_city_runtime_rosters(hero_id, city_id)
 	_ensure_hero_in_city_runtime_roster(hero_id, city_id)
 	_set_hero_runtime_city(hero_id, city_id)
+
+
+func _normalize_battle_result_hero_ids(raw_hero_ids: Variant) -> Array[String]:
+	if not raw_hero_ids is Array:
+		return []
+	var normalized_input: Array[String] = []
+	for raw_hero_id in raw_hero_ids:
+		var hero_id := str(raw_hero_id)
+		var worldmap_id := str(BATTLE_RESULT_HERO_ID_COMPATIBILITY.get(hero_id, hero_id))
+		normalized_input.append(worldmap_id)
+	return _normalize_hero_id_array(normalized_input)
 
 
 func _refresh_wounded_treatment_controls() -> void:
@@ -10315,6 +10337,102 @@ func _calculate_recruitment_cost(amount: int) -> Dictionary:
 func _get_total_recruitment_food_stock() -> int:
 	var resource_stock: Dictionary = _player_state.get("resource_stock", {})
 	return maxi(0, int(resource_stock.get("rice", 0))) + maxi(0, int(resource_stock.get("barley", 0))) + maxi(0, int(resource_stock.get("seafood", 0)))
+
+
+func _get_national_payment_city_ids_mvp() -> Array[String]:
+	var city_ids: Array[String] = []
+	for city_id_variant in _city_runtime_states.keys():
+		var city_id := str(city_id_variant)
+		if _get_city_owner_id_for_battle_context(city_id) == _get_current_player_faction_id():
+			city_ids.append(city_id)
+	city_ids.sort()
+	var capital_id := str(_player_state.get("capital_city_id", ""))
+	if city_ids.has(capital_id):
+		city_ids.erase(capital_id)
+		city_ids.push_front(capital_id)
+	return city_ids
+
+
+func _payment_resource_ids_mvp(resource_id: String) -> Array[String]:
+	var result: Array[String] = []
+	if resource_id == "food":
+		result.append_array(["rice", "barley", "seafood"])
+	else:
+		result.append(resource_id)
+	return result
+
+
+func _plan_city_stock_payment_mvp(city_id: String, cost: Dictionary) -> Dictionary:
+	if city_id.is_empty() or _get_city_hud_entry(city_id).is_empty():
+		return {"ok": false, "cost": cost.duplicate(true), "missing": {"city": 1}, "plan": {}}
+	_ensure_city_supply_resource_defaults(city_id)
+	var stock: Dictionary = _get_city_hud_entry(city_id).get("resource_stock", {})
+	var missing := {}
+	var plan := {city_id: {}}
+	for raw_id in cost.keys():
+		var resource_id := str(raw_id)
+		var remaining := maxi(0, int(cost.get(raw_id, 0)))
+		for actual_id in _payment_resource_ids_mvp(resource_id):
+			var paid := mini(maxi(0, int(stock.get(actual_id, 0))), remaining)
+			if paid > 0:
+				(plan[city_id] as Dictionary)[actual_id] = paid
+				remaining -= paid
+		if remaining > 0:
+			missing[resource_id] = remaining
+	return {"ok": missing.is_empty(), "cost": cost.duplicate(true), "missing": missing, "plan": plan}
+
+
+func _plan_national_city_stock_payment_mvp(cost: Dictionary) -> Dictionary:
+	var city_ids := _get_national_payment_city_ids_mvp()
+	for city_id in city_ids:
+		_ensure_city_supply_resource_defaults(city_id)
+	var plan := {}
+	var missing := {}
+	for raw_id in cost.keys():
+		var resource_id := str(raw_id)
+		var remaining := maxi(0, int(cost.get(raw_id, 0)))
+		for actual_id in _payment_resource_ids_mvp(resource_id):
+			for city_id in city_ids:
+				var stock: Dictionary = _get_city_hud_entry(city_id).get("resource_stock", {})
+				var paid := mini(maxi(0, int(stock.get(actual_id, 0))), remaining)
+				if paid > 0:
+					if not plan.has(city_id):
+						plan[city_id] = {}
+					(plan[city_id] as Dictionary)[actual_id] = int((plan[city_id] as Dictionary).get(actual_id, 0)) + paid
+					remaining -= paid
+				if remaining <= 0:
+					break
+			if remaining <= 0:
+				break
+		if remaining > 0:
+			missing[resource_id] = remaining
+	return {"ok": missing.is_empty(), "cost": cost.duplicate(true), "missing": missing, "plan": plan}
+
+
+func _commit_city_stock_payment_mvp(city_id: String, cost: Dictionary) -> Dictionary:
+	return _commit_city_stock_payment_plan_mvp(_plan_city_stock_payment_mvp(city_id, cost))
+
+
+func _commit_national_city_stock_payment_mvp(cost: Dictionary) -> Dictionary:
+	return _commit_city_stock_payment_plan_mvp(_plan_national_city_stock_payment_mvp(cost))
+
+
+func _commit_city_stock_payment_plan_mvp(payment: Dictionary) -> Dictionary:
+	if not bool(payment.get("ok", false)):
+		return payment
+	var plan: Dictionary = payment.get("plan", {})
+	for city_id_variant in plan.keys():
+		var city_id := str(city_id_variant)
+		var city_state := _get_mutable_city_runtime_state(city_id)
+		var stock: Dictionary = city_state.get("resource_stock", {}).duplicate(true)
+		for resource_id_variant in (plan[city_id_variant] as Dictionary).keys():
+			var resource_id := str(resource_id_variant)
+			stock[resource_id] = maxi(0, int(stock.get(resource_id, 0)) - int((plan[city_id_variant] as Dictionary).get(resource_id_variant, 0)))
+		city_state["resource_stock"] = stock
+		_city_runtime_states[city_id] = city_state
+	payment["paid"] = plan.duplicate(true)
+	_rebuild_occupation_runtime_indexes_mvp()
+	return payment
 
 
 func _can_pay_generic_resource_cost(cost: Dictionary) -> Dictionary:
@@ -16307,7 +16425,7 @@ func _can_pay_national_tech_cost(tech_id: String) -> Dictionary:
 		var raw_cost: Variant = definition.get("cost", {})
 		if raw_cost is Dictionary:
 			cost = raw_cost as Dictionary
-	var payment_check := _can_pay_generic_resource_cost(cost)
+	var payment_check := _plan_national_city_stock_payment_mvp(cost)
 	return {
 		"ok": not definition.is_empty() and bool(payment_check.get("ok", false)),
 		"cost": cost.duplicate(true),
@@ -16353,7 +16471,9 @@ func _start_national_tech(tech_id: String) -> bool:
 		return false
 	var definition := _get_national_tech_definition(tech_id)
 	var cost: Dictionary = definition.get("cost", {})
-	var paid_cost := _apply_generic_resource_cost(cost)
+	var paid_cost := _commit_national_city_stock_payment_mvp(cost)
+	if not bool(paid_cost.get("ok", false)):
+		return false
 	var duration := _get_tech_definition_duration(definition)
 	var national_tech: Dictionary = _player_state["national_tech"]
 	var in_progress: Dictionary = national_tech.get("in_progress", {})
@@ -16377,6 +16497,9 @@ func _start_national_tech(tech_id: String) -> bool:
 		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
 	}
 	_player_state["last_national_tech_start_check"] = _player_state["last_tech_start_result"]
+	_rebuild_occupation_runtime_indexes_mvp()
+	_refresh_left_world_status_panel()
+	_save_worldmap_state()
 	return true
 
 
@@ -16637,7 +16760,7 @@ func _can_pay_city_tech_cost(city_id: String, tech_id: String) -> Dictionary:
 		var raw_cost: Variant = definition.get("cost", {})
 		if raw_cost is Dictionary:
 			cost = raw_cost as Dictionary
-	var payment_check := _can_pay_generic_resource_cost(cost)
+	var payment_check := _plan_city_stock_payment_mvp(city_id, cost)
 	return {
 		"ok": not definition.is_empty() and not _get_city_hud_entry(city_id).is_empty() and bool(payment_check.get("ok", false)),
 		"cost": cost.duplicate(true),
@@ -16685,7 +16808,9 @@ func _start_city_tech(city_id: String, tech_id: String) -> bool:
 		return false
 	var definition := _get_city_tech_definition(tech_id)
 	var cost: Dictionary = definition.get("cost", {})
-	var paid_cost := _apply_generic_resource_cost(cost)
+	var paid_cost := _commit_city_stock_payment_mvp(city_id, cost)
+	if not bool(paid_cost.get("ok", false)):
+		return false
 	var duration := _get_tech_definition_duration(definition)
 	var city_state := _get_mutable_city_runtime_state(city_id)
 	var city_tech: Dictionary = city_state.get("city_tech", {})
@@ -16716,6 +16841,9 @@ func _start_city_tech(city_id: String, tech_id: String) -> bool:
 		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
 	}
 	_player_state["last_city_tech_start_check"] = _player_state["last_tech_start_result"]
+	_rebuild_occupation_runtime_indexes_mvp()
+	_refresh_left_world_status_panel()
+	_save_worldmap_state()
 	return true
 
 

@@ -4,7 +4,7 @@
 
 - Branch: `main`
 - Baseline commit: `c05e96814a1f3b45853d955af8d2359760786602`
-- Current implementation: `v0.74-02-hotfix4 Victory Occupation Settlement, General Disposition & Faction Elimination` (local commit pending)
+- Current implementation: `v0.74-02-hotfix5 Resource Source-of-Truth Unification & Production Victory Settlement Fix` (local commit pending)
 - This state document is current-state only. Use Git history and archive candidates for completed version detail.
 
 ## Active Development Phase
@@ -46,6 +46,7 @@ These are implementation assets, not a claim that every connected gameplay effec
 ## Current T02 State
 
 - T02 is Implementation Complete / Manual QA Pending. Hotfix 4 settles victory occupants, deterministic defender alignment/adjacent retreat, empty-governor occupation, runtime owner-derived player registry/national aggregation, AI ownership-cache generation, defeated-faction persistence, and save/load state.
+- Hotfix 5 makes city `resource_stock` authoritative for national warehouse display, research payment, and expedition scope, seeds it before initial UI, and translates Battle_Land production hero aliases before settlement.
 - Next work is integrated T02 manual QA only; T03 is not active.
 
 ## Confirmed Major Gaps

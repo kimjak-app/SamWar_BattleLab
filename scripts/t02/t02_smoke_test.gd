@@ -48,6 +48,15 @@ func _run_settlement_smoke() -> void:
 	var worldmap := packed.instantiate()
 	root.add_child(worldmap)
 	await process_frame
+	worldmap.call("_initialize_korea_mvp_new_game", "player")
+	var initial_hanseong: Dictionary = worldmap.call("_get_city_hud_entry", "hanseong")
+	var initial_national: Dictionary = ((worldmap.get("_player_state") as Dictionary).get("national_aggregation", {}) as Dictionary).get("resources", {})
+	_expect(initial_national == initial_hanseong.get("resource_stock", {}), "initial aggregation: national stock equals sole owned city")
+	_expect(int(initial_national.get("gold", 0)) == 650 and int(initial_national.get("rice", 0)) == 200, "initial aggregation: seeded before first render")
+	var research_plan: Dictionary = worldmap.call("_plan_national_city_stock_payment_mvp", {"gold": 300})
+	_expect(bool(research_plan.get("ok", false)), "national research: aggregate city stock can fund cost")
+	var city_plan: Dictionary = worldmap.call("_plan_city_stock_payment_mvp", "pyeongyang", {"gold": 500})
+	_expect(not bool(city_plan.get("ok", true)), "city research: cannot use another city stock")
 	_run_four_faction_smoke(worldmap)
 	worldmap.call("_initialize_korea_mvp_new_game", "player")
 	await _run_defender_supply_persistence_smoke(worldmap, packed)
@@ -68,6 +77,7 @@ func _run_settlement_smoke() -> void:
 	player_state["pending_battle_context"] = {"transaction_id": "t02-smoke-victory"}
 	snapshot["player_state"] = player_state
 	var result := _make_result(snapshot, "t02-smoke-victory", "result-victory", "attacker")
+	result["attacker_surviving_general_ids"] = ["yi_sunsin"]
 	worldmap.call("_apply_returned_battle_result_mvp", result)
 	_expect(str(worldmap.call("_get_city_owner_id_for_battle_context", "pyeongyang")) == "player", "victory: ownership")
 	_expect(int(worldmap.call("_get_city_troops_for_battle_context", "pyeongyang")) == 120, "victory: healthy troops")
