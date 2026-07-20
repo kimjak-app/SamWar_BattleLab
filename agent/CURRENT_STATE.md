@@ -9,7 +9,7 @@
 
 ## Active Development Phase
 
-Korea Four-City MVP. T01 and T02 are complete. T03 enemy invasion and player defense is in structure-audit and design discussion; runtime implementation has not started.
+Korea Four-City MVP. T01 and T02 are complete. T03 enemy invasion and player defense has a locked design; runtime implementation has not started. The next executable slice is T03-A contracts and pure calculation.
 
 The active context deliberately contains only current direction, protected boundaries, and the next executable transaction. Completed version-by-version evidence remains in Git history and retained archive candidates.
 
@@ -48,7 +48,7 @@ These are implementation assets, not a claim that every connected gameplay effec
 - T02 is `COMPLETE` at `ff642424e28f98d6b390c457d6913d8b4c2f6c71`. Hotfix 4 settles victory occupants, deterministic defender alignment/adjacent retreat, empty-governor occupation, runtime owner-derived player registry/national aggregation, AI ownership-cache generation, defeated-faction persistence, and save/load state.
 - Hotfix 5 makes city `resource_stock` authoritative for national warehouse display, research payment, and expedition scope, seeds it before initial UI, and translates Battle_Land production hero aliases before settlement.
 - Hotfix 6 removes the final audited GDScript reload warnings without functional changes. Integrated F5 QA and final Editor Output confirmation passed.
-- T03 audit and design is now active; T02 behavior is a protected reuse baseline.
+- T03 audit and design is locked in `agent/transactions/T03_ENEMY_INVASION_PLAYER_DEFENSE.md`; T02 behavior is a protected reuse baseline.
 
 ## Confirmed Major Gaps
 
@@ -68,7 +68,7 @@ T00 is a documentation transaction, not an implementation claim. The new documen
 
 ## Current Runtime Transaction
 
-T03 Enemy Invasion & Player Defense Completion is in audit and design. No T03 runtime edits are authorized yet. The active audit must map the current AI invasion trigger, defense deployment, attacker and defender supply sources, side-aware BattleContext/Result flow, settlement, 30-turn termination, persistence/idempotency, Korea four-faction behavior, and T02 helper reuse boundaries.
+T03 Enemy Invasion & Player Defense Completion is design-locked. No T03 runtime edits have started. T03-A will implement normalized side-aware contracts, multi-food same-turn fallback, deterministic automatic allocation/resolution, the 30-turn defender rule, and casualty-conservation tests before strategic AI selection or UI integration.
 
 ## Protected Contracts
 

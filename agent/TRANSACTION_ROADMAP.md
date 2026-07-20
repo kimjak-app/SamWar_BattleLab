@@ -4,7 +4,9 @@
 
 ### T03 Enemy Invasion & Player Defense Completion
 
-Status: Audit and design active. Inspect the existing AI invasion event, player defense formation, both-side supply ownership, BattleContext side mapping, BattleResult settlement, 30-turn rule, persistence/duplicate protection, Korea four-faction scope, and safe T02 helper reuse before writing an implementation instruction.
+Status: `DESIGN LOCKED / IMPLEMENTATION NOT STARTED`. The audit, restrained war policy, multi-food contract, deterministic automatic resolver, AI-versus-AI presentation, settlement, persistence, and staged acceptance plan are locked in `agent/transactions/T03_ENEMY_INVASION_PLAYER_DEFENSE.md`.
+
+Next executable slice: T03-A contracts and pure calculation. Strategic AI selection, WorldMap mutation, defense UI, video presentation, and integrated completion remain outside that first slice.
 
 ## Complete
 
