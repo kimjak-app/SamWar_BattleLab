@@ -2802,6 +2802,8 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 		"defender_city_name": str(worldmap_battle_context.get("defender_city_name", "알 수 없는 아군 도시")),
 		"attacker_owner": str(worldmap_battle_context.get("attacker_owner", "")),
 		"defender_owner": str(worldmap_battle_context.get("defender_owner", "")),
+		"player_side": str(worldmap_battle_context.get("player_side", "")),
+		"resolution_mode": str(worldmap_battle_context.get("resolution_mode", "direct")),
 		"attacker_troops": maxi(0, int(worldmap_battle_context.get("attacker_troops", 0))),
 		"defender_troops": maxi(0, int(worldmap_battle_context.get("defender_troops", 0))),
 		"attacker_surviving_troops": _sum_alive_deployed_troops_for_side(attacker_battle_side),
@@ -2844,6 +2846,7 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 	payload["attacker_remaining_gold"] = maxi(0, int(attacker_supply.get("gold", worldmap_battle_context.get("attacker_carried_gold", 0))))
 	payload["attacker_remaining_food_type"] = str(attacker_supply.get("food_type", worldmap_battle_context.get("attacker_food_type", "rice")))
 	payload["attacker_remaining_food"] = maxi(0, int(attacker_supply.get("food", 0)))
+	payload["attacker_remaining_food_stock"] = (attacker_supply.get("food_stock", {}) as Dictionary).duplicate(true)
 	payload["attacker_remaining_salt"] = maxi(0, int(attacker_supply.get("salt", 0)))
 	payload["defender_healthy_survivors"] = maxi(0, int(defender_outcome.get("survivors", 0)))
 	payload["defender_wounded"] = maxi(0, int(defender_outcome.get("wounded", 0)))
@@ -2851,6 +2854,8 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 	payload["defender_deserters"] = maxi(0, int(defender_supply.get("deserters", 0)))
 	payload["defender_remaining_food_type"] = str(defender_supply.get("food_type", worldmap_battle_context.get("defender_food_type", "rice")))
 	payload["defender_remaining_food"] = maxi(0, int(defender_supply.get("food", 0)))
+	payload["defender_remaining_food_stock"] = (defender_supply.get("food_stock", {}) as Dictionary).duplicate(true)
+	payload["defender_remaining_gold"] = maxi(0, int(defender_supply.get("gold", worldmap_battle_context.get("defender_carried_gold", 0))))
 	payload["defender_remaining_salt"] = maxi(0, int(defender_supply.get("salt", 0)))
 	payload["defender_initial_food"] = maxi(0, int(worldmap_battle_context.get("defender_food_amount", 0)))
 	payload["defender_initial_salt"] = maxi(0, int(worldmap_battle_context.get("defender_salt_amount", 0)))

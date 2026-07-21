@@ -4,12 +4,12 @@
 
 - Branch: `main`
 - Baseline commit: `ff642424e28f98d6b390c457d6913d8b4c2f6c71`
-- Current implementation: `v0.74-02-hotfix6 Final GDScript Warning Cleanup`
+- Current implementation candidate: `v0.75 T03 Enemy Invasion & Player Defense Completion`
 - This state document is current-state only. Use Git history and archive candidates for completed version detail.
 
 ## Active Development Phase
 
-Korea Four-City MVP. T01 and T02 are complete. T03 enemy invasion and player defense has a locked design; runtime implementation has not started. The next executable slice is T03-A contracts and pure calculation.
+Korea Four-City MVP. T01 and T02 are complete. T03 enemy invasion and player defense is implemented as one complete transaction candidate. Static source and video validation pass; Godot 4.6 runtime smoke and integrated F5 QA are pending before the completion lock.
 
 The active context deliberately contains only current direction, protected boundaries, and the next executable transaction. Completed version-by-version evidence remains in Git history and retained archive candidates.
 
@@ -68,7 +68,9 @@ T00 is a documentation transaction, not an implementation claim. The new documen
 
 ## Current Runtime Transaction
 
-T03 Enemy Invasion & Player Defense Completion is design-locked. No T03 runtime edits have started. T03-A will implement normalized side-aware contracts, multi-food same-turn fallback, deterministic automatic allocation/resolution, the 30-turn defender rule, and casualty-conservation tests before strategic AI selection or UI integration.
+T03 Enemy Invasion & Player Defense Completion is fully connected in the v0.75 implementation candidate: restrained Korea AI war selection, multi-food expedition supply, direct and automatic player defense, deterministic AI-versus-AI resolution, T02-parity strategic settlement, saved duplicate protection, and video-to-report presentation. This remains one transaction; the former A–E labels are implementation-order checkpoints only.
+
+The current gate is Godot runtime and F5 QA. The implementation environment had no Godot executable, so it did not claim project parse, smoke execution, or Editor Output evidence. After those checks pass on the player PC, T03 can be marked `COMPLETE`; failures return as v0.75 hotfixes without reopening the transaction design.
 
 ## Protected Contracts
 

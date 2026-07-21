@@ -8,6 +8,7 @@ const EconomyCityHelpers := preload("res://scripts/worldmap/economy_city/economy
 const DefenseBattleHelpers := preload("res://scripts/worldmap/defense_battle/defense_battle_helpers.gd")
 const DiplomacySpyHelpers := preload("res://scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd")
 const UIFormatterHelpers := preload("res://scripts/worldmap/ui_formatter/ui_formatter_helpers.gd")
+const T03AutoBattleResolverScript := preload("res://scripts/worldmap/t03/auto_battle_resolver.gd")
 
 const WORLD_MAP_CAMERA_SPEED := 900.0
 const WORLD_MAP_CAMERA_DRAG_SPEED := 1.0
@@ -271,8 +272,12 @@ const WORLDMAP_SAVE_PATH := "user://worldmap_left_panel_state.json"
 const TURN_PHASE_PLAYER := "player"
 const TURN_PHASE_ENEMY := "enemy"
 const ENEMY_TURN_MVP_DELAY := 0.75
-const MANUAL_QA_NO_INVASION_GRACE_TURNS := 10
-const ENEMY_INVASION_CHANCE := 0.45
+const MANUAL_QA_NO_INVASION_GRACE_TURNS := 0
+const ENEMY_INVASION_CHANCE := 0.20
+const T03_PEACE_GRACE_TURNS := 3
+const T03_GLOBAL_WAR_COOLDOWN_TURNS := 2
+const T03_KOREA_CITY_IDS: Array[String] = ["hanseong", "pyeongyang", "gyeongju", "sabi"]
+const T03_AI_BATTLE_VIDEO_PATH := "res://assets/ui/worldmap/videos/ai_faction_battle_theora_q8_1280x720.ogv"
 const ENEMY_FACTION_TURN_REINFORCE_BASE := 60
 const ENEMY_FACTION_TURN_REINFORCE_FRONTLINE_BONUS := 40
 const ENEMY_FACTION_TURN_REINFORCE_CHANCELLOR_BONUS := 20
@@ -1193,6 +1198,9 @@ var _player_state := {
 	"applied_battle_result_ids": [],
 	"korea_unification_victory": false,
 	"enemy_invasion_roll_turn": 0,
+	"t03_global_war_cooldown_until_turn": 0,
+	"t03_automatic_battle_reports": [],
+	"t03_acknowledged_report_ids": [],
 	"last_enemy_faction_turn_result": {},
 	"last_enemy_pressure_plan_result": {},
 	"last_enemy_strategic_action_result": {},
@@ -1262,6 +1270,15 @@ var _domestic_tech_completion_title_label: Label = null
 var _domestic_tech_completion_message_label: Label = null
 var _domestic_tech_completion_effect_label: RichTextLabel = null
 var _domestic_tech_completion_confirm_button: Button = null
+@onready var _t03_battle_presentation_root: Control = $WorldMapUI/T03BattlePresentation
+@onready var _t03_battle_video_player: VideoStreamPlayer = $WorldMapUI/T03BattlePresentation/Frame/VideoPlayer
+@onready var _t03_battle_video_labels: Label = $WorldMapUI/T03BattlePresentation/Frame/VideoLabels
+@onready var _t03_battle_skip_button: Button = $WorldMapUI/T03BattlePresentation/Frame/SkipButton
+@onready var _t03_battle_result_card: PanelContainer = $WorldMapUI/T03BattlePresentation/Frame/ResultCard
+@onready var _t03_battle_result_title: Label = $WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content/Title
+@onready var _t03_battle_result_body: Label = $WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content/Body
+@onready var _t03_battle_result_confirm_button: Button = $WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content/ConfirmButton
+var _t03_active_report: Dictionary = {}
 
 
 func _ready() -> void:
@@ -1287,6 +1304,7 @@ func _ready() -> void:
 	_ensure_domestic_tech_tree_button_mvp()
 	_ensure_domestic_tech_tree_overlay_mvp()
 	_ensure_domestic_tech_completion_presentation_overlay()
+	_setup_t03_battle_presentation()
 	_refresh_domestic_tech_tree_overlay_mvp()
 	_close_domestic_tech_tree_overlay_mvp()
 	_ensure_player_attack_deployment_panel()
@@ -6356,6 +6374,13 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 	if not _player_state.has("enemy_invasion_roll_turn"):
 		_player_state["enemy_invasion_roll_turn"] = 0
 	_player_state["enemy_invasion_roll_turn"] = maxi(0, int(_player_state.get("enemy_invasion_roll_turn", 0)))
+	if not _player_state.has("t03_global_war_cooldown_until_turn"):
+		_player_state["t03_global_war_cooldown_until_turn"] = 0
+	_player_state["t03_global_war_cooldown_until_turn"] = maxi(0, int(_player_state.get("t03_global_war_cooldown_until_turn", 0)))
+	if not _player_state.has("t03_automatic_battle_reports") or not (_player_state["t03_automatic_battle_reports"] is Array):
+		_player_state["t03_automatic_battle_reports"] = []
+	if not _player_state.has("t03_acknowledged_report_ids") or not (_player_state["t03_acknowledged_report_ids"] is Array):
+		_player_state["t03_acknowledged_report_ids"] = []
 	if not _player_state.has("last_enemy_faction_turn_result") or not (_player_state["last_enemy_faction_turn_result"] is Dictionary):
 		_player_state["last_enemy_faction_turn_result"] = {}
 	if not _player_state.has("last_enemy_strategic_action_result") or not (_player_state["last_enemy_strategic_action_result"] is Dictionary):
@@ -6562,7 +6587,9 @@ func _run_enemy_turn_mvp() -> void:
 	if not enemy_turn_already_processed:
 		invasion_event = _roll_enemy_invasion_event_mvp()
 		_attach_enemy_invasion_event_to_enemy_turn_result(invasion_event)
-	if not invasion_event.is_empty():
+	if bool(invasion_event.get("resolved_automatically", false)):
+		_set_save_management_status("AI 세력전 정산 완료 · 다음 아군 턴에 결과 보고")
+	elif not invasion_event.is_empty():
 		_set_save_management_status(_format_invasion_status_text(invasion_event))
 	elif enemy_turn_result is Dictionary and not (enemy_turn_result as Dictionary).is_empty():
 		_set_save_management_status(str((enemy_turn_result as Dictionary).get("summary", "이번 턴 적 행동 처리 완료")))
@@ -6603,6 +6630,7 @@ func _finish_enemy_turn_mvp() -> void:
 		_set_save_management_status("다음 아군 턴 시작")
 	else:
 		_set_save_management_status("내정 적용 완료 · %s" % domestic_summary)
+	call_deferred("_try_present_next_t03_battle_report")
 
 
 func _roll_enemy_invasion_event_mvp(roll_value: float = -1.0, candidate_index: int = -1) -> Dictionary:
@@ -6610,6 +6638,12 @@ func _roll_enemy_invasion_event_mvp(roll_value: float = -1.0, candidate_index: i
 	if _has_pending_invasion_event_mvp() or not _get_pending_battle_context_mvp().is_empty():
 		return {}
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	if turn_number <= T03_PEACE_GRACE_TURNS:
+		_player_state["enemy_invasion_roll_turn"] = turn_number
+		return {}
+	if turn_number <= int(_player_state.get("t03_global_war_cooldown_until_turn", 0)):
+		_player_state["enemy_invasion_roll_turn"] = turn_number
+		return {}
 	if _is_manual_qa_invasion_grace_turn_active_mvp():
 		_player_state["enemy_invasion_roll_turn"] = turn_number
 		return {}
@@ -6618,7 +6652,7 @@ func _roll_enemy_invasion_event_mvp(roll_value: float = -1.0, candidate_index: i
 	_player_state["enemy_invasion_roll_turn"] = turn_number
 	var candidate_pairs := _get_enemy_invasion_pairs_mvp()
 	if candidate_pairs.is_empty():
-		print("[WorldMap] Enemy invasion MVP: no adjacent enemy/player city pairs.")
+		print("[WorldMap] T03: no eligible Korea invasion pairs.")
 		return {}
 	var roll := roll_value if roll_value >= 0.0 else randf()
 	if roll >= ENEMY_INVASION_CHANCE:
@@ -6627,10 +6661,19 @@ func _roll_enemy_invasion_event_mvp(roll_value: float = -1.0, candidate_index: i
 	var pair_index := candidate_index if candidate_index >= 0 else randi() % candidate_pairs.size()
 	pair_index = clampi(pair_index, 0, candidate_pairs.size() - 1)
 	var selected_pair := candidate_pairs[pair_index] as Dictionary
-	return _create_pending_invasion_event_mvp(
+	var event := _create_pending_invasion_event_mvp(
 		str(selected_pair.get("attacker_city_id", "")),
 		str(selected_pair.get("defender_city_id", ""))
 	)
+	if event.is_empty():
+		return {}
+	_player_state["t03_global_war_cooldown_until_turn"] = turn_number + T03_GLOBAL_WAR_COOLDOWN_TURNS
+	if str(event.get("defender_owner", "")) != _get_current_player_faction_id():
+		var result := _resolve_t03_automatic_invasion(event)
+		if not result.is_empty():
+			event["resolved_automatically"] = true
+			event["result_id"] = str(result.get("result_id", ""))
+	return event
 
 
 func _process_enemy_faction_turn_mvp() -> Dictionary:
@@ -7645,8 +7688,10 @@ func _attach_enemy_invasion_event_to_enemy_turn_result(invasion_event: Dictionar
 			"pressure_plan": {},
 			"strategic_actions": [],
 		}
-	enemy_turn_result["pending_invasion_created"] = not invasion_event.is_empty()
-	if not invasion_event.is_empty():
+	var resolved_automatically := bool(invasion_event.get("resolved_automatically", false))
+	enemy_turn_result["pending_invasion_created"] = not invasion_event.is_empty() and not resolved_automatically
+	enemy_turn_result["automatic_battle_resolved"] = resolved_automatically
+	if not invasion_event.is_empty() and not resolved_automatically:
 		enemy_turn_result["pending_invasion_event"] = invasion_event.duplicate(true)
 		enemy_turn_result["pending_invasion_already_active"] = false
 	else:
@@ -7694,6 +7739,8 @@ func _build_enemy_faction_turn_summary(result: Dictionary) -> String:
 	if strategic_actions is Array:
 		strategic_count = (strategic_actions as Array).size()
 	var invasion_summary := "침공 대기 없음"
+	if bool(result.get("automatic_battle_resolved", false)):
+		invasion_summary = "AI 세력전 결과 보고 대기"
 	var invasion_event: Variant = result.get("pending_invasion_event", {})
 	if bool(result.get("pending_invasion_created", false)) and invasion_event is Dictionary:
 		var pending_hint := _format_enemy_pending_invasion_hint_mvp(invasion_event)
@@ -7774,15 +7821,16 @@ func _format_enemy_faction_turn_result_hint(raw_result: Variant) -> String:
 
 func _get_enemy_invasion_pairs_mvp() -> Array[Dictionary]:
 	var pairs: Array[Dictionary] = []
-	for attacker_city_id_variant in _city_markers_by_id.keys():
-		var attacker_city_id := str(attacker_city_id_variant)
+	for attacker_city_id in T03_KOREA_CITY_IDS:
 		for defender_city_id_variant in _get_city_neighbors_mvp(attacker_city_id):
 			var defender_city_id := str(defender_city_id_variant)
+			if not T03_KOREA_CITY_IDS.has(defender_city_id):
+				continue
 			if _is_enemy_invasion_pair_eligible_mvp(attacker_city_id, defender_city_id):
 				pairs.append({
 					"attacker_city_id": attacker_city_id,
 					"defender_city_id": defender_city_id,
-					"score": _score_enemy_invasion_pair_mvp(attacker_city_id, defender_city_id),
+					"score": 0,
 				})
 	pairs.sort_custom(Callable(self, "_sort_enemy_invasion_pairs_mvp"))
 	return pairs
@@ -7831,51 +7879,43 @@ func _is_city_owner_consistent_for_enemy_invasion_mvp(city_id: String) -> bool:
 func _is_enemy_invasion_pair_eligible_mvp(attacker_city_id: String, defender_city_id: String) -> bool:
 	if attacker_city_id.is_empty() or defender_city_id.is_empty() or attacker_city_id == defender_city_id:
 		return false
+	if not T03_KOREA_CITY_IDS.has(attacker_city_id) or not T03_KOREA_CITY_IDS.has(defender_city_id):
+		return false
 	if not _has_city_for_battle_context(attacker_city_id) or not _has_city_for_battle_context(defender_city_id):
 		return false
 	if not _is_city_owner_consistent_for_enemy_invasion_mvp(attacker_city_id) or not _is_city_owner_consistent_for_enemy_invasion_mvp(defender_city_id):
 		return false
-	if not _is_city_owned_by_enemy_mvp(attacker_city_id) or not _is_city_owned_by_player_mvp(defender_city_id):
+	var attacker_owner := _get_city_owner_id_for_battle_context(attacker_city_id)
+	var defender_owner := _get_city_owner_id_for_battle_context(defender_city_id)
+	if attacker_owner.is_empty() or defender_owner.is_empty() or attacker_owner == defender_owner:
+		return false
+	if attacker_owner == _get_current_player_faction_id():
+		return false
+	if _is_t03_faction_defeated(attacker_owner) or _is_t03_faction_defeated(defender_owner):
 		return false
 	if not _get_city_neighbors_mvp(attacker_city_id).has(defender_city_id):
 		return false
-	if _get_city_troops_for_enemy_invasion_mvp(attacker_city_id) < ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS:
+	var attacker_troops := _get_city_troops_for_enemy_invasion_mvp(attacker_city_id)
+	if attacker_troops < ENEMY_INVASION_MIN_ATTACKER_CITY_TROOPS:
 		return false
-	var event := {
-		"type": "defense",
-		"attacker_city_id": attacker_city_id,
-		"defender_city_id": defender_city_id,
-	}
-	return bool(_validate_pending_invasion_event_for_battle_context(event).get("ok", false))
+	var eligible_heroes := _get_t03_eligible_city_hero_ids(attacker_city_id)
+	if eligible_heroes.is_empty():
+		return false
+	if _get_t03_eligible_city_hero_ids(defender_city_id).is_empty():
+		return false
+	_ensure_city_supply_resource_defaults(attacker_city_id)
+	var maximum_troops := maxi(0, attacker_troops - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
+	var deployable_troops := _sum_troop_allocation(_build_command_limit_troop_allocation_for_heroes(eligible_heroes, maximum_troops, attacker_city_id))
+	if deployable_troops <= 0:
+		return false
+	var minimum_gold := ExpeditionSupplyCalculator.minimum_gold(deployable_troops)
+	var minimum_food := ExpeditionSupplyCalculator.minimum_food(deployable_troops)
+	return _get_city_supply_resource_amount(attacker_city_id, "gold") >= minimum_gold and _get_t03_city_food_total(attacker_city_id) >= minimum_food
 
 
 func _score_enemy_invasion_pair_mvp(attacker_city_id: String, defender_city_id: String) -> int:
-	var attacker_troops := _get_city_troops_for_enemy_invasion_mvp(attacker_city_id)
-	var defender_troops := _get_city_troops_for_battle_context(defender_city_id)
-	var troop_edge := attacker_troops - defender_troops
-	var score := mini(attacker_troops, 2000)
-	score += clampi(troop_edge, -1000, 1000)
-	score += 200 if _is_player_frontline_city_for_enemy_invasion_mvp(defender_city_id) else 0
-	var attacker_faction_id := _get_safe_enemy_owner_faction_id_for_turn_mvp(attacker_city_id)
-	var goal_weight := _get_enemy_faction_goal_weight(attacker_faction_id)
-	var goal_pressure := _get_enemy_faction_goal_pressure(attacker_faction_id)
-	if _is_city_preferred_by_enemy_goal(attacker_faction_id, defender_city_id):
-		score += int(round(140.0 * goal_weight))
-	elif _is_city_adjacent_to_enemy_goal_target(attacker_faction_id, defender_city_id):
-		score += int(round(65.0 * goal_weight))
-	if goal_pressure == "invasion" or goal_pressure == "aggressive" or goal_pressure == "military":
-		score += int(round(70.0 * goal_weight))
-	if score <= 0:
-		return score
-	score += int(round(
-		_get_enemy_pressure_plan_score_bonus_mvp(attacker_faction_id, defender_city_id, "invasion") +
-		_get_enemy_pressure_plan_score_bonus_mvp(attacker_faction_id, attacker_city_id, "invasion") * 0.5
-	))
-	var invasion_weight := _get_enemy_faction_behavior_weight(attacker_faction_id, "invasion_weight", 1.0)
-	if score <= 0:
-		return score
-	var pressure_multiplier := 1.0 + ((goal_weight - 1.0) * 0.5) if goal_pressure == "invasion" or goal_pressure == "aggressive" or goal_pressure == "military" else 1.0
-	return int(round(float(score) * invasion_weight * pressure_multiplier))
+	# T03 deliberately avoids target-strength and player-target weighting.
+	return 0 if not attacker_city_id.is_empty() and not defender_city_id.is_empty() else -1
 
 
 func _sort_enemy_invasion_pairs_mvp(left: Dictionary, right: Dictionary) -> bool:
@@ -8424,14 +8464,19 @@ func _create_pending_invasion_event_mvp(attacker_city_id: String, defender_city_
 		"type": "defense",
 		"attacker_city_id": attacker_city_id,
 		"defender_city_id": defender_city_id,
+		"attacker_owner": _get_city_owner_id_for_battle_context(attacker_city_id),
+		"defender_owner": _get_city_owner_id_for_battle_context(defender_city_id),
 		"source": "enemy_invasion_mvp",
 		"turn_number": maxi(1, int(_player_state.get("turn_number", 1))),
+		"transaction_id": _make_t03_transaction_id(attacker_city_id, defender_city_id),
+		"stage": "awaiting_player_choice" if _is_city_owned_by_player_mvp(defender_city_id) else "automatic_resolution",
 	}
-	_player_state["pending_invasion_event"] = event
-	_player_state["selected_city_id"] = defender_city_id
-	_player_state["origin_city_id"] = defender_city_id
-	if _city_markers_by_id.has(defender_city_id):
-		_on_city_marker_selected(_city_markers_by_id[defender_city_id])
+	if _is_city_owned_by_player_mvp(defender_city_id):
+		_player_state["pending_invasion_event"] = event
+		_player_state["selected_city_id"] = defender_city_id
+		_player_state["origin_city_id"] = defender_city_id
+		if _city_markers_by_id.has(defender_city_id):
+			_on_city_marker_selected(_city_markers_by_id[defender_city_id])
 	print("[WorldMap] Enemy invasion MVP event created: %s -> %s" % [attacker_city_id, defender_city_id])
 	return event
 
@@ -8481,44 +8526,12 @@ func _on_auto_defense_pressed() -> void:
 		_set_save_management_status("전투 화면 이동 중입니다.")
 		_refresh_left_world_status_panel()
 		return
-	_open_defense_deployment_panel_from_pending_invasion("auto")
-
-
-func _start_pending_invasion_battle_scene_handoff(mode: String) -> void:
-	if _worldmap_battle_entry_handoff_in_progress:
-		_set_save_management_status("전투 화면 이동 중입니다.")
-		_refresh_left_world_status_panel()
-		return
-	var battle_context := _prepare_pending_invasion_battle_context(mode)
-	if battle_context.is_empty():
-		return
-	_handoff_battle_context_to_battle_scene(battle_context)
-
-
-func _prepare_pending_invasion_battle_context(mode: String) -> Dictionary:
-	var normalized_mode := "auto" if mode == "auto" else "manual"
-	var event := _get_pending_invasion_event_mvp()
-	var validation := _validate_pending_invasion_event_for_battle_context(event)
-	if not bool(validation.get("ok", false)):
-		_clear_pending_battle_context_mvp()
-		_set_save_management_status("전투 데이터 생성 실패 · %s" % str(validation.get("message", "침공 이벤트 확인 필요")))
-		_refresh_left_world_status_panel()
-		return {}
-	var battle_context := _build_battle_context_from_pending_invasion(event, normalized_mode)
-	if battle_context.is_empty():
-		_clear_pending_battle_context_mvp()
-		_set_save_management_status("전투 데이터 생성 실패")
-		_refresh_left_world_status_panel()
-		return {}
-	battle_context = _apply_context_side_troop_pre_decrement_mvp(battle_context, "attacker", "attacker_troop_deployed_from_city")
-	battle_context = _apply_context_side_troop_pre_decrement_mvp(battle_context, "defender", "defender_troop_deployed_from_city")
-	_set_pending_battle_context_mvp(battle_context)
-	if normalized_mode == "auto":
-		_set_save_management_status("자동 방어 전투 데이터 준비 완료 · 자동 해결은 아직 미구현")
+	var result := _resolve_t03_automatic_invasion(_get_pending_invasion_event_mvp())
+	if result.is_empty():
+		_set_save_management_status("자동 방어 해결 실패 · 침공 상태를 확인하십시오.")
 	else:
-		_set_save_management_status("수동 방어 전투 데이터 준비 완료 · 다음 단계에서 전투 화면으로 이동")
+		_set_save_management_status("자동 방어 결과가 정산되었습니다.")
 	_refresh_left_world_status_panel()
-	return battle_context
 
 
 func _open_defense_deployment_panel_from_pending_invasion(mode: String = "manual") -> void:
@@ -8554,7 +8567,7 @@ func _build_defense_deployment_payload(event: Dictionary, mode: String) -> Dicti
 	var attacker_city_id := str(event.get("attacker_city_id", ""))
 	var defender_city_id := str(event.get("defender_city_id", ""))
 	var defender_troops := _get_city_troops_for_battle_context(defender_city_id)
-	var max_deployable := maxi(0, defender_troops - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
+	var max_deployable := maxi(0, defender_troops)
 	var heroes := _get_deployable_player_heroes_for_city(defender_city_id)
 	if heroes.is_empty() or max_deployable <= 0:
 		return {}
@@ -8569,9 +8582,9 @@ func _build_defense_deployment_payload(event: Dictionary, mode: String) -> Dicti
 		"target_city_name": _format_city_name_by_id(attacker_city_id, "침공 도시"),
 		"source_troops": defender_troops,
 		"max_deployable_troops": max_deployable,
-		"food_available": 0,
-		"gold_available": 0,
-		"salt_available": 0,
+		"food_available": _get_t03_city_food_total(defender_city_id),
+		"gold_available": _get_city_supply_resource_amount(defender_city_id, "gold"),
+		"salt_available": _get_city_supply_resource_amount(defender_city_id, "salt"),
 		"naval_route_required": _is_naval_attack_route_mvp(attacker_city_id, defender_city_id),
 		"siege_required": _is_siege_attack_target_mvp(defender_city_id),
 		"domestic_tech_naval_unlock": naval_unlock,
@@ -8603,10 +8616,20 @@ func _confirm_defense_deployment(deployment: Dictionary) -> void:
 	battle_context["defender_troop_allocation"] = defender_troop_allocation.duplicate(true)
 	battle_context["defender_total_allocated_troops"] = int(validation.get("total_troops", 0))
 	battle_context["defender_source_city_id"] = str(deployment.get("source_city_id", ""))
-	battle_context = _apply_context_side_troop_pre_decrement_mvp(battle_context, "attacker", "attacker_troop_deployed_from_city")
-	battle_context = _apply_context_side_troop_pre_decrement_mvp(battle_context, "defender", "defender_troop_deployed_from_city")
+	battle_context = _prepare_t03_battle_transaction(event, battle_context, "direct")
+	if battle_context.is_empty():
+		_set_save_management_status("방어 전투 병참 준비 실패")
+		_refresh_left_world_status_panel()
+		return
 	if _player_attack_deployment_panel != null and _player_attack_deployment_panel.has_method("close"):
 		_player_attack_deployment_panel.call("close")
+	_set_pending_battle_context_mvp(battle_context)
+	var state_snapshot := _serialize_worldmap_state()
+	var snapshot_player_state: Dictionary = state_snapshot.get("player_state", {}).duplicate(true)
+	snapshot_player_state["pending_invasion_event"] = event.duplicate(true)
+	snapshot_player_state["pending_battle_context"] = {"transaction_id": str(battle_context.get("transaction_id", "")), "stage": "battle_handoff"}
+	state_snapshot["player_state"] = snapshot_player_state
+	battle_context["worldmap_state_snapshot"] = state_snapshot
 	_set_pending_battle_context_mvp(battle_context)
 	_set_save_management_status("%s 방어 배정 완료 · 병력 %d명" % [
 		str(battle_context.get("defender_city_name", "방어 도시")),
@@ -8637,7 +8660,7 @@ func _validate_defense_deployment(deployment: Dictionary) -> Dictionary:
 	var troop_allocation: Dictionary = deployment.get("defender_troop_allocation", deployment.get("attacker_troop_allocation", {}))
 	var clamped_allocation := {}
 	var total_troops := 0
-	var remaining_garrison := maxi(0, _get_city_troops_for_battle_context(defender_city_id) - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
+	var remaining_garrison := maxi(0, _get_city_troops_for_battle_context(defender_city_id))
 	for hero_id in selected_hero_ids:
 		if not available_hero_ids.has(hero_id):
 			return {"ok": false, "message": "방어 출전 불가 장수가 포함되어 있습니다: %s" % hero_id}
@@ -8652,9 +8675,9 @@ func _validate_defense_deployment(deployment: Dictionary) -> Dictionary:
 		clamped_allocation[hero_id] = troop_count
 		total_troops += troop_count
 		remaining_garrison = maxi(0, remaining_garrison - troop_count)
-	var max_deployable := maxi(0, _get_city_troops_for_battle_context(defender_city_id) - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
+	var max_deployable := maxi(0, _get_city_troops_for_battle_context(defender_city_id))
 	if total_troops <= 0 or total_troops > max_deployable:
-		return {"ok": false, "message": "방어 병력은 1 이상, 도시 병력-1 이하이어야 합니다."}
+		return {"ok": false, "message": "방어 병력은 1 이상, 도시 병력 이하이어야 합니다."}
 	return {
 		"ok": true,
 		"message": "방어 가능",
@@ -8702,6 +8725,9 @@ func _change_scene_to_battle_with_context(handoff_context: Dictionary) -> void:
 
 
 func _rollback_player_attack_handoff(context: Dictionary) -> void:
+	if str(context.get("transaction_id", "")).begins_with("t03-"):
+		_rollback_t03_battle_transaction(context)
+		return
 	if str(context.get("source", "")) != PLAYER_ATTACK_CONTEXT_SOURCE:
 		return
 	var source_city_id := str(context.get("attacker_source_city_id", context.get("attacker_city_id", "")))
@@ -8878,6 +8904,9 @@ func _apply_returned_battle_result_mvp(result: Dictionary) -> void:
 		_apply_worldmap_state(snapshot as Dictionary)
 		if not str(result.get("transaction_id", "")).is_empty():
 			_player_state["pending_battle_context"] = {"transaction_id": str(result.get("transaction_id", ""))}
+	if str(result.get("transaction_id", "")).begins_with("t03-"):
+		_apply_t03_strategic_battle_result(result, true)
+		return
 	if _is_player_attack_battle_result(result):
 		_apply_player_attack_battle_result(result)
 		return
@@ -17994,14 +18023,462 @@ func _format_pending_battle_context_status_for_event(event: Dictionary) -> Strin
 	if str(battle_context.get("defender_city_id", "")) != str(event.get("defender_city_id", "")):
 		return "방어 배치를 선택하십시오."
 	if str(battle_context.get("mode", "")) == "auto":
-		return "자동 방어 준비 완료 · 자동 해결은 아직 미구현"
+		return "자동 방어 계산 및 정산 준비 완료"
 	return "수동 방어 준비 완료 · 전투 화면 이동 대기"
 
 
 func _clear_pending_invasion_event_mvp() -> void:
 	_player_state["pending_invasion_event"] = {}
 	_clear_pending_battle_context_mvp()
-	_player_state["enemy_invasion_roll_turn"] = 0
+
+
+func _is_t03_faction_defeated(faction_id: String) -> bool:
+	var defeated: Variant = _player_state.get("defeated_factions", {})
+	if not defeated is Dictionary:
+		return false
+	var entry: Variant = (defeated as Dictionary).get(faction_id, {})
+	return entry is Dictionary and bool((entry as Dictionary).get("defeated", false))
+
+
+func _get_t03_eligible_city_hero_ids(city_id: String) -> Array[String]:
+	var result: Array[String] = []
+	for hero_id_variant in _get_city_stationed_hero_ids_for_battle_context(city_id):
+		var hero_id := str(hero_id_variant)
+		if hero_id.is_empty() or _get_hero_entry(hero_id).is_empty() or _is_hero_captured_for_battle(hero_id):
+			continue
+		result.append(hero_id)
+		if result.size() >= INVASION_BATTLE_MAX_HEROES_PER_SIDE:
+			break
+	return result
+
+
+func _get_t03_city_food_stock(city_id: String) -> Dictionary:
+	_ensure_city_supply_resource_defaults(city_id)
+	var stock := {"rice": 0, "barley": 0, "seafood": 0}
+	var city_data := _get_city_hud_entry(city_id)
+	var raw_stock: Variant = city_data.get("resource_stock", {})
+	if raw_stock is Dictionary:
+		for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
+			stock[food_type] = maxi(0, int((raw_stock as Dictionary).get(food_type, 0)))
+	return stock
+
+
+func _get_t03_city_food_total(city_id: String) -> int:
+	var total := 0
+	for amount in _get_t03_city_food_stock(city_id).values():
+		total += maxi(0, int(amount))
+	return total
+
+
+func _make_t03_transaction_id(attacker_city_id: String, defender_city_id: String) -> String:
+	return "t03-%d-%s-%s" % [maxi(1, int(_player_state.get("turn_number", 1))), attacker_city_id, defender_city_id]
+
+
+func _build_t03_expedition_cargo_plan(city_id: String, troops: int) -> Dictionary:
+	_ensure_city_supply_resource_defaults(city_id)
+	var stock := _get_t03_city_food_stock(city_id)
+	# Load for the no-salt ceiling so optional salt shortage cannot make the
+	# nominal 30-turn expedition under-provisioned at confirmation time.
+	var target_food := ExpeditionSupplyCalculator.food_per_turn(troops, false) * ExpeditionSupplyCalculator.BATTLE_MAX_TURNS
+	var food_stock := {"rice": 0, "barley": 0, "seafood": 0}
+	var load_target := mini(target_food, _get_t03_city_food_total(city_id))
+	var food_left := load_target
+	while food_left > 0:
+		var selected_type := "rice"
+		var selected_amount := -1
+		for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
+			var available := maxi(0, int(stock.get(food_type, 0)))
+			if available > selected_amount:
+				selected_type = food_type
+				selected_amount = available
+		if selected_amount <= 0:
+			break
+		var loaded := mini(selected_amount, food_left)
+		food_stock[selected_type] = int(food_stock.get(selected_type, 0)) + loaded
+		stock[selected_type] = selected_amount - loaded
+		food_left -= loaded
+	var gold := ExpeditionSupplyCalculator.minimum_gold(troops)
+	var salt := mini(_get_city_supply_resource_amount(city_id, "salt"), ExpeditionSupplyCalculator.salt_per_turn(troops) * ExpeditionSupplyCalculator.BATTLE_MAX_TURNS)
+	return {
+		"gold": gold,
+		"food_stock": food_stock,
+		"food_total": load_target - food_left,
+		"salt": salt,
+		"ok": _get_city_supply_resource_amount(city_id, "gold") >= gold and load_target - food_left >= ExpeditionSupplyCalculator.minimum_food(troops),
+	}
+
+
+func _filter_t03_context_heroes(raw_heroes: Variant, hero_ids: Array[String], allocation: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if not raw_heroes is Array:
+		return result
+	for hero_variant in raw_heroes:
+		if not hero_variant is Dictionary:
+			continue
+		var hero := (hero_variant as Dictionary).duplicate(true)
+		var hero_id := str(hero.get("hero_id", hero.get("id", "")))
+		if not hero_ids.has(hero_id):
+			continue
+		var troops := maxi(0, int(allocation.get(hero_id, 0)))
+		if troops <= 0:
+			continue
+		hero["troops"] = troops
+		hero["troop_count"] = troops
+		hero["allocated_troops"] = troops
+		result.append(hero)
+	return result
+
+
+func _prepare_t03_battle_transaction(event: Dictionary, base_context: Dictionary, resolution_mode: String) -> Dictionary:
+	var attacker_city_id := str(event.get("attacker_city_id", ""))
+	var defender_city_id := str(event.get("defender_city_id", ""))
+	if not _is_enemy_invasion_pair_eligible_mvp(attacker_city_id, defender_city_id):
+		return {}
+	var context := base_context.duplicate(true)
+	var attacker_hero_ids := _normalize_hero_id_array(context.get("attacker_main_hero_ids", context.get("attacker_hero_ids", [])))
+	var defender_hero_ids := _normalize_hero_id_array(context.get("selected_defender_hero_ids", []))
+	if defender_hero_ids.is_empty():
+		defender_hero_ids = _normalize_hero_id_array(context.get("defender_main_hero_ids", context.get("defender_hero_ids", [])))
+	if attacker_hero_ids.is_empty() or defender_hero_ids.is_empty():
+		return {}
+	var attacker_available := maxi(0, _get_city_troops_for_battle_context(attacker_city_id) - PLAYER_ATTACK_MIN_SOURCE_CITY_TROOPS)
+	var defender_available := maxi(0, _get_city_troops_for_battle_context(defender_city_id))
+	var attacker_allocation := _build_command_limit_troop_allocation_for_heroes(attacker_hero_ids, attacker_available, attacker_city_id)
+	var defender_allocation: Dictionary = context.get("defender_troop_allocation", {}).duplicate(true)
+	if resolution_mode == "automatic" or defender_allocation.is_empty():
+		defender_allocation = _build_command_limit_troop_allocation_for_heroes(defender_hero_ids, defender_available, defender_city_id)
+	var attacker_total := _sum_troop_allocation(attacker_allocation)
+	var defender_total := _sum_troop_allocation(defender_allocation)
+	if attacker_total <= 0 or defender_total <= 0:
+		return {}
+	var cargo := _build_t03_expedition_cargo_plan(attacker_city_id, attacker_total)
+	if not bool(cargo.get("ok", false)):
+		return {}
+	var rollback_state := _serialize_worldmap_state()
+	var rollback_player: Dictionary = rollback_state.get("player_state", {}).duplicate(true)
+	rollback_player["pending_invasion_event"] = event.duplicate(true)
+	rollback_state["player_state"] = rollback_player
+	var attacker_food_stock: Dictionary = cargo.get("food_stock", {}).duplicate(true)
+	var defender_food_stock := _get_t03_city_food_stock(defender_city_id)
+	context["type"] = "defense"
+	context["source"] = "enemy_invasion"
+	context["transaction_id"] = str(event.get("transaction_id", _make_t03_transaction_id(attacker_city_id, defender_city_id)))
+	context["scenario_id"] = str(_player_state.get("active_scenario_id", "korea_mvp_four_cities"))
+	context["resolution_mode"] = resolution_mode
+	context["mode"] = "auto" if resolution_mode == "automatic" else "manual"
+	context["player_side"] = "defender" if _get_city_owner_id_for_battle_context(defender_city_id) == _get_current_player_faction_id() else ""
+	context["attacker_faction_id"] = _get_city_owner_id_for_battle_context(attacker_city_id)
+	context["defender_faction_id"] = _get_city_owner_id_for_battle_context(defender_city_id)
+	context["attacker_general_ids"] = attacker_hero_ids
+	context["defender_general_ids"] = defender_hero_ids
+	context["attacker_troop_allocation"] = attacker_allocation
+	context["defender_troop_allocation"] = defender_allocation
+	context["attacker_total_allocated_troops"] = attacker_total
+	context["defender_total_allocated_troops"] = defender_total
+	context["attacker_heroes"] = _filter_t03_context_heroes(context.get("attacker_heroes", []), attacker_hero_ids, attacker_allocation)
+	context["defender_heroes"] = _filter_t03_context_heroes(context.get("defender_heroes", []), defender_hero_ids, defender_allocation)
+	context["attacker_food_stock"] = attacker_food_stock
+	context["attacker_food_type"] = _select_t03_food_type(attacker_food_stock)
+	context["attacker_food_amount"] = int(cargo.get("food_total", 0))
+	context["attacker_carried_gold"] = int(cargo.get("gold", 0))
+	context["attacker_salt_amount"] = int(cargo.get("salt", 0))
+	context["defender_food_stock"] = defender_food_stock
+	context["defender_food_type"] = _select_t03_food_type(defender_food_stock)
+	context["defender_food_amount"] = _sum_t03_food_stock(defender_food_stock)
+	context["defender_carried_gold"] = _get_city_supply_resource_amount(defender_city_id, "gold")
+	context["defender_salt_amount"] = _get_city_supply_resource_amount(defender_city_id, "salt")
+	var defender_city := _get_city_hud_entry(defender_city_id)
+	var city_defense_bonus := clampf(float(defender_city.get("defense", 0)) * 0.01, 0.0, 0.05)
+	var technology_defense_bonus := 0.0
+	if _is_city_owned_by_player_mvp(defender_city_id):
+		var defense_modifier := _get_player_battle_tech_modifier_mvp("combined", defender_city_id)
+		technology_defense_bonus = float(defense_modifier.get("global_defense_pct", 0.0))
+	context["defender_auto_defense_bonus"] = clampf(city_defense_bonus + technology_defense_bonus, 0.0, 0.15)
+	context["rollback_worldmap_state"] = rollback_state
+	_pay_t03_expedition_cargo(attacker_city_id, cargo)
+	context = _apply_context_side_troop_pre_decrement_mvp(context, "attacker", "attacker_troop_deployed_from_city")
+	context = _apply_context_side_troop_pre_decrement_mvp(context, "defender", "defender_troop_deployed_from_city")
+	_move_generals_for_pending_expedition(attacker_city_id, attacker_hero_ids)
+	_move_generals_for_pending_expedition(defender_city_id, defender_hero_ids)
+	var next_event := event.duplicate(true)
+	next_event["stage"] = "battle_handoff" if resolution_mode == "direct" else "automatic_settlement"
+	if str(context.get("player_side", "")).is_empty():
+		_player_state["pending_invasion_event"] = {}
+	else:
+		_player_state["pending_invasion_event"] = next_event
+	return context
+
+
+func _select_t03_food_type(food_stock: Dictionary) -> String:
+	var selected := "rice"
+	var selected_amount := -1
+	for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
+		var amount := maxi(0, int(food_stock.get(food_type, 0)))
+		if amount > selected_amount:
+			selected = food_type
+			selected_amount = amount
+	return selected
+
+
+func _sum_t03_food_stock(food_stock: Dictionary) -> int:
+	var total := 0
+	for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
+		total += maxi(0, int(food_stock.get(food_type, 0)))
+	return total
+
+
+func _pay_t03_expedition_cargo(city_id: String, cargo: Dictionary) -> void:
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
+	var food_stock: Dictionary = cargo.get("food_stock", {})
+	for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
+		stock[food_type] = maxi(0, int(stock.get(food_type, 0)) - int(food_stock.get(food_type, 0)))
+	stock["gold"] = maxi(0, int(stock.get("gold", 0)) - int(cargo.get("gold", 0)))
+	stock["salt"] = maxi(0, int(stock.get("salt", 0)) - int(cargo.get("salt", 0)))
+	city_data["resource_stock"] = stock
+	_city_runtime_states[city_id] = city_data
+
+
+func _rollback_t03_battle_transaction(context: Dictionary) -> void:
+	var rollback: Variant = context.get("rollback_worldmap_state", {})
+	if rollback is Dictionary and not (rollback as Dictionary).is_empty():
+		_apply_worldmap_state(rollback as Dictionary)
+		_refresh_left_world_status_panel()
+
+
+func _resolve_t03_automatic_invasion(event: Dictionary) -> Dictionary:
+	if event.is_empty():
+		return {}
+	var transaction_id := str(event.get("transaction_id", _make_t03_transaction_id(str(event.get("attacker_city_id", "")), str(event.get("defender_city_id", "")))))
+	if _normalize_hero_id_array(_player_state.get("applied_battle_result_ids", [])).has("%s-result" % transaction_id):
+		return {}
+	var context := _build_battle_context_from_pending_invasion(event, "auto")
+	if context.is_empty():
+		return {}
+	context = _prepare_t03_battle_transaction(event, context, "automatic")
+	if context.is_empty():
+		return {}
+	_set_pending_battle_context_mvp({"transaction_id": str(context.get("transaction_id", "")), "stage": "automatic_settlement"})
+	var result: Dictionary = T03AutoBattleResolverScript.resolve(context)
+	_apply_t03_strategic_battle_result(result, false)
+	return result
+
+
+func _apply_t03_strategic_battle_result(result: Dictionary, from_direct_battle: bool) -> void:
+	var transaction_id := str(result.get("transaction_id", ""))
+	var result_id := str(result.get("result_id", ""))
+	var applied_ids := _normalize_hero_id_array(_player_state.get("applied_battle_result_ids", []))
+	if transaction_id.is_empty() or result_id.is_empty() or applied_ids.has(result_id):
+		return
+	if from_direct_battle:
+		var pending_event := _get_pending_invasion_event_mvp()
+		if pending_event.is_empty() or str(pending_event.get("transaction_id", "")) != transaction_id:
+			print("[T03_SETTLEMENT_REJECT] transaction mismatch result=%s pending=%s" % [transaction_id, str(pending_event.get("transaction_id", ""))])
+			return
+	var attacker_city_id := str(result.get("attacker_source_city_id", result.get("attacker_city_id", "")))
+	var defender_city_id := str(result.get("defender_city_id", ""))
+	if attacker_city_id.is_empty() or defender_city_id.is_empty():
+		return
+	var attacker_owner := str(result.get("attacker_owner", _get_city_owner_id_for_battle_context(attacker_city_id)))
+	var defender_owner := str(result.get("defender_owner", _get_city_owner_id_for_battle_context(defender_city_id)))
+	var attacker_won := str(result.get("winner_side", result.get("winner", "defender"))) == "attacker"
+	var attacker_healthy := maxi(0, int(result.get("attacker_healthy_survivors", 0)))
+	var defender_healthy := maxi(0, int(result.get("defender_healthy_survivors", 0)))
+	var attacker_wounded := maxi(0, int(result.get("attacker_wounded", 0)))
+	var defender_wounded := maxi(0, int(result.get("defender_wounded", 0)))
+	var attacker_generals := _normalize_battle_result_hero_ids(result.get("attacker_general_ids", []))
+	var defender_generals := _normalize_battle_result_hero_ids(result.get("defender_general_ids", []))
+	var attacker_surviving_generals := _normalize_battle_result_hero_ids(result.get("attacker_surviving_general_ids", attacker_generals))
+	var defender_surviving_generals := _normalize_battle_result_hero_ids(result.get("defender_surviving_general_ids", defender_generals))
+	_apply_t03_defender_supply_result(defender_city_id, result)
+	if attacker_won:
+		_set_city_runtime_owner(defender_city_id, attacker_owner)
+		var disposition := _settle_defender_generals_after_occupation(defender_city_id, defender_owner, attacker_owner, defender_generals, defender_surviving_generals, transaction_id, result_id)
+		var retreat_city_id := str(disposition.get("primary_escape_city_id", ""))
+		if not retreat_city_id.is_empty():
+			_set_city_runtime_troops(retreat_city_id, _get_city_troops_for_battle_context(retreat_city_id) + defender_healthy)
+			_add_wounded_to_city_mvp(retreat_city_id, defender_wounded, ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
+		_set_city_runtime_troops(defender_city_id, attacker_healthy)
+		_clear_city_wounded_queue_mvp(defender_city_id)
+		_add_wounded_to_city_mvp(defender_city_id, attacker_wounded, ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
+		_add_t03_attacker_cargo_to_city(defender_city_id, result)
+		for hero_id in attacker_surviving_generals:
+			_move_hero_to_city_t02(hero_id, defender_city_id)
+	else:
+		_set_city_runtime_troops(attacker_city_id, _get_city_troops_for_battle_context(attacker_city_id) + attacker_healthy)
+		_set_city_runtime_troops(defender_city_id, _get_city_troops_for_battle_context(defender_city_id) + defender_healthy)
+		_add_wounded_to_city_mvp(attacker_city_id, attacker_wounded, ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
+		_add_wounded_to_city_mvp(defender_city_id, defender_wounded, ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
+		for hero_id in attacker_surviving_generals:
+			_move_hero_to_city_t02(hero_id, attacker_city_id)
+		for hero_id in defender_surviving_generals:
+			_move_hero_to_city_t02(hero_id, defender_city_id)
+	applied_ids.append(result_id)
+	_player_state["applied_battle_result_ids"] = applied_ids
+	_player_state["pending_battle_context"] = {}
+	_player_state["pending_invasion_event"] = {}
+	_player_state["korea_unification_victory"] = _get_player_owned_korea_mvp_city_count() >= 4
+	_player_state["korea_player_defeat"] = _get_player_owned_korea_mvp_city_count() <= 0
+	_rebuild_occupation_runtime_indexes_mvp()
+	_sync_worldmap_hero_locations_from_city_runtime_states()
+	_refresh_city_marker_owner_states_from_runtime()
+	_refresh_city_hud_data_bindings()
+	var report := _build_t03_battle_report(result)
+	if str(result.get("player_side", "")).is_empty() and not from_direct_battle:
+		_queue_t03_automatic_battle_report(report)
+	else:
+		_show_post_battle_result_summary({"message_title": str(report.get("title", "전투 결과")), "message_lines": report.get("lines", [])})
+	_save_worldmap_state()
+	_refresh_left_world_status_panel()
+
+
+func _apply_t03_defender_supply_result(city_id: String, result: Dictionary) -> void:
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
+	var remaining: Variant = result.get("defender_remaining_food_stock", {})
+	if remaining is Dictionary:
+		for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
+			stock[food_type] = maxi(0, int((remaining as Dictionary).get(food_type, 0)))
+	else:
+		stock[str(result.get("defender_remaining_food_type", "rice"))] = maxi(0, int(result.get("defender_remaining_food", 0)))
+	stock["gold"] = maxi(0, int(result.get("defender_remaining_gold", stock.get("gold", 0))))
+	stock["salt"] = maxi(0, int(result.get("defender_remaining_salt", stock.get("salt", 0))))
+	city_data["resource_stock"] = stock
+	_city_runtime_states[city_id] = city_data
+
+
+func _add_t03_attacker_cargo_to_city(city_id: String, result: Dictionary) -> void:
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
+	var remaining: Variant = result.get("attacker_remaining_food_stock", {})
+	if remaining is Dictionary:
+		for food_type in ExpeditionSupplyCalculator.FOOD_TYPES:
+			stock[food_type] = maxi(0, int(stock.get(food_type, 0))) + maxi(0, int((remaining as Dictionary).get(food_type, 0)))
+	stock["gold"] = maxi(0, int(stock.get("gold", 0))) + maxi(0, int(result.get("attacker_remaining_gold", 0)))
+	stock["salt"] = maxi(0, int(stock.get("salt", 0))) + maxi(0, int(result.get("attacker_remaining_salt", 0)))
+	city_data["resource_stock"] = stock
+	_city_runtime_states[city_id] = city_data
+
+
+func _build_t03_battle_report(result: Dictionary) -> Dictionary:
+	var attacker_city_id := str(result.get("attacker_city_id", result.get("attacker_source_city_id", "")))
+	var defender_city_id := str(result.get("defender_city_id", ""))
+	var attacker_owner := str(result.get("attacker_owner", ""))
+	var defender_owner := str(result.get("defender_owner", ""))
+	var attacker_won := str(result.get("winner_side", result.get("winner", "defender"))) == "attacker"
+	var title := "%s군이 %s을 점령했습니다." % [_format_faction_label(attacker_owner), _format_city_name_by_id(defender_city_id, defender_city_id)] if attacker_won else "%s군이 방어에 성공했습니다." % _format_faction_label(defender_owner)
+	return {
+		"report_id": str(result.get("result_id", "")),
+		"transaction_id": str(result.get("transaction_id", "")),
+		"attacker_city_id": attacker_city_id,
+		"defender_city_id": defender_city_id,
+		"attacker_owner": attacker_owner,
+		"defender_owner": defender_owner,
+		"title": title,
+		"labels": "%s군\n%s → %s\n%s군" % [_format_faction_label(attacker_owner), _format_city_name_by_id(attacker_city_id, attacker_city_id), _format_city_name_by_id(defender_city_id, defender_city_id), _format_faction_label(defender_owner)],
+		"lines": [
+			"%s군이 %s을 공격했습니다." % [_format_faction_label(attacker_owner), _format_city_name_by_id(defender_city_id, defender_city_id)],
+			"공격군 · 정상병 %d · 부상병 %d · 전사 %d · 이탈 %d" % [int(result.get("attacker_healthy_survivors", 0)), int(result.get("attacker_wounded", 0)), int(result.get("attacker_dead", 0)), int(result.get("attacker_deserters", 0))],
+			"방어군 · 정상병 %d · 부상병 %d · 전사 %d · 이탈 %d" % [int(result.get("defender_healthy_survivors", 0)), int(result.get("defender_wounded", 0)), int(result.get("defender_dead", 0)), int(result.get("defender_deserters", 0))],
+			"전투 %d턴 종료 · %s" % [int(result.get("completed_turn", 0)), "30턴 수비 승리" if str(result.get("result_reason", "")) == "turn_limit" else "전투 종료"],
+		],
+	}
+
+
+func _queue_t03_automatic_battle_report(report: Dictionary) -> void:
+	if report.is_empty():
+		return
+	var queue: Array = _player_state.get("t03_automatic_battle_reports", [])
+	var report_id := str(report.get("report_id", ""))
+	for queued_variant in queue:
+		if queued_variant is Dictionary and str((queued_variant as Dictionary).get("report_id", "")) == report_id:
+			return
+	queue.append(report.duplicate(true))
+	_player_state["t03_automatic_battle_reports"] = queue
+
+
+
+func _setup_t03_battle_presentation() -> void:
+	_t03_battle_presentation_root.visible = false
+	_t03_battle_result_card.visible = false
+	if not _t03_battle_skip_button.pressed.is_connected(_on_t03_battle_video_skipped):
+		_t03_battle_skip_button.pressed.connect(_on_t03_battle_video_skipped)
+	if not _t03_battle_result_confirm_button.pressed.is_connected(_on_t03_battle_report_confirmed):
+		_t03_battle_result_confirm_button.pressed.connect(_on_t03_battle_report_confirmed)
+	if not _t03_battle_video_player.finished.is_connected(_on_t03_battle_video_finished):
+		_t03_battle_video_player.finished.connect(_on_t03_battle_video_finished)
+	if ResourceLoader.exists(T03_AI_BATTLE_VIDEO_PATH):
+		_t03_battle_video_player.stream = load(T03_AI_BATTLE_VIDEO_PATH) as VideoStream
+	call_deferred("_try_present_next_t03_battle_report")
+
+
+func _try_present_next_t03_battle_report() -> void:
+	if _t03_battle_presentation_root.visible or _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_PLAYER:
+		return
+	var acknowledged: Array = _player_state.get("t03_acknowledged_report_ids", [])
+	var queue: Array = _player_state.get("t03_automatic_battle_reports", [])
+	while not queue.is_empty():
+		var candidate: Variant = queue[0]
+		if candidate is Dictionary and not acknowledged.has(str((candidate as Dictionary).get("report_id", ""))):
+			_t03_active_report = (candidate as Dictionary).duplicate(true)
+			break
+		queue.pop_front()
+	_player_state["t03_automatic_battle_reports"] = queue
+	if _t03_active_report.is_empty():
+		return
+	_t03_battle_presentation_root.visible = true
+	_t03_battle_result_card.visible = false
+	_t03_battle_video_labels.visible = true
+	_t03_battle_video_labels.text = str(_t03_active_report.get("labels", ""))
+	_t03_battle_skip_button.visible = true
+	_t03_battle_video_player.visible = true
+	if _t03_battle_video_player.stream != null:
+		_t03_battle_video_player.play()
+	else:
+		_show_t03_battle_report_card()
+
+
+func _on_t03_battle_video_skipped() -> void:
+	_t03_battle_video_player.stop()
+	_show_t03_battle_report_card()
+
+
+func _on_t03_battle_video_finished() -> void:
+	_show_t03_battle_report_card()
+
+
+func _show_t03_battle_report_card() -> void:
+	if _t03_active_report.is_empty():
+		return
+	_t03_battle_video_player.visible = false
+	_t03_battle_video_labels.visible = false
+	_t03_battle_skip_button.visible = false
+	_t03_battle_result_card.visible = true
+	_t03_battle_result_title.text = str(_t03_active_report.get("title", "전투 결과"))
+	var lines: Variant = _t03_active_report.get("lines", [])
+	var formatted_lines: Array[String] = []
+	if lines is Array:
+		for line in lines:
+			formatted_lines.append(str(line))
+	_t03_battle_result_body.text = "\n\n".join(formatted_lines) if lines is Array else str(lines)
+
+
+func _on_t03_battle_report_confirmed() -> void:
+	var report_id := str(_t03_active_report.get("report_id", ""))
+	var acknowledged: Array = _player_state.get("t03_acknowledged_report_ids", [])
+	if not report_id.is_empty() and not acknowledged.has(report_id):
+		acknowledged.append(report_id)
+	_player_state["t03_acknowledged_report_ids"] = acknowledged
+	var next_queue: Array = []
+	for queued_variant in (_player_state.get("t03_automatic_battle_reports", []) as Array):
+		if queued_variant is Dictionary and str((queued_variant as Dictionary).get("report_id", "")) == report_id:
+			continue
+		next_queue.append(queued_variant)
+	_player_state["t03_automatic_battle_reports"] = next_queue
+	_t03_active_report = {}
+	_t03_battle_presentation_root.visible = false
+	_save_worldmap_state()
+	call_deferred("_try_present_next_t03_battle_report")
 
 
 func _format_pending_invasion_detail(event: Dictionary) -> String:
@@ -22005,19 +22482,17 @@ func _serialize_worldmap_state() -> Dictionary:
 	_ensure_worldmap_runtime_state_defaults()
 	_sync_trade_persistence_to_player_state()
 	var saved_player_state := _player_state.duplicate(true)
-	saved_player_state["pending_invasion_event"] = {}
-	saved_player_state["pending_battle_context"] = {}
-	saved_player_state["enemy_invasion_roll_turn"] = 0
 	var city_state := _serialize_worldmap_city_runtime_state()
 	var hero_state := _serialize_worldmap_hero_runtime_state()
 	var city_policy_state := _serialize_worldmap_city_policy_state()
-	print("[SAVE_WORLD_STATE] city_overrides=%d hero_overrides=%d pending_invasion_cleared=true" % [
+	print("[SAVE_WORLD_STATE] city_overrides=%d hero_overrides=%d pending_invasion_persisted=%s" % [
 		city_state.size(),
-		hero_state.size()
+		hero_state.size(),
+		str(not (saved_player_state.get("pending_invasion_event", {}) as Dictionary).is_empty()),
 	])
 	return {
-		"version": "v0.74-02-hotfix4",
-		"title": "T02 Victory Occupation Settlement",
+		"version": "v0.75",
+		"title": "T03 Enemy Invasion and Player Defense Completion",
 		"game_session": _get_game_session().serialize(),
 		"player_state": saved_player_state,
 		"worldmap_city_state": city_state,
@@ -22055,16 +22530,16 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 	_rebuild_occupation_runtime_indexes_mvp()
 	_refresh_city_marker_owner_states_from_runtime()
 	_refresh_city_hud_data_bindings()
-	_clear_pending_invasion_event_mvp()
 	_domestic_turn_apply_pending = bool(_player_state.get("domestic_apply_pending", false))
 	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
 		_player_state["turn_phase"] = TURN_PHASE_PLAYER
 		_player_state["current_phase_label"] = _get_turn_phase_label(TURN_PHASE_PLAYER)
 	_domestic_turn_apply_pending = false
 	_player_state["domestic_apply_pending"] = false
-	print("[LOAD_WORLD_STATE] city_overrides=%d hero_overrides=%d pending_invasion_cleared=true" % [
+	print("[LOAD_WORLD_STATE] city_overrides=%d hero_overrides=%d pending_invasion_restored=%s" % [
 		_city_runtime_states.size(),
-		_hero_runtime_states.size()
+		_hero_runtime_states.size(),
+		str(not _get_pending_invasion_event_mvp().is_empty()),
 	])
 	return true
 
@@ -22099,6 +22574,8 @@ func _load_worldmap_state() -> void:
 	_set_save_management_status("불러오기 완료")
 	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
 		_run_enemy_turn_mvp()
+	else:
+		call_deferred("_try_present_next_t03_battle_report")
 
 
 func _reset_worldmap_state() -> void:

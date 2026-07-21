@@ -1,6 +1,6 @@
 # T03 ENEMY INVASION & PLAYER DEFENSE COMPLETION
 
-Status: `DESIGN LOCKED / IMPLEMENTATION NOT STARTED`.
+Status: `IMPLEMENTED / STATIC QA PASS / GODOT RUNTIME + F5 QA PENDING`.
 
 This transaction completes restrained Korea-MVP AI war selection, AI expedition logistics, player defense formation, direct or automatic defense, AI-versus-AI resolution, battle presentation, atomic settlement, persistence, and duplicate protection. T02 remains the protected baseline for supply, casualty categories, wounded recovery, occupation, faction elimination, and result idempotency.
 
@@ -126,6 +126,16 @@ Locked balance shape:
 
 Exact coefficient arithmetic must be written beside focused tests before runtime implementation. It may not make hero stats, matchup, skills, or randomness outweigh the deployed army without an explicit design revision.
 
+Implemented coefficient arithmetic:
+
+- base simultaneous damage is `10%` of the acting side's current healthy troops;
+- the attacker/defender power ratio is clamped to `0.55–1.45` before damage;
+- a side's general modifier is `0.90 + average(leadership, war, attack-or-defense) × 0.002`, clamped to `0.90–1.10`;
+- troop-type matchup is `-5%`, `0`, or `+5%`;
+- each participating unique-skill holder contributes `+1%`, capped at `+5%`;
+- transaction-derived random swing is clamped to `±5%` per side and round;
+- defender city defense contributes `1%` per defense grade, capped at `5%`; applicable existing player technology defense is added through the established modifier helper, with the combined automatic-defense bonus capped at `15%`.
+
 Combat losses reuse T02's no-rounding-loss split into healthy survivors, wounded, and dead. Supply loss is recorded separately as deserters. The result records completed round, winner, every casualty category, surviving generals, and remaining cargo/supply for both sides.
 
 ## Direct Defense Flow
@@ -221,6 +231,33 @@ Reuse only technology effects already evidenced by current helpers, including ap
 ## Acceptance Gate
 
 T03 becomes `COMPLETE` only when one playable persisted enemy phase supports restrained AI war selection, player direct and automatic defense, AI-versus-AI battle, side-correct logistics and settlement, the 30-turn rule, saved result reporting, and all four Korea starting factions without changing protected T02 behavior.
+
+## Implementation Evidence
+
+The v0.75 implementation candidate now includes:
+
+- `scripts/worldmap/t03/auto_battle_resolver.gd`: deterministic side-neutral 30-round automatic resolution and BattleResult construction;
+- `scripts/t02/battle_supply_runtime.gd`: backwards-compatible rice/barley/seafood stock normalization, greatest-stock consumption, stable tie order, and same-turn fallback;
+- `scripts/worldmap/worldmap_main.gd`: Korea-only unbiased candidate selection, three-turn peace, 20% roll, two-turn cooldown, AI force/cargo transaction, direct/automatic player defense, AI-versus-AI settlement, rollback, duplicate guards, persistence, and report presentation;
+- `scripts/battle_web_import_test.gd`: side identity and complete remaining multi-food/defender-resource result fields for direct defense settlement;
+- `WorldMap.tscn`: centered 1152x648 video/result presentation with skip and acknowledgement;
+- `assets/ui/worldmap/videos/ai_faction_battle_theora_q8_1280x720.ogv`: five-second 1280x720 Theora/Vorbis runtime asset;
+- `scripts/t03/t03_smoke_test.gd`: focused multi-food, salt, allocation, deterministic resolver, casualty conservation, turn-limit, willingness/cooldown, AI-versus-AI, duplicate, report queue, and pending-event persistence checks.
+
+Verification completed in the implementation workspace:
+
+- patch whitespace/error scan: `PASS`;
+- duplicate function-name scan for the modified WorldMap script: `PASS`;
+- edited-script delimiter balance scan: `PASS`;
+- video probe: Theora 1280x720 at 25 fps, Vorbis audio, 5.000 seconds: `PASS`;
+- protected original dirty worktree: unchanged; implementation was made in an isolated worktree based on GitHub `main` at `b0ec355`.
+
+The implementation workspace does not provide a Godot executable, so the following acceptance evidence is still required before changing this transaction to `COMPLETE`:
+
+- Godot 4.6 project parse and `scripts/t03/t03_smoke_test.gd` execution;
+- integrated F5 play through direct defense, automatic player defense, and AI-versus-AI video/report;
+- save/load checks before defense choice and around queued-report acknowledgement;
+- final Editor Output confirmation with no new errors or warnings.
 
 ## Explicit Non-Goals
 

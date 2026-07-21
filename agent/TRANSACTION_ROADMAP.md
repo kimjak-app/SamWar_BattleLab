@@ -4,9 +4,9 @@
 
 ### T03 Enemy Invasion & Player Defense Completion
 
-Status: `DESIGN LOCKED / IMPLEMENTATION NOT STARTED`. The audit, restrained war policy, multi-food contract, deterministic automatic resolver, AI-versus-AI presentation, settlement, persistence, and staged acceptance plan are locked in `agent/transactions/T03_ENEMY_INVASION_PLAYER_DEFENSE.md`.
+Status: `IMPLEMENTED / STATIC QA PASS / GODOT RUNTIME + F5 QA PENDING`. The restrained war policy, multi-food logistics, direct/automatic player defense, deterministic AI-versus-AI resolver, side-neutral settlement, persistence/duplicate guards, and video-to-report presentation are connected as one v0.75 transaction candidate.
 
-Next executable slice: T03-A contracts and pure calculation. Strategic AI selection, WorldMap mutation, defense UI, video presentation, and integrated completion remain outside that first slice.
+Next gate: run the focused T03 smoke under Godot 4.6, then integrated F5 QA for all four Korea starting factions, direct/automatic defense, AI-versus-AI presentation, save/load, occupation/elimination, and final Editor Output. T03 remains active until that evidence passes; any findings are handled as v0.75 hotfixes.
 
 ## Complete
 
