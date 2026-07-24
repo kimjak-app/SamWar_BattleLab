@@ -137,7 +137,7 @@ static func _combat_power(context: Dictionary, side: String, troops: int, battle
 	var skill := _skill_modifier(heroes)
 	var random_swing := _stable_random_swing(transaction_id, side, battle_round)
 	var defense_bonus := clampf(float(context.get("defender_auto_defense_bonus", 0.0)), 0.0, 0.15) if side == "defender" else 0.0
-	return float(maxi(0, troops)) * maxi(0.10, hero_modifier + matchup + skill + random_swing + defense_bonus)
+	return float(maxi(0, troops)) * maxf(0.10, hero_modifier + matchup + skill + random_swing + defense_bonus)
 
 
 static func _hero_modifier(heroes: Array, side: String) -> float:
