@@ -2,13 +2,19 @@
 
 ## Active
 
-### T06-0 Hero Definition Data Extraction
+### T06-1 Hero Stat Field Contract Design
 
-Status: `AUDIT / IMPLEMENTATION`. Extract the authoritative WorldMap hero definition data from `scripts/worldmap/worldmap_main.gd` into a dedicated read-only registry without changing roster membership, field names, values, save data, UI behavior, battle handoff, combat formulas, or unique skills.
+Status: `DESIGN / NOT IMPLEMENTED`. Discuss and approve hero stat-field contracts one field at a time before any implementation. The first agenda is the meaning and possible overlap of `leadership` and `command`.
 
-Next gate: complete the source/reference audit, perform the no-behavior-change extraction, run static parity checks, then run focused Godot F5 regression QA before marking the extraction complete.
+No runtime or data change is approved in T06-1. Field deletion, consolidation, renaming, balancing, JSON/CSV externalization, or other implementation can begin only after the user approves the relevant field contract. T07 has not started.
 
 ## Complete
+
+### T06-0 Hero Definition Registry Extraction
+
+Status: `COMPLETE`. `HERO_DATA` was moved without transformation into `scripts/worldmap/hero_definition_registry.gd` at implementation commit `a12ea4ce28948ef4ca7cbe9ad49c02704b1d4867`; protected current HEAD, including only the generated UID follow-up, is `5958b593a3c635e722a3bca7152a19dcd6d27868`.
+
+All 39 heroes, ID order, 51-field set, and complete Dictionary values matched. The four WorldMap reads now use the registry, with no save/load, BattleContext, `_hero_runtime_states`, `UNIQUE_SKILL_REGISTRY`, Battle, scene, or asset change. `git diff --check`, Godot 4.6.2 headless parse, and user F5 QA passed.
 
 ### T04–T05 Korea MVP Turn Loop & Unification Completion
 
@@ -30,9 +36,8 @@ Exit evidence: the default read order identifies current product direction, prot
 
 ## Next
 
-- T06-1 hero stat-field contract audit and design decision after T06-0 extraction is complete.
 - Later T06 sub-transactions cover definition/runtime unification, external data loading, balance, cutins, unique skills, and cooperative attacks only after their own discussion and acceptance gates.
-- T07 planning follows the same discussion-first rule after T06. Existing T07 material is reference only.
+- T07 planning follows the same discussion-first rule after T06. Existing T07 material is reference only and has not started.
 
 ### T01 Entry Conditions
 
