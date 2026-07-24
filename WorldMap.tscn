@@ -2037,7 +2037,7 @@ offset_right = 520.0
 offset_bottom = -20.0
 text = "WASD/Arrow: move, Right/Middle Drag: pan, Wheel: zoom"
 
-[node name="T03BattlePresentation" type="Control" parent="WorldMapUI"]
+[node name="T03BattlePresentation" type="Control" parent="WorldMapUI" unique_id=1975218586]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -2045,9 +2045,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 
-[node name="Backdrop" type="ColorRect" parent="WorldMapUI/T03BattlePresentation"]
+[node name="Backdrop" type="ColorRect" parent="WorldMapUI/T03BattlePresentation" unique_id=1618707771]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -2056,7 +2055,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.01, 0.015, 0.025, 0.9)
 
-[node name="Frame" type="Control" parent="WorldMapUI/T03BattlePresentation"]
+[node name="Frame" type="Control" parent="WorldMapUI/T03BattlePresentation" unique_id=1726472766]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -2070,7 +2069,7 @@ offset_bottom = 324.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VideoPlayer" type="VideoStreamPlayer" parent="WorldMapUI/T03BattlePresentation/Frame"]
+[node name="VideoPlayer" type="VideoStreamPlayer" parent="WorldMapUI/T03BattlePresentation/Frame" unique_id=387602522]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -2079,7 +2078,7 @@ grow_horizontal = 2
 grow_vertical = 2
 expand = true
 
-[node name="VideoLabels" type="Label" parent="WorldMapUI/T03BattlePresentation/Frame"]
+[node name="VideoLabels" type="Label" parent="WorldMapUI/T03BattlePresentation/Frame" unique_id=1769921841]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -2093,10 +2092,12 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 24
-text = "공격군\n출발 → 목표\n방어군"
+text = "공격군
+출발 → 목표
+방어군"
 horizontal_alignment = 1
 
-[node name="SkipButton" type="Button" parent="WorldMapUI/T03BattlePresentation/Frame"]
+[node name="SkipButton" type="Button" parent="WorldMapUI/T03BattlePresentation/Frame" unique_id=843158264]
 layout_mode = 0
 offset_left = 998.0
 offset_top = 582.0
@@ -2105,7 +2106,7 @@ offset_bottom = 628.0
 theme_override_font_sizes/font_size = 16
 text = "건너뛰기"
 
-[node name="ResultCard" type="PanelContainer" parent="WorldMapUI/T03BattlePresentation/Frame"]
+[node name="ResultCard" type="PanelContainer" parent="WorldMapUI/T03BattlePresentation/Frame" unique_id=375672457]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -2118,25 +2119,25 @@ offset_bottom = -62.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Margin" type="MarginContainer" parent="WorldMapUI/T03BattlePresentation/Frame/ResultCard"]
+[node name="Margin" type="MarginContainer" parent="WorldMapUI/T03BattlePresentation/Frame/ResultCard" unique_id=1142166322]
 layout_mode = 2
 theme_override_constants/margin_left = 48
 theme_override_constants/margin_top = 42
 theme_override_constants/margin_right = 48
 theme_override_constants/margin_bottom = 36
 
-[node name="Content" type="VBoxContainer" parent="WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin"]
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin" unique_id=1472443538]
 layout_mode = 2
 theme_override_constants/separation = 22
 
-[node name="Title" type="Label" parent="WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content"]
+[node name="Title" type="Label" parent="WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content" unique_id=576618698]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.84, 0.56, 1)
 theme_override_font_sizes/font_size = 30
 text = "전투 결과"
 horizontal_alignment = 1
 
-[node name="Body" type="Label" parent="WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content"]
+[node name="Body" type="Label" parent="WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content" unique_id=1473694115]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.9, 0.92, 0.95, 1)
@@ -2146,7 +2147,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ConfirmButton" type="Button" parent="WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content"]
+[node name="ConfirmButton" type="Button" parent="WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content" unique_id=126980663]
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
