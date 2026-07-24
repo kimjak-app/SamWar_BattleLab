@@ -2153,7 +2153,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "확인"
 
-[node name="T05OutcomePresentation" type="Control" parent="WorldMapUI"]
+[node name="T05OutcomePresentation" type="Control" parent="WorldMapUI" unique_id=599307002]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -2161,9 +2161,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 
-[node name="Backdrop" type="ColorRect" parent="WorldMapUI/T05OutcomePresentation"]
+[node name="Backdrop" type="ColorRect" parent="WorldMapUI/T05OutcomePresentation" unique_id=1553330421]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -2172,7 +2171,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.008, 0.012, 0.02, 0.94)
 
-[node name="Card" type="PanelContainer" parent="WorldMapUI/T05OutcomePresentation"]
+[node name="Card" type="PanelContainer" parent="WorldMapUI/T05OutcomePresentation" unique_id=1670660332]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -2186,32 +2185,32 @@ offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Margin" type="MarginContainer" parent="WorldMapUI/T05OutcomePresentation/Card"]
+[node name="Margin" type="MarginContainer" parent="WorldMapUI/T05OutcomePresentation/Card" unique_id=450286627]
 layout_mode = 2
 theme_override_constants/margin_left = 56
 theme_override_constants/margin_top = 48
 theme_override_constants/margin_right = 56
 theme_override_constants/margin_bottom = 42
 
-[node name="Content" type="VBoxContainer" parent="WorldMapUI/T05OutcomePresentation/Card/Margin"]
+[node name="Content" type="VBoxContainer" parent="WorldMapUI/T05OutcomePresentation/Card/Margin" unique_id=1963440182]
 layout_mode = 2
 theme_override_constants/separation = 24
 
-[node name="Eyebrow" type="Label" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content"]
+[node name="Eyebrow" type="Label" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content" unique_id=2020160318]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.66, 0.52, 1)
 theme_override_font_sizes/font_size = 17
 text = "한반도 패권 결산"
 horizontal_alignment = 1
 
-[node name="Title" type="Label" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content"]
+[node name="Title" type="Label" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content" unique_id=1736504768]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.84, 0.52, 1)
 theme_override_font_sizes/font_size = 42
 text = "천하통일"
 horizontal_alignment = 1
 
-[node name="Body" type="Label" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content"]
+[node name="Body" type="Label" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content" unique_id=1243269722]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.9, 0.92, 0.95, 1)
@@ -2221,18 +2220,18 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="ButtonRow" type="HBoxContainer" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content"]
+[node name="ButtonRow" type="HBoxContainer" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content" unique_id=1566032118]
 layout_mode = 2
 theme_override_constants/separation = 18
 alignment = 1
 
-[node name="SaveButton" type="Button" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content/ButtonRow"]
+[node name="SaveButton" type="Button" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content/ButtonRow" unique_id=1958586843]
 custom_minimum_size = Vector2(220, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "결과 저장"
 
-[node name="NewGameButton" type="Button" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content/ButtonRow"]
+[node name="NewGameButton" type="Button" parent="WorldMapUI/T05OutcomePresentation/Card/Margin/Content/ButtonRow" unique_id=1234130974]
 custom_minimum_size = Vector2(220, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
