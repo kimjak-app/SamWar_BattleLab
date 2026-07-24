@@ -3,13 +3,13 @@
 ## Baseline
 
 - Branch: `main`
-- Baseline commit: `b19c839cb588487eaafddebd7699418d7fc7150a`
-- Current implementation candidate: `v0.76 T04–T05 Korea MVP Turn Loop & Unification Completion`
+- Baseline commit: `29d24a5794b0a9dfa15993f4b228660a90d24a34`
+- Current protected baseline: `v0.76 T04–T05 Korea MVP Turn Loop & Unification Completion`
 - This state document is current-state only. Use Git history and archive candidates for completed version detail.
 
 ## Active Development Phase
 
-Korea Four-City MVP. T01 and T02 are complete. T03 enemy invasion and player defense is the protected implemented baseline, including the Godot-confirmed float-clamp hotfix. T04–T05 is now implemented as one integrated turn-loop and unification candidate; static validation passes, while Godot runtime smoke and integrated F5 QA remain before completion lock.
+Korea Four-City MVP. T01 through T05 are complete. T03 enemy invasion and player defense remains a protected implemented baseline, including the Godot-confirmed float-clamp hotfix. T04–T05 is complete after Godot 4.6 integrated F5 QA confirmed the full turn loop, save/load resume, research and recovery continuity, Korea victory/defeat, title-screen continue detection, and clean final Output.
 
 The active context deliberately contains only current direction, protected boundaries, and the next executable transaction. Completed version-by-version evidence remains in Git history and retained archive candidates.
 
@@ -41,7 +41,7 @@ Direct command and automatic delegation are complementary player choices. Automa
 - Existing city research and national research systems must be audited for current effect coverage before their MVP activation is narrowed.
 - Existing China, Japan, and naval content remains preserved while the Korea scenario is active.
 
-These are implementation assets, not a claim that every connected gameplay effect has already been verified. Active T01–T05 work must audit and reuse them as needed.
+These are implementation assets, not a claim that every connected gameplay effect has already been verified. Active work must audit and reuse them as needed.
 
 ## T02 Completion Lock
 
@@ -50,27 +50,35 @@ These are implementation assets, not a claim that every connected gameplay effec
 - Hotfix 6 removes the final audited GDScript reload warnings without functional changes. Integrated F5 QA and final Editor Output confirmation passed.
 - T03 audit and design is locked in `agent/transactions/T03_ENEMY_INVASION_PLAYER_DEFENSE.md`; T02 behavior is a protected reuse baseline.
 
+## T04–T05 Completion Lock
+
+- T04–T05 is `COMPLETE` on the v0.76 implementation baseline.
+- Godot 4.6 integrated F5 QA passed for all four starting factions and repeated turn progression.
+- Production, research, recovery, AI actions, invasion, and transaction guards executed without duplicate application.
+- Saving during the enemy phase resumed and completed the same persisted transaction.
+- Fourth-city victory, last-city defeat, terminal save/load restoration, and title-screen `이어하기` detection passed.
+- Final Godot Output showed no new errors or warnings.
+- T01–T05 battle, city-resource, persistence, and turn-processing contracts are protected during T06.
+
 ## Confirmed Major Gaps
 
 - Four-faction new-game choice and player-nation session setup: complete through `GameSession` and `NewGameFactionSelect.tscn`.
 - Korea MVP starting general/resource/technology values: `Needs Data Audit` / `Needs Runtime Audit`.
-- Enemy invasion/player defense, turn resolution, and Korea victory are implemented candidates and still need their remaining integrated QA evidence before complete lock.
+- Enemy invasion/player defense, turn resolution, and Korea victory: complete and protected.
 - City-research behavior on occupation: `Needs Runtime Audit`.
 - The authoritative starting roster count, city assignment, resources, and initial technology states still require a separate balance/data lock before later content expansion.
 
-No confirmed runtime blocker currently prevents T01 planning. A missing design value is an audit requirement, not permission to fabricate it in code or documentation.
+A missing design value is an audit requirement, not permission to fabricate it in code or documentation.
 
 ## Active Documentation Transaction
 
 T00 established `MVP_MASTER_PLAN`, transaction rules, roadmap, scenario, source-of-truth target, tech contract, inventory, and archive policy. No runtime code changed.
 
-T00 is a documentation transaction, not an implementation claim. The new documents distinguish `Proposed`, `Not Yet Implemented`, `Needs Data Audit`, and `Needs Runtime Audit` where current evidence is incomplete.
+T00 is a documentation transaction, not an implementation claim. The documents distinguish `Proposed`, `Not Yet Implemented`, `Needs Data Audit`, and `Needs Runtime Audit` where current evidence is incomplete.
 
 ## Current Runtime Transaction
 
-T04–T05 Korea MVP Turn Loop & Unification Completion is connected as one v0.76 candidate. It wraps enemy actions, AI baseline city production, player authoritative city-stock production, existing domestic/research systems, month-boundary recovery, next-turn entry, four-city victory, zero-city defeat, terminal presentation, and save/load resume in one persisted transaction.
-
-The current gate is Godot runtime smoke and integrated F5 QA. The implementation environment has no Godot executable, so it does not claim project parse, runtime smoke, visual outcome-screen approval, or final Editor Output evidence.
+T06 planning is discussion-first. The first executable sub-transaction is a no-behavior-change extraction of the authoritative WorldMap hero definition data from `worldmap_main.gd` into a dedicated read-only registry. Stat names, values, roster membership, save contracts, battle formulas, and unique-skill behavior remain unchanged until their own audited decisions are approved.
 
 ## Protected Contracts
 
@@ -81,6 +89,7 @@ The current gate is Godot runtime smoke and integrated F5 QA. The implementation
 - Technology values/effects are not altered without implementation evidence and an active transaction.
 - National research belongs to the nation; city research occupation handling remains explicit until audited.
 - State responsibility is targeted by `SYSTEM_SOURCE_OF_TRUTH`; it does not authorize a mass refactor.
+- T01–T05 battle, city-resource, save/load, turn-resolution, and outcome behavior must remain unchanged during T06 data extraction.
 
 When an active transaction discovers a contract mismatch, record the concrete evidence and change only the necessary boundary. Do not use the contract as a blanket migration mandate.
 
