@@ -9,6 +9,7 @@ const DefenseBattleHelpers := preload("res://scripts/worldmap/defense_battle/def
 const DiplomacySpyHelpers := preload("res://scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd")
 const UIFormatterHelpers := preload("res://scripts/worldmap/ui_formatter/ui_formatter_helpers.gd")
 const T03AutoBattleResolverScript := preload("res://scripts/worldmap/t03/auto_battle_resolver.gd")
+const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_outcome_rules.gd")
 
 const WORLD_MAP_CAMERA_SPEED := 900.0
 const WORLD_MAP_CAMERA_DRAG_SPEED := 1.0
@@ -1197,6 +1198,13 @@ var _player_state := {
 	"pending_battle_context": {},
 	"applied_battle_result_ids": [],
 	"korea_unification_victory": false,
+	"korea_player_defeat": false,
+	"turn_resolution_state": {},
+	"completed_turn_resolution_ids": [],
+	"last_turn_resolution_result": {},
+	"last_ai_domestic_apply_turn": 0,
+	"last_ai_domestic_apply_result": {},
+	"game_outcome": {},
 	"enemy_invasion_roll_turn": 0,
 	"t03_global_war_cooldown_until_turn": 0,
 	"t03_automatic_battle_reports": [],
@@ -1278,6 +1286,11 @@ var _domestic_tech_completion_confirm_button: Button = null
 @onready var _t03_battle_result_title: Label = $WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content/Title
 @onready var _t03_battle_result_body: Label = $WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content/Body
 @onready var _t03_battle_result_confirm_button: Button = $WorldMapUI/T03BattlePresentation/Frame/ResultCard/Margin/Content/ConfirmButton
+@onready var _t05_outcome_presentation_root: Control = $WorldMapUI/T05OutcomePresentation
+@onready var _t05_outcome_title: Label = $WorldMapUI/T05OutcomePresentation/Card/Margin/Content/Title
+@onready var _t05_outcome_body: Label = $WorldMapUI/T05OutcomePresentation/Card/Margin/Content/Body
+@onready var _t05_outcome_save_button: Button = $WorldMapUI/T05OutcomePresentation/Card/Margin/Content/ButtonRow/SaveButton
+@onready var _t05_outcome_new_game_button: Button = $WorldMapUI/T05OutcomePresentation/Card/Margin/Content/ButtonRow/NewGameButton
 var _t03_active_report: Dictionary = {}
 
 
@@ -1305,6 +1318,7 @@ func _ready() -> void:
 	_ensure_domestic_tech_tree_overlay_mvp()
 	_ensure_domestic_tech_completion_presentation_overlay()
 	_setup_t03_battle_presentation()
+	_setup_t05_outcome_presentation()
 	_refresh_domestic_tech_tree_overlay_mvp()
 	_close_domestic_tech_tree_overlay_mvp()
 	_ensure_player_attack_deployment_panel()
@@ -1324,6 +1338,7 @@ func _ready() -> void:
 	_update_camera_debug_label()
 	if not new_game_faction_id.is_empty():
 		_select_korea_mvp_start_city()
+	call_deferred("_resume_t04_t05_presentation_after_ready")
 
 
 func _get_current_player_faction_id() -> String:
@@ -6328,11 +6343,13 @@ func _refresh_left_world_status_panel() -> void:
 	var world_status_hint := _format_invasion_status_text(pending_invasion_event)
 	if world_status_hint.is_empty():
 		world_status_hint = _format_enemy_faction_turn_result_hint(_player_state.get("last_enemy_faction_turn_result", {}))
+	if world_status_hint.is_empty():
+		world_status_hint = _format_last_turn_resolution_hint_mvp()
 	world_status_hint_label.text = world_status_hint
 	world_status_hint_label.visible = not world_status_hint.is_empty()
 	_refresh_pending_invasion_choice_ui(pending_invasion_event)
 	wild_army_edit_button_placeholder.text = "아군 턴 종료"
-	wild_army_edit_button_placeholder.disabled = _enemy_turn_mvp_pending or not pending_invasion_event.is_empty()
+	wild_army_edit_button_placeholder.disabled = _enemy_turn_mvp_pending or not pending_invasion_event.is_empty() or _has_terminal_korea_outcome_mvp()
 	save_button_placeholder.text = "저장"
 	load_button_placeholder.text = "불러오기"
 	reset_button_placeholder.text = "초기화"
@@ -6366,6 +6383,22 @@ func _ensure_worldmap_runtime_state_defaults() -> void:
 		_player_state["domestic_apply_pending"] = false
 	if not _player_state.has("last_domestic_apply_turn"):
 		_player_state["last_domestic_apply_turn"] = 0
+	if not _player_state.has("turn_resolution_state") or not (_player_state["turn_resolution_state"] is Dictionary):
+		_player_state["turn_resolution_state"] = {}
+	_player_state["completed_turn_resolution_ids"] = TurnOutcomeRulesScript.normalize_string_array(_player_state.get("completed_turn_resolution_ids", []))
+	if not _player_state.has("last_turn_resolution_result") or not (_player_state["last_turn_resolution_result"] is Dictionary):
+		_player_state["last_turn_resolution_result"] = {}
+	if not _player_state.has("last_ai_domestic_apply_turn"):
+		_player_state["last_ai_domestic_apply_turn"] = 0
+	_player_state["last_ai_domestic_apply_turn"] = maxi(0, int(_player_state.get("last_ai_domestic_apply_turn", 0)))
+	if not _player_state.has("last_ai_domestic_apply_result") or not (_player_state["last_ai_domestic_apply_result"] is Dictionary):
+		_player_state["last_ai_domestic_apply_result"] = {}
+	if not _player_state.has("game_outcome") or not (_player_state["game_outcome"] is Dictionary):
+		_player_state["game_outcome"] = {}
+	if not _player_state.has("korea_unification_victory"):
+		_player_state["korea_unification_victory"] = false
+	if not _player_state.has("korea_player_defeat"):
+		_player_state["korea_player_defeat"] = false
 	_normalize_domestic_tech_state_mvp()
 	if not _player_state.has("pending_invasion_event") or not (_player_state["pending_invasion_event"] is Dictionary):
 		_player_state["pending_invasion_event"] = {}
@@ -6555,6 +6588,10 @@ func _limit_invasion_result_lines(lines: Array, limit: int) -> Array[String]:
 
 
 func _on_ally_turn_end_pressed() -> void:
+	if _has_terminal_korea_outcome_mvp():
+		_set_save_management_status("게임이 종료되었습니다. 결과 화면에서 새 게임을 선택하십시오.")
+		_present_t05_outcome_if_needed()
+		return
 	if _enemy_turn_mvp_pending:
 		_set_save_management_status("적군 턴 진행 중...")
 		return
@@ -6567,13 +6604,31 @@ func _on_ally_turn_end_pressed() -> void:
 	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
 		_set_save_management_status("이미 적군 턴입니다.")
 		return
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var transaction_id := TurnOutcomeRulesScript.make_turn_resolution_id(turn_number, _get_current_player_faction_id())
+	if TurnOutcomeRulesScript.normalize_string_array(_player_state.get("completed_turn_resolution_ids", [])).has(transaction_id):
+		_set_save_management_status("이미 완료된 턴입니다.")
+		return
+	_player_state["turn_resolution_state"] = {
+		"transaction_id": transaction_id,
+		"source_turn": turn_number,
+		"stage": "enemy_actions",
+		"started": true,
+	}
 	_domestic_turn_apply_pending = true
 	_player_state["domestic_apply_pending"] = true
 	_set_turn_phase(TURN_PHASE_ENEMY)
+	_checkpoint_worldmap_state_mvp()
 	_run_enemy_turn_mvp()
 
 
 func _run_enemy_turn_mvp() -> void:
+	if _has_terminal_korea_outcome_mvp():
+		_enemy_turn_mvp_pending = false
+		_domestic_turn_apply_pending = false
+		_player_state["domestic_apply_pending"] = false
+		_present_t05_outcome_if_needed()
+		return
 	if _enemy_turn_mvp_pending:
 		_set_save_management_status("적군 턴 진행 중...")
 		return
@@ -6581,6 +6636,10 @@ func _run_enemy_turn_mvp() -> void:
 	_enemy_turn_mvp_pending = true
 	_set_save_management_status("적군 턴 진행 중...")
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var turn_resolution_state := _get_or_restore_turn_resolution_state_mvp(turn_number)
+	turn_resolution_state["stage"] = "enemy_actions"
+	_player_state["turn_resolution_state"] = turn_resolution_state
+	var ai_domestic_result := _apply_ai_city_production_for_world_turn_mvp()
 	var enemy_turn_already_processed := int(_player_state.get("last_enemy_faction_turn_processed_turn", 0)) == turn_number
 	var enemy_turn_result := _process_enemy_faction_turn_mvp()
 	var invasion_event := {}
@@ -6591,8 +6650,14 @@ func _run_enemy_turn_mvp() -> void:
 		_set_save_management_status("AI 세력전 정산 완료 · 다음 아군 턴에 결과 보고")
 	elif not invasion_event.is_empty():
 		_set_save_management_status(_format_invasion_status_text(invasion_event))
-	elif enemy_turn_result is Dictionary and not (enemy_turn_result as Dictionary).is_empty():
-		_set_save_management_status(str((enemy_turn_result as Dictionary).get("summary", "이번 턴 적 행동 처리 완료")))
+	elif not enemy_turn_result.is_empty():
+		_set_save_management_status(str(enemy_turn_result.get("summary", "이번 턴 적 행동 처리 완료")))
+	turn_resolution_state = _get_or_restore_turn_resolution_state_mvp(turn_number)
+	turn_resolution_state["stage"] = "enemy_actions_complete"
+	turn_resolution_state["ai_domestic_result"] = ai_domestic_result.duplicate(true)
+	turn_resolution_state["enemy_turn_result"] = enemy_turn_result.duplicate(true)
+	_player_state["turn_resolution_state"] = turn_resolution_state
+	_checkpoint_worldmap_state_mvp()
 	_refresh_left_world_status_panel()
 	_get_enemy_turn_mvp_timer().start(ENEMY_TURN_MVP_DELAY)
 
@@ -6616,6 +6681,18 @@ func _finish_enemy_turn_mvp() -> void:
 		_player_state["domestic_apply_pending"] = false
 		_refresh_left_world_status_panel()
 		return
+	var source_turn := maxi(1, int(_player_state.get("turn_number", 1)))
+	var turn_resolution_state := _get_or_restore_turn_resolution_state_mvp(source_turn)
+	var transaction_id := str(turn_resolution_state.get("transaction_id", TurnOutcomeRulesScript.make_turn_resolution_id(source_turn, _get_current_player_faction_id())))
+	var completed_ids := TurnOutcomeRulesScript.normalize_string_array(_player_state.get("completed_turn_resolution_ids", []))
+	if completed_ids.has(transaction_id):
+		_domestic_turn_apply_pending = false
+		_player_state["domestic_apply_pending"] = false
+		_set_turn_phase(TURN_PHASE_PLAYER)
+		_checkpoint_worldmap_state_mvp()
+		return
+	turn_resolution_state["stage"] = "domestic_resolution"
+	_player_state["turn_resolution_state"] = turn_resolution_state
 	var domestic_summary := ""
 	if _domestic_turn_apply_pending:
 		domestic_summary = _apply_domestic_turn_mvp()
@@ -6623,6 +6700,29 @@ func _finish_enemy_turn_mvp() -> void:
 		_player_state["domestic_apply_pending"] = false
 	_advance_world_turn_mvp()
 	_set_turn_phase(TURN_PHASE_PLAYER)
+	_evaluate_korea_mvp_outcome_mvp()
+	var next_turn := maxi(1, int(_player_state.get("turn_number", source_turn + 1)))
+	var enemy_result: Dictionary = _player_state.get("last_enemy_faction_turn_result", {}) if _player_state.get("last_enemy_faction_turn_result", {}) is Dictionary else {}
+	var ai_domestic_result: Dictionary = _player_state.get("last_ai_domestic_apply_result", {}) if _player_state.get("last_ai_domestic_apply_result", {}) is Dictionary else {}
+	var turn_result := {
+		"transaction_id": transaction_id,
+		"source_turn": source_turn,
+		"next_turn": next_turn,
+		"domestic_summary": domestic_summary,
+		"enemy_summary": str(enemy_result.get("summary", "")),
+		"ai_city_production_count": int(ai_domestic_result.get("city_count", 0)),
+		"outcome": str((_player_state.get("game_outcome", {}) as Dictionary).get("status", TurnOutcomeRulesScript.OUTCOME_ACTIVE)),
+	}
+	_player_state["last_turn_resolution_result"] = turn_result
+	completed_ids.append(transaction_id)
+	_player_state["completed_turn_resolution_ids"] = completed_ids
+	_player_state["turn_resolution_state"] = {
+		"transaction_id": transaction_id,
+		"source_turn": source_turn,
+		"stage": "complete",
+		"completed": true,
+		"next_turn": next_turn,
+	}
 	var pending_invasion_event := _get_pending_invasion_event_mvp()
 	if not pending_invasion_event.is_empty():
 		_set_save_management_status(_format_invasion_status_text(pending_invasion_event))
@@ -6630,7 +6730,25 @@ func _finish_enemy_turn_mvp() -> void:
 		_set_save_management_status("다음 아군 턴 시작")
 	else:
 		_set_save_management_status("내정 적용 완료 · %s" % domestic_summary)
+	_refresh_left_world_status_panel()
+	_checkpoint_worldmap_state_mvp()
+	if _has_terminal_korea_outcome_mvp():
+		call_deferred("_present_t05_outcome_if_needed")
+		return
 	call_deferred("_try_present_next_t03_battle_report")
+
+
+func _get_or_restore_turn_resolution_state_mvp(turn_number: int) -> Dictionary:
+	var state: Dictionary = _player_state.get("turn_resolution_state", {}) if _player_state.get("turn_resolution_state", {}) is Dictionary else {}
+	var expected_id := TurnOutcomeRulesScript.make_turn_resolution_id(turn_number, _get_current_player_faction_id())
+	if str(state.get("transaction_id", "")) != expected_id:
+		state = {
+			"transaction_id": expected_id,
+			"source_turn": maxi(1, turn_number),
+			"stage": "enemy_actions",
+			"started": true,
+		}
+	return state
 
 
 func _roll_enemy_invasion_event_mvp(roll_value: float = -1.0, candidate_index: int = -1) -> Dictionary:
@@ -7997,6 +8115,8 @@ func _get_player_naval_siege_attack_unlock_block_reason_mvp(source_city_id: Stri
 
 
 func _get_player_attack_block_reason(target_city_id: String) -> String:
+	if _has_terminal_korea_outcome_mvp():
+		return "게임이 종료되어 공격할 수 없습니다."
 	if target_city_id.is_empty() or not _has_city_for_battle_context(target_city_id):
 		return "공격할 수 없는 도시입니다."
 	if _has_pending_invasion_event_mvp():
@@ -8088,6 +8208,10 @@ func _refresh_city_info_attack_action_state(city_id: String = "") -> void:
 
 
 func _start_player_attack_battle(target_city_id: String, mode: String = "manual") -> void:
+	if _has_terminal_korea_outcome_mvp():
+		_set_save_management_status("게임 종료 후에는 새 침공을 시작할 수 없습니다.")
+		_present_t05_outcome_if_needed()
+		return
 	if _worldmap_battle_entry_handoff_in_progress:
 		_set_save_management_status("전투 화면 이동 중입니다.")
 		_refresh_left_world_status_panel()
@@ -9173,7 +9297,9 @@ func _rebuild_occupation_runtime_indexes_mvp() -> void:
 			for resource_id in (stock as Dictionary).keys():
 				resources[str(resource_id)] = int(resources.get(str(resource_id), 0)) + maxi(0, int((stock as Dictionary).get(resource_id, 0)))
 	_player_state["national_aggregation"] = {"resources": resources, "available_troops": troops, "population": population, "owner_source": "city.owner_faction_id"}
+	_player_state["resource_stock"] = resources.duplicate(true)
 	_player_state["ai_ownership_cache_generation"] = int(_player_state.get("ai_ownership_cache_generation", 0)) + 1
+	_evaluate_korea_mvp_outcome_mvp()
 
 
 func _move_hero_to_city_t02(hero_id: String, city_id: String) -> void:
@@ -18413,6 +18539,9 @@ func _setup_t03_battle_presentation() -> void:
 
 
 func _try_present_next_t03_battle_report() -> void:
+	if _has_terminal_korea_outcome_mvp():
+		_present_t05_outcome_if_needed()
+		return
 	if _t03_battle_presentation_root.visible or _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_PLAYER:
 		return
 	var acknowledged: Array = _player_state.get("t03_acknowledged_report_ids", [])
@@ -18478,7 +18607,96 @@ func _on_t03_battle_report_confirmed() -> void:
 	_t03_active_report = {}
 	_t03_battle_presentation_root.visible = false
 	_save_worldmap_state()
+	if _has_terminal_korea_outcome_mvp():
+		call_deferred("_present_t05_outcome_if_needed")
+		return
 	call_deferred("_try_present_next_t03_battle_report")
+
+
+func _setup_t05_outcome_presentation() -> void:
+	_t05_outcome_presentation_root.visible = false
+	if not _t05_outcome_save_button.pressed.is_connected(_on_t05_outcome_save_pressed):
+		_t05_outcome_save_button.pressed.connect(_on_t05_outcome_save_pressed)
+	if not _t05_outcome_new_game_button.pressed.is_connected(_on_t05_outcome_new_game_pressed):
+		_t05_outcome_new_game_button.pressed.connect(_on_t05_outcome_new_game_pressed)
+
+
+func _resume_t04_t05_presentation_after_ready() -> void:
+	if _has_terminal_korea_outcome_mvp():
+		_present_t05_outcome_if_needed()
+		return
+	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
+		_run_enemy_turn_mvp()
+		return
+	_try_present_next_t03_battle_report()
+
+
+func _evaluate_korea_mvp_outcome_mvp() -> Dictionary:
+	var owned_city_count := _get_player_owned_korea_mvp_city_count()
+	var existing: Dictionary = _player_state.get("game_outcome", {}) if _player_state.get("game_outcome", {}) is Dictionary else {}
+	var status := TurnOutcomeRulesScript.evaluate_outcome(owned_city_count, T03_KOREA_CITY_IDS.size())
+	var outcome := TurnOutcomeRulesScript.make_outcome_state(
+		status,
+		_get_current_player_faction_id(),
+		maxi(1, int(_player_state.get("turn_number", 1))),
+		owned_city_count,
+		existing
+	)
+	_player_state["game_outcome"] = outcome
+	_player_state["korea_unification_victory"] = str(outcome.get("status", "")) == TurnOutcomeRulesScript.OUTCOME_VICTORY
+	_player_state["korea_player_defeat"] = str(outcome.get("status", "")) == TurnOutcomeRulesScript.OUTCOME_DEFEAT
+	if TurnOutcomeRulesScript.is_terminal_outcome(outcome) and is_inside_tree():
+		call_deferred("_present_t05_outcome_if_needed")
+	return outcome
+
+
+func _has_terminal_korea_outcome_mvp() -> bool:
+	return TurnOutcomeRulesScript.is_terminal_outcome(_player_state.get("game_outcome", {}))
+
+
+func _present_t05_outcome_if_needed() -> void:
+	if not _has_terminal_korea_outcome_mvp() or _t05_outcome_presentation_root == null:
+		return
+	if _t03_battle_video_player != null:
+		_t03_battle_video_player.stop()
+	if _t03_battle_presentation_root != null:
+		_t03_battle_presentation_root.visible = false
+	_t05_outcome_presentation_root.visible = true
+	var outcome: Dictionary = _player_state.get("game_outcome", {})
+	var status := str(outcome.get("status", TurnOutcomeRulesScript.OUTCOME_ACTIVE))
+	var faction_label := _format_faction_label(_get_current_player_faction_id())
+	var resolved_turn := maxi(1, int(outcome.get("resolved_turn", _player_state.get("turn_number", 1))))
+	if status == TurnOutcomeRulesScript.OUTCOME_VICTORY:
+		_t05_outcome_title.text = "한반도 통일"
+		_t05_outcome_title.modulate = Color(1.0, 0.88, 0.58, 1.0)
+		_t05_outcome_body.text = "%s 세력이 한성·평양·경주·사비를 모두 장악했습니다.\n제 %d턴, 한반도의 패권이 하나로 모였습니다." % [faction_label, resolved_turn]
+	else:
+		_t05_outcome_title.text = "세력 멸망"
+		_t05_outcome_title.modulate = Color(0.9, 0.44, 0.42, 1.0)
+		_t05_outcome_body.text = "%s 세력이 지배하던 마지막 도시를 잃었습니다.\n제 %d턴, 한반도 쟁패에서 패배했습니다." % [faction_label, resolved_turn]
+
+
+func _on_t05_outcome_save_pressed() -> void:
+	var outcome: Dictionary = _player_state.get("game_outcome", {}) if _player_state.get("game_outcome", {}) is Dictionary else {}
+	outcome["acknowledged"] = true
+	_player_state["game_outcome"] = outcome
+	_save_worldmap_state()
+	_t05_outcome_save_button.text = "저장 완료"
+
+
+func _on_t05_outcome_new_game_pressed() -> void:
+	get_tree().change_scene_to_file("res://NewGameFactionSelect.tscn")
+
+
+func _format_last_turn_resolution_hint_mvp() -> String:
+	var result: Dictionary = _player_state.get("last_turn_resolution_result", {}) if _player_state.get("last_turn_resolution_result", {}) is Dictionary else {}
+	if result.is_empty():
+		return ""
+	var next_turn := maxi(1, int(result.get("next_turn", _player_state.get("turn_number", 1))))
+	var enemy_summary := str(result.get("enemy_summary", "")).strip_edges()
+	if enemy_summary.is_empty():
+		return "제 %d턴 시작 · 이전 턴 정산 완료" % next_turn
+	return "제 %d턴 시작 · %s" % [next_turn, enemy_summary]
 
 
 func _format_pending_invasion_detail(event: Dictionary) -> String:
@@ -18643,11 +18861,12 @@ func _apply_domestic_turn_mvp() -> String:
 	var spy_cooldown_result := _advance_spy_cooldown_for_world_turn()
 	var revolt_instigation_tick_result := _advance_revolt_instigation_for_world_turn()
 	var supply_states := _calculate_all_city_supply_states()
-	var income_delta := _calculate_player_domestic_income_delta(turn_number, tax_level, policy_id, national_effects, supply_states)
+	var city_production_result := _apply_player_city_production_for_world_turn_mvp(turn_number, tax_level, policy_id, national_effects, supply_states)
+	var income_delta: Dictionary = city_production_result.get("totals", {})
 	var domestic_tech_economy_summary := _get_domestic_tech_economy_turn_summary_mvp()
 	var upkeep_delta := _calculate_player_hero_upkeep_delta(policy_id, national_effects, supply_states)
-	var combined_delta := _combine_resource_deltas(income_delta, upkeep_delta)
-	var applied_delta := _apply_resource_delta(combined_delta)
+	var applied_upkeep_delta := _apply_resource_delta(upkeep_delta)
+	var applied_delta := _combine_resource_deltas(income_delta, applied_upkeep_delta)
 	var inter_faction_trade_result := _apply_player_inter_faction_trade_income(turn_number)
 	var public_support_result := _apply_city_public_support_drift_for_world_turn(tax_level, supply_states)
 	var base_loyalty_delta := _get_tax_loyalty_delta(tax_level)
@@ -18676,6 +18895,7 @@ func _apply_domestic_turn_mvp() -> String:
 		"tax_level": tax_level,
 		"chancellor_policy_id": policy_id,
 		"income_delta": income_delta,
+		"city_production_result": city_production_result,
 		"upkeep_delta": upkeep_delta,
 		"resource_delta": applied_delta,
 		"loyalty_delta": applied_loyalty_delta,
@@ -18699,6 +18919,68 @@ func _apply_domestic_turn_mvp() -> String:
 		"chancellor_auto_trade_result": chancellor_auto_trade_result,
 	}
 	return _format_domestic_apply_summary(applied_delta, applied_loyalty_delta, inter_faction_trade_result, supply_states, city_loyalty_drift_result, public_support_result, seasonal_loyalty_result, conscription_result, revolt_warning_result, national_tech_progress_result, city_tech_progress_result, domestic_tech_progress_result, tech_effect_result, trade_market_result, diplomacy_normalize_result, diplomacy_cooldown_result, spy_cooldown_result, domestic_tech_economy_summary)
+
+
+func _apply_player_city_production_for_world_turn_mvp(turn_number: int, tax_level: int, policy_id: String, national_effects: Dictionary, supply_states: Dictionary = {}) -> Dictionary:
+	var calendar := _get_world_calendar_for_turn(turn_number)
+	var totals := _create_empty_domestic_income_totals()
+	var city_results: Array[Dictionary] = []
+	var owned_city_ids := _get_ordered_player_resource_city_ids_mvp()
+	for city_id in owned_city_ids:
+		var city_data := _get_city_hud_entry(city_id)
+		if city_data.is_empty():
+			continue
+		var city_effects := _calculate_city_domestic_effects(city_data, policy_id)
+		var city_supply_state := _get_supply_city_state(supply_states, city_id)
+		_apply_supply_income_effect(city_effects, city_supply_state)
+		city_effects = _apply_tech_income_multipliers_to_effects(city_id, city_effects)
+		var city_income := _calculate_city_domestic_income(city_data, calendar, tax_level, city_effects)
+		city_income = _apply_domestic_tech_city_economy_bonus_to_income_mvp(city_id, city_income)
+		city_income = _apply_chancellor_policy_to_income_totals(city_income, policy_id)
+		city_income = _apply_income_multipliers_to_totals(city_income, national_effects)
+		var applied := _apply_resource_delta_to_city_stock_mvp(city_id, city_income)
+		for resource_id in totals.keys():
+			totals[resource_id] = int(totals.get(resource_id, 0)) + int(applied.get(resource_id, 0))
+		city_results.append({"city_id": city_id, "resource_delta": applied})
+	_sync_player_resource_compatibility_from_city_stock_mvp()
+	return {
+		"turn": maxi(1, turn_number),
+		"city_count": city_results.size(),
+		"cities": city_results,
+		"totals": totals,
+	}
+
+
+func _apply_ai_city_production_for_world_turn_mvp() -> Dictionary:
+	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
+	var previous: Dictionary = _player_state.get("last_ai_domestic_apply_result", {}) if _player_state.get("last_ai_domestic_apply_result", {}) is Dictionary else {}
+	if int(_player_state.get("last_ai_domestic_apply_turn", 0)) == turn_number:
+		return previous
+	var calendar := _get_world_calendar_for_turn(turn_number)
+	var city_results: Array[Dictionary] = []
+	var totals := _create_empty_domestic_income_totals()
+	for city_id in T03_KOREA_CITY_IDS:
+		var owner_id := _get_city_owner_id_for_battle_context(city_id)
+		if owner_id.is_empty() or owner_id == _get_current_player_faction_id() or _is_t03_faction_defeated(owner_id):
+			continue
+		var city_data := _get_city_hud_entry(city_id)
+		if city_data.is_empty():
+			continue
+		var income := _calculate_city_domestic_income(city_data, calendar, 30, {})
+		var applied := _apply_resource_delta_to_city_stock_mvp(city_id, income)
+		for resource_id in totals.keys():
+			totals[resource_id] = int(totals.get(resource_id, 0)) + int(applied.get(resource_id, 0))
+		city_results.append({"city_id": city_id, "owner_id": owner_id, "resource_delta": applied})
+	var result := {
+		"turn": turn_number,
+		"city_count": city_results.size(),
+		"cities": city_results,
+		"totals": totals,
+		"enemy_research_advanced": false,
+	}
+	_player_state["last_ai_domestic_apply_turn"] = turn_number
+	_player_state["last_ai_domestic_apply_result"] = result.duplicate(true)
+	return result
 
 
 func _get_world_calendar_for_turn(turn_number: int) -> Dictionary:
@@ -22037,18 +22319,96 @@ func _combine_resource_deltas(first: Dictionary, second: Dictionary) -> Dictiona
 
 
 func _apply_resource_delta(delta: Dictionary) -> Dictionary:
-	var resource_stock: Dictionary = _player_state.get("resource_stock", {}).duplicate(true)
 	var applied_delta := {}
 	for resource_id in RESOURCE_DISPLAY_ORDER:
 		var resource_key := str(resource_id)
-		var before := int(resource_stock.get(resource_key, 0))
-		var capacity := int(WAREHOUSE_CAPACITY.get(resource_key, 0))
-		var after := before + int(delta.get(resource_key, 0))
-		after = clampi(after, 0, capacity) if capacity > 0 else maxi(0, after)
-		resource_stock[resource_key] = after
-		applied_delta[resource_key] = after - before
-	_player_state["resource_stock"] = resource_stock
+		var requested_delta := int(delta.get(resource_key, 0))
+		applied_delta[resource_key] = _apply_player_resource_delta_capital_first_mvp(resource_key, requested_delta)
+	_sync_player_resource_compatibility_from_city_stock_mvp()
 	return applied_delta
+
+
+func _get_ordered_player_resource_city_ids_mvp() -> Array[String]:
+	var result: Array[String] = []
+	var capital_city_id := str(_player_state.get("capital_city_id", _player_state.get("origin_city_id", "")))
+	if not capital_city_id.is_empty() and _get_city_owner_id_for_battle_context(capital_city_id) == _get_current_player_faction_id():
+		result.append(capital_city_id)
+	var raw_owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
+	var remaining: Array[String] = []
+	if raw_owned_city_ids is Array:
+		for city_id_variant in raw_owned_city_ids:
+			var city_id := str(city_id_variant)
+			if city_id.is_empty() or city_id == capital_city_id or _get_city_owner_id_for_battle_context(city_id) != _get_current_player_faction_id():
+				continue
+			if not remaining.has(city_id):
+				remaining.append(city_id)
+	remaining.sort()
+	result.append_array(remaining)
+	return result
+
+
+func _apply_resource_delta_to_city_stock_mvp(city_id: String, delta: Dictionary) -> Dictionary:
+	var applied := {}
+	var city_data := _get_mutable_city_runtime_state(city_id)
+	if city_data.is_empty():
+		return applied
+	var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		var resource_key := str(resource_id)
+		var before := maxi(0, int(stock.get(resource_key, 0)))
+		var after := maxi(0, before + int(delta.get(resource_key, 0)))
+		stock[resource_key] = after
+		applied[resource_key] = after - before
+	city_data["resource_stock"] = stock
+	_city_runtime_states[city_id] = city_data
+	return applied
+
+
+func _apply_player_resource_delta_capital_first_mvp(resource_id: String, requested_delta: int) -> int:
+	if requested_delta == 0:
+		return 0
+	var city_ids := _get_ordered_player_resource_city_ids_mvp()
+	if city_ids.is_empty():
+		return 0
+	if requested_delta > 0:
+		var target_city_id := city_ids[0]
+		var positive_delta := {}
+		positive_delta[resource_id] = requested_delta
+		var applied := _apply_resource_delta_to_city_stock_mvp(target_city_id, positive_delta)
+		return int(applied.get(resource_id, 0))
+	var remaining_cost := absi(requested_delta)
+	var paid := 0
+	for city_id in city_ids:
+		if remaining_cost <= 0:
+			break
+		var city_data := _get_mutable_city_runtime_state(city_id)
+		var stock: Dictionary = city_data.get("resource_stock", {}).duplicate(true)
+		var available := maxi(0, int(stock.get(resource_id, 0)))
+		var deduction := mini(available, remaining_cost)
+		if deduction <= 0:
+			continue
+		stock[resource_id] = available - deduction
+		city_data["resource_stock"] = stock
+		_city_runtime_states[city_id] = city_data
+		remaining_cost -= deduction
+		paid += deduction
+	return -paid
+
+
+func _sync_player_resource_compatibility_from_city_stock_mvp() -> Dictionary:
+	var aggregate := {}
+	for resource_id in RESOURCE_DISPLAY_ORDER:
+		aggregate[str(resource_id)] = 0
+	for city_id in _get_ordered_player_resource_city_ids_mvp():
+		var city_data := _get_city_hud_entry(city_id)
+		var stock: Variant = city_data.get("resource_stock", {})
+		if not stock is Dictionary:
+			continue
+		for resource_id in RESOURCE_DISPLAY_ORDER:
+			var resource_key := str(resource_id)
+			aggregate[resource_key] = int(aggregate.get(resource_key, 0)) + maxi(0, int((stock as Dictionary).get(resource_key, 0)))
+	_player_state["resource_stock"] = aggregate.duplicate(true)
+	return aggregate
 
 
 func _adjust_loyalty_delta(base_delta: int, loss_multiplier: float) -> int:
@@ -22491,8 +22851,8 @@ func _serialize_worldmap_state() -> Dictionary:
 		str(not (saved_player_state.get("pending_invasion_event", {}) as Dictionary).is_empty()),
 	])
 	return {
-		"version": "v0.75",
-		"title": "T03 Enemy Invasion and Player Defense Completion",
+		"version": "v0.76",
+		"title": "T04-T05 Korea MVP Turn Loop and Unification Completion",
 		"game_session": _get_game_session().serialize(),
 		"player_state": saved_player_state,
 		"worldmap_city_state": city_state,
@@ -22531,11 +22891,7 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 	_refresh_city_marker_owner_states_from_runtime()
 	_refresh_city_hud_data_bindings()
 	_domestic_turn_apply_pending = bool(_player_state.get("domestic_apply_pending", false))
-	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
-		_player_state["turn_phase"] = TURN_PHASE_PLAYER
-		_player_state["current_phase_label"] = _get_turn_phase_label(TURN_PHASE_PLAYER)
-	_domestic_turn_apply_pending = false
-	_player_state["domestic_apply_pending"] = false
+	_evaluate_korea_mvp_outcome_mvp()
 	print("[LOAD_WORLD_STATE] city_overrides=%d hero_overrides=%d pending_invasion_restored=%s" % [
 		_city_runtime_states.size(),
 		_hero_runtime_states.size(),
@@ -22545,14 +22901,25 @@ func _apply_worldmap_state(data: Dictionary) -> bool:
 
 
 func _save_worldmap_state() -> void:
+	_write_worldmap_state_mvp(true)
+
+
+func _checkpoint_worldmap_state_mvp() -> bool:
+	return _write_worldmap_state_mvp(false)
+
+
+func _write_worldmap_state_mvp(show_status: bool) -> bool:
 	var save_data := _serialize_worldmap_state()
 	var file := FileAccess.open(WORLDMAP_SAVE_PATH, FileAccess.WRITE)
 	if file == null:
 		push_warning("[WorldMap] Failed to open worldmap save path: %s" % WORLDMAP_SAVE_PATH)
-		_set_save_management_status("저장 실패")
-		return
+		if show_status:
+			_set_save_management_status("저장 실패")
+		return false
 	file.store_string(JSON.stringify(save_data, "\t"))
-	_set_save_management_status("저장 완료")
+	if show_status:
+		_set_save_management_status("저장 완료")
+	return true
 
 
 func _load_worldmap_state() -> void:
@@ -22572,14 +22939,13 @@ func _load_worldmap_state() -> void:
 	_refresh_left_world_status_panel()
 	_refresh_unified_panel_content()
 	_set_save_management_status("불러오기 완료")
-	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) == TURN_PHASE_ENEMY:
-		_run_enemy_turn_mvp()
-	else:
-		call_deferred("_try_present_next_t03_battle_report")
+	call_deferred("_resume_t04_t05_presentation_after_ready")
 
 
 func _reset_worldmap_state() -> void:
 	_cancel_enemy_turn_timer_if_needed()
+	if _t05_outcome_presentation_root != null:
+		_t05_outcome_presentation_root.visible = false
 	_player_state = _get_default_player_state()
 	_ensure_worldmap_runtime_state_defaults()
 	_restore_trade_persistence_from_player_state()

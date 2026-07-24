@@ -2,6 +2,7 @@ extends Node
 
 ## Authoritative Korea MVP session role state.  Nation IDs remain registry IDs.
 const KOREA_MVP_SCENARIO_ID := "korea_mvp_four_cities"
+const WORLDMAP_SAVE_PATH := "user://worldmap_left_panel_state.json"
 const STARTS := {
 	"player": {"city_id": "hanseong", "label": "한성", "faction_label": "조선"},
 	"goguryeo": {"city_id": "pyeongyang", "label": "평양", "faction_label": "고구려"},
@@ -25,7 +26,7 @@ var _new_game_faction_id := ""
 var _load_requested := false
 
 func has_valid_save() -> bool:
-	return FileAccess.file_exists("user://samwar_worldmap_state.json")
+	return FileAccess.file_exists(WORLDMAP_SAVE_PATH)
 
 func request_new_game(faction_id: String) -> bool:
 	if not STARTS.has(faction_id):
