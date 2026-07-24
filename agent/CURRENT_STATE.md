@@ -3,13 +3,13 @@
 ## Baseline
 
 - Branch: `main`
-- Baseline commit: `ff642424e28f98d6b390c457d6913d8b4c2f6c71`
-- Current implementation candidate: `v0.75 T03 Enemy Invasion & Player Defense Completion`
+- Baseline commit: `b19c839cb588487eaafddebd7699418d7fc7150a`
+- Current implementation candidate: `v0.76 T04–T05 Korea MVP Turn Loop & Unification Completion`
 - This state document is current-state only. Use Git history and archive candidates for completed version detail.
 
 ## Active Development Phase
 
-Korea Four-City MVP. T01 and T02 are complete. T03 enemy invasion and player defense is implemented as one complete transaction candidate. Static source and video validation pass; Godot 4.6 runtime smoke and integrated F5 QA are pending before the completion lock.
+Korea Four-City MVP. T01 and T02 are complete. T03 enemy invasion and player defense is the protected implemented baseline, including the Godot-confirmed float-clamp hotfix. T04–T05 is now implemented as one integrated turn-loop and unification candidate; static validation passes, while Godot runtime smoke and integrated F5 QA remain before completion lock.
 
 The active context deliberately contains only current direction, protected boundaries, and the next executable transaction. Completed version-by-version evidence remains in Git history and retained archive candidates.
 
@@ -54,7 +54,7 @@ These are implementation assets, not a claim that every connected gameplay effec
 
 - Four-faction new-game choice and player-nation session setup: complete through `GameSession` and `NewGameFactionSelect.tscn`.
 - Korea MVP starting general/resource/technology values: `Needs Data Audit` / `Needs Runtime Audit`.
-- Enemy invasion/player defense, turn resolution, and Korea victory need transaction completion and integrated QA.
+- Enemy invasion/player defense, turn resolution, and Korea victory are implemented candidates and still need their remaining integrated QA evidence before complete lock.
 - City-research behavior on occupation: `Needs Runtime Audit`.
 - The authoritative starting roster count, city assignment, resources, and initial technology states still require a separate balance/data lock before later content expansion.
 
@@ -68,9 +68,9 @@ T00 is a documentation transaction, not an implementation claim. The new documen
 
 ## Current Runtime Transaction
 
-T03 Enemy Invasion & Player Defense Completion is fully connected in the v0.75 implementation candidate: restrained Korea AI war selection, multi-food expedition supply, direct and automatic player defense, deterministic AI-versus-AI resolution, T02-parity strategic settlement, saved duplicate protection, and video-to-report presentation. This remains one transaction; the former A–E labels are implementation-order checkpoints only.
+T04–T05 Korea MVP Turn Loop & Unification Completion is connected as one v0.76 candidate. It wraps enemy actions, AI baseline city production, player authoritative city-stock production, existing domestic/research systems, month-boundary recovery, next-turn entry, four-city victory, zero-city defeat, terminal presentation, and save/load resume in one persisted transaction.
 
-The current gate is Godot runtime and F5 QA. The implementation environment had no Godot executable, so it did not claim project parse, smoke execution, or Editor Output evidence. After those checks pass on the player PC, T03 can be marked `COMPLETE`; failures return as v0.75 hotfixes without reopening the transaction design.
+The current gate is Godot runtime smoke and integrated F5 QA. The implementation environment has no Godot executable, so it does not claim project parse, runtime smoke, visual outcome-screen approval, or final Editor Output evidence.
 
 ## Protected Contracts
 

@@ -2,11 +2,11 @@
 
 ## Active
 
-### T03 Enemy Invasion & Player Defense Completion
+### T04–T05 Korea MVP Turn Loop & Unification Completion
 
-Status: `IMPLEMENTED / STATIC QA PASS / GODOT RUNTIME + F5 QA PENDING`. The restrained war policy, multi-food logistics, direct/automatic player defense, deterministic AI-versus-AI resolver, side-neutral settlement, persistence/duplicate guards, and video-to-report presentation are connected as one v0.75 transaction candidate.
+Status: `IMPLEMENTED / STATIC QA PASS / GODOT RUNTIME + F5 QA PENDING`. End turn, AI baseline city production/actions/invasion, player city-stock production, domestic/research resolution, month-boundary recovery, next-turn entry, persisted duplicate guards, four-city victory, zero-city defeat, and terminal save/load presentation are connected as one v0.76 transaction candidate.
 
-Next gate: run the focused T03 smoke under Godot 4.6, then integrated F5 QA for all four Korea starting factions, direct/automatic defense, AI-versus-AI presentation, save/load, occupation/elimination, and final Editor Output. T03 remains active until that evidence passes; any findings are handled as v0.75 hotfixes.
+Next gate: run `scripts/t04_t05/t04_t05_smoke_test.gd` under Godot 4.6, then integrated F5 QA for all four starts, repeated turn end, enemy-phase save/load resume, research/recovery, fourth-city victory, last-city defeat, terminal restore, title-screen continue, and final Editor Output.
 
 ## Complete
 
@@ -26,8 +26,8 @@ Exit evidence: the default read order identifies current product direction, prot
 
 ## Next
 
-4. **T04 Turn Resolution Transaction** — resolve player/end-turn state, AI actions, research, UI, and persistence as one flow.
-5. **T05 Korea Unification Victory Transaction** — evaluate four-city victory and zero-city defeat, present outcome, and persist it.
+- T06 planning discussion after T04–T05 completion. Existing T06 material is reference only; design is not locked.
+- T07 planning follows the same discussion-first rule after T06. Existing T07 material is reference only.
 
 ### T01 Entry Conditions
 
