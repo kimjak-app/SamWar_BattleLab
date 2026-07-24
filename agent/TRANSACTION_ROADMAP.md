@@ -2,13 +2,17 @@
 
 ## Active
 
-### T04–T05 Korea MVP Turn Loop & Unification Completion
+### T06-0 Hero Definition Data Extraction
 
-Status: `IMPLEMENTED / STATIC QA PASS / GODOT RUNTIME + F5 QA PENDING`. End turn, AI baseline city production/actions/invasion, player city-stock production, domestic/research resolution, month-boundary recovery, next-turn entry, persisted duplicate guards, four-city victory, zero-city defeat, and terminal save/load presentation are connected as one v0.76 transaction candidate.
+Status: `AUDIT / IMPLEMENTATION`. Extract the authoritative WorldMap hero definition data from `scripts/worldmap/worldmap_main.gd` into a dedicated read-only registry without changing roster membership, field names, values, save data, UI behavior, battle handoff, combat formulas, or unique skills.
 
-Next gate: run `scripts/t04_t05/t04_t05_smoke_test.gd` under Godot 4.6, then integrated F5 QA for all four starts, repeated turn end, enemy-phase save/load resume, research/recovery, fourth-city victory, last-city defeat, terminal restore, title-screen continue, and final Editor Output.
+Next gate: complete the source/reference audit, perform the no-behavior-change extraction, run static parity checks, then run focused Godot F5 regression QA before marking the extraction complete.
 
 ## Complete
+
+### T04–T05 Korea MVP Turn Loop & Unification Completion
+
+Status: `COMPLETE` on the v0.76 baseline. Godot 4.6 integrated F5 QA passed for all four starts, repeated turn progression, duplicate guards, enemy-phase save/load resume, research/recovery, fourth-city victory, last-city defeat, terminal restore, title-screen continue detection, and final Output with no new errors or warnings.
 
 ### T02 Player Invasion Logistics, Battle Supply & Occupation
 
@@ -22,11 +26,12 @@ Status: `COMPLETE`. Four selections, role-separated session state, WorldMap init
 
 Status: complete with this documentation transaction. It establishes the Korea MVP direction, transaction rules, source-of-truth targets, scenario boundaries, document inventory, and archive policy. Runtime implementation is not part of T00.
 
-Exit evidence: the default read order identifies current product direction, protected contracts, active T01 specification, and archive candidates without carrying old version history forward.
+Exit evidence: the default read order identifies current product direction, protected contracts, active transaction specification, and archive candidates without carrying old version history forward.
 
 ## Next
 
-- T06 planning discussion after T04–T05 completion. Existing T06 material is reference only; design is not locked.
+- T06-1 hero stat-field contract audit and design decision after T06-0 extraction is complete.
+- Later T06 sub-transactions cover definition/runtime unification, external data loading, balance, cutins, unique skills, and cooperative attacks only after their own discussion and acceptance gates.
 - T07 planning follows the same discussion-first rule after T06. Existing T07 material is reference only.
 
 ### T01 Entry Conditions
