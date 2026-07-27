@@ -63,14 +63,14 @@ func _try_integrate_scene(battle_root: Node) -> bool:
 			summary_by_hero[canonical_hero_id] = _build_summary(enriched)
 
 	battle_root.set("worldmap_context_hero_registry", enriched_registry)
-	_enrich_unique_skill_registry(battle_root, summary_by_hero)
+	_enrich_unique_skill_registry(battle_root)
 	_apply_profiles_to_unit_states(battle_root, summary_by_hero)
 	battle_root.set_meta("hero_battle_profile_integration", summary_by_hero.duplicate(true))
 	print("[HERO_PROFILE_INTEGRATION] applied=%d scene=%s" % [summary_by_hero.size(), BATTLE_SCENE_PATH])
 	return true
 
 
-func _enrich_unique_skill_registry(battle_root: Node, summary_by_hero: Dictionary) -> void:
+func _enrich_unique_skill_registry(battle_root: Node) -> void:
 	var skill_registry_variant: Variant = battle_root.get("worldmap_context_unique_skill_registry")
 	if not skill_registry_variant is Dictionary:
 		return
@@ -112,8 +112,9 @@ func _apply_profiles_to_unit_states(battle_root: Node, summary_by_hero: Dictiona
 		unit_state.unit_type = String(summary.get("unit_type", unit_state.unit_type))
 		unit_state.move_range = int(summary.get("move_range", unit_state.move_range))
 		unit_state.attack_range = int(summary.get("attack_range", unit_state.attack_range))
-		unit_state.status_effects["design_primary_role"] = String(summary.get("primary_role", ""))
-		unit_state.status_effects["design_secondary_role"] = String(summary.get("secondary_role", ""))
+		unit_state.set_meta("design_primary_role", String(summary.get("primary_role", "")))
+		unit_state.set_meta("design_secondary_role", String(summary.get("secondary_role", "")))
+		unit_state.set_meta("design_unique_skill_id", String(summary.get("unique_skill_id", "")))
 		if not logged.has(canonical_hero_id):
 			logged[canonical_hero_id] = true
 			print("[HERO_PROFILE] hero=%s unit=%s role=%s move=%d range=%d" % [
