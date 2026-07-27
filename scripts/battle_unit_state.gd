@@ -1,6 +1,14 @@
 class_name BattleUnitState
 extends RefCounted
 
+const HeroRuntimeFactoryScript := preload("res://scripts/worldmap/hero_runtime_factory.gd")
+const HeroDefinitionRegistryScript := preload("res://scripts/worldmap/hero_definition_registry.gd")
+const HERO_ID_ALIASES := {
+	"yi_sunsin": "yi_sun_sin",
+	"gwon_yul": "kwon_yul",
+	"gim_yusin": "kim_yu_sin",
+}
+
 var unit_id: String = ""
 var display_name: String = ""
 var side: String = ""
@@ -37,43 +45,46 @@ var status_effects: Dictionary = {}
 
 
 func setup(data: Dictionary) -> void:
-	unit_id = String(data.get("unit_id", ""))
-	display_name = String(data.get("display_name", ""))
-	side = String(data.get("side", ""))
-	slot_id = String(data.get("slot_id", ""))
-	hero_name = String(data.get("hero_name", display_name))
-	nation = String(data.get("nation", ""))
-	unit_type = String(data.get("unit_type", "infantry"))
-	visual_key = String(data.get("visual_key", unit_type))
-	portrait_key = String(data.get("portrait_key", hero_name))
-	domain = String(data.get("domain", "land"))
-	footprint = String(data.get("footprint", "1x1"))
-	move_fx_profile = String(data.get("move_fx_profile", "dust"))
-	attack_fx_profile = String(data.get("attack_fx_profile", "slash"))
-	click_area_profile = String(data.get("click_area_profile", "standard_1x1"))
-	visual_scale_profile = String(data.get("visual_scale_profile", "standard_256"))
-	current_hp = int(data.get("current_hp", 0))
-	max_hp = int(data.get("max_hp", current_hp))
-	current_troops = int(data.get("current_troops", current_hp))
-	max_troops = int(data.get("max_troops", max_hp))
-	allocated_troops = maxi(0, int(data.get("allocated_troops", data.get("troops", current_troops))))
-	initial_allocated_troops = maxi(0, int(data.get("initial_allocated_troops", allocated_troops)))
-	attack = int(data.get("attack", 0))
-	defense = int(data.get("defense", 0))
-	intelligence = int(data.get("intelligence", 0))
-	move_range = int(data.get("move_range", 0))
-	attack_range = int(data.get("attack_range", 0))
-	grid_cell = data.get("grid_cell", Vector2i.ZERO)
-	facing = String(data.get("facing", "right"))
-	has_acted = bool(data.get("has_acted", false))
-	has_moved = bool(data.get("has_moved", false))
-	is_defending = bool(data.get("is_defending", false))
-	var raw_last_action = data.get("last_action", {})
+	var authoritative_data := _build_authoritative_payload(data)
+	unit_id = String(authoritative_data.get("unit_id", ""))
+	display_name = String(authoritative_data.get("display_name", ""))
+	side = String(authoritative_data.get("side", ""))
+	slot_id = String(authoritative_data.get("slot_id", ""))
+	hero_name = String(authoritative_data.get("hero_name", display_name))
+	nation = String(authoritative_data.get("nation", ""))
+	unit_type = String(authoritative_data.get("unit_type", "infantry"))
+	visual_key = String(authoritative_data.get("visual_key", unit_type))
+	if visual_key != unit_type:
+		visual_key = unit_type
+	portrait_key = String(authoritative_data.get("portrait_key", hero_name))
+	domain = String(authoritative_data.get("domain", "land"))
+	footprint = String(authoritative_data.get("footprint", "1x1"))
+	move_fx_profile = String(authoritative_data.get("move_fx_profile", "dust"))
+	attack_fx_profile = String(authoritative_data.get("attack_fx_profile", "slash"))
+	click_area_profile = String(authoritative_data.get("click_area_profile", "standard_1x1"))
+	visual_scale_profile = String(authoritative_data.get("visual_scale_profile", "standard_256"))
+	current_hp = int(authoritative_data.get("current_hp", 0))
+	max_hp = int(authoritative_data.get("max_hp", current_hp))
+	current_troops = int(authoritative_data.get("current_troops", current_hp))
+	max_troops = int(authoritative_data.get("max_troops", max_hp))
+	allocated_troops = maxi(0, int(authoritative_data.get("allocated_troops", authoritative_data.get("troops", current_troops))))
+	initial_allocated_troops = maxi(0, int(authoritative_data.get("initial_allocated_troops", allocated_troops)))
+	attack = int(authoritative_data.get("attack", 0))
+	defense = int(authoritative_data.get("defense", 0))
+	intelligence = int(authoritative_data.get("intelligence", 0))
+	move_range = int(authoritative_data.get("move_range", 0))
+	attack_range = int(authoritative_data.get("attack_range", 0))
+	grid_cell = authoritative_data.get("grid_cell", Vector2i.ZERO)
+	facing = String(authoritative_data.get("facing", "right"))
+	has_acted = bool(authoritative_data.get("has_acted", false))
+	has_moved = bool(authoritative_data.get("has_moved", false))
+	is_defending = bool(authoritative_data.get("is_defending", false))
+	var raw_last_action = authoritative_data.get("last_action", {})
 	if raw_last_action is Dictionary:
 		last_action = (raw_last_action as Dictionary).duplicate(true)
 	else:
 		last_action = {}
-	var raw_status_effects = data.get("status_effects", {})
+	var raw_status_effects = authoritative_data.get("status_effects", {})
 	if raw_status_effects is Dictionary:
 		status_effects = (raw_status_effects as Dictionary).duplicate(true)
 	else:
@@ -84,6 +95,68 @@ static func create(data: Dictionary) -> BattleUnitState:
 	var state := BattleUnitState.new()
 	state.setup(data)
 	return state
+
+
+static func _build_authoritative_payload(data: Dictionary) -> Dictionary:
+	var hero_id := _resolve_hero_id(data)
+	if hero_id.is_empty():
+		return data.duplicate(true)
+	var runtime_registry: Dictionary = HeroDefinitionRegistryScript.HERO_DATA
+	if not runtime_registry.has(hero_id):
+		return data.duplicate(true)
+	var runtime_variant: Variant = runtime_registry.get(hero_id, {})
+	if not runtime_variant is Dictionary:
+		return data.duplicate(true)
+	var runtime_hero: Dictionary = runtime_variant
+	var payload := HeroRuntimeFactoryScript.build_battle_unit_payload(runtime_hero, data)
+	if not HeroRuntimeFactoryScript.is_valid_runtime_hero(payload):
+		push_error("[BATTLE_UNIT_AUTHORITY] Failed to build authoritative payload for %s: %s" % [
+			hero_id,
+			String(payload.get("runtime_factory_error", "unknown error")),
+		])
+		return data.duplicate(true)
+	payload["hero_id"] = hero_id
+	payload["unit_type"] = String(payload.get("unit_type", "infantry"))
+	payload["visual_key"] = payload["unit_type"]
+	return payload
+
+
+static func _resolve_hero_id(data: Dictionary) -> String:
+	var direct_candidates := [
+		String(data.get("hero_id", "")),
+		String(data.get("design_hero_id", "")),
+	]
+	var unit_id_candidate := String(data.get("unit_id", ""))
+	if unit_id_candidate.ends_with("_battle_unit"):
+		direct_candidates.append(unit_id_candidate.trim_suffix("_battle_unit"))
+	for candidate_variant in direct_candidates:
+		var candidate := _canonical_hero_id(String(candidate_variant))
+		if not candidate.is_empty() and HeroDefinitionRegistryScript.HERO_DATA.has(candidate):
+			return candidate
+	var display_candidates := [
+		String(data.get("hero_name", "")).strip_edges(),
+		String(data.get("display_name", "")).strip_edges(),
+		String(data.get("name", "")).strip_edges(),
+	]
+	for key_variant in HeroDefinitionRegistryScript.HERO_DATA.keys():
+		var registry_hero_id := String(key_variant)
+		var hero_variant: Variant = HeroDefinitionRegistryScript.HERO_DATA.get(registry_hero_id, {})
+		if not hero_variant is Dictionary:
+			continue
+		var hero: Dictionary = hero_variant
+		var registered_names := [
+			String(hero.get("display_name", "")).strip_edges(),
+			String(hero.get("name", "")).strip_edges(),
+		]
+		for display_candidate_variant in display_candidates:
+			var display_candidate := String(display_candidate_variant)
+			if not display_candidate.is_empty() and registered_names.has(display_candidate):
+				return registry_hero_id
+	return ""
+
+
+static func _canonical_hero_id(hero_id: String) -> String:
+	return String(HERO_ID_ALIASES.get(hero_id, hero_id))
 
 
 func is_alive() -> bool:
