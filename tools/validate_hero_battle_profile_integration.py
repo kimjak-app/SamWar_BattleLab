@@ -22,21 +22,32 @@ def main() -> int:
     factory = (ROOT / "scripts/worldmap/hero_runtime_factory.gd").read_text(encoding="utf-8")
     registry = (ROOT / "scripts/worldmap/hero_definition_registry.gd").read_text(encoding="utf-8")
     adapter = (ROOT / "scripts/battle/hero_battle_design_adapter.gd").read_text(encoding="utf-8")
+    battle_unit_state = (ROOT / "scripts/battle_unit_state.gd").read_text(encoding="utf-8")
+    dead_postprocess = ROOT / "scripts/battle/hero_battle_profile_integration.gd"
 
     require("HeroBattleProfileIntegration=" not in project,
             "battle postprocess autoload must be removed", errors)
     require("HeroWorldMapStatIntegration=" not in project,
             "worldmap postprocess autoload must be removed", errors)
+    require(not dead_postprocess.exists(),
+            "dead battle profile postprocess file must remain deleted", errors)
     require("HeroRuntimeFactory.build_runtime_registry(LEGACY_IDENTITY_DATA)" in registry,
             "hero registry does not expose factory-built runtime data", errors)
     require("HeroRuntimeFactory.build_runtime_hero" in adapter,
             "battle adapter bypasses HeroRuntimeFactory", errors)
     require("build_battle_unit_payload" in factory,
             "factory battle payload builder missing", errors)
-    require('"visual_key" = unit_type' not in factory,
-            "invalid visual assignment syntax detected", errors)
     require('result["visual_key"] = unit_type' in factory,
             "factory does not synchronize battle visual_key", errors)
+
+    require("HeroRuntimeFactoryScript.build_battle_unit_payload" in battle_unit_state,
+            "BattleUnitState creation does not enforce factory payloads", errors)
+    require("var authoritative_data := _build_authoritative_payload(data)" in battle_unit_state,
+            "BattleUnitState.setup does not use authoritative data", errors)
+    require('payload["visual_key"] = payload["unit_type"]' in battle_unit_state,
+            "BattleUnitState does not lock visual_key and unit_type together", errors)
+    require("static func _resolve_hero_id" in battle_unit_state,
+            "BattleUnitState cannot resolve hardcoded fixtures to runtime heroes", errors)
 
     base = load_json(ROOT / "data/heroes/generated/hero_base_stats.json")
     profiles = load_json(ROOT / "data/heroes/generated/hero_battle_profiles.json")
@@ -61,7 +72,7 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print("INTEGRATION VALIDATION PASS: factory-owned 39-hero runtime registry, five unit types, no hero postprocess autoloads")
+    print("INTEGRATION VALIDATION PASS: factory-owned runtime registry and BattleUnitState creation boundary, five unit types, no postprocess code")
     return 0
 
 

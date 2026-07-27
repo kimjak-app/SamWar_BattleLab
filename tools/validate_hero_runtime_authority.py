@@ -20,11 +20,15 @@ def main() -> int:
     factory = (ROOT / "scripts/worldmap/hero_runtime_factory.gd").read_text(encoding="utf-8")
     adapter = (ROOT / "scripts/battle/hero_battle_design_adapter.gd").read_text(encoding="utf-8")
     game_session = (ROOT / "scripts/game_session.gd").read_text(encoding="utf-8")
+    battle_unit_state = (ROOT / "scripts/battle_unit_state.gd").read_text(encoding="utf-8")
+    dead_postprocess = ROOT / "scripts/battle/hero_battle_profile_integration.gd"
 
     require("HeroWorldMapStatIntegration" not in project,
             "worldmap postprocess autoload must be removed", errors)
     require("HeroBattleProfileIntegration" not in project,
             "battle postprocess autoload must be removed", errors)
+    require(not dead_postprocess.exists(),
+            "dead battle profile postprocess integration file must be deleted", errors)
     require("HeroRuntimeFactory.build_runtime_registry" in registry,
             "hero registry must expose factory-built runtime data", errors)
     require("static var HERO_DATA" in registry,
@@ -46,6 +50,17 @@ def main() -> int:
             "recursive migration must only rebuild known heroes", errors)
     require("depth > 12" in factory,
             "recursive save migration must have a depth guard", errors)
+
+    require("HeroRuntimeFactoryScript.build_battle_unit_payload" in battle_unit_state,
+            "BattleUnitState must enforce HeroRuntimeFactory at the creation boundary", errors)
+    require("var authoritative_data := _build_authoritative_payload(data)" in battle_unit_state,
+            "BattleUnitState.setup must consume the authoritative payload", errors)
+    require('payload["visual_key"] = payload["unit_type"]' in battle_unit_state,
+            "BattleUnitState must lock visual_key to unit_type before first render", errors)
+    require("static func _resolve_hero_id" in battle_unit_state,
+            "BattleUnitState must resolve runtime heroes from hero_id or display name", errors)
+    require("HeroDefinitionRegistryScript.HERO_DATA" in battle_unit_state,
+            "BattleUnitState must resolve heroes from the factory-built runtime registry", errors)
 
     require("func request_load()" in game_session,
             "GameSession load entry is missing", errors)
@@ -85,7 +100,7 @@ def main() -> int:
 
     print(
         "HERO RUNTIME AUTHORITY PASS: factory-built registry, pre-load save migration, "
-        "no postprocess autoloads, five-unit authority locked"
+        "BattleUnitState creation authority, no postprocess integration, five-unit authority locked"
     )
     return 0
 

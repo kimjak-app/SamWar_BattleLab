@@ -107,7 +107,10 @@ func _migrate_worldmap_save_before_load() -> bool:
 		_last_load_migration_error = "save root is not a Dictionary"
 		return false
 	var source_payload: Dictionary = parsed
-	var migrated_variant: Variant = HeroRuntimeFactory.migrate_saved_payload(source_payload)
+	var migrated_variant: Variant = HeroRuntimeFactory.migrate_saved_payload(
+		source_payload,
+		HeroDefinitionRegistry.LEGACY_IDENTITY_DATA
+	)
 	if not migrated_variant is Dictionary:
 		_last_load_migration_error = "migrated save root is not a Dictionary"
 		return false
