@@ -9,7 +9,12 @@ const HERO_ID_ALIASES := {
 	"gim_yusin": "kim_yu_sin",
 }
 
-var unit_id: String = ""
+var _is_setting_up := false
+var unit_id: String = "":
+	set(value):
+		unit_id = value
+		if not _is_setting_up:
+			_rebuild_authority_for_runtime_unit_id(value)
 var display_name: String = ""
 var side: String = ""
 var slot_id: String = ""
@@ -45,6 +50,7 @@ var status_effects: Dictionary = {}
 
 
 func setup(data: Dictionary) -> void:
+	_is_setting_up = true
 	var authoritative_data := _build_authoritative_payload(data)
 	unit_id = String(authoritative_data.get("unit_id", ""))
 	display_name = String(authoritative_data.get("display_name", ""))
@@ -89,6 +95,7 @@ func setup(data: Dictionary) -> void:
 		status_effects = (raw_status_effects as Dictionary).duplicate(true)
 	else:
 		status_effects = {}
+	_is_setting_up = false
 
 
 static func create(data: Dictionary) -> BattleUnitState:
@@ -119,6 +126,53 @@ static func _build_authoritative_payload(data: Dictionary) -> Dictionary:
 	payload["unit_type"] = String(payload.get("unit_type", "infantry"))
 	payload["visual_key"] = payload["unit_type"]
 	return payload
+
+
+func _rebuild_authority_for_runtime_unit_id(value: String) -> void:
+	var hero_id := value
+	if hero_id.ends_with("_battle_unit"):
+		hero_id = hero_id.trim_suffix("_battle_unit")
+	hero_id = _canonical_hero_id(hero_id)
+	if hero_id.is_empty() or not HeroDefinitionRegistryScript.HERO_DATA.has(hero_id):
+		return
+	var payload := _build_authoritative_payload({
+		"hero_id": hero_id,
+		"unit_id": value,
+		"side": side,
+		"slot_id": slot_id,
+		"current_hp": current_hp,
+		"max_hp": max_hp,
+		"current_troops": current_troops,
+		"max_troops": max_troops,
+		"allocated_troops": allocated_troops,
+		"initial_allocated_troops": initial_allocated_troops,
+		"grid_cell": grid_cell,
+		"facing": facing,
+		"has_acted": has_acted,
+		"has_moved": has_moved,
+		"is_defending": is_defending,
+		"last_action": last_action,
+		"status_effects": status_effects,
+	})
+	if not HeroRuntimeFactoryScript.is_valid_runtime_hero(payload):
+		return
+	display_name = String(payload.get("display_name", display_name))
+	hero_name = String(payload.get("hero_name", display_name))
+	nation = String(payload.get("nation", nation))
+	unit_type = String(payload.get("unit_type", unit_type))
+	visual_key = unit_type
+	portrait_key = String(payload.get("portrait_key", hero_name))
+	domain = String(payload.get("domain", domain))
+	footprint = String(payload.get("footprint", footprint))
+	move_fx_profile = String(payload.get("move_fx_profile", move_fx_profile))
+	attack_fx_profile = String(payload.get("attack_fx_profile", attack_fx_profile))
+	click_area_profile = String(payload.get("click_area_profile", click_area_profile))
+	visual_scale_profile = String(payload.get("visual_scale_profile", visual_scale_profile))
+	attack = int(payload.get("attack", attack))
+	defense = int(payload.get("defense", defense))
+	intelligence = int(payload.get("intelligence", intelligence))
+	move_range = int(payload.get("move_range", move_range))
+	attack_range = int(payload.get("attack_range", attack_range))
 
 
 static func _resolve_hero_id(data: Dictionary) -> String:
