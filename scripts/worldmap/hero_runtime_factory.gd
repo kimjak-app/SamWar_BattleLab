@@ -1,7 +1,7 @@
 class_name HeroRuntimeFactory
 extends RefCounted
 
-const RUNTIME_SCHEMA_VERSION := 1
+const RUNTIME_SCHEMA_VERSION := 2
 const LOYALTY_SCHEMA_VERSION := 1
 const ALLOWED_UNIT_TYPES := {
 	"infantry": true,
@@ -9,6 +9,13 @@ const ALLOWED_UNIT_TYPES := {
 	"archer": true,
 	"gunner": true,
 	"mounted_archer": true,
+}
+const LEGACY_WEB_ROLE_BY_UNIT_TYPE := {
+	"infantry": "melee",
+	"cavalry": "cavalry",
+	"archer": "ranged",
+	"gunner": "ranged",
+	"mounted_archer": "ranged",
 }
 const MUTABLE_SAVE_KEYS := [
 	"loyalty",
@@ -27,6 +34,25 @@ const MUTABLE_SAVE_KEYS := [
 	"force_id",
 	"side",
 	"nation",
+]
+const BATTLE_AUTHORITY_KEYS := [
+	"leadership",
+	"command",
+	"martial",
+	"war",
+	"intelligence",
+	"politics",
+	"initial_loyalty",
+	"unit_type",
+	"visual_key",
+	"web_role",
+	"primary_role",
+	"secondary_role",
+	"move_range",
+	"mobility",
+	"attack_range",
+	"command_limit",
+	"runtime_schema_version",
 ]
 
 
@@ -76,6 +102,7 @@ static func build_runtime_hero(identity: Dictionary, saved_state: Dictionary = {
 
 	result["unit_type"] = unit_type
 	result["visual_key"] = unit_type
+	result["web_role"] = String(LEGACY_WEB_ROLE_BY_UNIT_TYPE.get(unit_type, "melee"))
 	result["primary_role"] = String(profile.get("primary_role", ""))
 	result["secondary_role"] = String(profile.get("secondary_role", ""))
 	result["design_unique_skill_id"] = String(profile.get("unique_skill_id", ""))
@@ -90,6 +117,16 @@ static func build_runtime_hero(identity: Dictionary, saved_state: Dictionary = {
 	result["attack_range"] = int(unit_rule.get("attack_range", result.get("attack_range", 0)))
 
 	_apply_saved_mutable_state(result, saved_state)
+	var troop_basis := maxi(
+		int(result.get("max_troops", 0)),
+		maxi(int(result.get("troops", 0)), int(result.get("troop_count", 0)))
+	)
+	var fallback_command_limit := maxi(1, troop_basis)
+	if fallback_command_limit <= 1:
+		fallback_command_limit = maxi(1, leadership * 10)
+	result["command_limit"] = maxi(1, int(result.get("command_limit", fallback_command_limit)))
+	if String(result.get("command_label", "")).is_empty():
+		result["command_label"] = "지휘한계"
 	result["runtime_schema_version"] = RUNTIME_SCHEMA_VERSION
 	result["loyalty_schema_version"] = LOYALTY_SCHEMA_VERSION
 	result.erase("runtime_factory_error")
@@ -126,9 +163,18 @@ static func migrate_saved_hero(saved_hero: Dictionary, identity_registry: Dictio
 
 
 static func build_battle_unit_payload(runtime_hero: Dictionary, overrides: Dictionary = {}) -> Dictionary:
-	var result := runtime_hero.duplicate(true)
+	var authoritative := build_runtime_hero(runtime_hero, runtime_hero)
+	if not is_valid_runtime_hero(authoritative):
+		return authoritative
+	var result := authoritative.duplicate(true)
 	for key_variant in overrides.keys():
+		var key := String(key_variant)
+		if BATTLE_AUTHORITY_KEYS.has(key):
+			continue
 		result[key_variant] = overrides.get(key_variant)
+	for key in BATTLE_AUTHORITY_KEYS:
+		if authoritative.has(key):
+			result[key] = authoritative.get(key)
 	var hero_id := String(result.get("hero_id", result.get("id", "")))
 	if hero_id.is_empty():
 		return _error_result(result, "battle payload missing hero_id")
@@ -136,6 +182,7 @@ static func build_battle_unit_payload(runtime_hero: Dictionary, overrides: Dicti
 	if not ALLOWED_UNIT_TYPES.has(unit_type):
 		return _error_result(result, "battle payload invalid unit_type: %s" % unit_type)
 	result["visual_key"] = unit_type
+	result["web_role"] = String(LEGACY_WEB_ROLE_BY_UNIT_TYPE.get(unit_type, "melee"))
 	result["hero_name"] = String(result.get("display_name", result.get("name", hero_id)))
 	return result
 
@@ -154,6 +201,7 @@ static func is_valid_runtime_hero(hero: Dictionary) -> bool:
 	return int(hero.get("runtime_schema_version", 0)) == RUNTIME_SCHEMA_VERSION \
 		and not hero.has("runtime_factory_error") \
 		and ALLOWED_UNIT_TYPES.has(String(hero.get("unit_type", ""))) \
+		and int(hero.get("command_limit", 0)) > 0 \
 		and String(hero.get("hero_id", "")) != ""
 
 
