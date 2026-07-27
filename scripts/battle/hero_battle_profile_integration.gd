@@ -160,7 +160,7 @@ func _hero_id_from_unit_state(unit_state: BattleUnitState) -> String:
 	var unit_id := unit_state.unit_id
 	if unit_id.ends_with("_battle_unit"):
 		var candidate := _canonical_hero_id(unit_id.trim_suffix("_battle_unit"))
-		if HeroDesignDataRegistry.has_hero(candidate):
+		if not HeroDesignDataRegistry.get_base_stats(candidate).is_empty():
 			return candidate
 	var hero_name := unit_state.hero_name.strip_edges()
 	if not hero_name.is_empty() and _hero_id_by_display_name.has(hero_name):
