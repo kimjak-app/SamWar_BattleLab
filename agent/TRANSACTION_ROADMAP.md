@@ -2,31 +2,41 @@
 
 ## Active
 
-### T06-4 Battle-side Hero Stat/Profile Adapter
+### T06 Hero Battle Profile Integration
 
-Status: `IMPLEMENTED / GODOT QA PENDING`.
+Status: `IMPLEMENTED / USER GODOT QA PENDING`.
+
+This is one integrated transaction. Earlier T06-4 adapter creation and T06-5 invocation labels are internal implementation steps, not separate user-facing transactions.
 
 Implemented scope:
 
-- `scripts/battle/hero_battle_design_adapter.gd`
-- `agent/transactions/T06_4_BATTLE_HERO_DESIGN_ADAPTER.md`
-- namespaced, defensive-copy composition of legacy hero data with T06 design data
-- fail-closed `design_adapter_error` handling
+- read-only generated-data loading
+- namespaced legacy/design contract composition
+- Battle scene Autoload invocation
+- attacker and defender roster enrichment
+- active BattleUnitState unit type, movement, and attack-range application
+- primary/secondary role and design-skill metadata
+- design unique-skill payload exposure without effect activation
+- runtime Output evidence
+- static integration validation
 
 Protected scope:
 
 - `HeroDefinitionRegistry.HERO_DATA` remains WorldMap authority
-- existing BattleContext shape remains unchanged
-- legacy battle fields and formulas remain active
-- no six-unit runtime behavior
-- no role-passive, momentum, unique-skill, AI, cutin, VFX, or sound activation
+- save schema and BattleContext shape remain unchanged
+- troop accounting, casualties, settlement, and battle return remain unchanged
+- legacy attack, defense, damage, wounded, AI, and unique-skill formulas remain active
+- role passives, momentum, new unique-skill execution, cutins, VFX, and sound remain inactive
+- gunner and mounted-archer visuals retain existing fallbacks
 
 Exit gate:
 
+- `python tools/validate_hero_design_registry.py` PASS
+- `python tools/validate_hero_battle_profile_integration.py` PASS
 - Godot parse/F5 PASS
-- representative hero contracts build with valid design namespaces
-- invalid/missing hero IDs fail safely
-- WorldMap, battle entry/return, and save/load remain unchanged
+- `HERO_PROFILE` Output for deployed attacker and defender heroes
+- six-unit generated movement/range values reflected in battle
+- battle entry/return, save/load, settlement, legacy damage, and legacy skills remain normal
 - no new parse error or warning
 
 ## Complete
@@ -67,9 +77,9 @@ Status: `COMPLETE`.
 
 ## Next
 
-- T06-5 may call the adapter at the Battle roster-registration boundary only after T06-4 QA PASS.
-- T06-5 must expose namespaced design data without switching legacy combat formulas.
-- Later bounded transactions activate six unit types, primary-role passives, momentum, representative unique skills, all 39 skills, AI, cutins, cooperative attacks, and VFX.
+- After the integrated profile transaction passes, the next transaction must activate a complete battle mechanic set rather than another helper-only milestone.
+- Candidate next set: six-unit combat passives plus primary-role passive application with UI/log and balance safeguards.
+- Momentum, representative unique skills, all 39 skills, AI, cutins, cooperative attacks, and VFX follow bounded complete transactions.
 - Sound effects remain the final polish step.
 - T07 starts only after T06 completion and its own discussion-first gate.
 
@@ -88,4 +98,4 @@ None confirmed.
 
 ## Use
 
-This is the active roadmap. Keep completed detail in Git history and transaction documents. Update the active transaction only after its exit evidence is recorded.
+This is the active roadmap. Keep completed detail in Git history and transaction documents. Do not expose internal helper steps as separate user-facing transactions.
