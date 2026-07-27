@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 EXPECTED_HERO_COUNT = 39
+EXPECTED_UNIT_TYPE_COUNT = 5
 HERO_ENTRY_RE = re.compile(r'^\s*"([a-z0-9_]+)"\s*:\s*\{', re.MULTILINE)
 
 
@@ -31,16 +32,8 @@ def fail(errors: list[str], message: str) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--registry",
-        type=Path,
-        default=Path("scripts/worldmap/hero_definition_registry.gd"),
-    )
-    parser.add_argument(
-        "--data-dir",
-        type=Path,
-        default=Path("data/heroes/generated"),
-    )
+    parser.add_argument("--registry", type=Path, default=Path("scripts/worldmap/hero_definition_registry.gd"))
+    parser.add_argument("--data-dir", type=Path, default=Path("data/heroes/generated"))
     args = parser.parse_args()
 
     errors: list[str] = []
@@ -64,7 +57,7 @@ def main() -> int:
         ("base stats", base_rows, EXPECTED_HERO_COUNT),
         ("battle profiles", profile_rows, EXPECTED_HERO_COUNT),
         ("unique skills", skill_rows, EXPECTED_HERO_COUNT),
-        ("unit types", unit_rows, 6),
+        ("unit types", unit_rows, EXPECTED_UNIT_TYPE_COUNT),
         ("battle roles", role_rows, 8),
     ):
         if len(rows) != expected:
@@ -81,13 +74,18 @@ def main() -> int:
     if base_ids != skill_hero_ids:
         fail(errors, "base JSON and skill JSON hero ID order differ")
 
-    skill_ids = {str(row.get("skill_id", "")) for row in skill_rows}
+    allowed_units = {"infantry", "cavalry", "archer", "gunner", "mounted_archer"}
     for row in profile_rows:
         hero_id = str(row.get("hero_id", ""))
         expected_skill_id = f"{hero_id}_unique"
         if row.get("unique_skill_id") != expected_skill_id:
             fail(errors, f"{hero_id}: profile skill ID must be {expected_skill_id}")
-        if expected_skill_id not in skill_ids:
+        if str(row.get("unit_type", "")) not in allowed_units:
+            fail(errors, f"{hero_id}: unsupported unit_type {row.get('unit_type')}")
+
+    skill_ids = {str(row.get("skill_id", "")) for row in skill_rows}
+    for hero_id in profile_ids:
+        if f"{hero_id}_unique" not in skill_ids:
             fail(errors, f"{hero_id}: missing linked unique skill")
 
     if errors:
@@ -95,14 +93,8 @@ def main() -> int:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
 
-    print(
-        "PARITY PASS: 39 legacy hero IDs match generated base/profile/skill JSON; "
-        "6 unit types and 8 roles present"
-    )
-    print(
-        "NOTE: legacy combat/stat values were intentionally not compared because "
-        "their field meanings are not equivalent to the T06-1 locked contract"
-    )
+    print("PARITY PASS: 39 legacy hero IDs match generated base/profile/skill JSON; 5 unit types and 8 roles present")
+    print("NOTE: legacy combat/stat values were intentionally not compared because their field meanings are not equivalent to the T06-1 locked contract")
     return 0
 
 
