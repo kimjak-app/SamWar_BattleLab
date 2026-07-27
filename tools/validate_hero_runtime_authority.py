@@ -81,9 +81,9 @@ def main() -> int:
             "BattleUnitState must resolve runtime heroes from hero_id or display name", errors)
     require("HeroDefinitionRegistryScript.HERO_DATA" in battle_unit_state,
             "BattleUnitState must resolve heroes from the factory-built runtime registry", errors)
-    require("set(value):" in battle_unit_state and "_rebuild_authority_from_unit_id" in battle_unit_state,
+    require("set(value):" in battle_unit_state and "_rebuild_authority_for_runtime_unit_id" in battle_unit_state,
             "BattleUnitState.unit_id changes must rebuild hero authority", errors)
-    require("build_battle_unit_payload(runtime_hero, overrides)" in battle_unit_state,
+    require("build_battle_unit_payload(runtime_hero, data)" in battle_unit_state,
             "context hero changes must rebuild the full battle payload", errors)
     require('visual_key = unit_type' in battle_unit_state,
             "context hero rebuild must keep visual_key and unit_type identical", errors)
