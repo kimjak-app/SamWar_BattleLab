@@ -46,12 +46,13 @@ def main() -> int:
     require(len(base.get("heroes", [])) == 39, "base hero count must be 39", errors)
     require(len(profiles.get("profiles", [])) == 39, "profile count must be 39", errors)
     require(len(skills.get("skills", [])) == 39, "skill count must be 39", errors)
-    require(len(units.get("unit_types", [])) == 6, "unit type count must be 6", errors)
+    require(len(units.get("unit_types", [])) == 5, "unit type count must be 5", errors)
     require(len(roles.get("roles", [])) == 8, "role count must be 8", errors)
 
-    allowed_units = {"infantry", "cavalry", "archer", "gunner", "mounted_archer", "support"}
+    allowed_units = {"infantry", "cavalry", "archer", "gunner", "mounted_archer"}
     profile_units = {str(item.get("unit_type", "")) for item in profiles.get("profiles", [])}
     require(profile_units.issubset(allowed_units), f"unknown unit types: {sorted(profile_units - allowed_units)}", errors)
+    require("support" not in profile_units, "support must remain a role only, not a unit type", errors)
 
     if errors:
         print("INTEGRATION VALIDATION FAILED")
@@ -59,7 +60,7 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print("INTEGRATION VALIDATION PASS: 39 heroes, 6 unit types, 8 roles, Battle autoload and profile application present")
+    print("INTEGRATION VALIDATION PASS: 39 heroes, 5 unit types, 8 roles, Battle autoload and profile application present")
     return 0
 
 
