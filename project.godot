@@ -18,8 +18,6 @@ config/icon="res://icon.svg"
 [autoload]
 
 GameSession="*res://scripts/game_session.gd"
-HeroBattleProfileIntegration="*res://scripts/battle/hero_battle_profile_integration.gd"
-HeroWorldMapStatIntegration="*res://scripts/worldmap/hero_worldmap_stat_integration.gd"
 
 [display]
 
