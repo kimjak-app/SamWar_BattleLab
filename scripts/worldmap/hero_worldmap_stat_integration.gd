@@ -2,7 +2,6 @@ extends Node
 
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const LOYALTY_SCHEMA_VERSION := 1
-const UI_REFRESH_INTERVAL := 0.20
 const UNIT_TYPE_LABELS := {
 	"infantry": "보병",
 	"cavalry": "기병",
@@ -12,33 +11,36 @@ const UNIT_TYPE_LABELS := {
 }
 const RECOGNIZED_UNIT_LABELS := ["보병", "기병", "궁병", "총병", "궁기병", "지원"]
 
-var _elapsed := 0.0
-var _last_scene_id := 0
 var _stats_line_regex := RegEx.new()
 var _hero_id_by_display_name: Dictionary = {}
 var _valid_hero_ids: Dictionary = {}
+var _integration_generation := 0
 
 
 func _ready() -> void:
 	_stats_line_regex.compile("(?:지휘\\s*\\d+\\s*/\\s*)?정\\s*\\d+\\s*/\\s*무\\s*\\d+\\s*/\\s*지\\s*\\d+\\s*/\\s*충\\s*(\\d+)|지휘\\s*\\d+\\s*/\\s*무\\s*\\d+\\s*/\\s*지\\s*\\d+\\s*/\\s*정\\s*\\d+\\s*/\\s*충\\s*(\\d+)")
 	_build_hero_indexes()
-	set_process(true)
+	get_tree().current_scene_changed.connect(_on_current_scene_changed)
+	call_deferred("_integrate_current_worldmap")
 
 
-func _process(delta: float) -> void:
-	_elapsed += delta
-	if _elapsed < UI_REFRESH_INTERVAL:
-		return
-	_elapsed = 0.0
+func _on_current_scene_changed(_scene: Node) -> void:
+	_integration_generation += 1
+	call_deferred("_integrate_current_worldmap")
+
+
+func _integrate_current_worldmap() -> void:
 	var scene := get_tree().current_scene
 	if scene == null or scene.scene_file_path != WORLDMAP_SCENE_PATH:
-		_last_scene_id = 0
 		return
-	var scene_id := scene.get_instance_id()
-	if _last_scene_id != scene_id:
-		_apply_runtime_stat_migration(scene)
-		_last_scene_id = scene_id
+	var generation := _integration_generation
+	_apply_runtime_stat_migration(scene)
 	_refresh_worldmap_hero_labels(scene)
+	await get_tree().process_frame
+	if generation != _integration_generation or get_tree().current_scene != scene:
+		return
+	_refresh_worldmap_hero_labels(scene)
+	print("[HERO_WORLDMAP_STATS] one-shot integration complete")
 
 
 func _build_hero_indexes() -> void:
@@ -57,12 +59,11 @@ func _build_hero_indexes() -> void:
 
 
 func _apply_runtime_stat_migration(root: Node) -> void:
-	var migrated_count := 0
-	migrated_count += _migrate_node_tree(root)
+	var migrated_count := _migrate_root_script_properties(root)
 	print("[HERO_WORLDMAP_STATS] runtime migration heroes=%d" % migrated_count)
 
 
-func _migrate_node_tree(node: Node) -> int:
+func _migrate_root_script_properties(node: Node) -> int:
 	if node == null:
 		return 0
 	var migrated_count := 0
@@ -81,9 +82,6 @@ func _migrate_node_tree(node: Node) -> int:
 		migrated_count += int(migration.get("count", 0))
 		if bool(migration.get("changed", false)):
 			node.set(property_name, migration.get("value"))
-	for child in node.get_children():
-		if child is Node:
-			migrated_count += _migrate_node_tree(child)
 	return migrated_count
 
 
