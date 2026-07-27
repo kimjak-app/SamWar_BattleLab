@@ -60,7 +60,9 @@ static func build_runtime_hero(identity: Dictionary, saved_state: Dictionary = {
 	result["visual_key"] = unit_type
 	result["primary_role"] = String(profile.get("primary_role", ""))
 	result["secondary_role"] = String(profile.get("secondary_role", ""))
-	result["unique_skill_id"] = String(profile.get("unique_skill_id", result.get("unique_skill_id", "")))
+	result["design_unique_skill_id"] = String(profile.get("unique_skill_id", ""))
+	if not result.has("unique_skill_id"):
+		result["unique_skill_id"] = result["design_unique_skill_id"]
 
 	var unit_rule := HeroDesignDataRegistry.get_unit_type_rule(unit_type)
 	if unit_rule.is_empty():
