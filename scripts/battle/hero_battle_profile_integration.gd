@@ -9,10 +9,23 @@ const HERO_ID_ALIASES := {
 
 var _integrated_scene_id := 0
 var _battle_wait_frames := 0
+var _hero_id_by_display_name: Dictionary = {}
 
 
 func _ready() -> void:
+	_build_display_name_index()
 	set_process(true)
+
+
+func _build_display_name_index() -> void:
+	_hero_id_by_display_name.clear()
+	if not HeroDesignDataRegistry.ensure_loaded():
+		return
+	for hero_id in HeroDesignDataRegistry.get_all_hero_ids():
+		var base := HeroDesignDataRegistry.get_base_stats(hero_id)
+		var display_name := String(base.get("display_name", ""))
+		if not display_name.is_empty():
+			_hero_id_by_display_name[display_name] = hero_id
 
 
 func _process(_delta: float) -> void:
@@ -109,9 +122,12 @@ func _apply_profiles_to_unit_states(battle_root: Node, summary_by_hero: Dictiona
 		if canonical_hero_id.is_empty() or not summary_by_hero.has(canonical_hero_id):
 			continue
 		var summary: Dictionary = summary_by_hero.get(canonical_hero_id, {})
-		unit_state.unit_type = String(summary.get("unit_type", unit_state.unit_type))
+		var unit_type := String(summary.get("unit_type", unit_state.unit_type))
+		unit_state.unit_type = unit_type
+		unit_state.visual_key = unit_type
 		unit_state.move_range = int(summary.get("move_range", unit_state.move_range))
 		unit_state.attack_range = int(summary.get("attack_range", unit_state.attack_range))
+		unit_state.set_meta("design_hero_id", canonical_hero_id)
 		unit_state.set_meta("design_primary_role", String(summary.get("primary_role", "")))
 		unit_state.set_meta("design_secondary_role", String(summary.get("secondary_role", "")))
 		unit_state.set_meta("design_unique_skill_id", String(summary.get("unique_skill_id", "")))
@@ -143,7 +159,15 @@ func _build_summary(contract: Dictionary) -> Dictionary:
 func _hero_id_from_unit_state(unit_state: BattleUnitState) -> String:
 	var unit_id := unit_state.unit_id
 	if unit_id.ends_with("_battle_unit"):
-		return unit_id.trim_suffix("_battle_unit")
+		var candidate := _canonical_hero_id(unit_id.trim_suffix("_battle_unit"))
+		if HeroDesignDataRegistry.has_hero(candidate):
+			return candidate
+	var hero_name := unit_state.hero_name.strip_edges()
+	if not hero_name.is_empty() and _hero_id_by_display_name.has(hero_name):
+		return String(_hero_id_by_display_name.get(hero_name, ""))
+	var display_name := unit_state.display_name.strip_edges()
+	if not display_name.is_empty() and _hero_id_by_display_name.has(display_name):
+		return String(_hero_id_by_display_name.get(display_name, ""))
 	return ""
 
 
