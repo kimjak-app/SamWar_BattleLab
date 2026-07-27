@@ -6,14 +6,15 @@
 - Protected runtime baseline: `v0.77 T06-0 Hero Definition Registry Extraction`
 - T06-1 design lock: `8d0dfac28a49213459968a1c8343f1ed5573d71e`
 - T06-2 converter/generated-data implementation is present on main.
-- T06-3 non-destructive JSON loader implementation is present at `4eb520f6ce6faec9a5418b3ff02831232dc05382`.
+- T06-3 non-destructive JSON loader and parity validation are complete.
+- T06-4 Battle-side hero design adapter implementation is present on main.
 - This document records current state only. Use Git history and transaction documents for completed detail.
 
 ## Active Development Phase
 
-Korea Four-City MVP. T01 through T05 are complete and protected. T06-0 extracted the immutable 39-hero legacy definition registry without behavior change. T06-1 locked the new 39-hero stat/unit/role/unique-skill data contract. T06-2 added workbook validation and generated reviewable JSON. T06-3 added an opt-in, read-only Godot loader and parity validator without switching runtime authority.
+Korea Four-City MVP. T01 through T05 are complete and protected. T06-0 extracted the immutable 39-hero legacy definition registry without behavior change. T06-1 locked the new 39-hero stat/unit/role/unique-skill data contract. T06-2 added workbook validation and generated reviewable JSON. T06-3 added and verified an opt-in, read-only Godot loader and parity validator without switching runtime authority.
 
-The active gate is T06-3 static parity and user Godot smoke confirmation. T06-4 runtime adaptation is not yet authorized.
+The active transaction is T06-4 Battle-side Hero Stat/Profile Adapter, implemented with Godot QA pending.
 
 ## Product Direction
 
@@ -30,6 +31,7 @@ The active gate is T06-3 static parity and user Godot smoke confirmation. T06-4 
 - Land battle: `res://Battle_Land.tscn` and `scripts/battle_web_import_test.gd`
 - Legacy hero definition authority: `scripts/worldmap/hero_definition_registry.gd`
 - New read-only design-data loader: `scripts/worldmap/hero_design_data_registry.gd`
+- Battle-side design adapter: `scripts/battle/hero_battle_design_adapter.gd`
 - WorldMap/Battle handoff: `agent/BATTLE_WORLDMAP_HANDOFF_CONTRACT.md`
 
 ## Protected Completed Baselines
@@ -62,35 +64,45 @@ The active gate is T06-3 static parity and user Godot smoke confirmation. T06-4 
 - The generated contract contains 39 heroes, 39 profiles, 39 skills, six unit types, and eight roles.
 - The Godot runtime source was not switched in T06-2.
 
+### T06-3
+
+- `python tools/validate_hero_design_registry.py` passed.
+- User Godot F5 smoke passed.
+- WorldMap, roster UI, battle entry/return, save/load, and final Output remained normal.
+- `HeroDefinitionRegistry.HERO_DATA` remains WorldMap runtime authority.
+
 ## Active Transaction
 
-### T06-3 Hero Design JSON Parity & Non-Destructive Loader
+### T06-4 Battle-side Hero Stat/Profile Adapter
 
-Status: `IMPLEMENTED / STATIC QA AND USER GODOT SMOKE PENDING`
+Status: `IMPLEMENTED / GODOT QA PENDING`
 
 Implemented:
 
-- `scripts/worldmap/hero_design_data_registry.gd`
-- `tools/validate_hero_design_registry.py`
-- `agent/transactions/T06_3_HERO_DESIGN_JSON_LOADER.md`
+- `scripts/battle/hero_battle_design_adapter.gd`
+- `agent/transactions/T06_4_BATTLE_HERO_DESIGN_ADAPTER.md`
+- legacy hero Dictionaries are deep-copied and enriched only with namespaced design fields
+- invalid/missing design links fail closed with `design_adapter_error`
 
 Protected boundary:
 
-- `HeroDefinitionRegistry.HERO_DATA` remains authoritative for WorldMap runtime behavior.
-- The new loader is read-only, opt-in, and does not overwrite legacy `war`, `command`, `attack`, troop, save, city, or BattleContext values.
-- Six-unit behavior, role passives, momentum, and new unique-skill effects remain inactive.
+- legacy `attack`, `defense`, `war`, `command`, troops, city, faction, save, BattleContext, and `unique_skill_id` fields are not overwritten
+- the adapter is not yet called by Battle roster registration
+- existing battle formulas remain unchanged
+- six-unit behavior, primary-role passives, momentum, and new unique-skill execution remain inactive
 
 Required completion evidence:
 
-1. Run `python tools/validate_hero_design_registry.py` and confirm the 39/39/39, six-unit, eight-role parity PASS.
-2. Run Godot 4.6 parse/F5 smoke.
-3. Confirm WorldMap, roster UI, battle entry/return, and save/load remain unchanged.
-4. Confirm no new parse error or warning.
+1. Godot parse/F5 succeeds.
+2. Representative hero contracts expose all design namespaces.
+3. Missing/invalid IDs fail safely without crash.
+4. WorldMap, battle entry/return, and save/load remain unchanged.
+5. No new parse error or warning appears.
 
 ## Confirmed Major Gaps
 
-- T06-3 QA has not yet been recorded as passed.
-- New design stats/profiles are not yet adapted into Battle runtime.
+- T06-4 adapter QA has not yet been recorded as passed.
+- The adapter is not yet invoked at the Battle roster-registration boundary.
 - Six-unit behavior, role passives, momentum, 39 unique-skill execution, AI usage, cutins, and VFX remain unimplemented under the new contract.
 - Sound remains intentionally deferred to final polish.
 
@@ -99,9 +111,9 @@ Required completion evidence:
 - Existing `Battle_Land` tactical battle is preserved.
 - Battle does not own WorldMap state or select WorldMap armies.
 - WorldMap provides prepared battle context and consumes battle results.
-- Existing save, runtime hero state, battle handoff, settlement, and turn/outcome behavior remain unchanged during T06-3.
+- Existing save, runtime hero state, battle handoff, settlement, and turn/outcome behavior remain unchanged during T06-4.
 - New fields must not be mapped onto legacy fields merely because their names appear similar.
-- Runtime adaptation must be bounded, adapter-first, and separately QA-locked.
+- Runtime adaptation remains bounded, adapter-first, and separately QA-locked.
 
 ## Required Reading
 
@@ -112,9 +124,10 @@ Required completion evidence:
 5. `agent/TRANSACTION_ROADMAP.md`
 6. `agent/transactions/T06_1_HERO_DATA_CONTRACT.md`
 7. `agent/transactions/T06_3_HERO_DESIGN_JSON_LOADER.md`
+8. `agent/transactions/T06_4_BATTLE_HERO_DESIGN_ADAPTER.md`
 
 For WorldMap work also read `agent/WORLDMAP_RULES.md`. For Battle integration read `agent/BATTLE_WORLDMAP_HANDOFF_CONTRACT.md`.
 
 ## Next Gate
 
-Only after T06-3 parity and Godot smoke PASS may T06-4 connect new base-stat/profile data through a bounded Battle-side adapter. T06-4 may not switch WorldMap source of truth or activate all unique skills at once.
+After T06-4 Godot QA PASS, T06-5 may invoke the adapter at the Battle roster-registration boundary while preserving all legacy combat formulas.
