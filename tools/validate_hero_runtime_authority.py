@@ -19,6 +19,7 @@ def main() -> int:
     registry = (ROOT / "scripts/worldmap/hero_definition_registry.gd").read_text(encoding="utf-8")
     factory = (ROOT / "scripts/worldmap/hero_runtime_factory.gd").read_text(encoding="utf-8")
     adapter = (ROOT / "scripts/battle/hero_battle_design_adapter.gd").read_text(encoding="utf-8")
+    game_session = (ROOT / "scripts/game_session.gd").read_text(encoding="utf-8")
 
     require("HeroWorldMapStatIntegration" not in project,
             "worldmap postprocess autoload must be removed", errors)
@@ -46,6 +47,18 @@ def main() -> int:
     require("depth > 12" in factory,
             "recursive save migration must have a depth guard", errors)
 
+    require("func request_load()" in game_session,
+            "GameSession load entry is missing", errors)
+    require("_migrate_worldmap_save_before_load()" in game_session,
+            "GameSession must migrate the save before setting the load request", errors)
+    require("HeroRuntimeFactory.migrate_saved_payload" in game_session,
+            "GameSession must invoke HeroRuntimeFactory at the load boundary", errors)
+    require("hero_runtime_migration_version" in game_session,
+            "migrated saves must carry a migration marker", errors)
+    request_load_body = game_session.split("func request_load()", 1)[1].split("func consume_load_request", 1)[0]
+    require(request_load_body.find("_migrate_worldmap_save_before_load()") < request_load_body.find("_load_requested = true"),
+            "save migration must run before WorldMap consumes the load request", errors)
+
     profiles = json.loads(
         (ROOT / "data/heroes/generated/hero_battle_profiles.json").read_text(encoding="utf-8")
     )
@@ -71,8 +84,8 @@ def main() -> int:
         return 1
 
     print(
-        "HERO RUNTIME AUTHORITY PASS: factory-built registry, no postprocess autoloads, "
-        "recursive save migration contract, five-unit authority locked"
+        "HERO RUNTIME AUTHORITY PASS: factory-built registry, pre-load save migration, "
+        "no postprocess autoloads, five-unit authority locked"
     )
     return 0
 
