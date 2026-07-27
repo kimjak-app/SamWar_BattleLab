@@ -14,33 +14,37 @@ const RECOGNIZED_UNIT_LABELS := ["보병", "기병", "궁병", "총병", "궁기
 var _stats_line_regex := RegEx.new()
 var _hero_id_by_display_name: Dictionary = {}
 var _valid_hero_ids: Dictionary = {}
-var _integration_generation := 0
+var _integrated_scene_id := 0
+var _integration_running := false
 
 
 func _ready() -> void:
 	_stats_line_regex.compile("(?:지휘\\s*\\d+\\s*/\\s*)?정\\s*\\d+\\s*/\\s*무\\s*\\d+\\s*/\\s*지\\s*\\d+\\s*/\\s*충\\s*(\\d+)|지휘\\s*\\d+\\s*/\\s*무\\s*\\d+\\s*/\\s*지\\s*\\d+\\s*/\\s*정\\s*\\d+\\s*/\\s*충\\s*(\\d+)")
 	_build_hero_indexes()
-	get_tree().current_scene_changed.connect(_on_current_scene_changed)
-	call_deferred("_integrate_current_worldmap")
+	set_process(true)
 
 
-func _on_current_scene_changed(_scene: Node) -> void:
-	_integration_generation += 1
-	call_deferred("_integrate_current_worldmap")
-
-
-func _integrate_current_worldmap() -> void:
+func _process(_delta: float) -> void:
 	var scene := get_tree().current_scene
 	if scene == null or scene.scene_file_path != WORLDMAP_SCENE_PATH:
+		_integrated_scene_id = 0
 		return
-	var generation := _integration_generation
+	var scene_id := scene.get_instance_id()
+	if _integration_running or _integrated_scene_id == scene_id:
+		return
+	_integrated_scene_id = scene_id
+	_integration_running = true
+	_integrate_worldmap_once(scene)
+
+
+func _integrate_worldmap_once(scene: Node) -> void:
 	_apply_runtime_stat_migration(scene)
 	_refresh_worldmap_hero_labels(scene)
 	await get_tree().process_frame
-	if generation != _integration_generation or get_tree().current_scene != scene:
-		return
-	_refresh_worldmap_hero_labels(scene)
+	if is_instance_valid(scene) and get_tree().current_scene == scene:
+		_refresh_worldmap_hero_labels(scene)
 	print("[HERO_WORLDMAP_STATS] one-shot integration complete")
+	_integration_running = false
 
 
 func _build_hero_indexes() -> void:
