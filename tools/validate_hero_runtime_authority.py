@@ -21,6 +21,13 @@ def main() -> int:
     adapter = (ROOT / "scripts/battle/hero_battle_design_adapter.gd").read_text(encoding="utf-8")
     game_session = (ROOT / "scripts/game_session.gd").read_text(encoding="utf-8")
     battle_unit_state = (ROOT / "scripts/battle_unit_state.gd").read_text(encoding="utf-8")
+    worldmap_panel = (ROOT / "scripts/worldmap_city_info_panel.gd").read_text(encoding="utf-8")
+    worldmap_panel_base_path = ROOT / "scripts/worldmap_city_info_panel_base.gd"
+    worldmap_panel_base = (
+        worldmap_panel_base_path.read_text(encoding="utf-8")
+        if worldmap_panel_base_path.exists()
+        else ""
+    )
     dead_postprocess = ROOT / "scripts/battle/hero_battle_profile_integration.gd"
 
     require("HeroWorldMapStatIntegration" not in project,
@@ -50,6 +57,19 @@ def main() -> int:
             "recursive migration must only rebuild known heroes", errors)
     require("depth > 12" in factory,
             "recursive save migration must have a depth guard", errors)
+    require('return "지휘 %d / 무 %d / 지 %d / 정 %d / 충 %d"' in factory,
+            "factory must own the final five-stat hero display contract", errors)
+
+    require(worldmap_panel_base_path.exists(),
+            "worldmap city info panel base implementation is missing", errors)
+    require("class_name WorldMapCityInfoPanel" in worldmap_panel_base,
+            "worldmap panel base must preserve the scene-facing class contract", errors)
+    require('extends "res://scripts/worldmap_city_info_panel_base.gd"' in worldmap_panel,
+            "scene-facing worldmap panel must extend the preserved implementation", errors)
+    require("HeroRuntimeFactory.format_stat_line(hero_data)" in worldmap_panel,
+            "worldmap hero cards must use the authoritative five-stat formatter", errors)
+    require('"정 %d / 무 %d / 지 %d / 충 %d"' not in worldmap_panel,
+            "scene-facing worldmap panel must not expose the legacy four-stat formatter", errors)
 
     require("HeroRuntimeFactoryScript.build_battle_unit_payload" in battle_unit_state,
             "BattleUnitState must enforce HeroRuntimeFactory at the creation boundary", errors)
@@ -68,6 +88,8 @@ def main() -> int:
             "GameSession must migrate the save before setting the load request", errors)
     require("HeroRuntimeFactory.migrate_saved_payload" in game_session,
             "GameSession must invoke HeroRuntimeFactory at the load boundary", errors)
+    require("HeroDefinitionRegistry.LEGACY_IDENTITY_DATA" in game_session,
+            "save migration must receive the identity registry", errors)
     require("hero_runtime_migration_version" in game_session,
             "migrated saves must carry a migration marker", errors)
     request_load_body = game_session.split("func request_load()", 1)[1].split("func consume_load_request", 1)[0]
@@ -99,8 +121,9 @@ def main() -> int:
         return 1
 
     print(
-        "HERO RUNTIME AUTHORITY PASS: factory-built registry, pre-load save migration, "
-        "BattleUnitState creation authority, no postprocess integration, five-unit authority locked"
+        "HERO RUNTIME AUTHORITY PASS: factory-built registry, authoritative five-stat WorldMap UI, "
+        "pre-load save migration, BattleUnitState creation authority, no postprocess integration, "
+        "five-unit authority locked"
     )
     return 0
 
