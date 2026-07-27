@@ -1,6 +1,6 @@
 # T06-6 Hero Runtime Authority Unification
 
-Status: `ACTIVE / IMPLEMENTATION IN PROGRESS`
+Status: `T06-6B IMPLEMENTED / USER GODOT QA PENDING`
 
 ## Goal
 
@@ -58,6 +58,41 @@ Rules:
 - support is a role only and is invalid as unit_type.
 - Factory output is a deep writable copy.
 
+## T06-6B Battle Initial Spawn Authority Unification
+
+Implemented authority boundary:
+
+```text
+legacy/test/worldmap battle dictionary
+-> BattleUnitState.create/setup
+-> hero_id or display-name resolution
+-> HeroDefinitionRegistry.HERO_DATA
+-> HeroRuntimeFactory.build_battle_unit_payload
+-> authoritative BattleUnitState fields
+-> first visual render
+```
+
+The BattleUnitState creation boundary now guarantees:
+
+- known heroes are rebuilt from the factory-owned runtime registry before setup
+- fixed stats and battle profile fields cannot be restored from legacy fixture literals
+- unit_type and visual_key are equal before the first render
+- current battle values such as slot, position, facing, HP and troop allocation remain overrides
+- future BattleUnitState.create callers automatically use the same authority path
+
+Removed:
+
+- `scripts/battle/hero_battle_profile_integration.gd`
+- scene polling and post-entry unit profile mutation code contained in that file
+
+Validation now requires:
+
+- BattleUnitState setup consumes `_build_authoritative_payload(data)`
+- BattleUnitState calls `HeroRuntimeFactory.build_battle_unit_payload`
+- visual_key is locked to unit_type at creation
+- runtime hero resolution supports hero_id and display name
+- the dead postprocess integration file remains deleted
+
 ## Complete Transaction Scope
 
 - Add HeroRuntimeFactory.
@@ -81,6 +116,7 @@ The transaction is not complete if any of these remain necessary:
 - Battle entry correction of wrong WorldMap unit type
 - final stats/initial loyalty/unit type duplicated as active authority in legacy registry
 - support accepted as a unit type
+- unit_type and visual_key being updated from different sources or at different times
 
 ## Validation Gates
 
@@ -92,19 +128,25 @@ Static validation must fail on:
 - initial loyalty replacing existing saved current loyalty
 - old four-value stat UI formatter used for hero surfaces
 - post-processing Autoload registrations remaining in project.godot
-- new-game, save migration, deployment, or BattleContext bypassing HeroRuntimeFactory
+- dead postprocess integration file returning
+- BattleUnitState setup bypassing HeroRuntimeFactory
+- BattleUnitState allowing visual_key and unit_type to diverge at creation
 
 ## User Godot QA
 
 - F5 starts with no parser/runtime error.
-- No visible old-data-then-new-data swap at WorldMap startup.
-- Normal WorldMap performance is restored.
-- Degree Jeong and Dorim are archers everywhere.
+- Normal WorldMap performance remains restored.
+- Degree Jeong is an archer on the first battle frame.
+- Dorim is an archer on the first battle frame.
+- Moving a unit does not change its unit type or battlefield visual.
 - Cheok Jun-gyeong is infantry everywhere.
 - Konishi Yukinaga and Honda Masanobu are gunners everywhere.
+- Multiple eligible heroes can be selected and deployed.
 - Other-city invasion and defender deployment use the same profile.
 - Save/load preserves changed current loyalty.
 - Battle entry/return and settlement remain normal.
+
+WorldMap first-render old-data flash remains a separate T06-6C audit target if it persists after this battle QA.
 
 ## Completion Rule
 
