@@ -2,13 +2,33 @@
 
 ## Active
 
-### T06-1 Hero Stat Field Contract Design
+### T06-2 Hero Workbook Schema & Validator/Converter
 
-Status: `DESIGN / NOT IMPLEMENTED`. Discuss and approve hero stat-field contracts one field at a time before any implementation. The first agenda is the meaning and possible overlap of `leadership` and `command`.
+Status: `AUDIT / IMPLEMENTATION READY`. Build the approved 39-hero workbook schema, validator/converter, generated JSON, and validation report without changing Godot runtime behavior.
 
-No runtime or data change is approved in T06-1. Field deletion, consolidation, renaming, balancing, JSON/CSV externalization, or other implementation can begin only after the user approves the relevant field contract. T07 has not started.
+Allowed scope:
+
+- schema documentation
+- conversion/validation tooling
+- generated reviewable JSON
+- generated validation report
+- automated invalid-input checks
+
+Forbidden scope:
+
+- Godot external-data loader
+- registry source-of-truth switch
+- save/BattleContext changes
+- troop/casualty formula activation
+- momentum, unit-type, role-passive, unique-skill, AI, cutin, VFX, or sound implementation
+
+Entry contract: `agent/transactions/T06_1_HERO_DATA_CONTRACT.md`.
 
 ## Complete
+
+### T06-1 Hero Data Contract
+
+Status: `DESIGN COMPLETE` at commit `8d0dfac28a49213459968a1c8343f1ed5573d71e`. The canonical roster is 39 heroes. Core stat names, six unit types, eight roles, role/unit directions, stable unique-skill IDs, momentum/action/HP conditions, positional range/radius rules, obsolete-name rejection, naval/land fallback, externalization pipeline, validator failures, and the final-sound-stage rule are locked. No runtime code changed.
 
 ### T06-0 Hero Definition Registry Extraction
 
@@ -36,7 +56,9 @@ Exit evidence: the default read order identifies current product direction, prot
 
 ## Next
 
-- Later T06 sub-transactions cover definition/runtime unification, external data loading, balance, cutins, unique skills, and cooperative attacks only after their own discussion and acceptance gates.
+- T06-3 external JSON compatibility loader only after T06-2 generated-data parity and invalid-input tests pass.
+- Later T06 sub-transactions cover registry source switch, balance/formulas, momentum, six unit types, role passives, unique skills, AI, cutins, and cooperative attacks only after their own acceptance gates.
+- VFX follows functional skill verification; sound effects remain the final polish step.
 - T07 planning follows the same discussion-first rule after T06. Existing T07 material is reference only and has not started.
 
 ### T01 Entry Conditions
