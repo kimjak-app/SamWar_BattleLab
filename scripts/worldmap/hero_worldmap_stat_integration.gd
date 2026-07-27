@@ -9,7 +9,6 @@ const UNIT_TYPE_LABELS := {
 	"archer": "궁병",
 	"gunner": "총병",
 	"mounted_archer": "궁기병",
-	"support": "지원",
 }
 const RECOGNIZED_UNIT_LABELS := ["보병", "기병", "궁병", "총병", "궁기병", "지원"]
 
@@ -146,10 +145,12 @@ func _apply_hero_migration_to_copy(hero: Dictionary) -> bool:
 	hero["design_stat_schema_version"] = 1
 	var profile := HeroDesignDataRegistry.get_battle_profile(hero_id)
 	if not profile.is_empty():
-		hero["unit_type"] = String(profile.get("unit_type", hero.get("unit_type", "infantry")))
+		var unit_type := String(profile.get("unit_type", hero.get("unit_type", "infantry")))
+		if UNIT_TYPE_LABELS.has(unit_type):
+			hero["unit_type"] = unit_type
 		hero["primary_role"] = String(profile.get("primary_role", ""))
 		hero["secondary_role"] = String(profile.get("secondary_role", ""))
-		hero["design_profile_schema_version"] = 1
+		hero["design_profile_schema_version"] = 2
 	return true
 
 
