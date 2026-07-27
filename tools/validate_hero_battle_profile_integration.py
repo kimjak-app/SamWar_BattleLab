@@ -19,23 +19,24 @@ def load_json(path: Path) -> dict:
 def main() -> int:
     errors: list[str] = []
     project = (ROOT / "project.godot").read_text(encoding="utf-8")
-    integration = (ROOT / "scripts/battle/hero_battle_profile_integration.gd").read_text(encoding="utf-8")
+    factory = (ROOT / "scripts/worldmap/hero_runtime_factory.gd").read_text(encoding="utf-8")
+    registry = (ROOT / "scripts/worldmap/hero_definition_registry.gd").read_text(encoding="utf-8")
     adapter = (ROOT / "scripts/battle/hero_battle_design_adapter.gd").read_text(encoding="utf-8")
 
-    require('HeroBattleProfileIntegration="*res://scripts/battle/hero_battle_profile_integration.gd"' in project,
-            "project.godot autoload is missing", errors)
-    require("HeroBattleDesignAdapter.build_battle_contract" in integration,
-            "integration does not invoke the battle design adapter", errors)
-    require('battle_root.set("worldmap_context_hero_registry", enriched_registry)' in integration,
-            "enriched roster registry is not written back", errors)
-    require("unit_state.move_range" in integration and "unit_state.attack_range" in integration,
-            "unit movement/range are not applied", errors)
-    require("design_primary_role" in integration and "design_secondary_role" in integration,
-            "role metadata is not attached", errors)
-    require('status_effects["design_primary_role"]' not in integration,
-            "role metadata must not use status_effects", errors)
-    require("result[\"design_stats\"]" in adapter and "result[\"design_profile\"]" in adapter,
-            "adapter namespaces are incomplete", errors)
+    require("HeroBattleProfileIntegration=" not in project,
+            "battle postprocess autoload must be removed", errors)
+    require("HeroWorldMapStatIntegration=" not in project,
+            "worldmap postprocess autoload must be removed", errors)
+    require("HeroRuntimeFactory.build_runtime_registry(LEGACY_IDENTITY_DATA)" in registry,
+            "hero registry does not expose factory-built runtime data", errors)
+    require("HeroRuntimeFactory.build_runtime_hero" in adapter,
+            "battle adapter bypasses HeroRuntimeFactory", errors)
+    require("build_battle_unit_payload" in factory,
+            "factory battle payload builder missing", errors)
+    require('"visual_key" = unit_type' not in factory,
+            "invalid visual assignment syntax detected", errors)
+    require('result["visual_key"] = unit_type' in factory,
+            "factory does not synchronize battle visual_key", errors)
 
     base = load_json(ROOT / "data/heroes/generated/hero_base_stats.json")
     profiles = load_json(ROOT / "data/heroes/generated/hero_battle_profiles.json")
@@ -60,7 +61,7 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print("INTEGRATION VALIDATION PASS: 39 heroes, 5 unit types, 8 roles, Battle autoload and profile application present")
+    print("INTEGRATION VALIDATION PASS: factory-owned 39-hero runtime registry, five unit types, no hero postprocess autoloads")
     return 0
 
 
