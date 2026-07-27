@@ -3,6 +3,15 @@ extends Node
 const WORLDMAP_SCENE_PATH := "res://WorldMap.tscn"
 const LOYALTY_SCHEMA_VERSION := 1
 const UI_REFRESH_INTERVAL := 0.20
+const UNIT_TYPE_LABELS := {
+	"infantry": "보병",
+	"cavalry": "기병",
+	"archer": "궁병",
+	"gunner": "총병",
+	"mounted_archer": "궁기병",
+	"support": "지원",
+}
+const RECOGNIZED_UNIT_LABELS := ["보병", "기병", "궁병", "총병", "궁기병", "지원"]
 
 var _elapsed := 0.0
 var _last_scene_id := 0
@@ -135,6 +144,12 @@ func _apply_hero_migration_to_copy(hero: Dictionary) -> bool:
 	hero["loyalty"] = current_loyalty
 	hero["loyalty_schema_version"] = LOYALTY_SCHEMA_VERSION
 	hero["design_stat_schema_version"] = 1
+	var profile := HeroDesignDataRegistry.get_battle_profile(hero_id)
+	if not profile.is_empty():
+		hero["unit_type"] = String(profile.get("unit_type", hero.get("unit_type", "infantry")))
+		hero["primary_role"] = String(profile.get("primary_role", ""))
+		hero["secondary_role"] = String(profile.get("secondary_role", ""))
+		hero["design_profile_schema_version"] = 1
 	return true
 
 
@@ -154,15 +169,22 @@ func _collect_labels(root: Node) -> Array[Label]:
 
 
 func _refresh_hero_label(label: Label) -> void:
-	var text := label.text
-	if text.is_empty() or not text.contains("충"):
+	var text := label.text.strip_edges()
+	if text.is_empty():
 		return
-	var matched := _stats_line_regex.search(text)
-	if matched == null:
-		return
-	var hero_id := _resolve_hero_id_from_text(text)
+	var hero_id := _resolve_hero_id_from_node_context(label)
 	if hero_id.is_empty():
 		return
+	if text.contains("충"):
+		var matched := _stats_line_regex.search(text)
+		if matched != null:
+			_apply_stat_label(label, text, matched, hero_id)
+			return
+	if RECOGNIZED_UNIT_LABELS.has(text):
+		_apply_unit_type_label(label, hero_id)
+
+
+func _apply_stat_label(label: Label, text: String, matched: RegExMatch, hero_id: String) -> void:
 	var base := HeroDesignDataRegistry.get_base_stats(hero_id)
 	var stats_variant: Variant = base.get("stats", {})
 	if not stats_variant is Dictionary:
@@ -177,6 +199,44 @@ func _refresh_hero_label(label: Label) -> void:
 		loyalty,
 	]
 	label.text = text.substr(0, matched.get_start()) + replacement + text.substr(matched.get_end())
+
+
+func _apply_unit_type_label(label: Label, hero_id: String) -> void:
+	var profile := HeroDesignDataRegistry.get_battle_profile(hero_id)
+	if profile.is_empty():
+		return
+	var unit_type := String(profile.get("unit_type", ""))
+	var display_label := String(UNIT_TYPE_LABELS.get(unit_type, ""))
+	if not display_label.is_empty():
+		label.text = display_label
+
+
+func _resolve_hero_id_from_node_context(node: Node) -> String:
+	if node is Label:
+		var direct_id := _resolve_hero_id_from_text((node as Label).text)
+		if not direct_id.is_empty():
+			return direct_id
+	var current: Node = node.get_parent()
+	var depth := 0
+	while current != null and depth < 6:
+		var found := _collect_unique_hero_ids(current)
+		if found.size() == 1:
+			return String(found[0])
+		current = current.get_parent()
+		depth += 1
+	return ""
+
+
+func _collect_unique_hero_ids(root: Node) -> Array[String]:
+	var result: Array[String] = []
+	var seen: Dictionary = {}
+	for label in _collect_labels(root):
+		var hero_id := _resolve_hero_id_from_text(label.text)
+		if hero_id.is_empty() or seen.has(hero_id):
+			continue
+		seen[hero_id] = true
+		result.append(hero_id)
+	return result
 
 
 func _resolve_hero_id_from_text(text: String) -> String:
