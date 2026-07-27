@@ -10,6 +10,24 @@ const ALLOWED_UNIT_TYPES := {
 	"gunner": true,
 	"mounted_archer": true,
 }
+const MUTABLE_SAVE_KEYS := [
+	"loyalty",
+	"troops",
+	"troop_count",
+	"current_troops",
+	"max_troops",
+	"current_hp",
+	"max_hp",
+	"status",
+	"injury_state",
+	"assigned_city_id",
+	"city_id",
+	"location_city_id",
+	"faction_id",
+	"force_id",
+	"side",
+	"nation",
+]
 
 
 static func build_runtime_hero(identity: Dictionary, saved_state: Dictionary = {}) -> Dictionary:
@@ -89,9 +107,22 @@ static func build_runtime_registry(identity_registry: Dictionary, saved_registry
 		var hero_id := String(identity.get("hero_id", identity.get("id", key)))
 		var saved_variant: Variant = saved_registry.get(hero_id, saved_registry.get(key, {}))
 		var saved_state: Dictionary = saved_variant if saved_variant is Dictionary else {}
-		var runtime_hero := build_runtime_hero(identity, saved_state)
-		result[key] = runtime_hero
+		result[key] = build_runtime_hero(identity, saved_state)
 	return result
+
+
+static func migrate_saved_payload(value: Variant, identity_registry: Dictionary) -> Variant:
+	return _migrate_saved_value(value, identity_registry, 0)
+
+
+static func migrate_saved_hero(saved_hero: Dictionary, identity_registry: Dictionary) -> Dictionary:
+	var hero_id := String(saved_hero.get("hero_id", saved_hero.get("id", "")))
+	if hero_id.is_empty():
+		return saved_hero.duplicate(true)
+	var identity_variant: Variant = identity_registry.get(hero_id, {})
+	if not identity_variant is Dictionary:
+		return saved_hero.duplicate(true)
+	return build_runtime_hero(identity_variant as Dictionary, saved_hero)
 
 
 static func build_battle_unit_payload(runtime_hero: Dictionary, overrides: Dictionary = {}) -> Dictionary:
@@ -126,27 +157,30 @@ static func is_valid_runtime_hero(hero: Dictionary) -> bool:
 		and String(hero.get("hero_id", "")) != ""
 
 
+static func _migrate_saved_value(value: Variant, identity_registry: Dictionary, depth: int) -> Variant:
+	if depth > 12:
+		return value
+	if value is Dictionary:
+		var source: Dictionary = value
+		var hero_id := String(source.get("hero_id", source.get("id", "")))
+		if not hero_id.is_empty() and identity_registry.has(hero_id):
+			return migrate_saved_hero(source, identity_registry)
+		var result := {}
+		for key_variant in source.keys():
+			result[key_variant] = _migrate_saved_value(source.get(key_variant), identity_registry, depth + 1)
+		return result
+	if value is Array:
+		var result: Array = []
+		for item in value:
+			result.append(_migrate_saved_value(item, identity_registry, depth + 1))
+		return result
+	return value
+
+
 static func _apply_saved_mutable_state(result: Dictionary, saved_state: Dictionary) -> void:
 	if saved_state.is_empty():
 		return
-	var mutable_keys := [
-		"troops",
-		"troop_count",
-		"current_troops",
-		"max_troops",
-		"current_hp",
-		"max_hp",
-		"status",
-		"injury_state",
-		"assigned_city_id",
-		"city_id",
-		"location_city_id",
-		"faction_id",
-		"force_id",
-		"side",
-		"nation",
-	]
-	for key in mutable_keys:
+	for key in MUTABLE_SAVE_KEYS:
 		if saved_state.has(key):
 			result[key] = saved_state.get(key)
 
