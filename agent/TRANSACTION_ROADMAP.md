@@ -2,32 +2,38 @@
 
 ## Active
 
-### T06-3 Hero Design JSON Parity & Non-Destructive Loader
+### T06-4 Battle-side Hero Stat/Profile Adapter
 
-Status: `IMPLEMENTED / STATIC QA AND USER GODOT SMOKE PENDING`.
+Status: `IMPLEMENTED / GODOT QA PENDING`.
 
 Implemented scope:
 
-- read-only JSON loader in `scripts/worldmap/hero_design_data_registry.gd`
-- parity validator in `tools/validate_hero_design_registry.py`
-- transaction contract in `agent/transactions/T06_3_HERO_DESIGN_JSON_LOADER.md`
+- `scripts/battle/hero_battle_design_adapter.gd`
+- `agent/transactions/T06_4_BATTLE_HERO_DESIGN_ADAPTER.md`
+- namespaced, defensive-copy composition of legacy hero data with T06 design data
+- fail-closed `design_adapter_error` handling
 
 Protected scope:
 
-- `HeroDefinitionRegistry.HERO_DATA` remains the WorldMap runtime authority
-- no source-of-truth switch
-- no save/BattleContext/city/troop formula change
+- `HeroDefinitionRegistry.HERO_DATA` remains WorldMap authority
+- existing BattleContext shape remains unchanged
+- legacy battle fields and formulas remain active
 - no six-unit runtime behavior
 - no role-passive, momentum, unique-skill, AI, cutin, VFX, or sound activation
 
 Exit gate:
 
-- parity command PASS for 39 legacy/base/profile/skill IDs, six unit types, and eight roles
-- Godot 4.6 parse/F5 smoke PASS
-- WorldMap, roster UI, battle entry/return, and save/load unchanged
+- Godot parse/F5 PASS
+- representative hero contracts build with valid design namespaces
+- invalid/missing hero IDs fail safely
+- WorldMap, battle entry/return, and save/load remain unchanged
 - no new parse error or warning
 
 ## Complete
+
+### T06-3 Hero Design JSON Parity & Non-Destructive Loader
+
+Status: `COMPLETE`. Static parity and user Godot smoke passed. The read-only loader exposes 39 base records, 39 profiles, 39 skills, six unit types, and eight roles without replacing the legacy WorldMap registry or changing save/BattleContext/runtime behavior.
 
 ### T06-2 Hero Workbook Schema & Validator/Converter
 
@@ -61,8 +67,8 @@ Status: `COMPLETE`.
 
 ## Next
 
-- T06-4 bounded Battle-side base-stat/profile adapter only after T06-3 parity and Godot smoke PASS.
-- T06-4 must preserve WorldMap authority and existing save/BattleContext behavior.
+- T06-5 may call the adapter at the Battle roster-registration boundary only after T06-4 QA PASS.
+- T06-5 must expose namespaced design data without switching legacy combat formulas.
 - Later bounded transactions activate six unit types, primary-role passives, momentum, representative unique skills, all 39 skills, AI, cutins, cooperative attacks, and VFX.
 - Sound effects remain the final polish step.
 - T07 starts only after T06 completion and its own discussion-first gate.
@@ -78,7 +84,7 @@ Status: `COMPLETE`.
 
 ## Blocked
 
-- T06-4 implementation is gated by T06-3 static parity and user Godot smoke evidence.
+None confirmed.
 
 ## Use
 
