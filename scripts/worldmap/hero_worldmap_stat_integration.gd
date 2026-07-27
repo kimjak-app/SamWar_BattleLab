@@ -8,12 +8,12 @@ var _elapsed := 0.0
 var _last_scene_id := 0
 var _stats_line_regex := RegEx.new()
 var _hero_id_by_display_name: Dictionary = {}
+var _valid_hero_ids: Dictionary = {}
 
 
 func _ready() -> void:
 	_stats_line_regex.compile("(?:지휘\\s*\\d+\\s*/\\s*)?정\\s*\\d+\\s*/\\s*무\\s*\\d+\\s*/\\s*지\\s*\\d+\\s*/\\s*충\\s*(\\d+)|지휘\\s*\\d+\\s*/\\s*무\\s*\\d+\\s*/\\s*지\\s*\\d+\\s*/\\s*정\\s*\\d+\\s*/\\s*충\\s*(\\d+)")
-	_seed_definition_registry()
-	_build_display_name_index()
+	_build_hero_indexes()
 	set_process(true)
 
 
@@ -33,43 +33,31 @@ func _process(delta: float) -> void:
 	_refresh_worldmap_hero_labels(scene)
 
 
-func _seed_definition_registry() -> void:
+func _build_hero_indexes() -> void:
+	_hero_id_by_display_name.clear()
+	_valid_hero_ids.clear()
 	if not HeroDesignDataRegistry.ensure_loaded():
 		push_error("[HERO_WORLDMAP_STATS] %s" % HeroDesignDataRegistry.get_load_error())
 		return
 	for hero_id in HeroDesignDataRegistry.get_all_hero_ids():
-		if not HeroDefinitionRegistry.HERO_DATA.has(hero_id):
-			continue
-		var definition_variant: Variant = HeroDefinitionRegistry.HERO_DATA.get(hero_id, {})
-		if not definition_variant is Dictionary:
-			continue
-		var definition: Dictionary = definition_variant
-		_apply_fixed_stats(definition, hero_id)
-		var initial_loyalty := HeroDesignDataRegistry.get_initial_loyalty(hero_id, int(definition.get("loyalty", 80)))
-		definition["initial_loyalty"] = initial_loyalty
-		definition["loyalty"] = initial_loyalty
-		definition["loyalty_schema_version"] = LOYALTY_SCHEMA_VERSION
-	print("[HERO_WORLDMAP_STATS] seeded definitions=%d" % HeroDesignDataRegistry.get_all_hero_ids().size())
-
-
-func _build_display_name_index() -> void:
-	_hero_id_by_display_name.clear()
-	for hero_id in HeroDesignDataRegistry.get_all_hero_ids():
+		_valid_hero_ids[hero_id] = true
 		var base := HeroDesignDataRegistry.get_base_stats(hero_id)
 		var display_name := String(base.get("display_name", ""))
 		if not display_name.is_empty():
 			_hero_id_by_display_name[display_name] = hero_id
+	print("[HERO_WORLDMAP_STATS] definition data ready=%d" % _valid_hero_ids.size())
 
 
 func _apply_runtime_stat_migration(root: Node) -> void:
-	var visited: Dictionary = {}
-	_migrate_node_tree(root, visited)
-	print("[HERO_WORLDMAP_STATS] runtime fixed-stat migration complete")
+	var migrated_count := 0
+	migrated_count += _migrate_node_tree(root)
+	print("[HERO_WORLDMAP_STATS] runtime migration heroes=%d" % migrated_count)
 
 
-func _migrate_node_tree(node: Node, visited: Dictionary) -> void:
+func _migrate_node_tree(node: Node) -> int:
 	if node == null:
-		return
+		return 0
+	var migrated_count := 0
 	for property_info_variant in node.get_property_list():
 		if not property_info_variant is Dictionary:
 			continue
@@ -80,57 +68,74 @@ func _migrate_node_tree(node: Node, visited: Dictionary) -> void:
 		var property_name := String(property_info.get("name", ""))
 		if property_name.is_empty():
 			continue
-		_migrate_variant(node.get(property_name), visited, 0)
+		var source_value: Variant = node.get(property_name)
+		var migration := _build_migrated_value(source_value, 0)
+		migrated_count += int(migration.get("count", 0))
+		if bool(migration.get("changed", false)):
+			node.set(property_name, migration.get("value"))
 	for child in node.get_children():
 		if child is Node:
-			_migrate_node_tree(child, visited)
+			migrated_count += _migrate_node_tree(child)
+	return migrated_count
 
 
-func _migrate_variant(value: Variant, visited: Dictionary, depth: int) -> void:
+func _build_migrated_value(value: Variant, depth: int) -> Dictionary:
 	if depth > 8:
-		return
+		return {"value": value, "changed": false, "count": 0}
 	if value is Dictionary:
-		var dictionary: Dictionary = value
-		var instance_key := dictionary.hash()
-		if visited.has(instance_key):
-			return
-		visited[instance_key] = true
-		_migrate_hero_dictionary(dictionary)
-		for nested_value in dictionary.values():
-			_migrate_variant(nested_value, visited, depth + 1)
-	elif value is Array:
-		for nested_value in value:
-			_migrate_variant(nested_value, visited, depth + 1)
+		var source: Dictionary = value
+		var copy := source.duplicate(false)
+		var changed := false
+		var count := 0
+		for key_variant in source.keys():
+			var nested := _build_migrated_value(source.get(key_variant), depth + 1)
+			if bool(nested.get("changed", false)):
+				copy[key_variant] = nested.get("value")
+				changed = true
+			count += int(nested.get("count", 0))
+		var hero_changed := _apply_hero_migration_to_copy(copy)
+		if hero_changed:
+			changed = true
+			count += 1
+		return {"value": copy if changed else value, "changed": changed, "count": count}
+	if value is Array:
+		var source_array: Array = value
+		var copy_array := source_array.duplicate(false)
+		var changed := false
+		var count := 0
+		for index in source_array.size():
+			var nested := _build_migrated_value(source_array[index], depth + 1)
+			if bool(nested.get("changed", false)):
+				copy_array[index] = nested.get("value")
+				changed = true
+			count += int(nested.get("count", 0))
+		return {"value": copy_array if changed else value, "changed": changed, "count": count}
+	return {"value": value, "changed": false, "count": 0}
 
 
-func _migrate_hero_dictionary(hero: Dictionary) -> void:
+func _apply_hero_migration_to_copy(hero: Dictionary) -> bool:
 	var hero_id := String(hero.get("hero_id", hero.get("id", "")))
-	if hero_id.is_empty() or not HeroDesignDataRegistry.get_all_hero_ids().has(hero_id):
-		return
-	_apply_fixed_stats(hero, hero_id)
-	var current_loyalty := clampi(int(hero.get("loyalty", HeroDesignDataRegistry.get_initial_loyalty(hero_id, 80))), 0, 100)
-	hero["initial_loyalty"] = HeroDesignDataRegistry.get_initial_loyalty(hero_id, current_loyalty)
-	hero["loyalty"] = current_loyalty
-	hero["loyalty_schema_version"] = LOYALTY_SCHEMA_VERSION
-
-
-func _apply_fixed_stats(hero: Dictionary, hero_id: String) -> void:
+	if hero_id.is_empty() or not _valid_hero_ids.has(hero_id):
+		return false
 	var base := HeroDesignDataRegistry.get_base_stats(hero_id)
 	var stats_variant: Variant = base.get("stats", {})
 	if not stats_variant is Dictionary:
-		return
+		return false
 	var stats: Dictionary = stats_variant
+	var current_loyalty := clampi(int(hero.get("loyalty", HeroDesignDataRegistry.get_initial_loyalty(hero_id, 80))), 0, 100)
 	var leadership := int(stats.get("leadership", hero.get("leadership", hero.get("command", 0))))
-	var martial := int(stats.get("martial", hero.get("war", 0)))
-	var intelligence := int(stats.get("intelligence", hero.get("intelligence", 0)))
-	var politics := int(stats.get("politics", hero.get("politics", 0)))
+	var martial := int(stats.get("martial", hero.get("martial", hero.get("war", 0))))
 	hero["leadership"] = leadership
 	hero["command"] = leadership
 	hero["martial"] = martial
 	hero["war"] = martial
-	hero["intelligence"] = intelligence
-	hero["politics"] = politics
+	hero["intelligence"] = int(stats.get("intelligence", hero.get("intelligence", 0)))
+	hero["politics"] = int(stats.get("politics", hero.get("politics", 0)))
+	hero["initial_loyalty"] = HeroDesignDataRegistry.get_initial_loyalty(hero_id, current_loyalty)
+	hero["loyalty"] = current_loyalty
+	hero["loyalty_schema_version"] = LOYALTY_SCHEMA_VERSION
 	hero["design_stat_schema_version"] = 1
+	return true
 
 
 func _refresh_worldmap_hero_labels(root: Node) -> void:
