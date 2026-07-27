@@ -18,11 +18,11 @@ static func build_battle_contract(source_hero: Dictionary) -> Dictionary:
 	var unit_type := String(result.get("unit_type", ""))
 	var primary_role := String(result.get("primary_role", ""))
 	var secondary_role := String(result.get("secondary_role", ""))
-	var skill_id := String(result.get("unique_skill_id", ""))
+	var design_skill_id := String(profile.get("unique_skill_id", result.get("design_unique_skill_id", "")))
 
 	var unit_rule := HeroDesignDataRegistry.get_unit_type_rule(unit_type)
 	var primary_role_rule := HeroDesignDataRegistry.get_battle_role_rule(primary_role)
-	var unique_skill := HeroDesignDataRegistry.get_unique_skill(skill_id)
+	var unique_skill := HeroDesignDataRegistry.get_unique_skill(design_skill_id)
 	if base_stats.is_empty() or profile.is_empty() or unit_rule.is_empty() or primary_role_rule.is_empty() or unique_skill.is_empty():
 		result["design_adapter_error"] = "incomplete linked design data for hero_id: %s" % hero_id
 		return result
@@ -35,6 +35,7 @@ static func build_battle_contract(source_hero: Dictionary) -> Dictionary:
 	result["design_primary_role_rule"] = primary_role_rule.duplicate(true)
 	result["design_secondary_role"] = secondary_role
 	result["design_unique_skill"] = unique_skill.duplicate(true)
+	result["design_unique_skill_id"] = design_skill_id
 	result.erase("design_adapter_error")
 	return result
 
