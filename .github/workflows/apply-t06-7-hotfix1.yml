@@ -7,6 +7,7 @@ on:
       - '.github/workflows/apply-t06-7-hotfix1.yml'
       - 'tools/apply_t06_7_hotfix1.py'
       - 'tools/apply_t06_7_hotfix1_v2.py'
+      - 'tools/apply_t06_7_hotfix1_v3.py'
   pull_request:
     branches: [main]
     paths:
@@ -32,7 +33,7 @@ jobs:
           fetch-depth: 0
 
       - name: Apply hotfix
-        run: python3 tools/apply_t06_7_hotfix1_v2.py
+        run: python3 tools/apply_t06_7_hotfix1_v3.py
 
       - name: Validate hero design registry
         run: python3 tools/validate_hero_design_registry.py
