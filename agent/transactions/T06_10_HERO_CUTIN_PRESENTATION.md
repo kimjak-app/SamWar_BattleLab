@@ -33,7 +33,7 @@
 ## T06-10A-hotfix4 Video-Backed Practice Preview
 
 - The project convention is `VideoStreamPlayer` with a Theora `.ogv` `VideoStream`; the supplied H.264/AAC MP4 is retained unchanged as the source asset.
-- `assets/battle/cutins/common/vfx/red_burst_backlight_01.ogv` is a 1152×648, video-only Theora conversion of that source and is the Mode A playback target.
+- `assets/battle/cutins/common/vfx/red_burst_backlight_01.ogv` is a 1280×720, video-only Theora conversion that preserves the Grok source resolution and is the Mode A playback target. The 16:9 player fits the 1152×648 viewport without crop or zoom; hero PNG and title remain separate Godot layers.
 - Mode A seeks to the selected burst segment before every play, then layers the large foreground PNG and pivot-centered canonical skill title over the red video background.
 - Replay, Escape, mode switches, completion, and auto-loop stop/reset the video player together with the visual tween state. Mode B remains the still-background comparison path.
 
