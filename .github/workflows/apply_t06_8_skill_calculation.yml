@@ -19,7 +19,9 @@ jobs:
           ref: main
           fetch-depth: 0
       - name: Apply T06-8 calculation implementation
-        run: python3 tools/apply_t06_8_skill_calculation.py
+        run: |
+          python3 tools/apply_t06_8_skill_calculation.py
+          python3 tools/apply_t06_8_remove_hero_hardcodes.py
       - name: Validate existing contracts
         run: |
           python3 tools/validate_hero_design_registry.py
