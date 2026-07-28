@@ -1,0 +1,49 @@
+name: Apply T06-7 Hotfix7 Full Self Area Overlay
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/hotfix-triggers/t06-7-hotfix7-full-self-area-overlay'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply full self-area overlay fix
+        run: python3 tools/apply_t06_7_hotfix7_full_self_area_overlay.py
+      - name: Validate contracts
+        run: |
+          python3 tools/validate_t06_t07_playable_transaction.py
+          git diff --check
+      - name: Verify overlay radius contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          text=Path('scripts/battle_web_import_test.gd').read_text(encoding='utf-8')
+          assert 'display_wave_range = maxi(int(skill_data.get("radius", 0)), 0)' in text
+          assert '_get_cells_wave_order(display_cells, caster_state.grid_cell, display_wave_range)' in text
+          print('Full self-area overlay radius contract PASS')
+          PY
+      - name: Godot parse check
+        run: |
+          if command -v godot >/dev/null 2>&1; then
+            godot --headless --path . --editor --quit
+          else
+            echo 'Godot unavailable on runner; user F5 QA required.'
+          fi
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: show complete self-area unique skill radius"
+          git push origin HEAD:main
