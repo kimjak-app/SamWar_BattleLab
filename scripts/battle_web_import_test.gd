@@ -900,6 +900,7 @@ var battle_momentum: BattleMomentumState = BattleMomentumStateScript.new()
 var pending_unique_skill_plan: Dictionary = {}
 var momentum_ally_label: Label = null
 var momentum_enemy_label: Label = null
+var momentum_feedback_label: Label = null
 var battle_resume_restored := false
 var worldmap_return_button: Button = null
 var current_ally_unit_position := Vector2.ZERO
@@ -1346,6 +1347,7 @@ var deployment_marker_base_world_positions_by_slot_id: Dictionary = {}
 
 
 func _ready() -> void:
+	_ensure_runtime_momentum_hud()
 	ally_token_base_scale = ally_unit_token.scale
 	enemy_token_base_scale = enemy_unit_token.scale
 	ally_support_token_base_scale = ally_support_unit_token.scale
@@ -15385,3 +15387,86 @@ func _sync_overlay_positions() -> void:
 	cutin_quote_label.position = cutin_center + Vector2(-220.0, 200.0)
 	result_image.position = result_center + Vector2(-220.0, -170.0)
 	result_title_label.position = result_center + Vector2(-108.0, 176.0)
+
+func _ensure_runtime_momentum_hud() -> void:
+	if get_node_or_null("RuntimeMomentumHudLayer") != null:
+		return
+	var layer := CanvasLayer.new()
+	layer.name = "RuntimeMomentumHudLayer"
+	layer.layer = 90
+	add_child(layer)
+	var panel := PanelContainer.new()
+	panel.name = "RuntimeMomentumHud"
+	panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	panel.position = Vector2(-250.0, 14.0)
+	panel.size = Vector2(500.0, 82.0)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(panel)
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	panel.add_child(box)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 42)
+	box.add_child(row)
+	momentum_ally_label = Label.new()
+	momentum_ally_label.name = "AllyMomentumLabel"
+	momentum_ally_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	momentum_ally_label.add_theme_font_size_override("font_size", 22)
+	momentum_ally_label.add_theme_color_override("font_color", Color(0.55, 0.78, 1.0, 1.0))
+	row.add_child(momentum_ally_label)
+	momentum_enemy_label = Label.new()
+	momentum_enemy_label.name = "EnemyMomentumLabel"
+	momentum_enemy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	momentum_enemy_label.add_theme_font_size_override("font_size", 22)
+	momentum_enemy_label.add_theme_color_override("font_color", Color(1.0, 0.52, 0.44, 1.0))
+	row.add_child(momentum_enemy_label)
+	momentum_feedback_label = Label.new()
+	momentum_feedback_label.name = "MomentumFeedbackLabel"
+	momentum_feedback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	momentum_feedback_label.add_theme_font_size_override("font_size", 18)
+	momentum_feedback_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.34, 1.0))
+	momentum_feedback_label.modulate.a = 0.0
+	box.add_child(momentum_feedback_label)
+	var timer := Timer.new()
+	timer.name = "MomentumHudRefreshTimer"
+	timer.wait_time = 0.1
+	timer.one_shot = false
+	timer.autostart = true
+	timer.timeout.connect(_refresh_runtime_momentum_hud)
+	layer.add_child(timer)
+	_refresh_runtime_momentum_hud()
+
+
+func _refresh_runtime_momentum_hud() -> void:
+	if battle_momentum == null:
+		return
+	var ally_value := battle_momentum.get_value("ally")
+	var enemy_value := battle_momentum.get_value("enemy")
+	if momentum_ally_label != null:
+		momentum_ally_label.text = "아군 기세 ◆ %d/%d" % [ally_value, BattleMomentumStateScript.MAX_MOMENTUM]
+	if momentum_enemy_label != null:
+		momentum_enemy_label.text = "적군 기세 ◆ %d/%d" % [enemy_value, BattleMomentumStateScript.MAX_MOMENTUM]
+	_show_runtime_momentum_delta(ally_value, enemy_value)
+
+
+func _show_runtime_momentum_delta(ally_value: int, enemy_value: int) -> void:
+	var previous_ally := int(get_meta("momentum_hud_prev_ally", ally_value))
+	var previous_enemy := int(get_meta("momentum_hud_prev_enemy", enemy_value))
+	set_meta("momentum_hud_prev_ally", ally_value)
+	set_meta("momentum_hud_prev_enemy", enemy_value)
+	if momentum_feedback_label == null:
+		return
+	var parts: Array[String] = []
+	if previous_ally != ally_value:
+		parts.append("아군 %d → %d (%+d)" % [previous_ally, ally_value, ally_value - previous_ally])
+	if previous_enemy != enemy_value:
+		parts.append("적군 %d → %d (%+d)" % [previous_enemy, enemy_value, enemy_value - previous_enemy])
+	if parts.is_empty():
+		return
+	momentum_feedback_label.text = "기세  " + "   |   ".join(parts)
+	momentum_feedback_label.modulate.a = 1.0
+	var tween := create_tween()
+	tween.tween_interval(1.35)
+	tween.tween_property(momentum_feedback_label, "modulate:a", 0.0, 0.35)
+

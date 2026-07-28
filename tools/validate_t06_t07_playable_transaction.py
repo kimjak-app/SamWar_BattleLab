@@ -118,8 +118,8 @@ def main() -> int:
             "damaging unique skill does not apply one total -2 side loss")
     require(errors, "_score_unique_skill_plan_for_actor" in battle,
             "AI does not score resolver plans")
-    require(errors, "기세 %d" in battle and "AllyMomentumLabel" in battle,
-            "player momentum/cost UI evidence missing")
+    require(errors, "AllyMomentumLabel" in battle and "EnemyMomentumLabel" in battle and "MomentumFeedbackLabel" in battle and "MomentumHudRefreshTimer" in battle,
+            "persistent momentum HUD or spend feedback missing")
     require(errors, "기세 미소비" in battle,
             "cancel/failure no-charge log evidence missing")
 
