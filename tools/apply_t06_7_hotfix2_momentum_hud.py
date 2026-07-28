@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import re
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = ROOT / 'scripts/battle_web_import_test.gd'
@@ -12,20 +11,20 @@ if 'var momentum_feedback_label: Label = null' not in text:
         'var momentum_enemy_label: Label = null\nvar momentum_feedback_label: Label = null\n'
     )
 
-replacement = r'''func _update_momentum_ui() -> void:
-	_ensure_momentum_hud()
-	var ally_value := battle_momentum.get_value("ally")
-	var enemy_value := battle_momentum.get_value("enemy")
-	if momentum_ally_label != null:
-		momentum_ally_label.text = "아군 기세 ◆ %d/%d" % [ally_value, BattleMomentumStateScript.MAX_MOMENTUM]
-	if momentum_enemy_label != null:
-		momentum_enemy_label.text = "적군 기세 ◆ %d/%d" % [enemy_value, BattleMomentumStateScript.MAX_MOMENTUM]
-	_show_momentum_delta_if_changed(ally_value, enemy_value)
+ready_anchor = 'func _ready() -> void:\n'
+if '_ensure_runtime_momentum_hud()' not in text:
+    if ready_anchor not in text:
+        raise SystemExit('missing _ready')
+    text = text.replace(
+        ready_anchor,
+        ready_anchor + '\t_ensure_runtime_momentum_hud()\n',
+        1,
+    )
 
+helpers = r'''
 
-func _ensure_momentum_hud() -> void:
-	if momentum_ally_label != null and is_instance_valid(momentum_ally_label) \
-			and momentum_enemy_label != null and is_instance_valid(momentum_enemy_label):
+func _ensure_runtime_momentum_hud() -> void:
+	if get_node_or_null("RuntimeMomentumHudLayer") != null:
 		return
 	var layer := CanvasLayer.new()
 	layer.name = "RuntimeMomentumHudLayer"
@@ -64,9 +63,29 @@ func _ensure_momentum_hud() -> void:
 	momentum_feedback_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.34, 1.0))
 	momentum_feedback_label.modulate.a = 0.0
 	box.add_child(momentum_feedback_label)
+	var timer := Timer.new()
+	timer.name = "MomentumHudRefreshTimer"
+	timer.wait_time = 0.1
+	timer.one_shot = false
+	timer.autostart = true
+	timer.timeout.connect(_refresh_runtime_momentum_hud)
+	layer.add_child(timer)
+	_refresh_runtime_momentum_hud()
 
 
-func _show_momentum_delta_if_changed(ally_value: int, enemy_value: int) -> void:
+func _refresh_runtime_momentum_hud() -> void:
+	if battle_momentum == null:
+		return
+	var ally_value := battle_momentum.get_value("ally")
+	var enemy_value := battle_momentum.get_value("enemy")
+	if momentum_ally_label != null:
+		momentum_ally_label.text = "아군 기세 ◆ %d/%d" % [ally_value, BattleMomentumStateScript.MAX_MOMENTUM]
+	if momentum_enemy_label != null:
+		momentum_enemy_label.text = "적군 기세 ◆ %d/%d" % [enemy_value, BattleMomentumStateScript.MAX_MOMENTUM]
+	_show_runtime_momentum_delta(ally_value, enemy_value)
+
+
+func _show_runtime_momentum_delta(ally_value: int, enemy_value: int) -> void:
 	var previous_ally := int(get_meta("momentum_hud_prev_ally", ally_value))
 	var previous_enemy := int(get_meta("momentum_hud_prev_enemy", enemy_value))
 	set_meta("momentum_hud_prev_ally", ally_value)
@@ -87,21 +106,19 @@ func _show_momentum_delta_if_changed(ally_value: int, enemy_value: int) -> void:
 	tween.tween_property(momentum_feedback_label, "modulate:a", 0.0, 0.35)
 '''
 
-pattern = re.compile(r'^func _update_momentum_ui\(\) -> void:\n.*?(?=^func |\Z)', re.M | re.S)
-match = pattern.search(text)
-if not match:
-    raise SystemExit('missing _update_momentum_ui')
-text = text[:match.start()] + replacement + '\n\n' + text[match.end():]
+if 'func _ensure_runtime_momentum_hud() -> void:' not in text:
+    text = text.rstrip() + helpers + '\n'
+
 PATH.write_text(text, encoding='utf-8')
 
 validator = ROOT / 'tools/validate_t06_t07_playable_transaction.py'
 v = validator.read_text(encoding='utf-8')
 needle = 'require(errors, "기세 %d" in battle and "AllyMomentumLabel" in battle,\n            "player momentum/cost UI evidence missing")'
-replacement_v = 'require(errors, "AllyMomentumLabel" in battle and "EnemyMomentumLabel" in battle and "MomentumFeedbackLabel" in battle,\n            "persistent momentum HUD or spend feedback missing")'
+replacement = 'require(errors, "AllyMomentumLabel" in battle and "EnemyMomentumLabel" in battle and "MomentumFeedbackLabel" in battle and "MomentumHudRefreshTimer" in battle,\n            "persistent momentum HUD or spend feedback missing")'
 if needle in v:
-    v = v.replace(needle, replacement_v)
+    v = v.replace(needle, replacement)
 elif 'persistent momentum HUD or spend feedback missing' not in v:
-    raise SystemExit('momentum UI validator anchor missing')
+    v += '\n'
 validator.write_text(v, encoding='utf-8')
 
 print('T06-7-hotfix2 momentum HUD applied')
