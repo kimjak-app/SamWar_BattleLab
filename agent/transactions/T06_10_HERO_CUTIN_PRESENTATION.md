@@ -2,7 +2,7 @@
 
 ## Status
 
-`T06-10A STANDALONE PREVIEW IMPLEMENTED / USER VISUAL QA PENDING`
+`T06-10A PREVIEW VISUAL HOTFIX IMPLEMENTED / USER VISUAL QA PENDING`
 
 ## T06-10A Scope
 
@@ -13,6 +13,15 @@
 - The preview reads Gwanggaeto's canonical unique-skill display name through `HeroDesignDataRegistry` (`영락대제`).
 - Playback controls include replay, loop, three presentation-strength presets, and 0.75x / 1.0x / 1.25x speed selection.
 - Replay kills and resets active tween state before a new sequence; loop completion resets the stage before scheduling its next run.
+
+## T06-10A-hotfix1 Visual Quality Correction
+
+- The user-supplied RGBA foreground PNG is preserved and included in the hotfix baseline; it has real non-opaque alpha pixels and is not edited by this task.
+- Mode A now fills the presentation area with a large, right-weighted foreground hero, dark red-black gradient stage, layered radial light, diagonal speed lines, ember/dust light fragments, and a short stage shake.
+- Mode B retains cover-cropped full-background framing with restrained push-in/pan and reduced effect density so the source artwork remains readable.
+- Both modes use a rapid white-to-pale-gold flash with preset-limited opacity rather than the old opaque yellow rectangle effect.
+- Hero and canonical skill labels use a larger lower-left title treatment. The control panel hides while playback is active and is restored on completion or Escape.
+- Replay, mode changes, loop callbacks, and scene exit kill/reset active tween state before new playback.
 
 ## Explicitly Deferred
 

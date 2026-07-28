@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug/hero_cutin_preview.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/battle/cutins/korea/gwanggaeto/gwanggaeto_cutin_foreground.png" id="2_foreground"]
@@ -51,10 +51,23 @@ fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
 fill = 1
 
+[sub_resource type="Gradient" id="GradientStage"]
+offsets = PackedFloat32Array(0, 0.38, 0.72, 1)
+colors = PackedColorArray(0.015, 0.006, 0.008, 1, 0.12, 0.025, 0.014, 1, 0.055, 0.035, 0.015, 1, 0.005, 0.01, 0.025, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTextureStage"]
+gradient = SubResource("GradientStage")
+width = 1152
+height = 648
+fill_from = Vector2(0, 0.35)
+fill_to = Vector2(1, 0.65)
+fill = 1
+
 [sub_resource type="StyleBoxFlat" id="StyleTitle"]
-bg_color = Color(0.01, 0.02, 0.04, 0.76)
-border_width_left = 4
-border_color = Color(0.95, 0.66, 0.18, 1)
+bg_color = Color(0.008, 0.012, 0.02, 0.52)
+border_width_left = 5
+border_width_bottom = 1
+border_color = Color(0.98, 0.73, 0.25, 0.92)
 content_margin_left = 18.0
 content_margin_top = 8.0
 content_margin_bottom = 8.0
@@ -83,9 +96,20 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_bottom = -170.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+
+[node name="StageGradient" type="TextureRect" parent="CutinStage"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTextureStage")
+expand_mode = 1
+stretch_mode = 6
 mouse_filter = 2
 
 [node name="DimOverlay" type="ColorRect" parent="CutinStage"]
@@ -122,6 +146,30 @@ stretch_mode = 5
 modulate = Color(1, 1, 1, 0)
 mouse_filter = 2
 
+[node name="RadialBurstNear" type="TextureRect" parent="CutinStage"]
+layout_mode = 0
+offset_left = 455.0
+offset_top = 72.0
+offset_right = 1015.0
+offset_bottom = 632.0
+texture = SubResource("GradientTextureBurst")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 0.55, 0.2, 0)
+mouse_filter = 2
+
+[node name="RadialBurstFar" type="TextureRect" parent="CutinStage"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -108.0
+offset_right = 1050.0
+offset_bottom = 692.0
+texture = SubResource("GradientTextureBurst")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.55, 0.78, 1, 0)
+mouse_filter = 2
+
 [node name="SpeedLineRoot" type="Control" parent="CutinStage"]
 layout_mode = 1
 anchors_preset = 15
@@ -147,12 +195,79 @@ offset_right = 1240.0
 offset_bottom = 478.0
 color = Color(0.5, 0.86, 1, 0)
 
+[node name="SpeedLineMid" type="ColorRect" parent="CutinStage/SpeedLineRoot"]
+layout_mode = 0
+offset_left = -120.0
+offset_top = 338.0
+offset_right = 720.0
+offset_bottom = 343.0
+rotation = -0.22
+color = Color(1, 0.88, 0.55, 0)
+
+[node name="SpeedLineFar" type="ColorRect" parent="CutinStage/SpeedLineRoot"]
+layout_mode = 0
+offset_left = 450.0
+offset_top = 92.0
+offset_right = 1240.0
+offset_bottom = 95.0
+rotation = 0.14
+color = Color(0.65, 0.82, 1, 0)
+
+[node name="EmberRoot" type="Control" parent="CutinStage"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="EmberA" type="ColorRect" parent="CutinStage/EmberRoot"]
+layout_mode = 0
+offset_left = 210.0
+offset_top = 410.0
+offset_right = 220.0
+offset_bottom = 420.0
+color = Color(1, 0.56, 0.16, 0)
+
+[node name="EmberB" type="ColorRect" parent="CutinStage/EmberRoot"]
+layout_mode = 0
+offset_left = 380.0
+offset_top = 180.0
+offset_right = 388.0
+offset_bottom = 188.0
+color = Color(1, 0.75, 0.3, 0)
+
+[node name="EmberC" type="ColorRect" parent="CutinStage/EmberRoot"]
+layout_mode = 0
+offset_left = 840.0
+offset_top = 465.0
+offset_right = 852.0
+offset_bottom = 477.0
+color = Color(1, 0.48, 0.12, 0)
+
+[node name="DustA" type="ColorRect" parent="CutinStage/EmberRoot"]
+layout_mode = 0
+offset_left = 160.0
+offset_top = 310.0
+offset_right = 168.0
+offset_bottom = 318.0
+color = Color(0.92, 0.76, 0.48, 0)
+
+[node name="DustB" type="ColorRect" parent="CutinStage/EmberRoot"]
+layout_mode = 0
+offset_left = 920.0
+offset_top = 250.0
+offset_right = 926.0
+offset_bottom = 256.0
+color = Color(0.78, 0.86, 1, 0)
+
 [node name="ForegroundHero" type="TextureRect" parent="CutinStage"]
 layout_mode = 0
-offset_left = 70.0
-offset_top = -38.0
-offset_right = 1082.0
-offset_bottom = 532.0
+offset_left = 98.0
+offset_top = -14.0
+offset_right = 1152.0
+offset_bottom = 579.0
 texture = ExtResource("2_foreground")
 expand_mode = 1
 stretch_mode = 5
@@ -160,10 +275,10 @@ mouse_filter = 2
 
 [node name="HeroNamePanel" type="Panel" parent="CutinStage"]
 layout_mode = 0
-offset_left = 70.0
-offset_top = 388.0
-offset_right = 452.0
-offset_bottom = 464.0
+offset_left = 52.0
+offset_top = 477.0
+offset_right = 490.0
+offset_bottom = 566.0
 theme_override_styles/panel = SubResource("StyleTitle")
 mouse_filter = 2
 
@@ -175,17 +290,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(1, 0.9, 0.65, 1)
-theme_override_font_sizes/font_size = 35
+theme_override_font_sizes/font_size = 44
 text = "광개토대왕"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="SkillNamePanel" type="Panel" parent="CutinStage"]
 layout_mode = 0
-offset_left = 700.0
-offset_top = 402.0
-offset_right = 1082.0
-offset_bottom = 470.0
+offset_left = 70.0
+offset_top = 574.0
+offset_right = 420.0
+offset_bottom = 628.0
 theme_override_styles/panel = SubResource("StyleTitle")
 mouse_filter = 2
 
@@ -197,7 +312,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.72, 0.9, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 31
 text = "영락대제"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -209,7 +324,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(1, 0.8, 0.42, 0)
+color = Color(1, 0.96, 0.82, 0)
+mouse_filter = 2
+
+[node name="Vignette" type="ColorRect" parent="CutinStage"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.005, 0.012, 0.3)
 mouse_filter = 2
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="CutinStage"]

@@ -62,4 +62,4 @@ Final unit distribution: `11 / 10 / 11 / 4 / 3`.
 
 ## Next Transaction
 
-T06-10A standalone Gwanggaeto cutin preview is implemented for visual comparison; user F6 visual QA is pending before any battle presentation connection. Correction-only QA for confirmed T06-8/T06-9 defects remains allowed.
+T06-10A standalone Gwanggaeto cutin preview visual hotfix is implemented for comparison; user F6 visual QA is pending before any battle presentation connection. Correction-only QA for confirmed T06-8/T06-9 defects remains allowed.
