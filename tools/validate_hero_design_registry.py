@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Validate generated hero design JSON against the protected legacy registry.
-
-This audit compares identity and linkage only. Legacy `war`, `command`, `attack`,
-and similar fields are not treated as equivalent to the new locked stat contract.
-"""
+"""Validate generated hero design JSON against the protected legacy registry."""
 
 from __future__ import annotations
 
@@ -11,10 +7,19 @@ import argparse
 import json
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 EXPECTED_HERO_COUNT = 39
 EXPECTED_UNIT_TYPE_COUNT = 5
+EXPECTED_UNIT_DISTRIBUTION = {
+    "infantry": 11,
+    "cavalry": 10,
+    "archer": 11,
+    "gunner": 4,
+    "mounted_archer": 3,
+}
+EXPECTED_MOMENTUM_DISTRIBUTION = {1: 1, 2: 9, 3: 18, 4: 11}
 HERO_ENTRY_RE = re.compile(r'^\s*"([a-z0-9_]+)"\s*:\s*\{', re.MULTILINE)
 
 
@@ -74,27 +79,68 @@ def main() -> int:
     if base_ids != skill_hero_ids:
         fail(errors, "base JSON and skill JSON hero ID order differ")
 
-    allowed_units = {"infantry", "cavalry", "archer", "gunner", "mounted_archer"}
+    allowed_units = set(EXPECTED_UNIT_DISTRIBUTION)
+    allowed_roles = {"assault", "vanguard", "defender", "commander", "mobile", "ranged", "tactician", "support"}
+    unit_distribution: Counter[str] = Counter()
+
     for row in profile_rows:
         hero_id = str(row.get("hero_id", ""))
         expected_skill_id = f"{hero_id}_unique"
+        unit_type = str(row.get("unit_type", ""))
+        primary_role = str(row.get("primary_role", ""))
+        secondary_role = str(row.get("secondary_role", ""))
+
         if row.get("unique_skill_id") != expected_skill_id:
             fail(errors, f"{hero_id}: profile skill ID must be {expected_skill_id}")
-        if str(row.get("unit_type", "")) not in allowed_units:
-            fail(errors, f"{hero_id}: unsupported unit_type {row.get('unit_type')}")
+        if unit_type not in allowed_units:
+            fail(errors, f"{hero_id}: unsupported unit_type {unit_type}")
+        if unit_type == "support":
+            fail(errors, f"{hero_id}: support is a role, never a unit_type")
+        if primary_role not in allowed_roles or secondary_role not in allowed_roles:
+            fail(errors, f"{hero_id}: unsupported role pair {primary_role}/{secondary_role}")
+        unit_distribution[unit_type] += 1
 
-    skill_ids = {str(row.get("skill_id", "")) for row in skill_rows}
+    if dict(unit_distribution) != EXPECTED_UNIT_DISTRIBUTION:
+        fail(errors, f"unit distribution mismatch: expected {EXPECTED_UNIT_DISTRIBUTION}, found {dict(unit_distribution)}")
+
+    skill_ids: set[str] = set()
+    momentum_distribution: Counter[int] = Counter()
+    for row in skill_rows:
+        hero_id = str(row.get("hero_id", ""))
+        skill_id = str(row.get("skill_id", ""))
+        expected_skill_id = f"{hero_id}_unique"
+        momentum_cost = row.get("momentum_cost")
+
+        if skill_id != expected_skill_id:
+            fail(errors, f"{hero_id}: skill ID must be {expected_skill_id}")
+        if skill_id in skill_ids:
+            fail(errors, f"duplicate skill ID: {skill_id}")
+        skill_ids.add(skill_id)
+
+        if not isinstance(momentum_cost, int) or isinstance(momentum_cost, bool) or not 1 <= momentum_cost <= 4:
+            fail(errors, f"{hero_id}: momentum_cost must be integer 1..4, found {momentum_cost!r}")
+        else:
+            momentum_distribution[momentum_cost] += 1
+
+        if row.get("action_cost") != 1:
+            fail(errors, f"{hero_id}: action_cost must remain 1")
+        if row.get("hp_condition") is not None:
+            fail(errors, f"{hero_id}: hp_condition must remain null")
+
     for hero_id in profile_ids:
         if f"{hero_id}_unique" not in skill_ids:
             fail(errors, f"{hero_id}: missing linked unique skill")
+
+    if dict(momentum_distribution) != EXPECTED_MOMENTUM_DISTRIBUTION:
+        fail(errors, f"momentum distribution mismatch: expected {EXPECTED_MOMENTUM_DISTRIBUTION}, found {dict(momentum_distribution)}")
 
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
 
-    print("PARITY PASS: 39 legacy hero IDs match generated base/profile/skill JSON; 5 unit types and 8 roles present")
-    print("NOTE: legacy combat/stat values were intentionally not compared because their field meanings are not equivalent to the T06-1 locked contract")
+    print("PARITY PASS: 39 heroes; unit distribution 11/10/11/4/3; support role-only contract; momentum costs 1..4")
+    print("MOMENTUM DISTRIBUTION PASS: 1=1, 2=9, 3=18, 4=11")
     return 0
 
 
