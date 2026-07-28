@@ -3,6 +3,7 @@ extends Node
 ## Authoritative Korea MVP session role state. Nation IDs remain registry IDs.
 const KOREA_MVP_SCENARIO_ID := "korea_mvp_four_cities"
 const WORLDMAP_SAVE_PATH := "user://worldmap_left_panel_state.json"
+const BATTLE_RESUME_SAVE_PATH := "user://battle_runtime_resume.json"
 const HERO_SAVE_MIGRATION_VERSION := 1
 const STARTS := {
 	"player": {"city_id": "hanseong", "label": "한성", "faction_label": "조선"},
@@ -30,6 +31,36 @@ var _last_load_migration_error := ""
 
 func has_valid_save() -> bool:
 	return FileAccess.file_exists(WORLDMAP_SAVE_PATH)
+
+
+func save_battle_resume_snapshot(snapshot: Dictionary) -> bool:
+	if snapshot.is_empty():
+		return false
+	var target_file := FileAccess.open(BATTLE_RESUME_SAVE_PATH, FileAccess.WRITE)
+	if target_file == null:
+		return false
+	target_file.store_string(JSON.stringify(snapshot, "\t"))
+	return true
+
+
+func load_battle_resume_snapshot(expected_battle_id: String) -> Dictionary:
+	if expected_battle_id.is_empty() or not FileAccess.file_exists(BATTLE_RESUME_SAVE_PATH):
+		return {}
+	var source_file := FileAccess.open(BATTLE_RESUME_SAVE_PATH, FileAccess.READ)
+	if source_file == null:
+		return {}
+	var parsed: Variant = JSON.parse_string(source_file.get_as_text())
+	if not parsed is Dictionary:
+		return {}
+	var snapshot: Dictionary = parsed
+	if String(snapshot.get("battle_id", "")) != expected_battle_id:
+		return {}
+	return snapshot.duplicate(true)
+
+
+func clear_battle_resume_snapshot() -> void:
+	if FileAccess.file_exists(BATTLE_RESUME_SAVE_PATH):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(BATTLE_RESUME_SAVE_PATH))
 
 
 func request_new_game(faction_id: String) -> bool:
