@@ -1,7 +1,7 @@
 name: Apply T06-7 Hotfix6 Self Area Ally Confirm
 
 on:
-  pull_request:
+  push:
     branches: [main]
     paths:
       - '.github/hotfix-triggers/t06-7-hotfix6-self-area-ally-confirm'
