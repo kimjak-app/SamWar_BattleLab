@@ -16,11 +16,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Print overlay functions
+      - name: Collect overlay functions
         run: |
           FILE=scripts/battle_web_import_test.gd
-          for NAME in _show_unique_skill_range_overlay _hide_unique_skill_range_overlay _create_unique_skill; do
-            grep -n "func $NAME" "$FILE" || true
-          done
+          OUT=range_overlay_audit.txt
           N=$(grep -n 'func _show_unique_skill_range_overlay' "$FILE" | head -1 | cut -d: -f1)
-          if [ -n "$N" ]; then START=$((N-10)); END=$((N+180)); sed -n "${START},${END}p" "$FILE"; fi
+          if [ -n "$N" ]; then START=$((N-10)); END=$((N+220)); sed -n "${START},${END}p" "$FILE" > "$OUT"; else echo missing > "$OUT"; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: t06-7-range-overlay-audit
+          path: range_overlay_audit.txt
