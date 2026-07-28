@@ -4063,8 +4063,11 @@ func _get_unique_skill_range_cells(caster_state: BattleUnitState, skill_data: Di
 	var cells: Array[Vector2i] = []
 	if caster_state == null or battle_grid_controller == null:
 		return cells
-	var skill_range := _get_unique_skill_range(caster_state, skill_data)
-	for cell in battle_grid_controller.get_tiles_in_range(caster_state.grid_cell, skill_range):
+	var display_range := _get_unique_skill_range(caster_state, skill_data)
+	var target_mode := String(skill_data.get("target_mode", ""))
+	if ["self_area", "self_area_enemy", "enemy_adjacent"].has(target_mode):
+		display_range = maxi(int(skill_data.get("radius", 0)), 0)
+	for cell in battle_grid_controller.get_tiles_in_range(caster_state.grid_cell, display_range):
 		if battle_grid_controller.is_in_bounds(cell):
 			cells.append(cell)
 	return cells
