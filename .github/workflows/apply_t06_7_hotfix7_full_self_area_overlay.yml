@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - '.github/hotfix-triggers/t06-7-hotfix7-full-self-area-overlay'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/hotfix-triggers/t06-7-hotfix7-full-self-area-overlay'
 
 permissions:
   contents: write
