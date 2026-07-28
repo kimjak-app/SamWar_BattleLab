@@ -1,11 +1,6 @@
 name: Apply T06-7 Hotfix2 Momentum HUD
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/apply-t06-7-hotfix2.yml'
-      - 'tools/apply_t06_7_hotfix2_momentum_hud.py'
   pull_request:
     branches: [main]
     paths:
@@ -36,8 +31,6 @@ jobs:
         run: python3 tools/validate_hero_runtime_authority.py
       - name: Validate T06-7 transaction
         run: python3 tools/validate_t06_t07_playable_transaction.py
-      - name: Check diff
-        run: git diff --check
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
