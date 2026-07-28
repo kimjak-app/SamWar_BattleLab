@@ -2862,7 +2862,33 @@ func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dicti
 	payload["defender_initial_salt"] = maxi(0, int(worldmap_battle_context.get("defender_salt_amount", 0)))
 	payload["attacker_surviving_general_ids"] = _get_surviving_general_ids_for_side(attacker_battle_side)
 	payload["defender_surviving_general_ids"] = _get_surviving_general_ids_for_side(defender_battle_side)
+	payload["attacker_hero_outcomes"] = _build_hero_outcomes_for_side(attacker_battle_side)
+	payload["defender_hero_outcomes"] = _build_hero_outcomes_for_side(defender_battle_side)
 	return payload
+
+
+func _build_hero_outcomes_for_side(side: String) -> Dictionary:
+	var outcomes := {}
+	for unit_state in _get_deployed_unit_states_for_side(side):
+		if unit_state == null:
+			continue
+		var hero_id := _get_hero_id_for_unit_state(unit_state)
+		if hero_id.is_empty():
+			continue
+		outcomes[hero_id] = {
+			"hero_id": hero_id,
+			"unit_id": unit_state.unit_id,
+			"survived": unit_state.is_alive(),
+			"current_hp": maxi(0, int(unit_state.current_hp)),
+			"max_hp": maxi(0, int(unit_state.max_hp)),
+			"current_troops": maxi(0, int(unit_state.current_troops)),
+			"max_troops": maxi(0, int(unit_state.max_troops)),
+			"allocated_troops": maxi(0, int(unit_state.allocated_troops)),
+			"initial_allocated_troops": maxi(0, int(unit_state.initial_allocated_troops)),
+			"unit_type": unit_state.unit_type,
+			"unique_skill_id": unit_state.unique_skill_id,
+		}
+	return outcomes
 
 
 func _get_or_create_battle_result_id() -> String:

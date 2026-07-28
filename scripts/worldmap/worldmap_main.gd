@@ -9081,6 +9081,8 @@ func _apply_t02_player_attack_result(result: Dictionary) -> void:
 	var healthy := maxi(0, int(result.get("attacker_healthy_survivors", 0)))
 	var wounded := maxi(0, int(result.get("attacker_wounded", 0)))
 	var surviving_generals := _normalize_battle_result_hero_ids(result.get("attacker_surviving_general_ids", []))
+	var attacker_general_ids := _normalize_battle_result_hero_ids(result.get("attacker_general_ids", []))
+	var attacker_hero_outcomes := _normalize_battle_hero_outcomes(result.get("attacker_hero_outcomes", {}))
 	var destination_city_id := target_city_id if attacker_won else source_city_id
 	if attacker_won:
 		var defeated_owner := _get_city_owner_id_for_battle_context(target_city_id)
@@ -9100,11 +9102,31 @@ func _apply_t02_player_attack_result(result: Dictionary) -> void:
 	_apply_t02_defender_supply_result(target_city_id, result)
 	if attacker_won:
 		_add_t02_attacker_cargo_to_city(target_city_id, result)
-	for hero_id in surviving_generals:
+	if attacker_general_ids.is_empty():
+		attacker_general_ids = attacker_hero_outcomes.keys()
+	for hero_id_variant in attacker_general_ids:
+		var hero_id := str(hero_id_variant)
+		if hero_id.is_empty():
+			continue
 		_move_hero_to_city_t02(hero_id, destination_city_id)
 		var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
-		hero_state["status"] = HERO_RUNTIME_STATUS_NORMAL
-		hero_state["wounded"] = false
+		var outcome: Dictionary = attacker_hero_outcomes.get(hero_id, {})
+		var survived := bool(outcome.get("survived", surviving_generals.has(hero_id)))
+		if survived:
+			hero_state["status"] = HERO_RUNTIME_STATUS_NORMAL
+			hero_state["wounded"] = false
+			hero_state["captured"] = false
+			hero_state["dead"] = false
+			hero_state["wounded_turns_remaining"] = 0
+		else:
+			hero_state["status"] = HERO_RUNTIME_STATUS_WOUNDED
+			hero_state["wounded"] = true
+			hero_state["captured"] = false
+			hero_state["dead"] = false
+			hero_state["wounded_turns_remaining"] = DEFAULT_WOUNDED_RECOVERY_TURNS
+		hero_state["last_battle_current_troops"] = maxi(0, int(outcome.get("current_troops", 0)))
+		hero_state["last_battle_max_troops"] = maxi(0, int(outcome.get("max_troops", 0)))
+		hero_state["last_battle_transaction_id"] = transaction_id
 		_hero_runtime_states[hero_id] = hero_state
 	if wounded > 0:
 		_add_wounded_to_city_mvp(destination_city_id, wounded, ExpeditionSupplyCalculator.NORMAL_WOUNDED_RECOVERY_MONTHS, "normal", transaction_id)
@@ -9561,8 +9583,79 @@ func _format_invasion_result_status_from_summary(summary: Dictionary) -> String:
 	return "%s: %s" % [title, str(lines[0])]
 
 
+func _normalize_battle_hero_outcomes(raw_outcomes: Variant) -> Dictionary:
+	var normalized := {}
+	if not raw_outcomes is Dictionary:
+		return normalized
+	for key_variant in (raw_outcomes as Dictionary).keys():
+		var raw_value: Variant = (raw_outcomes as Dictionary).get(key_variant, {})
+		if not raw_value is Dictionary:
+			continue
+		var outcome := (raw_value as Dictionary).duplicate(true)
+		var raw_hero_id := str(outcome.get("hero_id", key_variant))
+		var hero_id := str(BATTLE_RESULT_HERO_ID_COMPATIBILITY.get(raw_hero_id, raw_hero_id))
+		if hero_id.is_empty():
+			continue
+		outcome["hero_id"] = hero_id
+		normalized[hero_id] = outcome
+	return normalized
+
+
+func _apply_explicit_battle_hero_outcomes(result_payload: Dictionary) -> Dictionary:
+	var wounded_hero_ids: Array[String] = []
+	var normal_hero_ids: Array[String] = []
+	var skipped_hero_ids: Array[String] = []
+	var has_explicit_data := false
+	for context_side in ["attacker", "defender"]:
+		var outcomes := _normalize_battle_hero_outcomes(result_payload.get("%s_hero_outcomes" % context_side, {}))
+		if not outcomes.is_empty():
+			has_explicit_data = true
+		for hero_id_variant in outcomes.keys():
+			var hero_id := str(hero_id_variant)
+			var outcome: Dictionary = outcomes.get(hero_id, {})
+			if hero_id.is_empty() or _get_hero_seed_entry(hero_id).is_empty():
+				skipped_hero_ids.append(hero_id)
+				continue
+			var hero_state := _normalize_hero_runtime_state(hero_id, _get_existing_hero_runtime_state(hero_id))
+			if bool(hero_state.get("captured", false)) or bool(hero_state.get("dead", false)):
+				skipped_hero_ids.append(hero_id)
+				continue
+			if bool(outcome.get("survived", false)):
+				hero_state["status"] = HERO_RUNTIME_STATUS_NORMAL
+				hero_state["wounded"] = false
+				hero_state["wounded_turns_remaining"] = 0
+				normal_hero_ids.append(hero_id)
+			else:
+				hero_state["status"] = HERO_RUNTIME_STATUS_WOUNDED
+				hero_state["wounded"] = true
+				hero_state["wounded_turns_remaining"] = DEFAULT_WOUNDED_RECOVERY_TURNS
+				wounded_hero_ids.append(hero_id)
+			hero_state["last_battle_current_troops"] = maxi(0, int(outcome.get("current_troops", 0)))
+			hero_state["last_battle_max_troops"] = maxi(0, int(outcome.get("max_troops", 0)))
+			hero_state["last_battle_transaction_id"] = str(result_payload.get("transaction_id", ""))
+			_hero_runtime_states[hero_id] = hero_state
+	return {
+		"has_explicit_data": has_explicit_data,
+		"wounded_hero_ids": wounded_hero_ids,
+		"normal_hero_ids": normal_hero_ids,
+		"captured_hero_ids": [],
+		"dead_hero_ids": [],
+		"skipped_hero_ids": skipped_hero_ids,
+	}
+
+
 func _apply_invasion_hero_state_placeholder(result_payload: Dictionary, result_summary: Dictionary) -> Dictionary:
 	var updated_summary := result_summary.duplicate(true)
+	var explicit_result := _apply_explicit_battle_hero_outcomes(result_payload)
+	if bool(explicit_result.get("has_explicit_data", false)):
+		updated_summary["hero_state_result"] = explicit_result
+		_append_hero_state_result_lines(updated_summary)
+		print("[T06_9_HERO_OUTCOMES] wounded=%s normal=%s skipped=%s" % [
+			str(explicit_result.get("wounded_hero_ids", [])),
+			str(explicit_result.get("normal_hero_ids", [])),
+			str(explicit_result.get("skipped_hero_ids", [])),
+		])
+		return updated_summary
 	var result_kind := str(updated_summary.get("result", _normalize_invasion_battle_result_kind(result_payload)))
 	var losing_side := ""
 	var losing_city_id := ""
@@ -17977,7 +18070,13 @@ func _get_hero_battle_data_for_battle_context(hero_id: String, fallback_city_id:
 	var hero_data := _get_hero_entry(hero_id)
 	if hero_data.is_empty():
 		return {}
-	var battle_data := hero_data.duplicate(true)
+	var battle_data := HeroRuntimeFactory.build_runtime_hero(hero_data, hero_data)
+	if not HeroRuntimeFactory.is_valid_runtime_hero(battle_data):
+		push_error("[T06_9_PARITY] runtime hero rebuild failed hero=%s error=%s" % [
+			hero_id,
+			String(battle_data.get("runtime_factory_error", "unknown")),
+		])
+		return {}
 	var normalized_hero_id := str(battle_data.get("hero_id", battle_data.get("id", hero_id)))
 	var role := str(battle_data.get("web_role", battle_data.get("role", ""))).to_lower()
 	var role_contract: Dictionary = HERO_BATTLE_ROLE_CONTRACTS.get(role, HERO_BATTLE_DEFAULT_ROLE_CONTRACT).duplicate(true)
