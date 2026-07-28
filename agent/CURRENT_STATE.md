@@ -62,4 +62,4 @@ Final unit distribution: `11 / 10 / 11 / 4 / 3`.
 
 ## Next Transaction
 
-Proceed to T06-10 hero cutin and battle presentation after deferred Korea MVP runtime QA, or perform correction-only QA if a confirmed T06-8/T06-9 defect appears first.
+T06-10A standalone Gwanggaeto cutin preview is implemented for visual comparison; user F6 visual QA is pending before any battle presentation connection. Correction-only QA for confirmed T06-8/T06-9 defects remains allowed.

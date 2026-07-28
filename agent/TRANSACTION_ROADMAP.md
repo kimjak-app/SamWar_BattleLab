@@ -39,6 +39,8 @@ Exit gate:
 
 ### T06-10 Hero Cutin & Battle Presentation
 
+- T06-10A standalone Gwanggaeto two-image preview: `IMPLEMENTED / USER VISUAL QA PENDING`.
+- This is an experiment-only step; it does not mark T06-10 complete or connect a battle call path.
 - audit existing 39-hero portrait, title, video, and cutin assets
 - compare video-background and light-burst presentation samples
 - lock shared cutin timing and fallback presentation
