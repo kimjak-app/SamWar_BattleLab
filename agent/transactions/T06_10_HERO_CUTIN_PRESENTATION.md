@@ -2,7 +2,7 @@
 
 ## Status
 
-`T06-10A PREVIEW VISUAL HOTFIX IMPLEMENTED / USER VISUAL QA PENDING`
+`T06-10A DUEL-STYLE MODE A REBUILD IMPLEMENTED / USER VISUAL QA PENDING`
 
 ## T06-10A Scope
 
@@ -22,6 +22,13 @@
 - Both modes use a rapid white-to-pale-gold flash with preset-limited opacity rather than the old opaque yellow rectangle effect.
 - Hero and canonical skill labels use a larger lower-left title treatment. The control panel hides while playback is active and is restored on completion or Escape.
 - Replay, mode changes, loop callbacks, and scene exit kill/reset active tween state before new playback.
+
+## T06-10A-hotfix2 Duel-Style Mode A Rebuild
+
+- Mode A is rebuilt as a single approximately 1.89-second duel-style impact timeline instead of preset-scaled particle tuning: black-red ignition, large right-side Gwanggaeto entry, central `영락대제` title burst, readable standoff, white-gold decision flash, and rapid exit.
+- `CutinRoot` now owns the impact shake and always restores its captured scene position. `HeroPortrait` and the central `TitleContainer` each restore their authored position, scale, alpha, and pivot-centered title state before replay.
+- The canonical skill display name remains read from `HeroDesignDataRegistry`; generated hero data is untouched.
+- Mode B remains a separate restrained full-background path. Strength controls are hidden for this QA so Mode A is evaluated as one fixed composition.
 
 ## Explicitly Deferred
 

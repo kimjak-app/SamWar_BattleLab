@@ -1,47 +1,49 @@
 extends Control
 
 ## Standalone presentation lab only. This never calls battle flow or modifies hero data.
+signal cutin_finished
+
 const HERO_ID := "gwanggaeto"
 const FALLBACK_SKILL_NAME := "영락대제"
 
-@export_group("Timing (about 2.0 seconds at 1.0x)")
-@export var dim_duration := 0.12
-@export var enter_duration := 0.30
-@export var hold_duration := 1.18
+@export_group("Duel-style Mode A timing (about 1.95 seconds at 1.0x)")
+@export var ignite_duration := 0.12
+@export var hero_delay := 0.06
+@export var hero_enter_duration := 0.30
+@export var title_burst_duration := 0.19
+@export var standoff_duration := 0.82
+@export var flash_duration := 0.16
 @export var exit_duration := 0.30
 @export var loop_delay := 0.35
-@export_group("Stage tuning")
-@export_range(0.0, 1.0, 0.01) var dim_alpha := 0.78
-@export var foreground_rest_position := Vector2(98, -14)
-@export var background_rest_position := Vector2.ZERO
-@export var foreground_enter_offset := Vector2(-115, 18)
-@export var burst_position := Vector2(390, 24)
-@export var burst_size := Vector2(580, 580)
-@export_group("Presentation strength")
-@export var subtle_flash_alpha := 0.26
-@export var default_flash_alpha := 0.44
-@export var intense_flash_alpha := 0.64
-@export var subtle_shake := 2.0
-@export var default_shake := 4.0
-@export var intense_shake := 7.0
+@export_group("Mode A scene-authored composition")
+@export var hero_rest_position := Vector2(28, -34)
+@export var hero_enter_offset := Vector2(185, 16)
+@export var hero_rest_scale := 1.055
+@export var hero_standoff_scale := 1.085
+@export var title_rest_scale := Vector2.ONE
+@export var title_burst_scale := Vector2(1.38, 1.38)
+@export var title_start_scale := Vector2(0.20, 0.20)
+@export var title_rest_position := Vector2(42, 224)
+@export var title_exit_offset := Vector2(-72, 0)
+@export var flash_alpha := 0.62
 
-@onready var cutin_stage: Control = $CutinStage
-@onready var dim_overlay: ColorRect = $CutinStage/DimOverlay
-@onready var background_image: TextureRect = $CutinStage/BackgroundImage
-@onready var radial_burst: TextureRect = $CutinStage/RadialBurst
-@onready var radial_burst_near: TextureRect = $CutinStage/RadialBurstNear
-@onready var radial_burst_far: TextureRect = $CutinStage/RadialBurstFar
-@onready var speed_line_root: Control = $CutinStage/SpeedLineRoot
-@onready var foreground_hero: TextureRect = $CutinStage/ForegroundHero
-@onready var hero_name_panel: Panel = $CutinStage/HeroNamePanel
-@onready var skill_name_panel: Panel = $CutinStage/SkillNamePanel
-@onready var skill_name: Label = $CutinStage/SkillNamePanel/SkillName
-@onready var ember_root: Control = $CutinStage/EmberRoot
-@onready var flash_overlay: ColorRect = $CutinStage/FlashOverlay
+@onready var cutin_root: Control = $CutinRoot
+@onready var dim_overlay: ColorRect = $CutinRoot/DimOverlay
+@onready var background_image: TextureRect = $CutinRoot/BackgroundImage
+@onready var back_light_burst: TextureRect = $CutinRoot/BackLightBurst
+@onready var back_light_burst_near: TextureRect = $CutinRoot/BackLightBurstNear
+@onready var back_light_burst_far: TextureRect = $CutinRoot/BackLightBurstFar
+@onready var hero_portrait: TextureRect = $CutinRoot/HeroContainer/HeroPortrait
+@onready var title_container: Control = $CutinRoot/TitleContainer
+@onready var title_hero_name: Label = $CutinRoot/TitleContainer/HeroNameLabel
+@onready var title_skill_name: Label = $CutinRoot/TitleContainer/SkillNameLabel
+@onready var accent_line: ColorRect = $CutinRoot/TitleContainer/AccentLine
+@onready var flash_overlay: ColorRect = $CutinRoot/FlashOverlay
 @onready var control_panel: Panel = $PreviewControlPanel
 @onready var foreground_mode_button: Button = $PreviewControlPanel/Rows/ModeRow/ForegroundModeButton
 @onready var background_mode_button: Button = $PreviewControlPanel/Rows/ModeRow/BackgroundModeButton
 @onready var loop_toggle: CheckButton = $PreviewControlPanel/Rows/SettingsRow/LoopToggle
+@onready var strength_label: Label = $PreviewControlPanel/Rows/SettingsRow/StrengthLabel
 @onready var subtle_button: Button = $PreviewControlPanel/Rows/SettingsRow/SubtleButton
 @onready var default_button: Button = $PreviewControlPanel/Rows/SettingsRow/DefaultButton
 @onready var intense_button: Button = $PreviewControlPanel/Rows/SettingsRow/IntenseButton
@@ -52,47 +54,38 @@ const FALLBACK_SKILL_NAME := "영락대제"
 @onready var replay_button: Button = $PreviewControlPanel/Rows/ModeRow/ReplayButton
 
 var _mode_foreground := true
-var _strength := 1.0
 var _playback_speed := 1.0
-var _active_tween: Tween
+var _active_tweens: Array[Tween] = []
 var _loop_timer: SceneTreeTimer
 var _playing := false
-var _shake_power := 0.0
-var _shake_end_msec := 0
-var _stage_base_position := Vector2.ZERO
-var _particle_nodes: Array[ColorRect] = []
-var _speed_lines: Array[ColorRect] = []
+var _cutin_root_base_position := Vector2.ZERO
+var _effect_nodes: Array[ColorRect] = []
 var _effect_base_positions: Dictionary = {}
+var _shake_tween: Tween
 
 func _ready() -> void:
-	_particle_nodes = [$CutinStage/EmberRoot/EmberA, $CutinStage/EmberRoot/EmberB, $CutinStage/EmberRoot/EmberC, $CutinStage/EmberRoot/DustA, $CutinStage/EmberRoot/DustB]
-	_speed_lines = [$CutinStage/SpeedLineRoot/SpeedLineTop, $CutinStage/SpeedLineRoot/SpeedLineBottom, $CutinStage/SpeedLineRoot/SpeedLineMid, $CutinStage/SpeedLineRoot/SpeedLineFar]
-	for effect_node in _particle_nodes + _speed_lines:
+	_effect_nodes = [$CutinRoot/ImpactLines/SpeedLineTop, $CutinRoot/ImpactLines/SpeedLineBottom, $CutinRoot/ImpactLines/SpeedLineMid, $CutinRoot/ImpactLines/SpeedLineFar, $CutinRoot/BurstParticles/EmberA, $CutinRoot/BurstParticles/EmberB, $CutinRoot/BurstParticles/EmberC, $CutinRoot/BurstParticles/DustA, $CutinRoot/BurstParticles/DustB]
+	for effect_node in _effect_nodes:
 		_effect_base_positions[effect_node.get_path()] = effect_node.position
-	_stage_base_position = cutin_stage.position
+	_cutin_root_base_position = cutin_root.position
 	foreground_mode_button.pressed.connect(func() -> void: _set_mode(true))
 	background_mode_button.pressed.connect(func() -> void: _set_mode(false))
 	play_button.pressed.connect(play_cutin)
 	replay_button.pressed.connect(play_cutin)
-	subtle_button.pressed.connect(func() -> void: _set_strength(0.62))
-	default_button.pressed.connect(func() -> void: _set_strength(1.0))
-	intense_button.pressed.connect(func() -> void: _set_strength(1.42))
 	speed_075_button.pressed.connect(func() -> void: _set_speed(0.75))
 	speed_100_button.pressed.connect(func() -> void: _set_speed(1.0))
 	speed_125_button.pressed.connect(func() -> void: _set_speed(1.25))
+	strength_label.hide()
+	subtle_button.hide()
+	default_button.hide()
+	intense_button.hide()
 	_update_skill_name()
-	_reset_stage()
-
-func _process(_delta: float) -> void:
-	if _shake_end_msec > Time.get_ticks_msec():
-		cutin_stage.position = _stage_base_position + Vector2(randf_range(-_shake_power, _shake_power), randf_range(-_shake_power, _shake_power))
-	else:
-		cutin_stage.position = _stage_base_position
+	_reset_visual_state()
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.is_pressed() and event.keycode == KEY_ESCAPE:
 		_stop_active_playback()
-		_reset_stage()
+		_reset_visual_state()
 
 func _exit_tree() -> void:
 	_stop_active_playback()
@@ -102,13 +95,7 @@ func _set_mode(use_foreground: bool) -> void:
 	_mode_foreground = use_foreground
 	foreground_mode_button.button_pressed = use_foreground
 	background_mode_button.button_pressed = not use_foreground
-	_reset_stage()
-
-func _set_strength(value: float) -> void:
-	_strength = value
-	subtle_button.button_pressed = is_equal_approx(value, 0.62)
-	default_button.button_pressed = is_equal_approx(value, 1.0)
-	intense_button.button_pressed = is_equal_approx(value, 1.42)
+	_reset_visual_state()
 
 func _set_speed(value: float) -> void:
 	_playback_speed = value
@@ -118,113 +105,119 @@ func _set_speed(value: float) -> void:
 
 func _update_skill_name() -> void:
 	var canonical_skill := HeroDesignDataRegistry.get_unique_skill_for_hero(HERO_ID)
-	skill_name.text = String(canonical_skill.get("display_name", FALLBACK_SKILL_NAME))
+	title_skill_name.text = String(canonical_skill.get("display_name", FALLBACK_SKILL_NAME))
 
 func play_cutin() -> void:
 	_stop_active_playback()
-	_reset_stage()
+	_reset_visual_state()
 	_playing = true
 	control_panel.hide()
-	var speed := maxf(_playback_speed, 0.01)
-	var enter_time := enter_duration / speed
-	var hold_time := hold_duration / speed
-	var exit_time := exit_duration / speed
-	_active_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	_active_tween.tween_property(dim_overlay, "color:a", dim_alpha, dim_duration / speed)
 	if _mode_foreground:
-		_play_foreground_sequence(enter_time, hold_time, exit_time)
+		_play_duel_style_foreground()
 	else:
-		_play_background_sequence(enter_time, hold_time, exit_time)
-	_active_tween.tween_callback(_finish_playback)
+		_play_preserved_background()
 
-func _play_foreground_sequence(enter_time: float, hold_time: float, exit_time: float) -> void:
-	foreground_hero.visible = true
-	background_image.visible = false
-	foreground_hero.position = foreground_rest_position + foreground_enter_offset
-	foreground_hero.modulate.a = 0.0
-	foreground_hero.scale = Vector2(0.96, 0.96)
-	_active_tween.parallel().tween_property(foreground_hero, "position", foreground_rest_position, enter_time)
-	_active_tween.parallel().tween_property(foreground_hero, "modulate:a", 1.0, enter_time * 0.65)
-	_active_tween.parallel().tween_property(foreground_hero, "scale", Vector2(1.03, 1.03), enter_time)
-	_play_effects(enter_time, hold_time, 1.0)
-	_active_tween.tween_property(foreground_hero, "scale", Vector2(1.055, 1.055), hold_time)
-	_play_flash()
-	_active_tween.parallel().tween_property(foreground_hero, "modulate:a", 0.0, exit_time)
-	_active_tween.parallel().tween_property(foreground_hero, "position", foreground_rest_position + Vector2(74, -18), exit_time)
-	_play_exit_effects(exit_time)
+func _play_duel_style_foreground() -> void:
+	var speed := maxf(_playback_speed, 0.01)
+	var timeline := _new_tween()
+	# Phase 1: immediate black-red ignition and backlight pressure.
+	timeline.parallel().tween_property(dim_overlay, "color:a", 0.72, ignite_duration / speed)
+	timeline.parallel().tween_property(back_light_burst, "modulate:a", 0.78, ignite_duration / speed)
+	timeline.parallel().tween_property(back_light_burst_near, "modulate:a", 0.52, ignite_duration / speed)
+	timeline.parallel().tween_property(back_light_burst_far, "modulate:a", 0.30, ignite_duration / speed)
+	timeline.parallel().tween_property(back_light_burst, "scale", Vector2(1.22, 1.22), ignite_duration / speed)
+	timeline.tween_interval(maxf(0.0, hero_delay - ignite_duration) / speed)
+	# Phase 2: the portrait drives in hard from the right and settles with a back ease.
+	timeline.parallel().tween_property(hero_portrait, "position", hero_rest_position, hero_enter_duration / speed).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	timeline.parallel().tween_property(hero_portrait, "scale", Vector2.ONE * hero_rest_scale, hero_enter_duration / speed).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	timeline.parallel().tween_property(hero_portrait, "modulate:a", 1.0, hero_enter_duration * 0.72 / speed)
+	timeline.parallel().tween_property(back_light_burst_near, "scale", Vector2(1.34, 1.34), hero_enter_duration / speed)
+	timeline.parallel().tween_callback(func() -> void: _impact_shake(7.5 / speed, 0.18 / speed))
+	# Phase 3: title explosion. The title is intentionally the focal impact, not a subtitle.
+	timeline.parallel().tween_property(title_container, "modulate:a", 1.0, 0.045 / speed)
+	timeline.parallel().tween_property(title_container, "scale", title_burst_scale, title_burst_duration * 0.55 / speed).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	timeline.parallel().tween_property(accent_line, "color:a", 1.0, 0.10 / speed)
+	_emit_title_burst(timeline, speed)
+	timeline.tween_property(title_container, "scale", title_rest_scale, title_burst_duration * 0.45 / speed).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	timeline.parallel().tween_callback(func() -> void: _impact_shake(9.0 / speed, 0.22 / speed))
+	# Phase 4: readable standoff with a restrained push-in.
+	timeline.parallel().tween_property(hero_portrait, "scale", Vector2.ONE * hero_standoff_scale, standoff_duration / speed)
+	timeline.parallel().tween_property(back_light_burst_far, "scale", Vector2(1.18, 1.18), standoff_duration / speed)
+	timeline.parallel().tween_property(back_light_burst, "rotation", 0.06, standoff_duration / speed)
+	_emit_standoff_embers(timeline, speed)
+	timeline.tween_interval(standoff_duration / speed)
+	# Phase 5: short white-gold decision flash, never an opaque yellow plate.
+	timeline.parallel().tween_property(flash_overlay, "color:a", flash_alpha, 0.045 / speed)
+	timeline.parallel().tween_property(back_light_burst_near, "modulate:a", 0.82, 0.045 / speed)
+	timeline.tween_callback(func() -> void: _impact_shake(5.0 / speed, 0.12 / speed))
+	timeline.tween_property(flash_overlay, "color:a", 0.0, (flash_duration - 0.045) / speed)
+	# Phase 6: title exits left, portrait exits forward/right, then fully reset.
+	timeline.parallel().tween_property(title_container, "position", title_rest_position + title_exit_offset, exit_duration / speed).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	timeline.parallel().tween_property(title_container, "modulate:a", 0.0, exit_duration * 0.82 / speed)
+	timeline.parallel().tween_property(hero_portrait, "position", hero_rest_position + Vector2(96, -10), exit_duration / speed)
+	timeline.parallel().tween_property(hero_portrait, "scale", Vector2.ONE * 1.14, exit_duration / speed)
+	timeline.parallel().tween_property(hero_portrait, "modulate:a", 0.0, exit_duration / speed)
+	_fade_environment(timeline, exit_duration / speed)
+	timeline.tween_callback(_finish_playback)
 
-func _play_background_sequence(enter_time: float, hold_time: float, exit_time: float) -> void:
-	foreground_hero.visible = false
+func _play_preserved_background() -> void:
+	var speed := maxf(_playback_speed, 0.01)
 	background_image.visible = true
-	background_image.position = background_rest_position + Vector2(-28, 8)
-	background_image.scale = Vector2(1.085, 1.085)
-	background_image.modulate.a = 0.0
-	_active_tween.parallel().tween_property(background_image, "modulate:a", 1.0, enter_time * 0.8)
-	_active_tween.parallel().tween_property(background_image, "position", background_rest_position, enter_time + hold_time)
-	_active_tween.parallel().tween_property(background_image, "scale", Vector2(1.015, 1.015), enter_time + hold_time)
-	_play_effects(enter_time, hold_time, 0.38)
-	_active_tween.tween_interval(hold_time)
-	_play_flash()
-	_active_tween.parallel().tween_property(background_image, "modulate:a", 0.0, exit_time)
-	_active_tween.parallel().tween_property(background_image, "position", Vector2(24, -6), exit_time)
-	_play_exit_effects(exit_time)
+	var timeline := _new_tween()
+	timeline.parallel().tween_property(dim_overlay, "color:a", 0.68, 0.12 / speed)
+	timeline.parallel().tween_property(background_image, "modulate:a", 1.0, 0.25 / speed)
+	timeline.parallel().tween_property(background_image, "position", Vector2.ZERO, 1.35 / speed)
+	timeline.parallel().tween_property(background_image, "scale", Vector2(1.015, 1.015), 1.35 / speed)
+	timeline.tween_interval(1.35 / speed)
+	timeline.parallel().tween_property(flash_overlay, "color:a", 0.38, 0.05 / speed)
+	timeline.tween_property(flash_overlay, "color:a", 0.0, 0.10 / speed)
+	timeline.parallel().tween_property(background_image, "modulate:a", 0.0, exit_duration / speed)
+	timeline.parallel().tween_property(dim_overlay, "color:a", 0.0, exit_duration / speed)
+	timeline.tween_callback(_finish_playback)
 
-func _play_effects(enter_time: float, hold_time: float, effect_multiplier: float) -> void:
-	var burst_alpha := minf(0.82, 0.48 * _strength * effect_multiplier)
-	radial_burst.position = burst_position
-	radial_burst.size = burst_size * (0.86 + 0.14 * _strength)
-	_active_tween.parallel().tween_property(radial_burst, "modulate:a", burst_alpha, enter_time * 0.42)
-	_active_tween.parallel().tween_property(radial_burst_near, "modulate:a", burst_alpha * 0.64, enter_time * 0.55)
-	_active_tween.parallel().tween_property(radial_burst_far, "modulate:a", burst_alpha * 0.34, enter_time * 0.5)
-	_active_tween.parallel().tween_property(radial_burst, "scale", Vector2.ONE * (1.08 + 0.16 * _strength), enter_time + hold_time)
-	_active_tween.parallel().tween_property(radial_burst_near, "scale", Vector2.ONE * (1.14 + 0.18 * _strength), enter_time + hold_time)
-	_active_tween.parallel().tween_property(hero_name_panel, "modulate:a", 1.0, enter_time * 0.72)
-	_active_tween.parallel().tween_property(skill_name_panel, "modulate:a", 1.0, enter_time * 0.78)
-	for line in _speed_lines:
-		_active_tween.parallel().tween_property(line, "color:a", minf(0.72, 0.45 * _strength * effect_multiplier), enter_time * 0.35)
-		_active_tween.parallel().tween_property(line, "position:x", float(_effect_base_positions[line.get_path()].x) + 170.0 * _strength, enter_time + hold_time * 0.3)
-	for particle in _particle_nodes:
-		_active_tween.parallel().tween_property(particle, "color:a", minf(0.9, 0.54 * _strength * effect_multiplier), enter_time * 0.55)
-		_active_tween.parallel().tween_property(particle, "position", _effect_base_positions[particle.get_path()] + Vector2(randf_range(-100.0, 110.0), randf_range(-170.0, -45.0)) * _strength, enter_time + hold_time * 0.72)
-	_shake_power = _shake_for_strength()
-	_shake_end_msec = Time.get_ticks_msec() + int((enter_time * 0.72) * 1000.0)
+func _emit_title_burst(timeline: Tween, speed: float) -> void:
+	for index in range(7):
+		var node := _effect_nodes[index]
+		var base: Vector2 = _effect_base_positions[node.get_path()]
+		node.position = Vector2(360 + index * 22, 302 + (index % 3) * 18)
+		timeline.parallel().tween_property(node, "color:a", 0.9 if index >= 4 else 0.68, 0.04 / speed)
+		timeline.parallel().tween_property(node, "position", base + Vector2((index - 3) * 115, -95 - (index % 3) * 52), 0.28 / speed)
+		timeline.parallel().tween_property(node, "color:a", 0.0, 0.30 / speed).set_delay(0.13 / speed)
 
-func _play_flash() -> void:
-	var flash_time := 0.055 / _playback_speed
-	_active_tween.parallel().tween_property(flash_overlay, "color:a", _flash_for_strength(), flash_time)
-	_active_tween.parallel().tween_property(radial_burst_near, "modulate:a", radial_burst_near.modulate.a * 0.55, 0.09 / _playback_speed)
-	_active_tween.tween_property(flash_overlay, "color:a", 0.0, 0.10 / _playback_speed)
-	_shake_power = _shake_for_strength() * 0.7
-	_shake_end_msec = Time.get_ticks_msec() + int(0.13 / _playback_speed * 1000.0)
+func _emit_standoff_embers(timeline: Tween, speed: float) -> void:
+	for index in range(7, _effect_nodes.size()):
+		var node := _effect_nodes[index]
+		var base: Vector2 = _effect_base_positions[node.get_path()]
+		timeline.parallel().tween_property(node, "color:a", 0.42, 0.16 / speed)
+		timeline.parallel().tween_property(node, "position", base + Vector2(-24 + index * 12, -76), 0.62 / speed)
+		timeline.parallel().tween_property(node, "color:a", 0.0, 0.24 / speed).set_delay(0.52 / speed)
 
-func _play_exit_effects(exit_time: float) -> void:
-	for burst in [radial_burst, radial_burst_near, radial_burst_far]:
-		_active_tween.parallel().tween_property(burst, "modulate:a", 0.0, exit_time)
-	for line in _speed_lines:
-		_active_tween.parallel().tween_property(line, "color:a", 0.0, exit_time)
-	for particle in _particle_nodes:
-		_active_tween.parallel().tween_property(particle, "color:a", 0.0, exit_time * 0.72)
-	_active_tween.parallel().tween_property(hero_name_panel, "modulate:a", 0.0, exit_time)
-	_active_tween.parallel().tween_property(skill_name_panel, "modulate:a", 0.0, exit_time)
-	_active_tween.parallel().tween_property(dim_overlay, "color:a", 0.0, exit_time)
+func _fade_environment(timeline: Tween, duration: float) -> void:
+	for burst in [back_light_burst, back_light_burst_near, back_light_burst_far]:
+		timeline.parallel().tween_property(burst, "modulate:a", 0.0, duration)
+	for effect_node in _effect_nodes:
+		timeline.parallel().tween_property(effect_node, "color:a", 0.0, duration * 0.65)
+	timeline.parallel().tween_property(dim_overlay, "color:a", 0.0, duration)
 
-func _flash_for_strength() -> float:
-	if _strength < 0.8:
-		return subtle_flash_alpha
-	if _strength > 1.2:
-		return intense_flash_alpha
-	return default_flash_alpha
+func _impact_shake(strength: float, duration: float) -> void:
+	if is_instance_valid(_shake_tween):
+		_shake_tween.kill()
+	cutin_root.position = _cutin_root_base_position
+	_shake_tween = create_tween()
+	var half_duration := duration * 0.5
+	_shake_tween.tween_property(cutin_root, "position", _cutin_root_base_position + Vector2(strength, -strength * 0.45), half_duration * 0.25)
+	_shake_tween.tween_property(cutin_root, "position", _cutin_root_base_position + Vector2(-strength * 0.7, strength * 0.35), half_duration * 0.35)
+	_shake_tween.tween_property(cutin_root, "position", _cutin_root_base_position, half_duration * 1.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
-func _shake_for_strength() -> float:
-	if _strength < 0.8:
-		return subtle_shake
-	if _strength > 1.2:
-		return intense_shake
-	return default_shake
+func _new_tween() -> Tween:
+	var timeline := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_active_tweens.append(timeline)
+	return timeline
 
 func _finish_playback() -> void:
 	_playing = false
-	_reset_stage()
+	_reset_visual_state()
+	cutin_finished.emit()
 	if loop_toggle.button_pressed:
 		_loop_timer = get_tree().create_timer(loop_delay / maxf(_playback_speed, 0.01))
 		_loop_timer.timeout.connect(func() -> void:
@@ -232,37 +225,36 @@ func _finish_playback() -> void:
 				play_cutin())
 
 func _stop_active_playback() -> void:
-	if is_instance_valid(_active_tween):
-		_active_tween.kill()
-	_active_tween = null
+	for timeline in _active_tweens:
+		if is_instance_valid(timeline):
+			timeline.kill()
+	_active_tweens.clear()
+	if is_instance_valid(_shake_tween):
+		_shake_tween.kill()
+	_shake_tween = null
 	_loop_timer = null
 	_playing = false
-	_shake_end_msec = 0
 
-func _reset_stage() -> void:
-	cutin_stage_reset()
-	control_panel.show()
-
-func cutin_stage_reset() -> void:
-	cutin_stage.position = _stage_base_position
+func _reset_visual_state() -> void:
+	cutin_root.position = _cutin_root_base_position
 	dim_overlay.color.a = 0.0
-	foreground_hero.position = foreground_rest_position
-	foreground_hero.scale = Vector2.ONE
-	foreground_hero.modulate.a = 0.0
-	background_image.position = background_rest_position
-	background_image.scale = Vector2.ONE
+	hero_portrait.position = hero_rest_position
+	hero_portrait.scale = Vector2.ONE
+	hero_portrait.modulate.a = 0.0
+	background_image.position = Vector2(-28, 8)
+	background_image.scale = Vector2(1.085, 1.085)
 	background_image.modulate.a = 0.0
 	background_image.visible = not _mode_foreground
-	foreground_hero.visible = _mode_foreground
-	for burst in [radial_burst, radial_burst_near, radial_burst_far]:
+	for burst in [back_light_burst, back_light_burst_near, back_light_burst_far]:
 		burst.scale = Vector2.ONE
+		burst.rotation = 0.0
 		burst.modulate.a = 0.0
-	for line in _speed_lines:
-		line.color.a = 0.0
-		line.position = _effect_base_positions.get(line.get_path(), Vector2.ZERO)
-	for particle in _particle_nodes:
-		particle.color.a = 0.0
-		particle.position = _effect_base_positions.get(particle.get_path(), Vector2.ZERO)
-	hero_name_panel.modulate.a = 0.0
-	skill_name_panel.modulate.a = 0.0
+	title_container.position = title_rest_position
+	title_container.scale = title_start_scale if _mode_foreground else title_rest_scale
+	title_container.modulate.a = 0.0
+	accent_line.color.a = 0.0
+	for effect_node in _effect_nodes:
+		effect_node.position = _effect_base_positions.get(effect_node.get_path(), Vector2.ZERO)
+		effect_node.color.a = 0.0
 	flash_overlay.color.a = 0.0
+	control_panel.show()
