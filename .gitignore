@@ -14,6 +14,11 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# Python tooling caches
+__pycache__/
+*.py[cod]
+
 agent/LOCAL_ENV.md
 tools/ffmpeg/
 assets/video_test/theora_safe/godot_*frame*.png
