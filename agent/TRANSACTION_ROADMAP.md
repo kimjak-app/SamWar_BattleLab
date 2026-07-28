@@ -2,41 +2,40 @@
 
 ## Active
 
-### T06 Hero Stats, Initial Loyalty & WorldMap UI Integration
+### T06-7 Hero Unique Skills & Shared Momentum
 
-Status: `IMPLEMENTED / USER GODOT QA PENDING`.
+Status: `IMPLEMENTED / RUNTIME STATIC VALIDATION PASS / USER GODOT QA PENDING`.
 
-This is one complete user-facing transaction covering final fixed stats, initial loyalty, mutable runtime loyalty, save compatibility, and five-stat WorldMap UI display.
+This is one complete playable transaction covering side-shared momentum, all 39 canonical unique skills, player UI, AI use, logs, and battle save/resume.
 
 Implemented scope:
 
-- 39 final fixed-stat records regenerated from the official workbook
-- 39 `initial_loyalty` definitions
-- new-game seed migration into legacy hero definitions
-- runtime fixed-stat migration with current loyalty preservation
-- compatibility aliases for legacy `command` and `war`
-- five-stat UI normalization: `지휘 / 무 / 지 / 정 / 충`
-- hero list/detail/deployment label coverage through the common generated stat-line pattern
-- static integration validator and transaction document
+- shared momentum start `2`, cap `6`, basic-attack gain `+1`
+- commit-only skill cost with cancel/failure no-charge behavior
+- 39 effect types mapped into ten resolver archetypes
+- canonical Registry → Factory → BattleUnit → Resolver direction
+- player momentum/cost UI and effect/resource logs
+- AI resolver scoring under identical resource/target rules
+- battle runtime snapshot save/restore/clear lifecycle
+- runtime validator and GDScript transaction smoke
 
 Exit gate:
 
-- `python tools/validate_hero_design_registry.py` PASS
-- `python tools/validate_hero_battle_profile_integration.py` PASS
-- `python tools/validate_hero_worldmap_stat_integration.py` PASS
+- `python tools/validate_t06_t07_playable_transaction.py` PASS
 - Godot parse/F5 PASS
-- new-game values match the final workbook
-- hero list/detail/invasion-defense deployment use the five-stat format
-- save/load preserves changed current loyalty
-- battle entry/return and profile movement/range remain normal
+- 39-skill resolver smoke PASS
+- player/AI gain, spend, cancel, invalid target, and insufficient resource behavior normal
+- battle save/resume roundtrip normal
 - no new parse error or warning
 
 Protected scope:
 
 - WorldMap city/faction/troop/settlement behavior
 - BattleContext and battle result accounting
-- current runtime loyalty is never reset by initial loyalty during load migration
-- role passives, momentum, new unique-skill execution, AI skill use, VFX, and sound remain inactive
+- T01–T05 WorldMap and result accounting
+- final workbook-derived hero JSON remains unchanged
+- existing cutin/VFX presentation is reused
+- sound remains inactive
 
 ## Complete
 
@@ -55,12 +54,12 @@ After the current integration passes, the next transaction must activate a compl
 
 Candidate next set:
 
-- six-unit combat passives
-- eight primary-role passives
-- visible UI/log evidence
-- balance safeguards and integrated battle QA
+- T06-7 Godot/F6 correction-only QA
+- missing 39-hero cutin assets and video/light-burst presentation comparison
+- six-unit and eight-role combat passives
+- cooperative attacks and VFX expansion
 
-Momentum, 39 new unique skills, AI skill use, cutins, cooperative attacks, and VFX follow later complete transactions. Sound effects remain the final polish step.
+Sound effects remain the final polish step.
 
 ## Later
 
