@@ -3,7 +3,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = ROOT / 'scripts/battle_web_import_test.gd'
-text = PATH.read_text(encoding='utf-8')
+raw = PATH.read_bytes()
+newline = '\r\n' if b'\r\n' in raw else '\n'
+text = raw.decode('utf-8').replace('\r\n', '\n')
 
 if 'var momentum_feedback_label: Label = null' not in text:
     text = text.replace(
@@ -103,10 +105,10 @@ func _show_runtime_momentum_delta(ally_value: int, enemy_value: int) -> void:
 '''
 
 if 'func _ensure_runtime_momentum_hud() -> void:' not in text:
-    text = text.rstrip() + helpers + '\n'
+    text = text.rstrip('\n') + helpers + '\n'
 
-text = '\n'.join(line.rstrip() for line in text.splitlines()) + '\n'
-PATH.write_text(text, encoding='utf-8')
+out = text if newline == '\n' else text.replace('\n', '\r\n')
+PATH.write_bytes(out.encode('utf-8'))
 
 validator = ROOT / 'tools/validate_t06_t07_playable_transaction.py'
 v = validator.read_text(encoding='utf-8')
