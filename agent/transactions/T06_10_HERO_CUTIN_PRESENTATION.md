@@ -47,7 +47,8 @@
 - `cheok_jun_gyeong_cutin_source_04s.mp4` is preserved; its 1920×1080 H.264/AAC source was converted to the existing q8 Theora/Vorbis convention at `assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1920x.ogv`.
 - The standalone F6 scene uses the existing 1014×415 centered video-cut-in rect, clips the 16:9 video to its stage, and leaves video colour, brightness, alpha, and scale unfiltered.
 - The preview reads canonical `cheok_jun_gyeong` skill metadata for `검왕돌파`, with a left-side `척준경` support title and impact/settle/exit title choreography. It does not alter battle integration or the Gwanggaeto preview.
-- q10 Theora (q:v 10, GOP 30, Vorbis q:a 5) is the default comparison target; legacy q8 remains selectable. A VP9 CRF16/Opus WebM comparison file was generated, but this Godot build returns `No loader found` for WebM `VideoStream`, so it is deliberately not connected to the preview.
+- The 1080p q8 Theora comparison reproduces the user-reported block/corruption issue. A separately encoded 1280×720 q8 Theora (`q:v 8`, GOP 60, Vorbis `q:a 4`) passes complete FFmpeg decode validation and a 1-second PNG frame extraction, and is the preview's default stream. The selector presents only `1080p q8 Theora` and `720p q8 Theora (verified)` using the identical player rect, crop, position, and speed.
+- The earlier q10 Theora and VP9 CRF16/Opus WebM comparison files remain preserved for codec research, but are not the default playback target. This Godot build returns `No loader found` for the VP9 WebM `VideoStream`, so it remains deliberately disconnected.
 
 ## Explicitly Deferred
 

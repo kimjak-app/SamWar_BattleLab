@@ -4,8 +4,8 @@ const HERO_ID := "cheok_jun_gyeong"
 const FALLBACK_HERO_NAME := "척준경"
 const FALLBACK_SKILL_NAME := "검왕돌파"
 const QUALITY_STREAMS := [
-	["q8 Theora (legacy)", "res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1920x.ogv"],
-	["q10 Theora (default)", "res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q10_1920x.ogv"],
+	["1080p q8 Theora", "res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1920x.ogv"],
+	["720p q8 Theora (verified)", "res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1280x720_verified.ogv"],
 ]
 @export var full_video_duration := 4.01
 @export var loop_delay := 0.35
@@ -42,6 +42,8 @@ func _ready() -> void:
 	speed_100.pressed.connect(func() -> void: _set_speed(1.0))
 	speed_125.pressed.connect(func() -> void: _set_speed(1.25))
 	for entry in QUALITY_STREAMS: quality_selector.add_item(String(entry[0]))
+	# The verified 720p stream is the default comparison target. Both choices
+	# retain the same CutinStage player rect, crop, position, and speed.
 	quality_selector.select(1)
 	quality_selector.item_selected.connect(_select_quality_stream)
 	video_only_toggle.toggled.connect(func(_enabled: bool) -> void: _reset())
