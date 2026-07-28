@@ -25,6 +25,7 @@ jobs:
           cp scripts/battle_unit_state.gd audit/
           cp scripts/game_session.gd audit/
           cp scripts/battle/battle_runtime_snapshot.gd audit/
+          cp scripts/worldmap/worldmap_main.gd audit/
           for f in scripts/worldmap_test.gd scripts/battle_web_import_test.gd scripts/t02/battle_result_accounting.gd scripts/t02/battle_context.gd; do
             if [ -f "$f" ]; then cp "$f" audit/$(echo "$f" | tr '/' '_'); fi
           done
