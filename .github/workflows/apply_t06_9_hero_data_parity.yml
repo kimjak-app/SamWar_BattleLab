@@ -23,7 +23,21 @@ jobs:
           ref: main
           fetch-depth: 0
       - name: Apply T06-9 parity implementation
-        run: python3 tools/apply_t06_9_hero_data_parity.py
+        run: |
+          set +e
+          python3 tools/apply_t06_9_hero_data_parity.py > t06_9_apply.log 2>&1
+          code=$?
+          cat t06_9_apply.log
+          echo $code > t06_9_apply.exit
+          exit $code
+      - name: Upload apply diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: t06-9-apply-diagnostics
+          path: |
+            t06_9_apply.log
+            t06_9_apply.exit
       - name: Validate protected contracts
         run: |
           python3 tools/validate_hero_design_registry.py
