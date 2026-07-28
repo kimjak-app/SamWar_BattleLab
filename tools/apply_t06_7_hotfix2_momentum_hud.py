@@ -15,11 +15,7 @@ ready_anchor = 'func _ready() -> void:\n'
 if '_ensure_runtime_momentum_hud()' not in text:
     if ready_anchor not in text:
         raise SystemExit('missing _ready')
-    text = text.replace(
-        ready_anchor,
-        ready_anchor + '\t_ensure_runtime_momentum_hud()\n',
-        1,
-    )
+    text = text.replace(ready_anchor, ready_anchor + '\t_ensure_runtime_momentum_hud()\n', 1)
 
 helpers = r'''
 
@@ -109,6 +105,7 @@ func _show_runtime_momentum_delta(ally_value: int, enemy_value: int) -> void:
 if 'func _ensure_runtime_momentum_hud() -> void:' not in text:
     text = text.rstrip() + helpers + '\n'
 
+text = '\n'.join(line.rstrip() for line in text.splitlines()) + '\n'
 PATH.write_text(text, encoding='utf-8')
 
 validator = ROOT / 'tools/validate_t06_t07_playable_transaction.py'
@@ -117,8 +114,6 @@ needle = 'require(errors, "기세 %d" in battle and "AllyMomentumLabel" in battl
 replacement = 'require(errors, "AllyMomentumLabel" in battle and "EnemyMomentumLabel" in battle and "MomentumFeedbackLabel" in battle and "MomentumHudRefreshTimer" in battle,\n            "persistent momentum HUD or spend feedback missing")'
 if needle in v:
     v = v.replace(needle, replacement)
-elif 'persistent momentum HUD or spend feedback missing' not in v:
-    v += '\n'
 validator.write_text(v, encoding='utf-8')
 
 print('T06-7-hotfix2 momentum HUD applied')
