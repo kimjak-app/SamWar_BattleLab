@@ -36,6 +36,7 @@
 - `assets/battle/cutins/common/vfx/red_burst_backlight_01.ogv` is a 1280×720, video-only Theora conversion that preserves the Grok source resolution and is the Mode A playback target. The 16:9 player fits the 1152×648 viewport without crop or zoom; hero PNG and title remain separate Godot layers.
 - Mode A seeks to the selected burst segment before every play, then layers the large foreground PNG and pivot-centered canonical skill title over the red video background.
 - Replay, Escape, mode switches, completion, and auto-loop stop/reset the video player together with the visual tween state. Mode B remains the still-background comparison path.
+- Mode A keeps the native-scale 16:9 video center-aligned and shifts the hero's final authored position left so the face and breastplate, rather than the PNG bounding box, align with the screen and burst center. The final flash now fades within 0.09 seconds.
 
 ## Explicitly Deferred
 

@@ -12,11 +12,11 @@ const FALLBACK_SKILL_NAME := "영락대제"
 @export var hero_enter_duration := 0.30
 @export var title_burst_duration := 0.19
 @export var standoff_duration := 0.82
-@export var flash_duration := 0.16
+@export var flash_duration := 0.09
 @export var exit_duration := 0.30
 @export var loop_delay := 0.35
 @export_group("Mode A scene-authored composition")
-@export var hero_rest_position := Vector2(28, -34)
+@export var hero_rest_position := Vector2(-82, -34)
 @export var hero_enter_offset := Vector2(185, 16)
 @export var hero_rest_scale := 1.055
 @export var hero_standoff_scale := 1.085
@@ -25,7 +25,7 @@ const FALLBACK_SKILL_NAME := "영락대제"
 @export var title_start_scale := Vector2(0.20, 0.20)
 @export var title_rest_position := Vector2(42, 224)
 @export var title_exit_offset := Vector2(-72, 0)
-@export var flash_alpha := 0.62
+@export var flash_alpha := 0.54
 @export_group("Video-backed Mode A")
 @export var video_start_time := 0.42
 
