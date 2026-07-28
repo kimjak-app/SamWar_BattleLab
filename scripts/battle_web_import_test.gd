@@ -4072,14 +4072,24 @@ func _get_unique_skill_range_cells(caster_state: BattleUnitState, skill_data: Di
 			cells.append(cell)
 	return cells
 
-
 func _get_unique_skill_valid_targets(caster_state: BattleUnitState, skill_data: Dictionary) -> Array[BattleUnitState]:
+	if caster_state == null or skill_data.is_empty():
+		return []
+	var target_mode := String(skill_data.get("target_mode", ""))
+	if target_mode == "self_area":
+		var result: Array[BattleUnitState] = []
+		var radius := maxi(int(skill_data.get("radius", 0)), 0)
+		for unit_state in _get_all_alive_unit_states_from_adapter():
+			if unit_state == null or unit_state.side != caster_state.side:
+				continue
+			if get_unit_grid_distance(caster_state, unit_state) <= radius:
+				result.append(unit_state)
+		return result
 	return BattleSkillResolverScript.get_valid_primary_targets(
 		caster_state,
 		skill_data,
 		_get_all_alive_unit_states_from_adapter()
 	)
-
 
 func _is_valid_unique_skill_target(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> bool:
 	if target_state == null or not target_state.is_alive():
@@ -4231,7 +4241,6 @@ func _get_unique_skill_clicked_target_at_position(mouse_world_pos: Vector2) -> B
 	if _is_valid_unique_skill_target(unique_skill_targeting_caster_state, unique_skill_targeting_skill_data, clicked_target):
 		return clicked_target
 	return null
-
 
 func _try_use_unique_skill_on_target(target_state: BattleUnitState) -> void:
 	if current_phase != PHASE_UNIQUE_SKILL_TARGET_SELECT:
