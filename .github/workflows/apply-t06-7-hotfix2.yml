@@ -6,6 +6,10 @@ on:
     paths:
       - '.github/workflows/apply-t06-7-hotfix2.yml'
       - 'tools/apply_t06_7_hotfix2_momentum_hud.py'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/hotfix-triggers/t06-7-hotfix2'
   workflow_dispatch:
 
 permissions:
