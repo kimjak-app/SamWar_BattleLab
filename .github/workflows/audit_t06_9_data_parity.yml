@@ -1,0 +1,34 @@
+name: Audit T06-9 Data Parity
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/hotfix-triggers/t06-9-data-parity-audit'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Collect parity paths
+        run: |
+          mkdir -p audit
+          grep -R -n "build_battle_unit_payload\|build_runtime_hero\|BattleContext\|battle_context\|battle_result\|injury_state\|assigned_city_id\|location_city_id\|current_troops\|max_troops\|save_game\|load_game\|migrate_saved_payload" scripts data agent | head -3000 > audit/parity_locations.txt || true
+          find scripts -type f \( -name '*.gd' -o -name '*.json' \) | sort > audit/files.txt
+          cp scripts/worldmap/hero_runtime_factory.gd audit/
+          cp scripts/battle_unit_state.gd audit/
+          cp scripts/game_session.gd audit/
+          cp scripts/battle/battle_runtime_snapshot.gd audit/
+          for f in scripts/worldmap_test.gd scripts/battle_web_import_test.gd scripts/t02/battle_result_accounting.gd scripts/t02/battle_context.gd; do
+            if [ -f "$f" ]; then cp "$f" audit/$(echo "$f" | tr '/' '_'); fi
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: t06-9-data-parity-audit
+          path: audit
