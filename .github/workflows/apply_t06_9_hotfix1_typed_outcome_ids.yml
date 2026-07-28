@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - '.github/hotfix-triggers/t06-9-hotfix1-typed-outcome-ids'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/hotfix-triggers/t06-9-hotfix1-typed-outcome-ids'
 
 permissions:
   contents: write
