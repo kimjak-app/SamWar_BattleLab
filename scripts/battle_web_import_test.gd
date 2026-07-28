@@ -3466,7 +3466,7 @@ func _enter_unique_skill_target_select_mode(caster_state: BattleUnitState, skill
 
 
 func _should_unique_skill_resolve_without_manual_target(skill_data: Dictionary) -> bool:
-	return ["self", "self_area", "self_area_enemy", "enemy_adjacent"].has(String(skill_data.get("target_mode", "")))
+	return ["self", "self_area_enemy", "enemy_adjacent"].has(String(skill_data.get("target_mode", "")))
 
 
 func _begin_manual_unique_skill_preview(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> void:
@@ -4224,7 +4224,7 @@ func _get_unique_skill_clicked_target_at_position(mouse_world_pos: Vector2) -> B
 		return null
 	var target_mode := String(unique_skill_targeting_skill_data.get("target_mode", ""))
 	var clicked_target: BattleUnitState = null
-	if target_mode == "ally_area":
+	if target_mode == "ally_area" or target_mode == "self_area":
 		clicked_target = _get_clicked_ally_unit_at_position(mouse_world_pos)
 	else:
 		clicked_target = _get_clicked_enemy_unit_at_position(mouse_world_pos)
