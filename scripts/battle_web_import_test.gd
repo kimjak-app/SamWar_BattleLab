@@ -6172,8 +6172,8 @@ func _gain_momentum_for_basic_attack(attacker: BattleUnitState) -> void:
 	var gained := battle_momentum.record_basic_attack(attacker.side)
 	var defending_side := "enemy" if attacker.side == "ally" else "ally"
 	var lost := battle_momentum.record_received_hit(defending_side, false, "basic_attack_hit")
-		_append_battle_log("%s 기본공격 성공: 기세 +%d" % [attacker.display_name, gained])
-		_append_battle_log("%s 피격: 진영 기세 -%d" % [defending_side, lost])
+	_append_battle_log("%s 기본공격 성공: 기세 +%d" % [attacker.display_name, gained])
+	_append_battle_log("%s 피격: 진영 기세 -%d" % [defending_side, lost])
 	_refresh_momentum_ui()
 
 
