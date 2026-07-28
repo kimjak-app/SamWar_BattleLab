@@ -9103,7 +9103,10 @@ func _apply_t02_player_attack_result(result: Dictionary) -> void:
 	if attacker_won:
 		_add_t02_attacker_cargo_to_city(target_city_id, result)
 	if attacker_general_ids.is_empty():
-		attacker_general_ids = attacker_hero_outcomes.keys()
+		for hero_id_variant in attacker_hero_outcomes.keys():
+			var fallback_hero_id := str(hero_id_variant)
+			if not fallback_hero_id.is_empty() and not attacker_general_ids.has(fallback_hero_id):
+				attacker_general_ids.append(fallback_hero_id)
 	for hero_id_variant in attacker_general_ids:
 		var hero_id := str(hero_id_variant)
 		if hero_id.is_empty():
