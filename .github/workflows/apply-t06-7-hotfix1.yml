@@ -46,8 +46,25 @@ jobs:
       - name: Validate runtime authority
         run: python3 tools/validate_hero_runtime_authority.py
 
-      - name: Validate T06-7 playable transaction
-        run: python3 tools/validate_t06_t07_playable_transaction.py
+      - name: Capture T06-7 validator diagnostics
+        run: |
+          set +e
+          python3 tools/validate_t06_t07_playable_transaction.py > t06-validator.log 2>&1
+          status=$?
+          echo "$status" > t06-validator.status
+          cat t06-validator.log
+          exit 0
+
+      - name: Upload validator diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: t06-validator-diagnostics
+          path: |
+            t06-validator.log
+            t06-validator.status
+
+      - name: Enforce T06-7 validator result
+        run: test "$(cat t06-validator.status)" = "0"
 
       - name: Check diff
         run: git diff --check
