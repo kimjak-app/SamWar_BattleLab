@@ -1,0 +1,26 @@
+name: Audit T06-7 Range Overlay
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/hotfix-triggers/t06-7-range-overlay-audit'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Print overlay functions
+        run: |
+          FILE=scripts/battle_web_import_test.gd
+          for NAME in _show_unique_skill_range_overlay _hide_unique_skill_range_overlay _create_unique_skill; do
+            grep -n "func $NAME" "$FILE" || true
+          done
+          N=$(grep -n 'func _show_unique_skill_range_overlay' "$FILE" | head -1 | cut -d: -f1)
+          if [ -n "$N" ]; then START=$((N-10)); END=$((N+180)); sed -n "${START},${END}p" "$FILE"; fi
