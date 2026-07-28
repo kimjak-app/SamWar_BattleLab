@@ -2753,6 +2753,17 @@
 - Reused existing token textures and hero visual fallback data for troop icon rendering.
 - No battle logic change intended.
 
+# T06-7 Hero Unique Skills & Shared Momentum Playable Transaction
+
+- Added side-shared momentum with start `2`, cap `6`, and successful basic-attack gain `+1`.
+- Added data-driven `BattleSkillResolver` coverage for all 39 canonical skills through ten archetypes.
+- Connected canonical skill definitions through `HeroRuntimeFactory` and `BattleUnitState`.
+- Connected commit-only player skill use, per-hero cost UI, shared-pool UI, no-charge failure/cancel logs, and actual effect commands.
+- Replaced AI legacy-effect scoring with resolver-plan scoring under identical momentum rules.
+- Added persistent battle runtime snapshots and matching battle-ID restore/clear lifecycle.
+- Added T06-7 runtime validator, all-39 resolver smoke, momentum transaction smoke, and snapshot roundtrip smoke.
+- Final generated hero JSON was not edited.
+
 ## v0.67u Formation Slot Guide Layout MVP
 - Hid/deprecated the large legacy `LeftPanel` and `RightPanel` info panels.
 - Added `BattleMiniLogPanel`.
