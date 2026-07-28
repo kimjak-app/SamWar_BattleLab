@@ -3,6 +3,10 @@ extends Control
 const HERO_ID := "cheok_jun_gyeong"
 const FALLBACK_HERO_NAME := "척준경"
 const FALLBACK_SKILL_NAME := "검왕돌파"
+const QUALITY_STREAMS := [
+	["q8 Theora (legacy)", "res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1920x.ogv"],
+	["q10 Theora (default)", "res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q10_1920x.ogv"],
+]
 @export var full_video_duration := 4.01
 @export var loop_delay := 0.35
 
@@ -13,6 +17,8 @@ const FALLBACK_SKILL_NAME := "검왕돌파"
 @onready var accent_line: ColorRect = $CutinStage/TitleRoot/AccentLine
 @onready var controls: Panel = $PreviewControls
 @onready var loop_toggle: CheckButton = $PreviewControls/Row/LoopToggle
+@onready var quality_selector: OptionButton = $PreviewControls/Row/QualitySelector
+@onready var video_only_toggle: CheckButton = $PreviewControls/Row/VideoOnlyToggle
 @onready var play_button: Button = $PreviewControls/Row/PlayButton
 @onready var replay_button: Button = $PreviewControls/Row/ReplayButton
 @onready var speed_075: Button = $PreviewControls/Row/Speed075Button
@@ -35,6 +41,21 @@ func _ready() -> void:
 	speed_075.pressed.connect(func() -> void: _set_speed(0.75))
 	speed_100.pressed.connect(func() -> void: _set_speed(1.0))
 	speed_125.pressed.connect(func() -> void: _set_speed(1.25))
+	for entry in QUALITY_STREAMS: quality_selector.add_item(String(entry[0]))
+	quality_selector.select(1)
+	quality_selector.item_selected.connect(_select_quality_stream)
+	video_only_toggle.toggled.connect(func(_enabled: bool) -> void: _reset())
+	_reset()
+
+func _select_quality_stream(index: int) -> void:
+	if index < 0 or index >= QUALITY_STREAMS.size(): return
+	_stop()
+	var loaded := ResourceLoader.load(String(QUALITY_STREAMS[index][1]))
+	if loaded is VideoStream:
+		video.stream = loaded
+	else:
+		push_warning("[CHEOK_CUTIN_PREVIEW] unsupported comparison stream: %s" % QUALITY_STREAMS[index][1])
+		quality_selector.select(1)
 	_reset()
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -59,6 +80,10 @@ func play_cutin() -> void:
 	video.play()
 	_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_tween.tween_interval(0.40 / _speed)
+	if video_only_toggle.button_pressed:
+		_tween.tween_interval(full_video_duration / _speed)
+		_tween.tween_callback(_finish)
+		return
 	title_root.position = _title_base_position + Vector2(-42, 0)
 	_tween.parallel().tween_property(title_root, "modulate:a", 1.0, 0.12 / _speed)
 	_tween.parallel().tween_property(title_root, "position", _title_base_position, 0.12 / _speed)

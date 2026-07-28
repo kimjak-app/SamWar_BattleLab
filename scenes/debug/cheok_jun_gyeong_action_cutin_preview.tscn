@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug/cheok_jun_gyeong_action_cutin_preview.gd" id="1_script"]
 [ext_resource type="VideoStream" path="res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1920x.ogv" id="2_video"]
+[ext_resource type="VideoStream" path="res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q10_1920x.ogv" id="3_q10"]
 
 [sub_resource type="StyleBoxFlat" id="StylePanel"]
 bg_color = Color(0.02, 0.025, 0.035, 0.94)
@@ -57,7 +58,7 @@ layout_mode = 0
 offset_top = -77.5
 offset_right = 1014.0
 offset_bottom = 492.5
-stream = ExtResource("2_video")
+stream = ExtResource("3_q10")
 expand = true
 modulate = Color(1, 1, 1, 1)
 self_modulate = Color(1, 1, 1, 1)
@@ -156,6 +157,14 @@ theme_override_styles/normal = SubResource("StyleButton")
 [node name="LoopToggle" type="CheckButton" parent="PreviewControls/Row"]
 layout_mode = 2
 text = "자동 반복"
+
+[node name="QualitySelector" type="OptionButton" parent="PreviewControls/Row"]
+custom_minimum_size = Vector2(175, 0)
+layout_mode = 2
+
+[node name="VideoOnlyToggle" type="CheckButton" parent="PreviewControls/Row"]
+layout_mode = 2
+text = "순수 영상"
 
 [node name="Spacer" type="Control" parent="PreviewControls/Row"]
 layout_mode = 2
