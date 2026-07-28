@@ -6178,30 +6178,31 @@ func _gain_momentum_for_basic_attack(attacker: BattleUnitState) -> void:
 
 
 func _configure_momentum_ui() -> void:
+	_remove_legacy_top_bar_background()
+	_refresh_runtime_momentum_hud()
+
+
+func _remove_legacy_top_bar_background() -> void:
 	var top_bar := get_node_or_null("BattleUI/TopBar") as Control
 	if top_bar == null:
 		return
-	momentum_ally_label = Label.new()
-	momentum_ally_label.name = "AllyMomentumLabel"
-	momentum_ally_label.position = Vector2(24.0, 10.0)
-	momentum_ally_label.size = Vector2(260.0, 42.0)
-	momentum_ally_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	momentum_ally_label.add_theme_font_size_override("font_size", 22)
-	momentum_ally_label.add_theme_color_override("font_color", Color(0.45, 0.78, 1.0, 1.0))
-	momentum_ally_label.add_theme_color_override("font_outline_color", Color(0.01, 0.02, 0.04, 0.95))
-	momentum_ally_label.add_theme_constant_override("outline_size", 3)
-	top_bar.add_child(momentum_ally_label)
-	momentum_enemy_label = Label.new()
-	momentum_enemy_label.name = "EnemyMomentumLabel"
-	momentum_enemy_label.position = Vector2(top_bar.size.x - 284.0, 10.0)
-	momentum_enemy_label.size = Vector2(260.0, 42.0)
-	momentum_enemy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	momentum_enemy_label.add_theme_font_size_override("font_size", 22)
-	momentum_enemy_label.add_theme_color_override("font_color", Color(1.0, 0.48, 0.42, 1.0))
-	momentum_enemy_label.add_theme_color_override("font_outline_color", Color(0.04, 0.01, 0.01, 0.95))
-	momentum_enemy_label.add_theme_constant_override("outline_size", 3)
-	top_bar.add_child(momentum_enemy_label)
-	_refresh_momentum_ui()
+	if top_bar is ColorRect:
+		var top_bar_color := (top_bar as ColorRect).color
+		top_bar_color.a = 0.0
+		(top_bar as ColorRect).color = top_bar_color
+	elif top_bar is Panel:
+		(top_bar as Panel).add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	elif top_bar is PanelContainer:
+		(top_bar as PanelContainer).add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	for child in top_bar.get_children():
+		if child is ColorRect:
+			var child_color := (child as ColorRect).color
+			child_color.a = 0.0
+			(child as ColorRect).color = child_color
+		elif child is Panel:
+			(child as Panel).add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+		elif child is PanelContainer:
+			(child as PanelContainer).add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 
 
 func _refresh_momentum_ui() -> void:
