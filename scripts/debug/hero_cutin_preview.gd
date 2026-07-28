@@ -26,9 +26,12 @@ const FALLBACK_SKILL_NAME := "영락대제"
 @export var title_rest_position := Vector2(42, 224)
 @export var title_exit_offset := Vector2(-72, 0)
 @export var flash_alpha := 0.62
+@export_group("Video-backed Mode A")
+@export var video_start_time := 0.42
 
 @onready var cutin_root: Control = $CutinRoot
 @onready var dim_overlay: ColorRect = $CutinRoot/DimOverlay
+@onready var video_background_player: VideoStreamPlayer = $CutinRoot/VideoBackgroundPlayer
 @onready var background_image: TextureRect = $CutinRoot/BackgroundImage
 @onready var back_light_burst: TextureRect = $CutinRoot/BackLightBurst
 @onready var back_light_burst_near: TextureRect = $CutinRoot/BackLightBurstNear
@@ -119,12 +122,14 @@ func play_cutin() -> void:
 
 func _play_duel_style_foreground() -> void:
 	var speed := maxf(_playback_speed, 0.01)
+	_prepare_video_background()
 	var timeline := _new_tween()
-	# Phase 1: immediate black-red ignition and backlight pressure.
-	timeline.parallel().tween_property(dim_overlay, "color:a", 0.72, ignite_duration / speed)
-	timeline.parallel().tween_property(back_light_burst, "modulate:a", 0.78, ignite_duration / speed)
-	timeline.parallel().tween_property(back_light_burst_near, "modulate:a", 0.52, ignite_duration / speed)
-	timeline.parallel().tween_property(back_light_burst_far, "modulate:a", 0.30, ignite_duration / speed)
+	# Phase 1: video-backed black-red ignition and restrained supplemental backlight.
+	timeline.parallel().tween_property(dim_overlay, "color:a", 0.30, ignite_duration / speed)
+	timeline.parallel().tween_property(video_background_player, "modulate:a", 1.0, ignite_duration / speed)
+	timeline.parallel().tween_property(back_light_burst, "modulate:a", 0.24, ignite_duration / speed)
+	timeline.parallel().tween_property(back_light_burst_near, "modulate:a", 0.16, ignite_duration / speed)
+	timeline.parallel().tween_property(back_light_burst_far, "modulate:a", 0.10, ignite_duration / speed)
 	timeline.parallel().tween_property(back_light_burst, "scale", Vector2(1.22, 1.22), ignite_duration / speed)
 	timeline.tween_interval(maxf(0.0, hero_delay - ignite_duration) / speed)
 	# Phase 2: the portrait drives in hard from the right and settles with a back ease.
@@ -148,7 +153,7 @@ func _play_duel_style_foreground() -> void:
 	timeline.tween_interval(standoff_duration / speed)
 	# Phase 5: short white-gold decision flash, never an opaque yellow plate.
 	timeline.parallel().tween_property(flash_overlay, "color:a", flash_alpha, 0.045 / speed)
-	timeline.parallel().tween_property(back_light_burst_near, "modulate:a", 0.82, 0.045 / speed)
+	timeline.parallel().tween_property(back_light_burst_near, "modulate:a", 0.48, 0.045 / speed)
 	timeline.tween_callback(func() -> void: _impact_shake(5.0 / speed, 0.12 / speed))
 	timeline.tween_property(flash_overlay, "color:a", 0.0, (flash_duration - 0.045) / speed)
 	# Phase 6: title exits left, portrait exits forward/right, then fully reset.
@@ -175,6 +180,13 @@ func _play_preserved_background() -> void:
 	timeline.parallel().tween_property(dim_overlay, "color:a", 0.0, exit_duration / speed)
 	timeline.tween_callback(_finish_playback)
 
+func _prepare_video_background() -> void:
+	video_background_player.visible = true
+	video_background_player.stop()
+	video_background_player.stream_position = maxf(0.0, video_start_time)
+	video_background_player.play()
+	video_background_player.stream_position = maxf(0.0, video_start_time)
+
 func _emit_title_burst(timeline: Tween, speed: float) -> void:
 	for index in range(7):
 		var node := _effect_nodes[index]
@@ -193,6 +205,7 @@ func _emit_standoff_embers(timeline: Tween, speed: float) -> void:
 		timeline.parallel().tween_property(node, "color:a", 0.0, 0.24 / speed).set_delay(0.52 / speed)
 
 func _fade_environment(timeline: Tween, duration: float) -> void:
+	timeline.parallel().tween_property(video_background_player, "modulate:a", 0.0, duration)
 	for burst in [back_light_burst, back_light_burst_near, back_light_burst_far]:
 		timeline.parallel().tween_property(burst, "modulate:a", 0.0, duration)
 	for effect_node in _effect_nodes:
@@ -238,6 +251,10 @@ func _stop_active_playback() -> void:
 func _reset_visual_state() -> void:
 	cutin_root.position = _cutin_root_base_position
 	dim_overlay.color.a = 0.0
+	video_background_player.stop()
+	video_background_player.stream_position = 0.0
+	video_background_player.modulate.a = 0.0
+	video_background_player.visible = false
 	hero_portrait.position = hero_rest_position
 	hero_portrait.scale = Vector2.ONE
 	hero_portrait.modulate.a = 0.0

@@ -2,7 +2,7 @@
 
 ## Status
 
-`T06-10A DUEL-STYLE MODE A REBUILD IMPLEMENTED / USER VISUAL QA PENDING`
+`T06-10A VIDEO-BACKED PRACTICE PREVIEW IMPLEMENTED / USER VISUAL QA PENDING`
 
 ## T06-10A Scope
 
@@ -29,6 +29,13 @@
 - `CutinRoot` now owns the impact shake and always restores its captured scene position. `HeroPortrait` and the central `TitleContainer` each restore their authored position, scale, alpha, and pivot-centered title state before replay.
 - The canonical skill display name remains read from `HeroDesignDataRegistry`; generated hero data is untouched.
 - Mode B remains a separate restrained full-background path. Strength controls are hidden for this QA so Mode A is evaluated as one fixed composition.
+
+## T06-10A-hotfix4 Video-Backed Practice Preview
+
+- The project convention is `VideoStreamPlayer` with a Theora `.ogv` `VideoStream`; the supplied H.264/AAC MP4 is retained unchanged as the source asset.
+- `assets/battle/cutins/common/vfx/red_burst_backlight_01.ogv` is a 1152×648, video-only Theora conversion of that source and is the Mode A playback target.
+- Mode A seeks to the selected burst segment before every play, then layers the large foreground PNG and pivot-centered canonical skill title over the red video background.
+- Replay, Escape, mode switches, completion, and auto-loop stop/reset the video player together with the visual tween state. Mode B remains the still-background comparison path.
 
 ## Explicitly Deferred
 

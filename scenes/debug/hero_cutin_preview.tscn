@@ -1,8 +1,9 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug/hero_cutin_preview.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/battle/cutins/korea/gwanggaeto/gwanggaeto_cutin_foreground.png" id="2_foreground"]
 [ext_resource type="Texture2D" path="res://assets/battle/cutins/korea/gwanggaeto/gwanggaeto_skill_background.png" id="3_background"]
+[ext_resource type="VideoStream" path="res://assets/battle/cutins/common/vfx/red_burst_backlight_01.ogv" id="4_video"]
 
 [sub_resource type="StyleBoxFlat" id="StylePanel"]
 bg_color = Color(0.025, 0.043, 0.07, 0.94)
@@ -110,6 +111,19 @@ grow_vertical = 2
 texture = SubResource("GradientTextureStage")
 expand_mode = 1
 stretch_mode = 6
+mouse_filter = 2
+
+[node name="VideoBackgroundPlayer" type="VideoStreamPlayer" parent="CutinRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stream = ExtResource("4_video")
+expand = true
+volume_db = -80.0
+modulate = Color(1, 1, 1, 0)
 mouse_filter = 2
 
 [node name="DimOverlay" type="ColorRect" parent="CutinRoot"]
