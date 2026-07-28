@@ -2,43 +2,30 @@
 
 ## Active
 
-### T06-7 Hero Unique Skills & Shared Momentum
+### T06-9 Hero Data Parity
 
-Status: `IMPLEMENTED / RUNTIME STATIC VALIDATION PASS / USER GODOT QA PENDING`.
-
-This is one complete playable transaction covering side-shared momentum, all 39 canonical unique skills, player UI, AI use, logs, and battle save/resume.
+Status: `IMPLEMENTED / STATIC VALIDATION PASS / USER GODOT QA DEFERRED`.
 
 Implemented scope:
 
-- shared momentum start `3`, cap `10`, basic-attack gain `+1`
-- commit-only skill cost with cancel/failure no-charge behavior
-- 39 effect types mapped into ten resolver archetypes
-- canonical Registry → Factory → BattleUnit → Resolver direction
-- player momentum/cost UI and effect/resource logs
-- AI resolver scoring under identical resource/target rules
-- battle runtime snapshot save/restore/clear lifecycle
-- runtime validator and GDScript transaction smoke
+- canonical WorldMap → formation → battle payload authority
+- explicit attacker/defender per-hero battle outcomes
+- defeated participating heroes return wounded instead of remaining orphaned in deployed state
+- surviving heroes return normal with city/faction identity preserved
+- legacy result-payload compatibility
+- mutable last-battle result fields preserved by save migration
 
 Exit gate:
 
+- `python tools/validate_hero_design_registry.py` PASS
 - `python tools/validate_t06_t07_playable_transaction.py` PASS
-- Godot parse/F5 PASS
-- 39-skill resolver smoke PASS
-- player/AI gain, spend, cancel, invalid target, and insufficient resource behavior normal
-- battle save/resume roundtrip normal
-- no new parse error or warning
-
-Protected scope:
-
-- WorldMap city/faction/troop/settlement behavior
-- BattleContext and battle result accounting
-- T01–T05 WorldMap and result accounting
-- final workbook-derived hero JSON remains unchanged
-- existing cutin/VFX presentation is reused
-- sound remains inactive
+- T06-9 parity contract validation PASS
+- Korea MVP F5 save/return QA deferred by user
 
 ## Complete
 
+- T06-8 Unique-Skill Battle Calculation: `IMPLEMENTED / STATIC PASS`
+- T06-7 Hero Unique Skills & Shared Momentum: `IMPLEMENTED`
 - T06-3 Hero Design JSON Parity & Non-Destructive Loader: `COMPLETE`
 - T06-2 Hero Workbook Schema & Validator/Converter: `IMPLEMENTED`
 - T06-1 Hero Data Contract: `DESIGN COMPLETE`
@@ -50,24 +37,27 @@ Protected scope:
 
 ## Next
 
-After the current integration passes, the next transaction must activate a complete playable mechanic set rather than another helper-only milestone.
+### T06-10 Hero Cutin & Battle Presentation
 
-Candidate next set:
+- audit existing 39-hero portrait, title, video, and cutin assets
+- compare video-background and light-burst presentation samples
+- lock shared cutin timing and fallback presentation
+- produce and connect missing Korea MVP hero assets first
+- expand to China/Japan heroes after scenario activation
 
-- T06-7 Godot/F6 correction-only QA
-- missing 39-hero cutin assets and video/light-burst presentation comparison
-- six-unit and eight-role combat passives
-- cooperative attacks and VFX expansion
-
-Sound effects remain the final polish step.
+Correction-only T06-8/T06-9 QA may interrupt this sequence only for confirmed Godot runtime defects.
 
 ## Later
 
-- Tech-tree effect integration expansion
-- Talent discovery and recruitment
+- six-unit and eight-role combat passives
+- cooperative attacks and VFX expansion
+- tech-tree effect integration expansion
+- talent discovery and recruitment
 - China scenario
 - Japan scenario
-- Naval expansion
+- naval expansion
+
+Sound effects remain the final polish stage.
 
 ## Blocked
 
