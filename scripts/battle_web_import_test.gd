@@ -4986,10 +4986,14 @@ func _apply_resolver_skill_plan(caster_state: BattleUnitState, plan: Dictionary)
 			"damage":
 				if target_state == null or not target_state.is_alive():
 					continue
-				var adjusted_damage := _apply_wounded_incoming_damage_penalty(target_state, amount)
+				var damage_flag := String(command.get("status_id", ""))
+				var adjusted_damage := amount if damage_flag == "ignore_defense" else _get_directional_attack_damage(amount, caster_state, target_state, false, false)
+				var was_alive := target_state.is_alive()
 				var applied := target_state.apply_damage(adjusted_damage)
 				if applied <= 0:
 					continue
+				if damage_flag == "advance_on_kill" and was_alive and not target_state.is_alive():
+					_apply_resolver_advance_toward_target(caster_state, target_state)
 				damage_hits += 1
 				var target_pos := _get_visual_anchor_position_for_unit(target_state)
 				_spawn_hit_battle_dust_fx(target_pos)
@@ -5009,6 +5013,10 @@ func _apply_resolver_skill_plan(caster_state: BattleUnitState, plan: Dictionary)
 				var status_turns := int(command.get("turns", 1))
 				if target_state == caster_state:
 					status_turns += 1
+				if target_state.has_status_effect("status_resist") and target_state.side != caster_state.side:
+					status_turns = maxi(0, status_turns - 1)
+				if status_turns <= 0:
+					continue
 				target_state.apply_status_effect(status_id, status_turns, amount)
 				status_hits += 1
 				_spawn_strategy_text_fx(
@@ -5048,7 +5056,10 @@ func _cleanse_one_resolver_negative_status(unit_state: BattleUnitState) -> bool:
 	for status_id in [
 		"attack_defense_down",
 		"defense_down",
+		"accuracy_down",
 		"movement_down",
+		"momentum_gain_down",
+		"flank_damage_taken_up",
 		"formation_break",
 		"action_lock",
 		"fear",
@@ -5059,6 +5070,16 @@ func _cleanse_one_resolver_negative_status(unit_state: BattleUnitState) -> bool:
 			unit_state.apply_status_effect(status_id, 0)
 			return true
 	return false
+
+
+func _apply_resolver_advance_toward_target(caster_state: BattleUnitState, defeated_state: BattleUnitState) -> void:
+	if caster_state == null or defeated_state == null or battle_grid_controller == null:
+		return
+	var delta := defeated_state.grid_cell - caster_state.grid_cell
+	var step := Vector2i(signi(delta.x), 0) if absi(delta.x) >= absi(delta.y) else Vector2i(0, signi(delta.y))
+	var destination := caster_state.grid_cell + step
+	if battle_grid_controller.is_in_bounds(destination) and _is_valid_destination_for_unit(destination, caster_state, true):
+		caster_state.set_grid_cell(destination)
 
 
 func _apply_resolver_retreat_move(unit_state: BattleUnitState, distance: int) -> void:
@@ -5281,6 +5302,8 @@ func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnit
 			damage_multiplier *= 1.0 - float(attacker_state.get_status_magnitude("attack_defense_down", 10)) / 100.0
 		if attacker_state.has_status_effect("counter_up"):
 			damage_multiplier *= 1.0 + float(attacker_state.get_status_magnitude("counter_up", 15)) / 100.0
+		if attacker_state.has_status_effect("flank_damage_up") and angle_type != ATTACK_ANGLE_FRONT:
+			damage_multiplier *= 1.0 + float(attacker_state.get_status_magnitude("flank_damage_up", 15)) / 100.0
 	if defender_state != null:
 		if defender_state.has_status_effect("defense_up") or defender_state.has_status_effect("attack_defense_up"):
 			damage_multiplier *= 1.0 - float(defender_state.get_status_magnitude("defense_up", defender_state.get_status_magnitude("attack_defense_up", 10))) / 100.0
@@ -5290,6 +5313,10 @@ func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnit
 			damage_multiplier *= 1.0 - float(defender_state.get_status_magnitude("damage_reduction", 12)) / 100.0
 		if defender_state.has_status_effect("formation_break"):
 			damage_multiplier *= 1.12
+		if defender_state.has_status_effect("flank_damage_taken_up") and angle_type != ATTACK_ANGLE_FRONT:
+			damage_multiplier *= 1.0 + float(defender_state.get_status_magnitude("flank_damage_taken_up", 15)) / 100.0
+		if defender_state.has_status_effect("incoming_damage_down"):
+			damage_multiplier *= 1.0 - float(defender_state.get_status_magnitude("incoming_damage_down", 12)) / 100.0
 	var damage := maxi(1, int(round(float(base_damage) * damage_multiplier)))
 	if apply_attacker_wounded_penalty:
 		damage = _apply_wounded_amount_multiplier(attacker_state, "attack", damage, should_log_wounded_penalty)

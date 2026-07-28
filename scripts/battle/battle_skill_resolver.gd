@@ -155,7 +155,7 @@ static func build_plan(
 	var affected := _resolve_affected_targets(caster, skill, units, primary_target, battle_type)
 	if affected.is_empty():
 		return _failure("no_affected_target")
-	var commands := _build_commands(caster, skill, affected, primary_target)
+	var commands := _build_commands(caster, skill, affected, primary_target, units, battle_type)
 	if commands.is_empty():
 		return _failure("empty_effect_plan")
 	var target_ids: Array[String] = []
@@ -256,6 +256,11 @@ static func _resolve_affected_targets(
 			if unit != null and unit.is_alive() and unit.side != caster.side \
 					and _distance(primary_target, unit) <= radius:
 				result.append(unit)
+	if String(skill.get("effect_type", "")) == "splash_charge":
+		for unit in units:
+			if unit != null and unit.is_alive() and unit.side != caster.side \
+					and _distance(primary_target, unit) <= maxi(radius, 1) and not result.has(unit):
+				result.append(unit)
 	return result
 
 
@@ -263,7 +268,9 @@ static func _build_commands(
 	caster: BattleUnitState,
 	skill: Dictionary,
 	affected: Array[BattleUnitState],
-	primary_target: BattleUnitState
+	primary_target: BattleUnitState,
+	units: Array[BattleUnitState],
+	battle_type: String
 ) -> Array[Dictionary]:
 	var commands: Array[Dictionary] = []
 	var archetype := String(skill.get("archetype", ""))
@@ -271,23 +278,40 @@ static func _build_commands(
 	var turns := maxi(int(skill.get("duration_turns", 0)), 1)
 	var power := maxi(int(skill.get("power", 0)), 0)
 	var damage := maxi(1, int(round(float(power) * 0.42 + float(caster.martial) * 0.12)))
+	if effect_type in ["charge_line", "charge_damage", "charge_aoe"]:
+		damage += maxi(0, _distance(caster, primary_target) - 1) * 4
 	var status_amount := clampi(int(round(float(maxi(power, 40)) * 0.16)), 8, 20)
 	match archetype:
 		"damage_single", "damage_line", "damage_area":
 			for target in affected:
 				var target_damage := damage
-				if archetype == "damage_area" and target != primary_target:
-					target_damage = maxi(1, int(round(float(damage) * 0.72)))
-				commands.append(_command("damage", target.unit_id, target_damage, 0, ""))
+				if (archetype == "damage_area" or effect_type == "splash_charge") and target != primary_target:
+					target_damage = maxi(1, int(round(float(damage) * (0.50 if effect_type == "splash_charge" else 0.72))))
+				var damage_flag := ""
+				if effect_type == "gunner_volley": damage_flag = "ignore_defense"
+				if effect_type == "line_damage" and int(skill.get("range", 0)) == 1: damage_flag = "advance_on_kill"
+				commands.append(_command("damage", target.unit_id, target_damage, 0, damage_flag))
+			if effect_type == "single_burst" and primary_target != null:
+				commands.append(_command("damage", primary_target.unit_id, maxi(1, int(round(float(damage) * 0.50))), 0, "deterministic_followup"))
 			_append_damage_secondary_commands(commands, effect_type, affected, turns, status_amount)
 		"buff_self", "buff_team_area":
 			for target in affected:
-				commands.append(_command("status", target.unit_id, status_amount, turns, _buff_status_for_effect(effect_type)))
+				_append_buff_commands(commands, effect_type, target, turns, status_amount, caster)
 			if _grants_momentum(effect_type):
 				commands.append(_command("momentum", caster.side, 1, 0, "skill_gain"))
 		"debuff_single", "debuff_area", "control_area":
 			for target in affected:
-				commands.append(_command("status", target.unit_id, status_amount, turns, _debuff_status_for_effect(effect_type)))
+				_append_debuff_commands(commands, effect_type, target, turns, status_amount)
+			if effect_type == "aoe_debuff" and not affected.is_empty():
+				var delayed := affected[0]
+				for candidate in affected:
+					if candidate.current_hp < delayed.current_hp: delayed = candidate
+				commands.append(_command("status", delayed.unit_id, 1, 1, "action_lock"))
+			if effect_type == "control_field":
+				var radius := int(skill.get("radius", 0))
+				for unit in units:
+					if unit != null and unit.is_alive() and unit.side == caster.side and _distance(primary_target, unit) <= radius:
+						commands.append(_command("status", unit.unit_id, 12, turns, "defense_up"))
 			if _drains_momentum(effect_type):
 				commands.append(_command("momentum", _opposing_side(caster.side), -1, 0, "skill_drain"))
 		"restore_dispel":
@@ -298,9 +322,76 @@ static func _build_commands(
 		"movement_charge":
 			commands.append(_command("move", caster.unit_id, 1, turns, "retreat"))
 			commands.append(_command("status", caster.unit_id, 20, turns, "counter_up"))
+	if battle_type != "naval" and effect_type == "naval_team_buff":
+		for command in commands:
+			if String(command.get("type", "")) == "status": command["amount"] = maxi(6, int(command.get("amount", 10)) - 4)
 	if _has_positive_damage_command(commands):
 		commands.append(_command("momentum", _opposing_side(caster.side), -2, 0, "unique_skill_hit"))
 	return commands
+
+
+static func _append_buff_commands(commands: Array[Dictionary], effect_type: String, target: BattleUnitState, turns: int, amount: int, caster: BattleUnitState) -> void:
+	var scaled := amount
+	if effect_type == "guard_aura" and target == caster: scaled = int(round(float(amount) * 1.25))
+	match effect_type:
+		"guard_aura":
+			commands.append(_command("status", target.unit_id, scaled, turns, "damage_reduction"))
+			commands.append(_command("status", target.unit_id, scaled, turns, "counter_up"))
+		"team_mobility_buff", "mounted_team_buff":
+			commands.append(_command("status", target.unit_id, 1, turns, "mobility_up"))
+			commands.append(_command("status", target.unit_id, scaled, turns, "flank_damage_up"))
+			commands.append(_command("status", target.unit_id, 1, turns, "momentum_gain_up"))
+		"team_command", "team_action_buff":
+			commands.append(_command("status", target.unit_id, scaled, turns, "attack_defense_up"))
+			commands.append(_command("status", target.unit_id, 1, turns, "mobility_up"))
+			commands.append(_command("status", target.unit_id, 1, turns, "momentum_gain_up"))
+			if effect_type == "team_action_buff": commands.append(_command("status", target.unit_id, scaled, turns, "siege_attack_up"))
+		"team_logistics":
+			commands.append(_command("status", target.unit_id, 1, turns, "mobility_up"))
+			commands.append(_command("status", target.unit_id, 1, turns, "momentum_gain_up"))
+		"team_guard":
+			commands.append(_command("status", target.unit_id, scaled, turns, "damage_reduction"))
+			commands.append(_command("status", target.unit_id, scaled, turns, "status_resist"))
+		"team_morale":
+			commands.append(_command("status", target.unit_id, scaled, turns, "damage_reduction"))
+			commands.append(_command("status", target.unit_id, scaled, turns, "rout_resist"))
+		"team_support": commands.append(_command("status", target.unit_id, scaled, turns, "defense_up"))
+		"stance_team_buff":
+			commands.append(_command("status", target.unit_id, scaled, turns, "attack_defense_up"))
+			commands.append(_command("status", target.unit_id, 1, turns, "mobility_up"))
+		"naval_team_buff":
+			commands.append(_command("status", target.unit_id, scaled, turns, "attack_defense_up"))
+			commands.append(_command("status", target.unit_id, 1, turns, "momentum_gain_up"))
+		_: commands.append(_command("status", target.unit_id, scaled, turns, "attack_defense_up"))
+
+
+static func _append_debuff_commands(commands: Array[Dictionary], effect_type: String, target: BattleUnitState, turns: int, amount: int) -> void:
+	match effect_type:
+		"single_debuff":
+			commands.append(_command("status", target.unit_id, amount, turns, "attack_defense_down"))
+			commands.append(_command("status", target.unit_id, amount, turns, "accuracy_down"))
+		"aoe_debuff":
+			commands.append(_command("status", target.unit_id, amount, turns, "attack_defense_down"))
+			commands.append(_command("status", target.unit_id, amount, turns, "accuracy_down"))
+			commands.append(_command("status", target.unit_id, 1, turns, "momentum_gain_down"))
+		"prediction_debuff":
+			commands.append(_command("status", target.unit_id, amount, turns, "attack_defense_down"))
+			commands.append(_command("status", target.unit_id, 2, turns, "movement_down"))
+		"control_field":
+			commands.append(_command("status", target.unit_id, 2, turns, "movement_down"))
+			commands.append(_command("status", target.unit_id, amount, turns, "accuracy_down"))
+		"fear_aoe":
+			commands.append(_command("status", target.unit_id, amount, turns, "attack_defense_down"))
+			commands.append(_command("status", target.unit_id, 1, turns, "movement_down"))
+			commands.append(_command("status", target.unit_id, amount, turns, "fear"))
+		"encirclement_debuff":
+			commands.append(_command("status", target.unit_id, amount, turns, "defense_down"))
+			commands.append(_command("status", target.unit_id, 1, turns, "movement_down"))
+			commands.append(_command("status", target.unit_id, amount, turns, "flank_damage_taken_up"))
+		"command_debuff":
+			commands.append(_command("status", target.unit_id, amount, turns, "attack_defense_down"))
+			commands.append(_command("status", target.unit_id, 1, turns, "momentum_gain_down"))
+		_: commands.append(_command("status", target.unit_id, amount, turns, _debuff_status_for_effect(effect_type)))
 
 
 static func _has_positive_damage_command(commands: Array[Dictionary]) -> bool:
@@ -318,7 +409,17 @@ static func _append_damage_secondary_commands(
 	status_amount: int
 ) -> void:
 	var status_id := ""
-	if ["aoe_damage_debuff", "trap_aoe", "flank_debuff_attack"].has(effect_type):
+	if effect_type == "aoe_damage_debuff":
+		for target in affected:
+			commands.append(_command("status", target.unit_id, status_amount, turns, "accuracy_down"))
+			commands.append(_command("status", target.unit_id, 1, turns, "movement_down"))
+		return
+	if effect_type == "trap_aoe":
+		for target in affected:
+			commands.append(_command("status", target.unit_id, 2, turns, "movement_down"))
+			commands.append(_command("status", target.unit_id, status_amount, turns, "formation_break"))
+		return
+	if effect_type == "flank_debuff_attack":
 		status_id = "defense_down"
 	elif effect_type == "fire_aoe":
 		status_id = "burn"
