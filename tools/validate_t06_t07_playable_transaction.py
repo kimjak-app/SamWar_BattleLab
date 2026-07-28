@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Validate the complete T06-7 shared-momentum/unique-skill runtime transaction."""
-
+"""Validate T06-7 original shared-momentum and unique-skill runtime contract."""
 from __future__ import annotations
 
 import json
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,11 +31,7 @@ def require(errors: list[str], condition: bool, message: str) -> None:
 
 
 def extract_mapping_keys(source: str) -> set[str]:
-    match = re.search(
-        r"const ARCHETYPE_BY_EFFECT_TYPE := \{(?P<body>.*?)\n\}",
-        source,
-        re.DOTALL,
-    )
+    match = re.search(r"const ARCHETYPE_BY_EFFECT_TYPE := \{(?P<body>.*?)\n\}", source, re.DOTALL)
     if not match:
         return set()
     return set(re.findall(r'^\s*"([^"]+)"\s*:', match.group("body"), re.MULTILINE))
@@ -65,27 +61,30 @@ def main() -> int:
 
     effect_types = {str(skill.get("effect_type", "")) for skill in skills}
     mapping_keys = extract_mapping_keys(resolver)
+    cost_distribution = Counter(int(skill.get("momentum_cost", 0)) for skill in skills)
     require(errors, len(skills) == 39, f"expected 39 unique skills, found {len(skills)}")
-    require(
-        errors,
-        effect_types <= mapping_keys,
-        f"resolver mapping missing effect types: {sorted(effect_types - mapping_keys)}",
-    )
+    require(errors, cost_distribution == Counter({1: 1, 2: 9, 3: 18, 4: 11}),
+            f"momentum distribution mismatch: {dict(cost_distribution)}")
+    require(errors, effect_types <= mapping_keys,
+            f"resolver mapping missing effect types: {sorted(effect_types - mapping_keys)}")
     require(errors, '"damage_single"' in resolver, "damage_single archetype missing")
     require(errors, '"restore_dispel"' in resolver, "restore_dispel archetype missing")
     require(errors, '"movement_charge"' in resolver, "movement_charge archetype missing")
     for skill in skills:
         hero_id = str(skill.get("hero_id", ""))
         skill_id = str(skill.get("skill_id", ""))
-        require(errors, f'"{hero_id}"' not in resolver,
-                f"resolver hardcodes hero ID: {hero_id}")
-        require(errors, f'"{skill_id}"' not in resolver,
-                f"resolver hardcodes skill ID: {skill_id}")
+        require(errors, f'"{hero_id}"' not in resolver, f"resolver hardcodes hero ID: {hero_id}")
+        require(errors, f'"{skill_id}"' not in resolver, f"resolver hardcodes skill ID: {skill_id}")
 
-    require(errors, "STARTING_MOMENTUM := 2" in momentum, "starting momentum must be 2")
-    require(errors, "MAX_MOMENTUM := 6" in momentum, "momentum cap must be 6")
+    require(errors, "STARTING_MOMENTUM := 3" in momentum, "starting momentum must be 3")
+    require(errors, "MAX_MOMENTUM := 10" in momentum, "momentum cap must be 10")
+    require(errors, "ROUND_END_GAIN := 1" in momentum, "round end gain must be 1")
     require(errors, "BASIC_ATTACK_GAIN := 1" in momentum, "basic attack gain must be 1")
+    require(errors, "RECEIVED_HIT_LOSS := 1" in momentum, "normal hit loss must be 1")
+    require(errors, "SPECIAL_HIT_EXTRA_LOSS := 1" in momentum, "special hit extra loss must be 1")
     require(errors, "func spend(" in momentum, "momentum commit spend API missing")
+    require(errors, "func record_round_end(" in momentum, "round end momentum API missing")
+    require(errors, "func record_received_hit(" in momentum, "received-hit momentum API missing")
     require(errors, "func restore(" in momentum, "momentum restore API missing")
 
     factory_build = extract_function(factory, "build_runtime_hero")
@@ -111,6 +110,12 @@ def main() -> int:
             "player basic attack does not gain momentum")
     require(errors, "_gain_momentum_for_basic_attack(current_enemy_ai_actor_state)" in battle,
             "AI basic attack does not gain momentum")
+    require(errors, "battle_momentum.record_round_end()" in battle,
+            "round completion does not grant both sides momentum")
+    require(errors, "record_received_hit(defending_side" in battle,
+            "successful basic attack does not reduce defending side momentum")
+    require(errors, '"unique_skill_hit"' in resolver and "-2" in resolver,
+            "damaging unique skill does not apply one total -2 side loss")
     require(errors, "_score_unique_skill_plan_for_actor" in battle,
             "AI does not score resolver plans")
     require(errors, "기세 %d" in battle and "AllyMomentumLabel" in battle,
@@ -135,6 +140,10 @@ def main() -> int:
             "39-skill resolver smoke coverage missing")
     require(errors, "_test_momentum_transaction" in smoke,
             "momentum transaction smoke coverage missing")
+    require(errors, "round end gives both sides" in smoke,
+            "round-end momentum smoke missing")
+    require(errors, "cooperative hit loses total 2" in smoke,
+            "cooperative-hit momentum smoke missing")
     require(errors, "_test_snapshot_roundtrip" in smoke,
             "snapshot roundtrip smoke coverage missing")
 
@@ -143,9 +152,9 @@ def main() -> int:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
 
-    print("T06-7 RUNTIME VALIDATION PASS")
-    print("39 skills mapped; shared momentum UI/player/AI commit path locked")
-    print("battle snapshot save/resume and smoke coverage locked")
+    print("T06-7 HOTFIX1 RUNTIME VALIDATION PASS")
+    print("39 skills; cost 1/9/18/11; shared momentum 3/10; round/basic/special contracts locked")
+    print("player/AI resolver, UI/log evidence, and battle snapshot save/resume locked")
     return 0
 
 

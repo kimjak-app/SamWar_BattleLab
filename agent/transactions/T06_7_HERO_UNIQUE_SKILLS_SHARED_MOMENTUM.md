@@ -13,7 +13,7 @@
 
 ## Player Transaction
 
-1. Both sides start battle with side-shared momentum `2/6`.
+1. Both sides start battle with side-shared momentum `3/10`.
 2. A successful basic attack gives the acting side `+1` momentum.
 3. The selected hero's button shows canonical skill name, individual momentum cost, current shared pool, and description.
 4. Skill selection and preview do not charge momentum.
@@ -71,7 +71,7 @@ The resolver emits data commands. Battle presentation and scene state consume co
 
 ## UI & Log Evidence
 
-- Top bar: `아군 기세 ◆ N/6`, `적군 기세 ◆ N/6`
+- Top bar: `아군 기세 ◆ N/10`, `적군 기세 ◆ N/10`
 - Hero command: `고유기명 · 기세 N`
 - Tooltip: description, current pool, maximum, cost
 - Logs: basic-attack gain, committed skill spend/remain, skill gain/drain, effect summary, restore, and failure no-charge
@@ -121,7 +121,7 @@ godot --headless --path . --script res://scripts/t06_t07/t06_t07_playable_transa
 
 Then F6/F5 confirm:
 
-- both momentum labels start at `2/6`
+- both momentum labels start at `3/10`
 - player and enemy basic attack add exactly `+1`
 - cancel and invalid target spend `0`
 - cost 1–4 skills enable only with enough shared momentum

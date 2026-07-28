@@ -200,7 +200,9 @@ static func score_plan(plan: Dictionary, units_by_id: Dictionary) -> int:
 			"cleanse":
 				score += 55
 			"momentum":
-				score += amount * 75
+				var target_side := String(command.get("target_unit_id", ""))
+				var caster_side := String(plan.get("caster_side", ""))
+				score += amount * 75 if target_side == caster_side else -amount * 75
 			"move":
 				score += 35
 	score -= int(plan.get("momentum_cost", 0)) * 30
@@ -296,7 +298,16 @@ static func _build_commands(
 		"movement_charge":
 			commands.append(_command("move", caster.unit_id, 1, turns, "retreat"))
 			commands.append(_command("status", caster.unit_id, 20, turns, "counter_up"))
+	if _has_positive_damage_command(commands):
+		commands.append(_command("momentum", _opposing_side(caster.side), -2, 0, "unique_skill_hit"))
 	return commands
+
+
+static func _has_positive_damage_command(commands: Array[Dictionary]) -> bool:
+	for command in commands:
+		if String(command.get("type", "")) == "damage" and int(command.get("amount", 0)) > 0:
+			return true
+	return false
 
 
 static func _append_damage_secondary_commands(

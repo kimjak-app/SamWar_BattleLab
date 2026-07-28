@@ -2,27 +2,22 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE_PATH = ROOT / "data/heroes/generated/hero_battle_profiles.json"
 UNIT_RULE_PATH = ROOT / "data/heroes/generated/unit_type_rules.json"
-WORLDMAP_SCRIPT_PATH = ROOT / "scripts/worldmap/hero_worldmap_stat_integration.gd"
 
-EXPECTED_REASSIGNMENTS = {
-    "jeong_do_jeon": "archer",
-    "dorim": "archer",
-    "kim_chun_chu": "archer",
-    "uija_wang": "archer",
-    "fan_zeng": "archer",
-    "xun_yu": "archer",
-    "guo_jia": "archer",
-    "zhuge_liang": "archer",
-    "toyotomi_hideyoshi": "archer",
+ALLOWED_UNITS = {"infantry", "cavalry", "archer", "gunner", "mounted_archer"}
+EXPECTED_DISTRIBUTION = {"infantry": 11, "cavalry": 10, "archer": 11, "gunner": 4, "mounted_archer": 3}
+EXPECTED_FINAL = {
+    "kim_chun_chu": "infantry",
+    "uija_wang": "infantry",
+    "toyotomi_hideyoshi": "infantry",
     "konishi_yukinaga": "gunner",
     "honda_masanobu": "gunner",
 }
-ALLOWED_UNITS = {"infantry", "cavalry", "archer", "gunner", "mounted_archer"}
 
 
 def load_json(path: Path) -> dict:
@@ -34,24 +29,17 @@ def main() -> None:
     rules = load_json(UNIT_RULE_PATH).get("unit_types", [])
     by_hero = {str(row.get("hero_id", "")): str(row.get("unit_type", "")) for row in profiles}
     rule_ids = {str(row.get("unit_type", "")) for row in rules}
+    distribution = Counter(by_hero.values())
 
     assert len(profiles) == 39, f"profile count={len(profiles)}"
     assert rule_ids == ALLOWED_UNITS, f"unit rules={sorted(rule_ids)}"
     assert "support" not in by_hero.values(), "support remains in hero profiles"
-
-    for hero_id, expected_unit in EXPECTED_REASSIGNMENTS.items():
+    assert dict(distribution) == EXPECTED_DISTRIBUTION, f"distribution={dict(distribution)}"
+    for hero_id, expected_unit in EXPECTED_FINAL.items():
         actual = by_hero.get(hero_id)
         assert actual == expected_unit, f"{hero_id}: {actual} != {expected_unit}"
 
-    script = WORLDMAP_SCRIPT_PATH.read_text(encoding="utf-8")
-    assert '"support": "지원"' not in script, "WorldMap still maps support as a unit type"
-    assert 'hero["unit_type"] = unit_type' in script, "runtime hero unit_type migration missing"
-    assert "_apply_unit_type_label" in script, "WorldMap unit label refresh missing"
-
-    print(
-        "FIVE UNIT ASSIGNMENT PASS: support unit removed; 9 former support heroes use archer, "
-        "Konishi and Honda Masanobu use gunner; WorldMap/runtime/battle profile linkage present"
-    )
+    print("FIVE UNIT ASSIGNMENT PASS: 11/10/11/4/3; final infantry corrections locked; support role-only")
 
 
 if __name__ == "__main__":

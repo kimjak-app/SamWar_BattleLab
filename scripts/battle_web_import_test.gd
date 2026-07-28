@@ -6164,18 +6164,14 @@ func _append_battle_log(line: String) -> void:
 	_refresh_battle_log()
 
 
-func _gain_momentum_for_basic_attack(actor_state: BattleUnitState) -> void:
-	if actor_state == null:
+func _gain_momentum_for_basic_attack(attacker: BattleUnitState) -> void:
+	if attacker == null:
 		return
-	var gained := battle_momentum.record_basic_attack(actor_state.side)
-	if gained <= 0:
-		return
-	_append_battle_log("%s 일반 공격 · 기세 +%d (%d/%d)" % [
-		_get_side_display_name(actor_state.side),
-		gained,
-		battle_momentum.get_value(actor_state.side),
-		BattleMomentumStateScript.MAX_MOMENTUM,
-	])
+	var gained := battle_momentum.record_basic_attack(attacker.side)
+	var defending_side := "enemy" if attacker.side == "ally" else "ally"
+	var lost := battle_momentum.record_received_hit(defending_side, false, "basic_attack_hit")
+		_append_battle_log("%s 기본공격 성공: 기세 +%d" % [attacker.display_name, gained])
+		_append_battle_log("%s 피격: 진영 기세 -%d" % [defending_side, lost])
 	_refresh_momentum_ui()
 
 
@@ -10693,6 +10689,9 @@ func _start_new_round() -> void:
 		_refresh_worldmap_result_return_button()
 		return
 	battle_round += 1
+	var momentum_round_gain := battle_momentum.record_round_end()
+	_append_battle_log("라운드 종료: 아군 기세 +%d / 적군 기세 +%d" % [int(momentum_round_gain.get("ally", 0)), int(momentum_round_gain.get("enemy", 0))])
+	_refresh_momentum_ui()
 	_settle_battle_supply_turn(battle_round)
 	_clear_pending_move_snapshot()
 	_hide_all_move_dust_sprites()

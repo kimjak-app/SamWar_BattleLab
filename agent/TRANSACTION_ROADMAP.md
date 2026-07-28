@@ -10,7 +10,7 @@ This is one complete playable transaction covering side-shared momentum, all 39 
 
 Implemented scope:
 
-- shared momentum start `2`, cap `6`, basic-attack gain `+1`
+- shared momentum start `3`, cap `10`, basic-attack gain `+1`
 - commit-only skill cost with cancel/failure no-charge behavior
 - 39 effect types mapped into ten resolver archetypes
 - canonical Registry → Factory → BattleUnit → Resolver direction

@@ -1,10 +1,13 @@
 class_name BattleMomentumState
 extends RefCounted
 
-const SCHEMA_VERSION := 1
-const STARTING_MOMENTUM := 2
-const MAX_MOMENTUM := 6
+const SCHEMA_VERSION := 2
+const STARTING_MOMENTUM := 3
+const MAX_MOMENTUM := 10
+const ROUND_END_GAIN := 1
 const BASIC_ATTACK_GAIN := 1
+const RECEIVED_HIT_LOSS := 1
+const SPECIAL_HIT_EXTRA_LOSS := 1
 const VALID_SIDES := ["ally", "enemy"]
 
 var _values := {
@@ -50,8 +53,34 @@ func gain(side: String, amount: int, reason: String = "") -> int:
 	return applied
 
 
+func lose(side: String, amount: int, reason: String = "") -> int:
+	if not VALID_SIDES.has(side):
+		return 0
+	var normalized_amount := maxi(amount, 0)
+	var before := get_value(side)
+	_values[side] = maxi(0, before - normalized_amount)
+	var applied := before - get_value(side)
+	if applied > 0:
+		_record_event(side, -applied, before, get_value(side), reason)
+	return applied
+
+
+func record_round_end() -> Dictionary:
+	return {
+		"ally": gain("ally", ROUND_END_GAIN, "round_end"),
+		"enemy": gain("enemy", ROUND_END_GAIN, "round_end"),
+	}
+
+
 func record_basic_attack(side: String) -> int:
 	return gain(side, BASIC_ATTACK_GAIN, "basic_attack")
+
+
+func record_received_hit(side: String, is_special_hit: bool = false, reason: String = "received_hit") -> int:
+	var loss := RECEIVED_HIT_LOSS
+	if is_special_hit:
+		loss += SPECIAL_HIT_EXTRA_LOSS
+	return lose(side, loss, reason)
 
 
 func serialize() -> Dictionary:
@@ -63,7 +92,8 @@ func serialize() -> Dictionary:
 
 
 func restore(snapshot: Dictionary) -> bool:
-	if int(snapshot.get("schema_version", 0)) != SCHEMA_VERSION:
+	var schema_version := int(snapshot.get("schema_version", 0))
+	if schema_version != 1 and schema_version != SCHEMA_VERSION:
 		return false
 	var values_variant: Variant = snapshot.get("values", {})
 	if not values_variant is Dictionary:

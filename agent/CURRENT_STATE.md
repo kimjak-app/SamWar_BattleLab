@@ -15,7 +15,7 @@
 
 Status: `IMPLEMENTED / RUNTIME STATIC VALIDATION PASS / GODOT QA PENDING`
 
-- Side-shared momentum: start `2`, cap `6`, successful basic attack `+1`.
+- Side-shared momentum: start `3`, cap `10`, successful basic attack `+1`.
 - Valid resolver commit spends canonical per-hero cost; cancel/invalid/rejected execution spends `0`.
 - All 39 canonical skill effect types normalize to ten data-driven execution archetypes.
 - Player and AI use the same `BattleSkillResolver` and the same shared resource rules.
