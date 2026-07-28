@@ -1,0 +1,39 @@
+name: Apply T06-7 Hotfix2 Momentum HUD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-t06-7-hotfix2.yml'
+      - 'tools/apply_t06_7_hotfix2_momentum_hud.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply HUD hotfix
+        run: python3 tools/apply_t06_7_hotfix2_momentum_hud.py
+      - name: Validate contracts
+        run: |
+          python3 tools/validate_hero_design_registry.py
+          python3 tools/validate_hero_five_unit_assignment.py
+          python3 tools/validate_hero_battle_profile_integration.py
+          python3 tools/validate_hero_runtime_authority.py
+          python3 tools/validate_t06_t07_playable_transaction.py
+          git diff --check
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: add persistent momentum HUD and spend feedback"
+          git push origin HEAD:main
