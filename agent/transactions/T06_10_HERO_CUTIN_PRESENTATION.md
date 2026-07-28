@@ -38,6 +38,7 @@
 - Replay, Escape, mode switches, completion, and auto-loop stop/reset the video player together with the visual tween state. Mode B remains the still-background comparison path.
 - Mode A keeps the native-scale 16:9 video center-aligned and shifts the hero's final authored position left so the face and breastplate, rather than the PNG bounding box, align with the screen and burst center. The final flash now fades within 0.09 seconds.
 - Mode A now uses the existing specialty video cutin reference rect as an explicit centered `CutinStage` (`1014×415` at approximately `(69,117)` for the 1152×648 viewport). The video, hero, and title use its local coordinates; the hidden stage-center guide at local x=507 anchors the hero's face/breastplate alignment. The q8 OGV is unchanged.
+- Mode A foreground correction: HeroPortrait is immediately shown with white `modulate` and `self_modulate`, maintains `Vector2.ONE` scale, is not shaken, and remains above dim/backlight/particle layers through explicit z-order. FlashOverlay is hidden and held at alpha zero for Mode A; completion is a short foreground fade to the black stage, not a white screen flash.
 
 ## Explicitly Deferred
 

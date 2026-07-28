@@ -13,13 +13,13 @@ const FALLBACK_SKILL_NAME := "영락대제"
 @export var title_burst_duration := 0.19
 @export var standoff_duration := 0.82
 @export var flash_duration := 0.09
-@export var exit_duration := 0.30
+@export var exit_duration := 0.16
 @export var loop_delay := 0.35
 @export_group("Mode A scene-authored composition")
 @export var hero_rest_position := Vector2(-152, -34)
 @export var hero_enter_offset := Vector2(150, 16)
-@export var hero_rest_scale := 1.055
-@export var hero_standoff_scale := 1.085
+@export var hero_rest_scale := 1.0
+@export var hero_standoff_scale := 1.0
 @export var title_rest_scale := Vector2.ONE
 @export var title_burst_scale := Vector2(1.38, 1.38)
 @export var title_start_scale := Vector2(0.20, 0.20)
@@ -127,6 +127,10 @@ func _play_duel_style_foreground() -> void:
 	# Reset intentionally leaves the portrait at its scene-authored landing point.
 	# Every Mode A run then starts to the right of that point before settling back.
 	hero_portrait.position = hero_rest_position + hero_enter_offset
+	hero_portrait.scale = Vector2.ONE
+	hero_portrait.modulate = Color.WHITE
+	hero_portrait.self_modulate = Color.WHITE
+	hero_portrait.visible = true
 	var timeline := _new_tween()
 	# Phase 1: video-backed black-red ignition and restrained supplemental backlight.
 	timeline.parallel().tween_property(dim_overlay, "color:a", 0.30, ignite_duration / speed)
@@ -139,32 +143,23 @@ func _play_duel_style_foreground() -> void:
 	# Phase 2: the portrait drives in hard from the right and settles with a back ease.
 	timeline.parallel().tween_property(hero_portrait, "position", hero_rest_position, hero_enter_duration / speed).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	timeline.parallel().tween_property(hero_portrait, "scale", Vector2.ONE * hero_rest_scale, hero_enter_duration / speed).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	timeline.parallel().tween_property(hero_portrait, "modulate:a", 1.0, hero_enter_duration * 0.72 / speed)
 	timeline.parallel().tween_property(back_light_burst_near, "scale", Vector2(1.34, 1.34), hero_enter_duration / speed)
-	timeline.parallel().tween_callback(func() -> void: _impact_shake(7.5 / speed, 0.18 / speed))
 	# Phase 3: title explosion. The title is intentionally the focal impact, not a subtitle.
 	timeline.parallel().tween_property(title_container, "modulate:a", 1.0, 0.045 / speed)
 	timeline.parallel().tween_property(title_container, "scale", title_burst_scale, title_burst_duration * 0.55 / speed).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	timeline.parallel().tween_property(accent_line, "color:a", 1.0, 0.10 / speed)
 	_emit_title_burst(timeline, speed)
 	timeline.tween_property(title_container, "scale", title_rest_scale, title_burst_duration * 0.45 / speed).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-	timeline.parallel().tween_callback(func() -> void: _impact_shake(9.0 / speed, 0.22 / speed))
 	# Phase 4: readable standoff with a restrained push-in.
 	timeline.parallel().tween_property(hero_portrait, "scale", Vector2.ONE * hero_standoff_scale, standoff_duration / speed)
 	timeline.parallel().tween_property(back_light_burst_far, "scale", Vector2(1.18, 1.18), standoff_duration / speed)
 	timeline.parallel().tween_property(back_light_burst, "rotation", 0.06, standoff_duration / speed)
 	_emit_standoff_embers(timeline, speed)
 	timeline.tween_interval(standoff_duration / speed)
-	# Phase 5: short white-gold decision flash, never an opaque yellow plate.
-	timeline.parallel().tween_property(flash_overlay, "color:a", flash_alpha, 0.045 / speed)
-	timeline.parallel().tween_property(back_light_burst_near, "modulate:a", 0.48, 0.045 / speed)
-	timeline.tween_callback(func() -> void: _impact_shake(5.0 / speed, 0.12 / speed))
-	timeline.tween_property(flash_overlay, "color:a", 0.0, (flash_duration - 0.045) / speed)
-	# Phase 6: title exits left, portrait exits forward/right, then fully reset.
-	timeline.parallel().tween_property(title_container, "position", title_rest_position + title_exit_offset, exit_duration / speed).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	# Phase 5: no foreground flash or shake; keep the portrait's source colours sharp.
+	timeline.tween_interval(0.08 / speed)
+	# Phase 6: fade only. The hero does not scale or slide after its final landing point.
 	timeline.parallel().tween_property(title_container, "modulate:a", 0.0, exit_duration * 0.82 / speed)
-	timeline.parallel().tween_property(hero_portrait, "position", hero_rest_position + Vector2(96, -10), exit_duration / speed)
-	timeline.parallel().tween_property(hero_portrait, "scale", Vector2.ONE * 1.14, exit_duration / speed)
 	timeline.parallel().tween_property(hero_portrait, "modulate:a", 0.0, exit_duration / speed)
 	_fade_environment(timeline, exit_duration / speed)
 	timeline.tween_callback(_finish_playback)
@@ -217,14 +212,8 @@ func _fade_environment(timeline: Tween, duration: float) -> void:
 	timeline.parallel().tween_property(dim_overlay, "color:a", 0.0, duration)
 
 func _impact_shake(strength: float, duration: float) -> void:
-	if is_instance_valid(_shake_tween):
-		_shake_tween.kill()
+	# Mode A keeps the portrait and title pixel-stable for a sharp foreground read.
 	cutin_root.position = _cutin_root_base_position
-	_shake_tween = create_tween()
-	var half_duration := duration * 0.5
-	_shake_tween.tween_property(cutin_root, "position", _cutin_root_base_position + Vector2(strength, -strength * 0.45), half_duration * 0.25)
-	_shake_tween.tween_property(cutin_root, "position", _cutin_root_base_position + Vector2(-strength * 0.7, strength * 0.35), half_duration * 0.35)
-	_shake_tween.tween_property(cutin_root, "position", _cutin_root_base_position, half_duration * 1.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 func _new_tween() -> Tween:
 	var timeline := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
@@ -259,9 +248,13 @@ func _reset_visual_state() -> void:
 	video_background_player.stream_position = 0.0
 	video_background_player.modulate.a = 0.0
 	video_background_player.visible = false
+	flash_overlay.color.a = 0.0
+	flash_overlay.visible = false
 	hero_portrait.position = hero_rest_position
 	hero_portrait.scale = Vector2.ONE
-	hero_portrait.modulate.a = 0.0
+	hero_portrait.modulate = Color.WHITE
+	hero_portrait.self_modulate = Color.WHITE
+	hero_portrait.visible = false
 	background_image.position = Vector2(-28, 8)
 	background_image.scale = Vector2(1.085, 1.085)
 	background_image.modulate.a = 0.0
@@ -277,5 +270,4 @@ func _reset_visual_state() -> void:
 	for effect_node in _effect_nodes:
 		effect_node.position = _effect_base_positions.get(effect_node.get_path(), Vector2.ZERO)
 		effect_node.color.a = 0.0
-	flash_overlay.color.a = 0.0
 	control_panel.show()
