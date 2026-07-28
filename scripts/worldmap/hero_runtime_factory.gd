@@ -52,6 +52,8 @@ const BATTLE_AUTHORITY_KEYS := [
 	"mobility",
 	"attack_range",
 	"command_limit",
+	"design_unique_skill_id",
+	"design_unique_skill",
 	"runtime_schema_version",
 ]
 
@@ -106,8 +108,11 @@ static func build_runtime_hero(identity: Dictionary, saved_state: Dictionary = {
 	result["primary_role"] = String(profile.get("primary_role", ""))
 	result["secondary_role"] = String(profile.get("secondary_role", ""))
 	result["design_unique_skill_id"] = String(profile.get("unique_skill_id", ""))
-	if not result.has("unique_skill_id"):
-		result["unique_skill_id"] = result["design_unique_skill_id"]
+	result["unique_skill_id"] = result["design_unique_skill_id"]
+	var unique_skill := HeroDesignDataRegistry.get_unique_skill(result["design_unique_skill_id"])
+	if unique_skill.is_empty():
+		return _error_result(result, "missing unique skill for hero_id: %s" % hero_id)
+	result["design_unique_skill"] = unique_skill
 
 	var unit_rule := HeroDesignDataRegistry.get_unit_type_rule(unit_type)
 	if unit_rule.is_empty():

@@ -9,7 +9,26 @@
 - Orphan `hero_worldmap_stat_integration.gd` and `hero_battle_design_invocation.gd` paths were removed.
 - T06–T07 single-authority architecture is documented in `docs/T06_T07_PRE_IMPLEMENTATION_ARCHITECTURE_AUDIT.md`.
 
-## Latest Completed Correction Transaction
+## Latest Implemented Transaction
+
+### T06-7 Hero Unique Skills & Shared Momentum
+
+Status: `IMPLEMENTED / RUNTIME STATIC VALIDATION PASS / GODOT QA PENDING`
+
+- Side-shared momentum: start `2`, cap `6`, successful basic attack `+1`.
+- Valid resolver commit spends canonical per-hero cost; cancel/invalid/rejected execution spends `0`.
+- All 39 canonical skill effect types normalize to ten data-driven execution archetypes.
+- Player and AI use the same `BattleSkillResolver` and the same shared resource rules.
+- Top-bar momentum labels, per-hero cost button/tooltip, effect/spend/gain/failure logs are connected.
+- Battle runtime snapshot persists units, statuses, phase, round, momentum, cooldowns, action locks, reinforcement flags, active unit, and log.
+- Matching battle IDs auto-restore; completed WorldMap return clears the snapshot.
+- Runtime validator and 39-skill/momentum/snapshot GDScript smoke were added.
+
+Transaction record:
+
+- `agent/transactions/T06_7_HERO_UNIQUE_SKILLS_SHARED_MOMENTUM.md`
+
+## Previous Completed Correction Transaction
 
 ### T06 Hero Final Balance Data Sync
 
@@ -73,15 +92,4 @@ Transaction record:
 
 ## Next Transaction
 
-Implement one complete playable shared-momentum and unique-skill mechanic transaction from the locked 39-hero data:
-
-- side-shared momentum state and gain/loss rules
-- skill availability and per-hero cost display
-- valid-target commit and no-charge cancel/failure contract
-- archetype normalization and `BattleSkillResolver`
-- actual effect application and battle log/UI evidence
-- AI skill evaluation under the same resource rules
-- save/resume safety where battle state requires it
-- validators, automated tests, Godot F5 QA, agent docs, commit/push
-
-Do not split the delivery into helper-only milestones and do not reintroduce flat skill costs or a support unit type.
+Run Godot headless/F6 QA for T06-7, fix only confirmed runtime/visual defects, then proceed to missing 39-hero cutin asset production and presentation comparison.

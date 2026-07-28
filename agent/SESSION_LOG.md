@@ -4090,6 +4090,16 @@
 ## Archive
 - Full older session history moved to:
   - `agent/archive/v0.67-docs_agent_docs_slimdown/SESSION_LOG_full_before_slimdown.md`
+# T06-7 Hero Unique Skills & Shared Momentum
+
+- Started from clean `main` baseline `f928745d82ed7a4f08735c6e72bbd1b88502040f`.
+- Implemented the full runtime transaction without helper-only completion commits.
+- Added shared momentum, 39-skill resolver, player UI, AI scoring/use, logs, battle snapshot save/resume, validator, and smoke coverage.
+- Runtime validator, modular GDScript syntax parse, runtime-authority validator, battle-profile integration validator, and `git diff --check` passed.
+- Godot executable is unavailable in Work, so headless/F6 QA remains pending.
+- Found three pre-existing stale/broken baseline validators; did not modify locked JSON or unrelated validator contracts in this runtime transaction.
+- Transaction details: `agent/transactions/T06_7_HERO_UNIQUE_SKILLS_SHARED_MOMENTUM.md`.
+
 ## v0.68b-12b-33D Defense Deployment Panel Parity
 - Extended `PlayerAttackDeploymentPanel` with defense mode labels and confirm behavior.
 - Rewired enemy invasion manual/auto defense buttons to open the deployment panel first.

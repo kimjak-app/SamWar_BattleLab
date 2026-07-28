@@ -2,6 +2,9 @@ extends Node2D
 
 const BattleRangeOverlayTileScript := preload("res://scripts/battle_range_overlay_tile.gd")
 const BattleFacingArrowTileButtonScript := preload("res://scripts/battle_facing_arrow_tile_button.gd")
+const BattleMomentumStateScript := preload("res://scripts/battle/battle_momentum_state.gd")
+const BattleSkillResolverScript := preload("res://scripts/battle/battle_skill_resolver.gd")
+const BattleRuntimeSnapshotScript := preload("res://scripts/battle/battle_runtime_snapshot.gd")
 const DEMO_DAMAGE := 12.0
 const ENEMY_DEMO_DAMAGE := 8.0
 const ALLY_DEMO_HP := 94.0
@@ -893,6 +896,11 @@ var has_applied_worldmap_context_roster := false
 var worldmap_context_roster_summary: Dictionary = {}
 var worldmap_context_hero_registry: Dictionary = {}
 var worldmap_context_unique_skill_registry: Dictionary = {}
+var battle_momentum: BattleMomentumState = BattleMomentumStateScript.new()
+var pending_unique_skill_plan: Dictionary = {}
+var momentum_ally_label: Label = null
+var momentum_enemy_label: Label = null
+var battle_resume_restored := false
 var worldmap_return_button: Button = null
 var current_ally_unit_position := Vector2.ZERO
 var current_ally_portrait_position := Vector2.ZERO
@@ -1440,10 +1448,12 @@ func _ready() -> void:
 	_configure_ally_ready_frames()
 	_configure_unit_closeup_panel()
 	_configure_layout_guides()
+	_configure_momentum_ui()
 	_configure_floating_ally_command_panel()
 	_configure_worldmap_result_return_button()
 	reset_demo_state()
 	_read_worldmap_battle_context_handoff()
+	_try_restore_battle_resume_snapshot()
 	_debug_print_unit_visual_root_slots()
 	_debug_print_mvp_scene_slot_scaffold_snapshot_once()
 	_debug_print_capacity_slot_registry()
@@ -1863,6 +1873,9 @@ func _allows_sample_roster_crash_guard(context: Dictionary) -> bool:
 func _register_worldmap_context_hero_contracts(context: Dictionary) -> void:
 	worldmap_context_hero_registry.clear()
 	worldmap_context_unique_skill_registry.clear()
+	battle_momentum.reset()
+	pending_unique_skill_plan.clear()
+	battle_resume_restored = false
 	for context_side in ["defender", "attacker"]:
 		var raw_heroes: Variant = context.get("%s_heroes" % context_side, [])
 		if not raw_heroes is Array:
@@ -1912,29 +1925,13 @@ func _build_worldmap_context_hero_registry_entry(hero_data: Dictionary) -> Dicti
 
 
 func _build_worldmap_context_unique_skill_entry(hero_data: Dictionary) -> Dictionary:
-	var sample_skill_entry := _get_sample_unique_skill_entry_for_worldmap_hero(hero_data)
-	var battle_effect_type := str(hero_data.get("battle_effect_type", "ally_attack_buff"))
-	if battle_effect_type == "ally_attack_buff" and not sample_skill_entry.is_empty():
-		battle_effect_type = str(sample_skill_entry.get("effect_type", battle_effect_type))
+	var raw_skill: Variant = hero_data.get("design_unique_skill", {})
+	if not raw_skill is Dictionary:
+		return {}
+	var skill := BattleSkillResolverScript.normalize_skill(raw_skill as Dictionary)
 	var cutin_path := _get_existing_resource_path(str(hero_data.get("cutin_path", "")))
-	if cutin_path == "" and not sample_skill_entry.is_empty():
-		cutin_path = _get_existing_resource_path(str(sample_skill_entry.get("cutin_image_path", "")))
-	var skill_name := _resolve_worldmap_context_skill_name(hero_data, sample_skill_entry)
-	return {
-		"skill_id": str(hero_data.get("skill_id", hero_data.get("unique_skill_id", ""))),
-		"hero_id": str(hero_data.get("hero_id", "")),
-		"name": skill_name,
-		"toast_text": "%s!" % skill_name,
-		"description": str(hero_data.get("skill_desc", "")),
-		"effect_type": battle_effect_type,
-		"power": int(hero_data.get("skill_power", hero_data.get("skill_value", sample_skill_entry.get("power", UNIQUE_SKILL_ATTACK_BUFF)))),
-		"range": maxi(0, int(hero_data.get("skill_range", UNIQUE_SKILL_DEFAULT_RANGE))),
-		"cutin_image_path": cutin_path,
-		"target_mode": _get_target_mode_for_worldmap_skill_effect(battle_effect_type),
-		"consumes_action": true,
-		"cooldown_turns": maxi(0, int(hero_data.get("skill_cooldown", 0))),
-		"unique": true,
-	}
+	skill["cutin_image_path"] = cutin_path
+	return skill
 
 
 func _get_sample_unique_skill_entry_for_worldmap_hero(hero_data: Dictionary) -> Dictionary:
@@ -2764,6 +2761,8 @@ func _return_to_worldmap_with_result() -> void:
 			Engine.remove_meta(WORLDMAP_BATTLE_RESULT_META_KEY)
 		_append_battle_log("월드맵 복귀 실패")
 		_refresh_worldmap_result_return_button()
+	else:
+		GameSession.clear_battle_resume_snapshot()
 
 
 func _build_worldmap_battle_result_payload(battle_result_state: String) -> Dictionary:
@@ -3064,6 +3063,7 @@ func reset_demo_state() -> void:
 	_hide_attack_range_overlay()
 	_hide_facing_selection_panel()
 	_refresh_battle_log()
+	_refresh_momentum_ui()
 	_refresh_formation_slot_guides()
 	cutin_overlay.visible = false
 	result_overlay.visible = false
@@ -3320,7 +3320,9 @@ func play_basic_attack_demo() -> void:
 
 	var attack_damage := _get_directional_attack_damage(int(DEMO_DAMAGE), active_unit_state, selected_attack_target_state, true, true)
 	var attack_angle_type := _get_attack_angle_type(active_unit_state, selected_attack_target_state)
-	selected_attack_target_state.apply_damage(attack_damage)
+	var applied_attack_damage := selected_attack_target_state.apply_damage(attack_damage)
+	if applied_attack_damage > 0:
+		_gain_momentum_for_basic_attack(active_unit_state)
 	_update_enemy_target_visuals_from_state(selected_attack_target_state)
 	_spawn_hit_battle_dust_fx(enemy_start)
 	_spawn_hit_spark_fx(enemy_start)
@@ -3370,14 +3372,9 @@ func _finish_basic_attack_demo() -> void:
 
 
 func _get_unique_skill_for_unit(unit_state: BattleUnitState) -> Dictionary:
-	var hero_id := _get_hero_id_for_unit_state(unit_state)
-	if hero_id == "":
+	if unit_state == null or unit_state.unique_skill_definition.is_empty():
 		return {}
-	if worldmap_context_unique_skill_registry.has(hero_id):
-		return worldmap_context_unique_skill_registry.get(hero_id, {})
-	if UNIQUE_SKILL_REGISTRY.has(hero_id):
-		return UNIQUE_SKILL_REGISTRY.get(hero_id, {})
-	return {}
+	return BattleSkillResolverScript.normalize_skill(unit_state.unique_skill_definition)
 
 
 func _can_use_unique_skill(unit_state: BattleUnitState) -> bool:
@@ -3467,7 +3464,7 @@ func _enter_unique_skill_target_select_mode(caster_state: BattleUnitState, skill
 
 
 func _should_unique_skill_resolve_without_manual_target(skill_data: Dictionary) -> bool:
-	return String(skill_data.get("effect_type", "")) == "ally_attack_buff"
+	return ["self", "self_area", "self_area_enemy", "enemy_adjacent"].has(String(skill_data.get("target_mode", "")))
 
 
 func _begin_manual_unique_skill_preview(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> void:
@@ -3520,7 +3517,7 @@ func _cancel_unique_skill_target_select_mode() -> void:
 	_clear_transient_battle_highlights()
 	is_floating_ally_command_panel_requested = true
 	_set_phase(PHASE_ALLY_TURN)
-	_append_battle_log("고유특기 취소")
+	_append_battle_log("고유특기 취소 · 기세 미소비")
 	_refresh_move_target_feedback()
 	_show_move_range_overlay_for_active_unit()
 
@@ -3739,7 +3736,11 @@ func _get_strategy_status_display_name(status_id: String) -> String:
 
 
 func _is_unit_confused(unit_state: BattleUnitState) -> bool:
-	return unit_state != null and unit_state.has_status_effect(STATUS_CONFUSION)
+	return unit_state != null and (
+		unit_state.has_status_effect(STATUS_CONFUSION)
+		or unit_state.has_status_effect("action_lock")
+		or unit_state.has_status_effect("fear")
+	)
 
 
 func _get_unit_status_display_entries(unit_state: BattleUnitState) -> Array[Dictionary]:
@@ -3779,6 +3780,40 @@ func _get_unit_status_display_entries(unit_state: BattleUnitState) -> Array[Dict
 			"id": "unique_defense_buff",
 			"badge": "◆",
 			"summary": "◆ 방어+%d" % defense_buff_bonus,
+		})
+	for status_id in [
+		"attack_defense_up",
+		"attack_defense_down",
+		"defense_up",
+		"defense_down",
+		"damage_reduction",
+		"mobility_up",
+		"movement_down",
+		"formation_break",
+		"action_lock",
+		"fear",
+		"burn",
+		"skill_cost_up",
+		"counter_up",
+	]:
+		if not unit_state.has_status_effect(status_id):
+			continue
+		var turns := unit_state.get_status_turns(status_id)
+		var is_positive := [
+			"attack_defense_up",
+			"defense_up",
+			"damage_reduction",
+			"mobility_up",
+			"counter_up",
+		].has(status_id)
+		entries.append({
+			"id": status_id,
+			"badge": "%s%d" % ["▲" if is_positive else "▼", turns],
+			"summary": "%s %s %d턴" % [
+				"▲" if is_positive else "▼",
+				_get_resolver_status_display_name(status_id),
+				turns,
+			],
 		})
 	return entries
 
@@ -3868,6 +3903,11 @@ func _consume_strategy_status_after_unit_action(unit_state: BattleUnitState) -> 
 		return
 	if unit_state.status_effects.is_empty():
 		return
+	if unit_state.has_status_effect("burn") and unit_state.is_alive():
+		var burn_damage := maxi(unit_state.get_status_magnitude("burn", 8) / 2, 4)
+		var applied := unit_state.apply_damage(burn_damage)
+		if applied > 0:
+			_append_battle_log("%s 화상 피해 %d" % [unit_state.display_name, applied])
 	unit_state.tick_status_effects()
 	_refresh_formation_slot_guides()
 	_refresh_strategy_status_icon_labels()
@@ -4014,29 +4054,7 @@ func _consume_confused_ally_turn_if_needed() -> bool:
 func _get_unique_skill_range(caster_state: BattleUnitState, skill_data: Dictionary) -> int:
 	if caster_state == null:
 		return 0
-	var effect_type := String(skill_data.get("effect_type", ""))
-	var default_range := UNIQUE_SKILL_DEFAULT_RANGE
-	match effect_type:
-		"self_defense_single":
-			default_range = UNIQUE_SKILL_MELEE_RANGE
-		"single_damage_adjacent_shake":
-			default_range = UNIQUE_SKILL_SHORT_RANGE
-		"cannon_aoe":
-			default_range = UNIQUE_SKILL_AOE_RANGE
-		"ally_attack_buff":
-			default_range = UNIQUE_SKILL_BUFF_RANGE
-	var requested_range: int = maxi(int(skill_data.get("range", default_range)), 0)
-	match effect_type:
-		"self_defense_single":
-			return mini(requested_range, UNIQUE_SKILL_MELEE_RANGE)
-		"single_damage_adjacent_shake":
-			return mini(requested_range, maxi(UNIQUE_SKILL_MELEE_RANGE, mini(UNIQUE_SKILL_SHORT_RANGE, caster_state.attack_range)))
-		"cannon_aoe":
-			return mini(requested_range, UNIQUE_SKILL_AOE_RANGE)
-		"ally_attack_buff":
-			return mini(requested_range, UNIQUE_SKILL_BUFF_RANGE)
-		_:
-			return mini(requested_range, UNIQUE_SKILL_SHORT_RANGE)
+	return maxi(int(skill_data.get("range", UNIQUE_SKILL_DEFAULT_RANGE)), 0)
 
 
 func _get_unique_skill_range_cells(caster_state: BattleUnitState, skill_data: Dictionary) -> Array[Vector2i]:
@@ -4051,20 +4069,11 @@ func _get_unique_skill_range_cells(caster_state: BattleUnitState, skill_data: Di
 
 
 func _get_unique_skill_valid_targets(caster_state: BattleUnitState, skill_data: Dictionary) -> Array[BattleUnitState]:
-	var targets: Array[BattleUnitState] = []
-	if caster_state == null:
-		return targets
-	var effect_type := String(skill_data.get("effect_type", ""))
-	var target_side := _get_opposing_side(caster_state.side)
-	if effect_type == "ally_attack_buff":
-		target_side = caster_state.side
-	var skill_range := _get_unique_skill_range(caster_state, skill_data)
-	for unit_state in _get_alive_deployed_unit_states_for_side(target_side):
-		if get_unit_grid_distance(caster_state, unit_state) <= skill_range:
-			if effect_type == "ally_attack_buff" and _has_active_unique_skill_attack_buff(unit_state):
-				continue
-			targets.append(unit_state)
-	return targets
+	return BattleSkillResolverScript.get_valid_primary_targets(
+		caster_state,
+		skill_data,
+		_get_all_alive_unit_states_from_adapter()
+	)
 
 
 func _is_valid_unique_skill_target(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> bool:
@@ -4075,6 +4084,8 @@ func _is_valid_unique_skill_target(caster_state: BattleUnitState, skill_data: Di
 
 func _has_valid_unique_skill_action(caster_state: BattleUnitState, skill_data: Dictionary) -> bool:
 	if caster_state == null or skill_data.is_empty():
+		return false
+	if not battle_momentum.can_spend(caster_state.side, _get_effective_unique_skill_cost(caster_state, skill_data)):
 		return false
 	return _get_best_unique_skill_target_for_actor(caster_state, skill_data) != null
 
@@ -4171,59 +4182,44 @@ func _get_unique_skill_buff_candidate_count_for_actor(caster_state: BattleUnitSt
 func _is_unique_skill_high_value_for_actor(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> bool:
 	if caster_state == null or skill_data.is_empty():
 		return false
-	var effect_type := String(skill_data.get("effect_type", ""))
-	match effect_type:
-		"ally_attack_buff":
-			return _get_unique_skill_buff_candidate_count_for_actor(caster_state, skill_data) >= 2
-		"cannon_aoe":
-			return target_state != null and _get_unique_skill_aoe_hit_count(caster_state, skill_data, target_state) >= 2
-		"self_defense_single":
-			if target_state == null:
-				return false
-			var skill_damage := _get_directional_attack_damage(_get_unique_skill_effect_amount(caster_state, skill_data, "power", UNIQUE_SKILL_DEFAULT_DAMAGE, false), caster_state, target_state, false, false)
-			var attack_damage := _get_auto_damage_for_actor_against_target(caster_state, target_state)
-			var angle_type := _get_attack_angle_type(caster_state, target_state)
-			return (
-				skill_damage >= int(target_state.current_hp)
-				or skill_damage >= attack_damage + UNIQUE_SKILL_HIGH_VALUE_DAMAGE_DELTA
-				or (angle_type == ATTACK_ANGLE_BACK and skill_damage >= attack_damage + 6)
-			)
-		"single_damage_adjacent_shake":
-			if target_state == null:
-				return false
-			var skill_damage := _get_directional_attack_damage(_get_unique_skill_effect_amount(caster_state, skill_data, "power", UNIQUE_SKILL_DEFAULT_DAMAGE, false), caster_state, target_state, false, false)
-			var attack_damage := _get_auto_damage_for_actor_against_target(caster_state, target_state)
-			return (
-				skill_damage >= int(target_state.current_hp)
-				or _count_adjacent_unique_skill_splash_targets(caster_state, target_state) >= 1
-				or skill_damage >= attack_damage + UNIQUE_SKILL_HIGH_VALUE_DAMAGE_DELTA
-			)
-	return false
+	return _score_unique_skill_plan_for_actor(caster_state, skill_data, target_state) >= 130
 
 
 func _is_unique_skill_fallback_value_for_actor(caster_state: BattleUnitState, skill_data: Dictionary, target_state: BattleUnitState) -> bool:
 	if caster_state == null or skill_data.is_empty():
 		return false
-	var effect_type := String(skill_data.get("effect_type", ""))
-	match effect_type:
-		"ally_attack_buff":
-			return _get_unique_skill_buff_candidate_count_for_actor(caster_state, skill_data) >= 3
-		"cannon_aoe":
-			return target_state != null and _get_unique_skill_aoe_hit_count(caster_state, skill_data, target_state) >= 2
-		"self_defense_single", "single_damage_adjacent_shake":
-			if target_state == null:
-				return false
-			var skill_damage := _get_directional_attack_damage(_get_unique_skill_effect_amount(caster_state, skill_data, "power", UNIQUE_SKILL_DEFAULT_DAMAGE, false), caster_state, target_state, false, false)
-			return skill_damage >= int(target_state.current_hp)
-	return false
+	return _score_unique_skill_plan_for_actor(caster_state, skill_data, target_state) >= 70
+
+
+func _score_unique_skill_plan_for_actor(
+	caster_state: BattleUnitState,
+	skill_data: Dictionary,
+	target_state: BattleUnitState
+) -> int:
+	var executable_skill := skill_data.duplicate(true)
+	executable_skill["effective_momentum_cost"] = _get_effective_unique_skill_cost(caster_state, skill_data)
+	if ["self", "self_area", "self_area_enemy", "enemy_adjacent"].has(String(executable_skill.get("target_mode", ""))):
+		target_state = caster_state
+	var plan := BattleSkillResolverScript.build_plan(
+		caster_state,
+		executable_skill,
+		_get_all_alive_unit_states_from_adapter(),
+		target_state,
+		battle_momentum.get_value(caster_state.side),
+		String(worldmap_battle_context.get("battle_type", "land"))
+	)
+	var units_by_id := {}
+	for unit_state in _get_all_alive_unit_states_from_adapter():
+		units_by_id[unit_state.unit_id] = unit_state
+	return BattleSkillResolverScript.score_plan(plan, units_by_id)
 
 
 func _get_unique_skill_clicked_target_at_position(mouse_world_pos: Vector2) -> BattleUnitState:
 	if unique_skill_targeting_caster_state == null or unique_skill_targeting_skill_data.is_empty():
 		return null
-	var effect_type := String(unique_skill_targeting_skill_data.get("effect_type", ""))
+	var target_mode := String(unique_skill_targeting_skill_data.get("target_mode", ""))
 	var clicked_target: BattleUnitState = null
-	if effect_type == "ally_attack_buff":
+	if target_mode == "ally_area":
 		clicked_target = _get_clicked_ally_unit_at_position(mouse_world_pos)
 	else:
 		clicked_target = _get_clicked_enemy_unit_at_position(mouse_world_pos)
@@ -4298,6 +4294,28 @@ func _finish_auto_unique_skill_preview(caster_state: BattleUnitState, skill_data
 func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
 	if caster_state == null or skill_data.is_empty():
 		return
+	var executable_skill := skill_data.duplicate(true)
+	executable_skill["effective_momentum_cost"] = _get_effective_unique_skill_cost(caster_state, skill_data)
+	var selected_target := selected_attack_target_state
+	if ["self", "self_area", "self_area_enemy", "enemy_adjacent"].has(String(executable_skill.get("target_mode", ""))):
+		selected_target = caster_state
+	var plan := BattleSkillResolverScript.build_plan(
+		caster_state,
+		executable_skill,
+		_get_all_alive_unit_states_from_adapter(),
+		selected_target,
+		battle_momentum.get_value(caster_state.side),
+		String(worldmap_battle_context.get("battle_type", "land"))
+	)
+	if not bool(plan.get("ok", false)):
+		_handle_unique_skill_commit_failure(caster_state, String(plan.get("reason", "resolver_rejected")))
+		return
+	var momentum_cost := int(plan.get("momentum_cost", 0))
+	if not battle_momentum.spend(caster_state.side, momentum_cost, String(plan.get("skill_id", ""))):
+		_handle_unique_skill_commit_failure(caster_state, "insufficient_momentum")
+		return
+	pending_unique_skill_plan = plan.duplicate(true)
+	_refresh_momentum_ui()
 	is_manual_unique_skill_preview_pending = false
 	is_demo_animating = true
 	is_unique_skill_presenting = true
@@ -4319,6 +4337,11 @@ func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dic
 	else:
 		_show_unique_skill_toast_over_unit(caster_state, skill_data)
 	_append_battle_log("%s이 %s을 발동!" % [caster_state.display_name, String(skill_data.get("name", "고유특기"))])
+	_append_battle_log("%s 기세 %d 소비 · 잔여 %d" % [
+		_get_side_display_name(caster_state.side),
+		momentum_cost,
+		battle_momentum.get_value(caster_state.side),
+	])
 	var remaining_duration := maxf(0.0, presentation_duration - effect_apply_delay)
 	get_tree().create_timer(effect_apply_delay).timeout.connect(_apply_unique_skill_effect_if_valid.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
 	get_tree().create_timer(effect_apply_delay + remaining_duration).timeout.connect(_finalize_unique_skill_action.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
@@ -4892,23 +4915,178 @@ func _load_unique_skill_texture(path: String) -> Texture2D:
 
 
 func _apply_unique_skill_effect(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
-	var effect_type := String(skill_data.get("effect_type", ""))
-	match effect_type:
-		"cannon_aoe":
-			_apply_unique_skill_cannon_aoe(caster_state, skill_data)
-		"ally_attack_buff":
-			_apply_unique_skill_ally_attack_buff(caster_state, skill_data)
-		"self_defense_single":
-			_apply_unique_skill_self_defense_single(caster_state, skill_data)
-		"single_damage_adjacent_shake":
-			_apply_unique_skill_single_damage_adjacent_shake(caster_state, skill_data)
-		_:
-			_apply_unique_skill_self_defense_single(caster_state, skill_data)
+	if pending_unique_skill_plan.is_empty() \
+			or String(pending_unique_skill_plan.get("caster_unit_id", "")) != caster_state.unit_id:
+		_append_battle_log("고유기 실행 계획이 유효하지 않습니다.")
+		return
+	_apply_resolver_skill_plan(caster_state, pending_unique_skill_plan)
 	_update_all_unit_visuals_from_state()
 	_update_ally_ready_frames()
 	_refresh_formation_slot_guides()
 	_refresh_strategy_status_icon_labels()
 	_cleanup_dead_units()
+
+
+func _get_effective_unique_skill_cost(caster_state: BattleUnitState, skill_data: Dictionary) -> int:
+	var cost := maxi(int(skill_data.get("momentum_cost", 0)), 0)
+	if caster_state != null and caster_state.has_status_effect("skill_cost_up"):
+		cost += maxi(caster_state.get_status_magnitude("skill_cost_up", 1), 1)
+	return mini(cost, BattleMomentumStateScript.MAX_MOMENTUM)
+
+
+func _handle_unique_skill_commit_failure(caster_state: BattleUnitState, reason: String) -> void:
+	pending_unique_skill_plan.clear()
+	is_manual_unique_skill_preview_pending = false
+	is_demo_animating = false
+	is_unique_skill_presenting = false
+	_hide_unique_skill_range_overlay()
+	_clear_unique_skill_targeting_state()
+	_clear_attack_target_selection()
+	_append_battle_log("고유기 실행 실패 · 기세 미소비 (%s)" % reason)
+	_refresh_momentum_ui()
+	if caster_state != null and caster_state.side == "enemy":
+		_mark_enemy_unit_acted(caster_state)
+		_return_to_ally_turn()
+	else:
+		is_floating_ally_command_panel_requested = true
+		_set_phase(PHASE_ALLY_TURN)
+
+
+func _apply_resolver_skill_plan(caster_state: BattleUnitState, plan: Dictionary) -> void:
+	var unit_by_id := {}
+	for unit_state in _get_all_unit_states_in_slot_order():
+		if unit_state != null:
+			unit_by_id[unit_state.unit_id] = unit_state
+	var damage_hits := 0
+	var status_hits := 0
+	var heal_hits := 0
+	for command_variant in plan.get("commands", []):
+		if not command_variant is Dictionary:
+			continue
+		var command: Dictionary = command_variant
+		var command_type := String(command.get("type", ""))
+		var target_id := String(command.get("target_unit_id", ""))
+		var amount := int(command.get("amount", 0))
+		var target_state: BattleUnitState = unit_by_id.get(target_id, null)
+		match command_type:
+			"damage":
+				if target_state == null or not target_state.is_alive():
+					continue
+				var adjusted_damage := _apply_wounded_incoming_damage_penalty(target_state, amount)
+				var applied := target_state.apply_damage(adjusted_damage)
+				if applied <= 0:
+					continue
+				damage_hits += 1
+				var target_pos := _get_visual_anchor_position_for_unit(target_state)
+				_spawn_hit_battle_dust_fx(target_pos)
+				_spawn_hit_spark_fx(target_pos)
+				_spawn_skill_damage_number_fx(target_pos, applied)
+			"heal":
+				if target_state == null or not target_state.is_alive():
+					continue
+				var healed := target_state.heal(amount)
+				if healed > 0:
+					heal_hits += 1
+					_spawn_buff_number_fx(_get_visual_anchor_position_for_unit(target_state), "+%d" % healed)
+			"status":
+				if target_state == null or not target_state.is_alive():
+					continue
+				var status_id := String(command.get("status_id", ""))
+				var status_turns := int(command.get("turns", 1))
+				if target_state == caster_state:
+					status_turns += 1
+				target_state.apply_status_effect(status_id, status_turns, amount)
+				status_hits += 1
+				_spawn_strategy_text_fx(
+					_get_visual_anchor_position_for_unit(target_state),
+					_get_resolver_status_display_name(status_id),
+					_get_status_display_color("defend") if target_state.side == caster_state.side else STRATEGY_EFFECT_COLOR
+				)
+			"cleanse":
+				if target_state == null:
+					continue
+				if _cleanse_one_resolver_negative_status(target_state):
+					status_hits += 1
+			"momentum":
+				var momentum_side := target_id
+				if amount >= 0:
+					var gained := battle_momentum.gain(momentum_side, amount, String(command.get("status_id", "skill_gain")))
+					if gained > 0:
+						_append_battle_log("%s 기세 +%d" % [_get_side_display_name(momentum_side), gained])
+				else:
+					var drained := mini(battle_momentum.get_value(momentum_side), absi(amount))
+					if drained > 0:
+						battle_momentum.spend(momentum_side, drained, String(command.get("status_id", "skill_drain")))
+						_append_battle_log("%s 기세 -%d" % [_get_side_display_name(momentum_side), drained])
+			"move":
+				if target_state != null:
+					_apply_resolver_retreat_move(target_state, amount)
+	_refresh_momentum_ui()
+	_append_battle_log("%s 효과 · 피해 %d / 상태 %d / 회복 %d" % [
+		String(plan.get("skill_name", "고유기")),
+		damage_hits,
+		status_hits,
+		heal_hits,
+	])
+
+
+func _cleanse_one_resolver_negative_status(unit_state: BattleUnitState) -> bool:
+	for status_id in [
+		"attack_defense_down",
+		"defense_down",
+		"movement_down",
+		"formation_break",
+		"action_lock",
+		"fear",
+		"burn",
+		"skill_cost_up",
+	]:
+		if unit_state.has_status_effect(status_id):
+			unit_state.apply_status_effect(status_id, 0)
+			return true
+	return false
+
+
+func _apply_resolver_retreat_move(unit_state: BattleUnitState, distance: int) -> void:
+	if unit_state == null or battle_grid_controller == null:
+		return
+	var direction := Vector2i(-1, 0) if unit_state.side == "ally" else Vector2i(1, 0)
+	var destination := unit_state.grid_cell + direction * maxi(distance, 1)
+	if not battle_grid_controller.is_in_bounds(destination):
+		return
+	if not _is_valid_destination_for_unit(destination, unit_state, true):
+		return
+	var target_position := battle_grid_controller.grid_to_world(destination)
+	if unit_state.side == "ally":
+		var ally_portrait_offset := current_ally_portrait_position - current_ally_unit_position
+		_sync_selected_ally_markers_to_position(target_position, target_position + ally_portrait_offset)
+	else:
+		var enemy_marker := _get_enemy_actor_unit_marker(unit_state)
+		var enemy_portrait_marker := _get_enemy_actor_portrait_marker(unit_state)
+		var enemy_portrait_offset := Vector2.ZERO
+		if enemy_marker != null and enemy_portrait_marker != null:
+			enemy_portrait_offset = enemy_portrait_marker.position - enemy_marker.position
+		_sync_enemy_actor_markers_to_position(unit_state, target_position, target_position + enemy_portrait_offset)
+	unit_state.set_grid_cell(destination)
+	_sync_demo_positions()
+
+
+func _get_resolver_status_display_name(status_id: String) -> String:
+	return {
+		"attack_defense_up": "공방 상승",
+		"attack_defense_down": "공방 저하",
+		"defense_up": "방어 상승",
+		"defense_down": "방어 저하",
+		"damage_reduction": "피해 감소",
+		"mobility_up": "기동 상승",
+		"movement_down": "이동 저하",
+		"formation_break": "진형 붕괴",
+		"action_lock": "행동 봉쇄",
+		"fear": "공포",
+		"burn": "화상",
+		"skill_cost_up": "기세 비용 증가",
+		"counter_up": "반격 강화",
+	}.get(status_id, status_id)
 
 
 func _apply_unique_skill_cannon_aoe(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
@@ -5082,6 +5260,22 @@ func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnit
 		damage_multiplier *= STRATEGY_SHAKE_DEFENSE_DAMAGE_MULTIPLIER
 	if defender_state != null and defender_state.is_defending:
 		damage_multiplier *= DEFEND_DAMAGE_MULTIPLIER
+	if attacker_state != null:
+		if attacker_state.has_status_effect("attack_defense_up"):
+			damage_multiplier *= 1.0 + float(attacker_state.get_status_magnitude("attack_defense_up", 10)) / 100.0
+		if attacker_state.has_status_effect("attack_defense_down"):
+			damage_multiplier *= 1.0 - float(attacker_state.get_status_magnitude("attack_defense_down", 10)) / 100.0
+		if attacker_state.has_status_effect("counter_up"):
+			damage_multiplier *= 1.0 + float(attacker_state.get_status_magnitude("counter_up", 15)) / 100.0
+	if defender_state != null:
+		if defender_state.has_status_effect("defense_up") or defender_state.has_status_effect("attack_defense_up"):
+			damage_multiplier *= 1.0 - float(defender_state.get_status_magnitude("defense_up", defender_state.get_status_magnitude("attack_defense_up", 10))) / 100.0
+		if defender_state.has_status_effect("defense_down") or defender_state.has_status_effect("attack_defense_down"):
+			damage_multiplier *= 1.0 + float(defender_state.get_status_magnitude("defense_down", defender_state.get_status_magnitude("attack_defense_down", 10))) / 100.0
+		if defender_state.has_status_effect("damage_reduction"):
+			damage_multiplier *= 1.0 - float(defender_state.get_status_magnitude("damage_reduction", 12)) / 100.0
+		if defender_state.has_status_effect("formation_break"):
+			damage_multiplier *= 1.12
 	var damage := maxi(1, int(round(float(base_damage) * damage_multiplier)))
 	if apply_attacker_wounded_penalty:
 		damage = _apply_wounded_amount_multiplier(attacker_state, "attack", damage, should_log_wounded_penalty)
@@ -5210,6 +5404,7 @@ func _finalize_unique_skill_action(caster_state: BattleUnitState, skill_data: Di
 	_hide_strategy_range_overlay()
 	_clear_pending_move_snapshot()
 	_clear_auto_action_flags()
+	pending_unique_skill_plan.clear()
 	_set_unique_skill_cooldown(caster_state, int(skill_data.get("cooldown_turns", 0)))
 	if bool(skill_data.get("consumes_action", true)):
 		if caster_state != null and caster_state.side == "enemy":
@@ -5288,6 +5483,8 @@ func _set_phase(new_phase: String) -> void:
 		call_deferred("_consume_confused_ally_turn_if_needed")
 	if current_phase == PHASE_ALLY_TURN and is_full_auto_battle_enabled and not is_demo_animating and not battle_finished and not _is_battle_intro_camera_playing():
 		call_deferred("_tick_full_auto_battle_if_needed")
+	if not battle_finished and (current_phase == PHASE_ALLY_TURN or current_phase == PHASE_ENEMY_TURN):
+		_persist_battle_resume_snapshot()
 
 
 func _configure_floating_ally_command_panel() -> void:
@@ -5426,10 +5623,20 @@ func _refresh_floating_ally_command_panel() -> void:
 		var skill_data := _get_unique_skill_for_unit(active_unit_state)
 		floating_unique_skill_button.disabled = current_phase != PHASE_ALLY_TURN or not _can_use_unique_skill(active_unit_state)
 		if not skill_data.is_empty():
-			floating_unique_skill_button.text = String(skill_data.get("name", "고유특기"))
+			var skill_cost := _get_effective_unique_skill_cost(active_unit_state, skill_data)
+			floating_unique_skill_button.text = "%s · 기세 %d" % [
+				String(skill_data.get("name", "고유특기")),
+				skill_cost,
+			]
+			floating_unique_skill_button.tooltip_text = "%s\n공용 기세 %d/%d · 소비 %d" % [
+				String(skill_data.get("description", "")),
+				battle_momentum.get_value("ally"),
+				BattleMomentumStateScript.MAX_MOMENTUM,
+				skill_cost,
+			]
 		else:
 			floating_unique_skill_button.text = "고유특기"
-		floating_unique_skill_button.tooltip_text = ""
+			floating_unique_skill_button.tooltip_text = "고유기 데이터 없음"
 	if floating_tactics_button != null:
 		floating_tactics_button.disabled = not can_issue_ally_command or not _can_use_strategy(active_unit_state)
 		floating_tactics_button.text = STRATEGY_NAME
@@ -5955,6 +6162,181 @@ func _append_battle_log(line: String) -> void:
 	while battle_log_lines.size() > MAX_BATTLE_LOG_LINES:
 		battle_log_lines.pop_front()
 	_refresh_battle_log()
+
+
+func _gain_momentum_for_basic_attack(actor_state: BattleUnitState) -> void:
+	if actor_state == null:
+		return
+	var gained := battle_momentum.record_basic_attack(actor_state.side)
+	if gained <= 0:
+		return
+	_append_battle_log("%s 일반 공격 · 기세 +%d (%d/%d)" % [
+		_get_side_display_name(actor_state.side),
+		gained,
+		battle_momentum.get_value(actor_state.side),
+		BattleMomentumStateScript.MAX_MOMENTUM,
+	])
+	_refresh_momentum_ui()
+
+
+func _configure_momentum_ui() -> void:
+	var top_bar := get_node_or_null("BattleUI/TopBar") as Control
+	if top_bar == null:
+		return
+	momentum_ally_label = Label.new()
+	momentum_ally_label.name = "AllyMomentumLabel"
+	momentum_ally_label.position = Vector2(24.0, 10.0)
+	momentum_ally_label.size = Vector2(260.0, 42.0)
+	momentum_ally_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	momentum_ally_label.add_theme_font_size_override("font_size", 22)
+	momentum_ally_label.add_theme_color_override("font_color", Color(0.45, 0.78, 1.0, 1.0))
+	momentum_ally_label.add_theme_color_override("font_outline_color", Color(0.01, 0.02, 0.04, 0.95))
+	momentum_ally_label.add_theme_constant_override("outline_size", 3)
+	top_bar.add_child(momentum_ally_label)
+	momentum_enemy_label = Label.new()
+	momentum_enemy_label.name = "EnemyMomentumLabel"
+	momentum_enemy_label.position = Vector2(top_bar.size.x - 284.0, 10.0)
+	momentum_enemy_label.size = Vector2(260.0, 42.0)
+	momentum_enemy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	momentum_enemy_label.add_theme_font_size_override("font_size", 22)
+	momentum_enemy_label.add_theme_color_override("font_color", Color(1.0, 0.48, 0.42, 1.0))
+	momentum_enemy_label.add_theme_color_override("font_outline_color", Color(0.04, 0.01, 0.01, 0.95))
+	momentum_enemy_label.add_theme_constant_override("outline_size", 3)
+	top_bar.add_child(momentum_enemy_label)
+	_refresh_momentum_ui()
+
+
+func _refresh_momentum_ui() -> void:
+	if momentum_ally_label != null:
+		momentum_ally_label.text = "아군 기세 ◆ %d/%d" % [
+			battle_momentum.get_value("ally"),
+			BattleMomentumStateScript.MAX_MOMENTUM,
+		]
+	if momentum_enemy_label != null:
+		momentum_enemy_label.text = "적군 기세 ◆ %d/%d" % [
+			battle_momentum.get_value("enemy"),
+			BattleMomentumStateScript.MAX_MOMENTUM,
+		]
+	if floating_ally_command_panel != null and floating_ally_command_panel.visible:
+		_refresh_floating_ally_command_panel()
+
+
+func _get_current_battle_resume_id() -> String:
+	if worldmap_battle_context.is_empty():
+		return ""
+	return String(worldmap_battle_context.get(
+		"battle_id",
+		worldmap_battle_context.get("transaction_id", "")
+	))
+
+
+func _persist_battle_resume_snapshot() -> void:
+	var battle_id := _get_current_battle_resume_id()
+	if battle_id.is_empty() or _is_battle_result_finalized():
+		return
+	if current_phase != PHASE_ALLY_TURN and current_phase != PHASE_ENEMY_TURN:
+		return
+	var active_unit_id := active_unit_state.unit_id if active_unit_state != null else ""
+	var snapshot := BattleRuntimeSnapshotScript.capture(
+		battle_id,
+		battle_round,
+		current_phase,
+		_get_all_unit_states_in_slot_order(),
+		battle_momentum,
+		{
+			"active_unit_id": active_unit_id,
+			"acted_ally_unit_ids": acted_ally_unit_ids.duplicate(true),
+			"acted_enemy_unit_ids": acted_enemy_unit_ids.duplicate(true),
+			"dead_unit_ids": dead_unit_ids.duplicate(true),
+			"cooldowns": unique_skill_cooldowns_by_hero_id.duplicate(true),
+			"battle_log_lines": battle_log_lines.duplicate(),
+			"has_deployed_reinforce_01": has_deployed_reinforce_01,
+			"has_deployed_reinforce_02": has_deployed_reinforce_02,
+			"capacity_slot_metadata": capacity_slot_metadata_registry.duplicate(true),
+			"battle_supply": battle_supply_runtime.serialize_runtime() if battle_supply_runtime != null else {},
+		}
+	)
+	if GameSession.save_battle_resume_snapshot(snapshot):
+		print("[BATTLE_RESUME] saved battle=%s round=%d phase=%s" % [battle_id, battle_round, current_phase])
+
+
+func _try_restore_battle_resume_snapshot() -> void:
+	var battle_id := _get_current_battle_resume_id()
+	if battle_id.is_empty():
+		return
+	var snapshot: Dictionary = GameSession.load_battle_resume_snapshot(battle_id)
+	if snapshot.is_empty():
+		_persist_battle_resume_snapshot()
+		return
+	var restored := BattleRuntimeSnapshotScript.restore(
+		snapshot,
+		battle_id,
+		_get_all_unit_states_in_slot_order(),
+		battle_momentum
+	)
+	if not bool(restored.get("ok", false)):
+		push_warning("[BATTLE_RESUME] restore rejected: %s" % String(restored.get("reason", "unknown")))
+		return
+	battle_round = int(restored.get("battle_round", battle_round))
+	var extra: Dictionary = restored.get("extra_state", {})
+	acted_ally_unit_ids = _dictionary_from_variant(extra.get("acted_ally_unit_ids", {}))
+	acted_enemy_unit_ids = _dictionary_from_variant(extra.get("acted_enemy_unit_ids", {}))
+	dead_unit_ids = _dictionary_from_variant(extra.get("dead_unit_ids", {}))
+	unique_skill_cooldowns_by_hero_id = _dictionary_from_variant(extra.get("cooldowns", {}))
+	has_deployed_reinforce_01 = bool(extra.get("has_deployed_reinforce_01", has_deployed_reinforce_01))
+	has_deployed_reinforce_02 = bool(extra.get("has_deployed_reinforce_02", has_deployed_reinforce_02))
+	var capacity_variant: Variant = extra.get("capacity_slot_metadata", {})
+	if capacity_variant is Dictionary and not (capacity_variant as Dictionary).is_empty():
+		capacity_slot_metadata_registry = (capacity_variant as Dictionary).duplicate(true)
+	var supply_variant: Variant = extra.get("battle_supply", {})
+	if battle_supply_runtime != null and supply_variant is Dictionary and not (supply_variant as Dictionary).is_empty():
+		if not battle_supply_runtime.restore_runtime(supply_variant as Dictionary):
+			push_warning("[BATTLE_RESUME] supply restore rejected")
+	var log_variant: Variant = extra.get("battle_log_lines", [])
+	if log_variant is Array:
+		battle_log_lines.clear()
+		for line_variant in log_variant:
+			battle_log_lines.append(String(line_variant))
+	var active_unit_id := String(extra.get("active_unit_id", ""))
+	for unit_state in _get_all_unit_states_in_slot_order():
+		if unit_state != null and unit_state.unit_id == active_unit_id and unit_state.side == "ally":
+			_select_ally_unit(unit_state, false, false, true)
+			break
+	battle_resume_restored = true
+	for unit_state in _get_all_unit_states_in_slot_order():
+		_sync_resumed_unit_markers_to_grid(unit_state)
+	_sync_demo_positions()
+	_update_all_unit_visuals_from_state()
+	_cleanup_dead_units()
+	_refresh_battle_log()
+	_refresh_momentum_ui()
+	_refresh_formation_slot_guides()
+	var restored_phase := String(restored.get("current_phase", PHASE_ALLY_TURN))
+	_set_phase(restored_phase)
+	_append_battle_log("저장된 전투 복귀 · BATTLE %d" % battle_round)
+	print("[BATTLE_RESUME] restored battle=%s round=%d phase=%s" % [battle_id, battle_round, restored_phase])
+	if restored_phase == PHASE_ENEMY_TURN:
+		call_deferred("_play_enemy_turn_demo")
+
+
+func _dictionary_from_variant(value: Variant) -> Dictionary:
+	return (value as Dictionary).duplicate(true) if value is Dictionary else {}
+
+
+func _sync_resumed_unit_markers_to_grid(unit_state: BattleUnitState) -> void:
+	if unit_state == null or battle_grid_controller == null:
+		return
+	var unit_marker := _get_unit_marker_for_unit(unit_state)
+	var portrait_marker := _get_portrait_marker_for_unit(unit_state)
+	if unit_marker == null:
+		return
+	var portrait_offset := Vector2.ZERO
+	if portrait_marker != null:
+		portrait_offset = portrait_marker.position - unit_marker.position
+	var target_position := battle_grid_controller.grid_to_world(unit_state.grid_cell)
+	unit_marker.position = target_position
+	if portrait_marker != null:
+		portrait_marker.position = target_position + portrait_offset
 
 
 func _refresh_battle_log() -> void:
@@ -7358,7 +7740,9 @@ func _enemy_reaction_hit_on() -> void:
 	if target_state != null and target_state.is_alive():
 		var attack_damage := _get_directional_attack_damage(int(ENEMY_DEMO_DAMAGE), current_enemy_ai_actor_state, target_state, true, true)
 		var attack_angle_type := _get_attack_angle_type(current_enemy_ai_actor_state, target_state)
-		target_state.apply_damage(attack_damage)
+		var applied_attack_damage := target_state.apply_damage(attack_damage)
+		if applied_attack_damage > 0:
+			_gain_momentum_for_basic_attack(current_enemy_ai_actor_state)
 		_update_ally_target_visuals_from_state(target_state)
 		var target_pos := _get_ally_target_visual_anchor_position(target_state)
 		_spawn_hit_battle_dust_fx(target_pos)
@@ -10635,7 +11019,7 @@ func _show_move_range_overlay_for_active_unit() -> void:
 		return
 
 	var origin_cell := active_unit_state.grid_cell
-	var move_range := active_unit_state.move_range
+	var move_range := _get_effective_move_range(active_unit_state)
 	var valid_cells: Array[Vector2i] = battle_grid_controller.get_tiles_in_range(origin_cell, move_range)
 	valid_cells = _get_cells_wave_order(valid_cells, origin_cell, move_range)
 	var cell_size := battle_grid_controller.get_cell_size()
@@ -13850,7 +14234,18 @@ func get_active_move_origin_cell() -> Vector2i:
 func get_active_move_range() -> int:
 	if active_unit_state == null:
 		return 0
-	return active_unit_state.move_range
+	return _get_effective_move_range(active_unit_state)
+
+
+func _get_effective_move_range(unit_state: BattleUnitState) -> int:
+	if unit_state == null:
+		return 0
+	var result := unit_state.move_range
+	if unit_state.has_status_effect("mobility_up"):
+		result += 1
+	if unit_state.has_status_effect("movement_down"):
+		result -= 1
+	return maxi(result, 0)
 
 
 func _get_all_alive_unit_states() -> Array[BattleUnitState]:
@@ -14044,7 +14439,7 @@ func _find_enemy_move_path(start_cell: Vector2i, target_cell: Vector2i) -> Array
 func _find_enemy_move_path_for_actor(enemy_actor_state: BattleUnitState, start_cell: Vector2i, target_cell: Vector2i) -> Array[Vector2i]:
 	var actor_move_range := 0
 	if enemy_actor_state != null:
-		actor_move_range = enemy_actor_state.move_range
+		actor_move_range = _get_effective_move_range(enemy_actor_state)
 	return _find_enemy_path_to_destination_for_actor(enemy_actor_state, start_cell, target_cell, actor_move_range)
 
 
@@ -14061,7 +14456,7 @@ func _find_enemy_path_to_destination_for_actor(enemy_actor_state: BattleUnitStat
 	if not _is_cell_walkable_for_enemy_actor(enemy_actor_state, target_cell, start_cell):
 		return empty_path
 
-	var max_steps := enemy_actor_state.move_range
+	var max_steps := _get_effective_move_range(enemy_actor_state)
 	if max_steps_override >= 0:
 		max_steps = max_steps_override
 	var frontier: Array[Vector2i] = [start_cell]
@@ -14122,7 +14517,7 @@ func _get_enemy_reachable_paths_for_actor(enemy_actor_state: BattleUnitState, st
 	var frontier: Array[Vector2i] = [start_cell]
 	var came_from: Dictionary = {start_cell: start_cell}
 	var steps_from_start: Dictionary = {start_cell: 0}
-	var max_steps := enemy_actor_state.move_range
+	var max_steps := _get_effective_move_range(enemy_actor_state)
 	var directions: Array[Vector2i] = [
 		Vector2i(1, 0),
 		Vector2i(-1, 0),
@@ -14261,7 +14656,7 @@ func _get_enemy_engagement_step_plan_for_actor(enemy_actor_state: BattleUnitStat
 		if full_path.is_empty() or full_path.size() < 2:
 			continue
 		var full_path_length := full_path.size() - 1
-		var step_index := mini(enemy_actor_state.move_range, full_path_length)
+		var step_index := mini(_get_effective_move_range(enemy_actor_state), full_path_length)
 		if step_index <= 0 or step_index >= full_path.size():
 			continue
 		var step_cell: Vector2i = full_path[step_index]

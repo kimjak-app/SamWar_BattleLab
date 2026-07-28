@@ -38,8 +38,11 @@ var initial_allocated_troops: int = 0
 var attack: int = 0
 var defense: int = 0
 var intelligence: int = 0
+var martial: int = 0
 var move_range: int = 0
 var attack_range: int = 0
+var unique_skill_id: String = ""
+var unique_skill_definition: Dictionary = {}
 var grid_cell: Vector2i = Vector2i.ZERO
 var facing: String = "right"
 var has_acted: bool = false
@@ -78,8 +81,12 @@ func setup(data: Dictionary) -> void:
 	attack = int(authoritative_data.get("attack", 0))
 	defense = int(authoritative_data.get("defense", 0))
 	intelligence = int(authoritative_data.get("intelligence", 0))
+	martial = int(authoritative_data.get("martial", authoritative_data.get("war", attack)))
 	move_range = int(authoritative_data.get("move_range", 0))
 	attack_range = int(authoritative_data.get("attack_range", 0))
+	unique_skill_id = String(authoritative_data.get("design_unique_skill_id", authoritative_data.get("unique_skill_id", "")))
+	var raw_unique_skill: Variant = authoritative_data.get("design_unique_skill", {})
+	unique_skill_definition = (raw_unique_skill as Dictionary).duplicate(true) if raw_unique_skill is Dictionary else {}
 	grid_cell = authoritative_data.get("grid_cell", Vector2i.ZERO)
 	facing = String(authoritative_data.get("facing", "right"))
 	has_acted = bool(authoritative_data.get("has_acted", false))
@@ -171,8 +178,13 @@ func _rebuild_authority_for_runtime_unit_id(value: String) -> void:
 	attack = int(payload.get("attack", attack))
 	defense = int(payload.get("defense", defense))
 	intelligence = int(payload.get("intelligence", intelligence))
+	martial = int(payload.get("martial", payload.get("war", martial)))
 	move_range = int(payload.get("move_range", move_range))
 	attack_range = int(payload.get("attack_range", attack_range))
+	unique_skill_id = String(payload.get("design_unique_skill_id", payload.get("unique_skill_id", unique_skill_id)))
+	var raw_unique_skill: Variant = payload.get("design_unique_skill", unique_skill_definition)
+	if raw_unique_skill is Dictionary:
+		unique_skill_definition = (raw_unique_skill as Dictionary).duplicate(true)
 
 
 static func _resolve_hero_id(data: Dictionary) -> String:
@@ -241,30 +253,53 @@ func reset_action_flags() -> void:
 
 
 func get_status_turns(effect_id: String) -> int:
-	return maxi(int(status_effects.get(effect_id, 0)), 0)
+	var raw_value: Variant = status_effects.get(effect_id, 0)
+	if raw_value is Dictionary:
+		return maxi(int((raw_value as Dictionary).get("turns", 0)), 0)
+	return maxi(int(raw_value), 0)
 
 
 func has_status_effect(effect_id: String) -> bool:
 	return get_status_turns(effect_id) > 0
 
 
-func apply_status_effect(effect_id: String, turns: int) -> void:
+func get_status_magnitude(effect_id: String, fallback: int = 0) -> int:
+	var raw_value: Variant = status_effects.get(effect_id, {})
+	if raw_value is Dictionary:
+		return int((raw_value as Dictionary).get("magnitude", fallback))
+	return fallback
+
+
+func apply_status_effect(effect_id: String, turns: int, magnitude: int = 0) -> void:
 	var normalized_turns := maxi(turns, 0)
 	if normalized_turns <= 0:
 		status_effects.erase(effect_id)
 		return
-	status_effects[effect_id] = maxi(get_status_turns(effect_id), normalized_turns)
+	status_effects[effect_id] = {
+		"turns": maxi(get_status_turns(effect_id), normalized_turns),
+		"magnitude": magnitude,
+	}
 
 
 func tick_status_effects() -> void:
 	var expired_effects: Array[String] = []
 	for effect_key in status_effects.keys():
 		var effect_id := String(effect_key)
-		var remaining_turns := maxi(int(status_effects.get(effect_id, 0)) - 1, 0)
+		var raw_value: Variant = status_effects.get(effect_id, 0)
+		var remaining_turns := 0
+		if raw_value is Dictionary:
+			remaining_turns = maxi(int((raw_value as Dictionary).get("turns", 0)) - 1, 0)
+		else:
+			remaining_turns = maxi(int(raw_value) - 1, 0)
 		if remaining_turns <= 0:
 			expired_effects.append(effect_id)
 		else:
-			status_effects[effect_id] = remaining_turns
+			if raw_value is Dictionary:
+				var updated: Dictionary = (raw_value as Dictionary).duplicate(true)
+				updated["turns"] = remaining_turns
+				status_effects[effect_id] = updated
+			else:
+				status_effects[effect_id] = remaining_turns
 	for effect_id in expired_effects:
 		status_effects.erase(effect_id)
 
@@ -275,3 +310,40 @@ func set_grid_cell(cell: Vector2i) -> void:
 
 func get_troop_label_text() -> String:
 	return "%d / %d" % [current_troops, current_troops]
+
+
+func serialize_battle_runtime() -> Dictionary:
+	return {
+		"unit_id": unit_id,
+		"current_hp": current_hp,
+		"max_hp": max_hp,
+		"current_troops": current_troops,
+		"max_troops": max_troops,
+		"grid_cell": [grid_cell.x, grid_cell.y],
+		"facing": facing,
+		"has_acted": has_acted,
+		"has_moved": has_moved,
+		"is_defending": is_defending,
+		"last_action": last_action.duplicate(true),
+		"status_effects": status_effects.duplicate(true),
+	}
+
+
+func restore_battle_runtime(snapshot: Dictionary) -> bool:
+	if String(snapshot.get("unit_id", "")) != unit_id:
+		return false
+	current_hp = clampi(int(snapshot.get("current_hp", current_hp)), 0, maxi(max_hp, 0))
+	current_troops = clampi(int(snapshot.get("current_troops", current_troops)), 0, maxi(max_troops, 0))
+	var grid_variant: Variant = snapshot.get("grid_cell", [])
+	if grid_variant is Array and (grid_variant as Array).size() == 2:
+		var grid_array: Array = grid_variant
+		grid_cell = Vector2i(int(grid_array[0]), int(grid_array[1]))
+	facing = String(snapshot.get("facing", facing))
+	has_acted = bool(snapshot.get("has_acted", has_acted))
+	has_moved = bool(snapshot.get("has_moved", has_moved))
+	is_defending = bool(snapshot.get("is_defending", is_defending))
+	var action_variant: Variant = snapshot.get("last_action", {})
+	last_action = (action_variant as Dictionary).duplicate(true) if action_variant is Dictionary else {}
+	var effects_variant: Variant = snapshot.get("status_effects", {})
+	status_effects = (effects_variant as Dictionary).duplicate(true) if effects_variant is Dictionary else {}
+	return true
