@@ -1,0 +1,60 @@
+name: Apply T06-9 Hero Data Parity
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/hotfix-triggers/t06-9-hero-data-parity-apply'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/hotfix-triggers/t06-9-hero-data-parity-apply'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply T06-9 parity implementation
+        run: python3 tools/apply_t06_9_hero_data_parity.py
+      - name: Validate protected contracts
+        run: |
+          python3 tools/validate_hero_design_registry.py
+          python3 tools/validate_t06_t07_playable_transaction.py
+          git diff --check
+      - name: Validate T06-9 parity contracts
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          battle=Path('scripts/battle_web_import_test.gd').read_text(encoding='utf-8')
+          world=Path('scripts/worldmap/worldmap_main.gd').read_text(encoding='utf-8')
+          factory=Path('scripts/worldmap/hero_runtime_factory.gd').read_text(encoding='utf-8')
+          for token in ['attacker_hero_outcomes','defender_hero_outcomes','_build_hero_outcomes_for_side']:
+              assert token in battle, token
+          for token in ['HeroRuntimeFactory.build_runtime_hero(hero_data, hero_data)','_normalize_battle_hero_outcomes','_apply_explicit_battle_hero_outcomes','last_battle_current_troops','HERO_RUNTIME_STATUS_WOUNDED']:
+              assert token in world, token
+          for token in ['assigned_city_id','location_city_id','faction_id','current_troops','status']:
+              assert token in factory, token
+          print('T06-9 hero data parity contract PASS')
+          PY
+      - name: Godot parse check
+        run: |
+          if command -v godot >/dev/null 2>&1; then
+            godot --headless --path . --editor --quit
+          else
+            echo 'Godot unavailable on runner; user F5 QA required.'
+          fi
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: enforce T06-9 hero data parity across battle flow"
+          git push origin HEAD:main
