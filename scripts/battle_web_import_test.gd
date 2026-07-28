@@ -10913,10 +10913,14 @@ func _show_unique_skill_range_overlay(caster_state: BattleUnitState, skill_data:
 		target_cells.append(target_state.grid_cell)
 	var range_cells := _get_unique_skill_range_cells(caster_state, skill_data)
 	var display_cells: Array[Vector2i] = []
-	for range_cell in _get_unique_skill_range_cells(caster_state, skill_data):
+	for range_cell in range_cells:
 		if not display_cells.has(range_cell):
 			display_cells.append(range_cell)
-	display_cells = _get_cells_wave_order(display_cells, caster_state.grid_cell, _get_unique_skill_range(caster_state, skill_data))
+	var display_wave_range := _get_unique_skill_range(caster_state, skill_data)
+	var target_mode := String(skill_data.get("target_mode", ""))
+	if ["self_area", "self_area_enemy", "enemy_adjacent"].has(target_mode):
+		display_wave_range = maxi(int(skill_data.get("radius", 0)), 0)
+	display_cells = _get_cells_wave_order(display_cells, caster_state.grid_cell, display_wave_range)
 
 	var index := 0
 	for cell in display_cells:
