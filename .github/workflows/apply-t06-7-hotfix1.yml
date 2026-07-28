@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/apply-t06-7-hotfix1.yml'
       - 'tools/apply_t06_7_hotfix1.py'
+      - 'tools/apply_t06_7_hotfix1_v2.py'
   pull_request:
     branches: [main]
     paths:
@@ -31,7 +32,7 @@ jobs:
           fetch-depth: 0
 
       - name: Apply hotfix
-        run: python3 tools/apply_t06_7_hotfix1.py
+        run: python3 tools/apply_t06_7_hotfix1_v2.py
 
       - name: Validate Python contracts
         run: |
