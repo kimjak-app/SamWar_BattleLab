@@ -15469,4 +15469,3 @@ func _show_runtime_momentum_delta(ally_value: int, enemy_value: int) -> void:
 	var tween := create_tween()
 	tween.tween_interval(1.35)
 	tween.tween_property(momentum_feedback_label, "modulate:a", 0.0, 0.35)
-
