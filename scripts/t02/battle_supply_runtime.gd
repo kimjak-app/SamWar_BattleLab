@@ -123,3 +123,26 @@ func settle_turn(battle_turn: int, living_by_side: Dictionary, healthy_by_side: 
 
 func snapshot() -> Dictionary:
 	return sides.duplicate(true)
+
+
+func serialize_runtime() -> Dictionary:
+	return {
+		"schema_version": 1,
+		"sides": sides.duplicate(true),
+		"settled_turns": settled_turns.duplicate(true),
+	}
+
+
+func restore_runtime(snapshot_data: Dictionary) -> bool:
+	if int(snapshot_data.get("schema_version", 0)) != 1:
+		return false
+	var sides_variant: Variant = snapshot_data.get("sides", {})
+	var turns_variant: Variant = snapshot_data.get("settled_turns", {})
+	if not sides_variant is Dictionary or not turns_variant is Dictionary:
+		return false
+	var restored_sides: Dictionary = sides_variant
+	if not restored_sides.has("attacker") or not restored_sides.has("defender"):
+		return false
+	sides = restored_sides.duplicate(true)
+	settled_turns = (turns_variant as Dictionary).duplicate(true)
+	return true
