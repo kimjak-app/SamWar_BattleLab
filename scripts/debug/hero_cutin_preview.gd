@@ -16,7 +16,7 @@ const FALLBACK_SKILL_NAME := "영락대제"
 @export var exit_duration := 0.30
 @export var loop_delay := 0.35
 @export_group("Mode A scene-authored composition")
-@export var hero_rest_position := Vector2(-82, -34)
+@export var hero_rest_position := Vector2(-64, -34)
 @export var hero_enter_offset := Vector2(185, 16)
 @export var hero_rest_scale := 1.055
 @export var hero_standoff_scale := 1.085
@@ -123,6 +123,9 @@ func play_cutin() -> void:
 func _play_duel_style_foreground() -> void:
 	var speed := maxf(_playback_speed, 0.01)
 	_prepare_video_background()
+	# Reset intentionally leaves the portrait at its scene-authored landing point.
+	# Every Mode A run then starts to the right of that point before settling back.
+	hero_portrait.position = hero_rest_position + hero_enter_offset
 	var timeline := _new_tween()
 	# Phase 1: video-backed black-red ignition and restrained supplemental backlight.
 	timeline.parallel().tween_property(dim_overlay, "color:a", 0.30, ignite_duration / speed)
