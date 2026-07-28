@@ -16,12 +16,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Print unique skill range functions
+      - name: Collect unique skill range functions
         run: |
           FILE=scripts/battle_web_import_test.gd
-          grep -n "func _.*unique_skill.*range\|func _.*unique_skill.*overlay\|PHASE_UNIQUE_SKILL_TARGET_SELECT\|pending_unique_skill_plan" "$FILE" || true
+          OUT=skill_range_audit.txt
+          grep -n "func _.*unique_skill.*range\|func _.*unique_skill.*overlay\|PHASE_UNIQUE_SKILL_TARGET_SELECT\|pending_unique_skill_plan" "$FILE" > "$OUT" || true
           for N in $(grep -n "func _.*unique_skill.*range\|func _.*unique_skill.*overlay\|func _on_unique_skill_button_pressed\|func _begin_unique_skill" "$FILE" | cut -d: -f1); do
-            START=$((N-8)); END=$((N+90));
-            echo "===== lines $START-$END =====";
-            sed -n "${START},${END}p" "$FILE";
+            START=$((N-8)); END=$((N+100));
+            echo "===== lines $START-$END =====" >> "$OUT";
+            sed -n "${START},${END}p" "$FILE" >> "$OUT";
           done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: t06-7-skill-range-audit
+          path: skill_range_audit.txt
