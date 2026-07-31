@@ -1,8 +1,8 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene format=3 uid="uid://caadgsto225e4"]
 
-[ext_resource type="Script" path="res://scripts/debug/cheok_jun_gyeong_action_cutin_preview.gd" id="1_script"]
-[ext_resource type="VideoStream" path="res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1280x720_verified.ogv" id="3_q8_720"]
-[ext_resource type="Texture2D" path="res://assets/ui/cutin/titles/cheok_jun_gyeong__geomwang_dolpa__title.png" id="4_skill_title"]
+[ext_resource type="Script" uid="uid://ct2x717im3e3f" path="res://scripts/debug/cheok_jun_gyeong_action_cutin_preview.gd" id="1_script"]
+[ext_resource type="VideoStream" uid="uid://oke0hcwg4kq" path="res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1280x720_verified.ogv" id="3_q8_720"]
+[ext_resource type="Texture2D" uid="uid://drg1abqkn7h68" path="res://assets/ui/cutin/titles/cheok_jun_gyeong__geomwang_dolpa__title.png" id="4_skill_title"]
 
 [sub_resource type="StyleBoxFlat" id="StylePanel"]
 bg_color = Color(0.02, 0.025, 0.035, 0.94)
@@ -13,19 +13,19 @@ border_width_bottom = 1
 border_color = Color(0.72, 0.49, 0.2, 0.8)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
-corner_radius_bottom_left = 6
 corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleButton"]
+content_margin_left = 12.0
+content_margin_right = 12.0
 bg_color = Color(0.12, 0.1, 0.09, 0.96)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
-corner_radius_bottom_left = 4
 corner_radius_bottom_right = 4
-content_margin_left = 12.0
-content_margin_right = 12.0
+corner_radius_bottom_left = 4
 
-[node name="CheokJunGyeongActionCutinPreview" type="Control"]
+[node name="CheokJunGyeongActionCutinPreview" type="Control" unique_id=1207666803]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -34,67 +34,65 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="BaseBackground" type="ColorRect" parent="."]
+[node name="BaseBackground" type="ColorRect" parent="." unique_id=320922711]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.008, 0.01, 0.015, 1)
 mouse_filter = 2
+color = Color(0.008, 0.01, 0.015, 1)
 
-[node name="CutinStage" type="Control" parent="."]
-layout_mode = 0
+[node name="CutinStage" type="Control" parent="." unique_id=507670477]
+clip_contents = true
+anchors_preset = 0
 offset_left = 69.0
 offset_top = 117.0
 offset_right = 1083.0
 offset_bottom = 532.0
-clip_contents = true
 mouse_filter = 2
 
-[node name="VideoBackgroundPlayer" type="VideoStreamPlayer" parent="CutinStage"]
+[node name="VideoBackgroundPlayer" type="VideoStreamPlayer" parent="CutinStage" unique_id=1297340544]
 layout_mode = 0
 offset_top = -77.5
 offset_right = 1014.0
 offset_bottom = 492.5
+mouse_filter = 2
 stream = ExtResource("3_q8_720")
 expand = true
-modulate = Color(1, 1, 1, 1)
-self_modulate = Color(1, 1, 1, 1)
-mouse_filter = 2
 
-[node name="HeroNameLabel" type="Label" parent="CutinStage"]
+[node name="HeroNameLabel" type="Label" parent="CutinStage" unique_id=577820561]
 layout_mode = 0
-offset_left = 36.0
-offset_top = 60.0
-offset_right = 380.0
-offset_bottom = 110.0
-mouse_filter = 2
+offset_left = 180.0
+offset_top = 70.0
+offset_right = 524.0
+offset_bottom = 120.0
 theme_override_colors/font_color = Color(1, 0.79, 0.43, 1)
 theme_override_colors/font_outline_color = Color(0.06, 0.01, 0.005, 1)
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 36
 text = "척준경"
 
-[node name="SkillTitlePng" type="TextureRect" parent="CutinStage"]
+[node name="SkillTitlePng" type="TextureRect" parent="CutinStage" unique_id=872255340]
 layout_mode = 0
-offset_left = 34.0
-offset_top = 125.0
-offset_right = 590.0
-offset_bottom = 361.0
+offset_left = 72.0
+offset_top = 116.0
+offset_right = 628.0
+offset_bottom = 352.0
 pivot_offset = Vector2(278, 118)
+scale = Vector2(0.92, 0.92)
+mouse_filter = 2
 texture = ExtResource("4_skill_title")
 expand_mode = 1
 stretch_mode = 5
-mouse_filter = 2
 
-[node name="DialogueLabel" type="Label" parent="CutinStage"]
+[node name="DialogueLabel" type="Label" parent="CutinStage" unique_id=772610797]
 layout_mode = 0
-offset_left = 42.0
-offset_top = 358.0
-offset_right = 690.0
-offset_bottom = 407.0
+offset_left = 92.0
+offset_top = 340.0
+offset_right = 740.0
+offset_bottom = 389.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.025, 0.015, 0.01, 1)
 theme_override_constants/outline_size = 6
@@ -102,22 +100,22 @@ theme_override_font_sizes/font_size = 29
 text = "내 앞을 막는 자, 목을 내놔라!"
 vertical_alignment = 1
 
-[node name="StageBorder" type="ReferenceRect" parent="CutinStage"]
+[node name="StageBorder" type="ReferenceRect" parent="CutinStage" unique_id=1398357782]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 border_color = Color(0.84, 0.54, 0.2, 0.75)
 border_width = 2.0
 editor_only = false
-visible = false
-mouse_filter = 2
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=57605015]
 
-[node name="PreviewControls" type="Panel" parent="."]
+[node name="PreviewControls" type="Panel" parent="." unique_id=710998079]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -131,7 +129,7 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StylePanel")
 
-[node name="Row" type="HBoxContainer" parent="PreviewControls"]
+[node name="Row" type="HBoxContainer" parent="PreviewControls" unique_id=108643047]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -144,43 +142,43 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="PlayButton" type="Button" parent="PreviewControls/Row"]
+[node name="PlayButton" type="Button" parent="PreviewControls/Row" unique_id=634336965]
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleButton")
 text = "재생"
-theme_override_styles/normal = SubResource("StyleButton")
 
-[node name="ReplayButton" type="Button" parent="PreviewControls/Row"]
+[node name="ReplayButton" type="Button" parent="PreviewControls/Row" unique_id=1424902344]
 layout_mode = 2
-text = "다시 재생"
 theme_override_styles/normal = SubResource("StyleButton")
+text = "다시 재생"
 
-[node name="LoopToggle" type="CheckButton" parent="PreviewControls/Row"]
+[node name="LoopToggle" type="CheckButton" parent="PreviewControls/Row" unique_id=506584469]
 layout_mode = 2
 text = "자동 반복"
 
-[node name="VideoOnlyToggle" type="CheckButton" parent="PreviewControls/Row"]
+[node name="VideoOnlyToggle" type="CheckButton" parent="PreviewControls/Row" unique_id=1674595436]
 layout_mode = 2
 text = "영상만 보기"
 
-[node name="Spacer" type="Control" parent="PreviewControls/Row"]
+[node name="Spacer" type="Control" parent="PreviewControls/Row" unique_id=1923716654]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Speed075Button" type="Button" parent="PreviewControls/Row"]
+[node name="Speed075Button" type="Button" parent="PreviewControls/Row" unique_id=1525800796]
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleButton")
 toggle_mode = true
 text = "0.75x"
-theme_override_styles/normal = SubResource("StyleButton")
 
-[node name="Speed100Button" type="Button" parent="PreviewControls/Row"]
+[node name="Speed100Button" type="Button" parent="PreviewControls/Row" unique_id=39066472]
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleButton")
 toggle_mode = true
 button_pressed = true
 text = "1.0x"
-theme_override_styles/normal = SubResource("StyleButton")
 
-[node name="Speed125Button" type="Button" parent="PreviewControls/Row"]
+[node name="Speed125Button" type="Button" parent="PreviewControls/Row" unique_id=1734547445]
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleButton")
 toggle_mode = true
 text = "1.25x"
-theme_override_styles/normal = SubResource("StyleButton")

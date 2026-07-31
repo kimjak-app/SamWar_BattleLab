@@ -6,6 +6,8 @@
 
 `T06-10B-hotfix2 CHEOK JUN-GYEONG ACTION CUTIN MASTER IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER F6 VISUAL QA PENDING`
 
+`T06-10B-hotfix3 CHEOK JUN-GYEONG READABILITY CORRECTION IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER F6 VISUAL QA PENDING`
+
 ## T06-10A Scope
 
 - A standalone F6 preview scene is implemented before any battle connection.
@@ -60,6 +62,15 @@
 - At 1.0x, the name enters at 0.12s, the title PNG impacts at 0.52s, and the dialogue enters at 1.05s. They begin independent exits at 3.28s, 3.38s, and 3.48s respectively, before the 4.00s video end. Replay, loop, Escape, and scene exit kill all root/layer tweens, stop/rewind the player, and restore authored positions, scale, and alpha before any next run.
 - Automated video verification passed: `ffprobe` reports Theora / 1280×720 / `30/1` / 4.000s / video-only; full FFmpeg decode with `-xerror` succeeds; 1.0s, 2.0s, and 3.5s frame extraction succeeds. Headless project and master-scene validation also pass.
 - Kimjak F6 visual QA remains required for video quality and ending decode, crop/aspect, name/title/dialogue placement and readability, timing/rhythm, replay/loop reset, video-only versus composite, and absence of black empty frames. Korea-MVP 13-hero common data and battle unique-skill integration remain explicitly unimplemented.
+
+## T06-10B-hotfix3 Cheok Jun-gyeong Readability & Text Block Correction
+
+- F6 first-pass QA confirmed the name, `검왕돌파` PNG, dialogue, and video all render. The required correction is readability: the prior name was visually detached in the upper-left, the elements exited too separately, and the dialogue had too little stable reading time.
+- The three layers remain independent nodes, but now read as one left-side vertical block within `CutinStage`: name at `(180,70)`, title PNG at `(72,116)` with authored scale `(0.92,0.92)`, and dialogue at `(92,340)`. The name center aligns to the visible-title center rather than the viewport center; the dialogue remains below the title, above the stage edge, and retains the existing outline without a background panel.
+- `scripts/debug/cheok_jun_gyeong_action_cutin_preview.gd` now owns the single authored configuration area for positions, scales, entry offsets, entry start/duration, shared hold end, exit duration, and total duration. `_reset()` restores those authored values before every replay or loop.
+- At 1.0x: name enters from 0.12s to 0.32s; title impacts from 0.32s to 0.58s (`0.90 → 1.04 → 1.00` relative scale); dialogue enters from 0.65s to 0.88s. All three remain fully visible together from 0.88s to 3.25s (2.37s), then make the same short 0.30s exit and are cleared by 3.55s.
+- Future battle integration contract: do not recreate this approved CutinStage-internal composition ad hoc. The 13-hero commonization step must elevate this structure and authored baseline into a reusable presentation component; battle invokes that component. Battle connection may vary hero video, name, title PNG, dialogue, and explicit hero overrides only, not the approved default layout or timeline.
+- Automated scene load, script parse, and replay/loop/reset smoke remain required; F6 re-review is pending for block cohesion, title/face clearance, dialogue readability, stable hold, and identical repeated playback. No video, CutinStage geometry, combat behavior, persistence, or battle integration changes are included.
 
 ## Explicitly Deferred
 
