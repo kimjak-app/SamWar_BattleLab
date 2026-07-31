@@ -1,17 +1,52 @@
 # NEXT TASKS
 
-## Immediate QA gate
+## Completed QA locks
 
-- T06-11B surround-pressure F5 QA: invade Sabi with one Yi Sun-sin unit against three-to-four defenders. Confirm each enemy continues to approach without selecting the same cell, available enemies spread across at least two useful approach directions, blocked actors seek an alternate valid approach, and existing 측면 공격!/후방 공격! logs occur when the established directional conditions are met. Narrow terrain may naturally produce sequential approach rather than forced encirclement.
+- T06-10H occupation portrait QA: PASS. Post-battle Sabi garrison portraits no longer show `?` for registered Korea MVP heroes.
+- T06-10I unique-skill Korean display QA: PASS. User confirmed the previously exposed English effect IDs no longer appear.
+- T06-11A enemy multi-actor turn orchestration QA: PASS. One Yi Sun-sin unit invading Sabi saw all living defenders act in the same enemy phase.
+- T06-11B engagement reservation and surround-pressure QA: PASS. User confirmed multiple enemies surrounded Yi Sun-sin, used momentum/unique skills, and attacked without the old single-actor stall.
 
-- T06-10I player/AI unique-skill display QA: verify Korean effect/status strings in floating text, status summaries/tooltips, and battle log for Jang Bo-go, Gwanggaeto, Uija Wang, and representative damage/buff/debuff/heal/guard skills. Confirm no internal underscore IDs appear.
+## Immediate maintenance
 
-- T06-10H occupation portrait QA: Gyeongju → Sabi victory → return to WorldMap → select Sabi. Confirm Uija Wang, Gyebaek, Heukchi Sangji, Kim Chun-chu, Kim Yu-sin, and Jang Bo-go have images rather than `?`; reselect Sabi, end a turn, and verify after save/load where available.
-
-- T06-10F-hotfix1 full player and AI battle re-QA: confirm a valid Korea MVP unique skill logs exactly one `[HERO_CUTIN] route=registry_video` before its existing effect, unlocks once, and advances once.
-- Specifically confirm Yi Sun-sin (`yi_sun_sin`), Jeong Do-jeon (`jeong_do_jeon`), and Kim Yu-sin (`kim_yu_sin`) no longer reach legacy flag/static presentation. Reconfirm Kwon Yul and Gwanggaeto are registry-video routes, not legacy routes.
-- Confirm a deliberate registry/resource failure logs one explicit legacy fallback while the committed resolver, momentum spend, and finalizer still run once.
+- Preserve T06-11A/T06-11B turn, reservation, side/back, momentum, cutin, Korean display, portrait, result-settlement, and save/load contracts.
+- Clean or commit any remaining generated validator `.gd.uid` files after confirming they are normal Godot-generated companions.
+- Do not begin full Korea MVP balance work yet.
 
 ## Next implementation
 
-- Follow-up only if the T06-11B F5 gate reveals a reproducible reservation or directional-pressure defect. Do not change cutin visual data, timing, or the T06-10F committed-skill contract as part of that work.
+### T07-1 Six Unit-Type Current-State Audit & Canonical Contract Design
+
+Before implementing new unit behavior, audit the current unit-type architecture across:
+
+- authoritative generated hero battle profiles
+- unit-type registries and aliases
+- HeroRuntimeFactory
+- BattleUnitState
+- player and AI movement/attack rules
+- counterattack and facing
+- battle calculation and auto-battle
+- formation and WorldMap handoff
+- battle result settlement
+- save/load migration
+- battle UI and logs
+
+The audit must identify the current implemented/configured unit types, then design the final six-unit-type contract, including firearm infantry and mounted archers.
+
+Firearm infantry and mounted archers are for future Japan, China, and Mongolia expansion. They must not be forced into the Korea production roster.
+
+## Locked roadmap
+
+Authoritative planning document:
+
+- `agent/plans/T07_T11_BATTLE_ENGINE_MVP_COMPLETION_ROADMAP.md`
+
+Major stages:
+
+1. T07 — Six Unit-Type Battle Completion
+2. T08 — Battlefield Terrain & Tactical Map System
+3. T09 — Cooperative Attack & Common Tactics
+4. T10 — Battle UI/UX Renewal
+5. T11 — Korea MVP Full Balance & Final Battle QA
+
+T07–T10 complete the battle-engine feature set. Full campaign and numerical balance is intentionally deferred to T11.
