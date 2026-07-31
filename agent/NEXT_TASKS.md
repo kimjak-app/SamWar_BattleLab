@@ -2,6 +2,8 @@
 
 ## Immediate QA gate
 
+- T06-11A enemy multi-actor orchestration F5 QA: with one allied unit against four living enemy units, finish the allied action and confirm each living enemy acts once in the same enemy phase before ally control returns. Confirm a no-path/waiting enemy does not end the phase, an AI unique-skill user is followed by the next enemy, battle end prevents later actors, and the next round again grants each enemy one action.
+
 - T06-10I player/AI unique-skill display QA: verify Korean effect/status strings in floating text, status summaries/tooltips, and battle log for Jang Bo-go, Gwanggaeto, Uija Wang, and representative damage/buff/debuff/heal/guard skills. Confirm no internal underscore IDs appear.
 
 - T06-10H occupation portrait QA: Gyeongju → Sabi victory → return to WorldMap → select Sabi. Confirm Uija Wang, Gyebaek, Heukchi Sangji, Kim Chun-chu, Kim Yu-sin, and Jang Bo-go have images rather than `?`; reselect Sabi, end a turn, and verify after save/load where available.
@@ -12,4 +14,4 @@
 
 ## Next implementation
 
-- T06-11 AI Multi-Unit Engagement, Surround & Cooperative Attack Correction remains separate. Do not change cutin visual data, timing, or the T06-10F committed-skill contract as part of that work.
+- T06-11B Existing Engagement Reservation & Surround Behavior Activation follows only after the T06-11A 1v4 F5 gate. Do not change cutin visual data, timing, or the T06-10F committed-skill contract as part of that work.

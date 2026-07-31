@@ -76,7 +76,7 @@ func _initialize() -> void:
 	var supply_content := battle.get_node("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content") as Control
 	_expect(supply_panel.get_global_rect().encloses(supply_content.get_global_rect()), "all warning text fits inside supply panel")
 	battle.set("battle_round", 30)
-	battle.call("_start_new_round")
+	battle.call("_start_new_round", true)
 	_expect(str(battle.get("battle_result_reason")) == "turn_limit", "30-turn reason")
 	_expect(str(battle.call("_get_battle_result_state")) == "defeat", "30-turn defender win for player attack")
 	var result: Dictionary = battle.call("_build_worldmap_battle_result_payload", "defeat")

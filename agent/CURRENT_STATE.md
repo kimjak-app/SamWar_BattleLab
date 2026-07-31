@@ -74,6 +74,17 @@ Status: `IMPLEMENTED / AUTHORITATIVE HERO ID RESTORED / 13-HERO CUTIN PARITY PAS
 
 ## Next Transaction
 
+## T06-11A Enemy Multi-Actor Turn Orchestration Recovery
+
+Status: `IMPLEMENTED / ENEMY MULTI-ACTOR TURN ORCHESTRATION PASS / USER 1V4 F5 QA PENDING`
+
+- The enemy AI actor selector already enumerates all deployed enemy slots in fixed order and excludes dead/acted units. The fault was turn orchestration: individual enemy completion paths returned directly to the ally side, where an absent ally actor could start a new round before the remaining enemies had acted.
+- Enemy basic attacks, movement failures, no-path/no-target waits, confusion, unique-skill completion/failure, and animation completion now converge on `_advance_enemy_turn_or_return_to_ally()`. It finds the next unacted living enemy and schedules it with `call_deferred`, preserving the current enemy phase without recursive Tween/signal re-entry.
+- `_return_to_ally_turn()` now defers back into the enemy phase when living unacted enemies remain. `_start_new_round()` is guarded so normal turn flow can reset action locks only after both living ally and enemy sides have completed their actions.
+- Enemy reservation selection/scoring is unchanged. Reservations persist while the enemy side advances and are cleared only after that side has no remaining actor or on the existing round reset.
+- `tools/validate_enemy_multi_actor_turn_orchestration.gd` reports eight source-contract and sequencing scenarios PASS, including 1v4, 1v1, dead actor exclusion, wait/path failure, unique-skill continuation, battle-end stop, and round-reset gating. Headless project and `Battle_Land.tscn` loads pass.
+- Next: user F5 1 ally vs 4 enemies QA. T06-11B engagement reservation/surround activation is only eligible after this gate passes.
+
 ## T06-10I Unique Skill Korean Effect Display & Warning Cleanup
 
 Status: `IMPLEMENTED / UNIQUE SKILL KOREAN DISPLAY PASS / GDSCRIPT WARNING CLEAN / USER F5 RE-QA PENDING`

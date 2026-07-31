@@ -5084,7 +5084,7 @@ func _handle_unique_skill_commit_failure(caster_state: BattleUnitState, reason: 
 	_refresh_momentum_ui()
 	if caster_state != null and caster_state.side == "enemy":
 		_mark_enemy_unit_acted(caster_state)
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 	else:
 		is_floating_ally_command_panel_requested = true
 		_set_phase(PHASE_ALLY_TURN)
@@ -5571,7 +5571,7 @@ func _finalize_unique_skill_action(caster_state: BattleUnitState, skill_data: Di
 		_set_phase(PHASE_ALLY_TURN)
 		return
 	if caster_state != null and caster_state.side == "enemy":
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 	_set_phase(PHASE_ENEMY_TURN)
 	_append_battle_log("적군 턴")
@@ -7666,7 +7666,7 @@ func _play_enemy_ai_turn() -> void:
 	var enemy_actor_state := _get_next_available_enemy_ai_actor()
 	if enemy_actor_state == null:
 		_append_battle_log("행동 가능한 적군 없음")
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 
 	_play_enemy_ai_for_actor(enemy_actor_state)
@@ -7677,14 +7677,14 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 		print("[TURN_ADVANCE_BLOCKED] source=enemy_actor_start reason=result_finalized")
 		return
 	if enemy_actor_state == null or not enemy_actor_state.is_alive():
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 	current_enemy_ai_actor_state = enemy_actor_state
 	if _is_unit_confused(enemy_actor_state):
 		_append_battle_log("%s은 혼란 상태로 행동할 수 없습니다." % enemy_actor_state.display_name)
 		_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(enemy_actor_state), "혼란", STRATEGY_EFFECT_COLOR)
 		_mark_enemy_unit_acted(enemy_actor_state)
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 	var immediate_attack_target := _find_best_auto_attack_target(enemy_actor_state)
 	if immediate_attack_target != null and _can_auto_kill_target(enemy_actor_state, immediate_attack_target):
@@ -7700,7 +7700,7 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 	if target_state == null:
 		_append_battle_log("적 행동 대상 없음")
 		_mark_enemy_unit_acted(enemy_actor_state)
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 		
 	var action_reason := str(decision_plan.get("action_reason", "WAIT"))
@@ -7712,7 +7712,7 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 	if destination == enemy_actor_state.grid_cell:
 		_append_battle_log("%s 대기" % enemy_actor_state.display_name)
 		_mark_enemy_unit_acted(enemy_actor_state)
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 
 	_reserve_enemy_ai_decision_plan_for_actor(enemy_actor_state, decision_plan)
@@ -7720,7 +7720,7 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 	if move_path.is_empty() or move_path.size() < 2:
 		_append_battle_log("%s 이동 경로 없음" % enemy_actor_state.display_name)
 		_mark_enemy_unit_acted(enemy_actor_state)
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 
 	_append_battle_log("%s 접근" % enemy_actor_state.display_name)
@@ -7733,13 +7733,13 @@ func _play_enemy_basic_attack_from_current_cell(target_state: BattleUnitState = 
 
 func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleUnitState, target_state: BattleUnitState = null) -> void:
 	if enemy_actor_state == null:
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 	if target_state == null:
 		target_state = _get_enemy_ai_target_state_for_actor(enemy_actor_state)
 	if target_state == null or not target_state.is_alive():
 		_mark_enemy_unit_acted(enemy_actor_state)
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 	current_enemy_ai_actor_state = enemy_actor_state
 	current_enemy_attack_target_state = target_state
@@ -7787,12 +7787,12 @@ func _play_enemy_path_move_then_act(move_path: Array[Vector2i]) -> void:
 
 func _play_enemy_actor_path_move_then_act(enemy_actor_state: BattleUnitState, move_path: Array[Vector2i]) -> void:
 	if enemy_actor_state == null or battle_grid_controller == null:
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 	if not _is_path_clear_for_unit(move_path, enemy_actor_state, true):
 		_append_battle_log("%s 이동 경로 막힘" % enemy_actor_state.display_name)
 		_mark_enemy_unit_acted(enemy_actor_state)
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 
 	_clear_transient_battle_highlights()
@@ -7800,7 +7800,7 @@ func _play_enemy_actor_path_move_then_act(enemy_actor_state: BattleUnitState, mo
 	var actor_portrait_marker := _get_enemy_actor_portrait_marker(enemy_actor_state)
 	if actor_marker == null:
 		_mark_enemy_unit_acted(enemy_actor_state)
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 	var start_unit_position := actor_marker.position
 	var start_portrait_position := start_unit_position
@@ -7836,7 +7836,7 @@ func _finish_enemy_actor_basic_move(enemy_actor_state: BattleUnitState, target_p
 		print("[TURN_ADVANCE_BLOCKED] source=enemy_move_finish reason=result_finalized")
 		return
 	if enemy_actor_state == null:
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 
 	_sync_enemy_actor_markers_to_position(enemy_actor_state, target_position, target_portrait_position)
@@ -7859,7 +7859,7 @@ func _play_enemy_actor_basic_attack_or_wait_after_move(enemy_actor_state: Battle
 		print("[TURN_ADVANCE_BLOCKED] source=enemy_after_move_action reason=result_finalized")
 		return
 	if enemy_actor_state == null:
-		_return_to_ally_turn()
+		_advance_enemy_turn_or_return_to_ally()
 		return
 
 	var attack_target := _find_best_auto_attack_target(enemy_actor_state)
@@ -7876,7 +7876,7 @@ func _play_enemy_actor_basic_attack_or_wait_after_move(enemy_actor_state: Battle
 
 	_append_battle_log("%s 대기" % enemy_actor_state.display_name)
 	_mark_enemy_unit_acted(enemy_actor_state)
-	_return_to_ally_turn()
+	_advance_enemy_turn_or_return_to_ally()
 
 
 func _enemy_reaction_hit_on() -> void:
@@ -7912,6 +7912,45 @@ func _finish_enemy_actor_basic_attack(enemy_actor_state: BattleUnitState) -> voi
 		print("[TURN_ADVANCE_BLOCKED] source=enemy_attack_finish reason=result_finalized")
 		return
 	_mark_enemy_unit_acted(enemy_actor_state)
+	_advance_enemy_turn_or_return_to_ally()
+
+
+func _get_remaining_unacted_enemy_count() -> int:
+	var remaining_count := 0
+	for enemy_state in _get_alive_enemy_units():
+		if not _has_enemy_unit_acted(enemy_state):
+			remaining_count += 1
+	return remaining_count
+
+
+func _advance_enemy_turn_or_return_to_ally() -> void:
+	if _handle_battle_end_guard("enemy_turn_advance"):
+		is_demo_animating = false
+		print("[ENEMY_TURN] advance_blocked reason=result_finalized")
+		return
+	_cleanup_dead_units()
+	if _handle_battle_end_guard("enemy_turn_advance_after_cleanup"):
+		is_demo_animating = false
+		print("[ENEMY_TURN] advance_blocked reason=result_finalized_after_cleanup")
+		return
+
+	var next_enemy_actor := _get_next_available_enemy_ai_actor()
+	if next_enemy_actor != null:
+		current_enemy_attack_target_state = null
+		current_enemy_ai_actor_state = null
+		_clear_pending_move_snapshot()
+		_clear_transient_battle_highlights()
+		_reset_unit_group_positions()
+		_hide_all_move_dust_sprites()
+		_set_all_unit_group_modulates(Color.WHITE)
+		is_demo_animating = true
+		_set_phase(PHASE_ENEMY_TURN)
+		print("[ENEMY_TURN] round=%d remaining=%d next_actor=%s" % [battle_round, _get_remaining_unacted_enemy_count(), next_enemy_actor.unit_id])
+		call_deferred("_play_enemy_ai_for_actor", next_enemy_actor)
+		return
+
+	_clear_enemy_ai_turn_reservations()
+	print("[ENEMY_TURN] round=%d complete remaining=0" % battle_round)
 	_return_to_ally_turn()
 
 
@@ -7929,10 +7968,16 @@ func _return_to_ally_turn() -> void:
 	_hide_all_move_dust_sprites()
 	_set_all_unit_group_modulates(Color.WHITE)
 	is_demo_animating = false
+	if not _are_all_alive_enemies_acted():
+		_set_phase(PHASE_ENEMY_TURN)
+		is_demo_animating = true
+		print("[ROUND_FLOW] ally_return_deferred round=%d remaining_enemy=%d" % [battle_round, _get_remaining_unacted_enemy_count()])
+		call_deferred("_play_enemy_ai_turn")
+		return
 	if _are_all_alive_allies_acted() and _are_all_alive_enemies_acted():
 		_start_new_round()
 	var next_ally := _get_first_available_ally_unit()
-	if next_ally == null:
+	if next_ally == null and _are_all_alive_allies_acted() and _are_all_alive_enemies_acted():
 		_start_new_round()
 		next_ally = _get_first_available_ally_unit()
 	if next_ally == null:
@@ -10840,9 +10885,12 @@ func _create_fx_sprite(texture: Texture2D, world_pos: Vector2) -> Sprite2D:
 	return sprite
 
 
-func _start_new_round() -> void:
+func _start_new_round(force_round_start := false) -> void:
 	if _handle_battle_end_guard("start_new_round"):
 		print("[TURN_ADVANCE_BLOCKED] source=start_new_round reason=result_finalized")
+		return
+	if not force_round_start and (not _are_all_alive_allies_acted() or not _are_all_alive_enemies_acted()):
+		print("[ROUND_FLOW] blocked_premature_new_round round=%d allies_done=%s enemies_done=%s" % [battle_round, _are_all_alive_allies_acted(), _are_all_alive_enemies_acted()])
 		return
 	if battle_round >= ExpeditionSupplyCalculator.BATTLE_MAX_TURNS:
 		battle_result_reason = "turn_limit"
@@ -13043,6 +13091,7 @@ func _mark_enemy_unit_acted(unit_state: BattleUnitState) -> void:
 	unit_state.has_moved = true
 	if not was_already_acted:
 		_consume_strategy_status_after_unit_action(unit_state)
+		print("[ENEMY_TURN] round=%d actor=%s acted remaining=%d" % [battle_round, unit_state.unit_id, _get_remaining_unacted_enemy_count()])
 
 
 func _has_enemy_unit_acted(unit_state: BattleUnitState) -> bool:
