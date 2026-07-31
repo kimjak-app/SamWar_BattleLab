@@ -62,7 +62,8 @@ func _configure_current() -> void:
 		str(entry["hero_name"]), dialogue,
 		ResourceLoader.load(str(entry["video_path"])) as VideoStream,
 		ResourceLoader.load(str(entry["skill_title_texture_path"])) as Texture2D,
-		Vector2(float(entry.get("dialogue_offset_x", 0.0)), 0.0)
+		Vector2(float(entry.get("dialogue_offset_x", 0.0)), 0.0),
+		Vector2(float(entry.get("hero_name_offset_x", 0.0)), 0.0)
 	)
 	entry_label.text = "%d / %d  ·  %s  ·  %s" % [_current_index + 1, _entries.size(), entry["hero_id"], entry["skill_name"]]
 

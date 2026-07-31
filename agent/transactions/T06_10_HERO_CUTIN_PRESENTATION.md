@@ -18,6 +18,16 @@
 
 `T06-10E KOREA MVP DIALOGUE VERTICAL LIFT & PER-HERO X OFFSET CALIBRATION IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER 13-HERO POSITION F6 QA PENDING`
 
+`T06-10E-hotfix1 KOREA MVP CUTIN FINAL MICRO X-AXIS ALIGNMENT IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER FINAL CUTIN F6 QA PENDING`
+
+## T06-10E-hotfix1 Final Micro X-Axis Alignment
+
+- User carousel QA approved the common structure and dialogue Y lift, and requested only visible text X-axis corrections. The registry now supplies `hero_name_offset_x` for `yi_sun_sin +8`, `gyebaek +6`, `kwon_yul +6`, `dorim +6`, and `heukchi_sangji -6`.
+- Final dialogue X overrides are `yi_sun_sin +22`, `kim_yu_sin +24`, `heukchi_sangji +28`, and `kwon_yul +26`. The remaining values are retained: `uija_wang +18`, `kim_chun_chu +18`, `jeong_do_jeon +14`, `jang_bo_go +22`, `gyebaek +18`, and `0` for `gwanggaeto`, `eulji_mundeok`, `dorim`, and `cheok_jun_gyeong`.
+- `HeroCutinPresentation` composes both final targets from captured scene-authored positions plus X-only registry offsets; its original entry offsets remain relative. This protects reset/replay/loop from accumulating movement and preserves the common dialogue `Vector2(0, -9)` lift.
+- `uija_wang` and `gwanggaeto` intentionally received no new micro alignment. Automated smoke verified all 13 final targets, exactly five name and nine dialogue override fields, 52 natural carousel auto-cycle completions without duplicate advance, and unchanged title position/scale, dialogue font size, common scene, and Cheok preview loading.
+- Next step: actual unique-skill invocation connection. This hotfix does not change video/PNG assets, dialogue strings, fonts, sizes, crop, timing, CutinStage, or battle flow.
+
 ## T06-10E Dialogue Position Calibration
 
 - The 13-hero F6 carousel QA identified the dialogue layer as visually too close to the bottom frame. The reusable presentation now applies one relative common layout offset, `dialogue_layout_offset = Vector2(0, -9)`, to the captured scene-authored dialogue position. No scene transform is overwritten.

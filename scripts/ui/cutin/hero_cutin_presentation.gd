@@ -29,6 +29,7 @@ var _layer_tweens: Array[Tween] = []
 var _playback_speed := 1.0
 var _playing := false
 var _show_text_layers := true
+var _hero_name_hero_offset := Vector2.ZERO
 var _dialogue_hero_offset := Vector2.ZERO
 var _hero_name_authored_position: Vector2
 var _hero_name_authored_scale: Vector2
@@ -50,13 +51,14 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	stop_cutin()
 
-func configure(hero_name: String, dialogue: String, video_stream: VideoStream, skill_title_texture: Texture2D, dialogue_offset: Vector2 = Vector2.ZERO) -> void:
+func configure(hero_name: String, dialogue: String, video_stream: VideoStream, skill_title_texture: Texture2D, dialogue_offset: Vector2 = Vector2.ZERO, hero_name_offset: Vector2 = Vector2.ZERO) -> void:
 	stop_cutin()
 	hero_name_label.text = hero_name
 	dialogue_label.text = dialogue
 	video.stream = video_stream
 	skill_title_png.texture = skill_title_texture
 	_dialogue_hero_offset = Vector2(dialogue_offset.x, 0.0)
+	_hero_name_hero_offset = Vector2(hero_name_offset.x, 0.0)
 	reset_cutin()
 
 func set_playback_speed(value: float) -> void:
@@ -92,7 +94,7 @@ func reset_cutin() -> void:
 	video.stream_position = 0.0
 	video.modulate = Color.WHITE
 	video.self_modulate = Color.WHITE
-	hero_name_label.position = _hero_name_authored_position + hero_name_enter_offset
+	hero_name_label.position = _hero_name_enter_position()
 	hero_name_label.scale = _hero_name_authored_scale
 	hero_name_label.modulate = _hero_name_authored_modulate
 	hero_name_label.pivot_offset = _hero_name_authored_pivot_offset
@@ -127,7 +129,7 @@ func _capture_authored_state() -> void:
 
 func _schedule_master_layers() -> void:
 	_schedule_property(hero_name_label, "modulate:a", 0.0, 1.0, hero_name_enter_start, hero_name_enter_duration, text_block_hold_end, text_block_exit_duration)
-	_schedule_property(hero_name_label, "position", _hero_name_authored_position + hero_name_enter_offset, _hero_name_authored_position, hero_name_enter_start, hero_name_enter_duration, text_block_hold_end, text_block_exit_duration, _hero_name_authored_position + hero_name_enter_offset)
+	_schedule_property(hero_name_label, "position", _hero_name_enter_position(), _hero_name_target_position(), hero_name_enter_start, hero_name_enter_duration, text_block_hold_end, text_block_exit_duration, _hero_name_enter_position())
 	_schedule_property(hero_name_label, "scale", _hero_name_authored_scale, _hero_name_authored_scale, hero_name_enter_start, hero_name_enter_duration, text_block_hold_end, text_block_exit_duration)
 	_schedule_property(skill_title_png, "modulate:a", 0.0, 1.0, skill_title_enter_start, skill_title_enter_duration, text_block_hold_end, text_block_exit_duration)
 	var skill_scale_tween := _new_layer_tween()
@@ -158,6 +160,12 @@ func _dialogue_target_position() -> Vector2:
 
 func _dialogue_enter_position() -> Vector2:
 	return _dialogue_target_position() + dialogue_enter_offset
+
+func _hero_name_target_position() -> Vector2:
+	return _hero_name_authored_position + _hero_name_hero_offset
+
+func _hero_name_enter_position() -> Vector2:
+	return _hero_name_target_position() + hero_name_enter_offset
 
 func _finish_cutin() -> void:
 	_playing = false
