@@ -74,6 +74,15 @@ Status: `IMPLEMENTED / AUTHORITATIVE HERO ID RESTORED / 13-HERO CUTIN PARITY PAS
 
 ## Next Transaction
 
+## T06-10I Unique Skill Korean Effect Display & Warning Cleanup
+
+Status: `IMPLEMENTED / UNIQUE SKILL KOREAN DISPLAY PASS / GDSCRIPT WARNING CLEAN / USER F5 RE-QA PENDING`
+
+- T06-10H occupation portrait F5 QA passed.
+- All 39 production unique skills now validate through a shared Korean effect/status/failure display-name layer. Resolver internal IDs remain internal; floating status text, summaries/tooltips, and battle-log effect labels use Korean strings or Korean generic fallbacks.
+- The two integer-division, unused `skill_data`, `enemy_portrait_marker`, and `top_bar` reload warnings are removed without changing battle calculations or presentation contracts.
+- Next: user F5 player/AI effect-display QA, then T06-11 AI multi-unit engagement, surround, and cooperative attack correction.
+
 ## T06-10H Post-Battle Garrison Hero Portrait Parity Recovery
 
 Status: `IMPLEMENTED / POST-BATTLE GARRISON PORTRAIT PARITY PASS / USER OCCUPATION F5 RE-QA PENDING`

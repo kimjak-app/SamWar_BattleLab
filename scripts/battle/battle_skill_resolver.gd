@@ -316,7 +316,7 @@ static func _build_commands(
 				commands.append(_command("momentum", _opposing_side(caster.side), -1, 0, "skill_drain"))
 		"restore_dispel":
 			for target in affected:
-				commands.append(_command("heal", target.unit_id, maxi(8, caster.intelligence / 4), 0, ""))
+				commands.append(_command("heal", target.unit_id, maxi(8, floori(float(caster.intelligence) / 4.0)), 0, ""))
 				commands.append(_command("cleanse", target.unit_id, 1, 0, "negative"))
 				commands.append(_command("status", target.unit_id, 10, turns, "defense_up"))
 		"movement_charge":

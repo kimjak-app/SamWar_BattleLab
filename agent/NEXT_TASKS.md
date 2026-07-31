@@ -2,6 +2,8 @@
 
 ## Immediate QA gate
 
+- T06-10I player/AI unique-skill display QA: verify Korean effect/status strings in floating text, status summaries/tooltips, and battle log for Jang Bo-go, Gwanggaeto, Uija Wang, and representative damage/buff/debuff/heal/guard skills. Confirm no internal underscore IDs appear.
+
 - T06-10H occupation portrait QA: Gyeongju → Sabi victory → return to WorldMap → select Sabi. Confirm Uija Wang, Gyebaek, Heukchi Sangji, Kim Chun-chu, Kim Yu-sin, and Jang Bo-go have images rather than `?`; reselect Sabi, end a turn, and verify after save/load where available.
 
 - T06-10F-hotfix1 full player and AI battle re-QA: confirm a valid Korea MVP unique skill logs exactly one `[HERO_CUTIN] route=registry_video` before its existing effect, unlocks once, and advances once.

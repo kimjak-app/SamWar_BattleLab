@@ -3807,6 +3807,14 @@ func _get_unit_status_display_entries(unit_state: BattleUnitState) -> Array[Dict
 		"burn",
 		"skill_cost_up",
 		"counter_up",
+		"flank_damage_up",
+		"flank_damage_taken_up",
+		"incoming_damage_down",
+		"momentum_gain_down",
+		"momentum_gain_up",
+		"rout_resist",
+		"siege_attack_up",
+		"status_resist",
 	]:
 		if not unit_state.has_status_effect(status_id):
 			continue
@@ -3916,7 +3924,7 @@ func _consume_strategy_status_after_unit_action(unit_state: BattleUnitState) -> 
 	if unit_state.status_effects.is_empty():
 		return
 	if unit_state.has_status_effect("burn") and unit_state.is_alive():
-		var burn_damage := maxi(unit_state.get_status_magnitude("burn", 8) / 2, 4)
+		var burn_damage := maxi(floori(float(unit_state.get_status_magnitude("burn", 8)) / 2.0), 4)
 		var applied := unit_state.apply_damage(burn_damage)
 		if applied > 0:
 			_append_battle_log("%s 화상 피해 %d" % [unit_state.display_name, applied])
@@ -5044,7 +5052,7 @@ func _load_unique_skill_texture(path: String) -> Texture2D:
 	return texture
 
 
-func _apply_unique_skill_effect(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+func _apply_unique_skill_effect(caster_state: BattleUnitState, _skill_data: Dictionary) -> void:
 	if pending_unique_skill_plan.is_empty() \
 			or String(pending_unique_skill_plan.get("caster_unit_id", "")) != caster_state.unit_id:
 		_append_battle_log("고유기 실행 계획이 유효하지 않습니다.")
@@ -5072,7 +5080,7 @@ func _handle_unique_skill_commit_failure(caster_state: BattleUnitState, reason: 
 	_hide_unique_skill_range_overlay()
 	_clear_unique_skill_targeting_state()
 	_clear_attack_target_selection()
-	_append_battle_log("고유기 실행 실패 · 기세 미소비 (%s)" % reason)
+	_append_battle_log("고유기 실행 실패 · 기세 미소비 (%s)" % BattleUITextFormatHelper.format_unique_skill_failure_display_name(reason))
 	_refresh_momentum_ui()
 	if caster_state != null and caster_state.side == "enemy":
 		_mark_enemy_unit_acted(caster_state)
@@ -5160,8 +5168,9 @@ func _apply_resolver_skill_plan(caster_state: BattleUnitState, plan: Dictionary)
 				if target_state != null:
 					_apply_resolver_retreat_move(target_state, amount)
 	_refresh_momentum_ui()
-	_append_battle_log("%s 효과 · 피해 %d / 상태 %d / 회복 %d" % [
+	_append_battle_log("%s · %s · 피해 %d / 상태 %d / 회복 %d" % [
 		String(plan.get("skill_name", "고유기")),
+		BattleUITextFormatHelper.format_unique_skill_effect_display_name(String(plan.get("effect_type", ""))),
 		damage_hits,
 		status_hits,
 		heal_hits,
@@ -5213,31 +5222,17 @@ func _apply_resolver_retreat_move(unit_state: BattleUnitState, distance: int) ->
 		_sync_selected_ally_markers_to_position(target_position, target_position + ally_portrait_offset)
 	else:
 		var enemy_marker := _get_enemy_actor_unit_marker(unit_state)
-		var enemy_portrait_marker := _get_enemy_actor_portrait_marker(unit_state)
+		var actor_portrait_marker := _get_enemy_actor_portrait_marker(unit_state)
 		var enemy_portrait_offset := Vector2.ZERO
-		if enemy_marker != null and enemy_portrait_marker != null:
-			enemy_portrait_offset = enemy_portrait_marker.position - enemy_marker.position
+		if enemy_marker != null and actor_portrait_marker != null:
+			enemy_portrait_offset = actor_portrait_marker.position - enemy_marker.position
 		_sync_enemy_actor_markers_to_position(unit_state, target_position, target_position + enemy_portrait_offset)
 	unit_state.set_grid_cell(destination)
 	_sync_demo_positions()
 
 
 func _get_resolver_status_display_name(status_id: String) -> String:
-	return {
-		"attack_defense_up": "공방 상승",
-		"attack_defense_down": "공방 저하",
-		"defense_up": "방어 상승",
-		"defense_down": "방어 저하",
-		"damage_reduction": "피해 감소",
-		"mobility_up": "기동 상승",
-		"movement_down": "이동 저하",
-		"formation_break": "진형 붕괴",
-		"action_lock": "행동 봉쇄",
-		"fear": "공포",
-		"burn": "화상",
-		"skill_cost_up": "기세 비용 증가",
-		"counter_up": "반격 강화",
-	}.get(status_id, status_id)
+	return BattleUITextFormatHelper.format_unique_skill_status_display_name(status_id)
 
 
 func _apply_unique_skill_cannon_aoe(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
@@ -6338,18 +6333,18 @@ func _configure_momentum_ui() -> void:
 
 
 func _remove_legacy_top_bar_background() -> void:
-	var top_bar := get_node_or_null("BattleUI/TopBar") as Control
-	if top_bar == null:
+	var top_bar_control := get_node_or_null("BattleUI/TopBar") as Control
+	if top_bar_control == null:
 		return
-	if top_bar is ColorRect:
-		var top_bar_color := (top_bar as ColorRect).color
+	if top_bar_control is ColorRect:
+		var top_bar_color := (top_bar_control as ColorRect).color
 		top_bar_color.a = 0.0
-		(top_bar as ColorRect).color = top_bar_color
-	elif top_bar is Panel:
-		(top_bar as Panel).add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	elif top_bar is PanelContainer:
-		(top_bar as PanelContainer).add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	for child in top_bar.get_children():
+		(top_bar_control as ColorRect).color = top_bar_color
+	elif top_bar_control is Panel:
+		(top_bar_control as Panel).add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	elif top_bar_control is PanelContainer:
+		(top_bar_control as PanelContainer).add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	for child in top_bar_control.get_children():
 		if child is ColorRect:
 			var child_color := (child as ColorRect).color
 			child_color.a = 0.0
