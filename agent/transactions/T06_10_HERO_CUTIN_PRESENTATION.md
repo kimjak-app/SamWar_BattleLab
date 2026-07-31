@@ -20,6 +20,16 @@
 
 `T06-10E-hotfix1 KOREA MVP CUTIN FINAL MICRO X-AXIS ALIGNMENT IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER FINAL CUTIN F6 QA PENDING`
 
+`T06-10E-hotfix2 KOREA MVP CUTIN FINAL 4PX TEXT MICRO ALIGNMENT IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER FINAL CUTIN F6 QA PENDING`
+
+## T06-10E-hotfix2 Final 4px Text Micro Alignment
+
+- User F6 QA retained the approved common composition and requested only the final 4px X-axis adjustments. The stored final hero-name offsets are `yi_sun_sin +12`, `uija_wang +4`, `jang_bo_go +4`, `gyebaek +10`, `kwon_yul +10`, `dorim +10`, and `heukchi_sangji -10`.
+- The stored final dialogue offsets are `kim_yu_sin +28`, `heukchi_sangji +32`, `kwon_yul +30`, and `jang_bo_go +18`. All other dialogue values remain as approved; no Y, text, font, asset, crop, timing, or CutinStage value changed.
+- The existing registry-relative composition remains authoritative: captured scene transform + one stored X override + the already-approved dialogue common Y lift. Reset/replay/loop cannot accumulate these adjustments.
+- The headless carousel smoke verified all 13 final values, natural auto-cycle completion 53 times with one auto advance per completion, and loading of the common presentation, Cheok preview, and carousel. The pre-existing uncommitted carousel scene UID/editor metadata change is preserved outside this transaction.
+- This finishes the visual micro-alignment pass; the next deferred integration is actual unique-skill invocation, which remains unimplemented.
+
 ## T06-10E-hotfix1 Final Micro X-Axis Alignment
 
 - User carousel QA approved the common structure and dialogue Y lift, and requested only visible text X-axis corrections. The registry now supplies `hero_name_offset_x` for `yi_sun_sin +8`, `gyebaek +6`, `kwon_yul +6`, `dorim +6`, and `heukchi_sangji -6`.
