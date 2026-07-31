@@ -8,6 +8,8 @@
 
 `T06-10B-hotfix3 CHEOK JUN-GYEONG READABILITY CORRECTION IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER F6 VISUAL QA PENDING`
 
+`T06-10B-hotfix5 CHEOK JUN-GYEONG TEXT STYLING IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER F6 VISUAL QA PENDING`
+
 ## T06-10A Scope
 
 - A standalone F6 preview scene is implemented before any battle connection.
@@ -71,6 +73,13 @@
 - At 1.0x: name enters from 0.12s to 0.32s; title impacts from 0.32s to 0.58s (`0.90 → 1.04 → 1.00` relative scale); dialogue enters from 0.65s to 0.88s. All three remain fully visible together from 0.88s to 3.25s (2.37s), then make the same short 0.30s exit and are cleared by 3.55s.
 - Future battle integration contract: do not recreate this approved CutinStage-internal composition ad hoc. The 13-hero commonization step must elevate this structure and authored baseline into a reusable presentation component; battle invokes that component. Battle connection may vary hero video, name, title PNG, dialogue, and explicit hero overrides only, not the approved default layout or timeline.
 - Automated scene load, script parse, and replay/loop/reset smoke remain required; F6 re-review is pending for block cohesion, title/face clearance, dialogue readability, stable hold, and identical repeated playback. No video, CutinStage geometry, combat behavior, persistence, or battle integration changes are included.
+
+## T06-10B-hotfix5 Cheok Jun-gyeong Font & Dialogue Styling Correction
+
+- The repository-supplied Noto Serif KR assets are used only by this preview: `assets/font/noto_serif_kr/NotoSerifKR-Bold.otf` for `HeroNameLabel` and `assets/font/noto_serif_kr/NotoSerifKR-Medium.otf` for `DialogueLabel`.
+- Both labels use scene-local `theme_override_fonts/font`, retain their existing scene-authored transform, and add restrained dark `font_shadow_color` with 2px horizontal and 2–3px vertical shadow offsets while keeping the existing outline treatment. `SkillTitlePng` remains the unchanged supplied PNG.
+- The final dialogue output is the unquoted plain text `내 앞을 막는 자, 목을 내놔라!`; no quotation or alternate brackets are applied.
+- The hotfix preserves the capture/reset contract: 2D-editor position and scale remain the source of truth, and replay/loop restore captured scene transforms. F6 visual QA remains pending for font tone, one-line dialogue fit, shadow/outline feel, and text-block cohesion.
 
 ## Explicitly Deferred
 

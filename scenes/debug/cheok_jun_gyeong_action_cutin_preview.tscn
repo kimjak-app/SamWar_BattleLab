@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://ct2x717im3e3f" path="res://scripts/debug/cheok_jun_gyeong_action_cutin_preview.gd" id="1_script"]
 [ext_resource type="VideoStream" uid="uid://oke0hcwg4kq" path="res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1280x720_verified.ogv" id="3_q8_720"]
 [ext_resource type="Texture2D" uid="uid://drg1abqkn7h68" path="res://assets/ui/cutin/titles/cheok_jun_gyeong__geomwang_dolpa__title.png" id="4_skill_title"]
+[ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Bold.otf" id="5_hero_font"]
+[ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Medium.otf" id="6_dialogue_font"]
 
 [sub_resource type="StyleBoxFlat" id="StylePanel"]
 bg_color = Color(0.02, 0.025, 0.035, 0.94)
@@ -70,7 +72,11 @@ offset_right = 340.0
 offset_bottom = 171.0
 theme_override_colors/font_color = Color(1, 0.79, 0.43, 1)
 theme_override_colors/font_outline_color = Color(0.06, 0.01, 0.005, 1)
+theme_override_colors/font_shadow_color = Color(0.015, 0.005, 0.002, 0.9)
 theme_override_constants/outline_size = 7
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_fonts/font = ExtResource("5_hero_font")
 theme_override_font_sizes/font_size = 36
 text = "척준경"
 
@@ -94,7 +100,11 @@ offset_right = 465.0
 offset_bottom = 399.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.025, 0.015, 0.01, 1)
+theme_override_colors/font_shadow_color = Color(0.005, 0.003, 0.002, 0.9)
 theme_override_constants/outline_size = 6
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("6_dialogue_font")
 theme_override_font_sizes/font_size = 29
 text = "내 앞을 막는 자, 목을 내놔라!"
 vertical_alignment = 1
