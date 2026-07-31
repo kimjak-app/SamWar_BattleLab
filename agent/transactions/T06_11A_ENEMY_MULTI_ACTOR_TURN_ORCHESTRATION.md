@@ -2,7 +2,7 @@
 
 ## Status
 
-`IMPLEMENTED / ENEMY MULTI-ACTOR TURN ORCHESTRATION PASS / USER 1V4 F5 QA PENDING`
+`IMPLEMENTED / ENEMY MULTI-ACTOR TURN ORCHESTRATION PASS / USER 1V4 F5 QA PASS`
 
 ## User reproduction and root cause
 
@@ -57,4 +57,4 @@ The only remaining normal `_return_to_ally_turn()` invocation is inside the comm
 
 ## Next
 
-- T06-11B Existing Engagement Reservation & Surround Behavior Activation, only after the T06-11A user 1v4 gate passes.
+- T06-11B Existing Engagement Reservation & Surround Behavior Activation.

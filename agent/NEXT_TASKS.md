@@ -2,7 +2,7 @@
 
 ## Immediate QA gate
 
-- T06-11A enemy multi-actor orchestration F5 QA: with one allied unit against four living enemy units, finish the allied action and confirm each living enemy acts once in the same enemy phase before ally control returns. Confirm a no-path/waiting enemy does not end the phase, an AI unique-skill user is followed by the next enemy, battle end prevents later actors, and the next round again grants each enemy one action.
+- T06-11B surround-pressure F5 QA: invade Sabi with one Yi Sun-sin unit against three-to-four defenders. Confirm each enemy continues to approach without selecting the same cell, available enemies spread across at least two useful approach directions, blocked actors seek an alternate valid approach, and existing 측면 공격!/후방 공격! logs occur when the established directional conditions are met. Narrow terrain may naturally produce sequential approach rather than forced encirclement.
 
 - T06-10I player/AI unique-skill display QA: verify Korean effect/status strings in floating text, status summaries/tooltips, and battle log for Jang Bo-go, Gwanggaeto, Uija Wang, and representative damage/buff/debuff/heal/guard skills. Confirm no internal underscore IDs appear.
 
@@ -14,4 +14,4 @@
 
 ## Next implementation
 
-- T06-11B Existing Engagement Reservation & Surround Behavior Activation follows only after the T06-11A 1v4 F5 gate. Do not change cutin visual data, timing, or the T06-10F committed-skill contract as part of that work.
+- Follow-up only if the T06-11B F5 gate reveals a reproducible reservation or directional-pressure defect. Do not change cutin visual data, timing, or the T06-10F committed-skill contract as part of that work.

@@ -76,14 +76,25 @@ Status: `IMPLEMENTED / AUTHORITATIVE HERO ID RESTORED / 13-HERO CUTIN PARITY PAS
 
 ## T06-11A Enemy Multi-Actor Turn Orchestration Recovery
 
-Status: `IMPLEMENTED / ENEMY MULTI-ACTOR TURN ORCHESTRATION PASS / USER 1V4 F5 QA PENDING`
+Status: `IMPLEMENTED / ENEMY MULTI-ACTOR TURN ORCHESTRATION PASS / USER 1V4 F5 QA PASS`
 
 - The enemy AI actor selector already enumerates all deployed enemy slots in fixed order and excludes dead/acted units. The fault was turn orchestration: individual enemy completion paths returned directly to the ally side, where an absent ally actor could start a new round before the remaining enemies had acted.
 - Enemy basic attacks, movement failures, no-path/no-target waits, confusion, unique-skill completion/failure, and animation completion now converge on `_advance_enemy_turn_or_return_to_ally()`. It finds the next unacted living enemy and schedules it with `call_deferred`, preserving the current enemy phase without recursive Tween/signal re-entry.
 - `_return_to_ally_turn()` now defers back into the enemy phase when living unacted enemies remain. `_start_new_round()` is guarded so normal turn flow can reset action locks only after both living ally and enemy sides have completed their actions.
 - Enemy reservation selection/scoring is unchanged. Reservations persist while the enemy side advances and are cleared only after that side has no remaining actor or on the existing round reset.
 - `tools/validate_enemy_multi_actor_turn_orchestration.gd` reports eight source-contract and sequencing scenarios PASS, including 1v4, 1v1, dead actor exclusion, wait/path failure, unique-skill continuation, battle-end stop, and round-reset gating. Headless project and `Battle_Land.tscn` loads pass.
-- Next: user F5 1 ally vs 4 enemies QA. T06-11B engagement reservation/surround activation is only eligible after this gate passes.
+- User F5 passed: Yi Sun-sin alone invading Sabi confirmed three enemies consecutively approached and attempted attacks in the same enemy phase. T06-11B may now validate the existing reservation and surround-pressure path.
+
+## T06-11B Existing Engagement Reservation & Surround Behavior Activation
+
+Status: `IMPLEMENTED / ENEMY ENGAGEMENT RESERVATION PASS / SURROUND PRESSURE USER F5 QA PENDING`
+
+- Existing `enemy_ai_reserved_destination_cells` and `enemy_ai_reserved_engagement_cells` map a selected cell to its capacity-slot actor. Target candidates remain shared across enemies; only destination and final engagement cells are exclusive.
+- The actual path is `_get_enemy_ai_decision_plan_for_actor()` → `_build_enemy_ai_target_action_plan_for_actor()` → `_get_enemy_engagement_step_plan_for_actor()` → `_reserve_enemy_ai_decision_plan_for_actor()`. Candidate cells filter both occupied cells and other actors' engagement reservations; step cells filter destination reservations.
+- Sequential 1v4 planning on a real `Battle_Land` instance passes shared target, unique destination/final engagement cell, at least two directional pressure sectors, reservation retention/reset, blocked-actor alternate planning, and target movement replan checks. No production AI selection code was changed.
+- `_should_enemy_use_surround_pressure_mode()` remains intentionally unconnected: it is a dead helper, while the live engagement-candidate path already provides the required reservation-aware multi-direction pressure. Connecting it would expand behavior beyond the validated minimal scope.
+- There is no separate multi-attacker cooperative-damage resolver in the current battle code. Existing cooperation is the already-live directional attack contract: side/back angle logs and unchanged `1.15` / `1.30` multipliers. The validator locks this parity rather than changing it.
+- Next: user F5 one Yi Sun-sin unit vs Sabi three-to-four defenders QA for collision-free multi-direction pressure. A later behavior task may refine it only if this gate identifies a reproducible flaw.
 
 ## T06-10I Unique Skill Korean Effect Display & Warning Cleanup
 
