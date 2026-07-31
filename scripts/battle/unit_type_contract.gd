@@ -65,6 +65,29 @@ static func get_string(unit_type: String, key: String, fallback: String = "") ->
 	return String(get_rule(unit_type).get(key, fallback))
 
 
+static func get_visual_metadata(unit_type: String, nation: String = "") -> Dictionary:
+	var rule := get_rule(unit_type)
+	if rule.is_empty():
+		return {}
+	var visual_key := String(rule.get("visual_key", unit_type))
+	if unit_type == "gunner" and nation.to_lower() == "japan":
+		visual_key = "japan_gunner"
+	elif unit_type == "mounted_archer":
+		visual_key = "mongol_mounted_archer"
+	var icon_path := String(rule.get("icon_path", ""))
+	if unit_type == "gunner":
+		icon_path = "res://assets/web_battle/unit_tokens/japan/gunner/japan_gunner_01.png"
+	elif unit_type == "mounted_archer":
+		icon_path = "res://assets/web_battle/unit_tokens/mongol/horse_archer/mongol_horse_archer.png"
+	return {
+		"visual_key": visual_key,
+		"icon_path": icon_path,
+		"animation_profile": String(rule.get("animation_profile", unit_type)),
+		"attack_fx_profile": String(rule.get("attack_fx_profile", "slash")),
+		"move_fx_profile": String(rule.get("move_fx_profile", "dust")),
+	}
+
+
 static func is_attack_distance_valid(unit_type: String, distance: int) -> bool:
 	return distance >= get_minimum_attack_range(unit_type) and distance <= get_maximum_attack_range(unit_type)
 

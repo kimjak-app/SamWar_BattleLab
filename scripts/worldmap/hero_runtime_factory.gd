@@ -1,6 +1,8 @@
 class_name HeroRuntimeFactory
 extends RefCounted
 
+const UnitTypeContractScript := preload("res://scripts/battle/unit_type_contract.gd")
+
 const RUNTIME_SCHEMA_VERSION := 2
 const LOYALTY_SCHEMA_VERSION := 1
 const ALLOWED_UNIT_TYPES := {
@@ -103,7 +105,12 @@ static func build_runtime_hero(identity: Dictionary, saved_state: Dictionary = {
 	result["loyalty"] = current_loyalty
 
 	result["unit_type"] = unit_type
-	result["visual_key"] = unit_type
+	var visual_metadata := UnitTypeContractScript.get_visual_metadata(unit_type, String(result.get("nation", "")))
+	result["visual_key"] = String(visual_metadata.get("visual_key", unit_type))
+	result["icon_path"] = String(visual_metadata.get("icon_path", ""))
+	result["animation_profile"] = String(visual_metadata.get("animation_profile", unit_type))
+	result["attack_fx_profile"] = String(visual_metadata.get("attack_fx_profile", "slash"))
+	result["move_fx_profile"] = String(visual_metadata.get("move_fx_profile", "dust"))
 	result["web_role"] = String(LEGACY_WEB_ROLE_BY_UNIT_TYPE.get(unit_type, "melee"))
 	result["primary_role"] = String(profile.get("primary_role", ""))
 	result["secondary_role"] = String(profile.get("secondary_role", ""))
@@ -186,7 +193,12 @@ static func build_battle_unit_payload(runtime_hero: Dictionary, overrides: Dicti
 	var unit_type := String(result.get("unit_type", ""))
 	if not ALLOWED_UNIT_TYPES.has(unit_type):
 		return _error_result(result, "battle payload invalid unit_type: %s" % unit_type)
-	result["visual_key"] = unit_type
+	var visual_metadata := UnitTypeContractScript.get_visual_metadata(unit_type, String(result.get("nation", "")))
+	result["visual_key"] = String(visual_metadata.get("visual_key", unit_type))
+	result["icon_path"] = String(visual_metadata.get("icon_path", ""))
+	result["animation_profile"] = String(visual_metadata.get("animation_profile", unit_type))
+	result["attack_fx_profile"] = String(visual_metadata.get("attack_fx_profile", "slash"))
+	result["move_fx_profile"] = String(visual_metadata.get("move_fx_profile", "dust"))
 	result["web_role"] = String(LEGACY_WEB_ROLE_BY_UNIT_TYPE.get(unit_type, "melee"))
 	result["hero_name"] = String(result.get("display_name", result.get("name", hero_id)))
 	return result

@@ -7,6 +7,7 @@
 - `BattleUITextFormatHelper` centralizes canonical Korean type names: 보병, 기병, 궁병, 총병, 궁기병. `support` is not a unit type.
 - Runtime battle snapshots include gunner status effects plus mounted-archer post-attack movement state.
 - The existing visual template fallback remains safe when a dedicated mounted-archer asset is unavailable; the canonical `unit_type` is never changed for fallback.
+- Canonical visual metadata now resolves Japan gunner to `japan_gunner_01.png` and Mongol mounted archer to `mongol_horse_archer.png`; both source files and `.import` records are verified.
 
 ## Automated QA
 

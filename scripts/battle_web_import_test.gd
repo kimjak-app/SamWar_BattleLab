@@ -823,6 +823,9 @@ const UNIT_VISUAL_TOKEN_PATHS := {
 	"japan_gunner": {
 		"base": "res://assets/web_battle/unit_tokens/japan/gunner/japan_gunner_01.png",
 	},
+	"mongol_mounted_archer": {
+		"base": "res://assets/web_battle/unit_tokens/mongol/horse_archer/mongol_horse_archer.png",
+	},
 	"legacy_ally_infantry": {
 		"base": "res://assets/web_battle/unit_tokens/unit_blue_battlefield.png",
 	},

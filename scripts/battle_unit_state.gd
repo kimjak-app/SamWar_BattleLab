@@ -66,14 +66,13 @@ func setup(data: Dictionary) -> void:
 	hero_name = String(authoritative_data.get("hero_name", display_name))
 	nation = String(authoritative_data.get("nation", ""))
 	unit_type = String(authoritative_data.get("unit_type", "infantry"))
-	visual_key = String(authoritative_data.get("visual_key", unit_type))
-	if visual_key != unit_type:
-		visual_key = unit_type
+	var visual_metadata := UnitTypeContractScript.get_visual_metadata(unit_type, String(authoritative_data.get("nation", "")))
+	visual_key = String(authoritative_data.get("visual_key", visual_metadata.get("visual_key", unit_type)))
 	portrait_key = String(authoritative_data.get("portrait_key", hero_name))
 	domain = String(authoritative_data.get("domain", "land"))
 	footprint = String(authoritative_data.get("footprint", "1x1"))
-	move_fx_profile = String(authoritative_data.get("move_fx_profile", "dust"))
-	attack_fx_profile = String(authoritative_data.get("attack_fx_profile", "slash"))
+	move_fx_profile = String(authoritative_data.get("move_fx_profile", visual_metadata.get("move_fx_profile", "dust")))
+	attack_fx_profile = String(authoritative_data.get("attack_fx_profile", visual_metadata.get("attack_fx_profile", "slash")))
 	click_area_profile = String(authoritative_data.get("click_area_profile", "standard_1x1"))
 	visual_scale_profile = String(authoritative_data.get("visual_scale_profile", "standard_256"))
 	current_hp = int(authoritative_data.get("current_hp", 0))
@@ -174,7 +173,7 @@ func _rebuild_authority_for_runtime_unit_id(value: String) -> void:
 	hero_name = String(payload.get("hero_name", display_name))
 	nation = String(payload.get("nation", nation))
 	unit_type = String(payload.get("unit_type", unit_type))
-	visual_key = unit_type
+	visual_key = String(UnitTypeContractScript.get_visual_metadata(unit_type, nation).get("visual_key", unit_type))
 	portrait_key = String(payload.get("portrait_key", hero_name))
 	domain = String(payload.get("domain", domain))
 	footprint = String(payload.get("footprint", footprint))
