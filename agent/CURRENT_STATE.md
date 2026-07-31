@@ -60,6 +60,11 @@ Final unit distribution: `11 / 10 / 11 / 4 / 3`.
 - Existing T01–T05 city ownership, troop settlement, logistics, occupation, and result accounting remain protected.
 - Sound remains the final polish stage.
 
+## T06-10D Cutin Presentation Update
+
+- Korea MVP 13-hero cutin registry and carousel preview are implemented. The shared presentation remains presentation-only; 13 source MP4s are preserved and their 720p Theora OGV mappings are ready for F6 QA.
+- Next: T06-10E visual exception calibration. Actual battle invocation remains out of scope.
+
 ## Next Transaction
 
 T06-10A standalone Gwanggaeto cutin preview visual hotfix is implemented for comparison; user F6 visual QA is pending before any battle presentation connection. Correction-only QA for confirmed T06-8/T06-9 defects remains allowed.

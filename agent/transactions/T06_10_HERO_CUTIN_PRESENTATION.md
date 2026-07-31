@@ -12,6 +12,19 @@
 
 `T06-10C REUSABLE HERO CUTIN PRESENTATION IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER F6 REGRESSION QA PENDING`
 
+`T06-10D KOREA MVP 13-HERO CUTIN ASSET NORMALIZATION, REGISTRY & CAROUSEL IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER 13-HERO F6 VISUAL QA PENDING`
+
+## T06-10D Korea MVP Asset Registry & Carousel
+
+- The reusable presentation's user regression QA is recorded as passed; its approved Cheok Jun-gyeong layout, font treatment, crop, and timeline are unchanged.
+- The tracked title assets were normalized: `kim_yu_sin__samguk_tongil__title.png` → `kim_yu_sin__samhan_tongil__title.png` and `gye_baek__baekje_buheung__title.png` → `gye_baek__hwangsan_beol__title.png`, with their Godot `.import` metadata updated by the editor import pass.
+- The 13-item authoritative presentation registry is `data/cutin/korea_mvp_hero_cutins.json`; `scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd` loads it for presentation clients. It holds canonical hero/skill IDs and display names from generated hero data, asset paths, enabled state, and a dialogue provenance status.
+- The approved Cheok OGV is retained unchanged. The other 12 source MP4s remain preserved under `assets/video_source_test/production_dry_run/korea_mvp/` and were converted to `assets/ui/cutin/videos/*__cutin_bg_theora_q8_1280x720.ogv` with the previously approved safe video-only setting: `-map 0:v:0 -an -vf fps=30,scale=1280:720:flags=bilinear,format=yuv420p -c:v libtheora -q:v 8 -g 1`.
+- `scenes/debug/korea_mvp_hero_cutin_carousel_preview.tscn` is the 13-hero F6 QA wrapper. Its controls support previous/next (Left/Right), Play (Space/Enter), Replay (R), auto-cycle (L), video-only (V), 0.75x/1.0x/1.25x, and Escape stop/reset. It injects registry resources into the common component; no 13 individual cutin scenes were duplicated.
+- Only Cheok Jun-gyeong has an authoritative cutin dialogue source in the current repository. The other 12 entries deliberately omit a dialogue value and are marked `missing_authoritative_source`; carousel QA shows an explicit metadata notice while leaving the in-stage dialogue layer blank. No temporary lines were invented.
+- Automated checks: all 13 OGVs are Theora, 1280×720, 30fps, video-only, 4.000s, and passed full decode plus 0.10s/2.00s/3.50s extraction. Registry parity, 13 resource loads/configures, scene-authored reset, carousel forward/backward wrap, and 53 natural completion-signal auto-cycle advances passed headless smoke.
+- Next step: T06-10E identifies only visually necessary per-hero exceptions through F6. Actual battle invocation, battle pause/resume, player/AI linkage, and any combat rules remain unimplemented.
+
 ## T06-10A Scope
 
 - A standalone F6 preview scene is implemented before any battle connection.
