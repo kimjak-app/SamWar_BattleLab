@@ -2867,6 +2867,10 @@
 - Preserved troop accounting, woundedQueue, captured/dead exclusion, wounded hero penalties, and save/load structures.
 - F6 manual QA remains pending for UI display, clamp behavior, player attack win/loss, enemy invasion defense, and woundedQueue recovery.
 
+## T07 Five Unit-Type Battle Completion
+- Added canonical five-type action/range and damage contexts, gunner runtime metadata, mounted-archer action-local snapshot fields, auto-battle parity, and central Korean unit-type labels.
+- Automated validators and Godot headless parse/scene load passed; user F5 QA remains pending.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
 - Added explicit total assigned troops and remaining garrison troop summary.

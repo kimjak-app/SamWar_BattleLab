@@ -1,5 +1,15 @@
 # CURRENT STATE
 
+## Latest Implemented Transaction
+
+### T07 Five Unit-Type Battle Completion
+
+Status: `IMPLEMENTED / AUTOMATED VALIDATION PASS / USER F5 QA PENDING`
+
+- Canonical production unit types are infantry, cavalry, archer, gunner, and mounted_archer; Korea roster assignments remain unchanged.
+- Shared movement/range/action eligibility, manual/auto damage context, gunner runtime state, mounted-archer snapshot state, and Korean display labels are connected to `UnitTypeContract`.
+- T08 terrain and tactical-map work is next.
+
 ## Baseline
 
 - Repository: `kimjak-app/SamWar_BattleLab`

@@ -82,6 +82,14 @@ const UNIQUE_SKILL_FAILURE_DISPLAY_NAMES := {
 	"unsupported_target_mode": "지원하지 않는 대상 방식",
 }
 
+const UNIT_TYPE_DISPLAY_NAMES := {
+	"infantry": "보병",
+	"cavalry": "기병",
+	"archer": "궁병",
+	"gunner": "총병",
+	"mounted_archer": "궁기병",
+}
+
 
 static func format_strategy_status_display_name(status_id: String) -> String:
 	return format_unique_skill_status_display_name(status_id)
@@ -103,6 +111,10 @@ static func format_side_display_name(side: String) -> String:
 	if side == "enemy":
 		return "적군"
 	return "아군"
+
+
+static func format_unit_type_display_name(unit_type: String, fallback: String = "") -> String:
+	return String(UNIT_TYPE_DISPLAY_NAMES.get(unit_type, fallback))
 
 
 static func get_debug_object_class_name(value: Object) -> String:

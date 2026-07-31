@@ -4119,6 +4119,9 @@
 - Replaced player attack defender and enemy invasion attacker/defender default even allocations with commandLimit allocation.
 - Verification pending at this log point: full Godot headless scene loads and F6 manual QA.
 
+## T07 Five Unit-Type Battle Completion
+- Completed T07-3 through T07-7 local transactions. Automated validation and Battle_Land/WorldMap headless load passed; F5 QA remains pending.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
 - Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.

@@ -68,6 +68,10 @@ Constraints:
 
 ## Later stages
 
+## Current handoff
+
+T07 five-unit-type battle parity is implemented and locally committed. Start T08 terrain/tactical-map work from the current `main`; do not change T07 validation numbers outside T11.
+
 - T08 adds terrain data, passability, movement cost, terrain modifiers, bridges, rivers, cliffs, high ground, and tactical-map AI awareness.
 - T09 adds a true cooperative-attack contract and common tactics such as fire attack and disruption, while keeping them distinct from hero unique skills and passive terrain effects.
 - T10 replaces the test-oriented battle UI with a production-quality 1920×1080 information and command layout covering six unit types, terrain, tactics, statuses, momentum, and cutins.

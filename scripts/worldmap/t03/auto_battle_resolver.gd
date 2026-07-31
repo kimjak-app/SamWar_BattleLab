@@ -178,9 +178,9 @@ static func _matchup_modifier(context: Dictionary, side: String) -> float:
 	var other_type := _dominant_unit_type(context.get("%s_heroes" % other_side, []))
 	if own_type.is_empty() or other_type.is_empty() or own_type == other_type:
 		return 0.0
-	var context := UnitTypeContractScript.get_damage_context(own_type, other_type)
+	var damage_context := UnitTypeContractScript.get_damage_context(own_type, other_type)
 	var reverse := UnitTypeContractScript.get_damage_context(other_type, own_type)
-	return clampf(float(context.get("matchup_modifier", 0.0)) - float(reverse.get("matchup_modifier", 0.0)), -MATCHUP_CAP, MATCHUP_CAP)
+	return clampf(float(damage_context.get("matchup_modifier", 0.0)) - float(reverse.get("matchup_modifier", 0.0)), -MATCHUP_CAP, MATCHUP_CAP)
 
 
 static func _dominant_unit_type(heroes: Array) -> String:

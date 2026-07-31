@@ -37,6 +37,10 @@ Firearm infantry and mounted archers are for future Japan, China, and Mongolia e
 
 ## Locked roadmap
 
+## Next: T08 Battlefield Terrain & Tactical Map System
+
+T07 is `IMPLEMENTED / AUTOMATED VALIDATION PASS / USER F5 QA PENDING`. Keep T07 feature values intact; defer balance changes to T11.
+
 Authoritative planning document:
 
 - `agent/plans/T07_T11_BATTLE_ENGINE_MVP_COMPLETION_ROADMAP.md`
