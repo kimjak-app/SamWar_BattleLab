@@ -43,7 +43,8 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.008, 0.01, 0.015, 1)
 
-[node name="HeroCutinPresentation" parent="." instance=ExtResource("2_presentation")]
+[node name="HeroCutinPresentation" parent="." unique_id=1889588915 instance=ExtResource("2_presentation")]
+layout_mode = 1
 
 [node name="PreviewControls" type="Panel" parent="." unique_id=710998079]
 layout_mode = 1
