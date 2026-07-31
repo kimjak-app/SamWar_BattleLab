@@ -64,10 +64,10 @@ expand = true
 
 [node name="HeroNameLabel" type="Label" parent="CutinStage" unique_id=577820561]
 layout_mode = 0
-offset_left = 235.0
-offset_top = 102.0
-offset_right = 397.0
-offset_bottom = 153.0
+offset_left = 207.0
+offset_top = 120.0
+offset_right = 340.0
+offset_bottom = 171.0
 theme_override_colors/font_color = Color(1, 0.79, 0.43, 1)
 theme_override_colors/font_outline_color = Color(0.06, 0.01, 0.005, 1)
 theme_override_constants/outline_size = 7
@@ -76,10 +76,9 @@ text = "척준경"
 
 [node name="SkillTitlePng" type="TextureRect" parent="CutinStage" unique_id=872255340]
 layout_mode = 0
-offset_left = 19.0
-offset_top = 138.0
-offset_right = 535.0435
-offset_bottom = 345.13043
+offset_top = 154.0
+offset_right = 504.08698
+offset_bottom = 349.0435
 scale = Vector2(0.92, 0.92)
 pivot_offset = Vector2(278, 118)
 mouse_filter = 2
@@ -89,9 +88,9 @@ stretch_mode = 5
 
 [node name="DialogueLabel" type="Label" parent="CutinStage" unique_id=772610797]
 layout_mode = 0
-offset_left = 85.0
+offset_left = 69.0
 offset_top = 350.0
-offset_right = 481.0
+offset_right = 465.0
 offset_bottom = 399.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.025, 0.015, 0.01, 1)
