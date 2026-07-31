@@ -24,6 +24,14 @@
 
 `T06-10E-hotfix3 KOREA MVP FINAL 3-HERO CUTIN TEXT ALIGNMENT LOCK IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER FINAL CUTIN F6 QA PENDING`
 
+`T06-10E-hotfix4 HEUKCHI SANGJI FINAL DIALOGUE ALIGNMENT IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER FINAL VISUAL QA PENDING`
+
+## T06-10E-hotfix4 Heukchi Sangji Final Dialogue Alignment
+
+- The final 13-hero visual-QA calibration record adjusts only Heukchi Sangji's stored dialogue X offset: `+36 → +40`. His name remains `-14`; every other hero offset and all common values remain unchanged.
+- Registry-relative placement, common dialogue Y `-9`, font size 29, authored transforms, timing, assets, and dialogue strings are unchanged. No runtime accumulation path was introduced.
+- Automated 13-hero configure/reset/replay/loop smoke completed with 52 natural auto-cycle completions and no duplicate advance; Cheok preview and carousel scene headless loading also passed. T06-10F Actual Battle Unique Skill Cutin Integration remains the next unimplemented scope.
+
 ## T06-10E-hotfix3 Final 3-Hero Text Alignment Lock
 
 - The remaining F6 QA corrections are locked in the registry only: `kim_yu_sin` dialogue `+28 → +32`; `heukchi_sangji` name `-10 → -14` and dialogue `+32 → +36`; `kwon_yul` dialogue `+30 → +34`. The actual pre-hotfix values matched the expected hotfix2 baseline, so no reconciliation was required.
