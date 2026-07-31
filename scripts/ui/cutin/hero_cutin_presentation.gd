@@ -7,6 +7,7 @@ signal cutin_finished
 @export var hero_name_enter_offset := Vector2(-18, 0)
 @export var skill_title_enter_scale := Vector2(0.90, 0.90)
 @export var dialogue_enter_offset := Vector2(-14, 0)
+@export var dialogue_layout_offset := Vector2(0, -9)
 @export_group("Approved readability timeline at 1.0x")
 @export var full_video_duration := 4.01
 @export var hero_name_enter_start := 0.12
@@ -28,6 +29,7 @@ var _layer_tweens: Array[Tween] = []
 var _playback_speed := 1.0
 var _playing := false
 var _show_text_layers := true
+var _dialogue_hero_offset := Vector2.ZERO
 var _hero_name_authored_position: Vector2
 var _hero_name_authored_scale: Vector2
 var _hero_name_authored_modulate: Color
@@ -48,12 +50,13 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	stop_cutin()
 
-func configure(hero_name: String, dialogue: String, video_stream: VideoStream, skill_title_texture: Texture2D) -> void:
+func configure(hero_name: String, dialogue: String, video_stream: VideoStream, skill_title_texture: Texture2D, dialogue_offset: Vector2 = Vector2.ZERO) -> void:
 	stop_cutin()
 	hero_name_label.text = hero_name
 	dialogue_label.text = dialogue
 	video.stream = video_stream
 	skill_title_png.texture = skill_title_texture
+	_dialogue_hero_offset = Vector2(dialogue_offset.x, 0.0)
 	reset_cutin()
 
 func set_playback_speed(value: float) -> void:
@@ -99,7 +102,7 @@ func reset_cutin() -> void:
 	skill_title_png.modulate = _skill_title_authored_modulate
 	skill_title_png.pivot_offset = _skill_title_authored_pivot_offset
 	skill_title_png.modulate.a = 0.0
-	dialogue_label.position = _dialogue_authored_position + dialogue_enter_offset
+	dialogue_label.position = _dialogue_enter_position()
 	dialogue_label.scale = _dialogue_authored_scale
 	dialogue_label.modulate = _dialogue_authored_modulate
 	dialogue_label.pivot_offset = _dialogue_authored_pivot_offset
@@ -135,7 +138,7 @@ func _schedule_master_layers() -> void:
 	skill_scale_tween.tween_property(skill_title_png, "scale", _skill_title_authored_scale, text_block_exit_duration / _playback_speed)
 	_schedule_property(skill_title_png, "position", _skill_title_authored_position, _skill_title_authored_position, skill_title_enter_start, skill_title_enter_duration, text_block_hold_end, text_block_exit_duration, _skill_title_authored_position + hero_name_enter_offset)
 	_schedule_property(dialogue_label, "modulate:a", 0.0, 1.0, dialogue_enter_start, dialogue_enter_duration, text_block_hold_end, text_block_exit_duration)
-	_schedule_property(dialogue_label, "position", _dialogue_authored_position + dialogue_enter_offset, _dialogue_authored_position, dialogue_enter_start, dialogue_enter_duration, text_block_hold_end, text_block_exit_duration, _dialogue_authored_position + dialogue_enter_offset)
+	_schedule_property(dialogue_label, "position", _dialogue_enter_position(), _dialogue_target_position(), dialogue_enter_start, dialogue_enter_duration, text_block_hold_end, text_block_exit_duration, _dialogue_enter_position())
 	_schedule_property(dialogue_label, "scale", _dialogue_authored_scale, _dialogue_authored_scale, dialogue_enter_start, dialogue_enter_duration, text_block_hold_end, text_block_exit_duration)
 
 func _schedule_property(node: Node, property: NodePath, start_value: Variant, authored_value: Variant, enter_start: float, enter_duration: float, hold_end: float, exit_duration: float, exit_value: Variant = null) -> void:
@@ -149,6 +152,12 @@ func _new_layer_tween() -> Tween:
 	var tween := create_tween()
 	_layer_tweens.append(tween)
 	return tween
+
+func _dialogue_target_position() -> Vector2:
+	return _dialogue_authored_position + dialogue_layout_offset + _dialogue_hero_offset
+
+func _dialogue_enter_position() -> Vector2:
+	return _dialogue_target_position() + dialogue_enter_offset
 
 func _finish_cutin() -> void:
 	_playing = false

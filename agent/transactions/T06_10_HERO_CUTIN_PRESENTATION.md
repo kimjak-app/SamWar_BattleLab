@@ -16,6 +16,16 @@
 
 `T06-10D-hotfix1 KOREA MVP 13-HERO FINAL DIALOGUE REGISTRY IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER 13-HERO DIALOGUE F6 QA PENDING`
 
+`T06-10E KOREA MVP DIALOGUE VERTICAL LIFT & PER-HERO X OFFSET CALIBRATION IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER 13-HERO POSITION F6 QA PENDING`
+
+## T06-10E Dialogue Position Calibration
+
+- The 13-hero F6 carousel QA identified the dialogue layer as visually too close to the bottom frame. The reusable presentation now applies one relative common layout offset, `dialogue_layout_offset = Vector2(0, -9)`, to the captured scene-authored dialogue position. No scene transform is overwritten.
+- The registry adds X-only `dialogue_offset_x` overrides for `yi_sun_sin +14`, `uija_wang +18`, `kim_yu_sin +16`, `kim_chun_chu +18`, `jeong_do_jeon +14`, `jang_bo_go +22`, `heukchi_sangji +20`, `gyebaek +18`, and `kwon_yul +18`. `gwanggaeto`, `eulji_mundeok`, `dorim`, and `cheok_jun_gyeong` deliberately have no X override.
+- The component composes the final dialogue target from captured authored position + common Y lift + current hero X override. Its enter offset remains relative to that target; reset, replay, loop, and carousel switching restore it without cumulative movement.
+- Automated smoke confirmed all 13 targets at y=341 (authored y=350 minus 9), exact X mappings, 52 natural auto-cycle completions, no duplicate auto-advance handling, unchanged hero-name/title position and title scale, dialogue font size 29, and common/Carousel/Cheok preview scene loading. Video-only dialogue hiding remains covered by the preceding dialogue carousel smoke.
+- Next step: actual battle unique-skill connection. No battle connection, asset, dialogue, font, timing, crop, hero-name, or title-PNG change is included in this calibration.
+
 ## T06-10D-hotfix1 Final Dialogue Registry Correction
 
 - The user supplied and finalized all 13 Korea MVP dialogue strings. `data/cutin/korea_mvp_hero_cutins.json` now stores each exact unquoted, trimmed dialogue; all `dialogue_status` and `missing_authoritative_source` fields are removed.
