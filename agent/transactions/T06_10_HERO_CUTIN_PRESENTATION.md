@@ -22,6 +22,15 @@
 
 `T06-10E-hotfix2 KOREA MVP CUTIN FINAL 4PX TEXT MICRO ALIGNMENT IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER FINAL CUTIN F6 QA PENDING`
 
+`T06-10E-hotfix3 KOREA MVP FINAL 3-HERO CUTIN TEXT ALIGNMENT LOCK IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER FINAL CUTIN F6 QA PENDING`
+
+## T06-10E-hotfix3 Final 3-Hero Text Alignment Lock
+
+- The remaining F6 QA corrections are locked in the registry only: `kim_yu_sin` dialogue `+28 → +32`; `heukchi_sangji` name `-10 → -14` and dialogue `+32 → +36`; `kwon_yul` dialogue `+30 → +34`. The actual pre-hotfix values matched the expected hotfix2 baseline, so no reconciliation was required.
+- No other hero offset, string, Y value, font, size, video/PNG, timing, crop, CutinStage, or common authored transform changed. The existing relative formula and reset/replay/loop protections are retained.
+- Automated smoke verified all 13 configured positions, unchanged other ten heroes, 52 natural auto-cycle completions with no duplicate advance, and common/Cheok/carousel headless scene loading. The pre-existing uncommitted carousel scene UID/editor metadata remains outside this transaction.
+- The 13-hero visual calibration phase is now locked pending final user F6 approval. Next planned scope is `T06-10F Actual Battle Unique Skill Cutin Integration`; it is not implemented by this work.
+
 ## T06-10E-hotfix2 Final 4px Text Micro Alignment
 
 - User F6 QA retained the approved common composition and requested only the final 4px X-axis adjustments. The stored final hero-name offsets are `yi_sun_sin +12`, `uija_wang +4`, `jang_bo_go +4`, `gyebaek +10`, `kwon_yul +10`, `dorim +10`, and `heukchi_sangji -10`.
