@@ -26,6 +26,19 @@
 
 `T06-10E-hotfix4 HEUKCHI SANGJI FINAL DIALOGUE ALIGNMENT IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER FINAL VISUAL QA PENDING`
 
+`T06-10F ACTUAL BATTLE UNIQUE SKILL CUTIN INTEGRATION IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER PLAYER+AI BATTLE QA PENDING`
+
+## T06-10F Actual Battle Unique Skill Cutin Integration
+
+- User F6 visual QA is recorded as passed for the Korea MVP 13-hero registry, carousel, and approved master composition. This transaction does not alter the common scene, its text transforms, fonts, title PNGs, videos, crop, or timing.
+- `Battle_Land.tscn` adds the presentation-only host `HeroCutinOverlay/HeroCutinViewport/HeroCutinPresentation`. The host centres a 1152×648 reference canvas in the battle viewport; `HeroCutinPresentation` retains the same scene-authored CutinStage-internal layout and its fixed `1014×415` stage.
+- Player target selection and AI candidate/preview paths both converge at `_begin_unique_skill_sequence`. That function first builds a resolver plan and spends momentum exactly once. Only after both succeed does `_play_committed_hero_cutin` query `KoreaMvpHeroCutinRegistry.find_entry(hero_id, skill_id)`, configure the shared component, and start it at normal speed.
+- The existing `is_unique_skill_presenting`, `is_demo_animating`, and `PHASE_RESOLVING` states lock player commands and AI progression while the cutin is visible. The overlay additionally consumes pointer input. On the single `cutin_finished` signal, the pending resolver plan is applied once and `_finalize_unique_skill_action` performs the pre-existing one-time cooldown/action/turn handoff.
+- The integration has a token-guarded 4.60s missing-signal recovery path. It does not alter normal 4.01s playback. Reset and scene teardown call `_stop_hero_cutin_presentation`, clear the active execution token, stop the player/tweens, and hide the host so stale signals cannot complete a later action.
+- If registry entry, canonical hero/skill parity, video, or title texture cannot be resolved, `[HERO_CUTIN]` warns and presentation falls back to the existing flow. The already committed skill effect, its momentum cost, resolver plan, logs, and action completion continue; no refund is introduced.
+- Automated checks: project parse; Battle_Land load; common component registry/resource/configure/replay/reset smoke (13 entries; one natural replay completion signal); `git diff --check`. The canonical battle-commit smoke could not be completed headlessly because the full battle scene did not terminate within the local command watchdog; user F5 QA remains required for player and AI invocation.
+- Next: user player+AI battle QA, followed by `T06-11 AI Multi-Unit Engagement, Surround & Cooperative Attack Correction`. No battle-effect, momentum-rule, AI target/movement, persistence, or asset change is included.
+
 ## T06-10E-hotfix4 Heukchi Sangji Final Dialogue Alignment
 
 - The final 13-hero visual-QA calibration record adjusts only Heukchi Sangji's stored dialogue X offset: `+36 → +40`. His name remains `-14`; every other hero offset and all common values remain unchanged.

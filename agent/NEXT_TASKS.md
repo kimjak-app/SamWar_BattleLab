@@ -1,5 +1,10 @@
-# NEXT TASKS — Superseded
+# NEXT TASKS
 
-Active roadmap moved to [`agent/TRANSACTION_ROADMAP.md`](TRANSACTION_ROADMAP.md). Current cutin follow-up: T06-10E 13-hero visual exception calibration after the carousel F6 QA; actual battle connection is not implemented.
+## Immediate QA gate
 
-Do not append completed version history here. The new roadmap tracks active and upcoming transactions only; historical detail remains available through Git history and future archive records.
+- T06-10F player and AI actual-battle cutin QA: confirm a valid Korea MVP unique skill plays exactly one approved cutin before its existing battle effect, then unlocks and advances once.
+- Verify the fallback log prefix `[HERO_CUTIN]` only when a registry/parity/resource problem is deliberately introduced; normal Korea MVP data should not fall back.
+
+## Next implementation
+
+- T06-11 AI Multi-Unit Engagement, Surround & Cooperative Attack Correction. Do not change cutin visual data, timing, or the T06-10F committed-skill contract as part of that work.

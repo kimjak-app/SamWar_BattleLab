@@ -19,3 +19,15 @@ static func load_entries() -> Array[Dictionary]:
 		else:
 			push_error("Korea MVP cutin registry has a non-object entry")
 	return entries
+
+
+static func find_entry(hero_id: String, skill_id: String) -> Dictionary:
+	if hero_id.is_empty() or skill_id.is_empty():
+		return {}
+	for entry in load_entries():
+		if String(entry.get("hero_id", "")) != hero_id:
+			continue
+		if String(entry.get("skill_id", "")) == skill_id and bool(entry.get("enabled", false)):
+			return entry.duplicate(true)
+		return {}
+	return {}

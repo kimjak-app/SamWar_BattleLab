@@ -5,6 +5,7 @@ const BattleFacingArrowTileButtonScript := preload("res://scripts/battle_facing_
 const BattleMomentumStateScript := preload("res://scripts/battle/battle_momentum_state.gd")
 const BattleSkillResolverScript := preload("res://scripts/battle/battle_skill_resolver.gd")
 const BattleRuntimeSnapshotScript := preload("res://scripts/battle/battle_runtime_snapshot.gd")
+const KoreaMvpHeroCutinRegistryScript := preload("res://scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd")
 const DEMO_DAMAGE := 12.0
 const ENEMY_DEMO_DAMAGE := 8.0
 const ALLY_DEMO_HP := 94.0
@@ -41,6 +42,7 @@ const UNIQUE_SKILL_TARGET_OVERLAY_HIGHLIGHT_COLOR := Color(1.0, 0.920, 0.560, 0.
 const UNIQUE_SKILL_TARGET_MARKER_SCALE := 0.78
 const UNIQUE_SKILL_AUTO_PREVIEW_DURATION := 0.42
 const UNIQUE_SKILL_MANUAL_PREVIEW_DURATION := 0.42
+const HERO_CUTIN_SIGNAL_FALLBACK_DELAY := 4.60
 const MOVE_RANGE_OVERLAY_VISUAL_INSET := Vector2(32.0, 0.0)
 const RANGE_OVERLAY_CELL_INSET_RATIO := 0.08
 const RANGE_OVERLAY_CELL_APPEAR_DURATION := 0.16
@@ -983,6 +985,8 @@ var unique_skill_toast_tween: Tween = null
 var specialty_skill_cutin_tween: Tween = null
 var is_specialty_skill_cutin_playing := false
 var is_unique_skill_presenting := false
+var active_hero_cutin_execution: Dictionary = {}
+var hero_cutin_execution_token := 0
 var unique_skill_cutin_timing_start_msec := 0
 var unique_skill_texture_cache: Dictionary = {}
 var battle_toast_suppresses_facing_indicators := false
@@ -1323,6 +1327,8 @@ var deployment_marker_base_world_positions_by_slot_id: Dictionary = {}
 @onready var specialty_skill_cutin_text: Control = get_node_or_null("BattleUI/SkillCutinLayer/Control_Text") as Control
 @onready var specialty_skill_cutin_skill_title: TextureRect = get_node_or_null("BattleUI/SkillCutinLayer/Control_Text/TextureRect_SkillTitle") as TextureRect
 @onready var specialty_skill_cutin_animation_player: AnimationPlayer = get_node_or_null("BattleUI/SkillCutinLayer/AnimationPlayer_Cutin") as AnimationPlayer
+@onready var hero_cutin_overlay: CanvasLayer = get_node_or_null("HeroCutinOverlay") as CanvasLayer
+@onready var hero_cutin_presentation: HeroCutinPresentation = get_node_or_null("HeroCutinOverlay/HeroCutinViewport/HeroCutinPresentation") as HeroCutinPresentation
 @onready var enemy_retreat_toast_root: Control = get_node_or_null("EnemyRetreatToastLayer/EnemyRetreatToastRoot") as Control
 @onready var enemy_retreat_portrait: TextureRect = get_node_or_null("EnemyRetreatToastLayer/EnemyRetreatToastRoot/EnemyRetreatPortrait") as TextureRect
 @onready var enemy_retreat_name_label: Label = get_node_or_null("EnemyRetreatToastLayer/EnemyRetreatToastRoot/EnemyRetreatNameLabel") as Label
@@ -1438,6 +1444,7 @@ func _ready() -> void:
 	_configure_round_toast()
 	_configure_unique_skill_toast()
 	_configure_specialty_skill_cutin()
+	_configure_hero_cutin_integration()
 	_configure_enemy_retreat_toast()
 	_configure_battle_result_video()
 	_configure_main_camera()
@@ -3006,6 +3013,7 @@ func reset_demo_state() -> void:
 		specialty_skill_cutin_tween.kill()
 		specialty_skill_cutin_tween = null
 	_hide_specialty_skill_cutin()
+	_stop_hero_cutin_presentation()
 	if defeat_retreat_toast_tween != null:
 		defeat_retreat_toast_tween.kill()
 		defeat_retreat_toast_tween = null
@@ -4369,6 +4377,14 @@ func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dic
 	_stop_idle_breathing()
 	_sync_demo_positions()
 	_focus_camera_for_unique_skill(caster_state, skill_data)
+	if _play_committed_hero_cutin(caster_state, skill_data):
+		_append_battle_log("%s이 %s을 발동!" % [caster_state.display_name, String(skill_data.get("name", "고유특기"))])
+		_append_battle_log("%s 기세 %d 소비 · 잔여 %d" % [
+			_get_side_display_name(caster_state.side),
+			momentum_cost,
+			battle_momentum.get_value(caster_state.side),
+		])
+		return
 	var effect_apply_delay := UNIQUE_SKILL_EFFECT_APPLY_DELAY
 	var presentation_duration := UNIQUE_SKILL_TOAST_DURATION
 	if _show_specialty_skill_video_cutin(caster_state, skill_data):
@@ -4385,6 +4401,97 @@ func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dic
 	var remaining_duration := maxf(0.0, presentation_duration - effect_apply_delay)
 	get_tree().create_timer(effect_apply_delay).timeout.connect(_apply_unique_skill_effect_if_valid.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
 	get_tree().create_timer(effect_apply_delay + remaining_duration).timeout.connect(_finalize_unique_skill_action.bind(caster_state, skill_data), CONNECT_ONE_SHOT)
+
+
+func _play_committed_hero_cutin(caster_state: BattleUnitState, skill_data: Dictionary) -> bool:
+	if caster_state == null or hero_cutin_overlay == null or hero_cutin_presentation == null:
+		return false
+	if not active_hero_cutin_execution.is_empty() or hero_cutin_presentation.is_playing():
+		push_warning("[HERO_CUTIN] duplicate presentation request blocked")
+		return false
+	var unit_hero_id := _get_hero_id_for_unit_state(caster_state)
+	var hero_id := String(skill_data.get("hero_id", unit_hero_id))
+	var skill_id := String(skill_data.get("skill_id", ""))
+	if not unit_hero_id.is_empty() and hero_id != unit_hero_id:
+		push_warning("[HERO_CUTIN] fallback=legacy reason=caster_skill_hero_mismatch caster=%s skill_hero=%s skill=%s" % [unit_hero_id, hero_id, skill_id])
+		return false
+	var entry := KoreaMvpHeroCutinRegistryScript.find_entry(hero_id, skill_id)
+	if entry.is_empty():
+		if not hero_id.is_empty():
+			push_warning("[HERO_CUTIN] fallback=legacy reason=registry_missing_or_skill_mismatch hero=%s skill=%s" % [hero_id, skill_id])
+		return false
+	var video_path := String(entry.get("video_path", ""))
+	var title_path := String(entry.get("skill_title_texture_path", ""))
+	var video_stream := ResourceLoader.load(video_path) as VideoStream
+	var title_texture := ResourceLoader.load(title_path) as Texture2D
+	if video_stream == null or title_texture == null:
+		push_warning("[HERO_CUTIN] fallback=legacy reason=resource_load_failed hero=%s skill=%s video=%s title=%s" % [hero_id, skill_id, video_path, title_path])
+		return false
+	hero_cutin_execution_token += 1
+	active_hero_cutin_execution = {
+		"token": hero_cutin_execution_token,
+		"caster_state": caster_state,
+		"skill_data": skill_data.duplicate(true),
+		"hero_id": hero_id,
+		"skill_id": skill_id,
+	}
+	hero_cutin_overlay.visible = true
+	hero_cutin_presentation.configure(
+		String(entry.get("hero_name", caster_state.display_name)),
+		String(entry.get("dialogue", "")),
+		video_stream,
+		title_texture,
+		Vector2(float(entry.get("dialogue_offset_x", 0)), 0.0),
+		Vector2(float(entry.get("hero_name_offset_x", 0)), 0.0)
+	)
+	hero_cutin_presentation.set_playback_speed(1.0)
+	hero_cutin_presentation.play_cutin()
+	print("[HERO_CUTIN] start hero=%s skill=%s token=%d" % [hero_id, skill_id, hero_cutin_execution_token])
+	get_tree().create_timer(HERO_CUTIN_SIGNAL_FALLBACK_DELAY).timeout.connect(_on_hero_cutin_signal_fallback.bind(hero_cutin_execution_token), CONNECT_ONE_SHOT)
+	return true
+
+
+func _on_hero_cutin_finished() -> void:
+	_complete_hero_cutin_execution("signal")
+
+
+func _on_hero_cutin_signal_fallback(token: int) -> void:
+	if active_hero_cutin_execution.is_empty() or int(active_hero_cutin_execution.get("token", -1)) != token:
+		return
+	push_warning("[HERO_CUTIN] signal fallback hero=%s skill=%s token=%d" % [
+		String(active_hero_cutin_execution.get("hero_id", "")),
+		String(active_hero_cutin_execution.get("skill_id", "")),
+		token,
+	])
+	_complete_hero_cutin_execution("fallback")
+
+
+func _complete_hero_cutin_execution(source: String) -> void:
+	if active_hero_cutin_execution.is_empty():
+		return
+	var execution := active_hero_cutin_execution.duplicate(true)
+	active_hero_cutin_execution.clear()
+	if hero_cutin_overlay != null:
+		hero_cutin_overlay.visible = false
+	if hero_cutin_presentation != null and hero_cutin_presentation.is_playing():
+		hero_cutin_presentation.stop_cutin()
+	if not is_unique_skill_presenting:
+		return
+	var caster_state := execution.get("caster_state", null) as BattleUnitState
+	var skill_data := execution.get("skill_data", {}) as Dictionary
+	print("[HERO_CUTIN] complete source=%s hero=%s skill=%s" % [source, String(execution.get("hero_id", "")), String(execution.get("skill_id", ""))])
+	_apply_unique_skill_effect_if_valid(caster_state, skill_data)
+	_finalize_unique_skill_action(caster_state, skill_data)
+
+
+func _stop_hero_cutin_presentation() -> void:
+	hero_cutin_execution_token += 1
+	active_hero_cutin_execution.clear()
+	if hero_cutin_presentation != null:
+		hero_cutin_presentation.stop_cutin()
+		# The common component restores its scene-authored state on the next configure/play.
+	if hero_cutin_overlay != null:
+		hero_cutin_overlay.visible = false
 
 
 func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data: Dictionary) -> bool:
@@ -9540,6 +9647,16 @@ func _configure_specialty_skill_cutin() -> void:
 		specialty_skill_cutin_skill_title.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	if specialty_skill_cutin_animation_player != null:
 		specialty_skill_cutin_animation_player.stop()
+
+
+func _configure_hero_cutin_integration() -> void:
+	if hero_cutin_overlay != null:
+		hero_cutin_overlay.visible = false
+	if hero_cutin_presentation == null:
+		push_warning("[HERO_CUTIN] battle host unavailable; committed skills will use the existing presentation fallback")
+		return
+	if not hero_cutin_presentation.cutin_finished.is_connected(_on_hero_cutin_finished):
+		hero_cutin_presentation.cutin_finished.connect(_on_hero_cutin_finished)
 
 
 func _layout_specialty_skill_cutin(viewport_size: Vector2, hero_id: String = SPECIALTY_SKILL_VIDEO_CUTIN_HERO_ID) -> Rect2:

@@ -60,10 +60,15 @@ Final unit distribution: `11 / 10 / 11 / 4 / 3`.
 - Existing T01–T05 city ownership, troop settlement, logistics, occupation, and result accounting remain protected.
 - Sound remains the final polish stage.
 
-## T06-10D Cutin Presentation Update
+## T06-10F Korea MVP Battle Cutin Integration
 
-- Korea MVP 13-hero cutin registry and carousel preview are implemented. The shared presentation remains presentation-only; 13 source MP4s are preserved and their 720p Theora OGV mappings are ready for F6 QA.
-- Next: T06-10E visual exception calibration. Actual battle invocation remains out of scope.
+Status: `IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER PLAYER+AI BATTLE QA PENDING`
+
+- Korea MVP 13-hero F6 visual QA is recorded as passed. Their approved common presentation remains unchanged.
+- `Battle_Land.tscn` now hosts the reusable component at `HeroCutinOverlay/HeroCutinViewport/HeroCutinPresentation` above battle UI. Its 1152×648 reference canvas centres the approved CutinStage without changing its internal authored transforms.
+- Player and AI converge at the already-committed unique-skill sequence. The new presentation is selected only after resolver-plan validation and one successful momentum spend, then waits for `cutin_finished` before applying the existing resolver plan and existing action completion.
+- A registry/resource/parity failure logs `[HERO_CUTIN]`, skips the presentation, and continues the existing unique-skill flow without refunding an already committed cost.
+- Next: user F5 player/AI battle QA. The later large combat task remains T06-11 AI multi-unit engagement, surround, and cooperative-attack correction.
 
 ## Next Transaction
 

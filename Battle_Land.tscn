@@ -36,6 +36,7 @@
 [ext_resource type="Texture2D" uid="uid://dpsl7jnstytyj" path="res://assets/web_battle/ui/bottom_command/bottom_command_bar_bg.png" id="34_bottom_command_bar_bg"]
 [ext_resource type="Texture2D" uid="uid://o4xyqaw80msd" path="res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png" id="35_unique_skill_ready_icon"]
 [ext_resource type="Texture2D" uid="uid://j6e21aihjtxx" path="res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png" id="36_yi_sun_sin_video_cutin_portrait"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cutin/hero_cutin_presentation.tscn" id="37_hero_cutin_presentation"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -3967,3 +3968,29 @@ offset_bottom = 572.0
 text = "승리"
 label_settings = SubResource("1")
 horizontal_alignment = 1
+
+[node name="HeroCutinOverlay" type="CanvasLayer" parent="." unique_id=2097401001]
+visible = false
+layer = 40
+
+[node name="HeroCutinInputBlocker" type="Control" parent="HeroCutinOverlay" unique_id=2097401002]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 0
+
+[node name="HeroCutinViewport" type="Control" parent="HeroCutinOverlay" unique_id=2097401003]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -576.0
+offset_top = -324.0
+offset_right = 576.0
+offset_bottom = 324.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HeroCutinPresentation" parent="HeroCutinOverlay/HeroCutinViewport" unique_id=2097401004 instance=ExtResource("37_hero_cutin_presentation")]

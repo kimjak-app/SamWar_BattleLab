@@ -1,5 +1,10 @@
-# HANDOFF TO CODEX — Superseded
+# HANDOFF TO CODEX
 
-Active implementation specifications live in `agent/transactions/`. T06-10D provides the shared Korea-MVP cutin registry at `data/cutin/korea_mvp_hero_cutins.json` and F6 carousel at `scenes/debug/korea_mvp_hero_cutin_carousel_preview.tscn`; use the user’s visual QA before T06-10E exception calibration. Actual battle connection is not implemented. Use [`TRANSACTION_ROADMAP.md`](TRANSACTION_ROADMAP.md) for the current entry state.
+T06-10F connects the approved Korea MVP registry presentation to `Battle_Land.tscn` at `HeroCutinOverlay/HeroCutinViewport/HeroCutinPresentation`.
 
-Follow the active transaction specification and the user-provided task instruction. Do not keep appending handoff history here; use Git history for prior handoffs and completed work.
+- Common invocation is `_begin_unique_skill_sequence` after `BattleSkillResolver.build_plan` succeeds and `battle_momentum.spend` returns true. Both player and AI reach this function.
+- `_play_committed_hero_cutin` requires canonical `hero_id`/`skill_id` parity through `KoreaMvpHeroCutinRegistry.find_entry`. It configures the common component, while `_on_hero_cutin_finished` applies the existing pending resolver plan and calls the existing finalizer exactly once.
+- `is_unique_skill_presenting`, `is_demo_animating`, and `PHASE_RESOLVING` remain the gameplay/AI lock; the overlay also consumes pointer input. A 4.60-second signal watchdog is only a missing-signal recovery path, not a normal cutin timer.
+- Registry/resource mismatch warns with `[HERO_CUTIN]`, skips only presentation, and preserves the committed skill, momentum, resolver, and action-completion contracts.
+
+Next gate is user player+AI battle QA. The next unrelated large task is T06-11 AI multi-unit engagement/surround/cooperative attack correction.
