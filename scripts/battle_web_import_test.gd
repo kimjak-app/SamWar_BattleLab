@@ -7096,6 +7096,8 @@ func _get_formation_guide_unit_type(slot_id: String, unit_state: BattleUnitState
 
 func _infer_unit_type_from_visual_key(visual_key: String) -> String:
 	var normalized_key := visual_key.to_lower()
+	if normalized_key.contains("mounted_archer") or normalized_key.contains("horse_archer"):
+		return UNIT_TYPE_MOUNTED_ARCHER
 	if normalized_key.contains("archer") or normalized_key.contains("bow"):
 		return UNIT_TYPE_ARCHER
 	if normalized_key.contains("gunner") or normalized_key.contains("firearm") or normalized_key.contains("arquebus"):
@@ -7113,6 +7115,8 @@ func _get_troop_type_label_for_visual_key(visual_key: String, fallback_unit_type
 		unit_type = _infer_unit_type_from_visual_key(visual_key)
 	unit_type = _normalize_unit_type(unit_type)
 	match unit_type:
+		UNIT_TYPE_MOUNTED_ARCHER:
+			return "궁기병"
 		UNIT_TYPE_ARCHER:
 			return "궁병"
 		UNIT_TYPE_GUNNER:
@@ -11890,22 +11894,14 @@ func _get_enemy_portrait_offset_for_facing(layout_offsets_by_facing: Dictionary,
 
 func _normalize_unit_type(unit_type: String) -> String:
 	match unit_type:
-		UNIT_TYPE_ARCHER, UNIT_TYPE_GUNNER, UNIT_TYPE_CAVALRY:
+		UNIT_TYPE_ARCHER, UNIT_TYPE_GUNNER, UNIT_TYPE_CAVALRY, UNIT_TYPE_MOUNTED_ARCHER:
 			return unit_type
 		_:
 			return UNIT_TYPE_INFANTRY
 
 
 func _get_default_attack_range_for_unit_type(unit_type: String) -> int:
-	match _normalize_unit_type(unit_type):
-		UNIT_TYPE_ARCHER:
-			return 3
-		UNIT_TYPE_GUNNER:
-			return 4
-		UNIT_TYPE_CAVALRY:
-			return 1
-		_:
-			return 1
+	return UnitTypeContractScript.get_maximum_attack_range(_normalize_unit_type(unit_type))
 
 
 func _get_default_attack_range_for_visual_key(visual_key: String) -> int:
