@@ -1,11 +1,8 @@
 extends Control
 
-const MISSING_DIALOGUE_STATUS := "대사 자료 미확정 — 확정 대사를 등록하기 전까지 대사 레이어를 표시하지 않습니다."
-
 @onready var presentation: HeroCutinPresentation = $HeroCutinPresentation
 @onready var controls: Panel = $PreviewControls
 @onready var entry_label: Label = $EntryLabel
-@onready var dialogue_status_label: Label = $DialogueStatusLabel
 @onready var auto_cycle_toggle: CheckButton = $PreviewControls/Row/AutoCycleToggle
 @onready var video_only_toggle: CheckButton = $PreviewControls/Row/VideoOnlyToggle
 
@@ -60,15 +57,13 @@ func play_current() -> void:
 func _configure_current() -> void:
 	_stop_and_reset()
 	var entry := _entries[_current_index]
-	var dialogue := str(entry.get("dialogue", ""))
+	var dialogue := str(entry["dialogue"])
 	presentation.configure(
 		str(entry["hero_name"]), dialogue,
 		ResourceLoader.load(str(entry["video_path"])) as VideoStream,
 		ResourceLoader.load(str(entry["skill_title_texture_path"])) as Texture2D
 	)
 	entry_label.text = "%d / %d  ·  %s  ·  %s" % [_current_index + 1, _entries.size(), entry["hero_id"], entry["skill_name"]]
-	dialogue_status_label.visible = entry.get("dialogue_status", "") != "confirmed"
-	dialogue_status_label.text = MISSING_DIALOGUE_STATUS if dialogue_status_label.visible else ""
 
 func _on_cutin_finished() -> void:
 	controls.show()

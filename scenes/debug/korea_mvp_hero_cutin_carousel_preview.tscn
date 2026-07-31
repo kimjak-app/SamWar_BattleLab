@@ -58,17 +58,6 @@ theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 21
 text = "1 / 13"
 
-[node name="DialogueStatusLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = 69.0
-offset_top = 542.0
-offset_right = 1083.0
-offset_bottom = 571.0
-theme_override_colors/font_color = Color(1, 0.74, 0.38, 1)
-theme_override_colors/font_outline_color = Color(0.02, 0.01, 0.005, 1)
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 18
-
 [node name="PreviewControls" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 12

@@ -14,6 +14,16 @@
 
 `T06-10D KOREA MVP 13-HERO CUTIN ASSET NORMALIZATION, REGISTRY & CAROUSEL IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER 13-HERO F6 VISUAL QA PENDING`
 
+`T06-10D-hotfix1 KOREA MVP 13-HERO FINAL DIALOGUE REGISTRY IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER 13-HERO DIALOGUE F6 QA PENDING`
+
+## T06-10D-hotfix1 Final Dialogue Registry Correction
+
+- The user supplied and finalized all 13 Korea MVP dialogue strings. `data/cutin/korea_mvp_hero_cutins.json` now stores each exact unquoted, trimmed dialogue; all `dialogue_status` and `missing_authoritative_source` fields are removed.
+- The carousel no longer contains the missing-dialogue notice node or fallback path. Every registry configure call supplies the final dialogue directly to the common presentation. Video-only mode continues to hide its text layers through the unchanged common-component API.
+- Headless validation confirmed 13 non-empty exact strings with no outer whitespace or quote characters, 13 configure results, Replay/reset persistence, forward/backward wrap, and 52 natural `cutin_finished` auto-cycle advances without duplicate auto-advance handling.
+- At the authored 396px dialogue-label width, `gwanggaeto` measures 504px and is the only line exceeding the original authored width. Godot resolves its effective minimum width to 504px so the automated one-line check passes; it is an explicit T06-10E visual-QA candidate. All other source measurements are at or below 396px (the closest are `jang_bo_go` 388px and `gyebaek` 380px). No font, size, transform, crop, title, or timeline adjustment was made here.
+- Next: `T06-10E 13-Hero Dialogue & Visual Exception Calibration`. Battle invocation remains unimplemented.
+
 ## T06-10D Korea MVP Asset Registry & Carousel
 
 - The reusable presentation's user regression QA is recorded as passed; its approved Cheok Jun-gyeong layout, font treatment, crop, and timeline are unchanged.
