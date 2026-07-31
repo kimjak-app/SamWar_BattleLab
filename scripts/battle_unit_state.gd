@@ -3,6 +3,7 @@ extends RefCounted
 
 const HeroRuntimeFactoryScript := preload("res://scripts/worldmap/hero_runtime_factory.gd")
 const HeroDefinitionRegistryScript := preload("res://scripts/worldmap/hero_definition_registry.gd")
+const UnitTypeContractScript := preload("res://scripts/battle/unit_type_contract.gd")
 const HERO_ID_ALIASES := {
 	"yi_sunsin": "yi_sun_sin",
 	"gwon_yul": "kwon_yul",
@@ -50,6 +51,9 @@ var has_moved: bool = false
 var is_defending: bool = false
 var last_action: Dictionary = {}
 var status_effects: Dictionary = {}
+var attacked_this_turn := false
+var post_attack_move_available := false
+var remaining_post_attack_move := 0
 
 
 func setup(data: Dictionary) -> void:
@@ -82,8 +86,8 @@ func setup(data: Dictionary) -> void:
 	defense = int(authoritative_data.get("defense", 0))
 	intelligence = int(authoritative_data.get("intelligence", 0))
 	martial = int(authoritative_data.get("martial", authoritative_data.get("war", attack)))
-	move_range = int(authoritative_data.get("move_range", 0))
-	attack_range = int(authoritative_data.get("attack_range", 0))
+	move_range = UnitTypeContractScript.get_move_range(unit_type)
+	attack_range = UnitTypeContractScript.get_maximum_attack_range(unit_type)
 	unique_skill_id = String(authoritative_data.get("design_unique_skill_id", authoritative_data.get("unique_skill_id", "")))
 	var raw_unique_skill: Variant = authoritative_data.get("design_unique_skill", {})
 	unique_skill_definition = (raw_unique_skill as Dictionary).duplicate(true) if raw_unique_skill is Dictionary else {}
@@ -102,6 +106,9 @@ func setup(data: Dictionary) -> void:
 		status_effects = (raw_status_effects as Dictionary).duplicate(true)
 	else:
 		status_effects = {}
+	attacked_this_turn = bool(authoritative_data.get("attacked_this_turn", false))
+	post_attack_move_available = bool(authoritative_data.get("post_attack_move_available", false))
+	remaining_post_attack_move = maxi(0, int(authoritative_data.get("remaining_post_attack_move", 0)))
 	_is_setting_up = false
 
 
@@ -249,6 +256,9 @@ func reset_action_flags() -> void:
 	has_acted = false
 	has_moved = false
 	is_defending = false
+	attacked_this_turn = false
+	post_attack_move_available = false
+	remaining_post_attack_move = 0
 	last_action = {}
 
 
@@ -326,6 +336,9 @@ func serialize_battle_runtime() -> Dictionary:
 		"is_defending": is_defending,
 		"last_action": last_action.duplicate(true),
 		"status_effects": status_effects.duplicate(true),
+		"attacked_this_turn": attacked_this_turn,
+		"post_attack_move_available": post_attack_move_available,
+		"remaining_post_attack_move": remaining_post_attack_move,
 	}
 
 
@@ -346,4 +359,7 @@ func restore_battle_runtime(snapshot: Dictionary) -> bool:
 	last_action = (action_variant as Dictionary).duplicate(true) if action_variant is Dictionary else {}
 	var effects_variant: Variant = snapshot.get("status_effects", {})
 	status_effects = (effects_variant as Dictionary).duplicate(true) if effects_variant is Dictionary else {}
+	attacked_this_turn = bool(snapshot.get("attacked_this_turn", false))
+	post_attack_move_available = bool(snapshot.get("post_attack_move_available", false))
+	remaining_post_attack_move = maxi(0, int(snapshot.get("remaining_post_attack_move", 0)))
 	return true

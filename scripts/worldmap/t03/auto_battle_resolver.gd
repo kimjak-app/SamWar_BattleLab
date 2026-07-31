@@ -3,6 +3,7 @@ extends RefCounted
 
 const BattleSupplyRuntimeScript := preload("res://scripts/t02/battle_supply_runtime.gd")
 const ExpeditionSupplyCalculatorScript := preload("res://scripts/t02/expedition_supply_calculator.gd")
+const UnitTypeContractScript := preload("res://scripts/battle/unit_type_contract.gd")
 
 const MAX_ROUNDS := 30
 const BASE_DAMAGE_RATE := 0.10
@@ -177,17 +178,9 @@ static func _matchup_modifier(context: Dictionary, side: String) -> float:
 	var other_type := _dominant_unit_type(context.get("%s_heroes" % other_side, []))
 	if own_type.is_empty() or other_type.is_empty() or own_type == other_type:
 		return 0.0
-	var wins := {
-		"infantry": "cavalry",
-		"cavalry": "archer",
-		"archer": "infantry",
-		"gunpowder": "infantry",
-	}
-	if str(wins.get(own_type, "")) == other_type:
-		return MATCHUP_CAP
-	if str(wins.get(other_type, "")) == own_type:
-		return -MATCHUP_CAP
-	return 0.0
+	var context := UnitTypeContractScript.get_damage_context(own_type, other_type)
+	var reverse := UnitTypeContractScript.get_damage_context(other_type, own_type)
+	return clampf(float(context.get("matchup_modifier", 0.0)) - float(reverse.get("matchup_modifier", 0.0)), -MATCHUP_CAP, MATCHUP_CAP)
 
 
 static func _dominant_unit_type(heroes: Array) -> String:
@@ -201,6 +194,10 @@ static func _dominant_unit_type(heroes: Array) -> String:
 			unit_type = "infantry"
 		elif unit_type == "ranged":
 			unit_type = "archer"
+		elif unit_type == "gunpowder":
+			unit_type = "gunner"
+		if not UnitTypeContractScript.is_supported(unit_type):
+			continue
 		totals[unit_type] = int(totals.get(unit_type, 0)) + maxi(1, int(hero.get("allocated_troops", hero.get("troops", 1))))
 	var selected := ""
 	var amount := -1

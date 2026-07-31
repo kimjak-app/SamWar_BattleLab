@@ -5,6 +5,7 @@ const BattleFacingArrowTileButtonScript := preload("res://scripts/battle_facing_
 const BattleMomentumStateScript := preload("res://scripts/battle/battle_momentum_state.gd")
 const BattleSkillResolverScript := preload("res://scripts/battle/battle_skill_resolver.gd")
 const BattleRuntimeSnapshotScript := preload("res://scripts/battle/battle_runtime_snapshot.gd")
+const UnitTypeContractScript := preload("res://scripts/battle/unit_type_contract.gd")
 const KoreaMvpHeroCutinRegistryScript := preload("res://scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd")
 const DEMO_DAMAGE := 12.0
 const ENEMY_DEMO_DAMAGE := 8.0
@@ -380,6 +381,7 @@ const UNIT_TYPE_INFANTRY := "infantry"
 const UNIT_TYPE_ARCHER := "archer"
 const UNIT_TYPE_GUNNER := "gunner"
 const UNIT_TYPE_CAVALRY := "cavalry"
+const UNIT_TYPE_MOUNTED_ARCHER := "mounted_archer"
 const ARROW_VOLLEY_VISUAL_COUNT := 9
 const ARROW_STAGGER_MIN_SEC := 0.05
 const ARROW_STAGGER_MAX_SEC := 0.12
@@ -3178,6 +3180,7 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 		is_demo_animating = false
 		print("[TURN_ADVANCE_BLOCKED] source=ally_move_finish reason=result_finalized")
 		return
+	var origin_cell := active_unit_state.grid_cell
 	_sync_selected_ally_markers_to_position(target_unit_position, target_portrait_position)
 	active_unit_state.set_grid_cell(target_cell)
 	_apply_unit_facing_visuals()
@@ -3185,6 +3188,12 @@ func _finish_basic_move_demo(target_unit_position: Vector2, target_portrait_posi
 	_update_cell_size_visual_guide(active_unit_state.grid_cell)
 	print("ALLY MOVED grid_cell: ", active_unit_state.grid_cell, " target_cell: ", target_cell)
 	active_unit_state.has_moved = true
+	active_unit_state.last_action = {
+		"type": "move",
+		"origin_cell": [origin_cell.x, origin_cell.y],
+		"destination_cell": [target_cell.x, target_cell.y],
+		"moved_distance": battle_grid_controller.get_distance(origin_cell, target_cell),
+	}
 	ally_has_moved = true
 	_reset_unit_group_positions()
 	_hide_move_range_overlay()
@@ -3220,6 +3229,9 @@ func _enter_attack_select_mode() -> void:
 	if not _is_active_ally_action_available():
 		_append_battle_log("이미 행동한 부대입니다")
 		_set_phase(PHASE_ALLY_TURN)
+		return
+	if active_unit_state.has_moved and not UnitTypeContractScript.can_attack_after_move(active_unit_state.unit_type):
+		_append_battle_log("총병은 이동한 턴에 공격할 수 없습니다")
 		return
 	_hide_facing_selection_panel()
 	_clear_move_target_selection()
@@ -3333,6 +3345,7 @@ func play_basic_attack_demo() -> void:
 	var attack_damage := _get_directional_attack_damage(int(DEMO_DAMAGE), active_unit_state, selected_attack_target_state, true, true)
 	var attack_angle_type := _get_attack_angle_type(active_unit_state, selected_attack_target_state)
 	var applied_attack_damage := selected_attack_target_state.apply_damage(attack_damage)
+	_commit_basic_attack_unit_contract(active_unit_state)
 	if applied_attack_damage > 0:
 		_gain_momentum_for_basic_attack(active_unit_state)
 	_update_enemy_target_visuals_from_state(selected_attack_target_state)
@@ -5400,6 +5413,16 @@ func _get_attack_angle_damage_multiplier(angle_type: String) -> float:
 func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnitState, defender_state: BattleUnitState, apply_attacker_wounded_penalty := true, should_log_wounded_penalty := false) -> int:
 	var angle_type := _get_attack_angle_type(attacker_state, defender_state)
 	var damage_multiplier := _get_attack_angle_damage_multiplier(angle_type)
+	var unit_context := UnitTypeContractScript.get_damage_context(attacker_state.unit_type, defender_state.unit_type, angle_type) if attacker_state != null and defender_state != null else {}
+	damage_multiplier *= float(unit_context.get("base_damage_modifier", 1.0))
+	damage_multiplier *= 1.0 + float(unit_context.get("matchup_modifier", 0.0))
+	damage_multiplier *= 1.0 + float(unit_context.get("side_or_rear_modifier", 0.0))
+	damage_multiplier *= float(unit_context.get("received_damage_modifier", 1.0))
+	if attacker_state != null and attacker_state.unit_type == UNIT_TYPE_GUNNER:
+		if not attacker_state.has_moved:
+			damage_multiplier *= 1.0 + UnitTypeContractScript.get_number(UNIT_TYPE_GUNNER, "prepared_fire_bonus")
+		if attacker_state.has_status_effect("post_fire_penalty"):
+			damage_multiplier *= 1.0 - float(attacker_state.get_status_magnitude("post_fire_penalty", 40)) / 100.0
 	if _has_strategy_status_effect(attacker_state, STATUS_SHAKE):
 		damage_multiplier *= STRATEGY_SHAKE_ATTACK_MULTIPLIER
 	if _has_strategy_status_effect(defender_state, STATUS_SHAKE):
@@ -5429,9 +5452,34 @@ func _get_directional_attack_damage(base_damage: int, attacker_state: BattleUnit
 		if defender_state.has_status_effect("incoming_damage_down"):
 			damage_multiplier *= 1.0 - float(defender_state.get_status_magnitude("incoming_damage_down", 12)) / 100.0
 	var damage := maxi(1, int(round(float(base_damage) * damage_multiplier)))
+	if attacker_state != null and attacker_state.unit_type == UNIT_TYPE_GUNNER:
+		var armor_ignore := float(unit_context.get("armor_ignore_ratio", 0.0))
+		var effective_defense := maxf(0.0, float(defender_state.defense) * (1.0 - armor_ignore))
+		damage = maxi(1, int(round(float(damage) * (1.0 + maxf(0.0, float(defender_state.defense) - effective_defense) / 100.0))))
 	if apply_attacker_wounded_penalty:
 		damage = _apply_wounded_amount_multiplier(attacker_state, "attack", damage, should_log_wounded_penalty)
 	return _apply_wounded_incoming_damage_penalty(defender_state, damage, should_log_wounded_penalty)
+
+
+func _commit_basic_attack_unit_contract(attacker_state: BattleUnitState) -> void:
+	if attacker_state == null:
+		return
+	attacker_state.attacked_this_turn = true
+	attacker_state.last_action = {
+		"type": "attack",
+		"origin_cell": [attacker_state.grid_cell.x, attacker_state.grid_cell.y],
+		"destination_cell": [attacker_state.grid_cell.x, attacker_state.grid_cell.y],
+		"moved_distance": int(attacker_state.last_action.get("moved_distance", 0)),
+	}
+	if attacker_state.unit_type == UNIT_TYPE_GUNNER:
+		if not attacker_state.has_moved:
+			_append_battle_log("준비 사격 +15%")
+			_append_battle_log("방어 관통 20%")
+		attacker_state.apply_status_effect("post_fire_penalty", 1, 40)
+		_append_battle_log("발사 후 화력 저하")
+	if UnitTypeContractScript.can_move_after_attack(attacker_state.unit_type):
+		attacker_state.post_attack_move_available = true
+		attacker_state.remaining_post_attack_move = UnitTypeContractScript.get_post_attack_move_limit(attacker_state.unit_type)
 
 
 func _show_defend_hit_reaction_if_needed(defender_state: BattleUnitState) -> void:
@@ -7890,6 +7938,7 @@ func _enemy_reaction_hit_on() -> void:
 		var attack_damage := _get_directional_attack_damage(int(ENEMY_DEMO_DAMAGE), current_enemy_ai_actor_state, target_state, true, true)
 		var attack_angle_type := _get_attack_angle_type(current_enemy_ai_actor_state, target_state)
 		var applied_attack_damage := target_state.apply_damage(attack_damage)
+		_commit_basic_attack_unit_contract(current_enemy_ai_actor_state)
 		if applied_attack_damage > 0:
 			_gain_momentum_for_basic_attack(current_enemy_ai_actor_state)
 		_update_ally_target_visuals_from_state(target_state)
@@ -14944,7 +14993,7 @@ func is_unit_in_attack_range(attacker: BattleUnitState, target: BattleUnitState)
 		return false
 
 	var distance := get_unit_grid_distance(attacker, target)
-	return distance <= attacker.attack_range
+	return UnitTypeContractScript.can_unit_attack(attacker.unit_type, attacker.has_moved, attacker.has_acted, distance)
 
 
 func is_enemy_in_active_attack_range() -> bool:
