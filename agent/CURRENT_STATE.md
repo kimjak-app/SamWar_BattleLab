@@ -62,13 +62,15 @@ Final unit distribution: `11 / 10 / 11 / 4 / 3`.
 
 ## T06-10F Korea MVP Battle Cutin Integration
 
-Status: `IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER PLAYER+AI BATTLE QA PENDING`
+Status: `IMPLEMENTED / AUTHORITATIVE HERO ID RESTORED / 13-HERO CUTIN PARITY PASS / USER FULL BATTLE RE-QA PENDING`
 
 - Korea MVP 13-hero F6 visual QA is recorded as passed. Their approved common presentation remains unchanged.
 - `Battle_Land.tscn` now hosts the reusable component at `HeroCutinOverlay/HeroCutinViewport/HeroCutinPresentation` above battle UI. Its 1152×648 reference canvas centres the approved CutinStage without changing its internal authored transforms.
 - Player and AI converge at the already-committed unique-skill sequence. The new presentation is selected only after resolver-plan validation and one successful momentum spend, then waits for `cutin_finished` before applying the existing resolver plan and existing action completion.
 - A registry/resource/parity failure logs `[HERO_CUTIN]`, skips the presentation, and continues the existing unique-skill flow without refunding an already committed cost.
-- Next: user F5 player/AI battle QA. The later large combat task remains T06-11 AI multi-unit engagement, surround, and cooperative-attack correction.
+- T06-10F-hotfix1 removes the WorldMap compatibility path that rewrote authoritative runtime IDs to legacy demo IDs. `yi_sun_sin`, `jeong_do_jeon`, and `kim_yu_sin` now remain canonical through the battle context and exact registry lookup; the registry itself remains canonical and exact `hero_id`/`skill_id` parity is preserved.
+- The static 13/13 parity validator confirms the generated authoritative skill data, registry IDs, OGV paths, and PNG paths. Direct headless `Battle_Land` launch still uses its no-WorldMap sample roster, so user F5 full battle re-QA must confirm `route=registry_video` for player and AI paths.
+- Next: user F5 full battle re-QA, then T06-10G Legacy Battle Demo Registry & Dead Cache Cleanup Audit. T06-11 remains the later AI multi-unit engagement, surround, and cooperative-attack correction.
 
 ## Next Transaction
 

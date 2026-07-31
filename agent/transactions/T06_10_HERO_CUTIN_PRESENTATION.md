@@ -28,6 +28,18 @@
 
 `T06-10F ACTUAL BATTLE UNIQUE SKILL CUTIN INTEGRATION IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER PLAYER+AI BATTLE QA PENDING`
 
+`T06-10F-hotfix1 RUNTIME HERO ID LEGACY COMPATIBILITY REMOVAL IMPLEMENTED / AUTHORITATIVE HERO ID RESTORED / 13-HERO CUTIN PARITY PASS / USER FULL BATTLE RE-QA PENDING`
+
+## T06-10F-hotfix1 Runtime Hero ID Legacy Compatibility Removal & Cutin Parity Recovery
+
+- Root cause: `WORLDMAP_CONTEXT_HERO_ID_COMPATIBILITY` rewrote canonical WorldMap IDs to legacy demo IDs before the battle context was built: `yi_sun_sin → yi_sunsin`, `jeong_do_jeon → jeong_dojeon`, and `kim_yu_sin → gim_yusin`. The exact cutin registry therefore failed and the existing legacy static fallback rendered for the first two; Kim Yu-sin had the same latent failure condition.
+- The reverse compatibility table is removed. `_resolve_worldmap_context_hero_id()` now returns only the supplied authoritative WorldMap ID when it is a registered world-context or direct-test ID. No registry ID was changed and lookup remains exact `hero_id` plus committed `skill_id`. `BattleUnitState.HERO_ID_ALIASES` remains an inbound legacy-input-to-canonical normalizer, not a canonical-to-legacy runtime conversion.
+- `tools/validate_korea_mvp_cutin_parity.py` validates all 13: `yi_sun_sin/yi_sun_sin_unique`, `uija_wang/uija_wang_unique`, `kim_yu_sin/kim_yu_sin_unique`, `kim_chun_chu/kim_chun_chu_unique`, `jeong_do_jeon/jeong_do_jeon_unique`, `jang_bo_go/jang_bo_go_unique`, `heukchi_sangji/heukchi_sangji_unique`, `gyebaek/gyebaek_unique`, `kwon_yul/kwon_yul_unique`, `gwanggaeto/gwanggaeto_unique`, `eulji_mundeok/eulji_mundeok_unique`, `dorim/dorim_unique`, and `cheok_jun_gyeong/cheok_jun_gyeong_unique`. Each has exactly one registry entry and existing video/title resources; result: `[CUTIN_PARITY] 13/13 PASS`.
+- Route logs distinguish `[HERO_CUTIN] route=registry_video` from `route=legacy_static` and `route=legacy_fallback`. A committed registry-video route returns before legacy presentation. The legacy static route remains only as the safety fallback for non-registry or resource/parity-failure cases; it was not removed wholesale.
+- `HERO_REGISTRY`, `UNIQUE_SKILL_REGISTRY`, and `TEST_BATTLE_ROSTER` remain direct Battle_Land sample/demo fallback data. `worldmap_context_unique_skill_registry` is written/cleared context cache with no current consumer and is a T06-10G audit candidate. No momentum policy changed: start 3 / maximum 10 remain current test values.
+- Automated validation passed: project parse; Battle_Land, common cutin, carousel, and Cheok preview headless loads; static 13/13 parity validator; and `git diff --check`. A full WorldMap-to-battle headless commit smoke does not terminate under the local watchdog, so player/AI `route=registry_video` confirmation, including Yi Sun-sin, Jeong Do-jeon, Kim Yu-sin, Kwon Yul, and Gwanggaeto, remains user F5 re-QA.
+- Next: `T06-10G Legacy Battle Demo Registry & Dead Cache Cleanup Audit`; T06-11 AI multi-unit engagement remains outside this transaction.
+
 ## T06-10F Actual Battle Unique Skill Cutin Integration
 
 - User F6 visual QA is recorded as passed for the Korea MVP 13-hero registry, carousel, and approved master composition. This transaction does not alter the common scene, its text transforms, fonts, title PNGs, videos, crop, or timing.

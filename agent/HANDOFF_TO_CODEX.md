@@ -1,10 +1,11 @@
 # HANDOFF TO CODEX
 
-T06-10F connects the approved Korea MVP registry presentation to `Battle_Land.tscn` at `HeroCutinOverlay/HeroCutinViewport/HeroCutinPresentation`.
+T06-10F-hotfix1 restores authoritative WorldMap hero IDs through the actual battle cutin route. The reverse legacy conversion table was removed from `scripts/battle_web_import_test.gd`; authoritative `yi_sun_sin`, `jeong_do_jeon`, and `kim_yu_sin` now reach exact `KoreaMvpHeroCutinRegistry.find_entry(hero_id, skill_id)` parity unchanged.
 
-- Common invocation is `_begin_unique_skill_sequence` after `BattleSkillResolver.build_plan` succeeds and `battle_momentum.spend` returns true. Both player and AI reach this function.
-- `_play_committed_hero_cutin` requires canonical `hero_id`/`skill_id` parity through `KoreaMvpHeroCutinRegistry.find_entry`. It configures the common component, while `_on_hero_cutin_finished` applies the existing pending resolver plan and calls the existing finalizer exactly once.
-- `is_unique_skill_presenting`, `is_demo_animating`, and `PHASE_RESOLVING` remain the gameplay/AI lock; the overlay also consumes pointer input. A 4.60-second signal watchdog is only a missing-signal recovery path, not a normal cutin timer.
-- Registry/resource mismatch warns with `[HERO_CUTIN]`, skips only presentation, and preserves the committed skill, momentum, resolver, and action-completion contracts.
+- The presentation host remains `Battle_Land.tscn:HeroCutinOverlay/HeroCutinViewport/HeroCutinPresentation`. Player and AI converge at `_begin_unique_skill_sequence`; after resolver-plan validation and one successful momentum spend, `_play_committed_hero_cutin` selects the registered video route, then the existing resolver/finalizer executes once on completion.
+- Route logs are authoritative diagnostic evidence: `[HERO_CUTIN] route=registry_video` is required for Korea MVP normal data. `route=legacy_static` and `route=legacy_fallback` are retained only for non-registry/resource/parity failures. The route decision logs once per commit.
+- `tools/validate_korea_mvp_cutin_parity.py` reports all 13 canonical hero IDs and generated skill IDs as exact registry/resource parity PASS. Do not loosen `find_entry` to hero-only matching or convert registry IDs to legacy names.
+- `BattleUnitState.HERO_ID_ALIASES` stays as inbound legacy-to-canonical compatibility. `HERO_REGISTRY`, `UNIQUE_SKILL_REGISTRY`, and `TEST_BATTLE_ROSTER` are direct Battle_Land demo fallback data; `worldmap_context_unique_skill_registry` has no consumer and should be audited separately in T06-10G, not deleted here.
+- Current battle momentum test policy remains start 3 / max 10. Cutin assets, text, transforms, timing, skills, resolver behavior, AI, and save schema are unchanged.
 
-Next gate is user player+AI battle QA. The next unrelated large task is T06-11 AI multi-unit engagement/surround/cooperative attack correction.
+Next gate: user F5 full player+AI re-QA, especially Yi Sun-sin, Jeong Do-jeon, Kim Yu-sin, Kwon Yul, and Gwanggaeto route logs. The full WorldMap-to-battle commit sequence does not terminate under the local headless watchdog, so it is not claimed as automated end-to-end coverage. Next cleanup audit is T06-10G; the later unrelated task is T06-11 AI multi-unit engagement/surround/cooperative attack correction.
