@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug/cheok_jun_gyeong_action_cutin_preview.gd" id="1_script"]
-[ext_resource type="VideoStream" path="res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1920x.ogv" id="2_video"]
 [ext_resource type="VideoStream" path="res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1280x720_verified.ogv" id="3_q8_720"]
+[ext_resource type="Texture2D" path="res://assets/ui/cutin/titles/cheok_jun_gyeong__geomwang_dolpa__title.png" id="4_skill_title"]
 
 [sub_resource type="StyleBoxFlat" id="StylePanel"]
 bg_color = Color(0.02, 0.025, 0.035, 0.94)
@@ -64,44 +64,43 @@ modulate = Color(1, 1, 1, 1)
 self_modulate = Color(1, 1, 1, 1)
 mouse_filter = 2
 
-[node name="TitleRoot" type="Control" parent="CutinStage"]
+[node name="HeroNameLabel" type="Label" parent="CutinStage"]
 layout_mode = 0
-offset_left = 32.0
-offset_top = 240.0
-offset_right = 550.0
-offset_bottom = 392.0
-pivot_offset = Vector2(259, 76)
+offset_left = 36.0
+offset_top = 60.0
+offset_right = 380.0
+offset_bottom = 110.0
 mouse_filter = 2
-
-[node name="HeroNameLabel" type="Label" parent="CutinStage/TitleRoot"]
-layout_mode = 0
-offset_right = 518.0
-offset_bottom = 42.0
 theme_override_colors/font_color = Color(1, 0.79, 0.43, 1)
 theme_override_colors/font_outline_color = Color(0.06, 0.01, 0.005, 1)
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 36
 text = "척준경"
 
-[node name="SkillNameLabel" type="Label" parent="CutinStage/TitleRoot"]
+[node name="SkillTitlePng" type="TextureRect" parent="CutinStage"]
 layout_mode = 0
-offset_top = 32.0
-offset_right = 518.0
-offset_bottom = 132.0
-theme_override_colors/font_color = Color(1, 0.92, 0.68, 1)
-theme_override_colors/font_outline_color = Color(0.11, 0.01, 0.005, 1)
-theme_override_constants/outline_size = 11
-theme_override_font_sizes/font_size = 88
-text = "검왕돌파"
-vertical_alignment = 1
+offset_left = 34.0
+offset_top = 125.0
+offset_right = 590.0
+offset_bottom = 361.0
+pivot_offset = Vector2(278, 118)
+texture = ExtResource("4_skill_title")
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
 
-[node name="AccentLine" type="ColorRect" parent="CutinStage/TitleRoot"]
+[node name="DialogueLabel" type="Label" parent="CutinStage"]
 layout_mode = 0
-offset_left = 2.0
-offset_top = 142.0
-offset_right = 470.0
-offset_bottom = 146.0
-color = Color(1, 0.65, 0.2, 0)
+offset_left = 42.0
+offset_top = 358.0
+offset_right = 690.0
+offset_bottom = 407.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.025, 0.015, 0.01, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 29
+text = "내 앞을 막는 자, 목을 내놔라!"
+vertical_alignment = 1
 
 [node name="StageBorder" type="ReferenceRect" parent="CutinStage"]
 layout_mode = 1
@@ -113,6 +112,7 @@ grow_vertical = 2
 border_color = Color(0.84, 0.54, 0.2, 0.75)
 border_width = 2.0
 editor_only = false
+visible = false
 mouse_filter = 2
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -158,13 +158,9 @@ theme_override_styles/normal = SubResource("StyleButton")
 layout_mode = 2
 text = "자동 반복"
 
-[node name="QualitySelector" type="OptionButton" parent="PreviewControls/Row"]
-custom_minimum_size = Vector2(175, 0)
-layout_mode = 2
-
 [node name="VideoOnlyToggle" type="CheckButton" parent="PreviewControls/Row"]
 layout_mode = 2
-text = "순수 영상"
+text = "영상만 보기"
 
 [node name="Spacer" type="Control" parent="PreviewControls/Row"]
 layout_mode = 2

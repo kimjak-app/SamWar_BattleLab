@@ -4,7 +4,7 @@
 
 `T06-10A VIDEO-BACKED PRACTICE PREVIEW IMPLEMENTED / USER VISUAL QA PENDING`
 
-`T06-10B CHEOK JUN-GYEONG ACTION VIDEO CUTIN PREVIEW IMPLEMENTED / USER VISUAL QA PENDING`
+`T06-10B-hotfix2 CHEOK JUN-GYEONG ACTION CUTIN MASTER IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER F6 VISUAL QA PENDING`
 
 ## T06-10A Scope
 
@@ -49,6 +49,17 @@
 - The preview reads canonical `cheok_jun_gyeong` skill metadata for `검왕돌파`, with a left-side `척준경` support title and impact/settle/exit title choreography. It does not alter battle integration or the Gwanggaeto preview.
 - The 1080p q8 Theora comparison reproduces the user-reported block/corruption issue. A separately encoded 1280×720 q8 Theora (`q:v 8`, GOP 60, Vorbis `q:a 4`) passes complete FFmpeg decode validation and a 1-second PNG frame extraction, and is the preview's default stream. The selector presents only `1080p q8 Theora` and `720p q8 Theora (verified)` using the identical player rect, crop, position, and speed.
 - The earlier q10 Theora and VP9 CRF16/Opus WebM comparison files remain preserved for codec research, but are not the default playback target. This Godot build returns `No loader found` for the VP9 WebM `VideoStream`, so it remains deliberately disconnected.
+
+## T06-10B-hotfix2 Cheok Jun-gyeong Final Master Preview
+
+- The master F6 preview remains the existing `scenes/debug/cheok_jun_gyeong_action_cutin_preview.tscn`; it is not connected to battle flow, hero registry, save data, or another hero.
+- The supplied Korea MVP source is `assets/video_source_test/production_dry_run/korea_mvp/cheok_jun_gyeong__geomwang_dolpa__cutin_source_04s_silent.mp4`. Its SHA-256 differs from the earlier `assets/video_source_test/production_dry_run/cheok_jun_gyeong_cutin_source_04s.mp4`, so the default OGV was regenerated from the Korea MVP source.
+- The sole default stream is `assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1280x720_verified.ogv`: Theora video only, 1280×720, CFR 30fps, duration 4.000 seconds. The safe output uses `fps=30,scale=1280:720:flags=bilinear,format=yuv420p`, `libtheora`, `q:v 8`, and GOP 1. GOP 1 was selected because q8 GOP 60 and GOP 30 outputs from the available local FFmpeg decoder failed complete decode; it preserves q8 while eliminating late packet corruption. No audio stream is present in the final OGV.
+- The skill title is the supplied PNG at `assets/ui/cutin/titles/cheok_jun_gyeong__geomwang_dolpa__title.png`, displayed unchanged as a `TextureRect`; it is not regenerated as label text, recoloured, blurred, or given glow.
+- The clipped 1014×415 `CutinStage` remains centered at `(69,117)` in the 1152×648 viewport. Its independent visual layers are `VideoBackgroundPlayer`, `HeroNameLabel` (`척준경`), `SkillTitlePng` (`검왕돌파` PNG), and `DialogueLabel` (`내 앞을 막는 자, 목을 내놔라!`). The thin stage border is retained but hidden by default.
+- At 1.0x, the name enters at 0.12s, the title PNG impacts at 0.52s, and the dialogue enters at 1.05s. They begin independent exits at 3.28s, 3.38s, and 3.48s respectively, before the 4.00s video end. Replay, loop, Escape, and scene exit kill all root/layer tweens, stop/rewind the player, and restore authored positions, scale, and alpha before any next run.
+- Automated video verification passed: `ffprobe` reports Theora / 1280×720 / `30/1` / 4.000s / video-only; full FFmpeg decode with `-xerror` succeeds; 1.0s, 2.0s, and 3.5s frame extraction succeeds. Headless project and master-scene validation also pass.
+- Kimjak F6 visual QA remains required for video quality and ending decode, crop/aspect, name/title/dialogue placement and readability, timing/rhythm, replay/loop reset, video-only versus composite, and absence of black empty frames. Korea-MVP 13-hero common data and battle unique-skill integration remain explicitly unimplemented.
 
 ## Explicitly Deferred
 
