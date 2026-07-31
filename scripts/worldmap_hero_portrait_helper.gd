@@ -22,6 +22,27 @@ const COMPATIBILITY_PORTRAIT_PATHS := {
 	"zhuge_liang": "res://assets/web_battle/portraits/zhuge_liang_portrait.png",
 }
 
+# Authoritative WorldMap hero records retain their canonical `hero_id` and
+# faction metadata through battle settlement.  The production portrait atlas
+# follows the same canonical naming contract, so resolve it before considering
+# an old demo-only compatibility filename.  This is intentionally keyed by
+# runtime faction metadata, never by display name.
+const AUTHORITATIVE_PORTRAIT_REGION_BY_FACTION := {
+	"goryeo_joseon": "korea",
+	"goguryeo": "korea",
+	"silla": "korea",
+	"baekje_faction": "korea",
+	"chu": "china",
+	"wei": "china",
+	"shu": "china",
+	"wu": "china",
+	"oda": "japan",
+	"toyotomi": "japan",
+	"kyushu_faction": "japan",
+	"tokugawa": "japan",
+	"mongol_faction": "mongol",
+}
+
 
 static func get_hero_portrait_path(hero_data: Dictionary) -> String:
 	if hero_data.is_empty():
@@ -34,10 +55,23 @@ static func get_hero_portrait_path(hero_data: Dictionary) -> String:
 			return resolved_path
 
 	var hero_id := str(hero_data.get("hero_id", hero_data.get("id", ""))).strip_edges()
+	var authoritative_path := _get_authoritative_portrait_path(hero_id, hero_data)
+	if not authoritative_path.is_empty():
+		return authoritative_path
 	if COMPATIBILITY_PORTRAIT_PATHS.has(hero_id):
 		return _resolve_existing_texture_path(COMPATIBILITY_PORTRAIT_PATHS[hero_id])
 
 	return ""
+
+
+static func _get_authoritative_portrait_path(hero_id: String, hero_data: Dictionary) -> String:
+	if hero_id.is_empty():
+		return ""
+	var faction_id := str(hero_data.get("faction_id", hero_data.get("force_id", hero_data.get("nation", hero_data.get("side", ""))))).strip_edges()
+	var region := str(AUTHORITATIVE_PORTRAIT_REGION_BY_FACTION.get(faction_id, ""))
+	if region.is_empty():
+		return ""
+	return _resolve_existing_texture_path("res://assets/heroes/portraits/%s/%s_%s.png" % [region, region, hero_id])
 
 
 static func load_hero_portrait_texture(hero_data: Dictionary) -> Texture2D:

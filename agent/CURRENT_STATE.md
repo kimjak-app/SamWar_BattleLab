@@ -74,4 +74,13 @@ Status: `IMPLEMENTED / AUTHORITATIVE HERO ID RESTORED / 13-HERO CUTIN PARITY PAS
 
 ## Next Transaction
 
+## T06-10H Post-Battle Garrison Hero Portrait Parity Recovery
+
+Status: `IMPLEMENTED / POST-BATTLE GARRISON PORTRAIT PARITY PASS / USER OCCUPATION F5 RE-QA PENDING`
+
+- Sabi's post-victory `?` portraits were traced to missing static portrait-path metadata for canonical Korea MVP records, not to combat result settlement or image files.
+- City garrison rows continue to resolve the canonical `stationed_hero_ids` through the authoritative WorldMap hero registry, then overlay only runtime battle state. Portrait lookup now derives the existing production atlas path from canonical `hero_id` and faction metadata before legacy compatibility fallback.
+- Automated canonical metadata + mutable-state round-trip and Texture2D validation passes for all 13 Korea MVP heroes; WorldMap/Battle loads and existing turn/occupation/save-load smoke also pass.
+- Next: user F5 Gyeongju → Sabi victory/reselect/turn/save-load portrait QA. T06-11 AI multi-unit engagement remains subsequent scope.
+
 T06-10A standalone Gwanggaeto cutin preview visual hotfix is implemented for comparison; user F6 visual QA is pending before any battle presentation connection. Correction-only QA for confirmed T06-8/T06-9 defects remains allowed.
