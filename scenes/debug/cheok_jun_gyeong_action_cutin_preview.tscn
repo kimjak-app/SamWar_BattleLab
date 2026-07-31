@@ -1,9 +1,7 @@
 [gd_scene format=3 uid="uid://caadgsto225e4"]
 
 [ext_resource type="Script" uid="uid://ct2x717im3e3f" path="res://scripts/debug/cheok_jun_gyeong_action_cutin_preview.gd" id="1_script"]
-[ext_resource type="VideoStream" uid="uid://oke0hcwg4kq" path="res://assets/ui/cutin/videos/cheok_jun_gyeong_cutin_bg_theora_q8_1280x720_verified.ogv" id="3_q8_720"]
-[ext_resource type="Texture2D" uid="uid://drg1abqkn7h68" path="res://assets/ui/cutin/titles/cheok_jun_gyeong__geomwang_dolpa__title.png" id="4_skill_title"]
-[ext_resource type="FontFile" uid="uid://c35utpjqju4dc" path="res://assets/font/noto_serif_kr/NotoSerifKR-Bold.otf" id="5_hero_font"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cutin/hero_cutin_presentation.tscn" id="2_presentation"]
 
 [sub_resource type="StyleBoxFlat" id="StylePanel"]
 bg_color = Color(0.02, 0.025, 0.035, 0.94)
@@ -45,82 +43,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.008, 0.01, 0.015, 1)
 
-[node name="CutinStage" type="Control" parent="." unique_id=507670477]
-clip_contents = true
-anchors_preset = 0
-offset_left = 69.0
-offset_top = 117.0
-offset_right = 1083.0
-offset_bottom = 532.0
-mouse_filter = 2
-
-[node name="VideoBackgroundPlayer" type="VideoStreamPlayer" parent="CutinStage" unique_id=1297340544]
-layout_mode = 0
-offset_top = -77.5
-offset_right = 1014.0
-offset_bottom = 492.5
-mouse_filter = 2
-stream = ExtResource("3_q8_720")
-expand = true
-
-[node name="HeroNameLabel" type="Label" parent="CutinStage" unique_id=577820561]
-layout_mode = 0
-offset_left = 207.0
-offset_top = 120.0
-offset_right = 340.0
-offset_bottom = 171.0
-theme_override_colors/font_color = Color(1, 0.79, 0.43, 1)
-theme_override_colors/font_shadow_color = Color(0.015, 0.005, 0.002, 0.9)
-theme_override_colors/font_outline_color = Color(0.06, 0.01, 0.005, 1)
-theme_override_constants/shadow_offset_x = 2
-theme_override_constants/shadow_offset_y = 3
-theme_override_constants/outline_size = 7
-theme_override_fonts/font = ExtResource("5_hero_font")
-theme_override_font_sizes/font_size = 36
-text = "척준경"
-
-[node name="SkillTitlePng" type="TextureRect" parent="CutinStage" unique_id=872255340]
-layout_mode = 0
-offset_top = 154.0
-offset_right = 504.08698
-offset_bottom = 349.0435
-scale = Vector2(0.92, 0.92)
-pivot_offset = Vector2(278, 118)
-mouse_filter = 2
-texture = ExtResource("4_skill_title")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="DialogueLabel" type="Label" parent="CutinStage" unique_id=772610797]
-layout_mode = 0
-offset_left = 69.0
-offset_top = 350.0
-offset_right = 465.0
-offset_bottom = 399.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0.005, 0.003, 0.002, 0.9)
-theme_override_colors/font_outline_color = Color(0.025, 0.015, 0.01, 1)
-theme_override_constants/shadow_offset_x = 2
-theme_override_constants/shadow_offset_y = 2
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 29
-text = "내 앞을 막는 자, 목을 내놔라!"
-vertical_alignment = 1
-
-[node name="StageBorder" type="ReferenceRect" parent="CutinStage" unique_id=1398357782]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-border_color = Color(0.84, 0.54, 0.2, 0.75)
-border_width = 2.0
-editor_only = false
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=57605015]
+[node name="HeroCutinPresentation" parent="." instance=ExtResource("2_presentation")]
 
 [node name="PreviewControls" type="Panel" parent="." unique_id=710998079]
 layout_mode = 1

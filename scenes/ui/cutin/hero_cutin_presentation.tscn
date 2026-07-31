@@ -1,0 +1,87 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/cutin/hero_cutin_presentation.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://c35utpjqju4dc" path="res://assets/font/noto_serif_kr/NotoSerifKR-Bold.otf" id="2_hero_font"]
+
+[node name="HeroCutinPresentation" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="CutinStage" type="Control" parent="."]
+layout_mode = 0
+offset_left = 69.0
+offset_top = 117.0
+offset_right = 1083.0
+offset_bottom = 532.0
+clip_contents = true
+mouse_filter = 2
+
+[node name="VideoBackgroundPlayer" type="VideoStreamPlayer" parent="CutinStage"]
+layout_mode = 0
+offset_top = -77.5
+offset_right = 1014.0
+offset_bottom = 492.5
+expand = true
+mouse_filter = 2
+
+[node name="HeroNameLabel" type="Label" parent="CutinStage"]
+layout_mode = 0
+offset_left = 207.0
+offset_top = 120.0
+offset_right = 340.0
+offset_bottom = 171.0
+theme_override_colors/font_color = Color(1, 0.79, 0.43, 1)
+theme_override_colors/font_shadow_color = Color(0.015, 0.005, 0.002, 0.9)
+theme_override_colors/font_outline_color = Color(0.06, 0.01, 0.005, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 7
+theme_override_fonts/font = ExtResource("2_hero_font")
+theme_override_font_sizes/font_size = 36
+text = "척준경"
+
+[node name="SkillTitlePng" type="TextureRect" parent="CutinStage"]
+layout_mode = 0
+offset_top = 154.0
+offset_right = 504.08698
+offset_bottom = 349.0435
+scale = Vector2(0.92, 0.92)
+pivot_offset = Vector2(278, 118)
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="DialogueLabel" type="Label" parent="CutinStage"]
+layout_mode = 0
+offset_left = 69.0
+offset_top = 350.0
+offset_right = 465.0
+offset_bottom = 399.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.005, 0.003, 0.002, 0.9)
+theme_override_colors/font_outline_color = Color(0.025, 0.015, 0.01, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 29
+text = "내 앞을 막는 자, 목을 내놔라!"
+vertical_alignment = 1
+
+[node name="StageBorder" type="ReferenceRect" parent="CutinStage"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+border_color = Color(0.84, 0.54, 0.2, 0.75)
+border_width = 2.0
+editor_only = false

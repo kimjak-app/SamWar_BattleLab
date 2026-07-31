@@ -10,6 +10,8 @@
 
 `T06-10B-hotfix5 CHEOK JUN-GYEONG TEXT STYLING IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER F6 VISUAL QA PENDING`
 
+`T06-10C REUSABLE HERO CUTIN PRESENTATION IMPLEMENTED / AUTOMATED VERIFICATION PASS / USER F6 REGRESSION QA PENDING`
+
 ## T06-10A Scope
 
 - A standalone F6 preview scene is implemented before any battle connection.
@@ -80,6 +82,15 @@
 - Both labels use scene-local `theme_override_fonts/font`, retain their existing scene-authored transform, and add restrained dark `font_shadow_color` with 2px horizontal and 2–3px vertical shadow offsets while keeping the existing outline treatment. `SkillTitlePng` remains the unchanged supplied PNG.
 - The final dialogue output is the unquoted plain text `내 앞을 막는 자, 목을 내놔라!`; no quotation or alternate brackets are applied.
 - The hotfix preserves the capture/reset contract: 2D-editor position and scale remain the source of truth, and replay/loop restore captured scene transforms. F6 visual QA remains pending for font tone, one-line dialogue fit, shadow/outline feel, and text-block cohesion.
+
+## T06-10C Reusable Hero Cutin Presentation Component
+
+- Cheok Jun-gyeong's approved F6 master is now the visual baseline for the reusable component at `scenes/ui/cutin/hero_cutin_presentation.tscn`, with playback logic at `scripts/ui/cutin/hero_cutin_presentation.gd`.
+- The public component API is `configure(hero_name, dialogue, video_stream, skill_title_texture)`, `set_playback_speed(value)`, `play_cutin(show_text_layers := true)`, `replay_cutin(show_text_layers := true)`, `stop_cutin()`, and `reset_cutin()`. `cutin_finished` emits once at the natural end of each playback for later battle follow-up.
+- The reusable scene retains the approved `CutinStage`, video crop, HeroNameLabel Bold Noto Serif KR override, SkillTitlePng transform, DialogueLabel default sans fallback at size 29, outline, shadow, and all approved timing values. Its three text-layer transforms are captured once from the common scene and reset/replay restores those captured values; animation offsets remain relative.
+- `scenes/debug/cheok_jun_gyeong_action_cutin_preview.tscn` is preserved as the F6 wrapper. It now instantiates the reusable presentation and injects only Cheok Jun-gyeong's approved name, dialogue, 720p OGV, and title PNG; the wrapper retains Play/Replay, loop, speed, video-only, and Escape controls.
+- Automated verification covers common-scene and wrapper loading, resource injection, approved font fallback/override, completion signal exactly once for one natural play, Replay, two loop completions, and reset restoration of scene-authored layout. User F6 regression QA remains required because the master is now rendered through an instantiated common scene.
+- The next step is limited to 13-hero cutin data plus their OGV/title assets and explicit per-hero overrides where approved. Actual battle invocation, battle stop/resume, AI skills, and any visual retuning remain out of scope.
 
 ## Explicitly Deferred
 
