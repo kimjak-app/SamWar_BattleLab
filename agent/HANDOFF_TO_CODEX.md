@@ -1,19 +1,74 @@
 # HANDOFF TO CODEX
 
-T06-10F-hotfix1 restores authoritative WorldMap hero IDs through the actual battle cutin route. The reverse legacy conversion table was removed from `scripts/battle_web_import_test.gd`; authoritative `yi_sun_sin`, `jeong_do_jeon`, and `kim_yu_sin` now reach exact `KoreaMvpHeroCutinRegistry.find_entry(hero_id, skill_id)` parity unchanged.
+## Current locked baseline
 
-- The presentation host remains `Battle_Land.tscn:HeroCutinOverlay/HeroCutinViewport/HeroCutinPresentation`. Player and AI converge at `_begin_unique_skill_sequence`; after resolver-plan validation and one successful momentum spend, `_play_committed_hero_cutin` selects the registered video route, then the existing resolver/finalizer executes once on completion.
-- Route logs are authoritative diagnostic evidence: `[HERO_CUTIN] route=registry_video` is required for Korea MVP normal data. `route=legacy_static` and `route=legacy_fallback` are retained only for non-registry/resource/parity failures. The route decision logs once per commit.
-- `tools/validate_korea_mvp_cutin_parity.py` reports all 13 canonical hero IDs and generated skill IDs as exact registry/resource parity PASS. Do not loosen `find_entry` to hero-only matching or convert registry IDs to legacy names.
-- `BattleUnitState.HERO_ID_ALIASES` stays as inbound legacy-to-canonical compatibility. `HERO_REGISTRY`, `UNIQUE_SKILL_REGISTRY`, and `TEST_BATTLE_ROSTER` are direct Battle_Land demo fallback data; `worldmap_context_unique_skill_registry` has no consumer and should be audited separately in T06-10G, not deleted here.
-- Current battle momentum test policy remains start 3 / max 10. Cutin assets, text, transforms, timing, skills, resolver behavior, AI, and save schema are unchanged.
+- T01–T05 Korea Four-City MVP world-turn, invasion, occupation, logistics, recovery, and unification contracts are protected.
+- T06 hero authority, five-stat data, battle profiles, 39 unique skills, shared momentum, resolver integration, battle result parity, cutins, Korean effect display, and post-battle garrison portraits are implemented.
+- T06-11A user F5 PASS: one Yi Sun-sin unit invading Sabi saw all living defenders act in the same enemy phase.
+- T06-11B user F5 PASS: multiple enemies surrounded Yi Sun-sin, used momentum/unique skills, and attacked without the old single-actor stall.
+- Current battle momentum test policy remains start 3 / max 10 until an explicit later balance transaction changes it.
 
-Next gate: user F5 full player+AI re-QA, especially Yi Sun-sin, Jeong Do-jeon, Kim Yu-sin, Kwon Yul, and Gwanggaeto route logs. The full WorldMap-to-battle commit sequence does not terminate under the local headless watchdog, so it is not claimed as automated end-to-end coverage. The next planned implementation is T06-11 AI multi-unit engagement/surround/cooperative attack correction.
+## Protected T06 contracts
 
-T06-10H restores post-battle garrison portrait parity without modifying any portrait asset or settlement rule. `WorldMapHeroPortraitHelper` now resolves explicit source fields, then canonical `hero_id` + faction-based production atlas paths, then legacy file compatibility. City UI already calls `_get_hero_entry`, which merges static registry data with only mutable runtime battle state; this preserves canonical identity for the occupation garrison row. `tools/validate_korea_mvp_garrison_portrait_parity.gd` reports 13/13 Texture2D round-trip PASS. User must still F5 the Gyeongju → Sabi victory path, city reselection, next turn, and save/load display.
+- `HeroDesignDataRegistry -> HeroRuntimeFactory -> BattleUnitState -> BattleSkillResolver` remains the single-authority path.
+- Authoritative hero IDs must remain canonical through WorldMap, formation, battle, result settlement, and save/load.
+- Player and AI unique skills share the same committed resolver path.
+- Korea MVP cutins require exact canonical `hero_id` + `skill_id` registry parity.
+- User-visible unique-skill effect/status/failure strings must pass through the shared Korean display layer.
+- Post-battle garrison portraits resolve from canonical hero identity and production atlas metadata.
+- Every living enemy actor may act at most once per enemy phase; unacted enemies prevent premature ally return or round reset.
+- Multiple enemies may share a target, while destination and engagement cells remain exclusive.
+- Existing side/back attack multipliers remain `1.15` / `1.30` until explicitly rebalanced.
 
-T06-10I records the T06-10H portrait F5 PASS and routes user-visible unique-skill effect/status/failure names through `BattleUITextFormatHelper`. The resolver still uses English internal IDs, but UI now receives Korean labels or a safe Korean generic fallback. `tools/validate_unique_skill_korean_display.gd` builds plans for all 39 production skills and reports 39/39 PASS. The five reported GDScript reload warnings were corrected with explicit floor semantics, unused-parameter naming, and non-shadowing local names. Next gate is F5 player/AI effect-display verification; the next implementation remains T06-11.
+## New authoritative roadmap
 
-T06-11A restores enemy multi-actor turn orchestration without touching AI destination, surround, or reservation scoring. `scripts/battle_web_import_test.gd` now routes every enemy basic-attack, movement/wait/failure, and unique-skill terminal path through `_advance_enemy_turn_or_return_to_ally()`. The helper schedules the next living unacted actor with `call_deferred`; it only returns to `_return_to_ally_turn()` after the enemy side is exhausted or battle end has been finalized. `_return_to_ally_turn()` defensively re-enters the enemy phase if unacted enemies remain, and `_start_new_round()` blocks normal premature action-lock reset until both living sides are complete. `tools/validate_enemy_multi_actor_turn_orchestration.gd` is the headless contract validator. User F5 gate: one ally vs four enemies, each living enemy exactly once per enemy phase. Only after PASS may T06-11B activate the existing engagement reservation/surround behavior.
+Read before planning any post-T06 work:
 
-T06-11A user F5 passed: one Yi Sun-sin unit invading Sabi saw all three enemies approach and attempt actions in one enemy phase. T06-11B found the live reservation path already active: `enemy_ai_reserved_destination_cells` and `enemy_ai_reserved_engagement_cells` map cells to capacity-slot IDs; targets are deliberately not reserved, so multiple enemies may pressure the same ally. `tools/validate_enemy_engagement_reservation_and_surround.gd` instantiates `Battle_Land` with one ally/four enemy planning actors and confirms unique destination/final engagement cells, reservation retention/reset, alternate planning after a reservation, target replan, and two or more directional sectors. `_should_enemy_use_surround_pressure_mode()` is uncalled and remains unconnected because `_get_enemy_engagement_step_plan_for_actor()` is already live in the decision path. There is no separate cooperative-damage resolver; existing cooperation is the unchanged directional side/back attack contract (`1.15`/`1.30`). User F5 next: collision-free multi-direction pressure in a Sabi 1v3–1v4 battle.
+- `agent/plans/T07_T11_BATTLE_ENGINE_MVP_COMPLETION_ROADMAP.md`
+
+The major sequence is now:
+
+1. T07 — Six Unit-Type Battle Completion
+2. T08 — Battlefield Terrain & Tactical Map System
+3. T09 — Cooperative Attack & Common Tactics
+4. T10 — Battle UI/UX Renewal
+5. T11 — Korea MVP Full Balance & Final Battle QA
+
+T07–T10 are battle-engine feature-completion stages. Full Korea MVP campaign and numerical balance is intentionally deferred to T11.
+
+## Next transaction
+
+### T07-1 Six Unit-Type Current-State Audit & Canonical Contract Design
+
+Do not implement firearm infantry or mounted archers before completing this audit.
+
+Audit the current unit-type contract across:
+
+- generated hero battle profiles and authoritative unit-type fields
+- registries, aliases, and display names
+- HeroRuntimeFactory
+- BattleUnitState
+- movement, range, target, counterattack, and facing rules
+- AI planning and distance behavior
+- battle resolver and auto-battle
+- formation/WorldMap handoff
+- result payload and settlement
+- save/load migration
+- battle UI, logs, tooltips, and validation
+
+The audit must identify the actual current unit types and then propose the canonical final six-unit-type contract, including firearm infantry and mounted archers.
+
+Constraints:
+
+- Do not force firearm infantry or mounted archers into the Korea production roster.
+- Do not finalize numerical balance during T07-1.
+- Do not patch by hero name or scene-specific fallback.
+- Preserve T01–T06 protected contracts.
+- Split later implementation into auditable transactions with automated validators and user F5 gates.
+
+## Later stages
+
+- T08 adds terrain data, passability, movement cost, terrain modifiers, bridges, rivers, cliffs, high ground, and tactical-map AI awareness.
+- T09 adds a true cooperative-attack contract and common tactics such as fire attack and disruption, while keeping them distinct from hero unique skills and passive terrain effects.
+- T10 replaces the test-oriented battle UI with a production-quality 1920×1080 information and command layout covering six unit types, terrain, tactics, statuses, momentum, and cutins.
+- T11 performs the final Korea MVP economy, war, AI, battle, pacing, and unification balance lock.
