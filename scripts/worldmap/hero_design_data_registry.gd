@@ -28,7 +28,7 @@ static func ensure_loaded() -> bool:
 	_initial_loyalty_by_hero = _index_records(INITIAL_LOYALTY_PATH, "heroes", "hero_id")
 	_battle_profiles_by_hero = _index_records(BATTLE_PROFILES_PATH, "profiles", "hero_id")
 	_unique_skills_by_id = _index_records(UNIQUE_SKILLS_PATH, "skills", "skill_id")
-	_unit_type_rules_by_id = _index_records(UNIT_TYPE_RULES_PATH, "unit_types", "unit_type")
+	_unit_type_rules_by_id = _index_records(UNIT_TYPE_RULES_PATH, "unit_types", "unit_type", [1, 2])
 	_battle_role_rules_by_id = _index_records(BATTLE_ROLE_RULES_PATH, "roles", "role")
 
 	if not _load_error.is_empty():
@@ -89,6 +89,19 @@ static func get_unit_type_rule(unit_type: String) -> Dictionary:
 		return {}
 	return _unit_type_rules_by_id.get(unit_type, {}).duplicate(true)
 
+static func get_unit_type_display_name(unit_type: String, fallback: String = "") -> String:
+	var rule := get_unit_type_rule(unit_type)
+	return String(rule.get("display_name", fallback))
+
+static func get_all_unit_type_ids() -> Array[String]:
+	if not ensure_loaded():
+		return []
+	var result: Array[String] = []
+	for unit_type in _unit_type_rules_by_id.keys():
+		result.append(String(unit_type))
+	result.sort()
+	return result
+
 static func get_battle_role_rule(role_id: String) -> Dictionary:
 	if not ensure_loaded():
 		return {}
@@ -102,12 +115,13 @@ static func get_all_hero_ids() -> Array[String]:
 		result.append(String(hero_id))
 	return result
 
-static func _index_records(path: String, array_key: String, id_key: String) -> Dictionary:
+static func _index_records(path: String, array_key: String, id_key: String, allowed_schema_versions: Array[int] = [1]) -> Dictionary:
 	var payload := _load_json_object(path)
 	if payload.is_empty():
 		return {}
-	if int(payload.get("schema_version", 0)) != 1:
-		_load_error = "%s: unsupported schema_version" % path
+	var schema_version := int(payload.get("schema_version", 0))
+	if not allowed_schema_versions.has(schema_version):
+		_load_error = "%s: unsupported schema_version %d" % [path, schema_version]
 		return {}
 	var records: Variant = payload.get(array_key, [])
 	if not records is Array:
