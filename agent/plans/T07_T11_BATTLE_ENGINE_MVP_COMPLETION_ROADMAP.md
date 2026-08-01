@@ -14,6 +14,7 @@ T07–T10 complete battle-engine features. T11 performs final Korea MVP campaign
 - T07 remains `IMPLEMENTED / AUTOMATED VALIDATION PASS / USER F5 QA PENDING`.
 - Korea production roster assignments remain unchanged.
 - Full numerical balance remains deferred to T11.
+- T08-1 current-state audit and production information architecture are complete.
 
 ## Official Roadmap Order
 
@@ -24,6 +25,13 @@ T07–T10 complete battle-engine features. T11 performs final Korea MVP campaign
 5. T11 — Korea MVP Full Balance & Final Battle QA
 
 This order supersedes the previous terrain-first sequence. The battle screen is renewed before terrain and tactics so later systems can target a stable production-quality information and command layout.
+
+## Authoritative T08/T09 Design Package
+
+- `agent/transactions/T08_1_BATTLE_UI_UX_CURRENT_STATE_AUDIT_AND_PRODUCTION_INFORMATION_ARCHITECTURE_DESIGN.md`
+- `agent/plans/T08_BATTLE_UI_UX_PRODUCTION_PLAN.md`
+- `agent/plans/KOREA_MVP_BATTLEFIELD_ART_MASTER_PLAN.md`
+- `agent/plans/T09_BATTLEFIELD_TERRAIN_HANDOFF_PLAN.md`
 
 ---
 
@@ -47,11 +55,27 @@ This order supersedes the previous terrain-first sequence. The battle screen is 
 
 # T08 — Battle UI/UX Renewal
 
+## Status
+
+`T08-1 AUDIT COMPLETE / PRODUCTION IA LOCKED / T08-2 PLANNED`
+
 ## Goal
 
 Replace the current test-oriented battle screen with a production-quality 1920×1080 interface suitable for normal play, demonstrations, crowdfunding, and investment presentations.
 
 T08 precedes terrain and common tactics. The renewed UI must preserve extension points for terrain information, cooperative attacks, and tactics without prematurely implementing those systems.
+
+## Locked Presentation Contract
+
+- Production baseline: 1920×1080, 16:9.
+- Ally momentum: starting `3`, maximum `10`, shown as `current / 10` plus a readable ten-stage gauge.
+- Battle turn: shown as `current / 30`.
+- Enemy momentum: starting `3`, maximum `10`, shown as `current / 10` plus a readable ten-stage gauge.
+- Left ally roster and right enemy roster support the Korea MVP five-slot contract.
+- Bottom comparison HUD shows current actor on the left and next AI actor, selected target, or counterattack target on the right according to interaction state.
+- Major HUD roots are scene-authored; runtime code updates values and state.
+- Hanseong is the only production template until user F5 approval.
+- Defender role maps to city/fortress; attacker role maps to temporary camp independent of player/AI identity.
 
 ## Required Information Architecture
 
@@ -78,11 +102,13 @@ T08 precedes terrain and common tactics. The renewed UI must preserve extension 
 
 ## Process
 
-1. Audit the current battle scene, control nodes, runtime bindings, and user flow.
-2. Lock a production information architecture and interaction contract.
-3. Separate state formatting from layout where practical.
-4. Rebuild or reorganize nodes rather than merely decorating the current test UI.
-5. Add deterministic UI-state validators and user F5 gates.
+1. Audit the current battle scene, control nodes, runtime bindings, and user flow. `COMPLETE`
+2. Lock a production information architecture and interaction contract. `COMPLETE`
+3. Build a scene-authored production HUD skeleton and normalized UI-state adapter. `NEXT`
+4. Produce and bind reusable text-free production UI assets.
+5. Produce and integrate the Hanseong 4K master and 1080p derivative without terrain mechanics.
+6. Complete interaction-state, cutin restoration, and user-facing disabled reasons.
+7. Lock the reusable production template through automated and user F5 QA.
 
 ## Completion Gate
 
@@ -91,6 +117,8 @@ T08 precedes terrain and common tactics. The renewed UI must preserve extension 
 - Player/AI action presentation stays synchronized with battle state.
 - Existing T06–T07 behavior and automated validators remain green.
 - Terrain/tactics placeholders, if present, are non-interactive and do not simulate unimplemented systems.
+- Hanseong passes both player-attacker and player-defender role tests.
+- The same UI/camera/framing contract can be reused for Sabi, Gyeongju, and Pyongyang.
 
 ---
 
@@ -126,6 +154,20 @@ The final MVP terrain list may be reduced during T09 design, but the data model 
 - Bridges and narrow paths create choke points without overlap.
 - Terrain information is visible through the T08 UI contract.
 - Relevant deterministic battle setup and snapshot state survive save/load.
+- Battlefield PNG pixels are never the authoritative terrain rule source.
+
+## Hanseong Demonstration Gate
+
+Hanseong is the first production terrain map and must demonstrate:
+
+- normal traversable ground;
+- costly or conditional terrain;
+- impassable terrain;
+- one major choke point;
+- one alternate route;
+- attacker camp deployment;
+- defender city/fortress deployment;
+- player/AI role parity.
 
 ## Completion Gate
 
@@ -210,15 +252,16 @@ Balance and lock the complete Korea Four-City MVP after T07–T10 feature comple
 
 # Protected Planning Rules
 
-- Do not begin T09 terrain implementation before T08 UI/UX audit and production layout contract are locked.
+- Do not begin T09 terrain implementation before the T08 production layout and Hanseong visual template are sufficiently stable for terrain presentation.
 - Do not begin T10 tactics before their relationship with terrain and hero unique skills is specified.
 - Do not move full numerical balance ahead of T11 unless a value blocks functional testing.
 - Do not force gunner or mounted archer into the Korea production roster.
 - Preserve T01–T07 completed contracts.
 - Each stage must be split into auditable transactions with automated validation and user F5 gates.
+- Do not hardcode ally/enemy identity to attacker/defender battlefield landmarks.
 
 # Immediate Next Transaction
 
-`T08-1 Battle UI/UX Current-State Audit & Production Information Architecture Design`
+`T08-2 Scene-Authored Production HUD Skeleton & UI State Adapter`
 
-This transaction must inspect the current `Battle_Land` scene, battle HUD nodes, floating command panel, selected-unit information, momentum/status displays, overlays, logs, cutin transitions, disabled-state feedback, scaling behavior, and runtime bindings before production layout implementation begins.
+This transaction creates the production HUD hierarchy and presentation-state adapter without final decorative assets, final Hanseong art, terrain behavior, cooperative attacks, or balance changes.
