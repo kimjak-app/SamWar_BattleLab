@@ -54,15 +54,24 @@ The production template is completed and approved on Hanseong first. Remaining K
 
 ### T08-2 Scene-Authored Production HUD Skeleton & UI State Adapter
 
-Status: `PLANNED / NOT STARTED`
+Status: `SPEC LOCKED / LOCAL IMPLEMENTATION PENDING / FINAL ART DEFERRED`
 
-Required work:
+Authoritative transaction:
 
-- Add the production scene hierarchy in `Battle_Land.tscn` without changing battle rules.
-- Make the major momentum, turn, roster, actor-comparison, guidance, log, global-command, tooltip, toast, cutin, and result roots scene-authored.
-- Introduce normalized presentation-state mapping over existing runtime phases.
-- Preserve all current T06–T07 actions, cutins, results, save/load, AI, and validators.
-- Keep decorative art provisional until the skeleton and state adapter are validated.
+- `agent/transactions/T08_2_SCENE_AUTHORED_PRODUCTION_HUD_SKELETON_AND_UI_STATE_ADAPTER.md`
+
+Locked implementation requirements:
+
+- Add a scene-authored `ProductionHudRoot` hierarchy in `Battle_Land.tscn` without changing battle rules.
+- Create scene-authored ally/enemy ten-slot momentum HUDs and separate turn `current / 30` display.
+- Add persistent ally/enemy five-slot roster HUDs.
+- Add current-actor / next-AI / selected-target / counterattack comparison HUD behavior.
+- Add one visible phase-guidance and disabled-reason surface.
+- Introduce one normalized production HUD state boundary and one identifiable refresh path.
+- Eliminate the visible `이동` label calling defend behavior without changing gameplay semantics.
+- Route the production log from one canonical recent-event source.
+- Preserve working cutins and restore the production HUD from current authoritative state after presentation.
+- Keep final PNG decoration and the Hanseong battlefield master deferred to T08-3 and T08-4.
 - Do not implement terrain behavior.
 
 ## Protected baseline
