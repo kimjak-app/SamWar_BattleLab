@@ -1,127 +1,286 @@
 # HANDOFF TO CODEX
 
+## SamWar_BattleLab 자동 작업 권한 헤더
+
+이번 작업은 SamWar_BattleLab 폴더 내부 작업이다.
+
+읽기 / 검색 / 코드 수정 / 씬 파일의 필요한 범위 수정 / 검증 실행 / agent 문서 업데이트 / 로컬 git commit까지는 모두 자동으로 진행한다.
+
+중간에 확인 질문하지 말고, 지시문에 적힌 목표 완료까지 진행한다.
+
+단, 아래 작업은 하지 않는다:
+
+- git push
+- 파일 삭제
+- repo 밖 시스템 변경
+- 프로그램 설치
+- 패키지 전역 설치
+- OS 설정 변경
+- 요청 범위 밖 대규모 리팩토링
+
+설치나 repo 밖 변경이 필요하다고 판단되면, 작업을 멈추고 이유와 대안을 보고한다.
+
+작업 완료 후에는 수정 파일 목록, 검증 결과, 커밋 해시를 보고한다.
+
+---
+
+# T08-2 Scene-Authored Production HUD Skeleton & UI State Adapter
+
 ## Current locked baseline
 
+- Repository: `kimjak-app/SamWar_BattleLab`
+- Branch: `main`
+- Remote design baseline at handoff creation: `453c67d64d41a97f7c791aceacab1b85f86df675` or later documentation-only descendant.
 - T01–T05 Korea Four-City MVP world-turn, invasion, occupation, logistics, recovery, and unification contracts are protected.
-- T06 hero authority, five-stat data, 39 unique skills, shared momentum, resolver integration, battle result parity, cutins, Korean display, portraits, and enemy multi-actor flow are implemented.
+- T06 hero authority, five-stat data, 39 unique skills, shared momentum, resolver integration, battle result parity, cutins, Korean display, portraits, save/load, and enemy multi-actor flow are implemented.
 - T07 five-unit-type battle parity is implemented with dedicated gunner and mounted-archer visuals.
-- T07 status: `IMPLEMENTED / AUTOMATED VALIDATION PASS / DEDICATED VISUALS BOUND / USER F5 QA PENDING`.
-- T08-1 UI/UX current-state audit and production information architecture are complete.
+- T08-1 audit and production information architecture are complete.
+- T08-2 implementation contract is locked.
+
+## First actions
+
+1. Confirm local branch is `main`.
+2. Report local `HEAD`, remote `origin/main`, and dirty status.
+3. Pull only when the working tree is clean and normal fast-forward pull is safe.
+4. Read these documents before editing:
+   - `agent/WORKFLOW_MANAGER.md`
+   - `agent/TRANSACTION_DEVELOPMENT_RULES.md`
+   - `agent/GODOT_RULES.md`
+   - `agent/CURRENT_STATE.md`
+   - `agent/NEXT_TASKS.md`
+   - `agent/plans/T07_T11_BATTLE_ENGINE_MVP_COMPLETION_ROADMAP.md`
+   - `agent/plans/T08_BATTLE_UI_UX_PRODUCTION_PLAN.md`
+   - `agent/plans/KOREA_MVP_BATTLEFIELD_ART_MASTER_PLAN.md`
+   - `agent/plans/T09_BATTLEFIELD_TERRAIN_HANDOFF_PLAN.md`
+   - `agent/transactions/T08_1_BATTLE_UI_UX_CURRENT_STATE_AUDIT_AND_PRODUCTION_INFORMATION_ARCHITECTURE_DESIGN.md`
+   - `agent/transactions/T08_2_SCENE_AUTHORED_PRODUCTION_HUD_SKELETON_AND_UI_STATE_ADAPTER.md`
+5. Audit the exact local versions of:
+   - `Battle_Land.tscn`
+   - `scripts/battle_web_import_test.gd`
+   - `scripts/battle/battle_momentum_state.gd`
+   - current battle validators and local Godot command path.
+
+Do not stop after the audit. Continue through implementation, validation, documentation update, and local commit unless a forbidden operation or genuine blocker is reached.
 
 ## Protected contracts
 
 - `HeroDesignDataRegistry -> HeroRuntimeFactory -> BattleUnitState -> BattleSkillResolver` remains the single-authority hero path.
-- Player and AI consume shared unit-type action eligibility and damage metadata.
-- Gunner and mounted archer remain canonical unit types and are not forced into the Korea production roster.
-- T06 cutin, momentum, unique-skill, Korean display, portrait, result-settlement, and save/load contracts remain protected.
+- Player and AI continue to share authoritative action, unit-type, and calculation rules.
 - Momentum starts at `3` and is capped at `10`.
 - Maximum battle turn remains `30`.
-- Existing side/back multipliers remain protected until T11 unless explicitly rebalanced.
-- T08 changes presentation and UI state organization only; no terrain mechanics are added.
+- Existing move, attack, unique skill, defend/wait, facing, AI, supply, reinforcement, cutin, result, WorldMap return, save/resume, and snapshot behavior remain unchanged.
+- No terrain IDs, passability, movement cost, terrain modifiers, cooperative attacks, common tactics, or balance changes are added.
+- Do not delete legacy scene nodes in this transaction.
+- Do not integrate final UI PNG art or the final Hanseong battlefield image yet.
 
-## Authoritative roadmap and design package
+## Required implementation
 
-Read before planning work:
+### 1. Scene-authored production hierarchy
 
-- `agent/plans/T07_T11_BATTLE_ENGINE_MVP_COMPLETION_ROADMAP.md`
-- `agent/transactions/T08_1_BATTLE_UI_UX_CURRENT_STATE_AUDIT_AND_PRODUCTION_INFORMATION_ARCHITECTURE_DESIGN.md`
-- `agent/plans/T08_BATTLE_UI_UX_PRODUCTION_PLAN.md`
-- `agent/plans/KOREA_MVP_BATTLEFIELD_ART_MASTER_PLAN.md`
-- `agent/plans/T09_BATTLEFIELD_TERRAIN_HANDOFF_PLAN.md`
-- `agent/GODOT_RULES.md`
-
-Official order:
-
-1. T07 — Five Unit-Type Battle Completion
-2. T08 — Battle UI/UX Renewal
-3. T09 — Battlefield Terrain & Tactical Map System
-4. T10 — Cooperative Attack & Common Tactics
-5. T11 — Korea MVP Full Balance & Final Battle QA
-
-## Locked T08 visual direction
-
-- Production layout baseline: 1920×1080.
-- Top center:
-  - ally momentum `current / 10`;
-  - battle turn `current / 30`;
-  - enemy momentum `current / 10`.
-- Left ally roster and right enemy roster.
-- Bottom HUD:
-  - left current actor;
-  - right next AI actor by default;
-  - right selected target during targeting;
-  - right counterattack target during retaliation.
-- Major HUD roots are scene-authored.
-- Dynamic names, numbers, portraits, gauges, statuses, logs, and command states remain runtime controls.
-- Hanseong is the first and only production template until user F5 approval.
-- Defender role maps to city/fortress and attacker role maps to temporary camp regardless of ally/enemy identity.
-- T08 does not implement terrain passability, movement cost, or modifiers.
-
-## Next transaction
-
-### T08-2 Scene-Authored Production HUD Skeleton & UI State Adapter
-
-Implement the production hierarchy without final decorative art.
-
-Required scene roots:
+Add a major production root under the existing `BattleUI` CanvasLayer. Prefer the exact hierarchy locked in the transaction document:
 
 ```text
 BattleUI
-├─ PersistentHud
-│  ├─ TopHudRoot
-│  ├─ AllyRosterHud
-│  ├─ EnemyRosterHud
-│  ├─ ActorComparisonHud
-│  ├─ BattleLogHud
-│  └─ GlobalCommandHud
-├─ ContextHud
-│  ├─ FloatingCommandHud
-│  ├─ InteractionGuideHud
-│  ├─ DisabledReasonHud
-│  ├─ FacingSelectionHud
-│  ├─ DamagePreviewHud
-│  └─ TerrainInfoHud
-├─ ToastHud
-├─ CutinHud
-└─ ResultHud
+└─ ProductionHudRoot
+   ├─ TopHudRoot
+   │  ├─ AllyMomentumHud
+   │  ├─ TurnHud
+   │  └─ EnemyMomentumHud
+   ├─ AllyRosterHud
+   ├─ EnemyRosterHud
+   ├─ InteractionGuideHud
+   ├─ ActorComparisonHud
+   ├─ GlobalCommandHud
+   ├─ BattleLogHud
+   ├─ TooltipHud
+   └─ FacingSelectionHud
 ```
 
-The exact hierarchy may be adjusted only when required by existing scene constraints, but the information ownership and readable node names must remain.
+Major roots must exist in the scene or in one packed production HUD scene visibly instanced from `Battle_Land.tscn`. They must not be created as major layout nodes during `_ready()`.
 
-Required runtime work:
+Use provisional `Panel`, `StyleBoxFlat`, `Container`, `Label`, `ProgressBar`, `TextureRect`, and similar scene-authored controls. Final ornament textures are deferred.
 
-- Map existing battle phases into normalized presentation states.
-- Create one coherent production HUD refresh adapter where practical.
-- Bind current actor, next enemy AI actor, selected target, and counterattack target.
-- Bind turn and ally/enemy momentum values.
-- Bind ally/enemy five-slot MVP rosters.
-- Bind interaction guidance and Korean disabled reasons.
-- Preserve existing move, attack, unique skill, defend/wait, facing, auto, end-turn, retreat, supply, cutin, result, save/resume, and WorldMap-return behavior.
-- Keep current working UI available until production parity is validated.
+### 2. Top HUD
 
-Known audit risks to address:
+Scene-author:
 
-- Mixed 1920×1080 and legacy 1152×648 presentation assumptions.
-- Runtime-created major momentum HUD.
-- Hidden legacy battle log versus visible mini log duplication.
-- Duplicate unit-state presentations with no single refresh ownership.
-- Floating `이동` command currently connected to defend behavior.
-- Absolute layout without production safe-zone roots.
-- Cutin/toast/result restoration across several overlay systems.
+- ally momentum numeric label and exactly ten slots;
+- turn `current / 30` label;
+- active-side label;
+- battle-title label;
+- enemy momentum numeric label and exactly ten slots.
 
-Verification:
+At a fresh battle the UI must read:
 
-- Godot parse/load.
-- Existing T06–T07 validators.
-- New required-node and binding validator.
-- Command label/intent validator.
-- No terrain behavior added.
-- User F5 gates for selection, move, attack, skill, cutin return, enemy multi-actor flow, reinforcement, and result.
+- ally momentum `3 / 10`;
+- turn `1 / 30`;
+- enemy momentum `3 / 10`.
 
-Do not:
+Do not change momentum mechanics. Replace or bypass runtime-created major momentum layout as the production authority, but preserve a safe legacy fallback until validation passes.
 
-- delete working scene nodes;
-- integrate final UI PNG assets in T08-2;
-- integrate the final Hanseong battlefield in T08-2;
-- add terrain, cooperative attack, or common-tactic behavior;
-- change battle balance.
+### 3. Side rosters
+
+Scene-author three main and two reinforcement slots per side.
+
+Each production slot supports actual runtime data for:
+
+- portrait;
+- Korean hero name;
+- Korean unit type;
+- current/max troops or HP presentation;
+- action state;
+- status entries;
+- unique-skill readiness;
+- reinforcement/unused/dead/retreated visibility state.
+
+Do not alter battlefield-local unit visuals.
+
+### 4. Actor comparison HUD
+
+Bind:
+
+- left: current actor with `현재 행동`;
+- right selected target with `선택 대상` during targeting;
+- right counterattack/retaliation subject with `반격 대상` during resolution when available;
+- otherwise right next known enemy AI actor with `다음 행동`;
+- otherwise explicit standby/empty state, never stale prior data.
+
+The center panel may show only already-authoritative values such as distance, expected damage, counterattack, or side/rear relation. Reserve an empty terrain field for T09; do not simulate terrain.
+
+### 5. Interaction guidance and commands
+
+Map the existing phase values into one visible Korean guidance surface.
+
+Cover at least:
+
+- unit/command selection;
+- move target selection;
+- attack target selection;
+- unique-skill target selection;
+- current strategy state where already implemented;
+- facing selection;
+- resolving;
+- enemy turn;
+- battle complete.
+
+Add one visible Korean disabled-reason field or tooltip path.
+
+Fix the known mismatch without changing gameplay semantics:
+
+- a control visibly labeled `이동` must not call `_on_defend_button_pressed()`;
+- either connect true move behavior to `이동` or present the existing handler as `방어` in the production command surface.
+
+### 6. Normalized state adapter and one refresh entry
+
+Introduce one normalized production-HUD state boundary. Preferred helper path:
+
+```text
+scripts/battle/ui/battle_hud_state_adapter.gd
+```
+
+A different narrowly scoped path is allowed only when it better fits the current architecture.
+
+The normalized state must cover the fields specified in the T08-2 transaction, including turn, max turn, active side, phase, title, momentum, both rosters, left actor, right subject/role, center context, instruction, disabled reason, command states, recent log, and battle-complete state.
+
+Create one identifiable controller refresh entry, such as:
+
+```gdscript
+_refresh_production_battle_hud(reason: String = "")
+```
+
+All production surfaces must be updated from this path rather than formatting final labels across unrelated functions.
+
+Refresh after every state transition listed in the transaction document: reset, WorldMap handoff, roster setup, snapshot restore, turn/round, active unit, selections and cancellations, action commits, facing, damage/heal/status/death/retreat/reinforcement, momentum changes, cutin enter/exit, auto toggle, and battle result.
+
+Use a safe deferred/coalesced refresh when necessary to avoid repeated work during one resolution sequence.
+
+### 7. Battle log
+
+Feed the visible production battle log from one canonical recent-event source. Do not leave the player reading a different node from the one runtime updates.
+
+Preserve the current compact recent-line policy unless a larger history already exists.
+
+### 8. Cutin/toast/result restoration
+
+Do not replace cutin media or effects.
+
+Suppress only necessary production layers during full-screen presentations. After each presentation, rebuild visible UI from current authoritative state through the production refresh path rather than restoring copied stale label text.
+
+Do not allow commands to reappear after battle completion.
+
+### 9. Legacy migration
+
+- Keep legacy nodes and working paths present.
+- Hide or bypass a legacy surface only after the matching production surface has parity.
+- Record all legacy surfaces still required after T08-2.
+- No file or node deletion.
+
+## Required validator
+
+Add a focused repository validator following existing conventions. It must verify at least:
+
+- `ProductionHudRoot` and required major roots;
+- exactly ten ally and ten enemy scene-authored momentum slots;
+- separate turn and momentum labels;
+- three main plus two reinforcement slots per side;
+- left/center/right actor-comparison roots;
+- interaction instruction and disabled-reason nodes;
+- one identifiable production refresh entry;
+- production command mapping does not retain visible `이동`→defend mismatch;
+- no raw internal IDs in static user-facing production labels;
+- existing T06/T07 validator compatibility.
+
+## Verification
+
+Run the locally available Godot executable and repository validators.
+
+Required minimum:
+
+- Godot project parse/headless load;
+- `Battle_Land.tscn` headless load;
+- new focused T08-2 validator;
+- battle momentum validator;
+- five-unit-type validator;
+- affected cutin/snapshot/battle validators;
+- no new warnings or errors.
+
+Then perform the maximum automated runtime smoke test available locally. Do not fabricate user F5 results.
+
+## Documentation and commit
+
+Update:
+
+- `agent/transactions/T08_2_SCENE_AUTHORED_PRODUCTION_HUD_SKELETON_AND_UI_STATE_ADAPTER.md`
+- `agent/CURRENT_STATE.md`
+- `agent/NEXT_TASKS.md`
+- `agent/HANDOFF_TO_CODEX.md`
+- `agent/CHANGELOG.md` when consistent with current workflow.
+
+Record:
+
+- modified files;
+- exact validator/Godot commands;
+- PASS/FAIL results;
+- local F5 status as not run unless actually run;
+- remaining risks and legacy nodes.
+
+Commit only in-scope tracked changes with:
+
+```text
+feat: add production battle HUD skeleton and state adapter
+```
+
+Do not push.
+
+## Completion report
+
+Return:
+
+1. local starting and ending HEAD;
+2. modified files;
+3. implemented UI hierarchy and adapter summary;
+4. command mismatch resolution;
+5. validation commands and results;
+6. local commit hash;
+7. remaining risks;
+8. exact user F5 checks still required.
