@@ -6,6 +6,7 @@
 - T06 hero authority, five-stat data, 39 unique skills, shared momentum, resolver integration, battle result parity, cutins, Korean display, portraits, and enemy multi-actor flow are implemented.
 - T07 five-unit-type battle parity is implemented with dedicated gunner and mounted-archer visuals.
 - T07 status: `IMPLEMENTED / AUTOMATED VALIDATION PASS / DEDICATED VISUALS BOUND / USER F5 QA PENDING`.
+- T08-1 UI/UX current-state audit and production information architecture are complete.
 
 ## Protected contracts
 
@@ -13,13 +14,21 @@
 - Player and AI consume shared unit-type action eligibility and damage metadata.
 - Gunner and mounted archer remain canonical unit types and are not forced into the Korea production roster.
 - T06 cutin, momentum, unique-skill, Korean display, portrait, result-settlement, and save/load contracts remain protected.
+- Momentum starts at `3` and is capped at `10`.
+- Maximum battle turn remains `30`.
 - Existing side/back multipliers remain protected until T11 unless explicitly rebalanced.
+- T08 changes presentation and UI state organization only; no terrain mechanics are added.
 
-## Authoritative roadmap
+## Authoritative roadmap and design package
 
 Read before planning work:
 
 - `agent/plans/T07_T11_BATTLE_ENGINE_MVP_COMPLETION_ROADMAP.md`
+- `agent/transactions/T08_1_BATTLE_UI_UX_CURRENT_STATE_AUDIT_AND_PRODUCTION_INFORMATION_ARCHITECTURE_DESIGN.md`
+- `agent/plans/T08_BATTLE_UI_UX_PRODUCTION_PLAN.md`
+- `agent/plans/KOREA_MVP_BATTLEFIELD_ART_MASTER_PLAN.md`
+- `agent/plans/T09_BATTLEFIELD_TERRAIN_HANDOFF_PLAN.md`
+- `agent/GODOT_RULES.md`
 
 Official order:
 
@@ -29,36 +38,90 @@ Official order:
 4. T10 — Cooperative Attack & Common Tactics
 5. T11 — Korea MVP Full Balance & Final Battle QA
 
-The previous terrain-first sequence is obsolete. UI/UX is now completed first so terrain and tactics can integrate into a stable production information layout.
+## Locked T08 visual direction
+
+- Production layout baseline: 1920×1080.
+- Top center:
+  - ally momentum `current / 10`;
+  - battle turn `current / 30`;
+  - enemy momentum `current / 10`.
+- Left ally roster and right enemy roster.
+- Bottom HUD:
+  - left current actor;
+  - right next AI actor by default;
+  - right selected target during targeting;
+  - right counterattack target during retaliation.
+- Major HUD roots are scene-authored.
+- Dynamic names, numbers, portraits, gauges, statuses, logs, and command states remain runtime controls.
+- Hanseong is the first and only production template until user F5 approval.
+- Defender role maps to city/fortress and attacker role maps to temporary camp regardless of ally/enemy identity.
+- T08 does not implement terrain passability, movement cost, or modifiers.
 
 ## Next transaction
 
-### T08-1 Battle UI/UX Current-State Audit & Production Information Architecture Design
+### T08-2 Scene-Authored Production HUD Skeleton & UI State Adapter
 
-Audit only. Do not begin visual restructuring or terrain implementation before the audit is documented.
+Implement the production hierarchy without final decorative art.
 
-Inspect:
+Required scene roots:
 
-- `Battle_Land.tscn` UI node hierarchy and runtime bindings
-- force overview, turn/round state, selected-unit information, HP/troops/statuses
-- floating command panel and disabled-state reasons
-- movement/attack/unique-skill/facing/strategy interaction phases
-- momentum presentation
-- battle log and important event feedback
-- overlays and target instructions
-- cutin transition and state restoration
-- reinforcement/formation UI
-- 1920×1080 overlap, clipping, scaling, and grid obstruction
-- duplicated text formatting and stale UI risks
+```text
+BattleUI
+├─ PersistentHud
+│  ├─ TopHudRoot
+│  ├─ AllyRosterHud
+│  ├─ EnemyRosterHud
+│  ├─ ActorComparisonHud
+│  ├─ BattleLogHud
+│  └─ GlobalCommandHud
+├─ ContextHud
+│  ├─ FloatingCommandHud
+│  ├─ InteractionGuideHud
+│  ├─ DisabledReasonHud
+│  ├─ FacingSelectionHud
+│  ├─ DamagePreviewHud
+│  └─ TerrainInfoHud
+├─ ToastHud
+├─ CutinHud
+└─ ResultHud
+```
 
-T08-1 deliverables:
+The exact hierarchy may be adjusted only when required by existing scene constraints, but the information ownership and readable node names must remain.
 
-- current-state audit
-- locked information hierarchy
-- interaction and phase-state contract
-- proposed node/layout migration
-- implementation transaction sequence
-- automated validator plan
-- user F5 QA gates
+Required runtime work:
 
-Do not add terrain data, terrain modifiers, cooperative attacks, or new common tactics as part of T08-1.
+- Map existing battle phases into normalized presentation states.
+- Create one coherent production HUD refresh adapter where practical.
+- Bind current actor, next enemy AI actor, selected target, and counterattack target.
+- Bind turn and ally/enemy momentum values.
+- Bind ally/enemy five-slot MVP rosters.
+- Bind interaction guidance and Korean disabled reasons.
+- Preserve existing move, attack, unique skill, defend/wait, facing, auto, end-turn, retreat, supply, cutin, result, save/resume, and WorldMap-return behavior.
+- Keep current working UI available until production parity is validated.
+
+Known audit risks to address:
+
+- Mixed 1920×1080 and legacy 1152×648 presentation assumptions.
+- Runtime-created major momentum HUD.
+- Hidden legacy battle log versus visible mini log duplication.
+- Duplicate unit-state presentations with no single refresh ownership.
+- Floating `이동` command currently connected to defend behavior.
+- Absolute layout without production safe-zone roots.
+- Cutin/toast/result restoration across several overlay systems.
+
+Verification:
+
+- Godot parse/load.
+- Existing T06–T07 validators.
+- New required-node and binding validator.
+- Command label/intent validator.
+- No terrain behavior added.
+- User F5 gates for selection, move, attack, skill, cutin return, enemy multi-actor flow, reinforcement, and result.
+
+Do not:
+
+- delete working scene nodes;
+- integrate final UI PNG assets in T08-2;
+- integrate the final Hanseong battlefield in T08-2;
+- add terrain, cooperative attack, or common-tactic behavior;
+- change battle balance.
