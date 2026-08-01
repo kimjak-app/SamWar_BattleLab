@@ -2,127 +2,140 @@
 
 ## Purpose
 
-This document locks the post-T06 battle-engine plan for the Korea MVP and future China, Japan, and Mongolia expansion.
+This document is the authoritative post-T06 battle-engine roadmap for the Korea MVP and later China, Japan, and Mongolia expansion.
 
-T07–T10 are feature-completion stages for the land-battle engine. Full Korea MVP economy, war, and campaign balance is intentionally deferred until T11, after the battle feature set is stable.
+T07–T10 complete battle-engine features. T11 performs final Korea MVP campaign and numerical balance only after the feature set is stable.
 
 ## Current Locked Baseline
 
-- T01–T05 Korea Four-City MVP world-turn, invasion, occupation, logistics, recovery, and unification flow are protected.
-- T06 hero stats, loyalty, battle profiles, 39 unique skills, shared momentum, battle calculations, cross-scene hero authority, cutins, Korean effect display, and post-battle portrait parity are implemented.
-- T06-11A enemy multi-actor turn orchestration passed automated validation and user F5 QA.
-- T06-11B existing destination/engagement reservation and multi-direction surround pressure passed automated validation and user F5 QA.
-- User F5 confirmed one Yi Sun-sin unit invading Sabi was surrounded and attacked by multiple enemies using momentum and unique skills.
-- Current battle momentum test policy remains start 3 / max 10 until a later balance transaction explicitly changes it.
-- Full campaign balance is not the immediate next task.
+- T01–T05 Korea Four-City MVP world-turn, invasion, occupation, logistics, recovery, and unification contracts are protected.
+- T06 hero authority, five-stat data, 39 unique skills, shared momentum, battle calculation, result parity, cutins, Korean display, and multi-actor enemy flow are implemented.
+- T07 five-unit-type runtime, AI, manual/auto damage parity, persistence, Korean labels, and dedicated gunner/mounted-archer visuals are implemented.
+- T07 remains `IMPLEMENTED / AUTOMATED VALIDATION PASS / USER F5 QA PENDING`.
+- Korea production roster assignments remain unchanged.
+- Full numerical balance remains deferred to T11.
 
-## Roadmap Order
+## Official Roadmap Order
 
-1. T07 — Six Unit-Type Battle Completion
-2. T08 — Battlefield Terrain & Tactical Map System
-3. T09 — Cooperative Attack & Common Tactics
-4. T10 — Battle UI/UX Renewal
+1. T07 — Five Unit-Type Battle Completion
+2. T08 — Battle UI/UX Renewal
+3. T09 — Battlefield Terrain & Tactical Map System
+4. T10 — Cooperative Attack & Common Tactics
 5. T11 — Korea MVP Full Balance & Final Battle QA
 
-The order may be adjusted when implementation dependencies or user visual design work require it, but each stage must preserve the contracts of completed earlier stages.
+This order supersedes the previous terrain-first sequence. The battle screen is renewed before terrain and tactics so later systems can target a stable production-quality information and command layout.
 
 ---
 
-# T07 — Six Unit-Type Battle Completion
+# T07 — Five Unit-Type Battle Completion
+
+## Status
+
+`IMPLEMENTED / AUTOMATED VALIDATION PASS / DEDICATED VISUALS BOUND / USER F5 QA PENDING`
+
+## Locked Result
+
+- Canonical unit types: infantry, cavalry, archer, gunner, mounted_archer.
+- Player and AI share movement, range, counterattack, and action-eligibility contracts.
+- Gunner prepared fire, armor penetration, post-fire penalty, and AI behavior are implemented.
+- Mounted-archer mobile ranged behavior and battle snapshot state are implemented.
+- Manual and auto battle consume shared unit-type damage metadata.
+- Dedicated gunner and mounted-archer token resources are bound without changing canonical unit IDs.
+- T07 functional values remain unchanged until T11 unless a reproducible defect requires a hotfix.
+
+---
+
+# T08 — Battle UI/UX Renewal
 
 ## Goal
 
-Complete the runtime, AI, calculation, UI metadata, persistence, and round-trip contracts for all six planned land unit types, including firearm infantry and mounted archers.
+Replace the current test-oriented battle screen with a production-quality 1920×1080 interface suitable for normal play, demonstrations, crowdfunding, and investment presentations.
 
-The Korea MVP roster does not need to use firearm infantry or mounted archers. They are completed in advance for later Japan, China, and Mongolia content.
+T08 precedes terrain and common tactics. The renewed UI must preserve extension points for terrain information, cooperative attacks, and tactics without prematurely implementing those systems.
 
-## Required Scope
+## Required Information Architecture
 
-- Audit the currently implemented and configured unit types.
-- Lock the canonical six-unit-type identifiers and display names.
-- Complete movement, attack range, valid target, counterattack, and facing contracts.
-- Complete unit matchup metadata without final numerical balance lock.
-- Complete AI movement and attack behavior for each type.
-- Complete formation → battle → result → WorldMap/save round-trip parity.
-- Complete auto-battle calculation parity.
-- Complete combat log, tooltip, and status presentation.
-- Ensure future roster data can assign the two expansion unit types without scene-specific patches.
+- Ally and enemy force overview.
+- Round, active side, active unit, and current interaction phase.
+- Shared momentum and spend/availability feedback.
+- Selected hero portrait, name, unit type, HP, troops, action state, and status effects.
+- Move, normal attack, unique skill, defend/wait, and currently implemented commands.
+- Clear target-selection instructions and cancel/back behavior.
+- Disabled command reasons shown in Korean.
+- Battle log and important event messages separated by importance.
+- Cutin playback that returns cleanly to readable battle state.
+- Formation/reinforcement status where currently relevant.
 
-## Firearm Infantry Direction
+## UX Principles
 
-- High ranged impact and clear battlefield identity.
-- Close-range or mobility weakness must be represented by an explicit contract rather than ad-hoc hero logic.
-- Reload, firing cadence, minimum range, or post-move firing restrictions must be designed before implementation.
-- Exact values are deferred to T11 unless a functional default is required for testing.
+- The player must immediately understand whose turn it is, which unit is selected, what can be done, and why an action is unavailable.
+- Internal IDs must never appear in user-visible text.
+- Important information must not require reading debug output.
+- The interface must preserve T06 cutin, portrait, momentum, unique-skill, status, and result contracts.
+- The interface must preserve T07 five-unit-type labels and command eligibility.
+- Layout is authored for 1920×1080 first and then checked for supported scaling.
+- Critical UI must not overlap, clip, obscure the tactical grid, or remain stale after turn/phase changes.
 
-## Mounted Archer Direction
+## Process
 
-- High mobility and ranged pressure.
-- Movement-after-attack, attack-after-move, disengagement, and distance-keeping behavior must be explicitly designed.
-- It must not be implemented as a cavalry stat clone with a bow icon.
-- Exact values are deferred to T11 unless a functional default is required for testing.
+1. Audit the current battle scene, control nodes, runtime bindings, and user flow.
+2. Lock a production information architecture and interaction contract.
+3. Separate state formatting from layout where practical.
+4. Rebuild or reorganize nodes rather than merely decorating the current test UI.
+5. Add deterministic UI-state validators and user F5 gates.
 
 ## Completion Gate
 
-- Six canonical unit types validate through authoritative data, runtime factory, battle unit state, AI, calculation, UI, save/load, and battle-result round trip.
-- Firearm infantry and mounted archers work in test/demo rosters without being added to the Korea production roster.
-- Existing Korea roster unit assignments do not change unintentionally.
+- Full existing battle flow is playable without debug knowledge.
+- No overlapping or clipped critical UI at 1920×1080.
+- Player/AI action presentation stays synchronized with battle state.
+- Existing T06–T07 behavior and automated validators remain green.
+- Terrain/tactics placeholders, if present, are non-interactive and do not simulate unimplemented systems.
 
 ---
 
-# T08 — Battlefield Terrain & Tactical Map System
+# T09 — Battlefield Terrain & Tactical Map System
 
 ## Goal
 
-Make battlefield position and terrain materially affect movement and combat so that battle strategy is not determined only by hero and unit strength.
+Make battlefield position and terrain materially affect movement and combat after the renewed UI can clearly present cell and terrain information.
 
 ## Planned Terrain Set
 
 - Plain
 - Forest
 - Hill or high ground
-- Mountain
-- Cliff
+- Mountain or rough ground
+- Cliff or impassable area
 - River or shallow water
 - Bridge
 - Marsh or difficult ground where appropriate
 - Wall, gate, or fortified cell where appropriate
-- Impassable area
 - Narrow passage
 
-The final MVP terrain list may be reduced or expanded during T08 design, but the terrain data model must support later regional maps.
+The final MVP terrain list may be reduced during T09 design, but the data model must support later regional maps.
 
 ## Required Contracts
 
 - Terrain ID and visual representation are separate.
 - Traversable, conditionally traversable, and impassable cells are explicit.
 - Movement cost and pathfinding consume the same authoritative terrain rules.
-- Attack, defense, accuracy, range, line-of-sight, or status modifiers are explicit and testable.
-- Unit-type/terrain interactions use shared data or helpers rather than scattered scene conditions.
-- AI evaluates terrain cost and tactical value.
-- Bridges and narrow paths naturally create choke points without cell overlap.
-- Terrain effects survive save/load and deterministic battle setup where relevant.
-
-## Example Design Directions
-
-- Mountain or rough ground may reduce cavalry mobility and support infantry defense.
-- Forest may affect ranged accuracy, concealment, ambush, or fire tactics.
-- River crossing may increase movement cost or temporary vulnerability.
-- Bridge cells may be traversable choke points.
-- Cliff and blocked cells are impassable.
-- High ground may support ranged or visibility bonuses.
-
-These examples are not final balance values.
+- Combat modifiers are explicit, deterministic, and testable.
+- Unit-type/terrain interactions use shared data or helpers.
+- Player and AI obey the same terrain and movement-cost rules.
+- Bridges and narrow paths create choke points without overlap.
+- Terrain information is visible through the T08 UI contract.
+- Relevant deterministic battle setup and snapshot state survive save/load.
 
 ## Completion Gate
 
-- At least one production-ready tactical map demonstrates passable terrain, costly terrain, impassable terrain, and a choke point.
-- Player and AI movement obey the same terrain rules.
-- Terrain modifiers are visible in UI/logs and covered by deterministic validation.
+- At least one production-ready tactical map demonstrates normal, costly, impassable, and choke-point terrain.
+- Player and AI movement obey identical terrain rules.
+- Terrain effects are visible in UI/logs and covered by deterministic validation.
 
 ---
 
-# T09 — Cooperative Attack & Common Tactics
+# T10 — Cooperative Attack & Common Tactics
 
 ## Goal
 
@@ -130,86 +143,32 @@ Expand combat beyond individual normal attacks and hero-exclusive unique skills 
 
 ## Cooperative Attack Scope
 
-- Define when multiple allied units may participate in one coordinated action.
-- Define action consumption for initiator and supporters.
-- Define target, range, adjacency, facing, and eligibility rules.
-- Prevent duplicate resolver application and duplicate momentum gain/spend.
-- Preserve existing side/back directional multipliers unless a later explicit balance transaction changes them.
-- Add clear combat logs and visual feedback.
-
-The current side/back pressure contract is not automatically treated as a complete cooperative-attack system.
+- Authoritative eligibility and resolution path.
+- Initiator/supporter action consumption.
+- Target, range, adjacency, facing, and participation rules.
+- Duplicate resolver and duplicate momentum prevention.
+- Clear logs, UI feedback, AI evaluation, and persistence behavior.
+- Existing side/back multipliers remain protected until T11 unless explicitly changed.
 
 ## Common Tactics Scope
 
-Candidate tactics include:
+Candidate tactics include fire attack, disruption, confusion, provocation, morale pressure, movement restriction, retreat-route pressure, and terrain-supported ambush or concealment.
 
-- Fire attack
-- Disruption
-- Confusion
-- Provocation
-- Morale pressure
-- Movement restriction
-- Retreat-route pressure
-- Ambush or concealment where terrain supports it
+The exact MVP set must be designed before implementation.
 
-The exact MVP tactic set must be designed before implementation.
+## Layer Separation
 
-## Role Separation
+- Hero unique skill: named hero-specific ability.
+- Common tactic: shared battlefield command unlocked by explicit rules.
+- Terrain effect: passive or cell-driven battlefield rule.
 
-- Hero unique skill: named hero-specific signature ability.
-- Common tactic: battlefield command available through defined stats, unit types, items, formations, or commander roles.
-- Terrain effect: passive battlefield rule.
-
-These three layers must not duplicate or overwrite each other without an explicit stacking contract.
+These layers require an explicit stacking and precedence contract.
 
 ## Completion Gate
 
-- Cooperative attack has one authoritative eligibility and resolution path.
-- Common tactics have validation, execution, failure, log, UI, AI, and save/snapshot contracts.
-- Fire and disruption-type tactics interact with terrain only through documented rules.
-
----
-
-# T10 — Battle UI/UX Renewal
-
-## Goal
-
-Replace the current test-oriented battle screen with a production-quality 1920×1080 battle interface suitable for player use, demonstrations, crowdfunding, and investment presentations.
-
-## Information Architecture
-
-- Ally and enemy force overview
-- Round and active-side state
-- Shared momentum
-- Selected hero portrait and core battle information
-- HP, troops, action state, and status effects
-- Move, normal attack, unique skill, cooperative attack, tactic, and wait commands as applicable
-- Target-selection instructions
-- Terrain information for hovered or selected cells
-- Battle log and important event messages
-- Cutin integration without obscuring critical state after playback
-- Clear disabled-state reasons and validation failures
-
-## UX Principles
-
-- The player must understand whose turn it is, which unit is selected, what can be done, and why an action is unavailable.
-- Internal IDs must never appear in user-visible labels.
-- Important combat information should not require reading the debug log.
-- The UI must support the full six-unit-type, terrain, cooperative-attack, tactic, status, and momentum feature set.
-- Layout must be authored for 1920×1080 first, then validated for supported scaling behavior.
-
-## Process
-
-- First lock a visual and interaction design.
-- Then rebuild the node/layout structure rather than merely decorating the current test UI.
-- Temporary developer UI may be used during T07–T09, but final visual polish belongs here.
-
-## Completion Gate
-
-- Full battle flow is playable without debug knowledge.
-- No overlapping or clipped critical UI at the target resolution.
-- Player and AI action presentations remain synchronized with the underlying battle state.
-- Existing cutin, portrait, Korean display, and result-settlement contracts remain intact.
+- Cooperative attacks use one validated eligibility and resolution path.
+- Common tactics have validation, execution, failure, Korean display, UI, AI, and snapshot contracts.
+- Terrain interactions consume only the documented T09 terrain contract.
 
 ---
 
@@ -217,53 +176,49 @@ Replace the current test-oriented battle screen with a production-quality 1920×
 
 ## Goal
 
-Balance and lock the complete Korea Four-City MVP only after T07–T10 battle features are stable.
+Balance and lock the complete Korea Four-City MVP after T07–T10 feature completion.
 
 ## Balance Scope
 
-- Four-faction starting resources, troops, cities, and hero distribution
-- City production and recovery
-- Research cost and duration
-- Invasion gold, food, salt, and logistics pressure
-- Reinforcement and wounded recovery
-- AI invasion frequency, target selection, defense retention, and repeated-war restraint
-- Unit-type matchup values
-- Terrain modifier values
-- Cooperative attack and tactic values
-- Unique-skill and momentum frequency in full battles
-- Side/back multipliers if evidence requires revision
-- Early, middle, and final-unification pacing
-- Expected turn count and player session length
+- Starting resources, troops, cities, and hero distribution.
+- Production, research, recovery, and invasion logistics.
+- AI invasion frequency, target selection, defense retention, and repeated-war restraint.
+- Unit-type matchup values.
+- Terrain modifiers.
+- Cooperative attack and tactic values.
+- Unique-skill and momentum frequency.
+- Side/back multipliers if evidence requires revision.
+- Early, middle, and unification pacing.
+- Expected turn count and session length.
 
 ## Validation Scope
 
-- Deterministic and repeated simulations
-- 1v1 through multi-unit battle samples
-- Player F5 campaign runs
-- Victory, defeat, injury, death, retreat, occupation, save/load, and WorldMap return regression
-- Performance and warning cleanup
-- Final Korea MVP lock documentation
+- Deterministic and repeated simulations.
+- 1v1 through multi-unit battle samples.
+- Player F5 campaign runs.
+- Victory, defeat, injury, death, retreat, occupation, save/load, and WorldMap return regression.
+- Performance and warning cleanup.
 
 ## Completion Gate
 
-- No faction has a deterministic unavoidable early collapse or guaranteed runaway advantage without intentional design.
-- The player can understand and influence campaign outcomes through economy, formation, heroes, unit types, terrain, tactics, and battle execution.
-- Korea MVP reaches unification with an acceptable difficulty and play-time range.
-- Final regression suite passes and the MVP battle/campaign baseline is locked.
+- No faction has an unintended deterministic collapse or runaway advantage.
+- Players can influence outcomes through economy, formation, heroes, unit types, UI clarity, terrain, tactics, and battle execution.
+- Korea MVP reaches unification within an acceptable difficulty and play-time range.
+- Final regression suite passes and the MVP baseline is locked.
 
 ---
 
 # Protected Planning Rules
 
-- Do not move full numerical balance work ahead of T11 unless a value blocks functional testing.
-- Do not force firearm infantry or mounted archers into the Korea production roster.
-- Do not implement tactics before their relationship with terrain and unique skills is specified.
-- Do not perform the final UI renewal before the information requirements of T07–T09 are known.
-- Fix reproducible defects when discovered, but do not use a hotfix to silently expand the next major stage.
-- Each major stage must be split into auditable transactions with automated validation and user F5 gates.
+- Do not begin T09 terrain implementation before T08 UI/UX audit and production layout contract are locked.
+- Do not begin T10 tactics before their relationship with terrain and hero unique skills is specified.
+- Do not move full numerical balance ahead of T11 unless a value blocks functional testing.
+- Do not force gunner or mounted archer into the Korea production roster.
+- Preserve T01–T07 completed contracts.
+- Each stage must be split into auditable transactions with automated validation and user F5 gates.
 
 # Immediate Next Transaction
 
-T07-1 Six Unit-Type Current-State Audit & Canonical Contract Design
+`T08-1 Battle UI/UX Current-State Audit & Production Information Architecture Design`
 
-This transaction must inspect the current unit-type registry, generated hero battle profiles, runtime factory, battle state, resolver, AI, UI, auto-battle, result payload, and save/load paths before any firearm-infantry or mounted-archer production implementation begins.
+This transaction must inspect the current `Battle_Land` scene, battle HUD nodes, floating command panel, selected-unit information, momentum/status displays, overlays, logs, cutin transitions, disabled-state feedback, scaling behavior, and runtime bindings before production layout implementation begins.
