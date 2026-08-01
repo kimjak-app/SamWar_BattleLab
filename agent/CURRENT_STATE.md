@@ -1,6 +1,6 @@
 # CURRENT STATE
 
-## Latest implemented stage
+## Latest protected implemented stage
 
 ### T07 Five Unit-Type Battle Completion
 
@@ -11,26 +11,11 @@ Status: `IMPLEMENTED / AUTOMATED VALIDATION PASS / DEDICATED VISUALS BOUND / USE
 - Dedicated gunner and mounted-archer token resources are connected through canonical visual metadata.
 - Korea production roster assignments remain unchanged.
 
-## Latest completed design transaction
+## T08 design baseline
 
 ### T08-1 Battle UI/UX Current-State Audit & Production Information Architecture Design
 
-Status: `AUDIT COMPLETE / PRODUCTION IA LOCKED / IMPLEMENTATION NOT STARTED`
-
-Completed:
-
-- Audited `Battle_Land.tscn` and `scripts/battle_web_import_test.gd` presentation structure.
-- Confirmed current test-oriented coupling, mixed 1920×1080 and legacy 1152×648 assumptions, absolute layout, duplicated information surfaces, runtime-created momentum HUD risk, command label/handler mismatch risk, log duplication, cutin restoration requirements, and battlefield safe-zone requirements.
-- Locked 1920×1080 production UI information architecture.
-- Locked top HUD contract:
-  - ally momentum `current / 10`;
-  - battle turn `current / 30`;
-  - enemy momentum `current / 10`.
-- Confirmed authoritative momentum start `3` and maximum `10`.
-- Locked current actor / next AI / selected target / counterattack HUD behavior.
-- Locked Hanseong as the single production master template before Sabi, Gyeongju, and Pyongyang.
-- Locked defender city/fortress and attacker temporary-camp role mapping independent of player/AI identity.
-- Locked T08 art/presentation and T09 terrain-mechanics separation.
+Status: `AUDIT COMPLETE / PRODUCTION IA LOCKED`
 
 Authoritative documents:
 
@@ -39,52 +24,75 @@ Authoritative documents:
 - `agent/plans/KOREA_MVP_BATTLEFIELD_ART_MASTER_PLAN.md`
 - `agent/plans/T09_BATTLEFIELD_TERRAIN_HANDOFF_PLAN.md`
 
-## Current roadmap decision
+Locked production direction:
 
-The official post-T07 order remains:
+- 1920×1080 production UI.
+- Top HUD separates ally momentum `current / 10`, battle turn `current / 30`, and enemy momentum `current / 10`.
+- Left ally roster and right enemy roster.
+- Bottom current actor / next AI / selected target / counterattack comparison HUD.
+- Hanseong is the single master template before Sabi, Gyeongju, and Pyongyang.
+- Defender role maps to city/fortress and attacker role maps to temporary camp independently of player/AI identity.
+- T08 presentation remains separate from T09 terrain mechanics.
 
-1. T08 — Battle UI/UX Renewal
-2. T09 — Battlefield Terrain & Tactical Map System
-3. T10 — Cooperative Attack & Common Tactics
-4. T11 — Korea MVP Full Balance & Final Battle QA
-
-The production template is completed and approved on Hanseong first. Remaining Korea MVP battlefields inherit the locked UI/camera/framing contract.
-
-## Immediate next transaction
+## Current implementation state
 
 ### T08-2 Scene-Authored Production HUD Skeleton & UI State Adapter
 
-Status: `IMPLEMENTED / AUTOMATED VALIDATION PASS / USER F5 QA PENDING / FINAL ART DEFERRED`
+Remote implementation commit:
 
-Authoritative transaction:
+- `6b648369dc3b6f1e5d419c97acbe56ece79f9d0e`
+- `feat: add production battle HUD skeleton and state adapter`
 
-- `agent/transactions/T08_2_SCENE_AUTHORED_PRODUCTION_HUD_SKELETON_AND_UI_STATE_ADAPTER.md`
+Status: `IMPLEMENTED / STATIC VALIDATORS PASS / USER F6 QA FAIL / HOTFIX REQUIRED / FINAL ART DEFERRED`
 
-Locked implementation requirements:
+User F6 evidence:
 
-- Add a scene-authored `ProductionHudRoot` hierarchy in `Battle_Land.tscn` without changing battle rules.
-- Create scene-authored ally/enemy ten-slot momentum HUDs and separate turn `current / 30` display.
-- Add persistent ally/enemy five-slot roster HUDs.
-- Add current-actor / next-AI / selected-target / counterattack comparison HUD behavior.
-- Add one visible phase-guidance and disabled-reason surface.
-- Introduce one normalized production HUD state boundary and one identifiable refresh path.
-- Eliminate the visible `이동` label calling defend behavior without changing gameplay semantics.
-- Route the production log from one canonical recent-event source.
-- Preserve working cutins and restore the production HUD from current authoritative state after presentation.
-- Keep final PNG decoration and the Hanseong battlefield master deferred to T08-3 and T08-4.
-- Do not implement terrain behavior.
+- Godot reported 148 scene-instantiation errors.
+- `ProductionHudRoot` descendants reported cascading `Parent path ... has vanished` messages.
+- The production HUD overlapped itself and the legacy HUD.
+- Large empty translucent panels obscured the battlefield.
+- Top momentum/turn/title text was unreadable because of overlap.
+- Legacy top/roster/log surfaces remained visible together with production surfaces.
+- GDScript warned that local variable `visible` shadows the inherited `CanvasItem.visible` property.
+
+Confirmed remote code defects:
+
+- `Battle_Land.tscn` contains a standalone `+` line immediately before the `ProductionHudRoot` node declaration.
+- `scripts/battle_web_import_test.gd` declares `var visible := ...` inside production roster refresh and then writes `slot.visible = visible`.
+- The focused validator checks node-name strings and slot counts but does not reject malformed standalone scene lines, validate parent declaration order, or detect the shadowing declaration.
+
+The 148 messages are treated as a cascading scene-instantiation failure, not as 148 independent feature defects.
+
+## Immediate next transaction
+
+### T08-2-hotfix1 Production HUD Scene Recovery, Layout & Legacy Visibility Correction
+
+Status: `PLANNED / NOT STARTED`
+
+Required order:
+
+1. Repair `Battle_Land.tscn` parse/instantiation integrity and remove all cascading vanished-parent errors.
+2. Remove the `visible` shadowing warning without changing behavior.
+3. Strengthen `validate_t08_2_production_hud.py` so malformed scene syntax and invalid parent order cannot pass.
+4. Correct 1920×1080 production HUD bounds, initial visibility, and legacy/new-surface duplication.
+5. Preserve T01–T07 gameplay, cutins, AI, battle calculations, save/resume, WorldMap handoff, and all protected validators.
+6. Stop before T08-3 final UI graphics or Hanseong battlefield integration.
+
+Authoritative execution instruction:
+
+- `agent/HANDOFF_TO_CODEX.md`
 
 ## Protected baseline
 
 - T01–T05 Korea Four-City MVP campaign contracts remain protected.
 - T06 hero authority, unique skills, momentum, cutins, Korean display, portraits, result settlement, save/load, and enemy multi-actor flow remain protected.
-- T07 five-unit-type behavior and validation values remain protected until T11 unless a reproducible defect requires correction.
+- T07 five-unit-type behavior and values remain protected until T11 unless a reproducible defect requires correction.
 - Momentum starts at `3` and is capped at `10`.
 - Maximum battle turn remains `30`.
 - Generated hero data remains authoritative.
-- Player and AI must continue to share canonical action and calculation paths.
-- T08 must not add T09 terrain rules or T10 tactics.
+- Player and AI continue to share canonical action and calculation paths.
+- No T09 terrain rule or T10 tactic is added during this hotfix.
 
-## Authoritative roadmap document
+## Authoritative roadmap
 
 - `agent/plans/T07_T11_BATTLE_ENGINE_MVP_COMPLETION_ROADMAP.md`
