@@ -26,6 +26,10 @@
 
 # T08-2-hotfix1 Production HUD Scene Recovery, Layout & Legacy Visibility Correction
 
+## Completion note
+
+Implemented locally after the original F6 failure. The malformed standalone `+` scene line was removed, the `visible` local was renamed to `should_show_slot`, production/legacy visibility parity was added, and the focused validator now checks malformed lines, parent graph/order, layout bounds, safe defaults, and shadowing. Automated static checks pass; Godot headless launch is unavailable in this execution environment, so user F6 retest remains required.
+
 ## User QA result
 
 T08-2 implementation commit `6b648369dc3b6f1e5d419c97acbe56ece79f9d0e` was pushed to `main`, but user `Battle_Land.tscn` F6 QA failed.

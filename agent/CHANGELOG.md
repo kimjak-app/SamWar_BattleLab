@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## T08-2-hotfix1 Production HUD Recovery
+- Removed the malformed ProductionHudRoot scene patch marker that caused cascading vanished-parent errors.
+- Corrected production/legacy HUD visibility parity, empty placeholder visibility, roster shadowing warning, and focused scene/layout validation.
+
 ## T08-2 Production Battle HUD Skeleton
 - Added the scene-authored production battle HUD hierarchy, normalized HUD state adapter, focused validator, and production refresh path.
 - Preserved legacy battle surfaces and corrected the visible floating defend-command label.

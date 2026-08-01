@@ -481,6 +481,14 @@ T08-2 is complete only when:
 - Godot headless and local F5 were not run because the configured executable is unavailable to this execution environment.
 - Retained legacy surfaces: TopBar, BattleMiniLogPanel, FormationSlotGuideLayer, UnitCloseupPanel, CommandBar/floating commands, cutin/result/toast layers, and tactical markers.
 
+## T08-2-hotfix1 Record
+
+- User F6 FAIL root cause: a standalone `+` line immediately before ProductionHudRoot caused a cascading vanished-parent scene-instantiation failure; it was removed.
+- Renamed the roster refresh local `visible` to `should_show_slot`, preserving `slot.visible` engine-property writes.
+- Production refresh now hides redundant legacy TopBar, formation guide, mini-log, and close-up surfaces when the production HUD is visible. Empty actor/subject/center surfaces collapse; the reserved T09 field is hidden and empty by default.
+- The focused validator now rejects patch/conflict residue, parses parent paths and declaration order, checks HUD rect/default visibility parity, and rejects local `visible` declarations.
+- PASS: focused T08-2-hotfix1 validator plus T06/T07 and T07 five-unit validators. Godot headless was unavailable in this execution environment; user F6 retest remains pending.
+
 ## Commit Message
 
 ```text

@@ -3849,8 +3849,6 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="AnimationPlayer_Cutin" type="AnimationPlayer" parent="BattleUI/SkillCutinLayer" unique_id=887263827]
-
-+
 [node name="ProductionHudRoot" type="Control" parent="BattleUI"]
 layout_mode = 3
 anchors_preset = 0
@@ -4756,11 +4754,12 @@ offset_bottom = 70.0
 text = "거리 - · 반격 -"
 
 [node name="TerrainPlaceholderLabel" type="Label" parent="BattleUI/ProductionHudRoot/ActorComparisonHud/CenterContextPanel"]
+visible = false
 offset_left = 8.0
 offset_top = 78.0
 offset_right = 308.0
 offset_bottom = 106.0
-text = "지형 정보: T09 예정"
+text = ""
 
 [node name="RightSubjectPanel" type="Panel" parent="BattleUI/ProductionHudRoot/ActorComparisonHud"]
 offset_left = 660.0

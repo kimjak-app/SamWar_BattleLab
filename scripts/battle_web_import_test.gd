@@ -15664,6 +15664,7 @@ func _refresh_production_battle_hud(reason: String = "") -> void:
 		return
 	var state := BattleHudStateAdapterScript.build(self)
 	production_hud_root.visible = not bool(state.get("battle_complete", false))
+	_sync_production_hud_legacy_visibility(production_hud_root.visible)
 	_set_production_label("TopHudRoot/AllyMomentumHud/ValueLabel", "%d / 10" % int(state.get("ally_momentum", 3)))
 	_set_production_label("TopHudRoot/EnemyMomentumHud/ValueLabel", "%d / 10" % int(state.get("enemy_momentum", 3)))
 	_set_production_label("TopHudRoot/TurnHud/TurnLabel", "%d / %d" % [int(state.get("turn", 1)), int(state.get("max_turn", 30))])
@@ -15675,6 +15676,11 @@ func _refresh_production_battle_hud(reason: String = "") -> void:
 	_refresh_production_roster("Enemy", state.get("enemy_roster", []))
 	_refresh_production_actor_panel("ActorComparisonHud/LeftActorPanel", "현재 행동", state.get("left_actor", {}))
 	_refresh_production_actor_panel("ActorComparisonHud/RightSubjectPanel", str(state.get("right_subject_role", "대기")), state.get("right_subject", {}))
+	var left_actor: Dictionary = state.get("left_actor", {})
+	var right_subject: Dictionary = state.get("right_subject", {})
+	_set_production_control_visible("ActorComparisonHud/LeftActorPanel", bool(left_actor.get("visible", false)))
+	_set_production_control_visible("ActorComparisonHud/RightSubjectPanel", bool(right_subject.get("visible", false)))
+	_set_production_control_visible("ActorComparisonHud/CenterContextPanel", bool(left_actor.get("visible", false)) and bool(right_subject.get("visible", false)))
 	_set_production_label("ActorComparisonHud/CenterContextPanel/ContextLabel", str((state.get("center_context", {}) as Dictionary).get("text", "거리 - · 반격 -")))
 	_set_production_label("InteractionGuideHud/PhaseLabel", str(state.get("active_side", "아군 턴")))
 	_set_production_label("InteractionGuideHud/InstructionLabel", str(state.get("instruction", "")))
@@ -15691,6 +15697,25 @@ func _set_production_label(path: String, value: String) -> void:
 	var label := production_hud_root.get_node_or_null(path) as Label
 	if label != null:
 		label.text = value
+
+
+func _set_production_control_visible(path: String, should_show: bool) -> void:
+	var control := production_hud_root.get_node_or_null(path) as Control
+	if control != null:
+		control.visible = should_show
+
+
+func _sync_production_hud_legacy_visibility(production_visible: bool) -> void:
+	if not production_visible:
+		return
+	if top_bar != null:
+		top_bar.visible = false
+	if formation_slot_guide_layer != null:
+		formation_slot_guide_layer.visible = false
+	if battle_mini_log_panel != null:
+		battle_mini_log_panel.visible = false
+	if unit_closeup_panel != null:
+		unit_closeup_panel.visible = false
 
 func _refresh_production_momentum_slots(side_name: String, value: int) -> void:
 	var row := production_hud_root.get_node_or_null("TopHudRoot/%sMomentumHud/SlotRow" % side_name) as Container
@@ -15710,9 +15735,9 @@ func _refresh_production_roster(side_name: String, roster: Array) -> void:
 		if slot == null:
 			continue
 		var unit: Dictionary = roster[index] if index < roster.size() else {}
-		var visible := bool(unit.get("visible", false))
-		slot.visible = visible
-		if not visible:
+		var should_show_slot := bool(unit.get("visible", false))
+		slot.visible = should_show_slot
+		if not should_show_slot:
 			continue
 		_set_production_roster_label(slot, "NameLabel", str(unit.get("display_name", "대기")))
 		_set_production_roster_label(slot, "UnitTypeLabel", str(unit.get("unit_type_name", "부대")))

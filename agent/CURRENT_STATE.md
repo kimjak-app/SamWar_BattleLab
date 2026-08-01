@@ -67,7 +67,7 @@ The 148 messages are treated as a cascading scene-instantiation failure, not as 
 
 ### T08-2-hotfix1 Production HUD Scene Recovery, Layout & Legacy Visibility Correction
 
-Status: `PLANNED / NOT STARTED`
+Status: `IMPLEMENTED / AUTOMATED STATIC VALIDATION PASS / USER F6 RETEST PENDING`
 
 Required order:
 
@@ -77,6 +77,13 @@ Required order:
 4. Correct 1920×1080 production HUD bounds, initial visibility, and legacy/new-surface duplication.
 5. Preserve T01–T07 gameplay, cutins, AI, battle calculations, save/resume, WorldMap handoff, and all protected validators.
 6. Stop before T08-3 final UI graphics or Hanseong battlefield integration.
+
+Hotfix1 evidence:
+
+- Removed the standalone patch-marker line that invalidated the production HUD parent tree.
+- Renamed the production roster local `visible` identifier to `should_show_slot`.
+- Added production parent/declaration-order, malformed-line, default-visibility, layout-bound, legacy-parity, and shadowing checks to the focused validator.
+- Local Godot headless launch remains unavailable from this execution environment; user F6 retest is required.
 
 Authoritative execution instruction:
 
