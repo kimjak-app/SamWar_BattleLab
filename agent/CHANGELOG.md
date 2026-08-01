@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## T08-2 Production Battle HUD Skeleton
+- Added the scene-authored production battle HUD hierarchy, normalized HUD state adapter, focused validator, and production refresh path.
+- Preserved legacy battle surfaces and corrected the visible floating defend-command label.
+
 ## v0.70-98 Domestic Tech Complete Lock
 - Declared the Domestic Tech first-pass route complete and locked.
 - Summarized the v0.70-93 Economy / City, v0.70-94 Defense / Battle, v0.70-95 Diplomacy / Spy, v0.70-96 Naval / Siege, and v0.70-97 Full Gameplay F6 QA results.

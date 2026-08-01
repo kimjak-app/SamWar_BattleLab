@@ -26,6 +26,10 @@
 
 # T08-2 Scene-Authored Production HUD Skeleton & UI State Adapter
 
+## Completion note
+
+T08-2 is implemented in local commit `e07877e`. Its automated validators pass; Godot headless and F5 remain pending because the configured executable cannot be launched from this execution environment. The next roadmap transaction is T08-3 Production UI Art Pack and Theme Binding.
+
 ## Current locked baseline
 
 - Repository: `kimjak-app/SamWar_BattleLab`

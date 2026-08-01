@@ -54,7 +54,7 @@ The production template is completed and approved on Hanseong first. Remaining K
 
 ### T08-2 Scene-Authored Production HUD Skeleton & UI State Adapter
 
-Status: `SPEC LOCKED / LOCAL IMPLEMENTATION PENDING / FINAL ART DEFERRED`
+Status: `IMPLEMENTED / AUTOMATED VALIDATION PASS / USER F5 QA PENDING / FINAL ART DEFERRED`
 
 Authoritative transaction:
 

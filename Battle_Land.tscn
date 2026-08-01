@@ -3414,7 +3414,7 @@ offset_left = 12.0
 offset_top = 132.0
 offset_right = 164.0
 offset_bottom = 166.0
-text = "이동"
+text = "방어"
 
 [node name="FloatingWaitButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=1816183012]
 z_index = 201
@@ -3849,6 +3849,988 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="AnimationPlayer_Cutin" type="AnimationPlayer" parent="BattleUI/SkillCutinLayer" unique_id=887263827]
+
++
+[node name="ProductionHudRoot" type="Control" parent="BattleUI"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="TopHudRoot" type="Control" parent="BattleUI/ProductionHudRoot"]
+offset_left = 500.0
+offset_top = 18.0
+offset_right = 1420.0
+offset_bottom = 118.0
+mouse_filter = 2
+
+[node name="AllyMomentumHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
+offset_right = 260.0
+offset_bottom = 100.0
+mouse_filter = 2
+
+[node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 248.0
+offset_bottom = 30.0
+text = "아군 기세"
+
+[node name="SlotRow" type="HBoxContainer" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud"]
+offset_left = 12.0
+offset_top = 36.0
+offset_right = 248.0
+offset_bottom = 54.0
+theme_override_constants/separation = 4
+[node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot04" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot05" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot06" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot07" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot08" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot09" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot10" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="ValueLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud"]
+offset_left = 12.0
+offset_top = 62.0
+offset_right = 248.0
+offset_bottom = 88.0
+text = "3 / 10"
+horizontal_alignment = 1
+
+[node name="TurnHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
+offset_left = 280.0
+offset_right = 640.0
+offset_bottom = 100.0
+mouse_filter = 2
+
+[node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
+offset_left = 8.0
+offset_top = 6.0
+offset_right = 352.0
+offset_bottom = 28.0
+text = "전투"
+
+[node name="TurnLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
+offset_left = 8.0
+offset_top = 28.0
+offset_right = 352.0
+offset_bottom = 54.0
+text = "1 / 30"
+horizontal_alignment = 1
+
+[node name="ActiveSideLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
+offset_left = 8.0
+offset_top = 54.0
+offset_right = 352.0
+offset_bottom = 76.0
+text = "아군 턴"
+horizontal_alignment = 1
+
+[node name="BattleTitleLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
+offset_left = 8.0
+offset_top = 76.0
+offset_right = 352.0
+offset_bottom = 98.0
+text = "전투 준비"
+horizontal_alignment = 1
+
+[node name="EnemyMomentumHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
+offset_left = 660.0
+offset_right = 920.0
+offset_bottom = 100.0
+mouse_filter = 2
+
+[node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 248.0
+offset_bottom = 30.0
+text = "적군 기세"
+
+[node name="SlotRow" type="HBoxContainer" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud"]
+offset_left = 12.0
+offset_top = 36.0
+offset_right = 248.0
+offset_bottom = 54.0
+theme_override_constants/separation = 4
+[node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot04" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot05" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot06" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot07" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot08" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot09" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="Slot10" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+
+[node name="ValueLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud"]
+offset_left = 12.0
+offset_top = 62.0
+offset_right = 248.0
+offset_bottom = 88.0
+text = "3 / 10"
+horizontal_alignment = 1
+
+[node name="AllyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot"]
+offset_left = 18.0
+offset_top = 140.0
+offset_right = 288.0
+offset_bottom = 620.0
+mouse_filter = 2
+[node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 270.0
+offset_bottom = 92.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
+offset_left = 80.0
+offset_top = 8.0
+offset_right = 188.0
+offset_bottom = 30.0
+text = "대기"
+
+[node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
+offset_left = 80.0
+offset_top = 31.0
+offset_right = 188.0
+offset_bottom = 51.0
+text = "-"
+
+[node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
+offset_left = 80.0
+offset_top = 54.0
+offset_right = 188.0
+offset_bottom = 76.0
+text = "병력 -"
+
+[node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
+offset_left = 192.0
+offset_top = 12.0
+offset_right = 262.0
+offset_bottom = 28.0
+show_percentage = false
+
+[node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
+offset_left = 192.0
+offset_top = 34.0
+offset_right = 262.0
+offset_bottom = 54.0
+text = "대기"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
+offset_left = 192.0
+offset_top = 56.0
+offset_right = 262.0
+offset_bottom = 76.0
+text = ""
+
+[node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
+offset_left = 8.0
+offset_top = 74.0
+offset_right = 188.0
+offset_bottom = 90.0
+text = ""
+
+[node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud"]
+offset_left = 0.0
+offset_top = 94.0
+offset_right = 270.0
+offset_bottom = 186.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
+offset_left = 80.0
+offset_top = 8.0
+offset_right = 188.0
+offset_bottom = 30.0
+text = "대기"
+
+[node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
+offset_left = 80.0
+offset_top = 31.0
+offset_right = 188.0
+offset_bottom = 51.0
+text = "-"
+
+[node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
+offset_left = 80.0
+offset_top = 54.0
+offset_right = 188.0
+offset_bottom = 76.0
+text = "병력 -"
+
+[node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
+offset_left = 192.0
+offset_top = 12.0
+offset_right = 262.0
+offset_bottom = 28.0
+show_percentage = false
+
+[node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
+offset_left = 192.0
+offset_top = 34.0
+offset_right = 262.0
+offset_bottom = 54.0
+text = "대기"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
+offset_left = 192.0
+offset_top = 56.0
+offset_right = 262.0
+offset_bottom = 76.0
+text = ""
+
+[node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
+offset_left = 8.0
+offset_top = 74.0
+offset_right = 188.0
+offset_bottom = 90.0
+text = ""
+
+[node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud"]
+offset_left = 0.0
+offset_top = 188.0
+offset_right = 270.0
+offset_bottom = 280.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
+offset_left = 80.0
+offset_top = 8.0
+offset_right = 188.0
+offset_bottom = 30.0
+text = "대기"
+
+[node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
+offset_left = 80.0
+offset_top = 31.0
+offset_right = 188.0
+offset_bottom = 51.0
+text = "-"
+
+[node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
+offset_left = 80.0
+offset_top = 54.0
+offset_right = 188.0
+offset_bottom = 76.0
+text = "병력 -"
+
+[node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
+offset_left = 192.0
+offset_top = 12.0
+offset_right = 262.0
+offset_bottom = 28.0
+show_percentage = false
+
+[node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
+offset_left = 192.0
+offset_top = 34.0
+offset_right = 262.0
+offset_bottom = 54.0
+text = "대기"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
+offset_left = 192.0
+offset_top = 56.0
+offset_right = 262.0
+offset_bottom = 76.0
+text = ""
+
+[node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
+offset_left = 8.0
+offset_top = 74.0
+offset_right = 188.0
+offset_bottom = 90.0
+text = ""
+
+[node name="Reinforce01" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud"]
+offset_left = 0.0
+offset_top = 282.0
+offset_right = 270.0
+offset_bottom = 374.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
+offset_left = 80.0
+offset_top = 8.0
+offset_right = 188.0
+offset_bottom = 30.0
+text = "대기"
+
+[node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
+offset_left = 80.0
+offset_top = 31.0
+offset_right = 188.0
+offset_bottom = 51.0
+text = "-"
+
+[node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
+offset_left = 80.0
+offset_top = 54.0
+offset_right = 188.0
+offset_bottom = 76.0
+text = "병력 -"
+
+[node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
+offset_left = 192.0
+offset_top = 12.0
+offset_right = 262.0
+offset_bottom = 28.0
+show_percentage = false
+
+[node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
+offset_left = 192.0
+offset_top = 34.0
+offset_right = 262.0
+offset_bottom = 54.0
+text = "대기"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
+offset_left = 192.0
+offset_top = 56.0
+offset_right = 262.0
+offset_bottom = 76.0
+text = ""
+
+[node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
+offset_left = 8.0
+offset_top = 74.0
+offset_right = 188.0
+offset_bottom = 90.0
+text = ""
+
+[node name="Reinforce02" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud"]
+offset_left = 0.0
+offset_top = 376.0
+offset_right = 270.0
+offset_bottom = 468.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
+offset_left = 80.0
+offset_top = 8.0
+offset_right = 188.0
+offset_bottom = 30.0
+text = "대기"
+
+[node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
+offset_left = 80.0
+offset_top = 31.0
+offset_right = 188.0
+offset_bottom = 51.0
+text = "-"
+
+[node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
+offset_left = 80.0
+offset_top = 54.0
+offset_right = 188.0
+offset_bottom = 76.0
+text = "병력 -"
+
+[node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
+offset_left = 192.0
+offset_top = 12.0
+offset_right = 262.0
+offset_bottom = 28.0
+show_percentage = false
+
+[node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
+offset_left = 192.0
+offset_top = 34.0
+offset_right = 262.0
+offset_bottom = 54.0
+text = "대기"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
+offset_left = 192.0
+offset_top = 56.0
+offset_right = 262.0
+offset_bottom = 76.0
+text = ""
+
+[node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
+offset_left = 8.0
+offset_top = 74.0
+offset_right = 188.0
+offset_bottom = 90.0
+text = ""
+
+[node name="EnemyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot"]
+offset_left = 1632.0
+offset_top = 140.0
+offset_right = 1902.0
+offset_bottom = 620.0
+mouse_filter = 2
+[node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 270.0
+offset_bottom = 92.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
+offset_left = 80.0
+offset_top = 8.0
+offset_right = 188.0
+offset_bottom = 30.0
+text = "대기"
+
+[node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
+offset_left = 80.0
+offset_top = 31.0
+offset_right = 188.0
+offset_bottom = 51.0
+text = "-"
+
+[node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
+offset_left = 80.0
+offset_top = 54.0
+offset_right = 188.0
+offset_bottom = 76.0
+text = "병력 -"
+
+[node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
+offset_left = 192.0
+offset_top = 12.0
+offset_right = 262.0
+offset_bottom = 28.0
+show_percentage = false
+
+[node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
+offset_left = 192.0
+offset_top = 34.0
+offset_right = 262.0
+offset_bottom = 54.0
+text = "대기"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
+offset_left = 192.0
+offset_top = 56.0
+offset_right = 262.0
+offset_bottom = 76.0
+text = ""
+
+[node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
+offset_left = 8.0
+offset_top = 74.0
+offset_right = 188.0
+offset_bottom = 90.0
+text = ""
+
+[node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud"]
+offset_left = 0.0
+offset_top = 94.0
+offset_right = 270.0
+offset_bottom = 186.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
+offset_left = 80.0
+offset_top = 8.0
+offset_right = 188.0
+offset_bottom = 30.0
+text = "대기"
+
+[node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
+offset_left = 80.0
+offset_top = 31.0
+offset_right = 188.0
+offset_bottom = 51.0
+text = "-"
+
+[node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
+offset_left = 80.0
+offset_top = 54.0
+offset_right = 188.0
+offset_bottom = 76.0
+text = "병력 -"
+
+[node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
+offset_left = 192.0
+offset_top = 12.0
+offset_right = 262.0
+offset_bottom = 28.0
+show_percentage = false
+
+[node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
+offset_left = 192.0
+offset_top = 34.0
+offset_right = 262.0
+offset_bottom = 54.0
+text = "대기"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
+offset_left = 192.0
+offset_top = 56.0
+offset_right = 262.0
+offset_bottom = 76.0
+text = ""
+
+[node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
+offset_left = 8.0
+offset_top = 74.0
+offset_right = 188.0
+offset_bottom = 90.0
+text = ""
+
+[node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud"]
+offset_left = 0.0
+offset_top = 188.0
+offset_right = 270.0
+offset_bottom = 280.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
+offset_left = 80.0
+offset_top = 8.0
+offset_right = 188.0
+offset_bottom = 30.0
+text = "대기"
+
+[node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
+offset_left = 80.0
+offset_top = 31.0
+offset_right = 188.0
+offset_bottom = 51.0
+text = "-"
+
+[node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
+offset_left = 80.0
+offset_top = 54.0
+offset_right = 188.0
+offset_bottom = 76.0
+text = "병력 -"
+
+[node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
+offset_left = 192.0
+offset_top = 12.0
+offset_right = 262.0
+offset_bottom = 28.0
+show_percentage = false
+
+[node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
+offset_left = 192.0
+offset_top = 34.0
+offset_right = 262.0
+offset_bottom = 54.0
+text = "대기"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
+offset_left = 192.0
+offset_top = 56.0
+offset_right = 262.0
+offset_bottom = 76.0
+text = ""
+
+[node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
+offset_left = 8.0
+offset_top = 74.0
+offset_right = 188.0
+offset_bottom = 90.0
+text = ""
+
+[node name="Reinforce01" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud"]
+offset_left = 0.0
+offset_top = 282.0
+offset_right = 270.0
+offset_bottom = 374.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
+offset_left = 80.0
+offset_top = 8.0
+offset_right = 188.0
+offset_bottom = 30.0
+text = "대기"
+
+[node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
+offset_left = 80.0
+offset_top = 31.0
+offset_right = 188.0
+offset_bottom = 51.0
+text = "-"
+
+[node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
+offset_left = 80.0
+offset_top = 54.0
+offset_right = 188.0
+offset_bottom = 76.0
+text = "병력 -"
+
+[node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
+offset_left = 192.0
+offset_top = 12.0
+offset_right = 262.0
+offset_bottom = 28.0
+show_percentage = false
+
+[node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
+offset_left = 192.0
+offset_top = 34.0
+offset_right = 262.0
+offset_bottom = 54.0
+text = "대기"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
+offset_left = 192.0
+offset_top = 56.0
+offset_right = 262.0
+offset_bottom = 76.0
+text = ""
+
+[node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
+offset_left = 8.0
+offset_top = 74.0
+offset_right = 188.0
+offset_bottom = 90.0
+text = ""
+
+[node name="Reinforce02" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud"]
+offset_left = 0.0
+offset_top = 376.0
+offset_right = 270.0
+offset_bottom = 468.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
+offset_left = 80.0
+offset_top = 8.0
+offset_right = 188.0
+offset_bottom = 30.0
+text = "대기"
+
+[node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
+offset_left = 80.0
+offset_top = 31.0
+offset_right = 188.0
+offset_bottom = 51.0
+text = "-"
+
+[node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
+offset_left = 80.0
+offset_top = 54.0
+offset_right = 188.0
+offset_bottom = 76.0
+text = "병력 -"
+
+[node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
+offset_left = 192.0
+offset_top = 12.0
+offset_right = 262.0
+offset_bottom = 28.0
+show_percentage = false
+
+[node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
+offset_left = 192.0
+offset_top = 34.0
+offset_right = 262.0
+offset_bottom = 54.0
+text = "대기"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
+offset_left = 192.0
+offset_top = 56.0
+offset_right = 262.0
+offset_bottom = 76.0
+text = ""
+
+[node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
+offset_left = 8.0
+offset_top = 74.0
+offset_right = 188.0
+offset_bottom = 90.0
+text = ""
+
+[node name="InteractionGuideHud" type="Panel" parent="BattleUI/ProductionHudRoot"]
+offset_left = 520.0
+offset_top = 826.0
+offset_right = 1400.0
+offset_bottom = 892.0
+mouse_filter = 2
+
+[node name="PhaseLabel" type="Label" parent="BattleUI/ProductionHudRoot/InteractionGuideHud"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 190.0
+offset_bottom = 30.0
+text = "아군 명령"
+
+[node name="InstructionLabel" type="Label" parent="BattleUI/ProductionHudRoot/InteractionGuideHud"]
+offset_left = 200.0
+offset_top = 8.0
+offset_right = 650.0
+offset_bottom = 30.0
+text = "행동할 부대를 선택하세요."
+
+[node name="DisabledReasonLabel" type="Label" parent="BattleUI/ProductionHudRoot/InteractionGuideHud"]
+offset_left = 200.0
+offset_top = 36.0
+offset_right = 850.0
+offset_bottom = 58.0
+text = ""
+
+[node name="ActorComparisonHud" type="Panel" parent="BattleUI/ProductionHudRoot"]
+offset_left = 470.0
+offset_top = 904.0
+offset_right = 1450.0
+offset_bottom = 1064.0
+mouse_filter = 2
+
+[node name="LeftActorPanel" type="Panel" parent="BattleUI/ProductionHudRoot/ActorComparisonHud"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 320.0
+offset_bottom = 152.0
+
+[node name="RoleLabel" type="Label" parent="BattleUI/ProductionHudRoot/ActorComparisonHud/LeftActorPanel"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 300.0
+offset_bottom = 30.0
+text = "현재 행동"
+
+[node name="DetailLabel" type="Label" parent="BattleUI/ProductionHudRoot/ActorComparisonHud/LeftActorPanel"]
+offset_left = 8.0
+offset_top = 38.0
+offset_right = 300.0
+offset_bottom = 136.0
+text = "대기"
+
+[node name="CenterContextPanel" type="Panel" parent="BattleUI/ProductionHudRoot/ActorComparisonHud"]
+offset_left = 332.0
+offset_top = 8.0
+offset_right = 648.0
+offset_bottom = 152.0
+
+[node name="ContextLabel" type="Label" parent="BattleUI/ProductionHudRoot/ActorComparisonHud/CenterContextPanel"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 308.0
+offset_bottom = 70.0
+text = "거리 - · 반격 -"
+
+[node name="TerrainPlaceholderLabel" type="Label" parent="BattleUI/ProductionHudRoot/ActorComparisonHud/CenterContextPanel"]
+offset_left = 8.0
+offset_top = 78.0
+offset_right = 308.0
+offset_bottom = 106.0
+text = "지형 정보: T09 예정"
+
+[node name="RightSubjectPanel" type="Panel" parent="BattleUI/ProductionHudRoot/ActorComparisonHud"]
+offset_left = 660.0
+offset_top = 8.0
+offset_right = 972.0
+offset_bottom = 152.0
+
+[node name="RoleLabel" type="Label" parent="BattleUI/ProductionHudRoot/ActorComparisonHud/RightSubjectPanel"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 300.0
+offset_bottom = 30.0
+text = "대기"
+
+[node name="DetailLabel" type="Label" parent="BattleUI/ProductionHudRoot/ActorComparisonHud/RightSubjectPanel"]
+offset_left = 8.0
+offset_top = 38.0
+offset_right = 300.0
+offset_bottom = 136.0
+text = "대상 없음"
+
+[node name="GlobalCommandHud" type="Panel" parent="BattleUI/ProductionHudRoot"]
+visible = false
+offset_left = 1460.0
+offset_top = 824.0
+offset_right = 1902.0
+offset_bottom = 900.0
+
+[node name="BattleLogHud" type="Panel" parent="BattleUI/ProductionHudRoot"]
+offset_left = 18.0
+offset_top = 846.0
+offset_right = 448.0
+offset_bottom = 1064.0
+mouse_filter = 2
+
+[node name="TitleLabel" type="Label" parent="BattleUI/ProductionHudRoot/BattleLogHud"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 180.0
+offset_bottom = 30.0
+text = "전투 기록"
+
+[node name="RecentLogLabel" type="Label" parent="BattleUI/ProductionHudRoot/BattleLogHud"]
+offset_left = 12.0
+offset_top = 36.0
+offset_right = 418.0
+offset_bottom = 208.0
+text = "대기 중"
+autowrap_mode = 2
+
+[node name="TooltipHud" type="Panel" parent="BattleUI/ProductionHudRoot"]
+visible = false
+offset_left = 1460.0
+offset_top = 742.0
+offset_right = 1902.0
+offset_bottom = 812.0
+
+[node name="TooltipLabel" type="Label" parent="BattleUI/ProductionHudRoot/TooltipHud"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 430.0
+offset_bottom = 62.0
+text = ""
+
+[node name="FacingSelectionHud" type="Control" parent="BattleUI/ProductionHudRoot"]
+visible = false
+offset_left = 720.0
+offset_top = 740.0
+offset_right = 1200.0
+offset_bottom = 810.0
 
 [node name="EnemyRetreatToastLayer" type="CanvasLayer" parent="." unique_id=2063384101]
 layer = 30

@@ -2,7 +2,7 @@
 
 ## Transaction Status
 
-`SPEC LOCKED / LOCAL IMPLEMENTATION PENDING / FINAL ART DEFERRED`
+`IMPLEMENTED / AUTOMATED VALIDATION PASS / USER F5 QA PENDING / FINAL ART DEFERRED`
 
 ## Purpose
 
@@ -472,6 +472,14 @@ T08-2 is complete only when:
 - automated checks pass;
 - local Godot load passes;
 - user F5 QA is recorded as PASS or the exact remaining defect is documented.
+
+## Implementation Record
+
+- ProductionHudRoot, top HUD 20 momentum slots, both five-slot rosters, actor comparison, guidance, log, tooltip, command, and facing roots were scene-authored in Battle_Land.tscn.
+- battle_hud_state_adapter and _refresh_production_battle_hud provide the normalized production refresh boundary; legacy floating defend now reads 방어.
+- PASS: focused T08-2 validator, T06/T07 transaction validator, five-unit completion, damage parity, and git diff --check.
+- Godot headless and local F5 were not run because the configured executable is unavailable to this execution environment.
+- Retained legacy surfaces: TopBar, BattleMiniLogPanel, FormationSlotGuideLayer, UnitCloseupPanel, CommandBar/floating commands, cutin/result/toast layers, and tactical markers.
 
 ## Commit Message
 

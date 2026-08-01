@@ -5,6 +5,7 @@ const BattleFacingArrowTileButtonScript := preload("res://scripts/battle_facing_
 const BattleMomentumStateScript := preload("res://scripts/battle/battle_momentum_state.gd")
 const BattleSkillResolverScript := preload("res://scripts/battle/battle_skill_resolver.gd")
 const BattleRuntimeSnapshotScript := preload("res://scripts/battle/battle_runtime_snapshot.gd")
+const BattleHudStateAdapterScript := preload("res://scripts/battle/ui/battle_hud_state_adapter.gd")
 const UnitTypeContractScript := preload("res://scripts/battle/unit_type_contract.gd")
 const KoreaMvpHeroCutinRegistryScript := preload("res://scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd")
 const DEMO_DAMAGE := 12.0
@@ -1254,6 +1255,7 @@ var deployment_marker_base_world_positions_by_slot_id: Dictionary = {}
 @onready var move_dust_template: Sprite2D = get_node_or_null("BattleFXRoot/MoveDustTemplate") as Sprite2D
 @onready var main_camera: Camera2D = $MainCamera
 @onready var battle_ui: CanvasLayer = $BattleUI
+@onready var production_hud_root: Control = get_node_or_null("BattleUI/ProductionHudRoot") as Control
 @onready var top_bar: Panel = $BattleUI/TopBar
 @onready var left_panel: Panel = $BattleUI/LeftPanel
 @onready var right_panel: Panel = $BattleUI/RightPanel
@@ -1343,7 +1345,6 @@ var deployment_marker_base_world_positions_by_slot_id: Dictionary = {}
 
 
 func _ready() -> void:
-	_ensure_runtime_momentum_hud()
 	ally_token_base_scale = ally_unit_token.scale
 	enemy_token_base_scale = enemy_unit_token.scale
 	ally_support_token_base_scale = ally_support_unit_token.scale
@@ -1460,6 +1461,7 @@ func _ready() -> void:
 	_debug_print_adapter_alive_parity_snapshot_once()
 	_debug_print_actor_target_adapter_snapshot_once()
 	_debug_print_deployed_active_filter_snapshot_once()
+	_refresh_production_battle_hud("ready")
 
 
 func _read_worldmap_battle_context_handoff() -> void:
@@ -3097,6 +3099,7 @@ func reset_demo_state() -> void:
 	_start_idle_breathing()
 	_hide_all_move_dust_sprites()
 	_show_round_start_toast(battle_round)
+	_refresh_production_battle_hud("reset")
 	call_deferred("_play_battle_intro_camera_zoom")
 
 
@@ -4530,6 +4533,8 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 	var cutin_rect := _layout_specialty_skill_cutin(viewport_size, hero_id)
 	_set_toast_facing_indicator_suppression("unique_skill", true)
 	is_specialty_skill_cutin_playing = true
+	if production_hud_root != null:
+		production_hud_root.visible = false
 
 	if specialty_skill_cutin_tween != null:
 		specialty_skill_cutin_tween.kill()
@@ -5688,6 +5693,7 @@ func _set_phase(new_phase: String) -> void:
 		call_deferred("_tick_full_auto_battle_if_needed")
 	if not battle_finished and (current_phase == PHASE_ALLY_TURN or current_phase == PHASE_ENEMY_TURN):
 		_persist_battle_resume_snapshot()
+	_refresh_production_battle_hud("phase")
 
 
 func _configure_floating_ally_command_panel() -> void:
@@ -6365,6 +6371,7 @@ func _append_battle_log(line: String) -> void:
 	while battle_log_lines.size() > MAX_BATTLE_LOG_LINES:
 		battle_log_lines.pop_front()
 	_refresh_battle_log()
+	_refresh_production_battle_hud("log")
 
 
 func _gain_momentum_for_basic_attack(attacker: BattleUnitState) -> void:
@@ -6380,7 +6387,7 @@ func _gain_momentum_for_basic_attack(attacker: BattleUnitState) -> void:
 
 func _configure_momentum_ui() -> void:
 	_remove_legacy_top_bar_background()
-	_refresh_runtime_momentum_hud()
+	_refresh_production_battle_hud("momentum-configure")
 
 
 func _remove_legacy_top_bar_background() -> void:
@@ -6419,6 +6426,7 @@ func _refresh_momentum_ui() -> void:
 		]
 	if floating_ally_command_panel != null and floating_ally_command_panel.visible:
 		_refresh_floating_ally_command_panel()
+	_refresh_production_battle_hud("momentum")
 
 
 func _get_current_battle_resume_id() -> String:
@@ -9802,6 +9810,7 @@ func _hide_specialty_skill_cutin() -> void:
 		specialty_skill_cutin_layer.modulate = Color.WHITE
 		specialty_skill_cutin_layer.position = Vector2.ZERO
 		specialty_skill_cutin_layer.scale = Vector2.ONE
+	_refresh_production_battle_hud("cutin-exit")
 	if specialty_skill_cutin_darken != null:
 		specialty_skill_cutin_darken.color = Color(0.0196078, 0.027451, 0.0392157, 0.0)
 	if specialty_skill_cutin_slash != null:
@@ -15649,6 +15658,90 @@ func _sync_overlay_positions() -> void:
 	cutin_quote_label.position = cutin_center + Vector2(-220.0, 200.0)
 	result_image.position = result_center + Vector2(-220.0, -170.0)
 	result_title_label.position = result_center + Vector2(-108.0, 176.0)
+
+func _refresh_production_battle_hud(reason: String = "") -> void:
+	if production_hud_root == null:
+		return
+	var state := BattleHudStateAdapterScript.build(self)
+	production_hud_root.visible = not bool(state.get("battle_complete", false))
+	_set_production_label("TopHudRoot/AllyMomentumHud/ValueLabel", "%d / 10" % int(state.get("ally_momentum", 3)))
+	_set_production_label("TopHudRoot/EnemyMomentumHud/ValueLabel", "%d / 10" % int(state.get("enemy_momentum", 3)))
+	_set_production_label("TopHudRoot/TurnHud/TurnLabel", "%d / %d" % [int(state.get("turn", 1)), int(state.get("max_turn", 30))])
+	_set_production_label("TopHudRoot/TurnHud/ActiveSideLabel", str(state.get("active_side", "아군 턴")))
+	_set_production_label("TopHudRoot/TurnHud/BattleTitleLabel", str(state.get("battle_title", "전투 준비")))
+	_refresh_production_momentum_slots("Ally", int(state.get("ally_momentum", 3)))
+	_refresh_production_momentum_slots("Enemy", int(state.get("enemy_momentum", 3)))
+	_refresh_production_roster("Ally", state.get("ally_roster", []))
+	_refresh_production_roster("Enemy", state.get("enemy_roster", []))
+	_refresh_production_actor_panel("ActorComparisonHud/LeftActorPanel", "현재 행동", state.get("left_actor", {}))
+	_refresh_production_actor_panel("ActorComparisonHud/RightSubjectPanel", str(state.get("right_subject_role", "대기")), state.get("right_subject", {}))
+	_set_production_label("ActorComparisonHud/CenterContextPanel/ContextLabel", str((state.get("center_context", {}) as Dictionary).get("text", "거리 - · 반격 -")))
+	_set_production_label("InteractionGuideHud/PhaseLabel", str(state.get("active_side", "아군 턴")))
+	_set_production_label("InteractionGuideHud/InstructionLabel", str(state.get("instruction", "")))
+	_set_production_label("InteractionGuideHud/DisabledReasonLabel", str(state.get("disabled_reason", "")))
+	var log_lines: Array = state.get("recent_log", [])
+	_set_production_label("BattleLogHud/RecentLogLabel", "\n".join(log_lines))
+	var facing_hud := production_hud_root.get_node_or_null("FacingSelectionHud") as Control
+	if facing_hud != null:
+		facing_hud.visible = str(state.get("phase", "")) == PHASE_FACING_SELECT
+	if reason != "":
+		production_hud_root.set_meta("last_refresh_reason", reason)
+
+func _set_production_label(path: String, value: String) -> void:
+	var label := production_hud_root.get_node_or_null(path) as Label
+	if label != null:
+		label.text = value
+
+func _refresh_production_momentum_slots(side_name: String, value: int) -> void:
+	var row := production_hud_root.get_node_or_null("TopHudRoot/%sMomentumHud/SlotRow" % side_name) as Container
+	if row == null:
+		return
+	for index in row.get_child_count():
+		var slot := row.get_child(index) as Control
+		if slot == null:
+			continue
+		var active := index < value
+		slot.modulate = Color(0.45, 0.78, 1.0, 1.0) if (active and side_name == "Ally") else Color(1.0, 0.52, 0.44, 1.0) if active else Color(0.26, 0.28, 0.32, 1.0)
+
+func _refresh_production_roster(side_name: String, roster: Array) -> void:
+	var slot_names := ["Slot01", "Slot02", "Slot03", "Reinforce01", "Reinforce02"]
+	for index in slot_names.size():
+		var slot := production_hud_root.get_node_or_null("%sRosterHud/%s" % [side_name, slot_names[index]]) as Control
+		if slot == null:
+			continue
+		var unit: Dictionary = roster[index] if index < roster.size() else {}
+		var visible := bool(unit.get("visible", false))
+		slot.visible = visible
+		if not visible:
+			continue
+		_set_production_roster_label(slot, "NameLabel", str(unit.get("display_name", "대기")))
+		_set_production_roster_label(slot, "UnitTypeLabel", str(unit.get("unit_type_name", "부대")))
+		_set_production_roster_label(slot, "TroopsLabel", "병력 %d / %d" % [int(unit.get("current_troops", 0)), int(unit.get("max_troops", 0))])
+		_set_production_roster_label(slot, "ActionStateLabel", str(unit.get("action_state", "대기")))
+		_set_production_roster_label(slot, "StatusLabel", " · ".join(unit.get("status_entries", [])))
+		_set_production_roster_label(slot, "UniqueSkillReadyLabel", "고유특기 준비" if bool(unit.get("unique_skill_ready", false)) else "")
+		var bar := slot.get_node_or_null("TroopBar") as ProgressBar
+		if bar != null:
+			bar.value = float(unit.get("hp_ratio", 0.0)) * 100.0
+
+func _set_production_roster_label(slot: Control, node_name: String, value: String) -> void:
+	var label := slot.get_node_or_null(node_name) as Label
+	if label != null:
+		label.text = value
+
+func _refresh_production_actor_panel(path: String, role: String, unit: Dictionary) -> void:
+	_set_production_label("%s/RoleLabel" % path, role)
+	if not bool(unit.get("visible", false)):
+		_set_production_label("%s/DetailLabel" % path, "대상 없음")
+		return
+	_set_production_label("%s/DetailLabel" % path, "%s\n%s · 병력 %d / %d\n%s" % [
+		str(unit.get("display_name", "장수")),
+		str(unit.get("unit_type_name", "부대")),
+		int(unit.get("current_troops", 0)),
+		int(unit.get("max_troops", 0)),
+		str(unit.get("action_state", "대기")),
+	])
+
 
 func _ensure_runtime_momentum_hud() -> void:
 	if get_node_or_null("RuntimeMomentumHudLayer") != null:
