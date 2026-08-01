@@ -13,11 +13,15 @@
 
 T07 is `IMPLEMENTED / AUTOMATED VALIDATION PASS / DEDICATED VISUALS BOUND / USER F5 QA PENDING`.
 
+T08-1 is `AUDIT COMPLETE / PRODUCTION IA LOCKED / IMPLEMENTATION NOT STARTED`.
+
 Preserve:
 
 - T06 turn, momentum, unique-skill, cutin, Korean display, portrait, result, and save/load contracts.
 - T07 five-unit-type IDs, action eligibility, gunner/mounted-archer behavior, manual/auto damage parity, and visual resources.
 - Korea production roster assignments.
+- Momentum start `3`, maximum `10`.
+- Battle maximum turn `30`.
 - T07 functional values until T11 balance work.
 
 ## Official roadmap
@@ -34,34 +38,64 @@ Current order:
 4. T10 — Cooperative Attack & Common Tactics
 5. T11 — Korea MVP Full Balance & Final Battle QA
 
-The former terrain-first order is superseded. Battle UI/UX is now completed before terrain and tactics.
+## T08 authoritative design package
+
+Read before implementation:
+
+- `agent/transactions/T08_1_BATTLE_UI_UX_CURRENT_STATE_AUDIT_AND_PRODUCTION_INFORMATION_ARCHITECTURE_DESIGN.md`
+- `agent/plans/T08_BATTLE_UI_UX_PRODUCTION_PLAN.md`
+- `agent/plans/KOREA_MVP_BATTLEFIELD_ART_MASTER_PLAN.md`
+- `agent/plans/T09_BATTLEFIELD_TERRAIN_HANDOFF_PLAN.md`
+
+Locked direction:
+
+- 1920×1080 production UI.
+- Top-center ally momentum `x/10`, turn `x/30`, enemy momentum `x/10`.
+- Left ally roster and right enemy roster.
+- Bottom current actor / next AI or selected target comparison HUD.
+- Scene-authored major HUD roots; runtime updates values and state only.
+- Hanseong is the single UI/battlefield master template.
+- Defender side uses the city/fortress; attacker side uses the temporary camp regardless of player/AI identity.
+- 4K battlefield masters with 1080p runtime derivatives.
+- T08 prepares visual terrain language only; T09 implements passability and terrain rules.
 
 ## Next implementation
 
-### T08-1 Battle UI/UX Current-State Audit & Production Information Architecture Design
+### T08-2 Scene-Authored Production HUD Skeleton & UI State Adapter
 
-Audit before changing production layout:
+Required scope:
 
-- `Battle_Land.tscn` battle UI node hierarchy
-- current top bars, force overviews, selected-unit information, portraits, HP/troop/status presentation
-- floating command panel and command enable/disable behavior
-- movement, attack, unique-skill, facing, and strategy selection instructions
-- momentum display and spend feedback
-- battle log and important event messaging
-- range/target overlays
-- cutin enter/exit and post-cutin state restoration
-- reinforcement/formation guidance
-- 1920×1080 overlap, clipping, scaling, and tactical-grid obstruction
-- runtime bindings and duplicated formatting logic
+- Add a production HUD hierarchy to `Battle_Land.tscn`.
+- Keep working battle behavior intact while introducing a normalized presentation-state adapter.
+- Scene-author the major roots for:
+  - top HUD;
+  - ally roster;
+  - enemy roster;
+  - interaction guidance;
+  - current actor / comparison actor;
+  - global commands;
+  - battle log;
+  - tooltip/disabled reason;
+  - facing selection;
+  - toast, cutin, and result presentation.
+- Move momentum layout toward scene-authored controls instead of runtime-created major nodes.
+- Keep final decorative textures provisional.
+- Preserve player and AI flow, WorldMap context, cutins, results, supply, save/resume, and all T06–T07 validators.
 
 Deliverables:
 
-- current-state audit
-- production information hierarchy
-- interaction/phase contract
-- node/layout migration strategy
-- implementation transaction split
-- automated validator plan
-- user F5 QA gates
+- production scene skeleton;
+- normalized UI phase/state mapping;
+- one coherent refresh adapter for production HUD values where practical;
+- compatibility binding to existing battle runtime;
+- focused node/binding validator;
+- Godot parse/load validation;
+- user F5 QA checklist.
 
-Do not implement terrain or cooperative tactics during T08-1.
+Do not:
+
+- implement terrain IDs, passability, movement cost, or modifiers;
+- generate or integrate the final Hanseong 4K battlefield yet;
+- add cooperative attacks or new common tactics;
+- rebalance momentum or units;
+- remove working legacy UI before parity is proven.
