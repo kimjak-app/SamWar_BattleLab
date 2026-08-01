@@ -13,7 +13,9 @@
 
 T07 is `IMPLEMENTED / AUTOMATED VALIDATION PASS / DEDICATED VISUALS BOUND / USER F5 QA PENDING`.
 
-T08-1 is `AUDIT COMPLETE / PRODUCTION IA LOCKED / IMPLEMENTATION NOT STARTED`.
+T08-1 is `AUDIT COMPLETE / PRODUCTION IA LOCKED`.
+
+T08-2 is `SPEC LOCKED / LOCAL IMPLEMENTATION PENDING / FINAL ART DEFERRED`.
 
 Preserve:
 
@@ -43,6 +45,7 @@ Current order:
 Read before implementation:
 
 - `agent/transactions/T08_1_BATTLE_UI_UX_CURRENT_STATE_AUDIT_AND_PRODUCTION_INFORMATION_ARCHITECTURE_DESIGN.md`
+- `agent/transactions/T08_2_SCENE_AUTHORED_PRODUCTION_HUD_SKELETON_AND_UI_STATE_ADAPTER.md`
 - `agent/plans/T08_BATTLE_UI_UX_PRODUCTION_PLAN.md`
 - `agent/plans/KOREA_MVP_BATTLEFIELD_ART_MASTER_PLAN.md`
 - `agent/plans/T09_BATTLEFIELD_TERRAIN_HANDOFF_PLAN.md`
@@ -63,22 +66,22 @@ Locked direction:
 
 ### T08-2 Scene-Authored Production HUD Skeleton & UI State Adapter
 
+Authoritative scope:
+
+- `agent/transactions/T08_2_SCENE_AUTHORED_PRODUCTION_HUD_SKELETON_AND_UI_STATE_ADAPTER.md`
+
 Required scope:
 
-- Add a production HUD hierarchy to `Battle_Land.tscn`.
-- Keep working battle behavior intact while introducing a normalized presentation-state adapter.
-- Scene-author the major roots for:
-  - top HUD;
-  - ally roster;
-  - enemy roster;
-  - interaction guidance;
-  - current actor / comparison actor;
-  - global commands;
-  - battle log;
-  - tooltip/disabled reason;
-  - facing selection;
-  - toast, cutin, and result presentation.
-- Move momentum layout toward scene-authored controls instead of runtime-created major nodes.
+- Add a scene-authored `ProductionHudRoot` hierarchy to `Battle_Land.tscn`.
+- Add separate scene-authored ally/enemy ten-slot momentum displays and turn `current / 30` display.
+- Add ally/enemy five-slot roster HUDs.
+- Add current actor / next AI / selected target / counterattack comparison HUD behavior.
+- Add one visible interaction guidance and disabled-reason surface.
+- Introduce one normalized production HUD state boundary and one identifiable refresh entry.
+- Correct the visible command label/handler mismatch without changing battle semantics.
+- Route the visible production log from one canonical recent-event source.
+- Restore the production HUD from current authoritative battle state after cutins/toasts/results.
+- Keep working battle behavior intact.
 - Keep final decorative textures provisional.
 - Preserve player and AI flow, WorldMap context, cutins, results, supply, save/resume, and all T06–T07 validators.
 
@@ -86,11 +89,11 @@ Deliverables:
 
 - production scene skeleton;
 - normalized UI phase/state mapping;
-- one coherent refresh adapter for production HUD values where practical;
+- one coherent refresh adapter;
 - compatibility binding to existing battle runtime;
 - focused node/binding validator;
 - Godot parse/load validation;
-- user F5 QA checklist.
+- user F5 QA checklist and result field.
 
 Do not:
 
@@ -98,4 +101,4 @@ Do not:
 - generate or integrate the final Hanseong 4K battlefield yet;
 - add cooperative attacks or new common tactics;
 - rebalance momentum or units;
-- remove working legacy UI before parity is proven.
+- delete working legacy UI before parity is proven.
