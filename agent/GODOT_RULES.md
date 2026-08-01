@@ -9,9 +9,11 @@
 
 ## Scene Rules
 - Never create major visual battlefield nodes at runtime.
+- Never create major production HUD roots only at runtime.
 - All important gameplay and visual nodes must exist in the .tscn scene file.
 - Important nodes must be visible in the Godot 2D editor.
 - Important nodes must be draggable/selectable in the editor.
+- Runtime code may update values, visibility, animation, textures, temporary effects, and interaction state.
 
 ---
 
@@ -30,6 +32,10 @@ Not allowed:
 - main cameras
 - projectile markers
 - core battlefield layout nodes
+- top HUD roots
+- ally/enemy roster HUD roots
+- actor/target comparison HUD roots
+- global command HUD roots
 
 ---
 
@@ -44,6 +50,11 @@ Always use explicit readable names:
 - SingijeonExplosion
 - MainCamera
 - BattlefieldTexture
+- TopHudRoot
+- AllyRosterHud
+- EnemyRosterHud
+- ActorComparisonHud
+- InteractionGuideHud
 
 Never allow:
 - @Sprite2D@5
@@ -55,6 +66,7 @@ Never allow:
 - Main positions/scales must be editable in the Inspector.
 - Avoid hardcoded layout positions in code.
 - Use Marker2D nodes for editable gameplay positions.
+- Use scene-authored anchors, containers, and explicit safe-zone roots for production UI.
 
 ---
 
@@ -85,10 +97,18 @@ Never allow:
 ---
 
 ## Coordinate Rules
-Standard battle viewport:
-- 1152 x 648
+Production battle UI baseline:
+- `1920 × 1080`, 16:9.
 
-Keep important gameplay areas inside visible editor space.
+Legacy test/cutin content may still contain:
+- `1152 × 648` assumptions.
+
+Rules:
+- T08 production battle UI is authored at 1920×1080 first.
+- Legacy 1152×648 cutin or video content must be scaled/contained inside the production presentation hierarchy rather than redefining the battle viewport.
+- Important gameplay and UI areas must remain inside the 1920×1080 editor space.
+- Supported scaling is tested only after the production baseline is stable.
+- Turn, momentum, names, HP/troop values, statuses, logs, and other changing text must be Godot controls, not baked into static PNG assets.
 
 ---
 
@@ -102,6 +122,7 @@ Keep important gameplay areas inside visible editor space.
   - camera shake
   - signals
   - temporary effects
+  - dynamic UI values and presentation state
 - One unit occupies one logical grid cell.
 - Occupied cells block normal movement unless a future explicit exception system is added.
 - For facing:
@@ -116,6 +137,19 @@ Keep important gameplay areas inside visible editor space.
 
 ---
 
+## Production UI Rules
+- Major production HUD roots exist in the scene.
+- Static art and dynamic values remain separated.
+- Use TextureRect, NinePatchRect, StyleBoxTexture, theme resources, and containers where appropriate.
+- Do not bake hero names, turn values, momentum values, or battle-state text into images.
+- Command IDs and handlers are authoritative; Korean labels must match their actual behavior.
+- Disabled commands must expose a readable Korean reason.
+- Modal toasts, cutins, and results must restore the correct normalized UI state.
+- Persistent ally/enemy HUD identity must not be confused with attacker/defender battlefield role.
+- Defender role uses city/fortress deployment; attacker role uses temporary-camp deployment regardless of player/AI identity.
+
+---
+
 ## Inspector Editing
 The following must be adjustable directly in the editor:
 - formation positions
@@ -123,13 +157,18 @@ The following must be adjustable directly in the editor:
 - impact point
 - explosion scale
 - camera placement
+- production HUD anchors and safe zones
+- roster placement
+- actor-comparison HUD placement
+- floating command offsets and avoidance margins where scene-driven
 
 ---
 
 ## Workflow
 1. Create/edit layout in .tscn
 2. Fine-tune visually in 2D editor
-3. Use code only for behavior
+3. Use code only for behavior and dynamic state
 4. Test with F5
 5. Iterate visually
 6. If the editor layout feels wrong at runtime, preserve the scene-authored offsets before adding more hardcoded corrections
+7. For T08, approve the Hanseong production template before cloning the UI/camera/framing contract to Sabi, Gyeongju, and Pyongyang
