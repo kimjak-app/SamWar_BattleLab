@@ -41,6 +41,7 @@
 [ext_resource type="Script" uid="uid://7knunokmjfw8" path="res://tests/scripts/battle_ui_production_test_roster.gd" id="39_production_roster_bridge"]
 [ext_resource type="Script" uid="uid://jsau15bqvu41" path="res://tests/scripts/battle_ui_production_test_bottom_hud.gd" id="40_production_bottom_hud"]
 [ext_resource type="Texture2D" uid="uid://cjrotjqdo0ken" path="res://assets/ui/battle/production_hud/top/top_hud_frame_full.png" id="41_top_hud_frame_full"]
+[ext_resource type="FontFile" uid="uid://da8wso24ue474" path="res://assets/font/noto_serif_kr/NotoSansCJKkr-Medium.otf" id="42_turn_hud_title_medium"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -3998,6 +3999,8 @@ offset_top = 4.0
 offset_right = 292.0
 offset_bottom = 20.0
 theme_type_variation = &"BattleHudTitle"
+theme_override_fonts/font = ExtResource("42_turn_hud_title_medium")
+theme_override_font_sizes/font_size = 19
 text = "전투"
 horizontal_alignment = 1
 
