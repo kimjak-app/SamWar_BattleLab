@@ -40,9 +40,7 @@
 [ext_resource type="Theme" uid="uid://bgwpr6jhjbhy6" path="res://assets/ui/battle_ui_theme.tres" id="38_battle_ui_theme"]
 [ext_resource type="Script" uid="uid://7knunokmjfw8" path="res://tests/scripts/battle_ui_production_test_roster.gd" id="39_production_roster_bridge"]
 [ext_resource type="Script" uid="uid://jsau15bqvu41" path="res://tests/scripts/battle_ui_production_test_bottom_hud.gd" id="40_production_bottom_hud"]
-[ext_resource type="Texture2D" uid="uid://s1uy2gb35fj" path="res://assets/ui/battle/production_hud/top/ally_momentum_hud_frame.png" id="41_ally_momentum_hud_frame"]
-[ext_resource type="Texture2D" uid="uid://c5ofen76ty7x7" path="res://assets/ui/battle/production_hud/top/turn_hud_frame.png" id="42_turn_hud_frame"]
-[ext_resource type="Texture2D" uid="uid://qmhsnfs0t12b" path="res://assets/ui/battle/production_hud/top/enemy_momentum_hud_frame.png" id="43_enemy_momentum_hud_frame"]
+[ext_resource type="Texture2D" uid="uid://cjrotjqdo0ken" path="res://assets/ui/battle/production_hud/top/top_hud_frame_full.png" id="41_top_hud_frame_full"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -50,6 +48,8 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_top_hud_transparent"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lhwdj"]
 bg_color = Color(0.1254902, 0.78039217, 1, 0.5882353)
@@ -3878,6 +3878,15 @@ offset_right = 1420.0
 offset_bottom = 118.0
 mouse_filter = 2
 
+[node name="TopHudFrameFull" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
+layout_mode = 0
+offset_right = 769.0
+offset_bottom = 99.0
+mouse_filter = 2
+texture = ExtResource("41_top_hud_frame_full")
+expand_mode = 0
+stretch_mode = 5
+
 [node name="AllyMomentumHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot" unique_id=1834179688]
 layout_mode = 0
 offset_left = 49.0
@@ -3887,15 +3896,7 @@ offset_bottom = 85.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"AllyMomentumPanel"
-
-[node name="AllyMomentumHudFrame" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud" unique_id=2045388967]
-layout_mode = 0
-offset_left = -1.0
-offset_right = 259.0
-offset_bottom = 88.0
-mouse_filter = 2
-texture = ExtResource("41_ally_momentum_hud_frame")
-stretch_mode = 5
+theme_override_styles/panel = SubResource("StyleBoxEmpty_top_hud_transparent")
 
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud" unique_id=650804390]
 layout_mode = 0
@@ -3965,16 +3966,6 @@ custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
-[node name="ValueLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud" unique_id=61600968]
-layout_mode = 0
-offset_left = 7.0
-offset_top = 52.0
-offset_right = 243.0
-offset_bottom = 85.0
-theme_type_variation = &"BattleHudValue"
-text = "3 / 10"
-horizontal_alignment = 1
-
 [node name="TurnHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot" unique_id=540549410]
 layout_mode = 0
 offset_left = 310.0
@@ -3983,14 +3974,7 @@ offset_bottom = 88.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"TurnHudPanel"
-
-[node name="TurnHudFrame" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud" unique_id=728374585]
-layout_mode = 0
-offset_right = 300.0
-offset_bottom = 88.0
-mouse_filter = 2
-texture = ExtResource("42_turn_hud_frame")
-stretch_mode = 5
+theme_override_styles/panel = SubResource("StyleBoxEmpty_top_hud_transparent")
 
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud" unique_id=1237547217]
 layout_mode = 0
@@ -4005,31 +3989,11 @@ horizontal_alignment = 1
 [node name="TurnLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud" unique_id=676731137]
 layout_mode = 0
 offset_left = 8.0
-offset_top = 20.0
+offset_top = 25.0
 offset_right = 292.0
-offset_bottom = 43.0
+offset_bottom = 48.0
 theme_type_variation = &"BattleHudValue"
-text = "1 / 30"
-horizontal_alignment = 1
-
-[node name="ActiveSideLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud" unique_id=1857640936]
-layout_mode = 0
-offset_left = 8.0
-offset_top = 43.0
-offset_right = 292.0
-offset_bottom = 61.0
-theme_type_variation = &"BattleHudSecondary"
-text = "아군 턴"
-horizontal_alignment = 1
-
-[node name="BattleTitleLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud" unique_id=302419439]
-layout_mode = 0
-offset_left = 8.0
-offset_top = 61.0
-offset_right = 292.0
-offset_bottom = 82.0
-theme_type_variation = &"BattleHudTitle"
-text = "전투 준비"
+text = "1/30"
 horizontal_alignment = 1
 
 [node name="EnemyMomentumHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot" unique_id=1047116006]
@@ -4041,14 +4005,7 @@ offset_bottom = 86.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"EnemyMomentumPanel"
-
-[node name="EnemyMomentumHudFrame" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud" unique_id=2021944006]
-layout_mode = 0
-offset_right = 260.0
-offset_bottom = 88.0
-mouse_filter = 2
-texture = ExtResource("43_enemy_momentum_hud_frame")
-stretch_mode = 5
+theme_override_styles/panel = SubResource("StyleBoxEmpty_top_hud_transparent")
 
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud" unique_id=2121568105]
 layout_mode = 0
@@ -4117,16 +4074,6 @@ theme_type_variation = &"MomentumSlotEnemyEmpty"
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
 theme_type_variation = &"MomentumSlotEnemyEmpty"
-
-[node name="ValueLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud" unique_id=1919652683]
-layout_mode = 0
-offset_left = 12.0
-offset_top = 51.0
-offset_right = 248.0
-offset_bottom = 78.0
-theme_type_variation = &"BattleHudValue"
-text = "3 / 10"
-horizontal_alignment = 1
 
 [node name="AllyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=1182892213]
 layout_mode = 0
