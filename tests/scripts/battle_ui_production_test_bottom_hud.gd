@@ -20,7 +20,6 @@ func _apply_preview() -> void:
 	var controller := get_parent()
 	if controller == null:
 		return
-	_set_text(controller, "BattleUI/ProductionHudRoot/BattleLogHud/RecentLogLabel", "아군 준비\n권율 방어\n테스트 전투\n최근 행동 대기")
 	_set_text(controller, "BattleUI/ProductionHudRoot/ActorComparisonHud/LeftActorPanel/RoleLabel", "현재 행동")
 	_set_text(controller, "BattleUI/ProductionHudRoot/ActorComparisonHud/LeftActorPanel/DetailLabel", "이순신\n궁병 · 병력 94 / 94\n행동 가능")
 	_set_text(controller, "BattleUI/ProductionHudRoot/ActorComparisonHud/CenterContextPanel/ContextLabel", "명령 상태 · 선택 대기")
