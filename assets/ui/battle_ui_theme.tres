@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=18 format=3]
+[gd_resource type="Theme" load_steps=21 format=3]
 
 [ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Bold.otf" id="1_bold"]
 [ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Medium.otf" id="2_medium"]
@@ -166,6 +166,42 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_production_bottom_log"]
+bg_color = Color(0.035, 0.075, 0.105, 0.8)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.49, 0.58, 0.58)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_production_bottom_action"]
+bg_color = Color(0.065, 0.06, 0.052, 0.8)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.48, 0.43, 0.35, 0.58)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_production_supply"]
+bg_color = Color(0.075, 0.065, 0.048, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.59, 0.5, 0.34, 0.58)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [resource]
 BattleHudPanel/base_type = &"Panel"
 BattleHudPanel/styles/panel = SubResource("StyleBoxFlat_base")
@@ -235,3 +271,79 @@ ProductionRosterStatus/font_sizes/font_size = 13
 ProductionRosterStatus/colors/font_color = Color(0.86, 0.75, 0.5, 1)
 ProductionRosterStatus/colors/font_outline_color = Color(0.01, 0.015, 0.02, 0.84)
 ProductionRosterStatus/constants/outline_size = 1
+ProductionBottomPanel/base_type = &"Panel"
+ProductionBottomPanel/styles/panel = SubResource("StyleBoxFlat_production_bottom_action")
+ProductionBattleLogPanel/base_type = &"Panel"
+ProductionBattleLogPanel/styles/panel = SubResource("StyleBoxFlat_production_bottom_log")
+ProductionBattleLogTitle/base_type = &"Label"
+ProductionBattleLogTitle/fonts/font = ExtResource("1_bold")
+ProductionBattleLogTitle/font_sizes/font_size = 19
+ProductionBattleLogTitle/colors/font_color = Color(0.93, 0.9, 0.82, 1)
+ProductionBattleLogTitle/constants/outline_size = 1
+ProductionBattleLogBody/base_type = &"Label"
+ProductionBattleLogBody/fonts/font = ExtResource("3_regular")
+ProductionBattleLogBody/font_sizes/font_size = 15
+ProductionBattleLogBody/colors/font_color = Color(0.78, 0.81, 0.82, 1)
+ProductionBattleLogBody/constants/outline_size = 1
+ProductionCurrentActionTitle/base_type = &"Label"
+ProductionCurrentActionTitle/fonts/font = ExtResource("1_bold")
+ProductionCurrentActionTitle/font_sizes/font_size = 18
+ProductionCurrentActionTitle/colors/font_color = Color(0.93, 0.9, 0.82, 1)
+ProductionCurrentActionTitle/constants/outline_size = 1
+ProductionCurrentActionHero/base_type = &"Label"
+ProductionCurrentActionHero/fonts/font = ExtResource("1_bold")
+ProductionCurrentActionHero/font_sizes/font_size = 19
+ProductionCurrentActionHero/colors/font_color = Color(0.96, 0.94, 0.88, 1)
+ProductionCurrentActionHero/constants/outline_size = 1
+ProductionCurrentActionDetail/base_type = &"Label"
+ProductionCurrentActionDetail/fonts/font = ExtResource("2_medium")
+ProductionCurrentActionDetail/font_sizes/font_size = 15
+ProductionCurrentActionDetail/colors/font_color = Color(0.78, 0.8, 0.79, 1)
+ProductionCurrentActionDetail/constants/outline_size = 1
+ProductionInteractionPhase/base_type = &"Label"
+ProductionInteractionPhase/fonts/font = ExtResource("1_bold")
+ProductionInteractionPhase/font_sizes/font_size = 18
+ProductionInteractionPhase/colors/font_color = Color(0.92, 0.87, 0.75, 1)
+ProductionInteractionPhase/constants/outline_size = 1
+ProductionInteractionInstruction/base_type = &"Label"
+ProductionInteractionInstruction/fonts/font = ExtResource("2_medium")
+ProductionInteractionInstruction/font_sizes/font_size = 16
+ProductionInteractionInstruction/colors/font_color = Color(0.84, 0.84, 0.8, 1)
+ProductionInteractionInstruction/constants/outline_size = 1
+ProductionInteractionDisabled/base_type = &"Label"
+ProductionInteractionDisabled/fonts/font = ExtResource("2_medium")
+ProductionInteractionDisabled/font_sizes/font_size = 14
+ProductionInteractionDisabled/colors/font_color = Color(0.8, 0.67, 0.42, 1)
+ProductionInteractionDisabled/constants/outline_size = 1
+ProductionSupplyPanel/base_type = &"Panel"
+ProductionSupplyPanel/styles/panel = SubResource("StyleBoxFlat_production_supply")
+ProductionSupplyTitle/base_type = &"Label"
+ProductionSupplyTitle/fonts/font = ExtResource("1_bold")
+ProductionSupplyTitle/font_sizes/font_size = 19
+ProductionSupplyTitle/colors/font_color = Color(0.94, 0.9, 0.8, 1)
+ProductionSupplyTitle/constants/outline_size = 1
+ProductionSupplyTurn/base_type = &"Label"
+ProductionSupplyTurn/fonts/font = ExtResource("2_medium")
+ProductionSupplyTurn/font_sizes/font_size = 15
+ProductionSupplyTurn/colors/font_color = Color(0.85, 0.82, 0.72, 1)
+ProductionSupplyTurn/constants/outline_size = 1
+ProductionSupplyAllyTitle/base_type = &"Label"
+ProductionSupplyAllyTitle/fonts/font = ExtResource("1_bold")
+ProductionSupplyAllyTitle/font_sizes/font_size = 16
+ProductionSupplyAllyTitle/colors/font_color = Color(0.65, 0.78, 0.86, 1)
+ProductionSupplyAllyTitle/constants/outline_size = 1
+ProductionSupplyEnemyTitle/base_type = &"Label"
+ProductionSupplyEnemyTitle/fonts/font = ExtResource("1_bold")
+ProductionSupplyEnemyTitle/font_sizes/font_size = 16
+ProductionSupplyEnemyTitle/colors/font_color = Color(0.82, 0.57, 0.51, 1)
+ProductionSupplyEnemyTitle/constants/outline_size = 1
+ProductionSupplyValue/base_type = &"Label"
+ProductionSupplyValue/fonts/font = ExtResource("2_medium")
+ProductionSupplyValue/font_sizes/font_size = 15
+ProductionSupplyValue/colors/font_color = Color(0.9, 0.89, 0.84, 1)
+ProductionSupplyValue/constants/outline_size = 1
+ProductionSupplyWarning/base_type = &"Label"
+ProductionSupplyWarning/fonts/font = ExtResource("2_medium")
+ProductionSupplyWarning/font_sizes/font_size = 14
+ProductionSupplyWarning/colors/font_color = Color(0.85, 0.65, 0.32, 1)
+ProductionSupplyWarning/constants/outline_size = 1
