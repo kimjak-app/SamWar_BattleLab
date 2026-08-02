@@ -1,0 +1,151 @@
+[gd_resource type="Theme" load_steps=14 format=3]
+
+[ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Bold.otf" id="1_bold"]
+[ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Medium.otf" id="2_medium"]
+[ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Regular.otf" id="3_regular"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_base"]
+bg_color = Color(0.055, 0.065, 0.075, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.44, 0.47, 0.5, 0.76)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.42)
+shadow_size = 3
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ally_panel"]
+bg_color = Color(0.045, 0.09, 0.13, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.29, 0.56, 0.72, 0.86)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.42)
+shadow_size = 3
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_turn_panel"]
+bg_color = Color(0.095, 0.08, 0.06, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.66, 0.57, 0.4, 0.82)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.46)
+shadow_size = 3
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_enemy_panel"]
+bg_color = Color(0.13, 0.05, 0.055, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.72, 0.38, 0.36, 0.86)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+shadow_color = Color(0, 0, 0, 0.42)
+shadow_size = 3
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ally_filled"]
+bg_color = Color(0.31, 0.68, 0.86, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.7, 0.9, 1, 0.92)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ally_empty"]
+bg_color = Color(0.07, 0.13, 0.17, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.24, 0.38, 0.46, 0.84)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_enemy_filled"]
+bg_color = Color(0.82, 0.33, 0.3, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.72, 0.68, 0.92)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_enemy_empty"]
+bg_color = Color(0.18, 0.075, 0.075, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.47, 0.25, 0.25, 0.84)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[resource]
+BattleHudPanel/base_type = &"Panel"
+BattleHudPanel/styles/panel = SubResource("StyleBoxFlat_base")
+AllyMomentumPanel/base_type = &"Panel"
+AllyMomentumPanel/styles/panel = SubResource("StyleBoxFlat_ally_panel")
+TurnHudPanel/base_type = &"Panel"
+TurnHudPanel/styles/panel = SubResource("StyleBoxFlat_turn_panel")
+EnemyMomentumPanel/base_type = &"Panel"
+EnemyMomentumPanel/styles/panel = SubResource("StyleBoxFlat_enemy_panel")
+BattleHudTitle/base_type = &"Label"
+BattleHudTitle/fonts/font = ExtResource("2_medium")
+BattleHudTitle/font_sizes/font_size = 17
+BattleHudTitle/colors/font_color = Color(0.9, 0.87, 0.78, 1)
+BattleHudTitle/colors/font_outline_color = Color(0.015, 0.02, 0.025, 0.92)
+BattleHudTitle/constants/outline_size = 1
+BattleHudValue/base_type = &"Label"
+BattleHudValue/fonts/font = ExtResource("1_bold")
+BattleHudValue/font_sizes/font_size = 22
+BattleHudValue/colors/font_color = Color(0.96, 0.94, 0.88, 1)
+BattleHudValue/colors/font_outline_color = Color(0.01, 0.015, 0.02, 0.94)
+BattleHudValue/constants/outline_size = 2
+BattleHudSecondary/base_type = &"Label"
+BattleHudSecondary/fonts/font = ExtResource("3_regular")
+BattleHudSecondary/font_sizes/font_size = 15
+BattleHudSecondary/colors/font_color = Color(0.77, 0.8, 0.82, 1)
+BattleHudSecondary/colors/font_outline_color = Color(0.01, 0.015, 0.02, 0.86)
+BattleHudSecondary/constants/outline_size = 1
+BattleHudSlotRow/base_type = &"HBoxContainer"
+BattleHudSlotRow/constants/separation = 6
+MomentumSlotAllyFilled/base_type = &"Panel"
+MomentumSlotAllyFilled/styles/panel = SubResource("StyleBoxFlat_ally_filled")
+MomentumSlotAllyEmpty/base_type = &"Panel"
+MomentumSlotAllyEmpty/styles/panel = SubResource("StyleBoxFlat_ally_empty")
+MomentumSlotEnemyFilled/base_type = &"Panel"
+MomentumSlotEnemyFilled/styles/panel = SubResource("StyleBoxFlat_enemy_filled")
+MomentumSlotEnemyEmpty/base_type = &"Panel"
+MomentumSlotEnemyEmpty/styles/panel = SubResource("StyleBoxFlat_enemy_empty")
