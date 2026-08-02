@@ -50,6 +50,54 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="AllyDiamondFilled"]
+bg_color = Color(0.31, 0.68, 0.86, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.7, 0.9, 1, 0.92)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+
+[sub_resource type="StyleBoxFlat" id="AllyDiamondEmpty"]
+bg_color = Color(0.07, 0.13, 0.17, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.24, 0.38, 0.46, 0.84)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+
+[sub_resource type="StyleBoxFlat" id="EnemyDiamondFilled"]
+bg_color = Color(0.82, 0.33, 0.3, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.72, 0.68, 0.92)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+
+[sub_resource type="StyleBoxFlat" id="EnemyDiamondEmpty"]
+bg_color = Color(0.18, 0.075, 0.075, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.47, 0.25, 0.25, 0.84)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lhwdj"]
 bg_color = Color(0.1254902, 0.78039217, 1, 0.5882353)
 corner_radius_top_left = 4
@@ -3946,6 +3994,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("AllyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("AllyDiamondEmpty")
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot02Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
@@ -3962,6 +4012,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("AllyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("AllyDiamondEmpty")
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot03Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
@@ -3978,6 +4030,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("AllyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("AllyDiamondEmpty")
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot04Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
@@ -3994,6 +4048,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("AllyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("AllyDiamondEmpty")
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot05Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
@@ -4010,6 +4066,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("AllyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("AllyDiamondEmpty")
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot06Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
@@ -4026,6 +4084,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("AllyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("AllyDiamondEmpty")
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot07Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
@@ -4042,6 +4102,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("AllyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("AllyDiamondEmpty")
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot08Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
@@ -4058,6 +4120,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("AllyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("AllyDiamondEmpty")
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot09Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
@@ -4074,6 +4138,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("AllyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("AllyDiamondEmpty")
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot10Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
@@ -4090,6 +4156,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("AllyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("AllyDiamondEmpty")
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="TurnHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot" unique_id=540549410]
@@ -4168,6 +4236,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("EnemyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot02Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
@@ -4184,6 +4254,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("EnemyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot03Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
@@ -4200,6 +4272,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("EnemyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot04Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
@@ -4216,6 +4290,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("EnemyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot05Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
@@ -4232,6 +4308,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("EnemyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot06Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
@@ -4248,6 +4326,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("EnemyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot07Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
@@ -4264,6 +4344,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("EnemyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot08Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
@@ -4280,6 +4362,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("EnemyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot09Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
@@ -4296,6 +4380,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("EnemyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot10Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
@@ -4312,6 +4398,8 @@ offset_right = 14.5
 offset_bottom = 14.5
 rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
+metadata/_diamond_filled_style = SubResource("EnemyDiamondFilled")
+metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="AllyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=1182892213]

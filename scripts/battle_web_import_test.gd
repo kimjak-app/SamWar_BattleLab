@@ -15742,7 +15742,16 @@ func _refresh_production_momentum_slots(side_name: String, value: int) -> void:
 			continue
 		var active := index < value
 		slot.theme_type_variation = "MomentumSlot%s%s" % [side_name, "Filled" if active else "Empty"]
+		_apply_production_momentum_slot_local_style(slot, active)
 		slot.modulate = Color.WHITE
+
+func _apply_production_momentum_slot_local_style(slot: Control, active: bool) -> void:
+	var style_key := "_diamond_filled_style" if active else "_diamond_empty_style"
+	if not slot.has_meta(style_key):
+		return
+	var style_box := slot.get_meta(style_key) as StyleBox
+	if style_box != null:
+		slot.add_theme_stylebox_override(&"panel", style_box)
 
 func _resolve_momentum_slot_control(row: Control, index: int) -> Control:
 	var entry := row.get_child(index) as Control
