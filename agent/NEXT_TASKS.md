@@ -1,5 +1,10 @@
 # NEXT TASKS
 
+## WorldMap-to-Battle F5 QA
+
+- Enter a WorldMap battle normally, then once with Enter/click skip and with rapid repeated input. Expected: no `_input: set_input_as_handled on null` error, exactly one Battle_Land transition, and the valid-context T02 supply panel visible.
+- Confirm a failed transition still leaves the WorldMap responsive. Do not resume UI work until this F5 result is recorded.
+
 ## Supply/log F5-F6 QA
 
 - F5 a real WorldMap attack and defense: confirm T02 supply panel is visible, values/warnings are real, and turn completion refreshes them once.

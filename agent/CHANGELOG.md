@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## WorldMap-to-Battle input lifecycle hotfix
+- Fixed `worldmap_main.gd` handoff input ordering: a skip event is marked handled before its synchronous camera-handoff completion can replace the WorldMap scene, preventing `get_viewport()` null access in `_input()` and `_unhandled_input()`.
+- Disabled outgoing WorldMap input paths immediately before Battle_Land replacement and restored them only on a failed replacement, preserving normal retry behavior while preventing duplicate transition input.
+- Added a structural validator and real WorldMap-to-Battle Godot execution test covering duplicate Enter input, one context consumption, BattleSupplyRuntime setup, and T02 panel visibility.
+
 ## Runtime Hotfix 2 — actual hero video cutin playback
 - Replaced pair-only registry aliases with independent runtime hero/skill normalization, covering real mixed WorldMap payload IDs before registry lookup.
 - Added concise `[CUTIN_TRACE]` route, stream, playback, fallback texture, and reason diagnostics; static fallback remains enabled only for an explicit failed video route.

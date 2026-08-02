@@ -1,5 +1,12 @@
 # CURRENT STATE
 
+## WorldMap-to-Battle input lifecycle hotfix
+
+- F5 WorldMap battle-entry skip input could synchronously complete the camera handoff and call `change_scene_to_file()` before the old `_input()`/`_unhandled_input()` branch called `get_viewport().set_input_as_handled()`. The former WorldMap viewport was therefore null.
+- `worldmap_main.gd` now consumes the handoff event before skip completion, disables old-scene input paths before the scene replacement, and restores them only if the replacement fails. The WorldMap handoff guard remains the single-entry authority.
+- The execution regression loads `WorldMap.tscn`, injects a schema-valid battle fixture through the normal handoff, sends duplicate Enter skip input, then verifies one `Battle_Land` scene, single context consumption, configured `BattleSupplyRuntime`, and visible T02 panel.
+- Battle rules, turn order, supply formulas, cutin contracts, Theme/font, and scene geometry remain unchanged. Status: `WORLDMAP-TO-BATTLE INPUT LIFECYCLE HOTFIX IMPLEMENTED / AUTOMATED VALIDATION PASS / USER F5 QA PENDING`.
+
 ## WorldMap supply visibility / Production live log contract
 
 - `Battle_Land` now evaluates T02 supply visibility from valid WorldMap context plus configured `BattleSupplyRuntime`; contextless standalone F6 remains hidden. Supply calculations and turn settlement are unchanged.

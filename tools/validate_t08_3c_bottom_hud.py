@@ -9,6 +9,9 @@ ROOT = Path(__file__).resolve().parents[1]
 # Godot-saved production UI is intentionally preserved in this commit; compare
 # locked UI slices with that semantic baseline, not a pre-save text ordering.
 BASELINE = "4d3a5656916d639fc568fc4ee0fc7881cafc26b5"
+# `Battle_Land.tscn` received a separately validated Godot serialization-only
+# preservation commit. Keep the runtime-scene protection anchored after it.
+RUNTIME_SCENE_BASELINE = "c17a30041a309fd1dcfda1871b0c8e12e18f2aa2"
 SCENE = "tests/scenes/Battle_UI_Production_Test.tscn"
 THEME = "assets/ui/battle_ui_theme.tres"
 PREVIEW = "tests/scripts/battle_ui_production_test_bottom_hud.gd"
@@ -71,7 +74,8 @@ for path, (line, _kind, _body) in parsed.items():
     if parent:
         require(parent in parsed and parsed[parent][0] < line, f"invalid scene parent for {path}")
 for path in PROTECTED:
-    require(not git("diff", BASELINE, "--", path).strip(), f"protected file changed: {path}")
+    protected_baseline = RUNTIME_SCENE_BASELINE if path == "Battle_Land.tscn" else BASELINE
+    require(not git("diff", protected_baseline, "--", path).strip(), f"protected file changed: {path}")
 
 top_start = '[node name="TopHudRoot"'
 roster_start = '[node name="AllyRosterHud"'

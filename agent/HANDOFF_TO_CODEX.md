@@ -1,5 +1,11 @@
 # HANDOFF TO CODEX
 
+## WorldMap-to-Battle input lifecycle QA hold
+
+`scripts/worldmap/worldmap_main.gd` consumes the battle-entry handoff input before `_skip_worldmap_battle_entry_camera_handoff()` can synchronously replace the scene. `_change_scene_to_battle_with_context()` disables input and unhandled-input processing before the replacement and restores them on transition failure. `tests/scripts/test_worldmap_to_battle_input_lifecycle.gd` exercises the real WorldMap → Battle_Land path with duplicate Enter skip input and verifies context consumption, runtime supply construction, and panel visibility. All automation passes; await user F5 confirmation before any new UI work.
+
+---
+
 ## Video Cutin Hotfix 2 QA hold
 
 Actual presentation playback is covered by `tests/scripts/test_actual_video_cutin_playback.gd`: it instantiates the real presentation scene and verifies OGV stream assignment/playback for runtime and mixed IDs. Live F5 tracing is enabled under `CUTIN_TRACE_ENABLED`; wait for user visual confirmation before declaring the video fixed or resuming UI work.

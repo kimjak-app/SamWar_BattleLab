@@ -1,5 +1,11 @@
 # SESSION LOG
 
+## 2026-08-02 — WorldMap-to-Battle input lifecycle hotfix
+
+- Reproduced the lifecycle path in `worldmap_main.gd`: `_input()`/`_unhandled_input()` skipped the battle-entry camera handoff first, which synchronously invoked `change_scene_to_file()`, then dereferenced the old scene viewport to mark the event handled.
+- Reordered consumption before skip and disabled the outgoing scene input paths before transition, with re-enable on failure. Added a real WorldMap execution test with duplicate Enter skip input; it enters Battle_Land once, consumes the context once, configures runtime supply, and displays T02 supply.
+- Automated validators and Godot 4.6.2 parse/loads pass. User F5 QA remains pending; no UI, supply, turn, or cutin contract changed.
+
 ## 2026-08-02 — Runtime Hotfix 2 actual video cutin playback
 
 - User F5 confirmed action order PASS but cutin video FAIL despite the prior registry/resource test.
