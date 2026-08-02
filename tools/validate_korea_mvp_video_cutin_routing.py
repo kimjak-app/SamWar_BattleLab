@@ -33,7 +33,7 @@ runtime_pairs = {
     "eulji_mundeok": "eulji_mundeok_salsu_ambush",
 }
 for hero_id, skill_id in runtime_pairs.items():
-    require(f'"{hero_id}|{skill_id}"' in registry_source, f"missing runtime registry alias: {hero_id}/{skill_id}")
+    require(f'"{skill_id}"' in registry_source, f"missing runtime skill alias: {hero_id}/{skill_id}")
 for entry in entries:
     if not entry.get("enabled", False):
         continue

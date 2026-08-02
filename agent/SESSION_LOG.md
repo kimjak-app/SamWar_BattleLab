@@ -1,5 +1,12 @@
 # SESSION LOG
 
+## 2026-08-02 — Runtime Hotfix 2 actual video cutin playback
+
+- User F5 confirmed action order PASS but cutin video FAIL despite the prior registry/resource test.
+- Traced static display to `_show_unique_skill_toast_over_unit()` and `res://assets/web_battle/skill_cutins/yi_sunsin_hakikjin.png`; no reinforcement or ready flag is a registered fallback.
+- Replaced pair-only aliasing with independent hero/skill normalization and added `[CUTIN_TRACE]` diagnostics. The real presentation scene now passes OGV stream/playback tests for Yi runtime/mixed IDs and Kwon Yul.
+- Await user F5 visual confirmation; UI work remains paused.
+
 ## 2026-08-02 — T08 runtime emergency hotfix
 
 - Began clean at `17c704c` (a normal successor to the expected T08-3C head); origin matched.

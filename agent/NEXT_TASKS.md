@@ -1,5 +1,11 @@
 # NEXT TASKS
 
+## Video Cutin Hotfix 2 F5 QA
+
+- Execute Yi Sun-sin unique skill once and capture the single `[CUTIN_TRACE]` request sequence. Expected: `registry_hit=true`, `selected_mode=video`, assigned OGV path, `play_called=true`, no `fallback_called=true`.
+- Confirm the actual OGV, title, and portrait render, then trigger Kwon Yul if available. If fallback appears, retain the trace output; it states the exact path and reason.
+- Turn sequencing is already user PASS; do not alter it. Do not resume T08 UI work until actual OGV F5 QA passes.
+
 ## Runtime hotfix F5 QA gate
 
 - Do not resume T08 UI work until actual Battle_Land QA passes. In a WorldMap battle, verify A1 → E1 → A2 → E2 and that Battle Turn/supply settlement happen only after all valid actors complete.

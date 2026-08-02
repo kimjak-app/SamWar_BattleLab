@@ -45,6 +45,7 @@ const UNIQUE_SKILL_TARGET_MARKER_SCALE := 0.78
 const UNIQUE_SKILL_AUTO_PREVIEW_DURATION := 0.42
 const UNIQUE_SKILL_MANUAL_PREVIEW_DURATION := 0.42
 const HERO_CUTIN_SIGNAL_FALLBACK_DELAY := 4.60
+const CUTIN_TRACE_ENABLED := true
 const MOVE_RANGE_OVERLAY_VISUAL_INSET := Vector2(32.0, 0.0)
 const RANGE_OVERLAY_CELL_INSET_RATIO := 0.08
 const RANGE_OVERLAY_CELL_APPEAR_DURATION := 0.16
@@ -4410,20 +4411,26 @@ func _begin_unique_skill_sequence(caster_state: BattleUnitState, skill_data: Dic
 
 func _play_committed_hero_cutin(caster_state: BattleUnitState, skill_data: Dictionary) -> bool:
 	if caster_state == null or hero_cutin_overlay == null or hero_cutin_presentation == null:
+		_cutin_trace("selected_mode=static fallback_reason=presentation_host_missing")
 		return false
 	if not active_hero_cutin_execution.is_empty() or hero_cutin_presentation.is_playing():
 		push_warning("[HERO_CUTIN] duplicate presentation request blocked")
+		_cutin_trace("selected_mode=static fallback_reason=presentation_busy")
 		return false
 	var unit_hero_id := _get_hero_id_for_unit_state(caster_state)
 	var hero_id := _get_committed_skill_hero_id(caster_state, skill_data)
 	var skill_id := String(skill_data.get("skill_id", ""))
+	_cutin_trace("request hero_id=%s skill_id=%s normalized hero_id=%s skill_id=%s" % [unit_hero_id, skill_id, hero_id, skill_id])
 	if not unit_hero_id.is_empty() and hero_id != unit_hero_id:
 		push_warning("[HERO_CUTIN_PARITY] reason=caster_skill_hero_mismatch caster=%s skill_hero=%s skill=%s" % [unit_hero_id, hero_id, skill_id])
+		_cutin_trace("selected_mode=static fallback_reason=caster_skill_hero_mismatch")
 		return false
 	var entry := KoreaMvpHeroCutinRegistryScript.find_entry(hero_id, skill_id)
+	_cutin_trace("registry_hit=%s" % str(not entry.is_empty()))
 	if entry.is_empty():
 		if not hero_id.is_empty():
 			push_warning("[HERO_CUTIN_PARITY] reason=registry_missing_or_skill_mismatch hero=%s skill=%s" % [hero_id, skill_id])
+		_cutin_trace("selected_mode=static fallback_reason=registry_miss")
 		return false
 	var video_path := String(entry.get("video_path", ""))
 	var title_path := String(entry.get("skill_title_texture_path", ""))
@@ -4431,6 +4438,7 @@ func _play_committed_hero_cutin(caster_state: BattleUnitState, skill_data: Dicti
 	var title_texture := ResourceLoader.load(title_path) as Texture2D
 	if video_stream == null or title_texture == null:
 		push_warning("[HERO_CUTIN_PARITY] reason=resource_load_failed hero=%s skill=%s video=%s title=%s" % [hero_id, skill_id, video_path, title_path])
+		_cutin_trace("selected_mode=static fallback_reason=resource_load_failed video_path=%s" % video_path)
 		return false
 	hero_cutin_execution_token += 1
 	active_hero_cutin_execution = {
@@ -4451,6 +4459,7 @@ func _play_committed_hero_cutin(caster_state: BattleUnitState, skill_data: Dicti
 	)
 	hero_cutin_presentation.set_playback_speed(1.0)
 	hero_cutin_presentation.play_cutin()
+	_cutin_trace("selected_mode=video video_path=%s video_resource=%s presentation_node=%s presentation_method=play_cutin stream_assigned=%s play_called=true is_playing_after_call=%s video_playing_after_call=%s" % [video_path, video_stream.get_class(), hero_cutin_presentation.get_path(), str(hero_cutin_presentation.is_playing()), str(hero_cutin_presentation.is_playing()), str(hero_cutin_presentation.is_video_playing())])
 	print("[HERO_CUTIN] route=registry_video hero_id=%s skill_id=%s video=%s title=%s token=%d" % [hero_id, skill_id, video_path, title_path, hero_cutin_execution_token])
 	get_tree().create_timer(HERO_CUTIN_SIGNAL_FALLBACK_DELAY).timeout.connect(_on_hero_cutin_signal_fallback.bind(hero_cutin_execution_token), CONNECT_ONE_SHOT)
 	return true
@@ -4955,7 +4964,9 @@ func _show_unique_skill_toast_over_unit(caster_state: BattleUnitState, skill_dat
 		unique_skill_ink_burst.color = UNIQUE_SKILL_CUTIN_FLASH_COLOR
 		unique_skill_ink_burst.modulate = Color.WHITE
 	if unique_skill_cutin_image != null:
+		var fallback_path := String(skill_data.get("cutin_image_path", GENERIC_SKILL_TOAST_FALLBACK_PATH))
 		unique_skill_cutin_image.texture = _get_unique_skill_cutin_texture(caster_state, skill_data)
+		_cutin_trace("fallback_called=true fallback_texture=%s fallback_reason=video_route_returned_false" % fallback_path)
 		unique_skill_cutin_image.modulate = Color(1.0, 1.0, 1.0, 0.0)
 		unique_skill_cutin_image.position = cutin_enter_position
 		unique_skill_cutin_image.scale = Vector2.ONE
@@ -5056,6 +5067,11 @@ func _get_unique_skill_cutin_texture(_caster_state: BattleUnitState, skill_data:
 	if texture != null:
 		return texture
 	return _load_unique_skill_texture(GENERIC_SKILL_TOAST_FALLBACK_PATH)
+
+
+func _cutin_trace(message: String) -> void:
+	if CUTIN_TRACE_ENABLED:
+		print("[CUTIN_TRACE] %s" % message)
 
 
 func _load_unique_skill_texture(path: String) -> Texture2D:

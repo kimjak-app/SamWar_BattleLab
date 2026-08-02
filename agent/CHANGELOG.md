@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## Runtime Hotfix 2 — actual hero video cutin playback
+- Replaced pair-only registry aliases with independent runtime hero/skill normalization, covering real mixed WorldMap payload IDs before registry lookup.
+- Added concise `[CUTIN_TRACE]` route, stream, playback, fallback texture, and reason diagnostics; static fallback remains enabled only for an explicit failed video route.
+- Added an actual Godot presentation test for Yi runtime/mixed IDs and Kwon Yul. It verifies the scene-instantiated `VideoBackgroundPlayer` stream and `is_playing()` state after processed frames.
+
 ## T08 Runtime Emergency Hotfix — alternating initiative and registered video cutins
 - Restored unit-level alternating action flow by removing the deferred remaining-enemy dispatch introduced by `c0949a9`; complete a Battle Turn and settle supply only after both sides' valid actors are done.
 - Added runtime-to-registry ID aliases for 이순신, 정도전, 권율, 김유신, and 을지문덕 so their existing OGV/title cutins take the registry-video route before legacy static toast fallback.

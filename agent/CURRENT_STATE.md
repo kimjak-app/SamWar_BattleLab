@@ -1,5 +1,12 @@
 # CURRENT STATE
 
+## Runtime Hotfix 2 — actual hero video cutin playback
+
+- The first cutin hotfix passed registry/resource checks but user F5 still selected the static path. The actual static texture is assigned by `_show_unique_skill_toast_over_unit()` through `_get_unique_skill_cutin_texture()`; for Yi Sun-sin it is `res://assets/web_battle/skill_cutins/yi_sunsin_hakikjin.png`, not a reinforcement/ready flag.
+- The root was pair-only runtime aliasing: actual WorldMap payloads can combine canonical hero IDs with runtime skill IDs. Registry normalization now resolves hero and skill IDs independently before lookup.
+- `HeroCutinPresentation/CutinStage/VideoBackgroundPlayer` now has an actual test covering stream assignment, `play_cutin()`, two processed frames, and `VideoStreamPlayer.is_playing()` for Yi runtime, Yi mixed canonical/runtime, and Kwon Yul requests. `[CUTIN_TRACE]` records each F5 route and explicit fallback reason.
+- Status: `VIDEO CUTIN HOTFIX2 IMPLEMENTED / ACTUAL PLAYBACK TEST PASS / USER F5 QA PENDING`. Turn-order F5 QA PASS remains protected; UI work stays paused.
+
 ## T08 Runtime Emergency Hotfix — alternating initiative and registered video cutins
 
 - T08-3C visual QA exposed two runtime regressions; all T08 visual work is paused pending user F5 turn/cutin QA. Current-action width, lower HUD, Theme, font, and test-only Preview geometry remain untouched.

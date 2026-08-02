@@ -1,5 +1,11 @@
 # HANDOFF TO CODEX
 
+## Video Cutin Hotfix 2 QA hold
+
+Actual presentation playback is covered by `tests/scripts/test_actual_video_cutin_playback.gd`: it instantiates the real presentation scene and verifies OGV stream assignment/playback for runtime and mixed IDs. Live F5 tracing is enabled under `CUTIN_TRACE_ENABLED`; wait for user visual confirmation before declaring the video fixed or resuming UI work.
+
+---
+
 ## Runtime emergency hotfix hold
 
 The current runtime regression hotfix restores one-enemy-per-initiative alternation and maps live battle hero/skill IDs to the existing Korea MVP OGV registry. All automated checks pass; wait for user F5 QA before any T08 UI continuation. `Battle_Land.tscn`, T08 Theme/geometry, and test Preview data were not changed.

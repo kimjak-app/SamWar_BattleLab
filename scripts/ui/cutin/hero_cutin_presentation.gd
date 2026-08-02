@@ -113,6 +113,10 @@ func reset_cutin() -> void:
 func is_playing() -> bool:
 	return _playing
 
+
+func is_video_playing() -> bool:
+	return video != null and video.is_playing()
+
 func _capture_authored_state() -> void:
 	_hero_name_authored_position = hero_name_label.position
 	_hero_name_authored_scale = hero_name_label.scale
