@@ -3,10 +3,13 @@ extends RefCounted
 
 const REGISTRY_PATH := "res://data/cutin/korea_mvp_hero_cutins.json"
 
-const RUNTIME_HERO_ID_ALIASES := {
+## The cutin boundary receives both legacy battle IDs and canonical design IDs.
+## Keep this as the single authoritative hero identity contract for cutin routing.
+const HERO_ID_CANONICAL_ALIASES := {
 	"yi_sunsin": "yi_sun_sin",
 	"jeong_dojeon": "jeong_do_jeon",
 	"gim_yusin": "kim_yu_sin",
+	"gwon_yul": "kwon_yul",
 }
 const RUNTIME_SKILL_ID_ALIASES := {
 	"hakikjin_barrage": "yi_sun_sin_unique",
@@ -34,14 +37,37 @@ static func load_entries() -> Array[Dictionary]:
 	return entries
 
 
+static func canonicalize_hero_id(raw_id: String) -> String:
+	var normalized_id := raw_id.strip_edges().to_lower()
+	return String(HERO_ID_CANONICAL_ALIASES.get(normalized_id, normalized_id))
+
+
+static func canonicalize_skill_id(raw_id: String) -> String:
+	var normalized_id := raw_id.strip_edges().to_lower()
+	return String(RUNTIME_SKILL_ID_ALIASES.get(normalized_id, normalized_id))
+
+
+static func get_portrait_path(hero_id: String) -> String:
+	var canonical_hero_id := canonicalize_hero_id(hero_id)
+	if canonical_hero_id.is_empty():
+		return ""
+	var korea_portrait_path := "res://assets/heroes/portraits/korea/korea_%s.png" % canonical_hero_id
+	if ResourceLoader.exists(korea_portrait_path):
+		return korea_portrait_path
+	var legacy_portrait_path := "res://assets/web_battle/portraits/%s_portrait.png" % canonical_hero_id
+	if ResourceLoader.exists(legacy_portrait_path):
+		return legacy_portrait_path
+	return korea_portrait_path
+
+
 static func find_entry(hero_id: String, skill_id: String) -> Dictionary:
-	if hero_id.is_empty() or skill_id.is_empty():
+	var canonical_hero_id := canonicalize_hero_id(hero_id)
+	var canonical_skill_id := canonicalize_skill_id(skill_id)
+	if canonical_hero_id.is_empty() or canonical_skill_id.is_empty():
 		return {}
-	var resolved_hero_id := String(RUNTIME_HERO_ID_ALIASES.get(hero_id, hero_id))
-	var resolved_skill_id := String(RUNTIME_SKILL_ID_ALIASES.get(skill_id, skill_id))
 	for entry in load_entries():
-		if String(entry.get("hero_id", "")) != resolved_hero_id:
+		if canonicalize_hero_id(String(entry.get("hero_id", ""))) != canonical_hero_id:
 			continue
-		if String(entry.get("skill_id", "")) == resolved_skill_id and bool(entry.get("enabled", false)):
+		if canonicalize_skill_id(String(entry.get("skill_id", ""))) == canonical_skill_id and bool(entry.get("enabled", false)):
 			return entry.duplicate(true)
 	return {}

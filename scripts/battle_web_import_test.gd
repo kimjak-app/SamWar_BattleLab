@@ -4467,7 +4467,7 @@ func _play_committed_hero_cutin(caster_state: BattleUnitState, skill_data: Dicti
 
 func _get_committed_skill_hero_id(caster_state: BattleUnitState, skill_data: Dictionary) -> String:
 	var unit_hero_id := _get_hero_id_for_unit_state(caster_state)
-	return String(skill_data.get("hero_id", unit_hero_id))
+	return KoreaMvpHeroCutinRegistryScript.canonicalize_hero_id(String(skill_data.get("hero_id", unit_hero_id)))
 
 
 func _on_hero_cutin_finished() -> void:
@@ -8341,8 +8341,8 @@ func _get_hero_id_for_unit_state(unit_state: BattleUnitState) -> String:
 	var slot_metadata := _get_capacity_slot_metadata(capacity_slot_id)
 	var assigned_hero_id := String(slot_metadata.get("assigned_hero_id", ""))
 	if assigned_hero_id != "":
-		return assigned_hero_id
-	return _get_test_battle_roster_hero_id(capacity_slot_id)
+		return KoreaMvpHeroCutinRegistryScript.canonicalize_hero_id(assigned_hero_id)
+	return KoreaMvpHeroCutinRegistryScript.canonicalize_hero_id(_get_test_battle_roster_hero_id(capacity_slot_id))
 
 
 func _get_hero_registry_entry(hero_id: String) -> Dictionary:
