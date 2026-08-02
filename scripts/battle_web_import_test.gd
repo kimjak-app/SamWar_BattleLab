@@ -15744,6 +15744,10 @@ func _refresh_production_roster(side_name: String, roster: Array) -> void:
 		slot.visible = should_show_slot
 		if not should_show_slot:
 			continue
+		if not bool(unit.get("alive", true)):
+			slot.theme_type_variation = "HeroCardDisabled"
+		else:
+			slot.theme_type_variation = "%sHeroCard%s" % [side_name, "Selected" if bool(unit.get("selected", false)) else ""]
 		_set_production_roster_label(slot, "NameLabel", str(unit.get("display_name", "대기")))
 		_set_production_roster_label(slot, "UnitTypeLabel", str(unit.get("unit_type_name", "부대")))
 		_set_production_roster_label(slot, "TroopsLabel", "병력 %d / %d" % [int(unit.get("current_troops", 0)), int(unit.get("max_troops", 0))])

@@ -26,6 +26,8 @@ static func build(controller: Node) -> Dictionary:
 				allies.append(state)
 			else:
 				enemies.append(state)
+	_mark_roster_selection(allies, active_unit)
+	_mark_roster_selection(enemies, selected_target)
 	var right: Variant = null
 	var role := "대기"
 	if selected_target != null and _is_targeting(phase):
@@ -45,6 +47,11 @@ static func build(controller: Node) -> Dictionary:
 		"instruction": _instruction(phase, complete), "disabled_reason": _reason(phase, complete, active_unit),
 		"command_states": {}, "recent_log": controller.get("battle_log_lines"), "battle_complete": complete,
 	}
+
+static func _mark_roster_selection(roster: Array[Dictionary], selected_unit: Variant) -> void:
+	var selected_id := "" if selected_unit == null else str(selected_unit.get("unit_id"))
+	for entry in roster:
+		entry["selected"] = selected_id != "" and str(entry.get("unit_id", "")) == selected_id
 
 static func _unit_state(unit: Variant) -> Dictionary:
 	if unit == null:
