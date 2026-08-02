@@ -1,5 +1,13 @@
 # HANDOFF TO CODEX
 
+## Current T08-3C QA hold
+
+T08-3C is implemented. All validators and Godot 4.6.2 project, `Battle_Land.tscn`, and Production test-scene headless loads pass. Await only user F6 visual QA; do not modify Battle_Land, shared scripts/adapters, BattleSupplyRuntime, WorldMap context, top HUD, or rosters, and do not transfer Theme before approval.
+
+The test-only Preview is `BattleUI/ProductionHudRoot/BottomHudRoot/BattleSupplyPreviewPanel`, driven only by `tests/scripts/battle_ui_production_test_bottom_hud.gd`. It has fixed normal samples and default-off `SHOW_WARNING_SAMPLE`. Use `tools/validate_t08_3c_bottom_hud.py` for focused protection checks.
+
+---
+
 ## SamWar_BattleLab 자동 작업 권한 헤더
 
 이번 작업은 SamWar_BattleLab 폴더 내부 작업이다.

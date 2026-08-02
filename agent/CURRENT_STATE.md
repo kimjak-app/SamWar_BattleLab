@@ -155,3 +155,10 @@ Authoritative execution instruction:
 - The test-only bridge now reads the existing legacy formatter, preserving strings such as `◆ 방어 태세` without changing status calculation, combat state, or shared scripts.
 - Status uses the existing NotoSerifKR Medium 13 variation and remains default hidden. All 10 cards use the same geometry; panels, cards, portraits, troop icons/types, T08-3A top HUD, and `Battle_Land.tscn` are unchanged.
 - Automated validators and Godot headless loads pass. User F6 status QA is pending; T08-3C has not started.
+
+## T08-3C Bottom HUD Theme, Font & Supply Preview
+
+- T08-3B1-hotfix1 user F6 QA PASS is recorded as the entry gate. T08-3C is isolated to `tests/scenes/Battle_UI_Production_Test.tscn`, `assets/ui/battle_ui_theme.tres`, and `tests/scripts/battle_ui_production_test_bottom_hud.gd`.
+- The lower information layout is left `BattleLogHud`, center `ActorComparisonHud` with `InteractionGuideHud`, and right `BottomHudRoot/BattleSupplyPreviewPanel`.
+- The Preview uses normal test-only samples: turn `3 / 30 · 잔여 27`, ally `820/120/34/24`, enemy `740/80/31/23`. `SHOW_WARNING_SAMPLE` provides a default-off salt-warning visual check.
+- Battle_Land, BattleSupplyRuntime, WorldMap context, shared scripts, top HUD, and rosters are unchanged. Status: `T08-3C IMPLEMENTED / AUTOMATED VALIDATION PASS / USER F6 BOTTOM HUD VISUAL QA PENDING`.

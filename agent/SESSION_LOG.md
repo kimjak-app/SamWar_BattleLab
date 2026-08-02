@@ -1,5 +1,12 @@
 # SESSION LOG
 
+## 2026-08-02 — T08-3C Bottom HUD Theme, Font & Supply Preview
+
+- Started clean on `main` at `9d94a97a7c80d8e6937d89652a5193e89ff5083f`; `origin/main` matched.
+- Audited actual lower HUD paths, including hidden runtime-bound `BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel` and `BattleUI/CommandBar/AutoBattleButton`.
+- Styled existing Production `BattleLogHud`, `ActorComparisonHud`, and `InteractionGuideHud`, then added only the named test Preview panel. The bridge uses fixed normal data (`820/120/34/24`, `740/80/31/23`) and a default-off warning switch.
+- All requested validators, diff check, and Godot 4.6.2 project/Battle_Land/Production loads passed. User F6 visual QA remains pending; do not start runtime Theme transfer or another UI slice.
+
 ## 2026-07-08
 
 ### v0.70-98 Domestic Tech Complete Lock

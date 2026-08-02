@@ -128,3 +128,9 @@ Completion requires:
 - In the Production test scene, place or retain a defending unit and confirm `◆ 방어 태세` appears below `병력 current / max` in the left text column.
 - Confirm the right-bottom troop type remains readable with no overlap, and that clearing the status hides the row again.
 - Confirm every other card preserves the same status slot, all action/progress/ready text stays hidden, and the T08-3A top HUD is unchanged. Do not start T08-3C before approval.
+
+## T08-3C F6 Bottom HUD Visual QA Gate
+
+- At 1920×1080, confirm the left battle log, center current action/interaction guide, and right battle-supply Preview are readable without overlap or AutoBattle command conflict.
+- Confirm normal ally/enemy food, salt, consumption, sustain and turn samples. To review only the warning treatment, toggle isolated `SHOW_WARNING_SAMPLE`; never connect it to runtime supply/context.
+- Confirm top HUD and five-card rosters per side are unchanged. Theme transfer to Battle_Land and final resolution work remain deferred until user PASS.

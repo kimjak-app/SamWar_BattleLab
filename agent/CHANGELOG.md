@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## T08-3C Bottom HUD Theme, Font & Supply Preview
+- Applied test-scene-only lower HUD Theme variations: battle log, current action/interaction guide, and supply Preview, all using existing NotoSerifKR font resources.
+- Added isolated ally/enemy food, salt, consumption, sustain, turn, and default-hidden warning fields with test-only sample data. BattleSupplyRuntime and WorldMap context are neither created nor changed.
+- Kept Battle_Land, shared scripts/adapter, roster bridge, top HUD, roster geometry/theme, and runtime supply behavior unchanged. Automated validation and Godot 4.6.2 headless loads pass; user F6 bottom-HUD visual QA is pending.
+
 ## T08-2-hotfix1 Production HUD Recovery
 - Removed the malformed ProductionHudRoot scene patch marker that caused cascading vanished-parent errors.
 - Corrected production/legacy HUD visibility parity, empty placeholder visibility, roster shadowing warning, and focused scene/layout validation.

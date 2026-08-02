@@ -110,6 +110,10 @@ allowed_theme_hosts = {
     f"{top_root}/EnemyMomentumHud",
     "BattleUI/ProductionHudRoot/AllyRosterHud",
     "BattleUI/ProductionHudRoot/EnemyRosterHud",
+    "BattleUI/ProductionHudRoot/BattleLogHud",
+    "BattleUI/ProductionHudRoot/InteractionGuideHud",
+    "BattleUI/ProductionHudRoot/ActorComparisonHud",
+    "BattleUI/ProductionHudRoot/BottomHudRoot/BattleSupplyPreviewPanel",
 }
 require(set(theme_hosts) == allowed_theme_hosts, "Theme leaked outside the isolated Production HUD hosts")
 require("offset_right = 610.0" in nodes[f"{top_root}/TurnHud"][3] and "offset_bottom = 88.0" in nodes[f"{top_root}/TurnHud"][3],
