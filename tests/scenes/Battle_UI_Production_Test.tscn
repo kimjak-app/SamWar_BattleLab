@@ -3878,6 +3878,18 @@ offset_right = 1420.0
 offset_bottom = 118.0
 mouse_filter = 2
 
+[node name="TopHudFrameShadow" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
+layout_mode = 0
+offset_left = 73.0
+offset_top = -4.0
+offset_right = 842.0
+offset_bottom = 95.0
+mouse_filter = 2
+self_modulate = Color(0.06, 0.05, 0.04, 0.2)
+texture = ExtResource("41_top_hud_frame_full")
+expand_mode = 0
+stretch_mode = 5
+
 [node name="TopHudFrameFull" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot" unique_id=1599940133]
 layout_mode = 0
 offset_left = 73.0
