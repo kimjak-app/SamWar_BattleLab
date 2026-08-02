@@ -1,5 +1,11 @@
 # SESSION LOG
 
+## 2026-08-02 — One-side exhaustion turn hotfix
+
+- Reproduced the 1-vs-many deadlock path in the scheduler: after enemy completion, `_return_to_ally_turn()` found no unacted ally but still exposed `ally_turn`, leaving the previously acted caster selected and remaining enemies idle.
+- Added explicit side-exhaustion decision, clears stale ally selection, and continues exactly one enemy actor when only enemies remain. Both-side exhaustion retains the existing round/supply boundary.
+- Added static 1vN/Nv1 contracts and a Godot 1v5/5v1/1v1 Battle_Land test with deployed reinforcement slots. Automation passes; F5 QA remains pending.
+
 ## 2026-08-02 — WorldMap-to-Battle input lifecycle hotfix
 
 - Reproduced the lifecycle path in `worldmap_main.gd`: `_input()`/`_unhandled_input()` skipped the battle-entry camera handoff first, which synchronously invoked `change_scene_to_file()`, then dereferenced the old scene viewport to mark the event handled.

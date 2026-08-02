@@ -38,17 +38,25 @@ require(schedule(["ally_1", "ally_2", "ally_3"], ["enemy_1", "enemy_2"]) ==
 require(schedule(["ally_1", "ally_2"], ["enemy_1", "enemy_2", "enemy_3"]) ==
         ["ally_1", "enemy_1", "ally_2", "enemy_2", "enemy_3", "round_complete"], "2v3 contract failed")
 require(schedule(["ally_1"], ["enemy_1", "enemy_2"]) == ["ally_1", "enemy_1", "enemy_2", "round_complete"], "unavailable-actor skip contract failed")
+require(schedule(["ally_1"], ["enemy_1", "enemy_2", "enemy_3", "enemy_4", "enemy_5"]) ==
+        ["ally_1", "enemy_1", "enemy_2", "enemy_3", "enemy_4", "enemy_5", "round_complete"], "1v5 exhaustion contract failed")
+require(schedule(["ally_1", "ally_2", "ally_3", "ally_4", "ally_5"], ["enemy_1"]) ==
+        ["ally_1", "enemy_1", "ally_2", "ally_3", "ally_4", "ally_5", "round_complete"], "5v1 exhaustion contract failed")
+require(schedule(["ally_1"], ["enemy_1"]) == ["ally_1", "enemy_1", "round_complete"], "1v1 contract failed")
 
 advance = body("_advance_enemy_turn_or_return_to_ally")
 return_to_ally = body("_return_to_ally_turn")
 finish_attack = body("_finish_enemy_actor_basic_attack")
 require("_return_to_ally_turn()" in advance, "enemy completion no longer returns initiative to ally")
 require("_play_enemy_ai_for_actor" not in advance and "call_deferred" not in advance, "enemy completion schedules another enemy actor")
-require("ally_return_deferred" not in return_to_ally and "_play_enemy_ai_turn" not in return_to_ally,
-        "ally return path drains remaining enemy actors")
+require("_get_next_side_after_enemy_action()" in return_to_ally, "ally return path does not resolve side exhaustion")
+require('next_side == "enemy"' in return_to_ally and "_play_enemy_turn_demo()" in return_to_ally,
+        "ally exhaustion does not continue one enemy actor")
+require("active_unit_state = null" in return_to_ally, "ally exhaustion can leave an acted ally selected")
+require("call_deferred" not in return_to_ally, "side exhaustion must not create an unbounded deferred loop")
 require("_advance_enemy_turn_or_return_to_ally()" in finish_attack or "_return_to_ally_turn()" in finish_attack,
         "enemy attack completion does not return initiative")
-require("_are_all_alive_allies_acted() and _are_all_alive_enemies_acted()" in return_to_ally,
+require('next_side == "round_complete"' in return_to_ally,
         "round may advance before both sides complete")
 require("_settle_battle_supply_turn(battle_round)" in body("_start_new_round"), "supply settlement missing from round boundary")
 require(body("_start_new_round").count("_settle_battle_supply_turn(") == 1, "supply settlement must occur once per completed round")
@@ -57,4 +65,4 @@ if errors:
     print("ALTERNATING BATTLE ACTION ORDER VALIDATION FAILED", file=sys.stderr)
     print("\n".join(f"ERROR: {error}" for error in errors), file=sys.stderr)
     raise SystemExit(1)
-print("ALTERNATING BATTLE ACTION ORDER PASS: 3v3/3v2/2v3/skip contract, one-enemy completion, round and supply boundary")
+print("ALTERNATING BATTLE ACTION ORDER PASS: 3v3/3v2/2v3/1v5/5v1/1v1/skip contract, one-enemy completion, exhaustion and supply boundary")

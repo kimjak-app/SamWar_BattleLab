@@ -1,5 +1,11 @@
 # CURRENT STATE
 
+## One-side exhaustion turn hotfix
+
+- A 1-vs-many battle could deadlock after the first enemy action: `_advance_enemy_turn_or_return_to_ally()` always entered `_return_to_ally_turn()`, which left `PHASE_ALLY_TURN` active even after every living ally had acted. No unacted ally existed, while remaining enemy actors were never scheduled.
+- `_get_next_side_after_enemy_action()` now resolves `ally`, `enemy`, or `round_complete`. When allies are exhausted, the stale selection is cleared and exactly the next enemy AI actor is run; when both sides are exhausted, the existing round boundary remains the sole increment/supply settlement point.
+- Python and Godot scene-tree coverage now includes 1v5, 5v1, 1v1, and unavailable-actor order. Status: `ONE-SIDE EXHAUSTION TURN HOTFIX IMPLEMENTED / AUTOMATED VALIDATION PASS / USER F5 QA PENDING`.
+
 ## WorldMap-to-Battle input lifecycle hotfix
 
 - F5 WorldMap battle-entry skip input could synchronously complete the camera handoff and call `change_scene_to_file()` before the old `_input()`/`_unhandled_input()` branch called `get_viewport().set_input_as_handled()`. The former WorldMap viewport was therefore null.

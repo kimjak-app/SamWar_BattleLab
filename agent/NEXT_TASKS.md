@@ -1,5 +1,10 @@
 # NEXT TASKS
 
+## One-side exhaustion F5 QA
+
+- Attack with one allied hero against multiple deployed enemies. After A1 then E1, no acted ally may be selected and the remaining valid enemies must act one by one before the round completes.
+- Verify the inverse 5v1 case returns A2–A5 after E1, then increments Battle Turn and settles supply once. UI work remains paused pending this F5 result.
+
 ## WorldMap-to-Battle F5 QA
 
 - Enter a WorldMap battle normally, then once with Enter/click skip and with rapid repeated input. Expected: no `_input: set_input_as_handled on null` error, exactly one Battle_Land transition, and the valid-context T02 supply panel visible.

@@ -1,5 +1,11 @@
 # HANDOFF TO CODEX
 
+## One-side exhaustion turn QA hold
+
+`_return_to_ally_turn()` now resolves `ally` / `enemy` / `round_complete` through `_get_next_side_after_enemy_action()`. An exhausted ally side clears `active_unit_state`, remains in enemy phase, and starts only the next enemy AI actor; both exhausted sides continue through the existing `_start_new_round()` boundary. `tools/validate_single_side_exhaustion_turn_order.py` and `tests/scripts/test_single_side_exhaustion_turn_order.gd` cover 1v5, 5v1, and 1v1. Wait for user F5 confirmation before UI work.
+
+---
+
 ## WorldMap-to-Battle input lifecycle QA hold
 
 `scripts/worldmap/worldmap_main.gd` consumes the battle-entry handoff input before `_skip_worldmap_battle_entry_camera_handoff()` can synchronously replace the scene. `_change_scene_to_battle_with_context()` disables input and unhandled-input processing before the replacement and restores them on transition failure. `tests/scripts/test_worldmap_to_battle_input_lifecycle.gd` exercises the real WorldMap → Battle_Land path with duplicate Enter skip input and verifies context consumption, runtime supply construction, and panel visibility. All automation passes; await user F5 confirmation before any new UI work.

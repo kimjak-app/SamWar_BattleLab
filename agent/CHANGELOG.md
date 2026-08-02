@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## One-side exhaustion turn hotfix
+- Restored scheduler progress when one side has exhausted valid actors. The post-enemy side decision now continues one remaining enemy at a time rather than returning to an empty ally input state.
+- Clears stale acted-ally selection before enemy continuation; round increment and supply settlement remain exclusively in the existing completed-round boundary.
+- Added 1v5, 5v1, 1v1, and unavailable-actor Python contracts plus a Godot Battle_Land scene-tree boundary test.
+
 ## WorldMap-to-Battle input lifecycle hotfix
 - Fixed `worldmap_main.gd` handoff input ordering: a skip event is marked handled before its synchronous camera-handoff completion can replace the WorldMap scene, preventing `get_viewport()` null access in `_input()` and `_unhandled_input()`.
 - Disabled outgoing WorldMap input paths immediately before Battle_Land replacement and restored them only on a failed replacement, preserving normal retry behavior while preventing duplicate transition input.
