@@ -37,6 +37,7 @@
 [ext_resource type="Texture2D" uid="uid://o4xyqaw80msd" path="res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png" id="35_unique_skill_ready_icon"]
 [ext_resource type="Texture2D" uid="uid://j6e21aihjtxx" path="res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png" id="36_yi_sun_sin_video_cutin_portrait"]
 [ext_resource type="PackedScene" path="res://scenes/ui/cutin/hero_cutin_presentation.tscn" id="37_hero_cutin_presentation"]
+[ext_resource type="Theme" path="res://assets/ui/battle_ui_theme.tres" id="38_battle_ui_theme"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -3867,6 +3868,8 @@ mouse_filter = 2
 offset_right = 260.0
 offset_bottom = 100.0
 mouse_filter = 2
+theme = ExtResource("38_battle_ui_theme")
+theme_type_variation = &"AllyMomentumPanel"
 
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud"]
 offset_left = 12.0
@@ -3874,52 +3877,63 @@ offset_top = 8.0
 offset_right = 248.0
 offset_bottom = 30.0
 text = "아군 기세"
+theme_type_variation = &"BattleHudTitle"
 
 [node name="SlotRow" type="HBoxContainer" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud"]
 offset_left = 12.0
 offset_top = 36.0
 offset_right = 248.0
 offset_bottom = 54.0
-theme_override_constants/separation = 4
+theme_type_variation = &"BattleHudSlotRow"
 [node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot04" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot05" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot06" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot07" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot08" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot09" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="Slot10" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="ValueLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud"]
 offset_left = 12.0
@@ -3928,12 +3942,15 @@ offset_right = 248.0
 offset_bottom = 88.0
 text = "3 / 10"
 horizontal_alignment = 1
+theme_type_variation = &"BattleHudValue"
 
 [node name="TurnHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
 offset_left = 280.0
 offset_right = 640.0
 offset_bottom = 100.0
 mouse_filter = 2
+theme = ExtResource("38_battle_ui_theme")
+theme_type_variation = &"TurnHudPanel"
 
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
 offset_left = 8.0
@@ -3941,6 +3958,7 @@ offset_top = 6.0
 offset_right = 352.0
 offset_bottom = 28.0
 text = "전투"
+theme_type_variation = &"BattleHudTitle"
 
 [node name="TurnLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
 offset_left = 8.0
@@ -3949,6 +3967,7 @@ offset_right = 352.0
 offset_bottom = 54.0
 text = "1 / 30"
 horizontal_alignment = 1
+theme_type_variation = &"BattleHudValue"
 
 [node name="ActiveSideLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
 offset_left = 8.0
@@ -3957,6 +3976,7 @@ offset_right = 352.0
 offset_bottom = 76.0
 text = "아군 턴"
 horizontal_alignment = 1
+theme_type_variation = &"BattleHudSecondary"
 
 [node name="BattleTitleLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
 offset_left = 8.0
@@ -3965,12 +3985,15 @@ offset_right = 352.0
 offset_bottom = 98.0
 text = "전투 준비"
 horizontal_alignment = 1
+theme_type_variation = &"BattleHudTitle"
 
 [node name="EnemyMomentumHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
 offset_left = 660.0
 offset_right = 920.0
 offset_bottom = 100.0
 mouse_filter = 2
+theme = ExtResource("38_battle_ui_theme")
+theme_type_variation = &"EnemyMomentumPanel"
 
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud"]
 offset_left = 12.0
@@ -3978,52 +4001,63 @@ offset_top = 8.0
 offset_right = 248.0
 offset_bottom = 30.0
 text = "적군 기세"
+theme_type_variation = &"BattleHudTitle"
 
 [node name="SlotRow" type="HBoxContainer" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud"]
 offset_left = 12.0
 offset_top = 36.0
 offset_right = 248.0
 offset_bottom = 54.0
-theme_override_constants/separation = 4
+theme_type_variation = &"BattleHudSlotRow"
 [node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot04" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot05" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot06" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot07" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot08" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot09" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="Slot10" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
+theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="ValueLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud"]
 offset_left = 12.0
@@ -4032,6 +4066,7 @@ offset_right = 248.0
 offset_bottom = 88.0
 text = "3 / 10"
 horizontal_alignment = 1
+theme_type_variation = &"BattleHudValue"
 
 [node name="AllyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot"]
 offset_left = 18.0

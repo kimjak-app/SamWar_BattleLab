@@ -15730,7 +15730,8 @@ func _refresh_production_momentum_slots(side_name: String, value: int) -> void:
 		if slot == null:
 			continue
 		var active := index < value
-		slot.modulate = Color(0.45, 0.78, 1.0, 1.0) if (active and side_name == "Ally") else Color(1.0, 0.52, 0.44, 1.0) if active else Color(0.26, 0.28, 0.32, 1.0)
+		slot.theme_type_variation = "MomentumSlot%s%s" % [side_name, "Filled" if active else "Empty"]
+		slot.modulate = Color.WHITE
 
 func _refresh_production_roster(side_name: String, roster: Array) -> void:
 	var slot_names := ["Slot01", "Slot02", "Slot03", "Reinforce01", "Reinforce02"]
