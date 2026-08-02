@@ -8016,9 +8016,19 @@ func _get_remaining_unacted_enemy_count() -> int:
 
 
 func _advance_enemy_turn_or_return_to_ally() -> void:
-	# Every enemy action resolves one initiative slot. The next valid actor is an
-	# ally unless none remain; _return_to_ally_turn handles the round boundary.
+	# Every enemy action resolves one initiative slot. `_return_to_ally_turn()`
+	# resolves side exhaustion before exposing player input again.
 	_return_to_ally_turn()
+
+
+func _get_next_side_after_enemy_action() -> String:
+	var allies_exhausted := _are_all_alive_allies_acted()
+	var enemies_exhausted := _are_all_alive_enemies_acted()
+	if allies_exhausted and enemies_exhausted:
+		return "round_complete"
+	if allies_exhausted:
+		return "enemy"
+	return "ally"
 
 
 func _return_to_ally_turn() -> void:
@@ -8035,10 +8045,18 @@ func _return_to_ally_turn() -> void:
 	_hide_all_move_dust_sprites()
 	_set_all_unit_group_modulates(Color.WHITE)
 	is_demo_animating = false
-	if _are_all_alive_allies_acted() and _are_all_alive_enemies_acted():
+	var next_side := _get_next_side_after_enemy_action()
+	if next_side == "round_complete":
 		_start_new_round()
+	elif next_side == "enemy":
+		# The player side is exhausted. Keep resolving one enemy actor at a time
+		# instead of leaving a previously acted ally selected in input state.
+		active_unit_state = null
+		_set_phase(PHASE_ENEMY_TURN)
+		_play_enemy_turn_demo()
+		return
 	var next_ally := _get_first_available_ally_unit()
-	if next_ally == null and _are_all_alive_allies_acted() and _are_all_alive_enemies_acted():
+	if next_ally == null and _get_next_side_after_enemy_action() == "round_complete":
 		_start_new_round()
 		next_ally = _get_first_available_ally_unit()
 	if next_ally == null:
