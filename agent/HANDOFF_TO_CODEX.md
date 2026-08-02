@@ -318,3 +318,7 @@ Return:
 
 1. Wait for user F5/F6 QA results.
 2. After PASS, perform T08-3A Theme & Font First Pass in `tests/scenes/Battle_UI_Production_Test.tscn` only.
+
+## T08-2B-hotfix1
+
+- Wait for user F5 confirmation that the legacy runtime momentum HUD is visible at the central top and updates correctly. Do not start T08-3A before this QA gate passes.

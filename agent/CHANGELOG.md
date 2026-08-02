@@ -2884,6 +2884,10 @@
 - Preserved the full current Production HUD in `tests/scenes/Battle_UI_Production_Test.tscn` for direct F6 visual-development QA.
 - Added isolation validation and redirected the focused T08-2 HUD validator to the test scene; static validation passed, while configured Godot executable availability and user F5/F6 QA remain pending.
 
+## T08-2B-hotfix1 Legacy Momentum HUD Recovery
+- Restored the pre-existing runtime central-top ally/enemy momentum HUD when the runtime scene has no Production HUD root.
+- Kept the Production test scene and all momentum calculation, persistence, and 3/10 contracts unchanged.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
 - Added explicit total assigned troops and remaining garrison troop summary.

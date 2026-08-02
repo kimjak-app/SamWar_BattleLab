@@ -110,3 +110,9 @@ Authoritative execution instruction:
 - The T08 Production HUD is isolated in `tests/scenes/Battle_UI_Production_Test.tscn`; F5 stays on the WorldMap -> `Battle_Land.tscn` path and F6 of the test scene is the T08 visual-development path.
 - Production HUD access is already optional in `battle_web_import_test.gd`, so the runtime scene safely uses legacy UI when that root is absent.
 - Static validators pass; the configured local Godot executable is unavailable, so Godot/F5/F6 QA remains pending. T08-3A has not started.
+
+## T08-2B-hotfix1 Legacy Momentum HUD Recovery
+
+- User F5 confirmed the legacy battle layout except its central-top momentum display. Audit established that it was an existing runtime-created HUD, not a node removed from the supplied backup scene.
+- `_configure_momentum_ui()` now restores that existing runtime HUD only when `ProductionHudRoot` is absent. The Production test scene remains unchanged and continues to use its scene-authored T08 momentum HUD.
+- Momentum calculations, save/restore, and the 3/10 contract are unchanged. User F5 verification of the restored central-top ally/enemy values remains pending.

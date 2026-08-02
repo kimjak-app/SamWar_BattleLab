@@ -6387,6 +6387,10 @@ func _gain_momentum_for_basic_attack(attacker: BattleUnitState) -> void:
 
 func _configure_momentum_ui() -> void:
 	_remove_legacy_top_bar_background()
+	if production_hud_root == null:
+		_ensure_runtime_momentum_hud()
+		_refresh_momentum_ui()
+		return
 	_refresh_production_battle_hud("momentum-configure")
 
 

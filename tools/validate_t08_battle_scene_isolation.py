@@ -77,6 +77,10 @@ require("get_node_or_null(\"BattleUI/ProductionHudRoot\")" in battle,
         "Production HUD NodePath is not optional")
 require("func _refresh_production_battle_hud" in battle and "if production_hud_root == null:" in battle,
         "Production HUD refresh is not null-safe")
+require("if production_hud_root == null:\n\t\t_ensure_runtime_momentum_hud()" in battle,
+        "runtime legacy scene does not restore its existing momentum HUD fallback")
+require("func _ensure_runtime_momentum_hud" in battle and "RuntimeMomentumHudLayer" in battle,
+        "legacy runtime momentum HUD implementation missing")
 require("const STARTING_MOMENTUM := 3" in momentum, "STARTING_MOMENTUM must remain 3")
 require("const MAX_MOMENTUM := 10" in momentum, "MAX_MOMENTUM must remain 10")
 require("BATTLE_MAX_TURNS := 30" in (ROOT / "scripts/t02/expedition_supply_calculator.gd").read_text(encoding="utf-8"),

@@ -91,3 +91,7 @@ Completion requires:
 - Await user F5 QA of the restored legacy `Battle_Land.tscn` game flow.
 - Await user F6 QA of `tests/scenes/Battle_UI_Production_Test.tscn` for the isolated Production HUD.
 - Only after both PASS results, start T08-3A Theme & Font First Pass in the Production HUD test scene. Do not modify the runtime legacy scene for T08-3A.
+
+## T08-2B-hotfix1 QA
+
+- User F5: confirm the restored central-top runtime HUD shows ally/enemy `3/10` at battle start, follows attack/skill/round changes, and reflects save/resume.

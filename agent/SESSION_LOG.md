@@ -4127,6 +4127,10 @@
 - Copied the current full Production HUD scene to `tests/scenes/Battle_UI_Production_Test.tscn`, then restored the runtime scene from the inspected backup while retaining the current floating defend label.
 - Added `validate_t08_battle_scene_isolation.py` and changed the focused T08-2 validator to validate the test scene. Static checks passed. Godot could not launch because the configured executable path is unavailable; F5/F6 user QA is pending. T08-3A was not started.
 
+## T08-2B-hotfix1 Legacy Momentum HUD Recovery
+- Audit found no legacy momentum nodes in the backup scene. `battle_web_import_test.gd` already retained the historical runtime HUD builder, but T08-2B left it uncalled after Production HUD isolation.
+- Reconnected that builder only for scenes without `ProductionHudRoot`; normal refresh/timer paths preserve live attack, skill, round, and restored-snapshot values. Production HUD test scene remains unchanged.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
 - Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.
