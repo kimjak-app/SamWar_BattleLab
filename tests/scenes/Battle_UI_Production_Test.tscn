@@ -49,8 +49,6 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_top_hud_transparent"]
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lhwdj"]
 bg_color = Color(0.1254902, 0.78039217, 1, 0.5882353)
 corner_radius_top_left = 4
@@ -110,6 +108,8 @@ outline_color = Color(0.0784314, 0.0431373, 0.0117647, 0.82)
 shadow_size = 2
 shadow_color = Color(0.0156863, 0.0117647, 0.00784314, 0.45)
 shadow_offset = Vector2(2, 3)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_top_hud_transparent"]
 
 [node name="Battle_Fullscreen_Test" type="Node2D" unique_id=1929995568]
 script = ExtResource("1_script")
@@ -3878,21 +3878,24 @@ offset_right = 1420.0
 offset_bottom = 118.0
 mouse_filter = 2
 
-[node name="TopHudFrameFull" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
+[node name="TopHudFrameFull" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot" unique_id=1599940133]
 layout_mode = 0
-offset_right = 769.0
-offset_bottom = 99.0
+offset_left = 73.0
+offset_top = -7.0
+offset_right = 842.0
+offset_bottom = 92.0
 mouse_filter = 2
 texture = ExtResource("41_top_hud_frame_full")
-expand_mode = 0
 stretch_mode = 5
 
 [node name="AllyMomentumHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot" unique_id=1834179688]
-layout_mode = 0
-offset_left = 49.0
-offset_top = -3.0
-offset_right = 309.0
-offset_bottom = 85.0
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.018000001
+anchor_right = -0.018000001
+offset_left = 152.56
+offset_right = 412.56
+offset_bottom = 88.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"AllyMomentumPanel"
@@ -3903,7 +3906,7 @@ layout_mode = 0
 offset_left = 12.0
 offset_top = 5.0
 offset_right = 248.0
-offset_bottom = 24.0
+offset_bottom = 30.0
 theme_type_variation = &"BattleHudTitle"
 text = "아군 기세"
 horizontal_alignment = 1
@@ -3911,9 +3914,9 @@ horizontal_alignment = 1
 [node name="SlotRow" type="HBoxContainer" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud" unique_id=1792798429]
 layout_mode = 0
 offset_left = 33.0
-offset_top = 29.0
+offset_top = 31.0
 offset_right = 227.0
-offset_bottom = 47.0
+offset_bottom = 49.0
 theme_type_variation = &"BattleHudSlotRow"
 
 [node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow" unique_id=1670693305]
@@ -3988,10 +3991,10 @@ horizontal_alignment = 1
 
 [node name="TurnLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud" unique_id=676731137]
 layout_mode = 0
-offset_left = 8.0
-offset_top = 25.0
-offset_right = 292.0
-offset_bottom = 48.0
+offset_left = 7.0
+offset_top = 27.0
+offset_right = 291.0
+offset_bottom = 60.0
 theme_type_variation = &"BattleHudValue"
 text = "1/30"
 horizontal_alignment = 1
@@ -4009,20 +4012,20 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_top_hud_transparent")
 
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud" unique_id=2121568105]
 layout_mode = 0
-offset_left = 12.0
+offset_left = -75.0
 offset_top = 5.0
-offset_right = 248.0
-offset_bottom = 24.0
+offset_right = 161.0
+offset_bottom = 30.0
 theme_type_variation = &"BattleHudTitle"
 text = "적군 기세"
 horizontal_alignment = 1
 
 [node name="SlotRow" type="HBoxContainer" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud" unique_id=1895017443]
 layout_mode = 0
-offset_left = 33.0
-offset_top = 29.0
-offset_right = 227.0
-offset_bottom = 47.0
+offset_left = -54.0
+offset_top = 31.0
+offset_right = 140.0
+offset_bottom = 49.0
 theme_type_variation = &"BattleHudSlotRow"
 
 [node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow" unique_id=1466175903]
