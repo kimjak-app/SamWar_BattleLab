@@ -1,5 +1,11 @@
 # CURRENT STATE
 
+## WorldMap supply visibility / Production live log contract
+
+- `Battle_Land` now evaluates T02 supply visibility from valid WorldMap context plus configured `BattleSupplyRuntime`; contextless standalone F6 remains hidden. Supply calculations and turn settlement are unchanged.
+- Production `BattleLogHud` now retains the existing common `battle_log_lines` renderer. The test-only bottom-HUD script no longer overwrites it with fixed sample text; the separate supply Preview remains sample-only.
+- Status: `WORLDMAP SUPPLY VISIBILITY RESTORED / PRODUCTION LIVE BATTLE LOG BOUND / AUTOMATED VALIDATION PASS / USER F5-F6 QA PENDING`.
+
 ## Runtime Hotfix 4 — runtime hero ID contract restored
 
 - Hotfix 3 incorrectly canonicalized `_get_hero_id_for_unit_state()`, a shared runtime lookup. `gim_yusin` became `kim_yu_sin` before legacy `HERO_REGISTRY` lookup, so the Kim Yu-sin reinforcement slot retained its default `지원군 선봉` metadata.

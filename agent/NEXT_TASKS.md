@@ -1,5 +1,10 @@
 # NEXT TASKS
 
+## Supply/log F5-F6 QA
+
+- F5 a real WorldMap attack and defense: confirm T02 supply panel is visible, values/warnings are real, and turn completion refreshes them once.
+- F6 Production: move, attack, defend, use a skill, and allow an enemy turn; confirm BattleLogHud updates without fixed sample lines. Preview supply must remain `3 / 30 · 잔여 27` sample data.
+
 ## Runtime Hero ID Hotfix 4 F5/F6 QA
 
 - Confirm the Kim Yu-sin reinforcement slot shows `김유신`, the intended portrait, troop/type, and unique-skill data rather than `지원군 선봉`.

@@ -386,3 +386,7 @@ Return:
 - `_get_hero_id_for_unit_state()` is a runtime/legacy contract for `HERO_REGISTRY`, display name, portrait, close-up, retreat toast, reinforcement, and current-action paths. Do not canonicalize its return value.
 - Canonicalization is only permitted inside `_play_committed_hero_cutin()` for caster/owner parity and Korea MVP registry resources.
 - Required user QA: Kim Yu-sin must display normally and play the Kim Yu-sin OGV; Yi Sun-sin and Jeong Do-jeon are the paired regressions.
+# Supply/log contract handoff
+
+- Runtime supply panel is visible only when WorldMap context exists and BattleSupplyRuntime is configured. Never attach Production Preview samples to it.
+- `battle_log_lines` is the shared log source. Production bottom HUD must not write sample log strings; UI work stays paused pending F5/F6 QA.

@@ -4113,6 +4113,11 @@
   - `agent/archive/v0.67-docs_agent_docs_slimdown/SESSION_LOG_full_before_slimdown.md`
 # T06-7 Hero Unique Skills & Shared Momentum
 
+## WorldMap Supply Visibility & Production Live Battle Log
+
+- Audited Engine-meta WorldMap context handoff, BattleSupplyRuntime setup, panel NodePath, and live battle_log_lines renderer. The panel default is hidden for standalone F6 but now re-evaluates visibility after context/runtime setup and before refresh.
+- Removed only the test-only per-frame fixed log assignment. `_append_battle_log()` already refreshes Production HUD, so movement/attack/defend/skill/enemy/turn events now remain visible without modifying shared battle-log state or Preview supply data.
+
 ## Runtime Hero ID Hotfix 4
 
 - Root cause confirmed: Hotfix 3 changed the common `_get_hero_id_for_unit_state()` result from legacy `gim_yusin` to canonical `kim_yu_sin`; legacy `HERO_REGISTRY` lookup then failed and left the sample reinforcement default name `지원군 선봉`.

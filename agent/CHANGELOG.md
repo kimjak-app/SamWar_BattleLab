@@ -2872,6 +2872,11 @@
 ## Older History
 - Older detailed history is archived at `agent/archive/v0.67-docs_agent_docs_slimdown/CHANGELOG_full_before_slimdown.md`.
 
+## WorldMap Supply Visibility & Production Live Battle Log
+
+- Restored context/runtime-based T02 supply panel visibility and refresh while preserving all logistics calculations.
+- Removed the Production bottom-HUD fixed battle-log overwrite so its existing renderer displays common live battle logs; Preview supply remains isolated sample data.
+
 ## Runtime Hero ID Hotfix 4
 
 - Restored legacy runtime IDs from `_get_hero_id_for_unit_state()` and isolated canonical hero conversion to the video-cutin boundary. This restores the Kim Yu-sin `gim_yusin` HERO_REGISTRY lookup and eliminates the `지원군 선봉` fallback regression.
