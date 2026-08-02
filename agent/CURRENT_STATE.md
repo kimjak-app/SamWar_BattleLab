@@ -141,3 +141,10 @@ Authoritative execution instruction:
 - `TroopBar`, `ActionStateLabel`, and `UniqueSkillReadyLabel` remain as protected existing test NodePaths but are default hidden, so the test scene no longer shows repetitive non-legacy status text.
 - `tests/scripts/battle_ui_production_test_roster.gd` is attached only to the Production test scene and reads existing battle state/visual resolvers without changing shared runtime scripts, Theme, or `Battle_Land.tscn`. The T08-3A top HUD is unchanged.
 - Static validators and Godot project/runtime/test-scene loads pass. User F6 structure QA is pending; T08-3B1 Theme/Font work has not started.
+
+## T08-3B1 Production Roster Theme & Font
+
+- User F6 confirmed the T08-3B0 roster content structure. T08-3B1 applies only Production-roster Theme variations in `assets/ui/battle_ui_theme.tres` and `tests/scenes/Battle_UI_Production_Test.tscn`.
+- Hero names use NotoSerifKR Bold 19; troop values use Medium 15; troop types use Medium 14. Ally panels/cards use low-saturation blue-black at alpha 0.78/0.70; enemy panels/cards use dark red-brown at alpha 0.78/0.70, with 1px subdued borders.
+- Existing portrait and troop-icon resources/geometry remain unchanged. No selected-card variation was added because the protected test-only bridge has no safe selection-presentation signal; selection styling remains deferred.
+- `Battle_Land.tscn`, shared battle scripts, bridge data logic, and the locked T08-3A top HUD are unchanged. Automated validators and Godot headless loads pass; user F6 visual QA is pending. T08-3C has not started.

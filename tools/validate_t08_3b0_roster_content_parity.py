@@ -14,7 +14,6 @@ PROTECTED = (
     "Battle_Land.tscn",
     "scripts/battle_web_import_test.gd",
     "scripts/battle/ui/battle_hud_state_adapter.gd",
-    "assets/ui/battle_ui_theme.tres",
 )
 SLOTS = ("Slot01", "Slot02", "Slot03", "Reinforce01", "Reinforce02")
 SIDES = ("Ally", "Enemy")

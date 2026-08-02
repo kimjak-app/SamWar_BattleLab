@@ -116,3 +116,9 @@ Completion requires:
 - Run `tests/scenes/Battle_UI_Production_Test.tscn` directly with F6 and confirm each visible roster card shows portrait, name, `병력 current / max`, troop icon, and troop-type name.
 - Confirm `TroopBar`, `행동 가능/행동 완료`, and `고유특기 준비` text are not shown by default; status text and the ready icon appear only when their existing runtime condition is true.
 - Confirm the T08-3A top HUD is unchanged and F5 `Battle_Land.tscn` remains untouched. Do not start T08-3B1 Theme/Font or T08-3C before this structure QA passes.
+
+## T08-3B1 F6 Visual QA Gate
+
+- Run `tests/scenes/Battle_UI_Production_Test.tscn` with F6 at 1920×1080. Confirm NotoSerifKR Bold hero names, Medium troop values/types, blue-black ally cards, and dark red-brown enemy cards are readable without obscuring the battlefield.
+- Confirm portraits and troop icons remain aligned, all five card positions per side stay inside their panels, and hidden action/progress/ready-text contracts remain intact.
+- Confirm the T08-3A top HUD is unchanged. Selected-card styling is intentionally deferred because no test-only selection presentation signal exists. Do not start T08-3C before visual approval.

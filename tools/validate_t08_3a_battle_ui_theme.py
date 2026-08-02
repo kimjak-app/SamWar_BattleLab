@@ -103,7 +103,15 @@ for side in ("Ally", "Enemy"):
 top_paths = [path for path in nodes if path.startswith(top_root + "/")]
 for path in top_paths:
     require("theme_override_" not in nodes[path][3], f"static theme_override remains in top HUD: {path}")
-require(scene.count('theme = ExtResource("38_battle_ui_theme")') == 3, "Theme leaked outside the three top HUD panels")
+theme_hosts = [path for path, (_line, _parent, _node_type, body) in nodes.items() if 'theme = ExtResource("38_battle_ui_theme")' in body]
+allowed_theme_hosts = {
+    f"{top_root}/AllyMomentumHud",
+    f"{top_root}/TurnHud",
+    f"{top_root}/EnemyMomentumHud",
+    "BattleUI/ProductionHudRoot/AllyRosterHud",
+    "BattleUI/ProductionHudRoot/EnemyRosterHud",
+}
+require(set(theme_hosts) == allowed_theme_hosts, "Theme leaked outside the isolated Production HUD hosts")
 require("offset_right = 610.0" in nodes[f"{top_root}/TurnHud"][3] and "offset_bottom = 88.0" in nodes[f"{top_root}/TurnHud"][3],
         "Turn HUD compact dimensions missing")
 require('text = "3 / 10"' in nodes[f"{top_root}/AllyMomentumHud/ValueLabel"][3], "ally default momentum text changed")

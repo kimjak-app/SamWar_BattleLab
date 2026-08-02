@@ -4151,6 +4151,12 @@
 - Retained existing Production-only `TroopBar`, `ActionStateLabel`, and `UniqueSkillReadyLabel` NodePaths but set them default hidden. Added a scene-only bridge which reads current battle state and existing visual resolvers; it does not mutate battle state or execute in `Battle_Land.tscn`.
 - Validation passed for card structure, 5+5 slot count, runtime/Theme/top-HUD protection, scene integrity, all legacy validators, and Godot project/runtime/test-scene headless loads. User F6 structure QA is pending; T08-3B1 and T08-3C remain unstarted.
 
+## T08-3B1 Production Roster Theme & Font
+- User reported T08-3B0 F6 structure QA PASS. Extended only the Production Theme with roster-specific panel/card/text variations, leaving every locked T08-3A top-HUD variation/value untouched.
+- The two roster panels use muted blue-black/dark red-brown 0.78 backgrounds; cards use 0.70 backgrounds and restrained 1px borders. Existing portrait and troop-icon positions/resources are unchanged.
+- Applied NotoSerifKR Bold 19 to names, Medium 15 to troop values, and Medium 14 to troop types. Selection styling remains deferred because the test-only bridge has no selection presentation signal and was not modified.
+- T08-3B1/B0/T08-3A validators, isolation/transaction/unit validators, diff checks, and Godot project/Battle_Land/Production test-scene headless loads pass. User F6 visual QA remains pending; T08-3C was not started.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
 - Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.

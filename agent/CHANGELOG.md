@@ -2906,6 +2906,12 @@
 - Added `validate_t08_3b0_roster_content_parity.py` to protect the runtime scene, shared scripts, Theme, top HUD slice, card counts, and required conditional visibility. Godot project, runtime scene, and Production test scene loads passed.
 - Did not modify gameplay, shared runtime code, Theme/font styling, `Battle_Land.tscn`, or begin T08-3B1/T08-3C. User F6 structure QA is pending.
 
+## T08-3B1 Production Roster Theme & Font
+- Added Production-roster-only Theme variations to `assets/ui/battle_ui_theme.tres` and applied them only to the two Production roster panels, their ten existing cards, and legacy-parity name/troop/type/status labels.
+- Applied NotoSerifKR Bold 19 for names, Medium 15 for troop values, and Medium 14 for troop types. Ally panel/card alpha is 0.78/0.70 in blue-black; enemy alpha is 0.78/0.70 in dark red-brown; both use restrained 1px borders.
+- Added `validate_t08_3b1_roster_theme_font.py` and updated earlier T08 validators to permit the two explicit isolated roster Theme hosts while preserving the locked top-HUD slice.
+- No selection variation was implemented: the test-only bridge has no safe selection-presentation input. No runtime scene, shared battle script, bridge data logic, card content structure, or T08-3A top HUD changed. User F6 visual QA is pending; T08-3C remains unstarted.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
 - Added explicit total assigned troops and remaining garrison troop summary.

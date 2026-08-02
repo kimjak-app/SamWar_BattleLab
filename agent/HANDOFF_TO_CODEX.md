@@ -342,3 +342,9 @@ Return:
 - The isolated Production scene now has legacy roster content parity through a scene-only bridge; shared battle scripts, `Battle_Land.tscn`, and `battle_ui_theme.tres` were not changed.
 - Await user F6 structure QA: portraits, names, troop values, troop icons, and troop-type names must be visible; progress/action/ready text must remain hidden by default; the T08-3A top HUD must remain unchanged.
 - Do not begin T08-3B1 Theme/Font work or T08-3C before the user records F6 structure approval.
+
+## T08-3B1 Result
+
+- The Production test-scene roster now uses isolated Theme variations: NotoSerifKR Bold 19 hero names, Medium 15 troop values, Medium 14 troop types, subdued blue-black ally cards, and dark red-brown enemy cards.
+- `Battle_Land.tscn`, shared scripts, test bridge data logic, roster NodePaths, and the T08-3A top HUD remain unchanged. Selection styling is deferred because no safe test-only selection signal is available.
+- Await user F6 visual QA only; do not start T08-3C before approval.
