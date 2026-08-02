@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=14 format=3]
+[gd_resource type="Theme" load_steps=18 format=3]
 
 [ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Bold.otf" id="1_bold"]
 [ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Medium.otf" id="2_medium"]
@@ -112,6 +112,60 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_production_roster_ally_panel"]
+bg_color = Color(0.035, 0.075, 0.105, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.49, 0.58, 0.6)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_color = Color(0, 0, 0, 0.22)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_production_roster_enemy_panel"]
+bg_color = Color(0.11, 0.045, 0.045, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.58, 0.34, 0.31, 0.6)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_color = Color(0, 0, 0, 0.22)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_production_roster_ally_card"]
+bg_color = Color(0.075, 0.11, 0.14, 0.7)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.38, 0.45, 0.5)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_production_roster_enemy_card"]
+bg_color = Color(0.14, 0.075, 0.07, 0.7)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.28, 0.25, 0.5)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
 [resource]
 BattleHudPanel/base_type = &"Panel"
 BattleHudPanel/styles/panel = SubResource("StyleBoxFlat_base")
@@ -149,3 +203,35 @@ MomentumSlotEnemyFilled/base_type = &"Panel"
 MomentumSlotEnemyFilled/styles/panel = SubResource("StyleBoxFlat_enemy_filled")
 MomentumSlotEnemyEmpty/base_type = &"Panel"
 MomentumSlotEnemyEmpty/styles/panel = SubResource("StyleBoxFlat_enemy_empty")
+ProductionRosterPanelAlly/base_type = &"Panel"
+ProductionRosterPanelAlly/styles/panel = SubResource("StyleBoxFlat_production_roster_ally_panel")
+ProductionRosterPanelEnemy/base_type = &"Panel"
+ProductionRosterPanelEnemy/styles/panel = SubResource("StyleBoxFlat_production_roster_enemy_panel")
+ProductionRosterCardAlly/base_type = &"Panel"
+ProductionRosterCardAlly/styles/panel = SubResource("StyleBoxFlat_production_roster_ally_card")
+ProductionRosterCardEnemy/base_type = &"Panel"
+ProductionRosterCardEnemy/styles/panel = SubResource("StyleBoxFlat_production_roster_enemy_card")
+ProductionRosterHeroName/base_type = &"Label"
+ProductionRosterHeroName/fonts/font = ExtResource("1_bold")
+ProductionRosterHeroName/font_sizes/font_size = 19
+ProductionRosterHeroName/colors/font_color = Color(0.94, 0.91, 0.84, 1)
+ProductionRosterHeroName/colors/font_outline_color = Color(0.01, 0.015, 0.02, 0.88)
+ProductionRosterHeroName/constants/outline_size = 1
+ProductionRosterTroops/base_type = &"Label"
+ProductionRosterTroops/fonts/font = ExtResource("2_medium")
+ProductionRosterTroops/font_sizes/font_size = 15
+ProductionRosterTroops/colors/font_color = Color(0.8, 0.82, 0.8, 1)
+ProductionRosterTroops/colors/font_outline_color = Color(0.01, 0.015, 0.02, 0.82)
+ProductionRosterTroops/constants/outline_size = 1
+ProductionRosterUnitType/base_type = &"Label"
+ProductionRosterUnitType/fonts/font = ExtResource("2_medium")
+ProductionRosterUnitType/font_sizes/font_size = 14
+ProductionRosterUnitType/colors/font_color = Color(0.7, 0.73, 0.72, 1)
+ProductionRosterUnitType/colors/font_outline_color = Color(0.01, 0.015, 0.02, 0.8)
+ProductionRosterUnitType/constants/outline_size = 1
+ProductionRosterStatus/base_type = &"Label"
+ProductionRosterStatus/fonts/font = ExtResource("2_medium")
+ProductionRosterStatus/font_sizes/font_size = 13
+ProductionRosterStatus/colors/font_color = Color(0.86, 0.75, 0.5, 1)
+ProductionRosterStatus/colors/font_outline_color = Color(0.01, 0.015, 0.02, 0.84)
+ProductionRosterStatus/constants/outline_size = 1
