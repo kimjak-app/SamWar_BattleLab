@@ -4157,6 +4157,11 @@
 - Applied NotoSerifKR Bold 19 to names, Medium 15 to troop values, and Medium 14 to troop types. Selection styling remains deferred because the test-only bridge has no selection presentation signal and was not modified.
 - T08-3B1/B0/T08-3A validators, isolation/transaction/unit validators, diff checks, and Godot project/Battle_Land/Production test-scene headless loads pass. User F6 visual QA remains pending; T08-3C was not started.
 
+## T08-3B1-hotfix1 Legacy Status Placement
+- User F6 identified a Production-only overlap where `StatusLabel` occupied the right-bottom troop-type area. Applied the legacy visual order in every card: status below troop values on the left (`80,66–188,88`) and troop type unchanged on the right (x=196 onward).
+- Replaced the bridge's local abbreviated status text with the existing legacy formatter read, which provides strings such as `◆ 방어 태세` without touching status rules or battle state.
+- Static placement parity, all existing validators, and Godot project/Battle_Land/Production test-scene headless loads passed. User F6 status QA is pending; no T08-3C work started.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
 - Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.

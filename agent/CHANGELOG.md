@@ -2912,6 +2912,12 @@
 - Added `validate_t08_3b1_roster_theme_font.py` and updated earlier T08 validators to permit the two explicit isolated roster Theme hosts while preserving the locked top-HUD slice.
 - No selection variation was implemented: the test-only bridge has no safe selection-presentation input. No runtime scene, shared battle script, bridge data logic, card content structure, or T08-3A top HUD changed. User F6 visual QA is pending; T08-3C remains unstarted.
 
+## T08-3B1-hotfix1 Legacy Status Placement
+- Fixed the Production test-scene roster status/type overlap reported during F6 QA. All ten `StatusLabel` nodes now use `80,66–188,88`, below troop values and left of the unchanged x=196 troop-type area.
+- Updated only the test-scene bridge presentation path to read the existing `_get_formation_status_summary_text` formatter, preserving legacy text such as `◆ 방어 태세`; no state calculation or mutation changed.
+- Added `validate_t08_3b1_hotfix1_status_placement.py` and extended the T08-3B1 validator for the approved presentation-only bridge change. Runtime scene, shared scripts, cards/panels/icons/type geometry, Theme, and top HUD remain protected.
+- Automated validators and Godot project/runtime/test-scene headless loads pass. User F6 status QA is pending; T08-3C remains unstarted.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
 - Added explicit total assigned troops and remaining garrison troop summary.

@@ -15,7 +15,6 @@ PROTECTED = (
     "Battle_Land.tscn",
     "scripts/battle_web_import_test.gd",
     "scripts/battle/ui/battle_hud_state_adapter.gd",
-    BRIDGE,
 )
 SIDES = ("Ally", "Enemy")
 SLOTS = ("Slot01", "Slot02", "Slot03", "Reinforce01", "Reinforce02")
@@ -131,6 +130,9 @@ for side in SIDES:
 
 require("ProductionRosterCardAllySelected/base_type" not in theme and "ProductionRosterCardEnemySelected/base_type" not in theme,
         "selection variations must remain deferred without a test-only selection signal")
+bridge = (ROOT / BRIDGE).read_text(encoding="utf-8")
+require('_get_formation_status_summary_text' in bridge, "test bridge must use the legacy status formatter")
+require("current_troops =" not in bridge and "max_troops =" not in bridge, "test bridge must not mutate battle state")
 project = (ROOT / "project.godot").read_text(encoding="utf-8")
 worldmap = (ROOT / "scripts/worldmap/worldmap_main.gd").read_text(encoding="utf-8")
 require("Battle_UI_Production_Test.tscn" not in project and "Battle_UI_Production_Test.tscn" not in worldmap,

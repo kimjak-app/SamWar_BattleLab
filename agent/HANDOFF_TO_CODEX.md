@@ -348,3 +348,9 @@ Return:
 - The Production test-scene roster now uses isolated Theme variations: NotoSerifKR Bold 19 hero names, Medium 15 troop values, Medium 14 troop types, subdued blue-black ally cards, and dark red-brown enemy cards.
 - `Battle_Land.tscn`, shared scripts, test bridge data logic, roster NodePaths, and the T08-3A top HUD remain unchanged. Selection styling is deferred because no safe test-only selection signal is available.
 - Await user F6 visual QA only; do not start T08-3C before approval.
+
+## T08-3B1-hotfix1 Result
+
+- User F6 found Production roster status/type overlap. Status is now left-aligned below troop values at `80,66–188,88`; the unchanged troop-type area starts at x=196.
+- The scene-only bridge uses the existing legacy status formatter, so `◆ 방어 태세` parity is retained without shared-code or gameplay changes.
+- Await user F6 status QA only; do not start T08-3C before approval.

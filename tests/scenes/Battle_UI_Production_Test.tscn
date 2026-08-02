@@ -4140,10 +4140,10 @@ text = "대기"
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
 theme_type_variation = &"ProductionRosterStatus"
 visible = false
-offset_left = 192.0
-offset_top = 56.0
-offset_right = 262.0
-offset_bottom = 76.0
+offset_left = 80.0
+offset_top = 66.0
+offset_right = 188.0
+offset_bottom = 88.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
@@ -4247,10 +4247,10 @@ text = "대기"
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
 theme_type_variation = &"ProductionRosterStatus"
 visible = false
-offset_left = 192.0
-offset_top = 56.0
-offset_right = 262.0
-offset_bottom = 76.0
+offset_left = 80.0
+offset_top = 66.0
+offset_right = 188.0
+offset_bottom = 88.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
@@ -4354,10 +4354,10 @@ text = "대기"
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
 theme_type_variation = &"ProductionRosterStatus"
 visible = false
-offset_left = 192.0
-offset_top = 56.0
-offset_right = 262.0
-offset_bottom = 76.0
+offset_left = 80.0
+offset_top = 66.0
+offset_right = 188.0
+offset_bottom = 88.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
@@ -4461,10 +4461,10 @@ text = "대기"
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
 theme_type_variation = &"ProductionRosterStatus"
 visible = false
-offset_left = 192.0
-offset_top = 56.0
-offset_right = 262.0
-offset_bottom = 76.0
+offset_left = 80.0
+offset_top = 66.0
+offset_right = 188.0
+offset_bottom = 88.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
@@ -4568,10 +4568,10 @@ text = "대기"
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
 theme_type_variation = &"ProductionRosterStatus"
 visible = false
-offset_left = 192.0
-offset_top = 56.0
-offset_right = 262.0
-offset_bottom = 76.0
+offset_left = 80.0
+offset_top = 66.0
+offset_right = 188.0
+offset_bottom = 88.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
@@ -4683,10 +4683,10 @@ text = "대기"
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
 theme_type_variation = &"ProductionRosterStatus"
 visible = false
-offset_left = 192.0
-offset_top = 56.0
-offset_right = 262.0
-offset_bottom = 76.0
+offset_left = 80.0
+offset_top = 66.0
+offset_right = 188.0
+offset_bottom = 88.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
@@ -4790,10 +4790,10 @@ text = "대기"
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
 theme_type_variation = &"ProductionRosterStatus"
 visible = false
-offset_left = 192.0
-offset_top = 56.0
-offset_right = 262.0
-offset_bottom = 76.0
+offset_left = 80.0
+offset_top = 66.0
+offset_right = 188.0
+offset_bottom = 88.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
@@ -4897,10 +4897,10 @@ text = "대기"
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
 theme_type_variation = &"ProductionRosterStatus"
 visible = false
-offset_left = 192.0
-offset_top = 56.0
-offset_right = 262.0
-offset_bottom = 76.0
+offset_left = 80.0
+offset_top = 66.0
+offset_right = 188.0
+offset_bottom = 88.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
@@ -5004,10 +5004,10 @@ text = "대기"
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
 theme_type_variation = &"ProductionRosterStatus"
 visible = false
-offset_left = 192.0
-offset_top = 56.0
-offset_right = 262.0
-offset_bottom = 76.0
+offset_left = 80.0
+offset_top = 66.0
+offset_right = 188.0
+offset_bottom = 88.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
@@ -5111,10 +5111,10 @@ text = "대기"
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
 theme_type_variation = &"ProductionRosterStatus"
 visible = false
-offset_left = 192.0
-offset_top = 56.0
-offset_right = 262.0
-offset_bottom = 76.0
+offset_left = 80.0
+offset_top = 66.0
+offset_right = 188.0
+offset_bottom = 88.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]

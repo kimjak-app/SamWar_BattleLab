@@ -74,14 +74,10 @@ func _sync_slot(controller: Node, slot: Control, unit: Variant) -> void:
 		troop_icon.visible = troop_icon.texture != null
 	if troop_type_label != null:
 		troop_type_label.text = _unit_type_name(str(unit.unit_type))
-	var status_entries: Array[String] = []
-	if bool(unit.is_defending):
-		status_entries.append("방어")
-	if bool(unit.has_moved):
-		status_entries.append("이동")
 	if status_label != null:
-		status_label.text = " · ".join(status_entries)
-		status_label.visible = not status_entries.is_empty()
+		var status_text := str(controller.call("_get_formation_status_summary_text", unit))
+		status_label.text = status_text
+		status_label.visible = status_text != ""
 	if ready_icon != null:
 		ready_icon.visible = bool(controller.call("_is_unique_skill_ready_for_formation_guide", unit))
 

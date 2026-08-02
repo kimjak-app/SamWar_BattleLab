@@ -148,3 +148,10 @@ Authoritative execution instruction:
 - Hero names use NotoSerifKR Bold 19; troop values use Medium 15; troop types use Medium 14. Ally panels/cards use low-saturation blue-black at alpha 0.78/0.70; enemy panels/cards use dark red-brown at alpha 0.78/0.70, with 1px subdued borders.
 - Existing portrait and troop-icon resources/geometry remain unchanged. No selected-card variation was added because the protected test-only bridge has no safe selection-presentation signal; selection styling remains deferred.
 - `Battle_Land.tscn`, shared battle scripts, bridge data logic, and the locked T08-3A top HUD are unchanged. Automated validators and Godot headless loads pass; user F6 visual QA is pending. T08-3C has not started.
+
+## T08-3B1-hotfix1 Legacy Status Placement
+
+- User F6 visual QA found `StatusLabel` overlapping the right-bottom `TroopTypeLabel` in the Production roster. The test scene now places every status row at `80, 66–188, 88`: below troop values on the left, with the locked troop-type area beginning at x=196.
+- The test-only bridge now reads the existing legacy formatter, preserving strings such as `◆ 방어 태세` without changing status calculation, combat state, or shared scripts.
+- Status uses the existing NotoSerifKR Medium 13 variation and remains default hidden. All 10 cards use the same geometry; panels, cards, portraits, troop icons/types, T08-3A top HUD, and `Battle_Land.tscn` are unchanged.
+- Automated validators and Godot headless loads pass. User F6 status QA is pending; T08-3C has not started.

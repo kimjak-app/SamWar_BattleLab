@@ -122,3 +122,9 @@ Completion requires:
 - Run `tests/scenes/Battle_UI_Production_Test.tscn` with F6 at 1920×1080. Confirm NotoSerifKR Bold hero names, Medium troop values/types, blue-black ally cards, and dark red-brown enemy cards are readable without obscuring the battlefield.
 - Confirm portraits and troop icons remain aligned, all five card positions per side stay inside their panels, and hidden action/progress/ready-text contracts remain intact.
 - Confirm the T08-3A top HUD is unchanged. Selected-card styling is intentionally deferred because no test-only selection presentation signal exists. Do not start T08-3C before visual approval.
+
+## T08-3B1-hotfix1 F6 Status QA Gate
+
+- In the Production test scene, place or retain a defending unit and confirm `◆ 방어 태세` appears below `병력 current / max` in the left text column.
+- Confirm the right-bottom troop type remains readable with no overlap, and that clearing the status hides the row again.
+- Confirm every other card preserves the same status slot, all action/progress/ready text stays hidden, and the T08-3A top HUD is unchanged. Do not start T08-3C before approval.
