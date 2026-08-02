@@ -1467,6 +1467,7 @@ func _ready() -> void:
 
 func _read_worldmap_battle_context_handoff() -> void:
 	worldmap_battle_context = {}
+	_refresh_battle_supply_visibility()
 	if not Engine.has_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY):
 		print("[Battle] No WorldMap battle context; using test battle setup")
 		_append_battle_log("월드맵 전투 데이터 없음 · 테스트 전투")
@@ -1545,12 +1546,19 @@ func _setup_battle_supply_runtime(context: Dictionary) -> void:
 	_settle_battle_supply_turn(1)
 
 
+func _should_show_runtime_battle_supply() -> bool:
+	return _has_worldmap_battle_context() and battle_supply_runtime != null
+
+
+func _refresh_battle_supply_visibility() -> void:
+	if battle_supply_panel == null:
+		battle_supply_panel = get_node_or_null("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel") as Panel
+	if battle_supply_panel != null:
+		battle_supply_panel.visible = _should_show_runtime_battle_supply()
+
+
 func _ensure_battle_supply_hud() -> void:
-	if battle_supply_panel != null:
-		return
-	battle_supply_panel = get_node_or_null("BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel") as Panel
-	if battle_supply_panel != null:
-		battle_supply_panel.visible = true
+	_refresh_battle_supply_visibility()
 
 
 func _settle_battle_supply_turn(turn_number: int) -> void:
@@ -1587,7 +1595,8 @@ func _apply_supply_desertion_to_side(side: String, deserters: int) -> void:
 
 
 func _refresh_battle_supply_hud() -> void:
-	if battle_supply_panel == null or battle_supply_runtime == null:
+	_refresh_battle_supply_visibility()
+	if not _should_show_runtime_battle_supply() or battle_supply_panel == null:
 		return
 	var state := battle_supply_runtime.snapshot()
 	var attacker: Dictionary = state.get("attacker", {})
@@ -3042,10 +3051,7 @@ func reset_demo_state() -> void:
 	_hide_unique_skill_toast()
 	_hide_enemy_retreat_toast()
 	has_logged_hero_identity_validation = false
-	battle_log_lines = [
-		"아군 준비",
-		"관우 방어",
-	]
+	battle_log_lines.clear()
 	current_ally_unit_position = ally_unit_marker.position
 	current_ally_portrait_position = ally_portrait_marker.position
 	_create_demo_unit_states()
