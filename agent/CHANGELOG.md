@@ -2874,6 +2874,7 @@
 
 ## Video Cutin Hotfix 3 — Canonical Hero Identity
 
+- Corrected the Korea MVP roster record: 흑치상지 (`heukchi_sangji`) is included; 연개소문 is excluded. This is a documentation/instruction-name correction only: authoritative runtime, skill, registry, and asset data were already correct.
 - Added the single cutin canonical hero-ID normalization contract and applied it to unit-state and committed-skill owner boundaries before parity and registry lookup.
 - Added 10-hero legacy/canonical identity coverage and actual `VideoStreamPlayer` scene-tree playback coverage for all 13 Korea MVP cutins; all existing OGV/title/portrait resources load and play.
 - Preserved the Godot-saved Production UI state in a separate commit and updated T08 validators to use that locked baseline without modifying UI content.

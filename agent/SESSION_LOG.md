@@ -4115,6 +4115,7 @@
 
 ## Video Cutin Hotfix 3 — canonical identity contract
 
+- Roster correction audit confirmed the canonical Korean name 흑치상지 and ID `heukchi_sangji`. No repository data uses the typo 흑지상지, and no 연개소문 cutin record/assets exist; no runtime data rename was needed.
 - Preserved pre-existing Godot-saved `battle_ui_theme.tres` and `Battle_UI_Production_Test.tscn` changes in `4d3a565`; no UI properties were changed as part of cutin routing.
 - Confirmed the regression: `_play_committed_hero_cutin()` compared raw legacy unit ID with canonical skill owner before registry normalization, causing `caster_skill_hero_mismatch` and the legacy static path.
 - `KoreaMvpHeroCutinRegistry.canonicalize_hero_id()` now provides the authoritative cutin identity contract. Unit state and committed skill owner use canonical values before parity, registry, portrait, title, and OGV resolution.

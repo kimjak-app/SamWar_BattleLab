@@ -2,6 +2,7 @@
 
 ## Video Cutin Hotfix 3 — canonical hero identity and 13-hero audit
 
+- KOREA MVP CUTIN ROSTER CORRECTED: HEUKCHI SANGJI INCLUDED / YEON GAESOMUN EXCLUDED. Repository data consistently identifies 흑치상지 as `heukchi_sangji`; no `흑지상지` data spelling or 연개소문 cutin entry exists.
 - The cutin authority is `scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd::canonicalize_hero_id()`. Legacy runtime IDs `yi_sunsin`, `jeong_dojeon`, `gim_yusin`, and `gwon_yul` normalize before the committed caster/skill parity gate and before registry, portrait, title, and video lookup.
 - The 13 Korea MVP contract is Yi Sun-sin, Uija Wang, Kim Yu-sin, Kim Chun-chu, Jeong Do-jeon, Jang Bo-go, Heukchi Sangji, Gyebaek, Kwon Yul, Gwanggaeto, Eulji Mundeok, Dorim, and Cheok Jun-gyeong. Every registered OGV/title/portrait loads and starts through `HeroCutinPresentation` in the Godot scene-tree test; static fallback is false. Kwon Yul retains its existing legacy portrait path, without copying or renaming assets.
 - Guan Yu remains intentionally unregistered and takes the normal static fallback with no unrelated video. Turn scheduler, supply, UI geometry, Theme, fonts, `Battle_Land.tscn`, and the Production HUD remain unchanged by the hotfix.
