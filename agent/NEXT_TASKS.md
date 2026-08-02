@@ -1,5 +1,10 @@
 # NEXT TASKS
 
+## Video Cutin Hotfix 3 F5/F6 QA gate
+
+- In a real WorldMap battle, use Yi Sun-sin, Jeong Do-jeon, Kim Yu-sin, and if available Heukchi Sangji unique skills. Confirm the registered OGV plays before any static cutin, the title displays, the effect/resume timing remains normal, and the trace has `registry_hit=true` and `selected_mode=video` without `fallback_called=true`.
+- Confirm Guan Yu still uses only the normal static fallback and never another hero's video. Do not resume T08 UI work until the user records F5/F6 visual QA.
+
 ## Video Cutin Hotfix 2 F5 QA
 
 - Execute Yi Sun-sin unique skill once and capture the single `[CUTIN_TRACE]` request sequence. Expected: `registry_hit=true`, `selected_mode=video`, assigned OGV path, `play_called=true`, no `fallback_called=true`.

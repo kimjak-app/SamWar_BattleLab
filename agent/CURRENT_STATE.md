@@ -1,5 +1,12 @@
 # CURRENT STATE
 
+## Video Cutin Hotfix 3 — canonical hero identity and 13-hero audit
+
+- The cutin authority is `scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd::canonicalize_hero_id()`. Legacy runtime IDs `yi_sunsin`, `jeong_dojeon`, `gim_yusin`, and `gwon_yul` normalize before the committed caster/skill parity gate and before registry, portrait, title, and video lookup.
+- The 13 Korea MVP contract is Yi Sun-sin, Uija Wang, Kim Yu-sin, Kim Chun-chu, Jeong Do-jeon, Jang Bo-go, Heukchi Sangji, Gyebaek, Kwon Yul, Gwanggaeto, Eulji Mundeok, Dorim, and Cheok Jun-gyeong. Every registered OGV/title/portrait loads and starts through `HeroCutinPresentation` in the Godot scene-tree test; static fallback is false. Kwon Yul retains its existing legacy portrait path, without copying or renaming assets.
+- Guan Yu remains intentionally unregistered and takes the normal static fallback with no unrelated video. Turn scheduler, supply, UI geometry, Theme, fonts, `Battle_Land.tscn`, and the Production HUD remain unchanged by the hotfix.
+- Status: `VIDEO CUTIN HOTFIX3 IMPLEMENTED / CANONICAL ID CONTRACT PASS / ALL 13 KOREA MVP CUTINS PLAYBACK PASS / USER F5-F6 QA PENDING`.
+
 ## Runtime Hotfix 2 — actual hero video cutin playback
 
 - The first cutin hotfix passed registry/resource checks but user F5 still selected the static path. The actual static texture is assigned by `_show_unique_skill_toast_over_unit()` through `_get_unique_skill_cutin_texture()`; for Yi Sun-sin it is `res://assets/web_battle/skill_cutins/yi_sunsin_hakikjin.png`, not a reinforcement/ready flag.

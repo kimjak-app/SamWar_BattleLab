@@ -376,3 +376,8 @@ Return:
 - User F6 found Production roster status/type overlap. Status is now left-aligned below troop values at `80,66–188,88`; the unchanged troop-type area starts at x=196.
 - The scene-only bridge uses the existing legacy status formatter, so `◆ 방어 태세` parity is retained without shared-code or gameplay changes.
 - Await user F6 status QA only; do not start T08-3C before approval.
+# Video Cutin Hotfix 3 handoff
+
+- Preserve the Part-A Godot-saved Production UI commit; the T08 UI validators use it as their locked semantic baseline. Do not change Theme, fonts, panels, or production-scene geometry during cutin QA.
+- Cutin hero identity must use `KoreaMvpHeroCutinRegistry.canonicalize_hero_id()` at every cutin boundary. Never restore raw caster/skill-owner comparison or add isolated per-hero routing conditions.
+- Automated 10-hero identity and 13-hero scene-tree playback coverage passes. Remaining work is user F5/F6 visual QA only; do not resume T08 UI slices beforehand.

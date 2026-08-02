@@ -4113,6 +4113,14 @@
   - `agent/archive/v0.67-docs_agent_docs_slimdown/SESSION_LOG_full_before_slimdown.md`
 # T06-7 Hero Unique Skills & Shared Momentum
 
+## Video Cutin Hotfix 3 — canonical identity contract
+
+- Preserved pre-existing Godot-saved `battle_ui_theme.tres` and `Battle_UI_Production_Test.tscn` changes in `4d3a565`; no UI properties were changed as part of cutin routing.
+- Confirmed the regression: `_play_committed_hero_cutin()` compared raw legacy unit ID with canonical skill owner before registry normalization, causing `caster_skill_hero_mismatch` and the legacy static path.
+- `KoreaMvpHeroCutinRegistry.canonicalize_hero_id()` now provides the authoritative cutin identity contract. Unit state and committed skill owner use canonical values before parity, registry, portrait, title, and OGV resolution.
+- Added and ran 10-hero identity, 13-hero actual playback, and Guan Yu static-fallback tests. Godot 4.6.2 parses the project and loads Battle_Land/Production test scenes; all 13 streams report assigned/playing and no static fallback.
+- User F5/F6 visual QA remains required before marking the video cutins user-PASS or resuming T08 UI work.
+
 - Started from clean `main` baseline `f928745d82ed7a4f08735c6e72bbd1b88502040f`.
 - Implemented the full runtime transaction without helper-only completion commits.
 - Added shared momentum, 39-skill resolver, player UI, AI scoring/use, logs, battle snapshot save/resume, validator, and smoke coverage.

@@ -2871,6 +2871,12 @@
 
 ## Older History
 - Older detailed history is archived at `agent/archive/v0.67-docs_agent_docs_slimdown/CHANGELOG_full_before_slimdown.md`.
+
+## Video Cutin Hotfix 3 — Canonical Hero Identity
+
+- Added the single cutin canonical hero-ID normalization contract and applied it to unit-state and committed-skill owner boundaries before parity and registry lookup.
+- Added 10-hero legacy/canonical identity coverage and actual `VideoStreamPlayer` scene-tree playback coverage for all 13 Korea MVP cutins; all existing OGV/title/portrait resources load and play.
+- Preserved the Godot-saved Production UI state in a separate commit and updated T08 validators to use that locked baseline without modifying UI content.
 ## v0.68b-12b-33D Defense Deployment Panel Parity
 - Reused `PlayerAttackDeploymentPanel` as a shared attack/defense deployment panel through `deployment_type`.
 - Enemy invasion manual/auto defense now opens a defense preparation panel instead of immediately entering battle.
