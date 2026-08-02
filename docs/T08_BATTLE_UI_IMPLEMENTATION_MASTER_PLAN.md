@@ -467,3 +467,5 @@ T08 BATTLE UI는 다음 조건을 모두 만족할 때 완료로 인정한다.
   - T08-3A/3B/3C로 작업 패키지 분리
   - 에셋 제작 결정 게이트 추가
   - 위험 관리표와 T08 전체 완료 정의 추가
+
+- **T08-2B 실행 환경 분리** (2026-08-02): 실제 게임은 `Battle_Land.tscn`의 레거시 HUD를 사용하고, T08 Production HUD 및 이후 T08-3A Theme/Font 작업은 `tests/scenes/Battle_UI_Production_Test.tscn`에서 F6로 진행한다. T08-3A는 아직 시작하지 않았다.

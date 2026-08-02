@@ -103,3 +103,10 @@ Authoritative execution instruction:
 ## Authoritative roadmap
 
 - `agent/plans/T07_T11_BATTLE_ENGINE_MVP_COMPLETION_ROADMAP.md`
+
+## T08-2B Legacy Battle Scene Recovery
+
+- Runtime `Battle_Land.tscn` is restored to the supplied pre-T08 legacy HUD layout while retaining the current resource set, five-unit battle nodes, cutin/result/toast nodes, and the latest floating defend label.
+- The T08 Production HUD is isolated in `tests/scenes/Battle_UI_Production_Test.tscn`; F5 stays on the WorldMap -> `Battle_Land.tscn` path and F6 of the test scene is the T08 visual-development path.
+- Production HUD access is already optional in `battle_web_import_test.gd`, so the runtime scene safely uses legacy UI when that root is absent.
+- Static validators pass; the configured local Godot executable is unavailable, so Godot/F5/F6 QA remains pending. T08-3A has not started.

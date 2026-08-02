@@ -494,3 +494,11 @@ T08-2 is complete only when:
 ```text
 feat: add production battle HUD skeleton and state adapter
 ```
+
+## T08-2B Recovery / Isolation Record
+
+- The current Production HUD scene was preserved unchanged at `tests/scenes/Battle_UI_Production_Test.tscn` for F6 and future T08-3A work.
+- Runtime `Battle_Land.tscn` now uses the inspected pre-T08 legacy HUD layout. Current battle resources, unit-type nodes, cutin/result/toast nodes, root script, WorldMap handoff target, and latest floating defend label remain present.
+- `ProductionHudRoot` is intentionally absent from the runtime scene. Its controller reference and refresh route are optional/null-safe; the full HUD remains active in the test scene.
+- `tools/validate_t08_2_production_hud.py` now validates the production test scene, and `tools/validate_t08_battle_scene_isolation.py` enforces runtime/test separation, NodePath/resources, momentum/turn and WorldMap entry contracts.
+- Static validation PASS. Godot executable path in `agent/LOCAL_ENV.md` was unavailable in this session; user F5/F6 QA is pending. T08-3A was not started.

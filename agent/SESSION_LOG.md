@@ -4122,6 +4122,11 @@
 ## T07 Five Unit-Type Battle Completion
 - Completed T07-3 through T07-7 local transactions. Automated validation and Battle_Land/WorldMap headless load passed; F5 QA remains pending.
 
+## T08-2B Legacy Battle Scene Recovery & Production HUD Isolation
+- Compared supplied `_incoming/Battle_Land_BEFORE_T08_BACKUP.tscn` with the current scene: 3,996/4,977 lines and 698/846 nodes; 148 current-only nodes were the Production HUD hierarchy, and common resource/signal declarations remained compatible.
+- Copied the current full Production HUD scene to `tests/scenes/Battle_UI_Production_Test.tscn`, then restored the runtime scene from the inspected backup while retaining the current floating defend label.
+- Added `validate_t08_battle_scene_isolation.py` and changed the focused T08-2 validator to validate the test scene. Static checks passed. Godot could not launch because the configured executable path is unavailable; F5/F6 user QA is pending. T08-3A was not started.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
 - Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.

@@ -85,3 +85,9 @@ Completion requires:
 - No terrain, cooperative attack, common tactic, or balance changes.
 - No file/node deletion.
 - No final UI PNG or Hanseong battlefield integration.
+
+## T08-2B QA Gate
+
+- Await user F5 QA of the restored legacy `Battle_Land.tscn` game flow.
+- Await user F6 QA of `tests/scenes/Battle_UI_Production_Test.tscn` for the isolated Production HUD.
+- Only after both PASS results, start T08-3A Theme & Font First Pass in the Production HUD test scene. Do not modify the runtime legacy scene for T08-3A.

@@ -313,3 +313,8 @@ Return:
 10. Godot load result or honest unavailable status;
 11. local commit hash;
 12. exact user F6 checks still required.
+
+## Current next step
+
+1. Wait for user F5/F6 QA results.
+2. After PASS, perform T08-3A Theme & Font First Pass in `tests/scenes/Battle_UI_Production_Test.tscn` only.

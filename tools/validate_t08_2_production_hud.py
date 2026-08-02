@@ -5,7 +5,7 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-SCENE_PATH = ROOT / "Battle_Land.tscn"
+SCENE_PATH = ROOT / "tests/scenes/Battle_UI_Production_Test.tscn"
 SCENE = SCENE_PATH.read_text(encoding="utf-8")
 BATTLE = (ROOT / "scripts/battle_web_import_test.gd").read_text(encoding="utf-8")
 ADAPTER = (ROOT / "scripts/battle/ui/battle_hud_state_adapter.gd").read_text(encoding="utf-8")

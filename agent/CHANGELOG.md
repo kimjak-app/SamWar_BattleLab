@@ -2879,6 +2879,11 @@
 - Added canonical five-type action/range and damage contexts, gunner runtime metadata, mounted-archer action-local snapshot fields, auto-battle parity, and central Korean unit-type labels.
 - Automated validators and Godot headless parse/scene load passed; user F5 QA remains pending.
 
+## T08-2B Legacy Battle Scene Recovery & Production HUD Isolation
+- Restored the runtime `Battle_Land.tscn` to the supplied pre-T08 legacy battle HUD layout without discarding current battle resources, five-unit slot nodes, cutin, result, retreat toast, or WorldMap handoff behavior.
+- Preserved the full current Production HUD in `tests/scenes/Battle_UI_Production_Test.tscn` for direct F6 visual-development QA.
+- Added isolation validation and redirected the focused T08-2 HUD validator to the test scene; static validation passed, while configured Godot executable availability and user F5/F6 QA remain pending.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
 - Added explicit total assigned troops and remaining garrison troop summary.
