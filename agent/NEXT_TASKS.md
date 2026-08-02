@@ -110,3 +110,9 @@ Completion requires:
 - User F5: confirm legacy Battle_Land roster visuals and central-top momentum HUD are restored with no Production roster styling.
 - User F6: confirm the Production test scene retains only the T08-3A top HUD and has pre-T08-3B roster visuals.
 - After QA, ChatCoach must redesign a fully isolated T08-3B path. Do not start implementation or T08-3C.
+
+## T08-3B0 F6 Structure QA Gate
+
+- Run `tests/scenes/Battle_UI_Production_Test.tscn` directly with F6 and confirm each visible roster card shows portrait, name, `병력 current / max`, troop icon, and troop-type name.
+- Confirm `TroopBar`, `행동 가능/행동 완료`, and `고유특기 준비` text are not shown by default; status text and the ready icon appear only when their existing runtime condition is true.
+- Confirm the T08-3A top HUD is unchanged and F5 `Battle_Land.tscn` remains untouched. Do not start T08-3B1 Theme/Font or T08-3C before this structure QA passes.

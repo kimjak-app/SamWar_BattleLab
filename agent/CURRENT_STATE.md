@@ -134,3 +134,10 @@ Authoritative execution instruction:
 - T08-3B's shared `battle_hud_state_adapter.gd` and `battle_web_import_test.gd` changes affected both the Production test scene and the F5 runtime `Battle_Land` presentation despite no `Battle_Land.tscn` diff.
 - Reverted the three remote-main T08-3B commits (`f525c8b`, `27fb7d1`, `227bcd9`) with safe revert commits. The adapter, battle script, Production test scene, and Theme exactly match the T08-3A-hotfix1 baseline `84c8b44`.
 - T08-3B is incomplete and frozen. Await user F5/F6 recovery QA; any future roster work requires a fully test-scene-isolated styling path designed by ChatCoach.
+
+## T08-3B0 Production Roster Legacy Content Parity
+
+- The Production test scene now mirrors the legacy roster information contract only: `Portrait`, `NameLabel`, `HpLabel`, `TroopIconRect`, and `TroopTypeLabel` are the default card content; `StatusLabel` and `UniqueSkillReadyIcon` are conditional and default hidden.
+- `TroopBar`, `ActionStateLabel`, and `UniqueSkillReadyLabel` remain as protected existing test NodePaths but are default hidden, so the test scene no longer shows repetitive non-legacy status text.
+- `tests/scripts/battle_ui_production_test_roster.gd` is attached only to the Production test scene and reads existing battle state/visual resolvers without changing shared runtime scripts, Theme, or `Battle_Land.tscn`. The T08-3A top HUD is unchanged.
+- Static validators and Godot project/runtime/test-scene loads pass. User F6 structure QA is pending; T08-3B1 Theme/Font work has not started.

@@ -336,3 +336,9 @@ Return:
 
 - T08-3B was reverted because shared runtime scripts caused Production roster presentation to appear in F5 Battle_Land despite no scene-file diff.
 - Next step: user F5/F6 recovery confirmation. After that, ChatCoach designs a fully isolated T08-3B rework. Do not prepare an implementation instruction or begin T08-3C.
+
+## T08-3B0 Result
+
+- The isolated Production scene now has legacy roster content parity through a scene-only bridge; shared battle scripts, `Battle_Land.tscn`, and `battle_ui_theme.tres` were not changed.
+- Await user F6 structure QA: portraits, names, troop values, troop icons, and troop-type names must be visible; progress/action/ready text must remain hidden by default; the T08-3A top HUD must remain unchanged.
+- Do not begin T08-3B1 Theme/Font work or T08-3C before the user records F6 structure approval.

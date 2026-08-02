@@ -2900,6 +2900,12 @@
 - Reverted `f525c8b`, `27fb7d1`, and `227bcd9` because their shared presentation changes affected the F5 runtime scene as well as the Production test scene.
 - Restored adapter, battle script, Production test scene, and Theme to the T08-3A-hotfix1 visual baseline; T08-3B remains incomplete pending a fully isolated redesign.
 
+## T08-3B0 Production Roster Legacy Content Parity
+- Updated only `tests/scenes/Battle_UI_Production_Test.tscn` and its test-only roster bridge to use the legacy roster content contract: portrait, name, troop value, troop icon, and troop-type label.
+- Added conditional, default-hidden `StatusLabel` and `UniqueSkillReadyIcon`; retained and default-hidden the prior test-only `TroopBar`, action-state, and ready-text NodePaths.
+- Added `validate_t08_3b0_roster_content_parity.py` to protect the runtime scene, shared scripts, Theme, top HUD slice, card counts, and required conditional visibility. Godot project, runtime scene, and Production test scene loads passed.
+- Did not modify gameplay, shared runtime code, Theme/font styling, `Battle_Land.tscn`, or begin T08-3B1/T08-3C. User F6 structure QA is pending.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
 - Added explicit total assigned troops and remaining garrison troop summary.

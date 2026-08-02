@@ -4146,6 +4146,11 @@
 - Safely reverted remote-main commits `f525c8b`, `27fb7d1`, and `227bcd9` without reset/rebase. Baseline comparisons confirm the adapter, battle script, test scene, Theme, and Battle_Land match `84c8b44`.
 - Existing automated validators and Godot project/Battle_Land/test-scene headless loads pass. User F5/F6 recovery QA is pending; T08-3B and T08-3C are frozen.
 
+## T08-3B0 Production Roster Legacy Content Parity
+- Audited the runtime formation-guide card contract and aligned only the Production test-scene cards: default portrait/name/troop value/troop icon/troop-type information, with status and unique-skill-ready icon conditional.
+- Retained existing Production-only `TroopBar`, `ActionStateLabel`, and `UniqueSkillReadyLabel` NodePaths but set them default hidden. Added a scene-only bridge which reads current battle state and existing visual resolvers; it does not mutate battle state or execute in `Battle_Land.tscn`.
+- Validation passed for card structure, 5+5 slot count, runtime/Theme/top-HUD protection, scene integrity, all legacy validators, and Godot project/runtime/test-scene headless loads. User F6 structure QA is pending; T08-3B1 and T08-3C remain unstarted.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
 - Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.
