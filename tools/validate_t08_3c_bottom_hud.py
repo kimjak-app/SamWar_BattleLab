@@ -6,7 +6,9 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "9d94a97a7c80d8e6937d89652a5193e89ff5083f"
+# Godot-saved production UI is intentionally preserved in this commit; compare
+# locked UI slices with that semantic baseline, not a pre-save text ordering.
+BASELINE = "4d3a5656916d639fc568fc4ee0fc7881cafc26b5"
 SCENE = "tests/scenes/Battle_UI_Production_Test.tscn"
 THEME = "assets/ui/battle_ui_theme.tres"
 PREVIEW = "tests/scripts/battle_ui_production_test_bottom_hud.gd"

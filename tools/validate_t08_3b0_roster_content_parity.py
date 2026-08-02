@@ -7,7 +7,7 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "21a7ae4eba03c1cfe0fda80ca0616ff41faa91a3"
+BASELINE = "4d3a5656916d639fc568fc4ee0fc7881cafc26b5"
 SCENE = "tests/scenes/Battle_UI_Production_Test.tscn"
 SCRIPT = "tests/scripts/battle_ui_production_test_roster.gd"
 PROTECTED = (

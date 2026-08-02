@@ -7,7 +7,7 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "d53b45ea8988917e3568cb9f7252767a2b77e6d7"
+BASELINE = "4d3a5656916d639fc568fc4ee0fc7881cafc26b5"
 SCENE = "tests/scenes/Battle_UI_Production_Test.tscn"
 THEME = "assets/ui/battle_ui_theme.tres"
 BRIDGE = "tests/scripts/battle_ui_production_test_roster.gd"

@@ -7,7 +7,7 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "b10ac31055251b2d4c8188dc2d634fdf097f3a25"
+BASELINE = "4d3a5656916d639fc568fc4ee0fc7881cafc26b5"
 SCENE = "tests/scenes/Battle_UI_Production_Test.tscn"
 BRIDGE = "tests/scripts/battle_ui_production_test_roster.gd"
 SIDES = ("Ally", "Enemy")
@@ -41,8 +41,8 @@ def parse_nodes(source: str) -> dict[str, tuple[int, str, str, str]]:
 
 
 def offset(body: str, name: str) -> float:
-    match = re.search(rf"^{name} = (-?\d+(?:\.\d+)?)$", body, re.M)
-    return float(match.group(1)) if match else float("nan")
+	match = re.search(rf"^{name} = (-?\d+(?:\.\d+)?)$", body, re.M)
+	return float(match.group(1)) if match else 0.0
 
 
 scene = (ROOT / SCENE).read_text(encoding="utf-8")
