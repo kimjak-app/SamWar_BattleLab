@@ -1381,9 +1381,13 @@ func _process(delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	if _worldmap_battle_entry_handoff_in_progress:
+		# A skip event can complete the handoff synchronously and replace this scene.
+		# Consume it while this WorldMap viewport is still alive, before that transition.
+		var handoff_viewport := get_viewport()
+		if handoff_viewport != null:
+			handoff_viewport.set_input_as_handled()
 		if _is_worldmap_battle_entry_handoff_skip_event(event):
 			_skip_worldmap_battle_entry_camera_handoff()
-		get_viewport().set_input_as_handled()
 		return
 
 	if _worldmap_help_modal != null and _worldmap_help_modal.visible and event.is_action_pressed("ui_cancel"):
@@ -1444,9 +1448,12 @@ func _input(event: InputEvent) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _worldmap_battle_entry_handoff_in_progress:
+		# Keep the same ordering as _input(): skip may synchronously change scenes.
+		var handoff_viewport := get_viewport()
+		if handoff_viewport != null:
+			handoff_viewport.set_input_as_handled()
 		if _is_worldmap_battle_entry_handoff_skip_event(event):
 			_skip_worldmap_battle_entry_camera_handoff()
-		get_viewport().set_input_as_handled()
 		return
 
 	if _is_domestic_tech_tree_overlay_open_mvp():
@@ -8794,8 +8801,14 @@ func _change_scene_to_battle_with_context(handoff_context: Dictionary) -> void:
 		str(handoff_context.get("attacker_city_name", "알 수 없는 적 도시")),
 		str(handoff_context.get("defender_city_name", "알 수 없는 아군 도시")),
 	])
+	# The old WorldMap scene can receive the remainder of the triggering input
+	# until the scene replacement is committed. Disable its input paths first.
+	set_process_input(false)
+	set_process_unhandled_input(false)
 	var transition_result := get_tree().change_scene_to_file(WORLDMAP_BATTLE_SCENE_PATH)
 	if transition_result != OK:
+		set_process_input(true)
+		set_process_unhandled_input(true)
 		if Engine.has_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY):
 			Engine.remove_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY)
 		_rollback_player_attack_handoff(handoff_context)
