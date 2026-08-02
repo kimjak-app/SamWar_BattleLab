@@ -40,6 +40,9 @@
 [ext_resource type="Theme" path="res://assets/ui/battle_ui_theme.tres" id="38_battle_ui_theme"]
 [ext_resource type="Script" uid="uid://7knunokmjfw8" path="res://tests/scripts/battle_ui_production_test_roster.gd" id="39_production_roster_bridge"]
 [ext_resource type="Script" uid="uid://jsau15bqvu41" path="res://tests/scripts/battle_ui_production_test_bottom_hud.gd" id="40_production_bottom_hud"]
+[ext_resource type="Texture2D" path="res://assets/ui/battle/production_hud/top/ally_momentum_hud_frame.png" id="41_ally_momentum_hud_frame"]
+[ext_resource type="Texture2D" path="res://assets/ui/battle/production_hud/top/turn_hud_frame.png" id="42_turn_hud_frame"]
+[ext_resource type="Texture2D" path="res://assets/ui/battle/production_hud/top/enemy_momentum_hud_frame.png" id="43_enemy_momentum_hud_frame"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -3883,6 +3886,15 @@ mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"AllyMomentumPanel"
 
+[node name="AllyMomentumHudFrame" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud"]
+layout_mode = 0
+offset_right = 260.0
+offset_bottom = 88.0
+mouse_filter = 2
+texture = ExtResource("41_ally_momentum_hud_frame")
+expand_mode = 0
+stretch_mode = 5
+
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud" unique_id=650804390]
 layout_mode = 0
 offset_left = 12.0
@@ -3970,6 +3982,15 @@ mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"TurnHudPanel"
 
+[node name="TurnHudFrame" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
+layout_mode = 0
+offset_right = 300.0
+offset_bottom = 88.0
+mouse_filter = 2
+texture = ExtResource("42_turn_hud_frame")
+expand_mode = 0
+stretch_mode = 5
+
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud" unique_id=1237547217]
 layout_mode = 0
 offset_left = 8.0
@@ -4018,6 +4039,15 @@ offset_bottom = 88.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"EnemyMomentumPanel"
+
+[node name="EnemyMomentumHudFrame" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud"]
+layout_mode = 0
+offset_right = 260.0
+offset_bottom = 88.0
+mouse_filter = 2
+texture = ExtResource("43_enemy_momentum_hud_frame")
+expand_mode = 0
+stretch_mode = 5
 
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud" unique_id=2121568105]
 layout_mode = 0
