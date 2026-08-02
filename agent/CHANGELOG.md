@@ -2896,6 +2896,10 @@
 ## T08-3A-hotfix1 Top HUD Alignment & Density Polish
 - Center aligned Production top-HUD titles, momentum slot rows, and values; compacted Turn HUD; reduced panel alpha and border strength without changing any gameplay data or runtime scene.
 
+## T08-3B Production Roster HUD First Pass
+- Extended the existing battle Theme to Production ally/enemy roster panels and their five existing cards per side, using NotoSerifKR hierarchy and restrained side colors.
+- Existing active/target selection is represented by card variation only; no battle selection behavior, card data, slot count, NodePath, or runtime scene changed.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
 - Added explicit total assigned troops and remaining garrison troop summary.

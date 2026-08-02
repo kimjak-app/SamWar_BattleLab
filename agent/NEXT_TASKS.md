@@ -104,3 +104,8 @@ Completion requires:
 ## T08-3A-hotfix1 F6 Recheck
 
 - Confirm the centered title/slot/value grouping, lighter panel background, and compact central Turn HUD at 1920×1080. T08-3B stays blocked until visual approval.
+
+## T08-3B F6 Visual QA Gate
+
+- Verify the Production test scene's ally/enemy roster cards: portrait, name, troops, unit type, state/effect hierarchy, compact spacing, card selection contrast, and hidden empty slots.
+- T08-3C remains blocked until user F6 approval.
