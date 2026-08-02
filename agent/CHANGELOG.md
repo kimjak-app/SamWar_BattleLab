@@ -2888,6 +2888,11 @@
 - Restored the pre-existing runtime central-top ally/enemy momentum HUD when the runtime scene has no Production HUD root.
 - Kept the Production test scene and all momentum calculation, persistence, and 3/10 contracts unchanged.
 
+## T08-3A Battle UI Theme & Font First Pass
+- Added `assets/ui/battle_ui_theme.tres`, referencing existing NotoSerifKR Bold, Medium, and Regular files only.
+- Applied Theme variations to the three Production test-scene top HUD panels, their title/value/secondary labels, and 20 existing momentum slots; no runtime battle scene changes.
+- User F6 visual approval is pending; T08-3B has not started.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
 - Added explicit total assigned troops and remaining garrison troop summary.

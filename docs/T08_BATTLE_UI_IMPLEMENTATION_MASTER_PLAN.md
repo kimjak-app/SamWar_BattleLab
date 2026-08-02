@@ -469,3 +469,5 @@ T08 BATTLE UI는 다음 조건을 모두 만족할 때 완료로 인정한다.
   - 위험 관리표와 T08 전체 완료 정의 추가
 
 - **T08-2B 실행 환경 분리** (2026-08-02): 실제 게임은 `Battle_Land.tscn`의 레거시 HUD를 사용하고, T08 Production HUD 및 이후 T08-3A Theme/Font 작업은 `tests/scenes/Battle_UI_Production_Test.tscn`에서 F6로 진행한다. T08-3A는 아직 시작하지 않았다.
+
+- **T08-3A Theme/Font First Pass** (2026-08-02): `assets/ui/battle_ui_theme.tres`에 기존 NotoSerifKR Bold/Medium/Regular과 상단 3개 패널·label·기세 슬롯 variation을 정의하고, Production 테스트 씬에만 적용했다. static/Godot load 검증은 통과했으며 사용자 F6 비주얼 승인은 대기 중이다. T08-3B는 아직 시작하지 않았다.

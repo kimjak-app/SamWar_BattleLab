@@ -95,3 +95,8 @@ Completion requires:
 ## T08-2B-hotfix1 QA
 
 - User F5: confirm the restored central-top runtime HUD shows ally/enemy `3/10` at battle start, follows attack/skill/round changes, and reflects save/resume.
+
+## T08-3A F6 Visual QA Gate
+
+- Inspect `tests/scenes/Battle_UI_Production_Test.tscn` at 1920×1080: NotoSerifKR hierarchy, compact panel balance, ally/enemy slot contrast, and unclipped `3 / 10 · 1 / 30 · 3 / 10` values.
+- T08-3B remains blocked until user visual approval. Runtime `Battle_Land.tscn` is not a T08-3A target.

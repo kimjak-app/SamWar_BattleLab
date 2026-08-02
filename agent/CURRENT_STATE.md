@@ -116,3 +116,10 @@ Authoritative execution instruction:
 - User F5 confirmed the legacy battle layout except its central-top momentum display. Audit established that it was an existing runtime-created HUD, not a node removed from the supplied backup scene.
 - `_configure_momentum_ui()` now restores that existing runtime HUD only when `ProductionHudRoot` is absent. The Production test scene remains unchanged and continues to use its scene-authored T08 momentum HUD.
 - Momentum calculations, save/restore, and the 3/10 contract are unchanged. User F5 verification of the restored central-top ally/enemy values remains pending.
+
+## T08-3A Battle UI Theme & Font First Pass
+
+- T08-2B and hotfix1 user F5 QA passed: the runtime legacy scene is normal, including its restored central-top momentum HUD.
+- T08-3A is isolated to `tests/scenes/Battle_UI_Production_Test.tscn`. `assets/ui/battle_ui_theme.tres` applies NotoSerifKR Bold, Medium, and Regular to the three top Production HUD panels only.
+- Static Theme variations cover panels, title/value/secondary labels, slot row spacing, and ally/enemy filled/empty slots. User F6 visual approval remains pending; do not start T08-3B.
+- No before/after screenshot was captured by the headless validation run; user F6 at 1920×1080 is the visual comparison record for this first pass.

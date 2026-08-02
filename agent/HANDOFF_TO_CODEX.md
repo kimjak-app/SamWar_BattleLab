@@ -322,3 +322,8 @@ Return:
 ## T08-2B-hotfix1
 
 - Wait for user F5 confirmation that the legacy runtime momentum HUD is visible at the central top and updates correctly. Do not start T08-3A before this QA gate passes.
+
+## T08-3A Result
+
+- User F5 QA passed for the isolated runtime legacy scene. The Production top HUD now uses `assets/ui/battle_ui_theme.tres` in `tests/scenes/Battle_UI_Production_Test.tscn` only.
+- Await user F6 visual QA of the compact three-panel top HUD. Do not prepare or begin T08-3B until that approval.

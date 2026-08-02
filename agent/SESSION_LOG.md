@@ -4131,6 +4131,12 @@
 - Audit found no legacy momentum nodes in the backup scene. `battle_web_import_test.gd` already retained the historical runtime HUD builder, but T08-2B left it uncalled after Production HUD isolation.
 - Reconnected that builder only for scenes without `ProductionHudRoot`; normal refresh/timer paths preserve live attack, skill, round, and restored-snapshot values. Production HUD test scene remains unchanged.
 
+## T08-3A Battle UI Theme & Font First Pass
+- Confirmed the user F5 QA PASS for T08-2B/hotfix1 before starting the test-scene-only T08-3A slice.
+- Added a compact `StyleBoxFlat`/NotoSerifKR Theme at `assets/ui/battle_ui_theme.tres`; wired the test scene's ally, turn, and enemy panels through explicit type variations.
+- Migrated the two top slot-row separation overrides into the Theme. Runtime slot refresh now swaps existing slot variations (Filled/Empty) rather than assigning colors directly. Godot project and test-scene headless loads passed; visual F6 QA remains pending.
+- Before/after screenshot path: not captured (headless verification only; no visual artifact committed).
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
 - Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.
