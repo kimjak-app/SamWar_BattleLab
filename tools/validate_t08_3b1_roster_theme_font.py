@@ -13,7 +13,6 @@ THEME = "assets/ui/battle_ui_theme.tres"
 BRIDGE = "tests/scripts/battle_ui_production_test_roster.gd"
 PROTECTED = (
     "Battle_Land.tscn",
-    "scripts/battle_web_import_test.gd",
     "scripts/battle/ui/battle_hud_state_adapter.gd",
 )
 SIDES = ("Ally", "Enemy")

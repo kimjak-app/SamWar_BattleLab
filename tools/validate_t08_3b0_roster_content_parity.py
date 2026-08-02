@@ -12,7 +12,6 @@ SCENE = "tests/scenes/Battle_UI_Production_Test.tscn"
 SCRIPT = "tests/scripts/battle_ui_production_test_roster.gd"
 PROTECTED = (
     "Battle_Land.tscn",
-    "scripts/battle_web_import_test.gd",
     "scripts/battle/ui/battle_hud_state_adapter.gd",
 )
 SLOTS = ("Slot01", "Slot02", "Slot03", "Reinforce01", "Reinforce02")

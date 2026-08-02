@@ -7992,33 +7992,8 @@ func _get_remaining_unacted_enemy_count() -> int:
 
 
 func _advance_enemy_turn_or_return_to_ally() -> void:
-	if _handle_battle_end_guard("enemy_turn_advance"):
-		is_demo_animating = false
-		print("[ENEMY_TURN] advance_blocked reason=result_finalized")
-		return
-	_cleanup_dead_units()
-	if _handle_battle_end_guard("enemy_turn_advance_after_cleanup"):
-		is_demo_animating = false
-		print("[ENEMY_TURN] advance_blocked reason=result_finalized_after_cleanup")
-		return
-
-	var next_enemy_actor := _get_next_available_enemy_ai_actor()
-	if next_enemy_actor != null:
-		current_enemy_attack_target_state = null
-		current_enemy_ai_actor_state = null
-		_clear_pending_move_snapshot()
-		_clear_transient_battle_highlights()
-		_reset_unit_group_positions()
-		_hide_all_move_dust_sprites()
-		_set_all_unit_group_modulates(Color.WHITE)
-		is_demo_animating = true
-		_set_phase(PHASE_ENEMY_TURN)
-		print("[ENEMY_TURN] round=%d remaining=%d next_actor=%s" % [battle_round, _get_remaining_unacted_enemy_count(), next_enemy_actor.unit_id])
-		call_deferred("_play_enemy_ai_for_actor", next_enemy_actor)
-		return
-
-	_clear_enemy_ai_turn_reservations()
-	print("[ENEMY_TURN] round=%d complete remaining=0" % battle_round)
+	# Every enemy action resolves one initiative slot. The next valid actor is an
+	# ally unless none remain; _return_to_ally_turn handles the round boundary.
 	_return_to_ally_turn()
 
 
@@ -8036,12 +8011,6 @@ func _return_to_ally_turn() -> void:
 	_hide_all_move_dust_sprites()
 	_set_all_unit_group_modulates(Color.WHITE)
 	is_demo_animating = false
-	if not _are_all_alive_enemies_acted():
-		_set_phase(PHASE_ENEMY_TURN)
-		is_demo_animating = true
-		print("[ROUND_FLOW] ally_return_deferred round=%d remaining_enemy=%d" % [battle_round, _get_remaining_unacted_enemy_count()])
-		call_deferred("_play_enemy_ai_turn")
-		return
 	if _are_all_alive_allies_acted() and _are_all_alive_enemies_acted():
 		_start_new_round()
 	var next_ally := _get_first_available_ally_unit()

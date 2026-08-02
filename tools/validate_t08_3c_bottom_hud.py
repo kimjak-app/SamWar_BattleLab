@@ -11,7 +11,7 @@ SCENE = "tests/scenes/Battle_UI_Production_Test.tscn"
 THEME = "assets/ui/battle_ui_theme.tres"
 PREVIEW = "tests/scripts/battle_ui_production_test_bottom_hud.gd"
 PROTECTED = (
-    "Battle_Land.tscn", "scripts/battle_web_import_test.gd",
+    "Battle_Land.tscn",
     "scripts/battle/ui/battle_hud_state_adapter.gd", "tests/scripts/battle_ui_production_test_roster.gd",
 )
 errors: list[str] = []

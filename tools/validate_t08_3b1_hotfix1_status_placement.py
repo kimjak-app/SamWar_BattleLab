@@ -12,7 +12,7 @@ SCENE = "tests/scenes/Battle_UI_Production_Test.tscn"
 BRIDGE = "tests/scripts/battle_ui_production_test_roster.gd"
 SIDES = ("Ally", "Enemy")
 SLOTS = ("Slot01", "Slot02", "Slot03", "Reinforce01", "Reinforce02")
-PROTECTED = ("Battle_Land.tscn", "scripts/battle_web_import_test.gd", "scripts/battle/ui/battle_hud_state_adapter.gd")
+PROTECTED = ("Battle_Land.tscn", "scripts/battle/ui/battle_hud_state_adapter.gd")
 errors: list[str] = []
 
 
