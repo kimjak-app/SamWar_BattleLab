@@ -2872,6 +2872,11 @@
 ## Older History
 - Older detailed history is archived at `agent/archive/v0.67-docs_agent_docs_slimdown/CHANGELOG_full_before_slimdown.md`.
 
+## Runtime Hero ID Hotfix 4
+
+- Restored legacy runtime IDs from `_get_hero_id_for_unit_state()` and isolated canonical hero conversion to the video-cutin boundary. This restores the Kim Yu-sin `gim_yusin` HERO_REGISTRY lookup and eliminates the `지원군 선봉` fallback regression.
+- Added runtime-ID/cutin-boundary validation for Yi Sun-sin, Jeong Do-jeon, Kim Yu-sin, and Kwon Yul; Production scene logs confirm Kim Yu-sin name and portrait recovery.
+
 ## Video Cutin Hotfix 3 — Canonical Hero Identity
 
 - Corrected the Korea MVP roster record: 흑치상지 (`heukchi_sangji`) is included; 연개소문 is excluded. This is a documentation/instruction-name correction only: authoritative runtime, skill, registry, and asset data were already correct.

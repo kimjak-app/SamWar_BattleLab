@@ -49,7 +49,7 @@ for forbidden in ("reinforcement_arrival_toast", "unique_skill_ready_icon"):
     require(forbidden not in registry_source and forbidden not in REGISTRY_JSON.read_text(encoding="utf-8"),
             f"unrelated flag/icon leaked into cutin registry: {forbidden}")
 require("if _play_committed_hero_cutin(caster_state, skill_data):" in battle_source, "registry video is not first cutin route")
-require("KoreaMvpHeroCutinRegistryScript.find_entry(hero_id, skill_id)" in battle_source, "battle does not query video registry")
+require("KoreaMvpHeroCutinRegistryScript.find_entry(canonical_skill_owner_hero_id, skill_id)" in battle_source, "battle does not query video registry with canonical ID")
 require("route=registry_video" in battle_source, "registry video route logging missing")
 
 if errors:

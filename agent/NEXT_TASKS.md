@@ -1,5 +1,11 @@
 # NEXT TASKS
 
+## Runtime Hero ID Hotfix 4 F5/F6 QA
+
+- Confirm the Kim Yu-sin reinforcement slot shows `김유신`, the intended portrait, troop/type, and unique-skill data rather than `지원군 선봉`.
+- Trigger Kim Yu-sin, Yi Sun-sin, and Jeong Do-jeon skills: runtime IDs must remain legacy while the registered OGV cutin route uses canonical IDs without static fallback.
+- UI work remains paused until this visual QA is recorded.
+
 ## Video Cutin Hotfix 3 F5/F6 QA gate
 
 - In a real WorldMap battle, use Yi Sun-sin, Jeong Do-jeon, Kim Yu-sin, and if available Heukchi Sangji unique skills. Confirm the registered OGV plays before any static cutin, the title displays, the effect/resume timing remains normal, and the trace has `registry_hit=true` and `selected_mode=video` without `fallback_called=true`.

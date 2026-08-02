@@ -4113,6 +4113,12 @@
   - `agent/archive/v0.67-docs_agent_docs_slimdown/SESSION_LOG_full_before_slimdown.md`
 # T06-7 Hero Unique Skills & Shared Momentum
 
+## Runtime Hero ID Hotfix 4
+
+- Root cause confirmed: Hotfix 3 changed the common `_get_hero_id_for_unit_state()` result from legacy `gim_yusin` to canonical `kim_yu_sin`; legacy `HERO_REGISTRY` lookup then failed and left the sample reinforcement default name `지원군 선봉`.
+- Restored the getter's stored runtime ID contract. The cutin boundary now has explicit runtime/raw and canonical variables, preserving canonical parity and registry routing without changing general UI lookup paths.
+- Headless Production load reports `ally_reinforce_01 hero_id=gim_yusin display_name=김유신 portrait=gim_yusin_battlefield.png`; runtime/cutin boundary test and protected validators pass. User F5/F6 visual QA remains pending.
+
 ## Video Cutin Hotfix 3 — canonical identity contract
 
 - Roster correction audit confirmed the canonical Korean name 흑치상지 and ID `heukchi_sangji`. No repository data uses the typo 흑지상지, and no 연개소문 cutin record/assets exist; no runtime data rename was needed.

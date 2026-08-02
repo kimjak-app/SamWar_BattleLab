@@ -381,3 +381,8 @@ Return:
 - Preserve the Part-A Godot-saved Production UI commit; the T08 UI validators use it as their locked semantic baseline. Do not change Theme, fonts, panels, or production-scene geometry during cutin QA.
 - Cutin hero identity must use `KoreaMvpHeroCutinRegistry.canonicalize_hero_id()` at every cutin boundary. Never restore raw caster/skill-owner comparison or add isolated per-hero routing conditions.
 - Automated 10-hero identity and 13-hero scene-tree playback coverage passes. Remaining work is user F5/F6 visual QA only; do not resume T08 UI slices beforehand.
+# Runtime Hero ID Hotfix 4 handoff
+
+- `_get_hero_id_for_unit_state()` is a runtime/legacy contract for `HERO_REGISTRY`, display name, portrait, close-up, retreat toast, reinforcement, and current-action paths. Do not canonicalize its return value.
+- Canonicalization is only permitted inside `_play_committed_hero_cutin()` for caster/owner parity and Korea MVP registry resources.
+- Required user QA: Kim Yu-sin must display normally and play the Kim Yu-sin OGV; Yi Sun-sin and Jeong Do-jeon are the paired regressions.

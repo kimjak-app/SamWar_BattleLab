@@ -33,15 +33,15 @@ for legacy, canonical in {
         errors.append(f"missing authoritative canonical mapping: {legacy} -> {canonical}")
 
 for token in (
-    "return KoreaMvpHeroCutinRegistryScript.canonicalize_hero_id(String(skill_data.get(\"hero_id\", unit_hero_id)))",
-    "return KoreaMvpHeroCutinRegistryScript.canonicalize_hero_id(assigned_hero_id)",
-    "return KoreaMvpHeroCutinRegistryScript.canonicalize_hero_id(_get_test_battle_roster_hero_id(capacity_slot_id))",
+    "var canonical_caster_hero_id := KoreaMvpHeroCutinRegistryScript.canonicalize_hero_id(runtime_caster_hero_id)",
+    "var canonical_skill_owner_hero_id := KoreaMvpHeroCutinRegistryScript.canonicalize_hero_id(raw_skill_owner_hero_id)",
+    "KoreaMvpHeroCutinRegistryScript.find_entry(canonical_skill_owner_hero_id, skill_id)",
 ):
     if token not in battle:
         errors.append(f"battle cutin boundary does not canonicalize: {token}")
 
-parity_gate = battle.find("if not unit_hero_id.is_empty() and hero_id != unit_hero_id:")
-lookup = battle.find("KoreaMvpHeroCutinRegistryScript.find_entry(hero_id, skill_id)")
+parity_gate = battle.find("if not canonical_caster_hero_id.is_empty() and canonical_skill_owner_hero_id != canonical_caster_hero_id:")
+lookup = battle.find("KoreaMvpHeroCutinRegistryScript.find_entry(canonical_skill_owner_hero_id, skill_id)")
 if parity_gate < 0 or lookup < 0 or parity_gate > lookup:
     errors.append("canonical parity gate must run before registry lookup")
 if "RUNTIME_HERO_ID_ALIASES" in registry:

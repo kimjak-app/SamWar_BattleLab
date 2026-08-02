@@ -1,5 +1,12 @@
 # CURRENT STATE
 
+## Runtime Hotfix 4 — runtime hero ID contract restored
+
+- Hotfix 3 incorrectly canonicalized `_get_hero_id_for_unit_state()`, a shared runtime lookup. `gim_yusin` became `kim_yu_sin` before legacy `HERO_REGISTRY` lookup, so the Kim Yu-sin reinforcement slot retained its default `지원군 선봉` metadata.
+- The getter again returns the stored runtime ID. `_play_committed_hero_cutin()` now explicitly separates `runtime_caster_hero_id` / `raw_skill_owner_hero_id` from canonical cutin IDs, and canonicalizes only before parity and Korea MVP registry lookup.
+- Production scene load confirms `ally_reinforce_01 hero_id=gim_yusin display_name=김유신 portrait=gim_yusin_battlefield.png`. Yi Sun-sin, Jeong Do-jeon, Kim Yu-sin, and Kwon Yul pass runtime-ID plus video-cut-in boundary coverage.
+- Status: `RUNTIME HERO ID HOTFIX IMPLEMENTED / KIM YU-SIN DISPLAY RESTORED / CUTIN BOUNDARY PASS / USER F5-F6 QA PENDING`.
+
 ## Video Cutin Hotfix 3 — canonical hero identity and 13-hero audit
 
 - KOREA MVP CUTIN ROSTER CORRECTED: HEUKCHI SANGJI INCLUDED / YEON GAESOMUN EXCLUDED. Repository data consistently identifies 흑치상지 as `heukchi_sangji`; no `흑지상지` data spelling or 연개소문 cutin entry exists.
