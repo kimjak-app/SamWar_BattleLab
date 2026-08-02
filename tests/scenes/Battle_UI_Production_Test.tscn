@@ -4072,15 +4072,12 @@ horizontal_alignment = 1
 theme_type_variation = &"BattleHudValue"
 
 [node name="AllyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot"]
-theme = ExtResource("38_battle_ui_theme")
-theme_type_variation = &"AllyRosterPanel"
 offset_left = 18.0
 offset_top = 140.0
 offset_right = 288.0
 offset_bottom = 620.0
 mouse_filter = 2
 [node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud"]
-theme_type_variation = &"AllyHeroCard"
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 270.0
@@ -4096,7 +4093,6 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
-theme_type_variation = &"HeroNameLabel"
 offset_left = 80.0
 offset_top = 8.0
 offset_right = 188.0
@@ -4104,7 +4100,6 @@ offset_bottom = 30.0
 text = "대기"
 
 [node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
-theme_type_variation = &"HeroUnitTypeLabel"
 offset_left = 80.0
 offset_top = 31.0
 offset_right = 188.0
@@ -4112,7 +4107,6 @@ offset_bottom = 51.0
 text = "-"
 
 [node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
-theme_type_variation = &"HeroTroopLabel"
 offset_left = 80.0
 offset_top = 54.0
 offset_right = 188.0
@@ -4120,7 +4114,6 @@ offset_bottom = 76.0
 text = "병력 -"
 
 [node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
-theme_type_variation = &"HeroTroopBar"
 offset_left = 192.0
 offset_top = 12.0
 offset_right = 262.0
@@ -4128,7 +4121,6 @@ offset_bottom = 28.0
 show_percentage = false
 
 [node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 34.0
 offset_right = 262.0
@@ -4136,7 +4128,6 @@ offset_bottom = 54.0
 text = "대기"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 56.0
 offset_right = 262.0
@@ -4144,7 +4135,6 @@ offset_bottom = 76.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01"]
-theme_type_variation = &"HeroEffectLabel"
 offset_left = 8.0
 offset_top = 74.0
 offset_right = 188.0
@@ -4152,7 +4142,6 @@ offset_bottom = 90.0
 text = ""
 
 [node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud"]
-theme_type_variation = &"AllyHeroCard"
 offset_left = 0.0
 offset_top = 94.0
 offset_right = 270.0
@@ -4168,7 +4157,6 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
-theme_type_variation = &"HeroNameLabel"
 offset_left = 80.0
 offset_top = 8.0
 offset_right = 188.0
@@ -4176,7 +4164,6 @@ offset_bottom = 30.0
 text = "대기"
 
 [node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
-theme_type_variation = &"HeroUnitTypeLabel"
 offset_left = 80.0
 offset_top = 31.0
 offset_right = 188.0
@@ -4184,7 +4171,6 @@ offset_bottom = 51.0
 text = "-"
 
 [node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
-theme_type_variation = &"HeroTroopLabel"
 offset_left = 80.0
 offset_top = 54.0
 offset_right = 188.0
@@ -4192,7 +4178,6 @@ offset_bottom = 76.0
 text = "병력 -"
 
 [node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
-theme_type_variation = &"HeroTroopBar"
 offset_left = 192.0
 offset_top = 12.0
 offset_right = 262.0
@@ -4200,7 +4185,6 @@ offset_bottom = 28.0
 show_percentage = false
 
 [node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 34.0
 offset_right = 262.0
@@ -4208,7 +4192,6 @@ offset_bottom = 54.0
 text = "대기"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 56.0
 offset_right = 262.0
@@ -4216,7 +4199,6 @@ offset_bottom = 76.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02"]
-theme_type_variation = &"HeroEffectLabel"
 offset_left = 8.0
 offset_top = 74.0
 offset_right = 188.0
@@ -4224,7 +4206,6 @@ offset_bottom = 90.0
 text = ""
 
 [node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud"]
-theme_type_variation = &"AllyHeroCard"
 offset_left = 0.0
 offset_top = 188.0
 offset_right = 270.0
@@ -4240,7 +4221,6 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
-theme_type_variation = &"HeroNameLabel"
 offset_left = 80.0
 offset_top = 8.0
 offset_right = 188.0
@@ -4248,7 +4228,6 @@ offset_bottom = 30.0
 text = "대기"
 
 [node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
-theme_type_variation = &"HeroUnitTypeLabel"
 offset_left = 80.0
 offset_top = 31.0
 offset_right = 188.0
@@ -4256,7 +4235,6 @@ offset_bottom = 51.0
 text = "-"
 
 [node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
-theme_type_variation = &"HeroTroopLabel"
 offset_left = 80.0
 offset_top = 54.0
 offset_right = 188.0
@@ -4264,7 +4242,6 @@ offset_bottom = 76.0
 text = "병력 -"
 
 [node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
-theme_type_variation = &"HeroTroopBar"
 offset_left = 192.0
 offset_top = 12.0
 offset_right = 262.0
@@ -4272,7 +4249,6 @@ offset_bottom = 28.0
 show_percentage = false
 
 [node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 34.0
 offset_right = 262.0
@@ -4280,7 +4256,6 @@ offset_bottom = 54.0
 text = "대기"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 56.0
 offset_right = 262.0
@@ -4288,7 +4263,6 @@ offset_bottom = 76.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot03"]
-theme_type_variation = &"HeroEffectLabel"
 offset_left = 8.0
 offset_top = 74.0
 offset_right = 188.0
@@ -4296,7 +4270,6 @@ offset_bottom = 90.0
 text = ""
 
 [node name="Reinforce01" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud"]
-theme_type_variation = &"AllyHeroCard"
 offset_left = 0.0
 offset_top = 282.0
 offset_right = 270.0
@@ -4312,7 +4285,6 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroNameLabel"
 offset_left = 80.0
 offset_top = 8.0
 offset_right = 188.0
@@ -4320,7 +4292,6 @@ offset_bottom = 30.0
 text = "대기"
 
 [node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroUnitTypeLabel"
 offset_left = 80.0
 offset_top = 31.0
 offset_right = 188.0
@@ -4328,7 +4299,6 @@ offset_bottom = 51.0
 text = "-"
 
 [node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroTroopLabel"
 offset_left = 80.0
 offset_top = 54.0
 offset_right = 188.0
@@ -4336,7 +4306,6 @@ offset_bottom = 76.0
 text = "병력 -"
 
 [node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroTroopBar"
 offset_left = 192.0
 offset_top = 12.0
 offset_right = 262.0
@@ -4344,7 +4313,6 @@ offset_bottom = 28.0
 show_percentage = false
 
 [node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 34.0
 offset_right = 262.0
@@ -4352,7 +4320,6 @@ offset_bottom = 54.0
 text = "대기"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 56.0
 offset_right = 262.0
@@ -4360,7 +4327,6 @@ offset_bottom = 76.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroEffectLabel"
 offset_left = 8.0
 offset_top = 74.0
 offset_right = 188.0
@@ -4368,7 +4334,6 @@ offset_bottom = 90.0
 text = ""
 
 [node name="Reinforce02" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud"]
-theme_type_variation = &"AllyHeroCard"
 offset_left = 0.0
 offset_top = 376.0
 offset_right = 270.0
@@ -4384,7 +4349,6 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroNameLabel"
 offset_left = 80.0
 offset_top = 8.0
 offset_right = 188.0
@@ -4392,7 +4356,6 @@ offset_bottom = 30.0
 text = "대기"
 
 [node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroUnitTypeLabel"
 offset_left = 80.0
 offset_top = 31.0
 offset_right = 188.0
@@ -4400,7 +4363,6 @@ offset_bottom = 51.0
 text = "-"
 
 [node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroTroopLabel"
 offset_left = 80.0
 offset_top = 54.0
 offset_right = 188.0
@@ -4408,7 +4370,6 @@ offset_bottom = 76.0
 text = "병력 -"
 
 [node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroTroopBar"
 offset_left = 192.0
 offset_top = 12.0
 offset_right = 262.0
@@ -4416,7 +4377,6 @@ offset_bottom = 28.0
 show_percentage = false
 
 [node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 34.0
 offset_right = 262.0
@@ -4424,7 +4384,6 @@ offset_bottom = 54.0
 text = "대기"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 56.0
 offset_right = 262.0
@@ -4432,7 +4391,6 @@ offset_bottom = 76.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroEffectLabel"
 offset_left = 8.0
 offset_top = 74.0
 offset_right = 188.0
@@ -4440,15 +4398,12 @@ offset_bottom = 90.0
 text = ""
 
 [node name="EnemyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot"]
-theme = ExtResource("38_battle_ui_theme")
-theme_type_variation = &"EnemyRosterPanel"
 offset_left = 1632.0
 offset_top = 140.0
 offset_right = 1902.0
 offset_bottom = 620.0
 mouse_filter = 2
 [node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud"]
-theme_type_variation = &"EnemyHeroCard"
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 270.0
@@ -4464,7 +4419,6 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
-theme_type_variation = &"HeroNameLabel"
 offset_left = 80.0
 offset_top = 8.0
 offset_right = 188.0
@@ -4472,7 +4426,6 @@ offset_bottom = 30.0
 text = "대기"
 
 [node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
-theme_type_variation = &"HeroUnitTypeLabel"
 offset_left = 80.0
 offset_top = 31.0
 offset_right = 188.0
@@ -4480,7 +4433,6 @@ offset_bottom = 51.0
 text = "-"
 
 [node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
-theme_type_variation = &"HeroTroopLabel"
 offset_left = 80.0
 offset_top = 54.0
 offset_right = 188.0
@@ -4488,7 +4440,6 @@ offset_bottom = 76.0
 text = "병력 -"
 
 [node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
-theme_type_variation = &"HeroTroopBar"
 offset_left = 192.0
 offset_top = 12.0
 offset_right = 262.0
@@ -4496,7 +4447,6 @@ offset_bottom = 28.0
 show_percentage = false
 
 [node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 34.0
 offset_right = 262.0
@@ -4504,7 +4454,6 @@ offset_bottom = 54.0
 text = "대기"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 56.0
 offset_right = 262.0
@@ -4512,7 +4461,6 @@ offset_bottom = 76.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot01"]
-theme_type_variation = &"HeroEffectLabel"
 offset_left = 8.0
 offset_top = 74.0
 offset_right = 188.0
@@ -4520,7 +4468,6 @@ offset_bottom = 90.0
 text = ""
 
 [node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud"]
-theme_type_variation = &"EnemyHeroCard"
 offset_left = 0.0
 offset_top = 94.0
 offset_right = 270.0
@@ -4536,7 +4483,6 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
-theme_type_variation = &"HeroNameLabel"
 offset_left = 80.0
 offset_top = 8.0
 offset_right = 188.0
@@ -4544,7 +4490,6 @@ offset_bottom = 30.0
 text = "대기"
 
 [node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
-theme_type_variation = &"HeroUnitTypeLabel"
 offset_left = 80.0
 offset_top = 31.0
 offset_right = 188.0
@@ -4552,7 +4497,6 @@ offset_bottom = 51.0
 text = "-"
 
 [node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
-theme_type_variation = &"HeroTroopLabel"
 offset_left = 80.0
 offset_top = 54.0
 offset_right = 188.0
@@ -4560,7 +4504,6 @@ offset_bottom = 76.0
 text = "병력 -"
 
 [node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
-theme_type_variation = &"HeroTroopBar"
 offset_left = 192.0
 offset_top = 12.0
 offset_right = 262.0
@@ -4568,7 +4511,6 @@ offset_bottom = 28.0
 show_percentage = false
 
 [node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 34.0
 offset_right = 262.0
@@ -4576,7 +4518,6 @@ offset_bottom = 54.0
 text = "대기"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 56.0
 offset_right = 262.0
@@ -4584,7 +4525,6 @@ offset_bottom = 76.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot02"]
-theme_type_variation = &"HeroEffectLabel"
 offset_left = 8.0
 offset_top = 74.0
 offset_right = 188.0
@@ -4592,7 +4532,6 @@ offset_bottom = 90.0
 text = ""
 
 [node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud"]
-theme_type_variation = &"EnemyHeroCard"
 offset_left = 0.0
 offset_top = 188.0
 offset_right = 270.0
@@ -4608,7 +4547,6 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
-theme_type_variation = &"HeroNameLabel"
 offset_left = 80.0
 offset_top = 8.0
 offset_right = 188.0
@@ -4616,7 +4554,6 @@ offset_bottom = 30.0
 text = "대기"
 
 [node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
-theme_type_variation = &"HeroUnitTypeLabel"
 offset_left = 80.0
 offset_top = 31.0
 offset_right = 188.0
@@ -4624,7 +4561,6 @@ offset_bottom = 51.0
 text = "-"
 
 [node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
-theme_type_variation = &"HeroTroopLabel"
 offset_left = 80.0
 offset_top = 54.0
 offset_right = 188.0
@@ -4632,7 +4568,6 @@ offset_bottom = 76.0
 text = "병력 -"
 
 [node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
-theme_type_variation = &"HeroTroopBar"
 offset_left = 192.0
 offset_top = 12.0
 offset_right = 262.0
@@ -4640,7 +4575,6 @@ offset_bottom = 28.0
 show_percentage = false
 
 [node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 34.0
 offset_right = 262.0
@@ -4648,7 +4582,6 @@ offset_bottom = 54.0
 text = "대기"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 56.0
 offset_right = 262.0
@@ -4656,7 +4589,6 @@ offset_bottom = 76.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Slot03"]
-theme_type_variation = &"HeroEffectLabel"
 offset_left = 8.0
 offset_top = 74.0
 offset_right = 188.0
@@ -4664,7 +4596,6 @@ offset_bottom = 90.0
 text = ""
 
 [node name="Reinforce01" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud"]
-theme_type_variation = &"EnemyHeroCard"
 offset_left = 0.0
 offset_top = 282.0
 offset_right = 270.0
@@ -4680,7 +4611,6 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroNameLabel"
 offset_left = 80.0
 offset_top = 8.0
 offset_right = 188.0
@@ -4688,7 +4618,6 @@ offset_bottom = 30.0
 text = "대기"
 
 [node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroUnitTypeLabel"
 offset_left = 80.0
 offset_top = 31.0
 offset_right = 188.0
@@ -4696,7 +4625,6 @@ offset_bottom = 51.0
 text = "-"
 
 [node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroTroopLabel"
 offset_left = 80.0
 offset_top = 54.0
 offset_right = 188.0
@@ -4704,7 +4632,6 @@ offset_bottom = 76.0
 text = "병력 -"
 
 [node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroTroopBar"
 offset_left = 192.0
 offset_top = 12.0
 offset_right = 262.0
@@ -4712,7 +4639,6 @@ offset_bottom = 28.0
 show_percentage = false
 
 [node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 34.0
 offset_right = 262.0
@@ -4720,7 +4646,6 @@ offset_bottom = 54.0
 text = "대기"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 56.0
 offset_right = 262.0
@@ -4728,7 +4653,6 @@ offset_bottom = 76.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce01"]
-theme_type_variation = &"HeroEffectLabel"
 offset_left = 8.0
 offset_top = 74.0
 offset_right = 188.0
@@ -4736,7 +4660,6 @@ offset_bottom = 90.0
 text = ""
 
 [node name="Reinforce02" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud"]
-theme_type_variation = &"EnemyHeroCard"
 offset_left = 0.0
 offset_top = 376.0
 offset_right = 270.0
@@ -4752,7 +4675,6 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroNameLabel"
 offset_left = 80.0
 offset_top = 8.0
 offset_right = 188.0
@@ -4760,7 +4682,6 @@ offset_bottom = 30.0
 text = "대기"
 
 [node name="UnitTypeLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroUnitTypeLabel"
 offset_left = 80.0
 offset_top = 31.0
 offset_right = 188.0
@@ -4768,7 +4689,6 @@ offset_bottom = 51.0
 text = "-"
 
 [node name="TroopsLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroTroopLabel"
 offset_left = 80.0
 offset_top = 54.0
 offset_right = 188.0
@@ -4776,7 +4696,6 @@ offset_bottom = 76.0
 text = "병력 -"
 
 [node name="TroopBar" type="ProgressBar" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroTroopBar"
 offset_left = 192.0
 offset_top = 12.0
 offset_right = 262.0
@@ -4784,7 +4703,6 @@ offset_bottom = 28.0
 show_percentage = false
 
 [node name="ActionStateLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 34.0
 offset_right = 262.0
@@ -4792,7 +4710,6 @@ offset_bottom = 54.0
 text = "대기"
 
 [node name="StatusLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroStatusLabel"
 offset_left = 192.0
 offset_top = 56.0
 offset_right = 262.0
@@ -4800,7 +4717,6 @@ offset_bottom = 76.0
 text = ""
 
 [node name="UniqueSkillReadyLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/Reinforce02"]
-theme_type_variation = &"HeroEffectLabel"
 offset_left = 8.0
 offset_top = 74.0
 offset_right = 188.0
