@@ -4141,6 +4141,11 @@
 - Production top-HUD only: centered the title/slot/value vertical groups, changed Turn HUD from 360×100 to 300×88, and reduced panel alpha to 0.84 with lighter borders/shadows.
 - Python validators and Godot project/test-scene headless loads passed. User F6 visual recheck remains pending; T08-3B not started.
 
+## T08-3B Emergency Isolation Rollback
+- User reported that the shared T08-3B adapter/battle-script presentation path changed both F6 and F5 roster visuals. `Battle_Land.tscn` itself had no diff, confirming the isolation breach was shared runtime code.
+- Safely reverted remote-main commits `f525c8b`, `27fb7d1`, and `227bcd9` without reset/rebase. Baseline comparisons confirm the adapter, battle script, test scene, Theme, and Battle_Land match `84c8b44`.
+- Existing automated validators and Godot project/Battle_Land/test-scene headless loads pass. User F5/F6 recovery QA is pending; T08-3B and T08-3C are frozen.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
 - Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.

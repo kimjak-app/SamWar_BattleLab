@@ -2896,6 +2896,10 @@
 ## T08-3A-hotfix1 Top HUD Alignment & Density Polish
 - Center aligned Production top-HUD titles, momentum slot rows, and values; compacted Turn HUD; reduced panel alpha and border strength without changing any gameplay data or runtime scene.
 
+## T08-3B Emergency Isolation Rollback
+- Reverted `f525c8b`, `27fb7d1`, and `227bcd9` because their shared presentation changes affected the F5 runtime scene as well as the Production test scene.
+- Restored adapter, battle script, Production test scene, and Theme to the T08-3A-hotfix1 visual baseline; T08-3B remains incomplete pending a fully isolated redesign.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
 - Added explicit total assigned troops and remaining garrison troop summary.

@@ -128,3 +128,9 @@ Authoritative execution instruction:
 
 - User F6 feedback is reflected in the Production test scene only: top-HUD titles, slot rows, and values are center aligned; Turn HUD is compacted to 300×88; panel background alpha is reduced to 0.84.
 - Static validators and Godot project/test-scene headless load passed. User F6 recheck is pending; T08-3B remains unstarted.
+
+## T08-3B Emergency Isolation Rollback
+
+- T08-3B's shared `battle_hud_state_adapter.gd` and `battle_web_import_test.gd` changes affected both the Production test scene and the F5 runtime `Battle_Land` presentation despite no `Battle_Land.tscn` diff.
+- Reverted the three remote-main T08-3B commits (`f525c8b`, `27fb7d1`, `227bcd9`) with safe revert commits. The adapter, battle script, Production test scene, and Theme exactly match the T08-3A-hotfix1 baseline `84c8b44`.
+- T08-3B is incomplete and frozen. Await user F5/F6 recovery QA; any future roster work requires a fully test-scene-isolated styling path designed by ChatCoach.

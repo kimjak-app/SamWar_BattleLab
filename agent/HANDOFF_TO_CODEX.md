@@ -331,3 +331,8 @@ Return:
 ## T08-3A-hotfix1 Result
 
 - Applied only alignment, density, and panel-alpha polish to the Production top HUD. Await the user F6 recheck; do not begin T08-3B.
+
+## T08-3B Emergency Rollback
+
+- T08-3B was reverted because shared runtime scripts caused Production roster presentation to appear in F5 Battle_Land despite no scene-file diff.
+- Next step: user F5/F6 recovery confirmation. After that, ChatCoach designs a fully isolated T08-3B rework. Do not prepare an implementation instruction or begin T08-3C.

@@ -104,3 +104,9 @@ Completion requires:
 ## T08-3A-hotfix1 F6 Recheck
 
 - Confirm the centered title/slot/value grouping, lighter panel background, and compact central Turn HUD at 1920×1080. T08-3B stays blocked until visual approval.
+
+## T08-3B Emergency Rollback QA
+
+- User F5: confirm legacy Battle_Land roster visuals and central-top momentum HUD are restored with no Production roster styling.
+- User F6: confirm the Production test scene retains only the T08-3A top HUD and has pre-T08-3B roster visuals.
+- After QA, ChatCoach must redesign a fully isolated T08-3B path. Do not start implementation or T08-3C.
