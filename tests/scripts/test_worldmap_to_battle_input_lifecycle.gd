@@ -25,8 +25,13 @@ func _run() -> void:
 	skip_event.pressed = true
 	skip_event.keycode = KEY_ENTER
 	worldmap.call("_input", skip_event)
-	# The second event models Enter/click burst input while the replacement commits.
+	# These events model Enter double-press and mixed button/key burst input while
+	# the replacement commits.
 	worldmap.call("_input", skip_event)
+	var click_event := InputEventMouseButton.new()
+	click_event.pressed = true
+	click_event.button_index = MOUSE_BUTTON_LEFT
+	worldmap.call("_input", click_event)
 	await process_frame
 	await process_frame
 

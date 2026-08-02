@@ -47,13 +47,14 @@ def main() -> None:
     for token in (
         "_handoff_battle_context_to_battle_scene",
         "worldmap.call(\"_input\", skip_event)",
+        "InputEventMouseButton.new()",
         "BattleSupplyRuntime configured",
         "runtime supply panel visible",
         "context consumed exactly once",
     ):
         require(token in test_source, f"execution regression test missing {token}")
 
-    print("WORLDMAP TO BATTLE INPUT LIFECYCLE PASS: input consumed before skip transition; old scene input disabled; execution test covers duplicate skip input")
+    print("WORLDMAP TO BATTLE INPUT LIFECYCLE PASS: input consumed before skip transition; old scene input disabled; execution test covers duplicate and mixed skip input")
 
 
 if __name__ == "__main__":
