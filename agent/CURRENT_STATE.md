@@ -123,3 +123,8 @@ Authoritative execution instruction:
 - T08-3A is isolated to `tests/scenes/Battle_UI_Production_Test.tscn`. `assets/ui/battle_ui_theme.tres` applies NotoSerifKR Bold, Medium, and Regular to the three top Production HUD panels only.
 - Static Theme variations cover panels, title/value/secondary labels, slot row spacing, and ally/enemy filled/empty slots. User F6 visual approval remains pending; do not start T08-3B.
 - No before/after screenshot was captured by the headless validation run; user F6 at 1920×1080 is the visual comparison record for this first pass.
+
+## T08-3A-hotfix1 Top HUD Alignment & Density Polish
+
+- User F6 feedback is reflected in the Production test scene only: top-HUD titles, slot rows, and values are center aligned; Turn HUD is compacted to 300×88; panel background alpha is reduced to 0.84.
+- Static validators and Godot project/test-scene headless load passed. User F6 recheck is pending; T08-3B remains unstarted.

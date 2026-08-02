@@ -84,10 +84,17 @@ for label, variation in (("AllyMomentumHud/Frame", "BattleHudTitle"), ("AllyMome
     path = f"{top_root}/{label}"
     require(path in nodes and f'theme_type_variation = &"{variation}"' in nodes[path][3], f"missing {variation} on {path}")
 
+for label in ("AllyMomentumHud/Frame", "AllyMomentumHud/ValueLabel", "TurnHud/Frame", "TurnHud/TurnLabel",
+              "TurnHud/ActiveSideLabel", "TurnHud/BattleTitleLabel", "EnemyMomentumHud/Frame", "EnemyMomentumHud/ValueLabel"):
+    path = f"{top_root}/{label}"
+    require("horizontal_alignment = 1" in nodes[path][3], f"{path} is not center aligned")
+
 for side in ("Ally", "Enemy"):
     row = f"{top_root}/{side}MomentumHud/SlotRow"
     require(row in nodes and 'theme_type_variation = &"BattleHudSlotRow"' in nodes[row][3], f"{side} slot-row theme variation missing")
     slots = [path for path in nodes if path.startswith(row + "/Slot")]
+    require("offset_left = 33.0" in nodes[row][3] and "offset_right = 227.0" in nodes[row][3],
+            f"{side} slot row is not centered in its panel")
     require(len(slots) == 10, f"{side} slot count is {len(slots)}, expected 10")
     expected = f'MomentumSlot{side}Empty'
     for slot in slots:
@@ -97,6 +104,8 @@ top_paths = [path for path in nodes if path.startswith(top_root + "/")]
 for path in top_paths:
     require("theme_override_" not in nodes[path][3], f"static theme_override remains in top HUD: {path}")
 require(scene.count('theme = ExtResource("38_battle_ui_theme")') == 3, "Theme leaked outside the three top HUD panels")
+require("offset_right = 610.0" in nodes[f"{top_root}/TurnHud"][3] and "offset_bottom = 88.0" in nodes[f"{top_root}/TurnHud"][3],
+        "Turn HUD compact dimensions missing")
 require('text = "3 / 10"' in nodes[f"{top_root}/AllyMomentumHud/ValueLabel"][3], "ally default momentum text changed")
 require('text = "1 / 30"' in nodes[f"{top_root}/TurnHud/TurnLabel"][3], "default turn text changed")
 require('text = "3 / 10"' in nodes[f"{top_root}/EnemyMomentumHud/ValueLabel"][3], "enemy default momentum text changed")

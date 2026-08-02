@@ -3866,24 +3866,25 @@ mouse_filter = 2
 
 [node name="AllyMomentumHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
 offset_right = 260.0
-offset_bottom = 100.0
+offset_bottom = 88.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"AllyMomentumPanel"
 
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud"]
 offset_left = 12.0
-offset_top = 8.0
+offset_top = 5.0
 offset_right = 248.0
-offset_bottom = 30.0
+offset_bottom = 24.0
 text = "아군 기세"
+horizontal_alignment = 1
 theme_type_variation = &"BattleHudTitle"
 
 [node name="SlotRow" type="HBoxContainer" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud"]
-offset_left = 12.0
-offset_top = 36.0
-offset_right = 248.0
-offset_bottom = 54.0
+offset_left = 33.0
+offset_top = 29.0
+offset_right = 227.0
+offset_bottom = 47.0
 theme_type_variation = &"BattleHudSlotRow"
 [node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
@@ -3937,52 +3938,53 @@ theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="ValueLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud"]
 offset_left = 12.0
-offset_top = 62.0
+offset_top = 51.0
 offset_right = 248.0
-offset_bottom = 88.0
+offset_bottom = 78.0
 text = "3 / 10"
 horizontal_alignment = 1
 theme_type_variation = &"BattleHudValue"
 
 [node name="TurnHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
-offset_left = 280.0
-offset_right = 640.0
-offset_bottom = 100.0
+offset_left = 310.0
+offset_right = 610.0
+offset_bottom = 88.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"TurnHudPanel"
 
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
 offset_left = 8.0
-offset_top = 6.0
-offset_right = 352.0
-offset_bottom = 28.0
+offset_top = 4.0
+offset_right = 292.0
+offset_bottom = 20.0
 text = "전투"
+horizontal_alignment = 1
 theme_type_variation = &"BattleHudTitle"
 
 [node name="TurnLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
 offset_left = 8.0
-offset_top = 28.0
-offset_right = 352.0
-offset_bottom = 54.0
+offset_top = 20.0
+offset_right = 292.0
+offset_bottom = 43.0
 text = "1 / 30"
 horizontal_alignment = 1
 theme_type_variation = &"BattleHudValue"
 
 [node name="ActiveSideLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
 offset_left = 8.0
-offset_top = 54.0
-offset_right = 352.0
-offset_bottom = 76.0
+offset_top = 43.0
+offset_right = 292.0
+offset_bottom = 61.0
 text = "아군 턴"
 horizontal_alignment = 1
 theme_type_variation = &"BattleHudSecondary"
 
 [node name="BattleTitleLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/TurnHud"]
 offset_left = 8.0
-offset_top = 76.0
-offset_right = 352.0
-offset_bottom = 98.0
+offset_top = 61.0
+offset_right = 292.0
+offset_bottom = 82.0
 text = "전투 준비"
 horizontal_alignment = 1
 theme_type_variation = &"BattleHudTitle"
@@ -3990,24 +3992,25 @@ theme_type_variation = &"BattleHudTitle"
 [node name="EnemyMomentumHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
 offset_left = 660.0
 offset_right = 920.0
-offset_bottom = 100.0
+offset_bottom = 88.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"EnemyMomentumPanel"
 
 [node name="Frame" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud"]
 offset_left = 12.0
-offset_top = 8.0
+offset_top = 5.0
 offset_right = 248.0
-offset_bottom = 30.0
+offset_bottom = 24.0
 text = "적군 기세"
+horizontal_alignment = 1
 theme_type_variation = &"BattleHudTitle"
 
 [node name="SlotRow" type="HBoxContainer" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud"]
-offset_left = 12.0
-offset_top = 36.0
-offset_right = 248.0
-offset_bottom = 54.0
+offset_left = 33.0
+offset_top = 29.0
+offset_right = 227.0
+offset_bottom = 47.0
 theme_type_variation = &"BattleHudSlotRow"
 [node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
 custom_minimum_size = Vector2(14, 14)
@@ -4061,9 +4064,9 @@ theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="ValueLabel" type="Label" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud"]
 offset_left = 12.0
-offset_top = 62.0
+offset_top = 51.0
 offset_right = 248.0
-offset_bottom = 88.0
+offset_bottom = 78.0
 text = "3 / 10"
 horizontal_alignment = 1
 theme_type_variation = &"BattleHudValue"

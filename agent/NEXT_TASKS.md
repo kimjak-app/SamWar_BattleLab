@@ -100,3 +100,7 @@ Completion requires:
 
 - Inspect `tests/scenes/Battle_UI_Production_Test.tscn` at 1920×1080: NotoSerifKR hierarchy, compact panel balance, ally/enemy slot contrast, and unclipped `3 / 10 · 1 / 30 · 3 / 10` values.
 - T08-3B remains blocked until user visual approval. Runtime `Battle_Land.tscn` is not a T08-3A target.
+
+## T08-3A-hotfix1 F6 Recheck
+
+- Confirm the centered title/slot/value grouping, lighter panel background, and compact central Turn HUD at 1920×1080. T08-3B stays blocked until visual approval.

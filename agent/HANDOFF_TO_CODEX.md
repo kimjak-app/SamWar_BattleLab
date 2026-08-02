@@ -327,3 +327,7 @@ Return:
 
 - User F5 QA passed for the isolated runtime legacy scene. The Production top HUD now uses `assets/ui/battle_ui_theme.tres` in `tests/scenes/Battle_UI_Production_Test.tscn` only.
 - Await user F6 visual QA of the compact three-panel top HUD. Do not prepare or begin T08-3B until that approval.
+
+## T08-3A-hotfix1 Result
+
+- Applied only alignment, density, and panel-alpha polish to the Production top HUD. Await the user F6 recheck; do not begin T08-3B.

@@ -5,62 +5,62 @@
 [ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Regular.otf" id="3_regular"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_base"]
-bg_color = Color(0.055, 0.065, 0.075, 0.94)
+bg_color = Color(0.055, 0.065, 0.075, 0.84)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.44, 0.47, 0.5, 0.76)
+border_color = Color(0.44, 0.47, 0.5, 0.66)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
-shadow_color = Color(0, 0, 0, 0.42)
+shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 3
 shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ally_panel"]
-bg_color = Color(0.045, 0.09, 0.13, 0.95)
+bg_color = Color(0.045, 0.09, 0.13, 0.84)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.29, 0.56, 0.72, 0.86)
+border_color = Color(0.29, 0.56, 0.72, 0.72)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
-shadow_color = Color(0, 0, 0, 0.42)
+shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 3
 shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_turn_panel"]
-bg_color = Color(0.095, 0.08, 0.06, 0.96)
+bg_color = Color(0.095, 0.08, 0.06, 0.84)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.66, 0.57, 0.4, 0.82)
+border_color = Color(0.66, 0.57, 0.4, 0.7)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
-shadow_color = Color(0, 0, 0, 0.46)
+shadow_color = Color(0, 0, 0, 0.32)
 shadow_size = 3
 shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_enemy_panel"]
-bg_color = Color(0.13, 0.05, 0.055, 0.95)
+bg_color = Color(0.13, 0.05, 0.055, 0.84)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.72, 0.38, 0.36, 0.86)
+border_color = Color(0.72, 0.38, 0.36, 0.72)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
-shadow_color = Color(0, 0, 0, 0.42)
+shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 3
 shadow_offset = Vector2(0, 2)
 

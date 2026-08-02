@@ -4137,6 +4137,10 @@
 - Migrated the two top slot-row separation overrides into the Theme. Runtime slot refresh now swaps existing slot variations (Filled/Empty) rather than assigning colors directly. Godot project and test-scene headless loads passed; visual F6 QA remains pending.
 - Before/after screenshot path: not captured (headless verification only; no visual artifact committed).
 
+## T08-3A-hotfix1 Top HUD Alignment & Density Polish
+- Production top-HUD only: centered the title/slot/value vertical groups, changed Turn HUD from 360×100 to 300×88, and reduced panel alpha to 0.84 with lighter borders/shadows.
+- Python validators and Godot project/test-scene headless loads passed. User F6 visual recheck remains pending; T08-3B not started.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
 - Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.

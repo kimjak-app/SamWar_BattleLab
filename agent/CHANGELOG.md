@@ -2893,6 +2893,9 @@
 - Applied Theme variations to the three Production test-scene top HUD panels, their title/value/secondary labels, and 20 existing momentum slots; no runtime battle scene changes.
 - User F6 visual approval is pending; T08-3B has not started.
 
+## T08-3A-hotfix1 Top HUD Alignment & Density Polish
+- Center aligned Production top-HUD titles, momentum slot rows, and values; compacted Turn HUD; reduced panel alpha and border strength without changing any gameplay data or runtime scene.
+
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Improved deployment panel layout to 560px width with viewport clamping and clearer source/target header.
 - Added explicit total assigned troops and remaining garrison troop summary.
