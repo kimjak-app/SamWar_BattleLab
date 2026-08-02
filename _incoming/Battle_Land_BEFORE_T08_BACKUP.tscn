@@ -1,0 +1,3996 @@
+[gd_scene format=3 uid="uid://dchoagnqt2ei8"]
+
+[ext_resource type="Script" uid="uid://cghofkekn01w7" path="res://scripts/battle_web_import_test.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://cmyirxr2v7mhv" path="res://scripts/battle_grid_controller.gd" id="2_grid_controller"]
+[ext_resource type="Texture2D" uid="uid://b4ciq32fwok8c" path="res://assets/web_battle/unit_tokens/unit_blue_battlefield.png" id="3_allytoken"]
+[ext_resource type="Texture2D" uid="uid://c0fpk2ahuyuaf" path="res://assets/web_battle/battlefield/battlefield_3200x1800_worldmap_test_01.png" id="4_large_battlefield"]
+[ext_resource type="Texture2D" uid="uid://dhkswl5jwmkny" path="res://assets/web_battle/portraits_battlefield/yi_sunsin_battlefield.png" id="5_allyportrait"]
+[ext_resource type="Texture2D" uid="uid://yw74otqxxdjc" path="res://assets/web_battle/portraits_battlefield/guan_yu_battlefield.png" id="6_enemyportrait"]
+[ext_resource type="Texture2D" uid="uid://b8wo0cw1mkmqm" path="res://assets/web_battle/ui/results/battle_result_victory.png" id="7_result"]
+[ext_resource type="Texture2D" uid="uid://b8bsiuxax2w5a" path="res://assets/web_battle/skills/cutins/yi_sunsin_hakikjin.png" id="8_cutin"]
+[ext_resource type="Texture2D" uid="uid://bk1mormqnetwb" path="res://assets/web_battle/portraits_battlefield/jeong_dojeon_battlefield.png" id="9_allysupportportrait"]
+[ext_resource type="Texture2D" uid="uid://c0gk1awodita3" path="res://assets/web_battle/portraits_battlefield/zhang_fei_battlefield.png" id="10_enemysupportportrait"]
+[ext_resource type="Shader" uid="uid://b3nol2fhvwj1s" path="res://assets/web_battle/ui/round_toast/round_toast_ink_spread.gdshader" id="11_round_toast_shader"]
+[ext_resource type="Texture2D" uid="uid://bjb2sekdtihkr" path="res://assets/web_battle/ui/round_toast/round_toast_ink_war_01.png" id="12_round_toast_texture"]
+[ext_resource type="Texture2D" uid="uid://b7uwlb7nijerl" path="res://assets/web_battle/fx/move/move_dust_01.png" id="13_move_dust_01"]
+[ext_resource type="Texture2D" uid="uid://dolvbkym5gpdb" path="res://assets/web_battle/unit_tokens/korea/archer/korea_archer_01.png" id="14_korea_archer"]
+[ext_resource type="Texture2D" uid="uid://blerx4s2kqeqo" path="res://assets/web_battle/unit_tokens/korea/gunner/korea_gunner_01.png" id="15_korea_gunner"]
+[ext_resource type="Texture2D" uid="uid://dyj0aoufehkii" path="res://assets/web_battle/unit_tokens/korea/cavalry/korea_cavalry_01.png" id="16_korea_cavalry"]
+[ext_resource type="Texture2D" uid="uid://bbp1tuxfirxbu" path="res://assets/web_battle/unit_tokens/china/archer/china_archer_01.png" id="17_china_archer"]
+[ext_resource type="Texture2D" uid="uid://d35pvuq8dkc3l" path="res://assets/web_battle/unit_tokens/china/gunner/china_gunner_01.png" id="18_china_gunner"]
+[ext_resource type="Texture2D" uid="uid://bmu7okttbcxxc" path="res://assets/web_battle/unit_tokens/china/cavalry/china_cavalry_01.png" id="19_china_cavalry"]
+[ext_resource type="Texture2D" uid="uid://d13xhotlirlvm" path="res://assets/web_battle/unit_tokens/korea/infantry/korea_infantry_01.png" id="20_korea_infantry"]
+[ext_resource type="Texture2D" uid="uid://djq24xn2ipbi8" path="res://assets/web_battle/unit_tokens/china/infantry/china_infantry_01.png" id="21_china_infantry"]
+[ext_resource type="Texture2D" uid="uid://l7tatxnqtj6i" path="res://assets/web_battle/portraits_battlefield/kwon_yul_battlefield.png" id="22_kwon_yul_battlefield"]
+[ext_resource type="Texture2D" uid="uid://c65cq71po8abg" path="res://assets/web_battle/portraits_battlefield/xiahou_dun_battlefield.png" id="23_xiahou_dun_battlefield"]
+[ext_resource type="Texture2D" uid="uid://v4tt05gicont" path="res://assets/web_battle/portraits_battlefield/gim_yusin_battlefield.png" id="24_gim_yusin_battlefield"]
+[ext_resource type="Texture2D" uid="uid://b0agd1mvsiajg" path="res://assets/web_battle/portraits_battlefield/eulji_mundeok_battlefield.png" id="25_eulji_mundeok_battlefield"]
+[ext_resource type="Texture2D" uid="uid://3pmby1m7x8sg" path="res://assets/web_battle/portraits_battlefield/liu_bei_battlefield.png" id="26_liu_bei_battlefield"]
+[ext_resource type="Texture2D" uid="uid://d10w86efjwm26" path="res://assets/web_battle/portraits_battlefield/zhuge_liang_battlefield.png" id="27_zhuge_liang_battlefield"]
+[ext_resource type="Texture2D" uid="uid://b36u1s6gtq6kw" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_end_turn_normal.png" id="28_bottom_end_turn_normal"]
+[ext_resource type="Texture2D" uid="uid://b7sebhp1hjr0q" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_end_turn_pressed.png" id="29_bottom_end_turn_pressed"]
+[ext_resource type="Texture2D" uid="uid://dkvjl61w72y25" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_auto_normal.png" id="30_bottom_auto_normal"]
+[ext_resource type="Texture2D" uid="uid://cjekpf0r03gfq" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_auto_pressed.png" id="31_bottom_auto_pressed"]
+[ext_resource type="Texture2D" uid="uid://bbbbmjqsrd6ie" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_retreat_normal.png" id="32_bottom_retreat_normal"]
+[ext_resource type="Texture2D" uid="uid://bx6h5wmi0ke5v" path="res://assets/web_battle/ui/bottom_command/bottom_cmd_retreat_pressed.png" id="33_bottom_retreat_pressed"]
+[ext_resource type="Texture2D" uid="uid://dpsl7jnstytyj" path="res://assets/web_battle/ui/bottom_command/bottom_command_bar_bg.png" id="34_bottom_command_bar_bg"]
+[ext_resource type="Texture2D" uid="uid://o4xyqaw80msd" path="res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png" id="35_unique_skill_ready_icon"]
+[ext_resource type="Texture2D" uid="uid://j6e21aihjtxx" path="res://assets/ui/cutin/portraits/yi_sun_sin_cutin.png" id="36_yi_sun_sin_video_cutin_portrait"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cutin/hero_cutin_presentation.tscn" id="37_hero_cutin_presentation"]
+
+[sub_resource type="StyleBoxFlat" id="3"]
+bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lhwdj"]
+bg_color = Color(0.1254902, 0.78039217, 1, 0.5882353)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="LabelSettings" id="2"]
+font_size = 14
+font_color = Color(0.952941, 0.917647, 0.85098, 1)
+outline_size = 3
+outline_color = Color(0.0313726, 0.0627451, 0.0941176, 1)
+
+[sub_resource type="StyleBoxFlat" id="5"]
+bg_color = Color(1, 0.24705882, 0.36078432, 0.5882353)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t02_supply"]
+bg_color = Color(0.025, 0.03, 0.04, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.74, 0.54, 0.36)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ally_click"]
+size = Vector2(101, 102.5)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_enemy_click"]
+size = Vector2(102, 103)
+
+[sub_resource type="LabelSettings" id="1"]
+font_size = 28
+font_color = Color(0.952941, 0.917647, 0.85098, 1)
+outline_size = 6
+outline_color = Color(0.0313726, 0.0627451, 0.0941176, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_round_toast_ink"]
+shader = ExtResource("11_round_toast_shader")
+shader_parameter/progress = 0.0
+shader_parameter/edge_softness = 0.12
+shader_parameter/noise_strength = 0.18
+shader_parameter/spread_center = Vector2(0.5, 0.5)
+
+[sub_resource type="LabelSettings" id="LabelSettings_round_toast"]
+font_size = 72
+font_color = Color(1, 0.894118, 0.611765, 1)
+outline_size = 3
+outline_color = Color(0.0784314, 0.0431373, 0.0117647, 0.82)
+shadow_size = 2
+shadow_color = Color(0.0156863, 0.0117647, 0.00784314, 0.45)
+shadow_offset = Vector2(2, 3)
+
+[node name="Battle_Fullscreen_Test" type="Node2D" unique_id=1929995568]
+script = ExtResource("1_script")
+
+[node name="Slots" type="Node2D" parent="." unique_id=2108450001]
+
+[node name="AllyMainSlot" type="Node2D" parent="Slots" unique_id=2108450002]
+
+[node name="AllyUnitVisualRoot" type="Node2D" parent="Slots/AllyMainSlot" unique_id=1042411759]
+
+[node name="AllyUnitShadow" type="Polygon2D" parent="Slots/AllyMainSlot/AllyUnitVisualRoot" unique_id=335564105]
+position = Vector2(373, 945)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="AllyUnitToken" type="Sprite2D" parent="Slots/AllyMainSlot/AllyUnitVisualRoot" unique_id=1411468196]
+visible = false
+z_index = 1
+position = Vector2(376, 911)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("20_korea_infantry")
+flip_h = true
+
+[node name="AllyMoveDustSprite" type="Sprite2D" parent="Slots/AllyMainSlot/AllyUnitVisualRoot" unique_id=1979046512]
+visible = false
+z_index = 2
+position = Vector2(378, 923)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="AllyPortraitBadge" type="Sprite2D" parent="Slots/AllyMainSlot/AllyUnitVisualRoot" unique_id=1868352463]
+z_index = 3
+position = Vector2(406, 884)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("5_allyportrait")
+
+[node name="AllyHPBar" type="ProgressBar" parent="Slots/AllyMainSlot/AllyUnitVisualRoot" unique_id=1914236876]
+z_index = 4
+offset_left = 327.0
+offset_top = 961.0
+offset_right = 423.0
+offset_bottom = 970.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("StyleBoxFlat_lhwdj")
+value = 84.0
+show_percentage = false
+
+[node name="AllyTroopLabel" type="Label" parent="Slots/AllyMainSlot/AllyUnitVisualRoot" unique_id=10172604]
+z_index = 4
+offset_left = 326.0
+offset_top = 972.0
+offset_right = 422.0
+offset_bottom = 992.0
+text = "94 / 94"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllyMain03Slot" type="Node2D" parent="Slots" unique_id=1358588323]
+position = Vector2(481, 708)
+
+[node name="AllyMain03UnitVisualRoot" type="Node2D" parent="Slots/AllyMain03Slot" unique_id=1849759283]
+position = Vector2(-481, -708)
+
+[node name="AllyMain03UnitShadow" type="Polygon2D" parent="Slots/AllyMain03Slot/AllyMain03UnitVisualRoot" unique_id=1490165662]
+position = Vector2(482, 729)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="AllyMain03UnitToken" type="Sprite2D" parent="Slots/AllyMain03Slot/AllyMain03UnitVisualRoot" unique_id=908093387]
+visible = false
+z_index = 1
+position = Vector2(485, 693)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("20_korea_infantry")
+flip_h = true
+
+[node name="AllyMain03MoveDustSprite" type="Sprite2D" parent="Slots/AllyMain03Slot/AllyMain03UnitVisualRoot" unique_id=1627784874]
+visible = false
+z_index = 2
+position = Vector2(487, 705)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="AllyMain03PortraitBadge" type="Sprite2D" parent="Slots/AllyMain03Slot/AllyMain03UnitVisualRoot" unique_id=1674171449]
+z_index = 3
+position = Vector2(515, 666)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("22_kwon_yul_battlefield")
+
+[node name="AllyMain03HPBar" type="ProgressBar" parent="Slots/AllyMain03Slot/AllyMain03UnitVisualRoot" unique_id=1335053]
+z_index = 4
+offset_left = 436.0
+offset_top = 743.0
+offset_right = 532.0
+offset_bottom = 752.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("StyleBoxFlat_lhwdj")
+value = 72.0
+show_percentage = false
+
+[node name="AllyMain03TroopLabel" type="Label" parent="Slots/AllyMain03Slot/AllyMain03UnitVisualRoot" unique_id=359811251]
+z_index = 4
+offset_left = 435.0
+offset_top = 752.0
+offset_right = 531.0
+offset_bottom = 772.0
+text = "72 / 72"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllyReinforce01Slot" type="Node2D" parent="Slots" unique_id=537799140]
+position = Vector2(371, 1000)
+
+[node name="AllyReinforce01UnitVisualRoot" type="Node2D" parent="Slots/AllyReinforce01Slot" unique_id=1452947183]
+visible = false
+position = Vector2(-371, -1036)
+
+[node name="AllyReinforce01UnitShadow" type="Polygon2D" parent="Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot" unique_id=178242787]
+position = Vector2(372, 1057)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="AllyReinforce01UnitToken" type="Sprite2D" parent="Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot" unique_id=585858159]
+visible = false
+z_index = 1
+position = Vector2(375, 1021)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("14_korea_archer")
+flip_h = true
+
+[node name="AllyReinforce01MoveDustSprite" type="Sprite2D" parent="Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot" unique_id=1855846443]
+visible = false
+z_index = 2
+position = Vector2(377, 1033)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="AllyReinforce01PortraitBadge" type="Sprite2D" parent="Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot" unique_id=482066166]
+visible = false
+z_index = 3
+position = Vector2(405, 994)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("24_gim_yusin_battlefield")
+
+[node name="AllyReinforce01HPBar" type="ProgressBar" parent="Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot" unique_id=2006543208]
+visible = false
+z_index = 4
+offset_left = 326.0
+offset_top = 1071.0
+offset_right = 422.0
+offset_bottom = 1080.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("StyleBoxFlat_lhwdj")
+value = 64.0
+show_percentage = false
+
+[node name="AllyReinforce01TroopLabel" type="Label" parent="Slots/AllyReinforce01Slot/AllyReinforce01UnitVisualRoot" unique_id=666901948]
+visible = false
+z_index = 4
+offset_left = 326.0
+offset_top = 1080.0
+offset_right = 422.0
+offset_bottom = 1100.0
+text = "64 / 64"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllyReinforce02Slot" type="Node2D" parent="Slots" unique_id=2100093801]
+position = Vector2(196, 844)
+
+[node name="AllyReinforce02UnitVisualRoot" type="Node2D" parent="Slots/AllyReinforce02Slot" unique_id=1321009380]
+visible = false
+position = Vector2(-196, -844)
+
+[node name="AllyReinforce02UnitShadow" type="Polygon2D" parent="Slots/AllyReinforce02Slot/AllyReinforce02UnitVisualRoot" unique_id=1321009381]
+position = Vector2(197, 865)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="AllyReinforce02UnitToken" type="Sprite2D" parent="Slots/AllyReinforce02Slot/AllyReinforce02UnitVisualRoot" unique_id=1321009382]
+visible = false
+z_index = 1
+position = Vector2(200, 829)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("15_korea_gunner")
+flip_h = true
+
+[node name="AllyReinforce02MoveDustSprite" type="Sprite2D" parent="Slots/AllyReinforce02Slot/AllyReinforce02UnitVisualRoot" unique_id=1321009383]
+visible = false
+z_index = 2
+position = Vector2(202, 841)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="AllyReinforce02PortraitBadge" type="Sprite2D" parent="Slots/AllyReinforce02Slot/AllyReinforce02UnitVisualRoot" unique_id=1321009384]
+visible = false
+z_index = 3
+position = Vector2(230, 802)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("25_eulji_mundeok_battlefield")
+
+[node name="AllyReinforce02HPBar" type="ProgressBar" parent="Slots/AllyReinforce02Slot/AllyReinforce02UnitVisualRoot" unique_id=1321009385]
+visible = false
+z_index = 4
+offset_left = 151.0
+offset_top = 879.0
+offset_right = 247.0
+offset_bottom = 888.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("StyleBoxFlat_lhwdj")
+value = 62.0
+show_percentage = false
+
+[node name="AllyReinforce02TroopLabel" type="Label" parent="Slots/AllyReinforce02Slot/AllyReinforce02UnitVisualRoot" unique_id=1321009386]
+visible = false
+z_index = 4
+offset_left = 151.0
+offset_top = 888.0
+offset_right = 247.0
+offset_bottom = 908.0
+text = "62 / 62"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyMainSlot" type="Node2D" parent="Slots" unique_id=2108450004]
+
+[node name="EnemyUnitVisualRoot" type="Node2D" parent="Slots/EnemyMainSlot" unique_id=1507310536]
+
+[node name="EnemyUnitShadow" type="Polygon2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1776193078]
+position = Vector2(1548, 296)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="EnemyUnitToken" type="Sprite2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=175940460]
+visible = false
+z_index = 1
+position = Vector2(1543, 269)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("21_china_infantry")
+
+[node name="EnemyMoveDustSprite" type="Sprite2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1979046514]
+visible = false
+z_index = 2
+position = Vector2(1548, 281)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="EnemyPortraitBadge" type="Sprite2D" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1672489250]
+z_index = 3
+position = Vector2(1514.9999, 238)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("23_xiahou_dun_battlefield")
+
+[node name="EnemyHPBar" type="ProgressBar" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1609871165]
+z_index = 4
+offset_left = 1499.0
+offset_top = 313.0
+offset_right = 1595.0
+offset_bottom = 322.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("5")
+value = 62.0
+show_percentage = false
+
+[node name="EnemyTroopLabel" type="Label" parent="Slots/EnemyMainSlot/EnemyUnitVisualRoot" unique_id=1006282899]
+z_index = 4
+offset_left = 1500.0
+offset_top = 322.0
+offset_right = 1596.0
+offset_bottom = 342.0
+text = "100 / 100"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyMain03Slot" type="Node2D" parent="Slots" unique_id=957542795]
+position = Vector2(1434, 476)
+
+[node name="EnemyMain03UnitVisualRoot" type="Node2D" parent="Slots/EnemyMain03Slot" unique_id=1431706289]
+position = Vector2(-1434, -476)
+
+[node name="EnemyMain03UnitShadow" type="Polygon2D" parent="Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot" unique_id=1210555412]
+position = Vector2(1435, 510)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="EnemyMain03UnitToken" type="Sprite2D" parent="Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot" unique_id=164319723]
+visible = false
+z_index = 1
+position = Vector2(1431, 483)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("21_china_infantry")
+
+[node name="EnemyMain03MoveDustSprite" type="Sprite2D" parent="Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot" unique_id=1230748764]
+visible = false
+z_index = 2
+position = Vector2(1436, 495)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="EnemyMain03PortraitBadge" type="Sprite2D" parent="Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot" unique_id=727119278]
+z_index = 3
+position = Vector2(1403, 452)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("6_enemyportrait")
+
+[node name="EnemyMain03HPBar" type="ProgressBar" parent="Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot" unique_id=511762145]
+z_index = 4
+offset_left = 1387.0
+offset_top = 527.0
+offset_right = 1483.0
+offset_bottom = 536.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("5")
+value = 76.0
+show_percentage = false
+
+[node name="EnemyMain03TroopLabel" type="Label" parent="Slots/EnemyMain03Slot/EnemyMain03UnitVisualRoot" unique_id=131908609]
+z_index = 4
+offset_left = 1388.0
+offset_top = 536.0
+offset_right = 1484.0
+offset_bottom = 556.0
+text = "76 / 76"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemySupportSlot" type="Node2D" parent="Slots" unique_id=2108450005]
+
+[node name="EnemySupportUnitVisualRoot" type="Node2D" parent="Slots/EnemySupportSlot" unique_id=1656542731]
+
+[node name="EnemySupportUnitShadow" type="Polygon2D" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904412]
+position = Vector2(1334.6665, 404)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="EnemySupportUnitToken" type="Sprite2D" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904413]
+visible = false
+z_index = 1
+position = Vector2(1333.3333, 370)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("21_china_infantry")
+
+[node name="EnemySupportMoveDustSprite" type="Sprite2D" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=1979046515]
+visible = false
+z_index = 2
+position = Vector2(1333.3333, 382)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="EnemySupportPortraitBadge" type="Sprite2D" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904414]
+z_index = 3
+position = Vector2(1303.6665, 347)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("10_enemysupportportrait")
+
+[node name="EnemySupportHPBar" type="ProgressBar" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904415]
+z_index = 4
+offset_left = 1285.0
+offset_top = 413.0
+offset_right = 1381.0
+offset_bottom = 422.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("5")
+value = 80.0
+show_percentage = false
+
+[node name="EnemySupportTroopLabel" type="Label" parent="Slots/EnemySupportSlot/EnemySupportUnitVisualRoot" unique_id=2081904416]
+z_index = 4
+offset_left = 1285.0
+offset_top = 420.0
+offset_right = 1381.0
+offset_bottom = 440.0
+text = "80 / 80"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyReinforce01Slot" type="Node2D" parent="Slots" unique_id=796498889]
+position = Vector2(1547, 150)
+
+[node name="EnemyReinforce01UnitVisualRoot" type="Node2D" parent="Slots/EnemyReinforce01Slot" unique_id=652585103]
+visible = false
+position = Vector2(-1547, -150)
+
+[node name="EnemyReinforce01UnitShadow" type="Polygon2D" parent="Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot" unique_id=1477434035]
+position = Vector2(1548, 184)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="EnemyReinforce01UnitToken" type="Sprite2D" parent="Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot" unique_id=1634193706]
+visible = false
+z_index = 1
+position = Vector2(1544, 157)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("17_china_archer")
+
+[node name="EnemyReinforce01MoveDustSprite" type="Sprite2D" parent="Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot" unique_id=1190352253]
+visible = false
+z_index = 2
+position = Vector2(1549, 169)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="EnemyReinforce01PortraitBadge" type="Sprite2D" parent="Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot" unique_id=130847431]
+visible = false
+z_index = 3
+position = Vector2(1516, 126)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("26_liu_bei_battlefield")
+
+[node name="EnemyReinforce01HPBar" type="ProgressBar" parent="Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot" unique_id=599404324]
+visible = false
+z_index = 4
+offset_left = 1500.0
+offset_top = 201.0
+offset_right = 1596.0
+offset_bottom = 210.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("5")
+value = 68.0
+show_percentage = false
+
+[node name="EnemyReinforce01TroopLabel" type="Label" parent="Slots/EnemyReinforce01Slot/EnemyReinforce01UnitVisualRoot" unique_id=1377047120]
+visible = false
+z_index = 4
+offset_left = 1500.0
+offset_top = 210.0
+offset_right = 1596.0
+offset_bottom = 230.0
+text = "68 / 68"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyReinforce02Slot" type="Node2D" parent="Slots" unique_id=2139461372]
+position = Vector2(1712, 328)
+
+[node name="EnemyReinforce02UnitVisualRoot" type="Node2D" parent="Slots/EnemyReinforce02Slot" unique_id=2139461373]
+visible = false
+position = Vector2(-1712, -328)
+
+[node name="EnemyReinforce02UnitShadow" type="Polygon2D" parent="Slots/EnemyReinforce02Slot/EnemyReinforce02UnitVisualRoot" unique_id=2139461374]
+position = Vector2(1713, 362)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="EnemyReinforce02UnitToken" type="Sprite2D" parent="Slots/EnemyReinforce02Slot/EnemyReinforce02UnitVisualRoot" unique_id=2139461375]
+visible = false
+z_index = 1
+position = Vector2(1709, 335)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("18_china_gunner")
+
+[node name="EnemyReinforce02MoveDustSprite" type="Sprite2D" parent="Slots/EnemyReinforce02Slot/EnemyReinforce02UnitVisualRoot" unique_id=2139461376]
+visible = false
+z_index = 2
+position = Vector2(1714, 347)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="EnemyReinforce02PortraitBadge" type="Sprite2D" parent="Slots/EnemyReinforce02Slot/EnemyReinforce02UnitVisualRoot" unique_id=2139461377]
+visible = false
+z_index = 3
+position = Vector2(1681, 304)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("27_zhuge_liang_battlefield")
+
+[node name="EnemyReinforce02HPBar" type="ProgressBar" parent="Slots/EnemyReinforce02Slot/EnemyReinforce02UnitVisualRoot" unique_id=2139461378]
+visible = false
+z_index = 4
+offset_left = 1665.0
+offset_top = 379.0
+offset_right = 1761.0
+offset_bottom = 388.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("5")
+value = 66.0
+show_percentage = false
+
+[node name="EnemyReinforce02TroopLabel" type="Label" parent="Slots/EnemyReinforce02Slot/EnemyReinforce02UnitVisualRoot" unique_id=2139461379]
+visible = false
+z_index = 4
+offset_left = 1665.0
+offset_top = 388.0
+offset_right = 1761.0
+offset_bottom = 408.0
+text = "66 / 66"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllySupportSlot" type="Node2D" parent="Slots" unique_id=2108450003]
+
+[node name="AllySupportUnitVisualRoot" type="Node2D" parent="Slots/AllySupportSlot" unique_id=1638541565]
+
+[node name="AllySupportUnitShadow" type="Polygon2D" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904312]
+position = Vector2(586.3333, 837)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-36, 0, -26, -8, 0, -11, 26, -8, 36, 0, 26, 8, 0, 11, -26, 8)
+
+[node name="AllySupportUnitToken" type="Sprite2D" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904313]
+visible = false
+z_index = 1
+position = Vector2(585.3333, 801.00006)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("20_korea_infantry")
+flip_h = true
+
+[node name="AllySupportMoveDustSprite" type="Sprite2D" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=1979046513]
+visible = false
+z_index = 2
+position = Vector2(586.3333, 813)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("13_move_dust_01")
+
+[node name="AllySupportPortraitBadge" type="Sprite2D" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904314]
+z_index = 3
+position = Vector2(616.3333, 780)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("9_allysupportportrait")
+
+[node name="AllySupportHPBar" type="ProgressBar" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904315]
+z_index = 4
+offset_left = 539.0
+offset_top = 847.0
+offset_right = 635.0
+offset_bottom = 856.0
+theme_override_styles/background = SubResource("3")
+theme_override_styles/fill = SubResource("StyleBoxFlat_lhwdj")
+value = 60.0
+show_percentage = false
+
+[node name="AllySupportTroopLabel" type="Label" parent="Slots/AllySupportSlot/AllySupportUnitVisualRoot" unique_id=2081904316]
+z_index = 4
+offset_left = 539.0
+offset_top = 856.0
+offset_right = 635.0
+offset_bottom = 876.0
+text = "60 / 60"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BattleGridController" type="Node" parent="." unique_id=368748053]
+script = ExtResource("2_grid_controller")
+grid_width = 18
+grid_height = 10
+board_top_left_marker_path = NodePath("../BoardTopLeftMarker")
+board_bottom_right_marker_path = NodePath("../BoardBottomRightMarker")
+
+[node name="BattlefieldRoot" type="Node2D" parent="." unique_id=1334997822]
+
+[node name="BattlefieldFrame" type="ColorRect" parent="BattlefieldRoot" unique_id=1342559107]
+visible = false
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0.0509804, 0.0862745, 0.133333, 1)
+
+[node name="BattlefieldTexture" type="Sprite2D" parent="BattlefieldRoot" unique_id=836791405]
+position = Vector2(930, 460)
+scale = Vector2(0.9, 0.9)
+texture = ExtResource("4_large_battlefield")
+
+[node name="BoardBounds" type="ColorRect" parent="BattlefieldRoot" unique_id=2098836911]
+visible = false
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0.0901961, 0.12549, 0.192157, 0.121569)
+
+[node name="GridOverlay" type="Node2D" parent="BattlefieldRoot" unique_id=1229653563]
+visible = false
+
+[node name="GridLineTop" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=642488879]
+points = PackedVector2Array(136, 102, 1016, 102)
+width = 2.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.32)
+
+[node name="GridLineBottom" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=1467521003]
+points = PackedVector2Array(136, 542, 1016, 542)
+width = 2.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.32)
+
+[node name="GridLineLeft" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=1138771574]
+points = PackedVector2Array(136, 102, 136, 542)
+width = 2.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.32)
+
+[node name="GridLineRight" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=857169092]
+points = PackedVector2Array(1016, 102, 1016, 542)
+width = 2.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.32)
+
+[node name="GridRowGuide1" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=1420429459]
+points = PackedVector2Array(136, 212, 1016, 212)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="GridRowGuide2" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=467486219]
+points = PackedVector2Array(136, 322, 1016, 322)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="GridRowGuide3" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=1547434629]
+points = PackedVector2Array(136, 432, 1016, 432)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="GridColGuide1" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=2079651183]
+points = PackedVector2Array(356, 102, 356, 542)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="GridColGuide2" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=243747129]
+points = PackedVector2Array(576, 102, 576, 542)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="GridColGuide3" type="Line2D" parent="BattlefieldRoot/GridOverlay" unique_id=1165122338]
+points = PackedVector2Array(796, 102, 796, 542)
+width = 1.0
+default_color = Color(0.972549, 0.843137, 0.596078, 0.14)
+
+[node name="LogicalGridGuideLayer" type="Node2D" parent="." unique_id=1380411007]
+visible = false
+z_index = 1
+
+[node name="GridVertical_00" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352001]
+points = PackedVector2Array(0, 0, 0, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_01" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352002]
+points = PackedVector2Array(106.66667, 0, 106.66667, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_02" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352003]
+points = PackedVector2Array(213.33333, 0, 213.33333, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_03" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352004]
+points = PackedVector2Array(320, 0, 320, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_04" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352005]
+points = PackedVector2Array(426.66666, 0, 426.66666, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_05" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352006]
+points = PackedVector2Array(533.3333, 0, 533.3333, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_06" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352007]
+points = PackedVector2Array(640, 0, 640, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_07" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352008]
+points = PackedVector2Array(746.6667, 0, 746.6667, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_08" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352009]
+points = PackedVector2Array(853.3333, 0, 853.3333, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_09" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352010]
+points = PackedVector2Array(960, 0, 960, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_10" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352011]
+points = PackedVector2Array(1066.6666, 0, 1066.6666, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_11" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352012]
+points = PackedVector2Array(1173.3334, 0, 1173.3334, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_12" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352013]
+points = PackedVector2Array(1280, 0, 1280, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_13" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352014]
+points = PackedVector2Array(1386.6666, 0, 1386.6666, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_14" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352015]
+points = PackedVector2Array(1493.3334, 0, 1493.3334, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_15" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352016]
+points = PackedVector2Array(1600, 0, 1600, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_16" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352017]
+points = PackedVector2Array(1706.6666, 0, 1706.6666, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_17" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352018]
+points = PackedVector2Array(1813.3334, 0, 1813.3334, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridVertical_18" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352019]
+points = PackedVector2Array(1920, 0, 1920, 1080)
+width = 1.0
+default_color = Color(0.56078434, 0.91764706, 1, 0.18)
+
+[node name="GridHorizontal_00" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352100]
+points = PackedVector2Array(0, 0, 1920, 0)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_01" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352101]
+points = PackedVector2Array(0, 108, 1920, 108)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_02" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352102]
+points = PackedVector2Array(0, 216, 1920, 216)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_03" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352103]
+points = PackedVector2Array(0, 324, 1920, 324)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_04" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352104]
+points = PackedVector2Array(0, 432, 1920, 432)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_05" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352105]
+points = PackedVector2Array(0, 540, 1920, 540)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_06" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352106]
+points = PackedVector2Array(0, 648, 1920, 648)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_07" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352107]
+points = PackedVector2Array(0, 756, 1920, 756)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_08" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352108]
+points = PackedVector2Array(0, 864, 1920, 864)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_09" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352109]
+points = PackedVector2Array(0, 972, 1920, 972)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="GridHorizontal_10" type="Line2D" parent="LogicalGridGuideLayer" unique_id=1478352110]
+points = PackedVector2Array(0, 1080, 1920, 1080)
+width = 1.0
+default_color = Color(1, 0.85882354, 0.56078434, 0.16)
+
+[node name="HighlightLayer" type="Node2D" parent="." unique_id=1817155697]
+z_index = 2
+
+[node name="MoveHighlight" type="ColorRect" parent="HighlightLayer" unique_id=1711559311]
+visible = false
+offset_left = 320.0
+offset_top = 864.0
+offset_right = 426.6667
+offset_bottom = 972.0
+color = Color(0.172549, 0.623529, 1, 0.227451)
+
+[node name="AttackHighlight" type="ColorRect" parent="HighlightLayer" unique_id=1728313183]
+visible = false
+offset_left = 1493.3333
+offset_top = 216.0
+offset_right = 1600.0
+offset_bottom = 324.0
+color = Color(1, 0.482353, 0.482353, 0.207843)
+
+[node name="MoveRangeOverlayLayer" type="Node2D" parent="." unique_id=2018718815]
+z_index = 1
+
+[node name="MoveRangeCell_00" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=2103754264]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_01" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=854231033]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_02" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=57810174]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_03" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=873511623]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_04" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1419266438]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_05" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1950515198]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_06" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1661591183]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_07" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=300706389]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_08" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1267267255]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_09" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=421357648]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_10" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=2007362945]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_11" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=71831749]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_12" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=318712946]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_13" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1759526674]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_14" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1242519979]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_15" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=2112509542]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_16" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1747157145]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_17" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=392413927]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_18" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=644696622]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_19" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=794389330]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_20" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1053678098]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_21" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=242048991]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_22" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=2057838974]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_23" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1894033211]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_24" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=7667231]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_25" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1666444324]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_26" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1554935885]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_27" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1112219280]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_28" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1747995168]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_29" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1346002141]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_30" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=489022854]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_31" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1675696014]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_32" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=641708102]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_33" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=963090356]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_34" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=918307814]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_35" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1750184664]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_36" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=63657531]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_37" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=65417981]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_38" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1664479089]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_39" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=341538688]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_40" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=389185563]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_41" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1922280765]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_42" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1731414622]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_43" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1344574125]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_44" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=304081214]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_45" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=503586055]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_46" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=510903810]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_47" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=324241519]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_48" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1446042820]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_49" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1197541428]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_50" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1120708461]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_51" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=442386200]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_52" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1925002594]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_53" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=428432917]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_54" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=128823409]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_55" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1129343529]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_56" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=602035505]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_57" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1461845740]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_58" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=539754095]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_59" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1850734327]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_60" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=39413986]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_61" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=177939033]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_62" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=759767361]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_63" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=655427418]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_64" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=134504665]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_65" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1919799363]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_66" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=2025897592]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_67" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=28601111]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_68" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=509510858]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_69" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1723734970]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_70" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1088692720]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_71" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1030954219]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_72" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=2118341842]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_73" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=638959340]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_74" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=392519404]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_75" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=2032552243]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_76" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=497170255]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_77" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1410792611]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_78" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=386075028]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_79" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1693884141]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_80" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1300656254]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_81" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=325122810]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_82" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=663997502]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_83" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=143513186]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_84" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=215241031]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_85" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=48963405]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_86" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1969043020]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_87" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1713185217]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_88" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1338904215]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_89" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1605716238]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_90" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1795821153]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_91" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=535692687]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_92" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=456662741]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_93" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=2038791028]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_94" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1362695267]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_95" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=431333277]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_96" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=198824837]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_97" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1909367678]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_98" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=2975669]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_99" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1738383664]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_100" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1908856526]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_101" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1549749973]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_102" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1222213072]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_103" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=619579810]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_104" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=397766201]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_105" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=2064558581]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_106" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1264444701]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_107" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=939728023]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_108" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=56035867]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_109" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1183247513]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_110" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=1670235267]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="MoveRangeCell_111" type="ColorRect" parent="MoveRangeOverlayLayer" unique_id=2107507316]
+visible = false
+mouse_filter = 2
+color = Color(0.2, 0.55, 1, 0.18)
+
+[node name="CellGuideLayer" type="Node2D" parent="." unique_id=1573674244]
+z_index = 2
+
+[node name="CellGuide_Current" type="ColorRect" parent="CellGuideLayer" unique_id=1315635844]
+visible = false
+offset_right = 68.0
+offset_bottom = 56.0
+mouse_filter = 2
+color = Color(0.14117648, 0.84705883, 1, 0.19607843)
+
+[node name="CellGuide_Right" type="ColorRect" parent="CellGuideLayer" unique_id=418866148]
+visible = false
+offset_right = 68.0
+offset_bottom = 56.0
+mouse_filter = 2
+color = Color(0.972549, 0.8117647, 0.27058825, 0.19607843)
+
+[node name="CellGuide_Down" type="ColorRect" parent="CellGuideLayer" unique_id=1611100995]
+visible = false
+offset_right = 68.0
+offset_bottom = 56.0
+mouse_filter = 2
+color = Color(1, 0.4745098, 0.4745098, 0.19607843)
+
+[node name="CellGuide_Label" type="Label" parent="CellGuideLayer" unique_id=1377334721]
+offset_left = -60.0
+offset_top = -12.0
+offset_right = 120.0
+offset_bottom = 12.0
+text = "cell=(0,0) size=(0,0)"
+label_settings = SubResource("2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllySide" type="Node2D" parent="." unique_id=983797976]
+
+[node name="AllyInfantryUnitVisualTemplate" type="Node2D" parent="AllySide" unique_id=2081904101]
+position = Vector2(373.3333, 918)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904102]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904103]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllyInfantryUnitVisualTemplate/TokenSlot" unique_id=1541923363]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("20_korea_infantry")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904104]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904105]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904106]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904107]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904108]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904109]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904110]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllyInfantryUnitVisualTemplate" unique_id=2081904111]
+position = Vector2(-19.3333, -105)
+
+[node name="AllyArcherUnitVisualTemplate" type="Node2D" parent="AllySide" unique_id=1071924723]
+position = Vector2(373.3333, 918)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate" unique_id=1700746785]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate" unique_id=500753668]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllyArcherUnitVisualTemplate/TokenSlot" unique_id=1092803868]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("14_korea_archer")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate" unique_id=2048102717]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate" unique_id=1263596944]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate" unique_id=327800545]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate" unique_id=1168388129]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate" unique_id=1846381188]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate" unique_id=47339267]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate" unique_id=995486642]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllyArcherUnitVisualTemplate" unique_id=172510404]
+position = Vector2(-19.3333, -105)
+
+[node name="AllyGunnerUnitVisualTemplate" type="Node2D" parent="AllySide" unique_id=591454590]
+position = Vector2(373.3333, 918)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate" unique_id=1616686777]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate" unique_id=1099939674]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllyGunnerUnitVisualTemplate/TokenSlot" unique_id=774709001]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("15_korea_gunner")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate" unique_id=2133459510]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate" unique_id=954445504]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate" unique_id=2051973886]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate" unique_id=1506770963]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate" unique_id=1588038023]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate" unique_id=1798626053]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate" unique_id=2130117652]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllyGunnerUnitVisualTemplate" unique_id=1407967322]
+position = Vector2(-19.3333, -105)
+
+[node name="AllyCavalryUnitVisualTemplate" type="Node2D" parent="AllySide" unique_id=1076807248]
+position = Vector2(373.3333, 918)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate" unique_id=92525399]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate" unique_id=720015109]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllyCavalryUnitVisualTemplate/TokenSlot" unique_id=1964785176]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("16_korea_cavalry")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate" unique_id=2038608063]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate" unique_id=104123136]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate" unique_id=1834284683]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate" unique_id=1730490497]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate" unique_id=619058051]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate" unique_id=431013244]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate" unique_id=363942968]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllyCavalryUnitVisualTemplate" unique_id=2112991058]
+position = Vector2(-19.3333, -105)
+
+[node name="AllySupportInfantryVisualTemplate" type="Node2D" parent="AllySide" unique_id=2081904301]
+position = Vector2(586.6666, 810)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904302]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904303]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllySupportInfantryVisualTemplate/TokenSlot" unique_id=1938115726]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("20_korea_infantry")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904304]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904305]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904306]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904307]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904308]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904309]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904310]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllySupportInfantryVisualTemplate" unique_id=2081904311]
+position = Vector2(-19.3333, -105)
+
+[node name="AllySupportArcherVisualTemplate" type="Node2D" parent="AllySide" unique_id=532936031]
+position = Vector2(586.6666, 810)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate" unique_id=864810491]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate" unique_id=1770992388]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllySupportArcherVisualTemplate/TokenSlot" unique_id=1011033684]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("14_korea_archer")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate" unique_id=75290473]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate" unique_id=2054060881]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate" unique_id=202480531]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate" unique_id=1058898086]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate" unique_id=1419933173]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate" unique_id=474356381]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate" unique_id=1758007175]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllySupportArcherVisualTemplate" unique_id=2050359640]
+position = Vector2(-19.3333, -105)
+
+[node name="AllySupportGunnerVisualTemplate" type="Node2D" parent="AllySide" unique_id=699891324]
+position = Vector2(586.6666, 810)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate" unique_id=437200134]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate" unique_id=133180325]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllySupportGunnerVisualTemplate/TokenSlot" unique_id=109877993]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("15_korea_gunner")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate" unique_id=1513226294]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate" unique_id=247651745]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate" unique_id=524210579]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate" unique_id=213082731]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate" unique_id=504951668]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate" unique_id=2043411001]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate" unique_id=2044400527]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllySupportGunnerVisualTemplate" unique_id=1233360101]
+position = Vector2(-19.3333, -105)
+
+[node name="AllySupportCavalryVisualTemplate" type="Node2D" parent="AllySide" unique_id=188295377]
+position = Vector2(586.6666, 810)
+
+[node name="ShadowSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate" unique_id=1270702342]
+position = Vector2(-0.333313, 27)
+
+[node name="TokenSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate" unique_id=918080760]
+position = Vector2(-1.3332825, -8.999939)
+
+[node name="TokenSprite" type="Sprite2D" parent="AllySide/AllySupportCavalryVisualTemplate/TokenSlot" unique_id=81846996]
+position = Vector2(2.6666257, 13.999939)
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("16_korea_cavalry")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate" unique_id=846964283]
+position = Vector2(-29.6667, -30)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate" unique_id=1155917769]
+position = Vector2(29.6667, -30)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate" unique_id=1694290415]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate" unique_id=971471783]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate" unique_id=561106104]
+position = Vector2(-47.333313, 37)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate" unique_id=1968526066]
+position = Vector2(-47.333313, 46)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate" unique_id=1895830772]
+position = Vector2(-4.333313, 3)
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="AllySide/AllySupportCavalryVisualTemplate" unique_id=877148793]
+position = Vector2(-19.3333, -105)
+
+[node name="EnemySide" type="Node2D" parent="." unique_id=612955151]
+
+[node name="EnemyInfantryUnitVisualTemplate" type="Node2D" parent="EnemySide" unique_id=2081904201]
+position = Vector2(1546.6667, 262)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904202]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904203]
+
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate/TokenSlot" unique_id=1258062512]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("21_china_infantry")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904204]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904205]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904206]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904207]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904208]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904209]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904210]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemyInfantryUnitVisualTemplate" unique_id=2081904211]
+position = Vector2(-18, -96)
+
+[node name="EnemyArcherUnitVisualTemplate" type="Node2D" parent="EnemySide" unique_id=1957021898]
+position = Vector2(1546.6667, 262)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate" unique_id=70084720]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate" unique_id=234936525]
+
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemyArcherUnitVisualTemplate/TokenSlot" unique_id=240207264]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("17_china_archer")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate" unique_id=1253910475]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate" unique_id=1653434311]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate" unique_id=26441339]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate" unique_id=947547917]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate" unique_id=55494708]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate" unique_id=1094636101]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate" unique_id=1152365682]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemyArcherUnitVisualTemplate" unique_id=1803462436]
+position = Vector2(-18, -96)
+
+[node name="EnemyGunnerUnitVisualTemplate" type="Node2D" parent="EnemySide" unique_id=983070178]
+position = Vector2(1546.6667, 262)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate" unique_id=981477374]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate" unique_id=138982064]
+
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate/TokenSlot" unique_id=1273001809]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("18_china_gunner")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate" unique_id=635755127]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate" unique_id=1624956564]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate" unique_id=2111847234]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate" unique_id=1798313837]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate" unique_id=606087275]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate" unique_id=1641552093]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate" unique_id=1839971614]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemyGunnerUnitVisualTemplate" unique_id=1039190325]
+position = Vector2(-18, -96)
+
+[node name="EnemyCavalryUnitVisualTemplate" type="Node2D" parent="EnemySide" unique_id=362195147]
+position = Vector2(1546.6667, 262)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate" unique_id=1823860421]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate" unique_id=192062329]
+
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate/TokenSlot" unique_id=773596466]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("19_china_cavalry")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate" unique_id=1094510882]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate" unique_id=1314989033]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate" unique_id=1986039905]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate" unique_id=1815454135]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate" unique_id=29471393]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate" unique_id=2061174231]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate" unique_id=969240399]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemyCavalryUnitVisualTemplate" unique_id=1616699568]
+position = Vector2(-18, -96)
+
+[node name="EnemySupportInfantryVisualTemplate" type="Node2D" parent="EnemySide" unique_id=2081904401]
+position = Vector2(1333.3333, 370)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904402]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904403]
+
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemySupportInfantryVisualTemplate/TokenSlot" unique_id=1619635879]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("21_china_infantry")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904404]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904405]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904406]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904407]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904408]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904409]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904410]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemySupportInfantryVisualTemplate" unique_id=2081904411]
+position = Vector2(-18, -96)
+
+[node name="EnemySupportArcherVisualTemplate" type="Node2D" parent="EnemySide" unique_id=1380897455]
+position = Vector2(1333.3333, 370)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate" unique_id=501250540]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate" unique_id=1582682078]
+
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemySupportArcherVisualTemplate/TokenSlot" unique_id=204611406]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("17_china_archer")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate" unique_id=282569935]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate" unique_id=1465303160]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate" unique_id=948086398]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate" unique_id=567115956]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate" unique_id=1472020964]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate" unique_id=856117646]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate" unique_id=794538522]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemySupportArcherVisualTemplate" unique_id=1739196800]
+position = Vector2(-18, -96)
+
+[node name="EnemySupportGunnerVisualTemplate" type="Node2D" parent="EnemySide" unique_id=170011937]
+position = Vector2(1333.3333, 370)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate" unique_id=2127802201]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate" unique_id=1496610843]
+
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemySupportGunnerVisualTemplate/TokenSlot" unique_id=583222973]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("18_china_gunner")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate" unique_id=1165929277]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate" unique_id=2060603011]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate" unique_id=2061427740]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate" unique_id=1007034900]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate" unique_id=1440137319]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate" unique_id=110758010]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate" unique_id=1300231596]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemySupportGunnerVisualTemplate" unique_id=241116174]
+position = Vector2(-18, -96)
+
+[node name="EnemySupportCavalryVisualTemplate" type="Node2D" parent="EnemySide" unique_id=1774960786]
+position = Vector2(1333.3333, 370)
+
+[node name="ShadowSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate" unique_id=1983856286]
+position = Vector2(1.333252, 34)
+
+[node name="TokenSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate" unique_id=464347179]
+
+[node name="TokenSprite" type="Sprite2D" parent="EnemySide/EnemySupportCavalryVisualTemplate/TokenSlot" unique_id=2112850401]
+scale = Vector2(0.48437494, 0.46875003)
+texture = ExtResource("19_china_cavalry")
+
+[node name="PortraitLeftSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate" unique_id=851175657]
+position = Vector2(-29.6668, -23)
+
+[node name="PortraitRightSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate" unique_id=379767077]
+position = Vector2(29.6668, -23)
+
+[node name="PortraitUpSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate" unique_id=707438542]
+position = Vector2(0, -46)
+
+[node name="PortraitDownSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate" unique_id=88478529]
+position = Vector2(0, -46)
+
+[node name="HPBarSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate" unique_id=2066335293]
+position = Vector2(-47.6667, 43)
+
+[node name="TroopLabelSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate" unique_id=1662120292]
+position = Vector2(-48, 50)
+
+[node name="ClickAreaSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate" unique_id=1494425642]
+
+[node name="FacingIndicatorSlot" type="Marker2D" parent="EnemySide/EnemySupportCavalryVisualTemplate" unique_id=885129704]
+position = Vector2(-18, -96)
+
+[node name="AllyUnitMarker" type="Marker2D" parent="." unique_id=1575499460]
+position = Vector2(373.3333, 918)
+
+[node name="AllyUnitClickArea" type="Area2D" parent="." unique_id=1935183129]
+position = Vector2(369, 921)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AllyUnitClickArea" unique_id=1202646538]
+position = Vector2(4, -3)
+shape = SubResource("RectangleShape2D_ally_click")
+
+[node name="AllySupportUnitMarker" type="Marker2D" parent="." unique_id=2081904501]
+position = Vector2(586.6666, 810)
+
+[node name="AllySupportUnitClickArea" type="Area2D" parent="." unique_id=2081904502]
+position = Vector2(582.3333, 813)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AllySupportUnitClickArea" unique_id=2081904503]
+position = Vector2(4.666687, -3)
+shape = SubResource("RectangleShape2D_ally_click")
+
+[node name="AllyMain03UnitMarker" type="Marker2D" parent="." unique_id=829483629]
+position = Vector2(482, 700)
+
+[node name="AllyMain03UnitClickArea" type="Area2D" parent="." unique_id=1286854421]
+position = Vector2(478, 703)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AllyMain03UnitClickArea" unique_id=260768900]
+position = Vector2(4, -3)
+shape = SubResource("RectangleShape2D_ally_click")
+
+[node name="AllyReinforce01UnitMarker" type="Marker2D" parent="." unique_id=1827385040]
+position = Vector2(372, 1028)
+
+[node name="AllyReinforce01UnitClickArea" type="Area2D" parent="." unique_id=1243482958]
+position = Vector2(368, 1031)
+input_pickable = false
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AllyReinforce01UnitClickArea" unique_id=320598076]
+position = Vector2(221, -108)
+shape = SubResource("RectangleShape2D_ally_click")
+
+[node name="AllyReinforce02UnitMarker" type="Marker2D" parent="." unique_id=1321009390]
+position = Vector2(197, 836)
+
+[node name="AllyReinforce02UnitClickArea" type="Area2D" parent="." unique_id=1321009391]
+position = Vector2(193, 839)
+input_pickable = false
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AllyReinforce02UnitClickArea" unique_id=1321009392]
+position = Vector2(4, -3)
+shape = SubResource("RectangleShape2D_ally_click")
+
+[node name="EnemyUnitMarker" type="Marker2D" parent="." unique_id=248114327]
+position = Vector2(1546.6667, 270)
+
+[node name="EnemyUnitClickArea" type="Area2D" parent="." unique_id=771198935]
+position = Vector2(1546.6667, 262)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyUnitClickArea" unique_id=670291870]
+position = Vector2(0.33325195, 8)
+shape = SubResource("RectangleShape2D_enemy_click")
+
+[node name="EnemySupportUnitMarker" type="Marker2D" parent="." unique_id=2081904504]
+position = Vector2(1333.3333, 378)
+
+[node name="EnemySupportUnitClickArea" type="Area2D" parent="." unique_id=2081904505]
+position = Vector2(1333.3333, 370)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EnemySupportUnitClickArea" unique_id=2081904506]
+position = Vector2(0.33325195, 8)
+shape = SubResource("RectangleShape2D_enemy_click")
+
+[node name="EnemyMain03UnitMarker" type="Marker2D" parent="." unique_id=1560999620]
+position = Vector2(1434, 484)
+
+[node name="EnemyMain03UnitClickArea" type="Area2D" parent="." unique_id=13965009]
+position = Vector2(1434, 476)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyMain03UnitClickArea" unique_id=1648638528]
+position = Vector2(0.33325195, 8)
+shape = SubResource("RectangleShape2D_enemy_click")
+
+[node name="EnemyReinforce01UnitMarker" type="Marker2D" parent="." unique_id=83434270]
+position = Vector2(1547, 158)
+
+[node name="EnemyReinforce01UnitClickArea" type="Area2D" parent="." unique_id=2120727494]
+position = Vector2(1547, 150)
+input_pickable = false
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyReinforce01UnitClickArea" unique_id=182301752]
+position = Vector2(0.33325195, 8)
+shape = SubResource("RectangleShape2D_enemy_click")
+
+[node name="EnemyReinforce02UnitMarker" type="Marker2D" parent="." unique_id=2139461380]
+position = Vector2(1712, 336)
+
+[node name="EnemyReinforce02UnitClickArea" type="Area2D" parent="." unique_id=2139461381]
+position = Vector2(1712, 328)
+input_pickable = false
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyReinforce02UnitClickArea" unique_id=2139461382]
+position = Vector2(0.33325195, 8)
+shape = SubResource("RectangleShape2D_enemy_click")
+
+[node name="AllyPortraitMarker" type="Marker2D" parent="." unique_id=591376317]
+position = Vector2(403, 890)
+
+[node name="AllySupportPortraitMarker" type="Marker2D" parent="." unique_id=2081904507]
+position = Vector2(616.3333, 780)
+
+[node name="EnemyPortraitMarker" type="Marker2D" parent="." unique_id=631579844]
+position = Vector2(1516.6667, 248)
+
+[node name="EnemySupportPortraitMarker" type="Marker2D" parent="." unique_id=2081904508]
+position = Vector2(1303.6665, 347)
+
+[node name="AllyMain03PortraitMarker" type="Marker2D" parent="." unique_id=974623739]
+position = Vector2(512, 672)
+
+[node name="AllyReinforce01PortraitMarker" type="Marker2D" parent="." unique_id=604855504]
+position = Vector2(402, 1000)
+
+[node name="AllyReinforce02PortraitMarker" type="Marker2D" parent="." unique_id=1321009393]
+position = Vector2(227, 808)
+
+[node name="EnemyMain03PortraitMarker" type="Marker2D" parent="." unique_id=1926824233]
+position = Vector2(1404, 462)
+
+[node name="EnemyReinforce01PortraitMarker" type="Marker2D" parent="." unique_id=84762364]
+position = Vector2(1517, 136)
+
+[node name="EnemyReinforce02PortraitMarker" type="Marker2D" parent="." unique_id=2139461383]
+position = Vector2(1682, 314)
+
+[node name="MoveTargetMarker" type="Marker2D" parent="." unique_id=453024699]
+position = Vector2(480, 918)
+
+[node name="DamageSpawnMarker" type="Marker2D" parent="." unique_id=939657881]
+position = Vector2(960, 540)
+
+[node name="BoardTopLeftMarker" type="Marker2D" parent="." unique_id=1867611365]
+
+[node name="BoardBottomRightMarker" type="Marker2D" parent="." unique_id=1111883749]
+position = Vector2(1920, 1080)
+
+[node name="CutinCenterMarker" type="Marker2D" parent="." unique_id=311745938]
+position = Vector2(960, 540)
+
+[node name="ResultCenterMarker" type="Marker2D" parent="." unique_id=1832523907]
+position = Vector2(960, 540)
+
+[node name="DamageTextLayer" type="Node2D" parent="." unique_id=1463093936]
+position = Vector2(960, 540)
+
+[node name="DamagePreviewLabel" type="Label" parent="DamageTextLayer" unique_id=405421207]
+visible = false
+offset_left = -42.0
+offset_top = -18.0
+offset_right = 42.0
+offset_bottom = 18.0
+text = "-12"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BattleFXRoot" type="Node2D" parent="." unique_id=1979046501]
+z_index = 80
+
+[node name="MoveDustTemplate" type="Sprite2D" parent="BattleFXRoot" unique_id=1979046516]
+modulate = Color(1, 1, 1, 0.56)
+z_index = 2
+position = Vector2(0, 10)
+scale = Vector2(0.546, 0.546)
+texture = ExtResource("13_move_dust_01")
+
+[node name="MainCamera" type="Camera2D" parent="." unique_id=1502905262]
+position = Vector2(960, 540)
+zoom = Vector2(0.84, 0.84)
+
+[node name="BattleUI" type="CanvasLayer" parent="." unique_id=1570436259]
+
+[node name="TopBar" type="Panel" parent="BattleUI" unique_id=46958898]
+offset_left = 48.0
+offset_top = 24.0
+offset_right = 1872.0
+offset_bottom = 88.0
+
+[node name="TopBarLabel" type="Label" parent="BattleUI/TopBar" unique_id=740296385]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 8.0
+offset_right = 1280.0
+offset_bottom = 48.0
+text = "전투 준비 중"
+label_settings = SubResource("1")
+vertical_alignment = 1
+
+[node name="TurnBanner" type="Label" parent="BattleUI/TopBar" unique_id=995055658]
+layout_mode = 0
+offset_left = 1604.0
+offset_top = 10.0
+offset_right = 1784.0
+offset_bottom = 44.0
+text = "아군 턴"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="T02BattleSupplyAnchor" type="Control" parent="BattleUI"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="T02BattleSupplyPanel" type="Panel" parent="BattleUI/T02BattleSupplyAnchor"]
+visible = false
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -650.0
+offset_top = -352.0
+offset_right = -90.0
+offset_bottom = -148.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_t02_supply")
+
+[node name="Margin" type="MarginContainer" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+mouse_filter = 2
+
+[node name="Content" type="VBoxContainer" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 2
+mouse_filter = 2
+
+[node name="Header" type="HBoxContainer" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.96, 0.91, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.03, 0.04, 0.82)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 18
+text = "전장 보급"
+vertical_alignment = 1
+
+[node name="TurnLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Header"]
+custom_minimum_size = Vector2(200, 28)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.94, 0.82, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.03, 0.04, 0.88)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 14
+text = "1 / 30 · 잔여 29"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="HeaderSeparator" type="HSeparator" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="Columns" type="HBoxContainer" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="AllyColumn" type="VBoxContainer" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TitleLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/AllyColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.84, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "아군"
+
+[node name="FoodValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/AllyColumn"]
+layout_mode = 2
+text = "식량 정보 없음"
+
+[node name="SaltValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/AllyColumn"]
+layout_mode = 2
+text = "소금 0"
+
+[node name="ConsumptionValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/AllyColumn"]
+layout_mode = 2
+text = "소비 계산 불가"
+
+[node name="SustainValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/AllyColumn"]
+layout_mode = 2
+text = "유지 계산 불가"
+
+[node name="WarningLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/AllyColumn"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.42, 1)
+theme_override_font_sizes/font_size = 13
+text = "소금 고갈 · 식량 +10%"
+
+[node name="Divider" type="VSeparator" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns"]
+layout_mode = 2
+
+[node name="EnemyColumn" type="VBoxContainer" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TitleLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/EnemyColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.66, 0.62, 1)
+theme_override_font_sizes/font_size = 15
+text = "적군"
+
+[node name="FoodValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/EnemyColumn"]
+layout_mode = 2
+text = "식량 정보 없음"
+
+[node name="SaltValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/EnemyColumn"]
+layout_mode = 2
+text = "소금 0"
+
+[node name="ConsumptionValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/EnemyColumn"]
+layout_mode = 2
+text = "소비 계산 불가"
+
+[node name="SustainValue" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/EnemyColumn"]
+layout_mode = 2
+text = "유지 계산 불가"
+
+[node name="WarningLabel" type="Label" parent="BattleUI/T02BattleSupplyAnchor/T02BattleSupplyPanel/Margin/Content/Columns/EnemyColumn"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.42, 1)
+theme_override_font_sizes/font_size = 13
+text = "소금 고갈 · 식량 +10%"
+
+[node name="LeftPanel" type="Panel" parent="BattleUI" unique_id=2039077714]
+visible = false
+offset_left = 24.0
+offset_top = 132.0
+offset_right = 252.0
+offset_bottom = 876.0
+
+[node name="LeftPanelLabel" type="Label" parent="BattleUI/LeftPanel" unique_id=951468497]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 11.0
+offset_right = 214.0
+offset_bottom = 139.0
+text = "전황 보고
+- 유닛 선택
+- 이동
+- 방향 결정
+- 공격 / 특기 / 책략"
+
+[node name="BattleLogPreview" type="Label" parent="BattleUI/LeftPanel" unique_id=1049618586]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 166.0
+offset_right = 214.0
+offset_bottom = 640.0
+text = "전투 기록
+- 이순신이 전진했습니다.
+- 관우가 방어 태세입니다."
+autowrap_mode = 2
+
+[node name="RightPanel" type="Panel" parent="BattleUI" unique_id=1102874252]
+visible = false
+offset_left = 1674.0
+offset_top = 279.0
+offset_right = 1908.0
+offset_bottom = 902.0
+
+[node name="RightPanelLabel" type="Label" parent="BattleUI/RightPanel" unique_id=1661618933]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.011000001
+anchor_bottom = 0.011000001
+offset_left = 8.0
+offset_top = 5.795969
+offset_right = 188.0
+offset_bottom = 217.796
+text = "부대 목록
+아군: 이순신
+적군: 관우"
+autowrap_mode = 2
+
+[node name="BattleMiniLogPanel" type="Panel" parent="BattleUI" unique_id=1688017001]
+offset_left = 2.0
+offset_top = 876.0
+offset_right = 264.0
+offset_bottom = 1060.0
+mouse_filter = 2
+
+[node name="BattleMiniLogTitleLabel" type="Label" parent="BattleUI/BattleMiniLogPanel" unique_id=782441901]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 10.0
+offset_right = 152.0
+offset_bottom = 34.0
+text = "전투 기록"
+
+[node name="BattleMiniLogLabel" type="Label" parent="BattleUI/BattleMiniLogPanel" unique_id=185515100]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 40.0
+offset_right = 246.0
+offset_bottom = 157.0
+text = "- 대기 중"
+autowrap_mode = 2
+
+[node name="FormationSlotGuideLayer" type="Control" parent="BattleUI" unique_id=1927054000]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -22.0
+offset_right = 1898.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="AllyFormationGuidePanel" type="Panel" parent="BattleUI/FormationSlotGuideLayer" unique_id=129510001]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 93.0
+offset_right = 275.0
+offset_bottom = 531.0
+mouse_filter = 2
+
+[node name="TitleLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel" unique_id=862250101]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 10.0
+offset_right = 170.0
+offset_bottom = 32.0
+text = "아군 편성"
+
+[node name="AllyMain01GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel" unique_id=147100100]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 42.0
+offset_right = 228.0
+offset_bottom = 114.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100101]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 60.0
+offset_bottom = 60.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100102]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
+offset_bottom = 28.0
+text = "아군 main1"
+
+[node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100103]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
+text = "병력 -"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100104]
+visible = false
+layout_mode = 0
+offset_left = 168.0
+offset_top = 50.0
+offset_right = 212.0
+offset_bottom = 66.0
+
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=500542164]
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 188.0
+offset_top = -12.0
+offset_right = 252.0
+offset_bottom = 52.0
+mouse_filter = 2
+texture = ExtResource("35_unique_skill_ready_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100125]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 12.0
+offset_right = 180.0
+offset_bottom = 52.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain01GuideSlot" unique_id=147100126]
+layout_mode = 0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
+text = "-"
+horizontal_alignment = 1
+
+[node name="AllyMain02GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel" unique_id=147100105]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 122.0
+offset_right = 228.0
+offset_bottom = 194.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100106]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 60.0
+offset_bottom = 60.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100107]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
+offset_bottom = 28.0
+text = "아군 main2"
+
+[node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100108]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
+text = "병력 -"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100109]
+visible = false
+layout_mode = 0
+offset_left = 168.0
+offset_top = 50.0
+offset_right = 212.0
+offset_bottom = 66.0
+
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=304743342]
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 188.0
+offset_top = -12.0
+offset_right = 252.0
+offset_bottom = 52.0
+mouse_filter = 2
+texture = ExtResource("35_unique_skill_ready_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100127]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 12.0
+offset_right = 180.0
+offset_bottom = 52.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain02GuideSlot" unique_id=147100128]
+layout_mode = 0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
+text = "-"
+horizontal_alignment = 1
+
+[node name="AllyMain03GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel" unique_id=147100110]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 202.0
+offset_right = 228.0
+offset_bottom = 274.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100111]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 60.0
+offset_bottom = 60.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100112]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
+offset_bottom = 28.0
+text = "아군 main3"
+
+[node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100113]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
+text = "병력 -"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100114]
+visible = false
+layout_mode = 0
+offset_left = 168.0
+offset_top = 50.0
+offset_right = 212.0
+offset_bottom = 66.0
+
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=1822872128]
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 188.0
+offset_top = -12.0
+offset_right = 252.0
+offset_bottom = 52.0
+mouse_filter = 2
+texture = ExtResource("35_unique_skill_ready_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100129]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 12.0
+offset_right = 180.0
+offset_bottom = 52.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyMain03GuideSlot" unique_id=147100130]
+layout_mode = 0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
+text = "-"
+horizontal_alignment = 1
+
+[node name="AllyReinforce01GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel" unique_id=147100115]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 282.0
+offset_right = 228.0
+offset_bottom = 354.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100116]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 60.0
+offset_bottom = 60.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100117]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
+offset_bottom = 28.0
+text = "지원군 1"
+
+[node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100118]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
+text = "병력 -"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100119]
+visible = false
+layout_mode = 0
+offset_left = 168.0
+offset_top = 50.0
+offset_right = 212.0
+offset_bottom = 66.0
+
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=1758923023]
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 188.0
+offset_top = -12.0
+offset_right = 252.0
+offset_bottom = 52.0
+mouse_filter = 2
+texture = ExtResource("35_unique_skill_ready_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100131]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 12.0
+offset_right = 180.0
+offset_bottom = 52.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce01GuideSlot" unique_id=147100132]
+layout_mode = 0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
+text = "-"
+horizontal_alignment = 1
+
+[node name="AllyReinforce02GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel" unique_id=147100120]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 362.0
+offset_right = 228.0
+offset_bottom = 434.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100121]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 60.0
+offset_bottom = 60.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100122]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
+offset_bottom = 28.0
+text = "지원군 2"
+
+[node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100123]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
+text = "병력 -"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100124]
+visible = false
+layout_mode = 0
+offset_left = 168.0
+offset_top = 50.0
+offset_right = 212.0
+offset_bottom = 66.0
+
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=1458160907]
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 188.0
+offset_top = -12.0
+offset_right = 252.0
+offset_bottom = 52.0
+mouse_filter = 2
+texture = ExtResource("35_unique_skill_ready_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100133]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 12.0
+offset_right = 180.0
+offset_bottom = 52.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/AllyFormationGuidePanel/AllyReinforce02GuideSlot" unique_id=147100134]
+layout_mode = 0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
+text = "-"
+horizontal_alignment = 1
+
+[node name="EnemyFormationGuidePanel" type="Panel" parent="BattleUI/FormationSlotGuideLayer" unique_id=129510002]
+layout_mode = 0
+offset_left = 1666.0
+offset_top = 90.0
+offset_right = 1906.0
+offset_bottom = 528.0
+mouse_filter = 2
+
+[node name="TitleLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel" unique_id=862250102]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 10.0
+offset_right = 170.0
+offset_bottom = 32.0
+text = "적군 편성"
+
+[node name="EnemyMain01GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel" unique_id=247100100]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 42.0
+offset_right = 228.0
+offset_bottom = 114.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100101]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 60.0
+offset_bottom = 60.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100102]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
+offset_bottom = 28.0
+text = "적군 main1"
+
+[node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100103]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
+text = "병력 -"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100104]
+visible = false
+layout_mode = 0
+offset_left = 168.0
+offset_top = 50.0
+offset_right = 212.0
+offset_bottom = 66.0
+
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=2095679621]
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 188.0
+offset_top = -12.0
+offset_right = 252.0
+offset_bottom = 52.0
+mouse_filter = 2
+texture = ExtResource("35_unique_skill_ready_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100125]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 12.0
+offset_right = 180.0
+offset_bottom = 52.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain01GuideSlot" unique_id=247100126]
+layout_mode = 0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
+text = "-"
+horizontal_alignment = 1
+
+[node name="EnemyMain02GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel" unique_id=247100105]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 122.0
+offset_right = 228.0
+offset_bottom = 194.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100106]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 60.0
+offset_bottom = 60.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100107]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
+offset_bottom = 28.0
+text = "적군 main2"
+
+[node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100108]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
+text = "병력 -"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100109]
+visible = false
+layout_mode = 0
+offset_left = 168.0
+offset_top = 50.0
+offset_right = 212.0
+offset_bottom = 66.0
+
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=1797990685]
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 188.0
+offset_top = -12.0
+offset_right = 252.0
+offset_bottom = 52.0
+mouse_filter = 2
+texture = ExtResource("35_unique_skill_ready_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100127]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 12.0
+offset_right = 180.0
+offset_bottom = 52.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain02GuideSlot" unique_id=247100128]
+layout_mode = 0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
+text = "-"
+horizontal_alignment = 1
+
+[node name="EnemyMain03GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel" unique_id=247100110]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 202.0
+offset_right = 228.0
+offset_bottom = 274.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100111]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 60.0
+offset_bottom = 60.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100112]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
+offset_bottom = 28.0
+text = "적군 main3"
+
+[node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100113]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
+text = "병력 -"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100114]
+visible = false
+layout_mode = 0
+offset_left = 168.0
+offset_top = 50.0
+offset_right = 212.0
+offset_bottom = 66.0
+
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=1335771528]
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 188.0
+offset_top = -12.0
+offset_right = 252.0
+offset_bottom = 52.0
+mouse_filter = 2
+texture = ExtResource("35_unique_skill_ready_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100129]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 12.0
+offset_right = 180.0
+offset_bottom = 52.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyMain03GuideSlot" unique_id=247100130]
+layout_mode = 0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
+text = "-"
+horizontal_alignment = 1
+
+[node name="EnemyReinforce01GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel" unique_id=247100115]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 282.0
+offset_right = 228.0
+offset_bottom = 354.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100116]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 60.0
+offset_bottom = 60.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100117]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
+offset_bottom = 28.0
+text = "적 지원군1"
+
+[node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100118]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
+text = "병력 -"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100119]
+visible = false
+layout_mode = 0
+offset_left = 168.0
+offset_top = 50.0
+offset_right = 212.0
+offset_bottom = 66.0
+
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=1706274008]
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 188.0
+offset_top = -12.0
+offset_right = 252.0
+offset_bottom = 52.0
+mouse_filter = 2
+texture = ExtResource("35_unique_skill_ready_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100131]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 12.0
+offset_right = 180.0
+offset_bottom = 52.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce01GuideSlot" unique_id=247100132]
+layout_mode = 0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
+text = "-"
+horizontal_alignment = 1
+
+[node name="EnemyReinforce02GuideSlot" type="Panel" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel" unique_id=247100120]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 362.0
+offset_right = 228.0
+offset_bottom = 434.0
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100121]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 60.0
+offset_bottom = 60.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100122]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 10.0
+offset_right = 164.0
+offset_bottom = 28.0
+text = "적 지원군2"
+
+[node name="HpLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100123]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 34.0
+offset_right = 164.0
+offset_bottom = 50.0
+text = "병력 -"
+
+[node name="StatusLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100124]
+visible = false
+layout_mode = 0
+offset_left = 168.0
+offset_top = 50.0
+offset_right = 212.0
+offset_bottom = 66.0
+
+[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=1887924987]
+visible = false
+z_index = 4
+layout_mode = 0
+offset_left = 188.0
+offset_top = -12.0
+offset_right = 252.0
+offset_bottom = 52.0
+mouse_filter = 2
+texture = ExtResource("35_unique_skill_ready_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopIconRect" type="TextureRect" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100133]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 12.0
+offset_right = 180.0
+offset_bottom = 52.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TroopTypeLabel" type="Label" parent="BattleUI/FormationSlotGuideLayer/EnemyFormationGuidePanel/EnemyReinforce02GuideSlot" unique_id=247100134]
+layout_mode = 0
+offset_left = 136.0
+offset_top = 54.0
+offset_right = 184.0
+offset_bottom = 70.0
+text = "-"
+horizontal_alignment = 1
+
+[node name="CommandBar" type="Panel" parent="BattleUI" unique_id=2130262646]
+offset_left = 1254.0
+offset_top = 948.0
+offset_right = 1830.0
+offset_bottom = 1037.0
+
+[node name="BottomCommandBarBackground" type="TextureRect" parent="BattleUI/CommandBar" unique_id=1448700001]
+layout_mode = 0
+offset_top = -3.9999695
+offset_right = 576.0
+offset_bottom = 88.00003
+mouse_filter = 2
+texture = ExtResource("34_bottom_command_bar_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="CommandBarLabel" type="Label" parent="BattleUI/CommandBar" unique_id=163471327]
+visible = false
+layout_mode = 0
+offset_left = 431.0
+offset_top = 19.0
+offset_right = 857.0
+offset_bottom = 49.0
+text = "전역 명령"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BasicAttackButton" type="Button" parent="BattleUI/CommandBar" unique_id=1608951316]
+visible = false
+layout_mode = 0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 138.0
+offset_bottom = 40.0
+text = "기본 공격"
+
+[node name="MoveButton" type="Button" parent="BattleUI/CommandBar" unique_id=1103539678]
+visible = false
+layout_mode = 0
+offset_left = 146.0
+offset_top = 8.0
+offset_right = 210.0
+offset_bottom = 40.0
+text = "이동"
+
+[node name="WaitButton" type="Button" parent="BattleUI/CommandBar" unique_id=1902145001]
+visible = false
+layout_mode = 0
+offset_left = 218.0
+offset_top = 8.0
+offset_right = 282.0
+offset_bottom = 40.0
+text = "대기"
+
+[node name="EndTurnButton" type="TextureButton" parent="BattleUI/CommandBar" unique_id=1902145002]
+layout_mode = 0
+offset_left = 222.0
+offset_top = 10.0000305
+offset_right = 362.0
+offset_bottom = 80.00003
+texture_normal = ExtResource("28_bottom_end_turn_normal")
+texture_pressed = ExtResource("29_bottom_end_turn_pressed")
+texture_hover = ExtResource("28_bottom_end_turn_normal")
+texture_disabled = ExtResource("28_bottom_end_turn_normal")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="AutoBattleButton" type="TextureButton" parent="BattleUI/CommandBar" unique_id=1847675653]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 11.0
+offset_right = 190.0
+offset_bottom = 82.0
+texture_normal = ExtResource("30_bottom_auto_normal")
+texture_pressed = ExtResource("31_bottom_auto_pressed")
+texture_hover = ExtResource("30_bottom_auto_normal")
+texture_disabled = ExtResource("30_bottom_auto_normal")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="RetreatButton" type="TextureButton" parent="BattleUI/CommandBar" unique_id=1414351526]
+layout_mode = 0
+offset_left = 391.0
+offset_top = 14.0
+offset_right = 531.0
+offset_bottom = 84.0
+disabled = true
+texture_normal = ExtResource("32_bottom_retreat_normal")
+texture_pressed = ExtResource("33_bottom_retreat_pressed")
+texture_hover = ExtResource("32_bottom_retreat_normal")
+texture_disabled = ExtResource("32_bottom_retreat_normal")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="FloatingAllyCommandPanel" type="Panel" parent="BattleUI" unique_id=1536043339]
+visible = false
+z_index = 200
+offset_right = 176.0
+offset_bottom = 214.0
+mouse_filter = 1
+
+[node name="FloatingBasicAttackButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=584505442]
+z_index = 201
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 164.0
+offset_bottom = 46.0
+text = "기본공격"
+
+[node name="FloatingUniqueSkillButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=1854683531]
+z_index = 201
+layout_mode = 0
+offset_left = 12.0
+offset_top = 52.0
+offset_right = 164.0
+offset_bottom = 86.0
+disabled = true
+text = "고유특기"
+
+[node name="FloatingTacticsButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=1137418579]
+z_index = 201
+layout_mode = 0
+offset_left = 12.0
+offset_top = 92.0
+offset_right = 164.0
+offset_bottom = 126.0
+disabled = true
+text = "책략"
+
+[node name="FloatingMoveButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=118051900]
+z_index = 201
+layout_mode = 0
+offset_left = 12.0
+offset_top = 132.0
+offset_right = 164.0
+offset_bottom = 166.0
+text = "이동"
+
+[node name="FloatingWaitButton" type="Button" parent="BattleUI/FloatingAllyCommandPanel" unique_id=1816183012]
+z_index = 201
+layout_mode = 0
+offset_left = 12.0
+offset_top = 172.0
+offset_right = 164.0
+offset_bottom = 206.0
+text = "대기"
+
+[node name="RoundToastRoot" type="Control" parent="BattleUI" unique_id=1842740031]
+visible = false
+z_index = 300
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+pivot_offset = Vector2(960, 540)
+mouse_filter = 2
+
+[node name="RoundToastImage" type="TextureRect" parent="BattleUI/RoundToastRoot" unique_id=1842740032]
+material = SubResource("ShaderMaterial_round_toast_ink")
+layout_mode = 0
+offset_left = 550.0
+offset_top = 300.0
+offset_right = 1370.0
+offset_bottom = 720.0
+pivot_offset = Vector2(410, 210)
+mouse_filter = 2
+texture = ExtResource("12_round_toast_texture")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RoundToastLabel" type="Label" parent="BattleUI/RoundToastRoot" unique_id=1842740033]
+layout_mode = 0
+offset_left = 600.0
+offset_top = 430.0
+offset_right = 1320.0
+offset_bottom = 590.0
+pivot_offset = Vector2(360, 80)
+text = "BATTLE 1"
+label_settings = SubResource("LabelSettings_round_toast")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="UniqueSkillToastRoot" type="Control" parent="BattleUI" unique_id=2042465130]
+visible = false
+z_index = 260
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+pivot_offset = Vector2(576, 324)
+mouse_filter = 2
+
+[node name="UniqueSkillInkBurst" type="ColorRect" parent="BattleUI/UniqueSkillToastRoot" unique_id=1328257816]
+visible = false
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.42)
+
+[node name="UniqueSkillCutinImage" type="TextureRect" parent="BattleUI/UniqueSkillToastRoot" unique_id=181564915]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 149.0
+offset_right = 1129.0
+offset_bottom = 486.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="UniqueSkillNameLabel" type="Label" parent="BattleUI/UniqueSkillToastRoot" unique_id=745933424]
+layout_mode = 0
+offset_left = 47.0
+offset_top = 368.0
+offset_right = 1105.0
+offset_bottom = 464.0
+text = "고유특기!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllyFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938220]
+offset_left = 353.0
+offset_top = 818.0
+offset_right = 413.0
+offset_bottom = 878.0
+text = "→"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938221]
+offset_left = 1521.0
+offset_top = 167.0
+offset_right = 1581.0
+offset_bottom = 227.0
+text = "←"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllySupportFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938222]
+offset_left = 566.0
+offset_top = 706.0
+offset_right = 626.0
+offset_bottom = 766.0
+text = "→"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemySupportFacingIndicator" type="Label" parent="BattleUI" unique_id=1174938223]
+offset_left = 1308.0
+offset_top = 276.0
+offset_right = 1368.0
+offset_bottom = 336.0
+text = "←"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllyMain03FacingIndicator" type="Label" parent="BattleUI" unique_id=298340609]
+offset_left = 460.0
+offset_top = 596.0
+offset_right = 520.0
+offset_bottom = 656.0
+text = "→"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllyReinforce01FacingIndicator" type="Label" parent="BattleUI" unique_id=366829364]
+visible = false
+offset_left = 342.0
+offset_top = 924.0
+offset_right = 402.0
+offset_bottom = 984.0
+text = "→"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllyReinforce02FacingIndicator" type="Label" parent="BattleUI" unique_id=1321009394]
+visible = false
+offset_left = 167.0
+offset_top = 732.0
+offset_right = 227.0
+offset_bottom = 792.0
+text = "→"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyMain03FacingIndicator" type="Label" parent="BattleUI" unique_id=1560835990]
+offset_left = 1408.0
+offset_top = 382.0
+offset_right = 1468.0
+offset_bottom = 442.0
+text = "←"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyReinforce01FacingIndicator" type="Label" parent="BattleUI" unique_id=631520303]
+visible = false
+offset_left = 1521.0
+offset_top = 56.0
+offset_right = 1581.0
+offset_bottom = 116.0
+text = "←"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyReinforce02FacingIndicator" type="Label" parent="BattleUI" unique_id=2139461384]
+visible = false
+offset_left = 1686.0
+offset_top = 234.0
+offset_right = 1746.0
+offset_bottom = 294.0
+text = "←"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllyReadyFrame" type="Panel" parent="BattleUI" unique_id=1563470803]
+visible = false
+offset_left = 316.0
+offset_top = 756.0
+offset_right = 432.0
+offset_bottom = 872.0
+mouse_filter = 2
+
+[node name="AllySupportReadyFrame" type="Panel" parent="BattleUI" unique_id=1457807114]
+visible = false
+offset_left = 529.0
+offset_top = 644.0
+offset_right = 645.0
+offset_bottom = 760.0
+mouse_filter = 2
+
+[node name="AllyMain03ReadyFrame" type="Panel" parent="BattleUI" unique_id=72118196]
+visible = false
+offset_left = 425.0
+offset_top = 584.0
+offset_right = 541.0
+offset_bottom = 700.0
+mouse_filter = 2
+
+[node name="AllyReinforce01ReadyFrame" type="Panel" parent="BattleUI" unique_id=400407235]
+visible = false
+offset_left = 314.0
+offset_top = 912.0
+offset_right = 430.0
+offset_bottom = 1028.0
+mouse_filter = 2
+
+[node name="AllyReinforce02ReadyFrame" type="Panel" parent="BattleUI" unique_id=1321009395]
+visible = false
+offset_left = 139.0
+offset_top = 720.0
+offset_right = 255.0
+offset_bottom = 836.0
+mouse_filter = 2
+
+[node name="UnitCloseupPanel" type="Panel" parent="BattleUI" unique_id=635915241]
+visible = false
+offset_top = 103.0
+offset_right = 236.0
+offset_bottom = 279.0
+mouse_filter = 2
+
+[node name="CloseupHeroPortrait" type="TextureRect" parent="BattleUI/UnitCloseupPanel" unique_id=1158163089]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 14.0
+offset_right = 92.0
+offset_bottom = 94.0
+mouse_filter = 2
+texture = ExtResource("5_allyportrait")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CloseupTroopImage" type="TextureRect" parent="BattleUI/UnitCloseupPanel" unique_id=1153975849]
+layout_mode = 0
+offset_left = 143.0
+offset_top = 24.0
+offset_right = 215.0
+offset_bottom = 96.0
+mouse_filter = 2
+texture = ExtResource("3_allytoken")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CloseupNameLabel" type="Label" parent="BattleUI/UnitCloseupPanel" unique_id=1249952089]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 104.0
+offset_right = 220.0
+offset_bottom = 130.0
+text = "이순신"
+
+[node name="CloseupTroopLabel" type="Label" parent="BattleUI/UnitCloseupPanel" unique_id=1944315882]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 136.0
+offset_right = 223.0
+offset_bottom = 159.0
+text = "병력 94 / 94"
+
+[node name="CloseupStatusLabel" type="Label" parent="BattleUI/UnitCloseupPanel" unique_id=572377823]
+layout_mode = 0
+offset_left = 142.0
+offset_top = 104.0
+offset_right = 220.0
+offset_bottom = 132.0
+text = "READY"
+horizontal_alignment = 1
+
+[node name="FacingSelectionPanel" type="Panel" parent="BattleUI" unique_id=1174938201]
+visible = false
+offset_left = 720.0
+offset_top = 878.0
+offset_right = 1200.0
+offset_bottom = 980.0
+
+[node name="FacingLabel" type="Label" parent="BattleUI/FacingSelectionPanel" unique_id=1174938202]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 10.0
+offset_right = 170.0
+offset_bottom = 40.0
+text = "방향 선택"
+vertical_alignment = 1
+
+[node name="FaceLeftButton" type="Button" parent="BattleUI/FacingSelectionPanel" unique_id=1174938203]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 52.0
+offset_right = 104.0
+offset_bottom = 86.0
+text = "좌"
+
+[node name="FaceRightButton" type="Button" parent="BattleUI/FacingSelectionPanel" unique_id=1174938204]
+layout_mode = 0
+offset_left = 116.0
+offset_top = 52.0
+offset_right = 204.0
+offset_bottom = 86.0
+text = "우"
+
+[node name="FaceUpButton" type="Button" parent="BattleUI/FacingSelectionPanel" unique_id=1174938205]
+layout_mode = 0
+offset_left = 216.0
+offset_top = 52.0
+offset_right = 304.0
+offset_bottom = 86.0
+text = "상"
+
+[node name="FaceDownButton" type="Button" parent="BattleUI/FacingSelectionPanel" unique_id=1174938206]
+layout_mode = 0
+offset_left = 316.0
+offset_top = 52.0
+offset_right = 404.0
+offset_bottom = 86.0
+text = "하"
+
+[node name="FacingArrowPanel" type="Control" parent="BattleUI" unique_id=1174938210]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 280.0
+offset_bottom = 280.0
+mouse_filter = 1
+
+[node name="FaceUpArrowButton" type="Button" parent="BattleUI/FacingArrowPanel" unique_id=1174938211]
+layout_mode = 0
+offset_left = 88.0
+offset_right = 160.0
+offset_bottom = 72.0
+text = "↑"
+
+[node name="FaceLeftArrowButton" type="Button" parent="BattleUI/FacingArrowPanel" unique_id=1174938212]
+layout_mode = 0
+offset_top = 88.0
+offset_right = 72.0
+offset_bottom = 160.0
+text = "←"
+
+[node name="FaceRightArrowButton" type="Button" parent="BattleUI/FacingArrowPanel" unique_id=1174938213]
+layout_mode = 0
+offset_left = 208.0
+offset_top = 88.0
+offset_right = 280.0
+offset_bottom = 160.0
+text = "→"
+
+[node name="FaceDownArrowButton" type="Button" parent="BattleUI/FacingArrowPanel" unique_id=1174938214]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 208.0
+offset_right = 160.0
+offset_bottom = 280.0
+text = "↓"
+
+[node name="SkillCutinLayer" type="Control" parent="BattleUI" unique_id=1892770997]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ColorRect_Darken" type="ColorRect" parent="BattleUI/SkillCutinLayer" unique_id=1229770517]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0196078, 0.027451, 0.0392157, 0)
+
+[node name="VideoStreamPlayer_Cutin" type="VideoStreamPlayer" parent="BattleUI/SkillCutinLayer" unique_id=1848363035]
+layout_mode = 0
+offset_left = 69.0
+offset_top = 117.0
+offset_right = 1083.0
+offset_bottom = 531.0
+mouse_filter = 2
+expand = true
+
+[node name="TextureRect_Slash" type="ColorRect" parent="BattleUI/SkillCutinLayer" unique_id=1105785789]
+layout_mode = 0
+offset_left = 150.0
+offset_top = 258.0
+offset_right = 1002.0
+offset_bottom = 322.0
+rotation = -0.08
+mouse_filter = 2
+color = Color(0.78, 0.91, 1, 0)
+
+[node name="TextureRect_Hero" type="TextureRect" parent="BattleUI/SkillCutinLayer" unique_id=1101124744]
+layout_mode = 0
+offset_left = 286.0
+offset_top = 59.0
+offset_right = 781.0
+offset_bottom = 590.0
+mouse_filter = 2
+texture = ExtResource("36_yi_sun_sin_video_cutin_portrait")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Control_Text" type="Control" parent="BattleUI/SkillCutinLayer" unique_id=369091395]
+anchors_preset = 0
+offset_left = 617.0
+offset_top = 357.0
+offset_right = 1104.0
+offset_bottom = 481.0
+mouse_filter = 2
+
+[node name="TextureRect_SkillTitle" type="TextureRect" parent="BattleUI/SkillCutinLayer/Control_Text" unique_id=756910915]
+layout_mode = 0
+offset_right = 487.0
+offset_bottom = 156.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="AnimationPlayer_Cutin" type="AnimationPlayer" parent="BattleUI/SkillCutinLayer" unique_id=887263827]
+
+[node name="EnemyRetreatToastLayer" type="CanvasLayer" parent="." unique_id=2063384101]
+layer = 30
+
+[node name="EnemyRetreatToastRoot" type="Control" parent="EnemyRetreatToastLayer" unique_id=321399282]
+visible = false
+z_index = 255
+layout_mode = 3
+anchors_preset = 0
+offset_right = 440.0
+offset_bottom = 104.0
+pivot_offset = Vector2(220, 52)
+mouse_filter = 2
+
+[node name="EnemyRetreatToastBackdrop" type="ColorRect" parent="EnemyRetreatToastLayer/EnemyRetreatToastRoot" unique_id=2011296158]
+layout_mode = 0
+offset_right = 440.0
+offset_bottom = 104.0
+mouse_filter = 2
+color = Color(0.055, 0.046, 0.038, 0.88)
+
+[node name="EnemyRetreatPortrait" type="TextureRect" parent="EnemyRetreatToastLayer/EnemyRetreatToastRoot" unique_id=1841557209]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = 89.0
+offset_bottom = 92.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="EnemyRetreatNameLabel" type="Label" parent="EnemyRetreatToastLayer/EnemyRetreatToastRoot" unique_id=1655577006]
+layout_mode = 0
+offset_left = 104.0
+offset_top = 11.0
+offset_right = 420.0
+offset_bottom = 38.0
+text = "적장"
+vertical_alignment = 1
+
+[node name="EnemyRetreatLineLabel" type="Label" parent="EnemyRetreatToastLayer/EnemyRetreatToastRoot" unique_id=1996175326]
+layout_mode = 0
+offset_left = 104.0
+offset_top = 43.0
+offset_right = 420.0
+offset_bottom = 88.0
+text = "후퇴한다!"
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="CutinOverlay" type="CanvasLayer" parent="." unique_id=581824320]
+visible = false
+
+[node name="CutinBackdrop" type="ColorRect" parent="CutinOverlay" unique_id=977962423]
+offset_right = 1152.0
+offset_bottom = 720.0
+color = Color(0.0196078, 0.0392157, 0.0588235, 0.627451)
+
+[node name="CutinImage" type="TextureRect" parent="CutinOverlay" unique_id=636889275]
+offset_left = 356.0
+offset_top = 164.0
+offset_right = 796.0
+offset_bottom = 484.0
+texture = ExtResource("8_cutin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CutinNameLabel" type="Label" parent="CutinOverlay" unique_id=1694379876]
+offset_left = 426.0
+offset_top = 452.0
+offset_right = 726.0
+offset_bottom = 500.0
+text = "학익진 포격"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+
+[node name="CutinQuoteLabel" type="Label" parent="CutinOverlay" unique_id=1982842324]
+offset_left = 356.0
+offset_top = 524.0
+offset_right = 796.0
+offset_bottom = 580.0
+text = "사정거리 안 모든 적을 포격하라!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultOverlay" type="CanvasLayer" parent="." unique_id=1567394212]
+visible = false
+
+[node name="ResultBackdrop" type="ColorRect" parent="ResultOverlay" unique_id=1313004022]
+offset_right = 1152.0
+offset_bottom = 720.0
+color = Color(0.0196078, 0.0392157, 0.0588235, 0.627451)
+
+[node name="VideoStreamPlayer_Result" type="VideoStreamPlayer" parent="ResultOverlay" unique_id=1342652622]
+visible = false
+offset_left = 192.0
+offset_top = 144.0
+offset_right = 960.0
+offset_bottom = 576.0
+mouse_filter = 2
+expand = true
+
+[node name="ResultImage" type="TextureRect" parent="ResultOverlay" unique_id=1179974900]
+offset_left = 356.0
+offset_top = 154.0
+offset_right = 796.0
+offset_bottom = 494.0
+texture = ExtResource("7_result")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ResultTitleLabel" type="Label" parent="ResultOverlay" unique_id=427404940]
+offset_left = 468.0
+offset_top = 500.0
+offset_right = 684.0
+offset_bottom = 572.0
+text = "승리"
+label_settings = SubResource("1")
+horizontal_alignment = 1
+
+[node name="HeroCutinOverlay" type="CanvasLayer" parent="." unique_id=2097401001]
+visible = false
+layer = 40
+
+[node name="HeroCutinInputBlocker" type="Control" parent="HeroCutinOverlay" unique_id=2097401002]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 0
+
+[node name="HeroCutinViewport" type="Control" parent="HeroCutinOverlay" unique_id=2097401003]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -576.0
+offset_top = -324.0
+offset_right = 576.0
+offset_bottom = 324.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HeroCutinPresentation" parent="HeroCutinOverlay/HeroCutinViewport" unique_id=2097401004 instance=ExtResource("37_hero_cutin_presentation")]
