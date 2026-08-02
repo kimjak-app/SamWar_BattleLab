@@ -1,5 +1,12 @@
 # SESSION LOG
 
+## 2026-08-02 — T08 runtime emergency hotfix
+
+- Began clean at `17c704c` (a normal successor to the expected T08-3C head); origin matched.
+- Traced the action regression to `c0949a9`: `_advance_enemy_turn_or_return_to_ally()` repeatedly deferred the next enemy actor and `_return_to_ally_turn()` rejected the intended post-enemy ally return.
+- Traced video failure to live IDs (`yi_sunsin/hakikjin_barrage`) not matching data IDs (`yi_sun_sin/yi_sun_sin_unique`); static legacy toast was selected after registry miss. Existing OGV resources loaded successfully through Godot for five registered runtime heroes.
+- Added isolated action-order and cutin routing validators/tests. All automated validation is PASS; user F5 QA is pending and blocks further T08 UI work.
+
 ## 2026-08-02 — T08-3C Bottom HUD Theme, Font & Supply Preview
 
 - Started clean on `main` at `9d94a97a7c80d8e6937d89652a5193e89ff5083f`; `origin/main` matched.

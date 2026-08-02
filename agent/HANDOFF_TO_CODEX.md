@@ -1,5 +1,13 @@
 # HANDOFF TO CODEX
 
+## Runtime emergency hotfix hold
+
+The current runtime regression hotfix restores one-enemy-per-initiative alternation and maps live battle hero/skill IDs to the existing Korea MVP OGV registry. All automated checks pass; wait for user F5 QA before any T08 UI continuation. `Battle_Land.tscn`, T08 Theme/geometry, and test Preview data were not changed.
+
+Focused checks: `tools/validate_alternating_battle_action_order.py`, `tools/validate_korea_mvp_video_cutin_routing.py`, and their Godot scripts under `tests/scripts/`.
+
+---
+
 ## Current T08-3C QA hold
 
 T08-3C is implemented. All validators and Godot 4.6.2 project, `Battle_Land.tscn`, and Production test-scene headless loads pass. Await only user F6 visual QA; do not modify Battle_Land, shared scripts/adapters, BattleSupplyRuntime, WorldMap context, top HUD, or rosters, and do not transfer Theme before approval.

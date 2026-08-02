@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## T08 Runtime Emergency Hotfix — alternating initiative and registered video cutins
+- Restored unit-level alternating action flow by removing the deferred remaining-enemy dispatch introduced by `c0949a9`; complete a Battle Turn and settle supply only after both sides' valid actors are done.
+- Added runtime-to-registry ID aliases for 이순신, 정도전, 권율, 김유신, and 을지문덕 so their existing OGV/title cutins take the registry-video route before legacy static toast fallback.
+- Added Python/Godot regressions for initiative sequences and registered OGV resource routing. No Battle_Land scene, UI Theme/font/geometry, lower HUD Preview, WorldMap context, supply runtime, or media asset was changed.
+
 ## T08-3C Bottom HUD Theme, Font & Supply Preview
 - Applied test-scene-only lower HUD Theme variations: battle log, current action/interaction guide, and supply Preview, all using existing NotoSerifKR font resources.
 - Added isolated ally/enemy food, salt, consumption, sustain, turn, and default-hidden warning fields with test-only sample data. BattleSupplyRuntime and WorldMap context are neither created nor changed.

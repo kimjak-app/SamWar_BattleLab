@@ -1,5 +1,12 @@
 # CURRENT STATE
 
+## T08 Runtime Emergency Hotfix — alternating initiative and registered video cutins
+
+- T08-3C visual QA exposed two runtime regressions; all T08 visual work is paused pending user F5 turn/cutin QA. Current-action width, lower HUD, Theme, font, and test-only Preview geometry remain untouched.
+- Cause 1: `c0949a9` changed each enemy completion into `_advance_enemy_turn_or_return_to_ally()`, which deferred the next enemy actor; its `_return_to_ally_turn()` guard also redirected control back to the enemy while any enemy remained. The restored boundary returns after one enemy actor and starts a new Battle Turn only after both valid sides complete.
+- Cause 2: runtime requests (`yi_sunsin/hakikjin_barrage`, etc.) did not match the registered canonical IDs (`yi_sun_sin/yi_sun_sin_unique`, etc.). The registry miss entered the legacy static toast path. Registry-bound aliases now route registered heroes to their existing OGV/title resources first; reinforcement/ready-flag resources are not registry fallbacks.
+- New Python and Godot regression checks cover 3v3, 3v2, 2v3, unavailable-actor sequencing, round/supply boundary, and five runtime hero OGV loads. Status: `RUNTIME HOTFIX IMPLEMENTED / AUTOMATED VALIDATION PASS / USER F5 QA PENDING`.
+
 ## Latest protected implemented stage
 
 ### T07 Five Unit-Type Battle Completion

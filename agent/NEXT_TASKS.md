@@ -1,5 +1,11 @@
 # NEXT TASKS
 
+## Runtime hotfix F5 QA gate
+
+- Do not resume T08 UI work until actual Battle_Land QA passes. In a WorldMap battle, verify A1 → E1 → A2 → E2 and that Battle Turn/supply settlement happen only after all valid actors complete.
+- Trigger 이순신, then 가능하면 정도전 또는 권율 unique skill. Confirm the registered OGV, portrait/title, completion/effect, momentum cost, and combat resume; no reinforcement/ready-flag fallback may appear.
+- Production test scene retains the shared runtime contract, but no UI geometry, Theme, or sample-data changes are authorized by this hotfix.
+
 ## Completed QA locks
 
 - T06-10H occupation portrait QA: PASS.
