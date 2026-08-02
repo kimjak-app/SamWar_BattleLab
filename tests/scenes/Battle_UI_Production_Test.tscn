@@ -3879,16 +3879,15 @@ offset_right = 1420.0
 offset_bottom = 118.0
 mouse_filter = 2
 
-[node name="TopHudFrameShadow" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot"]
+[node name="TopHudFrameShadow" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot" unique_id=842090345]
+self_modulate = Color(0.06, 0.05, 0.04, 0.2)
 layout_mode = 0
 offset_left = 73.0
 offset_top = -4.0
 offset_right = 842.0
 offset_bottom = 95.0
 mouse_filter = 2
-self_modulate = Color(0.06, 0.05, 0.04, 0.2)
 texture = ExtResource("41_top_hud_frame_full")
-expand_mode = 0
 stretch_mode = 5
 
 [node name="TopHudFrameFull" type="TextureRect" parent="BattleUI/ProductionHudRoot/TopHudRoot" unique_id=1599940133]
@@ -3926,60 +3925,171 @@ horizontal_alignment = 1
 
 [node name="SlotRow" type="HBoxContainer" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud" unique_id=1792798429]
 layout_mode = 0
-offset_left = 33.0
+offset_left = 26.5
 offset_top = 31.0
-offset_right = 227.0
+offset_right = 233.5
 offset_bottom = 49.0
 theme_type_variation = &"BattleHudSlotRow"
+theme_override_constants/separation = 3
 
-[node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow" unique_id=1670693305]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot01Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow/Slot01Wrapper" unique_id=1670693305]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
-[node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow" unique_id=1459302032]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot02Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow/Slot02Wrapper" unique_id=1459302032]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
-[node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow" unique_id=662989003]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot03Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow/Slot03Wrapper" unique_id=662989003]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
-[node name="Slot04" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow" unique_id=1602050265]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot04Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot04" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow/Slot04Wrapper" unique_id=1602050265]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
-[node name="Slot05" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow" unique_id=315497822]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot05Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot05" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow/Slot05Wrapper" unique_id=315497822]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
-[node name="Slot06" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow" unique_id=1438269373]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot06Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot06" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow/Slot06Wrapper" unique_id=1438269373]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
-[node name="Slot07" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow" unique_id=1355172850]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot07Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot07" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow/Slot07Wrapper" unique_id=1355172850]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
-[node name="Slot08" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow" unique_id=1971846799]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot08Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot08" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow/Slot08Wrapper" unique_id=1971846799]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
-[node name="Slot09" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow" unique_id=1837545504]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot09Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot09" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow/Slot09Wrapper" unique_id=1837545504]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
-[node name="Slot10" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow" unique_id=1384501048]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot10Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot10" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/AllyMomentumHud/SlotRow/Slot10Wrapper" unique_id=1384501048]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotAllyEmpty"
 
 [node name="TurnHud" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot" unique_id=540549410]
@@ -4037,60 +4147,171 @@ horizontal_alignment = 1
 
 [node name="SlotRow" type="HBoxContainer" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud" unique_id=1895017443]
 layout_mode = 0
-offset_left = -54.0
+offset_left = -60.5
 offset_top = 31.0
-offset_right = 140.0
+offset_right = 146.5
 offset_bottom = 49.0
 theme_type_variation = &"BattleHudSlotRow"
+theme_override_constants/separation = 3
 
-[node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow" unique_id=1466175903]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot01Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot01" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow/Slot01Wrapper" unique_id=1466175903]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
-[node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow" unique_id=440956082]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot02Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow/Slot02Wrapper" unique_id=440956082]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
-[node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow" unique_id=1286631535]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot03Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot03" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow/Slot03Wrapper" unique_id=1286631535]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
-[node name="Slot04" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow" unique_id=164376410]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot04Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot04" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow/Slot04Wrapper" unique_id=164376410]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
-[node name="Slot05" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow" unique_id=1545646958]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot05Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot05" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow/Slot05Wrapper" unique_id=1545646958]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
-[node name="Slot06" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow" unique_id=582937480]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot06Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot06" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow/Slot06Wrapper" unique_id=582937480]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
-[node name="Slot07" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow" unique_id=1490671684]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot07Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot07" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow/Slot07Wrapper" unique_id=1490671684]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
-[node name="Slot08" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow" unique_id=563973942]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot08Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot08" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow/Slot08Wrapper" unique_id=563973942]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
-[node name="Slot09" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow" unique_id=1061973086]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot09Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot09" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow/Slot09Wrapper" unique_id=1061973086]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
-[node name="Slot10" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow" unique_id=1425784910]
-custom_minimum_size = Vector2(14, 14)
+[node name="Slot10Wrapper" type="Control" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="Slot10" type="Panel" parent="BattleUI/ProductionHudRoot/TopHudRoot/EnemyMomentumHud/SlotRow/Slot10Wrapper" unique_id=1425784910]
+custom_minimum_size = Vector2(11, 11)
+layout_mode = 0
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
 theme_type_variation = &"MomentumSlotEnemyEmpty"
 
 [node name="AllyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=1182892213]

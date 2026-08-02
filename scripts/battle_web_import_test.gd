@@ -15737,12 +15737,26 @@ func _refresh_production_momentum_slots(side_name: String, value: int) -> void:
 	if row == null:
 		return
 	for index in row.get_child_count():
-		var slot := row.get_child(index) as Control
+		var slot := _resolve_momentum_slot_control(row, index)
 		if slot == null:
 			continue
 		var active := index < value
 		slot.theme_type_variation = "MomentumSlot%s%s" % [side_name, "Filled" if active else "Empty"]
 		slot.modulate = Color.WHITE
+
+func _resolve_momentum_slot_control(row: Control, index: int) -> Control:
+	var entry := row.get_child(index) as Control
+	if entry == null:
+		return null
+	if entry is Panel:
+		return entry
+	var expected_name := "Slot%02d" % (index + 1)
+	var nested := entry.get_node_or_null(expected_name) as Control
+	if nested != null:
+		return nested
+	if entry.get_child_count() == 1:
+		return entry.get_child(0) as Control
+	return null
 
 func _refresh_production_roster(side_name: String, roster: Array) -> void:
 	var slot_names := ["Slot01", "Slot02", "Slot03", "Reinforce01", "Reinforce02"]
