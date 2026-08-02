@@ -128,9 +128,3 @@ Authoritative execution instruction:
 
 - User F6 feedback is reflected in the Production test scene only: top-HUD titles, slot rows, and values are center aligned; Turn HUD is compacted to 300×88; panel background alpha is reduced to 0.84.
 - Static validators and Godot project/test-scene headless load passed. User F6 recheck is pending; T08-3B remains unstarted.
-
-## T08-3B Production Roster HUD First Pass
-
-- T08-3A F6 QA passed and its top HUD is locked. T08-3B styles only `BattleUI/ProductionHudRoot/AllyRosterHud` and `EnemyRosterHud` in the Production test scene.
-- Five slots per side retain their original NodePaths. Shared NotoSerifKR hierarchy now styles hero name, troops, unit type, status/effect, and troop bar; empty slots remain hidden.
-- Existing active-ally and target selection state only drives card Theme variations. User F6 visual QA is pending; T08-3C has not started.

@@ -4141,11 +4141,6 @@
 - Production top-HUD only: centered the title/slot/value vertical groups, changed Turn HUD from 360×100 to 300×88, and reduced panel alpha to 0.84 with lighter borders/shadows.
 - Python validators and Godot project/test-scene headless loads passed. User F6 visual recheck remains pending; T08-3B not started.
 
-## T08-3B Production Roster HUD First Pass
-- After recorded T08-3A F6 PASS, applied shared Theme variations to the test-scene-only AllyRosterHud and EnemyRosterHud: five cards each, portrait-preserving layout, NotoSerifKR text hierarchy, troop bar, and compact translucent side cards.
-- Forwarded existing active-unit/selected-target state into presentation-only `selected` fields and swap card variations during the existing Production refresh. Empty slots remain hidden; T08-3A top HUD and Battle_Land stay untouched.
-- User F6 visual QA is pending. T08-3C not started.
-
 ## v0.68b-12b-28 Player Attack Deployment UX Polish
 - Polished `PlayerAttackDeploymentPanel` layout and copy for F6 usability.
 - Added troop summary, remaining garrison summary, supply enough/shortage text, and confirm blocking reason display.

@@ -331,8 +331,3 @@ Return:
 ## T08-3A-hotfix1 Result
 
 - Applied only alignment, density, and panel-alpha polish to the Production top HUD. Await the user F6 recheck; do not begin T08-3B.
-
-## T08-3B Result
-
-- T08-3A F6 QA passed. Production roster styling now covers only AllyRosterHud and EnemyRosterHud in the test scene; top HUD and runtime Battle_Land remain locked.
-- Await user F6 visual QA. Do not begin T08-3C.
