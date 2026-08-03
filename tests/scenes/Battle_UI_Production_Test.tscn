@@ -45,6 +45,7 @@
 [ext_resource type="Texture2D" uid="uid://c3j5ihnoe7ef3" path="res://assets/ui/battle/production_hud/roster/roster_panel_frame_full.png" id="43_roster_panel_frame_full"]
 [ext_resource type="Texture2D" uid="uid://x2tjl6kbvdlt" path="res://assets/ui/battle/production_hud/roster/roster_side_banner_ally.png" id="44_roster_side_banner_ally"]
 [ext_resource type="Texture2D" uid="uid://6xcmhy30kmcv" path="res://assets/ui/battle/production_hud/roster/roster_side_banner_enemy.png" id="45_roster_side_banner_enemy"]
+[ext_resource type="Script" path="res://tests/scripts/battle_ui_production_roster_collapse.gd" id="46_production_roster_collapse"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -164,6 +165,9 @@ script = ExtResource("39_production_roster_bridge")
 
 [node name="ProductionBottomHudPreviewBridge" type="Node" parent="." unique_id=1781890714]
 script = ExtResource("40_production_bottom_hud")
+
+[node name="ProductionRosterCollapseExperiment" type="Node" parent="."]
+script = ExtResource("46_production_roster_collapse")
 
 [node name="Slots" type="Node2D" parent="." unique_id=2108450001]
 
