@@ -42,6 +42,7 @@
 [ext_resource type="Script" uid="uid://jsau15bqvu41" path="res://tests/scripts/battle_ui_production_test_bottom_hud.gd" id="40_production_bottom_hud"]
 [ext_resource type="Texture2D" uid="uid://cjrotjqdo0ken" path="res://assets/ui/battle/production_hud/top/top_hud_frame_full.png" id="41_top_hud_frame_full"]
 [ext_resource type="FontFile" uid="uid://da8wso24ue474" path="res://assets/font/noto_serif_kr/NotoSansCJKkr-Medium.otf" id="42_turn_hud_title_medium"]
+[ext_resource type="Texture2D" uid="uid://c3j5ihnoe7ef3" path="res://assets/ui/battle/production_hud/roster/roster_panel_frame_full.png" id="43_roster_panel_frame_full"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -144,10 +145,7 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.47, 0.25, 0.25, 0.84)
 
-[sub_resource type="StyleBoxFlat" id="AllyRosterHeaderStyle"]
-bg_color = Color(0.047, 0.122, 0.22, 0.96)
-border_width_bottom = 1
-border_color = Color(0.31, 0.58, 0.78, 0.82)
+[sub_resource type="StyleBoxEmpty" id="RosterHeaderTransparentStyle"]
 
 [sub_resource type="StyleBoxFlat" id="RosterHeaderIconStyle"]
 bg_color = Color(0.88, 0.76, 0.43, 0.94)
@@ -155,11 +153,6 @@ corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
-
-[sub_resource type="StyleBoxFlat" id="EnemyRosterHeaderStyle"]
-bg_color = Color(0.23, 0.075, 0.065, 0.96)
-border_width_bottom = 1
-border_color = Color(0.72, 0.34, 0.28, 0.82)
 
 [node name="Battle_Fullscreen_Test" type="Node2D" unique_id=1929995568]
 script = ExtResource("1_script")
@@ -4405,13 +4398,24 @@ metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 
 [node name="AllyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=1182892213]
 layout_mode = 0
-offset_left = 18.0
+offset_left = 36.0
 offset_top = 140.0
-offset_right = 288.0
+offset_right = 306.0
 offset_bottom = 664.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"ProductionRosterPanelAlly"
+
+[node name="RosterFrameFull" type="TextureRect" parent="BattleUI/ProductionHudRoot/AllyRosterHud" unique_id=1199328838]
+layout_mode = 0
+offset_left = -38.0
+offset_top = -45.0
+offset_right = 308.0
+offset_bottom = 569.0
+mouse_filter = 2
+texture = ExtResource("43_roster_panel_frame_full")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="RosterHeader" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud" unique_id=1710957125]
 layout_mode = 0
@@ -4420,23 +4424,33 @@ offset_top = 18.0
 offset_right = 595.0
 offset_bottom = 62.0
 mouse_filter = 2
-theme_override_styles/panel = SubResource("AllyRosterHeaderStyle")
+theme_override_styles/panel = SubResource("RosterHeaderTransparentStyle")
 
 [node name="HeaderIcon" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud/RosterHeader" unique_id=1140823695]
-layout_mode = 0
-offset_left = 10.0
-offset_top = 11.0
-offset_right = 32.0
-offset_bottom = 33.0
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -1.3050001
+anchor_top = -0.34100002
+anchor_right = -1.3050001
+anchor_bottom = -0.34100002
+offset_left = 49.25003
+offset_top = -9.995999
+offset_right = 71.25003
+offset_bottom = 12.004001
 mouse_filter = 2
 theme_override_styles/panel = SubResource("RosterHeaderIconStyle")
 
 [node name="HeaderLabel" type="Label" parent="BattleUI/ProductionHudRoot/AllyRosterHud/RosterHeader" unique_id=334778532]
-layout_mode = 0
-offset_left = 46.0
-offset_top = 1.0
-offset_right = 244.0
-offset_bottom = 45.0
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -1.3460001
+anchor_top = -0.795
+anchor_right = -1.3460001
+anchor_bottom = -0.795
+offset_left = 89.50003
+offset_top = -0.020000458
+offset_right = 287.50003
+offset_bottom = 43.979996
 theme_override_font_sizes/font_size = 18
 text = "아군 편성"
 vertical_alignment = 1
@@ -5028,13 +5042,24 @@ stretch_mode = 5
 
 [node name="EnemyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=1380641402]
 layout_mode = 0
-offset_left = 1632.0
+offset_left = 1614.0
 offset_top = 140.0
-offset_right = 1902.0
+offset_right = 1884.0
 offset_bottom = 664.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"ProductionRosterPanelEnemy"
+
+[node name="RosterFrameFull" type="TextureRect" parent="BattleUI/ProductionHudRoot/EnemyRosterHud" unique_id=175623710]
+layout_mode = 0
+offset_left = -38.0
+offset_top = -45.0
+offset_right = 308.0
+offset_bottom = 569.0
+mouse_filter = 2
+texture = ExtResource("43_roster_panel_frame_full")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="RosterHeader" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud" unique_id=1510261278]
 layout_mode = 0
@@ -5042,22 +5067,26 @@ offset_left = 10.0
 offset_right = 260.0
 offset_bottom = 44.0
 mouse_filter = 2
-theme_override_styles/panel = SubResource("EnemyRosterHeaderStyle")
+theme_override_styles/panel = SubResource("RosterHeaderTransparentStyle")
 
 [node name="HeaderIcon" type="Panel" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/RosterHeader" unique_id=1253688152]
 layout_mode = 0
-offset_left = 10.0
-offset_top = 11.0
-offset_right = 32.0
-offset_bottom = 33.0
+offset_left = 48.0
+offset_top = -6.0
+offset_right = 70.0
+offset_bottom = 16.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("RosterHeaderIconStyle")
 
 [node name="HeaderLabel" type="Label" parent="BattleUI/ProductionHudRoot/EnemyRosterHud/RosterHeader" unique_id=327700306]
-layout_mode = 0
-offset_left = 42.0
-offset_right = 240.0
-offset_bottom = 44.0
+layout_mode = 1
+anchors_preset = -1
+anchor_top = -0.31
+anchor_bottom = -0.31
+offset_left = 85.0
+offset_top = -2.3599997
+offset_right = 283.0
+offset_bottom = 41.64
 theme_override_font_sizes/font_size = 18
 text = "적군 편성"
 vertical_alignment = 1
