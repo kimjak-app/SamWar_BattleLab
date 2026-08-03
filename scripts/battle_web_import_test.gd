@@ -15778,6 +15778,7 @@ func _refresh_production_roster(side_name: String, roster: Array) -> void:
 		slot.visible = should_show_slot
 		if not should_show_slot:
 			continue
+		_apply_production_roster_actor_highlight(slot, unit)
 		_set_production_roster_label(slot, "NameLabel", str(unit.get("display_name", "대기")))
 		_set_production_roster_label(slot, "UnitTypeLabel", str(unit.get("unit_type_name", "부대")))
 		_set_production_roster_label(slot, "TroopsLabel", "병력 %d / %d" % [int(unit.get("current_troops", 0)), int(unit.get("max_troops", 0))])
@@ -15787,6 +15788,28 @@ func _refresh_production_roster(side_name: String, roster: Array) -> void:
 		var bar := slot.get_node_or_null("TroopBar") as ProgressBar
 		if bar != null:
 			bar.value = float(unit.get("hp_ratio", 0.0)) * 100.0
+
+func _apply_production_roster_actor_highlight(slot: Control, unit: Dictionary) -> void:
+	if slot == null:
+		return
+	slot.remove_theme_stylebox_override(&"panel")
+	slot.modulate = Color.WHITE
+	var is_current_actor := (
+		active_unit_state != null
+		and str(unit.get("unit_id", "")) == active_unit_state.unit_id
+		and str(unit.get("side", "")) == active_unit_state.side
+		and bool(unit.get("alive", false))
+		and _is_unit_state_deployed_by_capacity_slot(active_unit_state)
+	)
+	if not is_current_actor:
+		return
+	var style := StyleBoxFlat.new()
+	style.set_corner_radius_all(6)
+	style.bg_color = Color(0.26, 0.2, 0.08, 0.96)
+	style.border_color = Color(1.0, 0.86, 0.46, 0.98)
+	style.set_border_width_all(2)
+	slot.add_theme_stylebox_override(&"panel", style)
+
 
 func _set_production_roster_label(slot: Control, node_name: String, value: String) -> void:
 	var label := slot.get_node_or_null(node_name) as Label
