@@ -45,7 +45,8 @@
 [ext_resource type="Texture2D" uid="uid://c3j5ihnoe7ef3" path="res://assets/ui/battle/production_hud/roster/roster_panel_frame_full.png" id="43_roster_panel_frame_full"]
 [ext_resource type="Texture2D" uid="uid://x2tjl6kbvdlt" path="res://assets/ui/battle/production_hud/roster/roster_side_banner_ally.png" id="44_roster_side_banner_ally"]
 [ext_resource type="Texture2D" uid="uid://6xcmhy30kmcv" path="res://assets/ui/battle/production_hud/roster/roster_side_banner_enemy.png" id="45_roster_side_banner_enemy"]
-[ext_resource type="Script" path="res://tests/scripts/battle_ui_production_roster_collapse.gd" id="46_production_roster_collapse"]
+[ext_resource type="Script" uid="uid://1spr0r3limpe" path="res://tests/scripts/battle_ui_production_roster_collapse.gd" id="46_production_roster_collapse"]
+[ext_resource type="Texture2D" uid="uid://bhmypqldlsabg" path="res://assets/ui/battle/production_hud/battle_log/battle_log_panel_full.png" id="47_battle_log_panel_full"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -166,7 +167,7 @@ script = ExtResource("39_production_roster_bridge")
 [node name="ProductionBottomHudPreviewBridge" type="Node" parent="." unique_id=1781890714]
 script = ExtResource("40_production_bottom_hud")
 
-[node name="ProductionRosterCollapseExperiment" type="Node" parent="."]
+[node name="ProductionRosterCollapseExperiment" type="Node" parent="." unique_id=1331585144]
 script = ExtResource("46_production_roster_collapse")
 
 [node name="Slots" type="Node2D" parent="." unique_id=2108450001]
@@ -3915,7 +3916,8 @@ stretch_mode = 5
 [node name="ProductionHudRoot" type="Control" parent="BattleUI" unique_id=612589975]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 1920.0
+offset_left = 3.0
+offset_right = 1923.0
 offset_bottom = 1080.0
 mouse_filter = 2
 
@@ -5839,29 +5841,39 @@ offset_bottom = 900.0
 
 [node name="BattleLogHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=249144114]
 layout_mode = 0
-offset_left = 18.0
-offset_top = 846.0
-offset_right = 448.0
-offset_bottom = 1064.0
+offset_left = 24.0
+offset_top = 795.0
+offset_right = 286.0
+offset_bottom = 1057.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"ProductionBattleLogPanel"
 
+[node name="BattleLogFrameBg" type="TextureRect" parent="BattleUI/ProductionHudRoot/BattleLogHud" unique_id=1208966470]
+layout_mode = 0
+offset_right = 262.0
+offset_bottom = 262.0
+mouse_filter = 2
+texture = ExtResource("47_battle_log_panel_full")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="TitleLabel" type="Label" parent="BattleUI/ProductionHudRoot/BattleLogHud" unique_id=1553094351]
 layout_mode = 0
-offset_left = 12.0
-offset_top = 8.0
-offset_right = 180.0
-offset_bottom = 30.0
+offset_left = 94.0
+offset_top = 6.0
+offset_right = 198.0
+offset_bottom = 34.0
 theme_type_variation = &"ProductionBattleLogTitle"
+theme_override_font_sizes/font_size = 18
 text = "전투 기록"
 
 [node name="RecentLogLabel" type="Label" parent="BattleUI/ProductionHudRoot/BattleLogHud" unique_id=1051165664]
 layout_mode = 0
-offset_left = 12.0
-offset_top = 36.0
-offset_right = 418.0
-offset_bottom = 208.0
+offset_left = 30.0
+offset_top = 50.0
+offset_right = 203.0
+offset_bottom = 222.0
 theme_type_variation = &"ProductionBattleLogBody"
 text = "대기 중"
 autowrap_mode = 2
