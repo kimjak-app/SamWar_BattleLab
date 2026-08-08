@@ -17,7 +17,20 @@ const RUNTIME_SKILL_ID_ALIASES := {
 	"gwon_yul_haengju_defense": "kwon_yul_unique",
 	"kim_yu_sin_unification_charge": "kim_yu_sin_unique",
 	"eulji_mundeok_salsu_ambush": "eulji_mundeok_unique",
+	"crescent_blade_slash": "guan_yu_unique",
+	"changban_shatter": "zhang_fei_unique",
+	"xiahou_dun_fierce_breakthrough": "xiahou_dun_unique",
+	"liu_bei_banner_of_benevolence": "liu_bei_unique",
+	"zhuge_liang_eight_trigram_formation": "zhuge_liang_unique",
 }
+const STATIC_FALLBACK_IMAGE_PATHS := {
+	"guan_yu": {"skill_id": "guan_yu_unique", "path": "res://assets/web_battle/skill_cutins/guan_yu_crescent_blade_slash.png"},
+	"zhang_fei": {"skill_id": "zhang_fei_unique", "path": "res://assets/web_battle/skill_cutins/zhang_fei_changban_shatter.png"},
+	"xiahou_dun": {"skill_id": "xiahou_dun_unique", "path": "res://assets/web_battle/skill_cutins/xiahou_dun_fierce_breakthrough.png"},
+	"liu_bei": {"skill_id": "liu_bei_unique", "path": "res://assets/web_battle/skill_cutins/liu_bei_banner_of_benevolence.png"},
+	"zhuge_liang": {"skill_id": "zhuge_liang_unique", "path": "res://assets/web_battle/skill_cutins/zhuge_liang_eight_trigram_formation.png"},
+}
+const GENERIC_STATIC_FALLBACK_IMAGE_PATH := "res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png"
 
 static func load_entries() -> Array[Dictionary]:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(REGISTRY_PATH))
@@ -71,3 +84,26 @@ static func find_entry(hero_id: String, skill_id: String) -> Dictionary:
 		if canonicalize_skill_id(String(entry.get("skill_id", ""))) == canonical_skill_id and bool(entry.get("enabled", false)):
 			return entry.duplicate(true)
 	return {}
+
+
+static func has_enabled_entry_for_hero(hero_id: String) -> bool:
+	var canonical_hero_id := canonicalize_hero_id(hero_id)
+	if canonical_hero_id.is_empty():
+		return false
+	for entry in load_entries():
+		if canonicalize_hero_id(String(entry.get("hero_id", ""))) == canonical_hero_id and bool(entry.get("enabled", false)):
+			return true
+	return false
+
+
+static func get_static_fallback_image_path(hero_id: String, skill_id: String) -> String:
+	var canonical_hero_id := canonicalize_hero_id(hero_id)
+	var canonical_skill_id := canonicalize_skill_id(skill_id)
+	var configured_entry: Dictionary = STATIC_FALLBACK_IMAGE_PATHS.get(canonical_hero_id, {})
+	if not configured_entry.is_empty() and canonicalize_skill_id(String(configured_entry.get("skill_id", ""))) == canonical_skill_id:
+		var configured_path := String(configured_entry.get("path", ""))
+		if ResourceLoader.exists(configured_path):
+			return configured_path
+	if ResourceLoader.exists(GENERIC_STATIC_FALLBACK_IMAGE_PATH):
+		return GENERIC_STATIC_FALLBACK_IMAGE_PATH
+	return ""

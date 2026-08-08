@@ -961,6 +961,11 @@ var battle_round := 1
 var has_deployed_reinforce_01 := false
 var has_deployed_reinforce_02 := false
 var round_toast_tween: Tween = null
+var ally_roster_side_banner_pulse_tween: Tween = null
+var enemy_roster_side_banner_pulse_tween: Tween = null
+var turn_transition_pulse_last_side := ""
+var turn_transition_initial_pulse_side := ""
+var turn_transition_initial_pulse_pending := false
 var round_toast_root_base_scale := Vector2.ONE
 var round_toast_label_base_scale := Vector2.ONE
 var round_toast_default_texture: Texture2D = null
@@ -1257,6 +1262,8 @@ var deployment_marker_base_world_positions_by_slot_id: Dictionary = {}
 @onready var main_camera: Camera2D = $MainCamera
 @onready var battle_ui: CanvasLayer = $BattleUI
 @onready var production_hud_root: Control = get_node_or_null("BattleUI/ProductionHudRoot") as Control
+@onready var ally_roster_side_banner: TextureRect = get_node_or_null("BattleUI/ProductionHudRoot/AllyRosterSideBanner") as TextureRect
+@onready var enemy_roster_side_banner: TextureRect = get_node_or_null("BattleUI/ProductionHudRoot/EnemyRosterSideBanner") as TextureRect
 @onready var top_bar: Panel = $BattleUI/TopBar
 @onready var left_panel: Panel = $BattleUI/LeftPanel
 @onready var right_panel: Panel = $BattleUI/RightPanel
@@ -2135,6 +2142,7 @@ func _set_battle_intro_ui_visible(should_show: bool) -> void:
 		return
 	if should_show:
 		battle_ui.visible = battle_intro_battle_ui_was_visible
+		_flush_initial_roster_side_banner_pulse()
 		return
 	battle_intro_battle_ui_was_visible = battle_ui.visible
 	battle_ui.visible = false
@@ -2975,6 +2983,10 @@ func reset_demo_state() -> void:
 	worldmap_context_unique_skill_registry.clear()
 	_refresh_worldmap_result_return_button()
 	battle_round = 1
+	_reset_roster_side_banner_pulse_state()
+	turn_transition_pulse_last_side = ""
+	turn_transition_initial_pulse_side = ""
+	turn_transition_initial_pulse_pending = false
 	dead_unit_ids.clear()
 	unique_skill_cooldowns_by_hero_id.clear()
 	unique_skill_attack_buff_turns_by_unit_id.clear()
@@ -3069,6 +3081,7 @@ func reset_demo_state() -> void:
 	print("GRID CELL SIZE: ", battle_grid_controller.get_cell_size())
 	print("ALLY GRID: ", ally_unit_state.grid_cell, " ENEMY GRID: ", enemy_unit_state.grid_cell)
 	_select_ally_unit(ally_unit_state, false, false, true)
+	turn_transition_initial_pulse_pending = true
 	_set_phase(PHASE_ALLY_TURN)
 	_sync_demo_positions()
 	_sync_overlay_positions()
@@ -4436,9 +4449,16 @@ func _play_committed_hero_cutin(caster_state: BattleUnitState, skill_data: Dicti
 	var entry := KoreaMvpHeroCutinRegistryScript.find_entry(canonical_skill_owner_hero_id, skill_id)
 	_cutin_trace("registry_hit=%s" % str(not entry.is_empty()))
 	if entry.is_empty():
+		var fallback_image_path := KoreaMvpHeroCutinRegistryScript.get_static_fallback_image_path(canonical_skill_owner_hero_id, skill_id)
+		if not fallback_image_path.is_empty():
+			skill_data["cutin_image_path"] = fallback_image_path
+			var registry_reason := "skill_mismatch" if KoreaMvpHeroCutinRegistryScript.has_enabled_entry_for_hero(canonical_skill_owner_hero_id) else "registry_missing"
+			print("[HERO_CUTIN] route=static_fallback reason=%s hero_id=%s skill_id=%s asset=%s" % [registry_reason, canonical_skill_owner_hero_id, skill_id, fallback_image_path])
+			_cutin_trace("selected_mode=static fallback_reason=%s fallback_asset=%s" % [registry_reason, fallback_image_path])
+			return false
 		if not canonical_skill_owner_hero_id.is_empty():
-			push_warning("[HERO_CUTIN_PARITY] reason=registry_missing_or_skill_mismatch hero=%s skill=%s" % [canonical_skill_owner_hero_id, skill_id])
-		_cutin_trace("selected_mode=static fallback_reason=registry_miss")
+			push_warning("[HERO_CUTIN_PARITY] reason=registry_missing_no_fallback hero=%s skill=%s" % [canonical_skill_owner_hero_id, skill_id])
+		_cutin_trace("selected_mode=static fallback_reason=registry_missing_no_fallback")
 		return false
 	var video_path := String(entry.get("video_path", ""))
 	var title_path := String(entry.get("skill_title_texture_path", ""))
@@ -5681,6 +5701,8 @@ func _set_phase(new_phase: String) -> void:
 	var battle_finished := _is_battle_result_finalized()
 	if battle_finished:
 		_handle_battle_end_guard("set_phase")
+	else:
+		_maybe_pulse_roster_side_banner(current_phase)
 	var can_issue_ally_command := (
 		current_phase == PHASE_ALLY_TURN
 		and not is_demo_animating
@@ -5718,6 +5740,67 @@ func _set_phase(new_phase: String) -> void:
 	if not battle_finished and (current_phase == PHASE_ALLY_TURN or current_phase == PHASE_ENEMY_TURN):
 		_persist_battle_resume_snapshot()
 	_refresh_production_battle_hud("phase")
+
+
+func _maybe_pulse_roster_side_banner(phase: String) -> void:
+	var side := ""
+	if phase == PHASE_ALLY_TURN:
+		side = "ally"
+	elif phase == PHASE_ENEMY_TURN:
+		side = "enemy"
+	if side.is_empty() or side == turn_transition_pulse_last_side:
+		return
+	if turn_transition_initial_pulse_pending:
+		turn_transition_initial_pulse_side = side
+		turn_transition_pulse_last_side = side
+		return
+	turn_transition_pulse_last_side = side
+	_pulse_roster_side_banner(side == "ally")
+
+
+func _flush_initial_roster_side_banner_pulse() -> void:
+	if not turn_transition_initial_pulse_pending:
+		return
+	turn_transition_initial_pulse_pending = false
+	var side := turn_transition_initial_pulse_side
+	turn_transition_initial_pulse_side = ""
+	if side == "ally" or side == "enemy":
+		_pulse_roster_side_banner(side == "ally")
+
+
+func _pulse_roster_side_banner(is_ally_turn: bool) -> void:
+	var banner := ally_roster_side_banner if is_ally_turn else enemy_roster_side_banner
+	if banner == null:
+		return
+	var existing_tween := ally_roster_side_banner_pulse_tween if is_ally_turn else enemy_roster_side_banner_pulse_tween
+	if existing_tween != null and existing_tween.is_valid():
+		existing_tween.kill()
+	banner.scale = Vector2.ONE
+	banner.pivot_offset = banner.size * 0.5
+	var tween := create_tween()
+	if is_ally_turn:
+		ally_roster_side_banner_pulse_tween = tween
+	else:
+		enemy_roster_side_banner_pulse_tween = tween
+	tween.tween_property(banner, "scale", Vector2(1.5, 1.5), 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(banner, "scale", Vector2.ONE, 0.26).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_callback(_reset_roster_side_banner_pulse.bind(banner))
+
+
+func _reset_roster_side_banner_pulse(banner: TextureRect) -> void:
+	if banner != null:
+		banner.scale = Vector2.ONE
+
+
+func _reset_roster_side_banner_pulse_state() -> void:
+	if ally_roster_side_banner_pulse_tween != null and ally_roster_side_banner_pulse_tween.is_valid():
+		ally_roster_side_banner_pulse_tween.kill()
+	if enemy_roster_side_banner_pulse_tween != null and enemy_roster_side_banner_pulse_tween.is_valid():
+		enemy_roster_side_banner_pulse_tween.kill()
+	ally_roster_side_banner_pulse_tween = null
+	enemy_roster_side_banner_pulse_tween = null
+	_reset_roster_side_banner_pulse(ally_roster_side_banner)
+	_reset_roster_side_banner_pulse(enemy_roster_side_banner)
 
 
 func _configure_floating_ally_command_panel() -> void:

@@ -5709,6 +5709,7 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="InteractionGuideHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=1833424686]
+visible = false
 layout_mode = 0
 offset_left = 462.0
 offset_top = 826.0
