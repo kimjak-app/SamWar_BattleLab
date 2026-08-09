@@ -49,6 +49,10 @@
 [ext_resource type="Texture2D" uid="uid://bhmypqldlsabg" path="res://assets/ui/battle/production_hud/battle_log/battle_log_panel_full.png" id="47_battle_log_panel_full"]
 [ext_resource type="Script" uid="uid://cnebxuy6a3yqg" path="res://tests/scripts/battle_supply_hud_mock.gd" id="48_supply_mock"]
 [ext_resource type="Texture2D" uid="uid://1kcsupkd6vyn" path="res://assets/ui/battle/production_hud/battle_supply/battle_supply_panel_full.png" id="49_supply_frame"]
+[ext_resource type="Texture2D" uid="uid://i1o47tav3xn1" path="res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_food.png" id="50_supply_icon_food"]
+[ext_resource type="Texture2D" uid="uid://dxek28wctl2op" path="res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_salt.png" id="51_supply_icon_salt"]
+[ext_resource type="Texture2D" uid="uid://do13ycqcu5xuu" path="res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_consume.png" id="52_supply_icon_consume"]
+[ext_resource type="Texture2D" uid="uid://b8otpvqo1hvd2" path="res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_sustain.png" id="53_supply_icon_sustain"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -6109,13 +6113,15 @@ offset_right = 140.0
 offset_bottom = 112.0
 mouse_filter = 2
 
-[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyFoodRow" unique_id=1961321319]
+[node name="Icon" type="TextureRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyFoodRow" unique_id=1961321319]
 layout_mode = 0
 offset_top = 2.0
 offset_right = 24.0
 offset_bottom = 26.0
 mouse_filter = 2
-color = Color(0.76, 0.68, 0.35, 1)
+texture = ExtResource("50_supply_icon_food")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyFoodRow" unique_id=1961321320]
 layout_mode = 0
@@ -6145,13 +6151,15 @@ offset_right = 140.0
 offset_bottom = 140.0
 mouse_filter = 2
 
-[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySaltRow" unique_id=1961321323]
+[node name="Icon" type="TextureRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySaltRow" unique_id=1961321323]
 layout_mode = 0
 offset_top = 2.0
 offset_right = 24.0
 offset_bottom = 26.0
 mouse_filter = 2
-color = Color(0.65, 0.73, 0.78, 1)
+texture = ExtResource("51_supply_icon_salt")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySaltRow" unique_id=1961321324]
 layout_mode = 0
@@ -6181,13 +6189,15 @@ offset_right = 140.0
 offset_bottom = 168.0
 mouse_filter = 2
 
-[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyConsumeRow" unique_id=1961321327]
+[node name="Icon" type="TextureRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyConsumeRow" unique_id=1961321327]
 layout_mode = 0
 offset_top = 2.0
 offset_right = 24.0
 offset_bottom = 26.0
 mouse_filter = 2
-color = Color(0.88, 0.61, 0.32, 1)
+texture = ExtResource("52_supply_icon_consume")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyConsumeRow" unique_id=1961321328]
 layout_mode = 0
@@ -6217,13 +6227,15 @@ offset_right = 140.0
 offset_bottom = 196.0
 mouse_filter = 2
 
-[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySustainRow" unique_id=1961321331]
+[node name="Icon" type="TextureRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySustainRow" unique_id=1961321331]
 layout_mode = 0
 offset_top = 2.0
 offset_right = 24.0
 offset_bottom = 26.0
 mouse_filter = 2
-color = Color(0.48, 0.72, 0.53, 1)
+texture = ExtResource("53_supply_icon_sustain")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySustainRow" unique_id=1961321332]
 layout_mode = 0
@@ -6253,13 +6265,15 @@ offset_right = 275.0
 offset_bottom = 112.0
 mouse_filter = 2
 
-[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyFoodRow" unique_id=1961321335]
+[node name="Icon" type="TextureRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyFoodRow" unique_id=1961321335]
 layout_mode = 0
 offset_top = 2.0
 offset_right = 24.0
 offset_bottom = 26.0
 mouse_filter = 2
-color = Color(0.76, 0.68, 0.35, 1)
+texture = ExtResource("50_supply_icon_food")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyFoodRow" unique_id=1961321336]
 layout_mode = 0
@@ -6289,13 +6303,15 @@ offset_right = 275.0
 offset_bottom = 140.0
 mouse_filter = 2
 
-[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySaltRow" unique_id=1961321339]
+[node name="Icon" type="TextureRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySaltRow" unique_id=1961321339]
 layout_mode = 0
 offset_top = 2.0
 offset_right = 24.0
 offset_bottom = 26.0
 mouse_filter = 2
-color = Color(0.65, 0.73, 0.78, 1)
+texture = ExtResource("51_supply_icon_salt")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySaltRow" unique_id=1961321340]
 layout_mode = 0
@@ -6325,13 +6341,15 @@ offset_right = 275.0
 offset_bottom = 168.0
 mouse_filter = 2
 
-[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyConsumeRow" unique_id=1961321343]
+[node name="Icon" type="TextureRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyConsumeRow" unique_id=1961321343]
 layout_mode = 0
 offset_top = 2.0
 offset_right = 24.0
 offset_bottom = 26.0
 mouse_filter = 2
-color = Color(0.88, 0.61, 0.32, 1)
+texture = ExtResource("52_supply_icon_consume")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyConsumeRow" unique_id=1961321344]
 layout_mode = 0
@@ -6361,13 +6379,15 @@ offset_right = 275.0
 offset_bottom = 196.0
 mouse_filter = 2
 
-[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySustainRow" unique_id=1961321347]
+[node name="Icon" type="TextureRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySustainRow" unique_id=1961321347]
 layout_mode = 0
 offset_top = 2.0
 offset_right = 24.0
 offset_bottom = 26.0
 mouse_filter = 2
-color = Color(0.48, 0.72, 0.53, 1)
+texture = ExtResource("53_supply_icon_sustain")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySustainRow" unique_id=1961321348]
 layout_mode = 0

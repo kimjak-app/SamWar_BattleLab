@@ -24,6 +24,7 @@ func _run() -> void:
 	if hud != null:
 		_expect(_title_typography_matches(battle, hud), "supply title typography matches BattleLog title")
 		_expect(_title_fits(hud), "supply title fits its authored rect")
+		_expect(_icon_contract_is_valid(hud), "eight real supply icons replace every placeholder")
 		_expect(hud.size == Vector2(290, 220), "framed HUD rect is 290 x 220")
 		_expect(_frame_contract_is_valid(hud), "SupplyFrameBg fills HUD and renders behind content")
 		_expect(hud.get_node_or_null("TurnLabel") == null, "mock HUD has no duplicate TurnLabel")
@@ -130,6 +131,32 @@ func _title_fits(hud: Control) -> bool:
 		return false
 	var font_size := title.get_theme_font_size("font_size")
 	return font.get_string_size(title.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x <= title.size.x and font.get_height(font_size) <= title.size.y
+
+
+func _icon_contract_is_valid(hud: Control) -> bool:
+	var expected_paths := {
+		"AllyFoodRow": "res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_food.png",
+		"EnemyFoodRow": "res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_food.png",
+		"AllySaltRow": "res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_salt.png",
+		"EnemySaltRow": "res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_salt.png",
+		"AllyConsumeRow": "res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_consume.png",
+		"EnemyConsumeRow": "res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_consume.png",
+		"AllySustainRow": "res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_sustain.png",
+		"EnemySustainRow": "res://assets/ui/battle/production_hud/battle_supply/icons/supply_icon_sustain.png",
+	}
+	for row_name in expected_paths:
+		var icon := hud.get_node_or_null("%s/Icon" % row_name) as TextureRect
+		if icon == null or icon.texture == null:
+			return false
+		if icon.texture.resource_path != expected_paths[row_name]:
+			return false
+		if icon.position != Vector2(0, 2) or icon.size != Vector2(24, 24):
+			return false
+		if icon.mouse_filter != Control.MOUSE_FILTER_IGNORE or icon.expand_mode != TextureRect.EXPAND_IGNORE_SIZE:
+			return false
+		if icon.stretch_mode != TextureRect.STRETCH_KEEP_ASPECT_CENTERED:
+			return false
+	return true
 
 
 func _expect(condition: bool, label: String) -> void:
