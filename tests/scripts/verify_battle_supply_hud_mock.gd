@@ -22,7 +22,10 @@ func _run() -> void:
 	var hud := battle.get_node_or_null(HUD_PATH) as Control
 	_expect(hud != null, "BattleSupplyHud exists")
 	if hud != null:
-		_expect(hud.size == Vector2(270, 204), "compact HUD rect is 270 x 204")
+		_expect(_title_typography_matches(battle, hud), "supply title typography matches BattleLog title")
+		_expect(_title_fits(hud), "supply title fits its authored rect")
+		_expect(hud.size == Vector2(290, 220), "framed HUD rect is 290 x 220")
+		_expect(_frame_contract_is_valid(hud), "SupplyFrameBg fills HUD and renders behind content")
 		_expect(hud.get_node_or_null("TurnLabel") == null, "mock HUD has no duplicate TurnLabel")
 		_expect(_layout_contract_is_valid(hud), "24px icons, 28px rows, and readable font contract")
 		_expect(_row_value(hud, "AllyFoodRow") == "820", "sample ally food")
@@ -87,6 +90,46 @@ func _layout_contract_is_valid(hud: Control) -> bool:
 		if value.size.x != 62:
 			return false
 	return true
+
+
+func _frame_contract_is_valid(hud: Control) -> bool:
+	var frame := hud.get_node_or_null("SupplyFrameBg") as TextureRect
+	if frame == null or frame.texture == null:
+		return false
+	if frame.position != Vector2.ZERO or frame.size != Vector2(290, 220):
+		return false
+	if frame.z_index >= 0 or frame.get_index() != 0:
+		return false
+	return true
+
+
+func _title_typography_matches(battle: Node, hud: Control) -> bool:
+	var log_title := battle.get_node_or_null("BattleUI/ProductionHudRoot/BattleLogHud/TitleLabel") as Label
+	var supply_title := hud.get_node_or_null("TitleLabel") as Label
+	if log_title == null or supply_title == null:
+		return false
+	if log_title.get_theme_font("font") != supply_title.get_theme_font("font"):
+		return false
+	if log_title.get_theme_font_size("font_size") != supply_title.get_theme_font_size("font_size"):
+		return false
+	for color_name in ["font_color", "font_outline_color", "font_shadow_color"]:
+		if log_title.get_theme_color(color_name) != supply_title.get_theme_color(color_name):
+			return false
+	for constant_name in ["outline_size", "shadow_outline_size", "shadow_offset_x", "shadow_offset_y"]:
+		if log_title.get_theme_constant(constant_name) != supply_title.get_theme_constant(constant_name):
+			return false
+	return log_title.horizontal_alignment == supply_title.horizontal_alignment and log_title.vertical_alignment == supply_title.vertical_alignment
+
+
+func _title_fits(hud: Control) -> bool:
+	var title := hud.get_node_or_null("TitleLabel") as Label
+	if title == null:
+		return false
+	var font := title.get_theme_font("font")
+	if font == null:
+		return false
+	var font_size := title.get_theme_font_size("font_size")
+	return font.get_string_size(title.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x <= title.size.x and font.get_height(font_size) <= title.size.y
 
 
 func _expect(condition: bool, label: String) -> void:

@@ -48,6 +48,7 @@
 [ext_resource type="Script" uid="uid://1spr0r3limpe" path="res://tests/scripts/battle_ui_production_roster_collapse.gd" id="46_production_roster_collapse"]
 [ext_resource type="Texture2D" uid="uid://bhmypqldlsabg" path="res://assets/ui/battle/production_hud/battle_log/battle_log_panel_full.png" id="47_battle_log_panel_full"]
 [ext_resource type="Script" uid="uid://cnebxuy6a3yqg" path="res://tests/scripts/battle_supply_hud_mock.gd" id="48_supply_mock"]
+[ext_resource type="Texture2D" uid="uid://1kcsupkd6vyn" path="res://assets/ui/battle/production_hud/battle_supply/battle_supply_panel_full.png" id="49_supply_frame"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -6029,49 +6030,59 @@ theme_type_variation = &"ProductionSupplyWarning"
 
 [node name="BattleSupplyHud" type="Control" parent="BattleUI/ProductionHudRoot" unique_id=1961321312]
 anchors_preset = 0
-offset_left = 1594.0
-offset_top = 846.0
-offset_right = 1864.0
-offset_bottom = 1050.0
+offset_left = 1576.0
+offset_top = 839.0
+offset_right = 1866.0
+offset_bottom = 1059.0
 mouse_filter = 2
 script = ExtResource("48_supply_mock")
 
+[node name="SupplyFrameBg" type="TextureRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321350]
+z_index = -1
+layout_mode = 0
+offset_right = 290.0
+offset_bottom = 220.0
+mouse_filter = 2
+texture = ExtResource("49_supply_frame")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="TitleLabel" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321313]
 layout_mode = 0
-offset_right = 270.0
-offset_bottom = 30.0
-theme_override_colors/font_color = Color(0.96, 0.91, 0.8, 1)
-theme_override_colors/font_outline_color = Color(0.03, 0.04, 0.05, 0.82)
-theme_override_constants/outline_size = 2
+offset_left = 107.0
+offset_top = 4.0
+offset_right = 397.0
+offset_bottom = 34.0
+theme = ExtResource("38_battle_ui_theme")
+theme_type_variation = &"ProductionBattleLogTitle"
 theme_override_font_sizes/font_size = 18
 text = "전장 보급"
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="DividerTop" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321314]
+visible = false
 layout_mode = 0
-offset_left = 7.0
-offset_top = 34.0
-offset_right = 263.0
-offset_bottom = 35.0
+offset_left = 16.0
+offset_top = 43.0
+offset_right = 274.0
+offset_bottom = 44.0
 mouse_filter = 2
 color = Color(0.78, 0.7, 0.53, 0.7)
 
 [node name="CenterDivider" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321315]
 layout_mode = 0
-offset_left = 134.0
-offset_top = 42.0
-offset_right = 135.0
-offset_bottom = 190.0
+offset_left = 144.0
+offset_top = 49.0
+offset_right = 145.0
+offset_bottom = 200.0
 mouse_filter = 2
 color = Color(0.75, 0.72, 0.64, 0.55)
 
 [node name="AllyHeaderLabel" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321316]
 layout_mode = 0
-offset_left = 7.0
-offset_top = 41.0
-offset_right = 130.0
-offset_bottom = 69.0
+offset_left = 17.0
+offset_top = 49.0
+offset_right = 140.0
+offset_bottom = 77.0
 theme_override_colors/font_color = Color(0.67, 0.82, 1, 1)
 theme_override_font_sizes/font_size = 17
 text = "아군"
@@ -6080,10 +6091,10 @@ vertical_alignment = 1
 
 [node name="EnemyHeaderLabel" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321317]
 layout_mode = 0
-offset_left = 140.0
-offset_top = 41.0
-offset_right = 263.0
-offset_bottom = 69.0
+offset_left = 152.0
+offset_top = 49.0
+offset_right = 275.0
+offset_bottom = 77.0
 theme_override_colors/font_color = Color(0.94, 0.63, 0.58, 1)
 theme_override_font_sizes/font_size = 17
 text = "적군"
@@ -6092,10 +6103,10 @@ vertical_alignment = 1
 
 [node name="AllyFoodRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321318]
 anchors_preset = 0
-offset_left = 7.0
-offset_top = 74.0
-offset_right = 130.0
-offset_bottom = 102.0
+offset_left = 17.0
+offset_top = 84.0
+offset_right = 140.0
+offset_bottom = 112.0
 mouse_filter = 2
 
 [node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyFoodRow" unique_id=1961321319]
@@ -6128,10 +6139,10 @@ vertical_alignment = 1
 
 [node name="AllySaltRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321322]
 anchors_preset = 0
-offset_left = 7.0
-offset_top = 102.0
-offset_right = 130.0
-offset_bottom = 130.0
+offset_left = 17.0
+offset_top = 112.0
+offset_right = 140.0
+offset_bottom = 140.0
 mouse_filter = 2
 
 [node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySaltRow" unique_id=1961321323]
@@ -6164,10 +6175,10 @@ vertical_alignment = 1
 
 [node name="AllyConsumeRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321326]
 anchors_preset = 0
-offset_left = 7.0
-offset_top = 130.0
-offset_right = 130.0
-offset_bottom = 158.0
+offset_left = 17.0
+offset_top = 140.0
+offset_right = 140.0
+offset_bottom = 168.0
 mouse_filter = 2
 
 [node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyConsumeRow" unique_id=1961321327]
@@ -6200,10 +6211,10 @@ vertical_alignment = 1
 
 [node name="AllySustainRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321330]
 anchors_preset = 0
-offset_left = 7.0
-offset_top = 158.0
-offset_right = 130.0
-offset_bottom = 186.0
+offset_left = 17.0
+offset_top = 168.0
+offset_right = 140.0
+offset_bottom = 196.0
 mouse_filter = 2
 
 [node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySustainRow" unique_id=1961321331]
@@ -6236,10 +6247,10 @@ vertical_alignment = 1
 
 [node name="EnemyFoodRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321334]
 anchors_preset = 0
-offset_left = 140.0
-offset_top = 74.0
-offset_right = 263.0
-offset_bottom = 102.0
+offset_left = 152.0
+offset_top = 84.0
+offset_right = 275.0
+offset_bottom = 112.0
 mouse_filter = 2
 
 [node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyFoodRow" unique_id=1961321335]
@@ -6272,10 +6283,10 @@ vertical_alignment = 1
 
 [node name="EnemySaltRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321338]
 anchors_preset = 0
-offset_left = 140.0
-offset_top = 102.0
-offset_right = 263.0
-offset_bottom = 130.0
+offset_left = 152.0
+offset_top = 112.0
+offset_right = 275.0
+offset_bottom = 140.0
 mouse_filter = 2
 
 [node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySaltRow" unique_id=1961321339]
@@ -6308,10 +6319,10 @@ vertical_alignment = 1
 
 [node name="EnemyConsumeRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321342]
 anchors_preset = 0
-offset_left = 140.0
-offset_top = 130.0
-offset_right = 263.0
-offset_bottom = 158.0
+offset_left = 152.0
+offset_top = 140.0
+offset_right = 275.0
+offset_bottom = 168.0
 mouse_filter = 2
 
 [node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyConsumeRow" unique_id=1961321343]
@@ -6344,10 +6355,10 @@ vertical_alignment = 1
 
 [node name="EnemySustainRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321346]
 anchors_preset = 0
-offset_left = 140.0
-offset_top = 158.0
-offset_right = 263.0
-offset_bottom = 186.0
+offset_left = 152.0
+offset_top = 168.0
+offset_right = 275.0
+offset_bottom = 196.0
 mouse_filter = 2
 
 [node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySustainRow" unique_id=1961321347]
