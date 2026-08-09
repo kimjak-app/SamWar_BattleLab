@@ -47,6 +47,7 @@
 [ext_resource type="Texture2D" uid="uid://6xcmhy30kmcv" path="res://assets/ui/battle/production_hud/roster/roster_side_banner_enemy.png" id="45_roster_side_banner_enemy"]
 [ext_resource type="Script" uid="uid://1spr0r3limpe" path="res://tests/scripts/battle_ui_production_roster_collapse.gd" id="46_production_roster_collapse"]
 [ext_resource type="Texture2D" uid="uid://bhmypqldlsabg" path="res://assets/ui/battle/production_hud/battle_log/battle_log_panel_full.png" id="47_battle_log_panel_full"]
+[ext_resource type="Script" path="res://tests/scripts/battle_supply_hud_mock.gd" id="48_supply_mock"]
 
 [sub_resource type="StyleBoxFlat" id="3"]
 bg_color = Color(0.0156863, 0.027451, 0.0431373, 0.78)
@@ -6072,6 +6073,357 @@ offset_bottom = 88.0
 text = "후퇴한다!"
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="BattleSupplyHud" type="Control" parent="BattleUI/ProductionHudRoot" unique_id=1961321312]
+layout_mode = 0
+offset_left = 1212.0
+offset_top = 170.0
+offset_right = 1512.0
+offset_bottom = 344.0
+mouse_filter = 2
+script = ExtResource("48_supply_mock")
+
+[node name="TitleLabel" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321313]
+layout_mode = 0
+offset_right = 300.0
+offset_bottom = 28.0
+theme_override_colors/font_color = Color(0.96, 0.91, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.04, 0.05, 0.82)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 18
+text = "전장 보급"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DividerTop" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321314]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 32.0
+offset_right = 296.0
+offset_bottom = 33.0
+mouse_filter = 2
+color = Color(0.78, 0.7, 0.53, 0.7)
+
+[node name="CenterDivider" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321315]
+layout_mode = 0
+offset_left = 149.0
+offset_top = 40.0
+offset_right = 150.0
+offset_bottom = 160.0
+mouse_filter = 2
+color = Color(0.75, 0.72, 0.64, 0.55)
+
+[node name="AllyHeaderLabel" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321316]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 39.0
+offset_right = 144.0
+offset_bottom = 61.0
+theme_override_colors/font_color = Color(0.67, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "아군"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyHeaderLabel" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321317]
+layout_mode = 0
+offset_left = 156.0
+offset_top = 39.0
+offset_right = 296.0
+offset_bottom = 61.0
+theme_override_colors/font_color = Color(0.94, 0.63, 0.58, 1)
+theme_override_font_sizes/font_size = 16
+text = "적군"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AllyFoodRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321318]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 64.0
+offset_right = 144.0
+offset_bottom = 84.0
+mouse_filter = 2
+
+[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyFoodRow" unique_id=1961321319]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 16.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.76, 0.68, 0.35, 1)
+
+[node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyFoodRow" unique_id=1961321320]
+layout_mode = 0
+offset_left = 22.0
+offset_right = 58.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+text = "식량"
+vertical_alignment = 1
+
+[node name="Value" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyFoodRow" unique_id=1961321321]
+layout_mode = 0
+offset_left = 60.0
+offset_right = 140.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="AllySaltRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321322]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 88.0
+offset_right = 144.0
+offset_bottom = 108.0
+mouse_filter = 2
+
+[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySaltRow" unique_id=1961321323]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 16.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.65, 0.73, 0.78, 1)
+
+[node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySaltRow" unique_id=1961321324]
+layout_mode = 0
+offset_left = 22.0
+offset_right = 58.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+text = "소금"
+vertical_alignment = 1
+
+[node name="Value" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySaltRow" unique_id=1961321325]
+layout_mode = 0
+offset_left = 60.0
+offset_right = 140.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="AllyConsumeRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321326]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 112.0
+offset_right = 144.0
+offset_bottom = 132.0
+mouse_filter = 2
+
+[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyConsumeRow" unique_id=1961321327]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 16.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.88, 0.61, 0.32, 1)
+
+[node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyConsumeRow" unique_id=1961321328]
+layout_mode = 0
+offset_left = 22.0
+offset_right = 58.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+text = "소비"
+vertical_alignment = 1
+
+[node name="Value" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllyConsumeRow" unique_id=1961321329]
+layout_mode = 0
+offset_left = 60.0
+offset_right = 140.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="AllySustainRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321330]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 136.0
+offset_right = 144.0
+offset_bottom = 156.0
+mouse_filter = 2
+
+[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySustainRow" unique_id=1961321331]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 16.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.48, 0.72, 0.53, 1)
+
+[node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySustainRow" unique_id=1961321332]
+layout_mode = 0
+offset_left = 22.0
+offset_right = 58.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+text = "유지"
+vertical_alignment = 1
+
+[node name="Value" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/AllySustainRow" unique_id=1961321333]
+layout_mode = 0
+offset_left = 60.0
+offset_right = 140.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="EnemyFoodRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321334]
+layout_mode = 0
+offset_left = 156.0
+offset_top = 64.0
+offset_right = 296.0
+offset_bottom = 84.0
+mouse_filter = 2
+
+[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyFoodRow" unique_id=1961321335]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 16.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.76, 0.68, 0.35, 1)
+
+[node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyFoodRow" unique_id=1961321336]
+layout_mode = 0
+offset_left = 22.0
+offset_right = 58.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+text = "식량"
+vertical_alignment = 1
+
+[node name="Value" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyFoodRow" unique_id=1961321337]
+layout_mode = 0
+offset_left = 60.0
+offset_right = 140.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="EnemySaltRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321338]
+layout_mode = 0
+offset_left = 156.0
+offset_top = 88.0
+offset_right = 296.0
+offset_bottom = 108.0
+mouse_filter = 2
+
+[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySaltRow" unique_id=1961321339]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 16.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.65, 0.73, 0.78, 1)
+
+[node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySaltRow" unique_id=1961321340]
+layout_mode = 0
+offset_left = 22.0
+offset_right = 58.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+text = "소금"
+vertical_alignment = 1
+
+[node name="Value" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySaltRow" unique_id=1961321341]
+layout_mode = 0
+offset_left = 60.0
+offset_right = 140.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="EnemyConsumeRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321342]
+layout_mode = 0
+offset_left = 156.0
+offset_top = 112.0
+offset_right = 296.0
+offset_bottom = 132.0
+mouse_filter = 2
+
+[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyConsumeRow" unique_id=1961321343]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 16.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.88, 0.61, 0.32, 1)
+
+[node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyConsumeRow" unique_id=1961321344]
+layout_mode = 0
+offset_left = 22.0
+offset_right = 58.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+text = "소비"
+vertical_alignment = 1
+
+[node name="Value" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemyConsumeRow" unique_id=1961321345]
+layout_mode = 0
+offset_left = 60.0
+offset_right = 140.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="EnemySustainRow" type="Control" parent="BattleUI/ProductionHudRoot/BattleSupplyHud" unique_id=1961321346]
+layout_mode = 0
+offset_left = 156.0
+offset_top = 136.0
+offset_right = 296.0
+offset_bottom = 156.0
+mouse_filter = 2
+
+[node name="Icon" type="ColorRect" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySustainRow" unique_id=1961321347]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 16.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.48, 0.72, 0.53, 1)
+
+[node name="Label" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySustainRow" unique_id=1961321348]
+layout_mode = 0
+offset_left = 22.0
+offset_right = 58.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+text = "유지"
+vertical_alignment = 1
+
+[node name="Value" type="Label" parent="BattleUI/ProductionHudRoot/BattleSupplyHud/EnemySustainRow" unique_id=1961321349]
+layout_mode = 0
+offset_left = 60.0
+offset_right = 140.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="CutinOverlay" type="CanvasLayer" parent="." unique_id=581824320]
 visible = false
