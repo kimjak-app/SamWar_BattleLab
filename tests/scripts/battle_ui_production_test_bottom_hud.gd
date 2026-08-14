@@ -1,14 +1,20 @@
 extends Node
 
 ## Production test bottom HUD bridge.
-## T13-4C-hotfix5 removes all ReadyFrame rectangles and applies the intended
-## bold serif typography directly to the production supply value labels.
+## T13-4C-hotfix6 binds production current-actor icon assets into the existing
+## stat, unique-skill, status-header, and terrain slots without changing layout.
 
 const SHOW_WARNING_SAMPLE := false
 const CURRENT_ACTOR_INFO_HUD_PREVIEW_SCENE := preload("res://tests/scenes/ui/current_actor_info_hud_placeholder.tscn")
 const HeroDesignDataRegistryScript := preload("res://scripts/worldmap/hero_design_data_registry.gd")
 const UNIQUE_SKILL_READY_BADGE := preload("res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png")
 const SUPPLY_VALUE_BOLD_FONT := preload("res://assets/font/noto_serif_kr/NotoSerifKR-Bold.otf")
+const ICON_STAT_COMMAND := preload("res://assets/ui/battle/current_actor_icons/stat_command.png")
+const ICON_STAT_MIGHT := preload("res://assets/ui/battle/current_actor_icons/stat_might.png")
+const ICON_STAT_INTELLECT := preload("res://assets/ui/battle/current_actor_icons/stat_intellect.png")
+const ICON_UNIQUE_SKILL := preload("res://assets/ui/battle/current_actor_icons/unique_skill.png")
+const ICON_STATUS_HEADER := preload("res://assets/ui/battle/current_actor_icons/status_header.png")
+const ICON_TERRAIN_PLAIN := preload("res://assets/ui/battle/current_actor_icons/terrain_plain.png")
 const TEST_BATTLEFIELD_TERRAIN_NAME := "평지"
 const TEST_BATTLEFIELD_TERRAIN_DEFENSE := "방어 0%"
 const TEST_BATTLEFIELD_TERRAIN_MOVE := "이동 0%"
@@ -110,7 +116,17 @@ func _apply_current_actor_polish(hud: Control) -> void:
 	if terrain_effect != null:
 		terrain_effect.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_ensure_status_title_icon(hud)
+	_sync_static_current_actor_icons(hud)
 	_apply_current_actor_typography(hud)
+
+func _sync_static_current_actor_icons(hud: Control) -> void:
+	_sync_bound_texture(hud, "InfoArea/StatsRow/CommandStat/Icon", ICON_STAT_COMMAND, "BoundCommandIcon")
+	_sync_bound_texture(hud, "InfoArea/StatsRow/MightStat/Icon", ICON_STAT_MIGHT, "BoundMightIcon")
+	_sync_bound_texture(hud, "InfoArea/StatsRow/IntellectStat/Icon", ICON_STAT_INTELLECT, "BoundIntellectIcon")
+	_sync_bound_texture(hud, "InfoArea/UniqueTraitArea/UniqueTraitIconSlot", ICON_UNIQUE_SKILL, "BoundUniqueTraitIcon")
+	_sync_bound_texture(hud, "StatusArea/StatusTitleIcon", ICON_STATUS_HEADER, "BoundStatusHeaderIcon")
+	_sync_bound_texture(hud, "TerrainArea/TerrainImageSlot", ICON_TERRAIN_PLAIN, "BoundTerrainIcon", TextureRect.STRETCH_KEEP_ASPECT_COVERED, true)
+	_set_local_visibility(hud, "TerrainArea/TerrainImageSlot/PlaceholderLabel", false)
 
 func _apply_current_actor_typography(hud: Control) -> void:
 	_set_theme_variation(hud, "InfoArea/NameLabel", "ProductionCurrentActionHero")
@@ -136,7 +152,7 @@ func _ensure_status_title_icon(hud: Control) -> void:
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	status_area.add_child(icon)
 	icon.position = Vector2(12.0, 8.0)
-	icon.size = Vector2(22.0, 22.0)
+	icon.size = Vector2(24.0, 24.0)
 	var sample_icon := hud.get_node_or_null("StatusArea/StatusRow01/Icon") as Panel
 	if sample_icon != null:
 		var sample_style := sample_icon.get_theme_stylebox("panel")
@@ -187,7 +203,7 @@ func _sync_current_actor_info(controller: Node, production_root: Control) -> voi
 	var trait_area := hud.get_node_or_null("InfoArea/UniqueTraitArea") as Control
 	if trait_area != null:
 		trait_area.tooltip_text = "%s · %s" % [skill_name, skill_description] if not skill_description.is_empty() else skill_name
-	_sync_bound_texture(hud, "InfoArea/UniqueTraitArea/UniqueTraitIconSlot", null, "BoundUniqueTraitIcon")
+	_sync_bound_texture(hud, "InfoArea/UniqueTraitArea/UniqueTraitIconSlot", ICON_UNIQUE_SKILL, "BoundUniqueTraitIcon")
 
 	var portrait := _get_current_actor_portrait(hero_id)
 	if portrait == null and controller.has_method("_get_closeup_portrait_texture_for_unit"):
@@ -220,7 +236,7 @@ func _clear_current_actor_info(hud: Control) -> void:
 	_set_local_text(hud, "InfoArea/UniqueTraitArea/UniqueTraitLabel", "고유특기 -")
 	_set_local_text(hud, "InfoArea/UniqueTraitArea/UniqueTraitSummaryLabel", "")
 	_sync_bound_texture(hud, "PortraitSlot", null, "BoundPortrait", TextureRect.STRETCH_KEEP_ASPECT_COVERED, true)
-	_sync_bound_texture(hud, "InfoArea/UniqueTraitArea/UniqueTraitIconSlot", null, "BoundUniqueTraitIcon")
+	_sync_bound_texture(hud, "InfoArea/UniqueTraitArea/UniqueTraitIconSlot", ICON_UNIQUE_SKILL, "BoundUniqueTraitIcon")
 	_sync_bound_texture(hud, "InfoArea/TroopRow/TroopTypeIconSlot", null, "BoundTroopTypeIcon")
 	_set_local_visibility(hud, "PortraitSlot/PlaceholderLabel", true)
 	_set_local_visibility(hud, "BoundUniqueSkillReadyBadge", false)
@@ -342,10 +358,9 @@ func _sync_terrain(hud: Control) -> void:
 	_set_local_text(hud, "TerrainArea/TerrainImageSlot/PlaceholderLabel", TEST_BATTLEFIELD_TERRAIN_NAME)
 	_set_local_text(hud, "TerrainArea/TerrainEffectLabel", "%s\n%s" % [TEST_BATTLEFIELD_TERRAIN_DEFENSE, TEST_BATTLEFIELD_TERRAIN_MOVE])
 	_set_local_visibility(hud, "TerrainArea/TerrainEffectLabel", true)
+	_set_local_visibility(hud, "TerrainArea/TerrainImageSlot/PlaceholderLabel", false)
 
 func _apply_supply_panel_typography(controller: Node) -> void:
-	# Production supply rows are single Labels (e.g. "식량 820"), not separate
-	# label/value nodes. Apply the bold serif font directly to each row Label.
 	var base := "BattleUI/ProductionHudRoot/BottomHudRoot/BattleSupplyPreviewPanel/Margin/Content/Columns"
 	for column in ["AllyColumn", "EnemyColumn"]:
 		var root := "%s/%s" % [base, column]
