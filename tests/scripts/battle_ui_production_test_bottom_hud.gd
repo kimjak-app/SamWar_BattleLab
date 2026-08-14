@@ -1,16 +1,12 @@
 extends Node
 
-## Production test bottom HUD bridge.
-## T13-4C-hotfix3 removes acted-unit completion markers, moves the unique-skill
-## ready badge out of the portrait, and reshapes the terrain panel for readable
-## terrain effects while preserving authoritative actor data binding.
-
 const SHOW_WARNING_SAMPLE := false
 const CURRENT_ACTOR_INFO_HUD_PREVIEW_SCENE := preload("res://tests/scenes/ui/current_actor_info_hud_placeholder.tscn")
 const HeroDesignDataRegistryScript := preload("res://scripts/worldmap/hero_design_data_registry.gd")
 const UNIQUE_SKILL_READY_BADGE := preload("res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png")
 const TEST_BATTLEFIELD_TERRAIN_NAME := "평지"
-const TEST_BATTLEFIELD_TERRAIN_EFFECT := "방어 0% · 이동 0%"
+const TEST_BATTLEFIELD_TERRAIN_DEFENSE := "방어 0%"
+const TEST_BATTLEFIELD_TERRAIN_MOVE := "이동 0%"
 const CURRENT_ACTOR_PORTRAIT_COUNTRIES := ["korea", "china", "japan", "mongol"]
 const HERO_ID_ALIASES := {
 	"yi_sunsin": "yi_sun_sin",
@@ -22,15 +18,12 @@ const HERO_ID_ALIASES := {
 var current_actor_portrait_cache: Dictionary = {}
 var current_actor_country_cache: Dictionary = {}
 
-
 func _ready() -> void:
 	_ensure_current_actor_info_hud_preview()
 	_apply_preview()
 
-
 func _process(_delta: float) -> void:
 	_apply_preview()
-
 
 func _ensure_current_actor_info_hud_preview() -> void:
 	var controller := get_parent()
@@ -45,7 +38,6 @@ func _ensure_current_actor_info_hud_preview() -> void:
 			production_root.add_child(preview_hud)
 	_hide_legacy_actor_comparison(production_root)
 
-
 func _apply_preview() -> void:
 	var controller := get_parent()
 	if controller == null:
@@ -57,13 +49,14 @@ func _apply_preview() -> void:
 		if hud != null:
 			_apply_current_actor_polish(hud)
 		_sync_current_actor_info(controller, production_root)
+	_sync_unit_ready_frames_clean(controller)
+	_apply_supply_panel_typography(controller)
 	_set_text(controller, "BattleUI/ProductionHudRoot/InteractionGuideHud/PhaseLabel", "아군 턴")
 	_set_text(controller, "BattleUI/ProductionHudRoot/InteractionGuideHud/InstructionLabel", "행동할 아군 부대를 선택하거나 명령을 선택하세요.")
 	_set_text(controller, "BattleUI/ProductionHudRoot/InteractionGuideHud/DisabledReasonLabel", "")
 	_set_text(controller, "BattleUI/ProductionHudRoot/BottomHudRoot/BattleSupplyPreviewPanel/Margin/Content/Header/TurnLabel", "3 / 30 · 잔여 27")
 	_sync_supply_column(controller, "AllyColumn", "식량 820", "소금 120", "턴당 소비 34", "유지 24턴", SHOW_WARNING_SAMPLE)
 	_sync_supply_column(controller, "EnemyColumn", "식량 740", "소금 80", "턴당 소비 31", "유지 23턴", false)
-
 
 func _apply_current_actor_polish(hud: Control) -> void:
 	var portrait_slot := hud.get_node_or_null("PortraitSlot") as Control
@@ -105,22 +98,14 @@ func _apply_current_actor_polish(hud: Control) -> void:
 			row_label.offset_right = 196.0
 		_set_local_visibility(hud, row_path + "/Icon", false)
 
-	# Terrain artwork is a square card. Text below it carries the terrain name
-	# and compact gameplay modifiers so future terrain contracts can replace the
-	# fallback without changing this layout.
 	_set_control_offsets(hud, "TerrainArea/TerrainImageSlot", 8.0, 8.0, 110.0, 110.0)
-	_set_control_offsets(hud, "TerrainArea/TerrainNameLabel", 8.0, 114.0, 110.0, 142.0)
-	_set_control_offsets(hud, "TerrainArea/TerrainEffectLabel", 8.0, 144.0, 110.0, 190.0)
-	var terrain_effect_label := hud.get_node_or_null("TerrainArea/TerrainEffectLabel") as Label
-	if terrain_effect_label != null:
-		terrain_effect_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		terrain_effect_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-		terrain_effect_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		terrain_effect_label.add_theme_font_size_override("font_size", 11)
-
+	_set_control_offsets(hud, "TerrainArea/TerrainNameLabel", 8.0, 116.0, 110.0, 142.0)
+	_set_control_offsets(hud, "TerrainArea/TerrainEffectLabel", 8.0, 144.0, 110.0, 192.0)
+	var terrain_effect := hud.get_node_or_null("TerrainArea/TerrainEffectLabel") as Label
+	if terrain_effect != null:
+		terrain_effect.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_ensure_status_title_icon(hud)
 	_apply_current_actor_typography(hud)
-
 
 func _apply_current_actor_typography(hud: Control) -> void:
 	_set_theme_variation(hud, "InfoArea/NameLabel", "ProductionCurrentActionHero")
@@ -137,7 +122,6 @@ func _apply_current_actor_typography(hud: Control) -> void:
 	for index in range(1, 6):
 		_set_theme_variation(hud, "StatusArea/StatusRow%02d/Label" % index, "ProductionCurrentActionDetail")
 
-
 func _ensure_status_title_icon(hud: Control) -> void:
 	var status_area := hud.get_node_or_null("StatusArea") as Control
 	if status_area == null or status_area.get_node_or_null("StatusTitleIcon") != null:
@@ -153,7 +137,6 @@ func _ensure_status_title_icon(hud: Control) -> void:
 		var sample_style := sample_icon.get_theme_stylebox("panel")
 		if sample_style != null:
 			icon.add_theme_stylebox_override("panel", sample_style)
-
 
 func _sync_current_actor_info(controller: Node, production_root: Control) -> void:
 	var hud := production_root.get_node_or_null("CurrentActorInfoHud") as Control
@@ -221,7 +204,6 @@ func _sync_current_actor_info(controller: Node, production_root: Control) -> voi
 	_sync_status_rows(controller, hud, unit)
 	_sync_terrain(hud)
 
-
 func _clear_current_actor_info(hud: Control) -> void:
 	_set_local_text(hud, "InfoArea/NameLabel", "대기")
 	_set_local_text(hud, "InfoArea/TroopClassLabel", "-")
@@ -241,7 +223,6 @@ func _clear_current_actor_info(hud: Control) -> void:
 		_set_local_visibility(hud, "StatusArea/StatusRow%02d" % index, false)
 	_sync_terrain(hud)
 
-
 func _resolve_hero_id(controller: Node, unit: Variant) -> String:
 	var hero_id := ""
 	if controller.has_method("_get_hero_id_for_unit_state"):
@@ -250,7 +231,6 @@ func _resolve_hero_id(controller: Node, unit: Variant) -> String:
 		var unit_id := str(unit.get("unit_id"))
 		hero_id = unit_id.trim_suffix("_battle_unit") if unit_id.ends_with("_battle_unit") else unit_id
 	return str(HERO_ID_ALIASES.get(hero_id, hero_id))
-
 
 func _get_current_actor_country(hero_id: String) -> String:
 	if hero_id.is_empty():
@@ -265,7 +245,6 @@ func _get_current_actor_country(hero_id: String) -> String:
 			return country
 	current_actor_country_cache[hero_id] = ""
 	return ""
-
 
 func _get_current_actor_portrait(hero_id: String) -> Texture2D:
 	if hero_id.is_empty():
@@ -283,15 +262,7 @@ func _get_current_actor_portrait(hero_id: String) -> Texture2D:
 	current_actor_portrait_cache[hero_id] = null
 	return null
 
-
 func _sync_unique_skill_ready_badge(controller: Node, hud: Control, unit: Variant) -> void:
-	# Remove the old portrait-clipped badge if a script hot-reload left one alive.
-	var portrait_slot := hud.get_node_or_null("PortraitSlot") as Control
-	if portrait_slot != null:
-		var legacy_badge := portrait_slot.get_node_or_null("BoundUniqueSkillReadyBadge")
-		if legacy_badge != null:
-			legacy_badge.queue_free()
-
 	var badge := hud.get_node_or_null("BoundUniqueSkillReadyBadge") as TextureRect
 	if badge == null:
 		badge = TextureRect.new()
@@ -299,13 +270,11 @@ func _sync_unique_skill_ready_badge(controller: Node, hud: Control, unit: Varian
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		badge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		badge.z_index = 20
+		badge.z_index = 10
 		hud.add_child(badge)
 		badge.tooltip_text = "고유특기 사용 가능"
-	# Bridge the portrait and the hero-name area instead of covering artwork.
-	badge.position = Vector2(156.0, 6.0)
-	badge.size = Vector2(72.0, 72.0)
-
+	badge.position = Vector2(122.0, -18.0)
+	badge.size = Vector2(84.0, 84.0)
 	var skill_ready := false
 	if controller.has_method("_can_use_unique_skill"):
 		skill_ready = bool(controller.call("_can_use_unique_skill", unit))
@@ -314,7 +283,6 @@ func _sync_unique_skill_ready_badge(controller: Node, hud: Control, unit: Varian
 	if skill_ready:
 		var pulse := 0.88 + 0.12 * sin(float(Time.get_ticks_msec()) / 220.0)
 		badge.modulate = Color(1.0, 1.0, 1.0, pulse)
-
 
 func _sync_status_rows(controller: Node, hud: Control, unit: Variant) -> void:
 	var entries: Array = []
@@ -333,24 +301,56 @@ func _sync_status_rows(controller: Node, hud: Control, unit: Variant) -> void:
 		var row_path := "StatusArea/StatusRow%02d" % (index + 1)
 		var has_entry := index < entries.size()
 		_set_local_visibility(hud, row_path, has_entry)
-		_set_local_visibility(hud, row_path + "/Icon", false)
 		if not has_entry:
 			continue
 		var entry: Dictionary = entries[index]
 		var summary := str(entry.get("summary", entry.get("label", "상태")))
 		var tooltip := str(entry.get("tooltip", entry.get("description", summary)))
 		_set_local_text(hud, row_path + "/Label", summary)
+		_set_local_visibility(hud, row_path + "/Icon", false)
 		var row := hud.get_node_or_null(row_path) as Control
 		if row != null:
 			row.tooltip_text = tooltip
 
+func _sync_unit_ready_frames_clean(controller: Node) -> void:
+	if not controller.has_method("_get_all_unit_states_in_slot_order"):
+		return
+	if not controller.has_method("_get_ready_frame_for_unit") or not controller.has_method("_has_ally_unit_acted"):
+		return
+	var unit_states: Variant = controller.call("_get_all_unit_states_in_slot_order")
+	if not unit_states is Array:
+		return
+	for unit_variant in unit_states:
+		if unit_variant == null or str(unit_variant.get("side")) != "ally":
+			continue
+		var frame := controller.call("_get_ready_frame_for_unit", unit_variant) as Panel
+		if frame == null:
+			continue
+		var has_acted := bool(controller.call("_has_ally_unit_acted", unit_variant))
+		if has_acted:
+			if controller.has_method("_stop_ready_frame_pulse"):
+				controller.call("_stop_ready_frame_pulse", frame)
+			frame.visible = false
+		else:
+			if controller.has_method("_apply_ready_frame_style"):
+				controller.call("_apply_ready_frame_style", frame)
 
 func _sync_terrain(hud: Control) -> void:
 	_set_local_text(hud, "TerrainArea/TerrainNameLabel", TEST_BATTLEFIELD_TERRAIN_NAME)
 	_set_local_text(hud, "TerrainArea/TerrainImageSlot/PlaceholderLabel", TEST_BATTLEFIELD_TERRAIN_NAME)
-	_set_local_text(hud, "TerrainArea/TerrainEffectLabel", TEST_BATTLEFIELD_TERRAIN_EFFECT)
+	_set_local_text(hud, "TerrainArea/TerrainEffectLabel", "%s\n%s" % [TEST_BATTLEFIELD_TERRAIN_DEFENSE, TEST_BATTLEFIELD_TERRAIN_MOVE])
 	_set_local_visibility(hud, "TerrainArea/TerrainEffectLabel", true)
 
+func _apply_supply_panel_typography(controller: Node) -> void:
+	var base := "BattleUI/ProductionHudRoot/BottomHudRoot/BattleSupplyPreviewPanel/Margin/Content"
+	_set_theme_variation(controller, base + "/Header/TitleLabel", "ProductionCurrentActionTitle")
+	_set_theme_variation(controller, base + "/Header/TurnLabel", "ProductionCurrentActionDetail")
+	for column in ["AllyColumn", "EnemyColumn"]:
+		var root := base + "/Columns/%s" % column
+		_set_theme_variation(controller, root + "/FoodValue", "ProductionCurrentActionTitle")
+		_set_theme_variation(controller, root + "/SaltValue", "ProductionCurrentActionTitle")
+		_set_theme_variation(controller, root + "/ConsumptionValue", "ProductionCurrentActionTitle")
+		_set_theme_variation(controller, root + "/SustainValue", "ProductionCurrentActionTitle")
 
 func _sync_bound_texture(
 	hud: Control,
@@ -376,7 +376,6 @@ func _sync_bound_texture(
 	rect.texture = texture
 	rect.visible = texture != null
 
-
 func _set_control_offsets(root: Node, path: String, left: float, top: float, right: float, bottom: float) -> void:
 	var control := root.get_node_or_null(path) as Control
 	if control == null:
@@ -386,12 +385,10 @@ func _set_control_offsets(root: Node, path: String, left: float, top: float, rig
 	control.offset_right = right
 	control.offset_bottom = bottom
 
-
 func _set_theme_variation(root: Node, path: String, variation: String) -> void:
 	var control := root.get_node_or_null(path) as Control
 	if control != null:
 		control.theme_type_variation = StringName(variation)
-
 
 func _unit_type_name(unit_type: String) -> String:
 	match unit_type:
@@ -402,12 +399,10 @@ func _unit_type_name(unit_type: String) -> String:
 		"mounted_archer": return "기마궁병"
 	return "부대"
 
-
 func _hide_legacy_actor_comparison(production_root: Control) -> void:
 	var legacy_hud := production_root.get_node_or_null("ActorComparisonHud") as Control
 	if legacy_hud != null:
 		legacy_hud.visible = false
-
 
 func _sync_supply_column(controller: Node, column: String, food: String, salt: String, consumption: String, sustain: String, warning: bool) -> void:
 	var root := "BattleUI/ProductionHudRoot/BottomHudRoot/BattleSupplyPreviewPanel/Margin/Content/Columns/%s" % column
@@ -420,18 +415,15 @@ func _sync_supply_column(controller: Node, column: String, food: String, salt: S
 		warning_label.text = "소금 고갈 · 식량 소비 +10%"
 		warning_label.visible = warning
 
-
 func _set_local_text(root: Node, path: String, value: String) -> void:
 	var label := root.get_node_or_null(path) as Label
 	if label != null:
 		label.text = value
 
-
 func _set_local_visibility(root: Node, path: String, value: bool) -> void:
 	var control := root.get_node_or_null(path) as Control
 	if control != null:
 		control.visible = value
-
 
 func _set_text(controller: Node, path: String, value: String) -> void:
 	var label := controller.get_node_or_null(path) as Label
