@@ -1,11 +1,9 @@
 extends Node
 
-## Test-scene-only bottom HUD bridge.
-##
-## T13-4A authored the current-actor card as a standalone subscene so its
-## position remains editable in Godot 2D. T13-4B bound authoritative battle
-## data. T13-4C keeps the outer HUD position fixed while polishing the internal
-## layout, dedicated current-actor portraits, typography, and skill-ready badge.
+## Production test bottom HUD bridge.
+## T13-4C-hotfix1 normalizes current actor identity through the battle
+## controller, binds display metadata from HeroDesignDataRegistry first, and
+## keeps the authored outer HUD position fixed while correcting inner spacing.
 
 const SHOW_WARNING_SAMPLE := false
 const CURRENT_ACTOR_INFO_HUD_PREVIEW_SCENE := preload("res://tests/scenes/ui/current_actor_info_hud_placeholder.tscn")
@@ -15,11 +13,13 @@ const TEST_BATTLEFIELD_TERRAIN_NAME := "평지"
 const CURRENT_ACTOR_PORTRAIT_COUNTRIES := ["korea", "china", "japan", "mongol"]
 const HERO_ID_ALIASES := {
 	"yi_sunsin": "yi_sun_sin",
-	"gwon_yul": "kwon_yul",
+	"jeong_dojeon": "jeong_do_jeon",
 	"gim_yusin": "kim_yu_sin",
+	"gwon_yul": "kwon_yul",
 }
 
 var current_actor_portrait_cache: Dictionary = {}
+var current_actor_country_cache: Dictionary = {}
 
 
 func _ready() -> void:
@@ -65,47 +65,52 @@ func _apply_preview() -> void:
 
 
 func _apply_current_actor_polish(hud: Control) -> void:
-	# Preserve the T13-4A outer card coordinates. Only redistribute its internal
-	# width so the unique-skill description has room for a stable two-line wrap.
+	# Do not change CurrentActorInfoHud's authored outer coordinates.
 	var portrait_slot := hud.get_node_or_null("PortraitSlot") as Control
 	if portrait_slot != null:
 		portrait_slot.clip_contents = true
 
 	var info_area := hud.get_node_or_null("InfoArea") as Control
 	if info_area != null:
-		info_area.offset_right = 650.0
+		info_area.offset_right = 638.0
 	var status_area := hud.get_node_or_null("StatusArea") as Control
 	if status_area != null:
-		status_area.offset_left = 662.0
-		status_area.offset_right = 850.0
+		status_area.offset_left = 650.0
+		status_area.offset_right = 870.0
+	var terrain_area := hud.get_node_or_null("TerrainArea") as Control
+	if terrain_area != null:
+		terrain_area.offset_left = 882.0
+		terrain_area.offset_right = 1000.0
 
 	_set_control_offsets(hud, "InfoArea/NameLabel", 12.0, 6.0, 198.0, 38.0)
 	_set_control_offsets(hud, "InfoArea/TroopClassLabel", 206.0, 10.0, 300.0, 36.0)
-	_set_control_offsets(hud, "InfoArea/StatsRow", 214.0, 42.0, 444.0, 132.0)
-	_set_control_offsets(hud, "InfoArea/UniqueTraitArea", 12.0, 132.0, 444.0, 196.0)
-	_set_control_offsets(hud, "InfoArea/UniqueTraitArea/UniqueTraitLabel", 50.0, 1.0, 424.0, 26.0)
-	_set_control_offsets(hud, "InfoArea/UniqueTraitArea/UniqueTraitSummaryLabel", 50.0, 25.0, 424.0, 62.0)
+	_set_control_offsets(hud, "InfoArea/StatsRow", 214.0, 42.0, 432.0, 124.0)
+	_set_control_offsets(hud, "InfoArea/UniqueTraitArea", 12.0, 126.0, 432.0, 190.0)
+	_set_control_offsets(hud, "InfoArea/UniqueTraitArea/UniqueTraitLabel", 50.0, 0.0, 412.0, 24.0)
+	_set_control_offsets(hud, "InfoArea/UniqueTraitArea/UniqueTraitSummaryLabel", 50.0, 24.0, 412.0, 54.0)
 	var skill_summary := hud.get_node_or_null("InfoArea/UniqueTraitArea/UniqueTraitSummaryLabel") as Label
 	if skill_summary != null:
 		skill_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		skill_summary.add_theme_font_size_override("font_size", 13)
 
-	_set_control_offsets(hud, "StatusArea/TitleLabel", 42.0, 6.0, 176.0, 34.0)
+	_set_control_offsets(hud, "StatusArea/TitleLabel", 42.0, 6.0, 208.0, 34.0)
 	for index in range(1, 6):
 		var row_path := "StatusArea/StatusRow%02d" % index
 		var row := hud.get_node_or_null(row_path) as Control
 		if row != null:
-			row.offset_right = 176.0
+			row.offset_right = 208.0
 		var row_label := hud.get_node_or_null(row_path + "/Label") as Label
 		if row_label != null:
-			row_label.offset_right = 164.0
+			row_label.offset_right = 196.0
+
+	_set_control_offsets(hud, "TerrainArea/TerrainImageSlot", 8.0, 8.0, 110.0, 138.0)
+	_set_control_offsets(hud, "TerrainArea/TerrainNameLabel", 8.0, 142.0, 110.0, 174.0)
+	_set_control_offsets(hud, "TerrainArea/TerrainEffectLabel", 8.0, 174.0, 110.0, 192.0)
 	_ensure_status_title_icon(hud)
 	_apply_current_actor_typography(hud)
 
 
 func _apply_current_actor_typography(hud: Control) -> void:
-	# Reuse the production battle theme's Noto Serif KR type variations instead
-	# of allowing these standalone labels to fall back to the default Label font.
 	_set_theme_variation(hud, "InfoArea/NameLabel", "ProductionCurrentActionHero")
 	_set_theme_variation(hud, "InfoArea/TroopClassLabel", "ProductionCurrentActionTitle")
 	_set_theme_variation(hud, "InfoArea/TroopRow/TroopsLabel", "ProductionCurrentActionDetail")
@@ -146,57 +151,60 @@ func _sync_current_actor_info(controller: Node, production_root: Control) -> voi
 		_clear_current_actor_info(hud)
 		return
 
-	var hero_id := _resolve_hero_id(unit)
+	var hero_id := _resolve_hero_id(controller, unit)
 	var base_stats := HeroDesignDataRegistryScript.get_base_stats(hero_id) if not hero_id.is_empty() else {}
+	var battle_profile := HeroDesignDataRegistryScript.get_battle_profile(hero_id) if not hero_id.is_empty() else {}
+	var registry_skill := HeroDesignDataRegistryScript.get_unique_skill_for_hero(hero_id) if not hero_id.is_empty() else {}
 	var stats_variant: Variant = base_stats.get("stats", {})
 	var stats: Dictionary = stats_variant if stats_variant is Dictionary else {}
-	var unique_skill_variant: Variant = unit.get("unique_skill_definition")
-	var unique_skill: Dictionary = unique_skill_variant if unique_skill_variant is Dictionary else {}
-	if unique_skill.is_empty() and not hero_id.is_empty():
-		unique_skill = HeroDesignDataRegistryScript.get_unique_skill_for_hero(hero_id)
+
+	# Display metadata is authoritative from the 39-hero design registry. Only
+	# fall back to the runtime legacy definition when registry data is absent.
+	var unique_skill: Dictionary = registry_skill
+	if unique_skill.is_empty():
+		var runtime_skill_variant: Variant = unit.get("unique_skill_definition")
+		if runtime_skill_variant is Dictionary:
+			unique_skill = runtime_skill_variant
 
 	_set_local_text(hud, "InfoArea/NameLabel", str(unit.get("display_name")))
-	var unit_type := str(unit.get("unit_type"))
+	var runtime_unit_type := str(unit.get("unit_type"))
+	var unit_type := str(battle_profile.get("unit_type", runtime_unit_type))
 	var unit_type_name := HeroDesignDataRegistryScript.get_unit_type_display_name(unit_type, _unit_type_name(unit_type))
 	_set_local_text(hud, "InfoArea/TroopClassLabel", unit_type_name)
 	_set_local_text(hud, "InfoArea/TroopRow/TroopsLabel", "병력 %d / %d" % [int(unit.get("current_hp")), int(unit.get("max_hp"))])
 	_set_local_visibility(hud, "InfoArea/TroopRow/WoundedLabel", false)
 
-	var leadership := int(stats.get("leadership", 0))
+	var leadership := int(stats.get("leadership", unit.get("leadership")))
 	var martial := int(stats.get("martial", unit.get("martial")))
 	var intelligence := int(stats.get("intelligence", unit.get("intelligence")))
 	_set_local_text(hud, "InfoArea/StatsRow/CommandStat/Value", "지휘 %d" % leadership)
 	_set_local_text(hud, "InfoArea/StatsRow/MightStat/Value", "무력 %d" % martial)
 	_set_local_text(hud, "InfoArea/StatsRow/IntellectStat/Value", "지력 %d" % intelligence)
 
-	var skill_name := str(unique_skill.get("display_name", "고유특기"))
+	var skill_name := str(unique_skill.get("display_name", unique_skill.get("name", "고유특기")))
 	var skill_description := str(unique_skill.get("description", unique_skill.get("concept", "")))
 	_set_local_text(hud, "InfoArea/UniqueTraitArea/UniqueTraitLabel", skill_name)
 	_set_local_text(hud, "InfoArea/UniqueTraitArea/UniqueTraitSummaryLabel", skill_description)
 	var trait_area := hud.get_node_or_null("InfoArea/UniqueTraitArea") as Control
 	if trait_area != null:
 		trait_area.tooltip_text = "%s · %s" % [skill_name, skill_description] if not skill_description.is_empty() else skill_name
-	# T13-4C reserves this slot for the eventual per-skill icon set. The generic
-	# flag is now used only as a READY badge on the portrait, not as the skill icon.
 	_sync_bound_texture(hud, "InfoArea/UniqueTraitArea/UniqueTraitIconSlot", null, "BoundUniqueTraitIcon")
 
 	var portrait := _get_current_actor_portrait(hero_id)
 	if portrait == null and controller.has_method("_get_closeup_portrait_texture_for_unit"):
 		portrait = controller.call("_get_closeup_portrait_texture_for_unit", unit) as Texture2D
-	_sync_bound_texture(
-		hud,
-		"PortraitSlot",
-		portrait,
-		"BoundPortrait",
-		TextureRect.STRETCH_KEEP_ASPECT_COVERED,
-		true
-	)
+	_sync_bound_texture(hud, "PortraitSlot", portrait, "BoundPortrait", TextureRect.STRETCH_KEEP_ASPECT_COVERED, true)
 	_set_local_visibility(hud, "PortraitSlot/PlaceholderLabel", portrait == null)
 	_sync_unique_skill_ready_badge(controller, hud, unit)
 
 	var troop_icon: Texture2D = null
+	var country := _get_current_actor_country(hero_id)
+	var visual_key := "%s_%s" % [country, unit_type] if not country.is_empty() else ""
 	if controller.has_method("_get_troop_icon_texture_for_visual_key"):
-		troop_icon = controller.call("_get_troop_icon_texture_for_visual_key", "", unit) as Texture2D
+		if not visual_key.is_empty():
+			troop_icon = controller.call("_get_troop_icon_texture_for_visual_key", visual_key, null) as Texture2D
+		if troop_icon == null:
+			troop_icon = controller.call("_get_troop_icon_texture_for_visual_key", "", unit) as Texture2D
 	_sync_bound_texture(hud, "InfoArea/TroopRow/TroopTypeIconSlot", troop_icon, "BoundTroopTypeIcon")
 
 	_sync_status_rows(controller, hud, unit)
@@ -223,16 +231,39 @@ func _clear_current_actor_info(hud: Control) -> void:
 	_sync_terrain(hud)
 
 
+func _resolve_hero_id(controller: Node, unit: Variant) -> String:
+	var hero_id := ""
+	if controller.has_method("_get_hero_id_for_unit_state"):
+		hero_id = str(controller.call("_get_hero_id_for_unit_state", unit))
+	if hero_id.is_empty():
+		var unit_id := str(unit.get("unit_id"))
+		hero_id = unit_id.trim_suffix("_battle_unit") if unit_id.ends_with("_battle_unit") else unit_id
+	return str(HERO_ID_ALIASES.get(hero_id, hero_id))
+
+
+func _get_current_actor_country(hero_id: String) -> String:
+	if hero_id.is_empty():
+		return ""
+	if current_actor_country_cache.has(hero_id):
+		return str(current_actor_country_cache.get(hero_id, ""))
+	for country_variant in CURRENT_ACTOR_PORTRAIT_COUNTRIES:
+		var country := str(country_variant)
+		var path := "res://assets/heroes/portraits/current_actor/%s/%s_%s.png" % [country, country, hero_id]
+		if ResourceLoader.exists(path):
+			current_actor_country_cache[hero_id] = country
+			return country
+	current_actor_country_cache[hero_id] = ""
+	return ""
+
+
 func _get_current_actor_portrait(hero_id: String) -> Texture2D:
 	if hero_id.is_empty():
 		return null
 	if current_actor_portrait_cache.has(hero_id):
 		return current_actor_portrait_cache.get(hero_id) as Texture2D
-	for country_variant in CURRENT_ACTOR_PORTRAIT_COUNTRIES:
-		var country := str(country_variant)
+	var country := _get_current_actor_country(hero_id)
+	if not country.is_empty():
 		var path := "res://assets/heroes/portraits/current_actor/%s/%s_%s.png" % [country, country, hero_id]
-		if not ResourceLoader.exists(path):
-			continue
 		var resource := ResourceLoader.load(path)
 		if resource is Texture2D:
 			var texture := resource as Texture2D
@@ -256,11 +287,12 @@ func _sync_unique_skill_ready_badge(controller: Node, hud: Control, unit: Varian
 		badge.z_index = 10
 		portrait_slot.add_child(badge)
 		badge.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-		badge.offset_left = -52.0
-		badge.offset_top = -58.0
-		badge.offset_right = -8.0
-		badge.offset_bottom = -8.0
 		badge.tooltip_text = "고유특기 사용 가능"
+	# Approximately twice the T13-4C badge while staying inside the portrait.
+	badge.offset_left = -94.0
+	badge.offset_top = -94.0
+	badge.offset_right = -8.0
+	badge.offset_bottom = -8.0
 	var ready := false
 	if controller.has_method("_can_use_unique_skill"):
 		ready = bool(controller.call("_can_use_unique_skill", unit))
@@ -301,17 +333,9 @@ func _sync_status_rows(controller: Node, hud: Control, unit: Variant) -> void:
 
 
 func _sync_terrain(hud: Control) -> void:
-	# The current Production Test battlefield has no per-cell terrain contract yet.
-	# Use the fixed test-battlefield terrain fixture rather than inventing actor data.
 	_set_local_text(hud, "TerrainArea/TerrainNameLabel", TEST_BATTLEFIELD_TERRAIN_NAME)
 	_set_local_text(hud, "TerrainArea/TerrainImageSlot/PlaceholderLabel", TEST_BATTLEFIELD_TERRAIN_NAME)
 	_set_local_visibility(hud, "TerrainArea/TerrainEffectLabel", false)
-
-
-func _resolve_hero_id(unit: Variant) -> String:
-	var unit_id := str(unit.get("unit_id"))
-	var hero_id := unit_id.trim_suffix("_battle_unit") if unit_id.ends_with("_battle_unit") else unit_id
-	return str(HERO_ID_ALIASES.get(hero_id, hero_id))
 
 
 func _sync_bound_texture(
