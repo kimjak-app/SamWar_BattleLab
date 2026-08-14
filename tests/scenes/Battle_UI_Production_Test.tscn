@@ -4598,18 +4598,6 @@ theme_type_variation = &"ProductionRosterUnitType"
 text = "-"
 horizontal_alignment = 1
 
-[node name="UniqueSkillReadyIcon" type="TextureRect" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot01" unique_id=1168471520]
-visible = false
-layout_mode = 0
-offset_left = 206.0
-offset_top = -8.0
-offset_right = 262.0
-offset_bottom = 48.0
-mouse_filter = 2
-texture = ExtResource("35_unique_skill_ready_icon")
-expand_mode = 1
-stretch_mode = 5
-
 [node name="Slot02" type="Panel" parent="BattleUI/ProductionHudRoot/AllyRosterHud" unique_id=51157357]
 layout_mode = 0
 offset_top = 140.0
@@ -4617,6 +4605,18 @@ offset_right = 270.0
 offset_bottom = 232.0
 mouse_filter = 2
 theme_type_variation = &"ProductionRosterCardAlly"
+
+[node name="UniqueSkillReadyIcon2" type="TextureRect" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02" unique_id=1168471520]
+visible = false
+layout_mode = 0
+offset_left = 206.0
+offset_top = -102.0
+offset_right = 262.0
+offset_bottom = -46.0
+mouse_filter = 2
+texture = ExtResource("35_unique_skill_ready_icon")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Portrait" type="TextureRect" parent="BattleUI/ProductionHudRoot/AllyRosterHud/Slot02" unique_id=330157214]
 layout_mode = 0
@@ -5754,10 +5754,10 @@ theme_type_variation = &"ProductionInteractionDisabled"
 
 [node name="ActorComparisonHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=389120830]
 layout_mode = 0
-offset_left = 532.0
-offset_top = 870.0
-offset_right = 1374.0
-offset_bottom = 1030.0
+offset_left = 539.0
+offset_top = 886.0
+offset_right = 1381.0
+offset_bottom = 1046.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"ProductionBottomPanel"
@@ -5849,10 +5849,10 @@ offset_bottom = 900.0
 
 [node name="BattleLogHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=249144114]
 layout_mode = 0
-offset_left = 24.0
-offset_top = 795.0
-offset_right = 286.0
-offset_bottom = 1057.0
+offset_left = 42.0
+offset_top = 791.0
+offset_right = 304.0
+offset_bottom = 1053.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"ProductionBattleLogPanel"
@@ -6034,10 +6034,10 @@ theme_type_variation = &"ProductionSupplyWarning"
 
 [node name="BattleSupplyHud" type="Control" parent="BattleUI/ProductionHudRoot" unique_id=1961321312]
 anchors_preset = 0
-offset_left = 1562.0
-offset_top = 809.0
-offset_right = 1852.0
-offset_bottom = 1029.0
+offset_left = 1583.0
+offset_top = 828.0
+offset_right = 1873.0
+offset_bottom = 1048.0
 mouse_filter = 2
 script = ExtResource("48_supply_mock")
 
