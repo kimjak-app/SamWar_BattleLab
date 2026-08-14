@@ -1,9 +1,9 @@
 extends Node
 
 ## Production test bottom HUD bridge.
-## T13-4C-hotfix1 normalizes current actor identity through the battle
-## controller, binds display metadata from HeroDesignDataRegistry first, and
-## keeps the authored outer HUD position fixed while correcting inner spacing.
+## T13-4C-hotfix2 keeps the current actor HUD on authoritative design data,
+## removes placeholder row icons, clears GDScript warnings, and reuses the
+## existing ally ready frames as a calm acted-state marker after a unit acts.
 
 const SHOW_WARNING_SAMPLE := false
 const CURRENT_ACTOR_INFO_HUD_PREVIEW_SCENE := preload("res://tests/scenes/ui/current_actor_info_hud_placeholder.tscn")
@@ -56,6 +56,7 @@ func _apply_preview() -> void:
 		if hud != null:
 			_apply_current_actor_polish(hud)
 		_sync_current_actor_info(controller, production_root)
+	_sync_acted_unit_completion_frames(controller)
 	_set_text(controller, "BattleUI/ProductionHudRoot/InteractionGuideHud/PhaseLabel", "아군 턴")
 	_set_text(controller, "BattleUI/ProductionHudRoot/InteractionGuideHud/InstructionLabel", "행동할 아군 부대를 선택하거나 명령을 선택하세요.")
 	_set_text(controller, "BattleUI/ProductionHudRoot/InteractionGuideHud/DisabledReasonLabel", "")
@@ -65,7 +66,6 @@ func _apply_preview() -> void:
 
 
 func _apply_current_actor_polish(hud: Control) -> void:
-	# Do not change CurrentActorInfoHud's authored outer coordinates.
 	var portrait_slot := hud.get_node_or_null("PortraitSlot") as Control
 	if portrait_slot != null:
 		portrait_slot.clip_contents = true
@@ -101,7 +101,9 @@ func _apply_current_actor_polish(hud: Control) -> void:
 			row.offset_right = 208.0
 		var row_label := hud.get_node_or_null(row_path + "/Label") as Label
 		if row_label != null:
+			row_label.offset_left = 12.0
 			row_label.offset_right = 196.0
+		_set_local_visibility(hud, row_path + "/Icon", false)
 
 	_set_control_offsets(hud, "TerrainArea/TerrainImageSlot", 8.0, 8.0, 110.0, 138.0)
 	_set_control_offsets(hud, "TerrainArea/TerrainNameLabel", 8.0, 142.0, 110.0, 174.0)
@@ -158,8 +160,6 @@ func _sync_current_actor_info(controller: Node, production_root: Control) -> voi
 	var stats_variant: Variant = base_stats.get("stats", {})
 	var stats: Dictionary = stats_variant if stats_variant is Dictionary else {}
 
-	# Display metadata is authoritative from the 39-hero design registry. Only
-	# fall back to the runtime legacy definition when registry data is absent.
 	var unique_skill: Dictionary = registry_skill
 	if unique_skill.is_empty():
 		var runtime_skill_variant: Variant = unit.get("unique_skill_definition")
@@ -288,17 +288,16 @@ func _sync_unique_skill_ready_badge(controller: Node, hud: Control, unit: Varian
 		portrait_slot.add_child(badge)
 		badge.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 		badge.tooltip_text = "고유특기 사용 가능"
-	# Approximately twice the T13-4C badge while staying inside the portrait.
 	badge.offset_left = -94.0
 	badge.offset_top = -94.0
 	badge.offset_right = -8.0
 	badge.offset_bottom = -8.0
-	var ready := false
+	var skill_ready := false
 	if controller.has_method("_can_use_unique_skill"):
-		ready = bool(controller.call("_can_use_unique_skill", unit))
+		skill_ready = bool(controller.call("_can_use_unique_skill", unit))
 	badge.texture = UNIQUE_SKILL_READY_BADGE
-	badge.visible = ready
-	if ready:
+	badge.visible = skill_ready
+	if skill_ready:
 		var pulse := 0.88 + 0.12 * sin(float(Time.get_ticks_msec()) / 220.0)
 		badge.modulate = Color(1.0, 1.0, 1.0, pulse)
 
@@ -326,10 +325,43 @@ func _sync_status_rows(controller: Node, hud: Control, unit: Variant) -> void:
 		var summary := str(entry.get("summary", entry.get("label", "상태")))
 		var tooltip := str(entry.get("tooltip", entry.get("description", summary)))
 		_set_local_text(hud, row_path + "/Label", summary)
-		_set_local_visibility(hud, row_path + "/Icon", true)
+		_set_local_visibility(hud, row_path + "/Icon", false)
 		var row := hud.get_node_or_null(row_path) as Control
 		if row != null:
 			row.tooltip_text = tooltip
+
+
+func _sync_acted_unit_completion_frames(controller: Node) -> void:
+	if not controller.has_method("_get_all_unit_states_in_slot_order"):
+		return
+	if not controller.has_method("_get_ready_frame_for_unit") or not controller.has_method("_has_ally_unit_acted"):
+		return
+	if bool(controller.get("is_demo_animating")):
+		return
+	var unit_states: Variant = controller.call("_get_all_unit_states_in_slot_order")
+	if not unit_states is Array:
+		return
+	for unit_variant in unit_states:
+		if unit_variant == null or str(unit_variant.get("side")) != "ally":
+			continue
+		var frame := controller.call("_get_ready_frame_for_unit", unit_variant) as Panel
+		if frame == null:
+			continue
+		var has_acted := bool(controller.call("_has_ally_unit_acted", unit_variant))
+		if not has_acted:
+			if controller.has_method("_apply_ready_frame_style"):
+				controller.call("_apply_ready_frame_style", frame)
+			continue
+		if controller.has_method("_stop_ready_frame_pulse"):
+			controller.call("_stop_ready_frame_pulse", frame)
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(0.26, 0.38, 0.44, 0.10)
+		style.border_color = Color(0.48, 0.66, 0.74, 0.82)
+		style.set_border_width_all(2)
+		style.set_corner_radius_all(4)
+		frame.add_theme_stylebox_override("panel", style)
+		frame.modulate = Color(0.82, 0.90, 0.94, 0.92)
+		frame.visible = true
 
 
 func _sync_terrain(hud: Control) -> void:
@@ -358,7 +390,7 @@ func _sync_bound_texture(
 		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		slot.add_child(rect)
 		rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	rect.stretch_mode = stretch_mode
+	rect.stretch_mode = stretch_mode as TextureRect.StretchMode
 	rect.texture = texture
 	rect.visible = texture != null
 
