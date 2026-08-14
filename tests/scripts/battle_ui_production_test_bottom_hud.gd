@@ -1,15 +1,16 @@
 extends Node
 
 ## Production test bottom HUD bridge.
-## T13-4C-hotfix2 keeps the current actor HUD on authoritative design data,
-## removes placeholder row icons, clears GDScript warnings, and reuses the
-## existing ally ready frames as a calm acted-state marker after a unit acts.
+## T13-4C-hotfix3 removes acted-unit completion markers, moves the unique-skill
+## ready badge out of the portrait, and reshapes the terrain panel for readable
+## terrain effects while preserving authoritative actor data binding.
 
 const SHOW_WARNING_SAMPLE := false
 const CURRENT_ACTOR_INFO_HUD_PREVIEW_SCENE := preload("res://tests/scenes/ui/current_actor_info_hud_placeholder.tscn")
 const HeroDesignDataRegistryScript := preload("res://scripts/worldmap/hero_design_data_registry.gd")
 const UNIQUE_SKILL_READY_BADGE := preload("res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png")
 const TEST_BATTLEFIELD_TERRAIN_NAME := "평지"
+const TEST_BATTLEFIELD_TERRAIN_EFFECT := "방어 0% · 이동 0%"
 const CURRENT_ACTOR_PORTRAIT_COUNTRIES := ["korea", "china", "japan", "mongol"]
 const HERO_ID_ALIASES := {
 	"yi_sunsin": "yi_sun_sin",
@@ -56,7 +57,6 @@ func _apply_preview() -> void:
 		if hud != null:
 			_apply_current_actor_polish(hud)
 		_sync_current_actor_info(controller, production_root)
-	_sync_acted_unit_completion_frames(controller)
 	_set_text(controller, "BattleUI/ProductionHudRoot/InteractionGuideHud/PhaseLabel", "아군 턴")
 	_set_text(controller, "BattleUI/ProductionHudRoot/InteractionGuideHud/InstructionLabel", "행동할 아군 부대를 선택하거나 명령을 선택하세요.")
 	_set_text(controller, "BattleUI/ProductionHudRoot/InteractionGuideHud/DisabledReasonLabel", "")
@@ -105,9 +105,19 @@ func _apply_current_actor_polish(hud: Control) -> void:
 			row_label.offset_right = 196.0
 		_set_local_visibility(hud, row_path + "/Icon", false)
 
-	_set_control_offsets(hud, "TerrainArea/TerrainImageSlot", 8.0, 8.0, 110.0, 138.0)
-	_set_control_offsets(hud, "TerrainArea/TerrainNameLabel", 8.0, 142.0, 110.0, 174.0)
-	_set_control_offsets(hud, "TerrainArea/TerrainEffectLabel", 8.0, 174.0, 110.0, 192.0)
+	# Terrain artwork is a square card. Text below it carries the terrain name
+	# and compact gameplay modifiers so future terrain contracts can replace the
+	# fallback without changing this layout.
+	_set_control_offsets(hud, "TerrainArea/TerrainImageSlot", 8.0, 8.0, 110.0, 110.0)
+	_set_control_offsets(hud, "TerrainArea/TerrainNameLabel", 8.0, 114.0, 110.0, 142.0)
+	_set_control_offsets(hud, "TerrainArea/TerrainEffectLabel", 8.0, 144.0, 110.0, 190.0)
+	var terrain_effect_label := hud.get_node_or_null("TerrainArea/TerrainEffectLabel") as Label
+	if terrain_effect_label != null:
+		terrain_effect_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		terrain_effect_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+		terrain_effect_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		terrain_effect_label.add_theme_font_size_override("font_size", 11)
+
 	_ensure_status_title_icon(hud)
 	_apply_current_actor_typography(hud)
 
@@ -123,6 +133,7 @@ func _apply_current_actor_typography(hud: Control) -> void:
 	_set_theme_variation(hud, "InfoArea/UniqueTraitArea/UniqueTraitSummaryLabel", "ProductionCurrentActionDetail")
 	_set_theme_variation(hud, "StatusArea/TitleLabel", "ProductionCurrentActionTitle")
 	_set_theme_variation(hud, "TerrainArea/TerrainNameLabel", "ProductionCurrentActionTitle")
+	_set_theme_variation(hud, "TerrainArea/TerrainEffectLabel", "ProductionCurrentActionDetail")
 	for index in range(1, 6):
 		_set_theme_variation(hud, "StatusArea/StatusRow%02d/Label" % index, "ProductionCurrentActionDetail")
 
@@ -225,7 +236,7 @@ func _clear_current_actor_info(hud: Control) -> void:
 	_sync_bound_texture(hud, "InfoArea/UniqueTraitArea/UniqueTraitIconSlot", null, "BoundUniqueTraitIcon")
 	_sync_bound_texture(hud, "InfoArea/TroopRow/TroopTypeIconSlot", null, "BoundTroopTypeIcon")
 	_set_local_visibility(hud, "PortraitSlot/PlaceholderLabel", true)
-	_set_local_visibility(hud, "PortraitSlot/BoundUniqueSkillReadyBadge", false)
+	_set_local_visibility(hud, "BoundUniqueSkillReadyBadge", false)
 	for index in range(1, 6):
 		_set_local_visibility(hud, "StatusArea/StatusRow%02d" % index, false)
 	_sync_terrain(hud)
@@ -274,24 +285,27 @@ func _get_current_actor_portrait(hero_id: String) -> Texture2D:
 
 
 func _sync_unique_skill_ready_badge(controller: Node, hud: Control, unit: Variant) -> void:
+	# Remove the old portrait-clipped badge if a script hot-reload left one alive.
 	var portrait_slot := hud.get_node_or_null("PortraitSlot") as Control
-	if portrait_slot == null:
-		return
-	var badge := portrait_slot.get_node_or_null("BoundUniqueSkillReadyBadge") as TextureRect
+	if portrait_slot != null:
+		var legacy_badge := portrait_slot.get_node_or_null("BoundUniqueSkillReadyBadge")
+		if legacy_badge != null:
+			legacy_badge.queue_free()
+
+	var badge := hud.get_node_or_null("BoundUniqueSkillReadyBadge") as TextureRect
 	if badge == null:
 		badge = TextureRect.new()
 		badge.name = "BoundUniqueSkillReadyBadge"
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		badge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		badge.z_index = 10
-		portrait_slot.add_child(badge)
-		badge.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+		badge.z_index = 20
+		hud.add_child(badge)
 		badge.tooltip_text = "고유특기 사용 가능"
-	badge.offset_left = -94.0
-	badge.offset_top = -94.0
-	badge.offset_right = -8.0
-	badge.offset_bottom = -8.0
+	# Bridge the portrait and the hero-name area instead of covering artwork.
+	badge.position = Vector2(156.0, 6.0)
+	badge.size = Vector2(72.0, 72.0)
+
 	var skill_ready := false
 	if controller.has_method("_can_use_unique_skill"):
 		skill_ready = bool(controller.call("_can_use_unique_skill", unit))
@@ -319,55 +333,23 @@ func _sync_status_rows(controller: Node, hud: Control, unit: Variant) -> void:
 		var row_path := "StatusArea/StatusRow%02d" % (index + 1)
 		var has_entry := index < entries.size()
 		_set_local_visibility(hud, row_path, has_entry)
+		_set_local_visibility(hud, row_path + "/Icon", false)
 		if not has_entry:
 			continue
 		var entry: Dictionary = entries[index]
 		var summary := str(entry.get("summary", entry.get("label", "상태")))
 		var tooltip := str(entry.get("tooltip", entry.get("description", summary)))
 		_set_local_text(hud, row_path + "/Label", summary)
-		_set_local_visibility(hud, row_path + "/Icon", false)
 		var row := hud.get_node_or_null(row_path) as Control
 		if row != null:
 			row.tooltip_text = tooltip
 
 
-func _sync_acted_unit_completion_frames(controller: Node) -> void:
-	if not controller.has_method("_get_all_unit_states_in_slot_order"):
-		return
-	if not controller.has_method("_get_ready_frame_for_unit") or not controller.has_method("_has_ally_unit_acted"):
-		return
-	if bool(controller.get("is_demo_animating")):
-		return
-	var unit_states: Variant = controller.call("_get_all_unit_states_in_slot_order")
-	if not unit_states is Array:
-		return
-	for unit_variant in unit_states:
-		if unit_variant == null or str(unit_variant.get("side")) != "ally":
-			continue
-		var frame := controller.call("_get_ready_frame_for_unit", unit_variant) as Panel
-		if frame == null:
-			continue
-		var has_acted := bool(controller.call("_has_ally_unit_acted", unit_variant))
-		if not has_acted:
-			if controller.has_method("_apply_ready_frame_style"):
-				controller.call("_apply_ready_frame_style", frame)
-			continue
-		if controller.has_method("_stop_ready_frame_pulse"):
-			controller.call("_stop_ready_frame_pulse", frame)
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(0.26, 0.38, 0.44, 0.10)
-		style.border_color = Color(0.48, 0.66, 0.74, 0.82)
-		style.set_border_width_all(2)
-		style.set_corner_radius_all(4)
-		frame.add_theme_stylebox_override("panel", style)
-		frame.modulate = Color(0.82, 0.90, 0.94, 0.92)
-		frame.visible = true
-
-
 func _sync_terrain(hud: Control) -> void:
 	_set_local_text(hud, "TerrainArea/TerrainNameLabel", TEST_BATTLEFIELD_TERRAIN_NAME)
 	_set_local_text(hud, "TerrainArea/TerrainImageSlot/PlaceholderLabel", TEST_BATTLEFIELD_TERRAIN_NAME)
-	_set_local_visibility(hud, "TerrainArea/TerrainEffectLabel", false)
+	_set_local_text(hud, "TerrainArea/TerrainEffectLabel", TEST_BATTLEFIELD_TERRAIN_EFFECT)
+	_set_local_visibility(hud, "TerrainArea/TerrainEffectLabel", true)
 
 
 func _sync_bound_texture(
