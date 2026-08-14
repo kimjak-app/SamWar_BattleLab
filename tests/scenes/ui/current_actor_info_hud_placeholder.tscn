@@ -1,0 +1,547 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Theme" path="res://assets/ui/battle_ui_theme.tres" id="1_theme"]
+
+[sub_resource type="StyleBoxFlat" id="HudBackdrop"]
+bg_color = Color(0.018, 0.025, 0.032, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.58, 0.48, 0.3, 0.82)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="PlaceholderSlot"]
+bg_color = Color(0.12, 0.13, 0.14, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.64, 0.55, 0.37, 0.74)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="SectionFrame"]
+bg_color = Color(0.035, 0.045, 0.055, 0.48)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.44, 0.4, 0.31, 0.44)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="CurrentActorInfoHud" type="Control"]
+z_index = 6
+layout_mode = 3
+anchors_preset = 0
+offset_left = 454.0
+offset_top = 823.0
+offset_right = 1466.0
+offset_bottom = 1043.0
+mouse_filter = 2
+theme = ExtResource("1_theme")
+
+[node name="LayoutBackdrop" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("HudBackdrop")
+
+[node name="PortraitSlot" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 182.0
+offset_bottom = 208.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="PlaceholderLabel" type="Label" parent="PortraitSlot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.72, 0.69, 0.62, 1)
+theme_override_font_sizes/font_size = 15
+text = "장수 초상"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InfoArea" type="Control" parent="."]
+layout_mode = 0
+offset_left = 194.0
+offset_top = 12.0
+offset_right = 562.0
+offset_bottom = 208.0
+mouse_filter = 2
+
+[node name="SectionFrame" type="Panel" parent="InfoArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SectionFrame")
+
+[node name="NameLabel" type="Label" parent="InfoArea"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 6.0
+offset_right = 350.0
+offset_bottom = 38.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.93, 0.84, 1)
+theme_override_font_sizes/font_size = 26
+text = "이순신"
+vertical_alignment = 1
+
+[node name="TroopRow" type="Control" parent="InfoArea"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 42.0
+offset_right = 356.0
+offset_bottom = 72.0
+mouse_filter = 2
+
+[node name="TroopTypeIconSlot" type="Panel" parent="InfoArea/TroopRow"]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 26.0
+offset_bottom = 28.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="TroopTypeLabel" type="Label" parent="InfoArea/TroopRow"]
+layout_mode = 0
+offset_left = 34.0
+offset_right = 116.0
+offset_bottom = 30.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.88, 0.85, 0.77, 1)
+theme_override_font_sizes/font_size = 17
+text = "궁병"
+vertical_alignment = 1
+
+[node name="TroopsLabel" type="Label" parent="InfoArea/TroopRow"]
+layout_mode = 0
+offset_left = 128.0
+offset_right = 224.0
+offset_bottom = 30.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
+theme_override_font_sizes/font_size = 16
+text = "병력 95"
+vertical_alignment = 1
+
+[node name="WoundedLabel" type="Label" parent="InfoArea/TroopRow"]
+layout_mode = 0
+offset_left = 232.0
+offset_right = 340.0
+offset_bottom = 30.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.92, 0.72, 0.64, 1)
+theme_override_font_sizes/font_size = 16
+text = "부상 40"
+vertical_alignment = 1
+
+[node name="StatsRow" type="Control" parent="InfoArea"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 77.0
+offset_right = 356.0
+offset_bottom = 108.0
+mouse_filter = 2
+
+[node name="CommandStat" type="Control" parent="InfoArea/StatsRow"]
+layout_mode = 0
+offset_right = 106.0
+offset_bottom = 31.0
+mouse_filter = 2
+
+[node name="Icon" type="Panel" parent="InfoArea/StatsRow/CommandStat"]
+layout_mode = 0
+offset_top = 3.0
+offset_right = 24.0
+offset_bottom = 27.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="Value" type="Label" parent="InfoArea/StatsRow/CommandStat"]
+layout_mode = 0
+offset_left = 31.0
+offset_right = 104.0
+offset_bottom = 31.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.94, 0.9, 0.79, 1)
+theme_override_font_sizes/font_size = 16
+text = "지휘 92"
+vertical_alignment = 1
+
+[node name="MightStat" type="Control" parent="InfoArea/StatsRow"]
+layout_mode = 0
+offset_left = 112.0
+offset_right = 218.0
+offset_bottom = 31.0
+mouse_filter = 2
+
+[node name="Icon" type="Panel" parent="InfoArea/StatsRow/MightStat"]
+layout_mode = 0
+offset_top = 3.0
+offset_right = 24.0
+offset_bottom = 27.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="Value" type="Label" parent="InfoArea/StatsRow/MightStat"]
+layout_mode = 0
+offset_left = 31.0
+offset_right = 104.0
+offset_bottom = 31.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.94, 0.9, 0.79, 1)
+theme_override_font_sizes/font_size = 16
+text = "무력 87"
+vertical_alignment = 1
+
+[node name="IntellectStat" type="Control" parent="InfoArea/StatsRow"]
+layout_mode = 0
+offset_left = 224.0
+offset_right = 330.0
+offset_bottom = 31.0
+mouse_filter = 2
+
+[node name="Icon" type="Panel" parent="InfoArea/StatsRow/IntellectStat"]
+layout_mode = 0
+offset_top = 3.0
+offset_right = 24.0
+offset_bottom = 27.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="Value" type="Label" parent="InfoArea/StatsRow/IntellectStat"]
+layout_mode = 0
+offset_left = 31.0
+offset_right = 104.0
+offset_bottom = 31.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.94, 0.9, 0.79, 1)
+theme_override_font_sizes/font_size = 16
+text = "지력 96"
+vertical_alignment = 1
+
+[node name="DefenseStat" type="Control" parent="InfoArea/StatsRow"]
+visible = false
+layout_mode = 0
+offset_left = 258.0
+offset_right = 344.0
+offset_bottom = 31.0
+mouse_filter = 2
+metadata/reserved_for_future = true
+
+[node name="Icon" type="Panel" parent="InfoArea/StatsRow/DefenseStat"]
+layout_mode = 0
+offset_top = 3.0
+offset_right = 24.0
+offset_bottom = 27.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="Value" type="Label" parent="InfoArea/StatsRow/DefenseStat"]
+layout_mode = 0
+offset_left = 31.0
+offset_right = 86.0
+offset_bottom = 31.0
+mouse_filter = 2
+text = "방어 -"
+vertical_alignment = 1
+
+[node name="UniqueTraitArea" type="Control" parent="InfoArea"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 116.0
+offset_right = 356.0
+offset_bottom = 188.0
+mouse_filter = 0
+tooltip_text = "학익진 · 상세 효과는 실제 고유특기 메타데이터 바인딩 단계에서 연결"
+
+[node name="UniqueTraitIconSlot" type="Panel" parent="InfoArea/UniqueTraitArea"]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 38.0
+offset_bottom = 40.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="UniqueTraitLabel" type="Label" parent="InfoArea/UniqueTraitArea"]
+layout_mode = 0
+offset_left = 48.0
+offset_right = 336.0
+offset_bottom = 28.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.48, 1)
+theme_override_font_sizes/font_size = 18
+text = "학익진"
+vertical_alignment = 1
+
+[node name="UniqueTraitSummaryLabel" type="Label" parent="InfoArea/UniqueTraitArea"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 30.0
+offset_right = 336.0
+offset_bottom = 68.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.82, 0.8, 0.73, 1)
+theme_override_font_sizes/font_size = 14
+text = "협공 시 공격 효과 증가"
+autowrap_mode = 2
+
+[node name="StatusArea" type="Control" parent="."]
+layout_mode = 0
+offset_left = 574.0
+offset_top = 12.0
+offset_right = 850.0
+offset_bottom = 208.0
+mouse_filter = 2
+
+[node name="SectionFrame" type="Panel" parent="StatusArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SectionFrame")
+
+[node name="TitleLabel" type="Label" parent="StatusArea"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 6.0
+offset_right = 264.0
+offset_bottom = 34.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.93, 0.88, 0.76, 1)
+theme_override_font_sizes/font_size = 18
+text = "현재 상태"
+vertical_alignment = 1
+
+[node name="StatusRow01" type="Control" parent="StatusArea"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 40.0
+offset_right = 264.0
+offset_bottom = 69.0
+mouse_filter = 0
+tooltip_text = "받는 피해 감소 · 상세 수치와 발생 원인은 실제 상태 메타데이터 연결 시 표시"
+
+[node name="Icon" type="Panel" parent="StatusArea/StatusRow01"]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 24.0
+offset_bottom = 26.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="Label" type="Label" parent="StatusArea/StatusRow01"]
+layout_mode = 0
+offset_left = 32.0
+offset_right = 248.0
+offset_bottom = 29.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.8, 1)
+theme_override_font_sizes/font_size = 15
+text = "피해 감소 · 2턴"
+vertical_alignment = 1
+
+[node name="StatusRow02" type="Control" parent="StatusArea"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 71.0
+offset_right = 264.0
+offset_bottom = 100.0
+mouse_filter = 0
+tooltip_text = "공격 상승 · 상세 수치와 발생 원인은 실제 상태 메타데이터 연결 시 표시"
+
+[node name="Icon" type="Panel" parent="StatusArea/StatusRow02"]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 24.0
+offset_bottom = 26.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="Label" type="Label" parent="StatusArea/StatusRow02"]
+layout_mode = 0
+offset_left = 32.0
+offset_right = 248.0
+offset_bottom = 29.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.8, 1)
+theme_override_font_sizes/font_size = 15
+text = "공격 상승 · 1턴"
+vertical_alignment = 1
+
+[node name="StatusRow03" type="Control" parent="StatusArea"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 102.0
+offset_right = 264.0
+offset_bottom = 131.0
+mouse_filter = 0
+tooltip_text = "방어 상승 · 상세 수치와 발생 원인은 실제 상태 메타데이터 연결 시 표시"
+
+[node name="Icon" type="Panel" parent="StatusArea/StatusRow03"]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 24.0
+offset_bottom = 26.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="Label" type="Label" parent="StatusArea/StatusRow03"]
+layout_mode = 0
+offset_left = 32.0
+offset_right = 248.0
+offset_bottom = 29.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.8, 1)
+theme_override_font_sizes/font_size = 15
+text = "방어 상승 · 1턴"
+vertical_alignment = 1
+
+[node name="StatusRow04" type="Control" parent="StatusArea"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 133.0
+offset_right = 264.0
+offset_bottom = 162.0
+mouse_filter = 0
+tooltip_text = "공격 상승 · 상세 수치와 발생 원인은 실제 상태 메타데이터 연결 시 표시"
+
+[node name="Icon" type="Panel" parent="StatusArea/StatusRow04"]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 24.0
+offset_bottom = 26.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="Label" type="Label" parent="StatusArea/StatusRow04"]
+layout_mode = 0
+offset_left = 32.0
+offset_right = 248.0
+offset_bottom = 29.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.8, 1)
+theme_override_font_sizes/font_size = 15
+text = "공격 상승 · 2턴"
+vertical_alignment = 1
+
+[node name="StatusRow05" type="Control" parent="StatusArea"]
+visible = false
+layout_mode = 0
+offset_left = 12.0
+offset_top = 164.0
+offset_right = 264.0
+offset_bottom = 193.0
+mouse_filter = 0
+metadata/empty_slot = true
+
+[node name="Icon" type="Panel" parent="StatusArea/StatusRow05"]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 24.0
+offset_bottom = 26.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="Label" type="Label" parent="StatusArea/StatusRow05"]
+layout_mode = 0
+offset_left = 32.0
+offset_right = 248.0
+offset_bottom = 29.0
+mouse_filter = 2
+vertical_alignment = 1
+
+[node name="TerrainArea" type="Control" parent="."]
+layout_mode = 0
+offset_left = 862.0
+offset_top = 12.0
+offset_right = 1000.0
+offset_bottom = 208.0
+mouse_filter = 2
+
+[node name="SectionFrame" type="Panel" parent="TerrainArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SectionFrame")
+
+[node name="TerrainImageSlot" type="Panel" parent="TerrainArea"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 130.0
+offset_bottom = 138.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PlaceholderSlot")
+
+[node name="PlaceholderLabel" type="Label" parent="TerrainArea/TerrainImageSlot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.72, 0.69, 0.62, 1)
+theme_override_font_sizes/font_size = 14
+text = "지형 이미지"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TerrainNameLabel" type="Label" parent="TerrainArea"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 144.0
+offset_right = 130.0
+offset_bottom = 174.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.95, 0.88, 0.68, 1)
+theme_override_font_sizes/font_size = 18
+text = "산지"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TerrainEffectLabel" type="Label" parent="TerrainArea"]
+visible = false
+layout_mode = 0
+offset_left = 8.0
+offset_top = 174.0
+offset_right = 130.0
+offset_bottom = 192.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 12
+text = "효과 미구현"
+horizontal_alignment = 1
