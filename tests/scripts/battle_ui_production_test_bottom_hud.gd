@@ -1,9 +1,14 @@
 extends Node
 
+## Production test bottom HUD bridge.
+## T13-4C-hotfix5 removes all ReadyFrame rectangles and applies the intended
+## bold serif typography directly to the production supply value labels.
+
 const SHOW_WARNING_SAMPLE := false
 const CURRENT_ACTOR_INFO_HUD_PREVIEW_SCENE := preload("res://tests/scenes/ui/current_actor_info_hud_placeholder.tscn")
 const HeroDesignDataRegistryScript := preload("res://scripts/worldmap/hero_design_data_registry.gd")
 const UNIQUE_SKILL_READY_BADGE := preload("res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png")
+const SUPPLY_VALUE_BOLD_FONT := preload("res://assets/font/noto_serif_kr/NotoSerifKR-Bold.otf")
 const TEST_BATTLEFIELD_TERRAIN_NAME := "평지"
 const TEST_BATTLEFIELD_TERRAIN_DEFENSE := "방어 0%"
 const TEST_BATTLEFIELD_TERRAIN_MOVE := "이동 0%"
@@ -313,9 +318,11 @@ func _sync_status_rows(controller: Node, hud: Control, unit: Variant) -> void:
 			row.tooltip_text = tooltip
 
 func _sync_unit_ready_frames_clean(controller: Node) -> void:
+	# ReadyFrame rectangles are intentionally disabled. Unit availability is
+	# communicated only by the existing unit-body pulse/idle motion.
 	if not controller.has_method("_get_all_unit_states_in_slot_order"):
 		return
-	if not controller.has_method("_get_ready_frame_for_unit") or not controller.has_method("_has_ally_unit_acted"):
+	if not controller.has_method("_get_ready_frame_for_unit"):
 		return
 	var unit_states: Variant = controller.call("_get_all_unit_states_in_slot_order")
 	if not unit_states is Array:
@@ -326,14 +333,9 @@ func _sync_unit_ready_frames_clean(controller: Node) -> void:
 		var frame := controller.call("_get_ready_frame_for_unit", unit_variant) as Panel
 		if frame == null:
 			continue
-		var has_acted := bool(controller.call("_has_ally_unit_acted", unit_variant))
-		if has_acted:
-			if controller.has_method("_stop_ready_frame_pulse"):
-				controller.call("_stop_ready_frame_pulse", frame)
-			frame.visible = false
-		else:
-			if controller.has_method("_apply_ready_frame_style"):
-				controller.call("_apply_ready_frame_style", frame)
+		if controller.has_method("_stop_ready_frame_pulse"):
+			controller.call("_stop_ready_frame_pulse", frame)
+		frame.visible = false
 
 func _sync_terrain(hud: Control) -> void:
 	_set_local_text(hud, "TerrainArea/TerrainNameLabel", TEST_BATTLEFIELD_TERRAIN_NAME)
@@ -342,15 +344,17 @@ func _sync_terrain(hud: Control) -> void:
 	_set_local_visibility(hud, "TerrainArea/TerrainEffectLabel", true)
 
 func _apply_supply_panel_typography(controller: Node) -> void:
-	var base := "BattleUI/ProductionHudRoot/BottomHudRoot/BattleSupplyPreviewPanel/Margin/Content"
-	_set_theme_variation(controller, base + "/Header/TitleLabel", "ProductionCurrentActionTitle")
-	_set_theme_variation(controller, base + "/Header/TurnLabel", "ProductionCurrentActionDetail")
+	# Production supply rows are single Labels (e.g. "식량 820"), not separate
+	# label/value nodes. Apply the bold serif font directly to each row Label.
+	var base := "BattleUI/ProductionHudRoot/BottomHudRoot/BattleSupplyPreviewPanel/Margin/Content/Columns"
 	for column in ["AllyColumn", "EnemyColumn"]:
-		var root := base + "/Columns/%s" % column
-		_set_theme_variation(controller, root + "/FoodValue", "ProductionCurrentActionTitle")
-		_set_theme_variation(controller, root + "/SaltValue", "ProductionCurrentActionTitle")
-		_set_theme_variation(controller, root + "/ConsumptionValue", "ProductionCurrentActionTitle")
-		_set_theme_variation(controller, root + "/SustainValue", "ProductionCurrentActionTitle")
+		var root := "%s/%s" % [base, column]
+		for node_name in ["FoodValue", "SaltValue", "ConsumptionValue", "SustainValue"]:
+			var label := controller.get_node_or_null(root + "/" + node_name) as Label
+			if label == null:
+				continue
+			label.add_theme_font_override("font", SUPPLY_VALUE_BOLD_FONT)
+			label.add_theme_font_size_override("font_size", 15)
 
 func _sync_bound_texture(
 	hud: Control,
