@@ -6034,10 +6034,10 @@ theme_type_variation = &"ProductionSupplyWarning"
 
 [node name="BattleSupplyHud" type="Control" parent="BattleUI/ProductionHudRoot" unique_id=1961321312]
 anchors_preset = 0
-offset_left = 1576.0
-offset_top = 839.0
-offset_right = 1866.0
-offset_bottom = 1059.0
+offset_left = 1562.0
+offset_top = 809.0
+offset_right = 1852.0
+offset_bottom = 1029.0
 mouse_filter = 2
 script = ExtResource("48_supply_mock")
 
