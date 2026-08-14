@@ -5754,10 +5754,10 @@ theme_type_variation = &"ProductionInteractionDisabled"
 
 [node name="ActorComparisonHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=389120830]
 layout_mode = 0
-offset_left = 541.0
-offset_top = 888.0
-offset_right = 1383.0
-offset_bottom = 1048.0
+offset_left = 532.0
+offset_top = 870.0
+offset_right = 1374.0
+offset_bottom = 1030.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"ProductionBottomPanel"
