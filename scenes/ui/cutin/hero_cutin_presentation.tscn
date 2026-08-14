@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/cutin/hero_cutin_presentation.gd" id="1_script"]
 [ext_resource type="FontFile" uid="uid://c35utpjqju4dc" path="res://assets/font/noto_serif_kr/NotoSerifKR-Bold.otf" id="2_hero_font"]
+[ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Medium.otf" id="3_dialogue_font"]
 
 [node name="HeroCutinPresentation" type="Control"]
 layout_mode = 3
@@ -69,6 +70,7 @@ theme_override_colors/font_outline_color = Color(0.025, 0.015, 0.01, 1)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("3_dialogue_font")
 theme_override_font_sizes/font_size = 29
 text = "내 앞을 막는 자, 목을 내놔라!"
 vertical_alignment = 1
