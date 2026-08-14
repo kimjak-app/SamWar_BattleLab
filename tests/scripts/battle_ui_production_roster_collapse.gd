@@ -217,9 +217,21 @@ func _refresh_portrait_overlay(side_name: String) -> void:
 				portrait.texture = source_portrait.texture if source_portrait != null else null
 				portrait.modulate = _portrait_status_modulate(unit)
 		if border != null:
-			border.visible = should_show and unit == _controller.get("active_unit_state")
+			border.visible = should_show and (unit == _get_current_actor() or (side_name == "Enemy" and unit == _get_next_enemy_actor_preview()))
 			if border.visible:
 				_apply_existing_actor_border(border, source_slot)
+
+
+func _get_current_actor() -> Variant:
+	if _controller != null and _controller.has_method("_get_production_roster_current_actor"):
+		return _controller.call("_get_production_roster_current_actor")
+	return null
+
+
+func _get_next_enemy_actor_preview() -> Variant:
+	if _controller != null and _controller.has_method("_get_production_roster_next_enemy_actor"):
+		return _controller.call("_get_production_roster_next_enemy_actor")
+	return null
 
 
 func _apply_existing_actor_border(border: Panel, source_slot: Control) -> void:

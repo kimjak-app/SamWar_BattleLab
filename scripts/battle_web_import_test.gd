@@ -7854,6 +7854,7 @@ func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
 		_advance_enemy_turn_or_return_to_ally()
 		return
 	current_enemy_ai_actor_state = enemy_actor_state
+	_refresh_production_battle_hud("enemy-actor")
 	if _is_unit_confused(enemy_actor_state):
 		_append_battle_log("%s은 혼란 상태로 행동할 수 없습니다." % enemy_actor_state.display_name)
 		_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(enemy_actor_state), "혼란", STRATEGY_EFFECT_COLOR)
@@ -7916,6 +7917,7 @@ func _play_enemy_actor_basic_attack_from_current_cell(enemy_actor_state: BattleU
 		_advance_enemy_turn_or_return_to_ally()
 		return
 	current_enemy_ai_actor_state = enemy_actor_state
+	_refresh_production_battle_hud("enemy-actor")
 	current_enemy_attack_target_state = target_state
 	_hide_all_move_dust_sprites()
 	_focus_camera_on_combat_pair(enemy_actor_state, target_state)
@@ -15872,19 +15874,54 @@ func _refresh_production_roster(side_name: String, roster: Array) -> void:
 		if bar != null:
 			bar.value = float(unit.get("hp_ratio", 0.0)) * 100.0
 
+
+func _get_production_roster_current_actor() -> BattleUnitState:
+	# `active_unit_state` is authoritative while player input is active; the enemy
+	# AI publishes its actor through `current_enemy_ai_actor_state` during its turn.
+	# Keep this presentation-only resolver phase-aware so a prior side's actor
+	# cannot remain highlighted during the other side's turn.
+	if current_phase == PHASE_ENEMY_TURN:
+		return current_enemy_ai_actor_state
+	if _is_production_roster_ally_actor_phase():
+		return active_unit_state
+	return null
+
+
+func _get_production_roster_next_enemy_actor() -> BattleUnitState:
+	# This deliberately reuses the live AI selector without storing its result.
+	# `_get_next_available_enemy_ai_actor()` only reads slot availability and the
+	# acted-id contract, so previewing never reserves, consumes, or changes turn state.
+	if not _is_production_roster_ally_actor_phase():
+		return null
+	return _get_next_available_enemy_ai_actor()
+
+
+func _is_production_roster_ally_actor_phase() -> bool:
+	return current_phase == PHASE_ALLY_TURN or current_phase == PHASE_FACING_SELECT or current_phase == PHASE_ATTACK_SELECT or current_phase == PHASE_UNIQUE_SKILL_TARGET_SELECT or current_phase == PHASE_STRATEGY_SELECT
+
+
 func _apply_production_roster_actor_highlight(slot: Control, unit: Dictionary) -> void:
 	if slot == null:
 		return
 	slot.remove_theme_stylebox_override(&"panel")
 	slot.modulate = Color.WHITE
+	var current_actor := _get_production_roster_current_actor()
+	var next_enemy_actor := _get_production_roster_next_enemy_actor()
 	var is_current_actor := (
-		active_unit_state != null
-		and str(unit.get("unit_id", "")) == active_unit_state.unit_id
-		and str(unit.get("side", "")) == active_unit_state.side
+		current_actor != null
+		and str(unit.get("unit_id", "")) == current_actor.unit_id
+		and str(unit.get("side", "")) == current_actor.side
 		and bool(unit.get("alive", false))
-		and _is_unit_state_deployed_by_capacity_slot(active_unit_state)
+		and _is_unit_state_deployed_by_capacity_slot(current_actor)
 	)
-	if not is_current_actor:
+	var is_next_enemy_actor_preview := (
+		next_enemy_actor != null
+		and str(unit.get("side", "")) == "enemy"
+		and str(unit.get("unit_id", "")) == next_enemy_actor.unit_id
+		and bool(unit.get("alive", false))
+		and _is_unit_state_deployed_by_capacity_slot(next_enemy_actor)
+	)
+	if not is_current_actor and not is_next_enemy_actor_preview:
 		return
 	var style := StyleBoxFlat.new()
 	style.set_corner_radius_all(6)
