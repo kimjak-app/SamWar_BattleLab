@@ -4,7 +4,7 @@ extends RefCounted
 const SCHEMA_VERSION := 2
 const STARTING_MOMENTUM := 3
 const MAX_MOMENTUM := 10
-const ROUND_END_GAIN := 1
+const ROUND_END_GAIN := 2
 const BASIC_ATTACK_GAIN := 1
 const RECEIVED_HIT_LOSS := 1
 const SPECIAL_HIT_EXTRA_LOSS := 1
