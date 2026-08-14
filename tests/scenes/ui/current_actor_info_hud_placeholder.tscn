@@ -104,7 +104,7 @@ theme_override_styles/panel = SubResource("SectionFrame")
 layout_mode = 0
 offset_left = 12.0
 offset_top = 6.0
-offset_right = 350.0
+offset_right = 176.0
 offset_bottom = 38.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.96, 0.93, 0.84, 1)
@@ -112,23 +112,36 @@ theme_override_font_sizes/font_size = 26
 text = "이순신"
 vertical_alignment = 1
 
+[node name="TroopClassLabel" type="Label" parent="InfoArea"]
+layout_mode = 0
+offset_left = 184.0
+offset_top = 10.0
+offset_right = 272.0
+offset_bottom = 36.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.56, 1)
+theme_override_font_sizes/font_size = 20
+text = "궁병"
+vertical_alignment = 1
+
 [node name="TroopRow" type="Control" parent="InfoArea"]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 42.0
-offset_right = 356.0
-offset_bottom = 72.0
+offset_right = 180.0
+offset_bottom = 120.0
 mouse_filter = 2
 
 [node name="TroopTypeIconSlot" type="Panel" parent="InfoArea/TroopRow"]
 layout_mode = 0
-offset_top = 2.0
-offset_right = 26.0
-offset_bottom = 28.0
+offset_top = 4.0
+offset_right = 60.0
+offset_bottom = 64.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("PlaceholderSlot")
 
 [node name="TroopTypeLabel" type="Label" parent="InfoArea/TroopRow"]
+visible = false
 layout_mode = 0
 offset_left = 34.0
 offset_right = 116.0
@@ -141,157 +154,157 @@ vertical_alignment = 1
 
 [node name="TroopsLabel" type="Label" parent="InfoArea/TroopRow"]
 layout_mode = 0
-offset_left = 128.0
-offset_right = 224.0
-offset_bottom = 30.0
+offset_left = 72.0
+offset_top = 8.0
+offset_right = 168.0
+offset_bottom = 34.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.95, 0.94, 0.89, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 17
 text = "병력 95"
 vertical_alignment = 1
 
 [node name="WoundedLabel" type="Label" parent="InfoArea/TroopRow"]
 layout_mode = 0
-offset_left = 232.0
-offset_right = 340.0
-offset_bottom = 30.0
+offset_left = 72.0
+offset_top = 38.0
+offset_right = 168.0
+offset_bottom = 64.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.92, 0.72, 0.64, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 17
 text = "부상 40"
 vertical_alignment = 1
 
 [node name="StatsRow" type="Control" parent="InfoArea"]
 layout_mode = 0
-offset_left = 12.0
-offset_top = 77.0
+offset_left = 188.0
+offset_top = 42.0
 offset_right = 356.0
-offset_bottom = 108.0
+offset_bottom = 132.0
 mouse_filter = 2
 
 [node name="CommandStat" type="Control" parent="InfoArea/StatsRow"]
 layout_mode = 0
-offset_right = 106.0
-offset_bottom = 31.0
+offset_right = 168.0
+offset_bottom = 28.0
 mouse_filter = 2
 
 [node name="Icon" type="Panel" parent="InfoArea/StatsRow/CommandStat"]
 layout_mode = 0
-offset_top = 3.0
-offset_right = 24.0
-offset_bottom = 27.0
+offset_right = 28.0
+offset_bottom = 28.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("PlaceholderSlot")
 
 [node name="Value" type="Label" parent="InfoArea/StatsRow/CommandStat"]
 layout_mode = 0
-offset_left = 31.0
-offset_right = 104.0
-offset_bottom = 31.0
+offset_left = 36.0
+offset_right = 164.0
+offset_bottom = 28.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.94, 0.9, 0.79, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 18
 text = "지휘 92"
 vertical_alignment = 1
 
 [node name="MightStat" type="Control" parent="InfoArea/StatsRow"]
 layout_mode = 0
-offset_left = 112.0
-offset_right = 218.0
-offset_bottom = 31.0
+offset_top = 30.0
+offset_right = 168.0
+offset_bottom = 58.0
 mouse_filter = 2
 
 [node name="Icon" type="Panel" parent="InfoArea/StatsRow/MightStat"]
 layout_mode = 0
-offset_top = 3.0
-offset_right = 24.0
-offset_bottom = 27.0
+offset_right = 28.0
+offset_bottom = 28.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("PlaceholderSlot")
 
 [node name="Value" type="Label" parent="InfoArea/StatsRow/MightStat"]
 layout_mode = 0
-offset_left = 31.0
-offset_right = 104.0
-offset_bottom = 31.0
+offset_left = 36.0
+offset_right = 164.0
+offset_bottom = 28.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.94, 0.9, 0.79, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 18
 text = "무력 87"
 vertical_alignment = 1
 
 [node name="IntellectStat" type="Control" parent="InfoArea/StatsRow"]
 layout_mode = 0
-offset_left = 224.0
-offset_right = 330.0
-offset_bottom = 31.0
+offset_top = 60.0
+offset_right = 168.0
+offset_bottom = 88.0
 mouse_filter = 2
 
 [node name="Icon" type="Panel" parent="InfoArea/StatsRow/IntellectStat"]
 layout_mode = 0
-offset_top = 3.0
-offset_right = 24.0
-offset_bottom = 27.0
+offset_right = 28.0
+offset_bottom = 28.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("PlaceholderSlot")
 
 [node name="Value" type="Label" parent="InfoArea/StatsRow/IntellectStat"]
 layout_mode = 0
-offset_left = 31.0
-offset_right = 104.0
-offset_bottom = 31.0
+offset_left = 36.0
+offset_right = 164.0
+offset_bottom = 28.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.94, 0.9, 0.79, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 18
 text = "지력 96"
 vertical_alignment = 1
 
 [node name="DefenseStat" type="Control" parent="InfoArea/StatsRow"]
 visible = false
 layout_mode = 0
-offset_left = 258.0
-offset_right = 344.0
-offset_bottom = 31.0
+offset_top = 90.0
+offset_right = 168.0
+offset_bottom = 118.0
 mouse_filter = 2
 metadata/reserved_for_future = true
 
 [node name="Icon" type="Panel" parent="InfoArea/StatsRow/DefenseStat"]
 layout_mode = 0
-offset_top = 3.0
-offset_right = 24.0
-offset_bottom = 27.0
+offset_right = 28.0
+offset_bottom = 28.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("PlaceholderSlot")
 
 [node name="Value" type="Label" parent="InfoArea/StatsRow/DefenseStat"]
 layout_mode = 0
-offset_left = 31.0
-offset_right = 86.0
-offset_bottom = 31.0
+offset_left = 36.0
+offset_right = 164.0
+offset_bottom = 28.0
 mouse_filter = 2
+theme_override_font_sizes/font_size = 18
 text = "방어 -"
 vertical_alignment = 1
 
 [node name="UniqueTraitArea" type="Control" parent="InfoArea"]
 layout_mode = 0
 offset_left = 12.0
-offset_top = 116.0
+offset_top = 132.0
 offset_right = 356.0
-offset_bottom = 188.0
+offset_bottom = 190.0
 mouse_filter = 0
 tooltip_text = "학익진 · 상세 효과는 실제 고유특기 메타데이터 바인딩 단계에서 연결"
 
 [node name="UniqueTraitIconSlot" type="Panel" parent="InfoArea/UniqueTraitArea"]
 layout_mode = 0
-offset_top = 2.0
-offset_right = 38.0
-offset_bottom = 40.0
+offset_top = 4.0
+offset_right = 40.0
+offset_bottom = 44.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("PlaceholderSlot")
 
 [node name="UniqueTraitLabel" type="Label" parent="InfoArea/UniqueTraitArea"]
 layout_mode = 0
-offset_left = 48.0
+offset_left = 50.0
+offset_top = 2.0
 offset_right = 336.0
 offset_bottom = 28.0
 mouse_filter = 2
@@ -302,10 +315,10 @@ vertical_alignment = 1
 
 [node name="UniqueTraitSummaryLabel" type="Label" parent="InfoArea/UniqueTraitArea"]
 layout_mode = 0
-offset_left = 48.0
-offset_top = 30.0
+offset_left = 50.0
+offset_top = 28.0
 offset_right = 336.0
-offset_bottom = 68.0
+offset_bottom = 56.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.82, 0.8, 0.73, 1)
 theme_override_font_sizes/font_size = 14
