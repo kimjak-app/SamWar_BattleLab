@@ -13,7 +13,8 @@ const PORTRAIT_TOP := 250.0
 
 const TOP_ACTION_BUTTON_SIZE := Vector2(68.0, 68.0)
 const TOP_ACTION_BUTTON_GAP := 18.0
-const TOP_ACTION_BUTTON_Y := 12.0
+const TOP_ACTION_BUTTON_START_X := 270.0
+const TOP_ACTION_BUTTON_Y := 30.0
 const TOP_ACTION_HOVER_SCALE := Vector2(1.07, 1.07)
 const TOP_ACTION_PRESS_SCALE := Vector2(0.94, 0.94)
 const TOP_ACTION_NORMAL_SCALE := Vector2.ONE
@@ -62,6 +63,7 @@ func _process(_delta: float) -> void:
 			# a unit selection or stat refresh. Keeping its common parent hidden makes
 			# that refresh harmless while this presentation mode is active.
 			_apply_roster_display_mode(side_name)
+	_keep_enemy_retreat_toast_centered()
 
 
 func _setup_top_action_buttons() -> void:
@@ -89,8 +91,7 @@ func _setup_top_action_buttons() -> void:
 
 
 func _configure_top_action_button(button: TextureButton, texture: Texture2D, index: int) -> void:
-	var start_x := 118.0
-	button.position = Vector2(start_x + float(index) * (TOP_ACTION_BUTTON_SIZE.x + TOP_ACTION_BUTTON_GAP), TOP_ACTION_BUTTON_Y)
+	button.position = Vector2(TOP_ACTION_BUTTON_START_X + float(index) * (TOP_ACTION_BUTTON_SIZE.x + TOP_ACTION_BUTTON_GAP), TOP_ACTION_BUTTON_Y)
 	button.size = TOP_ACTION_BUTTON_SIZE
 	button.pivot_offset = TOP_ACTION_BUTTON_SIZE * 0.5
 	button.scale = TOP_ACTION_NORMAL_SCALE
@@ -147,6 +148,16 @@ func _tween_top_action_scale(button: TextureButton, target_scale: Vector2, durat
 	tween.set_trans(Tween.TRANS_CUBIC)
 	tween.set_ease(Tween.EASE_OUT)
 	tween.tween_property(button, "scale", target_scale, duration)
+
+
+func _keep_enemy_retreat_toast_centered() -> void:
+	if _controller == null:
+		return
+	var toast := _controller.get_node_or_null("EnemyRetreatToastLayer/EnemyRetreatToastRoot") as Control
+	if toast == null or not toast.visible:
+		return
+	var viewport_size := get_viewport().get_visible_rect().size
+	toast.position = (viewport_size - toast.size) * 0.5
 
 
 func _on_top_action_retreat_pressed() -> void:
