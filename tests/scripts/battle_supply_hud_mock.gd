@@ -39,13 +39,29 @@ func _ready() -> void:
 	_apply_mock_values()
 
 
+func _process(_delta: float) -> void:
+	# Production HUD hides the legacy TopBar at runtime. For this test-only
+	# presentation keep only the battle-context title visible so the 2D-editor
+	# placement of TopBarLabel is preserved in F6 as well.
+	_apply_test_battle_context_title()
+
+
 func _apply_test_battle_context_title() -> void:
 	var scene_root := get_tree().current_scene
 	if scene_root == null:
 		return
+	var top_bar := scene_root.get_node_or_null("BattleUI/TopBar") as Control
+	if top_bar != null:
+		top_bar.visible = true
+		top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var context_label := scene_root.get_node_or_null("BattleUI/TopBar/TopBarLabel") as Label
 	if context_label != null:
+		context_label.visible = true
+		context_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		context_label.text = TEST_BATTLE_CONTEXT_TITLE
+	var legacy_turn_banner := scene_root.get_node_or_null("BattleUI/TopBar/TurnBanner") as Label
+	if legacy_turn_banner != null:
+		legacy_turn_banner.visible = false
 
 
 func _apply_title_font_to_row_labels() -> void:
