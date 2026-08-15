@@ -3923,9 +3923,10 @@ stretch_mode = 5
 [node name="ProductionHudRoot" type="Control" parent="BattleUI" unique_id=612589975]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 3.0
-offset_right = 1923.0
-offset_bottom = 1080.0
+offset_left = -3.0
+offset_top = 2.0
+offset_right = 1917.0
+offset_bottom = 1082.0
 mouse_filter = 2
 
 [node name="TopHudRoot" type="Control" parent="BattleUI/ProductionHudRoot" unique_id=789006426]
