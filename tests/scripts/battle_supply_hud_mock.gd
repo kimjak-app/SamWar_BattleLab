@@ -20,10 +20,34 @@ const MAX_FOOD := 99999
 const MAX_SALT := 99999
 const MAX_CONSUMPTION := 9999
 const MAX_SUSTAIN_TURNS := 999
+const SUPPLY_ROW_NAMES := [
+	"AllyFoodRow",
+	"AllySaltRow",
+	"AllyConsumeRow",
+	"AllySustainRow",
+	"EnemyFoodRow",
+	"EnemySaltRow",
+	"EnemyConsumeRow",
+	"EnemySustainRow",
+]
 
 
 func _ready() -> void:
+	_apply_title_font_to_row_labels()
 	_apply_mock_values()
+
+
+func _apply_title_font_to_row_labels() -> void:
+	var title_label := get_node_or_null("TitleLabel") as Label
+	if title_label == null:
+		return
+	var title_font := title_label.get_theme_font("font")
+	if title_font == null:
+		return
+	for row_name in SUPPLY_ROW_NAMES:
+		var row_label := get_node_or_null("%s/Label" % row_name) as Label
+		if row_label != null:
+			row_label.add_theme_font_override("font", title_font)
 
 
 func _apply_mock_values() -> void:
