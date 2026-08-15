@@ -4414,9 +4414,9 @@ metadata/_diamond_empty_style = SubResource("EnemyDiamondEmpty")
 [node name="AllyRosterSideBanner" type="TextureRect" parent="BattleUI/ProductionHudRoot" unique_id=942681130]
 layout_mode = 0
 offset_left = 350.0
-offset_top = 102.0
+offset_top = 121.0
 offset_right = 410.0
-offset_bottom = 228.0
+offset_bottom = 247.0
 mouse_filter = 2
 texture = ExtResource("44_roster_side_banner_ally")
 expand_mode = 1
@@ -4425,9 +4425,9 @@ stretch_mode = 5
 [node name="EnemyRosterSideBanner" type="TextureRect" parent="BattleUI/ProductionHudRoot" unique_id=1330049810]
 layout_mode = 0
 offset_left = 1507.0
-offset_top = 105.0
+offset_top = 124.0
 offset_right = 1567.0
-offset_bottom = 231.0
+offset_bottom = 250.0
 mouse_filter = 2
 texture = ExtResource("45_roster_side_banner_enemy")
 expand_mode = 1
@@ -4436,9 +4436,9 @@ stretch_mode = 5
 [node name="AllyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=1182892213]
 layout_mode = 0
 offset_left = 57.0
-offset_top = 131.0
+offset_top = 148.0
 offset_right = 327.0
-offset_bottom = 655.0
+offset_bottom = 672.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"ProductionRosterPanelAlly"
@@ -5081,9 +5081,9 @@ stretch_mode = 5
 [node name="EnemyRosterHud" type="Panel" parent="BattleUI/ProductionHudRoot" unique_id=1380641402]
 layout_mode = 0
 offset_left = 1598.0
-offset_top = 135.0
+offset_top = 154.0
 offset_right = 1868.0
-offset_bottom = 659.0
+offset_bottom = 678.0
 mouse_filter = 2
 theme = ExtResource("38_battle_ui_theme")
 theme_type_variation = &"ProductionRosterPanelEnemy"
