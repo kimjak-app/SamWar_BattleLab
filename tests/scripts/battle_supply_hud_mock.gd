@@ -21,6 +21,10 @@ const MAX_SALT := 99999
 const MAX_CONSUMPTION := 9999
 const MAX_SUSTAIN_TURNS := 999
 const TEST_BATTLE_CONTEXT_TITLE := "낙양 침공 중"
+const BATTLE_CONTEXT_FONT := preload("res://assets/font/noto_serif_kr/NotoSerifKR-Medium.otf")
+const BATTLE_CONTEXT_ORNAMENTS := preload("res://assets/ui/battle/production_hud/battle_context/battle_context_ornaments.png")
+const BATTLE_CONTEXT_ORNAMENT_SIZE := Vector2(360.0, 48.0)
+const BATTLE_CONTEXT_ORNAMENT_OFFSET := Vector2(-74.0, -4.0)
 const SUPPLY_ROW_NAMES := [
 	"AllyFoodRow",
 	"AllySaltRow",
@@ -59,9 +63,31 @@ func _apply_test_battle_context_title() -> void:
 		context_label.visible = true
 		context_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		context_label.text = TEST_BATTLE_CONTEXT_TITLE
+		context_label.add_theme_font_override("font", BATTLE_CONTEXT_FONT)
+		context_label.add_theme_font_size_override("font_size", 28)
+		_sync_battle_context_ornaments(top_bar, context_label)
 	var legacy_turn_banner := scene_root.get_node_or_null("BattleUI/TopBar/TurnBanner") as Label
 	if legacy_turn_banner != null:
 		legacy_turn_banner.visible = false
+
+
+func _sync_battle_context_ornaments(top_bar: Control, context_label: Label) -> void:
+	if top_bar == null or context_label == null:
+		return
+	var ornament := top_bar.get_node_or_null("BattleContextOrnaments") as TextureRect
+	if ornament == null:
+		ornament = TextureRect.new()
+		ornament.name = "BattleContextOrnaments"
+		ornament.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ornament.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		ornament.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		ornament.texture = BATTLE_CONTEXT_ORNAMENTS
+		top_bar.add_child(ornament)
+	ornament.texture = BATTLE_CONTEXT_ORNAMENTS
+	ornament.position = context_label.position + BATTLE_CONTEXT_ORNAMENT_OFFSET
+	ornament.size = BATTLE_CONTEXT_ORNAMENT_SIZE
+	ornament.visible = true
+	ornament.z_index = context_label.z_index - 1
 
 
 func _apply_title_font_to_row_labels() -> void:
