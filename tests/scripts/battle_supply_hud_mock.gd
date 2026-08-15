@@ -20,6 +20,7 @@ const MAX_FOOD := 99999
 const MAX_SALT := 99999
 const MAX_CONSUMPTION := 9999
 const MAX_SUSTAIN_TURNS := 999
+const TEST_BATTLE_CONTEXT_TITLE := "낙양 침공 중"
 const SUPPLY_ROW_NAMES := [
 	"AllyFoodRow",
 	"AllySaltRow",
@@ -33,8 +34,18 @@ const SUPPLY_ROW_NAMES := [
 
 
 func _ready() -> void:
+	_apply_test_battle_context_title()
 	_apply_title_font_to_row_labels()
 	_apply_mock_values()
+
+
+func _apply_test_battle_context_title() -> void:
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return
+	var context_label := scene_root.get_node_or_null("BattleUI/TopBar/TopBarLabel") as Label
+	if context_label != null:
+		context_label.text = TEST_BATTLE_CONTEXT_TITLE
 
 
 func _apply_title_font_to_row_labels() -> void:
