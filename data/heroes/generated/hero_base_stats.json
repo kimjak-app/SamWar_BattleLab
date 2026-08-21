@@ -273,6 +273,41 @@
       "region": "몽골",
       "stats": {"leadership": 85, "martial": 87, "intelligence": 78, "politics": 55},
       "battle_multipliers": {"land": 1.25, "naval": 0.75}
+    },
+    {
+      "hero_id": "gwak_jae_u",
+      "display_name": "곽재우",
+      "region": "한반도",
+      "stats": {"leadership": 88, "martial": 82, "intelligence": 89, "politics": 68},
+      "battle_multipliers": {"land": 1.25, "naval": 0.7}
+    },
+    {
+      "hero_id": "go_gyeong_myeong",
+      "display_name": "고경명",
+      "region": "한반도",
+      "stats": {"leadership": 86, "martial": 67, "intelligence": 83, "politics": 79},
+      "battle_multipliers": {"land": 1.05, "naval": 0.7}
+    },
+    {
+      "hero_id": "kim_deok_ryeong",
+      "display_name": "김덕령",
+      "region": "한반도",
+      "stats": {"leadership": 84, "martial": 96, "intelligence": 71, "politics": 58},
+      "battle_multipliers": {"land": 1.25, "naval": 0.7}
+    },
+    {
+      "hero_id": "kato_kiyomasa",
+      "display_name": "가토 기요마사",
+      "region": "일본",
+      "stats": {"leadership": 89, "martial": 93, "intelligence": 76, "politics": 72},
+      "battle_multipliers": {"land": 1.25, "naval": 0.75}
+    },
+    {
+      "hero_id": "kuroda_nagamasa",
+      "display_name": "구로다 나가마사",
+      "region": "일본",
+      "stats": {"leadership": 88, "martial": 84, "intelligence": 85, "politics": 81},
+      "battle_multipliers": {"land": 1.2, "naval": 0.8}
     }
   ]
 }
