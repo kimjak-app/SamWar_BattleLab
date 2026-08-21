@@ -20,8 +20,8 @@ from xml.etree import ElementTree as ET
 NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 REL_NS = {"r": "http://schemas.openxmlformats.org/package/2006/relationships"}
 
-EXPECTED_HERO_COUNT = 39
-UNIT_TYPES = {"infantry", "cavalry", "archer", "gunner", "mounted_archer", "support"}
+EXPECTED_HERO_COUNT = 44
+UNIT_TYPES = {"infantry", "cavalry", "archer", "gunner", "mounted_archer"}
 ROLES = {"assault", "vanguard", "defender", "commander", "mobile", "ranged", "tactician", "support"}
 TARGET_MODES = {
     "self", "single_enemy", "single_ally", "enemy_line", "enemy_area",
@@ -30,7 +30,7 @@ TARGET_MODES = {
 FORBIDDEN_TEXT = {"대백제", "대백제 진군", "영락대전"}
 UNIT_NAME_TO_ID = {
     "보병": "infantry", "기병": "cavalry", "궁병": "archer",
-    "총병": "gunner", "궁기병": "mounted_archer", "지원": "support",
+    "총병": "gunner", "궁기병": "mounted_archer",
 }
 ROLE_NAME_TO_ID = {
     "돌격": "assault", "선봉": "vanguard", "방어": "defender",
@@ -140,27 +140,60 @@ def table_from_sheet(workbook_path: Path, sheet: str, header_name: str) -> list[
     return records
 
 
+def table_from_first_available_sheet(
+    workbook_path: Path,
+    sheet_names: tuple[str, ...],
+    header_name: str,
+) -> list[dict[str, Any]]:
+    with zipfile.ZipFile(workbook_path) as book:
+        available = _sheet_paths(book)
+    for sheet_name in sheet_names:
+        if sheet_name in available:
+            return table_from_sheet(workbook_path, sheet_name, header_name)
+    raise WorkbookError(f"Missing worksheet; expected one of: {', '.join(sheet_names)}")
+
+
 def require(condition: bool, message: str, errors: list[str]) -> None:
     if not condition:
         errors.append(message)
 
 
 def build_payloads(workbook_path: Path) -> tuple[dict[str, Any], list[str]]:
-    base_rows = table_from_sheet(workbook_path, "기본능력치_39명", "hero_id")
+    base_rows = table_from_first_available_sheet(
+        workbook_path,
+        ("기본능력치_44명", "기본능력치_39명"),
+        "hero_id",
+    )
     unit_rows = [
-        row for row in table_from_sheet(workbook_path, "6병종_기본성능", "내부값")
+        row for row in table_from_first_available_sheet(
+            workbook_path,
+            ("5병종_기본성능", "6병종_기본성능"),
+            "내부값",
+        )
         if row.get("내부값") in UNIT_TYPES
     ]
     role_rows = [
         row for row in table_from_sheet(workbook_path, "8역할_패시브", "주 역할")
         if row.get("내부값") in ROLES
     ]
-    skill_rows = table_from_sheet(workbook_path, "39명_고유기_1차안", "고유기명")
+    skill_rows = table_from_first_available_sheet(
+        workbook_path,
+        ("44명_고유기_1차안", "39명_고유기_1차안"),
+        "고유기명",
+    )
 
     errors: list[str] = []
-    require(len(base_rows) == EXPECTED_HERO_COUNT, f"Expected 39 base heroes, found {len(base_rows)}", errors)
-    require(len(skill_rows) == EXPECTED_HERO_COUNT, f"Expected 39 skills, found {len(skill_rows)}", errors)
-    require(len(unit_rows) == 6, f"Expected 6 unit types, found {len(unit_rows)}", errors)
+    require(
+        len(base_rows) == EXPECTED_HERO_COUNT,
+        f"Expected {EXPECTED_HERO_COUNT} base heroes, found {len(base_rows)}",
+        errors,
+    )
+    require(
+        len(skill_rows) == EXPECTED_HERO_COUNT,
+        f"Expected {EXPECTED_HERO_COUNT} skills, found {len(skill_rows)}",
+        errors,
+    )
+    require(len(unit_rows) == 5, f"Expected 5 unit types, found {len(unit_rows)}", errors)
     require(len(role_rows) == 8, f"Expected 8 roles, found {len(role_rows)}", errors)
 
     base_ids = [str(row.get("hero_id", "")) for row in base_rows]
@@ -185,8 +218,13 @@ def build_payloads(workbook_path: Path) -> tuple[dict[str, Any], list[str]]:
         require(skill.get("주 역할") == base.get("주 역할"), f"{hero_id}: role mismatch between sheets", errors)
 
         expected_skill_id = f"{hero_id}_unique"
+        momentum_cost = skill.get("기세 비용")
         require(skill.get("고유기 ID") == expected_skill_id, f"{hero_id}: skill ID must be {expected_skill_id}", errors)
-        require(skill.get("기세 비용") == 3, f"{hero_id}: momentum_cost must be 3", errors)
+        require(
+            isinstance(momentum_cost, (int, float)) and not isinstance(momentum_cost, bool) and 1 <= momentum_cost <= 4,
+            f"{hero_id}: momentum_cost must be 1..4",
+            errors,
+        )
         require(skill.get("행동 비용") == 1, f"{hero_id}: action_cost must be 1", errors)
         require(str(skill.get("HP 조건")).lower() == "none", f"{hero_id}: HP condition must be none", errors)
         require(skill.get("target_mode") in TARGET_MODES, f"{hero_id}: invalid target_mode {skill.get('target_mode')}", errors)
@@ -229,7 +267,7 @@ def build_payloads(workbook_path: Path) -> tuple[dict[str, Any], list[str]]:
             "range": skill["사거리"],
             "radius": skill["반경"],
             "power": skill["위력"],
-            "momentum_cost": 3,
+            "momentum_cost": int(momentum_cost) if isinstance(momentum_cost, (int, float)) else momentum_cost,
             "action_cost": 1,
             "hp_condition": None,
             "duration_turns": skill["지속 턴"],
@@ -302,7 +340,7 @@ def main() -> int:
     if not args.validate_only:
         write_outputs(payloads, args.output_dir)
     print(
-        f"VALIDATION PASS: 39 heroes, 39 unique skills, 6 unit types, 8 roles"
+        f"VALIDATION PASS: {EXPECTED_HERO_COUNT} heroes, {EXPECTED_HERO_COUNT} unique skills, 5 unit types, 8 roles"
         + (" (no files written)" if args.validate_only else f" -> {args.output_dir}")
     )
     return 0
