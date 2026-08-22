@@ -2,7 +2,7 @@
 
 ## Status
 
-`D5-1 VIDEO ENCODE + VIDEO-ONLY VALIDATION PASS / D5-2 TITLE PNG STATIC ASSET GATE PASS / D5-3 F6 LIVE QA PENDING`
+`D5-1 VIDEO ENCODE + VIDEO-ONLY VALIDATION PASS / D5-2 TITLE PNG STATIC ASSET GATE PASS / D5-3 LIVE QA FIXES IN PROGRESS`
 
 ## Goal
 
@@ -22,7 +22,7 @@ The runtime path remains:
 
 The original `data/cutin/korea_mvp_hero_cutins.json` is not modified by D5.
 
-`scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd` now appends the separate `data/cutin/imjin_demo_hero_cutins.json` registry so Test1/Korea MVP entries remain isolated from the new demo manifest.
+`scripts/ui/cutin/korea_mvp_hero_cutin_registry.gd` keeps legacy `load_entries()` scoped to the original Korea MVP 13 entries while runtime lookup searches the additional `data/cutin/imjin_demo_hero_cutins.json` registry as well.
 
 ## D5 roster
 
@@ -75,36 +75,9 @@ Repo-local FFmpeg is preferred:
 
 The script falls back to PATH only if those repo-local tools are absent.
 
-Run from repository root on Windows:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools/convert_imjin_demo_cutins.ps1
-```
-
-Then run:
-
-```text
-python tools/validate_imjin_demo_cutins.py --video-only
-```
-
 ## D5-1 user validation result — PASS
 
-On 2026-08-22 the user reran the conversion after replacing the Gwak Jae-u and Go Gyeong-myeong MP4 sources with corrected-duration versions, then executed:
-
-```text
-python tools/validate_imjin_demo_cutins.py --video-only
-```
-
-Observed result:
-
-- `gwak_jae_u`: source=True / ogv=True / enabled=True
-- `go_gyeong_myeong`: source=True / ogv=True / enabled=True
-- `kim_deok_ryeong`: source=True / ogv=True / enabled=True
-- `toyotomi_hideyoshi`: source=True / ogv=True / enabled=True
-- `shimazu_yoshihiro`: source=True / ogv=True / enabled=True
-- `kato_kiyomasa`: source=True / ogv=True / enabled=True
-- `konishi_yukinaga`: source=True / ogv=True / enabled=True
-- `kuroda_nagamasa`: source=True / ogv=True / enabled=True
+On 2026-08-22 the user reran the conversion after replacing the Gwak Jae-u and Go Gyeong-myeong MP4 sources with corrected-duration versions and the video-only cutin validator passed all eight canonical contracts.
 
 Final validator line:
 
@@ -125,38 +98,46 @@ Therefore D5-1 video conversion/resource contract is manually locked PASS.
 
 ## D5-2 title PNG static asset gate — PASS
 
-The existing cutin implementation requires both the OGV and a separate skill-title texture. D5 intentionally keeps that established contract.
+A remote feature-branch audit confirmed all eight exact title PNG paths and all eight final OGV paths exist, with registry paths matching tracked asset names.
 
-Required title PNG files:
+This is a repository/static asset PASS, not a substitute for live Godot visual QA.
 
-- `assets/ui/cutin/titles/gwak_jae_u__hongui_janggun__title.png`
-- `assets/ui/cutin/titles/go_gyeong_myeong__honam_uibyeong__title.png`
-- `assets/ui/cutin/titles/kim_deok_ryeong__chungyongjang__title.png`
-- `assets/ui/cutin/titles/toyotomi_hideyoshi__taehap_horyeong__title.png`
-- `assets/ui/cutin/titles/shimazu_yoshihiro__gwiseok_manja__title.png`
-- `assets/ui/cutin/titles/kato_kiyomasa__chilbonchang__title.png`
-- `assets/ui/cutin/titles/konishi_yukinaga__seonbong_gyoseop__title.png`
-- `assets/ui/cutin/titles/kuroda_nagamasa__sekigahara_joryak__title.png`
+## D5-3 live validation — first visual pass findings
 
-On 2026-08-22 a remote feature-branch audit confirmed all eight exact title PNG paths exist. The same audit confirmed all eight generated OGV paths exist, and every `video_path` / `skill_title_texture_path` in `data/cutin/imjin_demo_hero_cutins.json` matches the tracked asset names.
+The focused `tests/scenes/Imjin_Cutin_Visual_QA.tscn` auto-plays the eight new cutins through the real `HeroCutinPresentation` path.
 
-Therefore the D5-2 repository/static asset gate is locked PASS. This is deliberately not described as a Godot runtime playback PASS: the remaining D5-3 gate is visual/live playback inside Test2.
+First user visual pass on 2026-08-22 confirmed the cutin composition/video/title route is working, while exposing three presentation issues:
 
-The registry `dialogue` fields remain intentionally blank rather than inventing character lines.
+1. dialogue was absent because the new Imjin registry entries had blank `dialogue` values;
+2. the five Japanese hero names were visually shifted too far right because all used the default zero hero-name offset despite their longer display names;
+3. the Kuroda Nagamasa title PNG was authored with `세키가하라 교섭`, while the canonical skill name and registry are correctly `세키가하라 조략`.
 
-## D5-3 live validation
+Hotfix applied to `data/cutin/imjin_demo_hero_cutins.json`:
 
-The remaining gate is live Godot presentation QA. Confirm in Test2 that:
+- add first-pass battle dialogue for all eight entries;
+- add per-entry dialogue offsets;
+- keep Korean hero names at the established position;
+- shift Japanese hero names left with per-name `hero_name_offset_x` values;
+- keep Kuroda canonical metadata as `세키가하라 조략` / `sekigahara_joryak`.
 
-1. each of the eight new heroes routes to the correct video;
-2. hero name matches the actor;
-3. skill-title PNG matches the actual unique skill;
+The remaining Kuroda correction is asset-only: replace the pixels of
+
+`assets/ui/cutin/titles/kuroda_nagamasa__sekigahara_joryak__title.png`
+
+with a title PNG that visibly reads `세키가하라 조략`. The runtime filename/path must remain unchanged.
+
+## Remaining D5-3 gate
+
+After pulling the latest branch and replacing the Kuroda title PNG, rerun only the focused visual QA scene and confirm:
+
+1. dialogue appears for all eight;
+2. Japanese hero-name placement visually balances with the title block;
+3. Kuroda title visibly reads `세키가하라 조략`;
 4. no black/rainbow/corrupt Theora output;
-5. cutin exits normally after the existing timeline;
-6. the unique-skill effect executes exactly once;
-7. Hongui Janggun still enters its post-skill 3-cell reposition phase after the cutin/effect sequence;
-8. no Test1 Korea-vs-China cutin regression.
+5. each cutin exits normally.
 
-Before merge, local regression validators may also be rerun as a final gate, but do not treat those as a substitute for D5-3 visual playback.
+Then perform one live Test2 Gwak Jae-u route check:
 
-Do not mark D5 complete until D5-3 live QA passes.
+`홍의장군 cutin -> committed skill effect -> 3-cell reposition -> enemy turn`
+
+Do not mark D5 complete until those live checks pass.
