@@ -7,7 +7,7 @@ extends "res://scripts/battle_web_import_test.gd"
 ## overridden here so Test1 (Korea vs China) stays unchanged.
 
 const IMJIN_TEST_BATTLE_ROSTER := {
-	"ally_main_01": "yi_sunsin",
+	"ally_main_01": "yi_sun_sin",
 	"ally_main_02": "gwak_jae_u",
 	"ally_main_03": "kim_deok_ryeong",
 	"ally_reinforce_01": "kwon_yul",
@@ -20,7 +20,7 @@ const IMJIN_TEST_BATTLE_ROSTER := {
 }
 
 const KOREA_DEMO_HERO_IDS := {
-	"yi_sunsin": true,
+	"yi_sun_sin": true,
 	"gwak_jae_u": true,
 	"kim_deok_ryeong": true,
 	"kwon_yul": true,
