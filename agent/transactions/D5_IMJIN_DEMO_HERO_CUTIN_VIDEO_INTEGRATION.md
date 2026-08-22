@@ -2,7 +2,7 @@
 
 ## Status
 
-`VIDEO SOURCE REGISTERED / CONVERTER + VALIDATOR READY / TITLE PNG ASSET GATE / F6 QA PENDING`
+`D5-1 VIDEO ENCODE + VIDEO-ONLY VALIDATION PASS / D5-2 TITLE PNG ASSET GATE / F6 QA PENDING`
 
 ## Goal
 
@@ -65,7 +65,7 @@ Do not propagate source filename typos into canonical hero IDs or final runtime 
 - `yuv420p`
 - `q:v 8`
 - GOP `60`
-- source trimmed/capped at `4.01` seconds
+- normalized target duration `4.01` seconds
 - no audio (`-an`) because these authored cutin backgrounds are silent presentation layers
 
 Repo-local FFmpeg is preferred:
@@ -87,6 +87,31 @@ Then run:
 python tools/validate_imjin_demo_cutins.py --video-only
 ```
 
+## D5-1 user validation result — PASS
+
+On 2026-08-22 the user reran the conversion after replacing the Gwak Jae-u and Go Gyeong-myeong MP4 sources with corrected-duration versions, then executed:
+
+```text
+python tools/validate_imjin_demo_cutins.py --video-only
+```
+
+Observed result:
+
+- `gwak_jae_u`: source=True / ogv=True / enabled=True
+- `go_gyeong_myeong`: source=True / ogv=True / enabled=True
+- `kim_deok_ryeong`: source=True / ogv=True / enabled=True
+- `toyotomi_hideyoshi`: source=True / ogv=True / enabled=True
+- `shimazu_yoshihiro`: source=True / ogv=True / enabled=True
+- `kato_kiyomasa`: source=True / ogv=True / enabled=True
+- `konishi_yukinaga`: source=True / ogv=True / enabled=True
+- `kuroda_nagamasa`: source=True / ogv=True / enabled=True
+
+Final validator line:
+
+`D5 IMJIN DEMO CUTIN VALIDATION PASS (VIDEO-ONLY): 8 canonical cutin contracts`
+
+Therefore D5-1 video conversion/resource contract is manually locked PASS. Final D5 remains open only because the separate title PNG resources and live F6 presentation QA are still pending.
+
 ## Final OGV names
 
 - `assets/ui/cutin/videos/gwak_jae_u__hongui_janggun__cutin_bg_theora_q8_1280x720.ogv`
@@ -98,7 +123,7 @@ python tools/validate_imjin_demo_cutins.py --video-only
 - `assets/ui/cutin/videos/konishi_yukinaga__seonbong_gyoseop__cutin_bg_theora_q8_1280x720.ogv`
 - `assets/ui/cutin/videos/kuroda_nagamasa__sekigahara_joryak__cutin_bg_theora_q8_1280x720.ogv`
 
-## Title PNG asset gate
+## D5-2 title PNG asset gate
 
 The existing cutin implementation requires both the OGV and a separate skill-title texture. D5 intentionally does not replace this with dynamic text or a new rendering path.
 
@@ -113,7 +138,7 @@ Required title PNG files:
 - `assets/ui/cutin/titles/konishi_yukinaga__seonbong_gyoseop__title.png`
 - `assets/ui/cutin/titles/kuroda_nagamasa__sekigahara_joryak__title.png`
 
-At D5 start, these eight title PNGs are not present in the tracked title directory. Until they are supplied, video-only conversion can pass but final cutin validation must remain pending.
+At D5-1 PASS, these eight title PNGs are still the remaining asset gate. Until they are supplied, video-only validation can pass but final cutin validation must remain pending.
 
 The registry `dialogue` fields are intentionally blank for the new eight entries rather than inventing character lines. They can be authored later without changing the video routing contract.
 
