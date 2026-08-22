@@ -84,6 +84,10 @@ func _get_hero_registry_entry(hero_id: String) -> Dictionary:
 		entry = _build_worldmap_context_hero_registry_entry(hero_data)
 	if entry.is_empty():
 		return {}
+	# Parent registries may return const/read-only dictionaries. Test2 only needs
+	# presentation overrides, so always detach into a writable deep copy before
+	# mutating visual/portrait fields.
+	entry = entry.duplicate(true)
 	entry["default_visual_key"] = _get_imjin_visual_key(
 		hero_id,
 		String(hero_data.get("unit_type", entry.get("unit_type", "infantry")))
