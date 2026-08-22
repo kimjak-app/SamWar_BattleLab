@@ -5,6 +5,7 @@ param(
 $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $RegistryFullPath = Join-Path $RepoRoot $RegistryPath
+$TargetDurationSec = 4.01
 
 function Resolve-RepoPath([string]$PathValue) {
     $relative = $PathValue
@@ -49,9 +50,9 @@ if ($entries.Count -ne 8) {
     throw "D5 expects exactly 8 enabled Imjin demo cutins, found $($entries.Count)."
 }
 
-Write-Host "[D5-1] FFmpeg: $ffmpeg"
-Write-Host "[D5-1] FFprobe: $ffprobe"
-Write-Host "[D5-1] Converting $($entries.Count) MP4 sources to Godot-safe Theora OGV..."
+Write-Host "[D5-1-hotfix1] FFmpeg: $ffmpeg"
+Write-Host "[D5-1-hotfix1] FFprobe: $ffprobe"
+Write-Host "[D5-1-hotfix1] Normalizing $($entries.Count) MP4 sources to ${TargetDurationSec}s Godot-safe Theora OGV..."
 
 foreach ($entry in $entries) {
     $source = Resolve-RepoPath ([string]$entry.source_path)
@@ -74,20 +75,21 @@ foreach ($entry in $entries) {
     if ([Math]::Abs($aspect - $targetAspect) -gt 0.03) {
         throw "Source is not close to 16:9 for $($entry.hero_id): ${sourceWidth}x${sourceHeight}"
     }
-    if ($sourceDuration -lt 3.90 -or $sourceDuration -gt 4.20) {
-        throw "Source duration outside D5 cutin window for $($entry.hero_id): $sourceDuration sec"
+    if ($sourceDuration -lt 1.0 -or $sourceDuration -gt 8.0) {
+        throw "Source duration is suspicious for D5 cutin $($entry.hero_id): $sourceDuration sec"
     }
 
     $targetDir = Split-Path -Parent $target
     New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
 
-    Write-Host ("[D5-1] {0}: {1}x{2}, {3:N3}s -> {4}" -f $entry.hero_id, $sourceWidth, $sourceHeight, $sourceDuration, $target)
+    $durationMode = if ($sourceDuration -lt $TargetDurationSec) { "pad-last-frame" } elseif ($sourceDuration -gt $TargetDurationSec) { "trim" } else { "exact" }
+    Write-Host ("[D5-1-hotfix1] {0}: {1}x{2}, {3:N3}s mode={4} -> {5}" -f $entry.hero_id, $sourceWidth, $sourceHeight, $sourceDuration, $durationMode, $target)
 
     & $ffmpeg -hide_banner -loglevel error -y `
         -i $source `
         -map 0:v:0 `
-        -t 4.01 `
-        -vf "fps=30,scale=1280:720:flags=lanczos,format=yuv420p" `
+        -t $TargetDurationSec `
+        -vf "fps=30,scale=1280:720:flags=lanczos,format=yuv420p,tpad=stop_mode=clone:stop_duration=4.01" `
         -c:v libtheora `
         -q:v 8 `
         -g 60 `
@@ -112,12 +114,12 @@ foreach ($entry in $entries) {
         throw "Unexpected pixel format for $($entry.hero_id): $($targetStream.pix_fmt)"
     }
     if ($targetDuration -lt 3.90 -or $targetDuration -gt 4.10) {
-        throw "Unexpected output duration for $($entry.hero_id): $targetDuration sec"
+        throw "Unexpected normalized output duration for $($entry.hero_id): $targetDuration sec"
     }
 
     $sizeBytes = (Get-Item $target).Length
-    Write-Host ("[D5-1] PASS {0}: theora 1280x720 yuv420p 30fps duration={1:N3}s bytes={2}" -f $entry.hero_id, $targetDuration, $sizeBytes)
+    Write-Host ("[D5-1-hotfix1] PASS {0}: theora 1280x720 yuv420p 30fps duration={1:N3}s bytes={2}" -f $entry.hero_id, $targetDuration, $sizeBytes)
 }
 
-Write-Host "[D5-1] COMPLETE: 8 Imjin demo cutins encoded with the existing Godot Theora pipeline."
-Write-Host "[D5-1] Next: python tools/validate_imjin_demo_cutins.py --video-only"
+Write-Host "[D5-1-hotfix1] COMPLETE: 8 Imjin demo cutins normalized through the existing Godot Theora pipeline."
+Write-Host "[D5-1-hotfix1] Next: python tools/validate_imjin_demo_cutins.py --video-only"
