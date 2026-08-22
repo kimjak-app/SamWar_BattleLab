@@ -36,6 +36,15 @@ const JAPAN_DEMO_HERO_IDS := {
 const REGULAR_PORTRAIT_STEM_OVERRIDES := {
 	"kwon_yul": "gwon_yul",
 }
+const PHASE_POST_SKILL_REPOSITION_SELECT := "post_skill_reposition_select"
+const POST_SKILL_REPOSITION_FILL_COLOR := Color(0.26, 0.78, 0.48, 0.30)
+const POST_SKILL_REPOSITION_OUTLINE_COLOR := Color(0.60, 1.0, 0.72, 0.92)
+const POST_SKILL_REPOSITION_HIGHLIGHT_COLOR := Color(0.78, 1.0, 0.84, 0.34)
+
+var post_skill_reposition_caster_state: BattleUnitState = null
+var post_skill_reposition_range := 0
+var post_skill_reposition_optional := false
+var post_skill_reposition_valid_cells: Array[Vector2i] = []
 
 
 func _create_demo_unit_states() -> void:
@@ -107,6 +116,198 @@ func _get_sample_unique_skill_entry_for_worldmap_hero(hero_data: Dictionary) -> 
 	if not existing.is_empty():
 		return existing
 	return _build_worldmap_context_unique_skill_entry(hero_data)
+
+
+func _finalize_unique_skill_action(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	var reposition_mode := String(skill_data.get("post_skill_reposition_mode", ""))
+	var reposition_range := maxi(int(skill_data.get("post_skill_reposition_range", 0)), 0)
+	if caster_state == null \
+			or caster_state.side != "ally" \
+			or reposition_mode != "manual" \
+			or reposition_range <= 0:
+		super._finalize_unique_skill_action(caster_state, skill_data)
+		return
+
+	# The skill is already committed and its effect has resolved. Prepare the same
+	# post-commit state as the base finalizer, but delay enemy-turn handoff until
+	# the optional manual reposition is chosen or skipped.
+	_hide_unique_skill_toast()
+	_hide_specialty_skill_cutin()
+	is_unique_skill_presenting = false
+	is_demo_animating = false
+	_reset_unit_group_positions()
+	_hide_all_move_dust_sprites()
+	_set_all_unit_group_modulates(Color.WHITE)
+	_clear_attack_target_selection()
+	_clear_strategy_targeting_state()
+	_hide_strategy_range_overlay()
+	_hide_unique_skill_range_overlay()
+	_clear_pending_move_snapshot()
+	_clear_auto_action_flags()
+	pending_unique_skill_plan.clear()
+	_set_unique_skill_cooldown(caster_state, int(skill_data.get("cooldown_turns", 0)))
+	if bool(skill_data.get("consumes_action", true)):
+		_mark_ally_unit_acted(caster_state)
+	_show_unit_closeup_for_ally(caster_state)
+	_update_ally_ready_frames()
+	_cleanup_dead_units()
+	if _is_battle_result_finalized() or not caster_state.is_alive():
+		_clear_post_skill_reposition_state()
+		_set_phase(PHASE_ALLY_TURN)
+		return
+
+	_begin_post_skill_reposition(
+		caster_state,
+		reposition_range,
+		bool(skill_data.get("post_skill_reposition_optional", false))
+	)
+
+
+func _begin_post_skill_reposition(caster_state: BattleUnitState, reposition_range: int, is_optional: bool) -> void:
+	post_skill_reposition_caster_state = caster_state
+	post_skill_reposition_range = maxi(reposition_range, 1)
+	post_skill_reposition_optional = is_optional
+	post_skill_reposition_valid_cells = _get_post_skill_reposition_valid_cells(caster_state, post_skill_reposition_range)
+	if post_skill_reposition_valid_cells.is_empty():
+		_append_battle_log("%s 재배치 가능한 칸 없음" % caster_state.display_name)
+		_finish_post_skill_reposition_turn()
+		return
+
+	active_unit_state = caster_state
+	active_unit_side = "ally"
+	is_demo_animating = false
+	_set_phase(PHASE_POST_SKILL_REPOSITION_SELECT)
+	if turn_banner != null:
+		turn_banner.text = "재배치 선택 · BATTLE %d" % battle_round
+	_show_post_skill_reposition_overlay()
+	if post_skill_reposition_optional:
+		_append_battle_log("%s 재배치 · 인접 빈 칸 선택 / 우클릭 제자리" % caster_state.display_name)
+	else:
+		_append_battle_log("%s 재배치 · 인접 빈 칸을 선택하세요" % caster_state.display_name)
+	_refresh_production_battle_hud("post-skill-reposition")
+
+
+func _get_post_skill_reposition_valid_cells(caster_state: BattleUnitState, reposition_range: int) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	if caster_state == null or battle_grid_controller == null:
+		return result
+	var origin_cell := caster_state.grid_cell
+	for candidate in battle_grid_controller.get_tiles_in_range(origin_cell, reposition_range):
+		if candidate == origin_cell:
+			continue
+		if battle_grid_controller.get_distance(origin_cell, candidate) > reposition_range:
+			continue
+		if not _is_valid_destination_for_unit(candidate, caster_state, false):
+			continue
+		result.append(candidate)
+	return result
+
+
+func _show_post_skill_reposition_overlay() -> void:
+	_hide_move_range_overlay()
+	if battle_grid_controller == null or post_skill_reposition_caster_state == null:
+		return
+	var cell_size := battle_grid_controller.get_cell_size()
+	if cell_size.x <= 0.0 or cell_size.y <= 0.0:
+		return
+	var origin_cell := post_skill_reposition_caster_state.grid_cell
+	var ordered_cells := _get_cells_wave_order(
+		post_skill_reposition_valid_cells,
+		origin_cell,
+		post_skill_reposition_range
+	)
+	var visible_count := mini(ordered_cells.size(), move_range_cells.size())
+	for index in range(visible_count):
+		var cell := ordered_cells[index]
+		var rect := move_range_cells[index]
+		_show_range_overlay_cell(
+			rect,
+			cell,
+			cell_size,
+			POST_SKILL_REPOSITION_FILL_COLOR,
+			origin_cell,
+			true,
+			1.0,
+			POST_SKILL_REPOSITION_OUTLINE_COLOR,
+			POST_SKILL_REPOSITION_HIGHLIGHT_COLOR
+		)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if current_phase != PHASE_POST_SKILL_REPOSITION_SELECT:
+		super._unhandled_input(event)
+		return
+	if not (event is InputEventMouseButton):
+		return
+	var mouse_event := event as InputEventMouseButton
+	if not mouse_event.pressed:
+		return
+	if mouse_event.button_index == MOUSE_BUTTON_RIGHT:
+		if post_skill_reposition_optional:
+			_append_battle_log("재배치 생략 · 제자리 유지")
+			_finish_post_skill_reposition_turn()
+		else:
+			_append_battle_log("재배치 칸을 선택하세요")
+		get_viewport().set_input_as_handled()
+		return
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if _is_mouse_over_battle_ui():
+		return
+	if battle_grid_controller == null:
+		return
+	var target_cell := battle_grid_controller.world_to_grid(get_global_mouse_position())
+	if not post_skill_reposition_valid_cells.has(target_cell):
+		_append_battle_log("재배치 가능한 인접 빈 칸을 선택하세요")
+		get_viewport().set_input_as_handled()
+		return
+	_apply_post_skill_reposition(target_cell)
+	get_viewport().set_input_as_handled()
+
+
+func _apply_post_skill_reposition(target_cell: Vector2i) -> void:
+	var caster_state := post_skill_reposition_caster_state
+	if caster_state == null or battle_grid_controller == null:
+		_finish_post_skill_reposition_turn()
+		return
+	var origin_cell := caster_state.grid_cell
+	if not post_skill_reposition_valid_cells.has(target_cell):
+		return
+	caster_state.set_grid_cell(target_cell)
+	_sync_resumed_unit_markers_to_grid(caster_state)
+	_sync_demo_positions()
+	_update_all_unit_visuals_from_state()
+	_update_facing_indicators()
+	_update_cell_size_visual_guide(target_cell)
+	_show_unit_closeup_for_ally(caster_state)
+	_refresh_formation_slot_guides()
+	_refresh_strategy_status_icon_labels()
+	_append_battle_log("%s 재배치 %s → %s" % [
+		caster_state.display_name,
+		_format_cell(origin_cell),
+		_format_cell(target_cell),
+	])
+	_finish_post_skill_reposition_turn()
+
+
+func _finish_post_skill_reposition_turn() -> void:
+	_hide_move_range_overlay()
+	_clear_post_skill_reposition_state()
+	_update_ally_ready_frames()
+	_refresh_formation_slot_guides()
+	if _is_battle_result_finalized():
+		_set_phase(PHASE_ALLY_TURN)
+		return
+	_set_phase(PHASE_ENEMY_TURN)
+	_append_battle_log("적군 턴")
+	_play_enemy_turn_demo()
+
+
+func _clear_post_skill_reposition_state() -> void:
+	post_skill_reposition_caster_state = null
+	post_skill_reposition_range = 0
+	post_skill_reposition_optional = false
+	post_skill_reposition_valid_cells.clear()
 
 
 func _get_imjin_visual_key(hero_id: String, unit_type: String) -> String:
