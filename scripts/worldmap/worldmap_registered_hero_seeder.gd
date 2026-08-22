@@ -3,7 +3,7 @@ extends Node
 ## Production WorldMap registry -> city roster bridge.
 ##
 ## HeroDefinitionRegistry is the identity authority, while the current WorldMap
-## still owns mutable city rosters in runtime dictionaries. This bridge closes
+## still owns mutable city rosters in runtime dictionaries. This autoload closes
 ## that gap for newly added heroes without hard-coding every future addition in
 ## CITY_HUD_DATA.
 ##
@@ -12,31 +12,70 @@ extends Node
 ## - never seed a hero already stationed in any city;
 ## - never seed a hero that already has a runtime state (moved/deployed/captured
 ##   heroes therefore cannot be teleported back to their original city);
-## - mirror both stationed_hero_ids and hero_ids for legacy/current callers.
+## - mirror both stationed_hero_ids and hero_ids for legacy/current callers;
+## - rerun only when a new WorldMap scene instance appears.
 
 const HeroDefinitionRegistryScript := preload("res://scripts/worldmap/hero_definition_registry.gd")
+const MAX_DEFERRED_SEED_ATTEMPTS := 4
 
+var _active_worldmap_instance_id := 0
 var _seed_attempts := 0
-const MAX_DEFERRED_SEED_ATTEMPTS := 3
 
 
 func _ready() -> void:
-	call_deferred("_seed_missing_registered_heroes")
+	set_process(true)
+	call_deferred("_try_seed_current_worldmap")
 
 
-func _seed_missing_registered_heroes() -> void:
-	var worldmap := get_parent()
+func _process(_delta: float) -> void:
+	var worldmap := _get_current_worldmap()
 	if worldmap == null:
+		_active_worldmap_instance_id = 0
+		_seed_attempts = 0
+		return
+	var instance_id := worldmap.get_instance_id()
+	if instance_id == _active_worldmap_instance_id:
+		return
+	_active_worldmap_instance_id = instance_id
+	_seed_attempts = 0
+	call_deferred("_seed_missing_registered_heroes", worldmap)
+
+
+func _try_seed_current_worldmap() -> void:
+	var worldmap := _get_current_worldmap()
+	if worldmap == null:
+		return
+	_active_worldmap_instance_id = worldmap.get_instance_id()
+	_seed_attempts = 0
+	_seed_missing_registered_heroes(worldmap)
+
+
+func _get_current_worldmap() -> Node:
+	var tree := get_tree()
+	if tree == null:
+		return null
+	var scene := tree.current_scene
+	if scene == null:
+		return null
+	# This method is specific to the production WorldMap controller and avoids
+	# probing private properties on unrelated scenes.
+	if not scene.has_method("_refresh_city_hud_data_bindings"):
+		return null
+	return scene
+
+
+func _seed_missing_registered_heroes(worldmap: Node) -> void:
+	if worldmap == null or not is_instance_valid(worldmap):
 		return
 	var city_states_variant: Variant = worldmap.get("_city_runtime_states")
 	var hero_states_variant: Variant = worldmap.get("_hero_runtime_states")
 	if not city_states_variant is Dictionary or not hero_states_variant is Dictionary:
-		_retry_seed_if_needed()
+		_retry_seed_if_needed(worldmap)
 		return
 	var city_states: Dictionary = city_states_variant
 	var hero_states: Dictionary = hero_states_variant
 	if city_states.is_empty():
-		_retry_seed_if_needed()
+		_retry_seed_if_needed(worldmap)
 		return
 
 	var stationed_ids := {}
@@ -93,8 +132,7 @@ func _seed_missing_registered_heroes() -> void:
 	worldmap.set("_city_runtime_states", city_states)
 	worldmap.set("_hero_runtime_states", hero_states)
 	_sync_player_owned_heroes(worldmap, player_owned_additions)
-	if worldmap.has_method("_refresh_city_hud_data_bindings"):
-		worldmap.call("_refresh_city_hud_data_bindings")
+	worldmap.call("_refresh_city_hud_data_bindings")
 	if not seeded_by_city.is_empty():
 		print("[REGISTERED_HERO_CITY_SEED] seeded=%s" % str(seeded_by_city))
 
@@ -125,7 +163,7 @@ func _normalized_string_array(value: Variant) -> Array[String]:
 	return result
 
 
-func _retry_seed_if_needed() -> void:
+func _retry_seed_if_needed(worldmap: Node) -> void:
 	_seed_attempts += 1
-	if _seed_attempts < MAX_DEFERRED_SEED_ATTEMPTS:
-		call_deferred("_seed_missing_registered_heroes")
+	if _seed_attempts < MAX_DEFERRED_SEED_ATTEMPTS and is_instance_valid(worldmap):
+		call_deferred("_seed_missing_registered_heroes", worldmap)
