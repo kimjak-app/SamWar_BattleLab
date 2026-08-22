@@ -7,7 +7,7 @@ const BATTLE_PROFILES_PATH := "res://data/heroes/generated/hero_battle_profiles.
 const UNIQUE_SKILLS_PATH := "res://data/heroes/generated/hero_unique_skills.json"
 const UNIT_TYPE_RULES_PATH := "res://data/heroes/generated/unit_type_rules.json"
 const BATTLE_ROLE_RULES_PATH := "res://data/heroes/generated/battle_role_rules.json"
-const EXPECTED_HERO_COUNT := 39
+const EXPECTED_HERO_COUNT := 44
 
 static var _loaded := false
 static var _load_error := ""
