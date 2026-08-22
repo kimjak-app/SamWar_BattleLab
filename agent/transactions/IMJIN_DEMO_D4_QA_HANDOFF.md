@@ -2,7 +2,7 @@
 
 ## Status
 
-`MANUAL QA FOUND REAL D1/D3 GAPS / HOTFIX SERIES APPLIED / BOTH LOCAL VALIDATORS MUST RE-RUN / USER GODOT F5+F6 RE-QA REQUIRED`
+`MANUAL F5 PRODUCTION HANDOFF PASS / MANUAL F6 TEST2 PASS / STATIC VALIDATORS + TEST1 REGRESSION STILL REQUIRED / HONGUIJANGGUN REPOSITION REMAINS`
 
 ## Scope summary
 
@@ -13,6 +13,8 @@
 - D1 runtime city layer: first F5 QA showed those identities were **not yet entering mutable WorldMap city rosters**.
 - Hotfix: reusable `RegisteredHeroCitySeeder` now bridges `assigned_city_id` from production hero registry into mutable WorldMap city/runtime state, with a runtime-state anti-teleport guard.
 - D2: existing WorldMap -> formation -> Battle_Land contract remains the intended reusable production path.
+- **2026-08-22 manual F5 re-QA PASS:** user confirmed new heroes can be used from WorldMap through formation and successfully enter the real battle scene.
+- The F5 battle screen is still the older Production battle UI. This is expected because Design1 has not yet been ported from the Production Test scene into the real `Battle_Land` scene; that UI migration is a separate future transaction and is not an Imjin integration failure.
 
 ### Demo-only path
 
@@ -23,12 +25,15 @@
 - Hotfix: Test2 now calls the inherited state builder for common wiring, then rebinds all ten states through canonical hero IDs so `BattleUnitState` rebuilds unit type/stats/unique skill from production hero authority.
 - Initial Test2 also leaked central-bottom `current_actor` cinematic art into roster `closeup_portrait_path`.
 - Hotfix: roster/ordinary close-up uses normal portrait assets; the central-bottom Current Actor HUD keeps its separate cinematic portrait contract.
+- A read-only Dictionary runtime error was then found in `_get_hero_registry_entry()` because Test2 attempted to mutate a parent registry Dictionary directly.
+- Hotfix: Test2 now deep-duplicates the registry entry before applying presentation overrides.
+- **2026-08-22 manual F6 re-QA PASS:** user confirmed the Korea-vs-Japan Test2 now runs successfully through live battle after the authority/portrait/read-only hotfix series.
 
 ## Known separate functional remainder
 
 `gwak_jae_u` / `홍의장군` generated data already contains the intended encirclement debuff and `사용 후 1칸 재배치` description.
 
-The stale `개혁령` command label was **not** a placeholder for this. It was the Test1 state-contamination bug and is addressed by the Test2 authority rebind.
+The stale `개혁령` command label was **not** a placeholder for this. It was the Test1 state-contamination bug and is fixed by the Test2 authority rebind.
 
 The resolver already supports the encirclement debuff portion. The explicit post-skill **manual 1-cell reposition** is still a separate functional completion item because the existing generic resolver `move` command means deterministic retreat. Do not fake this behavior as retreat movement; add and QA a dedicated interaction before declaring `홍의장군` behavior complete.
 
@@ -43,9 +48,9 @@ python tools/validate_imjin_demo_test2.py
 
 Both must PASS after the current hotfix series.
 
-The D0-D1 validator now checks the production registry-to-city bridge in addition to the 44-hero data/identity contract.
+The D0-D1 validator checks the production registry-to-city bridge in addition to the 44-hero data/identity contract.
 
-The Test2 validator now checks not merely roster IDs but also:
+The Test2 validator checks:
 
 - all ten canonical scenario IDs;
 - authority-rebind path after inherited Test1 state construction;
@@ -56,41 +61,21 @@ The Test2 validator now checks not merely roster IDs but also:
 - separation of ordinary roster portraits from Current Actor cinematic portraits;
 - WorldMap registered-hero city-seeding contract.
 
-The GitHub connector environment cannot execute local Godot or repository Python, so no post-hotfix execution PASS is claimed in this document.
+The GitHub connector environment cannot execute local Godot or repository Python, so static validator PASS is not claimed here until re-run locally.
 
 ## F5 Production QA
 
-Because `project.godot` now has a new autoload, restart Godot once after pulling before F5 QA.
+### Manual status
 
-### WorldMap registration
+**PASS reported by user on 2026-08-22:** WorldMap -> formation -> real battle entry works with the new hero integration.
 
-1. Open Hanseong hero UI.
-2. Existing 이순신 / 정도전 / 권율 must remain present.
-3. Confirm 곽재우 / 고경명 / 김덕령 are now present and clickable.
-4. Confirm their names and normal portraits resolve without placeholder/missing-resource errors.
-5. Inspect Osaka and confirm 가토 기요마사 / 구로다 나가마사 appear with the existing city roster.
-6. Reopen WorldMap and confirm no duplicate hero is seeded.
+### Remaining checks before merge
 
-### Formation and battle handoff
-
-1. Start any currently legal Korea MVP land invasion through the normal WorldMap attack flow.
-2. Put at least one new Korea hero in the attack formation.
-3. Confirm formation accepts the hero normally.
-4. Enter battle once; no duplicate transition.
-5. Confirm the same new hero appears in Battle_Land with:
-   - correct display name;
-   - intended portrait;
-   - generated troop type;
-   - current/max troop values;
-   - generated battle stats/profile;
-   - generated unique skill.
-6. Move/attack/defend/use supported unique skill where applicable.
-7. Finish or retreat through the existing result flow and confirm return to WorldMap remains normal.
-8. Confirm an already moved/deployed/captured hero is not snapped back to its registry city by the seeder.
-
-### Japan production registration
-
-When inspecting Osaka through the existing WorldMap UI, confirm 가토 기요마사 / 구로다 나가마사 are registered there. Do not create a temporary Korea-Japan sea route merely to force a battle; maritime routing is future naval scope.
+1. Open Hanseong hero UI and retain existing 이순신 / 정도전 / 권율 plus 곽재우 / 고경명 / 김덕령.
+2. Inspect Osaka and retain 가토 기요마사 / 구로다 나가마사 with the existing roster.
+3. Reopen WorldMap and confirm no duplicate hero is seeded.
+4. Confirm an already moved/deployed/captured hero is not snapped back to its registry city by the seeder.
+5. Keep in mind: real F5 `Battle_Land` still uses the older UI until the separate Design1-to-Production migration transaction.
 
 ## F6 Test1 regression QA
 
@@ -98,25 +83,17 @@ Run:
 
 `res://tests/scenes/Battle_UI_Production_Test.tscn`
 
-Confirm:
+Still required before merge:
 
-- Korea vs China roster is unchanged.
-- Design1 HUD geometry is unchanged.
-- Existing movement/attack/skill/turn/reinforcement behavior remains intact.
+- Korea vs China roster unchanged.
+- Design1 HUD geometry unchanged.
+- Existing movement/attack/skill/turn/reinforcement behavior intact.
 
 ## F6 Test2 demo QA
 
-Before F6, require:
+### Manual status
 
-```text
-python tools/validate_imjin_demo_test2.py
-```
-
-PASS.
-
-Then run:
-
-`res://tests/scenes/Battle_UI_Production_Imjin_Test.tscn`
+**PASS reported by user on 2026-08-22:** Korea-vs-Japan Test2 runs successfully in live battle after the latest hotfixes.
 
 Expected Korea roster / type / skill:
 
@@ -134,18 +111,18 @@ Expected Japan roster / type / skill:
 - 고니시 유키나가 — 총병 — 선봉교섭
 - 구로다 나가마사 — 기병 — 세키가하라 조략
 
-Confirm:
+Before final merge, retain these checks:
 
 1. Same Production Design1 HUD as Test1.
 2. No China hero remains in Test2.
-3. Every roster portrait is the ordinary hero portrait, not the central-bottom Current Actor cinematic image.
-4. Current Actor HUD may use the prepared cinematic `current_actor` image and updates for all actors.
+3. Every roster portrait uses the ordinary hero portrait, not Current Actor cinematic art.
+4. Current Actor HUD may use prepared cinematic images and updates for all actors.
 5. Every displayed troop type matches the locked list above.
 6. For every ally actor, Current Actor HUD unique-skill name and floating command-panel unique-skill name agree.
 7. Move / attack / defend / supported unique skill / enemy turn are functional.
 8. Reinforcement slots preserve existing arrival timing.
-9. No WorldMap result-return UI incorrectly appears in the standalone Test2.
-10. No missing-resource, parser, or invalid-parent errors appear in Godot Output.
+9. No WorldMap result-return UI incorrectly appears in standalone Test2.
+10. No missing-resource, parser, invalid-parent, or read-only Dictionary errors appear in Godot Output.
 
 ## Demo recording gate
 
@@ -153,11 +130,16 @@ Do not record the `모두의 창업` footage until:
 
 - updated D0-D1 validator PASS;
 - strengthened Test2 validator PASS;
-- F5 production new-hero city + battle handoff passes;
-- F6 Test1 regression passes;
-- F6 Test2 roster/portrait/type/skill/action QA passes.
+- F5 production handoff PASS is retained;
+- F6 Test1 regression PASS;
+- F6 Test2 PASS is retained;
+- 홍의장군 post-skill 1-cell reposition behavior is implemented and QA'd if it will be demonstrated.
 
 After those gates, Test2 is the preferred battle recording scene for the Korea-vs-Japan demo.
+
+## Future Production UI reminder
+
+The current F5 real battle scene still shows the older Production UI. The Design1 UI built and validated in `Battle_UI_Production_Test.tscn` must later be migrated into the real `Battle_Land` path as a dedicated transaction. Do not treat the old F5 UI as a regression from this Imjin integration work.
 
 ## Future naval reminder
 
