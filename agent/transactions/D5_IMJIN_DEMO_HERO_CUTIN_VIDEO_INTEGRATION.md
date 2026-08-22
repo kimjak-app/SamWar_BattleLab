@@ -2,7 +2,7 @@
 
 ## Status
 
-`D5-1 VIDEO ENCODE + VIDEO-ONLY VALIDATION PASS / D5-2 TITLE PNG ASSET GATE / F6 QA PENDING`
+`D5-1 VIDEO ENCODE + VIDEO-ONLY VALIDATION PASS / D5-2 TITLE PNG STATIC ASSET GATE PASS / D5-3 F6 LIVE QA PENDING`
 
 ## Goal
 
@@ -110,7 +110,7 @@ Final validator line:
 
 `D5 IMJIN DEMO CUTIN VALIDATION PASS (VIDEO-ONLY): 8 canonical cutin contracts`
 
-Therefore D5-1 video conversion/resource contract is manually locked PASS. Final D5 remains open only because the separate title PNG resources and live F6 presentation QA are still pending.
+Therefore D5-1 video conversion/resource contract is manually locked PASS.
 
 ## Final OGV names
 
@@ -123,9 +123,9 @@ Therefore D5-1 video conversion/resource contract is manually locked PASS. Final
 - `assets/ui/cutin/videos/konishi_yukinaga__seonbong_gyoseop__cutin_bg_theora_q8_1280x720.ogv`
 - `assets/ui/cutin/videos/kuroda_nagamasa__sekigahara_joryak__cutin_bg_theora_q8_1280x720.ogv`
 
-## D5-2 title PNG asset gate
+## D5-2 title PNG static asset gate — PASS
 
-The existing cutin implementation requires both the OGV and a separate skill-title texture. D5 intentionally does not replace this with dynamic text or a new rendering path.
+The existing cutin implementation requires both the OGV and a separate skill-title texture. D5 intentionally keeps that established contract.
 
 Required title PNG files:
 
@@ -138,21 +138,15 @@ Required title PNG files:
 - `assets/ui/cutin/titles/konishi_yukinaga__seonbong_gyoseop__title.png`
 - `assets/ui/cutin/titles/kuroda_nagamasa__sekigahara_joryak__title.png`
 
-At D5-1 PASS, these eight title PNGs are still the remaining asset gate. Until they are supplied, video-only validation can pass but final cutin validation must remain pending.
+On 2026-08-22 a remote feature-branch audit confirmed all eight exact title PNG paths exist. The same audit confirmed all eight generated OGV paths exist, and every `video_path` / `skill_title_texture_path` in `data/cutin/imjin_demo_hero_cutins.json` matches the tracked asset names.
 
-The registry `dialogue` fields are intentionally blank for the new eight entries rather than inventing character lines. They can be authored later without changing the video routing contract.
+Therefore the D5-2 repository/static asset gate is locked PASS. This is deliberately not described as a Godot runtime playback PASS: the remaining D5-3 gate is visual/live playback inside Test2.
 
-## Final validation
+The registry `dialogue` fields remain intentionally blank rather than inventing character lines.
 
-After OGV and title PNG assets exist:
+## D5-3 live validation
 
-```text
-python tools/validate_imjin_demo_cutins.py
-python tools/validate_all_korea_mvp_video_cutins.py
-python tools/validate_actual_video_cutin_playback.py
-```
-
-Then F6 Test2 manual QA:
+The remaining gate is live Godot presentation QA. Confirm in Test2 that:
 
 1. each of the eight new heroes routes to the correct video;
 2. hero name matches the actor;
@@ -163,4 +157,6 @@ Then F6 Test2 manual QA:
 7. Hongui Janggun still enters its post-skill 3-cell reposition phase after the cutin/effect sequence;
 8. no Test1 Korea-vs-China cutin regression.
 
-Do not mark D5 complete until final validator + F6 checks pass.
+Before merge, local regression validators may also be rerun as a final gate, but do not treat those as a substitute for D5-3 visual playback.
+
+Do not mark D5 complete until D5-3 live QA passes.
