@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "registry_id": "imjin_demo_hero_cutins",
+  "entries": [
+    {
+      "hero_id": "gwak_jae_u",
+      "hero_name": "곽재우",
+      "skill_id": "gwak_jae_u_unique",
+      "skill_name": "홍의장군",
+      "asset_slug": "hongui_janggun",
+      "dialogue": "",
+      "source_path": "res://assets/video_source_test/production_dry_run/imjin_demo/곽재우컷인.mp4",
+      "video_path": "res://assets/ui/cutin/videos/gwak_jae_u__hongui_janggun__cutin_bg_theora_q8_1280x720.ogv",
+      "skill_title_texture_path": "res://assets/ui/cutin/titles/gwak_jae_u__hongui_janggun__title.png",
+      "enabled": true
+    },
+    {
+      "hero_id": "go_gyeong_myeong",
+      "hero_name": "고경명",
+      "skill_id": "go_gyeong_myeong_unique",
+      "skill_name": "호남의병",
+      "asset_slug": "honam_uibyeong",
+      "dialogue": "",
+      "source_path": "res://assets/video_source_test/production_dry_run/imjin_demo/고경명컷인.mp4",
+      "video_path": "res://assets/ui/cutin/videos/go_gyeong_myeong__honam_uibyeong__cutin_bg_theora_q8_1280x720.ogv",
+      "skill_title_texture_path": "res://assets/ui/cutin/titles/go_gyeong_myeong__honam_uibyeong__title.png",
+      "enabled": true
+    },
+    {
+      "hero_id": "kim_deok_ryeong",
+      "hero_name": "김덕령",
+      "skill_id": "kim_deok_ryeong_unique",
+      "skill_name": "충용장",
+      "asset_slug": "chungyongjang",
+      "dialogue": "",
+      "source_path": "res://assets/video_source_test/production_dry_run/imjin_demo/김덕룡컷인.mp4",
+      "video_path": "res://assets/ui/cutin/videos/kim_deok_ryeong__chungyongjang__cutin_bg_theora_q8_1280x720.ogv",
+      "skill_title_texture_path": "res://assets/ui/cutin/titles/kim_deok_ryeong__chungyongjang__title.png",
+      "enabled": true
+    },
+    {
+      "hero_id": "toyotomi_hideyoshi",
+      "hero_name": "도요토미 히데요시",
+      "skill_id": "toyotomi_hideyoshi_unique",
+      "skill_name": "태합호령",
+      "asset_slug": "taehap_horyeong",
+      "dialogue": "",
+      "source_path": "res://assets/video_source_test/production_dry_run/imjin_demo/도요토미히데오시컷인.mp4",
+      "video_path": "res://assets/ui/cutin/videos/toyotomi_hideyoshi__taehap_horyeong__cutin_bg_theora_q8_1280x720.ogv",
+      "skill_title_texture_path": "res://assets/ui/cutin/titles/toyotomi_hideyoshi__taehap_horyeong__title.png",
+      "enabled": true
+    },
+    {
+      "hero_id": "shimazu_yoshihiro",
+      "hero_name": "시마즈 요시히로",
+      "skill_id": "shimazu_yoshihiro_unique",
+      "skill_name": "귀석만자",
+      "asset_slug": "gwiseok_manja",
+      "dialogue": "",
+      "source_path": "res://assets/video_source_test/production_dry_run/imjin_demo/시마즈요시히로컷인.mp4",
+      "video_path": "res://assets/ui/cutin/videos/shimazu_yoshihiro__gwiseok_manja__cutin_bg_theora_q8_1280x720.ogv",
+      "skill_title_texture_path": "res://assets/ui/cutin/titles/shimazu_yoshihiro__gwiseok_manja__title.png",
+      "enabled": true
+    },
+    {
+      "hero_id": "kato_kiyomasa",
+      "hero_name": "가토 기요마사",
+      "skill_id": "kato_kiyomasa_unique",
+      "skill_name": "칠본창",
+      "asset_slug": "chilbonchang",
+      "dialogue": "",
+      "source_path": "res://assets/video_source_test/production_dry_run/imjin_demo/가토기요마사.mp4",
+      "video_path": "res://assets/ui/cutin/videos/kato_kiyomasa__chilbonchang__cutin_bg_theora_q8_1280x720.ogv",
+      "skill_title_texture_path": "res://assets/ui/cutin/titles/kato_kiyomasa__chilbonchang__title.png",
+      "enabled": true
+    },
+    {
+      "hero_id": "konishi_yukinaga",
+      "hero_name": "고니시 유키나가",
+      "skill_id": "konishi_yukinaga_unique",
+      "skill_name": "선봉교섭",
+      "asset_slug": "seonbong_gyoseop",
+      "dialogue": "",
+      "source_path": "res://assets/video_source_test/production_dry_run/imjin_demo/고니시유키나가컷인.mp4",
+      "video_path": "res://assets/ui/cutin/videos/konishi_yukinaga__seonbong_gyoseop__cutin_bg_theora_q8_1280x720.ogv",
+      "skill_title_texture_path": "res://assets/ui/cutin/titles/konishi_yukinaga__seonbong_gyoseop__title.png",
+      "enabled": true
+    },
+    {
+      "hero_id": "kuroda_nagamasa",
+      "hero_name": "구로다 나가마사",
+      "skill_id": "kuroda_nagamasa_unique",
+      "skill_name": "세키가하라 조략",
+      "asset_slug": "sekigahara_joryak",
+      "dialogue": "",
+      "source_path": "res://assets/video_source_test/production_dry_run/imjin_demo/구로다마사히로컷인.mp4",
+      "video_path": "res://assets/ui/cutin/videos/kuroda_nagamasa__sekigahara_joryak__cutin_bg_theora_q8_1280x720.ogv",
+      "skill_title_texture_path": "res://assets/ui/cutin/titles/kuroda_nagamasa__sekigahara_joryak__title.png",
+      "enabled": true
+    }
+  ]
+}
