@@ -2,7 +2,7 @@
 
 ## Status
 
-`IMPLEMENTED / STATIC VALIDATION ADDED / USER F6 QA PENDING`
+`IMPLEMENTED / CANONICAL HERO-ID HOTFIX APPLIED / LOCAL VALIDATOR RE-RUN REQUIRED / USER F6 QA PENDING`
 
 ## Purpose
 
@@ -24,6 +24,20 @@ and replaces only the scenario/controller specialization through:
 The full Production HUD node tree is therefore shared rather than copied.
 
 The Test2 controller subclasses `scripts/battle_web_import_test.gd` and overrides the test roster lookup. `BattleUnitState` then rebuilds authoritative hero payloads through `HeroDefinitionRegistry.HERO_DATA`, so Test2 does not duplicate hero stats, unit rules, battle roles, or unique-skill definitions.
+
+## Canonical hero-ID contract
+
+New Test2 scenario code must use canonical IDs from the generated hero datasets directly.
+
+Do not manually reintroduce legacy aliases such as:
+
+- `yi_sunsin` -> canonical `yi_sun_sin`
+- `jeong_dojeon` -> canonical `jeong_do_jeon`
+- `gim_yusin` -> canonical `kim_yu_sin`
+
+The existing Test1 source still contains some legacy IDs and is intentionally preserved unchanged in this transaction. Runtime alias compatibility for Test1 is separate from the rule that all newly written Test2 scenario data must use canonical IDs.
+
+A regression was found during local validation after the initial D3 implementation: Test2 used `yi_sunsin`, causing generated-data lookup failure for Yi Sun-sin. The Test2 roster and Korea demo hero set were corrected to `yi_sun_sin`, and the validator now explicitly rejects legacy IDs in Test2.
 
 ## Test1 lock
 
@@ -51,7 +65,7 @@ No Test1 roster replacement is authorized by this transaction.
 
 ### Korea
 
-- Main 01 — 이순신 (`yi_sunsin`)
+- Main 01 — 이순신 (`yi_sun_sin`)
 - Main 02 — 곽재우 (`gwak_jae_u`)
 - Main 03 — 김덕령 (`kim_deok_ryeong`)
 - Reinforce 01 — 권율 (`kwon_yul`)
@@ -96,13 +110,14 @@ python tools/validate_imjin_demo_test2.py
 The validator checks:
 
 - Test2 inherits Test1 instead of copying the Production UI tree.
-- Test1 Korea-vs-China roster remains byte-level source data in the original controller and unchanged by D3.
+- Test1 Korea-vs-China roster remains source-compatible and unchanged by D3.
 - Test2 exact Korea 5 / Japan 5 roster.
+- Test2 scenario IDs are canonical generated-data hero IDs; known legacy aliases are rejected.
 - All 10 Test2 heroes have generated base/profile/unique-skill records.
 - Prepared current-actor portraits required by the new Imjin additions and existing Japan demo trio exist.
 - Test2 contains no naval/temporary sea-route implementation.
 
-The connector-only environment cannot execute Godot locally; user F6 is the runtime/visual gate.
+The connector-only environment cannot execute the repository validator or Godot locally. After this hotfix, `python tools/validate_imjin_demo_test2.py` must be re-run in the local checkout before D3 static validation is marked PASS.
 
 ## User F6 QA gate
 
@@ -124,4 +139,4 @@ Confirm:
 
 ## Completion rule
 
-D3 is implementation-complete after the inherited scene, scenario specialization, and static validator are present. Final visual acceptance requires the user F6 gate.
+D3 is not considered validation-complete merely because the scene and specialization exist. The canonical-ID validator must PASS locally after any Test2 roster change, and final visual acceptance still requires the user F6 gate.
