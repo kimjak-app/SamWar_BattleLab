@@ -1,7 +1,11 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" path="res://tests/scenes/Battle_UI_Production_Test.tscn" id="1_base"]
 [ext_resource type="Script" path="res://tests/scripts/battle_ui_production_imjin_test.gd" id="2_imjin_script"]
+[ext_resource type="Script" path="res://tests/scripts/imjin_auto_turn_camera_guard.gd" id="3_camera_guard"]
 
 [node name="Battle_UI_Production_Imjin_Test" instance=ExtResource("1_base")]
 script = ExtResource("2_imjin_script")
+
+[node name="ImjinAutoTurnCameraGuard" type="Node" parent="."]
+script = ExtResource("3_camera_guard")
