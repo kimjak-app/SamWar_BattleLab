@@ -2,7 +2,7 @@
 
 ## Status
 
-`IMPLEMENTATION COMPLETE / USER GODOT QA REQUIRED`
+`D0-D1 LOCAL VALIDATOR PASS / D3 CANONICAL-ID HOTFIX APPLIED / D3 LOCAL VALIDATOR RE-RUN REQUIRED / USER GODOT QA REQUIRED`
 
 ## Scope summary
 
@@ -11,12 +11,16 @@
 - D0: 44-hero generated-data runtime contract normalized.
 - D1: five new Imjin heroes registered in production WorldMap hero registry.
 - D2: existing WorldMap -> formation -> Battle_Land contract reused without Imjin-specific schema.
+- Local D0-D1 validation has been reported PASS after implementation.
 
 ### Demo-only path
 
 - D3: separate inherited Korea-vs-Japan Test2 added.
 - Existing Korea-vs-China Test1 preserved.
 - Test2 shares Production Design1 scene/UI and uses production hero authority.
+- A canonical hero-ID regression was found in Test2 after the initial implementation: `yi_sunsin` was used instead of generated-data canonical `yi_sun_sin`.
+- The Test2 script, validator expectation, and D3 documentation have been corrected.
+- D3 must not be marked static-validation PASS until the corrected validator is re-run locally.
 
 ## Automated/static validators
 
@@ -27,9 +31,16 @@ python tools/validate_imjin_d0_d1_worldmap_hero_integration.py
 python tools/validate_imjin_demo_test2.py
 ```
 
+Expected state:
+
+- D0-D1 validator: already reported PASS locally.
+- Test2 validator: must be re-run after the canonical-ID hotfix and must PASS before F6 acceptance.
+
+The Test2 validator now explicitly enforces canonical scenario IDs and rejects known legacy aliases in newly written Test2 roster data. Existing Test1 legacy source IDs remain snapshot-tested unchanged so D3 does not rewrite Test1 merely to satisfy the new Test2 contract.
+
 Then run existing project validators relevant to the current Battle_Land baseline if available in the local checkout.
 
-The GitHub connector environment used for this transaction cannot execute local Godot or repository Python, so execution PASS is not claimed until run locally.
+The GitHub connector environment used for this transaction cannot execute local Godot or repository Python, so no post-hotfix Test2 execution PASS is claimed here.
 
 ## F5 Production QA
 
@@ -76,17 +87,25 @@ Confirm:
 
 ## F6 Test2 demo QA
 
-Run:
+Before F6, require:
+
+```text
+python tools/validate_imjin_demo_test2.py
+```
+
+PASS.
+
+Then run:
 
 `res://tests/scenes/Battle_UI_Production_Imjin_Test.tscn`
 
 Expected Korea roster:
 
-- 이순신
-- 곽재우
-- 김덕령
-- 권율
-- 고경명
+- 이순신 (`yi_sun_sin`)
+- 곽재우 (`gwak_jae_u`)
+- 김덕령 (`kim_deok_ryeong`)
+- 권율 (`kwon_yul`)
+- 고경명 (`go_gyeong_myeong`)
 
 Expected Japan roster:
 
@@ -112,6 +131,8 @@ Confirm:
 
 Do not record the `모두의 창업` footage until:
 
+- D0-D1 validator PASS is retained;
+- corrected Test2 validator PASS is confirmed;
 - F5 production new-hero handoff passes;
 - F6 Test1 regression passes;
 - F6 Test2 roster/visual/action QA passes.
