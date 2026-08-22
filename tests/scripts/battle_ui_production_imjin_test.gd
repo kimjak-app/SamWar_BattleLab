@@ -51,7 +51,7 @@ func _get_hero_registry_entry(hero_id: String) -> Dictionary:
 	var actor_portrait := _get_imjin_current_actor_portrait_path(hero_id)
 	if not actor_portrait.is_empty():
 		entry["closeup_portrait_path"] = actor_portrait
-		if String(entry.get("battlefield_portrait_path", "")).is_empty():
+		if String(hero_data.get("portrait_path", "")).is_empty():
 			entry["battlefield_portrait_path"] = actor_portrait
 	return entry
 
