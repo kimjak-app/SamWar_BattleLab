@@ -78,7 +78,31 @@ def main() -> int:
     for hero_id in NEW_HEROES:
         assert loyalty_by_hero[hero_id] == 80, f"{hero_id}: bootstrap loyalty must match runtime fallback 80"
 
-    print("VALIDATION PASS: 44 hero design parity + 44 WorldMap identities + five Imjin placements")
+    # Registry identity is not enough: the current WorldMap stores mutable city
+    # rosters separately. Require the reusable registry->city seeding bridge so
+    # newly registered heroes actually appear in production F5 without adding a
+    # second hard-coded hero list to CITY_HUD_DATA.
+    project_text = (ROOT / "project.godot").read_text(encoding="utf-8")
+    seeder_path = ROOT / "scripts" / "worldmap" / "worldmap_registered_hero_seeder.gd"
+    assert seeder_path.exists(), "missing WorldMap registered-hero city seeder"
+    seeder_text = seeder_path.read_text(encoding="utf-8")
+    assert 'RegisteredHeroCitySeeder="*res://scripts/worldmap/worldmap_registered_hero_seeder.gd"' in project_text, (
+        "WorldMap registered-hero seeder is not enabled as an autoload"
+    )
+    for required_token in [
+        'HeroDefinitionRegistryScript.HERO_DATA',
+        'assigned_city_id',
+        'stationed_hero_ids',
+        'hero_states.has(hero_id)',
+        'owned_hero_ids',
+        '_refresh_city_hud_data_bindings',
+    ]:
+        assert required_token in seeder_text, f"WorldMap city-seeding contract missing: {required_token}"
+
+    print(
+        "VALIDATION PASS: 44 hero design parity + 44 WorldMap identities + five Imjin placements + "
+        "registry-to-city production seeding bridge"
+    )
     return 0
 
 
