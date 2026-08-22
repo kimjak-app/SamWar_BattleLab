@@ -12,6 +12,8 @@ BASE_CONTROLLER = ROOT / "scripts" / "battle_web_import_test.gd"
 IMJIN_SCRIPT = ROOT / "tests" / "scripts" / "battle_ui_production_imjin_test.gd"
 PROJECT_FILE = ROOT / "project.godot"
 WORLD_MAP_SEEDER = ROOT / "scripts" / "worldmap" / "worldmap_registered_hero_seeder.gd"
+HERO_DESIGN_REGISTRY = ROOT / "scripts" / "worldmap" / "hero_design_data_registry.gd"
+SKILL_RUNTIME_EXTENSIONS = ROOT / "data" / "heroes" / "hero_unique_skill_runtime_extensions.json"
 
 EXPECTED_SLOTS = [
     "ally_main_01",
@@ -122,6 +124,7 @@ def main() -> int:
     imjin_script_text = IMJIN_SCRIPT.read_text(encoding="utf-8")
     project_text = PROJECT_FILE.read_text(encoding="utf-8")
     seeder_text = WORLD_MAP_SEEDER.read_text(encoding="utf-8")
+    hero_design_registry_text = HERO_DESIGN_REGISTRY.read_text(encoding="utf-8")
 
     assert 'path="res://tests/scenes/Battle_UI_Production_Test.tscn"' in imjin_scene_text, "Test2 must inherit Test1"
     assert 'path="res://tests/scripts/battle_ui_production_imjin_test.gd"' in imjin_scene_text, "Test2 script missing"
@@ -177,6 +180,44 @@ def main() -> int:
             f"Test2 skill name drift: {hero_id} expected={EXPECTED_SKILL_NAMES[hero_id]} actual={actual_skill_name}"
         )
 
+    # Hongui Janggun post-skill reposition is an explicit reusable skill-data
+    # extension, not a hero-id branch in the battle interaction code.
+    runtime_extensions = load_json(SKILL_RUNTIME_EXTENSIONS)
+    assert runtime_extensions.get("schema_version") == 1, "skill runtime extension schema must be 1"
+    extensions = runtime_extensions.get("extensions", [])
+    gwak_extensions = [item for item in extensions if item.get("skill_id") == "gwak_jae_u_unique"]
+    assert len(gwak_extensions) == 1, "gwak_jae_u_unique runtime extension must exist exactly once"
+    gwak_extension = gwak_extensions[0]
+    assert gwak_extension.get("post_skill_reposition_mode") == "manual", "Hongui reposition mode must be manual"
+    assert gwak_extension.get("post_skill_reposition_range") == 1, "Hongui reposition range must be exactly 1"
+    assert gwak_extension.get("post_skill_reposition_optional") is True, "Hongui reposition must allow staying in place"
+    assert "UNIQUE_SKILL_EXTENSIONS_PATH" in hero_design_registry_text, "HeroDesignDataRegistry extension path missing"
+    assert "_unique_skill_extensions_by_id" in hero_design_registry_text, "HeroDesignDataRegistry extension index missing"
+    get_unique_skill_block = function_block(hero_design_registry_text, "get_unique_skill")
+    assert "extension" in get_unique_skill_block and "skill[key]" in get_unique_skill_block, (
+        "HeroDesignDataRegistry must merge runtime skill extension fields"
+    )
+
+    finalize_block = function_block(imjin_script_text, "_finalize_unique_skill_action")
+    assert 'skill_data.get("post_skill_reposition_mode"' in finalize_block, "Test2 finalizer must read reposition mode from skill data"
+    assert 'skill_data.get("post_skill_reposition_range"' in finalize_block, "Test2 finalizer must read reposition range from skill data"
+    assert "gwak_jae_u_unique" not in finalize_block, "Test2 reposition flow must not hardcode Gwak Jae-u's skill id"
+    for function_name in [
+        "_begin_post_skill_reposition",
+        "_get_post_skill_reposition_valid_cells",
+        "_show_post_skill_reposition_overlay",
+        "_apply_post_skill_reposition",
+        "_finish_post_skill_reposition_turn",
+        "_clear_post_skill_reposition_state",
+    ]:
+        assert f"func {function_name}(" in imjin_script_text, f"missing post-skill reposition function: {function_name}"
+    assert "PHASE_POST_SKILL_REPOSITION_SELECT" in imjin_script_text, "post-skill reposition phase missing"
+    assert "post_skill_reposition_valid_cells.has(target_cell)" in imjin_script_text, "manual destination validation missing"
+    assert "_sync_resumed_unit_markers_to_grid(caster_state)" in imjin_script_text, "reposition must sync battlefield markers"
+    assert "_play_enemy_turn_demo()" in function_block(imjin_script_text, "_finish_post_skill_reposition_turn"), (
+        "enemy turn must start only after reposition selection/skip completes"
+    )
+
     # Roster portraits and current-actor portraits are separate contracts.
     assert "_get_imjin_regular_portrait_path" in imjin_script_text, "Test2 normal portrait resolver missing"
     registry_block = function_block(imjin_script_text, "_get_hero_registry_entry")
@@ -220,7 +261,7 @@ def main() -> int:
 
     print(
         "VALIDATION PASS: Test1 preserved + Test2 canonical authority/unit/skill/portrait binding + "
-        "registered WorldMap hero seeding contract"
+        "Hongui manual post-skill reposition contract + registered WorldMap hero seeding contract"
     )
     return 0
 
