@@ -12,7 +12,7 @@ BASE_CONTROLLER = ROOT / "scripts" / "battle_web_import_test.gd"
 IMJIN_SCRIPT = ROOT / "tests" / "scripts" / "battle_ui_production_imjin_test.gd"
 
 EXPECTED_ALLY = [
-    "yi_sunsin",
+    "yi_sun_sin",
     "gwak_jae_u",
     "kim_deok_ryeong",
     "kwon_yul",
@@ -32,6 +32,8 @@ NEW_IMJIN_IDS = {
     "kato_kiyomasa",
     "kuroda_nagamasa",
 }
+# Preserve the existing Test1 source roster exactly. These legacy aliases are
+# intentionally snapshot-tested here so D3 cannot silently rewrite Test1.
 EXPECTED_TEST1 = {
     "ally_main_01": "yi_sunsin",
     "ally_main_02": "jeong_dojeon",
@@ -43,6 +45,11 @@ EXPECTED_TEST1 = {
     "enemy_main_03": "xiahou_dun",
     "enemy_reinforce_01": "liu_bei",
     "enemy_reinforce_02": "zhuge_liang",
+}
+FORBIDDEN_TEST2_LEGACY_IDS = {
+    "yi_sunsin",
+    "jeong_dojeon",
+    "gim_yusin",
 }
 
 
@@ -80,6 +87,10 @@ def main() -> int:
     assert ally == EXPECTED_ALLY, f"wrong Test2 ally roster: {ally}"
     assert enemy == EXPECTED_ENEMY, f"wrong Test2 enemy roster: {enemy}"
 
+    test2_ids = set(test2.values())
+    leaked_legacy_ids = sorted(test2_ids & FORBIDDEN_TEST2_LEGACY_IDS)
+    assert not leaked_legacy_ids, f"Test2 must use canonical hero IDs, legacy IDs found: {leaked_legacy_ids}"
+
     base_stats = load_json(ROOT / "data" / "heroes" / "generated" / "hero_base_stats.json")["heroes"]
     profiles = load_json(ROOT / "data" / "heroes" / "generated" / "hero_battle_profiles.json")["profiles"]
     skills = load_json(ROOT / "data" / "heroes" / "generated" / "hero_unique_skills.json")["skills"]
@@ -103,7 +114,7 @@ def main() -> int:
     assert "naval" not in imjin_script_text.lower(), "Test2 must not implement naval battle yet"
     assert "sea_route" not in imjin_script_text.lower(), "Test2 must not add a temporary sea route"
 
-    print("VALIDATION PASS: Test1 preserved + inherited Test2 Korea 5 vs Japan 5 scenario isolated")
+    print("VALIDATION PASS: Test1 preserved + inherited Test2 Korea 5 vs Japan 5 scenario isolated + canonical Test2 hero IDs")
     return 0
 
 
