@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "extensions": [
+    {
+      "skill_id": "gwak_jae_u_unique",
+      "post_skill_reposition_mode": "manual",
+      "post_skill_reposition_range": 1,
+      "post_skill_reposition_optional": true
+    }
+  ]
+}
