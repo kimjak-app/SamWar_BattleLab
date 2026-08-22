@@ -104,6 +104,17 @@ def parse_roster_block(text: str, const_name: str) -> dict[str, str]:
     return dict(pairs)
 
 
+def function_block(text: str, function_name: str) -> str:
+    match = re.search(
+        rf"func {re.escape(function_name)}\(.*?(?=\n\nfunc |\Z)",
+        text,
+        flags=re.DOTALL,
+    )
+    if not match:
+        raise AssertionError(f"missing function: {function_name}")
+    return match.group(0)
+
+
 def main() -> int:
     base_scene_text = BASE_SCENE.read_text(encoding="utf-8")
     imjin_scene_text = IMJIN_SCENE.read_text(encoding="utf-8")
@@ -168,9 +179,13 @@ def main() -> int:
 
     # Roster portraits and current-actor portraits are separate contracts.
     assert "_get_imjin_regular_portrait_path" in imjin_script_text, "Test2 normal portrait resolver missing"
-    assert "current_actor" not in re.search(
-        r"func _get_hero_registry_entry\(.*?\n\nfunc ", imjin_script_text, flags=re.DOTALL
-    ).group(0), "Roster registry must not bind current_actor cinematic portraits"
+    registry_block = function_block(imjin_script_text, "_get_hero_registry_entry")
+    assert "_get_imjin_current_actor_portrait_path" not in registry_block, (
+        "Roster registry must not source current_actor cinematic portraits"
+    )
+    assert 'entry["closeup_portrait_path"] = actor_portrait' not in registry_block, (
+        "Roster registry still binds cinematic portrait as closeup portrait"
+    )
     for hero_id in EXPECTED_ALLY + EXPECTED_ENEMY:
         country = "korea" if hero_id in EXPECTED_ALLY else "japan"
         stem = PORTRAIT_STEM_OVERRIDES.get(hero_id, hero_id)
