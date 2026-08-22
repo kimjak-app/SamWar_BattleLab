@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 GameSession="*res://scripts/game_session.gd"
+RegisteredHeroCitySeeder="*res://scripts/worldmap/worldmap_registered_hero_seeder.gd"
 
 [display]
 
