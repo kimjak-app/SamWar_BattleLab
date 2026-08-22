@@ -2,7 +2,7 @@
 
 ## Status
 
-`MANUAL F5 PRODUCTION HANDOFF PASS / MANUAL F6 TEST2 PASS / STATIC VALIDATORS + TEST1 REGRESSION STILL REQUIRED / HONGUIJANGGUN REPOSITION REMAINS`
+`MANUAL F5 PRODUCTION HANDOFF PASS / MANUAL F6 TEST2 PASS / HONGUIJANGGUN MANUAL REPOSITION IMPLEMENTED IN TEST2 AND RE-QA REQUIRED / STATIC VALIDATORS + TEST1 REGRESSION STILL REQUIRED`
 
 ## Scope summary
 
@@ -29,13 +29,42 @@
 - Hotfix: Test2 now deep-duplicates the registry entry before applying presentation overrides.
 - **2026-08-22 manual F6 re-QA PASS:** user confirmed the Korea-vs-Japan Test2 now runs successfully through live battle after the authority/portrait/read-only hotfix series.
 
-## Known separate functional remainder
+## Hongui Janggun post-skill reposition
 
-`gwak_jae_u` / `홍의장군` generated data already contains the intended encirclement debuff and `사용 후 1칸 재배치` description.
+`gwak_jae_u` / `홍의장군` generated skill description includes `사용 후 1칸 재배치`.
 
 The stale `개혁령` command label was **not** a placeholder for this. It was the Test1 state-contamination bug and is fixed by the Test2 authority rebind.
 
-The resolver already supports the encirclement debuff portion. The explicit post-skill **manual 1-cell reposition** is still a separate functional completion item because the existing generic resolver `move` command means deterministic retreat. Do not fake this behavior as retreat movement; add and QA a dedicated interaction before declaring `홍의장군` behavior complete.
+The resolver already supports the encirclement debuff portion. The explicit reposition now has a separate runtime skill-data contract in:
+
+`data/heroes/hero_unique_skill_runtime_extensions.json`
+
+Locked extension fields for `gwak_jae_u_unique`:
+
+- `post_skill_reposition_mode = manual`
+- `post_skill_reposition_range = 1`
+- `post_skill_reposition_optional = true`
+
+`HeroDesignDataRegistry` merges this extension into the normal generated unique-skill dictionary, so interaction code does not branch on Gwak Jae-u's hero or skill id.
+
+The current Design1/Test2 execution host implements the manual interaction:
+
+1. 홍의장군 target/effect commits normally.
+2. Momentum/action are not refunded.
+3. Skill cooldown/action consumption are committed before reposition selection.
+4. Adjacent empty valid cells within exactly one grid cell are highlighted.
+5. Left-click moves Gwak Jae-u to one valid highlighted cell.
+6. Right-click keeps the unit in place because the extension is optional.
+7. Only after move/skip does the enemy turn begin.
+8. If no valid adjacent destination exists, reposition is skipped and battle continues.
+
+### Production host boundary
+
+The **skill-data contract is Production/shared**, but the manual selection UX is currently implemented in the inherited Design1/Test2 host (`tests/scripts/battle_ui_production_imjin_test.gd`).
+
+The real F5 `Battle_Land` still uses the older Production UI/execution host. Do **not** duplicate or hack the reposition flow into that old host just for this transaction. When Design1 is migrated into `Battle_Land`, promote the tested generic post-skill reposition interaction into the shared Production battle controller as part of that transaction.
+
+Until that migration, do not claim manual Hongui reposition is available in the old F5 battle presentation.
 
 ## Automated/static validators
 
@@ -59,7 +88,11 @@ The Test2 validator checks:
 - exact generated skill names;
 - ordinary roster portrait availability;
 - separation of ordinary roster portraits from Current Actor cinematic portraits;
-- WorldMap registered-hero city-seeding contract.
+- WorldMap registered-hero city-seeding contract;
+- Hongui runtime extension schema and exact `manual / range 1 / optional` contract;
+- HeroDesignDataRegistry runtime-extension merge;
+- manual post-skill reposition phase/valid-cell/marker-sync/enemy-turn handoff structure;
+- no hero-id-specific Hongui branch inside the Test2 finalizer.
 
 The GitHub connector environment cannot execute local Godot or repository Python, so static validator PASS is not claimed here until re-run locally.
 
@@ -93,7 +126,9 @@ Still required before merge:
 
 ### Manual status
 
-**PASS reported by user on 2026-08-22:** Korea-vs-Japan Test2 runs successfully in live battle after the latest hotfixes.
+**PASS reported by user on 2026-08-22 before the Hongui reposition addition:** Korea-vs-Japan Test2 runs successfully in live battle after the authority/portrait/read-only hotfixes.
+
+Because post-skill reposition was added afterward, Test2 needs one focused re-QA for Hongui.
 
 Expected Korea roster / type / skill:
 
@@ -110,6 +145,19 @@ Expected Japan roster / type / skill:
 - 가토 기요마사 — 보병 — 칠본창
 - 고니시 유키나가 — 총병 — 선봉교섭
 - 구로다 나가마사 — 기병 — 세키가하라 조략
+
+### Focused Hongui QA
+
+1. Accumulate at least 3 ally momentum.
+2. Select 곽재우 and use `홍의장군` on a valid enemy target.
+3. Confirm the debuff resolves before reposition selection.
+4. Confirm the battle does **not** immediately hand control to the enemy.
+5. Confirm only adjacent valid empty cells are highlighted for reposition.
+6. Left-click one highlighted cell and confirm 곽재우 moves exactly one cell while preserving facing/action-consumed state.
+7. Confirm the enemy turn begins after reposition completes.
+8. On another run, right-click during reposition and confirm 곽재우 stays in place and the enemy turn begins.
+9. Confirm momentum is not refunded on move/skip.
+10. Confirm no parser, invalid-parent, read-only Dictionary, or stuck-phase error appears.
 
 Before final merge, retain these checks:
 
@@ -132,14 +180,14 @@ Do not record the `모두의 창업` footage until:
 - strengthened Test2 validator PASS;
 - F5 production handoff PASS is retained;
 - F6 Test1 regression PASS;
-- F6 Test2 PASS is retained;
-- 홍의장군 post-skill 1-cell reposition behavior is implemented and QA'd if it will be demonstrated.
+- F6 Test2 PASS is retained after Hongui reposition re-QA;
+- Hongui post-skill 1-cell reposition PASS if it will be demonstrated.
 
 After those gates, Test2 is the preferred battle recording scene for the Korea-vs-Japan demo.
 
 ## Future Production UI reminder
 
-The current F5 real battle scene still shows the older Production UI. The Design1 UI built and validated in `Battle_UI_Production_Test.tscn` must later be migrated into the real `Battle_Land` path as a dedicated transaction. Do not treat the old F5 UI as a regression from this Imjin integration work.
+The current F5 real battle scene still shows the older Production UI. The Design1 UI built and validated in `Battle_UI_Production_Test.tscn` must later be migrated into the real `Battle_Land` path as a dedicated transaction. During that migration, move the generic manual post-skill reposition interaction from the Test2 host into the shared Production battle controller instead of duplicating it.
 
 ## Future naval reminder
 
