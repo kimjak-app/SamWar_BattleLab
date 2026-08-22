@@ -2,7 +2,7 @@
 
 ## Status
 
-`IMPLEMENTED / CANONICAL HERO-ID HOTFIX APPLIED / LOCAL VALIDATOR RE-RUN REQUIRED / USER F6 QA PENDING`
+`IMPLEMENTED / MANUAL F6 STATE-CONTAMINATION BUG FOUND / CANONICAL AUTHORITY + PORTRAIT HOTFIX APPLIED / LOCAL VALIDATOR RE-RUN + USER F6 QA REQUIRED`
 
 ## Purpose
 
@@ -23,7 +23,9 @@ and replaces only the scenario/controller specialization through:
 
 The full Production HUD node tree is therefore shared rather than copied.
 
-The Test2 controller subclasses `scripts/battle_web_import_test.gd` and overrides the test roster lookup. `BattleUnitState` then rebuilds authoritative hero payloads through `HeroDefinitionRegistry.HERO_DATA`, so Test2 does not duplicate hero stats, unit rules, battle roles, or unique-skill definitions.
+The Test2 controller subclasses `scripts/battle_web_import_test.gd`. The inherited Test1 builder still owns common battle wiring, positions, troop allocation, action flags, and UI integration; Test2 then rebinds each of the ten created `BattleUnitState` objects to the scenario's canonical hero ID.
+
+That second step is mandatory because `BattleUnitState.unit_id` is the production authority trigger: assigning a registered hero ID rebuilds the authoritative hero payload from `HeroDefinitionRegistry.HERO_DATA` / generated design data, refreshing unit type, combat stats, ranges, and unique-skill definition.
 
 ## Canonical hero-ID contract
 
@@ -37,7 +39,32 @@ Do not manually reintroduce legacy aliases such as:
 
 The existing Test1 source still contains some legacy IDs and is intentionally preserved unchanged in this transaction. Runtime alias compatibility for Test1 is separate from the rule that all newly written Test2 scenario data must use canonical IDs.
 
-A regression was found during local validation after the initial D3 implementation: Test2 used `yi_sunsin`, causing generated-data lookup failure for Yi Sun-sin. The Test2 roster and Korea demo hero set were corrected to `yi_sun_sin`, and the validator now explicitly rejects legacy IDs in Test2.
+A first regression was found during local validation after the initial D3 implementation: Test2 used `yi_sunsin`, causing generated-data lookup failure for Yi Sun-sin. The Test2 roster and Korea demo hero set were corrected to `yi_sun_sin`, and the validator explicitly rejects legacy IDs in Test2.
+
+## Manual F6 bug found after the canonical-ID hotfix
+
+The first successful Test2 F6 launch exposed a deeper problem that static roster-ID validation had missed.
+
+The visible roster names were Korea/Japan, but the actual underlying `BattleUnitState` objects were still the inherited Test1 heroes. This caused exact cross-contamination such as:
+
+- 곽재우 surface -> inherited 정도전 state -> `개혁령` and wrong unit type;
+- 김덕령 surface -> inherited 권율 state -> `행주대첩` and wrong unit type;
+- 권율 / 고경명 -> inherited Test1 reinforcement state -> missing/wrong unique skill and unit type;
+- Japan slots -> inherited China Test1 combat states and unit types.
+
+The bottom Current Actor HUD appeared more correct because its test bridge directly re-queried `HeroDesignDataRegistry`, while the floating command panel correctly reflected the **actual** stale `BattleUnitState.unique_skill_definition`. The mismatch therefore exposed a real scenario-state authority bug, not a UI-label bug.
+
+### Hotfix contract
+
+`tests/scripts/battle_ui_production_imjin_test.gd` now overrides `_create_demo_unit_states()`:
+
+1. call `super._create_demo_unit_states()` to preserve the tested Test1 battle wiring;
+2. map all ten Test2 capacity slots to their canonical scenario hero IDs;
+3. set each state's final `slot_id`;
+4. assign `unit_state.unit_id = hero_id` to invoke `BattleUnitState` authoritative rebuild;
+5. apply only scenario presentation metadata (`nation`, `visual_key`, `portrait_key`) after authority rebuild.
+
+Do **not** replace this with manual copies of hero stats/skills inside Test2. Test2 must remain a thin scenario layer over production hero authority.
 
 ## Test1 lock
 
@@ -65,27 +92,50 @@ No Test1 roster replacement is authorized by this transaction.
 
 ### Korea
 
-- Main 01 — 이순신 (`yi_sun_sin`)
-- Main 02 — 곽재우 (`gwak_jae_u`)
-- Main 03 — 김덕령 (`kim_deok_ryeong`)
-- Reinforce 01 — 권율 (`kwon_yul`)
-- Reinforce 02 — 고경명 (`go_gyeong_myeong`)
+- Main 01 — 이순신 (`yi_sun_sin`) — 궁병 — 학익진
+- Main 02 — 곽재우 (`gwak_jae_u`) — 보병 — 홍의장군
+- Main 03 — 김덕령 (`kim_deok_ryeong`) — 기병 — 충용장
+- Reinforce 01 — 권율 (`kwon_yul`) — 보병 — 행주대첩
+- Reinforce 02 — 고경명 (`go_gyeong_myeong`) — 보병 — 호남의병
 
 ### Japan
 
-- Main 01 — 도요토미 히데요시 (`toyotomi_hideyoshi`)
-- Main 02 — 시마즈 요시히로 (`shimazu_yoshihiro`)
-- Main 03 — 가토 기요마사 (`kato_kiyomasa`)
-- Reinforce 01 — 고니시 유키나가 (`konishi_yukinaga`)
-- Reinforce 02 — 구로다 나가마사 (`kuroda_nagamasa`)
+- Main 01 — 도요토미 히데요시 (`toyotomi_hideyoshi`) — 보병 — 태합호령
+- Main 02 — 시마즈 요시히로 (`shimazu_yoshihiro`) — 총병 — 귀석만자
+- Main 03 — 가토 기요마사 (`kato_kiyomasa`) — 보병 — 칠본창
+- Reinforce 01 — 고니시 유키나가 (`konishi_yukinaga`) — 총병 — 선봉교섭
+- Reinforce 02 — 구로다 나가마사 (`kuroda_nagamasa`) — 기병 — 세키가하라 조략
 
 ## Visual contract
 
+Two portrait surfaces are intentionally separate:
+
+1. **Roster / ordinary battle close-up portrait**
+   - use normal portrait assets under `assets/heroes/portraits/korea|japan/`;
+2. **central-bottom Current Actor HUD**
+   - use the dedicated cinematic `assets/heroes/portraits/current_actor/...` contract through the existing bottom-HUD bridge.
+
+The initial Test2 implementation incorrectly wrote a `current_actor` cinematic path into `closeup_portrait_path`, causing large/cinematic images to leak into roster slots. The hotfix removes that coupling and resolves normal portraits explicitly for Test2 registry entries.
+
+Additional rules:
+
 - Existing Production battle UI and positioning are inherited unchanged.
-- Test2 resolves missing hero visual registry entries from production `HeroDefinitionRegistry` rather than adding another authoritative hero database.
-- Prepared `current_actor` portraits are preferred for Test2 close-up presentation where available.
-- Korea and Japan unit-token visual keys are selected by scenario region/unit type; the shared battle controller already contains Korea/Japan token registries.
+- Test2 resolves hero authority from production `HeroDefinitionRegistry` rather than adding another authoritative hero database.
+- Korea and Japan unit-token visual keys are selected by scenario nation/unit type.
 - No Test1 visual data is replaced.
+
+## Gwak Jae-u `홍의장군` implementation note
+
+The generated data is authoritative and already defines:
+
+- skill: `홍의장군`;
+- effect: `encirclement_debuff`;
+- enemy-area debuff;
+- description includes `사용 후 1칸 재배치`.
+
+The previous `개혁령` display was **not** an intentional placeholder for the unimplemented reposition. It was the stale Jeong Do-jeon Test1 state described above.
+
+Current resolver support already covers the encirclement debuff portion. The explicit post-skill 1-cell manual reposition remains a separate functional completion item because the existing resolver `move` command currently means deterministic retreat; it must not be faked as a retreat. Do not mark `홍의장군` full behavior complete until that reposition interaction has its own safe implementation/QA.
 
 ## Future naval relationship
 
@@ -101,27 +151,32 @@ No naval rule, sea route, boarding transition, or ship combat is implemented in 
 
 ## Validation
 
-Added:
+Run:
 
 ```text
 python tools/validate_imjin_demo_test2.py
 ```
 
-The validator checks:
+The validator now checks:
 
 - Test2 inherits Test1 instead of copying the Production UI tree.
 - Test1 Korea-vs-China roster remains source-compatible and unchanged by D3.
-- Test2 exact Korea 5 / Japan 5 roster.
-- Test2 scenario IDs are canonical generated-data hero IDs; known legacy aliases are rejected.
-- All 10 Test2 heroes have generated base/profile/unique-skill records.
-- Prepared current-actor portraits required by the new Imjin additions and existing Japan demo trio exist.
+- Test2 exact Korea 5 / Japan 5 canonical roster.
+- known Test2 legacy aliases are rejected.
+- all ten states are covered by the Test2 authority-rebind path.
+- all ten generated unit types match the locked Test2 expectation.
+- battle-profile unique-skill IDs match generated unique-skill records.
+- all ten generated skill names match the locked Test2 expectation.
+- normal roster portrait assets exist separately from cinematic Current Actor assets.
+- the Test2 registry function no longer assigns a Current Actor cinematic image as `closeup_portrait_path`.
+- WorldMap registered-hero city seeding contract is present.
 - Test2 contains no naval/temporary sea-route implementation.
 
-The connector-only environment cannot execute the repository validator or Godot locally. After this hotfix, `python tools/validate_imjin_demo_test2.py` must be re-run in the local checkout before D3 static validation is marked PASS.
+The connector-only environment cannot execute the repository validator or Godot locally. After pulling this hotfix, the validator must be re-run in the local checkout before D3 static validation is marked PASS.
 
 ## User F6 QA gate
 
-Run directly:
+After pulling the branch and restarting Godot once, run directly:
 
 `res://tests/scenes/Battle_UI_Production_Imjin_Test.tscn`
 
@@ -130,13 +185,15 @@ Confirm:
 1. Production Design1 HUD geometry is identical to Test1.
 2. Ally roster is 이순신 / 곽재우 / 김덕령 / 권율 / 고경명.
 3. Enemy roster is 도요토미 히데요시 / 시마즈 요시히로 / 가토 기요마사 / 고니시 유키나가 / 구로다 나가마사.
-4. Hero names, portraits, troop types and current/max troops are correct.
-5. Current Actor HUD follows each acting hero.
-6. Move / attack / defend / unique skill / enemy turn work with the new roster.
-7. Korea/Japan unit visuals are visually distinct and no China hero/token remains in Test2.
-8. Reinforcement slots still obey the existing arrival contract.
-9. Test1 still runs separately as Korea-vs-China with unchanged Design1 layout.
+4. Roster portraits use ordinary portrait art, never the central-bottom Current Actor cinematic image.
+5. Exact unit types match the locked table above.
+6. Current Actor HUD follows each acting hero and may use the dedicated Current Actor art.
+7. Floating command panel unique-skill name matches the Current Actor HUD/generated skill for every ally actor.
+8. Move / attack / defend / supported unique skill / enemy turn work with the new roster.
+9. Korea/Japan unit visuals are visually distinct and no China hero/token remains in Test2.
+10. Reinforcement slots still obey the existing arrival contract.
+11. Test1 still runs separately as Korea-vs-China with unchanged Design1 layout.
 
 ## Completion rule
 
-D3 is not considered validation-complete merely because the scene and specialization exist. The canonical-ID validator must PASS locally after any Test2 roster change, and final visual acceptance still requires the user F6 gate.
+D3 is not considered validation-complete merely because the scene and specialization exist. The strengthened validator must PASS locally after any Test2 roster/authority/portrait change, and final visual acceptance still requires the user F6 gate.
