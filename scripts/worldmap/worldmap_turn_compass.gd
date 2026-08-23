@@ -8,10 +8,15 @@ const RIGHT_MARGIN := 24.0
 const BOTTOM_MARGIN := 42.0
 const SPIN_DURATION_SEC := 1.60
 const TURN_END_BUTTON_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder"
+const MAX_INSTALL_ATTEMPTS := 6
 
 var _world_scene: Node = null
 var _turn_end_button: Button = null
 var _spin_tween: Tween = null
+var _original_pressed_callbacks: Array[Callable] = []
+var _pressed_wrapper_installed := false
+var _install_attempts := 0
+var _serializing_turn_end := false
 
 
 func _ready() -> void:
@@ -41,53 +46,115 @@ func bind_world_scene(world_scene: Node) -> void:
 	if button == null:
 		return
 
-	if _turn_end_button != null and _turn_end_button != button:
-		if _turn_end_button.button_down.is_connected(_on_turn_button_down):
-			_turn_end_button.button_down.disconnect(_on_turn_button_down)
+	if _turn_end_button != button:
+		_turn_end_button = button
+		_pressed_wrapper_installed = false
+		_original_pressed_callbacks.clear()
+		_install_attempts = 0
 
-	_turn_end_button = button
-	if not _turn_end_button.button_down.is_connected(_on_turn_button_down):
-		_turn_end_button.button_down.connect(_on_turn_button_down)
+	# City markers can ask the background helper to bind before the WorldMap root
+	# finishes _ready(). Install on deferred idle so the original turn-end pressed
+	# callback already exists, then wrap that callback instead of racing it.
+	if not _pressed_wrapper_installed:
+		call_deferred("_install_pressed_wrapper")
 	call_deferred("_layout_compass")
 
 
-func _on_turn_button_down() -> void:
-	if _turn_end_button == null or _turn_end_button.disabled:
+func _install_pressed_wrapper() -> void:
+	if _pressed_wrapper_installed:
+		return
+	if _turn_end_button == null or not is_instance_valid(_turn_end_button):
+		return
+
+	var wrapper := Callable(self, "_on_turn_button_pressed_serialized")
+	var connections := _turn_end_button.pressed.get_connections()
+	var captured: Array[Callable] = []
+
+	for connection in connections:
+		var callback: Callable = connection.get("callable", Callable())
+		if not callback.is_valid() or callback == wrapper:
+			continue
+		captured.append(callback)
+
+	# If the parent WorldMap script has not connected its handler yet, wait a little
+	# longer rather than installing an empty wrapper that the real callback bypasses.
+	if captured.is_empty() and _install_attempts < MAX_INSTALL_ATTEMPTS:
+		_install_attempts += 1
+		call_deferred("_install_pressed_wrapper")
+		return
+
+	_original_pressed_callbacks = captured
+	for callback in _original_pressed_callbacks:
+		if callback.is_valid() and _turn_end_button.pressed.is_connected(callback):
+			_turn_end_button.pressed.disconnect(callback)
+
+	if not _turn_end_button.pressed.is_connected(wrapper):
+		_turn_end_button.pressed.connect(wrapper)
+	_pressed_wrapper_installed = true
+
+
+func _on_turn_button_pressed_serialized() -> void:
+	if _serializing_turn_end:
+		return
+	if _turn_end_button == null or not is_instance_valid(_turn_end_button):
 		return
 
 	var button_text := _turn_end_button.text.strip_edges()
-	# Read the state before the button's main pressed handler changes turn/UI state.
-	if not button_text.contains("턴 종료") or button_text.contains("편집"):
+	var is_actual_turn_end := (
+		not _turn_end_button.disabled
+		and button_text.contains("턴 종료")
+		and not button_text.contains("편집")
+	)
+
+	# The same scene button is reused for non-turn-end modes. Preserve those modes
+	# exactly by forwarding their original pressed callbacks immediately.
+	if not is_actual_turn_end:
+		_invoke_original_pressed_callbacks()
 		return
 
-	play_turn_end_spin()
+	_serializing_turn_end = true
+	_turn_end_button.disabled = true
+
+	# Critical ordering contract:
+	# 1) render one uninterrupted compass revolution,
+	# 2) only then run the existing turn-end / enemy-turn processing.
+	# The old order ran both at once, so blocking turn calculations froze rendering
+	# in the middle of the tween and visually produced 180deg -> pause -> 180deg.
+	await _play_one_revolution_async()
+
+	if _turn_end_button != null and is_instance_valid(_turn_end_button):
+		_turn_end_button.disabled = false
+	_serializing_turn_end = false
+	_invoke_original_pressed_callbacks()
 
 
-func play_turn_end_spin() -> void:
+func _play_one_revolution_async() -> void:
 	if _spin_tween != null and _spin_tween.is_valid():
 		_spin_tween.kill()
 
 	rotation = 0.0
 	pivot_offset = size * 0.5
 
-	# MVP contract: exactly one continuous revolution at constant speed.
-	# Tween a normalized 0..1 progress value and derive the angle ourselves so
-	# there are no phase boundaries, easing pauses, or shortest-path surprises.
-	_spin_tween = create_tween()
-	_spin_tween.set_process_mode(Tween.TWEEN_PROCESS_IDLE)
-	_spin_tween.tween_method(_apply_spin_progress, 0.0, 1.0, SPIN_DURATION_SEC) \
+	var tween := create_tween()
+	_spin_tween = tween
+	tween.set_process_mode(Tween.TWEEN_PROCESS_IDLE)
+	tween.tween_method(_apply_spin_progress, 0.0, 1.0, SPIN_DURATION_SEC) \
 		.set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT)
-	_spin_tween.tween_callback(_finish_spin)
+	await tween.finished
+
+	if _spin_tween == tween:
+		rotation = 0.0
+		_spin_tween = null
 
 
 func _apply_spin_progress(progress: float) -> void:
 	rotation = TAU * clampf(progress, 0.0, 1.0)
 
 
-func _finish_spin() -> void:
-	# TAU and 0 are visually identical; normalize for the next turn.
-	rotation = 0.0
-	_spin_tween = null
+func _invoke_original_pressed_callbacks() -> void:
+	for callback in _original_pressed_callbacks:
+		if callback.is_valid():
+			callback.call()
 
 
 func _layout_compass() -> void:
