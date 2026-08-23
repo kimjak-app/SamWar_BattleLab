@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "extensions": [
+    {
+      "skill_id": "gwak_jae_u_unique",
+      "post_skill_reposition_mode": "manual",
+      "post_skill_reposition_range": 3,
+      "post_skill_reposition_optional": true,
+      "description": "지정 적 중심 반경 1 방어·이동 저하·측후방 피해 증가. 사용 후 최대 3칸 재배치"
+    }
+  ]
+}

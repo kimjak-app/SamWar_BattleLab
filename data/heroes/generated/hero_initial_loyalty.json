@@ -40,6 +40,11 @@
     {"hero_id":"honda_tadakatsu","initial_loyalty":100},
     {"hero_id":"genghis_khan","initial_loyalty":100},
     {"hero_id":"subutai","initial_loyalty":100},
-    {"hero_id":"jebe","initial_loyalty":97}
+    {"hero_id":"jebe","initial_loyalty":97},
+    {"hero_id":"gwak_jae_u","initial_loyalty":80},
+    {"hero_id":"go_gyeong_myeong","initial_loyalty":80},
+    {"hero_id":"kim_deok_ryeong","initial_loyalty":80},
+    {"hero_id":"kato_kiyomasa","initial_loyalty":80},
+    {"hero_id":"kuroda_nagamasa","initial_loyalty":80}
   ]
 }

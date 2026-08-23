@@ -1,0 +1,41 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://tests/scripts/imjin_cutin_visual_qa.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cutin/hero_cutin_presentation.tscn" id="2_presentation"]
+
+[node name="Imjin_Cutin_Visual_QA" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.015, 0.015, 0.02, 1)
+
+[node name="HeroCutinPresentation" parent="." instance=ExtResource("2_presentation")]
+layout_mode = 1
+
+[node name="StatusLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 22.0
+offset_right = 1124.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.95, 0.91, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 22
+text = "D5-3 Imjin cutin visual QA loading..."
+horizontal_alignment = 1
+vertical_alignment = 1
+mouse_filter = 2

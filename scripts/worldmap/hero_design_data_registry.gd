@@ -5,9 +5,10 @@ const BASE_STATS_PATH := "res://data/heroes/generated/hero_base_stats.json"
 const INITIAL_LOYALTY_PATH := "res://data/heroes/generated/hero_initial_loyalty.json"
 const BATTLE_PROFILES_PATH := "res://data/heroes/generated/hero_battle_profiles.json"
 const UNIQUE_SKILLS_PATH := "res://data/heroes/generated/hero_unique_skills.json"
+const UNIQUE_SKILL_EXTENSIONS_PATH := "res://data/heroes/hero_unique_skill_runtime_extensions.json"
 const UNIT_TYPE_RULES_PATH := "res://data/heroes/generated/unit_type_rules.json"
 const BATTLE_ROLE_RULES_PATH := "res://data/heroes/generated/battle_role_rules.json"
-const EXPECTED_HERO_COUNT := 39
+const EXPECTED_HERO_COUNT := 44
 
 static var _loaded := false
 static var _load_error := ""
@@ -15,6 +16,7 @@ static var _base_stats_by_hero: Dictionary = {}
 static var _initial_loyalty_by_hero: Dictionary = {}
 static var _battle_profiles_by_hero: Dictionary = {}
 static var _unique_skills_by_id: Dictionary = {}
+static var _unique_skill_extensions_by_id: Dictionary = {}
 static var _unit_type_rules_by_id: Dictionary = {}
 static var _battle_role_rules_by_id: Dictionary = {}
 
@@ -28,6 +30,7 @@ static func ensure_loaded() -> bool:
 	_initial_loyalty_by_hero = _index_records(INITIAL_LOYALTY_PATH, "heroes", "hero_id")
 	_battle_profiles_by_hero = _index_records(BATTLE_PROFILES_PATH, "profiles", "hero_id")
 	_unique_skills_by_id = _index_records(UNIQUE_SKILLS_PATH, "skills", "skill_id")
+	_unique_skill_extensions_by_id = _index_records(UNIQUE_SKILL_EXTENSIONS_PATH, "extensions", "skill_id")
 	_unit_type_rules_by_id = _index_records(UNIT_TYPE_RULES_PATH, "unit_types", "unit_type", [1, 2])
 	_battle_role_rules_by_id = _index_records(BATTLE_ROLE_RULES_PATH, "roles", "role")
 
@@ -75,7 +78,16 @@ static func get_battle_profile(hero_id: String) -> Dictionary:
 static func get_unique_skill(skill_id: String) -> Dictionary:
 	if not ensure_loaded():
 		return {}
-	return _unique_skills_by_id.get(skill_id, {}).duplicate(true)
+	var skill: Dictionary = _unique_skills_by_id.get(skill_id, {}).duplicate(true)
+	if skill.is_empty():
+		return {}
+	var extension: Dictionary = _unique_skill_extensions_by_id.get(skill_id, {})
+	for key_variant in extension.keys():
+		var key := String(key_variant)
+		if key == "skill_id":
+			continue
+		skill[key] = extension.get(key_variant)
+	return skill
 
 static func get_unique_skill_for_hero(hero_id: String) -> Dictionary:
 	var profile := get_battle_profile(hero_id)
