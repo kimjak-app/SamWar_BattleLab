@@ -7,27 +7,6 @@ const RIGHT_PANEL_SAFE_WIDTH := 330.0
 const RIGHT_MARGIN := 24.0
 const BOTTOM_MARGIN := 42.0
 const TURN_END_BUTTON_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder"
-const CHECKER_MASK_SHADER := """
-shader_type canvas_item;
-
-void fragment() {
-    vec4 color = texture(TEXTURE, UV);
-
-    float min_rgb = min(color.r, min(color.g, color.b));
-    float max_rgb = max(color.r, max(color.g, color.b));
-    float chroma = max_rgb - min_rgb;
-    float brightness = (color.r + color.g + color.b) / 3.0;
-
-    // Temporary mask for the current baked checkerboard source asset.
-    // Remove this material once the real transparent PNG replaces the source.
-    float neutral = 1.0 - smoothstep(0.045, 0.11, chroma);
-    float checker_light = smoothstep(0.70, 0.88, brightness);
-    float remove_amount = neutral * checker_light;
-
-    color.a *= 1.0 - remove_amount;
-    COLOR = color;
-}
-"""
 
 var _world_scene: Node = null
 var _turn_end_button: Button = null
@@ -45,7 +24,6 @@ func _ready() -> void:
 	pivot_offset = COMPASS_SIZE * 0.5
 	rotation_degrees = 0.0
 	z_index = 20
-	_apply_checker_background_mask()
 
 	var viewport := get_viewport()
 	if viewport != null and not viewport.size_changed.is_connected(_layout_compass):
@@ -119,14 +97,6 @@ func _finish_spin() -> void:
 	# 360 and 0 are visually identical; normalize for the next turn.
 	rotation_degrees = 0.0
 	_spin_tween = null
-
-
-func _apply_checker_background_mask() -> void:
-	var shader := Shader.new()
-	shader.code = CHECKER_MASK_SHADER
-	var shader_material := ShaderMaterial.new()
-	shader_material.shader = shader
-	material = shader_material
 
 
 func _layout_compass() -> void:
