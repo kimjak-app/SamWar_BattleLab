@@ -3,6 +3,7 @@ class_name WorldMapBackgroundRefreshTool
 extends RefCounted
 
 const MASTER_TEXTURE: Texture2D = preload("res://assets/source/worldmap/worldmap_master_4096x2912.png")
+const TURN_COMPASS_SCRIPT := preload("res://scripts/worldmap/worldmap_turn_compass.gd")
 const TILE_SCALE := Vector2(0.5, 0.5)
 const WORLD_SIZE := Vector2(2048.0, 1456.0)
 const CAMERA_MIN_ZOOM := 0.35
@@ -31,6 +32,7 @@ static func ensure_background(context: Node) -> void:
 	_apply_tile(tile_layer, "Tile_B2_BottomRight", Rect2(2048, 1456, 2048, 1456), Vector2(1024, 728))
 
 	_schedule_initial_camera_cover(context, world_root)
+	_ensure_turn_compass(world_root)
 
 
 static func _apply_tile(tile_layer: Node, node_name: String, region: Rect2, target_position: Vector2) -> void:
@@ -53,6 +55,29 @@ static func _apply_tile(tile_layer: Node, node_name: String, region: Rect2, targ
 	sprite.position = target_position
 	sprite.rotation = 0.0
 	sprite.scale = TILE_SCALE
+
+
+static func _ensure_turn_compass(world_root: Node) -> void:
+	if Engine.is_editor_hint():
+		return
+	if world_root == null:
+		return
+
+	var world_scene := world_root.get_parent()
+	if world_scene == null:
+		return
+	var world_ui := world_scene.get_node_or_null("WorldMapUI")
+	if world_ui == null:
+		return
+
+	var compass := world_ui.get_node_or_null("TurnEndCompass")
+	if compass == null:
+		compass = TURN_COMPASS_SCRIPT.new()
+		compass.name = "TurnEndCompass"
+		world_ui.add_child(compass)
+
+	if compass.has_method("bind_world_scene"):
+		compass.call("bind_world_scene", world_scene)
 
 
 static func _schedule_initial_camera_cover(context: Node, world_root: Node) -> void:
