@@ -6,8 +6,6 @@ const COMPASS_SIZE := Vector2(190.0, 190.0)
 const RIGHT_PANEL_SAFE_WIDTH := 330.0
 const RIGHT_MARGIN := 24.0
 const BOTTOM_MARGIN := 42.0
-const SPIN_TURNS := 2.0
-const SPIN_DURATION_SEC := 1.80
 const TURN_END_BUTTON_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder"
 const CHECKER_MASK_SHADER := """
 shader_type canvas_item;
@@ -20,8 +18,8 @@ void fragment() {
     float chroma = max_rgb - min_rgb;
     float brightness = (color.r + color.g + color.b) / 3.0;
 
-    // The source asset contains a baked white/light-gray checkerboard instead of
-    // real alpha. Remove only bright neutral pixels so the gold/parchment art remains.
+    // Temporary mask for the current baked checkerboard source asset.
+    // Remove this material once the real transparent PNG replaces the source.
     float neutral = 1.0 - smoothstep(0.045, 0.11, chroma);
     float checker_light = smoothstep(0.70, 0.88, brightness);
     float remove_amount = neutral * checker_light;
@@ -45,7 +43,7 @@ func _ready() -> void:
 	custom_minimum_size = COMPASS_SIZE
 	size = COMPASS_SIZE
 	pivot_offset = COMPASS_SIZE * 0.5
-	rotation = 0.0
+	rotation_degrees = 0.0
 	z_index = 20
 	_apply_checker_background_mask()
 
@@ -90,21 +88,36 @@ func play_turn_end_spin() -> void:
 	if _spin_tween != null and _spin_tween.is_valid():
 		_spin_tween.kill()
 
-	rotation = 0.0
+	rotation_degrees = 0.0
 	pivot_offset = size * 0.5
 
+	# One visual revolution is intentionally split into four phases.
+	# The previous two-turn animation moved too many degrees per rendered frame
+	# on a 30 fps capture and looked stepped even though the tween updated normally.
 	_spin_tween = create_tween()
-	# Two turns over 1.8s with sine in/out avoids the huge first-frame angular jump
-	# of the previous 3-turn / 1.15s quartic ease-out animation.
-	_spin_tween.set_trans(Tween.TRANS_SINE)
-	_spin_tween.set_ease(Tween.EASE_IN_OUT)
-	_spin_tween.tween_property(self, "rotation", TAU * SPIN_TURNS, SPIN_DURATION_SEC)
+	_spin_tween.set_process_mode(Tween.TWEEN_PROCESS_IDLE)
+
+	# Gentle pickup: 0 -> 40 degrees.
+	_spin_tween.tween_property(self, "rotation_degrees", 40.0, 0.28) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+	# Main rotation: constant angular motion keeps adjacent frames visually even.
+	_spin_tween.tween_property(self, "rotation_degrees", 300.0, 1.20) \
+		.set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT)
+
+	# Slow into a tiny overshoot beyond north.
+	_spin_tween.tween_property(self, "rotation_degrees", 368.0, 0.55) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+	# Mechanical-looking settle back to exact north.
+	_spin_tween.tween_property(self, "rotation_degrees", 360.0, 0.18) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_spin_tween.tween_callback(_finish_spin)
 
 
 func _finish_spin() -> void:
-	# Keep 北 exactly upright after every turn-end animation.
-	rotation = 0.0
+	# 360 and 0 are visually identical; normalize for the next turn.
+	rotation_degrees = 0.0
 	_spin_tween = null
 
 
