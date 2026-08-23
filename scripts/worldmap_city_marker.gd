@@ -18,6 +18,8 @@ signal city_selected(marker: WorldMapCityMarker)
 @onready var name_text: Node = _get_name_text()
 @onready var click_area: Area2D = get_node_or_null("ClickArea") as Area2D
 
+const BACKGROUND_REFRESH_TOOL := preload("res://scripts/worldmap/worldmap_background_refresh_tool.gd")
+
 const CITY_CASTLE_ICON_TARGET_HEIGHT := 56.0
 # Castle icon visuals are disabled for the functional marker phase.
 const CASTLE_ICON_VISUALS_ENABLED := false
@@ -26,6 +28,42 @@ const CASTLE_ICON_KOREA := preload("res://assets/worldmap/city_icons/castle_kore
 const CASTLE_ICON_CHINA := preload("res://assets/worldmap/city_icons/castle_china.png")
 const CASTLE_ICON_JAPAN := preload("res://assets/worldmap/city_icons/castle_japan.png")
 const CASTLE_ICON_ORDO := preload("res://assets/worldmap/city_icons/castle_ordo.png")
+
+const WORLD_MAP_REFRESH_POSITION_TOLERANCE := 1.5
+const LEGACY_CITY_POSITIONS := {
+	"luoyang": Vector2(785, 781),
+	"yecheng": Vector2(896, 581),
+	"chengdu": Vector2(479, 984),
+	"jianye": Vector2(1046, 846),
+	"karakorum": Vector2(1155, 261),
+	"pyeongyang": Vector2(1353, 404),
+	"hanseong": Vector2(1409, 529),
+	"gyeongju": Vector2(1518, 658),
+	"sabi": Vector2(1426, 695),
+	"kyoto": Vector2(1798, 775),
+	"osaka": Vector2(1746, 861),
+	"kyushu": Vector2(1539, 951),
+	"edo": Vector2(1903, 696),
+}
+
+# 2048x1456 world coordinates sampled from the approved Photoshop city-dot layout.
+# These are seed positions only: once a marker is manually moved away from its legacy
+# position, this tool will never overwrite the user's fine adjustment.
+const REFRESH_CITY_POSITIONS := {
+	"luoyang": Vector2(640, 745),
+	"yecheng": Vector2(775, 579),
+	"chengdu": Vector2(433, 931),
+	"jianye": Vector2(931, 864),
+	"karakorum": Vector2(978, 405),
+	"pyeongyang": Vector2(1160, 572),
+	"hanseong": Vector2(1212, 642),
+	"gyeongju": Vector2(1285, 710),
+	"sabi": Vector2(1210, 733),
+	"kyoto": Vector2(1518, 855),
+	"osaka": Vector2(1450, 924),
+	"kyushu": Vector2(1273, 979),
+	"edo": Vector2(1605, 797),
+}
 
 const OWNER_COLORS := {
 	"player": Color(0.25, 0.62, 1.0, 1.0),
@@ -45,13 +83,37 @@ const OWNER_COLORS := {
 
 
 func _ready() -> void:
+	_apply_worldmap_refresh_seed_position()
+	_ensure_worldmap_refresh_background()
 	_refresh_marker_visuals()
 	_connect_click_area()
 
 
 func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
+		_apply_worldmap_refresh_seed_position()
+		_ensure_worldmap_refresh_background()
 		_refresh_marker_visuals()
+
+
+func _apply_worldmap_refresh_seed_position() -> void:
+	if not LEGACY_CITY_POSITIONS.has(city_id):
+		return
+	if not REFRESH_CITY_POSITIONS.has(city_id):
+		return
+
+	var legacy_position: Vector2 = LEGACY_CITY_POSITIONS[city_id]
+	if position.distance_to(legacy_position) > WORLD_MAP_REFRESH_POSITION_TOLERANCE:
+		return
+
+	position = REFRESH_CITY_POSITIONS[city_id]
+
+
+func _ensure_worldmap_refresh_background() -> void:
+	# One marker is enough to keep the shared background configured in both editor and runtime.
+	if city_id != "hanseong":
+		return
+	BACKGROUND_REFRESH_TOOL.ensure_background(self)
 
 
 func _get_city_dot() -> Polygon2D:
