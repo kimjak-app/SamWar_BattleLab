@@ -6,6 +6,7 @@ const COMPASS_SIZE := Vector2(190.0, 190.0)
 const RIGHT_PANEL_SAFE_WIDTH := 330.0
 const RIGHT_MARGIN := 24.0
 const BOTTOM_MARGIN := 42.0
+const SPIN_DURATION_SEC := 1.60
 const TURN_END_BUTTON_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder"
 
 var _world_scene: Node = null
@@ -22,7 +23,7 @@ func _ready() -> void:
 	custom_minimum_size = COMPASS_SIZE
 	size = COMPASS_SIZE
 	pivot_offset = COMPASS_SIZE * 0.5
-	rotation_degrees = 0.0
+	rotation = 0.0
 	z_index = 20
 
 	var viewport := get_viewport()
@@ -66,36 +67,26 @@ func play_turn_end_spin() -> void:
 	if _spin_tween != null and _spin_tween.is_valid():
 		_spin_tween.kill()
 
-	rotation_degrees = 0.0
+	rotation = 0.0
 	pivot_offset = size * 0.5
 
-	# One visual revolution is intentionally split into four phases.
-	# The previous two-turn animation moved too many degrees per rendered frame
-	# on a 30 fps capture and looked stepped even though the tween updated normally.
+	# MVP contract: exactly one continuous revolution at constant speed.
+	# Tween a normalized 0..1 progress value and derive the angle ourselves so
+	# there are no phase boundaries, easing pauses, or shortest-path surprises.
 	_spin_tween = create_tween()
 	_spin_tween.set_process_mode(Tween.TWEEN_PROCESS_IDLE)
-
-	# Gentle pickup: 0 -> 40 degrees.
-	_spin_tween.tween_property(self, "rotation_degrees", 40.0, 0.28) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-
-	# Main rotation: constant angular motion keeps adjacent frames visually even.
-	_spin_tween.tween_property(self, "rotation_degrees", 300.0, 1.20) \
+	_spin_tween.tween_method(_apply_spin_progress, 0.0, 1.0, SPIN_DURATION_SEC) \
 		.set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT)
-
-	# Slow into a tiny overshoot beyond north.
-	_spin_tween.tween_property(self, "rotation_degrees", 368.0, 0.55) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-
-	# Mechanical-looking settle back to exact north.
-	_spin_tween.tween_property(self, "rotation_degrees", 360.0, 0.18) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_spin_tween.tween_callback(_finish_spin)
 
 
+func _apply_spin_progress(progress: float) -> void:
+	rotation = TAU * clampf(progress, 0.0, 1.0)
+
+
 func _finish_spin() -> void:
-	# 360 and 0 are visually identical; normalize for the next turn.
-	rotation_degrees = 0.0
+	# TAU and 0 are visually identical; normalize for the next turn.
+	rotation = 0.0
 	_spin_tween = null
 
 
