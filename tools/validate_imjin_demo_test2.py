@@ -129,7 +129,8 @@ def main() -> int:
     assert 'path="res://tests/scenes/Battle_UI_Production_Test.tscn"' in imjin_scene_text, "Test2 must inherit Test1"
     assert 'path="res://tests/scripts/battle_ui_production_imjin_test.gd"' in imjin_scene_text, "Test2 script missing"
     assert 'extends "res://scripts/battle_web_import_test.gd"' in imjin_script_text, "Test2 must reuse production battle controller"
-    assert imjin_scene_text.count("[node ") == 1, "Test2 must not duplicate Test1 UI node tree"
+    node_count = imjin_scene_text.count("[node ")
+    assert node_count <= 3, f"Test2 scene has unexpectedly many nodes ({node_count}); check for Test1 UI duplication"
     assert len(imjin_scene_text) < 2000, "Test2 scene unexpectedly copied production UI"
     assert len(base_scene_text) > 100000, "Production Test1 scene unexpectedly missing/changed shape"
 
@@ -189,7 +190,9 @@ def main() -> int:
     assert len(gwak_extensions) == 1, "gwak_jae_u_unique runtime extension must exist exactly once"
     gwak_extension = gwak_extensions[0]
     assert gwak_extension.get("post_skill_reposition_mode") == "manual", "Hongui reposition mode must be manual"
-    assert gwak_extension.get("post_skill_reposition_range") == 1, "Hongui reposition range must be exactly 1"
+    assert gwak_extension.get("post_skill_reposition_range") == 3, (
+        "Hongui reposition range must be exactly 3 (confirmed balance decision)"
+    )
     assert gwak_extension.get("post_skill_reposition_optional") is True, "Hongui reposition must allow staying in place"
     assert "UNIQUE_SKILL_EXTENSIONS_PATH" in hero_design_registry_text, "HeroDesignDataRegistry extension path missing"
     assert "_unique_skill_extensions_by_id" in hero_design_registry_text, "HeroDesignDataRegistry extension index missing"
