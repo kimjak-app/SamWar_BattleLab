@@ -19,6 +19,9 @@ const ENDPOINT_EPSILON := 0.05
 
 func _ready() -> void:
 	_refresh_route_geometry()
+	# Route nodes become ready before CityMarker seed positions are applied in the
+	# runtime scene order. Re-sync once after the whole scene has finished _ready().
+	call_deferred("_refresh_route_geometry")
 
 
 func _process(_delta: float) -> void:
