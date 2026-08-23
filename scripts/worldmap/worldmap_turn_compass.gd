@@ -6,20 +6,27 @@ const COMPASS_SIZE := Vector2(190.0, 190.0)
 const RIGHT_PANEL_SAFE_WIDTH := 330.0
 const RIGHT_MARGIN := 24.0
 const BOTTOM_MARGIN := 42.0
-const SPIN_TURNS := 3.0
-const SPIN_DURATION_SEC := 1.15
+const SPIN_TURNS := 2.0
+const SPIN_DURATION_SEC := 1.80
 const TURN_END_BUTTON_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder"
-const WHITE_MASK_SHADER := """
+const CHECKER_MASK_SHADER := """
 shader_type canvas_item;
 
 void fragment() {
     vec4 color = texture(TEXTURE, UV);
+
     float min_rgb = min(color.r, min(color.g, color.b));
     float max_rgb = max(color.r, max(color.g, color.b));
     float chroma = max_rgb - min_rgb;
-    float near_white = smoothstep(0.92, 0.985, min_rgb);
-    float near_neutral = 1.0 - smoothstep(0.025, 0.09, chroma);
-    color.a *= 1.0 - (near_white * near_neutral);
+    float brightness = (color.r + color.g + color.b) / 3.0;
+
+    // The source asset contains a baked white/light-gray checkerboard instead of
+    // real alpha. Remove only bright neutral pixels so the gold/parchment art remains.
+    float neutral = 1.0 - smoothstep(0.045, 0.11, chroma);
+    float checker_light = smoothstep(0.70, 0.88, brightness);
+    float remove_amount = neutral * checker_light;
+
+    color.a *= 1.0 - remove_amount;
     COLOR = color;
 }
 """
@@ -33,13 +40,14 @@ func _ready() -> void:
 	texture = COMPASS_TEXTURE
 	expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = COMPASS_SIZE
 	size = COMPASS_SIZE
 	pivot_offset = COMPASS_SIZE * 0.5
 	rotation = 0.0
 	z_index = 20
-	_apply_white_background_mask()
+	_apply_checker_background_mask()
 
 	var viewport := get_viewport()
 	if viewport != null and not viewport.size_changed.is_connected(_layout_compass):
@@ -86,8 +94,10 @@ func play_turn_end_spin() -> void:
 	pivot_offset = size * 0.5
 
 	_spin_tween = create_tween()
-	_spin_tween.set_trans(Tween.TRANS_QUART)
-	_spin_tween.set_ease(Tween.EASE_OUT)
+	# Two turns over 1.8s with sine in/out avoids the huge first-frame angular jump
+	# of the previous 3-turn / 1.15s quartic ease-out animation.
+	_spin_tween.set_trans(Tween.TRANS_SINE)
+	_spin_tween.set_ease(Tween.EASE_IN_OUT)
 	_spin_tween.tween_property(self, "rotation", TAU * SPIN_TURNS, SPIN_DURATION_SEC)
 	_spin_tween.tween_callback(_finish_spin)
 
@@ -98,9 +108,9 @@ func _finish_spin() -> void:
 	_spin_tween = null
 
 
-func _apply_white_background_mask() -> void:
+func _apply_checker_background_mask() -> void:
 	var shader := Shader.new()
-	shader.code = WHITE_MASK_SHADER
+	shader.code = CHECKER_MASK_SHADER
 	var shader_material := ShaderMaterial.new()
 	shader_material.shader = shader
 	material = shader_material
