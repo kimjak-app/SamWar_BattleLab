@@ -7,7 +7,22 @@ const RIGHT_PANEL_SAFE_WIDTH := 330.0
 const RIGHT_MARGIN := 24.0
 const BOTTOM_MARGIN := 42.0
 const SPIN_TURNS := 3.0
-const SPIN_DURATION_SEC := 1.10
+const SPIN_DURATION_SEC := 1.15
+const TURN_END_BUTTON_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder"
+const WHITE_MASK_SHADER := """
+shader_type canvas_item;
+
+void fragment() {
+    vec4 color = texture(TEXTURE, UV);
+    float min_rgb = min(color.r, min(color.g, color.b));
+    float max_rgb = max(color.r, max(color.g, color.b));
+    float chroma = max_rgb - min_rgb;
+    float near_white = smoothstep(0.92, 0.985, min_rgb);
+    float near_neutral = 1.0 - smoothstep(0.025, 0.09, chroma);
+    color.a *= 1.0 - (near_white * near_neutral);
+    COLOR = color;
+}
+"""
 
 var _world_scene: Node = null
 var _turn_end_button: Button = null
@@ -24,6 +39,7 @@ func _ready() -> void:
 	pivot_offset = COMPASS_SIZE * 0.5
 	rotation = 0.0
 	z_index = 20
+	_apply_white_background_mask()
 
 	var viewport := get_viewport()
 	if viewport != null and not viewport.size_changed.is_connected(_layout_compass):
@@ -36,29 +52,26 @@ func bind_world_scene(world_scene: Node) -> void:
 	if _world_scene == null:
 		return
 
-	var button := _world_scene.get_node_or_null(
-		"WorldMapUI/LeftWorldStatusPanel/WildArmyEditButtonPlaceholder"
-	) as Button
+	var button := _world_scene.get_node_or_null(TURN_END_BUTTON_PATH) as Button
 	if button == null:
 		return
 
 	if _turn_end_button != null and _turn_end_button != button:
-		if _turn_end_button.pressed.is_connected(_on_turn_button_pressed):
-			_turn_end_button.pressed.disconnect(_on_turn_button_pressed)
+		if _turn_end_button.button_down.is_connected(_on_turn_button_down):
+			_turn_end_button.button_down.disconnect(_on_turn_button_down)
 
 	_turn_end_button = button
-	if not _turn_end_button.pressed.is_connected(_on_turn_button_pressed):
-		_turn_end_button.pressed.connect(_on_turn_button_pressed)
+	if not _turn_end_button.button_down.is_connected(_on_turn_button_down):
+		_turn_end_button.button_down.connect(_on_turn_button_down)
 	call_deferred("_layout_compass")
 
 
-func _on_turn_button_pressed() -> void:
+func _on_turn_button_down() -> void:
 	if _turn_end_button == null or _turn_end_button.disabled:
 		return
 
 	var button_text := _turn_end_button.text.strip_edges()
-	# This scene button is reused for other modes. Only the actual turn-end state
-	# may trigger the compass animation.
+	# Read the state before the button's main pressed handler changes turn/UI state.
 	if not button_text.contains("턴 종료") or button_text.contains("편집"):
 		return
 
@@ -83,6 +96,14 @@ func _finish_spin() -> void:
 	# Keep 北 exactly upright after every turn-end animation.
 	rotation = 0.0
 	_spin_tween = null
+
+
+func _apply_white_background_mask() -> void:
+	var shader := Shader.new()
+	shader.code = WHITE_MASK_SHADER
+	var shader_material := ShaderMaterial.new()
+	shader_material.shader = shader
+	material = shader_material
 
 
 func _layout_compass() -> void:
