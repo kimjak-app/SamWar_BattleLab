@@ -5,9 +5,9 @@ const COMPASS_BASE_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldm
 const COMPASS_NEEDLE_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldmap_turn_compass_needle.png")
 const COMPASS_CAP_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldmap_turn_compass_cap.png")
 const COMPASS_SIZE := Vector2(240.0, 240.0)
-const RIGHT_MARGIN_RATIO := 0.0625
+const RIGHT_MARGIN_RATIO := 0.052083
 const MIN_RIGHT_MARGIN := 48.0
-const BOTTOM_MARGIN := 56.0
+const BOTTOM_MARGIN := 34.0
 const SPIN_DURATION_SEC := 1.60
 const TURN_END_BUTTON_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder"
 const MAX_INSTALL_ATTEMPTS := 6
@@ -202,8 +202,8 @@ func _layout_compass() -> void:
 		return
 
 	# Keep the compass as a lower-right ornament independent of the upper-right
-	# city panel. At 1920x1080 it keeps ~120px on the right and 56px at the bottom,
-	# lifting the 240px compass slightly while preserving the approved composition.
+	# city panel. At 1920x1080 it keeps ~100px on the right and 34px at the bottom,
+	# placing the 240px compass between the previous two approved test positions.
 	var right_margin := maxf(MIN_RIGHT_MARGIN, viewport_size.x * RIGHT_MARGIN_RATIO)
 
 	size = COMPASS_SIZE
