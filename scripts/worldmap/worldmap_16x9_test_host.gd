@@ -6,6 +6,25 @@ const WORLD_SIZE := Vector2(2048.0, 1152.0)
 const CAMERA_MIN_ZOOM := 0.35
 const CAMERA_MAX_ZOOM := 1.6
 
+# Photoshop guide coordinates sampled from the approved 2048x1152 marker image.
+# The test world uses the same 2048x1152 coordinate space, so these values are
+# intentionally applied 1:1 with no additional scale conversion.
+const CITY_POSITIONS := {
+	"karakorum": Vector2(1080, 322),
+	"yecheng": Vector2(840, 400),
+	"pyeongyang": Vector2(1162, 432),
+	"hanseong": Vector2(1210, 501),
+	"luoyang": Vector2(706, 524),
+	"gyeongju": Vector2(1283, 547),
+	"sabi": Vector2(1199, 574),
+	"edo": Vector2(1598, 626),
+	"jianye": Vector2(965, 645),
+	"kyoto": Vector2(1522, 670),
+	"osaka": Vector2(1449, 724),
+	"chengdu": Vector2(470, 746),
+	"kyushu": Vector2(1275, 776),
+}
+
 @export var hide_legacy_world_ui: bool = true
 
 @onready var production_world_map: Node = get_node_or_null("ProductionWorldMap")
@@ -45,6 +64,8 @@ func _apply_test_baseline() -> void:
 	_apply_tile(tile_layer, "Tile_B2_BottomRight", Rect2(2048, 1152, 2048, 1152), Vector2(1024, 576))
 
 	world_root.set_meta("worldmap_16x9_test_size", WORLD_SIZE)
+	_apply_city_positions(world_root)
+	_refresh_routes(world_root)
 	_set_legacy_ui_visibility()
 	_apply_camera_fit()
 
@@ -64,6 +85,43 @@ func _apply_tile(tile_layer: Node, node_name: String, region: Rect2, target_posi
 	sprite.position = target_position
 	sprite.rotation = 0.0
 	sprite.scale = TILE_SCALE
+
+
+func _apply_city_positions(world_root: Node) -> void:
+	var city_layer := world_root.get_node_or_null("CityLayer")
+	if city_layer == null:
+		push_warning("WorldMap 16:9 Test: CityLayer is missing.")
+		return
+
+	var applied_count := 0
+	for child in city_layer.get_children():
+		if not child is Node2D:
+			continue
+		var city_id_value = child.get("city_id")
+		if city_id_value == null:
+			continue
+		var city_id := str(city_id_value)
+		if not CITY_POSITIONS.has(city_id):
+			continue
+		(child as Node2D).position = CITY_POSITIONS[city_id]
+		applied_count += 1
+
+	if applied_count != CITY_POSITIONS.size():
+		push_warning(
+			"WorldMap 16:9 Test: applied %d/%d Photoshop city positions."
+			% [applied_count, CITY_POSITIONS.size()]
+		)
+
+
+func _refresh_routes(world_root: Node) -> void:
+	var route_layer := world_root.get_node_or_null("RouteLayer")
+	if route_layer == null:
+		push_warning("WorldMap 16:9 Test: RouteLayer is missing.")
+		return
+
+	for route in route_layer.get_children():
+		if route.has_method("_refresh_route_geometry"):
+			route.call("_refresh_route_geometry")
 
 
 func _set_legacy_ui_visibility() -> void:
