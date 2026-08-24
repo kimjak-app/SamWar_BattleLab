@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://WorldMap.tscn" id="1_world_map"]
+[ext_resource type="Script" path="res://scripts/worldmap/worldmap_16x9_test_host.gd" id="2_test_host"]
+
+[node name="WorldMap_16x9_Test" type="Node"]
+script = ExtResource("2_test_host")
+
+[node name="ProductionWorldMap" parent="." instance=ExtResource("1_world_map")]
