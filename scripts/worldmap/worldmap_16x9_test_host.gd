@@ -215,7 +215,6 @@ func _compact_left_panel(left_panel: PanelContainer) -> void:
 		if hide_after_turn_end:
 			(child as CanvasItem).visible = false
 			continue
-		(child as CanvasItem).visible = true
 		if str(child.name) == "WildArmyEditButtonPlaceholder":
 			hide_after_turn_end = true
 
@@ -238,11 +237,10 @@ func _compact_right_panel(right_panel: PanelContainer) -> void:
 	for child in content.get_children():
 		if not child is CanvasItem:
 			continue
-		if child.get_index() <= garrison_index:
-			(child as CanvasItem).visible = true
-		else:
+		if child.get_index() > garrison_index:
 			(child as CanvasItem).visible = false
 
+	garrison_card.visible = true
 	_ensure_garrison_scroll(garrison_card)
 	var title := garrison_card.get_node_or_null("MarginContainer/Content/SelectedHeroChipLabel") as Label
 	if title != null:
