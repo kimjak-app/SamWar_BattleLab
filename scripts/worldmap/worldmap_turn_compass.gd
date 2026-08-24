@@ -7,7 +7,7 @@ const COMPASS_CAP_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldma
 const COMPASS_SIZE := Vector2(240.0, 240.0)
 const RIGHT_MARGIN_RATIO := 0.0625
 const MIN_RIGHT_MARGIN := 48.0
-const BOTTOM_MARGIN := 16.0
+const BOTTOM_MARGIN := 56.0
 const SPIN_DURATION_SEC := 1.60
 const TURN_END_BUTTON_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder"
 const MAX_INSTALL_ATTEMPTS := 6
@@ -202,8 +202,8 @@ func _layout_compass() -> void:
 		return
 
 	# Keep the compass as a lower-right ornament independent of the upper-right
-	# city panel. At 1920x1080 it keeps ~120px on the right but only 16px at the
-	# bottom, moving the whole 240px compass down to y ~= 824 so it clears the city HUD.
+	# city panel. At 1920x1080 it keeps ~120px on the right and 56px at the bottom,
+	# lifting the 240px compass slightly while preserving the approved composition.
 	var right_margin := maxf(MIN_RIGHT_MARGIN, viewport_size.x * RIGHT_MARGIN_RATIO)
 
 	size = COMPASS_SIZE
