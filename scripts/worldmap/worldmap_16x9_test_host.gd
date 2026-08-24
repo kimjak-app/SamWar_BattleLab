@@ -10,6 +10,17 @@ const CITY_NAME_OFFSET_Y := 16.0
 const LEFT_PANEL_WIDTH := 320.0
 const RIGHT_PANEL_WIDTH := 308.0
 const GARRISON_SCROLL_HEIGHT := 142.0
+const HUD_SIDE_MARGIN_RATIO := 0.025
+const HUD_TOP_MARGIN_RATIO := 0.144
+const HUD_MIN_SIDE_MARGIN := 24.0
+const HUD_MIN_TOP_MARGIN := 96.0
+const LEFT_HARD_HIDDEN_CHILDREN := [
+	"SupplyLabel",
+	"MilitaryLogisticsLabel",
+	"ExternalTradeLabel",
+	"SaveButtonRow",
+	"WorldStatusHintLabel",
+]
 const COMPACT_WORLD_UI_CHILDREN := {
 	"LeftWorldStatusPanel": true,
 	"CityInfoPanel": true,
@@ -208,15 +219,40 @@ func _compact_left_panel(left_panel: PanelContainer) -> void:
 	if content == null:
 		return
 
+	_install_left_hard_hide_guards(content)
+
 	var hide_after_turn_end := false
 	for child in content.get_children():
 		if not child is CanvasItem:
+			continue
+		if LEFT_HARD_HIDDEN_CHILDREN.has(str(child.name)):
+			(child as CanvasItem).visible = false
 			continue
 		if hide_after_turn_end:
 			(child as CanvasItem).visible = false
 			continue
 		if str(child.name) == "WildArmyEditButtonPlaceholder":
 			hide_after_turn_end = true
+
+
+func _install_left_hard_hide_guards(content: VBoxContainer) -> void:
+	for child_name in LEFT_HARD_HIDDEN_CHILDREN:
+		var item := content.get_node_or_null(str(child_name)) as CanvasItem
+		if item == null:
+			continue
+		item.visible = false
+		if item.has_meta("worldmap_compact_hard_hide_guard"):
+			continue
+		item.set_meta("worldmap_compact_hard_hide_guard", true)
+		var callback := Callable(self, "_on_left_hard_hidden_visibility_changed").bind(item)
+		item.visibility_changed.connect(callback)
+
+
+func _on_left_hard_hidden_visibility_changed(item: CanvasItem) -> void:
+	if item == null or not is_instance_valid(item):
+		return
+	if item.visible:
+		item.visible = false
 
 
 func _compact_right_panel(right_panel: PanelContainer) -> void:
@@ -285,8 +321,11 @@ func _fit_compact_panels() -> void:
 	var world_ui := production_world_map.get_node_or_null("WorldMapUI") as CanvasLayer
 	if world_ui == null:
 		return
-	_fit_panel_to_content(world_ui.get_node_or_null("LeftWorldStatusPanel") as PanelContainer, LEFT_PANEL_WIDTH)
-	_fit_panel_to_content(world_ui.get_node_or_null("CityInfoPanel") as PanelContainer, RIGHT_PANEL_WIDTH)
+	var left_panel := world_ui.get_node_or_null("LeftWorldStatusPanel") as PanelContainer
+	var right_panel := world_ui.get_node_or_null("CityInfoPanel") as PanelContainer
+	_fit_panel_to_content(left_panel, LEFT_PANEL_WIDTH)
+	_fit_panel_to_content(right_panel, RIGHT_PANEL_WIDTH)
+	_layout_compact_panels(left_panel, right_panel)
 
 
 func _fit_panel_to_content(panel: PanelContainer, target_width: float) -> void:
@@ -295,6 +334,35 @@ func _fit_panel_to_content(panel: PanelContainer, target_width: float) -> void:
 	panel.custom_minimum_size = Vector2(target_width, 0.0)
 	var minimum := panel.get_combined_minimum_size()
 	panel.size = Vector2(target_width, minimum.y)
+
+
+func _layout_compact_panels(left_panel: PanelContainer, right_panel: PanelContainer) -> void:
+	var viewport := get_viewport()
+	if viewport == null:
+		return
+	var viewport_size := viewport.get_visible_rect().size
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return
+
+	var side_margin := maxf(HUD_MIN_SIDE_MARGIN, viewport_size.x * HUD_SIDE_MARGIN_RATIO)
+	var top_margin := maxf(HUD_MIN_TOP_MARGIN, viewport_size.y * HUD_TOP_MARGIN_RATIO)
+
+	if left_panel != null:
+		_set_top_left_anchors(left_panel)
+		left_panel.position = Vector2(side_margin, top_margin)
+	if right_panel != null:
+		_set_top_left_anchors(right_panel)
+		right_panel.position = Vector2(
+			maxf(side_margin, viewport_size.x - side_margin - right_panel.size.x),
+			top_margin
+		)
+
+
+func _set_top_left_anchors(control: Control) -> void:
+	control.anchor_left = 0.0
+	control.anchor_top = 0.0
+	control.anchor_right = 0.0
+	control.anchor_bottom = 0.0
 
 
 func _ensure_turn_compass(world_ui: CanvasLayer) -> Control:
