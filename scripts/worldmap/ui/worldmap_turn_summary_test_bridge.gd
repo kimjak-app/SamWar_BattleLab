@@ -6,6 +6,17 @@ const LEFT_CONTENT_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Cont
 const TURN_LABEL_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/TurnLabel"
 const CALENDAR_LABEL_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/CalendarLabel"
 const TURN_WAIT_TIMEOUT_MSEC := 10000
+const SUMMARY_LOG_MARKERS := [
+	"내정 적용",
+	"무역 수입",
+	"무역 수출",
+	"시세:",
+	"이번 턴",
+	"적 전략 행동",
+	"도시 충성도",
+	"민심 변동",
+	"반란 경고",
+]
 
 @onready var production_world_map: Node = get_node_or_null("../ProductionWorldMap")
 
@@ -17,7 +28,15 @@ var _last_market_prices: Dictionary = {}
 
 
 func _ready() -> void:
+	set_process(true)
 	call_deferred("_install")
+
+
+func _process(_delta: float) -> void:
+	# Production can republish the legacy per-turn summary labels while resolving
+	# the turn. Keep them suppressed continuously so the scroll popup is the only
+	# presentation surface and no one-frame flash reaches the renderer.
+	_hide_post_turn_log_nodes()
 
 
 func _install() -> void:
@@ -26,8 +45,8 @@ func _install() -> void:
 		return
 
 	_popup = _ensure_popup()
-	_hide_post_turn_log_nodes()
 	_last_market_prices = _parse_market_prices(_collect_post_turn_log_text())
+	_hide_post_turn_log_nodes()
 
 	var turn_end_button := production_world_map.get_node_or_null(TURN_END_BUTTON_PATH) as Button
 	if turn_end_button == null:
@@ -69,6 +88,7 @@ func _await_turn_completion_and_show() -> void:
 	var deadline := Time.get_ticks_msec() + TURN_WAIT_TIMEOUT_MSEC
 	while Time.get_ticks_msec() < deadline:
 		await tree.process_frame
+		_hide_post_turn_log_nodes()
 		var turn_end_button := production_world_map.get_node_or_null(TURN_END_BUTTON_PATH) as Button
 		if turn_end_button == null:
 			break
@@ -82,8 +102,10 @@ func _await_turn_completion_and_show() -> void:
 			and not button_text.contains("편집")
 		)
 		if turn_changed and turn_ready:
-			# Give the production HUD one extra idle frame to publish the final turn log.
+			# Give production one more idle frame to finalize text/data while the
+			# legacy presentation stays hidden.
 			await tree.process_frame
+			_hide_post_turn_log_nodes()
 			_show_current_turn_summary()
 			_watch_active = false
 			return
@@ -147,26 +169,44 @@ func _hide_post_turn_log_nodes() -> void:
 
 	var turn_end_index := turn_end_button.get_index()
 	for child in content.get_children():
-		if child.get_index() <= turn_end_index:
+		if child == turn_end_button:
 			continue
-		if child is CanvasItem:
+		var should_hide := child.get_index() > turn_end_index
+		if not should_hide:
+			should_hide = _subtree_contains_summary_log(child)
+		if should_hide and child is CanvasItem:
 			(child as CanvasItem).visible = false
+
+
+func _subtree_contains_summary_log(node: Node) -> bool:
+	var node_text := ""
+	if node is Label:
+		node_text = (node as Label).text.strip_edges()
+	elif node is RichTextLabel:
+		node_text = (node as RichTextLabel).get_parsed_text().strip_edges()
+
+	if not node_text.is_empty():
+		for marker in SUMMARY_LOG_MARKERS:
+			if node_text.contains(str(marker)):
+				return true
+
+	for child in node.get_children():
+		if _subtree_contains_summary_log(child):
+			return true
+	return false
 
 
 func _collect_post_turn_log_text() -> String:
 	if production_world_map == null:
 		return ""
 	var content := production_world_map.get_node_or_null(LEFT_CONTENT_PATH) as VBoxContainer
-	var turn_end_button := production_world_map.get_node_or_null(TURN_END_BUTTON_PATH) as Button
-	if content == null or turn_end_button == null or turn_end_button.get_parent() != content:
+	if content == null:
 		return ""
 
+	# Read the whole left panel, including hidden legacy summary nodes. Visibility
+	# is presentation-only; the text remains the current production data source.
 	var pieces: Array[String] = []
-	var turn_end_index := turn_end_button.get_index()
-	for child in content.get_children():
-		if child.get_index() <= turn_end_index:
-			continue
-		_collect_text_recursive(child, pieces)
+	_collect_text_recursive(content, pieces)
 	return "\n".join(pieces)
 
 
