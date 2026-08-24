@@ -1,7 +1,9 @@
 class_name WorldMapTurnCompass
 extends TextureRect
 
-const COMPASS_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldmap_turn_compass.png")
+const COMPASS_BASE_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldmap_turn_compass_base.png")
+const COMPASS_NEEDLE_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldmap_turn_compass_needle.png")
+const COMPASS_CAP_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldmap_turn_compass_cap.png")
 const COMPASS_SIZE := Vector2(190.0, 190.0)
 const RIGHT_PANEL_SAFE_WIDTH := 330.0
 const RIGHT_MARGIN := 24.0
@@ -13,6 +15,9 @@ const MAX_INSTALL_ATTEMPTS := 6
 var _world_scene: Node = null
 var _turn_end_button: Button = null
 var _spin_tween: Tween = null
+var _base_layer: TextureRect = null
+var _needle_layer: TextureRect = null
+var _cap_layer: TextureRect = null
 var _original_pressed_callbacks: Array[Callable] = []
 var _pressed_wrapper_installed := false
 var _install_attempts := 0
@@ -20,10 +25,9 @@ var _serializing_turn_end := false
 
 
 func _ready() -> void:
-	texture = COMPASS_TEXTURE
-	expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	# This node is now only the fixed 190x190 container. The three source PNGs all
+	# share the same 1024x1024 canvas, so identical child rects preserve alignment.
+	texture = null
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = COMPASS_SIZE
 	size = COMPASS_SIZE
@@ -31,10 +35,39 @@ func _ready() -> void:
 	rotation = 0.0
 	z_index = 20
 
+	_build_compass_layers()
+
 	var viewport := get_viewport()
 	if viewport != null and not viewport.size_changed.is_connected(_layout_compass):
 		viewport.size_changed.connect(_layout_compass)
 	call_deferred("_layout_compass")
+
+
+func _build_compass_layers() -> void:
+	_base_layer = _create_layer("Base", COMPASS_BASE_TEXTURE)
+	add_child(_base_layer)
+
+	_needle_layer = _create_layer("Needle", COMPASS_NEEDLE_TEXTURE)
+	_needle_layer.pivot_offset = COMPASS_SIZE * 0.5
+	_needle_layer.rotation = 0.0
+	add_child(_needle_layer)
+
+	_cap_layer = _create_layer("Cap", COMPASS_CAP_TEXTURE)
+	add_child(_cap_layer)
+
+
+func _create_layer(layer_name: String, layer_texture: Texture2D) -> TextureRect:
+	var layer := TextureRect.new()
+	layer.name = layer_name
+	layer.texture = layer_texture
+	layer.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	layer.stretch_mode = TextureRect.STRETCH_SCALE
+	layer.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.position = Vector2.ZERO
+	layer.size = COMPASS_SIZE
+	layer.custom_minimum_size = Vector2.ZERO
+	return layer
 
 
 func bind_world_scene(world_scene: Node) -> void:
@@ -115,11 +148,8 @@ func _on_turn_button_pressed_serialized() -> void:
 	_serializing_turn_end = true
 	_turn_end_button.disabled = true
 
-	# Critical ordering contract:
-	# 1) render one uninterrupted compass revolution,
-	# 2) only then run the existing turn-end / enemy-turn processing.
-	# The old order ran both at once, so blocking turn calculations froze rendering
-	# in the middle of the tween and visually produced 180deg -> pause -> 180deg.
+	# Preserve the proven ordering contract: one uninterrupted visual revolution
+	# finishes first, then the existing turn-end / enemy-turn processing begins.
 	await _play_one_revolution_async()
 
 	if _turn_end_button != null and is_instance_valid(_turn_end_button):
@@ -132,8 +162,13 @@ func _play_one_revolution_async() -> void:
 	if _spin_tween != null and _spin_tween.is_valid():
 		_spin_tween.kill()
 
-	rotation = 0.0
-	pivot_offset = size * 0.5
+	if _needle_layer == null or not is_instance_valid(_needle_layer):
+		return
+
+	# Base and cap stay fixed. Only the middle needle layer rotates around the exact
+	# center shared by all three 1024x1024 source canvases.
+	_needle_layer.rotation = 0.0
+	_needle_layer.pivot_offset = _needle_layer.size * 0.5
 
 	var tween := create_tween()
 	_spin_tween = tween
@@ -143,12 +178,13 @@ func _play_one_revolution_async() -> void:
 	await tween.finished
 
 	if _spin_tween == tween:
-		rotation = 0.0
+		_needle_layer.rotation = 0.0
 		_spin_tween = null
 
 
 func _apply_spin_progress(progress: float) -> void:
-	rotation = TAU * clampf(progress, 0.0, 1.0)
+	if _needle_layer != null and is_instance_valid(_needle_layer):
+		_needle_layer.rotation = TAU * clampf(progress, 0.0, 1.0)
 
 
 func _invoke_original_pressed_callbacks() -> void:
@@ -173,7 +209,16 @@ func _layout_compass() -> void:
 
 	size = COMPASS_SIZE
 	pivot_offset = COMPASS_SIZE * 0.5
+	rotation = 0.0
 	position = Vector2(
 		maxf(RIGHT_MARGIN, viewport_size.x - right_reserved - COMPASS_SIZE.x - RIGHT_MARGIN),
 		maxf(RIGHT_MARGIN, viewport_size.y - COMPASS_SIZE.y - BOTTOM_MARGIN)
 	)
+
+	# Keep all layers perfectly registered even if the root is laid out again.
+	for layer in [_base_layer, _needle_layer, _cap_layer]:
+		if layer != null and is_instance_valid(layer):
+			layer.position = Vector2.ZERO
+			layer.size = COMPASS_SIZE
+	if _needle_layer != null and is_instance_valid(_needle_layer):
+		_needle_layer.pivot_offset = COMPASS_SIZE * 0.5
