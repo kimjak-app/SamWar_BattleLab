@@ -5,7 +5,7 @@ const TILE_SCALE := Vector2(0.5, 0.5)
 const WORLD_SIZE := Vector2(2048.0, 1152.0)
 const CAMERA_MIN_ZOOM := 0.35
 const CAMERA_MAX_ZOOM := 1.6
-const CITY_NAME_OFFSET_Y := 18.0
+const CITY_NAME_OFFSET_Y := 16.0
 
 # Photoshop guide coordinates sampled from the approved 2048x1152 marker image.
 # The test world uses the same 2048x1152 coordinate space, so these values are
