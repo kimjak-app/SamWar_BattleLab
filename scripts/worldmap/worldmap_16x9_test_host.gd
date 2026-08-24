@@ -1,11 +1,20 @@
 extends Node
 
 const MASTER_TEXTURE: Texture2D = preload("res://assets/source/worldmap/worldmap_master_4096x2304.png")
+const TURN_COMPASS_SCRIPT := preload("res://scripts/worldmap/worldmap_turn_compass.gd")
 const TILE_SCALE := Vector2(0.5, 0.5)
 const WORLD_SIZE := Vector2(2048.0, 1152.0)
 const CAMERA_MIN_ZOOM := 0.35
 const CAMERA_MAX_ZOOM := 1.6
 const CITY_NAME_OFFSET_Y := 16.0
+const LEFT_PANEL_WIDTH := 320.0
+const RIGHT_PANEL_WIDTH := 308.0
+const GARRISON_SCROLL_HEIGHT := 142.0
+const COMPACT_WORLD_UI_CHILDREN := {
+	"LeftWorldStatusPanel": true,
+	"CityInfoPanel": true,
+	"TurnEndCompass": true,
+}
 
 # Photoshop guide coordinates sampled from the approved 2048x1152 marker image.
 # The test world uses the same 2048x1152 coordinate space, so these values are
@@ -25,8 +34,6 @@ const CITY_POSITIONS := {
 	"chengdu": Vector2(470, 746),
 	"kyushu": Vector2(1275, 776),
 }
-
-@export var hide_legacy_world_ui: bool = true
 
 @onready var production_world_map: Node = get_node_or_null("ProductionWorldMap")
 
@@ -68,7 +75,8 @@ func _apply_test_baseline() -> void:
 	_apply_city_positions(world_root)
 	_apply_city_label_offsets(world_root)
 	_refresh_routes(world_root)
-	_set_legacy_ui_visibility()
+	_connect_compact_hud_refresh_hooks(world_root)
+	_apply_compact_world_ui()
 	_apply_camera_fit()
 
 
@@ -142,14 +150,171 @@ func _refresh_routes(world_root: Node) -> void:
 			route.call("_refresh_route_geometry")
 
 
-func _set_legacy_ui_visibility() -> void:
+func _connect_compact_hud_refresh_hooks(world_root: Node) -> void:
+	var city_layer := world_root.get_node_or_null("CityLayer")
+	if city_layer == null:
+		return
+	var callback := Callable(self, "_on_test_city_selected")
+	for child in city_layer.get_children():
+		if not child.has_signal("city_selected"):
+			continue
+		if not child.is_connected("city_selected", callback):
+			child.connect("city_selected", callback)
+
+
+func _on_test_city_selected(_marker: Node) -> void:
+	# Production refreshes CityInfoPanel from the same signal. Re-apply the compact
+	# presentation one idle step later so runtime data stays the source of truth.
+	call_deferred("_apply_compact_world_ui")
+
+
+func _apply_compact_world_ui() -> void:
+	if production_world_map == null:
+		return
 	var world_ui := production_world_map.get_node_or_null("WorldMapUI") as CanvasLayer
-	if world_ui != null:
-		world_ui.visible = not hide_legacy_world_ui
+	if world_ui == null:
+		push_warning("WorldMap 16:9 Test: WorldMapUI is missing.")
+		return
+
+	world_ui.visible = true
+	var compass := _ensure_turn_compass(world_ui)
+
+	# This test host previews only the compact nation/city HUD plus the approved
+	# turn-end compass. All other legacy direct children stay available in the
+	# production instance but are hidden for this focused presentation test.
+	for child in world_ui.get_children():
+		if not child is CanvasItem:
+			continue
+		var keep_visible := COMPACT_WORLD_UI_CHILDREN.has(str(child.name))
+		(child as CanvasItem).visible = keep_visible
+
+	var left_panel := world_ui.get_node_or_null("LeftWorldStatusPanel") as PanelContainer
+	var right_panel := world_ui.get_node_or_null("CityInfoPanel") as PanelContainer
+	_compact_left_panel(left_panel)
+	_compact_right_panel(right_panel)
+	if compass != null:
+		compass.visible = true
+		if compass.has_method("_layout_compass"):
+			compass.call_deferred("_layout_compass")
+	call_deferred("_fit_compact_panels")
+
+
+func _compact_left_panel(left_panel: PanelContainer) -> void:
+	if left_panel == null:
+		return
+	left_panel.visible = true
+	left_panel.custom_minimum_size = Vector2(LEFT_PANEL_WIDTH, 0.0)
+	var content := left_panel.get_node_or_null("MarginContainer/Content") as VBoxContainer
+	if content == null:
+		return
+
+	var hide_after_turn_end := false
+	for child in content.get_children():
+		if not child is CanvasItem:
+			continue
+		if hide_after_turn_end:
+			(child as CanvasItem).visible = false
+			continue
+		(child as CanvasItem).visible = true
+		if str(child.name) == "WildArmyEditButtonPlaceholder":
+			hide_after_turn_end = true
+
+
+func _compact_right_panel(right_panel: PanelContainer) -> void:
+	if right_panel == null:
+		return
+	right_panel.visible = true
+	right_panel.custom_minimum_size = Vector2(RIGHT_PANEL_WIDTH, 0.0)
+	var content := right_panel.get_node_or_null("MarginContainer/Content") as VBoxContainer
+	if content == null:
+		return
+
+	var garrison_card := content.get_node_or_null("GarrisonCard") as PanelContainer
+	if garrison_card == null:
+		push_warning("WorldMap 16:9 Test: GarrisonCard is missing.")
+		return
+
+	var garrison_index := garrison_card.get_index()
+	for child in content.get_children():
+		if not child is CanvasItem:
+			continue
+		if child.get_index() <= garrison_index:
+			(child as CanvasItem).visible = true
+		else:
+			(child as CanvasItem).visible = false
+
+	_ensure_garrison_scroll(garrison_card)
+	var title := garrison_card.get_node_or_null("MarginContainer/Content/SelectedHeroChipLabel") as Label
+	if title != null:
+		title.text = "도시 소속 무장"
+		title.visible = true
+
+
+func _ensure_garrison_scroll(garrison_card: PanelContainer) -> void:
+	var card_content := garrison_card.get_node_or_null("MarginContainer/Content") as VBoxContainer
+	if card_content == null:
+		return
+
+	var existing_scroll := card_content.get_node_or_null("GarrisonScroll") as ScrollContainer
+	if existing_scroll != null:
+		existing_scroll.custom_minimum_size = Vector2(0.0, GARRISON_SCROLL_HEIGHT)
+		existing_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+		existing_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		return
+
+	var garrison_list := card_content.get_node_or_null("GarrisonList") as VBoxContainer
+	if garrison_list == null:
+		return
+	var list_index := garrison_list.get_index()
+	card_content.remove_child(garrison_list)
+
+	var scroll := ScrollContainer.new()
+	scroll.name = "GarrisonScroll"
+	scroll.custom_minimum_size = Vector2(0.0, GARRISON_SCROLL_HEIGHT)
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	card_content.add_child(scroll)
+	card_content.move_child(scroll, mini(list_index, card_content.get_child_count() - 1))
+
+	garrison_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(garrison_list)
+
+
+func _fit_compact_panels() -> void:
+	if production_world_map == null:
+		return
+	var world_ui := production_world_map.get_node_or_null("WorldMapUI") as CanvasLayer
+	if world_ui == null:
+		return
+	_fit_panel_to_content(world_ui.get_node_or_null("LeftWorldStatusPanel") as PanelContainer, LEFT_PANEL_WIDTH)
+	_fit_panel_to_content(world_ui.get_node_or_null("CityInfoPanel") as PanelContainer, RIGHT_PANEL_WIDTH)
+
+
+func _fit_panel_to_content(panel: PanelContainer, target_width: float) -> void:
+	if panel == null:
+		return
+	panel.custom_minimum_size = Vector2(target_width, 0.0)
+	var minimum := panel.get_combined_minimum_size()
+	panel.size = Vector2(target_width, minimum.y)
+
+
+func _ensure_turn_compass(world_ui: CanvasLayer) -> Control:
+	var compass := world_ui.get_node_or_null("TurnEndCompass") as Control
+	if compass == null:
+		compass = TURN_COMPASS_SCRIPT.new() as Control
+		if compass == null:
+			return null
+		compass.name = "TurnEndCompass"
+		world_ui.add_child(compass)
+	if compass.has_method("bind_world_scene"):
+		compass.call("bind_world_scene", production_world_map)
+	return compass
 
 
 func _on_viewport_size_changed() -> void:
 	call_deferred("_apply_camera_fit")
+	call_deferred("_fit_compact_panels")
 
 
 func _apply_camera_fit() -> void:
