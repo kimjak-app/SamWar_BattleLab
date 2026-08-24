@@ -1,8 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://dvp7x6cruqlqw"]
+[gd_scene load_steps=4 format=3 uid="uid://dvp7x6cruqlqw"]
 
 [ext_resource type="PackedScene" uid="uid://d05f0xjbn7wm1" path="res://WorldMap.tscn" id="1_world_map"]
 [ext_resource type="Script" uid="uid://wiad7puchjrp" path="res://scripts/worldmap/worldmap_16x9_test_host.gd" id="2_test_host"]
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_turn_summary_test_bridge.gd" id="3_turn_summary_bridge"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_left_panel_lock_guard.gd" id="4_left_panel_lock_guard"]
 
 [node name="WorldMap_16x9_Test" type="Node" unique_id=1437058317]
 script = ExtResource("2_test_host")
@@ -11,3 +12,6 @@ script = ExtResource("2_test_host")
 
 [node name="TurnSummaryBridge" type="Node" parent="."]
 script = ExtResource("3_turn_summary_bridge")
+
+[node name="LeftPanelLockGuard" type="Node" parent="."]
+script = ExtResource("4_left_panel_lock_guard")
