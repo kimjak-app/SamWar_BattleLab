@@ -5,6 +5,7 @@ const TILE_SCALE := Vector2(0.5, 0.5)
 const WORLD_SIZE := Vector2(2048.0, 1152.0)
 const CAMERA_MIN_ZOOM := 0.35
 const CAMERA_MAX_ZOOM := 1.6
+const CITY_NAME_OFFSET_Y := 18.0
 
 # Photoshop guide coordinates sampled from the approved 2048x1152 marker image.
 # The test world uses the same 2048x1152 coordinate space, so these values are
@@ -65,6 +66,7 @@ func _apply_test_baseline() -> void:
 
 	world_root.set_meta("worldmap_16x9_test_size", WORLD_SIZE)
 	_apply_city_positions(world_root)
+	_apply_city_label_offsets(world_root)
 	_refresh_routes(world_root)
 	_set_legacy_ui_visibility()
 	_apply_camera_fit()
@@ -111,6 +113,22 @@ func _apply_city_positions(world_root: Node) -> void:
 			"WorldMap 16:9 Test: applied %d/%d Photoshop city positions."
 			% [applied_count, CITY_POSITIONS.size()]
 		)
+
+
+func _apply_city_label_offsets(world_root: Node) -> void:
+	var city_layer := world_root.get_node_or_null("CityLayer")
+	if city_layer == null:
+		return
+
+	for child in city_layer.get_children():
+		if not child is Node2D:
+			continue
+		var name_text := child.get_node_or_null("NameText") as Node2D
+		if name_text == null:
+			name_text = child.get_node_or_null("NameLabel") as Node2D
+		if name_text == null:
+			continue
+		name_text.position.y = CITY_NAME_OFFSET_Y
 
 
 func _refresh_routes(world_root: Node) -> void:
