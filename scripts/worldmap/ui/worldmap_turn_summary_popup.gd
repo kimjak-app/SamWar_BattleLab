@@ -3,15 +3,22 @@ extends Control
 
 signal dismissed
 
+const FADE_IN_DURATION := 0.24
+const FADE_OUT_DURATION := 0.15
+
 @onready var title_label: Label = $PopupRoot/TitleLabel
 @onready var turn_meta_label: Label = $PopupRoot/TurnMetaLabel
 @onready var domestic_body_label: Label = $PopupRoot/DomesticBodyLabel
 @onready var trade_body_label: Label = $PopupRoot/TradeBodyLabel
 @onready var market_body_label: Label = $PopupRoot/MarketBodyLabel
 
+var _fade_tween: Tween = null
+var _is_dismissing := false
+
 
 func _ready() -> void:
 	visible = false
+	modulate.a = 0.0
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	set_process_input(true)
 
@@ -56,15 +63,38 @@ func show_summary(summary: Dictionary) -> void:
 		]
 	)
 
+	if _fade_tween != null and _fade_tween.is_valid():
+		_fade_tween.kill()
+	_is_dismissing = false
+	modulate.a = 0.0
 	visible = true
 	if get_parent() != null:
 		get_parent().move_child(self, get_parent().get_child_count() - 1)
 
+	_fade_tween = create_tween()
+	_fade_tween.set_process_mode(Tween.TWEEN_PROCESS_IDLE)
+	_fade_tween.tween_property(self, "modulate:a", 1.0, FADE_IN_DURATION) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
 
 func hide_summary() -> void:
-	if not visible:
+	if not visible or _is_dismissing:
 		return
+	_is_dismissing = true
+	if _fade_tween != null and _fade_tween.is_valid():
+		_fade_tween.kill()
+	_fade_tween = create_tween()
+	_fade_tween.set_process_mode(Tween.TWEEN_PROCESS_IDLE)
+	_fade_tween.tween_property(self, "modulate:a", 0.0, FADE_OUT_DURATION) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_fade_tween.tween_callback(Callable(self, "_finish_hide"))
+
+
+func _finish_hide() -> void:
 	visible = false
+	modulate.a = 0.0
+	_is_dismissing = false
+	_fade_tween = null
 	dismissed.emit()
 
 
