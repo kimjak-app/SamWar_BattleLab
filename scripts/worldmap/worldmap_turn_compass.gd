@@ -4,10 +4,10 @@ extends TextureRect
 const COMPASS_BASE_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldmap_turn_compass_base.png")
 const COMPASS_NEEDLE_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldmap_turn_compass_needle.png")
 const COMPASS_CAP_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldmap_turn_compass_cap.png")
-const COMPASS_SIZE := Vector2(190.0, 190.0)
-const RIGHT_PANEL_SAFE_WIDTH := 330.0
-const RIGHT_MARGIN := 24.0
-const BOTTOM_MARGIN := 42.0
+const COMPASS_SIZE := Vector2(240.0, 240.0)
+const RIGHT_MARGIN_RATIO := 0.0625
+const BOTTOM_MARGIN_RATIO := 0.111111
+const MIN_EDGE_MARGIN := 48.0
 const SPIN_DURATION_SEC := 1.60
 const TURN_END_BUTTON_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder"
 const MAX_INSTALL_ATTEMPTS := 6
@@ -25,8 +25,8 @@ var _serializing_turn_end := false
 
 
 func _ready() -> void:
-	# This node is now only the fixed 190x190 container. The three source PNGs all
-	# share the same 1024x1024 canvas, so identical child rects preserve alignment.
+	# This node is a fixed 240x240 container. The three source PNGs all share the
+	# same 1024x1024 canvas, so identical child rects preserve perfect alignment.
 	texture = null
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = COMPASS_SIZE
@@ -201,18 +201,19 @@ func _layout_compass() -> void:
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
 		return
 
-	var right_reserved := RIGHT_PANEL_SAFE_WIDTH
-	if _world_scene != null:
-		var right_panel := _world_scene.get_node_or_null("WorldMapUI/CityInfoPanel") as Control
-		if right_panel != null and right_panel.visible and right_panel.size.x > 0.0:
-			right_reserved = maxf(right_reserved, right_panel.size.x + RIGHT_MARGIN)
+	# The compact city panel occupies only the upper-right region. Keep the compass
+	# as an independent lower-right ornament instead of reserving the full panel
+	# width horizontally. At 1920x1080 this yields ~120px edge margins and a center
+	# around (1680, 840), matching the approved mockup composition.
+	var right_margin := maxf(MIN_EDGE_MARGIN, viewport_size.x * RIGHT_MARGIN_RATIO)
+	var bottom_margin := maxf(MIN_EDGE_MARGIN, viewport_size.y * BOTTOM_MARGIN_RATIO)
 
 	size = COMPASS_SIZE
 	pivot_offset = COMPASS_SIZE * 0.5
 	rotation = 0.0
 	position = Vector2(
-		maxf(RIGHT_MARGIN, viewport_size.x - right_reserved - COMPASS_SIZE.x - RIGHT_MARGIN),
-		maxf(RIGHT_MARGIN, viewport_size.y - COMPASS_SIZE.y - BOTTOM_MARGIN)
+		maxf(MIN_EDGE_MARGIN, viewport_size.x - COMPASS_SIZE.x - right_margin),
+		maxf(MIN_EDGE_MARGIN, viewport_size.y - COMPASS_SIZE.y - bottom_margin)
 	)
 
 	# Keep all layers perfectly registered even if the root is laid out again.
