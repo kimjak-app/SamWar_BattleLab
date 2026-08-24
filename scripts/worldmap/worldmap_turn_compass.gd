@@ -6,8 +6,8 @@ const COMPASS_NEEDLE_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worl
 const COMPASS_CAP_TEXTURE: Texture2D = preload("res://assets/worldmap/ui/worldmap_turn_compass_cap.png")
 const COMPASS_SIZE := Vector2(240.0, 240.0)
 const RIGHT_MARGIN_RATIO := 0.0625
-const BOTTOM_MARGIN_RATIO := 0.111111
-const MIN_EDGE_MARGIN := 48.0
+const MIN_RIGHT_MARGIN := 48.0
+const BOTTOM_MARGIN := 16.0
 const SPIN_DURATION_SEC := 1.60
 const TURN_END_BUTTON_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/WildArmyEditButtonPlaceholder"
 const MAX_INSTALL_ATTEMPTS := 6
@@ -201,19 +201,17 @@ func _layout_compass() -> void:
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
 		return
 
-	# The compact city panel occupies only the upper-right region. Keep the compass
-	# as an independent lower-right ornament instead of reserving the full panel
-	# width horizontally. At 1920x1080 this yields ~120px edge margins and a center
-	# around (1680, 840), matching the approved mockup composition.
-	var right_margin := maxf(MIN_EDGE_MARGIN, viewport_size.x * RIGHT_MARGIN_RATIO)
-	var bottom_margin := maxf(MIN_EDGE_MARGIN, viewport_size.y * BOTTOM_MARGIN_RATIO)
+	# Keep the compass as a lower-right ornament independent of the upper-right
+	# city panel. At 1920x1080 it keeps ~120px on the right but only 16px at the
+	# bottom, moving the whole 240px compass down to y ~= 824 so it clears the city HUD.
+	var right_margin := maxf(MIN_RIGHT_MARGIN, viewport_size.x * RIGHT_MARGIN_RATIO)
 
 	size = COMPASS_SIZE
 	pivot_offset = COMPASS_SIZE * 0.5
 	rotation = 0.0
 	position = Vector2(
-		maxf(MIN_EDGE_MARGIN, viewport_size.x - COMPASS_SIZE.x - right_margin),
-		maxf(MIN_EDGE_MARGIN, viewport_size.y - COMPASS_SIZE.y - bottom_margin)
+		maxf(MIN_RIGHT_MARGIN, viewport_size.x - COMPASS_SIZE.x - right_margin),
+		maxf(0.0, viewport_size.y - COMPASS_SIZE.y - BOTTOM_MARGIN)
 	)
 
 	# Keep all layers perfectly registered even if the root is laid out again.
