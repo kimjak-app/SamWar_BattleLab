@@ -167,7 +167,6 @@ func _make_completed_badge(sample: Dictionary) -> Button:
 	badge.focus_mode = Control.FOCUS_NONE
 	badge.flat = true
 	badge.expand_icon = true
-	badge.icon_max_width = int(BADGE_SIZE.x)
 	badge.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 	var icon_path := str(sample.get("icon", ""))
