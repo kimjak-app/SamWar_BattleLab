@@ -1,13 +1,12 @@
 extends Node
 
 # W2-A15 Stable HUD Presentation Coordinator
-#
-# Production remains the gameplay/source-of-truth owner. Dynamic labels/bars that
-# used to flash are now permanently hidden and represented by StableHudMirror.
-# This coordinator performs only lightweight final-value synchronization before draw.
+# Dynamic production labels/bars stay hidden behind stable mirror controls.
 
 const LEFT_CONTENT_PATH := "ProductionWorldMap/WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"
 const TURN_END_BUTTON_NAME := "WildArmyEditButtonPlaceholder"
+const COMPASS_PATH := "../ProductionWorldMap/WorldMapUI/TurnEndCompass"
+const MAX_COMPASS_BIND_ATTEMPTS := 20
 
 var _connected := false
 var _hidden_items: Array[CanvasItem] = []
@@ -32,12 +31,25 @@ func _install_pre_draw_pass() -> void:
 		_call_if_present(summary, "_hide_post_turn_log_nodes")
 
 	_install_post_turn_visibility_guards()
+	_bind_compass_turn_request(0)
 
 	var callback := Callable(self, "_on_frame_pre_draw")
 	if not RenderingServer.frame_pre_draw.is_connected(callback):
 		RenderingServer.frame_pre_draw.connect(callback)
 	_connected = true
 	_apply_final_presentation()
+
+
+func _bind_compass_turn_request(attempt: int) -> void:
+	var compass := get_node_or_null(COMPASS_PATH)
+	var summary := get_node_or_null("../TurnSummaryBridge")
+	if compass == null or summary == null or not compass.has_signal("turn_end_requested"):
+		if attempt < MAX_COMPASS_BIND_ATTEMPTS:
+			call_deferred("_bind_compass_turn_request", attempt + 1)
+		return
+	var callback := Callable(summary, "_on_turn_end_button_down")
+	if callback.is_valid() and not compass.is_connected("turn_end_requested", callback):
+		compass.connect("turn_end_requested", callback)
 
 
 func _install_post_turn_visibility_guards() -> void:
@@ -78,16 +90,12 @@ func _apply_final_presentation() -> void:
 	var tech := get_node_or_null("../TechBadgeController")
 	_call_if_present(tech, "_ensure_visible")
 
-	# Tax color and compact domestic metrics still use the existing refinement
-	# controller. Loyalty/stability source nodes are hidden by StableHudMirror.
 	var refinement := get_node_or_null("../PanelRefinementController")
 	if refinement != null:
 		_call_if_present(refinement, "_apply_city_stability_presentation")
 		_call_if_present(refinement, "_apply_national_gauge_presentation")
 		_call_if_present(refinement, "_refresh_domestic_metrics")
 
-	# Visible turn/stability/role information comes only from stable mirrors.
-	# Production may republish any temporary legacy text; those sources stay hidden.
 	var mirror := get_node_or_null("../StableHudMirrorController")
 	_call_if_present(mirror, "_sync_from_sources")
 
