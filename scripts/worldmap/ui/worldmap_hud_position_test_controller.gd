@@ -15,6 +15,7 @@ var _right_panel: Control = null
 var _right_user_moved := false
 var _right_user_position := Vector2.ZERO
 var _right_pointer_down := false
+var _right_press_position := Vector2.ZERO
 var _installed := false
 
 
@@ -43,6 +44,8 @@ func _input(event: InputEvent) -> void:
 			return
 		if mouse_event.pressed:
 			_right_pointer_down = _right_panel.get_global_rect().has_point(mouse_event.position)
+			if _right_pointer_down:
+				_right_press_position = _right_panel.position
 		else:
 			_right_pointer_down = false
 
@@ -61,6 +64,7 @@ func _install() -> void:
 	_set_top_left_anchors(_right_panel)
 	_enforce_left_position()
 	_right_panel.position = _get_right_default_position()
+	_right_press_position = _right_panel.position
 
 	var viewport := get_viewport()
 	if viewport != null and not viewport.size_changed.is_connected(_on_viewport_size_changed):
@@ -79,30 +83,22 @@ func _preserve_right_position() -> void:
 	if _right_panel == null or not is_instance_valid(_right_panel):
 		return
 	_set_top_left_anchors(_right_panel)
-	var default_position := _get_right_default_position()
 	var current := _right_panel.position
 
 	if _right_pointer_down:
-		# Production owns the actual drag. We only observe the result and remember it.
-		if current.distance_to(default_position) > POSITION_EPSILON:
+		# Only a position change that happens while the pointer is actually held on
+		# the right HUD counts as a user drag. Deferred host layouts are ignored.
+		if current.distance_to(_right_press_position) > POSITION_EPSILON:
 			_right_user_moved = true
 			_right_user_position = _clamp_right_position(current)
 		return
 
-	if not _right_user_moved:
-		# Ignore deferred host layout passes and keep the approved initial position.
-		_right_panel.position = default_position
-		return
-
-	# A city refresh can briefly reset the production panel to its default layout.
-	# Restore the user's saved drag position instead of treating that reset as input.
-	if current.distance_to(default_position) <= POSITION_EPSILON:
+	if _right_user_moved:
+		# Outside a verified drag, any position change is a production refresh/layout
+		# pass. Restore the user's last dragged position instead of learning that reset.
 		_right_panel.position = _clamp_right_position(_right_user_position)
-	elif current.distance_to(_right_user_position) > POSITION_EPSILON:
-		# Non-default position changes outside a reset are legitimate production drag
-		# results (for example a dragbar finishing on mouse release).
-		_right_user_position = _clamp_right_position(current)
-		_right_panel.position = _right_user_position
+	else:
+		_right_panel.position = _get_right_default_position()
 
 
 func _get_right_default_position() -> Vector2:
