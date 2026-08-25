@@ -116,6 +116,11 @@ func _refine_profile_card(card: Node, assignment: OptionButton, portrait_size: V
 	_collect_labels(card, labels)
 	for label in labels:
 		var text := label.text.strip_edges()
+		# The assignment OptionButton already carries the character name. Keep the
+		# portrait card itself focused on portrait + primary/secondary roles only.
+		if str(label.name).ends_with("NameLabel"):
+			label.visible = false
+			continue
 		if not selected_name.is_empty() and text == selected_name:
 			label.visible = false
 			continue
