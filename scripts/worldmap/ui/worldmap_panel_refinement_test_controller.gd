@@ -39,19 +39,9 @@ var _installed := false
 
 
 func _ready() -> void:
-	process_priority = 1200
-	set_process(true)
+	# W2-A14: one pre-draw coordinator owns final HUD presentation.
+	set_process(false)
 	call_deferred("_install")
-
-
-func _process(_delta: float) -> void:
-	if not _installed:
-		return
-	_hide_legacy_help_ui()
-	_apply_city_stability_presentation()
-	_apply_national_gauge_presentation()
-	_refresh_domestic_metrics()
-	_place_domestic_metrics_row()
 
 
 func _install() -> void:
