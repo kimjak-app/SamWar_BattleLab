@@ -6,6 +6,7 @@ const LEFT_CONTENT_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Cont
 const TURN_LABEL_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/TurnLabel"
 const CALENDAR_LABEL_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/CalendarLabel"
 const TURN_WAIT_TIMEOUT_MSEC := 10000
+const TURN_POLL_INTERVAL_SEC := 0.05
 const SUMMARY_LOG_MARKERS := [
 	"내정 적용",
 	"무역 수입",
@@ -28,15 +29,10 @@ var _last_market_prices: Dictionary = {}
 
 
 func _ready() -> void:
-	set_process(true)
+	# W2-A14: the stable presentation coordinator owns final legacy-node hiding.
+	# Do not recursively scan the HUD in an independent _process loop.
+	set_process(false)
 	call_deferred("_install")
-
-
-func _process(_delta: float) -> void:
-	# Production can republish the legacy per-turn summary labels while resolving
-	# the turn. Keep them suppressed continuously so the scroll popup is the only
-	# presentation surface and no one-frame flash reaches the renderer.
-	_hide_post_turn_log_nodes()
 
 
 func _install() -> void:
@@ -87,8 +83,9 @@ func _await_turn_completion_and_show() -> void:
 
 	var deadline := Time.get_ticks_msec() + TURN_WAIT_TIMEOUT_MSEC
 	while Time.get_ticks_msec() < deadline:
-		await tree.process_frame
-		_hide_post_turn_log_nodes()
+		# Polling at 20Hz is more than enough for a turn-completion popup and avoids
+		# a full HUD traversal on every rendered frame while the compass is spinning.
+		await tree.create_timer(TURN_POLL_INTERVAL_SEC).timeout
 		var turn_end_button := production_world_map.get_node_or_null(TURN_END_BUTTON_PATH) as Button
 		if turn_end_button == null:
 			break
@@ -102,8 +99,8 @@ func _await_turn_completion_and_show() -> void:
 			and not button_text.contains("편집")
 		)
 		if turn_changed and turn_ready:
-			# Give production one more idle frame to finalize text/data while the
-			# legacy presentation stays hidden.
+			# One final frame lets production finish its data writes. The pre-draw
+			# coordinator keeps all legacy presentation suppressed during that frame.
 			await tree.process_frame
 			_hide_post_turn_log_nodes()
 			_show_current_turn_summary()
@@ -203,8 +200,6 @@ func _collect_post_turn_log_text() -> String:
 	if content == null:
 		return ""
 
-	# Read the whole left panel, including hidden legacy summary nodes. Visibility
-	# is presentation-only; the text remains the current production data source.
 	var pieces: Array[String] = []
 	_collect_text_recursive(content, pieces)
 	return "\n".join(pieces)
@@ -260,12 +255,7 @@ func _strip_phase_text(value: String) -> String:
 
 
 func _parse_domestic_changes(raw_text: String) -> Dictionary:
-	var result := {
-		"rice": 0,
-		"barley": 0,
-		"fish": 0,
-		"gold": 0,
-	}
+	var result := {"rice": 0, "barley": 0, "fish": 0, "gold": 0}
 	var text := _normalize_log_text(raw_text)
 	var start := text.find("내정 적용")
 	if start < 0:
@@ -282,22 +272,12 @@ func _parse_domestic_changes(raw_text: String) -> Dictionary:
 
 
 func _parse_trade_changes(raw_text: String) -> Dictionary:
-	var result := {
-		"gold": 0,
-		"rice": 0,
-		"barley": 0,
-		"fish": 0,
-		"salt": 0,
-	}
+	var result := {"gold": 0, "rice": 0, "barley": 0, "fish": 0, "salt": 0}
 	var text := _normalize_log_text(raw_text)
 	var start := text.find("무역 수입")
 	if start < 0:
 		return result
-	var end := _find_earliest_marker(
-		text,
-		start,
-		["보급", "도시 충성도", "민심 변동", "반란", "시세:", "이번 턴"]
-	)
+	var end := _find_earliest_marker(text, start, ["보급", "도시 충성도", "민심 변동", "반란", "시세:", "이번 턴"])
 	if end < 0:
 		end = text.length()
 	var segment := text.substr(start, end - start)
