@@ -44,10 +44,10 @@ func _apply_final_presentation() -> void:
 	var summary := get_node_or_null("../TurnSummaryBridge")
 	_call_if_present(summary, "_hide_post_turn_log_nodes")
 
-	# Warehouse structure is fixed-height. Only source values/visibility are synced.
+	# Warehouse nodes are constructed during install. Pre-draw only syncs values
+	# and visibility; it never creates/destroys/reparents controls.
 	var warehouse := get_node_or_null("../WarehouseTabsController")
 	if warehouse != null:
-		_call_if_present(warehouse, "_ensure_runtime_binding")
 		_call_if_present(warehouse, "_hide_legacy_source")
 		_call_if_present(warehouse, "_refresh_if_needed")
 
