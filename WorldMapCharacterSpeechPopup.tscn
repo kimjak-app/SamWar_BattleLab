@@ -1,0 +1,99 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_character_speech_popup.gd" id="1_speech_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxSpeech"]
+bg_color = Color(0.035, 0.05, 0.065, 0.965)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.64, 0.46, 0.21, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 12
+
+[node name="WorldMapCharacterSpeechPopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_speech_script")
+
+[node name="PopupPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -92.0
+offset_right = 300.0
+offset_bottom = 92.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxSpeech")
+
+[node name="Margin" type="MarginContainer" parent="PopupPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="Row" type="HBoxContainer" parent="PopupPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="PortraitFrame" type="PanelContainer" parent="PopupPanel/Margin/Row"]
+clip_contents = true
+custom_minimum_size = Vector2(112, 136)
+layout_mode = 2
+
+[node name="Portrait" type="TextureRect" parent="PopupPanel/Margin/Row/PortraitFrame"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 6
+mouse_filter = 2
+
+[node name="PortraitFallback" type="Label" parent="PopupPanel/Margin/Row/PortraitFrame"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.82, 0.62, 1)
+theme_override_font_sizes/font_size = 34
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TextColumn" type="VBoxContainer" parent="PopupPanel/Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="RoleLabel" type="Label" parent="PopupPanel/Margin/Row/TextColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.67, 0.36, 1)
+theme_override_font_sizes/font_size = 12
+text = "재상"
+
+[node name="NameLabel" type="Label" parent="PopupPanel/Margin/Row/TextColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.93, 0.78, 1)
+theme_override_font_sizes/font_size = 20
+text = "정도전"
+
+[node name="SpeechLabel" type="Label" parent="PopupPanel/Margin/Row/TextColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.94, 0.94, 0.9, 1)
+theme_override_font_sizes/font_size = 15
+autowrap_mode = 2
+text = "이제 국가의 모든 일은 제가 지휘하겠습니다."
+vertical_alignment = 1
