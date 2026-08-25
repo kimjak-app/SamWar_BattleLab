@@ -6,7 +6,11 @@ extends Node
 # controllers do not race it in independent _process loops. This node performs
 # one final lightweight pass immediately before RenderingServer draws the frame.
 
+const LEFT_CONTENT_PATH := "ProductionWorldMap/WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"
+const TURN_END_BUTTON_NAME := "WildArmyEditButtonPlaceholder"
+
 var _connected := false
+var _hidden_items: Array[CanvasItem] = []
 
 
 func _ready() -> void:
@@ -22,11 +26,13 @@ func _exit_tree() -> void:
 
 
 func _install_pre_draw_pass() -> void:
-	# TurnSummaryBridge used to recursively scan/hide the legacy log every normal
-	# process frame. The coordinator now owns that final visibility pass instead.
+	# TurnSummaryBridge no longer needs an independent presentation process.
 	var summary := get_node_or_null("../TurnSummaryBridge")
 	if summary != null:
 		summary.set_process(false)
+		_call_if_present(summary, "_hide_post_turn_log_nodes")
+
+	_install_post_turn_visibility_guards()
 
 	var callback := Callable(self, "_on_frame_pre_draw")
 	if not RenderingServer.frame_pre_draw.is_connected(callback):
@@ -35,34 +41,52 @@ func _install_pre_draw_pass() -> void:
 	_apply_final_presentation()
 
 
+func _install_post_turn_visibility_guards() -> void:
+	_hidden_items.clear()
+	var content := get_node_or_null("../" + LEFT_CONTENT_PATH) as VBoxContainer
+	if content == null:
+		return
+	var turn_button := content.get_node_or_null(TURN_END_BUTTON_NAME)
+	if turn_button == null:
+		return
+	var turn_index := turn_button.get_index()
+	for child in content.get_children():
+		if child.get_index() <= turn_index or not child is CanvasItem:
+			continue
+		var item := child as CanvasItem
+		item.visible = false
+		_hidden_items.append(item)
+		var callback := Callable(self, "_on_hidden_item_visibility_changed").bind(item)
+		if not item.visibility_changed.is_connected(callback):
+			item.visibility_changed.connect(callback)
+
+
+func _on_hidden_item_visibility_changed(item: CanvasItem) -> void:
+	if item != null and is_instance_valid(item) and item.visible:
+		item.visible = false
+
+
 func _on_frame_pre_draw() -> void:
 	_apply_final_presentation()
 
 
 func _apply_final_presentation() -> void:
-	# Presentation-only legacy nodes must never reach the renderer.
-	var summary := get_node_or_null("../TurnSummaryBridge")
-	_call_if_present(summary, "_hide_post_turn_log_nodes")
-
-	# Warehouse nodes are constructed during install. Pre-draw only syncs values
-	# and visibility; it never creates/destroys/reparents controls.
+	# Warehouse nodes are fixed-height. Pre-draw only syncs text and visibility.
 	var warehouse := get_node_or_null("../WarehouseTabsController")
 	if warehouse != null:
 		_call_if_present(warehouse, "_hide_legacy_source")
 		_call_if_present(warehouse, "_refresh_if_needed")
 
-	# Static tech sections are simply kept visible; no layout/refit work here.
+	# Static tech sections are kept visible without any layout/refit work.
 	var tech := get_node_or_null("../TechBadgeController")
 	_call_if_present(tech, "_ensure_visible")
 
-	# Normalize value/status labels.
+	# Normalize only the values that production can republish during a frame.
 	var refinement := get_node_or_null("../PanelRefinementController")
 	if refinement != null:
-		_call_if_present(refinement, "_hide_legacy_help_ui")
 		_call_if_present(refinement, "_apply_city_stability_presentation")
 		_call_if_present(refinement, "_apply_national_gauge_presentation")
 		_call_if_present(refinement, "_refresh_domestic_metrics")
-		_call_if_present(refinement, "_place_domestic_metrics_row")
 
 	# Readability is deliberately last. The renderer therefore never sees the
 	# temporary production phase string or raw governor/chancellor stat line.
