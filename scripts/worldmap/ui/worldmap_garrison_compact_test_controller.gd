@@ -74,11 +74,14 @@ func _refresh_if_needed(force: bool = false) -> void:
 	var rows: Array[Node] = []
 	var names: Array[String] = []
 	for row in original_list.get_children():
-		var name_label := row.find_child("NameLabel", true, false) as Label
+		var name_label := _find_garrison_name_label(row)
 		if name_label == null:
 			continue
+		var hero_name := name_label.text.strip_edges()
+		if hero_name.is_empty():
+			continue
 		rows.append(row)
-		names.append(name_label.text.strip_edges())
+		names.append(hero_name)
 	var new_signature := "|".join(names)
 
 	if force or new_signature != _signature:
@@ -96,7 +99,7 @@ func _refresh_if_needed(force: bool = false) -> void:
 
 
 func _build_cell(source_row: Node) -> void:
-	var name_source := source_row.find_child("NameLabel", true, false) as Label
+	var name_source := _find_garrison_name_label(source_row)
 	if name_source == null:
 		return
 	var cell := VBoxContainer.new()
@@ -115,12 +118,36 @@ func _build_cell(source_row: Node) -> void:
 	cell.add_child(portrait)
 
 	var name_label := Label.new()
-	name_label.text = name_source.text
+	name_label.text = name_source.text.strip_edges()
 	name_label.add_theme_font_size_override("font_size", 10)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	cell.add_child(name_label)
 	_compact_grid.add_child(cell)
+
+
+func _find_garrison_name_label(node: Node) -> Label:
+	var info_box := _find_info_vbox(node)
+	if info_box == null:
+		return null
+	for child in info_box.get_children():
+		if child is Label:
+			var label := child as Label
+			if not label.text.strip_edges().is_empty():
+				return label
+	return null
+
+
+func _find_info_vbox(node: Node) -> VBoxContainer:
+	if node is HBoxContainer:
+		for child in node.get_children():
+			if child is VBoxContainer:
+				return child as VBoxContainer
+	for child in node.get_children():
+		var found := _find_info_vbox(child)
+		if found != null:
+			return found
+	return null
 
 
 func _find_first_textured_rect(node: Node) -> TextureRect:

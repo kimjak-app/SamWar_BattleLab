@@ -3,6 +3,7 @@ extends Control
 const FADE_IN_SEC := 0.18
 const HOLD_SEC := 3.4
 const FADE_OUT_SEC := 0.18
+const SAFE_Z_INDEX := 4080
 
 @onready var popup_panel: PanelContainer = $PopupPanel
 @onready var portrait: TextureRect = $PopupPanel/Margin/Row/PortraitFrame/Portrait
@@ -19,7 +20,8 @@ func _ready() -> void:
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	popup_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	z_index = 8500
+	z_as_relative = false
+	z_index = SAFE_Z_INDEX
 	modulate.a = 0.0
 
 
