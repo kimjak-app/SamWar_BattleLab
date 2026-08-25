@@ -15,6 +15,7 @@ const GOVERNOR_PORTRAIT_SIZE := Vector2(64.0, 72.0)
 
 var _left_panel: Control = null
 var _right_panel: Control = null
+var _last_layout_signature := ""
 var _installed := false
 
 
@@ -31,6 +32,7 @@ func _process(_delta: float) -> void:
 	_apply_panel_typography()
 	_refine_chancellor_card()
 	_refine_governor_card()
+	_refit_if_minimum_changed()
 
 
 func _install() -> void:
@@ -43,6 +45,7 @@ func _install() -> void:
 	_apply_panel_typography()
 	_refine_chancellor_card()
 	_refine_governor_card()
+	_refit_if_minimum_changed(true)
 	_installed = true
 
 
@@ -191,3 +194,17 @@ func _find_portrait_texture(node: Node) -> TextureRect:
 		if found != null:
 			return found
 	return null
+
+
+func _refit_if_minimum_changed(force: bool = false) -> void:
+	if _left_panel == null or _right_panel == null:
+		return
+	var left_min := _left_panel.get_combined_minimum_size()
+	var right_min := _right_panel.get_combined_minimum_size()
+	var signature := "%.1f,%.1f|%.1f,%.1f" % [left_min.x, left_min.y, right_min.x, right_min.y]
+	if not force and signature == _last_layout_signature:
+		return
+	_last_layout_signature = signature
+	var host := get_parent()
+	if host != null and host.has_method("_fit_compact_panels"):
+		host.call_deferred("_fit_compact_panels")
