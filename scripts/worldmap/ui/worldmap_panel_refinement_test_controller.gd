@@ -132,7 +132,9 @@ func _apply_city_stability_presentation() -> void:
 	if loyalty_label == null or loyalty_bar == null:
 		return
 
-	var loyalty := _extract_first_integer(loyalty_label.text, int(round(loyalty_bar.value)))
+	var loyalty := _extract_optional_integer(loyalty_label.text)
+	if loyalty < 0:
+		return
 	var state := _stability_state(loyalty)
 	loyalty_label.text = "%d · %s" % [loyalty, state]
 	loyalty_bar.value = loyalty
@@ -230,9 +232,9 @@ func _extract_metric(raw: String, label_text: String) -> String:
 	return matched.get_string(1) if matched != null else "-"
 
 
-func _extract_first_integer(text: String, fallback: int) -> int:
+func _extract_optional_integer(text: String) -> int:
 	var regex := RegEx.new()
 	if regex.compile("([0-9]+)") != OK:
-		return fallback
+		return -1
 	var matched := regex.search(text)
-	return int(matched.get_string(1)) if matched != null else fallback
+	return int(matched.get_string(1)) if matched != null else -1
