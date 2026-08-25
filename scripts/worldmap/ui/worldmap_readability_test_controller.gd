@@ -101,9 +101,9 @@ func _refine_governor_card() -> void:
 	var card := _right_panel.find_child("GovernorCard", true, false)
 	if card == null:
 		return
-	var assignment := card.find_child("GovernorAssignmentOption", true, false) as OptionButton
+	var assignment := card.find_child("GovernorAssignOption", true, false) as OptionButton
 	if assignment == null:
-		assignment = _right_panel.find_child("GovernorAssignmentOption", true, false) as OptionButton
+		assignment = _right_panel.find_child("GovernorAssignOption", true, false) as OptionButton
 	_refine_profile_card(card, assignment, GOVERNOR_PORTRAIT_SIZE)
 
 
