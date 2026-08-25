@@ -15,12 +15,16 @@ const HUD_TOP_MARGIN_RATIO := 0.144
 const HUD_MIN_SIDE_MARGIN := 24.0
 const HUD_MIN_TOP_MARGIN := 96.0
 const LEFT_HARD_HIDDEN_CHILDREN := [
+	"TurnLabel",
 	"SupplyLabel",
 	"MilitaryLogisticsLabel",
 	"ExternalTradeLabel",
 	"SaveButtonRow",
 	"WorldStatusHintLabel",
 ]
+const RIGHT_CUSTOM_VISIBLE_CHILDREN := {
+	"TechBadgeSection_Right": true,
+}
 const COMPACT_WORLD_UI_CHILDREN := {
 	"LeftWorldStatusPanel": true,
 	"CityInfoPanel": true,
@@ -241,18 +245,7 @@ func _install_left_hard_hide_guards(content: VBoxContainer) -> void:
 		if item == null:
 			continue
 		item.visible = false
-		if item.has_meta("worldmap_compact_hard_hide_guard"):
-			continue
-		item.set_meta("worldmap_compact_hard_hide_guard", true)
-		var callback := Callable(self, "_on_left_hard_hidden_visibility_changed").bind(item)
-		item.visibility_changed.connect(callback)
-
-
-func _on_left_hard_hidden_visibility_changed(item: CanvasItem) -> void:
-	if item == null or not is_instance_valid(item):
-		return
-	if item.visible:
-		item.visible = false
+		_install_visibility_off_guard(item, "worldmap_compact_left_hide_guard")
 
 
 func _compact_right_panel(right_panel: PanelContainer) -> void:
@@ -273,8 +266,13 @@ func _compact_right_panel(right_panel: PanelContainer) -> void:
 	for child in content.get_children():
 		if not child is CanvasItem:
 			continue
-		if child.get_index() > garrison_index:
-			(child as CanvasItem).visible = false
+		if child.get_index() <= garrison_index:
+			continue
+		if RIGHT_CUSTOM_VISIBLE_CHILDREN.has(str(child.name)):
+			continue
+		var item := child as CanvasItem
+		item.visible = false
+		_install_visibility_off_guard(item, "worldmap_compact_right_hide_guard")
 
 	garrison_card.visible = true
 	_ensure_garrison_scroll(garrison_card)
@@ -282,6 +280,23 @@ func _compact_right_panel(right_panel: PanelContainer) -> void:
 	if title != null:
 		title.text = "도시 소속 무장"
 		title.visible = true
+
+
+func _install_visibility_off_guard(item: CanvasItem, meta_key: String) -> void:
+	if item == null or not is_instance_valid(item):
+		return
+	if item.has_meta(meta_key):
+		return
+	item.set_meta(meta_key, true)
+	var callback := Callable(self, "_on_hard_hidden_visibility_changed").bind(item)
+	item.visibility_changed.connect(callback)
+
+
+func _on_hard_hidden_visibility_changed(item: CanvasItem) -> void:
+	if item == null or not is_instance_valid(item):
+		return
+	if item.visible:
+		item.visible = false
 
 
 func _ensure_garrison_scroll(garrison_card: PanelContainer) -> void:

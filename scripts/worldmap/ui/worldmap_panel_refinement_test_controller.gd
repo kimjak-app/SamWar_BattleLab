@@ -47,7 +47,6 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if not _installed:
 		return
-	_align_left_panel_to_right()
 	_hide_legacy_help_ui()
 	_apply_city_stability_presentation()
 	_apply_national_gauge_presentation()
@@ -75,21 +74,11 @@ func _install() -> void:
 	_bind_help_target(production_world_map.get_node_or_null(LOYALTY_CARD_PATH) as Control, "city_loyalty")
 	_bind_help_target(production_world_map.get_node_or_null(GARRISON_CARD_PATH) as Control, "garrison")
 	_ensure_domestic_metrics_row()
-	_align_left_panel_to_right()
 	_apply_city_stability_presentation()
 	_apply_national_gauge_presentation()
 	_refresh_domestic_metrics()
 	_place_domestic_metrics_row()
 	_installed = true
-
-
-func _align_left_panel_to_right() -> void:
-	if _left_panel == null or _right_panel == null:
-		return
-	if not is_instance_valid(_left_panel) or not is_instance_valid(_right_panel):
-		return
-	if _right_panel.visible:
-		_left_panel.position.y = _right_panel.position.y
 
 
 func _hide_legacy_help_ui() -> void:
