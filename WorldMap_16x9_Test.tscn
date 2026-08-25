@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_readability_test_controller.gd" id="9_readability"]
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_tech_badge_test_controller.gd" id="10_tech_badges"]
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_hud_position_test_controller.gd" id="11_hud_position"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_turn_transition_late_guard.gd" id="12_turn_transition_guard"]
 
 [node name="WorldMap_16x9_Test" type="Node" unique_id=1437058317]
 script = ExtResource("2_test_host")
@@ -43,3 +44,6 @@ script = ExtResource("9_readability")
 
 [node name="HudPositionController" type="Node" parent="."]
 script = ExtResource("11_hud_position")
+
+[node name="TurnTransitionLateGuard" type="Node" parent="."]
+script = ExtResource("12_turn_transition_guard")
