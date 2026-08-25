@@ -26,6 +26,10 @@ const GOLD_COLOR := Color(0.97, 0.84, 0.60, 1.0)
 const NORMAL_COLOR := Color(0.88, 0.90, 0.94, 1.0)
 const SHORTAGE_COLOR := Color(0.93, 0.34, 0.28, 1.0)
 const GOOD_COLOR := Color(0.40, 0.76, 0.43, 1.0)
+const ROW_COUNT := 5
+const ROW_HEIGHT := 20.0
+const ROW_GAP := 4
+const RESOURCE_LIST_HEIGHT := ROW_HEIGHT * ROW_COUNT + ROW_GAP * (ROW_COUNT - 1)
 
 @onready var production_world_map: Node = get_node_or_null("../ProductionWorldMap")
 
@@ -36,23 +40,16 @@ var _warehouse_root: VBoxContainer = null
 var _resource_list: VBoxContainer = null
 var _funds_button: Button = null
 var _specialties_button: Button = null
+var _row_slots: Array[Dictionary] = []
 var _active_tab := TAB_FUNDS_FOOD
 var _last_render_signature := ""
 var _installed := false
 
 
 func _ready() -> void:
-	process_priority = 1230
-	set_process(true)
+	# W2-A14: row structure is created once. Runtime refresh only changes text.
+	set_process(false)
 	call_deferred("_install")
-
-
-func _process(_delta: float) -> void:
-	if not _installed:
-		return
-	_ensure_runtime_binding()
-	_hide_legacy_source()
-	_refresh_if_needed()
 
 
 func _install() -> void:
@@ -63,6 +60,7 @@ func _install() -> void:
 	_fallback_source_label = production_world_map.get_node_or_null(RESOURCE_LABEL_PATH) as Label
 	_ensure_runtime_binding()
 	_refresh_if_needed(true)
+	_request_initial_panel_refit()
 	_installed = true
 
 
@@ -148,11 +146,59 @@ func _build_warehouse_view() -> void:
 
 	_resource_list = VBoxContainer.new()
 	_resource_list.name = "WarehouseResourceList"
+	_resource_list.custom_minimum_size = Vector2(0.0, RESOURCE_LIST_HEIGHT)
 	_resource_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_resource_list.add_theme_constant_override("separation", 4)
+	_resource_list.add_theme_constant_override("separation", ROW_GAP)
 	_warehouse_root.add_child(_resource_list)
+
+	_row_slots.clear()
+	for index in range(ROW_COUNT):
+		_row_slots.append(_make_resource_slot(index))
+
 	_update_tab_visuals()
 	_hide_legacy_source()
+
+
+func _make_resource_slot(index: int) -> Dictionary:
+	var row := HBoxContainer.new()
+	row.name = "WarehouseStableRow_%d" % index
+	row.custom_minimum_size = Vector2(0.0, ROW_HEIGHT)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 7)
+	_resource_list.add_child(row)
+
+	var placeholder := ColorRect.new()
+	placeholder.name = "IconPlaceholder"
+	placeholder.custom_minimum_size = Vector2(13.0, 13.0)
+	placeholder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(placeholder)
+
+	var name_label := Label.new()
+	name_label.custom_minimum_size = Vector2(62.0, 0.0)
+	name_label.add_theme_color_override("font_color", NORMAL_COLOR)
+	name_label.add_theme_font_size_override("font_size", 13)
+	row.add_child(name_label)
+
+	var value_label := Label.new()
+	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	value_label.add_theme_color_override("font_color", NORMAL_COLOR)
+	value_label.add_theme_font_size_override("font_size", 13)
+	row.add_child(value_label)
+
+	var status_label := Label.new()
+	status_label.custom_minimum_size = Vector2(40.0, 0.0)
+	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	status_label.add_theme_font_size_override("font_size", 13)
+	row.add_child(status_label)
+
+	return {
+		"row": row,
+		"icon": placeholder,
+		"name": name_label,
+		"value": value_label,
+		"status": status_label,
+	}
 
 
 func _make_tab_button(text: String, tab_id: String) -> Button:
@@ -166,10 +212,13 @@ func _make_tab_button(text: String, tab_id: String) -> Button:
 
 
 func _on_tab_pressed(tab_id: String) -> void:
+	if tab_id == _active_tab:
+		return
 	_active_tab = tab_id
 	_last_render_signature = ""
 	_update_tab_visuals()
 	_refresh_if_needed(true)
+	# No panel refit here. Both tabs always occupy the exact same five-row height.
 
 
 func _update_tab_visuals() -> void:
@@ -209,15 +258,44 @@ func _hide_legacy_source() -> void:
 
 
 func _refresh_if_needed(force: bool = false) -> void:
-	if _resource_list == null:
+	if _resource_list == null or _row_slots.size() != ROW_COUNT:
 		return
 	var source_text := _get_source_text()
 	var signature := "%s|%s" % [_active_tab, source_text]
 	if not force and signature == _last_render_signature:
 		return
 	_last_render_signature = signature
-	_rebuild_resource_rows(source_text)
-	_request_panel_refit()
+	_render_resource_rows(source_text)
+
+
+func _render_resource_rows(source_text: String) -> void:
+	var resources: Array = RESOURCE_GROUPS.get(_active_tab, [])
+	for index in range(ROW_COUNT):
+		var slot: Dictionary = _row_slots[index]
+		var icon := slot.get("icon") as ColorRect
+		var name_label := slot.get("name") as Label
+		var value_label := slot.get("value") as Label
+		var status_label := slot.get("status") as Label
+		var has_resource := index < resources.size()
+
+		# Keep every row container alive and visible so its minimum height never
+		# changes. Only the child contents are blanked for the unused fifth row.
+		if not has_resource:
+			icon.visible = false
+			name_label.text = ""
+			value_label.text = ""
+			status_label.text = ""
+			continue
+
+		var resource_name := str(resources[index])
+		var payload := _parse_resource_line(source_text, resource_name)
+		var status_text := str(payload.get("status", ""))
+		icon.visible = true
+		icon.color = RESOURCE_COLORS.get(resource_name, Color(0.7, 0.7, 0.7, 1.0))
+		name_label.text = resource_name
+		value_label.text = str(payload.get("value", "- / -"))
+		status_label.text = status_text
+		status_label.add_theme_color_override("font_color", _status_color(status_text))
 
 
 func _get_source_text() -> String:
@@ -242,54 +320,6 @@ func _collect_labels(node: Node, output: Array[Label]) -> void:
 		_collect_labels(child, output)
 
 
-func _rebuild_resource_rows(source_text: String) -> void:
-	for child in _resource_list.get_children():
-		child.queue_free()
-	var resources: Array = RESOURCE_GROUPS.get(_active_tab, [])
-	for resource_name in resources:
-		_resource_list.add_child(_make_resource_row(str(resource_name), source_text))
-
-
-func _make_resource_row(resource_name: String, source_text: String) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.name = "WarehouseRow_%s" % resource_name
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 7)
-
-	var placeholder := ColorRect.new()
-	placeholder.name = "IconPlaceholder"
-	placeholder.custom_minimum_size = Vector2(13.0, 13.0)
-	placeholder.color = RESOURCE_COLORS.get(resource_name, Color(0.7, 0.7, 0.7, 1.0))
-	placeholder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(placeholder)
-
-	var name_label := Label.new()
-	name_label.text = resource_name
-	name_label.custom_minimum_size = Vector2(62.0, 0.0)
-	name_label.add_theme_color_override("font_color", NORMAL_COLOR)
-	name_label.add_theme_font_size_override("font_size", 13)
-	row.add_child(name_label)
-
-	var payload := _parse_resource_line(source_text, resource_name)
-	var value_label := Label.new()
-	value_label.text = str(payload.get("value", "- / -"))
-	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	value_label.add_theme_color_override("font_color", NORMAL_COLOR)
-	value_label.add_theme_font_size_override("font_size", 13)
-	row.add_child(value_label)
-
-	var status_text := str(payload.get("status", ""))
-	var status_label := Label.new()
-	status_label.text = status_text
-	status_label.custom_minimum_size = Vector2(40.0, 0.0)
-	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	status_label.add_theme_font_size_override("font_size", 13)
-	status_label.add_theme_color_override("font_color", _status_color(status_text))
-	row.add_child(status_label)
-	return row
-
-
 func _parse_resource_line(source_text: String, resource_name: String) -> Dictionary:
 	var regex := RegEx.new()
 	var pattern := "%s\\s*([0-9,]+)\\s*/\\s*([0-9,]+)\\s*(부족|충분|가득|양호)?" % resource_name
@@ -312,7 +342,7 @@ func _status_color(status: String) -> Color:
 	return NORMAL_COLOR
 
 
-func _request_panel_refit() -> void:
+func _request_initial_panel_refit() -> void:
 	var host := get_parent()
 	if host != null and host.has_method("_fit_compact_panels"):
 		host.call_deferred("_fit_compact_panels")
