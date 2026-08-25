@@ -35,7 +35,6 @@ var _resource_list: VBoxContainer = null
 var _funds_button: Button = null
 var _specialties_button: Button = null
 var _active_tab := TAB_FUNDS_FOOD
-var _last_source_text := ""
 var _last_render_signature := ""
 var _installed := false
 
@@ -152,8 +151,8 @@ func _style_tab_button(button: Button, selected: bool) -> void:
 	style.corner_radius_bottom_left = 6
 	style.corner_radius_bottom_right = 6
 	button.add_theme_stylebox_override("normal", style)
-	button.add_theme_stylebox_override("hover", style.duplicate())
-	button.add_theme_stylebox_override("pressed", style.duplicate())
+	button.add_theme_stylebox_override("hover", style.duplicate() as StyleBoxFlat)
+	button.add_theme_stylebox_override("pressed", style.duplicate() as StyleBoxFlat)
 
 
 func _refresh_if_needed(force: bool = false) -> void:
@@ -163,9 +162,9 @@ func _refresh_if_needed(force: bool = false) -> void:
 	var signature := "%s|%s" % [_active_tab, source_text]
 	if not force and signature == _last_render_signature:
 		return
-	_last_source_text = source_text
 	_last_render_signature = signature
 	_rebuild_resource_rows(source_text)
+	_request_panel_refit()
 
 
 func _rebuild_resource_rows(source_text: String) -> void:
@@ -218,8 +217,7 @@ func _make_resource_row(resource_name: String, source_text: String) -> HBoxConta
 
 func _parse_resource_line(source_text: String, resource_name: String) -> Dictionary:
 	var regex := RegEx.new()
-	var escaped_name := resource_name
-	var pattern := "%s\\s*([0-9,]+)\\s*/\\s*([0-9,]+)\\s*(부족|충분|가득|양호)?" % escaped_name
+	var pattern := "%s\\s*([0-9,]+)\\s*/\\s*([0-9,]+)\\s*(부족|충분|가득|양호)?" % resource_name
 	if regex.compile(pattern) != OK:
 		return {"value": "- / -", "status": ""}
 	var matched := regex.search(source_text)
@@ -240,3 +238,9 @@ func _status_color(status: String) -> Color:
 	if status == "충분" or status == "가득" or status == "양호":
 		return GOOD_COLOR
 	return NORMAL_COLOR
+
+
+func _request_panel_refit() -> void:
+	var host := get_parent()
+	if host != null and host.has_method("_fit_compact_panels"):
+		host.call_deferred("_fit_compact_panels")
