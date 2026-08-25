@@ -24,24 +24,14 @@ const TYPOGRAPHY_EXCLUDED_SUBTREES := {
 
 var _left_panel: Control = null
 var _right_panel: Control = null
-var _last_layout_signature := ""
 var _installed := false
 
 
 func _ready() -> void:
-	process_priority = 1240
-	set_process(true)
+	# W2-A14: presentation is finalized by the single pre-draw coordinator.
+	# Do not mutate the same HUD again in an independent per-frame _process loop.
+	set_process(false)
 	call_deferred("_install")
-
-
-func _process(_delta: float) -> void:
-	if not _installed:
-		return
-	_compact_calendar_text()
-	_apply_panel_typography()
-	_refine_chancellor_card()
-	_refine_governor_card()
-	_refit_if_minimum_changed()
 
 
 func _install() -> void:
@@ -54,8 +44,15 @@ func _install() -> void:
 	_apply_panel_typography()
 	_refine_chancellor_card()
 	_refine_governor_card()
-	_refit_if_minimum_changed(true)
+	_request_initial_refit()
 	_installed = true
+
+
+func _request_initial_refit() -> void:
+	# One startup fit is enough. Runtime tab/data changes must not resize the HUD.
+	var host := get_parent()
+	if host != null and host.has_method("_fit_compact_panels"):
+		host.call_deferred("_fit_compact_panels")
 
 
 func _compact_calendar_text() -> void:
@@ -242,17 +239,3 @@ func _find_portrait_texture(node: Node) -> TextureRect:
 		if found != null:
 			return found
 	return null
-
-
-func _refit_if_minimum_changed(force: bool = false) -> void:
-	if _left_panel == null or _right_panel == null:
-		return
-	var left_min := _left_panel.get_combined_minimum_size()
-	var right_min := _right_panel.get_combined_minimum_size()
-	var signature := "%.1f,%.1f|%.1f,%.1f" % [left_min.x, left_min.y, right_min.x, right_min.y]
-	if not force and signature == _last_layout_signature:
-		return
-	_last_layout_signature = signature
-	var host := get_parent()
-	if host != null and host.has_method("_fit_compact_panels"):
-		host.call_deferred("_fit_compact_panels")
