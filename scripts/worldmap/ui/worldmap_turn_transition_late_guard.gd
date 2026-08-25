@@ -3,10 +3,8 @@ extends Node
 # W2-A14 Stable HUD Presentation Coordinator
 #
 # Production remains the gameplay/source-of-truth owner. The test presentation
-# controllers no longer race it in several independent _process loops. Instead,
-# this node performs one lightweight final presentation pass immediately before
-# RenderingServer draws the frame. Any legacy text that production republishes
-# during the frame is therefore normalized before it can become visible.
+# controllers do not race it in independent _process loops. This node performs
+# one final lightweight pass immediately before RenderingServer draws the frame.
 
 var _connected := false
 
@@ -24,6 +22,12 @@ func _exit_tree() -> void:
 
 
 func _install_pre_draw_pass() -> void:
+	# TurnSummaryBridge used to recursively scan/hide the legacy log every normal
+	# process frame. The coordinator now owns that final visibility pass instead.
+	var summary := get_node_or_null("../TurnSummaryBridge")
+	if summary != null:
+		summary.set_process(false)
+
 	var callback := Callable(self, "_on_frame_pre_draw")
 	if not RenderingServer.frame_pre_draw.is_connected(callback):
 		RenderingServer.frame_pre_draw.connect(callback)
@@ -36,11 +40,22 @@ func _on_frame_pre_draw() -> void:
 
 
 func _apply_final_presentation() -> void:
-	# Legacy turn-summary nodes are presentation-only and must never reappear.
+	# Presentation-only legacy nodes must never reach the renderer.
 	var summary := get_node_or_null("../TurnSummaryBridge")
 	_call_if_present(summary, "_hide_post_turn_log_nodes")
 
-	# Normalize value/status labels first.
+	# Warehouse structure is fixed-height. Only source values/visibility are synced.
+	var warehouse := get_node_or_null("../WarehouseTabsController")
+	if warehouse != null:
+		_call_if_present(warehouse, "_ensure_runtime_binding")
+		_call_if_present(warehouse, "_hide_legacy_source")
+		_call_if_present(warehouse, "_refresh_if_needed")
+
+	# Static tech sections are simply kept visible; no layout/refit work here.
+	var tech := get_node_or_null("../TechBadgeController")
+	_call_if_present(tech, "_ensure_visible")
+
+	# Normalize value/status labels.
 	var refinement := get_node_or_null("../PanelRefinementController")
 	if refinement != null:
 		_call_if_present(refinement, "_hide_legacy_help_ui")
@@ -49,9 +64,8 @@ func _apply_final_presentation() -> void:
 		_call_if_present(refinement, "_refresh_domestic_metrics")
 		_call_if_present(refinement, "_place_domestic_metrics_row")
 
-	# Readability is deliberately last. This guarantees that the renderer sees
-	# only the compact calendar and role summaries, never production's temporary
-	# phase string or raw hero-stat line.
+	# Readability is deliberately last. The renderer therefore never sees the
+	# temporary production phase string or raw governor/chancellor stat line.
 	var readability := get_node_or_null("../ReadabilityController")
 	if readability != null:
 		_call_if_present(readability, "_compact_calendar_text")
