@@ -4,7 +4,9 @@
 [ext_resource type="Script" uid="uid://wiad7puchjrp" path="res://scripts/worldmap/worldmap_16x9_test_host.gd" id="2_test_host"]
 [ext_resource type="Script" uid="uid://eq65t4n4d7iv" path="res://scripts/worldmap/ui/worldmap_turn_summary_test_bridge.gd" id="3_turn_summary_bridge"]
 [ext_resource type="Script" uid="uid://11oo42k5wrbp" path="res://scripts/worldmap/ui/worldmap_left_panel_lock_guard.gd" id="4_left_panel_lock_guard"]
-[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_hud_refinement_test_controller.gd" id="5_hud_refinement"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_panel_refinement_test_controller.gd" id="5_panel_refinement"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_garrison_compact_test_controller.gd" id="6_garrison_compact"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_character_speech_test_bridge.gd" id="7_character_speech"]
 
 [node name="WorldMap_16x9_Test" type="Node" unique_id=1437058317]
 script = ExtResource("2_test_host")
@@ -17,5 +19,11 @@ script = ExtResource("3_turn_summary_bridge")
 [node name="LeftPanelLockGuard" type="Node" parent="." unique_id=956733254]
 script = ExtResource("4_left_panel_lock_guard")
 
-[node name="HudRefinementController" type="Node" parent="."]
-script = ExtResource("5_hud_refinement")
+[node name="PanelRefinementController" type="Node" parent="."]
+script = ExtResource("5_panel_refinement")
+
+[node name="GarrisonCompactController" type="Node" parent="."]
+script = ExtResource("6_garrison_compact")
+
+[node name="CharacterSpeechBridge" type="Node" parent="."]
+script = ExtResource("7_character_speech")
