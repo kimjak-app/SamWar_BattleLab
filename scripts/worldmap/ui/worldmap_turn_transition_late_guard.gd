@@ -1,10 +1,10 @@
 extends Node
 
-# W2-A14 Stable HUD Presentation Coordinator
+# W2-A15 Stable HUD Presentation Coordinator
 #
-# Production remains the gameplay/source-of-truth owner. The test presentation
-# controllers do not race it in independent _process loops. This node performs
-# one final lightweight pass immediately before RenderingServer draws the frame.
+# Production remains the gameplay/source-of-truth owner. Dynamic labels/bars that
+# used to flash are now permanently hidden and represented by StableHudMirror.
+# This coordinator performs only lightweight final-value synchronization before draw.
 
 const LEFT_CONTENT_PATH := "ProductionWorldMap/WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content"
 const TURN_END_BUTTON_NAME := "WildArmyEditButtonPlaceholder"
@@ -26,7 +26,6 @@ func _exit_tree() -> void:
 
 
 func _install_pre_draw_pass() -> void:
-	# TurnSummaryBridge no longer needs an independent presentation process.
 	var summary := get_node_or_null("../TurnSummaryBridge")
 	if summary != null:
 		summary.set_process(false)
@@ -71,30 +70,26 @@ func _on_frame_pre_draw() -> void:
 
 
 func _apply_final_presentation() -> void:
-	# Warehouse nodes are fixed-height. Pre-draw only syncs text and visibility.
 	var warehouse := get_node_or_null("../WarehouseTabsController")
 	if warehouse != null:
 		_call_if_present(warehouse, "_hide_legacy_source")
 		_call_if_present(warehouse, "_refresh_if_needed")
 
-	# Static tech sections are kept visible without any layout/refit work.
 	var tech := get_node_or_null("../TechBadgeController")
 	_call_if_present(tech, "_ensure_visible")
 
-	# Normalize only the values that production can republish during a frame.
+	# Tax color and compact domestic metrics still use the existing refinement
+	# controller. Loyalty/stability source nodes are hidden by StableHudMirror.
 	var refinement := get_node_or_null("../PanelRefinementController")
 	if refinement != null:
 		_call_if_present(refinement, "_apply_city_stability_presentation")
 		_call_if_present(refinement, "_apply_national_gauge_presentation")
 		_call_if_present(refinement, "_refresh_domestic_metrics")
 
-	# Readability is deliberately last. The renderer therefore never sees the
-	# temporary production phase string or raw governor/chancellor stat line.
-	var readability := get_node_or_null("../ReadabilityController")
-	if readability != null:
-		_call_if_present(readability, "_compact_calendar_text")
-		_call_if_present(readability, "_refine_chancellor_card")
-		_call_if_present(readability, "_refine_governor_card")
+	# Visible turn/stability/role information comes only from stable mirrors.
+	# Production may republish any temporary legacy text; those sources stay hidden.
+	var mirror := get_node_or_null("../StableHudMirrorController")
+	_call_if_present(mirror, "_sync_from_sources")
 
 
 func _call_if_present(target: Node, method_name: String) -> void:
