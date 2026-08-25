@@ -24,7 +24,6 @@ func _ready() -> void:
 	# wins in the same frame without modifying production WorldMap code.
 	process_priority = 1600
 	set_process(true)
-	set_process_input(true)
 	call_deferred("_install")
 
 
@@ -33,21 +32,6 @@ func _process(_delta: float) -> void:
 		return
 	_enforce_left_position()
 	_preserve_right_position()
-
-
-func _input(event: InputEvent) -> void:
-	if not _installed or _right_panel == null or not is_instance_valid(_right_panel):
-		return
-	if event is InputEventMouseButton:
-		var mouse_event := event as InputEventMouseButton
-		if mouse_event.button_index != MOUSE_BUTTON_LEFT:
-			return
-		if mouse_event.pressed:
-			_right_pointer_down = _right_panel.get_global_rect().has_point(mouse_event.position)
-			if _right_pointer_down:
-				_right_press_position = _right_panel.position
-		else:
-			_right_pointer_down = false
 
 
 func _install() -> void:
@@ -84,15 +68,21 @@ func _preserve_right_position() -> void:
 		return
 	_set_top_left_anchors(_right_panel)
 	var current := _right_panel.position
+	var pointer_is_down := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 
-	if _right_pointer_down:
-		# Only a position change that happens while the pointer is actually held on
-		# the right HUD counts as a user drag. Deferred host layouts are ignored.
+	if pointer_is_down:
+		if not _right_pointer_down:
+			_right_pointer_down = true
+			_right_press_position = current
+		# Production owns the actual drag. Only a real panel coordinate change while
+		# the pointer is held counts as user movement, regardless of which drag handle
+		# production used to initiate it.
 		if current.distance_to(_right_press_position) > POSITION_EPSILON:
 			_right_user_moved = true
 			_right_user_position = _clamp_right_position(current)
 		return
 
+	_right_pointer_down = false
 	if _right_user_moved:
 		# Outside a verified drag, any position change is a production refresh/layout
 		# pass. Restore the user's last dragged position instead of learning that reset.
