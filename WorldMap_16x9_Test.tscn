@@ -9,6 +9,8 @@
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_character_speech_test_bridge.gd" id="7_character_speech"]
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_warehouse_tabs_test_controller.gd" id="8_warehouse_tabs"]
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_readability_test_controller.gd" id="9_readability"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_tech_badge_test_controller.gd" id="10_tech_badges"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_hud_position_test_controller.gd" id="11_hud_position"]
 
 [node name="WorldMap_16x9_Test" type="Node" unique_id=1437058317]
 script = ExtResource("2_test_host")
@@ -33,5 +35,11 @@ script = ExtResource("7_character_speech")
 [node name="WarehouseTabsController" type="Node" parent="."]
 script = ExtResource("8_warehouse_tabs")
 
+[node name="TechBadgeController" type="Node" parent="."]
+script = ExtResource("10_tech_badges")
+
 [node name="ReadabilityController" type="Node" parent="."]
 script = ExtResource("9_readability")
+
+[node name="HudPositionController" type="Node" parent="."]
+script = ExtResource("11_hud_position")
