@@ -15,32 +15,14 @@ const CARD_BORDER_COLOR := Color(0.63, 0.47, 0.19, 0.92)
 const CARD_BG_COLOR := Color(0.025, 0.04, 0.052, 0.34)
 
 const LEFT_SAMPLE_BADGES := [
-	{
-		"icon": "res://assets/ui/tech_icons_ui64/tech_agri_irrigation.png",
-		"name": "관개 기술",
-	},
-	{
-		"icon": "res://assets/ui/tech_icons_ui64/tech_commerce_mint.png",
-		"name": "화폐 주조",
-	},
-	{
-		"icon": "res://assets/ui/tech_icons_ui64/tech_fish_coastal_fishing.png",
-		"name": "연안 어업",
-	},
+	{"icon": "res://assets/ui/tech_icons_ui64/tech_agri_irrigation.png", "name": "관개 기술"},
+	{"icon": "res://assets/ui/tech_icons_ui64/tech_commerce_mint.png", "name": "화폐 주조"},
+	{"icon": "res://assets/ui/tech_icons_ui64/tech_fish_coastal_fishing.png", "name": "연안 어업"},
 ]
 const RIGHT_SAMPLE_BADGES := [
-	{
-		"icon": "res://assets/ui/tech_icons_ui64/tech_agri_double_cropping.png",
-		"name": "이모작",
-	},
-	{
-		"icon": "res://assets/ui/tech_icons_ui64/tech_commerce_street_market.png",
-		"name": "시전 정비",
-	},
-	{
-		"icon": "res://assets/ui/tech_icons_ui64/tech_fish_salt_field.png",
-		"name": "염전 개발",
-	},
+	{"icon": "res://assets/ui/tech_icons_ui64/tech_agri_double_cropping.png", "name": "이모작"},
+	{"icon": "res://assets/ui/tech_icons_ui64/tech_commerce_street_market.png", "name": "시전 정비"},
+	{"icon": "res://assets/ui/tech_icons_ui64/tech_fish_salt_field.png", "name": "염전 개발"},
 ]
 
 @onready var production_world_map: Node = get_node_or_null("../ProductionWorldMap")
@@ -51,21 +33,9 @@ var _installed := false
 
 
 func _ready() -> void:
-	process_priority = 1225
-	set_process(true)
+	# Static sample presentation: create once, never trigger runtime panel refits.
+	set_process(false)
 	call_deferred("_install")
-
-
-func _process(_delta: float) -> void:
-	if not _installed:
-		return
-	var restored := false
-	for section in [_left_section, _right_section]:
-		if section != null and is_instance_valid(section) and not section.visible:
-			section.visible = true
-			restored = true
-	if restored:
-		_request_panel_refit()
 
 
 func _install() -> void:
@@ -84,8 +54,14 @@ func _install() -> void:
 	_right_section = _build_section("TechBadgeSection_Right", "성 테크트리", RIGHT_SAMPLE_BADGES)
 	_insert_right_section(right_content, _right_section)
 
-	_request_panel_refit()
+	_request_initial_panel_refit()
 	_installed = true
+
+
+func _ensure_visible() -> void:
+	for section in [_left_section, _right_section]:
+		if section != null and is_instance_valid(section):
+			section.visible = true
 
 
 func _insert_left_section(parent: VBoxContainer, section: Control) -> void:
@@ -145,8 +121,6 @@ func _build_section(section_name: String, title_text: String, samples: Array) ->
 	grid.add_theme_constant_override("v_separation", BADGE_GAP)
 	scroll.add_child(grid)
 
-	# Only real completed technologies are rendered. Empty capacity remains clean
-	# space instead of showing placeholder square outlines.
 	for sample in samples:
 		grid.add_child(_make_completed_badge(sample))
 	return section
@@ -201,7 +175,7 @@ func _make_card_style() -> StyleBoxFlat:
 	return style
 
 
-func _request_panel_refit() -> void:
+func _request_initial_panel_refit() -> void:
 	var host := get_parent()
 	if host != null and host.has_method("_fit_compact_panels"):
 		host.call_deferred("_fit_compact_panels")
