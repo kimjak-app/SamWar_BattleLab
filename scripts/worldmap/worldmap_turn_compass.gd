@@ -28,7 +28,7 @@ var _plaque_layer: TextureRect = null
 var _plaque_button: Button = null
 var _original_pressed_callbacks: Array[Callable] = []
 var _pressed_wrapper_installed := false
-var _install_attempts := 0
+var _install_attempts = 0
 var _serializing_turn_end := false
 var _plaque_hovered := false
 
@@ -183,11 +183,11 @@ func _on_plaque_pressed() -> void:
 	if _turn_end_button == null or not is_instance_valid(_turn_end_button):
 		return
 
-	# Preserve the same signal order the real Button used. TurnSummaryBridge watches
-	# button_down, while this compass wraps pressed so the rotation still happens
-	# before the original gameplay callback.
+	# TurnSummaryBridge intentionally watches button_down. Preserve that one signal,
+	# but do NOT re-emit pressed here: late pressed listeners can otherwise execute
+	# in parallel with the compass wrapper and mutate HUD state during the spin.
 	_turn_end_button.button_down.emit()
-	_turn_end_button.pressed.emit()
+	_on_turn_button_pressed_serialized()
 
 
 func _on_turn_button_pressed_serialized() -> void:
@@ -219,8 +219,12 @@ func _on_turn_button_pressed_serialized() -> void:
 
 	if _turn_end_button != null and is_instance_valid(_turn_end_button):
 		_turn_end_button.disabled = false
-	_serializing_turn_end = false
+
+	# Keep the compass busy flag set while gameplay callbacks run. That prevents the
+	# plaque from reappearing in the tiny gap before production publishes its new
+	# turn phase and keeps the presentation sequence strictly serialized.
 	_invoke_original_pressed_callbacks()
+	_serializing_turn_end = false
 
 
 func _play_one_revolution_async() -> void:
