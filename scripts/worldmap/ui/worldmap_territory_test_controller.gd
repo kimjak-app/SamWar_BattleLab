@@ -101,6 +101,8 @@ func _apply_shader_parameters() -> void:
 
 
 func refresh_territory_data() -> void:
+	# Public refresh hook for the later GameState/Service ownership-change signal.
+	# W3-1 does not invent a new ownership signal; it only consumes current marker data.
 	if _territory_material == null or _territory_layer == null:
 		return
 
@@ -112,27 +114,8 @@ func refresh_territory_data() -> void:
 		push_warning("WorldMap Territory Test: CityLayer is missing during refresh.")
 		return
 
-	var markers: Array[Node2D] = []
-	for child in city_layer.get_children():
-		if not child is Node2D:
-			continue
-		if child.get("city_id") == null or child.get("owner_faction_id") == null:
-			continue
-		markers.append(child as Node2D)
-
-	markers.sort_custom(
-		func(a: Node2D, b: Node2D) -> bool:
-			return str(a.get("city_id")) < str(b.get("city_id"))
-	)
-
-	if markers.size() > MAX_CITIES:
-		push_warning(
-			"WorldMap Territory Test: %d cities found; only first %d can be rendered."
-			% [markers.size(), MAX_CITIES]
-		)
-
-	var city_positions: Array[Vector2] = []
-	var city_colors: Array[Vector4] = []
+	var city_positions: Array = []
+	var city_colors: Array = []
 	city_positions.resize(MAX_CITIES)
 	city_colors.resize(MAX_CITIES)
 	for i in range(MAX_CITIES):
@@ -140,9 +123,17 @@ func refresh_territory_data() -> void:
 		city_colors[i] = Vector4.ZERO
 
 	var owner_colors: Dictionary = CITY_MARKER_SCRIPT.OWNER_COLORS
-	var city_count := min(markers.size(), MAX_CITIES)
-	for i in range(city_count):
-		var marker := markers[i]
+	var city_count := 0
+	for child in city_layer.get_children():
+		if city_count >= MAX_CITIES:
+			push_warning("WorldMap Territory Test: MAX_CITIES=%d reached." % MAX_CITIES)
+			break
+		if not child is Node2D:
+			continue
+		if child.get("city_id") == null or child.get("owner_faction_id") == null:
+			continue
+
+		var marker := child as Node2D
 		var faction_id := str(marker.get("owner_faction_id"))
 		if not owner_colors.has(faction_id):
 			push_warning(
@@ -150,14 +141,16 @@ func refresh_territory_data() -> void:
 				% [str(marker.get("city_id")), faction_id]
 			)
 			continue
+
 		var faction_color: Color = owner_colors[faction_id]
-		city_positions[i] = marker.position
-		city_colors[i] = Vector4(
+		city_positions[city_count] = marker.position
+		city_colors[city_count] = Vector4(
 			faction_color.r,
 			faction_color.g,
 			faction_color.b,
 			faction_color.a
 		)
+		city_count += 1
 
 	_territory_material.set_shader_parameter("city_count", city_count)
 	_territory_material.set_shader_parameter("city_positions", city_positions)
