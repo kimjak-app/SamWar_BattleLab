@@ -10,9 +10,9 @@ render_mode unshaded, blend_add;
 
 uniform sampler2D land_mask : filter_linear, repeat_disable;
 uniform vec2 mask_texel_size = vec2(0.00048828125, 0.00086805556);
-uniform float coast_strength : hint_range(0.0, 1.0) = 0.10;
-uniform float foam_strength : hint_range(0.0, 1.0) = 0.075;
-uniform float open_water_strength : hint_range(0.0, 1.0) = 0.014;
+uniform float coast_strength : hint_range(0.0, 1.0) = 0.18;
+uniform float foam_strength : hint_range(0.0, 1.0) = 0.12;
+uniform float open_water_strength : hint_range(0.0, 1.0) = 0.022;
 uniform vec4 highlight_tint : source_color = vec4(0.84, 0.94, 1.0, 1.0);
 
 float get_max3(vec3 v) {
@@ -27,51 +27,54 @@ float land_alpha(vec2 uv) {
 	return texture(land_mask, clamp(uv, vec2(0.0), vec2(1.0))).a;
 }
 
+float sample_land_ring(vec2 uv, float radius_px) {
+	vec2 dx = vec2(mask_texel_size.x * radius_px, 0.0);
+	vec2 dy = vec2(0.0, mask_texel_size.y * radius_px);
+	vec2 dd = vec2(mask_texel_size.x * radius_px * 0.7071, mask_texel_size.y * radius_px * 0.7071);
+
+	float ring = 0.0;
+	ring = max(ring, land_alpha(uv + dx));
+	ring = max(ring, land_alpha(uv - dx));
+	ring = max(ring, land_alpha(uv + dy));
+	ring = max(ring, land_alpha(uv - dy));
+	ring = max(ring, land_alpha(uv + dd));
+	ring = max(ring, land_alpha(uv - dd));
+	ring = max(ring, land_alpha(uv + vec2(dd.x, -dd.y)));
+	ring = max(ring, land_alpha(uv + vec2(-dd.x, dd.y)));
+	return ring;
+}
+
 float coast_proximity(vec2 uv) {
-	vec2 near_x = vec2(mask_texel_size.x * 14.0, 0.0);
-	vec2 near_y = vec2(0.0, mask_texel_size.y * 14.0);
-	vec2 mid_d = vec2(mask_texel_size.x * 34.0, mask_texel_size.y * 34.0);
-
-	float near_land = 0.0;
-	near_land = max(near_land, land_alpha(uv + near_x));
-	near_land = max(near_land, land_alpha(uv - near_x));
-	near_land = max(near_land, land_alpha(uv + near_y));
-	near_land = max(near_land, land_alpha(uv - near_y));
-
-	float mid_land = 0.0;
-	mid_land = max(mid_land, land_alpha(uv + mid_d));
-	mid_land = max(mid_land, land_alpha(uv - mid_d));
-	mid_land = max(mid_land, land_alpha(uv + vec2(mid_d.x, -mid_d.y)));
-	mid_land = max(mid_land, land_alpha(uv + vec2(-mid_d.x, mid_d.y)));
-
-	return clamp(near_land + mid_land * 0.42, 0.0, 1.0);
+	float near_land = sample_land_ring(uv, 24.0);
+	float mid_land = sample_land_ring(uv, 56.0);
+	float far_land = sample_land_ring(uv, 96.0);
+	return clamp(near_land + mid_land * 0.58 + far_land * 0.24, 0.0, 1.0);
 }
 
 void fragment() {
 	vec4 src = texture(TEXTURE, UV);
 	vec3 rgb = src.rgb;
 
-	float land = smoothstep(0.03, 0.97, land_alpha(UV));
+	float land = smoothstep(0.06, 0.94, land_alpha(UV));
 	float water = 1.0 - land;
 	float coast = water * coast_proximity(UV);
 
-	// Back-and-forth phase modulation: the pattern gently breathes in place
-	// instead of drifting continuously in one global direction.
-	float wobble_a = sin(TIME * 0.42) * 0.72;
-	float wobble_b = cos(TIME * 0.31) * 0.58;
-	float wave_a = 0.5 + 0.5 * sin(UV.x * 39.0 + UV.y * 16.0 + wobble_a);
-	float wave_b = 0.5 + 0.5 * sin(UV.x * 55.0 - UV.y * 21.0 - wobble_a * 0.68 + wobble_b);
-	float wave_mix = pow(max(wave_a * 0.58 + wave_b * 0.42, 0.0), 2.8);
+	// Narrow ridges oscillate back and forth instead of travelling away from land.
+	float wobble_a = sin(TIME * 0.34) * 0.62;
+	float wobble_b = cos(TIME * 0.27) * 0.48;
+	float ridge_a = pow(0.5 + 0.5 * sin(UV.x * 96.0 + UV.y * 31.0 + wobble_a), 6.5);
+	float ridge_b = pow(0.5 + 0.5 * sin(UV.x * 71.0 - UV.y * 43.0 - wobble_a * 0.55 + wobble_b), 7.0);
+	float ridge_mix = clamp(ridge_a * 0.62 + ridge_b * 0.46, 0.0, 1.0);
 
 	float brightness = dot(rgb, vec3(0.299, 0.587, 0.114));
 	float chroma = get_max3(rgb) - get_min3(rgb);
-	float existing_foam = smoothstep(0.46, 0.79, brightness) * (1.0 - smoothstep(0.10, 0.30, chroma));
-	float foam_pulse = 0.62 + 0.38 * sin(TIME * 0.52 + sin(UV.x * 31.0) * 1.25 + cos(UV.y * 27.0) * 1.05);
+	float existing_foam = smoothstep(0.40, 0.76, brightness) * (1.0 - smoothstep(0.10, 0.30, chroma));
+	float foam_pulse = 0.60 + 0.40 * sin(TIME * 0.48 + sin(UV.x * 28.0) * 1.10 + cos(UV.y * 25.0) * 1.05);
 
-	float coast_shimmer = coast * wave_mix * coast_strength;
+	float coast_shimmer = coast * ridge_mix * coast_strength;
 	float foam_shimmer = coast * existing_foam * max(foam_pulse, 0.0) * foam_strength;
-	float open_shimmer = water * wave_mix * open_water_strength;
-	float alpha = clamp(coast_shimmer + foam_shimmer + open_shimmer, 0.0, 0.14) * src.a;
+	float open_shimmer = water * ridge_mix * open_water_strength;
+	float alpha = clamp(coast_shimmer + foam_shimmer + open_shimmer, 0.0, 0.20) * src.a;
 
 	COLOR = vec4(highlight_tint.rgb, alpha);
 }
