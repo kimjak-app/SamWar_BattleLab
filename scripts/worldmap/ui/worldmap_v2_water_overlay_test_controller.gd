@@ -5,12 +5,12 @@ const TILE_SCALE := Vector2(0.5, 0.5)
 const OVERLAY_SPRITE_NAME := "V2WaterOverlaySprite"
 const OVERLAY_SHADER_CODE := """
 shader_type canvas_item;
-render_mode unshaded;
+render_mode unshaded, blend_add;
 
-uniform float shimmer_strength : hint_range(0.0, 1.0) = 0.055;
-uniform float foam_strength : hint_range(0.0, 1.0) = 0.075;
-uniform float flow_speed : hint_range(0.0, 1.0) = 0.16;
-uniform vec4 highlight_tint : source_color = vec4(0.95, 0.98, 1.0, 1.0);
+uniform float shimmer_strength : hint_range(0.0, 1.0) = 0.22;
+uniform float foam_strength : hint_range(0.0, 1.0) = 0.18;
+uniform float flow_speed : hint_range(0.0, 1.0) = 0.28;
+uniform vec4 highlight_tint : source_color = vec4(0.82, 0.93, 1.0, 1.0);
 
 float get_max3(vec3 v) {
 	return max(max(v.r, v.g), v.b);
@@ -21,14 +21,11 @@ float get_min3(vec3 v) {
 }
 
 float water_mask(vec3 rgb) {
-	float saturation = get_max3(rgb) - get_min3(rgb);
-	float cyan_bias = smoothstep(0.20, 0.48, rgb.g) * smoothstep(0.28, 0.62, rgb.b);
-	float cool_bias = smoothstep(0.02, 0.16, rgb.g - rgb.r) * smoothstep(0.04, 0.18, rgb.b - rgb.r);
-	float warm_reject = smoothstep(0.03, 0.20, rgb.r - rgb.g) * smoothstep(0.02, 0.18, rgb.r - rgb.b);
-	float mask = max(cyan_bias, cool_bias);
-	mask *= smoothstep(0.015, 0.14, saturation + max(0.0, rgb.b - rgb.r) * 0.35);
-	mask *= 1.0 - (warm_reject * 0.9);
-	return clamp(mask, 0.0, 1.0);
+	float blue_over_red = smoothstep(0.025, 0.115, rgb.b - rgb.r);
+	float green_over_red = smoothstep(0.010, 0.090, rgb.g - rgb.r);
+	float chroma = get_max3(rgb) - get_min3(rgb);
+	float saturation_gate = smoothstep(0.025, 0.11, chroma);
+	return clamp(blue_over_red * green_over_red * saturation_gate, 0.0, 1.0);
 }
 
 void fragment() {
@@ -36,18 +33,16 @@ void fragment() {
 	vec3 rgb = src.rgb;
 	float mask = water_mask(rgb);
 
-	float band_a = 0.5 + 0.5 * sin(UV.x * 28.0 + UV.y * 13.0 - TIME * (0.45 + flow_speed));
-	float band_b = 0.5 + 0.5 * sin(UV.x * 42.0 - UV.y * 12.0 + TIME * (0.38 + flow_speed * 0.8));
-	float band_c = 0.5 + 0.5 * sin(UV.x * 19.0 + UV.y * 21.0 + TIME * 0.26);
-	float shimmer = pow(max(band_a * 0.58 + band_b * 0.42, 0.0), 3.8);
+	float wave_a = 0.5 + 0.5 * sin(UV.x * 34.0 + UV.y * 15.0 - TIME * (0.62 + flow_speed));
+	float wave_b = 0.5 + 0.5 * sin(UV.x * 49.0 - UV.y * 17.0 + TIME * (0.48 + flow_speed * 0.75));
+	float wave_c = 0.5 + 0.5 * sin(UV.x * 23.0 + UV.y * 27.0 + TIME * 0.38);
 
+	float shimmer = pow(max(wave_a * 0.62 + wave_b * 0.38, 0.0), 2.4);
 	float brightness = dot(rgb, vec3(0.299, 0.587, 0.114));
-	float chroma = get_max3(rgb) - get_min3(rgb);
-	float foam_mask = mask * smoothstep(0.56, 0.82, brightness) * (1.0 - smoothstep(0.10, 0.34, chroma));
-	float foam_flow = pow(band_c, 3.0) * foam_mask;
+	float foam_hint = smoothstep(0.28, 0.66, brightness) * pow(wave_c, 3.0);
 
-	float alpha = mask * shimmer * shimmer_strength + foam_flow * foam_strength;
-	alpha = clamp(alpha, 0.0, 0.14) * src.a;
+	float alpha = mask * (shimmer * shimmer_strength + foam_hint * foam_strength);
+	alpha = clamp(alpha, 0.0, 0.30) * src.a;
 	COLOR = vec4(highlight_tint.rgb, alpha);
 }
 """
