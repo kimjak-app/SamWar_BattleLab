@@ -2,7 +2,7 @@ extends Node
 
 const V2_TEXTURE: Texture2D = preload("res://assets/source/worldmap/worldmap_bg_v2_test.png")
 const TILE_SCALE := Vector2(0.5, 0.5)
-const OVERLAY_LAYER_NAME := "V2WaterOverlayLayer"
+const OVERLAY_SPRITE_NAME := "V2WaterOverlaySprite"
 const OVERLAY_SHADER_CODE := """
 shader_type canvas_item;
 render_mode unshaded;
@@ -35,10 +35,6 @@ void fragment() {
 	vec4 src = texture(TEXTURE, UV);
 	vec3 rgb = src.rgb;
 	float mask = water_mask(rgb);
-	if (mask <= 0.001) {
-		COLOR = vec4(0.0);
-		return;
-	}
 
 	float band_a = 0.5 + 0.5 * sin(UV.x * 28.0 + UV.y * 13.0 - TIME * (0.45 + flow_speed));
 	float band_b = 0.5 + 0.5 * sin(UV.x * 42.0 - UV.y * 12.0 + TIME * (0.38 + flow_speed * 0.8));
@@ -46,11 +42,12 @@ void fragment() {
 	float shimmer = pow(max(band_a * 0.58 + band_b * 0.42, 0.0), 3.8);
 
 	float brightness = dot(rgb, vec3(0.299, 0.587, 0.114));
-	float foam_mask = mask * smoothstep(0.56, 0.82, brightness) * (1.0 - smoothstep(0.10, 0.34, get_max3(rgb) - get_min3(rgb)));
+	float chroma = get_max3(rgb) - get_min3(rgb);
+	float foam_mask = mask * smoothstep(0.56, 0.82, brightness) * (1.0 - smoothstep(0.10, 0.34, chroma));
 	float foam_flow = pow(band_c, 3.0) * foam_mask;
 
 	float alpha = mask * shimmer * shimmer_strength + foam_flow * foam_strength;
-	alpha = clamp(alpha, 0.0, 0.14);
+	alpha = clamp(alpha, 0.0, 0.14) * src.a;
 	COLOR = vec4(highlight_tint.rgb, alpha);
 }
 """
@@ -59,8 +56,8 @@ var _applied := false
 
 
 func _ready() -> void:
-	# Test-only experimental overlay. Keep this isolated from production and wait
-	# one process frame so the Design-2 background swap can apply first.
+	# Test-only experimental overlay. Wait one frame so the Design-2 background
+	# controller wins first, then add a separate transparent shimmer layer.
 	set_process(true)
 
 
@@ -94,20 +91,19 @@ func _apply_water_overlay() -> void:
 		push_warning("WorldMap V2 Water Overlay Test: WorldMapTileLayer is missing.")
 		return
 
-	var overlay_layer := tile_layer.get_node_or_null(OVERLAY_LAYER_NAME) as Node2D
-	if overlay_layer == null:
-		overlay_layer = Node2D.new()
-		overlay_layer.name = OVERLAY_LAYER_NAME
-		tile_layer.add_child(overlay_layer)
+	var overlay := tile_layer.get_node_or_null(OVERLAY_SPRITE_NAME) as Sprite2D
+	if overlay == null:
+		overlay = Sprite2D.new()
+		overlay.name = OVERLAY_SPRITE_NAME
+		tile_layer.add_child(overlay)
 
-	if overlay_layer.get_child_count() == 0:
-		var material := _build_water_material()
-		_create_overlay_tile(overlay_layer, "WaterOverlay_A1", Rect2(0, 0, 2048, 1152), Vector2(0, 0), material)
-		_create_overlay_tile(overlay_layer, "WaterOverlay_A2", Rect2(2048, 0, 2048, 1152), Vector2(1024, 0), material)
-		_create_overlay_tile(overlay_layer, "WaterOverlay_B1", Rect2(0, 1152, 2048, 1152), Vector2(0, 576), material)
-		_create_overlay_tile(overlay_layer, "WaterOverlay_B2", Rect2(2048, 1152, 2048, 1152), Vector2(1024, 576), material)
-
-	tile_layer.move_child(overlay_layer, tile_layer.get_child_count() - 1)
+	overlay.texture = V2_TEXTURE
+	overlay.centered = false
+	overlay.position = Vector2.ZERO
+	overlay.rotation = 0.0
+	overlay.scale = TILE_SCALE
+	overlay.material = _build_water_material()
+	tile_layer.move_child(overlay, tile_layer.get_child_count() - 1)
 
 
 func _build_water_material() -> ShaderMaterial:
@@ -117,28 +113,3 @@ func _build_water_material() -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = shader
 	return material
-
-
-func _create_overlay_tile(
-	parent: Node2D,
-	node_name: String,
-	region: Rect2,
-	target_position: Vector2,
-	material: Material
-) -> void:
-	var sprite := parent.get_node_or_null(node_name) as Sprite2D
-	if sprite == null:
-		sprite = Sprite2D.new()
-		sprite.name = node_name
-		parent.add_child(sprite)
-
-	var atlas_texture := AtlasTexture.new()
-	atlas_texture.atlas = V2_TEXTURE
-	atlas_texture.region = region
-
-	sprite.texture = atlas_texture
-	sprite.centered = false
-	sprite.position = target_position
-	sprite.rotation = 0.0
-	sprite.scale = TILE_SCALE
-	sprite.material = material
