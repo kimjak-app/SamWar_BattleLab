@@ -1,16 +1,19 @@
 extends Node
 
 const V2_TEXTURE: Texture2D = preload("res://assets/source/worldmap/worldmap_bg_v2_test.png")
+const LAND_MASK_TEXTURE: Texture2D = preload("res://assets/source/worldmap/worldmap_bg_v2_land_mask.png")
 const TILE_SCALE := Vector2(0.5, 0.5)
 const OVERLAY_SPRITE_NAME := "V2WaterOverlaySprite"
 const OVERLAY_SHADER_CODE := """
 shader_type canvas_item;
 render_mode unshaded, blend_add;
 
-uniform float shimmer_strength : hint_range(0.0, 1.0) = 0.22;
-uniform float foam_strength : hint_range(0.0, 1.0) = 0.18;
-uniform float flow_speed : hint_range(0.0, 1.0) = 0.28;
-uniform vec4 highlight_tint : source_color = vec4(0.82, 0.93, 1.0, 1.0);
+uniform sampler2D land_mask : filter_linear, repeat_disable;
+uniform vec2 mask_texel_size = vec2(0.00048828125, 0.00086805556);
+uniform float coast_strength : hint_range(0.0, 1.0) = 0.10;
+uniform float foam_strength : hint_range(0.0, 1.0) = 0.075;
+uniform float open_water_strength : hint_range(0.0, 1.0) = 0.014;
+uniform vec4 highlight_tint : source_color = vec4(0.84, 0.94, 1.0, 1.0);
 
 float get_max3(vec3 v) {
 	return max(max(v.r, v.g), v.b);
@@ -20,29 +23,56 @@ float get_min3(vec3 v) {
 	return min(min(v.r, v.g), v.b);
 }
 
-float water_mask(vec3 rgb) {
-	float blue_over_red = smoothstep(0.025, 0.115, rgb.b - rgb.r);
-	float green_over_red = smoothstep(0.010, 0.090, rgb.g - rgb.r);
-	float chroma = get_max3(rgb) - get_min3(rgb);
-	float saturation_gate = smoothstep(0.025, 0.11, chroma);
-	return clamp(blue_over_red * green_over_red * saturation_gate, 0.0, 1.0);
+float land_alpha(vec2 uv) {
+	return texture(land_mask, clamp(uv, vec2(0.0), vec2(1.0))).a;
+}
+
+float coast_proximity(vec2 uv) {
+	vec2 near_x = vec2(mask_texel_size.x * 14.0, 0.0);
+	vec2 near_y = vec2(0.0, mask_texel_size.y * 14.0);
+	vec2 mid_d = vec2(mask_texel_size.x * 34.0, mask_texel_size.y * 34.0);
+
+	float near_land = 0.0;
+	near_land = max(near_land, land_alpha(uv + near_x));
+	near_land = max(near_land, land_alpha(uv - near_x));
+	near_land = max(near_land, land_alpha(uv + near_y));
+	near_land = max(near_land, land_alpha(uv - near_y));
+
+	float mid_land = 0.0;
+	mid_land = max(mid_land, land_alpha(uv + mid_d));
+	mid_land = max(mid_land, land_alpha(uv - mid_d));
+	mid_land = max(mid_land, land_alpha(uv + vec2(mid_d.x, -mid_d.y)));
+	mid_land = max(mid_land, land_alpha(uv + vec2(-mid_d.x, mid_d.y)));
+
+	return clamp(near_land + mid_land * 0.42, 0.0, 1.0);
 }
 
 void fragment() {
 	vec4 src = texture(TEXTURE, UV);
 	vec3 rgb = src.rgb;
-	float mask = water_mask(rgb);
 
-	float wave_a = 0.5 + 0.5 * sin(UV.x * 34.0 + UV.y * 15.0 - TIME * (0.62 + flow_speed));
-	float wave_b = 0.5 + 0.5 * sin(UV.x * 49.0 - UV.y * 17.0 + TIME * (0.48 + flow_speed * 0.75));
-	float wave_c = 0.5 + 0.5 * sin(UV.x * 23.0 + UV.y * 27.0 + TIME * 0.38);
+	float land = smoothstep(0.03, 0.97, land_alpha(UV));
+	float water = 1.0 - land;
+	float coast = water * coast_proximity(UV);
 
-	float shimmer = pow(max(wave_a * 0.62 + wave_b * 0.38, 0.0), 2.4);
+	// Back-and-forth phase modulation: the pattern gently breathes in place
+	// instead of drifting continuously in one global direction.
+	float wobble_a = sin(TIME * 0.42) * 0.72;
+	float wobble_b = cos(TIME * 0.31) * 0.58;
+	float wave_a = 0.5 + 0.5 * sin(UV.x * 39.0 + UV.y * 16.0 + wobble_a);
+	float wave_b = 0.5 + 0.5 * sin(UV.x * 55.0 - UV.y * 21.0 - wobble_a * 0.68 + wobble_b);
+	float wave_mix = pow(max(wave_a * 0.58 + wave_b * 0.42, 0.0), 2.8);
+
 	float brightness = dot(rgb, vec3(0.299, 0.587, 0.114));
-	float foam_hint = smoothstep(0.28, 0.66, brightness) * pow(wave_c, 3.0);
+	float chroma = get_max3(rgb) - get_min3(rgb);
+	float existing_foam = smoothstep(0.46, 0.79, brightness) * (1.0 - smoothstep(0.10, 0.30, chroma));
+	float foam_pulse = 0.62 + 0.38 * sin(TIME * 0.52 + sin(UV.x * 31.0) * 1.25 + cos(UV.y * 27.0) * 1.05);
 
-	float alpha = mask * (shimmer * shimmer_strength + foam_hint * foam_strength);
-	alpha = clamp(alpha, 0.0, 0.30) * src.a;
+	float coast_shimmer = coast * wave_mix * coast_strength;
+	float foam_shimmer = coast * existing_foam * max(foam_pulse, 0.0) * foam_strength;
+	float open_shimmer = water * wave_mix * open_water_strength;
+	float alpha = clamp(coast_shimmer + foam_shimmer + open_shimmer, 0.0, 0.14) * src.a;
+
 	COLOR = vec4(highlight_tint.rgb, alpha);
 }
 """
@@ -107,4 +137,12 @@ func _build_water_material() -> ShaderMaterial:
 
 	var material := ShaderMaterial.new()
 	material.shader = shader
+	material.set_shader_parameter("land_mask", LAND_MASK_TEXTURE)
+	material.set_shader_parameter(
+		"mask_texel_size",
+		Vector2(
+			1.0 / float(max(LAND_MASK_TEXTURE.get_width(), 1)),
+			1.0 / float(max(LAND_MASK_TEXTURE.get_height(), 1))
+		)
+	)
 	return material
