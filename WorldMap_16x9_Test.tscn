@@ -12,19 +12,19 @@
 [ext_resource type="Script" uid="uid://ca7vv4tmk6oh1" path="res://scripts/worldmap/ui/worldmap_tech_badge_test_controller.gd" id="10_tech_badges"]
 [ext_resource type="Script" uid="uid://bljnlcxtko46t" path="res://scripts/worldmap/ui/worldmap_hud_position_test_controller.gd" id="11_hud_position"]
 [ext_resource type="Script" uid="uid://58mrlas6hrf6" path="res://scripts/worldmap/ui/worldmap_turn_transition_late_guard.gd" id="12_turn_transition_guard"]
-[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_stable_hud_mirror_controller.gd" id="13_stable_hud_mirror"]
-[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_v2_background_test_controller.gd" id="14_v2_background"]
-[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_v2_water_overlay_test_controller.gd" id="15_v2_water"]
+[ext_resource type="Script" uid="uid://bxrx4t3w8or82" path="res://scripts/worldmap/ui/worldmap_stable_hud_mirror_controller.gd" id="13_stable_hud_mirror"]
+[ext_resource type="Script" uid="uid://bkl7eds82alx1" path="res://scripts/worldmap/ui/worldmap_v2_background_test_controller.gd" id="14_v2_background"]
+[ext_resource type="Script" uid="uid://dmhe41y8bddxt" path="res://scripts/worldmap/ui/worldmap_v2_water_overlay_test_controller.gd" id="15_v2_water"]
 
 [node name="WorldMap_16x9_Test" type="Node" unique_id=1437058317]
 script = ExtResource("2_test_host")
 
 [node name="ProductionWorldMap" parent="." unique_id=1392956798 instance=ExtResource("1_world_map")]
 
-[node name="V2BackgroundTestController" type="Node" parent="."]
+[node name="V2BackgroundTestController" type="Node" parent="." unique_id=173289303]
 script = ExtResource("14_v2_background")
 
-[node name="V2WaterOverlayController" type="Node" parent="."]
+[node name="V2WaterOverlayController" type="Node" parent="." unique_id=1030960711]
 script = ExtResource("15_v2_water")
 
 [node name="TurnSummaryBridge" type="Node" parent="." unique_id=576006134]
@@ -54,7 +54,7 @@ script = ExtResource("9_readability")
 [node name="HudPositionController" type="Node" parent="." unique_id=326883260]
 script = ExtResource("11_hud_position")
 
-[node name="StableHudMirrorController" type="Node" parent="."]
+[node name="StableHudMirrorController" type="Node" parent="." unique_id=782209465]
 script = ExtResource("13_stable_hud_mirror")
 
 [node name="TurnTransitionLateGuard" type="Node" parent="." unique_id=546220684]
