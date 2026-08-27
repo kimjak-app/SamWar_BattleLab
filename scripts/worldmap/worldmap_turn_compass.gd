@@ -234,12 +234,12 @@ func _wait_for_completed_turn(pre_turn_token: String) -> void:
 		if _turn_end_button == null or not is_instance_valid(_turn_end_button):
 			return
 		var text := _turn_end_button.text.strip_edges()
-		var ready := (
+		var turn_ready := (
 			not _turn_end_button.disabled
 			and text.contains("턴 종료")
 			and not text.contains("편집")
 		)
-		if ready:
+		if turn_ready:
 			return
 
 
