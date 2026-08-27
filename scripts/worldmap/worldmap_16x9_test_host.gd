@@ -35,19 +35,19 @@ const COMPACT_WORLD_UI_CHILDREN := {
 # The test world uses the same 2048x1152 coordinate space, so these values are
 # intentionally applied 1:1 with no additional scale conversion.
 const CITY_POSITIONS := {
-	"karakorum": Vector2(1080, 322),
-	"yecheng": Vector2(840, 400),
-	"pyeongyang": Vector2(1162, 432),
-	"hanseong": Vector2(1210, 501),
-	"luoyang": Vector2(706, 524),
-	"gyeongju": Vector2(1283, 547),
-	"sabi": Vector2(1199, 574),
-	"edo": Vector2(1598, 626),
-	"jianye": Vector2(965, 645),
-	"kyoto": Vector2(1522, 670),
-	"osaka": Vector2(1449, 724),
-	"chengdu": Vector2(470, 746),
-	"kyushu": Vector2(1275, 776),
+	"karakorum": Vector2(1029.5, 272.5),
+	"yecheng": Vector2(842.5, 499.0),
+	"pyeongyang": Vector2(1178.0, 342.0),
+	"hanseong": Vector2(1235.0, 424.5),
+	"luoyang": Vector2(765.0, 586.5),
+	"gyeongju": Vector2(1303.0, 488.5),
+	"sabi": Vector2(1236.0, 523.5),
+	"edo": Vector2(1602.5, 414.5),
+	"jianye": Vector2(955.0, 670.0),
+	"kyoto": Vector2(1543.5, 492.5),
+	"osaka": Vector2(1513.5, 567.0),
+	"chengdu": Vector2(408.5, 730.5),
+	"kyushu": Vector2(1397.5, 628.5),
 }
 
 @onready var production_world_map: Node = get_node_or_null("ProductionWorldMap")

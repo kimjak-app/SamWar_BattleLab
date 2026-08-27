@@ -693,7 +693,7 @@ polygon = PackedVector2Array(8, 0, -6, -5, -3, 0, -6, 5)
 [node name="CityLayer" type="Node2D" parent="WorldMapRoot" unique_id=1124618027]
 
 [node name="CityMarker_Luoyang" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=396096552]
-position = Vector2(765, 586.5)
+position = Vector2(785, 781)
 script = ExtResource("6_city_marker")
 city_id = "luoyang"
 display_name = "낙양"
@@ -729,7 +729,7 @@ position = Vector2(0, 1)
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Yecheng" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=630356492]
-position = Vector2(842.5, 499)
+position = Vector2(896, 581)
 script = ExtResource("6_city_marker")
 city_id = "yecheng"
 display_name = "업성"
@@ -765,7 +765,7 @@ text = "업성"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Chengdu" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=562035558]
-position = Vector2(408.5, 730.5)
+position = Vector2(479, 984)
 script = ExtResource("6_city_marker")
 city_id = "chengdu"
 display_name = "성도"
@@ -801,7 +801,7 @@ position = Vector2(1, 2)
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Jianye" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=507432029]
-position = Vector2(955, 670)
+position = Vector2(1046, 846)
 script = ExtResource("6_city_marker")
 city_id = "jianye"
 display_name = "건업"
@@ -839,7 +839,7 @@ text = "건업"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Karakorum" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=81171640]
-position = Vector2(1029.5, 272.5)
+position = Vector2(1155, 261)
 script = ExtResource("6_city_marker")
 city_id = "karakorum"
 display_name = "카라코룸"
@@ -879,7 +879,7 @@ text = "카라코룸"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Pyeongyang" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1950069167]
-position = Vector2(1178, 342)
+position = Vector2(1353, 404)
 script = ExtResource("6_city_marker")
 city_id = "pyeongyang"
 display_name = "평양"
@@ -914,7 +914,7 @@ text = "평양"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Hanseong" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=342105785]
-position = Vector2(1235, 424.5)
+position = Vector2(1409, 529)
 script = ExtResource("6_city_marker")
 city_id = "hanseong"
 display_name = "한성"
@@ -949,7 +949,7 @@ text = "한성"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Gyeongju" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=352857378]
-position = Vector2(1303, 488.5)
+position = Vector2(1518, 658)
 script = ExtResource("6_city_marker")
 city_id = "gyeongju"
 display_name = "경주"
@@ -989,7 +989,7 @@ text = "경주"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Sabi" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1705550825]
-position = Vector2(1236, 523.5)
+position = Vector2(1426, 695)
 script = ExtResource("6_city_marker")
 city_id = "sabi"
 display_name = "사비"
@@ -1028,7 +1028,7 @@ text = "사비"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Kyoto" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=345330817]
-position = Vector2(1543.5, 492.5)
+position = Vector2(1798, 775)
 script = ExtResource("6_city_marker")
 city_id = "kyoto"
 display_name = "교토"
@@ -1066,7 +1066,7 @@ text = "교토"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Osaka" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=167775615]
-position = Vector2(1513.5, 567)
+position = Vector2(1746, 861)
 script = ExtResource("6_city_marker")
 city_id = "osaka"
 display_name = "오사카"
@@ -1105,7 +1105,7 @@ text = "오사카"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Kyushu" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1734896910]
-position = Vector2(1397.5, 628.5)
+position = Vector2(1539, 951)
 script = ExtResource("6_city_marker")
 city_id = "kyushu"
 display_name = "큐슈"
@@ -1144,7 +1144,7 @@ text = "큐슈"
 shape = SubResource("CircleShape2D_city_click")
 
 [node name="CityMarker_Edo" type="Node2D" parent="WorldMapRoot/CityLayer" unique_id=1646505751]
-position = Vector2(1602.5, 414.5)
+position = Vector2(1903, 696)
 script = ExtResource("6_city_marker")
 city_id = "edo"
 display_name = "에도"
