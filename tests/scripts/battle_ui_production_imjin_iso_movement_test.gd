@@ -1,17 +1,19 @@
 extends "res://tests/scripts/battle_ui_production_imjin_test.gd"
 
-## ISO_MOVEMENT_EXPERIMENT_V1
+## ISO_MOVEMENT_EXPERIMENT_V2
 ##
 ## Imjin test-only presentation experiment.
 ## Combat rules remain on the inherited orthogonal logical grid (18x10,
-## Manhattan range/path/facing). Only world projection, grid overlays and
-## facing glyphs are changed so the battle reads as a 3/4 isometric board.
+## Manhattan range/path/facing). Parent initialization MUST run on that original
+## controller first so authored deployment markers become the same logical cells
+## as the production Imjin test. Only after state initialization do we swap the
+## screen projection to a 3/4 isometric board.
 
 const IsoGridProjectionScript := preload("res://tests/scripts/battle_iso_grid_projection.gd")
 const IsoRangeOverlayTileScript := preload("res://tests/scripts/battle_iso_range_overlay_tile.gd")
 const IsoFacingArrowTileButtonScript := preload("res://tests/scripts/battle_iso_facing_arrow_tile_button.gd")
 
-const ISO_MOVEMENT_EXPERIMENT_MARKER := "ISO_MOVEMENT_EXPERIMENT_V1"
+const ISO_MOVEMENT_EXPERIMENT_MARKER := "ISO_MOVEMENT_EXPERIMENT_V2"
 const ISO_FACING_TILE_FILL := Color(1.0, 0.86, 0.42, 0.22)
 const ISO_FACING_TILE_OUTLINE := Color(1.0, 0.92, 0.65, 0.62)
 const ISO_FACING_TILE_HIGHLIGHT := Color(1.0, 0.98, 0.82, 0.28)
@@ -20,15 +22,21 @@ var _iso_grid_controller: BattleGridController = null
 
 
 func _ready() -> void:
-	_install_iso_grid_projection()
+	# IMPORTANT: let the production Imjin test derive its logical grid cells from
+	# the authored scene markers using the original orthogonal controller first.
+	# V1 swapped controllers before this call, so marker->grid conversion produced
+	# invalid/misaligned cells and movement became unavailable.
 	super._ready()
-	# Parent setup has now created all runtime states. Re-sync once so every
-	# deployed unit, marker and facing indicator uses the projected cell center.
+
+	_install_iso_grid_projection()
+	_collect_move_range_cells()
+	_apply_facing_arrow_panel_visual_style()
+	_snap_deployed_units_to_iso_grid()
 	_sync_demo_positions()
 	_update_all_unit_visuals_from_state()
 	_update_facing_indicators()
 	set_meta("iso_movement_experiment", ISO_MOVEMENT_EXPERIMENT_MARKER)
-	print("[ISO_MOVE_TEST] ", ISO_MOVEMENT_EXPERIMENT_MARKER, " active")
+	print("[ISO_MOVE_TEST] ", ISO_MOVEMENT_EXPERIMENT_MARKER, " active · ", battle_grid_controller.describe_grid())
 
 
 func _install_iso_grid_projection() -> void:
@@ -41,6 +49,18 @@ func _install_iso_grid_projection() -> void:
 	iso_controller.configure_from(source_controller)
 	battle_grid_controller = iso_controller
 	_iso_grid_controller = iso_controller
+
+
+func _snap_deployed_units_to_iso_grid() -> void:
+	# Logical cells were already established by the production test. Reposition
+	# only their visual markers onto the corresponding isometric cell centers.
+	for unit_state in _get_all_unit_states_in_slot_order():
+		if unit_state == null:
+			continue
+		if not battle_grid_controller.is_in_bounds(unit_state.grid_cell):
+			push_warning("[ISO_MOVE_TEST] skip out-of-bounds unit %s cell=%s" % [unit_state.display_name, unit_state.grid_cell])
+			continue
+		_sync_resumed_unit_markers_to_grid(unit_state)
 
 
 func _collect_move_range_cells() -> void:
