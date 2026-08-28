@@ -1,13 +1,12 @@
 extends Label
 
-## Test-only vector renderer for the persistent unit-facing indicator.
-## The production label is retained for layout/visibility, but its Unicode glyph
-## is cleared and the arrow is drawn along the actual projected iso basis.
+## Test-only texture renderer for the persistent unit-facing indicator.
+## The production label still owns layout/visibility; the glyph is cleared and a
+## polished arrow texture is rotated along the exact projected isometric basis.
 
-const ISO_ARROW_COLOR := Color(1.0, 0.98, 0.90, 0.98)
-const ISO_ARROW_SHADOW_COLOR := Color(0.03, 0.025, 0.02, 0.92)
-const ISO_ARROW_WIDTH := 2.6
-const ISO_ARROW_SHADOW_WIDTH := 4.8
+const UNIT_FACING_ARROW_TEXTURE: Texture2D = preload("res://assets/ui/battle/arrows/unit_facing_arrow.png")
+const UNIT_FACING_ARROW_DRAW_SIZE := 46.0
+const UNIT_FACING_ARROW_ALPHA := 0.98
 
 var iso_pixel_direction := Vector2.ZERO
 
@@ -22,24 +21,19 @@ func _draw() -> void:
 		return
 	if iso_pixel_direction == Vector2.ZERO:
 		return
+	if UNIT_FACING_ARROW_TEXTURE == null:
+		return
 
 	var center := size * 0.5
-	var min_side := minf(size.x, size.y)
-	var half_length := clampf(min_side * 0.42, 8.0, 15.0)
 	var direction := iso_pixel_direction.normalized()
-	var tail := center - (direction * half_length)
-	var tip := center + (direction * half_length)
-	var head_length := clampf(min_side * 0.26, 5.0, 9.0)
-	var head_width := head_length * 0.56
-	var head_base := tip - (direction * head_length)
-	var perpendicular := Vector2(-direction.y, direction.x)
-	var head_left := head_base + (perpendicular * head_width)
-	var head_right := head_base - (perpendicular * head_width)
+	var draw_size := Vector2.ONE * UNIT_FACING_ARROW_DRAW_SIZE
+	var draw_rect := Rect2(-draw_size * 0.5, draw_size)
 
-	# Under-stroke keeps the arrow readable over portraits, banners and terrain.
-	draw_line(tail, tip, ISO_ARROW_SHADOW_COLOR, ISO_ARROW_SHADOW_WIDTH, true)
-	draw_line(tip, head_left, ISO_ARROW_SHADOW_COLOR, ISO_ARROW_SHADOW_WIDTH, true)
-	draw_line(tip, head_right, ISO_ARROW_SHADOW_COLOR, ISO_ARROW_SHADOW_WIDTH, true)
-	draw_line(tail, tip, ISO_ARROW_COLOR, ISO_ARROW_WIDTH, true)
-	draw_line(tip, head_left, ISO_ARROW_COLOR, ISO_ARROW_WIDTH, true)
-	draw_line(tip, head_right, ISO_ARROW_COLOR, ISO_ARROW_WIDTH, true)
+	draw_set_transform(center, direction.angle(), Vector2.ONE)
+	draw_texture_rect(
+		UNIT_FACING_ARROW_TEXTURE,
+		draw_rect,
+		false,
+		Color(1.0, 1.0, 1.0, UNIT_FACING_ARROW_ALPHA)
+	)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
