@@ -15,6 +15,7 @@
 [ext_resource type="Script" uid="uid://bxrx4t3w8or82" path="res://scripts/worldmap/ui/worldmap_stable_hud_mirror_controller.gd" id="13_stable_hud_mirror"]
 [ext_resource type="Script" uid="uid://bkl7eds82alx1" path="res://scripts/worldmap/ui/worldmap_v2_background_test_controller.gd" id="14_v2_background"]
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_territory_test_controller.gd" id="15_territory"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_16x9_editor_preview.gd" id="16_editor_preview"]
 
 [node name="WorldMap_16x9_Test" type="Node" unique_id=1437058317]
 script = ExtResource("2_test_host")
@@ -59,3 +60,6 @@ script = ExtResource("13_stable_hud_mirror")
 
 [node name="TurnTransitionLateGuard" type="Node" parent="." unique_id=546220684]
 script = ExtResource("12_turn_transition_guard")
+
+[node name="EditorPreviewController" type="Node" parent="."]
+script = ExtResource("16_editor_preview")
