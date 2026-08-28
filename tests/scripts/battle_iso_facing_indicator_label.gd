@@ -1,14 +1,12 @@
 extends Label
 
 ## Test-only texture renderer for the persistent unit-facing indicator.
-## The production label still owns layout/visibility; the glyph is cleared and a
-## polished arrow texture is rotated along the exact projected isometric basis.
+## The production label still owns layout/visibility; the glyph is cleared and
+## the finalized unit-facing PNG rotates along the exact projected iso basis.
 
 const UNIT_FACING_ARROW_TEXTURE: Texture2D = preload("res://assets/ui/battle/arrows/unit_facing_arrow.png")
 const UNIT_FACING_ARROW_DRAW_SIZE := 60.0
 const UNIT_FACING_ARROW_ALPHA := 1.0
-const UNIT_FACING_ARROW_SHADOW_OFFSET := Vector2(1.5, 1.5)
-const UNIT_FACING_ARROW_SHADOW_COLOR := Color(0.0, 0.0, 0.0, 0.38)
 
 var iso_pixel_direction := Vector2.ZERO
 
@@ -29,22 +27,14 @@ func _draw() -> void:
 	var center := size * 0.5
 	var direction := iso_pixel_direction.normalized()
 	var draw_size := Vector2.ONE * UNIT_FACING_ARROW_DRAW_SIZE
-	var draw_rect := Rect2(-draw_size * 0.5, draw_size)
+	var arrow_rect := Rect2(-draw_size * 0.5, draw_size)
 
-	# A small underlay keeps the slimmer master arrow legible over pale sand,
-	# portraits and banners without changing the authored texture itself.
-	draw_set_transform(center + UNIT_FACING_ARROW_SHADOW_OFFSET, direction.angle(), Vector2.ONE)
-	draw_texture_rect(
-		UNIT_FACING_ARROW_TEXTURE,
-		draw_rect,
-		false,
-		UNIT_FACING_ARROW_SHADOW_COLOR
-	)
-
+	# The finalized art already includes its own dark rim/shadow, so draw it once
+	# at full fidelity instead of stacking another runtime shadow underneath it.
 	draw_set_transform(center, direction.angle(), Vector2.ONE)
 	draw_texture_rect(
 		UNIT_FACING_ARROW_TEXTURE,
-		draw_rect,
+		arrow_rect,
 		false,
 		Color(1.0, 1.0, 1.0, UNIT_FACING_ARROW_ALPHA)
 	)
