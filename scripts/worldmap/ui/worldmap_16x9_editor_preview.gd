@@ -188,8 +188,8 @@ func _preview_compact_left(left_panel: PanelContainer) -> void:
 		if not child is CanvasItem:
 			continue
 		var child_name := str(child.name)
-		if hard_hidden.has(child_name) or hide_after_turn_end:
-			(child as CanvasItem).visible = false
+		var should_hide := hard_hidden.has(child_name) or hide_after_turn_end
+		(child as CanvasItem).visible = not should_hide
 		if child_name == "WildArmyEditButtonPlaceholder":
 			hide_after_turn_end = true
 
@@ -209,9 +209,8 @@ func _preview_compact_right(right_panel: PanelContainer) -> void:
 	for child in content.get_children():
 		if not child is CanvasItem:
 			continue
-		if child.get_index() <= garrison_index or custom_visible.has(str(child.name)):
-			continue
-		(child as CanvasItem).visible = false
+		var should_show := child.get_index() <= garrison_index or custom_visible.has(str(child.name))
+		(child as CanvasItem).visible = should_show
 	garrison_card.visible = true
 	var title := garrison_card.get_node_or_null("MarginContainer/Content/SelectedHeroChipLabel") as Label
 	if title != null:
@@ -251,17 +250,18 @@ func _apply_territory_preview(test_root: Node, world_root: Node) -> void:
 		_territory_layer.size = WORLD_SIZE
 		_territory_layer.color = Color.WHITE
 		_territory_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		world_root.add_child(_territory_layer, false, Node.INTERNAL_MODE_FRONT)
+		# No owner is assigned: this is a live editor preview only and is never
+		# serialized into WorldMap.tscn or the test scene.
+		world_root.add_child(_territory_layer)
 
 		_territory_material = ShaderMaterial.new()
 		_territory_material.shader = TERRITORY_SHADER
 		_territory_layer.material = _territory_material
 
-	if _territory_layer.get_parent() != world_root:
-		return
-	world_root.move_child(_territory_layer, route_layer.get_index())
+		# Insert once, directly above the map tiles and below RouteLayer/CityLayer.
+		world_root.move_child(_territory_layer, route_layer.get_index())
 
-	if _territory_material == null:
+	if _territory_layer.get_parent() != world_root or _territory_material == null:
 		return
 	_territory_material.set_shader_parameter("land_sea_mask", LAND_SEA_MASK)
 	_territory_material.set_shader_parameter("world_size", WORLD_SIZE)
