@@ -5,7 +5,7 @@ extends Label
 ## the finalized unit-facing PNG rotates along the exact projected iso basis.
 
 const UNIT_FACING_ARROW_TEXTURE: Texture2D = preload("res://assets/ui/battle/arrows/unit_facing_arrow.png")
-const UNIT_FACING_ARROW_DRAW_SIZE := 60.0
+const UNIT_FACING_ARROW_DRAW_SIZE := 52.0
 const UNIT_FACING_ARROW_ALPHA := 1.0
 
 var iso_pixel_direction := Vector2.ZERO
