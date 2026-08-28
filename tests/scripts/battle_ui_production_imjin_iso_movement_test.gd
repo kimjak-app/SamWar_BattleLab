@@ -1,6 +1,6 @@
 extends "res://tests/scripts/battle_ui_production_imjin_test.gd"
 
-## ISO_MOVEMENT_EXPERIMENT_V2
+## ISO_MOVEMENT_EXPERIMENT_V3
 ##
 ## Imjin test-only presentation experiment.
 ## Combat rules remain on the inherited orthogonal logical grid (18x10,
@@ -13,7 +13,7 @@ const IsoGridProjectionScript := preload("res://tests/scripts/battle_iso_grid_pr
 const IsoRangeOverlayTileScript := preload("res://tests/scripts/battle_iso_range_overlay_tile.gd")
 const IsoFacingArrowTileButtonScript := preload("res://tests/scripts/battle_iso_facing_arrow_tile_button.gd")
 
-const ISO_MOVEMENT_EXPERIMENT_MARKER := "ISO_MOVEMENT_EXPERIMENT_V2"
+const ISO_MOVEMENT_EXPERIMENT_MARKER := "ISO_MOVEMENT_EXPERIMENT_V3"
 const ISO_FACING_TILE_FILL := Color(1.0, 0.86, 0.42, 0.22)
 const ISO_FACING_TILE_OUTLINE := Color(1.0, 0.92, 0.65, 0.62)
 const ISO_FACING_TILE_HIGHLIGHT := Color(1.0, 0.98, 0.82, 0.28)
@@ -24,14 +24,13 @@ var _iso_grid_controller: BattleGridController = null
 func _ready() -> void:
 	# IMPORTANT: let the production Imjin test derive its logical grid cells from
 	# the authored scene markers using the original orthogonal controller first.
-	# V1 swapped controllers before this call, so marker->grid conversion produced
-	# invalid/misaligned cells and movement became unavailable.
 	super._ready()
 
 	_install_iso_grid_projection()
 	_collect_move_range_cells()
 	_apply_facing_arrow_panel_visual_style()
 	_snap_deployed_units_to_iso_grid()
+	_sync_primary_ally_runtime_cache_to_iso_grid()
 	_sync_demo_positions()
 	_update_all_unit_visuals_from_state()
 	_update_facing_indicators()
@@ -63,6 +62,19 @@ func _snap_deployed_units_to_iso_grid() -> void:
 		_sync_resumed_unit_markers_to_grid(unit_state)
 
 
+func _sync_primary_ally_runtime_cache_to_iso_grid() -> void:
+	# ally_main_01 (Yi Sun-sin in the Imjin test) is special in the inherited
+	# battle controller: its visual base anchor reads these cached positions.
+	# After snapping the marker to the iso cell, refresh the cache before
+	# _sync_demo_positions() rebuilds the visual group or the model and overlay
+	# separate again.
+	if ally_unit_marker != null:
+		current_ally_unit_position = ally_unit_marker.position
+	if ally_portrait_marker != null:
+		current_ally_portrait_position = ally_portrait_marker.position
+	print("[ISO_MOVE_TEST] primary ally cache synced unit=", current_ally_unit_position, " portrait=", current_ally_portrait_position)
+
+
 func _collect_move_range_cells() -> void:
 	move_range_cells.clear()
 	if move_range_overlay_layer == null:
@@ -90,7 +102,7 @@ func _show_move_highlight_at_position(world_position: Vector2) -> void:
 
 	# Base feedback writes the desired valid/invalid tint into ColorRect.color
 	# immediately before this call. Preserve it, then clear the rectangular fill
-	# and render the same feedback as an isometric diamond instead.
+	# and render the same feedback as an isometric chamfered diamond instead.
 	var requested_fill := move_highlight.color
 	move_highlight.position = world_position - (highlight_size * 0.5)
 	move_highlight.size = highlight_size
@@ -108,27 +120,38 @@ func _apply_facing_arrow_button_style(button: Button) -> void:
 	super._apply_facing_arrow_button_style(button)
 	button.set_script(IsoFacingArrowTileButtonScript)
 	button.call("set_tile_style", ISO_FACING_TILE_FILL, ISO_FACING_TILE_OUTLINE, ISO_FACING_TILE_HIGHLIGHT)
+	button.text = ""
 	button.queue_redraw()
 
 
 func _position_facing_arrow_panel_near_ally() -> void:
 	# The inherited placement still uses logical neighbor cells. Because the
 	# controller now projects those centers, the four buttons land on the four
-	# diagonal 3/4-view directions automatically.
+	# diagonal 3/4-view directions automatically. Draw the arrows ourselves so
+	# their slope matches the actual iso cell axes instead of Unicode 45-degree
+	# glyphs.
 	super._position_facing_arrow_panel_near_ally()
-	if face_up_arrow_button != null:
-		face_up_arrow_button.text = "↗"
-	if face_down_arrow_button != null:
-		face_down_arrow_button.text = "↙"
-	if face_left_arrow_button != null:
-		face_left_arrow_button.text = "↖"
-	if face_right_arrow_button != null:
-		face_right_arrow_button.text = "↘"
+	_configure_iso_facing_arrow(face_up_arrow_button, Vector2(1.0, -1.0))
+	_configure_iso_facing_arrow(face_down_arrow_button, Vector2(-1.0, 1.0))
+	_configure_iso_facing_arrow(face_left_arrow_button, Vector2(-1.0, -1.0))
+	_configure_iso_facing_arrow(face_right_arrow_button, Vector2(1.0, 1.0))
+
+
+func _configure_iso_facing_arrow(button: Button, direction_sign: Vector2) -> void:
+	if button == null:
+		return
+	if button.get_script() != IsoFacingArrowTileButtonScript:
+		button.set_script(IsoFacingArrowTileButtonScript)
+	button.text = ""
+	if button.has_method("set_iso_arrow_direction"):
+		button.call("set_iso_arrow_direction", direction_sign)
+	button.queue_redraw()
 
 
 func _get_facing_arrow_text(facing: String) -> String:
-	# Keep the combat-facing contract (up/down/left/right) untouched. Only map
-	# its on-screen indicator to the isometric axes used by the projected grid.
+	# Persistent unit-facing labels still use text in the production hierarchy;
+	# retain the isometric mapping here. The post-move selection arrows above are
+	# vector-drawn and no longer depend on these Unicode glyph angles.
 	match _normalize_facing(facing):
 		FACING_UP:
 			return "↗"
