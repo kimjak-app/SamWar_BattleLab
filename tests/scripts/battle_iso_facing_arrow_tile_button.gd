@@ -1,12 +1,17 @@
 extends "res://scripts/battle_facing_arrow_tile_button.gd"
 
 ## Isometric eight-point renderer for post-move facing selection buttons.
-## The tile keeps the chamfered tactical-cell shape; the direction marker uses
-## the dedicated polished PNG asset rotated along the actual isometric axis.
+## The tile keeps the chamfered tactical-cell shape; the direction marker shares
+## the slimmer unit-facing master asset, with size/tint reserved for interaction.
 
 const ISO_CHAMFER_RATIO := 0.18
-const FACING_SELECT_ARROW_TEXTURE: Texture2D = preload("res://assets/ui/battle/arrows/facing_select_arrow.png")
-const FACING_SELECT_ARROW_DRAW_SIZE := 58.0
+const FACING_SELECT_ARROW_TEXTURE: Texture2D = preload("res://assets/ui/battle/arrows/unit_facing_arrow.png")
+const FACING_SELECT_ARROW_DRAW_SIZE := 64.0
+const FACING_SELECT_ARROW_BASE_TINT := Color(1.0, 0.90, 0.56, 1.0)
+const FACING_SELECT_ARROW_HOVER_TINT := Color(1.0, 0.96, 0.76, 1.0)
+const FACING_SELECT_ARROW_PRESSED_TINT := Color(1.0, 0.99, 0.88, 1.0)
+const FACING_SELECT_ARROW_SHADOW_COLOR := Color(0.0, 0.0, 0.0, 0.30)
+const FACING_SELECT_ARROW_SHADOW_OFFSET := Vector2(1.8, 1.8)
 
 var iso_arrow_direction := Vector2.ZERO
 
@@ -60,25 +65,33 @@ func _draw_iso_arrow_texture() -> void:
 		return
 
 	var interaction_scale := 1.0
-	var interaction_alpha := 0.98
+	var tint := FACING_SELECT_ARROW_BASE_TINT
 	if button_pressed:
-		interaction_scale = 1.10
-		interaction_alpha = 1.0
+		interaction_scale = 1.08
+		tint = FACING_SELECT_ARROW_PRESSED_TINT
 	elif is_hovered():
-		interaction_scale = 1.06
-		interaction_alpha = 1.0
+		interaction_scale = 1.04
+		tint = FACING_SELECT_ARROW_HOVER_TINT
 
 	var center := size * 0.5
 	var draw_extent := FACING_SELECT_ARROW_DRAW_SIZE * interaction_scale
 	var draw_size := Vector2.ONE * draw_extent
 	var draw_rect := Rect2(-draw_size * 0.5, draw_size)
 
+	draw_set_transform(center + FACING_SELECT_ARROW_SHADOW_OFFSET, pixel_direction.angle(), Vector2.ONE)
+	draw_texture_rect(
+		FACING_SELECT_ARROW_TEXTURE,
+		draw_rect,
+		false,
+		FACING_SELECT_ARROW_SHADOW_COLOR
+	)
+
 	draw_set_transform(center, pixel_direction.angle(), Vector2.ONE)
 	draw_texture_rect(
 		FACING_SELECT_ARROW_TEXTURE,
 		draw_rect,
 		false,
-		Color(1.0, 1.0, 1.0, interaction_alpha)
+		tint
 	)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
