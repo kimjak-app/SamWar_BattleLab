@@ -5,8 +5,10 @@ extends Label
 ## polished arrow texture is rotated along the exact projected isometric basis.
 
 const UNIT_FACING_ARROW_TEXTURE: Texture2D = preload("res://assets/ui/battle/arrows/unit_facing_arrow.png")
-const UNIT_FACING_ARROW_DRAW_SIZE := 46.0
-const UNIT_FACING_ARROW_ALPHA := 0.98
+const UNIT_FACING_ARROW_DRAW_SIZE := 60.0
+const UNIT_FACING_ARROW_ALPHA := 1.0
+const UNIT_FACING_ARROW_SHADOW_OFFSET := Vector2(1.5, 1.5)
+const UNIT_FACING_ARROW_SHADOW_COLOR := Color(0.0, 0.0, 0.0, 0.38)
 
 var iso_pixel_direction := Vector2.ZERO
 
@@ -28,6 +30,16 @@ func _draw() -> void:
 	var direction := iso_pixel_direction.normalized()
 	var draw_size := Vector2.ONE * UNIT_FACING_ARROW_DRAW_SIZE
 	var draw_rect := Rect2(-draw_size * 0.5, draw_size)
+
+	# A small underlay keeps the slimmer master arrow legible over pale sand,
+	# portraits and banners without changing the authored texture itself.
+	draw_set_transform(center + UNIT_FACING_ARROW_SHADOW_OFFSET, direction.angle(), Vector2.ONE)
+	draw_texture_rect(
+		UNIT_FACING_ARROW_TEXTURE,
+		draw_rect,
+		false,
+		UNIT_FACING_ARROW_SHADOW_COLOR
+	)
 
 	draw_set_transform(center, direction.angle(), Vector2.ONE)
 	draw_texture_rect(
