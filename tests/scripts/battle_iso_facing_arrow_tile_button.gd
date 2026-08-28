@@ -1,14 +1,12 @@
 extends "res://scripts/battle_facing_arrow_tile_button.gd"
 
 ## Isometric eight-point renderer for post-move facing selection buttons.
-## The arrow is vector-drawn along the actual chamfered-diamond axis, avoiding
-## the fixed 45-degree slant of Unicode diagonal arrow glyphs.
+## The tile keeps the chamfered tactical-cell shape; the direction marker uses
+## the dedicated polished PNG asset rotated along the actual isometric axis.
 
 const ISO_CHAMFER_RATIO := 0.18
-const ISO_ARROW_COLOR := Color(1.0, 0.96, 0.78, 0.98)
-const ISO_ARROW_SHADOW_COLOR := Color(0.08, 0.06, 0.03, 0.78)
-const ISO_ARROW_WIDTH := 3.0
-const ISO_ARROW_SHADOW_WIDTH := 5.0
+const FACING_SELECT_ARROW_TEXTURE: Texture2D = preload("res://assets/ui/battle/arrows/facing_select_arrow.png")
+const FACING_SELECT_ARROW_DRAW_SIZE := 58.0
 
 var iso_arrow_direction := Vector2.ZERO
 
@@ -45,16 +43,15 @@ func _draw() -> void:
 			true
 		)
 
-	_draw_iso_arrow()
+	_draw_iso_arrow_texture()
 
 
-func _draw_iso_arrow() -> void:
+func _draw_iso_arrow_texture() -> void:
 	if iso_arrow_direction == Vector2.ZERO:
 		return
+	if FACING_SELECT_ARROW_TEXTURE == null:
+		return
 
-	# Convert only the logical direction signs into pixel-space direction using
-	# this button's actual width/height. This makes the arrow slope exactly match
-	# the rendered isometric cell axis even if the cell aspect ratio changes.
 	var pixel_direction := Vector2(
 		iso_arrow_direction.x * size.x,
 		iso_arrow_direction.y * size.y
@@ -62,24 +59,28 @@ func _draw_iso_arrow() -> void:
 	if pixel_direction == Vector2.ZERO:
 		return
 
-	var center := size * 0.5
-	var half_length := minf(size.x * 0.23, size.y * 0.40)
-	var tail := center - (pixel_direction * half_length)
-	var tip := center + (pixel_direction * half_length)
-	var head_length := clampf(minf(size.x, size.y) * 0.18, 8.0, 16.0)
-	var head_width := head_length * 0.58
-	var head_base := tip - (pixel_direction * head_length)
-	var perpendicular := Vector2(-pixel_direction.y, pixel_direction.x)
-	var head_left := head_base + (perpendicular * head_width)
-	var head_right := head_base - (perpendicular * head_width)
+	var interaction_scale := 1.0
+	var interaction_alpha := 0.98
+	if button_pressed:
+		interaction_scale = 1.10
+		interaction_alpha = 1.0
+	elif is_hovered():
+		interaction_scale = 1.06
+		interaction_alpha = 1.0
 
-	# Dark under-stroke keeps the thin gold/ivory vector legible over bright sand.
-	draw_line(tail, tip, ISO_ARROW_SHADOW_COLOR, ISO_ARROW_SHADOW_WIDTH, true)
-	draw_line(tip, head_left, ISO_ARROW_SHADOW_COLOR, ISO_ARROW_SHADOW_WIDTH, true)
-	draw_line(tip, head_right, ISO_ARROW_SHADOW_COLOR, ISO_ARROW_SHADOW_WIDTH, true)
-	draw_line(tail, tip, ISO_ARROW_COLOR, ISO_ARROW_WIDTH, true)
-	draw_line(tip, head_left, ISO_ARROW_COLOR, ISO_ARROW_WIDTH, true)
-	draw_line(tip, head_right, ISO_ARROW_COLOR, ISO_ARROW_WIDTH, true)
+	var center := size * 0.5
+	var draw_extent := FACING_SELECT_ARROW_DRAW_SIZE * interaction_scale
+	var draw_size := Vector2.ONE * draw_extent
+	var draw_rect := Rect2(-draw_size * 0.5, draw_size)
+
+	draw_set_transform(center, pixel_direction.angle(), Vector2.ONE)
+	draw_texture_rect(
+		FACING_SELECT_ARROW_TEXTURE,
+		draw_rect,
+		false,
+		Color(1.0, 1.0, 1.0, interaction_alpha)
+	)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _make_chamfered_diamond_points(rect_size: Vector2, chamfer_ratio: float) -> PackedVector2Array:
