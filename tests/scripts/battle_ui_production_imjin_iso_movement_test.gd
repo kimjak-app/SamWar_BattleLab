@@ -1,6 +1,6 @@
 extends "res://tests/scripts/battle_ui_production_imjin_test.gd"
 
-## ISO_MOVEMENT_EXPERIMENT_V3
+## ISO_MOVEMENT_EXPERIMENT_V4
 ##
 ## Imjin test-only presentation experiment.
 ## Combat rules remain on the inherited orthogonal logical grid (18x10,
@@ -12,8 +12,9 @@ extends "res://tests/scripts/battle_ui_production_imjin_test.gd"
 const IsoGridProjectionScript := preload("res://tests/scripts/battle_iso_grid_projection.gd")
 const IsoRangeOverlayTileScript := preload("res://tests/scripts/battle_iso_range_overlay_tile.gd")
 const IsoFacingArrowTileButtonScript := preload("res://tests/scripts/battle_iso_facing_arrow_tile_button.gd")
+const IsoFacingIndicatorLabelScript := preload("res://tests/scripts/battle_iso_facing_indicator_label.gd")
 
-const ISO_MOVEMENT_EXPERIMENT_MARKER := "ISO_MOVEMENT_EXPERIMENT_V3"
+const ISO_MOVEMENT_EXPERIMENT_MARKER := "ISO_MOVEMENT_EXPERIMENT_V4"
 const ISO_FACING_TILE_FILL := Color(1.0, 0.86, 0.42, 0.22)
 const ISO_FACING_TILE_OUTLINE := Color(1.0, 0.92, 0.65, 0.62)
 const ISO_FACING_TILE_HIGHLIGHT := Color(1.0, 0.98, 0.82, 0.28)
@@ -148,10 +149,45 @@ func _configure_iso_facing_arrow(button: Button, direction_sign: Vector2) -> voi
 	button.queue_redraw()
 
 
+func _refresh_facing_indicator_for_unit(unit_state: BattleUnitState) -> void:
+	# Let production logic keep ownership of visibility, positioning and toast
+	# suppression. Once the iso controller exists, replace only the glyph drawing
+	# with a vector arrow using the exact same projected basis as movement.
+	super._refresh_facing_indicator_for_unit(unit_state)
+	if _iso_grid_controller == null or unit_state == null:
+		return
+	var facing_indicator := _get_facing_indicator_for_unit(unit_state)
+	if facing_indicator == null:
+		return
+	if facing_indicator.get_script() != IsoFacingIndicatorLabelScript:
+		facing_indicator.set_script(IsoFacingIndicatorLabelScript)
+	facing_indicator.text = ""
+	if facing_indicator.has_method("set_iso_pixel_direction"):
+		facing_indicator.call("set_iso_pixel_direction", _get_iso_pixel_direction_for_facing(unit_state.facing))
+	facing_indicator.queue_redraw()
+
+
+func _get_iso_pixel_direction_for_facing(facing: String) -> Vector2:
+	if _iso_grid_controller == null:
+		return Vector2.ZERO
+	var basis_x: Vector2 = _iso_grid_controller.get_iso_basis_x()
+	var basis_y: Vector2 = _iso_grid_controller.get_iso_basis_y()
+	match _normalize_facing(facing):
+		FACING_UP:
+			return -basis_y
+		FACING_DOWN:
+			return basis_y
+		FACING_LEFT:
+			return -basis_x
+		FACING_RIGHT:
+			return basis_x
+		_:
+			return basis_x
+
+
 func _get_facing_arrow_text(facing: String) -> String:
-	# Persistent unit-facing labels still use text in the production hierarchy;
-	# retain the isometric mapping here. The post-move selection arrows above are
-	# vector-drawn and no longer depend on these Unicode glyph angles.
+	# Fallback used only before the iso projection is installed. Runtime unit
+	# indicators are vector-drawn by _refresh_facing_indicator_for_unit().
 	match _normalize_facing(facing):
 		FACING_UP:
 			return "↗"
