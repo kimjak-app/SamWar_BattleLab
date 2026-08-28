@@ -3,9 +3,9 @@ extends "res://scripts/battle_facing_arrow_tile_button.gd"
 const ISO_CHAMFER_RATIO := 0.18
 const FACING_SELECT_ARROW_TEXTURE: Texture2D = preload("res://assets/ui/battle/arrows/facing_select_arrow.png")
 const FACING_SELECT_ARROW_DRAW_SIZE := 64.0
-const FACING_SELECT_ARROW_BASE_ALPHA := 0.78
-const FACING_SELECT_ARROW_HOVER_ALPHA := 0.90
-const FACING_SELECT_ARROW_PRESSED_ALPHA := 1.0
+const FACING_SELECT_ARROW_BASE_ALPHA := 0.58
+const FACING_SELECT_ARROW_HOVER_ALPHA := 0.78
+const FACING_SELECT_ARROW_PRESSED_ALPHA := 0.92
 
 var iso_arrow_direction := Vector2.ZERO
 
