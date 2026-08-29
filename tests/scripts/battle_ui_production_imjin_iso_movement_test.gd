@@ -79,6 +79,20 @@ func _play_active_ally_turn_pulse(_unit_state: BattleUnitState) -> void:
 	_stop_active_ally_turn_pulse()
 
 
+func _start_idle_breathing() -> void:
+	# Production continuously scales every troop token 1.00 -> 1.035 -> 1.00 on
+	# a 1.15 s loop. On these small transparent isometric PNGs, repeated subpixel
+	# resampling reads as a flicker / dark rectangular fringe. Keep troop sprites
+	# at their authored base scale in this ISO experiment.
+	_stop_idle_breathing()
+	for unit_state in _get_all_unit_states_in_slot_order():
+		if unit_state == null:
+			continue
+		var token := _get_visual_token_for_unit(unit_state)
+		if token != null:
+			token.scale = _get_visual_token_base_scale_for_unit(unit_state)
+
+
 func _install_iso_grid_projection() -> void:
 	var source_controller := battle_grid_controller
 	if source_controller == null:
