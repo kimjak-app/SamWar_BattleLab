@@ -35,6 +35,7 @@ func _ready() -> void:
 	_sync_demo_positions()
 	_update_all_unit_visuals_from_state()
 	_update_facing_indicators()
+	_disable_legacy_ally_ready_frames()
 	set_meta("iso_movement_experiment", ISO_MOVEMENT_EXPERIMENT_MARKER)
 	print("[ISO_MOVE_TEST] ", ISO_MOVEMENT_EXPERIMENT_MARKER, " active · ", battle_grid_controller.describe_grid())
 
@@ -69,6 +70,45 @@ func _hide_enemy_tactical_range_overlays() -> void:
 	_hide_attack_range_overlay()
 	_hide_unique_skill_range_overlay()
 	_hide_strategy_range_overlay()
+
+
+func _configure_ally_ready_frames() -> void:
+	# Legacy yellow READY frames were an early active-turn visibility experiment.
+	# The current battle UI no longer uses that cue, so do not style or start it.
+	_disable_legacy_ally_ready_frames()
+
+
+func _update_ally_ready_frames() -> void:
+	# The production controller calls this every frame and at many turn-transition
+	# points. Keep the retired cue permanently suppressed instead of briefly
+	# showing a yellow border and hiding it again on the next update.
+	_disable_legacy_ally_ready_frames()
+
+
+func _start_ready_frame_pulse(frame: Control) -> void:
+	# Defensive no-op: even if an inherited path explicitly asks to start the old
+	# READY pulse, kill any existing tween and keep the frame hidden.
+	if frame == null:
+		return
+	_stop_ready_frame_pulse(frame)
+	frame.visible = false
+	frame.modulate = Color(1.0, 1.0, 1.0, 0.0)
+
+
+func _disable_legacy_ally_ready_frames() -> void:
+	for frame in [
+		ally_ready_frame,
+		ally_support_ready_frame,
+		ally_main_03_ready_frame,
+		ally_reinforce_01_ready_frame,
+		ally_reinforce_02_ready_frame,
+	]:
+		if frame == null:
+			continue
+		_stop_ready_frame_pulse(frame)
+		frame.visible = false
+		frame.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _play_active_ally_turn_pulse(_unit_state: BattleUnitState) -> void:
