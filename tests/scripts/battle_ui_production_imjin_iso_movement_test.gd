@@ -19,25 +19,7 @@ const ISO_FACING_TILE_FILL := Color(1.0, 0.86, 0.42, 0.22)
 const ISO_FACING_TILE_OUTLINE := Color(1.0, 0.92, 0.65, 0.62)
 const ISO_FACING_TILE_HIGHLIGHT := Color(1.0, 0.98, 0.82, 0.28)
 
-# Test-only frame pacing pass. The inherited production controller intentionally
-# refreshes several HUD/world surfaces every frame. Test2 adds another 20 Hz
-# resync loop, so the same visual state can be rebuilt multiple times per frame.
-# These guards keep responsiveness while avoiding redundant work on a static
-# camera. Combat rules, action timing and animation tweens are unchanged.
-const PERF_READY_FRAME_REFRESH_MS := 50
-const PERF_FLOATING_PANEL_REFRESH_MS := 34
-const PERF_STATUS_ICON_REFRESH_MS := 50
-const PERF_STATIC_WORLD_OVERLAY_REFRESH_MS := 100
-const CUTIN_PREWARM_POLL_MS := 200
-
 var _iso_grid_controller: BattleGridController = null
-var _perf_last_ready_frame_refresh_ms := -100000
-var _perf_last_floating_panel_refresh_ms := -100000
-var _perf_last_status_icon_refresh_ms := -100000
-var _perf_last_world_overlay_refresh_ms := -100000
-var _cutin_prewarm_last_poll_ms := -100000
-var _cutin_prewarm_pending: Dictionary = {}
-var _cutin_prewarm_resources: Dictionary = {}
 
 
 func _ready() -> void:
@@ -53,126 +35,40 @@ func _ready() -> void:
 	_sync_demo_positions()
 	_update_all_unit_visuals_from_state()
 	_update_facing_indicators()
-	_request_imjin_cutin_prewarm()
 	set_meta("iso_movement_experiment", ISO_MOVEMENT_EXPERIMENT_MARKER)
 	print("[ISO_MOVE_TEST] ", ISO_MOVEMENT_EXPERIMENT_MARKER, " active · ", battle_grid_controller.describe_grid())
 
 
-func _process(delta: float) -> void:
-	super._process(delta)
-	_poll_imjin_cutin_prewarm()
+func _play_enemy_ai_for_actor(enemy_actor_state: BattleUnitState) -> void:
+	# Enemy AI does not require player-facing tactical range overlays. Clear any
+	# leftover ally overlay before each enemy actor so every enemy is presented
+	# consistently instead of the legacy primary enemy occasionally exposing one.
+	_hide_enemy_tactical_range_overlays()
+	super._play_enemy_ai_for_actor(enemy_actor_state)
 
 
-func _update_ally_ready_frames() -> void:
-	var now_ms := Time.get_ticks_msec()
-	if now_ms - _perf_last_ready_frame_refresh_ms < PERF_READY_FRAME_REFRESH_MS:
+func _begin_auto_unique_skill_preview(caster_state: BattleUnitState, skill_data: Dictionary) -> void:
+	if caster_state != null and caster_state.side == "enemy":
+		# Preserve the original preview timing/skill sequence, but do not expose the
+		# purple target/range grid for AI-controlled enemies. This keeps all enemy
+		# actors visually consistent while leaving combat authority untouched.
+		is_demo_animating = true
+		_hide_facing_selection_panel()
+		_hide_enemy_tactical_range_overlays()
+		var preview_timer := get_tree().create_timer(UNIQUE_SKILL_AUTO_PREVIEW_DURATION)
+		preview_timer.timeout.connect(
+			_finish_auto_unique_skill_preview.bind(caster_state, skill_data),
+			CONNECT_ONE_SHOT
+		)
 		return
-	_perf_last_ready_frame_refresh_ms = now_ms
-	super._update_ally_ready_frames()
+	super._begin_auto_unique_skill_preview(caster_state, skill_data)
 
 
-func _refresh_floating_ally_command_panel() -> void:
-	# Keep command-panel tracking fully smooth while the combat camera is moving;
-	# otherwise 30 Hz is more than enough for a stationary tactical panel.
-	if combat_camera_tween != null:
-		super._refresh_floating_ally_command_panel()
-		return
-	var now_ms := Time.get_ticks_msec()
-	if now_ms - _perf_last_floating_panel_refresh_ms < PERF_FLOATING_PANEL_REFRESH_MS:
-		return
-	_perf_last_floating_panel_refresh_ms = now_ms
-	super._refresh_floating_ally_command_panel()
-
-
-func _refresh_strategy_status_icon_labels() -> void:
-	if combat_camera_tween != null:
-		super._refresh_strategy_status_icon_labels()
-		return
-	var now_ms := Time.get_ticks_msec()
-	if now_ms - _perf_last_status_icon_refresh_ms < PERF_STATUS_ICON_REFRESH_MS:
-		return
-	_perf_last_status_icon_refresh_ms = now_ms
-	super._refresh_strategy_status_icon_labels()
-
-
-func _refresh_camera_bound_world_overlays() -> void:
-	# Camera tweening needs frame-perfect overlay tracking. Once the camera is
-	# static, Test2's 20 Hz backup resync is redundant with event-driven refreshes,
-	# so cap the fallback at 10 Hz instead of rebuilding every 50 ms.
-	if combat_camera_tween != null:
-		super._refresh_camera_bound_world_overlays()
-		return
-	var now_ms := Time.get_ticks_msec()
-	if now_ms - _perf_last_world_overlay_refresh_ms < PERF_STATIC_WORLD_OVERLAY_REFRESH_MS:
-		return
-	_perf_last_world_overlay_refresh_ms = now_ms
-	super._refresh_camera_bound_world_overlays()
-
-
-func _cutin_trace(_message: String) -> void:
-	# The production trace is useful during cut-in authoring, but the ISO battle
-	# performance test does not need console traffic for every routing step.
-	pass
-
-
-func _debug_print_combat_distance(_context: String) -> void:
-	# Distance tracing is diagnostic-only and can create editor-console bursts
-	# during auto/enemy turns. Keep it silent in the frame-pacing experiment.
-	pass
-
-
-func _request_imjin_cutin_prewarm() -> void:
-	_cutin_prewarm_pending.clear()
-	_cutin_prewarm_resources.clear()
-
-	var roster_heroes: Dictionary = {}
-	for hero_variant in IMJIN_TEST_BATTLE_ROSTER.values():
-		var canonical_hero_id := KoreaMvpHeroCutinRegistryScript.canonicalize_hero_id(String(hero_variant))
-		if not canonical_hero_id.is_empty():
-			roster_heroes[canonical_hero_id] = true
-
-	for entry in KoreaMvpHeroCutinRegistryScript.load_all_entries():
-		if not bool(entry.get("enabled", false)):
-			continue
-		var entry_hero_id := KoreaMvpHeroCutinRegistryScript.canonicalize_hero_id(String(entry.get("hero_id", "")))
-		if not roster_heroes.has(entry_hero_id):
-			continue
-		_request_cutin_resource_prewarm(String(entry.get("video_path", "")))
-		_request_cutin_resource_prewarm(String(entry.get("skill_title_texture_path", "")))
-
-
-func _request_cutin_resource_prewarm(path: String) -> void:
-	if path.is_empty() or _cutin_prewarm_pending.has(path) or _cutin_prewarm_resources.has(path):
-		return
-	if not ResourceLoader.exists(path):
-		return
-	var request_error := ResourceLoader.load_threaded_request(path)
-	if request_error == OK:
-		_cutin_prewarm_pending[path] = true
-
-
-func _poll_imjin_cutin_prewarm() -> void:
-	if _cutin_prewarm_pending.is_empty():
-		return
-	var now_ms := Time.get_ticks_msec()
-	if now_ms - _cutin_prewarm_last_poll_ms < CUTIN_PREWARM_POLL_MS:
-		return
-	_cutin_prewarm_last_poll_ms = now_ms
-
-	var completed_paths: Array[String] = []
-	for path_variant in _cutin_prewarm_pending.keys():
-		var path := String(path_variant)
-		var status := ResourceLoader.load_threaded_get_status(path)
-		if status == ResourceLoader.THREAD_LOAD_LOADED:
-			var loaded_resource := ResourceLoader.load_threaded_get(path)
-			if loaded_resource != null:
-				_cutin_prewarm_resources[path] = loaded_resource
-			completed_paths.append(path)
-		elif status == ResourceLoader.THREAD_LOAD_FAILED or status == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
-			completed_paths.append(path)
-
-	for path in completed_paths:
-		_cutin_prewarm_pending.erase(path)
+func _hide_enemy_tactical_range_overlays() -> void:
+	_hide_move_range_overlay()
+	_hide_attack_range_overlay()
+	_hide_unique_skill_range_overlay()
+	_hide_strategy_range_overlay()
 
 
 func _install_iso_grid_projection() -> void:
@@ -323,7 +219,7 @@ func _get_iso_pixel_direction_for_facing(facing: String) -> Vector2:
 
 func _get_facing_arrow_text(facing: String) -> String:
 	# Fallback used only before the iso projection is installed. Runtime unit
-	# indicators are texture-drawn by _refresh_facing_indicator_for_unit().
+	# indicators are vector-drawn by _refresh_facing_indicator_for_unit().
 	match _normalize_facing(facing):
 		FACING_UP:
 			return "↗"
