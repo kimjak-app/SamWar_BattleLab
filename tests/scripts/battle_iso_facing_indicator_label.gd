@@ -4,8 +4,8 @@ extends Label
 ## The production label is retained for layout/visibility, but its Unicode glyph
 ## is cleared and the arrow is drawn along the actual projected iso basis.
 
-const ISO_ARROW_COLOR := Color(1.0, 0.98, 0.90, 1.0)
-const ISO_ARROW_SHADOW_COLOR := Color(0.03, 0.025, 0.02, 0.92)
+const ISO_ARROW_COLOR := Color(1.0, 0.98, 0.90, 0.85)
+const ISO_ARROW_SHADOW_COLOR := Color(0.03, 0.025, 0.02, 0.78)
 const ISO_ARROW_WIDTH := 2.6
 const ISO_ARROW_SHADOW_WIDTH := 4.8
 
@@ -25,8 +25,8 @@ func _draw() -> void:
 
 	var center := size * 0.5
 	var min_side := minf(size.x, size.y)
-	# Keep the vector fully opaque for crispness, but reduce its footprint by
-	# roughly 14 percent so it reads as information rather than decoration.
+	# Keep the compact footprint from the latest pass, but soften the persistent
+	# indicator to 85% opacity so it reads clearly without dominating the units.
 	var half_length := clampf(min_side * 0.36, 7.0, 13.0)
 	var direction := iso_pixel_direction.normalized()
 	var tail := center - (direction * half_length)
