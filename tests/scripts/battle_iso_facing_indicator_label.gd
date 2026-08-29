@@ -4,8 +4,8 @@ extends Label
 ## The production label is retained for layout/visibility, but its Unicode glyph
 ## is cleared and the arrow is drawn along the actual projected iso basis.
 
-const ISO_ARROW_COLOR := Color(1.0, 0.98, 0.90, 0.98)
-const ISO_ARROW_SHADOW_COLOR := Color(0.03, 0.025, 0.02, 0.92)
+const ISO_ARROW_COLOR := Color(1.0, 0.98, 0.90, 0.50)
+const ISO_ARROW_SHADOW_COLOR := Color(0.03, 0.025, 0.02, 0.46)
 const ISO_ARROW_WIDTH := 2.6
 const ISO_ARROW_SHADOW_WIDTH := 4.8
 
