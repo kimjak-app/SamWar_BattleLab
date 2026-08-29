@@ -71,62 +71,12 @@ func _hide_enemy_tactical_range_overlays() -> void:
 	_hide_strategy_range_overlay()
 
 
-func _play_active_ally_turn_pulse(unit_state: BattleUnitState) -> void:
-	# ISO test contract: pulse only the battlefield unit token. The inherited
-	# visual root includes the black shadow/labels, while the portrait badge API
-	# resolves to the large battlefield hero portrait in this scene. Scaling
-	# either of those creates the dark-mask flash or giant-face pop seen in QA.
-	if unit_state == null:
-		return
-	if unit_state.side != "ally":
-		return
-	if not unit_state.is_alive():
-		return
-	if not _is_unit_state_available_for_battle_slot(unit_state):
-		return
-
-	var token := _get_visual_token_for_unit(unit_state)
-	if token == null:
-		return
-	var token_base_scale := _get_visual_token_base_scale_for_unit(unit_state)
-
+func _play_active_ally_turn_pulse(_unit_state: BattleUnitState) -> void:
+	# The inherited turn cue scales battlefield visuals. In this ISO test that
+	# reads as a transient overlay/pop on the unit token during F6 startup and at
+	# each new ally turn. Active-unit state is already communicated by the roster,
+	# move range and facing UI, so keep the battlefield sprite completely stable.
 	_stop_active_ally_turn_pulse()
-	_stop_idle_breathing()
-	token.scale = token_base_scale
-
-	# Explicitly keep root/shadow and portrait out of the pulse contract.
-	active_ally_turn_pulse_root = null
-	active_ally_turn_pulse_root_base_global_position = Vector2.ZERO
-	active_ally_turn_pulse_root_pivot_global = Vector2.ZERO
-	active_ally_turn_pulse_token = token
-	active_ally_turn_pulse_portrait = null
-	active_ally_turn_pulse_unit_state = unit_state
-	active_ally_turn_pulse_tween = create_tween()
-	active_ally_turn_pulse_tween.tween_property(
-		token,
-		"scale",
-		token_base_scale * ACTIVE_ALLY_TURN_PULSE_SCALE,
-		ACTIVE_ALLY_TURN_PULSE_UP_DURATION
-	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	active_ally_turn_pulse_tween.tween_property(
-		token,
-		"scale",
-		token_base_scale,
-		ACTIVE_ALLY_TURN_PULSE_DOWN_DURATION
-	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-
-	active_ally_turn_pulse_tween.finished.connect(func() -> void:
-		token.scale = token_base_scale
-		active_ally_turn_pulse_tween = null
-		active_ally_turn_pulse_root = null
-		active_ally_turn_pulse_root_base_global_position = Vector2.ZERO
-		active_ally_turn_pulse_root_pivot_global = Vector2.ZERO
-		active_ally_turn_pulse_token = null
-		active_ally_turn_pulse_portrait = null
-		active_ally_turn_pulse_unit_state = null
-		if not is_demo_animating and current_phase == PHASE_ALLY_TURN and not _is_battle_result_finalized():
-			_start_idle_breathing()
-	)
 
 
 func _install_iso_grid_projection() -> void:
