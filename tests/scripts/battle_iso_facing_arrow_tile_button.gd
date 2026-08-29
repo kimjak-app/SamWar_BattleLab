@@ -13,6 +13,12 @@ const FACING_SELECT_ARROW_DRAW_SIZE := 64.0
 const FACING_SELECT_ARROW_BASE_ALPHA := 0.58
 const FACING_SELECT_ARROW_HOVER_ALPHA := 0.78
 const FACING_SELECT_ARROW_PRESSED_ALPHA := 0.92
+const FACING_SELECT_SHADOW_COLOR := Color(0.13, 0.085, 0.025, 1.0)
+const FACING_SELECT_SHADOW_BASE_ALPHA := 0.22
+const FACING_SELECT_SHADOW_HOVER_ALPHA := 0.27
+const FACING_SELECT_SHADOW_PRESSED_ALPHA := 0.18
+const FACING_SELECT_SHADOW_OFFSET := Vector2(2.2, 2.2)
+const FACING_SELECT_SHADOW_PRESSED_OFFSET := Vector2(1.0, 1.0)
 
 var iso_arrow_direction := Vector2.ZERO
 
@@ -62,17 +68,37 @@ func _draw_iso_arrow_texture() -> void:
 
 	var interaction_scale := 1.0
 	var interaction_alpha := FACING_SELECT_ARROW_BASE_ALPHA
+	var shadow_alpha := FACING_SELECT_SHADOW_BASE_ALPHA
+	var shadow_offset := FACING_SELECT_SHADOW_OFFSET
 	if button_pressed:
 		interaction_scale = 1.08
 		interaction_alpha = FACING_SELECT_ARROW_PRESSED_ALPHA
+		shadow_alpha = FACING_SELECT_SHADOW_PRESSED_ALPHA
+		shadow_offset = FACING_SELECT_SHADOW_PRESSED_OFFSET
 	elif is_hovered():
 		interaction_scale = 1.04
 		interaction_alpha = FACING_SELECT_ARROW_HOVER_ALPHA
+		shadow_alpha = FACING_SELECT_SHADOW_HOVER_ALPHA
 
 	var center := size * 0.5
 	var draw_extent := FACING_SELECT_ARROW_DRAW_SIZE * interaction_scale
 	var draw_size := Vector2.ONE * draw_extent
 	var arrow_rect := Rect2(center - (draw_size * 0.5), draw_size)
+	var shadow_rect := Rect2(arrow_rect.position + shadow_offset, arrow_rect.size)
+
+	# Draw one low-alpha, warm-dark copy first. This gives the gold arrow a subtle
+	# lift from the bright battlefield without baking another shadow into the PNG.
+	draw_texture_rect(
+		arrow_texture,
+		shadow_rect,
+		false,
+		Color(
+			FACING_SELECT_SHADOW_COLOR.r,
+			FACING_SELECT_SHADOW_COLOR.g,
+			FACING_SELECT_SHADOW_COLOR.b,
+			shadow_alpha
+		)
+	)
 
 	# Artwork already contains the exact isometric angle. Draw it directly without
 	# draw_set_transform/rotation so Photoshop-authored edges stay crisp.
