@@ -2,6 +2,10 @@
 
 [ext_resource type="PackedScene" path="res://tests/scenes/Battle_UI_Production_Imjin_Test.tscn" id="1_imjin"]
 [ext_resource type="Script" uid="uid://c2failkmcl755" path="res://tests/scripts/battle_ui_production_imjin_iso_movement_test.gd" id="2_iso_script"]
+[ext_resource type="Script" path="res://tests/scripts/imjin_iso_ready_frame_style_fix.gd" id="3_ready_frame_fix"]
 
 [node name="Battle_UI_Production_Imjin_IsoMovement_Test" unique_id=792651955 instance=ExtResource("1_imjin")]
 script = ExtResource("2_iso_script")
+
+[node name="ImjinIsoReadyFrameStyleFix" type="Node" parent="."]
+script = ExtResource("3_ready_frame_fix")
