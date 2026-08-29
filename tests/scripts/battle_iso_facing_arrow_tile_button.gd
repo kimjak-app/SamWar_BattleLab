@@ -89,10 +89,12 @@ func _get_facing_select_texture(direction_sign: Vector2) -> Texture2D:
 		return FACING_SELECT_ARROW_NE
 	if direction_sign.x > 0.0 and direction_sign.y > 0.0:
 		return FACING_SELECT_ARROW_SE
+	# The uploaded NW/SW PNG contents are visually swapped. Cross-map only these
+	# two left-side directions so the on-screen arrows point outward correctly.
 	if direction_sign.x < 0.0 and direction_sign.y > 0.0:
-		return FACING_SELECT_ARROW_SW
-	if direction_sign.x < 0.0 and direction_sign.y < 0.0:
 		return FACING_SELECT_ARROW_NW
+	if direction_sign.x < 0.0 and direction_sign.y < 0.0:
+		return FACING_SELECT_ARROW_SW
 	return null
 
 
