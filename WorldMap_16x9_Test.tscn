@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_territory_test_controller.gd" id="15_territory"]
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_16x9_editor_preview.gd" id="16_editor_preview"]
 [ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_tech_tree_test_button.gd" id="17_tech_tree_test_button"]
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_city_action_test_controller.gd" id="18_city_action_menu"]
 
 [node name="WorldMap_16x9_Test" type="Node" unique_id=1437058317]
 script = ExtResource("2_test_host")
@@ -64,6 +65,9 @@ script = ExtResource("12_turn_transition_guard")
 
 [node name="TechTreeTestButtonController" type="Node" parent="."]
 script = ExtResource("17_tech_tree_test_button")
+
+[node name="CityActionTestController" type="Node" parent="."]
+script = ExtResource("18_city_action_menu")
 
 [node name="EditorPreviewController" type="Node" parent="."]
 script = ExtResource("16_editor_preview")
