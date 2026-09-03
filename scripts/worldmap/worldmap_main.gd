@@ -13186,9 +13186,9 @@ func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dic
 	var relations := _get_domestic_tech_relation_lines_mvp(tech_def, city_id)
 	if not relations.is_empty():
 		lines.append("국가/도시 연결 관계:\n- %s" % "\n- ".join(relations))
-	lines.append(_format_domestic_tech_research_readiness_text_mvp(view_state))
-	if bool(tech_def.get("icon_missing", false)):
-		lines.append("아이콘: 준비중 (?)")
+	var readiness_text := _format_domestic_tech_research_readiness_text_mvp(view_state)
+	if not readiness_text.is_empty():
+		lines.append(readiness_text)
 	return "\n\n".join(lines)
 
 
@@ -13646,7 +13646,7 @@ func _format_domestic_tech_research_readiness_text_mvp(view_state: Dictionary) -
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
 			return "연구 상태: 특수 조건 필요\n해당 테크는 특정 국가 테크, 도시 조건, 영웅 조건 또는 자원 조건이 필요합니다."
 		_:
-			return "연구 상태: 조건 부족\n아래 조건을 먼저 충족해야 합니다."
+			return ""
 
 
 func _format_domestic_tech_research_action_slot_text_mvp(view_state: Dictionary) -> String:

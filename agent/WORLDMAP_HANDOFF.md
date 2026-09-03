@@ -462,3 +462,30 @@ Applied only functional layout changes in `scripts/worldmap/worldmap_main.gd`:
   `pressed.connect`/disconnect logic remain unchanged.
 
 Runtime F6 is required to confirm the fixed footer remains visible while the body scrolls.
+
+---
+
+## 16. W2-3L Domestic Tech Detail Text Cleanup Audit — 2026-09-04
+
+**Branch:** `experiment/imjin-iso-movement`
+**Start HEAD:** `b47979c98d5c82ddf7ca6c82ed443d669af8a565`
+
+Applied a player-facing Body text cleanup only:
+
+- National and city selections both use `_format_domestic_tech_detail_text_mvp()`, so the cleanup
+  covers both scopes, including the audit samples for inspection/population and
+  pasture/ranch/warhorse technologies.
+- Removed the `icon_missing` fallback text (`아이콘: 준비중 (?)`) from the detail formatter.
+  Icon-resolution metadata is retained, but development fallback text is no longer shown to players.
+- Removed the generic locked-state pair `연구 상태: 조건 부족 / 아래 조건을 먼저 충족해야 합니다.`
+  The concrete readiness list (prerequisite, special, and unmet conditions) remains visible.
+- Preserved meaningful research states: available, researching, completed, active-research blocking,
+  insufficient-cost, and special-condition-required. Research-plan duration and cost information are
+  unchanged.
+- Duplicate audit: removed the icon fallback and generic locked-state pair. Kept the compact research
+  plan status paired with research duration as structured information; no additional unambiguous
+  duplicate was found.
+- BodyScroll remains `SCROLL_MODE_AUTO`; ResearchFooter remains the sole research action surface.
+  No 40/60 layout, routing, watermark, footer, callback, or research business-logic change was made.
+
+Godot F6 runtime QA is required.
