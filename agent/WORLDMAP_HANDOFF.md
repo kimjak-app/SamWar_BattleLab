@@ -190,3 +190,44 @@ TopNav 로직:
 
 - 양끝이 웹앱 버튼처럼 과하게 둥글지 않고 사각형의 긴장감은 유지되는지
 - 금색 문양 아이콘과 `동방천하도` 현판의 시각적 위계를 해치지 않는지
+
+---
+
+## 9. W2-3D Tech Tree overlay hierarchy + split detail — 2026-09-03
+
+사용자 요구:
+
+- 테크트리 창이 열리면 `TopNavCanvas(layer 40)`보다 반드시 위에 표시
+- 기존 하단 단일 `선택 테크 상세 정보`를 좌/우 50:50 구조로 보이게 정리
+- 국가 테크 선택 시 좌측 상세, 도시 테크 선택 시 우측 상세
+- 반대쪽 / 미선택 상세 영역에는 테크트리 문양 워터마크 표시
+- 연구 시작 / 비용 / 조건 / 효과 / 연구 상태 로직은 기존 ProductionWorldMap 구현을 그대로 사용
+
+테스트 단계 구현:
+
+- 신규 controller: `scripts/worldmap/ui/worldmap_tech_tree_split_detail_test_controller.gd`
+- `WorldMap_16x9_Test.tscn`에 `TechTreeSplitDetailController` 연결
+- Production `WorldMap.tscn` / 1.2MB `worldmap_main.gd`는 직접 수정하지 않음
+- 기존 `WorldMapUI/tech_tree_overlay_mvp`를 runtime에 `TechTreeOverlayCanvasW23D(layer 60)`로 reparent하여 TopNav(layer 40) 위 계층 확보
+- 기존 `DomesticTechDetailInspectorMVP` 자체를 재사용하여 기존 detail label / 연구 버튼 reference와 연구 로직을 보존
+- inspector를 `DomesticTechDetailSplitW23D` HBox에 넣고 국가/도시 placeholder panel을 추가해 50:50 슬롯 구성
+- 선택 scope는 기존 `_selected_domestic_tech_id_mvp` / `_selected_domestic_tech_city_id_mvp` 상태를 읽어 routing
+- 국가 선택: 기존 inspector를 좌측에 표시하고 우측 도시 placeholder + watermark 표시
+- 도시 선택: 좌측 국가 placeholder + watermark, 기존 inspector를 우측에 표시
+- 미선택: 양쪽 placeholder + watermark 표시
+
+워터마크:
+
+- asset: `assets/ui/worldmap/tech_tree/wm_techtree_detail_watermark.png`
+- 표시 크기: `240 x 240`
+- alpha: `0.25`
+- 중앙 정렬 / mouse ignore
+
+다음 F6 QA:
+
+- 테크트리 overlay가 상단 메뉴를 완전히 덮고 TopNav가 위로 튀어나오지 않는지
+- 국가 테크 클릭 시 상세 정보 + 연구 시작 UI가 정확히 좌측에 표시되는지
+- 도시 테크 클릭 시 동일 UI가 정확히 우측으로 이동하는지
+- 반대쪽 워터마크가 25% alpha로 충분히 보이되 텍스트보다 강하지 않은지
+- 국가↔도시를 반복 클릭해도 연구 버튼 / 비용 / 조건 / 효과가 기존과 동일하게 갱신되는지
+- 닫기→재열기 후에도 split/detail routing이 다시 정상 적용되는지
