@@ -158,7 +158,8 @@ const DOMESTIC_TECH_VIEW_SPECIAL_LOCKED := "special_locked"
 const DOMESTIC_TECH_VIEW_RESEARCHING := "researching"
 const DOMESTIC_TECH_TREE_OVERLAY_MARGIN := 22.0
 const DOMESTIC_TECH_TREE_OVERLAY_LAYER := 60
-const DOMESTIC_TECH_TREE_REGION_RATIO := 0.42
+const DOMESTIC_TECH_TREE_REGION_RATIO := 0.40
+const DOMESTIC_TECH_DETAIL_REGION_RATIO := 0.60
 const DOMESTIC_TECH_BODY_GAP := 10.0
 const DOMESTIC_TECH_DETAIL_WATERMARK := preload("res://assets/ui/worldmap/tech_tree/wm_techtree_detail_watermark.png")
 const DOMESTIC_TECH_DETAIL_WATERMARK_ALPHA := 0.25
@@ -12905,7 +12906,7 @@ func _refresh_domestic_tech_tree_overlay_mvp() -> void:
 
 	var detail_region := HBoxContainer.new()
 	detail_region.name = "DomesticTechDetailSplit"
-	detail_region.anchor_top = DOMESTIC_TECH_TREE_REGION_RATIO
+	detail_region.anchor_top = 1.0 - DOMESTIC_TECH_DETAIL_REGION_RATIO
 	detail_region.anchor_right = 1.0
 	detail_region.anchor_bottom = 1.0
 	detail_region.offset_top = DOMESTIC_TECH_BODY_GAP * 0.5
@@ -12978,14 +12979,29 @@ func _build_domestic_tech_detail_inspector_mvp(parent: Container) -> void:
 	var title_label := _make_domestic_tech_label_mvp("선택 테크 상세 정보", 15, Color(1.0, 0.86, 0.54, 1.0))
 	title_label.name = "DomesticTechDetailTitleMVP"
 	content.add_child(title_label)
+
+	var body_scroll := ScrollContainer.new()
+	body_scroll.name = "DomesticTechDetailBodyScrollMVP"
+	body_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	body_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	content.add_child(body_scroll)
+
+	var body_content := VBoxContainer.new()
+	body_content.name = "DomesticTechDetailBodyMVP"
+	body_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_scroll.add_child(body_content)
+
 	_domestic_tech_detail_inspector_label_mvp = _make_domestic_tech_label_mvp("테크를 선택하면 상세 정보가 표시됩니다.", 11, Color(0.82, 0.84, 0.78, 1.0))
 	_domestic_tech_detail_inspector_label_mvp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_child(_domestic_tech_detail_inspector_label_mvp)
+	body_content.add_child(_domestic_tech_detail_inspector_label_mvp)
 
-	var action_row := HBoxContainer.new()
-	action_row.name = "DomesticTechResearchActionSlotMVP"
-	action_row.add_theme_constant_override("separation", 8)
-	content.add_child(action_row)
+	var research_footer := HBoxContainer.new()
+	research_footer.name = "DomesticTechResearchFooterMVP"
+	research_footer.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	research_footer.add_theme_constant_override("separation", 8)
+	content.add_child(research_footer)
 
 	_domestic_tech_research_action_button_mvp = Button.new()
 	_domestic_tech_research_action_button_mvp.name = "DomesticTechResearchActionButtonMVP"
@@ -12994,12 +13010,12 @@ func _build_domestic_tech_detail_inspector_mvp(parent: Container) -> void:
 	_domestic_tech_research_action_button_mvp.focus_mode = Control.FOCUS_NONE
 	_domestic_tech_research_action_button_mvp.custom_minimum_size = Vector2(104.0, 30.0)
 	_domestic_tech_research_action_button_mvp.tooltip_text = "조건을 충족한 테크만 연구를 시작할 수 있습니다."
-	action_row.add_child(_domestic_tech_research_action_button_mvp)
+	research_footer.add_child(_domestic_tech_research_action_button_mvp)
 
 	_domestic_tech_research_action_hint_label_mvp = _make_domestic_tech_label_mvp("연구 시작 기능은 다음 단계에서 활성화됩니다.", 11, Color(0.72, 0.74, 0.70, 1.0))
 	_domestic_tech_research_action_hint_label_mvp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_domestic_tech_research_action_hint_label_mvp.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	action_row.add_child(_domestic_tech_research_action_hint_label_mvp)
+	research_footer.add_child(_domestic_tech_research_action_hint_label_mvp)
 	_update_domestic_tech_research_action_slot_mvp({})
 
 

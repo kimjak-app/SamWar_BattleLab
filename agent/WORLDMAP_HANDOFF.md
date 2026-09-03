@@ -434,3 +434,31 @@ No additional same-node, same-property direct conflict met the immediate-fix thr
 interactions around compact HUD/mirror/refinement remain migration candidates and must be audited
 before those controllers are promoted. The HUD position conflict was fixed now because all writers
 were active in the same QA composition and the request-to-owner conversion was localized.
+
+---
+
+## 15. W2-3J Domestic Tech Detail Fixed Research Footer — 2026-09-04
+
+**Branch:** `experiment/imjin-iso-movement`
+**Start HEAD:** `b4684685bdfae10171f4d6238cc751a33711ba17`
+
+The Tech Tree bounded/routing structure was already passing F6, but the research action row could
+be clipped when the long detail label consumed the inspector's entire vertical VBox flow.
+
+Applied only functional layout changes in `scripts/worldmap/worldmap_main.gd`:
+
+- Tree/detail split changed from `42/58` to `40/60` via
+  `DOMESTIC_TECH_TREE_REGION_RATIO = 0.40` and
+  `DOMESTIC_TECH_DETAIL_REGION_RATIO = 0.60`.
+- `DomesticTechDetailInspectorMVP` is now Header → `DomesticTechDetailBodyScrollMVP` →
+  `DomesticTechResearchFooterMVP`.
+- The existing long detail label (description, cost, conditions, effects, status/help text) is the
+  sole child of the scrollable body. BodyScroll is horizontal expand, vertical expand, horizontal
+  scroll disabled, and vertical auto-scroll.
+- The existing research hint and existing research button instance are now in the fixed footer;
+  the footer uses `SIZE_SHRINK_BEGIN`, never vertical expand.
+- No visual design, watermark, routing, CanvasLayer, clear/rebuild lifecycle, TopNav, HUD, or
+  `WorldMap.tscn` changes were made. Existing research validation, text, callback and guarded
+  `pressed.connect`/disconnect logic remain unchanged.
+
+Runtime F6 is required to confirm the fixed footer remains visible while the body scrolls.
