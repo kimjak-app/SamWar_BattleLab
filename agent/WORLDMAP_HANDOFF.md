@@ -358,3 +358,79 @@ with no flicker or duplicate body; select national then city tech and verify opp
 scroll both trees without moving detail; change city while open; verify research text/button logic;
 verify overlay is above TopNav; then sanity-check left/right HUD, garrison, chancellor/governor cards,
 and readability presentation.
+
+---
+
+## 13. W2-3H WorldMap HUD Single-Writer Position Ownership — 2026-09-03
+
+**Branch:** `experiment/imjin-iso-movement`
+**Start HEAD:** `d46533de17d5f7c737ef111f678bc883978a2f5b`
+
+### Confirmed conflict and resolution
+
+The 16:9 QA scene had direct writers for the same properties:
+
+- `worldmap_16x9_editor_preview.gd::_fit_and_place_panel()` wrote the two HUD panel positions in
+  editor preview refreshes.
+- `worldmap_hud_position_test_controller.gd` wrote positions at install, every runtime frame, and
+  viewport resize to retain a user drag.
+- The follow-up audit also found `worldmap_16x9_test_host.gd::_layout_compact_panels()` writing the
+  same positions during test baseline, city-selection deferred refresh, and viewport resize.
+
+The actual targets are `WorldMapUI/LeftWorldStatusPanel.position` and
+`WorldMapUI/CityInfoPanel.position`.
+
+The position controller is now `HudPositionOwner`, a child of `ProductionWorldMap` in
+`WorldMap_16x9_Test.tscn`. Child-first ready ordering lets it exist before `worldmap_main.gd`
+requests initial panel placement. In this QA scene it is the only direct `.position` writer for
+those two nodes. Main and the test host use request methods; editor preview calculates/stores only
+editor default geometry metadata and does not assign panel position.
+
+### Position policies
+
+- **Default:** the test host supplies default geometry through `get_hud_default_position`; the owner
+  applies it only while the corresponding panel has no custom position.
+- **User drag:** production drag sends a global-position request to the owner. The owner records a
+  separate left/right custom position, clamps it to the viewport, and reapplies it as needed.
+- **Resize:** panels without a custom position use recalculated defaults. Custom positions are
+  clamped, never reset to defaults.
+- **Production fallback:** `worldmap_main.gd` retains a direct fallback only when no `HudPositionOwner`
+  child exists (the unmodified production scene). That fallback is not active in the QA scene.
+
+## 14. W2-3I WorldMap UI Property Writer Audit — 2026-09-03
+
+Part 1 and Part 2 are one ownership rule set:
+
+1. **Tree ownership:** one owner controls destructive add/remove/rebuild/reparent of a subtree.
+2. **Property ownership:** one owner controls a node's runtime position, size, visibility, modulate,
+   or equivalent final property value.
+
+> UI node의 특정 runtime property(position, size, visible, modulate 등)는 정확히 하나의 script가
+> 최종 write ownership을 가진다. 여러 시스템이 해당 값을 바꿀 필요가 있으면 직접 값을 각각 쓰지
+> 않고, request/signal을 통해 owner에게 변경을 요청한다.
+
+Current 16-script property inventory (values are scoped to the actual 16:9 test scene):
+
+| File | Structural writer | Position writer | Size writer | Visibility writer | Continuous polling | Single-writer risk | Action |
+|---|---|---|---|---|---|---|---|
+| warehouse tabs | yes | own nodes only | own nodes | own/legacy warehouse | no | SAFE | MIGRATE LATER |
+| v2 background | no | tile sprites | no | no | one-shot | POTENTIAL with editor preview only | KEEP |
+| turn transition guard | no | no | no | turn UI targets | no | POTENTIAL with host visibility policy | KEEP |
+| turn summary bridge | yes | no | no | summary/legacy rows | no | SAFE by popup ownership | MIGRATE LATER |
+| territory controller | yes | own territory | own territory | no | one-shot | POTENTIAL with editor-only territory | KEEP |
+| tech tree test button | yes | no | offsets only | own button | no | SAFE, unused legacy | AUDIT LATER |
+| tech badge | yes | no | own badges | own badges | no | SAFE | MIGRATE LATER |
+| stable HUD mirror | yes | no | own mirrors | source/mirrors | no | POTENTIAL with HUD presentation patches | MIGRATE LATER |
+| readability | no | no | card typography/portrait | card labels | disabled | POTENTIAL with panel refinement | MIGRATE LATER |
+| panel refinement | yes | no | no | HUD labels | no | POTENTIAL with readability/mirror | MIGRATE LATER |
+| left panel guard | no | no | no | protected left children | yes | POTENTIAL visibility overlap | REFACTOR TO SIGNAL |
+| HUD position owner | no | **sole HUD owner** | no | no | yes | COORDINATED requests | MIGRATE LATER |
+| garrison compact | yes | no | compact grid | source/compact list | yes | POTENTIAL with host garrison visibility | MIGRATE LATER |
+| city action | own overlay | own overlay | own overlay | own overlay | conditional | SAFE | KEEP |
+| character speech | own popup | no | no | source descriptions | yes | POTENTIAL visibility overlap | REFACTOR TO SIGNAL |
+| editor preview | editor-only own layers | tiles/cities only | HUD fit only | editor preview UI | editor-only | COORDINATED for HUD position | KEEP |
+
+No additional same-node, same-property direct conflict met the immediate-fix threshold. Visibility
+interactions around compact HUD/mirror/refinement remain migration candidates and must be audited
+before those controllers are promoted. The HUD position conflict was fixed now because all writers
+were active in the same QA composition and the request-to-owner conversion was localized.
