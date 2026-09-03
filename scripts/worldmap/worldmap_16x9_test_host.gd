@@ -340,7 +340,7 @@ func _fit_compact_panels() -> void:
 	var right_panel := world_ui.get_node_or_null("CityInfoPanel") as PanelContainer
 	_fit_panel_to_content(left_panel, LEFT_PANEL_WIDTH)
 	_fit_panel_to_content(right_panel, RIGHT_PANEL_WIDTH)
-	_layout_compact_panels(left_panel, right_panel)
+	_request_hud_position_layout()
 
 
 func _fit_panel_to_content(panel: PanelContainer, target_width: float) -> void:
@@ -351,26 +351,24 @@ func _fit_panel_to_content(panel: PanelContainer, target_width: float) -> void:
 	panel.size = Vector2(target_width, minimum.y)
 
 
-func _layout_compact_panels(left_panel: PanelContainer, right_panel: PanelContainer) -> void:
+func get_hud_default_position(panel: Control, is_left: bool) -> Vector2:
 	var viewport := get_viewport()
-	if viewport == null:
-		return
+	if viewport == null or panel == null:
+		return Vector2.ZERO
 	var viewport_size := viewport.get_visible_rect().size
-	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
-		return
-
 	var side_margin := maxf(HUD_MIN_SIDE_MARGIN, viewport_size.x * HUD_SIDE_MARGIN_RATIO)
 	var top_margin := maxf(HUD_MIN_TOP_MARGIN, viewport_size.y * HUD_TOP_MARGIN_RATIO)
+	if is_left:
+		return Vector2(side_margin, top_margin)
+	return Vector2(maxf(side_margin, viewport_size.x - side_margin - panel.size.x), top_margin)
 
-	if left_panel != null:
-		_set_top_left_anchors(left_panel)
-		left_panel.position = Vector2(side_margin, top_margin)
-	if right_panel != null:
-		_set_top_left_anchors(right_panel)
-		right_panel.position = Vector2(
-			maxf(side_margin, viewport_size.x - side_margin - right_panel.size.x),
-			top_margin
-		)
+
+func _request_hud_position_layout() -> void:
+	if production_world_map == null:
+		return
+	var owner := production_world_map.get_node_or_null("HudPositionOwner")
+	if owner != null and owner.has_method("request_default_hud_layout"):
+		owner.call_deferred("request_default_hud_layout")
 
 
 func _set_top_left_anchors(control: Control) -> void:

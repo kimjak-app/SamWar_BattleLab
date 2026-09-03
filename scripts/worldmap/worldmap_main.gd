@@ -1498,6 +1498,7 @@ func _hide_retired_top_worldmap_hud() -> void:
 func _setup_independent_hud_panel_drag() -> void:
 	_register_hud_panel_drag(city_detail_panel, [city_detail_header_row, city_detail_eyebrow_label, city_detail_heading_label])
 	_register_hud_panel_drag(city_info_panel_control, [city_info_eyebrow_label, city_info_city_name_label])
+	_register_hud_panel_drag(left_world_status_panel, [left_world_status_eyebrow_label, calendar_label])
 
 
 func _lock_worldmap_fixed_panel_top_margin() -> void:
@@ -1527,10 +1528,12 @@ func _lock_selected_city_info_panel_anchor() -> void:
 	if panel_size == Vector2.ZERO:
 		panel_size = SELECTED_CITY_INFO_PANEL_SIZE
 	city_info_panel_control.set_anchors_preset(Control.PRESET_TOP_LEFT, true)
-	city_info_panel_control.position = Vector2(
+	var requested_position := Vector2(
 		maxf(WORLD_UI_LEFT_MARGIN, viewport_size.x - WORLD_UI_LEFT_MARGIN - panel_size.x),
 		WORLD_UI_TOP_MARGIN
 	)
+	if not _request_hud_panel_position_mvp(city_info_panel_control, requested_position):
+		city_info_panel_control.position = requested_position
 	city_info_panel_control.size = panel_size
 	city_info_panel_control.custom_minimum_size = panel_size
 
@@ -1583,7 +1586,21 @@ func _move_hud_panel_to_screen_position(panel: Control, next_global_position: Ve
 		clampf(next_global_position.x, -panel_size.x + min_visible_size.x, viewport_size.x - min_visible_size.x),
 		clampf(next_global_position.y, 0.0, viewport_size.y - min_visible_size.y)
 	)
+	if _request_hud_panel_position_mvp(panel, clamped_global_position, true):
+		return
 	panel.global_position = clamped_global_position
+
+
+func _request_hud_panel_position_mvp(panel: Control, requested_position: Vector2, is_global: bool = false) -> bool:
+	if panel == null:
+		return false
+	var owner := get_node_or_null("HudPositionOwner")
+	if owner == null:
+		return false
+	var method_name := "request_hud_panel_global_position" if is_global else "request_hud_panel_position"
+	if not owner.has_method(method_name):
+		return false
+	return bool(owner.call(method_name, panel, requested_position))
 
 
 func _refresh_world_rect_from_scene_tiles() -> void:
@@ -5847,7 +5864,8 @@ func _lock_left_world_status_panel_anchor() -> void:
 	if left_world_status_panel == null:
 		return
 	left_world_status_panel.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
-	left_world_status_panel.position = LEFT_WORLD_STATUS_PANEL_TOP_LEFT
+	if not _request_hud_panel_position_mvp(left_world_status_panel, LEFT_WORLD_STATUS_PANEL_TOP_LEFT):
+		left_world_status_panel.position = LEFT_WORLD_STATUS_PANEL_TOP_LEFT
 	left_world_status_panel.size = LEFT_WORLD_STATUS_PANEL_SIZE
 	left_world_status_panel.custom_minimum_size = LEFT_WORLD_STATUS_PANEL_SIZE
 

@@ -54,7 +54,7 @@ script = ExtResource("10_tech_badges")
 [node name="ReadabilityController" type="Node" parent="." unique_id=1001977525]
 script = ExtResource("9_readability")
 
-[node name="HudPositionController" type="Node" parent="." unique_id=326883260]
+[node name="HudPositionOwner" type="Node" parent="ProductionWorldMap" unique_id=326883260]
 script = ExtResource("11_hud_position")
 
 [node name="StableHudMirrorController" type="Node" parent="." unique_id=782209465]

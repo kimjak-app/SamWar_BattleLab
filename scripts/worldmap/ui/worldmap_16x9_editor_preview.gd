@@ -171,8 +171,8 @@ func _apply_compact_hud_preview(production_world_map: Node) -> void:
 	var right_panel := world_ui.get_node_or_null("CityInfoPanel") as PanelContainer
 	_preview_compact_left(left_panel)
 	_preview_compact_right(right_panel)
-	_fit_and_place_panel(left_panel, float(TEST_HOST_SCRIPT.LEFT_PANEL_WIDTH), true)
-	_fit_and_place_panel(right_panel, float(TEST_HOST_SCRIPT.RIGHT_PANEL_WIDTH), false)
+	_fit_panel_to_content(left_panel, float(TEST_HOST_SCRIPT.LEFT_PANEL_WIDTH), true)
+	_fit_panel_to_content(right_panel, float(TEST_HOST_SCRIPT.RIGHT_PANEL_WIDTH), false)
 
 
 func _preview_compact_left(left_panel: PanelContainer) -> void:
@@ -218,7 +218,7 @@ func _preview_compact_right(right_panel: PanelContainer) -> void:
 		title.visible = true
 
 
-func _fit_and_place_panel(panel: PanelContainer, target_width: float, is_left: bool) -> void:
+func _fit_panel_to_content(panel: PanelContainer, target_width: float, is_left: bool) -> void:
 	if panel == null:
 		return
 	panel.anchor_left = 0.0
@@ -228,13 +228,15 @@ func _fit_and_place_panel(panel: PanelContainer, target_width: float, is_left: b
 	panel.custom_minimum_size = Vector2(target_width, 0.0)
 	var minimum := panel.get_combined_minimum_size()
 	panel.size = Vector2(target_width, minimum.y)
+	panel.set_meta("worldmap_editor_default_position", _get_editor_default_position(panel, is_left))
 
+
+func _get_editor_default_position(panel: Control, is_left: bool) -> Vector2:
 	var side_margin := maxf(float(TEST_HOST_SCRIPT.HUD_MIN_SIDE_MARGIN), WORLD_SIZE.x * float(TEST_HOST_SCRIPT.HUD_SIDE_MARGIN_RATIO))
 	var top_margin := maxf(float(TEST_HOST_SCRIPT.HUD_MIN_TOP_MARGIN), WORLD_SIZE.y * float(TEST_HOST_SCRIPT.HUD_TOP_MARGIN_RATIO))
 	if is_left:
-		panel.position = Vector2(side_margin, top_margin)
-	else:
-		panel.position = Vector2(WORLD_SIZE.x - side_margin - target_width, top_margin)
+		return Vector2(side_margin, top_margin)
+	return Vector2(WORLD_SIZE.x - side_margin - panel.size.x, top_margin)
 
 
 func _apply_territory_preview(test_root: Node, world_root: Node) -> void:
