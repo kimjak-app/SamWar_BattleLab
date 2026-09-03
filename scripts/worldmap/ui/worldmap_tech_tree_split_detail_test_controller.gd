@@ -27,7 +27,11 @@ func _process(_delta: float) -> void:
 	if _world_map == null:
 		return
 
-	var overlay := _world_map.get_node_or_null("WorldMapUI/tech_tree_overlay_mvp") as PanelContainer
+	var overlay: PanelContainer = null
+	if is_instance_valid(_overlay_canvas):
+		overlay = _overlay_canvas.get_node_or_null("tech_tree_overlay_mvp") as PanelContainer
+	if overlay == null:
+		overlay = _world_map.get_node_or_null("WorldMapUI/tech_tree_overlay_mvp") as PanelContainer
 	if overlay == null:
 		return
 
