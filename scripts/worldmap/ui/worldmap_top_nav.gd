@@ -273,10 +273,10 @@ func _make_bar_style() -> StyleBoxFlat:
 	style.border_color = Color(0.58, 0.40, 0.16, 0.62)
 	style.border_width_top = 1
 	style.border_width_bottom = 1
-	style.corner_radius_top_left = 2
-	style.corner_radius_top_right = 2
-	style.corner_radius_bottom_left = 2
-	style.corner_radius_bottom_right = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_left = 8
+	style.corner_radius_bottom_right = 8
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
 	style.shadow_size = 8
 	style.shadow_offset = Vector2(0.0, 3.0)
