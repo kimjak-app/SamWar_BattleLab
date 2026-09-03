@@ -63,10 +63,10 @@ script = ExtResource("13_stable_hud_mirror")
 [node name="TurnTransitionLateGuard" type="Node" parent="." unique_id=546220684]
 script = ExtResource("12_turn_transition_guard")
 
-[node name="TopNavCanvas" type="CanvasLayer" parent="."]
+[node name="TopNavCanvas" type="CanvasLayer" parent="." unique_id=2019735264]
 layer = 40
 
-[node name="TopNav" parent="TopNavCanvas" instance=ExtResource("17_top_nav")]
+[node name="TopNav" parent="TopNavCanvas" unique_id=565087545 instance=ExtResource("17_top_nav")]
 production_world_map_path = NodePath("../../ProductionWorldMap")
 
 [node name="CityActionTestController" type="Node" parent="." unique_id=908372323]
