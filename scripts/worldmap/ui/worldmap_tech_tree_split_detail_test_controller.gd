@@ -10,6 +10,7 @@ const BODY_GAP := 10.0
 var _world_map: Node = null
 var _overlay_canvas: CanvasLayer = null
 var _body_viewport: Control = null
+var _tree_viewport: Control = null
 var _tree_split: HBoxContainer = null
 var _refined_inspector: PanelContainer = null
 var _detail_split: HBoxContainer = null
@@ -75,7 +76,6 @@ func _ensure_bounded_body_layout(overlay: Control) -> void:
 		return
 
 	var insert_index := mini(tree_split.get_index(), inspector.get_index())
-
 	content_root.remove_child(tree_split)
 	content_root.remove_child(inspector)
 
@@ -89,8 +89,23 @@ func _ensure_bounded_body_layout(overlay: Control) -> void:
 	content_root.add_child(body)
 	content_root.move_child(body, mini(insert_index, content_root.get_child_count() - 1))
 
-	body.add_child(tree_split)
-	_configure_tree_region(tree_split)
+	var tree_viewport := Control.new()
+	tree_viewport.name = "DomesticTechTreeViewportW23E"
+	tree_viewport.custom_minimum_size = Vector2.ZERO
+	tree_viewport.anchor_left = 0.0
+	tree_viewport.anchor_top = 0.0
+	tree_viewport.anchor_right = 1.0
+	tree_viewport.anchor_bottom = TREE_REGION_RATIO
+	tree_viewport.offset_left = 0.0
+	tree_viewport.offset_top = 0.0
+	tree_viewport.offset_right = 0.0
+	tree_viewport.offset_bottom = -BODY_GAP * 0.5
+	tree_viewport.clip_contents = true
+	tree_viewport.mouse_filter = Control.MOUSE_FILTER_PASS
+	body.add_child(tree_viewport)
+
+	tree_viewport.add_child(tree_split)
+	_configure_tree_split(tree_split)
 
 	var detail_split := HBoxContainer.new()
 	detail_split.name = "DomesticTechDetailSplitW23E"
@@ -119,6 +134,7 @@ func _ensure_bounded_body_layout(overlay: Control) -> void:
 	detail_split.add_child(city_placeholder)
 
 	_body_viewport = body
+	_tree_viewport = tree_viewport
 	_tree_split = tree_split
 	_refined_inspector = inspector
 	_detail_split = detail_split
@@ -128,16 +144,16 @@ func _ensure_bounded_body_layout(overlay: Control) -> void:
 	_last_scope = "__unset__"
 
 
-func _configure_tree_region(tree_split: HBoxContainer) -> void:
+func _configure_tree_split(tree_split: HBoxContainer) -> void:
 	tree_split.custom_minimum_size = Vector2.ZERO
 	tree_split.anchor_left = 0.0
 	tree_split.anchor_top = 0.0
 	tree_split.anchor_right = 1.0
-	tree_split.anchor_bottom = TREE_REGION_RATIO
+	tree_split.anchor_bottom = 1.0
 	tree_split.offset_left = 0.0
 	tree_split.offset_top = 0.0
 	tree_split.offset_right = 0.0
-	tree_split.offset_bottom = -BODY_GAP * 0.5
+	tree_split.offset_bottom = 0.0
 	tree_split.clip_contents = true
 
 	for child in tree_split.get_children():
@@ -180,6 +196,7 @@ func _find_direct_child(parent: Node, node_name: String) -> Node:
 
 func _reset_layout_refs() -> void:
 	_body_viewport = null
+	_tree_viewport = null
 	_tree_split = null
 	_refined_inspector = null
 	_detail_split = null
