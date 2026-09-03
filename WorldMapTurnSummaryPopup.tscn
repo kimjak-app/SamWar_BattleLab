@@ -1,0 +1,179 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_turn_summary_popup.gd" id="1_turn_summary"]
+[ext_resource type="Texture2D" path="res://assets/worldmap/ui/worldmap_turn_summary_scroll_bg.png" id="2_scroll_bg"]
+
+[node name="WorldMapTurnSummaryPopup" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+z_index = 200
+script = ExtResource("1_turn_summary")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.28)
+
+[node name="PopupRoot" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -320.0
+offset_right = 240.0
+offset_bottom = 320.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ScrollBG" type="TextureRect" parent="PopupRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_scroll_bg")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="TitleLabel" type="Label" parent="PopupRoot"]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 128.0
+offset_right = 388.0
+offset_bottom = 164.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.22, 0.09, 0.025, 1)
+theme_override_font_sizes/font_size = 26
+text = "턴 결산"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TurnMetaLabel" type="Label" parent="PopupRoot"]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 164.0
+offset_right = 388.0
+offset_bottom = 190.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.33, 0.17, 0.06, 1)
+theme_override_font_sizes/font_size = 14
+text = "154년 봄 · 제 3턴"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DomesticTitleLabel" type="Label" parent="PopupRoot"]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 208.0
+offset_right = 392.0
+offset_bottom = 232.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.34, 0.14, 0.035, 1)
+theme_override_font_sizes/font_size = 17
+text = "내정 적용"
+
+[node name="DomesticBodyLabel" type="Label" parent="PopupRoot"]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 238.0
+offset_right = 384.0
+offset_bottom = 290.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.18, 0.10, 0.045, 1)
+theme_override_font_sizes/font_size = 15
+text = "쌀  +0    보리  +0\n수산물  +0    금전  +0"
+vertical_alignment = 1
+
+[node name="DomesticDivider" type="ColorRect" parent="PopupRoot"]
+layout_mode = 0
+offset_left = 124.0
+offset_top = 298.0
+offset_right = 388.0
+offset_bottom = 299.0
+mouse_filter = 2
+color = Color(0.34, 0.14, 0.035, 0.34)
+
+[node name="TradeTitleLabel" type="Label" parent="PopupRoot"]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 314.0
+offset_right = 392.0
+offset_bottom = 338.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.34, 0.14, 0.035, 1)
+theme_override_font_sizes/font_size = 17
+text = "무역 수입·수출"
+
+[node name="TradeBodyLabel" type="Label" parent="PopupRoot"]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 344.0
+offset_right = 384.0
+offset_bottom = 414.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.18, 0.10, 0.045, 1)
+theme_override_font_sizes/font_size = 15
+text = "금전  +0    쌀  +0\n보리  +0    수산물  +0\n소금  +0"
+vertical_alignment = 1
+
+[node name="TradeDivider" type="ColorRect" parent="PopupRoot"]
+layout_mode = 0
+offset_left = 124.0
+offset_top = 422.0
+offset_right = 388.0
+offset_bottom = 423.0
+mouse_filter = 2
+color = Color(0.34, 0.14, 0.035, 0.34)
+
+[node name="MarketTitleLabel" type="Label" parent="PopupRoot"]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 438.0
+offset_right = 392.0
+offset_bottom = 462.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.34, 0.14, 0.035, 1)
+theme_override_font_sizes/font_size = 17
+text = "시세"
+
+[node name="MarketBodyLabel" type="Label" parent="PopupRoot"]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 468.0
+offset_right = 384.0
+offset_bottom = 548.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.18, 0.10, 0.045, 1)
+theme_override_font_sizes/font_size = 15
+text = "쌀  0G → 0G\n소금  0G → 0G\n비단  0G → 0G"
+vertical_alignment = 1
+
+[node name="CloseHintLabel" type="Label" parent="PopupRoot"]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 556.0
+offset_right = 388.0
+offset_bottom = 580.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.35, 0.20, 0.10, 0.82)
+theme_override_font_sizes/font_size = 12
+text = "클릭 또는 Enter · Space · Esc로 닫기"
+horizontal_alignment = 1
+vertical_alignment = 1

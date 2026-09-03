@@ -1,0 +1,76 @@
+[gd_scene format=3 uid="uid://dvp7x6cruqlqw"]
+
+[ext_resource type="PackedScene" uid="uid://d05f0xjbn7wm1" path="res://WorldMap.tscn" id="1_world_map"]
+[ext_resource type="Script" uid="uid://wiad7puchjrp" path="res://scripts/worldmap/worldmap_16x9_test_host.gd" id="2_test_host"]
+[ext_resource type="Script" uid="uid://eq65t4n4d7iv" path="res://scripts/worldmap/ui/worldmap_turn_summary_test_bridge.gd" id="3_turn_summary_bridge"]
+[ext_resource type="Script" uid="uid://11oo42k5wrbp" path="res://scripts/worldmap/ui/worldmap_left_panel_lock_guard.gd" id="4_left_panel_lock_guard"]
+[ext_resource type="Script" uid="uid://c63m3m0myv813" path="res://scripts/worldmap/ui/worldmap_panel_refinement_test_controller.gd" id="5_panel_refinement"]
+[ext_resource type="Script" uid="uid://dam388dh64tte" path="res://scripts/worldmap/ui/worldmap_garrison_compact_test_controller.gd" id="6_garrison_compact"]
+[ext_resource type="Script" uid="uid://b6gwn84f3p7i4" path="res://scripts/worldmap/ui/worldmap_character_speech_test_bridge.gd" id="7_character_speech"]
+[ext_resource type="Script" uid="uid://btamyje2l2gfu" path="res://scripts/worldmap/ui/worldmap_warehouse_tabs_test_controller.gd" id="8_warehouse_tabs"]
+[ext_resource type="Script" uid="uid://hgv0vup1jar3" path="res://scripts/worldmap/ui/worldmap_readability_test_controller.gd" id="9_readability"]
+[ext_resource type="Script" uid="uid://ca7vv4tmk6oh1" path="res://scripts/worldmap/ui/worldmap_tech_badge_test_controller.gd" id="10_tech_badges"]
+[ext_resource type="Script" uid="uid://bljnlcxtko46t" path="res://scripts/worldmap/ui/worldmap_hud_position_test_controller.gd" id="11_hud_position"]
+[ext_resource type="Script" uid="uid://58mrlas6hrf6" path="res://scripts/worldmap/ui/worldmap_turn_transition_late_guard.gd" id="12_turn_transition_guard"]
+[ext_resource type="Script" uid="uid://bxrx4t3w8or82" path="res://scripts/worldmap/ui/worldmap_stable_hud_mirror_controller.gd" id="13_stable_hud_mirror"]
+[ext_resource type="Script" uid="uid://bkl7eds82alx1" path="res://scripts/worldmap/ui/worldmap_v2_background_test_controller.gd" id="14_v2_background"]
+[ext_resource type="Script" uid="uid://byjececuy8uni" path="res://scripts/worldmap/ui/worldmap_territory_test_controller.gd" id="15_territory"]
+[ext_resource type="Script" uid="uid://diyagmb3v1t4t" path="res://scripts/worldmap/ui/worldmap_16x9_editor_preview.gd" id="16_editor_preview"]
+[ext_resource type="PackedScene" path="res://WorldMapTopNav.tscn" id="17_top_nav"]
+[ext_resource type="Script" uid="uid://do74o2adi2se0" path="res://scripts/worldmap/ui/worldmap_city_action_test_controller.gd" id="18_city_action_menu"]
+
+[node name="WorldMap_16x9_Test" type="Node" unique_id=1437058317]
+script = ExtResource("2_test_host")
+
+[node name="ProductionWorldMap" parent="." unique_id=1392956798 instance=ExtResource("1_world_map")]
+
+[node name="HudPositionOwner" type="Node" parent="ProductionWorldMap" unique_id=326883260]
+script = ExtResource("11_hud_position")
+
+[node name="V2BackgroundTestController" type="Node" parent="." unique_id=173289303]
+script = ExtResource("14_v2_background")
+
+[node name="TerritoryTestController" type="Node" parent="." unique_id=1019905611]
+script = ExtResource("15_territory")
+
+[node name="TurnSummaryBridge" type="Node" parent="." unique_id=576006134]
+script = ExtResource("3_turn_summary_bridge")
+
+[node name="LeftPanelLockGuard" type="Node" parent="." unique_id=956733254]
+script = ExtResource("4_left_panel_lock_guard")
+
+[node name="PanelRefinementController" type="Node" parent="." unique_id=1165466281]
+script = ExtResource("5_panel_refinement")
+
+[node name="GarrisonCompactController" type="Node" parent="." unique_id=1028332697]
+script = ExtResource("6_garrison_compact")
+
+[node name="CharacterSpeechBridge" type="Node" parent="." unique_id=246057877]
+script = ExtResource("7_character_speech")
+
+[node name="WarehouseTabsController" type="Node" parent="." unique_id=942434597]
+script = ExtResource("8_warehouse_tabs")
+
+[node name="TechBadgeController" type="Node" parent="." unique_id=275596134]
+script = ExtResource("10_tech_badges")
+
+[node name="ReadabilityController" type="Node" parent="." unique_id=1001977525]
+script = ExtResource("9_readability")
+
+[node name="StableHudMirrorController" type="Node" parent="." unique_id=782209465]
+script = ExtResource("13_stable_hud_mirror")
+
+[node name="TurnTransitionLateGuard" type="Node" parent="." unique_id=546220684]
+script = ExtResource("12_turn_transition_guard")
+
+[node name="TopNavCanvas" type="CanvasLayer" parent="." unique_id=2019735264]
+layer = 40
+
+[node name="TopNav" parent="TopNavCanvas" unique_id=565087545 instance=ExtResource("17_top_nav")]
+production_world_map_path = NodePath("../../ProductionWorldMap")
+
+[node name="CityActionTestController" type="Node" parent="." unique_id=908372323]
+script = ExtResource("18_city_action_menu")
+
+[node name="EditorPreviewController" type="Node" parent="." unique_id=1515544021]
+script = ExtResource("16_editor_preview")

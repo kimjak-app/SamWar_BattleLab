@@ -157,6 +157,13 @@ const DOMESTIC_TECH_VIEW_LOCKED := "locked"
 const DOMESTIC_TECH_VIEW_SPECIAL_LOCKED := "special_locked"
 const DOMESTIC_TECH_VIEW_RESEARCHING := "researching"
 const DOMESTIC_TECH_TREE_OVERLAY_MARGIN := 22.0
+const DOMESTIC_TECH_TREE_OVERLAY_LAYER := 60
+const DOMESTIC_TECH_TREE_REGION_RATIO := 0.40
+const DOMESTIC_TECH_DETAIL_REGION_RATIO := 0.60
+const DOMESTIC_TECH_BODY_GAP := 10.0
+const DOMESTIC_TECH_DETAIL_WATERMARK := preload("res://assets/ui/worldmap/tech_tree/wm_techtree_detail_watermark.png")
+const DOMESTIC_TECH_DETAIL_WATERMARK_ALPHA := 0.25
+const DOMESTIC_TECH_DETAIL_WATERMARK_SIZE := Vector2(240.0, 240.0)
 const DOMESTIC_TECH_TREE_NODE_WIDTH := 214.0
 const DOMESTIC_TECH_TREE_ICON_SIZE := 42.0
 const DOMESTIC_TECH_GRAPH_COMPACT_ICON_SIZE := 64.0
@@ -1106,6 +1113,7 @@ var _worldmap_help_body_label: Label = null
 var _worldmap_help_close_button: Button = null
 var _left_national_loyalty_help_button: Button = null
 var _domestic_tech_tree_button_mvp: Button = null
+var _tech_tree_overlay_canvas_mvp: CanvasLayer = null
 var _tech_tree_overlay_mvp: PanelContainer = null
 var _tech_tree_content_root_mvp: VBoxContainer = null
 var _tech_tree_hidden_ui_state_mvp: Dictionary = {}
@@ -1491,6 +1499,7 @@ func _hide_retired_top_worldmap_hud() -> void:
 func _setup_independent_hud_panel_drag() -> void:
 	_register_hud_panel_drag(city_detail_panel, [city_detail_header_row, city_detail_eyebrow_label, city_detail_heading_label])
 	_register_hud_panel_drag(city_info_panel_control, [city_info_eyebrow_label, city_info_city_name_label])
+	_register_hud_panel_drag(left_world_status_panel, [left_world_status_eyebrow_label, calendar_label])
 
 
 func _lock_worldmap_fixed_panel_top_margin() -> void:
@@ -1520,10 +1529,12 @@ func _lock_selected_city_info_panel_anchor() -> void:
 	if panel_size == Vector2.ZERO:
 		panel_size = SELECTED_CITY_INFO_PANEL_SIZE
 	city_info_panel_control.set_anchors_preset(Control.PRESET_TOP_LEFT, true)
-	city_info_panel_control.position = Vector2(
+	var requested_position := Vector2(
 		maxf(WORLD_UI_LEFT_MARGIN, viewport_size.x - WORLD_UI_LEFT_MARGIN - panel_size.x),
 		WORLD_UI_TOP_MARGIN
 	)
+	if not _request_hud_panel_position_mvp(city_info_panel_control, requested_position):
+		city_info_panel_control.position = requested_position
 	city_info_panel_control.size = panel_size
 	city_info_panel_control.custom_minimum_size = panel_size
 
@@ -1576,7 +1587,21 @@ func _move_hud_panel_to_screen_position(panel: Control, next_global_position: Ve
 		clampf(next_global_position.x, -panel_size.x + min_visible_size.x, viewport_size.x - min_visible_size.x),
 		clampf(next_global_position.y, 0.0, viewport_size.y - min_visible_size.y)
 	)
+	if _request_hud_panel_position_mvp(panel, clamped_global_position, true):
+		return
 	panel.global_position = clamped_global_position
+
+
+func _request_hud_panel_position_mvp(panel: Control, requested_position: Vector2, is_global: bool = false) -> bool:
+	if panel == null:
+		return false
+	var owner := get_node_or_null("HudPositionOwner")
+	if owner == null:
+		return false
+	var method_name := "request_hud_panel_global_position" if is_global else "request_hud_panel_position"
+	if not owner.has_method(method_name):
+		return false
+	return bool(owner.call(method_name, panel, requested_position))
 
 
 func _refresh_world_rect_from_scene_tiles() -> void:
@@ -5840,7 +5865,8 @@ func _lock_left_world_status_panel_anchor() -> void:
 	if left_world_status_panel == null:
 		return
 	left_world_status_panel.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
-	left_world_status_panel.position = LEFT_WORLD_STATUS_PANEL_TOP_LEFT
+	if not _request_hud_panel_position_mvp(left_world_status_panel, LEFT_WORLD_STATUS_PANEL_TOP_LEFT):
+		left_world_status_panel.position = LEFT_WORLD_STATUS_PANEL_TOP_LEFT
 	left_world_status_panel.size = LEFT_WORLD_STATUS_PANEL_SIZE
 	left_world_status_panel.custom_minimum_size = LEFT_WORLD_STATUS_PANEL_SIZE
 
@@ -12786,9 +12812,11 @@ func _register_tech_tree_hidden_panel_mvp(panel: CanvasItem, key: String) -> voi
 func _ensure_domestic_tech_tree_overlay_mvp() -> void:
 	if _tech_tree_overlay_mvp != null:
 		return
-	var world_ui := get_node_or_null("WorldMapUI") as CanvasLayer
-	if world_ui == null:
-		return
+	if _tech_tree_overlay_canvas_mvp == null:
+		_tech_tree_overlay_canvas_mvp = CanvasLayer.new()
+		_tech_tree_overlay_canvas_mvp.name = "DomesticTechTreeOverlayCanvasMVP"
+		_tech_tree_overlay_canvas_mvp.layer = DOMESTIC_TECH_TREE_OVERLAY_LAYER
+		add_child(_tech_tree_overlay_canvas_mvp)
 
 	_tech_tree_overlay_mvp = PanelContainer.new()
 	_tech_tree_overlay_mvp.name = "tech_tree_overlay_mvp"
@@ -12802,7 +12830,7 @@ func _ensure_domestic_tech_tree_overlay_mvp() -> void:
 	_tech_tree_overlay_mvp.offset_top = DOMESTIC_TECH_TREE_OVERLAY_MARGIN
 	_tech_tree_overlay_mvp.offset_right = -DOMESTIC_TECH_TREE_OVERLAY_MARGIN
 	_tech_tree_overlay_mvp.offset_bottom = -DOMESTIC_TECH_TREE_OVERLAY_MARGIN
-	world_ui.add_child(_tech_tree_overlay_mvp)
+	_tech_tree_overlay_canvas_mvp.add_child(_tech_tree_overlay_mvp)
 	_tech_tree_overlay_mvp.move_to_front()
 
 	var outer_margin := MarginContainer.new()
@@ -12850,15 +12878,43 @@ func _refresh_domestic_tech_tree_overlay_mvp() -> void:
 	close_button.pressed.connect(_close_domestic_tech_tree_overlay_mvp)
 	header_row.add_child(close_button)
 
+	var body := Control.new()
+	body.name = "DomesticTechBoundedBody"
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.clip_contents = true
+	body.mouse_filter = Control.MOUSE_FILTER_PASS
+	_tech_tree_content_root_mvp.add_child(body)
+
+	var tree_region := Control.new()
+	tree_region.name = "DomesticTechTreeRegion"
+	tree_region.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tree_region.anchor_bottom = DOMESTIC_TECH_TREE_REGION_RATIO
+	tree_region.offset_bottom = -DOMESTIC_TECH_BODY_GAP * 0.5
+	tree_region.clip_contents = true
+	tree_region.mouse_filter = Control.MOUSE_FILTER_PASS
+	body.add_child(tree_region)
+
 	var split := HBoxContainer.new()
 	split.name = "DomesticTechTreeSplit"
-	split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	split.set_anchors_preset(Control.PRESET_FULL_RECT)
+	split.clip_contents = true
 	split.add_theme_constant_override("separation", 10)
-	_tech_tree_content_root_mvp.add_child(split)
-
+	tree_region.add_child(split)
 	_build_national_tech_tree_panel_mvp(split)
 	_build_city_tech_tree_panel_mvp(split, selected_city_id)
-	_build_domestic_tech_detail_inspector_mvp(_tech_tree_content_root_mvp)
+
+	var detail_region := HBoxContainer.new()
+	detail_region.name = "DomesticTechDetailSplit"
+	detail_region.anchor_top = 1.0 - DOMESTIC_TECH_DETAIL_REGION_RATIO
+	detail_region.anchor_right = 1.0
+	detail_region.anchor_bottom = 1.0
+	detail_region.offset_top = DOMESTIC_TECH_BODY_GAP * 0.5
+	detail_region.clip_contents = true
+	detail_region.add_theme_constant_override("separation", 10)
+	body.add_child(detail_region)
+	_build_domestic_tech_detail_inspector_mvp(detail_region)
+	_build_domestic_tech_detail_placeholders_mvp(detail_region)
 	_refresh_domestic_tech_detail_inspector_mvp()
 
 
@@ -12913,20 +12969,39 @@ func _build_city_tech_tree_panel_mvp(parent: Container, city_id: String) -> void
 
 func _build_domestic_tech_detail_inspector_mvp(parent: Container) -> void:
 	var panel := _make_domestic_tech_section_panel_mvp("DomesticTechDetailInspectorMVP")
-	panel.custom_minimum_size = Vector2(0.0, 132.0)
+	panel.custom_minimum_size = Vector2.ZERO
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.size_flags_stretch_ratio = 1.0
 	parent.add_child(panel)
 
 	var content := _make_domestic_tech_section_content_mvp(panel)
-	content.add_child(_make_domestic_tech_label_mvp("선택 테크 상세 정보", 15, Color(1.0, 0.86, 0.54, 1.0)))
+	var title_label := _make_domestic_tech_label_mvp("선택 테크 상세 정보", 15, Color(1.0, 0.86, 0.54, 1.0))
+	title_label.name = "DomesticTechDetailTitleMVP"
+	content.add_child(title_label)
+
+	var body_scroll := ScrollContainer.new()
+	body_scroll.name = "DomesticTechDetailBodyScrollMVP"
+	body_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	body_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	content.add_child(body_scroll)
+
+	var body_content := VBoxContainer.new()
+	body_content.name = "DomesticTechDetailBodyMVP"
+	body_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_scroll.add_child(body_content)
+
 	_domestic_tech_detail_inspector_label_mvp = _make_domestic_tech_label_mvp("테크를 선택하면 상세 정보가 표시됩니다.", 11, Color(0.82, 0.84, 0.78, 1.0))
 	_domestic_tech_detail_inspector_label_mvp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_child(_domestic_tech_detail_inspector_label_mvp)
+	body_content.add_child(_domestic_tech_detail_inspector_label_mvp)
 
-	var action_row := HBoxContainer.new()
-	action_row.name = "DomesticTechResearchActionSlotMVP"
-	action_row.add_theme_constant_override("separation", 8)
-	content.add_child(action_row)
+	var research_footer := HBoxContainer.new()
+	research_footer.name = "DomesticTechResearchFooterMVP"
+	research_footer.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	research_footer.add_theme_constant_override("separation", 8)
+	content.add_child(research_footer)
 
 	_domestic_tech_research_action_button_mvp = Button.new()
 	_domestic_tech_research_action_button_mvp.name = "DomesticTechResearchActionButtonMVP"
@@ -12935,13 +13010,50 @@ func _build_domestic_tech_detail_inspector_mvp(parent: Container) -> void:
 	_domestic_tech_research_action_button_mvp.focus_mode = Control.FOCUS_NONE
 	_domestic_tech_research_action_button_mvp.custom_minimum_size = Vector2(104.0, 30.0)
 	_domestic_tech_research_action_button_mvp.tooltip_text = "조건을 충족한 테크만 연구를 시작할 수 있습니다."
-	action_row.add_child(_domestic_tech_research_action_button_mvp)
+	research_footer.add_child(_domestic_tech_research_action_button_mvp)
 
 	_domestic_tech_research_action_hint_label_mvp = _make_domestic_tech_label_mvp("연구 시작 기능은 다음 단계에서 활성화됩니다.", 11, Color(0.72, 0.74, 0.70, 1.0))
 	_domestic_tech_research_action_hint_label_mvp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_domestic_tech_research_action_hint_label_mvp.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	action_row.add_child(_domestic_tech_research_action_hint_label_mvp)
+	research_footer.add_child(_domestic_tech_research_action_hint_label_mvp)
 	_update_domestic_tech_research_action_slot_mvp({})
+
+
+func _build_domestic_tech_detail_placeholders_mvp(parent: HBoxContainer) -> void:
+	var inspector := parent.get_node_or_null("DomesticTechDetailInspectorMVP") as PanelContainer
+	if inspector == null:
+		return
+	parent.add_child(_make_domestic_tech_detail_placeholder_mvp("NationalTechDetailPlaceholderMVP", "국가 테크 상세 정보", inspector))
+	parent.add_child(_make_domestic_tech_detail_placeholder_mvp("CityTechDetailPlaceholderMVP", "도시 테크 상세 정보", inspector))
+
+
+func _make_domestic_tech_detail_placeholder_mvp(node_name: String, title_text: String, style_source: PanelContainer) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.name = node_name
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.size_flags_stretch_ratio = 1.0
+	panel.mouse_filter = Control.MOUSE_FILTER_PASS
+	var source_style := style_source.get_theme_stylebox("panel")
+	if source_style != null:
+		panel.add_theme_stylebox_override("panel", source_style.duplicate() as StyleBox)
+	var content := _make_domestic_tech_section_content_mvp(panel)
+	content.add_child(_make_domestic_tech_label_mvp(title_text, 15, Color(1.0, 0.86, 0.54, 1.0)))
+	var center := CenterContainer.new()
+	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(center)
+	var watermark := TextureRect.new()
+	watermark.name = "TechDetailWatermarkMVP"
+	watermark.texture = DOMESTIC_TECH_DETAIL_WATERMARK
+	watermark.custom_minimum_size = DOMESTIC_TECH_DETAIL_WATERMARK_SIZE
+	watermark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	watermark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	watermark.modulate = Color(1.0, 1.0, 1.0, DOMESTIC_TECH_DETAIL_WATERMARK_ALPHA)
+	watermark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(watermark)
+	return panel
 
 
 func _refresh_domestic_tech_detail_inspector_mvp() -> void:
@@ -12950,6 +13062,7 @@ func _refresh_domestic_tech_detail_inspector_mvp() -> void:
 	if _selected_domestic_tech_id_mvp.is_empty():
 		_domestic_tech_detail_inspector_label_mvp.text = "테크를 선택하면 상세 정보가 표시됩니다."
 		_update_domestic_tech_research_action_slot_mvp({})
+		_route_domestic_tech_detail_region_mvp()
 		return
 	var definition := _get_domestic_tech_definition_mvp(_selected_domestic_tech_id_mvp)
 	if definition.is_empty():
@@ -12957,6 +13070,7 @@ func _refresh_domestic_tech_detail_inspector_mvp() -> void:
 		_selected_domestic_tech_city_id_mvp = ""
 		_domestic_tech_detail_inspector_label_mvp.text = "테크를 선택하면 상세 정보가 표시됩니다."
 		_update_domestic_tech_research_action_slot_mvp({})
+		_route_domestic_tech_detail_region_mvp()
 		return
 	var scope := str(definition.get("tree_scope", ""))
 	if scope == DOMESTIC_TECH_SCOPE_CITY:
@@ -12966,10 +13080,52 @@ func _refresh_domestic_tech_detail_inspector_mvp() -> void:
 			_selected_domestic_tech_city_id_mvp = ""
 			_domestic_tech_detail_inspector_label_mvp.text = "테크를 선택하면 상세 정보가 표시됩니다."
 			_update_domestic_tech_research_action_slot_mvp({})
+			_route_domestic_tech_detail_region_mvp()
 			return
 	var view_state := _get_domestic_tech_view_state_mvp(_selected_domestic_tech_id_mvp, _selected_domestic_tech_city_id_mvp)
 	_domestic_tech_detail_inspector_label_mvp.text = _format_domestic_tech_detail_text_mvp(definition, view_state, _selected_domestic_tech_city_id_mvp)
 	_update_domestic_tech_research_action_slot_mvp(view_state)
+	_route_domestic_tech_detail_region_mvp()
+
+
+func _route_domestic_tech_detail_region_mvp() -> void:
+	if _tech_tree_content_root_mvp == null:
+		return
+	var detail_region := _tech_tree_content_root_mvp.find_child("DomesticTechDetailSplit", true, false) as HBoxContainer
+	var inspector := _tech_tree_content_root_mvp.find_child("DomesticTechDetailInspectorMVP", true, false) as PanelContainer
+	var national_placeholder := _tech_tree_content_root_mvp.find_child("NationalTechDetailPlaceholderMVP", true, false) as PanelContainer
+	var city_placeholder := _tech_tree_content_root_mvp.find_child("CityTechDetailPlaceholderMVP", true, false) as PanelContainer
+	if detail_region == null or inspector == null or national_placeholder == null or city_placeholder == null:
+		return
+	var title_label := inspector.get_node_or_null("MarginContainer/Content/DomesticTechDetailTitleMVP") as Label
+	var scope := ""
+	if not _selected_domestic_tech_id_mvp.is_empty():
+		scope = "city" if not _selected_domestic_tech_city_id_mvp.is_empty() else "national"
+	match scope:
+		"national":
+			inspector.visible = true
+			national_placeholder.visible = false
+			city_placeholder.visible = true
+			detail_region.move_child(inspector, 0)
+			detail_region.move_child(city_placeholder, 1)
+			if title_label != null:
+				title_label.text = "국가 테크 상세 정보"
+		"city":
+			inspector.visible = true
+			national_placeholder.visible = true
+			city_placeholder.visible = false
+			detail_region.move_child(national_placeholder, 0)
+			detail_region.move_child(inspector, 1)
+			if title_label != null:
+				title_label.text = "도시 테크 상세 정보"
+		_:
+			inspector.visible = false
+			national_placeholder.visible = true
+			city_placeholder.visible = true
+			detail_region.move_child(national_placeholder, 0)
+			detail_region.move_child(city_placeholder, 1)
+			if title_label != null:
+				title_label.text = "선택 테크 상세 정보"
 
 
 func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dictionary, city_id: String = "") -> String:
@@ -13030,10 +13186,9 @@ func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dic
 	var relations := _get_domestic_tech_relation_lines_mvp(tech_def, city_id)
 	if not relations.is_empty():
 		lines.append("국가/도시 연결 관계:\n- %s" % "\n- ".join(relations))
-	lines.append(_format_domestic_tech_research_readiness_text_mvp(view_state))
-	lines.append(_format_domestic_tech_research_action_slot_text_mvp(view_state))
-	if bool(tech_def.get("icon_missing", false)):
-		lines.append("아이콘: 준비중 (?)")
+	var readiness_text := _format_domestic_tech_research_readiness_text_mvp(view_state)
+	if not readiness_text.is_empty():
+		lines.append(readiness_text)
 	return "\n\n".join(lines)
 
 
@@ -13491,7 +13646,7 @@ func _format_domestic_tech_research_readiness_text_mvp(view_state: Dictionary) -
 		DOMESTIC_TECH_VIEW_SPECIAL_LOCKED:
 			return "연구 상태: 특수 조건 필요\n해당 테크는 특정 국가 테크, 도시 조건, 영웅 조건 또는 자원 조건이 필요합니다."
 		_:
-			return "연구 상태: 조건 부족\n아래 조건을 먼저 충족해야 합니다."
+			return ""
 
 
 func _format_domestic_tech_research_action_slot_text_mvp(view_state: Dictionary) -> String:
@@ -15778,11 +15933,13 @@ func _make_domestic_tech_scroll_mvp() -> ScrollContainer:
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	return scroll
 
 
 func _clear_domestic_tech_tree_children_mvp(node: Node) -> void:
 	for child in node.get_children():
+		node.remove_child(child)
 		child.queue_free()
 
 

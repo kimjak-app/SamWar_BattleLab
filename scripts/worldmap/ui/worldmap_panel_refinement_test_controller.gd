@@ -1,0 +1,302 @@
+extends Node
+
+const TOOLTIP_SCENE: PackedScene = preload("res://WorldMapHoverTooltip.tscn")
+
+const LEFT_PANEL_PATH := "WorldMapUI/LeftWorldStatusPanel"
+const RIGHT_PANEL_PATH := "WorldMapUI/CityInfoPanel"
+const LEFT_POWER_LABEL_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/PowerLabel"
+const LEFT_POWER_BAR_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/PowerBar"
+const LEFT_TAX_LABEL_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/TaxLabel"
+const LEFT_TAX_SLIDER_PATH := "WorldMapUI/LeftWorldStatusPanel/MarginContainer/Content/NationalGaugeCard/MarginContainer/GaugeList/TaxSlider"
+const LOYALTY_CARD_PATH := "WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard"
+const LOYALTY_LABEL_PATH := "WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard/MarginContainer/Content/LoyaltyLabel"
+const LOYALTY_BAR_PATH := "WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard/MarginContainer/Content/LoyaltyBar"
+const REVOLT_RISK_PATH := "WorldMapUI/CityInfoPanel/MarginContainer/Content/LoyaltyCard/MarginContainer/Content/RevoltRiskLabel"
+const CITY_TYPE_LABEL_PATH := "WorldMapUI/CityInfoPanel/MarginContainer/Content/CityTypeLabel"
+const DOMESTIC_INFO_PATH := "WorldMapUI/CityInfoPanel/MarginContainer/Content/MilitaryStateLabel"
+const GARRISON_CARD_PATH := "WorldMapUI/CityInfoPanel/MarginContainer/Content/GarrisonCard"
+
+const STABLE_THRESHOLD := 80
+const CAUTION_THRESHOLD := 60
+const STABLE_COLOR := Color(0.31, 0.67, 0.36, 1.0)
+const CAUTION_COLOR := Color(0.86, 0.67, 0.20, 1.0)
+const DANGER_COLOR := Color(0.78, 0.25, 0.22, 1.0)
+
+const TAX_GREEN_MAX := 30.0
+const TAX_YELLOW_MAX := 60.0
+
+@onready var production_world_map: Node = get_node_or_null("../ProductionWorldMap")
+
+var _tooltip: Control = null
+var _left_panel: Control = null
+var _right_panel: Control = null
+var _domestic_row: HBoxContainer = null
+var _metric_labels: Dictionary = {}
+var _last_city_stability_state := ""
+var _last_national_stability_state := ""
+var _last_tax_band := ""
+var _installed := false
+
+
+func _ready() -> void:
+	# W2-A14: one pre-draw coordinator owns final HUD presentation.
+	set_process(false)
+	call_deferred("_install")
+
+
+func _install() -> void:
+	if production_world_map == null:
+		push_warning("WorldMap Panel Refinement: ProductionWorldMap is missing.")
+		return
+	var world_ui := production_world_map.get_node_or_null("WorldMapUI") as CanvasLayer
+	if world_ui == null:
+		return
+
+	_left_panel = production_world_map.get_node_or_null(LEFT_PANEL_PATH) as Control
+	_right_panel = production_world_map.get_node_or_null(RIGHT_PANEL_PATH) as Control
+	_tooltip = TOOLTIP_SCENE.instantiate() as Control
+	if _tooltip != null:
+		_tooltip.name = "HoverTooltip"
+		world_ui.add_child(_tooltip)
+
+	_hide_legacy_help_ui()
+	_bind_help_target(production_world_map.get_node_or_null(LEFT_POWER_LABEL_PATH) as Control, "national_loyalty")
+	_bind_help_target(production_world_map.get_node_or_null(LOYALTY_CARD_PATH) as Control, "city_loyalty")
+	_bind_help_target(production_world_map.get_node_or_null(GARRISON_CARD_PATH) as Control, "garrison")
+	_ensure_domestic_metrics_row()
+	_apply_city_stability_presentation()
+	_apply_national_gauge_presentation()
+	_refresh_domestic_metrics()
+	_place_domestic_metrics_row()
+	_installed = true
+
+
+func _hide_legacy_help_ui() -> void:
+	for panel in [_left_panel, _right_panel]:
+		if panel != null and is_instance_valid(panel):
+			_hide_help_recursive(panel)
+
+
+func _hide_help_recursive(node: Node) -> void:
+	if node is Button:
+		var button := node as Button
+		if button.text.strip_edges() == "?" or str(button.name).contains("HelpButton"):
+			button.visible = false
+	if node is Control and str(node.name) == "DomesticHelpRow":
+		(node as Control).visible = false
+	for child in node.get_children():
+		_hide_help_recursive(child)
+
+
+func _bind_help_target(target: Control, topic_id: String) -> void:
+	if target == null:
+		return
+	var key := "worldmap_hover_help_%s" % topic_id
+	if target.has_meta(key):
+		return
+	target.set_meta(key, true)
+	target.mouse_filter = Control.MOUSE_FILTER_PASS
+	target.mouse_entered.connect(_show_help.bind(topic_id))
+	target.mouse_exited.connect(_hide_help)
+
+
+func _show_help(topic_id: String) -> void:
+	if _tooltip == null or production_world_map == null:
+		return
+	var payload: Dictionary = {}
+	if production_world_map.has_method("_get_worldmap_help_content"):
+		var result = production_world_map.call("_get_worldmap_help_content", topic_id)
+		if result is Dictionary:
+			payload = result
+	if not payload.is_empty() and _tooltip.has_method("show_help"):
+		_tooltip.call("show_help", str(payload.get("title", "도움말")), str(payload.get("body", "")))
+
+
+func _hide_help() -> void:
+	if _tooltip != null and _tooltip.has_method("hide_help"):
+		_tooltip.call("hide_help")
+
+
+func _apply_city_stability_presentation() -> void:
+	var loyalty_label := production_world_map.get_node_or_null(LOYALTY_LABEL_PATH) as Label
+	var loyalty_bar := production_world_map.get_node_or_null(LOYALTY_BAR_PATH) as ProgressBar
+	var revolt_risk := production_world_map.get_node_or_null(REVOLT_RISK_PATH) as CanvasItem
+	if revolt_risk != null:
+		revolt_risk.visible = false
+	if loyalty_label == null or loyalty_bar == null:
+		return
+
+	var loyalty := _extract_optional_integer(loyalty_label.text)
+	if loyalty < 0:
+		return
+	var state := _stability_state(loyalty)
+	loyalty_label.text = "%d · %s" % [loyalty, state]
+	loyalty_bar.value = loyalty
+	if state != _last_city_stability_state:
+		_last_city_stability_state = state
+		_apply_progress_fill_color(loyalty_bar, _stability_color(state))
+
+
+func _apply_national_gauge_presentation() -> void:
+	var power_label := production_world_map.get_node_or_null(LEFT_POWER_LABEL_PATH) as Label
+	var power_bar := production_world_map.get_node_or_null(LEFT_POWER_BAR_PATH) as ProgressBar
+	if power_label != null and power_bar != null:
+		var loyalty := _extract_optional_integer(power_label.text)
+		if loyalty >= 0:
+			var state := _stability_state(loyalty)
+			power_label.text = "국가충성도 %d · %s" % [loyalty, state]
+			power_bar.value = loyalty
+			if state != _last_national_stability_state:
+				_last_national_stability_state = state
+				_apply_progress_fill_color(power_bar, _stability_color(state))
+
+	var tax_slider := production_world_map.get_node_or_null(LEFT_TAX_SLIDER_PATH) as HSlider
+	var tax_label := production_world_map.get_node_or_null(LEFT_TAX_LABEL_PATH) as Label
+	if tax_slider == null:
+		return
+	var tax_value := float(tax_slider.value)
+	var band := _tax_band(tax_value)
+	if band != _last_tax_band:
+		_last_tax_band = band
+		tax_slider.self_modulate = _tax_color(band)
+		if tax_label != null:
+			tax_label.add_theme_color_override("font_color", _tax_color(band))
+
+
+func _stability_state(loyalty: int) -> String:
+	if loyalty >= STABLE_THRESHOLD:
+		return "안정"
+	if loyalty >= CAUTION_THRESHOLD:
+		return "주의"
+	return "위험"
+
+
+func _stability_color(state: String) -> Color:
+	match state:
+		"안정":
+			return STABLE_COLOR
+		"주의":
+			return CAUTION_COLOR
+		_:
+			return DANGER_COLOR
+
+
+func _tax_band(value: float) -> String:
+	if value <= TAX_GREEN_MAX:
+		return "green"
+	if value <= TAX_YELLOW_MAX:
+		return "yellow"
+	return "red"
+
+
+func _tax_color(band: String) -> Color:
+	match band:
+		"green":
+			return STABLE_COLOR
+		"yellow":
+			return CAUTION_COLOR
+		_:
+			return DANGER_COLOR
+
+
+func _apply_progress_fill_color(progress_bar: ProgressBar, color: Color) -> void:
+	var source_style := progress_bar.get_theme_stylebox("fill")
+	var fill_style: StyleBoxFlat = null
+	if source_style is StyleBoxFlat:
+		fill_style = source_style.duplicate() as StyleBoxFlat
+	else:
+		fill_style = StyleBoxFlat.new()
+		fill_style.corner_radius_top_left = 99
+		fill_style.corner_radius_top_right = 99
+		fill_style.corner_radius_bottom_left = 99
+		fill_style.corner_radius_bottom_right = 99
+	fill_style.bg_color = color
+	progress_bar.add_theme_stylebox_override("fill", fill_style)
+
+
+func _ensure_domestic_metrics_row() -> void:
+	if _domestic_row != null and is_instance_valid(_domestic_row):
+		return
+	var original := production_world_map.get_node_or_null(DOMESTIC_INFO_PATH) as Label
+	if original == null:
+		return
+	var parent := original.get_parent() as Container
+	if parent == null:
+		return
+
+	_domestic_row = HBoxContainer.new()
+	_domestic_row.name = "CompactDomesticMetricsRow"
+	_domestic_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_domestic_row.add_theme_constant_override("separation", 5)
+	parent.add_child(_domestic_row)
+	original.visible = false
+
+	for item in [["public_support", "민심"], ["security", "치안"], ["commerce", "상업"], ["agriculture", "농업"]]:
+		if _domestic_row.get_child_count() > 0:
+			var separator := Label.new()
+			separator.text = "·"
+			separator.add_theme_font_size_override("font_size", 10)
+			_domestic_row.add_child(separator)
+		var metric := Label.new()
+		metric.text = "%s -" % str(item[1])
+		metric.add_theme_font_size_override("font_size", 10)
+		metric.mouse_filter = Control.MOUSE_FILTER_PASS
+		_domestic_row.add_child(metric)
+		_metric_labels[str(item[0])] = metric
+
+	var public_support_target := _metric_labels.get("public_support") as Control
+	var security_target := _metric_labels.get("security") as Control
+	_bind_help_target(public_support_target, "public_support")
+	_bind_help_target(security_target, "security")
+	_place_domestic_metrics_row()
+
+
+func _place_domestic_metrics_row() -> void:
+	if _domestic_row == null or not is_instance_valid(_domestic_row):
+		return
+	var type_label := production_world_map.get_node_or_null(CITY_TYPE_LABEL_PATH) as Label
+	if type_label == null:
+		return
+	var parent := type_label.get_parent() as Container
+	if parent == null or _domestic_row.get_parent() != parent:
+		return
+	var desired_index := mini(type_label.get_index() + 1, parent.get_child_count() - 1)
+	if _domestic_row.get_index() != desired_index:
+		parent.move_child(_domestic_row, desired_index)
+
+
+func _refresh_domestic_metrics() -> void:
+	_ensure_domestic_metrics_row()
+	var original := production_world_map.get_node_or_null(DOMESTIC_INFO_PATH) as Label
+	if original == null or _domestic_row == null:
+		return
+	original.visible = false
+	_domestic_row.visible = true
+	var raw := original.text.replace("\n", " ")
+	var values := {
+		"public_support": _extract_metric(raw, "민심"),
+		"security": _extract_metric(raw, "치안"),
+		"commerce": _extract_metric(raw, "상업"),
+		"agriculture": _extract_metric(raw, "농업"),
+	}
+	var labels := {"public_support": "민심", "security": "치안", "commerce": "상업", "agriculture": "농업"}
+	for key in values.keys():
+		var label := _metric_labels.get(key) as Label
+		if label != null:
+			label.text = "%s %s" % [str(labels[key]), str(values[key])]
+
+
+func _extract_metric(raw: String, label_text: String) -> String:
+	var regex := RegEx.new()
+	if regex.compile("%s\\s*([0-9]+|정보 없음|\\?)" % label_text) != OK:
+		return "-"
+	var matched := regex.search(raw)
+	return matched.get_string(1) if matched != null else "-"
+
+
+func _extract_optional_integer(text: String) -> int:
+	var regex := RegEx.new()
+	if regex.compile("([0-9]+)") != OK:
+		return -1
+	var matched := regex.search(text)
+	return int(matched.get_string(1)) if matched != null else -1

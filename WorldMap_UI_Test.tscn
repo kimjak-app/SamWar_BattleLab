@@ -1,0 +1,22 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://WorldMap.tscn" id="1_world_map"]
+[ext_resource type="PackedScene" path="res://WorldMapTopNav.tscn" id="2_top_nav"]
+[ext_resource type="PackedScene" path="res://WorldMapNationPanel.tscn" id="3_nation_panel"]
+[ext_resource type="PackedScene" path="res://WorldMapCityPanel.tscn" id="4_city_panel"]
+[ext_resource type="PackedScene" path="res://WorldMapModalRoot.tscn" id="5_modal_root"]
+
+[node name="WorldMap_UI_Test" type="Node"]
+
+[node name="ProductionWorldMap" parent="." instance=ExtResource("1_world_map")]
+
+[node name="W2TestOverlay" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="TopNav" parent="W2TestOverlay" instance=ExtResource("2_top_nav")]
+
+[node name="NationPanel" parent="W2TestOverlay" instance=ExtResource("3_nation_panel")]
+
+[node name="CityPanel" parent="W2TestOverlay" instance=ExtResource("4_city_panel")]
+
+[node name="ModalRoot" parent="W2TestOverlay" instance=ExtResource("5_modal_root")]
