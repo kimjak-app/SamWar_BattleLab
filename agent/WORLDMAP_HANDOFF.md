@@ -72,8 +72,8 @@
 - `wm_topmenu_info.png`
 - `wm_topmenu_system.png`
 
-아이콘 원본은 축소 재가공하지 않는다.  
-표시 크기와 Hover 확대는 Godot UI에서 조절한다.
+아이콘은 2026-09-03 사용자 Photoshop 재축소본으로 교체되었다.  
+표시 크기는 Godot에서 `56px`, Hover는 `1.10x`를 유지한다.
 
 ---
 
@@ -130,8 +130,40 @@ TopNav 로직:
 
 ## 6. 다음 단계
 
-1. `WorldMap_16x9_Test.tscn`에서 상단 메뉴 1차 F6 QA
+1. `WorldMap_16x9_Test.tscn`에서 상단 메뉴 F6 재QA
 2. 사용자 피드백에 따라 bar 폭 / 아이콘 표시 크기 / 간격 / label 위치만 미세조정
 3. TopNav visual lock
 4. 이후 메뉴 기능 연결 범위를 하나씩 확정
 5. 월드맵 작업 전체 QA PASS 후에만 `main` 통합 검토
+
+---
+
+## 7. W2-3B TopNav 시각 refinement — 2026-09-03
+
+사용자 F6 QA 결과:
+
+- 8개 문양 아이콘 배치와 Hover 구조는 PASS
+- 기존 상단 배경판은 너무 짙어 지도와 분리된 검은 띠처럼 보였음
+- 배경판과 `동방천하도` 현판이 너무 붙어 있었음
+- 아이콘은 사용자가 Photoshop에서 더 작은 최종 PNG로 교체함
+
+적용값:
+
+- `BAR_SIZE.y`: `62 -> 58`
+- `SLOT_SIZE.y`: `58 -> 54`
+- 상단 배경판 alpha: `0.90 -> 0.72`
+- `BAR_TOP = 4` 유지
+- 결과적으로 상단바 하단이 4px 위로 올라가 `동방천하도` 현판과 추가 간격 확보
+- 아이콘 표시 크기 `56px`, Hover `1.10x`, 라벨 규칙은 변경하지 않음
+
+수정 파일:
+
+- `scripts/worldmap/ui/worldmap_top_nav.gd`
+- `agent/WORLDMAP_HANDOFF.md`
+
+다음 QA:
+
+- 반투명 배경으로 지도가 적당히 비치는지
+- 현판과 상단바 간격이 자연스러운지
+- 새 아이콘의 선명도가 개선되었는지
+- 아이콘이 얇아진 bar 안에서 위아래로 답답하거나 잘리지 않는지
