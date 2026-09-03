@@ -143,7 +143,7 @@ func _build_menu_slot(item: Dictionary) -> Control:
 	label_plate.offset_top = -LABEL_SIZE.y * 0.5
 	label_plate.offset_bottom = LABEL_SIZE.y * 0.5
 	label_plate.add_theme_stylebox_override("panel", _make_label_style())
-	label_plate.modulate = Color(1.0, 1.0, 1.0, 1.0 if menu_id == _selected_id else 0.0)
+	label_plate.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	slot.add_child(label_plate)
 
 	var label := Label.new()
@@ -219,8 +219,7 @@ func _animate_menu(menu_id: StringName, hovered: bool) -> void:
 			old_tween.kill()
 
 	var target_scale := Vector2.ONE * (HOVER_SCALE if hovered else 1.0)
-	var show_label := hovered or menu_id == _selected_id
-	var target_modulate := Color(1.0, 1.0, 1.0, 1.0 if show_label else 0.0)
+	var target_modulate := Color(1.0, 1.0, 1.0, 1.0 if hovered else 0.0)
 
 	var tween := create_tween()
 	tween.set_parallel(true)
@@ -239,7 +238,7 @@ func _refresh_label_state(menu_id: StringName) -> void:
 	if label_plate == null:
 		return
 
-	var show_label := menu_id == _selected_id or menu_id == _hovered_id
+	var show_label := menu_id == _hovered_id
 	var target_modulate := Color(1.0, 1.0, 1.0, 1.0 if show_label else 0.0)
 
 	if _slot_tweens.has(menu_id):
