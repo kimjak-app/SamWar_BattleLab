@@ -24,6 +24,9 @@ script = ExtResource("2_test_host")
 
 [node name="ProductionWorldMap" parent="." unique_id=1392956798 instance=ExtResource("1_world_map")]
 
+[node name="HudPositionOwner" type="Node" parent="ProductionWorldMap" unique_id=326883260]
+script = ExtResource("11_hud_position")
+
 [node name="V2BackgroundTestController" type="Node" parent="." unique_id=173289303]
 script = ExtResource("14_v2_background")
 
@@ -53,9 +56,6 @@ script = ExtResource("10_tech_badges")
 
 [node name="ReadabilityController" type="Node" parent="." unique_id=1001977525]
 script = ExtResource("9_readability")
-
-[node name="HudPositionOwner" type="Node" parent="ProductionWorldMap" unique_id=326883260]
-script = ExtResource("11_hud_position")
 
 [node name="StableHudMirrorController" type="Node" parent="." unique_id=782209465]
 script = ExtResource("13_stable_hud_mirror")
