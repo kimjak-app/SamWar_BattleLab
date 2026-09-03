@@ -5,12 +5,12 @@ const TECH_TREE_OVERLAY_LAYER := 60
 const TECH_DETAIL_WATERMARK_ALPHA := 0.25
 const TECH_DETAIL_WATERMARK_SIZE := Vector2(240.0, 240.0)
 const TREE_REGION_RATIO := 0.42
-const TREE_REGION_MIN_HEIGHT := 190.0
-const DETAIL_PANEL_MIN_HEIGHT := 270.0
-const OVERLAY_NON_TREE_RESERVE := 66.0
+const BODY_GAP := 10.0
 
 var _world_map: Node = null
 var _overlay_canvas: CanvasLayer = null
+var _body_viewport: Control = null
+var _tree_split: HBoxContainer = null
 var _refined_inspector: PanelContainer = null
 var _detail_split: HBoxContainer = null
 var _national_placeholder: PanelContainer = null
@@ -42,8 +42,7 @@ func _process(_delta: float) -> void:
 	if not overlay.visible:
 		return
 
-	_ensure_split_detail(overlay)
-	_apply_vertical_layout(overlay)
+	_ensure_bounded_body_layout(overlay)
 	_sync_detail_side()
 
 
@@ -58,87 +57,142 @@ func _ensure_overlay_canvas(overlay: Control) -> void:
 		overlay.reparent(_overlay_canvas, true)
 
 
-func _ensure_split_detail(overlay: Control) -> void:
-	if is_instance_valid(_refined_inspector) and not _refined_inspector.is_queued_for_deletion():
+func _ensure_bounded_body_layout(overlay: Control) -> void:
+	if is_instance_valid(_body_viewport) and not _body_viewport.is_queued_for_deletion():
 		return
 
-	var inspector := overlay.find_child("DomesticTechDetailInspectorMVP", true, false) as PanelContainer
-	if inspector == null or inspector.is_queued_for_deletion():
+	_reset_layout_refs()
+
+	var content_root := overlay.find_child("DomesticTechTreeOverlayContent", true, false) as VBoxContainer
+	if content_root == null or content_root.is_queued_for_deletion():
 		return
-	var original_parent := inspector.get_parent() as Container
-	if original_parent == null:
+
+	var tree_split := _find_direct_child(content_root, "DomesticTechTreeSplit") as HBoxContainer
+	var inspector := _find_direct_child(content_root, "DomesticTechDetailInspectorMVP") as PanelContainer
+	if tree_split == null or inspector == null:
+		return
+	if tree_split.is_queued_for_deletion() or inspector.is_queued_for_deletion():
 		return
 
-	var original_index := inspector.get_index()
-	var split := HBoxContainer.new()
-	split.name = "DomesticTechDetailSplitW23D"
-	split.custom_minimum_size = Vector2(0.0, DETAIL_PANEL_MIN_HEIGHT)
-	split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	split.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	split.add_theme_constant_override("separation", 10)
+	var insert_index := mini(tree_split.get_index(), inspector.get_index())
 
-	original_parent.remove_child(inspector)
-	original_parent.add_child(split)
-	original_parent.move_child(split, original_index)
+	content_root.remove_child(tree_split)
+	content_root.remove_child(inspector)
 
-	inspector.custom_minimum_size = Vector2(0.0, DETAIL_PANEL_MIN_HEIGHT)
+	var body := Control.new()
+	body.name = "DomesticTechBoundedBodyW23E"
+	body.custom_minimum_size = Vector2.ZERO
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.clip_contents = true
+	body.mouse_filter = Control.MOUSE_FILTER_PASS
+	content_root.add_child(body)
+	content_root.move_child(body, mini(insert_index, content_root.get_child_count() - 1))
+
+	body.add_child(tree_split)
+	_configure_tree_region(tree_split)
+
+	var detail_split := HBoxContainer.new()
+	detail_split.name = "DomesticTechDetailSplitW23E"
+	detail_split.custom_minimum_size = Vector2.ZERO
+	detail_split.add_theme_constant_override("separation", 10)
+	body.add_child(detail_split)
+	_configure_detail_region(detail_split)
+
+	inspector.custom_minimum_size = Vector2.ZERO
 	inspector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	inspector.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	inspector.size_flags_stretch_ratio = 1.0
-	split.add_child(inspector)
+	detail_split.add_child(inspector)
 
-	var national_placeholder := _make_placeholder_panel("NationalTechDetailPlaceholderW23D", "국가 테크 상세 정보", inspector)
-	var city_placeholder := _make_placeholder_panel("CityTechDetailPlaceholderW23D", "도시 테크 상세 정보", inspector)
-	split.add_child(national_placeholder)
-	split.add_child(city_placeholder)
+	var national_placeholder := _make_placeholder_panel(
+		"NationalTechDetailPlaceholderW23E",
+		"국가 테크 상세 정보",
+		inspector
+	)
+	var city_placeholder := _make_placeholder_panel(
+		"CityTechDetailPlaceholderW23E",
+		"도시 테크 상세 정보",
+		inspector
+	)
+	detail_split.add_child(national_placeholder)
+	detail_split.add_child(city_placeholder)
 
+	_body_viewport = body
+	_tree_split = tree_split
 	_refined_inspector = inspector
-	_detail_split = split
+	_detail_split = detail_split
 	_national_placeholder = national_placeholder
 	_city_placeholder = city_placeholder
 	_inspector_title_label = _find_inspector_title_label(inspector)
 	_last_scope = "__unset__"
 
 
-func _apply_vertical_layout(overlay: Control) -> void:
-	if not is_instance_valid(_detail_split):
-		return
-	var tree_split := overlay.find_child("DomesticTechTreeSplit", true, false) as HBoxContainer
-	if tree_split == null or tree_split.is_queued_for_deletion():
-		return
-
-	var overlay_height := overlay.size.y
-	if overlay_height <= 0.0:
-		overlay_height = get_viewport().get_visible_rect().size.y
-
-	var detail_required_height := maxf(
-		DETAIL_PANEL_MIN_HEIGHT,
-		_detail_split.get_combined_minimum_size().y
-	)
-	var desired_tree_height := overlay_height * TREE_REGION_RATIO
-	var maximum_tree_height := overlay_height - detail_required_height - OVERLAY_NON_TREE_RESERVE
-	var target_tree_height := minf(desired_tree_height, maximum_tree_height)
-	target_tree_height = maxf(TREE_REGION_MIN_HEIGHT, target_tree_height)
-
-	tree_split.custom_minimum_size = Vector2(0.0, target_tree_height)
-	tree_split.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+func _configure_tree_region(tree_split: HBoxContainer) -> void:
+	tree_split.custom_minimum_size = Vector2.ZERO
+	tree_split.anchor_left = 0.0
+	tree_split.anchor_top = 0.0
+	tree_split.anchor_right = 1.0
+	tree_split.anchor_bottom = TREE_REGION_RATIO
+	tree_split.offset_left = 0.0
+	tree_split.offset_top = 0.0
+	tree_split.offset_right = 0.0
+	tree_split.offset_bottom = -BODY_GAP * 0.5
 	tree_split.clip_contents = true
 
-	var national_tree_panel := tree_split.find_child("NationalTechTreePanelMVP", true, false) as Control
-	if national_tree_panel != null:
-		national_tree_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var city_tree_panel := tree_split.find_child("CityTechTreePanelMVP", true, false) as Control
-	if city_tree_panel != null:
-		city_tree_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	for child in tree_split.get_children():
+		var panel := child as Control
+		if panel != null:
+			panel.custom_minimum_size = Vector2.ZERO
+			panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
-	_detail_split.custom_minimum_size = Vector2(0.0, detail_required_height)
-	_detail_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	for node in tree_split.find_children("DomesticTechScroll", "ScrollContainer", true, false):
+		var scroll := node as ScrollContainer
+		if scroll == null:
+			continue
+		scroll.custom_minimum_size = Vector2.ZERO
+		scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+		scroll.clip_contents = true
+
+
+func _configure_detail_region(detail_split: HBoxContainer) -> void:
+	detail_split.anchor_left = 0.0
+	detail_split.anchor_top = TREE_REGION_RATIO
+	detail_split.anchor_right = 1.0
+	detail_split.anchor_bottom = 1.0
+	detail_split.offset_left = 0.0
+	detail_split.offset_top = BODY_GAP * 0.5
+	detail_split.offset_right = 0.0
+	detail_split.offset_bottom = 0.0
+	detail_split.clip_contents = true
+
+
+func _find_direct_child(parent: Node, node_name: String) -> Node:
+	for child in parent.get_children():
+		if child.name == node_name and not child.is_queued_for_deletion():
+			return child
+	return null
+
+
+func _reset_layout_refs() -> void:
+	_body_viewport = null
+	_tree_split = null
+	_refined_inspector = null
+	_detail_split = null
+	_national_placeholder = null
+	_city_placeholder = null
+	_inspector_title_label = null
+	_last_scope = "__unset__"
 
 
 func _make_placeholder_panel(node_name: String, title_text: String, style_source: PanelContainer) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.name = node_name
-	panel.custom_minimum_size = Vector2(0.0, DETAIL_PANEL_MIN_HEIGHT)
+	panel.custom_minimum_size = Vector2.ZERO
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.size_flags_stretch_ratio = 1.0
@@ -174,7 +228,7 @@ func _make_placeholder_panel(node_name: String, title_text: String, style_source
 	content.add_child(center)
 
 	var watermark := TextureRect.new()
-	watermark.name = "TechDetailWatermarkW23D"
+	watermark.name = "TechDetailWatermarkW23E"
 	watermark.texture = TECH_DETAIL_WATERMARK
 	watermark.custom_minimum_size = TECH_DETAIL_WATERMARK_SIZE
 	watermark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
