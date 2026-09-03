@@ -231,3 +231,37 @@ TopNav 로직:
 - 반대쪽 워터마크가 25% alpha로 충분히 보이되 텍스트보다 강하지 않은지
 - 국가↔도시를 반복 클릭해도 연구 버튼 / 비용 / 조건 / 효과가 기존과 동일하게 갱신되는지
 - 닫기→재열기 후에도 split/detail routing이 다시 정상 적용되는지
+
+---
+
+## 10. W2-3D hotfix1 — keep detail panel visible — 2026-09-03
+
+사용자 F6 QA 결과:
+
+- overlay layer 문제는 해결되어 TopNav보다 테크트리 창이 위에 표시됨
+- 그러나 기존 `DomesticTechTreeSplit`의 `SIZE_EXPAND_FILL` 때문에 상단 국가/도시 테크 영역이 세로 공간을 거의 전부 차지함
+- 그 결과 새 `DomesticTechDetailSplitW23D`가 삭제된 것이 아니라 화면 하단 밖으로 밀려 상세 설명이 보이지 않음
+
+핫픽스:
+
+- 상단 `DomesticTechTreeSplit`을 runtime에서 `SIZE_SHRINK_BEGIN`으로 변경
+- 상단 트리 목표 높이는 overlay 높이의 약 `42%`
+- 상세 영역의 실제 combined minimum height를 먼저 계산하고 그만큼 하단 공간을 반드시 예약
+- 상단 트리 최소 높이는 `190px`
+- 상세 영역 최소 높이는 `270px`
+- 상단 국가/도시 트리 panel 내부 scroll 동작은 유지
+- 하단 `DomesticTechDetailSplitW23D`는 `SIZE_EXPAND_FILL`로 남은 세로 공간을 사용
+- 국가/도시 상세 panel도 vertical expand 처리
+- Production `WorldMap.tscn` / `worldmap_main.gd`는 계속 미수정
+
+수정 파일:
+
+- `scripts/worldmap/ui/worldmap_tech_tree_split_detail_test_controller.gd`
+- `agent/WORLDMAP_HANDOFF.md`
+
+다음 F6 QA:
+
+- 그림2처럼 위쪽에 국가/도시 테크트리, 아래쪽에 상세 설명 영역이 동시에 보이는지
+- 상단 트리 내부 세로 스크롤이 정상인지
+- 국가 선택 시 좌측 상세 / 도시 선택 시 우측 상세가 보이는지
+- 반대쪽 워터마크가 정상 표시되는지

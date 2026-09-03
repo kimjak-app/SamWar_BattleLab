@@ -4,7 +4,10 @@ const TECH_DETAIL_WATERMARK := preload("res://assets/ui/worldmap/tech_tree/wm_te
 const TECH_TREE_OVERLAY_LAYER := 60
 const TECH_DETAIL_WATERMARK_ALPHA := 0.25
 const TECH_DETAIL_WATERMARK_SIZE := Vector2(240.0, 240.0)
+const TREE_REGION_RATIO := 0.42
+const TREE_REGION_MIN_HEIGHT := 190.0
 const DETAIL_PANEL_MIN_HEIGHT := 270.0
+const OVERLAY_NON_TREE_RESERVE := 66.0
 
 var _world_map: Node = null
 var _overlay_canvas: CanvasLayer = null
@@ -40,6 +43,7 @@ func _process(_delta: float) -> void:
 		return
 
 	_ensure_split_detail(overlay)
+	_apply_vertical_layout(overlay)
 	_sync_detail_side()
 
 
@@ -70,6 +74,7 @@ func _ensure_split_detail(overlay: Control) -> void:
 	split.name = "DomesticTechDetailSplitW23D"
 	split.custom_minimum_size = Vector2(0.0, DETAIL_PANEL_MIN_HEIGHT)
 	split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	split.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	split.add_theme_constant_override("separation", 10)
 
 	original_parent.remove_child(inspector)
@@ -78,6 +83,7 @@ func _ensure_split_detail(overlay: Control) -> void:
 
 	inspector.custom_minimum_size = Vector2(0.0, DETAIL_PANEL_MIN_HEIGHT)
 	inspector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	inspector.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	inspector.size_flags_stretch_ratio = 1.0
 	split.add_child(inspector)
 
@@ -94,11 +100,47 @@ func _ensure_split_detail(overlay: Control) -> void:
 	_last_scope = "__unset__"
 
 
+func _apply_vertical_layout(overlay: Control) -> void:
+	if not is_instance_valid(_detail_split):
+		return
+	var tree_split := overlay.find_child("DomesticTechTreeSplit", true, false) as HBoxContainer
+	if tree_split == null or tree_split.is_queued_for_deletion():
+		return
+
+	var overlay_height := overlay.size.y
+	if overlay_height <= 0.0:
+		overlay_height = get_viewport().get_visible_rect().size.y
+
+	var detail_required_height := maxf(
+		DETAIL_PANEL_MIN_HEIGHT,
+		_detail_split.get_combined_minimum_size().y
+	)
+	var desired_tree_height := overlay_height * TREE_REGION_RATIO
+	var maximum_tree_height := overlay_height - detail_required_height - OVERLAY_NON_TREE_RESERVE
+	var target_tree_height := minf(desired_tree_height, maximum_tree_height)
+	target_tree_height = maxf(TREE_REGION_MIN_HEIGHT, target_tree_height)
+
+	tree_split.custom_minimum_size = Vector2(0.0, target_tree_height)
+	tree_split.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	tree_split.clip_contents = true
+
+	var national_tree_panel := tree_split.find_child("NationalTechTreePanelMVP", true, false) as Control
+	if national_tree_panel != null:
+		national_tree_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var city_tree_panel := tree_split.find_child("CityTechTreePanelMVP", true, false) as Control
+	if city_tree_panel != null:
+		city_tree_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+	_detail_split.custom_minimum_size = Vector2(0.0, detail_required_height)
+	_detail_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+
 func _make_placeholder_panel(node_name: String, title_text: String, style_source: PanelContainer) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.name = node_name
 	panel.custom_minimum_size = Vector2(0.0, DETAIL_PANEL_MIN_HEIGHT)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.size_flags_stretch_ratio = 1.0
 	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 
