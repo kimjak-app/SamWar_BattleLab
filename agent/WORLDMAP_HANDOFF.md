@@ -265,3 +265,96 @@ TopNav 로직:
 - 상단 트리 내부 세로 스크롤이 정상인지
 - 국가 선택 시 좌측 상세 / 도시 선택 시 우측 상세가 보이는지
 - 반대쪽 워터마크가 정상 표시되는지
+
+---
+
+## 11. W2-3F Domestic Tech Tree Ownership Consolidation — 2026-09-03
+
+**Branch:** `experiment/imjin-iso-movement`
+**Start HEAD:** `d3201405734262c761cb05705c07844764ad24b7`
+**Implementation end HEAD:** `3c498a7` (`fix: consolidate domestic tech tree overlay ownership`)
+
+### Actual root cause
+
+`worldmap_main.gd` destructively refreshed `DomesticTechTreeOverlayContent`, while the separate
+`worldmap_tech_tree_split_detail_test_controller.gd` polled every frame, reparented the overlay to
+a new CanvasLayer, then detached and repackaged the main-owned tree and inspector nodes. The two
+scripts therefore concurrently owned the same runtime subtree. `queue_free()` alone also left old
+children parented until the end of the frame, allowing old and newly-built `EXPAND_FILL` content to
+coexist during container layout.
+
+### Final owner and lifecycle
+
+- The only structural owner is now `scripts/worldmap/worldmap_main.gd`.
+- It creates `DomesticTechTreeOverlayCanvasMVP` at `CanvasLayer.layer = 60`; the overlay therefore
+  renders above the QA TopNav layer 40 without an external controller reparenting it.
+- The initial build creates Header → bounded `DomesticTechBoundedBody` → `DomesticTechTreeRegion`
+  (top 42%) and anchored `DomesticTechDetailSplit` (bottom 58%). The tree viewport clips its
+  contents, so large tree minimum sizes cannot push detail content below the overlay.
+- National/city `ScrollContainer`s use both horizontal and vertical `SCROLL_MODE_AUTO`.
+- The detail owner routes the existing inspector to the national or city side, while the opposite
+  side shows the existing watermark asset
+  `assets/ui/worldmap/tech_tree/wm_techtree_detail_watermark.png` at 240×240 and alpha 0.25.
+  Research cost, conditions, effects, button and research logic remain the existing main-owned logic.
+- `_clear_domestic_tech_tree_children_mvp()` now immediately `remove_child()`s each old child before
+  `queue_free()`, eliminating same-parent old/new overlap in the rebuild frame.
+- `worldmap_tech_tree_split_detail_test_controller.gd` and its `.uid` were removed; its QA-scene
+  instance was removed from `WorldMap_16x9_Test.tscn`. Production `WorldMap.tscn` was not edited.
+
+## 12. W2-3G WorldMap Test Controller Conflict Risk Audit — 2026-09-03
+
+The repository contains 16 current WorldMap UI test/bridge/guard/mirror scripts, rather than the
+approximately 23 expected by the preliminary audit. The table is an inventory of actual files at
+this revision; the deleted Tech Tree controller is recorded above as the resolved A conflict.
+
+| File | Type | Uses `_process` | Finds production nodes | Mutates production structure | Risk/status | Recommended action |
+|---|---|---:|---:|---:|---|---|
+| `worldmap_warehouse_tabs_test_controller.gd` | test controller | no | yes | adds test card | C, stable test presentation | MIGRATE LATER |
+| `worldmap_v2_background_test_controller.gd` | test controller | one-shot | yes | no | D, one-shot QA asset replacement | KEEP |
+| `worldmap_turn_transition_late_guard.gd` | guard | no | yes | no | D, deferred test-host coordination | KEEP |
+| `worldmap_turn_summary_test_bridge.gd` | test bridge | no | yes | adds popup/card rows | C, stable bridge | MIGRATE LATER |
+| `worldmap_territory_test_controller.gd` | test controller | one-shot | yes | adds territory layer | D, isolated QA layer | KEEP |
+| `worldmap_tech_tree_test_button.gd` | test controller | no | yes | adds legacy button | D, superseded by TopNav but retained unused | AUDIT LATER |
+| `worldmap_tech_badge_test_controller.gd` | test controller | no | yes | adds badge sections | C, stable test presentation | MIGRATE LATER |
+| `worldmap_stable_hud_mirror_controller.gd` | mirror controller | no | yes | adds mirror controls | C, explicit mirror surface | MIGRATE LATER |
+| `worldmap_readability_test_controller.gd` | test controller | disabled | yes | no | C, startup style/value refinement for HUD cards | MIGRATE LATER |
+| `worldmap_panel_refinement_test_controller.gd` | test controller | no | yes | adds supplemental HUD row/tooltip | C, stable test patch | MIGRATE LATER |
+| `worldmap_left_panel_lock_guard.gd` | guard | yes | yes | no | B, per-frame position/size enforcement | REFACTOR TO SIGNAL |
+| `worldmap_hud_position_test_controller.gd` | test controller | yes | yes | no | B, per-frame panel positioning | REFACTOR TO SIGNAL |
+| `worldmap_garrison_compact_test_controller.gd` | test controller | yes | yes | adds compact grid; hides source | B, polling production garrison card | MIGRATE LATER |
+| `worldmap_city_action_test_controller.gd` | test controller | conditional | yes | own overlay only | D, own test overlay follows selected city | KEEP |
+| `worldmap_character_speech_test_bridge.gd` | test bridge | yes | yes | own popup; hides source labels | B, polling production role labels | REFACTOR TO SIGNAL |
+| `worldmap_16x9_editor_preview.gd` | preview controller | no | yes | editor-only layout aid | D, editor QA only | KEEP |
+
+### Specific required audit decisions
+
+- **garrison_compact:** `MIGRATE LATER`. It performs `_process()` polling and adds a compact mirror
+  below `GARRISON_CARD_PATH`, but the actual garrison list is assembled by
+  `worldmap_16x9_test_host.gd`; `worldmap_main.gd` has no destructive rebuild of that subtree in
+  the audited paths. Do not force a migration in this change. A future owner should update the
+  compact view from an explicit garrison-data/UI-ready signal rather than polling.
+- **readability:** `MIGRATE LATER`. It calls `set_process(false)` and applies only startup
+  typography/size/value presentation changes to the left/right HUD cards. It neither reparents nor
+  clears those cards. It is a production-presentation promotion candidate, but migration is not
+  small enough to bundle with the active Tech Tree lifecycle fix.
+
+### Permanent WorldMap UI ownership rule
+
+> A destructively regenerated (`clear + rebuild`) UI subtree must never be directly modified by a
+> separate controller that polls it from `_process()`. Integrate the behavior in the owning
+> function/formal component, or emit a rebuild-complete signal and let an external listener react
+> once. Per-frame polling plus a destructive owner on the same node tree is prohibited.
+
+Review routine for every new test controller/bridge:
+
+1. Identify every production node it reaches through `_process()` via `find_child` or `get_node_or_null`.
+2. Search the owning main/component code for `clear`, `rebuild`, `queue_free`, `remove_child`, or
+   `reparent` on that node or a parent subtree.
+3. If both touch the same subtree, classify it as an ownership conflict before merging.
+4. Prefer owner integration; otherwise provide a rebuild-complete signal for a one-shot listener.
+
+Remaining Godot F6 QA: open/close/reopen the Tech Tree; verify the first frame has the 42/58 split
+with no flicker or duplicate body; select national then city tech and verify opposite watermark;
+scroll both trees without moving detail; change city while open; verify research text/button logic;
+verify overlay is above TopNav; then sanity-check left/right HUD, garrison, chancellor/governor cards,
+and readability presentation.
