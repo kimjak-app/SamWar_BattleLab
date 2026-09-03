@@ -47,10 +47,10 @@ const MENU_ITEMS := [
 	},
 ]
 
-const BAR_SIZE := Vector2(672.0, 62.0)
+const BAR_SIZE := Vector2(672.0, 58.0)
 const BAR_TOP := 4.0
 const BAR_SIDE_MARGIN := 16.0
-const SLOT_SIZE := Vector2(72.0, 58.0)
+const SLOT_SIZE := Vector2(72.0, 54.0)
 const SLOT_SEPARATION := 4
 const ICON_SIZE := 56.0
 const HOVER_SCALE := 1.10
@@ -269,7 +269,7 @@ func _open_techtree_if_available() -> void:
 
 func _make_bar_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.018, 0.017, 0.014, 0.90)
+	style.bg_color = Color(0.018, 0.017, 0.014, 0.72)
 	style.border_color = Color(0.58, 0.40, 0.16, 0.62)
 	style.border_width_top = 1
 	style.border_width_bottom = 1
