@@ -13187,7 +13187,6 @@ func _format_domestic_tech_detail_text_mvp(tech_def: Dictionary, view_state: Dic
 	if not relations.is_empty():
 		lines.append("국가/도시 연결 관계:\n- %s" % "\n- ".join(relations))
 	lines.append(_format_domestic_tech_research_readiness_text_mvp(view_state))
-	lines.append(_format_domestic_tech_research_action_slot_text_mvp(view_state))
 	if bool(tech_def.get("icon_missing", false)):
 		lines.append("아이콘: 준비중 (?)")
 	return "\n\n".join(lines)
