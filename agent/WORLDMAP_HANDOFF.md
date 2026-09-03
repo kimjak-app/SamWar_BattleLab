@@ -167,3 +167,26 @@ TopNav 로직:
 - 현판과 상단바 간격이 자연스러운지
 - 새 아이콘의 선명도가 개선되었는지
 - 아이콘이 얇아진 bar 안에서 위아래로 답답하거나 잘리지 않는지
+
+---
+
+## 8. W2-3C TopNav corner softening — 2026-09-03
+
+사용자 F6 QA에서 현재 반투명도, 현판과의 간격, 아이콘 배치는 PASS. 상단 배경판의 완전한 직사각형 실루엣만 다소 딱딱하다는 피드백에 따라 장식 문양은 추가하지 않고 형태만 부드럽게 조정한다.
+
+적용값:
+
+- TopMenuBar 4개 corner radius: `2 -> 8`
+- 배경 alpha `0.72`, bar 높이 `58`, slot 높이 `54`, 아이콘 `56px`, Hover `1.10x`는 유지
+- 별도 배경 문양 / 용호 장식은 추가하지 않음
+- Production `WorldMap.tscn`은 계속 미수정
+
+수정 파일:
+
+- `scripts/worldmap/ui/worldmap_top_nav.gd`
+- `agent/WORLDMAP_HANDOFF.md`
+
+다음 QA:
+
+- 양끝이 웹앱 버튼처럼 과하게 둥글지 않고 사각형의 긴장감은 유지되는지
+- 금색 문양 아이콘과 `동방천하도` 현판의 시각적 위계를 해치지 않는지
