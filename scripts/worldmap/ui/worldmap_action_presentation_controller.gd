@@ -30,6 +30,7 @@ var _pending_action_type := ""
 var _pending_action_id := ""
 var _pending_target_city_id := ""
 var _finishing_video := false
+var _video_test_only := false
 
 
 func _ready() -> void:
@@ -51,6 +52,9 @@ func _connect_action_sources() -> void:
 	if production_world_map.has_signal("contextual_worldmap_action_resolved") and not production_world_map.is_connected("contextual_worldmap_action_resolved", resolved_callback):
 		production_world_map.connect("contextual_worldmap_action_resolved", resolved_callback)
 	if city_action_controller != null:
+		var video_test_callback := Callable(self, "_on_action_video_test_requested")
+		if city_action_controller.has_signal("action_video_test_requested") and not city_action_controller.is_connected("action_video_test_requested", video_test_callback):
+			city_action_controller.connect("action_video_test_requested", video_test_callback)
 		var open_failed_callback := Callable(self, "_on_action_open_failed")
 		if city_action_controller.has_signal("contextual_action_open_failed") and not city_action_controller.is_connected("contextual_action_open_failed", open_failed_callback):
 			city_action_controller.connect("contextual_action_open_failed", open_failed_callback)
@@ -71,6 +75,16 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _on_action_presentation_requested(action_type: String, action_id: String, target_city_id: String) -> void:
+	_video_test_only = false
+	_play_action_video(action_type, action_id, target_city_id)
+
+
+func _on_action_video_test_requested(action_type: String, target_city_id: String) -> void:
+	_video_test_only = true
+	_play_action_video(action_type, "", target_city_id)
+
+
+func _play_action_video(action_type: String, action_id: String, target_city_id: String) -> void:
 	_pending_action_type = action_type
 	_pending_action_id = action_id
 	_pending_target_city_id = target_city_id
@@ -98,10 +112,12 @@ func _finish_pending_video() -> void:
 	var action_type := _pending_action_type
 	var action_id := _pending_action_id
 	var target_city_id := _pending_target_city_id
+	var video_test_only := _video_test_only
 	_pending_action_type = ""
 	_pending_action_id = ""
 	_pending_target_city_id = ""
-	if production_world_map != null and production_world_map.has_method("complete_contextual_worldmap_action"):
+	_video_test_only = false
+	if not video_test_only and production_world_map != null and production_world_map.has_method("complete_contextual_worldmap_action"):
 		production_world_map.call("complete_contextual_worldmap_action", action_type, action_id, target_city_id)
 	_finishing_video = false
 
