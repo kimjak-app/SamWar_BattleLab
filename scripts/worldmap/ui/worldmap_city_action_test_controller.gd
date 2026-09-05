@@ -1,6 +1,7 @@
 extends Node
 
 signal contextual_action_open_failed(action_type: String, result: Dictionary)
+signal action_video_test_requested(action_type: String, target_city_id: String)
 
 const CITY_LAYER_PATH := "WorldMapRoot/CityLayer"
 const LEGACY_ATTACK_BUTTON_PATH := "WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow/AttackButtonPlaceholder"
@@ -212,14 +213,9 @@ func _on_contextual_action_pressed(action_type: String) -> void:
 	if production_world_map == null or _selected_marker == null:
 		return
 	var target_city_id := str(_selected_marker.get("city_id"))
-	if target_city_id.is_empty() or not production_world_map.has_method("open_contextual_worldmap_action"):
-		contextual_action_open_failed.emit(action_type, {"success": false, "message": "도시 행동 연결을 확인할 수 없습니다."})
-		_hide_menu()
+	if target_city_id.is_empty():
 		return
-	var result_variant: Variant = production_world_map.call("open_contextual_worldmap_action", action_type, target_city_id)
-	var result: Dictionary = result_variant if result_variant is Dictionary else {"success": false, "message": "도시 행동을 열지 못했습니다."}
-	if not bool(result.get("ok", false)):
-		contextual_action_open_failed.emit(action_type, result)
+	action_video_test_requested.emit(action_type, target_city_id)
 	_hide_menu()
 
 
