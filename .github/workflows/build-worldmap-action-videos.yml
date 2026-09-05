@@ -34,6 +34,12 @@ jobs:
           git apply .github/patches/worldmap_action_integration.patch
           git rm .github/patches/worldmap_action_integration.patch
 
+      - name: Install FFmpeg
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
       - name: Convert source MP4 files
         shell: pwsh
         run: ./tools/convert_worldmap_action_videos.ps1
