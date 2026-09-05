@@ -1,0 +1,146 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/worldmap/ui/worldmap_action_presentation_controller.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ui/cutin/hero_cutin_presentation.tscn" id="2_cutin"]
+[ext_resource type="Texture2D" path="res://assets/worldmap/ui/worldmap_action_result_scroll_bg.png" id="3_scroll"]
+[ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Bold.otf" id="4_bold"]
+[ext_resource type="FontFile" path="res://assets/font/noto_serif_kr/NotoSerifKR-Medium.otf" id="5_medium"]
+
+[node name="WorldMapActionPresentation" type="CanvasLayer"]
+layer = 90
+script = ExtResource("1_script")
+
+[node name="VideoOverlay" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="Dim" type="ColorRect" parent="VideoOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.82)
+
+[node name="HeroCutinViewport" type="Control" parent="VideoOverlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -576.0
+offset_top = -324.0
+offset_right = 576.0
+offset_bottom = 324.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HeroCutinPresentation" parent="VideoOverlay/HeroCutinViewport" instance=ExtResource("2_cutin")]
+
+[node name="SkipLabel" type="Label" parent="VideoOverlay"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -180.0
+offset_top = -42.0
+offset_right = -20.0
+offset_bottom = -16.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.88, 0.84, 0.75, 0.82)
+theme_override_fonts/font = ExtResource("5_medium")
+text = "ESC  건너뛰기"
+horizontal_alignment = 2
+
+[node name="ResultOverlay" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="Dim" type="ColorRect" parent="ResultOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.68)
+
+[node name="Center" type="CenterContainer" parent="ResultOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ActionResultScroll" type="TextureRect" parent="ResultOverlay/Center"]
+custom_minimum_size = Vector2(480, 360)
+layout_mode = 2
+texture = ExtResource("3_scroll")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Content" type="MarginContainer" parent="ResultOverlay/Center/ActionResultScroll"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 62
+theme_override_constants/margin_top = 54
+theme_override_constants/margin_right = 62
+theme_override_constants/margin_bottom = 48
+
+[node name="Body" type="VBoxContainer" parent="ResultOverlay/Center/ActionResultScroll/Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="ResultOverlay/Center/ActionResultScroll/Content/Body"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.1, 0.055, 1)
+theme_override_fonts/font = ExtResource("4_bold")
+theme_override_font_sizes/font_size = 25
+text = "외교 결과"
+horizontal_alignment = 1
+
+[node name="Divider" type="HSeparator" parent="ResultOverlay/Center/ActionResultScroll/Content/Body"]
+modulate = Color(0.3, 0.16, 0.08, 0.55)
+layout_mode = 2
+
+[node name="ResultBody" type="Label" parent="ResultOverlay/Center/ActionResultScroll/Content/Body"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.25, 0.13, 0.075, 1)
+theme_override_fonts/font = ExtResource("5_medium")
+theme_override_font_sizes/font_size = 17
+text = "판정: 성공\n대상: 평양\n행동 결과가 이곳에 표시됩니다."
+autowrap_mode = 2
+vertical_alignment = 1
+
+[node name="ConfirmButton" type="Button" parent="ResultOverlay/Center/ActionResultScroll/Content/Body"]
+custom_minimum_size = Vector2(112, 34)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("5_medium")
+text = "확인"
+
+[connection signal="pressed" from="ResultOverlay/Center/ActionResultScroll/Content/Body/ConfirmButton" to="." method="_hide_result"]
