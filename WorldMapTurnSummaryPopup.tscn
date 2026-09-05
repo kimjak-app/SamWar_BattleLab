@@ -55,9 +55,9 @@ stretch_mode = 0
 [node name="TitleLabel" type="Label" parent="PopupRoot"]
 layout_mode = 0
 offset_left = 92.0
-offset_top = 128.0
+offset_top = 112.0
 offset_right = 388.0
-offset_bottom = 164.0
+offset_bottom = 148.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.22, 0.09, 0.025, 1)
 theme_override_font_sizes/font_size = 26
@@ -68,9 +68,9 @@ vertical_alignment = 1
 [node name="TurnMetaLabel" type="Label" parent="PopupRoot"]
 layout_mode = 0
 offset_left = 92.0
-offset_top = 164.0
+offset_top = 148.0
 offset_right = 388.0
-offset_bottom = 190.0
+offset_bottom = 174.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.33, 0.17, 0.06, 1)
 theme_override_font_sizes/font_size = 14
@@ -81,9 +81,9 @@ vertical_alignment = 1
 [node name="DomesticTitleLabel" type="Label" parent="PopupRoot"]
 layout_mode = 0
 offset_left = 120.0
-offset_top = 208.0
+offset_top = 192.0
 offset_right = 392.0
-offset_bottom = 232.0
+offset_bottom = 216.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.34, 0.14, 0.035, 1)
 theme_override_font_sizes/font_size = 17
@@ -92,9 +92,9 @@ text = "내정 적용"
 [node name="DomesticBodyLabel" type="Label" parent="PopupRoot"]
 layout_mode = 0
 offset_left = 128.0
-offset_top = 238.0
+offset_top = 222.0
 offset_right = 384.0
-offset_bottom = 290.0
+offset_bottom = 274.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.18, 0.10, 0.045, 1)
 theme_override_font_sizes/font_size = 15
@@ -104,18 +104,18 @@ vertical_alignment = 1
 [node name="DomesticDivider" type="ColorRect" parent="PopupRoot"]
 layout_mode = 0
 offset_left = 124.0
-offset_top = 298.0
+offset_top = 282.0
 offset_right = 388.0
-offset_bottom = 299.0
+offset_bottom = 283.0
 mouse_filter = 2
 color = Color(0.34, 0.14, 0.035, 0.34)
 
 [node name="TradeTitleLabel" type="Label" parent="PopupRoot"]
 layout_mode = 0
 offset_left = 120.0
-offset_top = 314.0
+offset_top = 298.0
 offset_right = 392.0
-offset_bottom = 338.0
+offset_bottom = 322.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.34, 0.14, 0.035, 1)
 theme_override_font_sizes/font_size = 17
@@ -124,9 +124,9 @@ text = "무역 수입·수출"
 [node name="TradeBodyLabel" type="Label" parent="PopupRoot"]
 layout_mode = 0
 offset_left = 128.0
-offset_top = 344.0
+offset_top = 328.0
 offset_right = 384.0
-offset_bottom = 414.0
+offset_bottom = 398.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.18, 0.10, 0.045, 1)
 theme_override_font_sizes/font_size = 15
@@ -136,18 +136,18 @@ vertical_alignment = 1
 [node name="TradeDivider" type="ColorRect" parent="PopupRoot"]
 layout_mode = 0
 offset_left = 124.0
-offset_top = 422.0
+offset_top = 406.0
 offset_right = 388.0
-offset_bottom = 423.0
+offset_bottom = 407.0
 mouse_filter = 2
 color = Color(0.34, 0.14, 0.035, 0.34)
 
 [node name="MarketTitleLabel" type="Label" parent="PopupRoot"]
 layout_mode = 0
 offset_left = 120.0
-offset_top = 438.0
+offset_top = 422.0
 offset_right = 392.0
-offset_bottom = 462.0
+offset_bottom = 446.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.34, 0.14, 0.035, 1)
 theme_override_font_sizes/font_size = 17
@@ -156,9 +156,9 @@ text = "시세"
 [node name="MarketBodyLabel" type="Label" parent="PopupRoot"]
 layout_mode = 0
 offset_left = 128.0
-offset_top = 468.0
+offset_top = 452.0
 offset_right = 384.0
-offset_bottom = 548.0
+offset_bottom = 532.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.18, 0.10, 0.045, 1)
 theme_override_font_sizes/font_size = 15
@@ -168,9 +168,9 @@ vertical_alignment = 1
 [node name="CloseHintLabel" type="Label" parent="PopupRoot"]
 layout_mode = 0
 offset_left = 92.0
-offset_top = 556.0
+offset_top = 540.0
 offset_right = 388.0
-offset_bottom = 580.0
+offset_bottom = 564.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.35, 0.20, 0.10, 0.82)
 theme_override_font_sizes/font_size = 12
