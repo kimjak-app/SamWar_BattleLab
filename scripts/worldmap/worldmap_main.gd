@@ -1,5 +1,8 @@
 extends Node2D
 
+signal contextual_worldmap_action_presentation_requested(action_type: String, action_id: String, target_city_id: String)
+signal contextual_worldmap_action_resolved(action_type: String, result: Dictionary)
+
 const HeroPortraitHelper := preload("res://scripts/worldmap_hero_portrait_helper.gd")
 const HeroDefinitionRegistryScript := preload(
 	"res://scripts/worldmap/hero_definition_registry.gd"
@@ -1036,6 +1039,10 @@ var _chancellor_portrait_texture_rect: TextureRect = null
 var selected_city_id: String = ""
 var selected_city_marker: WorldMapCityMarker = null
 var _city_markers_by_id: Dictionary = {}
+var _contextual_worldmap_action_type := ""
+var _contextual_worldmap_action_target_city_id := ""
+var _contextual_worldmap_action_source_city_id := ""
+var _contextual_worldmap_action_pending := false
 var _unified_primary_tab := UNIFIED_PANEL_TAB_CITY_DETAIL
 var _selected_diplomacy_spy_tab := DIPLOMACY_SPY_TAB_DIPLOMACY
 var _city_resource_potential_card: PanelContainer = null
@@ -1748,6 +1755,119 @@ func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 	_refresh_unified_panel_content()
 	if _tech_tree_overlay_mvp != null and _tech_tree_overlay_mvp.visible:
 		_refresh_domestic_tech_tree_overlay_mvp()
+
+
+func open_contextual_worldmap_action(action_type: String, target_city_id: String) -> Dictionary:
+	cancel_contextual_worldmap_action()
+	var normalized_type := action_type.strip_edges().to_lower()
+	if not ["diplomacy", "spy", "trade"].has(normalized_type):
+		return {"ok": false, "message": "지원하지 않는 도시 행동입니다."}
+	var target_marker := _city_markers_by_id.get(target_city_id) as WorldMapCityMarker
+	if target_marker == null:
+		return {"ok": false, "message": "대상 도시를 확인할 수 없습니다."}
+	if _is_city_owned_by_player_mvp(target_city_id):
+		return {"ok": false, "message": "타국 도시에서만 실행할 수 있습니다."}
+
+	_set_unified_city_panel_collapsed(false)
+	if normalized_type == "trade":
+		var source_city_id := _find_contextual_trade_source_city_id(target_city_id)
+		if source_city_id.is_empty():
+			return {"ok": false, "message": "이 도시와 연결된 자국 교역 도시가 없습니다."}
+		var source_marker := _city_markers_by_id.get(source_city_id) as WorldMapCityMarker
+		if source_marker == null:
+			return {"ok": false, "message": "교역 출발 도시를 확인할 수 없습니다."}
+		_on_city_marker_selected(source_marker)
+		_unified_primary_tab = UNIFIED_PANEL_TAB_TRADE
+		_selected_city_detail_tab = CITY_DETAIL_TAB_EXTERNAL_TRADE
+		_trade_control_modes[CITY_DETAIL_TAB_EXTERNAL_TRADE] = TRADE_CONTROL_MODE_MANUAL
+		_refresh_unified_panel_content()
+		_open_manual_trade_order_panel()
+		if _manual_trade_target_option != null:
+			_select_option_by_metadata(_manual_trade_target_option, target_city_id)
+			_refresh_manual_trade_order_relation()
+			_refresh_manual_trade_order_preview()
+		_contextual_worldmap_action_source_city_id = source_city_id
+	else:
+		_on_city_marker_selected(target_marker)
+		_unified_primary_tab = UNIFIED_PANEL_TAB_DIPLOMACY_SPY
+		_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_SPY if normalized_type == "spy" else DIPLOMACY_SPY_TAB_DIPLOMACY
+		_refresh_unified_panel_content()
+
+	_contextual_worldmap_action_type = normalized_type
+	_contextual_worldmap_action_target_city_id = target_city_id
+	return {
+		"ok": true,
+		"action_type": normalized_type,
+		"target_city_id": target_city_id,
+		"source_city_id": _contextual_worldmap_action_source_city_id,
+		"message": "행동을 선택한 뒤 실행하면 영상과 결과가 표시됩니다.",
+	}
+
+
+func cancel_contextual_worldmap_action() -> void:
+	_contextual_worldmap_action_type = ""
+	_contextual_worldmap_action_target_city_id = ""
+	_contextual_worldmap_action_source_city_id = ""
+	_contextual_worldmap_action_pending = false
+
+
+func complete_contextual_worldmap_action(action_type: String, action_id: String, target_city_id: String) -> Dictionary:
+	if not _contextual_worldmap_action_pending:
+		return {"success": false, "message": "실행 대기 중인 도시 행동이 없습니다."}
+	if action_type != _contextual_worldmap_action_type or target_city_id != _contextual_worldmap_action_target_city_id:
+		return {"success": false, "message": "도시 행동 대상이 변경되었습니다."}
+
+	var result: Dictionary = {}
+	match action_type:
+		"diplomacy":
+			result = _apply_diplomacy_action(action_id, target_city_id)
+			_save_management_status = str(result.get("message", "외교 행동 처리"))
+		"spy":
+			result = _apply_spy_action(action_id, target_city_id)
+		"trade":
+			var order: Dictionary = _manual_trade_orders.get(_contextual_worldmap_action_source_city_id, {})
+			result = _execute_external_manual_trade_order(order)
+			_player_state["last_external_manual_trade_execution_result"] = result.duplicate(true)
+			if bool(result.get("ok", false)):
+				_manual_trade_orders.erase(_contextual_worldmap_action_source_city_id)
+		_:
+			result = {"success": false, "message": "지원하지 않는 도시 행동입니다."}
+
+	cancel_contextual_worldmap_action()
+	_refresh_city_hud_data_bindings()
+	_refresh_left_world_status_panel()
+	_refresh_unified_panel_content()
+	_queue_unified_city_panel_resize()
+	contextual_worldmap_action_resolved.emit(action_type, result)
+	return result
+
+
+func _find_contextual_trade_source_city_id(target_city_id: String) -> String:
+	var candidate_source_ids: Array[String] = []
+	for city_id_variant in _city_markers_by_id.keys():
+		var city_id := str(city_id_variant)
+		if not _is_city_owned_by_player_mvp(city_id):
+			continue
+		if _get_external_trade_candidate_city_ids(city_id).has(target_city_id):
+			candidate_source_ids.append(city_id)
+	candidate_source_ids.sort()
+	return candidate_source_ids[0] if not candidate_source_ids.is_empty() else ""
+
+
+func _request_contextual_worldmap_action_presentation(action_type: String, action_id: String, target_city_id: String) -> void:
+	if _contextual_worldmap_action_pending:
+		return
+	_contextual_worldmap_action_pending = true
+	contextual_worldmap_action_presentation_requested.emit(action_type, action_id, target_city_id)
+
+
+func _resolve_contextual_worldmap_action_without_video(action_type: String, result: Dictionary) -> void:
+	cancel_contextual_worldmap_action()
+	_refresh_city_hud_data_bindings()
+	_refresh_left_world_status_panel()
+	_refresh_unified_panel_content()
+	_queue_unified_city_panel_resize()
+	contextual_worldmap_action_resolved.emit(action_type, result)
 
 
 func _connect_city_info_panel_actions() -> void:
@@ -2891,6 +3011,8 @@ func _on_manual_trade_order_confirm_pressed() -> void:
 
 func _on_manual_trade_order_cancel_pressed() -> void:
 	_close_manual_trade_order_panel()
+	if _contextual_worldmap_action_type == "trade":
+		cancel_contextual_worldmap_action()
 
 
 func _on_manual_trade_execution_button_pressed() -> void:
@@ -2898,6 +3020,15 @@ func _on_manual_trade_execution_button_pressed() -> void:
 		return
 	var source_city_id := selected_city_marker.city_id
 	var order: Dictionary = _manual_trade_orders.get(source_city_id, {})
+	if _contextual_worldmap_action_type == "trade":
+		var contextual_validation := _validate_external_manual_trade_execution(order)
+		if bool(contextual_validation.get("ok", false)) and str(order.get("target_city_id", "")) == _contextual_worldmap_action_target_city_id:
+			_request_contextual_worldmap_action_presentation("trade", "external_manual_trade", _contextual_worldmap_action_target_city_id)
+		else:
+			if bool(contextual_validation.get("ok", false)):
+				contextual_validation = {"ok": false, "success": false, "reason": "target_changed", "message": "처음 선택한 도시가 교역 대상에서 변경되었습니다."}
+			_resolve_contextual_worldmap_action_without_video("trade", contextual_validation)
+		return
 	var result := _execute_external_manual_trade_order(order)
 	_player_state["last_external_manual_trade_execution_result"] = result.duplicate(true)
 	if bool(result.get("ok", false)):
@@ -20223,6 +20354,15 @@ func _apply_alliance_diplomacy_action(validation: Dictionary) -> Dictionary:
 func _on_diplomacy_action_pressed(action_id: String) -> void:
 	var target := _get_selected_diplomacy_target()
 	var target_city_id := str(target.get("target_city_id", ""))
+	if _contextual_worldmap_action_type == "diplomacy":
+		target_city_id = _contextual_worldmap_action_target_city_id
+		var contextual_validation := _validate_diplomacy_action(action_id, target_city_id)
+		if bool(contextual_validation.get("ok", false)):
+			_request_contextual_worldmap_action_presentation("diplomacy", action_id, target_city_id)
+		else:
+			var failure_result := _apply_diplomacy_action(action_id, target_city_id)
+			_resolve_contextual_worldmap_action_without_video("diplomacy", failure_result)
+		return
 	var result := _apply_diplomacy_action(action_id, target_city_id)
 	_save_management_status = str(result.get("message", "외교 행동 처리"))
 	print("[DIPLOMACY_ACTION] ", result)
@@ -20748,6 +20888,15 @@ func _apply_spy_action(action_id: String, target_city_id: String = "") -> Dictio
 
 
 func _on_spy_action_pressed(action_id: String) -> void:
+	if _contextual_worldmap_action_type == "spy":
+		var target_city_id := _contextual_worldmap_action_target_city_id
+		var contextual_validation := _validate_spy_action(action_id, target_city_id)
+		if bool(contextual_validation.get("ok", false)):
+			_request_contextual_worldmap_action_presentation("spy", action_id, target_city_id)
+		else:
+			var failure_result := _apply_spy_action(action_id, target_city_id)
+			_resolve_contextual_worldmap_action_without_video("spy", failure_result)
+		return
 	_apply_spy_action(action_id)
 	_refresh_city_hud_data_bindings()
 	if selected_city_marker != null:
@@ -21128,6 +21277,7 @@ func _disrupt_city_public_support(target_city_id: String, forced_roll: int = -1,
 		return failed_result
 	var roll_result := _roll_spy_public_support_disrupt_result(target_city_id, forced_roll, forced_detection_roll)
 	var cost: Dictionary = check.get("cost", {})
+	var payment_result := _apply_generic_resource_cost(cost)
 	var cooldown := _get_spy_public_support_disrupt_cooldown_turns()
 	_player_state["spy_cooldown"] = cooldown
 	var relation_penalty := 0
@@ -21166,6 +21316,7 @@ func _disrupt_city_public_support(target_city_id: String, forced_roll: int = -1,
 		"before_score": int(relation_change.get("before_score", 0)),
 		"after_score": int(relation_change.get("after_score", 0)),
 		"cost": cost,
+		"payment": payment_result,
 		"cooldown": cooldown,
 		"message": "민심 교란에 성공했습니다." if effect_applied and not bool(roll_result.get("detected", false)) else "민심 교란에 실패했습니다.",
 	}
@@ -21279,6 +21430,7 @@ func _disrupt_city_loyalty(target_city_id: String, forced_roll: int = -1, forced
 		return failed_result
 	var roll_result := _roll_spy_loyalty_disrupt_result(target_city_id, forced_roll, forced_detection_roll)
 	var cost: Dictionary = check.get("cost", {})
+	var payment_result := _apply_generic_resource_cost(cost)
 	var cooldown := _get_spy_action_cooldown_turns(SPY_LOYALTY_DISRUPT_COOLDOWN_TURNS)
 	_player_state["spy_cooldown"] = cooldown
 	var relation_penalty := 0
@@ -21317,6 +21469,7 @@ func _disrupt_city_loyalty(target_city_id: String, forced_roll: int = -1, forced
 		"before_score": int(relation_change.get("before_score", 0)),
 		"after_score": int(relation_change.get("after_score", 0)),
 		"cost": cost,
+		"payment": payment_result,
 		"cooldown": cooldown,
 		"message": "성 충성도 교란에 성공했습니다." if effect_applied and not bool(roll_result.get("detected", false)) else "성 충성도 교란에 실패했습니다.",
 	}
@@ -21434,6 +21587,7 @@ func _instigate_revolt(target_city_id: String, forced_roll: int = -1, forced_det
 		return failed_result
 	var roll_result := _roll_spy_revolt_instigation_result(target_city_id, forced_roll, forced_detection_roll)
 	var cost: Dictionary = check.get("cost", {})
+	var payment_result := _apply_generic_resource_cost(cost)
 	var cooldown := _get_spy_action_cooldown_turns(SPY_REVOLT_INSTIGATION_COOLDOWN_TURNS)
 	_player_state["spy_cooldown"] = cooldown
 	var relation_penalty := 0
@@ -21478,6 +21632,7 @@ func _instigate_revolt(target_city_id: String, forced_roll: int = -1, forced_det
 		"before_score": int(relation_change.get("before_score", 0)),
 		"after_score": int(relation_change.get("after_score", 0)),
 		"cost": cost,
+		"payment": payment_result,
 		"cooldown": cooldown,
 		"message": "반란 조장에 성공했습니다." if effect_applied and not bool(roll_result.get("detected", false)) else "반란 조장에 실패했습니다.",
 	}
@@ -24419,6 +24574,10 @@ func _on_spy_mode_placeholder_pressed() -> void:
 func _on_unified_primary_tab_pressed(tab_id: String) -> void:
 	if not [UNIFIED_PANEL_TAB_CITY_DETAIL, UNIFIED_PANEL_TAB_DIPLOMACY_SPY, UNIFIED_PANEL_TAB_TRADE].has(tab_id):
 		tab_id = UNIFIED_PANEL_TAB_CITY_DETAIL
+	if not _contextual_worldmap_action_type.is_empty():
+		var contextual_tab := UNIFIED_PANEL_TAB_TRADE if _contextual_worldmap_action_type == "trade" else UNIFIED_PANEL_TAB_DIPLOMACY_SPY
+		if tab_id != contextual_tab:
+			cancel_contextual_worldmap_action()
 	if tab_id != UNIFIED_PANEL_TAB_TRADE:
 		_close_manual_trade_order_panel()
 		_close_internal_trade_transfer_panel()
@@ -24438,6 +24597,10 @@ func _on_unified_secondary_tab_pressed(tab_index: int) -> void:
 		_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_DIPLOMACY
 		if tab_index == 1:
 			_selected_diplomacy_spy_tab = DIPLOMACY_SPY_TAB_SPY
+		if _contextual_worldmap_action_type == "diplomacy" and _selected_diplomacy_spy_tab != DIPLOMACY_SPY_TAB_DIPLOMACY:
+			cancel_contextual_worldmap_action()
+		elif _contextual_worldmap_action_type == "spy" and _selected_diplomacy_spy_tab != DIPLOMACY_SPY_TAB_SPY:
+			cancel_contextual_worldmap_action()
 		print("[WorldMap] Unified diplomacy/spy tab selected: %s." % _selected_diplomacy_spy_tab)
 		_show_unified_diplomacy_spy_content()
 		return
@@ -24468,6 +24631,8 @@ func _on_trade_control_mode_button_pressed(mode: String) -> void:
 	if not [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE].has(_selected_city_detail_tab):
 		return
 	_trade_control_modes[_selected_city_detail_tab] = mode
+	if _contextual_worldmap_action_type == "trade" and mode != TRADE_CONTROL_MODE_MANUAL:
+		cancel_contextual_worldmap_action()
 	print("[WorldMap] Trade control mode selected: %s = %s. Display only; no trade/resource effect applied." % [_selected_city_detail_tab, mode])
 	if selected_city_marker != null:
 		_show_city_detail(selected_city_marker)

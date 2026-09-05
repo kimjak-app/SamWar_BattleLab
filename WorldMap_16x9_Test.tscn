@@ -18,6 +18,7 @@
 [ext_resource type="Script" uid="uid://diyagmb3v1t4t" path="res://scripts/worldmap/ui/worldmap_16x9_editor_preview.gd" id="16_editor_preview"]
 [ext_resource type="PackedScene" path="res://WorldMapTopNav.tscn" id="17_top_nav"]
 [ext_resource type="Script" uid="uid://do74o2adi2se0" path="res://scripts/worldmap/ui/worldmap_city_action_test_controller.gd" id="18_city_action_menu"]
+[ext_resource type="PackedScene" path="res://scenes/worldmap/ui/WorldMapActionPresentation.tscn" id="19_action_presentation"]
 
 [node name="WorldMap_16x9_Test" type="Node" unique_id=1437058317]
 script = ExtResource("2_test_host")
@@ -71,6 +72,8 @@ production_world_map_path = NodePath("../../ProductionWorldMap")
 
 [node name="CityActionTestController" type="Node" parent="." unique_id=908372323]
 script = ExtResource("18_city_action_menu")
+
+[node name="ActionPresentationController" parent="." instance=ExtResource("19_action_presentation")]
 
 [node name="EditorPreviewController" type="Node" parent="." unique_id=1515544021]
 script = ExtResource("16_editor_preview")

@@ -1,0 +1,77 @@
+name: Build world-map action videos
+
+on:
+  push:
+    branches:
+      - feature/worldmap-territory-techtree-hud
+    paths:
+      - .github/workflows/build-worldmap-action-videos.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: worldmap-action-video-build
+  cancel-in-progress: false
+
+jobs:
+  build-and-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/worldmap-territory-techtree-hud
+          fetch-depth: 0
+
+      - name: Apply integration patch
+        shell: bash
+        run: |
+          test -f .github/patches/worldmap_action_integration.patch
+          git apply --check .github/patches/worldmap_action_integration.patch
+          git apply .github/patches/worldmap_action_integration.patch
+          git rm .github/patches/worldmap_action_integration.patch
+
+      - name: Install FFmpeg
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Convert source MP4 files
+        shell: pwsh
+        run: ./tools/convert_worldmap_action_videos.ps1
+
+      - name: Validate converted videos
+        shell: bash
+        run: |
+          set -euo pipefail
+          for video in assets/ui/worldmap/videos/actions/*.ogv; do
+            codec="$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 "$video")"
+            width="$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 "$video")"
+            height="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nw=1:nk=1 "$video")"
+            audio="$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=nw=1:nk=1 "$video")"
+            test "$codec" = "theora"
+            test "$width" = "1280"
+            test "$height" = "720"
+            test "$audio" = "vorbis"
+          done
+
+      - name: Commit integrated result
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add WorldMap_16x9_Test.tscn \
+            assets/ui/worldmap/videos/actions \
+            assets/worldmap/ui/worldmap_action_result_scroll_bg.png.import \
+            scenes/worldmap/ui/WorldMapActionPresentation.tscn \
+            scripts/worldmap/ui/worldmap_action_presentation_controller.gd \
+            scripts/worldmap/ui/worldmap_action_presentation_controller.gd.uid \
+            scripts/worldmap/ui/worldmap_city_action_test_controller.gd \
+            scripts/worldmap/worldmap_main.gd \
+            tools/convert_worldmap_action_videos.ps1
+          git commit -m "월드맵 도시 행동 영상과 결과 두루마리 연결"
+          git push origin HEAD:feature/worldmap-territory-techtree-hud

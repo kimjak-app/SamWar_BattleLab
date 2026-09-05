@@ -1,5 +1,7 @@
 extends Node
 
+signal contextual_action_open_failed(action_type: String, result: Dictionary)
+
 const CITY_LAYER_PATH := "WorldMapRoot/CityLayer"
 const LEGACY_ATTACK_BUTTON_PATH := "WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow/AttackButtonPlaceholder"
 const ACTION_BUTTON_SIZE := Vector2(58.0, 30.0)
@@ -10,6 +12,9 @@ const SCREEN_MARGIN := 8.0
 
 var _canvas_layer: CanvasLayer = null
 var _panel: PanelContainer = null
+var _spy_button: Button = null
+var _diplomacy_button: Button = null
+var _trade_button: Button = null
 var _battle_button: Button = null
 var _selected_marker: Node2D = null
 
@@ -63,9 +68,15 @@ func _build_action_menu() -> void:
 	row.add_theme_constant_override("separation", 4)
 	margin.add_child(row)
 
-	row.add_child(_make_action_button("첩보", false))
-	row.add_child(_make_action_button("외교", false))
-	row.add_child(_make_action_button("무역", false))
+	_spy_button = _make_action_button("첩보", true)
+	_spy_button.pressed.connect(_on_contextual_action_pressed.bind("spy"))
+	row.add_child(_spy_button)
+	_diplomacy_button = _make_action_button("외교", true)
+	_diplomacy_button.pressed.connect(_on_contextual_action_pressed.bind("diplomacy"))
+	row.add_child(_diplomacy_button)
+	_trade_button = _make_action_button("무역", true)
+	_trade_button.pressed.connect(_on_contextual_action_pressed.bind("trade"))
+	row.add_child(_trade_button)
 	_battle_button = _make_action_button("전투", true)
 	_battle_button.pressed.connect(_on_battle_pressed)
 	row.add_child(_battle_button)
@@ -112,6 +123,8 @@ func _make_button_style(bg: Color, border: Color) -> StyleBoxFlat:
 
 
 func _on_city_selected(marker: Node) -> void:
+	if production_world_map != null and production_world_map.has_method("cancel_contextual_worldmap_action"):
+		production_world_map.call("cancel_contextual_worldmap_action")
 	if marker == null or not marker is Node2D:
 		_hide_menu()
 		return
@@ -192,6 +205,21 @@ func _on_battle_pressed() -> void:
 	if _battle_button == null or _battle_button.disabled:
 		return
 	legacy_attack_button.emit_signal("pressed")
+	_hide_menu()
+
+
+func _on_contextual_action_pressed(action_type: String) -> void:
+	if production_world_map == null or _selected_marker == null:
+		return
+	var target_city_id := str(_selected_marker.get("city_id"))
+	if target_city_id.is_empty() or not production_world_map.has_method("open_contextual_worldmap_action"):
+		contextual_action_open_failed.emit(action_type, {"success": false, "message": "도시 행동 연결을 확인할 수 없습니다."})
+		_hide_menu()
+		return
+	var result_variant: Variant = production_world_map.call("open_contextual_worldmap_action", action_type, target_city_id)
+	var result: Dictionary = result_variant if result_variant is Dictionary else {"success": false, "message": "도시 행동을 열지 못했습니다."}
+	if not bool(result.get("ok", false)):
+		contextual_action_open_failed.emit(action_type, result)
 	_hide_menu()
 
 
