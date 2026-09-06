@@ -366,9 +366,9 @@ func get_hud_default_position(panel: Control, is_left: bool) -> Vector2:
 func _request_hud_position_layout() -> void:
 	if production_world_map == null:
 		return
-	var owner := production_world_map.get_node_or_null("HudPositionOwner")
-	if owner != null and owner.has_method("request_default_hud_layout"):
-		owner.call_deferred("request_default_hud_layout")
+	var hud_position_owner := production_world_map.get_node_or_null("HudPositionOwner")
+	if hud_position_owner != null and hud_position_owner.has_method("request_default_hud_layout"):
+		hud_position_owner.call_deferred("request_default_hud_layout")
 
 
 func _set_top_left_anchors(control: Control) -> void:
