@@ -1,6 +1,5 @@
 extends Node
 
-signal contextual_action_open_failed(action_type: String, result: Dictionary)
 signal action_video_test_requested(action_type: String, target_city_id: String)
 
 const CITY_LAYER_PATH := "WorldMapRoot/CityLayer"
