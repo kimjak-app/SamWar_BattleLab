@@ -55,9 +55,6 @@ func _connect_action_sources() -> void:
 		var video_test_callback := Callable(self, "_on_action_video_test_requested")
 		if city_action_controller.has_signal("action_video_test_requested") and not city_action_controller.is_connected("action_video_test_requested", video_test_callback):
 			city_action_controller.connect("action_video_test_requested", video_test_callback)
-		var open_failed_callback := Callable(self, "_on_action_open_failed")
-		if city_action_controller.has_signal("contextual_action_open_failed") and not city_action_controller.is_connected("contextual_action_open_failed", open_failed_callback):
-			city_action_controller.connect("contextual_action_open_failed", open_failed_callback)
 
 
 func set_worldmap_action_video_audio_enabled(enabled: bool) -> void:
@@ -123,10 +120,6 @@ func _finish_pending_video() -> void:
 
 
 func _on_action_resolved(action_type: String, result: Dictionary) -> void:
-	_show_result(action_type, result)
-
-
-func _on_action_open_failed(action_type: String, result: Dictionary) -> void:
 	_show_result(action_type, result)
 
 
