@@ -69,6 +69,9 @@ func play_cutin(show_text_layers: bool = true) -> void:
 	reset_cutin()
 	_show_text_layers = show_text_layers
 	_playing = true
+	video.volume_db = 0.0
+	if show_text_layers:
+		GameAudio.play_sfx("skill")
 	video.play()
 	_root_tween = create_tween()
 	if _show_text_layers:

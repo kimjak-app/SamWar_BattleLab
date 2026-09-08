@@ -4563,6 +4563,7 @@ func _show_specialty_skill_video_cutin(caster_state: BattleUnitState, skill_data
 		return false
 
 	_hide_unique_skill_toast()
+	GameAudio.play_sfx("skill")
 	unique_skill_cutin_timing_start_msec = Time.get_ticks_msec()
 	_log_unique_skill_cutin_timing("VIDEO_CUTIN_START", "hero=%s duration=%.2f" % [hero_id, SPECIALTY_SKILL_CUTIN_TOTAL_DURATION])
 
@@ -4983,6 +4984,7 @@ func _show_unique_skill_toast_over_unit(caster_state: BattleUnitState, skill_dat
 		UNIQUE_SKILL_EFFECT_APPLY_DELAY,
 		UNIQUE_SKILL_TOAST_DURATION
 	])
+	GameAudio.play_sfx("skill")
 	unique_skill_toast_root.visible = true
 	unique_skill_toast_root.position = Vector2.ZERO
 	unique_skill_toast_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
@@ -5537,6 +5539,7 @@ func _commit_basic_attack_unit_contract(attacker_state: BattleUnitState) -> void
 func _show_defend_hit_reaction_if_needed(defender_state: BattleUnitState) -> void:
 	if defender_state == null or not defender_state.is_defending:
 		return
+	GameAudio.play_sfx("guard")
 	_spawn_strategy_text_fx(_get_visual_anchor_position_for_unit(defender_state), "◆ 방어", _get_status_display_color("defend"))
 
 
@@ -6139,6 +6142,7 @@ func _on_defend_button_pressed() -> void:
 		floating_ally_command_panel.visible = false
 	is_floating_ally_command_panel_requested = false
 
+	GameAudio.play_sfx("guard")
 	active_unit_state.is_defending = true
 	active_unit_state.last_action = {"type": "defend"}
 	var recovered_troops := _recover_wounded_troops_for_defend(active_unit_state)
@@ -10238,6 +10242,8 @@ func _play_next_battle_toast() -> void:
 		_get_toast_texture_debug_name(_get_resolved_toast_texture(toast_texture)),
 		pending_battle_toasts.size()
 	])
+	var sound_id := str({"round_start": "round_start", "reinforcement_arrival": "reinforcement", "result_victory": "victory", "result_defeat": "defeat"}.get(active_battle_toast_tag, "scroll"))
+	GameAudio.play_sfx(sound_id)
 	_show_battle_toast(toast_texture, toast_text, hold_duration, toast_scale_multiplier)
 
 
@@ -10424,6 +10430,7 @@ func _get_toast_texture_debug_name(texture: Texture2D) -> String:
 
 
 func _show_move_dust_for_unit(unit_state: BattleUnitState) -> void:
+	GameAudio.play_sfx("march")
 	var sprite := _get_move_dust_sprite_for_unit(unit_state)
 	if sprite == null:
 		return
@@ -10581,6 +10588,7 @@ func _spawn_battle_dust_fx(
 
 
 func _play_arrow_projectile_effect(source_pos: Vector2, target_pos: Vector2) -> void:
+	GameAudio.play_sfx("arrow")
 	if battle_fx_root == null:
 		return
 	var impact_direction := target_pos - source_pos
@@ -10706,6 +10714,7 @@ func _spawn_arrow_impact_pin(target_impact_pos: Vector2, arrow_angle: float) -> 
 
 
 func _play_gunner_shot_effect(source_pos: Vector2, target_pos: Vector2) -> void:
+	GameAudio.play_sfx("gunshot")
 	if battle_fx_root == null:
 		return
 	var shot_vector := target_pos - source_pos
@@ -10833,6 +10842,7 @@ func _spawn_gunner_impact_pop(target_pos: Vector2, shot_direction: Vector2) -> v
 
 
 func _spawn_attack_slash_fx(attacker_pos: Vector2, target_pos: Vector2) -> void:
+	GameAudio.play_sfx("sword")
 	var texture := _load_random_fx_texture(ATTACK_SLASH_FX_TEXTURE_PATHS)
 	if texture == null:
 		return
@@ -10860,6 +10870,7 @@ func _spawn_attack_slash_fx(attacker_pos: Vector2, target_pos: Vector2) -> void:
 
 
 func _spawn_hit_spark_fx(target_pos: Vector2) -> void:
+	GameAudio.play_sfx("impact")
 	var texture := _load_random_fx_texture(HIT_SPARK_FX_TEXTURE_PATHS)
 	if texture == null:
 		return

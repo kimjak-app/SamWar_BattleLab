@@ -1736,6 +1736,7 @@ func _connect_city_markers() -> void:
 
 
 func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
+	GameAudio.play_sfx("city_select")
 	if selected_city_marker != null and selected_city_marker != city_marker:
 		selected_city_marker.set_selected(false)
 	if selected_city_marker != city_marker:
@@ -6734,6 +6735,7 @@ func _on_ally_turn_end_pressed() -> void:
 		"stage": "enemy_actions",
 		"started": true,
 	}
+	GameAudio.play_sfx("turn_end")
 	_domestic_turn_apply_pending = true
 	_player_state["domestic_apply_pending"] = true
 	_set_turn_phase(TURN_PHASE_ENEMY)
@@ -15968,6 +15970,7 @@ func _show_domestic_tech_completion_card_mvp(item: Dictionary) -> void:
 		_domestic_tech_completion_effect_label.text = "효과\n- %s" % str(item.get("effect_summary", "내정 연구 효과 범위가 표시됩니다."))
 	if _domestic_tech_completion_card != null:
 		_domestic_tech_completion_card.visible = true
+		GameAudio.play_sfx("research")
 	if _domestic_tech_completion_confirm_button != null:
 		_domestic_tech_completion_confirm_button.call_deferred("grab_focus")
 

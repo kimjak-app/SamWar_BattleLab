@@ -201,6 +201,8 @@ func _on_menu_pressed(menu_id: StringName) -> void:
 
 	if menu_id == &"techtree":
 		_open_techtree_if_available()
+	elif menu_id == &"system":
+		$AudioSettingsPopup.popup_centered()
 
 
 func _animate_menu(menu_id: StringName, hovered: bool) -> void:

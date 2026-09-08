@@ -17,6 +17,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+GameAudio="*res://scripts/audio/game_audio.gd"
+
 GameSession="*res://scripts/game_session.gd"
 RegisteredHeroCitySeeder="*res://scripts/worldmap/worldmap_registered_hero_seeder.gd"
 

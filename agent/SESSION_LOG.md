@@ -1,3 +1,11 @@
+## 2026-09-08 System menu audio controls — local / runtime QA pending
+
+Follow-up: top System menu now opens scene-authored sound settings with SFX enabled/volume/duplicate suppression, video enabled/volume, and preview. Video defaults OFF but is user-controlled; removed forced player mute. Five settings persist in the existing audio config. Static integration validation passes; Godot UI/listening/restart QA pending. No push performed.
+
+## 2026-09-08 SFX integration — local / runtime QA pending
+
+21 original synthesized WAV effects, presentation hooks, shared volume/voice limits, and global video audio mute added on the current worldmap HUD branch. Offline asset and existing turn/input static validators pass; Godot execution and listening remain pending. See `agent/SFX_INTEGRATION_20260908.md`. No push performed.
+
 # SESSION LOG
 
 ## 2026-08-02 — One-side exhaustion turn hotfix

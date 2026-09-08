@@ -16,7 +16,12 @@ const RESOURCE_LABELS := {"gold": "금전", "rice": "쌀", "barley": "보리", "
 
 @export var production_world_map_path := NodePath("../ProductionWorldMap")
 @export var city_action_controller_path := NodePath("../CityActionTestController")
-@export var worldmap_action_video_audio_enabled := true
+# Compatibility property; the system menu is the single source of truth.
+var worldmap_action_video_audio_enabled: bool:
+	get:
+		return GameAudio.is_video_enabled()
+	set(value):
+		GameAudio.set_video_enabled(value)
 
 @onready var production_world_map: Node = get_node_or_null(production_world_map_path)
 @onready var city_action_controller: Node = get_node_or_null(city_action_controller_path)
@@ -59,7 +64,7 @@ func _connect_action_sources() -> void:
 
 func set_worldmap_action_video_audio_enabled(enabled: bool) -> void:
 	worldmap_action_video_audio_enabled = enabled
-	_cutin.video.volume_db = 0.0 if enabled else -80.0
+	_cutin.video.volume_db = 0.0
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -96,7 +101,8 @@ func _play_action_video(action_type: String, action_id: String, target_city_id: 
 	_result_overlay.visible = false
 	_video_overlay.visible = true
 	_cutin.configure("", "", stream, null)
-	_cutin.video.volume_db = 0.0 if worldmap_action_video_audio_enabled else -80.0
+	_cutin.video.volume_db = 0.0
+	GameAudio.play_sfx(action_type)
 	_cutin.play_cutin(false)
 
 
@@ -127,9 +133,12 @@ func _show_result(action_type: String, result: Dictionary) -> void:
 	_result_title_label.text = _format_result_title(action_type, result)
 	_result_body_label.text = _format_result_body(action_type, result)
 	_result_overlay.visible = true
+	GameAudio.play_sfx("success" if bool(result.get("success", result.get("ok", false))) else "failure")
 
 
 func _hide_result() -> void:
+	if _result_overlay.visible:
+		GameAudio.play_sfx("scroll")
 	_result_overlay.visible = false
 
 
