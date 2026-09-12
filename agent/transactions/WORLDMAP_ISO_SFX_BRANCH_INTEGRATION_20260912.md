@@ -15,6 +15,11 @@ Use the WorldMap base for existing shared paths, except scripts/ui/cutin/korea_m
 
 WorldMap changes retained include action-video and result presentation, five action OGVs, city action controls, turn-summary art/layout, SFX hooks, spy cost handling, and HUD variable warning fixes. WorldMap versions of CURRENT_STATE/CHANGELOG/SESSION_LOG retain all ISO-parent contents plus their later audio entries.
 
+## Foreign-city action transaction follow-up
+The foreign-city Diplomacy, Spy and Trade buttons now open their production control panels instead of emitting a video-only preview signal. `WorldMapActionCoordinator` owns the contextual target/source, presentation-pending state and single resolution boundary. `worldmap_main.gd` remains the public hub and delegates execution only after the action video finishes; diplomacy and spy return immediately after requesting presentation so their effects cannot be applied once before the video and again afterward. Resolution refreshes WorldMap state and feeds the existing result scroll.
+
+Domain rules and calculations remain in their existing WorldMap functions in this transaction. Moving those rules into separate diplomacy/trade/spy services is intentionally deferred until this coordinator boundary has passed runtime F6 verification.
+
 All binary assets are reused by their existing Git blob SHA. No image/audio/video is regenerated or re-encoded in the committed result. Shared battle controller, audio manager, game_session, production battle and existing battle-test scenes match both parents. No balance, save schema, scene entrypoint or gameplay behavior is newly designed by this merge.
 
 ## Entry points
@@ -32,6 +37,7 @@ PASS:
 - validate_samwar_sfx.py (21 WAV format/amplitude checks and reproducibility; regeneration occurs only in a scratch verification copy, never in the commit)
 - validate_single_side_exhaustion_turn_order.py
 - validate_worldmap_to_battle_input_lifecycle.py
+- validate_worldmap_contextual_action_transaction.py
 - validate_imjin_d0_d1_worldmap_hero_integration.py
 - Selected scene external-resource and ISO script preload/extends paths exist in the combined remote tree.
 - Original F5 route, separate F6 scenes and registry cache are preserved.
@@ -43,7 +49,7 @@ NOT PASS / LIMITS:
 
 ## Kimjak F6 review
 1. Fetch origin and select integration/worldmap-iso-sfx-20260912; keep any uncommitted local changes on their original branch.
-2. WorldMap_16x9_Test: check map/HUD, turn summary, city spy/diplomacy/trade video previews, result presentation where the current action flow supplies it, System audio controls.
+2. WorldMap_16x9_Test: select a foreign city and run Diplomacy, Spy and Trade through their production panels; check video, exactly one resource/state change, result scroll, refreshed HUD/panel state and System audio controls.
 3. Battle_UI_Production_Imjin_IsoMovement_Test: check movement/facing, attack, unique-skill cutin, enemy turn and SFX.
 4. Confirm both scenes can be selected in the same branch. Existing production F5 scene routing remains unchanged.
 5. Record any runtime errors and screenshots; further corrections should be made on this shared branch.

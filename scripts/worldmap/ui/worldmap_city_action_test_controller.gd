@@ -1,7 +1,5 @@
 extends Node
 
-signal action_video_test_requested(action_type: String, target_city_id: String)
-
 const CITY_LAYER_PATH := "WorldMapRoot/CityLayer"
 const LEGACY_ATTACK_BUTTON_PATH := "WorldMapUI/CityInfoPanel/MarginContainer/Content/ButtonRow/AttackButtonPlaceholder"
 const ACTION_BUTTON_SIZE := Vector2(58.0, 30.0)
@@ -214,7 +212,21 @@ func _on_contextual_action_pressed(action_type: String) -> void:
 	var target_city_id := str(_selected_marker.get("city_id"))
 	if target_city_id.is_empty():
 		return
-	action_video_test_requested.emit(action_type, target_city_id)
+	if not production_world_map.has_method("open_contextual_worldmap_action"):
+		return
+	var raw_result: Variant = production_world_map.call(
+		"open_contextual_worldmap_action",
+		action_type,
+		target_city_id
+	)
+	var result: Dictionary = raw_result if raw_result is Dictionary else {
+		"ok": false,
+		"success": false,
+		"message": "도시 행동 화면을 열 수 없습니다.",
+	}
+	if not bool(result.get("ok", false)) \
+			and production_world_map.has_method("present_contextual_worldmap_action_result"):
+		production_world_map.call("present_contextual_worldmap_action_result", action_type, result)
 	_hide_menu()
 
 
