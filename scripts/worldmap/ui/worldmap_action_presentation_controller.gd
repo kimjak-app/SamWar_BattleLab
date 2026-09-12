@@ -15,7 +15,6 @@ const NORTHERN_FACTIONS := ["mongol", "mongol_faction", "khitan", "qidan", "mohe
 const RESOURCE_LABELS := {"gold": "금전", "rice": "쌀", "barley": "보리", "seafood": "수산물", "salt": "소금", "silk": "비단", "food": "식량"}
 
 @export var production_world_map_path := NodePath("../ProductionWorldMap")
-@export var city_action_controller_path := NodePath("../CityActionTestController")
 # Compatibility property; the system menu is the single source of truth.
 var worldmap_action_video_audio_enabled: bool:
 	get:
@@ -24,7 +23,6 @@ var worldmap_action_video_audio_enabled: bool:
 		GameAudio.set_video_enabled(value)
 
 @onready var production_world_map: Node = get_node_or_null(production_world_map_path)
-@onready var city_action_controller: Node = get_node_or_null(city_action_controller_path)
 @onready var _video_overlay: Control = $VideoOverlay
 @onready var _cutin: Node = $VideoOverlay/HeroCutinViewport/HeroCutinPresentation
 @onready var _result_overlay: Control = $ResultOverlay
@@ -35,7 +33,6 @@ var _pending_action_type := ""
 var _pending_action_id := ""
 var _pending_target_city_id := ""
 var _finishing_video := false
-var _video_test_only := false
 
 
 func _ready() -> void:
@@ -56,10 +53,6 @@ func _connect_action_sources() -> void:
 	var resolved_callback := Callable(self, "_on_action_resolved")
 	if production_world_map.has_signal("contextual_worldmap_action_resolved") and not production_world_map.is_connected("contextual_worldmap_action_resolved", resolved_callback):
 		production_world_map.connect("contextual_worldmap_action_resolved", resolved_callback)
-	if city_action_controller != null:
-		var video_test_callback := Callable(self, "_on_action_video_test_requested")
-		if city_action_controller.has_signal("action_video_test_requested") and not city_action_controller.is_connected("action_video_test_requested", video_test_callback):
-			city_action_controller.connect("action_video_test_requested", video_test_callback)
 
 
 func set_worldmap_action_video_audio_enabled(enabled: bool) -> void:
@@ -77,13 +70,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _on_action_presentation_requested(action_type: String, action_id: String, target_city_id: String) -> void:
-	_video_test_only = false
 	_play_action_video(action_type, action_id, target_city_id)
-
-
-func _on_action_video_test_requested(action_type: String, target_city_id: String) -> void:
-	_video_test_only = true
-	_play_action_video(action_type, "", target_city_id)
 
 
 func _play_action_video(action_type: String, action_id: String, target_city_id: String) -> void:
@@ -115,12 +102,10 @@ func _finish_pending_video() -> void:
 	var action_type := _pending_action_type
 	var action_id := _pending_action_id
 	var target_city_id := _pending_target_city_id
-	var video_test_only := _video_test_only
 	_pending_action_type = ""
 	_pending_action_id = ""
 	_pending_target_city_id = ""
-	_video_test_only = false
-	if not video_test_only and production_world_map != null and production_world_map.has_method("complete_contextual_worldmap_action"):
+	if production_world_map != null and production_world_map.has_method("complete_contextual_worldmap_action"):
 		production_world_map.call("complete_contextual_worldmap_action", action_type, action_id, target_city_id)
 	_finishing_video = false
 
