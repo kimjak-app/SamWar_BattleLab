@@ -1046,6 +1046,7 @@ var _contextual_worldmap_action_source_city_id := ""
 var _contextual_worldmap_action_pending := false
 var _diplomacy_action_coordinator: WorldMapActionCoordinator = null
 var _pending_diplomacy_action_id := ""
+var _pending_spy_action_id := ""
 var _unified_primary_tab := UNIFIED_PANEL_TAB_CITY_DETAIL
 var _selected_diplomacy_spy_tab := DIPLOMACY_SPY_TAB_DIPLOMACY
 var _city_resource_potential_card: PanelContainer = null
@@ -1819,6 +1820,8 @@ func open_contextual_worldmap_action(action_type: String, target_city_id: String
 	_contextual_worldmap_action_target_city_id = target_city_id
 	if normalized_type == "diplomacy":
 		return _ensure_diplomacy_action_coordinator().begin("diplomacy", target_city_id)
+	if normalized_type == "spy":
+		return _ensure_diplomacy_action_coordinator().begin("spy", target_city_id)
 	return {
 		"ok": true,
 		"action_type": normalized_type,
@@ -1832,6 +1835,7 @@ func cancel_contextual_worldmap_action() -> void:
 	if is_instance_valid(_diplomacy_action_coordinator):
 		_diplomacy_action_coordinator.cancel()
 	_pending_diplomacy_action_id = ""
+	_pending_spy_action_id = ""
 	_contextual_worldmap_action_type = ""
 	_contextual_worldmap_action_target_city_id = ""
 	_contextual_worldmap_action_source_city_id = ""
@@ -1846,6 +1850,10 @@ func complete_contextual_worldmap_action(action_type: String, action_id: String,
 	if action_type == "diplomacy":
 		if action_id != _pending_diplomacy_action_id:
 			return {"success": false, "message": "외교 행동이 변경되었습니다."}
+		return _ensure_diplomacy_action_coordinator().complete(action_type, action_id, target_city_id)
+	if action_type == "spy":
+		if action_id != _pending_spy_action_id:
+			return {"success": false, "message": "첩보 행동이 변경되었습니다."}
 		return _ensure_diplomacy_action_coordinator().complete(action_type, action_id, target_city_id)
 
 	var result: Dictionary = {}
@@ -1891,6 +1899,12 @@ func _request_contextual_worldmap_action_presentation(action_type: String, actio
 	_contextual_worldmap_action_pending = true
 	if action_type == "diplomacy":
 		_pending_diplomacy_action_id = action_id
+		var request := _ensure_diplomacy_action_coordinator().request_presentation(action_type, action_id, target_city_id)
+		if not bool(request.get("ok", false)):
+			_resolve_contextual_worldmap_action_without_video(action_type, request)
+		return
+	if action_type == "spy":
+		_pending_spy_action_id = action_id
 		var request := _ensure_diplomacy_action_coordinator().request_presentation(action_type, action_id, target_city_id)
 		if not bool(request.get("ok", false)):
 			_resolve_contextual_worldmap_action_without_video(action_type, request)
@@ -20916,6 +20930,11 @@ func _store_failed_spy_action_result(action_id: String, validation: Dictionary) 
 
 
 func _apply_spy_action(action_id: String, target_city_id: String = "") -> Dictionary:
+	return _ensure_diplomacy_action_coordinator().execute_now("spy", action_id, target_city_id)
+
+
+# Retained intact for phase-two parity checks; production uses the service above.
+func _apply_spy_action_legacy(action_id: String, target_city_id: String = "") -> Dictionary:
 	var validation := _validate_spy_action(action_id, target_city_id)
 	if not bool(validation.get("ok", false)):
 		return _store_failed_spy_action_result(action_id, validation)
@@ -20934,6 +20953,8 @@ func _apply_spy_action(action_id: String, target_city_id: String = "") -> Dictio
 
 
 func _on_spy_action_pressed(action_id: String) -> void:
+	if _contextual_worldmap_action_type == "spy" and _contextual_worldmap_action_pending:
+		return
 	if _contextual_worldmap_action_type == "spy":
 		var target_city_id := _contextual_worldmap_action_target_city_id
 		var contextual_validation := _validate_spy_action(action_id, target_city_id)
