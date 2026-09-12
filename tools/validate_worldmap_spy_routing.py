@@ -38,15 +38,19 @@ def main():
         "_apply_spy_action", "_on_spy_action_pressed",
         "_execute_external_manual_trade_order",
         "_on_manual_trade_execution_button_pressed",
+        "_get_diplomacy_action_definition",
+        "_validate_diplomacy_action",
+        "_build_diplomacy_action_failure_result",
+        "_normalize_diplomacy_resource_package",
     }
     for name, body in before.items():
         assert name in after, f"removed function: {name}"
         if name not in bridges:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     assert after["_apply_spy_action_legacy"] == before["_apply_spy_action"], "legacy spy implementation changed"
-    assert len(current(MAIN).splitlines()) >= len(original(MAIN).splitlines()), "host shortened"
+    assert len(current(MAIN).splitlines()) >= len(original(MAIN).splitlines()) - 100, "host shortened beyond approved extraction budget"
 
-    for file in ["diplomacy_action_service.gd", "spy_action_service.gd", "worldmap_action_coordinator.gd"]:
+    for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
         path = "scripts/worldmap/actions/" + file
         assert current(path) == original(path), f"existing service/coordinator changed: {file}"
     presentation = "scripts/worldmap/ui/worldmap_action_presentation_controller.gd"
@@ -74,7 +78,7 @@ def main():
     for helper in ["_validate_spy_action", "_store_failed_spy_action_result", "_gather_spy_info", "_disrupt_city_public_support", "_disrupt_city_loyalty", "_instigate_revolt", "_apply_spy_wedge_action"]:
         assert f'"{helper}"' in spy_service, f"service helper missing: {helper}"
 
-    print(f"PASS: spy routing static guard; {len(before)} prior functions retained, legacy body identical, diplomacy/spy/coordinator unchanged")
+    print(f"PASS: spy routing static guard; {len(before)} prior functions retained, legacy body identical, spy/coordinator unchanged; diplomacy 2A bridges allowed")
 
 
 if __name__ == "__main__":

@@ -27,7 +27,7 @@ def functions(source):
     # Ignore comments/blank lines when comparing function bodies. Keep every
     # executable line, including indentation and signal connections.
     result = {}
-    for match in re.finditer(r"(?ms)^func (\w+)(\(.*?)(?=^func |\Z)", source):
+    for match in re.finditer(r"(?ms)^(?:static )?func (\w+)(\(.*?)(?=^(?:static )?func |\Z)", source):
         result[match[1]] = "\n".join(
             line for line in match[2].splitlines()
             if line.strip() and not line.lstrip().startswith("#")
@@ -47,13 +47,26 @@ def main():
         "_apply_spy_action", "_on_spy_action_pressed",
         "_execute_external_manual_trade_order",
         "_on_manual_trade_execution_button_pressed",
+        # Phase 2A moves only diplomacy validation/pure calculations.
+        "_get_diplomacy_action_definition",
+        "_validate_diplomacy_action",
+        "_build_diplomacy_action_failure_result",
+        "_normalize_diplomacy_resource_package",
     }
     for name, body in before.items():
         assert name in after, f"removed function: {name}"
         if name not in bridges:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     assert after["_apply_diplomacy_action_legacy"] == before["_apply_diplomacy_action_legacy"], "legacy implementation changed"
-    assert len(current(MAIN).splitlines()) >= len(original(MAIN).splitlines()), "host shortened"
+    for name in [
+        "_adjust_faction_relation_score", "_set_diplomacy_action_cooldown",
+        "_sync_diplomacy_action_mirror_state_from_relations",
+        "_apply_alliance_diplomacy_action", "_propose_alliance",
+        "_request_military_support", "_propose_trade_agreement", "_send_tribute",
+        "_advance_diplomacy_cooldowns_for_world_turn", "_apply_generic_resource_cost",
+    ]:
+        assert after[name] == before[name], f"diplomacy mutation function changed: {name}"
+    assert len(current(MAIN).splitlines()) >= len(original(MAIN).splitlines()) - 100, "host shortened beyond the 2A extraction budget"
     for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
         path = "scripts/worldmap/actions/" + file
         assert current(path) == original(path), f"shared routing/service changed: {file}"
@@ -71,7 +84,21 @@ def main():
     service = current("scripts/worldmap/actions/diplomacy_action_service.gd")
     assert 'host.call("_get_current_player_faction_id")' in service
     assert "PLAYER_FACTION_ID" not in service
-    print(f"PASS: diplomacy routing static guard; {len(before)} original functions retained, legacy body identical, unrelated functions/services unchanged")
+    service_functions = functions(service)
+    for name in ["get_action_definition", "validate_action", "build_failure_result", "normalize_resource_package"]:
+        assert name in service_functions, f"extracted service function missing: {name}"
+    for name in ["get_action_definition", "validate_action", "build_failure_result", "normalize_resource_package"]:
+        pure_body = service_functions[name]
+        for forbidden in ["host.", "_player_state", "_apply_generic_resource_cost", "_adjust_faction_relation_score", "_set_diplomacy_action_cooldown"]:
+            assert forbidden not in pure_body, f"{name} owns forbidden side effect/dependency: {forbidden}"
+    assert "DiplomacyActionServiceScript.get_action_definition(action_id)" in after["_get_diplomacy_action_definition"]
+    assert "DiplomacyActionServiceScript.validate_action" in after["_validate_diplomacy_action"]
+    assert "DiplomacyActionServiceScript.build_failure_result" in after["_build_diplomacy_action_failure_result"]
+    assert "DiplomacyActionServiceScript.normalize_resource_package" in after["_normalize_diplomacy_resource_package"]
+    for name in ["_get_diplomacy_action_definition", "_validate_diplomacy_action", "_build_diplomacy_action_failure_result", "_normalize_diplomacy_resource_package"]:
+        assert len(after[name].splitlines()) <= 2, f"host compatibility API is not a thin wrapper: {name}"
+    assert 'host.call("_build_diplomacy_action_validation_context", action_id, target_city_id)' in service_functions["execute"]
+    print(f"PASS: diplomacy routing/static 2A guard; {len(before)} original functions retained, mutation bodies unchanged, validation/pure logic owned by service")
 
 
 if __name__ == "__main__":

@@ -37,15 +37,19 @@ def main():
         "_request_contextual_worldmap_action_presentation",
         "_execute_external_manual_trade_order",
         "_on_manual_trade_execution_button_pressed",
+        "_get_diplomacy_action_definition",
+        "_validate_diplomacy_action",
+        "_build_diplomacy_action_failure_result",
+        "_normalize_diplomacy_resource_package",
     }
     for name, body in before.items():
         assert name in after, f"removed function: {name}"
         if name not in bridges:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     assert after["_execute_external_manual_trade_order_legacy"] == before["_execute_external_manual_trade_order"], "legacy trade implementation changed"
-    assert len(current(MAIN).splitlines()) >= len(original(MAIN).splitlines()), "host shortened"
+    assert len(current(MAIN).splitlines()) >= len(original(MAIN).splitlines()) - 100, "host shortened beyond approved extraction budget"
 
-    for file in ["diplomacy_action_service.gd", "spy_action_service.gd", "worldmap_action_coordinator.gd"]:
+    for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
         path = "scripts/worldmap/actions/" + file
         assert current(path) == original(path), f"existing domain/coordinator changed: {file}"
     presentation = "scripts/worldmap/ui/worldmap_action_presentation_controller.gd"
@@ -73,7 +77,7 @@ def main():
         assert field in service, f"legacy result field missing: {field}"
     assert 'if bool(result.get("ok", false)):' in service and 'orders.erase(source_city_id)' in service
 
-    print(f"PASS: trade routing static guard; {len(before)} prior functions retained, legacy body identical, diplomacy/spy/coordinator unchanged")
+    print(f"PASS: trade routing static guard; {len(before)} prior functions retained, legacy body identical, trade/spy/coordinator unchanged; diplomacy 2A bridges allowed")
 
 
 if __name__ == "__main__":
