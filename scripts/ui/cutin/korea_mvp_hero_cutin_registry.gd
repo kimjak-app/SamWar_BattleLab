@@ -35,6 +35,13 @@ const STATIC_FALLBACK_IMAGE_PATHS := {
 }
 const GENERIC_STATIC_FALLBACK_IMAGE_PATH := "res://assets/web_battle/ui/formation_guide/unique_skill_ready_icon.png"
 
+# Runtime lookups used to parse the same JSON registry files every time a cut-in
+# was resolved. Keep one immutable runtime cache and hand out detached copies to
+# public callers so repeated unique-skill use does not perform synchronous file
+# IO / JSON parsing on the battle frame.
+static var _all_entries_cache: Array[Dictionary] = []
+static var _all_entries_cache_ready := false
+
 
 ## Legacy public contract: this returns only the original Korea MVP registry.
 ## Existing 13-hero regression tests and callers rely on this scope.
@@ -46,10 +53,30 @@ static func load_entries() -> Array[Dictionary]:
 
 ## Runtime routing contract: search the original Korea MVP registry plus extension registries.
 static func load_all_entries() -> Array[Dictionary]:
+	return _duplicate_entries(_get_all_entries_cached())
+
+
+static func _get_all_entries_cached() -> Array[Dictionary]:
+	if _all_entries_cache_ready:
+		return _all_entries_cache
 	var entries := load_entries()
 	for registry_path_variant in ADDITIONAL_REGISTRY_PATHS:
 		_append_registry_entries(entries, String(registry_path_variant))
-	return entries
+	_all_entries_cache = _duplicate_entries(entries)
+	_all_entries_cache_ready = true
+	return _all_entries_cache
+
+
+static func _duplicate_entries(source: Array[Dictionary]) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for entry in source:
+		result.append(entry.duplicate(true))
+	return result
+
+
+static func clear_runtime_cache() -> void:
+	_all_entries_cache.clear()
+	_all_entries_cache_ready = false
 
 
 static func load_additional_entries() -> Array[Dictionary]:
@@ -109,7 +136,7 @@ static func find_entry(hero_id: String, skill_id: String) -> Dictionary:
 	var canonical_skill_id := canonicalize_skill_id(skill_id)
 	if canonical_hero_id.is_empty() or canonical_skill_id.is_empty():
 		return {}
-	for entry in load_all_entries():
+	for entry in _get_all_entries_cached():
 		if canonicalize_hero_id(String(entry.get("hero_id", ""))) != canonical_hero_id:
 			continue
 		if canonicalize_skill_id(String(entry.get("skill_id", ""))) == canonical_skill_id and bool(entry.get("enabled", false)):
@@ -121,7 +148,7 @@ static func has_enabled_entry_for_hero(hero_id: String) -> bool:
 	var canonical_hero_id := canonicalize_hero_id(hero_id)
 	if canonical_hero_id.is_empty():
 		return false
-	for entry in load_all_entries():
+	for entry in _get_all_entries_cached():
 		if canonicalize_hero_id(String(entry.get("hero_id", ""))) == canonical_hero_id and bool(entry.get("enabled", false)):
 			return true
 	return false
