@@ -81,8 +81,7 @@ func request_presentation(action_type: String, action_id: String, target_city_id
 func complete(
 	action_type: String,
 	action_id: String,
-	target_city_id: String,
-	execute_action: Callable
+	target_city_id: String
 ) -> Dictionary:
 	if _resolving or not _pending_presentation:
 		return _failure("not_pending", "실행 대기 중인 도시 행동이 없습니다.")
@@ -90,7 +89,6 @@ func complete(
 		var changed_result := _failure("context_changed", "도시 행동 대상이 변경되었습니다.")
 		resolve_without_video(_action_type, changed_result)
 		return changed_result
-
 	_resolving = true
 	_pending_presentation = false
 	var completed_type := _action_type
@@ -100,8 +98,7 @@ func complete(
 		completed_type,
 		action_id,
 		completed_target,
-		completed_source,
-		execute_action
+		completed_source
 	)
 	var result: Dictionary = raw_result if raw_result is Dictionary else _failure(
 		"invalid_result",
@@ -110,6 +107,31 @@ func complete(
 	_clear_after_resolution()
 	action_resolved.emit(completed_type, result)
 	return result
+
+
+func execute_now(
+	action_type: String,
+	action_id: String,
+	target_city_id: String = "",
+	source_city_id: String = ""
+) -> Dictionary:
+	var normalized_type := action_type.strip_edges().to_lower()
+	if not VALID_ACTION_TYPES.has(normalized_type):
+		return _failure("unsupported_action", "지원하지 않는 도시 행동입니다.")
+	var raw_result: Variant = _execute_domain_action(
+		normalized_type,
+		action_id,
+		target_city_id.strip_edges(),
+		source_city_id.strip_edges()
+	)
+	return raw_result if raw_result is Dictionary else _failure(
+		"invalid_result",
+		"도시 행동 결과를 처리할 수 없습니다."
+	)
+
+
+func execute_trade_order(order: Dictionary) -> Dictionary:
+	return _trade_service.execute_order(get_parent(), order)
 
 
 func resolve_without_video(action_type: String, result: Dictionary) -> void:
@@ -126,8 +148,7 @@ func _execute_domain_action(
 	action_type: String,
 	action_id: String,
 	target_city_id: String,
-	source_city_id: String,
-	fallback_execute_action: Callable
+	source_city_id: String
 ) -> Variant:
 	var host := get_parent()
 	match action_type:
@@ -137,10 +158,7 @@ func _execute_domain_action(
 			return _spy_service.execute(host, action_id, target_city_id, source_city_id)
 		"trade":
 			return _trade_service.execute(host, action_id, target_city_id, source_city_id)
-		_:
-			if fallback_execute_action.is_valid():
-				return fallback_execute_action.call(action_type, action_id, target_city_id, source_city_id)
-	return _failure("executor_unavailable", "도시 행동 실행기를 찾을 수 없습니다.")
+	return _failure("unsupported_action", "지원하지 않는 도시 행동입니다.")
 
 
 func _matches(action_type: String, target_city_id: String) -> bool:

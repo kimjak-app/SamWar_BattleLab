@@ -1810,33 +1810,8 @@ func complete_contextual_worldmap_action(action_type: String, action_id: String,
 	return _contextual_action_coordinator.complete(
 		action_type,
 		action_id,
-		target_city_id,
-		Callable(self, "_execute_contextual_worldmap_action")
+		target_city_id
 	)
-
-
-func _execute_contextual_worldmap_action(
-	action_type: String,
-	action_id: String,
-	target_city_id: String,
-	source_city_id: String
-) -> Dictionary:
-	var result: Dictionary = {}
-	match action_type:
-		"diplomacy":
-			result = _apply_diplomacy_action(action_id, target_city_id)
-			_save_management_status = str(result.get("message", "외교 행동 처리"))
-		"spy":
-			result = _apply_spy_action(action_id, target_city_id)
-		"trade":
-			var order: Dictionary = _manual_trade_orders.get(source_city_id, {})
-			result = _execute_external_manual_trade_order(order)
-			_player_state["last_external_manual_trade_execution_result"] = result.duplicate(true)
-			if bool(result.get("ok", false)):
-				_manual_trade_orders.erase(source_city_id)
-		_:
-			result = {"ok": false, "success": false, "message": "지원하지 않는 도시 행동입니다."}
-	return result
 
 
 func _setup_contextual_worldmap_action_coordinator() -> void:

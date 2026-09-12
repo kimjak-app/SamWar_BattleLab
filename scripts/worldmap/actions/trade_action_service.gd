@@ -27,7 +27,7 @@ func execute(
 	var orders: Dictionary = raw_orders if raw_orders is Dictionary else {}
 	var order_variant: Variant = orders.get(source_city_id, {})
 	var order: Dictionary = order_variant if order_variant is Dictionary else {}
-	var result := _execute_order(host, order)
+	var result := execute_order(host, order)
 
 	var raw_player_state: Variant = host.get("_player_state")
 	if raw_player_state is Dictionary:
@@ -40,7 +40,7 @@ func execute(
 	return result
 
 
-func _execute_order(host: Object, order: Dictionary) -> Dictionary:
+func execute_order(host: Object, order: Dictionary) -> Dictionary:
 	var validation_variant: Variant = host.call("_validate_external_manual_trade_execution", order)
 	if not validation_variant is Dictionary:
 		return _failure("invalid_validation", "교역 행동 조건을 확인할 수 없습니다.")
