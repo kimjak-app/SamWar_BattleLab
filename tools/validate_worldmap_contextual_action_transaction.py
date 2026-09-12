@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Static contract checks for foreign-city contextual action execution."""
+"""Static contract checks for service-owned WorldMap contextual actions."""
 
 from pathlib import Path
+import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,18 +22,35 @@ def forbid(source: str, token: str, label: str) -> None:
         raise AssertionError(f"forbidden {label}: {token}")
 
 
-def require_return_after_request(source: str, action_type: str) -> None:
-    request = (
-        f'_request_contextual_worldmap_action_presentation("{action_type}", '
-    )
-    position = source.find(request)
-    if position < 0:
-        raise AssertionError(f"missing {action_type} presentation request")
-    following_lines = source[position:].splitlines()[1:3]
-    if not following_lines or following_lines[0].strip() != "return":
-        raise AssertionError(
-            f"{action_type} must return immediately after requesting presentation"
-        )
+def function_blocks(source: str, name: str) -> list[str]:
+    pattern = re.compile(rf"(?ms)^func {re.escape(name)}\b.*?(?=^func |\Z)")
+    return [match.group(0) for match in pattern.finditer(source)]
+
+
+def function_block(source: str, name: str) -> str:
+    blocks = function_blocks(source, name)
+    if len(blocks) != 1:
+        raise AssertionError(f"expected one {name}, found {len(blocks)}")
+    return blocks[0]
+
+
+def validate_optional_shim(
+    source: str,
+    name: str,
+    route_token: str,
+    forbidden_tokens: tuple[str, ...],
+) -> None:
+    blocks = function_blocks(source, name)
+    if len(blocks) > 1:
+        raise AssertionError(f"expected zero or one {name}, found {len(blocks)}")
+    if not blocks:
+        if re.search(rf"\b{re.escape(name)}\s*\(", source):
+            raise AssertionError(f"dangling legacy call without shim: {name}")
+        return
+    block = blocks[0]
+    require(block, route_token, f"{name} compatibility shim")
+    for token in forbidden_tokens:
+        forbid(block, token, f"legacy logic in {name} shim")
 
 
 def main() -> None:
@@ -45,83 +63,98 @@ def main() -> None:
     presentation = read("scripts/worldmap/ui/worldmap_action_presentation_controller.gd")
 
     for token in (
-        'preload("res://scripts/worldmap/actions/diplomacy_action_service.gd")',
-        'preload("res://scripts/worldmap/actions/spy_action_service.gd")',
-        'preload("res://scripts/worldmap/actions/trade_action_service.gd")',
         'const VALID_ACTION_TYPES := ["diplomacy", "spy", "trade"]',
-        "var _pending_presentation := false",
-        "var _resolving := false",
         "func request_presentation(",
         "func complete(",
+        "func execute_now(",
+        "func execute_trade_order(",
         "func _execute_domain_action(",
         "return _diplomacy_service.execute(host, action_id, target_city_id, source_city_id)",
         "return _spy_service.execute(host, action_id, target_city_id, source_city_id)",
         "return _trade_service.execute(host, action_id, target_city_id, source_city_id)",
+        "return _trade_service.execute_order(get_parent(), order)",
         "action_resolved.emit(completed_type, result)",
     ):
-        require(coordinator, token, "coordinator service transaction contract")
+        require(coordinator, token, "coordinator service contract")
+    forbid(coordinator, "fallback_execute_action", "legacy coordinator fallback")
+    forbid(coordinator, "execute_action: Callable", "legacy coordinator callable")
+
+    complete_bridge = function_block(worldmap, "complete_contextual_worldmap_action")
+    require(
+        complete_bridge,
+        "_contextual_action_coordinator.complete(",
+        "WorldMap completion bridge",
+    )
+    forbid(
+        complete_bridge,
+        'Callable(self, "_execute_contextual_worldmap_action")',
+        "legacy completion callable",
+    )
+    forbid(
+        worldmap,
+        "func _execute_contextual_worldmap_action(",
+        "legacy contextual dispatcher",
+    )
+
+    validate_optional_shim(
+        worldmap,
+        "_apply_diplomacy_action",
+        '_contextual_action_coordinator.execute_now("diplomacy", action_id, target_city_id)',
+        ("_apply_generic_resource_cost", "_adjust_faction_relation_score"),
+    )
+    validate_optional_shim(
+        worldmap,
+        "_apply_spy_action",
+        '_contextual_action_coordinator.execute_now("spy", action_id, target_city_id)',
+        ("_validate_spy_action", "_gather_spy_info", "_apply_spy_wedge_action"),
+    )
+    validate_optional_shim(
+        worldmap,
+        "_execute_external_manual_trade_order",
+        '_contextual_action_coordinator.execute_trade_order(order)',
+        ("_validate_external_manual_trade_execution", "_set_city_storage"),
+    )
 
     for token in (
-        'const ACTION_TRADE_AGREEMENT := "trade_agreement"',
-        'const ACTION_ALLIANCE_PROPOSAL := "alliance_proposal"',
         'host.call("_validate_diplomacy_action", action_id, target_city_id)',
-        '"_build_diplomacy_action_failure_result"',
-        '"_apply_alliance_diplomacy_action"',
         '"_apply_generic_resource_cost"',
         '"_adjust_faction_relation_score"',
         'relation_entry["diplomacy_action_cooldown"]',
         'relation_entry["trade_agreement_active"] = true',
-        'player_state["last_diplomacy_action_result"] = result',
-        'host.set("_save_management_status"',
     ):
-        require(diplomacy_service, token, "diplomacy service orchestration contract")
+        require(diplomacy_service, token, "diplomacy service orchestration")
     forbid(
         diplomacy_service,
         'host.call("_apply_diplomacy_action"',
-        "legacy diplomacy service monolith bridge",
+        "diplomacy monolith bridge",
     )
 
     for token in (
-        'const ACTION_GATHER_INFO := "gather_info"',
-        'const ACTION_PUBLIC_SUPPORT_DISRUPT := "public_support_disrupt"',
-        'const ACTION_LOYALTY_DISRUPT := "loyalty_disrupt"',
-        'const ACTION_REVOLT_INSTIGATE := "revolt_instigate"',
-        'const ACTION_WEDGE := "wedge"',
         'host.call("_validate_spy_action", action_id, target_city_id)',
-        '"_store_failed_spy_action_result"',
         '"_gather_spy_info"',
         '"_disrupt_city_public_support"',
         '"_disrupt_city_loyalty"',
         '"_instigate_revolt"',
         '"_apply_spy_wedge_action"',
     ):
-        require(spy_service, token, "spy service dispatch contract")
-    forbid(spy_service, 'host.call("_apply_spy_action"', "legacy spy service monolith bridge")
+        require(spy_service, token, "spy service orchestration")
+    forbid(spy_service, 'host.call("_apply_spy_action"', "spy monolith bridge")
 
     for token in (
-        '"_validate_external_manual_trade_execution"',
-        '"_build_external_manual_trade_execution_preview"',
-        '"_get_city_storage"',
-        '"_set_city_storage"',
+        "func execute_order(host: Object, order: Dictionary) -> Dictionary:",
         'host.call("_validate_external_manual_trade_execution", order)',
         'host.call("_build_external_manual_trade_execution_preview", order)',
-        'source_storage[resource_id] = maxi(',
+        '"_set_city_storage"',
         'player_state["last_external_manual_trade_execution_result"] = result.duplicate(true)',
         "orders.erase(source_city_id)",
     ):
-        require(trade_service, token, "trade service orchestration contract")
+        require(trade_service, token, "trade service orchestration")
+    forbid(trade_service, "func _execute_order(", "private legacy trade executor")
     forbid(
         trade_service,
         'host.call("_execute_external_manual_trade_order"',
-        "legacy trade service monolith bridge",
+        "trade monolith bridge",
     )
-
-    for token in (
-        'preload("res://scripts/worldmap/actions/worldmap_action_coordinator.gd")',
-        "_setup_contextual_worldmap_action_coordinator()",
-        'Callable(self, "_execute_contextual_worldmap_action")',
-    ):
-        require(worldmap, token, "WorldMap coordinator bridge")
 
     for old_state in (
         "var _contextual_worldmap_action_type",
@@ -131,20 +164,17 @@ def main() -> None:
     ):
         forbid(worldmap, old_state, "legacy main-owned contextual state")
 
-    require_return_after_request(worldmap, "diplomacy")
-    require_return_after_request(worldmap, "spy")
-
     require(
         city_actions,
         'production_world_map.call(\n\t\t"open_contextual_worldmap_action",',
-        "foreign-city button production route",
+        "foreign-city production route",
     )
     forbid(city_actions, "action_video_test_requested", "video-only city action route")
     forbid(presentation, "_video_test_only", "video-only presentation state")
     require(
         presentation,
         'production_world_map.call("complete_contextual_worldmap_action", action_type, action_id, target_city_id)',
-        "video completion execution route",
+        "video completion route",
     )
     require(
         presentation,
@@ -153,8 +183,7 @@ def main() -> None:
     )
 
     print(
-        "PASS: WorldMap contextual actions open production UI, route through domain services, "
-        "execute once after video, and present results."
+        "PASS: WorldMap action execution is service-owned; main has no legacy execution body."
     )
 
 
