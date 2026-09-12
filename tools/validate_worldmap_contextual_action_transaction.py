@@ -62,11 +62,24 @@ def main() -> None:
         require(coordinator, token, "coordinator service transaction contract")
 
     for token in (
-        "func execute(",
-        'host.has_method("_apply_diplomacy_action")',
-        'host.call("_apply_diplomacy_action", action_id, target_city_id)',
+        'const ACTION_TRADE_AGREEMENT := "trade_agreement"',
+        'const ACTION_ALLIANCE_PROPOSAL := "alliance_proposal"',
+        'host.call("_validate_diplomacy_action", action_id, target_city_id)',
+        '"_build_diplomacy_action_failure_result"',
+        '"_apply_alliance_diplomacy_action"',
+        '"_apply_generic_resource_cost"',
+        '"_adjust_faction_relation_score"',
+        'relation_entry["diplomacy_action_cooldown"]',
+        'relation_entry["trade_agreement_active"] = true',
+        'player_state["last_diplomacy_action_result"] = result',
+        'host.set("_save_management_status"',
     ):
-        require(diplomacy_service, token, "diplomacy service bridge")
+        require(diplomacy_service, token, "diplomacy service orchestration contract")
+    forbid(
+        diplomacy_service,
+        'host.call("_apply_diplomacy_action"',
+        "legacy diplomacy service monolith bridge",
+    )
 
     for token in (
         'const ACTION_GATHER_INFO := "gather_info"',
@@ -86,13 +99,22 @@ def main() -> None:
     forbid(spy_service, 'host.call("_apply_spy_action"', "legacy spy service monolith bridge")
 
     for token in (
-        "func execute(",
-        'host.has_method("_execute_external_manual_trade_order")',
-        'host.call("_execute_external_manual_trade_order", order)',
+        '"_validate_external_manual_trade_execution"',
+        '"_build_external_manual_trade_execution_preview"',
+        '"_get_city_storage"',
+        '"_set_city_storage"',
+        'host.call("_validate_external_manual_trade_execution", order)',
+        'host.call("_build_external_manual_trade_execution_preview", order)',
+        'source_storage[resource_id] = maxi(',
         'player_state["last_external_manual_trade_execution_result"] = result.duplicate(true)',
         "orders.erase(source_city_id)",
     ):
-        require(trade_service, token, "trade service bridge")
+        require(trade_service, token, "trade service orchestration contract")
+    forbid(
+        trade_service,
+        'host.call("_execute_external_manual_trade_order"',
+        "legacy trade service monolith bridge",
+    )
 
     for token in (
         'preload("res://scripts/worldmap/actions/worldmap_action_coordinator.gd")',
