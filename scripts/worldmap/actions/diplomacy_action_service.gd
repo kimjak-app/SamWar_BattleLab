@@ -18,6 +18,9 @@ const ACTION_TRADE_AGREEMENT_TURNS := 6
 const ACTION_ALLIANCE_TURNS := 8
 const ACTION_ALLIANCE_COST := {"gold": 200, "silk": 50}
 const ALLIANCE_ACCEPTANCE_THRESHOLD := 70
+const LEGACY_TRADE_AGREEMENT_SCORE_REQUIREMENT := 50
+const LEGACY_TRADE_AGREEMENT_TURNS := 20
+const LEGACY_TRADE_AGREEMENT_COST := {"gold": 200, "silk": 50}
 
 
 func execute(
@@ -74,52 +77,13 @@ func execute(
 		"diplomacy_action_%s" % action_id
 	)
 	var after_score := int(relation_result.get("after_score", before_score))
-	var relation_key_variant: Variant = host.call("_make_faction_relation_key", player_faction_id, target_faction_id)
-	var relation_key := str(relation_key_variant)
-	var player_state := _get_player_state(host)
-	var relations_variant: Variant = player_state.get("faction_relations", {})
-	var relations: Dictionary = relations_variant if relations_variant is Dictionary else {}
-	var ensured_variant: Variant = host.call("_ensure_faction_relation_entry", player_faction_id, target_faction_id)
-	var ensured: Dictionary = ensured_variant if ensured_variant is Dictionary else {}
-	var relation_entry_variant: Variant = relations.get(relation_key, ensured)
-	var relation_entry: Dictionary = relation_entry_variant if relation_entry_variant is Dictionary else ensured
-	relation_entry["diplomacy_action_cooldown"] = maxi(0, int(validation.get("cooldown", 0)))
-
+	set_diplomacy_action_cooldown(host, target_faction_id, int(validation.get("cooldown", 0)), false)
 	var agreement_payload := {}
 	if action_id == ACTION_TRADE_AGREEMENT:
 		var agreement_turns := maxi(1, int(definition.get("agreement_turns", 1)))
-		var current_turn := maxi(1, int(player_state.get("turn_number", 1)))
-		relation_entry["trade_agreement_active"] = true
-		relation_entry["trade_agreement_turns_remaining"] = agreement_turns
-		relation_entry["trade_agreement_bonus"] = TRADE_AGREEMENT_MULTIPLIER_BONUS
-		relation_entry["trade_agreement_source"] = "diplomacy_action"
-		relation_entry["trade_agreement_created_turn"] = current_turn
-		agreement_payload = {
-			"turns_remaining": agreement_turns,
-			"source": "diplomacy_action",
-			"created_turn": current_turn,
-			"bonus": TRADE_AGREEMENT_MULTIPLIER_BONUS,
-		}
-		var agreement_status_variant: Variant = host.call(
-			"_normalize_faction_relation_status",
-			str(relation_entry.get("status", RELATION_STATUS_NEUTRAL))
-		)
-		player_state["last_trade_agreement_result"] = {
-			"turn": current_turn,
-			"target_faction_id": target_faction_id,
-			"success": true,
-			"score": after_score,
-			"status": str(agreement_status_variant),
-			"cost": cost,
-			"payment": payment_result,
-			"duration_turns": agreement_turns,
-			"trade_multiplier_bonus": TRADE_AGREEMENT_MULTIPLIER_BONUS,
-			"source": "diplomacy_action",
-		}
-
-	relations[relation_key] = relation_entry
-	player_state["faction_relations"] = relations
-	host.set("_player_state", player_state)
+		agreement_payload = apply_trade_agreement_state(host, target_faction_id, agreement_turns, cost, payment_result, after_score)
+	var player_state := _get_player_state(host)
+	var relation_entry := _get_relation_entry(host, player_faction_id, target_faction_id)
 	var after_status_variant: Variant = host.call(
 		"_normalize_faction_relation_status",
 		str(relation_entry.get("status", RELATION_STATUS_NEUTRAL))
@@ -254,6 +218,236 @@ static func normalize_resource_package(resource_package: Dictionary) -> Dictiona
 	return normalized
 
 
+func get_diplomacy_action_cooldown(host: Object, target_faction_id: String) -> int:
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	if target_faction_id.is_empty() or target_faction_id == player_faction_id:
+		return 0
+	var relation_entry := _get_relation_entry(host, player_faction_id, target_faction_id)
+	var relation_cooldown := maxi(0, int(relation_entry.get("diplomacy_action_cooldown", 0)))
+	var player_state := _get_player_state(host)
+	var cooldowns_variant: Variant = player_state.get("diplomacy_action_cooldowns", {})
+	if cooldowns_variant is Dictionary:
+		relation_cooldown = maxi(relation_cooldown, maxi(0, int((cooldowns_variant as Dictionary).get(target_faction_id, 0))))
+	return relation_cooldown
+
+
+func set_diplomacy_action_cooldown(host: Object, target_faction_id: String, turns: int, sync_mirror: bool = true) -> void:
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	if target_faction_id.is_empty() or target_faction_id == player_faction_id:
+		return
+	var relation_entry := _get_relation_entry(host, player_faction_id, target_faction_id)
+	relation_entry["diplomacy_action_cooldown"] = maxi(0, turns)
+	_store_relation_entry(host, player_faction_id, target_faction_id, relation_entry)
+	if sync_mirror:
+		sync_diplomacy_mirror_state(host)
+
+
+func apply_trade_agreement_state(
+	host: Object,
+	target_faction_id: String,
+	agreement_turns: int,
+	cost: Dictionary,
+	payment_result: Dictionary,
+	after_score: int
+) -> Dictionary:
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	var current_turn := maxi(1, int(_get_player_state(host).get("turn_number", 1)))
+	var relation_entry := _get_relation_entry(host, player_faction_id, target_faction_id)
+	relation_entry["trade_agreement_active"] = true
+	relation_entry["trade_agreement_turns_remaining"] = maxi(1, agreement_turns)
+	relation_entry["trade_agreement_bonus"] = TRADE_AGREEMENT_MULTIPLIER_BONUS
+	relation_entry["trade_agreement_source"] = "diplomacy_action"
+	relation_entry["trade_agreement_created_turn"] = current_turn
+	_store_relation_entry(host, player_faction_id, target_faction_id, relation_entry)
+	var status := str(host.call("_normalize_faction_relation_status", str(relation_entry.get("status", RELATION_STATUS_NEUTRAL))))
+	var player_state := _get_player_state(host)
+	player_state["last_trade_agreement_result"] = {
+		"turn": current_turn,
+		"target_faction_id": target_faction_id,
+		"success": true,
+		"score": after_score,
+		"status": status,
+		"cost": cost,
+		"payment": payment_result,
+		"duration_turns": maxi(1, agreement_turns),
+		"trade_multiplier_bonus": TRADE_AGREEMENT_MULTIPLIER_BONUS,
+		"source": "diplomacy_action",
+	}
+	host.set("_player_state", player_state)
+	return {
+		"turns_remaining": maxi(1, agreement_turns),
+		"source": "diplomacy_action",
+		"created_turn": current_turn,
+		"bonus": TRADE_AGREEMENT_MULTIPLIER_BONUS,
+	}
+
+
+static func advance_diplomacy_state_entry(relation_key: String, source_entry: Dictionary) -> Dictionary:
+	var entry := source_entry.duplicate(true)
+	var changed: Array = []
+	var before_action_cooldown := maxi(0, int(entry.get("diplomacy_action_cooldown", 0)))
+	if before_action_cooldown > 0:
+		var after_action_cooldown := maxi(0, before_action_cooldown - 1)
+		entry["diplomacy_action_cooldown"] = after_action_cooldown
+		changed.append({"relation_key": relation_key, "type": "diplomacy_action_cooldown", "before": before_action_cooldown, "after": after_action_cooldown})
+	var before_agreement_turns := maxi(0, int(entry.get("trade_agreement_turns_remaining", 0)))
+	if bool(entry.get("trade_agreement_active", false)) and before_agreement_turns > 0:
+		var after_agreement_turns := maxi(0, before_agreement_turns - 1)
+		entry["trade_agreement_turns_remaining"] = after_agreement_turns
+		if after_agreement_turns <= 0:
+			entry["trade_agreement_active"] = false
+			entry["trade_agreement_bonus"] = 0.0
+			entry.erase("trade_agreement_source")
+			entry.erase("trade_agreement_created_turn")
+		changed.append({"relation_key": relation_key, "type": "trade_agreement", "before": before_agreement_turns, "after": after_agreement_turns})
+	return {"entry": entry, "changed": changed}
+
+
+func sync_diplomacy_mirror_state(host: Object) -> void:
+	var player_state := _get_player_state(host)
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	var cooldowns := {}
+	var agreements := {}
+	var relations_variant: Variant = player_state.get("faction_relations", {})
+	if relations_variant is Dictionary:
+		for relation_key_variant in (relations_variant as Dictionary).keys():
+			var relation_key := str(relation_key_variant)
+			var target_faction_id := _get_target_faction_from_relation_key(player_faction_id, relation_key)
+			if target_faction_id.is_empty():
+				continue
+			var entry_variant: Variant = (relations_variant as Dictionary).get(relation_key_variant, {})
+			if not entry_variant is Dictionary:
+				continue
+			var entry := entry_variant as Dictionary
+			var cooldown_turns := maxi(0, int(entry.get("diplomacy_action_cooldown", 0)))
+			if cooldown_turns > 0:
+				cooldowns[target_faction_id] = cooldown_turns
+			var agreement_turns := maxi(0, int(entry.get("trade_agreement_turns_remaining", 0)))
+			if bool(entry.get("trade_agreement_active", false)) and agreement_turns > 0:
+				agreements[target_faction_id] = {
+					"turns_remaining": agreement_turns,
+					"source": str(entry.get("trade_agreement_source", "diplomacy_action")),
+					"created_turn": maxi(1, int(entry.get("trade_agreement_created_turn", player_state.get("turn_number", 1)))),
+					"bonus": float(entry.get("trade_agreement_bonus", TRADE_AGREEMENT_MULTIPLIER_BONUS)),
+				}
+	player_state["diplomacy_action_cooldowns"] = cooldowns
+	player_state["trade_agreements"] = agreements
+	host.set("_player_state", player_state)
+
+
+func restore_diplomacy_state_from_mirrors(host: Object) -> void:
+	var player_state := _get_player_state(host)
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	var raw_cooldowns: Variant = player_state.get("diplomacy_action_cooldowns", {})
+	if raw_cooldowns is Dictionary:
+		for target_faction_variant in (raw_cooldowns as Dictionary).keys():
+			var target_faction_id := str(target_faction_variant)
+			if target_faction_id.is_empty() or target_faction_id == player_faction_id:
+				continue
+			var turns_remaining := maxi(0, int((raw_cooldowns as Dictionary).get(target_faction_variant, 0)))
+			if turns_remaining <= 0:
+				continue
+			var relation_entry := _get_relation_entry(host, player_faction_id, target_faction_id)
+			relation_entry["diplomacy_action_cooldown"] = maxi(int(relation_entry.get("diplomacy_action_cooldown", 0)), turns_remaining)
+			_store_relation_entry(host, player_faction_id, target_faction_id, relation_entry)
+	var raw_agreements: Variant = player_state.get("trade_agreements", {})
+	if raw_agreements is Dictionary:
+		for target_faction_variant in (raw_agreements as Dictionary).keys():
+			var target_faction_id := str(target_faction_variant)
+			if target_faction_id.is_empty() or target_faction_id == player_faction_id:
+				continue
+			var raw_agreement: Variant = (raw_agreements as Dictionary).get(target_faction_variant, {})
+			var turns_remaining := 0
+			var agreement_source := "diplomacy_action"
+			var created_turn := maxi(1, int(player_state.get("turn_number", 1)))
+			if raw_agreement is Dictionary:
+				turns_remaining = maxi(0, int((raw_agreement as Dictionary).get("turns_remaining", 0)))
+				agreement_source = str((raw_agreement as Dictionary).get("source", agreement_source))
+				created_turn = maxi(1, int((raw_agreement as Dictionary).get("created_turn", created_turn)))
+			else:
+				turns_remaining = maxi(0, int(raw_agreement))
+			if turns_remaining <= 0:
+				continue
+			var relation_entry := _get_relation_entry(host, player_faction_id, target_faction_id)
+			relation_entry["trade_agreement_active"] = true
+			relation_entry["trade_agreement_turns_remaining"] = maxi(int(relation_entry.get("trade_agreement_turns_remaining", 0)), turns_remaining)
+			relation_entry["trade_agreement_bonus"] = TRADE_AGREEMENT_MULTIPLIER_BONUS
+			relation_entry["trade_agreement_source"] = agreement_source
+			relation_entry["trade_agreement_created_turn"] = created_turn
+			_store_relation_entry(host, player_faction_id, target_faction_id, relation_entry)
+
+
+func get_trade_agreement_bonus_multiplier(host: Object, faction_a: String, faction_b: String) -> float:
+	if faction_a.is_empty() or faction_b.is_empty() or faction_a == faction_b:
+		return 0.0
+	var relation := _get_relation_entry(host, faction_a, faction_b)
+	if bool(relation.get("trade_agreement_active", false)) and int(relation.get("trade_agreement_turns_remaining", 0)) > 0:
+		return float(relation.get("trade_agreement_bonus", TRADE_AGREEMENT_MULTIPLIER_BONUS))
+	return 0.0
+
+
+func get_active_trade_agreement_turns(host: Object, target_faction_id: String) -> int:
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	if target_faction_id.is_empty() or target_faction_id == player_faction_id:
+		return 0
+	var relation := _get_relation_entry(host, player_faction_id, target_faction_id)
+	if not bool(relation.get("trade_agreement_active", false)):
+		return 0
+	return maxi(0, int(relation.get("trade_agreement_turns_remaining", 0)))
+
+
+func propose_trade_agreement(host: Object, target_faction_id: String) -> bool:
+	var player_state := _get_player_state(host)
+	var turn_number := maxi(1, int(player_state.get("turn_number", 1)))
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	if target_faction_id.is_empty() or target_faction_id == player_faction_id:
+		player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "reason": "invalid_target"}
+		host.set("_player_state", player_state)
+		return false
+	var relation := _get_relation_entry(host, player_faction_id, target_faction_id)
+	var status := str(host.call("_normalize_faction_relation_status", str(relation.get("status", RELATION_STATUS_NEUTRAL))))
+	if status == RELATION_STATUS_HOSTILE or status == RELATION_STATUS_SUSPENDED:
+		player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "reason": status, "status": status}
+		host.set("_player_state", player_state)
+		return false
+	var score := clampi(int(relation.get("score", DEFAULT_RELATION_SCORE)), RELATION_SCORE_MIN, RELATION_SCORE_MAX)
+	if score < LEGACY_TRADE_AGREEMENT_SCORE_REQUIREMENT:
+		player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "reason": "relation_score", "score": score, "required_score": LEGACY_TRADE_AGREEMENT_SCORE_REQUIREMENT, "status": status}
+		host.set("_player_state", player_state)
+		return false
+	var cost := LEGACY_TRADE_AGREEMENT_COST.duplicate(true)
+	var payment_check := can_pay_diplomacy_resource_cost(host, cost)
+	if not bool(payment_check.get("ok", false)):
+		player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "reason": "resources", "score": score, "cost": cost, "missing": payment_check.get("missing", {}), "status": status}
+		host.set("_player_state", player_state)
+		return false
+	var payment_result := apply_diplomacy_resource_cost(host, cost)
+	relation = _get_relation_entry(host, player_faction_id, target_faction_id)
+	relation["trade_agreement_active"] = true
+	relation["trade_agreement_turns_remaining"] = LEGACY_TRADE_AGREEMENT_TURNS
+	relation["trade_agreement_bonus"] = TRADE_AGREEMENT_MULTIPLIER_BONUS
+	_store_relation_entry(host, player_faction_id, target_faction_id, relation)
+	player_state = _get_player_state(host)
+	player_state["last_trade_agreement_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": true, "score": score, "status": status, "cost": cost, "payment": payment_result, "duration_turns": LEGACY_TRADE_AGREEMENT_TURNS, "trade_multiplier_bonus": TRADE_AGREEMENT_MULTIPLIER_BONUS}
+	host.set("_player_state", player_state)
+	return true
+
+
+func can_pay_diplomacy_resource_cost(host: Object, cost: Dictionary) -> Dictionary:
+	var missing := {}
+	var resource_stock_variant: Variant = _get_player_state(host).get("resource_stock", {})
+	var resource_stock: Dictionary = resource_stock_variant if resource_stock_variant is Dictionary else {}
+	for resource_id_variant in cost.keys():
+		var resource_id := str(resource_id_variant)
+		var required_amount := maxi(0, int(cost.get(resource_id_variant, 0)))
+		var available_amount := maxi(0, int(resource_stock.get(resource_id, 0)))
+		if resource_id == "food" and host.has_method("_get_total_recruitment_food_stock"):
+			available_amount = maxi(0, int(host.call("_get_total_recruitment_food_stock")))
+		if available_amount < required_amount:
+			missing[resource_id] = required_amount - available_amount
+	return {"ok": missing.is_empty(), "cost": cost.duplicate(true), "missing": missing}
+
+
 func apply_diplomacy_resource_cost(host: Object, cost: Dictionary) -> Dictionary:
 	var player_state := _get_player_state(host)
 	var resource_stock_variant: Variant = player_state.get("resource_stock", {})
@@ -329,6 +523,32 @@ func _get_relation_band(score: int) -> String:
 	if normalized_score <= 30:
 		return "hostile"
 	return "neutral"
+
+
+func _get_relation_entry(host: Object, faction_a: String, faction_b: String) -> Dictionary:
+	var entry_variant: Variant = host.call("_ensure_faction_relation_entry", faction_a, faction_b)
+	return entry_variant if entry_variant is Dictionary else {}
+
+
+func _store_relation_entry(host: Object, faction_a: String, faction_b: String, entry: Dictionary) -> void:
+	var relation_key := str(host.call("_make_faction_relation_key", faction_a, faction_b))
+	var player_state := _get_player_state(host)
+	var relations_variant: Variant = player_state.get("faction_relations", {})
+	var relations: Dictionary = relations_variant if relations_variant is Dictionary else {}
+	relations[relation_key] = entry
+	player_state["faction_relations"] = relations
+	host.set("_player_state", player_state)
+
+
+func _get_target_faction_from_relation_key(player_faction_id: String, relation_key: String) -> String:
+	var parts := relation_key.split("|", false)
+	if parts.size() != 2:
+		return ""
+	if str(parts[0]) == player_faction_id:
+		return str(parts[1])
+	if str(parts[1]) == player_faction_id:
+		return str(parts[0])
+	return ""
 
 
 func _get_player_state(host: Object) -> Dictionary:

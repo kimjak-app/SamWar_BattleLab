@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "ba52b9fdf523cbf5450397e8d2948ce817f3509e"
+PHASE_2B_BASE = "6b3bf867544cf6cbdd48ba7eed8be7f3e3ef3ded"
 MAIN = "scripts/worldmap/worldmap_main.gd"
 
 
@@ -17,6 +18,12 @@ def original(path):
 
 def current(path):
     return (ROOT / path).read_text(encoding="utf-8")
+
+
+def at_commit(commit, path):
+    return subprocess.check_output(
+        ["git", "show", f"{commit}:{path}"], cwd=ROOT
+    ).decode("utf-8").replace("\r\n", "\n")
 
 
 def functions(source):
@@ -44,6 +51,14 @@ def main():
         "_normalize_diplomacy_resource_package",
         "_apply_alliance_diplomacy_action",
         "_propose_alliance",
+        "_normalize_diplomacy_action_state_from_player_state",
+        "_sync_diplomacy_action_mirror_state_from_relations",
+        "_get_diplomacy_action_cooldown",
+        "_set_diplomacy_action_cooldown",
+        "_propose_trade_agreement",
+        "_get_trade_agreement_bonus_multiplier",
+        "_get_active_trade_agreement_turns",
+        "_advance_diplomacy_cooldowns_for_world_turn",
     }
     for name, body in before.items():
         assert name in after, f"removed function: {name}"
@@ -52,7 +67,7 @@ def main():
     assert after["_apply_spy_action_legacy"] == before["_apply_spy_action"], "legacy spy implementation changed"
     assert 'validation.get("payment", {})' in after["_apply_alliance_diplomacy_action"], "diplomacy 2B alliance payment adapter missing"
     assert "prepaid_payment: Dictionary = {}" in after["_propose_alliance"], "diplomacy 2B alliance payment handoff missing"
-    assert len(current(MAIN).splitlines()) >= len(original(MAIN).splitlines()) - 100, "host shortened beyond approved extraction budget"
+    assert len(current(MAIN).splitlines()) >= len(at_commit(PHASE_2B_BASE, MAIN).splitlines()) - 250, "host shortened beyond approved 2C-1 extraction budget"
 
     for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
         path = "scripts/worldmap/actions/" + file
@@ -82,7 +97,7 @@ def main():
     for helper in ["_validate_spy_action", "_store_failed_spy_action_result", "_gather_spy_info", "_disrupt_city_public_support", "_disrupt_city_loyalty", "_instigate_revolt", "_apply_spy_wedge_action"]:
         assert f'"{helper}"' in spy_service, f"service helper missing: {helper}"
 
-    print(f"PASS: spy routing static guard; {len(before)} prior functions retained, legacy body identical, spy/coordinator unchanged; diplomacy 2B bridges allowed")
+    print(f"PASS: spy routing static guard; {len(before)} prior functions retained, legacy body identical, spy/coordinator unchanged; diplomacy 2C-1 bridges allowed")
 
 
 if __name__ == "__main__":
