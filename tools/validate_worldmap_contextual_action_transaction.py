@@ -37,28 +37,54 @@ def require_return_after_request(source: str, action_type: str) -> None:
 
 def main() -> None:
     coordinator = read("scripts/worldmap/actions/worldmap_action_coordinator.gd")
+    diplomacy_service = read("scripts/worldmap/actions/diplomacy_action_service.gd")
+    spy_service = read("scripts/worldmap/actions/spy_action_service.gd")
+    trade_service = read("scripts/worldmap/actions/trade_action_service.gd")
     worldmap = read("scripts/worldmap/worldmap_main.gd")
     city_actions = read("scripts/worldmap/ui/worldmap_city_action_test_controller.gd")
     presentation = read("scripts/worldmap/ui/worldmap_action_presentation_controller.gd")
 
     for token in (
+        'preload("res://scripts/worldmap/actions/diplomacy_action_service.gd")',
+        'preload("res://scripts/worldmap/actions/spy_action_service.gd")',
+        'preload("res://scripts/worldmap/actions/trade_action_service.gd")',
         'const VALID_ACTION_TYPES := ["diplomacy", "spy", "trade"]',
         "var _pending_presentation := false",
         "var _resolving := false",
         "func request_presentation(",
         "func complete(",
-        "var raw_result: Variant = execute_action.call(",
+        "func _execute_domain_action(",
+        "return _diplomacy_service.execute(host, action_id, target_city_id, source_city_id)",
+        "return _spy_service.execute(host, action_id, target_city_id, source_city_id)",
+        "return _trade_service.execute(host, action_id, target_city_id, source_city_id)",
         "action_resolved.emit(completed_type, result)",
     ):
-        require(coordinator, token, "coordinator transaction contract")
+        require(coordinator, token, "coordinator service transaction contract")
+
+    for source, host_method, label in (
+        (diplomacy_service, '_apply_diplomacy_action', "diplomacy service bridge"),
+        (spy_service, '_apply_spy_action', "spy service bridge"),
+        (trade_service, '_execute_external_manual_trade_order', "trade service bridge"),
+    ):
+        require(source, "func execute(", label)
+        require(source, f'host.has_method("{host_method}")', label)
+        require(source, f'host.call("{host_method}"', label)
+
+    require(
+        trade_service,
+        'player_state["last_external_manual_trade_execution_result"] = result.duplicate(true)',
+        "trade result persistence bridge",
+    )
+    require(
+        trade_service,
+        "orders.erase(source_city_id)",
+        "trade pending-order clear on success",
+    )
 
     for token in (
         'preload("res://scripts/worldmap/actions/worldmap_action_coordinator.gd")',
         "_setup_contextual_worldmap_action_coordinator()",
         'Callable(self, "_execute_contextual_worldmap_action")',
-        '"diplomacy":\n\t\t\tresult = _apply_diplomacy_action',
-        '"spy":\n\t\t\tresult = _apply_spy_action',
-        '"trade":\n\t\t\tvar order:',
     ):
         require(worldmap, token, "WorldMap coordinator bridge")
 
@@ -91,7 +117,10 @@ def main() -> None:
         "resolved result scroll route",
     )
 
-    print("PASS: WorldMap contextual actions open production UI, execute once after video, and present results.")
+    print(
+        "PASS: WorldMap contextual actions open production UI, route through domain services, "
+        "execute once after video, and present results."
+    )
 
 
 if __name__ == "__main__":
