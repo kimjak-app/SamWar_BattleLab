@@ -214,7 +214,12 @@ func _on_contextual_action_pressed(action_type: String) -> void:
 	var target_city_id := str(_selected_marker.get("city_id"))
 	if target_city_id.is_empty():
 		return
-	action_video_test_requested.emit(action_type, target_city_id)
+	if action_type == "diplomacy":
+		var result: Dictionary = production_world_map.call("open_contextual_worldmap_action", action_type, target_city_id)
+		if not bool(result.get("ok", false)):
+			production_world_map.call("_resolve_contextual_worldmap_action_without_video", action_type, result)
+	else:
+		action_video_test_requested.emit(action_type, target_city_id)
 	_hide_menu()
 
 

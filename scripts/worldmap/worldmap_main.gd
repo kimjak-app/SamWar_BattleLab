@@ -13,6 +13,7 @@ const DomesticTechHelperLib := preload("res://scripts/worldmap/domestic_tech/dom
 const EconomyCityHelpers := preload("res://scripts/worldmap/economy_city/economy_city_helpers.gd")
 const DefenseBattleHelpers := preload("res://scripts/worldmap/defense_battle/defense_battle_helpers.gd")
 const DiplomacySpyHelpers := preload("res://scripts/worldmap/diplomacy_spy/diplomacy_spy_helpers.gd")
+const WorldMapActionCoordinatorScript := preload("res://scripts/worldmap/actions/worldmap_action_coordinator.gd")
 const UIFormatterHelpers := preload("res://scripts/worldmap/ui_formatter/ui_formatter_helpers.gd")
 const T03AutoBattleResolverScript := preload("res://scripts/worldmap/t03/auto_battle_resolver.gd")
 const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_outcome_rules.gd")
@@ -1043,6 +1044,8 @@ var _contextual_worldmap_action_type := ""
 var _contextual_worldmap_action_target_city_id := ""
 var _contextual_worldmap_action_source_city_id := ""
 var _contextual_worldmap_action_pending := false
+var _diplomacy_action_coordinator: WorldMapActionCoordinator = null
+var _pending_diplomacy_action_id := ""
 var _unified_primary_tab := UNIFIED_PANEL_TAB_CITY_DETAIL
 var _selected_diplomacy_spy_tab := DIPLOMACY_SPY_TAB_DIPLOMACY
 var _city_resource_potential_card: PanelContainer = null
@@ -1758,6 +1761,24 @@ func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
 		_refresh_domestic_tech_tree_overlay_mvp()
 
 
+func _ensure_diplomacy_action_coordinator() -> WorldMapActionCoordinator:
+	if not is_instance_valid(_diplomacy_action_coordinator):
+		_diplomacy_action_coordinator = WorldMapActionCoordinatorScript.new()
+		_diplomacy_action_coordinator.name = "DiplomacyActionCoordinator"
+		add_child(_diplomacy_action_coordinator)
+		_diplomacy_action_coordinator.presentation_requested.connect(_on_diplomacy_presentation_requested)
+		_diplomacy_action_coordinator.action_resolved.connect(_on_diplomacy_action_resolved)
+	return _diplomacy_action_coordinator
+
+
+func _on_diplomacy_presentation_requested(action_type: String, action_id: String, target_city_id: String) -> void:
+	contextual_worldmap_action_presentation_requested.emit(action_type, action_id, target_city_id)
+
+
+func _on_diplomacy_action_resolved(action_type: String, result: Dictionary) -> void:
+	_resolve_contextual_worldmap_action_without_video(action_type, result)
+
+
 func open_contextual_worldmap_action(action_type: String, target_city_id: String) -> Dictionary:
 	cancel_contextual_worldmap_action()
 	var normalized_type := action_type.strip_edges().to_lower()
@@ -1796,6 +1817,8 @@ func open_contextual_worldmap_action(action_type: String, target_city_id: String
 
 	_contextual_worldmap_action_type = normalized_type
 	_contextual_worldmap_action_target_city_id = target_city_id
+	if normalized_type == "diplomacy":
+		return _ensure_diplomacy_action_coordinator().begin("diplomacy", target_city_id)
 	return {
 		"ok": true,
 		"action_type": normalized_type,
@@ -1806,6 +1829,9 @@ func open_contextual_worldmap_action(action_type: String, target_city_id: String
 
 
 func cancel_contextual_worldmap_action() -> void:
+	if is_instance_valid(_diplomacy_action_coordinator):
+		_diplomacy_action_coordinator.cancel()
+	_pending_diplomacy_action_id = ""
 	_contextual_worldmap_action_type = ""
 	_contextual_worldmap_action_target_city_id = ""
 	_contextual_worldmap_action_source_city_id = ""
@@ -1817,6 +1843,10 @@ func complete_contextual_worldmap_action(action_type: String, action_id: String,
 		return {"success": false, "message": "실행 대기 중인 도시 행동이 없습니다."}
 	if action_type != _contextual_worldmap_action_type or target_city_id != _contextual_worldmap_action_target_city_id:
 		return {"success": false, "message": "도시 행동 대상이 변경되었습니다."}
+	if action_type == "diplomacy":
+		if action_id != _pending_diplomacy_action_id:
+			return {"success": false, "message": "외교 행동이 변경되었습니다."}
+		return _ensure_diplomacy_action_coordinator().complete(action_type, action_id, target_city_id)
 
 	var result: Dictionary = {}
 	match action_type:
@@ -1859,6 +1889,12 @@ func _request_contextual_worldmap_action_presentation(action_type: String, actio
 	if _contextual_worldmap_action_pending:
 		return
 	_contextual_worldmap_action_pending = true
+	if action_type == "diplomacy":
+		_pending_diplomacy_action_id = action_id
+		var request := _ensure_diplomacy_action_coordinator().request_presentation(action_type, action_id, target_city_id)
+		if not bool(request.get("ok", false)):
+			_resolve_contextual_worldmap_action_without_video(action_type, request)
+		return
 	contextual_worldmap_action_presentation_requested.emit(action_type, action_id, target_city_id)
 
 
@@ -20252,6 +20288,11 @@ func _build_diplomacy_action_failure_result(action_id: String, validation: Dicti
 
 
 func _apply_diplomacy_action(action_id: String, target_city_id: String = "") -> Dictionary:
+	return _ensure_diplomacy_action_coordinator().execute_now("diplomacy", action_id, target_city_id)
+
+
+# Retained intact for phase-one parity checks; production uses the service above.
+func _apply_diplomacy_action_legacy(action_id: String, target_city_id: String = "") -> Dictionary:
 	var validation := _validate_diplomacy_action(action_id, target_city_id)
 	if not bool(validation.get("ok", false)):
 		var failure_result := _build_diplomacy_action_failure_result(action_id, validation)
@@ -20355,6 +20396,8 @@ func _apply_alliance_diplomacy_action(validation: Dictionary) -> Dictionary:
 
 
 func _on_diplomacy_action_pressed(action_id: String) -> void:
+	if _contextual_worldmap_action_type == "diplomacy" and _contextual_worldmap_action_pending:
+		return
 	var target := _get_selected_diplomacy_target()
 	var target_city_id := str(target.get("target_city_id", ""))
 	if _contextual_worldmap_action_type == "diplomacy":

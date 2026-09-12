@@ -1,7 +1,6 @@
 class_name WorldMapDiplomacyActionService
 extends RefCounted
 
-const PLAYER_FACTION_ID := "player"
 const RELATION_STATUS_NEUTRAL := "neutral"
 const DEFAULT_RELATION_SCORE := 50
 const ACTION_TRADE_AGREEMENT := "trade_agreement"
@@ -18,6 +17,7 @@ func execute(
 	if host == null:
 		return _failure("executor_unavailable", "외교 행동 실행기를 찾을 수 없습니다.")
 	for method_name in [
+		"_get_current_player_faction_id",
 		"_validate_diplomacy_action",
 		"_build_diplomacy_action_failure_result",
 		"_apply_generic_resource_cost",
@@ -45,6 +45,7 @@ func execute(
 		_set_status(host, alliance_result)
 		return alliance_result
 
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
 	var definition_variant: Variant = validation.get("definition", {})
 	var definition: Dictionary = definition_variant if definition_variant is Dictionary else {}
 	var target_faction_id := str(validation.get("target_faction_id", ""))
@@ -57,15 +58,15 @@ func execute(
 	var relation_result := _call_result(
 		host,
 		"_adjust_faction_relation_score",
-		[PLAYER_FACTION_ID, target_faction_id, relation_delta, "diplomacy_action_%s" % action_id]
+		[player_faction_id, target_faction_id, relation_delta, "diplomacy_action_%s" % action_id]
 	)
 	var after_score := int(relation_result.get("after_score", before_score))
-	var relation_key_variant: Variant = host.call("_make_faction_relation_key", PLAYER_FACTION_ID, target_faction_id)
+	var relation_key_variant: Variant = host.call("_make_faction_relation_key", player_faction_id, target_faction_id)
 	var relation_key := str(relation_key_variant)
 	var player_state := _get_player_state(host)
 	var relations_variant: Variant = player_state.get("faction_relations", {})
 	var relations: Dictionary = relations_variant if relations_variant is Dictionary else {}
-	var ensured_variant: Variant = host.call("_ensure_faction_relation_entry", PLAYER_FACTION_ID, target_faction_id)
+	var ensured_variant: Variant = host.call("_ensure_faction_relation_entry", player_faction_id, target_faction_id)
 	var ensured: Dictionary = ensured_variant if ensured_variant is Dictionary else {}
 	var relation_entry_variant: Variant = relations.get(relation_key, ensured)
 	var relation_entry: Dictionary = relation_entry_variant if relation_entry_variant is Dictionary else ensured
