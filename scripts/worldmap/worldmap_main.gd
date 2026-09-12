@@ -20359,7 +20359,7 @@ func _apply_alliance_diplomacy_action(validation: Dictionary) -> Dictionary:
 	var target_faction_id := str(validation.get("target_faction_id", ""))
 	var package: Dictionary = validation.get("cost", {})
 	var alliance_turns := maxi(1, int(validation.get("alliance_turns", DIPLOMACY_ACTION_ALLIANCE_TURNS)))
-	_propose_alliance(target_faction_id, package, alliance_turns)
+	_propose_alliance(target_faction_id, package, alliance_turns, validation.get("payment", {}))
 	_set_diplomacy_action_cooldown(target_faction_id, maxi(0, int(validation.get("cooldown", 0))))
 	var result_variant: Variant = _player_state.get("last_alliance_proposal_result", {})
 	var result := {}
@@ -20420,7 +20420,7 @@ func _calculate_alliance_acceptance_chance(target_faction_id: String, resource_p
 	return _get_modified_diplomacy_success_chance_mvp(base_chance, DIPLOMACY_ACTION_ALLIANCE_PROPOSAL, target_faction_id)
 
 
-func _propose_alliance(target_faction_id: String, resource_package: Dictionary, duration_turns: int) -> bool:
+func _propose_alliance(target_faction_id: String, resource_package: Dictionary, duration_turns: int, prepaid_payment: Dictionary = {}) -> bool:
 	var turn_number := maxi(1, int(_player_state.get("turn_number", 1)))
 	var package := _normalize_diplomacy_resource_package(resource_package)
 	if target_faction_id.is_empty() or target_faction_id == _get_current_player_faction_id():
@@ -20436,10 +20436,10 @@ func _propose_alliance(target_faction_id: String, resource_package: Dictionary, 
 		_player_state["last_alliance_proposal_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "duration", "status": status, "before_status": status, "after_status": status, "before_score": before_score, "after_score": before_score, "resource_package": package, "message": "동맹 기간을 확인할 수 없습니다."}
 		return false
 	var payment_check := _can_pay_generic_resource_cost(package)
-	if not bool(payment_check.get("ok", false)):
+	if prepaid_payment.is_empty() and not bool(payment_check.get("ok", false)):
 		_player_state["last_alliance_proposal_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "resources", "status": status, "before_status": status, "after_status": status, "before_score": before_score, "after_score": before_score, "resource_package": package, "missing": payment_check.get("missing", {}), "message": "자원이 부족합니다."}
 		return false
-	var payment_result := _apply_generic_resource_cost(package)
+	var payment_result := prepaid_payment if not prepaid_payment.is_empty() else _apply_generic_resource_cost(package)
 	var acceptance_chance := _calculate_alliance_acceptance_chance(target_faction_id, package, duration_turns)
 	var accepted := acceptance_chance >= ALLIANCE_ACCEPTANCE_THRESHOLD
 	var relation_key := _make_faction_relation_key(_get_current_player_faction_id(), target_faction_id)

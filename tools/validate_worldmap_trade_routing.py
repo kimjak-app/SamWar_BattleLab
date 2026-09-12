@@ -41,12 +41,16 @@ def main():
         "_validate_diplomacy_action",
         "_build_diplomacy_action_failure_result",
         "_normalize_diplomacy_resource_package",
+        "_apply_alliance_diplomacy_action",
+        "_propose_alliance",
     }
     for name, body in before.items():
         assert name in after, f"removed function: {name}"
         if name not in bridges:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     assert after["_execute_external_manual_trade_order_legacy"] == before["_execute_external_manual_trade_order"], "legacy trade implementation changed"
+    assert 'validation.get("payment", {})' in after["_apply_alliance_diplomacy_action"], "diplomacy 2B alliance payment adapter missing"
+    assert "prepaid_payment: Dictionary = {}" in after["_propose_alliance"], "diplomacy 2B alliance payment handoff missing"
     assert len(current(MAIN).splitlines()) >= len(original(MAIN).splitlines()) - 100, "host shortened beyond approved extraction budget"
 
     for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
@@ -77,7 +81,7 @@ def main():
         assert field in service, f"legacy result field missing: {field}"
     assert 'if bool(result.get("ok", false)):' in service and 'orders.erase(source_city_id)' in service
 
-    print(f"PASS: trade routing static guard; {len(before)} prior functions retained, legacy body identical, trade/spy/coordinator unchanged; diplomacy 2A bridges allowed")
+    print(f"PASS: trade routing static guard; {len(before)} prior functions retained, legacy body identical, trade/spy/coordinator unchanged; diplomacy 2B bridges allowed")
 
 
 if __name__ == "__main__":

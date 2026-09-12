@@ -6,6 +6,8 @@ const RELATION_STATUS_ALLIED := "allied"
 const RELATION_STATUS_HOSTILE := "hostile"
 const RELATION_STATUS_SUSPENDED := "suspended"
 const DEFAULT_RELATION_SCORE := 50
+const RELATION_SCORE_MIN := 0
+const RELATION_SCORE_MAX := 100
 const ACTION_ENVOY := "envoy"
 const ACTION_TRIBUTE := "tribute"
 const ACTION_TRADE_AGREEMENT := "trade_agreement"
@@ -29,8 +31,6 @@ func execute(
 	for method_name in [
 		"_get_current_player_faction_id",
 		"_build_diplomacy_action_validation_context",
-		"_apply_generic_resource_cost",
-		"_adjust_faction_relation_score",
 		"_make_faction_relation_key",
 		"_ensure_faction_relation_entry",
 		"_normalize_faction_relation_status",
@@ -50,25 +50,28 @@ func execute(
 		_set_status(host, failure_result)
 		return failure_result
 
-	if action_id == ACTION_ALLIANCE_PROPOSAL:
-		var alliance_result := _call_result(host, "_apply_alliance_diplomacy_action", [validation])
-		_set_status(host, alliance_result)
-		return alliance_result
-
 	var player_faction_id := str(host.call("_get_current_player_faction_id"))
 	var definition_variant: Variant = validation.get("definition", {})
 	var definition: Dictionary = definition_variant if definition_variant is Dictionary else {}
 	var target_faction_id := str(validation.get("target_faction_id", ""))
 	var cost_variant: Variant = validation.get("cost", {})
 	var cost: Dictionary = cost_variant if cost_variant is Dictionary else {}
-	var payment_result := _call_result(host, "_apply_generic_resource_cost", [cost])
+	var payment_result := apply_diplomacy_resource_cost(host, cost)
+	if action_id == ACTION_ALLIANCE_PROPOSAL:
+		var prepaid_validation := validation.duplicate(true)
+		prepaid_validation["payment"] = payment_result
+		var alliance_result := _call_result(host, "_apply_alliance_diplomacy_action", [prepaid_validation])
+		_set_status(host, alliance_result)
+		return alliance_result
 	var before_score := int(validation.get("before_score", DEFAULT_RELATION_SCORE))
 	var before_status := str(validation.get("before_status", RELATION_STATUS_NEUTRAL))
 	var relation_delta := int(validation.get("relation_delta", 0))
-	var relation_result := _call_result(
+	var relation_result := apply_diplomacy_relation_delta(
 		host,
-		"_adjust_faction_relation_score",
-		[player_faction_id, target_faction_id, relation_delta, "diplomacy_action_%s" % action_id]
+		player_faction_id,
+		target_faction_id,
+		relation_delta,
+		"diplomacy_action_%s" % action_id
 	)
 	var after_score := int(relation_result.get("after_score", before_score))
 	var relation_key_variant: Variant = host.call("_make_faction_relation_key", player_faction_id, target_faction_id)
@@ -249,6 +252,83 @@ static func normalize_resource_package(resource_package: Dictionary) -> Dictiona
 		if amount > 0:
 			normalized[resource_id] = amount
 	return normalized
+
+
+func apply_diplomacy_resource_cost(host: Object, cost: Dictionary) -> Dictionary:
+	var player_state := _get_player_state(host)
+	var resource_stock_variant: Variant = player_state.get("resource_stock", {})
+	var resource_stock: Dictionary = resource_stock_variant.duplicate(true) if resource_stock_variant is Dictionary else {}
+	var before_stock := resource_stock.duplicate(true)
+	var paid := {}
+	for resource_id_variant in cost.keys():
+		var resource_id := str(resource_id_variant)
+		var required_amount := maxi(0, int(cost.get(resource_id_variant, 0)))
+		if resource_id == "food":
+			var remaining_food := required_amount
+			var food_paid := {}
+			for food_resource_id in ["rice", "barley", "seafood"]:
+				var food_before_amount := maxi(0, int(resource_stock.get(food_resource_id, 0)))
+				var food_paid_amount := mini(food_before_amount, remaining_food)
+				resource_stock[food_resource_id] = food_before_amount - food_paid_amount
+				remaining_food -= food_paid_amount
+				food_paid[food_resource_id] = food_paid_amount
+			paid["food"] = food_paid
+			continue
+		var before_amount := maxi(0, int(resource_stock.get(resource_id, 0)))
+		var paid_amount := mini(before_amount, required_amount)
+		resource_stock[resource_id] = before_amount - paid_amount
+		paid[resource_id] = paid_amount
+	player_state["resource_stock"] = resource_stock
+	host.set("_player_state", player_state)
+	return {
+		"before": before_stock,
+		"after": resource_stock.duplicate(true),
+		"cost": cost.duplicate(true),
+		"paid": paid,
+	}
+
+
+func apply_diplomacy_relation_delta(
+	host: Object,
+	faction_a: String,
+	faction_b: String,
+	delta: int,
+	reason: String = ""
+) -> Dictionary:
+	var entry_variant: Variant = host.call("_ensure_faction_relation_entry", faction_a, faction_b)
+	var entry: Dictionary = entry_variant if entry_variant is Dictionary else {}
+	var before_score := clampi(int(entry.get("score", DEFAULT_RELATION_SCORE)), RELATION_SCORE_MIN, RELATION_SCORE_MAX)
+	var after_score := clampi(before_score + delta, RELATION_SCORE_MIN, RELATION_SCORE_MAX)
+	entry["score"] = after_score
+	var relation_key := str(host.call("_make_faction_relation_key", faction_a, faction_b))
+	var player_state := _get_player_state(host)
+	var relations_variant: Variant = player_state.get("faction_relations", {})
+	var relations: Dictionary = relations_variant if relations_variant is Dictionary else {}
+	relations[relation_key] = entry
+	player_state["faction_relations"] = relations
+	var result := {
+		"faction_a": faction_a,
+		"faction_b": faction_b,
+		"before_score": before_score,
+		"after_score": after_score,
+		"delta": after_score - before_score,
+		"status": str(entry.get("status", RELATION_STATUS_NEUTRAL)),
+		"band": _get_relation_band(after_score),
+		"reason": reason,
+		"turn": maxi(1, int(player_state.get("turn_number", 1))),
+	}
+	player_state["last_diplomacy_relation_result"] = result
+	host.set("_player_state", player_state)
+	return result
+
+
+func _get_relation_band(score: int) -> String:
+	var normalized_score := clampi(score, RELATION_SCORE_MIN, RELATION_SCORE_MAX)
+	if normalized_score >= 70:
+		return "friendly"
+	if normalized_score <= 30:
+		return "hostile"
+	return "neutral"
 
 
 func _get_player_state(host: Object) -> Dictionary:

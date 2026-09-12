@@ -1,4 +1,4 @@
-"""Phase-one guard: preserve recovery functions and route only diplomacy.
+"""Diplomacy 2B guard: preserve recovery functions and own action mutations.
 
 Compare with the verified recovery HEAD, not a moving branch name. Runtime
 behavior is covered separately by test_worldmap_diplomacy_routing.gd.
@@ -47,11 +47,15 @@ def main():
         "_apply_spy_action", "_on_spy_action_pressed",
         "_execute_external_manual_trade_order",
         "_on_manual_trade_execution_button_pressed",
-        # Phase 2A moves only diplomacy validation/pure calculations.
+        # Phase 2A moves diplomacy validation/pure calculations.
         "_get_diplomacy_action_definition",
         "_validate_diplomacy_action",
         "_build_diplomacy_action_failure_result",
         "_normalize_diplomacy_resource_package",
+        # Phase 2B leaves alliance state here while accepting a prepaid
+        # diplomacy-action cost from the service.
+        "_apply_alliance_diplomacy_action",
+        "_propose_alliance",
     }
     for name, body in before.items():
         assert name in after, f"removed function: {name}"
@@ -61,7 +65,6 @@ def main():
     for name in [
         "_adjust_faction_relation_score", "_set_diplomacy_action_cooldown",
         "_sync_diplomacy_action_mirror_state_from_relations",
-        "_apply_alliance_diplomacy_action", "_propose_alliance",
         "_request_military_support", "_propose_trade_agreement", "_send_tribute",
         "_advance_diplomacy_cooldowns_for_world_turn", "_apply_generic_resource_cost",
     ]:
@@ -98,7 +101,26 @@ def main():
     for name in ["_get_diplomacy_action_definition", "_validate_diplomacy_action", "_build_diplomacy_action_failure_result", "_normalize_diplomacy_resource_package"]:
         assert len(after[name].splitlines()) <= 2, f"host compatibility API is not a thin wrapper: {name}"
     assert 'host.call("_build_diplomacy_action_validation_context", action_id, target_city_id)' in service_functions["execute"]
-    print(f"PASS: diplomacy routing/static 2A guard; {len(before)} original functions retained, mutation bodies unchanged, validation/pure logic owned by service")
+    for name in ["apply_diplomacy_resource_cost", "apply_diplomacy_relation_delta"]:
+        assert name in service_functions, f"2B mutation function missing: {name}"
+        body = service_functions[name]
+        assert 'host.set("_player_state", player_state)' in body, f"{name} does not commit state"
+        assert '_apply_generic_resource_cost' not in body, f"{name} delegates resource mutation to host"
+        assert '_adjust_faction_relation_score' not in body, f"{name} delegates relation mutation to host"
+    assert 'resource_stock[resource_id] = before_amount - paid_amount' in service_functions["apply_diplomacy_resource_cost"], "resource subtraction implementation missing"
+    assert 'entry["score"] = after_score' in service_functions["apply_diplomacy_relation_delta"], "relation score mutation implementation missing"
+    assert 'player_state["last_diplomacy_relation_result"] = result' in service_functions["apply_diplomacy_relation_delta"], "relation result state contract missing"
+    execute = service_functions["execute"]
+    assert "apply_diplomacy_resource_cost(host, cost)" in execute, "execute does not own diplomacy cost application"
+    assert "apply_diplomacy_relation_delta(" in execute, "execute does not own diplomacy relation application"
+    assert '_apply_generic_resource_cost' not in execute, "execute still routes diplomacy cost through shared host helper"
+    assert '_adjust_faction_relation_score' not in execute, "execute still routes diplomacy relation through shared host helper"
+    assert 'validation.get("payment", {})' in after["_apply_alliance_diplomacy_action"], "alliance legacy adapter does not accept service payment"
+    assert "prepaid_payment: Dictionary = {}" in after["_propose_alliance"], "alliance state handler lacks prepaid cost adapter"
+    assert 'updated_relation["status"] = FACTION_RELATION_STATUS["ALLIED"]' in after["_propose_alliance"], "alliance mutation left legacy unexpectedly"
+    assert 'relation_entry["diplomacy_action_cooldown"]' in after["_set_diplomacy_action_cooldown"], "cooldown mutation moved unexpectedly"
+    assert 'updated_relation["trade_agreement_active"] = true' in after["_propose_trade_agreement"], "trade agreement mutation moved unexpectedly"
+    print(f"PASS: diplomacy routing/static 2B guard; {len(before)} original functions retained, shared helpers preserved, resource/relation mutation owned by service")
 
 
 if __name__ == "__main__":

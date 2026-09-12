@@ -42,12 +42,16 @@ def main():
         "_validate_diplomacy_action",
         "_build_diplomacy_action_failure_result",
         "_normalize_diplomacy_resource_package",
+        "_apply_alliance_diplomacy_action",
+        "_propose_alliance",
     }
     for name, body in before.items():
         assert name in after, f"removed function: {name}"
         if name not in bridges:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     assert after["_apply_spy_action_legacy"] == before["_apply_spy_action"], "legacy spy implementation changed"
+    assert 'validation.get("payment", {})' in after["_apply_alliance_diplomacy_action"], "diplomacy 2B alliance payment adapter missing"
+    assert "prepaid_payment: Dictionary = {}" in after["_propose_alliance"], "diplomacy 2B alliance payment handoff missing"
     assert len(current(MAIN).splitlines()) >= len(original(MAIN).splitlines()) - 100, "host shortened beyond approved extraction budget"
 
     for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
@@ -78,7 +82,7 @@ def main():
     for helper in ["_validate_spy_action", "_store_failed_spy_action_result", "_gather_spy_info", "_disrupt_city_public_support", "_disrupt_city_loyalty", "_instigate_revolt", "_apply_spy_wedge_action"]:
         assert f'"{helper}"' in spy_service, f"service helper missing: {helper}"
 
-    print(f"PASS: spy routing static guard; {len(before)} prior functions retained, legacy body identical, spy/coordinator unchanged; diplomacy 2A bridges allowed")
+    print(f"PASS: spy routing static guard; {len(before)} prior functions retained, legacy body identical, spy/coordinator unchanged; diplomacy 2B bridges allowed")
 
 
 if __name__ == "__main__":
