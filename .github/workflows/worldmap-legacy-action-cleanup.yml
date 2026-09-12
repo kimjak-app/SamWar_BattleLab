@@ -19,7 +19,7 @@ jobs:
           ref: integration/worldmap-iso-sfx-20260912
           fetch-depth: 0
 
-      - name: Replace legacy action bodies with service shims
+      - name: Remove legacy action execution from WorldMap main
         shell: bash
         run: |
           python - <<'PY'
@@ -32,14 +32,29 @@ jobs:
           trade_path = root / 'scripts/worldmap/actions/trade_action_service.gd'
           validator_path = root / 'tools/validate_worldmap_contextual_action_transaction.py'
 
-          def replace_func(text: str, name: str, replacement: str) -> str:
+          def function_matches(text: str, name: str):
               pattern = re.compile(rf'(?ms)^func {re.escape(name)}\b.*?(?=^func |\Z)')
-              matches = list(pattern.finditer(text))
+              return list(pattern.finditer(text))
+
+          def replace_func(text: str, name: str, replacement: str) -> str:
+              matches = function_matches(text, name)
               if len(matches) != 1:
                   raise SystemExit(f'{name}: expected exactly one function, found {len(matches)}')
               start, end = matches[0].span()
               suffix = '\n\n\n' if replacement.strip() else ''
               return text[:start] + replacement.rstrip() + suffix + text[end:]
+
+          def replace_func_if_present(text: str, name: str, replacement: str) -> tuple[str, bool]:
+              matches = function_matches(text, name)
+              if len(matches) > 1:
+                  raise SystemExit(f'{name}: expected zero or one function, found {len(matches)}')
+              if not matches:
+                  print(f'[cleanup] {name}: already extracted from worldmap_main.gd')
+                  return text, False
+              start, end = matches[0].span()
+              suffix = '\n\n\n' if replacement.strip() else ''
+              print(f'[cleanup] {name}: replacing legacy body with compatibility shim')
+              return text[:start] + replacement.rstrip() + suffix + text[end:], True
 
           main = main_path.read_text(encoding='utf-8')
           coordinator = coordinator_path.read_text(encoding='utf-8')
@@ -71,9 +86,9 @@ jobs:
 
           main = replace_func(main, 'complete_contextual_worldmap_action', main_complete)
           main = replace_func(main, '_execute_contextual_worldmap_action', '')
-          main = replace_func(main, '_apply_diplomacy_action', diplomacy_shim)
-          main = replace_func(main, '_apply_spy_action', spy_shim)
-          main = replace_func(main, '_execute_external_manual_trade_order', trade_shim)
+          main, _ = replace_func_if_present(main, '_apply_diplomacy_action', diplomacy_shim)
+          main, _ = replace_func_if_present(main, '_apply_spy_action', spy_shim)
+          main, _ = replace_func_if_present(main, '_execute_external_manual_trade_order', trade_shim)
           main_path.write_text(main, encoding='utf-8')
 
           coordinator_complete = '''func complete(
@@ -179,12 +194,28 @@ jobs:
               if token in source:
                   raise AssertionError(f"forbidden {label}: {token}")
 
-          def function_block(source: str, name: str) -> str:
+          def function_blocks(source: str, name: str):
               pattern = re.compile(rf"(?ms)^func {re.escape(name)}\b.*?(?=^func |\Z)")
-              matches = list(pattern.finditer(source))
-              if len(matches) != 1:
-                  raise AssertionError(f"expected one {name}, found {len(matches)}")
-              return matches[0].group(0)
+              return [match.group(0) for match in pattern.finditer(source)]
+
+          def function_block(source: str, name: str) -> str:
+              blocks = function_blocks(source, name)
+              if len(blocks) != 1:
+                  raise AssertionError(f"expected one {name}, found {len(blocks)}")
+              return blocks[0]
+
+          def validate_optional_shim(source: str, name: str, route_token: str, forbidden_tokens: tuple[str, ...]) -> None:
+              blocks = function_blocks(source, name)
+              if len(blocks) > 1:
+                  raise AssertionError(f"expected zero or one {name}, found {len(blocks)}")
+              if not blocks:
+                  if re.search(rf"\b{re.escape(name)}\s*\(", source):
+                      raise AssertionError(f"dangling legacy call without shim: {name}")
+                  return
+              block = blocks[0]
+              require(block, route_token, f"{name} compatibility shim")
+              for token in forbidden_tokens:
+                  forbid(block, token, f"legacy logic in {name} shim")
 
           def require_return_after_request(source: str, action_type: str) -> None:
               request = f'_request_contextual_worldmap_action_presentation("{action_type}", '
@@ -220,55 +251,28 @@ jobs:
               forbid(coordinator, "fallback_execute_action", "legacy coordinator fallback")
               forbid(coordinator, "execute_action: Callable", "legacy coordinator callable")
 
-              diplomacy_shim = function_block(worldmap, "_apply_diplomacy_action")
-              spy_shim = function_block(worldmap, "_apply_spy_action")
-              trade_shim = function_block(worldmap, "_execute_external_manual_trade_order")
               complete_bridge = function_block(worldmap, "complete_contextual_worldmap_action")
-
-              require(diplomacy_shim, '_contextual_action_coordinator.execute_now("diplomacy", action_id, target_city_id)', "diplomacy shim")
-              require(spy_shim, '_contextual_action_coordinator.execute_now("spy", action_id, target_city_id)', "spy shim")
-              require(trade_shim, '_contextual_action_coordinator.execute_trade_order(order)', "trade shim")
-              forbid(diplomacy_shim, "_apply_generic_resource_cost", "diplomacy logic left in main shim")
-              forbid(spy_shim, "_validate_spy_action", "spy logic left in main shim")
-              forbid(trade_shim, "_validate_external_manual_trade_execution", "trade logic left in main shim")
               forbid(worldmap, "func _execute_contextual_worldmap_action(", "legacy contextual dispatcher")
               forbid(complete_bridge, 'Callable(self, "_execute_contextual_worldmap_action")', "legacy complete callable")
 
-              for token in (
-                  'host.call("_validate_diplomacy_action", action_id, target_city_id)',
-                  '"_apply_generic_resource_cost"',
-                  '"_adjust_faction_relation_score"',
-              ):
+              validate_optional_shim(worldmap, "_apply_diplomacy_action", '_contextual_action_coordinator.execute_now("diplomacy", action_id, target_city_id)', ("_apply_generic_resource_cost", "_adjust_faction_relation_score"))
+              validate_optional_shim(worldmap, "_apply_spy_action", '_contextual_action_coordinator.execute_now("spy", action_id, target_city_id)', ("_validate_spy_action", "_gather_spy_info", "_apply_spy_wedge_action"))
+              validate_optional_shim(worldmap, "_execute_external_manual_trade_order", '_contextual_action_coordinator.execute_trade_order(order)', ("_validate_external_manual_trade_execution", "_set_city_storage"))
+
+              for token in ('host.call("_validate_diplomacy_action", action_id, target_city_id)', '"_apply_generic_resource_cost"', '"_adjust_faction_relation_score"'):
                   require(diplomacy_service, token, "diplomacy service orchestration")
               forbid(diplomacy_service, 'host.call("_apply_diplomacy_action"', "diplomacy monolith bridge")
 
-              for token in (
-                  'host.call("_validate_spy_action", action_id, target_city_id)',
-                  '"_gather_spy_info"',
-                  '"_disrupt_city_public_support"',
-                  '"_disrupt_city_loyalty"',
-                  '"_instigate_revolt"',
-                  '"_apply_spy_wedge_action"',
-              ):
+              for token in ('host.call("_validate_spy_action", action_id, target_city_id)', '"_gather_spy_info"', '"_disrupt_city_public_support"', '"_disrupt_city_loyalty"', '"_instigate_revolt"', '"_apply_spy_wedge_action"'):
                   require(spy_service, token, "spy service orchestration")
               forbid(spy_service, 'host.call("_apply_spy_action"', "spy monolith bridge")
 
-              for token in (
-                  "func execute_order(host: Object, order: Dictionary) -> Dictionary:",
-                  'host.call("_validate_external_manual_trade_execution", order)',
-                  'host.call("_build_external_manual_trade_execution_preview", order)',
-                  '"_set_city_storage"',
-              ):
+              for token in ("func execute_order(host: Object, order: Dictionary) -> Dictionary:", 'host.call("_validate_external_manual_trade_execution", order)', 'host.call("_build_external_manual_trade_execution_preview", order)', '"_set_city_storage"'):
                   require(trade_service, token, "trade service orchestration")
               forbid(trade_service, "func _execute_order(", "private legacy trade executor")
               forbid(trade_service, 'host.call("_execute_external_manual_trade_order"', "trade monolith bridge")
 
-              for old_state in (
-                  "var _contextual_worldmap_action_type",
-                  "var _contextual_worldmap_action_target_city_id",
-                  "var _contextual_worldmap_action_source_city_id",
-                  "var _contextual_worldmap_action_pending",
-              ):
+              for old_state in ("var _contextual_worldmap_action_type", "var _contextual_worldmap_action_target_city_id", "var _contextual_worldmap_action_source_city_id", "var _contextual_worldmap_action_pending"):
                   forbid(worldmap, old_state, "legacy main-owned contextual state")
 
               require_return_after_request(worldmap, "diplomacy")
@@ -278,20 +282,22 @@ jobs:
               forbid(presentation, "_video_test_only", "video-only presentation state")
               require(presentation, 'production_world_map.call("complete_contextual_worldmap_action", action_type, action_id, target_city_id)', "video completion route")
 
-              print("PASS: WorldMap action execution is service-owned; main keeps compatibility shims only.")
+              print("PASS: WorldMap action execution is service-owned; main has no legacy execution body.")
 
           if __name__ == "__main__":
               main()
           '''
           validator_path.write_text(validator, encoding='utf-8')
 
-          # Final structural checks before running repository validators.
           final_main = main_path.read_text(encoding='utf-8')
           if 'func _execute_contextual_worldmap_action(' in final_main:
               raise SystemExit('legacy contextual dispatcher still present')
           for name in ('_apply_diplomacy_action', '_apply_spy_action', '_execute_external_manual_trade_order'):
-              if len(re.findall(rf'(?m)^func {re.escape(name)}\b', final_main)) != 1:
-                  raise SystemExit(f'{name}: shim count is not one')
+              defs = function_matches(final_main, name)
+              if len(defs) > 1:
+                  raise SystemExit(f'{name}: duplicate compatibility function')
+              if not defs and re.search(rf'\b{re.escape(name)}\s*\(', final_main):
+                  raise SystemExit(f'{name}: dangling legacy call remains without function')
           PY
 
       - name: Verify structural contracts
