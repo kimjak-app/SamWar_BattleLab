@@ -1,6 +1,8 @@
 class_name WorldMapTradeActionService
 extends RefCounted
 
+const TRADE_RESOURCE_ORDER := ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt"]
+
 
 func execute(
 	host: Object,
@@ -19,6 +21,8 @@ func execute(
 		"_get_city_storage",
 		"_get_city_hud_entry",
 		"_set_city_storage",
+		"_get_trade_efficiency_for_cities",
+		"_get_trade_market_price_snapshot_for_order",
 	]:
 		if not host.has_method(method_name):
 			return _failure("executor_unavailable", "교역 행동 처리기를 찾을 수 없습니다: %s" % method_name)
@@ -63,19 +67,24 @@ func execute_order(host: Object, order: Dictionary) -> Dictionary:
 	if not storage_variant is Dictionary:
 		return _failure("invalid_storage", "교역 출발 도시의 창고를 확인할 수 없습니다.")
 	var source_storage := storage_variant as Dictionary
-	for resource_id_variant in applied.keys():
-		var resource_id := str(resource_id_variant)
-		var delta := int(applied.get(resource_id_variant, 0))
+	for resource_id in ["gold"] + TRADE_RESOURCE_ORDER:
+		var delta := int(applied.get(resource_id, 0))
 		if delta == 0:
 			continue
 		source_storage[resource_id] = maxi(0, int(source_storage.get(resource_id, 0)) + delta)
 	host.call("_set_city_storage", source_city_id, source_storage)
+	var efficiency := float(applied.get("efficiency", host.call("_get_trade_efficiency_for_cities", source_city_id, target_city_id)))
+	var raw_player_state: Variant = host.get("_player_state")
+	var player_state: Dictionary = raw_player_state if raw_player_state is Dictionary else {}
 	return {
 		"ok": true,
 		"source_city_id": source_city_id,
 		"target_city_id": target_city_id,
 		"target_faction_id": target_faction_id,
 		"applied": applied,
+		"efficiency": efficiency,
+		"market_turn": int(applied.get("market_turn", player_state.get("trade_market_turn", 0))),
+		"market_prices": host.call("_get_trade_market_price_snapshot_for_order", order),
 		"message": "수동 무역 실행 완료",
 	}
 

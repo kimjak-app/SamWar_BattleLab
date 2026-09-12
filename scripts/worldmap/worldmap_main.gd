@@ -1047,6 +1047,7 @@ var _contextual_worldmap_action_pending := false
 var _diplomacy_action_coordinator: WorldMapActionCoordinator = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
+var _pending_trade_action_id := ""
 var _unified_primary_tab := UNIFIED_PANEL_TAB_CITY_DETAIL
 var _selected_diplomacy_spy_tab := DIPLOMACY_SPY_TAB_DIPLOMACY
 var _city_resource_potential_card: PanelContainer = null
@@ -1822,6 +1823,8 @@ func open_contextual_worldmap_action(action_type: String, target_city_id: String
 		return _ensure_diplomacy_action_coordinator().begin("diplomacy", target_city_id)
 	if normalized_type == "spy":
 		return _ensure_diplomacy_action_coordinator().begin("spy", target_city_id)
+	if normalized_type == "trade":
+		return _ensure_diplomacy_action_coordinator().begin("trade", target_city_id, _contextual_worldmap_action_source_city_id)
 	return {
 		"ok": true,
 		"action_type": normalized_type,
@@ -1836,6 +1839,7 @@ func cancel_contextual_worldmap_action() -> void:
 		_diplomacy_action_coordinator.cancel()
 	_pending_diplomacy_action_id = ""
 	_pending_spy_action_id = ""
+	_pending_trade_action_id = ""
 	_contextual_worldmap_action_type = ""
 	_contextual_worldmap_action_target_city_id = ""
 	_contextual_worldmap_action_source_city_id = ""
@@ -1854,6 +1858,10 @@ func complete_contextual_worldmap_action(action_type: String, action_id: String,
 	if action_type == "spy":
 		if action_id != _pending_spy_action_id:
 			return {"success": false, "message": "첩보 행동이 변경되었습니다."}
+		return _ensure_diplomacy_action_coordinator().complete(action_type, action_id, target_city_id)
+	if action_type == "trade":
+		if action_id != _pending_trade_action_id:
+			return {"success": false, "message": "무역 행동이 변경되었습니다."}
 		return _ensure_diplomacy_action_coordinator().complete(action_type, action_id, target_city_id)
 
 	var result: Dictionary = {}
@@ -1905,6 +1913,12 @@ func _request_contextual_worldmap_action_presentation(action_type: String, actio
 		return
 	if action_type == "spy":
 		_pending_spy_action_id = action_id
+		var request := _ensure_diplomacy_action_coordinator().request_presentation(action_type, action_id, target_city_id)
+		if not bool(request.get("ok", false)):
+			_resolve_contextual_worldmap_action_without_video(action_type, request)
+		return
+	if action_type == "trade":
+		_pending_trade_action_id = action_id
 		var request := _ensure_diplomacy_action_coordinator().request_presentation(action_type, action_id, target_city_id)
 		if not bool(request.get("ok", false)):
 			_resolve_contextual_worldmap_action_without_video(action_type, request)
@@ -3069,6 +3083,8 @@ func _on_manual_trade_order_cancel_pressed() -> void:
 func _on_manual_trade_execution_button_pressed() -> void:
 	if selected_city_marker == null:
 		return
+	if _contextual_worldmap_action_type == "trade" and _contextual_worldmap_action_pending:
+		return
 	var source_city_id := selected_city_marker.city_id
 	var order: Dictionary = _manual_trade_orders.get(source_city_id, {})
 	if _contextual_worldmap_action_type == "trade":
@@ -3094,6 +3110,11 @@ func _on_manual_trade_execution_button_pressed() -> void:
 
 
 func _execute_external_manual_trade_order(order: Dictionary) -> Dictionary:
+	return _ensure_diplomacy_action_coordinator().execute_trade_order(order)
+
+
+# Retained intact for phase-three parity checks; production uses the service above.
+func _execute_external_manual_trade_order_legacy(order: Dictionary) -> Dictionary:
 	var validation := _validate_external_manual_trade_execution(order)
 	if not bool(validation.get("ok", false)):
 		if not order.is_empty():

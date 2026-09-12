@@ -1,11 +1,11 @@
-"""Phase-two guard for the production spy routing extraction."""
+"""Phase-three guard for the production trade routing extraction."""
 
 import re
 import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "ba52b9fdf523cbf5450397e8d2948ce817f3509e"
+BASE = "244706d9849c4ec5dfc413b27ec79ac4690140a6"
 MAIN = "scripts/worldmap/worldmap_main.gd"
 
 
@@ -35,7 +35,6 @@ def main():
         "open_contextual_worldmap_action", "cancel_contextual_worldmap_action",
         "complete_contextual_worldmap_action",
         "_request_contextual_worldmap_action_presentation",
-        "_apply_spy_action", "_on_spy_action_pressed",
         "_execute_external_manual_trade_order",
         "_on_manual_trade_execution_button_pressed",
     }
@@ -43,12 +42,12 @@ def main():
         assert name in after, f"removed function: {name}"
         if name not in bridges:
             assert after[name] == body, f"out-of-scope function changed: {name}"
-    assert after["_apply_spy_action_legacy"] == before["_apply_spy_action"], "legacy spy implementation changed"
+    assert after["_execute_external_manual_trade_order_legacy"] == before["_execute_external_manual_trade_order"], "legacy trade implementation changed"
     assert len(current(MAIN).splitlines()) >= len(original(MAIN).splitlines()), "host shortened"
 
     for file in ["diplomacy_action_service.gd", "spy_action_service.gd", "worldmap_action_coordinator.gd"]:
         path = "scripts/worldmap/actions/" + file
-        assert current(path) == original(path), f"existing service/coordinator changed: {file}"
+        assert current(path) == original(path), f"existing domain/coordinator changed: {file}"
     presentation = "scripts/worldmap/ui/worldmap_action_presentation_controller.gd"
     assert current(presentation) == original(presentation), "presentation contract changed"
 
@@ -61,20 +60,20 @@ def main():
     assert all(action in ui_entry for action in ['"diplomacy"', '"spy"', '"trade"'])
     assert '\telse:\n\t\taction_video_test_requested.emit(action_type, target_city_id)' in ui_entry
 
-    assert '.begin("diplomacy", target_city_id)' in after["open_contextual_worldmap_action"]
-    assert '.begin("spy", target_city_id)' in after["open_contextual_worldmap_action"]
-    assert '.execute_now("diplomacy", action_id, target_city_id)' in after["_apply_diplomacy_action"]
-    assert '.execute_now("spy", action_id, target_city_id)' in after["_apply_spy_action"]
-    assert 'if action_type == "spy":' in after["complete_contextual_worldmap_action"]
-    assert '_pending_spy_action_id' in after["complete_contextual_worldmap_action"]
+    assert '.begin("trade", target_city_id, _contextual_worldmap_action_source_city_id)' in after["open_contextual_worldmap_action"]
+    assert '_pending_trade_action_id' in after["complete_contextual_worldmap_action"]
+    assert '.execute_trade_order(order)' in after["_execute_external_manual_trade_order"]
 
     coordinator = current("scripts/worldmap/actions/worldmap_action_coordinator.gd")
-    assert '"spy":\n\t\t\treturn _spy_service.execute(host, action_id, target_city_id, source_city_id)' in coordinator
-    spy_service = current("scripts/worldmap/actions/spy_action_service.gd")
-    for helper in ["_validate_spy_action", "_store_failed_spy_action_result", "_gather_spy_info", "_disrupt_city_public_support", "_disrupt_city_loyalty", "_instigate_revolt", "_apply_spy_wedge_action"]:
-        assert f'"{helper}"' in spy_service, f"service helper missing: {helper}"
+    assert '"trade":\n\t\t\treturn _trade_service.execute(host, action_id, target_city_id, source_city_id)' in coordinator
+    service = current("scripts/worldmap/actions/trade_action_service.gd")
+    for helper in ["_validate_external_manual_trade_execution", "_build_external_manual_trade_execution_preview", "_get_city_storage", "_set_city_storage"]:
+        assert f'"{helper}"' in service, f"service helper missing: {helper}"
+    for field in ['"efficiency"', '"market_turn"', '"market_prices"']:
+        assert field in service, f"legacy result field missing: {field}"
+    assert 'if bool(result.get("ok", false)):' in service and 'orders.erase(source_city_id)' in service
 
-    print(f"PASS: spy routing static guard; {len(before)} prior functions retained, legacy body identical, diplomacy/spy/coordinator unchanged")
+    print(f"PASS: trade routing static guard; {len(before)} prior functions retained, legacy body identical, diplomacy/spy/coordinator unchanged")
 
 
 if __name__ == "__main__":

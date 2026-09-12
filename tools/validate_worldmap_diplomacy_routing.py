@@ -45,6 +45,8 @@ def main():
         # Later domain phases may extend the shared bridge without changing
         # the phase-one diplomacy implementation checked below.
         "_apply_spy_action", "_on_spy_action_pressed",
+        "_execute_external_manual_trade_order",
+        "_on_manual_trade_execution_button_pressed",
     }
     for name, body in before.items():
         assert name in after, f"removed function: {name}"
@@ -52,7 +54,7 @@ def main():
             assert after[name] == body, f"out-of-scope function changed: {name}"
     assert after["_apply_diplomacy_action_legacy"] == before["_apply_diplomacy_action_legacy"], "legacy implementation changed"
     assert len(current(MAIN).splitlines()) >= len(original(MAIN).splitlines()), "host shortened"
-    for file in ["spy_action_service.gd", "trade_action_service.gd", "worldmap_action_coordinator.gd"]:
+    for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
         path = "scripts/worldmap/actions/" + file
         assert current(path) == original(path), f"shared routing/service changed: {file}"
     presentation = "scripts/worldmap/ui/worldmap_action_presentation_controller.gd"
