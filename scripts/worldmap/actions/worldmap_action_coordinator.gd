@@ -4,6 +4,9 @@ extends Node
 signal presentation_requested(action_type: String, action_id: String, target_city_id: String)
 signal action_resolved(action_type: String, result: Dictionary)
 
+const DiplomacyActionServiceScript := preload("res://scripts/worldmap/actions/diplomacy_action_service.gd")
+const SpyActionServiceScript := preload("res://scripts/worldmap/actions/spy_action_service.gd")
+const TradeActionServiceScript := preload("res://scripts/worldmap/actions/trade_action_service.gd")
 const VALID_ACTION_TYPES := ["diplomacy", "spy", "trade"]
 
 var _action_type := ""
@@ -11,6 +14,9 @@ var _target_city_id := ""
 var _source_city_id := ""
 var _pending_presentation := false
 var _resolving := false
+var _diplomacy_service = DiplomacyActionServiceScript.new()
+var _spy_service = SpyActionServiceScript.new()
+var _trade_service = TradeActionServiceScript.new()
 
 
 func begin(action_type: String, target_city_id: String, source_city_id: String = "") -> Dictionary:
@@ -84,21 +90,18 @@ func complete(
 		var changed_result := _failure("context_changed", "도시 행동 대상이 변경되었습니다.")
 		resolve_without_video(_action_type, changed_result)
 		return changed_result
-	if not execute_action.is_valid():
-		var unavailable_result := _failure("executor_unavailable", "도시 행동 실행기를 찾을 수 없습니다.")
-		resolve_without_video(action_type, unavailable_result)
-		return unavailable_result
 
 	_resolving = true
 	_pending_presentation = false
 	var completed_type := _action_type
 	var completed_target := _target_city_id
 	var completed_source := _source_city_id
-	var raw_result: Variant = execute_action.call(
+	var raw_result: Variant = _execute_domain_action(
 		completed_type,
 		action_id,
 		completed_target,
-		completed_source
+		completed_source,
+		execute_action
 	)
 	var result: Dictionary = raw_result if raw_result is Dictionary else _failure(
 		"invalid_result",
@@ -117,6 +120,27 @@ func resolve_without_video(action_type: String, result: Dictionary) -> void:
 		resolved_type = _action_type
 	_clear_after_resolution()
 	action_resolved.emit(resolved_type, result)
+
+
+func _execute_domain_action(
+	action_type: String,
+	action_id: String,
+	target_city_id: String,
+	source_city_id: String,
+	fallback_execute_action: Callable
+) -> Variant:
+	var host := get_parent()
+	match action_type:
+		"diplomacy":
+			return _diplomacy_service.execute(host, action_id, target_city_id, source_city_id)
+		"spy":
+			return _spy_service.execute(host, action_id, target_city_id, source_city_id)
+		"trade":
+			return _trade_service.execute(host, action_id, target_city_id, source_city_id)
+		_:
+			if fallback_execute_action.is_valid():
+				return fallback_execute_action.call(action_type, action_id, target_city_id, source_city_id)
+	return _failure("executor_unavailable", "도시 행동 실행기를 찾을 수 없습니다.")
 
 
 func _matches(action_type: String, target_city_id: String) -> bool:
