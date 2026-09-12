@@ -61,25 +61,38 @@ def main() -> None:
     ):
         require(coordinator, token, "coordinator service transaction contract")
 
-    for source, host_method, label in (
-        (diplomacy_service, '_apply_diplomacy_action', "diplomacy service bridge"),
-        (spy_service, '_apply_spy_action', "spy service bridge"),
-        (trade_service, '_execute_external_manual_trade_order', "trade service bridge"),
+    for token in (
+        "func execute(",
+        'host.has_method("_apply_diplomacy_action")',
+        'host.call("_apply_diplomacy_action", action_id, target_city_id)',
     ):
-        require(source, "func execute(", label)
-        require(source, f'host.has_method("{host_method}")', label)
-        require(source, f'host.call("{host_method}"', label)
+        require(diplomacy_service, token, "diplomacy service bridge")
 
-    require(
-        trade_service,
+    for token in (
+        'const ACTION_GATHER_INFO := "gather_info"',
+        'const ACTION_PUBLIC_SUPPORT_DISRUPT := "public_support_disrupt"',
+        'const ACTION_LOYALTY_DISRUPT := "loyalty_disrupt"',
+        'const ACTION_REVOLT_INSTIGATE := "revolt_instigate"',
+        'const ACTION_WEDGE := "wedge"',
+        'host.call("_validate_spy_action", action_id, target_city_id)',
+        '"_store_failed_spy_action_result"',
+        '"_gather_spy_info"',
+        '"_disrupt_city_public_support"',
+        '"_disrupt_city_loyalty"',
+        '"_instigate_revolt"',
+        '"_apply_spy_wedge_action"',
+    ):
+        require(spy_service, token, "spy service dispatch contract")
+    forbid(spy_service, 'host.call("_apply_spy_action"', "legacy spy service monolith bridge")
+
+    for token in (
+        "func execute(",
+        'host.has_method("_execute_external_manual_trade_order")',
+        'host.call("_execute_external_manual_trade_order", order)',
         'player_state["last_external_manual_trade_execution_result"] = result.duplicate(true)',
-        "trade result persistence bridge",
-    )
-    require(
-        trade_service,
         "orders.erase(source_city_id)",
-        "trade pending-order clear on success",
-    )
+    ):
+        require(trade_service, token, "trade service bridge")
 
     for token in (
         'preload("res://scripts/worldmap/actions/worldmap_action_coordinator.gd")',
