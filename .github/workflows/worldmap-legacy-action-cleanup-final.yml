@@ -1,0 +1,156 @@
+name: Final WorldMap legacy action cleanup
+
+on:
+  push:
+    branches:
+      - integration/worldmap-iso-sfx-20260912
+    paths:
+      - .github/workflows/worldmap-legacy-action-cleanup-final.yml
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: integration/worldmap-iso-sfx-20260912
+          fetch-depth: 0
+
+      - name: Patch service-owned action routing
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace_func(text: str, name: str, replacement: str) -> str:
+              pattern = re.compile(rf'(?ms)^func {re.escape(name)}\b.*?(?=^func |\Z)')
+              matches = list(pattern.finditer(text))
+              if len(matches) != 1:
+                  raise SystemExit(f'{name}: expected one function, found {len(matches)}')
+              start, end = matches[0].span()
+              suffix = '\n\n\n' if replacement.strip() else ''
+              return text[:start] + replacement.rstrip() + suffix + text[end:]
+
+          main_path = Path('scripts/worldmap/worldmap_main.gd')
+          coordinator_path = Path('scripts/worldmap/actions/worldmap_action_coordinator.gd')
+          trade_path = Path('scripts/worldmap/actions/trade_action_service.gd')
+
+          main = main_path.read_text(encoding='utf-8')
+          main = replace_func(main, 'complete_contextual_worldmap_action', '''func complete_contextual_worldmap_action(action_type: String, action_id: String, target_city_id: String) -> Dictionary:
+          \tif _contextual_action_coordinator == null:
+          \t\treturn {"ok": false, "success": false, "message": "도시 행동 코디네이터를 찾을 수 없습니다."}
+          \treturn _contextual_action_coordinator.complete(
+          \t\taction_type,
+          \t\taction_id,
+          \t\ttarget_city_id
+          \t)''')
+          main = replace_func(main, '_execute_contextual_worldmap_action', '')
+          if 'func _execute_contextual_worldmap_action(' in main:
+              raise SystemExit('legacy contextual dispatcher still present')
+          main_path.write_text(main, encoding='utf-8')
+
+          coordinator = coordinator_path.read_text(encoding='utf-8')
+          coordinator = replace_func(coordinator, 'complete', '''func complete(
+          \taction_type: String,
+          \taction_id: String,
+          \ttarget_city_id: String
+          ) -> Dictionary:
+          \tif _resolving or not _pending_presentation:
+          \t\treturn _failure("not_pending", "실행 대기 중인 도시 행동이 없습니다.")
+          \tif not _matches(action_type, target_city_id):
+          \t\tvar changed_result := _failure("context_changed", "도시 행동 대상이 변경되었습니다.")
+          \t\tresolve_without_video(_action_type, changed_result)
+          \t\treturn changed_result
+          \t_resolving = true
+          \t_pending_presentation = false
+          \tvar completed_type := _action_type
+          \tvar completed_target := _target_city_id
+          \tvar completed_source := _source_city_id
+          \tvar raw_result: Variant = _execute_domain_action(
+          \t\tcompleted_type,
+          \t\taction_id,
+          \t\tcompleted_target,
+          \t\tcompleted_source
+          \t)
+          \tvar result: Dictionary = raw_result if raw_result is Dictionary else _failure(
+          \t\t"invalid_result",
+          \t\t"도시 행동 결과를 처리할 수 없습니다."
+          \t)
+          \t_clear_after_resolution()
+          \taction_resolved.emit(completed_type, result)
+          \treturn result
+
+
+          func execute_now(
+          \taction_type: String,
+          \taction_id: String,
+          \ttarget_city_id: String = "",
+          \tsource_city_id: String = ""
+          ) -> Dictionary:
+          \tvar normalized_type := action_type.strip_edges().to_lower()
+          \tif not VALID_ACTION_TYPES.has(normalized_type):
+          \t\treturn _failure("unsupported_action", "지원하지 않는 도시 행동입니다.")
+          \tvar raw_result: Variant = _execute_domain_action(
+          \t\tnormalized_type,
+          \t\taction_id,
+          \t\ttarget_city_id.strip_edges(),
+          \t\tsource_city_id.strip_edges()
+          \t)
+          \treturn raw_result if raw_result is Dictionary else _failure(
+          \t\t"invalid_result",
+          \t\t"도시 행동 결과를 처리할 수 없습니다."
+          \t)
+
+
+          func execute_trade_order(order: Dictionary) -> Dictionary:
+          \treturn _trade_service.execute_order(get_parent(), order)''')
+          coordinator = replace_func(coordinator, '_execute_domain_action', '''func _execute_domain_action(
+          \taction_type: String,
+          \taction_id: String,
+          \ttarget_city_id: String,
+          \tsource_city_id: String
+          ) -> Variant:
+          \tvar host := get_parent()
+          \tmatch action_type:
+          \t\t"diplomacy":
+          \t\t\treturn _diplomacy_service.execute(host, action_id, target_city_id, source_city_id)
+          \t\t"spy":
+          \t\t\treturn _spy_service.execute(host, action_id, target_city_id, source_city_id)
+          \t\t"trade":
+          \t\t\treturn _trade_service.execute(host, action_id, target_city_id, source_city_id)
+          \treturn _failure("unsupported_action", "지원하지 않는 도시 행동입니다.")''')
+          if 'fallback_execute_action' in coordinator or 'execute_action: Callable' in coordinator:
+              raise SystemExit('legacy coordinator fallback remains')
+          coordinator_path.write_text(coordinator, encoding='utf-8')
+
+          trade = trade_path.read_text(encoding='utf-8')
+          if 'var result := _execute_order(host, order)' not in trade:
+              raise SystemExit('trade execute call not found')
+          if 'func _execute_order(host: Object, order: Dictionary) -> Dictionary:' not in trade:
+              raise SystemExit('trade private executor not found')
+          trade = trade.replace('var result := _execute_order(host, order)', 'var result := execute_order(host, order)', 1)
+          trade = trade.replace('func _execute_order(host: Object, order: Dictionary) -> Dictionary:', 'func execute_order(host: Object, order: Dictionary) -> Dictionary:', 1)
+          trade_path.write_text(trade, encoding='utf-8')
+          PY
+
+      - name: Verify cleanup
+        shell: bash
+        run: |
+          git diff --check
+          python tools/validate_worldmap_contextual_action_transaction.py
+          python tools/validate_worldmap_to_battle_input_lifecycle.py
+
+      - name: Commit verified cleanup
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/worldmap/worldmap_main.gd \
+                  scripts/worldmap/actions/worldmap_action_coordinator.gd \
+                  scripts/worldmap/actions/trade_action_service.gd
+          git commit -m "Refactor worldmap legacy action routing"
+          git push origin HEAD:integration/worldmap-iso-sfx-20260912
