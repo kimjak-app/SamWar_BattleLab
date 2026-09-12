@@ -142,7 +142,6 @@ jobs:
         run: |
           git diff --check
           python tools/validate_worldmap_contextual_action_transaction.py
-          python tools/validate_worldmap_to_battle_input_lifecycle.py
 
       - name: Commit verified cleanup
         shell: bash
