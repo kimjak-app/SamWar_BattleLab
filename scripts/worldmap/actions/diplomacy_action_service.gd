@@ -63,7 +63,7 @@ func execute(
 	if action_id == ACTION_ALLIANCE_PROPOSAL:
 		var prepaid_validation := validation.duplicate(true)
 		prepaid_validation["payment"] = payment_result
-		var alliance_result := _call_result(host, "_apply_alliance_diplomacy_action", [prepaid_validation])
+		var alliance_result := apply_alliance_action(host, prepaid_validation)
 		_set_status(host, alliance_result)
 		return alliance_result
 	var before_score := int(validation.get("before_score", DEFAULT_RELATION_SCORE))
@@ -218,6 +218,116 @@ static func normalize_resource_package(resource_package: Dictionary) -> Dictiona
 	return normalized
 
 
+func calculate_alliance_acceptance_chance(host: Object, target_faction_id: String, resource_package: Dictionary, duration_turns: int) -> int:
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	if target_faction_id.is_empty() or target_faction_id == player_faction_id:
+		return 0
+	var relation := _get_relation_entry(host, player_faction_id, target_faction_id)
+	var score := clampi(int(relation.get("score", DEFAULT_RELATION_SCORE)), RELATION_SCORE_MIN, RELATION_SCORE_MAX)
+	var package := normalize_resource_package(resource_package)
+	var package_bonus := int(floor(float(package.get("gold", 0)) / 20.0)) + int(floor(float(package.get("silk", 0)) / 10.0))
+	var duration_penalty := maxi(0, duration_turns - LEGACY_TRADE_AGREEMENT_TURNS)
+	var base_chance := score + package_bonus - duration_penalty
+	return int(host.call("_get_modified_diplomacy_success_chance_mvp", base_chance, ACTION_ALLIANCE_PROPOSAL, target_faction_id))
+
+
+func propose_alliance(host: Object, target_faction_id: String, resource_package: Dictionary, duration_turns: int, prepaid_payment: Dictionary = {}) -> bool:
+	var player_state := _get_player_state(host)
+	var turn_number := maxi(1, int(player_state.get("turn_number", 1)))
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	var package := normalize_resource_package(resource_package)
+	if target_faction_id.is_empty() or target_faction_id == player_faction_id:
+		player_state["last_alliance_proposal_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "invalid_target", "resource_package": package, "message": "동맹 대상을 확인할 수 없습니다."}
+		host.set("_player_state", player_state)
+		return false
+	var relation := _get_relation_entry(host, player_faction_id, target_faction_id)
+	var status := str(host.call("_normalize_faction_relation_status", str(relation.get("status", RELATION_STATUS_NEUTRAL))))
+	var before_score := clampi(int(relation.get("score", DEFAULT_RELATION_SCORE)), RELATION_SCORE_MIN, RELATION_SCORE_MAX)
+	if status == RELATION_STATUS_HOSTILE or status == RELATION_STATUS_SUSPENDED:
+		player_state["last_alliance_proposal_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": status, "status": status, "before_status": status, "after_status": status, "before_score": before_score, "after_score": before_score, "resource_package": package, "message": "적대 또는 교역 중단 상태에서는 동맹을 제안할 수 없습니다."}
+		host.set("_player_state", player_state)
+		return false
+	if duration_turns <= 0:
+		player_state["last_alliance_proposal_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "duration", "status": status, "before_status": status, "after_status": status, "before_score": before_score, "after_score": before_score, "resource_package": package, "message": "동맹 기간을 확인할 수 없습니다."}
+		host.set("_player_state", player_state)
+		return false
+	var payment_check := can_pay_diplomacy_resource_cost(host, package)
+	if prepaid_payment.is_empty() and not bool(payment_check.get("ok", false)):
+		player_state["last_alliance_proposal_result"] = {"turn": turn_number, "target_faction_id": target_faction_id, "success": false, "accepted": false, "reason": "resources", "status": status, "before_status": status, "after_status": status, "before_score": before_score, "after_score": before_score, "resource_package": package, "missing": payment_check.get("missing", {}), "message": "자원이 부족합니다."}
+		host.set("_player_state", player_state)
+		return false
+	var payment_result := prepaid_payment if not prepaid_payment.is_empty() else apply_diplomacy_resource_cost(host, package)
+	var acceptance_chance := calculate_alliance_acceptance_chance(host, target_faction_id, package, duration_turns)
+	var accepted := acceptance_chance >= ALLIANCE_ACCEPTANCE_THRESHOLD
+	if accepted:
+		var updated_relation := _get_relation_entry(host, player_faction_id, target_faction_id)
+		updated_relation["status"] = RELATION_STATUS_ALLIED
+		updated_relation["alliance_turns_remaining"] = duration_turns
+		updated_relation["alliance_created_turn"] = turn_number
+		updated_relation["alliance_resource_package"] = package.duplicate(true)
+		updated_relation["alliance_acceptance_score"] = acceptance_chance
+		updated_relation["military_support_rejection_count"] = 0
+		_store_relation_entry(host, player_faction_id, target_faction_id, updated_relation)
+	var after_status := RELATION_STATUS_ALLIED if accepted else status
+	player_state = _get_player_state(host)
+	player_state["last_alliance_proposal_result"] = {
+		"turn": turn_number,
+		"target_faction_id": target_faction_id,
+		"resource_package": package,
+		"cost": package,
+		"payment": payment_result,
+		"acceptance_chance": acceptance_chance,
+		"acceptance_score": acceptance_chance,
+		"acceptance_threshold": ALLIANCE_ACCEPTANCE_THRESHOLD,
+		"required_score": ALLIANCE_ACCEPTANCE_THRESHOLD,
+		"accepted": accepted,
+		"success": accepted,
+		"reason": "" if accepted else "rejected",
+		"status": after_status,
+		"before_status": status,
+		"after_status": after_status,
+		"before_score": before_score,
+		"after_score": before_score,
+		"duration_turns": duration_turns if accepted else 0,
+		"alliance_turns_remaining": duration_turns if accepted else 0,
+		"created_turn": turn_number if accepted else 0,
+		"message": "동맹을 체결했습니다." if accepted else "동맹 제안이 거절되었습니다.",
+	}
+	host.set("_player_state", player_state)
+	return accepted
+
+
+func apply_alliance_action(host: Object, validation: Dictionary) -> Dictionary:
+	var target_faction_id := str(validation.get("target_faction_id", ""))
+	var package_variant: Variant = validation.get("cost", {})
+	var package: Dictionary = package_variant if package_variant is Dictionary else {}
+	var alliance_turns := maxi(1, int(validation.get("alliance_turns", ACTION_ALLIANCE_TURNS)))
+	var payment_variant: Variant = validation.get("payment", {})
+	var payment: Dictionary = payment_variant if payment_variant is Dictionary else {}
+	propose_alliance(host, target_faction_id, package, alliance_turns, payment)
+	set_diplomacy_action_cooldown(host, target_faction_id, maxi(0, int(validation.get("cooldown", 0))), false)
+	var result_variant: Variant = _get_player_state(host).get("last_alliance_proposal_result", {})
+	var result := (result_variant as Dictionary).duplicate(true) if result_variant is Dictionary else {}
+	if result.is_empty():
+		result = build_failure_result(maxi(1, int(_get_player_state(host).get("turn_number", 1))), ACTION_ALLIANCE_PROPOSAL, {"reason": "unknown", "message": "동맹 제안 결과를 확인할 수 없습니다.", "target_faction_id": target_faction_id, "cost": package})
+	result["action_id"] = ACTION_ALLIANCE_PROPOSAL
+	result["action_label"] = str(validation.get("action_label", "동맹 제안"))
+	result["target_city_id"] = str(validation.get("target_city_id", ""))
+	result["cooldown"] = maxi(0, int(validation.get("cooldown", 0)))
+	result["before_score"] = int(validation.get("before_score", result.get("before_score", DEFAULT_RELATION_SCORE)))
+	result["before_status"] = str(validation.get("before_status", result.get("before_status", RELATION_STATUS_NEUTRAL)))
+	result["after_score"] = int(result.get("after_score", result.get("before_score", DEFAULT_RELATION_SCORE)))
+	result["after_status"] = str(result.get("after_status", result.get("status", validation.get("before_status", RELATION_STATUS_NEUTRAL))))
+	if bool(result.get("accepted", false)):
+		result["message"] = "동맹을 체결했습니다."
+	else:
+		result["message"] = "동맹 제안이 거절되었습니다." if str(result.get("reason", "")) == "rejected" else str(result.get("message", "동맹 제안을 실행하지 못했습니다."))
+	sync_diplomacy_mirror_state(host)
+	sync_alliance_mirror_state(host)
+	_store_last_result(host, result)
+	return result
+
+
 func get_diplomacy_action_cooldown(host: Object, target_faction_id: String) -> int:
 	var player_faction_id := str(host.call("_get_current_player_faction_id"))
 	if target_faction_id.is_empty() or target_faction_id == player_faction_id:
@@ -303,6 +413,23 @@ static func advance_diplomacy_state_entry(relation_key: String, source_entry: Di
 	return {"entry": entry, "changed": changed}
 
 
+static func advance_alliance_state_entry(relation_key: String, source_entry: Dictionary) -> Dictionary:
+	var entry := source_entry.duplicate(true)
+	var changed: Array = []
+	var before_alliance_turns := maxi(0, int(entry.get("alliance_turns_remaining", 0)))
+	var status := str(entry.get("status", RELATION_STATUS_NEUTRAL))
+	if (status == RELATION_STATUS_ALLIED or status == "trade") and before_alliance_turns > 0:
+		var after_alliance_turns := maxi(0, before_alliance_turns - 1)
+		entry["alliance_turns_remaining"] = after_alliance_turns
+		if after_alliance_turns <= 0:
+			entry["status"] = RELATION_STATUS_NEUTRAL
+			entry.erase("alliance_created_turn")
+			entry.erase("alliance_resource_package")
+			entry.erase("alliance_acceptance_score")
+		changed.append({"relation_key": relation_key, "type": "alliance", "before": before_alliance_turns, "after": after_alliance_turns})
+	return {"entry": entry, "changed": changed}
+
+
 func sync_diplomacy_mirror_state(host: Object) -> void:
 	var player_state := _get_player_state(host)
 	var player_faction_id := str(host.call("_get_current_player_faction_id"))
@@ -332,6 +459,38 @@ func sync_diplomacy_mirror_state(host: Object) -> void:
 				}
 	player_state["diplomacy_action_cooldowns"] = cooldowns
 	player_state["trade_agreements"] = agreements
+	host.set("_player_state", player_state)
+
+
+func sync_alliance_mirror_state(host: Object) -> void:
+	var player_state := _get_player_state(host)
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	var alliances := {}
+	var relations_variant: Variant = player_state.get("faction_relations", {})
+	if relations_variant is Dictionary:
+		for relation_key_variant in (relations_variant as Dictionary).keys():
+			var relation_key := str(relation_key_variant)
+			var target_faction_id := _get_target_faction_from_relation_key(player_faction_id, relation_key)
+			if target_faction_id.is_empty():
+				continue
+			var entry_variant: Variant = (relations_variant as Dictionary).get(relation_key_variant, {})
+			if not entry_variant is Dictionary:
+				continue
+			var entry := entry_variant as Dictionary
+			var alliance_turns := maxi(0, int(entry.get("alliance_turns_remaining", 0)))
+			var status := str(host.call("_normalize_faction_relation_status", str(entry.get("status", RELATION_STATUS_NEUTRAL))))
+			if status == RELATION_STATUS_ALLIED and alliance_turns > 0:
+				var package_payload := {}
+				var package_payload_variant: Variant = entry.get("alliance_resource_package", {})
+				if package_payload_variant is Dictionary:
+					package_payload = normalize_resource_package(package_payload_variant as Dictionary)
+				alliances[target_faction_id] = {
+					"turns_remaining": alliance_turns,
+					"created_turn": maxi(1, int(entry.get("alliance_created_turn", player_state.get("turn_number", 1)))),
+					"resource_package": package_payload,
+					"acceptance_score": maxi(0, int(entry.get("alliance_acceptance_score", 0))),
+				}
+	player_state["alliances"] = alliances
 	host.set("_player_state", player_state)
 
 
@@ -375,6 +534,52 @@ func restore_diplomacy_state_from_mirrors(host: Object) -> void:
 			relation_entry["trade_agreement_source"] = agreement_source
 			relation_entry["trade_agreement_created_turn"] = created_turn
 			_store_relation_entry(host, player_faction_id, target_faction_id, relation_entry)
+
+
+func restore_alliance_state_from_mirror(host: Object) -> void:
+	var player_state := _get_player_state(host)
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	var raw_alliances: Variant = player_state.get("alliances", {})
+	if not raw_alliances is Dictionary:
+		return
+	for target_faction_variant in (raw_alliances as Dictionary).keys():
+		var target_faction_id := str(target_faction_variant)
+		if target_faction_id.is_empty() or target_faction_id == player_faction_id:
+			continue
+		var raw_alliance: Variant = (raw_alliances as Dictionary).get(target_faction_variant, {})
+		var turns_remaining := 0
+		var created_turn := maxi(1, int(player_state.get("turn_number", 1)))
+		var resource_package := {}
+		var acceptance_score := 0
+		if raw_alliance is Dictionary:
+			turns_remaining = maxi(0, int((raw_alliance as Dictionary).get("turns_remaining", 0)))
+			created_turn = maxi(1, int((raw_alliance as Dictionary).get("created_turn", created_turn)))
+			var package_variant: Variant = (raw_alliance as Dictionary).get("resource_package", {})
+			if package_variant is Dictionary:
+				resource_package = normalize_resource_package(package_variant as Dictionary)
+			acceptance_score = maxi(0, int((raw_alliance as Dictionary).get("acceptance_score", 0)))
+		else:
+			turns_remaining = maxi(0, int(raw_alliance))
+		if turns_remaining <= 0:
+			continue
+		var relation_entry := _get_relation_entry(host, player_faction_id, target_faction_id)
+		relation_entry["status"] = RELATION_STATUS_ALLIED
+		relation_entry["alliance_turns_remaining"] = maxi(int(relation_entry.get("alliance_turns_remaining", 0)), turns_remaining)
+		relation_entry["alliance_created_turn"] = created_turn
+		relation_entry["alliance_resource_package"] = resource_package
+		relation_entry["alliance_acceptance_score"] = acceptance_score
+		_store_relation_entry(host, player_faction_id, target_faction_id, relation_entry)
+
+
+func get_active_alliance_turns(host: Object, target_faction_id: String) -> int:
+	var player_faction_id := str(host.call("_get_current_player_faction_id"))
+	if target_faction_id.is_empty() or target_faction_id == player_faction_id:
+		return 0
+	var relation := _get_relation_entry(host, player_faction_id, target_faction_id)
+	var status := str(host.call("_normalize_faction_relation_status", str(relation.get("status", RELATION_STATUS_NEUTRAL))))
+	if status != RELATION_STATUS_ALLIED:
+		return 0
+	return maxi(0, int(relation.get("alliance_turns_remaining", 0)))
 
 
 func get_trade_agreement_bonus_multiplier(host: Object, faction_a: String, faction_b: String) -> float:

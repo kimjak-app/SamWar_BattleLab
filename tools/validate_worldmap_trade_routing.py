@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "244706d9849c4ec5dfc413b27ec79ac4690140a6"
-PHASE_2B_BASE = "6b3bf867544cf6cbdd48ba7eed8be7f3e3ef3ded"
+PHASE_2C1_BASE = "b54dadcf7a586968c84ef185f9527231ef4646a4"
 MAIN = "scripts/worldmap/worldmap_main.gd"
 
 
@@ -50,6 +50,9 @@ def main():
         "_normalize_diplomacy_resource_package",
         "_apply_alliance_diplomacy_action",
         "_propose_alliance",
+        "_calculate_alliance_acceptance_chance",
+        "_sync_alliance_mirror_state_from_relations",
+        "_get_active_alliance_turns",
         "_normalize_diplomacy_action_state_from_player_state",
         "_sync_diplomacy_action_mirror_state_from_relations",
         "_get_diplomacy_action_cooldown",
@@ -64,9 +67,9 @@ def main():
         if name not in bridges:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     assert after["_execute_external_manual_trade_order_legacy"] == before["_execute_external_manual_trade_order"], "legacy trade implementation changed"
-    assert 'validation.get("payment", {})' in after["_apply_alliance_diplomacy_action"], "diplomacy 2B alliance payment adapter missing"
-    assert "prepaid_payment: Dictionary = {}" in after["_propose_alliance"], "diplomacy 2B alliance payment handoff missing"
-    assert len(current(MAIN).splitlines()) >= len(at_commit(PHASE_2B_BASE, MAIN).splitlines()) - 250, "host shortened beyond approved 2C-1 extraction budget"
+    assert "DiplomacyActionServiceScript.new().apply_alliance_action" in after["_apply_alliance_diplomacy_action"], "diplomacy 2C-2 alliance adapter missing"
+    assert "prepaid_payment: Dictionary = {}" in after["_propose_alliance"], "diplomacy 2C-2 prepaid API missing"
+    assert len(current(MAIN).splitlines()) >= len(at_commit(PHASE_2C1_BASE, MAIN).splitlines()) - 250, "host shortened beyond approved 2C-2 extraction budget"
 
     for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
         path = "scripts/worldmap/actions/" + file
@@ -96,7 +99,7 @@ def main():
         assert field in service, f"legacy result field missing: {field}"
     assert 'if bool(result.get("ok", false)):' in service and 'orders.erase(source_city_id)' in service
 
-    print(f"PASS: trade routing static guard; {len(before)} prior functions retained, legacy body identical, trade/spy/coordinator unchanged; diplomacy 2C-1 bridges allowed")
+    print(f"PASS: trade routing static guard; {len(before)} prior functions retained, legacy body identical, trade/spy/coordinator unchanged; diplomacy 2C-2 bridges allowed")
 
 
 if __name__ == "__main__":

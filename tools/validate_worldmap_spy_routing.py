@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "ba52b9fdf523cbf5450397e8d2948ce817f3509e"
-PHASE_2B_BASE = "6b3bf867544cf6cbdd48ba7eed8be7f3e3ef3ded"
+PHASE_2C1_BASE = "b54dadcf7a586968c84ef185f9527231ef4646a4"
 MAIN = "scripts/worldmap/worldmap_main.gd"
 
 
@@ -51,6 +51,9 @@ def main():
         "_normalize_diplomacy_resource_package",
         "_apply_alliance_diplomacy_action",
         "_propose_alliance",
+        "_calculate_alliance_acceptance_chance",
+        "_sync_alliance_mirror_state_from_relations",
+        "_get_active_alliance_turns",
         "_normalize_diplomacy_action_state_from_player_state",
         "_sync_diplomacy_action_mirror_state_from_relations",
         "_get_diplomacy_action_cooldown",
@@ -65,9 +68,9 @@ def main():
         if name not in bridges:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     assert after["_apply_spy_action_legacy"] == before["_apply_spy_action"], "legacy spy implementation changed"
-    assert 'validation.get("payment", {})' in after["_apply_alliance_diplomacy_action"], "diplomacy 2B alliance payment adapter missing"
-    assert "prepaid_payment: Dictionary = {}" in after["_propose_alliance"], "diplomacy 2B alliance payment handoff missing"
-    assert len(current(MAIN).splitlines()) >= len(at_commit(PHASE_2B_BASE, MAIN).splitlines()) - 250, "host shortened beyond approved 2C-1 extraction budget"
+    assert "DiplomacyActionServiceScript.new().apply_alliance_action" in after["_apply_alliance_diplomacy_action"], "diplomacy 2C-2 alliance adapter missing"
+    assert "prepaid_payment: Dictionary = {}" in after["_propose_alliance"], "diplomacy 2C-2 prepaid API missing"
+    assert len(current(MAIN).splitlines()) >= len(at_commit(PHASE_2C1_BASE, MAIN).splitlines()) - 250, "host shortened beyond approved 2C-2 extraction budget"
 
     for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
         path = "scripts/worldmap/actions/" + file
@@ -97,7 +100,7 @@ def main():
     for helper in ["_validate_spy_action", "_store_failed_spy_action_result", "_gather_spy_info", "_disrupt_city_public_support", "_disrupt_city_loyalty", "_instigate_revolt", "_apply_spy_wedge_action"]:
         assert f'"{helper}"' in spy_service, f"service helper missing: {helper}"
 
-    print(f"PASS: spy routing static guard; {len(before)} prior functions retained, legacy body identical, spy/coordinator unchanged; diplomacy 2C-1 bridges allowed")
+    print(f"PASS: spy routing static guard; {len(before)} prior functions retained, legacy body identical, spy/coordinator unchanged; diplomacy 2C-2 bridges allowed")
 
 
 if __name__ == "__main__":
