@@ -30,6 +30,8 @@ var _player_state: Dictionary:
 	set(value):
 		_host.set("_player_state", value)
 
+# Accessed dynamically by DiplomacyActionService through Object.set().
+@warning_ignore("unused_private_class_variable")
 var _save_management_status: String:
 	get:
 		return str(_host.get("_save_management_status"))
