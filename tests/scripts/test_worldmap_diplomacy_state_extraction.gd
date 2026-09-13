@@ -74,7 +74,7 @@ func _check_cooldown_state() -> void:
 	_expect(int(_state().get("diplomacy_action_cooldowns", {}).get(first, -1)) == first_turns, "first cooldown mirror")
 	_expect(int(_state().get("diplomacy_action_cooldowns", {}).get(second, -1)) == second_turns, "second cooldown mirror")
 	_expect(int(_worldmap.call("_get_diplomacy_action_cooldown", first)) == first_turns, "cooldown wrapper reads service state")
-	_worldmap.call("_set_diplomacy_action_cooldown", first, -first_turns)
+	_service.call("set_diplomacy_action_cooldown", _worldmap, first, -first_turns)
 	_expect(int(_entry(first).get("diplomacy_action_cooldown", -1)) == 0, "cooldown clamps at zero")
 	_expect(not (_state().get("diplomacy_action_cooldowns", {}) as Dictionary).has(first), "zero cooldown omitted from mirror")
 	_expect(int(_entry(second).get("diplomacy_action_cooldown", -1)) == second_turns, "clamp leaves other faction unchanged")
@@ -146,7 +146,7 @@ func _check_trade_agreement_creation_and_renewal() -> void:
 	_expect(created.get("target_faction_id") == faction_id and created.get("agreement", {}).get("turns_remaining") == duration, "agreement result target and duration")
 	_expect(int(_state().get("trade_agreements", {}).get(faction_id, {}).get("turns_remaining", 0)) == duration, "agreement mirror created")
 	_expect(_state().get("last_trade_agreement_result", {}).get("target_faction_id") == faction_id, "last agreement result target")
-	_worldmap.call("_set_diplomacy_action_cooldown", faction_id, 0)
+	_service.call("set_diplomacy_action_cooldown", _worldmap, faction_id, 0)
 	relation = _entry(faction_id)
 	relation["trade_agreement_turns_remaining"] = maxi(1, duration - 1)
 	_store_entry(faction_id, relation)
@@ -168,12 +168,12 @@ func _check_trade_agreement_failure_and_compatibility() -> void:
 
 	_prepare()
 	var before := _state().duplicate(true)
-	var wrapped: bool = _worldmap.call("_propose_trade_agreement", faction_id)
-	var wrapped_state := _state().duplicate(true)
+	var first_result: bool = _service.call("propose_trade_agreement", _worldmap, faction_id)
+	var first_state := _state().duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
-	var direct: bool = _service.call("propose_trade_agreement", _worldmap, faction_id)
-	_expect(direct == wrapped, "legacy agreement wrapper return parity")
-	_expect(_state() == wrapped_state, "legacy agreement wrapper state parity")
+	var repeated_result: bool = _service.call("propose_trade_agreement", _worldmap, faction_id)
+	_expect(repeated_result == first_result, "agreement service return is deterministic")
+	_expect(_state() == first_state, "agreement service state is deterministic")
 	_expect(int(_entry(faction_id).get("trade_agreement_turns_remaining", 0)) == Service.LEGACY_TRADE_AGREEMENT_TURNS, "legacy agreement duration unchanged")
 
 
@@ -198,16 +198,16 @@ func _check_mirror_restore_and_alliance_preservation() -> void:
 	_expect(int(_state().get("alliances", {}).get(faction_id, {}).get("turns_remaining", 0)) == 2, "alliance mirror preserved by main adapter")
 
 
-func _check_legacy_action_parity() -> void:
+func _check_production_action_parity() -> void:
 	_prepare()
 	var faction_id := _foreign_factions[0]
 	var city_id := str(_city_by_faction.get(faction_id, ""))
 	var before := _state().duplicate(true)
-	var legacy: Dictionary = _worldmap.call("_apply_diplomacy_action_legacy", "trade_agreement", city_id)
+	var direct: Dictionary = _service.call("execute", _worldmap, "trade_agreement", city_id)
 	var expected_state := _state().duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
-	var direct: Dictionary = _service.call("execute", _worldmap, "trade_agreement", city_id)
-	_expect(direct == legacy, "trade agreement action result parity")
+	var production: Dictionary = _worldmap.call("_apply_diplomacy_action", "trade_agreement", city_id)
+	_expect(production == direct, "trade agreement production result parity")
 	_expect(_state() == expected_state, "trade agreement action state parity")
 
 
@@ -232,7 +232,7 @@ func _run() -> void:
 		_check_trade_agreement_creation_and_renewal()
 		_check_trade_agreement_failure_and_compatibility()
 		_check_mirror_restore_and_alliance_preservation()
-		_check_legacy_action_parity()
+		_check_production_action_parity()
 
 	current_scene.queue_free()
 	await process_frame

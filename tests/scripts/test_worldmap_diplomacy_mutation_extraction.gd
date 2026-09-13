@@ -103,15 +103,15 @@ func _check_insufficient_resources(action_id: String) -> void:
 	_expect(result.get("target_city_id") == _foreign_city_id and result.get("target_faction_id") == _foreign_faction_id, "resource failure target contract: " + action_id)
 
 
-func _check_legacy_parity(action_id: String, score: int, status: String) -> void:
+func _check_production_parity(action_id: String, score: int, status: String) -> void:
 	_prepare(score, status)
 	var before: Dictionary = _worldmap.get("_player_state").duplicate(true)
-	var legacy: Dictionary = _worldmap.call("_apply_diplomacy_action_legacy", action_id, _foreign_city_id)
+	var direct: Dictionary = _service.call("execute", _worldmap, action_id, _foreign_city_id)
 	var expected_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
-	var direct: Dictionary = _service.call("execute", _worldmap, action_id, _foreign_city_id)
-	_expect(direct == legacy, "legacy result parity: " + action_id)
-	_expect(_worldmap.get("_player_state") == expected_state, "legacy state parity: " + action_id)
+	var production: Dictionary = _worldmap.call("_apply_diplomacy_action", action_id, _foreign_city_id)
+	_expect(production == direct, "production result parity: " + action_id)
+	_expect(_worldmap.get("_player_state") == expected_state, "production state parity: " + action_id)
 
 
 func _run() -> void:
@@ -139,7 +139,7 @@ func _run() -> void:
 	for action_id in ACTIONS:
 		var action_status := "hostile" if action_id == "restore_relations" else "neutral"
 		var action_score := 80 if action_id == "alliance_proposal" else 60
-		_check_legacy_parity(action_id, action_score, action_status)
+		_check_production_parity(action_id, action_score, action_status)
 		_check_action(action_id, action_score, action_status)
 	_check_insufficient_resources("tribute")
 	_check_insufficient_resources("alliance_proposal")

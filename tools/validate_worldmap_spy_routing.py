@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "ba52b9fdf523cbf5450397e8d2948ce817f3509e"
 PHASE_2C1_BASE = "b54dadcf7a586968c84ef185f9527231ef4646a4"
+PHASE_2C2_BASE = "9bd3a356d94d04a57b4d20533ca0603f017fc6ac"
 MAIN = "scripts/worldmap/worldmap_main.gd"
 
 
@@ -38,6 +39,14 @@ def functions(source):
 
 def main():
     before, after = functions(original(MAIN)), functions(current(MAIN))
+    deleted_diplomacy = {
+        "_get_player_relation_target_faction_from_key", "_sync_alliance_mirror_state_from_relations",
+        "_set_diplomacy_action_cooldown", "_build_diplomacy_action_failure_result",
+        "_apply_diplomacy_action_legacy", "_apply_alliance_diplomacy_action",
+        "_normalize_diplomacy_resource_package", "_propose_alliance",
+        "_get_trade_agreement_cost", "_propose_trade_agreement", "_get_tribute_cost",
+        "_can_send_tribute", "_calculate_tribute_relation_gain", "_send_tribute",
+    }
     bridges = {
         "open_contextual_worldmap_action", "cancel_contextual_worldmap_action",
         "complete_contextual_worldmap_action",
@@ -62,15 +71,21 @@ def main():
         "_get_trade_agreement_bonus_multiplier",
         "_get_active_trade_agreement_turns",
         "_advance_diplomacy_cooldowns_for_world_turn",
+        "_ensure_faction_relation_entry",
+        "_build_diplomacy_action_validation_context",
+        "_refresh_diplomacy_action_button",
+        "_format_diplomacy_action_hint",
+        "_format_last_diplomacy_action_result_for_ui",
     }
     for name, body in before.items():
+        if name in deleted_diplomacy:
+            assert name not in after, f"dead diplomacy function retained: {name}"
+            continue
         assert name in after, f"removed function: {name}"
         if name not in bridges:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     assert after["_apply_spy_action_legacy"] == before["_apply_spy_action"], "legacy spy implementation changed"
-    assert "DiplomacyActionServiceScript.new().apply_alliance_action" in after["_apply_alliance_diplomacy_action"], "diplomacy 2C-2 alliance adapter missing"
-    assert "prepaid_payment: Dictionary = {}" in after["_propose_alliance"], "diplomacy 2C-2 prepaid API missing"
-    assert len(current(MAIN).splitlines()) >= len(at_commit(PHASE_2C1_BASE, MAIN).splitlines()) - 250, "host shortened beyond approved 2C-2 extraction budget"
+    assert len(current(MAIN).splitlines()) >= len(at_commit(PHASE_2C2_BASE, MAIN).splitlines()) - 350, "host shortened beyond approved 2D cleanup budget"
 
     for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
         path = "scripts/worldmap/actions/" + file
@@ -100,7 +115,7 @@ def main():
     for helper in ["_validate_spy_action", "_store_failed_spy_action_result", "_gather_spy_info", "_disrupt_city_public_support", "_disrupt_city_loyalty", "_instigate_revolt", "_apply_spy_wedge_action"]:
         assert f'"{helper}"' in spy_service, f"service helper missing: {helper}"
 
-    print(f"PASS: spy routing static guard; {len(before)} prior functions retained, legacy body identical, spy/coordinator unchanged; diplomacy 2C-2 bridges allowed")
+    print(f"PASS: spy routing static guard; spy/coordinator unchanged; diplomacy 2D cleanup boundaries allowed")
 
 
 if __name__ == "__main__":

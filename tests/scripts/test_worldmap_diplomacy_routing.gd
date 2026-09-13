@@ -1,11 +1,13 @@
 extends SceneTree
 
 const SCENE_PATH := "res://WorldMap_16x9_Test.tscn"
+const Service := preload("res://scripts/worldmap/actions/diplomacy_action_service.gd")
 var _failures := 0
 var _checks := 0
 var _resolved := 0
 var _presented := 0
 var _worldmap: Node
+var _service: RefCounted
 var _presentation: Node
 var _baseline: Dictionary
 var _target := ""
@@ -49,12 +51,12 @@ func _prepare(faction: String = "player", score: int = 60, status: String = "neu
 func _parity(action: String, faction: String, score: int, status: String, gold: int, cooldown: int, expected_success: bool) -> void:
 	_prepare(faction, score, status, gold, cooldown)
 	var before: Dictionary = _worldmap.get("_player_state").duplicate(true)
-	var legacy: Dictionary = _worldmap.call("_apply_diplomacy_action_legacy", action, _target)
+	var service_result: Dictionary = _service.call("execute", _worldmap, action, _target)
 	var expected_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
 	var actual: Dictionary = _worldmap.call("_apply_diplomacy_action", action, _target)
 	var label := "%s/%s/%s/%d/%d/%d" % [action, faction, status, score, gold, cooldown]
-	_expect(actual == legacy, "result parity " + label)
+	_expect(actual == service_result, "coordinator/service result parity " + label)
 	_expect(_worldmap.get("_player_state") == expected_state, "full state parity " + label)
 	_expect(bool(actual.get("success", false)) == expected_success, "expected outcome " + label)
 	if not expected_success and action != "alliance_proposal":
@@ -77,6 +79,7 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	_worldmap = current_scene.get_node("ProductionWorldMap")
+	_service = Service.new()
 	_presentation = current_scene.get_node("ActionPresentationController")
 	_baseline = _worldmap.get("_player_state").duplicate(true)
 	_worldmap.connect("contextual_worldmap_action_resolved", func(_type: String, _result: Dictionary) -> void: _resolved += 1)

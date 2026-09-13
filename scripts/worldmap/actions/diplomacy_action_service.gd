@@ -218,6 +218,26 @@ static func normalize_resource_package(resource_package: Dictionary) -> Dictiona
 	return normalized
 
 
+static func normalize_diplomacy_relation_entry(source_entry: Dictionary) -> Dictionary:
+	var entry := source_entry.duplicate(true)
+	entry["tribute_cooldown"] = maxi(0, int(entry.get("tribute_cooldown", 0)))
+	entry["diplomacy_action_cooldown"] = maxi(0, int(entry.get("diplomacy_action_cooldown", 0)))
+	entry["alliance_turns_remaining"] = maxi(0, int(entry.get("alliance_turns_remaining", 0)))
+	if str(entry.get("status", RELATION_STATUS_NEUTRAL)) == RELATION_STATUS_ALLIED and int(entry.get("alliance_turns_remaining", 0)) <= 0:
+		entry["status"] = RELATION_STATUS_NEUTRAL
+		entry.erase("alliance_created_turn")
+		entry.erase("alliance_resource_package")
+		entry.erase("alliance_acceptance_score")
+	entry["trade_agreement_turns_remaining"] = maxi(0, int(entry.get("trade_agreement_turns_remaining", 0)))
+	entry["trade_agreement_active"] = bool(entry.get("trade_agreement_active", false)) and int(entry.get("trade_agreement_turns_remaining", 0)) > 0
+	entry["trade_agreement_bonus"] = TRADE_AGREEMENT_MULTIPLIER_BONUS if bool(entry.get("trade_agreement_active", false)) else 0.0
+	if bool(entry.get("trade_agreement_active", false)):
+		entry["trade_agreement_source"] = str(entry.get("trade_agreement_source", "legacy"))
+	else:
+		entry.erase("trade_agreement_source")
+	return entry
+
+
 func calculate_alliance_acceptance_chance(host: Object, target_faction_id: String, resource_package: Dictionary, duration_turns: int) -> int:
 	var player_faction_id := str(host.call("_get_current_player_faction_id"))
 	if target_faction_id.is_empty() or target_faction_id == player_faction_id:
@@ -395,6 +415,11 @@ func apply_trade_agreement_state(
 static func advance_diplomacy_state_entry(relation_key: String, source_entry: Dictionary) -> Dictionary:
 	var entry := source_entry.duplicate(true)
 	var changed: Array = []
+	var before_tribute_cooldown := maxi(0, int(entry.get("tribute_cooldown", 0)))
+	if before_tribute_cooldown > 0:
+		var after_tribute_cooldown := maxi(0, before_tribute_cooldown - 1)
+		entry["tribute_cooldown"] = after_tribute_cooldown
+		changed.append({"relation_key": relation_key, "type": "tribute_cooldown", "before": before_tribute_cooldown, "after": after_tribute_cooldown})
 	var before_action_cooldown := maxi(0, int(entry.get("diplomacy_action_cooldown", 0)))
 	if before_action_cooldown > 0:
 		var after_action_cooldown := maxi(0, before_action_cooldown - 1)
@@ -769,15 +794,6 @@ func _store_last_result(host: Object, result: Dictionary) -> void:
 
 func _set_status(host: Object, result: Dictionary) -> void:
 	host.set("_save_management_status", str(result.get("message", "외교 행동 처리")))
-
-
-func _call_result(host: Object, method_name: String, args: Array) -> Dictionary:
-	if not host.has_method(method_name):
-		return _failure("executor_unavailable", "외교 행동 처리기를 찾을 수 없습니다: %s" % method_name)
-	var raw_result: Variant = host.callv(method_name, args)
-	if raw_result is Dictionary:
-		return raw_result as Dictionary
-	return _failure("invalid_result", "외교 행동 결과를 처리할 수 없습니다.")
 
 
 func _failure(reason: String, message: String) -> Dictionary:

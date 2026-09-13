@@ -131,12 +131,12 @@ func _check_acceptance_and_wrapper_parity() -> void:
 
 	_prepare(80)
 	var before := _state().duplicate(true)
-	var wrapped: bool = _worldmap.call("_propose_alliance", faction_id, package, duration)
-	var wrapped_state := _state().duplicate(true)
+	var first_proposal: bool = _service.call("propose_alliance", _worldmap, faction_id, package, duration)
+	var first_state := _state().duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
-	var direct: bool = _service.call("propose_alliance", _worldmap, faction_id, package, duration)
-	_expect(wrapped == direct, "proposal wrapper return parity")
-	_expect(_state() == wrapped_state, "proposal wrapper full-state parity")
+	var repeated_proposal: bool = _service.call("propose_alliance", _worldmap, faction_id, package, duration)
+	_expect(repeated_proposal == first_proposal, "proposal service return is deterministic")
+	_expect(_state() == first_state, "proposal service full state is deterministic")
 
 	_prepare(80)
 	var city_id := str(_city_by_faction.get(faction_id, ""))
@@ -144,14 +144,14 @@ func _check_acceptance_and_wrapper_parity() -> void:
 	before = _state().duplicate(true)
 	var payment: Dictionary = _service.call("apply_diplomacy_resource_cost", _worldmap, package)
 	validation["payment"] = payment
-	var wrapped_result: Dictionary = _worldmap.call("_apply_alliance_diplomacy_action", validation)
-	wrapped_state = _state().duplicate(true)
+	var first_result: Dictionary = _service.call("apply_alliance_action", _worldmap, validation)
+	first_state = _state().duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
 	payment = _service.call("apply_diplomacy_resource_cost", _worldmap, package)
 	validation["payment"] = payment
-	var direct_result: Dictionary = _service.call("apply_alliance_action", _worldmap, validation)
-	_expect(direct_result == wrapped_result, "alliance action wrapper result parity")
-	_expect(_state() == wrapped_state, "alliance action wrapper full-state parity")
+	var repeated_result: Dictionary = _service.call("apply_alliance_action", _worldmap, validation)
+	_expect(repeated_result == first_result, "alliance action result is deterministic")
+	_expect(_state() == first_state, "alliance action full state is deterministic")
 	_expect(int(before.get("resource_stock", {}).get("gold", 0)) - int(_state().get("resource_stock", {}).get("gold", 0)) == int(package.get("gold", 0)), "prepaid action is not charged twice")
 
 
@@ -179,7 +179,7 @@ func _check_renewal_expiration_and_independence() -> void:
 	var second_entry := _entry(second)
 	second_entry["alliance_turns_remaining"] = 3
 	_store_entry(second, second_entry)
-	_worldmap.call("_sync_alliance_mirror_state_from_relations")
+	_service.call("sync_alliance_mirror_state", _worldmap)
 	var first_advance: Dictionary = _worldmap.call("_advance_diplomacy_cooldowns_for_world_turn")
 	_expect(int(_entry(first).get("alliance_turns_remaining", 0)) == 1 and int(_entry(second).get("alliance_turns_remaining", 0)) == 2, "faction alliance durations decrement independently")
 	_expect(int(first_advance.get("changed_count", 0)) == 2, "turn result records both alliance changes")
@@ -206,11 +206,11 @@ func _check_mirror_restore() -> void:
 	_expect(str(relation.get("status", "")) == "allied" and int(relation.get("alliance_turns_remaining", 0)) == 3, "alliance mirror restores relation state")
 	_expect(relation.get("alliance_resource_package", {}) == package and int(relation.get("alliance_acceptance_score", 0)) == 75, "alliance mirror restores metadata")
 	var before_sync := _state().duplicate(true)
-	_worldmap.call("_sync_alliance_mirror_state_from_relations")
-	var wrapped_state := _state().duplicate(true)
+	_service.call("sync_alliance_mirror_state", _worldmap)
+	var first_state := _state().duplicate(true)
 	_worldmap.set("_player_state", before_sync.duplicate(true))
 	_service.call("sync_alliance_mirror_state", _worldmap)
-	_expect(_state() == wrapped_state, "alliance mirror wrapper and service parity")
+	_expect(_state() == first_state, "alliance mirror service is deterministic")
 	_expect(int(_state().get("alliances", {}).get(faction_id, {}).get("turns_remaining", 0)) == int(_entry(faction_id).get("alliance_turns_remaining", 0)), "relation and alliance mirror stay synchronized")
 
 

@@ -1,4 +1,4 @@
-"""Diplomacy 2C-2 guard: preserve recovery functions and own alliance state.
+"""Diplomacy 2D guard: preserve recovery boundaries and enforce service ownership.
 
 Compare with the verified recovery HEAD, not a moving branch name. Runtime
 behavior is covered separately by test_worldmap_diplomacy_routing.gd.
@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BASE = "e066b59a28226de1e5f4680ae11b651926903361"
 PHASE_2B_BASE = "6b3bf867544cf6cbdd48ba7eed8be7f3e3ef3ded"
 PHASE_2C1_BASE = "b54dadcf7a586968c84ef185f9527231ef4646a4"
+PHASE_2C2_BASE = "9bd3a356d94d04a57b4d20533ca0603f017fc6ac"
 MAIN = "scripts/worldmap/worldmap_main.gd"
 
 
@@ -45,6 +46,22 @@ def functions(source):
 
 def main():
     before, after = functions(original(MAIN)), functions(current(MAIN))
+    deleted = {
+        "_get_player_relation_target_faction_from_key",
+        "_sync_alliance_mirror_state_from_relations",
+        "_set_diplomacy_action_cooldown",
+        "_build_diplomacy_action_failure_result",
+        "_apply_diplomacy_action_legacy",
+        "_apply_alliance_diplomacy_action",
+        "_normalize_diplomacy_resource_package",
+        "_propose_alliance",
+        "_get_trade_agreement_cost",
+        "_propose_trade_agreement",
+        "_get_tribute_cost",
+        "_can_send_tribute",
+        "_calculate_tribute_relation_gain",
+        "_send_tribute",
+    }
     bridges = {
         "open_contextual_worldmap_action", "cancel_contextual_worldmap_action",
         "complete_contextual_worldmap_action",
@@ -76,21 +93,30 @@ def main():
         "_get_trade_agreement_bonus_multiplier",
         "_get_active_trade_agreement_turns",
         "_advance_diplomacy_cooldowns_for_world_turn",
+        # Phase 2D delegates remaining relation normalization and removes
+        # duplicated UI fallback rule constants from main.
+        "_ensure_faction_relation_entry",
+        "_build_diplomacy_action_validation_context",
+        "_refresh_diplomacy_action_button",
+        "_format_diplomacy_action_hint",
+        "_format_last_diplomacy_action_result_for_ui",
     }
     for name, body in before.items():
+        if name in deleted:
+            assert name not in after, f"dead diplomacy function retained: {name}"
+            continue
         assert name in after, f"removed function: {name}"
         if name not in bridges:
             assert after[name] == body, f"out-of-scope function changed: {name}"
-    assert after["_apply_diplomacy_action_legacy"] == before["_apply_diplomacy_action_legacy"], "legacy implementation changed"
     phase_2c1 = functions(at_commit(PHASE_2C1_BASE, MAIN))
     for name in ["_calculate_military_support_acceptance_chance", "_request_military_support", "_break_spy_wedge_alliance_if_needed"]:
         assert after[name] == phase_2c1[name], f"2C-2 changed protected military/spy function: {name}"
     for name in [
         "_adjust_faction_relation_score", "_request_military_support",
-        "_send_tribute", "_apply_generic_resource_cost",
+        "_apply_generic_resource_cost",
     ]:
         assert after[name] == before[name], f"diplomacy mutation function changed: {name}"
-    assert len(current(MAIN).splitlines()) >= len(at_commit(PHASE_2C1_BASE, MAIN).splitlines()) - 250, "host shortened beyond the 2C-2 extraction budget"
+    assert len(current(MAIN).splitlines()) >= len(at_commit(PHASE_2C2_BASE, MAIN).splitlines()) - 350, "host shortened beyond the 2D cleanup budget"
     for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
         path = "scripts/worldmap/actions/" + file
         assert current(path) == original(path), f"shared routing/service changed: {file}"
@@ -117,9 +143,7 @@ def main():
             assert forbidden not in pure_body, f"{name} owns forbidden side effect/dependency: {forbidden}"
     assert "DiplomacyActionServiceScript.get_action_definition(action_id)" in after["_get_diplomacy_action_definition"]
     assert "DiplomacyActionServiceScript.validate_action" in after["_validate_diplomacy_action"]
-    assert "DiplomacyActionServiceScript.build_failure_result" in after["_build_diplomacy_action_failure_result"]
-    assert "DiplomacyActionServiceScript.normalize_resource_package" in after["_normalize_diplomacy_resource_package"]
-    for name in ["_get_diplomacy_action_definition", "_validate_diplomacy_action", "_build_diplomacy_action_failure_result", "_normalize_diplomacy_resource_package"]:
+    for name in ["_get_diplomacy_action_definition", "_validate_diplomacy_action"]:
         assert len(after[name].splitlines()) <= 2, f"host compatibility API is not a thin wrapper: {name}"
     assert 'host.call("_build_diplomacy_action_validation_context", action_id, target_city_id)' in service_functions["execute"]
     for name in ["apply_diplomacy_resource_cost", "apply_diplomacy_relation_delta"]:
@@ -136,7 +160,6 @@ def main():
     assert "apply_diplomacy_relation_delta(" in execute, "execute does not own diplomacy relation application"
     assert '_apply_generic_resource_cost' not in execute, "execute still routes diplomacy cost through shared host helper"
     assert '_adjust_faction_relation_score' not in execute, "execute still routes diplomacy relation through shared host helper"
-    assert "prepaid_payment: Dictionary = {}" in after["_propose_alliance"], "alliance compatibility API lost prepaid payment"
     for name in [
         "get_diplomacy_action_cooldown", "set_diplomacy_action_cooldown",
         "apply_trade_agreement_state", "advance_diplomacy_state_entry",
@@ -152,11 +175,8 @@ def main():
     assert 'player_state["diplomacy_action_cooldowns"] = cooldowns' in service_functions["sync_diplomacy_mirror_state"], "cooldown mirror not owned by service"
     assert 'player_state["trade_agreements"] = agreements' in service_functions["sync_diplomacy_mirror_state"], "agreement mirror not owned by service"
     assert "DiplomacyActionServiceScript.new().get_diplomacy_action_cooldown" in after["_get_diplomacy_action_cooldown"]
-    assert "DiplomacyActionServiceScript.new().set_diplomacy_action_cooldown" in after["_set_diplomacy_action_cooldown"]
-    assert "DiplomacyActionServiceScript.new().propose_trade_agreement" in after["_propose_trade_agreement"]
     assert "DiplomacyActionServiceScript.new().sync_diplomacy_mirror_state" in after["_sync_diplomacy_action_mirror_state_from_relations"]
-    assert "_sync_alliance_mirror_state_from_relations()" in after["_sync_diplomacy_action_mirror_state_from_relations"]
-    assert "before_tribute_cooldown" in after["_advance_diplomacy_cooldowns_for_world_turn"], "tribute cooldown left main unexpectedly"
+    assert "DiplomacyActionServiceScript.new().sync_alliance_mirror_state" in after["_sync_diplomacy_action_mirror_state_from_relations"]
     for forbidden in ["before_action_cooldown", "before_agreement_turns", 'entry["trade_agreement_active"] = false']:
         assert forbidden not in after["_advance_diplomacy_cooldowns_for_world_turn"], f"main still owns 2C-1 advance mutation: {forbidden}"
     for name in [
@@ -176,10 +196,7 @@ def main():
     assert "apply_alliance_action(host, prepaid_validation)" in execute, "production alliance execution does not stay in service"
     assert '"_apply_alliance_diplomacy_action"' not in execute, "production alliance execution still calls host implementation"
     wrapper_targets = {
-        "_apply_alliance_diplomacy_action": "apply_alliance_action",
-        "_propose_alliance": "propose_alliance",
         "_calculate_alliance_acceptance_chance": "calculate_alliance_acceptance_chance",
-        "_sync_alliance_mirror_state_from_relations": "sync_alliance_mirror_state",
         "_get_active_alliance_turns": "get_active_alliance_turns",
     }
     for name, target in wrapper_targets.items():
@@ -187,9 +204,12 @@ def main():
         assert len(after[name].splitlines()) <= 2, f"alliance compatibility API is not thin: {name}"
     assert "restore_alliance_state_from_mirror" in after["_normalize_diplomacy_action_state_from_player_state"]
     assert "advance_alliance_state_entry" in after["_advance_diplomacy_cooldowns_for_world_turn"]
-    for forbidden in ["before_alliance_turns", 'entry["alliance_turns_remaining"] =', 'entry.erase("alliance_created_turn")']:
+    assert "normalize_diplomacy_relation_entry" in after["_ensure_faction_relation_entry"]
+    assert "before_tribute_cooldown" in service_functions["advance_diplomacy_state_entry"]
+    for forbidden in ["before_alliance_turns", "before_tribute_cooldown", 'entry["alliance_turns_remaining"] =', 'entry.erase("alliance_created_turn")']:
         assert forbidden not in after["_advance_diplomacy_cooldowns_for_world_turn"], f"main still owns alliance expiry mutation: {forbidden}"
-    print(f"PASS: diplomacy routing/static 2C-2 guard; {len(before)} original functions retained, 2A/2B/2C-1 preserved, alliance acceptance/state/expiry/mirror owned by service, military/spy protected")
+    assert "_apply_diplomacy_action_legacy" not in current(MAIN)
+    print(f"PASS: diplomacy routing/static 2D guard; service owns rules/state, dead legacy removed, production coordinator route retained, military/spy boundaries protected")
 
 
 if __name__ == "__main__":
