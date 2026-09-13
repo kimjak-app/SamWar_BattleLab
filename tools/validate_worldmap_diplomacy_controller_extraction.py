@@ -143,9 +143,13 @@ def check_main_boundaries():
     source = current("scripts/worldmap/worldmap_main.gd")
     assert "DiplomacyActionServiceScript" not in source
     assert "configure_diplomacy(_ensure_diplomacy_controller())" in source
-    assert current(CONTROLLER) == subprocess.check_output(
+    frozen_controller = functions(subprocess.check_output(
         ["git", "show", f"b51f95f868aa7bda891895ac29eb0730d0b15428:{CONTROLLER}"], cwd=ROOT
-    ).decode("utf-8").replace("\r\n", "\n"), "Diplomacy Controller changed during Trade extraction"
+    ).decode("utf-8").replace("\r\n", "\n"))
+    current_controller = functions(current(CONTROLLER))
+    for name, body in frozen_controller.items():
+        assert current_controller.get(name) == body, f"Diplomacy Controller baseline function changed: {name}"
+    assert set(current_controller) - set(frozen_controller) == {"apply_spy_relation_delta", "break_alliance_for_spy_wedge"}, "Unexpected Diplomacy Controller expansion"
     assert current(PRESENTER) == subprocess.check_output(
         ["git", "show", f"b51f95f868aa7bda891895ac29eb0730d0b15428:{PRESENTER}"], cwd=ROOT
     ).decode("utf-8").replace("\r\n", "\n"), "Diplomacy Presenter changed during Trade extraction"
@@ -163,8 +167,10 @@ def check_main_boundaries():
     }
     assert calls == allowed, f"Unexpected main dependencies: {calls ^ allowed}"
     assert not (calls & CONTROLLER_FUNCTIONS), "Controller calls diplomacy-specific main implementation"
-    for name in ["_calculate_military_support_acceptance_chance", "_request_military_support", "_break_spy_wedge_alliance_if_needed"]:
+    for name in ["_calculate_military_support_acceptance_chance", "_request_military_support"]:
         assert host[name] == old[name], f"Cross-domain boundary changed: {name}"
+    assert "func apply_spy_relation_delta(" in controller
+    assert "func break_alliance_for_spy_wedge(" in controller
 
 
 def check_regression_migration():
@@ -197,10 +203,10 @@ def main():
     assert "DiplomacyActionServiceScript.new()" not in main_source
     assert "_service.execute(self, action_id, target_city_id, source_city_id)" in controller
     assert "configure_diplomacy(_ensure_diplomacy_controller())" in main_source
-    for name in ["diplomacy_action_service.gd", "spy_action_service.gd"]:
+    for name in ["diplomacy_action_service.gd"]:
         path = "scripts/worldmap/actions/" + name
         assert current(path) == baseline(path), f"Service changed: {name}"
-    print("PASS: diplomacy 2F Controller/Presenter ownership, exact moved bodies, thin main, unchanged Spy/Trade/Military boundaries")
+    print("PASS: diplomacy 2F Controller/Presenter ownership, exact moved bodies, thin main, explicit Spy boundary, unchanged Trade/Military")
 
 
 if __name__ == "__main__":

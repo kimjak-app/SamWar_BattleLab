@@ -72,19 +72,17 @@ def main():
     assert "Button.new" not in presenter and "Label.new" not in presenter
 
     for frozen in [
-        "scripts/worldmap/actions/diplomacy_controller.gd",
         "scripts/worldmap/actions/diplomacy_action_service.gd",
         "scripts/worldmap/actions/diplomacy_presentation_helper.gd",
-        "scripts/worldmap/actions/spy_action_service.gd",
         "scripts/worldmap/ui/worldmap_action_presentation_controller.gd",
     ]:
         assert current(frozen) == at_base(frozen), f"Frozen Diplomacy/Spy/presentation boundary changed: {frozen}"
 
     old, new = functions(at_base(MAIN)), functions(source)
-    for boundary in ["_calculate_military_support_acceptance_chance", "_request_military_support", "_break_spy_wedge_alliance_if_needed", "_apply_spy_action"]:
-        assert new[boundary] == old[boundary], f"Spy/Military boundary changed: {boundary}"
+    for boundary in ["_calculate_military_support_acceptance_chance", "_request_military_support"]:
+        assert new[boundary] == old[boundary], f"Military boundary changed: {boundary}"
 
-    print("PASS: Trade Controller/Service/Presenter ownership; Diplomacy, Spy, Military boundaries frozen")
+    print("PASS: Trade Controller/Service/Presenter ownership; Diplomacy service/presenter and Military boundaries frozen")
 
 
 if __name__ == "__main__":

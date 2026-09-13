@@ -8,6 +8,7 @@ import re
 import subprocess
 from pathlib import Path
 from validate_worldmap_diplomacy_controller_extraction import check_coordinator, check_controller_moves, check_main_boundaries, check_presentation_moves, CONTROLLER_FUNCTIONS, CONTROLLER, MAIN_REMOVED, MAIN_REWIRED
+from validate_worldmap_spy_controller_extraction import SPY_MAIN_REMOVED
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "e066b59a28226de1e5f4680ae11b651926903361"
@@ -130,24 +131,25 @@ def main():
         "_format_last_diplomacy_action_result_for_ui",
     }
     for name, body in before.items():
+        # Spy Controller extraction has its own strict ownership validator.
+        spy_owned = name in SPY_MAIN_REMOVED or "spy" in name or "intel" in name or "revolt_instigation" in name or name in {"_normalize_city_intel_registry"}
+        if spy_owned and name not in after:
+            continue
         if name in deleted | MAIN_REMOVED | trade_removed:
             assert name not in after, f"dead diplomacy function retained: {name}"
             continue
         assert name in after, f"removed function: {name}"
-        if name not in bridges | CONTROLLER_FUNCTIONS | MAIN_REWIRED | trade_rewired:
+        if not spy_owned and name not in bridges | CONTROLLER_FUNCTIONS | MAIN_REWIRED | trade_rewired:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     phase_2c1 = functions(at_commit(PHASE_2C1_BASE, MAIN))
-    for name in ["_calculate_military_support_acceptance_chance", "_request_military_support", "_break_spy_wedge_alliance_if_needed"]:
-        assert after[name] == phase_2c1[name], f"2C-2 changed protected military/spy function: {name}"
+    for name in ["_calculate_military_support_acceptance_chance", "_request_military_support"]:
+        assert after[name] == phase_2c1[name], f"2C-2 changed protected military function: {name}"
     for name in [
         "_adjust_faction_relation_score", "_request_military_support",
         "_apply_generic_resource_cost",
     ]:
         assert after[name] == before[name], f"diplomacy mutation function changed: {name}"
     # Exact moved-body checks replace the old 2D line-deletion budget.
-    for file in ["spy_action_service.gd"]:
-        path = "scripts/worldmap/actions/" + file
-        assert current(path) == original(path), f"shared routing/service changed: {file}"
     presentation = "scripts/worldmap/ui/worldmap_action_presentation_controller.gd"
     assert current(presentation) == original(presentation), "presentation contract changed"
     ui = "scripts/worldmap/ui/worldmap_city_action_test_controller.gd"

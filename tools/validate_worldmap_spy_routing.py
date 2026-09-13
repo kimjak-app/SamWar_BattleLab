@@ -1,149 +1,33 @@
-"""Phase-two guard for the production spy routing extraction."""
+"""Static guard for production Spy routing through the extracted Controller."""
 
-import re
-import subprocess
+from validate_worldmap_spy_controller_extraction import main as validate_controller_extraction
 from pathlib import Path
-from validate_worldmap_diplomacy_controller_extraction import check_coordinator, check_controller_moves, check_main_boundaries, check_presentation_moves, CONTROLLER_FUNCTIONS, CONTROLLER, MAIN_REMOVED, MAIN_REWIRED
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "ba52b9fdf523cbf5450397e8d2948ce817f3509e"
-PHASE_2C1_BASE = "b54dadcf7a586968c84ef185f9527231ef4646a4"
-PHASE_2C2_BASE = "9bd3a356d94d04a57b4d20533ca0603f017fc6ac"
-MAIN = "scripts/worldmap/worldmap_main.gd"
-
-
-def original(path):
-    return subprocess.check_output(
-        ["git", "show", f"{BASE}:{path}"], cwd=ROOT
-    ).decode("utf-8").replace("\r\n", "\n")
 
 
 def current(path):
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def at_commit(commit, path):
-    return subprocess.check_output(
-        ["git", "show", f"{commit}:{path}"], cwd=ROOT
-    ).decode("utf-8").replace("\r\n", "\n")
-
-
-def functions(source):
-    result = {}
-    for match in re.finditer(r"(?ms)^func (\w+)(\(.*?)(?=^func |\Z)", source):
-        result[match[1]] = "\n".join(
-            line for line in match[2].splitlines()
-            if line.strip() and not line.lstrip().startswith("#")
-        )
-    return result
-
-
 def main():
-    check_coordinator()
-    check_controller_moves()
-    check_main_boundaries()
-    check_presentation_moves()
-    before, after = functions(original(MAIN)), functions(current(MAIN))
-    trade_removed = {
-        "_get_trade_control_mode_label", "_get_trade_control_hint",
-        "_format_manual_trade_preview_summary", "_execute_external_manual_trade_order_legacy",
-        "_validate_external_manual_trade_execution", "_build_external_manual_trade_execution_preview",
-        "_build_empty_external_trade_delta", "_calculate_external_trade_delta",
-        "_get_default_trade_control_modes", "_normalize_manual_trade_order_payload",
-        "_normalize_manual_trade_order_items", "_normalize_trade_delta_payload",
-        "_normalize_chancellor_auto_trade_section_payload", "_format_external_trade_manual_order_summary",
-        "_format_external_manual_trade_execution_result_summary",
-        "_format_manual_trade_nonzero_preview_summary", "_format_trade_market_prices_for_external_trade_ui",
-    }
-    trade_rewired = {
-        "_ensure_diplomacy_action_coordinator", "_apply_city_detail_tab_content",
-        "_refresh_trade_control_ui", "_refresh_manual_trade_order_relation",
-        "_refresh_manual_trade_order_preview", "_build_manual_trade_order_preview",
-        "_on_manual_trade_order_confirm_pressed", "_on_manual_trade_execution_button_pressed",
-        "_get_trade_efficiency_for_cities", "_calculate_trade_import_cost",
-        "_calculate_trade_export_gain", "_normalize_trade_control_modes",
-        "_normalize_manual_trade_orders", "_normalize_trade_result_payload",
-        "_normalize_chancellor_auto_trade_result_payload", "_sync_trade_persistence_to_player_state",
-        "_restore_trade_persistence_from_player_state", "_format_chancellor_external_auto_trade_result_summary",
-    }
-    deleted_diplomacy = {
-        "_get_player_relation_target_faction_from_key", "_sync_alliance_mirror_state_from_relations",
-        "_set_diplomacy_action_cooldown", "_build_diplomacy_action_failure_result",
-        "_apply_diplomacy_action_legacy", "_apply_alliance_diplomacy_action",
-        "_normalize_diplomacy_resource_package", "_propose_alliance",
-        "_get_trade_agreement_cost", "_propose_trade_agreement", "_get_tribute_cost",
-        "_can_send_tribute", "_calculate_tribute_relation_gain", "_send_tribute",
-    }
-    bridges = {
-        "_ensure_diplomacy_action_coordinator",
-        "open_contextual_worldmap_action", "cancel_contextual_worldmap_action",
-        "complete_contextual_worldmap_action",
-        "_request_contextual_worldmap_action_presentation",
-        "_apply_spy_action", "_on_spy_action_pressed",
-        "_execute_external_manual_trade_order",
-        "_on_manual_trade_execution_button_pressed",
-        "_get_diplomacy_action_definition",
-        "_validate_diplomacy_action",
-        "_build_diplomacy_action_failure_result",
-        "_normalize_diplomacy_resource_package",
-        "_apply_alliance_diplomacy_action",
-        "_propose_alliance",
-        "_calculate_alliance_acceptance_chance",
-        "_sync_alliance_mirror_state_from_relations",
-        "_get_active_alliance_turns",
-        "_normalize_diplomacy_action_state_from_player_state",
-        "_sync_diplomacy_action_mirror_state_from_relations",
-        "_get_diplomacy_action_cooldown",
-        "_set_diplomacy_action_cooldown",
-        "_propose_trade_agreement",
-        "_get_trade_agreement_bonus_multiplier",
-        "_get_active_trade_agreement_turns",
-        "_advance_diplomacy_cooldowns_for_world_turn",
-        "_ensure_faction_relation_entry",
-        "_build_diplomacy_action_validation_context",
-        "_refresh_diplomacy_action_button",
-        "_format_diplomacy_action_hint",
-        "_format_last_diplomacy_action_result_for_ui",
-    }
-    for name, body in before.items():
-        if name in deleted_diplomacy | MAIN_REMOVED | trade_removed:
-            assert name not in after, f"dead diplomacy function retained: {name}"
-            continue
-        assert name in after, f"removed function: {name}"
-        if name not in bridges | CONTROLLER_FUNCTIONS | MAIN_REWIRED | trade_rewired:
-            assert after[name] == body, f"out-of-scope function changed: {name}"
-    assert after["_apply_spy_action_legacy"] == before["_apply_spy_action"], "legacy spy implementation changed"
-    # Exact moved-body checks replace the old 2D line-deletion budget.
-
-    for file in ["spy_action_service.gd"]:
-        path = "scripts/worldmap/actions/" + file
-        assert current(path) == original(path), f"existing service/coordinator changed: {file}"
-    presentation = "scripts/worldmap/ui/worldmap_action_presentation_controller.gd"
-    assert current(presentation) == original(presentation), "presentation contract changed"
-
-    ui = "scripts/worldmap/ui/worldmap_city_action_test_controller.gd"
-    old_ui, new_ui = functions(original(ui)), functions(current(ui))
-    for name in old_ui:
-        if name != "_on_contextual_action_pressed":
-            assert old_ui[name] == new_ui[name], f"unrelated UI changed: {name}"
-    ui_entry = new_ui["_on_contextual_action_pressed"]
-    assert all(action in ui_entry for action in ['"diplomacy"', '"spy"', '"trade"'])
-    assert '\telse:\n\t\taction_video_test_requested.emit(action_type, target_city_id)' in ui_entry
-
-    assert '.begin("diplomacy", target_city_id)' in after["open_contextual_worldmap_action"]
-    assert '.begin("spy", target_city_id)' in after["open_contextual_worldmap_action"]
-    assert '.execute_now("diplomacy", action_id, target_city_id)' in after["_apply_diplomacy_action"]
-    assert '.execute_now("spy", action_id, target_city_id)' in after["_apply_spy_action"]
-    assert 'if action_type == "spy":' in after["complete_contextual_worldmap_action"]
-    assert '_pending_spy_action_id' in after["complete_contextual_worldmap_action"]
-
+    validate_controller_extraction()
+    host = current("scripts/worldmap/worldmap_main.gd")
     coordinator = current("scripts/worldmap/actions/worldmap_action_coordinator.gd")
-    assert '"spy":\n\t\t\treturn _spy_service.execute(host, action_id, target_city_id, source_city_id)' in coordinator
-    spy_service = current("scripts/worldmap/actions/spy_action_service.gd")
-    for helper in ["_validate_spy_action", "_store_failed_spy_action_result", "_gather_spy_info", "_disrupt_city_public_support", "_disrupt_city_loyalty", "_instigate_revolt", "_apply_spy_wedge_action"]:
-        assert f'"{helper}"' in spy_service, f"service helper missing: {helper}"
-
-    print(f"PASS: spy routing static guard; Spy routing unchanged; audited diplomacy Controller/Presenter migration")
+    assert '.begin("spy", target_city_id)' in host
+    assert '.execute_now("spy", action_id, target_city_id)' in host
+    assert 'if action_type == "spy":' in host
+    assert "_pending_spy_action_id" in host
+    assert "func begin(" in coordinator
+    assert "func cancel(" in coordinator
+    assert "func request_presentation(" in coordinator
+    assert "func complete(" in coordinator
+    assert "func execute_now(" in coordinator
+    assert "signal action_resolved" in coordinator
+    assert "signal presentation_requested" in coordinator
+    assert '"spy":\n\t\t\tif _spy_controller == null:' in coordinator
+    assert "return _spy_controller.execute(action_id, target_city_id, source_city_id)" in coordinator
+    print("PASS: Spy production routing uses WorldMapMain thin bridge -> Coordinator -> SpyController -> SpyActionService")
 
 
 if __name__ == "__main__":

@@ -33,7 +33,7 @@ func _run() -> void:
 	_expect(controller != null, "Controller constructed")
 	_expect(presenter != null, "Presenter constructed")
 	_expect(coordinator.get("_trade_controller") == controller, "Coordinator receives the Controller")
-	_expect(coordinator.get("_spy_service") != null, "Spy owner remains unchanged")
+	_expect(coordinator.get("_spy_controller") != null, "Spy Controller remains wired")
 
 	var source := ""
 	var target := ""

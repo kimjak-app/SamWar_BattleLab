@@ -134,6 +134,48 @@ func _get_faction_relation_status(faction_a: String, faction_b: String) -> Strin
 	return _normalize_faction_relation_status(str(entry.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
 
 
+func apply_spy_relation_delta(faction_a: String, faction_b: String, delta: int, reason: String = "") -> Dictionary:
+	var entry := _ensure_faction_relation_entry(faction_a, faction_b)
+	var before_score := clampi(int(entry.get("score", DIPLOMACY_DEFAULT_SCORE)), DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+	var after_score := clampi(before_score + delta, DIPLOMACY_SCORE_MIN, DIPLOMACY_SCORE_MAX)
+	entry["score"] = after_score
+	var relations: Dictionary = _player_state.get("faction_relations", {})
+	relations[_make_faction_relation_key(faction_a, faction_b)] = entry
+	_player_state["faction_relations"] = relations
+	var result := {
+		"faction_a": faction_a, "faction_b": faction_b,
+		"before_score": before_score, "after_score": after_score,
+		"delta": after_score - before_score,
+		"status": str(entry.get("status", FACTION_RELATION_STATUS["NEUTRAL"])),
+		"band": _get_faction_relation_band(after_score),
+		"reason": reason,
+		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
+	}
+	_player_state["last_diplomacy_relation_result"] = result
+	return result
+
+
+func break_alliance_for_spy_wedge(faction_a: String, faction_b: String, after_score: int) -> bool:
+	var relation_key := _make_faction_relation_key(faction_a, faction_b)
+	var relations: Dictionary = _player_state.get("faction_relations", {})
+	var relation: Dictionary = relations.get(relation_key, _ensure_faction_relation_entry(faction_a, faction_b))
+	var status := _normalize_faction_relation_status(str(relation.get("status", FACTION_RELATION_STATUS["NEUTRAL"])))
+	var active_turns := maxi(0, int(relation.get("alliance_turns_remaining", 0)))
+	if status != FACTION_RELATION_STATUS["ALLIED"] and active_turns <= 0:
+		return false
+	if after_score >= ALLIANCE_ACCEPTANCE_THRESHOLD:
+		return false
+	relation["status"] = FACTION_RELATION_STATUS["NEUTRAL"]
+	relation["alliance_turns_remaining"] = 0
+	relation.erase("alliance_created_turn")
+	relation.erase("alliance_resource_package")
+	relation.erase("alliance_acceptance_score")
+	relations[relation_key] = relation
+	_player_state["faction_relations"] = relations
+	_sync_diplomacy_action_mirror_state_from_relations()
+	return true
+
+
 func _normalize_diplomacy_action_state_from_player_state() -> void:
 	if not _player_state.has("last_diplomacy_action_result") or not (_player_state["last_diplomacy_action_result"] is Dictionary):
 		_player_state["last_diplomacy_action_result"] = {}

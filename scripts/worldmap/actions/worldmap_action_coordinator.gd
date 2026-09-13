@@ -4,7 +4,6 @@ extends Node
 signal presentation_requested(action_type: String, action_id: String, target_city_id: String)
 signal action_resolved(action_type: String, result: Dictionary)
 
-const SpyActionServiceScript := preload("res://scripts/worldmap/actions/spy_action_service.gd")
 const VALID_ACTION_TYPES := ["diplomacy", "spy", "trade"]
 
 var _action_type := ""
@@ -14,7 +13,7 @@ var _pending_presentation := false
 var _resolving := false
 var _diplomacy_controller: RefCounted
 var _trade_controller: RefCounted
-var _spy_service = SpyActionServiceScript.new()
+var _spy_controller: RefCounted
 
 
 func configure_diplomacy(controller: RefCounted) -> void:
@@ -23,6 +22,10 @@ func configure_diplomacy(controller: RefCounted) -> void:
 
 func configure_trade(controller: RefCounted) -> void:
 	_trade_controller = controller
+
+
+func configure_spy(controller: RefCounted) -> void:
+	_spy_controller = controller
 
 
 func begin(action_type: String, target_city_id: String, source_city_id: String = "") -> Dictionary:
@@ -165,7 +168,9 @@ func _execute_domain_action(
 				return _failure("executor_unavailable", "외교 행동 실행기를 찾을 수 없습니다.")
 			return _diplomacy_controller.execute(action_id, target_city_id, source_city_id)
 		"spy":
-			return _spy_service.execute(host, action_id, target_city_id, source_city_id)
+			if _spy_controller == null:
+				return _failure("executor_unavailable", "첩보 행동 실행기를 찾을 수 없습니다.")
+			return _spy_controller.execute(action_id, target_city_id, source_city_id)
 		"trade":
 			if _trade_controller == null:
 				return _failure("executor_unavailable", "교역 행동 실행기를 찾을 수 없습니다.")

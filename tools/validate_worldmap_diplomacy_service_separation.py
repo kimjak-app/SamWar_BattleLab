@@ -135,12 +135,10 @@ def main():
         assert forbidden_constant not in main_source, f"diplomacy rule constant duplicated in main: {forbidden_constant}"
 
     old_main_functions = functions(at_base(MAIN))
-    for protected in ["_calculate_military_support_acceptance_chance", "_request_military_support", "_break_spy_wedge_alliance_if_needed"]:
+    for protected in ["_calculate_military_support_acceptance_chance", "_request_military_support"]:
         assert main_functions[protected] == old_main_functions[protected], f"cross-domain boundary changed: {protected}"
-    for path in ["scripts/worldmap/actions/spy_action_service.gd"]:
-        assert current(path) == at_base(path), f"out-of-scope production file changed: {path}"
 
-    print("PASS: diplomacy 2D service separation; legacy callers 0, production service-only, main wrappers/adapters thin, military/spy boundaries preserved")
+    print("PASS: diplomacy 2D service separation; legacy callers 0, production service-only, main wrappers/adapters thin, military boundary preserved")
 
 
 if __name__ == "__main__":
