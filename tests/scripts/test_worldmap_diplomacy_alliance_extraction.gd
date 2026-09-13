@@ -48,7 +48,7 @@ func _state() -> Dictionary:
 
 
 func _entry(faction_id: String) -> Dictionary:
-	return _worldmap.call("_get_faction_relation_entry", "player", faction_id)
+	return _worldmap.call("_ensure_diplomacy_controller").call("_get_faction_relation_entry", "player", faction_id)
 
 
 func _store_entry(faction_id: String, entry: Dictionary) -> void:
@@ -68,7 +68,7 @@ func _check_success_and_payment() -> void:
 	var cost: Dictionary = definition.get("cost", {})
 	var before_stock := (_state().get("resource_stock", {}) as Dictionary).duplicate(true)
 	var before_score := int(_entry(faction_id).get("score", 0))
-	var result: Dictionary = _service.call("execute", _worldmap, "alliance_proposal", city_id)
+	var result: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), "alliance_proposal", city_id)
 	var relation := _entry(faction_id)
 	var duration := int(definition.get("alliance_turns", 0))
 	_expect(bool(result.get("success", false)) and bool(result.get("accepted", false)), "alliance proposal accepted")
@@ -86,7 +86,7 @@ func _check_success_and_payment() -> void:
 	_expect(result.get("target_faction_id") == faction_id and result.get("target_city_id") == city_id, "result target contract")
 	_expect(int(_state().get("alliances", {}).get(faction_id, {}).get("turns_remaining", 0)) == duration, "alliance mirror created")
 	_expect(_state().get("last_alliance_proposal_result", {}).get("accepted", false) and _state().get("last_diplomacy_action_result", {}) == result, "last-result contracts stored")
-	_expect(int(_worldmap.call("_get_active_alliance_turns", faction_id)) == duration, "legacy active-alliance API reads service state")
+	_expect(int(_worldmap.call("_ensure_diplomacy_controller").call("_get_active_alliance_turns", faction_id)) == duration, "legacy active-alliance API reads service state")
 	_expect(_worldmap.has_method("_request_military_support") and _worldmap.has_method("_calculate_military_support_acceptance_chance"), "military support boundary remains available")
 
 
@@ -96,7 +96,7 @@ func _check_rejection_and_resource_failure() -> void:
 	var city_id := str(_city_by_faction.get(faction_id, ""))
 	var cost: Dictionary = Service.get_action_definition("alliance_proposal").get("cost", {})
 	var before_stock := (_state().get("resource_stock", {}) as Dictionary).duplicate(true)
-	var result: Dictionary = _service.call("execute", _worldmap, "alliance_proposal", city_id)
+	var result: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), "alliance_proposal", city_id)
 	var relation := _entry(faction_id)
 	_expect(not bool(result.get("success", true)) and not bool(result.get("accepted", true)) and result.get("reason") == "rejected", "alliance proposal rejection contract")
 	_expect(int(before_stock.get("gold", 0)) - int(_state().get("resource_stock", {}).get("gold", 0)) == int(cost.get("gold", 0)), "rejected proposal charges gold once")
@@ -108,7 +108,7 @@ func _check_rejection_and_resource_failure() -> void:
 	_prepare(80, 0, 0)
 	var stock_before_failure := (_state().get("resource_stock", {}) as Dictionary).duplicate(true)
 	var relation_before_failure := _entry(faction_id).duplicate(true)
-	var failed: Dictionary = _service.call("execute", _worldmap, "alliance_proposal", city_id)
+	var failed: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), "alliance_proposal", city_id)
 	_expect(not bool(failed.get("success", true)) and failed.get("reason") == "resources", "insufficient resources rejected before execution")
 	_expect(_state().get("resource_stock", {}) == stock_before_failure, "resource failure has no payment mutation")
 	_expect(_entry(faction_id) == relation_before_failure, "resource failure has no relation or alliance mutation")
@@ -124,17 +124,17 @@ func _check_acceptance_and_wrapper_parity() -> void:
 	var duration := int(definition.get("alliance_turns", 0))
 	var base_chance := 55 + int(floor(float(package.get("gold", 0)) / 20.0)) + int(floor(float(package.get("silk", 0)) / 10.0)) - maxi(0, duration - Service.LEGACY_TRADE_AGREEMENT_TURNS)
 	var expected := int(_worldmap.call("_get_modified_diplomacy_success_chance_mvp", base_chance, "alliance_proposal", faction_id))
-	var wrapped_chance := int(_worldmap.call("_calculate_alliance_acceptance_chance", faction_id, package, duration))
-	var direct_chance := int(_service.call("calculate_alliance_acceptance_chance", _worldmap, faction_id, package, duration))
+	var wrapped_chance := int(_worldmap.call("_ensure_diplomacy_controller").call("_calculate_alliance_acceptance_chance", faction_id, package, duration))
+	var direct_chance := int(_service.call("calculate_alliance_acceptance_chance", _worldmap.call("_ensure_diplomacy_controller"), faction_id, package, duration))
 	_expect(wrapped_chance == direct_chance and direct_chance == expected, "acceptance formula and modifier parity")
-	_expect(int(_service.call("calculate_alliance_acceptance_chance", _worldmap, "player", package, duration)) == 0, "invalid self target acceptance is zero")
+	_expect(int(_service.call("calculate_alliance_acceptance_chance", _worldmap.call("_ensure_diplomacy_controller"), "player", package, duration)) == 0, "invalid self target acceptance is zero")
 
 	_prepare(80)
 	var before := _state().duplicate(true)
-	var first_proposal: bool = _service.call("propose_alliance", _worldmap, faction_id, package, duration)
+	var first_proposal: bool = _service.call("propose_alliance", _worldmap.call("_ensure_diplomacy_controller"), faction_id, package, duration)
 	var first_state := _state().duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
-	var repeated_proposal: bool = _service.call("propose_alliance", _worldmap, faction_id, package, duration)
+	var repeated_proposal: bool = _service.call("propose_alliance", _worldmap.call("_ensure_diplomacy_controller"), faction_id, package, duration)
 	_expect(repeated_proposal == first_proposal, "proposal service return is deterministic")
 	_expect(_state() == first_state, "proposal service full state is deterministic")
 
@@ -142,14 +142,14 @@ func _check_acceptance_and_wrapper_parity() -> void:
 	var city_id := str(_city_by_faction.get(faction_id, ""))
 	var validation: Dictionary = _worldmap.call("_validate_diplomacy_action", "alliance_proposal", city_id)
 	before = _state().duplicate(true)
-	var payment: Dictionary = _service.call("apply_diplomacy_resource_cost", _worldmap, package)
+	var payment: Dictionary = _service.call("apply_diplomacy_resource_cost", _worldmap.call("_ensure_diplomacy_controller"), package)
 	validation["payment"] = payment
-	var first_result: Dictionary = _service.call("apply_alliance_action", _worldmap, validation)
+	var first_result: Dictionary = _service.call("apply_alliance_action", _worldmap.call("_ensure_diplomacy_controller"), validation)
 	first_state = _state().duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
-	payment = _service.call("apply_diplomacy_resource_cost", _worldmap, package)
+	payment = _service.call("apply_diplomacy_resource_cost", _worldmap.call("_ensure_diplomacy_controller"), package)
 	validation["payment"] = payment
-	var repeated_result: Dictionary = _service.call("apply_alliance_action", _worldmap, validation)
+	var repeated_result: Dictionary = _service.call("apply_alliance_action", _worldmap.call("_ensure_diplomacy_controller"), validation)
 	_expect(repeated_result == first_result, "alliance action result is deterministic")
 	_expect(_state() == first_state, "alliance action full state is deterministic")
 	_expect(int(before.get("resource_stock", {}).get("gold", 0)) - int(_state().get("resource_stock", {}).get("gold", 0)) == int(package.get("gold", 0)), "prepaid action is not charged twice")
@@ -161,34 +161,34 @@ func _check_renewal_expiration_and_independence() -> void:
 	var second := _foreign_factions[1]
 	var package: Dictionary = Service.get_action_definition("alliance_proposal").get("cost", {})
 	var duration := int(Service.get_action_definition("alliance_proposal").get("alliance_turns", 0))
-	_expect(bool(_service.call("propose_alliance", _worldmap, first, package, duration)), "initial direct alliance succeeds")
+	_expect(bool(_service.call("propose_alliance", _worldmap.call("_ensure_diplomacy_controller"), first, package, duration)), "initial direct alliance succeeds")
 	var state := _state()
 	state["turn_number"] = int(state.get("turn_number", 1)) + 1
 	_worldmap.set("_player_state", state)
 	var first_entry := _entry(first)
 	first_entry["alliance_turns_remaining"] = 1
 	_store_entry(first, first_entry)
-	_expect(bool(_service.call("propose_alliance", _worldmap, first, package, duration)), "alliance renewal succeeds")
+	_expect(bool(_service.call("propose_alliance", _worldmap.call("_ensure_diplomacy_controller"), first, package, duration)), "alliance renewal succeeds")
 	_expect(int(_entry(first).get("alliance_turns_remaining", 0)) == duration, "renewal resets duration")
 	_expect(int(_entry(first).get("alliance_created_turn", 0)) == int(_state().get("turn_number", 0)), "renewal updates created turn")
 
-	_expect(bool(_service.call("propose_alliance", _worldmap, second, package, duration)), "second faction alliance succeeds independently")
+	_expect(bool(_service.call("propose_alliance", _worldmap.call("_ensure_diplomacy_controller"), second, package, duration)), "second faction alliance succeeds independently")
 	first_entry = _entry(first)
 	first_entry["alliance_turns_remaining"] = 2
 	_store_entry(first, first_entry)
 	var second_entry := _entry(second)
 	second_entry["alliance_turns_remaining"] = 3
 	_store_entry(second, second_entry)
-	_service.call("sync_alliance_mirror_state", _worldmap)
-	var first_advance: Dictionary = _worldmap.call("_advance_diplomacy_cooldowns_for_world_turn")
+	_service.call("sync_alliance_mirror_state", _worldmap.call("_ensure_diplomacy_controller"))
+	var first_advance: Dictionary = _worldmap.call("_ensure_diplomacy_controller").call("_advance_diplomacy_cooldowns_for_world_turn")
 	_expect(int(_entry(first).get("alliance_turns_remaining", 0)) == 1 and int(_entry(second).get("alliance_turns_remaining", 0)) == 2, "faction alliance durations decrement independently")
 	_expect(int(first_advance.get("changed_count", 0)) == 2, "turn result records both alliance changes")
-	_worldmap.call("_advance_diplomacy_cooldowns_for_world_turn")
+	_worldmap.call("_ensure_diplomacy_controller").call("_advance_diplomacy_cooldowns_for_world_turn")
 	var expired := _entry(first)
 	_expect(str(expired.get("status", "")) == "neutral" and int(expired.get("alliance_turns_remaining", -1)) == 0, "alliance expires at zero")
 	_expect(not expired.has("alliance_created_turn") and not expired.has("alliance_resource_package") and not expired.has("alliance_acceptance_score"), "expiration clears alliance metadata")
 	_expect(not (_state().get("alliances", {}) as Dictionary).has(first) and int(_state().get("alliances", {}).get(second, {}).get("turns_remaining", 0)) == 1, "mirror removes only expired faction")
-	_worldmap.call("_advance_diplomacy_cooldowns_for_world_turn")
+	_worldmap.call("_ensure_diplomacy_controller").call("_advance_diplomacy_cooldowns_for_world_turn")
 	_expect(str(_entry(second).get("status", "")) == "neutral" and (_state().get("alliances", {}) as Dictionary).is_empty(), "second alliance expires independently")
 	var zero_state: Dictionary = Service.advance_alliance_state_entry("player|zero", {"status": "neutral", "alliance_turns_remaining": 0})
 	_expect(int(zero_state.get("entry", {}).get("alliance_turns_remaining", -1)) == 0 and (zero_state.get("changed", []) as Array).is_empty(), "alliance duration clamps at zero")
@@ -201,15 +201,15 @@ func _check_mirror_restore() -> void:
 	var state := _state()
 	state["alliances"] = {faction_id: {"turns_remaining": 3, "created_turn": int(state.get("turn_number", 1)), "resource_package": package, "acceptance_score": 75}}
 	_worldmap.set("_player_state", state)
-	_worldmap.call("_normalize_diplomacy_action_state_from_player_state")
+	_worldmap.call("_ensure_diplomacy_controller").call("_normalize_diplomacy_action_state_from_player_state")
 	var relation := _entry(faction_id)
 	_expect(str(relation.get("status", "")) == "allied" and int(relation.get("alliance_turns_remaining", 0)) == 3, "alliance mirror restores relation state")
 	_expect(relation.get("alliance_resource_package", {}) == package and int(relation.get("alliance_acceptance_score", 0)) == 75, "alliance mirror restores metadata")
 	var before_sync := _state().duplicate(true)
-	_service.call("sync_alliance_mirror_state", _worldmap)
+	_service.call("sync_alliance_mirror_state", _worldmap.call("_ensure_diplomacy_controller"))
 	var first_state := _state().duplicate(true)
 	_worldmap.set("_player_state", before_sync.duplicate(true))
-	_service.call("sync_alliance_mirror_state", _worldmap)
+	_service.call("sync_alliance_mirror_state", _worldmap.call("_ensure_diplomacy_controller"))
 	_expect(_state() == first_state, "alliance mirror service is deterministic")
 	_expect(int(_state().get("alliances", {}).get(faction_id, {}).get("turns_remaining", 0)) == int(_entry(faction_id).get("alliance_turns_remaining", 0)), "relation and alliance mirror stay synchronized")
 

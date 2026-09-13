@@ -39,7 +39,7 @@ func _prepare(score: int = 60, status: String = "neutral", gold: int = 10000, co
 
 
 func _check_wrapper_service_parity(action_id: String, city_id: String, label: String) -> Dictionary:
-	var context: Dictionary = _worldmap.call("_build_diplomacy_action_validation_context", action_id, city_id)
+	var context: Dictionary = _worldmap.call("_ensure_diplomacy_controller").call("_build_diplomacy_action_validation_context", action_id, city_id)
 	var state_before: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	var direct: Dictionary = Service.validate_action(action_id, context)
 	_expect(_worldmap.get("_player_state") == state_before, "pure service does not mutate state: " + label)
@@ -66,7 +66,7 @@ func _run() -> void:
 
 	for action_id in ACTIONS:
 		var service_definition: Dictionary = Service.get_action_definition(action_id)
-		var wrapper_definition: Dictionary = _worldmap.call("_get_diplomacy_action_definition", action_id)
+		var wrapper_definition: Dictionary = _worldmap.call("_ensure_diplomacy_controller").call("_get_diplomacy_action_definition", action_id)
 		_expect(wrapper_definition == service_definition and not service_definition.is_empty(), "definition moved: " + action_id)
 	_expect(Service.get_action_definition("unknown").is_empty(), "unknown definition remains empty")
 

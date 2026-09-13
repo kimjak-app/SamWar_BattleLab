@@ -3,6 +3,7 @@
 import re
 import subprocess
 from pathlib import Path
+from validate_worldmap_diplomacy_controller_extraction import check_coordinator, check_controller_moves, check_main_boundaries, check_presentation_moves, CONTROLLER_FUNCTIONS, CONTROLLER, MAIN_REMOVED, MAIN_REWIRED
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "ba52b9fdf523cbf5450397e8d2948ce817f3509e"
@@ -38,6 +39,10 @@ def functions(source):
 
 
 def main():
+    check_coordinator()
+    check_controller_moves()
+    check_main_boundaries()
+    check_presentation_moves()
     before, after = functions(original(MAIN)), functions(current(MAIN))
     deleted_diplomacy = {
         "_get_player_relation_target_faction_from_key", "_sync_alliance_mirror_state_from_relations",
@@ -48,6 +53,7 @@ def main():
         "_can_send_tribute", "_calculate_tribute_relation_gain", "_send_tribute",
     }
     bridges = {
+        "_ensure_diplomacy_action_coordinator",
         "open_contextual_worldmap_action", "cancel_contextual_worldmap_action",
         "complete_contextual_worldmap_action",
         "_request_contextual_worldmap_action_presentation",
@@ -78,16 +84,16 @@ def main():
         "_format_last_diplomacy_action_result_for_ui",
     }
     for name, body in before.items():
-        if name in deleted_diplomacy:
+        if name in deleted_diplomacy | MAIN_REMOVED:
             assert name not in after, f"dead diplomacy function retained: {name}"
             continue
         assert name in after, f"removed function: {name}"
-        if name not in bridges:
+        if name not in bridges | CONTROLLER_FUNCTIONS | MAIN_REWIRED:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     assert after["_apply_spy_action_legacy"] == before["_apply_spy_action"], "legacy spy implementation changed"
-    assert len(current(MAIN).splitlines()) >= len(at_commit(PHASE_2C2_BASE, MAIN).splitlines()) - 350, "host shortened beyond approved 2D cleanup budget"
+    # Exact moved-body checks replace the old 2D line-deletion budget.
 
-    for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
+    for file in ["spy_action_service.gd"]:
         path = "scripts/worldmap/actions/" + file
         assert current(path) == original(path), f"existing service/coordinator changed: {file}"
     presentation = "scripts/worldmap/ui/worldmap_action_presentation_controller.gd"
@@ -115,7 +121,7 @@ def main():
     for helper in ["_validate_spy_action", "_store_failed_spy_action_result", "_gather_spy_info", "_disrupt_city_public_support", "_disrupt_city_loyalty", "_instigate_revolt", "_apply_spy_wedge_action"]:
         assert f'"{helper}"' in spy_service, f"service helper missing: {helper}"
 
-    print(f"PASS: spy routing static guard; spy/coordinator unchanged; diplomacy 2D cleanup boundaries allowed")
+    print(f"PASS: spy routing static guard; Spy routing unchanged; audited diplomacy Controller/Presenter migration")
 
 
 if __name__ == "__main__":

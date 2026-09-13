@@ -51,7 +51,7 @@ func _prepare(faction: String = "player", score: int = 60, status: String = "neu
 func _parity(action: String, faction: String, score: int, status: String, gold: int, cooldown: int, expected_success: bool) -> void:
 	_prepare(faction, score, status, gold, cooldown)
 	var before: Dictionary = _worldmap.get("_player_state").duplicate(true)
-	var service_result: Dictionary = _service.call("execute", _worldmap, action, _target)
+	var service_result: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), action, _target)
 	var expected_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
 	var actual: Dictionary = _worldmap.call("_apply_diplomacy_action", action, _target)

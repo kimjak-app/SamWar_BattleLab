@@ -3,6 +3,7 @@
 import re
 import subprocess
 from pathlib import Path
+from validate_worldmap_diplomacy_controller_extraction import check_coordinator, check_controller_moves, CONTROLLER_FUNCTIONS, CONTROLLER
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "9bd3a356d94d04a57b4d20533ca0603f017fc6ac"
@@ -31,10 +32,14 @@ def functions(source):
 
 
 def main():
+    check_coordinator()
+    check_controller_moves()
     main_source = current(MAIN)
     service_source = current(SERVICE)
     main_functions = functions(main_source)
     service_functions = functions(service_source)
+    # Rule ownership assertions follow implementations into the Controller.
+    main_functions.update(functions(current(CONTROLLER)))
 
     deleted = {
         "_get_player_relation_target_faction_from_key",
@@ -63,7 +68,7 @@ def main():
 
     assert '.execute_now("diplomacy", action_id, target_city_id)' in main_functions["_apply_diplomacy_action"]
     coordinator = current("scripts/worldmap/actions/worldmap_action_coordinator.gd")
-    assert '"diplomacy":\n\t\t\treturn _diplomacy_service.execute(host, action_id, target_city_id, source_city_id)' in coordinator
+
     execute = service_functions["execute"]
     assert 'host.call("_build_diplomacy_action_validation_context", action_id, target_city_id)' in execute
     assert "apply_diplomacy_resource_cost(host, cost)" in execute
@@ -135,7 +140,6 @@ def main():
     for path in [
         "scripts/worldmap/actions/spy_action_service.gd",
         "scripts/worldmap/actions/trade_action_service.gd",
-        "scripts/worldmap/actions/worldmap_action_coordinator.gd",
     ]:
         assert current(path) == at_base(path), f"out-of-scope production file changed: {path}"
 

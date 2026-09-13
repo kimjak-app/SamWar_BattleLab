@@ -44,7 +44,7 @@ func _resource_stock() -> Dictionary:
 
 
 func _relation_entry() -> Dictionary:
-	return _worldmap.call("_get_faction_relation_entry", "player", _foreign_faction_id)
+	return _worldmap.call("_ensure_diplomacy_controller").call("_get_faction_relation_entry", "player", _foreign_faction_id)
 
 
 func _check_resource_helper_parity(cost: Dictionary, label: String) -> void:
@@ -53,7 +53,7 @@ func _check_resource_helper_parity(cost: Dictionary, label: String) -> void:
 	var legacy: Dictionary = _worldmap.call("_apply_generic_resource_cost", cost)
 	var expected_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
-	var direct: Dictionary = _service.call("apply_diplomacy_resource_cost", _worldmap, cost)
+	var direct: Dictionary = _service.call("apply_diplomacy_resource_cost", _worldmap.call("_ensure_diplomacy_controller"), cost)
 	_expect(direct == legacy, "resource result parity: " + label)
 	_expect(_worldmap.get("_player_state") == expected_state, "resource state parity: " + label)
 
@@ -65,7 +65,7 @@ func _check_relation_helper_parity(score: int, delta: int, label: String) -> voi
 	var legacy: Dictionary = _worldmap.call("_adjust_faction_relation_score", "player", _foreign_faction_id, delta, reason)
 	var expected_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
-	var direct: Dictionary = _service.call("apply_diplomacy_relation_delta", _worldmap, "player", _foreign_faction_id, delta, reason)
+	var direct: Dictionary = _service.call("apply_diplomacy_relation_delta", _worldmap.call("_ensure_diplomacy_controller"), "player", _foreign_faction_id, delta, reason)
 	_expect(direct == legacy, "relation result parity: " + label)
 	_expect(_worldmap.get("_player_state") == expected_state, "relation state parity: " + label)
 
@@ -77,7 +77,7 @@ func _check_action(action_id: String, score: int, status: String) -> void:
 	var cost: Dictionary = definition.get("cost", {})
 	var before_stock := _resource_stock().duplicate(true)
 	var before_relation_score := int(_relation_entry().get("score", 0))
-	var result: Dictionary = _service.call("execute", _worldmap, action_id, _foreign_city_id)
+	var result: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), action_id, _foreign_city_id)
 	_expect(bool(result.get("success", false)), "service direct action succeeds: " + action_id)
 	for resource_id_variant in cost:
 		var resource_id := str(resource_id_variant)
@@ -95,7 +95,7 @@ func _check_insufficient_resources(action_id: String) -> void:
 	_prepare(60, "neutral", 0, 0)
 	var before_stock := _resource_stock().duplicate(true)
 	var before_relation := _relation_entry().duplicate(true)
-	var result: Dictionary = _service.call("execute", _worldmap, action_id, _foreign_city_id)
+	var result: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), action_id, _foreign_city_id)
 	_expect(not bool(result.get("success", false)), "insufficient resources fail: " + action_id)
 	_expect(result.get("reason") == "resources" and result.get("message") == "자원이 부족합니다.", "resource failure contract: " + action_id)
 	_expect(_resource_stock() == before_stock, "resource failure does not charge: " + action_id)
@@ -106,7 +106,7 @@ func _check_insufficient_resources(action_id: String) -> void:
 func _check_production_parity(action_id: String, score: int, status: String) -> void:
 	_prepare(score, status)
 	var before: Dictionary = _worldmap.get("_player_state").duplicate(true)
-	var direct: Dictionary = _service.call("execute", _worldmap, action_id, _foreign_city_id)
+	var direct: Dictionary = _service.call("execute", _worldmap.call("_ensure_diplomacy_controller"), action_id, _foreign_city_id)
 	var expected_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	_worldmap.set("_player_state", before.duplicate(true))
 	var production: Dictionary = _worldmap.call("_apply_diplomacy_action", action_id, _foreign_city_id)

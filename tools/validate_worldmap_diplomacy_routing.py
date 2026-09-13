@@ -7,6 +7,7 @@ behavior is covered separately by test_worldmap_diplomacy_routing.gd.
 import re
 import subprocess
 from pathlib import Path
+from validate_worldmap_diplomacy_controller_extraction import check_coordinator, check_controller_moves, check_main_boundaries, check_presentation_moves, CONTROLLER_FUNCTIONS, CONTROLLER, MAIN_REMOVED, MAIN_REWIRED
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "e066b59a28226de1e5f4680ae11b651926903361"
@@ -45,6 +46,10 @@ def functions(source):
 
 
 def main():
+    check_coordinator()
+    check_controller_moves()
+    check_main_boundaries()
+    check_presentation_moves()
     before, after = functions(original(MAIN)), functions(current(MAIN))
     deleted = {
         "_get_player_relation_target_faction_from_key",
@@ -63,6 +68,7 @@ def main():
         "_send_tribute",
     }
     bridges = {
+        "_ensure_diplomacy_action_coordinator",
         "open_contextual_worldmap_action", "cancel_contextual_worldmap_action",
         "complete_contextual_worldmap_action",
         "_request_contextual_worldmap_action_presentation",
@@ -102,11 +108,11 @@ def main():
         "_format_last_diplomacy_action_result_for_ui",
     }
     for name, body in before.items():
-        if name in deleted:
+        if name in deleted | MAIN_REMOVED:
             assert name not in after, f"dead diplomacy function retained: {name}"
             continue
         assert name in after, f"removed function: {name}"
-        if name not in bridges:
+        if name not in bridges | CONTROLLER_FUNCTIONS | MAIN_REWIRED:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     phase_2c1 = functions(at_commit(PHASE_2C1_BASE, MAIN))
     for name in ["_calculate_military_support_acceptance_chance", "_request_military_support", "_break_spy_wedge_alliance_if_needed"]:
@@ -116,8 +122,8 @@ def main():
         "_apply_generic_resource_cost",
     ]:
         assert after[name] == before[name], f"diplomacy mutation function changed: {name}"
-    assert len(current(MAIN).splitlines()) >= len(at_commit(PHASE_2C2_BASE, MAIN).splitlines()) - 350, "host shortened beyond the 2D cleanup budget"
-    for file in ["spy_action_service.gd", "worldmap_action_coordinator.gd"]:
+    # Exact moved-body checks replace the old 2D line-deletion budget.
+    for file in ["spy_action_service.gd"]:
         path = "scripts/worldmap/actions/" + file
         assert current(path) == original(path), f"shared routing/service changed: {file}"
     presentation = "scripts/worldmap/ui/worldmap_action_presentation_controller.gd"
@@ -141,6 +147,8 @@ def main():
         pure_body = service_functions[name]
         for forbidden in ["host.", "_player_state", "_apply_generic_resource_cost", "_adjust_faction_relation_score", "_set_diplomacy_action_cooldown"]:
             assert forbidden not in pure_body, f"{name} owns forbidden side effect/dependency: {forbidden}"
+    # Domain ownership follows Controller; untouched-main comparisons above remain strict.
+    after.update(functions(current(CONTROLLER)))
     assert "DiplomacyActionServiceScript.get_action_definition(action_id)" in after["_get_diplomacy_action_definition"]
     assert "DiplomacyActionServiceScript.validate_action" in after["_validate_diplomacy_action"]
     for name in ["_get_diplomacy_action_definition", "_validate_diplomacy_action"]:
@@ -174,9 +182,9 @@ def main():
     assert 'relation_entry["trade_agreement_active"] = true' in service_functions["apply_trade_agreement_state"], "agreement creation not owned by service"
     assert 'player_state["diplomacy_action_cooldowns"] = cooldowns' in service_functions["sync_diplomacy_mirror_state"], "cooldown mirror not owned by service"
     assert 'player_state["trade_agreements"] = agreements' in service_functions["sync_diplomacy_mirror_state"], "agreement mirror not owned by service"
-    assert "DiplomacyActionServiceScript.new().get_diplomacy_action_cooldown" in after["_get_diplomacy_action_cooldown"]
-    assert "DiplomacyActionServiceScript.new().sync_diplomacy_mirror_state" in after["_sync_diplomacy_action_mirror_state_from_relations"]
-    assert "DiplomacyActionServiceScript.new().sync_alliance_mirror_state" in after["_sync_diplomacy_action_mirror_state_from_relations"]
+    assert "_service.get_diplomacy_action_cooldown" in after["_get_diplomacy_action_cooldown"]
+    assert "_service.sync_diplomacy_mirror_state" in after["_sync_diplomacy_action_mirror_state_from_relations"]
+    assert "_service.sync_alliance_mirror_state" in after["_sync_diplomacy_action_mirror_state_from_relations"]
     for forbidden in ["before_action_cooldown", "before_agreement_turns", 'entry["trade_agreement_active"] = false']:
         assert forbidden not in after["_advance_diplomacy_cooldowns_for_world_turn"], f"main still owns 2C-1 advance mutation: {forbidden}"
     for name in [
@@ -200,7 +208,7 @@ def main():
         "_get_active_alliance_turns": "get_active_alliance_turns",
     }
     for name, target in wrapper_targets.items():
-        assert f"DiplomacyActionServiceScript.new().{target}" in after[name], f"alliance wrapper does not delegate: {name}"
+        assert f"_service.{target}" in after[name], f"alliance wrapper does not delegate: {name}"
         assert len(after[name].splitlines()) <= 2, f"alliance compatibility API is not thin: {name}"
     assert "restore_alliance_state_from_mirror" in after["_normalize_diplomacy_action_state_from_player_state"]
     assert "advance_alliance_state_entry" in after["_advance_diplomacy_cooldowns_for_world_turn"]
