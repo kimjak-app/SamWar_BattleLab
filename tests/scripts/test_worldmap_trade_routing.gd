@@ -70,7 +70,7 @@ func _make_order(import_amount: int = 4, export_amount: int = 10) -> Dictionary:
 		"mode": "manual",
 		"orders": orders,
 	}
-	order["preview"] = _worldmap.call("_build_external_manual_trade_execution_preview", order)
+	order["preview"] = _worldmap.call("_ensure_trade_controller").call("build_external_manual_trade_execution_preview", order)
 	order["efficiency"] = _worldmap.call("_get_trade_efficiency_for_cities", _source, _target)
 	return order
 
@@ -86,7 +86,7 @@ func _check_external_parity() -> void:
 	var source_before := _storage(_source)
 	var initial_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	var initial_cities: Dictionary = _worldmap.get("_city_runtime_states").duplicate(true)
-	var legacy: Dictionary = _worldmap.call("_execute_external_manual_trade_order_legacy", order)
+	var legacy: Dictionary = _worldmap.call("_ensure_trade_controller").call("execute_order", order)
 	var expected_state: Dictionary = _worldmap.get("_player_state").duplicate(true)
 	var expected_cities: Dictionary = _worldmap.get("_city_runtime_states").duplicate(true)
 	_worldmap.set("_player_state", initial_state.duplicate(true))
@@ -117,7 +117,7 @@ func _check_failure_parity() -> void:
 	for index in invalid_orders.size():
 		_prepare()
 		var order: Dictionary = invalid_orders[index]
-		var legacy: Dictionary = _worldmap.call("_execute_external_manual_trade_order_legacy", order)
+		var legacy: Dictionary = _worldmap.call("_ensure_trade_controller").call("execute_order", order)
 		_prepare()
 		var actual: Dictionary = _worldmap.call("_execute_external_manual_trade_order", order)
 		_expect(actual == legacy, "failure parity case %d" % index)
@@ -125,7 +125,7 @@ func _check_failure_parity() -> void:
 
 	_prepare(0)
 	var costly_order := _make_order(100000, 0)
-	var costly_legacy: Dictionary = _worldmap.call("_execute_external_manual_trade_order_legacy", costly_order)
+	var costly_legacy: Dictionary = _worldmap.call("_ensure_trade_controller").call("execute_order", costly_order)
 	_prepare(0)
 	var costly_actual: Dictionary = _worldmap.call("_execute_external_manual_trade_order", costly_order)
 	_expect(costly_actual == costly_legacy and costly_actual.get("reason") == "gold", "gold shortage parity")
@@ -178,7 +178,7 @@ func _store_order_from_panel() -> Dictionary:
 	_worldmap.call("_on_manual_trade_order_confirm_pressed")
 	var order: Dictionary = _worldmap.get("_manual_trade_orders").get(_source, {})
 	_expect(not order.is_empty(), "manual order stored through production panel")
-	_expect(order.get("preview") == _worldmap.call("_build_external_manual_trade_execution_preview", order), "stored preview matches execute calculation")
+	_expect(order.get("preview") == _worldmap.call("_ensure_trade_controller").call("build_external_manual_trade_execution_preview", order), "stored preview matches execute calculation")
 	return order
 
 

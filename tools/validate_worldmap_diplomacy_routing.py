@@ -51,6 +51,28 @@ def main():
     check_main_boundaries()
     check_presentation_moves()
     before, after = functions(original(MAIN)), functions(current(MAIN))
+    trade_removed = {
+        "_get_trade_control_mode_label", "_get_trade_control_hint",
+        "_format_manual_trade_preview_summary", "_execute_external_manual_trade_order_legacy",
+        "_validate_external_manual_trade_execution", "_build_external_manual_trade_execution_preview",
+        "_build_empty_external_trade_delta", "_calculate_external_trade_delta",
+        "_get_default_trade_control_modes", "_normalize_manual_trade_order_payload",
+        "_normalize_manual_trade_order_items", "_normalize_trade_delta_payload",
+        "_normalize_chancellor_auto_trade_section_payload", "_format_external_trade_manual_order_summary",
+        "_format_external_manual_trade_execution_result_summary",
+        "_format_manual_trade_nonzero_preview_summary", "_format_trade_market_prices_for_external_trade_ui",
+    }
+    trade_rewired = {
+        "_ensure_diplomacy_action_coordinator", "_apply_city_detail_tab_content",
+        "_refresh_trade_control_ui", "_refresh_manual_trade_order_relation",
+        "_refresh_manual_trade_order_preview", "_build_manual_trade_order_preview",
+        "_on_manual_trade_order_confirm_pressed", "_on_manual_trade_execution_button_pressed",
+        "_get_trade_efficiency_for_cities", "_calculate_trade_import_cost",
+        "_calculate_trade_export_gain", "_normalize_trade_control_modes",
+        "_normalize_manual_trade_orders", "_normalize_trade_result_payload",
+        "_normalize_chancellor_auto_trade_result_payload", "_sync_trade_persistence_to_player_state",
+        "_restore_trade_persistence_from_player_state", "_format_chancellor_external_auto_trade_result_summary",
+    }
     deleted = {
         "_get_player_relation_target_faction_from_key",
         "_sync_alliance_mirror_state_from_relations",
@@ -108,11 +130,11 @@ def main():
         "_format_last_diplomacy_action_result_for_ui",
     }
     for name, body in before.items():
-        if name in deleted | MAIN_REMOVED:
+        if name in deleted | MAIN_REMOVED | trade_removed:
             assert name not in after, f"dead diplomacy function retained: {name}"
             continue
         assert name in after, f"removed function: {name}"
-        if name not in bridges | CONTROLLER_FUNCTIONS | MAIN_REWIRED:
+        if name not in bridges | CONTROLLER_FUNCTIONS | MAIN_REWIRED | trade_rewired:
             assert after[name] == body, f"out-of-scope function changed: {name}"
     phase_2c1 = functions(at_commit(PHASE_2C1_BASE, MAIN))
     for name in ["_calculate_military_support_acceptance_chance", "_request_military_support", "_break_spy_wedge_alliance_if_needed"]:

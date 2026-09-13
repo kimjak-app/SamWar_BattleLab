@@ -5,7 +5,6 @@ signal presentation_requested(action_type: String, action_id: String, target_cit
 signal action_resolved(action_type: String, result: Dictionary)
 
 const SpyActionServiceScript := preload("res://scripts/worldmap/actions/spy_action_service.gd")
-const TradeActionServiceScript := preload("res://scripts/worldmap/actions/trade_action_service.gd")
 const VALID_ACTION_TYPES := ["diplomacy", "spy", "trade"]
 
 var _action_type := ""
@@ -14,12 +13,16 @@ var _source_city_id := ""
 var _pending_presentation := false
 var _resolving := false
 var _diplomacy_controller: RefCounted
+var _trade_controller: RefCounted
 var _spy_service = SpyActionServiceScript.new()
-var _trade_service = TradeActionServiceScript.new()
 
 
 func configure_diplomacy(controller: RefCounted) -> void:
 	_diplomacy_controller = controller
+
+
+func configure_trade(controller: RefCounted) -> void:
+	_trade_controller = controller
 
 
 func begin(action_type: String, target_city_id: String, source_city_id: String = "") -> Dictionary:
@@ -134,7 +137,9 @@ func execute_now(
 
 
 func execute_trade_order(order: Dictionary) -> Dictionary:
-	return _trade_service.execute_order(get_parent(), order)
+	if _trade_controller == null:
+		return _failure("executor_unavailable", "교역 행동 실행기를 찾을 수 없습니다.")
+	return _trade_controller.execute_order(order)
 
 
 func resolve_without_video(action_type: String, result: Dictionary) -> void:
@@ -162,7 +167,9 @@ func _execute_domain_action(
 		"spy":
 			return _spy_service.execute(host, action_id, target_city_id, source_city_id)
 		"trade":
-			return _trade_service.execute(host, action_id, target_city_id, source_city_id)
+			if _trade_controller == null:
+				return _failure("executor_unavailable", "교역 행동 실행기를 찾을 수 없습니다.")
+			return _trade_controller.execute(action_id, target_city_id, source_city_id)
 	return _failure("unsupported_action", "지원하지 않는 도시 행동입니다.")
 
 

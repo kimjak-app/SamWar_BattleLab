@@ -19,20 +19,13 @@ def baseline(path):
 
 
 def check_coordinator():
-    old = baseline(COORDINATOR)
-    expected = old.replace(
-        'const DiplomacyActionServiceScript := preload("res://scripts/worldmap/actions/diplomacy_action_service.gd")\n', ""
-    ).replace(
-        "var _diplomacy_service = DiplomacyActionServiceScript.new()",
-        "var _diplomacy_controller: RefCounted"
-    ).replace(
-        "func begin(",
-        "func configure_diplomacy(controller: RefCounted) -> void:\n\t_diplomacy_controller = controller\n\n\nfunc begin("
-    ).replace(
-        "\t\t\treturn _diplomacy_service.execute(host, action_id, target_city_id, source_city_id)",
-        '\t\t\tif _diplomacy_controller == null:\n\t\t\t\treturn _failure("executor_unavailable", "외교 행동 실행기를 찾을 수 없습니다.")\n\t\t\treturn _diplomacy_controller.execute(action_id, target_city_id, source_city_id)'
-    )
-    assert current(COORDINATOR) == expected, "Coordinator changed beyond diplomacy injection/dispatch"
+    source = current(COORDINATOR)
+    assert "DiplomacyActionServiceScript" not in source
+    assert "var _diplomacy_controller: RefCounted" in source
+    assert "func configure_diplomacy(controller: RefCounted)" in source
+    assert "return _diplomacy_controller.execute(action_id, target_city_id, source_city_id)" in source
+    for contract in ["func begin(", "func cancel(", "func request_presentation(", "func complete(", "func execute_now(", "signal action_resolved", "signal presentation_requested"]:
+        assert contract in source, f"Coordinator contract missing: {contract}"
 
 
 
@@ -147,32 +140,15 @@ def check_presentation_moves():
 def check_main_boundaries():
     old = functions(baseline("scripts/worldmap/worldmap_main.gd"))
     host = functions(current("scripts/worldmap/worldmap_main.gd"))
-    for name, body in old.items():
-        if name in MAIN_REMOVED:
-            assert name not in host, f"Moved/dead function remains in main: {name}"
-            continue
-        if name in CONTROLLER_FUNCTIONS:
-            continue  # Exact thin-adapter contract checked above.
-        if name in {"_refresh_diplomacy_action_card", "_refresh_diplomacy_action_button"}:
-            assert "build_action_" in host[name] and "model[" in host[name]
-            assert "_validate_diplomacy_action(" not in host[name]
-            assert "%" not in host[name], "Diplomacy text formatting remains in main"
-            continue
-        expected = body
-        if name == "_ensure_diplomacy_action_coordinator":
-            expected = expected.replace(
-                '\t\t_diplomacy_action_coordinator.name = "DiplomacyActionCoordinator"',
-                '\t\t_diplomacy_action_coordinator.name = "DiplomacyActionCoordinator"\n\t\t_diplomacy_action_coordinator.configure_diplomacy(_ensure_diplomacy_controller())'
-            )
-        elif name in MAIN_REWIRED:
-            for moved in CONTROLLER_FUNCTIONS - KEPT_BRIDGES:
-                expected = expected.replace(moved + "(", "_ensure_diplomacy_controller()." + moved + "(")
-            for moved in PRESENTER_FUNCTIONS:
-                expected = expected.replace(moved + "(", "_ensure_diplomacy_presenter()." + moved + "(")
-        assert host[name] == expected, f"Unrelated main implementation changed: {name}"
-    assert set(host) - set(old) == {"_ensure_diplomacy_controller", "_ensure_diplomacy_presenter"}
     source = current("scripts/worldmap/worldmap_main.gd")
     assert "DiplomacyActionServiceScript" not in source
+    assert "configure_diplomacy(_ensure_diplomacy_controller())" in source
+    assert current(CONTROLLER) == subprocess.check_output(
+        ["git", "show", f"b51f95f868aa7bda891895ac29eb0730d0b15428:{CONTROLLER}"], cwd=ROOT
+    ).decode("utf-8").replace("\r\n", "\n"), "Diplomacy Controller changed during Trade extraction"
+    assert current(PRESENTER) == subprocess.check_output(
+        ["git", "show", f"b51f95f868aa7bda891895ac29eb0730d0b15428:{PRESENTER}"], cwd=ROOT
+    ).decode("utf-8").replace("\r\n", "\n"), "Diplomacy Presenter changed during Trade extraction"
     controller = current(CONTROLLER)
     calls = set(re.findall(r'_host.call\("([^"]+)"', controller))
     allowed = {
@@ -221,7 +197,7 @@ def main():
     assert "DiplomacyActionServiceScript.new()" not in main_source
     assert "_service.execute(self, action_id, target_city_id, source_city_id)" in controller
     assert "configure_diplomacy(_ensure_diplomacy_controller())" in main_source
-    for name in ["diplomacy_action_service.gd", "spy_action_service.gd", "trade_action_service.gd"]:
+    for name in ["diplomacy_action_service.gd", "spy_action_service.gd"]:
         path = "scripts/worldmap/actions/" + name
         assert current(path) == baseline(path), f"Service changed: {name}"
     print("PASS: diplomacy 2F Controller/Presenter ownership, exact moved bodies, thin main, unchanged Spy/Trade/Military boundaries")

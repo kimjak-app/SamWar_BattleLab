@@ -16,6 +16,8 @@ const DiplomacySpyHelpers := preload("res://scripts/worldmap/diplomacy_spy/diplo
 const WorldMapActionCoordinatorScript := preload("res://scripts/worldmap/actions/worldmap_action_coordinator.gd")
 const DiplomacyControllerScript := preload("res://scripts/worldmap/actions/diplomacy_controller.gd")
 const DiplomacyPresentationHelperScript := preload("res://scripts/worldmap/actions/diplomacy_presentation_helper.gd")
+const TradeControllerScript := preload("res://scripts/worldmap/actions/trade_controller.gd")
+const TradePresentationHelperScript := preload("res://scripts/worldmap/actions/trade_presentation_helper.gd")
 const UIFormatterHelpers := preload("res://scripts/worldmap/ui_formatter/ui_formatter_helpers.gd")
 const T03AutoBattleResolverScript := preload("res://scripts/worldmap/t03/auto_battle_resolver.gd")
 const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_outcome_rules.gd")
@@ -1032,6 +1034,8 @@ var _contextual_worldmap_action_pending := false
 var _diplomacy_action_coordinator: WorldMapActionCoordinator = null
 var _diplomacy_controller: DiplomacyControllerScript = null
 var _diplomacy_presenter: DiplomacyPresentationHelperScript = null
+var _trade_controller: TradeControllerScript = null
+var _trade_presenter: TradePresentationHelperScript = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
 var _pending_trade_action_id := ""
@@ -1764,11 +1768,26 @@ func _ensure_diplomacy_presenter() -> DiplomacyPresentationHelperScript:
 	return _diplomacy_presenter
 
 
+func _ensure_trade_controller() -> TradeControllerScript:
+	if _trade_controller == null:
+		_trade_controller = TradeControllerScript.new()
+		_trade_controller.configure(self)
+	return _trade_controller
+
+
+func _ensure_trade_presenter() -> TradePresentationHelperScript:
+	if _trade_presenter == null:
+		_trade_presenter = TradePresentationHelperScript.new()
+		_trade_presenter.configure(self, _ensure_trade_controller())
+	return _trade_presenter
+
+
 func _ensure_diplomacy_action_coordinator() -> WorldMapActionCoordinator:
 	if not is_instance_valid(_diplomacy_action_coordinator):
 		_diplomacy_action_coordinator = WorldMapActionCoordinatorScript.new()
 		_diplomacy_action_coordinator.name = "DiplomacyActionCoordinator"
 		_diplomacy_action_coordinator.configure_diplomacy(_ensure_diplomacy_controller())
+		_diplomacy_action_coordinator.configure_trade(_ensure_trade_controller())
 		add_child(_diplomacy_action_coordinator)
 		_diplomacy_action_coordinator.presentation_requested.connect(_on_diplomacy_presentation_requested)
 		_diplomacy_action_coordinator.action_resolved.connect(_on_diplomacy_action_resolved)
@@ -1865,30 +1884,7 @@ func complete_contextual_worldmap_action(action_type: String, action_id: String,
 		if action_id != _pending_trade_action_id:
 			return {"success": false, "message": "무역 행동이 변경되었습니다."}
 		return _ensure_diplomacy_action_coordinator().complete(action_type, action_id, target_city_id)
-
-	var result: Dictionary = {}
-	match action_type:
-		"diplomacy":
-			result = _apply_diplomacy_action(action_id, target_city_id)
-			_save_management_status = str(result.get("message", "외교 행동 처리"))
-		"spy":
-			result = _apply_spy_action(action_id, target_city_id)
-		"trade":
-			var order: Dictionary = _manual_trade_orders.get(_contextual_worldmap_action_source_city_id, {})
-			result = _execute_external_manual_trade_order(order)
-			_player_state["last_external_manual_trade_execution_result"] = result.duplicate(true)
-			if bool(result.get("ok", false)):
-				_manual_trade_orders.erase(_contextual_worldmap_action_source_city_id)
-		_:
-			result = {"success": false, "message": "지원하지 않는 도시 행동입니다."}
-
-	cancel_contextual_worldmap_action()
-	_refresh_city_hud_data_bindings()
-	_refresh_left_world_status_panel()
-	_refresh_unified_panel_content()
-	_queue_unified_city_panel_resize()
-	contextual_worldmap_action_resolved.emit(action_type, result)
-	return result
+	return {"success": false, "message": "지원하지 않는 도시 행동입니다."}
 
 
 func _find_contextual_trade_source_city_id(target_city_id: String) -> String:
@@ -2368,7 +2364,7 @@ func _apply_city_detail_tab_content(city_marker: WorldMapCityMarker, city_data: 
 			city_detail_security_label.text = _format_external_trade_relation_summary(city_marker.city_id, external_trade_candidate_city_ids)
 			city_detail_military_label.text = _format_external_trade_lead_display(external_trade_candidate_city_ids)
 			city_detail_commerce_label.text = _format_external_trade_policy_display(external_trade_candidate_city_ids)
-			city_detail_rating_label.text = _format_external_trade_manual_order_summary(city_marker.city_id, external_trade_candidate_city_ids)
+			city_detail_rating_label.text = _ensure_trade_presenter().format_external_trade_manual_order_summary(city_marker.city_id, external_trade_candidate_city_ids)
 			city_detail_domestic_button_placeholder.visible = false
 			_refresh_manual_trade_execution_button(city_marker.city_id, external_trade_candidate_city_ids)
 			city_detail_status_label.text = ""
@@ -2673,7 +2669,7 @@ func _refresh_trade_control_ui(tab_id: String, has_manual_targets: bool) -> void
 		_trade_control_modes[tab_id] = mode
 	_set_trade_control_card_visible(true)
 	if _trade_control_status_label != null:
-		_trade_control_status_label.text = "현재: %s" % _get_trade_control_mode_label(mode)
+		_trade_control_status_label.text = "현재: %s" % _ensure_trade_presenter().get_trade_control_mode_label(mode)
 	if _trade_auto_button != null:
 		_trade_auto_button.disabled = false
 		_apply_trade_control_button_state(_trade_auto_button, mode == TRADE_CONTROL_MODE_CHANCELLOR)
@@ -2681,7 +2677,7 @@ func _refresh_trade_control_ui(tab_id: String, has_manual_targets: bool) -> void
 		_trade_manual_button.disabled = not has_manual_targets
 		_apply_trade_control_button_state(_trade_manual_button, mode == TRADE_CONTROL_MODE_MANUAL and has_manual_targets)
 	if _trade_control_hint_label != null:
-		_trade_control_hint_label.text = _get_trade_control_hint(tab_id, mode, has_manual_targets)
+		_trade_control_hint_label.text = _ensure_trade_presenter().get_trade_control_hint(tab_id, mode, has_manual_targets)
 
 
 func _apply_trade_control_button_state(button: Button, is_active: bool) -> void:
@@ -2695,18 +2691,8 @@ func _apply_trade_control_button_state(button: Button, is_active: bool) -> void:
 		button.modulate = Color(0.82, 0.86, 0.92, 1.0)
 
 
-func _get_trade_control_mode_label(mode: String) -> String:
-	return UIFormatterHelpers.get_trade_control_mode_label(mode, TRADE_CONTROL_MODE_MANUAL)
 
 
-func _get_trade_control_hint(tab_id: String, mode: String, has_manual_targets: bool) -> String:
-	return UIFormatterHelpers.get_trade_control_hint(
-		tab_id,
-		mode,
-		has_manual_targets,
-		CITY_DETAIL_TAB_INTERNAL_TRADE,
-		TRADE_CONTROL_MODE_MANUAL
-	)
 
 
 func _ensure_manual_trade_order_panel() -> void:
@@ -2957,7 +2943,7 @@ func _refresh_manual_trade_order_relation() -> void:
 		return
 	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
 	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
-	var market_summary := _format_trade_market_prices_for_external_trade_ui()
+	var market_summary := _ensure_trade_presenter().format_trade_market_prices_for_external_trade_ui()
 	_manual_trade_relation_label.text = "관계: %s / %s / 효율 x%.2f / 시장가 반영%s" % [
 		_format_faction_relation_status_for_ui(_get_faction_relation_status(source_faction_id, target_faction_id)),
 		_format_trade_availability_for_ui(source_faction_id, target_faction_id),
@@ -2980,31 +2966,17 @@ func _build_manual_trade_order_items_from_panel() -> Dictionary:
 func _refresh_manual_trade_order_preview() -> void:
 	if _manual_trade_preview_label == null:
 		return
-	_manual_trade_preview_label.text = _format_manual_trade_preview_summary(_build_manual_trade_order_preview())
+	_manual_trade_preview_label.text = _ensure_trade_presenter().format_manual_trade_preview_summary(_build_manual_trade_order_preview())
 
 
 func _build_manual_trade_order_preview() -> Dictionary:
-	return _calculate_external_trade_delta({
+	return _ensure_trade_controller().build_external_manual_trade_execution_preview({
 		"source_city_id": _manual_trade_current_source_city_id,
 		"target_city_id": _get_selected_manual_trade_target_city_id(),
 		"orders": _build_manual_trade_order_items_from_panel(),
 	})
 
 
-func _format_manual_trade_preview_summary(preview: Dictionary) -> String:
-	var parts: Array[String] = ["금전 %s" % _format_signed_int(int(preview.get("gold", 0)))]
-	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
-		parts.append("%s %s" % [
-			str(RESOURCE_LABELS.get(resource_id, resource_id)),
-			_format_signed_int(int(preview.get(resource_id, 0))),
-		])
-	var summary := " / ".join(parts)
-	var market_text := _format_trade_market_prices_for_external_trade_ui()
-	if preview.has("efficiency") and float(preview.get("efficiency", 0.0)) > 0.0:
-		return "효율 x%.2f 적용 · %s%s" % [float(preview.get("efficiency", 0.0)), summary, "\n%s" % market_text if not market_text.is_empty() else ""]
-	if not market_text.is_empty():
-		return "%s\n%s" % [summary, market_text]
-	return summary
 
 
 func _get_manual_trade_action(resource_id: String) -> String:
@@ -3046,7 +3018,7 @@ func _on_manual_trade_order_confirm_pressed() -> void:
 		if _manual_trade_status_label != null:
 			_manual_trade_status_label.text = "현재 관계에서는 교역할 수 없습니다."
 		return
-	var efficiency := _get_trade_efficiency_for_cities(source_city_id, target_city_id)
+	var efficiency := _ensure_trade_controller().get_trade_efficiency_for_cities(source_city_id, target_city_id)
 	if efficiency <= 0.0:
 		if _manual_trade_status_label != null:
 			_manual_trade_status_label.text = "교역 효율을 확인할 수 없습니다."
@@ -3056,7 +3028,7 @@ func _on_manual_trade_order_confirm_pressed() -> void:
 		if _manual_trade_status_label != null:
 			_manual_trade_status_label.text = "수입/수출 자원과 수량을 하나 이상 입력하십시오."
 		return
-	var preview := _calculate_external_trade_delta({
+	var preview := _ensure_trade_controller().build_external_manual_trade_execution_preview({
 		"source_city_id": source_city_id,
 		"target_city_id": target_city_id,
 		"orders": orders,
@@ -3070,7 +3042,7 @@ func _on_manual_trade_order_confirm_pressed() -> void:
 		"preview": preview,
 		"efficiency": efficiency,
 	}
-	_manual_trade_orders[source_city_id] = payload
+	_ensure_trade_controller().store_manual_trade_order(payload)
 	print("[WorldMap] Manual external trade order stored: %s" % str(payload))
 	_close_manual_trade_order_panel()
 	_refresh_unified_panel_content()
@@ -3088,9 +3060,9 @@ func _on_manual_trade_execution_button_pressed() -> void:
 	if _contextual_worldmap_action_type == "trade" and _contextual_worldmap_action_pending:
 		return
 	var source_city_id := selected_city_marker.city_id
-	var order: Dictionary = _manual_trade_orders.get(source_city_id, {})
+	var order := _ensure_trade_controller().get_manual_trade_order(source_city_id)
 	if _contextual_worldmap_action_type == "trade":
-		var contextual_validation := _validate_external_manual_trade_execution(order)
+		var contextual_validation := _ensure_trade_controller().validate_external_manual_trade_execution(order)
 		if bool(contextual_validation.get("ok", false)) and str(order.get("target_city_id", "")) == _contextual_worldmap_action_target_city_id:
 			_request_contextual_worldmap_action_presentation("trade", "external_manual_trade", _contextual_worldmap_action_target_city_id)
 		else:
@@ -3099,9 +3071,7 @@ func _on_manual_trade_execution_button_pressed() -> void:
 			_resolve_contextual_worldmap_action_without_video("trade", contextual_validation)
 		return
 	var result := _execute_external_manual_trade_order(order)
-	_player_state["last_external_manual_trade_execution_result"] = result.duplicate(true)
 	if bool(result.get("ok", false)):
-		_manual_trade_orders.erase(source_city_id)
 		print("[WorldMap] External manual trade executed: %s" % str(result))
 	else:
 		print("[WorldMap] External manual trade execution failed: %s" % str(result))
@@ -3115,162 +3085,16 @@ func _execute_external_manual_trade_order(order: Dictionary) -> Dictionary:
 	return _ensure_diplomacy_action_coordinator().execute_trade_order(order)
 
 
-# Retained intact for phase-three parity checks; production uses the service above.
-func _execute_external_manual_trade_order_legacy(order: Dictionary) -> Dictionary:
-	var validation := _validate_external_manual_trade_execution(order)
-	if not bool(validation.get("ok", false)):
-		if not order.is_empty():
-			validation["source_city_id"] = str(order.get("source_city_id", ""))
-			validation["target_city_id"] = str(order.get("target_city_id", ""))
-		return validation
-	var source_city_id := str(order.get("source_city_id", ""))
-	var target_city_id := str(order.get("target_city_id", ""))
-	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
-	var applied := _build_external_manual_trade_execution_preview(order)
-	var efficiency := float(applied.get("efficiency", _get_trade_efficiency_for_cities(source_city_id, target_city_id)))
-	var source_storage := _get_city_storage(source_city_id, _get_city_hud_entry(source_city_id))
-	for resource_id in ["gold"] + MANUAL_TRADE_RESOURCE_ORDER:
-		var delta := int(applied.get(resource_id, 0))
-		if delta == 0:
-			continue
-		source_storage[resource_id] = maxi(0, int(source_storage.get(resource_id, 0)) + delta)
-	_set_city_storage(source_city_id, source_storage)
-	return {
-		"ok": true,
-		"source_city_id": source_city_id,
-		"target_city_id": target_city_id,
-		"target_faction_id": target_faction_id,
-		"applied": applied,
-		"efficiency": efficiency,
-		"market_turn": int(applied.get("market_turn", _player_state.get("trade_market_turn", 0))),
-		"market_prices": _get_trade_market_price_snapshot_for_order(order),
-		"message": "수동 무역 실행 완료",
-	}
-
-
-func _validate_external_manual_trade_execution(order: Dictionary) -> Dictionary:
-	if order.is_empty():
-		return {"ok": false, "reason": "missing_order", "message": "실행할 수동 무역 명령이 없습니다."}
-	var source_city_id := str(order.get("source_city_id", ""))
-	var target_city_id := str(order.get("target_city_id", ""))
-	if source_city_id.is_empty():
-		return {"ok": false, "reason": "source", "message": "출발 성을 확인할 수 없습니다."}
-	if not _is_city_owned_by_player_mvp(source_city_id):
-		return {"ok": false, "reason": "source_owner", "message": "플레이어 소유 성에서만 실행할 수 있습니다."}
-	if target_city_id.is_empty():
-		return {"ok": false, "reason": "target", "message": "교역 대상을 확인할 수 없습니다."}
-	if not _get_external_trade_candidate_city_ids(source_city_id).has(target_city_id):
-		return {"ok": false, "reason": "target_invalid", "message": "교역 대상이 더 이상 유효하지 않습니다."}
-	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
-	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
-	if source_faction_id.is_empty() or target_faction_id.is_empty() or source_faction_id == target_faction_id:
-		return {"ok": false, "reason": "faction", "message": "교역 대상 세력을 확인할 수 없습니다."}
-	if not _can_trade_between_factions(source_faction_id, target_faction_id):
-		return {"ok": false, "reason": "relation", "message": "현재 관계에서는 교역할 수 없습니다."}
-	var efficiency := _get_trade_efficiency_for_cities(source_city_id, target_city_id)
-	if efficiency <= 0.0:
-		return {"ok": false, "reason": "efficiency", "message": "교역 효율을 확인할 수 없습니다."}
-	var orders_variant: Variant = order.get("orders", {})
-	if not orders_variant is Dictionary:
-		return {"ok": false, "reason": "orders", "message": "실행할 수동 무역 명령이 없습니다."}
-	var orders := orders_variant as Dictionary
-	var source_storage := _get_city_storage(source_city_id, _get_city_hud_entry(source_city_id))
-	var total_import_gold_cost := 0
-	var has_actionable_item := false
-	for resource_id_variant in orders.keys():
-		var resource_id := str(resource_id_variant)
-		if not MANUAL_TRADE_RESOURCE_ORDER.has(resource_id):
-			return {"ok": false, "reason": "resource", "message": "허용되지 않은 자원입니다."}
-		var order_item_variant: Variant = orders.get(resource_id, {})
-		if not order_item_variant is Dictionary:
-			return {"ok": false, "reason": "order_item", "message": "수동 무역 명령 형식이 올바르지 않습니다."}
-		var order_item := order_item_variant as Dictionary
-		var action := str(order_item.get("action", MANUAL_TRADE_ACTION_NONE))
-		var amount := int(order_item.get("amount", 0))
-		if amount < 0:
-			return {"ok": false, "reason": "amount", "message": "수량은 0 이상이어야 합니다."}
-		if action == MANUAL_TRADE_ACTION_NONE or amount <= 0:
-			continue
-		if not [MANUAL_TRADE_ACTION_IMPORT, MANUAL_TRADE_ACTION_EXPORT].has(action):
-			return {"ok": false, "reason": "action", "message": "수동 무역 행동이 올바르지 않습니다."}
-		has_actionable_item = true
-		if action == MANUAL_TRADE_ACTION_IMPORT:
-			total_import_gold_cost += _calculate_trade_import_cost(resource_id, amount, efficiency)
-		elif action == MANUAL_TRADE_ACTION_EXPORT and amount > _get_city_storage_amount(source_storage, resource_id):
-			return {"ok": false, "reason": "resource_shortage", "message": "수출할 자원이 부족합니다."}
-	if not has_actionable_item:
-		return {"ok": false, "reason": "empty", "message": "실행 가능한 자원 항목이 없습니다."}
-	if total_import_gold_cost > _get_city_storage_amount(source_storage, "gold"):
-		return {"ok": false, "reason": "gold", "message": "금전이 부족합니다."}
-	return {"ok": true}
-
-
-func _build_external_manual_trade_execution_preview(order: Dictionary) -> Dictionary:
-	return _calculate_external_trade_delta(order)
-
-
-func _build_empty_external_trade_delta() -> Dictionary:
-	var delta := {"gold": 0}
-	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
-		delta[resource_id] = 0
-	return delta
-
-
 func _get_trade_efficiency_for_cities(source_city_id: String, target_city_id: String) -> float:
-	if source_city_id.is_empty() or target_city_id.is_empty():
-		return 0.0
-	var source_faction_id := _get_city_owner_faction_id_for_trade_display(source_city_id)
-	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
-	if not _can_trade_between_factions(source_faction_id, target_faction_id):
-		return 0.0
-	return clampf(_get_trade_relation_multiplier_for_ui(source_faction_id, target_faction_id), TRADE_EFFICIENCY_MIN, TRADE_EFFICIENCY_MAX)
+	return _ensure_trade_controller().get_trade_efficiency_for_cities(source_city_id, target_city_id)
 
 
 func _calculate_trade_import_cost(resource_id: String, amount: int, efficiency: float) -> int:
-	var safe_amount := maxi(0, amount)
-	if safe_amount <= 0 or efficiency <= 0.0:
-		return 0
-	var base_price := _get_trade_market_price(resource_id)
-	var safe_efficiency := clampf(efficiency, TRADE_EFFICIENCY_MIN, TRADE_EFFICIENCY_MAX)
-	return maxi(0, ceili(float(base_price * safe_amount) / safe_efficiency))
+	return _ensure_trade_controller().calculate_trade_import_cost(resource_id, amount, efficiency)
 
 
 func _calculate_trade_export_gain(resource_id: String, amount: int, efficiency: float) -> int:
-	var safe_amount := maxi(0, amount)
-	if safe_amount <= 0 or efficiency <= 0.0:
-		return 0
-	var base_price := _get_trade_market_price(resource_id)
-	var safe_efficiency := clampf(efficiency, TRADE_EFFICIENCY_MIN, TRADE_EFFICIENCY_MAX)
-	return maxi(0, floori(float(base_price * safe_amount) * safe_efficiency))
-
-
-func _calculate_external_trade_delta(order: Dictionary) -> Dictionary:
-	var delta := _build_empty_external_trade_delta()
-	var source_city_id := str(order.get("source_city_id", ""))
-	var target_city_id := str(order.get("target_city_id", ""))
-	var efficiency := _get_trade_efficiency_for_cities(source_city_id, target_city_id)
-	delta["efficiency"] = efficiency
-	delta["market_turn"] = maxi(0, int(_player_state.get("trade_market_turn", 0)))
-	var orders_variant: Variant = order.get("orders", {})
-	if not orders_variant is Dictionary:
-		return delta
-	if efficiency <= 0.0:
-		return delta
-	var orders := orders_variant as Dictionary
-	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
-		var order_item_variant: Variant = orders.get(resource_id, {})
-		if not order_item_variant is Dictionary:
-			continue
-		var order_item := order_item_variant as Dictionary
-		var action := str(order_item.get("action", MANUAL_TRADE_ACTION_NONE))
-		var amount := maxi(0, int(order_item.get("amount", 0)))
-		if action == MANUAL_TRADE_ACTION_IMPORT and amount > 0:
-			delta[resource_id] = int(delta.get(resource_id, 0)) + amount
-			delta["gold"] = int(delta.get("gold", 0)) - _calculate_trade_import_cost(resource_id, amount, efficiency)
-		elif action == MANUAL_TRADE_ACTION_EXPORT and amount > 0:
-			delta[resource_id] = int(delta.get(resource_id, 0)) - amount
-			delta["gold"] = int(delta.get("gold", 0)) + _calculate_trade_export_gain(resource_id, amount, efficiency)
-	return delta
+	return _ensure_trade_controller().calculate_trade_export_gain(resource_id, amount, efficiency)
 
 
 func _apply_chancellor_auto_trade_for_world_turn(turn_number: int) -> Dictionary:
@@ -3604,153 +3428,30 @@ func _apply_chancellor_external_import(source_storage: Dictionary, applied_delta
 		return
 
 
-func _get_default_trade_control_modes() -> Dictionary:
-	return {
-		CITY_DETAIL_TAB_INTERNAL_TRADE: TRADE_CONTROL_MODE_CHANCELLOR,
-		CITY_DETAIL_TAB_EXTERNAL_TRADE: TRADE_CONTROL_MODE_CHANCELLOR,
-	}
 
 
 func _normalize_trade_control_modes(raw_modes: Variant) -> Dictionary:
-	var modes := _get_default_trade_control_modes()
-	if not raw_modes is Dictionary:
-		return modes
-	var raw_dictionary := raw_modes as Dictionary
-	for tab_id in [CITY_DETAIL_TAB_INTERNAL_TRADE, CITY_DETAIL_TAB_EXTERNAL_TRADE]:
-		var mode := str(raw_dictionary.get(tab_id, modes.get(tab_id, TRADE_CONTROL_MODE_CHANCELLOR)))
-		if not [TRADE_CONTROL_MODE_CHANCELLOR, TRADE_CONTROL_MODE_MANUAL].has(mode):
-			mode = TRADE_CONTROL_MODE_CHANCELLOR
-		modes[tab_id] = mode
-	return modes
+	return _ensure_trade_controller().normalize_trade_control_modes(raw_modes)
 
 
 func _normalize_manual_trade_orders(raw_orders: Variant) -> Dictionary:
-	var normalized := {}
-	if not raw_orders is Dictionary:
-		return normalized
-	for source_city_id_variant in (raw_orders as Dictionary).keys():
-		var source_city_id := str(source_city_id_variant)
-		var raw_order: Variant = (raw_orders as Dictionary).get(source_city_id_variant, {})
-		var order := _normalize_manual_trade_order_payload(raw_order, source_city_id)
-		if order.is_empty():
-			print("[TRADE_SAVE_LOAD] dropped invalid manual trade order for source=%s" % source_city_id)
-			continue
-		normalized[str(order.get("source_city_id", source_city_id))] = order
-	return normalized
+	return _ensure_trade_controller().normalize_manual_trade_orders(raw_orders)
 
 
-func _normalize_manual_trade_order_payload(raw_order: Variant, source_city_id: String = "") -> Dictionary:
-	if not raw_order is Dictionary:
-		return {}
-	var raw_dictionary := raw_order as Dictionary
-	var resolved_source_city_id := str(raw_dictionary.get("source_city_id", source_city_id))
-	var target_city_id := str(raw_dictionary.get("target_city_id", ""))
-	if resolved_source_city_id.is_empty() or target_city_id.is_empty():
-		return {}
-	if not _has_worldmap_city_for_trade_persistence(resolved_source_city_id) or not _has_worldmap_city_for_trade_persistence(target_city_id):
-		return {}
-	if not _is_city_owned_by_player_mvp(resolved_source_city_id):
-		return {}
-	var candidate_city_ids := _get_external_trade_candidate_city_ids(resolved_source_city_id)
-	if not candidate_city_ids.is_empty() and not candidate_city_ids.has(target_city_id):
-		return {}
-	var orders := _normalize_manual_trade_order_items(raw_dictionary.get("orders", {}))
-	if orders.is_empty():
-		return {}
-	var preview := _build_external_manual_trade_execution_preview({
-		"source_city_id": resolved_source_city_id,
-		"target_city_id": target_city_id,
-		"orders": orders,
-	})
-	return {
-		"source_city_id": resolved_source_city_id,
-		"target_city_id": target_city_id,
-		"trade_type": "external",
-		"mode": TRADE_CONTROL_MODE_MANUAL,
-		"orders": orders,
-		"preview": preview,
-		"efficiency": float(preview.get("efficiency", 0.0)),
-	}
 
 
-func _normalize_manual_trade_order_items(raw_items: Variant) -> Dictionary:
-	var normalized := {}
-	if not raw_items is Dictionary:
-		return normalized
-	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
-		var raw_item: Variant = (raw_items as Dictionary).get(resource_id, {})
-		if not raw_item is Dictionary:
-			continue
-		var action := str((raw_item as Dictionary).get("action", MANUAL_TRADE_ACTION_NONE))
-		var amount := maxi(0, int((raw_item as Dictionary).get("amount", 0)))
-		if action == MANUAL_TRADE_ACTION_NONE or amount <= 0:
-			continue
-		if not [MANUAL_TRADE_ACTION_IMPORT, MANUAL_TRADE_ACTION_EXPORT].has(action):
-			continue
-		normalized[resource_id] = {"action": action, "amount": amount}
-	return normalized
 
 
 func _normalize_trade_result_payload(raw_result: Variant) -> Dictionary:
-	if not raw_result is Dictionary:
-		return {}
-	var normalized := (raw_result as Dictionary).duplicate(true)
-	for key in ["applied", "preview", "amounts"]:
-		if normalized.has(key):
-			if normalized.get(key) is Dictionary:
-				normalized[key] = _normalize_trade_delta_payload(normalized.get(key))
-			else:
-				normalized.erase(key)
-	return normalized
+	return _ensure_trade_controller().normalize_trade_result_payload(raw_result)
 
 
-func _normalize_trade_delta_payload(raw_delta: Variant) -> Dictionary:
-	var normalized := {}
-	if not raw_delta is Dictionary:
-		return normalized
-	for resource_id in RESOURCE_DISPLAY_ORDER:
-		var resource_key := str(resource_id)
-		if (raw_delta as Dictionary).has(resource_key):
-			normalized[resource_key] = int((raw_delta as Dictionary).get(resource_key, 0))
-	return normalized
 
 
 func _normalize_chancellor_auto_trade_result_payload(raw_result: Variant) -> Dictionary:
-	if not raw_result is Dictionary:
-		return {}
-	var normalized := (raw_result as Dictionary).duplicate(true)
-	normalized["turn"] = maxi(0, int(normalized.get("turn", 0)))
-	if normalized.has("internal") and normalized.get("internal") is Dictionary:
-		normalized["internal"] = _normalize_chancellor_auto_trade_section_payload(normalized.get("internal"), true)
-	if normalized.has("external") and normalized.get("external") is Dictionary:
-		normalized["external"] = _normalize_chancellor_auto_trade_section_payload(normalized.get("external"), false)
-	return normalized
+	return _ensure_trade_controller().normalize_chancellor_auto_trade_result_payload(raw_result)
 
 
-func _normalize_chancellor_auto_trade_section_payload(raw_section: Variant, is_internal_section: bool) -> Dictionary:
-	var section := {"enabled": false, "applied": []}
-	if not raw_section is Dictionary:
-		return section
-	var raw_dictionary := raw_section as Dictionary
-	section["enabled"] = bool(raw_dictionary.get("enabled", false))
-	var raw_applied: Variant = raw_dictionary.get("applied", [])
-	var applied: Array = []
-	if raw_applied is Array:
-		for item_variant in raw_applied:
-			if not item_variant is Dictionary:
-				continue
-			var item := (item_variant as Dictionary).duplicate(true)
-			if is_internal_section:
-				item["amounts"] = _normalize_trade_delta_payload(item.get("amounts", {}))
-			else:
-				item["applied"] = _normalize_trade_delta_payload(item.get("applied", {}))
-				if item.has("efficiency"):
-					item["efficiency"] = clampf(float(item.get("efficiency", 0.0)), 0.0, TRADE_EFFICIENCY_MAX)
-			applied.append(item)
-	section["applied"] = applied
-	if raw_dictionary.has("total_moved"):
-		section["total_moved"] = maxi(0, int(raw_dictionary.get("total_moved", 0)))
-	return section
 
 
 func _has_worldmap_city_for_trade_persistence(city_id: String) -> bool:
@@ -3816,31 +3517,13 @@ func _record_city_intel_from_spy_result(spy_result: Dictionary) -> void:
 
 
 func _sync_trade_persistence_to_player_state() -> void:
-	_ensure_trade_market_for_current_turn()
-	_trade_control_modes = _normalize_trade_control_modes(_trade_control_modes)
-	_manual_trade_orders = _normalize_manual_trade_orders(_manual_trade_orders)
-	_player_state["trade_control_modes"] = _trade_control_modes.duplicate(true)
-	_player_state["manual_trade_orders"] = _manual_trade_orders.duplicate(true)
-	_player_state["last_external_manual_trade_execution_result"] = _normalize_trade_result_payload(_player_state.get("last_external_manual_trade_execution_result", {}))
-	_player_state["last_internal_trade_transfer_result"] = _normalize_trade_result_payload(_player_state.get("last_internal_trade_transfer_result", {}))
-	_player_state["last_chancellor_auto_trade_result"] = _normalize_chancellor_auto_trade_result_payload(_player_state.get("last_chancellor_auto_trade_result", {}))
-	_player_state["last_chancellor_auto_trade_turn"] = maxi(0, int(_player_state.get("last_chancellor_auto_trade_turn", 0)))
+	_ensure_trade_controller().sync_persistence_to_player_state()
 	_player_state["city_intel"] = _normalize_city_intel_registry(_player_state.get("city_intel", {}))
 	_ensure_faction_chancellors_seeded()
 
 
 func _restore_trade_persistence_from_player_state() -> void:
-	_trade_control_modes = _normalize_trade_control_modes(_player_state.get("trade_control_modes", {}))
-	_player_state["last_trade_market_result"] = _normalize_trade_market_result(_player_state.get("last_trade_market_result", {}))
-	_sync_trade_market_mirror_from_result(_player_state["last_trade_market_result"])
-	_ensure_trade_market_for_current_turn()
-	_manual_trade_orders = _normalize_manual_trade_orders(_player_state.get("manual_trade_orders", {}))
-	_player_state["trade_control_modes"] = _trade_control_modes.duplicate(true)
-	_player_state["manual_trade_orders"] = _manual_trade_orders.duplicate(true)
-	_player_state["last_external_manual_trade_execution_result"] = _normalize_trade_result_payload(_player_state.get("last_external_manual_trade_execution_result", {}))
-	_player_state["last_internal_trade_transfer_result"] = _normalize_trade_result_payload(_player_state.get("last_internal_trade_transfer_result", {}))
-	_player_state["last_chancellor_auto_trade_result"] = _normalize_chancellor_auto_trade_result_payload(_player_state.get("last_chancellor_auto_trade_result", {}))
-	_player_state["last_chancellor_auto_trade_turn"] = maxi(0, int(_player_state.get("last_chancellor_auto_trade_turn", 0)))
+	_ensure_trade_controller().restore_persistence_from_player_state()
 	_player_state["city_intel"] = _normalize_city_intel_registry(_player_state.get("city_intel", {}))
 	_ensure_faction_chancellors_seeded()
 
@@ -5301,35 +4984,6 @@ func _format_external_trade_policy_display(candidate_city_ids: Array[String]) ->
 	return EconomyCityHelpers.format_external_trade_policy_display(candidate_city_ids)
 
 
-func _format_external_trade_manual_order_summary(source_city_id: String, candidate_city_ids: Array[String]) -> String:
-	var chancellor_auto_trade_text := _format_chancellor_external_auto_trade_result_summary(source_city_id)
-	if candidate_city_ids.is_empty():
-		return chancellor_auto_trade_text
-	var order: Dictionary = _manual_trade_orders.get(source_city_id, {})
-	var recent_execution_text := _format_external_manual_trade_execution_result_summary(source_city_id)
-	if str(_trade_control_modes.get(CITY_DETAIL_TAB_EXTERNAL_TRADE, TRADE_CONTROL_MODE_CHANCELLOR)) == TRADE_CONTROL_MODE_CHANCELLOR and order.is_empty() and not chancellor_auto_trade_text.is_empty():
-		return chancellor_auto_trade_text
-	if order.is_empty():
-		if not recent_execution_text.is_empty():
-			return recent_execution_text
-		if not chancellor_auto_trade_text.is_empty():
-			return chancellor_auto_trade_text
-		return "수동 무역 명령\n저장된 명령 없음\n수동 조정에서 수입/수출 계획을 입력합니다."
-	var target_city_id := str(order.get("target_city_id", ""))
-	var preview: Variant = order.get("preview", {})
-	var preview_text := "예상 없음"
-	if preview is Dictionary:
-		preview_text = _format_manual_trade_nonzero_preview_summary(preview as Dictionary)
-	var lines := [
-		"수동 무역 명령",
-		"상대: %s" % _format_city_name_by_id(target_city_id, target_city_id),
-		"예상: %s" % preview_text,
-		"상태: 실행 대기",
-	]
-	if not recent_execution_text.is_empty():
-		lines.append("")
-		lines.append(recent_execution_text)
-	return "\n".join(lines)
 
 
 func _format_chancellor_external_auto_trade_result_summary(source_city_id: String) -> String:
@@ -5363,53 +5017,13 @@ func _format_chancellor_external_auto_trade_result_summary(source_city_id: Strin
 		return "최근 재상 대외무역\n%s ↔ %s\n%s" % [
 			_format_city_name_by_id(source_city_id, source_city_id),
 			_format_city_name_by_id(target_city_id, target_city_id),
-			_format_manual_trade_nonzero_preview_summary(applied),
+			_ensure_trade_presenter().format_manual_trade_nonzero_preview_summary(applied),
 		]
 	return "최근 재상 대외무역\n이번 턴 적용된 자동무역 없음"
 
 
-func _format_external_manual_trade_execution_result_summary(source_city_id: String) -> String:
-	var result_variant: Variant = _player_state.get("last_external_manual_trade_execution_result", {})
-	if not result_variant is Dictionary:
-		return ""
-	var result := result_variant as Dictionary
-	if result.is_empty() or str(result.get("source_city_id", "")) != source_city_id:
-		return ""
-	if not bool(result.get("ok", false)):
-		return "수동 무역 실행 실패\n%s" % str(result.get("message", "실행할 수 없습니다."))
-	var target_city_id := str(result.get("target_city_id", ""))
-	var applied_variant: Variant = result.get("applied", {})
-	var applied := {}
-	if applied_variant is Dictionary:
-		applied = (applied_variant as Dictionary).duplicate(true)
-	if result.has("efficiency"):
-		applied["efficiency"] = float(result.get("efficiency", 0.0))
-	return "최근 수동 무역 실행\n%s ↔ %s\n%s\n선택 성 창고에 반영되었습니다." % [
-		_format_city_name_by_id(source_city_id, source_city_id),
-		_format_city_name_by_id(target_city_id, target_city_id),
-		_format_manual_trade_nonzero_preview_summary(applied),
-	]
 
 
-func _format_manual_trade_nonzero_preview_summary(preview: Dictionary) -> String:
-	var parts: Array[String] = []
-	var gold_delta := int(preview.get("gold", 0))
-	if gold_delta != 0:
-		parts.append("금전 %s" % _format_signed_int(gold_delta))
-	for resource_id in MANUAL_TRADE_RESOURCE_ORDER:
-		var delta := int(preview.get(resource_id, 0))
-		if delta == 0:
-			continue
-		parts.append("%s %s" % [
-			str(RESOURCE_LABELS.get(resource_id, resource_id)),
-			_format_signed_int(delta),
-		])
-	if parts.is_empty():
-		return "금전 0"
-	var summary := " / ".join(parts)
-	if preview.has("efficiency") and float(preview.get("efficiency", 0.0)) > 0.0:
-		return "효율 x%.2f 적용 · %s" % [float(preview.get("efficiency", 0.0)), summary]
-	return summary
 
 
 func _format_external_trade_recent_summary(source_city_id: String, candidate_city_ids: Array[String]) -> String:
@@ -19546,28 +19160,6 @@ func _get_trade_market_price_snapshot_for_order(order: Dictionary) -> Dictionary
 	return snapshot
 
 
-func _format_trade_market_prices_for_external_trade_ui() -> String:
-	var result := _ensure_trade_market_for_current_turn()
-	var prices: Variant = result.get("prices", {})
-	if not prices is Dictionary:
-		return ""
-	var parts: Array[String] = []
-	for resource_id in ["rice", "barley", "seafood", "salt", "silk"]:
-		var entry_variant: Variant = (prices as Dictionary).get(resource_id, {})
-		if not entry_variant is Dictionary:
-			continue
-		var entry := entry_variant as Dictionary
-		var multiplier := float(entry.get("multiplier", 1.0))
-		var percent_delta := int(round((multiplier - 1.0) * 100.0))
-		var percent_text := ""
-		if percent_delta != 0:
-			percent_text = " (%s%%)" % _format_signed_int(percent_delta)
-		parts.append("%s %d%s" % [
-			str(entry.get("name", _get_trade_resource_display_name(resource_id))),
-			int(entry.get("price", _get_trade_market_price(resource_id))),
-			percent_text,
-		])
-	return "" if parts.is_empty() else "시장가: %s" % " / ".join(parts)
 
 
 func _create_empty_inter_faction_trade_totals() -> Dictionary:

@@ -2,97 +2,145 @@ class_name WorldMapTradeActionService
 extends RefCounted
 
 const TRADE_RESOURCE_ORDER := ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt"]
+const ACTION_NONE := "none"
+const ACTION_IMPORT := "import"
+const ACTION_EXPORT := "export"
+const EFFICIENCY_MIN := 0.25
+const EFFICIENCY_MAX := 2.0
 
 
-func execute(
-	host: Object,
-	_action_id: String,
-	_target_city_id: String,
-	source_city_id: String = ""
-) -> Dictionary:
-	if host == null:
-		return _failure("executor_unavailable", "교역 행동 실행기를 찾을 수 없습니다.")
-	if source_city_id.is_empty():
-		return _failure("missing_source", "교역 출발 도시를 확인할 수 없습니다.")
-	for method_name in [
-		"_validate_external_manual_trade_execution",
-		"_build_external_manual_trade_execution_preview",
-		"_get_city_owner_faction_id_for_trade_display",
-		"_get_city_storage",
-		"_get_city_hud_entry",
-		"_set_city_storage",
-		"_get_trade_efficiency_for_cities",
-		"_get_trade_market_price_snapshot_for_order",
-	]:
-		if not host.has_method(method_name):
-			return _failure("executor_unavailable", "교역 행동 처리기를 찾을 수 없습니다: %s" % method_name)
-
-	var raw_orders: Variant = host.get("_manual_trade_orders")
-	var orders: Dictionary = raw_orders if raw_orders is Dictionary else {}
-	var order_variant: Variant = orders.get(source_city_id, {})
-	var order: Dictionary = order_variant if order_variant is Dictionary else {}
-	var result := execute_order(host, order)
-
-	var raw_player_state: Variant = host.get("_player_state")
-	if raw_player_state is Dictionary:
-		var player_state := raw_player_state as Dictionary
-		player_state["last_external_manual_trade_execution_result"] = result.duplicate(true)
-		host.set("_player_state", player_state)
-	if bool(result.get("ok", false)):
-		orders.erase(source_city_id)
-		host.set("_manual_trade_orders", orders)
-	return result
-
-
-func execute_order(host: Object, order: Dictionary) -> Dictionary:
-	var validation_variant: Variant = host.call("_validate_external_manual_trade_execution", order)
-	if not validation_variant is Dictionary:
-		return _failure("invalid_validation", "교역 행동 조건을 확인할 수 없습니다.")
-	var validation := validation_variant as Dictionary
+func execute_order(adapter: Object, order: Dictionary, context: Dictionary) -> Dictionary:
+	if adapter == null or not adapter.has_method("set_city_storage"):
+		return _failure("missing_adapter", "교역 실행 API가 준비되지 않았습니다.")
+	var validation := validate_order(order, context)
 	if not bool(validation.get("ok", false)):
 		if not order.is_empty():
 			validation["source_city_id"] = str(order.get("source_city_id", ""))
 			validation["target_city_id"] = str(order.get("target_city_id", ""))
 		return validation
-
 	var source_city_id := str(order.get("source_city_id", ""))
 	var target_city_id := str(order.get("target_city_id", ""))
-	var target_faction_id := str(host.call("_get_city_owner_faction_id_for_trade_display", target_city_id))
-	var applied_variant: Variant = host.call("_build_external_manual_trade_execution_preview", order)
-	if not applied_variant is Dictionary:
-		return _failure("invalid_preview", "교역 적용값을 계산할 수 없습니다.")
-	var applied := applied_variant as Dictionary
-	var hud_entry: Variant = host.call("_get_city_hud_entry", source_city_id)
-	var storage_variant: Variant = host.call("_get_city_storage", source_city_id, hud_entry)
-	if not storage_variant is Dictionary:
+	var applied := build_preview(order, context)
+	var storage_variant: Variant = context.get("source_storage", {})
+	if not storage_variant is Dictionary or (storage_variant as Dictionary).is_empty():
 		return _failure("invalid_storage", "교역 출발 도시의 창고를 확인할 수 없습니다.")
-	var source_storage := storage_variant as Dictionary
+	var source_storage := (storage_variant as Dictionary).duplicate(true)
 	for resource_id in ["gold"] + TRADE_RESOURCE_ORDER:
 		var delta := int(applied.get(resource_id, 0))
-		if delta == 0:
-			continue
-		source_storage[resource_id] = maxi(0, int(source_storage.get(resource_id, 0)) + delta)
-	host.call("_set_city_storage", source_city_id, source_storage)
-	var efficiency := float(applied.get("efficiency", host.call("_get_trade_efficiency_for_cities", source_city_id, target_city_id)))
-	var raw_player_state: Variant = host.get("_player_state")
-	var player_state: Dictionary = raw_player_state if raw_player_state is Dictionary else {}
+		if delta != 0:
+			source_storage[resource_id] = maxi(0, int(source_storage.get(resource_id, 0)) + delta)
+	adapter.call("set_city_storage", source_city_id, source_storage)
 	return {
 		"ok": true,
 		"source_city_id": source_city_id,
 		"target_city_id": target_city_id,
-		"target_faction_id": target_faction_id,
+		"target_faction_id": str(context.get("target_faction_id", "")),
 		"applied": applied,
-		"efficiency": efficiency,
-		"market_turn": int(applied.get("market_turn", player_state.get("trade_market_turn", 0))),
-		"market_prices": host.call("_get_trade_market_price_snapshot_for_order", order),
+		"efficiency": float(applied.get("efficiency", context.get("efficiency", 0.0))),
+		"market_turn": int(applied.get("market_turn", context.get("market_turn", 0))),
+		"market_prices": (context.get("market_prices", {}) as Dictionary).duplicate(true),
 		"message": "수동 무역 실행 완료",
 	}
 
 
+func validate_order(order: Dictionary, context: Dictionary) -> Dictionary:
+	if order.is_empty():
+		return _failure("missing_order", "실행할 수동 무역 명령이 없습니다.")
+	var source_city_id := str(order.get("source_city_id", ""))
+	var target_city_id := str(order.get("target_city_id", ""))
+	if source_city_id.is_empty():
+		return _failure("source", "출발 성을 확인할 수 없습니다.")
+	if not bool(context.get("source_owned", false)):
+		return _failure("source_owner", "플레이어 소유 성에서만 실행할 수 있습니다.")
+	if target_city_id.is_empty():
+		return _failure("target", "교역 대상을 확인할 수 없습니다.")
+	if not bool(context.get("target_candidate", false)):
+		return _failure("target_invalid", "교역 대상이 더 이상 유효하지 않습니다.")
+	var source_faction_id := str(context.get("source_faction_id", ""))
+	var target_faction_id := str(context.get("target_faction_id", ""))
+	if source_faction_id.is_empty() or target_faction_id.is_empty() or source_faction_id == target_faction_id:
+		return _failure("faction", "교역 대상 세력을 확인할 수 없습니다.")
+	if not bool(context.get("can_trade", false)):
+		return _failure("relation", "현재 관계에서는 교역할 수 없습니다.")
+	var efficiency := float(context.get("efficiency", 0.0))
+	if efficiency <= 0.0:
+		return _failure("efficiency", "교역 효율을 확인할 수 없습니다.")
+	var orders_variant: Variant = order.get("orders", {})
+	if not orders_variant is Dictionary:
+		return _failure("orders", "실행할 수동 무역 명령이 없습니다.")
+	var prices: Dictionary = context.get("market_prices", {})
+	var source_storage: Dictionary = context.get("source_storage", {})
+	var total_import_gold_cost := 0
+	var has_actionable_item := false
+	for resource_id_variant in (orders_variant as Dictionary).keys():
+		var resource_id := str(resource_id_variant)
+		if not TRADE_RESOURCE_ORDER.has(resource_id):
+			return _failure("resource", "허용되지 않은 자원입니다.")
+		var item_variant: Variant = (orders_variant as Dictionary).get(resource_id, {})
+		if not item_variant is Dictionary:
+			return _failure("order_item", "수동 무역 명령 형식이 올바르지 않습니다.")
+		var action := str((item_variant as Dictionary).get("action", ACTION_NONE))
+		var amount := int((item_variant as Dictionary).get("amount", 0))
+		if amount < 0:
+			return _failure("amount", "수량은 0 이상이어야 합니다.")
+		if action == ACTION_NONE or amount <= 0:
+			continue
+		if not [ACTION_IMPORT, ACTION_EXPORT].has(action):
+			return _failure("action", "수동 무역 행동이 올바르지 않습니다.")
+		has_actionable_item = true
+		if action == ACTION_IMPORT:
+			total_import_gold_cost += calculate_import_cost(int(prices.get(resource_id, 0)), amount, efficiency)
+		elif amount > int(source_storage.get(resource_id, 0)):
+			return _failure("resource_shortage", "수출할 자원이 부족합니다.")
+	if not has_actionable_item:
+		return _failure("empty", "실행 가능한 자원 항목이 없습니다.")
+	if total_import_gold_cost > int(source_storage.get("gold", 0)):
+		return _failure("gold", "금전이 부족합니다.")
+	return {"ok": true}
+
+
+func build_preview(order: Dictionary, context: Dictionary) -> Dictionary:
+	var delta := {"gold": 0}
+	for resource_id in TRADE_RESOURCE_ORDER:
+		delta[resource_id] = 0
+	var efficiency := float(context.get("efficiency", 0.0))
+	delta["efficiency"] = efficiency
+	delta["market_turn"] = maxi(0, int(context.get("market_turn", 0)))
+	var orders_variant: Variant = order.get("orders", {})
+	if not orders_variant is Dictionary or efficiency <= 0.0:
+		return delta
+	var prices: Dictionary = context.get("market_prices", {})
+	for resource_id in TRADE_RESOURCE_ORDER:
+		var item_variant: Variant = (orders_variant as Dictionary).get(resource_id, {})
+		if not item_variant is Dictionary:
+			continue
+		var action := str((item_variant as Dictionary).get("action", ACTION_NONE))
+		var amount := maxi(0, int((item_variant as Dictionary).get("amount", 0)))
+		var price := int(prices.get(resource_id, 0))
+		if action == ACTION_IMPORT and amount > 0:
+			delta[resource_id] = amount
+			delta["gold"] = int(delta["gold"]) - calculate_import_cost(price, amount, efficiency)
+		elif action == ACTION_EXPORT and amount > 0:
+			delta[resource_id] = -amount
+			delta["gold"] = int(delta["gold"]) + calculate_export_gain(price, amount, efficiency)
+	return delta
+
+
+func calculate_import_cost(base_price: int, amount: int, efficiency: float) -> int:
+	if amount <= 0 or efficiency <= 0.0:
+		return 0
+	return maxi(0, ceili(float(maxi(0, base_price) * amount) / normalize_efficiency(efficiency)))
+
+
+func calculate_export_gain(base_price: int, amount: int, efficiency: float) -> int:
+	if amount <= 0 or efficiency <= 0.0:
+		return 0
+	return maxi(0, floori(float(maxi(0, base_price) * amount) * normalize_efficiency(efficiency)))
+
+
+func normalize_efficiency(efficiency: float) -> float:
+	return clampf(efficiency, EFFICIENCY_MIN, EFFICIENCY_MAX)
+
+
 func _failure(reason: String, message: String) -> Dictionary:
-	return {
-		"ok": false,
-		"success": false,
-		"reason": reason,
-		"message": message,
-	}
+	return {"ok": false, "success": false, "reason": reason, "message": message}

@@ -28,7 +28,7 @@ REQUIRED_TOKENS = {
     "city marker selection": "func _on_city_marker_selected",
     "diplomacy validation": "func _validate_diplomacy_action",
     "spy validation": "func _validate_spy_action",
-    "trade validation": "func _validate_external_manual_trade_execution",
+    "trade controller bridge": "func _ensure_trade_controller",
 }
 
 
