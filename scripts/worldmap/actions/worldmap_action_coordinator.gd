@@ -161,7 +161,6 @@ func _execute_domain_action(
 	target_city_id: String,
 	source_city_id: String
 ) -> Variant:
-	var host := get_parent()
 	match action_type:
 		"diplomacy":
 			if _diplomacy_controller == null:

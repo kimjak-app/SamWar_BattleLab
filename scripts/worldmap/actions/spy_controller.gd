@@ -20,6 +20,8 @@ var selected_city_id: String:
 	get:
 		return str(_host.get("selected_city_id"))
 
+# Accessed dynamically by SpyActionService through Object.get()/set().
+@warning_ignore("unused_private_class_variable")
 var _city_runtime_states: Dictionary:
 	get:
 		return _host.get("_city_runtime_states")

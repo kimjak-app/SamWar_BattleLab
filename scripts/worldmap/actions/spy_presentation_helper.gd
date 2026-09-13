@@ -131,8 +131,8 @@ func format_action_policy(city_marker) -> String:
 	var modifier := format_player_tech_modifier_summary(city_marker.city_id)
 	var cooldown := maxi(0, int(state.get("spy_cooldown", 0)))
 	if cooldown > 0:
-		var text := "첩보 대기 중\n%d턴 후 다시 실행 가능" % cooldown
-		return text if modifier.is_empty() else "%s\n%s" % [text, modifier]
+		var cooldown_text := "첩보 대기 중\n%d턴 후 다시 실행 가능" % cooldown
+		return cooldown_text if modifier.is_empty() else "%s\n%s" % [cooldown_text, modifier]
 	var check: Dictionary = _controller.call("validate_spy_action", "wedge", city_marker.city_id)
 	var text := "첩보 실행\n이간질: %s" % str(check.get("message", "조건 확인 필요"))
 	if bool(check.get("ok", false)): text = "첩보 실행\n이간질 대상 %s ↔ %s / 성공률 %d%%" % [_faction(str(check.get("target_faction_id", ""))), _faction(str(check.get("counterpart_faction_id", ""))), int(check.get("success_chance", 0))]
