@@ -15,7 +15,125 @@ BASE = "e066b59a28226de1e5f4680ae11b651926903361"
 PHASE_2B_BASE = "6b3bf867544cf6cbdd48ba7eed8be7f3e3ef3ded"
 PHASE_2C1_BASE = "b54dadcf7a586968c84ef185f9527231ef4646a4"
 PHASE_2C2_BASE = "9bd3a356d94d04a57b4d20533ca0603f017fc6ac"
+SERVICE_EXTRACTION_CHECKPOINT = "2ee28db607cc5b6f2060a3a3c2087b53b89188be"
 MAIN = "scripts/worldmap/worldmap_main.gd"
+SFX_REWIRED = {
+    "_on_city_marker_selected": (
+        'GameAudio.play_sfx("city_select")',
+        '_play_worldmap_sfx("city_select")',
+    ),
+    "_on_ally_turn_end_pressed": (
+        'GameAudio.play_sfx("turn_end")',
+        '_play_worldmap_sfx("turn_end")',
+    ),
+    "_show_domestic_tech_completion_card_mvp": (
+        'GameAudio.play_sfx("research")',
+        '_play_worldmap_sfx("research")',
+    ),
+}
+SERVICE_REWIRED = set("""
+_get_enemy_faction_personality_seed
+_get_enemy_faction_personality_profile_id
+_get_enemy_faction_personality_label
+_get_enemy_faction_behavior_weight
+_get_enemy_faction_personality_metadata
+_get_enemy_faction_strategic_goal_seed
+_get_enemy_faction_goal_id
+_get_enemy_faction_goal_label
+_get_enemy_faction_goal_pressure
+_get_enemy_faction_goal_weight
+_get_enemy_goal_target_city_ids
+_is_city_preferred_by_enemy_goal
+_is_city_adjacent_to_enemy_goal_target
+_get_enemy_faction_goal_metadata
+_normalize_enemy_pressure_type_mvp
+_should_skip_enemy_pressure_plan_mvp
+_build_enemy_pressure_plan_candidates_mvp
+_build_enemy_pressure_plan_candidate_for_faction_mvp
+_get_enemy_pressure_plan_target_city_ids_for_source_mvp
+_score_enemy_pressure_plan_candidate_mvp
+_sort_enemy_pressure_plan_candidates_mvp
+_pick_enemy_pressure_plan_mvp
+_normalize_enemy_pressure_plan_result_mvp
+_get_enemy_pressure_plan_for_scoring_mvp
+_is_enemy_pressure_plan_target_city_mvp
+_get_enemy_pressure_plan_score_bonus_mvp
+_is_enemy_frontline_city_for_faction
+_find_enemy_frontline_city_for_faction
+_pick_enemy_city_for_turn_action
+_score_enemy_reinforcement_city_for_personality
+_get_enemy_invasion_pairs_mvp
+_is_city_owner_consistent_for_enemy_invasion_mvp
+_is_enemy_invasion_pair_eligible_mvp
+_score_enemy_invasion_pair_mvp
+_sort_enemy_invasion_pairs_mvp
+_get_city_troops_for_enemy_invasion_mvp
+_is_player_frontline_city_for_enemy_invasion_mvp
+_apply_returned_battle_result_mvp
+_is_player_attack_battle_result
+_normalize_battle_result_hero_ids
+_is_enemy_invasion_battle_result
+_normalize_invasion_battle_result_kind
+_normalize_player_attack_battle_result_kind
+_get_invasion_result_city_id
+_build_invasion_result_summary
+_normalize_battle_hero_outcomes
+_get_player_troop_outcome_from_result
+_get_enemy_troop_outcome_from_result
+_calculate_player_attack_troop_outcome_fallback
+_calculate_invasion_casualty_result
+_resolve_invasion_remaining_troops
+_resolve_occupation_troops
+_clamp_invasion_troops
+_get_result_troop_value
+_is_supply_path_between
+_get_city_min_garrison
+_is_peacetime_for_troop_move
+_can_move_troops
+_move_troops
+_calculate_troop_move_arrived_amount
+_get_conscription_capacity_by_loyalty
+_get_city_conscription_available
+_get_conscription_turn_add_multiplier
+_apply_city_conscription_for_world_turn
+_get_recruitment_limit_by_loyalty
+_calculate_recruitment_cost
+_can_recruit_troops
+_recruit_troops
+_validate_pending_invasion_event_for_battle_context
+_build_battle_context_from_pending_invasion
+_build_player_attack_battle_context
+_build_player_attack_selected_roster_for_battle_context
+_build_selected_side_roster_for_battle_context
+_build_even_troop_allocation_for_heroes
+_build_command_limit_troop_allocation_for_heroes
+_apply_troop_allocation_to_roster
+_sum_troop_allocation
+_build_invasion_side_roster_for_battle_context
+_append_invasion_roster_hero_id
+_build_invasion_roster_result
+_get_reinforcement_candidate_city_ids_for_battle_context
+_are_factions_reinforcement_compatible
+_get_hero_city_id_for_battle_context
+_get_city_troops_for_battle_context
+_get_city_stationed_hero_ids_for_battle_context
+_get_city_battle_heroes_for_battle_context
+_apply_domestic_battle_tech_modifier_to_hero_data_mvp
+_get_hero_battle_data_for_battle_context
+_get_city_governor_id_for_battle_context
+_normalize_command_rank_mvp
+_get_hero_command_rank_for_city_mvp
+_get_hero_command_limit_for_city_mvp
+_get_hero_command_summary_for_city_mvp
+""".split())
+SERVICE_REMOVED = {
+    "_log_invasion_reinforcement_rule_summary",
+    "_get_hero_contract_nation_key",
+    "_get_hero_contract_portrait_path",
+    "_get_hero_contract_cutin_path",
+    "_format_hero_contract_skill_name",
+    "_format_hero_contract_skill_desc",
+}
 
 
 def original(path):
@@ -52,6 +170,7 @@ def main():
     check_main_boundaries()
     check_presentation_moves()
     before, after = functions(original(MAIN)), functions(current(MAIN))
+    service_checkpoint = functions(at_commit(SERVICE_EXTRACTION_CHECKPOINT, MAIN))
     trade_removed = {
         "_get_trade_control_mode_label", "_get_trade_control_hint",
         "_format_manual_trade_preview_summary", "_execute_external_manual_trade_order_legacy",
@@ -149,12 +268,28 @@ def main():
         spy_owned = name in SPY_MAIN_REMOVED or "spy" in name or "intel" in name or "revolt_instigation" in name or name in {"_normalize_city_intel_registry"}
         if spy_owned and name not in after:
             continue
-        if name in deleted | MAIN_REMOVED | trade_removed:
+        if name in deleted | MAIN_REMOVED | trade_removed | SERVICE_REMOVED:
             assert name not in after, f"dead diplomacy function retained: {name}"
             continue
         assert name in after, f"removed function: {name}"
         if not spy_owned and name not in bridges | CONTROLLER_FUNCTIONS | MAIN_REWIRED | trade_rewired:
-            assert after[name] == body, f"out-of-scope function changed: {name}"
+            if name in SFX_REWIRED:
+                old_call, new_call = SFX_REWIRED[name]
+                assert body.count(old_call) == 1, f"baseline SFX call contract changed: {name}"
+                expected_body = body.replace(old_call, new_call)
+                assert after[name] == expected_body, f"out-of-scope function changed beyond SFX routing: {name}"
+            elif name in SERVICE_REWIRED:
+                assert name in service_checkpoint, f"service checkpoint function missing: {name}"
+                assert after[name] == service_checkpoint[name], f"service extraction wrapper changed: {name}"
+            else:
+                assert after[name] == body, f"out-of-scope function changed: {name}"
+
+    worldmap_source = current(MAIN)
+    sfx_helper = after.get("_play_worldmap_sfx", "")
+    assert 'get_node_or_null("/root/GameAudio")' in sfx_helper, "worldmap SFX helper lost runtime autoload lookup"
+    assert "if game_audio != null:" in sfx_helper, "worldmap SFX helper lost null guard"
+    assert 'game_audio.call("play_sfx", sfx_id)' in sfx_helper, "worldmap SFX helper lost guarded play_sfx dispatch"
+    assert not re.search(r"\bGameAudio\s*\.", worldmap_source), "compile-time GameAudio reference added to worldmap main"
     phase_2c1 = functions(at_commit(PHASE_2C1_BASE, MAIN))
     for name in ["_calculate_military_support_acceptance_chance", "_request_military_support"]:
         assert after[name] == phase_2c1[name], f"2C-2 changed protected military function: {name}"
