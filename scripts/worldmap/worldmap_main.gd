@@ -23,6 +23,7 @@ const SpyPresentationHelperScript := preload("res://scripts/worldmap/actions/spy
 const MilitaryControllerScript := preload("res://scripts/worldmap/military/military_controller.gd")
 const EnemyWarfareServiceScript := preload("res://scripts/worldmap/military/enemy_warfare_service.gd")
 const BattleContextServiceScript := preload("res://scripts/worldmap/battle/battle_context_service.gd")
+const BattleResultServiceScript := preload("res://scripts/worldmap/battle/battle_result_service.gd")
 const UIFormatterHelpers := preload("res://scripts/worldmap/ui_formatter/ui_formatter_helpers.gd")
 const T03AutoBattleResolverScript := preload("res://scripts/worldmap/t03/auto_battle_resolver.gd")
 const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_outcome_rules.gd")
@@ -1025,6 +1026,7 @@ var _spy_presenter: SpyPresentationHelperScript = null
 var _military_controller: MilitaryControllerScript = null
 var _enemy_warfare_service: EnemyWarfareServiceScript = null
 var _battle_context_service: BattleContextServiceScript = null
+var _battle_result_service: BattleResultServiceScript = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
 var _pending_trade_action_id := ""
@@ -1835,6 +1837,37 @@ func _ensure_battle_context_service() -> BattleContextServiceScript:
 			}
 		)
 	return _battle_context_service
+
+
+func _ensure_battle_result_service() -> BattleResultServiceScript:
+	if _battle_result_service == null:
+		_battle_result_service = BattleResultServiceScript.new()
+		_battle_result_service.configure(
+			Callable(self, "_battle_result_query"),
+			{
+				"player_attack_context_source": PLAYER_ATTACK_CONTEXT_SOURCE,
+				"hero_id_compatibility": BATTLE_RESULT_HERO_ID_COMPATIBILITY,
+				"minimum_city_troops": INVASION_MIN_CITY_TROOPS,
+				"minimum_occupation_troops": INVASION_MIN_OCCUPATION_TROOPS,
+				"maximum_city_troops": INVASION_MAX_REASONABLE_CITY_TROOPS,
+				"defender_win_defender_loss_rate": INVASION_DEFENDER_WIN_DEFENDER_LOSS_RATE,
+				"defender_win_attacker_loss_rate": INVASION_DEFENDER_WIN_ATTACKER_LOSS_RATE,
+				"attacker_win_defender_loss_rate": INVASION_ATTACKER_WIN_DEFENDER_LOSS_RATE,
+				"attacker_win_attacker_loss_rate": INVASION_ATTACKER_WIN_ATTACKER_LOSS_RATE,
+			}
+		)
+	return _battle_result_service
+
+
+func _battle_result_query(query_id: String, args: Array) -> Variant:
+	match query_id:
+		"has_city": return _has_city_for_battle_context(str(args[0]))
+		"city_troops": return _get_city_troops_for_battle_context(str(args[0]))
+		"city_owner": return _get_city_owner_id_for_battle_context(str(args[0]))
+		"faction_label": return _format_faction_label(str(args[0]))
+		"player_faction": return _get_current_player_faction_id()
+		"has_hero": return not _get_hero_seed_entry(str(args[0])).is_empty()
+	return null
 
 
 func _battle_context_query(query_id: String, args: Array) -> Variant:
@@ -7582,6 +7615,7 @@ func _apply_returned_battle_result_mvp(result: Dictionary) -> void:
 	if str(result.get("transaction_id", "")).begins_with("t03-"):
 		_apply_t03_strategic_battle_result(result, true)
 		return
+	result["_settlement_plan"] = _ensure_battle_result_service().build_settlement_plan(result)
 	if _is_player_attack_battle_result(result):
 		_apply_player_attack_battle_result(result)
 		return
@@ -7589,10 +7623,7 @@ func _apply_returned_battle_result_mvp(result: Dictionary) -> void:
 
 
 func _is_player_attack_battle_result(result_payload: Dictionary) -> bool:
-	var source := str(result_payload.get("source", "")).to_lower()
-	var result_type := str(result_payload.get("type", "")).to_lower()
-	return source == PLAYER_ATTACK_CONTEXT_SOURCE or result_type.begins_with("attack")
-
+	return _ensure_battle_result_service()._is_player_attack_battle_result(result_payload)
 
 func _apply_player_attack_battle_result(result_payload: Dictionary) -> void:
 	if not str(result_payload.get("transaction_id", "")).is_empty():
@@ -7885,15 +7916,7 @@ func _move_hero_to_city_t02(hero_id: String, city_id: String) -> void:
 
 
 func _normalize_battle_result_hero_ids(raw_hero_ids: Variant) -> Array[String]:
-	if not raw_hero_ids is Array:
-		return []
-	var normalized_input: Array[String] = []
-	for raw_hero_id in raw_hero_ids:
-		var hero_id := str(raw_hero_id)
-		var worldmap_id := str(BATTLE_RESULT_HERO_ID_COMPATIBILITY.get(hero_id, hero_id))
-		normalized_input.append(worldmap_id)
-	return _normalize_hero_id_array(normalized_input)
-
+	return _ensure_battle_result_service()._normalize_battle_result_hero_ids(raw_hero_ids)
 
 func _refresh_wounded_treatment_controls() -> void:
 	if _wounded_fast_treatment_button == null or _wounded_treatment_hint_label == null:
@@ -8045,62 +8068,16 @@ func _format_battle_result_status(result: Dictionary) -> String:
 
 
 func _is_enemy_invasion_battle_result(result_payload: Dictionary) -> bool:
-	var source := str(result_payload.get("source", "")).to_lower()
-	var result_type := str(result_payload.get("type", "")).to_lower()
-	return source == "enemy_invasion" or result_type.begins_with("defense")
-
+	return _ensure_battle_result_service()._is_enemy_invasion_battle_result(result_payload)
 
 func _normalize_invasion_battle_result_kind(result_payload: Dictionary) -> String:
-	if result_payload.has("is_player_win") and result_payload.get("is_player_win") is bool:
-		return INVASION_RESULT_DEFENDER_WIN if bool(result_payload.get("is_player_win")) else INVASION_RESULT_ATTACKER_WIN
-	var result_tokens: Array[String] = []
-	for key in ["result", "battle_result", "outcome", "state"]:
-		if result_payload.has(key):
-			result_tokens.append(str(result_payload.get(key, "")).to_lower())
-	for token in result_tokens:
-		if ["player_win", "defender_win", "victory", "win"].has(token):
-			return INVASION_RESULT_DEFENDER_WIN
-		if ["player_loss", "attacker_win", "defeat", "lose", "loss"].has(token):
-			return INVASION_RESULT_ATTACKER_WIN
-		if ["retreat", "cancel", "cancelled", "canceled", "aborted"].has(token):
-			return INVASION_RESULT_RETREAT
-	var winner := str(result_payload.get("winner", "")).to_lower()
-	if ["defender", "player", "ally"].has(winner):
-		return INVASION_RESULT_DEFENDER_WIN
-	if ["attacker", "enemy"].has(winner):
-		return INVASION_RESULT_ATTACKER_WIN
-	return INVASION_RESULT_UNKNOWN
-
+	return _ensure_battle_result_service()._normalize_invasion_battle_result_kind(result_payload)
 
 func _normalize_player_attack_battle_result_kind(result_payload: Dictionary) -> String:
-	var winner := str(result_payload.get("winner", "")).to_lower()
-	if ["attacker", "player", "ally"].has(winner):
-		return INVASION_RESULT_ATTACKER_WIN
-	if ["defender", "enemy"].has(winner):
-		return INVASION_RESULT_DEFENDER_WIN
-	if result_payload.has("is_player_win") and result_payload.get("is_player_win") is bool:
-		return INVASION_RESULT_ATTACKER_WIN if bool(result_payload.get("is_player_win")) else INVASION_RESULT_DEFENDER_WIN
-	var result_tokens: Array[String] = []
-	for key in ["result", "battle_result", "outcome", "state"]:
-		if result_payload.has(key):
-			result_tokens.append(str(result_payload.get(key, "")).to_lower())
-	for token in result_tokens:
-		if ["player_win", "attacker_win", "victory", "win"].has(token):
-			return INVASION_RESULT_ATTACKER_WIN
-		if ["player_loss", "defender_win", "defeat", "lose", "loss"].has(token):
-			return INVASION_RESULT_DEFENDER_WIN
-		if ["retreat", "cancel", "cancelled", "canceled", "aborted"].has(token):
-			return INVASION_RESULT_RETREAT
-	return INVASION_RESULT_UNKNOWN
-
+	return _ensure_battle_result_service()._normalize_player_attack_battle_result_kind(result_payload)
 
 func _get_invasion_result_city_id(result_payload: Dictionary, keys: Array[String]) -> String:
-	for key in keys:
-		var city_id := str(result_payload.get(key, ""))
-		if not city_id.is_empty():
-			return city_id
-	return ""
-
+	return _ensure_battle_result_service()._get_invasion_result_city_id(result_payload, keys)
 
 func _build_invasion_result_summary(
 	result_kind: String,
@@ -8114,65 +8091,7 @@ func _build_invasion_result_summary(
 	message_title: String,
 	leading_lines: Array
 ) -> Dictionary:
-	var defender_before := int(casualty_result.get("defender_before", _get_city_troops_for_battle_context(defender_city_id)))
-	var defender_after := _get_city_troops_for_battle_context(defender_city_id)
-	var attacker_before := int(casualty_result.get("attacker_before", _get_city_troops_for_battle_context(attacker_city_id)))
-	var attacker_after := _get_city_troops_for_battle_context(attacker_city_id)
-	var occupied_city_troops := int(casualty_result.get("occupied_city_troops", 0))
-	var normalized_old_owner := old_owner
-	var normalized_new_owner := new_owner
-	if normalized_old_owner.is_empty() and not defender_city_id.is_empty():
-		normalized_old_owner = _get_city_owner_id_for_battle_context(defender_city_id)
-	if normalized_new_owner.is_empty():
-		normalized_new_owner = normalized_old_owner
-	var owner_changed := not normalized_old_owner.is_empty() and not normalized_new_owner.is_empty() and normalized_old_owner != normalized_new_owner
-	var message_lines: Array[String] = []
-	for line_variant in leading_lines:
-		var line := str(line_variant)
-		if not line.is_empty():
-			message_lines.append(line)
-	if owner_changed:
-		message_lines.append("소유권: %s → %s" % [_format_faction_label(normalized_old_owner), _format_faction_label(normalized_new_owner)])
-	else:
-		var owner_label := _format_faction_label(normalized_new_owner)
-		message_lines.append("소유권: 유지%s" % (" (%s)" % owner_label if not owner_label.is_empty() else ""))
-	if not defender_city_id.is_empty() and _has_city_for_battle_context(defender_city_id):
-		message_lines.append("도시 병력: %d → %d" % [defender_before, defender_after])
-	if not attacker_city_id.is_empty() and _has_city_for_battle_context(attacker_city_id):
-		message_lines.append("공격 출발지 %s 병력: %d → %d" % [attacker_city_name, attacker_before, attacker_after])
-	if occupied_city_troops > 0:
-		message_lines.append("점령 병력: %d" % occupied_city_troops)
-	var summary := {
-		"result": result_kind,
-		"city_id": defender_city_id,
-		"city_name": defender_city_name,
-		"old_owner": normalized_old_owner,
-		"new_owner": normalized_new_owner,
-		"owner_changed": owner_changed,
-		"defender_city_troops_before": defender_before,
-		"defender_city_troops_after": defender_after,
-		"attacker_source_city_id": attacker_city_id,
-		"attacker_source_city_name": attacker_city_name,
-		"attacker_source_troops_before": attacker_before,
-		"attacker_source_troops_after": attacker_after,
-		"occupied_city_troops": occupied_city_troops,
-		"message_title": message_title,
-		"message_lines": message_lines,
-	}
-	print("[INVASION_RESULT_SUMMARY] result=%s city=%s owner=%s->%s city_troops=%d->%d attacker_city=%s attacker_troops=%d->%d occupied=%d" % [
-		result_kind,
-		defender_city_id,
-		normalized_old_owner,
-		normalized_new_owner,
-		defender_before,
-		defender_after,
-		attacker_city_id,
-		attacker_before,
-		attacker_after,
-		occupied_city_troops
-	])
-	return summary
-
+	return _ensure_battle_result_service()._build_invasion_result_summary(result_kind, defender_city_id, attacker_city_id, defender_city_name, attacker_city_name, old_owner, new_owner, casualty_result, message_title, leading_lines)
 
 func _format_invasion_result_status_from_summary(summary: Dictionary) -> String:
 	var title := str(summary.get("message_title", "전투 결과"))
@@ -8183,22 +8102,7 @@ func _format_invasion_result_status_from_summary(summary: Dictionary) -> String:
 
 
 func _normalize_battle_hero_outcomes(raw_outcomes: Variant) -> Dictionary:
-	var normalized := {}
-	if not raw_outcomes is Dictionary:
-		return normalized
-	for key_variant in (raw_outcomes as Dictionary).keys():
-		var raw_value: Variant = (raw_outcomes as Dictionary).get(key_variant, {})
-		if not raw_value is Dictionary:
-			continue
-		var outcome := (raw_value as Dictionary).duplicate(true)
-		var raw_hero_id := str(outcome.get("hero_id", key_variant))
-		var hero_id := str(BATTLE_RESULT_HERO_ID_COMPATIBILITY.get(raw_hero_id, raw_hero_id))
-		if hero_id.is_empty():
-			continue
-		outcome["hero_id"] = hero_id
-		normalized[hero_id] = outcome
-	return normalized
-
+	return _ensure_battle_result_service()._normalize_battle_hero_outcomes(raw_outcomes)
 
 func _apply_explicit_battle_hero_outcomes(result_payload: Dictionary) -> Dictionary:
 	var wounded_hero_ids: Array[String] = []
@@ -8631,130 +8535,28 @@ func _apply_player_attack_loss_result(defender_city_id: String, attacker_city_id
 
 
 func _get_player_troop_outcome_from_result(result_payload: Dictionary) -> Dictionary:
-	var raw_outcome: Variant = result_payload.get("player_troop_outcome", {})
-	if raw_outcome is Dictionary:
-		return (raw_outcome as Dictionary).duplicate(true)
-	var allocated := maxi(0, int(result_payload.get("attacker_total_allocated_troops", result_payload.get("attacker_troops", 0))))
-	var did_win := _normalize_player_attack_battle_result_kind(result_payload) == INVASION_RESULT_ATTACKER_WIN
-	return _calculate_player_attack_troop_outcome_fallback(allocated, maxi(0, int(result_payload.get("attacker_surviving_troops", 0))), did_win)
-
+	return _ensure_battle_result_service()._get_player_troop_outcome_from_result(result_payload)
 
 func _get_enemy_troop_outcome_from_result(result_payload: Dictionary) -> Dictionary:
-	var raw_outcome: Variant = result_payload.get("enemy_troop_outcome", {})
-	if raw_outcome is Dictionary:
-		return (raw_outcome as Dictionary).duplicate(true)
-	var allocated := maxi(0, int(result_payload.get("defender_total_allocated_troops", result_payload.get("defender_troops", 0))))
-	var did_win := _normalize_player_attack_battle_result_kind(result_payload) == INVASION_RESULT_DEFENDER_WIN
-	return _calculate_player_attack_troop_outcome_fallback(allocated, maxi(0, int(result_payload.get("defender_surviving_troops", 0))), did_win)
-
+	return _ensure_battle_result_service()._get_enemy_troop_outcome_from_result(result_payload)
 
 func _calculate_player_attack_troop_outcome_fallback(allocated: int, raw_survivors: int, did_win: bool) -> Dictionary:
-	var safe_allocated := maxi(0, int(allocated))
-	var survivors := mini(safe_allocated, maxi(0, int(raw_survivors))) if did_win else 0
-	var losses := maxi(0, safe_allocated - survivors)
-	var wounded := int(floor(float(losses) * 0.30)) if did_win else int(floor(float(safe_allocated) * 0.50))
-	wounded = clampi(wounded, 0, safe_allocated)
-	var dead := maxi(0, safe_allocated - survivors - wounded)
-	return {
-		"allocated": safe_allocated,
-		"survivors": survivors,
-		"losses": losses,
-		"wounded": wounded,
-		"dead": dead,
-	}
-
+	return _ensure_battle_result_service()._calculate_player_attack_troop_outcome_fallback(allocated, raw_survivors, did_win)
 
 func _calculate_invasion_casualty_result(result_kind: String, defender_city_id: String, attacker_city_id: String, result_payload: Dictionary) -> Dictionary:
-	var defender_before := _clamp_invasion_troops(_get_city_troops_for_battle_context(defender_city_id))
-	var attacker_before := _clamp_invasion_troops(_get_city_troops_for_battle_context(attacker_city_id))
-	if defender_city_id.is_empty() or not _has_city_for_battle_context(defender_city_id):
-		print("[INVASION_CASUALTY] result=%s reason=missing_defender_city defender_city=%s" % [result_kind, defender_city_id])
-		return {
-			"attacker_before": attacker_before,
-			"defender_before": defender_before,
-			"attacker_remaining_troops": attacker_before,
-			"defender_remaining_troops": defender_before,
-			"occupied_city_troops": 0,
-			"attacker_source_remaining_troops": attacker_before,
-			"attacker_loss": 0,
-			"defender_loss": 0,
-		}
-	var attacker_payload_survivors := _get_result_troop_value(result_payload, ["attacker_surviving_troops", "attacker_remaining_troops", "enemy_surviving_troops"], -1)
-	var defender_payload_survivors := _get_result_troop_value(result_payload, ["defender_surviving_troops", "defender_remaining_troops", "player_surviving_troops"], -1)
-	var attacker_remaining := attacker_before
-	var defender_remaining := defender_before
-	var occupied_city_troops := 0
-	var attacker_source_remaining := attacker_before
-	match result_kind:
-		INVASION_RESULT_DEFENDER_WIN:
-			defender_remaining = _resolve_invasion_remaining_troops(defender_before, defender_payload_survivors, INVASION_DEFENDER_WIN_DEFENDER_LOSS_RATE, INVASION_MIN_CITY_TROOPS)
-			attacker_remaining = _resolve_invasion_remaining_troops(attacker_before, attacker_payload_survivors, INVASION_DEFENDER_WIN_ATTACKER_LOSS_RATE, 0)
-			attacker_source_remaining = attacker_remaining
-		INVASION_RESULT_ATTACKER_WIN:
-			defender_remaining = _resolve_invasion_remaining_troops(defender_before, defender_payload_survivors, INVASION_ATTACKER_WIN_DEFENDER_LOSS_RATE, 0)
-			attacker_remaining = _resolve_invasion_remaining_troops(attacker_before, attacker_payload_survivors, INVASION_ATTACKER_WIN_ATTACKER_LOSS_RATE, 0)
-			occupied_city_troops = _resolve_occupation_troops(attacker_remaining, attacker_before, result_payload)
-			attacker_source_remaining = _clamp_invasion_troops(maxi(0, attacker_remaining - occupied_city_troops))
-		_:
-			pass
-	var result := {
-		"attacker_before": attacker_before,
-		"defender_before": defender_before,
-		"attacker_remaining_troops": attacker_remaining,
-		"defender_remaining_troops": defender_remaining,
-		"occupied_city_troops": occupied_city_troops,
-		"attacker_source_remaining_troops": attacker_source_remaining,
-		"attacker_loss": maxi(0, attacker_before - attacker_remaining),
-		"defender_loss": maxi(0, defender_before - defender_remaining),
-	}
-	print("[INVASION_CASUALTY] result=%s attacker=%d->%d loss=%d defender=%d->%d loss=%d occupied=%d source_remaining=%d" % [
-		result_kind,
-		attacker_before,
-		attacker_remaining,
-		int(result.get("attacker_loss", 0)),
-		defender_before,
-		defender_remaining,
-		int(result.get("defender_loss", 0)),
-		occupied_city_troops,
-		attacker_source_remaining
-	])
-	return result
-
+	return _ensure_battle_result_service()._calculate_invasion_casualty_result(result_kind, defender_city_id, attacker_city_id, result_payload)
 
 func _resolve_invasion_remaining_troops(before_troops: int, payload_survivors: int, loss_rate: float, minimum_when_present: int) -> int:
-	var before := _clamp_invasion_troops(before_troops)
-	if before <= 0:
-		return 0
-	var remaining := payload_survivors
-	if remaining < 0:
-		remaining = int(round(float(before) * (1.0 - clampf(loss_rate, 0.0, 1.0))))
-	remaining = clampi(_clamp_invasion_troops(remaining), 0, before)
-	if minimum_when_present > 0:
-		remaining = clampi(maxi(minimum_when_present, remaining), 0, before)
-	return remaining
-
+	return _ensure_battle_result_service()._resolve_invasion_remaining_troops(before_troops, payload_survivors, loss_rate, minimum_when_present)
 
 func _resolve_occupation_troops(attacker_remaining: int, attacker_before: int, result_payload: Dictionary) -> int:
-	var remaining := _clamp_invasion_troops(attacker_remaining)
-	if remaining <= 0:
-		var fallback_source := _get_result_troop_value(result_payload, ["attacker_troops", "enemy_troops"], attacker_before)
-		remaining = _resolve_invasion_remaining_troops(fallback_source, -1, INVASION_ATTACKER_WIN_ATTACKER_LOSS_RATE, 0)
-	if remaining <= 0:
-		return INVASION_MIN_OCCUPATION_TROOPS
-	var occupation_troops := maxi(INVASION_MIN_OCCUPATION_TROOPS, int(round(float(remaining) * 0.60)))
-	return _clamp_invasion_troops(occupation_troops)
-
+	return _ensure_battle_result_service()._resolve_occupation_troops(attacker_remaining, attacker_before, result_payload)
 
 func _clamp_invasion_troops(troops: int) -> int:
-	return clampi(int(troops), 0, INVASION_MAX_REASONABLE_CITY_TROOPS)
-
+	return _ensure_battle_result_service()._clamp_invasion_troops(troops)
 
 func _get_result_troop_value(result_payload: Dictionary, keys: Array[String], fallback: int) -> int:
-	for key in keys:
-		if result_payload.has(key):
-			return _clamp_invasion_troops(int(result_payload.get(key, fallback)))
-	return fallback
-
+	return _ensure_battle_result_service()._get_result_troop_value(result_payload, keys, fallback)
 
 func _set_city_runtime_owner(city_id: String, owner_id: String) -> void:
 	if city_id.is_empty() or owner_id.is_empty():
