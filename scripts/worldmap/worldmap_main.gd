@@ -20,6 +20,7 @@ const TradeControllerScript := preload("res://scripts/worldmap/actions/trade_con
 const TradePresentationHelperScript := preload("res://scripts/worldmap/actions/trade_presentation_helper.gd")
 const SpyControllerScript := preload("res://scripts/worldmap/actions/spy_controller.gd")
 const SpyPresentationHelperScript := preload("res://scripts/worldmap/actions/spy_presentation_helper.gd")
+const MilitaryControllerScript := preload("res://scripts/worldmap/military/military_controller.gd")
 const UIFormatterHelpers := preload("res://scripts/worldmap/ui_formatter/ui_formatter_helpers.gd")
 const T03AutoBattleResolverScript := preload("res://scripts/worldmap/t03/auto_battle_resolver.gd")
 const TurnOutcomeRulesScript := preload("res://scripts/worldmap/t04_t05/turn_outcome_rules.gd")
@@ -406,7 +407,6 @@ const SUPPLY_SECURITY_BONUS := 1
 const SUPPLY_SECURITY_PENALTY := -1
 const SUPPLY_UPKEEP_DISCOUNT_PER_CITY := 0.03
 const SUPPLY_UPKEEP_DISCOUNT_FLOOR := 0.85
-const TROOP_MOVE_MIN_GARRISON_RATIO := 0.6
 const ROLE_TARGET_GARRISON_RATIO := {
 	"hub": 0.006,
 	"rear": 0.006,
@@ -1020,6 +1020,7 @@ var _trade_controller: TradeControllerScript = null
 var _trade_presenter: TradePresentationHelperScript = null
 var _spy_controller: SpyControllerScript = null
 var _spy_presenter: SpyPresentationHelperScript = null
+var _military_controller: MilitaryControllerScript = null
 var _pending_diplomacy_action_id := ""
 var _pending_spy_action_id := ""
 var _pending_trade_action_id := ""
@@ -1300,6 +1301,12 @@ func _get_current_player_faction_id() -> String:
 
 func _get_game_session() -> Node:
 	return get_node_or_null("/root/GameSession")
+
+
+func _play_worldmap_sfx(sfx_id: String) -> void:
+	var game_audio := get_node_or_null("/root/GameAudio")
+	if game_audio != null:
+		game_audio.call("play_sfx", sfx_id)
 
 
 func _initialize_korea_mvp_new_game(faction_id: String) -> void:
@@ -1716,7 +1723,7 @@ func _connect_city_markers() -> void:
 
 
 func _on_city_marker_selected(city_marker: WorldMapCityMarker) -> void:
-	GameAudio.play_sfx("city_select")
+	_play_worldmap_sfx("city_select")
 	if selected_city_marker != null and selected_city_marker != city_marker:
 		selected_city_marker.set_selected(false)
 	if selected_city_marker != city_marker:
@@ -1778,6 +1785,13 @@ func _ensure_spy_presenter() -> SpyPresentationHelperScript:
 		_spy_presenter = SpyPresentationHelperScript.new()
 		_spy_presenter.configure(self, _ensure_spy_controller())
 	return _spy_presenter
+
+
+func _ensure_military_controller() -> MilitaryControllerScript:
+	if _military_controller == null:
+		_military_controller = MilitaryControllerScript.new()
+		_military_controller.configure(self)
+	return _military_controller
 
 
 func _ensure_diplomacy_action_coordinator() -> WorldMapActionCoordinator:
@@ -5437,7 +5451,7 @@ func _on_ally_turn_end_pressed() -> void:
 		"stage": "enemy_actions",
 		"started": true,
 	}
-	GameAudio.play_sfx("turn_end")
+	_play_worldmap_sfx("turn_end")
 	_domestic_turn_apply_pending = true
 	_player_state["domestic_apply_pending"] = true
 	_set_turn_phase(TURN_PHASE_ENEMY)
@@ -9067,240 +9081,43 @@ func _set_city_runtime_troops(city_id: String, troops: int) -> void:
 
 
 func _is_supply_path_between(from_id: String, to_id: String) -> bool:
-	if from_id.is_empty() or to_id.is_empty():
-		return false
-	if from_id == to_id:
-		return true
-	if not _is_city_owned_by_player_mvp(from_id) or not _is_city_owned_by_player_mvp(to_id):
-		return false
-	var visited := {}
-	var queue: Array[String] = [from_id]
-	while not queue.is_empty():
-		var current_city_id := str(queue.pop_front())
-		if current_city_id == to_id:
-			return true
-		if visited.has(current_city_id):
-			continue
-		visited[current_city_id] = true
-		var city_marker := _city_markers_by_id.get(current_city_id) as WorldMapCityMarker
-		if city_marker == null:
-			continue
-		for neighbor_id_variant in city_marker.neighbors:
-			var neighbor_id := str(neighbor_id_variant)
-			if visited.has(neighbor_id):
-				continue
-			if not _is_city_owned_by_player_mvp(neighbor_id):
-				continue
-			queue.append(neighbor_id)
-	return false
+	return _ensure_military_controller().is_supply_path_between(from_id, to_id)
 
 
 func _get_city_min_garrison(city_id: String) -> int:
-	var city_data := _get_city_hud_entry(city_id)
-	if city_data.is_empty():
-		return 0
-	return maxi(0, int(round(float(_get_city_security_required_troops(city_data)) * TROOP_MOVE_MIN_GARRISON_RATIO)))
+	return _ensure_military_controller().get_city_min_garrison(city_id)
 
 
 func _is_peacetime_for_troop_move() -> bool:
-	if _enemy_turn_mvp_pending:
-		return false
-	if _has_pending_invasion_event_mvp():
-		return false
-	if not _get_pending_battle_context_mvp().is_empty():
-		return false
-	if Engine.has_meta(WORLDMAP_BATTLE_CONTEXT_META_KEY):
-		return false
-	if _normalize_turn_phase(str(_player_state.get("turn_phase", TURN_PHASE_PLAYER))) != TURN_PHASE_PLAYER:
-		return false
-	return true
+	return _ensure_military_controller().is_peacetime_for_troop_move()
 
 
 func _can_move_troops(from_id: String, to_id: String, amount: int) -> Dictionary:
-	if amount <= 0:
-		return {"ok": false, "reason": "amount"}
-	if from_id == to_id:
-		return {"ok": false, "reason": "same_city"}
-	if not _is_city_owned_by_player_mvp(from_id) or not _is_city_owned_by_player_mvp(to_id):
-		return {"ok": false, "reason": "ownership"}
-	if not _is_peacetime_for_troop_move():
-		return {"ok": false, "reason": "not_peacetime"}
-	if not _is_supply_path_between(from_id, to_id):
-		return {"ok": false, "reason": "no_supply_path"}
-	var from_troops := _get_city_troops_for_battle_context(from_id)
-	var min_keep := _get_city_min_garrison(from_id)
-	if from_troops - amount < min_keep:
-		return {
-			"ok": false,
-			"reason": "min_garrison",
-			"min_keep": min_keep,
-			"from_troops": from_troops,
-		}
-	return {"ok": true, "min_keep": min_keep}
+	return _ensure_military_controller().can_move_troops(from_id, to_id, amount)
 
 
 func _move_troops(from_id: String, to_id: String, amount: int) -> bool:
-	var validation := _can_move_troops(from_id, to_id, amount)
-	if not bool(validation.get("ok", false)):
-		_player_state["last_troop_move_result"] = {
-			"ok": false,
-			"from": from_id,
-			"to": to_id,
-			"amount": amount,
-			"commanded_amount": amount,
-			"turn": maxi(1, int(_player_state.get("turn_number", 1))),
-			"reason": str(validation.get("reason", "")),
-		}
-		return false
-	var total_before := _get_world_city_troop_total()
-	var from_troops := _get_city_troops_for_battle_context(from_id)
-	var to_troops := _get_city_troops_for_battle_context(to_id)
-	var commanded_amount := amount
-	var departed_amount := commanded_amount
-	var from_loyalty := _get_city_loyalty_value(_get_city_hud_entry(from_id))
-	var arrived_amount := _calculate_troop_move_arrived_amount(commanded_amount, from_loyalty)
-	var lost_amount := maxi(0, departed_amount - arrived_amount)
-	var from_after := from_troops - departed_amount
-	var to_after := to_troops + arrived_amount
-	_set_city_runtime_troops(from_id, from_after)
-	_set_city_runtime_troops(to_id, to_after)
-	var total_after := _get_world_city_troop_total()
-	_player_state["last_troop_move_result"] = {
-		"ok": true,
-		"from": from_id,
-		"to": to_id,
-		"amount": amount,
-		"commanded_amount": commanded_amount,
-		"departed_amount": departed_amount,
-		"arrived_amount": arrived_amount,
-		"lost_amount": lost_amount,
-		"from_loyalty": from_loyalty,
-		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
-		"from_after": from_after,
-		"to_after": to_after,
-		"total_before": total_before,
-		"total_after": total_after,
-		"total_loss": total_before - total_after,
-	}
-	print("[TROOP_MOVE] from=%s to=%s commanded=%d departed=%d arrived=%d lost=%d loyalty=%d from_after=%d to_after=%d total=%d->%d" % [
-		from_id,
-		to_id,
-		commanded_amount,
-		departed_amount,
-		arrived_amount,
-		lost_amount,
-		from_loyalty,
-		from_after,
-		to_after,
-		total_before,
-		total_after,
-	])
-	return true
+	return _ensure_military_controller().move_troops(from_id, to_id, amount)
 
 
 func _calculate_troop_move_arrived_amount(commanded_amount: int, from_loyalty: int) -> int:
-	var safe_amount := maxi(0, commanded_amount)
-	var safe_loyalty := clampi(from_loyalty, 0, 100)
-	return maxi(0, int(floor(float(safe_amount) * float(safe_loyalty) / 100.0)))
+	return _ensure_military_controller().calculate_troop_move_arrived_amount(commanded_amount, from_loyalty)
 
 
 func _get_conscription_capacity_by_loyalty(city_id: String) -> int:
-	var city_data := _get_city_hud_entry(city_id)
-	if city_data.is_empty():
-		return 0
-	var loyalty := _get_city_loyalty_value(city_data)
-	var population := maxi(0, int(city_data.get("population", 0)))
-	var ratio := 0.05
-	if loyalty < 20:
-		ratio = 0.0
-	elif loyalty < 40:
-		ratio = 0.05
-	elif loyalty < 60:
-		ratio = 0.10
-	elif loyalty < 80:
-		ratio = 0.20
-	elif loyalty < 90:
-		ratio = 0.30
-	elif loyalty < 100:
-		ratio = 0.40
-	else:
-		ratio = 0.50
-	return maxi(0, int(floor(float(population) * ratio)))
+	return _ensure_military_controller().get_conscription_capacity_by_loyalty(city_id)
 
 
 func _get_city_conscription_available(city_id: String) -> int:
-	var capacity := _get_conscription_capacity_by_loyalty(city_id)
-	var current_troops := _get_city_troops_for_battle_context(city_id)
-	return maxi(0, capacity - current_troops)
+	return _ensure_military_controller().get_city_conscription_available(city_id)
 
 
 func _get_conscription_turn_add_multiplier() -> float:
-	return 1.10 if _is_national_tech_completed("conscription_system") else 1.0
+	return _ensure_military_controller().get_conscription_turn_add_multiplier()
 
 
 func _apply_city_conscription_for_world_turn() -> Dictionary:
-	var result := {
-		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
-		"applied": false,
-		"city_results": {},
-	}
-	if not _is_peacetime_for_troop_move():
-		result["reason"] = "not_peacetime"
-		_player_state["last_conscription_result"] = result
-		return result
-	var owned_city_ids: Variant = _player_state.get("owned_city_ids", [])
-	if not owned_city_ids is Array:
-		_player_state["last_conscription_result"] = result
-		return result
-	result["applied"] = true
-	for city_id_variant in owned_city_ids:
-		var city_id := str(city_id_variant)
-		if not _is_city_owned_by_player_mvp(city_id):
-			continue
-		var city_data := _get_city_hud_entry(city_id)
-		if city_data.is_empty():
-			continue
-		var loyalty := _get_city_loyalty_value(city_data)
-		var population := maxi(0, int(city_data.get("population", 0)))
-		var capacity := _get_conscription_capacity_by_loyalty(city_id)
-		var available_before := _get_city_conscription_available(city_id)
-		var before_troops := _get_city_troops_for_battle_context(city_id)
-		var reason := ""
-		var base_add := mini(available_before, 100)
-		var added := mini(available_before, int(floor(float(base_add) * _get_conscription_turn_add_multiplier())))
-		if not _is_city_tech_completed(city_id, "barracks"):
-			reason = "barracks_required"
-			added = 0
-		var after_troops := before_troops + added
-		if added > 0:
-			_set_city_runtime_troops(city_id, after_troops)
-		var city_result := {
-			"loyalty": loyalty,
-			"population": population,
-			"capacity": capacity,
-			"available_before": available_before,
-			"before_troops": before_troops,
-			"after_troops": after_troops,
-			"added": added,
-			"base_add": base_add,
-			"multiplier": _get_conscription_turn_add_multiplier(),
-			"reason": reason,
-		}
-		(result["city_results"] as Dictionary)[city_id] = city_result
-		print("[CONSCRIPT_WORLD_TURN] city=%s loyalty=%d population=%d capacity=%d available=%d added=%d troops=%d->%d" % [
-			city_id,
-			loyalty,
-			population,
-			capacity,
-			available_before,
-			added,
-			before_troops,
-			after_troops,
-		])
-	_player_state["last_conscription_result"] = result
-	if not (result["city_results"] as Dictionary).is_empty():
-		_refresh_city_hud_data_bindings()
-	return result
+	return _ensure_military_controller().apply_city_conscription_for_world_turn()
 
 
 func _get_city_recruitment_summary(city_id: String) -> Dictionary:
@@ -9394,24 +9211,11 @@ func _is_city_tech_completed_for_display(city_id: String, tech_id: String) -> bo
 
 
 func _get_recruitment_limit_by_loyalty(city_id: String) -> int:
-	var loyalty := _get_city_loyalty_value(_get_city_hud_entry(city_id))
-	if loyalty >= 90:
-		return 500
-	if loyalty >= 80:
-		return 300
-	if loyalty >= 60:
-		return 200
-	if loyalty >= 40:
-		return 100
-	return 0
+	return _ensure_military_controller().get_recruitment_limit_by_loyalty(city_id)
 
 
 func _calculate_recruitment_cost(amount: int) -> Dictionary:
-	var safe_amount := maxi(0, amount)
-	return {
-		"gold": safe_amount,
-		"food": int(floor(float(safe_amount) / 2.0)),
-	}
+	return _ensure_military_controller().calculate_recruitment_cost(amount)
 
 
 func _get_total_recruitment_food_stock() -> int:
@@ -9580,79 +9384,11 @@ func _apply_recruitment_cost(cost: Dictionary) -> Dictionary:
 
 
 func _can_recruit_troops(city_id: String, amount: int) -> Dictionary:
-	if not _is_city_owned_by_player_mvp(city_id):
-		return {"ok": false, "reason": "ownership"}
-	if amount <= 0 or amount % 100 != 0:
-		return {"ok": false, "reason": "amount"}
-	if not _is_peacetime_for_troop_move():
-		return {"ok": false, "reason": "not_peacetime"}
-	var public_support := _get_city_public_support(city_id)
-	var loyalty := _get_city_loyalty_value(_get_city_hud_entry(city_id))
-	var limit := _get_recruitment_limit_by_loyalty(city_id)
-	if loyalty < 40:
-		return {"ok": false, "reason": "loyalty", "limit": limit, "loyalty_limit": limit, "publicSupport": public_support, "loyalty": loyalty}
-	if amount > limit:
-		return {"ok": false, "reason": "loyalty_limit", "limit": limit, "loyalty_limit": limit, "publicSupport": public_support, "loyalty": loyalty}
-	var cost := _calculate_recruitment_cost(amount)
-	if not _can_pay_recruitment_cost(cost):
-		return {"ok": false, "reason": "resources", "cost": cost, "limit": limit, "loyalty_limit": limit, "publicSupport": public_support, "loyalty": loyalty}
-	return {
-		"ok": true,
-		"cost": cost,
-		"limit": limit,
-		"loyalty_limit": limit,
-		"publicSupport": public_support,
-		"loyalty": loyalty,
-	}
+	return _ensure_military_controller().can_recruit_troops(city_id, amount)
 
 
 func _recruit_troops(city_id: String, amount: int) -> bool:
-	var validation := _can_recruit_troops(city_id, amount)
-	if not bool(validation.get("ok", false)):
-		_player_state["last_recruitment_result"] = {
-			"ok": false,
-			"city_id": city_id,
-			"amount": amount,
-			"turn": maxi(1, int(_player_state.get("turn_number", 1))),
-			"reason": str(validation.get("reason", "")),
-			"publicSupport": validation.get("publicSupport", _get_city_public_support(city_id)),
-			"loyalty": validation.get("loyalty", _get_city_loyalty_value(_get_city_hud_entry(city_id))),
-			"loyalty_limit": validation.get("loyalty_limit", validation.get("limit", _get_recruitment_limit_by_loyalty(city_id))),
-			"cost": validation.get("cost", _calculate_recruitment_cost(amount)),
-		}
-		return false
-	var before_support := _get_city_public_support(city_id)
-	var before_loyalty := _get_city_loyalty_value(_get_city_hud_entry(city_id))
-	var before_troops := _get_city_troops_for_battle_context(city_id)
-	var cost: Dictionary = validation.get("cost", {})
-	var paid_cost := _apply_recruitment_cost(cost)
-	var after_troops := before_troops + amount
-	_set_city_runtime_troops(city_id, after_troops)
-	_player_state["last_recruitment_result"] = {
-		"ok": true,
-		"city_id": city_id,
-		"amount": amount,
-		"cost": cost,
-		"paid_cost": paid_cost,
-		"publicSupport": before_support,
-		"loyalty": before_loyalty,
-		"loyalty_limit": int(validation.get("loyalty_limit", validation.get("limit", _get_recruitment_limit_by_loyalty(city_id)))),
-		"before_troops": before_troops,
-		"after_troops": after_troops,
-		"turn": maxi(1, int(_player_state.get("turn_number", 1))),
-	}
-	print("[RECRUIT_TROOPS] city=%s amount=%d publicSupport=%d loyalty=%d troops=%d->%d cost=%s paid=%s" % [
-		city_id,
-		amount,
-		before_support,
-		before_loyalty,
-		before_troops,
-		after_troops,
-		str(cost),
-		str(paid_cost),
-	])
-	_refresh_city_hud_data_bindings()
-	return true
+	return _ensure_military_controller().recruit_troops(city_id, amount)
 
 
 func _get_national_tech_definitions() -> Dictionary:
@@ -14426,7 +14162,7 @@ func _show_domestic_tech_completion_card_mvp(item: Dictionary) -> void:
 		_domestic_tech_completion_effect_label.text = "효과\n- %s" % str(item.get("effect_summary", "내정 연구 효과 범위가 표시됩니다."))
 	if _domestic_tech_completion_card != null:
 		_domestic_tech_completion_card.visible = true
-		GameAudio.play_sfx("research")
+		_play_worldmap_sfx("research")
 	if _domestic_tech_completion_confirm_button != null:
 		_domestic_tech_completion_confirm_button.call_deferred("grab_focus")
 
