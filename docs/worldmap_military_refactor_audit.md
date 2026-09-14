@@ -1,10 +1,10 @@
 # WorldMap M-0 audit and M-1 military move specification
 
-Date: 2026-09-14  
-Repository: `C:/dev/SamWar_BattleLab`  
-Branch: `recovery/worldmap-iso-sfx-services-20260912`  
-Baseline HEAD: `277bb846decb47f9977e72b58e36c0e1ff3ff765`  
-Origin: `origin/recovery/worldmap-iso-sfx-services-20260912`, fetched and `0 ahead / 0 behind`  
+Date: 2026-09-14
+Repository: `C:/dev/SamWar_BattleLab`
+Branch: `recovery/worldmap-iso-sfx-services-20260912`
+Baseline HEAD: `277bb846decb47f9977e72b58e36c0e1ff3ff765`
+Origin: `origin/recovery/worldmap-iso-sfx-services-20260912`, fetched and `0 ahead / 0 behind`
 Initial working tree: clean
 
 ## M-0 declaration inventory
