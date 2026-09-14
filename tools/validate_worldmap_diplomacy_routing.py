@@ -62,6 +62,15 @@ def main():
         "_normalize_chancellor_auto_trade_section_payload", "_format_external_trade_manual_order_summary",
         "_format_external_manual_trade_execution_result_summary",
         "_format_manual_trade_nonzero_preview_summary", "_format_trade_market_prices_for_external_trade_ui",
+        # Trade Phase 2 implementation moved from main to Trade-owned services.
+        "_record_chancellor_auto_trade_result", "_get_player_owned_city_ids_for_chancellor_auto_trade",
+        "_get_chancellor_auto_trade_resource_priority", "_get_chancellor_auto_trade_resource_cap",
+        "_has_chancellor_auto_trade_cap_aptitude", "_get_chancellor_auto_trade_target_min",
+        "_get_chancellor_auto_trade_surplus_buffer", "_apply_chancellor_internal_auto_trade",
+        "_get_chancellor_internal_auto_trade_target_demands", "_select_chancellor_internal_auto_trade_source",
+        "_apply_chancellor_external_auto_trade", "_get_chancellor_external_tradeable_candidate_city_ids",
+        "_build_empty_chancellor_external_delta", "_is_chancellor_external_delta_empty",
+        "_apply_chancellor_external_export", "_apply_chancellor_external_import",
     }
     trade_rewired = {
         "_ensure_diplomacy_action_coordinator", "_apply_city_detail_tab_content",
@@ -73,6 +82,9 @@ def main():
         "_normalize_manual_trade_orders", "_normalize_trade_result_payload",
         "_normalize_chancellor_auto_trade_result_payload", "_sync_trade_persistence_to_player_state",
         "_restore_trade_persistence_from_player_state", "_format_chancellor_external_auto_trade_result_summary",
+        # Trade Phase 2 extracts automatic/internal rules behind thin main bridges.
+        "_apply_chancellor_auto_trade_for_world_turn",
+        "_validate_internal_trade_transfer", "_apply_internal_trade_transfer",
     }
     deleted = {
         "_get_player_relation_target_faction_from_key",
@@ -101,6 +113,8 @@ def main():
         "_apply_spy_action", "_on_spy_action_pressed",
         "_execute_external_manual_trade_order",
         "_on_manual_trade_execution_button_pressed",
+        "_apply_chancellor_auto_trade_for_world_turn",
+        "_validate_internal_trade_transfer", "_apply_internal_trade_transfer",
         # Phase 2A moves diplomacy validation/pure calculations.
         "_get_diplomacy_action_definition",
         "_validate_diplomacy_action",

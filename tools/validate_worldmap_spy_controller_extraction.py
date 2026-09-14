@@ -99,11 +99,10 @@ def main():
     assert "func apply_spy_relation_delta(" in diplomacy_controller
     assert "func break_alliance_for_spy_wedge(" in diplomacy_controller
 
-    # Existing Diplomacy/Trade Services and Military/Battle production remain frozen.
+    # Existing Diplomacy, manual Trade Service/presenter, and Military/Battle production remain frozen.
     for path in [
         "scripts/worldmap/actions/diplomacy_action_service.gd",
         "scripts/worldmap/actions/trade_action_service.gd",
-        "scripts/worldmap/actions/trade_controller.gd",
         "scripts/worldmap/actions/trade_presentation_helper.gd",
         "scripts/worldmap/ui/worldmap_action_presentation_controller.gd",
     ]:
@@ -114,7 +113,7 @@ def main():
             assert new_main[name] == old_main[name], f"Military/Battle boundary changed: {name}"
 
     subprocess.run(["python", "tools/validate_worldmap_main_integrity.py"], cwd=ROOT, check=True, capture_output=True)
-    print("PASS: Spy Controller/Service/Presenter ownership; Diplomacy boundary explicit; Trade/Military/Battle frozen")
+    print("PASS: Spy Controller/Service/Presenter ownership; Diplomacy boundary explicit; manual Trade service/presenter and Military/Battle frozen")
 
 
 if __name__ == "__main__":

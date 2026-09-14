@@ -2,6 +2,8 @@ class_name WorldMapTradeController
 extends RefCounted
 
 const TradeActionServiceScript := preload("res://scripts/worldmap/actions/trade_action_service.gd")
+const TradeAutomationServiceScript := preload("res://scripts/worldmap/actions/trade_automation_service.gd")
+const InternalTradeTransferServiceScript := preload("res://scripts/worldmap/actions/internal_trade_transfer_service.gd")
 const TRADE_CONTROL_MODE_CHANCELLOR := "chancellor"
 const TRADE_CONTROL_MODE_MANUAL := "manual"
 const INTERNAL_TRADE_TAB := "internal_trade"
@@ -9,7 +11,9 @@ const EXTERNAL_TRADE_TAB := "external_trade"
 const RESOURCE_DISPLAY_ORDER := ["rice", "barley", "seafood", "wood", "iron", "horses", "silk", "salt", "gold"]
 
 var _host: Node
-var _service = TradeActionServiceScript.new()
+var _action_service = TradeActionServiceScript.new()
+var _automation_service = TradeAutomationServiceScript.new()
+var _internal_transfer_service = InternalTradeTransferServiceScript.new()
 
 
 func configure(host: Node) -> void:
@@ -23,17 +27,17 @@ func execute(_action_id: String, _target_city_id: String, source_city_id: String
 
 
 func execute_order(order: Dictionary) -> Dictionary:
-	var result := _service.execute_order(self, order, _build_external_manual_trade_execution_context(order))
+	var result := _action_service.execute_order(self, order, _build_external_manual_trade_execution_context(order))
 	_record_manual_trade_execution_result(order, result)
 	return result
 
 
 func validate_external_manual_trade_execution(order: Dictionary) -> Dictionary:
-	return _service.validate_order(order, _build_external_manual_trade_execution_context(order))
+	return _action_service.validate_order(order, _build_external_manual_trade_execution_context(order))
 
 
 func build_external_manual_trade_execution_preview(order: Dictionary) -> Dictionary:
-	return _service.build_preview(order, _build_external_manual_trade_execution_context(order))
+	return _action_service.build_preview(order, _build_external_manual_trade_execution_context(order))
 
 
 func get_trade_efficiency_for_cities(source_city_id: String, target_city_id: String) -> float:
@@ -43,15 +47,27 @@ func get_trade_efficiency_for_cities(source_city_id: String, target_city_id: Str
 	var target_faction_id := _get_city_owner_faction_id_for_trade_display(target_city_id)
 	if not _can_trade_between_factions(source_faction_id, target_faction_id):
 		return 0.0
-	return _service.normalize_efficiency(_get_trade_relation_multiplier(source_faction_id, target_faction_id))
+	return _action_service.normalize_efficiency(_get_trade_relation_multiplier(source_faction_id, target_faction_id))
 
 
 func calculate_trade_import_cost(resource_id: String, amount: int, efficiency: float) -> int:
-	return _service.calculate_import_cost(_get_trade_market_price(resource_id), amount, efficiency)
+	return _action_service.calculate_import_cost(_get_trade_market_price(resource_id), amount, efficiency)
 
 
 func calculate_trade_export_gain(resource_id: String, amount: int, efficiency: float) -> int:
-	return _service.calculate_export_gain(_get_trade_market_price(resource_id), amount, efficiency)
+	return _action_service.calculate_export_gain(_get_trade_market_price(resource_id), amount, efficiency)
+
+
+func run_chancellor_auto_trade(turn_number: int) -> Dictionary:
+	return _automation_service.run_chancellor_auto_trade(self, turn_number)
+
+
+func validate_internal_transfer(source_city_id: String, target_city_id: String, amounts: Dictionary) -> Dictionary:
+	return _internal_transfer_service.validate_transfer(self, source_city_id, target_city_id, amounts)
+
+
+func execute_internal_transfer(source_city_id: String, target_city_id: String, amounts: Dictionary) -> Dictionary:
+	return _internal_transfer_service.execute_transfer(self, source_city_id, target_city_id, amounts)
 
 
 func get_manual_trade_order(source_city_id: String) -> Dictionary:
@@ -258,6 +274,10 @@ func _get_player_state() -> Dictionary:
 	return value as Dictionary if value is Dictionary else {}
 
 
+func get_player_state() -> Dictionary:
+	return _get_player_state()
+
+
 func _set_player_state(value: Dictionary) -> void:
 	_host.set("_player_state", value)
 
@@ -275,6 +295,10 @@ func _is_city_owned_by_player(city_id: String) -> bool:
 	return bool(_host.call("_is_city_owned_by_player_mvp", city_id))
 
 
+func is_city_owned_by_player(city_id: String) -> bool:
+	return _is_city_owned_by_player(city_id)
+
+
 func _get_external_trade_candidate_city_ids(source_city_id: String) -> Array[String]:
 	var value: Variant = _host.call("_get_external_trade_candidate_city_ids", source_city_id)
 	var result: Array[String] = []
@@ -284,12 +308,24 @@ func _get_external_trade_candidate_city_ids(source_city_id: String) -> Array[Str
 	return result
 
 
+func get_external_trade_candidate_city_ids(source_city_id: String) -> Array[String]:
+	return _get_external_trade_candidate_city_ids(source_city_id)
+
+
 func _get_city_owner_faction_id_for_trade_display(city_id: String) -> String:
 	return str(_host.call("_get_city_owner_faction_id_for_trade_display", city_id))
 
 
+func get_city_owner_faction_id(city_id: String) -> String:
+	return _get_city_owner_faction_id_for_trade_display(city_id)
+
+
 func _can_trade_between_factions(source_faction_id: String, target_faction_id: String) -> bool:
 	return bool(_host.call("_can_trade_between_factions", source_faction_id, target_faction_id))
+
+
+func can_trade_between_factions(source_faction_id: String, target_faction_id: String) -> bool:
+	return _can_trade_between_factions(source_faction_id, target_faction_id)
 
 
 func _get_trade_relation_multiplier(source_faction_id: String, target_faction_id: String) -> float:
@@ -306,6 +342,10 @@ func _get_city_storage(city_id: String, city_data: Dictionary) -> Dictionary:
 	return value as Dictionary if value is Dictionary else {}
 
 
+func get_city_storage(city_id: String) -> Dictionary:
+	return _get_city_storage(city_id, _get_city_hud_entry(city_id))
+
+
 func set_city_storage(city_id: String, storage: Dictionary) -> void:
 	_host.call("_set_city_storage", city_id, storage)
 
@@ -317,6 +357,81 @@ func _get_trade_market_price_snapshot_for_order(order: Dictionary) -> Dictionary
 
 func _get_trade_market_price(resource_id: String) -> int:
 	return int(_host.call("_get_trade_market_price", resource_id))
+
+
+func get_trade_market_turn() -> int:
+	return maxi(0, int(_get_player_state().get("trade_market_turn", 0)))
+
+
+func get_trade_market_price_snapshot_for_delta(delta: Dictionary) -> Dictionary:
+	var value: Variant = _host.call("_get_trade_market_price_snapshot_for_delta", delta)
+	return value as Dictionary if value is Dictionary else {}
+
+
+func get_current_player_faction_id() -> String:
+	return str(_host.call("_get_current_player_faction_id"))
+
+
+func get_hero_entry(hero_id: String) -> Dictionary:
+	var value: Variant = _host.call("_get_hero_entry", hero_id)
+	return value as Dictionary if value is Dictionary else {}
+
+
+func normalize_chancellor_policy_id(policy_id: String) -> String:
+	return str(_host.call("_normalize_chancellor_policy_id", policy_id))
+
+
+func is_chancellor_trade_mode_enabled(tab_id: String) -> bool:
+	var raw_modes: Variant = _host.get("_trade_control_modes")
+	var modes: Dictionary = raw_modes if raw_modes is Dictionary else {}
+	return str(modes.get(tab_id, TRADE_CONTROL_MODE_CHANCELLOR)) == TRADE_CONTROL_MODE_CHANCELLOR
+
+
+func get_player_owned_city_ids_for_trade() -> Array[String]:
+	var result: Array[String] = []
+	var owned_city_ids: Variant = _get_player_state().get("owned_city_ids", [])
+	if not owned_city_ids is Array:
+		return result
+	for city_id_variant in owned_city_ids:
+		var city_id := str(city_id_variant)
+		if not city_id.is_empty() and not result.has(city_id) and _is_city_owned_by_player(city_id):
+			result.append(city_id)
+	return result
+
+
+func get_internal_trade_connected_player_city_ids(source_city_id: String) -> Array[String]:
+	var result: Array[String] = []
+	if source_city_id.is_empty() or not _is_city_owned_by_player(source_city_id):
+		return result
+	var raw_markers: Variant = _host.get("_city_markers_by_id")
+	if not raw_markers is Dictionary:
+		return result
+	var marker: Variant = (raw_markers as Dictionary).get(source_city_id)
+	if marker == null:
+		return result
+	var neighbors: Variant = marker.get("neighbors")
+	if not neighbors is Array:
+		return result
+	for neighbor_id_variant in neighbors:
+		var neighbor_id := str(neighbor_id_variant)
+		if not neighbor_id.is_empty() and _is_city_owned_by_player(neighbor_id) and not result.has(neighbor_id):
+			result.append(neighbor_id)
+	return result
+
+
+func record_internal_trade_transfer_result(result: Dictionary) -> void:
+	var state := _get_player_state()
+	state["last_internal_trade_transfer_result"] = result.duplicate(true)
+	_set_player_state(state)
+
+
+func record_chancellor_auto_trade_result(result: Dictionary) -> void:
+	var state := _get_player_state()
+	var safe_turn := maxi(1, int(result.get("turn", state.get("turn_number", 1))))
+	result["turn"] = safe_turn
+	state["last_chancellor_auto_trade_result"] = result.duplicate(true)
+	state["last_chancellor_auto_trade_turn"] = safe_turn
+	_set_player_state(state)
 
 
 func _has_worldmap_city(city_id: String) -> bool:
