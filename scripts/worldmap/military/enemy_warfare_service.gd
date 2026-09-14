@@ -20,9 +20,9 @@ func get_personality_seed(faction_id: String) -> Dictionary:
 	var default_seed := _dictionary(_personality_seeds.get("default", {})).duplicate(true)
 	if faction_id.is_empty() or faction_id == _player_faction():
 		return default_seed
-	var seed := _dictionary(_personality_seeds.get(faction_id, default_seed))
-	for key in seed:
-		default_seed[key] = seed[key]
+	var faction_seed := _dictionary(_personality_seeds.get(faction_id, default_seed))
+	for key in faction_seed:
+		default_seed[key] = faction_seed[key]
 	return default_seed
 
 
@@ -48,9 +48,9 @@ func get_goal_seed(faction_id: String) -> Dictionary:
 	var default_seed := _dictionary(_goal_seeds.get("default", {})).duplicate(true)
 	if faction_id.is_empty() or faction_id == _player_faction():
 		return default_seed
-	var seed := _dictionary(_goal_seeds.get(faction_id, default_seed))
-	for key in seed:
-		default_seed[key] = seed[key]
+	var faction_seed := _dictionary(_goal_seeds.get(faction_id, default_seed))
+	for key in faction_seed:
+		default_seed[key] = faction_seed[key]
 	return default_seed
 
 
